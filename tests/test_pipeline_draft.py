@@ -71,6 +71,8 @@ def test_draft_chapter_happy_path(tmp_path):
     assert (project.chapter_dir(1) / "validation_v1.json").exists()
     assert project.bible.data["events"][-1]["chapter_index"] == 1
     assert project.bible.data["realized_tension"] == [4]
+    assert result.total_input_tokens == 79
+    assert result.total_output_tokens == 96
 
 
 def test_draft_chapter_fail_then_pass_path(tmp_path):

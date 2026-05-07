@@ -134,3 +134,38 @@ def test_cli_accept_promotes_latest_draft(tmp_path):
     assert (chapter_dir / "final.md").read_text(encoding="utf-8") == "v2 final"
     bible = json.loads((target / "bible.json").read_text(encoding="utf-8"))
     assert bible["realized_tension"] == [4]
+
+
+def test_cli_retry_continues_from_latest_failed_draft(tmp_path):
+    target = tmp_path / "novel"
+    main(["init", str(target), "--from", str(SAMPLE_YAML)])
+
+    chapter_dir = target / "chapters" / "01"
+    chapter_dir.mkdir(parents=True, exist_ok=True)
+    (chapter_dir / "outline.yaml").write_text(_outline_yaml(), encoding="utf-8")
+    for version in range(1, 4):
+        (chapter_dir / f"draft_v{version}.md").write_text(f"old v{version}", encoding="utf-8")
+        validation = {
+            "chapter_index": 1,
+            "iteration": version,
+            "passed": False,
+            "findings": [
+                {
+                    "critic": "contract",
+                    "severity": "error",
+                    "rule": "forbidden_trope:chosen_one_prophecy",
+                    "evidence": "prophecy framing",
+                    "requested_change": "remove prophecy framing",
+                }
+            ],
+        }
+        (chapter_dir / f"validation_v{version}.json").write_text(json.dumps(validation), encoding="utf-8")
+
+    scripted = [LLMResponse(text="findings: []", input_tokens=1, output_tokens=1) for _ in range(7)]
+    with _patch_client(scripted):
+        rc = main(["retry", str(target), "1", "--max-iterations", "1"])
+
+    assert rc == 0
+    assert (chapter_dir / "draft_v1.md").read_text(encoding="utf-8") == "old v1"
+    assert (chapter_dir / "draft_v4.md").exists()
+    assert (chapter_dir / "validation_v4.json").exists()

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from threading import Lock
 from typing import Any, Callable
 
 import yaml
@@ -13,7 +14,7 @@ from auteur.bible import StoryBible
 from auteur.blueprint import PlanningCall, StoryBlueprint
 from auteur.cartographer import render_cartographer_prompt
 from auteur.critic import ValidationReport, run_critics
-from auteur.llm import LLMClient, LLMRequest
+from auteur.llm import LLMClient, LLMRequest, LLMResponse
 
 
 CARTOGRAPHER_TEMPERATURE = 0.4
@@ -39,6 +40,21 @@ class DraftResult:
     total_output_tokens: int
 
 
+class _CountingClient:
+    def __init__(self, inner: LLMClient):
+        self._inner = inner
+        self._lock = Lock()
+        self.input_tokens = 0
+        self.output_tokens = 0
+
+    def complete(self, req: LLMRequest) -> LLMResponse:
+        resp = self._inner.complete(req)
+        with self._lock:
+            self.input_tokens += resp.input_tokens
+            self.output_tokens += resp.output_tokens
+        return resp
+
+
 class PipelineRunner:
     def __init__(self, blueprint: StoryBlueprint, bible: StoryBible | None = None):
         self.blueprint = blueprint
@@ -57,22 +73,32 @@ class PipelineRunner:
         project: Any,
         max_iterations: int = 3,
         on_iteration: Callable[[int, ValidationReport], None] | None = None,
+        initial_outline: dict[str, Any] | None = None,
+        start_iteration: int = 1,
+        prior_draft: str | None = None,
+        prior_findings: list[Any] | None = None,
     ) -> DraftResult:
+        if max_iterations < 1:
+            raise ValueError("max_iterations must be at least 1.")
+        if start_iteration < 1:
+            raise ValueError("start_iteration must be at least 1.")
         if self.bible is None:
             raise ValueError("PipelineRunner needs a StoryBible to draft chapters.")
         bible = self.bible
+        counted_llm = _CountingClient(llm)
 
-        plan = self.plan_chapter(chapter_index)
-        cart_resp = llm.complete(LLMRequest(
-            system=plan.system_prompt,
-            user=plan.user_message,
-            temperature=CARTOGRAPHER_TEMPERATURE,
-            max_tokens=CARTOGRAPHER_MAX_TOKENS,
-        ))
-        outline = _parse_outline_yaml(cart_resp.text)
-        project.write_outline(chapter_index, outline)
-        total_in = cart_resp.input_tokens
-        total_out = cart_resp.output_tokens
+        if initial_outline is None:
+            plan = self.plan_chapter(chapter_index)
+            cart_resp = counted_llm.complete(LLMRequest(
+                system=plan.system_prompt,
+                user=plan.user_message,
+                temperature=CARTOGRAPHER_TEMPERATURE,
+                max_tokens=CARTOGRAPHER_MAX_TOKENS,
+            ))
+            outline = _parse_outline_yaml(cart_resp.text)
+            project.write_outline(chapter_index, outline)
+        else:
+            outline = initial_outline
 
         if outline.get("conflict_report"):
             return DraftResult(
@@ -82,21 +108,19 @@ class PipelineRunner:
                 final_path=None,
                 last_validation=None,
                 conflict_report=outline["conflict_report"],
-                total_input_tokens=total_in,
-                total_output_tokens=total_out,
+                total_input_tokens=counted_llm.input_tokens,
+                total_output_tokens=counted_llm.output_tokens,
             )
 
-        prior_draft: str | None = None
-        prior_findings: list[Any] | None = None
         last_report: ValidationReport | None = None
 
-        for i in range(1, max_iterations + 1):
+        for i in range(start_iteration, start_iteration + max_iterations):
             prose = bard_draft(
                 outline=outline,
                 bible=bible,
                 blueprint=self.blueprint,
                 chapter_index=chapter_index,
-                llm=llm,
+                llm=counted_llm,
                 prior_draft=prior_draft,
                 findings=prior_findings,
             )
@@ -109,7 +133,7 @@ class PipelineRunner:
                 bible=bible,
                 chapter_index=chapter_index,
                 iteration=i,
-                llm=llm,
+                llm=counted_llm,
             )
             project.write_validation(chapter_index, i, report)
             last_report = report
@@ -135,8 +159,8 @@ class PipelineRunner:
                     final_path=final_path,
                     last_validation=report,
                     conflict_report=None,
-                    total_input_tokens=total_in,
-                    total_output_tokens=total_out,
+                    total_input_tokens=counted_llm.input_tokens,
+                    total_output_tokens=counted_llm.output_tokens,
                 )
 
             prior_draft = prose
@@ -149,8 +173,8 @@ class PipelineRunner:
             final_path=None,
             last_validation=last_report,
             conflict_report=None,
-            total_input_tokens=total_in,
-            total_output_tokens=total_out,
+            total_input_tokens=counted_llm.input_tokens,
+            total_output_tokens=counted_llm.output_tokens,
         )
 
 

@@ -11,6 +11,7 @@ Subcommands:
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 from typing import Any
@@ -18,6 +19,7 @@ from typing import Any
 import yaml
 
 from auteur.blueprint import StoryBlueprint
+from auteur.critic import ValidationReport
 from auteur.llm import LLMClient
 from auteur.pipeline import PipelineRunner
 from auteur.project import Project
@@ -141,7 +143,7 @@ def _cmd_draft(
 def _cmd_accept(project_path: Path, chapter_index: int) -> int:
     project = Project.load(project_path)
     chapter_dir = project.chapter_dir(chapter_index)
-    drafts = sorted(chapter_dir.glob("draft_v*.md"), key=lambda p: int(p.stem.removeprefix("draft_v")))
+    drafts = _sorted_drafts(chapter_dir)
     if not drafts:
         print(f"No drafts found in {chapter_dir}", file=sys.stderr)
         return 1
@@ -173,7 +175,82 @@ def _cmd_retry(
     provider: str,
     model: str | None,
 ) -> int:
-    return _cmd_draft(project_path, chapter_index, max_iterations, provider, model)
+    project = Project.load(project_path)
+    chapter_dir = project.chapter_dir(chapter_index)
+
+    outline_path = chapter_dir / "outline.yaml"
+    if not outline_path.exists():
+        print(f"No outline found in {chapter_dir}; run auteur draft first.", file=sys.stderr)
+        return 1
+    outline = yaml.safe_load(outline_path.read_text(encoding="utf-8"))
+    if not isinstance(outline, dict):
+        print(f"Invalid outline file: {outline_path}", file=sys.stderr)
+        return 1
+
+    drafts = _sorted_drafts(chapter_dir)
+    if not drafts:
+        print(f"No drafts found in {chapter_dir}; run auteur draft first.", file=sys.stderr)
+        return 1
+    latest = drafts[-1]
+    latest_version = _draft_version(latest)
+
+    validation_path = chapter_dir / f"validation_v{latest_version}.json"
+    if not validation_path.exists():
+        print(f"No validation found for {latest.name}: {validation_path}", file=sys.stderr)
+        return 1
+    try:
+        previous_report = ValidationReport.model_validate(
+            json.loads(validation_path.read_text(encoding="utf-8"))
+        )
+    except (json.JSONDecodeError, ValueError) as exc:
+        print(f"Invalid validation file {validation_path}: {exc}", file=sys.stderr)
+        return 1
+
+    client = _build_client(provider, model)
+    runner = PipelineRunner(project.blueprint, bible=project.bible)
+
+    def _progress(i: int, report: Any) -> None:
+        if report.passed:
+            status = "PASSED"
+        else:
+            errors = sum(1 for f in report.findings if f.severity == "error")
+            status = f"FAILED ({errors} errors)"
+        print(f"  iteration {i}: {status}")
+
+    result = runner.draft_chapter(
+        chapter_index,
+        llm=client,
+        project=project,
+        max_iterations=max_iterations,
+        on_iteration=_progress,
+        initial_outline=outline,
+        start_iteration=latest_version + 1,
+        prior_draft=latest.read_text(encoding="utf-8"),
+        prior_findings=previous_report.findings,
+    )
+
+    if result.conflict_report is not None:
+        print(f"CONFLICT: {result.conflict_report}", file=sys.stderr)
+        print(f"  See {outline_path} for details.", file=sys.stderr)
+        return 3
+    if result.accepted:
+        print(f"ACCEPTED on iteration {result.iterations}.")
+        print(f"  final.md: {result.final_path}")
+        print(f"  tokens: {result.total_input_tokens} in / {result.total_output_tokens} out")
+        return 0
+    print(f"NOT ACCEPTED after iteration {result.iterations}.", file=sys.stderr)
+    print(f"  Latest draft and validation kept on disk.", file=sys.stderr)
+    print(f"  Edit manually then: auteur accept {project_path} {chapter_index}", file=sys.stderr)
+    print(f"  Or:                  auteur retry {project_path} {chapter_index}", file=sys.stderr)
+    return 2
+
+
+def _draft_version(path: Path) -> int:
+    return int(path.stem.removeprefix("draft_v"))
+
+
+def _sorted_drafts(chapter_dir: Path) -> list[Path]:
+    return sorted(chapter_dir.glob("draft_v*.md"), key=_draft_version)
 
 
 def _build_client(provider: str, model: str | None) -> LLMClient:
