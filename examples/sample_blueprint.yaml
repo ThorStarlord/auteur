@@ -1,0 +1,124 @@
+identity:
+  title: "The Shattered Crown"
+  author_intent: "A grimdark epic about a hero who succeeds at his quest by becoming the thing he hunted."
+  length_class: epic_novel
+  genre: grimdark_fantasy
+  subgenre: grimdark
+  target_audience: adult
+  pov_type: third_person_limited_multiple
+
+structure:
+  estimated_chapters: 45
+  act_structure: three_act
+
+contract:
+  content_rating: R
+  explicit_violence: allowed
+  explicit_sex: fade_to_black
+  profanity: moderate
+  on_page_torture: false
+  child_harm: false
+  mandatory_ending_tone: bittersweet
+  expected_elements:
+    - mentor_death
+    - major_betrayal
+    - at_least_3_battles
+    - protagonist_low_point_at_75_percent
+    - thematic_reverberation_in_all_subplots
+  forbidden_tropes:
+    - chosen_one_prophecy
+    - resurrected_hero
+    - deus_ex_machina_rescue
+  custom_rules:
+    - "No character can wield magic without paying a visible physical cost."
+    - "No fully hopeful resolution; bittersweet only."
+
+emotional_design:
+  overall_emotional_arc: "descent into dread, then a defiant spike of hard-won meaning"
+  per_act_tones:
+    - act_index: 1
+      label: Setup
+      tone: "mystery and intrigue, subtle unease"
+    - act_index: 2
+      label: Confrontation
+      tone: "rising dread with moments of camaraderie"
+    - act_index: 3
+      label: Resolution
+      tone: "despair sharpening into catharsis"
+
+characters:
+  - name: Kael
+    role: protagonist
+    arc_type: corruption
+    arc_start_percentage: 0
+    arc_end_percentage: 100
+    current_arc_percentage: 39
+    key_milestones:
+      - at_percentage: 25
+        description: "First minor deception without guilt."
+      - at_percentage: 50
+        description: "Justifies a cruel act to himself."
+      - at_percentage: 75
+        description: "Betrays Lira to gain the cursed ring's power."
+      - at_percentage: 100
+        description: "Embraces the dark power as his own."
+    current_state:
+      location: taverntown
+      physical: broken_arm
+      emotional: vengeful
+      inventory:
+        - cursed_ring
+        - fathers_dagger
+      relationships:
+        - other: Lira
+          kind: trust
+          intensity: 0.8
+        - other: Malachai
+          kind: fear
+          intensity: 0.4
+      secrets_known:
+        - "the ring whispers in his sleep"
+
+  - name: Lira
+    role: deuteragonist
+    arc_type: healing
+    arc_start_percentage: 10
+    arc_end_percentage: 90
+    current_arc_percentage: 42
+    key_milestones:
+      - at_percentage: 30
+        description: "Names her trauma aloud for the first time."
+      - at_percentage: 60
+        description: "Refuses to take vengeance when offered it."
+      - at_percentage: 90
+        description: "Forgives the surviving cousin who betrayed her family."
+    current_state:
+      location: taverntown
+      physical: exhausted
+      emotional: "quietly hopeful"
+      inventory:
+        - mothers_pendant
+      relationships:
+        - other: Kael
+          kind: trust
+          intensity: 0.7
+
+tension_waveform:
+  target_curve:
+    - { chapter_index: 1,  score: 4,  label: cold_open_unease }
+    - { chapter_index: 11, score: 7,  label: first_act_break }
+    - { chapter_index: 22, score: 9,  label: midpoint_battle }
+    - { chapter_index: 23, score: 3,  label: recovery_valley }
+    - { chapter_index: 27, score: 3,  label: quiet_bonding }
+    - { chapter_index: 33, score: 8,  label: all_is_lost_ramp }
+    - { chapter_index: 42, score: 10, label: climax }
+    - { chapter_index: 45, score: 5,  label: bittersweet_coda }
+  realized_scores: [4, 5, 5, 6, 6, 7, 6, 6, 7, 7, 7, 6, 6, 7, 7, 8, 8, 7, 8, 8, 9, 9, 3, 4, 5, 4]
+
+theme:
+  central_question: "What does redemption cost when the cost is paid by someone else?"
+  thesis: "Some debts cannot be honored without becoming the thing you hunted."
+  motifs:
+    - "broken crowns"
+    - "wounded hands"
+    - "rings that whisper"
