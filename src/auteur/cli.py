@@ -122,8 +122,12 @@ def _cmd_structure_diagnose(blueprint_path: Path, output_path: Path | None = Non
     report = {"diagnostics": [diagnostic.model_dump(mode="json") for diagnostic in diagnostics]}
     report_json = json.dumps(report, indent=2)
     if output_path is not None:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text(f"{report_json}\n", encoding="utf-8")
+        try:
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            output_path.write_text(f"{report_json}\n", encoding="utf-8")
+        except OSError as exc:
+            print(f"Error: failed to write report to {output_path}: {exc}", file=sys.stderr)
+            return 1
     print(report_json)
     if any(diagnostic.severity == DiagnosticSeverity.ERROR for diagnostic in diagnostics):
         return 4
