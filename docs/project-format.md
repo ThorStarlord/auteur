@@ -116,6 +116,18 @@ Allowed support functions are `complicates`, `mirrors`, `contrasts`,
 `auteur.structure.analyze_structure()` can inspect these fields and return
 deterministic diagnostics. It does not mutate `blueprint.yaml`.
 
+The same deterministic analyzer is available through the CLI:
+
+```powershell
+auteur structure diagnose .\examples\sample_blueprint.yaml
+auteur structure diagnose .\examples\sample_blueprint.yaml --output .\structure\diagnostics\001_report.json
+```
+
+The command prints a JSON report with a `diagnostics` list. It returns `0` when
+there are no error diagnostics, `4` when one or more error diagnostics are
+present, and `1` for local input failures such as a missing or malformed
+blueprint. Writing an output report does not mutate the blueprint.
+
 ## `bible.json`
 
 The Bible stores live state. Engine v1 initializes it as:

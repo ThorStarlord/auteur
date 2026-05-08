@@ -60,46 +60,46 @@ def test_proposal_selection_defaults():
     assert proposal.selection.custom_data == {}
 
 
-  def test_rejects_unknown_selected_option_id():
+def test_rejects_unknown_selected_option_id():
     proposal_data = {
-      "proposal_id": "gen_001",
-      "type": "generation",
-      "summary": "Initial generation",
-      "options": [
-        {
-          "id": "opt1",
-          "summary": "Option 1",
-          "tradeoffs": "T1",
-          "data": {},
-        }
-      ],
-      "selection": {"selected_option_id": "missing", "custom_data": {}},
+        "proposal_id": "gen_001",
+        "type": "generation",
+        "summary": "Initial generation",
+        "options": [
+            {
+                "id": "opt1",
+                "summary": "Option 1",
+                "tradeoffs": "T1",
+                "data": {},
+            }
+        ],
+        "selection": {"selected_option_id": "missing", "custom_data": {}},
     }
 
     with pytest.raises(ValidationError):
-      StructureProposal.model_validate(proposal_data)
+        StructureProposal.model_validate(proposal_data)
 
 
-  def test_rejects_duplicate_option_ids():
+def test_rejects_duplicate_option_ids():
     proposal_data = {
-      "proposal_id": "gen_001",
-      "type": "generation",
-      "summary": "Initial generation",
-      "options": [
-        {
-          "id": "opt1",
-          "summary": "Option 1",
-          "tradeoffs": "T1",
-          "data": {},
-        },
-        {
-          "id": "opt1",
-          "summary": "Option  duplicate",
-          "tradeoffs": "T2",
-          "data": {},
-        },
-      ],
+        "proposal_id": "gen_001",
+        "type": "generation",
+        "summary": "Initial generation",
+        "options": [
+            {
+                "id": "opt1",
+                "summary": "Option 1",
+                "tradeoffs": "T1",
+                "data": {},
+            },
+            {
+                "id": "opt1",
+                "summary": "Option  duplicate",
+                "tradeoffs": "T2",
+                "data": {},
+            },
+        ],
     }
 
     with pytest.raises(ValidationError):
-      StructureProposal.model_validate(proposal_data)
+        StructureProposal.model_validate(proposal_data)

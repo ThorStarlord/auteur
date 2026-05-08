@@ -49,6 +49,10 @@ Defines the story specification. `StoryBlueprint.from_yaml()` loads a blueprint,
 
 Contains deterministic structure diagnostics. The analyzer checks narrow completeness and coherence rules, such as missing `story_engine`, thread count exceeding subplot budget, duplicated main-thread want/change, and theme thesis not represented by thread thematic functions. It does not call LLMs and does not judge story quality.
 
+`auteur structure diagnose`
+
+Runs the deterministic structure analyzer from the CLI. It emits a JSON report to stdout, can also write that report to an explicit output path, returns `4` when error diagnostics are present, and does not mutate the blueprint.
+
 `src/auteur/bible.py`
 
 Stores live story state in JSON. Engine v1 records accepted chapter events and realized tension scores. Future work can expand this into richer state extraction.
@@ -87,7 +91,6 @@ Defines the provider-agnostic `LLMClient` protocol and concrete Anthropic/OpenAI
 
 ## Current Limitations
 
-- Structure diagnostics are library-level only; there is not yet a `auteur structure` CLI.
 - Structure generation, repair proposal artifacts, and explicit apply/accept flows are not implemented yet.
 - Cartographer outlines are parsed as raw YAML mappings, not yet validated against a dedicated outline model.
 - Critic logic is mostly LLM-based; deterministic outline/prose checks are still limited.
