@@ -44,6 +44,33 @@ class Genre(str, Enum):
     OTHER = "other"
 
 
+class StoryMode(str, Enum):
+    TRAGIC = "tragic"
+    COMIC = "comic"
+    SATIRICAL = "satirical"
+    MYTHIC = "mythic"
+    PROCEDURAL = "procedural"
+    ADVENTURE = "adventure"
+    NOIR = "noir"
+    INTIMATE = "intimate"
+    EPIC = "epic"
+    ABSURDIST = "absurdist"
+    OTHER = "other"
+
+
+class StoryMedium(str, Enum):
+    NOVEL = "novel"
+    SHORT_STORY = "short_story"
+    NOVELLA = "novella"
+    SERIES = "series"
+    FILM = "film"
+    TV = "tv"
+    VISUAL_NOVEL = "visual_novel"
+    GAME = "game"
+    INTERACTIVE_FICTION = "interactive_fiction"
+    OTHER = "other"
+
+
 class TargetAudience(str, Enum):
     MIDDLE_GRADE = "middle_grade"
     YOUNG_ADULT = "young_adult"
@@ -102,9 +129,35 @@ class CharacterRole(str, Enum):
     SUPPORTING = "supporting"
 
 
+class ThreadType(str, Enum):
+    MAIN_PLOT = "main_plot"
+    CHARACTER_ARC = "character_arc"
+    RELATIONSHIP_ARC = "relationship_arc"
+    MYSTERY = "mystery"
+    POLITICAL = "political"
+    SURVIVAL = "survival"
+    THEMATIC_ECHO = "thematic_echo"
+
+
+class SupportFunction(str, Enum):
+    COMPLICATES = "complicates"
+    MIRRORS = "mirrors"
+    CONTRASTS = "contrasts"
+    ESCALATES = "escalates"
+    REVEALS = "reveals"
+    PRESSURES_CHANGE = "pressures_change"
+    PAYS_OFF = "pays_off"
+
+
 # ---------------------------------------------------------------------------
 # Layer 1 — Project Identity
 # ---------------------------------------------------------------------------
+
+
+class TargetExperience(BaseModel):
+    primary: str = Field(min_length=1)
+    progression: str = Field(min_length=1)
+    avoid: list[str] = Field(default_factory=list)
 
 
 class ProjectIdentity(BaseModel):
@@ -112,9 +165,13 @@ class ProjectIdentity(BaseModel):
     author_intent: str = Field(
         description="Free-text description of what the author wants this project to be."
     )
+    target_experience: TargetExperience | None = None
     length_class: LengthClass
     genre: Genre
     subgenre: str | None = None
+    subgenres: list[str] = Field(default_factory=list)
+    mode: StoryMode | None = None
+    medium: StoryMedium | None = None
     target_audience: TargetAudience
     pov_type: POVType
 
@@ -141,6 +198,7 @@ class StructuralConstants(BaseModel):
     act_structure: ActStructure = ActStructure.THREE_ACT
     max_pov_characters: int | None = Field(default=None, ge=1)
     max_characters_total: int | None = Field(default=None, ge=1)
+    subplot_budget: int | None = Field(default=None, ge=0)
 
     def fill_defaults_from(self, length_class: LengthClass) -> Self:
         chapters, words, max_pov, max_total = _LENGTH_DEFAULTS[length_class]
@@ -310,6 +368,57 @@ class ThematicCore(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Whole-story engine
+# ---------------------------------------------------------------------------
+
+
+class StructuralClaim(BaseModel):
+    author_text: str = Field(min_length=1)
+    checkable_claims: list[str] = Field(default_factory=list)
+
+
+class MainThread(BaseModel):
+    type: ThreadType = ThreadType.MAIN_PLOT
+    want: StructuralClaim
+    resistance: StructuralClaim
+    conflict: StructuralClaim
+    stakes: StructuralClaim
+    change: StructuralClaim
+    thematic_function: str = Field(min_length=1)
+
+    @field_validator("type")
+    @classmethod
+    def _type_must_be_main_plot(cls, value: ThreadType) -> ThreadType:
+        if value != ThreadType.MAIN_PLOT:
+            raise ValueError("main_thread.type must be main_plot.")
+        return value
+
+
+class StoryThread(BaseModel):
+    name: str = Field(min_length=1)
+    type: ThreadType
+    want: StructuralClaim
+    resistance: StructuralClaim
+    conflict: StructuralClaim
+    stakes: StructuralClaim
+    change: StructuralClaim
+    supports_main_by: list[SupportFunction] = Field(min_length=1)
+    thematic_function: str = Field(min_length=1)
+
+    @field_validator("type")
+    @classmethod
+    def _type_must_not_be_main_plot(cls, value: ThreadType) -> ThreadType:
+        if value == ThreadType.MAIN_PLOT:
+            raise ValueError("subordinate threads cannot use main_plot type.")
+        return value
+
+
+class StoryEngine(BaseModel):
+    main_thread: MainThread
+    threads: list[StoryThread] = Field(default_factory=list)
+
+
+# ---------------------------------------------------------------------------
 # Root: StoryBlueprint
 # ---------------------------------------------------------------------------
 
@@ -319,6 +428,7 @@ class StoryBlueprint(BaseModel):
 
     identity: ProjectIdentity
     structure: StructuralConstants = Field(default_factory=StructuralConstants)
+    story_engine: StoryEngine | None = None
     contract: AuthorAudienceContract
     emotional_design: EmotionalBlueprint
     characters: list[Character] = Field(default_factory=list)

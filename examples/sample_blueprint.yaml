@@ -1,15 +1,108 @@
 identity:
   title: "The Shattered Crown"
   author_intent: "A grimdark epic about a hero who succeeds at his quest by becoming the thing he hunted."
+  target_experience:
+    primary: dread
+    progression: "unease -> dread -> catharsis"
+    avoid:
+      - "triumphant power fantasy"
+      - "cozy safety"
   length_class: epic_novel
   genre: grimdark_fantasy
   subgenre: grimdark
+  subgenres:
+    - grimdark
+    - corruption_tragedy
+  mode: tragic
+  medium: novel
   target_audience: adult
   pov_type: third_person_limited_multiple
 
 structure:
   estimated_chapters: 45
   act_structure: three_act
+  subplot_budget: 3
+
+story_engine:
+  main_thread:
+    type: main_plot
+    want:
+      author_text: "Kael wants to end the war by destroying the tyrant who ruined his kingdom."
+      checkable_claims:
+        - protagonist_goal_has_visible_success_condition
+        - goal_generates_active_pursuit
+    resistance:
+      author_text: "The tyrant's power is bound to the same cursed magic Kael is tempted to use."
+      checkable_claims:
+        - opposition_blocks_direct_resolution
+        - resistance_tempts_protagonist_toward_corruption
+    conflict:
+      author_text: "Kael can win quickly by becoming ruthless, or preserve his humanity and risk losing the war."
+      checkable_claims:
+        - external_goal_collides_with_internal_cost
+    stakes:
+      author_text: "Every victory bought with the ring saves people now while making Kael more dangerous later."
+      checkable_claims:
+        - stakes_escalate_through_success
+        - success_has_visible_cost
+    change:
+      author_text: "Kael changes from wounded avenger into the new source of the darkness he meant to destroy."
+      checkable_claims:
+        - ending_state_inverts_starting_intent
+    thematic_function: "Tests whether justice becomes corruption when pursued without mercy."
+  threads:
+    - name: "Lira's restraint"
+      type: character_arc
+      want:
+        author_text: "Lira wants safety and justice without becoming another instrument of vengeance."
+        checkable_claims:
+          - subplot_goal_contrasts_main_goal
+      resistance:
+        author_text: "Her trauma and loyalty to Kael pull her toward the same violence she fears."
+        checkable_claims:
+          - resistance_is_personal_and_relational
+      conflict:
+        author_text: "Helping Kael may save the realm but also enable his corruption."
+        checkable_claims:
+          - subplot_pressures_main_relationship
+      stakes:
+        author_text: "If Lira stays silent, Kael falls; if she opposes him, she may lose the person she trusts most."
+        checkable_claims:
+          - stakes_force_relational_choice
+      change:
+        author_text: "Lira moves from surviving harm to naming limits and refusing vengeance."
+        checkable_claims:
+          - arc_has_visible_refusal
+      supports_main_by:
+        - contrasts
+        - pressures_change
+      thematic_function: "Contrasts Kael by showing restraint as a form of strength."
+    - name: "The ring's cost"
+      type: survival
+      want:
+        author_text: "The group wants to use the ring only when survival leaves no clean option."
+        checkable_claims:
+          - system_thread_creates_repeatable_cost
+      resistance:
+        author_text: "Each use solves immediate danger while worsening the ring's hold on Kael."
+        checkable_claims:
+          - resistance_escalates_with_use
+      conflict:
+        author_text: "Refusing the ring risks death, but using it makes future mercy less likely."
+        checkable_claims:
+          - system_rule_forces_bad_choices
+      stakes:
+        author_text: "The ring turns survival decisions into moral debt that compounds across chapters."
+        checkable_claims:
+          - stakes_accumulate_over_time
+      change:
+        author_text: "The ring shifts from desperate tool to governing appetite."
+        checkable_claims:
+          - thread_changes_pressure_over_time
+      supports_main_by:
+        - escalates
+        - pays_off
+      thematic_function: "Makes the cost of power visible before Kael accepts it as identity."
 
 contract:
   content_rating: R
