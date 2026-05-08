@@ -42,9 +42,8 @@ def test_accept_records_selection_and_metadata():
 
 
 def test_apply_creates_new_blueprint_file_by_default(tmp_path):
-    sample_path = Path("examples") / "sample_blueprint.yaml"
-    data = yaml.safe_load(sample_path.read_text(encoding="utf-8"))
-    blueprint = StoryBlueprint.model_validate(data)
+    sample_path = Path(__file__).parent.parent / "examples" / "sample_blueprint.yaml"
+    blueprint = StoryBlueprint.from_yaml(str(sample_path))
 
     proposal_data = {
         "proposal_id": "002",
