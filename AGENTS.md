@@ -35,3 +35,20 @@ engine second. Agent work should preserve that distinction.
 - Do not add LLM calls to deterministic structure analysis.
 - Keep early analyzer rules narrow and explainable. Avoid broad quality claims
   like "this is a good story."
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues for `ThorStarlord/auteur`. See
+`docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Use the default five-label triage vocabulary. See
+`docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context repo: read root `CONTEXT.md` and `docs/adr/` when they exist.
+See `docs/agents/domain.md`.
