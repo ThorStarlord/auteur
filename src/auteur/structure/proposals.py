@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import Enum
 from typing import Any
-from datetime import datetime
+from datetime import datetime, timezone
 import os
 from copy import deepcopy
 import yaml
@@ -89,7 +89,7 @@ class StructureProposal(BaseModel):
             status=status,
             author=author,
             references=references or [],
-            accepted_at=datetime.utcnow(),
+            accepted_at=datetime.now(timezone.utc),
         )
 
 
@@ -160,7 +160,7 @@ def apply_proposal_to_blueprint(
     # write a sidecar provenance file rather than mutating the blueprint schema
     meta = {
         "applied_from_proposal": proposal.proposal_id,
-        "applied_at": datetime.utcnow().isoformat(),
+        "applied_at": datetime.now(timezone.utc).isoformat(),
         "selected_option_id": proposal.selection.selected_option_id,
         "decision": proposal.decision.model_dump(mode="json") if proposal.decision else None,
     }
