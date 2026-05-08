@@ -50,6 +50,143 @@ def test_cli_plan_still_works(tmp_path, capsys):
     assert "SYSTEM PROMPT" in out
 
 
+def test_cli_structure_diagnose_prints_json_report_for_clean_blueprint(capsys):
+    rc = main(["structure", "diagnose", str(SAMPLE_YAML)])
+
+    assert rc == 0
+    report = json.loads(capsys.readouterr().out)
+    assert report["diagnostics"] == []
+
+
+def test_cli_structure_diagnose_writes_json_report_to_output_path(tmp_path):
+    output_path = tmp_path / "structure" / "diagnostics" / "report.json"
+
+    rc = main(["structure", "diagnose", str(SAMPLE_YAML), "--output", str(output_path)])
+
+    assert rc == 0
+    assert json.loads(output_path.read_text(encoding="utf-8")) == {"diagnostics": []}
+
+
+def test_cli_structure_diagnose_returns_4_for_error_diagnostics(tmp_path, capsys):
+    blueprint_path = tmp_path / "missing_story_engine.yaml"
+    blueprint_path.write_text(
+        """
+identity:
+  title: Test Story
+  author_intent: A test premise.
+  length_class: novel
+  genre: literary
+  target_audience: adult
+  pov_type: third_person_limited_single
+contract:
+  content_rating: PG
+  mandatory_ending_tone: open
+emotional_design:
+  overall_emotional_arc: quiet pressure
+theme:
+  central_question: What does truth cost?
+  thesis: Truth costs belonging.
+  motifs: []
+""",
+        encoding="utf-8",
+    )
+
+    rc = main(["structure", "diagnose", str(blueprint_path)])
+
+    assert rc == 4
+    report = json.loads(capsys.readouterr().out)
+    assert report["diagnostics"][0]["rule"] == "story_engine.missing"
+
+
+def test_cli_structure_diagnose_returns_0_for_warning_only_report(tmp_path, capsys):
+    blueprint_path = tmp_path / "warning_only.yaml"
+    blueprint_path.write_text(
+        """
+identity:
+  title: Test Story
+  author_intent: A test premise.
+  length_class: novel
+  genre: literary
+  target_audience: adult
+  pov_type: third_person_limited_single
+story_engine:
+  main_thread:
+    want:
+      author_text: The protagonist wants to expose the town's founding lie.
+      checkable_claims: []
+    resistance:
+      author_text: The town needs the lie to survive.
+      checkable_claims: []
+    conflict:
+      author_text: Revealing truth saves conscience but destroys home.
+      checkable_claims: []
+    stakes:
+      author_text: Each step toward truth costs a relationship.
+      checkable_claims: []
+    change:
+      author_text: The protagonist learns truth may require exile.
+      checkable_claims: []
+    thematic_function: Tests that truth costs belonging through the main plot.
+  threads:
+    - name: Political pressure
+      type: political
+      want:
+        author_text: The mayor wants to keep the founding crime buried.
+        checkable_claims: []
+      resistance:
+        author_text: The protagonist keeps finding witnesses.
+        checkable_claims: []
+      conflict:
+        author_text: Order depends on a public lie.
+        checkable_claims: []
+      stakes:
+        author_text: Exposure may collapse the town's fragile peace.
+        checkable_claims: []
+      change:
+        author_text: The bargain moves from rumor to open coercion.
+        checkable_claims: []
+      supports_main_by: [escalates]
+      thematic_function: Shows that truth costs belonging at civic scale.
+contract:
+  content_rating: PG
+  mandatory_ending_tone: open
+emotional_design:
+  overall_emotional_arc: quiet pressure
+theme:
+  central_question: What does truth cost?
+  thesis: Truth costs belonging.
+  motifs: []
+""",
+        encoding="utf-8",
+    )
+
+    rc = main(["structure", "diagnose", str(blueprint_path)])
+
+    assert rc == 0
+    report = json.loads(capsys.readouterr().out)
+    assert report["diagnostics"][0]["severity"] == "warning"
+    assert report["diagnostics"][0]["rule"] == "structure.subplot_budget.missing"
+
+
+def test_cli_structure_diagnose_missing_blueprint_returns_1(tmp_path, capsys):
+    missing_path = tmp_path / "missing.yaml"
+
+    rc = main(["structure", "diagnose", str(missing_path)])
+
+    assert rc == 1
+    assert "Error: blueprint not found" in capsys.readouterr().err
+
+
+def test_cli_structure_diagnose_malformed_blueprint_returns_1(tmp_path, capsys):
+    blueprint_path = tmp_path / "malformed.yaml"
+    blueprint_path.write_text("identity: [", encoding="utf-8")
+
+    rc = main(["structure", "diagnose", str(blueprint_path)])
+
+    assert rc == 1
+    assert "Error: invalid blueprint" in capsys.readouterr().err
+
+
 def _patch_client(scripted):
     from auteur.llm.fake import FakeClient
     return patch("auteur.cli._build_client", return_value=FakeClient(scripted))

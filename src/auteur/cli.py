@@ -23,6 +23,7 @@ from auteur.critic import ValidationReport
 from auteur.llm import LLMClient
 from auteur.pipeline import PipelineRunner
 from auteur.project import Project
+from auteur.structure import DiagnosticSeverity, analyze_structure
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -55,6 +56,15 @@ def main(argv: list[str] | None = None) -> int:
     p_retry.add_argument("--provider", choices=["anthropic", "openai"], default="anthropic")
     p_retry.add_argument("--model", default=None)
 
+    p_structure = sub.add_parser("structure", help="Run whole-story structure commands.")
+    structure_sub = p_structure.add_subparsers(dest="structure_command", required=True)
+    p_structure_diagnose = structure_sub.add_parser(
+        "diagnose",
+        help="Run deterministic whole-story structure diagnostics.",
+    )
+    p_structure_diagnose.add_argument("blueprint", type=Path)
+    p_structure_diagnose.add_argument("--output", type=Path, default=None)
+
     args = parser.parse_args(argv)
 
     if args.command == "init":
@@ -67,6 +77,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_accept(args.project, args.chapter)
     if args.command == "retry":
         return _cmd_retry(args.project, args.chapter, args.max_iterations, args.provider, args.model)
+    if args.command == "structure" and args.structure_command == "diagnose":
+        return _cmd_structure_diagnose(args.blueprint, args.output)
     parser.print_help()
     return 2
 
@@ -94,6 +106,31 @@ def _cmd_plan(blueprint_path: Path, chapter_index: int) -> int:
     print(result.system_prompt)
     print("\n--- USER MESSAGE ---\n")
     print(result.user_message)
+    return 0
+
+
+def _cmd_structure_diagnose(blueprint_path: Path, output_path: Path | None = None) -> int:
+    if not blueprint_path.exists():
+        print(f"Error: blueprint not found: {blueprint_path}", file=sys.stderr)
+        return 1
+    try:
+        blueprint = StoryBlueprint.from_yaml(blueprint_path)
+    except (ValueError, yaml.YAMLError) as exc:
+        print(f"Error: invalid blueprint {blueprint_path}: {exc}", file=sys.stderr)
+        return 1
+    diagnostics = analyze_structure(blueprint)
+    report = {"diagnostics": [diagnostic.model_dump(mode="json") for diagnostic in diagnostics]}
+    report_json = json.dumps(report, indent=2)
+    if output_path is not None:
+        try:
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            output_path.write_text(f"{report_json}\n", encoding="utf-8")
+        except OSError as exc:
+            print(f"Error: failed to write report to {output_path}: {exc}", file=sys.stderr)
+            return 1
+    print(report_json)
+    if any(diagnostic.severity == DiagnosticSeverity.ERROR for diagnostic in diagnostics):
+        return 4
     return 0
 
 
