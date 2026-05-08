@@ -22,8 +22,9 @@ The blueprint is the author specification. It is loaded by `StoryBlueprint.from_
 
 Major sections:
 
-- `identity`: title, author intent, length class, genre, audience, POV mode.
-- `structure`: estimated chapters, word count, act structure, POV limits.
+- `identity`: title, author intent, target experience, length class, genre, subgenres, mode, medium, audience, POV mode.
+- `structure`: estimated chapters, word count, act structure, POV limits, subplot budget.
+- `story_engine`: optional whole-story main thread and subordinate threads.
 - `contract`: content rating, forbidden tropes, required elements, custom rules.
 - `emotional_design`: overall and per-act tonal targets.
 - `characters`: roles, arc types, milestones, and current state.
@@ -31,6 +32,89 @@ Major sections:
 - `theme`: central question, thesis, and motifs.
 
 The sample file at `examples/sample_blueprint.yaml` is the best starting point.
+
+### Structure Engine Fields
+
+The structure engine is optional for backward compatibility. Existing blueprints
+can still load without it. When present, it makes whole-story structure explicit
+before chapter planning or drafting.
+
+Global constraint fields live in `identity` and `structure`:
+
+```yaml
+identity:
+  target_experience:
+    primary: dread
+    progression: "unease -> dread -> catharsis"
+    avoid:
+      - "triumphant power fantasy"
+  genre: grimdark_fantasy
+  subgenre: grimdark
+  subgenres:
+    - grimdark
+    - corruption_tragedy
+  mode: tragic
+  medium: novel
+
+structure:
+  subplot_budget: 3
+```
+
+The whole-story engine lives in `story_engine`:
+
+```yaml
+story_engine:
+  main_thread:
+    type: main_plot
+    want:
+      author_text: "The protagonist wants a visible external goal."
+      checkable_claims: []
+    resistance:
+      author_text: "The primary opposition blocks easy success."
+      checkable_claims: []
+    conflict:
+      author_text: "The want and resistance create an unavoidable dilemma."
+      checkable_claims: []
+    stakes:
+      author_text: "Every path carries worsening consequences."
+      checkable_claims: []
+    change:
+      author_text: "The protagonist is transformed by the pressure."
+      checkable_claims: []
+    thematic_function: "Names how the main thread tests the thesis."
+  threads:
+    - name: "Subordinate thread"
+      type: character_arc
+      want:
+        author_text: "This thread has its own local desire."
+        checkable_claims: []
+      resistance:
+        author_text: "This thread has local opposition."
+        checkable_claims: []
+      conflict:
+        author_text: "This thread creates pressure that affects the main story."
+        checkable_claims: []
+      stakes:
+        author_text: "This thread has consequences."
+        checkable_claims: []
+      change:
+        author_text: "This thread changes over time."
+        checkable_claims: []
+      supports_main_by:
+        - contrasts
+        - pressures_change
+      thematic_function: "Names how the thread contributes to resonance."
+```
+
+Allowed thread types are `main_plot`, `character_arc`, `relationship_arc`,
+`mystery`, `political`, `survival`, and `thematic_echo`. Subordinate threads
+cannot use `main_plot`.
+
+Allowed support functions are `complicates`, `mirrors`, `contrasts`,
+`escalates`, `reveals`, `pressures_change`, and `pays_off`.
+
+`auteur.structure.analyze_structure()` can inspect these fields and return
+deterministic diagnostics. It does not mutate `blueprint.yaml`.
 
 ## `bible.json`
 
@@ -93,4 +177,3 @@ Each finding has:
 `final.md`
 
 The accepted chapter. It is written automatically when a draft passes without error findings, or manually by `auteur accept`.
-

@@ -19,6 +19,8 @@ Engine v1 is a deterministic orchestration layer around non-deterministic LLM ge
 Deterministic code owns:
 
 - Pydantic blueprint schema and cross-field validation.
+- Optional whole-story structure schema.
+- Deterministic structure completeness/coherence diagnostics.
 - Default expansion based on length class.
 - Project directory creation and artifact writing.
 - Story Bible persistence.
@@ -28,17 +30,24 @@ Deterministic code owns:
 
 LLMs own:
 
+- Future structure generation and repair proposals.
 - Cartographer chapter outline generation.
 - Bard prose drafting and rewriting.
 - Critic judgment for contract, arc, tension, slop, and theme.
 
 The purpose is not to remove LLM non-determinism. The purpose is to bound it: every creative output is routed through structured prompts, parsed artifacts, validation reports, and iteration state.
 
+Structure analysis is intentionally split from generation. Pydantic models say whether a blueprint is parseable; `auteur.structure` says whether the declared whole-story structure is complete and coherent enough for downstream work.
+
 ## Core Components
 
 `src/auteur/blueprint.py`
 
-Defines the story specification. `StoryBlueprint.from_yaml()` loads a blueprint, validates types/enums/ranges, fills structural defaults, and rejects inconsistent combinations such as incompatible audience/content rules.
+Defines the story specification. `StoryBlueprint.from_yaml()` loads a blueprint, validates types/enums/ranges, fills structural defaults, and rejects inconsistent combinations such as incompatible audience/content rules. It also carries optional whole-story structure fields: target experience, mode, medium, subgenre hierarchy, subplot budget, and `story_engine`.
+
+`src/auteur/structure/`
+
+Contains deterministic structure diagnostics. The analyzer checks narrow completeness and coherence rules, such as missing `story_engine`, thread count exceeding subplot budget, duplicated main-thread want/change, and theme thesis not represented by thread thematic functions. It does not call LLMs and does not judge story quality.
 
 `src/auteur/bible.py`
 
@@ -78,9 +87,10 @@ Defines the provider-agnostic `LLMClient` protocol and concrete Anthropic/OpenAI
 
 ## Current Limitations
 
+- Structure diagnostics are library-level only; there is not yet a `auteur structure` CLI.
+- Structure generation, repair proposal artifacts, and explicit apply/accept flows are not implemented yet.
 - Cartographer outlines are parsed as raw YAML mappings, not yet validated against a dedicated outline model.
 - Critic logic is mostly LLM-based; deterministic outline/prose checks are still limited.
 - Provider choice is per CLI invocation, not yet per agent.
 - Transient API failures are surfaced directly instead of retried with backoff.
 - Cost accounting records tokens, not currency.
-

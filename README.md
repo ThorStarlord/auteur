@@ -1,6 +1,6 @@
 # Auteur
 
-Auteur is an agentic narrative engineering toolkit for long-form fiction. It turns a structured story blueprint into chapter plans, drafts, validation reports, and accepted chapter artifacts.
+Auteur is an agentic narrative engineering toolkit for long-form fiction. It turns a structured story blueprint into whole-story structure checks, chapter plans, drafts, validation reports, and accepted chapter artifacts.
 
 The current Engine v1 is a hybrid system:
 
@@ -13,6 +13,8 @@ The current Engine v1 is a hybrid system:
 This repository currently contains a working Engine v1 CLI and Python library. It supports:
 
 - Blueprint loading and validation.
+- Optional whole-story `story_engine` fields for target experience, structural forces, threads, and thematic function.
+- Deterministic structure diagnostics through the Python API.
 - Cartographer prompt rendering.
 - Project initialization with a `blueprint.yaml`, `bible.json`, and chapter artifact tree.
 - Chapter drafting through Anthropic or OpenAI adapters.
@@ -20,7 +22,7 @@ This repository currently contains a working Engine v1 CLI and Python library. I
 - Automatic rewrite attempts up to a configurable iteration cap.
 - Manual accept and retry flows.
 
-The implementation is still early. It does not yet have structured Pydantic models for Cartographer outlines, deterministic outline validation, transient API retry/backoff, or per-agent model routing.
+The implementation is still early. It does not yet have structure generation/diagnosis CLI commands, proposal/report artifacts, structured Pydantic models for Cartographer outlines, deterministic outline validation, transient API retry/backoff, or per-agent model routing.
 
 ## Install
 
@@ -130,12 +132,23 @@ project/
 
 See [docs/project-format.md](docs/project-format.md) for the full artifact contract.
 
+## Structure Engine
+
+Auteur is moving toward a whole-story structure engine. The current groundwork is library-level:
+
+- `StoryBlueprint` can carry optional global structure fields such as `target_experience`, `mode`, `medium`, `subgenres`, `subplot_budget`, and `story_engine`.
+- `auteur.structure.analyze_structure()` runs deterministic completeness/coherence diagnostics.
+- Chapter drafting still works independently while the structure engine matures.
+
+See [docs/structure-engine-v1.md](docs/structure-engine-v1.md) for the design direction.
+
 ## Documentation
 
 - [Architecture](docs/architecture.md)
 - [Engine v1 Workflow](docs/engine-v1-workflow.md)
 - [Project Format](docs/project-format.md)
 - [LLM Adapters](docs/llm-adapters.md)
+- [Structure Engine v1](docs/structure-engine-v1.md)
 
 The files under `docs/superpowers/` are implementation design and planning notes for development work. The user-facing docs above describe the current repository behavior.
 
@@ -152,4 +165,3 @@ The manual real-LLM smoke script is not part of pytest because it spends real to
 ```powershell
 python .\scripts\smoke_real_llm.py
 ```
-
