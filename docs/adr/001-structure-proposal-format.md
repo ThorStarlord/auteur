@@ -44,14 +44,14 @@ selection:
 
 ### Workflow
 
-1.  **Generate**: Auteur runs an analyzer or generator and writes one or more proposal files to `structure/proposals/*.yaml`.
+1.  **Generate**: Auteur runs an analyzer or generator and emits one or more proposal files using this YAML format. The concrete storage location is tool-defined and not yet standardized by the current CLI or project layout.
 2.  **Review**: The author reviews the options and their tradeoffs.
 3.  **Select**: The author sets `selected_option_id` to the ID of their chosen option.
-4.  **Apply**: The author runs `auteur structure apply <path-to-proposal>`. Auteur reads the proposal, merges the data from the selected option (and any `custom_data`) into the project blueprint, and saves the updated blueprint.
+4.  **Apply (future tooling)**: A future CLI workflow may read the proposal, merge the data from the selected option (and any `custom_data`) into the project blueprint, and save the updated blueprint. This ADR defines the artifact format for that workflow, but does not require a `structure/` directory or an `auteur structure apply` command in the current implementation.
 
 ## Consequences
 
 - **Explicit Author Choice**: No changes happen to the core story spine without an explicit author action.
 - **Traceability**: Proposals can be kept in version control to track why certain structural decisions were made.
-- **Complexity**: We need a robust "deep merge" or "patch" utility to apply the `data` from an option to the Pydantic-based `StoryBlueprint`.
-- **Validation**: The `apply` step must re-validate the resulting blueprint to ensure the author's selection or manual edits didn't break the schema.
+- **Complexity**: We need a robust "deep merge" or "patch" utility for future proposal-application tooling to apply the `data` from an option to the Pydantic-based `StoryBlueprint`.
+- **Validation**: When proposal-application tooling is implemented, it must re-validate the resulting blueprint to ensure the author's selection or manual edits didn't break the schema.
