@@ -32,6 +32,17 @@ def _minimal_blueprint_data() -> dict[str, object]:
     }
 
 
+def _blueprint_data_with_story_engine() -> dict[str, object]:
+    data = _minimal_blueprint_data()
+    data["story_engine"] = _story_engine(
+        want="The protagonist wants to expose the town's founding lie.",
+        change="The protagonist learns truth may require exile.",
+        thematic_function="Tests that truth costs belonging through the main plot.",
+    )
+    data["structure"] = {"subplot_budget": 1}
+    return data
+
+
 def _claim(text: str) -> dict[str, object]:
     return {"author_text": text, "checkable_claims": []}
 
@@ -128,3 +139,25 @@ def test_analyzer_reports_missing_subplot_budget_when_threads_exist():
     assert [d.rule for d in diagnostics] == ["structure.subplot_budget.missing"]
     assert diagnostics[0].severity == DiagnosticSeverity.WARNING
     assert diagnostics[0].layer == DiagnosticLayer.SCOPE
+
+
+def test_analyzer_reports_ending_tone_that_target_experience_says_to_avoid():
+    data = _blueprint_data_with_story_engine()
+    data["identity"]["target_experience"] = {
+        "primary": "dread",
+        "progression": "dread -> catharsis",
+        "avoid": ["hopeful ending"],
+    }
+    data["contract"]["mandatory_ending_tone"] = "hopeful"
+    blueprint = StoryBlueprint.model_validate(data)
+
+    diagnostics = analyze_structure(blueprint)
+
+    by_rule = {d.rule: d for d in diagnostics}
+    diagnostic = by_rule["target_experience.ending_tone_avoided"]
+    assert diagnostic.severity == DiagnosticSeverity.ERROR
+    assert diagnostic.layer == DiagnosticLayer.TARGET_EXPERIENCE
+    assert "identity.target_experience.avoid" in diagnostic.evidence
+    assert "contract.mandatory_ending_tone = hopeful" in diagnostic.evidence
+    assert diagnostic.repair_options.preserve_intent
+    assert diagnostic.repair_options.challenge_intent

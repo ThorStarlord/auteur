@@ -32,6 +32,36 @@ def analyze_structure(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
             )
         ]
 
+    target_experience = blueprint.identity.target_experience
+    ending_tone = blueprint.contract.mandatory_ending_tone.value
+    if target_experience is not None:
+        avoided_ending = _matching_avoidance(target_experience.avoid, ending_tone)
+        if avoided_ending is not None:
+            diagnostics.append(
+                StructureDiagnostic(
+                    severity=DiagnosticSeverity.ERROR,
+                    layer=DiagnosticLayer.TARGET_EXPERIENCE,
+                    rule="target_experience.ending_tone_avoided",
+                    message=(
+                        "The mandatory ending tone conflicts with the target "
+                        "experience the story says to avoid."
+                    ),
+                    evidence=[
+                        "identity.target_experience.avoid",
+                        f"avoid item = {avoided_ending}",
+                        f"contract.mandatory_ending_tone = {ending_tone}",
+                    ],
+                    repair_options=RepairOptions(
+                        preserve_intent=[
+                            "Choose an ending tone that does not appear in the target experience avoid list."
+                        ],
+                        challenge_intent=[
+                            "Revise the target experience avoid list if this ending tone is intentional."
+                        ],
+                    ),
+                )
+            )
+
     thread_count = len(engine.threads)
     subplot_budget = blueprint.structure.subplot_budget
     if thread_count and subplot_budget is None:
@@ -130,6 +160,14 @@ def analyze_structure(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
 
 def _normalize(text: str) -> str:
     return " ".join(text.casefold().split())
+
+
+def _matching_avoidance(avoid: list[str], ending_tone: str) -> str | None:
+    normalized_tone = _normalize(ending_tone.replace("_", " "))
+    for item in avoid:
+        if normalized_tone in _normalize(item):
+            return item
+    return None
 
 
 _STOP_WORDS = {
