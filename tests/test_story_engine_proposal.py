@@ -218,7 +218,7 @@ def test_raises_if_story_engine_already_present():
 def test_proposal_serialises_to_valid_yaml():
     blueprint = _blueprint_without_engine()
     result = propose_story_engine(blueprint)
-    dumped = yaml.dump(result.model_dump(mode="json"), allow_unicode=True)
+    dumped = yaml.safe_dump(result.model_dump(mode="json"), allow_unicode=True)
     reloaded = yaml.safe_load(dumped)
     recovered = StructureProposal.model_validate(reloaded)
     assert recovered.proposal_id == result.proposal_id
