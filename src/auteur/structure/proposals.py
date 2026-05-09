@@ -4,11 +4,12 @@ from enum import Enum
 from typing import Any
 from datetime import datetime, timezone
 import os
+import re
 from copy import deepcopy
 import yaml
 
 from pydantic import BaseModel, Field, model_validator
-from auteur.blueprint import StoryBlueprint
+from auteur.blueprint import StoryBlueprint, CharacterRole
 
 
 class ProposalType(str, Enum):
@@ -122,7 +123,6 @@ def propose_story_engine(blueprint: StoryBlueprint) -> StructureProposal:
     # Protagonist hint — use first protagonist character name if available.
     protagonist_name: str = "the protagonist"
     for char in blueprint.characters:
-        from auteur.blueprint import CharacterRole
         if char.role == CharacterRole.PROTAGONIST:
             protagonist_name = char.name
             break
@@ -397,8 +397,13 @@ def propose_story_engine(blueprint: StoryBlueprint) -> StructureProposal:
         },
     )
 
+    # Normalize proposal_id to a safe slug (alphanumeric + underscore only) to prevent
+    # path traversal or invalid filename issues when apply_proposal_to_blueprint() uses it.
+    safe_title_slug = re.sub(r"[^a-z0-9]+", "_", title.lower()).strip("_")[:40]
+    proposal_id = f"story_engine_{safe_title_slug}"
+
     return StructureProposal(
-        proposal_id=f"story_engine_{title.replace(' ', '_').lower()[:40]}",
+        proposal_id=proposal_id,
         type=ProposalType.GENERATION,
         source_rule="story_engine.missing",
         summary=(
