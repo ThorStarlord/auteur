@@ -21,6 +21,7 @@ Deterministic code owns:
 - Pydantic blueprint schema and cross-field validation.
 - Optional whole-story structure schema.
 - Deterministic structure completeness/coherence diagnostics.
+- Human-editable repair proposal artifact construction from diagnostics.
 - Default expansion based on length class.
 - Project directory creation and artifact writing.
 - Story Bible persistence.
@@ -30,7 +31,7 @@ Deterministic code owns:
 
 LLMs own:
 
-- Future structure generation and repair proposals.
+- Future creative structure generation and prose-like repair drafting.
 - Cartographer chapter outline generation.
 - Bard prose drafting and rewriting.
 - Critic judgment for contract, arc, tension, slop, and theme.
@@ -91,7 +92,7 @@ Defines the provider-agnostic `LLMClient` protocol and concrete Anthropic/OpenAI
 
 ## Current Limitations
 
-- Structure generation, repair proposal artifacts, and explicit apply/accept flows are not implemented yet.
+- Structure generation remains early and helper-level; project-level proposal directories and CLI apply commands are not standardized yet.
 - Cartographer outlines are parsed as raw YAML mappings, not yet validated against a dedicated outline model.
 - Critic logic is mostly LLM-based; deterministic outline/prose checks are still limited.
 - Provider choice is per CLI invocation, not yet per agent.
