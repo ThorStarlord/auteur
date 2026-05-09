@@ -15,7 +15,6 @@ import yaml
 
 from auteur.blueprint import (
     StoryBlueprint,
-    StoryEngine,
 )
 from auteur.structure.proposals import (
     ProposalType,
