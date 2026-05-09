@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any
+from typing import Any, Mapping
 from datetime import datetime, timezone
 import os
 import re
@@ -10,6 +10,7 @@ import yaml
 
 from pydantic import BaseModel, Field, model_validator
 from auteur.blueprint import StoryBlueprint, CharacterRole
+from auteur.structure.diagnostics import StructureDiagnostic
 
 
 class ProposalType(str, Enum):
@@ -414,6 +415,85 @@ def propose_story_engine(blueprint: StoryBlueprint) -> StructureProposal:
         ),
         options=[option_a, option_b, option_c],
     )
+
+
+def propose_repairs_from_diagnostics(
+    diagnostics: list[StructureDiagnostic],
+) -> list[StructureProposal]:
+    """Convert structure diagnostics into human-editable repair proposals.
+
+    Diagnostics provide repair text, not guaranteed blueprint patches, so generated
+    options leave `data` empty until an author edits a concrete patch into the
+    proposal artifact.
+    """
+    proposals: list[StructureProposal] = []
+    for index, diagnostic in enumerate(diagnostics, start=1):
+        options: list[ProposalOption] = []
+        for option_index, repair in enumerate(
+            diagnostic.repair_options.preserve_intent,
+            start=1,
+        ):
+            options.append(
+                ProposalOption(
+                    id=f"preserve_intent_{option_index}",
+                    summary=repair,
+                    tradeoffs=(
+                        "Preserve-intent repair. Keeps the declared target "
+                        "experience and constraints unless the author edits "
+                        "the proposal data."
+                    ),
+                    data={},
+                )
+            )
+        for option_index, repair in enumerate(
+            diagnostic.repair_options.challenge_intent,
+            start=1,
+        ):
+            options.append(
+                ProposalOption(
+                    id=f"challenge_intent_{option_index}",
+                    summary=repair,
+                    tradeoffs=(
+                        "Challenge-intent repair. Reconsiders a higher-level "
+                        "intent or constraint before the author edits the "
+                        "proposal data."
+                    ),
+                    data={},
+                )
+            )
+
+        evidence = "; ".join(diagnostic.evidence)
+        summary = (
+            f"{diagnostic.severity.value} diagnostic "
+            f"{diagnostic.rule} in report context {diagnostic.layer.value}: "
+            f"{diagnostic.message} Evidence: {evidence}"
+        )
+        proposals.append(
+            StructureProposal(
+                proposal_id=f"repair_{index}_{_proposal_slug(diagnostic.rule)}",
+                type=ProposalType.REPAIR,
+                source_rule=diagnostic.rule,
+                summary=summary,
+                options=options,
+            )
+        )
+    return proposals
+
+
+def propose_repairs_from_diagnostic_report(
+    report: Mapping[str, Any],
+) -> list[StructureProposal]:
+    diagnostics = [
+        diagnostic
+        if isinstance(diagnostic, StructureDiagnostic)
+        else StructureDiagnostic.model_validate(diagnostic)
+        for diagnostic in report.get("diagnostics", [])
+    ]
+    return propose_repairs_from_diagnostics(diagnostics)
+
+
+def _proposal_slug(text: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "_", text.lower()).strip("_")
 
 
 def _deep_merge(base: dict[str, Any], patch: dict[str, Any]) -> dict[str, Any]:

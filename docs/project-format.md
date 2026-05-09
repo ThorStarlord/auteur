@@ -128,6 +128,17 @@ there are no error diagnostics, `4` when one or more error diagnostics are
 present, and `1` for local input failures such as a missing or malformed
 blueprint. Writing an output report does not mutate the blueprint.
 
+Diagnostic reports can be converted into human-editable repair proposal
+artifacts with
+`auteur.structure.proposals.propose_repairs_from_diagnostic_report()`. Code that
+already has `StructureDiagnostic` objects can call
+`propose_repairs_from_diagnostics()` directly. Each proposal keeps
+preserve-intent and challenge-intent repairs as separate options, references the
+diagnostic rule, severity, evidence, and report context, and starts with no
+selected option. Generated repair option `data` is empty unless an author edits
+in a concrete blueprint patch, so proposal creation does not mutate the
+blueprint or imply automatic acceptance.
+
 ## `bible.json`
 
 The Bible stores live state. Engine v1 initializes it as:

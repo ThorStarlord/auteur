@@ -34,6 +34,8 @@ options:
     data:
       # A partial dictionary matching the StoryBlueprint structure.
       # Fields here will be merged into the existing blueprint.
+      # Generated repair proposals may leave this empty until the author
+      # edits in a concrete blueprint patch.
       story_engine: ...
       identity: ...
 
@@ -47,7 +49,7 @@ selection:
 1.  **Generate**: Auteur runs an analyzer or generator and emits one or more proposal files using this YAML format. The concrete storage location is tool-defined and not yet standardized by the current CLI or project layout.
 2.  **Review**: The author reviews the options and their tradeoffs.
 3.  **Select**: The author sets `selected_option_id` to the ID of their chosen option.
-4.  **Apply (future tooling)**: A future CLI workflow may read the proposal, merge the data from the selected option (and any `custom_data`) into the project blueprint, and save the updated blueprint. This ADR defines the artifact format for that workflow, but does not require a `structure/` directory or an `auteur structure apply` command in the current implementation.
+4.  **Apply**: `apply_proposal_to_blueprint()` can read an accepted proposal, merge the data from the selected option into a validated blueprint, and write a new blueprint file by default. In-place application requires an explicit flag and original path. This ADR defines the artifact format for that workflow, but does not require a `structure/` directory or an `auteur structure apply` command in the current implementation.
 
 ## Consequences
 
