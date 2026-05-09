@@ -111,7 +111,9 @@ def propose_story_engine(blueprint: StoryBlueprint) -> StructureProposal:
     # Harvest context from the blueprint for grounding.
     author_intent: str = blueprint.identity.author_intent
     genre: str = blueprint.identity.genre.value
-    mode: str = blueprint.identity.mode.value if blueprint.identity.mode else genre
+    mode: str = (
+        blueprint.identity.mode.value if blueprint.identity.mode else "unspecified"
+    )
     central_question: str = blueprint.theme.central_question
     thesis: str = blueprint.theme.thesis
     ending_tone: str = blueprint.contract.mandatory_ending_tone.value
