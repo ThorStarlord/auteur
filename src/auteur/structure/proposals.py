@@ -93,6 +93,324 @@ class StructureProposal(BaseModel):
         )
 
 
+def propose_story_engine(blueprint: StoryBlueprint) -> StructureProposal:
+    """Generate a non-mutating proposal artifact for a blueprint that lacks a story_engine.
+
+    Returns a :class:`StructureProposal` with 3 options grounded in the blueprint's
+    identity, theme, contract, and characters.  The blueprint is never modified.
+
+    Raises:
+        ValueError: if the blueprint already has a story_engine.
+    """
+    if blueprint.story_engine is not None:
+        raise ValueError(
+            "propose_story_engine requires a blueprint with no story_engine, "
+            "but blueprint.story_engine is already set."
+        )
+
+    # Harvest context from the blueprint for grounding.
+    author_intent: str = blueprint.identity.author_intent
+    genre: str = blueprint.identity.genre.value
+    mode: str = (
+        blueprint.identity.mode.value if blueprint.identity.mode else "unspecified"
+    )
+    central_question: str = blueprint.theme.central_question
+    thesis: str = blueprint.theme.thesis
+    ending_tone: str = blueprint.contract.mandatory_ending_tone.value
+    title: str = blueprint.identity.title
+
+    # Protagonist hint — use first protagonist character name if available.
+    protagonist_name: str = "the protagonist"
+    for char in blueprint.characters:
+        from auteur.blueprint import CharacterRole
+        if char.role == CharacterRole.PROTAGONIST:
+            protagonist_name = char.name
+            break
+
+    # --- Option A: Lean protagonist drive (single main thread, no subplots) -------
+    option_a_want = (
+        f"{protagonist_name.capitalize()} wants to resolve the central tension "
+        f"arising from: {author_intent[:80].rstrip('.')}."
+    )
+    option_a = ProposalOption(
+        id="lean_protagonist_drive",
+        summary=(
+            f"A single focused main thread following {protagonist_name}'s want and "
+            f"resistance in a {mode} mode — no subordinate threads."
+        ),
+        tradeoffs=(
+            "Keeps structure tightly unified and easy to draft chapter-by-chapter. "
+            "Risk: limited space for secondary character depth or thematic counterpoint."
+        ),
+        data={
+            "story_engine": {
+                "main_thread": {
+                    "type": "main_plot",
+                    "want": {
+                        "author_text": option_a_want,
+                        "checkable_claims": [],
+                    },
+                    "resistance": {
+                        "author_text": (
+                            f"The world, or {protagonist_name}'s own psychology, opposes "
+                            f"resolution — grounded in the {genre} genre logic."
+                        ),
+                        "checkable_claims": [],
+                    },
+                    "conflict": {
+                        "author_text": (
+                            "External obstacles and internal contradiction collide at each "
+                            "act turn, forcing an escalating series of choices."
+                        ),
+                        "checkable_claims": [],
+                    },
+                    "stakes": {
+                        "author_text": (
+                            f"Failure means a {ending_tone} outcome for {protagonist_name} "
+                            f"and everyone whose fate is tied to theirs."
+                        ),
+                        "checkable_claims": [],
+                    },
+                    "change": {
+                        "author_text": (
+                            f"By the end, {protagonist_name} is transformed in a way that "
+                            f"answers the central question: {central_question}"
+                        ),
+                        "checkable_claims": [],
+                    },
+                    "thematic_function": (
+                        f"The main thread embodies the thesis: {thesis}"
+                    ),
+                },
+                "threads": [],
+            }
+        },
+    )
+
+    # --- Option B: Protagonist + one character-arc subordinate thread -------------
+    option_b_want = (
+        f"{protagonist_name.capitalize()} pursues the core need that defines the "
+        f"{mode} arc, while a key relationship thread runs parallel."
+    )
+    option_b = ProposalOption(
+        id="protagonist_with_relationship_arc",
+        summary=(
+            f"Main thread for {protagonist_name} plus one subordinate relationship or "
+            f"character-arc thread that mirrors or contrasts the central conflict."
+        ),
+        tradeoffs=(
+            "Adds emotional texture and a second dramatic register. "
+            "Risk: the subordinate thread must be carefully paced to avoid "
+            "splitting reader attention at critical moments."
+        ),
+        data={
+            "story_engine": {
+                "main_thread": {
+                    "type": "main_plot",
+                    "want": {
+                        "author_text": option_b_want,
+                        "checkable_claims": [],
+                    },
+                    "resistance": {
+                        "author_text": (
+                            f"Systemic and interpersonal forces in the {genre} setting "
+                            f"push back against {protagonist_name}'s goal."
+                        ),
+                        "checkable_claims": [],
+                    },
+                    "conflict": {
+                        "author_text": (
+                            "The protagonist's external goal and internal wound are "
+                            "constantly in friction, sharpened at each act break."
+                        ),
+                        "checkable_claims": [],
+                    },
+                    "stakes": {
+                        "author_text": (
+                            f"The relationship at the heart of the subordinate thread is "
+                            f"what {protagonist_name} stands to lose if the main thread fails."
+                        ),
+                        "checkable_claims": [],
+                    },
+                    "change": {
+                        "author_text": (
+                            f"{protagonist_name}'s resolution of both threads answers: "
+                            f"{central_question}"
+                        ),
+                        "checkable_claims": [],
+                    },
+                    "thematic_function": thesis,
+                },
+                "threads": [
+                    {
+                        "name": "Relationship Arc (placeholder — rename for your story)",
+                        "type": "relationship_arc",
+                        "want": {
+                            "author_text": (
+                                "A key secondary character wants something that intersects "
+                                f"with {protagonist_name}'s goal — edit to fit your cast."
+                            ),
+                            "checkable_claims": [],
+                        },
+                        "resistance": {
+                            "author_text": (
+                                "The same forces that oppose the protagonist also pressure "
+                                "this relationship, but from a different angle."
+                            ),
+                            "checkable_claims": [],
+                        },
+                        "conflict": {
+                            "author_text": (
+                                "Loyalty vs self-preservation; trust vs fear of betrayal."
+                            ),
+                            "checkable_claims": [],
+                        },
+                        "stakes": {
+                            "author_text": (
+                                f"The bond between {protagonist_name} and this character "
+                                "will define the emotional register of the ending."
+                            ),
+                            "checkable_claims": [],
+                        },
+                        "change": {
+                            "author_text": (
+                                "The relationship is either deepened, severed, or transformed "
+                                "by the climax of the main thread."
+                            ),
+                            "checkable_claims": [],
+                        },
+                        "supports_main_by": ["mirrors"],
+                        "thematic_function": (
+                            f"This thread reflects the motifs of the story and "
+                            f"holds the thesis ({thesis}) up to a different light."
+                        ),
+                    }
+                ],
+            }
+        },
+    )
+
+    # --- Option C: Thematic ensemble (main thread + thematic-echo thread) ---------
+    option_c = ProposalOption(
+        id="thematic_ensemble",
+        summary=(
+            f"Main thread interrogates the central question directly; a thematic-echo "
+            f"thread dramatises the thesis from an opposing or complementary angle."
+        ),
+        tradeoffs=(
+            f"Produces philosophically layered storytelling aligned with the {genre} genre. "
+            "Risk: requires careful structural architecture to prevent the thematic thread "
+            "from becoming an essay rather than a dramatic story strand."
+        ),
+        data={
+            "story_engine": {
+                "main_thread": {
+                    "type": "main_plot",
+                    "want": {
+                        "author_text": (
+                            f"{protagonist_name.capitalize()} wants to answer, through action, "
+                            f"the question the story poses: {central_question}"
+                        ),
+                        "checkable_claims": [],
+                    },
+                    "resistance": {
+                        "author_text": (
+                            f"Every scene in a {mode} story resists the protagonist's "
+                            f"preferred answer — edit this to match your antagonist force."
+                        ),
+                        "checkable_claims": [],
+                    },
+                    "conflict": {
+                        "author_text": (
+                            "The conflict is between the world-as-it-is and the world-as-it-could-be "
+                            "if the protagonist's desire were fulfilled."
+                        ),
+                        "checkable_claims": [],
+                    },
+                    "stakes": {
+                        "author_text": (
+                            f"If the protagonist cannot answer the central question in action, "
+                            f"the {ending_tone} outcome becomes inevitable."
+                        ),
+                        "checkable_claims": [],
+                    },
+                    "change": {
+                        "author_text": (
+                            f"The story's answer to '{central_question}' is embodied in how "
+                            f"{protagonist_name} changes (or refuses to change)."
+                        ),
+                        "checkable_claims": [],
+                    },
+                    "thematic_function": (
+                        f"Directly dramatises the thesis: {thesis}"
+                    ),
+                },
+                "threads": [
+                    {
+                        "name": "Thematic Echo (placeholder — rename for your story)",
+                        "type": "thematic_echo",
+                        "want": {
+                            "author_text": (
+                                "A secondary viewpoint or subplot wants the opposite — or a "
+                                "distorted version — of what the protagonist wants, illuminating "
+                                "the thesis by contrast."
+                            ),
+                            "checkable_claims": [],
+                        },
+                        "resistance": {
+                            "author_text": (
+                                "The same thematic forces press down on this strand, but the "
+                                "character responds in a different way, showing the cost of "
+                                "the alternative path."
+                            ),
+                            "checkable_claims": [],
+                        },
+                        "conflict": {
+                            "author_text": (
+                                "Ideological or moral conflict that externalises the thesis "
+                                "as a contest between two world-views."
+                            ),
+                            "checkable_claims": [],
+                        },
+                        "stakes": {
+                            "author_text": (
+                                "If this thread fails, the thesis goes uncontested — the story "
+                                "loses its dialectical tension."
+                            ),
+                            "checkable_claims": [],
+                        },
+                        "change": {
+                            "author_text": (
+                                "Resolution of this thread provides thematic counterpoint "
+                                "to the main thread's ending beat."
+                            ),
+                            "checkable_claims": [],
+                        },
+                        "supports_main_by": ["contrasts"],
+                        "thematic_function": (
+                            f"Holds a mirror to the thesis from the opposing angle, "
+                            f"enriching the answer to: {central_question}"
+                        ),
+                    }
+                ],
+            }
+        },
+    )
+
+    return StructureProposal(
+        proposal_id=f"story_engine_{title.replace(' ', '_').lower()[:40]}",
+        type=ProposalType.GENERATION,
+        source_rule="story_engine.missing",
+        summary=(
+            f"Story engine proposal for '{title}' ({genre}, {mode}). "
+            f"Central question: {central_question} "
+            f"Three structural options are offered below, grounded in the blueprint's "
+            f"identity, theme, and contract. Choose one to edit and accept."
+        ),
+        options=[option_a, option_b, option_c],
+    )
+
+
 def _deep_merge(base: dict[str, Any], patch: dict[str, Any]) -> dict[str, Any]:
     for k, v in patch.items():
         if isinstance(v, dict) and isinstance(base.get(k), dict):
