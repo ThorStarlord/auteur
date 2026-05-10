@@ -61,6 +61,10 @@ def main(argv: list[str] | None = None) -> int:
     p_retry.add_argument("--provider", choices=["anthropic", "openai"], default="anthropic")
     p_retry.add_argument("--model", default=None)
 
+    p_audit = sub.add_parser("audit", help="Run Bible audit diagnostics to detect lore drift.")
+    p_audit.add_argument("project", type=Path)
+    p_audit.add_argument("--repair", action="store_true", help="Write repair proposals to structure/proposals/.")
+
     p_structure = sub.add_parser("structure", help="Run whole-story structure commands.")
     structure_sub = p_structure.add_subparsers(dest="structure_command", required=True)
     p_structure_diagnose = structure_sub.add_parser(
@@ -104,6 +108,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_accept(args.project, args.chapter)
     if args.command == "retry":
         return _cmd_retry(args.project, args.chapter, args.max_iterations, args.provider, args.model)
+    if args.command == "audit":
+        return _cmd_audit(args.project, repair=args.repair)
     if args.command == "structure" and args.structure_command == "diagnose":
         return _cmd_structure_diagnose(args.blueprint, args.output)
     if args.command == "structure" and args.structure_command == "propose-repairs":
@@ -401,6 +407,113 @@ def _cmd_accept(project_path: Path, chapter_index: int) -> int:
     project.bible.save()
     print(f"Accepted {latest.name} as final.md for chapter {chapter_index}.")
     return 0
+
+
+def _cmd_audit(project_path: Path, *, repair: bool = False) -> int:
+    """Run Bible audit diagnostics on a project and print results.  When `repair` is True, also write proposal artifacts."""
+    from auteur.structure.bible_audit import audit_bible_locations
+
+    if not project_path.is_dir():
+        print(f"Project path is not a directory: {project_path}", file=sys.stderr)
+        return 1
+
+    bible_path = project_path / "bible.json"
+    if not bible_path.exists():
+        print(f"No bible.json found in {project_path}", file=sys.stderr)
+        return 1
+
+    from auteur.bible import StoryBible
+    bible = StoryBible(bible_path)
+
+    diagnostics = audit_bible_locations(bible)
+
+    if not diagnostics:
+        print("No lore drift detected.")
+        return 0
+
+    for d in diagnostics:
+        severity_label = d.severity.value.upper()
+        print(f"[{severity_label}] {d.rule}: {d.message}")
+        if d.evidence:
+            print("  Evidence:")
+            for line in d.evidence:
+                print(f"    - {line}")
+        if d.repair_options.preserve_intent:
+            print("  Preserve intent:")
+            for opt in d.repair_options.preserve_intent:
+                print(f"    - {opt}")
+        if d.repair_options.challenge_intent:
+            print("  Challenge intent:")
+            for opt in d.repair_options.challenge_intent:
+                print(f"    - {opt}")
+        print()
+
+    if repair and diagnostics:
+        _write_audit_repair_proposals(project_path, diagnostics)
+
+    errors = sum(1 for d in diagnostics if d.severity.value == "error")
+    warnings = sum(1 for d in diagnostics if d.severity.value == "warning")
+    print(f"Found {errors} error(s), {warnings} warning(s).")
+    return 1 if errors > 0 else 0
+
+
+def _write_audit_repair_proposals(
+    project_path: Path,
+    diagnostics: list[object],
+) -> None:
+    """Serialize Bible audit diagnostics into StructureProposal YAML files."""
+    from auteur.structure.proposals import (
+        ProposalOption,
+        ProposalType,
+        StructureProposal,
+    )
+
+    proposals_dir = project_path / "structure" / "proposals"
+    proposals_dir.mkdir(parents=True, exist_ok=True)
+
+    for idx, d in enumerate(diagnostics, start=1):
+        options: list[ProposalOption] = []
+        for pi, preserve in enumerate(d.repair_options.preserve_intent, start=1):
+            options.append(
+                ProposalOption(
+                    id=f"preserve_{pi}",
+                    summary=preserve,
+                    tradeoffs=(
+                        "Preserves the story's declared intent while "
+                        "resolving the continuity break."
+                    ),
+                    data={},
+                )
+            )
+        for ci, challenge in enumerate(d.repair_options.challenge_intent, start=1):
+            options.append(
+                ProposalOption(
+                    id=f"challenge_{ci}",
+                    summary=challenge,
+                    tradeoffs=(
+                        "Questions a higher-level assumption to resolve "
+                        "the continuity break."
+                    ),
+                    data={},
+                )
+            )
+
+        proposal = StructureProposal(
+            proposal_id=f"repair_{idx}_{d.rule.replace('.', '_')}",
+            type=ProposalType.REPAIR,
+            source_rule=d.rule,
+            summary=f"[{d.severity.value.upper()}] {d.rule}: {d.message}",
+            options=options,
+        )
+
+        proposal_path = proposals_dir / f"{proposal.proposal_id}.yaml"
+        import yaml as _yaml
+        proposal_path.write_text(
+            _yaml.safe_dump(proposal.model_dump(mode="json"), sort_keys=False),
+            encoding="utf-8",
+        )
+
+    print(f"Wrote {len(diagnostics)} repair proposal(s) to {proposals_dir}")
 
 
 def _cmd_retry(

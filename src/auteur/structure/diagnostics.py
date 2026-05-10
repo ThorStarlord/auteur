@@ -17,6 +17,7 @@ class DiagnosticLayer(str, Enum):
     STRUCTURAL_FORCES = "structural_forces"
     THREADS = "threads"
     THEME = "theme"
+    CARRIERS = "carriers"
 
 
 class RepairOptions(BaseModel):
