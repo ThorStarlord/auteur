@@ -613,6 +613,128 @@ def test_cli_accept_promotes_latest_draft(tmp_path):
     assert bible["realized_tension"] == [4]
 
 
+def test_cli_audit_detects_location_teleportation(tmp_path, capsys):
+    """auteur audit <project> should detect a teleportation in the Bible
+    and exit with code 1."""
+    target = tmp_path / "novel"
+    main(["init", str(target), "--from", str(SAMPLE_YAML)])
+
+    # Write a Bible with a known teleportation directly
+    bible_path = target / "bible.json"
+    bible_data = {
+        "characters": {},
+        "locations": {},
+        "items": {},
+        "factions": {},
+        "events": [
+            {
+                "chapter_index": 1,
+                "summary": "Aldric confronts the king.",
+                "deltas": {
+                    "character_state_changes": [
+                        {
+                            "character": "Aldric",
+                            "field": "location",
+                            "before": None,
+                            "after": "Throne Room",
+                        }
+                    ]
+                },
+            },
+            {
+                "chapter_index": 2,
+                "summary": "Aldric wakes in the dungeon.",
+                "deltas": {
+                    "character_state_changes": [
+                        {
+                            "character": "Aldric",
+                            "field": "location",
+                            "before": "Dungeon",  # does NOT match Throne Room
+                            "after": "Dungeon",
+                        }
+                    ]
+                },
+            },
+        ],
+        "realized_tension": [4],
+    }
+    bible_path.write_text(json.dumps(bible_data, indent=2), encoding="utf-8")
+
+    rc = main(["audit", str(target)])
+    out = capsys.readouterr().out
+
+    assert rc == 1, f"Expected exit 1 for errors, got {rc}. Output:\n{out}"
+    assert "Aldric" in out
+    assert "Throne Room" in out
+    assert "Dungeon" in out
+    assert "carriers.location_teleportation" in out
+
+
+def test_cli_audit_repair_writes_proposal_artifacts(tmp_path):
+    """auteur audit --repair should serialize diagnostics into proposal YAML
+    files in the structure/proposals/ directory."""
+    target = tmp_path / "novel"
+    main(["init", str(target), "--from", str(SAMPLE_YAML)])
+
+    # Write a Bible with a known teleportation
+    bible_path = target / "bible.json"
+    bible_data = {
+        "characters": {},
+        "locations": {},
+        "items": {},
+        "factions": {},
+        "events": [
+            {
+                "chapter_index": 1,
+                "summary": "Aldric confronts the king.",
+                "deltas": {
+                    "character_state_changes": [
+                        {
+                            "character": "Aldric",
+                            "field": "location",
+                            "before": None,
+                            "after": "Throne Room",
+                        }
+                    ]
+                },
+            },
+            {
+                "chapter_index": 2,
+                "summary": "Aldric wakes in the dungeon.",
+                "deltas": {
+                    "character_state_changes": [
+                        {
+                            "character": "Aldric",
+                            "field": "location",
+                            "before": "Dungeon",
+                            "after": "Dungeon",
+                        }
+                    ]
+                },
+            },
+        ],
+        "realized_tension": [4],
+    }
+    bible_path.write_text(json.dumps(bible_data, indent=2), encoding="utf-8")
+
+    rc = main(["audit", "--repair", str(target)])
+
+    assert rc == 1  # errors found, proposals written
+
+    proposals_dir = target / "structure" / "proposals"
+    proposal_files = sorted(proposals_dir.glob("repair_*.yaml"))
+    assert len(proposal_files) >= 1, f"No proposal files found in {proposals_dir}"
+
+    proposal_yaml = yaml.safe_load(proposal_files[0].read_text(encoding="utf-8"))
+    assert proposal_yaml["type"] == "repair"
+    assert proposal_yaml["source_rule"] == "carriers.location_teleportation"
+    assert len(proposal_yaml["options"]) >= 2  # preserve + challenge
+
+    # Options should contain the repair suggestions
+    option_summaries = [o["summary"] for o in proposal_yaml["options"]]
+    assert any("transition scene" in s.lower() for s in option_summaries)
+
+
 def test_cli_retry_continues_from_latest_failed_draft(tmp_path):
     target = tmp_path / "novel"
     main(["init", str(target), "--from", str(SAMPLE_YAML)])

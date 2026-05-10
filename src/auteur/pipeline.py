@@ -21,6 +21,18 @@ CARTOGRAPHER_TEMPERATURE = 0.4
 CARTOGRAPHER_MAX_TOKENS = 4000
 
 
+def extract_character_state_changes(outline: dict[str, Any]) -> list[dict[str, Any]]:
+    """Flatten character_state_changes from all scenes in a Cartographer outline.
+
+    Returns a list of {character, field, before, after} dicts.
+    """
+    changes: list[dict[str, Any]] = []
+    for scene in outline.get("scenes", []) or []:
+        for change in scene.get("character_state_changes", []) or []:
+            changes.append(dict(change))
+    return changes
+
+
 @dataclass
 class PlanResult:
     call: PlanningCall
@@ -143,11 +155,20 @@ class PipelineRunner:
 
             if report.passed:
                 final_path = project.write_final(chapter_index, prose)
+                state_changes = extract_character_state_changes(outline)
                 bible.record_event(
                     chapter_index=chapter_index,
                     summary=outline.get("chapter_summary", ""),
-                    deltas={"draft_iterations": i},
+                    deltas={
+                        "draft_iterations": i,
+                        "character_state_changes": state_changes,
+                    },
                 )
+                for change in state_changes:
+                    bible.upsert_character(
+                        change["character"],
+                        **{change["field"]: change["after"]},
+                    )
                 tension_score = outline.get("estimated_chapter_tension")
                 if isinstance(tension_score, int):
                     bible.record_tension(chapter_index, tension_score)
