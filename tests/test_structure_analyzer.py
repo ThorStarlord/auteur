@@ -125,6 +125,30 @@ def test_analyzer_reports_scope_and_thread_coherence_problems():
     assert by_rule["threads.exceeds_subplot_budget"].repair_options.challenge_intent
 
 
+def test_analyzer_reports_threads_that_do_not_drive_main_movement():
+    data = _minimal_blueprint_data()
+    data["story_engine"] = _story_engine(
+        want="The protagonist wants to expose the town's founding lie.",
+        change="The protagonist learns truth may require exile.",
+        thematic_function="Tests that truth costs belonging through the main plot.",
+    )
+    data["story_engine"]["threads"][0]["supports_main_by"] = ["contrasts"]
+    blueprint = StoryBlueprint.model_validate(data)
+
+    diagnostics = analyze_structure(blueprint)
+
+    by_rule = {d.rule: d for d in diagnostics}
+    diagnostic = by_rule["thread.supports_main_by.lacks_escalation_or_pressure"]
+    assert diagnostic.severity == DiagnosticSeverity.WARNING
+    assert diagnostic.layer == DiagnosticLayer.THREADS
+    assert diagnostic.evidence == [
+        "thread.name = The mayor's bargain",
+        "thread.supports_main_by = ['contrasts']",
+    ]
+    assert diagnostic.repair_options.preserve_intent
+    assert diagnostic.repair_options.challenge_intent
+
+
 def test_analyzer_reports_missing_subplot_budget_when_threads_exist():
     data = _minimal_blueprint_data()
     data["story_engine"] = _story_engine(
