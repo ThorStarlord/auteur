@@ -64,6 +64,8 @@ def main(argv: list[str] | None = None) -> int:
     p_audit = sub.add_parser("audit", help="Run Bible audit diagnostics to detect lore drift.")
     p_audit.add_argument("project", type=Path)
     p_audit.add_argument("--repair", action="store_true", help="Write repair proposals to structure/proposals/.")
+    p_audit.add_argument("--accept", default=None, help="Resolve a proposal by ID (requires --option).")
+    p_audit.add_argument("--option", default=None, help="Option ID to select when using --accept.")
 
     p_structure = sub.add_parser("structure", help="Run whole-story structure commands.")
     structure_sub = p_structure.add_subparsers(dest="structure_command", required=True)
@@ -109,7 +111,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "retry":
         return _cmd_retry(args.project, args.chapter, args.max_iterations, args.provider, args.model)
     if args.command == "audit":
-        return _cmd_audit(args.project, repair=args.repair)
+        return _cmd_audit(args.project, repair=args.repair, accept=args.accept, option=args.option)
     if args.command == "structure" and args.structure_command == "diagnose":
         return _cmd_structure_diagnose(args.blueprint, args.output)
     if args.command == "structure" and args.structure_command == "propose-repairs":
@@ -409,8 +411,9 @@ def _cmd_accept(project_path: Path, chapter_index: int) -> int:
     return 0
 
 
-def _cmd_audit(project_path: Path, *, repair: bool = False) -> int:
-    """Run Bible audit diagnostics on a project and print results.  When `repair` is True, also write proposal artifacts."""
+def _cmd_audit(project_path: Path, *, repair: bool = False, accept: str | None = None, option: str | None = None) -> int:
+    """Run Bible audit diagnostics on a project and print results.
+    When `repair` is True, also write proposal artifacts.  When `accept` is set, resolve the named proposal."""
     from auteur.structure.bible_audit import audit_bible_locations
 
     if not project_path.is_dir():
@@ -422,38 +425,39 @@ def _cmd_audit(project_path: Path, *, repair: bool = False) -> int:
         print(f"No bible.json found in {project_path}", file=sys.stderr)
         return 1
 
+    # --- Handle --accept (proposal resolution) ---
+    if accept is not None:
+        if option is None:
+            print("--accept requires --option.", file=sys.stderr)
+            return 1
+        return _resolve_proposal(project_path, accept, option)
+
     from auteur.bible import StoryBible
     bible = StoryBible(bible_path)
 
-    diagnostics = audit_bible_locations(bible)
+    # --- Load resolved proposals to filter output ---
+    resolved_rules: set[str] = _load_resolved_rules(project_path)
 
-    if not diagnostics:
+    raw_diagnostics = audit_bible_locations(bible)
+    diagnostics = [d for d in raw_diagnostics if d.rule not in resolved_rules]
+
+    if not raw_diagnostics:
         print("No lore drift detected.")
         return 0
 
+    if not diagnostics:
+        print("All previously detected lore drift has been resolved.")
+        return 0
+
     for d in diagnostics:
-        severity_label = d.severity.value.upper()
-        print(f"[{severity_label}] {d.rule}: {d.message}")
-        if d.evidence:
-            print("  Evidence:")
-            for line in d.evidence:
-                print(f"    - {line}")
-        if d.repair_options.preserve_intent:
-            print("  Preserve intent:")
-            for opt in d.repair_options.preserve_intent:
-                print(f"    - {opt}")
-        if d.repair_options.challenge_intent:
-            print("  Challenge intent:")
-            for opt in d.repair_options.challenge_intent:
-                print(f"    - {opt}")
-        print()
+        _print_diagnostic(d)
 
     if repair and diagnostics:
         _write_audit_repair_proposals(project_path, diagnostics)
 
     errors = sum(1 for d in diagnostics if d.severity.value == "error")
     warnings = sum(1 for d in diagnostics if d.severity.value == "warning")
-    print(f"Found {errors} error(s), {warnings} warning(s).")
+    print(f"Found {errors} unresolved error(s), {warnings} unresolved warning(s).")
     return 1 if errors > 0 else 0
 
 
@@ -470,6 +474,9 @@ def _write_audit_repair_proposals(
 
     proposals_dir = project_path / "structure" / "proposals"
     proposals_dir.mkdir(parents=True, exist_ok=True)
+
+    # Collect existing proposal file stems to avoid overwriting resolved ones
+    existing_proposals = {p.stem for p in proposals_dir.glob("repair_*.yaml")}
 
     for idx, d in enumerate(diagnostics, start=1):
         options: list[ProposalOption] = []
@@ -506,6 +513,10 @@ def _write_audit_repair_proposals(
             options=options,
         )
 
+        # Skip if a proposal file for this ID already exists (preserve resolved state)
+        if proposal.proposal_id in existing_proposals:
+            continue
+
         proposal_path = proposals_dir / f"{proposal.proposal_id}.yaml"
         import yaml as _yaml
         proposal_path.write_text(
@@ -514,6 +525,103 @@ def _write_audit_repair_proposals(
         )
 
     print(f"Wrote {len(diagnostics)} repair proposal(s) to {proposals_dir}")
+
+
+def _print_diagnostic(d: object) -> None:
+    """Print a single diagnostic with evidence and repair options."""
+    severity_label = d.severity.value.upper()
+    print(f"[{severity_label}] {d.rule}: {d.message}")
+    if d.evidence:
+        print("  Evidence:")
+        for line in d.evidence:
+            print(f"    - {line}")
+    if d.repair_options.preserve_intent:
+        print("  Preserve intent:")
+        for opt in d.repair_options.preserve_intent:
+            print(f"    - {opt}")
+    if d.repair_options.challenge_intent:
+        print("  Challenge intent:")
+        for opt in d.repair_options.challenge_intent:
+            print(f"    - {opt}")
+    print()
+
+
+def _load_resolved_rules(project_path: Path) -> set[str]:
+    """Scan structure/proposals/ for YAML files with a non-empty selected_option_id.
+    Return the set of source_rule values that have been resolved."""
+    import yaml as _yaml
+    proposals_dir = project_path / "structure" / "proposals"
+    if not proposals_dir.is_dir():
+        return set()
+
+    resolved: set[str] = set()
+    for proposal_file in sorted(proposals_dir.glob("*.yaml")):
+        try:
+            data = _yaml.safe_load(proposal_file.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if not isinstance(data, dict):
+            continue
+        selection = data.get("selection", {})
+        if isinstance(selection, dict) and selection.get("selected_option_id"):
+            source_rule = data.get("source_rule")
+            if source_rule:
+                resolved.add(source_rule)
+    return resolved
+
+
+def _resolve_proposal(project_path: Path, proposal_id: str, option_id: str) -> int:
+    """Load a proposal YAML, set the selected option, record a decision, and save."""
+    import yaml as _yaml
+    from datetime import datetime, timezone
+
+    proposals_dir = project_path / "structure" / "proposals"
+    proposal_path = proposals_dir / f"{proposal_id}.yaml"
+
+    if not proposal_path.exists():
+        print(f"Proposal not found: {proposal_path}", file=sys.stderr)
+        return 1
+
+    try:
+        data = _yaml.safe_load(proposal_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        print(f"Failed to parse {proposal_path}: {exc}", file=sys.stderr)
+        return 1
+
+    if not isinstance(data, dict):
+        print(f"Invalid proposal format: {proposal_path}", file=sys.stderr)
+        return 1
+
+    options = data.get("options", [])
+    option_ids = [o.get("id") for o in options if isinstance(o, dict)]
+    if option_id not in option_ids:
+        print(
+            f"Option '{option_id}' not found in proposal. "
+            f"Available: {option_ids}",
+            file=sys.stderr,
+        )
+        return 1
+
+    data["selection"] = {
+        "selected_option_id": option_id,
+        "custom_data": {},
+    }
+    data["decision"] = {
+        "selected_option_id": option_id,
+        "custom_data": {},
+        "status": "accepted",
+        "author": None,
+        "references": [],
+        "accepted_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+    proposal_path.write_text(
+        _yaml.safe_dump(data, sort_keys=False),
+        encoding="utf-8",
+    )
+    print(f"Resolved {proposal_id} with option '{option_id}'.")
+    return 0
+
 
 
 def _cmd_retry(

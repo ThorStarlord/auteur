@@ -734,6 +734,64 @@ def test_cli_audit_repair_writes_proposal_artifacts(tmp_path):
     option_summaries = [o["summary"] for o in proposal_yaml["options"]]
     assert any("transition scene" in s.lower() for s in option_summaries)
 
+def test_cli_audit_accept_resolves_proposal_and_filters_output(tmp_path, capsys):
+    """--repair writes a proposal, --accept resolves it, and subsequent
+    audit output no longer includes the resolved contradiction."""
+    target = tmp_path / "novel"
+    main(["init", str(target), "--from", str(SAMPLE_YAML)])
+
+    # Write a Bible with a known teleportation
+    bible_path = target / "bible.json"
+    bible_data = {
+        "characters": {}, "locations": {}, "items": {}, "factions": {},
+        "events": [
+            {
+                "chapter_index": 1, "summary": "Aldric confronts the king.",
+                "deltas": {"character_state_changes": [
+                    {"character": "Aldric", "field": "location",
+                     "before": None, "after": "Throne Room"}
+                ]},
+            },
+            {
+                "chapter_index": 2, "summary": "Aldric wakes in the dungeon.",
+                "deltas": {"character_state_changes": [
+                    {"character": "Aldric", "field": "location",
+                     "before": "Dungeon", "after": "Dungeon"}
+                ]},
+            },
+        ],
+        "realized_tension": [4],
+    }
+    bible_path.write_text(json.dumps(bible_data, indent=2), encoding="utf-8")
+
+    # Step 1: Generate repair proposal
+    rc = main(["audit", "--repair", str(target)])
+    assert rc == 1
+    capsys.readouterr()  # consume step 1 output
+
+    proposals_dir = target / "structure" / "proposals"
+    proposal_files = sorted(proposals_dir.glob("repair_*.yaml"))
+    assert len(proposal_files) == 1
+    proposal_id = proposal_files[0].stem  # e.g., "repair_1_carriers_location_teleportation"
+
+    # Step 2: Resolve via --accept
+    rc = main(["audit", "--accept", proposal_id, "--option", "preserve_1", str(target)])
+    assert rc == 0, f"--accept failed with rc={rc}"
+    capsys.readouterr()  # consume step 2 output
+
+    # Verify the YAML was mutated
+    resolved = yaml.safe_load(proposal_files[0].read_text(encoding="utf-8"))
+    assert resolved["selection"]["selected_option_id"] == "preserve_1"
+    assert resolved["decision"] is not None
+    assert resolved["decision"]["selected_option_id"] == "preserve_1"
+
+    # Step 3: Run audit again — the resolved contradiction should be absent
+    rc = main(["audit", str(target)])
+    out = capsys.readouterr().out
+    assert rc == 0  # no errors remain
+    assert "carriers.location_teleportation" not in out
+    assert "resolved" in out.lower()
+
 
 def test_cli_retry_continues_from_latest_failed_draft(tmp_path):
     target = tmp_path / "novel"
