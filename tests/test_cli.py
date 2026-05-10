@@ -328,6 +328,120 @@ theme:
     ]
 
 
+def test_cli_structure_apply_writes_new_blueprint_by_default(tmp_path, capsys):
+    project_path = tmp_path / "novel"
+    assert main(["init", str(project_path), "--from", str(SAMPLE_YAML)]) == 0
+    capsys.readouterr()
+
+    blueprint_path = project_path / "blueprint.yaml"
+    original_blueprint = blueprint_path.read_text(encoding="utf-8")
+
+    proposal_path = tmp_path / "proposal.yaml"
+    proposal_path.write_text(
+      yaml.safe_dump(
+        {
+          "proposal_id": "repair_14",
+          "type": "repair",
+          "summary": "Increase subplot budget",
+          "options": [
+            {
+              "id": "raise_budget",
+              "summary": "Raise subplot budget",
+              "tradeoffs": "Allows more threads.",
+              "data": {"structure": {"subplot_budget": 5}},
+            }
+          ],
+          "selection": {"selected_option_id": "raise_budget", "custom_data": {}},
+        },
+        sort_keys=False,
+      ),
+      encoding="utf-8",
+    )
+
+    rc = main(["structure", "apply", str(proposal_path), str(blueprint_path)])
+
+    assert rc == 0
+    output = json.loads(capsys.readouterr().out)
+    target_path = Path(output["target_path"])
+    assert output["in_place"] is False
+    assert target_path.exists()
+    assert target_path != blueprint_path
+    assert blueprint_path.read_text(encoding="utf-8") == original_blueprint
+
+    applied_blueprint = yaml.safe_load(target_path.read_text(encoding="utf-8"))
+    assert applied_blueprint["structure"]["subplot_budget"] == 5
+
+    meta = yaml.safe_load(Path(str(target_path) + ".meta.yaml").read_text(encoding="utf-8"))
+    assert meta["applied_from_proposal"] == "repair_14"
+    assert meta["selected_option_id"] == "raise_budget"
+
+
+def test_cli_structure_apply_requires_selected_or_accepted_option(tmp_path, capsys):
+    proposal_path = tmp_path / "proposal.yaml"
+    proposal_path.write_text(
+      yaml.safe_dump(
+        {
+          "proposal_id": "repair_14",
+          "type": "repair",
+          "summary": "Missing selected option",
+          "options": [
+            {
+              "id": "raise_budget",
+              "summary": "Raise subplot budget",
+              "tradeoffs": "Allows more threads.",
+              "data": {"structure": {"subplot_budget": 5}},
+            }
+          ],
+          "selection": {"selected_option_id": "", "custom_data": {}},
+        },
+        sort_keys=False,
+      ),
+      encoding="utf-8",
+    )
+
+    rc = main(["structure", "apply", str(proposal_path), str(SAMPLE_YAML)])
+
+    assert rc == 1
+    assert "must include an accepted or selected option" in capsys.readouterr().err
+
+
+def test_cli_structure_apply_uses_accepted_decision_when_selection_is_empty(tmp_path, capsys):
+    proposal_path = tmp_path / "proposal.yaml"
+    proposal_path.write_text(
+      yaml.safe_dump(
+        {
+          "proposal_id": "repair_14",
+          "type": "repair",
+          "summary": "Use accepted decision",
+          "options": [
+            {
+              "id": "raise_budget",
+              "summary": "Raise subplot budget",
+              "tradeoffs": "Allows more threads.",
+              "data": {"structure": {"subplot_budget": 5}},
+            }
+          ],
+          "selection": {"selected_option_id": "", "custom_data": {}},
+          "decision": {
+            "selected_option_id": "raise_budget",
+            "custom_data": {"reason": "approved"},
+            "status": "accepted",
+          },
+        },
+        sort_keys=False,
+      ),
+      encoding="utf-8",
+    )
+
+    rc = main(["structure", "apply", str(proposal_path), str(SAMPLE_YAML)])
+
+    assert rc == 0
+    output = json.loads(capsys.readouterr().out)
+    meta = yaml.safe_load(Path(output["target_path"] + ".meta.yaml").read_text(encoding="utf-8"))
+    assert meta["selected_option_id"] == "raise_budget"
+    assert meta["decision"]["status"] == "accepted"
+
+
 def _patch_client(scripted):
     from auteur.llm.fake import FakeClient
     return patch("auteur.cli._build_client", return_value=FakeClient(scripted))

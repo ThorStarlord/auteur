@@ -24,7 +24,11 @@ from auteur.llm import LLMClient
 from auteur.pipeline import PipelineRunner
 from auteur.project import Project
 from auteur.structure import DiagnosticSeverity, analyze_structure
-from auteur.structure.proposals import propose_repairs_from_diagnostics
+from auteur.structure.proposals import (
+    StructureProposal,
+    apply_proposal_to_blueprint,
+    propose_repairs_from_diagnostics,
+)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -70,6 +74,23 @@ def main(argv: list[str] | None = None) -> int:
         help="Run structure diagnostics and write repair proposal artifacts.",
     )
     p_structure_propose_repairs.add_argument("blueprint", type=Path)
+    p_structure_apply = structure_sub.add_parser(
+        "apply",
+        help="Apply a selected structure proposal option to a blueprint.",
+    )
+    p_structure_apply.add_argument("proposal", type=Path)
+    p_structure_apply.add_argument("blueprint", type=Path)
+    p_structure_apply.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="Output directory for the new blueprint file (default: source blueprint directory).",
+    )
+    p_structure_apply.add_argument(
+        "--in-place",
+        action="store_true",
+        help="Overwrite the source blueprint file. Disabled by default.",
+    )
 
     args = parser.parse_args(argv)
 
@@ -87,6 +108,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_structure_diagnose(args.blueprint, args.output)
     if args.command == "structure" and args.structure_command == "propose-repairs":
         return _cmd_structure_propose_repairs(args.blueprint)
+    if args.command == "structure" and args.structure_command == "apply":
+        return _cmd_structure_apply(args.proposal, args.blueprint, args.output, args.in_place)
     parser.print_help()
     return 2
 
@@ -191,6 +214,80 @@ def _cmd_structure_propose_repairs(blueprint_path: Path) -> int:
     return 0
 
 
+def _cmd_structure_apply(
+    proposal_path: Path,
+    blueprint_path: Path,
+    output_path: Path | None,
+    in_place: bool,
+) -> int:
+    if not proposal_path.exists():
+        print(f"Error: proposal not found: {proposal_path}", file=sys.stderr)
+        return 1
+    if not blueprint_path.exists():
+        print(f"Error: blueprint not found: {blueprint_path}", file=sys.stderr)
+        return 1
+    if in_place and output_path is not None:
+        print("Error: --output cannot be used with --in-place", file=sys.stderr)
+        return 1
+
+    try:
+        proposal_payload = yaml.safe_load(proposal_path.read_text(encoding="utf-8"))
+        proposal = StructureProposal.model_validate(proposal_payload)
+    except (ValueError, yaml.YAMLError, OSError) as exc:
+        print(f"Error: invalid proposal {proposal_path}: {exc}", file=sys.stderr)
+        return 1
+
+    try:
+        blueprint, _, _ = _load_blueprint_and_structure_dirs(blueprint_path)
+    except (ValueError, yaml.YAMLError, OSError) as exc:
+        print(f"Error: invalid blueprint {blueprint_path}: {exc}", file=sys.stderr)
+        return 1
+
+    if (
+        not proposal.selection.selected_option_id
+        and proposal.decision is not None
+        and proposal.decision.status == "accepted"
+    ):
+        proposal.selection.selected_option_id = proposal.decision.selected_option_id
+        if not proposal.selection.custom_data and proposal.decision.custom_data:
+            proposal.selection.custom_data = proposal.decision.custom_data
+
+    if not proposal.selection.selected_option_id:
+        print(
+            "Error: proposal must include an accepted or selected option before apply",
+            file=sys.stderr,
+        )
+        return 1
+
+    source_blueprint_path = _resolve_blueprint_file_path(blueprint_path)
+
+    try:
+        _, target_path = apply_proposal_to_blueprint(
+            proposal,
+            blueprint,
+            output_dir=str(output_path or source_blueprint_path.parent) if not in_place else None,
+            original_path=str(source_blueprint_path) if in_place else None,
+            in_place=in_place,
+        )
+    except (ValueError, OSError, yaml.YAMLError) as exc:
+        print(f"Error: failed to apply proposal {proposal_path}: {exc}", file=sys.stderr)
+        return 1
+
+    print(
+        json.dumps(
+            {
+                "proposal_path": str(proposal_path),
+                "source_blueprint_path": str(source_blueprint_path),
+                "target_path": str(target_path),
+                "in_place": in_place,
+                "selected_option_id": proposal.selection.selected_option_id,
+            },
+            indent=2,
+        )
+    )
+    return 0
+
+
 def _load_blueprint_and_structure_dirs(
     blueprint_path: Path,
 ) -> tuple[StoryBlueprint, Path, Path]:
@@ -216,6 +313,12 @@ def _load_blueprint_and_structure_dirs(
     diagnostics_dir.mkdir(parents=True, exist_ok=True)
     proposals_dir.mkdir(parents=True, exist_ok=True)
     return blueprint, diagnostics_dir, proposals_dir
+
+
+def _resolve_blueprint_file_path(blueprint_path: Path) -> Path:
+    if blueprint_path.is_dir():
+        return blueprint_path / "blueprint.yaml"
+    return blueprint_path
 
 
 def _cmd_draft(
