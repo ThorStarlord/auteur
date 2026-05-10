@@ -6,6 +6,9 @@ An Auteur project is a directory-backed story workspace.
 project/
   blueprint.yaml
   bible.json
+  structure/
+    diagnostics/
+    proposals/
   chapters/
     01/
       outline.yaml
@@ -32,6 +35,16 @@ Major sections:
 - `theme`: central question, thesis, and motifs.
 
 The sample file at `examples/sample_blueprint.yaml` is the best starting point.
+
+## Structure Artifacts
+
+Structure engine outputs live under `structure/` when a workflow creates them:
+
+- `structure/diagnostics/`: deterministic structure diagnostic reports.
+- `structure/proposals/`: human-editable generation or repair proposal YAML artifacts.
+
+Project helpers create these directories lazily when callers need them. Creating
+or loading a project does not create structure artifact directories by default.
 
 ### Structure Engine Fields
 
