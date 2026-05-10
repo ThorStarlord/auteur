@@ -442,6 +442,79 @@ def test_cli_structure_apply_uses_accepted_decision_when_selection_is_empty(tmp_
     assert meta["decision"]["status"] == "accepted"
 
 
+def test_cli_structure_apply_rejects_selected_option_not_in_options(tmp_path, capsys):
+    proposal_path = tmp_path / "proposal.yaml"
+    proposal_path.write_text(
+      yaml.safe_dump(
+        {
+          "proposal_id": "repair_14",
+          "type": "repair",
+          "summary": "Use accepted decision",
+          "options": [
+            {
+              "id": "raise_budget",
+              "summary": "Raise subplot budget",
+              "tradeoffs": "Allows more threads.",
+              "data": {"structure": {"subplot_budget": 5}},
+            }
+          ],
+          "selection": {"selected_option_id": "", "custom_data": {}},
+          "decision": {
+            "selected_option_id": "not_a_real_option",
+            "custom_data": {},
+            "status": "accepted",
+          },
+        },
+        sort_keys=False,
+      ),
+      encoding="utf-8",
+    )
+
+    rc = main(["structure", "apply", str(proposal_path), str(SAMPLE_YAML)])
+
+    assert rc == 1
+    assert "selected_option_id 'not_a_real_option' not found" in capsys.readouterr().err
+
+
+def test_cli_structure_apply_rejects_output_with_in_place(tmp_path, capsys):
+    proposal_path = tmp_path / "proposal.yaml"
+    proposal_path.write_text(
+      yaml.safe_dump(
+        {
+          "proposal_id": "repair_14",
+          "type": "repair",
+          "summary": "Increase subplot budget",
+          "options": [
+            {
+              "id": "raise_budget",
+              "summary": "Raise subplot budget",
+              "tradeoffs": "Allows more threads.",
+              "data": {"structure": {"subplot_budget": 5}},
+            }
+          ],
+          "selection": {"selected_option_id": "raise_budget", "custom_data": {}},
+        },
+        sort_keys=False,
+      ),
+      encoding="utf-8",
+    )
+
+    rc = main(
+      [
+        "structure",
+        "apply",
+        str(proposal_path),
+        str(SAMPLE_YAML),
+        "--output",
+        str(tmp_path),
+        "--in-place",
+      ]
+    )
+
+    assert rc == 1
+    assert "--output cannot be used with --in-place" in capsys.readouterr().err
+
+
 def _patch_client(scripted):
     from auteur.llm.fake import FakeClient
     return patch("auteur.cli._build_client", return_value=FakeClient(scripted))

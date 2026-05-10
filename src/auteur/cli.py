@@ -259,6 +259,17 @@ def _cmd_structure_apply(
         )
         return 1
 
+    option_ids = {option.id for option in proposal.options}
+    if proposal.selection.selected_option_id not in option_ids:
+        print(
+            (
+                "Error: selected_option_id "
+                f"{proposal.selection.selected_option_id!r} not found in proposal options"
+            ),
+            file=sys.stderr,
+        )
+        return 1
+
     source_blueprint_path = _resolve_blueprint_file_path(blueprint_path)
 
     try:

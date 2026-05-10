@@ -1,0 +1,11 @@
+applied_from_proposal: repair_14
+applied_at: '2026-05-10T03:41:19.469345+00:00'
+selected_option_id: raise_budget
+decision:
+  selected_option_id: raise_budget
+  custom_data:
+    reason: approved
+  status: accepted
+  author: null
+  references: []
+  accepted_at: null
