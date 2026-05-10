@@ -7,6 +7,7 @@ from auteur.structure.diagnostics import (
     RepairOptions,
     StructureDiagnostic,
 )
+from auteur.blueprint import SupportFunction
 
 
 def analyze_structure(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
@@ -103,6 +104,32 @@ def analyze_structure(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
                 ),
             )
         )
+
+    for thread in engine.threads:
+        support_functions = {support_function.value for support_function in thread.supports_main_by}
+        if support_functions.isdisjoint({SupportFunction.ESCALATES.value, SupportFunction.PRESSURES_CHANGE.value}):
+            diagnostics.append(
+                StructureDiagnostic(
+                    severity=DiagnosticSeverity.WARNING,
+                    layer=DiagnosticLayer.THREADS,
+                    rule="thread.supports_main_by.lacks_escalation_or_pressure",
+                    message=(
+                        "The subordinate thread is declared, but its support functions do not appear to move the main thread."
+                    ),
+                    evidence=[
+                        f"thread.name = {thread.name}",
+                        f"thread.supports_main_by = {[support_function.value for support_function in thread.supports_main_by]}",
+                    ],
+                    repair_options=RepairOptions(
+                        preserve_intent=[
+                            "Add one or more support functions that escalate pressure on the main thread, such as escalates or pressures_change."
+                        ],
+                        challenge_intent=[
+                            "Remove or defer the thread if it is not materially supporting the main thread's movement."
+                        ],
+                    ),
+                )
+            )
 
     want = _normalize(engine.main_thread.want.author_text)
     change = _normalize(engine.main_thread.change.author_text)
