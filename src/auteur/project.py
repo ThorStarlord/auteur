@@ -51,6 +51,21 @@ class Project:
         d.mkdir(parents=True, exist_ok=True)
         return d
 
+    def structure_dir(self) -> Path:
+        d = self.path / "structure"
+        d.mkdir(parents=True, exist_ok=True)
+        return d
+
+    def structure_diagnostics_dir(self) -> Path:
+        d = self.structure_dir() / "diagnostics"
+        d.mkdir(parents=True, exist_ok=True)
+        return d
+
+    def structure_proposals_dir(self) -> Path:
+        d = self.structure_dir() / "proposals"
+        d.mkdir(parents=True, exist_ok=True)
+        return d
+
     def next_draft_version(self, n: int) -> int:
         existing = list(self.chapter_dir(n).glob("draft_v*.md"))
         if not existing:
