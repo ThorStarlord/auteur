@@ -24,6 +24,7 @@ from auteur.llm import LLMClient
 from auteur.pipeline import PipelineRunner
 from auteur.project import Project
 from auteur.structure import DiagnosticSeverity, analyze_structure
+from auteur.structure.proposals import propose_repairs_from_diagnostics
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -64,6 +65,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     p_structure_diagnose.add_argument("blueprint", type=Path)
     p_structure_diagnose.add_argument("--output", type=Path, default=None)
+    p_structure_propose_repairs = structure_sub.add_parser(
+        "propose-repairs",
+        help="Run structure diagnostics and write repair proposal artifacts.",
+    )
+    p_structure_propose_repairs.add_argument("blueprint", type=Path)
 
     args = parser.parse_args(argv)
 
@@ -79,6 +85,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_retry(args.project, args.chapter, args.max_iterations, args.provider, args.model)
     if args.command == "structure" and args.structure_command == "diagnose":
         return _cmd_structure_diagnose(args.blueprint, args.output)
+    if args.command == "structure" and args.structure_command == "propose-repairs":
+        return _cmd_structure_propose_repairs(args.blueprint)
     parser.print_help()
     return 2
 
@@ -132,6 +140,82 @@ def _cmd_structure_diagnose(blueprint_path: Path, output_path: Path | None = Non
     if any(diagnostic.severity == DiagnosticSeverity.ERROR for diagnostic in diagnostics):
         return 4
     return 0
+
+
+def _cmd_structure_propose_repairs(blueprint_path: Path) -> int:
+    if not blueprint_path.exists():
+        print(f"Error: blueprint not found: {blueprint_path}", file=sys.stderr)
+        return 1
+    try:
+        blueprint, diagnostics_dir, proposals_dir = _load_blueprint_and_structure_dirs(
+            blueprint_path
+        )
+    except (ValueError, yaml.YAMLError, OSError) as exc:
+        print(f"Error: invalid blueprint {blueprint_path}: {exc}", file=sys.stderr)
+        return 1
+
+    diagnostics = analyze_structure(blueprint)
+    report = {"diagnostics": [diagnostic.model_dump(mode="json") for diagnostic in diagnostics]}
+    proposals = propose_repairs_from_diagnostics(diagnostics)
+
+    try:
+        report_path = diagnostics_dir / "structure_report.json"
+        report_path.write_text(
+            f"{json.dumps(report, indent=2, ensure_ascii=False)}\n",
+            encoding="utf-8",
+        )
+
+        proposal_paths = []
+        for proposal in proposals:
+            proposal_path = proposals_dir / f"{proposal.proposal_id}.yaml"
+            proposal_path.write_text(
+                yaml.safe_dump(proposal.model_dump(mode="json"), sort_keys=False),
+                encoding="utf-8",
+            )
+            proposal_paths.append(proposal_path)
+    except OSError as exc:
+        print(f"Error: failed to write structure artifacts: {exc}", file=sys.stderr)
+        return 1
+
+    print(
+        json.dumps(
+            {
+                "diagnostic_count": len(diagnostics),
+                "proposal_count": len(proposals),
+                "report_path": str(report_path),
+                "proposal_paths": [str(path) for path in proposal_paths],
+            },
+            indent=2,
+        )
+    )
+    return 0
+
+
+def _load_blueprint_and_structure_dirs(
+    blueprint_path: Path,
+) -> tuple[StoryBlueprint, Path, Path]:
+    if blueprint_path.is_dir():
+        project = Project.load(blueprint_path)
+        return (
+            project.blueprint,
+            project.structure_diagnostics_dir(),
+            project.structure_proposals_dir(),
+        )
+
+    if blueprint_path.name == "blueprint.yaml" and (blueprint_path.parent / "bible.json").exists():
+        project = Project.load(blueprint_path.parent)
+        return (
+            project.blueprint,
+            project.structure_diagnostics_dir(),
+            project.structure_proposals_dir(),
+        )
+
+    blueprint = StoryBlueprint.from_yaml(blueprint_path)
+    diagnostics_dir = blueprint_path.parent / "structure" / "diagnostics"
+    proposals_dir = blueprint_path.parent / "structure" / "proposals"
+    diagnostics_dir.mkdir(parents=True, exist_ok=True)
+    proposals_dir.mkdir(parents=True, exist_ok=True)
+    return blueprint, diagnostics_dir, proposals_dir
 
 
 def _cmd_draft(

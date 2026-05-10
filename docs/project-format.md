@@ -134,6 +134,7 @@ The same deterministic analyzer is available through the CLI:
 ```powershell
 auteur structure diagnose .\examples\sample_blueprint.yaml
 auteur structure diagnose .\examples\sample_blueprint.yaml --output .\structure\diagnostics\001_report.json
+auteur structure propose-repairs .\project\blueprint.yaml
 ```
 
 The command prints a JSON report with a `diagnostics` list. It returns `0` when
@@ -151,6 +152,13 @@ diagnostic rule, severity, evidence, and report context, and starts with no
 selected option. Generated repair option `data` is empty unless an author edits
 in a concrete blueprint patch, so proposal creation does not mutate the
 blueprint or imply automatic acceptance.
+
+The same repair proposal flow is available through
+`auteur structure propose-repairs`. When run against a project directory or a
+project `blueprint.yaml`, it writes `structure/diagnostics/structure_report.json`
+and one repair proposal YAML artifact per diagnostic under
+`structure/proposals/`. The command creates artifacts only; it does not mutate
+the blueprint or accept/apply any proposal.
 
 ## `bible.json`
 

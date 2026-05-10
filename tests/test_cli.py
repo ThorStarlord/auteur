@@ -3,6 +3,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+import yaml
 
 from auteur.cli import main
 from auteur.llm import LLMResponse
@@ -185,6 +186,146 @@ def test_cli_structure_diagnose_malformed_blueprint_returns_1(tmp_path, capsys):
 
     assert rc == 1
     assert "Error: invalid blueprint" in capsys.readouterr().err
+
+
+def test_cli_structure_propose_repairs_writes_error_proposals_to_project_artifacts(tmp_path, capsys):
+    source_blueprint = tmp_path / "missing_story_engine.yaml"
+    source_blueprint.write_text(
+        """
+identity:
+  title: Test Story
+  author_intent: A test premise.
+  length_class: novel
+  genre: literary
+  target_audience: adult
+  pov_type: third_person_limited_single
+contract:
+  content_rating: PG
+  mandatory_ending_tone: open
+emotional_design:
+  overall_emotional_arc: quiet pressure
+theme:
+  central_question: What does truth cost?
+  thesis: Truth costs belonging.
+  motifs: []
+""",
+        encoding="utf-8",
+    )
+    project_path = tmp_path / "novel"
+    assert main(["init", str(project_path), "--from", str(source_blueprint)]) == 0
+    capsys.readouterr()
+    blueprint_path = project_path / "blueprint.yaml"
+    original_blueprint = blueprint_path.read_text(encoding="utf-8")
+
+    rc = main(["structure", "propose-repairs", str(blueprint_path)])
+
+    assert rc == 0
+    output = json.loads(capsys.readouterr().out)
+    assert output["diagnostic_count"] == 1
+    assert output["proposal_count"] == 1
+    assert blueprint_path.read_text(encoding="utf-8") == original_blueprint
+
+    report_path = project_path / "structure" / "diagnostics" / "structure_report.json"
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert report["diagnostics"][0]["rule"] == "story_engine.missing"
+
+    proposal_paths = sorted((project_path / "structure" / "proposals").glob("*.yaml"))
+    assert len(proposal_paths) == 1
+    proposal = yaml.safe_load(proposal_paths[0].read_text(encoding="utf-8"))
+    assert proposal["type"] == "repair"
+    assert proposal["source_rule"] == "story_engine.missing"
+    assert [option["id"] for option in proposal["options"]] == [
+        "preserve_intent_1",
+        "challenge_intent_1",
+    ]
+
+
+def test_cli_structure_propose_repairs_writes_warning_proposals_to_project_artifacts(tmp_path, capsys):
+    source_blueprint = tmp_path / "warning_only.yaml"
+    source_blueprint.write_text(
+        """
+identity:
+  title: Test Story
+  author_intent: A test premise.
+  length_class: novel
+  genre: literary
+  target_audience: adult
+  pov_type: third_person_limited_single
+story_engine:
+  main_thread:
+    want:
+      author_text: The protagonist wants to expose the town's founding lie.
+      checkable_claims: []
+    resistance:
+      author_text: The town needs the lie to survive.
+      checkable_claims: []
+    conflict:
+      author_text: Revealing truth saves conscience but destroys home.
+      checkable_claims: []
+    stakes:
+      author_text: Each step toward truth costs a relationship.
+      checkable_claims: []
+    change:
+      author_text: The protagonist learns truth may require exile.
+      checkable_claims: []
+    thematic_function: Tests that truth costs belonging through the main plot.
+  threads:
+    - name: Political pressure
+      type: political
+      want:
+        author_text: The mayor wants to keep the founding crime buried.
+        checkable_claims: []
+      resistance:
+        author_text: The protagonist keeps finding witnesses.
+        checkable_claims: []
+      conflict:
+        author_text: Order depends on a public lie.
+        checkable_claims: []
+      stakes:
+        author_text: Exposure may collapse the town's fragile peace.
+        checkable_claims: []
+      change:
+        author_text: The bargain moves from rumor to open coercion.
+        checkable_claims: []
+      supports_main_by: [escalates]
+      thematic_function: Shows that truth costs belonging at civic scale.
+contract:
+  content_rating: PG
+  mandatory_ending_tone: open
+emotional_design:
+  overall_emotional_arc: quiet pressure
+theme:
+  central_question: What does truth cost?
+  thesis: Truth costs belonging.
+  motifs: []
+""",
+        encoding="utf-8",
+    )
+    project_path = tmp_path / "novel"
+    assert main(["init", str(project_path), "--from", str(source_blueprint)]) == 0
+    capsys.readouterr()
+
+    rc = main(["structure", "propose-repairs", str(project_path)])
+
+    assert rc == 0
+    output = json.loads(capsys.readouterr().out)
+    assert output["diagnostic_count"] == 1
+    assert output["proposal_count"] == 1
+
+    report_path = project_path / "structure" / "diagnostics" / "structure_report.json"
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert report["diagnostics"][0]["severity"] == "warning"
+    assert report["diagnostics"][0]["rule"] == "structure.subplot_budget.missing"
+
+    proposal_paths = sorted((project_path / "structure" / "proposals").glob("*.yaml"))
+    assert len(proposal_paths) == 1
+    proposal = yaml.safe_load(proposal_paths[0].read_text(encoding="utf-8"))
+    assert "warning diagnostic" in proposal["summary"]
+    assert proposal["source_rule"] == "structure.subplot_budget.missing"
+    assert [option["id"] for option in proposal["options"]] == [
+        "preserve_intent_1",
+        "challenge_intent_1",
+    ]
 
 
 def _patch_client(scripted):
