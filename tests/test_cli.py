@@ -377,6 +377,9 @@ def test_cli_structure_apply_writes_new_blueprint_by_default(tmp_path, capsys):
 
 
 def test_cli_structure_apply_requires_selected_or_accepted_option(tmp_path, capsys):
+    blueprint_path = tmp_path / "blueprint.yaml"
+    blueprint_path.write_text(SAMPLE_YAML.read_text(encoding="utf-8"), encoding="utf-8")
+
     proposal_path = tmp_path / "proposal.yaml"
     proposal_path.write_text(
       yaml.safe_dump(
@@ -399,13 +402,16 @@ def test_cli_structure_apply_requires_selected_or_accepted_option(tmp_path, caps
       encoding="utf-8",
     )
 
-    rc = main(["structure", "apply", str(proposal_path), str(SAMPLE_YAML)])
+    rc = main(["structure", "apply", str(proposal_path), str(blueprint_path)])
 
     assert rc == 1
     assert "must include an accepted or selected option" in capsys.readouterr().err
 
 
 def test_cli_structure_apply_uses_accepted_decision_when_selection_is_empty(tmp_path, capsys):
+    blueprint_path = tmp_path / "blueprint.yaml"
+    blueprint_path.write_text(SAMPLE_YAML.read_text(encoding="utf-8"), encoding="utf-8")
+
     proposal_path = tmp_path / "proposal.yaml"
     proposal_path.write_text(
       yaml.safe_dump(
@@ -433,7 +439,7 @@ def test_cli_structure_apply_uses_accepted_decision_when_selection_is_empty(tmp_
       encoding="utf-8",
     )
 
-    rc = main(["structure", "apply", str(proposal_path), str(SAMPLE_YAML)])
+    rc = main(["structure", "apply", str(proposal_path), str(blueprint_path)])
 
     assert rc == 0
     output = json.loads(capsys.readouterr().out)
@@ -443,6 +449,9 @@ def test_cli_structure_apply_uses_accepted_decision_when_selection_is_empty(tmp_
 
 
 def test_cli_structure_apply_rejects_selected_option_not_in_options(tmp_path, capsys):
+    blueprint_path = tmp_path / "blueprint.yaml"
+    blueprint_path.write_text(SAMPLE_YAML.read_text(encoding="utf-8"), encoding="utf-8")
+
     proposal_path = tmp_path / "proposal.yaml"
     proposal_path.write_text(
       yaml.safe_dump(
@@ -470,13 +479,16 @@ def test_cli_structure_apply_rejects_selected_option_not_in_options(tmp_path, ca
       encoding="utf-8",
     )
 
-    rc = main(["structure", "apply", str(proposal_path), str(SAMPLE_YAML)])
+    rc = main(["structure", "apply", str(proposal_path), str(blueprint_path)])
 
     assert rc == 1
     assert "selected_option_id 'not_a_real_option' not found" in capsys.readouterr().err
 
 
 def test_cli_structure_apply_rejects_output_with_in_place(tmp_path, capsys):
+    blueprint_path = tmp_path / "blueprint.yaml"
+    blueprint_path.write_text(SAMPLE_YAML.read_text(encoding="utf-8"), encoding="utf-8")
+
     proposal_path = tmp_path / "proposal.yaml"
     proposal_path.write_text(
       yaml.safe_dump(
@@ -500,15 +512,15 @@ def test_cli_structure_apply_rejects_output_with_in_place(tmp_path, capsys):
     )
 
     rc = main(
-      [
-        "structure",
-        "apply",
-        str(proposal_path),
-        str(SAMPLE_YAML),
-        "--output",
-        str(tmp_path),
-        "--in-place",
-      ]
+        [
+            "structure",
+            "apply",
+            str(proposal_path),
+            str(blueprint_path),
+            "--output",
+            str(tmp_path),
+            "--in-place",
+        ]
     )
 
     assert rc == 1
