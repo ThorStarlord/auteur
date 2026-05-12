@@ -13,6 +13,15 @@ from auteur.blueprint import StoryBlueprint, CharacterRole
 from auteur.structure.diagnostics import StructureDiagnostic
 
 
+
+
+import re
+
+
+def _proposal_slug(text: str) -> str:
+    return re.sub(r'[^a-z0-9_]', '_', text.lower().replace(' ', '_'))
+
+
 class ProposalType(str, Enum):
     GENERATION = "generation"
     REPAIR = "repair"

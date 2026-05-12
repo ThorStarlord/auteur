@@ -9,6 +9,7 @@ import re
 from auteur.blueprint import StoryBlueprint, CharacterRole
 from auteur.structure.diagnostics import StructureDiagnostic
 from auteur.structure.proposal_models import (
+    _proposal_slug,
     ProposalOption,
     ProposalSelection,
     ProposalType,
