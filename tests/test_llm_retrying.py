@@ -1,61 +1,94 @@
-"""Tests for the LLM RetryingClient — exponential backoff with jitter."""
+"""Tests for the LLM RetryingClient and provider RetriableError wrapping."""
+
+import sys
+from unittest.mock import MagicMock, patch
 
 import pytest
+
+# Mock SDK modules before importing clients
+sys.modules["anthropic"] = MagicMock()
+sys.modules["openai"] = MagicMock()
 
 from auteur.llm import LLMRequest, LLMResponse, RetriableError
 from auteur.llm.fake import FakeClient
 from auteur.llm.retrying import RetryingClient
+from auteur.llm.anthropic import AnthropicClient
+from auteur.llm.openai import OpenAIClient
+
+
+# ---------------------------------------------------------------------------
+# Slice 1 — RetryingClient core
+# ---------------------------------------------------------------------------
 
 
 def test_retries_exactly_max_retries_times_then_succeeds():
-    """A RetryingClient should retry on RetriableError up to max_retries
-    times, and if the delegate finally succeeds, return the response."""
     request = LLMRequest(system="", user="", max_tokens=10, temperature=0.5)
     success = LLMResponse(text="ok", input_tokens=5, output_tokens=5)
-
-    # Fail twice, succeed on third attempt (max_retries=2 → 2 retries + original)
-    delegate = FakeClient([
-        RetriableError("first failure"),
-        RetriableError("second failure"),
-        success,
-    ])
+    delegate = FakeClient([RetriableError("fail"), RetriableError("fail2"), success])
     client = RetryingClient(delegate, max_retries=2, base_delay=0.0)
-
     response = client.complete(request)
-
     assert response.text == "ok"
-    assert len(delegate.calls) == 3  # 2 failures + 1 success
+    assert len(delegate.calls) == 3
 
 
 def test_raises_when_retries_exhausted():
-    """If the delegate raises RetriableError on every call up to
-    max_retries+1, the RetryingClient should raise RetriableError."""
     request = LLMRequest(system="", user="", max_tokens=10, temperature=0.5)
-
-    delegate = FakeClient([
-        RetriableError("persistent error"),
-        RetriableError("persistent error"),
-        RetriableError("persistent error"),
-    ])
+    delegate = FakeClient([RetriableError("persistent")] * 3)
     client = RetryingClient(delegate, max_retries=2, base_delay=0.0)
-
     with pytest.raises(RetriableError, match="persistent"):
         client.complete(request)
-
-    assert len(delegate.calls) == 3  # original + 2 retries
+    assert len(delegate.calls) == 3
 
 
 def test_passes_through_non_retriable_errors():
-    """Non-RetriableError exceptions should propagate immediately
-    without any retry."""
     request = LLMRequest(system="", user="", max_tokens=10, temperature=0.5)
-
-    delegate = FakeClient([
-        ValueError("non-transient error"),
-    ])
+    delegate = FakeClient([ValueError("nope")])
     client = RetryingClient(delegate, max_retries=3, base_delay=0.0)
-
-    with pytest.raises(ValueError, match="non-transient"):
+    with pytest.raises(ValueError, match="nope"):
         client.complete(request)
+    assert len(delegate.calls) == 1
 
-    assert len(delegate.calls) == 1  # no retries
+
+# ---------------------------------------------------------------------------
+# Slice 2 — Provider RetriableError wrapping
+# ---------------------------------------------------------------------------
+
+
+def test_anthropic_wraps_sdk_error_as_retriable():
+    with patch("anthropic.Anthropic") as mock_cls:
+        instance = mock_cls.return_value
+        instance.messages.create.side_effect = Exception("429 rate limit")
+        client = AnthropicClient(api_key="test")
+        req = LLMRequest(system="", user="", max_tokens=10, temperature=0.5)
+        with pytest.raises(RetriableError, match="429"):
+            client.complete(req)
+
+
+def test_anthropic_wraps_timeout_as_retriable():
+    with patch("anthropic.Anthropic") as mock_cls:
+        instance = mock_cls.return_value
+        instance.messages.create.side_effect = Exception("connection timeout")
+        client = AnthropicClient(api_key="test")
+        req = LLMRequest(system="", user="", max_tokens=10, temperature=0.5)
+        with pytest.raises(RetriableError, match="timeout"):
+            client.complete(req)
+
+
+def test_openai_wraps_sdk_error_as_retriable():
+    with patch("openai.OpenAI") as mock_cls:
+        instance = mock_cls.return_value
+        instance.chat.completions.create.side_effect = Exception("429 rate limit")
+        client = OpenAIClient(api_key="test")
+        req = LLMRequest(system="", user="", max_tokens=10, temperature=0.5)
+        with pytest.raises(RetriableError, match="429"):
+            client.complete(req)
+
+
+def test_openai_wraps_timeout_as_retriable():
+    with patch("openai.OpenAI") as mock_cls:
+        instance = mock_cls.return_value
+        instance.chat.completions.create.side_effect = Exception("connection timeout")
+        client = OpenAIClient(api_key="test")
+        req = LLMRequest(system="", user="", max_tokens=10, temperature=0.5)
+        with pytest.raises(RetriableError, match="timeout"):
+            client.complete(req)

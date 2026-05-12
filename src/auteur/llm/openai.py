@@ -10,6 +10,7 @@ from __future__ import annotations
 import os
 
 from auteur.llm import LLMRequest, LLMResponse
+from auteur.llm import RetriableError
 
 
 _DEFAULT_MODEL = "gpt-4o"
@@ -29,15 +30,18 @@ class OpenAIClient:
 
     def complete(self, req: LLMRequest) -> LLMResponse:
         model = req.model or self._default_model
-        result = self._sdk.chat.completions.create(
-            model=model,
-            max_tokens=req.max_tokens,
-            temperature=req.temperature,
-            messages=[
-                {"role": "system", "content": req.system},
-                {"role": "user", "content": req.user},
-            ],
-        )
+        try:
+            result = self._sdk.chat.completions.create(
+                model=model,
+                max_tokens=req.max_tokens,
+                temperature=req.temperature,
+                messages=[
+                    {"role": "system", "content": req.system},
+                    {"role": "user", "content": req.user},
+                ],
+            )
+        except Exception as exc:
+            raise RetriableError(str(exc)) from exc
         choice = result.choices[0].message
         return LLMResponse(
             text=choice.content or "",

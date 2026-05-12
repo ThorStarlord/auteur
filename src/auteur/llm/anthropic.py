@@ -12,6 +12,7 @@ from __future__ import annotations
 import os
 
 from auteur.llm import LLMRequest, LLMResponse
+from auteur.llm import RetriableError
 
 
 _DEFAULT_MODEL = "claude-sonnet-4-6"
@@ -31,17 +32,20 @@ class AnthropicClient:
 
     def complete(self, req: LLMRequest) -> LLMResponse:
         model = req.model or self._default_model
-        result = self._sdk.messages.create(
-            model=model,
-            max_tokens=req.max_tokens,
-            temperature=req.temperature,
-            system=[{
-                "type": "text",
-                "text": req.system,
-                "cache_control": {"type": "ephemeral"},
-            }],
-            messages=[{"role": "user", "content": req.user}],
-        )
+        try:
+            result = self._sdk.messages.create(
+                model=model,
+                max_tokens=req.max_tokens,
+                temperature=req.temperature,
+                system=[{
+                    "type": "text",
+                    "text": req.system,
+                    "cache_control": {"type": "ephemeral"},
+                }],
+                messages=[{"role": "user", "content": req.user}],
+            )
+        except Exception as exc:
+            raise RetriableError(str(exc)) from exc
         text = "".join(block.text for block in result.content if block.type == "text")
         return LLMResponse(
             text=text,
