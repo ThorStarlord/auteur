@@ -38,6 +38,7 @@ def main(argv: list[str] | None = None) -> int:
     p_init = sub.add_parser("init", help="Create a new project directory.")
     p_init.add_argument("path", type=Path)
     p_init.add_argument("--from", dest="blueprint_path", type=Path, required=True)
+    p_init.add_argument("--force", action="store_true", help="Re-initialize an existing auteur project directory.")
 
     p_plan = sub.add_parser("plan", help="Render the Cartographer prompt for a chapter (no LLM call).")
     p_plan.add_argument("blueprint", type=Path)
@@ -101,7 +102,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if args.command == "init":
-        return _cmd_init(args.path, args.blueprint_path)
+        return _cmd_init(args.path, args.blueprint_path, force=args.force)
     if args.command == "plan":
         return _cmd_plan(args.blueprint, args.chapter)
     if args.command == "draft":
@@ -122,14 +123,37 @@ def main(argv: list[str] | None = None) -> int:
     return 2
 
 
-def _cmd_init(path: Path, blueprint_path: Path) -> int:
-    if path.exists():
+def _cmd_init(path: Path, blueprint_path: Path, *, force: bool = False) -> int:
+    # --- Safe overwrite with --force ---
+    if path.exists() and not force:
         print(f"Error: project path already exists: {path}", file=sys.stderr)
         return 1
+
+    if force and path.exists():
+        # Strict project detection: only allow re-init if directory looks like
+        # an auteur project (both blueprint.yaml and bible.json exist).
+        if not (path / "blueprint.yaml").is_file() or not (path / "bible.json").is_file():
+            print(
+                "Error: --force requires an existing auteur project"
+                " directory (blueprint.yaml + bible.json).",
+                file=sys.stderr,
+            )
+            return 1
+        import shutil
+        shutil.rmtree(str(path))
+
     if not blueprint_path.exists():
         print(f"Error: blueprint not found: {blueprint_path}", file=sys.stderr)
         return 1
-    blueprint = StoryBlueprint.from_yaml(blueprint_path)
+
+    # --- Pre-init validation ---
+    try:
+        blueprint = StoryBlueprint.from_yaml(blueprint_path)
+    except Exception as exc:
+        msg = str(exc)
+        print(f"Error: invalid blueprint — {msg}", file=sys.stderr)
+        return 1
+
     Project.init(path, blueprint)
     print(f"Initialized project at {path}")
     return 0
