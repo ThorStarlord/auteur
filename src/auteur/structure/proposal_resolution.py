@@ -1,3 +1,20 @@
+"""Proposal resolution — load, resolve, and write proposal artifacts to disk."""
+
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Any
+from datetime import datetime, timezone
+
+import yaml
+
+from auteur.structure.proposal_models import (
+    ProposalOption,
+    ProposalType,
+    StructureProposal,
+)
+
+
 
 def load_resolved_rules(project_path: Path) -> set[str]:
     """Scan structure/proposals/ for YAML files with a non-empty selected_option_id.
@@ -82,7 +99,7 @@ def write_audit_repair_proposals(
     diagnostics: list[object],
 ) -> None:
     """Serialize Bible audit diagnostics into StructureProposal YAML files."""
-    from auteur.structure.proposals import (
+    from auteur.structure.proposal_models import (
         ProposalOption,
         ProposalType,
         StructureProposal,

@@ -1,3 +1,21 @@
+"""Proposal generation — create StructureProposal artifacts from blueprints and diagnostics."""
+
+from __future__ import annotations
+
+from typing import Any
+from uuid import uuid4
+import re
+
+from auteur.blueprint import StoryBlueprint, CharacterRole
+from auteur.structure.diagnostics import StructureDiagnostic
+from auteur.structure.proposal_models import (
+    ProposalOption,
+    ProposalSelection,
+    ProposalType,
+    StructureProposal,
+)
+
+
 def propose_story_engine(blueprint: StoryBlueprint) -> StructureProposal:
     """Generate a non-mutating proposal artifact for a blueprint that lacks a story_engine.
 
@@ -393,5 +411,4 @@ def propose_repairs_from_diagnostic_report(
         for diagnostic in report.get("diagnostics", [])
     ]
     return propose_repairs_from_diagnostics(diagnostics)
-
 

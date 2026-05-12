@@ -1,3 +1,24 @@
+"""Proposal application — apply a selected proposal to a blueprint."""
+
+from __future__ import annotations
+
+from copy import deepcopy
+from pathlib import Path
+from typing import Any
+from datetime import datetime, timezone
+
+import yaml
+import os
+
+from auteur.blueprint import StoryBlueprint
+from auteur.structure.proposal_models import (
+    ProposalOption,
+    ProposalSelection,
+    ProposalType,
+    StructureProposal,
+)
+
+
 def _proposal_slug(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "_", text.lower()).strip("_")
 
@@ -78,4 +99,3 @@ def apply_proposal_to_blueprint(
         yaml.safe_dump(meta, mf, sort_keys=False)
 
     return new_bp, target_path
-
