@@ -24,7 +24,7 @@ from auteur.llm import LLMClient
 from auteur.pipeline import PipelineRunner
 from auteur.project import Project
 from auteur.structure import DiagnosticSeverity, analyze_structure
-from auteur.structure.proposals import load_resolved_rules, resolve_proposal
+from auteur.structure.proposals import load_resolved_rules, resolve_proposal, write_audit_repair_proposals
 from auteur.structure.proposals import (
     StructureProposal,
     apply_proposal_to_blueprint,
@@ -478,78 +478,12 @@ def _cmd_audit(project_path: Path, *, repair: bool = False, accept: str | None =
         _print_diagnostic(d)
 
     if repair and diagnostics:
-        _write_audit_repair_proposals(project_path, diagnostics)
+        write_audit_repair_proposals(project_path, diagnostics)
 
     errors = sum(1 for d in diagnostics if d.severity.value == "error")
     warnings = sum(1 for d in diagnostics if d.severity.value == "warning")
     print(f"Found {errors} unresolved error(s), {warnings} unresolved warning(s).")
     return 1 if errors > 0 else 0
-
-
-def _write_audit_repair_proposals(
-    project_path: Path,
-    diagnostics: list[object],
-) -> None:
-    """Serialize Bible audit diagnostics into StructureProposal YAML files."""
-    from auteur.structure.proposals import (
-        ProposalOption,
-        ProposalType,
-        StructureProposal,
-    )
-
-    proposals_dir = project_path / "structure" / "proposals"
-    proposals_dir.mkdir(parents=True, exist_ok=True)
-
-    # Collect existing proposal file stems to avoid overwriting resolved ones
-    existing_proposals = {p.stem for p in proposals_dir.glob("repair_*.yaml")}
-
-    for idx, d in enumerate(diagnostics, start=1):
-        options: list[ProposalOption] = []
-        for pi, preserve in enumerate(d.repair_options.preserve_intent, start=1):
-            options.append(
-                ProposalOption(
-                    id=f"preserve_{pi}",
-                    summary=preserve,
-                    tradeoffs=(
-                        "Preserves the story's declared intent while "
-                        "resolving the continuity break."
-                    ),
-                    data={},
-                )
-            )
-        for ci, challenge in enumerate(d.repair_options.challenge_intent, start=1):
-            options.append(
-                ProposalOption(
-                    id=f"challenge_{ci}",
-                    summary=challenge,
-                    tradeoffs=(
-                        "Questions a higher-level assumption to resolve "
-                        "the continuity break."
-                    ),
-                    data={},
-                )
-            )
-
-        proposal = StructureProposal(
-            proposal_id=f"repair_{idx}_{d.rule.replace('.', '_')}",
-            type=ProposalType.REPAIR,
-            source_rule=d.rule,
-            summary=f"[{d.severity.value.upper()}] {d.rule}: {d.message}",
-            options=options,
-        )
-
-        # Skip if a proposal file for this ID already exists (preserve resolved state)
-        if proposal.proposal_id in existing_proposals:
-            continue
-
-        proposal_path = proposals_dir / f"{proposal.proposal_id}.yaml"
-        import yaml as _yaml
-        proposal_path.write_text(
-            _yaml.safe_dump(proposal.model_dump(mode="json"), sort_keys=False),
-            encoding="utf-8",
-        )
-
-    print(f"Wrote {len(diagnostics)} repair proposal(s) to {proposals_dir}")
 
 
 def _print_diagnostic(d: object) -> None:
