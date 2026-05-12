@@ -63,7 +63,7 @@ findings:
 """
 
 
-def render(*, draft: str, chapter_index: int) -> tuple[str, str]:
+def render(*, draft: str, chapter_index: int, **kwargs) -> tuple[str, str]:
     phrase_block = "\n".join(f"- {p}" for p in SLOP_PHRASES)
     user = f"""\
 ## CHAPTER INDEX

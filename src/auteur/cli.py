@@ -404,6 +404,9 @@ def _cmd_draft(
         return 0
     print(f"NOT ACCEPTED after {result.iterations} iterations.", file=sys.stderr)
     print(f"  Latest draft and validation kept on disk.", file=sys.stderr)
+    if result.critic_proposal_paths:
+        print(f"  Critic repair proposals written to structure/proposals/.", file=sys.stderr)
+        print(f"  Review with: auteur audit --show", file=sys.stderr)
     print(f"  Edit manually then: auteur accept {project_path} {chapter_index}", file=sys.stderr)
     print(f"  Or:                  auteur retry {project_path} {chapter_index}", file=sys.stderr)
     return 2

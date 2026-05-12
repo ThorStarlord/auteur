@@ -54,6 +54,7 @@ def render(
     outline: dict[str, Any],
     blueprint: StoryBlueprint,
     chapter_index: int,
+    **kwargs,
 ) -> tuple[str, str]:
     directives = []
     for c in blueprint.characters:
@@ -79,4 +80,3 @@ def render(
 Return YAML findings.
 """
     return SYSTEM_PROMPT, user
-

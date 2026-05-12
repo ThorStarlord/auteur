@@ -48,6 +48,7 @@ def render(
     draft: str,
     blueprint: StoryBlueprint,
     chapter_index: int,
+    **kwargs,
 ) -> tuple[str, str]:
     theme = blueprint.theme
     motifs = "\n".join(f"- {m}" for m in theme.motifs) if theme.motifs else "(none declared)"

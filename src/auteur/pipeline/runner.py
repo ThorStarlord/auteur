@@ -1,14 +1,16 @@
 """
+from __future__ import annotations
 from auteur.llm.counting import _CountingClient
 from auteur.pipeline.extraction import extract_character_state_changes
+from auteur.pipeline.models import DraftResult, PlanResult
 from auteur.pipeline.parsing import _parse_outline_yaml
 PipelineRunner — orchestrates planning, drafting, validation, iteration."""
 from auteur.llm.counting import _CountingClient
 from auteur.pipeline.extraction import extract_character_state_changes
+from auteur.pipeline.models import DraftResult, PlanResult
 from auteur.pipeline.parsing import _parse_outline_yaml
 
 
-from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
@@ -23,6 +25,7 @@ from auteur.cartographer_models import PlanningCall
 from auteur.blueprint import StoryBlueprint
 from auteur.cartographer import render_cartographer_prompt
 from auteur.critic import ValidationReport, run_critics
+from auteur.critic.repair_writer import write_critic_proposals
 from auteur.llm import LLMClient, LLMRequest, LLMResponse
 
 
@@ -154,7 +157,17 @@ class PipelineRunner:
             prior_draft = prose
             prior_findings = report.findings
 
+        # Exhausted — write critic proposals for error findings
+        if last_report is not None:
+            proposals_dir = project.structure_proposals_dir()
+            proposal_paths = write_critic_proposals(
+                proposals_dir, last_report, chapter_index,
+            )
+        else:
+            proposal_paths = []
+
         return DraftResult(
+            critic_proposal_paths=proposal_paths,
             chapter_index=chapter_index,
             accepted=False,
             iterations=max_iterations,

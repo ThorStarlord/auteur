@@ -52,6 +52,7 @@ def render(
     outline: dict[str, Any],
     blueprint: StoryBlueprint,
     chapter_index: int,
+    **kwargs,
 ) -> tuple[str, str]:
     target_obj = blueprint.tension_waveform.target_for(chapter_index)
     waveform_label = target_obj.label if target_obj else "(no waveform target)"
@@ -75,4 +76,3 @@ waveform_label: {waveform_label}
 Return YAML findings.
 """
     return SYSTEM_PROMPT, user
-
