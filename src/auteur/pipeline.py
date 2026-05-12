@@ -212,4 +212,11 @@ def _parse_outline_yaml(text: str) -> dict[str, Any]:
         raise ValueError(f"Cartographer YAML parse error: {exc}") from exc
     if not isinstance(data, dict):
         raise ValueError("Cartographer response is not a YAML mapping.")
+    from auteur.cartographer_outline import CartographerOutline
+    try:
+        CartographerOutline.model_validate(data)
+    except Exception as exc:
+        raise ValueError(
+            f"Cartographer outline validation error: {exc}"
+        ) from exc
     return data
