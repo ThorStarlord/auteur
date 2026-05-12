@@ -8,7 +8,7 @@ unambiguous inputs, unambiguous output schema.
 
 from __future__ import annotations
 
-from auteur.blueprint import PlanningCall, PlanningScope
+from auteur.cartographer_models import PlanningCall, PlanningScope
 
 
 SYSTEM_PROMPT = """\

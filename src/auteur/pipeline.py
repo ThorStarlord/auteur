@@ -11,7 +11,8 @@ import yaml
 
 from auteur.bard import draft_chapter as bard_draft
 from auteur.bible import StoryBible
-from auteur.blueprint import PlanningCall, StoryBlueprint
+from auteur.cartographer_models import PlanningCall
+from auteur.blueprint import StoryBlueprint
 from auteur.cartographer import render_cartographer_prompt
 from auteur.critic import ValidationReport, run_critics
 from auteur.llm import LLMClient, LLMRequest, LLMResponse

@@ -9,8 +9,6 @@ from auteur.blueprint import (
     Genre,
     LengthClass,
     MainThread,
-    PlanningCall,
-    PlanningScope,
     ProjectIdentity,
     StoryBlueprint,
     StoryEngine,
@@ -27,6 +25,7 @@ from auteur.blueprint import (
     TensionWaveform,
     ThematicCore,
 )
+from auteur.cartographer_models import PlanningCall, PlanningScope
 from auteur.bible import StoryBible
 from auteur.cartographer import render_cartographer_prompt
 from auteur.pipeline import PipelineRunner
