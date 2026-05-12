@@ -1,9 +1,9 @@
 """
-from auteur.pipeline.llm_utils import _CountingClient
+from auteur.llm.counting import _CountingClient
 from auteur.pipeline.extraction import extract_character_state_changes
 from auteur.pipeline.parsing import _parse_outline_yaml
 PipelineRunner — orchestrates planning, drafting, validation, iteration."""
-from auteur.pipeline.llm_utils import _CountingClient
+from auteur.llm.counting import _CountingClient
 from auteur.pipeline.extraction import extract_character_state_changes
 from auteur.pipeline.parsing import _parse_outline_yaml
 
