@@ -30,6 +30,42 @@ class Critic(Protocol):
 _CODE_FENCE = re.compile(r"^\s*```(?:yaml)?\s*\n(.*?)\n\s*```\s*$", re.DOTALL)
 
 
+
+def run_critic(
+    render_fn,
+    *,
+    llm,
+    critic_name: str,
+    temperature: float = 0.0,
+    max_tokens: int = 1500,
+    **kwargs,
+):
+    """Common critic run loop — call render_fn, call LLM, parse findings.
+
+    Args:
+        render_fn: Callable that returns (system_prompt, user_message) tuple.
+        llm: LLMClient to call.
+        critic_name: Used in parse_findings_yaml to tag findings.
+        temperature: LLM temperature (default 0.0 for deterministic judging).
+        max_tokens: LLM max tokens (default 1500).
+        **kwargs: Forwarded to render_fn.
+
+    Returns:
+        list[CriticFinding] from parse_findings_yaml.
+    """
+    from auteur.critic.base import parse_findings_yaml
+    from auteur.llm import LLMRequest
+
+    system, user = render_fn(**kwargs)
+    resp = llm.complete(LLMRequest(
+        system=system,
+        user=user,
+        temperature=temperature,
+        max_tokens=max_tokens,
+    ))
+    return parse_findings_yaml(resp.text, critic_name=critic_name)
+
+
 def parse_findings_yaml(text: str, *, critic_name: str) -> list[CriticFinding]:
     """Parse a critic's YAML response into CriticFinding objects.
 

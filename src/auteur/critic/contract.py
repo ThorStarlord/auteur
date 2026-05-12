@@ -135,27 +135,3 @@ Return your YAML findings now.
 """
     return SYSTEM_PROMPT, user
 
-
-def run(
-    *,
-    draft: str,
-    outline: dict[str, Any],
-    blueprint: StoryBlueprint,
-    bible: StoryBible,
-    chapter_index: int,
-    llm: LLMClient,
-) -> list[CriticFinding]:
-    system, user = render(
-        draft=draft,
-        outline=outline,
-        blueprint=blueprint,
-        bible=bible,
-        chapter_index=chapter_index,
-    )
-    resp = llm.complete(LLMRequest(
-        system=system,
-        user=user,
-        temperature=TEMPERATURE,
-        max_tokens=MAX_TOKENS,
-    ))
-    return parse_findings_yaml(resp.text, critic_name="contract")

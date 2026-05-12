@@ -79,18 +79,3 @@ Return YAML findings. Many findings are fine; cap warnings at 10.
 """
     return SYSTEM_PROMPT, user
 
-
-def run(
-    *,
-    draft: str,
-    outline: dict[str, Any],
-    blueprint: StoryBlueprint,
-    bible: StoryBible,
-    chapter_index: int,
-    llm: LLMClient,
-) -> list[CriticFinding]:
-    system, user = render(draft=draft, chapter_index=chapter_index)
-    resp = llm.complete(LLMRequest(
-        system=system, user=user, temperature=TEMPERATURE, max_tokens=MAX_TOKENS,
-    ))
-    return parse_findings_yaml(resp.text, critic_name="slop")
