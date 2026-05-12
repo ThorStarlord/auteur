@@ -21,8 +21,17 @@ class LLMResponse(BaseModel):
     output_tokens: int = Field(ge=0)
 
 
+class RetriableError(Exception):
+    """Raised by provider clients when a transient API error occurs.
+
+    The RetryingClient catches this exception and retries with backoff.
+    Providers translate their SDK's transient errors (429, 503, timeout,
+    connection reset) into RetriableError.
+    """
+
+
 class LLMClient(Protocol):
     def complete(self, req: LLMRequest) -> LLMResponse: ...
 
 
-__all__ = ["LLMClient", "LLMRequest", "LLMResponse"]
+__all__ = ["LLMClient", "LLMRequest", "LLMResponse", "RetriableError"]
