@@ -41,7 +41,7 @@ def test_malformed_outline_without_scenes_is_rejected(tmp_path):
 
     from unittest.mock import patch
     from auteur.llm.fake import FakeClient
-    with patch("auteur.cli._build_client", return_value=FakeClient(scripted)):
+    with patch("auteur.llm.factory.build_client", return_value=FakeClient(scripted)):
         with pytest.raises(ValueError, match="Cartographer outline validation error"):
             main(["draft", str(target), "1", "--max-iterations", "1"])
 

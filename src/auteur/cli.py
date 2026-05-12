@@ -373,7 +373,8 @@ def _cmd_draft(
     model: str | None,
 ) -> int:
     project = Project.load(project_path)
-    client = _build_client(provider, model)
+    from auteur.llm.factory import build_client
+    client = build_client(provider, model)
     runner = PipelineRunner(project.blueprint, bible=project.bible)
 
     def _progress(i: int, report: Any) -> None:
@@ -543,7 +544,8 @@ def _cmd_retry(
         print(f"Invalid validation file {validation_path}: {exc}", file=sys.stderr)
         return 1
 
-    client = _build_client(provider, model)
+    from auteur.llm.factory import build_client
+    client = build_client(provider, model)
     runner = PipelineRunner(project.blueprint, bible=project.bible)
 
     def _progress(i: int, report: Any) -> None:
@@ -589,19 +591,6 @@ def _draft_version(path: Path) -> int:
 def _sorted_drafts(chapter_dir: Path) -> list[Path]:
     return sorted(chapter_dir.glob("draft_v*.md"), key=_draft_version)
 
-
-def _build_client(provider: str, model: str | None) -> LLMClient:
-    """Construct the production client for the chosen provider.
-
-    Patched in tests with a FakeClient.
-    """
-    if provider == "anthropic":
-        from auteur.llm.anthropic import AnthropicClient
-        return AnthropicClient(default_model=model or "claude-sonnet-4-6")
-    if provider == "openai":
-        from auteur.llm.openai import OpenAIClient
-        return OpenAIClient(default_model=model or "gpt-4o")
-    raise ValueError(f"Unknown provider: {provider}")
 
 
 if __name__ == "__main__":

@@ -75,7 +75,7 @@ def test_engine_v1_smoke_fail_then_pass(tmp_path):
     ]
 
     from auteur.llm.fake import FakeClient
-    with patch("auteur.cli._build_client", return_value=FakeClient(scripted)):
+    with patch("auteur.llm.factory.build_client", return_value=FakeClient(scripted)):
         rc = main(["draft", str(target), "1", "--max-iterations", "3"])
 
     assert rc == 0

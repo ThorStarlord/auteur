@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from auteur.llm import LLMClient, LLMRequest, LLMResponse
 
+__all__ = ["build_client"]
+
 
 def build_client(provider: str, model: str | None) -> LLMClient:
     """Construct a production client wrapped in RetryingClient.

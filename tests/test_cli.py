@@ -529,7 +529,7 @@ def test_cli_structure_apply_rejects_output_with_in_place(tmp_path, capsys):
 
 def _patch_client(scripted):
     from auteur.llm.fake import FakeClient
-    return patch("auteur.cli._build_client", return_value=FakeClient(scripted))
+    return patch("auteur.llm.factory.build_client", return_value=FakeClient(scripted))
 
 
 def test_cli_draft_happy_path(tmp_path, capsys):
