@@ -2,7 +2,8 @@ from pathlib import Path
 
 from auteur.blueprint import StoryBlueprint
 from auteur.bible import StoryBible
-from auteur.critic.theme import run as run_theme
+from auteur.critic.theme import render as render_theme
+from auteur.critic.base import run_critic
 from auteur.llm import LLMResponse
 from auteur.llm.fake import FakeClient
 
@@ -21,13 +22,12 @@ def test_theme_critic_emits_only_warnings(tmp_path):
 """
     client = FakeClient([LLMResponse(text=fake, input_tokens=1, output_tokens=10)])
 
-    findings = run_theme(
+    findings = run_critic(render_theme, llm=client, critic_name="theme", 
         draft="A long chapter about sailing.",
         outline={"scope": "chapter"},
         blueprint=blueprint,
         bible=bible,
         chapter_index=1,
-        llm=client,
     )
 
     assert findings and findings[0].severity == "warning"
@@ -38,13 +38,12 @@ def test_theme_critic_prompt_includes_central_question_and_motifs(tmp_path):
     bible = StoryBible(tmp_path / "b.json")
     client = FakeClient([LLMResponse(text="findings: []", input_tokens=1, output_tokens=1)])
 
-    run_theme(
+    run_critic(render_theme, llm=client, critic_name="theme", 
         draft="x",
         outline={"scope": "chapter"},
         blueprint=blueprint,
         bible=bible,
         chapter_index=1,
-        llm=client,
     )
 
     user = client.calls[0].user

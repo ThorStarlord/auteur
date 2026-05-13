@@ -3,7 +3,8 @@ from pathlib import Path
 
 from auteur.blueprint import StoryBlueprint
 from auteur.bible import StoryBible
-from auteur.critic.contract import run as run_contract, SYSTEM_PROMPT
+from auteur.critic.contract import render as render_contract, SYSTEM_PROMPT
+from auteur.critic.base import run_critic
 from auteur.llm import LLMResponse
 from auteur.llm.fake import FakeClient
 
@@ -27,13 +28,12 @@ def test_contract_critic_renders_prompt_with_required_sections(tmp_path):
     fake_response = """findings: []"""
     client = FakeClient([LLMResponse(text=fake_response, input_tokens=10, output_tokens=2)])
 
-    findings = run_contract(
+    findings = run_critic(render_contract, llm=client, critic_name="contract", 
         draft="A long prose chapter about Kael.",
         outline=_sample_outline(),
         blueprint=blueprint,
         bible=bible,
         chapter_index=1,
-        llm=client,
     )
 
     assert findings == []
@@ -60,13 +60,12 @@ def test_contract_critic_parses_error_finding(tmp_path):
 """
     client = FakeClient([LLMResponse(text=fake_response, input_tokens=10, output_tokens=20)])
 
-    findings = run_contract(
+    findings = run_critic(render_contract, llm=client, critic_name="contract", 
         draft="...",
         outline=_sample_outline(),
         blueprint=blueprint,
         bible=bible,
         chapter_index=1,
-        llm=client,
     )
 
     assert len(findings) == 1
@@ -80,13 +79,12 @@ def test_contract_critic_uses_low_temperature(tmp_path):
     bible = StoryBible(tmp_path / "b.json")
     client = FakeClient([LLMResponse(text="findings: []", input_tokens=1, output_tokens=1)])
 
-    run_contract(
+    run_critic(render_contract, llm=client, critic_name="contract", 
         draft="x",
         outline=_sample_outline(),
         blueprint=blueprint,
         bible=bible,
         chapter_index=1,
-        llm=client,
     )
 
     assert client.calls[0].temperature == 0.0

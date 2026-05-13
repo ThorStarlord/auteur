@@ -2,7 +2,8 @@ from pathlib import Path
 
 from auteur.blueprint import StoryBlueprint
 from auteur.bible import StoryBible
-from auteur.critic.slop import run as run_slop, SLOP_PHRASES
+from auteur.critic.slop import render as render_slop, SLOP_PHRASES
+from auteur.critic.base import run_critic
 from auteur.llm import LLMResponse
 from auteur.llm.fake import FakeClient
 
@@ -15,13 +16,12 @@ def test_slop_critic_passes_clean_prose(tmp_path):
     bible = StoryBible(tmp_path / "b.json")
     client = FakeClient([LLMResponse(text="findings: []", input_tokens=1, output_tokens=1)])
 
-    findings = run_slop(
+    findings = run_critic(render_slop, llm=client, critic_name="slop", 
         draft="Kael drew his blade. The cold wind cut through his cloak.",
         outline={"scope": "chapter"},
         blueprint=blueprint,
         bible=bible,
         chapter_index=1,
-        llm=client,
     )
 
     assert findings == []
@@ -38,13 +38,12 @@ def test_slop_critic_flags_clichés(tmp_path):
 """
     client = FakeClient([LLMResponse(text=fake, input_tokens=1, output_tokens=10)])
 
-    findings = run_slop(
+    findings = run_critic(render_slop, llm=client, critic_name="slop", 
         draft="Her stance was a testament to her courage.",
         outline={"scope": "chapter"},
         blueprint=blueprint,
         bible=bible,
         chapter_index=1,
-        llm=client,
     )
 
     assert findings and findings[0].critic == "slop"
@@ -60,13 +59,12 @@ def test_slop_critic_includes_phrase_list_in_prompt(tmp_path):
     bible = StoryBible(tmp_path / "b.json")
     client = FakeClient([LLMResponse(text="findings: []", input_tokens=1, output_tokens=1)])
 
-    run_slop(
+    run_critic(render_slop, llm=client, critic_name="slop", 
         draft="x",
         outline={"scope": "chapter"},
         blueprint=blueprint,
         bible=bible,
         chapter_index=1,
-        llm=client,
     )
 
     user = client.calls[0].user

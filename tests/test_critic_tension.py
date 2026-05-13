@@ -3,7 +3,8 @@ from pathlib import Path
 
 from auteur.blueprint import StoryBlueprint
 from auteur.bible import StoryBible
-from auteur.critic.tension import run as run_tension
+from auteur.critic.tension import render as render_tension
+from auteur.critic.base import run_critic
 from auteur.llm import LLMResponse
 from auteur.llm.fake import FakeClient
 
@@ -17,13 +18,12 @@ def test_tension_critic_passes_when_within_tolerance(tmp_path):
     outline = {"scope": "chapter", "estimated_chapter_tension": 4}
     client = FakeClient([LLMResponse(text="findings: []", input_tokens=1, output_tokens=1)])
 
-    findings = run_tension(
+    findings = run_critic(render_tension, llm=client, critic_name="tension", 
         draft="A quiet conversation by the hearth.",
         outline=outline,
         blueprint=blueprint,
         bible=bible,
         chapter_index=1,
-        llm=client,
     )
 
     assert findings == []
@@ -41,13 +41,12 @@ def test_tension_critic_flags_severe_drift(tmp_path):
 """
     client = FakeClient([LLMResponse(text=fake, input_tokens=1, output_tokens=10)])
 
-    findings = run_tension(
+    findings = run_critic(render_tension, llm=client, critic_name="tension", 
         draft="They sat by the river and reflected on their friendship.",
         outline=outline,
         blueprint=blueprint,
         bible=bible,
         chapter_index=22,
-        llm=client,
     )
 
     assert findings and findings[0].severity == "error"
@@ -59,13 +58,12 @@ def test_tension_critic_includes_target_in_prompt(tmp_path):
     outline = {"scope": "chapter", "estimated_chapter_tension": 9}
     client = FakeClient([LLMResponse(text="findings: []", input_tokens=1, output_tokens=1)])
 
-    run_tension(
+    run_critic(render_tension, llm=client, critic_name="tension", 
         draft="x",
         outline=outline,
         blueprint=blueprint,
         bible=bible,
         chapter_index=22,  # midpoint_battle in sample
-        llm=client,
     )
 
     user = client.calls[0].user
