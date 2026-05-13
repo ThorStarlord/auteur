@@ -7,6 +7,17 @@ from auteur.structure import DiagnosticLayer, DiagnosticSeverity
 from auteur.structure.bible_audit import audit_bible_locations
 from auteur.structure.analyzer import analyze_structure, run_all_diagnostics
 
+# Layer name map for assertions
+_LAYER_NAMES = {
+    DiagnosticLayer.TARGET_EXPERIENCE: "Target Experience",
+    DiagnosticLayer.CONSTRAINTS: "Constraints",
+    DiagnosticLayer.SCOPE: "Scope",
+    DiagnosticLayer.STRUCTURAL_FORCES: "Structural Forces",
+    DiagnosticLayer.THREADS: "Threads",
+    DiagnosticLayer.THEME: "Theme",
+    DiagnosticLayer.CARRIERS: "Carriers",
+}
+
 
 def _minimal_blueprint_data() -> dict[str, object]:
     return {
@@ -148,3 +159,54 @@ def test_layers_flag_filters_to_carriers_only(tmp_path):
     assert "Found 1 unresolved error(s)" in result.stdout, (
         f"Expected 1 error (carriers only, structure filtered), got stdout:\n{result.stdout}"
     )
+
+
+def test_grouped_report_shows_layer_headers(tmp_path, capsys):
+    """Running auteur audit should group diagnostics by layer with headers
+    like 'Layer 5 — Structural Forces (1 finding)'.
+    """
+    import yaml
+    from auteur.blueprint import StoryBlueprint
+    from auteur.cli import main
+
+    blueprint = StoryBlueprint.model_validate(_minimal_blueprint_data())
+    yaml_path = tmp_path / "blueprint.yaml"
+    yaml_path.write_text(
+        yaml.safe_dump(blueprint.model_dump(mode="json"), sort_keys=False),
+        encoding="utf-8",
+    )
+
+    bible_path = tmp_path / "bible.json"
+    bible = StoryBible(bible_path)
+    bible.record_event(
+        chapter_index=1,
+        summary="Aldric enters the throne room.",
+        deltas={
+            "character_state_changes": [
+                {"character": "Aldric", "field": "location", "before": None, "after": "Throne Room"},
+            ]
+        },
+    )
+    bible.upsert_character("Aldric", location="Throne Room")
+    bible.record_event(
+        chapter_index=2,
+        summary="Aldric wakes in the dungeon.",
+        deltas={
+            "character_state_changes": [
+                {"character": "Aldric", "field": "location", "before": "Dungeon", "after": "Dungeon"},
+            ]
+        },
+    )
+    bible.upsert_character("Aldric", location="Dungeon")
+    bible.save()
+
+    rc = main(["audit", str(tmp_path)])
+
+    captured = capsys.readouterr()
+    assert "Layer 5 — Structural Forces (1 finding)" in captured.out, (
+        f"Expected structural forces layer header in:\n{captured.out}"
+    )
+    assert "Layer 6 — Carriers (1 finding)" in captured.out, (
+        f"Expected carriers layer header in:\n{captured.out}"
+    )
+    assert rc in (0, 1)

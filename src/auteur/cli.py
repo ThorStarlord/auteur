@@ -495,8 +495,11 @@ def _cmd_audit(project_path: Path, *, repair: bool = False, accept: str | None =
         selected = _parse_layers(layers)
         diagnostics = [d for d in diagnostics if d.layer in selected]
 
-    for d in diagnostics:
-        _print_diagnostic(d)
+    # Group diagnostics by layer
+    if diagnostics:
+        _print_grouped_report(diagnostics)
+    else:
+        print("No unresolved issues found in selected layers.")
 
     if repair and diagnostics:
         write_audit_repair_proposals(project_path, diagnostics)
@@ -612,6 +615,28 @@ def _sorted_drafts(chapter_dir: Path) -> list[Path]:
     return sorted(chapter_dir.glob("draft_v*.md"), key=_draft_version)
 
 
+
+
+def _print_grouped_report(diagnostics: list[StructureDiagnostic]) -> None:
+    """Print diagnostics grouped by layer with headers."""
+    from collections import defaultdict
+    _LAYER_ORDER: list[tuple[int, DiagnosticLayer, str]] = [
+        (5, DiagnosticLayer.STRUCTURAL_FORCES, "Structural Forces"),
+        (7, DiagnosticLayer.CARRIERS, "Carriers"),
+    ]
+    groups: dict[DiagnosticLayer, list[StructureDiagnostic]] = defaultdict(list)
+    for d in diagnostics:
+        groups[d.layer].append(d)
+
+    for num, layer, name in _LAYER_ORDER:
+        items = groups.get(layer)
+        if not items:
+            continue
+        label = "finding" if len(items) == 1 else "findings"
+        print(f"Layer {num} \u2014 {name} ({len(items)} {label})")
+        for d in items:
+            _print_diagnostic(d)
+        print()
 
 
 def _parse_layers(spec: str) -> set[DiagnosticLayer]:
