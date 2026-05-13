@@ -1,4 +1,4 @@
-from auteur.structure.analyzer import analyze_structure
+from auteur.structure.analyzer import analyze_structure, run_all_diagnostics
 from auteur.structure.diagnostics import (
     DiagnosticLayer,
     DiagnosticSeverity,
@@ -12,4 +12,5 @@ __all__ = [
     "RepairOptions",
     "StructureDiagnostic",
     "analyze_structure",
+    "run_all_diagnostics",
 ]

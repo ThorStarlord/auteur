@@ -443,10 +443,11 @@ def _cmd_accept(project_path: Path, chapter_index: int) -> int:
 def _cmd_audit(project_path: Path, *, repair: bool = False, accept: str | None = None, option: str | None = None) -> int:
     """Run Bible audit diagnostics on a project and print results.
     When `repair` is True, also write proposal artifacts.  When `accept` is set, resolve the named proposal."""
-    from auteur.structure.bible_audit import audit_bible_locations
+    from auteur.blueprint import StoryBlueprint
 
-    if not project_path.is_dir():
-        print(f"Project path is not a directory: {project_path}", file=sys.stderr)
+    blueprint_path = project_path / "blueprint.yaml"
+    if not blueprint_path.exists():
+        print(f"No blueprint.yaml found in {project_path}", file=sys.stderr)
         return 1
 
     bible_path = project_path / "bible.json"
@@ -462,20 +463,25 @@ def _cmd_audit(project_path: Path, *, repair: bool = False, accept: str | None =
         return resolve_proposal(project_path, accept, option)
 
     from auteur.bible import StoryBible
+    from auteur.structure.analyzer import run_all_diagnostics
+    from auteur.structure.diagnostics import StructureDiagnostic
+from auteur.structure.proposal_resolution import load_resolved_rules, write_audit_repair_proposals
+
+    blueprint = StoryBlueprint.from_yaml(blueprint_path)
     bible = StoryBible(bible_path)
 
     # --- Load resolved proposals to filter output ---
     resolved_rules: set[str] = load_resolved_rules(project_path)
 
-    raw_diagnostics = audit_bible_locations(bible)
+    raw_diagnostics = run_all_diagnostics(blueprint, bible)
     diagnostics = [d for d in raw_diagnostics if d.rule not in resolved_rules]
 
     if not raw_diagnostics:
-        print("No lore drift detected.")
+        print("No structural or lore issues detected.")
         return 0
 
     if not diagnostics:
-        print("All previously detected lore drift has been resolved.")
+        print("All previously detected issues have been resolved.")
         return 0
 
     for d in diagnostics:
@@ -490,7 +496,7 @@ def _cmd_audit(project_path: Path, *, repair: bool = False, accept: str | None =
     return 1 if errors > 0 else 0
 
 
-def _print_diagnostic(d: object) -> None:
+def _print_diagnostic(d: StructureDiagnostic) -> None:
     """Print a single diagnostic with evidence and repair options."""
     severity_label = d.severity.value.upper()
     print(f"[{severity_label}] {d.rule}: {d.message}")

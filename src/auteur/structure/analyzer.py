@@ -10,6 +10,34 @@ from auteur.structure.diagnostics import (
 from auteur.blueprint import SupportFunction
 
 
+from auteur.bible import StoryBible
+from auteur.structure.bible_audit import (
+    BibleAuditDiagnostic,
+    audit_bible_locations,
+    as_structure_diagnostic,
+)
+
+
+def run_all_diagnostics(
+    blueprint: StoryBlueprint,
+    bible: StoryBible,
+) -> list[StructureDiagnostic]:
+    """Run all active diagnostic rules across all layers.
+
+    Currently runs:
+    - Layers 1-5: analyze_structure() for within-blueprint coherence
+    - Layer 6: audit_bible_locations() for carrier state consistency
+
+    Returns a single merged list of StructureDiagnostic findings.
+    """
+    diagnostics: list[StructureDiagnostic] = []
+    diagnostics.extend(analyze_structure(blueprint))
+    diagnostics.extend(
+        as_structure_diagnostic(d) for d in audit_bible_locations(bible)
+    )
+    return diagnostics
+
+
 def analyze_structure(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
     diagnostics: list[StructureDiagnostic] = []
     engine = blueprint.story_engine

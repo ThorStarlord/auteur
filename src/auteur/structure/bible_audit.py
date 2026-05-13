@@ -118,3 +118,20 @@ def audit_bible_locations(bible: StoryBible) -> list[BibleAuditDiagnostic]:
             last_location[character] = (after, i)
 
     return diagnostics
+
+
+from auteur.structure.diagnostics import StructureDiagnostic
+
+
+def as_structure_diagnostic(bible_diag: BibleAuditDiagnostic) -> StructureDiagnostic:
+    """Adapt a BibleAuditDiagnostic to the StructureDiagnostic shape."""
+    return StructureDiagnostic(
+        severity=bible_diag.severity,
+        layer=DiagnosticLayer.CARRIERS,
+        rule=bible_diag.rule,
+        message=bible_diag.message,
+        evidence=bible_diag.evidence,
+        repair_options=bible_diag.repair_options or RepairOptions(),
+        affected_blueprint_fields=[],
+    )
+
