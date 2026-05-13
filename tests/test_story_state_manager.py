@@ -210,3 +210,78 @@ def test_grouped_report_shows_layer_headers(tmp_path, capsys):
         f"Expected carriers layer header in:\n{captured.out}"
     )
     assert rc in (0, 1)
+
+
+def test_footer_shows_resolved_proposal_count(tmp_path, capsys):
+    """When resolved Proposal YAMLs exist, the audit report footer should
+    state how many were skipped.
+    """
+    import yaml as _yaml
+    from auteur.blueprint import StoryBlueprint
+    from auteur.cli import main
+
+    blueprint = StoryBlueprint.model_validate(_minimal_blueprint_data())
+    yaml_path = tmp_path / "blueprint.yaml"
+    yaml_path.write_text(
+        _yaml.safe_dump(blueprint.model_dump(mode="json"), sort_keys=False),
+        encoding="utf-8",
+    )
+
+    bible_path = tmp_path / "bible.json"
+    bible = StoryBible(bible_path)
+    bible.record_event(
+        chapter_index=1,
+        summary="Aldric moves to the throne room.",
+        deltas={
+            "character_state_changes": [
+                {"character": "Aldric", "field": "location", "before": None, "after": "Throne Room"},
+            ]
+        },
+    )
+    bible.upsert_character("Aldric", location="Throne Room")
+    bible.record_event(
+        chapter_index=2,
+        summary="Aldric appears in the dungeon.",
+        deltas={
+            "character_state_changes": [
+                {"character": "Aldric", "field": "location", "before": "Dungeon", "after": "Dungeon"},
+            ]
+        },
+    )
+    bible.upsert_character("Aldric", location="Dungeon")
+    bible.record_event(
+        chapter_index=3,
+        summary="Aldric appears in the forest.",
+        deltas={
+            "character_state_changes": [
+                {"character": "Aldric", "field": "location", "before": "Forest", "after": "Forest"},
+            ]
+        },
+    )
+    bible.upsert_character("Aldric", location="Forest")
+    bible.save()
+
+    # Write two resolved Proposal YAMLs for both teleportations
+    proposals_dir = tmp_path / "structure" / "proposals"
+    proposals_dir.mkdir(parents=True, exist_ok=True)
+    for idx, rule in [("a", "carriers.location_teleportation"), ("b", "carriers.location_teleportation")]:
+        proposal = {
+            "proposal_id": f"test_{idx}",
+            "type": "repair",
+            "source_rule": rule,
+            "summary": "Test.",
+            "options": [
+                {"id": "preserve_1", "summary": "Do X.", "tradeoffs": "...", "data": {}},
+            ],
+            "selection": {"selected_option_id": "preserve_1", "custom_data": {}},
+        }
+        (proposals_dir / f"test_{idx}.yaml").write_text(
+            _yaml.safe_dump(proposal, sort_keys=False), encoding="utf-8",
+        )
+
+    rc = main(["audit", str(tmp_path)])
+    captured = capsys.readouterr()
+    assert "2 previously resolved proposals were skipped." in captured.out, (
+        f"Expected skipped-proposal footer in:\n{captured.out}"
+    )
+    assert rc in (0, 1)

@@ -508,6 +508,22 @@ def _cmd_audit(project_path: Path, *, repair: bool = False, accept: str | None =
     errors = sum(1 for d in diagnostics if d.severity.value == "error")
     warnings = sum(1 for d in diagnostics if d.severity.value == "warning")
     print(f"Found {errors} unresolved error(s), {warnings} unresolved warning(s).")
+    # Count resolved proposals for footer
+    proposals_dir = project_path / "structure" / "proposals"
+    resolved_count = 0
+    if proposals_dir.is_dir():
+        for pf in sorted(proposals_dir.glob("*.yaml")):
+            try:
+                pd = yaml.safe_load(pf.read_text(encoding="utf-8"))
+            except Exception:
+                continue
+            if isinstance(pd, dict):
+                sel = pd.get("selection", {})
+                if isinstance(sel, dict) and sel.get("selected_option_id"):
+                    resolved_count += 1
+    if resolved_count:
+        label = "proposal" if resolved_count == 1 else "proposals"
+        print(f"{resolved_count} previously resolved {label} were skipped.")
     return 1 if errors > 0 else 0
 
 
