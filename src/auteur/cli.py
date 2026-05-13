@@ -25,6 +25,7 @@ from auteur.pipeline import PipelineRunner
 from auteur.project import Project
 from auteur.structure import DiagnosticSeverity, analyze_structure
 from auteur.structure.proposals import load_resolved_rules, resolve_proposal, write_audit_repair_proposals
+from auteur.structure.diagnostics import DiagnosticLayer
 from auteur.structure.proposals import (
     StructureProposal,
     apply_proposal_to_blueprint,
@@ -622,7 +623,7 @@ def _print_grouped_report(diagnostics: list[StructureDiagnostic]) -> None:
     from collections import defaultdict
     _LAYER_ORDER: list[tuple[int, DiagnosticLayer, str]] = [
         (5, DiagnosticLayer.STRUCTURAL_FORCES, "Structural Forces"),
-        (7, DiagnosticLayer.CARRIERS, "Carriers"),
+        (6, DiagnosticLayer.CARRIERS, "Carriers"),
     ]
     groups: dict[DiagnosticLayer, list[StructureDiagnostic]] = defaultdict(list)
     for d in diagnostics:
