@@ -276,6 +276,16 @@ def _cmd_structure_apply(
         print(f"Error: invalid proposal {proposal_path}: {exc}", file=sys.stderr)
         return 1
 
+    if proposal.source_domain == "bible_audit":
+        print(
+            (
+                "Error: bible_audit proposals cannot be applied to blueprints. "
+                "Resolve them with `auteur audit --accept ... --option ...`."
+            ),
+            file=sys.stderr,
+        )
+        return 1
+
     try:
         blueprint, _, _ = _load_blueprint_and_structure_dirs(blueprint_path)
     except (ValueError, yaml.YAMLError, OSError) as exc:

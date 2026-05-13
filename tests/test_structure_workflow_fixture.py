@@ -169,6 +169,48 @@ def test_end_to_end_propose_repairs_report_written_to_diagnostics_dir(
     assert report["diagnostics"][0]["rule"] == "story_engine.missing"
 
 
+def test_structure_apply_rejects_bible_audit_proposal(
+    tmp_path: Path, capsys
+) -> None:
+    """`auteur structure apply` rejects bible_audit proposals and leaves the
+    source blueprint unchanged."""
+    blueprint_path = tmp_path / "blueprint.yaml"
+    blueprint_path.write_text(_MINIMAL_BLUEPRINT_YAML, encoding="utf-8")
+    original_blueprint_text = blueprint_path.read_text(encoding="utf-8")
+
+    proposal_path = tmp_path / "repair_from_audit.yaml"
+    proposal_data = {
+        "proposal_id": "repair_1_carriers_location_teleportation",
+        "type": "repair",
+        "source_domain": "bible_audit",
+        "source_rule": "carriers.location_teleportation",
+        "summary": "Aldric teleports from Throne Room to Dungeon.",
+        "options": [
+            {
+                "id": "preserve_1",
+                "summary": "Add a transition scene.",
+                "tradeoffs": "Adds a scene but preserves intent.",
+                "data": {},
+            }
+        ],
+        "selection": {"selected_option_id": "preserve_1", "custom_data": {}},
+    }
+    proposal_path.write_text(
+        yaml.safe_dump(proposal_data, sort_keys=False), encoding="utf-8"
+    )
+
+    rc = main(["structure", "apply", str(proposal_path), str(blueprint_path)])
+    assert rc == 1
+
+    stderr = capsys.readouterr().err
+    assert "bible_audit proposals cannot be applied to blueprints" in stderr
+    assert "auteur audit --accept" in stderr
+
+    assert blueprint_path.read_text(encoding="utf-8") == original_blueprint_text, (
+        "structure apply must not mutate the blueprint when source_domain is bible_audit"
+    )
+
+
 # ---------------------------------------------------------------------------
 # Fixture: audit --accept stamps decision, does not mutate blueprint
 # ---------------------------------------------------------------------------
