@@ -54,6 +54,7 @@ class StructureProposal(BaseModel):
     proposal_id: str = Field(min_length=1)
     type: ProposalType
     source_rule: str | None = None
+    source_domain: str | None = None
     summary: str = Field(min_length=1)
     options: list[ProposalOption] = Field(min_length=1)
     selection: ProposalSelection = Field(default_factory=ProposalSelection)

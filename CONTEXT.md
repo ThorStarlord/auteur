@@ -69,10 +69,31 @@ structure layers. Extends the existing `auteur audit` command to detect
 contradictions at every layer and produce Decision Packets.
 _Avoid_: Lore manager, consistency engine.
 
+**Structure Diagnostic**:
+A deterministic finding produced by `auteur structure diagnose` (or
+`auteur structure propose-repairs`) against a `StoryBlueprint`. Represents a
+whole-story coherence violation — e.g., a missing `story_engine`, thread count
+exceeding subplot budget, or a thematic function left unspecified. Operates
+entirely on the blueprint; does not read Bible events.
+_Avoid_: Lore check, audit finding, structure error.
+_Contrast with_: **Bible Audit**, which reads the event log for carrier-state
+inconsistencies across chapters.
+
 **Proposal Resolution**:
 The act of an author selecting and locking an option in a Decision Packet,
 persisting the choice in the proposal YAML's `selection` and `decision` fields.
+_Canonical verb_: resolve / resolution.
 _Avoid_: Accept, fix, apply.
+
+**Proposal Lifecycle**:
+The four-step sequence for resolving a structural contradiction:
+1. **Diagnose** — `auteur structure diagnose <blueprint>` emits **Structure Diagnostics**.
+2. **Propose** — `auteur structure propose-repairs <blueprint>` writes **Decision Packets** to `structure/proposals/`.
+3. **Select** — author sets `selection.selected_option_id` in the YAML (or a future `--resolve` flag).
+4. **Apply** — `auteur structure apply <proposal> <blueprint>` merges the selected option's `data` into a new blueprint file.
+
+For Bible audit findings: **Diagnose** via `auteur audit`, **Propose** via `auteur audit --repair`, **Resolve** via `auteur audit --accept <id> --option <id>` (no blueprint mutation — lore repair is recorded in the YAML only).
+_Avoid_: Conflating the structure lifecycle with the audit lifecycle — they share the `StructureProposal` artifact format but differ in the apply step.
 
 ## Relationships
 
@@ -87,7 +108,20 @@ _Avoid_: Accept, fix, apply.
 - The **Story State Manager** runs all diagnostic rules across all layers and
   emits **Decision Packets** for unresolved contradictions.
 - The author performs **Proposal Resolution** by editing the YAML or via
-  `auteur audit --accept <id> --option <id>`.
+  the appropriate command (see Command Ownership below).
+- A **Structure Diagnostic** is promoted to a **Decision Packet** via
+  `auteur structure propose-repairs`; the author then resolves it via
+  `auteur structure apply` (which mutates the blueprint).
+- A **Bible Audit** finding is promoted to a **Decision Packet** via
+  `auteur audit --repair`; the author resolves it via `auteur audit --accept`
+  (which stamps the YAML only — no blueprint mutation).
+
+### Command Ownership
+
+| Proposal source | Generate proposals | Resolve (select + lock) | Mutates blueprint? |
+|---|---|---|---|
+| `auteur structure propose-repairs` | `auteur structure propose-repairs <blueprint>` | `auteur structure apply <proposal> <blueprint>` | Yes |
+| `auteur audit --repair` | `auteur audit --repair <project>` | `auteur audit --accept <id> --option <id>` | No |
 
 ## Example dialogue
 

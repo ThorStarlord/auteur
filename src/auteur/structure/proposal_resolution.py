@@ -98,61 +98,31 @@ def write_audit_repair_proposals(
     project_path: Path,
     diagnostics: list[object],
 ) -> None:
-    """Serialize Bible audit diagnostics into StructureProposal YAML files."""
-    from auteur.structure.proposal_models import (
-        ProposalOption,
-        ProposalType,
-        StructureProposal,
-    )
+    """Serialize Bible audit diagnostics into StructureProposal YAML files.
+
+    Proposal generation is delegated to
+    ``auteur.structure.proposal_generation.propose_repairs_from_audit_diagnostics``.
+    This function handles I/O only.
+    """
+    from auteur.structure.proposal_generation import propose_repairs_from_audit_diagnostics
 
     proposals_dir = project_path / "structure" / "proposals"
     proposals_dir.mkdir(parents=True, exist_ok=True)
 
     existing_proposals = {p.stem for p in proposals_dir.glob("repair_*.yaml")}
 
-    for idx, d in enumerate(diagnostics, start=1):
-        options: list[ProposalOption] = []
-        for pi, preserve in enumerate(d.repair_options.preserve_intent, start=1):
-            options.append(
-                ProposalOption(
-                    id=f"preserve_{pi}",
-                    summary=preserve,
-                    tradeoffs=(
-                        "Preserves the story's declared intent while "
-                        "resolving the continuity break."
-                    ),
-                    data={},
-                )
-            )
-        for ci, challenge in enumerate(d.repair_options.challenge_intent, start=1):
-            options.append(
-                ProposalOption(
-                    id=f"challenge_{ci}",
-                    summary=challenge,
-                    tradeoffs=(
-                        "Questions a higher-level assumption to resolve "
-                        "the continuity break."
-                    ),
-                    data={},
-                )
-            )
+    proposals = propose_repairs_from_audit_diagnostics(diagnostics)
 
-        proposal = StructureProposal(
-            proposal_id=f"repair_{idx}_{d.rule.replace('.', '_')}",
-            type=ProposalType.REPAIR,
-            source_rule=d.rule,
-            summary=f"[{d.severity.value.upper()}] {d.rule}: {d.message}",
-            options=options,
-        )
-
+    written = 0
+    for proposal in proposals:
         if proposal.proposal_id in existing_proposals:
             continue
-
         proposal_path = proposals_dir / f"{proposal.proposal_id}.yaml"
         import yaml as _yaml
         proposal_path.write_text(
             _yaml.safe_dump(proposal.model_dump(mode="json"), sort_keys=False),
             encoding="utf-8",
         )
+        written += 1
 
-    print(f"Wrote {len(diagnostics)} repair proposal(s) to {proposals_dir}")
+    print(f"Wrote {written} repair proposal(s) to {proposals_dir}")

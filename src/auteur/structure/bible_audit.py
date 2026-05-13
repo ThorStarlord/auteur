@@ -1,6 +1,16 @@
 """Bible audit — deterministic lore drift detection across chapter events.
 
 Slice 2 (data model) + Slice 3 (location teleportation detector).
+
+NOTE (ADR 003): This module is a *temporary resident* of ``auteur.structure``.
+It operates on the StoryBible event log (Layer 6 carrier state), not on the
+StoryBlueprint, and therefore does not logically belong here.  It will move
+once ``DiagnosticLayer``, ``DiagnosticSeverity``, and ``RepairOptions`` are
+extracted from ``auteur.structure.diagnostics`` to a shared location reachable
+from both the structure engine and a future ``auteur.audit`` (or equivalent)
+package.  See ``docs/adr/003-bible-audit-placement.md`` for the preconditions.
+``BibleAuditDiagnostic`` is intentionally excluded from ``auteur.structure``
+public exports.
 """
 
 from __future__ import annotations

@@ -395,6 +395,7 @@ def propose_repairs_from_diagnostics(
                 proposal_id=f"repair_{index}_{_proposal_slug(diagnostic.rule)}",
                 type=ProposalType.REPAIR,
                 source_rule=diagnostic.rule,
+                source_domain="structure",
                 summary=summary,
                 options=options,
             )
@@ -412,4 +413,56 @@ def propose_repairs_from_diagnostic_report(
         for diagnostic in report.get("diagnostics", [])
     ]
     return propose_repairs_from_diagnostics(diagnostics)
+
+
+def propose_repairs_from_audit_diagnostics(
+    diagnostics: list[object],
+) -> list[StructureProposal]:
+    """Convert Bible audit diagnostics into human-editable repair proposals.
+
+    Each diagnostic is expected to have ``rule``, ``severity``, ``message``,
+    and ``repair_options`` attributes (matching ``BibleAuditDiagnostic`` and
+    ``StructureDiagnostic`` shapes).  The ``data`` field of each option is left
+    empty — authors edit a concrete repair into the proposal YAML.
+
+    Sets ``source_domain='bible_audit'`` on every produced proposal.
+    """
+    proposals: list[StructureProposal] = []
+    for idx, d in enumerate(diagnostics, start=1):
+        options: list[ProposalOption] = []
+        for pi, preserve in enumerate(d.repair_options.preserve_intent, start=1):
+            options.append(
+                ProposalOption(
+                    id=f"preserve_{pi}",
+                    summary=preserve,
+                    tradeoffs=(
+                        "Preserves the story's declared intent while "
+                        "resolving the continuity break."
+                    ),
+                    data={},
+                )
+            )
+        for ci, challenge in enumerate(d.repair_options.challenge_intent, start=1):
+            options.append(
+                ProposalOption(
+                    id=f"challenge_{ci}",
+                    summary=challenge,
+                    tradeoffs=(
+                        "Questions a higher-level assumption to resolve "
+                        "the continuity break."
+                    ),
+                    data={},
+                )
+            )
+        proposals.append(
+            StructureProposal(
+                proposal_id=f"repair_{idx}_{d.rule.replace('.', '_')}",
+                type=ProposalType.REPAIR,
+                source_rule=d.rule,
+                source_domain="bible_audit",
+                summary=f"[{d.severity.value.upper()}] {d.rule}: {d.message}",
+                options=options,
+            )
+        )
+    return proposals
 
