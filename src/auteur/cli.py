@@ -68,6 +68,11 @@ def main(argv: list[str] | None = None) -> int:
     p_audit.add_argument("--repair", action="store_true", help="Write repair proposals to structure/proposals/.")
     p_audit.add_argument("--accept", default=None, help="Resolve a proposal by ID (requires --option).")
     p_audit.add_argument("--option", default=None, help="Option ID to select when using --accept.")
+    p_audit.add_argument(
+        "--layers",
+        default="all",
+        help='Layer or layer range to audit. Examples: "6", "1-5", "all" (default).',
+    )
 
     p_structure = sub.add_parser("structure", help="Run whole-story structure commands.")
     structure_sub = p_structure.add_subparsers(dest="structure_command", required=True)
@@ -113,7 +118,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "retry":
         return _cmd_retry(args.project, args.chapter, args.max_iterations, args.provider, args.model)
     if args.command == "audit":
-        return _cmd_audit(args.project, repair=args.repair, accept=args.accept, option=args.option)
+        return _cmd_audit(args.project, repair=args.repair, accept=args.accept, option=args.option, layers=args.layers)
     if args.command == "structure" and args.structure_command == "diagnose":
         return _cmd_structure_diagnose(args.blueprint, args.output)
     if args.command == "structure" and args.structure_command == "propose-repairs":
@@ -440,7 +445,7 @@ def _cmd_accept(project_path: Path, chapter_index: int) -> int:
     return 0
 
 
-def _cmd_audit(project_path: Path, *, repair: bool = False, accept: str | None = None, option: str | None = None) -> int:
+def _cmd_audit(project_path: Path, *, repair: bool = False, accept: str | None = None, option: str | None = None, layers: str = "all") -> int:
     """Run Bible audit diagnostics on a project and print results.
     When `repair` is True, also write proposal artifacts.  When `accept` is set, resolve the named proposal."""
     from auteur.blueprint import StoryBlueprint
@@ -465,7 +470,7 @@ def _cmd_audit(project_path: Path, *, repair: bool = False, accept: str | None =
     from auteur.bible import StoryBible
     from auteur.structure.analyzer import run_all_diagnostics
     from auteur.structure.diagnostics import StructureDiagnostic
-from auteur.structure.proposal_resolution import load_resolved_rules, write_audit_repair_proposals
+    from auteur.structure.proposal_resolution import load_resolved_rules, write_audit_repair_proposals
 
     blueprint = StoryBlueprint.from_yaml(blueprint_path)
     bible = StoryBible(bible_path)
@@ -483,6 +488,12 @@ from auteur.structure.proposal_resolution import load_resolved_rules, write_audi
     if not diagnostics:
         print("All previously detected issues have been resolved.")
         return 0
+
+    from auteur.structure.diagnostics import DiagnosticLayer
+
+    if layers != "all":
+        selected = _parse_layers(layers)
+        diagnostics = [d for d in diagnostics if d.layer in selected]
 
     for d in diagnostics:
         _print_diagnostic(d)
@@ -600,6 +611,47 @@ def _draft_version(path: Path) -> int:
 def _sorted_drafts(chapter_dir: Path) -> list[Path]:
     return sorted(chapter_dir.glob("draft_v*.md"), key=_draft_version)
 
+
+
+
+def _parse_layers(spec: str) -> set[DiagnosticLayer]:
+    """Parse a --layers flag value into a set of DiagnosticLayer enums."""
+    from auteur.structure.diagnostics import DiagnosticLayer
+
+    spec = spec.strip()
+    if spec == "all":
+        return set(DiagnosticLayer)
+
+    parts = spec.split("-")
+    if len(parts) == 2:
+        try:
+            start, end = int(parts[0]), int(parts[1])
+            layer_map = {
+                1: DiagnosticLayer.TARGET_EXPERIENCE,
+                2: DiagnosticLayer.CONSTRAINTS,
+                3: DiagnosticLayer.SCOPE,
+                4: DiagnosticLayer.CONSTRAINTS,
+                5: DiagnosticLayer.STRUCTURAL_FORCES,
+                6: DiagnosticLayer.CARRIERS,
+                7: DiagnosticLayer.THEME,
+            }
+            return {v for k, v in layer_map.items() if start <= k <= end}
+        except (ValueError, KeyError):
+            return set(DiagnosticLayer)
+    try:
+        n = int(spec)
+        layer_map = {
+            1: DiagnosticLayer.TARGET_EXPERIENCE,
+            2: DiagnosticLayer.CONSTRAINTS,
+            3: DiagnosticLayer.SCOPE,
+            4: DiagnosticLayer.CONSTRAINTS,
+            5: DiagnosticLayer.STRUCTURAL_FORCES,
+            6: DiagnosticLayer.CARRIERS,
+            7: DiagnosticLayer.THEME,
+        }
+        return {layer_map[n]}
+    except (ValueError, KeyError):
+        return set(DiagnosticLayer)
 
 
 if __name__ == "__main__":
