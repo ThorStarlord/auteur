@@ -147,6 +147,7 @@ See [docs/structure-engine-v1.md](docs/structure-engine-v1.md) for the design di
 - [Architecture](docs/architecture.md)
 - [Engine v1 Workflow](docs/engine-v1-workflow.md)
 - [Project Format](docs/project-format.md)
+- [Next Step Discovery](docs/next-step-discovery.md)
 - [LLM Adapters](docs/llm-adapters.md)
 - [Structure Engine v1](docs/structure-engine-v1.md)
 

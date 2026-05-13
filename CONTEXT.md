@@ -113,3 +113,23 @@ _Avoid_: Accept, fix, apply.
   checking Bible/chapter consistency (Bible audit). Resolved: structure
   diagnostics check within-blueprint coherence; Bible audit checks
   cross-chapter carrier state consistency.
+
+## Workflow Discovery
+
+When choosing what to do next, ask which part of the current contract is most
+likely to stay ambiguous, unproven, or unenforced if nothing changes.
+
+Use these native Auteur terms:
+
+- Core object: `StoryBlueprint` plus its structure artifacts, diagnostics,
+  proposals, and accepted follow-through.
+- Fixture: a frozen project or blueprint example used to prove behavior.
+- Validator: a deterministic analyzer or CLI check that enforces structure.
+- Human review: the judgment step that decides whether the output is actually
+  useful and not misleading.
+- Promotion: the point at which a proposal, workflow, or rule is stable enough
+  for other work to depend on it.
+
+The weakest contract boundary should usually become the next step. Prefer the
+smallest change that makes that boundary explicit, testable, validated, or
+documented.
