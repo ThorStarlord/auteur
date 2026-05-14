@@ -22,7 +22,7 @@ This repository currently contains a working Engine v1 CLI and Python library. I
 - Automatic rewrite attempts up to a configurable iteration cap.
 - Manual accept and retry flows.
 
-The implementation is still early. It does not yet have structure generation/diagnosis CLI commands, proposal/report artifacts, structured Pydantic models for Cartographer outlines, deterministic outline validation, transient API retry/backoff, or per-agent model routing.
+The implementation is still early. It does not yet have structured Pydantic models for Cartographer outlines, deterministic outline validation, transient API retry/backoff, or per-agent model routing.
 
 ## Install
 
