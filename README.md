@@ -167,6 +167,8 @@ python -m pytest
 python scripts/check.py
 ```
 
+CI runs the same verification entrypoint: `python scripts/check.py`.
+
 The manual real-LLM smoke script is not part of pytest because it spends real tokens:
 
 ```powershell
