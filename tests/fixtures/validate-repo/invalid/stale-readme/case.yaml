@@ -1,6 +1,0 @@
-id: stale-readme-claim
-validator: validate-repo
-validator_case: negative
-expected_exit_code: 1
-expected_error_contains: README contains stale capability claim
-root_arg: .

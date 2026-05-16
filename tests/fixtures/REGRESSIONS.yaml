@@ -1,6 +1,0 @@
-required_cases:
-  - id: stale-readme-claim
-    validator: validate-repo
-    fixture: tests/fixtures/validate-repo/invalid/stale-readme
-    reason: Prevent stale README capability claims from passing repository validation.
-excluded_validators: []

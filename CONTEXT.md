@@ -78,29 +78,6 @@ entirely on the blueprint; does not read Bible events.
 _Avoid_: Lore check, audit finding, structure error.
 _Contrast with_: **Bible Audit**, which reads the event log for carrier-state
 inconsistencies across chapters.
-
-**Sensemaking Workflow Contract**:
-The reviewability contract for a sensemaking skill or its produced artifact.
-For a skill, this includes required references, declared dependencies, fixtures,
-clear failure modes, and validator regression coverage. For a produced artifact
-such as a **Repository Sensemaking Brief**, this includes required sections,
-evidence citations, weakness classification, logic trace, and actionable next
-steps.
-_Avoid_: Treating contract conformance as proof that the diagnosis is correct.
-
-**Validator Ecosystem**:
-The automated layer that checks **Sensemaking Workflow Contracts** for skill
-packages and produced artifacts. It can decide whether a skill or artifact is
-shaped, evidenced, traceable, and reproducible enough for review; it does not
-decide whether the diagnosis is strategically wise or ready for promotion.
-_Avoid_: Verification system, quality judge.
-
-**Verification System**:
-The broader confidence system around sensemaking work: validators, CI, run
-logs, human review, and promotion decisions.
-_Contrast with_: **Validator Ecosystem**, which is only the automated contract
-checking layer.
-
 **Proposal Resolution**:
 The act of an author selecting and locking an option in a Decision Packet,
 persisting the choice in the proposal YAML's `selection` and `decision` fields.
