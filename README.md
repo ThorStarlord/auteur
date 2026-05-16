@@ -161,6 +161,14 @@ Run the full test suite with:
 python -m pytest
 ```
 
+### Local verification
+
+```powershell
+python scripts/test-validators.py
+python scripts/validate-repo.py
+python -m pytest
+```
+
 The manual real-LLM smoke script is not part of pytest because it spends real tokens:
 
 ```powershell

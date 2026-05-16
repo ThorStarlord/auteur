@@ -1,0 +1,6 @@
+id: clean-repo
+validator: validate-repo
+validator_case: positive
+expected_exit_code: 0
+expected_output_contains: Repository contract checks passed.
+root_arg: .

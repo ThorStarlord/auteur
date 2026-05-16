@@ -134,17 +134,17 @@ Lessons note should contain:
 first output:
 I will run your six-step sequence end-to-end by loading each skill’s instructions first, then producing artifacts in-repo (brief, PRD, issues, triage, TDD implementation, and final handoff) without waiting for approvals. I’m starting by reading the exact skill definitions so execution follows your requested workflow faithfully.
 
-Read skill [grill-with-docs](file:///c%3A/Users/Admin/.agents/skills/grill-with-docs/SKILL.md?vscodeLinkType%3Dskill)
+Read skill grill-with-docs (C:/Users/Admin/.agents/skills/grill-with-docs/SKILL.md)
 
-Read skill [to-prd](file:///c%3A/Users/Admin/.agents/skills/to-prd/SKILL.md?vscodeLinkType%3Dskill)
+Read skill to-prd (C:/Users/Admin/.agents/skills/to-prd/SKILL.md)
 
-Read skill [triage](file:///c%3A/Users/Admin/.agents/skills/triage/SKILL.md?vscodeLinkType%3Dskill)
+Read skill triage (C:/Users/Admin/.agents/skills/triage/SKILL.md)
 
-Read skill [to-issues](file:///c%3A/Users/Admin/.agents/skills/to-issues/SKILL.md?vscodeLinkType%3Dskill)
+Read skill to-issues (C:/Users/Admin/.agents/skills/to-issues/SKILL.md)
 
-Read skill [tdd](file:///c%3A/Users/Admin/.agents/skills/tdd/SKILL.md?vscodeLinkType%3Dskill)
+Read skill tdd (C:/Users/Admin/.agents/skills/tdd/SKILL.md)
 
-Read skill [handoff](file:///c%3A/Users/Admin/.agents/skills/handoff/SKILL.md?vscodeLinkType%3Dskill)
+Read skill handoff (C:/Users/Admin/.agents/skills/handoff/SKILL.md)
 
 I’m moving into your requested skill sequence now: I’ll first synthesize a grill-with-docs output as a self-answered decision chain, then convert it into PRD/issues/triage artifacts in docs, and finally implement the highest-priority AFK issues via TDD with real test runs. I’m collecting a small amount of codebase context needed for the TDD phase.
 
@@ -152,25 +152,25 @@ Searched for files matching `auteur` · `tests/test_*readme*`, no matches
 
 Searched for regex `structure generation/diagnosis CLI commands|proposal/report artifacts|does not yet have` (`**/README.md`), 3 results
 
-Read [](file:///h%3A/GithubRepositories/auteur/docs/handoffs)
+Read docs/handoffs
 
-Read [](file:///h%3A/GithubRepositories/auteur/pyproject.toml)
+Read pyproject.toml
 
 I’m now executing prompts 1–4 as repository artifacts: a self-answered grill-with-docs decision chain, then PRD, then local issue slices (without GitHub publication), then triage outcomes. After that I’ll start prompt 5 with RED tests for the top AFK issue.
 
-Created [](file:///h%3A/GithubRepositories/auteur/docs/superpowers/plans/2026-05-14-grill-with-docs-repo-sensemaker.md)
+Created docs/superpowers/plans/2026-05-14-grill-with-docs-repo-sensemaker.md
 
-Created [](file:///h%3A/GithubRepositories/auteur/docs/prd-repo-sensemaker-research-test.md)
+Created docs/prd-repo-sensemaker-research-test.md
 
-Created [](file:///h%3A/GithubRepositories/auteur/docs/superpowers/plans/2026-05-14-to-issues-repo-sensemaker.md)
+Created docs/superpowers/plans/2026-05-14-to-issues-repo-sensemaker.md
 
 Prompts 1–3 are now materialized in-repo. Next I’m running prompt 4 by triaging these local slices into explicit category/state decisions, then I’ll immediately begin prompt 5 with TDD on Slice 1 and Slice 2 before Slice 3.
 
-Created [](file:///h%3A/GithubRepositories/auteur/docs/superpowers/plans/2026-05-14-triage-repo-sensemaker.md)
+Created docs/superpowers/plans/2026-05-14-triage-repo-sensemaker.md
 
 I’m starting prompt 5 now with strict RED→GREEN→REFACTOR cycles in priority order: first a failing test for Slice 1 (README contract), then fix README, then repeat for Slice 2 (reference docs), then Slice 3 (deterministic validator + tests). I’ll run real pytest commands between each cycle.
 
-Generating patch (16 lines) in [](file:///h%3A/GithubRepositories/auteur/tests/test_repo_contract.py)
+Generating patch (16 lines) in tests/test_repo_contract.py
 
 
 ```
@@ -191,9 +191,9 @@ Completed with input: {
 Ran terminal command: H:/Python/Python312/python.exe -m pytest tests/test_repo_contract.py -q --tb=no
 Completed with input: H:/Python/Python312/python.exe -m pytest tests/test_repo_contract.py -q --tb=no
 
-Read [](file:///h%3A/GithubRepositories/auteur/README.md#16-16), lines 16 to 34
+Read README.md, lines 16 to 34
 
-Generating patch (6 lines) in [](file:///h%3A/GithubRepositories/auteur/README.md)
+Generating patch (6 lines) in README.md
 
 
 ```
@@ -205,7 +205,7 @@ Ran terminal command: H:/Python/Python312/python.exe -m pytest tests/test_repo_c
 
 Slice 1 is complete with a red-green cycle. I’m proceeding to Slice 2 by adding a failing existence test for the repo-sensemaker reference pack, then creating the missing docs and re-running tests.
 
-Generating patch (19 lines) in [](file:///h%3A/GithubRepositories/auteur/tests/test_repo_contract.py)
+Generating patch (19 lines) in tests/test_repo_contract.py
 
 
 ```
@@ -216,19 +216,19 @@ Generating patch (19 lines) in [](file:///h%3A/GithubRepositories/auteur/tests/t
 Ran terminal command: H:/Python/Python312/python.exe -m pytest tests/test_repo_contract.py -q --tb=no
 Completed with input: H:/Python/Python312/python.exe -m pytest tests/test_repo_contract.py -q --tb=no
 
-Created [](file:///h%3A/GithubRepositories/auteur/docs/references)
+Created docs/references
 
-Created [](file:///h%3A/GithubRepositories/auteur/docs/references/repo-analysis-template.md)
+Created docs/references/repo-analysis-template.md
 
-Created [](file:///h%3A/GithubRepositories/auteur/docs/references/weakness-types.md)
+Created docs/references/weakness-types.md
 
-Created [](file:///h%3A/GithubRepositories/auteur/docs/references/evidence-rules.md)
+Created docs/references/evidence-rules.md
 
 Ran terminal command: H:/Python/Python312/python.exe -m pytest tests/test_repo_contract.py -q --tb=no
 
 I’m starting Slice 3 now. I’ll add failing tests for a deterministic repository validator (current-repo pass case and failure cases for stale README/missing references), then implement the validator script and drive those tests to green.
 
-Generating patch (54 lines) in [](file:///h%3A/GithubRepositories/auteur/tests/test_validate_repo.py)
+Generating patch (54 lines) in tests/test_validate_repo.py
 
 
 ```
@@ -239,7 +239,7 @@ Generating patch (54 lines) in [](file:///h%3A/GithubRepositories/auteur/tests/t
 Ran terminal command: H:/Python/Python312/python.exe -m pytest tests/test_validate_repo.py -q --tb=no
 Completed with input: H:/Python/Python312/python.exe -m pytest tests/test_validate_repo.py -q --tb=no
 
-Created [](file:///h%3A/GithubRepositories/auteur/scripts/validate_repo.py)
+Created scripts/validate_repo.py
 
 Ran terminal command: H:/Python/Python312/python.exe -m pytest tests/test_validate_repo.py -q --tb=no
 
@@ -259,15 +259,15 @@ Ran terminal command: git -C h:/GithubRepositories/auteur status --short
 
 I’ve finished prompt 5 and gathered git/test evidence for prompt 6. I’m now assembling the handoff document in docs/handoffs with full verification details (commits, files changed, test counts, decisions, ADR locks, and frontier), then I’ll verify it exists on disk.
 
-Read [](file:///h%3A/GithubRepositories/auteur/docs/adr/001-structure-proposal-format.md)
+Read docs/adr/001-structure-proposal-format.md
 
-Read [](file:///h%3A/GithubRepositories/auteur/docs/adr/002-shared-structure-proposal-format.md)
+Read docs/adr/002-shared-structure-proposal-format.md
 
-Read [](file:///h%3A/GithubRepositories/auteur/docs/adr/003-bible-audit-placement.md)
+Read docs/adr/003-bible-audit-placement.md
 
-Created [](file:///h%3A/GithubRepositories/auteur/docs/handoffs/2026-05-14-repo-sensemaker-research-test-hardening.md)
+Created docs/handoffs/2026-05-14-repo-sensemaker-research-test-hardening.md
 
-Read [](file:///h%3A/GithubRepositories/auteur/docs/handoffs)
+Read docs/handoffs
 
 Ran terminal command: Get-Item h:/GithubRepositories/auteur/docs/handoffs/2026-05-14-repo-sensemaker-research-test-hardening.md | Select-Object Name,Length
 
