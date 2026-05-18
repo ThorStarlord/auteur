@@ -34,3 +34,24 @@ default_engine_biases:
   - "Deductive logic and plot progression are primary; interiority serves clue logic"
 recommended_subversions:
   - "The detective solves the mystery perfectly but the social/legal outcome is compromised"
+scope_profile:
+  natural_lengths:
+    - short_story
+    - novella
+    - novel
+  minimum_viable_length: short_story
+  default_length: novel
+  narrative_runway: medium
+  recommended_complexity: standard
+  mechanical_load: medium
+  worldbuilding_load: low
+  cast_load: medium
+  compression_strategies:
+    - "Use a compact suspect pool."
+    - "Limit clue logic to one central chain."
+    - "Avoid parallel timelines unless length expands."
+  expansion_strategies:
+    - "Add suspects, red herrings, procedural detail, or institutional coverup only with more runway."
+  scope_failure_modes:
+    - "Too many suspects for the chosen length."
+    - "Layered clue logic has no room for fair setup and payoff."

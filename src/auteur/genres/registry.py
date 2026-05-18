@@ -46,7 +46,8 @@ def load_genre_contract(genre: Genre | str) -> GenreContract:
     return fallback_contract
 
 def _create_fallback_contract(genre: Genre) -> GenreContract:
-    from auteur.genres.models import PsychologyBudget, PsychologyLevel, RequirementLevel
+    from auteur.blueprint import LengthClass, MechanicalLoad, NarrativeRunway, ScopeComplexity
+    from auteur.genres.models import PsychologyBudget, PsychologyLevel, RequirementLevel, ScopeProfile
     
     if genre == Genre.LITERARY:
         level = PsychologyLevel.PSYCHOLOGICALLY_DEEP
@@ -73,5 +74,24 @@ def _create_fallback_contract(genre: Genre) -> GenreContract:
             motivation_clarity=RequirementLevel.REQUIRED,
             psychological_depth=depth,
             character_texture=RequirementLevel.ENCOURAGED,
+        ),
+        scope_profile=ScopeProfile(
+            natural_lengths=[LengthClass.NOVELLA, LengthClass.NOVEL],
+            minimum_viable_length=LengthClass.SHORT_STORY,
+            default_length=LengthClass.NOVEL,
+            narrative_runway=NarrativeRunway.MEDIUM,
+            recommended_complexity=ScopeComplexity.STANDARD,
+            mechanical_load=MechanicalLoad.MEDIUM,
+            worldbuilding_load=MechanicalLoad.MEDIUM,
+            cast_load=MechanicalLoad.MEDIUM,
+            compression_strategies=[
+                "Prefer one main conflict and collapse optional threads into the main pressure."
+            ],
+            expansion_strategies=[
+                "Increase length before adding ensemble POVs, factions, or parallel timelines."
+            ],
+            scope_failure_modes=[
+                "The selected container carries more cast, setting, or subplot machinery than it can pay off."
+            ],
         ),
     )

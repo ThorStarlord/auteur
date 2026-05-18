@@ -20,6 +20,36 @@ A character appears at location A in one Bible event, then location B in
 the next consecutive event, with no intermediate event explaining the move.
 _Avoid_: Spatial inconsistency, position jump.
 
+**Scope Contract**:
+The accepted Layer 3 execution budget for a story: how much cast, POV,
+subplotting, setting footprint, worldbuilding, trope machinery, and narrative
+runway the chosen container can responsibly carry. Stored under
+`StructuralConstants.scope_contract` when declared.
+_Avoid_: Treating word count alone as scope.
+
+**Scope Profile**:
+A genre-level default budget describing natural length affordances, mechanical
+load, runway, compression strategies, expansion strategies, and common scope
+failure modes. Stored on `GenreContract.scope_profile`.
+_Avoid_: Saying a genre is artistically simple.
+
+**Scope Fit Recommendation**:
+An author-facing recommendation that compares the desired story machinery with
+the selected container and offers fit paths: reduce machinery to fit the current
+container, or expand the container to fit the desired machinery.
+_Avoid_: Telling the author they cannot write the premise.
+
+**Mechanical Load**:
+The amount of narrative machinery a story contract asks the author to operate:
+clue logic, suspects, factions, world rules, relationship beats, escalation
+cycles, POVs, and similar moving parts.
+_Avoid_: Simpler genre.
+
+**Narrative Runway**:
+The amount of story space needed to set up, escalate, repeat, reveal, and pay
+off a genre or premise contract.
+_Avoid_: Quality, seriousness, or artistic ambition.
+
 **Diagnostic Slice**:
 A minimal, independently shippable unit of diagnostic functionality — one
 detection rule, its data model, and its CLI wiring.
@@ -36,7 +66,7 @@ Auteur organizes narrative design, validation, and execution into 9 distinct, se
 
 1. **TARGET EXPERIENCE (Layer 1)**: The intended audience experience — the emotional promise the story is trying to produce (primary feeling, emotional progression, and avoided states). Stored under `ProjectIdentity.target_experience`.
 2. **PROMISE / CONSTRAINTS (Layer 2)**: Genre, subgenre hierarchy, mode, medium, target audience, and boundaries (*What This Is Not*). Constrains expected causality, agency, and tone. Stored under `ProjectIdentity`.
-3. **SCOPE / SCALE (Layer 3)**: Structural constraints including story length class, estimated word count, act structure, maximum POV character count, and subplot budget. Stored under `StructuralConstants`.
+3. **SCOPE / SCALE (Layer 3)**: Structural constraints including story length class, estimated word count, act structure, maximum POV character count, subplot budget, and optional accepted Scope Contract. Stored under `StructuralConstants`.
 4. **STRUCTURAL FORCES (Layer 4)**: The core dramatic engine of the threads: Want, Resistance, Conflict, Stakes, and Change. Stored under `MainThread` and `StoryThread`.
 5. **THREADS / MODULES (Layer 5)**: The narrative tapestry: the main plot plus subordinate threads (arcs, subplots), each declaring its specific support function and thematic function. Stored under `StoryEngine`.
 6. **CARRIERS (Layer 6)**: The world entities and actors carrying structural forces: characters, settings, world systems, relationships, and inventory. Stored under `Character` and tracked dynamically in the `StoryBible`.

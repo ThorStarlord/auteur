@@ -26,6 +26,10 @@ def test_load_horror():
     assert contract.display_name == "Horror"
     assert contract.psychology_budget.level == PsychologyLevel.FUNCTIONAL
     assert "therapeutic explanation of the monster" in contract.forbidden_mismatches
+    assert contract.scope_profile.default_length.value == "short_story"
+    assert contract.scope_profile.narrative_runway.value == "short"
+    assert contract.scope_profile.mechanical_load.value == "medium"
+    assert "Use one central threat." in contract.scope_profile.compression_strategies
 
 def test_load_mystery():
     contract = load_genre_contract(Genre.MYSTERY)
@@ -33,6 +37,10 @@ def test_load_mystery():
     assert contract.display_name == "Mystery"
     assert contract.psychology_budget.level == PsychologyLevel.FUNCTIONAL
     assert "clue logic" in contract.required_tropes
+    assert contract.scope_profile.minimum_viable_length.value == "short_story"
+    assert contract.scope_profile.default_length.value == "novel"
+    assert contract.scope_profile.narrative_runway.value == "medium"
+    assert any("suspect" in mode for mode in contract.scope_profile.scope_failure_modes)
 
 def test_load_thriller():
     contract = load_genre_contract(Genre.THRILLER)
@@ -49,6 +57,9 @@ def test_unregistered_genre_fallback():
     # Fallback default uses functional level
     assert contract.psychology_budget.level == PsychologyLevel.FUNCTIONAL
     assert contract.psychology_budget.motivation_clarity == RequirementLevel.REQUIRED
+    assert contract.scope_profile.default_length.value == "novel"
+    assert contract.scope_profile.recommended_complexity.value == "standard"
+    assert contract.scope_profile.mechanical_load.value == "medium"
 
 def test_invalid_string_genre_fallback():
     # An entirely custom/invalid genre string falls back to Genre.OTHER
@@ -61,3 +72,13 @@ def test_registry_caching():
     contract1 = load_genre_contract(Genre.THRILLER)
     contract2 = load_genre_contract(Genre.THRILLER)
     assert contract1 is contract2  # Should be the exact same object in memory
+
+
+def test_load_grimdark_fantasy_scope_profile():
+    contract = load_genre_contract(Genre.GRIMDARK_FANTASY)
+
+    assert contract.scope_profile.default_length.value == "novel"
+    assert contract.scope_profile.narrative_runway.value == "long"
+    assert contract.scope_profile.worldbuilding_load.value == "high"
+    assert contract.scope_profile.cast_load.value == "high"
+    assert any("faction" in mode.casefold() for mode in contract.scope_profile.scope_failure_modes)

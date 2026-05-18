@@ -33,3 +33,23 @@ default_engine_biases:
   - "Ticking clock and antagonist-driven escalation are primary"
 recommended_subversions:
   - "The protagonist wins the battle but the conspiracy is larger than anticipated"
+scope_profile:
+  natural_lengths:
+    - novella
+    - novel
+  minimum_viable_length: short_story
+  default_length: novel
+  narrative_runway: medium
+  recommended_complexity: focused
+  mechanical_load: medium
+  worldbuilding_load: low
+  cast_load: medium
+  compression_strategies:
+    - "Use one ticking clock."
+    - "Keep the antagonist pressure direct and visible."
+    - "Cut reflective side arcs that interrupt pursuit."
+  expansion_strategies:
+    - "Add conspiracy layers, travel, or institutional stakes only with enough room to escalate them."
+  scope_failure_modes:
+    - "The scope adds conspiracy machinery without enough scenes to sustain pace."
+    - "Too many secondary arcs slow the pressure engine."

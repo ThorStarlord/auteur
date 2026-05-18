@@ -1,7 +1,13 @@
 from __future__ import annotations
 from enum import Enum
 from pydantic import BaseModel, Field
-from auteur.blueprint import Genre
+from auteur.blueprint import (
+    Genre,
+    LengthClass,
+    MechanicalLoad,
+    NarrativeRunway,
+    ScopeComplexity,
+)
 
 class PsychologyLevel(str, Enum):
     ARCHETYPAL = "archetypal"         # Myth, fairy tale, pulp adventure
@@ -23,6 +29,20 @@ class PsychologyBudget(BaseModel):
     psychological_depth: RequirementLevel = RequirementLevel.OPTIONAL
     character_texture: RequirementLevel = RequirementLevel.ENCOURAGED
 
+
+class ScopeProfile(BaseModel):
+    natural_lengths: list[LengthClass] = Field(default_factory=list)
+    minimum_viable_length: LengthClass
+    default_length: LengthClass
+    narrative_runway: NarrativeRunway
+    recommended_complexity: ScopeComplexity
+    mechanical_load: MechanicalLoad
+    worldbuilding_load: MechanicalLoad
+    cast_load: MechanicalLoad
+    compression_strategies: list[str] = Field(default_factory=list)
+    expansion_strategies: list[str] = Field(default_factory=list)
+    scope_failure_modes: list[str] = Field(default_factory=list)
+
 class GenreContract(BaseModel):
     genre_id: Genre = Field(..., description="Must map to an existing Genre enum value")
     display_name: str
@@ -40,6 +60,7 @@ class GenreContract(BaseModel):
     
     # Psychology limits
     psychology_budget: PsychologyBudget
+    scope_profile: ScopeProfile
     
     # Recommendations for narrative generation
     default_engine_biases: list[str] = Field(default_factory=list)

@@ -4,6 +4,9 @@ import pytest
 from pydantic import ValidationError
 
 from auteur.blueprint import (
+    MechanicalLoad,
+    NarrativeRunway,
+    ScopeComplexity,
     StoryBlueprint,
     StoryEngine,
     StoryMedium,
@@ -82,6 +85,94 @@ def test_legacy_subgenre_is_preserved_when_subgenres_are_absent():
     assert blueprint.identity.mode is None
     assert blueprint.identity.medium is None
     assert blueprint.story_engine is None
+
+
+def test_blueprint_accepts_nested_scope_contract():
+    data = {
+        "identity": {
+            "title": "Fortress Betrayal",
+            "author_intent": "A focused grimdark fantasy about one siege and one moral collapse.",
+            "length_class": "novel",
+            "genre": "grimdark_fantasy",
+            "target_audience": "adult",
+            "pov_type": "third_person_limited_single",
+        },
+        "structure": {
+            "scope_contract": {
+                "recommended_complexity": "focused",
+                "narrative_runway": "medium",
+                "mechanical_load": "medium",
+                "setting_footprint": "local",
+                "timeframe": "compressed",
+                "worldbuilding_load": "medium",
+                "cast_load": "medium",
+                "trope_load": "selective",
+                "scope_notes": [
+                    "Keep the war off-page and make the fortress the arena."
+                ],
+                "scope_warnings": [
+                    "Do not add a full faction war unless length expands."
+                ],
+            }
+        },
+        "contract": {
+            "content_rating": "PG-13",
+            "mandatory_ending_tone": "bittersweet",
+        },
+        "emotional_design": {
+            "overall_emotional_arc": "pressure -> compromise -> cost",
+        },
+        "theme": {
+            "central_question": "What does survival cost?",
+            "thesis": "Power preserves the body while corroding the self.",
+            "motifs": [],
+        },
+    }
+
+    blueprint = StoryBlueprint.model_validate(data)
+
+    assert blueprint.structure.scope_contract is not None
+    assert blueprint.structure.scope_contract.recommended_complexity == ScopeComplexity.FOCUSED
+    assert blueprint.structure.scope_contract.narrative_runway == NarrativeRunway.MEDIUM
+    assert blueprint.structure.scope_contract.mechanical_load == MechanicalLoad.MEDIUM
+    assert blueprint.structure.scope_contract.scope_warnings == [
+        "Do not add a full faction war unless length expands."
+    ]
+
+
+def test_scope_contract_rejects_invalid_load_values():
+    data = {
+        "identity": {
+            "title": "Bad Scope",
+            "author_intent": "A test premise.",
+            "length_class": "novella",
+            "genre": "horror",
+            "target_audience": "adult",
+            "pov_type": "third_person_limited_single",
+        },
+        "structure": {
+            "scope_contract": {
+                "recommended_complexity": "focused",
+                "narrative_runway": "medium",
+                "mechanical_load": "enormous",
+            }
+        },
+        "contract": {
+            "content_rating": "PG-13",
+            "mandatory_ending_tone": "open",
+        },
+        "emotional_design": {
+            "overall_emotional_arc": "unease -> dread",
+        },
+        "theme": {
+            "central_question": "What waits in the dark?",
+            "thesis": "Curiosity has a cost.",
+            "motifs": [],
+        },
+    }
+
+    with pytest.raises(ValidationError, match="mechanical_load"):
+        StoryBlueprint.model_validate(data)
 
 
 def test_subordinate_threads_cannot_use_main_plot_type():

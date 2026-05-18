@@ -31,6 +31,48 @@ class LengthClass(str, Enum):
     SERIES = "series"
 
 
+class NarrativeRunway(str, Enum):
+    SHORT = "short"
+    MEDIUM = "medium"
+    LONG = "long"
+    VERY_LONG = "very_long"
+
+
+class ScopeComplexity(str, Enum):
+    MICRO = "micro"
+    FOCUSED = "focused"
+    STANDARD = "standard"
+    EXPANDED = "expanded"
+    SERIES = "series"
+
+
+class MechanicalLoad(str, Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
+
+class SettingFootprint(str, Enum):
+    SINGLE_LOCATION = "single_location"
+    LOCAL = "local"
+    REGIONAL = "regional"
+    WIDE = "wide"
+    MULTI_WORLD = "multi_world"
+
+
+class StoryTimeframe(str, Enum):
+    IMMEDIATE = "immediate"
+    COMPRESSED = "compressed"
+    EXTENDED = "extended"
+    GENERATIONAL = "generational"
+
+
+class TropeLoad(str, Enum):
+    MINIMAL = "minimal"
+    SELECTIVE = "selective"
+    FULL = "full"
+
+
 class Genre(str, Enum):
     EPIC_FANTASY = "epic_fantasy"
     GRIMDARK_FANTASY = "grimdark_fantasy"
@@ -203,6 +245,7 @@ class StructuralConstants(BaseModel):
     max_pov_characters: int | None = Field(default=None, ge=1)
     max_characters_total: int | None = Field(default=None, ge=1)
     subplot_budget: int | None = Field(default=None, ge=0)
+    scope_contract: ScopeContract | None = None
 
     def fill_defaults_from(self, length_class: LengthClass) -> Self:
         chapters, words, max_pov, max_total = _LENGTH_DEFAULTS[length_class]
@@ -215,6 +258,19 @@ class StructuralConstants(BaseModel):
         if self.max_characters_total is None:
             self.max_characters_total = max_total
         return self
+
+
+class ScopeContract(BaseModel):
+    recommended_complexity: ScopeComplexity
+    narrative_runway: NarrativeRunway
+    mechanical_load: MechanicalLoad
+    setting_footprint: SettingFootprint | None = None
+    timeframe: StoryTimeframe | None = None
+    worldbuilding_load: MechanicalLoad | None = None
+    cast_load: MechanicalLoad | None = None
+    trope_load: TropeLoad | None = None
+    scope_notes: list[str] = Field(default_factory=list)
+    scope_warnings: list[str] = Field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------

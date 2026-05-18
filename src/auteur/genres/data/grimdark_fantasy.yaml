@@ -31,3 +31,24 @@ default_engine_biases:
   - "Fusion of power acquisition with personal/moral loss"
 recommended_subversions:
   - "The protagonist's noble sacrifice is ignored or makes things worse"
+scope_profile:
+  natural_lengths:
+    - novel
+    - epic_novel
+    - series
+  minimum_viable_length: novella
+  default_length: novel
+  narrative_runway: long
+  recommended_complexity: expanded
+  mechanical_load: high
+  worldbuilding_load: high
+  cast_load: high
+  compression_strategies:
+    - "Localize the power struggle to one city, fortress, or institution."
+    - "Use one protagonist and one corrupting arena."
+    - "Represent war or politics through immediate moral choices instead of full campaign structure."
+  expansion_strategies:
+    - "Expand to epic novel or series before adding multiple factions, war fronts, or succession arcs."
+  scope_failure_modes:
+    - "Faction machinery overwhelms the protagonist's moral pressure."
+    - "War epic scale appears without enough room for political setup and cost."
