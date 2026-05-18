@@ -141,6 +141,34 @@ def main(argv: list[str] | None = None) -> int:
         help="Target output path for the compiled blueprint.yaml skeleton.",
     )
 
+    # State subcommands
+    p_state = sub.add_parser("state", help="Manage story state layers programmatically.")
+    state_sub = p_state.add_subparsers(dest="state_command", required=True)
+
+    p_state_check = state_sub.add_parser("check", help="Unified dual audit of blueprint and bible state consistency.")
+    p_state_check.add_argument("project", type=Path)
+
+    p_state_update = state_sub.add_parser("update", help="Safe, transactional update of project files.")
+    p_state_update.add_argument("project", type=Path)
+    p_state_update.add_argument("file", type=Path)
+    p_state_update.add_argument("--key", type=str, required=True, help="Dotted path target to update.")
+    p_state_update.add_argument("--val", type=str, required=True, help="New value (parsed dynamically as JSON or string).")
+
+    p_state_prepare = state_sub.add_parser("prepare", help="Compile handoff context packets using strict templates.")
+    p_state_prepare.add_argument("project", type=Path)
+    p_state_prepare.add_argument("phase", choices=["ideation", "drafting", "revision", "recovery"], help="Handoff phase target.")
+    p_state_prepare.add_argument("--scope", choices=["engine", "chapter", "prose"], required=True, help="Target context scope.")
+    p_state_prepare.add_argument("--out", type=Path, default=None, help="Output destination file path.")
+    p_state_prepare.add_argument("--chapter", type=int, default=None, help="Specific chapter index context.")
+
+    p_state_canon = state_sub.add_parser("canon", help="Generate high-fidelity summary facts report.")
+    p_state_canon.add_argument("project", type=Path)
+    p_state_canon.add_argument("--format", choices=["markdown", "json"], default="markdown", help="Output format.")
+
+    p_state_confirm = state_sub.add_parser("confirm", help="Validate and merge recovery locked layers into canonical state.")
+    p_state_confirm.add_argument("project", type=Path)
+    p_state_confirm.add_argument("recovery_run", type=Path, help="Path to the recovery_run.yaml payload.")
+
     args = parser.parse_args(argv)
 
     if args.command == "init":
@@ -167,6 +195,24 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_identity_compile(args.identity, args.output)
     if args.command == "blueprint" and args.blueprint_command == "seed":
         return _cmd_blueprint_seed(args.identity, args.output)
+    if args.command == "state":
+        from auteur.structure.state import (
+            state_check,
+            state_update,
+            state_prepare,
+            state_canon,
+            state_confirm,
+        )
+        if args.state_command == "check":
+            return state_check(args.project)
+        if args.state_command == "update":
+            return state_update(args.project, args.file, args.key, args.val)
+        if args.state_command == "prepare":
+            return state_prepare(args.project, args.phase, args.scope, args.out, args.chapter)
+        if args.state_command == "canon":
+            return state_canon(args.project, args.format)
+        if args.state_command == "confirm":
+            return state_confirm(args.project, args.recovery_run)
     parser.print_help()
     return 2
 
