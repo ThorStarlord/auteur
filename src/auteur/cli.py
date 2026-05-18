@@ -106,6 +106,41 @@ def main(argv: list[str] | None = None) -> int:
         help="Overwrite the source blueprint file. Disabled by default.",
     )
 
+    # Identity subcommands
+    p_identity = sub.add_parser("identity", help="Manage story identities.")
+    identity_sub = p_identity.add_subparsers(dest="identity_command", required=True)
+    p_identity_validate = identity_sub.add_parser(
+        "validate",
+        help="Validate a story_identity.yaml file.",
+    )
+    p_identity_validate.add_argument("identity", type=Path)
+    p_identity_compile = identity_sub.add_parser(
+        "compile",
+        help="Compile a story_identity.yaml into a blueprint.yaml skeleton.",
+    )
+    p_identity_compile.add_argument("identity", type=Path)
+    p_identity_compile.add_argument(
+        "--output",
+        type=Path,
+        required=True,
+        help="Target output path for the compiled blueprint.yaml skeleton.",
+    )
+
+    # Blueprint subcommands
+    p_blueprint = sub.add_parser("blueprint", help="Manage story blueprints.")
+    blueprint_sub = p_blueprint.add_subparsers(dest="blueprint_command", required=True)
+    p_blueprint_seed = blueprint_sub.add_parser(
+        "seed",
+        help="Seed a blueprint.yaml skeleton from a story_identity.yaml.",
+    )
+    p_blueprint_seed.add_argument("identity", type=Path)
+    p_blueprint_seed.add_argument(
+        "--output",
+        type=Path,
+        required=True,
+        help="Target output path for the compiled blueprint.yaml skeleton.",
+    )
+
     args = parser.parse_args(argv)
 
     if args.command == "init":
@@ -126,6 +161,12 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_structure_propose_repairs(args.blueprint)
     if args.command == "structure" and args.structure_command == "apply":
         return _cmd_structure_apply(args.proposal, args.blueprint, args.output, args.in_place)
+    if args.command == "identity" and args.identity_command == "validate":
+        return _cmd_identity_validate(args.identity)
+    if args.command == "identity" and args.identity_command == "compile":
+        return _cmd_identity_compile(args.identity, args.output)
+    if args.command == "blueprint" and args.blueprint_command == "seed":
+        return _cmd_blueprint_seed(args.identity, args.output)
     parser.print_help()
     return 2
 
@@ -704,6 +745,49 @@ def _parse_layers(spec: str) -> set[DiagnosticLayer]:
         return {layer_map[n]}
     except (ValueError, KeyError):
         return set(DiagnosticLayer)
+
+
+def _cmd_identity_validate(identity_path: Path) -> int:
+    if not identity_path.exists():
+        print(f"Error: identity file not found: {identity_path}", file=sys.stderr)
+        return 1
+    try:
+        from auteur.identity import StoryIdentity
+        identity = StoryIdentity.from_yaml(identity_path)
+        print(f"Success: StoryIdentity {identity_path} is valid.")
+        return 0
+    except Exception as exc:
+        print(f"Error: invalid story identity {identity_path}: {exc}", file=sys.stderr)
+        return 1
+
+
+def _cmd_identity_compile(identity_path: Path, output_path: Path) -> int:
+    return _compile_identity_to_blueprint(identity_path, output_path)
+
+
+def _cmd_blueprint_seed(identity_path: Path, output_path: Path) -> int:
+    return _compile_identity_to_blueprint(identity_path, output_path)
+
+
+def _compile_identity_to_blueprint(identity_path: Path, output_path: Path) -> int:
+    if not identity_path.exists():
+        print(f"Error: identity file not found: {identity_path}", file=sys.stderr)
+        return 1
+    try:
+        from auteur.identity import StoryIdentity, compile_to_blueprint
+        identity = StoryIdentity.from_yaml(identity_path)
+        blueprint = compile_to_blueprint(identity)
+        
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(
+            yaml.safe_dump(blueprint.model_dump(mode="json"), sort_keys=False),
+            encoding="utf-8",
+        )
+        print(f"Success: compiled identity {identity_path} to blueprint {output_path}")
+        return 0
+    except Exception as exc:
+        print(f"Error: failed to compile story identity {identity_path}: {exc}", file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":

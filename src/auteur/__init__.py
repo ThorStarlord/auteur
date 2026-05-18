@@ -36,6 +36,7 @@ from auteur.structure import (
     StructureDiagnostic,
     analyze_structure,
 )
+from auteur.identity import StoryIdentity, compile_to_blueprint
 
 __all__ = [
     "ActStructure",
@@ -71,6 +72,8 @@ __all__ = [
     "TensionTarget",
     "TensionWaveform",
     "ThematicCore",
+    "StoryIdentity",
+    "compile_to_blueprint",
     "analyze_structure",
     "render_cartographer_prompt",
 ]
