@@ -1,0 +1,35 @@
+genre_id: romance
+display_name: "Romance"
+core_truth: "Love requires vulnerability, healing, and mutual transformation."
+audience_product: "Emotional resonance, hope, vulnerability, deep connection."
+primary_excitement_beats:
+  - "meet cute"
+  - "forced proximity or initial friction"
+  - "vulnerability shared"
+  - "all is lost breakup or trust broken"
+  - "grand gesture or reconciliation"
+required_tropes:
+  - "happily ever after or happy for now"
+  - "internal barrier or wound preventing love"
+optional_tropes:
+  - "enemies to lovers"
+  - "fake relationship"
+  - "grumpy meets sunshine"
+forbidden_mismatches:
+  - "tragic ending"
+  - "unresolved breakup"
+  - "cynicism about love"
+  - "completely external motivation without relational change"
+common_failure_modes:
+  - "Couples do not spend enough time together to justify the connection"
+  - "External action plot completely swallows the relational development"
+psychology_budget:
+  level: "conflict_bearing"
+  reason: "Romance requires internal vulnerability, hidden desires, and mutual transformation to make the relational engine work."
+  motivation_clarity: "required"
+  psychological_depth: "required"
+  character_texture: "encouraged"
+default_engine_biases:
+  - "Character arc and relationship arc are completely fused"
+recommended_subversions:
+  - "Subverting traditional gender roles or expectations in the relationship dynamic"

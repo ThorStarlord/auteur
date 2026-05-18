@@ -10,9 +10,12 @@ from __future__ import annotations
 
 from enum import Enum
 from pathlib import Path
-from typing import Literal, Self
+from typing import Literal, Self, TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+
+if TYPE_CHECKING:
+    from auteur.genres.models import GenreContract
 
 
 # ---------------------------------------------------------------------------
@@ -174,6 +177,7 @@ class ProjectIdentity(BaseModel):
     medium: StoryMedium | None = None
     target_audience: TargetAudience
     pov_type: POVType
+    genre_contract_snapshot: GenreContract | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -438,6 +442,9 @@ class StoryBlueprint(BaseModel):
     @model_validator(mode="after")
     def _apply_and_validate(self) -> Self:
         self.structure.fill_defaults_from(self.identity.length_class)
+        if self.identity.genre_contract_snapshot is None:
+            from auteur.genres.registry import load_genre_contract
+            self.identity.genre_contract_snapshot = load_genre_contract(self.identity.genre)
         self._check_pov_count()
         self._check_genre_ending_consistency()
         self._check_audience_contract_consistency()
@@ -495,3 +502,8 @@ class StoryBlueprint(BaseModel):
         # Coarse fallback: divide evenly across declared acts in per_act_tones.
         n_acts = max(1, len(self.emotional_design.per_act_tones) or 3)
         return min(n_acts, max(1, ((chapter_index - 1) * n_acts) // chapters + 1))
+
+
+from auteur.genres.models import GenreContract
+ProjectIdentity.model_rebuild()
+StoryBlueprint.model_rebuild()

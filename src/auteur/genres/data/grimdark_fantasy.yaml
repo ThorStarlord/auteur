@@ -1,0 +1,33 @@
+genre_id: grimdark_fantasy
+display_name: "Grimdark Fantasy"
+core_truth: "Power is morally contaminating; survival often requires compromise."
+audience_product: "Dread, moral pressure, pyrrhic victory, compromised agency."
+primary_excitement_beats:
+  - "victory that creates new cost"
+  - "moral line crossed under pressure"
+  - "idealism punished by reality"
+  - "power gained through contamination"
+required_tropes:
+  - "corrupting power"
+  - "morally compromised protagonist"
+  - "institutional brutality"
+  - "costly victory"
+optional_tropes: []
+forbidden_mismatches:
+  - "clean heroic triumph"
+  - "cozy safety"
+  - "consequence-free power fantasy"
+  - "hopeful ending"
+common_failure_modes:
+  - "Protagonist acts like a modern therapeutic saint who never makes hard compromises"
+  - "Ending resolves all moral decay cleanly with a happy victory"
+psychology_budget:
+  level: "conflict_bearing"
+  reason: "Character psychology must drive compromise, but should not turn the story into therapy."
+  motivation_clarity: "required"
+  psychological_depth: "required"
+  character_texture: "encouraged"
+default_engine_biases:
+  - "Fusion of power acquisition with personal/moral loss"
+recommended_subversions:
+  - "The protagonist's noble sacrifice is ignored or makes things worse"

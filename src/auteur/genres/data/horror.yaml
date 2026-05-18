@@ -1,0 +1,35 @@
+genre_id: horror
+display_name: "Horror"
+core_truth: "There are forces larger, older, or darker than human reason can control."
+audience_product: "Dread, terror, violation, adrenaline, desperate survival."
+primary_excitement_beats:
+  - "disruption of normalcy or early warning"
+  - "the threat revealed or escalation"
+  - "isolation or loss of escape routes"
+  - "direct confrontation or terror"
+  - "survival at great cost or final dread"
+required_tropes:
+  - "inescapable threat"
+  - "mounting dread"
+  - "loss of agency or sanity"
+optional_tropes:
+  - "cabin in the woods"
+  - "cursed object"
+  - "the monster within"
+forbidden_mismatches:
+  - "pure cozy resolution"
+  - "therapeutic explanation of the monster"
+  - "consequence-free victory over the threat"
+common_failure_modes:
+  - "The monster is explained away as purely representing grief or personal trauma, soft-pedaling the actual fear"
+  - "Protagonist easily defeats the threat with high competence and no fear"
+psychology_budget:
+  level: "functional"
+  reason: "Horror requires motivation clarity (survival/curiosity) and strong atmospheric dread, but over-explaining the monster as a therapeutic metaphor kills the terror."
+  motivation_clarity: "required"
+  psychological_depth: "optional"
+  character_texture: "encouraged"
+default_engine_biases:
+  - "Atmosphere, environment, and external threat dominate character interiority"
+recommended_subversions:
+  - "The protagonist survives but is permanently changed or carries the threat back home"

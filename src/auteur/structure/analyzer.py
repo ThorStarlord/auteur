@@ -210,6 +210,127 @@ def analyze_structure(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
             )
         )
 
+    # -------------------------------------------------------------------------
+    # Genre Contract Constraints & Validation (Layer 2)
+    # -------------------------------------------------------------------------
+    contract_snap = blueprint.identity.genre_contract_snapshot
+    if contract_snap is None:
+        from auteur.genres.registry import load_genre_contract
+        contract_snap = load_genre_contract(blueprint.identity.genre)
+
+    # 1. Rule: Psychology Budget (avoid LLM therapy bias)
+    if contract_snap.psychology_budget.level in ("archetypal", "functional"):
+        therapeutic_words = {
+            "trauma", "healing", "therapy", "inner wound", "repress",
+            "identity crisis", "forgive myself", "forgiving himself",
+            "forgiving herself", "forgiving oneself"
+        }
+        found_terms: set[str] = set()
+        
+        # Helper to scan text
+        def scan_text(text: str) -> None:
+            if not text:
+                return
+            normalized_text = text.casefold()
+            for word in therapeutic_words:
+                if word in normalized_text:
+                    found_terms.add(word)
+
+        # Scan blueprint text fields
+        scan_text(blueprint.theme.thesis)
+        scan_text(blueprint.theme.central_question)
+        if engine is not None:
+            scan_text(engine.main_thread.want.author_text)
+            scan_text(engine.main_thread.change.author_text)
+        for char in blueprint.characters:
+            for milestone in char.key_milestones:
+                scan_text(milestone.description)
+
+        if found_terms:
+            diagnostics.append(
+                StructureDiagnostic(
+                    severity=DiagnosticSeverity.WARNING,
+                    layer=DiagnosticLayer.TARGET_EXPERIENCE,
+                    rule="genre.psychology_budget.therapy_bias_trap",
+                    message=(
+                        f"The narrative or theme contains therapeutic phrasing that may conflict "
+                        f"with the '{contract_snap.display_name}' genre contract. This genre runs on "
+                        f"'{contract_snap.psychology_budget.level.value}' psychology: "
+                        f"{contract_snap.psychology_budget.reason}"
+                    ),
+                    evidence=[
+                        f"psychology_budget = {contract_snap.psychology_budget.level.value}",
+                        f"found therapeutic terms = {sorted(list(found_terms))}",
+                    ],
+                    repair_options=RepairOptions(
+                        preserve_intent=[
+                            "Keep character psychology lean and focused on external motive, using character texture for flavor.",
+                            "Remove therapeutic concepts like trauma or healing unless load-bearing for the plot."
+                        ],
+                        challenge_intent=[
+                            "Upgrade to a psychologically deep genre or select a different story mode if this psychological focus is intentional."
+                        ],
+                    ),
+                )
+            )
+
+    # 2. Rule: Forbidden Mismatches (Ending Tone)
+    ending_tone_str = blueprint.contract.mandatory_ending_tone.value
+    if ending_tone_str == "tragic" and "tragic ending" in contract_snap.forbidden_mismatches:
+        diagnostics.append(
+            StructureDiagnostic(
+                severity=DiagnosticSeverity.ERROR,
+                layer=DiagnosticLayer.CONSTRAINTS,
+                rule="genre.forbidden_mismatch.ending_tone",
+                message=f"Mandatory ending tone '{ending_tone_str}' is forbidden by the '{contract_snap.display_name}' contract.",
+                evidence=[
+                    f"mandatory_ending_tone = {ending_tone_str}",
+                    "forbidden_mismatch = tragic ending",
+                ],
+                repair_options=RepairOptions(
+                    preserve_intent=["Change ending tone to bittersweet, hopeful, or open."],
+                    challenge_intent=["Select a different genre that supports tragic endings."],
+                ),
+            )
+        )
+    elif ending_tone_str == "hopeful" and "hopeful ending" in contract_snap.forbidden_mismatches:
+        diagnostics.append(
+            StructureDiagnostic(
+                severity=DiagnosticSeverity.ERROR,
+                layer=DiagnosticLayer.CONSTRAINTS,
+                rule="genre.forbidden_mismatch.ending_tone",
+                message=f"Mandatory ending tone '{ending_tone_str}' is forbidden by the '{contract_snap.display_name}' contract.",
+                evidence=[
+                    f"mandatory_ending_tone = {ending_tone_str}",
+                    "forbidden_mismatch = hopeful ending",
+                ],
+                repair_options=RepairOptions(
+                    preserve_intent=["Change ending tone to bittersweet or tragic."],
+                    challenge_intent=["Select a different genre that supports hopeful endings."],
+                ),
+            )
+        )
+
+    # 3. Rule: Required Tropes Forbidden
+    for trope in contract_snap.required_tropes:
+        if trope in blueprint.contract.forbidden_tropes:
+            diagnostics.append(
+                StructureDiagnostic(
+                    severity=DiagnosticSeverity.ERROR,
+                    layer=DiagnosticLayer.CONSTRAINTS,
+                    rule="genre.forbidden_mismatch.required_trope_forbidden",
+                    message=f"The trope '{trope}' is required by the '{contract_snap.display_name}' genre contract, but is listed as a forbidden trope.",
+                    evidence=[
+                        f"required_trope = {trope}",
+                        f"forbidden_tropes = {blueprint.contract.forbidden_tropes}",
+                    ],
+                    repair_options=RepairOptions(
+                        preserve_intent=[f"Remove '{trope}' from the forbidden tropes list."],
+                        challenge_intent=["Change the genre to one that does not require this trope."],
+                    ),
+                )
+            )
+
     return diagnostics
 
 

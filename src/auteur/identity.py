@@ -110,6 +110,9 @@ def compile_to_blueprint(identity: StoryIdentity) -> StoryBlueprint:
     subgenres = identity.story_type.subgenres
     subgenre = subgenres[0] if subgenres else None
 
+    from auteur.genres.registry import load_genre_contract
+    snapshot = load_genre_contract(identity.story_type.genre)
+
     project_identity = ProjectIdentity(
         title=identity.title,
         author_intent=identity.core_answer,
@@ -122,6 +125,7 @@ def compile_to_blueprint(identity: StoryIdentity) -> StoryBlueprint:
         medium=identity.story_type.medium,
         target_audience=identity.story_type.target_audience,
         pov_type=POVType.THIRD_LIMITED_SINGLE,
+        genre_contract_snapshot=snapshot,
     )
 
     # 2. Structural Constants

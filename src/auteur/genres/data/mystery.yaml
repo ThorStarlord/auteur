@@ -1,0 +1,36 @@
+genre_id: mystery
+display_name: "Mystery"
+core_truth: "The truth exists, can be discovered through logic, and has a cost."
+audience_product: "Intellectual satisfaction, epistemic certainty, revelation."
+primary_excitement_beats:
+  - "the crime or puzzle presented"
+  - "red herring or false lead"
+  - "key clue discovered"
+  - "the detective endangered or high stakes"
+  - "the final revelation or confrontation"
+required_tropes:
+  - "clue logic"
+  - "clever deduction"
+  - "suspect pool"
+optional_tropes:
+  - "noir detective"
+  - "locked room puzzle"
+  - "unreliable witness"
+forbidden_mismatches:
+  - "no logical explanation"
+  - "unsolvable puzzle"
+  - "the real mystery is forgiving oneself"
+  - "random culprit introduced at the last minute without clues"
+common_failure_modes:
+  - "The detective spends more time in therapy than investigating clues"
+  - "The puzzle is resolved by a magic coincidence rather than deduction"
+psychology_budget:
+  level: "functional"
+  reason: "Mystery runs on clue logic, deduction, and final revelation. The detective needs motivation clarity and sharp texture, but too much therapeutic wound weakens the puzzle."
+  motivation_clarity: "required"
+  psychological_depth: "optional"
+  character_texture: "encouraged"
+default_engine_biases:
+  - "Deductive logic and plot progression are primary; interiority serves clue logic"
+recommended_subversions:
+  - "The detective solves the mystery perfectly but the social/legal outcome is compromised"

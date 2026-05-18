@@ -1,0 +1,35 @@
+genre_id: thriller
+display_name: "Thriller"
+core_truth: "Action under pressure reveals who you are; compliance is death."
+audience_product: "Suspense, tension, competence under fire, relief."
+primary_excitement_beats:
+  - "inciting incident or the threat begins"
+  - "ticking clock introduced"
+  - "the trap closes or high point of action"
+  - "loss of allies or resources"
+  - "the final showdown or survival"
+required_tropes:
+  - "ticking clock"
+  - "active antagonist"
+  - "competent protagonist"
+optional_tropes:
+  - "conspiracy"
+  - "race against time"
+  - "cat and mouse game"
+forbidden_mismatches:
+  - "passive protagonist who waits for things to happen"
+  - "protagonist learning humility"
+  - "no high stakes or low danger"
+common_failure_modes:
+  - "Protagonist stops the high-speed action to have multiple deep therapeutic self-reflection scenes"
+  - "The stakes are too low to justify the thriller pacing"
+psychology_budget:
+  level: "functional"
+  reason: "Thriller runs on pacing, suspense, and competence. Character psychology should clarify want, resistance, and immediate stakes, but deep psychological healing breaks the momentum."
+  motivation_clarity: "required"
+  psychological_depth: "optional"
+  character_texture: "encouraged"
+default_engine_biases:
+  - "Ticking clock and antagonist-driven escalation are primary"
+recommended_subversions:
+  - "The protagonist wins the battle but the conspiracy is larger than anticipated"
