@@ -85,9 +85,9 @@ options (preserve intent / challenge intent) for resolving it. Stored as a
 _Avoid_: Conflict report, resolution prompt, fix suggestion.
 
 **Story State Manager**:
-The unified multi-layer audit system that coordinates diagnostics across all 9
-structure layers. Extends the existing `auteur audit` command to detect
-contradictions at every layer and produce Decision Packets.
+The unified multi-layer coordination system that manages project state across all 9 structure layers. 
+- *Cognitive Role*: Governed by the [story-state-manager](file:///h:/GithubRepositories/auteur/skills/story-state-manager/SKILL.md) Agent Skill to orchestrate Phase transitions and Bridge Recovery.
+- *Programmatic Actions*: Governed by Auteur's upcoming `auteur state` CLI command family to transactionalize state check, update, prepare, canon, and confirm operations (see [PRD Roadmap](file:///h:/GithubRepositories/auteur/docs/prd-story-state-manager.md)).
 _Avoid_: Lore manager, consistency engine.
 
 **Structure Diagnostic**:
