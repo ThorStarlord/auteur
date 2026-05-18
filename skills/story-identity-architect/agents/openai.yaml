@@ -1,0 +1,4 @@
+interface:
+  display_name: "Story Identity Architect"
+  short_description: "Turn raw ideas into validated story identities"
+  default_prompt: "Use $story-identity-architect to refine my raw story idea into a validated story_identity.yaml."
