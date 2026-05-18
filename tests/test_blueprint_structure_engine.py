@@ -4,6 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from auteur.blueprint import (
+    ConsequenceScale,
     MechanicalLoad,
     NarrativeRunway,
     ScopeComplexity,
@@ -173,6 +174,70 @@ def test_scope_contract_rejects_invalid_load_values():
 
     with pytest.raises(ValidationError, match="mechanical_load"):
         StoryBlueprint.model_validate(data)
+
+
+def test_stakes_accept_consequence_scale_metadata():
+    engine = StoryEngine.model_validate(
+        {
+            "main_thread": {
+                "want": _claim("The protagonist wants to expose the false king."),
+                "resistance": _claim("The court profits from the lie."),
+                "conflict": _claim("Truth would save the realm and destroy the protagonist's family."),
+                "stakes": {
+                    "author_text": "If she fails, the city falls into civil war.",
+                    "checkable_claims": [],
+                    "consequence_scale": "city",
+                    "escalation_ceiling": "national",
+                },
+                "change": _claim("The protagonist becomes willing to lose status for truth."),
+                "thematic_function": "Tests whether truth matters when everyone benefits from a lie.",
+            },
+            "threads": [],
+        }
+    )
+
+    assert engine.main_thread.stakes.consequence_scale == ConsequenceScale.CITY
+    assert engine.main_thread.stakes.escalation_ceiling == ConsequenceScale.NATIONAL
+
+
+def test_stakes_consequence_scale_is_optional_for_existing_yaml_shape():
+    engine = StoryEngine.model_validate(
+        {
+            "main_thread": {
+                "want": _claim("The protagonist wants to expose the false king."),
+                "resistance": _claim("The court profits from the lie."),
+                "conflict": _claim("Truth would save the realm and destroy the protagonist's family."),
+                "stakes": _claim("Every choice deepens either public ruin or private betrayal."),
+                "change": _claim("The protagonist becomes willing to lose status for truth."),
+                "thematic_function": "Tests whether truth matters when everyone benefits from a lie.",
+            },
+            "threads": [],
+        }
+    )
+
+    assert engine.main_thread.stakes.consequence_scale is None
+    assert engine.main_thread.stakes.escalation_ceiling is None
+
+
+def test_stakes_reject_invalid_consequence_scale():
+    with pytest.raises(ValidationError, match="consequence_scale"):
+        StoryEngine.model_validate(
+            {
+                "main_thread": {
+                    "want": _claim("The protagonist wants to expose the false king."),
+                    "resistance": _claim("The court profits from the lie."),
+                    "conflict": _claim("Truth would save the realm and destroy the protagonist's family."),
+                    "stakes": {
+                        "author_text": "If she fails, the city falls into civil war.",
+                        "checkable_claims": [],
+                        "consequence_scale": "galactic",
+                    },
+                    "change": _claim("The protagonist becomes willing to lose status for truth."),
+                    "thematic_function": "Tests whether truth matters when everyone benefits from a lie.",
+                },
+                "threads": [],
+            }
+        )
 
 
 def test_subordinate_threads_cannot_use_main_plot_type():

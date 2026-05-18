@@ -156,7 +156,7 @@ def state_check(project_path: Path) -> int:
     _LAYER_ORDER = [
         (1, DiagnosticLayer.TARGET_EXPERIENCE, "Target Experience"),
         (2, DiagnosticLayer.CONSTRAINTS, "Promise / Constraints"),
-        (3, DiagnosticLayer.SCOPE, "Scope / Scale"),
+        (3, DiagnosticLayer.SCOPE, "Scope / Container"),
         (4, DiagnosticLayer.STRUCTURAL_FORCES, "Structural Forces"),
         (5, DiagnosticLayer.THREADS, "Threads / Modules"),
         (6, DiagnosticLayer.CARRIERS, "Carriers"),
@@ -420,7 +420,7 @@ def state_prepare(project_path: Path, phase: str, scope: str, out_path: Path | N
 | :--- | :--- | :--- | :--- | :--- |
 | **Layer 1** | Target Experience | Med | {blueprint.identity.target_experience.primary if blueprint.identity.target_experience else 'Bittersweet'} | [Speculative ideas] |
 | **Layer 2** | Promise/Constraints| High | {blueprint.identity.genre.value} | [Speculative ideas] |
-| **Layer 3** | Scope / Scale | Med | {blueprint.identity.length_class.value} | [Speculative ideas] |
+| **Layer 3** | Scope / Container | Med | {blueprint.identity.length_class.value} | [Speculative ideas] |
 | **Layer 4** | Structural Forces | Med | {want or 'Want/Resistance map'} | [Speculative ideas] |
 | **Layer 5** | Threads / Modules | Med | [Main Plot Thread] | [Speculative ideas] |
 | **Layer 6** | Carriers | Med | [Bible database characters] | [Speculative ideas] |
@@ -594,8 +594,8 @@ def state_confirm(project_path: Path, recovery_run_path: Path) -> int:
                     blueprint.identity.genre = pc["genre"]
                 if "mode" in pc:
                     blueprint.identity.mode = pc["mode"]
-        if "scope_scale" in locked:
-            ss = locked["scope_scale"]
+        if "scope_container" in locked:
+            ss = locked["scope_container"]
             if isinstance(ss, dict):
                 if "length_class" in ss:
                     blueprint.identity.length_class = ss["length_class"]

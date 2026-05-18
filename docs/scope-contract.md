@@ -42,7 +42,7 @@ while still being emotionally, formally, or artistically demanding.
 Future recommendation behavior should be bidirectional:
 
 - Fit the premise to the selected container by reducing machinery.
-- Fit the full premise by expanding length, scale, or series shape.
+- Fit the full premise by expanding length, container, or series shape.
 - Offer a middle path only when it is concrete enough to build.
 
 Auteur should not tell the user they cannot write the story they want. It should
@@ -51,3 +51,7 @@ this premise needs a larger container.
 
 Auteur does not model writer skill level for this decision. Scope evaluation is
 about the story plan, genre machinery, and selected container.
+
+Scale means consequence magnitude and belongs in Layer 4 stakes. Scope tells the
+system how much story can fit; scale tells the system how far the consequences
+reach.

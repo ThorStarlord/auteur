@@ -73,6 +73,16 @@ class TropeLoad(str, Enum):
     FULL = "full"
 
 
+class ConsequenceScale(str, Enum):
+    PERSONAL = "personal"
+    RELATIONAL = "relational"
+    COMMUNAL = "communal"
+    CITY = "city"
+    NATIONAL = "national"
+    CIVILIZATIONAL = "civilizational"
+    COSMIC = "cosmic"
+
+
 class Genre(str, Enum):
     EPIC_FANTASY = "epic_fantasy"
     GRIMDARK_FANTASY = "grimdark_fantasy"
@@ -223,7 +233,7 @@ class ProjectIdentity(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# Layer 2 — Structural Constants (defaults derived from Layer 1)
+# Layer 3 — Scope / Container (defaults derived from Layer 1)
 # ---------------------------------------------------------------------------
 
 
@@ -274,7 +284,7 @@ class ScopeContract(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# Layer 3 — Author-Audience Contract (the compile-time rule file)
+# Layer 2 — Promise / Constraints (the compile-time rule file)
 # ---------------------------------------------------------------------------
 
 
@@ -435,6 +445,8 @@ class ThematicCore(BaseModel):
 class StructuralClaim(BaseModel):
     author_text: str = Field(min_length=1)
     checkable_claims: list[str] = Field(default_factory=list)
+    consequence_scale: ConsequenceScale | None = None
+    escalation_ceiling: ConsequenceScale | None = None
 
 
 class MainThread(BaseModel):

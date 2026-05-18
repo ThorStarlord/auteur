@@ -41,7 +41,7 @@ The structure engine uses these layers:
 ```text
 Target Experience
 Promise / Constraints
-Scope / Scale
+Scope / Container
 Structural Forces
 Threads
 Carriers
@@ -62,7 +62,7 @@ decorations. They constrain the whole system from the start because they shape
 what the story promises and what forms of causality, revelation, agency, tone,
 and payoff are expected.
 
-### Scope / Scale
+### Scope / Container
 
 Story length, estimated word count, chapter count, POV count, and subplot
 budget. Length is the raw size; scope is what that size can responsibly carry.
@@ -81,6 +81,10 @@ These should be represented as meaning-rich author text and, later, sharper
 checkable claims. "Character detail" is expressive, but agency is structural:
 want implies something wants, stakes imply something can lose, and change
 implies something changes.
+
+Consequence scale belongs under stakes, not Layer 3. A small-container story can
+still carry city, national, or civilizational stakes if the machinery remains
+focused enough for the chosen form.
 
 ### Threads
 

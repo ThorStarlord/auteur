@@ -82,7 +82,7 @@ To ensure absolute architectural clarity, every layer is owned and validated by 
 |---|---|---|---|---|
 | **Layer 1** | **Target Experience** | `target_experience` | Deterministic Schema + Semantic Match | `auteur structure diagnose` |
 | **Layer 2** | **Promise / Constraints** | `constraints` | Deterministic Schema / Contract Beats | `auteur structure diagnose` |
-| **Layer 3** | **Scope / Scale** | `scope` | Subplot budget / chapter / POV bounds | `auteur structure diagnose` |
+| **Layer 3** | **Scope / Container** | `scope` | Subplot budget / chapter / POV bounds | `auteur structure diagnose` |
 | **Layer 4** | **Structural Forces** | `structural_forces` | Core engine completion (want $\neq$ change) | `auteur structure diagnose` |
 | **Layer 5** | **Threads / Modules** | `threads` | Thread support functions & connections | `auteur structure diagnose` |
 | **Layer 6** | **Carriers** | `carriers` | Deterministic state transitions (location) | `auteur audit` |

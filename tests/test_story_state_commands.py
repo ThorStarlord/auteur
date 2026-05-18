@@ -184,7 +184,7 @@ def test_state_confirm_recovery_merge(test_project, capsys):
                 "genre": "epic_fantasy",
                 "mode": "noir"
             },
-            "scope_scale": {
+            "scope_container": {
                 "length_class": "novella",
                 "estimated_chapters": 12
             },
@@ -219,6 +219,31 @@ def test_state_confirm_recovery_merge(test_project, capsys):
     bible = StoryBible(test_project / "bible.json")
     assert bible.data["characters"]["Aldric"]["location"] == "Dungeon"
     assert bible.data["characters"]["Aldric"]["physical"] == "injured"
+
+
+def test_state_confirm_ignores_legacy_scope_scale_key(test_project, capsys):
+    """Verify old scope_scale recovery key is no longer accepted as Layer 3 state."""
+    recovery_payload = {
+        "candidate_locked_layers": {
+            "scope_scale": {
+                "length_class": "novella",
+                "estimated_chapters": 12
+            }
+        }
+    }
+
+    recovery_file = test_project / "legacy_recovery_run.yaml"
+    recovery_file.write_text(yaml.safe_dump(recovery_payload), encoding="utf-8")
+
+    rc = main(["state", "confirm", str(test_project), str(recovery_file)])
+    captured = capsys.readouterr()
+
+    assert rc == 0
+    assert "Success: Recovery candidate layers validated and merged" in captured.out
+
+    bp = StoryBlueprint.from_yaml(test_project / "blueprint.yaml")
+    assert bp.identity.length_class.value == "novel"
+    assert bp.structure.estimated_chapters == 25
 
 
 def test_state_prepare_with_dynamic_outline(test_project, capsys):
@@ -274,4 +299,3 @@ def test_state_prepare_with_dynamic_outline(test_project, capsys):
     assert "The Dark Sorcerer summons shadows." in captured.out
     assert "Aldric unsheathes his silver sword." in captured.out
     assert "Aldric: physical = stable -> exhausted" in captured.out
-
