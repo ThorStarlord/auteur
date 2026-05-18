@@ -145,6 +145,68 @@ def analyze_structure(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
                 )
             )
 
+        # 1. Rule: Primary stack emotion mismatch
+        if target_experience.genre_emotion_stack:
+            primary_stack = target_experience.genre_emotion_stack.get("primary")
+            if primary_stack:
+                primary_promise = target_experience.primary_emotional_promise
+                if primary_promise and primary_stack.emotion.casefold() != primary_promise.casefold():
+                    diagnostics.append(
+                        StructureDiagnostic(
+                            severity=DiagnosticSeverity.ERROR,
+                            layer=DiagnosticLayer.TARGET_EXPERIENCE,
+                            rule="target_experience.genre_emotion_stack.primary_mismatch",
+                            message=(
+                                f"The primary genre-emotion in the stack '{primary_stack.emotion}' "
+                                f"does not match the primary emotional promise '{primary_promise}'."
+                            ),
+                            evidence=[
+                                f"identity.target_experience.primary_emotional_promise = {primary_promise}",
+                                f"genre_emotion_stack.primary.emotion = {primary_stack.emotion}",
+                            ],
+                            repair_options=RepairOptions(
+                                preserve_intent=[
+                                    "Update the primary emotional promise to match the primary genre-emotion.",
+                                    "Update the primary genre-emotion in the stack to match the primary emotional promise."
+                                ],
+                                challenge_intent=[
+                                    "Remove or restructure the genre emotion stack."
+                                ],
+                            ),
+                        )
+                    )
+
+        # 2. Rule: POV Experience Contract unknown character
+        if target_experience.pov_experience_contracts:
+            declared_names_and_roles = {char.name.casefold() for char in blueprint.characters} | {char.role.value.casefold() for char in blueprint.characters}
+            for pov_key in target_experience.pov_experience_contracts:
+                if pov_key.casefold() not in declared_names_and_roles:
+                    diagnostics.append(
+                        StructureDiagnostic(
+                            severity=DiagnosticSeverity.WARNING,
+                            layer=DiagnosticLayer.TARGET_EXPERIENCE,
+                            rule="target_experience.pov_contract.unknown_character",
+                            message=(
+                                f"POV contract declared for '{pov_key}', but no character "
+                                "with that name or role exists in the blueprint."
+                            ),
+                            evidence=[
+                                f"pov_experience_contracts key = {pov_key}",
+                                f"declared characters = {[c.name for c in blueprint.characters]}",
+                                f"declared roles = {[c.role.value for c in blueprint.characters]}",
+                            ],
+                            repair_options=RepairOptions(
+                                preserve_intent=[
+                                    f"Add a character named '{pov_key}' or with the role '{pov_key}' to the characters list.",
+                                    f"Rename the POV contract key '{pov_key}' to match an existing character's name or role."
+                                ],
+                                challenge_intent=[
+                                    "Remove this POV contract if it is no longer needed."
+                                ],
+                            ),
+                        )
+                    )
+
     thread_count = len(engine.threads)
     subplot_budget = blueprint.structure.subplot_budget
     if thread_count and subplot_budget is None:

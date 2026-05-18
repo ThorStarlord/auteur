@@ -253,10 +253,98 @@ class SupportFunction(str, Enum):
 # ---------------------------------------------------------------------------
 
 
+class EmotionalTrajectory(BaseModel):
+    pattern: str = Field(min_length=1)
+    start: str = Field(min_length=1)
+    midpoint: str = Field(min_length=1)
+    ending: str = Field(min_length=1)
+
+
+class GenreEmotionRole(BaseModel):
+    genre: str = Field(min_length=1)
+    emotion: str = Field(min_length=1)
+    role: str = Field(min_length=1)
+
+
+class POVExperienceContract(BaseModel):
+    dominant_feeling: str = Field(min_length=1)
+    function: str = Field(min_length=1)
+
+
 class TargetExperience(BaseModel):
-    primary: str = Field(min_length=1)
-    progression: str = Field(min_length=1)
+    # Simplified / legacy fields
+    primary: str = Field(default="")
+    progression: str = Field(default="")
+    secondary: list[str] = Field(default_factory=list)
     avoid: list[str] = Field(default_factory=list)
+
+    # Rich model fields
+    primary_emotional_promise: str | None = None
+    secondary_palette: list[str] = Field(default_factory=list)
+    avoided_experiences: list[str] = Field(default_factory=list)
+    emotional_trajectory: EmotionalTrajectory | None = None
+    genre_emotion_stack: dict[str, GenreEmotionRole] | None = None
+    pov_experience_contracts: dict[str, POVExperienceContract] | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _coerce_and_backfill(cls, data: object) -> object:
+        if not isinstance(data, dict):
+            return data
+
+        # Map rich keys to simplified keys if simplified are not provided, and vice versa
+        if "primary_emotional_promise" in data and data["primary_emotional_promise"]:
+            data.setdefault("primary", data["primary_emotional_promise"])
+        elif "primary" in data and data["primary"]:
+            data.setdefault("primary_emotional_promise", data["primary"])
+
+        if "avoided_experiences" in data and data["avoided_experiences"]:
+            data.setdefault("avoid", data["avoided_experiences"])
+        elif "avoid" in data and data["avoid"]:
+            data.setdefault("avoided_experiences", data["avoid"])
+
+        if "secondary_palette" in data and data["secondary_palette"]:
+            data.setdefault("secondary", data["secondary_palette"])
+        elif "secondary" in data and data["secondary"]:
+            data.setdefault("secondary_palette", data["secondary"])
+
+        # Extract progression from emotional_trajectory.pattern if progression is not set
+        et = data.get("emotional_trajectory")
+        if isinstance(et, dict) and "pattern" in et:
+            data.setdefault("progression", et["pattern"])
+
+        return data
+
+    @model_validator(mode="after")
+    def _validate_non_empty(self) -> Self:
+        # Check that we have a primary emotional promise
+        if not self.primary and not self.primary_emotional_promise:
+            raise ValueError("Either 'primary' or 'primary_emotional_promise' must be specified.")
+        
+        # Populate defaults and cross-populate
+        if not self.primary:
+            self.primary = self.primary_emotional_promise
+        if not self.primary_emotional_promise:
+            self.primary_emotional_promise = self.primary
+
+        if not self.progression and self.emotional_trajectory:
+            self.progression = self.emotional_trajectory.pattern
+        if not self.progression:
+            self.progression = "static"
+
+        # Sync avoided lists
+        if self.avoid and not self.avoided_experiences:
+            self.avoided_experiences = self.avoid
+        elif self.avoided_experiences and not self.avoid:
+            self.avoid = self.avoided_experiences
+
+        # Sync secondary lists
+        if self.secondary and not self.secondary_palette:
+            self.secondary_palette = self.secondary
+        elif self.secondary_palette and not self.secondary:
+            self.secondary = self.secondary_palette
+
+        return self
 
 
 class MediumContract(BaseModel):
