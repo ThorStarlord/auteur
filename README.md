@@ -1,23 +1,25 @@
 # Auteur
 
-Auteur is an agentic narrative engineering toolkit for long-form fiction. It turns a structured story blueprint into whole-story structure checks, chapter plans, drafts, validation reports, and accepted chapter artifacts.
+Auteur is an opinionated narrative-engine toolkit for long-form fiction. It helps beginner-to-intermediate writers turn raw creative input into a recommended story engine, validates that engine deterministically, and treats chapter outlining and prose generation as optional downstream stages.
 
-Auteur coordinates high-level creative brief definition with deterministic execution rails under a unified narrative compilation lifecycle:
+Auteur coordinates high-level narrative-engine recommendation with deterministic execution rails under a unified narrative compilation lifecycle:
 
 ```text
-Raw idea
+raw idea
   ↓
-story_identity.yaml (creative brief)
+opinionated interpretation
+  ↓
+story_identity.yaml (accepted recommended story engine)
   ↓
 blueprint.yaml (structural design canvas)
   ↓
 structure diagnostics (deterministic audit)
   ↓
-cartographer outline (chapter coordination)
+optional cartographer outline (chapter coordination)
   ↓
-chapter contracts (TDD specifications)
+optional chapter contracts (TDD specifications)
   ↓
-draft / critique / accept (Bard & Critics)
+optional draft / critique / accept (Bard & Critics)
 ```
 
 The current Engine v1 is a hybrid system:
@@ -30,7 +32,7 @@ The current Engine v1 is a hybrid system:
 
 This repository currently contains a working Engine v1 CLI and Python library. It supports:
 
-- **Concept Freezing**: High-level creative brief validation and seeding via Pydantic model contracts.
+- **Opinionated Story Identity**: Recommended story-engine validation and seeding via Pydantic model contracts, including rationale, rejected directions, and author overrides.
 - **Deterministic Diagnostics**: Complete, non-destructive structure diagnostics and repair proposals.
 - **Outline Compiling**: Generating character-aligned chapter outline coordinates.
 - **TDD Drafting**: Running multi-critic verification loops against structured chapter contracts.
@@ -118,15 +120,15 @@ auteur retry .\tmp\shattered_crown 1 --max-iterations 2
 
 ## CLI Commands
 
-### 1. Identity & Concept Seeding
+### 1. Identity & Narrative Engine Seeding
 
 `auteur identity validate <story_identity.yaml>`
 
-Validates a high-level creative brief (`StoryIdentity`) against the Pydantic schema constraints.
+Validates an accepted recommended story engine (`StoryIdentity`) against the Pydantic schema constraints.
 
 `auteur blueprint seed <story_identity.yaml> --output <blueprint.yaml>`
 
-Compiles a validated `StoryIdentity` into a standard `StoryBlueprint` skeleton.
+Compiles accepted identity fields into a standard `StoryBlueprint` skeleton. Recommendation rationale is preserved in `story_identity.yaml` and does not silently mutate blueprint structure.
 
 `auteur identity compile <story_identity.yaml> --output <blueprint.yaml>`
 
@@ -216,6 +218,7 @@ See [docs/structure-engine-v1.md](docs/structure-engine-v1.md) for the design di
 - [Next Step Discovery](docs/next-step-discovery.md)
 - [LLM Adapters](docs/llm-adapters.md)
 - [Structure Engine v1](docs/structure-engine-v1.md)
+- [Opinionated Narrative Engine](docs/opinionated-narrative-engine.md)
 
 The files under `docs/superpowers/` are implementation design and planning notes for development work. The user-facing docs above describe the current repository behavior.
 

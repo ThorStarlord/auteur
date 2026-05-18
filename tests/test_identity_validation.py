@@ -22,6 +22,49 @@ def test_story_identity_valid_minimal():
     assert identity.story_type.genre.value == "grimdark_fantasy" # default
     assert identity.story_type.medium.value == "novel" # default
     assert identity.story_type.mode.value == "tragic" # default
+    assert identity.recommendation_mode.value == "opinionated"
+    assert identity.best_basis.value == "genre_aligned"
+
+
+def test_story_identity_accepts_opinionated_recommendation_metadata(tmp_path):
+    data = {
+        "title": "The Fallen Angel",
+        "core_answer": "A tragic romantasy about an angel who becomes mortal to save a cursed beloved.",
+        "central_engine": {
+            "want": "The angel wants to save the mortal from a terminal curse.",
+            "resistance": "The curse is protected by divine law and enforced by the angel's former kin.",
+            "conflict": "Saving the beloved requires breaking heaven's order and becoming the thing heaven condemns.",
+            "stakes": "The mortal dies if the angel obeys, but heaven fractures if the angel rebels.",
+            "change": "The angel changes from obedient guardian to exiled mortal lover.",
+        },
+        "recommendation_mode": "opinionated",
+        "best_basis": "genre_aligned",
+        "why_this_is_best": "The romantasy premise is strongest when genre promise, forbidden intimacy, and sacrificial transformation pressure the same ending.",
+        "rejected_directions": [
+            "A neutral portal fantasy would weaken the romantic genre promise.",
+            "A detached theological parable would underuse the author-provided love story.",
+        ],
+        "author_overrides": [
+            "Keep the ending tragic rather than redemptive.",
+        ],
+    }
+
+    identity = StoryIdentity.model_validate(data)
+    assert identity.why_this_is_best.startswith("The romantasy premise")
+    assert identity.rejected_directions == [
+        "A neutral portal fantasy would weaken the romantic genre promise.",
+        "A detached theological parable would underuse the author-provided love story.",
+    ]
+    assert identity.author_overrides == ["Keep the ending tragic rather than redemptive."]
+
+    identity_path = tmp_path / "story_identity.yaml"
+    identity.to_yaml(identity_path)
+    round_tripped = StoryIdentity.from_yaml(identity_path)
+
+    assert round_tripped.recommendation_mode.value == "opinionated"
+    assert round_tripped.best_basis.value == "genre_aligned"
+    assert round_tripped.why_this_is_best == identity.why_this_is_best
+    assert round_tripped.rejected_directions == identity.rejected_directions
 
 
 def test_story_identity_invalid_missing_fields():

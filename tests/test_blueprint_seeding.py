@@ -29,6 +29,16 @@ def test_compile_to_blueprint_valid():
         },
         "not_this": ["a triumph story", "magic-heavy fantasy"],
         "open_questions": ["Will any of the royal archive survive the fire?", "Does the crown prince betray the king?"],
+        "recommendation_mode": "opinionated",
+        "best_basis": "genre_aligned",
+        "why_this_is_best": "The bronze age collapse premise is most genre-aligned as political tragedy, because the expected promise is escalating institutional failure rather than personal victory.",
+        "rejected_directions": [
+            "A heroic war epic would fight the collapse promise.",
+            "A cozy court intrigue would undercut the scale of civilization failure.",
+        ],
+        "author_overrides": [
+            "Do not soften the ending into a restoration of the old empire.",
+        ],
     }
     
     identity = StoryIdentity.model_validate(identity_data)
@@ -44,6 +54,7 @@ def test_compile_to_blueprint_valid():
     assert blueprint.identity.subgenres == ["bronze_punk", "political_tragedy"]
     assert blueprint.identity.mode == StoryMode.TRAGIC
     assert blueprint.identity.target_audience.value == "adult"
+    assert blueprint.identity.author_intent == identity.core_answer
     
     # Verify Story Engine
     assert blueprint.story_engine is not None
@@ -71,3 +82,4 @@ def test_compile_to_blueprint_valid():
     loaded_data = yaml.safe_load(serialized)
     parsed_blueprint = StoryBlueprint.model_validate(loaded_data)
     assert parsed_blueprint.identity.title == "A Song of Bronze"
+    assert not hasattr(parsed_blueprint.identity, "why_this_is_best")

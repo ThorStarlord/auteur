@@ -27,3 +27,11 @@ open_questions:
 alternatives:
   - "A path where Kael sacrifices himself instead of choosing the dark throne."
 confidence: 0.9
+recommendation_mode: "opinionated"
+best_basis: "genre_aligned"
+why_this_is_best: "The grimdark premise is most genre-aligned when victory and corruption are fused: readers expect moral cost, compromised agency, and an ending that fulfills dread rather than clean triumph."
+rejected_directions:
+  - "A heroic chosen-one victory would break the grimdark corruption promise."
+  - "A cozy rebellion adventure would undercut the target experience of dread."
+author_overrides:
+  - "Keep Kael's final transformation tragic rather than redemptive."

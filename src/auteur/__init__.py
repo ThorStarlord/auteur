@@ -36,12 +36,13 @@ from auteur.structure import (
     StructureDiagnostic,
     analyze_structure,
 )
-from auteur.identity import StoryIdentity, compile_to_blueprint
+from auteur.identity import BestBasis, RecommendationMode, StoryIdentity, compile_to_blueprint
 
 __all__ = [
     "ActStructure",
     "ArcType",
     "AuthorAudienceContract",
+    "BestBasis",
     "Character",
     "CharacterState",
     "DiagnosticLayer",
@@ -56,6 +57,7 @@ __all__ = [
     "PlanningScope",
     "ProjectIdentity",
     "RepairOptions",
+    "RecommendationMode",
     "StoryBible",
     "StoryBlueprint",
     "StoryEngine",

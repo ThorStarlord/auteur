@@ -5,22 +5,28 @@ description: "agentic creative brief builder designed to refine raw ideas, execu
 
 # Story Identity Architect Skill
 
-An agentic creative architect skill designed to refine chaotic creative ideas, execute a structured "grilling workflow" for conceptual alignment, and output a validated `story_identity.yaml` ready to seed a structural `blueprint.yaml` skeleton.
+An opinionated story architect skill designed to refine chaotic creative ideas, recommend the strongest genre-aligned story engine implied by the premise, execute a structured "grilling workflow" for conceptual alignment, and output a validated `story_identity.yaml` ready to seed a structural `blueprint.yaml` skeleton.
 
 ## Meta
 - **Name**: story-identity-architect
-- **Goal**: Transition a raw, unstructured story idea into a clear, high-level creative contract without losing authorial intent.
+- **Goal**: Transition a raw, unstructured story idea into a recommended high-level story engine without losing authorial intent.
 - **Output**: Validated `story_identity.yaml` and a seeded `blueprint.yaml` skeleton.
 
 ---
 
 ## 1. The Grilling Workflow
 
-When executing this skill, the agent must **never** make all decisions silently. The agent must use a disciplined **grilling workflow**:
+When executing this skill, the agent must **never** make all decisions silently. Its internal role is **Opinionated Story Architect**: recommend strongly, explain why, and preserve explicit author override.
 
-1. **Ask One Question at a Time**: Never overwhelm the author with a giant questionnaire. Focus on one core element of the story identity at a time.
-2. **Provide a Recommended Answer**: When asking a question, provide a high-fidelity recommended answer based on their previous inputs.
-3. **Lock Decisions Explicitly**: Wait for the author to approve, adjust, or reject the recommendation before moving to the next question.
+The default optimization basis for "best" is `genre_aligned`: choose the engine that best fulfills the selected genre/subgenre promise while staying coherent and faithful enough to the author's raw input.
+
+The agent must use a disciplined **grilling workflow**:
+
+1. **Recommend One Primary Engine First**: Infer the strongest story engine and present it before alternatives.
+2. **Explain Why It Is Best**: Tie the recommendation to genre promise, target experience, structural coherence, and author input.
+3. **Show Two Alternatives**: Briefly name viable but weaker directions.
+4. **Ask One Question at a Time**: Never overwhelm the author with a giant questionnaire. Focus on the highest-leverage correction.
+5. **Lock Decisions Explicitly**: Ask whether the author accepts, modifies, or switches to open-ended exploration before moving to the next layer.
 
 ### Grilling Sequence
 
@@ -30,6 +36,7 @@ The grilling workflow focuses strictly on the high-level conceptual brief (`Stor
 - **Phase 2: Story Type & Promise Constraints (Layer 2)**: Medium (novel, novella, short story), Mode (tragic, mythic, adventure, noir, intimate, epic, other), Genre, subgenres, Target Audience, and boundaries—**What This Is Not** (defining creative boundaries).
 - **Phase 3: Central Engine Forces (Layer 4)**: The high-level dramatic forces of the central story engine: Want (protagonist ambition), Resistance (core opposition), Conflict (collision of want and internal cost), Stakes (compounding cost of success/failure), and Change (how the protagonist/world is altered).
 - **Phase 4: Alternatives, Open Questions & Confidence**: Open questions, narrative alternatives, and the author's confidence score.
+- **Phase 5: Recommendation Rationale & Overrides**: Why the recommended engine is best, which directions were rejected, and which author overrides must be preserved.
 
 > [!NOTE]
 > Detailed structural constants (subplot budgets, chapter divisions, POV lists) and subplot tapestries are deferred to the structure coherence auditor and cartographer outline compiler stages to keep the initial design brief pure and lightweight.
@@ -75,6 +82,15 @@ Once the grilling sequence is completed and all decisions are explicitly approve
   - [Alternative 1]
 - **Confidence Score**: [e.g., 0.9]
 
+## 5. Recommendation Contract
+- **Mode**: opinionated
+- **Best Basis**: genre_aligned
+- **Why This Is Best**: [Rationale for the recommended engine]
+- **Rejected Directions**:
+  - [Weaker direction 1]
+- **Author Overrides**:
+  - [Explicit override 1]
+
 ## Coherence Risks
 - [Risk 1: Potential plot-holes or thematic clashes]
 ```
@@ -117,6 +133,14 @@ open_questions:
 alternatives:
   - "A path where Kael sacrifices himself instead of choosing the dark throne."
 confidence: 0.9
+recommendation_mode: "opinionated"
+best_basis: "genre_aligned"
+why_this_is_best: "The grimdark premise is most genre-aligned when victory and corruption are fused: readers expect moral cost, compromised agency, and an ending that fulfills dread rather than clean triumph."
+rejected_directions:
+  - "A heroic chosen-one victory would break the grimdark corruption promise."
+  - "A cozy rebellion adventure would undercut the target experience of dread."
+author_overrides:
+  - "Keep Kael's final transformation tragic rather than redemptive."
 ```
 
 ### Validation & Seeding Commands
@@ -141,11 +165,17 @@ The Story Identity Architect skill supports two distinct modes of execution depe
 
 ### A. The Grilling Mode (`--interactive` / `--grill`)
 Use this mode when starting from high **creative fog** (vague premises, unrefined world ideas, chaotic character thoughts). 
-- **Workflow**: The agent initiates the step-by-step grilling sequence (Section 1).
-- **Execution**: The agent asks exactly one question at a time, recommends an answer, and waits for explicit approval before proceeding.
+- **Workflow**: The agent initiates the opinionated step-by-step grilling sequence (Section 1).
+- **Execution**: The agent recommends the strongest engine, explains why, asks exactly one correction question at a time, and waits for explicit approval before proceeding.
 - **Output**: Resolves creative fog, resulting in a compiled `story_identity.yaml`.
 
-### B. Direct Seeding Mode (`--seed`)
+### B. Open-Ended Exploration Mode (`--explore`)
+Use this mode when the author explicitly wants exploration rather than decisive direction.
+- **Workflow**: The agent presents three viable engines and their tradeoffs.
+- **Execution**: The agent waits for the author to choose, combine, or reject the options before compiling `story_identity.yaml`.
+- **Output**: Locks the selected or edited engine as `recommendation_mode: open_ended`.
+
+### C. Direct Seeding Mode (`--seed`)
 Use this mode when the author already has a structured plan or structured parameters ready to be committed.
 - **Workflow**: The agent bypasses the interactive grilling sequence and directly maps parameters into the schema.
 - **Execution**: The agent validates the input against the Pydantic schema and seeds the target files without manual interrogation.

@@ -6,6 +6,7 @@ boundaries, and open questions) before generating a valid blueprint structure.
 """
 
 from __future__ import annotations
+from enum import Enum
 from pathlib import Path
 from typing import Self
 import yaml
@@ -58,6 +59,18 @@ class HighLevelCentralEngine(BaseModel):
     change: str = Field(min_length=1)
 
 
+class RecommendationMode(str, Enum):
+    OPINIONATED = "opinionated"
+    OPEN_ENDED = "open_ended"
+
+
+class BestBasis(str, Enum):
+    GENRE_ALIGNED = "genre_aligned"
+    STRUCTURALLY_COHERENT = "structurally_coherent"
+    EMOTIONALLY_POWERFUL = "emotionally_powerful"
+    FAITHFUL_TO_INPUT = "faithful_to_input"
+
+
 class StoryIdentity(BaseModel):
     title: str = Field(min_length=1)
     core_answer: str = Field(min_length=1)
@@ -70,6 +83,11 @@ class StoryIdentity(BaseModel):
     open_questions: list[str] = Field(default_factory=list)
     confidence: float | None = Field(default=None, ge=0.0, le=1.0)
     alternatives: list[str] = Field(default_factory=list)
+    recommendation_mode: RecommendationMode = RecommendationMode.OPINIONATED
+    best_basis: BestBasis = BestBasis.GENRE_ALIGNED
+    why_this_is_best: str | None = Field(default=None, min_length=1)
+    rejected_directions: list[str] = Field(default_factory=list)
+    author_overrides: list[str] = Field(default_factory=list)
 
     @classmethod
     def from_yaml(cls, path: str | Path) -> Self:
