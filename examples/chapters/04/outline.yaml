@@ -1,0 +1,25 @@
+scope: chapter
+chapter_index: 4
+chapter_summary: Kael returns to the tavern.
+scenes:
+- scene_id: s1
+  pov_character: Kael
+  location: Tavern
+  summary: He nurses a drink.
+  key_events: []
+  character_state_changes:
+  - character: Kael
+    field: location
+    before: null
+    after: Tavern
+  arc_advancements: []
+  estimated_tension: 4
+  emotional_tone: subtle unease
+arc_pushes: []
+contract_compliance: []
+expected_elements_touched: []
+forbidden_tropes_avoided: []
+estimated_chapter_tension: 4
+thematic_reinforcement: theme
+conflict_report: null
+index: 4

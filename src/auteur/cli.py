@@ -169,6 +169,37 @@ def main(argv: list[str] | None = None) -> int:
     p_state_confirm.add_argument("project", type=Path)
     p_state_confirm.add_argument("recovery_run", type=Path, help="Path to the recovery_run.yaml payload.")
 
+    # Cartographer subcommands
+    p_cartographer = sub.add_parser("cartographer", help="Manage story outlines.")
+    cartographer_sub = p_cartographer.add_subparsers(dest="cartographer_command", required=True)
+    
+    p_cart_compile = cartographer_sub.add_parser(
+        "compile",
+        help="Compile a blueprint into a unified cartographer outline.",
+    )
+    p_cart_compile.add_argument("blueprint", type=Path)
+    p_cart_compile.add_argument(
+        "--output",
+        type=Path,
+        required=True,
+        help="Output destination path for the unified cartographer_outline.yaml file.",
+    )
+    p_cart_compile.add_argument(
+        "--split",
+        action="store_true",
+        default=True,
+        help="Auto-split compiled chapters into chapters/XX/outline.yaml.",
+    )
+    p_cart_compile.add_argument("--provider", choices=["anthropic", "openai"], default="anthropic")
+    p_cart_compile.add_argument("--model", default=None)
+
+    p_cart_validate = cartographer_sub.add_parser(
+        "validate",
+        help="Deterministic, local validator for compiled cartographer outlines.",
+    )
+    p_cart_validate.add_argument("outline", type=Path)
+    p_cart_validate.add_argument("--blueprint", type=Path, default=None, help="Blueprint to compare tension target against.")
+
     args = parser.parse_args(argv)
 
     if args.command == "init":
@@ -213,6 +244,20 @@ def main(argv: list[str] | None = None) -> int:
             return state_canon(args.project, args.format)
         if args.state_command == "confirm":
             return state_confirm(args.project, args.recovery_run)
+    if args.command == "cartographer":
+        if args.cartographer_command == "compile":
+            return _cmd_cartographer_compile(
+                blueprint_path=args.blueprint,
+                output_path=args.output,
+                split=args.split,
+                provider=args.provider,
+                model=args.model
+            )
+        if args.cartographer_command == "validate":
+            return _cmd_cartographer_validate(
+                outline_path=args.outline,
+                blueprint_path=args.blueprint
+            )
     parser.print_help()
     return 2
 
@@ -833,6 +878,53 @@ def _compile_identity_to_blueprint(identity_path: Path, output_path: Path) -> in
         return 0
     except Exception as exc:
         print(f"Error: failed to compile story identity {identity_path}: {exc}", file=sys.stderr)
+        return 1
+
+
+def _cmd_cartographer_compile(
+    blueprint_path: Path,
+    output_path: Path,
+    split: bool,
+    provider: str,
+    model: str | None
+) -> int:
+    if not blueprint_path.exists():
+        print(f"Error: blueprint file not found: {blueprint_path}", file=sys.stderr)
+        return 1
+    try:
+        from auteur.llm.factory import build_client
+        from auteur.cartographer_compiler import compile_outline
+        
+        llm = build_client(provider, model)
+        project_path = blueprint_path.parent
+        compile_outline(
+            project_path=project_path,
+            blueprint_path=blueprint_path,
+            output_path=output_path,
+            split_output=split,
+            llm=llm
+        )
+        print(f"Success: compiled outline into {output_path}")
+        return 0
+    except Exception as exc:
+        print(f"Error: failed to compile outline: {exc}", file=sys.stderr)
+        return 1
+
+
+def _cmd_cartographer_validate(
+    outline_path: Path,
+    blueprint_path: Path | None
+) -> int:
+    if not outline_path.exists():
+        print(f"Error: outline file not found: {outline_path}", file=sys.stderr)
+        return 1
+    try:
+        from auteur.cartographer_compiler import validate_outline
+        validate_outline(outline_path, blueprint_path)
+        print(f"Success: outline {outline_path} is valid.")
+        return 0
+    except Exception as exc:
+        print(f"Error: outline validation failed: {exc}", file=sys.stderr)
         return 1
 
 
