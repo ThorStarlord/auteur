@@ -18,6 +18,8 @@ class DiagnosticLayer(str, Enum):
     THREADS = "threads"
     THEME = "theme"
     CARRIERS = "carriers"
+    REPRESENTATION = "representation"
+    MODULATION = "modulation"
 
 
 class RepairOptions(BaseModel):

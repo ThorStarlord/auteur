@@ -38,12 +38,13 @@ auteur structure propose-repairs blueprint.yaml
 - Parse the proposal files to extract options, rules, and affected fields.
 
 ### Phase 3: Priority-Ordered Grilling & Selection
-Present unresolved proposals one at a time to the author. Do not present them as a flat, overwhelming list. Walk through them in **Inside-Out Narrative Priority**:
+Present unresolved proposals one at a time to the author. Do not present them as a flat, overwhelming list. Walk through them in **Inside-Out Narrative Priority (the 5-Tier Narrative Priority Matrix)**:
 
-1. **Core Engine Gaps** (Layers 1-2: Core premise conflicts, central engine wanting/change).
-2. **Character & Carrier Gaps** (Layers 3-4: Missing character wants, unspecified relationships).
-3. **Plot & Representation Gaps** (Layer 5: Thread budgets exceeded, act structure conflicts).
-4. **Theme & Contract Gaps** (Style/theme details, forbidden tropes).
+1. **Tier 1: Intent & Boundaries** (Layers 1-2: Target Experience, Promise/Constraints) - Higher-level core premise conflicts and genre/constraint clashes.
+2. **Tier 2: Blueprint Canvas & Forces** (Layers 3-5: Scope/Scale, Structural Forces, Threads/Modules) - Central story engine forces, subplot budgets, and thread configurations.
+3. **Tier 3: Carriers & Factions** (Layer 6: Carriers) - World entities, characters, and relationships (e.g. missing character wants or relationships).
+4. **Tier 4: Representation & Modulation** (Layers 7-8: Representation, Modulation) - Outline, scenes, POV assignments, and pacing dynamics (checked during drift audits).
+5. **Tier 5: Resonance & Coherence** (Layer 9: Resonance/Coherence) - Thematic coherence (e.g. ensuring threads support the thematic thesis).
 
 For each prioritized proposal:
 1. **Ask One Question**: Describe the gap, cite the exact evidence, and list the 2-3 options.

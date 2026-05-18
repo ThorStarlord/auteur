@@ -30,14 +30,35 @@ A structured record from the Cartographer outline: `{character, field, before, a
 tracking what changed for a character per scene.
 _Avoid_: Delta, mutation, update.
 
-**Layer 6 / Carriers**:
-Characters, setting, situation, institutions, and world systems that carry or
-instantiate structural forces. The Bible tracks carrier state (location,
-physical, emotional, inventory, relationships, secrets_known, arc percentage).
+## The 9-Layer Engine
 
-**Layer 7 / Representation**:
-Plot, events, scenes, reveals, turns, and sequences — visible evidence that
-the deeper structure is working. Chapter drafts and final.md live here.
+Auteur organizes narrative design, validation, and execution into 9 distinct, sequential layers. This ensures that global creative intent constraints cascade cleanly down to fine-grained prose modulation:
+
+1. **TARGET EXPERIENCE (Layer 1)**: The intended audience experience — the emotional promise the story is trying to produce (primary feeling, emotional progression, and avoided states). Stored under `ProjectIdentity.target_experience`.
+2. **PROMISE / CONSTRAINTS (Layer 2)**: Genre, subgenre hierarchy, mode, medium, target audience, and boundaries (*What This Is Not*). Constrains expected causality, agency, and tone. Stored under `ProjectIdentity`.
+3. **SCOPE / SCALE (Layer 3)**: Structural constraints including story length class, estimated word count, act structure, maximum POV character count, and subplot budget. Stored under `StructuralConstants`.
+4. **STRUCTURAL FORCES (Layer 4)**: The core dramatic engine of the threads: Want, Resistance, Conflict, Stakes, and Change. Stored under `MainThread` and `StoryThread`.
+5. **THREADS / MODULES (Layer 5)**: The narrative tapestry: the main plot plus subordinate threads (arcs, subplots), each declaring its specific support function and thematic function. Stored under `StoryEngine`.
+6. **CARRIERS (Layer 6)**: The world entities and actors carrying structural forces: characters, settings, world systems, relationships, and inventory. Stored under `Character` and tracked dynamically in the `StoryBible`.
+7. **REPRESENTATION (Layer 7)**: The rendering of the deeper structure into plot events, scene cards, turns, reveals, and outlines. Tracked dynamically in the `StoryBible` event log and the `Cartographer` scene outlines.
+8. **MODULATION (Layer 8)**: Fine-grained prose execution: point of view, pacing dynamics, tone, voice, and stylistic choices. Audited at draft time by the **prose critics**.
+9. **RESONANCE / COHERENCE CHECK (Layer 9)**: The final alignment check: ensuring theme, motifs, act outcomes, and target experience reinforce the same underlying thematic question or argument. Stored under `ThematicCore`.
+
+### Layer-to-Command Matrix
+
+To ensure absolute architectural clarity, every layer is owned and validated by specific commands and mechanisms:
+
+| Layer | Conceptual Area | Programmatic Key | Primary Validation Mechanism | Command Ownership |
+|---|---|---|---|---|
+| **Layer 1** | **Target Experience** | `target_experience` | Deterministic Schema + Semantic Match | `auteur structure diagnose` |
+| **Layer 2** | **Promise / Constraints** | `constraints` | Deterministic Schema / Contract Beats | `auteur structure diagnose` |
+| **Layer 3** | **Scope / Scale** | `scope` | Subplot budget / chapter / POV bounds | `auteur structure diagnose` |
+| **Layer 4** | **Structural Forces** | `structural_forces` | Core engine completion (want $\neq$ change) | `auteur structure diagnose` |
+| **Layer 5** | **Threads / Modules** | `threads` | Thread support functions & connections | `auteur structure diagnose` |
+| **Layer 6** | **Carriers** | `carriers` | Deterministic state transitions (location) | `auteur audit` |
+| **Layer 7** | **Representation** | `representation` | Chapter accept state logs vs. outline beats | `auteur audit` / Cartographer |
+| **Layer 8** | **Modulation** | `modulation` | Interactive prose quality & tone audits | Pipeline (Drafting Critics) |
+| **Layer 9** | **Resonance / Coherence** | `theme` (programmatic) | Whole-story thematic coverage check | `auteur structure diagnose` |
 
 ## Relationships
 

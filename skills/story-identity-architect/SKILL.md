@@ -18,11 +18,14 @@ When executing this skill, the agent must **never** make all decisions silently.
 3. **Lock Decisions Explicitly**: Wait for the author to approve, adjust, or reject the recommendation before moving to the next question.
 
 ### Grilling Sequence
-- **Phase 1: The Core Answer**: What is this story really about? What is the singular premise?
-- **Phase 2: The Emotional Experience**: What is the target emotional promise? What feeling should we avoid?
-- **Phase 3: Classification & Bounds**: Genre, Mode, Medium, and crucially—**What This Is Not** (defining creative boundaries).
-- **Phase 4: The Central Engine**: The high-level structural forces (Want, Resistance, Conflict, Stakes, Change).
-- **Phase 5: Open Questions**: Identifying the crucial narrative and thematic questions left unresolved.
+
+The grilling workflow aligns with the first 5 layers of the canonical 9-Layer Engine:
+
+- **Phase 1: Target Experience (Layer 1)**: What is this story really about? What is the singular premise? What is the target emotional promise, emotional progression, and avoided states?
+- **Phase 2: Promise / Constraints (Layer 2)**: Genre, subgenres, Mode, Medium, Target Audience, and boundaries—**What This Is Not** (defining creative boundaries).
+- **Phase 3: Scope / Scale (Layer 3)**: Structural boundaries: story length class, estimated word count, chapter counts, POV character counts, and subplot budget constraints.
+- **Phase 4: Structural Forces (Layer 4)**: The high-level structural forces of the main engine (Want, Resistance, Conflict, Stakes, and Change).
+- **Phase 5: Threads / Modules (Layer 5)**: Thread tapestry: identifying the main plot thread and brainstorming necessary subordinate threads (subplots, character arcs, relationship arcs) and their thematic functions.
 
 ---
 
@@ -36,31 +39,39 @@ Once the grilling sequence is completed and all decisions are explicitly approve
 ## Core Answer
 [What the story is becoming / the singular creative compass]
 
-## Reader Experience
+## 1. Target Experience (Layer 1)
 - **Primary Emotional Promise**: [e.g., dread, wonder, tension]
 - **Emotional Progression**: [e.g., unease -> dread -> catharsis]
 - **Avoided Outcomes**: [List of emotions or tones to avoid]
 
-## Story Type
+## 2. Promise / Constraints (Layer 2)
 - **Medium**: [e.g., novel, short_story]
 - **Mode**: [e.g., tragic, heroic, open]
 - **Genre**: [e.g., grimdark_fantasy, thriller, sci_fi]
 - **Subgenres**: [List of subgenres]
 - **Audience Promise / Target Audience**: [e.g., adult, young_adult]
+- **What This Is Not**:
+  - [Boundary 1]
+  - [Boundary 2]
 
-## Central Story Engine
-[A summary of the core conflict mechanism]
+## 3. Scope / Scale (Layer 3)
+- **Length Class**: [e.g., novel, novella]
+- **Estimated Word Count**: [e.g., 90,000]
+- **Estimated Chapters**: [e.g., 25]
+- **Max POV Characters**: [e.g., 3]
+- **Subplot Budget**: [e.g., 3]
 
-## High-Level Structural Forces
+## 4. Structural Forces (Layer 4)
 - **Want**: [The primary protagonist ambition]
 - **Resistance**: [The core opposition blocking resolution]
 - **Conflict**: [The collision of want and internal cost]
 - **Stakes**: [The compounding cost of success or failure]
 - **Change**: [How the protagonist or world is altered irrevocably]
 
-## What This Is Not
-- [Boundary 1]
-- [Boundary 2]
+## 5. Threads / Modules (Layer 5)
+- **Main Thread**: [The main plot wanting, conflict, stakes, change]
+- **Subplots / Arcs Brainstormed**:
+  - [Subplot Name 1 (e.g. Relationship arc, Mystery subplot) - Support Function & Thematic Function]
 
 ## Coherence Risks
 - [Risk 1: Potential plot-holes or thematic clashes]
