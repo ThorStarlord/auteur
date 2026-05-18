@@ -1,3 +1,8 @@
+---
+name: Prose Critic Redline
+description: "An agentic style-auditing skill designed to compare chapter drafts directly against style contracts and generate redline reports."
+---
+
 # Prose Critic Redline Skill
 
 An agentic style-auditing skill designed to compare completed chapter draft prose directly against its `chapter_contract.yaml` (Layer 8) constraints (vocabulary bans, active voice ratio, POV violations), generating highlighted redline mismatch reports to guide rapid revisions.

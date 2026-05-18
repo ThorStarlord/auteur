@@ -1,3 +1,8 @@
+---
+name: Blueprint to Cartographer Outline Compiler
+description: "An agentic outline compiler skill designed to compile a finalized blueprint into a chapter-by-chapter scene outline."
+---
+
 # Blueprint to Cartographer Outline Compiler Skill
 
 An agentic outline compiler skill designed to ingest the high-level structural constraints, story engine, and subplots in a finalized `blueprint.yaml` (Layer 5) and compile it into a concrete, chapter-by-chapter `cartographer_outline.yaml` (Layer 7) ready for drafting.

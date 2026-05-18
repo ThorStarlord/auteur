@@ -1,0 +1,138 @@
+identity:
+  title: The Shattered Crown
+  author_intent: A grimdark epic about a hero who succeeds at his quest by becoming
+    the thing he hunted.
+  target_experience:
+    primary: dread
+    progression: unease -> dread -> catharsis
+    avoid:
+    - triumphant power fantasy
+    - cozy safety
+  length_class: novel
+  genre: grimdark_fantasy
+  subgenre: grimdark
+  subgenres:
+  - grimdark
+  - corruption_tragedy
+  mode: tragic
+  medium: novel
+  target_audience: adult
+  pov_type: third_person_limited_single
+structure:
+  estimated_chapters: 25
+  estimated_word_count: 90000
+  act_structure: three_act
+  max_pov_characters: 3
+  max_characters_total: 25
+  subplot_budget: 3
+story_engine:
+  main_thread:
+    type: main_plot
+    want:
+      author_text: Kael wants to end the war by destroying the tyrant who ruined his
+        kingdom.
+      checkable_claims: []
+    resistance:
+      author_text: The tyrant's power is bound to the same cursed magic Kael is tempted
+        to use.
+      checkable_claims: []
+    conflict:
+      author_text: Kael can win quickly by becoming ruthless, or preserve his humanity
+        and risk losing the war.
+      checkable_claims: []
+    stakes:
+      author_text: Every victory bought saves people now while making Kael more dangerous
+        later.
+      checkable_claims: []
+    change:
+      author_text: Kael changes from a wounded avenger into the new source of darkness.
+      checkable_claims: []
+    thematic_function: 'Explores the central question: Will Lira betray Kael before
+      the final gate?'
+  threads: []
+contract:
+  content_rating: R
+  explicit_violence: implied_only
+  explicit_sex: fade_to_black
+  profanity: moderate
+  on_page_torture: false
+  child_harm: false
+  mandatory_ending_tone: tragic
+  expected_elements: []
+  forbidden_tropes: []
+  custom_rules: []
+emotional_design:
+  overall_emotional_arc: A tragic arc focusing on dread.
+  per_act_tones:
+  - act_index: 1
+    label: Setup
+    tone: 'Establishing the initial situation and the core desire: Kael wants to end
+      the war by destroying the tyrant who ruine.'
+  - act_index: 2
+    label: Confrontation
+    tone: 'Rising conflict driven by the core resistance: The tyrant''s power is bound
+      to the same cursed magic Kael is.'
+  - act_index: 3
+    label: Resolution
+    tone: 'The final confrontation, high stakes, and the ultimate transformation:
+      Kael changes from a wounded avenger into the new source of d.'
+characters:
+- name: Protagonist
+  role: protagonist
+  arc_type: corruption
+  arc_start_percentage: 0
+  arc_end_percentage: 100
+  current_arc_percentage: 0
+  key_milestones:
+  - at_percentage: 25
+    description: Commitment to search.
+  - at_percentage: 50
+    description: The point of no return.
+  - at_percentage: 75
+    description: The lowest ebb.
+  - at_percentage: 100
+    description: The final choice.
+  current_state:
+    location: start_location
+    physical: healthy
+    emotional: determined
+    inventory: []
+    relationships: []
+    secrets_known: []
+- name: Antagonist
+  role: antagonist
+  arc_type: flat
+  arc_start_percentage: 0
+  arc_end_percentage: 0
+  current_arc_percentage: 0
+  key_milestones: []
+  current_state:
+    location: start_location
+    physical: intact
+    emotional: unyielding
+    inventory: []
+    relationships: []
+    secrets_known: []
+tension_waveform:
+  target_curve:
+  - chapter_index: 1
+    score: 3
+    label: opening
+  - chapter_index: 12
+    score: 7
+    label: midpoint
+  - chapter_index: 22
+    score: 9
+    label: climax
+  - chapter_index: 25
+    score: 5
+    label: coda
+  realized_scores: []
+theme:
+  central_question: Will Lira betray Kael before the final gate?
+  thesis: 'Ambition leads to conflict: Kael can win quickly by becoming ruthless,
+    or preserve his h.'
+  motifs:
+  - shadows
+  - contracts
+  - sacrifices

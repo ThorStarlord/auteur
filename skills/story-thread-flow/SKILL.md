@@ -1,3 +1,8 @@
+---
+name: Story Thread Flow
+description: "An agentic visual structure skill designed to map, trace, and analyze emotional pacing, tension progression, and subplot intersections."
+---
+
 # Story Thread Flow Skill
 
 An agentic visual structure skill designed to map, trace, and analyze the emotional pacing, tension progression, and subplot intersections between the Main Thread and Subplots (Layer 5) across chapter cards, ensuring balanced pacing and flagging orphaned threads.

@@ -1,3 +1,8 @@
+---
+name: Chapter Acceptance Testing (TDD)
+description: "An agentic creative QA skill designed to construct and verify chapter contracts (TDD specs) for draft acceptance."
+---
+
 # Chapter Acceptance Testing (TDD) Skill
 
 An agentic creative QA skill designed to construct explicit, machine-verifiable "chapter contracts" (TDD specs) from scene outlines *before* drafting begins, and verify completed drafts against these contracts before accepting them into the project database.

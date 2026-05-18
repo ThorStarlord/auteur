@@ -1,0 +1,29 @@
+title: "The Shattered Crown"
+core_answer: "A grimdark epic about a hero who succeeds at his quest by becoming the thing he hunted."
+target_experience:
+  primary: "dread"
+  progression: "unease -> dread -> catharsis"
+  avoid:
+    - "triumphant power fantasy"
+    - "cozy safety"
+story_type:
+  medium: "novel"
+  mode: "tragic"
+  genre: "grimdark_fantasy"
+  subgenres:
+    - "grimdark"
+    - "corruption_tragedy"
+  target_audience: "adult"
+central_engine:
+  want: "Kael wants to end the war by destroying the tyrant who ruined his kingdom."
+  resistance: "The tyrant's power is bound to the same cursed magic Kael is tempted to use."
+  conflict: "Kael can win quickly by becoming ruthless, or preserve his humanity and risk losing the war."
+  stakes: "Every victory bought saves people now while making Kael more dangerous later."
+  change: "Kael changes from a wounded avenger into the new source of darkness."
+not_this:
+  - "a cozy standard fantasy"
+open_questions:
+  - "Will Lira betray Kael before the final gate?"
+alternatives:
+  - "A path where Kael sacrifices himself instead of choosing the dark throne."
+confidence: 0.9

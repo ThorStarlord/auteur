@@ -1,3 +1,8 @@
+---
+name: Structure Coherence Auditor
+description: "An agentic structure auditor skill designed to take a seeded blueprint, execute deterministic diagnostics, and guide structural repairs."
+---
+
 # Structure Coherence Auditor Skill
 
 An agentic structure auditor skill designed to take a seeded structural blueprint, execute deterministic diagnostics, and guide the author through an inside-out "grilling and resolution sequence" to achieve 100% architectural coherence.

@@ -2,6 +2,24 @@
 
 Auteur is an agentic narrative engineering toolkit for long-form fiction. It turns a structured story blueprint into whole-story structure checks, chapter plans, drafts, validation reports, and accepted chapter artifacts.
 
+Auteur coordinates high-level creative brief definition with deterministic execution rails under a unified narrative compilation lifecycle:
+
+```text
+Raw idea
+  ↓
+story_identity.yaml (creative brief)
+  ↓
+blueprint.yaml (structural design canvas)
+  ↓
+structure diagnostics (deterministic audit)
+  ↓
+cartographer outline (chapter coordination)
+  ↓
+chapter contracts (TDD specifications)
+  ↓
+draft / critique / accept (Bard & Critics)
+```
+
 The current Engine v1 is a hybrid system:
 
 - Deterministic code owns schemas, project files, validation models, artifact writing, and retry flow.
@@ -12,10 +30,10 @@ The current Engine v1 is a hybrid system:
 
 This repository currently contains a working Engine v1 CLI and Python library. It supports:
 
-- Blueprint loading and validation.
-- Optional whole-story `story_engine` fields for target experience, structural forces, threads, and thematic function.
-- Deterministic structure diagnostics through the Python API.
-- Cartographer prompt rendering.
+- **Concept Freezing**: High-level creative brief validation and seeding via Pydantic model contracts.
+- **Deterministic Diagnostics**: Complete, non-destructive structure diagnostics and repair proposals.
+- **Outline Compiling**: Generating character-aligned chapter outline coordinates.
+- **TDD Drafting**: Running multi-critic verification loops against structured chapter contracts.
 - Project initialization with a `blueprint.yaml`, `bible.json`, and chapter artifact tree.
 - Chapter drafting through Anthropic or OpenAI adapters.
 - Five critic passes: contract, arc, tension, slop, and theme.
@@ -91,6 +109,36 @@ auteur retry .\tmp\shattered_crown 1 --max-iterations 2
 ```
 
 ## CLI Commands
+
+### 1. Identity & Concept Seeding
+
+`auteur identity validate <story_identity.yaml>`
+
+Validates a high-level creative brief (`StoryIdentity`) against the Pydantic schema constraints.
+
+`auteur blueprint seed <story_identity.yaml> --output <blueprint.yaml>`
+
+Compiles a validated `StoryIdentity` into a standard `StoryBlueprint` skeleton.
+
+`auteur identity compile <story_identity.yaml> --output <blueprint.yaml>`
+
+Alias for `blueprint seed`.
+
+### 2. Whole-Story Structure Audits
+
+`auteur structure diagnose <blueprint.yaml>`
+
+Runs deterministic coherence diagnostics (e.g., matching wants/change, verifying subplot budgets) and outputs finding logs.
+
+`auteur structure propose-repairs <blueprint.yaml>`
+
+Generates actionable repair proposals in `structure/proposals/` for any diagnostic errors or warnings found.
+
+`auteur structure apply <proposal.yaml> <blueprint.yaml> [--in-place]`
+
+Applies a selected proposal option cleanly to the target blueprint file.
+
+### 3. Project Initialization & TDD Chapter Drafting
 
 `auteur init <path> --from <blueprint.yaml>`
 

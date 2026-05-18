@@ -1,3 +1,8 @@
+---
+name: Story State Manager
+description: "An agentic narrative state coordination skill designed to manage consistency across Ideation, Drafting, Revision, and Story Recovery."
+---
+
 # Story State Manager Skill Playbook
 
 This skill establishes the **Story State Manager (SSM)**, the cognitive librarian and architect of Auteur. The SSM coordinates the bidirectional narrative engine across **Ideation, Drafting, Revision, and the Recovery bridge workflow** to ensure absolute consistency and prevent contradictory design drift.

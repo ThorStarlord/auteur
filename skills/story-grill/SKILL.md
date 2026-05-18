@@ -1,3 +1,8 @@
+---
+name: Story Grill
+description: "An agentic narrative stress-testing skill designed to interrogate drafts/arcs against the StoryBible state and target constraints."
+---
+
 # Story Grill Skill
 
 An agentic narrative stress-testing skill designed to interrogate proposed chapter drafts, scene cards, or character arcs against the `StoryBible` state and target constraints. This skill identifies **Narrative Drift** (lore inconsistencies, spatial anomalies, or motivational clashes) and guides the author through an interactive "grill and resolution loop" to update story states inline before drafting begins.

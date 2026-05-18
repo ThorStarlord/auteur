@@ -1,3 +1,8 @@
+---
+name: Story Identity Architect
+description: "An agentic creative brief builder designed to refine raw ideas, execute a structured grilling workflow, and compile a validated story_identity.yaml."
+---
+
 # Story Identity Architect Skill
 
 An agentic creative architect skill designed to refine chaotic creative ideas, execute a structured "grilling workflow" for conceptual alignment, and output a validated `story_identity.yaml` ready to seed a structural `blueprint.yaml` skeleton.
@@ -19,13 +24,15 @@ When executing this skill, the agent must **never** make all decisions silently.
 
 ### Grilling Sequence
 
-The grilling workflow aligns with the first 5 layers of the canonical 9-Layer Engine:
+The grilling workflow focuses strictly on the high-level conceptual brief (`StoryIdentity`):
 
-- **Phase 1: Target Experience (Layer 1)**: What is this story really about? What is the singular premise? What is the target emotional promise, emotional progression, and avoided states?
-- **Phase 2: Promise / Constraints (Layer 2)**: Genre, subgenres, Mode, Medium, Target Audience, and boundaries—**What This Is Not** (defining creative boundaries).
-- **Phase 3: Scope / Scale (Layer 3)**: Structural boundaries: story length class, estimated word count, chapter counts, POV character counts, and subplot budget constraints.
-- **Phase 4: Structural Forces (Layer 4)**: The high-level structural forces of the main engine (Want, Resistance, Conflict, Stakes, and Change).
-- **Phase 5: Threads / Modules (Layer 5)**: Thread tapestry: identifying the main plot thread and brainstorming necessary subordinate threads (subplots, character arcs, relationship arcs) and their thematic functions.
+- **Phase 1: Target Experience & Core Answer (Layer 1)**: What is this story really about? What is the singular creative premise (core answer)? What is the target emotional promise, emotional progression, and what emotional states or tropes must be avoided?
+- **Phase 2: Story Type & Promise Constraints (Layer 2)**: Medium (novel, novella, short story), Mode (tragic, heroic, open), Genre, subgenres, Target Audience, and boundaries—**What This Is Not** (defining creative boundaries).
+- **Phase 3: Central Engine Forces (Layer 4)**: The high-level dramatic forces of the central story engine: Want (protagonist ambition), Resistance (core opposition), Conflict (collision of want and internal cost), Stakes (compounding cost of success/failure), and Change (how the protagonist/world is altered).
+- **Phase 4: Alternatives, Open Questions & Confidence**: Open questions, narrative alternatives, and the author's confidence score.
+
+> [!NOTE]
+> Detailed structural constants (subplot budgets, chapter divisions, POV lists) and subplot tapestries are deferred to the structure coherence auditor and cartographer outline compiler stages to keep the initial design brief pure and lightweight.
 
 ---
 
@@ -54,31 +61,22 @@ Once the grilling sequence is completed and all decisions are explicitly approve
   - [Boundary 1]
   - [Boundary 2]
 
-## 3. Scope / Scale (Layer 3)
-- **Length Class**: [e.g., novel, novella]
-- **Estimated Word Count**: [e.g., 90,000]
-- **Estimated Chapters**: [e.g., 25]
-- **Max POV Characters**: [e.g., 3]
-- **Subplot Budget**: [e.g., 3]
-
-## 4. Structural Forces (Layer 4)
+## 3. Central Engine Forces (Layer 4)
 - **Want**: [The primary protagonist ambition]
 - **Resistance**: [The core opposition blocking resolution]
 - **Conflict**: [The collision of want and internal cost]
 - **Stakes**: [The compounding cost of success or failure]
 - **Change**: [How the protagonist or world is altered irrevocably]
 
-## 5. Threads / Modules (Layer 5)
-- **Main Thread**: [The main plot wanting, conflict, stakes, change]
-- **Subplots / Arcs Brainstormed**:
-  - [Subplot Name 1 (e.g. Relationship arc, Mystery subplot) - Support Function & Thematic Function]
+## 4. Alternatives & Open Questions
+- **Open Questions**:
+  - [Question 1]
+- **Alternatives Considered**:
+  - [Alternative 1]
+- **Confidence Score**: [e.g., 0.9]
 
 ## Coherence Risks
 - [Risk 1: Potential plot-holes or thematic clashes]
-
-## Next Authorial Questions
-- [Question 1]
-- [Question 2]
 ```
 
 ---
@@ -116,6 +114,9 @@ not_this:
   - "a cozy standard fantasy"
 open_questions:
   - "Will Lira betray Kael before the final gate?"
+alternatives:
+  - "A path where Kael sacrifices himself instead of choosing the dark throne."
+confidence: 0.9
 ```
 
 ### Validation & Seeding Commands
@@ -156,7 +157,6 @@ Use this mode when the author already has a structured plan or structured parame
 
 To maintain clear system boundaries, the Auteur engineering engine separates concept generation from structural diagnostics and execution-time lore auditing:
 
-*   **Story Identity Architect** (Concept Seeding): Solves **creative fog** (Layer 1–5). Operates interactively to extract and lock the high-level intent, medium, and scope bounds.
+*   **Story Identity Architect** (Concept Seeding): Solves **creative fog** (Layer 1–4). Operates interactively to extract and lock the high-level intent, medium, and constraint bounds.
 *   **Structure Coherence Auditor** (Blueprint Validation): Solves **blueprint incoherence** (Layer 1–9). Validates that the story engine flows correctly (want $\neq$ change, subplots fit within scope budgets) using deterministic diagnostics.
 *   **Story Grill** (Narrative Stress-Testing): Solves **narrative and lore drift** (Layer 6–8). Stress-tests a specific proposed chapter outline or scene draft against the current world bible carrier states and core constraints to prevent continuity errors before chapters are finalized.
-
