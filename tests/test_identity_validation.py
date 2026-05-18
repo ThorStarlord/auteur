@@ -101,3 +101,38 @@ def test_story_identity_invalid_missing_fields():
                 "change": "change",
             }
         })
+
+
+def test_story_identity_includes_genre_contract_snapshot(tmp_path):
+    data = {
+        "title": "Grimdark Journey",
+        "core_answer": "A grim story about survival.",
+        "central_engine": {
+            "want": "Survive the plague.",
+            "resistance": "The city is quarantined.",
+            "conflict": "Supplies are running out.",
+            "stakes": "Death by starvation or plague.",
+            "change": "Learns to rely on others.",
+        },
+        "story_type": {
+            "genre": "grimdark_fantasy",
+        }
+    }
+    
+    identity = StoryIdentity.model_validate(data)
+    assert identity.genre_contract_snapshot is not None
+    assert identity.genre_contract_snapshot.genre_id.value == "grimdark_fantasy"
+    assert "hopeful ending" in identity.genre_contract_snapshot.forbidden_mismatches
+
+    data["story_type"]["genre"] = "romance"
+    identity_romance = StoryIdentity.model_validate(data)
+    assert identity_romance.genre_contract_snapshot.genre_id.value == "romance"
+    assert "tragic ending" in identity_romance.genre_contract_snapshot.forbidden_mismatches
+
+    identity_path = tmp_path / "story_identity.yaml"
+    identity_romance.to_yaml(identity_path)
+    
+    round_tripped = StoryIdentity.from_yaml(identity_path)
+    assert round_tripped.genre_contract_snapshot is not None
+    assert round_tripped.genre_contract_snapshot.genre_id.value == "romance"
+    assert "tragic ending" in round_tripped.genre_contract_snapshot.forbidden_mismatches

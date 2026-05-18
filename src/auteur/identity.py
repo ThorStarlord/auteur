@@ -8,9 +8,12 @@ boundaries, and open questions) before generating a valid blueprint structure.
 from __future__ import annotations
 from enum import Enum
 from pathlib import Path
-from typing import Self
+from typing import Self, TYPE_CHECKING
 import yaml
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
+
+if TYPE_CHECKING:
+    from auteur.genres.models import GenreContract
 
 from auteur.blueprint import (
     Genre,
@@ -88,6 +91,14 @@ class StoryIdentity(BaseModel):
     why_this_is_best: str | None = Field(default=None, min_length=1)
     rejected_directions: list[str] = Field(default_factory=list)
     author_overrides: list[str] = Field(default_factory=list)
+    genre_contract_snapshot: GenreContract | None = None
+
+    @model_validator(mode="after")
+    def _hydrate_genre_contract(self) -> Self:
+        if self.genre_contract_snapshot is None:
+            from auteur.genres.registry import load_genre_contract
+            self.genre_contract_snapshot = load_genre_contract(self.story_type.genre)
+        return self
 
     @classmethod
     def from_yaml(cls, path: str | Path) -> Self:
@@ -110,9 +121,6 @@ def compile_to_blueprint(identity: StoryIdentity) -> StoryBlueprint:
     subgenres = identity.story_type.subgenres
     subgenre = subgenres[0] if subgenres else None
 
-    from auteur.genres.registry import load_genre_contract
-    snapshot = load_genre_contract(identity.story_type.genre)
-
     project_identity = ProjectIdentity(
         title=identity.title,
         author_intent=identity.core_answer,
@@ -125,7 +133,7 @@ def compile_to_blueprint(identity: StoryIdentity) -> StoryBlueprint:
         medium=identity.story_type.medium,
         target_audience=identity.story_type.target_audience,
         pov_type=POVType.THIRD_LIMITED_SINGLE,
-        genre_contract_snapshot=snapshot,
+        genre_contract_snapshot=identity.genre_contract_snapshot,
     )
 
     # 2. Structural Constants
@@ -285,3 +293,7 @@ def compile_to_blueprint(identity: StoryIdentity) -> StoryBlueprint:
     )
 
     return blueprint
+
+
+from auteur.genres.models import GenreContract
+StoryIdentity.model_rebuild()
