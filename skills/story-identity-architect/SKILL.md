@@ -131,3 +131,32 @@ auteur blueprint seed story_identity.yaml --output blueprint.yaml
 # 3. Diagnose the newly seeded blueprint to ensure compliance
 auteur structure diagnose blueprint.yaml
 ```
+
+---
+
+## 4. Modes of Operation
+
+The Story Identity Architect skill supports two distinct modes of execution depending on the author's starting point:
+
+### A. The Grilling Mode (`--interactive` / `--grill`)
+Use this mode when starting from high **creative fog** (vague premises, unrefined world ideas, chaotic character thoughts). 
+- **Workflow**: The agent initiates the step-by-step grilling sequence (Section 1).
+- **Execution**: The agent asks exactly one question at a time, recommends an answer, and waits for explicit approval before proceeding.
+- **Output**: Resolves creative fog, resulting in a compiled `story_identity.yaml`.
+
+### B. Direct Seeding Mode (`--seed`)
+Use this mode when the author already has a structured plan or structured parameters ready to be committed.
+- **Workflow**: The agent bypasses the interactive grilling sequence and directly maps parameters into the schema.
+- **Execution**: The agent validates the input against the Pydantic schema and seeds the target files without manual interrogation.
+- **Output**: Directly generates `story_identity.yaml` and seeds the skeleton `blueprint.yaml`.
+
+---
+
+## 5. Architectural Boundaries & Contrasts
+
+To maintain clear system boundaries, the Auteur engineering engine separates concept generation from structural diagnostics and execution-time lore auditing:
+
+*   **Story Identity Architect** (Concept Seeding): Solves **creative fog** (Layer 1–5). Operates interactively to extract and lock the high-level intent, medium, and scope bounds.
+*   **Structure Coherence Auditor** (Blueprint Validation): Solves **blueprint incoherence** (Layer 1–9). Validates that the story engine flows correctly (want $\neq$ change, subplots fit within scope budgets) using deterministic diagnostics.
+*   **Story Grill** (Narrative Stress-Testing): Solves **narrative and lore drift** (Layer 6–8). Stress-tests a specific proposed chapter outline or scene draft against the current world bible carrier states and core constraints to prevent continuity errors before chapters are finalized.
+
