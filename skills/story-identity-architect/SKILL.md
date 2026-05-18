@@ -1,6 +1,6 @@
 ---
 name: story-identity-architect
-description: "An agentic creative brief builder designed to refine raw ideas, execute a structured grilling workflow, and compile a validated story_identity.yaml."
+description: "agentic creative brief builder designed to refine raw ideas, execute a structured grilling workflow, and compile a validated story_identity.yaml."
 ---
 
 # Story Identity Architect Skill
@@ -27,7 +27,7 @@ When executing this skill, the agent must **never** make all decisions silently.
 The grilling workflow focuses strictly on the high-level conceptual brief (`StoryIdentity`):
 
 - **Phase 1: Target Experience & Core Answer (Layer 1)**: What is this story really about? What is the singular creative premise (core answer)? What is the target emotional promise, emotional progression, and what emotional states or tropes must be avoided?
-- **Phase 2: Story Type & Promise Constraints (Layer 2)**: Medium (novel, novella, short story), Mode (tragic, heroic, open), Genre, subgenres, Target Audience, and boundaries—**What This Is Not** (defining creative boundaries).
+- **Phase 2: Story Type & Promise Constraints (Layer 2)**: Medium (novel, novella, short story), Mode (tragic, mythic, adventure, noir, intimate, epic, other), Genre, subgenres, Target Audience, and boundaries—**What This Is Not** (defining creative boundaries).
 - **Phase 3: Central Engine Forces (Layer 4)**: The high-level dramatic forces of the central story engine: Want (protagonist ambition), Resistance (core opposition), Conflict (collision of want and internal cost), Stakes (compounding cost of success/failure), and Change (how the protagonist/world is altered).
 - **Phase 4: Alternatives, Open Questions & Confidence**: Open questions, narrative alternatives, and the author's confidence score.
 
@@ -53,8 +53,8 @@ Once the grilling sequence is completed and all decisions are explicitly approve
 
 ## 2. Promise / Constraints (Layer 2)
 - **Medium**: [e.g., novel, short_story]
-- **Mode**: [e.g., tragic, heroic, open]
-- **Genre**: [e.g., grimdark_fantasy, thriller, sci_fi]
+- **Mode**: [e.g., tragic, mythic, adventure]
+- **Genre**: [e.g., grimdark_fantasy, epic_fantasy, thriller, sci_fi]
 - **Subgenres**: [List of subgenres]
 - **Audience Promise / Target Audience**: [e.g., adult, young_adult]
 - **What This Is Not**:
