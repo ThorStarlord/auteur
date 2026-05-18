@@ -1,5 +1,5 @@
 ---
-name: Story Thread Flow
+name: story-thread-flow
 description: "An agentic visual structure skill designed to map, trace, and analyze emotional pacing, tension progression, and subplot intersections."
 ---
 
@@ -8,7 +8,7 @@ description: "An agentic visual structure skill designed to map, trace, and anal
 An agentic visual structure skill designed to map, trace, and analyze the emotional pacing, tension progression, and subplot intersections between the Main Thread and Subplots (Layer 5) across chapter cards, ensuring balanced pacing and flagging orphaned threads.
 
 ## Meta
-- **Name**: Story Thread Flow
+- **Name**: story-thread-flow
 - **Goal**: Audit and optimize the weave of subplots and main threads across the act structure to prevent pacing dead-zones.
 - **Output**: A comprehensive visual pacing report identifying thread densities, tension peaks, and subplot orphans.
 
@@ -54,6 +54,9 @@ Identify structural gaps:
 
 ### Phase 5: Report Compilation
 Once pacing issues are resolved or cataloged, compile the final pacing report and generate the visual Mermaid flowchart of the thread tapestries:
+
+> **Roadmap command:** `auteur cartographer analyze-flow` is a planned CLI surface. The current repo has the skill workflow but not this parser command.
+
 ```bash
 auteur cartographer analyze-flow cartographer_outline.yaml --output docs/reports/pacing_flow.md
 ```
@@ -102,9 +105,9 @@ gantt
 
 ## 4. CLI Visualization & Audit Commands
 
-The agent uses these commands to run the worker pacing analyzers:
+The planned worker pacing analyzer command is:
 
 ```bash
-# Analyze thread gaps and pacing density
+# Planned: analyze thread gaps and pacing density
 auteur cartographer analyze-flow cartographer_outline.yaml --output docs/reports/pacing_flow.md
 ```

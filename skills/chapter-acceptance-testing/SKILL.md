@@ -1,5 +1,5 @@
 ---
-name: Chapter Acceptance Testing (TDD)
+name: chapter-acceptance-testing
 description: "An agentic creative QA skill designed to construct and verify chapter contracts (TDD specs) for draft acceptance."
 ---
 

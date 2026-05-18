@@ -1,5 +1,5 @@
 ---
-name: Story Grill
+name: story-grill
 description: "An agentic narrative stress-testing skill designed to interrogate drafts/arcs against the StoryBible state and target constraints."
 ---
 
@@ -8,7 +8,7 @@ description: "An agentic narrative stress-testing skill designed to interrogate 
 An agentic narrative stress-testing skill designed to interrogate proposed chapter drafts, scene cards, or character arcs against the `StoryBible` state and target constraints. This skill identifies **Narrative Drift** (lore inconsistencies, spatial anomalies, or motivational clashes) and guides the author through an interactive "grill and resolution loop" to update story states inline before drafting begins.
 
 ## Meta
-- **Name**: Story Grill
+- **Name**: story-grill
 - **Goal**: Stress-test proposed narrative outlines/drafts against story facts and rules to achieve 100% lore and continuity consistency.
 - **Output**: Resolved scene outlines, updated `StoryBible` state records, and inlined lore corrections.
 
@@ -36,7 +36,7 @@ Before executing any audits, the agent must load and understand the existing nar
 ### Phase 2: Diagnostic & Drift Sweeps
 Run the Auteur CLI audit repair engine to compile logical, spatial, and lore contradictions:
 ```bash
-auteur audit --repair <project_directory>
+auteur audit <project_directory> --repair
 ```
 - Capture the output diagnostics. If no findings are produced and the command exits with `0` (Zero Drift), skip to Phase 4.
 - Parse the output proposal YAML files generated under `structure/proposals/` to identify the specific drift items.
@@ -102,13 +102,13 @@ Once the author selects a resolution option, the agent executes the change progr
 Update the selected option in the proposal YAML file, then run:
 ```bash
 # Accept and execute the option without mutating the structural blueprint.yaml
-auteur audit --accept <proposal_id> --option <selected_option_id>
+auteur audit <project_directory> --accept <proposal_id> --option <selected_option_id>
 ```
 
 ### B. Re-Verify Alignment
 Run a final audit sweep to ensure the drift is completely resolved:
 ```bash
-auteur audit --repair <project_directory>
+auteur audit <project_directory> --repair
 ```
 Once this command returns `0` (Zero violations), compile a brief success summary for the author, highlighting:
 *   The resolved lore/continuity gaps.

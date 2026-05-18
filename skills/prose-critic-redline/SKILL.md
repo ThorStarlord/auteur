@@ -1,5 +1,5 @@
 ---
-name: Prose Critic Redline
+name: prose-critic-redline
 description: "An agentic style-auditing skill designed to compare chapter drafts directly against style contracts and generate redline reports."
 ---
 
@@ -8,7 +8,7 @@ description: "An agentic style-auditing skill designed to compare chapter drafts
 An agentic style-auditing skill designed to compare completed chapter draft prose directly against its `chapter_contract.yaml` (Layer 8) constraints (vocabulary bans, active voice ratio, POV violations), generating highlighted redline mismatch reports to guide rapid revisions.
 
 ## Meta
-- **Name**: Prose Critic Redline
+- **Name**: prose-critic-redline
 - **Goal**: Audit draft prose against style contracts, highlighting exact lines that drift from creative constraints.
 - **Output**: A detailed Redline Mismatch Report with highlighted text segments and actionable revision prompts.
 
@@ -53,6 +53,9 @@ Audit grammatical boundaries:
 
 ### Phase 5: Redline Audit Reporting
 Once the sweep is complete, compile the visual highlighted redline report:
+
+> **Roadmap command:** `auteur draft audit-style` is a planned CLI surface. Until it is implemented, use existing draft validation reports and proposal artifacts.
+
 ```bash
 auteur draft audit-style chapter_04_draft.txt --contract structure/contracts/chapter_04.yaml --output docs/reports/chapter_04_redline.md
 ```
@@ -104,9 +107,9 @@ The skill outputs a highly readable redline report showing exact file line refer
 
 ## 4. CLI Style Auditing Commands
 
-The agent uses these commands to run the worker style and pattern auditing engines:
+The planned worker style and pattern auditing command is:
 
 ```bash
-# Deterministically audit active/passive verbs, vocabulary, and POV pronouns
+# Planned: deterministically audit active/passive verbs, vocabulary, and POV pronouns
 auteur draft audit-style chapter_04_draft.txt --contract structure/contracts/chapter_04.yaml --output docs/reports/chapter_04_redline.md
 ```

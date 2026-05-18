@@ -1,5 +1,5 @@
 ---
-name: Story Identity Architect
+name: story-identity-architect
 description: "An agentic creative brief builder designed to refine raw ideas, execute a structured grilling workflow, and compile a validated story_identity.yaml."
 ---
 
@@ -8,7 +8,7 @@ description: "An agentic creative brief builder designed to refine raw ideas, ex
 An agentic creative architect skill designed to refine chaotic creative ideas, execute a structured "grilling workflow" for conceptual alignment, and output a validated `story_identity.yaml` ready to seed a structural `blueprint.yaml` skeleton.
 
 ## Meta
-- **Name**: Story Identity Architect
+- **Name**: story-identity-architect
 - **Goal**: Transition a raw, unstructured story idea into a clear, high-level creative contract without losing authorial intent.
 - **Output**: Validated `story_identity.yaml` and a seeded `blueprint.yaml` skeleton.
 

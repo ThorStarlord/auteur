@@ -40,7 +40,7 @@ This repository currently contains a working Engine v1 CLI and Python library. I
 - Automatic rewrite attempts up to a configurable iteration cap.
 - Manual accept and retry flows.
 
-The implementation is still early. It does not yet have structured Pydantic models for Cartographer outlines, deterministic outline validation, transient API retry/backoff, or per-agent model routing.
+The implementation is still early. Cartographer outline validation exists as a deterministic local validator, but dedicated Pydantic outline models, transient API retry/backoff, and per-agent model routing are still incomplete.
 
 ## Install
 
@@ -72,10 +72,18 @@ python -m pip install -e ".[dev,all]"
 
 ## Quick Start
 
-Initialize a project from the sample blueprint:
+Start from the StoryIdentity example and compile the first blueprint skeleton:
 
 ```powershell
-auteur init .\tmp\shattered_crown --from .\examples\sample_blueprint.yaml
+auteur identity validate .\examples\story_identity.yaml
+auteur blueprint seed .\examples\story_identity.yaml --output .\tmp\blueprint.yaml
+auteur structure diagnose .\tmp\blueprint.yaml
+```
+
+Initialize a project from the seeded blueprint:
+
+```powershell
+auteur init .\tmp\shattered_crown --from .\tmp\blueprint.yaml
 ```
 
 Render a Cartographer prompt without making an LLM call:
@@ -159,6 +167,16 @@ Promotes the latest `draft_v*.md` to `final.md` and records the chapter event/te
 `auteur retry <project> <chapter> [--max-iterations N] [--provider anthropic|openai] [--model NAME]`
 
 Loads the existing `outline.yaml`, latest draft, and latest validation report, then continues with the next draft version.
+
+### 4. Cartographer Outlines
+
+`auteur cartographer compile <blueprint.yaml> --output <cartographer_outline.yaml>`
+
+Compiles a blueprint into a unified Cartographer outline and can split chapter outlines into a project chapter tree.
+
+`auteur cartographer validate <cartographer_outline.yaml> [--blueprint <blueprint.yaml>]`
+
+Runs deterministic local validation for compiled Cartographer outlines. Dedicated Pydantic outline models are still incomplete.
 
 ## Project Artifacts
 

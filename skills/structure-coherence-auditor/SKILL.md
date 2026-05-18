@@ -1,5 +1,5 @@
 ---
-name: Structure Coherence Auditor
+name: structure-coherence-auditor
 description: "An agentic structure auditor skill designed to take a seeded blueprint, execute deterministic diagnostics, and guide structural repairs."
 ---
 
@@ -8,7 +8,7 @@ description: "An agentic structure auditor skill designed to take a seeded bluep
 An agentic structure auditor skill designed to take a seeded structural blueprint, execute deterministic diagnostics, and guide the author through an inside-out "grilling and resolution sequence" to achieve 100% architectural coherence.
 
 ## Meta
-- **Name**: Structure Coherence Auditor
+- **Name**: structure-coherence-auditor
 - **Goal**: Transition a raw seeded `blueprint.yaml` into a green, fully-validated `StoryBlueprint` ready for drafting.
 - **Output**: Fully-resolved `blueprint.yaml` and a durable `docs/structure_coherence_report.md` audit trail.
 

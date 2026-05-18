@@ -1,5 +1,5 @@
 ---
-name: Blueprint to Cartographer Outline Compiler
+name: blueprint-to-cartographer
 description: "An agentic outline compiler skill designed to compile a finalized blueprint into a chapter-by-chapter scene outline."
 ---
 

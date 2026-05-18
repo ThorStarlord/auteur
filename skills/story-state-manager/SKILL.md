@@ -1,5 +1,5 @@
 ---
-name: Story State Manager
+name: story-state-manager
 description: "An agentic narrative state coordination skill designed to manage consistency across Ideation, Drafting, Revision, and Story Recovery."
 ---
 

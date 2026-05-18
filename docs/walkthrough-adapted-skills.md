@@ -114,26 +114,32 @@ As drafting begins, Auteur's test critics ensure the prose remains 100% consiste
 The CLI audits character coordinates (Layer 6) to detect anomalies (such as **Location Teleportation**):
 ```bash
 # Traces Bible event logs and outlines to compile spatial/inventory drift
-auteur audit --repair <project_directory>
+auteur audit <project_directory> --repair
 ```
 If a character teleported or wielded an item locked in a different location, a proposal YAML is generated. The author resolves it:
 ```bash
 # Accept travel scene or retroactive travel delta to align the Bible
-auteur audit --accept repair_carriers_teleportation_kael --option add_travel_scene
+auteur audit <project_directory> --accept repair_carriers_teleportation_kael --option add_travel_scene
 ```
 
 #### Prose Style & Redlining
 The drafting critic compares completed prose against its `chapter_contract.yaml`:
+
+> **Roadmap command:** `auteur draft audit-style` is a planned CLI surface for deterministic style/redline audits. Until it is implemented, use the existing draft/critic pipeline outputs and proposal artifacts.
+
 ```bash
-# Deterministically audit active/passive verbs, POV, and vocabulary
+# Planned: deterministically audit active/passive verbs, POV, and vocabulary
 auteur draft audit-style chapter_04_draft.txt --contract structure/contracts/chapter_04.yaml --output docs/reports/chapter_04_redline.md
 ```
 The resulting output is printed in the terminal or saved as a high-contrast Markdown Redline (e.g., highlighting banned filter words or passive constructions in active scenes).
 
 #### Thread Tapestry Visualizer
 The author can inspect subplot progression and want/resistance collisions visually:
+
+> **Roadmap command:** `auteur thread flow` is a planned CLI surface for Mermaid and density graph generation. The current repo provides the `story-thread-flow` skill playbook, but not this parser command.
+
 ```bash
-# Generates a Mermaid sequence diagram and ANSI density graph
+# Planned: generate a Mermaid sequence diagram and ANSI density graph
 auteur thread flow
 ```
 
@@ -198,7 +204,7 @@ decision:
 
 ## 4. Best Practices for Developers and Agent Runs
 
-1.  **Enforce Brain vs. Worker**: Always execute deterministic structural check operations via CLI commands (`auteur structure diagnose`, `auteur cartographer validate`, `auteur audit --repair`). Never write your own parsers to check location state transitions; trust Auteur's CLI checkers to print valid diagnostics.
+1.  **Enforce Brain vs. Worker**: Always execute deterministic structural check operations via CLI commands (`auteur structure diagnose`, `auteur cartographer validate`, `auteur audit <project_directory> --repair`). Never write your own parsers to check location state transitions; trust Auteur's CLI checkers to print valid diagnostics.
 2.  **Strict Error Separation**:
     *   **Deterministic Errors (Hard Gates)**: Treat as absolute blockers (CI/CD failures, agent execution stops).
     *   **Creative Mismatches (Soft Gates)**: Treat as Decision Packets requiring interactive sign-off.

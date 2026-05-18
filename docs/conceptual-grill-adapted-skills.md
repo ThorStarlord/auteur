@@ -39,7 +39,7 @@ Ensure that all adapted skills respect creative authorial sovereignty. AI-assist
 
 ### Question 4: How should `story-thread-flow` (the tapestry visualizer adapted from `ui-flow`) visualize subplots and want/resistance collisions without introducing heavy graphical rendering dependencies?
 *   **Recommended Answer**: Leverage **Mermaid Markdown** and **ANSI Terminal Plots**.
-    *   The CLI command `auteur thread flow` compiles the structural forces of all active threads into a standard **Mermaid diagram** (natively renderable in markdown environments like VS Code, GitHub, and agent UI packages).
+    *   The planned CLI command `auteur thread flow` should compile the structural forces of all active threads into a standard **Mermaid diagram** (natively renderable in markdown environments like VS Code, GitHub, and agent UI packages).
     *   The terminal output uses ANSI color-blocked rows to represent subplot density per act, flagging "orphaned subplots" (unresolved arcs) in high-contrast red.
 *   **Status**: **Approved & Locked**
 *   **Evidence**: [docs/prd-adapted-sensemaking-skills.md:L68-L70](file:///h:/GithubRepositories/auteur/docs/prd-adapted-sensemaking-skills.md#L68-L70), [CONTEXT.md:L38-L41](file:///h:/GithubRepositories/auteur/CONTEXT.md#L38-L41).
