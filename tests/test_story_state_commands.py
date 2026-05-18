@@ -219,3 +219,59 @@ def test_state_confirm_recovery_merge(test_project, capsys):
     bible = StoryBible(test_project / "bible.json")
     assert bible.data["characters"]["Aldric"]["location"] == "Dungeon"
     assert bible.data["characters"]["Aldric"]["physical"] == "injured"
+
+
+def test_state_prepare_with_dynamic_outline(test_project, capsys):
+    """Verify that state prepare drafting/revision dynamically hydrates outline data."""
+    outline_data = {
+        "chapter_index": 1,
+        "chapter_summary": "Aldric confronts the Dark Sorcerer.",
+        "estimated_chapter_tension": 8,
+        "scenes": [
+            {
+                "scene_id": "1",
+                "pov_character": "Aldric",
+                "location": "Throne Room",
+                "summary": "The confrontation starts.",
+                "key_events": [
+                    "The Dark Sorcerer summons shadows.",
+                    "Aldric unsheathes his silver sword."
+                ],
+                "character_state_changes": [
+                    {
+                        "character": "Aldric",
+                        "field": "physical",
+                        "before": "stable",
+                        "after": "exhausted"
+                    }
+                ]
+            }
+        ]
+    }
+    
+    chapter_dir = test_project / "chapters" / "01"
+    chapter_dir.mkdir(parents=True, exist_ok=True)
+    outline_file = chapter_dir / "outline.yaml"
+    outline_file.write_text(yaml.safe_dump(outline_data), encoding="utf-8")
+    
+    # 1. Test Drafting Phase Handoff
+    rc = main(["state", "prepare", str(test_project), "drafting", "--scope", "chapter", "--chapter", "1"])
+    captured = capsys.readouterr()
+    
+    assert rc == 0
+    assert "Aldric confronts the Dark Sorcerer." in captured.out
+    assert "Peak intensity: 8/10 at mid-scene" in captured.out
+    assert "**Target POV Character**: Aldric" in captured.out
+    assert "Scene 1 (Aldric @ Throne Room): The confrontation starts." in captured.out
+    
+    # 2. Test Revision Phase Handoff
+    rc = main(["state", "prepare", str(test_project), "revision", "--scope", "chapter", "--chapter", "1"])
+    captured = capsys.readouterr()
+    
+    assert rc == 0
+    assert "Aldric confronts the Dark Sorcerer." in captured.out
+    assert "Target: 8/10" in captured.out
+    assert "The Dark Sorcerer summons shadows." in captured.out
+    assert "Aldric unsheathes his silver sword." in captured.out
+    assert "Aldric: physical = stable -> exhausted" in captured.out
+

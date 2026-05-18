@@ -281,6 +281,16 @@ def state_prepare(project_path: Path, phase: str, scope: str, out_path: Path | N
     conflict = ""
     stakes = ""
 
+    # Load chapter outline if available
+    outline = None
+    if chapter_idx is not None:
+        outline_path = project_path / "chapters" / f"{chapter_idx:02d}" / "outline.yaml"
+        if outline_path.exists():
+            try:
+                outline = yaml.safe_load(outline_path.read_text(encoding="utf-8"))
+            except Exception:
+                pass
+
     if chapter_idx is not None:
         if blueprint.story_engine is not None:
             want = blueprint.story_engine.main_thread.want.author_text
@@ -296,16 +306,36 @@ def state_prepare(project_path: Path, phase: str, scope: str, out_path: Path | N
             active_characters = ["[None recorded at this location]"]
 
     if phase == "drafting":
+        target_scene_function = "[Generate chapter outline using Cartographer]"
+        target_intensity_curve = "[Peak intensity: 7/10 at mid-scene]"
+        scene_details = ""
+
+        if outline:
+            if outline.get("chapter_summary"):
+                target_scene_function = outline["chapter_summary"]
+            if outline.get("estimated_chapter_tension"):
+                target_intensity_curve = f"Peak intensity: {outline['estimated_chapter_tension']}/10 at mid-scene"
+            if outline.get("scenes") and isinstance(outline["scenes"], list):
+                pov_char = outline["scenes"][0].get("pov_character") or pov_char
+                scene_list_str = []
+                for s in outline["scenes"]:
+                    sid = s.get("scene_id", "?")
+                    spov = s.get("pov_character", "?")
+                    sloc = s.get("location", "?")
+                    ssum = s.get("summary", "")
+                    scene_list_str.append(f"  * Scene {sid} ({spov} @ {sloc}): {ssum}")
+                scene_details = "\n" + "\n".join(scene_list_str)
+
         template = f"""# Phase Handoff: DRAFTING
 * **Current Phase**: Drafting Handoff
 * **Active Story Object**: {chapter_str}
 * **Drafting Scope**: {scope.upper()}
 
 ## 1. Scene Specifications
-* **Target Scene Function**: [Generate chapter outline using Cartographer]
-* **Target Intensity Curve**: [Peak intensity: 7/10 at mid-scene]
+* **Target Scene Function**: {target_scene_function}
+* **Target Intensity Curve**: {target_intensity_curve}
 * **Target POV Character**: {pov_char}
-* **Word Count Target**: 3,000 words
+* **Word Count Target**: 3,000 words{scene_details}
 
 ## 2. Ingested 9-Layer Context
 * **Emotional Tone (Layer 1)**: {blueprint.emotional_design.overall_emotional_arc if blueprint.emotional_design else 'Bittersweet'}
@@ -324,6 +354,39 @@ def state_prepare(project_path: Path, phase: str, scope: str, out_path: Path | N
 * **Foreshadowing Requirements**: [Plant elements for future acts]
 """
     elif phase == "revision":
+        intended_scene_function = "[Intended drafting goal]"
+        intensity_val = "7/10"
+        facts_established = []
+        canon_deltas = []
+
+        if outline:
+            if outline.get("chapter_summary"):
+                intended_scene_function = outline["chapter_summary"]
+            if outline.get("estimated_chapter_tension"):
+                intensity_val = f"{outline['estimated_chapter_tension']}/10"
+            if outline.get("scenes") and isinstance(outline["scenes"], list):
+                pov_char = outline["scenes"][0].get("pov_character") or pov_char
+                for s in outline["scenes"]:
+                    for event in s.get("key_events", []) or []:
+                        facts_established.append(f"  * {event}")
+
+            from auteur.pipeline.extraction import extract_character_state_changes
+            state_changes = extract_character_state_changes(outline)
+            for change in state_changes:
+                char = change.get("character", "?")
+                field = change.get("field", "?")
+                before = change.get("before")
+                after = change.get("after")
+                canon_deltas.append(f"  * {char}: {field} = {before or 'None'} -> {after or 'None'}")
+
+        if not facts_established:
+            facts_established = ["  * [Fact 1]"]
+        if not canon_deltas:
+            canon_deltas = [f"  * {pov_char}: stable -> [Realized state change]"]
+
+        facts_str = "\n".join(facts_established)
+        deltas_str = "\n".join(canon_deltas)
+
         template = f"""# Phase Handoff: REVISION
 * **Current Phase**: Revision Handoff
 * **Active Story Object**: {chapter_str}
@@ -331,15 +394,15 @@ def state_prepare(project_path: Path, phase: str, scope: str, out_path: Path | N
   * *Rationale*: Compiling realized facts and character updates from the drafted chapter.
 
 ## 1. Intended vs Realized Analysis
-* **Intended Scene Function**: [Intended drafting goal]
+* **Intended Scene Function**: {intended_scene_function}
 * **Realized Scene Function**: [Review draft text against outline]
-* **Intensity Deviation**: [No deviation reported]
+* **Intensity Deviation**: [No deviation reported, Target: {intensity_val}]
 
 ## 2. Canon Delta Log (Layer 6 Changes)
 * **New Facts Established**:
-  * [Fact 1]
+{facts_str}
 * **Character State Transitions**:
-  * {pov_char}: stable -> [Realized state change]
+{deltas_str}
 
 ## 3. Legacy Drift & Issues Detected
 * **Contradictions Found**: [Identify any conflicts with blueprint or previous chapters]
