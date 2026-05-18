@@ -25,7 +25,7 @@ The blueprint is the author specification. It is loaded by `StoryBlueprint.from_
 
 Major sections:
 
-- `identity`: title, author intent, target experience, length class, genre, subgenres, mode, medium, audience, POV mode.
+- `identity`: title, author intent, target experience, length class, genre, subgenres, mode, medium, medium contract, audience, POV mode.
 - `structure`: estimated chapters, word count, act structure, POV limits, subplot budget.
 - `story_engine`: optional whole-story main thread and subordinate threads.
 - `contract`: content rating, forbidden tropes, required elements, custom rules.
@@ -68,10 +68,32 @@ identity:
     - corruption_tragedy
   mode: tragic
   medium: novel
+  medium_contract:
+    medium: novel
+    format: standalone_book
+    release_model: complete_release
+    interaction_model: passive_reader
+    unit_of_delivery: chapter
+    representation_units:
+      - prose narration
+      - scenes
+      - chapters
+    modulation_biases:
+      - sustained immersion
+      - controlled interiority
+      - chapter-level tension curves
+    medium_failure_modes:
+      - delivery relies on spectacle the prose cannot directly show
+      - chapter pacing ignores reader re-entry and exit points
 
 structure:
   subplot_budget: 3
 ```
+
+`identity.medium` is a backward-compatible shortcut. New blueprints should also
+declare `identity.medium_contract`, which names the delivery grammar that carries
+the genre promise. If `medium_contract` is absent and `medium` is present,
+Auteur fills a default contract from the medium registry at validation time.
 
 The whole-story engine lives in `story_engine`:
 

@@ -126,6 +126,50 @@ class StoryMedium(str, Enum):
     OTHER = "other"
 
 
+class MediumFormat(str, Enum):
+    STANDALONE_BOOK = "standalone_book"
+    SHORT_FORM = "short_form"
+    NOVELLA = "novella"
+    BOOK_SERIES = "book_series"
+    WEBNOVEL = "webnovel"
+    FEATURE_FILM = "feature_film"
+    EPISODIC_TV = "episodic_tv"
+    ROUTE_BASED = "route_based"
+    ACTION_GAME = "action_game"
+    BRANCHING_TEXT = "branching_text"
+    OTHER = "other"
+
+
+class ReleaseModel(str, Enum):
+    COMPLETE_RELEASE = "complete_release"
+    EPISODIC_SERIAL = "episodic_serial"
+    SEASONAL_DROPS = "seasonal_drops"
+    COMPLETE_OR_LIVE_SERVICE = "complete_or_live_service"
+    OTHER = "other"
+
+
+class InteractionModel(str, Enum):
+    PASSIVE_READER = "passive_reader"
+    SERIAL_READER = "serial_reader"
+    PASSIVE_VIEWER = "passive_viewer"
+    CHOICE_BASED_READER = "choice_based_reader"
+    PLAYER_AGENCY = "player_agency"
+    OTHER = "other"
+
+
+class UnitOfDelivery(str, Enum):
+    CHAPTER = "chapter"
+    STORY = "story"
+    BOOK = "book"
+    EPISODE = "episode"
+    SCENE = "scene"
+    SCENE_NODE = "scene_node"
+    MISSION = "mission"
+    LEVEL = "level"
+    CHOICE_NODE = "choice_node"
+    OTHER = "other"
+
+
 class TargetAudience(str, Enum):
     MIDDLE_GRADE = "middle_grade"
     YOUNG_ADULT = "young_adult"
@@ -215,6 +259,17 @@ class TargetExperience(BaseModel):
     avoid: list[str] = Field(default_factory=list)
 
 
+class MediumContract(BaseModel):
+    medium: StoryMedium
+    format: MediumFormat
+    release_model: ReleaseModel
+    interaction_model: InteractionModel
+    unit_of_delivery: UnitOfDelivery
+    representation_units: list[str] = Field(default_factory=list)
+    modulation_biases: list[str] = Field(default_factory=list)
+    medium_failure_modes: list[str] = Field(default_factory=list)
+
+
 class ProjectIdentity(BaseModel):
     title: str
     author_intent: str = Field(
@@ -227,9 +282,18 @@ class ProjectIdentity(BaseModel):
     subgenres: list[str] = Field(default_factory=list)
     mode: StoryMode | None = None
     medium: StoryMedium | None = None
+    medium_contract: MediumContract | None = None
     target_audience: TargetAudience
     pov_type: POVType
     genre_contract_snapshot: GenreContract | None = None
+
+    @model_validator(mode="after")
+    def _populate_medium_contract_from_shortcut(self) -> Self:
+        if self.medium_contract is None and self.medium is not None:
+            from auteur.mediums.registry import load_medium_contract
+
+            self.medium_contract = load_medium_contract(self.medium)
+        return self
 
 
 # ---------------------------------------------------------------------------

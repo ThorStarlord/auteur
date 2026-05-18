@@ -42,8 +42,56 @@ def analyze_structure(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
     diagnostics: list[StructureDiagnostic] = []
     engine = blueprint.story_engine
 
+    medium_diagnostic: StructureDiagnostic | None = None
+    if blueprint.identity.medium is None and blueprint.identity.medium_contract is None:
+        medium_diagnostic = (
+            StructureDiagnostic(
+                severity=DiagnosticSeverity.WARNING,
+                layer=DiagnosticLayer.CONSTRAINTS,
+                rule="medium_contract.missing",
+                message="Blueprint has no declared medium contract.",
+                evidence=[
+                    "identity.medium is absent",
+                    "identity.medium_contract is absent",
+                ],
+                repair_options=RepairOptions(
+                    preserve_intent=[
+                        "Declare identity.medium or identity.medium_contract so the delivery grammar is explicit."
+                    ],
+                    challenge_intent=[
+                        "Keep the blueprint medium-agnostic only if downstream structure and drafting commands should not assume a delivery form."
+                    ],
+                ),
+            )
+        )
+    elif (
+        blueprint.identity.medium is not None
+        and blueprint.identity.medium_contract is not None
+        and blueprint.identity.medium != blueprint.identity.medium_contract.medium
+    ):
+        medium_diagnostic = (
+            StructureDiagnostic(
+                severity=DiagnosticSeverity.ERROR,
+                layer=DiagnosticLayer.CONSTRAINTS,
+                rule="medium_contract.medium_mismatch",
+                message="The legacy medium shortcut conflicts with the richer medium contract.",
+                evidence=[
+                    f"identity.medium = {blueprint.identity.medium.value}",
+                    f"identity.medium_contract.medium = {blueprint.identity.medium_contract.medium.value}",
+                ],
+                repair_options=RepairOptions(
+                    preserve_intent=[
+                        "Align identity.medium with identity.medium_contract.medium."
+                    ],
+                    challenge_intent=[
+                        "Revise identity.medium_contract if identity.medium is the intended delivery form."
+                    ],
+                ),
+            )
+        )
+
     if engine is None:
-        return [
+        diagnostics.append(
             StructureDiagnostic(
                 severity=DiagnosticSeverity.ERROR,
                 layer=DiagnosticLayer.STRUCTURAL_FORCES,
@@ -59,7 +107,13 @@ def analyze_structure(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
                     ],
                 ),
             )
-        ]
+        )
+        if medium_diagnostic is not None:
+            diagnostics.append(medium_diagnostic)
+        return diagnostics
+
+    if medium_diagnostic is not None:
+        diagnostics.append(medium_diagnostic)
 
     target_experience = blueprint.identity.target_experience
     ending_tone = blueprint.contract.mandatory_ending_tone.value

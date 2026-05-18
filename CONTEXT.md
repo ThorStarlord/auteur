@@ -45,6 +45,15 @@ clue logic, suspects, factions, world rules, relationship beats, escalation
 cycles, POVs, and similar moving parts.
 _Avoid_: Simpler genre.
 
+**Medium Contract**:
+The accepted Layer 2 delivery grammar for a story: medium, format, release
+model, interaction model, unit of delivery, representation units, modulation
+biases, and medium-specific failure modes. Stored under
+`ProjectIdentity.medium_contract`; `ProjectIdentity.medium` remains a
+backward-compatible shortcut.
+_Avoid_: Treating all prose-shaped or story-shaped products as if they deliver
+through the same machinery.
+
 **Narrative Runway**:
 The amount of story space needed to set up, escalate, repeat, reveal, and pay
 off a genre or premise contract.
@@ -65,7 +74,7 @@ _Avoid_: Delta, mutation, update.
 Auteur organizes narrative design, validation, and execution into 9 distinct, sequential layers. This ensures that global creative intent constraints cascade cleanly down to fine-grained prose modulation:
 
 1. **TARGET EXPERIENCE (Layer 1)**: The intended audience experience — the emotional promise the story is trying to produce (primary feeling, emotional progression, and avoided states). Stored under `ProjectIdentity.target_experience`.
-2. **PROMISE / CONSTRAINTS (Layer 2)**: Genre, subgenre hierarchy, mode, medium, target audience, and boundaries (*What This Is Not*). Constrains expected causality, agency, and tone. Stored under `ProjectIdentity`.
+2. **PROMISE / FORM CONTRACT (Layer 2)**: Genre, subgenre hierarchy, mode, medium contract, target audience, and boundaries (*What This Is Not*). Genre chooses the promise; medium chooses the delivery grammar; scope chooses the execution budget. Stored under `ProjectIdentity`.
 3. **SCOPE / SCALE (Layer 3)**: Structural constraints including story length class, estimated word count, act structure, maximum POV character count, subplot budget, and optional accepted Scope Contract. Stored under `StructuralConstants`.
 4. **STRUCTURAL FORCES (Layer 4)**: The core dramatic engine of the threads: Want, Resistance, Conflict, Stakes, and Change. Stored under `MainThread` and `StoryThread`.
 5. **THREADS / MODULES (Layer 5)**: The narrative tapestry: the main plot plus subordinate threads (arcs, subplots), each declaring its specific support function and thematic function. Stored under `StoryEngine`.
@@ -81,7 +90,7 @@ To ensure absolute architectural clarity, every layer is owned and validated by 
 | Layer | Conceptual Area | Programmatic Key | Primary Validation Mechanism | Command Ownership |
 |---|---|---|---|---|
 | **Layer 1** | **Target Experience** | `target_experience` | Deterministic Schema + Semantic Match | `auteur structure diagnose` |
-| **Layer 2** | **Promise / Constraints** | `constraints` | Deterministic Schema / Contract Beats | `auteur structure diagnose` |
+| **Layer 2** | **Promise / Form Contract** | `constraints` | Deterministic Schema / Contract Beats | `auteur structure diagnose` |
 | **Layer 3** | **Scope / Container** | `scope` | Subplot budget / chapter / POV bounds | `auteur structure diagnose` |
 | **Layer 4** | **Structural Forces** | `structural_forces` | Core engine completion (want $\neq$ change) | `auteur structure diagnose` |
 | **Layer 5** | **Threads / Modules** | `threads` | Thread support functions & connections | `auteur structure diagnose` |

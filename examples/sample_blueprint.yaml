@@ -15,6 +15,23 @@ identity:
     - corruption_tragedy
   mode: tragic
   medium: novel
+  medium_contract:
+    medium: novel
+    format: standalone_book
+    release_model: complete_release
+    interaction_model: passive_reader
+    unit_of_delivery: chapter
+    representation_units:
+      - prose narration
+      - scenes
+      - chapters
+    modulation_biases:
+      - sustained immersion
+      - controlled interiority
+      - chapter-level tension curves
+    medium_failure_modes:
+      - delivery relies on spectacle the prose cannot directly show
+      - chapter pacing ignores reader re-entry and exit points
   target_audience: adult
   pov_type: third_person_limited_multiple
 

@@ -14,6 +14,7 @@ def _minimal_blueprint_data() -> dict[str, object]:
             "author_intent": "A test premise.",
             "length_class": "novel",
             "genre": "literary",
+            "medium": "novel",
             "target_audience": "adult",
             "pov_type": "third_person_limited_single",
         },

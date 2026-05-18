@@ -77,6 +77,7 @@ identity:
   author_intent: A test premise.
   length_class: novel
   genre: literary
+  medium: novel
   target_audience: adult
   pov_type: third_person_limited_single
 contract:
@@ -108,6 +109,7 @@ identity:
   author_intent: A test premise.
   length_class: novel
   genre: literary
+  medium: novel
   target_audience: adult
   pov_type: third_person_limited_single
 story_engine:
@@ -197,6 +199,7 @@ identity:
   author_intent: A test premise.
   length_class: novel
   genre: literary
+  medium: novel
   target_audience: adult
   pov_type: third_person_limited_single
 contract:
@@ -249,6 +252,7 @@ identity:
   author_intent: A test premise.
   length_class: novel
   genre: literary
+  medium: novel
   target_audience: adult
   pov_type: third_person_limited_single
 story_engine:

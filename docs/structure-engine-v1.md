@@ -40,7 +40,7 @@ The structure engine uses these layers:
 
 ```text
 Target Experience
-Promise / Constraints
+Promise / Form Contract
 Scope / Container
 Structural Forces
 Threads
@@ -55,12 +55,17 @@ Resonance / Coherence
 The intended audience experience: the emotional promise the story is trying to
 produce. This can be a single feeling or a progression of feelings.
 
-### Promise / Constraints
+### Promise / Form Contract
 
-Genre, subgenre hierarchy, mode, medium, and audience. These are not late
-decorations. They constrain the whole system from the start because they shape
-what the story promises and what forms of causality, revelation, agency, tone,
-and payoff are expected.
+Genre, subgenre hierarchy, mode, medium contract, and audience. These are not
+late decorations. They constrain the whole system from the start because they
+shape what the story promises and what forms of causality, revelation, agency,
+tone, and payoff are expected.
+
+Genre chooses the promise. Medium chooses the delivery grammar. Scope chooses
+the execution budget. The medium contract starts in Layer 2, then cascades into
+scope containers, structural modules, carriers, representation units, and
+modulation choices.
 
 ### Scope / Container
 
@@ -167,6 +172,15 @@ identity:
   subgenres:
   mode:
   medium:
+  medium_contract:
+    medium:
+    format:
+    release_model:
+    interaction_model:
+    unit_of_delivery:
+    representation_units: []
+    modulation_biases: []
+    medium_failure_modes: []
   target_audience:
   pov_type:
 

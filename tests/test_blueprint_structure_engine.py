@@ -5,16 +5,21 @@ from pydantic import ValidationError
 
 from auteur.blueprint import (
     ConsequenceScale,
+    InteractionModel,
     MechanicalLoad,
+    MediumFormat,
+    ReleaseModel,
     NarrativeRunway,
     ScopeComplexity,
     StoryBlueprint,
     StoryEngine,
     StoryMedium,
     StoryMode,
+    UnitOfDelivery,
     SupportFunction,
     ThreadType,
 )
+from auteur.structure.analyzer import analyze_structure
 
 
 SAMPLE_YAML = Path(__file__).parent.parent / "examples" / "sample_blueprint.yaml"
@@ -37,6 +42,9 @@ def test_sample_blueprint_loads_whole_story_engine_fields():
     assert blueprint.identity.subgenres == ["grimdark", "corruption_tragedy"]
     assert blueprint.identity.mode == StoryMode.TRAGIC
     assert blueprint.identity.medium == StoryMedium.NOVEL
+    assert blueprint.identity.medium_contract is not None
+    assert blueprint.identity.medium_contract.medium == StoryMedium.NOVEL
+    assert blueprint.identity.medium_contract.format == MediumFormat.STANDALONE_BOOK
     assert blueprint.structure.subplot_budget == 3
 
     assert blueprint.story_engine is not None
@@ -85,7 +93,197 @@ def test_legacy_subgenre_is_preserved_when_subgenres_are_absent():
     assert blueprint.identity.target_experience is None
     assert blueprint.identity.mode is None
     assert blueprint.identity.medium is None
+    assert blueprint.identity.medium_contract is None
     assert blueprint.story_engine is None
+
+
+def test_legacy_medium_populates_medium_contract_from_registry():
+    data = {
+        "identity": {
+            "title": "Legacy Medium",
+            "author_intent": "A compact test premise.",
+            "length_class": "novella",
+            "genre": "horror",
+            "medium": "visual_novel",
+            "target_audience": "adult",
+            "pov_type": "third_person_limited_single",
+        },
+        "contract": {
+            "content_rating": "PG-13",
+            "mandatory_ending_tone": "open",
+        },
+        "emotional_design": {
+            "overall_emotional_arc": "unease -> dread",
+        },
+        "theme": {
+            "central_question": "What waits in the dark?",
+            "thesis": "Curiosity has a cost.",
+            "motifs": [],
+        },
+    }
+
+    blueprint = StoryBlueprint.model_validate(data)
+
+    assert blueprint.identity.medium == StoryMedium.VISUAL_NOVEL
+    assert blueprint.identity.medium_contract is not None
+    assert blueprint.identity.medium_contract.medium == StoryMedium.VISUAL_NOVEL
+    assert blueprint.identity.medium_contract.format == MediumFormat.ROUTE_BASED
+
+
+def test_blueprint_accepts_nested_medium_contract():
+    data = {
+        "identity": {
+            "title": "Serial Horror",
+            "author_intent": "A daily horror serial built around escalating room discoveries.",
+            "length_class": "novel",
+            "genre": "horror",
+            "medium": "novel",
+            "medium_contract": {
+                "medium": "novel",
+                "format": "webnovel",
+                "release_model": "episodic_serial",
+                "interaction_model": "serial_reader",
+                "unit_of_delivery": "episode",
+                "representation_units": ["short chapters", "cliffhangers"],
+                "modulation_biases": ["fast re-entry"],
+                "medium_failure_modes": ["episodes end without propulsion"],
+            },
+            "target_audience": "adult",
+            "pov_type": "third_person_limited_single",
+        },
+        "contract": {
+            "content_rating": "PG-13",
+            "mandatory_ending_tone": "open",
+        },
+        "emotional_design": {
+            "overall_emotional_arc": "hook -> dread -> hook",
+        },
+        "theme": {
+            "central_question": "What does curiosity cost?",
+            "thesis": "Attention can become appetite.",
+            "motifs": [],
+        },
+    }
+
+    blueprint = StoryBlueprint.model_validate(data)
+
+    assert blueprint.identity.medium_contract is not None
+    assert blueprint.identity.medium_contract.format == MediumFormat.WEBNOVEL
+    assert blueprint.identity.medium_contract.release_model == ReleaseModel.EPISODIC_SERIAL
+    assert blueprint.identity.medium_contract.interaction_model == InteractionModel.SERIAL_READER
+    assert blueprint.identity.medium_contract.unit_of_delivery == UnitOfDelivery.EPISODE
+    assert "cliffhangers" in blueprint.identity.medium_contract.representation_units
+
+
+def test_medium_contract_rejects_invalid_enum_values():
+    data = {
+        "identity": {
+            "title": "Invalid Medium Contract",
+            "author_intent": "A test premise.",
+            "length_class": "novella",
+            "genre": "horror",
+            "medium_contract": {
+                "medium": "novel",
+                "format": "scrolling_dream",
+                "release_model": "complete_release",
+                "interaction_model": "passive_reader",
+                "unit_of_delivery": "chapter",
+            },
+            "target_audience": "adult",
+            "pov_type": "third_person_limited_single",
+        },
+        "contract": {
+            "content_rating": "PG-13",
+            "mandatory_ending_tone": "open",
+        },
+        "emotional_design": {
+            "overall_emotional_arc": "unease -> dread",
+        },
+        "theme": {
+            "central_question": "What waits in the dark?",
+            "thesis": "Curiosity has a cost.",
+            "motifs": [],
+        },
+    }
+
+    with pytest.raises(ValidationError, match="format"):
+        StoryBlueprint.model_validate(data)
+
+
+def test_medium_contract_mismatch_produces_structure_diagnostic():
+    data = {
+        "identity": {
+            "title": "Mismatch",
+            "author_intent": "A test premise.",
+            "length_class": "novella",
+            "genre": "horror",
+            "medium": "novel",
+            "medium_contract": {
+                "medium": "game",
+                "format": "action_game",
+                "release_model": "complete_release",
+                "interaction_model": "player_agency",
+                "unit_of_delivery": "mission",
+            },
+            "target_audience": "adult",
+            "pov_type": "third_person_limited_single",
+        },
+        "contract": {
+            "content_rating": "PG-13",
+            "mandatory_ending_tone": "open",
+        },
+        "emotional_design": {
+            "overall_emotional_arc": "unease -> dread",
+        },
+        "theme": {
+            "central_question": "What waits in the dark?",
+            "thesis": "Curiosity has a cost.",
+            "motifs": [],
+        },
+    }
+
+    blueprint = StoryBlueprint.model_validate(data)
+
+    diagnostics = analyze_structure(blueprint)
+
+    assert any(
+        diagnostic.rule == "medium_contract.medium_mismatch"
+        for diagnostic in diagnostics
+    )
+
+
+def test_missing_medium_contract_produces_structure_diagnostic():
+    data = {
+        "identity": {
+            "title": "No Medium",
+            "author_intent": "A test premise.",
+            "length_class": "novella",
+            "genre": "horror",
+            "target_audience": "adult",
+            "pov_type": "third_person_limited_single",
+        },
+        "contract": {
+            "content_rating": "PG-13",
+            "mandatory_ending_tone": "open",
+        },
+        "emotional_design": {
+            "overall_emotional_arc": "unease -> dread",
+        },
+        "theme": {
+            "central_question": "What waits in the dark?",
+            "thesis": "Curiosity has a cost.",
+            "motifs": [],
+        },
+    }
+
+    blueprint = StoryBlueprint.model_validate(data)
+
+    diagnostics = analyze_structure(blueprint)
+
+    assert any(
+        diagnostic.rule == "medium_contract.missing"
+        for diagnostic in diagnostics
+    )
 
 
 def test_blueprint_accepts_nested_scope_contract():
