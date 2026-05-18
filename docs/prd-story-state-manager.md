@@ -1,101 +1,166 @@
-# Product Requirements Document (PRD) - programmatic 'auteur state' CLI
+# PRD: Story State Manager — Unified `auteur audit` for All 9 Diagnostic Layers
 
-## 1. Goal & Context
+## Problem Statement
 
-As Auteur evolves into a powerful multi-layer story structure engine, the coordination between its **Brain** (cognitive LLM playbooks) and its **Worker** (deterministic programmatic CLI tools) must remain perfectly aligned. 
+Auteur currently runs diagnostic passes on two separate tracks: `auteur structure diagnose` checks blueprint coherence (Layers 1–5), and `auteur audit` checks Bible/carrier consistency (Layer 6). The author must know which command to run for which kind of problem, and the diagnostic outputs use different types (`StructureDiagnostic` vs `BibleAuditDiagnostic`) that cannot be merged into a single Decision Packet flow. This makes the system harder to reason about, harder to extend to new layers (7–9), and forces the author to manually correlate findings across commands.
 
-While the cognitive transitions are handled by the **Story State Manager Agent Skill**, the **deterministic mutations, cross-file verification checks, and handoff compilation** must be executed by a programmatic CLI namespace to prevent human/AI execution drift, preserve schema constraints, and secure transaction integrity.
+## Solution
 
-This PRD formalizes the specifications and development roadmap for the new `auteur state` CLI command family.
+A unified `auteur audit <project>` command that:
+- Resolves both `blueprint.yaml` and `bible.json` from the project directory
+- Runs all active diagnostic rules across all layers in one pass
+- Produces a single grouped-by-layer report
+- Emits unified Decision Packets with `--repair`
+- Supports layer filtering via `--layers <range>` so authors can focus on specific concerns
 
----
+The separate `auteur structure diagnose` command is preserved as an alias for `auteur audit --layers 1-5`. No existing workflows break — the old command still works.
 
-## 2. Architectural Design & Physical Mapping
+## User Stories
 
-All commands operate on the project's canonical ledgers:
-*   **blueprint.yaml**: Static engine parameters (Layers 1–5, 9).
-*   **bible.json**: Live character and world entities database (Layer 6).
-*   **outline.yaml**: Representation scene sequence mapping (Layer 7).
-*   **structure/proposals/**: Audit history of resolved proposals.
+1. As a fiction author, I want to run one command (`auteur audit my_novel`) to see all structural and lore issues at once, so that I don't need to know which layer my problem lives in before diagnosing it.
 
----
+2. As a power user, I want to filter audits to specific layers (`--layers 6` for carrier state only), so that I can focus on one kind of problem at a time without noise from other layers.
 
-## 3. Command Specifications
+3. As a returning author, I want unresolved diagnostics from previous runs to remain visible and new diagnostics to be appended, so that I can track my progress across sessions.
 
-The CLI family will expose five core subcommands under the `auteur state` namespace:
+4. As an author, I want each finding to show its layer label in the report, so that I understand whether a problem is in the blueprint structure, the character state, or the prose representation.
 
-### `1. auteur state check`
-*   **Goal**: Provide a single, unified command to audit narrative coherence across the entire project repository.
-*   **Behavior**:
-    1. Executing this command triggers a complete dual-verification pass:
-        *   **Structural Check**: Invokes the deterministic `auteur structure diagnose` pipeline on `blueprint.yaml` to detect gaps in structural forces, threads, or thematic logic.
-        *   **Carrier Check**: Invokes the `auteur audit` pipeline on `bible.json` and `outline.yaml` to verify character state transition consistency (e.g. tracking physical, emotional, and location deltas across scenes).
-    2. Outputs a unified, color-coded Markdown audit report of all contradictions, legacy terminology drift, or missing structural constraints.
-    3. Exits with code `0` only if all layers are 100% clean and coherent.
+5. As an author, I want to run `auteur audit --repair` and have all error-severity findings across all layers promoted to Decision Packet YAML files, so that I can review structured options for fixing each issue.
 
-### `2. auteur state update <file> --key <key> --val <value>`
-*   **Goal**: Enable transactional, schema-safe mutations of project files.
-*   **Behavior**:
-    1. Parses the target project file (`blueprint.yaml` or `bible.json`).
-    2. Validates that the requested `--key` path matches a valid attribute in the respective Pydantic model (e.g., `StoryBlueprint.story_engine.main_thread.want`).
-    3. Mutates the model instance in memory, validates the mutated model using Pydantic's `.model_validate()`, and—if valid—writes the updated data back to disk in a single transactional step.
-    4. **Safeties**: If Pydantic validation fails, the transaction is immediately rolled back, leaving the file completely untouched, and a detailed schema mismatch error is reported.
+6. As an author, I want resolved proposals (where I've already set `selected_option_id`) to be skipped in subsequent audit runs, so that I only see unresolved issues.
 
-### `3. auteur state prepare <phase> --scope <scope> [--out <file>]`
-*   **Goal**: Automate the compilation and formatting of phase handoff context packets.
-*   **Behavior**:
-    1. Target phases: `ideation`, `drafting`, `revision`, `recovery`.
-    2. Target scopes: `engine`, `chapter`, `prose`.
-    3. Reads `blueprint.yaml`, `bible.json`, and `outline.yaml` to extract the relevant context block fields.
-    4. Generates the exact Markdown handoff template populated with real-time story data (e.g., active characters present, current want, setting constraints, downstream constraints).
-    5. Saves the block to `--out` (default: stdout) for immediate ingestion by downstream agent chains.
+7. As a developer, I want `BibleAuditDiagnostic` to carry `repair_options` so that Bible-level findings can be promoted to Decision Packets through the same pipeline as structure-level findings.
 
-### `4. auteur state canon [--format <format>]`
-*   **Goal**: Generate a high-fidelity reference summary of characters, lore, and facts.
-*   **Behavior**:
-    1. Reads the entities database inside `bible.json`.
-    2. Compiles a structured summary of all characters (including their final known location, physical state, emotional state, and active constraints), faction systems, and world lore.
-    3. Supports formats: `markdown` (default) and `json`.
+8. As a developer, I want an adapter that converts `BibleAuditDiagnostic` to `StructureDiagnostic` so that the proposal generation pipeline (`propose_repairs_from_diagnostics`) can consume a single stream of diagnostics.
 
-### `5. auteur state confirm <recovery_run.yaml>`
-*   **Goal**: Automate the merging of confirmed layers from a recovery run.
-*   **Behavior**:
-    1. Parses a Story Recovery output file generated during Phase 0.
-    2. Extracts the `candidate_locked_layers` specified by the author/agent.
-    3. Safely validates and writes the approved layers directly into the respective models in `blueprint.yaml` or `bible.json` programmatically.
+## Implementation Decisions
 
----
+### Decision 1: CLI surface
 
-## 4. Development Roadmap
-
-The development of the programmatic state namespace will follow a 3-phased implementation roadmap:
-
-```mermaid
-gantt
-    title Programmatic State Manager Development Roadmap
-    dateFormat  YYYY-MM-DD
-    section Phase 1: Core Harness
-    Pydantic Harness Setup        :active, des1, 2026-06-01, 7d
-    state check Implementation    :des2, after des1, 10d
-    section Phase 2: Mutations
-    state update (Transactional)  :des3, 2026-06-18, 12d
-    state confirm Integration     :des4, after des3, 8d
-    section Phase 3: Packets & CLI
-    state prepare & state canon   :des5, 2026-07-08, 14d
-    End-to-End CLI Hardening      :des6, after des5, 7d
+```text
+auteur audit <project>                     # all layers (default)
+auteur audit <project> --layers 6          # Bible/carriers only
+auteur audit <project> --layers 1-5        # structure only (backward compat)
+auteur audit <project> --layers all        # explicit default
+auteur audit <project> --repair            # write Decision Packets for all layers
+auteur audit <project> --accept <id> --option <id>  # resolve proposal (existing)
+auteur audit <project> --show              # print all proposals (existing)
 ```
 
-### Phase 1: Verification Harness & Unified Audit (Weeks 1–2)
-*   Integrate CLI entry point for `auteur state`.
-*   Implement `auteur state check` to run structural and carrier validations sequentially.
-*   Enforce CI/CD check failure if `auteur state check` returns an exit code of `1`.
+The `--layers` flag accepts a comma-separated range or `all`. Single values (`--layers 6`) run one layer only. Dashed ranges (`--layers 1-5`) run a contiguous block. No `--layers` is equivalent to `--layers all`.
 
-### Phase 2: Transactional Mutations & Confirms (Weeks 3–4)
-*   Implement schema-safe, transactional writing via `auteur state update`.
-*   Implement `auteur state confirm` to allow rapid recovery merging.
-*   Write unit and integration tests under `tests/test_state_commands.py` with mock invalid data to ensure zero transaction leakage.
+`_cmd_structure_diagnose` is preserved as-is but internally delegates to the unified audit runner with `--layers 1-5`. No callers break.
 
-### Phase 3: Packets Generation & Canon Summary (Weeks 5–7)
-*   Codify the handoff templating engine in `auteur state prepare`.
-*   Implement `auteur state canon` to yield lore-reference reports.
-*   Conduct exhaustive manual and automated QA passes to verify all CLI components.
+### Decision 2: Type bridge
+
+`BibleAuditDiagnostic` gains a `repair_options: RepairOptions` field (defaulting to `RepairOptions()` with empty lists) so it carries the same data as `StructureDiagnostic`.
+
+An adapter function converts `BibleAuditDiagnostic` → `StructureDiagnostic`:
+
+```python
+def as_structure_diagnostic(bible_diag: BibleAuditDiagnostic) -> StructureDiagnostic:
+    return StructureDiagnostic(
+        severity=bible_diag.severity,
+        layer=DiagnosticLayer.CARRIERS,
+        rule=bible_diag.rule,
+        evidence=bible_diag.evidence,
+        repair_options=bible_diag.repair_options or RepairOptions(),
+        affected_blueprint_fields=[],
+    )
+```
+
+This is a pure function with no side effects. It lives in `structure/bible_audit.py` alongside the audit logic.
+
+### Decision 3: Unified runner
+
+A new function `run_all_diagnostics(project: Project) -> list[StructureDiagnostic]` orchestrates both passes:
+
+```
+1. blueprint project.blueprint
+2. bible project.bible
+3. diagnostics = []
+4. diagnostics += analyze_structure(blueprint)        # structure analyzer
+5. bible_findings = audit_bible_locations(bible)       # Bible audit
+6. diagnostics += [as_structure_diagnostic(f) for f in bible_findings]
+7. diagnostics += ...future layer diagnostics...
+8. return diagnostics
+```
+
+This function lives in `structure/analyzer.py` (or a new `structure/engine.py` — open to naming). The CLI calls this once, then passes the combined list to `propose_repairs_from_diagnostics()` when `--repair` is set.
+
+### Decision 4: Layer filtering
+
+The `--layers` flag is parsed and converted to a set of `DiagnosticLayer` enum values. After `run_all_diagnostics()` returns, the list is filtered to keep only diagnostics whose `.layer` is in the requested set. Filtering happens in the CLI layer, not the runner — the runner always runs everything; the CLI decides what to show.
+
+### Decision 5: Report format
+
+```
+$ auteur audit my_novel
+
+╔═══ Story State Report ═══════════════════════════════════╗
+║ Project: my_novel                                       ║
+║ Layers: 1-5, 6                                          ║
+╚══════════════════════════════════════════════════════════╝
+
+Layer 2 — Genre (1 finding)
+  ERROR: Mixed genre signals — romance plot opens, but opening
+         scene is thriller pacing. Add genre-establishing beats.
+
+Layer 6 — Carriers (2 findings)
+  ERROR: Location teleportation — Aldric moves from Throne Room
+         to Dungeon with no intermediate event.
+  WARNING: Emotional state gap — Kael's grief in chapter 5 is
+           inconsistent with his relief in chapter 3.
+
+3 findings total. Run with --repair to write Decision Packets.
+```
+
+Resolved proposals (where `selection.selected_option_id` is set) are not listed in findings. The report footer shows the count of skipped resolved proposals if any exist.
+
+## Testing Decisions
+
+### Testing philosophy
+
+Tests verify behavior through public interfaces, not implementation details. A good test describes _what_ the system does — "unified audit produces a combined diagnostic list from both blueprint and Bible sources" — not _how_ it merges the two lists.
+
+### Test modules
+
+1. **`tests/test_structure_analyzer.py`** — Add tests for `run_all_diagnostics()` (the unified runner). Create a project fixture with both a blueprint (with a known structural gap) and a Bible (with a known carrier inconsistency), then assert both diagnostic types appear in the output.
+
+2. **`tests/test_bible_audit.py`** — Add test for the `repair_options` field on `BibleAuditDiagnostic`. Verify default empty state.
+
+3. **`tests/test_cli.py`** — Add tests for the `--layers` flag parsing and filtering behavior. Verify that `--layers 6` only returns carrier-layer diagnostics.
+
+### Prior art
+
+- `test_bible_audit.py::test_detects_location_teleportation_between_consecutive_events` — demonstrates the existing Bible audit unit test pattern with a constructed `StoryBible`.
+- `test_proposal_accept_apply.py` — demonstrates the Decision Packet write/resolve flow.
+- `test_critic_contract.py` — demonstrates the `FakeClient` pattern for LLM-free testing.
+
+## Out of Scope
+
+- **Critic Proposal unification** (Layer 7): The critic findings → Decision Packet pipeline was wired in a recent session but is not part of this PRD. Critic proposals live in `structure/proposals/critic_*.yaml` and are handled separately.
+- **Per-agent model routing**: Still a known gap, tracked separately.
+- **Interactive proposal resolution TUI**: Resolution remains YAML-editing or CLI `--accept` flags.
+- **New Bible diagnostic rules**: Only the existing location-teleportation rule is carried forward. New rules (emotional state drift, relationship state drift) are future work.
+
+## Further Notes
+
+### Module impact matrix
+
+| Module | Change |
+|---|---|
+| `src/auteur/structure/bible_audit.py` | Add `repair_options: RepairOptions` to `BibleAuditDiagnostic`; add `as_structure_diagnostic()` adapter |
+| `src/auteur/structure/diagnostics.py` | No change (`StructureDiagnostic` is the target type) |
+| `src/auteur/structure/analyzer.py` | Add `run_all_diagnostics(project)` orchestrator |
+| `src/auteur/cli.py` | Add `--layers` flag to `_cmd_audit`; delegate `_cmd_structure_diagnose` to unified runner |
+| `src/auteur/project.py` | No change (already exposes `.blueprint` and `.bible`) |
+
+### Sequence (first vertical slice)
+
+```
+RED:   test_cli_unified_audit_merges_both_diagnostic_sources
+GREEN: as_structure_diagnostic() + run_all_diagnostics() + CLI wiring + --layers
+```
+
+This tracer bullet proves the path exists. Subsequent slices add `--layers` filtering, the grouped report format, and resolved-proposal skipping.
