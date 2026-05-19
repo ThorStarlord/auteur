@@ -93,10 +93,10 @@ To ensure absolute architectural clarity, every layer is owned and validated by 
 
 | Layer | Conceptual Area | Programmatic Key | Primary Validation Mechanism | Command Ownership |
 |---|---|---|---|---|
-| **Layer 1** | **Target Experience** | `target_experience` | Deterministic Schema + Semantic Match | `auteur structure diagnose` |
-| **Layer 2** | **Promise / Form Contract** | `constraints` | Deterministic Schema / Contract Beats | `auteur structure diagnose` |
-| **Layer 3** | **Scope / Container** | `scope` | Subplot budget / chapter / POV bounds | `auteur structure diagnose` |
-| **Layer 4** | **Structural Forces** | `structural_forces` | Core engine completion (want $\neq$ change) | `auteur structure diagnose` |
+| **Layer 1** | **Target Experience** | `target_experience` | Deterministic Schema + Semantic Match | `auteur identity validate` / `auteur structure diagnose` |
+| **Layer 2** | **Promise / Form Contract** | `constraints` / `story_type` | Deterministic Schema / Contract Beats | `auteur identity validate` / `auteur structure diagnose` |
+| **Layer 3** | **Scope / Container** | `scope` / `story_type` | Subplot budget / chapter / POV bounds | `auteur identity validate` / `auteur structure diagnose` |
+| **Layer 4** | **Structural Forces** | `structural_forces` / `central_engine` | Core engine completion (want $\neq$ change) | `auteur identity validate` / `auteur structure diagnose` |
 | **Layer 5** | **Threads / Modules** | `threads` | Thread support functions & connections | `auteur structure diagnose` |
 | **Layer 6** | **Carriers** | `carriers` | Deterministic state transitions (location) | `auteur audit` |
 | **Layer 7** | **Representation** | `representation` | Chapter accept state logs vs. outline beats | `auteur audit` / Cartographer |
