@@ -31,7 +31,7 @@ Deterministic code owns:
 
 LLMs own:
 
-- Future creative structure generation and prose-like repair drafting.
+- Story identity recommendation (opinionated narrative engine — `auteur identity recommend`).
 - Cartographer chapter outline generation.
 - Bard prose drafting and rewriting.
 - Critic judgment for contract, arc, tension, slop, and theme.
