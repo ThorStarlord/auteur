@@ -54,3 +54,16 @@ scope_profile:
   scope_failure_modes:
     - "Lore explanation replaces escalation."
     - "Too many characters dilute dread before the threat becomes unavoidable."
+
+setup_contract:
+  emotional_runway: short
+  relationship_establishment: optional
+  baseline_world_establishment: required
+  minimum_setup_beats:
+    - "Establish the normal status quo before disruption"
+    - "Plant the early warning signs of the threat"
+  forbidden_shortcuts:
+    - "Skipping the pre-disruption baseline of normalcy entirely"
+  compression_strategies:
+    - "Introduce the threat directly within the first scene's disruption"
+

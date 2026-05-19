@@ -47,7 +47,7 @@ def load_genre_contract(genre: Genre | str) -> GenreContract:
 
 def _create_fallback_contract(genre: Genre) -> GenreContract:
     from auteur.blueprint import LengthClass, MechanicalLoad, NarrativeRunway, ScopeComplexity
-    from auteur.genres.models import PsychologyBudget, PsychologyLevel, RequirementLevel, ScopeProfile
+    from auteur.genres.models import PsychologyBudget, PsychologyLevel, RequirementLevel, ScopeProfile, SetupContract
     
     if genre == Genre.LITERARY:
         level = PsychologyLevel.PSYCHOLOGICALLY_DEEP
@@ -92,6 +92,21 @@ def _create_fallback_contract(genre: Genre) -> GenreContract:
             ],
             scope_failure_modes=[
                 "The selected container carries more cast, setting, or subplot machinery than it can pay off."
+            ],
+        ),
+        setup_contract=SetupContract(
+            emotional_runway=NarrativeRunway.MEDIUM,
+            relationship_establishment=RequirementLevel.OPTIONAL,
+            baseline_world_establishment=RequirementLevel.OPTIONAL,
+            minimum_setup_beats=[
+                "Establish the protagonist's ordinary starting status quo",
+                "Introduce the initial point of connection or threat trigger",
+            ],
+            forbidden_shortcuts=[
+                "Stating the relationships or stakes purely through exposition without scene work",
+            ],
+            compression_strategies=[
+                "Compress the setup by introducing the core conflict within the first scene",
             ],
         ),
     )

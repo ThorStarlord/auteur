@@ -53,3 +53,16 @@ scope_profile:
   scope_failure_modes:
     - "The scope adds conspiracy machinery without enough scenes to sustain pace."
     - "Too many secondary arcs slow the pressure engine."
+
+setup_contract:
+  emotional_runway: short
+  relationship_establishment: optional
+  baseline_world_establishment: required
+  minimum_setup_beats:
+    - "Establish the protagonist's competence baseline"
+    - "Introduce the ticking clock or threat trigger"
+  forbidden_shortcuts:
+    - "Starting with destabilization before the protagonist's baseline stakes are clear"
+  compression_strategies:
+    - "Use an in-media-res action sequence that establishes both competence and the threat trigger simultaneously"
+

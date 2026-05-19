@@ -447,6 +447,47 @@ def analyze_structure(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
                 )
             )
 
+    # 4. Rule: Setup Contract Runway vs. Scope Container Length
+    setup_contract = contract_snap.setup_contract
+    if setup_contract:
+        runway_val = setup_contract.emotional_runway.value if hasattr(setup_contract.emotional_runway, "value") else setup_contract.emotional_runway
+        length_val = blueprint.identity.length_class.value if hasattr(blueprint.identity.length_class, "value") else blueprint.identity.length_class
+        
+        is_mismatch = False
+        if runway_val == "very_long" and length_val in ("short_story", "novella", "novel"):
+            is_mismatch = True
+        elif runway_val == "long" and length_val in ("short_story", "novella"):
+            is_mismatch = True
+        elif runway_val == "medium" and length_val == "short_story":
+            is_mismatch = True
+            
+        if is_mismatch:
+            diagnostics.append(
+                StructureDiagnostic(
+                    severity=DiagnosticSeverity.WARNING,
+                    layer=DiagnosticLayer.SCOPE,
+                    rule="genre.setup_contract.insufficient_runway",
+                    message=(
+                        f"The '{contract_snap.display_name}' genre contract requires a '{runway_val}' "
+                        f"emotional runway, but the story container length is '{length_val}'."
+                    ),
+                    evidence=[
+                        f"genre = {contract_snap.display_name}",
+                        f"emotional_runway = {runway_val}",
+                        f"length_class = {length_val}",
+                    ],
+                    repair_options=RepairOptions(
+                        preserve_intent=[
+                            "Increase story container length to a longer format (e.g., novel or novella) to give the emotional runway sufficient scene budget.",
+                            "Use compressed setup strategies to deliver the required emotional foundation in fewer scenes."
+                        ],
+                        challenge_intent=[
+                            "Proceed with the short container but ensure maximum efficiency in establishing relationship/world baselines."
+                        ],
+                    ),
+                )
+            )
+
     return diagnostics
 
 

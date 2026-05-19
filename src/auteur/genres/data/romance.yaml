@@ -52,3 +52,17 @@ scope_profile:
   scope_failure_modes:
     - "External action plot swallows the relational engine."
     - "The couple lacks enough shared scenes to earn transformation."
+
+setup_contract:
+  emotional_runway: medium
+  relationship_establishment: required
+  baseline_world_establishment: optional
+  minimum_setup_beats:
+    - "Establish the protagonist's status quo and relational void/wound"
+    - "Show the ordinary context or meeting trigger"
+    - "Establish initial point of connection or friction"
+  forbidden_shortcuts:
+    - "Skipping the emotional meeting or stating intimacy without showing scenes"
+  compression_strategies:
+    - "Fuse the ordinary intimacy with the meet cute"
+

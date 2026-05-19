@@ -1,0 +1,65 @@
+genre_id: netorare
+display_name: "Netorare"
+core_truth: "The most sacred trust is highly vulnerable; watch it be eroded."
+audience_product: "Deep emotional attachment runway, suspense, angst, the thrill of boundary violation."
+primary_excitement_beats:
+  - "ordinary bond established and trust shown"
+  - "the first vulnerability or crack in the boundary"
+  - "incremental steps taken that cannot be untaken"
+  - "desperate attempt to maintain normalcy while erosion progresses"
+  - "irreversible displacement or transformation of the original bond"
+required_tropes:
+  - "sacred trust baseline"
+  - "incremental boundary erosion"
+  - "unmet dependency or blind spot"
+optional_tropes: []
+forbidden_mismatches:
+  - "sudden betrayal before emotional attachment runway is complete"
+  - "generic stated relationship without scenes of baseline bond"
+  - "instant conquest without progressive erosion steps"
+common_failure_modes:
+  - "Starting with the betrayal before the audience has any emotional investment in the bond"
+  - "Skipping incremental boundary violation, turning process into destination"
+psychology_budget:
+  level: "conflict_bearing"
+  reason: "Netorare depends on high emotional stakes, deep trust, and vulnerability to make the violation feel earned and intense."
+  motivation_clarity: "required"
+  psychological_depth: "required"
+  character_texture: "encouraged"
+default_engine_biases:
+  - "Deep focus on original relationship's legitimacy and protagonist's dependence"
+recommended_subversions:
+  - "The protagonist recognizes the bond's flaw too late but retains dignity in aftermath"
+scope_profile:
+  natural_lengths:
+    - novel
+    - epic_novel
+  minimum_viable_length: novella
+  default_length: novel
+  narrative_runway: long
+  recommended_complexity: standard
+  mechanical_load: medium
+  worldbuilding_load: low
+  cast_load: medium
+  compression_strategies:
+    - "Compress baseline intimacy into one high-efficiency shared memory/scene"
+    - "Focus strictly on the triangle and omit outside subplots"
+  expansion_strategies:
+    - "Expand to epic novel to develop a larger social or professional circle that adds stakes to the threat of exposure"
+  scope_failure_modes:
+    - "The container has too little room to develop emotional runway before destabilization"
+setup_contract:
+  emotional_runway: long
+  relationship_establishment: required
+  baseline_world_establishment: optional
+  minimum_setup_beats:
+    - "A scene showing ordinary trust."
+    - "A scene showing why the bond matters."
+    - "A scene showing the protagonist's blind spot."
+    - "A scene showing the partner's unmet desire, dissatisfaction, or hidden susceptibility."
+  forbidden_shortcuts:
+    - "Starting with betrayal before the audience cares."
+    - "Making the relationship generic or purely stated."
+    - "Skipping incremental boundary movement."
+  compression_strategies:
+    - "Fuse the ordinary trust scene with the introduction of the partner's hidden vulnerability."

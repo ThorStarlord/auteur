@@ -52,3 +52,17 @@ scope_profile:
   scope_failure_modes:
     - "Faction machinery overwhelms the protagonist's moral pressure."
     - "War epic scale appears without enough room for political setup and cost."
+
+setup_contract:
+  emotional_runway: long
+  relationship_establishment: optional
+  baseline_world_establishment: required
+  minimum_setup_beats:
+    - "Establish the corrupt/decaying nature of the world"
+    - "Establish what the protagonist is forced to survive or protect"
+    - "Show the cost of the existing order"
+  forbidden_shortcuts:
+    - "Starting with random violence before the systemic stakes or moral weight is legible"
+  compression_strategies:
+    - "Use a single highly-focused local conflict that mirrors the larger systemic corruption"
+

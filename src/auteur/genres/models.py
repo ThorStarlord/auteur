@@ -43,6 +43,14 @@ class ScopeProfile(BaseModel):
     expansion_strategies: list[str] = Field(default_factory=list)
     scope_failure_modes: list[str] = Field(default_factory=list)
 
+class SetupContract(BaseModel):
+    emotional_runway: NarrativeRunway
+    relationship_establishment: RequirementLevel = RequirementLevel.OPTIONAL
+    baseline_world_establishment: RequirementLevel = RequirementLevel.OPTIONAL
+    minimum_setup_beats: list[str] = Field(default_factory=list)
+    forbidden_shortcuts: list[str] = Field(default_factory=list)
+    compression_strategies: list[str] = Field(default_factory=list)
+
 class GenreContract(BaseModel):
     genre_id: Genre = Field(..., description="Must map to an existing Genre enum value")
     display_name: str
@@ -61,6 +69,9 @@ class GenreContract(BaseModel):
     # Psychology limits
     psychology_budget: PsychologyBudget
     scope_profile: ScopeProfile
+    
+    # Setup requirements
+    setup_contract: SetupContract
     
     # Recommendations for narrative generation
     default_engine_biases: list[str] = Field(default_factory=list)

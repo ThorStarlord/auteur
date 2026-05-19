@@ -96,6 +96,8 @@ class Genre(str, Enum):
     THRILLER = "thriller"
     ROMANCE = "romance"
     YA_FANTASY = "ya_fantasy"
+    NETORARE = "netorare"
+    NETORI = "netori"
     OTHER = "other"
 
 

@@ -55,3 +55,17 @@ scope_profile:
   scope_failure_modes:
     - "Too many suspects for the chosen length."
     - "Layered clue logic has no room for fair setup and payoff."
+
+setup_contract:
+  emotional_runway: medium
+  relationship_establishment: optional
+  baseline_world_establishment: required
+  minimum_setup_beats:
+    - "Establish the detective's context or state of the world"
+    - "Introduce the victim or situation before the crime is discovered (or right at the crime scene)"
+    - "Establish the legitimacy of the investigation"
+  forbidden_shortcuts:
+    - "Stating the crime's significance without showing why the community/victim mattered"
+  compression_strategies:
+    - "Begin immediately at the crime scene and backfill the victim's ordinary bond via physical clues"
+

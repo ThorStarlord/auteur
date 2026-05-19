@@ -1,0 +1,65 @@
+genre_id: netori
+display_name: "Netori"
+core_truth: "A bond that appears legitimate may be unworthy; watch the intervention prove it."
+audience_product: "Gradual revelation of illegitimacy, triumphant intervention, correction, emotional payoff."
+primary_excitement_beats:
+  - "rival's prior claim and socially recognized bond presented"
+  - "heroine's loyalty and obligation shown"
+  - "true MC sees the partner's unmet desire or rival's blind spot"
+  - "first authentic response of heroine toward true MC"
+  - "rival's unworthiness revealed through actions"
+  - "successful intervention and correction of the bond"
+required_tropes:
+  - "rival prior claim"
+  - "gradual unworthiness reveal"
+  - "heroine authentic response"
+optional_tropes: []
+forbidden_mismatches:
+  - "random theft without proving prior bond unworthiness"
+  - "instant intervention before heroine's obligation is felt"
+  - "rival being clean, competent, and fully loving"
+common_failure_modes:
+  - "Making the prior bond purely stated without showing why the heroine stays"
+  - "Skipping the process of the rival revealing his unworthiness organically"
+psychology_budget:
+  level: "conflict_bearing"
+  reason: "Netori requires careful calibration so that the audience accepts the intervention as a necessary correction of an illegitimate bond rather than a random theft."
+  motivation_clarity: "required"
+  psychological_depth: "required"
+  character_texture: "encouraged"
+default_engine_biases:
+  - "Focus on the heroine's struggle between obligation to the rival and authentic attraction to the MC"
+recommended_subversions:
+  - "The rival is not a cartoon villain, but is tragically incapable of understanding the heroine's heart's desire"
+scope_profile:
+  natural_lengths:
+    - novel
+    - epic_novel
+  minimum_viable_length: novella
+  default_length: novel
+  narrative_runway: long
+  recommended_complexity: standard
+  mechanical_load: medium
+  worldbuilding_load: low
+  cast_load: medium
+  compression_strategies:
+    - "Begin directly with the heroine performing loyalty under stress and let the rival's unworthiness show in that same scene"
+  expansion_strategies:
+    - "Add complex social or institutional obligations that make the prior bond harder to sever"
+  scope_failure_modes:
+    - "The container is too short to show both obligation and gradual authentic alignment"
+setup_contract:
+  emotional_runway: long
+  relationship_establishment: required
+  baseline_world_establishment: optional
+  minimum_setup_beats:
+    - "Rival appears to hold a legitimate prior claim."
+    - "Heroine performs loyalty or obligation."
+    - "True MC sees what the rival misses."
+    - "First authentic response from heroine toward true MC."
+    - "Rival's unworthiness becomes visible through behavior, not exposition."
+  forbidden_shortcuts:
+    - "Stating rival's flaws without demonstrating them in scenes."
+    - "Heroine immediately abandoning prior bond without internal struggle."
+  compression_strategies:
+    - "Introduce the rival's blind spot and the heroine's performance of obligation in their very first joint scene."
