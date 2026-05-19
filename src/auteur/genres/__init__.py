@@ -6,6 +6,7 @@ from auteur.genres.models import (
     GenreContract,
 )
 from auteur.genres.registry import load_genre_contract
+from auteur.genres.subgenres import SubgenreModifier, load_subgenre_modifier
 
 __all__ = [
     "PsychologyLevel",
@@ -14,4 +15,6 @@ __all__ = [
     "ScopeProfile",
     "GenreContract",
     "load_genre_contract",
+    "SubgenreModifier",
+    "load_subgenre_modifier",
 ]

@@ -141,6 +141,41 @@ def main(argv: list[str] | None = None) -> int:
     )
     p_identity_recommend.add_argument("--provider", choices=["anthropic", "openai"], default="anthropic")
     p_identity_recommend.add_argument("--model", default=None)
+    p_identity_recommend.add_argument(
+        "--recommend-mode",
+        choices=["opinionated", "open-ended"],
+        default="opinionated",
+        help="Recommendation mode.",
+    )
+    p_identity_recommend.add_argument(
+        "--candidates",
+        type=int,
+        default=3,
+        help="Number of candidates to generate in open-ended mode.",
+    )
+    p_identity_recommend.add_argument(
+        "--strict-candidate-count",
+        action="store_true",
+        help="Abort if any candidate fails validation in open-ended mode.",
+    )
+
+    p_identity_accept_candidate = identity_sub.add_parser(
+        "accept-candidate",
+        help="Accept and promote a candidate StoryIdentity.",
+    )
+    p_identity_accept_candidate.add_argument("candidate", type=Path, help="Path to the candidate.yaml file.")
+    p_identity_accept_candidate.add_argument(
+        "--output",
+        type=Path,
+        default=Path("story_identity.yaml"),
+        help="Target path for the promoted story_identity.yaml.",
+    )
+    p_identity_accept_candidate.add_argument(
+        "--keep-candidates",
+        action="store_true",
+        help="Do not delete the candidate directory after acceptance.",
+    )
+
 
     # Blueprint subcommands
     p_blueprint = sub.add_parser("blueprint", help="Manage story blueprints.")
@@ -241,15 +276,32 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "identity" and args.identity_command == "compile":
         return _cmd_identity_compile(args.identity, args.output)
     if args.command == "identity" and args.identity_command == "recommend":
+        rec_mode = args.recommend_mode
+        story_mode = args.mode
+        if args.mode in ("open-ended", "open_ended"):
+            rec_mode = "open_ended"
+            story_mode = None
+        if rec_mode == "open-ended":
+            rec_mode = "open_ended"
         return _cmd_identity_recommend(
             premise=args.premise,
             genre=args.genre,
             medium=args.medium,
-            mode=args.mode,
+            mode=story_mode,
             output_path=args.output,
             provider=args.provider,
             model=args.model,
+            recommend_mode=rec_mode,
+            candidates_count=args.candidates,
+            strict_candidate_count=args.strict_candidate_count,
         )
+    if args.command == "identity" and args.identity_command == "accept-candidate":
+        return _cmd_identity_accept_candidate(
+            candidate_path=args.candidate,
+            output_path=args.output,
+            keep_candidates=args.keep_candidates,
+        )
+
     if args.command == "blueprint" and args.blueprint_command == "seed":
         return _cmd_blueprint_seed(args.identity, args.output)
     if args.command == "state":
@@ -911,12 +963,19 @@ def _cmd_identity_recommend(
     output_path: Path,
     provider: str,
     model: str | None,
+    recommend_mode: str = "opinionated",
+    candidates_count: int = 3,
+    strict_candidate_count: bool = False,
 ) -> int:
     import re
+    import hashlib
+    import datetime
     from auteur.llm.factory import build_client
     from auteur.llm import LLMRequest
-    from auteur.identity import StoryIdentity
+    from auteur.identity import StoryIdentity, StoryIdentityCandidate, StoryIdentityRecommendationSet, BestBasis, RecommendationMode
     from auteur.blueprint import Genre, StoryMedium, StoryMode
+    from auteur.genres.registry import load_genre_contract
+    from auteur.genres.subgenres import load_subgenre_modifier
 
     # 1. Resolve premise text
     premise_text = premise
@@ -927,14 +986,55 @@ def _cmd_identity_recommend(
     except Exception:
         pass
 
-    # 2. Build system and user prompts
+    def _extract_yaml_block(text: str) -> str:
+        match = re.search(r"```(?:yaml|json)?\n(.*?)```", text, re.DOTALL | re.IGNORECASE)
+        if match:
+            return match.group(1).strip()
+        match = re.search(r"```\n(.*?)```", text, re.DOTALL)
+        if match:
+            return match.group(1).strip()
+        return text.strip()
+
+
+    # 2. Load primary genre contract if constrained
+    genre_guidance = ""
+    if genre:
+        try:
+            resolved_genre = Genre(genre.lower().strip())
+            contract = load_genre_contract(resolved_genre)
+            if contract:
+                genre_guidance = f"""
+Primary Genre Contract Details ({contract.display_name}):
+- Audience Product: {contract.audience_product}
+- Core Truth: {contract.core_truth}
+- Required Tropes: {", ".join(contract.required_tropes)}
+- Forbidden Mismatches: {", ".join(contract.forbidden_mismatches)}
+"""
+        except Exception:
+            pass
+
     genres_list = [g.value for g in Genre]
     mediums_list = [m.value for m in StoryMedium]
     modes_list = [o.value for o in StoryMode]
 
-    system_prompt = f"""You are an expert, opinionated narrative compiler. Your job is to take a raw creative premise/idea and translate it into a single, cohesive, structurally sound recommended story identity.
+    # Helper to generate a single candidate
+    def _generate_candidate(basis: BestBasis, index: int, attempt_limit: int = 4) -> tuple[StoryIdentity | None, list[str]]:
+        basis_guideline = ""
+        if basis == BestBasis.GENRE_ALIGNED:
+            basis_guideline = "Optimize for the primary genre contract promise, core truth, required tropes, and audience expectations."
+        elif basis == BestBasis.STRUCTURALLY_COHERENT:
+            basis_guideline = "Optimize for tight conflict escalation, causal plot momentum, want/change transformational alignment, and subplot discipline."
+        elif basis == BestBasis.FAITHFUL_TO_INPUT:
+            basis_guideline = "Optimize for preserving the literal details, quirky eccentricities, and specific tone of the author's original premise without over-commercializing or genericizing it."
+        elif basis == BestBasis.EMOTIONALLY_POWERFUL:
+            basis_guideline = "Maximize emotional stakes, cathartic affect, target emotional trajectories, and character psychological depth within the genre's psychology budget."
 
-You must recommend exactly one direction (choose the best-suited genre, medium, and mode) for this story to maximize its narrative potential, rather than brainstorming possibilities. Do not be vague or generic. Focus the stakes, conflicts, and transformation to be as powerful as possible.
+        system_prompt = f"""You are an expert, opinionated narrative compiler. Your job is to take a raw creative premise/idea and translate it into a single, cohesive, structurally sound recommended story identity.
+
+You must recommend exactly one direction (choose the best-suited genre, medium, and mode) for this story to maximize its narrative potential. Do not be vague or generic.
+
+Optimization Lens (best_basis: '{basis.value}'):
+{basis_guideline}
 
 The available genres, mediums, and modes are:
 Genres:
@@ -946,12 +1046,14 @@ Mediums:
 Modes:
 {", ".join(modes_list)}
 
+{genre_guidance}
+
 Note on Genre Runway constraints:
 Each genre has a minimum viable length requirement. For instance, epic fantasy, mystery, or thrillers typically require a longer medium (e.g. novel, novella) rather than a short story. If you specify a genre, ensure the medium matches or exceeds its runway requirements, unless you specify runway_compression in author_overrides.
 
 Here are the rules for a valid StoryIdentity:
 1. The 'change' field in central_engine must describe a genuine transformation (how the protagonist/world changes after the conflict) and MUST NOT duplicate or merely restate the 'want' field.
-2. The chosen mode must be compatible with the genre's ending tone restrictions.
+2. The chosen mode must be compatible with the genre's ending tone restrictions. For example, Romance forbids tragic endings.
 3. The 'target_experience.avoid' list must NOT contain the primary emotional experience or any progression steps.
 
 Your response must contain ONLY a single YAML code block defining the recommended story identity matching the following schema structure:
@@ -969,7 +1071,7 @@ story_type:
   mode: "mode_value"
   genre: "genre_value"
   subgenres:
-    - "subgenre1"
+    - "subgenre1"  # e.g., for mystery: locked_room, hardboiled, cozy
   target_audience: "adult"
   length_class: null
 central_engine:
@@ -977,7 +1079,7 @@ central_engine:
   resistance: "The chief force resisting that want."
   conflict: "The clash between want and resistance."
   stakes: "What is lost if they fail."
-  change: "How they/the world are transformed."
+  change: "How they/the world are transformed after the conflict."
 not_this:
   - "what this story should not be"
 open_questions:
@@ -985,7 +1087,9 @@ open_questions:
 confidence: 0.95
 alternatives:
   - "alternative direction 1"
-why_this_is_best: "Explanation of why this specific genre/medium/mode combination is the best fit."
+recommendation_mode: "{recommend_mode}"
+best_basis: "{basis.value}"
+why_this_is_best: "Explanation of why this specific setup is best optimized for this lens."
 rejected_directions:
   - "rejected direction 1"
 author_overrides: []
@@ -994,92 +1098,323 @@ author_overrides: []
 Make sure the output is valid YAML, contains no conversational preamble/postamble, and strictly adheres to the schema.
 """
 
-    constraints_text = []
-    if genre:
-        constraints_text.append(f"Constraint: You MUST set story_type.genre to '{genre}'.")
-    if medium:
-        constraints_text.append(f"Constraint: You MUST set story_type.medium to '{medium}'.")
-    if mode:
-        constraints_text.append(f"Constraint: You MUST set story_type.mode to '{mode}'.")
+        constraints_text = []
+        if genre:
+            constraints_text.append(f"Constraint: You MUST set story_type.genre to '{genre}'.")
+        if medium:
+            constraints_text.append(f"Constraint: You MUST set story_type.medium to '{medium}'.")
+        if mode:
+            constraints_text.append(f"Constraint: You MUST set story_type.mode to '{mode}'.")
 
-    constraints_str = "\n".join(constraints_text)
-    user_prompt = f"Raw Premise:\n{premise_text}\n\n{constraints_str}\n\nPlease generate the story identity recommendation YAML block."
+        constraints_str = "\n".join(constraints_text)
+        user_prompt = f"Raw Premise:\n{premise_text}\n\n{constraints_str}\n\nPlease generate the story identity recommendation YAML block."
 
-    client = build_client(provider, model)
+        client = build_client(provider, model)
+        last_output = ""
+        validation_feedback = ""
 
-    def _extract_yaml_block(text: str) -> str:
-        match = re.search(r"```(?:yaml|json)?\n(.*?)```", text, re.DOTALL | re.IGNORECASE)
-        if match:
-            return match.group(1).strip()
-        match = re.search(r"```\n(.*?)```", text, re.DOTALL)
-        if match:
-            return match.group(1).strip()
-        return text.strip()
+        for attempt in range(1, attempt_limit + 1):
+            try:
+                if attempt == 1:
+                    req_user = user_prompt
+                else:
+                    req_user = (
+                        user_prompt
+                        + f"\n\n--- PREVIOUS ATTEMPT OUTPUT ---\n{last_output}\n\n"
+                        + f"--- VALIDATION ERRORS ---\n{validation_feedback}\n\n"
+                        + "Please correct the errors and output ONLY the corrected YAML block. "
+                        + "You MUST NOT add items to 'author_overrides' to bypass these validation errors. "
+                        + "Resolve them by correcting the actual content fields."
+                    )
 
-    max_attempts = 4
-    last_output = ""
-    validation_feedback = ""
-    for attempt in range(1, max_attempts + 1):
-        print(f"Attempt {attempt}/{max_attempts} to generate valid recommendation...")
-        try:
-            if attempt == 1:
-                req_user = user_prompt
-            else:
-                req_user = user_prompt + f"\n\n--- PREVIOUS ATTEMPT OUTPUT ---\n{last_output}\n\n--- VALIDATION ERRORS ---\n{validation_feedback}\n\nPlease correct the errors and output ONLY the corrected YAML block."
-
-            req = LLMRequest(
-                system=system_prompt,
-                user=req_user,
-                max_tokens=4096,
-                temperature=0.7,
-                model=model
-            )
-
-            response = client.complete(req)
-            last_output = response.text
-
-            yaml_text = _extract_yaml_block(last_output)
-            data = yaml.safe_load(yaml_text)
-            if not isinstance(data, dict):
-                raise ValueError("LLM output is not a dictionary.")
-
-            if "story_type" not in data or not isinstance(data["story_type"], dict):
-                data["story_type"] = {}
-            if genre:
-                data["story_type"]["genre"] = genre
-            if medium:
-                data["story_type"]["medium"] = medium
-            if mode:
-                data["story_type"]["mode"] = mode
-
-            identity = StoryIdentity.model_validate(data)
-            diagnostics = identity.validate_identity()
-            errors = [
-                d for d in diagnostics
-                if (d.severity.value.lower() == "error" if hasattr(d.severity, "value") else str(d.severity).lower() == "error")
-            ]
-
-            if not errors:
-                output_path.parent.mkdir(parents=True, exist_ok=True)
-                output_path.write_text(
-                    yaml.safe_dump(identity.model_dump(mode="json"), sort_keys=False),
-                    encoding="utf-8",
+                req = LLMRequest(
+                    system=system_prompt,
+                    user=req_user,
+                    max_tokens=4096,
+                    temperature=0.7,
+                    model=model,
                 )
-                print(f"Success: saved recommended story identity to {output_path}")
-                return 0
+
+                response = client.complete(req)
+                last_output = response.text
+
+                yaml_text = _extract_yaml_block(last_output)
+                data = yaml.safe_load(yaml_text)
+                if not isinstance(data, dict):
+                    raise ValueError("LLM output is not a dictionary.")
+
+                if "story_type" not in data or not isinstance(data["story_type"], dict):
+                    data["story_type"] = {}
+                if genre:
+                    data["story_type"]["genre"] = genre
+                if medium:
+                    data["story_type"]["medium"] = medium
+                if mode:
+                    data["story_type"]["mode"] = mode
+
+                identity = StoryIdentity.model_validate(data)
+                diagnostics = identity.validate_identity()
+                errors = [
+                    d for d in diagnostics
+                    if (d.severity.value.lower() == "error" if hasattr(d.severity, "value") else str(d.severity).lower() == "error")
+                ]
+
+                if not errors:
+                    # Valid candidate found
+                    return identity, [str(d.message) for d in diagnostics]
+                else:
+                    err_lines = []
+                    for err in errors:
+                        err_lines.append(f"- Rule: {err.rule} | Message: {err.message}")
+                    validation_feedback = "\n".join(err_lines)
+                    print(f"Validation failed on attempt {attempt} for basis {basis.value}:\n{validation_feedback}", file=sys.stderr)
+
+            except Exception as exc:
+                validation_feedback = f"Error during parsing/validation: {exc}"
+                print(f"Parsing/Validation failed on attempt {attempt} for basis {basis.value}: {exc}", file=sys.stderr)
+
+        return None, []
+
+    # 3. Handle Opinionated Mode (Default)
+    if recommend_mode == "opinionated":
+        identity, warnings = _generate_candidate(BestBasis.GENRE_ALIGNED, 1)
+        if identity:
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            identity.to_yaml(output_path)
+            print(f"Success: saved recommended story identity to {output_path}")
+            if warnings:
+                print("Warnings encountered during generation:")
+                for w in warnings:
+                    print(f" - {w}")
+            return 0
+        else:
+            print("Error: failed to generate a valid StoryIdentity after maximum retries.", file=sys.stderr)
+            return 1
+
+    # 4. Handle Open-Ended Mode
+    elif recommend_mode == "open_ended":
+        candidate_dir = output_path.parent / "story_identity_candidates"
+        candidate_dir.mkdir(parents=True, exist_ok=True)
+
+        bases_mapping = {
+            1: BestBasis.GENRE_ALIGNED,
+            2: BestBasis.STRUCTURALLY_COHERENT,
+            3: BestBasis.FAITHFUL_TO_INPUT,
+            4: BestBasis.EMOTIONALLY_POWERFUL,
+        }
+
+        labels_mapping = {
+            BestBasis.GENRE_ALIGNED: "Genre-contract benchmark",
+            BestBasis.STRUCTURALLY_COHERENT: "Cleanest story engine",
+            BestBasis.FAITHFUL_TO_INPUT: "Most faithful / most idiosyncratic",
+            BestBasis.EMOTIONALLY_POWERFUL: "Highest affect / character-pressure",
+        }
+
+        generated_candidates: list[StoryIdentityCandidate] = []
+        valid_count = 0
+
+        # Generate candidates sequentially
+        for idx in range(1, candidates_count + 1):
+            basis = bases_mapping.get(idx, BestBasis.GENRE_ALIGNED)
+            print(f"\nGenerating candidate {idx}/{candidates_count} ({basis.value})...")
+            identity, diagnostics_messages = _generate_candidate(basis, idx)
+
+            candidate_id = f"candidate_{idx}"
+            candidate_path = candidate_dir / f"{candidate_id}.yaml"
+
+            if identity:
+                identity.to_yaml(candidate_path)
+                valid_count += 1
+                status = "valid"
+                if diagnostics_messages:
+                    status = "valid_with_warnings"
+
+                # Compute hash
+                content = candidate_path.read_text(encoding="utf-8")
+                chash = "sha256:" + hashlib.sha256(content.encode("utf-8")).hexdigest()
+
+                # Build summary info
+                sum_req = LLMRequest(
+                    system="You are an assistant summarizing a story identity. Provide a concise 1-sentence recommendation summary, a list of 2 key tradeoffs, 2 risks, and 2 ideal scenarios this candidate is best for. Output ONLY valid JSON structure: {\"summary\": \"...\", \"tradeoffs\": [\"...\", \"...\"], \"risks\": [\"...\", \"...\"], \"best_for\": [\"...\", \"...\"]}",
+                    user=f"Story Identity:\n{content}",
+                    max_tokens=500,
+                    temperature=0.3,
+                    model=model,
+                )
+                try:
+                    summary_resp = client.complete(sum_req).text
+                    json_match = re.search(r"(\{.*\})", summary_resp, re.DOTALL)
+                    s_data = json.loads(json_match.group(1)) if json_match else {}
+                except Exception:
+                    s_data = {}
+
+                generated_candidates.append(
+                    StoryIdentityCandidate(
+                        candidate_id=candidate_id,
+                        path=str(candidate_path),
+                        label=labels_mapping.get(basis, f"Option {idx}"),
+                        best_basis=basis,
+                        recommendation_summary=s_data.get("summary", identity.why_this_is_best or "No summary available."),
+                        tradeoffs=s_data.get("tradeoffs", []),
+                        risks=s_data.get("risks", []),
+                        best_for=s_data.get("best_for", []),
+                        validation_status=status,
+                        warning_count=len(diagnostics_messages),
+                        content_hash=chash,
+                    )
+                )
             else:
-                err_lines = []
-                for err in errors:
-                    err_lines.append(f"- Rule: {err.rule} | Message: {err.message}")
-                validation_feedback = "\n".join(err_lines)
-                print(f"Validation failed on attempt {attempt}:\n{validation_feedback}", file=sys.stderr)
+                print(f"Error: Candidate {idx} ({basis.value}) failed to validate after maximum retries.", file=sys.stderr)
+                if strict_candidate_count:
+                    print("Strict candidate count flag is active. Aborting recommendation process.", file=sys.stderr)
+                    return 1
 
-        except Exception as exc:
-            validation_feedback = f"Error during parsing/validation: {exc}"
-            print(f"Parsing/Validation failed on attempt {attempt}: {exc}", file=sys.stderr)
+        if valid_count == 0:
+            print("Error: 0 valid candidates survived validation checks.", file=sys.stderr)
+            return 1
 
-    print("Error: failed to generate a valid StoryIdentity after maximum retries.", file=sys.stderr)
+        # Write recommendation_set.yaml
+        rec_set = StoryIdentityRecommendationSet(
+            mode=RecommendationMode.OPEN_ENDED,
+            source_input_path=premise,
+            generated_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            requested_candidates=candidates_count,
+            valid_candidates=valid_count,
+            recommended_candidate_id=generated_candidates[0].candidate_id if generated_candidates else None,
+            candidates=generated_candidates,
+        )
+
+        rec_set_path = candidate_dir / "recommendation_set.yaml"
+        rec_set_path.write_text(
+            yaml.safe_dump(rec_set.model_dump(mode="json"), sort_keys=False),
+            encoding="utf-8",
+        )
+
+        # Write comparison.md
+        comparison_lines = [
+            "# Story Identity Candidate Comparison",
+            f"\nSource Premise File/Text: `{premise}`",
+            f"Generated At: {rec_set.generated_at}\n",
+            "| Candidate | Lens / Basis | Status | Summary |",
+            "| --- | --- | --- | --- |"
+        ]
+        for c in generated_candidates:
+            comparison_lines.append(f"| `{c.candidate_id}` | **{c.best_basis.value}** ({c.label}) | {c.validation_status} ({c.warning_count} warnings) | {c.recommendation_summary} |")
+
+        comparison_lines.append("\n## Tradeoffs & Risks\n")
+        for c in generated_candidates:
+            comparison_lines.append(f"### {c.candidate_id}: {c.label}")
+            comparison_lines.append(f"**Lens**: `{c.best_basis.value}`")
+            comparison_lines.append(f"**Summary**: {c.recommendation_summary}")
+            if c.tradeoffs:
+                comparison_lines.append("\n*Tradeoffs*:")
+                for t in c.tradeoffs:
+                    comparison_lines.append(f"- {t}")
+            if c.risks:
+                comparison_lines.append("\n*Risks*:")
+                for r in c.risks:
+                    comparison_lines.append(f"- {r}")
+            if c.best_for:
+                comparison_lines.append("\n*Best For*:")
+                for bf in c.best_for:
+                    comparison_lines.append(f"- {bf}")
+            comparison_lines.append("")
+
+        comparison_path = candidate_dir / "comparison.md"
+        comparison_path.write_text("\n".join(comparison_lines), encoding="utf-8")
+
+        print(f"\nSuccess: generated {valid_count} candidates under {candidate_dir}/")
+        print(f"Metadata index written to {rec_set_path}")
+        print(f"Comparison document written to {comparison_path}")
+        return 0
+
     return 1
+
+
+def _cmd_identity_accept_candidate(candidate_path: Path, output_path: Path, keep_candidates: bool) -> int:
+    import shutil
+    import hashlib
+    from auteur.identity import StoryIdentity, StoryIdentityRecommendationSet
+
+    if not candidate_path.exists():
+        print(f"Error: Candidate file not found: {candidate_path}", file=sys.stderr)
+        return 1
+
+    try:
+        identity = StoryIdentity.from_yaml(candidate_path)
+    except Exception as exc:
+        print(f"Error: failed to parse candidate YAML: {exc}", file=sys.stderr)
+        return 1
+
+    # Run validation checks
+    diagnostics = identity.validate_identity()
+    errors = [
+        d for d in diagnostics
+        if (d.severity.value.lower() == "error" if hasattr(d.severity, "value") else str(d.severity).lower() == "error")
+    ]
+    if errors:
+        print("Error: candidate failed structural validation. Promotion aborted.", file=sys.stderr)
+        for err in errors:
+            print(f" - {err.message}", file=sys.stderr)
+        return 1
+
+    # Optional warning logger
+    warnings = [
+        d for d in diagnostics
+        if (d.severity.value.lower() == "warning" if hasattr(d.severity, "value") else str(d.severity).lower() == "warning")
+    ]
+    if warnings:
+        print("Warnings present in promoted candidate:")
+        for warn in warnings:
+            print(f" - {warn.message}")
+
+    # Check for recommendation_set.yaml hash mismatch if present
+    parent_dir = candidate_path.parent
+    rec_set_path = parent_dir / "recommendation_set.yaml"
+    if rec_set_path.exists():
+        try:
+            with open(rec_set_path, "r", encoding="utf-8") as f:
+                rec_data = yaml.safe_load(f)
+            rec_set = StoryIdentityRecommendationSet.model_validate(rec_data)
+
+            # Compute current hash
+            content = candidate_path.read_text(encoding="utf-8")
+            current_hash = "sha256:" + hashlib.sha256(content.encode("utf-8")).hexdigest()
+
+            # Find matching candidate metadata
+            matching_candidate = None
+            for c in rec_set.candidates:
+                if Path(c.path).resolve() == candidate_path.resolve():
+                    matching_candidate = c
+                    break
+
+            if matching_candidate:
+                if matching_candidate.content_hash != current_hash:
+                    print("[WARNING] Candidate file has been manually modified since recommendation generation index was created.")
+        except Exception as exc:
+            print(f"[WARNING] Failed to verify candidate hash against recommendation_set.yaml index: {exc}", file=sys.stderr)
+
+    # Promote to target output path
+    try:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        identity.to_yaml(output_path)
+        print(f"Success: promoted candidate {candidate_path} to {output_path}")
+    except Exception as exc:
+        print(f"Error: failed to promote candidate to {output_path}: {exc}", file=sys.stderr)
+        return 1
+
+    # Cleanup candidate directory if required and is standard location
+    if not keep_candidates:
+        candidate_dir = parent_dir
+        if candidate_dir.name == "story_identity_candidates" and candidate_dir.exists():
+            try:
+                shutil.rmtree(candidate_dir)
+                print(f"Cleaned up candidate directory: {candidate_dir}")
+            except Exception as exc:
+                print(f"[WARNING] Failed to delete candidate directory {candidate_dir}: {exc}", file=sys.stderr)
+
+    return 0
+
 
 
 def _cmd_identity_compile(identity_path: Path, output_path: Path) -> int:

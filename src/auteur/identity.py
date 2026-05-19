@@ -309,7 +309,48 @@ class StoryIdentity(BaseModel):
                             )
                         )
 
+
+        # 5. Subgenre Validation Checks
+        if self.story_type.subgenres:
+            from auteur.genres.subgenres import load_subgenre_modifier
+            for sub in self.story_type.subgenres:
+                modifier = load_subgenre_modifier(sub)
+                if not modifier:
+                    diagnostics.append(
+                        StructureDiagnostic(
+                            severity=DiagnosticSeverity.WARNING,
+                            layer=DiagnosticLayer.CONSTRAINTS,
+                            rule="identity.subgenre.unknown",
+                            message=f"Unknown subgenre '{sub}'. Treating as author-specific prompt hint.",
+                            evidence=[f"subgenre = {sub}"],
+                            repair_options=RepairOptions(
+                                preserve_intent=[],
+                                challenge_intent=[]
+                            )
+                        )
+                    )
+                else:
+                    if self.story_type.genre not in modifier.allowed_primary_genres:
+                        diagnostics.append(
+                            StructureDiagnostic(
+                                severity=DiagnosticSeverity.WARNING,
+                                layer=DiagnosticLayer.CONSTRAINTS,
+                                rule="identity.subgenre.mismatched",
+                                message=f"Subgenre '{sub}' is not standard for primary genre '{self.story_type.genre.value}'. This may indicate cross-genre blending or diluted contract focus.",
+                                evidence=[
+                                    f"subgenre = {sub}",
+                                    f"primary_genre = {self.story_type.genre.value}",
+                                    f"allowed_primary_genres = {[g.value for g in modifier.allowed_primary_genres]}"
+                                ],
+                                repair_options=RepairOptions(
+                                    preserve_intent=[],
+                                    challenge_intent=[]
+                                )
+                            )
+                        )
+
         return diagnostics
+
 
 
     @classmethod
@@ -847,3 +888,28 @@ def compile_to_blueprint(identity: StoryIdentity) -> StoryBlueprint:
 
 from auteur.genres.models import GenreContract
 StoryIdentity.model_rebuild()
+
+
+class StoryIdentityCandidate(BaseModel):
+    candidate_id: str
+    path: str
+    label: str
+    best_basis: BestBasis
+    recommendation_summary: str
+    tradeoffs: list[str] = Field(default_factory=list)
+    risks: list[str] = Field(default_factory=list)
+    best_for: list[str] = Field(default_factory=list)
+    validation_status: str  # "valid" | "valid_with_warnings" | "invalid"
+    warning_count: int = 0
+    content_hash: str
+
+
+class StoryIdentityRecommendationSet(BaseModel):
+    mode: RecommendationMode
+    source_input_path: str
+    generated_at: str
+    requested_candidates: int
+    valid_candidates: int
+    recommended_candidate_id: str | None = None
+    candidates: list[StoryIdentityCandidate] = Field(default_factory=list)
+

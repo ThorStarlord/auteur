@@ -1,52 +1,99 @@
 # Grill With Docs — Stabilizing Phase 0: The Narrative Engine
 
 Date: 2026-05-19
-Mode: self-answered grilling (no user pauses, as requested)
 Inputs: CONTEXT.md, identity.py, analyzer.py, docs/opinionated-narrative-engine.md
 
 ---
 
-## Q1. Where should structural and coherence validation of the Narrative Engine live, and how should it be executed?
-**Recommended Answer**: 
+## Part 1: StoryIdentity Validation Spec (Locked)
+
+### Q1. Where should structural and coherence validation of the Narrative Engine live, and how should it be executed?
+**Answer**: 
 We should introduce a dedicated, deterministic validation check directly in the `StoryIdentity` layer. When `auteur identity validate` runs, it must perform Pydantic schema validation *and* execute a suite of deterministic, LLM-free structural rules on the identity itself.
-**Answer**: Accepted.
 
----
-
-## Q2. What exact validation rules are required to declare a `StoryIdentity` structurally sound?
-**Recommended Answer**: 
+### Q2. What exact validation rules are required to declare a `StoryIdentity` structurally sound?
+**Answer**: 
 The validation runner must enforce the following rules:
 1. **Want-Change Coherence**: The central engine's `want` and `change` must not be duplicate/identical (case-insensitive, whitespace-stripped).
 2. **Genre Ending Tone Mismatch**: The chosen mode/ending tone (tragic or hopeful) must not violate the genre contract snapshot's `forbidden_mismatches` (e.g. forbidding tragic endings in Romance or hopeful endings in Grimdark), unless an explicit override is configured in `author_overrides`.
 3. **Target Experience Avoidance Clash**: The avoided experiences list must not clash with the primary target experience or progression tone steps.
-**Answer**: Accepted.
+4. **Genre Runway / Length Class Mismatch**: The resolved length class of a medium must match or exceed the minimum viable length required by the genre contract scope profile, unless overridden by `runway_compression`.
 
----
-
-## Q3. How should validation failures be presented to the user?
-**Recommended Answer**: 
+### Q3. How should validation failures be presented to the user?
+**Answer**: 
 The command `auteur identity validate` should output a structured list of diagnostics (with rule, severity, layer, message, evidence, and repair options) to `stderr`, and exit with code `1` if there is any error.
-**Answer**: Accepted.
 
----
-
-## Q4. What is the behavior of the compilation step (`auteur blueprint seed` / `auteur identity compile`) when the identity has validation errors?
-**Recommended Answer**: 
+### Q4. What is the behavior of the compilation step (`auteur blueprint seed` / `auteur identity compile`) when the identity has validation errors?
+**Answer**: 
 The compiler must run the identity validation checks before compiling. If any validation errors exist, the compilation process must abort, print the diagnostics, and exit with code `1`, preventing the creation of an invalid blueprint.
-**Answer**: Accepted.
 
 ---
 
-## Q5. What test cases are needed to verify the stability of the Narrative Engine (Phase 0)?
-**Recommended Answer**: 
-We should add tests in `tests/test_identity_validation.py` asserting that:
-1. An identity with duplicate want/change fails validation with a specific warning or error.
-2. An identity with a forbidden ending tone fails validation.
-3. An identity with clashing avoided experiences fails validation.
-4. Compilation (`compile_to_blueprint`) fails and aborts if validation errors are present.
-**Answer**: Accepted.
+## Part 2: Phase 0 Recommendation Policy (Locked)
 
----
+### Goals
+To build `auteur identity recommend` as the entrypoint for Auteur. It translates a raw premise into a validated `StoryIdentity` YAML document, optimizing for opinionated genre contracts while allowing author-controlled exploration.
 
-## Design Result
-Upgrade the `StoryIdentity` schema in `src/auteur/identity.py` to include a validation method running these rules. Update the CLI commands `validate` and `compile`/`seed` in `src/auteur/cli.py` to run these rules, output structural diagnostics on failure, and fail with exit code `1`.
+### CLI Surface
+```bash
+# Opinionated Mode (Default)
+auteur identity recommend <input.md> --output story_identity.yaml
+
+# Open-Ended Mode (Controlled escape hatch)
+auteur identity recommend <input.md> --mode open-ended --candidates 3
+
+# Acceptance Workflow
+auteur identity accept-candidate <candidate.yaml> --output story_identity.yaml [--keep-candidates]
+```
+
+### Opinionated Mode (Default)
+* Generates exactly **one** recommended story engine.
+* Optimizes primarily using the `genre_aligned` basis (the genre-contract benchmark).
+* Outputs a single canonical `story_identity.yaml` that is ready for validation and blueprint compilation.
+* Automatically includes justification fields: `confidence`, `why_this_is_best`, and `rejected_directions`.
+
+### Open-Ended Mode
+* Generates contrasting, strategic candidates saved into a `story_identity_candidates/` directory:
+  * `candidate_1.yaml` (flat standard `StoryIdentity` optimized for `genre_aligned`)
+  * `candidate_2.yaml` (flat standard `StoryIdentity` optimized for `structurally_coherent`)
+  * `candidate_3.yaml` (flat standard `StoryIdentity` optimized for `faithful_to_input`)
+  * `recommendation_set.yaml` (machine-readable metadata wrapper storing candidate labels, tradeoffs, risks, and content hashes)
+  * `comparison.md` (human-readable comparison file detailing differences)
+* Candidate counts map directly to bases:
+  * 2 candidates: `genre_aligned`, `structurally_coherent`
+  * 3 candidates: `genre_aligned`, `structurally_coherent`, `faithful_to_input`
+  * 4 candidates: `genre_aligned`, `structurally_coherent`, `faithful_to_input`, `emotionally_powerful`
+* Succeeds if at least one valid candidate survives retries, unless `--strict-candidate-count` is passed.
+
+### Validation and Repair Policy
+During recommendation generation:
+1. **Validation Check**: Every generated candidate is parsed into `StoryIdentity` and checked using `validate_identity()`.
+2. **Repair Loop**: If `ERROR` diagnostics exist, Auteur initiates up to 3 repair retries by prompting the LLM with the previous attempt and the error messages.
+3. **Silent Override Constraint**: The LLM is strictly prohibited from adding `author_overrides` to escape validation errors.
+4. **Warning Outcome**: Candidates with only `WARNING` diagnostics are kept, but lower the candidate's `confidence` score.
+5. **No Invalid Emits**: Invalid candidates are never written to the canonical `story_identity.yaml` or candidate list. Failed attempts are only stored in `.auteur/runs/<timestamp>/` if `--debug` is active.
+
+### Candidate Storage
+* Every candidate file (e.g. `candidate_1.yaml`) is a standard, flat `StoryIdentity` to maintain portability with all CLI commands.
+* Wrapper metadata resides in `story_identity_candidates/recommendation_set.yaml` using the `StoryIdentityRecommendationSet` structure.
+* A `content_hash` check validates whether a candidate file has been modified after recommendation set index creation.
+
+### Acceptance Workflow
+* `auteur identity accept-candidate` accepts any flat `StoryIdentity` YAML path (whether `recommendation_set.yaml` is present or not).
+* It runs `validate_identity()` on the target. If errors exist, it aborts. If warnings exist, it promotes but logs the warnings.
+* By default, promoting cleans up `story_identity_candidates/` unless `--keep-candidates` is provided.
+
+### best_basis Strategy
+* **genre_aligned**: Optimize for primary genre contract promise, core truth, and tropes.
+* **structurally_coherent**: Optimize for tight causal engines, conflict tightness, and act progression.
+* **emotionally_powerful**: Optimize for stakes, trajectory, and psychology budgets (without exceeding the genre's ceiling unless explicitly requested).
+* **faithful_to_input**: Optimize for preserving original, quirky premise details and author intentions.
+
+### Subgenre Modifier Policy
+* Treated as prompt-primary, validation-light modifiers via the `SubgenreModifier` class.
+* Prompt guidance is injected dynamically into the compiler.
+* Unknown subgenres trigger a `WARNING` but are kept as prompt-only hints. Mismatched subgenres trigger a warning about potential contract dilution. No subgenre triggers an `ERROR`.
+
+### Non-goals
+* We will not build multi-contract inheritance or merge complex rules for subgenres.
+* Open-ended mode is not the default behavior and is kept behind a flag.
