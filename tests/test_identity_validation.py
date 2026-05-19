@@ -267,3 +267,40 @@ def test_cli_identity_validation_and_compile_failures(tmp_path):
     assert exit_code_compile == 1
     assert not blueprint_yaml_path.exists()
 
+
+def test_story_identity_runway_validation_and_overrides():
+    data = {
+        "title": "Short Netorare Story",
+        "core_answer": "A brief netorare tale.",
+        "central_engine": {
+            "want": "The protagonist wants to keep trust.",
+            "resistance": "The intruder.",
+            "conflict": "Trust is eroded.",
+            "stakes": "Loss of relationship.",
+            "change": "Protagonist accepts the loss.",
+        },
+        "story_type": {
+            "genre": "netorare",
+            "medium": "short_story",  # short_story resolves to length_class: short_story
+        }
+    }
+    
+    identity = StoryIdentity.model_validate(data)
+    # netorare minimum viable length is novella.
+    # Since length class resolved is short_story, it should fail.
+    diagnostics = identity.validate_identity()
+    errors = [d for d in diagnostics if d.severity.value == "error"]
+    assert len(errors) == 1
+    assert errors[0].rule == "identity.genre.scope.runway_mismatch"
+    
+    # Now let's try with override
+    data["author_overrides"] = ["runway_compression"]
+    identity_overridden = StoryIdentity.model_validate(data)
+    diagnostics_overridden = identity_overridden.validate_identity()
+    errors_overridden = [d for d in diagnostics_overridden if d.severity.value == "error"]
+    warnings_overridden = [d for d in diagnostics_overridden if d.severity.value == "warning"]
+    
+    assert len(errors_overridden) == 0
+    assert len(warnings_overridden) == 1
+    assert warnings_overridden[0].rule == "identity.genre.scope.runway_mismatch.override"
+

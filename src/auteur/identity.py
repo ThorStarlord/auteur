@@ -240,6 +240,75 @@ class StoryIdentity(BaseModel):
                     )
                 )
 
+        # 4. Genre Runway / Length Class Mismatch
+        if self.genre_contract_snapshot and self.genre_contract_snapshot.scope_profile:
+            min_viable = self.genre_contract_snapshot.scope_profile.minimum_viable_length
+            if min_viable:
+                order = {
+                    LengthClass.SHORT_STORY: 1,
+                    LengthClass.NOVELLA: 2,
+                    LengthClass.NOVEL: 3,
+                    LengthClass.EPIC_NOVEL: 4,
+                    LengthClass.SERIES: 5,
+                }
+                
+                # Resolve active length class
+                length_class = self.story_type.length_class
+                if length_class is None:
+                    length_class = resolve_length_class(self.story_type.medium)
+                
+                # In case min_viable is a string, resolve it to LengthClass
+                if isinstance(min_viable, str):
+                    try:
+                        min_viable = LengthClass(min_viable)
+                    except ValueError:
+                        pass
+                
+                val_resolved = order.get(length_class, 3)
+                val_min = order.get(min_viable, 1)
+                
+                if val_resolved < val_min:
+                    if "runway_compression" not in self.author_overrides:
+                        diagnostics.append(
+                            StructureDiagnostic(
+                                severity=DiagnosticSeverity.ERROR,
+                                layer=DiagnosticLayer.SCOPE,
+                                rule="identity.genre.scope.runway_mismatch",
+                                message=f"The resolved length '{length_class.value if hasattr(length_class, 'value') else length_class}' is too short for the minimum viable length '{min_viable.value if hasattr(min_viable, 'value') else min_viable}' required by the '{self.genre_contract_snapshot.display_name}' genre contract.",
+                                evidence=[
+                                    f"resolved_length = {length_class.value if hasattr(length_class, 'value') else length_class}",
+                                    f"minimum_viable_length = {min_viable.value if hasattr(min_viable, 'value') else min_viable}",
+                                ],
+                                repair_options=RepairOptions(
+                                    preserve_intent=[
+                                        "Increase the length class or medium container to match or exceed the minimum viable length.",
+                                        "Change the genre to one with a shorter minimum viable length."
+                                    ],
+                                    challenge_intent=[
+                                        "Add 'runway_compression' to author_overrides to bypass this constraint."
+                                    ],
+                                ),
+                            )
+                        )
+                    else:
+                        diagnostics.append(
+                            StructureDiagnostic(
+                                severity=DiagnosticSeverity.WARNING,
+                                layer=DiagnosticLayer.SCOPE,
+                                rule="identity.genre.scope.runway_mismatch.override",
+                                message=f"The resolved length '{length_class.value if hasattr(length_class, 'value') else length_class}' is too short for the minimum viable length '{min_viable.value if hasattr(min_viable, 'value') else min_viable}' required by the '{self.genre_contract_snapshot.display_name}' genre contract. Overridden by author.",
+                                evidence=[
+                                    f"resolved_length = {length_class.value if hasattr(length_class, 'value') else length_class}",
+                                    f"minimum_viable_length = {min_viable.value if hasattr(min_viable, 'value') else min_viable}",
+                                    "author_overrides = runway_compression",
+                                ],
+                                repair_options=RepairOptions(
+                                    preserve_intent=[],
+                                    challenge_intent=[],
+                                ),
+                            )
+                        )
+
         return diagnostics
 
 

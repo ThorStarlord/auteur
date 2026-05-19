@@ -125,6 +125,22 @@ def main(argv: list[str] | None = None) -> int:
         required=True,
         help="Target output path for the compiled blueprint.yaml skeleton.",
     )
+    p_identity_recommend = identity_sub.add_parser(
+        "recommend",
+        help="Recommend an opinionated story_identity.yaml from a raw premise.",
+    )
+    p_identity_recommend.add_argument("premise", type=str, help="Raw premise text or path to file containing it.")
+    p_identity_recommend.add_argument("--genre", type=str, default=None, help="Constrain to a specific genre.")
+    p_identity_recommend.add_argument("--medium", type=str, default=None, help="Constrain to a specific medium.")
+    p_identity_recommend.add_argument("--mode", type=str, default=None, help="Constrain to a specific mode.")
+    p_identity_recommend.add_argument(
+        "--output",
+        type=Path,
+        default=Path("story_identity.yaml"),
+        help="Target output path for the recommended story_identity.yaml.",
+    )
+    p_identity_recommend.add_argument("--provider", choices=["anthropic", "openai"], default="anthropic")
+    p_identity_recommend.add_argument("--model", default=None)
 
     # Blueprint subcommands
     p_blueprint = sub.add_parser("blueprint", help="Manage story blueprints.")
@@ -224,6 +240,16 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_identity_validate(args.identity)
     if args.command == "identity" and args.identity_command == "compile":
         return _cmd_identity_compile(args.identity, args.output)
+    if args.command == "identity" and args.identity_command == "recommend":
+        return _cmd_identity_recommend(
+            premise=args.premise,
+            genre=args.genre,
+            medium=args.medium,
+            mode=args.mode,
+            output_path=args.output,
+            provider=args.provider,
+            model=args.model,
+        )
     if args.command == "blueprint" and args.blueprint_command == "seed":
         return _cmd_blueprint_seed(args.identity, args.output)
     if args.command == "state":
@@ -875,6 +901,185 @@ def _cmd_identity_validate(identity_path: Path) -> int:
     except Exception as exc:
         print(f"Error: invalid story identity {identity_path}: {exc}", file=sys.stderr)
         return 1
+
+
+def _cmd_identity_recommend(
+    premise: str,
+    genre: str | None,
+    medium: str | None,
+    mode: str | None,
+    output_path: Path,
+    provider: str,
+    model: str | None,
+) -> int:
+    import re
+    from auteur.llm.factory import build_client
+    from auteur.llm import LLMRequest
+    from auteur.identity import StoryIdentity
+    from auteur.blueprint import Genre, StoryMedium, StoryMode
+
+    # 1. Resolve premise text
+    premise_text = premise
+    try:
+        premise_path = Path(premise)
+        if premise_path.exists() and premise_path.is_file():
+            premise_text = premise_path.read_text(encoding="utf-8")
+    except Exception:
+        pass
+
+    # 2. Build system and user prompts
+    genres_list = [g.value for g in Genre]
+    mediums_list = [m.value for m in StoryMedium]
+    modes_list = [o.value for o in StoryMode]
+
+    system_prompt = f"""You are an expert, opinionated narrative compiler. Your job is to take a raw creative premise/idea and translate it into a single, cohesive, structurally sound recommended story identity.
+
+You must recommend exactly one direction (choose the best-suited genre, medium, and mode) for this story to maximize its narrative potential, rather than brainstorming possibilities. Do not be vague or generic. Focus the stakes, conflicts, and transformation to be as powerful as possible.
+
+The available genres, mediums, and modes are:
+Genres:
+{", ".join(genres_list)}
+
+Mediums:
+{", ".join(mediums_list)}
+
+Modes:
+{", ".join(modes_list)}
+
+Note on Genre Runway constraints:
+Each genre has a minimum viable length requirement. For instance, epic fantasy, mystery, or thrillers typically require a longer medium (e.g. novel, novella) rather than a short story. If you specify a genre, ensure the medium matches or exceeds its runway requirements, unless you specify runway_compression in author_overrides.
+
+Here are the rules for a valid StoryIdentity:
+1. The 'change' field in central_engine must describe a genuine transformation (how the protagonist/world changes after the conflict) and MUST NOT duplicate or merely restate the 'want' field.
+2. The chosen mode must be compatible with the genre's ending tone restrictions.
+3. The 'target_experience.avoid' list must NOT contain the primary emotional experience or any progression steps.
+
+Your response must contain ONLY a single YAML code block defining the recommended story identity matching the following schema structure:
+
+```yaml
+title: "Title of the Story"
+core_answer: "One sentence summarizing the premise, main thread conflict, and resolution."
+target_experience:
+  primary: "the primary emotion/experience to evoke"
+  progression: "emotion1 -> emotion2 -> emotion3"
+  avoid:
+    - "avoided emotion1"
+story_type:
+  medium: "medium_value"
+  mode: "mode_value"
+  genre: "genre_value"
+  subgenres:
+    - "subgenre1"
+  target_audience: "adult"
+  length_class: null
+central_engine:
+  want: "What the protagonist desperately wants."
+  resistance: "The chief force resisting that want."
+  conflict: "The clash between want and resistance."
+  stakes: "What is lost if they fail."
+  change: "How they/the world are transformed."
+not_this:
+  - "what this story should not be"
+open_questions:
+  - "open questions to resolve"
+confidence: 0.95
+alternatives:
+  - "alternative direction 1"
+why_this_is_best: "Explanation of why this specific genre/medium/mode combination is the best fit."
+rejected_directions:
+  - "rejected direction 1"
+author_overrides: []
+```
+
+Make sure the output is valid YAML, contains no conversational preamble/postamble, and strictly adheres to the schema.
+"""
+
+    constraints_text = []
+    if genre:
+        constraints_text.append(f"Constraint: You MUST set story_type.genre to '{genre}'.")
+    if medium:
+        constraints_text.append(f"Constraint: You MUST set story_type.medium to '{medium}'.")
+    if mode:
+        constraints_text.append(f"Constraint: You MUST set story_type.mode to '{mode}'.")
+
+    constraints_str = "\n".join(constraints_text)
+    user_prompt = f"Raw Premise:\n{premise_text}\n\n{constraints_str}\n\nPlease generate the story identity recommendation YAML block."
+
+    client = build_client(provider, model)
+
+    def _extract_yaml_block(text: str) -> str:
+        match = re.search(r"```(?:yaml|json)?\n(.*?)```", text, re.DOTALL | re.IGNORECASE)
+        if match:
+            return match.group(1).strip()
+        match = re.search(r"```\n(.*?)```", text, re.DOTALL)
+        if match:
+            return match.group(1).strip()
+        return text.strip()
+
+    max_attempts = 4
+    last_output = ""
+    validation_feedback = ""
+    for attempt in range(1, max_attempts + 1):
+        print(f"Attempt {attempt}/{max_attempts} to generate valid recommendation...")
+        try:
+            if attempt == 1:
+                req_user = user_prompt
+            else:
+                req_user = user_prompt + f"\n\n--- PREVIOUS ATTEMPT OUTPUT ---\n{last_output}\n\n--- VALIDATION ERRORS ---\n{validation_feedback}\n\nPlease correct the errors and output ONLY the corrected YAML block."
+
+            req = LLMRequest(
+                system=system_prompt,
+                user=req_user,
+                max_tokens=4096,
+                temperature=0.7,
+                model=model
+            )
+
+            response = client.complete(req)
+            last_output = response.text
+
+            yaml_text = _extract_yaml_block(last_output)
+            data = yaml.safe_load(yaml_text)
+            if not isinstance(data, dict):
+                raise ValueError("LLM output is not a dictionary.")
+
+            if "story_type" not in data or not isinstance(data["story_type"], dict):
+                data["story_type"] = {}
+            if genre:
+                data["story_type"]["genre"] = genre
+            if medium:
+                data["story_type"]["medium"] = medium
+            if mode:
+                data["story_type"]["mode"] = mode
+
+            identity = StoryIdentity.model_validate(data)
+            diagnostics = identity.validate_identity()
+            errors = [
+                d for d in diagnostics
+                if (d.severity.value.lower() == "error" if hasattr(d.severity, "value") else str(d.severity).lower() == "error")
+            ]
+
+            if not errors:
+                output_path.parent.mkdir(parents=True, exist_ok=True)
+                output_path.write_text(
+                    yaml.safe_dump(identity.model_dump(mode="json"), sort_keys=False),
+                    encoding="utf-8",
+                )
+                print(f"Success: saved recommended story identity to {output_path}")
+                return 0
+            else:
+                err_lines = []
+                for err in errors:
+                    err_lines.append(f"- Rule: {err.rule} | Message: {err.message}")
+                validation_feedback = "\n".join(err_lines)
+                print(f"Validation failed on attempt {attempt}:\n{validation_feedback}", file=sys.stderr)
+
+        except Exception as exc:
+            validation_feedback = f"Error during parsing/validation: {exc}"
+            print(f"Parsing/Validation failed on attempt {attempt}: {exc}", file=sys.stderr)
+
+    print("Error: failed to generate a valid StoryIdentity after maximum retries.", file=sys.stderr)
+    return 1
 
 
 def _cmd_identity_compile(identity_path: Path, output_path: Path) -> int:
