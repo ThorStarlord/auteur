@@ -158,6 +158,11 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Abort if any candidate fails validation in open-ended mode.",
     )
+    p_identity_recommend.add_argument(
+        "--debug",
+        action="store_true",
+        help="Export all failed candidate attempts to .auteur/runs/<timestamp>/.",
+    )
 
     p_identity_accept_candidate = identity_sub.add_parser(
         "accept-candidate",
@@ -294,6 +299,7 @@ def main(argv: list[str] | None = None) -> int:
             recommend_mode=rec_mode,
             candidates_count=args.candidates,
             strict_candidate_count=args.strict_candidate_count,
+            debug=args.debug,
         )
     if args.command == "identity" and args.identity_command == "accept-candidate":
         return _cmd_identity_accept_candidate(
@@ -966,10 +972,12 @@ def _cmd_identity_recommend(
     recommend_mode: str = "opinionated",
     candidates_count: int = 3,
     strict_candidate_count: bool = False,
+    debug: bool = False,
 ) -> int:
     import re
     import hashlib
     import datetime
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     from auteur.llm.factory import build_client
     from auteur.llm import LLMRequest
     from auteur.identity import StoryIdentity, StoryIdentityCandidate, StoryIdentityRecommendationSet, BestBasis, RecommendationMode
@@ -1153,13 +1161,44 @@ Make sure the output is valid YAML, contains no conversational preamble/postambl
                     data["story_type"]["mode"] = mode
 
                 identity = StoryIdentity.model_validate(data)
+
+                # Refuse auto-overrides: LLM cannot inject overrides
+                auto_overrides_detected = False
+                if identity.author_overrides:
+                    auto_overrides_detected = True
+                    from auteur.structure.diagnostics import StructureDiagnostic, DiagnosticSeverity, DiagnosticLayer, RepairOptions
+                    auto_override_diag = StructureDiagnostic(
+                        severity=DiagnosticSeverity.ERROR,
+                        layer=DiagnosticLayer.CONSTRAINTS,
+                        rule="identity.auto_overrides_forbidden",
+                        message="Generating auto-overrides is forbidden. Do not add overrides to 'author_overrides'. Resolve the underlying issue by changing the story elements.",
+                        evidence=[f"author_overrides = {identity.author_overrides}"],
+                        repair_options=RepairOptions(
+                            preserve_intent=["Clear the author_overrides list and fix the underlying validation errors instead."],
+                            challenge_intent=[]
+                        )
+                    )
+                    identity.author_overrides = []
+
                 diagnostics = identity.validate_identity()
+                if auto_overrides_detected:
+                    diagnostics.append(auto_override_diag)
+
                 errors = [
                     d for d in diagnostics
                     if (d.severity.value.lower() == "error" if hasattr(d.severity, "value") else str(d.severity).lower() == "error")
                 ]
 
                 if not errors:
+                    # Apply warning confidence penalty
+                    warnings = [
+                        d for d in diagnostics
+                        if (d.severity.value.lower() == "warning" if hasattr(d.severity, "value") else str(d.severity).lower() == "warning")
+                    ]
+                    if warnings:
+                        # Lower confidence score by 0.05 per warning, cap at 0.10
+                        original_confidence = identity.confidence or 1.0
+                        identity.confidence = max(0.10, round(original_confidence - 0.05 * len(warnings), 2))
                     # Valid candidate found
                     return identity, [str(d.message) for d in diagnostics]
                 else:
@@ -1168,10 +1207,38 @@ Make sure the output is valid YAML, contains no conversational preamble/postambl
                         err_lines.append(f"- Rule: {err.rule} | Message: {err.message}")
                     validation_feedback = "\n".join(err_lines)
                     print(f"Validation failed on attempt {attempt} for basis {basis.value}:\n{validation_feedback}", file=sys.stderr)
+                    if debug:
+                        debug_dir = Path(".auteur/runs") / timestamp
+                        debug_dir.mkdir(parents=True, exist_ok=True)
+                        attempt_file = debug_dir / f"candidate_{index}_{basis.value}_attempt_{attempt}.txt"
+                        log_content = [
+                            f"Basis: {basis.value}",
+                            f"Attempt: {attempt}",
+                            f"Timestamp: {datetime.datetime.now(datetime.timezone.utc).isoformat()}",
+                            "\n--- LLM RAW OUTPUT ---",
+                            last_output,
+                            "\n--- VALIDATION ERRORS ---",
+                            validation_feedback
+                        ]
+                        attempt_file.write_text("\n".join(log_content), encoding="utf-8")
 
             except Exception as exc:
                 validation_feedback = f"Error during parsing/validation: {exc}"
                 print(f"Parsing/Validation failed on attempt {attempt} for basis {basis.value}: {exc}", file=sys.stderr)
+                if debug:
+                    debug_dir = Path(".auteur/runs") / timestamp
+                    debug_dir.mkdir(parents=True, exist_ok=True)
+                    attempt_file = debug_dir / f"candidate_{index}_{basis.value}_attempt_{attempt}.txt"
+                    log_content = [
+                        f"Basis: {basis.value}",
+                        f"Attempt: {attempt}",
+                        f"Timestamp: {datetime.datetime.now(datetime.timezone.utc).isoformat()}",
+                        "\n--- LLM RAW OUTPUT ---",
+                        last_output,
+                        "\n--- EXCEPTION ---",
+                        validation_feedback
+                    ]
+                    attempt_file.write_text("\n".join(log_content), encoding="utf-8")
 
         return None, []
 
