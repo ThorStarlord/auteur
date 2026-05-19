@@ -54,6 +54,10 @@ backward-compatible shortcut.
 _Avoid_: Treating all prose-shaped or story-shaped products as if they deliver
 through the same machinery.
 
+**Genre-First Adaptation**:
+The strict priority rule in Auteur's hierarchy: the Genre Contract (Level 1) dictates the creative promise, requiring the Medium Contract (Level 2) and Scope Container (Level 3) to bend and adapt to fulfill the Genre Contract's runway and structural requirements. For instance, a compressed medium (like a short story) carrying a genre that demands a long runway must either expand its container scale or apply an explicit `compression` or `subversion` override.
+_Avoid_: Letting a chosen medium or container silently override or fail the genre promise without explicit, validated author overrides.
+
 **Narrative Runway**:
 The amount of story space needed to set up, escalate, repeat, reveal, and pay
 off a genre or premise contract.
