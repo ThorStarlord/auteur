@@ -77,16 +77,16 @@ python -m pip install -e ".[dev,all]"
 Generate a recommended story engine from a raw premise, validate it, and compile the blueprint:
 
 ```powershell
-# Recommend an opinionated story identity
+# 1. Recommend a story engine from a raw premise
 auteur identity recommend "A detective investigates a locked manor murder" --output .\tmp\story_identity.yaml
 
-# Validate the final story identity
+# 2. Validate the story identity
 auteur identity validate .\tmp\story_identity.yaml
 
-# Seed the blueprint skeleton
+# 3. Compile into a blueprint skeleton
 auteur blueprint seed .\tmp\story_identity.yaml --output .\tmp\blueprint.yaml
 
-# Run whole-story structure diagnostics
+# 4. Run whole-story structure diagnostics
 auteur structure diagnose .\tmp\blueprint.yaml
 ```
 
@@ -132,11 +132,11 @@ auteur retry .\tmp\shattered_crown 1 --max-iterations 2
 
 `auteur identity recommend <premise> --output <path>`
 
-Translates a raw premise (text or path to file) into a validated, opinionated `StoryIdentity` YAML document containing justifications (`why_this_is_best`, `rejected_directions`).
+Translates a raw premise (text or path to a file) into a validated `StoryIdentity` YAML document. Auteur recommends exactly one story engine optimized for the genre contract promise, explains its reasoning in `why_this_is_best`, and records `rejected_directions`. Accepts optional `--genre`, `--medium`, and `--mode` constraints.
 
 `auteur identity validate <story_identity.yaml>`
 
-Validates an accepted recommended story engine (`StoryIdentity`) against the Pydantic schema constraints and custom narrative validation rules.
+Validates an accepted story identity against the Pydantic schema constraints and deterministic narrative validation rules (want-change coherence, genre ending tone, target experience avoidance, runway length class).
 
 `auteur blueprint seed <story_identity.yaml> --output <blueprint.yaml>`
 

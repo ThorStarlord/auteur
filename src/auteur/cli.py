@@ -33,6 +33,13 @@ from auteur.structure.proposals import (
 )
 
 
+class _HideSuppressedFormatter(argparse.HelpFormatter):
+    def _format_action(self, action):
+        if action.help == argparse.SUPPRESS:
+            return ""
+        return super()._format_action(action)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="auteur", description="Agentic narrative engineering toolkit.")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -107,7 +114,11 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     # Identity subcommands
-    p_identity = sub.add_parser("identity", help="Manage story identities.")
+    p_identity = sub.add_parser(
+        "identity",
+        help="Manage story identities.",
+        formatter_class=_HideSuppressedFormatter,
+    )
     identity_sub = p_identity.add_subparsers(dest="identity_command", required=True)
     p_identity_validate = identity_sub.add_parser(
         "validate",

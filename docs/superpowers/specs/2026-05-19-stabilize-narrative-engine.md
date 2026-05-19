@@ -40,7 +40,7 @@ To build `auteur identity recommend` as the entrypoint for Auteur. It translates
 auteur identity recommend <input.md> --output story_identity.yaml
 
 # Open-Ended Mode (Controlled escape hatch)
-auteur identity recommend <input.md> --mode open-ended --candidates 3
+auteur identity recommend <input.md> --recommend-mode open-ended --candidates 3
 
 # Acceptance Workflow
 auteur identity accept-candidate <candidate.yaml> --output story_identity.yaml [--keep-candidates]
@@ -69,7 +69,7 @@ auteur identity accept-candidate <candidate.yaml> --output story_identity.yaml [
 During recommendation generation:
 1. **Validation Check**: Every generated candidate is parsed into `StoryIdentity` and checked using `validate_identity()`.
 2. **Repair Loop**: If `ERROR` diagnostics exist, Auteur initiates up to 3 repair retries by prompting the LLM with the previous attempt and the error messages.
-3. **Silent Override Constraint**: The LLM is strictly prohibited from adding `author_overrides` to escape validation errors.
+3. **Author Override Constraint**: The LLM is strictly prohibited from adding `author_overrides` to escape validation errors.
 4. **Warning Outcome**: Candidates with only `WARNING` diagnostics are kept, but lower the candidate's `confidence` score.
 5. **No Invalid Emits**: Invalid candidates are never written to the canonical `story_identity.yaml` or candidate list. Failed attempts are only stored in `.auteur/runs/<timestamp>/` if `--debug` is active.
 
@@ -134,3 +134,57 @@ mvp_cli_policy:
     show_in_quickstart: false
     show_in_default_help: false
 ```
+
+### Q2. What exact content should the README Quick Start show, and what must be removed?
+
+**Recommended Answer**: Replace the Quick Start with the strict 4-command opinionated path. Remove open-ended and `accept-candidate` examples entirely.
+
+**Answer**: Approved. The Quick Start now shows exactly:
+1. `auteur identity recommend … --output story_identity.yaml`
+2. `auteur identity validate story_identity.yaml`
+3. `auteur blueprint seed story_identity.yaml --output blueprint.yaml`
+4. `auteur structure diagnose blueprint.yaml`
+
+The open-ended `--recommend-mode` example and `accept-candidate` example are removed from the Quick Start and from the CLI Commands reference section.
+
+**Implementation**: README `## Quick Start` and `### 1. Identity & Narrative Engine Seeding` sections rewritten. `accept-candidate` command block removed entirely from the CLI Commands section.
+
+### Q3. Should the CLI Commands section `identity recommend` and `accept-candidate` entries be trimmed?
+
+**Recommended Answer**: Yes. `identity recommend` description should be opinionated-only. `accept-candidate` entry should be removed entirely. No footnote needed in the CLI Commands section — the doc is reference, not tutorial.
+
+**Answer**: Approved. `identity recommend` now describes the single opinionated path with constraint flags. `accept-candidate` entry is gone.
+
+**Implementation**: Done as part of Q2 implementation.
+
+### Q4. How should the argparse `==SUPPRESS==` display be cleaned up?
+
+**Recommended Answer**: Apply a custom `_HideSuppressedFormatter(argparse.HelpFormatter)` to the `identity` parser that returns `""` for any action with `help == argparse.SUPPRESS`. This removes the `accept-candidate ==SUPPRESS==` line from subparser listing.
+
+**Answer**: Approved. The suppressed subcommand name still appears in the usage line's `{…}` choices (an argparse limitation), but the description row is fully hidden.
+
+**Implementation**: `_HideSuppressedFormatter` added to `cli.py`. Applied via `formatter_class=_HideSuppressedFormatter` on `p_identity`.
+
+### Q5. Should `docs/opinionated-narrative-engine.md` be updated?
+
+**Recommended Answer**: Keep the Open-Ended Mode section but retitle it `Experimental: Open-Ended Mode` to signal it is not the default user journey.
+
+**Answer**: Approved. Retitled and a note added that it is hidden from default help output.
+
+**Implementation**: Done in `docs/opinionated-narrative-engine.md`.
+
+---
+
+## Design Result (Part 3)
+
+The MVP CLI surface is now exactly:
+
+```bash
+auteur identity recommend <premise> --output story_identity.yaml
+auteur identity validate story_identity.yaml
+auteur blueprint seed story_identity.yaml --output blueprint.yaml
+auteur structure diagnose blueprint.yaml
+```
+
+Open-ended mode and `accept-candidate` remain implemented, tested, and functional but are suppressed from all user-facing surfaces (README, Quick Start, CLI help, and docs).
+

@@ -552,6 +552,231 @@ author_overrides: []
     assert saved_data["confidence"] == 0.85
 
 
+def test_cli_identity_recommend_mode_open_ended_deprecation_warning(tmp_path, monkeypatch, capsys):
+    """--mode open-ended prints deprecation warning to stderr."""
+    valid_yaml = """
+title: "Test"
+core_answer: "A test."
+target_experience:
+  primary: "dread"
+  progression: "rising"
+  avoid: []
+story_type:
+  medium: "novel"
+  mode: "tragic"
+  genre: "mystery"
+  subgenres: []
+  target_audience: "adult"
+  length_class: null
+central_engine:
+  want: "Want"
+  resistance: "Resistance"
+  conflict: "Conflict"
+  stakes: "Stakes"
+  change: "Change"
+not_this: []
+open_questions: []
+confidence: 0.95
+recommendation_mode: "opinionated"
+best_basis: "genre_aligned"
+why_this_is_best: "Explanation"
+rejected_directions: []
+author_overrides: []
+"""
+
+    output_path = tmp_path / "story_identity.yaml"
+    fake_client = FakeClient([LLMResponse(text=f"```yaml\n{valid_yaml}\n```", input_tokens=50, output_tokens=50)])
+    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model: fake_client)
+
+    exit_code = main([
+        "identity", "recommend",
+        "A test premise.",
+        "--mode", "open-ended",
+        "--output", str(output_path),
+    ])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "deprecated" in captured.err.lower()
+    assert "--recommend-mode open-ended" in captured.err
+
+
+def test_cli_identity_recommend_recommend_mode_clean_path(tmp_path, monkeypatch, capsys):
+    """--recommend-mode open-ended does NOT print deprecation warning."""
+    candidate_dir = tmp_path / "story_identity_candidates"
+    valid_yaml_tmpl = """
+title: "Test {idx}"
+core_answer: "A test."
+target_experience:
+  primary: "dread"
+  progression: "rising"
+  avoid: []
+story_type:
+  medium: "novel"
+  mode: "tragic"
+  genre: "mystery"
+  subgenres: []
+  target_audience: "adult"
+  length_class: null
+central_engine:
+  want: "Want {idx}"
+  resistance: "Resistance {idx}"
+  conflict: "Conflict {idx}"
+  stakes: "Stakes {idx}"
+  change: "Change {idx}"
+not_this: []
+open_questions: []
+confidence: 0.95
+recommendation_mode: "open_ended"
+best_basis: "{basis}"
+why_this_is_best: "Explanation {idx}"
+rejected_directions: []
+author_overrides: []
+"""
+    summary_json = '{"summary": "Test.", "tradeoffs": ["t1"], "risks": ["r1"], "best_for": ["b1"]}'
+
+    responses = [
+        LLMResponse(text=f"```yaml\n{valid_yaml_tmpl.format(idx=1, basis='genre_aligned')}\n```", input_tokens=50, output_tokens=50),
+        LLMResponse(text=summary_json, input_tokens=50, output_tokens=50),
+    ]
+    fake_client = FakeClient(responses)
+    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model: fake_client)
+
+    exit_code = main([
+        "identity", "recommend",
+        "A test premise.",
+        "--recommend-mode", "open-ended",
+        "--candidates", "1",
+        "--output", str(tmp_path / "story_identity.yaml"),
+    ])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "deprecated" not in captured.err.lower()
+
+
+def test_cli_identity_recommend_mode_vs_recommend_mode_equivalence(tmp_path, monkeypatch, capsys):
+    """Both --mode open-ended and --recommend-mode open-ended produce same output."""
+    valid_yaml_tmpl = """
+title: "Test {idx}"
+core_answer: "A test."
+target_experience:
+  primary: "dread"
+  progression: "rising"
+  avoid: []
+story_type:
+  medium: "novel"
+  mode: "tragic"
+  genre: "mystery"
+  subgenres: []
+  target_audience: "adult"
+  length_class: null
+central_engine:
+  want: "Want {idx}"
+  resistance: "Resistance {idx}"
+  conflict: "Conflict {idx}"
+  stakes: "Stakes {idx}"
+  change: "Change {idx}"
+not_this: []
+open_questions: []
+confidence: 0.95
+recommendation_mode: "open_ended"
+best_basis: "{basis}"
+why_this_is_best: "Explanation {idx}"
+rejected_directions: []
+author_overrides: []
+"""
+    summary_json = '{"summary": "Test.", "tradeoffs": ["t1"], "risks": ["r1"], "best_for": ["b1"]}'
+
+    def make_client():
+        return FakeClient([
+            LLMResponse(text=f"```yaml\n{valid_yaml_tmpl.format(idx=1, basis='genre_aligned')}\n```", input_tokens=50, output_tokens=50),
+            LLMResponse(text=summary_json, input_tokens=50, output_tokens=50),
+        ])
+
+    # Run with --mode open-ended
+    dir1 = tmp_path / "run_mode"
+    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model: make_client())
+    exit1 = main([
+        "identity", "recommend",
+        "A test premise.",
+        "--mode", "open-ended",
+        "--candidates", "1",
+        "--output", str(dir1 / "story_identity.yaml"),
+    ])
+
+    # Run with --recommend-mode open-ended
+    dir2 = tmp_path / "run_recommend_mode"
+    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model: make_client())
+    exit2 = main([
+        "identity", "recommend",
+        "A test premise.",
+        "--recommend-mode", "open-ended",
+        "--candidates", "1",
+        "--output", str(dir2 / "story_identity.yaml"),
+    ])
+
+    captured = capsys.readouterr()
+    assert exit1 == 0
+    assert exit2 == 0
+    assert "deprecated" in captured.err  # --mode version emitted warning
+    assert "--recommend-mode open-ended" in captured.err
+
+    cand1 = dir1 / "story_identity_candidates" / "candidate_1.yaml"
+    cand2 = dir2 / "story_identity_candidates" / "candidate_1.yaml"
+    assert cand1.exists()
+    assert cand2.exists()
+    assert cand1.read_text(encoding="utf-8") == cand2.read_text(encoding="utf-8")
+
+
+def test_cli_identity_recommend_valid_story_mode_no_deprecation(tmp_path, monkeypatch, capsys):
+    """--mode tragic (valid StoryMode) does NOT emit deprecation."""
+    valid_yaml = """
+title: "Test"
+core_answer: "A test."
+target_experience:
+  primary: "dread"
+  progression: "rising"
+  avoid: []
+story_type:
+  medium: "novel"
+  mode: "tragic"
+  genre: "mystery"
+  subgenres: []
+  target_audience: "adult"
+  length_class: null
+central_engine:
+  want: "Want"
+  resistance: "Resistance"
+  conflict: "Conflict"
+  stakes: "Stakes"
+  change: "Change"
+not_this: []
+open_questions: []
+confidence: 0.95
+recommendation_mode: "opinionated"
+best_basis: "genre_aligned"
+why_this_is_best: "Explanation"
+rejected_directions: []
+author_overrides: []
+"""
+
+    output_path = tmp_path / "story_identity.yaml"
+    fake_client = FakeClient([LLMResponse(text=f"```yaml\n{valid_yaml}\n```", input_tokens=50, output_tokens=50)])
+    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model: fake_client)
+
+    exit_code = main([
+        "identity", "recommend",
+        "A test premise.",
+        "--mode", "tragic",
+        "--output", str(output_path),
+    ])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "deprecated" not in captured.err.lower()
+
+
 def test_cli_identity_recommend_debug_logging(tmp_path, monkeypatch):
     identity_yaml_path = tmp_path / "story_identity_debug.yaml"
     

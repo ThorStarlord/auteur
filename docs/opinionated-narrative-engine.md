@@ -34,8 +34,9 @@ the recommendation.
 explains why it best serves the premise and genre promise, lists weaker rejected
 directions, and asks the author to accept, modify, or switch modes.
 
-**Open-Ended Mode** is optional. Auteur presents multiple viable engines for
-advanced authors who want exploration before locking the identity artifact.
+**Experimental: Open-Ended Mode** is available for advanced authors who want to
+explore multiple viable engines before locking the identity artifact. It is not
+part of the standard MVP workflow and is hidden from default help output.
 
 ## Artifact Boundary
 
