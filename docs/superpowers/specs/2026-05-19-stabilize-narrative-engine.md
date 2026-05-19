@@ -92,7 +92,9 @@ During recommendation generation:
 ### Subgenre Modifier Policy
 * Treated as prompt-primary, validation-light modifiers via the `SubgenreModifier` class.
 * Prompt guidance is injected dynamically into the compiler.
-* Unknown subgenres trigger a `WARNING` but are kept as prompt-only hints. Mismatched subgenres trigger a warning about potential contract dilution. No subgenre triggers an `ERROR`.
+* `story_type.subgenres` is optional. An empty subgenre list is valid and means the story should be interpreted through the primary `GenreContract` only.
+* Unknown, unsupported, or mismatched subgenres must emit `WARNING` diagnostics, never `ERROR` diagnostics. Subgenres are prompt modifiers, not required contracts, and they must not block StoryIdentity validation or blueprint seeding.
+
 
 ### Non-goals
 * We will not build multi-contract inheritance or merge complex rules for subgenres.

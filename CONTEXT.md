@@ -73,6 +73,11 @@ A structured record from the Cartographer outline: `{character, field, before, a
 tracking what changed for a character per scene.
 _Avoid_: Delta, mutation, update.
 
+**Subgenre Modifier**:
+An optional, prompt-primary, validation-light modifier that biases recommendation and outline generation without loading a secondary contract. Subgenre validation is non-blocking (emitting only `WARNING` diagnostics for unknown or mismatched subgenres), and an empty subgenres list is fully valid.
+_Avoid_: Subgenre contract, subgenre override.
+
+
 ## The 9-Layer Engine
 
 Auteur organizes narrative design, validation, and execution into 9 distinct, sequential layers. This ensures that global creative intent constraints cascade cleanly down to fine-grained prose modulation:
