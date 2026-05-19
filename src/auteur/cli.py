@@ -845,8 +845,33 @@ def _cmd_identity_validate(identity_path: Path) -> int:
     try:
         from auteur.identity import StoryIdentity
         identity = StoryIdentity.from_yaml(identity_path)
-        print(f"Success: StoryIdentity {identity_path} is valid.")
-        return 0
+        diagnostics = identity.validate_identity()
+        if diagnostics:
+            has_error = False
+            for diag in diagnostics:
+                severity_str = diag.severity.value.upper() if hasattr(diag.severity, "value") else str(diag.severity).upper()
+                if severity_str == "ERROR":
+                    has_error = True
+                print(f"[{severity_str}] Layer: {diag.layer.value if hasattr(diag.layer, 'value') else diag.layer} | Rule: {diag.rule}", file=sys.stderr)
+                print(f"  Message: {diag.message}", file=sys.stderr)
+                if diag.evidence:
+                    print(f"  Evidence: {diag.evidence}", file=sys.stderr)
+                if diag.repair_options:
+                    if diag.repair_options.preserve_intent:
+                        print(f"  Preserve Intent options: {diag.repair_options.preserve_intent}", file=sys.stderr)
+                    if diag.repair_options.challenge_intent:
+                        print(f"  Challenge Intent options: {diag.repair_options.challenge_intent}", file=sys.stderr)
+                print("", file=sys.stderr)
+            
+            if has_error:
+                print(f"Error: StoryIdentity {identity_path} failed structural validation.", file=sys.stderr)
+                return 1
+            else:
+                print(f"Success: StoryIdentity {identity_path} is valid (with warnings).")
+                return 0
+        else:
+            print(f"Success: StoryIdentity {identity_path} is valid.")
+            return 0
     except Exception as exc:
         print(f"Error: invalid story identity {identity_path}: {exc}", file=sys.stderr)
         return 1
@@ -867,6 +892,21 @@ def _compile_identity_to_blueprint(identity_path: Path, output_path: Path) -> in
     try:
         from auteur.identity import StoryIdentity, compile_to_blueprint
         identity = StoryIdentity.from_yaml(identity_path)
+        
+        # Run validation before compiling
+        diagnostics = identity.validate_identity()
+        has_error = any(
+            (diag.severity.value.lower() == "error" if hasattr(diag.severity, "value") else str(diag.severity).lower() == "error")
+            for diag in diagnostics
+        )
+        if has_error:
+            print(f"Error: compilation aborted. StoryIdentity {identity_path} contains structural validation errors:", file=sys.stderr)
+            for diag in diagnostics:
+                severity_str = diag.severity.value.upper() if hasattr(diag.severity, "value") else str(diag.severity).upper()
+                if severity_str == "ERROR":
+                    print(f"  - [{severity_str}] Rule: {diag.rule} | Message: {diag.message}", file=sys.stderr)
+            return 1
+
         blueprint = compile_to_blueprint(identity)
         
         output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -879,6 +919,7 @@ def _compile_identity_to_blueprint(identity_path: Path, output_path: Path) -> in
     except Exception as exc:
         print(f"Error: failed to compile story identity {identity_path}: {exc}", file=sys.stderr)
         return 1
+
 
 
 def _cmd_cartographer_compile(

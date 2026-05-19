@@ -136,3 +136,134 @@ def test_story_identity_includes_genre_contract_snapshot(tmp_path):
     assert round_tripped.genre_contract_snapshot is not None
     assert round_tripped.genre_contract_snapshot.genre_id.value == "romance"
     assert "tragic ending" in round_tripped.genre_contract_snapshot.forbidden_mismatches
+
+
+def test_story_identity_want_change_duplicate_fails():
+    data = {
+        "title": "Duplicate Want Change",
+        "core_answer": "A tragic story.",
+        "central_engine": {
+            "want": "The hero wants to find the cure.",
+            "resistance": "The dragon blocks the path.",
+            "conflict": "Fighting the dragon.",
+            "stakes": "Death or cure.",
+            "change": "The hero wants to find the cure.",  # Duplicate!
+        }
+    }
+    identity = StoryIdentity.model_validate(data)
+    diagnostics = identity.validate_identity()
+    
+    assert len(diagnostics) == 1
+    assert diagnostics[0].severity.value == "error"
+    assert diagnostics[0].rule == "identity.central_engine.change_duplicates_want"
+
+
+def test_story_identity_forbidden_ending_tone_fails():
+    # Romance forbids tragic endings
+    data = {
+        "title": "Tragic Romance",
+        "core_answer": "A sad story.",
+        "central_engine": {
+            "want": "The lover wants to be with their partner.",
+            "resistance": "Distance.",
+            "conflict": "Relational differences.",
+            "stakes": "Loneliness.",
+            "change": "They learn to accept love.",
+        },
+        "story_type": {
+            "genre": "romance",
+            "mode": "tragic",  # Implies tragic ending
+        }
+    }
+    identity = StoryIdentity.model_validate(data)
+    diagnostics = identity.validate_identity()
+    
+    errors = [d for d in diagnostics if d.severity.value == "error"]
+    assert len(errors) == 1
+    assert errors[0].rule == "identity.genre.forbidden_mismatch.ending_tone"
+
+
+def test_story_identity_forbidden_ending_tone_with_override_warns():
+    data = {
+        "title": "Tragic Romance Override",
+        "core_answer": "A sad story.",
+        "central_engine": {
+            "want": "The lover wants to be with their partner.",
+            "resistance": "Distance.",
+            "conflict": "Relational differences.",
+            "stakes": "Loneliness.",
+            "change": "They learn to accept love.",
+        },
+        "story_type": {
+            "genre": "romance",
+            "mode": "tragic",
+        },
+        "author_overrides": ["ending_tone"]
+    }
+    identity = StoryIdentity.model_validate(data)
+    diagnostics = identity.validate_identity()
+    
+    errors = [d for d in diagnostics if d.severity.value == "error"]
+    warnings = [d for d in diagnostics if d.severity.value == "warning"]
+    
+    assert len(errors) == 0
+    assert len(warnings) == 1
+    assert warnings[0].rule == "identity.genre.forbidden_mismatch.ending_tone.override"
+
+
+def test_story_identity_avoided_experience_clash_fails():
+    data = {
+        "title": "Clashing Experiences",
+        "core_answer": "A story about hope.",
+        "central_engine": {
+            "want": "Find hope.",
+            "resistance": "Despair.",
+            "conflict": "Struggle.",
+            "stakes": "Life.",
+            "change": "Transformed.",
+        },
+        "target_experience": {
+            "primary": "hope",
+            "progression": "rising -> climax -> peace",
+            "avoid": ["hope", "peace"]
+        }
+    }
+    identity = StoryIdentity.model_validate(data)
+    diagnostics = identity.validate_identity()
+    
+    errors = [d for d in diagnostics if d.severity.value == "error"]
+    rules = [d.rule for d in errors]
+    assert "identity.target_experience.avoid_clashes_with_primary" in rules
+    assert "identity.target_experience.avoid_clashes_with_progression" in rules
+
+
+def test_cli_identity_validation_and_compile_failures(tmp_path):
+    identity_yaml_path = tmp_path / "story_identity_invalid.yaml"
+    blueprint_yaml_path = tmp_path / "blueprint.yaml"
+    
+    # Create invalid identity data (duplicate want/change)
+    identity_data = {
+        "title": "Invalid Story",
+        "core_answer": "A tragic political drama.",
+        "central_engine": {
+            "want": "The king wants to preserve the trade routes.",
+            "resistance": "The Sea Peoples disrupt the shipping lanes.",
+            "conflict": "Fighting them.",
+            "stakes": "Collapse.",
+            "change": "The king wants to preserve the trade routes.",  # Duplicate!
+        }
+    }
+    
+    import yaml
+    identity_yaml_path.write_text(yaml.safe_dump(identity_data), encoding="utf-8")
+    
+    # 1. Test validate command returns error code 1
+    from auteur.cli import main
+    exit_code_validate = main(["identity", "validate", str(identity_yaml_path)])
+    assert exit_code_validate == 1
+    
+    # 2. Test compile command aborts and returns error code 1
+    exit_code_compile = main(["identity", "compile", str(identity_yaml_path), "--output", str(blueprint_yaml_path)])
+    assert exit_code_compile == 1
+    assert not blueprint_yaml_path.exists()
+

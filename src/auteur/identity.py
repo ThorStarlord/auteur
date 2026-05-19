@@ -104,6 +104,145 @@ class StoryIdentity(BaseModel):
             self.genre_contract_snapshot = load_genre_contract(self.story_type.genre)
         return self
 
+    def validate_identity(self) -> list[StructureDiagnostic]:
+        """Perform deterministic, LLM-free structural validations on this StoryIdentity."""
+        from auteur.structure.diagnostics import (
+            DiagnosticLayer,
+            DiagnosticSeverity,
+            RepairOptions,
+            StructureDiagnostic,
+        )
+        diagnostics: list[StructureDiagnostic] = []
+
+        # 1. Want-Change Coherence
+        def _normalize(text: str) -> str:
+            return " ".join(text.casefold().split())
+
+        if _normalize(self.central_engine.want) == _normalize(self.central_engine.change):
+            diagnostics.append(
+                StructureDiagnostic(
+                    severity=DiagnosticSeverity.ERROR,
+                    layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                    rule="identity.central_engine.change_duplicates_want",
+                    message="The high-level engine change repeats the want instead of describing transformation.",
+                    evidence=[
+                        f"want = {self.central_engine.want}",
+                        f"change = {self.central_engine.change}",
+                    ],
+                    repair_options=RepairOptions(
+                        preserve_intent=[
+                            "Update the change field to describe how the protagonist or world is transformed after the conflict.",
+                        ],
+                        challenge_intent=[],
+                    ),
+                )
+            )
+
+        # 2. Genre Ending Tone/Mode Mismatch
+        if self.genre_contract_snapshot:
+            ending_tone_str = "tragic" if self.story_type.mode == StoryMode.TRAGIC else "bittersweet"
+            
+            is_mismatch = False
+            forbidden_type = ""
+            if ending_tone_str == "tragic" and "tragic ending" in self.genre_contract_snapshot.forbidden_mismatches:
+                is_mismatch = True
+                forbidden_type = "tragic ending"
+            
+            if is_mismatch:
+                if "ending_tone" not in self.author_overrides:
+                    diagnostics.append(
+                        StructureDiagnostic(
+                            severity=DiagnosticSeverity.ERROR,
+                            layer=DiagnosticLayer.CONSTRAINTS,
+                            rule="identity.genre.forbidden_mismatch.ending_tone",
+                            message=f"Story mode implies ending tone '{ending_tone_str}' which is forbidden by the '{self.genre_contract_snapshot.display_name}' contract.",
+                            evidence=[
+                                f"mode = {self.story_type.mode.value}",
+                                f"forbidden_mismatch = {forbidden_type}",
+                            ],
+                            repair_options=RepairOptions(
+                                preserve_intent=["Change mode to comic, adventure, or bittersweet/other."],
+                                challenge_intent=[
+                                    "Add 'ending_tone' to author_overrides to bypass this constraint.",
+                                    "Select a different genre that supports tragic endings."
+                                ],
+                            ),
+                        )
+                    )
+                else:
+                    diagnostics.append(
+                        StructureDiagnostic(
+                            severity=DiagnosticSeverity.WARNING,
+                            layer=DiagnosticLayer.CONSTRAINTS,
+                            rule="identity.genre.forbidden_mismatch.ending_tone.override",
+                            message=f"Story mode implies ending tone '{ending_tone_str}' which is forbidden by the '{self.genre_contract_snapshot.display_name}' contract. Overridden by author.",
+                            evidence=[
+                                f"mode = {self.story_type.mode.value}",
+                                f"forbidden_mismatch = {forbidden_type}",
+                                "author_overrides = ending_tone"
+                            ],
+                            repair_options=RepairOptions(
+                                preserve_intent=[],
+                                challenge_intent=[]
+                            )
+                        )
+                    )
+
+        # 3. Target Experience Avoidance Clash
+        avoided = {a.casefold().strip() for a in self.target_experience.avoid}
+        primary = self.target_experience.primary.casefold().strip()
+        
+        if primary in avoided:
+            diagnostics.append(
+                StructureDiagnostic(
+                    severity=DiagnosticSeverity.ERROR,
+                    layer=DiagnosticLayer.TARGET_EXPERIENCE,
+                    rule="identity.target_experience.avoid_clashes_with_primary",
+                    message=f"Avoided experience list clashes with primary emotional promise '{self.target_experience.primary}'.",
+                    evidence=[
+                        f"primary = {self.target_experience.primary}",
+                        f"avoid = {self.target_experience.avoid}",
+                    ],
+                    repair_options=RepairOptions(
+                        preserve_intent=[
+                            "Remove the primary experience from the avoided experience list.",
+                            "Change the primary experience to something that is not avoided."
+                        ],
+                        challenge_intent=[]
+                    )
+                )
+            )
+        
+        progression_steps = [
+            s.casefold().strip()
+            for s in self.target_experience.progression.split("->")
+            if s.strip()
+        ]
+        for step in progression_steps:
+            if step in avoided:
+                diagnostics.append(
+                    StructureDiagnostic(
+                        severity=DiagnosticSeverity.ERROR,
+                        layer=DiagnosticLayer.TARGET_EXPERIENCE,
+                        rule="identity.target_experience.avoid_clashes_with_progression",
+                        message=f"Avoided experience list clashes with progression step '{step}'.",
+                        evidence=[
+                            f"progression = {self.target_experience.progression}",
+                            f"avoid = {self.target_experience.avoid}",
+                        ],
+                        repair_options=RepairOptions(
+                            preserve_intent=[
+                                "Remove the progression step from the avoided experience list.",
+                                "Change the progression trajectory."
+                            ],
+                            challenge_intent=[]
+                        )
+                    )
+                )
+
+        return diagnostics
+
+
     @classmethod
     def from_yaml(cls, path: str | Path) -> Self:
         """Load a StoryIdentity from a YAML file."""
