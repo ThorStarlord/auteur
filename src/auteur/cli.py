@@ -132,7 +132,7 @@ def main(argv: list[str] | None = None) -> int:
     p_identity_recommend.add_argument("premise", type=str, help="Raw premise text or path to file containing it.")
     p_identity_recommend.add_argument("--genre", type=str, default=None, help="Constrain to a specific genre.")
     p_identity_recommend.add_argument("--medium", type=str, default=None, help="Constrain to a specific medium.")
-    p_identity_recommend.add_argument("--mode", type=str, default=None, help="Constrain to a specific mode.")
+    p_identity_recommend.add_argument("--mode", type=str, default=None, help="Constrain to a story mode (e.g. tragic, comic, noir, epic, intimate, absurdist).")
     p_identity_recommend.add_argument(
         "--output",
         type=Path,
@@ -145,18 +145,18 @@ def main(argv: list[str] | None = None) -> int:
         "--recommend-mode",
         choices=["opinionated", "open-ended"],
         default="opinionated",
-        help="Recommendation mode.",
+        help=argparse.SUPPRESS,
     )
     p_identity_recommend.add_argument(
         "--candidates",
         type=int,
         default=3,
-        help="Number of candidates to generate in open-ended mode.",
+        help=argparse.SUPPRESS,
     )
     p_identity_recommend.add_argument(
         "--strict-candidate-count",
         action="store_true",
-        help="Abort if any candidate fails validation in open-ended mode.",
+        help=argparse.SUPPRESS,
     )
     p_identity_recommend.add_argument(
         "--debug",
@@ -166,19 +166,19 @@ def main(argv: list[str] | None = None) -> int:
 
     p_identity_accept_candidate = identity_sub.add_parser(
         "accept-candidate",
-        help="Accept and promote a candidate StoryIdentity.",
+        help=argparse.SUPPRESS,
     )
-    p_identity_accept_candidate.add_argument("candidate", type=Path, help="Path to the candidate.yaml file.")
+    p_identity_accept_candidate.add_argument("candidate", type=Path, help=argparse.SUPPRESS)
     p_identity_accept_candidate.add_argument(
         "--output",
         type=Path,
         default=Path("story_identity.yaml"),
-        help="Target path for the promoted story_identity.yaml.",
+        help=argparse.SUPPRESS,
     )
     p_identity_accept_candidate.add_argument(
         "--keep-candidates",
         action="store_true",
-        help="Do not delete the candidate directory after acceptance.",
+        help=argparse.SUPPRESS,
     )
 
 
@@ -284,6 +284,7 @@ def main(argv: list[str] | None = None) -> int:
         rec_mode = args.recommend_mode
         story_mode = args.mode
         if args.mode in ("open-ended", "open_ended"):
+            print("Warning: --mode open-ended is deprecated. Use --recommend-mode open-ended instead.", file=sys.stderr)
             rec_mode = "open_ended"
             story_mode = None
         if rec_mode == "open-ended":

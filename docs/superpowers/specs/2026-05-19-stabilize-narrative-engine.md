@@ -99,3 +99,38 @@ During recommendation generation:
 ### Non-goals
 * We will not build multi-contract inheritance or merge complex rules for subgenres.
 * Open-ended mode is not the default behavior and is kept behind a flag.
+
+---
+
+## Part 3: MVP CLI Policy Grill (Locked)
+
+### Q1. Should open-ended mode and `accept-candidate` be hidden or deleted from the CLI for the initial MVP?
+
+**Recommended Answer**: Keep the code and tests for open-ended mode and candidate promotion, but hide them from MVP docs and default CLI help. The first public workflow should be relentlessly opinionated.
+
+**Answer**: Approved. For the initial MVP, Auteur should expose only the opinionated recommendation path in user-facing docs and CLI help. Open-ended mode and `accept-candidate` remain implemented for internal/experimental use, but are hidden from onboarding, README examples, and default help output.
+
+**Implementation**: Applied `argparse.SUPPRESS` to `--recommend-mode`, `--candidates`, `--strict-candidate-count`, and the `accept-candidate` subparser. All 249 tests continue to pass.
+
+**MVP CLI policy**:
+```yaml
+mvp_cli_policy:
+  public_default_path:
+    command: "auteur identity recommend raw_idea.md --output story_identity.yaml"
+    mode: "opinionated"
+    status: "documented"
+
+  open_ended_mode:
+    status: "experimental_hidden"
+    keep_implemented: true
+    show_in_readme: false
+    show_in_quickstart: false
+    show_in_default_help: false
+
+  accept_candidate:
+    status: "experimental_hidden"
+    keep_implemented: true
+    show_in_readme: false
+    show_in_quickstart: false
+    show_in_default_help: false
+```

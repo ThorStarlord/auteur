@@ -78,6 +78,26 @@ An optional, prompt-primary, validation-light modifier that biases recommendatio
 _Avoid_: Subgenre contract, subgenre override.
 
 
+**Recommendation Mode**:
+The operating posture used when Auteur recommends a `StoryIdentity`. The default is `opinionated`: Auteur recommends one focused story engine. `open-ended` mode is an exploratory escape hatch.
+_Avoid_: Brainstorming, exploration mode.
+
+**Best Basis**:
+The declared optimization lens used to decide why one `StoryIdentity` recommendation is considered best among alternatives.
+_Avoid_: Reason, justification label.
+
+**Genre-Aligned Recommendation**:
+A recommendation whose primary justification is that it best satisfies the selected genre contract promise, core truth, and required tropes.
+_Avoid_: Default recommendation, generic recommendation.
+
+**Repair Loop**:
+The retry-with-feedback process used when a generated `StoryIdentity` candidate fails deterministic validation. The LLM receives its previous output and the validation error messages, then corrects the content.
+_Avoid_: Retry cycle, fix iteration, second attempt.
+
+**Author Override Constraint**:
+The rule that `author_overrides` represent explicit author decisions and must not be injected by the LLM. If validation fails, the LLM must fix the underlying story elements, not add an override to bypass the check.
+_Avoid_: Silent override constraint, auto-override, override cheat.
+
 ## The 9-Layer Engine
 
 Auteur organizes narrative design, validation, and execution into 9 distinct, sequential layers. This ensures that global creative intent constraints cascade cleanly down to fine-grained prose modulation:

@@ -74,17 +74,11 @@ python -m pip install -e ".[dev,all]"
 
 ## Quick Start
 
-Generate a recommended story engine from a raw premise (in either default opinionated mode or open-ended candidates mode), validate it, and compile the blueprint:
+Generate a recommended story engine from a raw premise, validate it, and compile the blueprint:
 
 ```powershell
-# Recommend a story identity (opinionated mode by default)
+# Recommend an opinionated story identity
 auteur identity recommend "A detective investigates a locked manor murder" --output .\tmp\story_identity.yaml
-
-# Or recommend multiple candidates in open-ended mode
-auteur identity recommend "A detective investigates a locked manor murder" --recommend-mode open-ended --output .\tmp\candidates
-
-# Accept and promote a candidate
-auteur identity accept-candidate .\tmp\candidates\candidate_1.yaml --output .\tmp\story_identity.yaml
 
 # Validate the final story identity
 auteur identity validate .\tmp\story_identity.yaml
@@ -136,15 +130,9 @@ auteur retry .\tmp\shattered_crown 1 --max-iterations 2
 
 ### 1. Identity & Narrative Engine Seeding
 
-`auteur identity recommend <premise> --output <path> [--recommend-mode opinionated|open-ended] [--candidates N]`
+`auteur identity recommend <premise> --output <path>`
 
-Translates a raw premise (text or path to file) into a validated `StoryIdentity` YAML document. 
-- In **opinionated** mode (default), it writes a single canonical `story_identity.yaml` containing justifications (`why_this_is_best`, `rejected_directions`).
-- In **open-ended** mode, it generates strategically distinct candidates in the target directory (e.g. `candidate_1.yaml`, `candidate_2.yaml`, `candidate_3.yaml`, `recommendation_set.yaml`, `comparison.md`).
-
-`auteur identity accept-candidate <candidate.yaml> --output <story_identity.yaml> [--keep-candidates]`
-
-Accepts and promotes a specific candidate file to be the canonical `story_identity.yaml` after performing full validation and hash checks, and cleans up the candidate directory (unless `--keep-candidates` is supplied).
+Translates a raw premise (text or path to file) into a validated, opinionated `StoryIdentity` YAML document containing justifications (`why_this_is_best`, `rejected_directions`).
 
 `auteur identity validate <story_identity.yaml>`
 
@@ -267,3 +255,7 @@ The manual real-LLM smoke script is not part of pytest because it spends real to
 ```powershell
 python .\scripts\smoke_real_llm.py
 ```
+
+## Experimental
+
+Open-ended candidate workflows (`--recommend-mode open-ended`, `auteur identity accept-candidate`) exist for internal and advanced use. They are not part of the default public workflow.
