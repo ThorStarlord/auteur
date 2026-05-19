@@ -250,6 +250,14 @@ class SupportFunction(str, Enum):
     PAYS_OFF = "pays_off"
 
 
+class OverrideType(str, Enum):
+    SAFE_VARIATION = "safe_variation"
+    COMPRESSION = "compression"
+    SUBVERSION = "subversion"
+    RECLASSIFICATION = "reclassification"
+
+
+
 # ---------------------------------------------------------------------------
 # Layer 1 — Project Identity
 # ---------------------------------------------------------------------------
@@ -360,6 +368,16 @@ class MediumContract(BaseModel):
     medium_failure_modes: list[str] = Field(default_factory=list)
 
 
+
+
+
+class GenreOverride(BaseModel):
+    load_bearing_expectation: str = Field(..., description="The key expectation or trope being bypassed")
+    user_override: str = Field(..., description="Description of the alternative mechanism")
+    override_type: OverrideType = Field(..., description="Classification of the consequence")
+    rationale: str | None = Field(None, description="Optional explanation from the author")
+
+
 class ProjectIdentity(BaseModel):
     title: str
     author_intent: str = Field(
@@ -376,6 +394,7 @@ class ProjectIdentity(BaseModel):
     target_audience: TargetAudience
     pov_type: POVType
     genre_contract_snapshot: GenreContract | None = None
+    genre_overrides: dict[str, GenreOverride] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def _populate_medium_contract_from_shortcut(self) -> Self:

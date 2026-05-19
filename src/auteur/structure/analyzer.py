@@ -392,60 +392,146 @@ def analyze_structure(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
 
     # 2. Rule: Forbidden Mismatches (Ending Tone)
     ending_tone_str = blueprint.contract.mandatory_ending_tone.value
+    override = blueprint.identity.genre_overrides.get("ending_tone")
+    
+    is_mismatch = False
+    forbidden_type = ""
     if ending_tone_str == "tragic" and "tragic ending" in contract_snap.forbidden_mismatches:
-        diagnostics.append(
-            StructureDiagnostic(
-                severity=DiagnosticSeverity.ERROR,
-                layer=DiagnosticLayer.CONSTRAINTS,
-                rule="genre.forbidden_mismatch.ending_tone",
-                message=f"Mandatory ending tone '{ending_tone_str}' is forbidden by the '{contract_snap.display_name}' contract.",
-                evidence=[
-                    f"mandatory_ending_tone = {ending_tone_str}",
-                    "forbidden_mismatch = tragic ending",
-                ],
-                repair_options=RepairOptions(
-                    preserve_intent=["Change ending tone to bittersweet, hopeful, or open."],
-                    challenge_intent=["Select a different genre that supports tragic endings."],
-                ),
-            )
-        )
+        is_mismatch = True
+        forbidden_type = "tragic ending"
     elif ending_tone_str == "hopeful" and "hopeful ending" in contract_snap.forbidden_mismatches:
-        diagnostics.append(
-            StructureDiagnostic(
-                severity=DiagnosticSeverity.ERROR,
-                layer=DiagnosticLayer.CONSTRAINTS,
-                rule="genre.forbidden_mismatch.ending_tone",
-                message=f"Mandatory ending tone '{ending_tone_str}' is forbidden by the '{contract_snap.display_name}' contract.",
-                evidence=[
-                    f"mandatory_ending_tone = {ending_tone_str}",
-                    "forbidden_mismatch = hopeful ending",
-                ],
-                repair_options=RepairOptions(
-                    preserve_intent=["Change ending tone to bittersweet or tragic."],
-                    challenge_intent=["Select a different genre that supports hopeful endings."],
-                ),
-            )
-        )
+        is_mismatch = True
+        forbidden_type = "hopeful ending"
 
-    # 3. Rule: Required Tropes Forbidden
-    for trope in contract_snap.required_tropes:
-        if trope in blueprint.contract.forbidden_tropes:
+    if is_mismatch:
+        if override is None:
+            # Generate the recommendation flow
+            rec_flow = {
+                "selected_genre": contract_snap.genre_id.value if hasattr(contract_snap.genre_id, "value") else str(contract_snap.genre_id),
+                "load_bearing_expectation": "ending_tone",
+                "user_override": f"force_{ending_tone_str}_ending",
+                "auteur_diagnosis": "genre_contract_risk",
+                "consequence": f"Audience expecting the core product of {contract_snap.display_name} will be disappointed/alienated by a {ending_tone_str} ending.",
+                "options": {
+                    "preserve_genre": {
+                        "recommendation": f"Change ending tone to bittersweet or one allowed by the contract."
+                    },
+                    "subvert_genre": {
+                        "recommendation": f"Make the unexpected ending tone itself the focus (subvert expectations intentionally)."
+                    },
+                    "reclassify": {
+                        "recommendation": f"Reclassify the story to another genre that supports tragic/hopeful ending tones."
+                    },
+                    "override_anyway": {
+                        "recommendation": "Proceed, but mark genre confidence lower."
+                    }
+                }
+            }
             diagnostics.append(
                 StructureDiagnostic(
                     severity=DiagnosticSeverity.ERROR,
                     layer=DiagnosticLayer.CONSTRAINTS,
-                    rule="genre.forbidden_mismatch.required_trope_forbidden",
-                    message=f"The trope '{trope}' is required by the '{contract_snap.display_name}' genre contract, but is listed as a forbidden trope.",
+                    rule="genre.forbidden_mismatch.ending_tone",
+                    message=f"Mandatory ending tone '{ending_tone_str}' is forbidden by the '{contract_snap.display_name}' contract.",
                     evidence=[
-                        f"required_trope = {trope}",
-                        f"forbidden_tropes = {blueprint.contract.forbidden_tropes}",
+                        f"mandatory_ending_tone = {ending_tone_str}",
+                        f"forbidden_mismatch = {forbidden_type}",
                     ],
                     repair_options=RepairOptions(
-                        preserve_intent=[f"Remove '{trope}' from the forbidden tropes list."],
-                        challenge_intent=["Change the genre to one that does not require this trope."],
+                        preserve_intent=["Change ending tone to bittersweet, hopeful, or open."],
+                        challenge_intent=["Select a different genre that supports tragic endings."],
                     ),
+                    genre_recommendation_flow=rec_flow
                 )
             )
+        else:
+            # Override is present: suppress error and warn of consequence
+            rule_suffix = override.override_type.value
+            diagnostics.append(
+                StructureDiagnostic(
+                    severity=DiagnosticSeverity.WARNING,
+                    layer=DiagnosticLayer.CONSTRAINTS,
+                    rule=f"genre.forbidden_mismatch.ending_tone.{rule_suffix}",
+                    message=(
+                        f"The forbidden ending tone '{ending_tone_str}' is overridden via {override.override_type.value}: "
+                        f"'{override.user_override}'."
+                    ),
+                    evidence=[
+                        f"override_type = {override.override_type.value}",
+                        f"user_override = {override.user_override}",
+                    ],
+                    repair_options=RepairOptions(
+                        preserve_intent=[f"Handle the {ending_tone_str} ending with care to preserve/subvert reader trust."],
+                        challenge_intent=["Remove the override and return to an allowed ending tone."]
+                    )
+                )
+            )
+
+    # 3. Rule: Required Tropes Forbidden
+    for trope in contract_snap.required_tropes:
+        if trope in blueprint.contract.forbidden_tropes:
+            override_key = f"trope.{trope.replace(' ', '_')}"
+            override = blueprint.identity.genre_overrides.get(override_key)
+            if override is None:
+                rec_flow = {
+                    "selected_genre": contract_snap.genre_id.value if hasattr(contract_snap.genre_id, "value") else str(contract_snap.genre_id),
+                    "load_bearing_expectation": f"trope_{trope.replace(' ', '_')}",
+                    "user_override": f"forbid_{trope.replace(' ', '_')}",
+                    "auteur_diagnosis": "genre_contract_risk",
+                    "consequence": f"Story lacks the '{trope}' trope required by '{contract_snap.display_name}'. The contract is incomplete.",
+                    "options": {
+                        "preserve_genre": {
+                            "recommendation": f"Remove '{trope}' from the forbidden tropes list and integrate it."
+                        },
+                        "subvert_genre": {
+                            "recommendation": f"Deliver a subverted alternative trope that serves the same emotional function."
+                        },
+                        "reclassify": {
+                            "recommendation": f"Reclassify the story to a genre that does not require the '{trope}' trope."
+                        },
+                        "override_anyway": {
+                            "recommendation": "Proceed, but mark genre confidence lower."
+                        }
+                    }
+                }
+                diagnostics.append(
+                    StructureDiagnostic(
+                        severity=DiagnosticSeverity.ERROR,
+                        layer=DiagnosticLayer.CONSTRAINTS,
+                        rule="genre.forbidden_mismatch.required_trope_forbidden",
+                        message=f"The trope '{trope}' is required by the '{contract_snap.display_name}' genre contract, but is listed as a forbidden trope.",
+                        evidence=[
+                            f"required_trope = {trope}",
+                            f"forbidden_tropes = {blueprint.contract.forbidden_tropes}",
+                        ],
+                        repair_options=RepairOptions(
+                            preserve_intent=[f"Remove '{trope}' from the forbidden tropes list."],
+                            challenge_intent=["Change the genre to one that does not require this trope."],
+                        ),
+                        genre_recommendation_flow=rec_flow
+                    )
+                )
+            else:
+                rule_suffix = override.override_type.value
+                diagnostics.append(
+                    StructureDiagnostic(
+                        severity=DiagnosticSeverity.WARNING,
+                        layer=DiagnosticLayer.CONSTRAINTS,
+                        rule=f"genre.forbidden_mismatch.required_trope_forbidden.{rule_suffix}",
+                        message=(
+                            f"The required trope '{trope}' is forbidden but overridden via {override.override_type.value}: "
+                            f"'{override.user_override}'."
+                        ),
+                        evidence=[
+                            f"override_type = {override.override_type.value}",
+                            f"user_override = {override.user_override}",
+                        ],
+                        repair_options=RepairOptions(
+                            preserve_intent=[f"Ensure the absence/subversion of '{trope}' is compensated for in prose."],
+                            challenge_intent=["Remove the override to include the trope."]
+                        )
+                    )
+                )
 
     # 4. Rule: Setup Contract Runway vs. Scope Container Length
     setup_contract = contract_snap.setup_contract
@@ -462,31 +548,103 @@ def analyze_structure(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
             is_mismatch = True
             
         if is_mismatch:
-            diagnostics.append(
-                StructureDiagnostic(
-                    severity=DiagnosticSeverity.WARNING,
-                    layer=DiagnosticLayer.SCOPE,
-                    rule="genre.setup_contract.insufficient_runway",
-                    message=(
-                        f"The '{contract_snap.display_name}' genre contract requires a '{runway_val}' "
-                        f"emotional runway, but the story container length is '{length_val}'."
-                    ),
-                    evidence=[
-                        f"genre = {contract_snap.display_name}",
-                        f"emotional_runway = {runway_val}",
-                        f"length_class = {length_val}",
-                    ],
-                    repair_options=RepairOptions(
-                        preserve_intent=[
-                            "Increase story container length to a longer format (e.g., novel or novella) to give the emotional runway sufficient scene budget.",
-                            "Use compressed setup strategies to deliver the required emotional foundation in fewer scenes."
+            # Check for override
+            override = blueprint.identity.genre_overrides.get("emotional_runway")
+            if override is None:
+                # No override: raise standard warning with rich recommendation flow
+                rec_flow = {
+                    "selected_genre": contract_snap.genre_id.value if hasattr(contract_snap.genre_id, "value") else str(contract_snap.genre_id),
+                    "load_bearing_expectation": "emotional_runway_before_betrayal",
+                    "user_override": "remove_long_build_up",
+                    "auteur_diagnosis": "genre_contract_risk",
+                    "consequence": "Audience may not emotionally invest in the bond, weakening betrayal impact.",
+                    "options": {
+                        "preserve_genre": {
+                            "recommendation": "Use compressed emotional runway instead of deleting setup."
+                        },
+                        "subvert_genre": {
+                            "recommendation": "Make the suddenness itself the product: shock, destabilization, brutality."
+                        },
+                        "reclassify": {
+                            "recommendation": "Treat this as betrayal vignette / dark transgression rather than full netorare."
+                        },
+                        "override_anyway": {
+                            "recommendation": "Proceed, but mark genre confidence lower."
+                        }
+                    }
+                }
+                diagnostics.append(
+                    StructureDiagnostic(
+                        severity=DiagnosticSeverity.WARNING,
+                        layer=DiagnosticLayer.SCOPE,
+                        rule="genre.setup_contract.insufficient_runway",
+                        message=(
+                            f"The '{contract_snap.display_name}' genre contract requires a '{runway_val}' "
+                            f"emotional runway, but the story container length is '{length_val}'."
+                        ),
+                        evidence=[
+                            f"genre = {contract_snap.display_name}",
+                            f"emotional_runway = {runway_val}",
+                            f"length_class = {length_val}",
                         ],
-                        challenge_intent=[
-                            "Proceed with the short container but ensure maximum efficiency in establishing relationship/world baselines."
-                        ],
-                    ),
+                        repair_options=RepairOptions(
+                            preserve_intent=[
+                                "Increase story container length to a longer format (e.g., novel or novella) to give the emotional runway sufficient scene budget.",
+                                "Use compressed setup strategies to deliver the required emotional foundation in fewer scenes."
+                            ],
+                            challenge_intent=[
+                                "Proceed with the short container but ensure maximum efficiency in establishing relationship/world baselines."
+                            ],
+                        ),
+                        genre_recommendation_flow=rec_flow
+                    )
                 )
-            )
+            else:
+                # Override is present: suppress warning and output consequence warning/advice
+                from auteur.blueprint import OverrideType
+                if override.override_type in (OverrideType.SAFE_VARIATION, OverrideType.COMPRESSION):
+                    rule_suffix = "compressed"
+                    msg = (
+                        f"The '{contract_snap.display_name}' runway expectation is overridden via compression: "
+                        f"'{override.user_override}'. Use compressed setup strategies to deliver the "
+                        f"required emotional foundation in fewer scenes."
+                    )
+                    preserve = ["Establish the relationship through high-density scene work."]
+                elif override.override_type == OverrideType.SUBVERSION:
+                    rule_suffix = "subverted"
+                    msg = (
+                        f"The '{contract_snap.display_name}' runway expectation is overridden via subversion: "
+                        f"'{override.user_override}'. Make the suddenness itself the product: shock, "
+                        f"destabilization, or brutality."
+                    )
+                    preserve = ["Deliver alternative transgressive products to satisfy the audience."]
+                else: # RECLASSIFICATION
+                    rule_suffix = "reclassified"
+                    msg = (
+                        f"The '{contract_snap.display_name}' runway expectation is overridden via reclassification: "
+                        f"'{override.user_override}'. This breaks the standard Netorare contract."
+                    )
+                    preserve = [
+                        "Treat this as betrayal vignette, dark transgression, or corruption snapshot.",
+                        "Reclassify the story genre in the blueprint to a betrayal vignette / transgressive short."
+                    ]
+
+                diagnostics.append(
+                    StructureDiagnostic(
+                        severity=DiagnosticSeverity.WARNING,
+                        layer=DiagnosticLayer.SCOPE,
+                        rule=f"genre.setup_contract.insufficient_runway.{rule_suffix}",
+                        message=msg,
+                        evidence=[
+                            f"override_type = {override.override_type.value}",
+                            f"user_override = {override.user_override}",
+                        ],
+                        repair_options=RepairOptions(
+                            preserve_intent=preserve,
+                            challenge_intent=["Revert the override if you wish to write the standard runway."]
+                        )
+                    )
+                )
 
     return diagnostics
 

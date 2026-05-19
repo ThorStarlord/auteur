@@ -34,3 +34,5 @@ class StructureDiagnostic(BaseModel):
     message: str
     evidence: list[str] = Field(default_factory=list)
     repair_options: RepairOptions = Field(default_factory=RepairOptions)
+    genre_recommendation_flow: dict[str, object] | None = None
+
