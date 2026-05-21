@@ -21,19 +21,34 @@ from auteur.structure.bible_audit import (
 def run_all_diagnostics(
     blueprint: StoryBlueprint,
     bible: StoryBible,
+    *,
+    outline: dict | None = None,
 ) -> list[StructureDiagnostic]:
     """Run all active diagnostic rules across all layers.
 
     Currently runs:
-    - Layers 1-5: analyze_structure() for within-blueprint coherence
-    - Layer 6: audit_bible_locations() for carrier state consistency
+    - Layers 1-5: analyze_structure() for within-blueprint coherence (Structure Diagnostic)
+    - Layer 6: audit_bible_locations() for Bible Audit carrier state consistency
+    - Layer 7: audit_outline_carriers() for Scene Representation validation (requires outline)
+
+    Args:
+        blueprint: The StoryBlueprint to validate.
+        bible: The StoryBible event log to audit.
+        outline: Optional parsed outline dict (from load_outline). When None, a
+            Layer 7 WARNING is emitted noting that Scene Representation validation
+            was skipped.
 
     Returns a single merged list of StructureDiagnostic findings.
     """
+    from auteur.structure.outline_audit import audit_outline_carriers
+
     diagnostics: list[StructureDiagnostic] = []
     diagnostics.extend(analyze_structure(blueprint))
     diagnostics.extend(
         as_structure_diagnostic(d) for d in audit_bible_locations(bible)
+    )
+    diagnostics.extend(
+        as_structure_diagnostic(d) for d in audit_outline_carriers(outline, bible)
     )
     return diagnostics
 

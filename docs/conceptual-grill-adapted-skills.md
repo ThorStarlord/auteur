@@ -64,7 +64,28 @@ Ensure that all adapted skills respect creative authorial sovereignty. AI-assist
     1.  A standard `SKILL.md` file detailing Brain behaviors and prompt contracts.
     2.  Wiring into Auteur's test suite (`tests/`) where the programmatic commands (e.g., `auteur state check` and `auteur audit --repair`) are verified with unit and integration tests.
 *   **Status**: **Approved & Locked**
-*   **Evidence**: [AGENTS.md:L32-L34](file:///h:/GithubRepositories/auteur/AGENTS.md#L32-L34).
+*   **Evidence**: [AGENTS.md:L32-L34](file:///h:/GithubRepositories/auteur/AGENTS.md#L32-L34)
+
+### Question 8: When a user gets a "failed" diagnostic report on their blueprint.yaml, how does Auteur distinguish between a structural mistake and a deliberate creative choice?
+*   **Recommended Answer**: Auteur distinguishes between them by classifying violations into schema errors and coherence errors, then checking for explicit author overrides:
+    *   *Syntactic/Schema errors* (e.g. malformed YAML, invalid types) are always structural mistakes, validated via Pydantic; they cannot be bypassed and halt compilation.
+    *   *Coherence & Genre contract errors* (e.g. romance ending in a tragedy) are treated as structural mistakes *only if no override is declared*.
+    *   *If an override is declared* in the blueprint's `genre_overrides` mapping under `ProjectIdentity` (classified as `safe_variation`, `compression`, `subversion`, or `reclassification`), Auteur treats the violation as a deliberate creative choice. It suppresses the error/warning and emits tailored creative advice.
+*   **Status**: **Approved & Locked**
+*   **Evidence**: [docs/adr/010-genre-overrides-classification.md](file:///h:/GithubRepositories/auteur/docs/adr/010-genre-overrides-classification.md), [tests/test_genre_overrides.py](file:///h:/GithubRepositories/auteur/tests/test_genre_overrides.py)
+
+### Question 9: How does Auteur dynamically adapt its structural validation rules for a given story blueprint without hardcoding a massive, fragile mapping of specific genre rules in the Python code?
+*   **Recommended Answer**: Auteur decouples rule enforcement from rule definitions by storing genre and medium contracts declaratively in YAML registry files (e.g., `mystery.yaml`, `romance.yaml`). The python structure diagnostics engine (`auteur.structure.analyzer`) contains only generic, reusable validation checks that evaluate attributes of the loaded contract object (e.g., set containment, trope intersection, and ordinal runway-to-container math). This allows adding or changing genres without mutating code.
+*   **Status**: **Approved & Locked**
+*   **Evidence**: [src/auteur/genres/data/](file:///h:/GithubRepositories/auteur/src/auteur/genres/data/), [src/auteur/structure/analyzer.py](file:///h:/GithubRepositories/auteur/src/auteur/structure/analyzer.py)
+
+### Question 10: How does Auteur map a writer's fluid, creative, and qualitative intent (e.g., target experience feelings, themes, and emotional promises) into a rigid, parseable StoryBlueprint without over-constraining the writer or forcing formulaic structures?
+*   **Recommended Answer**: Auteur achieves this through:
+    *   *Layered Separation*: Segmenting qualitative creative fields (Layers 1 and 9) from the quantitative structure fields (Layers 2-7). Qualitative fields are typed and parsed for schema completeness, but their internal creative content is not audited for semantic "goodness".
+    *   *Deterministic Relational Heuristics*: Using vocabulary intersections (e.g., checking if thesis terms echo in thread thematic functions) and basic checks (e.g., ensuring wants don't duplicate transformation changes) to verify coherence without subjective bias.
+    *   *Hard vs. Soft Gates*: Restricting hard failures to logical inconsistencies (e.g. subplot budget, teleportation), while deferring qualitative reviews to interactive downstream critic checks that generate soft reports rather than blocking compilation.
+*   **Status**: **Approved & Locked**
+*   **Evidence**: [docs/opinionated-narrative-engine.md](file:///h:/GithubRepositories/auteur/docs/opinionated-narrative-engine.md), [src/auteur/structure/analyzer.py](file:///h:/GithubRepositories/auteur/src/auteur/structure/analyzer.py)
 
 ---
 

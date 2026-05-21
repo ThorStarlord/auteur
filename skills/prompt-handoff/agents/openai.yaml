@@ -1,0 +1,14 @@
+interface:
+  display_name: Prompt Handoff
+  short_description: convert artifacts into ready-to-copy prompts.
+  icon: 📦
+  color: green
+
+instructions: >
+  Follow the workflow and 8-section output format defined in SKILL.md. 
+  Ensure critical context is preserved for the next skill.
+  Focus on task clarity and stop conditions.
+
+tools:
+  - read_local_files
+  - search_local_files

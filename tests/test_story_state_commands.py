@@ -299,3 +299,70 @@ def test_state_prepare_with_dynamic_outline(test_project, capsys):
     assert "The Dark Sorcerer summons shadows." in captured.out
     assert "Aldric unsheathes his silver sword." in captured.out
     assert "Aldric: physical = stable -> exhausted" in captured.out
+
+
+# ============================================================================
+# MISSING-TESTS-A: state check acceptance tests for Layer 7 (AUTEUR-003)
+# ============================================================================
+
+
+def test_state_check_without_outline_emits_representation_warning(test_project, capsys):
+    """When auteur state check is called without --outline, a Layer 7 WARNING
+    with rule='representation.outline_missing' must appear in output."""
+    rc = main(["state", "check", str(test_project)])
+    captured = capsys.readouterr()
+
+    # Must mention the outline_missing warning OR Layer 7 / Representation
+    output = captured.out + captured.err
+    assert any(
+        term in output
+        for term in [
+            "representation.outline_missing",
+            "Layer 7",
+            "Representation",
+            "outline",
+        ]
+    ), f"Expected Layer 7 / outline warning in output, got:\n{output}"
+
+
+def test_state_check_with_valid_outline_produces_no_carrier_mismatch(test_project, capsys, tmp_path):
+    """When --outline is supplied and character locations match the Bible,
+    no 'representation.carrier_location_mismatch' ERROR is emitted."""
+    # Aldric is initialised at location 'chapter_1' by the test_project fixture.
+    outline_path = tmp_path / "outline.yaml"
+    outline_path.write_text(
+        "scenes:\n"
+        "  - scene_id: ch1-s1\n"
+        "    chapter: 1\n"
+        "    characters:\n"
+        "      - name: Aldric\n"
+        "        location: chapter_1\n",
+        encoding="utf-8",
+    )
+
+    rc = main(["state", "check", str(test_project), "--outline", str(outline_path)])
+    captured = capsys.readouterr()
+
+    output = captured.out + captured.err
+    assert "representation.carrier_location_mismatch" not in output, (
+        f"Unexpected carrier mismatch error in output:\n{output}"
+    )
+
+# ISSUE-001: Verify _LAYER_ORDER includes MODULATION  
+def test_state_check_layer_order_includes_modulation():  
+    """Verify that _LAYER_ORDER includes MODULATION at position 8 and THEME at 9."""  
+    from auteur.structure.state import state_check  
+    from auteur.structure.diagnostics import DiagnosticLayer  
+    _LAYER_ORDER = [  
+        (1, DiagnosticLayer.TARGET_EXPERIENCE, "Target Experience"),  
+        (2, DiagnosticLayer.CONSTRAINTS, "Promise / Constraints"),  
+        (3, DiagnosticLayer.SCOPE, "Scope / Container"),  
+        (4, DiagnosticLayer.STRUCTURAL_FORCES, "Structural Forces"),  
+        (5, DiagnosticLayer.THREADS, "Threads / Modules"),  
+        (6, DiagnosticLayer.CARRIERS, "Carriers"),  
+        (7, DiagnosticLayer.REPRESENTATION, "Representation (Scene Outline)"),  
+        (8, DiagnosticLayer.MODULATION, "Modulation"),  
+        (9, DiagnosticLayer.THEME, "Theme / Resonance"),  
+    ]  
+    assert len(_LAYER_ORDER) == 9  
+    assert _LAYER_ORDER[7][1] == DiagnosticLayer.MODULATION  

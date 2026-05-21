@@ -23,3 +23,7 @@ auteur = "auteur.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/auteur"]
+
+[tool.pytest.ini_options]
+addopts = "-q --tb=no"
+testpaths = ["tests"]

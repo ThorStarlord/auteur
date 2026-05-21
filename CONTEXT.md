@@ -79,8 +79,8 @@ _Avoid_: Subgenre contract, subgenre override.
 
 
 **Recommendation Mode**:
-The operating posture used when Auteur recommends a `StoryIdentity`. The default is `opinionated`: Auteur recommends one focused story engine. `open-ended` mode is an exploratory escape hatch.
-_Avoid_: Brainstorming, exploration mode.
+The operating posture used when Auteur recommends a `StoryIdentity`. The default is `opinionated`: Auteur recommends one focused story engine via the Genre-Aligned lens. `open-ended` mode generates multiple candidates each optimized through a different `BestBasis` lens (Genre-Aligned, Structurally Coherent, Faithful to Input, Emotionally Powerful). The CLI accepts `--recommend-mode open-ended` which normalizes to the enum value `"open_ended"`.
+_Avoid_: Brainstorming, exploration mode, recommendation flavor.
 
 **Best Basis**:
 The declared optimization lens used to decide why one `StoryIdentity` recommendation is considered best among alternatives.
@@ -89,6 +89,10 @@ _Avoid_: Reason, justification label.
 **Genre-Aligned Recommendation**:
 A recommendation whose primary justification is that it best satisfies the selected genre contract promise, core truth, and required tropes.
 _Avoid_: Default recommendation, generic recommendation.
+
+**GenreOverride**:
+A declared author override that explicitly bypasses a genre contract violation with a deliberate creative reason. Classified into four types: `safe_variation` (minor deviation within genre tolerance), `compression` (condensing expected runway), `subversion` (intentionally inverting a trope), and `reclassification` (redefining the genre fit entirely). Stored under `ProjectIdentity.genre_overrides`. Enforced by `genre.forbidden_mismatch.override_bypassed` and `genre.runway.override_bypassed` diagnostic rules.
+_Avoid_: Auto-override, LLM-injected override, silent bypass.
 
 **Repair Loop**:
 The retry-with-feedback process used when a generated `StoryIdentity` candidate fails deterministic validation. The LLM receives its previous output and the validation error messages, then corrects the content.
@@ -124,7 +128,7 @@ To ensure absolute architectural clarity, every layer is owned and validated by 
 | **Layer 4** | **Structural Forces** | `structural_forces` / `central_engine` | Core engine completion (want $\neq$ change) | `auteur identity validate` / `auteur structure diagnose` |
 | **Layer 5** | **Threads / Modules** | `threads` | Thread support functions & connections | `auteur structure diagnose` |
 | **Layer 6** | **Carriers** | `carriers` | Deterministic state transitions (location) | `auteur audit` |
-| **Layer 7** | **Representation** | `representation` | Chapter accept state logs vs. outline beats | `auteur audit` / Cartographer |
+| **Layer 7** | **Representation** | `representation` | Scene carrier validation via `state_check --outline`. Checks character locations in `outline.yaml` against last-known Bible carrier state. `outline_audit.py` | `auteur state check --outline` |
 | **Layer 8** | **Modulation** | `modulation` | Interactive prose quality & tone audits | Pipeline (Drafting Critics) |
 | **Layer 9** | **Resonance / Coherence** | `theme` (programmatic) | Whole-story thematic coverage check | `auteur structure diagnose` |
 

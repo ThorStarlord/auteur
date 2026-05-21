@@ -1,0 +1,3 @@
+---
+---
+# Missing all required sections

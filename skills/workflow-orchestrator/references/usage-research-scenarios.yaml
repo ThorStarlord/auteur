@@ -1,0 +1,11 @@
+scenarios:
+  - id: false-routing-product-vs-repo
+    purpose: Test whether product-sounding fog is correctly routed to repo/workflow sensemaking.
+    primary_risk: premature_domain_skill_handoff
+    expected_object_under_pressure:
+      - workflow-registry.yaml
+      - workflow selection boundary
+    required_artifacts:
+      - problem_frame
+      - unknowns_map
+      - usage_research_report

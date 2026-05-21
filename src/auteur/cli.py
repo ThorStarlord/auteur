@@ -944,10 +944,12 @@ def _parse_layers(spec: str) -> set[DiagnosticLayer]:
                 1: DiagnosticLayer.TARGET_EXPERIENCE,
                 2: DiagnosticLayer.CONSTRAINTS,
                 3: DiagnosticLayer.SCOPE,
-                4: DiagnosticLayer.CONSTRAINTS,
-                5: DiagnosticLayer.STRUCTURAL_FORCES,
+                4: DiagnosticLayer.STRUCTURAL_FORCES,
+                5: DiagnosticLayer.THREADS,
                 6: DiagnosticLayer.CARRIERS,
-                7: DiagnosticLayer.THEME,
+                7: DiagnosticLayer.REPRESENTATION,
+                8: DiagnosticLayer.MODULATION,
+                9: DiagnosticLayer.THEME,
             }
             return {v for k, v in layer_map.items() if start <= k <= end}
         except (ValueError, KeyError):

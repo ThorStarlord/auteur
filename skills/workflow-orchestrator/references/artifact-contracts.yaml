@@ -1,0 +1,542 @@
+# Artifact Contracts: Sensemaking Pipeline
+
+artifacts:
+  - id: user_intent
+    produced_by: orchestration-runner
+    consumed_by:
+      - problem-framer
+      - unknowns-mapper
+      - repo-sensemaker
+      - workflow-orchestrator
+      - docs-aligner
+      - to-prd
+      - to-issues
+      - triage
+      - handoff
+    required_sections:
+      - raw_intent
+      - scope_mode
+      - intent_source
+      - constraints
+      - non_goals
+      - machine_readable_intent
+    required_machine_fields:
+      - artifact_id
+      - intent_source
+      - scope_mode
+      - raw_problem_statement
+      - created_at
+      - immutable
+    verification:
+      generic_validator: "python scripts/validate-artifact.py user_intent {artifact_path}"
+      specialized_validators:
+        - "python scripts/validate-user-intent.py {artifact_path}"
+      required_for_modes:
+        - plan_only
+        - prompt_chain
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: user_intent_amendment
+    produced_by: orchestration-runner
+    consumed_by:
+      - workflow-orchestrator
+      - repo-sensemaker
+      - prompt-handoff
+    required_sections:
+      - clarification
+    required_machine_fields:
+      - artifact_id
+      - amends_intent_ref
+      - clarification_type
+      - requires_reroute
+      - created_at
+      - created_by
+    verification:
+      generic_validator: "python scripts/validate-artifact.py user_intent_amendment {artifact_path}"
+      specialized_validators:
+        - "python scripts/validate-user-intent-amendment.py {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: problem_frame
+    produced_by: problem-framer
+    consumed_by:
+      - unknowns-mapper
+      - repo-sensemaker
+    required_sections:
+      - raw_fog
+      - problem_under_the_problem
+      - object_under_pressure
+      - failure_mode
+      - success_condition
+      - what_must_be_true
+      - next_artifact
+    verification:
+      generic_validator: "python scripts/validate-artifact.py problem_frame {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: unknowns_map
+    produced_by: unknowns-mapper
+    consumed_by:
+      - repo-sensemaker
+      - prompt-handoff
+    required_sections:
+      - knowns
+      - unknowns
+      - assumptions
+      - risks
+      - research_paths
+      - stopping_rule
+    required_machine_fields:
+      - clarity_assessment
+      - unknowns_count
+      - assumptions_count
+      - research_needed
+    verification:
+      generic_validator: "python scripts/validate-artifact.py unknowns_map {artifact_path}"
+      specialized_validators:
+        - "python scripts/validate-unknowns-map.py {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: repository_sensemaking_brief
+    produced_by: repo-sensemaker
+    consumed_by:
+      - workflow-orchestrator
+      - prompt-handoff
+      - sensemaking-docs-reconciler
+    required_sections:
+      - repository_goal
+      - current_shape
+      - strong_signals
+      - missing_pieces
+      - improvement_opportunities
+      - weakest_boundary
+      - evidence
+      - evidence_excerpts
+      - why_this_boundary_matters
+      - candidate_next_steps
+      - recommended_next_step
+      - recommended_workflow
+      - machine_readable_handoff
+      - ready_to_copy_prompt
+    required_machine_fields:
+      - source_intent_ref
+      - recommended_workflow_id
+      - recommended_execution_mode
+      - weakest_boundary
+      - required_inputs
+      - user_implied_fog_type
+      - primary_fog_type
+      - diagnosis_conflict
+      - escalation_recommended
+    recommended_machine_fields:
+      - escalation_target
+      - escalation_reason
+      - auto_escalation_allowed
+    verification:
+      generic_validator: "python scripts/validate-artifact.py repository_sensemaking_brief {artifact_path}"
+      specialized_validators:
+        - "python scripts/validate-brief.py {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: discovery_findings
+    produced_by: discovery
+    consumed_by:
+      - opportunity-tree
+      - prompt-handoff
+    verification:
+      generic_validator: "python scripts/validate-artifact.py discovery_findings {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: domain_alignment_report
+    produced_by: docs-aligner
+    consumed_by:
+      - to-prd
+      - prompt-handoff
+    verification:
+      generic_validator: "python scripts/validate-artifact.py domain_alignment_report {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: prd
+    produced_by: to-prd
+    consumed_by:
+      - to-issues
+      - prompt-handoff
+    required_machine_fields:
+      - source_intent_ref
+      - user_goal_preserved_as
+      - scope_expansion_proposed
+      - scope_expansion_requires_approval
+    recommended_machine_fields:
+      - scope_expansion_status
+      - scope_expansion_details
+      - scope_expansion_approvals
+    verification:
+      generic_validator: "python scripts/validate-artifact.py prd {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: issue_list
+    produced_by: to-issues
+    consumed_by:
+      - triage
+    required_machine_fields:
+      - source_intent_ref
+      - user_goal_preserved_as
+      - scope_expansion_proposed
+      - scope_expansion_status
+    recommended_machine_fields:
+      - escalation_required
+      - escalation_reason
+      - escalation_options
+    verification:
+      generic_validator: "python scripts/validate-artifact.py issue_list {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: agent_brief
+    produced_by: triage
+    consumed_by:
+      - tdd
+    required_machine_fields:
+      - source_intent_ref
+    verification:
+      generic_validator: "python scripts/validate-artifact.py agent_brief {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: code_patch
+    produced_by: tdd
+    consumed_by:
+      - handoff
+    verification:
+      generic_validator: "python scripts/validate-artifact.py code_patch {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: session_summary
+    produced_by: handoff
+    consumed_by:
+      - workflow-orchestrator
+    required_machine_fields:
+      - source_intent_ref
+    verification:
+      generic_validator: "python scripts/validate-artifact.py session_summary {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: okr_list
+    produced_by: okr
+    consumed_by:
+      - roadmap
+    verification:
+      generic_validator: "python scripts/validate-artifact.py okr_list {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: roadmap
+    produced_by: roadmap
+    consumed_by:
+      - stakeholder-update
+      - prompt-handoff
+    verification:
+      generic_validator: "python scripts/validate-artifact.py roadmap {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: stakeholder_update
+    produced_by: stakeholder-update
+    consumed_by:
+      - workflow-orchestrator
+    verification:
+      generic_validator: "python scripts/validate-artifact.py stakeholder_update {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: business_canvas
+    produced_by: lean-canvas
+    consumed_by:
+      - product-manager
+    verification:
+      generic_validator: "python scripts/validate-artifact.py business_canvas {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: north_star_metric
+    produced_by: north-star
+    consumed_by:
+      - okr
+    verification:
+      generic_validator: "python scripts/validate-artifact.py north_star_metric {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: persona_definition
+    produced_by: persona
+    consumed_by:
+      - discovery
+      - customer-journey
+    verification:
+      generic_validator: "python scripts/validate-artifact.py persona_definition {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: synthesis_report
+    produced_by: interview-synthesis
+    consumed_by:
+      - opportunity-tree
+    verification:
+      generic_validator: "python scripts/validate-artifact.py synthesis_report {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: market_analysis
+    produced_by: competitive-analysis
+    consumed_by:
+      - pricing
+      - battlecard
+    verification:
+      generic_validator: "python scripts/validate-artifact.py market_analysis {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: opportunity_map
+    produced_by: opportunity-tree
+    consumed_by:
+      - hypothesis
+    verification:
+      generic_validator: "python scripts/validate-artifact.py opportunity_map {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: hypothesis_statement
+    produced_by: hypothesis
+    consumed_by:
+      - experiment-design
+      - prd
+    verification:
+      generic_validator: "python scripts/validate-artifact.py hypothesis_statement {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: journey_map
+    produced_by: customer-journey
+    consumed_by:
+      - product-manager
+    verification:
+      generic_validator: "python scripts/validate-artifact.py journey_map {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: story_list
+    produced_by: user-stories
+    consumed_by:
+      - acceptance-criteria
+      - prioritize
+    verification:
+      generic_validator: "python scripts/validate-artifact.py story_list {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: criteria_list
+    produced_by: acceptance-criteria
+    consumed_by:
+      - prompt-handoff
+    verification:
+      generic_validator: "python scripts/validate-artifact.py criteria_list {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: workflow_orchestration_plan
+    produced_by: workflow-orchestrator
+    consumed_by:
+      - user
+      - agents (autonomous_execution)
+    required_sections:
+      - brief_consumed
+      - chosen_workflow
+      - why_this_workflow
+      - skills_in_sequence
+      - inputs_and_outputs
+      - approval_gates
+      - stop_conditions
+      - execution_mode
+      - prompt_chain
+      - run_log_template
+      - machine_readable_plan
+    verification:
+      generic_validator: "python scripts/validate-artifact.py workflow_orchestration_plan {artifact_path}"
+      specialized_validators:
+        - "python scripts/validate-plan.py {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+    required_machine_fields:
+      - artifact_id
+      - source_intent_ref
+      - chosen_workflow_id
+      - execution_mode
+      - system_recommended_workflow
+      - selected_workflow
+      - routing_divergence
+      - routing_decision_method
+      - escalation_recommended
+      - auto_escalation_allowed
+      - scope_expansion_requires_approval
+      - status
+      - initial_inputs
+      - steps
+      - approval_gates
+      - gate_behavior
+      - stop_conditions
+      - subset_run
+      - subset_reason
+      - included_steps
+      - excluded_steps
+
+  - id: prompt_handoff
+    produced_by: 
+      - prompt-handoff
+      - handoff
+    consumed_by:
+      - external_agent
+    required_sections:
+      - target_skill
+      - context_to_preserve
+      - task
+      - constraints
+      - inputs
+      - expected_output
+      - stop_condition
+      - ready_to_copy_prompt
+    verification:
+      generic_validator: "python scripts/validate-artifact.py prompt_handoff {artifact_path}"
+      specialized_validators:
+        - "python scripts/validate-prompt-handoff.py {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: docs_contract_reconciliation_report
+    produced_by: sensemaking-docs-reconciler
+    consumed_by:
+      - prompt-handoff
+    required_sections:
+      - drift_diagnosis
+      - weakest_boundary
+      - missing_instructions
+      - missing_examples
+      - validator_blind_spots
+      - ambiguous_artifact_names
+      - drift_risks
+      - recommended_patches
+      - mismatches_found
+      - changes_required
+      - patches_proposed
+      - validation_result
+      - next_handoff
+    verification:
+      generic_validator: "python scripts/validate-artifact.py docs_contract_reconciliation_report {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: usage_research_report
+    produced_by: user
+    consumed_by:
+      - workflow-orchestrator
+    required_sections:
+      - scenario_tested
+      - expected_behavior
+      - actual_behavior
+      - what_worked
+      - friction_points
+      - handoff_quality
+      - routing_quality
+      - recommended_skill_edits
+      - next_test
+    verification:
+      generic_validator: "python scripts/validate-artifact.py usage_research_report {artifact_path}"
+      specialized_validators:
+        - "python scripts/validate-usage-research-report.py {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution
+
+  - id: skill_improvement_plan
+    produced_by: skill-maintainer
+    consumed_by:
+      - workflow-orchestrator
+    required_sections:
+      - diagnosis
+      - evidence
+      - proposed_edits
+      - impact_assessment
+      - verification_plan
+    verification:
+      generic_validator: "python scripts/validate-artifact.py skill_improvement_plan {artifact_path}"
+      specialized_validators:
+        - "python scripts/validate-skill-improvement-plan.py {artifact_path}"
+      required_for_modes:
+        - guided_execution
+        - autonomous_execution
+        - yolo_execution

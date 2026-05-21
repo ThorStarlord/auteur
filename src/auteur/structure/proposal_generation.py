@@ -426,6 +426,10 @@ def propose_repairs_from_audit_diagnostics(
     empty — authors edit a concrete repair into the proposal YAML.
 
     Sets ``source_domain='bible_audit'`` on every produced proposal.
+
+    Diagnostics with no ``repair_options`` (empty ``preserve_intent`` and
+    ``challenge_intent``) are informational warnings and are skipped — they
+    cannot produce a valid ``StructureProposal``.
     """
     proposals: list[StructureProposal] = []
     for idx, d in enumerate(diagnostics, start=1):
@@ -454,6 +458,10 @@ def propose_repairs_from_audit_diagnostics(
                     data={},
                 )
             )
+        # Skip informational diagnostics that have no repair options — they
+        # cannot produce a valid StructureProposal (options list must be non-empty).
+        if not options:
+            continue
         proposals.append(
             StructureProposal(
                 proposal_id=f"repair_{idx}_{d.rule.replace('.', '_')}",
@@ -465,4 +473,5 @@ def propose_repairs_from_audit_diagnostics(
             )
         )
     return proposals
+
 

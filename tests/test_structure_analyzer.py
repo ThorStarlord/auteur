@@ -1,7 +1,10 @@
 from pathlib import Path
 
+import pytest
+
+from auteur.bible import StoryBible
 from auteur.blueprint import StoryBlueprint
-from auteur.structure import DiagnosticLayer, DiagnosticSeverity, analyze_structure
+from auteur.structure import DiagnosticLayer, DiagnosticSeverity, analyze_structure, run_all_diagnostics
 
 
 SAMPLE_YAML = Path(__file__).parent.parent / "examples" / "sample_blueprint.yaml"
@@ -78,6 +81,35 @@ def _story_engine(
             }
         ],
     }
+
+
+# ============================================================================
+# AUTEUR-001: run_all_diagnostics signature backwards-compatibility
+# ============================================================================
+
+
+def test_run_all_diagnostics_accepts_optional_outline_kwarg(tmp_path):
+    """AUTEUR-001 RED: run_all_diagnostics must accept outline=None as a
+    keyword argument and produce the same result as the two-argument form."""
+    blueprint = StoryBlueprint.model_validate(_blueprint_data_with_story_engine())
+    bible_path = tmp_path / "bible.json"
+    bible = StoryBible(bible_path)
+
+    # Two-argument form (existing callers)
+    result_two_arg = run_all_diagnostics(blueprint, bible)
+
+    # Three-argument form with outline=None (new, backwards-compatible)
+    result_with_none = run_all_diagnostics(blueprint, bible, outline=None)
+
+    assert isinstance(result_with_none, list)
+    assert [(d.severity, d.layer, d.rule) for d in result_two_arg] == [
+        (d.severity, d.layer, d.rule) for d in result_with_none
+    ]
+
+
+# ============================================================================
+# Original tests (unchanged)
+# ============================================================================
 
 
 def test_analyzer_reports_missing_story_engine():

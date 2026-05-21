@@ -119,8 +119,23 @@ def parse_value(val_str: str) -> Any:
 # Programmatic state Commands Logic
 # ---------------------------------------------------------------------------
 
-def state_check(project_path: Path) -> int:
-    """Audit project blueprint and bible state consistency in one pass."""
+def state_check(project_path: Path, *, outline: dict | None = None) -> int:
+    """Run Structure Diagnostic and Bible Audit in one pass.
+
+    Runs:
+    - Layers 1-5 (Structure Diagnostic): within-blueprint coherence
+    - Layer 6 (Bible Audit): carrier-state lore drift across chapter events
+    - Layer 7 (Scene Representation): outline.yaml vs Bible carrier consistency
+      (only when ``outline`` is provided; emits a WARNING when None)
+
+    Args:
+        project_path: Root path of the Auteur project.
+        outline: Optional parsed outline dict (from load_outline). When None,
+            a Layer 7 WARNING is emitted noting Scene Representation was skipped.
+
+    Returns:
+        Exit code: 0 (clean), 4 (errors found).
+    """
     blueprint_path = project_path / "blueprint.yaml"
     bible_path = project_path / "bible.json"
 
@@ -141,7 +156,7 @@ def state_check(project_path: Path) -> int:
     from auteur.structure.proposal_resolution import load_resolved_rules
     resolved_rules = load_resolved_rules(project_path)
 
-    raw_diagnostics = run_all_diagnostics(blueprint, bible)
+    raw_diagnostics = run_all_diagnostics(blueprint, bible, outline=outline)
     diagnostics = [d for d in raw_diagnostics if d.rule not in resolved_rules]
 
     if not raw_diagnostics:
@@ -160,7 +175,9 @@ def state_check(project_path: Path) -> int:
         (4, DiagnosticLayer.STRUCTURAL_FORCES, "Structural Forces"),
         (5, DiagnosticLayer.THREADS, "Threads / Modules"),
         (6, DiagnosticLayer.CARRIERS, "Carriers"),
-        (7, DiagnosticLayer.THEME, "Theme / Resonance"),
+        (7, DiagnosticLayer.REPRESENTATION, "Representation (Scene Outline)"),
+        (8, DiagnosticLayer.MODULATION, "Modulation"),
+        (9, DiagnosticLayer.THEME, "Theme / Resonance"),
     ]
     groups = defaultdict(list)
     for d in diagnostics:

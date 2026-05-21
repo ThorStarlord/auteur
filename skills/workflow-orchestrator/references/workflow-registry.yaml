@@ -1,0 +1,803 @@
+workflows:
+  - id: fast-path-workflow
+    display_name: Fast Path - Diagnostic & Orchestration
+    purpose: Diagnose a repository and automatically invoke the recommended implementation workflow.
+    description: Use this when you have a clear repo goal. Analyzes the repository, produces a diagnostic brief, selects the best implementation workflow, and automatically invokes it. The orchestration-runner reads the orchestration-plan and chains to the implementation workflow without user intervention.
+    initial_inputs:
+      - id: user_intent
+        type: artifact
+        required: true
+        description: User's problem statement and scope mode (created by orchestration-runner)
+      - id: repository_state
+        type: external_context
+        required: true
+        description: Current repository files, folder structure, README, documentation, and git state.
+    allowed_execution_modes:
+      - plan_only
+      - prompt_chain
+      - guided_execution
+      - autonomous_execution
+    steps:
+      - id: 1
+        skill: repo-sensemaker
+        step_type: local_execution
+        gate: review_diagnosis
+        input_source: repository_state
+        output_artifact: repository_sensemaking_brief
+      - id: 2
+        skill: workflow-orchestrator
+        step_type: local_execution
+        gate: review_orchestration_plan
+        input_artifact: repository_sensemaking_brief
+        output_artifact: workflow_orchestration_plan
+    auto_invoke_next_workflow: true
+    auto_invoke_source: workflow_orchestration_plan.recommended_workflow_id
+
+  - id: full-fog-workflow
+    display_name: Full Fog Path - Comprehensive Sensemaking & Orchestration
+    purpose: Comprehensively analyze ambiguous projects from raw fog through diagnosis to automatic implementation workflow invocation.
+    description: Use this when the problem is vague or highly uncertain. Chains problem-framer → unknowns-mapper → repo-sensemaker → workflow-orchestrator with approval gates between steps. The orchestrator automatically invokes the recommended implementation workflow without user intervention.
+    initial_inputs:
+      - id: user_intent
+        type: artifact
+        required: true
+        description: User's problem statement and scope mode (created by orchestration-runner)
+      - id: raw_fog
+        type: external_context
+        required: true
+        description: Vague problem statement, project goals, team context, and current state of confusion.
+      - id: repository_state
+        type: external_context
+        required: true
+        description: Current repository files, folder structure, README, documentation, and git state.
+    allowed_execution_modes:
+      - plan_only
+      - prompt_chain
+      - guided_execution
+      - autonomous_execution
+    steps:
+      - id: 1
+        skill: problem-framer
+        step_type: local_execution
+        gate: review_problem_frame
+        input_source: raw_fog
+        output_artifact: problem_frame
+      - id: 2
+        skill: unknowns-mapper
+        step_type: local_execution
+        gate: review_unknowns_map
+        input_artifact: problem_frame
+        output_artifact: unknowns_map
+      - id: 3
+        skill: repo-sensemaker
+        step_type: local_execution
+        gate: review_diagnosis
+        input_source: repository_state
+        output_artifact: repository_sensemaking_brief
+      - id: 4
+        skill: workflow-orchestrator
+        step_type: local_execution
+        gate: review_orchestration_plan
+        input_artifact: repository_sensemaking_brief
+        output_artifact: workflow_orchestration_plan
+    auto_invoke_next_workflow: true
+    auto_invoke_source: workflow_orchestration_plan.recommended_workflow_id
+
+  - id: setup-sensemaking-repo
+    display_name: Setup Sensemaking Repo
+    purpose: Configure repository agent docs, artifact contracts, execution mode defaults, and downstream skill mappings.
+    initial_inputs:
+      - id: repository_state
+        type: external_context
+        required: true
+        description: Current repository files, registries, templates, validator scripts, and git state.
+    allowed_execution_modes:
+      - plan_only
+      - prompt_chain
+      - guided_execution
+    steps:
+      - id: 1
+        skill: setup-sensemaking-skills
+        step_type: local_execution
+        gate: review_setup_plan
+        input_source: repository_state
+      - id: 2
+        skill: repo-sensemaker
+        step_type: local_execution
+        gate: review_repo_brief
+        input_source: repository_state
+        output_artifact: repository_sensemaking_brief
+      - id: 3
+        skill: prompt-handoff
+        step_type: local_execution
+        gate: review_handoff_prompt
+        input_artifact: repository_sensemaking_brief
+        output_artifact: prompt_handoff
+
+  - id: docs-contract-reconciliation
+    display_name: Docs & Contract Reconciliation
+    purpose: Resolve drift between documentation, registries, artifact contracts, templates, and validator rules.
+    initial_inputs:
+      - id: repository_state
+        type: external_context
+        required: true
+        description: Current repository files, registries, templates, validator scripts, and git state.
+    allowed_execution_modes:
+      - plan_only
+      - prompt_chain
+      - guided_execution
+    steps:
+      - id: 1
+        skill: repo-sensemaker
+        step_type: local_execution
+        gate: review_drift_diagnosis
+        input_source: repository_state
+        output_artifact: repository_sensemaking_brief
+      - id: 2
+        skill: sensemaking-docs-reconciler
+        step_type: local_execution
+        gate: review_reconciliation_patch
+        input_artifact: repository_sensemaking_brief
+        output_artifact: docs_contract_reconciliation_report
+      - id: 3
+        skill: prompt-handoff
+        step_type: local_execution
+        gate: review_next_prompt
+        input_artifact: docs_contract_reconciliation_report
+        output_artifact: prompt_handoff
+
+  - id: autonomous-sprint-preflight
+    display_name: Autonomous Sprint Preflight
+    purpose: Verify that a repository is ready for Autonomous Sprint before selecting the sprint workflow.
+    initial_inputs:
+      - id: repository_state
+        type: external_context
+        required: true
+        description: Current repository files, registries, templates, validator scripts, and git state.
+    allowed_execution_modes:
+      - plan_only
+      - prompt_chain
+      - guided_execution
+    steps:
+      - id: 1
+        skill: repo-sensemaker
+        step_type: local_execution
+        gate: review_execution_readiness
+        input_source: repository_state
+        output_artifact: repository_sensemaking_brief
+      - id: 2
+        skill: prompt-handoff
+        step_type: local_execution
+        gate: review_sprint_prompt
+        input_artifact: repository_sensemaking_brief
+        output_artifact: prompt_handoff
+
+  - id: docs-architecture
+    display_name: Docs & Architecture Alignment
+    purpose: Align documentation with domain language and generate copy-paste prompts for implementation.
+    initial_inputs:
+      - id: repository_state
+        type: external_context
+        required: true
+        description: Current repository files, registries, templates, and contracts.
+    allowed_execution_modes:
+      - plan_only
+      - prompt_chain
+      - guided_execution
+    steps:
+      - id: 1
+        skill: docs-aligner
+        step_type: local_execution
+        gate: review_alignment_report
+        input_source: repository_state
+        output_artifact: domain_alignment_report
+      - id: 2
+        skill: handoff
+        step_type: local_execution
+        gate: review_handoff_prompt
+        input_artifact: domain_alignment_report
+        output_artifact: prompt_handoff
+
+  - id: product-to-issues
+    display_name: Product PRD & Implementation Issues
+    purpose: Transform domain alignment report into PRD, then into implementation issues and agent briefs.
+    initial_inputs:
+      - id: domain_alignment_report
+        type: artifact
+        required: true
+        description: Output from docs-architecture workflow (docs-aligner step).
+    allowed_execution_modes:
+      - guided_execution
+    steps:
+      - id: 1
+        skill: to-prd
+        step_type: local_execution
+        gate: review_prd
+        input_artifact: domain_alignment_report
+        output_artifact: prd
+      - id: 2
+        skill: to-issues
+        step_type: local_execution
+        gate: review_issues
+        input_artifact: prd
+        output_artifact: issue_list
+      - id: 3
+        skill: triage
+        step_type: local_execution
+        gate: review_agent_brief
+        input_artifact: issue_list
+        output_artifact: agent_brief
+
+  - id: product-discovery-sprint
+    display_name: Product Discovery Sprint
+    purpose: Move from vague product fog to a validated opportunity and testable hypothesis.
+    initial_inputs:
+      - id: repository_sensemaking_brief
+        type: artifact
+        required: true
+        description: A diagnostic brief defining the product fog and core objectives.
+    allowed_execution_modes:
+      - plan_only
+      - prompt_chain
+      - guided_execution
+    steps:
+      - id: 1
+        skill: persona
+        step_type: external_routing
+        gate: review_persona
+        input_artifact: repository_sensemaking_brief
+        output_artifact: persona_definition
+      - id: 2
+        skill: discovery
+        step_type: external_routing
+        gate: review_discovery
+        input_artifact: persona_definition
+        output_artifact: discovery_findings
+      - id: 3
+        skill: interview-synthesis
+        step_type: external_routing
+        gate: review_patterns
+        input_artifact: discovery_findings
+        output_artifact: synthesis_report
+      - id: 4
+        skill: opportunity-tree
+        step_type: external_routing
+        gate: review_opportunity_tree
+        input_artifact: synthesis_report
+        output_artifact: opportunity_map
+      - id: 5
+        skill: hypothesis
+        step_type: external_routing
+        gate: review_hypothesis
+        input_artifact: opportunity_map
+        output_artifact: hypothesis_statement
+
+  - id: product-strategy-sprint
+    display_name: Product Strategy Sprint
+    purpose: Translate a validated hypothesis into high-level roadmap and goal alignment.
+    initial_inputs:
+      - id: hypothesis_statement
+        type: artifact
+        required: true
+        description: A testable bet about the product.
+    allowed_execution_modes:
+      - plan_only
+      - prompt_chain
+      - guided_execution
+    steps:
+      - id: 1
+        skill: lean-canvas
+        step_type: external_routing
+        gate: review_canvas
+        input_artifact: hypothesis_statement
+        output_artifact: business_canvas
+      - id: 2
+        skill: north-star
+        step_type: external_routing
+        gate: review_metric
+        input_artifact: hypothesis_statement
+        output_artifact: north_star_metric
+      - id: 3
+        skill: okr
+        step_type: external_routing
+        gate: review_goals
+        input_artifact: hypothesis_statement
+        output_artifact: okr_list
+      - id: 4
+        skill: roadmap
+        step_type: external_routing
+        gate: review_roadmap
+        input_artifact: okr_list
+        output_artifact: roadmap
+      - id: 5
+        skill: stakeholder-update
+        step_type: external_routing
+        gate: review_stakeholder_update
+        input_artifact: roadmap
+        output_artifact: stakeholder_update
+
+  - id: product-autonomous-sprint
+    display_name: Product Autonomous Sprint (Drafting)
+    purpose: Generate a full proposed product artifact chain from product fog to implementation-ready handoff.
+    initial_inputs:
+      - id: repository_sensemaking_brief
+        type: artifact
+        required: true
+        description: A diagnostic brief defining the initial product fog.
+    allowed_execution_modes:
+      - plan_only
+      - prompt_chain
+      - guided_execution
+      - autonomous_execution
+    decision_policy:
+      business_decisions_are: proposed_until_approved
+    requires_run_log: true
+    steps:
+      - id: 1
+        skill: persona
+        step_type: local_execution
+        gate: review_persona
+        input_artifact: repository_sensemaking_brief
+        output_artifact: persona_definition
+      - id: 2
+        skill: discovery
+        step_type: local_execution
+        gate: review_discovery
+        input_artifact: persona_definition
+        output_artifact: discovery_findings
+      - id: 3
+        skill: opportunity-tree
+        step_type: local_execution
+        gate: review_opportunity_tree
+        input_artifact: discovery_findings
+        output_artifact: opportunity_map
+      - id: 4
+        skill: hypothesis
+        step_type: local_execution
+        gate: review_hypothesis
+        input_artifact: opportunity_map
+        output_artifact: hypothesis_statement
+      - id: 5
+        skill: prd
+        step_type: local_execution
+        gate: review_prd
+        input_artifact: hypothesis_statement
+        output_artifact: prd
+      - id: 6
+        skill: user-stories
+        step_type: local_execution
+        gate: review_user_stories
+        input_artifact: prd
+        output_artifact: story_list
+      - id: 7
+        skill: acceptance-criteria
+        step_type: local_execution
+        gate: review_acceptance_criteria
+        input_artifact: story_list
+        output_artifact: criteria_list
+      - id: 8
+        skill: handoff
+        step_type: local_execution
+        gate: review_handoff_prompt
+        input_artifact: criteria_list
+        output_artifact: prompt_handoff
+
+  - id: full-local-sensemaking
+    display_name: Full Local Sensemaking
+    purpose: Convert raw fog into a repository diagnosis and downstream handoff using only local executable skills.
+    initial_inputs:
+      - id: raw_fog
+        type: external_context
+        required: true
+        description: High-level project description, ambiguous ideas, or strategic goals.
+      - id: repository_state
+        type: external_context
+        required: true
+        description: Current repository files, registries, templates, validator scripts, and git state.
+    allowed_execution_modes:
+      - plan_only
+      - prompt_chain
+      - guided_execution
+      - autonomous_execution
+      - yolo_execution
+    requires_clean_worktree: true
+    requires_run_log: true
+    branch_policy:
+      required: true
+      pattern: "yolo/{workflow_id}/{timestamp}"
+    steps:
+      - id: 1
+        skill: problem-framer
+        step_type: local_execution
+        gate: review_problem_frame
+        input_source: raw_fog
+        output_artifact: problem_frame
+      - id: 2
+        skill: unknowns-mapper
+        step_type: local_execution
+        gate: review_unknowns_map
+        input_artifact: problem_frame
+        output_artifact: unknowns_map
+      - id: 3-conditional
+        skill: ~
+        conditional: true
+        decision_field: unknowns_map.research_needed
+        if_true:
+          skill: discovery
+          step_type: external_routing
+          gate: review_discovery
+          input_artifact: unknowns_map
+          output_artifact: discovery_findings
+          next_step: 4
+        if_false:
+          output_artifact: unknowns_map
+          next_step: 4
+        condition_rule: "If unknowns_map.research_needed == true, insert discovery (producing discovery_findings); else skip and pass through unknowns_map to repo-sensemaker"
+      - id: 4
+        skill: repo-sensemaker
+        step_type: local_execution
+        gate: review_sensemaking_brief
+        input_artifact: unknowns_map
+        input_source: repository_state
+        output_artifact: repository_sensemaking_brief
+      - id: 5
+        skill: handoff
+        step_type: local_execution
+        gate: review_final_prompt
+        input_artifact: repository_sensemaking_brief
+        output_artifact: prompt_handoff
+
+  - id: fast-local-diagnostic
+    display_name: Fast Local Diagnostic
+    purpose: Quickly identify the weakest boundary and produce a handoff prompt.
+    initial_inputs:
+      - id: repository_state
+        type: external_context
+        required: true
+        description: Current repository files, registries, templates, validator scripts, and git state.
+    allowed_execution_modes:
+      - plan_only
+      - prompt_chain
+      - guided_execution
+      - autonomous_execution
+      - yolo_execution
+    requires_run_log: true
+    branch_policy:
+      required: true
+      pattern: "yolo/{workflow_id}/{timestamp}"
+    steps:
+      - id: 1
+        skill: repo-sensemaker
+        step_type: local_execution
+        gate: review_sensemaking_brief
+        input_source: repository_state
+        output_artifact: repository_sensemaking_brief
+      - id: 2
+        skill: handoff
+        step_type: local_execution
+        gate: review_handoff_prompt
+        input_artifact: repository_sensemaking_brief
+        output_artifact: prompt_handoff
+
+  - id: experimental-autonomous-sprint
+    display_name: Autonomous Sprint (Experimental)
+    purpose: High-velocity execution using Matt Pocock skills.
+    initial_inputs:
+      - id: repository_state
+        type: external_context
+        required: true
+        description: Current repository files, registries, templates, validator scripts, and git state.
+    allowed_execution_modes:
+      - plan_only
+      - prompt_chain
+      - guided_execution
+      - autonomous_execution
+    steps:
+      - id: 1
+        skill: docs-aligner
+        step_type: local_execution
+        gate: review_domain_alignment
+        input_source: repository_state
+        output_artifact: domain_alignment_report
+      - id: 2
+        skill: to-prd
+        step_type: local_execution
+        gate: review_prd
+        input_artifact: domain_alignment_report
+        output_artifact: prd
+      - id: 3
+        skill: to-issues
+        step_type: local_execution
+        gate: review_issue_list
+        input_artifact: prd
+        output_artifact: issue_list
+      - id: 4
+        skill: triage
+        step_type: local_execution
+        gate: review_agent_briefs
+        input_artifact: issue_list
+        output_artifact: agent_brief
+      - id: 5
+        skill: tdd
+        step_type: local_execution
+        gate: verify_tests
+        input_artifact: agent_brief
+        output_artifact: code_patch
+      - id: 6
+        skill: handoff
+        step_type: local_execution
+        gate: session_close
+        input_artifact: code_patch
+        output_artifact: prompt_handoff
+
+  - id: skill-maintenance-loop
+    display_name: Skill Maintenance Loop
+    purpose: Translate usage research findings into auditable skill improvements.
+    initial_inputs:
+      - id: usage_research_report
+        type: artifact
+        required: true
+        description: A report detailing failure modes and friction points.
+      - id: repository_state
+        type: external_context
+        required: true
+    allowed_execution_modes:
+      - guided_execution
+    steps:
+      - id: 1
+        skill: skill-maintainer
+        step_type: local_execution
+        gate: review_improvement_plan
+        input_artifact: usage_research_report
+        input_source: repository_state
+        output_artifact: skill_improvement_plan
+      - id: 2
+        skill: handoff
+        step_type: local_execution
+        gate: final_review
+        input_artifact: skill_improvement_plan
+        output_artifact: prompt_handoff
+
+  - id: implementation-workflow
+    display_name: Implementation Workflow (Default)
+    purpose: Generic implementation workflow for architecture/code design problems. Aligns domain, creates spec, decomposes into issues, and implements via TDD.
+    initial_inputs:
+      - id: context_artifacts
+        type: artifact
+        required: true
+        description: Artifacts from sensemaking pipeline (problem-frame, unknowns-map, sensemaking-brief, orchestration-plan).
+    allowed_execution_modes:
+      - guided_execution
+      - autonomous_execution
+    requires_run_log: true
+    steps:
+      - id: 1
+        skill: docs-aligner
+        step_type: local_execution
+        gate: none
+        input_artifact: context_artifacts
+        output_artifact: domain_alignment_report
+        description: Domain alignment - refine understanding and create CONTEXT.md
+
+      - id: 2
+        skill: to-prd
+        step_type: local_execution
+        gate: none
+        input_artifact: domain_alignment_report
+        output_artifact: prd
+        description: Product requirements - synthesize into specification
+
+      - id: 3
+        skill: to-issues
+        step_type: local_execution
+        gate: none
+        input_artifact: prd
+        output_artifact: issue_list
+        description: Implementation decomposition - break into issues
+
+      - id: 4
+        skill: triage
+        step_type: local_execution
+        gate: none
+        input_artifact: issue_list
+        output_artifact: agent_brief
+        description: Issue preparation - create agent briefs
+
+      - id: 5
+        skill: tdd
+        step_type: local_execution
+        gate: none
+        input_artifact: agent_brief
+        output_artifact: code_patch
+        description: Implementation - execute TDD cycles
+
+      - id: 6
+        skill: handoff
+        step_type: local_execution
+        gate: session_close
+        input_artifact: code_patch
+        output_artifact: prompt_handoff
+        description: Completion summary - document session
+
+  - id: product-implementation-workflow
+    display_name: Product Implementation Workflow
+    purpose: For product/feature problems. Aligns domain, researches user needs, synthesizes opportunities, creates spec, and implements.
+    initial_inputs:
+      - id: context_artifacts
+        type: artifact
+        required: true
+        description: Artifacts from sensemaking pipeline (problem-frame, unknowns-map, sensemaking-brief, orchestration-plan).
+    allowed_execution_modes:
+      - guided_execution
+      - autonomous_execution
+    requires_run_log: true
+    steps:
+      - id: 1
+        skill: docs-aligner
+        step_type: local_execution
+        gate: none
+        input_artifact: context_artifacts
+        output_artifact: domain_alignment_report
+        description: Domain alignment - refine understanding and create CONTEXT.md
+
+      - id: 2
+        skill: discovery
+        step_type: local_execution
+        gate: none
+        input_artifact: domain_alignment_report
+        output_artifact: discovery_findings
+        description: User research - interview stakeholders and extract needs
+
+      - id: 3
+        skill: opportunity-tree
+        step_type: local_execution
+        gate: none
+        input_artifact: discovery_findings
+        output_artifact: opportunity_map
+        description: Opportunity mapping - connect problems to solutions
+
+      - id: 4
+        skill: to-prd
+        step_type: local_execution
+        gate: none
+        input_artifact: opportunity_map
+        output_artifact: prd
+        description: Product requirements - synthesize into specification
+
+      - id: 5
+        skill: to-issues
+        step_type: local_execution
+        gate: none
+        input_artifact: prd
+        output_artifact: issue_list
+        description: Implementation decomposition - break into issues
+
+      - id: 6
+        skill: triage
+        step_type: local_execution
+        gate: none
+        input_artifact: issue_list
+        output_artifact: agent_brief
+        description: Issue preparation - create agent briefs
+
+      - id: 7
+        skill: tdd
+        step_type: local_execution
+        gate: none
+        input_artifact: agent_brief
+        output_artifact: code_patch
+        description: Implementation - execute TDD cycles
+
+      - id: 8
+        skill: handoff
+        step_type: local_execution
+        gate: session_close
+        input_artifact: code_patch
+        output_artifact: prompt_handoff
+        description: Completion summary - document session
+
+  - id: ui-implementation-workflow
+    display_name: UI Implementation Workflow
+    purpose: For UI/frontend design problems. Aligns domain, specifies flows and screens, decomposes into issues, and implements via TDD.
+    initial_inputs:
+      - id: context_artifacts
+        type: artifact
+        required: true
+        description: Artifacts from sensemaking pipeline (problem-frame, unknowns-map, sensemaking-brief, orchestration-plan).
+    allowed_execution_modes:
+      - guided_execution
+      - autonomous_execution
+    requires_run_log: true
+    steps:
+      - id: 1
+        skill: docs-aligner
+        step_type: local_execution
+        gate: none
+        input_artifact: context_artifacts
+        output_artifact: domain_alignment_report
+        description: Domain alignment - refine understanding and create CONTEXT.md
+
+      - id: 2
+        skill: ui-flow
+        step_type: local_execution
+        gate: none
+        input_artifact: domain_alignment_report
+        output_artifact: ui_flows
+        description: UI flow specification - document user journeys and transitions
+
+      - id: 3
+        skill: ui-screen-spec
+        step_type: local_execution
+        gate: none
+        input_artifact: ui_flows
+        output_artifact: screen_specs
+        description: Screen specifications - detail each screen's content and interactions
+
+      - id: 4
+        skill: to-issues
+        step_type: local_execution
+        gate: none
+        input_artifact: screen_specs
+        output_artifact: issue_list
+        description: Implementation decomposition - break into issues
+
+      - id: 5
+        skill: triage
+        step_type: local_execution
+        gate: none
+        input_artifact: issue_list
+        output_artifact: agent_brief
+        description: Issue preparation - create agent briefs
+
+      - id: 6
+        skill: tdd
+        step_type: local_execution
+        gate: none
+        input_artifact: agent_brief
+        output_artifact: code_patch
+        description: Implementation - execute TDD cycles
+
+      - id: 7
+        skill: handoff
+        step_type: local_execution
+        gate: session_close
+        input_artifact: code_patch
+        output_artifact: prompt_handoff
+        description: Completion summary - document session
+
+  - id: docs-implementation-workflow
+    display_name: Documentation Implementation Workflow
+    purpose: For documentation/knowledge problems. Aligns domain understanding, creates documentation architecture, and generates docs.
+    initial_inputs:
+      - id: context_artifacts
+        type: artifact
+        required: true
+        description: Artifacts from sensemaking pipeline (problem-frame, unknowns-map, sensemaking-brief, orchestration-plan).
+    allowed_execution_modes:
+      - guided_execution
+      - autonomous_execution
+    requires_run_log: true
+    steps:
+      - id: 1
+        skill: docs-aligner
+        step_type: local_execution
+        gate: none
+        input_artifact: context_artifacts
+        output_artifact: domain_alignment_report
+        description: Domain alignment - refine understanding and create CONTEXT.md
+
+      - id: 2
+        skill: to-prd
+        step_type: local_execution
+        gate: none
+        input_artifact: domain_alignment_report
+        output_artifact: prd
+        description: Documentation specification - define structure and coverage
+
+      - id: 3
+        skill: handoff
+        step_type: local_execution
+        gate: session_close
+        input_artifact: prd
+        output_artifact: prompt_handoff
+        description: Completion summary - document session

@@ -1,0 +1,14 @@
+interface:
+  display_name: Unknowns Mapper
+  short_description: separate knowns, unknowns, and assumptions.
+  icon: 🗺️
+  color: orange
+
+instructions: >
+  Follow the workflow and 6-section output format defined in SKILL.md. 
+  Identify information gaps and research paths.
+  Do not perform the research yourself.
+
+tools:
+  - read_local_files
+  - search_local_files

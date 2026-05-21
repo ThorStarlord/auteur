@@ -51,3 +51,15 @@ def test_readme_documents_ci_standard_check_command() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
 
     assert "CI runs the same verification entrypoint: `python scripts/check.py`." in readme
+
+
+def test_regressions_yaml_exists() -> None:
+    """Check that REGRESSIONS.yaml exists in the test fixtures directory."""
+    regressions_path = ROOT / "tests" / "fixtures" / "REGRESSIONS.yaml"
+    assert regressions_path.exists(), "REGRESSIONS.yaml must exist for validator regression tracking"
+
+    import yaml
+    data = yaml.safe_load(regressions_path.read_bytes())
+    assert isinstance(data, dict), "REGRESSIONS.yaml must contain a mapping"
+    assert "excluded_validators" in data, "REGRESSIONS.yaml must have excluded_validators key"
+    assert "required_cases" in data, "REGRESSIONS.yaml must have required_cases key"

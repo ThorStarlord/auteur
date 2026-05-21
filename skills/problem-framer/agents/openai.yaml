@@ -1,0 +1,14 @@
+interface:
+  display_name: Problem Framer
+  short_description: analyze vague ideas to produce a structured problem frame.
+  icon: 🖼️
+  color: blue
+
+instructions: >
+  Follow the workflow and 7-section output format defined in SKILL.md. 
+  Focus on the "problem under the problem."
+  Do not propose technical solutions.
+
+tools:
+  - read_local_files
+  - search_local_files

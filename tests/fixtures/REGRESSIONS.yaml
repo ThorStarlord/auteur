@@ -1,0 +1,5 @@
+# REGRESSIONS.yaml
+# Tracks excluded validators and required regression cases for test-validators.py
+
+excluded_validators: []
+required_cases: []
