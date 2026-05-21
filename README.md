@@ -42,7 +42,7 @@ This repository currently contains a working Engine v1 CLI and Python library. I
 - Automatic rewrite attempts up to a configurable iteration cap.
 - Manual accept and retry flows.
 
-The implementation is still early. Cartographer outline validation exists as a deterministic local validator, but dedicated Pydantic outline models, transient API retry/backoff, and per-agent model routing are still incomplete.
+The implementation is still early. Cartographer outline validation exists as a deterministic local validator backed by dedicated Pydantic outline models (`CartographerOutline` in `src/auteur/cartographer_outline.py`). Transient API errors are handled by `RetryingClient` with exponential backoff. Per-agent model routing is configurable via blueprint-level `cartographer_model`, `bard_model`, and `critic_model` fields.
 
 ## Install
 

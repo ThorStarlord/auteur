@@ -30,7 +30,12 @@ def compile_outline(
     if llm is None:
         from auteur.llm.factory import build_client
         # Cartographer default
-        llm = build_client("anthropic", None)
+        _bp = None
+        try:
+            _bp = StoryBlueprint.from_yaml(blueprint_path)
+        except Exception:
+            pass
+        llm = build_client("anthropic", None, agent_type="cartographer", blueprint=_bp)
 
     compiled_chapters: list[dict[str, Any]] = []
 

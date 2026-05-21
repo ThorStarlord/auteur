@@ -71,7 +71,10 @@ def main(argv: list[str] | None = None) -> int:
     p_retry.add_argument("--provider", choices=["anthropic", "openai"], default="anthropic")
     p_retry.add_argument("--model", default=None)
 
-    p_audit = sub.add_parser("audit", help="Run Bible audit diagnostics to detect lore drift.")
+    p_audit = sub.add_parser(
+        "audit",
+        help="Run Bible Audit diagnostics to detect carrier-state lore drift across chapters (Layer 6).",
+    )
     p_audit.add_argument("project", type=Path)
     p_audit.add_argument("--repair", action="store_true", help="Write repair proposals to structure/proposals/.")
     p_audit.add_argument("--accept", default=None, help="Resolve a proposal by ID (requires --option).")
@@ -212,8 +215,25 @@ def main(argv: list[str] | None = None) -> int:
     p_state = sub.add_parser("state", help="Manage story state layers programmatically.")
     state_sub = p_state.add_subparsers(dest="state_command", required=True)
 
-    p_state_check = state_sub.add_parser("check", help="Unified dual audit of blueprint and bible state consistency.")
+    p_state_check = state_sub.add_parser(
+        "check",
+        help=(
+            "Run Structure Diagnostic (Layers 1-5, 9) and Bible Audit (Layer 6) "
+            "in one pass. Optionally validate Scene Representation (Layer 7) "
+            "against an outline.yaml with --outline."
+        ),
+    )
     p_state_check.add_argument("project", type=Path)
+    p_state_check.add_argument(
+        "--outline",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help=(
+            "Path to outline.yaml for Layer 7 (Scene Representation) carrier "
+            "validation. When omitted, a warning is emitted and Layer 7 is skipped."
+        ),
+    )
 
     p_state_update = state_sub.add_parser("update", help="Safe, transactional update of project files.")
     p_state_update.add_argument("project", type=Path)
@@ -331,6 +351,20 @@ def main(argv: list[str] | None = None) -> int:
             state_confirm,
         )
         if args.state_command == "check":
+            outline_path: Path | None = getattr(args, "outline", None)
+            if outline_path is not None:
+                if not outline_path.exists():
+                    import sys as _sys
+                    print(f"Error: Outline file not found: {outline_path}", file=_sys.stderr)
+                    return 1
+                from auteur.structure.outline_audit import load_outline
+                try:
+                    outline = load_outline(str(outline_path))
+                except ValueError as exc:
+                    import sys as _sys
+                    print(f"Error: {exc}", file=_sys.stderr)
+                    return 1
+                return state_check(args.project, outline=outline)
             return state_check(args.project)
         if args.state_command == "update":
             return state_update(args.project, args.file, args.key, args.val)
@@ -618,7 +652,7 @@ def _cmd_draft(
 ) -> int:
     project = Project.load(project_path)
     from auteur.llm.factory import build_client
-    client = build_client(provider, model)
+    client = build_client(provider, model, agent_type="bard", blueprint=project.blueprint)
     runner = PipelineRunner(project.blueprint, bible=project.bible)
 
     def _progress(i: int, report: Any) -> None:
@@ -823,7 +857,7 @@ def _cmd_retry(
         return 1
 
     from auteur.llm.factory import build_client
-    client = build_client(provider, model)
+    client = build_client(provider, model, agent_type="bard", blueprint=project.blueprint)
     runner = PipelineRunner(project.blueprint, bible=project.bible)
 
     def _progress(i: int, report: Any) -> None:
@@ -1554,8 +1588,15 @@ def _cmd_cartographer_compile(
     try:
         from auteur.llm.factory import build_client
         from auteur.cartographer_compiler import compile_outline
+        from auteur.blueprint import StoryBlueprint
         
-        llm = build_client(provider, model)
+        # Try to load blueprint for per-agent model routing
+        _bp = None
+        try:
+            _bp = StoryBlueprint.from_yaml(blueprint_path)
+        except Exception:
+            pass
+        llm = build_client(provider, model, agent_type="cartographer", blueprint=_bp)
         project_path = blueprint_path.parent
         compile_outline(
             project_path=project_path,

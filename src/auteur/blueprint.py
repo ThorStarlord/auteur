@@ -680,6 +680,20 @@ class StoryBlueprint(BaseModel):
     tension_waveform: TensionWaveform = Field(default_factory=TensionWaveform)
     theme: ThematicCore
 
+    # -- Per-agent LLM model routing -------------------------------------
+    cartographer_model: str | None = Field(
+        default=None,
+        description="Optional model override for Cartographer. Falls back to CLI/global model."
+    )
+    bard_model: str | None = Field(
+        default=None,
+        description="Optional model override for Bard (drafting). Falls back to CLI/global model."
+    )
+    critic_model: str | None = Field(
+        default=None,
+        description="Optional model override for all Critics. Falls back to CLI/global model."
+    )
+
     @model_validator(mode="after")
     def _apply_and_validate(self) -> Self:
         self.structure.fill_defaults_from(self.identity.length_class)
