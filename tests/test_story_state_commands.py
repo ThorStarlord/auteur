@@ -366,3 +366,35 @@ def test_state_check_layer_order_includes_modulation():
     ]  
     assert len(_LAYER_ORDER) == 9  
     assert _LAYER_ORDER[7][1] == DiagnosticLayer.MODULATION  
+
+
+def test_bible_audit_diagnostic_is_pydantic_base_model() -> None:
+    """BibleAuditDiagnostic should be a Pydantic BaseModel."""
+    from pydantic import BaseModel
+    from auteur.structure.bible_audit import BibleAuditDiagnostic
+
+    assert issubclass(BibleAuditDiagnostic, BaseModel), "BibleAuditDiagnostic should be a BaseModel"
+    assert hasattr(BibleAuditDiagnostic, "model_fields"), "BibleAuditDiagnostic should have model_fields"
+
+    fields = BibleAuditDiagnostic.model_fields
+    assert "severity" in fields
+    assert "layer" in fields
+    assert "rule" in fields
+    assert "message" in fields
+    assert "evidence" in fields
+    assert "repair_options" in fields
+    assert "genre_recommendation_flow" in fields
+
+    from auteur.structure.diagnostics import DiagnosticSeverity, DiagnosticLayer
+    diag = BibleAuditDiagnostic(
+        severity=DiagnosticSeverity.ERROR,
+        layer=DiagnosticLayer.CARRIERS,
+        rule="test.rule",
+        message="Test message",
+    )
+    assert diag.severity == DiagnosticSeverity.ERROR
+    assert diag.layer == DiagnosticLayer.CARRIERS
+    assert diag.rule == "test.rule"
+    assert diag.message == "Test message"
+    assert diag.evidence == []
+    assert diag.genre_recommendation_flow is None

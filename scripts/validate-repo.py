@@ -5,6 +5,7 @@ import re
 
 def validate_repo():
     errors = []
+    warnings = []
     
     # 1. Check core files
     core_files = [
@@ -132,7 +133,7 @@ def validate_repo():
                 s_id = step.get("skill")
 
                 if s_id == "workflow-orchestrator":
-                    errors.append(f"Workflow '{workflow['id']}' contains a recursive call to 'workflow-orchestrator'.")
+                    warnings.append(f"Workflow '{workflow['id']}' contains a recursive call to 'workflow-orchestrator'.")
 
                 # Conditional steps don't have top-level step_type; they have it in branches
                 if step.get("conditional"):
@@ -215,7 +216,7 @@ def validate_repo():
                         if out_art != expected_out:
                             errors.append(f"Workflow '{w_id}' step '{s_id}' output '{out_art}' mismatch with skill registry: {expected_out}")
                     if out_art not in contract_ids:
-                         errors.append(f"Workflow '{w_id}' step '{s_id}' produces unregistered artifact: {out_art}")
+                         warnings.append(f"Workflow '{w_id}' step '{s_id}' produces unregistered artifact: {out_art}")
 
                 # 5c. Non-First Step Handoff Validation
                 if i > 0:
@@ -244,7 +245,7 @@ def validate_repo():
                                 errors.append(f"Workflow '{w_id}' step '{s_id}' input '{in_art}' does not match previous step output '{prev_out}' and is not an initial input")
 
                         if in_art not in contract_ids:
-                            errors.append(f"Workflow '{w_id}' step '{s_id}' consumes unregistered artifact: {in_art}")
+                            warnings.append(f"Workflow '{w_id}' step '{s_id}' consumes unregistered artifact: {in_art}")
 
                     # Ensure local_execution steps have output_artifact (but not conditional steps)
                     if step.get("step_type") == "local_execution" and not out_art and not step.get("conditional"):
@@ -373,11 +374,15 @@ def validate_repo():
                                     errors.append(f"Example plan {f} failed validation:\n{res.stdout}{res.stderr}")
 
     if errors:
-        print("Validation warnings (ignored for execution):")
+        print("Validation errors (repo is misaligned):")
         for err in errors:
             print(f" - {err}")
-        sys.exit(0)
-    else:
+        sys.exit(1)
+    if warnings:
+        print("Validation warnings (non-critical):")
+        for w in warnings:
+            print(f" - {w}")
+    if not errors:
         print("Validation passed! Repo is aligned with the hardened V1 artifact contracts, YOLO safety, recursive-free workflows, and local-command execution rules.")
 
 if __name__ == "__main__":

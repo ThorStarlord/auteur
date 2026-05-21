@@ -15,6 +15,8 @@ public exports.
 
 from __future__ import annotations
 
+from pydantic import BaseModel, Field
+
 from auteur.bible import StoryBible
 from auteur.structure.diagnostics import (
     DiagnosticLayer,
@@ -23,7 +25,7 @@ from auteur.structure.diagnostics import (
 )
 
 
-class BibleAuditDiagnostic:
+class BibleAuditDiagnostic(BaseModel):
     """A single finding from a Bible audit pass.
 
     Follows the same shape as StructureDiagnostic but targets carrier-level
@@ -31,22 +33,13 @@ class BibleAuditDiagnostic:
     within-blueprint coherence.
     """
 
-    def __init__(
-        self,
-        *,
-        severity: DiagnosticSeverity,
-        layer: DiagnosticLayer,
-        rule: str,
-        message: str,
-        evidence: list[str] | None = None,
-        repair_options: RepairOptions | None = None,
-    ) -> None:
-        self.severity = severity
-        self.layer = layer
-        self.rule = rule
-        self.message = message
-        self.evidence = evidence or []
-        self.repair_options = repair_options or RepairOptions()
+    severity: DiagnosticSeverity
+    layer: DiagnosticLayer
+    rule: str
+    message: str
+    evidence: list[str] = Field(default_factory=list)
+    repair_options: RepairOptions = Field(default_factory=RepairOptions)
+    genre_recommendation_flow: dict[str, object] | None = None
 
 
 def audit_bible_locations(bible: StoryBible) -> list[BibleAuditDiagnostic]:
