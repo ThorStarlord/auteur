@@ -184,3 +184,82 @@ def test_required_trope_override():
     assert d.severity == DiagnosticSeverity.WARNING
     assert d.layer == DiagnosticLayer.CONSTRAINTS
     assert "forbidden but overridden via reclassification" in d.message
+
+def test_ending_tone_override_safe_variation():
+    # Romance contract forbids tragic endings, but override allows it via safe_variation
+    data = _blueprint_data_with_story_engine()
+    data["identity"]["genre"] = "romance"
+    data["contract"]["mandatory_ending_tone"] = "tragic"
+    data["identity"]["genre_overrides"] = {
+        "ending_tone": {
+            "load_bearing_expectation": "ending_tone",
+            "user_override": "a bittersweet ending leaning towards tragic",
+            "override_type": "safe_variation",
+            "rationale": "Slight deviation but still romantic"
+        }
+    }
+
+    blueprint = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_structure(blueprint)
+
+    # Error should be suppressed
+    errors = [d for d in diagnostics if d.rule == "genre.forbidden_mismatch.ending_tone"]
+    assert len(errors) == 0
+
+    # Advice diagnostic warning should exist
+    override_diagnostics = [d for d in diagnostics if d.rule == "genre.forbidden_mismatch.ending_tone.safe_variation"]
+    assert len(override_diagnostics) == 1
+
+    d = override_diagnostics[0]
+    assert d.severity == DiagnosticSeverity.WARNING
+    assert d.layer == DiagnosticLayer.CONSTRAINTS
+    assert "overridden via safe_variation" in d.message
+
+def test_missing_override_emits_error():
+    # Romance contract forbids tragic endings. Missing override should emit error.
+    data = _blueprint_data_with_story_engine()
+    data["identity"]["genre"] = "romance"
+    data["contract"]["mandatory_ending_tone"] = "tragic"
+    # No genre_overrides specified
+
+    blueprint = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_structure(blueprint)
+
+    errors = [d for d in diagnostics if d.rule == "genre.forbidden_mismatch.ending_tone"]
+    assert len(errors) == 1
+
+    d = errors[0]
+    assert d.severity == DiagnosticSeverity.ERROR
+    assert d.layer == DiagnosticLayer.CONSTRAINTS
+    assert "is forbidden by the" in d.message
+
+def test_declared_override_downgrades_error():
+    # Romance contract forbids tragic endings, but a declared override suppresses the error and leaves a warning.
+    data = _blueprint_data_with_story_engine()
+    data["identity"]["genre"] = "romance"
+    data["contract"]["mandatory_ending_tone"] = "tragic"
+    data["identity"]["genre_overrides"] = {
+        "ending_tone": {
+            "load_bearing_expectation": "ending_tone",
+            "user_override": "dark ending for a horror romance",
+            "override_type": "reclassification",
+            "rationale": "It's horror"
+        }
+    }
+
+    blueprint = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_structure(blueprint)
+
+    # Original error is missing
+    errors = [d for d in diagnostics if d.rule == "genre.forbidden_mismatch.ending_tone"]
+    assert len(errors) == 0
+
+    # Warning remains
+    warnings = [d for d in diagnostics if d.rule == "genre.forbidden_mismatch.ending_tone.reclassification"]
+    assert len(warnings) == 1
+
+    d = warnings[0]
+    assert d.severity == DiagnosticSeverity.WARNING
+    assert d.layer == DiagnosticLayer.CONSTRAINTS
+    assert "overridden via reclassification" in d.message
+    assert "dark ending for a horror romance" in d.message

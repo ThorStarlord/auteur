@@ -91,7 +91,10 @@ A recommendation whose primary justification is that it best satisfies the selec
 _Avoid_: Default recommendation, generic recommendation.
 
 **GenreOverride**:
-A declared author override that explicitly bypasses a genre contract violation with a deliberate creative reason. Classified into four types: `safe_variation` (minor deviation within genre tolerance), `compression` (condensing expected runway), `subversion` (intentionally inverting a trope), and `reclassification` (redefining the genre fit entirely). Stored under `ProjectIdentity.genre_overrides`. Enforced by `genre.forbidden_mismatch.override_bypassed` and `genre.runway.override_bypassed` diagnostic rules.
+A declared author override that explicitly bypasses a genre contract violation with a deliberate creative reason. Classified into four types: `safe_variation` (minor deviation within genre tolerance), `compression` (condensing expected runway), `subversion` (intentionally inverting a trope), and `reclassification` (redefining the genre fit entirely). Stored under `ProjectIdentity.genre_overrides`.
+
+Enforced by generic rule categories `genre.forbidden_mismatch.override_bypassed` and `genre.runway.override_bypassed`. Note that these generic IDs are glossary categories; the actual rule IDs emitted by the analyzer carry specific suffixes (e.g., `genre.forbidden_mismatch.ending_tone.{override_type}`).
+
 _Avoid_: Auto-override, LLM-injected override, silent bypass.
 
 **Repair Loop**:

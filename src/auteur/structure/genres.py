@@ -16,12 +16,22 @@ from __future__ import annotations
 from auteur.blueprint import GenreOverride, OverrideType  # noqa: F401
 
 # Rule ID prefixes referenced in CONTEXT.md glossary.
-# The full rule IDs produced by analyze_structure() append the override type
-# as a suffix:
-#   genre.forbidden_mismatch.ending_tone.{override_type.value}
-#   genre.setup_contract.insufficient_runway.{override_type.value}
+# The "override_bypassed" constants are glossary categories representing a family
+# of analyzer rules, rather than the exact emitted string. The actual rule IDs
+# produced by analyze_structure() append specific constraint types and override
+# types as suffixes.
 #
-# The "override_bypassed" form is shorthand for any of these suffixes.
+# Glossary Rule Category mapping to Emitted Analyzer Rules:
+#
+# | Glossary Rule Category                       | Emitted Analyzer Rules Examples                                      |
+# |----------------------------------------------|----------------------------------------------------------------------|
+# | genre.forbidden_mismatch.override_bypassed | Maps to ending-tone and required-trope override warnings, e.g.:      |
+# |                                              | - genre.forbidden_mismatch.ending_tone.subversion                    |
+# |                                              | - genre.forbidden_mismatch.required_trope_forbidden.reclassification |
+# | genre.runway.override_bypassed               | Maps to runway override warnings, e.g.:                              |
+# |                                              | - genre.setup_contract.insufficient_runway.compressed                |
+# |                                              | - genre.setup_contract.insufficient_runway.subverted                 |
+# |                                              | - genre.setup_contract.insufficient_runway.reclassified              |
 
 FORBIDDEN_MISMATCH_OVERRIDE_BYPASSED = "genre.forbidden_mismatch.override_bypassed"
 RUNWAY_OVERRIDE_BYPASSED = "genre.runway.override_bypassed"
