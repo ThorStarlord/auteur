@@ -423,3 +423,20 @@ def test_detects_teleportation_per_character_independently(tmp_path):
     assert "Dungeon" in aldr_diags[0].message
     assert "Tavern" in mara_diags[0].message
     assert "Forest" in mara_diags[0].message
+
+def test_as_structure_diagnostic_preserves_genre_recommendation_flow():
+    from auteur.structure.bible_audit import BibleAuditDiagnostic, as_structure_diagnostic
+    from auteur.structure.diagnostics import DiagnosticSeverity, DiagnosticLayer
+
+    source = BibleAuditDiagnostic(
+        severity=DiagnosticSeverity.ERROR,
+        layer=DiagnosticLayer.CARRIERS,
+        rule="test_rule",
+        message="test_message",
+        genre_recommendation_flow={"test_key": "test_value"}
+    )
+
+    converted = as_structure_diagnostic(source)
+
+    assert converted.genre_recommendation_flow == source.genre_recommendation_flow
+    assert converted.genre_recommendation_flow == {"test_key": "test_value"}
