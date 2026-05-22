@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python ≥3.11, Pydantic v2, PyYAML, pytest, anthropic SDK, openai SDK, `concurrent.futures` for parallel critics.
 
-**Spec reference:** `docs/superpowers/specs/2026-05-07-auteur-engine-v1-design.md`
+**Spec reference:** `docs/archived/superpowers/specs/2026-05-07-auteur-engine-v1-design.md`
 
 ---
 

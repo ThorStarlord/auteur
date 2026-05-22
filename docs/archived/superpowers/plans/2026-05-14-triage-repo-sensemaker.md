@@ -1,6 +1,6 @@
 # Triage Output: Repo Sensemaker Slices
 
-Source: docs/superpowers/plans/2026-05-14-to-issues-repo-sensemaker.md
+Source: docs/archived/superpowers/plans/2026-05-14-to-issues-repo-sensemaker.md
 Mode: local triage (no issue tracker publication)
 
 ## Role Mapping

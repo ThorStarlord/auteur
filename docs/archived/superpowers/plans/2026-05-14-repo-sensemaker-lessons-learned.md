@@ -158,15 +158,15 @@ Read pyproject.toml
 
 I’m now executing prompts 1–4 as repository artifacts: a self-answered grill-with-docs decision chain, then PRD, then local issue slices (without GitHub publication), then triage outcomes. After that I’ll start prompt 5 with RED tests for the top AFK issue.
 
-Created docs/superpowers/plans/2026-05-14-grill-with-docs-repo-sensemaker.md
+Created docs/archived/superpowers/plans/2026-05-14-grill-with-docs-repo-sensemaker.md
 
 Created docs/prd-repo-sensemaker-research-test.md
 
-Created docs/superpowers/plans/2026-05-14-to-issues-repo-sensemaker.md
+Created docs/archived/superpowers/plans/2026-05-14-to-issues-repo-sensemaker.md
 
 Prompts 1–3 are now materialized in-repo. Next I’m running prompt 4 by triaging these local slices into explicit category/state decisions, then I’ll immediately begin prompt 5 with TDD on Slice 1 and Slice 2 before Slice 3.
 
-Created docs/superpowers/plans/2026-05-14-triage-repo-sensemaker.md
+Created docs/archived/superpowers/plans/2026-05-14-triage-repo-sensemaker.md
 
 I’m starting prompt 5 now with strict RED→GREEN→REFACTOR cycles in priority order: first a failing test for Slice 1 (README contract), then fix README, then repeat for Slice 2 (reference docs), then Slice 3 (deterministic validator + tests). I’ll run real pytest commands between each cycle.
 

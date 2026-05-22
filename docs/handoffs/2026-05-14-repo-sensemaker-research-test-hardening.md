@@ -21,11 +21,11 @@ Note: no new git commit was created in this session; changes are currently uncom
 ## Files Modified/Created
 
 - **README.md**: removed stale status claim that structure CLI/proposal artifacts are missing.
-- **docs/superpowers/plans/2026-05-14-grill-with-docs-repo-sensemaker.md**: autonomous grill-with-docs Q/A output and approved goal extraction.
-- **docs/superpowers/plans/2026-05-14-repo-sensemaker-lessons-learned.md**: retrospective on repo-sensemaker workflow usage, missing dependencies, and repeatable recommendations.
+- **docs/archived/superpowers/plans/2026-05-14-grill-with-docs-repo-sensemaker.md**: autonomous grill-with-docs Q/A output and approved goal extraction.
+- **docs/archived/superpowers/plans/2026-05-14-repo-sensemaker-lessons-learned.md**: retrospective on repo-sensemaker workflow usage, missing dependencies, and repeatable recommendations.
 - **docs/prd-repo-sensemaker-research-test.md**: approved PRD synthesized from grill output.
-- **docs/superpowers/plans/2026-05-14-to-issues-repo-sensemaker.md**: local issue slices with dependencies and acceptance criteria.
-- **docs/superpowers/plans/2026-05-14-triage-repo-sensemaker.md**: triage outcomes with category/state role recommendations.
+- **docs/archived/superpowers/plans/2026-05-14-to-issues-repo-sensemaker.md**: local issue slices with dependencies and acceptance criteria.
+- **docs/archived/superpowers/plans/2026-05-14-triage-repo-sensemaker.md**: triage outcomes with category/state role recommendations.
 - **docs/references/repo-analysis-template.md**: repository sensemaking brief template reference.
 - **docs/references/weakness-types.md**: weakest-boundary weakness taxonomy reference.
 - **docs/references/evidence-rules.md**: evidence rigor rules for sensemaking outputs.

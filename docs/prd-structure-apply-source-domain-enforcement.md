@@ -2,7 +2,7 @@
 
 Status: Approved
 Date: 2026-05-13
-Source: docs/superpowers/specs/2026-05-13-structure-apply-source-domain-grill.md
+Source: docs/archived/superpowers/specs/2026-05-13-structure-apply-source-domain-grill.md
 
 ## Problem Statement
 

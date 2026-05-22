@@ -20,11 +20,11 @@ next_task: Commit and publish enforcement slice
 
 **tests/test_structure_workflow_fixture.py** — Added `test_structure_apply_rejects_bible_audit_proposal` asserting command failure, guidance in stderr, and source blueprint immutability.
 
-**docs/superpowers/specs/2026-05-13-structure-apply-source-domain-grill.md** *(new)* — Self-answered grill-with-docs output capturing boundary decisions for this slice.
+**docs/archived/superpowers/specs/2026-05-13-structure-apply-source-domain-grill.md** *(new)* — Self-answered grill-with-docs output capturing boundary decisions for this slice.
 
 **docs/prd-structure-apply-source-domain-enforcement.md** *(new)* — Approved PRD for enforcing command ownership in `auteur structure apply`.
 
-**docs/superpowers/plans/2026-05-13-source-domain-enforcement-issues.md** *(new)* — Local tracer-bullet issue breakdown (publication skipped by request).
+**docs/archived/superpowers/plans/2026-05-13-source-domain-enforcement-issues.md** *(new)* — Local tracer-bullet issue breakdown (publication skipped by request).
 
 ## Verification
 
@@ -63,7 +63,7 @@ Global status: **GREEN**.
 
 ## Frontier
 
-Commit the enforcement slice and docs artifacts. Stage `src/auteur/cli.py`, `tests/test_structure_workflow_fixture.py`, `docs/prd-structure-apply-source-domain-enforcement.md`, `docs/superpowers/specs/2026-05-13-structure-apply-source-domain-grill.md`, and `docs/superpowers/plans/2026-05-13-source-domain-enforcement-issues.md`, then create a commit that preserves the `156 passed` checkpoint. If desired, follow with a small docs example slice showing side-by-side structure vs bible-audit proposal resolution commands.
+Commit the enforcement slice and docs artifacts. Stage `src/auteur/cli.py`, `tests/test_structure_workflow_fixture.py`, `docs/prd-structure-apply-source-domain-enforcement.md`, `docs/archived/superpowers/specs/2026-05-13-structure-apply-source-domain-grill.md`, and `docs/archived/superpowers/plans/2026-05-13-source-domain-enforcement-issues.md`, then create a commit that preserves the `156 passed` checkpoint. If desired, follow with a small docs example slice showing side-by-side structure vs bible-audit proposal resolution commands.
 
 ## Blockers (if any)
 
