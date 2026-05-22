@@ -135,5 +135,6 @@ def as_structure_diagnostic(bible_diag: BibleAuditDiagnostic) -> StructureDiagno
         message=bible_diag.message,
         evidence=bible_diag.evidence,
         repair_options=bible_diag.repair_options or RepairOptions(),
+        genre_recommendation_flow=bible_diag.genre_recommendation_flow,
     )
 
