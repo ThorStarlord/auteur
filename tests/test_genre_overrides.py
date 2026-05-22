@@ -234,7 +234,7 @@ def test_missing_override_emits_error():
     assert "is forbidden by the" in d.message
 
 def test_declared_override_downgrades_error():
-    # Romance contract forbids tragic endings. Missing override should emit error.
+    # Romance contract forbids tragic endings, but a declared override suppresses the error and leaves a warning.
     data = _blueprint_data_with_story_engine()
     data["identity"]["genre"] = "romance"
     data["contract"]["mandatory_ending_tone"] = "tragic"
