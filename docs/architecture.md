@@ -95,6 +95,6 @@ Defines the provider-agnostic `LLMClient` protocol and concrete Anthropic/OpenAI
 - Structure generation remains early/helper-level.
 - Critic logic is still mostly LLM-based.
 - Cost accounting records tokens, not currency.
-- Genre override rules exist but need clearer docs/test coverage.
+- Genre override rules exist but need clearer documentation.
 
 Current Engine Reality: Deterministic code owns schemas/diagnostics/artifacts. LLMs own identity recommendation, outlining, drafting, and critic judgment. Per-agent model routing now exists.
