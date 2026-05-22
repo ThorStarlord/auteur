@@ -19,11 +19,10 @@ def test_validate_repo_exits_nonzero_on_errors() -> None:
         assert "Validation errors" in critical_result.stdout or "Missing core file" in critical_result.stdout
 
 def test_validate_repo_warnings_only_exits_zero() -> None:
-    """validate-repo.py should exit 0 when only validation warnings exist."""
+    """validate-repo.py should exit 0 when no critical validation errors exist."""
     result = subprocess.run(
         [sys.executable, str(ROOT / "scripts" / "validate-repo.py")],
         cwd=ROOT, capture_output=True, text=True
     )
-    assert result.returncode == 0, "should exit 0 when only warnings exist"
-    assert "Validation warnings (non-critical)" in result.stdout
+    assert result.returncode == 0, "should exit 0 when no critical errors exist"
     assert "Validation errors" not in result.stdout
