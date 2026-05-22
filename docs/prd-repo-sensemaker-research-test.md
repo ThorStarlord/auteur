@@ -2,7 +2,7 @@
 
 Status: Approved (auto-approved)
 Date: 2026-05-14
-Input: docs/superpowers/plans/2026-05-14-grill-with-docs-repo-sensemaker.md
+Input: docs/archived/superpowers/plans/2026-05-14-grill-with-docs-repo-sensemaker.md
 
 ## Problem Statement
 

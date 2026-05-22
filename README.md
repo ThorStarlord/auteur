@@ -232,7 +232,7 @@ See [docs/structure-engine-v1.md](docs/structure-engine-v1.md) for the design di
 - [Structure Engine v1](docs/structure-engine-v1.md)
 - [Opinionated Narrative Engine](docs/opinionated-narrative-engine.md)
 
-The files under `docs/superpowers/` are implementation design and planning notes for development work. The user-facing docs above describe the current repository behavior.
+The files under `docs/archived/superpowers/` are historical planning notes, not current user-facing documentation. The user-facing docs above describe the current repository behavior.
 
 ## Tests
 
