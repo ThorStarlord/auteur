@@ -190,7 +190,7 @@ Compiles a blueprint into a unified Cartographer outline and can split chapter o
 
 `auteur cartographer validate <cartographer_outline.yaml> [--blueprint <blueprint.yaml>]`
 
-Runs deterministic local validation for compiled Cartographer outlines. Dedicated Pydantic outline models are still incomplete.
+Runs deterministic local validation for compiled Cartographer outlines using the CartographerOutline Pydantic model.
 
 ## Project Artifacts
 
