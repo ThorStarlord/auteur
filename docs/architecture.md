@@ -92,9 +92,9 @@ Defines the provider-agnostic `LLMClient` protocol and concrete Anthropic/OpenAI
 
 ## Current Limitations
 
-- Structure generation remains early and helper-level; project-level proposal directories and CLI apply commands are not standardized yet.
-- Cartographer outlines are parsed as raw YAML mappings, not yet validated against a dedicated outline model.
-- Critic logic is mostly LLM-based; deterministic outline/prose checks are still limited.
-- Provider choice is per CLI invocation, not yet per agent.
-- Transient API failures are surfaced directly instead of retried with backoff.
+- Structure generation remains early/helper-level.
+- Critic logic is still mostly LLM-based.
 - Cost accounting records tokens, not currency.
+- Genre override rules exist but need clearer docs/test coverage.
+
+Current Engine Reality: Deterministic code owns schemas/diagnostics/artifacts. LLMs own identity recommendation, outlining, drafting, and critic judgment. Per-agent model routing now exists.
