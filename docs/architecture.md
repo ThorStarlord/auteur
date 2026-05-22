@@ -97,4 +97,6 @@ Defines the provider-agnostic `LLMClient` protocol and concrete Anthropic/OpenAI
 - Cost accounting records tokens, not currency.
 - Genre override rules exist but need clearer documentation.
 
-Current Engine Reality: Deterministic code owns schemas/diagnostics/artifacts. LLMs own identity recommendation, outlining, drafting, and critic judgment. Per-agent model routing now exists.
+## Current Engine Reality
+
+Deterministic code owns schemas/diagnostics/artifacts. LLMs own identity recommendation, outlining, drafting, and critic judgment. Per-agent model routing now exists.
