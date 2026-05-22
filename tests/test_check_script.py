@@ -64,3 +64,4 @@ def test_regressions_yaml_exists() -> None:
     assert "excluded_validators" in data, "REGRESSIONS.yaml must have excluded_validators key"
     assert "required_cases" in data, "REGRESSIONS.yaml must have required_cases key"
 
+

@@ -4,10 +4,14 @@ import json
 from pathlib import Path
 import pytest
 import yaml
+from pydantic import BaseModel
 
 from auteur.cli import main
 from auteur.blueprint import StoryBlueprint
 from auteur.bible import StoryBible
+from auteur.structure.state import state_check
+from auteur.structure.diagnostics import DiagnosticSeverity, DiagnosticLayer
+from auteur.structure.bible_audit import BibleAuditDiagnostic
 
 
 def _minimal_blueprint_data() -> dict[str, object]:
@@ -351,8 +355,6 @@ def test_state_check_with_valid_outline_produces_no_carrier_mismatch(test_projec
 # ISSUE-001: Verify _LAYER_ORDER includes MODULATION  
 def test_state_check_layer_order_includes_modulation():  
     """Verify that _LAYER_ORDER includes MODULATION at position 8 and THEME at 9."""  
-    from auteur.structure.state import state_check  
-    from auteur.structure.diagnostics import DiagnosticLayer  
     _LAYER_ORDER = [  
         (1, DiagnosticLayer.TARGET_EXPERIENCE, "Target Experience"),  
         (2, DiagnosticLayer.CONSTRAINTS, "Promise / Constraints"),  
@@ -370,9 +372,6 @@ def test_state_check_layer_order_includes_modulation():
 
 def test_bible_audit_diagnostic_is_pydantic_base_model() -> None:
     """BibleAuditDiagnostic should be a Pydantic BaseModel."""
-    from pydantic import BaseModel
-    from auteur.structure.bible_audit import BibleAuditDiagnostic
-
     assert issubclass(BibleAuditDiagnostic, BaseModel), "BibleAuditDiagnostic should be a BaseModel"
     assert hasattr(BibleAuditDiagnostic, "model_fields"), "BibleAuditDiagnostic should have model_fields"
 
@@ -384,8 +383,6 @@ def test_bible_audit_diagnostic_is_pydantic_base_model() -> None:
     assert "evidence" in fields
     assert "repair_options" in fields
     assert "genre_recommendation_flow" in fields
-
-    from auteur.structure.diagnostics import DiagnosticSeverity, DiagnosticLayer
     diag = BibleAuditDiagnostic(
         severity=DiagnosticSeverity.ERROR,
         layer=DiagnosticLayer.CARRIERS,
