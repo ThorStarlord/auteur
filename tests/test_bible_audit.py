@@ -433,7 +433,7 @@ def test_as_structure_diagnostic_preserves_genre_recommendation_flow():
         layer=DiagnosticLayer.CARRIERS,
         rule="test_rule",
         message="test_message",
-        genre_recommendation_flow={"test_key": "test_value"}
+        genre_recommendation_flow={"test_key": "test_value"},
     )
 
     converted = as_structure_diagnostic(source)
