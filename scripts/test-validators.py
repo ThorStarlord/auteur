@@ -21,15 +21,73 @@ def parse_frontmatter(file_path):
             return {}
     return {}
 
+def detect_validator_signature(validator_path):
+    """Detect validator CLI signature by checking its code."""
+    with open(validator_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    # Check for validators that take TWO positional arguments
+    if 'artifact_id' in content and ('artifact_path' in content or 'add_argument("artifact' in content):
+        return 'two_arg'  # artifact_id + artifact_path
+
+    # Check for validators that take NO file arguments (repo-wide)
+    if 'def validate_repo' in content or 'validate_mode_coverage' in content:
+        return 'no_arg'  # No file argument
+
+    # Default to single-argument validators
+    return 'single_arg'  # Standard single-file validator
+
+def extract_artifact_id_from_fixture(fixture_path):
+    """Extract artifact_id from fixture YAML metadata."""
+    try:
+        with open(fixture_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        # Look for artifact_id in YAML blocks
+        yaml_blocks = re.findall(r'```yaml\s+(.*?)\s+```', content, re.DOTALL)
+        for block in yaml_blocks:
+            try:
+                data = yaml.safe_load(block)
+                if isinstance(data, dict) and 'artifact_id' in data:
+                    return data['artifact_id']
+            except:
+                pass
+
+        # Fallback: use default artifact ID based on validator type
+        return None
+    except:
+        return None
+
 def run_validator(validator_path, fixture_path, repo_root=".", extra_args=None):
-    """Runs a validator script against a fixture."""
+    """Runs a validator script against a fixture with appropriate arguments."""
+    validator_name = os.path.basename(validator_path).replace(".py", "")
+    sig = detect_validator_signature(validator_path)
+
     cmd = [sys.executable, validator_path]
-    if extra_args:
-        cmd.extend(extra_args)
-    cmd.append(fixture_path)
-    cmd.extend(["--repo-root", repo_root])
-        
-    result = subprocess.run(cmd, capture_output=True, text=True)
+
+    # Handle different validator signatures
+    if sig == 'no_arg':
+        # No-argument validators - just run with --repo-root
+        cmd.extend(["--repo-root", repo_root])
+    elif sig == 'two_arg':
+        # Two-argument validators (artifact_id + artifact_path)
+        artifact_id = extract_artifact_id_from_fixture(fixture_path)
+        if not artifact_id:
+            # Fallback: use validator name as artifact ID
+            artifact_id = validator_name.replace('validate-', '')
+        if extra_args:
+            cmd.extend(extra_args)
+        cmd.append(artifact_id)
+        cmd.append(fixture_path)
+        cmd.extend(["--repo-root", repo_root])
+    else:
+        # Single-argument validators (standard)
+        if extra_args:
+            cmd.extend(extra_args)
+        cmd.append(fixture_path)
+        cmd.extend(["--repo-root", repo_root])
+
+    result = subprocess.run(cmd, capture_output=True, text=True, cwd='.')
     return result.returncode == 0, result.stdout + result.stderr
 
 def test_fixture(validator_script, fixture_path):

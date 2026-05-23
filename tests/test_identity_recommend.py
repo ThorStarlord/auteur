@@ -873,5 +873,122 @@ author_overrides: []
     content = attempt_files[0].read_text(encoding="utf-8")
     assert "The detective wants to solve the murder." in content
     assert "change_duplicates_want" in content
-    
+
     shutil.rmtree(runs_dir)
+
+
+def test_cli_identity_recommend_mode_deprecation_warning(tmp_path, monkeypatch, capsys):
+    """Test that --mode open-ended emits deprecation warning but still works."""
+    identity_yaml_path = tmp_path / "story_identity.yaml"
+
+    success_yaml = """
+title: "The Silent Crown"
+core_answer: "A tragic mystery."
+target_experience:
+  primary: "dread"
+  progression: "rising"
+  avoid: []
+story_type:
+  medium: "novel"
+  mode: "tragic"
+  genre: "mystery"
+  subgenres: []
+  target_audience: "adult"
+  length_class: null
+central_engine:
+  want: "The detective wants to solve the murder."
+  resistance: "The crown blocks the investigation."
+  conflict: "Continuing exposes the detective to charges."
+  stakes: "The detective's life and the truth."
+  change: "The detective becomes a silent accomplice."
+not_this: []
+open_questions: []
+confidence: 0.9
+why_this_is_best: "Tragic ending fits the grim reality."
+rejected_directions: []
+author_overrides: []
+"""
+
+    fake_response = LLMResponse(
+        text=f"```yaml\n{success_yaml}\n```",
+        input_tokens=100,
+        output_tokens=100
+    )
+
+    fake_client = FakeClient([fake_response])
+    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model: fake_client)
+
+    # Use deprecated --mode open-ended flag
+    exit_code = main([
+        "identity", "recommend",
+        "A detective investigates a murder.",
+        "--mode", "open-ended",
+        "--output", str(identity_yaml_path),
+    ])
+
+    # Should still succeed
+    assert exit_code == 0
+
+    # Should emit deprecation warning to stderr
+    captured = capsys.readouterr()
+    assert "Warning: --mode open-ended is deprecated" in captured.err
+    assert "--recommend-mode open-ended" in captured.err
+
+
+def test_cli_identity_recommend_recommend_mode_no_warning(tmp_path, monkeypatch, capsys):
+    """Test that --recommend-mode open-ended does NOT emit deprecation warning."""
+    candidate_dir = tmp_path / "story_identity_candidates"
+
+    valid_yaml_tmpl = """
+title: "The Silent Crown {idx}"
+core_answer: "A tragedy mystery."
+target_experience:
+  primary: "dread"
+  progression: "rising"
+  avoid: []
+story_type:
+  medium: "novel"
+  mode: "tragic"
+  genre: "mystery"
+  subgenres: []
+  target_audience: "adult"
+  length_class: null
+central_engine:
+  want: "Want {idx}"
+  resistance: "Resistance {idx}"
+  conflict: "Conflict {idx}"
+  stakes: "Stakes {idx}"
+  change: "Change {idx}"
+not_this: []
+open_questions: []
+confidence: 0.95
+recommendation_mode: "open_ended"
+best_basis: "{basis}"
+why_this_is_best: "Explanation {idx}"
+rejected_directions: []
+author_overrides: []
+"""
+
+    summary_json = '{"summary": "A detective story.", "tradeoffs": ["t1", "t2"], "risks": ["r1", "r2"], "best_for": ["b1", "b2"]}'
+
+    responses = [
+        LLMResponse(text=f"```yaml\n{valid_yaml_tmpl.format(idx=1, basis='genre_aligned')}\n```", input_tokens=100, output_tokens=100),
+        LLMResponse(text=summary_json, input_tokens=100, output_tokens=100),
+    ]
+
+    fake_client = FakeClient(responses)
+    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model: fake_client)
+
+    exit_code = main([
+        "identity", "recommend",
+        "A detective investigates a murder.",
+        "--recommend-mode", "open-ended",
+        "--candidates", "1",
+        "--output", str(tmp_path / "story_identity.yaml"),
+    ])
+
+    assert exit_code == 0
+
+    # Should NOT emit deprecation warning
+    captured = capsys.readouterr()
+    assert "Warning: --mode open-ended is deprecated" not in captured.err

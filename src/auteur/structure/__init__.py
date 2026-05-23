@@ -5,6 +5,14 @@ from auteur.structure.diagnostics import (
     RepairOptions,
     StructureDiagnostic,
 )
+from auteur.structure.generator import (
+    generate_story_engine,
+    synthesize_structural_forces,
+    generate_main_thread,
+    generate_subordinate_threads,
+    GenerationProposal,
+    StructuralForcesSynthesis,
+)
 
 __all__ = [
     "DiagnosticLayer",
@@ -13,4 +21,10 @@ __all__ = [
     "StructureDiagnostic",
     "analyze_structure",
     "run_all_diagnostics",
+    "generate_story_engine",
+    "synthesize_structural_forces",
+    "generate_main_thread",
+    "generate_subordinate_threads",
+    "GenerationProposal",
+    "StructuralForcesSynthesis",
 ]

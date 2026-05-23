@@ -115,6 +115,21 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Overwrite the source blueprint file. Disabled by default.",
     )
+    p_structure_generate = structure_sub.add_parser(
+        "generate",
+        help="Generate a story engine from target experience (top-down synthesis).",
+    )
+    p_structure_generate.add_argument(
+        "blueprint",
+        type=Path,
+        help="Blueprint with target_experience but no story_engine.",
+    )
+    p_structure_generate.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="Output path for generated story_engine proposal.",
+    )
 
     # Identity subcommands
     p_identity = sub.add_parser(
@@ -307,6 +322,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_structure_propose_repairs(args.blueprint)
     if args.command == "structure" and args.structure_command == "apply":
         return _cmd_structure_apply(args.proposal, args.blueprint, args.output, args.in_place)
+    if args.command == "structure" and args.structure_command == "generate":
+        return _cmd_structure_generate(args.blueprint, args.output)
     if args.command == "identity" and args.identity_command == "validate":
         return _cmd_identity_validate(args.identity)
     if args.command == "identity" and args.identity_command == "compile":
@@ -607,6 +624,63 @@ def _cmd_structure_apply(
             indent=2,
         )
     )
+    return 0
+
+
+def _cmd_structure_generate(blueprint_path: Path, output_path: Path | None = None) -> int:
+    """
+    Generate a story engine from target experience (top-down structure synthesis).
+    """
+    from auteur.structure.generator import generate_story_engine
+    from auteur.structure.diagnostics import DiagnosticSeverity
+
+    if not blueprint_path.exists():
+        print(f"Error: blueprint file not found: {blueprint_path}", file=sys.stderr)
+        return 1
+
+    try:
+        blueprint = StoryBlueprint.from_yaml(blueprint_path)
+    except Exception as e:
+        print(f"Error: failed to parse blueprint {blueprint_path}: {e}", file=sys.stderr)
+        return 1
+
+    # Generate story engine
+    result = generate_story_engine(blueprint)
+
+    # Handle diagnostics (errors)
+    if isinstance(result, list):
+        # result is a list of diagnostics
+        errors = [d for d in result if d.severity == DiagnosticSeverity.ERROR]
+        warnings = [d for d in result if d.severity == DiagnosticSeverity.WARNING]
+
+        for diag in errors:
+            print(f"ERROR: {diag.message}", file=sys.stderr)
+            if diag.evidence:
+                for ev in diag.evidence:
+                    print(f"  - {ev}", file=sys.stderr)
+
+        for diag in warnings:
+            print(f"WARNING: {diag.message}", file=sys.stderr)
+
+        if errors:
+            return 1
+        return 0
+
+    # result is a GenerationProposal
+    proposal = result
+
+    # Output the proposal
+    import json
+    proposal_dict = proposal.model_dump(mode="json")
+
+    output = json.dumps(proposal_dict, indent=2)
+    print(output)
+
+    if output_path:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(output + "\n", encoding="utf-8")
+        print(f"\nProposal written to {output_path}", file=sys.stderr)
+
     return 0
 
 
@@ -960,10 +1034,12 @@ def _parse_layers(spec: str) -> set[DiagnosticLayer]:
             1: DiagnosticLayer.TARGET_EXPERIENCE,
             2: DiagnosticLayer.CONSTRAINTS,
             3: DiagnosticLayer.SCOPE,
-            4: DiagnosticLayer.CONSTRAINTS,
-            5: DiagnosticLayer.STRUCTURAL_FORCES,
+            4: DiagnosticLayer.STRUCTURAL_FORCES,
+            5: DiagnosticLayer.THREADS,
             6: DiagnosticLayer.CARRIERS,
-            7: DiagnosticLayer.THEME,
+            7: DiagnosticLayer.REPRESENTATION,
+            8: DiagnosticLayer.MODULATION,
+            9: DiagnosticLayer.THEME,
         }
         return {layer_map[n]}
     except (ValueError, KeyError):
