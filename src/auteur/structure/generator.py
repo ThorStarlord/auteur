@@ -313,3 +313,275 @@ def generate_story_engine(blueprint: StoryBlueprint) -> GenerationProposal | lis
     )
 
     return proposal
+
+
+# ---------------------------------------------------------------------------
+# Symptom-based generation (bottom-up diagnostic from author symptom)
+# ---------------------------------------------------------------------------
+
+class SymptomDiagnosis(BaseModel):
+    """A diagnosis produced from an author-described symptom."""
+    symptom: str = Field(description="The original symptom text from the author")
+    likely_layer: DiagnosticLayer = Field(description="Most likely structural layer causing the symptom")
+    root_cause_hypothesis: str = Field(description="Hypothesis about the underlying structural issue")
+    recommendation: str = Field(description="Actionable recommendation to address the root cause")
+    alternative_hypotheses: list[str] = Field(default_factory=list, description="Other possible causes to consider")
+
+
+_SYMPTOM_REGISTRY: list[dict] = [
+    # Layer 4/5: Structural Forces / Threads — escalation and stakes
+    {
+        "keywords": ["midpoint", "middle", "second act", "sags", "flat", "no momentum"],
+        "layer": DiagnosticLayer.THREADS,
+        "root_cause": (
+            "The subordinate threads may lack escalation pressure on the main thread. "
+            "If threads only complicate without escalating stakes or pressing change, the middle loses momentum."
+        ),
+        "recommendation": (
+            "Review each subordinate thread's supports_main_by functions. At least one thread "
+            "should use 'escalates' or 'pressures_change'. Consider adding a thread whose "
+            "escalation peak falls near the midpoint. Verify the main thread's stakes increase "
+            "at the midpoint rather than remaining static."
+        ),
+        "alternatives": [
+            "The target experience may be a single-note emotion without progression — check identity.target_experience.progression.",
+            "The scope container may be too long for the available thread machinery — consider compressing the length class.",
+        ],
+    },
+    # Layer 4: Structural Forces — stakes
+    {
+        "keywords": ["stakes", "consequence", "don't care", "unimportant", "no tension", "low stakes"],
+        "layer": DiagnosticLayer.STRUCTURAL_FORCES,
+        "root_cause": (
+            "The stakes may be abstract, generic, or disconnected from the protagonist's want. "
+            "Stakes must name a specific, concrete loss that the protagonist personally fears."
+        ),
+        "recommendation": (
+            "Rewrite main_thread.stakes.author_text to name a specific, personal loss. "
+            "Generic stakes like 'the world will end' are less effective than 'she will lose the only family she has'. "
+            "Ensure each subordinate thread also declares stakes that escalate alongside the main thread."
+        ),
+        "alternatives": [
+            "The target experience.avoid list may include the very emotion the stakes should evoke — check for contradiction.",
+            "The mode may not match the stakes register (e.g., intimate mode with civilizational stakes).",
+        ],
+    },
+    # Layer 4: Change — ending
+    {
+        "keywords": ["ending", "finale", "climax", "doesn't land", "anticlimax", "fizzles", "resolution"],
+        "layer": DiagnosticLayer.STRUCTURAL_FORCES,
+        "root_cause": (
+            "The main thread's change may duplicate its want, or the change may describe an external outcome "
+            "rather than an internal transformation. An ending lands when the protagonist's change is "
+            "emotionally earned and thematically coherent."
+        ),
+        "recommendation": (
+            "Verify main_thread.change is a genuine transformation of the protagonist, not just goal achievement. "
+            "Cross-reference with the ThematicCore: the ending should confirm or complicate the thesis. "
+            "If the ending tone contradicts the genre contract, consider aligning them."
+        ),
+        "alternatives": [
+            "The forbidden_mismatch rules may be blocking the natural ending tone — check genre override diagnostics.",
+            "The target experience may promise an emotion that the ending does not deliver — trace from avoided feelings.",
+        ],
+    },
+    # Layer 6: Carriers — characters
+    {
+        "keywords": ["character", "thin", "flat", "cardboard", "generic", "uninteresting", "motivation"],
+        "layer": DiagnosticLayer.CARRIERS,
+        "root_cause": (
+            "Characters may lack sufficient structural force carriers: each character should instantiate "
+            "a specific want, resistance point, or thematic function. Characters without structural roles "
+            "feel generic."
+        ),
+        "recommendation": (
+            "Review the characters list: does every character have a declared want, a key milestone that "
+            "tests it, and a demonstrable role in at least one thread? Remove characters whose structural "
+            "function can be absorbed. For remaining characters, sharpen their want into something specific "
+            "and personal."
+        ),
+        "alternatives": [
+            "The psychology_budget for this genre may be too shallow for the depth you intend — consider a genre override.",
+            "The POV experience contracts may not match the character roster — prune unknown-character contracts.",
+        ],
+    },
+    # Layer 3: Scope — pacing
+    {
+        "keywords": ["pacing", "slow", "rushed", "too fast", "uneven", "drag", "breathless"],
+        "layer": DiagnosticLayer.SCOPE,
+        "root_cause": (
+            "The scope container may mismatch the genre's narrative runway requirements. A length class "
+            "that is too short forces rushed pacing; one that is too long can cause pacing drag."
+        ),
+        "recommendation": (
+            "Check the genre contract's scope_profile: does the current length class match the genre's "
+            "natural_lengths or minimum_viable_length? If not, either adjust the length class or add a "
+            "genre override with compression/subversion strategy. For pacing drag, increase subplot budget "
+            "or add threads. For rushed pacing, decrease subplot budget or remove threads."
+        ),
+        "alternatives": [
+            "The medium contract's unit_of_delivery may create pacing expectations that the current scope cannot satisfy.",
+            "The act structure may need redistributing — check estimated_chapters vs. act proportions.",
+        ],
+    },
+    # Layer 5: Threads — subplots
+    {
+        "keywords": ["subplot", "goes nowhere", "pointless", "tangent", "distraction", "unresolved"],
+        "layer": DiagnosticLayer.THREADS,
+        "root_cause": (
+            "Subordinate threads may lack a declared support function for the main thread, or their "
+            "thematic_function may be unconnected to the main thesis. Threads without structural purpose "
+            "become dead ends."
+        ),
+        "recommendation": (
+            "Audit every subordinate thread: does it have at least one supports_main_by function "
+            "(escalates, pressures_change, reveals, mirrors, contrasts, complicates, pays_off)? "
+            "Does its thematic_function reference the core thesis? Remove threads that lack both. "
+            "Merge threads that serve identical functions."
+        ),
+        "alternatives": [
+            "The subplot_budget may be too high for the length class — reduce threads or increase container size.",
+            "A thread may be misclassified (e.g., a mystery thread without reveals function).",
+        ],
+    },
+    # Layer 2: Genre Contract — world/milieu
+    {
+        "keywords": ["world", "generic", "familiar", "unoriginal", "setting", "milieu", "cliche"],
+        "layer": DiagnosticLayer.CONSTRAINTS,
+        "root_cause": (
+            "The genre contract may be applied without subgenre modifiers or genre overrides. "
+            "A bare genre without subgenre specificity tends toward generic execution. "
+            "Subgenre modifiers inject specific trope biases and setup requirements that differentiate the world."
+        ),
+        "recommendation": (
+            "Add one or more subgenre modifiers that sharpen the contract. For example, 'locked_room' "
+            "for mystery adds clue-fair puzzle logic and spatial constraints. 'hardboiled' adds "
+            "institutional rot and moral ambiguity. If no subgenre fits, add a GenreOverride of type "
+            "'safe_variation' that documents how this world differs from the genre standard."
+        ),
+        "alternatives": [
+            "The genre itself may be a mismatch for the premise — consider re-running identity recommend with a different genre constraint.",
+            "The target audience may expect deeper worldbuilding than the current scope can deliver — adjust scope or audience.",
+        ],
+    },
+    # Layer 9: Theme / Resonance
+    {
+        "keywords": ["theme", "message", "point", "meaningless", "say nothing", "shallow", "preachy"],
+        "layer": DiagnosticLayer.THEME,
+        "root_cause": (
+            "The theme thesis may be unrepresented in thread thematic_functions, or the thesis may be "
+            "so broad that no thread can test it meaningfully. A story feels shallow when its thematic "
+            "question is stated but never examined through conflicting thread outcomes."
+        ),
+        "recommendation": (
+            "Check that at least one thread's thematic_function echoes the thesis. Ensure threads "
+            "take opposing positions on the thesis (one thread affirms, another complicates). "
+            "If the thesis is too broad (e.g., 'love is important'), sharpen it into a debatable "
+            "claim (e.g., 'love justifies betrayal' vs. 'love requires honesty')."
+        ),
+        "alternatives": [
+            "The target experience may be disconnected from the thesis — the emotional promise should reinforce the thematic argument.",
+            "The central_engine conflict may not engage the thesis at all — rewrite conflict to put the thesis under pressure.",
+        ],
+    },
+    # Layer 1: Target Experience — emotional confusion
+    {
+        "keywords": ["tone", "confused", "mixed", "emotional whiplash", "jarring", "wrong emotion"],
+        "layer": DiagnosticLayer.TARGET_EXPERIENCE,
+        "root_cause": (
+            "The target experience's primary emotion may conflict with genre contract constraints, "
+            "or the progression may jump between incompatible feeling states without transitional beats. "
+            "Readers experience emotional whiplash when the promised experience contradicts the genre delivery."
+        ),
+        "recommendation": (
+            "Verify that primary does not appear in avoid. Check that progression is a sequence of "
+            "adjacent emotions, not opposite poles (e.g., 'dread -> tension -> relief' works; "
+            "'dread -> joy -> horror' likely does not). Ensure the genre contract's psychology_budget "
+            "can support the target emotional depth."
+        ),
+        "alternatives": [
+            "The mode may be forcing a tonal register that fights the target experience (e.g., 'noir' mode with 'hope' target).",
+            "The medium contract's modulation_biases may filter out needed tonal range.",
+        ],
+    },
+]
+
+
+def diagnose_symptom(symptom: str, blueprint: StoryBlueprint | None = None) -> list[SymptomDiagnosis]:
+    """Map an author-described symptom to likely structural root causes.
+
+    Uses keyword matching against the symptom registry. Returns one or more
+    SymptomDiagnosis results sorted by relevance. When a blueprint is provided,
+    additional context-specific analysis may refine the diagnosis.
+
+    Args:
+        symptom: Free-text description of the felt problem (e.g. 'midpoint feels flat').
+        blueprint: Optional StoryBlueprint for context-aware refinement.
+
+    Returns:
+        List of SymptomDiagnosis results, most relevant first.
+    """
+    symptom_lower = symptom.casefold()
+    matches: list[tuple[int, dict]] = []
+
+    for entry in _SYMPTOM_REGISTRY:
+        score = 0
+        for kw in entry["keywords"]:
+            if kw in symptom_lower:
+                score += 1
+        if score > 0:
+            matches.append((score, entry))
+
+    # Sort by match count descending
+    matches.sort(key=lambda x: x[0], reverse=True)
+
+    if not matches:
+        return [
+            SymptomDiagnosis(
+                symptom=symptom,
+                likely_layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                root_cause_hypothesis=(
+                    "The symptom does not match a known structural pattern. "
+                    "Consider whether it is a modulation (prose-level) issue rather than "
+                    "a structural (narrative-engine) issue."
+                ),
+                recommendation=(
+                    "Run auteur structure diagnose on the blueprint to surface any "
+                    "detectable structural issues, then check the most recent chapter "
+                    "draft for prose-level problems."
+                ),
+                alternative_hypotheses=[
+                    "The issue may be in Layer 8 (Modulation) — prose style, pacing, voice.",
+                    "The issue may be in Layer 7 (Representation) — scene ordering, reveal timing.",
+                ],
+            )
+        ]
+
+    results: list[SymptomDiagnosis] = []
+    for score, entry in matches:
+        root_cause = entry["root_cause"]
+        recommendation = entry["recommendation"]
+
+        # Refine with blueprint context if available
+        if blueprint is not None and entry["layer"] == DiagnosticLayer.THREADS:
+            engine = blueprint.story_engine
+            if engine and engine.threads:
+                missing_escalation = [
+                    t.name for t in engine.threads
+                    if not any(f in ("escalates", "pressures_change") for f in (getattr(t, "supports_main_by", []) or []))
+                ]
+                if missing_escalation:
+                    escalation_hint = (
+                        f" Specific threads lacking escalation: {', '.join(missing_escalation)}."
+                    )
+                    recommendation += escalation_hint
+
+        results.append(SymptomDiagnosis(
+            symptom=symptom,
+            likely_layer=entry["layer"],
+            root_cause_hypothesis=root_cause,
+            recommendation=recommendation,
+            alternative_hypotheses=entry.get("alternatives", []),
+        ))
+
+    return results

@@ -548,6 +548,120 @@ def analyze_structure(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
                     )
                 )
 
+    # -------------------------------------------------------------------------
+    # Subgenre Modifier Validation (Layer 2/3 cross-layer)
+    # -------------------------------------------------------------------------
+    subgenres = blueprint.identity.subgenres or []
+    if subgenres:
+        from auteur.genres.subgenres import load_subgenre_modifier
+        for subgenre_id in subgenres:
+            modifier = load_subgenre_modifier(subgenre_id)
+            if modifier is None:
+                # Unknown subgenre is flagged at identity level; skip repeat
+                continue
+
+            # 1. Subgenre scope compatibility
+            if modifier.scope_biases:
+                scope_bias_text = " ".join(modifier.scope_biases).lower()
+                is_scope_aligned = True
+                scope_mismatches: list[str] = []
+
+                # Check subplot_budget against scope biases
+                if "focus" in scope_bias_text and "few" not in scope_bias_text:
+                    # This subgenre expects tight focus — verify subplot_budget is not too high
+                    if blueprint.structure.subplot_budget and blueprint.structure.subplot_budget > 4:
+                        scope_mismatches.append(
+                            f"Subgenre '{subgenre_id}' biases toward focused scope "
+                            f"(scope_biases suggest tight execution), but subplot_budget is "
+                            f"{blueprint.structure.subplot_budget}."
+                        )
+
+                if "multiple" in scope_bias_text or "overlapping" in scope_bias_text:
+                    # This subgenre expects multiple threads — verify subplot_budget is sufficient
+                    if blueprint.structure.subplot_budget and blueprint.structure.subplot_budget < 2:
+                        scope_mismatches.append(
+                            f"Subgenre '{subgenre_id}' expects multiple overlapping threads "
+                            f"(scope_biases suggest layered plotting), but subplot_budget is "
+                            f"only {blueprint.structure.subplot_budget}."
+                        )
+
+                if scope_mismatches:
+                    diagnostics.append(
+                        StructureDiagnostic(
+                            severity=DiagnosticSeverity.WARNING,
+                            layer=DiagnosticLayer.SCOPE,
+                            rule=f"subgenre.{subgenre_id}.scope_mismatch",
+                            message=(
+                                f"The scope container may conflict with the '{subgenre_id}' subgenre's "
+                                f"scope biases."
+                            ),
+                            evidence=scope_mismatches,
+                            repair_options=RepairOptions(
+                                preserve_intent=[
+                                    "Adjust subplot_budget to match the subgenre's scope expectations.",
+                                    "Add a GenreOverride if the scope mismatch is intentional.",
+                                ],
+                                challenge_intent=[
+                                    "Remove the subgenre modifier if it does not fit the intended scope.",
+                                ],
+                            ),
+                        )
+                    )
+
+            # 2. Subgenre setup biases — does the blueprint declare any setup?
+            if modifier.setup_biases and blueprint.structure.scope_contract is None:
+                diagnostics.append(
+                    StructureDiagnostic(
+                        severity=DiagnosticSeverity.WARNING,
+                        layer=DiagnosticLayer.CONSTRAINTS,
+                        rule=f"subgenre.{subgenre_id}.setup_not_declared",
+                        message=(
+                            f"Subgenre '{subgenre_id}' has setup requirements that are not "
+                            f"reflected in a declared scope_contract. The subgenre expects: "
+                            f"{'; '.join(modifier.setup_biases)}."
+                        ),
+                        evidence=[
+                            f"subgenre = {subgenre_id}",
+                            "structure.scope_contract is absent",
+                        ],
+                        repair_options=RepairOptions(
+                            preserve_intent=[
+                                "Declare a scope_contract with narrative_runway and setup beats.",
+                                "If the setup requirements are handled implicitly, document that in an author note.",
+                            ],
+                            challenge_intent=[
+                                "Remove the subgenre if its setup requirements cannot be satisfied.",
+                            ],
+                        ),
+                    )
+                )
+
+            # 3. Subgenre trope coverage — warn about common misuses
+            if modifier.common_misuses:
+                diagnostics.append(
+                    StructureDiagnostic(
+                        severity=DiagnosticSeverity.WARNING,
+                        layer=DiagnosticLayer.CONSTRAINTS,
+                        rule=f"subgenre.{subgenre_id}.common_misuses",
+                        message=(
+                            f"Subgenre '{subgenre_id}' has documented common misuses. "
+                            f"Review to ensure the story avoids them."
+                        ),
+                        evidence=[
+                            f"subgenre = {subgenre_id}",
+                            *[f"common_misuse: {m}" for m in modifier.common_misuses],
+                        ],
+                        repair_options=RepairOptions(
+                            preserve_intent=[
+                                f"Review each misuse: {'; '.join(modifier.common_misuses)}",
+                            ],
+                            challenge_intent=[
+                                "If a misuse is intentional, document as a GenreOverride.",
+                            ],
+                        ),
+                    )
+                )
+
     # 4. Rule: Setup Contract Runway vs. Scope Container Length
     setup_contract = contract_snap.setup_contract
     if setup_contract:

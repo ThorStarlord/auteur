@@ -30,19 +30,20 @@ The current Engine v1 is a hybrid system:
 
 ## Status
 
-This repository currently contains a working Engine v1 CLI and Python library. It supports:
+This repository contains a working Engine v1 CLI and Python library covering the full narrative compilation lifecycle:
 
 - **Opinionated Story Identity**: Recommended story-engine validation and seeding via Pydantic model contracts, including rationale, rejected directions, and author overrides.
-- **Deterministic Diagnostics**: Complete, non-destructive structure diagnostics and repair proposals.
-- **Outline Compiling**: Generating character-aligned chapter outline coordinates.
-- **TDD Drafting**: Running multi-critic verification loops against structured chapter contracts.
-- Project initialization with a `blueprint.yaml`, `bible.json`, and chapter artifact tree.
-- Chapter drafting through Anthropic or OpenAI adapters.
-- Five critic passes: contract, arc, tension, slop, and theme.
-- Automatic rewrite attempts up to a configurable iteration cap.
-- Manual accept and retry flows.
+- **Genre Overrides**: Declared author bypasses for genre contract expectations, classified into four consequence types (`safe_variation`, `compression`, `subversion`, `reclassification`).
+- **Subgenre Modifier Validation**: Registered subgenre modifiers (`locked_room`, `hardboiled`, `cozy`) with scope, setup, and misuse diagnostics.
+- **Structure Generation (top-down)**: Synthesizes a complete story engine from target experience, genre, and scope constraints.
+- **Structure Diagnosis (bottom-up)**: Maps author-described symptoms (e.g. "midpoint feels flat") to likely structural root causes with recommendations.
+- **Deterministic Diagnostics**: 20+ deterministic rules across layers 1-6 and 9, with repair proposals and full proposal lifecycle (diagnose → propose → select → apply).
+- **State Management**: Multi-layer coordination across all 9 structure layers via `auteur state` commands (check, update, prepare, canon, confirm).
+- **Outline Compiling**: Cartographer outline compilation from blueprint with deterministic validation.
+- **TDD Drafting**: Multi-critic verification loops (contract, arc, tension, slop, theme) against structured chapter contracts, with automatic rewrite attempts and manual accept/retry flows.
+- **Dual LLM Provider Support**: Anthropic Claude and OpenAI GPT adapters with per-agent model routing and exponential-backoff retry.
 
-The implementation is still early. Cartographer outline validation exists as a deterministic local validator backed by dedicated Pydantic outline models (`CartographerOutline` in `src/auteur/cartographer_outline.py`). Transient API errors are handled by `RetryingClient` with exponential backoff. Per-agent model routing is configurable via blueprint-level `cartographer_model`, `bard_model`, and `critic_model` fields.
+Transient API errors are handled by `RetryingClient` with exponential backoff. Per-agent model routing is configurable via blueprint-level `cartographer_model`, `bard_model`, and `critic_model` fields.
 
 ## Install
 
@@ -146,11 +147,13 @@ Compiles accepted identity fields into a standard `StoryBlueprint` skeleton. Rec
 
 Alias for `blueprint seed`.
 
-### 2. Whole-Story Structure Audits
+`auteur identity validate` also checks subgenre modifiers (known vs. unknown, primary genre compatibility, scope biases, setup requirements, and common misuses) when subgenres are declared.
+
+### 2. Whole-Story Structure Audits & Generation
 
 `auteur structure diagnose <blueprint.yaml>`
 
-Runs deterministic coherence diagnostics (e.g., matching wants/change, verifying subplot budgets) and outputs finding logs.
+Runs deterministic coherence diagnostics (e.g., matching wants/change, verifying subplot budgets, genre contract constraints, subgenre modifier validation) and outputs finding logs.
 
 `auteur structure propose-repairs <blueprint.yaml>`
 
@@ -159,6 +162,14 @@ Generates actionable repair proposals in `structure/proposals/` for any diagnost
 `auteur structure apply <proposal.yaml> <blueprint.yaml> [--in-place]`
 
 Applies a selected proposal option cleanly to the target blueprint file.
+
+`auteur structure generate <blueprint.yaml> [--symptom "text"]`
+
+Two modes:
+
+- **Top-down generation** (default): Synthesizes a full story engine from the blueprint's target experience, genre, and scope downward through structural forces and threads. Requires `target_experience` and at least one character. Outputs a `GenerationProposal` JSON.
+
+- **Bottom-up symptom diagnosis** (`--symptom`): Maps an author-described symptom (e.g. "midpoint feels flat", "the ending doesn't land", "subplots go nowhere") to likely structural root causes with actionable recommendations. Returns one or more `SymptomDiagnosis` results ranked by relevance, each identifying the affected layer, root cause hypothesis, recommendation, and alternative hypotheses.
 
 ### 3. Project Initialization & TDD Chapter Drafting
 
@@ -214,13 +225,17 @@ See [docs/project-format.md](docs/project-format.md) for the full artifact contr
 
 ## Structure Engine
 
-Auteur is moving toward a whole-story structure engine. The current groundwork is library-level:
+Auteur is a whole-story structure engine first. The structure layer owns:
 
-- `StoryBlueprint` can carry optional global structure fields such as `target_experience`, `mode`, `medium`, `subgenres`, `subplot_budget`, and `story_engine`.
-- `auteur.structure.analyze_structure()` runs deterministic completeness/coherence diagnostics.
-- Chapter drafting still works independently while the structure engine matures.
+- **9-layer model**: Target Experience → Promise/Form Contract → Scope/Scale → Structural Forces → Threads → Carriers → Representation → Modulation → Resonance/Coherence.
+- **Deterministic diagnostics**: 20+ rules across layers 1-6 and 9 for within-blueprint coherence, genre contract validation, and subgenre modifier validation.
+- **Proposal lifecycle**: Full diagnose → propose → select → apply cycle with `auteur structure` commands.
+- **Top-down generation**: Synthesizes story engines from target experience downward via `auteur structure generate`.
+- **Bottom-up symptom diagnosis**: Maps author-described symptoms to structural root causes via `auteur structure generate --symptom`.
+- **Genre overrides**: Four-class override system (`safe_variation`, `compression`, `subversion`, `reclassification`) that downgrades contract violations to warnings with consequence guidance.
+- **State management**: `auteur state` commands coordinate multi-layer check, update, prepare, canon, and confirm operations.
 
-See [docs/structure-engine-v1.md](docs/structure-engine-v1.md) for the design direction.
+Chapter drafting is an optional downstream consumer of the structure engine. See [docs/structure-engine-v1.md](docs/structure-engine-v1.md) for the full design.
 
 ## Documentation
 
@@ -231,6 +246,7 @@ See [docs/structure-engine-v1.md](docs/structure-engine-v1.md) for the design di
 - [LLM Adapters](docs/llm-adapters.md)
 - [Structure Engine v1](docs/structure-engine-v1.md)
 - [Opinionated Narrative Engine](docs/opinionated-narrative-engine.md)
+- [Genre Overrides](docs/genre-overrides.md)
 
 The files under `docs/archived/superpowers/` are historical planning notes, not current user-facing documentation. The user-facing docs above describe the current repository behavior.
 
@@ -256,6 +272,4 @@ The manual real-LLM smoke script is not part of pytest because it spends real to
 python .\scripts\smoke_real_llm.py
 ```
 
-## Experimental
 
-Open-ended candidate workflows (`--recommend-mode open-ended`, `auteur identity accept-candidate`) exist for internal and advanced use. They are not part of the default public workflow.

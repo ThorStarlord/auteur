@@ -117,7 +117,8 @@ def main(argv: list[str] | None = None) -> int:
     )
     p_structure_generate = structure_sub.add_parser(
         "generate",
-        help="Generate a story engine from target experience (top-down synthesis).",
+        help="Generate a story engine from target experience (top-down synthesis), "
+        "or diagnose structural issues from a symptom (bottom-up).",
     )
     p_structure_generate.add_argument(
         "blueprint",
@@ -129,6 +130,15 @@ def main(argv: list[str] | None = None) -> int:
         type=Path,
         default=None,
         help="Output path for generated story_engine proposal.",
+    )
+    p_structure_generate.add_argument(
+        "--symptom",
+        type=str,
+        default=None,
+        help=(
+            "Author-described symptom (e.g. 'midpoint feels flat', 'the ending doesn't land'). "
+            "When provided, runs bottom-up symptom diagnosis instead of top-down generation."
+        ),
     )
 
     # Identity subcommands
@@ -323,7 +333,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "structure" and args.structure_command == "apply":
         return _cmd_structure_apply(args.proposal, args.blueprint, args.output, args.in_place)
     if args.command == "structure" and args.structure_command == "generate":
-        return _cmd_structure_generate(args.blueprint, args.output)
+        return _cmd_structure_generate(args.blueprint, args.output, symptom=args.symptom)
     if args.command == "identity" and args.identity_command == "validate":
         return _cmd_identity_validate(args.identity)
     if args.command == "identity" and args.identity_command == "compile":
@@ -627,11 +637,16 @@ def _cmd_structure_apply(
     return 0
 
 
-def _cmd_structure_generate(blueprint_path: Path, output_path: Path | None = None) -> int:
+def _cmd_structure_generate(
+    blueprint_path: Path,
+    output_path: Path | None = None,
+    *,
+    symptom: str | None = None,
+) -> int:
     """
-    Generate a story engine from target experience (top-down structure synthesis).
+    Generate a story engine from target experience (top-down structure synthesis),
+    or diagnose structural root causes from an author-described symptom (bottom-up).
     """
-    from auteur.structure.generator import generate_story_engine
     from auteur.structure.diagnostics import DiagnosticSeverity
 
     if not blueprint_path.exists():
@@ -644,12 +659,37 @@ def _cmd_structure_generate(blueprint_path: Path, output_path: Path | None = Non
         print(f"Error: failed to parse blueprint {blueprint_path}: {e}", file=sys.stderr)
         return 1
 
-    # Generate story engine
+    # --- Symptom-based diagnosis (bottom-up) ---
+    if symptom:
+        from auteur.structure.generator import diagnose_symptom
+        diagnoses = diagnose_symptom(symptom, blueprint=blueprint)
+        if not diagnoses:
+            print(f"No structural diagnosis could be made for symptom: {symptom}")
+            return 1
+
+        import json as _json
+        output_data = {
+            "symptom": symptom,
+            "blueprint": str(blueprint_path),
+            "diagnoses": [d.model_dump(mode="json") for d in diagnoses],
+        }
+        output = _json.dumps(output_data, indent=2)
+        print(output)
+
+        if output_path:
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            output_path.write_text(output + "\n", encoding="utf-8")
+            print(f"\nDiagnosis written to {output_path}", file=sys.stderr)
+
+        return 0
+
+    # --- Top-down generation ---
+    from auteur.structure.generator import generate_story_engine
+
     result = generate_story_engine(blueprint)
 
     # Handle diagnostics (errors)
     if isinstance(result, list):
-        # result is a list of diagnostics
         errors = [d for d in result if d.severity == DiagnosticSeverity.ERROR]
         warnings = [d for d in result if d.severity == DiagnosticSeverity.WARNING]
 
@@ -669,7 +709,6 @@ def _cmd_structure_generate(blueprint_path: Path, output_path: Path | None = Non
     # result is a GenerationProposal
     proposal = result
 
-    # Output the proposal
     import json
     proposal_dict = proposal.model_dump(mode="json")
 

@@ -12,6 +12,8 @@ from auteur.structure.generator import (
     generate_subordinate_threads,
     GenerationProposal,
     StructuralForcesSynthesis,
+    SymptomDiagnosis,
+    diagnose_symptom,
 )
 
 __all__ = [
@@ -27,4 +29,6 @@ __all__ = [
     "generate_subordinate_threads",
     "GenerationProposal",
     "StructuralForcesSynthesis",
+    "SymptomDiagnosis",
+    "diagnose_symptom",
 ]
