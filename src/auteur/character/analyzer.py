@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import Counter
 
 from auteur.blueprint import Character, StoryBlueprint
-from auteur.character.enums import Archetype
+from auteur.character.enums import Archetype, PhilosophyTag
 from auteur.character.models import (
     ArchetypalLayer,
     CharacterIdentity,
@@ -49,6 +49,10 @@ def analyze_character_categorization(
     diagnostics.extend(_diagnose_voice_convergence(blueprint))
     diagnostics.extend(_diagnose_character_roles(blueprint))
     diagnostics.extend(_diagnose_character_consistency(blueprint))
+    diagnostics.extend(_diagnose_ideological_contrast(blueprint))
+    diagnostics.extend(_diagnose_motif_presence(blueprint))
+    diagnostics.extend(_diagnose_essence_completeness(blueprint))
+    diagnostics.extend(_diagnose_texture_depth(blueprint))
 
     return diagnostics
 
@@ -328,6 +332,173 @@ def _diagnose_character_consistency(blueprint: StoryBlueprint) -> list[Structure
                         repair_options=RepairOptions(
                             preserve_intent=[f"Reference '{char.name}' in at least one thread's want or name."],
                             challenge_intent=["Keep threads abstract if protagonist is not a named entity."],
+                        ),
+                    )
+                )
+
+    return diagnostics
+
+
+# ---------------------------------------------------------------------------
+# Ideological contrast analysis
+# ---------------------------------------------------------------------------
+
+
+def _collect_philosophy_tags(blueprint: StoryBlueprint) -> dict[str, list[PhilosophyTag]]:
+    result: dict[str, list[PhilosophyTag]] = {}
+    for char in blueprint.characters:
+        identity = _load_identity(char)
+        if identity and identity.ideology and identity.ideology.philosophy_tags:
+            result[char.name] = identity.ideology.philosophy_tags
+    return result
+
+
+def _opposed_tags(tag_a: PhilosophyTag, tag_b: PhilosophyTag) -> bool:
+    opposition_pairs = [
+        (PhilosophyTag.PROTECTION_THROUGH_HIERARCHY, PhilosophyTag.SALVATION_THROUGH_REBELLION),
+        (PhilosophyTag.ORDER_THROUGH_STRUCTURE, PhilosophyTag.CHANGE_THROUGH_DESTRUCTION),
+        (PhilosophyTag.CONTROL_THROUGH_CARE, PhilosophyTag.FREEDOM_THROUGH_AUTONOMY),
+        (PhilosophyTag.JUSTICE_THROUGH_RULES, PhilosophyTag.TRUTH_THROUGH_CONFRONTATION),
+        (PhilosophyTag.POWER_THROUGH_KNOWLEDGE, PhilosophyTag.SALVATION_THROUGH_KNOWLEDGE),
+        (PhilosophyTag.PEACE_THROUGH_WITHDRAWAL, PhilosophyTag.SALVATION_THROUGH_REBELLION),
+        (PhilosophyTag.MEANING_THROUGH_SACRIFICE, PhilosophyTag.SURVIVAL_THROUGH_ADAPTATION),
+    ]
+    return (tag_a, tag_b) in opposition_pairs or (tag_b, tag_a) in opposition_pairs
+
+
+def _diagnose_ideological_contrast(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
+    diagnostics: list[StructureDiagnostic] = []
+    char_tags = _collect_philosophy_tags(blueprint)
+
+    names = list(char_tags.keys())
+    for i in range(len(names)):
+        for j in range(i + 1, len(names)):
+            name_a = names[i]
+            name_b = names[j]
+            a_tags = char_tags[name_a]
+            b_tags = char_tags[name_b]
+            if any(_opposed_tags(ta, tb) for ta in a_tags for tb in b_tags):
+                diagnostics.append(
+                    StructureDiagnostic(
+                        severity=DiagnosticSeverity.WARNING,
+                        layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                        rule="characters.ideological_contrast_detected",
+                        message=f"Ideological contrast between '{name_a}' and '{name_b}' based on philosophy tags.",
+                        evidence=[f"character_a = {name_a} tags = {[t.value for t in a_tags]}",
+                                  f"character_b = {name_b} tags = {[t.value for t in b_tags]}"],
+                        repair_options=RepairOptions(
+                            preserve_intent=["Ensure the story dramatizes this ideological conflict."],
+                            challenge_intent=["Reduce contrasting tags if characters are not intended to conflict."],
+                        ),
+                    )
+                )
+            if set(a_tags) == set(b_tags):
+                diagnostics.append(
+                    StructureDiagnostic(
+                        severity=DiagnosticSeverity.WARNING,
+                        layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                        rule="characters.ideological_convergence",
+                        message=f"'{name_a}' and '{name_b}' share identical philosophy tags.",
+                        evidence=[f"character_a = {name_a} tags = {[t.value for t in a_tags]}",
+                                  f"character_b = {name_b} tags = {[t.value for t in b_tags]}"],
+                        repair_options=RepairOptions(
+                            preserve_intent=["Differentiate at least one philosophy tag between these characters."],
+                            challenge_intent=["Keep identical tags if they share the same worldview."],
+                        ),
+                    )
+                )
+
+    return diagnostics
+
+
+# ---------------------------------------------------------------------------
+# Motif presence analysis
+# ---------------------------------------------------------------------------
+
+
+def _diagnose_motif_presence(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
+    diagnostics: list[StructureDiagnostic] = []
+
+    for char in blueprint.characters:
+        identity = _load_identity(char)
+        if char.role.value not in ("protagonist", "antagonist", "deuteragonist"):
+            continue
+        if identity is None:
+            continue
+        if identity.motifs is None or not identity.motifs.motifs:
+            diagnostics.append(
+                StructureDiagnostic(
+                    severity=DiagnosticSeverity.WARNING,
+                    layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                    rule="character.motifs.missing",
+                    message=f"Character '{char.name}' ({char.role.value}) has no motif profile. Motifs anchor character behavior in reader memory.",
+                    evidence=[f"character.name = {char.name}", "character.motifs is empty"],
+                    repair_options=RepairOptions(
+                        preserve_intent=[f"Add at least 2-3 recurring motifs for '{char.name}'."],
+                        challenge_intent=["Omit if the character's behavior is intentionally transparent."],
+                    ),
+                )
+            )
+
+    return diagnostics
+
+
+# ---------------------------------------------------------------------------
+# Essence completeness analysis
+# ---------------------------------------------------------------------------
+
+
+def _diagnose_essence_completeness(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
+    diagnostics: list[StructureDiagnostic] = []
+
+    for char in blueprint.characters:
+        identity = _load_identity(char)
+        if identity is None or identity.essence is None:
+            continue
+        essence = identity.essence
+        if not essence.personal_traits and not essence.bond_traits:
+            diagnostics.append(
+                StructureDiagnostic(
+                    severity=DiagnosticSeverity.WARNING,
+                    layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                    rule="character.essence.empty",
+                    message=f"Character '{char.name}' has an essence profile but no traits defined.",
+                    evidence=[f"character.name = {char.name}", "essence.personal_traits and essence.bond_traits are empty"],
+                    repair_options=RepairOptions(
+                        preserve_intent=[f"Add personal traits, bond traits, or both for '{char.name}'."],
+                        challenge_intent=["Remove the essence profile if it is not needed."],
+                    ),
+                )
+            )
+
+    return diagnostics
+
+
+# ---------------------------------------------------------------------------
+# Texture depth analysis
+# ---------------------------------------------------------------------------
+
+
+def _diagnose_texture_depth(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
+    diagnostics: list[StructureDiagnostic] = []
+
+    for char in blueprint.characters:
+        identity = _load_identity(char)
+        if identity is None or identity.texture is None:
+            continue
+        texture = identity.texture
+        if not texture.gestures and not texture.rituals and not texture.social_habits and not texture.behavioral_tells:
+            if char.role.value in ("protagonist", "antagonist", "deuteragonist"):
+                diagnostics.append(
+                    StructureDiagnostic(
+                        severity=DiagnosticSeverity.WARNING,
+                        layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                        rule="character.texture.shallow",
+                        message=f"Character '{char.name}' has a texture layer but no behavioral depth fields (gestures, rituals, social_habits, behavioral_tells).",
+                        evidence=[f"character.name = {char.name}", "All behavioral texture fields are empty"],
+                        repair_options=RepairOptions(
+                            preserve_intent=[f"Add at least one of gestures, rituals, social_habits, or behavioral_tells for '{char.name}'."],
+                            challenge_intent=["Keep shallow if voice and aesthetic are sufficient."],
                         ),
                     )
                 )

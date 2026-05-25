@@ -245,3 +245,58 @@ class TropeTag(str, Enum):
     SELF_MADE_SEEKER = "self_made_seeker"
     DIVINE_MANDATE = "divine_mandate"
     EXILE = "exile"
+
+
+class PhilosophyTag(str, Enum):
+    PROTECTION_THROUGH_HIERARCHY = "protection_through_hierarchy"
+    SALVATION_THROUGH_REBELLION = "salvation_through_rebellion"
+    SALVATION_THROUGH_KNOWLEDGE = "salvation_through_knowledge"
+    INTIMACY_THROUGH_AUTHORSHIP = "intimacy_through_authorship"
+    FREEDOM_THROUGH_AUTONOMY = "freedom_through_autonomy"
+    CONTROL_THROUGH_CARE = "control_through_care"
+    ORDER_THROUGH_STRUCTURE = "order_through_structure"
+    CHANGE_THROUGH_DESTRUCTION = "change_through_destruction"
+    SURVIVAL_THROUGH_ADAPTATION = "survival_through_adaptation"
+    MEANING_THROUGH_SACRIFICE = "meaning_through_sacrifice"
+    JUSTICE_THROUGH_RULES = "justice_through_rules"
+    TRUTH_THROUGH_CONFRONTATION = "truth_through_confrontation"
+    PEACE_THROUGH_WITHDRAWAL = "peace_through_withdrawal"
+    POWER_THROUGH_KNOWLEDGE = "power_through_knowledge"
+    IDENTITY_THROUGH_REBELLION = "identity_through_rebellion"
+    LOYALTY_THROUGH_ALLEGIANCE = "loyalty_through_allegiance"
+
+
+class AuthorshipVector(str, Enum):
+    MUTUAL = "mutual"
+    A_SHAPES_B = "a_shapes_b"
+    B_SHAPES_A = "b_shapes_a"
+    RECURSIVE = "recursive"
+    CONTESTED = "contested"
+    ARCHITECTED = "architected"
+    INDEPENDENT = "independent"
+
+
+class DependencySymmetry(str, Enum):
+    EQUAL = "equal"
+    ASYMMETRIC = "asymmetric"
+    CODEPENDENT = "codependent"
+    INDEPENDENT = "independent"
+    RECURSIVE_DEPENDENCY = "recursive_dependency"
+
+
+class MotifType(str, Enum):
+    GESTURE = "gesture"
+    RITUAL = "ritual"
+    HABIT = "habit"
+    SYMBOLIC_ACTION = "symbolic_action"
+    VERBAL_TIC = "verbal_tic"
+    SOCIAL_PATTERN = "social_pattern"
+    ENVIRONMENTAL_SIGNATURE = "environmental_signature"
+    RECURRING_OBJECT = "recurring_object"
+
+
+class EssenceTraitSource(str, Enum):
+    PERSONAL = "personal"
+    BOND = "bond"
+    INSERTED = "inserted"
+    ARCHITECTED = "architected"

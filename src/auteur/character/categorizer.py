@@ -6,6 +6,9 @@ from auteur.blueprint import Character, CharacterRole, StoryBlueprint
 from auteur.character.enums import (
     Archetype,
     DramaticFunction,
+    EssenceTraitSource,
+    MotifType,
+    PhilosophyTag,
     RelationshipType,
     TropeTag,
 )
@@ -15,6 +18,11 @@ from auteur.character.models import (
     ArchetypalLayer,
     CharacterCategorization,
     CharacterIdentity,
+    EssenceProfile,
+    EssenceTrait,
+    IdeologicalProfile,
+    Motif,
+    MotifProfile,
     PsychologicalLayer,
     RelationshipMesh,
     RelationshipSignature,
@@ -34,6 +42,10 @@ class CategorizationEngine:
             narrative_role=self._propose_narrative_role(char),
             archetype=self._propose_archetype_layer(char),
             psychology=self._propose_psychology(char),
+            texture=self._propose_texture(char),
+            ideology=self._propose_ideology(char),
+            essence=self._propose_essence(char),
+            motifs=self._propose_motifs(char),
             arc=self._propose_arc(char),
             personality_traits=self._suggest_personality_traits(char),
             trope_tags=self._suggest_trope_tags(char),
@@ -103,6 +115,89 @@ class CategorizationEngine:
         if char.role == CharacterRole.MENTOR:
             contradictions.append("wise_but_limited")
         return contradictions
+
+    # -- Texture layer --
+
+    def _propose_texture(self, char: Character) -> TextureLayer | None:
+        habits = self._suggest_habits(char)
+        gestures = self._suggest_gestures(char)
+        if not habits and not gestures:
+            return None
+        return TextureLayer(habits=habits, gestures=gestures)
+
+    def _suggest_habits(self, char: Character) -> list[str]:
+        if char.role == CharacterRole.PROTAGONIST:
+            return ["obsessive note-taking"]
+        if char.role == CharacterRole.ANTAGONIST:
+            return ["arranges objects symmetrically"]
+        if char.role == CharacterRole.MENTOR:
+            return ["collects obscure artifacts"]
+        return []
+
+    def _suggest_gestures(self, char: Character) -> list[str]:
+        if char.role == CharacterRole.PROTAGONIST:
+            return ["rubs temples when thinking deeply"]
+        if char.role == CharacterRole.ANTAGONIST:
+            return ["steeples fingers during conversation"]
+        if char.role == CharacterRole.MENTOR:
+            return ["gestures with an unlit pipe"]
+        return []
+
+    # -- Ideology layer --
+
+    def _propose_ideology(self, char: Character) -> IdeologicalProfile | None:
+        tags = self._suggest_philosophy_tags(char)
+        if not tags:
+            return None
+        worldview = tags[0].value.replace("_", " ").title()
+        return IdeologicalProfile(
+            worldview=worldview,
+            philosophy_tags=tags,
+        )
+
+    def _suggest_philosophy_tags(self, char: Character) -> list[PhilosophyTag]:
+        role_tags: dict[CharacterRole, list[PhilosophyTag]] = {
+            CharacterRole.PROTAGONIST: [PhilosophyTag.SALVATION_THROUGH_KNOWLEDGE, PhilosophyTag.TRUTH_THROUGH_CONFRONTATION],
+            CharacterRole.ANTAGONIST: [PhilosophyTag.ORDER_THROUGH_STRUCTURE, PhilosophyTag.CONTROL_THROUGH_CARE],
+            CharacterRole.MENTOR: [PhilosophyTag.POWER_THROUGH_KNOWLEDGE],
+            CharacterRole.FOIL: [PhilosophyTag.FREEDOM_THROUGH_AUTONOMY],
+            CharacterRole.ALLY: [PhilosophyTag.JUSTICE_THROUGH_RULES],
+            CharacterRole.SUPPORTING: [PhilosophyTag.SURVIVAL_THROUGH_ADAPTATION],
+            CharacterRole.DEUTERAGONIST: [PhilosophyTag.LOYALTY_THROUGH_ALLEGIANCE],
+        }
+        return role_tags.get(char.role, [])
+
+    # -- Essence layer --
+
+    def _propose_essence(self, char: Character) -> EssenceProfile | None:
+        return EssenceProfile(
+            personal_traits=[
+                EssenceTrait(name="curious", source=EssenceTraitSource.PERSONAL, description="Driven to understand hidden truths."),
+            ],
+        )
+
+    # -- Motif layer --
+
+    def _propose_motifs(self, char: Character) -> MotifProfile | None:
+        motifs = self._suggest_motifs(char)
+        return MotifProfile(motifs=motifs) if motifs else None
+
+    def _suggest_motifs(self, char: Character) -> list[Motif]:
+        role_motifs: dict[CharacterRole, list[Motif]] = {
+            CharacterRole.PROTAGONIST: [
+                Motif(behavior="pauses at thresholds before crossing", type=MotifType.RITUAL,
+                      significance="Hesitation before commitment"),
+            ],
+            CharacterRole.ANTAGONIST: [
+                Motif(behavior="traces patterns on surfaces while thinking", type=MotifType.GESTURE,
+                      significance="Need for order and control"),
+            ],
+            CharacterRole.MENTOR: [
+                Motif(behavior="offers cryptic half-answers", type=MotifType.VERBAL_TIC,
+                      significance="Teaching through indirection"),
+            ],
+        }
+        return role_motifs.get(char.role, [])
 
     # -- Arc layer --
 

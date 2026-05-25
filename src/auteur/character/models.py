@@ -4,12 +4,22 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from auteur.character.enums import (
     Archetype,
+    AuthorshipVector,
+    DependencySymmetry,
     DramaticFunction,
+    EssenceTraitSource,
     MoralAlignment,
+    MotifType,
     PersonalityTrait,
+    PhilosophyTag,
     RelationshipType,
     TropeTag,
 )
+
+
+# ---------------------------------------------------------------------------
+# Layer 1 — Narrative Role
+# ---------------------------------------------------------------------------
 
 
 class StructuralRole(BaseModel):
@@ -19,9 +29,19 @@ class StructuralRole(BaseModel):
     )
 
 
+# ---------------------------------------------------------------------------
+# Layer 2 — Archetypal
+# ---------------------------------------------------------------------------
+
+
 class ArchetypalLayer(BaseModel):
     core: Archetype | None = None
     shadow: Archetype | None = None
+
+
+# ---------------------------------------------------------------------------
+# Layer 3 — Psychology
+# ---------------------------------------------------------------------------
 
 
 class PsychologicalLayer(BaseModel):
@@ -30,8 +50,13 @@ class PsychologicalLayer(BaseModel):
     desire: str | None = Field(default=None, description="What the character secretly craves, e.g. 'recognition'.")
     contradictions: list[str] = Field(
         default_factory=list,
-        description="Internal contradictions that create believable tension, e.g. 'compassionate_to_strangers', 'cruel_to_family'.",
+        description="Internal contradictions that create believable tension.",
     )
+
+
+# ---------------------------------------------------------------------------
+# Layer 4 — Texture (behavioral fingerprints)
+# ---------------------------------------------------------------------------
 
 
 class TextureVoice(BaseModel):
@@ -43,6 +68,84 @@ class TextureLayer(BaseModel):
     voice: TextureVoice | None = None
     habits: list[str] = Field(default_factory=list, description="Idiosyncratic behaviors.")
     aesthetic: list[str] = Field(default_factory=list, description="Visual/stylistic signatures, e.g. 'silver jewelry'.")
+    gestures: list[str] = Field(
+        default_factory=list,
+        description="Recurring physical gestures, e.g. 'silently fixes his collar during stress', 'walks ahead in crowds'.",
+    )
+    rituals: list[str] = Field(
+        default_factory=list,
+        description="Ritualized behavior patterns, e.g. 'checks evacuation exits repeatedly', 'edits announcement boards at night'.",
+    )
+    social_habits: list[str] = Field(
+        default_factory=list,
+        description="Social interaction patterns, e.g. 'deliberately breaks rules in front of others', 'avoids eye contact when lying'.",
+    )
+    behavioral_tells: list[str] = Field(
+        default_factory=list,
+        description="Subconscious tells that reveal emotional state, e.g. 'folds receipts when anxious'.",
+    )
+
+
+# ---------------------------------------------------------------------------
+# Layer 5 — Ideological Profile (character as philosophy)
+# ---------------------------------------------------------------------------
+
+
+class IdeologicalProfile(BaseModel):
+    worldview: str | None = Field(
+        default=None,
+        description="Core philosophical stance, e.g. 'protection through hierarchy'.",
+    )
+    solution: str | None = Field(
+        default=None,
+        description="What they believe is the answer to existential insecurity.",
+    )
+    philosophy_tags: list[PhilosophyTag] = Field(default_factory=list)
+
+
+# ---------------------------------------------------------------------------
+# Layer 6 — Essence Profile (identity construction)
+# ---------------------------------------------------------------------------
+
+
+class EssenceTrait(BaseModel):
+    name: str
+    source: EssenceTraitSource = EssenceTraitSource.PERSONAL
+    description: str = ""
+
+
+class EssenceProfile(BaseModel):
+    personal_traits: list[EssenceTrait] = Field(
+        default_factory=list,
+        description="Traits inherent to the character's original identity.",
+    )
+    bond_traits: list[EssenceTrait] = Field(
+        default_factory=list,
+        description="Traits acquired through Essence Bonds — may become authentic over time.",
+    )
+
+
+# ---------------------------------------------------------------------------
+# Layer 7 — Motif Profile (recurring symbolic behaviors)
+# ---------------------------------------------------------------------------
+
+
+class Motif(BaseModel):
+    behavior: str = Field(description="The recurring action, e.g. 'silently replaces his damaged items before he notices'.")
+    type: MotifType = MotifType.GESTURE
+    significance: str = Field(
+        default="",
+        description="What this motif communicates emotionally or thematically.",
+    )
+
+
+class MotifProfile(BaseModel):
+    motifs: list[Motif] = Field(default_factory=list)
+
+
+# ---------------------------------------------------------------------------
+# Arc / Transformation
+# ---------------------------------------------------------------------------
 
 
 class ArcChange(BaseModel):
@@ -58,24 +161,47 @@ class ArcEngine(BaseModel):
     )
 
 
+# ---------------------------------------------------------------------------
+# Relationship
+# ---------------------------------------------------------------------------
+
+
 class RelationshipSignature(BaseModel):
     other: str
     type: RelationshipType
     intensity: float = Field(ge=0.0, le=1.0, default=0.5)
-    bidirectional: bool = Field(
-        default=True,
-        description="Whether the relationship is likely mutual.",
+    bidirectional: bool = Field(default=True)
+    ideological_alignment: str | None = Field(
+        default=None,
+        description="How their worldviews relate: 'aligned', 'opposed', 'complementary', 'asymmetric'.",
+    )
+    authorship_vector: AuthorshipVector | None = Field(
+        default=None,
+        description="Who shapes whom in the relationship.",
+    )
+    dependency_symmetry: DependencySymmetry | None = Field(
+        default=None,
+        description="How dependency is distributed.",
     )
 
 
 class RelationshipMesh(BaseModel):
     relationships: list[RelationshipSignature] = Field(default_factory=list)
+    ideological_tensions: list[str] = Field(
+        default_factory=list,
+        description="Philosophical conflicts active in the relationship network.",
+    )
+
+
+# ---------------------------------------------------------------------------
+# Analysis / Inference
+# ---------------------------------------------------------------------------
 
 
 class ThematicAlignment(BaseModel):
     theme: str
     stance: str = Field(
-        description="How the character embodies or challenges the theme, e.g. 'embodies', 'questions', 'rejects'.",
+        description="How the character embodies or challenges the theme.",
     )
 
 
@@ -86,11 +212,19 @@ class RoleInference(BaseModel):
     reasoning: str = ""
 
 
+# ---------------------------------------------------------------------------
+# Root: CharacterIdentity (authored)
+# ---------------------------------------------------------------------------
+
+
 class CharacterIdentity(BaseModel):
     narrative_role: StructuralRole | None = None
     archetype: ArchetypalLayer | None = None
     psychology: PsychologicalLayer | None = None
     texture: TextureLayer | None = None
+    ideology: IdeologicalProfile | None = None
+    essence: EssenceProfile | None = None
+    motifs: MotifProfile | None = None
     arc: ArcEngine | None = None
     relationship_mesh: RelationshipMesh | None = None
 
@@ -101,6 +235,11 @@ class CharacterIdentity(BaseModel):
         default_factory=list,
         description="Free-form semantic tags beyond the controlled vocabulary.",
     )
+
+
+# ---------------------------------------------------------------------------
+# CharacterCategorization (inferred)
+# ---------------------------------------------------------------------------
 
 
 class CharacterCategorization(BaseModel):

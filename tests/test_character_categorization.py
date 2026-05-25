@@ -22,9 +22,14 @@ from auteur.character.categorizer import CategorizationEngine
 from auteur.character.cli import handle_character_command
 from auteur.character.enums import (
     Archetype,
+    AuthorshipVector,
+    DependencySymmetry,
     DramaticFunction,
+    EssenceTraitSource,
     MoralAlignment,
+    MotifType,
     PersonalityTrait,
+    PhilosophyTag,
     ProtagonistSubtype,
     RelationshipType,
     TropeTag,
@@ -37,6 +42,11 @@ from auteur.character.models import (
     ArchetypalLayer,
     CharacterCategorization,
     CharacterIdentity,
+    EssenceProfile,
+    EssenceTrait,
+    IdeologicalProfile,
+    Motif,
+    MotifProfile,
     PsychologicalLayer,
     RelationshipMesh,
     RelationshipSignature,
@@ -701,3 +711,485 @@ def test_layered_identity_serialization_roundtrip(tmp_path):
     assert identity["texture"]["voice"]["cadence"] == "clipped"
     assert identity["arc"]["positive_change"]["from"] == "control"
     assert "fallen_hero" in identity["trope_tags"]
+
+
+# ============================================================================
+# New enum tests (PhilosophyTag, AuthorshipVector, DependencySymmetry, MotifType, EssenceTraitSource)
+# ============================================================================
+
+
+def test_philosophy_tag_enum_values():
+    assert PhilosophyTag.PROTECTION_THROUGH_HIERARCHY.value == "protection_through_hierarchy"
+    assert PhilosophyTag.LOYALTY_THROUGH_ALLEGIANCE.value == "loyalty_through_allegiance"
+
+
+def test_authorship_vector_enum_values():
+    assert AuthorshipVector.MUTUAL.value == "mutual"
+    assert AuthorshipVector.CONTESTED.value == "contested"
+
+
+def test_dependency_symmetry_enum_values():
+    assert DependencySymmetry.CODEPENDENT.value == "codependent"
+    assert DependencySymmetry.RECURSIVE_DEPENDENCY.value == "recursive_dependency"
+
+
+def test_motif_type_enum_values():
+    assert MotifType.GESTURE.value == "gesture"
+    assert MotifType.VERBAL_TIC.value == "verbal_tic"
+
+
+def test_essence_trait_source_enum_values():
+    assert EssenceTraitSource.PERSONAL.value == "personal"
+    assert EssenceTraitSource.INSERTED.value == "inserted"
+
+
+# ============================================================================
+# New model tests: IdeologicalProfile, EssenceProfile, MotifProfile, enriched TextureLayer, enriched RelationshipSignature
+# ============================================================================
+
+
+def test_ideological_profile_defaults():
+    ip = IdeologicalProfile()
+    assert ip.worldview is None
+    assert ip.philosophy_tags == []
+
+
+def test_ideological_profile_full():
+    ip = IdeologicalProfile(
+        worldview="Protection Through Hierarchy",
+        philosophy_tags=[PhilosophyTag.PROTECTION_THROUGH_HIERARCHY],
+    )
+    assert ip.worldview == "Protection Through Hierarchy"
+    assert PhilosophyTag.PROTECTION_THROUGH_HIERARCHY in ip.philosophy_tags
+
+
+def test_essence_trait():
+    et = EssenceTrait(name="curious", source=EssenceTraitSource.PERSONAL, description="Driven to understand.")
+    assert et.name == "curious"
+    assert et.source == EssenceTraitSource.PERSONAL
+
+
+def test_essence_profile_defaults():
+    ep = EssenceProfile()
+    assert ep.personal_traits == []
+    assert ep.bond_traits == []
+
+
+def test_essence_profile_full():
+    ep = EssenceProfile(
+        personal_traits=[
+            EssenceTrait(name="curious", source=EssenceTraitSource.PERSONAL),
+        ],
+        bond_traits=[
+            EssenceTrait(name="patient", source=EssenceTraitSource.BOND, description="Acquired through mentorship."),
+        ],
+    )
+    assert len(ep.personal_traits) == 1
+    assert len(ep.bond_traits) == 1
+    assert ep.bond_traits[0].source == EssenceTraitSource.BOND
+
+
+def test_motif():
+    m = Motif(behavior="pauses at thresholds", type=MotifType.RITUAL, significance="Hesitation before commitment.")
+    assert m.behavior == "pauses at thresholds"
+    assert m.type == MotifType.RITUAL
+    assert m.significance != ""
+
+
+def test_motif_profile_defaults():
+    mp = MotifProfile()
+    assert mp.motifs == []
+
+
+def test_motif_profile_full():
+    mp = MotifProfile(motifs=[
+        Motif(behavior="traces patterns on surfaces", type=MotifType.GESTURE, significance="Need for order."),
+    ])
+    assert len(mp.motifs) == 1
+    assert mp.motifs[0].type == MotifType.GESTURE
+
+
+def test_texture_layer_enriched():
+    t = TextureLayer(
+        voice=TextureVoice(cadence="clipped"),
+        habits=["folds receipts"],
+        gestures=["silently fixes collar during stress"],
+        rituals=["checks evacuation exits repeatedly"],
+        social_habits=["deliberately breaks rules in front of others"],
+        behavioral_tells=["folds receipts when anxious"],
+    )
+    assert len(t.gestures) == 1
+    assert len(t.rituals) == 1
+    assert len(t.social_habits) == 1
+    assert len(t.behavioral_tells) == 1
+    assert t.gestures[0] == "silently fixes collar during stress"
+
+
+def test_relationship_signature_enriched():
+    sig = RelationshipSignature(
+        other="Kael",
+        type=RelationshipType.RIVALRY,
+        intensity=0.8,
+        ideological_alignment="opposed",
+        authorship_vector=AuthorshipVector.CONTESTED,
+        dependency_symmetry=DependencySymmetry.EQUAL,
+    )
+    assert sig.ideological_alignment == "opposed"
+    assert sig.authorship_vector == AuthorshipVector.CONTESTED
+    assert sig.dependency_symmetry == DependencySymmetry.EQUAL
+
+
+def test_character_identity_with_new_layers():
+    ci = CharacterIdentity(
+        ideology=IdeologicalProfile(
+            worldview="Salvation Through Knowledge",
+            philosophy_tags=[PhilosophyTag.SALVATION_THROUGH_KNOWLEDGE],
+        ),
+        essence=EssenceProfile(
+            personal_traits=[EssenceTrait(name="curious", source=EssenceTraitSource.PERSONAL)],
+        ),
+        motifs=MotifProfile(motifs=[
+            Motif(behavior="pauses at thresholds", type=MotifType.RITUAL, significance="Hesitation."),
+        ]),
+        texture=TextureLayer(
+            gestures=["silently fixes collar"],
+            rituals=["edits announcement boards at night"],
+        ),
+    )
+    assert ci.ideology.philosophy_tags == [PhilosophyTag.SALVATION_THROUGH_KNOWLEDGE]
+    assert ci.essence.personal_traits[0].name == "curious"
+    assert ci.motifs.motifs[0].type == MotifType.RITUAL
+    assert ci.texture.gestures[0] == "silently fixes collar"
+
+
+# ============================================================================
+# New model roundtrip tests
+# ============================================================================
+
+
+def test_ideological_profile_roundtrip():
+    ip = IdeologicalProfile(
+        worldview="Protection Through Hierarchy",
+        philosophy_tags=[PhilosophyTag.PROTECTION_THROUGH_HIERARCHY],
+    )
+    data = ip.model_dump(mode="json")
+    restored = IdeologicalProfile.model_validate(data)
+    assert restored.worldview == "Protection Through Hierarchy"
+    assert restored.philosophy_tags == [PhilosophyTag.PROTECTION_THROUGH_HIERARCHY]
+
+
+def test_essence_profile_roundtrip():
+    ep = EssenceProfile(
+        personal_traits=[EssenceTrait(name="brave", source=EssenceTraitSource.PERSONAL)],
+        bond_traits=[EssenceTrait(name="wise", source=EssenceTraitSource.BOND)],
+    )
+    data = ep.model_dump(mode="json")
+    restored = EssenceProfile.model_validate(data)
+    assert restored.personal_traits[0].name == "brave"
+    assert restored.bond_traits[0].source == EssenceTraitSource.BOND
+
+
+def test_motif_profile_roundtrip():
+    mp = MotifProfile(motifs=[
+        Motif(behavior="traces patterns", type=MotifType.GESTURE, significance="Order."),
+    ])
+    data = mp.model_dump(mode="json")
+    restored = MotifProfile.model_validate(data)
+    assert restored.motifs[0].behavior == "traces patterns"
+    assert restored.motifs[0].type == MotifType.GESTURE
+
+
+def test_enriched_relationship_signature_roundtrip():
+    sig = RelationshipSignature(
+        other="Vlak",
+        type=RelationshipType.RIVALRY,
+        intensity=0.9,
+        ideological_alignment="opposed",
+        authorship_vector=AuthorshipVector.CONTESTED,
+        dependency_symmetry=DependencySymmetry.ASYMMETRIC,
+    )
+    data = sig.model_dump(mode="json")
+    restored = RelationshipSignature.model_validate(data)
+    assert restored.ideological_alignment == "opposed"
+    assert restored.authorship_vector == AuthorshipVector.CONTESTED
+    assert restored.dependency_symmetry == DependencySymmetry.ASYMMETRIC
+
+
+def test_character_identity_new_layers_roundtrip():
+    ci = CharacterIdentity(
+        ideology=IdeologicalProfile(
+            philosophy_tags=[PhilosophyTag.SALVATION_THROUGH_KNOWLEDGE],
+        ),
+        essence=EssenceProfile(
+            personal_traits=[EssenceTrait(name="curious", source=EssenceTraitSource.PERSONAL)],
+        ),
+        motifs=MotifProfile(motifs=[
+            Motif(behavior="pauses at thresholds", type=MotifType.RITUAL),
+        ]),
+    )
+    data = ci.model_dump(mode="json")
+    restored = CharacterIdentity.model_validate(data)
+    assert restored.ideology.philosophy_tags == [PhilosophyTag.SALVATION_THROUGH_KNOWLEDGE]
+    assert restored.essence.personal_traits[0].name == "curious"
+    assert restored.motifs.motifs[0].type == MotifType.RITUAL
+
+
+def test_new_layers_in_character_identity_dict_roundtrip():
+    bp_data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {
+             "ideology": {
+                 "worldview": "Salvation Through Knowledge",
+                 "philosophy_tags": ["salvation_through_knowledge"],
+             },
+             "essence": {
+                 "personal_traits": [{"name": "curious", "source": "personal", "description": "Driven to understand."}],
+                 "bond_traits": [{"name": "patient", "source": "bond", "description": "Learned from mentor."}],
+             },
+             "motifs": {
+                 "motifs": [{"behavior": "pauses at thresholds", "type": "ritual", "significance": "Hesitation."}],
+             },
+             "texture": {
+                 "gestures": ["silently fixes collar"],
+                 "rituals": ["edits announcement boards at night"],
+                 "behavioral_tells": ["folds receipts when anxious"],
+             },
+         }},
+    ])
+    bp = StoryBlueprint.model_validate(bp_data)
+    identity = bp.characters[0].identity
+    assert identity["ideology"]["worldview"] == "Salvation Through Knowledge"
+    assert identity["essence"]["personal_traits"][0]["name"] == "curious"
+    assert identity["motifs"]["motifs"][0]["type"] == "ritual"
+    assert identity["texture"]["gestures"][0] == "silently fixes collar"
+    assert "edits announcement boards at night" in identity["texture"]["rituals"]
+
+
+def test_new_layers_yaml_roundtrip(tmp_path):
+    bp_data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {
+             "ideology": {"philosophy_tags": ["salvation_through_knowledge"]},
+             "essence": {
+                 "personal_traits": [{"name": "curious", "source": "personal"}],
+             },
+             "motifs": {
+                 "motifs": [{"behavior": "pauses", "type": "ritual"}],
+             },
+         }},
+    ])
+    bp = StoryBlueprint.model_validate(bp_data)
+    serialized = yaml.safe_dump(bp.model_dump(mode="json"))
+    loaded = yaml.safe_load(serialized)
+    restored = StoryBlueprint.model_validate(loaded)
+    identity = restored.characters[0].identity
+    assert identity["ideology"]["philosophy_tags"] == ["salvation_through_knowledge"]
+    assert identity["essence"]["personal_traits"][0]["name"] == "curious"
+    assert identity["motifs"]["motifs"][0]["behavior"] == "pauses"
+
+
+# ============================================================================
+# New analyzer diagnostics
+# ============================================================================
+
+
+def test_analyzer_ideological_contrast():
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {"ideology": {"philosophy_tags": ["salvation_through_rebellion"]}}},
+        {"name": "Vlak", "role": "antagonist", "arc_type": "corruption",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {"ideology": {"philosophy_tags": ["protection_through_hierarchy"]}}},
+    ])
+    bp = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_character_categorization(bp)
+    assert any(d.rule == "characters.ideological_contrast_detected" for d in diagnostics)
+
+
+def test_analyzer_ideological_convergence():
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {"ideology": {"philosophy_tags": ["salvation_through_knowledge"]}}},
+        {"name": "Vlak", "role": "antagonist", "arc_type": "corruption",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {"ideology": {"philosophy_tags": ["salvation_through_knowledge"]}}},
+    ])
+    bp = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_character_categorization(bp)
+    assert any(d.rule == "characters.ideological_convergence" for d in diagnostics)
+
+
+def test_analyzer_ideological_contrast_no_false_positive():
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {"ideology": {"philosophy_tags": ["salvation_through_knowledge"]}}},
+        {"name": "Vlak", "role": "antagonist", "arc_type": "corruption",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {"ideology": {"philosophy_tags": ["order_through_structure"]}}},
+    ])
+    bp = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_character_categorization(bp)
+    contrast = [d for d in diagnostics if d.rule == "characters.ideological_contrast_detected"]
+    assert len(contrast) == 0
+
+
+def test_analyzer_motif_missing_for_protagonist():
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {"archetype": {"core": "hero"}}},
+    ])
+    bp = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_character_categorization(bp)
+    assert any(d.rule == "character.motifs.missing" for d in diagnostics)
+
+
+def test_analyzer_motif_not_missing_when_present():
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {
+             "archetype": {"core": "hero"},
+             "motifs": {"motifs": [{"behavior": "pauses", "type": "ritual"}]},
+         }},
+    ])
+    bp = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_character_categorization(bp)
+    motif_missing = [d for d in diagnostics if d.rule == "character.motifs.missing"]
+    assert len(motif_missing) == 0
+
+
+def test_analyzer_essence_empty_warning():
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {"essence": {}}},
+    ])
+    bp = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_character_categorization(bp)
+    assert any(d.rule == "character.essence.empty" for d in diagnostics)
+
+
+def test_analyzer_essence_not_empty_when_populated():
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {"essence": {"personal_traits": [{"name": "curious", "source": "personal"}]}}},
+    ])
+    bp = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_character_categorization(bp)
+    essence_empty = [d for d in diagnostics if d.rule == "character.essence.empty"]
+    assert len(essence_empty) == 0
+
+
+def test_analyzer_texture_shallow_warning():
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {"texture": {"voice": {"cadence": "clipped"}}}},
+    ])
+    bp = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_character_categorization(bp)
+    assert any(d.rule == "character.texture.shallow" for d in diagnostics)
+
+
+def test_analyzer_texture_not_shallow_with_gestures():
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {"texture": {"gestures": ["silently fixes collar"]}}},
+    ])
+    bp = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_character_categorization(bp)
+    shallow = [d for d in diagnostics if d.rule == "character.texture.shallow"]
+    assert len(shallow) == 0
+
+
+def test_analyzer_ideological_no_tags_no_diagnostic():
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100},
+        {"name": "Vlak", "role": "antagonist", "arc_type": "corruption",
+         "arc_start_percentage": 0, "arc_end_percentage": 100},
+    ])
+    bp = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_character_categorization(bp)
+    ideological_rules = [d for d in diagnostics if "ideological" in d.rule]
+    assert len(ideological_rules) == 0
+
+
+# ============================================================================
+# New categorizer tests
+# ============================================================================
+
+
+def test_categorizer_proposes_ideology():
+    bp = _make_blueprint([
+        _make_char("Kael", CharacterRole.PROTAGONIST),
+    ])
+    engine = CategorizationEngine(bp)
+    cats = engine.categorize_all()
+    assert cats["Kael"].identity.ideology is not None
+    assert len(cats["Kael"].identity.ideology.philosophy_tags) > 0
+    assert cats["Kael"].identity.ideology.worldview is not None
+
+
+def test_categorizer_proposes_essence():
+    bp = _make_blueprint([
+        _make_char("Kael", CharacterRole.PROTAGONIST),
+    ])
+    engine = CategorizationEngine(bp)
+    cats = engine.categorize_all()
+    assert cats["Kael"].identity.essence is not None
+    assert len(cats["Kael"].identity.essence.personal_traits) > 0
+
+
+def test_categorizer_proposes_motifs():
+    bp = _make_blueprint([
+        _make_char("Kael", CharacterRole.PROTAGONIST),
+        _make_char("Vlak", CharacterRole.ANTAGONIST),
+    ])
+    engine = CategorizationEngine(bp)
+    cats = engine.categorize_all()
+    assert cats["Kael"].identity.motifs is not None
+    assert len(cats["Kael"].identity.motifs.motifs) > 0
+    assert cats["Vlak"].identity.motifs is not None
+    assert len(cats["Vlak"].identity.motifs.motifs) > 0
+
+
+def test_categorizer_proposes_texture_gestures():
+    bp = _make_blueprint([
+        _make_char("Kael", CharacterRole.PROTAGONIST),
+    ])
+    engine = CategorizationEngine(bp)
+    cats = engine.categorize_all()
+    assert cats["Kael"].identity.texture is not None
+    assert len(cats["Kael"].identity.texture.gestures) > 0
+
+
+def test_categorizer_antagonist_ideology():
+    bp = _make_blueprint([
+        _make_char("Vlak", CharacterRole.ANTAGONIST),
+    ])
+    engine = CategorizationEngine(bp)
+    cats = engine.categorize_all()
+    assert cats["Vlak"].identity.ideology is not None
+    assert PhilosophyTag.ORDER_THROUGH_STRUCTURE in cats["Vlak"].identity.ideology.philosophy_tags
+
+
+def test_categorizer_role_specific_motifs():
+    bp = _make_blueprint([
+        _make_char("Kael", CharacterRole.PROTAGONIST),
+        _make_char("Vlak", CharacterRole.ANTAGONIST),
+        _make_char("Guide", CharacterRole.MENTOR),
+    ])
+    engine = CategorizationEngine(bp)
+    cats = engine.categorize_all()
+    assert cats["Kael"].identity.motifs.motifs[0].type == MotifType.RITUAL
+    assert cats["Vlak"].identity.motifs.motifs[0].type == MotifType.GESTURE
+    assert cats["Guide"].identity.motifs.motifs[0].type == MotifType.VERBAL_TIC
