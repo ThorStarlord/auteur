@@ -1,0 +1,82 @@
+genre_id: epic_fantasy
+display_name: "Epic Fantasy"
+core_truth: "Great power demands great sacrifice, and history is written by survivors."
+audience_product: "Awe, scope, heroism at world-changing scale, belonging to a larger story."
+primary_excitement_beats:
+  - "ordinary world disrupted by a world-scale threat"
+  - "call to adventure and refusal or acceptance"
+  - "alliance building across diverse peoples"
+  - "setback and regrouping before the final confrontation"
+  - "climactic battle that costs as much as it saves"
+required_tropes:
+  - "chosen one or destined hero"
+  - "journey across a vast world"
+  - "ancient prophecy or forgotten history"
+  - "mentor who sacrifices for the hero"
+  - "dark lord or world-scale antagonist"
+optional_tropes:
+  - "found family"
+  - "ancient artifact of power"
+  - "fall of a great civilization"
+  - "redemption of a fallen villain"
+forbidden_mismatches:
+  - "entirely personal stakes without world consequence"
+  - "clean victory without cost or sacrifice"
+  - "cynical deconstruction without sincere heroic moments"
+  - "low magic setting with epic scope contradiction"
+common_failure_modes:
+  - "Worldbuilding detail overwhelms character and emotional arc"
+  - "The hero is passive or reactive while the world moves around them"
+  - "The antagonist is a generic evil force without understandable motivation"
+  - "The middle sagues under travelogue pacing without escalating pressure"
+psychology_budget:
+  level: "conflict_bearing"
+  reason: "Epic fantasy requires characters to make sacrifice-driven choices under escalating pressure, but should avoid modern therapeutic introspection."
+  motivation_clarity: "required"
+  psychological_depth: "required"
+  character_texture: "encouraged"
+default_engine_biases:
+  - "Main thread drives world-scale stakes with personal cost"
+  - "Multiple subordinate threads represent different factional or regional perspectives"
+recommended_subversions:
+  - "The 'chosen one' prophecy is misinterpreted; the hero's choice matters more than destiny"
+  - "The final battle is won through diplomacy or sacrifice rather than violence"
+scope_profile:
+  natural_lengths:
+    - novel
+    - epic_novel
+    - series
+  minimum_viable_length: novel
+  default_length: epic_novel
+  narrative_runway: long
+  recommended_complexity: expanded
+  mechanical_load: high
+  worldbuilding_load: high
+  cast_load: high
+  compression_strategies:
+    - "Focus on one journey or region rather than a full continent-spanning narrative."
+    - "Represent large-scale conflict through a single squad or fellowship perspective."
+    - "Use one or two POV characters instead of an ensemble."
+  expansion_strategies:
+    - "Add POV characters for each major faction or region."
+    - "Expand to series length before introducing multiple war fronts or generation-spanning arcs."
+  scope_failure_modes:
+    - "The cast is too large for the page count to give each character meaningful arc room."
+    - "Faction politics overwhelm the protagonist's emotional journey."
+    - "Worldbuilding detail is delivered in blocks rather than woven through action."
+
+setup_contract:
+  emotional_runway: long
+  relationship_establishment: required
+  baseline_world_establishment: required
+  minimum_setup_beats:
+    - "Establish the ordinary world and the protagonist's place in it"
+    - "Introduce the world-scale threat or destabilizing event"
+    - "Show the protagonist's initial reluctance or qualification for the journey"
+    - "Establish the mentor figure and the prophecy/history that frames the conflict"
+  forbidden_shortcuts:
+    - "Skipping the ordinary world establishment before unleashing the threat"
+    - "Explaining the entire magic system or world history before the first act turn"
+  compression_strategies:
+    - "Fuse the ordinary world introduction with the call to adventure (in media res)."
+    - "Use a prologue to establish world context without slowing the protagonist's introduction."

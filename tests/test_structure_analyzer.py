@@ -146,6 +146,7 @@ def test_analyzer_reports_scope_and_thread_coherence_problems():
     diagnostics = analyze_structure(blueprint)
 
     assert {d.rule for d in diagnostics} == {
+        "characters.missing",
         "threads.exceeds_subplot_budget",
         "main_thread.change_duplicates_want",
         "theme.thesis_unrepresented",
@@ -193,9 +194,10 @@ def test_analyzer_reports_missing_subplot_budget_when_threads_exist():
 
     diagnostics = analyze_structure(blueprint)
 
-    assert [d.rule for d in diagnostics] == ["structure.subplot_budget.missing"]
-    assert diagnostics[0].severity == DiagnosticSeverity.WARNING
-    assert diagnostics[0].layer == DiagnosticLayer.SCOPE
+    assert {d.rule for d in diagnostics} == {"structure.subplot_budget.missing", "characters.missing"}
+    by_rule = {d.rule: d for d in diagnostics}
+    assert by_rule["structure.subplot_budget.missing"].severity == DiagnosticSeverity.WARNING
+    assert by_rule["structure.subplot_budget.missing"].layer == DiagnosticLayer.SCOPE
 
 
 def test_analyzer_reports_ending_tone_that_target_experience_says_to_avoid():

@@ -1,0 +1,80 @@
+genre_id: space_opera
+display_name: "Space Opera"
+core_truth: "Even among the stars, human passion, ambition, and love determine the fate of empires."
+audience_product: "Grandeur, romantic adventure at cosmic scale, heroism, found family among the stars."
+primary_excitement_beats:
+  - "escape from a collapsing situation"
+  - "discovery of a cosmic secret or ancient power"
+  - "space battle or chase with high personal stakes"
+  - "betrayal and alliance shifts among starfaring factions"
+  - "the personal sacrifice that saves the galaxy or loved ones"
+required_tropes:
+  - "star-spanning empire or federation"
+  - "ragtag crew or found family aboard a ship"
+  - "larger-than-life villain with personal connection to the hero"
+  - "space battles with emotional weight"
+  - "personal stakes at civilizational scale"
+optional_tropes:
+  - "ancient alien civilization or technology"
+  - "chosen by destiny or bloodline"
+  - "rogue, smuggler, or outcast protagonist"
+  - "prophecy or cosmic force"
+  - "lost technology or forgotten history"
+forbidden_mismatches:
+  - "civilizational stakes without personal emotional cost"
+  - "hard sci-fi technical plausibility that kills romantic adventure pacing"
+  - "clean victories without sacrifice"
+  - "a protagonist who is not emotionally invested in people, not just causes"
+common_failure_modes:
+  - "Scale of the setting overwhelms character intimacy"
+  - "The crew is interchangeable action figures without distinct emotional functions"
+  - "Space battles are described without grounding in what the protagonist stands to lose"
+  - "The villain is a faceless evil without personal connection to the hero"
+psychology_budget:
+  level: "functional"
+  reason: "Space opera runs on action, passion, and scale. Psychology should serve the emotional beats rather than deep introspection."
+  motivation_clarity: "required"
+  psychological_depth: "optional"
+  character_texture: "encouraged"
+default_engine_biases:
+  - "Main thread fuses personal emotional stakes with civilizational-scale conflict"
+  - "Crew member arcs serve as subordinate threads reflecting different responses to cosmic pressure"
+recommended_subversions:
+  - "The empire is not evil — the protagonist's rebellion causes as much harm as good"
+  - "The ancient power is a trap rather than a gift"
+scope_profile:
+  natural_lengths:
+    - novel
+    - epic_novel
+    - series
+  minimum_viable_length: novel
+  default_length: novel
+  narrative_runway: long
+  recommended_complexity: expanded
+  mechanical_load: medium
+  worldbuilding_load: medium
+  cast_load: high
+  compression_strategies:
+    - "Focus on one ship, one crew, and one conflict rather than galaxy-spanning war."
+    - "Represent the empire through one antagonist and one location."
+  expansion_strategies:
+    - "Add faction POVs and multiple star systems."
+    - "Expand to series length for generational conflict arcs."
+  scope_failure_modes:
+    - "The cast is too large for each crew member to have meaningful arc room."
+    - "The space opera spectacle overwhelms the emotional intimacy that makes it work."
+
+setup_contract:
+  emotional_runway: medium
+  relationship_establishment: required
+  baseline_world_establishment: required
+  minimum_setup_beats:
+    - "Establish the protagonist's current life and what they would risk everything for"
+    - "Introduce the ship/crew/found family unit"
+    - "Show the empire or threat that destabilizes the protagonist's world"
+  forbidden_shortcuts:
+    - "Full galactic exposition before the protagonist's personal stakes are established"
+    - "Introducing the crew as a fully formed family without showing how they come together"
+  compression_strategies:
+    - "Start on the ship during a crisis to establish crew dynamics in action."
+    - "Fuse the inciting incident with the crew assembly."

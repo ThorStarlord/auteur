@@ -105,6 +105,83 @@ def synthesize_structural_forces(blueprint: StoryBlueprint) -> StructuralForcesS
             "stakes": "The innocent and the protagonist's moral core",
             "change": "The protagonist becomes harder, colder, or corrupted by necessary actions"
         },
+        ("dread", "grimdark_fantasy"): {
+            "want": "To survive the cost of power",
+            "resistance": "Every choice that grants power demands a piece of the self",
+            "conflict": "Survival requires compromise, and compromise destroys what it meant to protect",
+            "stakes": "The protagonist's humanity and the lives of those they cannot save",
+            "change": "Acceptance that survival and morality cannot coexist"
+        },
+        ("grief", "mystery"): {
+            "want": "To find meaning in loss through uncovering the truth",
+            "resistance": "The truth is entangled with the grief itself",
+            "conflict": "Uncovering the truth forces reliving the loss",
+            "stakes": "The memory of the lost and the sanity of the seeker",
+            "change": "Integration of grief into a new understanding rather than resolution"
+        },
+        ("wonder", "sci_fi"): {
+            "want": "To understand a transformative discovery",
+            "resistance": "The discovery challenges the foundation of human knowledge",
+            "conflict": "Understanding requires abandoning comfortable assumptions",
+            "stakes": "Humanity's place in the universe vs. the comfort of certainty",
+            "change": "The protagonist expands their framework of what is possible"
+        },
+        ("longing", "romance"): {
+            "want": "To be seen and accepted as they truly are",
+            "resistance": "Fear that being truly seen will lead to rejection",
+            "conflict": "Vulnerability invites connection but also the possibility of wounding",
+            "stakes": "Lifelong loneliness vs. the risk of devastating heartbreak",
+            "change": "The protagonist chooses vulnerability over self-protection"
+        },
+        ("dread", "horror"): {
+            "want": "To survive and escape the incomprehensible threat",
+            "resistance": "The threat does not follow known rules or logic",
+            "conflict": "Fighting the threat makes it stronger; fleeing draws it closer",
+            "stakes": "The protagonist's body, mind, and soul",
+            "change": "The protagonist is marked permanently by the encounter"
+        },
+        ("awe", "space_opera"): {
+            "want": "To protect what they love against cosmic-scale forces",
+            "resistance": "The scale of the conflict dwarfs personal attachments",
+            "conflict": "Saving the galaxy requires sacrificing what makes life worth living",
+            "stakes": "Love, home, and the future of civilization",
+            "change": "The protagonist learns that love is not weakness but the only thing worth fighting for"
+        },
+        ("hope", "ya_fantasy"): {
+            "want": "To discover who they are and where they belong",
+            "resistance": "Adult authorities and systems that do not see or value them",
+            "conflict": "Fitting in requires hiding power; expressing power invites danger",
+            "stakes": "Identity, belonging, and the safety of those they love",
+            "change": "The protagonist claims their identity on their own terms"
+        },
+        ("curiosity", "mystery"): {
+            "want": "To solve the puzzle before it is too late",
+            "resistance": "Every answer reveals two more questions",
+            "conflict": "The satisfaction of solving versus the danger of knowing",
+            "stakes": "Justice, reputation, and the final piece that changes everything",
+            "change": "The protagonist learns that some truths are harder to live with than ignorance"
+        },
+        ("tension", "epic_fantasy"): {
+            "want": "To unite disparate forces against an overwhelming threat",
+            "resistance": "Ancient grudges and competing agendas prevent alliance",
+            "conflict": "Unity requires compromise that may cost the war before it begins",
+            "stakes": "The survival of civilization and the souls of all who fight",
+            "change": "The protagonist becomes the leader they never wanted to be"
+        },
+        ("relief", "romance"): {
+            "want": "To find peace and safety in another's love",
+            "resistance": "Past wounds and present obligations stand in the way",
+            "conflict": "Letting go of control feels like danger but is the only path to connection",
+            "stakes": "A future of lonely safety vs. a present of loving risk",
+            "change": "The protagonist learns to trust again despite the risk of loss"
+        },
+        ("dread", "thriller"): {
+            "want": "To stop the threat before it is too late",
+            "resistance": "The threat is always one step ahead",
+            "conflict": "Every countermeasure accelerates the antagonist's timeline",
+            "stakes": "Innocent lives and the protagonist's moral line that must not be crossed",
+            "change": "The protagonist sacrifices their innocence for a victory that feels hollow"
+        },
     }
 
     key = (primary_feeling, genre.value) if genre else (primary_feeling, "neutral")
@@ -133,6 +210,48 @@ def synthesize_structural_forces(blueprint: StoryBlueprint) -> StructuralForcesS
                 "conflict": "Facing the past shatters the present illusion",
                 "stakes": "Identity and peace",
                 "change": "The protagonist integrates the past into a coherent self"
+            },
+            "tension": {
+                "want": "To prevent a cascading failure",
+                "resistance": "The situation deteriorates faster than solutions arrive",
+                "conflict": "Solving one problem creates a worse one",
+                "stakes": "Everything the protagonist has built or loves",
+                "change": "The protagonist accepts necessary losses"
+            },
+            "awe": {
+                "want": "To reach something greater than themselves",
+                "resistance": "Mortal limits and the cost of transcendence",
+                "conflict": "Growth requires destruction of the former self",
+                "stakes": "The self vs. something beyond the self",
+                "change": "The protagonist is transformed by the encounter with the sublime"
+            },
+            "longing": {
+                "want": "To close the distance to what they desire",
+                "resistance": "The desired thing is protected by fear or circumstance",
+                "conflict": "Approaching the desire risks losing it forever",
+                "stakes": "Connection vs. safe isolation",
+                "change": "The protagonist risks vulnerability to bridge the distance"
+            },
+            "grief": {
+                "want": "To find meaning in what was lost",
+                "resistance": "The loss resists integration into a coherent story",
+                "conflict": "Holding on prevents healing; letting go feels like betrayal",
+                "stakes": "Memory, identity, and the ability to love again",
+                "change": "The protagonist carries the loss differently rather than moving past it"
+            },
+            "curiosity": {
+                "want": "To discover the hidden truth",
+                "resistance": "Protective systems and those who benefit from secrecy",
+                "conflict": "The desire to know vs. the danger of what will be found",
+                "stakes": "Ignorance and safety vs. knowledge and danger",
+                "change": "The protagonist accepts that knowledge changes who they are"
+            },
+            "relief": {
+                "want": "To release a burden they have carried too long",
+                "resistance": "The burden is woven into their identity and relationships",
+                "conflict": "Release requires trust; trust risks new burden",
+                "stakes": "Freedom vs. the familiar safety of the known weight",
+                "change": "The protagonist lets go of what defined them"
             },
         }
         base_forces = generic_map.get(primary_feeling, {
@@ -182,6 +301,18 @@ def generate_main_thread(
     )
 
 
+def _extract_carrier_names(blueprint: StoryBlueprint) -> list[str]:
+    """Extract meaningful carrier names from blueprint characters and their identities."""
+    carriers: list[str] = []
+    for char in blueprint.characters:
+        carriers.append(char.name)
+        if char.role.value == "antagonist":
+            carriers.append(f"{char.name}_faction")
+        if char.role.value in ("deuteragonist", "support"):
+            carriers.append(f"{char.name}_circle")
+    return carriers
+
+
 def generate_subordinate_threads(
     blueprint: StoryBlueprint,
     forces: StructuralForcesSynthesis,
@@ -192,9 +323,10 @@ def generate_subordinate_threads(
     """
     threads: list[GeneratedThread] = []
     characters = blueprint.characters
+    all_carrier_names = _extract_carrier_names(blueprint)
 
-    # Character arc for protagonist (if they have secondary characters)
-    if len(characters) > 1:
+    # Character arc for protagonist
+    if characters:
         protagonist = characters[0]
         threads.append(GeneratedThread(
             name=f"{protagonist.name}_arc",
@@ -203,33 +335,50 @@ def generate_subordinate_threads(
             function="pressures_change",
             carriers=[protagonist.name],
             confidence=0.85,
-            rationale="Character arc thread tracks the protagonist's internal transformation."
+            rationale=f"Character arc thread tracks {protagonist.name}'s internal transformation."
         ))
 
-    # Relationship arc if there's a potential love interest or key relationship
-    if len(characters) > 1:
-        other = characters[1]
-        threads.append(GeneratedThread(
-            name=f"{characters[0].name}_relationship",
-            thread_type=ThreadType.RELATIONSHIP_ARC,
-            want=f"Connection between {characters[0].name} and {other.name}",
-            function="mirrors",
-            carriers=[characters[0].name, other.name],
-            confidence=0.7,
-            rationale="Relationship arc explores themes of connection through interpersonal dynamics."
-        ))
+    # Relationship arc for every pair of primary characters with different roles
+    primary_chars = [c for c in characters if c.role.value in ("protagonist", "antagonist", "deuteragonist")]
+    for i in range(len(primary_chars)):
+        for j in range(i + 1, len(primary_chars)):
+            a, b = primary_chars[i], primary_chars[j]
+            dyn_type = "rivalry" if "antagonist" in (a.role.value, b.role.value) else "relationship"
+            threads.append(GeneratedThread(
+                name=f"{a.name}_{b.name}_{dyn_type}",
+                thread_type=ThreadType.RELATIONSHIP_ARC,
+                want=f"Negotiate the dynamic between {a.name} and {b.name}",
+                function="mirrors" if "antagonist" not in (a.role.value, b.role.value) else "contrasts",
+                carriers=[a.name, b.name],
+                confidence=0.7,
+                rationale=f"Relationship {dyn_type} between {a.name} and {b.name} explores themes of connection."
+            ))
 
-    # Thematic echo thread
-    themes = blueprint.theme.core_questions if hasattr(blueprint.theme, 'core_questions') else []
-    if themes:
+    # Thematic echo thread using character carriers
+    theme_carriers = [c.name for c in characters if c.role.value in ("protagonist", "deuteragonist")]
+    if theme_carriers:
         threads.append(GeneratedThread(
             name="thematic_echo",
             thread_type=ThreadType.THEMATIC_ECHO,
             want="To embody the central thematic question through repeated pattern and reflection",
             function="reveals",
-            carriers=[characters[0].name] if characters else [],
+            carriers=theme_carriers,
             confidence=0.6,
-            rationale="Thematic echo thread uses motifs and patterns to deepen exploration of the story's central question."
+            rationale="Thematic echo thread uses motifs and patterns across carriers to deepen exploration of the central question."
+        ))
+
+    # Faction/world thread if antagonist exists
+    antagonists = [c for c in characters if c.role.value == "antagonist"]
+    if antagonists:
+        ant = antagonists[0]
+        threads.append(GeneratedThread(
+            name=f"{ant.name}_pressure",
+            thread_type=ThreadType.MYSTERY,
+            want=f"Counter the threat posed by {ant.name}",
+            function="escalates",
+            carriers=[ant.name, f"{ant.name}_faction"],
+            confidence=0.75,
+            rationale=f"Antagonist {ant.name} thread escalates pressure on the main thread."
         ))
 
     return threads

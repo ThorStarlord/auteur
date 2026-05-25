@@ -46,6 +46,10 @@ from auteur.blueprint import (
     StoryThread,
     ThreadType,
     SupportFunction,
+    ScopeContract,
+    NarrativeRunway,
+    ScopeComplexity,
+    MechanicalLoad,
 )
 
 
@@ -382,6 +386,45 @@ def resolve_length_class(medium: StoryMedium) -> LengthClass:
         return LengthClass.NOVEL
 
 
+def _generate_checkable_claims(text: str, claim_type: str) -> list[str]:
+    """Generate simple checkable claims from force author_text.
+    
+    Extracts key phrases that can be verified in a draft (character achieves X,
+    event Y happens, transformation Z occurs).
+    """
+    claims: list[str] = []
+    text_lower = text.casefold().strip()
+    if claim_type == "want":
+        if text_lower.startswith("to "):
+            claims.append(f"protagonist achieves {text[3:]}")
+        else:
+            claims.append(f"protagonist acts on desire: {text[:80]}")
+    elif claim_type == "resistance":
+        if " and " in text:
+            parts = [p.strip() for p in text.split(" and ")]
+            for p in parts[:2]:
+                claims.append(f"resistance from: {p[:60]}")
+        else:
+            claims.append(f"resistance manifests: {text[:80]}")
+    elif claim_type == "conflict":
+        claims.append(f"collision point emerges: {text[:80]}")
+    elif claim_type == "stakes":
+        domain = "personal" if any(w in text_lower for w in ["life", "love", "soul", "family", "identity", "freedom"]) else "external"
+        claims.append(f"{domain} stakes are tested: {text[:80]}")
+    elif claim_type == "change":
+        claims.append(f"protagonist undergoes transformation: {text[:80]}")
+    return claims
+
+
+def _populate_thread_claims(thread: StoryThread, genre_label: str) -> StoryThread:
+    """Populate empty checkable_claims on a StoryThread from its author_text fields."""
+    for field_name in ("want", "resistance", "conflict", "stakes", "change"):
+        claim: StructuralClaim = getattr(thread, field_name)
+        if not claim.checkable_claims:
+            claim.checkable_claims = _generate_checkable_claims(claim.author_text, field_name)
+    return thread
+
+
 def _get_recommended_subplots(genre: Genre) -> list[StoryThread]:
     """Get standard recommended subplots for a given genre."""
     if genre == Genre.MYSTERY:
@@ -640,6 +683,22 @@ def compile_to_blueprint(identity: StoryIdentity) -> StoryBlueprint:
     }
     subplot_budget = subplot_budgets.get(length_class, 3)
 
+    # Auto-generate ScopeContract from genre contract scope_profile
+    scope_contract = None
+    if identity.genre_contract_snapshot and identity.genre_contract_snapshot.scope_profile:
+        sp = identity.genre_contract_snapshot.scope_profile
+        scope_contract = ScopeContract(
+            recommended_complexity=sp.recommended_complexity,
+            narrative_runway=sp.narrative_runway,
+            mechanical_load=sp.mechanical_load,
+            worldbuilding_load=sp.worldbuilding_load,
+            cast_load=sp.cast_load,
+            scope_notes=[
+                f"Auto-generated from {identity.genre_contract_snapshot.display_name} contract.",
+                f"Natural lengths: {', '.join(l.value for l in sp.natural_lengths)}.",
+            ],
+        )
+
     constants = StructuralConstants(
         estimated_chapters=chapters,
         estimated_word_count=words,
@@ -647,6 +706,7 @@ def compile_to_blueprint(identity: StoryIdentity) -> StoryBlueprint:
         max_pov_characters=max_pov,
         max_characters_total=max_total,
         subplot_budget=subplot_budget,
+        scope_contract=scope_contract,
     )
 
     # 3. Contract
@@ -751,9 +811,9 @@ def compile_to_blueprint(identity: StoryIdentity) -> StoryBlueprint:
     seeded_threads = []
     for i in range(subplot_budget):
         if i < len(recommended):
-            seeded_threads.append(recommended[i])
+            seeded_threads.append(_populate_thread_claims(recommended[i], identity.story_type.genre.value))
         else:
-            seeded_threads.append(
+            seeded_threads.append(_populate_thread_claims(
                 StoryThread(
                     name=f"Secondary Subplot {i+1}",
                     type=ThreadType.THEMATIC_ECHO,
@@ -764,23 +824,31 @@ def compile_to_blueprint(identity: StoryIdentity) -> StoryBlueprint:
                     change=StructuralClaim(author_text="Secondary change.", checkable_claims=[]),
                     supports_main_by=[SupportFunction.COMPLICATES],
                     thematic_function="Supports the main thread.",
-                )
-            )
+                ),
+                identity.story_type.genre.value,
+            ))
 
     engine = StoryEngine(
         main_thread=MainThread(
-            want=StructuralClaim(author_text=identity.central_engine.want, checkable_claims=[]),
+            want=StructuralClaim(
+                author_text=identity.central_engine.want,
+                checkable_claims=_generate_checkable_claims(identity.central_engine.want, "want"),
+            ),
             resistance=StructuralClaim(
-                author_text=identity.central_engine.resistance, checkable_claims=[]
+                author_text=identity.central_engine.resistance,
+                checkable_claims=_generate_checkable_claims(identity.central_engine.resistance, "resistance"),
             ),
             conflict=StructuralClaim(
-                author_text=identity.central_engine.conflict, checkable_claims=[]
+                author_text=identity.central_engine.conflict,
+                checkable_claims=_generate_checkable_claims(identity.central_engine.conflict, "conflict"),
             ),
             stakes=StructuralClaim(
-                author_text=identity.central_engine.stakes, checkable_claims=[]
+                author_text=identity.central_engine.stakes,
+                checkable_claims=_generate_checkable_claims(identity.central_engine.stakes, "stakes"),
             ),
             change=StructuralClaim(
-                author_text=identity.central_engine.change, checkable_claims=[]
+                author_text=identity.central_engine.change,
+                checkable_claims=_generate_checkable_claims(identity.central_engine.change, "change"),
             ),
             thematic_function=f"Explores the central question: {theme_question}",
         ),

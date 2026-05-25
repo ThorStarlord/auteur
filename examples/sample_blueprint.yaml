@@ -162,16 +162,34 @@ characters:
     arc_type: corruption
     arc_start_percentage: 0
     arc_end_percentage: 100
-    current_arc_percentage: 39
+    current_arc_percentage: 42
     key_milestones:
       - at_percentage: 25
-        description: "First minor deception without guilt."
+        description: "Kael takes the ring despite Lira's warning."
       - at_percentage: 50
-        description: "Justifies a cruel act to himself."
+        description: "Kael kills a former ally to protect the ring."
       - at_percentage: 75
-        description: "Betrays Lira to gain the cursed ring's power."
+        description: "Kael realizes he is becoming the tyrant he hunted."
       - at_percentage: 100
-        description: "Embraces the dark power as his own."
+        description: "Kael defeats Malachai but loses himself to the corruption."
+    identity:
+      archetype:
+        core: avenger
+        shadow: destroyer
+      narrative_role:
+        primary: protagonist
+        secondary:
+          - catalyst
+      psychology:
+        wound: "witnessed his family's massacre"
+        vulnerability_family: powerlessness
+        defense_mechanisms:
+          - compartmentalization
+      texture:
+        voice:
+          cadence: "short, clipped sentences"
+          vocabulary: "military precision"
+        social_aura: "intimidating presence"
     current_state:
       location: taverntown
       physical: broken_arm
@@ -196,16 +214,69 @@ characters:
     arc_end_percentage: 90
     current_arc_percentage: 42
     key_milestones:
-      - at_percentage: 30
+      - at_percentage: 25
         description: "Names her trauma aloud for the first time."
-      - at_percentage: 60
+      - at_percentage: 50
         description: "Refuses to take vengeance when offered it."
+      - at_percentage: 75
+        description: "Chooses to stay with Kael despite his corruption."
       - at_percentage: 90
         description: "Forgives the surviving cousin who betrayed her family."
+    identity:
+      archetype:
+        core: healer
+        shadow: victim
+      narrative_role:
+        primary: deuteragonist
+        secondary:
+          - moral_compass
+      psychology:
+        wound: "survived a family betrayal"
+        vulnerability_family: abandonment
+        defense_mechanisms:
+          - intellectualization
+      texture:
+        voice:
+          cadence: "measured, reflective"
+          vocabulary: "emotional precision"
+        social_aura: "warm but guarded"
     current_state:
       location: taverntown
       physical: exhausted
       emotional: "quietly hopeful"
+      relationships:
+        - other: Kael
+          kind: trust
+          intensity: 0.7
+
+  - name: Malachai
+    role: antagonist
+    arc_type: flat
+    arc_start_percentage: 0
+    arc_end_percentage: 0
+    current_arc_percentage: 0
+    identity:
+      archetype:
+        core: ruler
+        shadow: tyrant
+      narrative_role:
+        primary: antagonist
+        secondary:
+          - shadow
+      psychology:
+        wound: "consumed by the same ring's corruption"
+        vulnerability_family: powerlessness
+        defense_mechanisms:
+          - grandiosity
+      texture:
+        voice:
+          cadence: "slow, deliberate, theatrical"
+          vocabulary: "archaic grandeur"
+        social_aura: " crushing authority"
+    current_state:
+      location: dark_tower
+      physical: ancient
+      emotional: "coldly triumphant"
       inventory:
         - mothers_pendant
       relationships:

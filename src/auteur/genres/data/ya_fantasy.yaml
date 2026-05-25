@@ -1,0 +1,81 @@
+genre_id: ya_fantasy
+display_name: "YA Fantasy"
+core_truth: "Coming of age in a world that demands more of you than you knew you could give."
+audience_product: "Empowerment, first love, identity discovery, belonging, hope against overwhelming odds."
+primary_excitement_beats:
+  - "discovery of hidden power or heritage"
+  - "first love and romantic tension"
+  - "test or trial that reveals inner strength"
+  - "betrayal by a trusted figure"
+  - "the choice between love and duty or self and world"
+required_tropes:
+  - "young protagonist discovering their identity and power"
+  - "romantic subplot that parallels the main conflict"
+  - "found family or tight friend group"
+  - "adult authority figures who are absent, fallible, or antagonistic"
+  - "a choice that defines the protagonist's adult identity"
+optional_tropes:
+  - "love triangle"
+  - "chosen one but with a choice to accept or reject"
+  - "magical school or training montage"
+  - "the rebel faction or underground movement"
+  - "the protagonist's power is connected to their emotional growth"
+forbidden_mismatches:
+  - "protagonist who makes no meaningful choices"
+  - "romantic resolution that undermines the protagonist's agency"
+  - "adults who solve the protagonist's problems"
+  - "nihilistic or hopeless ending"
+  - "purely external stakes without identity and relationship stakes"
+common_failure_modes:
+  - "The love triangle becomes the entire plot, overshadowing the fantasy conflict"
+  - "The protagonist is special because of prophecy/power rather than choice and growth"
+  - "The adult characters are incompetent to make the teens look good"
+  - "The romantic interest has no personality outside being attractive and mysterious"
+psychology_budget:
+  level: "conflict_bearing"
+  reason: "YA fantasy requires identity-discovery and relationship depth, but should avoid adult therapeutic frameworks."
+  motivation_clarity: "required"
+  psychological_depth: "encouraged"
+  character_texture: "encouraged"
+default_engine_biases:
+  - "Main thread fuses external fantasy conflict with internal identity discovery"
+  - "Romantic and friendship threads are structurally co-equal with the fantasy plot"
+recommended_subversions:
+  - "The protagonist rejects the romantic choice to prioritize their own growth"
+  - "The hidden power is a burden rather than a gift, and must be given up to save the world"
+scope_profile:
+  natural_lengths:
+    - novel
+    - series
+  minimum_viable_length: novel
+  default_length: novel
+  narrative_runway: medium
+  recommended_complexity: standard
+  mechanical_load: medium
+  worldbuilding_load: medium
+  cast_load: medium
+  compression_strategies:
+    - "Focus on one key relationship and one external threat."
+    - "Use a single setting (school, city, realm) to contain the action."
+  expansion_strategies:
+    - "Expand the friend group and give each member their own arc."
+    - "Series expansion through escalating threats and romantic complexity."
+  scope_failure_modes:
+    - "Too many romantic options reduce the emotional specificity of each."
+    - "The friend group becomes interchangeable supporting characters without distinct arcs."
+
+setup_contract:
+  emotional_runway: medium
+  relationship_establishment: required
+  baseline_world_establishment: required
+  minimum_setup_beats:
+    - "Establish the protagonist's ordinary world and their dissatisfaction or difference"
+    - "Introduce the fantasy element that disrupts the ordinary world"
+    - "Show the protagonist's initial rejection or embrace of the new world"
+    - "Establish the friend/ally group and the romantic interest"
+  forbidden_shortcuts:
+    - "Skipping the ordinary world before diving into the fantasy"
+    - "The romantic interest having no flaws or personality beyond attraction"
+  compression_strategies:
+    - "Start at the moment the fantasy world intrudes and reveal the ordinary world through flashback."
+    - "Fuse the training/development arc with the romantic and friendship development."

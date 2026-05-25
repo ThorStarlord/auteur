@@ -1,0 +1,80 @@
+genre_id: cozy_mystery
+display_name: "Cozy Mystery"
+core_truth: "Justice can restore community warmth without requiring graphic violence or moral despair."
+audience_product: "Comfort, intellectual satisfaction, community belonging, tidy resolution."
+primary_excitement_beats:
+  - "discovery of the crime in a peaceful setting"
+  - "amateur sleuth's first clue or observation"
+  - "interviewing eccentric suspects in charming locations"
+  - "the danger moment when the sleuth gets too close to the truth"
+  - "gathering all suspects for the reveal"
+required_tropes:
+  - "amateur sleuth with a charming hobby or profession"
+  - "small-town or tight-knit community setting"
+  - "murder or crime that disrupts community peace"
+  - "tidy resolution where justice is served"
+  - "no explicit gore, sex, or graphic violence on page"
+optional_tropes:
+  - "quirky sidekick or found family among town locals"
+  - "love interest who is also the local authority figure"
+  - "the sleuth's pet with personality"
+  - "culinary or craft elements woven into the investigation"
+  - "holiday or festival setting that frames the mystery"
+forbidden_mismatches:
+  - "graphic violence, torture, or explicit gore"
+  - "tragic or unresolved ending"
+  - "serial killer or psychologically disturbed perpetrator"
+  - "deeply corrupt institutions with no moral center"
+  - "protagonist in genuine physical danger that is not survivable"
+common_failure_modes:
+  - "The charm of the setting overwhelms the mystery logic"
+  - "The murder is too dark or disturbing for the cozy tone"
+  - "The amateur sleuth is too competent and never makes mistakes"
+  - "The community is saccharine without any edge or complexity"
+psychology_budget:
+  level: "archetypal"
+  reason: "Cozy mystery runs on charm, puzzle logic, and community warmth. Deep psychological trauma breaks the cozy contract."
+  motivation_clarity: "required"
+  psychological_depth: "forbidden"
+  character_texture: "required"
+default_engine_biases:
+  - "Main thread is the investigation of the crime"
+  - "Relationship arcs and community threads are as important as the mystery"
+recommended_subversions:
+  - "The murderer is the most sympathetic character in the town"
+  - "The sleuth solves the crime but chooses not to reveal it for the community's greater good"
+scope_profile:
+  natural_lengths:
+    - novella
+    - novel
+  minimum_viable_length: novella
+  default_length: novel
+  narrative_runway: short
+  recommended_complexity: focused
+  mechanical_load: low
+  worldbuilding_load: low
+  cast_load: medium
+  compression_strategies:
+    - "Keep the suspect pool to 3-4 characters."
+    - "Set the entire story in one village or neighborhood."
+  expansion_strategies:
+    - "Add seasonal or holiday events that create additional subplots."
+    - "Introduce a romantic subplot with the local authority figure."
+  scope_failure_modes:
+    - "Too many suspects introduced without enough page time to develop each."
+    - "External thriller pacing breaks the cozy tone."
+
+setup_contract:
+  emotional_runway: short
+  relationship_establishment: optional
+  baseline_world_establishment: required
+  minimum_setup_beats:
+    - "Establish the charming community and its rhythms"
+    - "Introduce the sleuth and their hobby/profession"
+    - "The crime is discovered, disrupting the peaceful baseline"
+  forbidden_shortcuts:
+    - "Skipping the community establishment before the murder"
+    - "Opening with the murder before the reader cares about the setting"
+  compression_strategies:
+    - "Introduce the sleuth during their daily routine and have the crime discovery upend it immediately."
+    - "Fuse the secondary character introductions with the suspect interviews."

@@ -84,7 +84,103 @@ _SUBGENRE_REGISTRY: dict[str, SubgenreModifier] = {
             "Introducing explicit torture, gore, or graphic sexual violence.",
             "Leaving the community fractured and unsafe at the end of the story."
         ]
-    )
+    ),
+    "chosen_one": SubgenreModifier(
+        id="chosen_one",
+        allowed_primary_genres=[Genre.EPIC_FANTASY, Genre.YA_FANTASY],
+        prompt_guidance=[
+            "The protagonist is uniquely destined to resolve the central conflict, but their agency in accepting or rejecting this destiny is the dramatic engine.",
+            "Avoid making destiny a shortcut around character choice and growth."
+        ],
+        trope_biases=[
+            "prophecy or ancient selection",
+            "unique power or birthright",
+            "mentor who reveals the truth",
+            "journey to accept or reject fate"
+        ],
+        setup_biases=[
+            "Establish the protagonist's ordinary life before the destiny reveal."
+        ],
+        scope_biases=[
+            "Expect a journey structure: preparation, testing, confrontation."
+        ],
+        common_misuses=[
+            "The prophecy removes all agency and surprise.",
+            "The chosen one status excuses the protagonist from earning their growth."
+        ]
+    ),
+    "fish_out_of_water": SubgenreModifier(
+        id="fish_out_of_water",
+        allowed_primary_genres=[Genre.EPIC_FANTASY, Genre.URBAN_FANTASY, Genre.YA_FANTASY, Genre.SCI_FI],
+        prompt_guidance=[
+            "The protagonist is displaced from their natural environment and must adapt to a world with different rules, culture, or physics.",
+            "The dramatic tension comes from the gap between the protagonist's original skills and the new world's demands."
+        ],
+        trope_biases=[
+            "protagonist from a different world or culture",
+            "learning the rules of the new environment",
+            "mistakes born of cultural ignorance",
+            "bridge between two worlds"
+        ],
+        setup_biases=[
+            "Establish the protagonist's original world thoroughly so the contrast lands."
+        ],
+        scope_biases=[
+            "Expect discovery and adaptation arcs before the main conflict escalates."
+        ],
+        common_misuses=[
+            "The protagonist adapts too quickly, losing the fish-out-of-water tension.",
+            "The original world is forgotten once the new world is revealed."
+        ]
+    ),
+    "second_chance": SubgenreModifier(
+        id="second_chance",
+        allowed_primary_genres=[Genre.ROMANCE],
+        prompt_guidance=[
+            "The protagonists have a prior history — often a relationship that ended badly or an unresolved connection — and the story is about whether they can rebuild something different.",
+            "The narrative weight is on the history, the wound, and whether trust can be restored."
+        ],
+        trope_biases=[
+            "prior relationship history",
+            "unresolved feelings or resentment",
+            "forced proximity rekindling connection",
+            "the question of whether people can really change"
+        ],
+        setup_biases=[
+            "Establish the history and the original wound or separation cause."
+        ],
+        scope_biases=[
+            "Need enough runway for the history to matter and the rebuilding to feel earned."
+        ],
+        common_misuses=[
+            "The original wound is too trivial to justify the separation.",
+            "The reunion is resolved without earning the reconciliation."
+        ]
+    ),
+    "hard_sci_fi": SubgenreModifier(
+        id="hard_sci_fi",
+        allowed_primary_genres=[Genre.SCI_FI],
+        prompt_guidance=[
+            "The speculative premise is grounded in real or extrapolated science. The story respects known physics and technology constraints.",
+            "The intellectual rigor of the premise is part of the reader's product, not just window dressing."
+        ],
+        trope_biases=[
+            "rigorous scientific extrapolation",
+            "technology with realistic limitations",
+            "problem-solving through genuine scientific reasoning",
+            "human adaptation to real physical constraints"
+        ],
+        setup_biases=[
+            "Establish the scientific premise and its rules early and clearly."
+        ],
+        scope_biases=[
+            "Expect slower pacing to allow for exposition and problem-solving scenes."
+        ],
+        common_misuses=[
+            "The science is handwaved when it becomes inconvenient.",
+            "Characters solve problems through technology rather than human choice."
+        ]
+    ),
 }
 
 def load_subgenre_modifier(subgenre_id: str) -> SubgenreModifier | None:

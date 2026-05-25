@@ -50,16 +50,14 @@ def test_load_thriller():
     assert any("passive protagonist" in m for m in contract.forbidden_mismatches)
 
 def test_unregistered_genre_fallback():
-    # Cozy Mystery is in the Genre enum, but does not have a YAML file
     contract = load_genre_contract(Genre.COZY_MYSTERY)
     assert contract.genre_id == Genre.COZY_MYSTERY
     assert contract.display_name == "Cozy Mystery"
-    # Fallback default uses functional level
-    assert contract.psychology_budget.level == PsychologyLevel.FUNCTIONAL
+    assert contract.psychology_budget.level == PsychologyLevel.ARCHETYPAL
     assert contract.psychology_budget.motivation_clarity == RequirementLevel.REQUIRED
     assert contract.scope_profile.default_length.value == "novel"
-    assert contract.scope_profile.recommended_complexity.value == "standard"
-    assert contract.scope_profile.mechanical_load.value == "medium"
+    assert contract.scope_profile.recommended_complexity.value == "focused"
+    assert contract.scope_profile.mechanical_load.value == "low"
 
 def test_invalid_string_genre_fallback():
     # An entirely custom/invalid genre string falls back to Genre.OTHER

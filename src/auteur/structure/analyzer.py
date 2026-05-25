@@ -482,6 +482,127 @@ def analyze_structure(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
                 )
             )
 
+    # -------------------------------------------------------------------------
+    # Character Categorization Diagnostics (Cross-layer integration)
+    # -------------------------------------------------------------------------
+    from auteur.character.analyzer import analyze_character_categorization
+    diagnostics.extend(analyze_character_categorization(blueprint))
+
+    # -------------------------------------------------------------------------
+    # Character-Story Engine Cross-Reference
+    # -------------------------------------------------------------------------
+    for char in blueprint.characters:
+        identity = None
+        if char.identity is not None:
+            try:
+                from auteur.character.models import CharacterIdentity
+                identity = char.identity if isinstance(char.identity, CharacterIdentity) else CharacterIdentity.model_validate(char.identity)
+            except Exception:
+                pass
+
+        if identity is not None and identity.psychology is not None:
+            vuln = identity.psychology.vulnerability_family
+            wound = (identity.psychology.wound or "").casefold()
+            if vuln is not None and engine is not None:
+                stake_text = engine.main_thread.stakes.author_text.casefold()
+                if vuln.value.casefold() not in stake_text and wound not in stake_text:
+                    diagnostics.append(
+                        StructureDiagnostic(
+                            severity=DiagnosticSeverity.WARNING,
+                            layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                            rule="character.psychology.stakes_disconnected",
+                            message=(
+                                f"Character '{char.name}' has vulnerability '{vuln.value}' "
+                                f"but the main thread stakes do not reference it."
+                            ),
+                            evidence=[
+                                f"character.name = {char.name}",
+                                f"vulnerability_family = {vuln.value}",
+                                f"wound = {identity.psychology.wound or 'none'}",
+                                f"main_thread.stakes = {engine.main_thread.stakes.author_text}",
+                            ],
+                            repair_options=RepairOptions(
+                                preserve_intent=[
+                                    f"Rewrite main thread stakes to personally threaten '{char.name}'s {vuln.value} vulnerability."
+                                ],
+                                challenge_intent=[
+                                    "Keep disconnected if the stakes are external and the vulnerability is for texture only."
+                                ],
+                            ),
+                        )
+                    )
+
+    # -------------------------------------------------------------------------
+    # Cross-Chapter Arc Progression Diagnostic
+    # -------------------------------------------------------------------------
+    if blueprint.structure.estimated_chapters:
+        est_chapters = blueprint.structure.estimated_chapters
+        for char in blueprint.characters:
+            if char.arc_type.value == "flat":
+                continue
+            start_pct = char.arc_start_percentage
+            end_pct = char.arc_end_percentage
+            total_arc_pct = abs(end_pct - start_pct)
+            if total_arc_pct > 0 and est_chapters > 0:
+                pct_per_chapter = total_arc_pct / est_chapters
+                if pct_per_chapter > 20:
+                    diagnostics.append(
+                        StructureDiagnostic(
+                            severity=DiagnosticSeverity.WARNING,
+                            layer=DiagnosticLayer.SCOPE,
+                            rule="character.arc.too_steep",
+                            message=(
+                                f"Character '{char.name}' arc covers {total_arc_pct}% "
+                                f"over {est_chapters} chapters (~{pct_per_chapter:.0f}% per chapter). "
+                                f"The arc may feel rushed."
+                            ),
+                            evidence=[
+                                f"character.name = {char.name}",
+                                f"arc_start_percentage = {start_pct}",
+                                f"arc_end_percentage = {end_pct}",
+                                f"estimated_chapters = {est_chapters}",
+                            ],
+                            repair_options=RepairOptions(
+                                preserve_intent=[
+                                    "Increase chapter count or adjust arc percentages for more gradual progression.",
+                                    "Add intermediate milestones to ensure the arc does not skip stages.",
+                                ],
+                                challenge_intent=[
+                                    "Keep steep arc if the transformation is meant to be abrupt or crisis-driven."
+                                ],
+                            ),
+                        )
+                    )
+                if est_chapters >= 3:
+                    milestone_pcts = {m.at_percentage for m in char.key_milestones}
+                    key_structural_pcts = {25, 50, 75}
+                    significant_missing = [p for p in key_structural_pcts if 10 <= p <= 90 and p not in milestone_pcts and start_pct < p < end_pct]
+                    if len(significant_missing) >= 2:
+                        diagnostics.append(
+                            StructureDiagnostic(
+                                severity=DiagnosticSeverity.WARNING,
+                                layer=DiagnosticLayer.SCOPE,
+                                rule="character.arc.milestone_gap",
+                                message=(
+                                    f"Character '{char.name}' is missing milestones at key percentages "
+                                    f"({significant_missing}). Arc progression may lack intermediate checks."
+                                ),
+                                evidence=[
+                                    f"character.name = {char.name}",
+                                    f"existing milestones = {sorted(milestone_pcts)}",
+                                    f"missing at = {significant_missing}",
+                                ],
+                                repair_options=RepairOptions(
+                                    preserve_intent=[
+                                        "Add milestones at significant missing percentages to track arc progression."
+                                    ],
+                                    challenge_intent=[
+                                        "Keep existing milestones if the arc is designed to jump between stages."
+                                    ],
+                                ),
+                            )
+                        )
+
     # 3. Rule: Required Tropes Forbidden
     for trope in contract_snap.required_tropes:
         if trope in blueprint.contract.forbidden_tropes:

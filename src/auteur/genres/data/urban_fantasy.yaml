@@ -1,0 +1,78 @@
+genre_id: urban_fantasy
+display_name: "Urban Fantasy"
+core_truth: "The hidden world within our own reveals that the mundane is more magical — and more dangerous — than it seems."
+audience_product: "Wonder, danger hidden in plain sight, competence against supernatural odds, belonging to a secret world."
+primary_excitement_beats:
+  - "ordinary person discovers the hidden world"
+  - "initiation into the supernatural community or faction"
+  - "case or mission that reveals hidden layers of the secret world"
+  - "personal cost of maintaining the secret or straddling both worlds"
+  - "climactic confrontation that blends mundane and supernatural"
+required_tropes:
+  - "hidden supernatural world coexisting with mundane reality"
+  - "protagonist with a foot in both worlds"
+  - "supernatural law or factions with territorial politics"
+  - "masquerade or secrecy enforced on the supernatural community"
+optional_tropes:
+  - "chosen one of a specific supernatural lineage"
+  - "found family among supernatural outcasts"
+  - "mundane job that intersects with supernatural cases"
+  - "bargain or debt with a supernatural power"
+forbidden_mismatches:
+  - "supernatural elements that are widely known without consequence"
+  - "protagonist who never struggles with the duality of two worlds"
+  - "urban setting that is interchangeable with any city"
+  - "purely romantic focus without the urban fantasy structural tension"
+common_failure_modes:
+  - "The hidden world is more interesting than the protagonist's personal story"
+  - "Magic system or supernatural politics are explained in infodumps"
+  - "The urban setting is generic and does not shape the story's atmosphere"
+  - "The mundane world is dropped entirely once the supernatural is revealed"
+psychology_budget:
+  level: "conflict_bearing"
+  reason: "Urban fantasy runs on identity-duality tension and the cost of keeping secrets, requiring moderate psychological depth."
+  motivation_clarity: "required"
+  psychological_depth: "required"
+  character_texture: "encouraged"
+default_engine_biases:
+  - "Main thread fuses personal identity discovery with supernatural plot progression"
+  - "Relationship arcs carry weight of straddling two worlds"
+recommended_subversions:
+  - "The protagonist rejects the hidden world and faces consequences for walking away"
+  - "The 'chosen one' heritage is a curse rather than a gift"
+scope_profile:
+  natural_lengths:
+    - novella
+    - novel
+    - series
+  minimum_viable_length: novella
+  default_length: novel
+  narrative_runway: medium
+  recommended_complexity: standard
+  mechanical_load: medium
+  worldbuilding_load: medium
+  cast_load: medium
+  compression_strategies:
+    - "Set the story in a single city neighborhood or supernatural enclave."
+    - "Use a case-of-the-week structure to reveal the hidden world incrementally."
+  expansion_strategies:
+    - "Add faction politics and territorial conflict across multiple city locations."
+    - "Series expansion by revealing global supernatural power structures."
+  scope_failure_modes:
+    - "Too many supernatural factions introduced without enough page time."
+    - "The mundane world is abandoned too early, removing duality tension."
+
+setup_contract:
+  emotional_runway: medium
+  relationship_establishment: optional
+  baseline_world_establishment: required
+  minimum_setup_beats:
+    - "Establish the protagonist's mundane life and dissatisfaction or lack"
+    - "Introduce the first supernatural intrusion into the ordinary world"
+    - "Show the protagonist making a choice to engage with or flee from the hidden world"
+  forbidden_shortcuts:
+    - "Dropping the protagonist into the hidden world without establishing their mundane baseline"
+    - "Full supernatural world exposition before the protagonist has context to receive it"
+  compression_strategies:
+    - "Start with the supernatural intrusion and reveal the mundane baseline through flashback."
+    - "Fuse the hidden-world guide with the romantic or antagonistic interest."

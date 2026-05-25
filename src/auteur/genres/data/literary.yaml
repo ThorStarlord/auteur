@@ -1,0 +1,77 @@
+genre_id: literary
+display_name: "Literary Fiction"
+core_truth: "The examined life, rendered with precision, reveals the universal through the particular."
+audience_product: "Emotional truth, linguistic beauty, psychological insight, moral complexity."
+primary_excitement_beats:
+  - "a moment of profound self-recognition"
+  - "a relationship redefined by a single conversation or event"
+  - "a suppressed truth surfacing under pressure"
+  - "an everyday moment rendered with extraordinary precision"
+  - "the quiet aftermath of a major life decision"
+required_tropes:
+  - "interiority and psychological depth as primary narrative engine"
+  - "prose style that rewards close reading"
+  - "moral ambiguity without clear resolution"
+optional_tropes:
+  - "nonlinear or fragmented narrative structure"
+  - "unreliable narrator"
+  - "multiple perspectives on the same event"
+  - "epiphany or moment of clarity"
+  - "domestic or small-scale setting"
+forbidden_mismatches:
+  - "plot-driven structure where character interiority is secondary"
+  - "clear moral conclusions or didactic messaging"
+  - "genre tropes deployed without ironic or deconstructive intent"
+  - "prose that prioritizes plot efficiency over linguistic texture"
+common_failure_modes:
+  - "Interiority becomes navel-gazing without external pressure to test it"
+  - "The prose draws attention to itself without serving character or theme"
+  - "Nothing happens externally, making the story feel static rather than contemplative"
+  - "The moral ambiguity is confused with lack of thematic point"
+psychology_budget:
+  level: "psychologically_deep"
+  reason: "Literary fiction's primary engine is psychological depth and interiority. Full psychological exploration is the product."
+  motivation_clarity: "required"
+  psychological_depth: "required"
+  character_texture: "required"
+default_engine_biases:
+  - "Main thread is primarily internal, with external events serving as catalysts for interior change"
+  - "Thematic resonance is more important than plot mechanics"
+recommended_subversions:
+  - "Employ genre elements (mystery, romance) as scaffolding for literary exploration"
+  - "The epiphany leads to a wrong or destructive choice"
+scope_profile:
+  natural_lengths:
+    - novella
+    - novel
+  minimum_viable_length: novella
+  default_length: novel
+  narrative_runway: medium
+  recommended_complexity: focused
+  mechanical_load: low
+  worldbuilding_load: low
+  cast_load: low
+  compression_strategies:
+    - "Focus on a single compressed timeframe (a day, a weekend, a journey)."
+    - "Use one or two POV characters with deep access to interiority."
+  expansion_strategies:
+    - "Expand character ensemble to provide contrasting interior perspectives."
+    - "Extend timeline to show the long aftermath and cumulative weight of choices."
+  scope_failure_modes:
+    - "A large cast dilutes the psychological depth available per character."
+    - "Plot machinery (mystery, thriller pacing) crowds out contemplative space."
+
+setup_contract:
+  emotional_runway: medium
+  relationship_establishment: required
+  baseline_world_establishment: optional
+  minimum_setup_beats:
+    - "Establish the protagonist's interior baseline: their voice, preoccupations, and unspoken assumptions"
+    - "Introduce the destabilizing element (event, person, memory) that pressures the interior world"
+    - "Establish the relational landscape and its hidden tensions"
+  forbidden_shortcuts:
+    - "External plot mechanics that bypass interior processing"
+    - "Therapeutic language that replaces literary precision"
+  compression_strategies:
+    - "Start in the middle of a significant moment and reveal context through memory and reflection."
+    - "Use a single symbolic event to stand in for broader societal pressure."
