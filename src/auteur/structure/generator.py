@@ -400,7 +400,6 @@ def generate_story_engine(blueprint: StoryBlueprint) -> GenerationProposal | lis
             rule="target_experience_required_for_generation",
             message="Cannot generate story engine: target_experience is required but missing.",
             evidence=["Blueprint.identity.target_experience is None"],
-            repair_options=None
         ))
         return diagnostics
 
@@ -411,7 +410,6 @@ def generate_story_engine(blueprint: StoryBlueprint) -> GenerationProposal | lis
             rule="characters_required_for_generation",
             message="Cannot generate story engine: at least one character (protagonist) is required.",
             evidence=["Blueprint.characters list is empty"],
-            repair_options=None
         ))
         return diagnostics
 
@@ -428,7 +426,6 @@ def generate_story_engine(blueprint: StoryBlueprint) -> GenerationProposal | lis
                 f"Genre: {blueprint.identity.genre}",
                 f"Mode: {blueprint.identity.mode}"
             ],
-            repair_options=None
         ))
         return diagnostics
 

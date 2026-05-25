@@ -603,6 +603,140 @@ def analyze_structure(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
                             )
                         )
 
+    # -------------------------------------------------------------------------
+    # Emotional Chaos Diagnostic — arc regression / oscillation patterns
+    # -------------------------------------------------------------------------
+    from auteur.character.models import CharacterIdentity
+    for char in blueprint.characters:
+        if char.identity is None:
+            continue
+        cid = None
+        try:
+            cid = char.identity if isinstance(char.identity, CharacterIdentity) else CharacterIdentity.model_validate(char.identity)
+        except Exception:
+            pass
+        if cid is None or cid.relationship_mesh is None:
+            continue
+
+        for arc in cid.relationship_mesh.arcs:
+            if len(arc.stages) < 3:
+                continue
+
+            no_regression_labels = True
+            for stage in arc.stages:
+                st = stage.strip().lower()
+                if st in ("crisis", "dissolution", "recovery", "setback", "regression", "relapse"):
+                    no_regression_labels = False
+                    break
+            if no_regression_labels and arc.trust_level > 0.5:
+                diagnostics.append(
+                    StructureDiagnostic(
+                        severity=DiagnosticSeverity.INFO,
+                        layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                        rule="character.relationship.arc.no_regression",
+                        message=(
+                            f"Relationship arc '{char.name}' -> '{arc.other}' has {len(arc.stages)} stages "
+                            f"but none suggest regression or setback. Pure forward progression can feel "
+                            f"emotionally flat — consider adding a crisis or regression stage."
+                        ),
+                        evidence=[
+                            f"character.name = {char.name}",
+                            f"relationship.other = {arc.other}",
+                            f"stages = {arc.stages}",
+                            f"trust_level = {arc.trust_level}",
+                        ],
+                        repair_options=RepairOptions(
+                            preserve_intent=[
+                                f"Add a crisis or regression stage between '{char.name}' and '{arc.other}' to introduce emotional oscillation."
+                            ],
+                            challenge_intent=[
+                                "Keep pure forward progression if the relationship is intentionally stable or background."
+                            ],
+                        ),
+                    )
+                )
+
+        if cid.psychology and len(cid.psychology.contradictions) >= 2:
+            for arc in cid.relationship_mesh.arcs:
+                if not arc.stages or len(arc.stages) < 3:
+                    continue
+                has_oscillation = any(
+                    s.strip().lower() in ("crisis", "dissolution", "relapse", "recovery", "setback")
+                    for s in arc.stages
+                )
+                if not has_oscillation:
+                    diagnostics.append(
+                        StructureDiagnostic(
+                            severity=DiagnosticSeverity.INFO,
+                            layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                            rule="character.relationship.arc.contradiction_unexpressed",
+                            message=(
+                                f"Character '{char.name}' has {len(cid.psychology.contradictions)} contradictions "
+                                f"but relationship arc with '{arc.other}' shows no oscillation. "
+                                f"Contradictions suggest internal tension that should surface as relational instability."
+                            ),
+                            evidence=[
+                                f"character.name = {char.name}",
+                                f"contradictions = {cid.psychology.contradictions}",
+                                f"relationship.other = {arc.other}",
+                                f"stages = {arc.stages}",
+                            ],
+                            repair_options=RepairOptions(
+                                preserve_intent=[
+                                    f"Add a crisis or regression stage to the arc between '{char.name}' and '{arc.other}' to reflect their internal contradictions."
+                                ],
+                                challenge_intent=[
+                                    "Keep stable arc if the contradictions are managed or suppressed rather than expressed."
+                                ],
+                            ),
+                        )
+                    )
+
+    # -------------------------------------------------------------------------
+    # Scene Energy Presence Diagnostic
+    # -------------------------------------------------------------------------
+    from auteur.character.analyzer import analyze_character_categorization
+    char_diags = analyze_character_categorization(blueprint)
+    has_scene_energy_diag = any(d.rule.startswith("character.psychology.scene_energy") for d in char_diags)
+    if not has_scene_energy_diag:
+        for char in blueprint.characters:
+            if char.role.value not in ("protagonist", "antagonist", "deuteragonist"):
+                continue
+            if char.identity is None:
+                continue
+            try:
+                cid2 = char.identity if isinstance(char.identity, CharacterIdentity) else CharacterIdentity.model_validate(char.identity)
+            except Exception:
+                continue
+            has_texture = cid2.texture is not None and (cid2.texture.social_aura or cid2.texture.gestures or cid2.texture.voice)
+            has_psych = cid2.psychology is not None
+            if has_texture and has_psych and cid2.psychology and cid2.psychology.intimacy is None:
+                diagnostics.append(
+                    StructureDiagnostic(
+                        severity=DiagnosticSeverity.INFO,
+                        layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                        rule="character.psychology.scene_energy_inferrable",
+                        message=(
+                            f"Character '{char.name}' ({char.role.value}) has texture and psychology data "
+                            f"from which a SceneEnergySignature could be inferred. Run 'auteur character categorize' "
+                            f"to generate atmospheric profile (pressure style, spatial behavior, silence quality)."
+                        ),
+                        evidence=[
+                            f"character.name = {char.name}",
+                            f"has_texture = {has_texture}",
+                            f"has_psychology = {has_psych}",
+                        ],
+                        repair_options=RepairOptions(
+                            preserve_intent=[
+                                f"Run 'auteur character categorize' to infer a SceneEnergySignature for '{char.name}'."
+                            ],
+                            challenge_intent=[
+                                "Skip if the character's atmospheric impact is not needed for downstream scene generation."
+                            ],
+                        ),
+                    )
+                )
+
     # 3. Rule: Required Tropes Forbidden
     for trope in contract_snap.required_tropes:
         if trope in blueprint.contract.forbidden_tropes:
