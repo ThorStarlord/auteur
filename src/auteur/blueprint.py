@@ -539,6 +539,14 @@ class Character(BaseModel):
     current_arc_percentage: int = Field(default=0, ge=0, le=100)
     key_milestones: list[ArcMilestone] = Field(default_factory=list)
     current_state: CharacterState = Field(default_factory=CharacterState)
+    identity: object | None = Field(
+        default=None,
+        description="Optional CharacterIdentity dict (lazy-imported from auteur.character.models).",
+    )
+    categorization: object | None = Field(
+        default=None,
+        description="Optional CharacterCategorization dict (lazy-imported from auteur.character.models).",
+    )
 
     @model_validator(mode="after")
     def _arc_bounds_consistent(self) -> Self:

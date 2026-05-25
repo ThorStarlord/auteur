@@ -236,6 +236,10 @@ def main(argv: list[str] | None = None) -> int:
         help="Target output path for the compiled blueprint.yaml skeleton.",
     )
 
+    # Character subcommands
+    from auteur.character.cli import register_character_subcommands
+    register_character_subcommands(sub)
+
     # State subcommands
     p_state = sub.add_parser("state", help="Manage story state layers programmatically.")
     state_sub = p_state.add_subparsers(dest="state_command", required=True)
@@ -415,6 +419,9 @@ def main(argv: list[str] | None = None) -> int:
                 outline_path=args.outline,
                 blueprint_path=args.blueprint
             )
+    if args.command == "character":
+        from auteur.character.cli import handle_character_command
+        return handle_character_command(args)
     parser.print_help()
     return 2
 
