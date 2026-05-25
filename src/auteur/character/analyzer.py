@@ -3,11 +3,13 @@ from __future__ import annotations
 from collections import Counter
 
 from auteur.blueprint import Character, StoryBlueprint
-from auteur.character.enums import Archetype, PhilosophyTag
+from auteur.character.enums import (
+    Archetype,
+    DefenseMechanism,
+    PhilosophyTag,
+)
 from auteur.character.models import (
-    ArchetypalLayer,
     CharacterIdentity,
-    TextureLayer,
     TextureVoice,
 )
 from auteur.structure.diagnostics import (
@@ -57,6 +59,12 @@ def analyze_character_categorization(
     diagnostics.extend(_diagnose_defense_presence(blueprint))
     diagnostics.extend(_diagnose_social_aura_presence(blueprint))
     diagnostics.extend(_diagnose_relationship_arcs(blueprint))
+    diagnostics.extend(_diagnose_texture_uniqueness(blueprint))
+    diagnostics.extend(_diagnose_defense_controlled(blueprint))
+    diagnostics.extend(_diagnose_intimacy_presence(blueprint))
+    diagnostics.extend(_diagnose_relationship_arc_progression(blueprint))
+    diagnostics.extend(_diagnose_contradiction_depth(blueprint))
+    diagnostics.extend(_diagnose_adaptation_divergence(blueprint))
 
     return diagnostics
 
@@ -313,39 +321,10 @@ def _diagnose_character_roles(blueprint: StoryBlueprint) -> list[StructureDiagno
 
 def _diagnose_character_consistency(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
     diagnostics: list[StructureDiagnostic] = []
-
     engine = blueprint.story_engine
     if engine is None:
         return diagnostics
-
-    main_want = engine.main_thread.want.author_text.casefold()
-    for char in blueprint.characters:
-        if char.role.value == "protagonist" and char.name.casefold() not in main_want:
-            mentioned = any(
-                char.name.casefold() in t.name.casefold() or char.name.casefold() in t.want.author_text.casefold()
-                for t in engine.threads
-            )
-            if not mentioned:
-                diagnostics.append(
-                    StructureDiagnostic(
-                        severity=DiagnosticSeverity.WARNING,
-                        layer=DiagnosticLayer.THREADS,
-                        rule="character.not_referenced_in_threads",
-                        message=f"Protagonist '{char.name}' is not mentioned in any story thread.",
-                        evidence=[f"character.name = {char.name}"],
-                        repair_options=RepairOptions(
-                            preserve_intent=[f"Reference '{char.name}' in at least one thread's want or name."],
-                            challenge_intent=["Keep threads abstract if protagonist is not a named entity."],
-                        ),
-                    )
-                )
-
     return diagnostics
-
-
-# ---------------------------------------------------------------------------
-# Ideological contrast analysis
-# ---------------------------------------------------------------------------
 
 
 def _collect_philosophy_tags(blueprint: StoryBlueprint) -> dict[str, list[PhilosophyTag]]:
@@ -415,11 +394,6 @@ def _diagnose_ideological_contrast(blueprint: StoryBlueprint) -> list[StructureD
     return diagnostics
 
 
-# ---------------------------------------------------------------------------
-# Motif presence analysis
-# ---------------------------------------------------------------------------
-
-
 def _diagnose_motif_presence(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
     diagnostics: list[StructureDiagnostic] = []
 
@@ -447,11 +421,6 @@ def _diagnose_motif_presence(blueprint: StoryBlueprint) -> list[StructureDiagnos
     return diagnostics
 
 
-# ---------------------------------------------------------------------------
-# Essence completeness analysis
-# ---------------------------------------------------------------------------
-
-
 def _diagnose_essence_completeness(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
     diagnostics: list[StructureDiagnostic] = []
 
@@ -476,11 +445,6 @@ def _diagnose_essence_completeness(blueprint: StoryBlueprint) -> list[StructureD
             )
 
     return diagnostics
-
-
-# ---------------------------------------------------------------------------
-# Texture depth analysis
-# ---------------------------------------------------------------------------
 
 
 def _diagnose_texture_depth(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
@@ -510,11 +474,6 @@ def _diagnose_texture_depth(blueprint: StoryBlueprint) -> list[StructureDiagnost
     return diagnostics
 
 
-# ---------------------------------------------------------------------------
-# Vulnerability family presence analysis
-# ---------------------------------------------------------------------------
-
-
 def _diagnose_vulnerability_presence(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
     diagnostics: list[StructureDiagnostic] = []
 
@@ -540,11 +499,6 @@ def _diagnose_vulnerability_presence(blueprint: StoryBlueprint) -> list[Structur
             )
 
     return diagnostics
-
-
-# ---------------------------------------------------------------------------
-# Defense mechanisms presence analysis
-# ---------------------------------------------------------------------------
 
 
 def _diagnose_defense_presence(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
@@ -574,11 +528,6 @@ def _diagnose_defense_presence(blueprint: StoryBlueprint) -> list[StructureDiagn
     return diagnostics
 
 
-# ---------------------------------------------------------------------------
-# Social aura presence analysis
-# ---------------------------------------------------------------------------
-
-
 def _diagnose_social_aura_presence(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
     diagnostics: list[StructureDiagnostic] = []
 
@@ -606,11 +555,6 @@ def _diagnose_social_aura_presence(blueprint: StoryBlueprint) -> list[StructureD
     return diagnostics
 
 
-# ---------------------------------------------------------------------------
-# Relationship arc completeness analysis
-# ---------------------------------------------------------------------------
-
-
 def _diagnose_relationship_arcs(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
     diagnostics: list[StructureDiagnostic] = []
 
@@ -633,5 +577,308 @@ def _diagnose_relationship_arcs(blueprint: StoryBlueprint) -> list[StructureDiag
                     ),
                 )
             )
+
+    return diagnostics
+
+
+def _diagnose_texture_uniqueness(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
+    diagnostics: list[StructureDiagnostic] = []
+
+    texture_fields = ["gestures", "rituals", "social_habits", "behavioral_tells"]
+    for field in texture_fields:
+        by_item: dict[str, list[str]] = {}
+        for char in blueprint.characters:
+            identity = _load_identity(char)
+            if identity is None or identity.texture is None:
+                continue
+            items = getattr(identity.texture, field, None)
+            if not items:
+                continue
+            for item in items:
+                key = item.strip().lower()
+                by_item.setdefault(key, []).append(char.name)
+
+        for item_text, char_names in by_item.items():
+            if len(char_names) > 1:
+                diagnostics.append(
+                    StructureDiagnostic(
+                        severity=DiagnosticSeverity.WARNING,
+                        layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                        rule=f"character.texture.{field}.duplicate",
+                        message=f"Duplicate {field} ('{item_text}') across characters: {', '.join(char_names)}.",
+                        evidence=[
+                            f"characters = {char_names}",
+                            f"duplicate_{field} = {item_text}",
+                        ],
+                        repair_options=RepairOptions(
+                            preserve_intent=[f"Differentiate the '{item_text}' {field} for each character, or assign unique behavioral details."],
+                            challenge_intent=["Keep duplicate if the behavior is intentionally shared (cultural or group trait)."],
+                        ),
+                    )
+                )
+
+    return diagnostics
+
+
+def _diagnose_defense_controlled(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
+    diagnostics: list[StructureDiagnostic] = []
+
+    valid_values = {v.value for v in DefenseMechanism}
+    for char in blueprint.characters:
+        identity = _load_identity(char)
+        if identity is None or identity.psychology is None:
+            continue
+        for dm in identity.psychology.defense_mechanisms:
+            dm_str = dm.value if hasattr(dm, "value") else str(dm)
+            if dm_str not in valid_values:
+                diagnostics.append(
+                    StructureDiagnostic(
+                        severity=DiagnosticSeverity.WARNING,
+                        layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                        rule="character.psychology.defense_not_controlled",
+                        message=f"Character '{char.name}' has defense mechanism '{dm_str}' which is not in the controlled vocabulary.",
+                        evidence=[f"character.name = {char.name}", f"defense_mechanism = {dm_str}"],
+                        repair_options=RepairOptions(
+                            preserve_intent=[f"Replace '{dm_str}' with a DefenseMechanism enum value from {sorted(valid_values)}."],
+                            challenge_intent=["Keep free-text if the controlled vocabulary lacks the needed term."],
+                        ),
+                    )
+                )
+
+    return diagnostics
+
+
+def _diagnose_intimacy_presence(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
+    diagnostics: list[StructureDiagnostic] = []
+
+    for char in blueprint.characters:
+        if char.role.value not in ("protagonist", "antagonist", "deuteragonist"):
+            continue
+        identity = _load_identity(char)
+        if identity is None or identity.psychology is None:
+            continue
+        if identity.psychology.intimacy is None:
+            diagnostics.append(
+                StructureDiagnostic(
+                    severity=DiagnosticSeverity.WARNING,
+                    layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                    rule="character.psychology.intimacy_missing",
+                    message=f"Character '{char.name}' ({char.role.value}) has no intimacy requirements defined.",
+                    evidence=[f"character.name = {char.name}", "psychology.intimacy is absent"],
+                    repair_options=RepairOptions(
+                        preserve_intent=[f"Add intimacy requirements for '{char.name}' with access pattern, safety prerequisites, and trust triggers/blocks."],
+                        challenge_intent=["Omit if the character's emotional access patterns are not central to the story."],
+                    ),
+                )
+            )
+            continue
+        intimacy = identity.psychology.intimacy
+        if intimacy.caregiving.openness <= 0.1:
+            diagnostics.append(
+                StructureDiagnostic(
+                    severity=DiagnosticSeverity.WARNING,
+                    layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                    rule="character.psychology.caregiving_closed",
+                    message=f"Character '{char.name}' ({char.role.value}) has very low caregiving openness ({intimacy.caregiving.openness}). Consider whether this is intentional.",
+                    evidence=[f"character.name = {char.name}", f"caregiving.openness = {intimacy.caregiving.openness}"],
+                    repair_options=RepairOptions(
+                        preserve_intent=[f"Set caregiving openness higher if '{char.name}' is meant to provide nurture."],
+                        challenge_intent=["Keep low if the character is emotionally closed even in caregiving contexts."],
+                    ),
+                )
+            )
+        if intimacy.romantic.openness <= 0.1 and intimacy.romantic.dependency_willingness <= 0.1:
+            diagnostics.append(
+                StructureDiagnostic(
+                    severity=DiagnosticSeverity.WARNING,
+                    layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                    rule="character.psychology.romantic_closed",
+                    message=f"Character '{char.name}' ({char.role.value}) has very low romantic openness and dependency willingness. They may resist intimacy that requires emotional need.",
+                    evidence=[f"character.name = {char.name}", f"romantic.openness = {intimacy.romantic.openness}", f"romantic.dependency_willingness = {intimacy.romantic.dependency_willingness}"],
+                    repair_options=RepairOptions(
+                        preserve_intent=[f"Adjust romantic openness or dependency willingness if '{char.name}' is meant to form close bonds."],
+                        challenge_intent=["Keep low if the character's arc involves learning to depend on others."],
+                    ),
+                )
+            )
+
+    return diagnostics
+
+
+def _diagnose_relationship_arc_progression(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
+    diagnostics: list[StructureDiagnostic] = []
+
+    for char in blueprint.characters:
+        identity = _load_identity(char)
+        if identity is None or identity.relationship_mesh is None:
+            continue
+        mesh = identity.relationship_mesh
+        for arc in mesh.arcs:
+            if not arc.stages and arc.trust_level > 0:
+                diagnostics.append(
+                    StructureDiagnostic(
+                        severity=DiagnosticSeverity.WARNING,
+                        layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                        rule="character.relationship.arc.stages_missing",
+                        message=f"Relationship arc for '{char.name}' -> '{arc.other}' has a trust level ({arc.trust_level}) but no stages defined.",
+                        evidence=[f"character.name = {char.name}", f"relationship.other = {arc.other}", f"trust_level = {arc.trust_level}"],
+                        repair_options=RepairOptions(
+                            preserve_intent=[f"Add RelationshipArcStage entries to the arc between '{char.name}' and '{arc.other}'."],
+                            challenge_intent=["Keep if the relationship arc is intentionally simple or background."],
+                        ),
+                    )
+                )
+
+            if arc.trust_level <= 0.3 and arc.progression_type and arc.progression_type in ("trust_based", "gradual"):
+                diagnostics.append(
+                    StructureDiagnostic(
+                        severity=DiagnosticSeverity.WARNING,
+                        layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                        rule="character.relationship.arc.trust_progression_mismatch",
+                        message=f"Relationship arc for '{char.name}' -> '{arc.other}' has low trust ({arc.trust_level}) but a trust-building progression type. Consider aligning them.",
+                        evidence=[f"character.name = {char.name}", f"relationship.other = {arc.other}", f"trust_level = {arc.trust_level}", f"progression_type = {arc.progression_type}"],
+                        repair_options=RepairOptions(
+                            preserve_intent=["Increase trust level or change progression type to match the current trust state."],
+                            challenge_intent=["Keep if low trust with trust-building progression represents an early-stage arc."],
+                        ),
+                    )
+                )
+
+            if arc.stages and len(arc.stages) <= 2 and arc.trust_level > 0.7:
+                diagnostics.append(
+                    StructureDiagnostic(
+                        severity=DiagnosticSeverity.WARNING,
+                        layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                        rule="character.relationship.arc.few_stages_high_trust",
+                        message=f"Relationship arc for '{char.name}' -> '{arc.other}' has high trust ({arc.trust_level}) but only {len(arc.stages)} stage(s). High-trust relationships typically need more stages to feel earned.",
+                        evidence=[f"character.name = {char.name}", f"relationship.other = {arc.other}", f"stages = {[str(s) for s in arc.stages]}", f"trust_level = {arc.trust_level}"],
+                        repair_options=RepairOptions(
+                            preserve_intent=[f"Add intermediary stages to the arc between '{char.name}' and '{arc.other}' to show how trust was built."],
+                            challenge_intent=["Keep if the relationship achieved high trust quickly (shared crisis, lifelong bond)."],
+                        ),
+                    )
+                )
+
+    return diagnostics
+
+
+def _diagnose_contradiction_depth(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
+    diagnostics: list[StructureDiagnostic] = []
+
+    for char in blueprint.characters:
+        if char.role.value not in ("protagonist", "antagonist", "deuteragonist"):
+            continue
+        identity = _load_identity(char)
+        if identity is None:
+            continue
+        if identity.psychology is None or not identity.psychology.contradictions:
+            diagnostics.append(
+                StructureDiagnostic(
+                    severity=DiagnosticSeverity.WARNING,
+                    layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                    rule="character.psychology.contradictions_missing",
+                    message=f"Character '{char.name}' ({char.role.value}) has no contradictions defined. Contradictions prevent characters from feeling procedurally assembled.",
+                    evidence=[f"character.name = {char.name}", "psychology.contradictions is empty"],
+                    repair_options=RepairOptions(
+                        preserve_intent=[f"Add 2-3 contradictions for '{char.name}' that create tension between their vulnerability, defenses, and role. E.g. 'driven_but_vulnerable', 'fears_connection_yet_needs_it'."],
+                        challenge_intent=["Omit if the character is intentionally simple or archetypal."],
+                    ),
+                )
+            )
+            continue
+
+        if len(identity.psychology.contradictions) < 2:
+            diagnostics.append(
+                StructureDiagnostic(
+                    severity=DiagnosticSeverity.INFO,
+                    layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                    rule="character.psychology.contradictions_few",
+                    message=f"Character '{char.name}' has only {len(identity.psychology.contradictions)} contradiction(s). Primary characters benefit from 2-3 to feel layered.",
+                    evidence=[f"character.name = {char.name}", f"psychology.contradictions = {identity.psychology.contradictions}"],
+                    repair_options=RepairOptions(
+                        preserve_intent=[f"Add additional contradictions for '{char.name}' that create richer internal tension."],
+                        challenge_intent=["Keep minimal if the character's simplicity is intentional."],
+                    ),
+                )
+            )
+
+        safe_patterns = {"nice_but_polite", "kind_but_firm", "strong_but_gentle", "smart_but_humble"}
+        for c in identity.psychology.contradictions:
+            if c.strip().lower() in safe_patterns:
+                diagnostics.append(
+                    StructureDiagnostic(
+                        severity=DiagnosticSeverity.INFO,
+                        layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                        rule="character.psychology.contradiction_safe",
+                        message=f"Character '{char.name}' has a contradiction '{c}' that does not create meaningful tension. Contradictions should pull the character in opposing directions.",
+                        evidence=[f"character.name = {char.name}", f"contradiction = {c}"],
+                        repair_options=RepairOptions(
+                            preserve_intent=[f"Replace '{c}' with a contradiction that creates real internal conflict, e.g. 'driven_but_vulnerable' or 'fears_connection_yet_needs_it'."],
+                            challenge_intent=["Keep if the safe contradiction is ironic or contextually meaningful."],
+                        ),
+                    )
+                )
+
+    return diagnostics
+
+
+def _diagnose_adaptation_divergence(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
+    diagnostics: list[StructureDiagnostic] = []
+
+    by_vulnerability: dict[str, list[tuple[str, Character]]] = {}
+    for char in blueprint.characters:
+        identity = _load_identity(char)
+        if identity is None or identity.psychology is None or identity.psychology.vulnerability_family is None:
+            continue
+        vuln = identity.psychology.vulnerability_family.value
+        by_vulnerability.setdefault(vuln, []).append((char.name, char))
+
+    for vuln, chars in by_vulnerability.items():
+        if len(chars) < 2:
+            continue
+
+        pairs_checked: set[tuple[str, str]] = set()
+        for i, (name_a, char_a) in enumerate(chars):
+            for j, (name_b, char_b) in enumerate(chars):
+                if i >= j:
+                    continue
+                key = tuple(sorted([name_a, name_b]))
+                if key in pairs_checked:
+                    continue
+                pairs_checked.add(key)
+
+                id_a = _load_identity(char_a)
+                id_b = _load_identity(char_b)
+                if id_a is None or id_b is None:
+                    continue
+                defenses_a = {d.value for d in id_a.psychology.defense_mechanisms} if id_a.psychology else set()
+                defenses_b = {d.value for d in id_b.psychology.defense_mechanisms} if id_b.psychology else set()
+
+                if not defenses_a or not defenses_b:
+                    continue
+
+                intersection = defenses_a & defenses_b
+                min_defenses = min(len(defenses_a), len(defenses_b))
+                overlap_ratio = len(intersection) / min_defenses if min_defenses > 0 else 0
+
+                if overlap_ratio > 0.5:
+                    diagnostics.append(
+                        StructureDiagnostic(
+                            severity=DiagnosticSeverity.INFO,
+                            layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                            rule="character.adaptation.convergence",
+                            message=f"'{name_a}' and '{name_b}' share vulnerability '{vuln}' but use very similar defense mechanisms ({overlap_ratio:.0%} overlap). Consider differentiating their adaptations to the same wound.",
+                            evidence=[
+                                f"vulnerability = {vuln}",
+                                f"character_a = {name_a} defenses = {sorted(defenses_a)}",
+                                f"character_b = {name_b} defenses = {sorted(defenses_b)}",
+                                f"overlap = {len(intersection)}/{min_defenses}",
+                            ],
+                            repair_options=RepairOptions(
+                                preserve_intent=[f"Differentiate '{name_a}' and '{name_b}' by giving at least one divergent defense mechanism so they represent different adaptations to the same vulnerability."],
+                                challenge_intent=["Keep convergence if the shared adaptation is intentional (cultural, familial, or organizational)."],
+                            ),
+                        )
+                    )
 
     return diagnostics

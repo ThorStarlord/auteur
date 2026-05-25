@@ -5,15 +5,19 @@ from pydantic import BaseModel, ConfigDict, Field
 from auteur.character.enums import (
     Archetype,
     AuthorshipVector,
+    DefenseMechanism,
     DependencySymmetry,
     DramaticFunction,
     EssenceTraitSource,
+    IntimacyAccess,
     MoralAlignment,
     MotifType,
     PersonalityTrait,
     PhilosophyTag,
+    RelationshipArcStage,
     RelationshipType,
-    TropeTag,
+    TrustProgressionType,
+    ValidationSource,
     VulnerabilityFamily,
 )
 
@@ -45,6 +49,51 @@ class ArchetypalLayer(BaseModel):
 # ---------------------------------------------------------------------------
 
 
+class CaregivingAccess(BaseModel):
+    openness: float = Field(
+        default=0.5, ge=0.0, le=1.0,
+        description="Willingness to provide care, support, and nurture others.",
+    )
+    reciprocity_tolerance: float = Field(
+        default=0.5, ge=0.0, le=1.0,
+        description="How comfortable the character is with receiving care in return.",
+    )
+    safety_prerequisites: list[str] = Field(default_factory=list)
+    trust_triggers: list[str] = Field(default_factory=list)
+    trust_blocks: list[str] = Field(default_factory=list)
+
+
+class RomanticAccess(BaseModel):
+    openness: float = Field(
+        default=0.0, ge=0.0, le=1.0,
+        description="Willingness to receive care, depend on another, and be vulnerable in intimate contexts.",
+    )
+    dependency_willingness: float = Field(
+        default=0.0, ge=0.0, le=1.0,
+        description="Comfort with needing others emotionally.",
+    )
+    safety_prerequisites: list[str] = Field(default_factory=list)
+    trust_triggers: list[str] = Field(default_factory=list)
+    trust_blocks: list[str] = Field(default_factory=list)
+
+
+class IntimacyRequirements(BaseModel):
+    """How the character grants emotional access and what they need to feel safe."""
+
+    access_pattern: IntimacyAccess = Field(
+        default=IntimacyAccess.GUARDED_PROGRESSIVE,
+        description="The character's default pattern for granting emotional intimacy.",
+    )
+    caregiving: CaregivingAccess = Field(
+        default_factory=CaregivingAccess,
+        description="Willingness and conditions for providing nurture.",
+    )
+    romantic: RomanticAccess = Field(
+        default_factory=RomanticAccess,
+        description="Willingness and conditions for receiving care and depending on another.",
+    )
+
+
 class PsychologicalLayer(BaseModel):
     wound: str | None = Field(default=None, description="Core emotional wound, e.g. 'abandonment'.")
     fear: str | None = Field(default=None, description="Deepest fear, e.g. 'irrelevance'.")
@@ -57,9 +106,17 @@ class PsychologicalLayer(BaseModel):
         default=None,
         description="The family of emotional vulnerability driving the character's behavior, e.g. 'status_control'.",
     )
-    defense_mechanisms: list[str] = Field(
+    defense_mechanisms: list[DefenseMechanism] = Field(
         default_factory=list,
-        description="Stress-response behaviors, e.g. 'compartmentalization', 'transactional_containment'.",
+        description="Stress-response behaviors from controlled vocabulary.",
+    )
+    validation_dependency: list[ValidationSource] = Field(
+        default_factory=list,
+        description="Where the character derives their sense of worth, e.g. 'service', 'external_needed', 'achievement'.",
+    )
+    intimacy: IntimacyRequirements | None = Field(
+        default=None,
+        description="Character's intimacy access pattern, safety prerequisites, and trust triggers/blocks.",
     )
 
 
@@ -206,9 +263,29 @@ class RelationshipArc(BaseModel):
     )
     current_stage: str | None = Field(default=None, description="Where the relationship currently sits in its arc.")
     trust_level: float = Field(ge=0.0, le=1.0, default=0.5)
+    trust_evolution: str | None = Field(
+        default=None,
+        description="Narrative of how trust changed over time, e.g. 'rose steadily, dipped at crisis, recovered stronger'.",
+    )
+    turning_points: list[str] = Field(
+        default_factory=list,
+        description="Key events that changed the relationship trajectory.",
+    )
     progression_type: str | None = Field(
         default=None,
         description="How the relationship evolves: 'trust_based', 'coercive', 'adversarial', 'ritualistic'.",
+    )
+    asymmetry_state: str | None = Field(
+        default=None,
+        description="Current asymmetry dynamic: 'savior', 'rescued', 'mutual', 'pursuer_distance', 'nurturer_dependent', etc.",
+    )
+    asymmetry_trajectory: str | None = Field(
+        default=None,
+        description="How asymmetry is evolving over time: 'balancing', 'deepening', 'dissolving', 'stuck'.",
+    )
+    asymmetry_history: list[str] = Field(
+        default_factory=list,
+        description="Notable shifts in the relationship asymmetry over the story arc.",
     )
 
 
@@ -241,6 +318,35 @@ class RoleInference(BaseModel):
     confidence: float = Field(ge=0.0, le=1.0)
     evidence: list[str] = Field(default_factory=list)
     reasoning: str = ""
+
+
+class SceneEnergySignature(BaseModel):
+    """Inferred profile of the atmospheric impact a character has in a scene."""
+
+    default_atmosphere: list[str] = Field(
+        default_factory=list,
+        description="The ambient feeling the character carries, e.g. 'formal_pressure', 'warm_reassurance', 'unsettling_calm'.",
+    )
+    pressure_style: list[str] = Field(
+        default_factory=list,
+        description="How the character applies social weight, e.g. 'direct_command', 'silent_expectation', 'emotional_withholding'.",
+    )
+    silence_quality: list[str] = Field(
+        default_factory=list,
+        description="What silence feels like around them, e.g. 'tense', 'comfortable', 'expectant', 'heavy'.",
+    )
+    spatial_behavior: list[str] = Field(
+        default_factory=list,
+        description="How they occupy physical space, e.g. 'occupies_center', 'hovers_periphery', 'controls_thresholds'.",
+    )
+    interruption_pattern: str | None = Field(
+        default=None,
+        description="How they handle conversational turn-taking, e.g. 'frequent', 'never', 'strategic', 'deferential'.",
+    )
+    gaze_control: str | None = Field(
+        default=None,
+        description="How they use eye contact, e.g. 'holding', 'avoidant', 'measuring', 'intimate'.",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -278,3 +384,7 @@ class CharacterCategorization(BaseModel):
     relationship_signatures: list[RelationshipSignature] = Field(default_factory=list)
     thematic_alignments: list[ThematicAlignment] = Field(default_factory=list)
     role_inferences: list[RoleInference] = Field(default_factory=list)
+    scene_energy: SceneEnergySignature | None = Field(
+        default=None,
+        description="Inferred atmospheric signature — how the character shapes scene energy through presence, pressure, and spatial behavior.",
+    )

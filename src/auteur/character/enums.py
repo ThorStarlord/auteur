@@ -315,3 +315,89 @@ class EssenceTraitSource(str, Enum):
     BOND = "bond"
     INSERTED = "inserted"
     ARCHITECTED = "architected"
+
+
+class DefenseMechanism(str, Enum):
+    COMPARTMENTALIZATION = "compartmentalization"
+    INTELLECTUALIZATION = "intellectualization"
+    GRANDIOSITY = "grandiosity"
+    PROJECTION = "projection"
+    RATIONALIZATION = "rationalization"
+    DENIAL = "denial"
+    SUBLIMATION = "sublimation"
+    HUMOR = "humor"
+    ALTRUISM = "altruism"
+    SUPPRESSION = "suppression"
+    DISSOCIATION = "dissociation"
+    ACTING_OUT = "acting_out"
+    AVOIDANCE = "avoidance"
+    TRANSACTIONAL_CONTAINMENT = "transactional_containment"
+    EMOTIONAL_FILTERING = "emotional_filtering"
+    RIGID_ROUTINE = "rigid_routine"
+    PERFORMATIVE_COMPETENCE = "performative_competence"
+    SELF_BLAME = "self_blame"
+    IDEALIZATION = "idealization"
+    DEVALUATION = "devaluation"
+    SELF_RELIANCE = "self_reliance"
+    DISPLACEMENT = "displacement"
+    RITUALIZATION = "ritualization"
+    REACTION_FORMATION = "reaction_formation"
+    ALTRUISTIC_SURRENDER = "altruistic_surrender"
+    ANTICIPATION = "anticipation"
+    HELP_SEEKING = "help_seeking"
+    PASSIVE_AGGRESSION = "passive_aggression"
+    WITHDRAWAL = "withdrawal"
+    SOMATIZATION = "somatization"
+
+
+class IntimacyAccess(str, Enum):
+    GUARDED_PROGRESSIVE = "guarded_progressive"
+    OPEN_CAUTIOUS = "open_cautious"
+    TRANSACTIONAL = "transactional"
+    AVOIDANT = "avoidant"
+    RAPID_TRUST = "rapid_trust"
+    PERFORMATIVE = "performative"
+    CONTESTED = "contested"
+    RITUALISTIC = "ritualistic"
+
+
+class TrustProgressionType(str, Enum):
+    TRUST_BASED = "trust_based"
+    COERCIVE = "coercive"
+    ADVERSARIAL = "adversarial"
+    RITUALISTIC = "ritualistic"
+    TESTING = "testing"
+    GRADUAL = "gradual"
+    CRISIS_ACCELERATED = "crisis_accelerated"
+
+
+class AccessPatternStage(str, Enum):
+    VULNERABILITY_SIGHTING = "vulnerability_sighting"
+    SECRECY_PROTECTION = "secrecy_protection"
+    COMPARTMENT_SHARING = "compartment_sharing"
+    EMOTIONAL_REFRAAMING = "emotional_reframing"
+    MUTUAL_DEPENDENCY = "mutual_dependency"
+    INTEGRATION = "integration"
+
+
+class RelationshipArcStage(str, Enum):
+    INITIAL_FASCINATION = "initial_fascination"
+    VULNERABILITY_DISCOVERY = "vulnerability_discovery"
+    TRUST_FORMATION = "trust_formation"
+    SAFETY_PROVING = "safety_proving"
+    DEEPENING = "deepening"
+    CRISIS = "crisis"
+    RECOVERY = "recovery"
+    COMMITMENT = "commitment"
+    DISSOLUTION = "dissolution"
+
+
+class ValidationSource(str, Enum):
+    SELF_VALIDATION = "self_validation"
+    EXTERNAL_NEEDED = "external_needed"
+    ACHIEVEMENT = "achievement"
+    SERVICE = "service"
+    RELATIONSHIPS = "relationships"
+    STATUS = "status"
+    AUTONOMY = "autonomy"
+    PERFORMANCE = "performance"

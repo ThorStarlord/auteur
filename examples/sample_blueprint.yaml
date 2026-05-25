@@ -185,6 +185,29 @@ characters:
         vulnerability_family: powerlessness
         defense_mechanisms:
           - compartmentalization
+        validation_dependency:
+          - external_needed
+          - service
+        intimacy:
+          access_pattern: guarded_progressive
+          caregiving:
+            openness: 0.7
+            safety_prerequisites:
+              - emotional_safety
+            trust_triggers:
+              - shared_sacrifice
+            trust_blocks:
+              - betrayal
+              - public_exposure
+          romantic:
+            openness: 0.1
+            dependency_willingness: 0.1
+            safety_prerequisites:
+              - proven_loyalty
+            trust_triggers:
+              - shared_vulnerability
+            trust_blocks:
+              - abandonment
       texture:
         voice:
           cadence: "short, clipped sentences"
@@ -235,6 +258,28 @@ characters:
         vulnerability_family: abandonment
         defense_mechanisms:
           - intellectualization
+        validation_dependency:
+          - relationships
+          - service
+        intimacy:
+          access_pattern: open_cautious
+          caregiving:
+            openness: 0.8
+            safety_prerequisites:
+              - proven_trustworthiness
+            trust_triggers:
+              - witnessing_vulnerability
+            trust_blocks:
+              - deception
+          romantic:
+            openness: 0.4
+            dependency_willingness: 0.3
+            safety_prerequisites:
+              - emotional_safety
+            trust_triggers:
+              - mutual_respect
+            trust_blocks:
+              - betrayal
       texture:
         voice:
           cadence: "measured, reflective"
@@ -268,6 +313,28 @@ characters:
         vulnerability_family: powerlessness
         defense_mechanisms:
           - grandiosity
+        validation_dependency:
+          - status
+          - autonomy
+        intimacy:
+          access_pattern: transactional
+          caregiving:
+            openness: 0.1
+            safety_prerequisites:
+              - absolute_loyalty
+            trust_triggers:
+              - submission
+            trust_blocks:
+              - defiance
+          romantic:
+            openness: 0.0
+            dependency_willingness: 0.0
+            safety_prerequisites:
+              - total_control
+            trust_triggers:
+              - utility_proven
+            trust_blocks:
+              - vulnerability_display
       texture:
         voice:
           cadence: "slow, deliberate, theatrical"
