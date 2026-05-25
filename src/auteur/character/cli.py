@@ -98,6 +98,8 @@ def _cmd_character_show(blueprint_path: Path, output_path: Path | None) -> int:
         print(f"Error: invalid blueprint: {exc}", file=sys.stderr)
         return 1
 
+    from auteur.character.models import CharacterIdentity
+
     report = {"characters": []}
     for char in blueprint.characters:
         entry = {
@@ -109,13 +111,21 @@ def _cmd_character_show(blueprint_path: Path, output_path: Path | None) -> int:
             "relationship_count": len(char.current_state.relationships),
         }
         if char.identity is not None:
-            identity = char.identity if isinstance(char.identity, dict) else {}
-            entry["identity"] = {
-                "archetype": identity.get("archetype"),
-                "moral_alignment": identity.get("moral_alignment"),
-                "dramatic_functions": identity.get("dramatic_functions", []),
-                "trope_tags": identity.get("trope_tags", []),
-            }
+            try:
+                identity = (
+                    char.identity
+                    if isinstance(char.identity, CharacterIdentity)
+                    else CharacterIdentity.model_validate(char.identity)
+                )
+                entry["layers"] = {
+                    "narrative_role": identity.narrative_role.model_dump(mode="json") if identity.narrative_role else None,
+                    "archetype": identity.archetype.model_dump(mode="json") if identity.archetype else None,
+                    "psychology": identity.psychology.model_dump(mode="json") if identity.psychology else None,
+                    "texture": identity.texture.model_dump(mode="json") if identity.texture else None,
+                    "arc": identity.arc.model_dump(mode="json") if identity.arc else None,
+                }
+            except Exception:
+                entry["identity_raw"] = char.identity
         report["characters"].append(entry)
 
     report_json = json.dumps(report, indent=2)

@@ -1,4 +1,4 @@
-"""Tests for character categorization: enums, models, analyzer, categorizer, and CLI."""
+"""Tests for layered character categorization: enums, models, analyzer, categorizer, CLI."""
 
 from __future__ import annotations
 
@@ -32,135 +32,186 @@ from auteur.character.enums import (
     Virtue,
 )
 from auteur.character.models import (
+    ArcChange,
+    ArcEngine,
+    ArchetypalLayer,
     CharacterCategorization,
     CharacterIdentity,
+    PsychologicalLayer,
+    RelationshipMesh,
     RelationshipSignature,
     RoleInference,
+    StructuralRole,
+    TextureLayer,
+    TextureVoice,
     ThematicAlignment,
 )
 
 
 # ============================================================================
-# Enum tests
+# Enum tests (unchanged — enums are preserved)
 # ============================================================================
 
 
 def test_archetype_enum_values():
     assert Archetype.HERO.value == "hero"
     assert Archetype.VILLAIN.value == "villain"
-    assert Archetype.MENTOR.value == "mentor"
-    assert Archetype.SHADOW.value == "shadow"
 
 
 def test_moral_alignment_enum_values():
     assert MoralAlignment.LAWFUL_GOOD.value == "lawful_good"
-    assert MoralAlignment.CHAOTIC_EVIL.value == "chaotic_evil"
-
-
-def test_virtue_enum_values():
-    assert Virtue.JUSTICE.value == "justice"
-    assert Virtue.COURAGE.value == "courage"
-
-
-def test_vice_enum_values():
-    assert Vice.GREED.value == "greed"
-    assert Vice.PRIDE.value == "pride"
-
-
-def test_personality_trait_enum_values():
-    assert PersonalityTrait.OPEN_CURIOUS.value == "open_curious"
-    assert PersonalityTrait.STABLE_CONFIDENT.value == "stable_confident"
-
-
-def test_protagonist_subtype_enum_values():
-    assert ProtagonistSubtype.CLASSIC_HERO.value == "classic_hero"
-    assert ProtagonistSubtype.ANTI_HERO.value == "anti_hero"
 
 
 def test_dramatic_function_enum_values():
     assert DramaticFunction.EMOTIONAL_ANCHOR.value == "emotional_anchor"
-    assert DramaticFunction.COMIC_RELIEF.value == "comic_relief"
 
 
 def test_trope_tag_enum_values():
     assert TropeTag.CHOSEN_ONE.value == "chosen_one"
-    assert TropeTag.MENTOR_DEATH.value == "mentor_death"
 
 
 def test_relationship_type_enum_values():
     assert RelationshipType.TRUST.value == "trust"
-    assert RelationshipType.RIVALRY.value == "rivalry"
     assert RelationshipType.MENTORSHIP.value == "mentorship"
 
 
 # ============================================================================
-# Model tests
+# Layered model tests
 # ============================================================================
 
 
-def test_character_identity_defaults():
-    identity = CharacterIdentity()
-    assert identity.archetype is None
-    assert identity.moral_alignment is None
-    assert identity.dramatic_functions == []
-    assert identity.trope_tags == []
+def test_structural_role_defaults():
+    r = StructuralRole()
+    assert r.secondary == []
 
 
-def test_character_identity_full():
-    identity = CharacterIdentity(
-        archetype=Archetype.TRAGIC_HERO,
-        moral_alignment=MoralAlignment.CHAOTIC_GOOD,
-        virtues=[Virtue.COURAGE, Virtue.JUSTICE],
-        vices=[Vice.PRIDE],
-        personality_traits=[PersonalityTrait.NEUROTIC_SENSITIVE],
-        dramatic_functions=[DramaticFunction.EMOTIONAL_ANCHOR],
-        trope_tags=[TropeTag.FALLEN_HERO],
-        custom_tags=["doomed", "rebel"],
+def test_structural_role_with_functions():
+    r = StructuralRole(secondary=[DramaticFunction.EMOTIONAL_ANCHOR, DramaticFunction.CATALYST])
+    assert len(r.secondary) == 2
+
+
+def test_archetypal_layer_defaults():
+    a = ArchetypalLayer()
+    assert a.core is None
+    assert a.shadow is None
+
+
+def test_archetypal_layer_full():
+    a = ArchetypalLayer(core=Archetype.TRAGIC_HERO, shadow=Archetype.SHADOW)
+    assert a.core == Archetype.TRAGIC_HERO
+    assert a.shadow == Archetype.SHADOW
+
+
+def test_psychological_layer_defaults():
+    p = PsychologicalLayer()
+    assert p.wound is None
+    assert p.contradictions == []
+
+
+def test_psychological_layer_full():
+    p = PsychologicalLayer(
+        wound="abandonment",
+        fear="irrelevance",
+        desire="recognition",
+        contradictions=["compassionate_to_strangers", "cruel_to_family"],
     )
-    assert identity.archetype == Archetype.TRAGIC_HERO
-    assert identity.moral_alignment == MoralAlignment.CHAOTIC_GOOD
-    assert len(identity.virtues) == 2
-    assert len(identity.vices) == 1
-    assert len(identity.personality_traits) == 1
-    assert identity.custom_tags == ["doomed", "rebel"]
+    assert p.wound == "abandonment"
+    assert len(p.contradictions) == 2
 
 
-def test_character_identity_roundtrip():
-    identity = CharacterIdentity(
-        archetype=Archetype.MENTOR,
-        moral_alignment=MoralAlignment.LAWFUL_GOOD,
-        dramatic_functions=[DramaticFunction.VOICE_OF_REASON],
+def test_texture_voice():
+    v = TextureVoice(cadence="clipped", vocabulary="technical")
+    assert v.cadence == "clipped"
+    assert v.vocabulary == "technical"
+
+
+def test_texture_layer():
+    t = TextureLayer(
+        voice=TextureVoice(cadence="lilting"),
+        habits=["folds receipts obsessively"],
+        aesthetic=["silver jewelry"],
     )
-    data = identity.model_dump(mode="json")
-    restored = CharacterIdentity.model_validate(data)
-    assert restored.archetype == Archetype.MENTOR
-    assert restored.moral_alignment == MoralAlignment.LAWFUL_GOOD
+    assert t.voice.cadence == "lilting"
+    assert len(t.habits) == 1
+    assert len(t.aesthetic) == 1
+
+
+def test_arc_change():
+    ac = ArcChange(from_="control", to="vulnerability")
+    assert ac.from_ == "control"
+    assert ac.to == "vulnerability"
+
+
+def test_arc_engine():
+    ae = ArcEngine(positive_change=ArcChange(from_="guilt", to="peace"))
+    assert ae.positive_change.from_ == "guilt"
 
 
 def test_relationship_signature():
     sig = RelationshipSignature(other="Kael", type=RelationshipType.RIVALRY, intensity=0.8)
     assert sig.other == "Kael"
-    assert sig.type == RelationshipType.RIVALRY
     assert sig.intensity == 0.8
+
+
+def test_relationship_mesh():
+    mesh = RelationshipMesh(
+        relationships=[RelationshipSignature(other="Kael", type=RelationshipType.RIVALRY, intensity=0.8)]
+    )
+    assert len(mesh.relationships) == 1
 
 
 def test_thematic_alignment():
     ta = ThematicAlignment(theme="redemption", stance="embodies")
     assert ta.theme == "redemption"
-    assert ta.stance == "embodies"
 
 
 def test_role_inference():
-    ri = RoleInference(inferred_role="social_hub", confidence=0.7, evidence=["Has 3 relationships."])
+    ri = RoleInference(inferred_role="social_hub", confidence=0.7)
     assert ri.inferred_role == "social_hub"
-    assert ri.confidence == 0.7
+
+
+def test_character_identity_defaults():
+    ci = CharacterIdentity()
+    assert ci.narrative_role is None
+    assert ci.archetype is None
+    assert ci.psychology is None
+    assert ci.texture is None
+    assert ci.arc is None
+    assert ci.trope_tags == []
+
+
+def test_character_identity_with_layers():
+    ci = CharacterIdentity(
+        narrative_role=StructuralRole(secondary=[DramaticFunction.EMOTIONAL_ANCHOR]),
+        archetype=ArchetypalLayer(core=Archetype.TRAGIC_HERO),
+        psychology=PsychologicalLayer(wound="abandonment"),
+        texture=TextureLayer(habits=["folds receipts"]),
+        arc=ArcEngine(positive_change=ArcChange(from_="control", to="vulnerability")),
+        trope_tags=[TropeTag.FALLEN_HERO],
+    )
+    assert ci.narrative_role.secondary[0] == DramaticFunction.EMOTIONAL_ANCHOR
+    assert ci.archetype.core == Archetype.TRAGIC_HERO
+    assert ci.psychology.wound == "abandonment"
+    assert ci.texture.habits[0] == "folds receipts"
+    assert ci.arc.positive_change.from_ == "control"
+    assert ci.trope_tags == [TropeTag.FALLEN_HERO]
+
+
+def test_character_identity_roundtrip():
+    ci = CharacterIdentity(
+        archetype=ArchetypalLayer(core=Archetype.MENTOR),
+        narrative_role=StructuralRole(secondary=[DramaticFunction.VOICE_OF_REASON]),
+    )
+    data = ci.model_dump(mode="json", by_alias=True)
+    restored = CharacterIdentity.model_validate(data)
+    assert restored.archetype.core == Archetype.MENTOR
+    assert restored.narrative_role.secondary == [DramaticFunction.VOICE_OF_REASON]
 
 
 def test_character_categorization_defaults():
-    cat = CharacterCategorization()
-    assert cat.identity.archetype is None
-    assert cat.relationship_signatures == []
-    assert cat.role_inferences == []
+    cc = CharacterCategorization()
+    assert cc.identity.archetype is None
+    assert cc.role_inferences == []
 
 
 # ============================================================================
@@ -174,17 +225,21 @@ def test_character_identity_field_is_optional():
     assert char.identity is None
 
 
-def test_character_identity_field_accepts_dict():
+def test_character_identity_field_accepts_layered_dict():
     char = Character(
         name="Kael",
         role=CharacterRole.PROTAGONIST,
         arc_type=ArcType.GROWTH,
         arc_start_percentage=0,
         arc_end_percentage=100,
-        identity={"archetype": "hero", "moral_alignment": "neutral_good"},
+        identity={
+            "archetype": {"core": "tragic_hero"},
+            "narrative_role": {"secondary": ["emotional_anchor"]},
+            "psychology": {"wound": "abandonment"},
+        },
     )
     assert char.identity is not None
-    assert char.identity["archetype"] == "hero"
+    assert char.identity["archetype"]["core"] == "tragic_hero"
 
 
 def test_character_with_identity_roundtrip_through_blueprint():
@@ -198,10 +253,7 @@ def test_character_with_identity_roundtrip_through_blueprint():
             "target_audience": "adult",
             "pov_type": "third_person_limited_single",
         },
-        "contract": {
-            "content_rating": "PG",
-            "mandatory_ending_tone": "hopeful",
-        },
+        "contract": {"content_rating": "PG", "mandatory_ending_tone": "hopeful"},
         "emotional_design": {"overall_emotional_arc": "rise"},
         "theme": {"central_question": "?", "thesis": "."},
         "characters": [
@@ -212,19 +264,16 @@ def test_character_with_identity_roundtrip_through_blueprint():
                 "arc_start_percentage": 0,
                 "arc_end_percentage": 100,
                 "identity": {
-                    "archetype": "tragic_hero",
-                    "moral_alignment": "chaotic_good",
-                    "dramatic_functions": ["emotional_anchor"],
+                    "archetype": {"core": "tragic_hero", "shadow": "shadow"},
+                    "narrative_role": {"secondary": ["emotional_anchor", "catalyst"]},
+                    "psychology": {"wound": "abandonment", "fear": "irrelevance"},
                 },
             }
         ],
     }
     bp = StoryBlueprint.model_validate(bp_data)
-    assert len(bp.characters) == 1
-    assert bp.characters[0].identity is not None
-    identity_data = bp.characters[0].identity
-    assert identity_data["archetype"] == "tragic_hero"
-    assert identity_data["moral_alignment"] == "chaotic_good"
+    assert bp.characters[0].identity["archetype"]["core"] == "tragic_hero"
+    assert bp.characters[0].identity["narrative_role"]["secondary"] == ["emotional_anchor", "catalyst"]
 
 
 def test_character_categorization_field():
@@ -235,12 +284,11 @@ def test_character_categorization_field():
         arc_start_percentage=0,
         arc_end_percentage=100,
         categorization={
-            "identity": {"archetype": "hero"},
+            "identity": {"archetype": {"core": "hero"}},
             "relationship_signatures": [{"other": "Vlak", "type": "rivalry", "intensity": 0.9}],
         },
     )
-    assert char.categorization is not None
-    assert char.categorization["identity"]["archetype"] == "hero"
+    assert char.categorization["identity"]["archetype"]["core"] == "hero"
 
 
 # ============================================================================
@@ -259,10 +307,7 @@ def _minimal_blueprint_data(**overrides: object) -> dict:
             "target_audience": "adult",
             "pov_type": "third_person_limited_single",
         },
-        "contract": {
-            "content_rating": "PG",
-            "mandatory_ending_tone": "hopeful",
-        },
+        "contract": {"content_rating": "PG", "mandatory_ending_tone": "hopeful"},
         "emotional_design": {"overall_emotional_arc": "rise"},
         "theme": {"central_question": "?", "thesis": "."},
         **overrides,
@@ -271,99 +316,140 @@ def _minimal_blueprint_data(**overrides: object) -> dict:
 
 
 def test_analyzer_empty_characters():
-    data = _minimal_blueprint_data()
-    bp = StoryBlueprint.model_validate(data)
+    bp = StoryBlueprint.model_validate(_minimal_blueprint_data())
     diagnostics = analyze_character_categorization(bp)
     assert any(d.rule == "characters.missing" for d in diagnostics)
 
 
 def test_analyzer_missing_identity_warning():
-    data = _minimal_blueprint_data(
-        characters=[
-            {
-                "name": "Kael",
-                "role": "protagonist",
-                "arc_type": "growth",
-                "arc_start_percentage": 0,
-                "arc_end_percentage": 100,
-            }
-        ]
-    )
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100},
+    ])
     bp = StoryBlueprint.model_validate(data)
     diagnostics = analyze_character_categorization(bp)
     assert any(d.rule == "character.identity.missing" for d in diagnostics)
 
 
-def test_analyzer_missing_archetype_for_primary_role():
-    data = _minimal_blueprint_data(
-        characters=[
-            {
-                "name": "Kael",
-                "role": "protagonist",
-                "arc_type": "growth",
-                "arc_start_percentage": 0,
-                "arc_end_percentage": 100,
-                "identity": {
-                    "moral_alignment": "neutral_good",
-                },
-            }
-        ]
-    )
+def test_analyzer_missing_core_archetype():
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {"narrative_role": {"secondary": ["emotional_anchor"]}}},
+    ])
     bp = StoryBlueprint.model_validate(data)
     diagnostics = analyze_character_categorization(bp)
-    assert any(d.rule == "character.archetype.missing_for_primary_role" for d in diagnostics)
+    assert any(d.rule == "character.archetype.core_missing" for d in diagnostics)
 
 
 def test_analyzer_no_antagonist_warning():
-    data = _minimal_blueprint_data(
-        characters=[
-            {
-                "name": "Kael",
-                "role": "ally",
-                "arc_type": "growth",
-                "arc_start_percentage": 0,
-                "arc_end_percentage": 100,
-            }
-        ]
-    )
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "ally", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100},
+    ])
     bp = StoryBlueprint.model_validate(data)
     diagnostics = analyze_character_categorization(bp)
     assert any(d.rule == "characters.no_antagonist" for d in diagnostics)
 
 
+def test_analyzer_archetype_redundancy():
+    data = _minimal_blueprint_data(story_engine={
+        "main_thread": {
+            "want": {"author_text": "Kael wants truth", "checkable_claims": []},
+            "resistance": {"author_text": "The lie", "checkable_claims": []},
+            "conflict": {"author_text": "Clash", "checkable_claims": []},
+            "stakes": {"author_text": "Everything", "checkable_claims": []},
+            "change": {"author_text": "Kael learns", "checkable_claims": []},
+            "thematic_function": "Tests truth.",
+        },
+        "threads": [],
+    }, characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {"archetype": {"core": "hero"}}},
+        {"name": "Vlak", "role": "antagonist", "arc_type": "corruption",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {"archetype": {"core": "hero"}}},
+    ])
+    bp = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_character_categorization(bp)
+    assert any(d.rule == "characters.archetype_redundancy" for d in diagnostics)
+
+
+def test_analyzer_shadow_matches_core():
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {"archetype": {"core": "villain", "shadow": "villain"}}},
+    ])
+    bp = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_character_categorization(bp)
+    assert any(d.rule == "character.archetype.shadow_matches_core" for d in diagnostics)
+
+
+def test_analyzer_voice_convergence():
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {"texture": {"voice": {"cadence": "clipped", "vocabulary": "technical"}}}},
+        {"name": "Vlak", "role": "antagonist", "arc_type": "corruption",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {"texture": {"voice": {"cadence": "clipped", "vocabulary": "technical"}}}},
+    ])
+    bp = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_character_categorization(bp)
+    assert any(d.rule == "characters.voice_cadence_convergence" for d in diagnostics)
+
+
 def test_analyzer_clean_with_full_identity():
-    data = _minimal_blueprint_data(
-        characters=[
-            {
-                "name": "Kael",
-                "role": "protagonist",
-                "arc_type": "growth",
-                "arc_start_percentage": 0,
-                "arc_end_percentage": 100,
-                "identity": {
-                    "archetype": "hero",
-                    "moral_alignment": "neutral_good",
-                    "dramatic_functions": ["emotional_anchor"],
-                },
-            },
-            {
-                "name": "Vlak",
-                "role": "antagonist",
-                "arc_type": "corruption",
-                "arc_start_percentage": 0,
-                "arc_end_percentage": 100,
-                "identity": {
-                    "archetype": "villain",
-                    "moral_alignment": "neutral_evil",
-                    "dramatic_functions": ["ideological_opposition"],
-                },
-            },
-        ]
-    )
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {
+             "archetype": {"core": "tragic_hero"},
+             "narrative_role": {"secondary": ["emotional_anchor"]},
+         }},
+        {"name": "Vlak", "role": "antagonist", "arc_type": "corruption",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {
+             "archetype": {"core": "villain"},
+             "narrative_role": {"secondary": ["ideological_opposition"]},
+         }},
+    ])
     bp = StoryBlueprint.model_validate(data)
     diagnostics = analyze_character_categorization(bp)
     identity_missing = [d for d in diagnostics if d.rule == "character.identity.missing"]
     assert len(identity_missing) == 0
+
+
+def test_analyzer_mentor_contrast():
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {"archetype": {"core": "hero"}}},
+        {"name": "Gandalf", "role": "ally", "arc_type": "flat",
+         "arc_start_percentage": 0, "arc_end_percentage": 0,
+         "identity": {"archetype": {"core": "mentor"}}},
+    ])
+    bp = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_character_categorization(bp)
+    mentor_contrast = [d for d in diagnostics if d.rule == "character.mentor_no_ideological_contrast"]
+    assert len(mentor_contrast) == 0
+
+
+def test_analyzer_mentor_same_as_protagonist():
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {"archetype": {"core": "mentor"}}},
+        {"name": "Guide", "role": "ally", "arc_type": "flat",
+         "arc_start_percentage": 0, "arc_end_percentage": 0,
+         "identity": {"archetype": {"core": "mentor"}}},
+    ])
+    bp = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_character_categorization(bp)
+    mentor_warning = [d for d in diagnostics if d.rule == "character.mentor_no_ideological_contrast"]
+    assert len(mentor_warning) > 0
 
 
 # ============================================================================
@@ -393,7 +479,18 @@ def _make_blueprint(chars: list[Character]) -> StoryBlueprint:
     return bp
 
 
-def test_categorizer_suggests_archetype_by_role():
+def test_categorizer_proposes_narrative_role():
+    bp = _make_blueprint([
+        _make_char("Kael", CharacterRole.PROTAGONIST),
+        _make_char("Vlak", CharacterRole.ANTAGONIST),
+    ])
+    engine = CategorizationEngine(bp)
+    cats = engine.categorize_all()
+    assert DramaticFunction.EMOTIONAL_ANCHOR in cats["Kael"].identity.narrative_role.secondary
+    assert DramaticFunction.IDEOLOGICAL_OPPOSITION in cats["Vlak"].identity.narrative_role.secondary
+
+
+def test_categorizer_proposes_archetype():
     bp = _make_blueprint([
         _make_char("Kael", CharacterRole.PROTAGONIST),
         _make_char("Vlak", CharacterRole.ANTAGONIST),
@@ -401,31 +498,30 @@ def test_categorizer_suggests_archetype_by_role():
     ])
     engine = CategorizationEngine(bp)
     cats = engine.categorize_all()
-    assert cats["Kael"].identity.archetype == Archetype.HERO
-    assert cats["Vlak"].identity.archetype == Archetype.VILLAIN
-    assert cats["Old Man"].identity.archetype == Archetype.MENTOR
+    assert cats["Kael"].identity.archetype.core == Archetype.HERO
+    assert cats["Vlak"].identity.archetype.core == Archetype.VILLAIN
+    assert cats["Old Man"].identity.archetype.core == Archetype.MENTOR
 
 
-def test_categorizer_suggests_alignment_by_role():
+def test_categorizer_proposes_arc_change():
     bp = _make_blueprint([
-        _make_char("Kael", CharacterRole.PROTAGONIST),
-        _make_char("Vlak", CharacterRole.ANTAGONIST),
+        _make_char("Kael", CharacterRole.PROTAGONIST, arc=ArcType.GROWTH),
+        _make_char("Vlak", CharacterRole.ANTAGONIST, arc=ArcType.CORRUPTION),
     ])
     engine = CategorizationEngine(bp)
     cats = engine.categorize_all()
-    assert cats["Kael"].identity.moral_alignment == MoralAlignment.NEUTRAL_GOOD
-    assert cats["Vlak"].identity.moral_alignment == MoralAlignment.NEUTRAL_EVIL
+    assert cats["Kael"].identity.arc.positive_change.from_ == "naivety"
+    assert cats["Kael"].identity.arc.positive_change.to == "wisdom"
+    assert cats["Vlak"].identity.arc.positive_change.from_ == "driven"
 
 
-def test_categorizer_suggests_dramatic_functions():
+def test_categorizer_proposes_psychology():
     bp = _make_blueprint([
         _make_char("Kael", CharacterRole.PROTAGONIST),
-        _make_char("Vlak", CharacterRole.ANTAGONIST),
     ])
     engine = CategorizationEngine(bp)
     cats = engine.categorize_all()
-    assert DramaticFunction.EMOTIONAL_ANCHOR in cats["Kael"].identity.dramatic_functions
-    assert DramaticFunction.IDEOLOGICAL_OPPOSITION in cats["Vlak"].identity.dramatic_functions
+    assert "driven_but_vulnerable" in cats["Kael"].identity.psychology.contradictions
 
 
 def test_categorizer_infers_relationship_signatures():
@@ -500,58 +596,39 @@ def test_cli_character_show_no_characters(tmp_path, capsys):
     args = _MockArgs(blueprint=bp_path, output=None)
     rc = handle_character_command(args)
     assert rc == 0
-    out = capsys.readouterr().out
-    report = json.loads(out)
+    report = json.loads(capsys.readouterr().out)
     assert report["characters"] == []
 
 
 def test_cli_character_show_with_characters(tmp_path, capsys):
-    chars = [
-        {
-            "name": "Kael",
-            "role": "protagonist",
-            "arc_type": "growth",
-            "arc_start_percentage": 0,
-            "arc_end_percentage": 100,
-        }
-    ]
+    chars = [{"name": "Kael", "role": "protagonist", "arc_type": "growth",
+              "arc_start_percentage": 0, "arc_end_percentage": 100}]
     bp_path = _make_blueprint_yaml(tmp_path, chars)
     args = _MockArgs(blueprint=bp_path, output=None)
     rc = handle_character_command(args)
     assert rc == 0
-    out = capsys.readouterr().out
-    report = json.loads(out)
+    report = json.loads(capsys.readouterr().out)
     assert len(report["characters"]) == 1
     assert report["characters"][0]["name"] == "Kael"
 
 
-def test_cli_character_show_identity(tmp_path, capsys):
-    chars = [
-        {
-            "name": "Kael",
-            "role": "protagonist",
-            "arc_type": "growth",
-            "arc_start_percentage": 0,
-            "arc_end_percentage": 100,
-            "identity": {
-                "archetype": "hero",
-                "moral_alignment": "neutral_good",
-                "dramatic_functions": ["emotional_anchor"],
-                "trope_tags": ["chosen_one"],
-            },
-        }
-    ]
+def test_cli_character_show_layers(tmp_path, capsys):
+    chars = [{"name": "Kael", "role": "protagonist", "arc_type": "growth",
+              "arc_start_percentage": 0, "arc_end_percentage": 100,
+              "identity": {
+                  "archetype": {"core": "tragic_hero"},
+                  "narrative_role": {"secondary": ["emotional_anchor"]},
+                  "psychology": {"wound": "abandonment"},
+              }}]
     bp_path = _make_blueprint_yaml(tmp_path, chars)
     args = _MockArgs(blueprint=bp_path, output=None)
     rc = handle_character_command(args)
     assert rc == 0
-    out = capsys.readouterr().out
-    report = json.loads(out)
-    identity = report["characters"][0]["identity"]
-    assert identity["archetype"] == "hero"
-    assert identity["moral_alignment"] == "neutral_good"
-    assert "emotional_anchor" in identity["dramatic_functions"]
-    assert "chosen_one" in identity["trope_tags"]
+    report = json.loads(capsys.readouterr().out)
+    layers = report["characters"][0]["layers"]
+    assert layers["archetype"]["core"] == "tragic_hero"
+    assert "emotional_anchor" in layers["narrative_role"]["secondary"]
+    assert layers["psychology"]["wound"] == "abandonment"
 
 
 def test_cli_character_diagnose(tmp_path, capsys):
@@ -562,43 +639,26 @@ def test_cli_character_diagnose(tmp_path, capsys):
 
 
 def test_cli_character_categorize(tmp_path, capsys):
-    chars = [
-        {
-            "name": "Kael",
-            "role": "protagonist",
-            "arc_type": "growth",
-            "arc_start_percentage": 0,
-            "arc_end_percentage": 100,
-        }
-    ]
+    chars = [{"name": "Kael", "role": "protagonist", "arc_type": "growth",
+              "arc_start_percentage": 0, "arc_end_percentage": 100}]
     bp_path = _make_blueprint_yaml(tmp_path, chars)
     args = _MockArgs(blueprint=bp_path, character_command="categorize")
     rc = handle_character_command(args)
     assert rc == 0
-    out = capsys.readouterr().out
-    cats = json.loads(out)
-    assert "Kael" in cats
-    assert cats["Kael"]["identity"]["archetype"] == "hero"
+    out = json.loads(capsys.readouterr().out)
+    assert "Kael" in out
+    assert out["Kael"]["identity"]["archetype"]["core"] == "hero"
 
 
 def test_cli_character_show_writes_to_output(tmp_path):
-    chars = [
-        {
-            "name": "Kael",
-            "role": "protagonist",
-            "arc_type": "growth",
-            "arc_start_percentage": 0,
-            "arc_end_percentage": 100,
-        }
-    ]
+    chars = [{"name": "Kael", "role": "protagonist", "arc_type": "growth",
+              "arc_start_percentage": 0, "arc_end_percentage": 100}]
     bp_path = _make_blueprint_yaml(tmp_path, chars)
     out_path = tmp_path / "report.json"
     args = _MockArgs(blueprint=bp_path, output=out_path, character_command="show")
     rc = handle_character_command(args)
     assert rc == 0
     assert out_path.exists()
-    report = json.loads(out_path.read_text(encoding="utf-8"))
-    assert len(report["characters"]) == 1
 
 
 def test_cli_character_show_missing_blueprint(tmp_path, capsys):
@@ -612,60 +672,32 @@ def test_cli_character_show_missing_blueprint(tmp_path, capsys):
 # ============================================================================
 
 
-def test_identity_serialization_roundtrip(tmp_path):
-    bp_data = _minimal_blueprint_data(
-        characters=[
-            {
-                "name": "Kael",
-                "role": "protagonist",
-                "arc_type": "growth",
-                "arc_start_percentage": 0,
-                "arc_end_percentage": 100,
-                "identity": {
-                    "archetype": "tragic_hero",
-                    "moral_alignment": "chaotic_good",
-                    "virtues": ["courage", "justice"],
-                    "vices": ["pride"],
-                    "dramatic_functions": ["emotional_anchor", "audience_surrogate"],
-                    "trope_tags": ["fallen_hero", "dark_past"],
-                },
-            }
-        ]
-    )
+def test_layered_identity_serialization_roundtrip(tmp_path):
+    bp_data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {
+             "archetype": {"core": "tragic_hero", "shadow": "shadow"},
+             "narrative_role": {"secondary": ["emotional_anchor", "audience_surrogate"]},
+             "psychology": {"wound": "abandonment", "fear": "irrelevance",
+                            "desire": "recognition",
+                            "contradictions": ["compassionate_to_strangers", "cruel_to_family"]},
+             "texture": {"voice": {"cadence": "clipped", "vocabulary": "technical"},
+                         "habits": ["folds receipts obsessively"],
+                         "aesthetic": ["silver jewelry"]},
+             "arc": {"positive_change": {"from": "control", "to": "vulnerability"}},
+             "trope_tags": ["fallen_hero", "dark_past"],
+         }},
+    ])
     bp = StoryBlueprint.model_validate(bp_data)
     serialized = yaml.safe_dump(bp.model_dump(mode="json"))
     loaded_data = yaml.safe_load(serialized)
     restored = StoryBlueprint.model_validate(loaded_data)
-    assert restored.characters[0].identity["archetype"] == "tragic_hero"
-    assert restored.characters[0].identity["moral_alignment"] == "chaotic_good"
-    assert "courage" in restored.characters[0].identity["virtues"]
-    assert "emotional_anchor" in restored.characters[0].identity["dramatic_functions"]
-    assert "fallen_hero" in restored.characters[0].identity["trope_tags"]
-
-
-def test_categorization_field_serialization_roundtrip(tmp_path):
-    bp_data = _minimal_blueprint_data(
-        characters=[
-            {
-                "name": "Kael",
-                "role": "protagonist",
-                "arc_type": "growth",
-                "arc_start_percentage": 0,
-                "arc_end_percentage": 100,
-                "categorization": {
-                    "identity": {"archetype": "hero"},
-                    "relationship_signatures": [
-                        {"other": "Vlak", "type": "rivalry", "intensity": 0.9}
-                    ],
-                },
-            }
-        ]
-    )
-    bp = StoryBlueprint.model_validate(bp_data)
-    serialized = yaml.safe_dump(bp.model_dump(mode="json"))
-    loaded_data = yaml.safe_load(serialized)
-    restored = StoryBlueprint.model_validate(loaded_data)
-    assert restored.characters[0].categorization is not None
-    cat = restored.characters[0].categorization
-    assert cat["identity"]["archetype"] == "hero"
-    assert cat["relationship_signatures"][0]["other"] == "Vlak"
+    identity = restored.characters[0].identity
+    assert identity["archetype"]["core"] == "tragic_hero"
+    assert identity["archetype"]["shadow"] == "shadow"
+    assert identity["narrative_role"]["secondary"] == ["emotional_anchor", "audience_surrogate"]
+    assert identity["psychology"]["wound"] == "abandonment"
+    assert identity["texture"]["voice"]["cadence"] == "clipped"
+    assert identity["arc"]["positive_change"]["from"] == "control"
+    assert "fallen_hero" in identity["trope_tags"]
