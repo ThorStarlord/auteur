@@ -11,6 +11,7 @@ from auteur.character.enums import (
     PhilosophyTag,
     RelationshipType,
     TropeTag,
+    VulnerabilityFamily,
 )
 from auteur.character.models import (
     ArcChange,
@@ -24,6 +25,7 @@ from auteur.character.models import (
     Motif,
     MotifProfile,
     PsychologicalLayer,
+    RelationshipArc,
     RelationshipMesh,
     RelationshipSignature,
     RoleInference,
@@ -47,6 +49,7 @@ class CategorizationEngine:
             essence=self._propose_essence(char),
             motifs=self._propose_motifs(char),
             arc=self._propose_arc(char),
+            relationship_mesh=self._propose_relationship_mesh(char),
             personality_traits=self._suggest_personality_traits(char),
             trope_tags=self._suggest_trope_tags(char),
         )
@@ -104,7 +107,15 @@ class CategorizationEngine:
 
     def _propose_psychology(self, char: Character) -> PsychologicalLayer | None:
         contradictions = self._suggest_contradictions(char)
-        return PsychologicalLayer(contradictions=contradictions) if contradictions else None
+        vulnerability = self._suggest_vulnerability_family(char)
+        defenses = self._suggest_defense_mechanisms(char)
+        if not contradictions and not vulnerability and not defenses:
+            return None
+        return PsychologicalLayer(
+            contradictions=contradictions,
+            vulnerability_family=vulnerability,
+            defense_mechanisms=defenses,
+        )
 
     def _suggest_contradictions(self, char: Character) -> list[str]:
         contradictions: list[str] = []
@@ -116,14 +127,39 @@ class CategorizationEngine:
             contradictions.append("wise_but_limited")
         return contradictions
 
+    def _suggest_vulnerability_family(self, char: Character) -> VulnerabilityFamily | None:
+        role_vulnerability: dict[CharacterRole, VulnerabilityFamily] = {
+            CharacterRole.PROTAGONIST: VulnerabilityFamily.INADEQUACY,
+            CharacterRole.ANTAGONIST: VulnerabilityFamily.STATUS_CONTROL,
+            CharacterRole.MENTOR: VulnerabilityFamily.ISOLATION,
+            CharacterRole.FOIL: VulnerabilityFamily.SHAME,
+            CharacterRole.ALLY: VulnerabilityFamily.ABANDONMENT,
+            CharacterRole.SUPPORTING: VulnerabilityFamily.POWERLESSNESS,
+            CharacterRole.DEUTERAGONIST: VulnerabilityFamily.LOSS,
+        }
+        return role_vulnerability.get(char.role)
+
+    def _suggest_defense_mechanisms(self, char: Character) -> list[str]:
+        role_defenses: dict[CharacterRole, list[str]] = {
+            CharacterRole.PROTAGONIST: ["intellectualization", "self_reliance"],
+            CharacterRole.ANTAGONIST: ["compartmentalization", "transactional_containment"],
+            CharacterRole.MENTOR: ["displacement", "ritualization"],
+            CharacterRole.FOIL: ["sublimation", "reaction_formation"],
+            CharacterRole.ALLY: ["altruistic_surrender"],
+            CharacterRole.SUPPORTING: ["denial", "avoidance"],
+            CharacterRole.DEUTERAGONIST: ["idealization"],
+        }
+        return role_defenses.get(char.role, [])
+
     # -- Texture layer --
 
     def _propose_texture(self, char: Character) -> TextureLayer | None:
         habits = self._suggest_habits(char)
         gestures = self._suggest_gestures(char)
-        if not habits and not gestures:
+        social_aura = self._suggest_social_aura(char)
+        if not habits and not gestures and not social_aura:
             return None
-        return TextureLayer(habits=habits, gestures=gestures)
+        return TextureLayer(habits=habits, gestures=gestures, social_aura=social_aura)
 
     def _suggest_habits(self, char: Character) -> list[str]:
         if char.role == CharacterRole.PROTAGONIST:
@@ -142,6 +178,18 @@ class CategorizationEngine:
         if char.role == CharacterRole.MENTOR:
             return ["gestures with an unlit pipe"]
         return []
+
+    def _suggest_social_aura(self, char: Character) -> list[str]:
+        role_aura: dict[CharacterRole, list[str]] = {
+            CharacterRole.PROTAGONIST: ["earnest_pressure"],
+            CharacterRole.ANTAGONIST: ["executive_pressure", "emotional_distance"],
+            CharacterRole.MENTOR: ["warm_authority"],
+            CharacterRole.FOIL: ["unsettling_calm"],
+            CharacterRole.ALLY: ["reassuring_warmth"],
+            CharacterRole.SUPPORTING: ["unremarkable_presence"],
+            CharacterRole.DEUTERAGONIST: ["quiet_intensity"],
+        }
+        return role_aura.get(char.role, [])
 
     # -- Ideology layer --
 
@@ -239,6 +287,45 @@ class CategorizationEngine:
         if any("betray" in (m.description or "").lower() for m in char.key_milestones):
             tags.append(TropeTag.BETRAYAL)
         return tags
+
+    # -- Relationship mesh --
+
+    def _propose_relationship_mesh(self, char: Character) -> RelationshipMesh | None:
+        sigs = self._infer_relationship_signatures(char)
+        if not sigs:
+            return None
+        arcs = [
+            RelationshipArc(
+                other=sig.other,
+                stages=[],
+                trust_level=sig.intensity,
+                progression_type=self._suggest_progression_type(sig.type),
+            )
+            for sig in sigs
+        ]
+        return RelationshipMesh(relationships=sigs, arcs=arcs)
+
+    def _suggest_progression_type(self, rel_type: RelationshipType) -> str | None:
+        mapping: dict[RelationshipType, str] = {
+            RelationshipType.MENTORSHIP: "trust_based",
+            RelationshipType.PROTEGE: "trust_based",
+            RelationshipType.FRIENDSHIP: "trust_based",
+            RelationshipType.LOVE: "trust_based",
+            RelationshipType.ROMANTIC_LOVE: "trust_based",
+            RelationshipType.PLATONIC_LOVE: "trust_based",
+            RelationshipType.TRUST: "trust_based",
+            RelationshipType.RIVALRY: "adversarial",
+            RelationshipType.HATE: "adversarial",
+            RelationshipType.ENMITY: "adversarial",
+            RelationshipType.COMPETITION: "adversarial",
+            RelationshipType.MANIPULATION: "coercive",
+            RelationshipType.DECEPTION: "coercive",
+            RelationshipType.OBSESSION: "coercive",
+            RelationshipType.DEPENDENCY: "ritualistic",
+            RelationshipType.ALLEGIANCE: "ritualistic",
+            RelationshipType.LOYALTY: "ritualistic",
+        }
+        return mapping.get(rel_type)
 
     # -- Relationship inference --
 

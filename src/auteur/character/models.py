@@ -14,6 +14,7 @@ from auteur.character.enums import (
     PhilosophyTag,
     RelationshipType,
     TropeTag,
+    VulnerabilityFamily,
 )
 
 
@@ -52,6 +53,14 @@ class PsychologicalLayer(BaseModel):
         default_factory=list,
         description="Internal contradictions that create believable tension.",
     )
+    vulnerability_family: VulnerabilityFamily | None = Field(
+        default=None,
+        description="The family of emotional vulnerability driving the character's behavior, e.g. 'status_control'.",
+    )
+    defense_mechanisms: list[str] = Field(
+        default_factory=list,
+        description="Stress-response behaviors, e.g. 'compartmentalization', 'transactional_containment'.",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -83,6 +92,10 @@ class TextureLayer(BaseModel):
     behavioral_tells: list[str] = Field(
         default_factory=list,
         description="Subconscious tells that reveal emotional state, e.g. 'folds receipts when anxious'.",
+    )
+    social_aura: list[str] = Field(
+        default_factory=list,
+        description="Social atmosphere the character projects, e.g. 'executive_pressure', 'emotional_distance', 'warm_authority'.",
     )
 
 
@@ -185,11 +198,29 @@ class RelationshipSignature(BaseModel):
     )
 
 
+class RelationshipArc(BaseModel):
+    other: str
+    stages: list[str] = Field(
+        default_factory=list,
+        description="Progression stages of the relationship, e.g. 'fascination', 'vulnerability_discovery', 'trust_formation'.",
+    )
+    current_stage: str | None = Field(default=None, description="Where the relationship currently sits in its arc.")
+    trust_level: float = Field(ge=0.0, le=1.0, default=0.5)
+    progression_type: str | None = Field(
+        default=None,
+        description="How the relationship evolves: 'trust_based', 'coercive', 'adversarial', 'ritualistic'.",
+    )
+
+
 class RelationshipMesh(BaseModel):
     relationships: list[RelationshipSignature] = Field(default_factory=list)
     ideological_tensions: list[str] = Field(
         default_factory=list,
         description="Philosophical conflicts active in the relationship network.",
+    )
+    arcs: list[RelationshipArc] = Field(
+        default_factory=list,
+        description="Relationship arcs tracking progression stages and trust evolution.",
     )
 
 

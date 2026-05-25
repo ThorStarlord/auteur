@@ -13,6 +13,7 @@ from auteur.character.enums import (
     TropeTag,
     Vice,
     Virtue,
+    VulnerabilityFamily,
 )
 
 from auteur.character.models import (
@@ -27,6 +28,7 @@ from auteur.character.models import (
     Motif,
     MotifProfile,
     PsychologicalLayer,
+    RelationshipArc,
     RelationshipMesh,
     RelationshipSignature,
     RoleInference,
@@ -63,6 +65,7 @@ __all__ = [
     "PhilosophyTag",
     "ProtagonistSubtype",
     "PsychologicalLayer",
+    "RelationshipArc",
     "RelationshipMesh",
     "RelationshipSignature",
     "RelationshipType",
@@ -74,5 +77,6 @@ __all__ = [
     "TropeTag",
     "Vice",
     "Virtue",
+    "VulnerabilityFamily",
     "analyze_character_categorization",
 ]

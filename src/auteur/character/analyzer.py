@@ -53,6 +53,10 @@ def analyze_character_categorization(
     diagnostics.extend(_diagnose_motif_presence(blueprint))
     diagnostics.extend(_diagnose_essence_completeness(blueprint))
     diagnostics.extend(_diagnose_texture_depth(blueprint))
+    diagnostics.extend(_diagnose_vulnerability_presence(blueprint))
+    diagnostics.extend(_diagnose_defense_presence(blueprint))
+    diagnostics.extend(_diagnose_social_aura_presence(blueprint))
+    diagnostics.extend(_diagnose_relationship_arcs(blueprint))
 
     return diagnostics
 
@@ -502,5 +506,132 @@ def _diagnose_texture_depth(blueprint: StoryBlueprint) -> list[StructureDiagnost
                         ),
                     )
                 )
+
+    return diagnostics
+
+
+# ---------------------------------------------------------------------------
+# Vulnerability family presence analysis
+# ---------------------------------------------------------------------------
+
+
+def _diagnose_vulnerability_presence(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
+    diagnostics: list[StructureDiagnostic] = []
+
+    for char in blueprint.characters:
+        identity = _load_identity(char)
+        if char.role.value not in ("protagonist", "antagonist", "deuteragonist"):
+            continue
+        if identity is None:
+            continue
+        if identity.psychology is None or identity.psychology.vulnerability_family is None:
+            diagnostics.append(
+                StructureDiagnostic(
+                    severity=DiagnosticSeverity.WARNING,
+                    layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                    rule="character.psychology.vulnerability_missing",
+                    message=f"Character '{char.name}' ({char.role.value}) has no vulnerability family defined.",
+                    evidence=[f"character.name = {char.name}", "psychology.vulnerability_family is absent"],
+                    repair_options=RepairOptions(
+                        preserve_intent=[f"Assign a VulnerabilityFamily to '{char.name}' (e.g. 'status_control', 'abandonment')."],
+                        challenge_intent=["Omit if the character's emotional drivers are intentionally ambiguous."],
+                    ),
+                )
+            )
+
+    return diagnostics
+
+
+# ---------------------------------------------------------------------------
+# Defense mechanisms presence analysis
+# ---------------------------------------------------------------------------
+
+
+def _diagnose_defense_presence(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
+    diagnostics: list[StructureDiagnostic] = []
+
+    for char in blueprint.characters:
+        identity = _load_identity(char)
+        if char.role.value not in ("protagonist", "antagonist", "deuteragonist"):
+            continue
+        if identity is None or identity.psychology is None:
+            continue
+        if not identity.psychology.defense_mechanisms:
+            diagnostics.append(
+                StructureDiagnostic(
+                    severity=DiagnosticSeverity.WARNING,
+                    layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                    rule="character.psychology.defense_missing",
+                    message=f"Character '{char.name}' has a psychology layer but no defense mechanisms defined.",
+                    evidence=[f"character.name = {char.name}", "psychology.defense_mechanisms is empty"],
+                    repair_options=RepairOptions(
+                        preserve_intent=[f"Add defense mechanisms for '{char.name}' (e.g. 'compartmentalization', 'transactional_containment')."],
+                        challenge_intent=["Omit if the character does not employ patterned stress responses."],
+                    ),
+                )
+            )
+
+    return diagnostics
+
+
+# ---------------------------------------------------------------------------
+# Social aura presence analysis
+# ---------------------------------------------------------------------------
+
+
+def _diagnose_social_aura_presence(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
+    diagnostics: list[StructureDiagnostic] = []
+
+    for char in blueprint.characters:
+        identity = _load_identity(char)
+        if char.role.value not in ("protagonist", "antagonist", "deuteragonist"):
+            continue
+        if identity is None or identity.texture is None:
+            continue
+        if not identity.texture.social_aura:
+            diagnostics.append(
+                StructureDiagnostic(
+                    severity=DiagnosticSeverity.WARNING,
+                    layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                    rule="character.texture.social_aura_missing",
+                    message=f"Character '{char.name}' has a texture layer but no social aura defined.",
+                    evidence=[f"character.name = {char.name}", "texture.social_aura is empty"],
+                    repair_options=RepairOptions(
+                        preserve_intent=[f"Add social aura entries for '{char.name}' (e.g. 'executive_pressure', 'warm_authority')."],
+                        challenge_intent=["Omit if the character's social atmosphere is not yet specified."],
+                    ),
+                )
+            )
+
+    return diagnostics
+
+
+# ---------------------------------------------------------------------------
+# Relationship arc completeness analysis
+# ---------------------------------------------------------------------------
+
+
+def _diagnose_relationship_arcs(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
+    diagnostics: list[StructureDiagnostic] = []
+
+    for char in blueprint.characters:
+        identity = _load_identity(char)
+        if identity is None or identity.relationship_mesh is None:
+            continue
+        mesh = identity.relationship_mesh
+        if mesh.relationships and not mesh.arcs:
+            diagnostics.append(
+                StructureDiagnostic(
+                    severity=DiagnosticSeverity.WARNING,
+                    layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                    rule="character.relationship.arcs_missing",
+                    message=f"Character '{char.name}' has relationship signatures but no relationship arcs defined.",
+                    evidence=[f"character.name = {char.name}", f"has {len(mesh.relationships)} relationship(s), 0 arcs"],
+                    repair_options=RepairOptions(
+                        preserve_intent=[f"Add RelationshipArc entries for '{char.name}' to track progression stages and trust evolution."],
+                        challenge_intent=["Omit arcs if relationships are static or purely functional."],
+                    ),
+                )
+            )
 
     return diagnostics

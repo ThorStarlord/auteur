@@ -35,6 +35,7 @@ from auteur.character.enums import (
     TropeTag,
     Vice,
     Virtue,
+    VulnerabilityFamily,
 )
 from auteur.character.models import (
     ArcChange,
@@ -48,6 +49,7 @@ from auteur.character.models import (
     Motif,
     MotifProfile,
     PsychologicalLayer,
+    RelationshipArc,
     RelationshipMesh,
     RelationshipSignature,
     RoleInference,
@@ -1193,3 +1195,355 @@ def test_categorizer_role_specific_motifs():
     assert cats["Kael"].identity.motifs.motifs[0].type == MotifType.RITUAL
     assert cats["Vlak"].identity.motifs.motifs[0].type == MotifType.GESTURE
     assert cats["Guide"].identity.motifs.motifs[0].type == MotifType.VERBAL_TIC
+
+
+# ============================================================================
+# VulnerabilityFamily enum + model tests
+# ============================================================================
+
+
+def test_vulnerability_family_enum():
+    assert VulnerabilityFamily.STATUS_CONTROL.value == "status_control"
+    assert VulnerabilityFamily.ABANDONMENT.value == "abandonment"
+
+
+def test_psychology_layer_with_vulnerability():
+    p = PsychologicalLayer(
+        vulnerability_family=VulnerabilityFamily.STATUS_CONTROL,
+        defense_mechanisms=["compartmentalization", "transactional_containment"],
+    )
+    assert p.vulnerability_family == VulnerabilityFamily.STATUS_CONTROL
+    assert "compartmentalization" in p.defense_mechanisms
+
+
+def test_psychology_layer_vulnerability_defaults():
+    p = PsychologicalLayer()
+    assert p.vulnerability_family is None
+    assert p.defense_mechanisms == []
+
+
+def test_psychology_layer_full_with_vulnerability():
+    p = PsychologicalLayer(
+        wound="abandonment",
+        fear="irrelevance",
+        desire="recognition",
+        contradictions=["driven_but_vulnerable"],
+        vulnerability_family=VulnerabilityFamily.ABANDONMENT,
+        defense_mechanisms=["intellectualization", "self_reliance"],
+    )
+    assert p.vulnerability_family == VulnerabilityFamily.ABANDONMENT
+    assert p.defense_mechanisms == ["intellectualization", "self_reliance"]
+
+
+# ============================================================================
+# Social aura tests
+# ============================================================================
+
+
+def test_texture_layer_social_aura_defaults():
+    t = TextureLayer()
+    assert t.social_aura == []
+
+
+def test_texture_layer_with_social_aura():
+    t = TextureLayer(
+        voice=TextureVoice(cadence="clipped"),
+        social_aura=["executive_pressure", "emotional_distance"],
+    )
+    assert "executive_pressure" in t.social_aura
+    assert len(t.social_aura) == 2
+
+
+# ============================================================================
+# RelationshipArc tests
+# ============================================================================
+
+
+def test_relationship_arc_defaults():
+    arc = RelationshipArc(other="Vlak")
+    assert arc.other == "Vlak"
+    assert arc.stages == []
+    assert arc.current_stage is None
+    assert arc.trust_level == 0.5
+    assert arc.progression_type is None
+
+
+def test_relationship_arc_full():
+    arc = RelationshipArc(
+        other="Vlak",
+        stages=["fascination", "vulnerability_discovery", "trust_formation"],
+        current_stage="trust_formation",
+        trust_level=0.8,
+        progression_type="trust_based",
+    )
+    assert len(arc.stages) == 3
+    assert arc.current_stage == "trust_formation"
+    assert arc.trust_level == 0.8
+    assert arc.progression_type == "trust_based"
+
+
+def test_relationship_arc_roundtrip():
+    arc = RelationshipArc(
+        other="Kael",
+        stages=["acquaintance", "alliance"],
+        current_stage="alliance",
+        trust_level=0.6,
+        progression_type="adversarial",
+    )
+    data = arc.model_dump(mode="json")
+    restored = RelationshipArc.model_validate(data)
+    assert restored.other == "Kael"
+    assert restored.current_stage == "alliance"
+    assert restored.progression_type == "adversarial"
+
+
+def test_relationship_mesh_with_arcs():
+    mesh = RelationshipMesh(
+        relationships=[RelationshipSignature(other="Kael", type=RelationshipType.RIVALRY, intensity=0.8)],
+        arcs=[RelationshipArc(other="Kael", stages=["conflict"], progression_type="adversarial")],
+    )
+    assert len(mesh.arcs) == 1
+    assert mesh.arcs[0].other == "Kael"
+    assert mesh.arcs[0].progression_type == "adversarial"
+
+
+def test_relationship_mesh_with_arcs_roundtrip():
+    mesh = RelationshipMesh(
+        arcs=[RelationshipArc(other="Vlak", stages=["fascination", "trust"], trust_level=0.7)],
+    )
+    data = mesh.model_dump(mode="json")
+    restored = RelationshipMesh.model_validate(data)
+    assert restored.arcs[0].other == "Vlak"
+    assert restored.arcs[0].trust_level == 0.7
+
+
+# ============================================================================
+# New analyzer diagnostics: vulnerability, defense, social_aura, arcs
+# ============================================================================
+
+
+def test_analyzer_vulnerability_missing():
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {"psychology": {"wound": "abandonment"}}},
+    ])
+    bp = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_character_categorization(bp)
+    assert any(d.rule == "character.psychology.vulnerability_missing" for d in diagnostics)
+
+
+def test_analyzer_vulnerability_not_missing_when_present():
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {"psychology": {"vulnerability_family": "status_control"}}},
+    ])
+    bp = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_character_categorization(bp)
+    vuln_missing = [d for d in diagnostics if d.rule == "character.psychology.vulnerability_missing"]
+    assert len(vuln_missing) == 0
+
+
+def test_analyzer_defense_missing():
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {"psychology": {"wound": "abandonment"}}},
+    ])
+    bp = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_character_categorization(bp)
+    assert any(d.rule == "character.psychology.defense_missing" for d in diagnostics)
+
+
+def test_analyzer_defense_not_missing_when_present():
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {"psychology": {"defense_mechanisms": ["compartmentalization"]}}},
+    ])
+    bp = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_character_categorization(bp)
+    defense_missing = [d for d in diagnostics if d.rule == "character.psychology.defense_missing"]
+    assert len(defense_missing) == 0
+
+
+def test_analyzer_social_aura_missing():
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {"texture": {"voice": {"cadence": "clipped"}}}},
+    ])
+    bp = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_character_categorization(bp)
+    assert any(d.rule == "character.texture.social_aura_missing" for d in diagnostics)
+
+
+def test_analyzer_social_aura_not_missing_when_present():
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {"texture": {"social_aura": ["executive_pressure"]}}},
+    ])
+    bp = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_character_categorization(bp)
+    aura_missing = [d for d in diagnostics if d.rule == "character.texture.social_aura_missing"]
+    assert len(aura_missing) == 0
+
+
+def test_analyzer_relationship_arcs_missing():
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {
+             "relationship_mesh": {
+                 "relationships": [{"other": "Vlak", "type": "rivalry", "intensity": 0.9}],
+             },
+         }},
+    ])
+    bp = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_character_categorization(bp)
+    assert any(d.rule == "character.relationship.arcs_missing" for d in diagnostics)
+
+
+def test_analyzer_relationship_arcs_not_missing_when_present():
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {
+             "relationship_mesh": {
+                 "relationships": [{"other": "Vlak", "type": "rivalry", "intensity": 0.9}],
+                 "arcs": [{"other": "Vlak", "stages": ["conflict"], "trust_level": 0.9}],
+             },
+         }},
+    ])
+    bp = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_character_categorization(bp)
+    arcs_missing = [d for d in diagnostics if d.rule == "character.relationship.arcs_missing"]
+    assert len(arcs_missing) == 0
+
+
+def test_analyzer_no_false_positive_for_minor_characters():
+    data = _minimal_blueprint_data(characters=[
+        {"name": "Extra", "role": "supporting", "arc_type": "flat",
+         "arc_start_percentage": 0, "arc_end_percentage": 0},
+    ])
+    bp = StoryBlueprint.model_validate(data)
+    diagnostics = analyze_character_categorization(bp)
+    vuln = [d for d in diagnostics if d.rule == "character.psychology.vulnerability_missing"]
+    defense = [d for d in diagnostics if d.rule == "character.psychology.defense_missing"]
+    aura = [d for d in diagnostics if d.rule == "character.texture.social_aura_missing"]
+    assert len(vuln) == 0
+    assert len(defense) == 0
+    assert len(aura) == 0
+
+
+# ============================================================================
+# New categorizer tests: vulnerability, defense, social_aura, relationship_arcs
+# ============================================================================
+
+
+def test_categorizer_proposes_vulnerability_family():
+    bp = _make_blueprint([
+        _make_char("Kael", CharacterRole.PROTAGONIST),
+    ])
+    engine = CategorizationEngine(bp)
+    cats = engine.categorize_all()
+    assert cats["Kael"].identity.psychology.vulnerability_family == VulnerabilityFamily.INADEQUACY
+
+
+def test_categorizer_proposes_defense_mechanisms():
+    bp = _make_blueprint([
+        _make_char("Kael", CharacterRole.PROTAGONIST),
+        _make_char("Vlak", CharacterRole.ANTAGONIST),
+    ])
+    engine = CategorizationEngine(bp)
+    cats = engine.categorize_all()
+    assert "intellectualization" in cats["Kael"].identity.psychology.defense_mechanisms
+    assert "compartmentalization" in cats["Vlak"].identity.psychology.defense_mechanisms
+
+
+def test_categorizer_proposes_social_aura():
+    bp = _make_blueprint([
+        _make_char("Kael", CharacterRole.PROTAGONIST),
+        _make_char("Vlak", CharacterRole.ANTAGONIST),
+    ])
+    engine = CategorizationEngine(bp)
+    cats = engine.categorize_all()
+    assert "earnest_pressure" in cats["Kael"].identity.texture.social_aura
+    assert "executive_pressure" in cats["Vlak"].identity.texture.social_aura
+
+
+def test_categorizer_proposes_relationship_arcs():
+    bp = _make_blueprint([
+        _make_char("Kael", CharacterRole.PROTAGONIST, relationships=[
+            {"other": "Vlak", "kind": "rivalry", "intensity": 0.9},
+        ]),
+    ])
+    engine = CategorizationEngine(bp)
+    cats = engine.categorize_all()
+    mesh = cats["Kael"].identity.relationship_mesh
+    assert mesh is not None
+    assert len(mesh.arcs) >= 1
+    assert mesh.arcs[0].other == "Vlak"
+    assert mesh.arcs[0].progression_type == "adversarial"
+
+
+def test_categorizer_proposes_trust_based_arc_for_friendship():
+    bp = _make_blueprint([
+        _make_char("Kael", CharacterRole.PROTAGONIST, relationships=[
+            {"other": "Guide", "kind": "mentorship", "intensity": 0.7},
+        ]),
+    ])
+    engine = CategorizationEngine(bp)
+    cats = engine.categorize_all()
+    arcs = cats["Kael"].identity.relationship_mesh.arcs
+    assert arcs[0].progression_type == "trust_based"
+
+
+def test_categorizer_role_specific_vulnerability():
+    bp = _make_blueprint([
+        _make_char("Kael", CharacterRole.PROTAGONIST),
+        _make_char("Vlak", CharacterRole.ANTAGONIST),
+        _make_char("Guide", CharacterRole.MENTOR),
+    ])
+    engine = CategorizationEngine(bp)
+    cats = engine.categorize_all()
+    assert cats["Kael"].identity.psychology.vulnerability_family == VulnerabilityFamily.INADEQUACY
+    assert cats["Vlak"].identity.psychology.vulnerability_family == VulnerabilityFamily.STATUS_CONTROL
+    assert cats["Guide"].identity.psychology.vulnerability_family == VulnerabilityFamily.ISOLATION
+
+
+# ============================================================================
+# YAML roundtrip for vulnerability, defense, social_aura, relationship_arcs
+# ============================================================================
+
+
+def test_new_fields_yaml_roundtrip(tmp_path):
+    bp_data = _minimal_blueprint_data(characters=[
+        {"name": "Kael", "role": "protagonist", "arc_type": "growth",
+         "arc_start_percentage": 0, "arc_end_percentage": 100,
+         "identity": {
+             "psychology": {
+                 "vulnerability_family": "status_control",
+                 "defense_mechanisms": ["compartmentalization"],
+             },
+             "texture": {
+                 "social_aura": ["executive_pressure"],
+             },
+             "relationship_mesh": {
+                 "relationships": [{"other": "Vlak", "type": "rivalry", "intensity": 0.9}],
+                 "arcs": [{"other": "Vlak", "stages": ["conflict"], "trust_level": 0.9, "progression_type": "adversarial"}],
+             },
+         }},
+    ])
+    bp = StoryBlueprint.model_validate(bp_data)
+    serialized = yaml.safe_dump(bp.model_dump(mode="json"))
+    loaded = yaml.safe_load(serialized)
+    restored = StoryBlueprint.model_validate(loaded)
+    identity = restored.characters[0].identity
+    assert identity["psychology"]["vulnerability_family"] == "status_control"
+    assert "compartmentalization" in identity["psychology"]["defense_mechanisms"]
+    assert "executive_pressure" in identity["texture"]["social_aura"]
+    assert identity["relationship_mesh"]["arcs"][0]["other"] == "Vlak"
+    assert identity["relationship_mesh"]["arcs"][0]["progression_type"] == "adversarial"

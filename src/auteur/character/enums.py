@@ -295,6 +295,21 @@ class MotifType(str, Enum):
     RECURRING_OBJECT = "recurring_object"
 
 
+class VulnerabilityFamily(str, Enum):
+    STATUS_CONTROL = "status_control"
+    ABANDONMENT = "abandonment"
+    SHAME = "shame"
+    POWERLESSNESS = "powerlessness"
+    INADEQUACY = "inadequacy"
+    BETRAYAL = "betrayal"
+    REJECTION = "rejection"
+    LOSS = "loss"
+    ABSORPTION = "absorption"
+    ISOLATION = "isolation"
+    DISSOLUTION = "dissolution"
+    INVISIBILITY = "invisibility"
+
+
 class EssenceTraitSource(str, Enum):
     PERSONAL = "personal"
     BOND = "bond"
