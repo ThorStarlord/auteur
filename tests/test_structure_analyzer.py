@@ -129,7 +129,16 @@ def test_analyzer_reports_missing_story_engine():
 def test_analyzer_accepts_sample_blueprint_without_findings():
     blueprint = StoryBlueprint.from_yaml(SAMPLE_YAML)
 
-    assert analyze_structure(blueprint) == []
+    diagnostics = analyze_structure(blueprint)
+
+    # Sample blueprint has no structural errors, but gets INFO/WARNING
+    # for Layer 9 resonance (motifs disconnected, central question not in
+    # act tones, thesis not connected to target experience).
+    assert {d.rule for d in diagnostics} == {
+        "theme.motifs_unrepresented",
+        "theme.central_question_disconnected",
+        "theme.target_experience_disconnected",
+    }
 
 
 def test_analyzer_reports_scope_and_thread_coherence_problems():

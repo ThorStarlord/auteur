@@ -56,7 +56,12 @@ def test_cli_structure_diagnose_prints_json_report_for_clean_blueprint(capsys):
 
     assert rc == 0
     report = json.loads(capsys.readouterr().out)
-    assert report["diagnostics"] == []
+    # Sample blueprint produces Layer 9 resonance diagnostics only
+    assert {d["rule"] for d in report["diagnostics"]} == {
+        "theme.motifs_unrepresented",
+        "theme.central_question_disconnected",
+        "theme.target_experience_disconnected",
+    }
 
 
 def test_cli_structure_diagnose_writes_json_report_to_output_path(tmp_path):
@@ -65,7 +70,12 @@ def test_cli_structure_diagnose_writes_json_report_to_output_path(tmp_path):
     rc = main(["structure", "diagnose", str(SAMPLE_YAML), "--output", str(output_path)])
 
     assert rc == 0
-    assert json.loads(output_path.read_text(encoding="utf-8")) == {"diagnostics": []}
+    report = json.loads(output_path.read_text(encoding="utf-8"))
+    assert {d["rule"] for d in report["diagnostics"]} == {
+        "theme.motifs_unrepresented",
+        "theme.central_question_disconnected",
+        "theme.target_experience_disconnected",
+    }
 
 
 def test_cli_structure_diagnose_returns_4_for_error_diagnostics(tmp_path, capsys):
@@ -792,13 +802,22 @@ def test_cli_audit_repair_writes_proposal_artifacts(tmp_path):
     proposal_files = sorted(proposals_dir.glob("repair_*.yaml"))
     assert len(proposal_files) >= 1, f"No proposal files found in {proposals_dir}"
 
-    proposal_yaml = yaml.safe_load(proposal_files[0].read_text(encoding="utf-8"))
-    assert proposal_yaml["type"] == "repair"
-    assert proposal_yaml["source_rule"] == "carriers.location_teleportation"
-    assert len(proposal_yaml["options"]) >= 2  # preserve + challenge
+    # Find the proposal for the location teleportation (carriers layer)
+    teleport_yaml = None
+    for pf in proposal_files:
+        data = yaml.safe_load(pf.read_text(encoding="utf-8"))
+        if data.get("source_rule") == "carriers.location_teleportation":
+            teleport_yaml = data
+            break
+
+    assert teleport_yaml is not None, (
+        f"No teleportation proposal found among {[p.name for p in proposal_files]}"
+    )
+    assert teleport_yaml["type"] == "repair"
+    assert len(teleport_yaml["options"]) >= 2  # preserve + challenge
 
     # Options should contain the repair suggestions
-    option_summaries = [o["summary"] for o in proposal_yaml["options"]]
+    option_summaries = [o["summary"] for o in teleport_yaml["options"]]
     assert any("transition scene" in s.lower() for s in option_summaries)
 
 def test_cli_audit_accept_resolves_proposal_and_filters_output(tmp_path, capsys):
@@ -838,8 +857,17 @@ def test_cli_audit_accept_resolves_proposal_and_filters_output(tmp_path, capsys)
 
     proposals_dir = target / "structure" / "proposals"
     proposal_files = sorted(proposals_dir.glob("repair_*.yaml"))
-    assert len(proposal_files) == 1
-    proposal_id = proposal_files[0].stem  # e.g., "repair_1_carriers_location_teleportation"
+    # Find the teleportation proposal among others
+    teleport_proposal = None
+    for pf in proposal_files:
+        data = yaml.safe_load(pf.read_text(encoding="utf-8"))
+        if data.get("source_rule") == "carriers.location_teleportation":
+            teleport_proposal = pf
+            break
+    assert teleport_proposal is not None, (
+        f"No teleportation proposal found among {[p.name for p in proposal_files]}"
+    )
+    proposal_id = teleport_proposal.stem  # e.g., "repair_1_carriers_location_teleportation"
 
     # Step 2: Resolve via --accept
     rc = main(["audit", "--accept", proposal_id, "--option", "preserve_1", str(target)])
@@ -847,7 +875,7 @@ def test_cli_audit_accept_resolves_proposal_and_filters_output(tmp_path, capsys)
     capsys.readouterr()  # consume step 2 output
 
     # Verify the YAML was mutated
-    resolved = yaml.safe_load(proposal_files[0].read_text(encoding="utf-8"))
+    resolved = yaml.safe_load(teleport_proposal.read_text(encoding="utf-8"))
     assert resolved["selection"]["selected_option_id"] == "preserve_1"
     assert resolved["decision"] is not None
     assert resolved["decision"]["selected_option_id"] == "preserve_1"

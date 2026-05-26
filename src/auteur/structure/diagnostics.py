@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 
 
 class DiagnosticSeverity(str, Enum):
+    INFO = "info"
     ERROR = "error"
     WARNING = "warning"
 

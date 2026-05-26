@@ -932,7 +932,7 @@ def analyze_structure(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
     if setup_contract:
         runway_val = setup_contract.emotional_runway.value if hasattr(setup_contract.emotional_runway, "value") else setup_contract.emotional_runway
         length_val = blueprint.identity.length_class.value if hasattr(blueprint.identity.length_class, "value") else blueprint.identity.length_class
-        
+
         is_mismatch = False
         if runway_val == "very_long" and length_val in ("short_story", "novella", "novel"):
             is_mismatch = True
@@ -1040,7 +1040,522 @@ def analyze_structure(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
                     )
                 )
 
+    # -------------------------------------------------------------------------
+    # Scope Fit Recommendation (Layer 3) — desired machinery vs container
+    # -------------------------------------------------------------------------
+    scope_contract = blueprint.structure.scope_contract
+    scope_profile = contract_snap.scope_profile
+    if engine is not None and scope_profile:
+        _add_scope_fit_diagnostics(blueprint, diagnostics, scope_contract, scope_profile)
+
+    # -------------------------------------------------------------------------
+    # Genre-first adaptation cascade — summary check
+    # -------------------------------------------------------------------------
+    genre_errors = [
+        d for d in diagnostics
+        if d.severity == DiagnosticSeverity.ERROR
+        and d.layer in {DiagnosticLayer.CONSTRAINTS, DiagnosticLayer.TARGET_EXPERIENCE}
+        and d.rule.startswith("genre.")
+    ]
+    char_or_thread_warnings = [
+        d for d in diagnostics
+        if d.layer in {DiagnosticLayer.STRUCTURAL_FORCES, DiagnosticLayer.THREADS, DiagnosticLayer.THEME}
+        and d.severity != DiagnosticSeverity.ERROR
+    ]
+    if genre_errors and char_or_thread_warnings:
+        diagnostics.append(
+            StructureDiagnostic(
+                severity=DiagnosticSeverity.INFO,
+                layer=DiagnosticLayer.CONSTRAINTS,
+                rule="adaptation.genre_first_cascade",
+                message=(
+                    f"{len(genre_errors)} genre contract error(s) found. Character, thread, and theme "
+                    f"diagnostics may be premature until genre contract violations are resolved."
+                ),
+                evidence=[
+                    f"genre_contract_errors = {[d.rule for d in genre_errors]}",
+                    f"downstream_diagnostics_affected = {len(char_or_thread_warnings)}",
+                ],
+                repair_options=RepairOptions(
+                    preserve_intent=["Resolve genre contract violations first, then re-run structure diagnostics."],
+                    challenge_intent=[
+                        "Ignore this cascade warning if genre violations are intentional and downstream diagnostics remain independently valid."
+                    ],
+                ),
+            )
+        )
+
+    # -------------------------------------------------------------------------
+    # Narrative Runway cross-check (Medium x Genre)
+    # -------------------------------------------------------------------------
+    medium_contract = blueprint.identity.medium_contract
+    if engine is not None and medium_contract and scope_profile:
+        _add_medium_runway_diagnostics(blueprint, diagnostics, medium_contract, scope_profile, contract_snap, engine)
+
+    # -------------------------------------------------------------------------
+    # Layer 9 resonance expansion — beyond thesis_unrepresented
+    # -------------------------------------------------------------------------
+    if engine is not None:
+        _add_layer9_resonance_diagnostics(blueprint, diagnostics, engine)
+
+    # -------------------------------------------------------------------------
+    # Coverage gaps — modulation layer
+    # -------------------------------------------------------------------------
+    if engine is not None and blueprint.structure.estimated_chapters:
+        actual_counts = (
+            sum(1 for c in blueprint.characters if c.role.value in ("protagonist", "antagonist", "deuteragonist")),
+            len(blueprint.characters),
+        )
+        max_pov = blueprint.structure.max_pov_characters
+        max_total = blueprint.structure.max_characters_total
+        if max_pov and actual_counts[0] > 0 and actual_counts[0] < max_pov * 0.5:
+            diagnostics.append(
+                StructureDiagnostic(
+                    severity=DiagnosticSeverity.INFO,
+                    layer=DiagnosticLayer.MODULATION,
+                    rule="modulation.pov_underutilized",
+                    message=(
+                        f"Blueprint allows up to {max_pov} POV characters but only "
+                        f"{actual_counts[0]} POV-eligible character(s) declared. "
+                        f"The narrative may feel narrow for the scope."
+                    ),
+                    evidence=[
+                        f"max_pov_characters = {max_pov}",
+                        f"declared_pov_eligible = {actual_counts[0]}",
+                    ],
+                    repair_options=RepairOptions(
+                        preserve_intent=[
+                            "Add a deuteragonist or secondary POV to broaden narrative modulation.",
+                            "Reduce max_pov_characters if the tight POV is intentional.",
+                        ],
+                        challenge_intent=[
+                            "Keep the narrow POV if the story demands a single tight perspective."
+                        ],
+                    ),
+                )
+            )
+
     return diagnostics
+
+
+def _scope_complexity_order(c: object) -> int:
+    order = {"micro": 1, "focused": 2, "standard": 3, "expanded": 4, "series": 5}
+    val = c.value if hasattr(c, "value") else str(c)
+    return order.get(val, 3)
+
+
+def _mechanical_load_order(m: object) -> int:
+    order = {"low": 1, "medium": 2, "high": 3}
+    val = m.value if hasattr(m, "value") else str(m)
+    return order.get(val, 2)
+
+
+def _add_scope_fit_diagnostics(
+    blueprint: StoryBlueprint,
+    diagnostics: list[StructureDiagnostic],
+    scope_contract: object,
+    scope_profile: object,
+) -> None:
+    from auteur.genres.models import ScopeProfile
+
+    if not isinstance(scope_profile, ScopeProfile):
+        return
+    length_class = blueprint.identity.length_class
+
+    # 1. Complexity fit
+    if scope_contract is not None:
+        sc_complexity = getattr(scope_contract, "recommended_complexity", None)
+        if sc_complexity and hasattr(sc_complexity, "value"):
+            prof_complexity = scope_profile.recommended_complexity
+            if _scope_complexity_order(prof_complexity) > _scope_complexity_order(sc_complexity):
+                diagnostics.append(
+                    StructureDiagnostic(
+                        severity=DiagnosticSeverity.WARNING,
+                        layer=DiagnosticLayer.SCOPE,
+                        rule="scope.fit.complexity_mismatch",
+                        message=(
+                            f"The '{scope_profile.recommended_complexity}' complexity "
+                            f"recommended by the genre exceeds the '{sc_complexity.value}' "
+                            f"complexity declared in the scope contract. "
+                            f"The story machinery may not fit the container."
+                        ),
+                        evidence=[
+                            f"genre.recommended_complexity = {prof_complexity.value if hasattr(prof_complexity, 'value') else prof_complexity}",
+                            f"scope_contract.recommended_complexity = {sc_complexity.value if hasattr(sc_complexity, 'value') else sc_complexity}",
+                        ],
+                        repair_options=RepairOptions(
+                            preserve_intent=[
+                                "Increase scope_contract.recommended_complexity to match the genre contract.",
+                                "Scale back the narrative machinery (fewer threads, simpler arcs).",
+                            ],
+                            challenge_intent=[
+                                "Keep the compressed container if the author intends a tight, focused execution of a complex genre."
+                            ],
+                        ),
+                    )
+                )
+
+        # 2. Mechanical load fit
+        sc_mechanical = getattr(scope_contract, "mechanical_load", None)
+        if sc_mechanical and hasattr(sc_mechanical, "value"):
+            prof_mechanical = scope_profile.mechanical_load
+            if _mechanical_load_order(prof_mechanical) > _mechanical_load_order(sc_mechanical):
+                diagnostics.append(
+                    StructureDiagnostic(
+                        severity=DiagnosticSeverity.WARNING,
+                        layer=DiagnosticLayer.SCOPE,
+                        rule="scope.fit.mechanical_overload",
+                        message=(
+                            f"The genre recommends '{prof_mechanical}' mechanical load "
+                            f"but the scope contract allows '{sc_mechanical.value}'. "
+                            f"This may create pacing or complexity problems."
+                        ),
+                        evidence=[
+                            f"genre.mechanical_load = {prof_mechanical.value if hasattr(prof_mechanical, 'value') else prof_mechanical}",
+                            f"scope_contract.mechanical_load = {sc_mechanical.value if hasattr(sc_mechanical, 'value') else sc_mechanical}",
+                        ],
+                        repair_options=RepairOptions(
+                            preserve_intent=[
+                                "Increase scope_contract.mechanical_load to match the genre's recommended machinery.",
+                                "Simplify the narrative mechanics to fit within the container.",
+                            ],
+                            challenge_intent=[
+                                "Keep the lower mechanical load if the story focuses on character over plot machinery."
+                            ],
+                        ),
+                    )
+                )
+
+    # 3. Length outside natural range
+    natural_lengths = scope_profile.natural_lengths
+    if natural_lengths and length_class not in natural_lengths:
+        natural_names = [l.value if hasattr(l, "value") else str(l) for l in natural_lengths]
+        diagnostics.append(
+            StructureDiagnostic(
+                severity=DiagnosticSeverity.WARNING,
+                layer=DiagnosticLayer.SCOPE,
+                rule="scope.fit.length_outside_natural_range",
+                message=(
+                    f"The declared length '{length_class.value if hasattr(length_class, 'value') else length_class}' "
+                    f"is outside the genre's natural length range ({', '.join(natural_names)}). "
+                    f"The story may feel compressed or stretched."
+                ),
+                evidence=[
+                    f"length_class = {length_class.value if hasattr(length_class, 'value') else length_class}",
+                    f"genre.natural_lengths = {natural_names}",
+                ],
+                repair_options=RepairOptions(
+                    preserve_intent=[
+                        f"Change length_class to one of the natural lengths: {', '.join(natural_names)}.",
+                        "Use compression or expansion strategies from the genre's scope profile to adapt.",
+                    ],
+                    challenge_intent=[
+                        "Keep the current length if the genre adaptation is intentional and accounted for."
+                    ],
+                ),
+            )
+        )
+
+    # 4. Cast load fit
+    if scope_contract is not None:
+        sc_cast = getattr(scope_contract, "cast_load", None)
+        if sc_cast and hasattr(sc_cast, "value"):
+            prof_cast = scope_profile.cast_load
+            if prof_cast and _mechanical_load_order(prof_cast) > _mechanical_load_order(sc_cast):
+                diagnostics.append(
+                    StructureDiagnostic(
+                        severity=DiagnosticSeverity.WARNING,
+                        layer=DiagnosticLayer.SCOPE,
+                        rule="scope.fit.cast_overload",
+                        message=(
+                            f"The genre recommends '{prof_cast}' cast load "
+                            f"but the scope contract allows '{sc_cast.value}'. "
+                            f"The character roster may be insufficient."
+                        ),
+                        evidence=[
+                            f"genre.cast_load = {prof_cast.value if hasattr(prof_cast, 'value') else prof_cast}",
+                            f"scope_contract.cast_load = {sc_cast.value if hasattr(sc_cast, 'value') else sc_cast}",
+                        ],
+                        repair_options=RepairOptions(
+                            preserve_intent=[
+                                "Increase scope_contract.cast_load to match the genre's cast requirements.",
+                                "Add characters to serve the required narrative functions."
+                            ],
+                            challenge_intent=[
+                                "Keep the smaller cast if the story focuses tightly on a few characters."
+                            ],
+                        ),
+                    )
+                )
+
+        # 5. Worldbuilding load fit
+        sc_world = getattr(scope_contract, "worldbuilding_load", None)
+        if sc_world and hasattr(sc_world, "value"):
+            prof_world = scope_profile.worldbuilding_load
+            if prof_world and _mechanical_load_order(prof_world) > _mechanical_load_order(sc_world):
+                diagnostics.append(
+                    StructureDiagnostic(
+                        severity=DiagnosticSeverity.WARNING,
+                        layer=DiagnosticLayer.SCOPE,
+                        rule="scope.fit.worldbuilding_overload",
+                        message=(
+                            f"The genre recommends '{prof_world}' worldbuilding load "
+                            f"but the scope contract allows '{sc_world.value}'. "
+                            f"The world may feel underdeveloped for this genre."
+                        ),
+                        evidence=[
+                            f"genre.worldbuilding_load = {prof_world.value if hasattr(prof_world, 'value') else prof_world}",
+                            f"scope_contract.worldbuilding_load = {sc_world.value if hasattr(sc_world, 'value') else sc_world}",
+                        ],
+                        repair_options=RepairOptions(
+                            preserve_intent=[
+                                "Increase scope_contract.worldbuilding_load to match the genre.",
+                                "Keep worldbuilding efficient if the story is character-driven."
+                            ],
+                            challenge_intent=[
+                                "Keep the lower worldbuilding load if the story emphasizes character over setting."
+                            ],
+                        ),
+                    )
+                )
+
+
+def _add_medium_runway_diagnostics(
+    blueprint: StoryBlueprint,
+    diagnostics: list[StructureDiagnostic],
+    medium_contract: object,
+    scope_profile: object,
+    contract_snap: object,
+    engine: object,
+) -> None:
+    from auteur.genres.models import ScopeProfile
+    from auteur.blueprint import MediumContract, StoryEngine
+
+    if not isinstance(scope_profile, ScopeProfile) or not isinstance(medium_contract, MediumContract):
+        return
+
+    failure_modes_text = " ".join(medium_contract.medium_failure_modes).lower()
+    length_class = blueprint.identity.length_class
+    length_name = length_class.value if hasattr(length_class, "value") else str(length_class)
+    medium_name = medium_contract.medium.value if hasattr(medium_contract.medium, "value") else str(medium_contract.medium)
+    genre_name = getattr(contract_snap, "display_name", "Unknown")
+    genre_mechanical = (
+        scope_profile.mechanical_load
+    )
+
+    # Check 1: Medium failure mode warns about "too many threads" and genre expects many threads
+    thread_count = len(engine.threads) if isinstance(engine, StoryEngine) else 0
+    if "too many threads" in failure_modes_text and thread_count > 2:
+        diagnostics.append(
+            StructureDiagnostic(
+                severity=DiagnosticSeverity.WARNING,
+                layer=DiagnosticLayer.SCOPE,
+                rule="medium.genre_runway_mismatch.too_many_threads",
+                message=(
+                    f"The '{medium_name}' medium warns against too many threads, but "
+                    f"the '{genre_name}' genre has {thread_count} subordinate thread(s). "
+                    f"The medium may lack runway to develop them all."
+                ),
+                evidence=[
+                    f"medium = {medium_name}",
+                    f"medium_failure_modes = {medium_contract.medium_failure_modes}",
+                    f"thread_count = {thread_count}",
+                ],
+                repair_options=RepairOptions(
+                    preserve_intent=[
+                        "Reduce the number of subordinate threads to fit the medium's capacity.",
+                        "Switch to a longer medium (e.g., novel instead of short story) that accommodates more threads.",
+                    ],
+                    challenge_intent=[
+                        "Keep the thread count if the medium's representation units can handle rapid thread-switching."
+                    ],
+                ),
+            )
+        )
+
+    # Check 2: Medium warns about "novel-scale machinery" and genre has high mechanical load
+    if "novel-scale machinery" in failure_modes_text and genre_mechanical:
+        if _mechanical_load_order(ml) >= 2:
+            diagnostics.append(
+                StructureDiagnostic(
+                    severity=DiagnosticSeverity.WARNING,
+                    layer=DiagnosticLayer.SCOPE,
+                    rule="medium.genre_runway_mismatch.machinery_overload",
+                    message=(
+                        f"The '{medium_name}' medium warns against novel-scale machinery, "
+                        f"but the '{genre_name}' genre requires '{ml}' mechanical load. "
+                        f"The medium may be too short for the genre's machinery."
+                    ),
+                    evidence=[
+                        f"medium = {medium_name}",
+                        f"genre.mechanical_load = {ml.value if hasattr(ml, 'value') else ml}",
+                        f"length_class = {length_name}",
+                    ],
+                    repair_options=RepairOptions(
+                        preserve_intent=[
+                            "Compress the narrative machinery significantly to fit the shorter medium.",
+                            "Select a longer medium that can support the genre's mechanical demands.",
+                        ],
+                        challenge_intent=[
+                            "Keep the short medium if the machinery is delivered through compression strategies."
+                        ],
+                    ),
+                )
+            )
+
+
+def _add_layer9_resonance_diagnostics(
+    blueprint: StoryBlueprint,
+    diagnostics: list[StructureDiagnostic],
+    engine: object,
+) -> None:
+    from auteur.blueprint import StoryEngine
+
+    if not isinstance(engine, StoryEngine):
+        return
+
+    # 1. Motif alignment — do motifs appear in the story engine or character data?
+    motifs = blueprint.theme.motifs
+    if motifs:
+        engine_text = " ".join(
+            [
+                engine.main_thread.want.author_text,
+                engine.main_thread.change.author_text,
+                engine.main_thread.thematic_function,
+                *(t.thematic_function for t in engine.threads),
+            ]
+        ).casefold()
+        char_text = " ".join(
+            [c.name for c in blueprint.characters]
+            + [
+                m.description for c in blueprint.characters for m in c.key_milestones
+            ]
+        ).casefold()
+        combined_text = engine_text + " " + char_text
+        missing_motifs = [
+            m for m in motifs if m.casefold() not in combined_text
+        ]
+        if missing_motifs and len(missing_motifs) == len(motifs):
+            diagnostics.append(
+                StructureDiagnostic(
+                    severity=DiagnosticSeverity.WARNING,
+                    layer=DiagnosticLayer.THEME,
+                    rule="theme.motifs_unrepresented",
+                    message=(
+                        f"None of the declared motifs ({', '.join(motifs)}) appear in the "
+                        f"story engine or character data. Motifs that never surface in the "
+                        f"narrative machinery may feel decorative."
+                    ),
+                    evidence=[
+                        f"theme.motifs = {motifs}",
+                        "No motif terms found in story engine author_text, thematic functions, or character data.",
+                    ],
+                    repair_options=RepairOptions(
+                        preserve_intent=[
+                            "Incorporate one or more motifs into thread thematic_functions or character milestones.",
+                            "Revise the motif list to match the actual thematic levers of the story.",
+                        ],
+                        challenge_intent=[
+                            "Keep motifs abstract if they function as author-guiding themes rather than explicit narrative signals."
+                        ],
+                    ),
+                )
+            )
+        elif missing_motifs:
+            diagnostics.append(
+                StructureDiagnostic(
+                    severity=DiagnosticSeverity.INFO,
+                    layer=DiagnosticLayer.THEME,
+                    rule="theme.motifs_partially_unrepresented",
+                    message=(
+                        f"Some motifs ({', '.join(missing_motifs)}) do not appear in the "
+                        f"story engine or character data."
+                    ),
+                    evidence=[
+                        f"theme.motifs = {motifs}",
+                        f"missing_from_narrative = {missing_motifs}",
+                    ],
+                    repair_options=RepairOptions(
+                        preserve_intent=[
+                            f"Incorporate '{', '.join(missing_motifs)}' into a thread thematic_function or character milestone."
+                        ],
+                        challenge_intent=[
+                            "Keep absent motifs as tonal references if they do not need explicit narrative expression."
+                        ],
+                    ),
+                )
+            )
+
+    # 2. Central question echoing — does the emotional arc engage the central question?
+    central_q = blueprint.theme.central_question
+    if central_q and blueprint.emotional_design.per_act_tones:
+        tone_text = " ".join(
+            f"{t.label} {t.tone}" for t in blueprint.emotional_design.per_act_tones
+        ).casefold()
+        q_terms = set(
+            w for w in central_q.casefold().split()
+            if len(w) > 3 and w not in _STOP_WORDS
+        )
+        if q_terms and not any(term in tone_text for term in q_terms):
+            diagnostics.append(
+                StructureDiagnostic(
+                    severity=DiagnosticSeverity.INFO,
+                    layer=DiagnosticLayer.THEME,
+                    rule="theme.central_question_disconnected",
+                    message=(
+                        "The emotional act tones do not reference the central thematic question. "
+                        "The dramatic arc may feel disconnected from the thematic inquiry."
+                    ),
+                    evidence=[
+                        f"theme.central_question = {central_q}",
+                        f"per_act_tones = {[f'{t.label}: {t.tone}' for t in blueprint.emotional_design.per_act_tones]}",
+                    ],
+                    repair_options=RepairOptions(
+                        preserve_intent=[
+                            "Integrate a reference to the central question into one or more act tone descriptions.",
+                            "Ensure each act's emotional work serves the thematic question.",
+                        ],
+                        challenge_intent=[
+                            "Keep act tones independent if the thematic question operates at a meta level above act emotion."
+                        ],
+                    ),
+                )
+            )
+
+    # 3. Target experience connection — does thesis connect to target experience?
+    thesis = blueprint.theme.thesis
+    target_exp = blueprint.identity.target_experience
+    if thesis and target_exp and target_exp.primary:
+        thesis_lower = thesis.casefold()
+        primary_lower = target_exp.primary.casefold()
+        conflict_lower = engine.main_thread.conflict.author_text.casefold()
+        if primary_lower not in thesis_lower and primary_lower not in conflict_lower:
+            diagnostics.append(
+                StructureDiagnostic(
+                    severity=DiagnosticSeverity.INFO,
+                    layer=DiagnosticLayer.THEME,
+                    rule="theme.target_experience_disconnected",
+                    message=(
+                        f"The primary target experience ('{target_exp.primary}') is not echoed "
+                        f"in the theme thesis or the main thread conflict. The emotional promise "
+                        f"may feel disconnected from the thematic argument."
+                    ),
+                    evidence=[
+                        f"target_experience.primary = {target_exp.primary}",
+                        f"theme.thesis = {thesis}",
+                        f"main_thread.conflict = {engine.main_thread.conflict.author_text}",
+                    ],
+                    repair_options=RepairOptions(
+                        preserve_intent=[
+                            "Reference the target experience emotion in the theme thesis or main conflict.",
+                            "Align the central question to interrogate the promised experience.",
+                        ],
+                        challenge_intent=[
+                            "Keep disconnected if the thesis operates as a philosophical counterpoint to the emotional promise."
+                        ],
+                    ),
+                )
+            )
 
 
 def _normalize(text: str) -> str:
