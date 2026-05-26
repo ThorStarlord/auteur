@@ -23,6 +23,7 @@ def run_all_diagnostics(
     bible: StoryBible,
     *,
     outline: dict | None = None,
+    cartographer_outline: object | None = None,
 ) -> list[StructureDiagnostic]:
     """Run all active diagnostic rules across all layers.
 
@@ -30,6 +31,8 @@ def run_all_diagnostics(
     - Layers 1-5: analyze_structure() for within-blueprint coherence (Structure Diagnostic)
     - Layer 6: audit_bible_locations() for Bible Audit carrier state consistency
     - Layer 7: audit_outline_carriers() for Scene Representation validation (requires outline)
+    - Cross-layer: audit_outline_vs_story_engine() for Narrative Engine → Cartographer validation
+      (requires cartographer_outline)
 
     Args:
         blueprint: The StoryBlueprint to validate.
@@ -37,10 +40,13 @@ def run_all_diagnostics(
         outline: Optional parsed outline dict (from load_outline). When None, a
             Layer 7 WARNING is emitted noting that Scene Representation validation
             was skipped.
+        cartographer_outline: Optional CartographerOutline Pydantic model for cross-layer
+            validation against the story engine.
 
     Returns a single merged list of StructureDiagnostic findings.
     """
     from auteur.structure.outline_audit import audit_outline_carriers
+    from auteur.structure.cartographer_audit import audit_outline_vs_story_engine
 
     diagnostics: list[StructureDiagnostic] = []
     diagnostics.extend(analyze_structure(blueprint))
@@ -50,6 +56,10 @@ def run_all_diagnostics(
     diagnostics.extend(
         as_structure_diagnostic(d) for d in audit_outline_carriers(outline, bible)
     )
+    if cartographer_outline is not None:
+        diagnostics.extend(
+            audit_outline_vs_story_engine(blueprint, cartographer_outline)
+        )
     return diagnostics
 
 

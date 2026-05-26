@@ -384,9 +384,16 @@ def generate_subordinate_threads(
     return threads
 
 
-def generate_story_engine(blueprint: StoryBlueprint) -> GenerationProposal | list[StructureDiagnostic]:
+def generate_story_engine(
+    blueprint: StoryBlueprint,
+    llm: object | None = None,
+) -> GenerationProposal | list[StructureDiagnostic]:
     """
     Generate a complete story engine from target experience downward.
+
+    When ``llm`` is provided (an LLMClient protocol-compatible object), the
+    template-based forces and threads are refined against the author's premise
+    via LLM call, producing story-specific rather than archetypal output.
 
     Returns either a GenerationProposal (success) or a list of diagnostics (failure).
     """
@@ -457,6 +464,14 @@ def generate_story_engine(blueprint: StoryBlueprint) -> GenerationProposal | lis
             "Subordinate threads may need customization based on author intent.",
         ]
     )
+
+    # When an LLM client is provided, refine the template proposal
+    if llm is not None:
+        from auteur.structure.generation_refiner import llm_refine_story_engine
+        try:
+            proposal = llm_refine_story_engine(blueprint, llm, forces)
+        except Exception:
+            pass
 
     return proposal
 
