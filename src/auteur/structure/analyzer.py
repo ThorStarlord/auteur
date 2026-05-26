@@ -1557,6 +1557,45 @@ def _add_layer9_resonance_diagnostics(
                 )
             )
 
+    # 4. Auto-generated thesis detection
+    thesis = blueprint.theme.thesis
+    if thesis:
+        thesis_lower = thesis.casefold()
+        auto_signals = 0
+        if thesis_lower.startswith("the pursuit of"):
+            auto_signals += 1
+        if "leads to" in thesis_lower:
+            auto_signals += 1
+        if "resulting in" in thesis_lower:
+            auto_signals += 1
+        if auto_signals >= 2:
+            diagnostics.append(
+                StructureDiagnostic(
+                    severity=DiagnosticSeverity.WARNING,
+                    layer=DiagnosticLayer.THEME,
+                    rule="theme.thesis_looks_auto_generated",
+                    message=(
+                        "The theme thesis appears to be auto-generated from template fields "
+                        "(contains 'pursuit of' + 'leads to' + 'resulting in'). Auto-generated "
+                        "theses are structurally correct but read as filler. Replace with a "
+                        "purpose-written thesis that argues the story's actual stance."
+                    ),
+                    evidence=[
+                        f"theme.thesis = {thesis}",
+                        "thesis matches the auto-compile template pattern",
+                    ],
+                    repair_options=RepairOptions(
+                        preserve_intent=[
+                            "Rewrite the thesis as a direct, opinionated statement of the story's argument.",
+                            "Use the central question and motifs as raw material for the thesis.",
+                        ],
+                        challenge_intent=[
+                            "Keep the generated thesis if it genuinely captures the intended argument."
+                        ],
+                    ),
+                )
+            )
+
 
 def _normalize(text: str) -> str:
     return " ".join(text.casefold().split())

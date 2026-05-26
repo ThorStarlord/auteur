@@ -743,10 +743,21 @@ class StoryBlueprint(BaseModel):
     def from_yaml(cls, path: str | Path) -> Self:
         """Load a blueprint from a YAML file. Enum fields accept their string values."""
         import yaml
+        from pydantic import ValidationError
 
-        text = Path(path).read_text(encoding="utf-8")
-        data = yaml.safe_load(text)
-        return cls.model_validate(data)
+        path_obj = Path(path)
+        text = path_obj.read_text(encoding="utf-8")
+        try:
+            data = yaml.safe_load(text)
+        except yaml.YAMLError as exc:
+            msg = _format_yaml_error(exc, path_obj, text)
+            raise ValueError(msg) from exc
+
+        try:
+            return cls.model_validate(data)
+        except ValidationError as exc:
+            msg = _format_validation_error(exc, path_obj)
+            raise ValueError(msg) from exc
 
     def character(self, name: str) -> Character:
         for c in self.characters:
@@ -765,6 +776,47 @@ class StoryBlueprint(BaseModel):
         # Coarse fallback: divide evenly across declared acts in per_act_tones.
         n_acts = max(1, len(self.emotional_design.per_act_tones) or 3)
         return min(n_acts, max(1, ((chapter_index - 1) * n_acts) // chapters + 1))
+
+
+def _format_yaml_error(exc: yaml.YAMLError, path: Path, text: str) -> str:
+    """Wrap a YAML parser error with a human-readable hint."""
+    lines = text.splitlines()
+    if hasattr(exc, "problem_mark") and exc.problem_mark is not None:
+        mark = exc.problem_mark
+        line_num = mark.line + 1
+        context_before = max(0, line_num - 3)
+        snippet_lines: list[str] = []
+        for i in range(context_before, min(line_num + 2, len(lines) + 1)):
+            prefix = ">>>" if i == line_num else "   "
+            snippet_lines.append(f"  {prefix} {i}: {lines[i - 1][:100]}")
+        snippet = "\n".join(snippet_lines)
+        hint = (
+            f"YAML parse error at line {line_num}, column {mark.column + 1}:\n"
+            f"{snippet}\n"
+            "Common causes:\n"
+            "  - Unquoted colon (:) in a string value  →  wrap the value in quotes\n"
+            "  - Tab character used instead of spaces  →  use spaces for indentation\n"
+            "  - Missing space after key:value separator\n"
+        )
+    else:
+        hint = f"YAML parse error: {exc}\nCheck for unquoted colons or indentation issues."
+    return hint
+
+
+def _format_validation_error(exc: object, path: Path) -> str:
+    """Format a pydantic ValidationError with field-level details."""
+    from pydantic import ValidationError
+
+    if not isinstance(exc, ValidationError):
+        return str(exc)
+
+    lines = [f"Blueprint validation failed ({len(exc.errors())} issue(s)):"]
+    for err in exc.errors():
+        loc = ".".join(str(l) for l in err["loc"])
+        msg = err["msg"]
+        lines.append(f"  - {loc}: {msg}")
+    lines.append(f"\nSee {path} and fix the listed fields.")
+    return "\n".join(lines)
 
 
 from auteur.genres.models import GenreContract
