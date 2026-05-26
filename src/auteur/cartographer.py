@@ -19,7 +19,8 @@ outlines that downstream agents (Bard, Critic) will compile.
 # Operating principles
 1. Treat every input parameter as a hard constraint, not a suggestion.
 2. Every scene you propose must be justified by either an arc directive, a
-   contract element, the tension target, or the thematic beat.
+   contract element, the tension target, the structural forces, or the
+   thematic beat.
 3. Forbidden tropes are auto-fail. Do not let them appear, even subverted,
    unless explicitly listed as expected elements.
 4. The tension target is numeric and bidirectional. Scores 1-4 require quiet,
@@ -33,6 +34,16 @@ outlines that downstream agents (Bard, Critic) will compile.
 6. If the inputs contradict each other (e.g. an arc milestone demands action
    but tension target = 2), STOP and emit a `conflict_report` instead of an
    outline.
+7. **Surface every character contradiction.** If a character is listed with
+   contradictions (e.g. "brave_but_cowardly", "honest_but_deceitful"), at
+   least one scene in this chapter must dramatise that contradiction as
+   scene-level tension — a choice, a confrontation, an internal struggle, or
+   a moment where the contradiction cannot be ignored. A contradiction that
+   never surfaces is a missed dramatic beat.
+8. **Enact the structural forces.** The chapter's scenes must advance,
+   complicate, or resist the story engine's want/resistance/conflict/stakes/
+   change. Every scene should serve at least one of these five forces. If a
+   scene does not, remove or replace it.
 
 # Output format
 Return one YAML document with these top-level keys exactly:
@@ -74,6 +85,8 @@ def _user_message(call: PlanningCall) -> str:
         _section("CONTRACT", _contract_block(call)),
         _section("EMOTIONAL TARGET", call.emotional_target),
         _section("TENSION TARGET", _tension_block(call)),
+        _section("STRUCTURAL FORCES", _structural_forces_block(call)),
+        _section("CHARACTER CONTRADICTIONS", _contradictions_block(call)),
         _section("ARC DIRECTIVES", _arc_block(call)),
         _section("THEMATIC BEAT", call.thematic_beat),
         "Produce the YAML outline now. No prose, no commentary.",
@@ -141,6 +154,33 @@ def _tension_block(call: PlanningCall) -> str:
         else "(no prior chapters)"
     )
     return f"{target_line}\nRecent realized scores: {history}"
+
+
+def _structural_forces_block(call: PlanningCall) -> str:
+    parts = []
+    if call.story_engine_want:
+        parts.append(f"Want: {call.story_engine_want}")
+    if call.story_engine_resistance:
+        parts.append(f"Resistance: {call.story_engine_resistance}")
+    if call.story_engine_conflict:
+        parts.append(f"Conflict: {call.story_engine_conflict}")
+    if call.story_engine_stakes:
+        parts.append(f"Stakes: {call.story_engine_stakes}")
+    if call.story_engine_change:
+        parts.append(f"Change: {call.story_engine_change}")
+    if not parts:
+        return "(no structural forces — story engine not yet defined)"
+    return "\n".join(parts)
+
+
+def _contradictions_block(call: PlanningCall) -> str:
+    if not call.character_contradictions:
+        return "(none)"
+    lines = []
+    for char, cons in call.character_contradictions.items():
+        labels = "; ".join(cons)
+        lines.append(f"- {char}: {labels}")
+    return "\n".join(lines)
 
 
 def _arc_block(call: PlanningCall) -> str:

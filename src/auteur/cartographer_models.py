@@ -67,6 +67,34 @@ class PlanningCall(BaseModel):
     # Layer 4
     emotional_target: str
 
+    # Layer 4 — structural forces (from story engine main_thread)
+    story_engine_want: str | None = Field(
+        default=None,
+        description="The protagonist's core want from the story engine."
+    )
+    story_engine_resistance: str | None = Field(
+        default=None,
+        description="What opposes the want."
+    )
+    story_engine_conflict: str | None = Field(
+        default=None,
+        description="The collision between want and resistance."
+    )
+    story_engine_stakes: str | None = Field(
+        default=None,
+        description="What can be lost or gained."
+    )
+    story_engine_change: str | None = Field(
+        default=None,
+        description="How the protagonist transforms."
+    )
+
+    # Layer 4 — character contradictions (for conflict surfacing)
+    character_contradictions: dict[str, list[str]] = Field(
+        default_factory=dict,
+        description="Character name -> list of contradiction labels."
+    )
+
     # Layer 5
     arc_directives: list[ArcDirective]
 
@@ -95,6 +123,9 @@ class PlanningCall(BaseModel):
         tension = blueprint.tension_waveform.target_for(chapter_index)
         contract = blueprint.contract
 
+        engine = blueprint.story_engine
+        contradictions = _collect_contradictions(blueprint)
+
         return cls(
             scope=PlanningScope.CHAPTER,
             chapter_index=chapter_index,
@@ -110,6 +141,12 @@ class PlanningCall(BaseModel):
             contract_rules=_flatten_contract(contract),
             forbidden_tropes=list(contract.forbidden_tropes),
             expected_elements=list(contract.expected_elements),
+            story_engine_want=engine.main_thread.want.author_text if engine else None,
+            story_engine_resistance=engine.main_thread.resistance.author_text if engine else None,
+            story_engine_conflict=engine.main_thread.conflict.author_text if engine else None,
+            story_engine_stakes=engine.main_thread.stakes.author_text if engine else None,
+            story_engine_change=engine.main_thread.change.author_text if engine else None,
+            character_contradictions=contradictions,
             emotional_target=emotional_target,
             arc_directives=[
                 _arc_directive(c) for c in blueprint.characters
@@ -144,6 +181,21 @@ def _flatten_contract(
     ]
     rules.extend(contract.custom_rules)
     return rules
+
+
+def _collect_contradictions(blueprint: StoryBlueprint) -> dict[str, list[str]]:
+    """Extract character contradictions from identity psychology data."""
+    result: dict[str, list[str]] = {}
+    for c in blueprint.characters:
+        if c.identity is None:
+            continue
+        raw = c.identity if isinstance(c.identity, dict) else {}
+        psychology = raw.get("psychology", {}) if isinstance(raw, dict) else {}
+        if isinstance(psychology, dict):
+            cons = psychology.get("contradictions", [])
+            if isinstance(cons, list) and len(cons) >= 2:
+                result[c.name] = cons
+    return result
 
 
 def _arc_directive(c: Character) -> ArcDirective:
