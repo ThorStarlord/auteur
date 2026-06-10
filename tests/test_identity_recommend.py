@@ -50,7 +50,7 @@ author_overrides: []
     fake_client = FakeClient([fake_response])
     
     # Monkeypatch build_client to return fake_client
-    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model: fake_client)
+    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model, **kwargs: fake_client)
     
     exit_code = main([
         "identity", "recommend",
@@ -127,7 +127,7 @@ central_engine:
     )
     
     fake_client = FakeClient([resp_fail, resp_success])
-    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model: fake_client)
+    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model, **kwargs: fake_client)
     
     exit_code = main([
         "identity", "recommend",
@@ -172,7 +172,7 @@ central_engine:
     ]
     
     fake_client = FakeClient(responses)
-    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model: fake_client)
+    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model, **kwargs: fake_client)
     
     exit_code = main([
         "identity", "recommend",
@@ -238,7 +238,7 @@ author_overrides: []
     ]
 
     fake_client = FakeClient(responses)
-    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model: fake_client)
+    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model, **kwargs: fake_client)
 
     exit_code = main([
         "identity", "recommend",
@@ -476,7 +476,7 @@ author_overrides: []
     )
     
     fake_client = FakeClient([resp_fail, resp_success])
-    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model: fake_client)
+    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model, **kwargs: fake_client)
     
     exit_code = main([
         "identity", "recommend",
@@ -535,7 +535,7 @@ author_overrides: []
     )
     
     fake_client = FakeClient([resp])
-    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model: fake_client)
+    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model, **kwargs: fake_client)
     
     exit_code = main([
         "identity", "recommend",
@@ -586,7 +586,7 @@ author_overrides: []
 
     output_path = tmp_path / "story_identity.yaml"
     fake_client = FakeClient([LLMResponse(text=f"```yaml\n{valid_yaml}\n```", input_tokens=50, output_tokens=50)])
-    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model: fake_client)
+    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model, **kwargs: fake_client)
 
     exit_code = main([
         "identity", "recommend",
@@ -640,7 +640,7 @@ author_overrides: []
         LLMResponse(text=summary_json, input_tokens=50, output_tokens=50),
     ]
     fake_client = FakeClient(responses)
-    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model: fake_client)
+    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model, **kwargs: fake_client)
 
     exit_code = main([
         "identity", "recommend",
@@ -696,7 +696,7 @@ author_overrides: []
 
     # Run with --mode open-ended
     dir1 = tmp_path / "run_mode"
-    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model: make_client())
+    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model, **kwargs: make_client())
     exit1 = main([
         "identity", "recommend",
         "A test premise.",
@@ -707,7 +707,7 @@ author_overrides: []
 
     # Run with --recommend-mode open-ended
     dir2 = tmp_path / "run_recommend_mode"
-    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model: make_client())
+    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model, **kwargs: make_client())
     exit2 = main([
         "identity", "recommend",
         "A test premise.",
@@ -763,7 +763,7 @@ author_overrides: []
 
     output_path = tmp_path / "story_identity.yaml"
     fake_client = FakeClient([LLMResponse(text=f"```yaml\n{valid_yaml}\n```", input_tokens=50, output_tokens=50)])
-    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model: fake_client)
+    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model, **kwargs: fake_client)
 
     exit_code = main([
         "identity", "recommend",
@@ -846,7 +846,7 @@ author_overrides: []
     resp_success = LLMResponse(text=f"```yaml\n{success_yaml}\n```", input_tokens=100, output_tokens=100)
     
     fake_client = FakeClient([resp_fail, resp_success])
-    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model: fake_client)
+    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model, **kwargs: fake_client)
     
     import shutil
     runs_dir = Path(".auteur/runs")
@@ -916,7 +916,7 @@ author_overrides: []
     )
 
     fake_client = FakeClient([fake_response])
-    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model: fake_client)
+    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model, **kwargs: fake_client)
 
     # Use deprecated --mode open-ended flag
     exit_code = main([
@@ -977,7 +977,7 @@ author_overrides: []
     ]
 
     fake_client = FakeClient(responses)
-    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model: fake_client)
+    monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model, **kwargs: fake_client)
 
     exit_code = main([
         "identity", "recommend",

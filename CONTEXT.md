@@ -3,6 +3,32 @@
 A narrative engineering toolkit for long-form fiction. Auteur is a whole-story
 structure engine first and a chapter drafting engine second.
 
+## Architecture
+
+**Dual-Native Architecture** — auteur is both agentic-native and CLI-native:
+
+- **Agentic-native**: Artifacts are the primary API. Every command writes a
+  structured artifact to a deterministic path. Agents orchestrate by reading
+  artifacts, invoking commands, and reading output artifacts. Skills document
+  artifact contracts (input schema → output schema), not CLI invocation.
+  Communication is asynchronous through durable files.
+- **CLI-native**: The same commands support human-friendly stdout output with
+  summaries, colored output, help text, and guided workflows. The CLI is a thin
+  formatting layer on top of the same core operations.
+- **Core separation**: Domain logic returns structured domain objects. A
+  "human formatter" renders stdout; a "serializer" writes the artifact file.
+  The same core serves both interfaces.
+- **Invocation**: Agents shell out to the CLI (do not import Python). The CLI
+  is the universal entry point. Skills document artifact contracts rather than
+  CLI syntax.
+- **Skill decomposition**: Each skill wraps one atomic artifact transformation.
+  Agents compose sequences of skills (read artifact X, invoke skill A, read
+  output artifact Y...). Skills are simple, composable, and language-agnostic.
+- **Decision**: Option B — adapt the existing CLI so every command writes an
+  artifact as its primary output, stdout is a convenience view. Implemented
+  via implicit standard output paths (B1) — agents know where to read the
+  result based on what they invoked.
+
 ## Language
 
 **Narrative Drift**:

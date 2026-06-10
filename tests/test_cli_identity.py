@@ -26,6 +26,12 @@ def test_cli_identity_workflow(tmp_path: Path):
     # 1. Test identity validate
     exit_code_validate = main(["identity", "validate", str(identity_yaml_path)])
     assert exit_code_validate == 0
+    # Verify artifact was written
+    validation_artifact = tmp_path / "identity" / "validation_report.json"
+    assert validation_artifact.exists()
+    import json
+    report = json.loads(validation_artifact.read_text(encoding="utf-8"))
+    assert "diagnostics" in report
     
     # 2. Test identity compile
     exit_code_compile = main(["identity", "compile", str(identity_yaml_path), "--output", str(blueprint_yaml_path)])

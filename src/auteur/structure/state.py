@@ -159,6 +159,20 @@ def state_check(project_path: Path, *, outline: dict | None = None) -> int:
     raw_diagnostics = run_all_diagnostics(blueprint, bible, outline=outline)
     diagnostics = [d for d in raw_diagnostics if d.rule not in resolved_rules]
 
+    # Always write artifact (unresolved diagnostics)
+    diagnostics_dir = project_path / "structure" / "diagnostics"
+    diagnostics_dir.mkdir(parents=True, exist_ok=True)
+    state_report = {"diagnostics": [d.model_dump(mode="json") for d in diagnostics]}
+    artifact_path = diagnostics_dir / "state_report.json"
+    try:
+        artifact_path.write_text(
+            f"{json.dumps(state_report, indent=2)}\n",
+            encoding="utf-8",
+        )
+    except OSError as exc:
+        print(f"Error: failed to write state report to {artifact_path}: {exc}", file=sys.stderr)
+        return 1
+
     if not raw_diagnostics:
         print("No structural or lore issues detected.")
         return 0
@@ -205,6 +219,7 @@ def state_check(project_path: Path, *, outline: dict | None = None) -> int:
     errors = sum(1 for d in diagnostics if d.severity == DiagnosticSeverity.ERROR)
     warnings = sum(1 for d in diagnostics if d.severity == DiagnosticSeverity.WARNING)
     print(f"{len(diagnostics)} findings total ({errors} error(s), {warnings} warning(s)).")
+    print(f"State report written to {artifact_path}")
 
     return 4 if errors > 0 else 0
 

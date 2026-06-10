@@ -65,6 +65,11 @@ def test_state_check_empty_blueprint(test_project, capsys):
     assert "findings total" in captured.out
     # Missing story engine should be flagged as structural force error
     assert rc == 4
+    # Verify artifact was written
+    artifact_path = test_project / "structure" / "diagnostics" / "state_report.json"
+    assert artifact_path.exists()
+    report = json.loads(artifact_path.read_text(encoding="utf-8"))
+    assert len(report["diagnostics"]) > 0
 
 
 def test_state_update_blueprint_success(test_project, capsys):

@@ -51,12 +51,16 @@ def test_cli_plan_still_works(tmp_path, capsys):
     assert "SYSTEM PROMPT" in out
 
 
-def test_cli_structure_diagnose_prints_json_report_for_clean_blueprint(capsys):
-    rc = main(["structure", "diagnose", str(SAMPLE_YAML)])
+def test_cli_structure_diagnose_writes_artifact(tmp_path):
+    project_path = tmp_path / "novel"
+    assert main(["init", str(project_path), "--from", str(SAMPLE_YAML)]) == 0
+
+    rc = main(["structure", "diagnose", str(project_path / "blueprint.yaml")])
 
     assert rc == 0
-    report = json.loads(capsys.readouterr().out)
-    # Sample blueprint produces Layer 9 resonance diagnostics only
+    artifact_path = project_path / "structure" / "diagnostics" / "structure_report.json"
+    assert artifact_path.exists()
+    report = json.loads(artifact_path.read_text(encoding="utf-8"))
     assert {d["rule"] for d in report["diagnostics"]} == {
         "theme.motifs_unrepresented",
         "theme.central_question_disconnected",
@@ -106,8 +110,15 @@ theme:
     rc = main(["structure", "diagnose", str(blueprint_path)])
 
     assert rc == 4
-    report = json.loads(capsys.readouterr().out)
+    # Verify artifact was written
+    artifact_path = blueprint_path.parent / "structure" / "diagnostics" / "structure_report.json"
+    assert artifact_path.exists()
+    report = json.loads(artifact_path.read_text(encoding="utf-8"))
     assert report["diagnostics"][0]["rule"] == "story_engine.missing"
+    # Verify human-readable stdout
+    out = capsys.readouterr().out
+    assert "[ERROR]" in out
+    assert "story_engine.missing" in out
 
 
 def test_cli_structure_diagnose_returns_0_for_warning_only_report(tmp_path, capsys):
@@ -176,7 +187,9 @@ theme:
     rc = main(["structure", "diagnose", str(blueprint_path)])
 
     assert rc == 0
-    report = json.loads(capsys.readouterr().out)
+    artifact_path = blueprint_path.parent / "structure" / "diagnostics" / "structure_report.json"
+    assert artifact_path.exists()
+    report = json.loads(artifact_path.read_text(encoding="utf-8"))
     assert report["diagnostics"][0]["severity"] == "warning"
     assert report["diagnostics"][0]["rule"] == "structure.subplot_budget.missing"
 
@@ -745,6 +758,12 @@ def test_cli_audit_detects_location_teleportation(tmp_path, capsys):
     assert "Throne Room" in out
     assert "Dungeon" in out
     assert "carriers.location_teleportation" in out
+    # Verify artifact was written
+    artifact_path = target / "structure" / "diagnostics" / "audit_report.json"
+    assert artifact_path.exists()
+    report = json.loads(artifact_path.read_text(encoding="utf-8"))
+    assert len(report["diagnostics"]) > 0
+    assert any(d["rule"] == "carriers.location_teleportation" for d in report["diagnostics"])
 
 
 def test_cli_audit_repair_writes_proposal_artifacts(tmp_path):
