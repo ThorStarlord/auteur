@@ -1,7 +1,7 @@
 """Core templates: decision trees for humiliation, horror, mystery emotional cores."""
 
 from dataclasses import dataclass, asdict
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 
 
 @dataclass
@@ -224,6 +224,43 @@ class HumiliationTemplate:
         }
         return constraints.get(phase, [])
 
+    def validate_choices(self, choices: Dict[int, Dict[str, str]]) -> Tuple[bool, List[str], List[str]]:
+        """
+        Validate a complete set of choices against this template.
+
+        Args:
+            choices: Dict mapping phase -> {field: value}
+
+        Returns:
+            (is_valid, errors, warnings)
+        """
+        errors = []
+        warnings = []
+
+        # For each phase with choices, validate
+        for phase, phase_choices in choices.items():
+            if phase not in self.phases:
+                errors.append(f"Unknown phase {phase}")
+                continue
+
+            # Validate each field in the phase
+            for field, value in phase_choices.items():
+                options = self.get_options(phase)
+                if field not in options:
+                    errors.append(f"Unknown field {field} in phase {phase}")
+                    continue
+
+                # Check if the value is a valid option ID
+                valid_ids = [opt["id"] for opt in options[field]]
+                if value not in valid_ids:
+                    errors.append(
+                        f"Invalid value '{value}' for field '{field}' in phase {phase}. "
+                        f"Valid options: {valid_ids}"
+                    )
+
+        is_valid = len(errors) == 0
+        return is_valid, errors, warnings
+
 
 class HorrorTemplate:
     """Horror netorare template (dread/body-horror/ontological)."""
@@ -378,6 +415,43 @@ class HorrorTemplate:
         }
         return constraints.get(phase, [])
 
+    def validate_choices(self, choices: Dict[int, Dict[str, str]]) -> Tuple[bool, List[str], List[str]]:
+        """
+        Validate a complete set of choices against this template.
+
+        Args:
+            choices: Dict mapping phase -> {field: value}
+
+        Returns:
+            (is_valid, errors, warnings)
+        """
+        errors = []
+        warnings = []
+
+        # For each phase with choices, validate
+        for phase, phase_choices in choices.items():
+            if phase not in self.phases:
+                errors.append(f"Unknown phase {phase}")
+                continue
+
+            # Validate each field in the phase
+            for field, value in phase_choices.items():
+                options = self.get_options(phase)
+                if field not in options:
+                    errors.append(f"Unknown field {field} in phase {phase}")
+                    continue
+
+                # Check if the value is a valid option ID
+                valid_ids = [opt["id"] for opt in options[field]]
+                if value not in valid_ids:
+                    errors.append(
+                        f"Invalid value '{value}' for field '{field}' in phase {phase}. "
+                        f"Valid options: {valid_ids}"
+                    )
+
+        is_valid = len(errors) == 0
+        return is_valid, errors, warnings
+
 
 class MysteryTemplate:
     """Mystery netorare template (voyeurism/investigation)."""
@@ -529,6 +603,43 @@ class MysteryTemplate:
             9: ["theme_resonates_with_layers"],
         }
         return constraints.get(phase, [])
+
+    def validate_choices(self, choices: Dict[int, Dict[str, str]]) -> Tuple[bool, List[str], List[str]]:
+        """
+        Validate a complete set of choices against this template.
+
+        Args:
+            choices: Dict mapping phase -> {field: value}
+
+        Returns:
+            (is_valid, errors, warnings)
+        """
+        errors = []
+        warnings = []
+
+        # For each phase with choices, validate
+        for phase, phase_choices in choices.items():
+            if phase not in self.phases:
+                errors.append(f"Unknown phase {phase}")
+                continue
+
+            # Validate each field in the phase
+            for field, value in phase_choices.items():
+                options = self.get_options(phase)
+                if field not in options:
+                    errors.append(f"Unknown field {field} in phase {phase}")
+                    continue
+
+                # Check if the value is a valid option ID
+                valid_ids = [opt["id"] for opt in options[field]]
+                if value not in valid_ids:
+                    errors.append(
+                        f"Invalid value '{value}' for field '{field}' in phase {phase}. "
+                        f"Valid options: {valid_ids}"
+                    )
+
+        is_valid = len(errors) == 0
+        return is_valid, errors, warnings
 
 
 def get_template(core_id: str):
