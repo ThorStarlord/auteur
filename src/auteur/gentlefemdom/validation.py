@@ -1,7 +1,7 @@
 """Validation rules for gentle femdom templates: sensual dominance, tender surrender, romantic authority."""
 
 from dataclasses import dataclass
-from typing import Dict, Any, Callable, List, Optional
+from typing import Dict, Any, Callable, List, Optional, Tuple
 
 
 @dataclass
@@ -262,3 +262,32 @@ class RomanticAuthorityRuleSet(RuleSet):
             and data.get("interdependence_healthy") is True
             and data.get("power_not_absolute") is True
         )
+
+
+def validate_choices(template, choices: Dict[int, Dict[str, str]]) -> Tuple[bool, List[str], List[str]]:
+    """Validate choices using template's built-in validation.
+
+    Args:
+        template: SensualDominanceTemplate, TenderSurrenderTemplate, or RomanticAuthorityTemplate instance
+        choices: Dict mapping phase (int) to field choices dict
+
+    Returns:
+        (is_valid: bool, errors: List[str], warnings: List[str])
+    """
+    errors = []
+    warnings = []
+
+    # Use the template's built-in validate_choices method
+    is_valid, template_errors, template_warnings = template.validate_choices(choices)
+
+    errors.extend(template_errors)
+    warnings.extend(template_warnings)
+
+    # Add validation rule: want must not equal change
+    if 4 in choices:
+        want = choices[4].get("want", "")
+        change = choices[4].get("change", "")
+        if want and change and want == change:
+            errors.append("want and change must be different (prevents static character arc)")
+
+    return len(errors) == 0, errors, warnings

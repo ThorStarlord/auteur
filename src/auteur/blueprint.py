@@ -98,6 +98,7 @@ class Genre(str, Enum):
     YA_FANTASY = "ya_fantasy"
     NETORARE = "netorare"
     NETORI = "netori"
+    GENTLEFEMDOM = "gentlefemdom"
     OTHER = "other"
 
 

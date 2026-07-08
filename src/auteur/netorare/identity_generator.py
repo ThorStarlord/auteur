@@ -26,6 +26,10 @@ class IdentityGenerator:
         "howdunit": "mystery",  # Will use mystery validation
         "paranoia": "mystery",  # Will use mystery validation
         "cozy": "mystery",  # Will use mystery validation
+        # Gentle femdom cores
+        "sensual_dominance": "gentlefemdom",  # Will use gentlefemdom validation
+        "tender_surrender": "gentlefemdom",  # Will use gentlefemdom validation
+        "romantic_authority": "gentlefemdom",  # Will use gentlefemdom validation
     }
 
     # Map core_id to genre
@@ -37,6 +41,10 @@ class IdentityGenerator:
         "howdunit": Genre.MYSTERY,
         "paranoia": Genre.MYSTERY,
         "cozy": Genre.MYSTERY,
+        # Gentle femdom cores
+        "sensual_dominance": Genre.GENTLEFEMDOM,
+        "tender_surrender": Genre.GENTLEFEMDOM,
+        "romantic_authority": Genre.GENTLEFEMDOM,
     }
 
     @classmethod
@@ -68,6 +76,13 @@ class IdentityGenerator:
             template = get_mystery_template(core_id)
             from auteur.mystery.validation import validate_choices as validate_mystery_choices
             is_valid, errors, warnings = validate_mystery_choices(template, choices)
+        # Handle gentlefemdom-specific cores (sensual_dominance, tender_surrender, romantic_authority)
+        elif core_id in ["sensual_dominance", "tender_surrender", "romantic_authority"]:
+            # Use gentlefemdom-specific validation
+            from auteur.gentlefemdom.core_templates import get_template as get_gentlefemdom_template
+            template = get_gentlefemdom_template(core_id)
+            from auteur.gentlefemdom.validation import validate_choices as validate_gentlefemdom_choices
+            is_valid, errors, warnings = validate_gentlefemdom_choices(template, choices)
         else:
             # Use netorare validation
             template = template_or_name()
