@@ -11,7 +11,7 @@ import webbrowser
 from pathlib import Path
 from typing import Optional
 
-from auteur.netorare.browser.server import NetorareServer, ServerError
+from auteur.netorare.browser.server import NetorareServer
 from auteur.netorare.identity_generator import IdentityGenerator
 from auteur.netorare.session import SessionManager, SessionError
 from auteur.mystery.validation import validate_choices
