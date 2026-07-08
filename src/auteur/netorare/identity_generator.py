@@ -22,6 +22,10 @@ class IdentityGenerator:
         "classic_humiliation": HumiliationTemplate,
         "horror": HorrorTemplate,
         "mystery": MysteryTemplate,
+        # Mystery-specific cores
+        "howdunit": "mystery",  # Will use mystery validation
+        "paranoia": "mystery",  # Will use mystery validation
+        "cozy": "mystery",  # Will use mystery validation
     }
 
     # Map core_id to genre
@@ -29,6 +33,10 @@ class IdentityGenerator:
         "classic_humiliation": Genre.NETORARE,
         "horror": Genre.HORROR,
         "mystery": Genre.MYSTERY,
+        # Mystery-specific cores
+        "howdunit": Genre.MYSTERY,
+        "paranoia": Genre.MYSTERY,
+        "cozy": Genre.MYSTERY,
     }
 
     @classmethod
@@ -37,7 +45,7 @@ class IdentityGenerator:
         Generate a validated StoryIdentity from raw browser UI choices.
 
         Args:
-            core_id: The core template identifier (classic_humiliation, horror, mystery)
+            core_id: The core template identifier (classic_humiliation, horror, mystery, howdunit, paranoia, cozy)
             choices: Dict mapping phase (1-9) -> {field: value}
 
         Returns:
@@ -51,10 +59,20 @@ class IdentityGenerator:
         if core_id not in cls.TEMPLATE_MAP:
             raise KeyError(f"Unknown core_id: {core_id}. Must be one of {list(cls.TEMPLATE_MAP.keys())}")
 
-        template = cls.TEMPLATE_MAP[core_id]()
+        template_or_name = cls.TEMPLATE_MAP[core_id]
 
-        # Validate choices before proceeding
-        is_valid, errors, warnings = validate_choices(template, choices)
+        # Handle mystery-specific cores (howdunit, paranoia, cozy)
+        if core_id in ["howdunit", "paranoia", "cozy"]:
+            # Use mystery-specific validation
+            from auteur.mystery.core_templates import get_template as get_mystery_template
+            template = get_mystery_template(core_id)
+            from auteur.mystery.validation import validate_choices as validate_mystery_choices
+            is_valid, errors, warnings = validate_mystery_choices(template, choices)
+        else:
+            # Use netorare validation
+            template = template_or_name()
+            is_valid, errors, warnings = validate_choices(template, choices)
+
         if not is_valid:
             error_msg = "; ".join(errors)
             raise ValueError(f"Choices validation failed: {error_msg}")
