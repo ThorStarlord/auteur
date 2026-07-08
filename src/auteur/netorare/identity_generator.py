@@ -157,6 +157,27 @@ class IdentityGenerator:
             avoid=cls._get_avoided_experiences(core_id),
         )
 
+        # Gentlefemdom cores: override target_experience with template-driven
+        # emotion arc data so the generated identity reflects the actual
+        # emotional core selected, not generic netorare/mystery defaults.
+        # This is additive-only: if gentlefemdom imports fail or the core_id
+        # isn't a gentlefemdom core, we silently keep the defaults above.
+        try:
+            if core_id in ("sensual_dominance", "tender_surrender", "romantic_authority"):
+                from auteur.gentlefemdom.core_templates import get_template as get_gf_template
+                from auteur.gentlefemdom.emotion_arcs import get_emotion_arc
+
+                gf_template = get_gf_template(core_id)
+                emotion_arc = get_emotion_arc(core_id)
+
+                target_experience.primary = gf_template.primary_emotion
+                target_experience.progression = emotion_arc["progression"]
+                target_experience.secondary = emotion_arc["secondary"]
+                target_experience.avoid = emotion_arc["avoid"]
+        except (ImportError, ValueError, KeyError, AttributeError):
+            # Fall back to the generic defaults already assigned above.
+            pass
+
         # Generate title and core answer
         title = cls._generate_title(core_id, want, resistance)
         core_answer = cls._generate_core_answer(core_id, want, resistance, change)
