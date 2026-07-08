@@ -7,6 +7,13 @@ from .core_templates import (
     TemplateOption,
     get_template,
 )
+from .validation import (
+    ValidationRule,
+    RuleSet,
+    SensualDominanceRuleSet,
+    TenderSurrenderRuleSet,
+    RomanticAuthorityRuleSet,
+)
 
 __all__ = [
     "SensualDominanceTemplate",
@@ -14,4 +21,9 @@ __all__ = [
     "RomanticAuthorityTemplate",
     "TemplateOption",
     "get_template",
+    "ValidationRule",
+    "RuleSet",
+    "SensualDominanceRuleSet",
+    "TenderSurrenderRuleSet",
+    "RomanticAuthorityRuleSet",
 ]
