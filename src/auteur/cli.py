@@ -32,6 +32,7 @@ from auteur.cli_serializers import (
     serialize_identity_validate, serialize_structure_diagnose,
     serialize_structure_generate_text, serialize_structure_propose_repairs,
 )
+from auteur.cli_netorare import handle_netorare_init
 from auteur.project import Project
 from auteur.structure.proposals import StructureProposal
 
@@ -209,6 +210,24 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("outline", type=Path)
     p.add_argument("--blueprint", type=Path, default=None,
         help="Blueprint to compare tension target against.")
+
+    p = sub.add_parser("netorare", help="Interactive browser-based story identity authoring.")
+    ns = p.add_subparsers(dest="netorare_command", required=True)
+    p = ns.add_parser("init",
+        help="Create and initialize a new netorare story identity authoring session.")
+    p.add_argument("project", type=Path,
+        help="Project directory path (created if needed).")
+    p.add_argument("--core", choices=["classic_humiliation", "horror", "mystery"],
+        default="classic_humiliation",
+        help="Core emotional template for the story (default: classic_humiliation).")
+    p.add_argument("--provider", choices=["anthropic", "openai"], default="anthropic",
+        help="LLM provider for recommendations (default: anthropic).")
+    p.add_argument("--port", type=int, default=8765,
+        help="Port for browser server (default: 8765).")
+    p.add_argument("--timeout", type=float, default=3600.0,
+        help="Timeout in seconds for waiting for user completion (default: 3600).")
+    p.add_argument("--debug", action="store_true",
+        help="Enable debug logging.")
 
     args = parser.parse_args(argv)
     # === init ===
@@ -553,6 +572,18 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "character":
         from auteur.character.cli import handle_character_command
         return handle_character_command(args)
+
+    # === netorare ===
+    if args.command == "netorare":
+        if args.netorare_command == "init":
+            return handle_netorare_init(
+                project_path=args.project,
+                core_id=args.core,
+                provider=args.provider,
+                port=args.port,
+                timeout=args.timeout,
+                debug=args.debug,
+            )
 
     return 0
 
