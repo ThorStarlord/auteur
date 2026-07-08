@@ -203,6 +203,46 @@ Compiles a blueprint into a unified Cartographer outline and can split chapter o
 
 Runs deterministic local validation for compiled Cartographer outlines using the CartographerOutline Pydantic model.
 
+### 5. Interactive Genre-Specific Pipelines
+
+Auteur offers interactive browser-based story identity authoring for specific genres. Each genre pipeline provides a guided authoring experience with an opinionated emotional core system.
+
+#### Netorare (NTR) Genre
+
+`auteur netorare init <path> [--core classic_humiliation|horror|mystery] [--provider anthropic|openai] [--port 8765]`
+
+Launches an interactive browser-based netorare story identity authoring session with three distinct emotional cores:
+
+- **classic_humiliation**: Focus on emotional contrast and humiliation dynamics
+- **horror**: Dread, body horror, and psychological terror elements
+- **mystery**: Puzzle-like revelation and hidden truth discovery
+
+```powershell
+auteur netorare init ./my_netorare_story --core classic_humiliation
+auteur netorare init ./my_netorare_story --core horror --provider openai
+auteur netorare init ./my_netorare_story --core mystery --port 8765
+```
+
+The browser session reuses the same Session, Server, and interactive UI infrastructure to guide authoring from raw idea through identity validation.
+
+#### Mystery (Detective) Genre
+
+`auteur mystery init <path> [--core howdunit|paranoia|cozy] [--provider anthropic|openai] [--port 8766]`
+
+Launches an interactive browser-based mystery story identity authoring session with three distinct emotional cores:
+
+- **howdunit**: Puzzle-solving focus with intricate clue mechanics and red herrings
+- **paranoia**: Dread and distrust, where reality itself becomes questionable
+- **cozy**: Comfort-centered mystery with amateur detective charm and community focus
+
+```powershell
+auteur mystery init ./my_mystery_story --core howdunit
+auteur mystery init ./my_mystery_story --core paranoia --provider openai
+auteur mystery init ./my_mystery_story --core cozy --port 8766
+```
+
+Both Netorare and Mystery pipelines share the same Session/Server/UI infrastructure and deterministic validation layer, ensuring consistent identity curation across genres while allowing genre-specific emotional cores to guide authoring.
+
 ## Project Artifacts
 
 Generated project directories use this shape:
