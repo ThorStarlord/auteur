@@ -33,6 +33,7 @@ from auteur.cli_serializers import (
     serialize_structure_generate_text, serialize_structure_propose_repairs,
 )
 from auteur.cli_netorare import handle_netorare_init
+from auteur.cli_mystery import handle_mystery_init
 from auteur.project import Project
 from auteur.structure.proposals import StructureProposal
 
@@ -228,6 +229,23 @@ def main(argv: list[str] | None = None) -> int:
         help="Timeout in seconds for waiting for user completion (default: 3600).")
     p.add_argument("--debug", action="store_true",
         help="Enable debug logging.")
+
+    p = sub.add_parser("mystery", help="Interactive browser-based mystery story identity authoring.")
+    ms = p.add_subparsers(dest="mystery_command", required=True)
+    p = ms.add_parser("init",
+        help="Create and initialize a new mystery story identity authoring session.")
+    p.add_argument("path", type=Path,
+        help="Project directory path (created if needed).")
+    p.add_argument("--core", choices=["howdunit", "paranoia", "cozy"],
+        default="howdunit",
+        help="Mystery emotional core (default: howdunit).")
+    p.add_argument("--provider", choices=["anthropic", "openai"], default="anthropic",
+        help="LLM provider (default: anthropic).")
+    p.add_argument("--port", type=int, default=8766,
+        help="Browser server port (default: 8766).")
+    p.add_argument("--timeout", type=float, default=3600.0,
+        help="Session timeout in seconds (default: 3600).")
+    p.add_argument("--debug", action="store_true", help="Enable debug logging.")
 
     args = parser.parse_args(argv)
     # === init ===
@@ -578,6 +596,18 @@ def main(argv: list[str] | None = None) -> int:
         if args.netorare_command == "init":
             return handle_netorare_init(
                 project_path=args.project,
+                core_id=args.core,
+                provider=args.provider,
+                port=args.port,
+                timeout=args.timeout,
+                debug=args.debug,
+            )
+
+    # === mystery ===
+    if args.command == "mystery":
+        if args.mystery_command == "init":
+            return handle_mystery_init(
+                project_path=args.path,
                 core_id=args.core,
                 provider=args.provider,
                 port=args.port,
