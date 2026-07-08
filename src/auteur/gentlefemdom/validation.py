@@ -265,7 +265,7 @@ class RomanticAuthorityRuleSet(RuleSet):
 
 
 def validate_choices(template, choices: Dict[int, Dict[str, str]]) -> Tuple[bool, List[str], List[str]]:
-    """Validate choices using template's built-in validation.
+    """Validate choices using template's built-in validation plus semantic coherence.
 
     Args:
         template: SensualDominanceTemplate, TenderSurrenderTemplate, or RomanticAuthorityTemplate instance
@@ -290,4 +290,30 @@ def validate_choices(template, choices: Dict[int, Dict[str, str]]) -> Tuple[bool
         if want and change and want == change:
             errors.append("want and change must be different (prevents static character arc)")
 
-    return len(errors) == 0, errors, warnings
+    # If structural validation already failed, don't proceed to semantic checks.
+    if len(errors) > 0:
+        return False, errors, warnings
+
+    # Semantic coherence check: verify that an identity generated from these
+    # choices would carry an emotion matching the template's emotional core.
+    # This is built directly from the template/choices (NOT via
+    # IdentityGenerator.from_choices), because that entry point calls back
+    # into this function for validation first — routing through it here
+    # would recurse infinitely.
+    from auteur.netorare.identity_generator import IdentityGenerator
+    from auteur.gentlefemdom.semantic_validation import SemanticCoherenceRule
+
+    try:
+        identity = IdentityGenerator._transform_choices_to_identity(template.core_id, choices)
+    except Exception as e:
+        errors.append(f"Failed to generate identity for semantic validation: {e}")
+        return False, errors, warnings
+
+    rule = SemanticCoherenceRule()
+    semantic_result = rule.validate(identity, template)
+
+    if not semantic_result.get("passed"):
+        errors.append(semantic_result.get("error", "Semantic coherence check failed"))
+        return False, errors, warnings
+
+    return True, errors, warnings
