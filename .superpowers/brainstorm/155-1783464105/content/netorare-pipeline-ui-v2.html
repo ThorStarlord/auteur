@@ -1,0 +1,206 @@
+<h2>Netorare Pipeline: Full 9-Layer Cascade</h2>
+<p class="subtitle">Select emotional core → watch all 9 layers update → choose story machinery</p>
+
+<div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 2rem; margin-top: 2rem;">
+
+  <!-- LEFT: Decision Interface -->
+  <div class="mockup">
+    <div class="mockup-header" id="phase-header">Phase 1: Choose Emotional Core</div>
+    <div class="mockup-body" style="padding: 1.5rem;">
+
+      <div id="core-selection" class="options" style="margin-bottom: 2rem;">
+        <div class="option" data-choice="humiliation" onclick="selectCore(this, 'humiliation')">
+          <div class="letter">A</div>
+          <div class="content">
+            <h3>Classic Humiliation</h3>
+            <p style="font-size: 0.85rem; color: #666;">Shame, powerlessness, degradation</p>
+          </div>
+        </div>
+        <div class="option" data-choice="horror" onclick="selectCore(this, 'horror')">
+          <div class="letter">B</div>
+          <div class="content">
+            <h3>Horror</h3>
+            <p style="font-size: 0.85rem; color: #666;">Dread, psychological terror, body horror</p>
+          </div>
+        </div>
+        <div class="option" data-choice="mystery" onclick="selectCore(this, 'mystery')">
+          <div class="letter">C</div>
+          <div class="content">
+            <h3>Mystery</h3>
+            <p style="font-size: 0.85rem; color: #666;">Voyeurism, investigation, revelation</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="machinery-section" style="display: none; border-top: 1px solid #ddd; padding-top: 1.5rem;">
+        <p class="label">Phase 2: Story Machinery</p>
+        <p style="font-size: 0.85rem; color: #666; margin-bottom: 1rem;">What does your MC want?</p>
+
+        <div id="want-options" class="options"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RIGHT: Full 9-Layer Structure -->
+  <div class="mockup" id="structure-preview">
+    <div class="mockup-header">Live 9-Layer Structure</div>
+    <div class="mockup-body" style="padding: 1rem; font-size: 0.8rem; max-height: 70vh; overflow-y: auto;">
+
+      <div style="margin-bottom: 1rem; padding: 0.8rem; background: #fff3e0; border-left: 4px solid #ff9800;">
+        <p class="label">Layer 1: Target Experience</p>
+        <p id="l1" style="color: #666; font-size: 0.75rem; margin: 0.5rem 0 0 0;">← Select emotional core →</p>
+      </div>
+
+      <div style="margin-bottom: 1rem; padding: 0.8rem; background: #e8f5e9; border-left: 4px solid #4caf50;">
+        <p class="label">Layer 2: Genre Contract</p>
+        <p id="l2" style="color: #666; font-size: 0.75rem; margin: 0.5rem 0 0 0;">Promise, medium, subgenres</p>
+      </div>
+
+      <div style="margin-bottom: 1rem; padding: 0.8rem; background: #e3f2fd; border-left: 4px solid #2196f3;">
+        <p class="label">Layer 3: Scope / Scale</p>
+        <p id="l3" style="color: #666; font-size: 0.75rem; margin: 0.5rem 0 0 0;">Story length, POV budget, subplot count</p>
+      </div>
+
+      <div style="margin-bottom: 1rem; padding: 0.8rem; background: #f3e5f5; border-left: 4px solid #9c27b0;">
+        <p class="label">Layer 4: Structural Forces</p>
+        <p id="l4" style="color: #666; font-size: 0.75rem; margin: 0.5rem 0 0 0;"><strong>Want | Resistance | Conflict | Stakes | Change</strong></p>
+      </div>
+
+      <div style="margin-bottom: 1rem; padding: 0.8rem; background: #fce4ec; border-left: 4px solid #e91e63;">
+        <p class="label">Layer 5: Threads / Modules</p>
+        <p id="l5" style="color: #666; font-size: 0.75rem; margin: 0.5rem 0 0 0;">Main plot + subplot functions</p>
+      </div>
+
+      <div style="margin-bottom: 1rem; padding: 0.8rem; background: #e0f2f1; border-left: 4px solid #009688;">
+        <p class="label">Layer 6: Carriers</p>
+        <p id="l6" style="color: #666; font-size: 0.75rem; margin: 0.5rem 0 0 0;">Characters, locations, relationships</p>
+      </div>
+
+      <div style="margin-bottom: 1rem; padding: 0.8rem; background: #fff9c4; border-left: 4px solid #fbc02d;">
+        <p class="label">Layer 7: Representation</p>
+        <p id="l7" style="color: #666; font-size: 0.75rem; margin: 0.5rem 0 0 0;">Scene outlines, plot events, reveals</p>
+      </div>
+
+      <div style="margin-bottom: 1rem; padding: 0.8rem; background: #ede7f6; border-left: 4px solid #673ab7;">
+        <p class="label">Layer 8: Modulation</p>
+        <p id="l8" style="color: #666; font-size: 0.75rem; margin: 0.5rem 0 0 0;">POV, pacing, tone, voice, style</p>
+      </div>
+
+      <div style="padding: 0.8rem; background: #efebe9; border-left: 4px solid #795548;">
+        <p class="label">Layer 9: Resonance / Coherence</p>
+        <p id="l9" style="color: #666; font-size: 0.75rem; margin: 0.5rem 0 0 0;">Theme, motifs, act outcomes</p>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+const structures = {
+  humiliation: {
+    layer1: "<strong>Emotion:</strong> Humiliation & Shame<br/><strong>Progression:</strong> Confidence → Suspicion → Exposure → Acceptance/Reclamation",
+    layer2: "<strong>Genre:</strong> Classic Netorare<br/><strong>Mode:</strong> Tragedy or Conquest (via override)",
+    layer3: "Min: Novella | Recommended: Novel | POV: 1-2 | Subplots: 1",
+    layer4: "<strong>Want:</strong> Regain dignity OR prove love was valid<br/><strong>Resistance:</strong> Own inadequacy or MC's superiority<br/><strong>Conflict:</strong> Evidence accumulates against MC's position<br/><strong>Stakes:</strong> Complete loss of relationship & self-image<br/><strong>Change:</strong> Accept powerlessness OR reclaim through reckoning",
+    layer5: "Main: Humiliation spiral | Subplot: Third party's perspective (optional)",
+    layer6: "MC (powerless), Partner (choosing), Rival (superior), Witness (optional)",
+    layer7: "Act 1: Setup false security | Act 2: Escalating discovery | Act 3: Confrontation & resolution",
+    layer8: "POV: Limited to MC's shame-spiral perception | Pacing: Accelerating discovery | Tone: Suffocating intimacy",
+    layer9: "Theme: The limits of love vs. adequacy | Motif: Powerlessness in witnessing"
+  },
+  horror: {
+    layer1: "<strong>Emotion:</strong> Dread & Terror<br/><strong>Progression:</strong> Unease → Escalating Horror → Body/Mind Transgression → Transformation",
+    layer2: "<strong>Genre:</strong> Netorare Horror<br/><strong>Mode:</strong> Cosmic / Body / Psychological",
+    layer3: "Min: Novella | Recommended: Novel | POV: 1-2 | Subplots: 1-2",
+    layer4: "<strong>Want:</strong> Escape the situation OR prevent the transgression<br/><strong>Resistance:</strong> The situation is inescapable / rules of reality have shifted<br/><strong>Conflict:</strong> MC's powerlessness becomes ontological<br/><strong>Stakes:</strong> Loss of self, reality, sanity<br/><strong>Change:</strong> Transform into something new OR accept the new order",
+    layer5: "Main: Horror escalation | Subplot: Reality breaking down",
+    layer6: "MC (witnessing horror), Partner (transformed), Transgressor (inhuman force)",
+    layer7: "Act 1: Normal world → Act 2: Reality destabilizes → Act 3: New reality crystallizes",
+    layer8: "POV: Fragmenting perspective as sanity breaks | Pacing: Mounting dread, then vertigo | Tone: Wrongness and violation",
+    layer9: "Theme: The horror of seeing loved ones become unknowable | Motif: Bodily/existential corruption"
+  },
+  mystery: {
+    layer1: "<strong>Emotion:</strong> Voyeurism & Complicity<br/><strong>Progression:</strong> Suspicion → Investigation → Revelation → Unwilling Complicity",
+    layer2: "<strong>Genre:</strong> Netorare Mystery<br/><strong>Mode:</strong> Investigation or Psychological",
+    layer3: "Min: Short Story | Recommended: Novella+ | POV: 1-2 | Subplots: 0-1",
+    layer4: "<strong>Want:</strong> Understand the truth / confirm suspicions<br/><strong>Resistance:</strong> Information is hidden, misdirection deployed<br/><strong>Conflict:</strong> Discovery gradually shifts MC's role from victim to witness to participant<br/><strong>Stakes:</strong> Willful ignorance becomes impossible<br/><strong>Change:</strong> Become complicit observer or active participant",
+    layer5: "Main: Investigation / unveiling | Subplot: Red herrings (optional)",
+    layer6: "MC (detective), Partner (enigma), Rival (hidden in plain sight)",
+    layer7: "Act 1: Suspicion planted | Act 2: Investigation accelerates | Act 3: Truth reveals MC's complicity",
+    layer8: "POV: Gradually unreliable as knowledge reveals | Pacing: Accelerating clue discovery | Tone: Voyeuristic unease",
+    layer9: "Theme: The impossibility of remaining innocent once you know | Motif: Watching and being watched"
+  }
+};
+
+const wantOptions = {
+  humiliation: [
+    { text: "Regain lost dignity / prove their worth", id: "want-dignity" },
+    { text: "Prove their love was genuine all along", id: "want-prove-love" },
+    { text: "Expose the other person's deception", id: "want-expose" },
+    { text: "Escape or flee the situation", id: "want-escape" }
+  ],
+  horror: [
+    { text: "Escape / get away from the transgression", id: "want-escape" },
+    { text: "Prevent the transformation from happening", id: "want-prevent" },
+    { text: "Understand what is happening to reality", id: "want-understand" },
+    { text: "Restore things to how they were", id: "want-restore" }
+  ],
+  mystery: [
+    { text: "Understand the truth about the relationship", id: "want-truth" },
+    { text: "Confirm suspicions without being seen", id: "want-confirm" },
+    { text: "Expose what's been hidden", id: "want-expose" },
+    { text: "Figure out the other person's motivations", id: "want-motives" }
+  ]
+};
+
+function selectCore(elem, coreType) {
+  // Toggle selection on emotional core
+  document.querySelectorAll('#core-selection .option').forEach(e => e.classList.remove('selected'));
+  elem.classList.add('selected');
+
+  // Update all 9 layers
+  const s = structures[coreType];
+  document.getElementById('l1').innerHTML = s.layer1;
+  document.getElementById('l2').innerHTML = s.layer2;
+  document.getElementById('l3').innerHTML = s.layer3;
+  document.getElementById('l4').innerHTML = s.layer4;
+  document.getElementById('l5').innerHTML = s.layer5;
+  document.getElementById('l6').innerHTML = s.layer6;
+  document.getElementById('l7').innerHTML = s.layer7;
+  document.getElementById('l8').innerHTML = s.layer8;
+  document.getElementById('l9').innerHTML = s.layer9;
+
+  // Auto-transition to Phase 2
+  setTimeout(() => {
+    document.getElementById('phase-header').textContent = 'Phase 2: Story Machinery (MC\'s Want)';
+    document.getElementById('core-selection').style.display = 'none';
+    document.getElementById('machinery-section').style.display = 'block';
+
+    // Populate want options
+    const wantDiv = document.getElementById('want-options');
+    wantDiv.innerHTML = '';
+    wantOptions[coreType].forEach(opt => {
+      const div = document.createElement('div');
+      div.className = 'option';
+      div.setAttribute('data-choice', opt.id);
+      div.setAttribute('onclick', `selectWant(this, '${opt.id}', '${coreType}')`);
+      div.innerHTML = `<div class="content"><p style="font-size: 0.85rem;">${opt.text}</p></div>`;
+      wantDiv.appendChild(div);
+    });
+  }, 300);
+}
+
+function selectWant(elem, wantId, coreType) {
+  document.querySelectorAll('#want-options .option').forEach(e => e.classList.remove('selected'));
+  elem.classList.add('selected');
+
+  // Here you could update Layer 4+ to show how this specific Want choice cascades
+  console.log(`Selected want: ${wantId} for ${coreType}`);
+}
+</script>
+
+<style>
+.option.selected { background: #e3f2fd; border-left: 4px solid #1976d2; font-weight: 500; }
+</style>

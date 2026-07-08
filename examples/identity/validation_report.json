@@ -1,0 +1,32 @@
+{
+  "diagnostics": [
+    {
+      "severity": "warning",
+      "layer": "constraints",
+      "rule": "identity.subgenre.unknown",
+      "message": "Unknown subgenre 'grimdark'. Treating as author-specific prompt hint.",
+      "evidence": [
+        "subgenre = grimdark"
+      ],
+      "repair_options": {
+        "preserve_intent": [],
+        "challenge_intent": []
+      },
+      "genre_recommendation_flow": null
+    },
+    {
+      "severity": "warning",
+      "layer": "constraints",
+      "rule": "identity.subgenre.unknown",
+      "message": "Unknown subgenre 'corruption_tragedy'. Treating as author-specific prompt hint.",
+      "evidence": [
+        "subgenre = corruption_tragedy"
+      ],
+      "repair_options": {
+        "preserve_intent": [],
+        "challenge_intent": []
+      },
+      "genre_recommendation_flow": null
+    }
+  ]
+}

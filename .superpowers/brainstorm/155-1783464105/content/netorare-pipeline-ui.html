@@ -1,0 +1,115 @@
+<h2>Netorare Pipeline: Interactive Story Machinery Explorer</h2>
+<p class="subtitle">Choose your emotional core, then make decisions to see how the narrative structure cascades</p>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+
+  <!-- LEFT: Decision Interface -->
+  <div class="mockup">
+    <div class="mockup-header">Step 1: Choose Emotional Core</div>
+    <div class="mockup-body" style="padding: 1.5rem;">
+
+      <div class="options" style="margin-bottom: 2rem;">
+        <div class="option" data-choice="humiliation" onclick="updateStructure(this, 'humiliation')">
+          <div class="letter">A</div>
+          <div class="content">
+            <h3>Classic Humiliation</h3>
+            <p style="font-size: 0.85rem; color: #666;">Shame, powerlessness, degradation</p>
+          </div>
+        </div>
+        <div class="option" data-choice="horror" onclick="updateStructure(this, 'horror')">
+          <div class="letter">B</div>
+          <div class="content">
+            <h3>Horror</h3>
+            <p style="font-size: 0.85rem; color: #666;">Dread, psychological terror, body horror</p>
+          </div>
+        </div>
+        <div class="option" data-choice="mystery" onclick="updateStructure(this, 'mystery')">
+          <div class="letter">C</div>
+          <div class="content">
+            <h3>Mystery</h3>
+            <p style="font-size: 0.85rem; color: #666;">Voyeurism, investigation, revelation</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="border-top: 1px solid #ddd; padding-top: 1.5rem; margin-top: 1.5rem;">
+        <p class="label">Next: Story Machinery</p>
+        <div class="options" style="margin-top: 1rem;">
+          <div class="option" data-choice="machinery-want" onclick="highlightLayer(this)">
+            <div class="content">
+              <p style="font-size: 0.9rem;"><strong>MC's Want:</strong><br/>
+              <span style="font-size: 0.8rem; color: #666;">What does your character desperately want?</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RIGHT: Live Structure Preview -->
+  <div class="mockup" id="structure-preview">
+    <div class="mockup-header">Live Structure Preview</div>
+    <div class="mockup-body" style="padding: 1.5rem; font-size: 0.85rem;">
+
+      <div id="layer-1" style="margin-bottom: 1.5rem; padding: 1rem; background: #f5f5f5; border-left: 3px solid #999;">
+        <p class="label">Layer 1: Target Experience</p>
+        <p style="color: #666; font-style: italic;">← Select an emotional core →</p>
+      </div>
+
+      <div id="layer-2" style="margin-bottom: 1.5rem; padding: 1rem; background: #f5f5f5; border-left: 3px solid #999;">
+        <p class="label">Layer 2: Genre Contract</p>
+        <p style="color: #666; font-size: 0.8rem;">Promise, medium, scope, subgenres</p>
+      </div>
+
+      <div id="layer-4" style="margin-bottom: 1.5rem; padding: 1rem; background: #f5f5f5; border-left: 3px solid #999;">
+        <p class="label">Layer 4: Structural Forces</p>
+        <p id="layer-4-content" style="color: #666; font-size: 0.8rem;">← Changes with each choice →</p>
+      </div>
+
+      <div id="layer-9" style="padding: 1rem; background: #f5f5f5; border-left: 3px solid #999;">
+        <p class="label">Layer 9: Resonance Check</p>
+        <p style="color: #666; font-size: 0.8rem;">Theme coherence validation</p>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+function updateStructure(elem, coreType) {
+  // Toggle selection
+  document.querySelectorAll('.option[data-choice="humiliation"], .option[data-choice="horror"], .option[data-choice="mystery"]').forEach(e => e.classList.remove('selected'));
+  elem.classList.add('selected');
+
+  const structures = {
+    humiliation: {
+      layer1: "Primary emotion: <strong>Humiliation & Shame</strong><br/>Progression: Confidence → Suspicion → Exposure → Acceptance/Reclamation",
+      layer4: "<strong>MC's Want:</strong> Regain dignity/control<br/><strong>Resistance:</strong> Own inadequacy or social forces<br/><strong>Change:</strong> Accept powerlessness (tragic) OR reclaim through suffering (cathartic)"
+    },
+    horror: {
+      layer1: "Primary emotion: <strong>Dread & Terror</strong><br/>Progression: Unease → Escalating Horror → Body/Mind Transgression → Transformation",
+      layer4: "<strong>MC's Want:</strong> Survive/escape the transgression<br/><strong>Resistance:</strong> Inescapability of the situation<br/><strong>Change:</strong> Transform or transcend (not escape)"
+    },
+    mystery: {
+      layer1: "Primary emotion: <strong>Voyeurism & Curiosity</strong><br/>Progression: Suspicion → Investigation → Revelation → Complicity/Recontextualization",
+      layer4: "<strong>MC's Want:</strong> Understand the truth<br/><strong>Resistance:</strong> Hidden information, misdirection<br/><strong>Change:</strong> Shift from observer to complicit participant"
+    }
+  };
+
+  if (structures[coreType]) {
+    document.getElementById('layer-1').innerHTML = `<p class="label">Layer 1: Target Experience</p><p style="font-size: 0.85rem;">${structures[coreType].layer1}</p>`;
+    document.getElementById('layer-4-content').innerHTML = structures[coreType].layer4;
+  }
+}
+
+function highlightLayer(elem) {
+  elem.classList.toggle('selected');
+}
+</script>
+
+<style>
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+.option.selected { background: #e3f2fd; border-left: 4px solid #1976d2; }
+</style>

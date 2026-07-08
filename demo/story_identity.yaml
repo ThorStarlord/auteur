@@ -1,0 +1,34 @@
+title: "The Hollow Covenant"
+core_answer: "A disgraced knight escorts a mute child to a fallen monastery, discovering the child is a vessel for a corrupting entity and the monastery's redemption is a lie."
+target_experience:
+  primary: "dread"
+  progression: "unease -> suspicion -> dread -> despair"
+  avoid:
+    - "triumphant power fantasy"
+    - "cozy safety"
+    - "clean redemption"
+story_type:
+  medium: novel
+  mode: tragic
+  genre: grimdark_fantasy
+  subgenres: []
+  target_audience: adult
+  length_class: novel
+central_engine:
+  want: "Deliver the child safely to the monastery and earn back his honor."
+  resistance: "The child's presence corrupts everyone they meet, and the monastery wants the entity released, not contained."
+  conflict: "Keeping his oath to deliver the child vs. recognizing that delivery is an atrocity."
+  stakes: "His soul, the child's humanity, and the region's fate if the entity is unleashed."
+  change: "He stops being a man who follows orders and becomes a man who chooses damnation to prevent a greater evil."
+not_this:
+  - "A story where the knight saves the child and redeems himself."
+  - "A story where the monastery is actually good and the corruption is external."
+  - "A story where the entity is defeated in a final battle."
+open_questions:
+  - "Is the child still human enough to save, or is the vessel already consumed?"
+  - "Does the knight have any allies who survive the journey?"
+  - "How explicit should the corruption mechanics be vs. psychological?"
+confidence: 0.85
+alternatives:
+  - "Make it a horror standalone instead of grimdark fantasy."
+  - "Set it in an urban decay context instead of medieval."

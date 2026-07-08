@@ -1,0 +1,548 @@
+identity:
+  title: The Hollow Covenant
+  author_intent: A disgraced knight escorts a mute child to a fallen monastery, discovering
+    the child is a vessel for a corrupting entity and the monastery's redemption is
+    a lie.
+  target_experience:
+    primary: dread
+    progression: unease -> suspicion -> dread -> despair
+    secondary: []
+    avoid:
+    - triumphant power fantasy
+    - cozy safety
+    - clean redemption
+    primary_emotional_promise: dread
+    secondary_palette: []
+    avoided_experiences:
+    - triumphant power fantasy
+    - cozy safety
+    - clean redemption
+    emotional_trajectory: null
+    genre_emotion_stack: null
+    pov_experience_contracts: null
+  length_class: novel
+  genre: grimdark_fantasy
+  subgenre: null
+  subgenres: []
+  mode: tragic
+  medium: novel
+  medium_contract:
+    medium: novel
+    format: standalone_book
+    release_model: complete_release
+    interaction_model: passive_reader
+    unit_of_delivery: chapter
+    representation_units:
+    - prose narration
+    - scenes
+    - chapters
+    modulation_biases:
+    - sustained immersion
+    - controlled interiority
+    - chapter-level tension curves
+    medium_failure_modes:
+    - delivery relies on spectacle the prose cannot directly show
+    - chapter pacing ignores reader re-entry and exit points
+  target_audience: adult
+  pov_type: third_person_limited_single
+  genre_contract_snapshot:
+    genre_id: grimdark_fantasy
+    display_name: Grimdark Fantasy
+    core_truth: Power is morally contaminating; survival often requires compromise.
+    audience_product: Dread, moral pressure, pyrrhic victory, compromised agency.
+    primary_excitement_beats:
+    - victory that creates new cost
+    - moral line crossed under pressure
+    - idealism punished by reality
+    - power gained through contamination
+    required_tropes:
+    - corrupting power
+    - morally compromised protagonist
+    - institutional brutality
+    - costly victory
+    optional_tropes: []
+    forbidden_mismatches:
+    - clean heroic triumph
+    - cozy safety
+    - consequence-free power fantasy
+    - hopeful ending
+    common_failure_modes:
+    - Protagonist acts like a modern therapeutic saint who never makes hard compromises
+    - Ending resolves all moral decay cleanly with a happy victory
+    psychology_budget:
+      level: conflict_bearing
+      reason: Character psychology must drive compromise, but should not turn the
+        story into therapy.
+      motivation_clarity: required
+      psychological_depth: required
+      character_texture: encouraged
+    scope_profile:
+      natural_lengths:
+      - novel
+      - epic_novel
+      - series
+      minimum_viable_length: novella
+      default_length: novel
+      narrative_runway: long
+      recommended_complexity: expanded
+      mechanical_load: high
+      worldbuilding_load: high
+      cast_load: high
+      compression_strategies:
+      - Localize the power struggle to one city, fortress, or institution.
+      - Use one protagonist and one corrupting arena.
+      - Represent war or politics through immediate moral choices instead of full
+        campaign structure.
+      expansion_strategies:
+      - Expand to epic novel or series before adding multiple factions, war fronts,
+        or succession arcs.
+      scope_failure_modes:
+      - Faction machinery overwhelms the protagonist's moral pressure.
+      - War epic scale appears without enough room for political setup and cost.
+    setup_contract:
+      emotional_runway: long
+      relationship_establishment: optional
+      baseline_world_establishment: required
+      minimum_setup_beats:
+      - Establish the corrupt/decaying nature of the world
+      - Establish what the protagonist is forced to survive or protect
+      - Show the cost of the existing order
+      forbidden_shortcuts:
+      - Starting with random violence before the systemic stakes or moral weight is
+        legible
+      compression_strategies:
+      - Use a single highly-focused local conflict that mirrors the larger systemic
+        corruption
+    default_engine_biases:
+    - Fusion of power acquisition with personal/moral loss
+    recommended_subversions:
+    - The protagonist's noble sacrifice is ignored or makes things worse
+  genre_overrides: {}
+structure:
+  estimated_chapters: 25
+  estimated_word_count: 90000
+  act_structure: three_act
+  max_pov_characters: 3
+  max_characters_total: 25
+  subplot_budget: 3
+  scope_contract:
+    recommended_complexity: expanded
+    narrative_runway: long
+    mechanical_load: high
+    setting_footprint: null
+    timeframe: null
+    worldbuilding_load: high
+    cast_load: high
+    trope_load: null
+    scope_notes:
+    - Auto-generated from Grimdark Fantasy contract.
+    - 'Natural lengths: novel, epic_novel, series.'
+    scope_warnings: []
+story_engine:
+  main_thread:
+    type: main_plot
+    want:
+      author_text: Deliver the child safely to the monastery and earn back his honor.
+      checkable_claims:
+      - 'protagonist acts on desire: Deliver the child safely to the monastery and
+        earn back his honor.'
+      consequence_scale: null
+      escalation_ceiling: null
+    resistance:
+      author_text: The child's presence corrupts everyone they meet, and the monastery
+        wants the entity released, not contained.
+      checkable_claims:
+      - 'resistance from: The child''s presence corrupts everyone they meet,'
+      - 'resistance from: the monastery wants the entity released, not contained.'
+      consequence_scale: null
+      escalation_ceiling: null
+    conflict:
+      author_text: Keeping his oath to deliver the child vs. recognizing that delivery
+        is an atrocity — a dread that grows with every step closer to the monastery.
+      checkable_claims:
+      - 'collision point emerges: Keeping his oath to deliver the child vs. recognizing
+        that delivery is an atroci'
+      consequence_scale: null
+      escalation_ceiling: null
+    stakes:
+      author_text: His soul, the child's humanity, and the region's fate if the entity
+        is unleashed.
+      checkable_claims:
+      - 'personal stakes are tested: His soul, the child''s humanity, and the region''s
+        fate if the entity is unleashed'
+      consequence_scale: null
+      escalation_ceiling: null
+    change:
+      author_text: He stops being a man who follows orders and becomes a man who chooses
+        damnation to prevent a greater evil.
+      checkable_claims:
+      - 'protagonist undergoes transformation: He stops being a man who follows orders
+        and becomes a man who chooses damnation '
+      consequence_scale: null
+      escalation_ceiling: null
+    thematic_function: 'Explores whether any contract can be honored without becoming
+      a shadow of yourself — and whether the sacrifice of one child damns or redeems
+      the one who carries them.'
+  threads:
+  - name: Corruption Echo
+    type: thematic_echo
+    want:
+      author_text: Protect Sol from the corruption consuming everyone on the road.
+      checkable_claims:
+      - 'protagonist acts on desire: Protect Sol from the corruption consuming everyone
+        on the road.'
+      consequence_scale: null
+      escalation_ceiling: null
+    resistance:
+      author_text: Sol's silence is a contract the knight cannot read — the child may
+        already be a shadow wearing human skin.
+      checkable_claims:
+      - 'resistance from: Sol''s silence is an unreadable contract'
+      - 'resistance from: the child may already be a shadow wearing human skin'
+      consequence_scale: null
+      escalation_ceiling: null
+    conflict:
+      author_text: Treating Sol as a child to save vs. treating Sol as a vessel to
+        contain.
+      checkable_claims:
+      - 'collision point emerges: Treating Sol as a child to save vs. treating Sol
+        as a vessel to contain.'
+      consequence_scale: null
+      escalation_ceiling: null
+    stakes:
+      author_text: If Sol is still human, killing the vessel murders an innocent. If
+        Sol is already consumed, mercy becomes atrocity.
+      checkable_claims:
+      - 'personal stakes are tested: If Sol is still human, killing the vessel murders
+        an innocent. If Sol is already consumed, mercy becomes atrocity.'
+      consequence_scale: null
+      escalation_ceiling: null
+    change:
+      author_text: The knight accepts he will never know which truth was real — the
+        sacrifice was the only contract he could keep.
+      checkable_claims:
+      - 'protagonist undergoes transformation: The knight accepts he will never know
+        which truth was real — the sacrifice was the only contract he could keep.'
+      consequence_scale: null
+      escalation_ceiling: null
+    supports_main_by:
+    - pressures_change
+    thematic_function: 'The shadows inside Sol are a series of contracts the knight
+      cannot refuse: sacrifices for the child''s soul are always also sacrifices
+      of his own.'
+  - name: The Monastery's Secret
+    type: mystery
+    want:
+      author_text: Reach the monastery and deliver Sol to the abbot as promised.
+      checkable_claims:
+      - 'protagonist acts on desire: Reach the monastery and deliver Sol to the abbot
+        as promised.'
+      consequence_scale: null
+      escalation_ceiling: null
+    resistance:
+      author_text: The monastery sends scouts to hasten the journey, and each encounter
+        reveals more rot in their doctrine.
+      checkable_claims:
+      - 'resistance from: the monastery sends scouts to hasten the journey'
+      - 'resistance from: each encounter reveals more rot in the monastery doctrine'
+      consequence_scale: null
+      escalation_ceiling: null
+    conflict:
+      author_text: Honoring the letter of his contract vs. recognizing the monastery
+        wants the entity unleashed, not contained.
+      checkable_claims:
+      - 'collision point emerges: Honoring the letter of his contract vs. recognizing
+        the monastery wants the entity unleashed, not contained.'
+      consequence_scale: null
+      escalation_ceiling: null
+    stakes:
+      author_text: Delivering Sol means the entity is freed. Breaking the contract
+        means the knight is hunted.
+      checkable_claims:
+      - 'external stakes are tested: Delivering Sol means the entity is freed. Breaking
+        the contract means the knight is hunted.'
+      consequence_scale: null
+      escalation_ceiling: null
+    change:
+      author_text: The knight stops being a courier who follows orders and becomes
+        an apostate who chooses damnation to prevent release.
+      checkable_claims:
+      - 'protagonist undergoes transformation: The knight stops being a courier who
+        follows orders and becomes an apostate who chooses damnation to prevent release.'
+      consequence_scale: null
+      escalation_ceiling: null
+    supports_main_by:
+    - escalates
+    - pressures_change
+    thematic_function: 'The monastery''s shadow doctrine reveals that every contract
+      with power demands a sacrifice — and the only choice is what to pay.'
+  - name: Sol's Remaining Bridge
+    type: relationship_arc
+    want:
+      author_text: Pierce Sol's silence and find the person beneath the vessel.
+      checkable_claims:
+      - 'protagonist acts on desire: Pierce Sol''s silence and find the person beneath
+        the vessel.'
+      consequence_scale: null
+      escalation_ceiling: null
+    resistance:
+      author_text: Sol trusts no one, and the entity inside resists every human connection
+        the knight tries to build.
+      checkable_claims:
+      - 'resistance from: Sol trusts no one'
+      - 'resistance from: the entity inside resists every human connection'
+      consequence_scale: null
+      escalation_ceiling: null
+    conflict:
+      author_text: The only way to reach Sol is through vulnerability, but vulnerability
+        is how the entity enters.
+      checkable_claims:
+      - 'collision point emerges: The only way to reach Sol is through vulnerability,
+        but vulnerability is how the entity enters.'
+      consequence_scale: null
+      escalation_ceiling: null
+    stakes:
+      author_text: If the knight opens up, the entity may corrupt him faster. If he
+        stays closed, Sol stays alone inside the shadow.
+      checkable_claims:
+      - 'personal stakes are tested: If the knight opens up, the entity may corrupt
+        him faster. If he stays closed, Sol stays alone inside the shadow.'
+      consequence_scale: null
+      escalation_ceiling: null
+    change:
+      author_text: A single moment of real connection before the end — enough for the
+        knight to know Sol was real, and enough to make the final choice unbearable.
+      checkable_claims:
+      - 'protagonist undergoes transformation: A single moment of real connection before
+        the end — enough for the knight to know Sol was real, and enough to make the
+        final choice unbearable.'
+      consequence_scale: null
+      escalation_ceiling: null
+    supports_main_by:
+    - complicates
+    - pressures_change
+    thematic_function: 'The fragile bridge between knight and child is a contract written
+      in shadows: human connection may be the only sacrifice worth making.'
+contract:
+  content_rating: R
+  explicit_violence: implied_only
+  explicit_sex: fade_to_black
+  profanity: moderate
+  on_page_torture: false
+  child_harm: false
+  mandatory_ending_tone: tragic
+  expected_elements: []
+  forbidden_tropes: []
+  custom_rules: []
+emotional_design:
+  overall_emotional_arc: A tragic arc focusing on dread.
+  per_act_tones:
+  - act_index: 1
+    label: Setup
+    tone: 'Unease: Establishing the initial situation and the core desire: Deliver
+      the child safely to the monastery and earn back his .'
+  - act_index: 2
+    label: Confrontation
+    tone: 'Suspicion: Rising conflict driven by the core resistance: The child''s
+      presence corrupts everyone they meet, and the mo.'
+  - act_index: 3
+    label: Resolution
+    tone: 'Despair: The final confrontation, high stakes, and the ultimate transformation:
+      He stops being a man who follows orders and becomes a man wh.'
+characters:
+- name: Caelan
+  role: protagonist
+  arc_type: corruption
+  arc_start_percentage: 0
+  arc_end_percentage: 100
+  current_arc_percentage: 0
+  key_milestones:
+  - at_percentage: 15
+    description: Caelan accepts the contract for Sol's delivery — tells himself it is just another job.
+  - at_percentage: 25
+    description: "First night on the road: Sol's silence becomes palpable. Caelan realizes the child is not merely quiet — something is being held back."
+  - at_percentage: 30
+    description: First sign that Sol's presence corrupts others. Caelan covers it up to keep moving.
+  - at_percentage: 50
+    description: The monastery's scouts arrive. Caelan realizes they want Sol opened, not saved.
+  - at_percentage: 70
+    description: "Caelan kills a monastery scout to protect Sol — the first innocent blood spilled for a cause he does not understand."
+  - at_percentage: 85
+    description: Sol communicates a warning. Caelan accepts that connection means vulnerability, and vulnerability is now a weapon.
+  - at_percentage: 100
+    description: "Caelan chooses apostasy — breaks the contract, damns himself, and prevents the entity's release."
+  current_state:
+    location: road_south
+    physical: scarred_hands
+    emotional: hollow_determination
+    inventory:
+    - oath_medallion
+    - sealed_contract
+    relationships:
+    - other: Sol
+      kind: reluctant_guardianship
+      intensity: 0.3
+    - other: Abbot Voss
+      kind: contractual_obligation_turning_to_antagonism
+      intensity: 0.6
+    secrets_known: []
+  identity:
+    narrative_role: protagonist
+    archetype: byronic_hero
+    moral_alignment: chaotic_neutral
+    psychology:
+      wound: "His last command got his entire squad killed. He survived because he stayed back to relay orders — a tactical decision he has spent years calling cowardice."
+      fear: "That he was never a good man pretending otherwise — that duty was always a mask for a man too afraid to choose."
+      desire: "To believe one clean act can undo a lifetime of compromise."
+      vulnerability_family: worthlessness
+      defense_mechanisms:
+      - intellectualization
+      - repression
+      contradictions:
+      - "Craves honor but knows honor is what the powerful call obedience."
+      - "Despises the monastery's corruption but needs their payment to disappear."
+      intimacy: blocked_by_shame
+    texture:
+      voice: "Few words, worn flat by years of delivering death notices and receiving no thanks."
+      gestures:
+      - rolls his left shoulder when lying
+      - touches Sol's head before sleep to check for breath
+      aesthetic: "Faded surcoat with a torn badge he never repaired."
+      behavioral_tells:
+      - speaks louder when unsure
+      - stops talking entirely when certain
+      social_aura: withdrawn_but_not_hostile
+    essence: "A man who stopped believing in goodness but cannot stop acting as if it exists."
+    motifs:
+    - broken promises
+    - unpaid debts
+    - cold meals
+  categorization: null
+- name: Abbot Voss
+  role: antagonist
+  arc_type: flat
+  arc_start_percentage: 0
+  arc_end_percentage: 0
+  current_arc_percentage: 0
+  key_milestones:
+  - at_percentage: 50
+    description: Voss's first letter to Caelan — courteous, doctrinal, absolutely immovable.
+  - at_percentage: 75
+    description: "Voss reveals the monastery's true purpose: the entity is a purification engine."
+  current_state:
+    location: fallen_monastery
+    physical: intact
+    emotional: serene_conviction
+    inventory:
+    - ceremonial_seal_key
+    - doctrine_scrolls
+    relationships:
+    - other: Caelan
+      kind: tool_to_be_used
+      intensity: 0.8
+    secrets_known:
+    - the monastery fabricated the entity's containment story
+    - the last vessel died and Sol is a replacement
+  identity:
+    narrative_role: antagonist
+    archetype: false_mentor
+    moral_alignment: lawful_evil
+    psychology:
+      wound: "Voss watched his predecessor fail to control the entity during a purge attempt. The failure cost half the monastery. He believes the only failure is hesitation."
+      fear: "That the entity cannot be controlled at all — but admits this to no one."
+      desire: "To wield the entity as a divine instrument and remake the world in purified ashes."
+      vulnerability_family: control
+      defense_mechanisms:
+      - rationalization
+      - intellectualization
+      contradictions:
+      - "Preaches salvation but plans annihilation."
+      - "Believes he serves God but has not prayed in years."
+    texture:
+      voice: "Smooth, liturgical cadence — never raises it, never needs to."
+      gestures:
+      - touches his temple when lying
+      - opens palms when making an irrevocable demand
+      aesthetic: "Stained white vestments he insists are clean."
+      social_aura: serene_dominance
+    essence: "A true believer who crossed the line so gradually he forgot it existed."
+    motifs:
+    - sealed doors
+    - old incense
+    - unread scripture
+  categorization: null
+- name: Sol
+  role: deuteragonist
+  arc_type: flat
+  arc_start_percentage: 0
+  arc_end_percentage: 0
+  current_arc_percentage: 0
+  key_milestones:
+  - at_percentage: 50
+    description: Sol draws a picture in the dirt — a figure with a crown and no face. Caelan does not understand it.
+  - at_percentage: 85
+    description: "Sol writes a single word on Caelan's palm: RUN."
+  current_state:
+    location: road_south
+    physical: frail_but_untouched
+    emotional: unreadable
+    inventory: []
+    relationships:
+    - other: Caelan
+      kind: silent_dependency
+      intensity: 0.5
+    secrets_known:
+    - the full nature of the entity inside
+    - the monastery's true plan
+  identity:
+    narrative_role: threshold_guardian
+    archetype: symbolic
+    psychology:
+      wound: null
+      fear: null
+      desire: null
+      vulnerability_family: isolation
+      defense_mechanisms:
+      - dissociation
+      contradictions: []
+    texture:
+      voice: "Silent. Communicates through touch, dirt drawings, and one written word."
+      gestures:
+      - touches the back of Caelan's hand when danger is near
+      - never looks at mirrors or still water
+      aesthetic: "Grey clothes that could have belonged to anyone."
+      social_aura: quietly_wrong
+    essence: "A child who may no longer be a child — a vessel that still dreams."
+    motifs:
+    - silence
+    - drawings
+    - cracked bells
+  categorization: null
+tension_waveform:
+  target_curve:
+  - chapter_index: 1
+    score: 3
+    label: opening
+  - chapter_index: 12
+    score: 7
+    label: midpoint
+  - chapter_index: 22
+    score: 9
+    label: climax
+  - chapter_index: 25
+    score: 5
+    label: coda
+  realized_scores: []
+theme:
+  central_question: When every contract demands a sacrifice, is there anything left
+    worth saving — and does the attempt save you or damn you?
+  thesis: 'Dread is the only honest response to a world where loyalty requires atrocity:
+    the shadows we accept in others are always already inside us, and the only contract
+    worth keeping is the one that costs everything.'
+  motifs:
+  - shadows
+  - contracts
+  - sacrifices
+cartographer_model: null
+bard_model: null
+critic_model: null
