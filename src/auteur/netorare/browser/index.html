@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netorare Interactive Pipeline</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-primary: #1e40af;
+            --color-primary-light: #3b82f6;
+            --color-success: #059669;
+            --color-warning: #d97706;
+            --color-error: #dc2626;
+            --color-bg: #f9fafb;
+            --color-surface: #ffffff;
+            --color-border: #e5e7eb;
+            --color-text: #111827;
+            --color-text-muted: #6b7280;
+            --layer-1: #fecaca;
+            --layer-2: #fdba74;
+            --layer-3: #fde047;
+            --layer-4: #86efac;
+            --layer-5: #67e8f9;
+            --layer-6: #a5f3fc;
+            --layer-7: #c4b5fd;
+            --layer-8: #e9d5ff;
+            --layer-9: #f5d4ff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .right-panel {
+                position: sticky;
+                top: 0;
+            }
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            margin-bottom: 1rem;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--color-primary);
+        }
+
+        .header p {
+            color: var(--color-text-muted);
+            font-size: 1rem;
+        }
+
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .phase-container {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            display: none;
+        }
+
+        .phase-container.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .phase-header {
+            margin-bottom: 1rem;
+        }
+
+        .phase-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .phase-description {
+            color: var(--color-text-muted);
+            font-size: 0.95rem;
+        }
+
+        .phase-progress {
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+            margin-top: 0.5rem;
+        }
+
+        .question {
+            background: var(--color-bg);
+            border-left: 4px solid var(--color-primary);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+        }
+
+        .question-text {
+            font-weight: 500;
+            font-size: 1.05rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .question-hint {
+            font-size: 0.9rem;
+            color: var(--color-text-muted);
+        }
+
+        .options-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .options-label {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--color-text);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .option {
+            background: var(--color-bg);
+            border: 2px solid var(--color-border);
+            border-radius: 6px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option:hover {
+            border-color: var(--color-primary);
+            background: #f0f9ff;
+        }
+
+        .option.selected {
+            border-color: var(--color-primary);
+            background: #eff6ff;
+            font-weight: 500;
+        }
+
+        .option-label {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .option-description {
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+        }
+
+        .review-section {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .review-title {
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 0.5rem;
+        }
+
+        .review-consequences {
+            font-size: 0.95rem;
+            color: #78350f;
+            line-height: 1.5;
+        }
+
+        .review-consequences li {
+            margin-bottom: 0.5rem;
+            margin-left: 1.5rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #1e3a8a;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--color-bg);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            border-color: var(--color-primary);
+            background: #f0f9ff;
+        }
+
+        .btn-success {
+            background: var(--color-success);
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #047857;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 0.75rem;
+            height: 0.75rem;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .error-banner {
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            color: #7f1d1d;
+        }
+
+        .error-banner.hidden {
+            display: none;
+        }
+
+        .success-banner {
+            background: #dcfce7;
+            border: 1px solid #86efac;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            color: #166534;
+        }
+
+        .success-banner.hidden {
+            display: none;
+        }
+
+        .right-panel {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            height: fit-content;
+        }
+
+        .layers-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--color-primary);
+        }
+
+        .layers-subtitle {
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .layer {
+            margin-bottom: 1rem;
+        }
+
+        .layer-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .layer-number {
+            background: var(--color-primary);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .layer-name {
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .layer-name.current {
+            color: var(--color-primary);
+        }
+
+        .layer-name.muted {
+            color: var(--color-text-muted);
+        }
+
+        .layer-content {
+            background: var(--color-bg);
+            border-radius: 4px;
+            padding: 0.75rem;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+        .layer-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--color-text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .layer-1 { --layer-color: var(--layer-1); }
+        .layer-2 { --layer-color: var(--layer-2); }
+        .layer-3 { --layer-color: var(--layer-3); }
+        .layer-4 { --layer-color: var(--layer-4); }
+        .layer-5 { --layer-color: var(--layer-5); }
+        .layer-6 { --layer-color: var(--layer-6); }
+        .layer-7 { --layer-color: var(--layer-7); }
+        .layer-8 { --layer-color: var(--layer-8); }
+        .layer-9 { --layer-color: var(--layer-9); }
+
+        .layer-number {
+            background: var(--layer-color);
+            color: #000;
+        }
+
+        .layer-content {
+            background: var(--layer-color);
+            opacity: 0.3;
+        }
+
+        .layer.active .layer-content {
+            opacity: 1;
+            font-weight: 500;
+        }
+
+        .validation-results {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--color-border);
+        }
+
+        .validation-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .validation-item {
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .validation-check {
+            color: var(--color-success);
+            font-weight: 600;
+        }
+
+        .validation-error {
+            color: var(--color-error);
+            font-weight: 600;
+        }
+
+        .validation-warning {
+            color: var(--color-warning);
+            font-weight: 600;
+        }
+
+        .completion-message {
+            background: #dcfce7;
+            border: 1px solid #86efac;
+            border-radius: 6px;
+            padding: 1.5rem;
+            text-align: center;
+            color: #166534;
+            grid-column: 1 / -1;
+        }
+
+        .completion-message h2 {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Netorare Interactive Pipeline</h1>
+            <p id="session-info"></p>
+        </div>
+
+        <div id="error-banner" class="error-banner hidden"></div>
+        <div id="success-banner" class="success-banner hidden"></div>
+
+        <div class="left-panel" id="left-panel">
+            <!-- Phases will be populated here by JavaScript -->
+        </div>
+
+        <div class="right-panel" id="right-panel">
+            <div class="layers-title">9-Layer Structure Preview</div>
+            <div class="layers-subtitle">Updates in real-time as you make choices</div>
+            <div id="layers-container">
+                <!-- Layers will be populated here by JavaScript -->
+            </div>
+        </div>
+
+        <div id="completion-message" class="completion-message hidden">
+            <h2>Pipeline Complete!</h2>
+            <p>Your netorare story structure has been finalized and saved.</p>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const PHASE_CONFIGS = {
+            1: {
+                title: "Emotional Core",
+                description: "Select the primary emotional resonance for your story",
+                type: "single",
+                hint: "This determines the overall tone and template",
+            },
+            2: {
+                title: "Genre Contract",
+                description: "Define the genre and scope expectations",
+                type: "multiple",
+                hint: "Establishes reader expectations",
+            },
+            3: {
+                title: "Scope & Scale",
+                description: "Determine the story's scope and scale",
+                type: "multiple",
+                hint: "Affects how the narrative unfolds",
+            },
+            4: {
+                title: "Structural Forces",
+                description: "Define the core dramatic tensions and stakes",
+                type: "multiple",
+                hint: "The MC's Want, Resistance, and Change",
+            },
+            5: {
+                title: "Threads & Subplots",
+                description: "Choose which supporting threads to develop",
+                type: "multiple",
+                hint: "Adds complexity and resonance",
+            },
+            6: {
+                title: "Carriers (POV & Structure)",
+                description: "Select narrative perspective and structure",
+                type: "multiple",
+                hint: "How the reader experiences the story",
+            },
+            7: {
+                title: "Representation (Pacing)",
+                description: "Define how information is revealed",
+                type: "multiple",
+                hint: "Controls narrative momentum",
+            },
+            8: {
+                title: "Modulation (Tone)",
+                description: "Choose the overall emotional tone",
+                type: "multiple",
+                hint: "The atmosphere and voice of the piece",
+            },
+            9: {
+                title: "Resonance (Theme)",
+                description: "Select the thematic through-line",
+                type: "multiple",
+                hint: "The deeper meaning of the story",
+            },
+        };
+
+        const LAYER_NAMES = {
+            1: "Story Kernel",
+            2: "Genre Contract",
+            3: "Scope",
+            4: "Structural Forces",
+            5: "Threads",
+            6: "Carriers",
+            7: "Representation",
+            8: "Modulation",
+            9: "Resonance",
+        };
+
+        // Application state
+        let state = {
+            sessionId: null,
+            coreId: null,
+            currentPhase: 1,
+            choices: {},
+            allOptions: {},
+            isComplete: false,
+            isLoading: false,
+        };
+
+        // Initialize app
+        async function init() {
+            try {
+                // Load session state
+                const sessionData = await fetchSessionState();
+                state.sessionId = sessionData.id;
+                state.coreId = sessionData.core_id;
+                state.choices = convertChoicesFromJson(sessionData.choices);
+                state.isComplete = sessionData.status === "complete";
+
+                // Update UI
+                updateSessionInfo();
+
+                // Load options for this template
+                await loadTemplateOptions();
+
+                // Render UI
+                renderPhases();
+                renderLayers();
+
+                // Navigate to first incomplete phase or phase 1
+                const firstIncomplete = findFirstIncompletePhase();
+                navigateToPhase(firstIncomplete);
+
+                if (state.isComplete) {
+                    showCompletionMessage();
+                }
+            } catch (error) {
+                showError("Failed to initialize: " + error.message);
+            }
+        }
+
+        // Fetch session state from server
+        async function fetchSessionState() {
+            const response = await fetch("/session");
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+            return response.json();
+        }
+
+        // Load template options from template file
+        async function loadTemplateOptions() {
+            // Since options are embedded in the page, we'll build them dynamically
+            // This is where the template definitions would come from the Python backend
+            // For now, we'll structure it to work with the API
+            buildOptionsFromTemplate();
+        }
+
+        // Build options structure from template
+        function buildOptionsFromTemplate() {
+            // This will be populated based on the core_id
+            // For MVP, we'll fetch options as part of the phase rendering
+        }
+
+        // Convert JSON choices (string keys) to our format (int keys)
+        function convertChoicesFromJson(jsonChoices) {
+            if (!jsonChoices) return {};
+            const result = {};
+            for (const [key, value] of Object.entries(jsonChoices)) {
+                const phaseNum = parseInt(key);
+                result[phaseNum] = value;
+            }
+            return result;
+        }
+
+        // Update session info display
+        function updateSessionInfo() {
+            const info = document.getElementById("session-info");
+            info.textContent = `Session: ${state.sessionId.slice(0, 8)}... | Core: ${state.coreId.replace(/_/g, " ")}`;
+        }
+
+        // Find first incomplete phase
+        function findFirstIncompletePhase() {
+            for (let phase = 1; phase <= 9; phase++) {
+                if (!state.choices[phase] || Object.keys(state.choices[phase]).length === 0) {
+                    return phase;
+                }
+            }
+            return 9;
+        }
+
+        // Navigate to a specific phase
+        function navigateToPhase(phase) {
+            // Hide all phases
+            document.querySelectorAll(".phase-container").forEach(el => {
+                el.classList.remove("active");
+            });
+
+            // Show selected phase
+            const phaseEl = document.getElementById(`phase-${phase}`);
+            if (phaseEl) {
+                phaseEl.classList.add("active");
+                state.currentPhase = phase;
+            }
+        }
+
+        // Render phase containers
+        function renderPhases() {
+            const container = document.getElementById("left-panel");
+            container.innerHTML = "";
+
+            for (let phase = 1; phase <= 9; phase++) {
+                const config = PHASE_CONFIGS[phase];
+                const phaseDiv = document.createElement("div");
+                phaseDiv.id = `phase-${phase}`;
+                phaseDiv.className = "phase-container";
+
+                const header = document.createElement("div");
+                header.className = "phase-header";
+                header.innerHTML = `
+                    <div class="phase-title">${config.title}</div>
+                    <div class="phase-description">${config.description}</div>
+                    <div class="phase-progress">Phase ${phase} of 9</div>
+                `;
+                phaseDiv.appendChild(header);
+
+                // Add question hint
+                const questionDiv = document.createElement("div");
+                questionDiv.className = "question";
+                questionDiv.innerHTML = `
+                    <div class="question-text">Make your selection</div>
+                    <div class="question-hint">${config.hint}</div>
+                `;
+                phaseDiv.appendChild(questionDiv);
+
+                // Add options groups (will be populated dynamically based on template)
+                const optionsContainer = document.createElement("div");
+                optionsContainer.id = `options-${phase}`;
+                optionsContainer.className = "options-groups-container";
+                phaseDiv.appendChild(optionsContainer);
+
+                // Add review section (initially hidden)
+                const reviewDiv = document.createElement("div");
+                reviewDiv.id = `review-${phase}`;
+                reviewDiv.className = "review-section hidden";
+                reviewDiv.style.display = "none";
+                phaseDiv.appendChild(reviewDiv);
+
+                // Add button group
+                const buttonGroup = document.createElement("div");
+                buttonGroup.className = "button-group";
+                buttonGroup.innerHTML = `
+                    <button class="btn btn-secondary" id="prev-${phase}" onclick="navigateToPhase(${Math.max(1, phase - 1)})">
+                        ${phase === 1 ? "Cancel" : "Previous"}
+                    </button>
+                    <button class="btn btn-primary" id="approve-${phase}" disabled onclick="approvePhase(${phase})">
+                        Approve & Continue
+                    </button>
+                `;
+                phaseDiv.appendChild(buttonGroup);
+
+                container.appendChild(phaseDiv);
+            }
+        }
+
+        // Render layers preview
+        function renderLayers() {
+            const container = document.getElementById("layers-container");
+            container.innerHTML = "";
+
+            for (let layer = 1; layer <= 9; layer++) {
+                const layerDiv = document.createElement("div");
+                layerDiv.id = `layer-${layer}`;
+                layerDiv.className = `layer layer-${layer}`;
+
+                layerDiv.innerHTML = `
+                    <div class="layer-header">
+                        <div class="layer-number">${layer}</div>
+                        <div class="layer-name">${LAYER_NAMES[layer]}</div>
+                    </div>
+                    <div class="layer-content" id="layer-content-${layer}">
+                        No choices yet
+                    </div>
+                    <div class="layer-label">Calculated from your choices</div>
+                `;
+
+                container.appendChild(layerDiv);
+            }
+        }
+
+        // Load options for a specific phase
+        async function loadPhaseOptions(phase) {
+            // Fetch options for this phase based on template
+            const options = await getPhaseOptions(phase);
+
+            // Render options
+            const container = document.getElementById(`options-${phase}`);
+            container.innerHTML = "";
+
+            for (const [fieldName, fieldOptions] of Object.entries(options)) {
+                const groupDiv = document.createElement("div");
+                groupDiv.className = "options-group";
+
+                const label = document.createElement("div");
+                label.className = "options-label";
+                label.textContent = formatFieldName(fieldName);
+                groupDiv.appendChild(label);
+
+                const optionsDiv = document.createElement("div");
+                optionsDiv.className = "options";
+
+                fieldOptions.forEach(option => {
+                    const optionDiv = document.createElement("div");
+                    optionDiv.className = "option";
+
+                    const isSelected = state.choices[phase] && state.choices[phase][fieldName] === option.id;
+                    if (isSelected) {
+                        optionDiv.classList.add("selected");
+                    }
+
+                    optionDiv.innerHTML = `
+                        <div class="option-label">${option.label}</div>
+                        ${option.description ? `<div class="option-description">${option.description}</div>` : ""}
+                    `;
+
+                    optionDiv.addEventListener("click", () => {
+                        selectOption(phase, fieldName, option.id, option.label);
+                    });
+
+                    optionsDiv.appendChild(optionDiv);
+                });
+
+                groupDiv.appendChild(optionsDiv);
+                container.appendChild(groupDiv);
+            }
+        }
+
+        // Get phase options from Python backend
+        async function getPhaseOptions(phase) {
+            // This would typically come from the backend
+            // For now, we'll build a mock response based on phase
+            // In production, this would query the session template
+
+            // Return options based on current template
+            const mockOptions = {
+                4: {
+                    want: [
+                        { id: "want-dignity", label: "Regain lost dignity", description: "Restore self-image" },
+                        { id: "want-prove-love", label: "Prove love was genuine", description: "Validate the relationship" },
+                    ],
+                    resistance: [
+                        { id: "resistance-inadequacy", label: "Own inadequacy", description: "Personal failings" },
+                        { id: "resistance-rival", label: "Rival's superiority", description: "They are genuinely better" },
+                    ],
+                },
+            };
+
+            return mockOptions[phase] || {};
+        }
+
+        // Select an option
+        function selectOption(phase, fieldName, optionId, optionLabel) {
+            // Initialize phase choices if needed
+            if (!state.choices[phase]) {
+                state.choices[phase] = {};
+            }
+
+            // Update choice
+            state.choices[phase][fieldName] = optionId;
+
+            // Re-render options for this phase
+            loadPhaseOptions(phase);
+
+            // Update layers
+            updateLayersPreview();
+
+            // Enable approve button when at least one choice is made
+            const approveBtn = document.getElementById(`approve-${phase}`);
+            if (approveBtn) {
+                approveBtn.disabled = false;
+            }
+
+            // Show review section
+            showReviewSection(phase);
+        }
+
+        // Format field name for display
+        function formatFieldName(name) {
+            return name
+                .split("_")
+                .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+                .join(" ");
+        }
+
+        // Show review section with consequences
+        function showReviewSection(phase) {
+            const reviewDiv = document.getElementById(`review-${phase}`);
+            if (!reviewDiv) return;
+
+            reviewDiv.style.display = "block";
+            reviewDiv.innerHTML = `
+                <div class="review-title">Review Your Choices</div>
+                <div class="review-consequences">
+                    <p>You've selected:</p>
+                    <ul>
+                        ${getReviewText(phase)}
+                    </ul>
+                    <p style="margin-top: 1rem;">This will affect layers 4-9 of your story structure. Continue to see the preview update.</p>
+                </div>
+            `;
+        }
+
+        // Get review text for phase
+        function getReviewText(phase) {
+            if (!state.choices[phase]) return "<li>No choices yet</li>";
+
+            const choices = state.choices[phase];
+            return Object.entries(choices)
+                .map(([field, value]) => `<li><strong>${formatFieldName(field)}:</strong> ${value}</li>`)
+                .join("");
+        }
+
+        // Update layers preview based on current choices
+        function updateLayersPreview() {
+            // Update each layer's content based on current choices
+            for (let layer = 1; layer <= 9; layer++) {
+                const content = getLayerContent(layer);
+                const layerContent = document.getElementById(`layer-content-${layer}`);
+                const layerEl = document.getElementById(`layer-${layer}`);
+
+                if (layerContent) {
+                    layerContent.textContent = content || "No choices yet";
+                }
+
+                // Mark as active if there are choices at this layer
+                if (layerEl) {
+                    if (content && content !== "No choices yet") {
+                        layerEl.classList.add("active");
+                    } else {
+                        layerEl.classList.remove("active");
+                    }
+                }
+            }
+        }
+
+        // Get content for a specific layer
+        function getLayerContent(layer) {
+            const phaseChoices = state.choices[layer];
+            if (!phaseChoices || Object.keys(phaseChoices).length === 0) {
+                return "Pending choices...";
+            }
+
+            // Format choices for display
+            return Object.values(phaseChoices).join(" → ");
+        }
+
+        // Approve and move to next phase
+        async function approvePhase(phase) {
+            try {
+                state.isLoading = true;
+
+                // Validate current choices
+                const validation = await validateSession();
+                if (!validation.is_valid && !confirm("There are validation warnings. Continue anyway?")) {
+                    return;
+                }
+
+                // Save choices to server
+                await updateSession(phase);
+
+                // Move to next phase
+                if (phase < 9) {
+                    navigateToPhase(phase + 1);
+                } else {
+                    // Mark complete
+                    await completeSession();
+                    showCompletionMessage();
+                }
+
+                showSuccess("Phase approved and saved!");
+            } catch (error) {
+                showError("Failed to approve phase: " + error.message);
+            } finally {
+                state.isLoading = false;
+            }
+        }
+
+        // Update session on server
+        async function updateSession(phase) {
+            const response = await fetch("/session/update", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    phase: phase,
+                    choices: state.choices[phase] || {},
+                }),
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || "Update failed");
+            }
+
+            return response.json();
+        }
+
+        // Complete session
+        async function completeSession() {
+            const response = await fetch("/session/complete", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({}),
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || "Completion failed");
+            }
+
+            state.isComplete = true;
+            return response.json();
+        }
+
+        // Validate session
+        async function validateSession() {
+            const response = await fetch("/session/validate");
+            if (!response.ok) {
+                throw new Error(`Validation error: ${response.status}`);
+            }
+            return response.json();
+        }
+
+        // Show completion message
+        function showCompletionMessage() {
+            const msg = document.getElementById("completion-message");
+            if (msg) {
+                msg.classList.remove("hidden");
+            }
+        }
+
+        // Show error
+        function showError(message) {
+            const banner = document.getElementById("error-banner");
+            banner.textContent = message;
+            banner.classList.remove("hidden");
+            setTimeout(() => banner.classList.add("hidden"), 5000);
+        }
+
+        // Show success
+        function showSuccess(message) {
+            const banner = document.getElementById("success-banner");
+            banner.textContent = message;
+            banner.classList.remove("hidden");
+            setTimeout(() => banner.classList.add("hidden"), 3000);
+        }
+
+        // Start application when DOM is ready
+        document.addEventListener("DOMContentLoaded", init);
+    </script>
+</body>
+</html>
