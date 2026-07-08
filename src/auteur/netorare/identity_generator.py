@@ -157,25 +157,16 @@ class IdentityGenerator:
             avoid=cls._get_avoided_experiences(core_id),
         )
 
-        # Gentlefemdom cores: override target_experience with template-driven
-        # emotion arc data so the generated identity reflects the actual
-        # emotional core selected, not generic netorare/mystery defaults.
-        # This is additive-only: if gentlefemdom imports fail or the core_id
-        # isn't a gentlefemdom core, we silently keep the defaults above.
+        # For gentlefemdom cores, populate secondary emotions from emotion arc
+        # (netorare/mystery don't have structured secondary emotions yet)
         try:
             if core_id in ("sensual_dominance", "tender_surrender", "romantic_authority"):
-                from auteur.gentlefemdom.core_templates import get_template as get_gf_template
                 from auteur.gentlefemdom.emotion_arcs import get_emotion_arc
 
-                gf_template = get_gf_template(core_id)
                 emotion_arc = get_emotion_arc(core_id)
-
-                target_experience.primary = gf_template.primary_emotion
-                target_experience.progression = emotion_arc["progression"]
                 target_experience.secondary = emotion_arc["secondary"]
-                target_experience.avoid = emotion_arc["avoid"]
-        except (ImportError, ValueError, KeyError, AttributeError):
-            # Fall back to the generic defaults already assigned above.
+        except (ImportError, ValueError, KeyError):
+            # Fall back to no secondary emotions if emotion arc unavailable
             pass
 
         # Generate title and core answer
@@ -236,29 +227,91 @@ class IdentityGenerator:
         return phrase.lower()
 
     @classmethod
+    def _get_template_for_core(cls, core_id: str):
+        """Get template for any core, regardless of genre.
+
+        Tries netorare first (for backwards compatibility), then mystery, then gentlefemdom.
+        """
+        # Try netorare
+        if core_id in ("classic_humiliation", "horror", "mystery"):
+            from auteur.netorare.core_templates import get_template as get_netorare_template
+            return get_netorare_template(core_id)
+
+        # Try mystery-specific cores
+        if core_id in ("howdunit", "paranoia", "cozy"):
+            from auteur.mystery.core_templates import get_template as get_mystery_template
+            return get_mystery_template(core_id)
+
+        # Try gentlefemdom
+        if core_id in ("sensual_dominance", "tender_surrender", "romantic_authority"):
+            from auteur.gentlefemdom.core_templates import get_template as get_gentlefemdom_template
+            return get_gentlefemdom_template(core_id)
+
+        # Unknown core
+        raise ValueError(f"Unknown core_id: {core_id}")
+
+    @classmethod
     def _get_primary_emotion(cls, core_id: str) -> str:
-        """Get primary target emotion for the core type."""
-        emotion_map = {
-            "classic_humiliation": "humiliation",
-            "horror": "dread",
-            "mystery": "dread",
-        }
-        return emotion_map.get(core_id, "dread")
+        """Get primary target emotion for the core type.
+
+        Sources this from the core's template rather than hardcoded maps,
+        ensuring all genres consistently use their template's primary_emotion.
+        """
+        try:
+            # Try to get template for any genre (netorare, mystery, gentlefemdom, etc.)
+            template = cls._get_template_for_core(core_id)
+            if hasattr(template, 'primary_emotion'):
+                return template.primary_emotion
+        except (ImportError, ValueError, AttributeError):
+            pass
+
+        # Fallback for unknown cores
+        return "unknown"
 
     @classmethod
     def _get_progression(cls, core_id: str, change: str) -> str:
-        """Generate emotional progression based on core type and change."""
-        if core_id == "classic_humiliation":
-            return "unease -> suspicion -> humiliation -> acceptance"
-        elif core_id == "horror":
-            return "unease -> dread -> cosmic horror -> transformation"
-        elif core_id == "mystery":
-            return "curiosity -> suspicion -> revelation -> complicity"
-        return "tension -> escalation -> climax"
+        """Get emotional progression for the core type.
+
+        Sources this from the core's emotion arc (if available) rather than hardcoded maps,
+        ensuring consistent emotion propagation from template to identity.
+        """
+        try:
+            # Try to get emotion arc for gentlefemdom cores
+            if core_id in ("sensual_dominance", "tender_surrender", "romantic_authority"):
+                from auteur.gentlefemdom.emotion_arcs import get_emotion_arc
+                arc = get_emotion_arc(core_id)
+                return arc["progression"]
+        except (ImportError, ValueError, KeyError):
+            pass
+
+        # Fallback: use hardcoded progressions for netorare/mystery cores
+        fallback_progressions = {
+            "classic_humiliation": "unease -> suspicion -> humiliation -> acceptance",
+            "horror": "unease -> dread -> cosmic horror -> transformation",
+            "mystery": "curiosity -> suspicion -> revelation -> complicity",
+            "howdunit": "curiosity -> suspicion -> revelation -> complicity",
+            "paranoia": "unease -> suspicion -> paranoia -> transformation",
+            "cozy": "curiosity -> discovery -> comfort -> satisfaction",
+        }
+        return fallback_progressions.get(core_id, "tension -> escalation -> climax")
 
     @classmethod
     def _get_avoided_experiences(cls, core_id: str) -> list[str]:
-        """Get list of experiences to avoid for the core type."""
+        """Get list of experiences to avoid for the core type.
+
+        Sources this from the core's emotion arc (if available) rather than hardcoded maps,
+        ensuring consistent emotion propagation from template to identity.
+        """
+        try:
+            # Try to get emotion arc for gentlefemdom cores
+            if core_id in ("sensual_dominance", "tender_surrender", "romantic_authority"):
+                from auteur.gentlefemdom.emotion_arcs import get_emotion_arc
+                arc = get_emotion_arc(core_id)
+                return arc["avoid"]
+        except (ImportError, ValueError, KeyError):
+            pass
+
+        # Fallback: use hardcoded avoidances for netorare/mystery cores
         avoid_map = {
             "classic_humiliation": [
                 "triumphant vindication",
@@ -274,6 +327,21 @@ class IdentityGenerator:
                 "ignorant innocence",
                 "pure heroic victory",
                 "easy answers",
+            ],
+            "howdunit": [
+                "ignorant innocence",
+                "pure heroic victory",
+                "easy answers",
+            ],
+            "paranoia": [
+                "cozy safety",
+                "absolute trust",
+                "simple solutions",
+            ],
+            "cozy": [
+                "dark secrets exposed",
+                "cynicism confirmed",
+                "harmony destroyed",
             ],
         }
         return avoid_map.get(core_id, [])
