@@ -47,6 +47,7 @@ class RuleSet:
 
         # Rule 1: Want ≠ Change
         def check_want_not_equal_change(template, choices):
+            """Ensure Want and Change differ (prevents static character arc)."""
             layer4 = choices.get(4, {})
             want = layer4.get("want")
             change = layer4.get("change")
@@ -63,6 +64,7 @@ class RuleSet:
 
         # Rule 2: Solution must be derivable
         def check_solution_derivable(template, choices):
+            """Verify solution is fair and theoretically derivable by reader."""
             layer7 = choices.get(7, {})
             clue_dist = layer7.get("clue_distribution")
             layer8 = choices.get(8, {})
@@ -82,6 +84,7 @@ class RuleSet:
 
         # Rule 3: Red herring coherence check
         def check_red_herring_coherence(template, choices):
+            """Ensure red herrings are coherent with central solution and genre."""
             layer2 = choices.get(2, {})
             genre = layer2.get("genre_contract")
             layer7 = choices.get(7, {})
@@ -104,6 +107,7 @@ class RuleSet:
 
         # Rule 1: Want ≠ Change
         def check_want_not_equal_change(template, choices):
+            """Ensure Want and Change differ (prevents static character arc)."""
             layer4 = choices.get(4, {})
             want = layer4.get("want")
             change = layer4.get("change")
@@ -120,6 +124,7 @@ class RuleSet:
 
         # Rule 2: Narrator unreliability must be intentional
         def check_narrator_intentional(template, choices):
+            """Verify unreliable narrator serves narrative purpose and is coherent."""
             layer5 = choices.get(5, {})
             reliability = layer5.get("narrator_reliability")
             layer8 = choices.get(8, {})
@@ -141,6 +146,7 @@ class RuleSet:
 
         # Rule 3: Paranoia escalates logically
         def check_paranoia_escalates(template, choices):
+            """Verify dread escalation matches gaslighting intensity."""
             layer6 = choices.get(6, {})
             gaslight = layer6.get("gaslighting_intensity")
             layer7 = choices.get(7, {})
@@ -163,6 +169,7 @@ class RuleSet:
 
         # Rule 1: Violence budget respected
         def check_violence_budget(template, choices):
+            """Ensure violence stays within cozy constraints (none, off-page, minimal)."""
             layer7 = choices.get(7, {})
             violence = layer7.get("violence_budget")
 
@@ -180,6 +187,7 @@ class RuleSet:
 
         # Rule 2: Tone consistency
         def check_tone_consistency(template, choices):
+            """Verify tone remains warm, safe, and coherent throughout story."""
             layer5 = choices.get(5, {})
             humor = layer5.get("humor_level")
             layer9 = choices.get(9, {})
@@ -199,6 +207,7 @@ class RuleSet:
 
         # Rule 3: Community relationships matter
         def check_community_integrity(template, choices):
+            """Verify community remains intact and relationships coherent after resolution."""
             layer6 = choices.get(6, {})
             relationships = layer6.get("relationship_focus")
             layer8 = choices.get(8, {})

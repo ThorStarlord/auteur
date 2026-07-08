@@ -60,8 +60,8 @@ class MysteryCommand:
         if debug:
             logging.basicConfig(level=logging.DEBUG)
 
-        self.mystery_dir = self.project_path / "mystery"
-        self.session_file = self.mystery_dir / "session.json"
+        self.netorare_dir = self.project_path / "netorare"
+        self.session_file = self.netorare_dir / "session.json"
         self.identity_file = self.project_path / "story_identity.yaml"
 
         self.session_manager: Optional[SessionManager] = None
@@ -107,7 +107,7 @@ class MysteryCommand:
     def _create_project_structure(self) -> None:
         """Create project directory structure."""
         self.project_path.mkdir(parents=True, exist_ok=True)
-        self.mystery_dir.mkdir(parents=True, exist_ok=True)
+        self.netorare_dir.mkdir(parents=True, exist_ok=True)
         (self.project_path / ".auteur").mkdir(parents=True, exist_ok=True)
 
     def _create_session(self) -> None:
