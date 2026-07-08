@@ -1,290 +1,179 @@
-# Auteur
+﻿# Genre Pipeline Architecture Context
 
-A narrative engineering toolkit for long-form fiction. Auteur is a whole-story
-structure engine first and a chapter drafting engine second.
+This document describes the proven architecture for extending auteur with new genres and provides architectural context for navigating the codebase.
 
-## Architecture
+## The 9-Layer Genre Pipeline
 
-**Dual-Native Architecture** — auteur is both agentic-native and CLI-native:
+Auteur's genre pipeline is a deterministic narrative engine with 9 decision layers that guide authors through emotional coherence. Each genre implements the same 9-layer structure with genre-specific content and validation.
 
-- **Agentic-native**: Artifacts are the primary API. Every command writes a
-  structured artifact to a deterministic path. Agents orchestrate by reading
-  artifacts, invoking commands, and reading output artifacts. Skills document
-  artifact contracts (input schema → output schema), not CLI invocation.
-  Communication is asynchronous through durable files.
-- **CLI-native**: The same commands support human-friendly stdout output with
-  summaries, colored output, help text, and guided workflows. The CLI is a thin
-  formatting layer on top of the same core operations.
-- **Core separation**: Domain logic returns structured domain objects. A
-  "human formatter" renders stdout; a "serializer" writes the artifact file.
-  The same core serves both interfaces.
-- **Invocation**: Agents shell out to the CLI (do not import Python). The CLI
-  is the universal entry point. Skills document artifact contracts rather than
-  CLI syntax.
-- **Skill decomposition**: Each skill wraps one atomic artifact transformation.
-  Agents compose sequences of skills (read artifact X, invoke skill A, read
-  output artifact Y...). Skills are simple, composable, and language-agnostic.
-- **Decision**: Option B — adapt the existing CLI so every command writes an
-  artifact as its primary output, stdout is a convenience view. Implemented
-  via implicit standard output paths (B1) — agents know where to read the
-  result based on what they invoked.
+### The 9 Layers
 
-## Language
+1. **Emotional Core** (Layer 1)
+   - User selects primary emotional arc (e.g., Humiliation, Horror, Mystery for Netorare)
+   - This gates all downstream choices
+   - Example: `core_id="humiliation"` routes to HumiliationTemplate
 
-**Narrative Drift**:
-The accumulation of lore inconsistencies across multiple drafted chapters,
-where the Bible state and chapter prose contradict each other.
-_Avoid_: Lore rot, continuity error, plot hole (these are symptoms, not the condition).
+2. **Genre Contract** (Layer 2)
+   - Author commits to genre-specific narrative promises
+   - Examples: "Netorare: protagonist loses control", "Mystery: killer is revealed", "Gentle Femdom: consent is explicit"
+   - Sets narrative boundaries
 
-**Bible Audit**:
-A deterministic diagnostic pass that reads the StoryBible event log and
-character state to detect impossible state transitions.
-_Avoid_: Lore check, consistency scan.
+3. **Scope** (Layer 3)
+   - Define the story's reach and scale
+   - Examples: intimate pair, expanding circle, community dynamic, world-affecting
 
-**Location Teleportation**:
-A character appears at location A in one Bible event, then location B in
-the next consecutive event, with no intermediate event explaining the move.
-_Avoid_: Spatial inconsistency, position jump.
+4. **Structural Forces** (Layer 4)
+   - Five core narrative forces: Want, Resistance, Conflict, Stakes, Change
+   - Genre-specific meanings (e.g., Humiliation wants != Mystery wants)
 
-**Scope Contract**:
-The accepted Layer 3 execution budget for a story: how much cast, POV,
-subplotting, setting footprint, worldbuilding, trope machinery, and narrative
-runway the chosen container can responsibly carry. Stored under
-`StructuralConstants.scope_contract` when declared.
-_Avoid_: Treating word count alone as scope.
+5-9. **Metadata Layers** (Layers 5-9)
+   - Layer 5: Tone / Atmosphere / Emotional texture
+   - Layer 6: Pacing / Narrative structure
+   - Layer 7: Perspective / Point of view
+   - Layer 8: Intimacy / Scope refinement
+   - Layer 9: Ratification / Final validation
 
-**Scope Profile**:
-A genre-level default budget describing natural length affordances, mechanical
-load, runway, compression strategies, expansion strategies, and common scope
-failure modes. Stored on `GenreContract.scope_profile`.
-_Avoid_: Saying a genre is artistically simple.
+### Implementation Pattern
 
-**Scope Fit Recommendation**:
-An author-facing recommendation that compares the desired story machinery with
-the selected container and offers fit paths: reduce machinery to fit the current
-container, or expand the container to fit the desired machinery.
-_Avoid_: Telling the author they cannot write the premise.
+Each genre implements three class hierarchies:
 
-**Mechanical Load**:
-The amount of narrative machinery a story contract asks the author to operate:
-clue logic, suspects, factions, world rules, relationship beats, escalation
-cycles, POVs, and similar moving parts.
-_Avoid_: Simpler genre.
+**1. Templates** (`src/auteur/{genre}/core_templates.py`)
+Each template class provides:
+- core_id: Unique identifier
+- primary_emotion: Core feeling
+- phases: dict with 9-phase decision tree
+- get_options(phase): List of selectable options
+- get_constraints(phase): Validation constraints
+- validate_choices(choices): Genre-specific validation
 
-**Medium Contract**:
-The accepted Layer 2 delivery grammar for a story: medium, format, release
-model, interaction model, unit of delivery, representation units, modulation
-biases, and medium-specific failure modes. Stored under
-`ProjectIdentity.medium_contract`; `ProjectIdentity.medium` remains a
-backward-compatible shortcut.
-_Avoid_: Treating all prose-shaped or story-shaped products as if they deliver
-through the same machinery.
+Three template classes per genre, one per emotional core.
 
-**Genre-First Adaptation**:
-The strict priority rule in Auteur's hierarchy: the Genre Contract (Level 1) dictates the creative promise, requiring the Medium Contract (Level 2) and Scope Container (Level 3) to bend and adapt to fulfill the Genre Contract's runway and structural requirements. For instance, a compressed medium (like a short story) carrying a genre that demands a long runway must either expand its container scale or apply an explicit `compression` or `subversion` override.
-_Avoid_: Letting a chosen medium or container silently override or fail the genre promise without explicit, validated author overrides.
+**2. Validation Rules** (`src/auteur/{genre}/validation.py`)
+- ValidationRule: Enforces one constraint
+- RuleSet: Dispatcher collecting all rules
+- 12-15 rules per genre (4 per emotional core)
+- Each rule validates specific narrative integrity requirements
 
-**Narrative Runway**:
-The amount of story space needed to set up, escalate, repeat, reveal, and pay
-off a genre or premise contract.
-_Avoid_: Quality, seriousness, or artistic ambition.
+**3. Identity Generation** (`src/auteur/netorare/identity_generator.py`)
+- IdentityGenerator.from_choices(): Transform choices to StoryIdentity
+- IdentityGenerator.to_yaml(): Serialize to YAML
+- Routing tables map all cores to their genres
+- Generated YAML passes `auteur identity validate`
 
-**Diagnostic Slice**:
-A minimal, independently shippable unit of diagnostic functionality — one
-detection rule, its data model, and its CLI wiring.
-_Avoid_: Feature, check, validator.
+### Shared Infrastructure (Reused Across All Genres)
 
-**Character State Change**:
-A structured record from the Cartographer outline: `{character, field, before, after}`,
-tracking what changed for a character per scene.
-_Avoid_: Delta, mutation, update.
+These components are genre-agnostic and shared:
 
-**Subgenre Modifier**:
-An optional, prompt-primary, validation-light modifier that biases recommendation and outline generation without loading a secondary contract. Subgenre validation is non-blocking (emitting only `WARNING` diagnostics for unknown or mismatched subgenres), and an empty subgenres list is fully valid.
-_Avoid_: Subgenre contract, subgenre override.
+**Session Management** (`src/auteur/netorare/session.py`)
+- SessionManager: File-based JSON session state with atomic writes
+- Tracks phase progression, choices, validation results
+- All genres use same SessionManager
 
+**Browser HTTP Server** (`src/auteur/netorare/browser/server.py`)
+- NetorareServer: Reused for all genres (no modifications)
+- Serves /session, /session/update, /session/complete, /session/validate
+- Provides endpoints for browser UI
 
-**Recommendation Mode**:
-The operating posture used when Auteur recommends a `StoryIdentity`. The default is `opinionated`: Auteur recommends one focused story engine via the Genre-Aligned lens. `open-ended` mode generates multiple candidates each optimized through a different `BestBasis` lens (Genre-Aligned, Structurally Coherent, Faithful to Input, Emotionally Powerful). The CLI accepts `--recommend-mode open-ended` which normalizes to the enum value `"open_ended"`.
-_Avoid_: Brainstorming, exploration mode, recommendation flavor.
+**Browser UI** (`src/auteur/netorare/browser/index.html`)
+- Vanilla JavaScript decision tree interface
+- Generic phase/option/constraint rendering
+- All genres reuse same UI (no modifications)
 
-**Best Basis**:
-The declared optimization lens used to decide why one `StoryIdentity` recommendation is considered best among alternatives.
-_Avoid_: Reason, justification label.
+**CLI Dispatcher** (`src/auteur/cli.py`)
+- Routes `auteur {genre} init --core {core_id}` to genre-specific handlers
+- Each genre provides its own handler class
 
-**Genre-Aligned Recommendation**:
-A recommendation whose primary justification is that it best satisfies the selected genre contract promise, core truth, and required tropes.
-_Avoid_: Default recommendation, generic recommendation.
+### Port Allocation
 
-**GenreOverride**:
-A declared author override that explicitly bypasses a genre contract violation with a deliberate creative reason. Classified into four types: `safe_variation` (minor deviation within genre tolerance), `compression` (condensing expected runway), `subversion` (intentionally inverting a trope), and `reclassification` (redefining the genre fit entirely). Stored under `ProjectIdentity.genre_overrides`.
+Each genre gets a unique port to avoid collisions:
+- Netorare: 8765
+- Mystery: 8766
+- Gentle Femdom: 8767
 
-Enforced by generic rule categories `genre.forbidden_mismatch.override_bypassed` and `genre.runway.override_bypassed`. Note that these generic IDs are glossary categories; the actual rule IDs emitted by the analyzer carry specific suffixes (e.g., `genre.forbidden_mismatch.ending_tone.{override_type}`).
+## The "No Special Cases" Principle
 
-_Avoid_: Auto-override, LLM-injected override, silent bypass.
+**Infrastructure must remain genre-agnostic.** If you need to add an `if genre == "netorare"` statement to SessionManager or NetorareServer, the architecture is breaking.
 
-**Repair Loop**:
-The retry-with-feedback process used when a generated `StoryIdentity` candidate fails deterministic validation. The LLM receives its previous output and the validation error messages, then corrects the content.
-_Avoid_: Retry cycle, fix iteration, second attempt.
+This principle ensures:
+- Adding genre N+1 requires only template/validation/identity code (3 files)
+- No infrastructure changes needed
+- Each genre scales independently
 
-**Author Override Constraint**:
-The rule that `author_overrides` represent explicit author decisions and must not be injected by the LLM. If validation fails, the LLM must fix the underlying story elements, not add an override to bypass the check.
-_Avoid_: Silent override constraint, auto-override, override cheat.
+**Validation:** Three genres implemented with zero infrastructure changes = pattern is production-ready.
 
-## The 9-Layer Engine
+## File Organization
 
-Auteur organizes narrative design, validation, and execution into 9 distinct, sequential layers. This ensures that global creative intent constraints cascade cleanly down to fine-grained prose modulation:
+```
+src/auteur/
+├── cli.py                                    Main dispatcher
+├── cli_netorare.py                           Netorare handler
+├── cli_mystery.py                            Mystery handler
+├── cli_gentlefemdom.py                       Gentle Femdom handler
+│
+├── netorare/                                 Shared infrastructure
+│   ├── session.py                            SessionManager
+│   ├── identity_generator.py                 IdentityGenerator + routing
+│   ├── core_templates.py                     Netorare: 3 cores
+│   ├── validation.py                         Netorare: 15 rules
+│   └── browser/
+│       ├── server.py                         NetorareServer (shared)
+│       └── index.html                        UI (shared)
+│
+├── mystery/                                  Genre-specific
+│   ├── core_templates.py                     Mystery: 3 cores
+│   └── validation.py                         Mystery: 12 rules
+│
+└── gentlefemdom/                             Genre-specific
+    ├── core_templates.py                     Gentle Femdom: 3 cores
+    └── validation.py                         Gentle Femdom: 12 rules
+```
 
-1. **TARGET EXPERIENCE (Layer 1)**: The intended audience experience — the emotional promise the story is trying to produce (primary feeling, emotional progression, and avoided states). Stored under `ProjectIdentity.target_experience`.
-2. **PROMISE / FORM CONTRACT (Layer 2)**: Genre, subgenre hierarchy, mode, medium contract, target audience, and boundaries (*What This Is Not*). Genre chooses the promise; medium chooses the delivery grammar; scope chooses the execution budget. Stored under `ProjectIdentity`.
-3. **SCOPE / SCALE (Layer 3)**: Structural constraints including story length class, estimated word count, act structure, maximum POV character count, subplot budget, and optional accepted Scope Contract. Stored under `StructuralConstants`.
-4. **STRUCTURAL FORCES (Layer 4)**: The core dramatic engine of the threads: Want, Resistance, Conflict, Stakes, and Change. Stored under `MainThread` and `StoryThread`.
-5. **THREADS / MODULES (Layer 5)**: The narrative tapestry: the main plot plus subordinate threads (arcs, subplots), each declaring its specific support function and thematic function. Stored under `StoryEngine`.
-6. **CARRIERS (Layer 6)**: The world entities and actors carrying structural forces: characters, settings, world systems, relationships, and inventory. Stored under `Character` and tracked dynamically in the `StoryBible`.
-7. **REPRESENTATION (Layer 7)**: The rendering of the deeper structure into plot events, scene cards, turns, reveals, and outlines. Tracked dynamically in the `StoryBible` event log and the `Cartographer` scene outlines.
-8. **MODULATION (Layer 8)**: Fine-grained prose execution: point of view, pacing dynamics, tone, voice, and stylistic choices. Audited at draft time by the **prose critics**.
-9. **RESONANCE / COHERENCE CHECK (Layer 9)**: The final alignment check: ensuring theme, motifs, act outcomes, and target experience reinforce the same underlying thematic question or argument. Stored under `ThematicCore`.
+## Adding a New Genre (Pattern)
 
-### Layer-to-Command Matrix
+To add Genre N+1:
 
-To ensure absolute architectural clarity, every layer is owned and validated by specific commands and mechanisms:
+1. **Design** - Define 3 emotional cores and validation rules
+2. **Implement Templates** - Create `src/auteur/{genre}/core_templates.py`
+3. **Implement Validation** - Create `src/auteur/{genre}/validation.py`
+4. **Extend Identity Generator** - Add core_id routing to `src/auteur/netorare/identity_generator.py`
+5. **Create CLI Handler** - Create `src/auteur/cli_{genre}.py` with {Genre}Command
+6. **Update Main CLI** - Add genre subparser to `src/auteur/cli.py`
+7. **Test** - Write 40-50 tests (TDD throughout)
 
-| Layer | Conceptual Area | Programmatic Key | Primary Validation Mechanism | Command Ownership |
-|---|---|---|---|---|
-| **Layer 1** | **Target Experience** | `target_experience` | Deterministic Schema + Semantic Match | `auteur identity validate` / `auteur structure diagnose` |
-| **Layer 2** | **Promise / Form Contract** | `constraints` / `story_type` | Deterministic Schema / Contract Beats | `auteur identity validate` / `auteur structure diagnose` |
-| **Layer 3** | **Scope / Container** | `scope` / `story_type` | Subplot budget / chapter / POV bounds | `auteur identity validate` / `auteur structure diagnose` |
-| **Layer 4** | **Structural Forces** | `structural_forces` / `central_engine` | Core engine completion (want $\neq$ change) | `auteur identity validate` / `auteur structure diagnose` |
-| **Layer 5** | **Threads / Modules** | `threads` | Thread support functions & connections | `auteur structure diagnose` |
-| **Layer 6** | **Carriers** | `carriers` | Deterministic state transitions (location) | `auteur audit` |
-| **Layer 7** | **Representation** | `representation` | Scene carrier validation via `state_check --outline`. Checks character locations in `outline.yaml` against last-known Bible carrier state. `outline_audit.py` | `auteur state check --outline` |
-| **Layer 8** | **Modulation** | `modulation` | Interactive prose quality & tone audits | Pipeline (Drafting Critics) |
-| **Layer 9** | **Resonance / Coherence** | `theme` (programmatic) | Whole-story thematic coverage check | `auteur structure diagnose` |
+No infrastructure changes needed.
 
-## Relationships
+## The 3-Genre Threshold
 
-- The **Cartographer** outline produces **Character State Changes** per scene.
-- The **Bible** records **Character State Changes** in its event `deltas` during chapter accept.
-- A **Bible Audit** reads Bible events, traces **Character State Changes**, and emits
-  **Diagnostics** for impossible transitions (e.g., **Location Teleportation**).
-- **Narrative Drift** occurs when **Layer 7** (chapter drafts) contradicts **Layer 6**
-  (Bible carrier state) across multiple chapters.
+Three different genres implemented with zero infrastructure modifications = the architecture is proven production-ready. Auteur has reached this threshold:
 
-## Example dialogue
+- Netorare (Humiliation, Horror, Mystery cores)
+- Mystery (Howdunit, Paranoia, Cozy cores)
+- Gentle Femdom (Sensual Dominance, Tender Surrender, Romantic Authority cores)
 
-> **Author:** "My character Aldric was in the Throne Room in chapter 3, but in
-> chapter 5 he's suddenly in the Dungeon with no scene showing how he got there."
->
-> **Dev:** "That's a **Location Teleportation** — a **Narrative Drift** between
-> **Layer 6** Bible state and **Layer 7** chapter representation. A **Bible Audit**
-> would catch it by tracing the event log and flagging the missing transition."
+## API Contracts
 
-**Decision Packet**:
-A structured artifact presenting one unresolved contradiction and 2-3 author-facing
-options (preserve intent / challenge intent) for resolving it. Stored as a
-`StructureProposal` YAML file in `structure/proposals/`.
-_Avoid_: Conflict report, resolution prompt, fix suggestion.
+### Template Contract
 
-**Story State Manager**:
-The unified multi-layer coordination system that manages project state across all 9 structure layers. 
-- *Cognitive Role*: Governed by the [story-state-manager](file:///h:/GithubRepositories/auteur/skills/story-state-manager/SKILL.md) Agent Skill to orchestrate Phase transitions and Bridge Recovery.
-- *Programmatic Actions*: Governed by Auteur's upcoming `auteur state` CLI command family to transactionalize state check, update, prepare, canon, and confirm operations (see [PRD Roadmap](file:///h:/GithubRepositories/auteur/docs/prd-story-state-commands.md)).
-_Avoid_: Lore manager, consistency engine.
+Every template must implement:
+- phases: dict (9-phase decision tree)
+- get_options(phase): List of options
+- get_constraints(phase): Validation constraints
+- validate_choices(choices): Genre-specific validation
 
-**Structure Diagnostic**:
-A deterministic finding produced by `auteur structure diagnose` (or
-`auteur structure propose-repairs`) against a `StoryBlueprint`. Represents a
-whole-story coherence violation — e.g., a missing `story_engine`, thread count
-exceeding subplot budget, or a thematic function left unspecified. Operates
-entirely on the blueprint; does not read Bible events.
-_Avoid_: Lore check, audit finding, structure error.
-_Contrast with_: **Bible Audit**, which reads the event log for carrier-state
-inconsistencies across chapters.
-**Proposal Resolution**:
-The act of an author selecting and locking an option in a Decision Packet,
-persisting the choice in the proposal YAML's `selection` and `decision` fields.
-_Canonical verb_: resolve / resolution.
-_Avoid_: Accept, fix, apply.
+### Validation Rule Contract
 
-**Proposal Lifecycle**:
-The four-step sequence for resolving a structural contradiction:
-1. **Diagnose** — `auteur structure diagnose <blueprint>` emits **Structure Diagnostics**.
-2. **Propose** — `auteur structure propose-repairs <blueprint>` writes **Decision Packets** to `structure/proposals/`.
-3. **Select** — author sets `selection.selected_option_id` in the YAML (or a future `--resolve` flag).
-4. **Apply** — `auteur structure apply <proposal> <blueprint>` merges the selected option's `data` into a new blueprint file.
+Every rule must implement:
+- validate(template, choices): Returns (is_valid, errors)
 
-For Bible audit findings: **Diagnose** via `auteur audit`, **Propose** via `auteur audit --repair`, **Resolve** via `auteur audit --accept <id> --option <id>` (no blueprint mutation — lore repair is recorded in the YAML only).
-_Avoid_: Conflating the structure lifecycle with the audit lifecycle — they share the `StructureProposal` artifact format but differ in the apply step.
+### Identity Contract
 
-## Relationships
+Generated YAML must:
+- Pass `auteur identity validate {file}.yaml`
+- Contain Genre field
+- Include selected choices and core_id
+- Be consumable by `auteur blueprint seed {file}.yaml`
 
-- The **Cartographer** outline produces **Character State Changes** per scene.
-- The **Bible** records **Character State Changes** in its event `deltas` during chapter accept.
-- A **Bible Audit** reads Bible events, traces **Character State Changes**, and emits
-  **Diagnostics** for impossible transitions (e.g., **Location Teleportation**).
-- **Narrative Drift** occurs when **Layer 7** (chapter drafts) contradicts **Layer 6**
-  (Bible carrier state) across multiple chapters.
-- A **Diagnostic** from any layer can be promoted to a **Decision Packet**
-  (a `StructureProposal` YAML) when it has `repair_options`.
-- The **Story State Manager** runs all diagnostic rules across all layers and
-  emits **Decision Packets** for unresolved contradictions.
-- The author performs **Proposal Resolution** by editing the YAML or via
-  the appropriate command (see Command Ownership below).
-- A **Structure Diagnostic** is promoted to a **Decision Packet** via
-  `auteur structure propose-repairs`; the author then resolves it via
-  `auteur structure apply` (which mutates the blueprint).
-- A **Bible Audit** finding is promoted to a **Decision Packet** via
-  `auteur audit --repair`; the author resolves it via `auteur audit --accept`
-  (which stamps the YAML only — no blueprint mutation).
+---
 
-### Command Ownership
-
-| Proposal source | Generate proposals | Resolve (select + lock) | Mutates blueprint? |
-|---|---|---|---|
-| `auteur structure propose-repairs` | `auteur structure propose-repairs <blueprint>` | `auteur structure apply <proposal> <blueprint>` | Yes |
-| `auteur audit --repair` | `auteur audit --repair <project>` | `auteur audit --accept <id> --option <id>` | No |
-
-## Example dialogue
-
-> **Author:** "My character Aldric was in the Throne Room in chapter 3, but in
-> chapter 5 he's suddenly in the Dungeon with no scene showing how he got there."
->
-> **Dev:** "That's a **Location Teleportation** — a **Narrative Drift** between
-> **Layer 6** Bible state and **Layer 7** chapter representation. A **Bible Audit**
-> would catch it by tracing the event log and flagging the missing transition."
->
-> **Author:** "I ran `auteur audit` and it gave me a **Decision Packet** with two options.
-> I chose 'preserve_1' to add a transition scene. How do I lock that in?"
->
-> **Dev:** "Either edit the `repair_1_carriers_location_teleportation.yaml` in
-> `structure/proposals/` and set `selection.selected_option_id` to `preserve_1`,
-> or run `auteur audit --accept repair_1_carriers_location_teleportation --option preserve_1`.
-> Either way, the **Proposal Resolution** is stored in the YAML and `auteur audit`
-> will skip it next time."
-
-## Flagged ambiguities
-
-- "audit" could mean checking blueprint coherence (structure diagnostics) or
-  checking Bible/chapter consistency (Bible audit). Resolved: structure
-  diagnostics check within-blueprint coherence; Bible audit checks
-  cross-chapter carrier state consistency.
-
-## Workflow Discovery
-
-When choosing what to do next, ask which part of the current contract is most
-likely to stay ambiguous, unproven, or unenforced if nothing changes.
-
-Use these native Auteur terms:
-
-- Core object: `StoryBlueprint` plus its structure artifacts, diagnostics,
-  proposals, and accepted follow-through.
-- Fixture: a frozen project or blueprint example used to prove behavior.
-- Validator: a deterministic analyzer or CLI check that enforces structure.
-- Human review: the judgment step that decides whether the output is actually
-  useful and not misleading.
-- Promotion: the point at which a proposal, workflow, or rule is stable enough
-  for other work to depend on it.
-
-The weakest contract boundary should usually become the next step. Prefer the
-smallest change that makes that boundary explicit, testable, validated, or
-documented.
+Last Updated: 2026-07-08
+Validated Through: Three complete genre pipelines with proven reusability
