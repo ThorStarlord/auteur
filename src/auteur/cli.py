@@ -190,6 +190,8 @@ def _build_parser() -> argparse.ArgumentParser:
     register_character_subcommands(sub)
     from auteur.series.cli import register_series_subcommands
     register_series_subcommands(sub)
+    from auteur.editing.cli import register_edit_subcommands
+    register_edit_subcommands(sub)
 
     p = sub.add_parser("state",
         help="Manage story state layers programmatically.")
@@ -733,6 +735,10 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "series":
         from auteur.series.cli import handle_series_command
         return handle_series_command(args)
+    # === edit ===
+    if args.command == "edit":
+        from auteur.editing.cli import handle_edit_command
+        return handle_edit_command(args)
 
     # === netorare ===
     if args.command == "netorare":
