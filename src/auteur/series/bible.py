@@ -6,6 +6,25 @@ from auteur.series.models import SeriesIdentity
 
 def compile_series_bible(series: SeriesIdentity) -> dict:
     graph = build_dependency_graph(series)
+    book_numbers = [str(book.book_number) for book in series.book_plans]
+    payoff_schedule = {
+        str(book.book_number): list(book.required_payoffs)
+        for book in series.book_plans
+    }
+    mystery_status_by_book: dict[str, list[dict]] = {number: [] for number in book_numbers}
+    for mystery in series.mysteries:
+        for number in book_numbers:
+            book_number = int(number)
+            if book_number < mystery.introduced_book:
+                status = "not_introduced"
+            elif mystery.actual_payoff_book == book_number:
+                status = "paid_off"
+            elif mystery.actual_payoff_book is not None and book_number > mystery.actual_payoff_book:
+                status = "resolved"
+            else:
+                status = "active"
+            mystery_status_by_book[number].append({"id": mystery.id, "status": status})
+
     return {
         "title": series.title,
         "core_question": series.core_question,
@@ -44,8 +63,8 @@ def compile_series_bible(series: SeriesIdentity) -> dict:
             {
                 "book": book.book_number,
                 "title": book.title,
-                "series_function": book.series_function,
-                "scope": book.scope,
+                "series_function": book.series_function.value,
+                "scope": book.scope.value,
                 "setups": book.required_setups,
                 "payoffs": book.required_payoffs,
             }
@@ -57,4 +76,30 @@ def compile_series_bible(series: SeriesIdentity) -> dict:
             for book in series.book_plans
         ],
         "dependency_index": graph.impact_metadata,
+        "character_state_matrix": {
+            arc.character: arc.book_states for arc in series.character_arcs
+        },
+        "relationship_state_matrix": {
+            arc.id: arc.book_states for arc in series.relationship_arcs
+        },
+        "faction_state_matrix": {
+            arc.faction: arc.book_states for arc in series.faction_arcs
+        },
+        "mystery_status_by_book": mystery_status_by_book,
+        "payoff_schedule": payoff_schedule,
+        "unresolved_threads": [
+            mystery.id for mystery in series.mysteries if mystery.actual_payoff_book is None
+        ],
+        "book_context_packets": {
+            str(book.book_number): {
+                "title": book.title,
+                "series_function": book.series_function.value,
+                "scope": book.scope.value,
+                "threads_carried": book.series_threads_carried,
+                "setups": book.required_setups,
+                "payoffs": book.required_payoffs,
+                "core_answer": book.core_answer,
+            }
+            for book in series.book_plans
+        },
     }

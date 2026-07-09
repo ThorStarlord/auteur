@@ -1,15 +1,28 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
-import yaml
-
-from auteur.series.bible import compile_series_bible
-from auteur.series.compiler import write_book_identities
-from auteur.series.diagnostics import diagnose_series
-from auteur.series.graph import build_dependency_graph
+from auteur.series.formatters import (
+    format_series_bible_success,
+    format_series_compile_success,
+    format_series_diagnostics_success,
+    format_series_graph_success,
+    format_series_validate_success,
+)
+from auteur.series.handlers import (
+    handle_series_bible,
+    handle_series_compile,
+    handle_series_diagnose,
+    handle_series_graph,
+    handle_series_validate,
+)
 from auteur.series.models import SeriesIdentity
+from auteur.series.serializers import (
+    serialize_series_bible,
+    serialize_series_compile,
+    serialize_series_diagnostics,
+    serialize_series_graph,
+)
 
 
 def register_series_subcommands(sub) -> None:
@@ -50,49 +63,44 @@ def handle_series_command(args) -> int:
         return 1
 
     if args.series_command == "validate":
-        diagnostics = diagnose_series(series)
-        errors = [d for d in diagnostics if getattr(d.severity, "value", d.severity) == "error"]
-        if errors:
-            print(f"Error: SeriesIdentity {args.series} failed validation.")
-            return 1
-        print(f"Success: SeriesIdentity {args.series} is valid.")
-        return 0
+        result = handle_series_validate(series)
+        if not result.is_success:
+            print(f"Error: {result.error}")
+            return result.exit_code
+        print(format_series_validate_success(str(args.series)))
+        return result.exit_code
 
     if args.series_command == "compile":
-        try:
-            written = write_book_identities(series, args.output)
-        except Exception as exc:
-            print(f"Error: failed to compile series: {exc}")
-            return 1
+        result = handle_series_compile(series)
+        if not result.is_success:
+            print(f"Error: {result.error}")
+            return result.exit_code
+        written = serialize_series_compile(result, args.output)
         for path in written:
             print(f"Wrote {path}")
-        return 0
+        print(format_series_compile_success(len(written), str(args.output)))
+        return result.exit_code
 
     if args.series_command == "diagnose":
-        diagnostics = diagnose_series(series)
+        result = handle_series_diagnose(series)
         output = args.output or Path("series") / "diagnostics" / "series_report.json"
-        output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(
-            json.dumps({"diagnostics": [d.model_dump(mode="json") for d in diagnostics]}, indent=2),
-            encoding="utf-8",
-        )
-        print(f"Series diagnostics written to {output}")
+        serialize_series_diagnostics(result, output)
+        print(format_series_diagnostics_success(str(output)))
+        diagnostics = result.data.diagnostics
         return 1 if [d for d in diagnostics if getattr(d.severity, "value", d.severity) == "error"] else 0
 
     if args.series_command == "graph":
-        graph = build_dependency_graph(series)
+        result = handle_series_graph(series)
         output = args.output or Path("series") / "dependency_graph.yaml"
-        output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(yaml.safe_dump(graph.model_dump(mode="json"), sort_keys=False), encoding="utf-8")
-        print(f"Series dependency graph written to {output}")
-        return 0
+        serialize_series_graph(result, output)
+        print(format_series_graph_success(str(output)))
+        return result.exit_code
 
     if args.series_command == "bible":
-        bible = compile_series_bible(series)
+        result = handle_series_bible(series)
         output = args.output or Path("series_bible.json")
-        output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(json.dumps(bible, indent=2), encoding="utf-8")
-        print(f"Series bible written to {output}")
-        return 0
+        serialize_series_bible(result, output)
+        print(format_series_bible_success(str(output)))
+        return result.exit_code
 
     return 1

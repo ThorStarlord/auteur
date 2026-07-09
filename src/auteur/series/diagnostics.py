@@ -6,16 +6,16 @@ from auteur.structure.diagnostics import (
     RepairOptions,
     StructureDiagnostic,
 )
-from auteur.series.models import SeriesIdentity
+from auteur.series.models import SeriesFunction, SeriesIdentity, SeriesScope
 
 
 _SCOPE_ORDER = {
-    "personal": 1,
-    "village": 2,
-    "city": 3,
-    "national": 4,
-    "civilizational": 5,
-    "cosmic": 6,
+    SeriesScope.PERSONAL: 1,
+    SeriesScope.VILLAGE: 2,
+    SeriesScope.CITY: 3,
+    SeriesScope.NATIONAL: 4,
+    SeriesScope.CIVILIZATIONAL: 5,
+    SeriesScope.COSMIC: 6,
 }
 
 
@@ -61,7 +61,7 @@ def diagnose_series(series: SeriesIdentity) -> list[StructureDiagnostic]:
         diagnostics.append(_diag(
             "series.scope.flat_stakes",
             "Series escalation is weak because stakes or scope remain flat across books.",
-            [f"scopes = {[book.scope for book in series.book_plans]}"],
+            [f"scopes = {[book.scope.value for book in series.book_plans]}"],
         ))
 
     for mystery in series.mysteries:
@@ -91,18 +91,18 @@ def diagnose_series(series: SeriesIdentity) -> list[StructureDiagnostic]:
             ))
 
     if series.series_type.value == "trilogy":
-        middle = series.book_plans[1].series_function.casefold()
-        if not any(term in middle for term in ("complication", "collapse", "escalation")):
+        middle = series.book_plans[1].series_function
+        if middle not in {SeriesFunction.COMPLICATION, SeriesFunction.COLLAPSE, SeriesFunction.ESCALATION}:
             diagnostics.append(_diag(
                 "series.trilogy.weak_middle_function",
                 "Book 2 of a trilogy should complicate, collapse, or escalate the series engine.",
-                [f"book_2.series_function = {series.book_plans[1].series_function}"],
+                [f"book_2.series_function = {series.book_plans[1].series_function.value}"],
             ))
 
     intensities = [book.climax_intensity for book in series.book_plans]
     for index in range(1, len(intensities)):
-        function = series.book_plans[index].series_function.casefold()
-        if intensities[index] < intensities[index - 1] and "cooldown" not in function:
+        function = series.book_plans[index].series_function
+        if intensities[index] < intensities[index - 1] and function != SeriesFunction.COOLDOWN:
             diagnostics.append(_diag(
                 "series.tension.regression",
                 "A later book climax is less intense than the previous book without an explicit cooldown role.",

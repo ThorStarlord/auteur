@@ -28,6 +28,24 @@ class DependencyType(str, Enum):
     TRANSFORMS = "transforms"
 
 
+class SeriesFunction(str, Enum):
+    QUESTION = "question"
+    COMPLICATION = "complication"
+    COLLAPSE = "collapse"
+    ESCALATION = "escalation"
+    RESOLUTION = "resolution"
+    COOLDOWN = "cooldown"
+
+
+class SeriesScope(str, Enum):
+    PERSONAL = "personal"
+    VILLAGE = "village"
+    CITY = "city"
+    NATIONAL = "national"
+    CIVILIZATIONAL = "civilizational"
+    COSMIC = "cosmic"
+
+
 class GlobalArc(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -41,7 +59,7 @@ class BookPlan(BaseModel):
 
     book_number: int = Field(ge=1)
     title: str = Field(min_length=1)
-    series_function: str = Field(min_length=1)
+    series_function: SeriesFunction
     core_answer: str = Field(min_length=1)
     target_experience: TargetExperience
     story_type: StoryType
@@ -49,7 +67,7 @@ class BookPlan(BaseModel):
     series_threads_carried: list[str] = Field(default_factory=list)
     required_setups: list[str] = Field(default_factory=list)
     required_payoffs: list[str] = Field(default_factory=list)
-    scope: str = "personal"
+    scope: SeriesScope = SeriesScope.PERSONAL
     climax_intensity: int = Field(default=5, ge=0, le=10)
 
 

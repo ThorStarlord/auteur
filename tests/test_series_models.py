@@ -7,13 +7,26 @@ from series_fixtures import valid_trilogy_data
 
 
 def test_valid_trilogy_parses():
-    from auteur.series.models import SeriesIdentity
+    from auteur.series.models import SeriesFunction, SeriesIdentity, SeriesScope
 
     series = SeriesIdentity.model_validate(valid_trilogy_data())
 
     assert series.title == "The Ash Empire Trilogy"
     assert series.series_type == "trilogy"
     assert len(series.book_plans) == 3
+    assert series.book_plans[0].series_function == SeriesFunction.QUESTION
+    assert series.book_plans[0].scope == SeriesScope.CITY
+
+
+def test_invalid_series_function_and_scope_fail_schema_validation():
+    from auteur.series.models import SeriesIdentity
+
+    data = valid_trilogy_data()
+    data["book_plans"][0]["series_function"] = "vibes"
+    data["book_plans"][0]["scope"] = "neighborhood"
+
+    with pytest.raises(ValidationError):
+        SeriesIdentity.model_validate(data)
 
 
 @pytest.mark.parametrize(

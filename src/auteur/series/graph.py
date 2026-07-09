@@ -14,6 +14,7 @@ class GraphNode(BaseModel):
 
 
 class SeriesDependencyGraph(BaseModel):
+    edge_semantics: str = "source_affects_target"
     nodes: list[GraphNode]
     edges: list[DependencyEdge]
     impact_metadata: dict[str, dict[str, list[str]]] = Field(default_factory=dict)

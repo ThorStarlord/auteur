@@ -17,6 +17,13 @@ def test_series_bible_contains_compiled_sections():
     assert bible["timeline"][0]["book"] == 1
     assert bible["recurring_symbols"] == ["ash crown", "broken gates"]
     assert "emperor_identity" in bible["dependency_index"]
+    assert bible["character_state_matrix"]["Elena"]["2"] == "exhausted commander"
+    assert bible["relationship_state_matrix"]["elena_marcus"]["2"] == "fracture"
+    assert bible["faction_state_matrix"]["Empire"]["2"] == "civil_war"
+    assert bible["mystery_status_by_book"]["3"][0]["status"] == "paid_off"
+    assert bible["payoff_schedule"]["3"] == ["emperor_identity"]
+    assert bible["unresolved_threads"] == []
+    assert bible["book_context_packets"]["2"]["series_function"] == "complication"
 
 
 def test_series_bible_is_deterministic():
