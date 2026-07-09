@@ -87,9 +87,12 @@ class TestLabelAwareProseGeneration:
         identity = IdentityGenerator.from_choices("sensual_dominance", choices)
 
         # Should be substantive (longer than just the field name)
-        # The conflict is derived from want + resistance, so it should mention those concepts
-        assert len(identity.central_engine.conflict) > 30
-        assert "trust" in identity.central_engine.conflict.lower() or "doubt" in identity.central_engine.conflict.lower()
+        # The conflict uses the template label, which should mention emotional dynamics
+        assert len(identity.central_engine.conflict) > 20
+        # Template label for "conflict-control-vs-consent" is "Control vs. enthusiastic consent"
+        # Should contain key emotional/relational words from the template
+        assert ("control" in identity.central_engine.conflict.lower() or
+                "consent" in identity.central_engine.conflict.lower())
 
     def test_stakes_uses_label(self):
         """stakes uses template label."""

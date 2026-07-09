@@ -141,8 +141,13 @@ class IdentityGenerator:
             # Generate fallback stakes based on want/resistance
             stakes = cls._generate_stakes(want, resistance, change)
 
-        # Generate derived conflict
-        conflict = cls._generate_conflict(want, resistance, change)
+        # Try to get conflict from template, otherwise generate
+        conflict_id = layer4.get("conflict", "")
+        if conflict_id:
+            conflict = cls._get_label_from_template(template, 4, "conflict", conflict_id)
+        else:
+            # Generate derived conflict for genres without conflict option
+            conflict = cls._generate_conflict(want, resistance, change)
 
         # Create central engine
         central_engine = HighLevelCentralEngine(
