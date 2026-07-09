@@ -132,6 +132,26 @@ class HowdunitTemplate:
 
         return len(errors) == 0, errors, warnings
 
+    def get_option_label(self, phase: int, field_or_section: str, option_id: str) -> str:
+        """Get human-readable label for an option.
+
+        Args:
+            phase: Phase number
+            field_or_section: Field name within that phase (ignored for mystery, as options are flat)
+            option_id: The option's ID (e.g., "want-solve-puzzle")
+
+        Returns:
+            Label string (e.g., "Want: Solve the puzzle")
+
+        Raises:
+            KeyError: If the option_id is not found
+        """
+        phase_options = self.get_options(phase)
+        for opt in phase_options:
+            if isinstance(opt, TemplateOption) and opt.id == option_id:
+                return opt.label
+        raise KeyError(f"Option {option_id} not found in phase {phase}")
+
 
 class ParanoiaTemplate:
     """Paranoia (psychological thriller) template."""
@@ -243,6 +263,26 @@ class ParanoiaTemplate:
 
         return len(errors) == 0, errors, warnings
 
+    def get_option_label(self, phase: int, field_or_section: str, option_id: str) -> str:
+        """Get human-readable label for an option.
+
+        Args:
+            phase: Phase number
+            field_or_section: Field name within that phase (ignored for mystery, as options are flat)
+            option_id: The option's ID (e.g., "want-understand-reality")
+
+        Returns:
+            Label string (e.g., "Want: Understand what's real")
+
+        Raises:
+            KeyError: If the option_id is not found
+        """
+        phase_options = self.get_options(phase)
+        for opt in phase_options:
+            if isinstance(opt, TemplateOption) and opt.id == option_id:
+                return opt.label
+        raise KeyError(f"Option {option_id} not found in phase {phase}")
+
 
 class CozyTemplate:
     """Cozy Mystery (low-stakes, community-focused) template."""
@@ -353,6 +393,26 @@ class CozyTemplate:
                     errors.append(f"Phase {phase}: '{value}' is not a valid option. Valid options: {valid_ids}")
 
         return len(errors) == 0, errors, warnings
+
+    def get_option_label(self, phase: int, field_or_section: str, option_id: str) -> str:
+        """Get human-readable label for an option.
+
+        Args:
+            phase: Phase number
+            field_or_section: Field name within that phase (ignored for mystery, as options are flat)
+            option_id: The option's ID (e.g., "warm-amateur-sleuth")
+
+        Returns:
+            Label string (e.g., "Warm amateur sleuth as protagonist")
+
+        Raises:
+            KeyError: If the option_id is not found
+        """
+        phase_options = self.get_options(phase)
+        for opt in phase_options:
+            if isinstance(opt, TemplateOption) and opt.id == option_id:
+                return opt.label
+        raise KeyError(f"Option {option_id} not found in phase {phase}")
 
 
 def get_template(core_id: str):

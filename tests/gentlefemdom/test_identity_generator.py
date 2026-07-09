@@ -136,10 +136,11 @@ class TestGentlefemdomIdentityTransformation:
             choices=choices
         )
 
-        assert identity.central_engine.want == "want-establish-trust"
-        assert identity.central_engine.resistance == "resistance-partner-doubt"
-        assert identity.central_engine.change == "change-tentative-to-confident"
-        assert "emotional-intimacy" in identity.central_engine.stakes or "intimacy" in identity.central_engine.stakes.lower()
+        # Central engine now uses template labels instead of raw IDs (Phase 2)
+        assert "establish" in identity.central_engine.want.lower() or "trust" in identity.central_engine.want.lower()
+        assert "doubt" in identity.central_engine.resistance.lower()
+        assert "confident" in identity.central_engine.change.lower()
+        assert "emotional" in identity.central_engine.stakes.lower() or "intimacy" in identity.central_engine.stakes.lower()
 
     def test_tender_surrender_choice_values_become_identity_fields(self):
         """Choice values are correctly mapped for tender_surrender."""
@@ -158,9 +159,10 @@ class TestGentlefemdomIdentityTransformation:
             choices=choices
         )
 
-        assert identity.central_engine.want == "want-release-control"
-        assert identity.central_engine.resistance == "resistance-fear-vulnerability"
-        assert identity.central_engine.change == "change-defended-to-open"
+        # Central engine now uses template labels instead of raw IDs (Phase 2)
+        assert "release" in identity.central_engine.want.lower() or "control" in identity.central_engine.want.lower()
+        assert "fear" in identity.central_engine.resistance.lower() or "vulnerability" in identity.central_engine.resistance.lower()
+        assert "open" in identity.central_engine.change.lower() or "defended" in identity.central_engine.change.lower()
 
     def test_romantic_authority_choice_values_become_identity_fields(self):
         """Choice values are correctly mapped for romantic_authority."""
@@ -179,9 +181,10 @@ class TestGentlefemdomIdentityTransformation:
             choices=choices
         )
 
-        assert identity.central_engine.want == "want-provide-protect"
-        assert identity.central_engine.resistance == "resistance-partner-independence"
-        assert identity.central_engine.change == "change-uncertain-to-confident"
+        # Central engine now uses template labels instead of raw IDs (Phase 2)
+        assert "provide" in identity.central_engine.want.lower() or "protect" in identity.central_engine.want.lower()
+        assert "independence" in identity.central_engine.resistance.lower()
+        assert "confident" in identity.central_engine.change.lower()
 
 
 class TestGentlefemdomIdentityCoherence:

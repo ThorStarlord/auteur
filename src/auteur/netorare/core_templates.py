@@ -201,6 +201,32 @@ class HumiliationTemplate:
             },
         }
 
+    def get_option_label(self, phase: int, field_or_section: str, option_id: str) -> str:
+        """Get human-readable label for an option.
+
+        Args:
+            phase: Phase number
+            field_or_section: Field name within that phase (e.g., "want", "resistance")
+            option_id: The option's ID (e.g., "want-dignity")
+
+        Returns:
+            Label string (e.g., "Regain lost dignity / prove their worth")
+
+        Raises:
+            KeyError: If the option_id is not found
+        """
+        raw_options = self.options.get(phase, {})
+
+        # All netorare phases use nested dict structure
+        if isinstance(raw_options, dict):
+            field_options = raw_options.get(field_or_section, [])
+            for opt in field_options:
+                if isinstance(opt, TemplateOption) and opt.id == option_id:
+                    return opt.label
+            raise KeyError(f"Option {option_id} not found in phase {phase} field {field_or_section}")
+
+        raise KeyError(f"No options found for phase {phase}")
+
     def get_options(self, phase: int) -> Dict[str, List[Dict[str, Any]]]:
         """Get all options for a given phase as dicts."""
         raw_options = self.options.get(phase, {})
@@ -452,6 +478,32 @@ class HorrorTemplate:
         is_valid = len(errors) == 0
         return is_valid, errors, warnings
 
+    def get_option_label(self, phase: int, field_or_section: str, option_id: str) -> str:
+        """Get human-readable label for an option.
+
+        Args:
+            phase: Phase number
+            field_or_section: Field name within that phase (e.g., "want", "resistance")
+            option_id: The option's ID (e.g., "want-escape")
+
+        Returns:
+            Label string (e.g., "Escape / get away from the transgression")
+
+        Raises:
+            KeyError: If the option_id is not found
+        """
+        raw_options = self.options.get(phase, {})
+
+        # All netorare phases use nested dict structure
+        if isinstance(raw_options, dict):
+            field_options = raw_options.get(field_or_section, [])
+            for opt in field_options:
+                if isinstance(opt, TemplateOption) and opt.id == option_id:
+                    return opt.label
+            raise KeyError(f"Option {option_id} not found in phase {phase} field {field_or_section}")
+
+        raise KeyError(f"No options found for phase {phase}")
+
 
 class MysteryTemplate:
     """Mystery netorare template (voyeurism/investigation)."""
@@ -640,6 +692,32 @@ class MysteryTemplate:
 
         is_valid = len(errors) == 0
         return is_valid, errors, warnings
+
+    def get_option_label(self, phase: int, field_or_section: str, option_id: str) -> str:
+        """Get human-readable label for an option.
+
+        Args:
+            phase: Phase number
+            field_or_section: Field name within that phase (e.g., "want", "resistance")
+            option_id: The option's ID (e.g., "want-truth")
+
+        Returns:
+            Label string (e.g., "Understand the truth about the relationship")
+
+        Raises:
+            KeyError: If the option_id is not found
+        """
+        raw_options = self.options.get(phase, {})
+
+        # All netorare phases use nested dict structure
+        if isinstance(raw_options, dict):
+            field_options = raw_options.get(field_or_section, [])
+            for opt in field_options:
+                if isinstance(opt, TemplateOption) and opt.id == option_id:
+                    return opt.label
+            raise KeyError(f"Option {option_id} not found in phase {phase} field {field_or_section}")
+
+        raise KeyError(f"No options found for phase {phase}")
 
 
 def get_template(core_id: str):

@@ -36,7 +36,8 @@ class TestIdentityGeneratorBasics:
         assert identity.title is not None
         assert len(identity.title) > 0
         assert identity.core_answer is not None
-        assert identity.central_engine.want == "want-dignity"
+        # Central engine now uses template labels instead of raw IDs
+        assert "dignity" in identity.central_engine.want.lower()
 
     def test_from_choices_validates_before_generating(self):
         """from_choices validates the choices before generating."""
@@ -77,7 +78,8 @@ class TestIdentityGeneratorBasics:
         )
 
         assert isinstance(identity, StoryIdentity)
-        assert identity.central_engine.resistance == "resistance-inescapable"
+        # Central engine now uses template labels instead of raw IDs
+        assert "inescapable" in identity.central_engine.resistance.lower()
 
     def test_from_choices_mystery(self):
         """Generate mystery story identity from choices."""
@@ -220,10 +222,12 @@ class TestIdentityGeneratorTransformation:
             choices=choices
         )
 
-        assert identity.central_engine.want == "want-dignity"
-        assert identity.central_engine.resistance == "resistance-rival-superiority"
-        assert identity.central_engine.change == "change-accept"
-        assert "self-worth" in identity.central_engine.stakes
+        # Central engine now uses template labels instead of raw IDs (Phase 2)
+        assert "dignity" in identity.central_engine.want.lower()
+        assert "superior" in identity.central_engine.resistance.lower()
+        assert "accept" in identity.central_engine.change.lower()
+        # Stakes falls back to readable conversion (netorare doesn't have stakes in template)
+        assert "worth" in identity.central_engine.stakes.lower()
 
     def test_generated_conflict_describes_tension(self):
         """Generated conflict field describes the dramatic tension."""

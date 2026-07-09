@@ -188,6 +188,39 @@ class SensualDominanceTemplate:
             ],
         }
 
+    def get_option_label(self, phase: int, field_or_section: str, option_id: str) -> str:
+        """Get human-readable label for an option.
+
+        Args:
+            phase: Phase number
+            field_or_section: Field name within that phase (e.g., "want", "resistance")
+            option_id: The option's ID (e.g., "want-establish-trust")
+
+        Returns:
+            Label string (e.g., "Establish trust through demonstrated leadership")
+
+        Raises:
+            KeyError: If the option_id is not found
+        """
+        raw_options = self.options.get(phase, {})
+
+        # Handle Layer 4 (structural forces) which has nested dict
+        if isinstance(raw_options, dict) and phase == 4:
+            field_options = raw_options.get(field_or_section, [])
+            for opt in field_options:
+                if isinstance(opt, TemplateOption) and opt.id == option_id:
+                    return opt.label
+            raise KeyError(f"Option {option_id} not found in phase {phase} field {field_or_section}")
+
+        # For other phases, search through the list
+        if isinstance(raw_options, list):
+            for opt in raw_options:
+                if isinstance(opt, TemplateOption) and opt.id == option_id:
+                    return opt.label
+            raise KeyError(f"Option {option_id} not found in phase {phase}")
+
+        raise KeyError(f"No options found for phase {phase}")
+
     def get_options(self, phase: int) -> Dict[str, List[Dict[str, Any]]]:
         """Get all options for a given phase as dicts."""
         raw_options = self.options.get(phase, {})
@@ -424,6 +457,39 @@ class TenderSurrenderTemplate:
             ],
         }
 
+    def get_option_label(self, phase: int, field_or_section: str, option_id: str) -> str:
+        """Get human-readable label for an option.
+
+        Args:
+            phase: Phase number
+            field_or_section: Field name within that phase (e.g., "want", "resistance")
+            option_id: The option's ID (e.g., "want-release-control")
+
+        Returns:
+            Label string (e.g., "Release burden of decision-making")
+
+        Raises:
+            KeyError: If the option_id is not found
+        """
+        raw_options = self.options.get(phase, {})
+
+        # Handle Layer 4 (structural forces) which has nested dict
+        if isinstance(raw_options, dict) and phase == 4:
+            field_options = raw_options.get(field_or_section, [])
+            for opt in field_options:
+                if isinstance(opt, TemplateOption) and opt.id == option_id:
+                    return opt.label
+            raise KeyError(f"Option {option_id} not found in phase {phase} field {field_or_section}")
+
+        # For other phases, search through the list
+        if isinstance(raw_options, list):
+            for opt in raw_options:
+                if isinstance(opt, TemplateOption) and opt.id == option_id:
+                    return opt.label
+            raise KeyError(f"Option {option_id} not found in phase {phase}")
+
+        raise KeyError(f"No options found for phase {phase}")
+
     def get_options(self, phase: int) -> Dict[str, List[Dict[str, Any]]]:
         """Get all options for a given phase as dicts."""
         raw_options = self.options.get(phase, {})
@@ -659,6 +725,39 @@ class RomanticAuthorityTemplate:
                 TemplateOption(id="interdependence-blessed", label="Blessed union through trust"),
             ],
         }
+
+    def get_option_label(self, phase: int, field_or_section: str, option_id: str) -> str:
+        """Get human-readable label for an option.
+
+        Args:
+            phase: Phase number
+            field_or_section: Field name within that phase (e.g., "want", "resistance")
+            option_id: The option's ID (e.g., "want-provide-protect")
+
+        Returns:
+            Label string (e.g., "Provide for and protect beloved")
+
+        Raises:
+            KeyError: If the option_id is not found
+        """
+        raw_options = self.options.get(phase, {})
+
+        # Handle Layer 4 (structural forces) which has nested dict
+        if isinstance(raw_options, dict) and phase == 4:
+            field_options = raw_options.get(field_or_section, [])
+            for opt in field_options:
+                if isinstance(opt, TemplateOption) and opt.id == option_id:
+                    return opt.label
+            raise KeyError(f"Option {option_id} not found in phase {phase} field {field_or_section}")
+
+        # For other phases, search through the list
+        if isinstance(raw_options, list):
+            for opt in raw_options:
+                if isinstance(opt, TemplateOption) and opt.id == option_id:
+                    return opt.label
+            raise KeyError(f"Option {option_id} not found in phase {phase}")
+
+        raise KeyError(f"No options found for phase {phase}")
 
     def get_options(self, phase: int) -> Dict[str, List[Dict[str, Any]]]:
         """Get all options for a given phase as dicts."""

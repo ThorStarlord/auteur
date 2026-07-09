@@ -119,11 +119,27 @@ class IdentityGenerator:
         layer8 = choices.get(8, {})
         layer9 = choices.get(9, {})
 
-        # Extract core engine components
-        want = layer4.get("want", "")
-        resistance = layer4.get("resistance", "")
-        change = layer4.get("change", "")
-        stakes = layer4.get("stakes", "")
+        # Extract core engine components (raw IDs)
+        want_id = layer4.get("want", "")
+        resistance_id = layer4.get("resistance", "")
+        change_id = layer4.get("change", "")
+        stakes_id = layer4.get("stakes", "")
+
+        # Get template for label lookups
+        template = cls._get_template_for_core(core_id)
+
+        # Convert IDs to labels using template
+        want = cls._get_label_from_template(template, 4, "want", want_id) if want_id else ""
+        resistance = cls._get_label_from_template(template, 4, "resistance", resistance_id) if resistance_id else ""
+        change = cls._get_label_from_template(template, 4, "change", change_id) if change_id else ""
+
+        # Try to get stakes from template, otherwise generate fallback
+        stakes = ""
+        if stakes_id:
+            stakes = cls._get_label_from_template(template, 4, "stakes", stakes_id)
+        else:
+            # Generate fallback stakes based on want/resistance
+            stakes = cls._generate_stakes(want, resistance, change)
 
         # Generate derived conflict
         conflict = cls._generate_conflict(want, resistance, change)
@@ -192,6 +208,16 @@ class IdentityGenerator:
         return identity
 
     @classmethod
+    def _generate_stakes(cls, want: str, resistance: str, change: str) -> str:
+        """Generate stakes statement from engine components when not explicitly provided."""
+        if not want or not resistance:
+            return "The protagonist's survival and sense of self are at stake."
+
+        # Stakes are about what the protagonist stands to lose or gain
+        # Usually derived from the want and resistance
+        return f"What the protagonist stands to lose in the pursuit of {want.lower()}"
+
+    @classmethod
     def _generate_conflict(cls, want: str, resistance: str, change: str) -> str:
         """Generate a coherent conflict statement from engine components."""
         if not want or not resistance:
@@ -225,6 +251,26 @@ class IdentityGenerator:
             phrase = choice_id.replace("-", " ")
 
         return phrase.lower()
+
+    @classmethod
+    def _get_label_from_template(cls, template, phase: int, field: str, option_id: str) -> str:
+        """Get label from template instead of converting ID to readable.
+
+        Args:
+            template: The CoreTemplate instance
+            phase: Phase number
+            field: Field name (e.g., "want", "resistance")
+            option_id: The option's ID (e.g., "want-establish-trust")
+
+        Returns:
+            Label string from template, or fallback to readable conversion if not found
+
+        """
+        try:
+            return template.get_option_label(phase, field, option_id)
+        except (KeyError, AttributeError):
+            # Fallback to old ID-to-readable conversion for safety
+            return cls._readable_from_id(option_id)
 
     @classmethod
     def _get_template_for_core(cls, core_id: str):

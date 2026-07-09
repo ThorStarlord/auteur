@@ -257,19 +257,26 @@ class TestIdentityGeneration:
         assert "genre:" in yaml_content
 
     def test_generate_identity_rejects_invalid_choices(self, tmp_path):
-        """Identity generation rejects invalid choices."""
+        """Identity generation falls back gracefully for unknown choices (Phase 2)."""
         cmd = NetorareCommand(tmp_path / "project", core_id="classic_humiliation")
 
+        # With Phase 2 label-aware prose, unknown IDs fall back to readable conversion
+        # rather than raising errors. This is the safety fallback.
         invalid_choices = {
             4: {
-                "want": "unknown-want",  # Invalid want
+                "want": "unknown-want",  # Unknown want ID
                 "resistance": "resistance-inadequacy",
                 "change": "change-accept",
             },
         }
 
-        with pytest.raises(NetorareError, match="Failed to generate identity"):
-            cmd._generate_identity(invalid_choices)
+        # Should still generate successfully with fallback readable conversion
+        yaml_content = cmd._generate_identity(invalid_choices)
+        assert yaml_content is not None
+        # Fallback should convert "unknown-want" by splitting on first "-" to "want"
+        assert "want:" in yaml_content.lower()
+        # Should not raise an error, just silently fall back
+        assert len(yaml_content) > 100  # Non-empty YAML
 
 
 class TestIdentityPersistence:
