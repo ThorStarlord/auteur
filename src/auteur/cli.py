@@ -236,7 +236,7 @@ def _build_parser() -> argparse.ArgumentParser:
     ms = p.add_subparsers(dest="mystery_command", required=True)
     p = ms.add_parser("init",
         help="Create and initialize a new mystery story identity authoring session.")
-    p.add_argument("path", type=Path,
+    p.add_argument("project", type=Path,
         help="Project directory path (created if needed).")
     p.add_argument("--core", choices=["howdunit", "paranoia", "cozy"],
         default="howdunit",
@@ -635,7 +635,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "mystery":
         if args.mystery_command == "init":
             return handle_mystery_init(
-                project_path=args.path,
+                project_path=args.project,
                 core_id=args.core,
                 provider=args.provider,
                 port=args.port,
