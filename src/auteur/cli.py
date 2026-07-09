@@ -196,6 +196,8 @@ def _build_parser() -> argparse.ArgumentParser:
     register_relations_subcommands(sub)
     from auteur.roundtrip.cli import register_roundtrip_subcommands
     register_roundtrip_subcommands(sub)
+    from auteur.genre_builder.cli import register_genre_builder_subcommands
+    register_genre_builder_subcommands(sub)
 
     p = sub.add_parser("state",
         help="Manage story state layers programmatically.")
@@ -754,6 +756,10 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "import":
         from auteur.roundtrip.cli import handle_import_command
         return handle_import_command(args)
+    # === genre builder ===
+    if args.command == "genre":
+        from auteur.genre_builder.cli import handle_genre_builder_command
+        return handle_genre_builder_command(args)
 
     # === netorare ===
     if args.command == "netorare":

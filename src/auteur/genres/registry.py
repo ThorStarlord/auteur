@@ -47,6 +47,22 @@ def load_genre_contract(genre: Genre | str) -> GenreContract:
     _REGISTRY_CACHE[genre_enum] = fallback_contract
     return fallback_contract
 
+
+def load_project_genre_contract(project_path: Path, genre: Genre | str) -> GenreContract:
+    """Load a built-in or project-local custom GenreContract.
+
+    Custom genre contracts live under ``<project>/genres/custom/<id>.yaml`` and
+    use the Genre Builder V1 wrapper shape. Built-in enum genres continue to use
+    the package registry unchanged.
+    """
+    genre_id = genre.value if isinstance(genre, Genre) else str(genre)
+    custom_path = project_path / "genres" / "custom" / f"{genre_id}.yaml"
+    if custom_path.exists():
+        from auteur.genre_builder.serializers import load_custom_genre_contract
+
+        return load_custom_genre_contract(custom_path).contract
+    return load_genre_contract(genre)
+
 def _create_fallback_contract(genre: Genre) -> GenreContract:
     from auteur.blueprint import LengthClass, MechanicalLoad, NarrativeRunway, ScopeComplexity
     from auteur.genres.models import PsychologyBudget, PsychologyLevel, RequirementLevel, ScopeProfile, SetupContract
