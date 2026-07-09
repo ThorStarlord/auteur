@@ -146,6 +146,121 @@ class RecommendOpenEndedData:
     comparison_lines: list[str]
 
 
+DEFAULT_DISCOVERY_LENSES = ["emotional_payoff", "commercial_clarity", "thematic_coherence"]
+
+
+_LENS_TO_BASIS = {
+    "emotional_payoff": BestBasis.EMOTIONALLY_POWERFUL,
+    "commercial_clarity": BestBasis.GENRE_ALIGNED,
+    "thematic_coherence": BestBasis.STRUCTURALLY_COHERENT,
+    "genre_aligned": BestBasis.GENRE_ALIGNED,
+    "structurally_coherent": BestBasis.STRUCTURALLY_COHERENT,
+    "faithful_to_input": BestBasis.FAITHFUL_TO_INPUT,
+    "emotionally_powerful": BestBasis.EMOTIONALLY_POWERFUL,
+    "character": BestBasis.EMOTIONALLY_POWERFUL,
+    "thriller": BestBasis.GENRE_ALIGNED,
+    "experimental": BestBasis.FAITHFUL_TO_INPUT,
+    "literary": BestBasis.STRUCTURALLY_COHERENT,
+    "commercial": BestBasis.GENRE_ALIGNED,
+    "theme": BestBasis.STRUCTURALLY_COHERENT,
+}
+
+
+_LENS_RATIONALES = {
+    "emotional_payoff": "Explore the interpretation that maximizes the strongest reader feeling.",
+    "commercial_clarity": "Explore the interpretation with the clearest market and genre promise.",
+    "thematic_coherence": "Explore the interpretation with the cleanest central argument.",
+    "character": "Explore the interpretation where character agency and change carry the story.",
+    "thriller": "Explore the interpretation with the strongest pressure, escalation, and urgency.",
+    "experimental": "Explore the least conventional structurally valid interpretation.",
+    "literary": "Explore the interpretation with the strongest interiority and thematic texture.",
+    "commercial": "Explore the interpretation with the broadest audience promise.",
+    "theme": "Explore the interpretation where theme drives the architecture.",
+    "genre_aligned": "Explore the interpretation that best satisfies the declared genre contract.",
+    "structurally_coherent": "Explore the interpretation with the cleanest causal story engine.",
+    "faithful_to_input": "Explore the interpretation that preserves the premise's most specific details.",
+    "emotionally_powerful": "Explore the interpretation with the highest emotional pressure.",
+}
+
+
+def _severity_value(diagnostic: Any) -> str:
+    severity = getattr(diagnostic, "severity", "")
+    return severity.value if hasattr(severity, "value") else str(severity)
+
+
+def _candidate_contract_text(identity: StoryIdentity) -> str:
+    pieces = [
+        identity.title,
+        identity.core_answer,
+        identity.target_experience.primary,
+        identity.target_experience.progression,
+        identity.central_engine.want,
+        identity.central_engine.resistance,
+        identity.central_engine.conflict,
+        identity.central_engine.stakes,
+        identity.central_engine.change,
+        *identity.not_this,
+        *identity.open_questions,
+        *identity.alternatives,
+    ]
+    return " ".join(p for p in pieces if p).casefold()
+
+
+def _contract_phrase_present(phrase: str, haystack: str) -> bool:
+    words = [w for w in re.findall(r"[a-z0-9]+", phrase.casefold()) if len(w) > 3]
+    if not words:
+        return True
+    return any(word in haystack for word in words[:4])
+
+
+def analyze_contract_fit(identity: StoryIdentity) -> tuple[int, str, list[str], list[str]]:
+    """Return deterministic contract-fit metadata for a candidate identity.
+
+    Contract fit is compliance analysis, not a quality score.
+    """
+    diagnostics = identity.validate_identity()
+    problems: list[str] = []
+    notes: list[str] = []
+    fit = 100
+
+    for diagnostic in diagnostics:
+        severity = _severity_value(diagnostic).lower()
+        message = str(getattr(diagnostic, "message", ""))
+        if severity == "error":
+            fit -= 35
+            problems.append(message)
+        elif severity == "warning":
+            fit -= 10
+            notes.append(message)
+
+    contract = identity.genre_contract_snapshot
+    text = _candidate_contract_text(identity)
+    if contract:
+        for trope in contract.required_tropes:
+            if not _contract_phrase_present(trope, text):
+                fit -= 8
+                problems.append(f"Required genre trope may be under-specified: {trope}")
+        for mismatch in contract.forbidden_mismatches:
+            if _contract_phrase_present(mismatch, text):
+                fit -= 12
+                problems.append(f"Potential forbidden mismatch appears in candidate: {mismatch}")
+        for failure_mode in contract.common_failure_modes[:3]:
+            if _contract_phrase_present(failure_mode, text):
+                fit -= 6
+                notes.append(f"Watch for common {contract.display_name} failure mode: {failure_mode}")
+        if not problems:
+            notes.append(f"Fits the declared {contract.display_name} contract without deterministic errors.")
+
+    fit = max(0, min(100, fit))
+    if fit >= 80:
+        status = "strong"
+    elif fit >= 55:
+        status = "mixed"
+    else:
+        status = "weak"
+    return fit, status, problems, notes
+
+
 # ---------------------------------------------------------------------------
 # Handler: identity validate
 # ---------------------------------------------------------------------------
@@ -379,6 +494,7 @@ def handle_identity_recommend(
     mode: str | None = None,
     recommend_mode: str = "opinionated",
     candidates_count: int = 3,
+    discovery_lenses: list[str] | None = None,
     strict_candidate_count: bool = False,
     debug: bool = False,
     timestamp: str | None = None,
@@ -425,6 +541,7 @@ Primary Genre Contract Details ({contract.display_name}):
     def _generate_candidate(
         basis: BestBasis,
         index: int,
+        lens: str | None = None,
         attempt_limit: int = 4,
     ) -> tuple[StoryIdentity | None, list[str], list[dict]]:
         """Generate a single candidate identity. Returns (identity, warnings, debug_logs)."""
@@ -437,6 +554,12 @@ Primary Genre Contract Details ({contract.display_name}):
             basis_guideline = "Optimize for preserving the literal details, quirky eccentricities, and specific tone of the author's original premise without over-commercializing or genericizing it."
         elif basis == BestBasis.EMOTIONALLY_POWERFUL:
             basis_guideline = "Maximize emotional stakes, cathartic affect, target emotional trajectories, and character psychological depth within the genre's psychology budget."
+        if lens:
+            lens_guidance = _LENS_RATIONALES.get(
+                lens,
+                f"Explore the '{lens}' region of the premise's narrative design space.",
+            )
+            basis_guideline += f"\n\nStory Discovery Lens ('{lens}'):\n{lens_guidance}\nGenerate a candidate that is architecturally distinct because of this lens."
 
         system_prompt = f"""You are an expert, opinionated narrative compiler. Your job is to take a raw creative premise/idea and translate it into a single, cohesive, structurally sound recommended story identity.
 
@@ -639,26 +762,37 @@ Make sure the output is valid YAML, contains no conversational preamble/postambl
 
     # --- Open-Ended Mode ---
     elif recommend_mode == "open_ended":
-        bases_mapping = {
-            1: BestBasis.GENRE_ALIGNED,
-            2: BestBasis.STRUCTURALLY_COHERENT,
-            3: BestBasis.FAITHFUL_TO_INPUT,
-            4: BestBasis.EMOTIONALLY_POWERFUL,
-        }
+        lenses = discovery_lenses or DEFAULT_DISCOVERY_LENSES
+        if candidates_count > len(lenses):
+            lenses = [*lenses]
+            while len(lenses) < candidates_count:
+                lenses.append(DEFAULT_DISCOVERY_LENSES[len(lenses) % len(DEFAULT_DISCOVERY_LENSES)])
+        else:
+            lenses = lenses[:candidates_count]
 
         labels_mapping = {
-            BestBasis.GENRE_ALIGNED: "Genre-contract benchmark",
-            BestBasis.STRUCTURALLY_COHERENT: "Cleanest story engine",
-            BestBasis.FAITHFUL_TO_INPUT: "Most faithful / most idiosyncratic",
-            BestBasis.EMOTIONALLY_POWERFUL: "Highest affect / character-pressure",
+            "emotional_payoff": "Emotional payoff",
+            "commercial_clarity": "Commercial clarity",
+            "thematic_coherence": "Thematic coherence",
+            "character": "Character-first",
+            "thriller": "Thriller pressure",
+            "experimental": "Experimental interpretation",
+            "literary": "Literary depth",
+            "commercial": "Commercial appeal",
+            "theme": "Theme-first",
+            "genre_aligned": "Genre-contract benchmark",
+            "structurally_coherent": "Cleanest story engine",
+            "faithful_to_input": "Most faithful / most idiosyncratic",
+            "emotionally_powerful": "Highest affect / character-pressure",
         }
 
         candidate_outputs: list[CandidateOutput] = []
         valid_count = 0
 
         for idx in range(1, candidates_count + 1):
-            basis = bases_mapping.get(idx, BestBasis.GENRE_ALIGNED)
-            identity, diagnostics_messages, _ = _generate_candidate(basis, idx)
+            lens = lenses[idx - 1]
+            basis = _LENS_TO_BASIS.get(lens, BestBasis.GENRE_ALIGNED)
+            identity, diagnostics_messages, _ = _generate_candidate(basis, idx, lens=lens)
 
             candidate_id = f"candidate_{idx}"
 
@@ -669,19 +803,29 @@ Make sure the output is valid YAML, contains no conversational preamble/postambl
                 valid_count += 1
                 status = "valid" if not diagnostics_messages else "valid_with_warnings"
 
-                label = labels_mapping.get(basis, f"Option {idx}")
+                label = labels_mapping.get(lens, lens.replace("_", " ").title())
+                contract_fit, contract_fit_status, fit_problems, fit_notes = analyze_contract_fit(identity)
 
                 candidate = StoryIdentityCandidate(
                     candidate_id=candidate_id,
                     path="",  # CLI fills in the actual path
                     label=label,
                     best_basis=basis,
+                    lens=lens,
+                    lens_rationale=_LENS_RATIONALES.get(
+                        lens,
+                        f"Explore the '{lens}' region of the premise's narrative design space.",
+                    ),
                     recommendation_summary=identity.why_this_is_best or "No summary available.",
                     tradeoffs=[],
                     risks=[],
                     best_for=[],
                     validation_status=status,
                     warning_count=len(diagnostics_messages),
+                    contract_fit=contract_fit,
+                    contract_fit_status=contract_fit_status,
+                    contract_fit_problems=fit_problems,
+                    contract_fit_notes=fit_notes,
                     content_hash=content_hash,
                 )
 
@@ -731,28 +875,56 @@ Make sure the output is valid YAML, contains no conversational preamble/postambl
             generated_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),
             requested_candidates=candidates_count,
             valid_candidates=valid_count,
-            recommended_candidate_id=candidate_outputs[0].candidate_id if candidate_outputs else None,
+            search_strategy="Narrative Search",
+            design_lenses=lenses,
+            recommended_candidate_id=None,
             candidates=[co.candidate for co in candidate_outputs],
         )
 
         # Build comparison lines
         comparison_lines = [
-            "# Story Identity Candidate Comparison",
+            "# Story Discovery Comparison",
             f"\nSource Premise File/Text: ``",
             f"Generated At: {rec_set.generated_at}\n",
-            "| Candidate | Lens / Basis | Status | Summary |",
-            "| --- | --- | --- | --- |"
+            "Contract fit measures compliance with the declared genre and structural contract. It is not a story-quality ranking.\n",
+            "## Search Strategy",
+            f"Narrative Search across design lenses: {', '.join(lenses)}.\n",
+            "## Architectural Matrix",
+            "| Dimension | " + " | ".join(co.candidate.candidate_id for co in candidate_outputs) + " |",
+            "| --- | " + " | ".join("---" for _ in candidate_outputs) + " |",
+            "| Lens | " + " | ".join(co.candidate.lens for co in candidate_outputs) + " |",
+            "| Emotional promise | " + " | ".join(co.identity.target_experience.primary for co in candidate_outputs) + " |",
+            "| Primary engine | " + " | ".join(co.identity.central_engine.conflict for co in candidate_outputs) + " |",
+            "| Character agency | " + " | ".join("High" if len(co.identity.central_engine.want) > 20 else "Medium" for co in candidate_outputs) + " |",
+            "| Structural complexity | " + " | ".join(co.identity.story_type.medium.value for co in candidate_outputs) + " |",
+            "| Series potential | " + " | ".join("High" if co.identity.story_type.medium.value in {"series", "novel"} else "Moderate" for co in candidate_outputs) + " |",
+            "| Reader expectation | " + " | ".join(co.identity.story_type.genre.value for co in candidate_outputs) + " |",
+            "| Contract fit | " + " | ".join(f"{co.candidate.contract_fit} ({co.candidate.contract_fit_status})" for co in candidate_outputs) + " |",
+            "| Risk profile | " + " | ".join((co.candidate.risks[0] if co.candidate.risks else "Not yet summarized") for co in candidate_outputs) + " |",
+            "\n## Architectural Interpretations\n",
+            "| Candidate | Lens | Genre | Contract Fit | Summary |",
+            "| --- | --- | --- | --- | --- |"
         ]
         for co in candidate_outputs:
             c = co.candidate
-            comparison_lines.append(f"| `{c.candidate_id}` | **{c.best_basis.value}** ({c.label}) | {c.validation_status} ({c.warning_count} warnings) | {c.recommendation_summary} |")
+            comparison_lines.append(f"| `{c.candidate_id}` | **{c.lens}** ({c.label}) | {co.identity.story_type.genre.value} | {c.contract_fit} ({c.contract_fit_status}) | {c.recommendation_summary} |")
 
         comparison_lines.append("\n## Tradeoffs & Risks\n")
         for co in candidate_outputs:
             c = co.candidate
             comparison_lines.append(f"### {c.candidate_id}: {c.label}")
-            comparison_lines.append(f"**Lens**: `{c.best_basis.value}`")
+            comparison_lines.append(f"**Lens**: `{c.lens}`")
+            comparison_lines.append(f"**Why this interpretation exists**: {c.lens_rationale}")
             comparison_lines.append(f"**Summary**: {c.recommendation_summary}")
+            comparison_lines.append(f"**Contract fit**: {c.contract_fit} ({c.contract_fit_status})")
+            if c.contract_fit_problems:
+                comparison_lines.append("\n*Contract Fit Problems*:")
+                for p in c.contract_fit_problems:
+                    comparison_lines.append(f"- {p}")
+            if c.contract_fit_notes:
+                comparison_lines.append("\n*Contract Fit Notes*:")
+                for n in c.contract_fit_notes:
+                    comparison_lines.append(f"- {n}")
             if c.tradeoffs:
                 comparison_lines.append("\n*Tradeoffs*:")
                 for t in c.tradeoffs:
@@ -765,6 +937,7 @@ Make sure the output is valid YAML, contains no conversational preamble/postambl
                 comparison_lines.append("\n*Best For*:")
                 for bf in c.best_for:
                     comparison_lines.append(f"- {bf}")
+            comparison_lines.append(f"\nPromotion command: `auteur story-discovery accept {c.path or (c.candidate_id + '.yaml')} --output story_identity.yaml`")
             comparison_lines.append("")
 
         return HandlerResult.success(

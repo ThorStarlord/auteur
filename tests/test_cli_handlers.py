@@ -286,6 +286,66 @@ class TestHandleIdentityRecommend:
         assert result.data.rec_set is not None
         assert len(result.data.comparison_lines) > 0
 
+    def test_open_ended_uses_default_story_discovery_lenses(self):
+        """Open-ended mode should frame candidates as intentional discovery lenses."""
+        responses = [
+            LLMResponse(text=f"```yaml\n{VALID_IDENTITY_YAML}\n```", input_tokens=10, output_tokens=5),
+            LLMResponse(text=f"```yaml\n{VALID_IDENTITY_YAML}\n```", input_tokens=10, output_tokens=5),
+            LLMResponse(text=f"```yaml\n{VALID_IDENTITY_YAML}\n```", input_tokens=10, output_tokens=5),
+            LLMResponse(
+                text='{"summary": "A heist story.", "tradeoffs": ["dark tone"], "risks": ["alienating"], "best_for": ["grimdark fans"]}',
+                input_tokens=5, output_tokens=3,
+            ),
+            LLMResponse(
+                text='{"summary": "A heist story.", "tradeoffs": ["clear hook"], "risks": ["familiar"], "best_for": ["genre fans"]}',
+                input_tokens=5, output_tokens=3,
+            ),
+            LLMResponse(
+                text='{"summary": "A heist story.", "tradeoffs": ["theme first"], "risks": ["less commercial"], "best_for": ["literary readers"]}',
+                input_tokens=5, output_tokens=3,
+            ),
+        ]
+        client = FakeClient(responses)
+        result = handle_identity_recommend(
+            client=client,
+            premise_text="A thief steals a demon's soul.",
+            recommend_mode="open_ended",
+            candidates_count=3,
+        )
+
+        assert result.is_success
+        lenses = [co.candidate.lens for co in result.data.candidates]
+        assert lenses == ["emotional_payoff", "commercial_clarity", "thematic_coherence"]
+        assert all(co.candidate.contract_fit is not None for co in result.data.candidates)
+        assert "Story Discovery Comparison" in "\n".join(result.data.comparison_lines)
+
+    def test_open_ended_accepts_custom_story_discovery_lenses(self):
+        """Custom lenses should define the explored regions of narrative space."""
+        responses = [
+            LLMResponse(text=f"```yaml\n{VALID_IDENTITY_YAML}\n```", input_tokens=10, output_tokens=5),
+            LLMResponse(text=f"```yaml\n{VALID_IDENTITY_YAML}\n```", input_tokens=10, output_tokens=5),
+            LLMResponse(
+                text='{"summary": "Character-first.", "tradeoffs": ["interior"], "risks": ["slow"], "best_for": ["character readers"]}',
+                input_tokens=5, output_tokens=3,
+            ),
+            LLMResponse(
+                text='{"summary": "Thriller-first.", "tradeoffs": ["pace"], "risks": ["thin theme"], "best_for": ["thriller readers"]}',
+                input_tokens=5, output_tokens=3,
+            ),
+        ]
+        client = FakeClient(responses)
+        result = handle_identity_recommend(
+            client=client,
+            premise_text="A thief steals a demon's soul.",
+            recommend_mode="open_ended",
+            candidates_count=2,
+            discovery_lenses=["character", "thriller"],
+        )
+
+        assert result.is_success
+        assert [co.candidate.lens for co in result.data.candidates] == ["character", "thriller"]
+        assert result.data.rec_set.design_lenses == ["character", "thriller"]
+
     def test_strict_candidate_count_returns_failure_on_failure(self):
         """strict_candidate_count should abort when a candidate fails."""
         client = FakeClient([])

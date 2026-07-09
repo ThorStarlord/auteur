@@ -174,10 +174,84 @@ def serialize_identity_openended(
     written.append(rec_set_path)
 
     # --- comparison.md ---
-    lines = data.comparison_lines
+    lines = list(data.comparison_lines)
+    if lines:
+        lines[0] = "# Story Identity Candidate Comparison"
     if len(lines) >= 2:
         lines[1] = f"\nSource Premise File/Text: `{premise}`"
     comparison_path = candidate_dir / "comparison.md"
+    comparison_path.write_text("\n".join(lines), encoding="utf-8")
+    written.append(comparison_path)
+
+    return written
+
+
+def _discovery_report(data: RecommendOpenEndedData, premise: str) -> dict[str, Any]:
+    comparison: list[dict[str, Any]] = []
+    for co in data.candidates:
+        candidate = co.candidate
+        identity = co.identity
+        comparison.append(
+            {
+                "candidate_id": getattr(candidate, "candidate_id", co.candidate_id),
+                "lens": getattr(candidate, "lens", ""),
+                "genre": identity.story_type.genre.value,
+                "emotional_promise": identity.target_experience.primary,
+                "primary_engine": identity.central_engine.conflict,
+                "contract_fit": getattr(candidate, "contract_fit", 0),
+                "contract_fit_status": getattr(candidate, "contract_fit_status", "weak"),
+                "risks": getattr(candidate, "risks", []),
+            }
+        )
+
+    return {
+        "premise_summary": premise,
+        "candidate_count": len(data.candidates),
+        "search_strategy": getattr(data.rec_set, "search_strategy", "Narrative Search"),
+        "design_lenses": getattr(data.rec_set, "design_lenses", []),
+        "comparison": comparison,
+        "chosen_candidate": None,
+        "timestamp": data.rec_set.generated_at if hasattr(data.rec_set, "generated_at") else "",
+    }
+
+
+def serialize_story_discovery(
+    data: RecommendOpenEndedData,
+    output_dir: Path,
+    premise: str,
+) -> list[Path]:
+    """Write Story Discovery candidates, index, report, and comparison artifacts."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    written: list[Path] = []
+
+    for co in data.candidates:
+        candidate_path = output_dir / f"{co.candidate_id}.yaml"
+        candidate_path.write_text(co.yaml_content, encoding="utf-8")
+        co.candidate.path = str(candidate_path)
+        written.append(candidate_path)
+
+    data.rec_set.source_input_path = premise
+    for c, co in zip(data.rec_set.candidates, data.candidates):
+        c.path = co.candidate.path
+
+    discovery_set_path = output_dir / "discovery_set.yaml"
+    discovery_set_path.write_text(
+        yaml.safe_dump(data.rec_set.model_dump(mode="json"), sort_keys=False),
+        encoding="utf-8",
+    )
+    written.append(discovery_set_path)
+
+    report_path = output_dir / "discovery_report.yaml"
+    report_path.write_text(
+        yaml.safe_dump(_discovery_report(data, premise), sort_keys=False),
+        encoding="utf-8",
+    )
+    written.append(report_path)
+
+    lines = data.comparison_lines
+    if len(lines) >= 2:
+        lines[1] = f"\nSource Premise File/Text: `{premise}`"
+    comparison_path = output_dir / "comparison.md"
     comparison_path.write_text("\n".join(lines), encoding="utf-8")
     written.append(comparison_path)
 

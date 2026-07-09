@@ -29,7 +29,7 @@ from auteur.cli_handlers import (
 from auteur.cli_serializers import (
     serialize_audit, serialize_compile_blueprint, serialize_identity_openended,
     serialize_identity_opinionated, serialize_identity_promote,
-    serialize_identity_validate, serialize_structure_diagnose,
+    serialize_identity_validate, serialize_story_discovery, serialize_structure_diagnose,
     serialize_structure_generate_text, serialize_structure_propose_repairs,
 )
 from auteur.cli_netorare import handle_netorare_init
@@ -152,6 +152,32 @@ def _build_parser() -> argparse.ArgumentParser:
         help=argparse.SUPPRESS)
     p.add_argument("--keep-candidates", action="store_true", help=argparse.SUPPRESS)
 
+    p = sub.add_parser("story-discovery",
+        help="Explore narrative interpretations before promoting a story identity.")
+    sds = p.add_subparsers(dest="story_discovery_command", required=True)
+    p = sds.add_parser("run",
+        help="Generate StoryIdentity candidates and an architectural comparison.")
+    p.add_argument("brain_dump", type=str,
+        help="Raw premise text or path to a file containing it.")
+    p.add_argument("--output", type=Path, default=Path("story_discovery"),
+        help="Directory for Story Discovery artifacts.")
+    p.add_argument("--candidates", type=int, default=3)
+    p.add_argument("--lens", action="append", default=None,
+        help="Design lens to explore. Repeat to provide multiple lenses.")
+    p.add_argument("--genre", type=str, default=None)
+    p.add_argument("--medium", type=str, default=None)
+    p.add_argument("--mode", type=str, default=None)
+    p.add_argument("--provider", choices=["anthropic", "openai"], default="anthropic")
+    p.add_argument("--model", default=None)
+    p.add_argument("--strict-candidate-count", action="store_true")
+    p.add_argument("--debug", action="store_true",
+        help="Export failed candidate attempts to .auteur/runs/<timestamp>/.")
+    p = sds.add_parser("accept",
+        help="Validate and promote a Story Discovery candidate to story_identity.yaml.")
+    p.add_argument("candidate", type=Path)
+    p.add_argument("--output", type=Path, default=Path("story_identity.yaml"))
+    p.add_argument("--keep-candidates", action="store_true")
+
     p = sub.add_parser("blueprint", help="Manage story blueprints.")
     bs = p.add_subparsers(dest="blueprint_command", required=True)
     p = bs.add_parser("seed",
@@ -162,6 +188,8 @@ def _build_parser() -> argparse.ArgumentParser:
 
     from auteur.character.cli import register_character_subcommands
     register_character_subcommands(sub)
+    from auteur.series.cli import register_series_subcommands
+    register_series_subcommands(sub)
 
     p = sub.add_parser("state",
         help="Manage story state layers programmatically.")
@@ -442,6 +470,85 @@ def main(argv: list[str] | None = None) -> int:
         if args.output: serialize_structure_generate_text(out, args.output); print(
             f"\nProposal written to {args.output}", file=sys.stderr)
         return 0
+    # === story-discovery run ===
+    if args.command == "story-discovery" and args.story_discovery_command == "run":
+        ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        premise_text = args.brain_dump
+        try:
+            premise_path = Path(args.brain_dump)
+            if premise_path.exists() and premise_path.is_file():
+                premise_text = premise_path.read_text(encoding="utf-8")
+        except Exception:
+            pass
+        from auteur.llm.factory import build_client
+        client = build_client(args.provider, args.model, agent_type="identity")
+        result = handle_identity_recommend(
+            client=client,
+            premise_text=premise_text,
+            genre=args.genre,
+            medium=args.medium,
+            mode=args.mode,
+            recommend_mode="open_ended",
+            candidates_count=args.candidates,
+            discovery_lenses=args.lens,
+            strict_candidate_count=args.strict_candidate_count,
+            debug=args.debug,
+            timestamp=ts,
+        )
+        if not result.is_success:
+            _err(result.error)
+            return result.exit_code
+        data = result.data
+        if not isinstance(data, RecommendOpenEndedData):
+            _err("story discovery did not return candidate data")
+            return 1
+        written = serialize_story_discovery(data, args.output, args.brain_dump)
+        candidate_count = len(data.candidates)
+        for path in written[:candidate_count]:
+            print(f"  Wrote {path.name}")
+        print(f"\nSuccess: generated {candidate_count} Story Discovery candidates under {args.output}/")
+        print(f"Discovery report written to {args.output / 'discovery_report.yaml'}")
+        print(f"Comparison document written to {args.output / 'comparison.md'}")
+        return 0
+    # === story-discovery accept ===
+    if args.command == "story-discovery" and args.story_discovery_command == "accept":
+        from auteur.identity import StoryIdentity
+        if not args.candidate.exists():
+            print(f"Error: Candidate file not found: {args.candidate}", file=sys.stderr)
+            return 1
+        try:
+            ident = StoryIdentity.from_yaml(args.candidate)
+        except Exception as exc:
+            print(f"Error: failed to parse candidate YAML: {exc}", file=sys.stderr)
+            return 1
+        result = handle_identity_promote(ident)
+        if not result.is_success:
+            print(f"Error: {result.error}", file=sys.stderr)
+            if result.data:
+                for err in result.data.diagnostics:
+                    sv = err.severity.value.upper() if hasattr(err.severity, "value") else str(err.severity).upper()
+                    if sv == "ERROR":
+                        print(f" - {err.message}", file=sys.stderr)
+            return result.exit_code
+        if result.data.warnings:
+            print("Warnings present in promoted candidate:")
+            for w in result.data.warnings:
+                print(f" - {w.message}")
+        try:
+            serialize_identity_promote(ident, args.output)
+        except Exception as exc:
+            print(f"Error: failed to promote candidate to {args.output}: {exc}", file=sys.stderr)
+            return 1
+        print(f"Success: promoted candidate {args.candidate} to {args.output}")
+        if not args.keep_candidates:
+            candidate_dir = args.candidate.parent
+            if candidate_dir.name == "story_discovery" and candidate_dir.exists():
+                try:
+                    shutil.rmtree(candidate_dir)
+                    print(f"Cleaned up candidate directory: {candidate_dir}")
+                except Exception as exc:
+                    print(f"[WARNING] Failed to delete candidate directory {candidate_dir}: {exc}", file=sys.stderr)
+        return 0
     # === identity validate ===
     if args.command == "identity" and args.identity_command == "validate":
         if not args.identity.exists(): _err(f"identity file not found: {args.identity}"); return 1
@@ -502,6 +609,10 @@ def main(argv: list[str] | None = None) -> int:
         result = handle_identity_recommend(client=client, premise_text=pt,
             genre=args.genre, medium=args.medium, mode=story_mode,
             recommend_mode=rec_mode, candidates_count=args.candidates,
+            discovery_lenses=(
+                ["genre_aligned", "structurally_coherent", "faithful_to_input", "emotionally_powerful"]
+                if rec_mode == "open_ended" else None
+            ),
             strict_candidate_count=args.strict_candidate_count,
             debug=args.debug, timestamp=ts)
         if not result.is_success: _err(result.error); return result.exit_code
@@ -618,6 +729,10 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "character":
         from auteur.character.cli import handle_character_command
         return handle_character_command(args)
+    # === series ===
+    if args.command == "series":
+        from auteur.series.cli import handle_series_command
+        return handle_series_command(args)
 
     # === netorare ===
     if args.command == "netorare":

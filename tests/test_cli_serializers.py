@@ -21,6 +21,7 @@ from auteur.cli_serializers import (
     serialize_identity_openended,
     serialize_identity_opinionated,
     serialize_identity_promote,
+    serialize_story_discovery,
     serialize_identity_validate,
     serialize_structure_diagnose,
     serialize_structure_generate_text,
@@ -230,6 +231,7 @@ class _MockCandidate:
         self.candidate_id = candidate_id
         self.yaml_content = f"id: {candidate_id}\n"
         self.candidate = _MockCandidateMeta(candidate_id)
+        self.identity = _MockDiscoveryIdentity()
 
     def __repr__(self) -> str:
         return f"MockCandidate({self.candidate_id})"
@@ -243,14 +245,38 @@ class _MockCandidateMeta:
         return f"MockCandidateMeta({self.path})"
 
 
+class _MockValue:
+    value = "mystery"
+
+
+class _MockStoryType:
+    genre = _MockValue()
+
+
+class _MockTargetExperience:
+    primary = "dread"
+
+
+class _MockCentralEngine:
+    conflict = "The investigation collides with political power."
+
+
+class _MockDiscoveryIdentity:
+    story_type = _MockStoryType()
+    target_experience = _MockTargetExperience()
+    central_engine = _MockCentralEngine()
+
+
 class _MockRecSet:
     def __init__(self) -> None:
         self.source_input_path = ""
         self.candidates: list = []
+        self.design_lenses = ["emotional_payoff"]
 
     def model_dump(self, mode: str = "json") -> dict:
         return {
             "source_input_path": self.source_input_path,
+            "design_lenses": self.design_lenses,
             "candidates": [p.path for p in self.candidates],
         }
 
@@ -314,6 +340,42 @@ def test_identity_openended_creates_parent_dirs(tmp_path: Path) -> None:
     written = serialize_identity_openended(data, nested, premise="p")
     assert len(written) >= 1
     assert all(p.exists() for p in written)
+
+
+def test_story_discovery_writes_report_and_comparison(tmp_path: Path) -> None:
+    cand = _MockCandidate("candidate_1")
+    cand.candidate.lens = "emotional_payoff"
+    cand.candidate.contract_fit = 92
+    cand.candidate.contract_fit_status = "strong"
+    cand.candidate.contract_fit_problems = []
+    cand.candidate.contract_fit_notes = ["Fits the declared contract."]
+    cand.candidate.risks = ["May be intense."]
+    rec_set = _MockRecSet()
+    rec_set.candidates = [cand.candidate]
+    data = _MockOpenEndedData(
+        candidates=[cand],
+        rec_set=rec_set,
+        comparison_lines=[
+            "# Story Discovery Comparison",
+            "",
+            "| Dimension | candidate_1 |",
+            "| --- | --- |",
+        ],
+    )
+
+    written = serialize_story_discovery(data, tmp_path / "story_discovery", premise="test premise")
+
+    assert (tmp_path / "story_discovery" / "candidate_1.yaml").exists()
+    assert (tmp_path / "story_discovery" / "comparison.md").exists()
+    report_path = tmp_path / "story_discovery" / "discovery_report.yaml"
+    assert report_path in written
+    report = yaml.safe_load(report_path.read_text(encoding="utf-8"))
+    assert report["premise_summary"] == "test premise"
+    assert report["candidate_count"] == 1
+    assert report["design_lenses"] == ["emotional_payoff"]
+    assert report["chosen_candidate"] is None
+    assert report["comparison"][0]["candidate_id"] == "candidate_1"
+    assert report["comparison"][0]["contract_fit"] == 92
 
 
 # ---------------------------------------------------------------------------

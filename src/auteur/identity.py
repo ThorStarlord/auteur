@@ -963,12 +963,18 @@ class StoryIdentityCandidate(BaseModel):
     path: str
     label: str
     best_basis: BestBasis
+    lens: str = "emotional_payoff"
+    lens_rationale: str = ""
     recommendation_summary: str
     tradeoffs: list[str] = Field(default_factory=list)
     risks: list[str] = Field(default_factory=list)
     best_for: list[str] = Field(default_factory=list)
     validation_status: str  # "valid" | "valid_with_warnings" | "invalid"
     warning_count: int = 0
+    contract_fit: int = Field(default=100, ge=0, le=100)
+    contract_fit_status: str = "strong"
+    contract_fit_problems: list[str] = Field(default_factory=list)
+    contract_fit_notes: list[str] = Field(default_factory=list)
     content_hash: str
 
 
@@ -978,6 +984,7 @@ class StoryIdentityRecommendationSet(BaseModel):
     generated_at: str
     requested_candidates: int
     valid_candidates: int
+    search_strategy: str = "Narrative Search"
+    design_lenses: list[str] = Field(default_factory=list)
     recommended_candidate_id: str | None = None
     candidates: list[StoryIdentityCandidate] = Field(default_factory=list)
-
