@@ -36,7 +36,7 @@ class IdentityGenerator:
     CORE_ID_TO_GENRE = {
         "classic_humiliation": Genre.NETORARE,
         "horror": Genre.HORROR,
-        "mystery": Genre.MYSTERY,
+        "mystery": Genre.NETORARE,
         # Mystery-specific cores
         "howdunit": Genre.MYSTERY,
         "paranoia": Genre.MYSTERY,

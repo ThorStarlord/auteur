@@ -9,7 +9,7 @@ These tests catch any future regression where emotional intent is lost or collap
 
 import pytest
 from auteur.netorare.identity_generator import IdentityGenerator
-from auteur.netorare.core_templates import HumiliationTemplate, HorrorTemplate
+from auteur.netorare.core_templates import HumiliationTemplate, HorrorTemplate, MysteryTemplate
 from auteur.mystery.core_templates import HowdunitTemplate, ParanoiaTemplate, CozyTemplate
 from auteur.gentlefemdom.core_templates import (
     SensualDominanceTemplate, TenderSurrenderTemplate, RomanticAuthorityTemplate
@@ -35,6 +35,13 @@ VALID_CHOICES = {
             "resistance": "resistance-inescapable",
             "change": "change-transform",
             "stakes": "sanity and reality",
+        }
+    },
+    "mystery": {
+        4: {
+            "want": "want-truth",
+            "change": "change-witness",
+            "resistance": "resistance-hidden-truth",
         }
     },
     "howdunit": {
@@ -100,6 +107,7 @@ class TestNetorareEmotionalPreservation:
     @pytest.mark.parametrize("core_class,core_id,expected_emotion", [
         (HumiliationTemplate, "classic_humiliation", "humiliation"),
         (HorrorTemplate, "horror", "dread"),
+        (MysteryTemplate, "mystery", "voyeurism"),
     ])
     def test_netorare_primary_emotion_preserved(self, core_class, core_id, expected_emotion):
         """Netorare cores preserve primary emotion from template to identity.
@@ -308,6 +316,7 @@ class TestAllNineCoresGenerateValidIdentities:
     @pytest.mark.parametrize("core_id,template_class", [
         ("classic_humiliation", HumiliationTemplate),
         ("horror", HorrorTemplate),
+        ("mystery", MysteryTemplate),
         ("howdunit", HowdunitTemplate),
         ("paranoia", ParanoiaTemplate),
         ("cozy", CozyTemplate),
@@ -342,6 +351,7 @@ class TestAllNineCoresGenerateValidIdentities:
         expected_genre = {
             "classic_humiliation": Genre.NETORARE,
             "horror": Genre.HORROR,
+            "mystery": Genre.NETORARE,
             "howdunit": Genre.MYSTERY,
             "paranoia": Genre.MYSTERY,
             "cozy": Genre.MYSTERY,
@@ -360,6 +370,7 @@ class TestEmotionalCoreMappingAccuracy:
         expected_map = {
             "classic_humiliation": "humiliation",
             "horror": "dread",
+            "mystery": "voyeurism",
         }
         for core_id, expected_emotion in expected_map.items():
             template = IdentityGenerator._get_template_for_core(core_id)

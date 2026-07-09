@@ -547,6 +547,23 @@ class MysteryTemplate:
                         label="Figure out the other person's motivations",
                     ),
                 ],
+                "resistance": [
+                    TemplateOption(
+                        id="resistance-hidden-truth",
+                        label="Truth remains hidden",
+                        description="The truth is obscured or protected"
+                    ),
+                    TemplateOption(
+                        id="resistance-misdirection",
+                        label="False leads and misdirection",
+                        description="Clues point in wrong directions"
+                    ),
+                    TemplateOption(
+                        id="resistance-own-doubt",
+                        label="Own doubt and uncertainty",
+                        description="MC questions their own perceptions"
+                    ),
+                ],
                 "change": [
                     TemplateOption(
                         id="change-witness",

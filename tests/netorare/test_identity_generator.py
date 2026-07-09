@@ -82,16 +82,16 @@ class TestIdentityGeneratorBasics:
         assert "inescapable" in identity.central_engine.resistance.lower()
 
     def test_from_choices_mystery(self):
-        """Generate mystery story identity from choices."""
+        """Generate mystery (netorare core) story identity from choices."""
         template = MysteryTemplate()
         choices = {
-            1: {"primary": "dread"},
-            2: {"genre": "mystery"},
+            1: {"primary": "voyeurism"},
+            2: {"genre": "netorare"},
             3: {"scope_contract": "focused"},
             4: {
-                "want": "want-discover-truth",
-                "resistance": "resistance-buried-deep",
-                "change": "change-complicity",
+                "want": "want-truth",
+                "resistance": "resistance-hidden-truth",
+                "change": "change-witness",
                 "stakes": "innocence and truth"
             },
         }
@@ -102,7 +102,7 @@ class TestIdentityGeneratorBasics:
         )
 
         assert isinstance(identity, StoryIdentity)
-        assert identity.story_type.genre.value == "mystery"
+        assert identity.story_type.genre.value == "netorare"
 
 
 class TestIdentityGeneratorYAML:
@@ -423,18 +423,37 @@ class TestIdentityGeneratorIntegration:
         test_cases = [
             ("classic_humiliation", "netorare"),
             ("horror", "horror"),
-            ("mystery", "mystery"),
+            ("mystery", "netorare"),
         ]
 
         for core_id, expected_genre in test_cases:
-            choices = {
-                4: {
-                    "want": "want-dignity" if core_id == "classic_humiliation" else "want-escape",
-                    "resistance": "resistance-rival-superiority" if core_id == "classic_humiliation" else "resistance-inescapable",
-                    "change": "change-accept",
-                    "stakes": "self-worth"
-                },
-            }
+            if core_id == "classic_humiliation":
+                choices = {
+                    4: {
+                        "want": "want-dignity",
+                        "resistance": "resistance-rival-superiority",
+                        "change": "change-accept",
+                        "stakes": "self-worth"
+                    },
+                }
+            elif core_id == "horror":
+                choices = {
+                    4: {
+                        "want": "want-escape",
+                        "resistance": "resistance-inescapable",
+                        "change": "change-transform",
+                        "stakes": "sanity and reality"
+                    },
+                }
+            else:  # mystery
+                choices = {
+                    4: {
+                        "want": "want-truth",
+                        "resistance": "resistance-hidden-truth",
+                        "change": "change-witness",
+                        "stakes": "innocence and truth"
+                    },
+                }
 
             identity = IdentityGenerator.from_choices(
                 core_id=core_id,
