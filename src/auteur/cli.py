@@ -34,6 +34,7 @@ from auteur.cli_serializers import (
 )
 from auteur.cli_netorare import handle_netorare_init
 from auteur.cli_mystery import handle_mystery_init
+from auteur.cli_gentlefemdom import handle_gentlefemdom_init
 from auteur.project import Project
 from auteur.structure.proposals import StructureProposal
 
@@ -44,7 +45,8 @@ class _HideSuppressedFormatter(argparse.HelpFormatter):
         if action.help == argparse.SUPPRESS: return ""
         return super()._format_action(action)
 
-def main(argv: list[str] | None = None) -> int:
+def _build_parser() -> argparse.ArgumentParser:
+    """Build and return the argparse parser with all subcommands."""
     parser = argparse.ArgumentParser(prog="auteur",
         description="Agentic narrative engineering toolkit.")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -247,6 +249,32 @@ def main(argv: list[str] | None = None) -> int:
         help="Session timeout in seconds (default: 3600).")
     p.add_argument("--debug", action="store_true", help="Enable debug logging.")
 
+    p = sub.add_parser("gentlefemdom", help="Interactive browser-based gentle femdom story identity authoring.")
+    gs = p.add_subparsers(dest="gentlefemdom_command", required=True)
+    p = gs.add_parser("init",
+        help="Create and initialize a new gentle femdom story identity authoring session.")
+    p.add_argument("project", type=Path,
+        help="Project directory path (created if needed).")
+    p.add_argument("--core", choices=["sensual_dominance", "tender_surrender", "romantic_authority"],
+        default="sensual_dominance",
+        help="Gentle femdom emotional core (default: sensual_dominance).")
+    p.add_argument("--provider", choices=["anthropic", "openai"], default="anthropic",
+        help="LLM provider (default: anthropic).")
+    p.add_argument("--port", type=int, default=8767,
+        help="Browser server port (default: 8767).")
+    p.add_argument("--timeout", type=float, default=3600.0,
+        help="Session timeout in seconds (default: 3600).")
+    p.add_argument("--debug", action="store_true", help="Enable debug logging.")
+
+    return parser
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    """Parse command-line arguments and return namespace."""
+    parser = _build_parser()
+    return parser.parse_args(argv)
+
+def main(argv: list[str] | None = None) -> int:
+    parser = _build_parser()
     args = parser.parse_args(argv)
     # === init ===
     if args.command == "init":
@@ -608,6 +636,18 @@ def main(argv: list[str] | None = None) -> int:
         if args.mystery_command == "init":
             return handle_mystery_init(
                 project_path=args.path,
+                core_id=args.core,
+                provider=args.provider,
+                port=args.port,
+                timeout=args.timeout,
+                debug=args.debug,
+            )
+
+    # === gentlefemdom ===
+    if args.command == "gentlefemdom":
+        if args.gentlefemdom_command == "init":
+            return handle_gentlefemdom_init(
+                project_path=args.project,
                 core_id=args.core,
                 provider=args.provider,
                 port=args.port,
