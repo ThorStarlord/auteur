@@ -192,6 +192,10 @@ def _build_parser() -> argparse.ArgumentParser:
     register_series_subcommands(sub)
     from auteur.editing.cli import register_edit_subcommands
     register_edit_subcommands(sub)
+    from auteur.relations.cli import register_relations_subcommands
+    register_relations_subcommands(sub)
+    from auteur.roundtrip.cli import register_roundtrip_subcommands
+    register_roundtrip_subcommands(sub)
 
     p = sub.add_parser("state",
         help="Manage story state layers programmatically.")
@@ -739,6 +743,17 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "edit":
         from auteur.editing.cli import handle_edit_command
         return handle_edit_command(args)
+    # === relations ===
+    if args.command == "relations":
+        from auteur.relations.cli import handle_relations_command
+        return handle_relations_command(args)
+    # === export/import round-trip ===
+    if args.command == "export":
+        from auteur.roundtrip.cli import handle_export_command
+        return handle_export_command(args)
+    if args.command == "import":
+        from auteur.roundtrip.cli import handle_import_command
+        return handle_import_command(args)
 
     # === netorare ===
     if args.command == "netorare":
