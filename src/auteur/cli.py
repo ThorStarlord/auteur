@@ -123,6 +123,8 @@ def _build_parser() -> argparse.ArgumentParser:
     iss = p.add_subparsers(dest="identity_command", required=True)
     p = iss.add_parser("validate", help="Validate a story_identity.yaml file.")
     p.add_argument("identity", type=Path)
+    p.add_argument("--project", type=Path, default=None,
+        help="Project path for resolving project-local custom genre contracts.")
     p = iss.add_parser("compile",
         help="Compile a story_identity.yaml into a blueprint.yaml skeleton.")
     p.add_argument("identity", type=Path)
@@ -165,6 +167,8 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--lens", action="append", default=None,
         help="Design lens to explore. Repeat to provide multiple lenses.")
     p.add_argument("--genre", type=str, default=None)
+    p.add_argument("--project", type=Path, default=None,
+        help="Project path for resolving project-local custom genre contracts.")
     p.add_argument("--medium", type=str, default=None)
     p.add_argument("--mode", type=str, default=None)
     p.add_argument("--provider", choices=["anthropic", "openai"], default="anthropic")
@@ -502,6 +506,7 @@ def main(argv: list[str] | None = None) -> int:
             strict_candidate_count=args.strict_candidate_count,
             debug=args.debug,
             timestamp=ts,
+            project_path=args.project,
         )
         if not result.is_success:
             _err(result.error)
@@ -563,6 +568,9 @@ def main(argv: list[str] | None = None) -> int:
         try:
             from auteur.identity import StoryIdentity
             ident = StoryIdentity.from_yaml(args.identity)
+            if args.project is not None:
+                from auteur.genres.registry import load_project_genre_contract
+                ident.genre_contract_snapshot = load_project_genre_contract(args.project, ident.story_type.genre)
         except Exception as exc: _err(f"invalid story identity {args.identity}: {exc}"); return 1
         result = handle_identity_validate(ident)
         if not result.is_success: _err(result.error); return result.exit_code

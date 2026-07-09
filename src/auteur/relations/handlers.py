@@ -49,6 +49,15 @@ def handle_relations_apply(project: Path, chapter: int, changes_path: Path) -> R
     try:
         relation_map = load_relation_map(project)
         changes = RelationChangeSet.from_yaml(changes_path)
+        if changes.chapter != chapter:
+            return RelationHandlerResult(
+                is_success=False,
+                exit_code=1,
+                error=(
+                    f"chapter mismatch: CLI chapter {chapter} does not match "
+                    f"relation_changes.yaml chapter {changes.chapter}"
+                ),
+            )
         diagnostics = diagnose_relation_changes(relation_map, changes)
         errors = [item for item in diagnostics if item.severity == "error"]
         if errors:
@@ -72,4 +81,3 @@ def apply_relation_changes(relation_map: RelationMap, changes: RelationChangeSet
             setattr(relation, metric, min(100, max(0, current + delta)))
         relation.last_changed_in = f"chapter_{chapter:02d}"
     return updated
-

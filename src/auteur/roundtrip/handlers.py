@@ -29,10 +29,13 @@ class ExportData:
 class ImportData:
     source_draft: Path
     artifact_dir: Path
+    run_id: str
+    imported_file: Path
     imported_text: str
     diff_report: dict
     drift_report: dict
     proposals: dict
+    manifest: dict
 
 
 def latest_draft_path(project: Path, chapter: int) -> Path:
@@ -69,19 +72,36 @@ def handle_import_chapter(project: Path, chapter: int, edited_markdown: Path, dr
         source = resolve_draft_path(project, chapter, draft)
         old_text = source.read_text(encoding="utf-8")
         imported_text = edited_markdown.read_text(encoding="utf-8")
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        artifact_dir = project / "imports" / f"chapter_{chapter:02d}" / timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+        run_id = timestamp
+        artifact_dir = project / "imports" / f"chapter_{chapter:02d}" / run_id
         diff_report = build_diff_report(source.name, old_text, imported_text)
         drift_report, proposals = build_drift_artifacts(project, chapter)
+        manifest = {
+            "run_id": run_id,
+            "chapter": chapter,
+            "source_draft": source.name,
+            "imported_file": str(edited_markdown),
+            "artifacts": {
+                "imported_draft": "imported_draft.md",
+                "diff_report": "diff_report.json",
+                "drift_report": "drift_report.json",
+                "canon_update_proposals": "canon_update_proposals.yaml",
+            },
+            "timestamp": timestamp,
+        }
         return RoundTripResult(
             is_success=True,
             data=ImportData(
                 source_draft=source,
                 artifact_dir=artifact_dir,
+                run_id=run_id,
+                imported_file=edited_markdown,
                 imported_text=imported_text,
                 diff_report=diff_report,
                 drift_report=drift_report,
                 proposals=proposals,
+                manifest=manifest,
             ),
         )
     except Exception as exc:
@@ -133,13 +153,31 @@ def build_drift_artifacts(project: Path, chapter: int) -> tuple[dict, dict]:
     return {"diagnostics": diagnostics}, {"proposals": proposals}
 
 
-def confirm_latest_import_proposal(project: Path, chapter: int, proposal_id: str) -> RoundTripResult:
+def resolve_import_run_dir(project: Path, chapter: int, run_id: str) -> Path:
+    artifact_dir = project / "imports" / f"chapter_{chapter:02d}" / run_id
+    if not artifact_dir.is_dir():
+        raise FileNotFoundError(f"import run not found: {artifact_dir}")
+    return artifact_dir
+
+
+def confirm_import_proposal(project: Path, chapter: int, run_id: str, proposal_id: str) -> RoundTripResult:
     try:
-        import_root = project / "imports" / f"chapter_{chapter:02d}"
-        artifact_dirs = sorted(path for path in import_root.iterdir() if path.is_dir())
-        if not artifact_dirs:
-            raise FileNotFoundError(f"no import artifacts found in {import_root}")
-        return RoundTripResult(is_success=True, data={"artifact_dir": artifact_dirs[-1], "proposal_id": proposal_id})
+        artifact_dir = resolve_import_run_dir(project, chapter, run_id)
+        return RoundTripResult(is_success=True, data={"artifact_dir": artifact_dir, "proposal_id": proposal_id})
+    except Exception as exc:
+        return RoundTripResult(is_success=False, exit_code=1, error=str(exc))
+
+
+def promote_imported_draft(project: Path, chapter: int, run_id: str) -> RoundTripResult:
+    try:
+        artifact_dir = resolve_import_run_dir(project, chapter, run_id)
+        imported = artifact_dir / "imported_draft.md"
+        text = imported.read_text(encoding="utf-8")
+        chapter_dir = project / "chapters" / f"{chapter:02d}"
+        versions = [_draft_version(path) for path in chapter_dir.glob("draft_v*.md")]
+        next_version = max(versions, default=0) + 1
+        output = chapter_dir / f"draft_v{next_version}.md"
+        return RoundTripResult(is_success=True, data={"output": output, "text": text})
     except Exception as exc:
         return RoundTripResult(is_success=False, exit_code=1, error=str(exc))
 
@@ -149,4 +187,3 @@ def _draft_version(path: Path) -> int:
         return int(path.stem.removeprefix("draft_v"))
     except ValueError:
         return -1
-

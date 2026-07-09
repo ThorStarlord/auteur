@@ -53,7 +53,12 @@ def handle_genre_builder_command(args) -> int:
     if args.genre_command == "validate":
         result = handle_genre_validate(args.contract)
         if not result.is_success:
-            print(format_genre_builder_error(result.error or "genre contract invalid"))
+            if result.data:
+                print(format_genre_builder_error("genre contract invalid"))
+                for diagnostic in result.data:
+                    print(f"{diagnostic.rule}: {diagnostic.message}")
+            else:
+                print(format_genre_builder_error(result.error or "genre contract invalid"))
             return result.exit_code
         print(format_genre_builder_success(f"Validated {args.contract}"))
         return 0
@@ -85,4 +90,3 @@ def handle_genre_builder_command(args) -> int:
         return 0
 
     return 1
-

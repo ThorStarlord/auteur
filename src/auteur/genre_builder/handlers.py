@@ -22,8 +22,14 @@ class GenreBuilderResult:
 def handle_genre_build(brief_path: Path) -> GenreBuilderResult:
     try:
         brief = parse_genre_brief(brief_path.read_text(encoding="utf-8"))
-        if brief.diagnostics:
-            return GenreBuilderResult(False, 1, "; ".join(brief.diagnostics))
+        brief_diagnostics = validate_custom_genre_contract(brief)
+        if has_errors(brief_diagnostics):
+            return GenreBuilderResult(
+                False,
+                1,
+                "\n".join(f"{d.rule}: {d.message}" for d in brief_diagnostics),
+                brief_diagnostics,
+            )
         custom = build_custom_genre_contract(brief)
         diagnostics = validate_custom_genre_contract(custom)
         if has_errors(diagnostics):
@@ -66,4 +72,3 @@ def list_custom_genres(project: Path) -> list[str]:
     if not custom_dir.exists():
         return []
     return sorted(path.stem for path in custom_dir.glob("*.yaml"))
-

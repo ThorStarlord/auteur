@@ -83,3 +83,19 @@ def test_genre_install_refuses_invalid_contract(tmp_path) -> None:
 
     assert main(["genre", "install", str(contract), "--project", str(project)]) != 0
     assert not (project / "genres").exists()
+
+
+def test_genre_build_reports_multiple_structured_diagnostics(tmp_path, capsys) -> None:
+    brief = tmp_path / "bad_brief.md"
+    brief.write_text(
+        BRIEF.replace("default_length: novel\n", "").replace("cast_load: medium", "cast_load: impossible"),
+        encoding="utf-8",
+    )
+    output = tmp_path / "bad.yaml"
+
+    assert main(["genre", "build", str(brief), "--output", str(output)]) != 0
+
+    captured = capsys.readouterr()
+    assert "genre_builder.missing_scope_field" in captured.out
+    assert "genre_builder.invalid_scope_value" in captured.out
+    assert not output.exists()

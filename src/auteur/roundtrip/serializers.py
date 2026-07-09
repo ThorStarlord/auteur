@@ -17,6 +17,10 @@ def write_export(data: ExportData) -> Path:
 def write_import_artifacts(data: ImportData) -> Path:
     data.artifact_dir.mkdir(parents=True, exist_ok=True)
     (data.artifact_dir / "imported_draft.md").write_text(data.imported_text, encoding="utf-8")
+    (data.artifact_dir / "import_manifest.json").write_text(
+        json.dumps(data.manifest, indent=2),
+        encoding="utf-8",
+    )
     (data.artifact_dir / "diff_report.json").write_text(
         json.dumps(data.diff_report, indent=2),
         encoding="utf-8",
@@ -42,3 +46,10 @@ def mark_proposal_accepted(artifact_dir: Path, proposal_id: str) -> Path:
             return proposals_path
     raise ValueError(f"proposal not found: {proposal_id}")
 
+
+def write_promoted_draft(output: Path, text: str) -> Path:
+    output.parent.mkdir(parents=True, exist_ok=True)
+    if output.exists():
+        raise FileExistsError(f"draft already exists: {output}")
+    output.write_text(text, encoding="utf-8")
+    return output

@@ -103,6 +103,26 @@ def test_custom_contract_validation_rejects_unsafe_id() -> None:
     assert [diag.rule for diag in diagnostics] == ["genre_builder.unsafe_custom_genre_id"]
 
 
+def test_build_reports_structured_diagnostics_for_invalid_scope_value() -> None:
+    bad_brief = BRIEF.replace("default_length: novel", "default_length: impossible_length")
+    brief = parse_genre_brief(bad_brief)
+
+    diagnostics = validate_custom_genre_contract(brief)
+
+    assert [diag.rule for diag in diagnostics] == ["genre_builder.invalid_scope_value"]
+    assert "default_length" in diagnostics[0].message
+
+
+def test_build_reports_structured_diagnostics_for_missing_scope_field() -> None:
+    bad_brief = BRIEF.replace("cast_load: medium\n", "")
+    brief = parse_genre_brief(bad_brief)
+
+    diagnostics = validate_custom_genre_contract(brief)
+
+    assert [diag.rule for diag in diagnostics] == ["genre_builder.missing_scope_field"]
+    assert "cast_load" in diagnostics[0].message
+
+
 def test_explainer_uses_contract_language_not_prompt_template_language() -> None:
     custom = build_custom_genre_contract(parse_genre_brief(BRIEF))
 
@@ -126,4 +146,3 @@ def test_custom_contract_yaml_round_trip_and_project_lookup(tmp_path) -> None:
 
     assert loaded.display_name == "Cozy Political Fantasy"
     assert loaded.required_tropes[0] == "intimate political stakes"
-

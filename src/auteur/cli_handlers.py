@@ -498,6 +498,7 @@ def handle_identity_recommend(
     strict_candidate_count: bool = False,
     debug: bool = False,
     timestamp: str | None = None,
+    project_path: Path | None = None,
 ) -> HandlerResult:
     """Generate story identity recommendations from a premise text.
 
@@ -509,7 +510,7 @@ def handle_identity_recommend(
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
     from auteur.identity import StoryIdentity
-    from auteur.genres.registry import load_genre_contract
+    from auteur.genres.registry import load_genre_contract, load_project_genre_contract
     from auteur.genres.subgenres import load_subgenre_modifier
     from auteur.structure.diagnostics import StructureDiagnostic, DiagnosticSeverity, DiagnosticLayer, RepairOptions
 
@@ -520,8 +521,12 @@ def handle_identity_recommend(
     genre_guidance = ""
     if genre:
         try:
-            resolved_genre = Genre(genre.lower().strip())
-            contract = load_genre_contract(resolved_genre)
+            genre_key = genre.lower().strip()
+            contract = (
+                load_project_genre_contract(project_path, genre_key)
+                if project_path is not None
+                else load_genre_contract(Genre(genre_key))
+            )
             if contract:
                 genre_guidance = f"""
 Primary Genre Contract Details ({contract.display_name}):

@@ -86,3 +86,46 @@ def test_relations_apply_writes_updated_relations_without_mutating_source_by_def
     assert updated["relations"][0]["last_changed_in"] == "chapter_03"
     assert original["relations"][0]["trust"] == 20
 
+
+def test_relations_apply_rejects_chapter_mismatch(tmp_path) -> None:
+    project = _write_project(tmp_path)
+    change_path = project / "chapters" / "04" / "relation_changes.yaml"
+    change_path.parent.mkdir(parents=True)
+    change_path.write_text(
+        yaml.safe_dump(
+            {
+                "chapter": 4,
+                "relation_changes": [
+                    {"relation": "elena_marcus", "trust": 8, "reason": "A scene."}
+                ],
+            },
+            sort_keys=False,
+        ),
+        encoding="utf-8",
+    )
+
+    assert main(["relations", "apply", str(project), "3", str(change_path)]) != 0
+    assert yaml.safe_load((project / "relations.yaml").read_text(encoding="utf-8"))["relations"][0]["trust"] == 20
+
+
+def test_relations_apply_clamps_metric_deltas(tmp_path) -> None:
+    project = _write_project(tmp_path)
+    change_path = project / "chapters" / "03" / "relation_changes.yaml"
+    change_path.parent.mkdir(parents=True)
+    change_path.write_text(
+        yaml.safe_dump(
+            {
+                "chapter": 3,
+                "relation_changes": [
+                    {"relation": "elena_marcus", "trust": 200, "fear": -100, "reason": "Extreme event."}
+                ],
+            },
+            sort_keys=False,
+        ),
+        encoding="utf-8",
+    )
+
+    assert main(["relations", "apply", str(project), "3", str(change_path)]) == 0
+    updated = yaml.safe_load((project / "relations.yaml").read_text(encoding="utf-8"))
+    assert updated["relations"][0]["trust"] == 100
+    assert updated["relations"][0]["fear"] == 0
