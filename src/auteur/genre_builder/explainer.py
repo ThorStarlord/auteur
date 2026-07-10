@@ -26,7 +26,23 @@ def explain_custom_genre_contract(custom: CustomGenreContract) -> str:
         f"- Narrative runway: {contract.scope_profile.narrative_runway.value}",
         f"- Recommended complexity: {contract.scope_profile.recommended_complexity.value}",
         "",
+        "## What Auteur Will Validate",
+        "- Required tropes are present in the declared story contract.",
+        "- Forbidden mismatches are treated as contract risks.",
+        "- Scope and setup expectations are available to diagnostics.",
+        "",
+        "## How This Genre Fails",
+        *_bullets(contract.common_failure_modes),
+        "",
+        "## Suggested StoryIdentity Defaults",
+        f"- Genre: {contract.genre_id.value}",
+        f"- Target experience: {contract.audience_product or '-'}",
+        f"- Engine bias: {', '.join(contract.default_engine_biases) if contract.default_engine_biases else 'derive from required tropes and core truth'}",
+        "",
         "## Setup Contract",
+        *_bullets(contract.setup_contract.minimum_setup_beats),
+        "",
+        "## Setup/Payoff Expectations",
         *_bullets(contract.setup_contract.minimum_setup_beats),
         "",
         "## Common Failure Modes",
@@ -42,4 +58,3 @@ def explain_custom_genre_contract(custom: CustomGenreContract) -> str:
 
 def _bullets(items: list[str]) -> list[str]:
     return [f"- {item}" for item in items] if items else ["-"]
-

@@ -16,7 +16,7 @@ def write_export(data: ExportData) -> Path:
 
 def write_import_artifacts(data: ImportData) -> Path:
     data.artifact_dir.mkdir(parents=True, exist_ok=True)
-    (data.artifact_dir / "imported_draft.md").write_text(data.imported_text, encoding="utf-8")
+    (data.artifact_dir / "imported_draft.md").write_text(data.imported_text.lstrip("\ufeff"), encoding="utf-8")
     (data.artifact_dir / "import_manifest.json").write_text(
         json.dumps(data.manifest, indent=2),
         encoding="utf-8",

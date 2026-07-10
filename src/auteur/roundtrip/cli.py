@@ -16,6 +16,7 @@ from auteur.roundtrip.serializers import (
     write_import_artifacts,
     write_promoted_draft,
 )
+import yaml
 
 
 def register_roundtrip_subcommands(sub) -> None:
@@ -69,6 +70,7 @@ def handle_import_command(args) -> int:
         artifact_dir = write_import_artifacts(data)
         print(f"Import artifacts written to {artifact_dir}")
         print(f"Import run ID: {data.run_id}")
+        _print_import_next_steps(args.project, args.chapter, data.run_id, artifact_dir)
         return result.exit_code
 
     if args.import_command == "confirm":
@@ -94,3 +96,23 @@ def handle_import_command(args) -> int:
         return result.exit_code
 
     return 1
+
+
+def _print_import_next_steps(project: Path, chapter: int, run_id: str, artifact_dir: Path) -> None:
+    proposals_path = artifact_dir / "canon_update_proposals.yaml"
+    proposals = []
+    if proposals_path.exists():
+        payload = yaml.safe_load(proposals_path.read_text(encoding="utf-8")) or {}
+        proposals = payload.get("proposals", [])
+    if proposals:
+        print("Next proposal commands:")
+        for proposal in proposals:
+            print(
+                "  "
+                f"auteur import confirm {project} {chapter} --run {run_id} --proposal {proposal.get('id')}"
+            )
+    else:
+        print("No canon update proposals were generated.")
+        print(f"Confirm template: auteur import confirm {project} {chapter} --run {run_id} --proposal <proposal_id>")
+    print("Next draft command:")
+    print(f"  auteur import promote-draft {project} {chapter} --run {run_id}")

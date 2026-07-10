@@ -49,7 +49,12 @@ def test_review_artifacts_use_versioned_edit_directory(tmp_path) -> None:
     assert written.review_path == artifact_dir / "review.md"
     assert json.loads(written.report_path.read_text(encoding="utf-8"))["source_draft"] == "draft_v2.md"
     assert yaml.safe_load(written.patch_path.read_text(encoding="utf-8"))["patches"][0]["id"] == "patch_001"
-    assert "deterministic suggestion" in written.review_path.read_text(encoding="utf-8")
+    review = written.review_path.read_text(encoding="utf-8")
+    assert "Deterministic suggestion text is safe but simple" in review
+    assert "## Next Steps" in review
+    assert "auteur edit accept" in review
+    assert "auteur edit reject" in review
+    assert "auteur edit apply" in review
 
 
 def test_patch_proposal_write_is_stable_yaml(tmp_path) -> None:

@@ -70,8 +70,8 @@ def handle_export_chapter(project: Path, chapter: int, fmt: str, draft: str | No
 def handle_import_chapter(project: Path, chapter: int, edited_markdown: Path, draft: str | None = None) -> RoundTripResult:
     try:
         source = resolve_draft_path(project, chapter, draft)
-        old_text = source.read_text(encoding="utf-8")
-        imported_text = edited_markdown.read_text(encoding="utf-8")
+        old_text = read_text_normalized(source)
+        imported_text = read_text_normalized(edited_markdown)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
         run_id = timestamp
         artifact_dir = project / "imports" / f"chapter_{chapter:02d}" / run_id
@@ -150,7 +150,14 @@ def build_drift_artifacts(project: Path, chapter: int) -> tuple[dict, dict]:
                     "status": "proposed",
                 }
             )
-    return {"diagnostics": diagnostics}, {"proposals": proposals}
+    return {
+        "analysis_mode": "declared_relation_changes",
+        "note": (
+            "V1 drift analysis uses chapter relation_changes.yaml. "
+            "It does not infer relationship drift from imported prose."
+        ),
+        "diagnostics": diagnostics,
+    }, {"proposals": proposals}
 
 
 def resolve_import_run_dir(project: Path, chapter: int, run_id: str) -> Path:
@@ -187,3 +194,7 @@ def _draft_version(path: Path) -> int:
         return int(path.stem.removeprefix("draft_v"))
     except ValueError:
         return -1
+
+
+def read_text_normalized(path: Path) -> str:
+    return path.read_text(encoding="utf-8").lstrip("\ufeff")

@@ -69,6 +69,48 @@ def test_import_chapter_markdown_writes_artifacts_and_does_not_mutate_canon(tmp_
     assert (project / "bible.json").read_text(encoding="utf-8") == original_bible
 
 
+def test_import_strips_bom_from_diff_report_and_imported_artifact(tmp_path) -> None:
+    project = _project(tmp_path)
+    source = project / "chapters" / "03" / "draft_v2.md"
+    source.write_text("\ufeffLine one.\nLine two.\n", encoding="utf-8")
+    edited = tmp_path / "edited.md"
+    edited.write_text("\ufeffLine one changed.\nLine two.\n", encoding="utf-8")
+
+    assert main(["import", "chapter", str(project), "3", str(edited)]) == 0
+
+    artifact_dir = sorted((project / "imports" / "chapter_03").iterdir())[-1]
+    imported = (artifact_dir / "imported_draft.md").read_text(encoding="utf-8")
+    diff = json.loads((artifact_dir / "diff_report.json").read_text(encoding="utf-8"))
+    assert "\ufeff" not in imported
+    assert "\ufeff" not in json.dumps(diff)
+
+
+def test_import_drift_report_declares_analysis_mode(tmp_path) -> None:
+    project = _project(tmp_path)
+    edited = tmp_path / "edited.md"
+    edited.write_text("Line one changed.\nLine two.\n", encoding="utf-8")
+
+    assert main(["import", "chapter", str(project), "3", str(edited)]) == 0
+
+    artifact_dir = sorted((project / "imports" / "chapter_03").iterdir())[-1]
+    drift = json.loads((artifact_dir / "drift_report.json").read_text(encoding="utf-8"))
+    assert drift["analysis_mode"] == "declared_relation_changes"
+    assert "relation_changes.yaml" in drift["note"]
+
+
+def test_import_cli_output_includes_next_step_commands(tmp_path, capsys) -> None:
+    project = _project(tmp_path)
+    edited = tmp_path / "edited.md"
+    edited.write_text("Line one changed.\nLine two.\n", encoding="utf-8")
+
+    assert main(["import", "chapter", str(project), "3", str(edited)]) == 0
+
+    captured = capsys.readouterr()
+    assert "Import run ID:" in captured.out
+    assert "auteur import promote-draft" in captured.out
+    assert "auteur import confirm" in captured.out
+
+
 def test_import_confirm_marks_proposal_without_updating_relations(tmp_path) -> None:
     project = _project(tmp_path)
     edited = tmp_path / "edited.md"

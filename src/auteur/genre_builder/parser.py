@@ -19,6 +19,7 @@ REQUIRED_SECTIONS = [
 
 
 def parse_genre_brief(markdown: str) -> GenreBrief:
+    markdown = markdown.lstrip("\ufeff")
     sections: dict[str, str] = {}
     current: str | None = None
     buffer: list[str] = []
@@ -67,4 +68,3 @@ def parse_key_values(text: str) -> dict[str, str]:
 def slugify_genre_id(display_name: str) -> str:
     slug = re.sub(r"[^a-z0-9]+", "_", display_name.lower()).strip("_")
     return slug or "custom_genre"
-

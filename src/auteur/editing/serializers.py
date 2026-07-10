@@ -39,7 +39,7 @@ def format_review_markdown(report: EditReport) -> str:
         f"Source draft: {report.source_draft}",
         f"Passes: {', '.join(report.passes)}",
         "",
-        "Findings and patch proposals are review artifacts. deterministic suggestion text is safe but simple, not final prose quality.",
+        "Findings and patch proposals are review artifacts. Deterministic suggestion text is safe but simple, not final prose quality.",
         "",
         "## Findings",
     ]
@@ -56,6 +56,13 @@ def format_review_markdown(report: EditReport) -> str:
         lines.append(
             f"- {patch.id} for {patch.finding_id}: replace `{patch.original}` with `{patch.replacement}` ({patch.status.value})"
         )
+    lines.extend([
+        "",
+        "## Next Steps",
+        f"- Accept a patch: `auteur edit accept <project> {report.chapter} <patch-id> --draft {report.source_draft}`",
+        f"- Reject a patch: `auteur edit reject <project> {report.chapter} <patch-id> --draft {report.source_draft}`",
+        f"- Apply an accepted patch: `auteur edit apply <project> {report.chapter} --patch <patch-id> --draft {report.source_draft}`",
+    ])
     return "\n".join(lines) + "\n"
 
 

@@ -73,6 +73,15 @@ def test_structured_markdown_brief_compiles_into_stable_custom_contract() -> Non
     ]
 
 
+def test_markdown_brief_with_utf8_bom_still_parses_genre_section() -> None:
+    brief = parse_genre_brief("\ufeff" + BRIEF)
+
+    custom = build_custom_genre_contract(brief)
+
+    assert custom.custom_genre_id == "cozy_political_fantasy"
+    assert "Missing required section: Genre" not in brief.diagnostics
+
+
 def test_missing_required_sections_produce_clear_diagnostics() -> None:
     brief = parse_genre_brief("# Genre\nThin Genre\n")
 
@@ -131,6 +140,10 @@ def test_explainer_uses_contract_language_not_prompt_template_language() -> None
     assert "# Cozy Political Fantasy Genre Contract" in markdown
     assert "## Emotional Promise" in markdown
     assert "## Validation Checklist" in markdown
+    assert "## What Auteur Will Validate" in markdown
+    assert "## How This Genre Fails" in markdown
+    assert "## Suggested StoryIdentity Defaults" in markdown
+    assert "## Setup/Payoff Expectations" in markdown
     assert "prompt template" not in markdown.lower()
 
 
