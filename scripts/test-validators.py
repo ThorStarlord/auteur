@@ -23,6 +23,29 @@ def parse_frontmatter(file_path):
 
 def detect_validator_signature(validator_path):
     """Detect validator CLI signature by checking its code."""
+    validator_name = os.path.basename(validator_path)
+    # CLI shape is a contract, not something that can be inferred reliably from
+    # arbitrary field names appearing in validator implementation text.
+    if validator_name in {"validate-artifact.py", "validate-output.py"}:
+        return "two_arg"
+    if validator_name in {"validate-repo.py", "validate-mode-coverage.py"}:
+        return "no_arg"
+    if validator_name == "validate-workflow-design.py":
+        return "single_no_repo_root"
+    if validator_name in {
+        "validate-plan.py",
+        "validate-brief.py",
+        "validate-project-classification.py",
+        "validate-prompt-handoff.py",
+        "validate-run-log.py",
+        "validate-skill-improvement-plan.py",
+        "validate-unknowns-map.py",
+        "validate-usage-research-report.py",
+        "validate-user-intent.py",
+        "validate-user-intent-amendment.py",
+    }:
+        return "single_arg"
+
     with open(validator_path, 'r', encoding='utf-8') as f:
         content = f.read()
 
@@ -80,6 +103,10 @@ def run_validator(validator_path, fixture_path, repo_root=".", extra_args=None):
         cmd.append(artifact_id)
         cmd.append(fixture_path)
         cmd.extend(["--repo-root", repo_root])
+    elif sig == 'single_no_repo_root':
+        if extra_args:
+            cmd.extend(extra_args)
+        cmd.append(fixture_path)
     else:
         # Single-argument validators (standard)
         if extra_args:
