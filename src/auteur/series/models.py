@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from enum import Enum
 from pathlib import Path
 from typing import Self
@@ -122,6 +123,93 @@ class DependencyEdge(BaseModel):
     description: str = ""
 
 
+class ThematicArc(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(min_length=1)
+    theme: str = Field(min_length=1)
+    books: list[int] = Field(min_length=1)
+    progression: dict[int, str] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_progression_keys(self) -> Self:
+        for book in self.progression.keys():
+            if book not in self.books:
+                raise ValueError(f"Progression key {book} not in books list {self.books}")
+        return self
+
+
+class CharacterState(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    character_id: str = Field(min_length=1)
+    book: int = Field(ge=1)
+    state: dict[str, str] = Field(min_length=1)
+
+
+class Relationship(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(min_length=1)
+    party_a: str = Field(min_length=1)
+    party_b: str = Field(min_length=1)
+    book: int = Field(ge=1)
+    state: str = Field(min_length=1)
+    notes: str = ""
+
+
+class LoreEntry(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(min_length=1)
+    book: int = Field(ge=1)
+    content: str = Field(min_length=1)
+    consistency_notes: str = ""
+
+
+class TimelineEvent(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(min_length=1)
+    absolute_date: datetime | None = None
+    relative_book: int = Field(ge=1)
+    relative_position: str = Field(min_length=1)
+    duration: str | None = None
+
+    @model_validator(mode="after")
+    def _require_date_or_relative(self) -> Self:
+        if self.absolute_date is None and not self.relative_position:
+            raise ValueError("Must provide either absolute_date or relative_position")
+        return self
+
+
+class NarrativeSetup(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(min_length=1)
+    book_introduced: int = Field(ge=1)
+    description: str = Field(min_length=1)
+    expected_payoff_by_book: int = Field(ge=1)
+    payoff_id: str | None = None
+    status: str = "unresolved"
+    reason_abandoned: str = ""
+
+    @model_validator(mode="after")
+    def _validate_payoff_book(self) -> Self:
+        if self.expected_payoff_by_book < self.book_introduced:
+            raise ValueError(f"expected_payoff_by_book ({self.expected_payoff_by_book}) must be >= book_introduced ({self.book_introduced})")
+        return self
+
+
+class NarrativePayoff(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(min_length=1)
+    setup_id: str = Field(min_length=1)
+    book: int = Field(ge=1)
+    description: str = Field(min_length=1)
+
+
 class SeriesIdentity(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -139,6 +227,14 @@ class SeriesIdentity(BaseModel):
     dependency_edges: list[DependencyEdge] = Field(default_factory=list)
     recurring_symbols: list[str] = Field(default_factory=list)
     universe_constraint_path: Path | None = None
+    universe_contract: str | None = None
+    thematic_arcs: list[ThematicArc] = Field(default_factory=list)
+    character_states: list[CharacterState] = Field(default_factory=list)
+    relationships: list[Relationship] = Field(default_factory=list)
+    lore_entries: list[LoreEntry] = Field(default_factory=list)
+    timeline_events: list[TimelineEvent] = Field(default_factory=list)
+    narrative_setups: list[NarrativeSetup] = Field(default_factory=list)
+    narrative_payoffs: list[NarrativePayoff] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def _validate_series_shape(self) -> Self:
@@ -175,6 +271,9 @@ class SeriesIdentity(BaseModel):
         ids.update(arc.id for arc in self.relationship_arcs)
         ids.update(arc.id for arc in self.faction_arcs)
         ids.update(mystery.id for mystery in self.mysteries)
+        ids.update(arc.id for arc in self.thematic_arcs)
+        ids.update(setup.id for setup in self.narrative_setups)
+        ids.update(payoff.id for payoff in self.narrative_payoffs)
         for book in self.book_plans:
             ids.update(book.required_setups)
             ids.update(book.required_payoffs)

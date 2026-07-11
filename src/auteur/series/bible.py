@@ -2,6 +2,14 @@ from __future__ import annotations
 
 from auteur.series.graph import build_dependency_graph
 from auteur.series.models import SeriesIdentity
+from auteur.series.continuity_validators import (
+    ThematicProgressionValidator,
+    CharacterContinuityValidator,
+    RelationshipContinuityValidator,
+    LoreConsistencyValidator,
+    ChronologyValidator,
+    SetupPayoffValidator,
+)
 
 
 def compile_series_bible(series: SeriesIdentity) -> dict:
@@ -11,6 +19,15 @@ def compile_series_bible(series: SeriesIdentity) -> dict:
         str(book.book_number): list(book.required_payoffs)
         for book in series.book_plans
     }
+
+    # Run Group 3 continuity validators
+    continuity_diagnostics = []
+    continuity_diagnostics.extend(ThematicProgressionValidator().validate(series))
+    continuity_diagnostics.extend(CharacterContinuityValidator().validate(series))
+    continuity_diagnostics.extend(RelationshipContinuityValidator().validate(series))
+    continuity_diagnostics.extend(LoreConsistencyValidator().validate(series))
+    continuity_diagnostics.extend(ChronologyValidator().validate(series))
+    continuity_diagnostics.extend(SetupPayoffValidator().validate(series))
     mystery_status_by_book: dict[str, list[dict]] = {number: [] for number in book_numbers}
     for mystery in series.mysteries:
         for number in book_numbers:
@@ -102,4 +119,16 @@ def compile_series_bible(series: SeriesIdentity) -> dict:
             }
             for book in series.book_plans
         },
+        "continuity_diagnostics": [
+            {
+                "id": d.id,
+                "severity": d.severity,
+                "constraint": d.constraint,
+                "source": d.source,
+                "conflict": d.conflict,
+                "conflict_source": d.conflict_source,
+                "explanation": d.explanation,
+            }
+            for d in continuity_diagnostics
+        ],
     }
