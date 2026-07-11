@@ -10,7 +10,7 @@ Developer guidelines for the auteur narrative engineering toolkit.
 
 ### Layered Story Architecture (NOW COMPLETE)
 
-Auteur implements the complete 8-layer narrative hierarchy:
+Auteur implements the complete 7-layer narrative hierarchy:
 
 1. **Universe** ✅ (defines world rules, constraints for all descendant layers)
 2. **Series** ✅ (establishes multi-book continuity, character arcs, thematic throughlines)
@@ -29,6 +29,8 @@ Each layer:
 
 The Universe layer (implemented 2026-07-11) completes the hierarchy. See
 `docs/superpowers/specs/2026-07-11-universe-layer-spec.md` for the full specification.
+
+**Backwards Compatibility:** No breaking changes to existing Series, Book, or Story Identity layers.
 
 ### The 9-Layer Genre Pipeline Pattern
 
