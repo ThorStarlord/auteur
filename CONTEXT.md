@@ -92,4 +92,57 @@ Adding a built-in genre requires templates, deterministic validation, core
 identity profiles, a genre contract, one registry entry, and tests. It must not
 require edits to session, server, browser, or identity compilation logic.
 
-Last updated: 2026-07-10.
+## Series Continuity & Universe Propagation (ADR 013)
+
+Series narratives are validated for continuity across books using deterministic validators:
+
+- **Thematic Progression**: Arcs introduced must progress or resolve; gaps are flagged.
+- **Character Continuity**: Character states must evolve logically; impossible transitions are errors.
+- **Relationship Continuity**: Relationship state changes without justification trigger warnings.
+- **Lore Consistency**: Lore contradictions without explanation are flagged.
+- **Chronology**: Timeline events must respect causality; impossible dates are errors.
+- **Setup/Payoff Tracking**: Unresolved setups past their deadline generate warnings.
+
+**Universe-to-Series Propagation (ADR 013):**
+
+Universe constraints propagate downward to Series and Books. Constraints are classified:
+
+1. **Structured Constraints** (deterministic, blocking):
+   - Finite-domain values (genres, character states, thematic arcs)
+   - Boolean conditions
+   - Enumerated relationships
+   - Violations produce ERROR diagnostics and block compilation
+
+2. **Natural-Language Principles** (advisory, non-blocking):
+   - Free-text guidance
+   - Generate WARNING diagnostics only
+   - Do not block Series compilation
+
+3. **LLM-Assisted Interpretation** (optional, V1 non-blocking):
+   - Semantic similarity checks
+   - Marked as uncertain (INFO level)
+   - Never block in V1
+
+Series may **strengthen but not weaken** Universe constraints. All diagnostics include:
+- Originating constraint
+- Conflicting field
+- Severity level
+- Actionable explanation
+
+Validation is opt-in via `universe_contract` field in `SeriesIdentity`. Existing Series without this field skip Universe validation.
+
+**Canonical Ownership (ADR 013):**
+- `SeriesIdentity` (series_identity.yaml) is the canonical author-edited contract
+- `SeriesBible` (series_bible.json) is a compiled operational artifact derived from identity, book plans, and continuity state
+
+## Genre Pipeline: Group 1 Fixes
+
+**Warning Persistence:** Validation warnings are now persisted in session.json and survive browser reload via GET /session.
+
+**409 Conflict for Completed Sessions:** Mutations of completed sessions return HTTP 409 (not 422) to distinguish state conflicts from data validity.
+
+**Occupied-Port Preflight:** Port availability is checked before session creation, preventing orphaned sessions from failed server startup.
+
+**Regression Tests:** Horror end-to-end flow and actual three-CLI subprocess invocations are regression-tested.
+
+Last updated: 2026-07-11.
