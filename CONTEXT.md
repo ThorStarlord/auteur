@@ -60,28 +60,31 @@ Three template classes per genre, one per emotional core.
 - Routing tables map all cores to their genres
 - Generated YAML passes `auteur identity validate`
 
-### Shared Infrastructure (Reused Across All Genres)
+### Shared Infrastructure (Consolidated Genre-Neutral Runtime)
 
-These components are genre-agnostic and shared:
+As of 2026-07-11, shared infrastructure has been consolidated into `auteur.genre_pipeline` (see ADR 017):
 
-**Session Management** (`src/auteur/netorare/session.py`)
-- SessionManager: File-based JSON session state with atomic writes
+**Session Management** (`src/auteur/genre_pipeline/session.py`)
+- GenreSessionStore: File-based JSON session state with atomic writes
 - Tracks phase progression, choices, validation results
-- All genres use same SessionManager
+- All genres use same GenreSessionStore at `.auteur/genre_sessions/<genre>/session.json`
 
-**Browser HTTP Server** (`src/auteur/netorare/browser/server.py`)
-- NetorareServer: Reused for all genres (no modifications)
+**Browser HTTP Server** (`src/auteur/genre_pipeline/server.py`)
+- GenrePipelineServer: Generic HTTP server for all genres
 - Serves /session, /session/update, /session/complete, /session/validate
 - Provides endpoints for browser UI
 
-**Browser UI** (`src/auteur/netorare/browser/index.html`)
+**Browser UI** (`src/auteur/genre_pipeline/browser/index.html`)
 - Vanilla JavaScript decision tree interface
 - Generic phase/option/constraint rendering
-- All genres reuse same UI (no modifications)
+- All genres reuse same UI
 
 **CLI Dispatcher** (`src/auteur/cli.py`)
-- Routes `auteur {genre} init --core {core_id}` to genre-specific handlers
-- Each genre provides its own handler class
+- Routes `auteur {genre} init --core {core_id}` to GenrePipelineCommand
+- Thin adapters in `cli_netorare.py`, `cli_mystery.py`, `cli_gentlefemdom.py`
+- All three adapters delegate to unified GenrePipelineCommand
+
+**Legacy Note:** Prior to consolidation, infrastructure was duplicated in `auteur.netorare/`. That code has been removed and replaced with genre-neutral `auteur.genre_pipeline/`.
 
 ### Port Allocation
 
@@ -175,5 +178,5 @@ Generated YAML must:
 
 ---
 
-Last Updated: 2026-07-08
-Validated Through: Three complete genre pipelines with proven reusability
+Last Updated: 2026-07-11  
+Validated Through: Three complete genre pipelines with proven reusability; genre-neutral runtime consolidation (ADR 017) verified with 1090+ tests and zero infrastructure modifications

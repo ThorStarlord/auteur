@@ -29,6 +29,33 @@ engine second. Agent work should preserve that distinction.
 - Keep user-authorial choices explicit. Do not silently fill or rewrite the
   story spine.
 
+### Code Review & Verification
+
+When reviewing code changes or investigating test failures:
+
+1. **Distinguish issue types before acting:**
+   - **Code defect:** Tests fail, tests contradict source inspection, behavior violates invariants
+   - **Incomplete requirements:** Feature partially implemented, edge cases unhandled
+   - **Environment issue:** Tests pass, source is correct, manual behavior differs (stale package, PATH, Python version mismatch)
+   - **Design preference:** Works as intended, but stakeholder wants different tradeoff
+
+2. **Verify claims with evidence:**
+   - Don't cite line numbers without inspecting them
+   - Don't claim missing components without checking current git HEAD
+   - Distinguish between "tests pass" (exercises live code) and "implementation exists in git" (requires committed files)
+   - If uncertain, ask or investigate further rather than escalating
+
+3. **Investigate environment issues before rewriting:**
+   - Multiple Python installations can coexist; verify `which python` and `python -m module`
+   - Editable installs (`pip install -e .`) can become stale; verify import paths
+   - Shell executables resolve from PATH; use `which` or equivalent to check resolution order
+   - When manual test fails but automated tests pass: investigate execution environment, not code
+
+4. **Regression tests protect invariants, not environments:**
+   - Can't prevent environment issues (stale packages, PATH misconfiguration)
+   - Can enforce repository behavior (e.g., "session storage must use neutral paths")
+   - Add regression test when you discover an invariant was silently violated by code changes
+
 ## Three layers
 
 Auteur has three distinct layers. Identify which layer a task belongs to

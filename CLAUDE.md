@@ -74,6 +74,46 @@ These documents let implementers work independently and enable high-velocity par
 - If Task 1 review finds issues, fix before Task 2 starts
 - Rework on early tasks is cheaper than discovering the pattern is wrong in Task 3
 
+## Debugging & Verification
+
+### Distinguishing Code Defects from Environment Issues
+
+Python development involves multiple sources of truth that can disagree:
+- **Git commits** — what's tracked in the repository
+- **Python import paths** — what `import auteur` loads from disk
+- **Shell executables** — which `auteur` command the shell resolves
+
+These can diverge when:
+- A stale package installation predates recent code changes
+- Multiple Python versions coexist on the same machine
+- Editable installs (`pip install -e .`) haven't been refreshed
+- PATH environment contains multiple script locations
+
+**Diagnostic process before declaring a code defect:**
+
+1. **Verify the symptom is reproducible** — does it happen consistently, or only under certain conditions?
+2. **Check multiple execution paths:**
+   ```bash
+   python -c "import auteur; print(auteur.__file__)"     # Shows which module Python loads
+   which auteur                                           # Shows which executable shell resolves
+   python -m auteur.cli gentlefemdom init ./test          # Bypasses shell executable resolution
+   ```
+3. **Test with corrected environment:**
+   - Update PATH to prioritize current installation
+   - Reinstall editable package: `pip install -e .`
+   - Re-run the failing test
+4. **Investigate *before* rewriting** — if tests pass but manual workflow fails, the code is likely correct
+5. **Add regression coverage on invariants** — not to prevent environment issues (which tests can't), but to enforce the repository's contractual behavior
+
+**Example:** Session storage moved from genre-specific paths to neutral `.auteur/genre_sessions/<genre>/`.
+- Manual test showed old path being used
+- Tests showed new path was correct
+- Investigation revealed: shell was using Python312's `auteur` command (stale package) while tests used Python314 (current worktree)
+- Fix: reinstall package, update PATH
+- Regression test added: all 3 genres must use neutral path (prevents future code changes from silently reverting the invariant)
+
+The lesson: **blame the process (PATH management, package installation), not the code.**
+
 ## Code Quality Standards
 
 ### Test-Driven Development
@@ -160,5 +200,5 @@ The architecture succeeds when a new genre needs only templates + validation + i
 
 ---
 
-**Last Updated:** 2026-07-08  
-**Validated By:** Three complete genre pipelines (netorare, mystery, gentle femdom) with zero infrastructure modifications across 900+ tests
+**Last Updated:** 2026-07-11  
+**Validated By:** Three complete genre pipelines (netorare, mystery, gentle femdom) with zero infrastructure modifications across 1090+ tests; genre-neutral runtime consolidation verified with regression coverage for session storage invariants
