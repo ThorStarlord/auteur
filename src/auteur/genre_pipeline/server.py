@@ -69,6 +69,8 @@ class GenrePipelineApplication:
         if not result.is_valid:
             raise PipelineRequestError(422, "Choice validation failed", errors=result.errors)
         updated = self.store.update_choices(phase, choices)
+        updated.warnings = result.warnings
+        self.store._write(updated)
         return {
             "is_valid": True,
             "errors": [],
@@ -81,13 +83,10 @@ class GenrePipelineApplication:
         unknown = set(payload) - allowed
         if unknown:
             raise PipelineRequestError(400, f"Unknown settings: {', '.join(sorted(unknown))}")
-        try:
-            session = self.store.update_settings(
-                mode=payload.get("mode"),
-                working_title=payload.get("working_title"),
-            )
-        except GenreSessionError as exc:
-            raise PipelineRequestError(422, str(exc)) from exc
+        session = self.store.update_settings(
+            mode=payload.get("mode"),
+            working_title=payload.get("working_title"),
+        )
         return {"session": session.model_dump(mode="json")}
 
     def complete(self) -> dict[str, Any]:
@@ -95,6 +94,8 @@ class GenrePipelineApplication:
         if not result.is_valid:
             raise PipelineRequestError(422, "Session is incomplete or invalid", errors=result.errors)
         session = self.store.mark_complete()
+        session.warnings = result.warnings
+        self.store._write(session)
         return {
             "warnings": result.warnings,
             "session": session.model_dump(mode="json"),

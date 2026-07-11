@@ -57,6 +57,7 @@ def test_runtime_launches_generic_server_and_writes_validated_identity(tmp_path)
         process_factory=process_factory,
         browser_opener=lambda _url: True,
         server_probe=lambda _url: True,
+        port_checker=lambda _port: None,
         timeout=2,
     )
 
@@ -106,6 +107,7 @@ def test_runtime_fails_if_server_exits_before_completion(tmp_path):
         process_factory=lambda *_args, **_kwargs: process,
         browser_opener=lambda _url: True,
         server_probe=lambda _url: False,
+        port_checker=lambda _port: None,
     )
 
     with pytest.raises(GenrePipelineRuntimeError, match="server exited"):
@@ -139,6 +141,7 @@ def test_runtime_waits_for_server_readiness_before_opening_browser(tmp_path):
         process_factory=lambda *_args, **_kwargs: process,
         browser_opener=open_browser,
         server_probe=probe,
+        port_checker=lambda _port: None,
         timeout=2,
     )
     runtime.sleep = lambda _seconds: None
@@ -147,3 +150,29 @@ def test_runtime_waits_for_server_readiness_before_opening_browser(tmp_path):
 
     assert events == ["probe", "probe", "browser"]
     assert result.identity_file.exists()
+
+
+def test_runtime_rejects_occupied_port_before_creating_session(tmp_path):
+    import socket
+
+    spec = get_genre_pipeline(Genre.GENTLEFEMDOM)
+
+    # Find an available port, then occupy it
+    listener = socket.socket()
+    listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    listener.bind(("127.0.0.1", 0))
+    occupied_port = listener.getsockname()[1]
+
+    try:
+        runtime = GenrePipelineRuntime(
+            tmp_path,
+            spec,
+            "sensual_dominance",
+            port=occupied_port,
+        )
+        with pytest.raises(GenrePipelineRuntimeError, match="already in use"):
+            runtime.run()
+
+        assert not runtime.store.session_file.exists()
+    finally:
+        listener.close()

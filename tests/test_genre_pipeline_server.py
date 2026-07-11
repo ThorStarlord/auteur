@@ -184,3 +184,62 @@ def test_completed_session_rejects_invalid_updates_before_validation(tmp_path):
             )
 
     assert error.value.code == 409
+
+
+def test_completed_session_rejects_settings_update_with_409(tmp_path):
+    spec = get_genre_pipeline(Genre.MYSTERY)
+    store = GenreSessionStore.for_project(tmp_path, spec)
+    store.create("howdunit")
+    store.mark_complete()
+
+    with running_server(store) as server:
+        with pytest.raises(HTTPError) as error:
+            post_json(
+                server,
+                "/session/settings",
+                {"working_title": "Different Title"},
+            )
+
+    assert error.value.code == 409
+
+
+def test_completed_session_rejects_repeated_completion_with_409(tmp_path):
+    spec = get_genre_pipeline(Genre.GENTLEFEMDOM)
+    store = GenreSessionStore.for_project(tmp_path, spec)
+    store.create("sensual_dominance")
+
+    with running_server(store) as server:
+        for phase, choices in complete_choices(spec, "sensual_dominance").items():
+            post_json(server, "/session/update", {"phase": phase, "choices": choices})
+        post_json(server, "/session/complete", {})
+
+        with pytest.raises(HTTPError) as error:
+            post_json(server, "/session/complete", {})
+
+    assert error.value.code == 409
+
+
+def test_netorare_horror_full_workflow_with_resistance_inescapable(tmp_path):
+    spec = get_genre_pipeline(Genre.NETORARE)
+    store = GenreSessionStore.for_project(tmp_path, spec)
+    store.create("horror")
+
+    with running_server(store) as server:
+        _, descriptor = get_json(server, "/pipeline")
+        phase_4 = [p for p in descriptor["phases"] if p["number"] == 4][0]
+        resistance_options = [f["options"] for f in phase_4["fields"] if f["id"] == "resistance"]
+        assert any(opt["id"] == "resistance-inescapable" for opts in resistance_options for opt in opts)
+
+        horror_choices = complete_choices(spec, "horror")
+
+        for phase, choices in horror_choices.items():
+            status, result = post_json(server, "/session/update", {"phase": phase, "choices": choices})
+            assert status == 200, f"Phase {phase} update failed: {result}"
+
+        status, validation = get_json(server, "/session/validate")
+        assert status == 200
+        assert validation["is_valid"], f"Validation failed: {validation['errors']}"
+
+        status, completion = post_json(server, "/session/complete", {})
+        assert status == 200
+        assert completion["session"]["status"] == "complete"

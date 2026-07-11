@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import socket
 import subprocess
 import sys
 import time
@@ -46,6 +47,7 @@ class GenrePipelineRuntime:
         process_factory: Callable[..., Any] = subprocess.Popen,
         browser_opener: Callable[[str], bool] = webbrowser.open,
         server_probe: Callable[[str], bool] | None = None,
+        port_checker: Callable[[int], None] | None = None,
     ):
         self.project_path = Path(project_path)
         self.spec = spec
@@ -57,6 +59,7 @@ class GenrePipelineRuntime:
         self.process_factory = process_factory
         self.browser_opener = browser_opener
         self.server_probe = server_probe or self._probe_server
+        self.port_checker = port_checker or self._check_port_available
         self.sleep: Callable[[float], None] = time.sleep
         self.monotonic: Callable[[], float] = time.monotonic
         self.store = GenreSessionStore.for_project(self.project_path, spec)
@@ -104,7 +107,16 @@ class GenrePipelineRuntime:
             raise GenrePipelineRuntimeError(f"Project path must be a directory: {self.project_path}")
         if self.identity_file.exists():
             raise GenrePipelineRuntimeError(f"Canonical identity already exists: {self.identity_file}")
+        self.port_checker(self.port)
         self.project_path.mkdir(parents=True, exist_ok=True)
+
+    def _check_port_available(self, port: int) -> None:
+        try:
+            s = socket.socket()
+            s.bind(("127.0.0.1", port))
+            s.close()
+        except OSError:
+            raise GenrePipelineRuntimeError(f"Port {port} is already in use")
 
     def _launch_server(self):
         command = [
