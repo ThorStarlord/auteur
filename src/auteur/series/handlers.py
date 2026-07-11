@@ -18,7 +18,7 @@ from auteur.series.continuity_validators import (
     ChronologyValidator,
     SetupPayoffValidator,
 )
-from auteur.structure.diagnostics import StructureDiagnostic
+from auteur.structure.diagnostics import StructureDiagnostic, DiagnosticSeverity, DiagnosticLayer
 
 
 @dataclass
@@ -72,14 +72,12 @@ def handle_series_validate(series: SeriesIdentity) -> SeriesHandlerResult:
 
 def handle_series_compile(series: SeriesIdentity) -> SeriesHandlerResult:
     # Check for blocking diagnostics before compilation
-    from auteur.structure.diagnostics import Severity
-
     continuity_diags = _collect_continuity_diagnostics(series)
     universe_diags = _collect_universe_diagnostics(series)
 
-    errors = [d for d in continuity_diags + universe_diags if d.severity == Severity.ERROR]
+    errors = [d for d in continuity_diags + universe_diags if d.severity == DiagnosticSeverity.ERROR]
     if errors:
-        error_msgs = "\n".join([f"  - {d.id}: {d.description}" for d in errors])
+        error_msgs = "\n".join([f"  - {d.rule}: {d.message}" for d in errors])
         return SeriesHandlerResult.failure(f"Cannot compile series due to errors:\n{error_msgs}")
 
     try:
@@ -118,19 +116,16 @@ def _collect_continuity_diagnostics(series: SeriesIdentity) -> list:
     continuity_diags.extend(SetupPayoffValidator().validate(series))
 
     # Convert continuity diagnostics to StructureDiagnostic format for compatibility
-    from auteur.structure.diagnostics import Severity
-
     structure_diags = []
-    severity_map = {"ERROR": Severity.ERROR, "WARNING": Severity.WARNING, "INFO": Severity.INFO}
+    severity_map = {"ERROR": DiagnosticSeverity.ERROR, "WARNING": DiagnosticSeverity.WARNING, "INFO": DiagnosticSeverity.INFO}
 
     for diag in continuity_diags:
-        severity = severity_map.get(diag.severity, Severity.WARNING)
+        severity = severity_map.get(diag.severity, DiagnosticSeverity.WARNING)
         struct_diag = StructureDiagnostic(
-            id=diag.id,
             severity=severity,
-            description=diag.explanation,
-            affected_section=diag.conflict_source,
-            repair_suggestion=diag.explanation,
+            layer=DiagnosticLayer.CONSTRAINTS,  # Use CONSTRAINTS as default layer
+            rule=diag.id,
+            message=diag.explanation,
         )
         structure_diags.append(struct_diag)
 
