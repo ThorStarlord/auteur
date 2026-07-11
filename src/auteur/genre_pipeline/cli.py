@@ -1,0 +1,133 @@
+from __future__ import annotations
+
+import argparse
+import sys
+from pathlib import Path
+from typing import Any, Callable
+
+from auteur.blueprint import StoryMode
+from auteur.genre_pipeline.models import GenrePipelineSpec
+from auteur.genre_pipeline.registry import get_all_genres
+from auteur.genre_pipeline.runtime import (
+    GenrePipelineResult,
+    GenrePipelineRuntime,
+    GenrePipelineRuntimeError,
+)
+
+
+def register_genre_pipeline_subcommands(subparsers: Any) -> None:
+    for spec in get_all_genres():
+        parser = subparsers.add_parser(
+            spec.slug,
+            help=f"Interactive browser-based {spec.slug} story identity authoring.",
+        )
+        commands = parser.add_subparsers(
+            dest=f"{spec.slug}_command",
+            required=True,
+        )
+        init = commands.add_parser(
+            "init",
+            help=f"Create a {spec.slug} story identity authoring session.",
+        )
+        init.add_argument("project", type=Path, help="Project directory path.")
+        init.add_argument(
+            "--core",
+            choices=list(spec.core_ids),
+            default=spec.default_core_id,
+            help=f"Built-in emotional core (default: {spec.default_core_id}).",
+        )
+        init.add_argument(
+            "--mode",
+            choices=[mode.value for mode in StoryMode],
+            default=None,
+            help="Override the core's visible default story mode.",
+        )
+        init.add_argument(
+            "--provider",
+            choices=["anthropic", "openai"],
+            default=None,
+            help="Deprecated compatibility option; this workflow makes no LLM call.",
+        )
+        init.add_argument(
+            "--port",
+            type=int,
+            default=spec.default_port,
+            help=f"Browser server port (default: {spec.default_port}).",
+        )
+        init.add_argument(
+            "--timeout",
+            type=float,
+            default=3600.0,
+            help="Session timeout in seconds (default: 3600).",
+        )
+        init.add_argument("--debug", action="store_true", help="Enable server output.")
+
+
+class GenrePipelineCommand:
+    def __init__(
+        self,
+        project_path: Path,
+        spec: GenrePipelineSpec,
+        core_id: str,
+        *,
+        mode: StoryMode | str | None = None,
+        provider: str | None = None,
+        port: int | None = None,
+        timeout: float = 3600.0,
+        debug: bool = False,
+        runtime_factory: Callable[..., GenrePipelineRuntime] = GenrePipelineRuntime,
+    ):
+        self.project_path = Path(project_path)
+        self.spec = spec
+        self.core_id = core_id
+        self.mode = mode
+        self.provider = provider
+        self.port = spec.default_port if port is None else port
+        self.timeout = timeout
+        self.debug = debug
+        self.runtime_factory = runtime_factory
+        self.session_file = (
+            self.project_path
+            / ".auteur"
+            / "genre_sessions"
+            / spec.slug
+            / "session.json"
+        )
+        self.identity_file = self.project_path / "story_identity.yaml"
+
+    def run(self) -> int:
+        if self.provider is not None:
+            print(
+                "Warning: --provider is deprecated; this deterministic workflow makes no LLM call.",
+                file=sys.stderr,
+            )
+        try:
+            runtime = self.runtime_factory(
+                project_path=self.project_path,
+                spec=self.spec,
+                core_id=self.core_id,
+                mode=self.mode,
+                port=self.port,
+                timeout=self.timeout,
+                debug=self.debug,
+            )
+            result = runtime.run()
+        except GenrePipelineRuntimeError as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            return 1
+        except KeyboardInterrupt:
+            print("\nGenre pipeline interrupted", file=sys.stderr)
+            return 130
+
+        self._display_result(result)
+        return 0
+
+    @staticmethod
+    def _display_result(result: GenrePipelineResult) -> None:
+        print(f"[OK] {result.genre} identity authoring completed.")
+        print(f"Session: {result.session_file}")
+        print(f"Identity: {result.identity_file}")
+        print(f"Validate: auteur identity validate {result.identity_file}")
+        for warning in result.warnings:
+            print(f"Warning: {warning}", file=sys.stderr)
+
