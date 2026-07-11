@@ -202,6 +202,8 @@ def _build_parser() -> argparse.ArgumentParser:
     register_roundtrip_subcommands(sub)
     from auteur.genre_builder.cli import register_genre_builder_subcommands
     register_genre_builder_subcommands(sub)
+    from auteur.universe.cli import register_universe_subcommands
+    register_universe_subcommands(sub)
 
     p = sub.add_parser("state",
         help="Manage story state layers programmatically.")
@@ -719,6 +721,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "genre":
         from auteur.genre_builder.cli import handle_genre_builder_command
         return handle_genre_builder_command(args)
+
+    # === universe ===
+    if args.command == "universe":
+        from auteur.universe.cli import handle_universe_command
+        return handle_universe_command(args)
 
     # === netorare ===
     if args.command == "netorare":
