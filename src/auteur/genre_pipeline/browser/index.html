@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Interactive Genre Pipeline</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #202124;
+      --muted: #62666b;
+      --line: #d7d9dc;
+      --surface: #ffffff;
+      --canvas: #f4f5f3;
+      --accent: #176b63;
+      --accent-strong: #0e4e49;
+      --warning: #8a5300;
+      --error: #a42a2a;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--canvas); color: var(--ink); }
+    button, input, select { font: inherit; }
+    .shell { min-height: 100vh; display: grid; grid-template-rows: auto 1fr; }
+    header { background: var(--surface); border-bottom: 1px solid var(--line); padding: 18px 24px; }
+    header h1 { margin: 0; font-size: 20px; font-weight: 650; letter-spacing: 0; }
+    .settings { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(160px, 240px); gap: 16px; margin-top: 16px; }
+    label { display: grid; gap: 6px; color: var(--muted); font-size: 13px; }
+    input, select { min-height: 40px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); padding: 8px 10px; }
+    main { width: min(980px, 100%); margin: 0 auto; padding: 12px 24px 48px; }
+    .banner { display: none; margin: 12px 0; border-left: 4px solid; padding: 10px 12px; background: var(--surface); }
+    .banner.visible { display: block; }
+    .banner.error { border-color: var(--error); color: var(--error); }
+    .banner.warning { border-color: var(--warning); color: var(--warning); }
+    .phase { background: var(--surface); border-bottom: 1px solid var(--line); padding: 22px 4px; }
+    .phase:first-of-type { border-top: 1px solid var(--line); }
+    .phase-heading { display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+    .phase-number { color: var(--accent); font-weight: 700; width: 22px; }
+    .phase h2 { margin: 0; font-size: 17px; letter-spacing: 0; }
+    .derived { color: var(--muted); margin: 0 0 0 34px; }
+    fieldset { border: 0; padding: 0; margin: 16px 0 0 34px; }
+    legend { font-size: 14px; font-weight: 650; margin-bottom: 8px; }
+    .options { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px; }
+    .option { display: grid; grid-template-columns: 20px 1fr; align-items: start; gap: 8px; min-height: 58px; border: 1px solid var(--line); border-radius: 6px; padding: 10px; color: var(--ink); cursor: pointer; }
+    .option:has(input:checked) { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+    .option input { margin: 3px 0 0; min-height: auto; }
+    .option strong { display: block; font-size: 14px; }
+    .option small { display: block; color: var(--muted); margin-top: 3px; line-height: 1.35; }
+    .phase-actions { display: flex; justify-content: flex-end; margin: 16px 0 0 34px; }
+    button { min-height: 38px; border: 1px solid var(--accent); border-radius: 6px; background: var(--accent); color: white; padding: 8px 14px; cursor: pointer; }
+    button:hover { background: var(--accent-strong); }
+    button:disabled { cursor: not-allowed; opacity: .55; }
+    .complete { display: flex; justify-content: flex-end; padding-top: 24px; }
+    @media (max-width: 640px) {
+      header, main { padding-left: 14px; padding-right: 14px; }
+      .settings { grid-template-columns: 1fr; }
+      .options { grid-template-columns: 1fr; }
+      fieldset, .derived, .phase-actions { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <h1 id="pipeline-title">Interactive Genre Pipeline</h1>
+      <div class="settings">
+        <label>Working title<input id="working-title" type="text" autocomplete="off"></label>
+        <label>Story mode<select id="story-mode"></select></label>
+      </div>
+    </header>
+    <main>
+      <div id="error-banner" class="banner error" role="alert"></div>
+      <div id="warning-banner" class="banner warning"></div>
+      <div id="phases"></div>
+      <div class="complete"><button id="complete-button" type="button">Complete Pipeline</button></div>
+    </main>
+  </div>
+  <script>
+    let pipeline;
+    let session;
+
+    async function request(path, options = {}) {
+      const response = await fetch(path, options);
+      const body = await response.json();
+      if (!response.ok) {
+        const message = (body.errors || [body.error || `Request failed: ${response.status}`]).join(" ");
+        throw new Error(message);
+      }
+      return body;
+    }
+
+    function showBanner(kind, message = "") {
+      const banner = document.getElementById(`${kind}-banner`);
+      banner.textContent = message;
+      banner.classList.toggle("visible", Boolean(message));
+    }
+
+    function selectedChoice(phase, field) {
+      return session.choices[String(phase)]?.[field] || session.choices[phase]?.[field] || "";
+    }
+
+    function render() {
+      document.getElementById("pipeline-title").textContent = pipeline.browser_title;
+      document.getElementById("working-title").value = session.working_title;
+      const mode = document.getElementById("story-mode");
+      mode.innerHTML = pipeline.available_modes.map(value =>
+        `<option value="${value}" ${value === session.mode ? "selected" : ""}>${value.replaceAll("_", " ")}</option>`
+      ).join("");
+
+      document.getElementById("phases").innerHTML = pipeline.phases.map(phase => {
+        const fields = phase.fields.map(field => `
+          <fieldset>
+            <legend>${field.label}</legend>
+            <div class="options">${field.options.map(option => `
+              <label class="option">
+                <input type="radio" name="phase-${phase.number}-${field.id}" value="${option.id}"
+                  ${selectedChoice(phase.number, field.id) === option.id ? "checked" : ""}>
+                <span><strong>${option.label}</strong><small>${option.description || ""}</small></span>
+              </label>`).join("")}
+            </div>
+          </fieldset>`).join("");
+        return `<section class="phase" data-phase="${phase.number}">
+          <div class="phase-heading"><span class="phase-number">${phase.number}</span><h2>${phase.label}</h2></div>
+          ${phase.derived ? `<p class="derived">${phase.derived_summary}</p>` : fields}
+          ${phase.derived ? "" : `<div class="phase-actions"><button type="button" data-save="${phase.number}">Save Phase</button></div>`}
+        </section>`;
+      }).join("");
+
+      document.querySelectorAll("[data-save]").forEach(button => {
+        button.addEventListener("click", () => savePhase(Number(button.dataset.save)));
+      });
+      document.getElementById("complete-button").disabled = session.status === "complete";
+    }
+
+    async function saveSettings() {
+      try {
+        const body = await request("/session/settings", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({
+            working_title: document.getElementById("working-title").value,
+            mode: document.getElementById("story-mode").value
+          })
+        });
+        session = body.session;
+        showBanner("error");
+      } catch (error) {
+        showBanner("error", error.message);
+        throw error;
+      }
+    }
+
+    async function savePhase(number) {
+      const phase = pipeline.phases.find(item => item.number === number);
+      const choices = {};
+      for (const field of phase.fields) {
+        const selected = document.querySelector(`input[name="phase-${number}-${field.id}"]:checked`);
+        if (selected) choices[field.id] = selected.value;
+      }
+      try {
+        const body = await request("/session/update", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({phase: number, choices})
+        });
+        session = body.session;
+        showBanner("error");
+        showBanner("warning", body.warnings.join(" "));
+        render();
+      } catch (error) { showBanner("error", error.message); }
+    }
+
+    async function completePipeline() {
+      try {
+        await saveSettings();
+        const body = await request("/session/complete", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: "{}"
+        });
+        session = body.session;
+        showBanner("error");
+        showBanner("warning", body.warnings.join(" "));
+        render();
+      } catch (error) { showBanner("error", error.message); }
+    }
+
+    async function init() {
+      try {
+        const loaded = await Promise.all([
+          request("/pipeline"),
+          request("/session"),
+          request("/session/validate")
+        ]);
+        [pipeline, session] = loaded;
+        render();
+        showBanner("warning", loaded[2].warnings.join(" "));
+        document.getElementById("working-title").addEventListener("change", saveSettings);
+        document.getElementById("story-mode").addEventListener("change", saveSettings);
+        document.getElementById("complete-button").addEventListener("click", completePipeline);
+      } catch (error) { showBanner("error", error.message); }
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>

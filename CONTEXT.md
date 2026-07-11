@@ -1,182 +1,95 @@
-﻿# Genre Pipeline Architecture Context
+# Genre Pipeline Architecture Context
 
-This document describes the proven architecture for extending auteur with new genres and provides architectural context for navigating the codebase.
+This document defines the domain language and runtime ownership for Auteur's
+built-in interactive genre pipelines.
 
-## The 9-Layer Genre Pipeline
+## Genre Pipeline
 
-Auteur's genre pipeline is a deterministic narrative engine with 9 decision layers that guide authors through emotional coherence. Each genre implements the same 9-layer structure with genre-specific content and validation.
+A genre pipeline is a deterministic Narrative Engine workflow that turns an
+author's nine-layer choices into a validated `StoryIdentity`. Netorare, mystery,
+and gentlefemdom are built-in pipelines. A built-in pipeline is not an external
+plugin and is separate from project-local contracts created by Genre Builder.
 
-### The 9 Layers
+Each pipeline supplies genre-specific intent through a `GenrePipelineSpec`:
 
-1. **Emotional Core** (Layer 1)
-   - User selects primary emotional arc (e.g., Humiliation, Horror, Mystery for Netorare)
-   - This gates all downstream choices
-   - Example: `core_id="humiliation"` routes to HumiliationTemplate
+- genre and stable slug;
+- supported emotional core IDs and their default core;
+- template factory and deterministic choice validator;
+- genre-contract loader and core identity profile;
+- browser title, default port, and author-visible mode default.
 
-2. **Genre Contract** (Layer 2)
-   - Author commits to genre-specific narrative promises
-   - Examples: "Netorare: protagonist loses control", "Mystery: killer is revealed", "Gentle Femdom: consent is explicit"
-   - Sets narrative boundaries
+The registry is operational: public genre commands resolve a specification and
+execute through `auteur.genre_pipeline`. Runtime code does not dispatch on genre
+names or import another genre's command, session, server, or identity generator.
 
-3. **Scope** (Layer 3)
-   - Define the story's reach and scale
-   - Examples: intimate pair, expanding circle, community dynamic, world-affecting
+## Nine Layers
 
-4. **Structural Forces** (Layer 4)
-   - Five core narrative forces: Want, Resistance, Conflict, Stakes, Change
-   - Genre-specific meanings (e.g., Humiliation wants != Mystery wants)
+1. Emotional core
+2. Genre contract
+3. Scope and scale
+4. Structural forces: want, resistance, conflict, stakes, change
+5. Threads or the core-specific fifth design dimension
+6. Carriers or the core-specific sixth design dimension
+7. Representation or the core-specific seventh design dimension
+8. Modulation or the core-specific eighth design dimension
+9. Resonance and ratification
 
-5-9. **Metadata Layers** (Layers 5-9)
-   - Layer 5: Tone / Atmosphere / Emotional texture
-   - Layer 6: Pacing / Narrative structure
-   - Layer 7: Perspective / Point of view
-   - Layer 8: Intimacy / Scope refinement
-   - Layer 9: Ratification / Final validation
+Templates expose phase names, options, constraints, and a primary emotion. The
+runtime normalizes existing mapping-shaped and flat option layouts into one
+browser descriptor. A phase without options is derived context and requires no
+stored author selection.
 
-### Implementation Pattern
+## Runtime Ownership
 
-Each genre implements three class hierarchies:
+`auteur.genre_pipeline` owns:
 
-**1. Templates** (`src/auteur/{genre}/core_templates.py`)
-Each template class provides:
-- core_id: Unique identifier
-- primary_emotion: Core feeling
-- phases: dict with 9-phase decision tree
-- get_options(phase): List of selectable options
-- get_constraints(phase): Validation constraints
-- validate_choices(choices): Genre-specific validation
+- versioned interactive session state;
+- normalization of template data for the browser;
+- localhost HTTP endpoints and packaged browser assets;
+- deterministic choice and completion validation;
+- neutral compilation of completed choices into `StoryIdentity`;
+- orchestration shared by all public built-in genre commands.
 
-Three template classes per genre, one per emotional core.
+Genre packages own their templates and validation rules. The operational
+registry owns core identity profiles, while `auteur.genres` owns genre contracts.
+Project-local custom contracts do not become browser pipelines automatically.
 
-**2. Validation Rules** (`src/auteur/{genre}/validation.py`)
-- ValidationRule: Enforces one constraint
-- RuleSet: Dispatcher collecting all rules
-- 12-15 rules per genre (4 per emotional core)
-- Each rule validates specific narrative integrity requirements
+## Canonical State
 
-**3. Identity Generation** (`src/auteur/netorare/identity_generator.py`)
-- IdentityGenerator.from_choices(): Transform choices to StoryIdentity
-- IdentityGenerator.to_yaml(): Serialize to YAML
-- Routing tables map all cores to their genres
-- Generated YAML passes `auteur identity validate`
+Browser session state is a non-canonical working artifact stored at:
 
-### Shared Infrastructure (Consolidated Genre-Neutral Runtime)
-
-As of 2026-07-11, shared infrastructure has been consolidated into `auteur.genre_pipeline` (see ADR 017):
-
-**Session Management** (`src/auteur/genre_pipeline/session.py`)
-- GenreSessionStore: File-based JSON session state with atomic writes
-- Tracks phase progression, choices, validation results
-- All genres use same GenreSessionStore at `.auteur/genre_sessions/<genre>/session.json`
-
-**Browser HTTP Server** (`src/auteur/genre_pipeline/server.py`)
-- GenrePipelineServer: Generic HTTP server for all genres
-- Serves /session, /session/update, /session/complete, /session/validate
-- Provides endpoints for browser UI
-
-**Browser UI** (`src/auteur/genre_pipeline/browser/index.html`)
-- Vanilla JavaScript decision tree interface
-- Generic phase/option/constraint rendering
-- All genres reuse same UI
-
-**CLI Dispatcher** (`src/auteur/cli.py`)
-- Routes `auteur {genre} init --core {core_id}` to GenrePipelineCommand
-- Thin adapters in `cli_netorare.py`, `cli_mystery.py`, `cli_gentlefemdom.py`
-- All three adapters delegate to unified GenrePipelineCommand
-
-**Legacy Note:** Prior to consolidation, infrastructure was duplicated in `auteur.netorare/`. That code has been removed and replaced with genre-neutral `auteur.genre_pipeline/`.
-
-### Port Allocation
-
-Each genre gets a unique port to avoid collisions:
-- Netorare: 8765
-- Mystery: 8766
-- Gentle Femdom: 8767
-
-## The "No Special Cases" Principle
-
-**Infrastructure must remain genre-agnostic.** If you need to add an `if genre == "netorare"` statement to SessionManager or NetorareServer, the architecture is breaking.
-
-This principle ensures:
-- Adding genre N+1 requires only template/validation/identity code (3 files)
-- No infrastructure changes needed
-- Each genre scales independently
-
-**Validation:** Three genres implemented with zero infrastructure changes = pattern is production-ready.
-
-## File Organization
-
-```
-src/auteur/
-├── cli.py                                    Main dispatcher
-├── cli_netorare.py                           Netorare handler
-├── cli_mystery.py                            Mystery handler
-├── cli_gentlefemdom.py                       Gentle Femdom handler
-│
-├── netorare/                                 Shared infrastructure
-│   ├── session.py                            SessionManager
-│   ├── identity_generator.py                 IdentityGenerator + routing
-│   ├── core_templates.py                     Netorare: 3 cores
-│   ├── validation.py                         Netorare: 15 rules
-│   └── browser/
-│       ├── server.py                         NetorareServer (shared)
-│       └── index.html                        UI (shared)
-│
-├── mystery/                                  Genre-specific
-│   ├── core_templates.py                     Mystery: 3 cores
-│   └── validation.py                         Mystery: 12 rules
-│
-└── gentlefemdom/                             Genre-specific
-    ├── core_templates.py                     Gentle Femdom: 3 cores
-    └── validation.py                         Gentle Femdom: 12 rules
+```text
+<project>/.auteur/genre_sessions/<genre-slug>/session.json
 ```
 
-## Adding a New Genre (Pattern)
+The author may change choices, working title, and story mode while the session is
+incomplete. Browser completion is explicit ratification of those choices. The CLI
+then compiles and validates a `StoryIdentity`; error diagnostics block the write,
+while warnings are reported. Existing `story_identity.yaml` files are never
+silently overwritten.
 
-To add Genre N+1:
+Legacy `<project>/netorare/session.json` files are detected but never silently
+migrated. They remain non-canonical and require an explicit author decision.
 
-1. **Design** - Define 3 emotional cores and validation rules
-2. **Implement Templates** - Create `src/auteur/{genre}/core_templates.py`
-3. **Implement Validation** - Create `src/auteur/{genre}/validation.py`
-4. **Extend Identity Generator** - Add core_id routing to `src/auteur/netorare/identity_generator.py`
-5. **Create CLI Handler** - Create `src/auteur/cli_{genre}.py` with {Genre}Command
-6. **Update Main CLI** - Add genre subparser to `src/auteur/cli.py`
-7. **Test** - Write 40-50 tests (TDD throughout)
+## Public Commands
 
-No infrastructure changes needed.
+The public entry points remain:
 
-## The 3-Genre Threshold
+```text
+auteur netorare init <project>
+auteur mystery init <project>
+auteur gentlefemdom init <project>
+```
 
-Three different genres implemented with zero infrastructure modifications = the architecture is proven production-ready. Auteur has reached this threshold:
+Each is a thin adapter over the same runtime. Core choices and default ports come
+from the registry. Story mode has a visible core-specific default and remains
+author-overridable. `--provider` is compatibility-only because interactive genre
+authoring performs no LLM call.
 
-- Netorare (Humiliation, Horror, Mystery cores)
-- Mystery (Howdunit, Paranoia, Cozy cores)
-- Gentle Femdom (Sensual Dominance, Tender Surrender, Romantic Authority cores)
+## Extension Rule
 
-## API Contracts
+Adding a built-in genre requires templates, deterministic validation, core
+identity profiles, a genre contract, one registry entry, and tests. It must not
+require edits to session, server, browser, or identity compilation logic.
 
-### Template Contract
-
-Every template must implement:
-- phases: dict (9-phase decision tree)
-- get_options(phase): List of options
-- get_constraints(phase): Validation constraints
-- validate_choices(choices): Genre-specific validation
-
-### Validation Rule Contract
-
-Every rule must implement:
-- validate(template, choices): Returns (is_valid, errors)
-
-### Identity Contract
-
-Generated YAML must:
-- Pass `auteur identity validate {file}.yaml`
-- Contain Genre field
-- Include selected choices and core_id
-- Be consumable by `auteur blueprint seed {file}.yaml`
-
----
-
-Last Updated: 2026-07-11  
-Validated Through: Three complete genre pipelines with proven reusability; genre-neutral runtime consolidation (ADR 017) verified with 1090+ tests and zero infrastructure modifications
+Last updated: 2026-07-10.

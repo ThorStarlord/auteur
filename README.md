@@ -205,11 +205,13 @@ Runs deterministic local validation for compiled Cartographer outlines using the
 
 ### 5. Interactive Genre-Specific Pipelines
 
-Auteur offers interactive browser-based story identity authoring for specific genres. Each genre pipeline provides a guided authoring experience with an opinionated emotional core system.
+Auteur offers deterministic browser-based StoryIdentity authoring for three built-in genre pipelines. All three use the same versioned session, server, browser, validation, and identity compiler runtime; genre packages provide only templates and deterministic rules.
+
+Sessions are non-canonical working state under `.auteur/genre_sessions/<genre>/session.json`. Completing the browser workflow ratifies the choices, after which Auteur validates and writes `story_identity.yaml`. Existing identities and legacy `netorare/session.json` files are never overwritten or migrated automatically.
 
 #### Netorare (NTR) Genre
 
-`auteur netorare init <path> [--core classic_humiliation|horror|mystery] [--provider anthropic|openai] [--port 8765]`
+`auteur netorare init <path> [--core classic_humiliation|horror|mystery] [--mode MODE] [--port 8765]`
 
 Launches an interactive browser-based netorare story identity authoring session with three distinct emotional cores:
 
@@ -219,15 +221,13 @@ Launches an interactive browser-based netorare story identity authoring session 
 
 ```powershell
 auteur netorare init ./my_netorare_story --core classic_humiliation
-auteur netorare init ./my_netorare_story --core horror --provider openai
+auteur netorare init ./my_netorare_story --core horror --mode tragic
 auteur netorare init ./my_netorare_story --core mystery --port 8765
 ```
 
-The browser session reuses the same Session, Server, and interactive UI infrastructure to guide authoring from raw idea through identity validation.
-
 #### Mystery (Detective) Genre
 
-`auteur mystery init <path> [--core howdunit|paranoia|cozy] [--provider anthropic|openai] [--port 8766]`
+`auteur mystery init <path> [--core howdunit|paranoia|cozy] [--mode MODE] [--port 8766]`
 
 Launches an interactive browser-based mystery story identity authoring session with three distinct emotional cores:
 
@@ -237,11 +237,17 @@ Launches an interactive browser-based mystery story identity authoring session w
 
 ```powershell
 auteur mystery init ./my_mystery_story --core howdunit
-auteur mystery init ./my_mystery_story --core paranoia --provider openai
+auteur mystery init ./my_mystery_story --core paranoia --mode noir
 auteur mystery init ./my_mystery_story --core cozy --port 8766
 ```
 
-Both Netorare and Mystery pipelines share the same Session/Server/UI infrastructure and deterministic validation layer, ensuring consistent identity curation across genres while allowing genre-specific emotional cores to guide authoring.
+#### Gentle Femdom Genre
+
+`auteur gentlefemdom init <path> [--core sensual_dominance|tender_surrender|romantic_authority] [--mode MODE] [--port 8767]`
+
+The gentlefemdom pipeline provides three intimate emotional cores: **sensual_dominance**, **tender_surrender**, and **romantic_authority**. Each defaults to `intimate` mode and remains author-overridable in the CLI or browser.
+
+`--provider anthropic|openai` remains accepted temporarily for command compatibility, but is deprecated because these workflows make no LLM call.
 
 ## Project Artifacts
 
