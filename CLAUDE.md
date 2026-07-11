@@ -8,6 +8,28 @@ Developer guidelines for the auteur narrative engineering toolkit.
 
 ## Architecture Patterns & Reusability
 
+### Layered Story Architecture (NOW COMPLETE)
+
+Auteur implements the complete 8-layer narrative hierarchy:
+
+1. **Universe** ✅ (defines world rules, constraints for all descendant layers)
+2. **Series** ✅ (establishes multi-book continuity, character arcs, thematic throughlines)
+3. **Book/Story Identity** ✅ (establishes genre contract and emotional core)
+4. **Blueprint** ✅ (story beats aligned to 9-phase genre structure)
+5. **Outline** ✅ (scene-by-scene breakdown via Cartographer)
+6. **Draft** ✅ (actual prose generation and management)
+7. **Editing** ✅ (refinement, review, drift validation)
+
+Each layer:
+- Owns a different scale of narrative decision
+- Inherits constraints from all higher layers
+- Produces durable YAML/JSON/Markdown artifacts
+- Can produce diagnostics when coherence is violated
+- Validates independently without special-casing in shared code
+
+The Universe layer (implemented 2026-07-11) completes the hierarchy. See
+`docs/superpowers/specs/2026-07-11-universe-layer-spec.md` for the full specification.
+
 ### The 9-Layer Genre Pipeline Pattern
 
 Auteur's genre pipelines (netorare, mystery, gentle femdom) share a proven architecture:
