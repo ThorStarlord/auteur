@@ -198,3 +198,34 @@ def test_validate_passes_for_coherent_universe():
     errors = [d for d in diagnostics if d.severity == "error"]
 
     assert len(errors) == 0
+
+
+from auteur.universe.compiler import compile_universe_constraints, CompiledUniverseConstraints
+
+
+def test_compile_universe_constraints():
+    """Compile universe into a form ready for downstream validation."""
+    universe = UniverseIdentity(
+        name="Compiled World",
+        slug="compiled-world",
+        description="",
+        setting_profile=SettingProfile(setting_type="single_world", primary_location="Earth"),
+        magic_system="Rune magic",
+        core_mythology="Ancient magic",
+        timeline=TimelineProfile(current_era="Now", era_description="", years_of_history=0),
+        forbidden_elements=["Electricity", "Nuclear power"],
+        required_elements=["Runes", "Old magic"],
+        cross_story_constraints=[
+            CrossStoryConstraint(
+                rule="All books must feature runes",
+                applies_to_all_stories=True,
+                severity="required"
+            )
+        ]
+    )
+
+    compiled = compile_universe_constraints(universe)
+
+    assert "Electricity" in compiled.forbidden_elements_flat
+    assert "Runes" in compiled.required_elements_flat
+    assert len(compiled.constraint_rules) == 1
