@@ -129,7 +129,10 @@ Series may **strengthen but not weaken** Universe constraints. All diagnostics i
 - Severity level
 - Actionable explanation
 
-Validation is opt-in via `universe_contract` field in `SeriesIdentity`. Existing Series without this field skip Universe validation.
+Validation is opt-in via `universe_constraint_path` in `SeriesIdentity`; the older
+`universe_contract` path remains a compatibility alias. Universe YAML may carry
+`structured_constraints`, which are converted into deterministic Series diagnostics.
+Missing or invalid referenced contracts are errors, not silently skipped.
 
 **Canonical Ownership (ADR 013):**
 - `SeriesIdentity` (series_identity.yaml) is the canonical author-edited contract
@@ -146,7 +149,8 @@ Validation is opt-in via `universe_contract` field in `SeriesIdentity`. Existing
 **Regression Tests:** Horror end-to-end flow and actual three-CLI subprocess invocations are regression-tested.
 
 **Operational Extensions:** `/health` reports session readiness; warning acknowledgments
-are stored with session state; archived sessions live under `genre_sessions/<genre>/history/`.
+are stored with session state; terminal sessions are immutable; archived sessions live
+under `genre_sessions/<genre>/history/` with lock-protected transitions.
 `auteur universe build` canonicalizes a UniverseIdentity, and `auteur book build`
 compiles one BookPlan into a StoryIdentity. Series graph output includes a Mermaid
 companion beside the YAML graph.

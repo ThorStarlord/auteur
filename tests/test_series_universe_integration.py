@@ -12,6 +12,8 @@ from auteur.universe.models import (
     TimelineProfile,
     UniverseIdentity,
 )
+from auteur.universe.constraints import ConstraintEnforcement, ConstraintType, StructuredConstraint
+from auteur.series.handlers import handle_series_diagnose
 
 
 def _series_with_universe(universe_path: Path) -> SeriesIdentity:
@@ -83,3 +85,30 @@ def test_validate_series_against_universe_constraints(tmp_path):
     # For a coherent series, should have no errors
     errors = [d for d in diagnostics if d.severity.value == "error"]
     assert len(errors) == 0
+
+
+def test_series_diagnose_enforces_structured_universe_constraints(tmp_path):
+    data = valid_trilogy_data()
+    universe = UniverseIdentity(
+        name="Genre-Locked World",
+        slug="genre-locked",
+        description="",
+        setting_profile=SettingProfile(setting_type="single_world", primary_location="Realm"),
+        timeline=TimelineProfile(current_era="Now"),
+        structured_constraints=[
+            StructuredConstraint(
+                id="allowed_genre",
+                type=ConstraintType.GENRE_RULE,
+                description="Only mystery books are allowed",
+                enforcement=ConstraintEnforcement.DETERMINISTIC,
+                schema={"allowed_values": ["mystery"]},
+            )
+        ],
+    )
+    universe_path = tmp_path / "universe.yaml"
+    universe.to_yaml(universe_path)
+    data["universe_constraint_path"] = str(universe_path)
+    series = SeriesIdentity.model_validate(data)
+
+    result = handle_series_diagnose(series)
+    assert any(d.rule.startswith("UNIVERSE_GENRE_VIOLATION") for d in result.data.diagnostics)

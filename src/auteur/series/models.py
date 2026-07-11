@@ -282,7 +282,12 @@ class SeriesIdentity(BaseModel):
 
     @classmethod
     def from_yaml(cls, path: str | Path) -> Self:
-        data = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+        source = Path(path)
+        data = yaml.safe_load(source.read_text(encoding="utf-8"))
+        if isinstance(data, dict) and data.get("universe_constraint_path"):
+            universe_path = Path(data["universe_constraint_path"])
+            if not universe_path.is_absolute():
+                data["universe_constraint_path"] = str((source.parent / universe_path).resolve())
         return cls.model_validate(data)
 
     def to_yaml(self, path: str | Path) -> None:

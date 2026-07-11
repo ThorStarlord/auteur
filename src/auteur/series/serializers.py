@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import yaml
@@ -46,11 +47,18 @@ def serialize_series_graph(result: SeriesHandlerResult, output_path: Path) -> Pa
         encoding="utf-8",
     )
     mermaid_path = output_path.with_suffix(".mmd")
+    def mermaid_id(value: str) -> str:
+        sanitized = re.sub(r"[^A-Za-z0-9_]", "_", value)
+        return sanitized or "node"
+
+    def mermaid_label(value: str) -> str:
+        return value.replace('"', "'").replace("[", "(").replace("]", ")").replace("|", "/").replace("\n", " ")
+
     lines = ["graph LR"]
     for node in data.graph.nodes:
-        lines.append(f'    {node.id.replace("-", "_")}[\"{node.label.replace(chr(34), chr(39))}\"]')
+        lines.append(f'    {mermaid_id(node.id)}["{mermaid_label(node.label)}"]')
     for edge in data.graph.edges:
-        lines.append(f"    {edge.source.replace('-', '_')} -->|{edge.type.value}| {edge.target.replace('-', '_')}")
+        lines.append(f"    {mermaid_id(edge.source)} -->|{mermaid_label(edge.type.value)}| {mermaid_id(edge.target)}")
     mermaid_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return output_path
 

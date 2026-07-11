@@ -520,8 +520,12 @@ def main(argv: list[str] | None = None) -> int:
             candidate_dir = args.candidate.parent
             if candidate_dir.name == "story_discovery" and candidate_dir.exists():
                 try:
-                    shutil.rmtree(candidate_dir)
-                    print(f"Cleaned up candidate directory: {candidate_dir}")
+                    # Keep the discovery report/comparison as durable provenance;
+                    # only remove unselected candidate YAML files.
+                    for candidate_file in candidate_dir.glob("candidate_*.yaml"):
+                        if candidate_file != args.candidate:
+                            candidate_file.unlink()
+                    print(f"Retained discovery provenance at {candidate_dir}")
                 except Exception as exc:
                     print(f"[WARNING] Failed to delete candidate directory {candidate_dir}: {exc}", file=sys.stderr)
         return 0

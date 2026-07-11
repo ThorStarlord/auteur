@@ -79,16 +79,14 @@ class GenrePipelineApplication:
             raise PipelineRequestError(400, "choice keys and values must be strings")
 
         session = self.store.load()
-        if session.status == GenreSessionStatus.COMPLETE:
+        if session.status != GenreSessionStatus.INCOMPLETE:
             raise GenreSessionError("A completed genre session cannot be modified")
         candidate = {number: dict(values) for number, values in session.choices.items()}
         candidate.setdefault(phase, {}).update(choices)
         result = validate_pipeline_choices(self.store.spec, session.core_id, candidate)
         if not result.is_valid:
             raise PipelineRequestError(422, "Choice validation failed", errors=result.errors)
-        updated = self.store.update_choices(phase, choices)
-        updated.warnings = result.warnings
-        self.store._write(updated)
+        updated = self.store.update_choices(phase, choices, warnings=result.warnings)
         return {
             "is_valid": True,
             "errors": [],
@@ -108,12 +106,12 @@ class GenrePipelineApplication:
         return {"session": session.model_dump(mode="json")}
 
     def complete(self) -> dict[str, Any]:
+        if self.store.load().status != GenreSessionStatus.INCOMPLETE:
+            raise GenreSessionError("A terminal genre session cannot be completed again")
         result = self.validate(require_complete=True)
         if not result.is_valid:
             raise PipelineRequestError(422, "Session is incomplete or invalid", errors=result.errors)
-        session = self.store.mark_complete()
-        session.warnings = result.warnings
-        self.store._write(session)
+        session = self.store.mark_complete(warnings=result.warnings)
         return {
             "warnings": result.warnings,
             "session": session.model_dump(mode="json"),

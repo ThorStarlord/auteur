@@ -6,6 +6,7 @@ from typing import Optional
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+from auteur.universe.constraints import StructuredConstraint
 
 
 class SettingType(str, Enum):
@@ -64,6 +65,7 @@ class UniverseIdentity(BaseModel):
     forbidden_elements: list[str] = Field(default_factory=list)
     required_elements: list[str] = Field(default_factory=list)
     cross_story_constraints: list[CrossStoryConstraint] = Field(default_factory=list)
+    structured_constraints: list[StructuredConstraint] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def validate_name_not_empty(self) -> UniverseIdentity:

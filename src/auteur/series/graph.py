@@ -57,11 +57,16 @@ def build_dependency_graph(series: SeriesIdentity) -> SeriesDependencyGraph:
             add_edge(DependencyEdge(source=mystery.id, target=f"book_{mystery.actual_payoff_book}", type="pays_off"))
     for arc in (*series.character_arcs, *series.relationship_arcs, *series.faction_arcs):
         for book_number in arc.book_states:
-            add_edge(DependencyEdge(source=f"book_{book_number}", target=arc.id, type="transforms"))
+            source = f"book_{book_number}"
+            if source in known:
+                add_edge(DependencyEdge(source=source, target=arc.id, type="transforms"))
     for arc in series.thematic_arcs:
         for book_number in arc.books:
+            source = f"book_{book_number}"
+            if source not in known:
+                continue
             edge_type = "sets_up" if book_number == min(arc.books) else "transforms"
-            add_edge(DependencyEdge(source=f"book_{book_number}", target=arc.id, type=edge_type))
+            add_edge(DependencyEdge(source=source, target=arc.id, type=edge_type))
     for book in series.book_plans:
         book_id = f"book_{book.book_number}"
         for setup in book.required_setups:

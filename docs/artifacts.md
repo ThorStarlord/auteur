@@ -64,7 +64,8 @@ Defines multi-book continuity, character arcs, thematic throughlines, and relati
   - Each includes: number, title, series_function, core_answer, target_experience, story_type, central_engine
 
 **Continuity (ADR 013):**
-- `universe_contract` (optional): Path to universe_identity.yaml for constraint validation
+- `universe_constraint_path` (optional): Path to universe_identity.yaml for constraint validation
+- `universe_contract` (compatibility alias): Older name for the same path
 - `thematic_arcs`: Thematic progression across books
   - `theme`: Thematic statement (e.g., "Power destroys intimacy")
   - `books`: Which books develop this theme

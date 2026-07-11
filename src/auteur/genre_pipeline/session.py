@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+import threading
+from functools import wraps
+from dataclasses import dataclass, field as dataclass_field
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
@@ -16,12 +18,21 @@ class GenreSessionError(ValueError):
     pass
 
 
+def _locked(method):
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        with self.lock:
+            return method(self, *args, **kwargs)
+    return wrapper
+
+
 @dataclass(frozen=True)
 class GenreSessionStore:
     project_path: Path
     spec: GenrePipelineSpec
     session_file: Path
     legacy_session_file: Path
+    lock: threading.RLock = dataclass_field(default_factory=threading.RLock, repr=False, compare=False)
 
     @classmethod
     def for_project(cls, project_path: Path, spec: GenrePipelineSpec) -> "GenreSessionStore":
@@ -33,6 +44,7 @@ class GenreSessionStore:
             legacy_session_file=project / "netorare" / "session.json",
         )
 
+    @_locked
     def create(
         self,
         core_id: str,
@@ -76,15 +88,19 @@ class GenreSessionStore:
         except (OSError, ValidationError) as exc:
             raise GenreSessionError(f"Invalid genre session at {self.session_file}: {exc}") from exc
 
-    def update_choices(self, phase: int, choices: dict[str, str]) -> GenreSession:
+    @_locked
+    def update_choices(self, phase: int, choices: dict[str, str], *, warnings: list[str] | None = None) -> GenreSession:
         session = self._load_incomplete()
         merged = {key: dict(value) for key, value in session.choices.items()}
         merged.setdefault(phase, {}).update(choices)
         session.choices = merged
+        if warnings is not None:
+            session.warnings = list(warnings)
         session.updated_at = datetime.now(timezone.utc)
         self._write(session)
         return session
 
+    @_locked
     def update_settings(
         self,
         *,
@@ -106,9 +122,12 @@ class GenreSessionStore:
         self._write(session)
         return session
 
-    def mark_complete(self) -> GenreSession:
+    @_locked
+    def mark_complete(self, *, warnings: list[str] | None = None) -> GenreSession:
         session = self._load_incomplete()
         session.status = GenreSessionStatus.COMPLETE
+        if warnings is not None:
+            session.warnings = list(warnings)
         session.updated_at = datetime.now(timezone.utc)
         self._write(session)
         return session
@@ -125,8 +144,9 @@ class GenreSessionStore:
     def history_dir(self) -> Path:
         return self.session_file.parent / "history"
 
+    @_locked
     def acknowledge_warning(self, warning: str) -> GenreSession:
-        session = self.load()
+        session = self._load_incomplete()
         if warning not in session.warnings:
             raise GenreSessionError("Warning is not present in this session")
         if warning not in session.acknowledged_warnings:
@@ -135,6 +155,7 @@ class GenreSessionStore:
             self._write(session)
         return session
 
+    @_locked
     def archive(self) -> GenreSession:
         session = self.load()
         if session.status == GenreSessionStatus.ARCHIVED:

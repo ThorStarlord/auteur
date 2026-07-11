@@ -138,23 +138,46 @@ def _collect_universe_diagnostics(series: SeriesIdentity) -> list:
     Returns an empty list when no universe is referenced or the universe cannot
     be loaded; a Series is valid independently of any universe reference.
     """
-    universe_contract = series.universe_contract
+    universe_contract = series.universe_constraint_path or (Path(series.universe_contract) if series.universe_contract else None)
     if not universe_contract:
         return []
 
     contract_path = Path(universe_contract)
     if not contract_path.exists():
-        return []
+        return [StructureDiagnostic(
+            severity=DiagnosticSeverity.ERROR,
+            layer=DiagnosticLayer.CONSTRAINTS,
+            rule="UNIVERSE_CONTRACT_NOT_FOUND",
+            message=f"Referenced Universe contract does not exist: {contract_path}",
+        )]
 
     try:
         from auteur.series.universe_integration import validate_series_against_universe
         from auteur.universe.models import UniverseIdentity
 
         universe = UniverseIdentity.from_yaml(contract_path)
-        return validate_series_against_universe(series, universe)
-    except Exception:
-        # Silently skip if universe loading fails; series can exist without universe.
-        return []
+        diagnostics = validate_series_against_universe(series, universe, universe.structured_constraints)
+        converted = []
+        for diagnostic in diagnostics:
+            severity = {
+                "ERROR": DiagnosticSeverity.ERROR,
+                "WARNING": DiagnosticSeverity.WARNING,
+                "INFO": DiagnosticSeverity.INFO,
+            }.get(str(diagnostic.severity).upper(), DiagnosticSeverity.WARNING)
+            converted.append(StructureDiagnostic(
+                severity=severity,
+                layer=DiagnosticLayer.CONSTRAINTS,
+                rule=diagnostic.id,
+                message=diagnostic.explanation,
+            ))
+        return converted
+    except Exception as exc:
+        return [StructureDiagnostic(
+            severity=DiagnosticSeverity.ERROR,
+            layer=DiagnosticLayer.CONSTRAINTS,
+            rule="UNIVERSE_CONTRACT_INVALID",
+            message=f"Failed to load Universe contract {contract_path}: {exc}",
+        )]
 
 
 def handle_series_graph(series: SeriesIdentity) -> SeriesHandlerResult:

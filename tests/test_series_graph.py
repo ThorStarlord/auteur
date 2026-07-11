@@ -81,3 +81,22 @@ def test_graph_derives_arc_and_mystery_book_dependencies():
     assert any(edge.source == "book_1" and edge.target == "order_theme" for edge in graph.edges)
     assert any(edge.source == "book_3" and edge.target == "order_theme" for edge in graph.edges)
     assert any(edge.source == "book_1" and edge.target == "emperor_identity" for edge in graph.edges)
+
+
+def test_mermaid_graph_escapes_arbitrary_ids_and_labels(tmp_path):
+    from auteur.series.handlers import SeriesGraphData, SeriesHandlerResult
+    from auteur.series.serializers import serialize_series_graph
+    from auteur.series.graph import SeriesDependencyGraph, GraphNode
+    from auteur.series.models import DependencyEdge, DependencyType
+
+    graph = SeriesDependencyGraph(
+        nodes=[GraphNode(id="arc one", type="thematic_arc", label='A [danger] | "theme"')],
+        edges=[DependencyEdge(source="arc one", target="arc one", type=DependencyType.TRANSFORMS)],
+    )
+    output = tmp_path / "graph.yaml"
+    serialize_series_graph(SeriesHandlerResult.success(SeriesGraphData(graph=graph)), output)
+    mermaid = output.with_suffix(".mmd").read_text(encoding="utf-8")
+
+    assert "arc_one" in mermaid
+    assert "[danger]" not in mermaid
+    assert "|" not in mermaid.splitlines()[1]
