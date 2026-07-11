@@ -49,52 +49,38 @@ class IdentityGenerator:
 
     @classmethod
     def from_choices(cls, core_id: str, choices: Dict[int, Dict[str, str]]) -> StoryIdentity:
-        """
-        Generate a validated StoryIdentity from raw browser UI choices.
+        """Compile through the genre-neutral runtime while preserving this import path."""
+        from auteur.genre_pipeline.identity import compile_story_identity
+        from auteur.genre_pipeline.registry import get_genre_pipeline_for_core
 
-        Args:
-            core_id: The core template identifier (classic_humiliation, horror, mystery, howdunit, paranoia, cozy)
-            choices: Dict mapping phase (1-9) -> {field: value}
+        spec = get_genre_pipeline_for_core(core_id)
+        result = compile_story_identity(
+            spec,
+            core_id,
+            choices,
+            require_complete=False,
+            strict_options=False,
+        )
+        identity = result.identity
 
-        Returns:
-            Validated StoryIdentity model
+        # The original facade exposed horror as its schema genre even though
+        # the interactive command is part of the netorare pipeline.
+        legacy_genre = cls.CORE_ID_TO_GENRE.get(core_id, spec.genre)
+        if identity.story_type.genre != legacy_genre:
+            from auteur.genres.registry import load_genre_contract
 
-        Raises:
-            ValueError: If choices fail validation
-            KeyError: If core_id is not recognized
-        """
-        # Get the template class
-        if core_id not in cls.TEMPLATE_MAP:
-            raise KeyError(f"Unknown core_id: {core_id}. Must be one of {list(cls.TEMPLATE_MAP.keys())}")
-
-        template_or_name = cls.TEMPLATE_MAP[core_id]
-
-        # Handle mystery-specific cores (howdunit, paranoia, cozy)
-        if core_id in ["howdunit", "paranoia", "cozy"]:
-            # Use mystery-specific validation
-            from auteur.mystery.core_templates import get_template as get_mystery_template
-            template = get_mystery_template(core_id)
-            from auteur.mystery.validation import validate_choices as validate_mystery_choices
-            is_valid, errors, warnings = validate_mystery_choices(template, choices)
-        # Handle gentlefemdom-specific cores (sensual_dominance, tender_surrender, romantic_authority)
-        elif core_id in ["sensual_dominance", "tender_surrender", "romantic_authority"]:
-            # Use gentlefemdom-specific validation
-            from auteur.gentlefemdom.core_templates import get_template as get_gentlefemdom_template
-            template = get_gentlefemdom_template(core_id)
-            from auteur.gentlefemdom.validation import validate_choices as validate_gentlefemdom_choices
-            is_valid, errors, warnings = validate_gentlefemdom_choices(template, choices)
-        else:
-            # Use netorare validation
-            template = template_or_name()
-            is_valid, errors, warnings = validate_choices(template, choices)
-
-        if not is_valid:
-            error_msg = "; ".join(errors)
-            raise ValueError(f"Choices validation failed: {error_msg}")
-
-        # Transform choices into StoryIdentity
-        identity = cls._transform_choices_to_identity(core_id, choices)
-
+            contract = load_genre_contract(legacy_genre)
+            identity = identity.model_copy(
+                update={
+                    "story_type": identity.story_type.model_copy(
+                        update={
+                            "genre": legacy_genre,
+                            "length_class": contract.scope_profile.default_length,
+                        }
+                    ),
+                    "genre_contract_snapshot": contract,
+                }
+            )
         return identity
 
     @classmethod

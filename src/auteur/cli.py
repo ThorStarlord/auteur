@@ -254,57 +254,8 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--blueprint", type=Path, default=None,
         help="Blueprint to compare tension target against.")
 
-    p = sub.add_parser("netorare", help="Interactive browser-based story identity authoring.")
-    ns = p.add_subparsers(dest="netorare_command", required=True)
-    p = ns.add_parser("init",
-        help="Create and initialize a new netorare story identity authoring session.")
-    p.add_argument("project", type=Path,
-        help="Project directory path (created if needed).")
-    p.add_argument("--core", choices=["classic_humiliation", "horror", "mystery"],
-        default="classic_humiliation",
-        help="Core emotional template for the story (default: classic_humiliation).")
-    p.add_argument("--provider", choices=["anthropic", "openai"], default="anthropic",
-        help="LLM provider for recommendations (default: anthropic).")
-    p.add_argument("--port", type=int, default=8765,
-        help="Port for browser server (default: 8765).")
-    p.add_argument("--timeout", type=float, default=3600.0,
-        help="Timeout in seconds for waiting for user completion (default: 3600).")
-    p.add_argument("--debug", action="store_true",
-        help="Enable debug logging.")
-
-    p = sub.add_parser("mystery", help="Interactive browser-based mystery story identity authoring.")
-    ms = p.add_subparsers(dest="mystery_command", required=True)
-    p = ms.add_parser("init",
-        help="Create and initialize a new mystery story identity authoring session.")
-    p.add_argument("project", type=Path,
-        help="Project directory path (created if needed).")
-    p.add_argument("--core", choices=["howdunit", "paranoia", "cozy"],
-        default="howdunit",
-        help="Mystery emotional core (default: howdunit).")
-    p.add_argument("--provider", choices=["anthropic", "openai"], default="anthropic",
-        help="LLM provider (default: anthropic).")
-    p.add_argument("--port", type=int, default=8766,
-        help="Browser server port (default: 8766).")
-    p.add_argument("--timeout", type=float, default=3600.0,
-        help="Session timeout in seconds (default: 3600).")
-    p.add_argument("--debug", action="store_true", help="Enable debug logging.")
-
-    p = sub.add_parser("gentlefemdom", help="Interactive browser-based gentle femdom story identity authoring.")
-    gs = p.add_subparsers(dest="gentlefemdom_command", required=True)
-    p = gs.add_parser("init",
-        help="Create and initialize a new gentle femdom story identity authoring session.")
-    p.add_argument("project", type=Path,
-        help="Project directory path (created if needed).")
-    p.add_argument("--core", choices=["sensual_dominance", "tender_surrender", "romantic_authority"],
-        default="sensual_dominance",
-        help="Gentle femdom emotional core (default: sensual_dominance).")
-    p.add_argument("--provider", choices=["anthropic", "openai"], default="anthropic",
-        help="LLM provider (default: anthropic).")
-    p.add_argument("--port", type=int, default=8767,
-        help="Browser server port (default: 8767).")
-    p.add_argument("--timeout", type=float, default=3600.0,
-        help="Session timeout in seconds (default: 3600).")
-    p.add_argument("--debug", action="store_true", help="Enable debug logging.")
+    from auteur.genre_pipeline.cli import register_genre_pipeline_subcommands
+    register_genre_pipeline_subcommands(sub)
 
     return parser
 
@@ -779,6 +730,7 @@ def main(argv: list[str] | None = None) -> int:
                 port=args.port,
                 timeout=args.timeout,
                 debug=args.debug,
+                mode=args.mode,
             )
 
     # === mystery ===
@@ -791,6 +743,7 @@ def main(argv: list[str] | None = None) -> int:
                 port=args.port,
                 timeout=args.timeout,
                 debug=args.debug,
+                mode=args.mode,
             )
 
     # === gentlefemdom ===
@@ -803,6 +756,7 @@ def main(argv: list[str] | None = None) -> int:
                 port=args.port,
                 timeout=args.timeout,
                 debug=args.debug,
+                mode=args.mode,
             )
 
     return 0
