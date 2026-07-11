@@ -125,3 +125,35 @@ def test_public_cli_dispatches_each_command_to_compatibility_handler(
 
     assert result == 0
     assert handler.call_args.kwargs["mode"] == mode
+
+
+@pytest.mark.parametrize(
+    ("genre_enum", "core_id"),
+    [
+        (Genre.NETORARE, "classic_humiliation"),
+        (Genre.MYSTERY, "howdunit"),
+        (Genre.GENTLEFEMDOM, "sensual_dominance"),
+    ],
+)
+def test_cli_creates_session_at_neutral_path(genre_enum, core_id, tmp_path):
+    """Session storage must use neutral .auteur/genre_sessions/<slug>/session.json, not legacy genre-specific paths."""
+    from auteur.genre_pipeline.cli import GenrePipelineCommand
+
+    spec = get_genre_pipeline(genre_enum)
+    command = GenrePipelineCommand(
+        project_path=tmp_path,
+        spec=spec,
+        core_id=core_id,
+    )
+
+    expected_session_path = tmp_path / ".auteur" / "genre_sessions" / spec.slug / "session.json"
+    assert command.session_file == expected_session_path
+
+    # Verify not using legacy paths
+    legacy_netorare_path = tmp_path / "netorare" / "session.json"
+    legacy_mystery_path = tmp_path / "mystery" / "session.json"
+    legacy_gentlefemdom_path = tmp_path / "gentlefemdom" / "session.json"
+
+    assert command.session_file != legacy_netorare_path
+    assert command.session_file != legacy_mystery_path
+    assert command.session_file != legacy_gentlefemdom_path
