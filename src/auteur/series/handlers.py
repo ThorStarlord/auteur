@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 from auteur.identity import StoryIdentity
@@ -9,6 +10,14 @@ from auteur.series.compiler import compile_book_identities
 from auteur.series.diagnostics import diagnose_series
 from auteur.series.graph import SeriesDependencyGraph, build_dependency_graph
 from auteur.series.models import SeriesIdentity
+from auteur.series.continuity_validators import (
+    ThematicProgressionValidator,
+    CharacterContinuityValidator,
+    RelationshipContinuityValidator,
+    LoreConsistencyValidator,
+    ChronologyValidator,
+    SetupPayoffValidator,
+)
 from auteur.structure.diagnostics import StructureDiagnostic
 
 
@@ -62,6 +71,17 @@ def handle_series_validate(series: SeriesIdentity) -> SeriesHandlerResult:
 
 
 def handle_series_compile(series: SeriesIdentity) -> SeriesHandlerResult:
+    # Check for blocking diagnostics before compilation
+    from auteur.structure.diagnostics import Severity
+
+    continuity_diags = _collect_continuity_diagnostics(series)
+    universe_diags = _collect_universe_diagnostics(series)
+
+    errors = [d for d in continuity_diags + universe_diags if d.severity == Severity.ERROR]
+    if errors:
+        error_msgs = "\n".join([f"  - {d.id}: {d.description}" for d in errors])
+        return SeriesHandlerResult.failure(f"Cannot compile series due to errors:\n{error_msgs}")
+
     try:
         return SeriesHandlerResult.success(SeriesCompileData(identities=compile_book_identities(series)))
     except Exception as exc:
@@ -70,13 +90,51 @@ def handle_series_compile(series: SeriesIdentity) -> SeriesHandlerResult:
 
 def handle_series_diagnose(series: SeriesIdentity) -> SeriesHandlerResult:
     diagnostics = diagnose_series(series)
+
+    # Add Group 3 continuity diagnostics
+    continuity_diagnostics = _collect_continuity_diagnostics(series)
+
     universe_diagnostics = _collect_universe_diagnostics(series)
+
+    all_diagnostics = diagnostics + continuity_diagnostics + universe_diagnostics
+
     return SeriesHandlerResult.success(
         SeriesDiagnoseData(
-            diagnostics=diagnostics,
+            diagnostics=all_diagnostics,
             universe_diagnostics=universe_diagnostics,
         )
     )
+
+
+def _collect_continuity_diagnostics(series: SeriesIdentity) -> list:
+    """Run Group 3 continuity validators and convert diagnostics to StructureDiagnostic format."""
+    continuity_diags = []
+
+    continuity_diags.extend(ThematicProgressionValidator().validate(series))
+    continuity_diags.extend(CharacterContinuityValidator().validate(series))
+    continuity_diags.extend(RelationshipContinuityValidator().validate(series))
+    continuity_diags.extend(LoreConsistencyValidator().validate(series))
+    continuity_diags.extend(ChronologyValidator().validate(series))
+    continuity_diags.extend(SetupPayoffValidator().validate(series))
+
+    # Convert continuity diagnostics to StructureDiagnostic format for compatibility
+    from auteur.structure.diagnostics import Severity
+
+    structure_diags = []
+    severity_map = {"ERROR": Severity.ERROR, "WARNING": Severity.WARNING, "INFO": Severity.INFO}
+
+    for diag in continuity_diags:
+        severity = severity_map.get(diag.severity, Severity.WARNING)
+        struct_diag = StructureDiagnostic(
+            id=diag.id,
+            severity=severity,
+            description=diag.explanation,
+            affected_section=diag.conflict_source,
+            repair_suggestion=diag.explanation,
+        )
+        structure_diags.append(struct_diag)
+
+    return structure_diags
 
 
 def _collect_universe_diagnostics(series: SeriesIdentity) -> list:
@@ -85,14 +143,19 @@ def _collect_universe_diagnostics(series: SeriesIdentity) -> list:
     Returns an empty list when no universe is referenced or the universe cannot
     be loaded; a Series is valid independently of any universe reference.
     """
-    path = series.universe_constraint_path
-    if not path or not path.exists():
+    universe_contract = series.universe_contract
+    if not universe_contract:
         return []
+
+    contract_path = Path(universe_contract)
+    if not contract_path.exists():
+        return []
+
     try:
         from auteur.series.universe_integration import validate_series_against_universe
         from auteur.universe.models import UniverseIdentity
 
-        universe = UniverseIdentity.from_yaml(path)
+        universe = UniverseIdentity.from_yaml(contract_path)
         return validate_series_against_universe(series, universe)
     except Exception:
         # Silently skip if universe loading fails; series can exist without universe.
