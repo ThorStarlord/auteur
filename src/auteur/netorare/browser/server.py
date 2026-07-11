@@ -359,13 +359,17 @@ class NetorareServer:
         except KeyboardInterrupt:
             logger.info("Server interrupted")
         finally:
-            self.stop()
+            if self.httpd:
+                self.httpd.server_close()
+                self.httpd = None
 
     def stop(self) -> None:
         """Stop the HTTP server."""
-        if self.httpd:
-            self.httpd.shutdown()
-            self.httpd.server_close()
+        httpd = self.httpd
+        if httpd:
+            httpd.shutdown()
+            httpd.server_close()
+            self.httpd = None
             logger.info("Server stopped")
 
     def shutdown(self) -> None:

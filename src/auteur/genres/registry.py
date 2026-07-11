@@ -1,8 +1,6 @@
 from __future__ import annotations
 import yaml
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Dict, List
 from auteur.blueprint import Genre
 from auteur.genres.models import GenreContract
 
@@ -130,136 +128,11 @@ def _create_fallback_contract(genre: Genre) -> GenreContract:
     )
 
 
-# ============================================================================
-# Phase 4: GenrePipelineSpec Registry - Makes genres first-class plugins
-# ============================================================================
-
-@dataclass(frozen=True)
-class GenrePipelineSpec:
-    """Complete specification for a genre pipeline. Makes it first-class."""
-    genre: Genre
-    slug: str
-    core_ids: tuple
-    template_factory: Callable[[str], 'CoreTemplate']
-    validate_choices: Callable
-    identity_strategy: Callable
-    browser_title: str
-    session_dir_name: str
-    contract_file: str
-
-
-_GENRE_SPECS: Dict[Genre, GenrePipelineSpec] = {}
-
-
-def _register_netorare():
-    """Register netorare genre."""
-    from auteur.netorare.core_templates import (
-        HumiliationTemplate, HorrorTemplate, MysteryTemplate as NetorareMysteryTemplate
-    )
-
-    def factory(core_id: str):
-        templates = {
-            "classic_humiliation": HumiliationTemplate,
-            "horror": HorrorTemplate,
-            "mystery": NetorareMysteryTemplate,
-        }
-        return templates[core_id]()
-
-    from auteur.netorare.validation import validate_choices
-    from auteur.netorare.identity_generator import IdentityGenerator
-
-    spec = GenrePipelineSpec(
-        genre=Genre.NETORARE,
-        slug="netorare",
-        core_ids=("classic_humiliation", "horror", "mystery"),
-        template_factory=factory,
-        validate_choices=validate_choices,
-        identity_strategy=IdentityGenerator.from_choices,
-        browser_title="Netorare Story Identity Authoring",
-        session_dir_name="netorare",
-        contract_file="src/auteur/genres/data/netorare.yaml",
-    )
-    _GENRE_SPECS[Genre.NETORARE] = spec
-
-
-def _register_mystery():
-    """Register mystery genre."""
-    from auteur.mystery.core_templates import HowdunitTemplate, ParanoiaTemplate, CozyTemplate
-
-    def factory(core_id: str):
-        templates = {
-            "howdunit": HowdunitTemplate,
-            "paranoia": ParanoiaTemplate,
-            "cozy": CozyTemplate,
-        }
-        return templates[core_id]()
-
-    from auteur.mystery.validation import validate_choices
-    from auteur.netorare.identity_generator import IdentityGenerator
-
-    spec = GenrePipelineSpec(
-        genre=Genre.MYSTERY,
-        slug="mystery",
-        core_ids=("howdunit", "paranoia", "cozy"),
-        template_factory=factory,
-        validate_choices=validate_choices,
-        identity_strategy=IdentityGenerator.from_choices,
-        browser_title="Mystery Story Identity Authoring",
-        session_dir_name="mystery",
-        contract_file="src/auteur/genres/data/mystery.yaml",
-    )
-    _GENRE_SPECS[Genre.MYSTERY] = spec
-
-
-def _register_gentlefemdom():
-    """Register gentlefemdom genre."""
-    from auteur.gentlefemdom.core_templates import (
-        SensualDominanceTemplate, TenderSurrenderTemplate, RomanticAuthorityTemplate
-    )
-
-    def factory(core_id: str):
-        templates = {
-            "sensual_dominance": SensualDominanceTemplate,
-            "tender_surrender": TenderSurrenderTemplate,
-            "romantic_authority": RomanticAuthorityTemplate,
-        }
-        return templates[core_id]()
-
-    from auteur.gentlefemdom.validation import validate_choices
-    from auteur.netorare.identity_generator import IdentityGenerator
-
-    spec = GenrePipelineSpec(
-        genre=Genre.GENTLEFEMDOM,
-        slug="gentlefemdom",
-        core_ids=("sensual_dominance", "tender_surrender", "romantic_authority"),
-        template_factory=factory,
-        validate_choices=validate_choices,
-        identity_strategy=IdentityGenerator.from_choices,
-        browser_title="Gentle Femdom Story Identity Authoring",
-        session_dir_name="gentlefemdom",
-        contract_file="src/auteur/genres/data/gentlefemdom.yaml",
-    )
-    _GENRE_SPECS[Genre.GENTLEFEMDOM] = spec
-
-
-def _initialize_registry():
-    """Initialize all registered genres."""
-    _register_netorare()
-    _register_mystery()
-    _register_gentlefemdom()
-
-
-def get_genre_pipeline(genre: Genre) -> GenrePipelineSpec:
-    """Get pipeline spec for a genre."""
-    if not _GENRE_SPECS:
-        _initialize_registry()
-    if genre not in _GENRE_SPECS:
-        raise ValueError(f"Unknown genre: {genre}")
-    return _GENRE_SPECS[genre]
-
-
-def get_all_genres() -> List[GenrePipelineSpec]:
-    """Get all registered genre specs."""
-    if not _GENRE_SPECS:
-        _initialize_registry()
-    return list(_GENRE_SPECS.values())
+# Compatibility imports: contract loading remains in this module while the
+# operational interactive-pipeline registry lives in auteur.genre_pipeline.
+from auteur.genre_pipeline.models import CoreIdentityProfile, GenrePipelineSpec  # noqa: E402
+from auteur.genre_pipeline.registry import (  # noqa: E402
+    get_all_genres,
+    get_genre_pipeline,
+    get_genre_pipeline_for_core,
+)

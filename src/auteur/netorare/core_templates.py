@@ -330,6 +330,13 @@ class HorrorTemplate:
                         label="Restore things to how they were",
                     ),
                 ],
+                "resistance": [
+                    TemplateOption(
+                        id="resistance-inescapable",
+                        label="The violation is inescapable",
+                        description="Every attempt to escape reveals that reality has already changed",
+                    ),
+                ],
                 "change": [
                     TemplateOption(
                         id="change-transform",
