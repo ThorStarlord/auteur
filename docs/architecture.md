@@ -78,7 +78,7 @@ Contains the validation board:
 
 `run_critics()` fans these out in parallel and returns one `ValidationReport`.
 
-`src/auteur/pipeline.py`
+`src/auteur/pipeline/`
 
 Coordinates the chapter workflow: plan, draft, critique, write artifacts, retry, accept on pass, and record token usage.
 
@@ -100,3 +100,8 @@ Defines the provider-agnostic `LLMClient` protocol and concrete Anthropic/OpenAI
 ## Current Engine Reality
 
 Deterministic code owns schemas/diagnostics/artifacts. LLMs own identity recommendation, outlining, drafting, and critic judgment. Per-agent model routing now exists.
+
+The current CLI also includes deterministic Story Discovery, Series and Universe
+contracts, Genre Builder guides, round-trip import/export, controlled editing,
+and the genre-neutral interactive pipeline runtime. These packages produce
+derivative reports and artifacts without replacing canonical author contracts.

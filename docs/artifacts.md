@@ -315,3 +315,11 @@ project/
 
 **Last updated:** 2026-07-11  
 **Related:** CONTEXT.md (Genre Pipeline Architecture), ADR 013 (Universe-to-Series Propagation)
+
+## Operational Extensions
+
+Genre sessions expose a read-only `/health` endpoint, persist warnings and explicit
+acknowledgments, and can be archived into a history directory. `auteur universe build`
+and `auteur book build` create canonical YAML-derived artifacts without LLM calls.
+`auteur series graph` writes both `dependency_graph.yaml` and a Mermaid `.mmd`
+visualization.

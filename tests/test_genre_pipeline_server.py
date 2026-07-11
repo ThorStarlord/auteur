@@ -186,6 +186,54 @@ def test_completed_session_rejects_invalid_updates_before_validation(tmp_path):
     assert error.value.code == 409
 
 
+def test_health_reports_ready_session(tmp_path):
+    spec = get_genre_pipeline(Genre.MYSTERY)
+    store = GenreSessionStore.for_project(tmp_path, spec)
+    session = store.create("howdunit")
+
+    with running_server(store) as server:
+        status, body = get_json(server, "/health")
+
+    assert status == 200
+    assert body == {"status": "ok", "ready": True, "session_id": session.id}
+
+
+def test_warning_acknowledgment_is_persisted(tmp_path):
+    spec = get_genre_pipeline(Genre.NETORARE)
+    store = GenreSessionStore.for_project(tmp_path, spec)
+    store.create("classic_humiliation")
+
+    with running_server(store) as server:
+        _, update = post_json(
+            server,
+            "/session/update",
+            {"phase": 4, "choices": {"want": "want-expose", "resistance": "resistance-inadequacy", "change": "change-accept"}},
+        )
+        warning = update["warnings"][0]
+        status, body = post_json(server, "/session/warnings/acknowledge", {"warning": warning})
+
+    assert status == 200
+    assert body["session"]["acknowledged_warnings"] == [warning]
+    assert store.load().acknowledged_warnings == [warning]
+
+
+def test_session_archive_and_history_allow_new_session(tmp_path):
+    spec = get_genre_pipeline(Genre.MYSTERY)
+    store = GenreSessionStore.for_project(tmp_path, spec)
+    session = store.create("howdunit")
+
+    with running_server(store) as server:
+        status, archived = post_json(server, "/session/archive", {})
+        assert status == 200
+        status, history = get_json(server, "/session/history")
+
+    assert archived["archived_session_id"] == session.id
+    assert status == 200
+    assert history["sessions"][0]["id"] == session.id
+    replacement = store.create("howdunit")
+    assert replacement.id != session.id
+
+
 def test_completed_session_rejects_settings_update_with_409(tmp_path):
     spec = get_genre_pipeline(Genre.MYSTERY)
     store = GenreSessionStore.for_project(tmp_path, spec)

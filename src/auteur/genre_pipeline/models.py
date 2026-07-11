@@ -87,6 +87,7 @@ class GenrePipelineDescriptor(BaseModel):
 class GenreSessionStatus(str, Enum):
     INCOMPLETE = "incomplete"
     COMPLETE = "complete"
+    ARCHIVED = "archived"
 
 
 class GenreSession(BaseModel):
@@ -100,6 +101,7 @@ class GenreSession(BaseModel):
     working_title: str = Field(min_length=1)
     choices: dict[int, dict[str, str]] = Field(default_factory=dict)
     warnings: list[str] = Field(default_factory=list)
+    acknowledged_warnings: list[str] = Field(default_factory=list)
     status: GenreSessionStatus = GenreSessionStatus.INCOMPLETE
     created_at: datetime
     updated_at: datetime

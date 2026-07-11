@@ -116,3 +116,19 @@ def test_session_creation_rejects_unknown_core_and_invalid_mode(tmp_path):
         GenreSessionStore.for_project(tmp_path / "mode", spec).create(
             "howdunit", mode="not-a-mode"
         )
+
+
+def test_session_model_accepts_diagnostic_and_archive_state(tmp_path):
+    spec = get_genre_pipeline(Genre.MYSTERY)
+    store = GenreSessionStore.for_project(tmp_path, spec)
+    session = store.create("howdunit")
+
+    session.warnings = ["warning"]
+    session.acknowledged_warnings = ["warning"]
+    store._write(session)
+    assert store.load().acknowledged_warnings == ["warning"]
+
+    archived = store.archive()
+    assert archived.id == session.id
+    assert not store.session_file.exists()
+    assert store.history()

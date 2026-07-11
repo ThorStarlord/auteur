@@ -80,3 +80,25 @@ def test_universe_diagnose_command_generates_report(tmp_path, capsys):
 
     # Should report the empty elements warning
     assert "empty_forbidden_and_required" in captured.out.lower() or "empty_forbidden_and_required" in captured.err.lower() or exit_code != 0
+
+
+def test_universe_build_command_writes_canonical_yaml(tmp_path):
+    universe = UniverseIdentity(
+        name="Test World",
+        slug="test-world",
+        description="A test universe",
+        setting_profile=SettingProfile(setting_type="single_world", primary_location="TestLand"),
+        magic_system="Magic exists",
+        core_mythology="Creation myth",
+        timeline=TimelineProfile(current_era="Present", era_description="Now", years_of_history=1000),
+        forbidden_elements=["Chaos"],
+        required_elements=["Order"],
+    )
+    source = tmp_path / "draft_universe.yaml"
+    output = tmp_path / "built" / "universe_identity.yaml"
+    universe.to_yaml(source)
+
+    assert handle_universe_command(
+        argparse.Namespace(universe_command="build", universe=source, output=output)
+    ) == 0
+    assert UniverseIdentity.from_yaml(output).slug == "test-world"

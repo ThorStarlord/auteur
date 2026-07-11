@@ -145,4 +145,10 @@ Validation is opt-in via `universe_contract` field in `SeriesIdentity`. Existing
 
 **Regression Tests:** Horror end-to-end flow and actual three-CLI subprocess invocations are regression-tested.
 
+**Operational Extensions:** `/health` reports session readiness; warning acknowledgments
+are stored with session state; archived sessions live under `genre_sessions/<genre>/history/`.
+`auteur universe build` canonicalizes a UniverseIdentity, and `auteur book build`
+compiles one BookPlan into a StoryIdentity. Series graph output includes a Mermaid
+companion beside the YAML graph.
+
 Last updated: 2026-07-11.

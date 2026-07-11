@@ -119,6 +119,9 @@ def test_story_discovery_accept_promotes_candidate(tmp_path):
     discovery_dir.mkdir()
     candidate = discovery_dir / "candidate_1.yaml"
     candidate.write_text(VALID_DISCOVERY_YAML, encoding="utf-8")
+    (discovery_dir / "discovery_report.yaml").write_text(
+        yaml.safe_dump({"chosen_candidate": None}), encoding="utf-8"
+    )
     output = tmp_path / "story_identity.yaml"
 
     exit_code = main([
@@ -135,6 +138,8 @@ def test_story_discovery_accept_promotes_candidate(tmp_path):
     promoted = yaml.safe_load(output.read_text(encoding="utf-8"))
     assert promoted["title"] == "The Silent Crown"
     assert discovery_dir.exists()
+    report = yaml.safe_load((discovery_dir / "discovery_report.yaml").read_text(encoding="utf-8"))
+    assert report["chosen_candidate"] == "candidate_1"
 
 
 def test_story_discovery_project_uses_project_local_custom_genre_prompt_guidance(tmp_path, monkeypatch):

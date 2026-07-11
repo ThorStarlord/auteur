@@ -94,6 +94,7 @@ def handle_series_command(args) -> int:
         output = args.output or Path("series") / "dependency_graph.yaml"
         serialize_series_graph(result, output)
         print(format_series_graph_success(str(output)))
+        print(f"Mermaid visualization written to {output.with_suffix('.mmd')}")
         return result.exit_code
 
     if args.series_command == "bible":

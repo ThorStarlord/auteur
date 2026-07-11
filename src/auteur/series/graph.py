@@ -31,16 +31,32 @@ def build_dependency_graph(series: SeriesIdentity) -> SeriesDependencyGraph:
     nodes.extend(GraphNode(id=arc.id, type="faction_arc", label=arc.faction) for arc in series.faction_arcs)
     nodes.extend(GraphNode(id=mystery.id, type="mystery", label=mystery.question) for mystery in series.mysteries)
 
+    known_ids = {node.id for node in nodes}
+    generic_ids = {
+        item
+        for book in series.book_plans
+        for item in (*book.required_setups, *book.required_payoffs, *book.series_threads_carried)
+        if item not in known_ids
+    }
+    nodes.extend(GraphNode(id=item, type="narrative_dependency", label=item) for item in sorted(generic_ids))
+
     known = {node.id for node in nodes}
-    edges = list(series.dependency_edges)
+    edges: list[DependencyEdge] = []
+
+    def add_edge(edge: DependencyEdge) -> None:
+        if not any(existing.source == edge.source and existing.target == edge.target and existing.type == edge.type for existing in edges):
+            edges.append(edge)
+
+    for edge in series.dependency_edges:
+        add_edge(edge)
     for book in series.book_plans:
         book_id = f"book_{book.book_number}"
         for setup in book.required_setups:
             if setup in known:
-                edges.append(DependencyEdge(source=book_id, target=setup, type="sets_up"))
+                add_edge(DependencyEdge(source=book_id, target=setup, type="sets_up"))
         for payoff in book.required_payoffs:
             if payoff in known:
-                edges.append(DependencyEdge(source=payoff, target=book_id, type="pays_off"))
+                add_edge(DependencyEdge(source=payoff, target=book_id, type="pays_off"))
 
     dependents: dict[str, set[str]] = defaultdict(set)
     dependencies: dict[str, set[str]] = defaultdict(set)

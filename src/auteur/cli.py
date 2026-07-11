@@ -204,6 +204,8 @@ def _build_parser() -> argparse.ArgumentParser:
     register_genre_builder_subcommands(sub)
     from auteur.universe.cli import register_universe_subcommands
     register_universe_subcommands(sub)
+    from auteur.book.cli import register_book_subcommands
+    register_book_subcommands(sub)
 
     p = sub.add_parser("state",
         help="Manage story state layers programmatically.")
@@ -505,6 +507,14 @@ def main(argv: list[str] | None = None) -> int:
         except Exception as exc:
             print(f"Error: failed to promote candidate to {args.output}: {exc}", file=sys.stderr)
             return 1
+        report_path = args.candidate.parent / "discovery_report.yaml"
+        if report_path.exists():
+            try:
+                report = yaml.safe_load(report_path.read_text(encoding="utf-8")) or {}
+                report["chosen_candidate"] = args.candidate.stem
+                report_path.write_text(yaml.safe_dump(report, sort_keys=False), encoding="utf-8")
+            except (OSError, yaml.YAMLError) as exc:
+                print(f"[WARNING] Failed to update discovery report: {exc}", file=sys.stderr)
         print(f"Success: promoted candidate {args.candidate} to {args.output}")
         if not args.keep_candidates:
             candidate_dir = args.candidate.parent
@@ -726,6 +736,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "universe":
         from auteur.universe.cli import handle_universe_command
         return handle_universe_command(args)
+    if args.command == "book":
+        from auteur.book.cli import handle_book_command
+        return handle_book_command(args)
 
     # === netorare ===
     if args.command == "netorare":

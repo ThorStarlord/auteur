@@ -117,15 +117,58 @@ class GenreSessionStore:
         session = self.load()
         if session.status == GenreSessionStatus.COMPLETE:
             raise GenreSessionError("A completed genre session cannot be modified")
+        if session.status == GenreSessionStatus.ARCHIVED:
+            raise GenreSessionError("An archived genre session cannot be modified")
         return session
 
+    @property
+    def history_dir(self) -> Path:
+        return self.session_file.parent / "history"
+
+    def acknowledge_warning(self, warning: str) -> GenreSession:
+        session = self.load()
+        if warning not in session.warnings:
+            raise GenreSessionError("Warning is not present in this session")
+        if warning not in session.acknowledged_warnings:
+            session.acknowledged_warnings.append(warning)
+            session.updated_at = datetime.now(timezone.utc)
+            self._write(session)
+        return session
+
+    def archive(self) -> GenreSession:
+        session = self.load()
+        if session.status == GenreSessionStatus.ARCHIVED:
+            raise GenreSessionError("Genre session is already archived")
+        session.status = GenreSessionStatus.ARCHIVED
+        session.updated_at = datetime.now(timezone.utc)
+        self.history_dir.mkdir(parents=True, exist_ok=True)
+        archive_path = self.history_dir / f"{session.id}.json"
+        self._write_to(session, archive_path)
+        self.session_file.unlink()
+        return session
+
+    def history(self) -> list[GenreSession]:
+        if not self.history_dir.exists():
+            return []
+        sessions: list[GenreSession] = []
+        for path in sorted(self.history_dir.glob("*.json")):
+            try:
+                sessions.append(GenreSession.model_validate_json(path.read_text(encoding="utf-8")))
+            except (OSError, ValidationError) as exc:
+                raise GenreSessionError(f"Invalid archived genre session at {path}: {exc}") from exc
+        return sessions
+
     def _write(self, session: GenreSession) -> None:
-        self.session_file.parent.mkdir(parents=True, exist_ok=True)
-        temporary = self.session_file.with_suffix(".tmp")
+        self._write_to(session, self.session_file)
+
+    @staticmethod
+    def _write_to(session: GenreSession, path: Path) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = path.with_suffix(".tmp")
         payload = json.dumps(session.model_dump(mode="json"), indent=2, ensure_ascii=True) + "\n"
         try:
             temporary.write_text(payload, encoding="utf-8")
-            temporary.replace(self.session_file)
+            temporary.replace(path)
         except OSError as exc:
             raise GenreSessionError(f"Failed to write genre session: {exc}") from exc
         finally:

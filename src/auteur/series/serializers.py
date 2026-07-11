@@ -45,6 +45,13 @@ def serialize_series_graph(result: SeriesHandlerResult, output_path: Path) -> Pa
         yaml.safe_dump(data.graph.model_dump(mode="json"), sort_keys=False),
         encoding="utf-8",
     )
+    mermaid_path = output_path.with_suffix(".mmd")
+    lines = ["graph LR"]
+    for node in data.graph.nodes:
+        lines.append(f'    {node.id.replace("-", "_")}[\"{node.label.replace(chr(34), chr(39))}\"]')
+    for edge in data.graph.edges:
+        lines.append(f"    {edge.source.replace('-', '_')} -->|{edge.type.value}| {edge.target.replace('-', '_')}")
+    mermaid_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return output_path
 
 

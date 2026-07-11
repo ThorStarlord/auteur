@@ -52,6 +52,24 @@ class GenrePipelineApplication:
             require_complete=require_complete,
         )
 
+    def health(self) -> dict[str, Any]:
+        session = self.store.load()
+        return {"status": "ok", "ready": True, "session_id": session.id}
+
+    def history(self) -> dict[str, Any]:
+        return {"sessions": [session.model_dump(mode="json") for session in self.store.history()]}
+
+    def acknowledge_warning(self, payload: dict[str, Any]) -> dict[str, Any]:
+        warning = payload.get("warning")
+        if not isinstance(warning, str) or not warning.strip():
+            raise PipelineRequestError(400, "warning must be a non-empty string")
+        session = self.store.acknowledge_warning(warning)
+        return {"session": session.model_dump(mode="json")}
+
+    def archive(self) -> dict[str, Any]:
+        session = self.store.archive()
+        return {"archived_session_id": session.id, "session": session.model_dump(mode="json")}
+
     def update(self, payload: dict[str, Any]) -> dict[str, Any]:
         phase = payload.get("phase")
         choices = payload.get("choices")
@@ -152,8 +170,12 @@ class _RequestHandler(BaseHTTPRequestHandler):
         try:
             if path == "/":
                 self._send_html()
+            elif path == "/health":
+                self._send_json(200, self.application.health())
             elif path == "/session":
                 self._send_json(200, self.application.session_payload())
+            elif path == "/session/history":
+                self._send_json(200, self.application.history())
             elif path == "/pipeline":
                 self._send_json(200, self.application.pipeline_payload())
             elif path == "/session/validate":
@@ -179,6 +201,10 @@ class _RequestHandler(BaseHTTPRequestHandler):
                 result = self.application.update(payload)
             elif path == "/session/settings":
                 result = self.application.update_settings(payload)
+            elif path == "/session/warnings/acknowledge":
+                result = self.application.acknowledge_warning(payload)
+            elif path == "/session/archive":
+                result = self.application.archive()
             elif path == "/session/complete":
                 result = self.application.complete()
             else:
