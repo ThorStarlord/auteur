@@ -30,6 +30,7 @@ def build_dependency_graph(series: SeriesIdentity) -> SeriesDependencyGraph:
     nodes.extend(GraphNode(id=arc.id, type="relationship_arc", label=" / ".join(arc.participants)) for arc in series.relationship_arcs)
     nodes.extend(GraphNode(id=arc.id, type="faction_arc", label=arc.faction) for arc in series.faction_arcs)
     nodes.extend(GraphNode(id=mystery.id, type="mystery", label=mystery.question) for mystery in series.mysteries)
+    nodes.extend(GraphNode(id=arc.id, type="thematic_arc", label=arc.theme) for arc in series.thematic_arcs)
 
     known_ids = {node.id for node in nodes}
     generic_ids = {
@@ -49,6 +50,18 @@ def build_dependency_graph(series: SeriesIdentity) -> SeriesDependencyGraph:
 
     for edge in series.dependency_edges:
         add_edge(edge)
+
+    for mystery in series.mysteries:
+        add_edge(DependencyEdge(source=f"book_{mystery.introduced_book}", target=mystery.id, type="sets_up"))
+        if mystery.actual_payoff_book is not None:
+            add_edge(DependencyEdge(source=mystery.id, target=f"book_{mystery.actual_payoff_book}", type="pays_off"))
+    for arc in (*series.character_arcs, *series.relationship_arcs, *series.faction_arcs):
+        for book_number in arc.book_states:
+            add_edge(DependencyEdge(source=f"book_{book_number}", target=arc.id, type="transforms"))
+    for arc in series.thematic_arcs:
+        for book_number in arc.books:
+            edge_type = "sets_up" if book_number == min(arc.books) else "transforms"
+            add_edge(DependencyEdge(source=f"book_{book_number}", target=arc.id, type=edge_type))
     for book in series.book_plans:
         book_id = f"book_{book.book_number}"
         for setup in book.required_setups:

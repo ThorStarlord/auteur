@@ -61,3 +61,23 @@ def test_series_graph_serializer_writes_mermaid_companion(tmp_path):
     mermaid = output.with_suffix(".mmd")
     assert mermaid.exists()
     assert "graph LR" in mermaid.read_text(encoding="utf-8")
+
+
+def test_graph_derives_arc_and_mystery_book_dependencies():
+    from auteur.series.graph import build_dependency_graph
+    from auteur.series.models import SeriesIdentity
+
+    data = valid_trilogy_data()
+    data["thematic_arcs"] = [{
+        "id": "order_theme",
+        "theme": "order versus freedom",
+        "books": [1, 2, 3],
+        "progression": {"1": "introduces", "2": "deepens", "3": "resolves"},
+    }]
+    series = SeriesIdentity.model_validate(data)
+    graph = build_dependency_graph(series)
+
+    assert any(node.id == "order_theme" and node.type == "thematic_arc" for node in graph.nodes)
+    assert any(edge.source == "book_1" and edge.target == "order_theme" for edge in graph.edges)
+    assert any(edge.source == "book_3" and edge.target == "order_theme" for edge in graph.edges)
+    assert any(edge.source == "book_1" and edge.target == "emperor_identity" for edge in graph.edges)
