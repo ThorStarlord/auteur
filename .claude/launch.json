@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "gentlefemdom-builder",
+      "runtimeExecutable": "auteur",
+      "runtimeArgs": ["gentlefemdom", "init", "/tmp/test_stories/tender_tale", "--core", "sensual_dominance", "--port", "8767"],
+      "port": 8767
+    }
+  ]
+}
