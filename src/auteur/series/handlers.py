@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from auteur.identity import StoryIdentity
@@ -44,6 +44,7 @@ class SeriesCompileData:
 @dataclass
 class SeriesDiagnoseData:
     diagnostics: list[StructureDiagnostic]
+    universe_diagnostics: list = field(default_factory=list)
 
 
 @dataclass
@@ -68,7 +69,34 @@ def handle_series_compile(series: SeriesIdentity) -> SeriesHandlerResult:
 
 
 def handle_series_diagnose(series: SeriesIdentity) -> SeriesHandlerResult:
-    return SeriesHandlerResult.success(SeriesDiagnoseData(diagnostics=diagnose_series(series)))
+    diagnostics = diagnose_series(series)
+    universe_diagnostics = _collect_universe_diagnostics(series)
+    return SeriesHandlerResult.success(
+        SeriesDiagnoseData(
+            diagnostics=diagnostics,
+            universe_diagnostics=universe_diagnostics,
+        )
+    )
+
+
+def _collect_universe_diagnostics(series: SeriesIdentity) -> list:
+    """Load the referenced universe (if any) and run cross-layer diagnostics.
+
+    Returns an empty list when no universe is referenced or the universe cannot
+    be loaded; a Series is valid independently of any universe reference.
+    """
+    path = series.universe_constraint_path
+    if not path or not path.exists():
+        return []
+    try:
+        from auteur.series.universe_integration import validate_series_against_universe
+        from auteur.universe.models import UniverseIdentity
+
+        universe = UniverseIdentity.from_yaml(path)
+        return validate_series_against_universe(series, universe)
+    except Exception:
+        # Silently skip if universe loading fails; series can exist without universe.
+        return []
 
 
 def handle_series_graph(series: SeriesIdentity) -> SeriesHandlerResult:

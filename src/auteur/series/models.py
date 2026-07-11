@@ -138,6 +138,7 @@ class SeriesIdentity(BaseModel):
     mysteries: list[SeriesMystery] = Field(default_factory=list)
     dependency_edges: list[DependencyEdge] = Field(default_factory=list)
     recurring_symbols: list[str] = Field(default_factory=list)
+    universe_constraint_path: Path | None = None
 
     @model_validator(mode="after")
     def _validate_series_shape(self) -> Self:
