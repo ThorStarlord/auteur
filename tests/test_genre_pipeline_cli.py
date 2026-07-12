@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from unittest.mock import Mock, patch
 
@@ -167,24 +168,28 @@ def test_cli_subprocess_creates_session_at_neutral_path_only(slug, spec_genre, t
 
     # Run the CLI as a subprocess (simulating actual user invocation)
     # The CLI will timeout waiting for browser interaction, but sessions are created early
+    process = subprocess.Popen(
+        [
+            "python", "-m", "auteur.cli", slug, "init", str(project),
+            "--core", spec.default_core_id, "--timeout", "0.2",
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
     try:
-        result = subprocess.run(
-            [
-                "python",
-                "-m",
-                "auteur.cli",
-                slug,
-                "init",
-                str(project),
-                "--core",
-                spec.default_core_id,
-            ],
-            capture_output=True,
-            timeout=10,
-        )
+        process.wait(timeout=2)
     except subprocess.TimeoutExpired:
-        # Timeout is expected when there's no browser. We just care about session paths.
-        pass
+        if os.name == "nt":
+            subprocess.run(
+                ["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                check=False,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+        else:
+            process.terminate()
+        process.wait(timeout=5)
 
     # Session creation is done by the runtime, which checks browser availability
     # and may fail if no browser is available, but the point is to verify paths

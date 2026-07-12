@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import socket
+import os
 import subprocess
 import sys
 import time
@@ -141,7 +142,10 @@ class GenrePipelineRuntime:
             str(self.port),
         ]
         stream = None if self.debug else subprocess.DEVNULL
-        return self.process_factory(command, stdout=stream, stderr=stream)
+        kwargs = {"stdout": stream, "stderr": stream}
+        if os.name == "nt":
+            kwargs["creationflags"] = getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
+        return self.process_factory(command, **kwargs)
 
     def _wait_for_completion(self, process):
         deadline = self.monotonic() + self.timeout
@@ -202,6 +206,14 @@ class GenrePipelineRuntime:
     @staticmethod
     def _stop_process(process) -> None:
         if process.poll() is not None:
+            return
+        if os.name == "nt" and getattr(process, "pid", None) is not None:
+            subprocess.run(
+                ["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                check=False,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
             return
         process.terminate()
         try:
