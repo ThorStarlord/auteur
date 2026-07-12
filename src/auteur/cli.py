@@ -67,6 +67,7 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--max-iterations", type=int, default=3)
     p.add_argument("--provider", choices=["anthropic", "openai"], default="anthropic")
     p.add_argument("--model", default=None)
+    p.add_argument("--regenerate-outline", action="store_true", help="Regenerate an existing outline explicitly.")
 
     p = sub.add_parser("accept",
         help="Promote the latest draft_v*.md to final.md.")
@@ -818,7 +819,7 @@ def _draft_retry(args, *, is_retry: bool) -> int:
     proj = Project.load(args.project)
     client = build_client(args.provider, args.model, agent_type="bard", blueprint=proj.blueprint)
     result = handle_retry(proj, args.chapter, args.max_iterations, client) if is_retry else \
-             handle_draft(proj, args.chapter, args.max_iterations, client)
+             handle_draft(proj, args.chapter, args.max_iterations, client, regenerate_outline=getattr(args, "regenerate_outline", False))
     if not is_retry and result.data is None: return result.exit_code
     if is_retry and not result.is_success and result.data is None:
         _err(result.error); return result.exit_code

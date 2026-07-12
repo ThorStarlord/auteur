@@ -1166,6 +1166,8 @@ def handle_draft(
     chapter_index: int,
     max_iterations: int,
     llm: LLMClient,
+    *,
+    regenerate_outline: bool = False,
 ) -> HandlerResult:
     """Draft a chapter through plan -> draft -> critique -> iterate pipeline.
 
@@ -1174,12 +1176,20 @@ def handle_draft(
     """
     runner = PipelineRunner(project.blueprint, bible=project.bible)
 
+    initial_outline = None
+    outline_path = project.chapter_dir(chapter_index) / "outline.yaml"
+    if outline_path.exists() and not regenerate_outline:
+        initial_outline = yaml.safe_load(outline_path.read_text(encoding="utf-8"))
+        if not isinstance(initial_outline, dict):
+            return HandlerResult.failure(f"Invalid outline file: {outline_path}")
+
     result = runner.draft_chapter(
         chapter_index,
         llm=llm,
         project=project,
         max_iterations=max_iterations,
         on_iteration=None,
+        initial_outline=initial_outline,
     )
 
     data = DraftResultData(
