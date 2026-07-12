@@ -7,38 +7,16 @@ does story-building use?"
 """
 
 from auteur.narrative_ontology.base_concept import BaseConcept, Relationship
-from auteur.narrative_ontology.genre.netorara_ontology import (
-    NetorareOntology,
-    CuckoldryArc,
-    HumiliationProgression,
-    ConsentBoundary,
-)
-from auteur.narrative_ontology.genre.mystery_ontology import (
-    MysteryOntology,
-    InvestigationArc,
-    Clue,
-    RedHerring,
-)
-from auteur.narrative_ontology.genre.gentlefemdom_ontology import (
-    GentleFemdomOntology,
-    AuthorityArc,
-    SurrenderBeat,
-    TrustCheckpoint,
+from auteur.narrative_ontology.schema.ontology_types import (
+    Concept,
+    ValidationRule,
+    GenreOntologyExtension,
 )
 
 __all__ = [
     "BaseConcept",
     "Relationship",
-    "NetorareOntology",
-    "CuckoldryArc",
-    "HumiliationProgression",
-    "ConsentBoundary",
-    "MysteryOntology",
-    "InvestigationArc",
-    "Clue",
-    "RedHerring",
-    "GentleFemdomOntology",
-    "AuthorityArc",
-    "SurrenderBeat",
-    "TrustCheckpoint",
+    "Concept",
+    "ValidationRule",
+    "GenreOntologyExtension",
 ]
