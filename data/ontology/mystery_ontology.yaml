@@ -1,0 +1,132 @@
+# Mystery Genre Ontology Extensions
+# Genre-specific concepts for mystery narratives
+# Extends base ontology with mystery-specific concepts
+
+extends: base
+
+concepts:
+  MysteryProblem:
+    name: MysteryProblem
+    definition: A central puzzle or unknown that drives the narrative forward. The mystery problem is what the protagonist must solve, discover, or understand.
+    category: genre-specific
+    parent_concepts:
+      - Setup
+    relationships:
+      - source_concept: MysteryProblem
+        target_concept: Revelation
+        cardinality: many-to-one
+        description: Mystery problem is solved through revelations
+        required: true
+      - source_concept: MysteryProblem
+        target_concept: Character
+        cardinality: many-to-many
+        description: Characters investigate or are affected by the mystery problem
+        required: true
+    validation_rules:
+      - rule_id: mystery_problem_is_solvable
+        condition: Mystery problem must have a solution that can be revealed
+        error_message: Mystery problem is unsolvable or incoherent
+        applies_to: [mystery]
+      - rule_id: mystery_problem_affects_protagonist
+        condition: Mystery problem must directly affect the protagonist's goals
+        error_message: Mystery problem is disconnected from protagonist concerns
+        applies_to: [mystery]
+
+  Clue:
+    name: Clue
+    definition: A piece of information, object, or observation that provides evidence toward solving the mystery. Clues can be misleading or definitively point toward the solution.
+    category: genre-specific
+    parent_concepts:
+      - Beat
+    relationships:
+      - source_concept: Clue
+        target_concept: MysteryProblem
+        cardinality: many-to-one
+        description: Clue provides evidence about the mystery problem
+        required: true
+      - source_concept: Clue
+        target_concept: Character
+        cardinality: many-to-many
+        description: Character discovers or receives the clue
+        required: true
+    validation_rules:
+      - rule_id: clue_relates_to_mystery
+        condition: Clue must meaningfully relate to solving the mystery
+        error_message: Clue is unrelated to central mystery
+        applies_to: [mystery]
+      - rule_id: clue_is_discoverable
+        condition: Clue must be available to protagonist to discover
+        error_message: Clue is inaccessible to protagonist
+        applies_to: [mystery]
+
+  RedHerring:
+    name: RedHerring
+    definition: A misleading clue, false lead, or misdirection that initially appears to point toward a solution but does not. Red herrings complicate investigation and can deceive readers.
+    category: genre-specific
+    parent_concepts:
+      - Setup
+    relationships:
+      - source_concept: RedHerring
+        target_concept: Clue
+        cardinality: one-to-one
+        description: Red herring appears to be a clue but is misleading
+        required: false
+      - source_concept: RedHerring
+        target_concept: Revelation
+        cardinality: one-to-one
+        description: Red herring is revealed as false
+        required: false
+    validation_rules:
+      - rule_id: red_herring_is_initially_convincing
+        condition: Red herring must appear plausible initially
+        error_message: Red herring is obviously false from the start
+        applies_to: [mystery]
+      - rule_id: red_herring_is_revealed
+        condition: Red herring must eventually be exposed as misdirection
+        error_message: Red herring is never resolved
+        applies_to: [mystery]
+
+  InvestigativeArc:
+    name: InvestigativeArc
+    definition: A narrative arc centered on the protagonist's investigation, discovery process, and gradual accumulation of understanding about the mystery problem.
+    category: genre-specific
+    parent_concepts:
+      - Arc
+    relationships:
+      - source_concept: InvestigativeArc
+        target_concept: Clue
+        cardinality: one-to-many
+        description: Investigative arc includes discovery of clues
+        required: true
+      - source_concept: InvestigativeArc
+        target_concept: MysteryProblem
+        cardinality: many-to-one
+        description: Investigation targets the central mystery
+        required: true
+      - source_concept: InvestigativeArc
+        target_concept: Character
+        cardinality: many-to-many
+        description: Characters engage in investigation
+        required: true
+    validation_rules:
+      - rule_id: investigative_arc_shows_progress
+        condition: Investigation must show measurable progress toward understanding
+        error_message: Investigation shows no progress
+        applies_to: [mystery]
+      - rule_id: investigative_arc_reaches_resolution
+        condition: Investigative arc should conclude with solution or major revelation
+        error_message: Investigation ends without resolution
+        applies_to: [mystery]
+
+metadata:
+  version: "1.0"
+  last_updated: "2026-07-12"
+  description: "Genre-specific concepts for mystery narratives"
+  genre: mystery
+  extends: base
+  new_concepts_count: 4
+  new_concepts:
+    - MysteryProblem
+    - Clue
+    - RedHerring
+    - InvestigativeArc

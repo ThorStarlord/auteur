@@ -1,0 +1,132 @@
+# Gentle Femdom Genre Ontology Extensions
+# Genre-specific concepts for gentle femdom narratives
+# Extends base ontology with gentle dominance/submission concepts
+
+extends: base
+
+concepts:
+  DominanceExpression:
+    name: DominanceExpression
+    definition: A character's manifestation of authority, control, or dominance through actions, words, or presence. Gentle expressions emphasize confidence and care rather than harshness.
+    category: genre-specific
+    parent_concepts:
+      - Beat
+    relationships:
+      - source_concept: DominanceExpression
+        target_concept: Character
+        cardinality: many-to-many
+        description: Character expresses dominance through this beat
+        required: true
+      - source_concept: DominanceExpression
+        target_concept: Relationship
+        cardinality: many-to-many
+        description: Expression affects relationship dynamics
+        required: true
+    validation_rules:
+      - rule_id: dominance_expression_is_consensual
+        condition: Dominance expression must respect consent boundaries
+        error_message: Dominance expression violates established consent
+        applies_to: [gentlefemdom]
+      - rule_id: dominance_expression_shows_care
+        condition: Even authoritative expressions should demonstrate care for the submissive
+        error_message: Dominance expression lacks empathetic foundation
+        applies_to: [gentlefemdom]
+
+  SubmissionResponse:
+    name: SubmissionResponse
+    definition: A character's acceptance, acquiescence, or yielding to another character's authority or request. Submission responses vary in degree and emotional tone.
+    category: genre-specific
+    parent_concepts:
+      - Beat
+    relationships:
+      - source_concept: SubmissionResponse
+        target_concept: Character
+        cardinality: many-to-many
+        description: Character responds with submission through this beat
+        required: true
+      - source_concept: SubmissionResponse
+        target_concept: DominanceExpression
+        cardinality: many-to-one
+        description: Response is often directed toward dominant character
+        required: false
+    validation_rules:
+      - rule_id: submission_response_is_voluntary
+        condition: Submission must represent a choice by the character
+        error_message: Submission appears coerced rather than chosen
+        applies_to: [gentlefemdom]
+      - rule_id: submission_response_shows_emotion
+        condition: Submission should convey the character's emotional experience
+        error_message: Submission response lacks emotional authenticity
+        applies_to: [gentlefemdom]
+
+  PowerDynamicArc:
+    name: PowerDynamicArc
+    definition: A narrative arc centered on the development, evolution, or resolution of power relationships between characters, particularly between dominant and submissive partners.
+    category: genre-specific
+    parent_concepts:
+      - Arc
+    relationships:
+      - source_concept: PowerDynamicArc
+        target_concept: Character
+        cardinality: many-to-many
+        description: Characters engage in the power dynamic
+        required: true
+      - source_concept: PowerDynamicArc
+        target_concept: Relationship
+        cardinality: many-to-many
+        description: Power dynamic shapes relationship evolution
+        required: true
+      - source_concept: PowerDynamicArc
+        target_concept: DominanceExpression
+        cardinality: one-to-many
+        description: Arc includes expressions of dominance
+        required: false
+    validation_rules:
+      - rule_id: power_dynamic_arc_shows_evolution
+        condition: Power dynamic should evolve or deepen over the arc
+        error_message: Power dynamic remains static
+        applies_to: [gentlefemdom]
+      - rule_id: power_dynamic_arc_respects_boundaries
+        condition: Evolution of power dynamic must respect character boundaries
+        error_message: Power dynamic evolution violates consent framework
+        applies_to: [gentlefemdom]
+
+  IntimacyProgression:
+    name: IntimacyProgression
+    definition: The gradual deepening of emotional and/or physical intimacy between characters. Intimacy progression tracks vulnerability, trust-building, and connection growth.
+    category: genre-specific
+    parent_concepts:
+      - Arc
+    relationships:
+      - source_concept: IntimacyProgression
+        target_concept: Character
+        cardinality: many-to-many
+        description: Characters experience intimacy progression
+        required: true
+      - source_concept: IntimacyProgression
+        target_concept: Relationship
+        cardinality: many-to-many
+        description: Intimacy progression drives relationship development
+        required: true
+    validation_rules:
+      - rule_id: intimacy_progression_is_gradual
+        condition: Intimacy should build gradually with narrative justification
+        error_message: Intimacy appears suddenly without development
+        applies_to: [gentlefemdom]
+      - rule_id: intimacy_progression_shows_vulnerability
+        condition: Intimacy progression should expose character vulnerability
+        error_message: Intimacy lacks emotional depth
+        applies_to: [gentlefemdom]
+
+metadata:
+  version: "1.0"
+  last_updated: "2026-07-12"
+  description: "Genre-specific concepts for gentle femdom narratives"
+  genre: gentlefemdom
+  extends: base
+  new_concepts_count: 4
+  new_concepts:
+    - DominanceExpression
+    - SubmissionResponse
+    - PowerDynamicArc
+    - IntimacyProgression
