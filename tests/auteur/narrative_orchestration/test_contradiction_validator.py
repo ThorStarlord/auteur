@@ -302,8 +302,11 @@ class TestArcVsChapterAgreement:
         self, base_book_outline, sample_chapters, sample_character_arc
     ):
         """Compatible arc emotions and chapter beats pass validation."""
-        # Modify chapter 1 to have compatible emotional beat
-        sample_chapters[1].emotional_beat = "realization → acceptance"
+        # Modify chapters with turning points to have compatible emotional beats
+        sample_chapters[1].emotional_beat = "recognition to acceptance"
+        sample_chapters[3].emotional_beat = "acceptance to despair"
+        sample_chapters[5].emotional_beat = "despair to resignation"
+        sample_chapters[7].emotional_beat = "resignation to hope"
 
         validator = ContradictionValidator(
             book_outline=base_book_outline,
