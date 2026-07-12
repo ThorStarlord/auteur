@@ -447,6 +447,9 @@ class OutlineBuilder:
             goal = goals[goal_idx]
             conflict = conflicts[conflict_idx]
 
+            # Determine parent sequence for this chapter
+            parent_id = self._get_chapter_parent_id(ch_num, total_chapters)
+
             chapter = ChapterOutline(
                 genre=self.genre.value,
                 story_id=self.story_id,
@@ -454,7 +457,7 @@ class OutlineBuilder:
                 description=f"Chapter {ch_num}: {goal[:50]}",
                 created_at=self.timestamp,
                 modified_at=self.timestamp,
-                parent_id=None,  # Will reference sequence/book if needed
+                parent_id=parent_id,  # Reference to containing sequence or book
                 chapter_number=ch_num,
                 phase=phase,
                 title=f"Chapter {ch_num}",
@@ -467,6 +470,30 @@ class OutlineBuilder:
             chapters.append(chapter)
 
         return chapters
+
+    def _get_chapter_parent_id(self, chapter_num: int, total_chapters: int) -> str:
+        """Determine which sequence contains this chapter.
+
+        Args:
+            chapter_num: Chapter number (1-indexed)
+            total_chapters: Total number of chapters
+
+        Returns:
+            Parent ID (sequence_XX or book_001)
+        """
+        # Chapters are distributed across sequences
+        if not self.sequence_outlines:
+            # No sequences, parent is book
+            return "book_001"
+
+        # Find which sequence this chapter belongs to
+        for seq in self.sequence_outlines:
+            start_ch, end_ch = seq.chapter_range
+            if start_ch <= chapter_num <= end_ch:
+                return f"sequence_{seq.sequence_number:02d}"
+
+        # Fallback to book if not found
+        return "book_001"
 
     def _create_character_arc(self) -> CharacterArc:
         """Generate Character Arc for protagonist.
@@ -699,12 +726,12 @@ class OutlineBuilder:
             chrono_validator.add_story_arc(story_arc_id, self.story_arc)
 
         # Run chronological validation
-        chrono_result = chrono_validator.validate_chronology()
+        is_valid = chrono_validator.validate_all_chronology()
 
-        if not chrono_result.is_valid:
+        if not is_valid:
             error_messages = [
                 f"{v.source_artifact_id}: {v.message}"
-                for v in chrono_result.violations[:5]
+                for v in chrono_validator.violations[:5]
             ]
             raise ValueError(
                 f"Chronological validation failed:\n" + "\n".join(error_messages)
