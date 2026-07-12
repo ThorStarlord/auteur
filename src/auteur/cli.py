@@ -263,6 +263,9 @@ def _build_parser() -> argparse.ArgumentParser:
     from auteur.genre_pipeline.cli import register_genre_pipeline_subcommands
     register_genre_pipeline_subcommands(sub)
 
+    from auteur.narrative_ontology.cli_ontology import register_ontology_subcommands
+    register_ontology_subcommands(sub)
+
     return parser
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -827,6 +830,23 @@ def main(argv: list[str] | None = None) -> int:
                 return handle_blueprint_init(args.project, "gentlefemdom", working_title=args.title)
             elif args.gentlefemdom_blueprint_command == "list":
                 return handle_blueprint_list(args.project, "gentlefemdom")
+
+    # === ontology ===
+    if args.command == "ontology":
+        from auteur.narrative_ontology.cli_ontology import (
+            handle_ontology_inspect,
+            handle_ontology_list,
+            handle_ontology_validate,
+            handle_ontology_themes,
+        )
+        if args.ontology_command == "inspect":
+            return handle_ontology_inspect(args)
+        if args.ontology_command == "list":
+            return handle_ontology_list(args)
+        if args.ontology_command == "validate":
+            return handle_ontology_validate(args)
+        if args.ontology_command == "themes":
+            return handle_ontology_themes(args)
 
     return 0
 
