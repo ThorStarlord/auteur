@@ -178,3 +178,21 @@ def test_story_discovery_project_uses_project_local_custom_genre_prompt_guidance
     assert exit_code == 0
     assert "Cozy Political Fantasy" in fake_client.calls[0].system
     assert "civic restoration" in fake_client.calls[0].system
+
+
+def test_story_discovery_rejects_custom_genre_before_llm_call(tmp_path):
+    from auteur.cli_handlers import handle_identity_recommend
+
+    class ExplodingClient:
+        def complete(self, _request):
+            raise AssertionError("custom genre must be rejected before any LLM call")
+
+    result = handle_identity_recommend(
+        premise_text="A warm civic mystery.",
+        client=ExplodingClient(),
+        genre="cozy_political_fantasy",
+        project_path=tmp_path,
+    )
+
+    assert result.is_success is False
+    assert "not supported" in result.error

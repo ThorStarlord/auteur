@@ -522,6 +522,12 @@ def handle_identity_recommend(
     if genre:
         try:
             genre_key = genre.lower().strip()
+            try:
+                Genre(genre_key)
+            except ValueError:
+                return HandlerResult.failure(
+                    f"Custom genre '{genre_key}' is not supported as a canonical StoryIdentity genre in V1; use a built-in genre or 'other'."
+                )
             contract = (
                 load_project_genre_contract(project_path, genre_key)
                 if project_path is not None
