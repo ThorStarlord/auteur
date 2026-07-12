@@ -327,3 +327,46 @@ class OntologyValidator:
                 return cardinality
 
         return None
+
+    def get_genre_themes(self, genre: str) -> set:
+        """Get the theme set for a genre from its ontology.
+
+        Theme sets are core definitions in genre ontologies that define the
+        emotional and conceptual vocabulary for that genre.
+
+        Args:
+            genre: Genre identifier (netorare, mystery, gentlefemdom)
+
+        Returns:
+            Set of theme strings for the genre
+
+        Raises:
+            ValueError: If genre is not recognized
+        """
+        if genre not in self.genre_ontologies:
+            raise ValueError(f"Unknown genre: {genre}")
+
+        ontology = self.genre_ontologies[genre]
+        return set(ontology.get_theme_set())
+
+    def get_all_genre_themes(self) -> Dict[str, set]:
+        """Get theme sets for all genres from their ontologies.
+
+        Returns:
+            Dict mapping genre names to sets of themes
+        """
+        return {
+            genre: self.get_genre_themes(genre)
+            for genre in self.genre_ontologies.keys()
+        }
+
+    def is_valid_genre(self, genre: str) -> bool:
+        """Check if a genre is recognized.
+
+        Args:
+            genre: Genre name to check
+
+        Returns:
+            True if genre exists in ontologies
+        """
+        return genre in self.genre_ontologies

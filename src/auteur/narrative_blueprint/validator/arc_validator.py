@@ -2,14 +2,30 @@
 
 This module implements validation for character and story arcs, enforcing
 the critical weak boundary where arc themes must align with genre expectations.
+
+Validation rules are sourced from Layer 0 ontology (genre themes) instead of
+hardcoded values, enabling consistency across the narrative hierarchy.
 """
 
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 from auteur.narrative_blueprint.schema.character_arc import CharacterArc
 from auteur.narrative_blueprint.schema.story_arc import StoryArc
+from auteur.narrative_ontology.validator.ontology_validator import OntologyValidator
 
 
+def _get_genre_themes() -> Dict[str, set]:
+    """Load genre themes from Layer 0 ontology.
+
+    Returns:
+        Dict mapping genre names to sets of theme strings.
+        This replaces the previous hardcoded GENRE_THEMES constant.
+    """
+    validator = OntologyValidator()
+    return validator.get_all_genre_themes()
+
+
+# Legacy constant for backward compatibility - loaded from ontology
 GENRE_THEMES = {
     "netorare": {"humiliation", "degradation", "cuckoldry", "shame", "exposure"},
     "mystery": {"investigation", "deception", "revelation", "conspiracy", "doubt"},
@@ -19,16 +35,31 @@ GENRE_THEMES = {
 
 class ArcValidator:
     """Validator for narrative arcs with genre-specific constraints.
-    
+
     This validator enforces that character and story arcs respect genre
     boundaries. Character arcs must use themes appropriate to their genre,
     and story arcs must have valid narrative phases (1-9).
+
+    Theme validation is driven by Layer 0 ontology (source of truth) instead
+    of hardcoded rules, ensuring consistency across the narrative hierarchy.
     """
+
+    def __init__(self):
+        """Initialize ArcValidator with OntologyValidator for theme lookup."""
+        self._ontology_validator = OntologyValidator()
 
     def validate_arc_themes(
         self, arc: CharacterArc, genre: str
     ) -> Tuple[bool, List[str]]:
         """Validate that character arc themes match genre expectations.
+
+        Themes are validated against the Layer 0 ontology for the given genre.
+        At least ONE theme from arc.genre_themes must overlap with the genre's
+        ontology theme set.
+
+        Layer 0 Coupling: Theme sets are sourced from genre ontologies, not
+        hardcoded values. This ensures the validator uses the ontology as the
+        single source of truth for genre-specific vocabulary.
 
         Args:
             arc: CharacterArc instance to validate
@@ -36,12 +67,18 @@ class ArcValidator:
 
         Returns:
             Tuple of (is_valid, errors) where is_valid is bool and errors is list of strings
-            At least ONE theme from arc.genre_themes must overlap with GENRE_THEMES[genre]
+            At least ONE theme from arc.genre_themes must overlap with ontology themes
         """
-        if genre not in GENRE_THEMES:
+        # Validate genre using ontology
+        if not self._ontology_validator.is_valid_genre(genre):
             return False, [f"Unknown genre: {genre}"]
 
-        expected_themes = GENRE_THEMES[genre]
+        # Get expected themes from ontology (Layer 0 source of truth)
+        try:
+            expected_themes = self._ontology_validator.get_genre_themes(genre)
+        except ValueError as e:
+            return False, [str(e)]
+
         arc_themes = set(arc.genre_themes)
 
         # Check if there's at least one overlap

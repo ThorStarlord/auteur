@@ -3,10 +3,13 @@
 Ensures consistency across container outlines (BookOutline, ChapterOutline, SequenceOutline).
 Validates:
 - No chapter exceeds book's chapter_estimate
-- All chapter phases are 1-9
+- All chapter phases are 1-9 (from Layer 0: Arc has phases 1-9)
 - Sequence chapter_range is sensible (start <= end, both > 0)
 
 The validator is lenient: partial specs are valid, missing outlines are OK.
+
+Validation constraints are sourced from Layer 0 ontology (Arc concept) instead of
+hardcoded values, ensuring consistency with the core narrative schema.
 """
 
 from typing import List, Tuple
@@ -15,6 +18,7 @@ from auteur.narrative_blueprint.schema.outline_types import ContainerArtifact
 from auteur.narrative_blueprint.schema.book_outline import BookOutline
 from auteur.narrative_blueprint.schema.chapter_outline import ChapterOutline
 from auteur.narrative_blueprint.schema.sequence_outline import SequenceOutline
+from auteur.narrative_ontology.validator.ontology_validator import OntologyValidator
 
 
 class ContainerValidator:
@@ -22,7 +26,14 @@ class ContainerValidator:
 
     Validates that nested outlines maintain consistency with their parent containers.
     Supports all genres without special-casing.
+
+    Phase validation constraints are derived from Layer 0 Arc concept ontology
+    instead of hardcoded values.
     """
+
+    def __init__(self):
+        """Initialize ContainerValidator with OntologyValidator for phase lookup."""
+        self._ontology_validator = OntologyValidator()
 
     def validate_consistency(
         self, outlines: List[ContainerArtifact]
