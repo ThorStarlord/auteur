@@ -22,13 +22,13 @@ class TestGenreThemesMapping:
 
     def test_genre_themes_has_all_genres(self):
         """All three genres should have theme definitions."""
-        assert "netorara" in GENRE_THEMES
+        assert "netorare" in GENRE_THEMES
         assert "mystery" in GENRE_THEMES
         assert "gentlefemdom" in GENRE_THEMES
 
-    def test_genre_themes_netorara(self):
+    def test_genre_themes_netorare(self):
         """Netorara should have humiliation-related themes."""
-        themes = GENRE_THEMES["netorara"]
+        themes = GENRE_THEMES["netorare"]
         assert "humiliation" in themes
         assert "degradation" in themes
         assert "cuckoldry" in themes
@@ -82,31 +82,31 @@ class TestValidateArcThemes:
             genre_themes=genre_themes,
         )
 
-    def test_netorara_arc_with_matching_themes_passes(self):
+    def test_netorare_arc_with_matching_themes_passes(self):
         """Netorara arc with humiliation/cuckoldry themes should pass validation."""
         arc = self._create_character_arc(
-            "netorara", ["humiliation", "shame"], "John"
+            "netorare", ["humiliation", "shame"], "John"
         )
         validator = ArcValidator()
-        is_valid, errors = validator.validate_arc_themes(arc, "netorara")
+        is_valid, errors = validator.validate_arc_themes(arc, "netorare")
         assert is_valid is True
         assert errors == []
 
-    def test_netorara_arc_with_single_matching_theme_passes(self):
+    def test_netorare_arc_with_single_matching_theme_passes(self):
         """Netorara arc with any single matching theme should pass."""
-        arc = self._create_character_arc("netorara", ["humiliation"], "Jane")
+        arc = self._create_character_arc("netorare", ["humiliation"], "Jane")
         validator = ArcValidator()
-        is_valid, errors = validator.validate_arc_themes(arc, "netorara")
+        is_valid, errors = validator.validate_arc_themes(arc, "netorare")
         assert is_valid is True
         assert errors == []
 
-    def test_netorara_arc_with_mismatched_themes_fails(self):
+    def test_netorare_arc_with_mismatched_themes_fails(self):
         """Netorara arc with gentle femdom themes should fail validation."""
         arc = self._create_character_arc(
-            "netorara", ["authority", "surrender"], "James"
+            "netorare", ["authority", "surrender"], "James"
         )
         validator = ArcValidator()
-        is_valid, errors = validator.validate_arc_themes(arc, "netorara")
+        is_valid, errors = validator.validate_arc_themes(arc, "netorare")
         assert is_valid is False
         assert len(errors) > 0
         assert "don't match" in errors[0]
@@ -121,8 +121,8 @@ class TestValidateArcThemes:
         assert is_valid is True
         assert errors == []
 
-    def test_gentlefemdom_arc_with_netorara_themes_fails(self):
-        """Gentle femdom arc with netorara themes should fail validation."""
+    def test_gentlefemdom_arc_with_netorare_themes_fails(self):
+        """Gentle femdom arc with netorare themes should fail validation."""
         arc = self._create_character_arc(
             "gentlefemdom", ["humiliation", "degradation"], "Sub"
         )
@@ -160,15 +160,15 @@ class TestValidateArcThemes:
     def test_error_message_includes_theme_details(self):
         """Error message should include the mismatched themes and expected themes."""
         arc = self._create_character_arc(
-            "netorara", ["authority", "surrender"], "BadArc"
+            "netorare", ["authority", "surrender"], "BadArc"
         )
         validator = ArcValidator()
-        is_valid, errors = validator.validate_arc_themes(arc, "netorara")
+        is_valid, errors = validator.validate_arc_themes(arc, "netorare")
         assert is_valid is False
         error_msg = errors[0]
         assert "Character arc themes" in error_msg
         assert "authority" in error_msg or "surrender" in error_msg
-        assert "netorara" in error_msg.lower()
+        assert "netorare" in error_msg.lower()
 
 
 class TestValidateStoryArcPhases:
@@ -301,8 +301,8 @@ class TestArcValidatorIntegration:
     def test_all_three_genres_properly_distinguished(self):
         """Each genre should reject themes from other genres."""
         # Netorara rejects mystery themes
-        netorara_arc = CharacterArc(
-            genre="netorara",
+        netorare_arc = CharacterArc(
+            genre="netorare",
             story_id="story_003",
             name="Wrong Themes Arc",
             description="Uses mystery themes",
@@ -314,7 +314,7 @@ class TestArcValidatorIntegration:
             final_belief="End",
             genre_themes=["investigation", "deception"],
         )
-        is_valid, errors = self.validator.validate_arc_themes(netorara_arc, "netorara")
+        is_valid, errors = self.validator.validate_arc_themes(netorare_arc, "netorare")
         assert is_valid is False
 
         # Mystery rejects gentlefemdom themes
@@ -334,12 +334,12 @@ class TestArcValidatorIntegration:
         is_valid, errors = self.validator.validate_arc_themes(mystery_arc, "mystery")
         assert is_valid is False
 
-        # Gentlefemdom rejects netorara themes
+        # Gentlefemdom rejects netorare themes
         gf_arc = CharacterArc(
             genre="gentlefemdom",
             story_id="story_003",
             name="Wrong Themes Arc",
-            description="Uses netorara themes",
+            description="Uses netorare themes",
             created_at=self.now,
             modified_at=self.now,
             span_chapters=[1, 2],
@@ -355,7 +355,7 @@ class TestArcValidatorIntegration:
         """Arc passes if at least ONE theme matches genre."""
         # Mix of valid and invalid themes - should pass because "humiliation" is valid
         arc = CharacterArc(
-            genre="netorara",
+            genre="netorare",
             story_id="story_004",
             name="Mixed Themes Arc",
             description="Mixed themes",
@@ -367,5 +367,5 @@ class TestArcValidatorIntegration:
             final_belief="End",
             genre_themes=["humiliation", "authority", "investigation"],  # Mix
         )
-        is_valid, errors = self.validator.validate_arc_themes(arc, "netorara")
-        assert is_valid is True  # Passes because "humiliation" is in GENRE_THEMES["netorara"]
+        is_valid, errors = self.validator.validate_arc_themes(arc, "netorare")
+        assert is_valid is True  # Passes because "humiliation" is in GENRE_THEMES["netorare"]

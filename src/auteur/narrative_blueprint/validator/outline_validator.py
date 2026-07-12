@@ -14,6 +14,7 @@ from typing import List, Tuple
 from auteur.narrative_blueprint.schema.outline_types import ContainerArtifact
 from auteur.narrative_blueprint.schema.book_outline import BookOutline
 from auteur.narrative_blueprint.schema.chapter_outline import ChapterOutline
+from auteur.narrative_blueprint.schema.sequence_outline import SequenceOutline
 
 
 class ContainerValidator:
@@ -51,6 +52,7 @@ class ContainerValidator:
         # Extract book and chapter outlines
         books = [o for o in valid_outlines if isinstance(o, BookOutline)]
         chapters = [o for o in valid_outlines if isinstance(o, ChapterOutline)]
+        sequences = [o for o in valid_outlines if isinstance(o, SequenceOutline)]
 
         # Validate books
         for book in books:
@@ -68,7 +70,10 @@ class ContainerValidator:
             errors.extend(consistency_errors)
 
         # Validate sequences if present
-        # SequenceOutline will be handled here once it's implemented
+        if sequences:
+            for sequence in sequences:
+                sequence_errors = self._validate_sequence(sequence)
+                errors.extend(sequence_errors)
 
         return (True, []) if not errors else (False, errors)
 
@@ -143,5 +148,34 @@ class ContainerValidator:
                         f"Chapter {chapter.chapter_number} ('{chapter.title}') exceeds "
                         f"book estimate of {book.chapter_estimate} for book '{book.title}'"
                     )
+
+        return errors
+
+    def _validate_sequence(self, sequence: SequenceOutline) -> List[str]:
+        """Validate a single SequenceOutline.
+
+        Checks that chapter_range is valid: start > 0, end > 0, start <= end.
+
+        Args:
+            sequence: SequenceOutline to validate
+
+        Returns:
+            List of error messages (empty if valid)
+        """
+        errors = []
+
+        start, end = sequence.chapter_range
+
+        # Verify range is sensible
+        if start <= 0 or end <= 0:
+            errors.append(
+                f"Sequence {sequence.sequence_number} has invalid chapter_range ({start}, {end}): "
+                f"start and end must be > 0"
+            )
+        elif start > end:
+            errors.append(
+                f"Sequence {sequence.sequence_number} has invalid chapter_range ({start}, {end}): "
+                f"start must be <= end"
+            )
 
         return errors

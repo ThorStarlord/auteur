@@ -11,7 +11,7 @@ from auteur.narrative_blueprint.schema.story_arc import StoryArc
 
 
 GENRE_THEMES = {
-    "netorara": {"humiliation", "degradation", "cuckoldry", "shame", "exposure"},
+    "netorare": {"humiliation", "degradation", "cuckoldry", "shame", "exposure"},
     "mystery": {"investigation", "deception", "revelation", "conspiracy", "doubt"},
     "gentlefemdom": {"authority", "surrender", "dominance", "trust", "control"},
 }
@@ -32,7 +32,7 @@ class ArcValidator:
 
         Args:
             arc: CharacterArc instance to validate
-            genre: Genre string (netorara, mystery, gentlefemdom)
+            genre: Genre string (netorare, mystery, gentlefemdom)
 
         Returns:
             Tuple of (is_valid, errors) where is_valid is bool and errors is list of strings
