@@ -753,17 +753,20 @@ def main(argv: list[str] | None = None) -> int:
         registered_spec = get_genre_pipeline(args.command)
     except ValueError:
         registered_spec = None
-    if registered_spec is not None and getattr(args, f"{registered_spec.slug}_command", None) == "init":
+    if registered_spec is not None and getattr(args, f"{registered_spec.slug}_command", None) == "resume":
+        command_name = getattr(args, f"{registered_spec.slug}_command")
         try:
             return GenrePipelineCommand(
                 project_path=args.project,
                 spec=registered_spec,
-                core_id=args.core,
-                mode=args.mode,
-                provider=args.provider,
+                core_id=registered_spec.default_core_id,
+                mode=getattr(args, "mode", None),
+                provider=getattr(args, "provider", None),
                 port=args.port,
                 timeout=args.timeout,
                 debug=args.debug,
+                resume=command_name == "resume",
+                no_browser=getattr(args, "no_browser", False),
             ).run()
         except ValueError as exc:
             _err(str(exc))

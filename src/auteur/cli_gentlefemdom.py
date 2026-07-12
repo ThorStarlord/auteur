@@ -54,3 +54,6 @@ def handle_gentlefemdom_init(
         debug=debug,
         mode=mode,
     ).run()
+
+def handle_gentlefemdom_resume(project_path: Path, port: int | None = None, timeout: float = 3600.0, debug: bool = False, no_browser: bool = False) -> int:
+    return GenrePipelineCommand(project_path=project_path, spec=get_genre_pipeline(Genre.GENTLEFEMDOM), core_id="sensual_dominance", port=port, timeout=timeout, debug=debug, resume=True, no_browser=no_browser).run()
