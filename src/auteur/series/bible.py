@@ -12,7 +12,7 @@ from auteur.series.continuity_validators import (
 )
 
 
-def compile_series_bible(series: SeriesIdentity) -> dict:
+def compile_series_bible(series: SeriesIdentity, diagnostics: list | None = None) -> dict:
     graph = build_dependency_graph(series)
     book_numbers = [str(book.book_number) for book in series.book_plans]
     payoff_schedule = {
@@ -41,6 +41,13 @@ def compile_series_bible(series: SeriesIdentity) -> dict:
             else:
                 status = "active"
             mystery_status_by_book[number].append({"id": mystery.id, "status": status})
+
+    serialized_diagnostics = [
+        diagnostic.model_dump(mode="json")
+        if hasattr(diagnostic, "model_dump")
+        else diagnostic
+        for diagnostic in (diagnostics or [])
+    ]
 
     return {
         "title": series.title,
@@ -131,4 +138,5 @@ def compile_series_bible(series: SeriesIdentity) -> dict:
             }
             for d in continuity_diagnostics
         ],
+        "diagnostics": serialized_diagnostics,
     }

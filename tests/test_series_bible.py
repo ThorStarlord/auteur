@@ -33,3 +33,26 @@ def test_series_bible_is_deterministic():
     series = SeriesIdentity.model_validate(valid_trilogy_data())
 
     assert compile_series_bible(series) == compile_series_bible(series)
+
+
+def test_series_bible_rejects_missing_universe_contract():
+    from auteur.series.handlers import handle_series_bible
+    from auteur.series.models import SeriesIdentity
+
+    series = SeriesIdentity.model_validate(valid_trilogy_data())
+    series.universe_constraint_path = "missing-universe.yaml"
+
+    result = handle_series_bible(series)
+
+    assert result.is_success is False
+    assert "UNIVERSE_CONTRACT_NOT_FOUND" in result.error
+
+
+def test_series_bible_without_universe_preserves_diagnostics_field():
+    from auteur.series.handlers import handle_series_bible
+    from auteur.series.models import SeriesIdentity
+
+    result = handle_series_bible(SeriesIdentity.model_validate(valid_trilogy_data()))
+
+    assert result.is_success
+    assert result.data.bible["diagnostics"] == []

@@ -66,5 +66,7 @@ def serialize_series_graph(result: SeriesHandlerResult, output_path: Path) -> Pa
 def serialize_series_bible(result: SeriesHandlerResult, output_path: Path) -> Path:
     data: SeriesBibleData = result.data
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(data.bible, indent=2), encoding="utf-8")
+    temporary = output_path.with_suffix(output_path.suffix + ".tmp")
+    temporary.write_text(json.dumps(data.bible, indent=2), encoding="utf-8")
+    temporary.replace(output_path)
     return output_path

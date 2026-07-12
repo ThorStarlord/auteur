@@ -185,4 +185,13 @@ def handle_series_graph(series: SeriesIdentity) -> SeriesHandlerResult:
 
 
 def handle_series_bible(series: SeriesIdentity) -> SeriesHandlerResult:
-    return SeriesHandlerResult.success(SeriesBibleData(bible=compile_series_bible(series)))
+    continuity_diagnostics = _collect_continuity_diagnostics(series)
+    universe_diagnostics = _collect_universe_diagnostics(series)
+    diagnostics = continuity_diagnostics + universe_diagnostics
+    errors = [d for d in diagnostics if d.severity == DiagnosticSeverity.ERROR]
+    if errors:
+        error_msgs = "\n".join(f"  - {d.rule}: {d.message}" for d in errors)
+        return SeriesHandlerResult.failure(f"Cannot compile series Bible due to errors:\n{error_msgs}")
+    return SeriesHandlerResult.success(
+        SeriesBibleData(bible=compile_series_bible(series, diagnostics=diagnostics))
+    )
