@@ -61,6 +61,7 @@ def register_genre_pipeline_subcommands(subparsers: Any) -> None:
             help="Session timeout in seconds (default: 3600).",
         )
         init.add_argument("--debug", action="store_true", help="Enable server output.")
+        init.add_argument("--no-browser", action="store_true", help="Do not open a browser automatically.")
         resume = commands.add_parser("resume", help=f"Resume an incomplete {spec.slug} session.")
         resume.add_argument("project", type=Path, help="Project directory path.")
         resume.add_argument("--port", type=int, default=spec.default_port)

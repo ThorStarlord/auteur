@@ -85,6 +85,8 @@ class GenrePipelineRuntime:
             self._wait_for_server(base_url, process)
             url = f"{base_url}/?session={session.id}"
             browser_opened = False if self.no_browser else bool(self.browser_opener(url))
+            if not browser_opened:
+                print(f"Open: {url}")
             completed = self._wait_for_completion(process)
             compilation = compile_story_identity(
                 self.spec,
