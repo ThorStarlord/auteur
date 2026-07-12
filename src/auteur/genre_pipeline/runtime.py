@@ -54,6 +54,8 @@ class GenrePipelineRuntime:
         self.core_id = core_id
         self.mode = mode
         self.port = spec.default_port if port is None else port
+        if not 1 <= self.port <= 65535:
+            raise ValueError("port must be between 1 and 65535")
         self.timeout = timeout
         self.debug = debug
         self.process_factory = process_factory

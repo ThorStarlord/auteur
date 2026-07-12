@@ -745,6 +745,31 @@ def main(argv: list[str] | None = None) -> int:
         return handle_book_command(args)
 
     # === netorare ===
+    # Registered genre pipelines all share one command implementation.  Keep
+    # the legacy branches below as compatibility handlers for existing callers.
+    from auteur.genre_pipeline.registry import get_genre_pipeline
+    from auteur.genre_pipeline.cli import GenrePipelineCommand
+    try:
+        registered_spec = get_genre_pipeline(args.command)
+    except ValueError:
+        registered_spec = None
+    if registered_spec is not None and getattr(args, f"{registered_spec.slug}_command", None) == "init":
+        try:
+            return GenrePipelineCommand(
+                project_path=args.project,
+                spec=registered_spec,
+                core_id=args.core,
+                mode=args.mode,
+                provider=args.provider,
+                port=args.port,
+                timeout=args.timeout,
+                debug=args.debug,
+            ).run()
+        except ValueError as exc:
+            _err(str(exc))
+            return 2
+
+    # === netorare ===
     if args.command == "netorare":
         if args.netorare_command == "init":
             return handle_netorare_init(

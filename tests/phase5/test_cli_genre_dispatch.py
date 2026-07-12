@@ -5,6 +5,8 @@ from pathlib import Path
 from unittest.mock import patch
 from auteur.cli import parse_args
 from auteur.blueprint import Genre
+from auteur.genre_pipeline.models import GenrePipelineSpec
+from auteur.genre_pipeline import registry as pipeline_registry
 
 
 class TestCLIGenreDispatch:
@@ -38,3 +40,31 @@ class TestCLIGenreDispatch:
         for core in ["sensual_dominance", "tender_surrender", "romantic_authority"]:
             args = parse_args(["gentlefemdom", "init", "test_project", "--core", core])
             assert args.core == core
+
+    def test_registered_fourth_genre_dispatches_through_shared_command(self, monkeypatch):
+        spec = GenrePipelineSpec(
+            genre=Genre.OTHER, slug="other", core_ids=("core",),
+            default_core_id="core", default_port=8780, browser_title="Other",
+            template_factory=lambda _: object(), validate_choices=lambda *_: (True, [], []),
+            contract_loader=lambda: None, identity_profile_factory=lambda _: None,
+        )
+        monkeypatch.setattr(pipeline_registry, "_SPECS", {spec.genre: spec})
+        with patch("auteur.genre_pipeline.cli.GenrePipelineCommand.run", return_value=17) as run:
+            from auteur.cli import main
+            assert main(["other", "init", "project"]) == 17
+        run.assert_called_once()
+
+    def test_spec_rejects_slug_mismatch(self):
+        with pytest.raises(ValueError, match="slug"):
+            GenrePipelineSpec(
+                genre=Genre.OTHER, slug="wrong", core_ids=("core",), default_core_id="core",
+                default_port=8780, browser_title="Other", template_factory=lambda _: object(),
+                validate_choices=lambda *_: (True, [], []), contract_loader=lambda: None,
+                identity_profile_factory=lambda _: None,
+            )
+
+    def test_command_rejects_invalid_port_before_runtime_creation(self):
+        from auteur.genre_pipeline.cli import GenrePipelineCommand
+        spec = pipeline_registry.get_genre_pipeline(Genre.NETORARE)
+        with pytest.raises(ValueError, match="port"):
+            GenrePipelineCommand(Path("project"), spec, spec.default_core_id, port=65536)

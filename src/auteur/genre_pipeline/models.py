@@ -41,6 +41,10 @@ class GenrePipelineSpec:
     def __post_init__(self) -> None:
         if self.default_core_id not in self.core_ids:
             raise ValueError("default_core_id must be included in core_ids")
+        if self.slug != self.genre.value:
+            raise ValueError("slug must match genre.value")
+        if not 1 <= self.default_port <= 65535:
+            raise ValueError("default_port must be between 1 and 65535")
 
 
 class PipelineOption(BaseModel):
