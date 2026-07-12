@@ -100,3 +100,11 @@ def test_write_final_and_has_final(tmp_path):
     project.write_final(1, "the chapter prose")
     assert project.has_final(1)
     assert (project.chapter_dir(1) / "final.md").read_text(encoding="utf-8") == "the chapter prose"
+
+
+def test_write_draft_refuses_to_overwrite_existing_version(tmp_path):
+    project = Project.init(tmp_path / "project", StoryBlueprint.from_yaml(SAMPLE_YAML))
+    project.write_draft(1, 1, "first")
+
+    with pytest.raises(FileExistsError, match="already exists"):
+        project.write_draft(1, 1, "replacement")
