@@ -35,6 +35,7 @@ from auteur.cli_serializers import (
 from auteur.cli_netorare import handle_netorare_init
 from auteur.cli_mystery import handle_mystery_init
 from auteur.cli_gentlefemdom import handle_gentlefemdom_init
+from auteur.narrative_blueprint.cli_blueprint import handle_blueprint_init, handle_blueprint_list
 from auteur.project import Project
 from auteur.structure.proposals import StructureProposal
 
@@ -785,6 +786,11 @@ def main(argv: list[str] | None = None) -> int:
                 debug=args.debug,
                 mode=args.mode,
             )
+        if args.netorare_command == "blueprint":
+            if args.netorare_blueprint_command == "init":
+                return handle_blueprint_init(args.project, "netorare", working_title=args.title)
+            elif args.netorare_blueprint_command == "list":
+                return handle_blueprint_list(args.project, "netorare")
 
     # === mystery ===
     if args.command == "mystery":
@@ -798,6 +804,11 @@ def main(argv: list[str] | None = None) -> int:
                 debug=args.debug,
                 mode=args.mode,
             )
+        if args.mystery_command == "blueprint":
+            if args.mystery_blueprint_command == "init":
+                return handle_blueprint_init(args.project, "mystery", working_title=args.title)
+            elif args.mystery_blueprint_command == "list":
+                return handle_blueprint_list(args.project, "mystery")
 
     # === gentlefemdom ===
     if args.command == "gentlefemdom":
@@ -811,6 +822,11 @@ def main(argv: list[str] | None = None) -> int:
                 debug=args.debug,
                 mode=args.mode,
             )
+        if args.gentlefemdom_command == "blueprint":
+            if args.gentlefemdom_blueprint_command == "init":
+                return handle_blueprint_init(args.project, "gentlefemdom", working_title=args.title)
+            elif args.gentlefemdom_blueprint_command == "list":
+                return handle_blueprint_list(args.project, "gentlefemdom")
 
     return 0
 

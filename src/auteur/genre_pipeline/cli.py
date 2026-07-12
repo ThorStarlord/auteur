@@ -69,6 +69,32 @@ def register_genre_pipeline_subcommands(subparsers: Any) -> None:
         resume.add_argument("--debug", action="store_true")
         resume.add_argument("--no-browser", action="store_true")
 
+        # Blueprint subcommands
+        blueprint = commands.add_parser(
+            "blueprint",
+            help=f"Manage narrative outlines for {spec.slug} stories.",
+        )
+        blueprint_cmds = blueprint.add_subparsers(
+            dest=f"{spec.slug}_blueprint_command",
+            required=True,
+        )
+        blueprint_init = blueprint_cmds.add_parser(
+            "init",
+            help="Create an empty book outline.",
+        )
+        blueprint_init.add_argument("project", type=Path, help="Project directory path.")
+        blueprint_init.add_argument(
+            "--title",
+            type=str,
+            default="Untitled Story",
+            help="Working title for the book (default: Untitled Story).",
+        )
+        blueprint_list = blueprint_cmds.add_parser(
+            "list",
+            help="List outline artifacts.",
+        )
+        blueprint_list.add_argument("project", type=Path, help="Project directory path.")
+
 
 class GenrePipelineCommand:
     def __init__(
