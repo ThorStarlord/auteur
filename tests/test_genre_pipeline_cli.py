@@ -27,6 +27,13 @@ def test_cli_parser_uses_registry_defaults(slug, default_core, default_port, tmp
     assert args.provider is None
 
 
+def test_cli_parser_accepts_resume_and_no_browser(tmp_path):
+    args = parse_args(["mystery", "resume", str(tmp_path), "--no-browser"])
+
+    assert args.mystery_command == "resume"
+    assert args.no_browser is True
+
+
 @pytest.mark.parametrize("slug", ["netorare", "mystery", "gentlefemdom"])
 def test_cli_parser_accepts_visible_mode_override(slug, tmp_path):
     args = parse_args([slug, "init", str(tmp_path), "--mode", "noir"])
