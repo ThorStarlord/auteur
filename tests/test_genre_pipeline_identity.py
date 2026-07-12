@@ -109,3 +109,11 @@ def test_compilation_result_separates_warning_and_info_diagnostics():
     result = type(compiled)(compiled.identity, (warning, info))
 
     assert result.warning_diagnostics == (warning,)
+
+
+def test_gentlefemdom_validation_has_no_legacy_identity_import():
+    from pathlib import Path
+
+    source = Path(__file__).parents[1].joinpath("src", "auteur", "gentlefemdom", "validation.py").read_text(encoding="utf-8")
+
+    assert "auteur.netorare.identity_generator" not in source
