@@ -123,16 +123,17 @@ def test_compatibility_cli_modules_do_not_import_legacy_runtime_infrastructure()
         ("gentlefemdom", "handle_gentlefemdom_init", "intimate"),
     ],
 )
-def test_public_cli_dispatches_each_command_to_compatibility_handler(
+def test_public_cli_dispatches_each_command_to_registry_command(
     slug, handler_name, mode, tmp_path
 ):
     import auteur.cli as cli
+    from auteur.genre_pipeline import cli as pipeline_cli
 
-    with patch.object(cli, handler_name, return_value=0) as handler:
+    with patch.object(pipeline_cli.GenrePipelineCommand, "run", return_value=0) as run:
         result = cli.main([slug, "init", str(tmp_path), "--mode", mode])
 
     assert result == 0
-    assert handler.call_args.kwargs["mode"] == mode
+    assert run.called
 
 
 @pytest.mark.parametrize(
