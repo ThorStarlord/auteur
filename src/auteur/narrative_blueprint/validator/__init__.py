@@ -1,1 +1,1 @@
-"""Validator module for narrative blueprint artifacts."""
+"""Validators for narrative blueprint artifacts."""
