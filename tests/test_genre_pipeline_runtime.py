@@ -176,3 +176,49 @@ def test_runtime_rejects_occupied_port_before_creating_session(tmp_path):
         assert not runtime.store.session_file.exists()
     finally:
         listener.close()
+
+
+def test_runtime_resume_requires_an_existing_incomplete_session(tmp_path):
+    spec = get_genre_pipeline(Genre.MYSTERY)
+    launched = []
+    runtime = GenrePipelineRuntime(
+        tmp_path,
+        spec,
+        spec.default_core_id,
+        resume=True,
+        process_factory=lambda *args, **kwargs: launched.append((args, kwargs)),
+        port_checker=lambda _port: None,
+    )
+
+    with pytest.raises(GenrePipelineRuntimeError, match="session not found"):
+        runtime.run()
+
+    assert not launched
+
+
+def test_runtime_no_browser_reports_url_after_completion(tmp_path):
+    spec = get_genre_pipeline(Genre.GENTLEFEMDOM)
+    process = FakeProcess()
+    runtime = GenrePipelineRuntime(
+        tmp_path,
+        spec,
+        "sensual_dominance",
+        process_factory=lambda *_args, **_kwargs: process,
+        browser_opener=lambda _url: (_ for _ in ()).throw(AssertionError("browser should not open")),
+        no_browser=True,
+        server_probe=lambda _url: True,
+        port_checker=lambda _port: None,
+        timeout=2,
+    )
+
+    def complete_during_wait(_seconds):
+        if runtime.store.load().status.value == "incomplete":
+            for phase, choices in complete_choices(spec, "sensual_dominance").items():
+                runtime.store.update_choices(phase, choices)
+            runtime.store.mark_complete()
+
+    runtime.sleep = complete_during_wait
+    result = runtime.run()
+
+    assert result.browser_opened is False
+    assert result.url == f"http://127.0.0.1:{runtime.port}/?session={runtime.store.load().id}"

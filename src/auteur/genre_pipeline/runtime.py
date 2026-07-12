@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import socket
+import os
 import subprocess
 import sys
 import time
@@ -31,6 +32,7 @@ class GenrePipelineResult:
     identity_file: Path
     warnings: tuple[str, ...]
     browser_opened: bool
+    url: str | None = None
 
 
 class GenrePipelineRuntime:
@@ -46,6 +48,8 @@ class GenrePipelineRuntime:
         debug: bool = False,
         process_factory: Callable[..., Any] = subprocess.Popen,
         browser_opener: Callable[[str], bool] = webbrowser.open,
+        resume: bool = False,
+        no_browser: bool = False,
         server_probe: Callable[[str], bool] | None = None,
         port_checker: Callable[[int], None] | None = None,
     ):
@@ -54,10 +58,14 @@ class GenrePipelineRuntime:
         self.core_id = core_id
         self.mode = mode
         self.port = spec.default_port if port is None else port
+        if not 1 <= self.port <= 65535:
+            raise ValueError("port must be between 1 and 65535")
         self.timeout = timeout
         self.debug = debug
         self.process_factory = process_factory
         self.browser_opener = browser_opener
+        self.resume = resume
+        self.no_browser = no_browser
         self.server_probe = server_probe or self._probe_server
         self.port_checker = port_checker or self._check_port_available
         self.sleep: Callable[[float], None] = time.sleep
@@ -69,12 +77,16 @@ class GenrePipelineRuntime:
         self._validate_destination()
         process = None
         try:
-            session = self.store.create(self.core_id, mode=self.mode)
+            session = self.store.load() if self.resume else self.store.create(self.core_id, mode=self.mode)
+            if self.resume and session.status != GenreSessionStatus.INCOMPLETE:
+                raise GenreSessionError("Only an incomplete genre session can be resumed")
             process = self._launch_server()
             base_url = f"http://127.0.0.1:{self.port}"
             self._wait_for_server(base_url, process)
             url = f"{base_url}/?session={session.id}"
-            browser_opened = bool(self.browser_opener(url))
+            browser_opened = False if self.no_browser else bool(self.browser_opener(url))
+            if not browser_opened:
+                print(f"Open: {url}")
             completed = self._wait_for_completion(process)
             compilation = compile_story_identity(
                 self.spec,
@@ -95,6 +107,7 @@ class GenrePipelineRuntime:
                 identity_file=self.identity_file,
                 warnings=warnings,
                 browser_opened=browser_opened,
+                url=url,
             )
         except (GenreSessionError, IdentityCompilationError, OSError, ValueError) as exc:
             raise GenrePipelineRuntimeError(str(exc)) from exc
@@ -131,7 +144,10 @@ class GenrePipelineRuntime:
             str(self.port),
         ]
         stream = None if self.debug else subprocess.DEVNULL
-        return self.process_factory(command, stdout=stream, stderr=stream)
+        kwargs = {"stdout": stream, "stderr": stream}
+        if os.name == "nt":
+            kwargs["creationflags"] = getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
+        return self.process_factory(command, **kwargs)
 
     def _wait_for_completion(self, process):
         deadline = self.monotonic() + self.timeout
@@ -192,6 +208,14 @@ class GenrePipelineRuntime:
     @staticmethod
     def _stop_process(process) -> None:
         if process.poll() is not None:
+            return
+        if os.name == "nt" and getattr(process, "pid", None) is not None:
+            subprocess.run(
+                ["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                check=False,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
             return
         process.terminate()
         try:

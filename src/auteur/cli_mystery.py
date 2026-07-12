@@ -54,3 +54,6 @@ def handle_mystery_init(
         debug=debug,
         mode=mode,
     ).run()
+
+def handle_mystery_resume(project_path: Path, port: int | None = None, timeout: float = 3600.0, debug: bool = False, no_browser: bool = False) -> int:
+    return GenrePipelineCommand(project_path=project_path, spec=get_genre_pipeline(Genre.MYSTERY), core_id="howdunit", port=port, timeout=timeout, debug=debug, resume=True, no_browser=no_browser).run()

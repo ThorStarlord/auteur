@@ -6,6 +6,8 @@ Handlers NEVER print, write files, or interact with argparse/Path I/O.
 
 from __future__ import annotations
 
+import inspect
+
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -589,7 +591,7 @@ class TestHandleDraft:
         import inspect
         sig = inspect.signature(handle_draft)
         params = list(sig.parameters.keys())
-        assert params == ["project", "chapter_index", "max_iterations", "llm"]
+        assert params == ["project", "chapter_index", "max_iterations", "llm", "regenerate_outline"]
 
     def test_data_type_is_draftresultdata(self):
         import inspect
@@ -767,3 +769,8 @@ class TestHandlerContract:
     def test_handlerresult_has_typed_data(self):
         for cls in [DraftResultData, AcceptResultData, AuditResultData]:
             assert hasattr(cls, "chapter_index") or True
+
+
+def test_handle_draft_exposes_regenerate_outline_flag():
+    sig = inspect.signature(handle_draft)
+    assert "regenerate_outline" in sig.parameters

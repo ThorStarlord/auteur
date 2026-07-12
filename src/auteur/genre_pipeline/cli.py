@@ -61,6 +61,13 @@ def register_genre_pipeline_subcommands(subparsers: Any) -> None:
             help="Session timeout in seconds (default: 3600).",
         )
         init.add_argument("--debug", action="store_true", help="Enable server output.")
+        init.add_argument("--no-browser", action="store_true", help="Do not open a browser automatically.")
+        resume = commands.add_parser("resume", help=f"Resume an incomplete {spec.slug} session.")
+        resume.add_argument("project", type=Path, help="Project directory path.")
+        resume.add_argument("--port", type=int, default=spec.default_port)
+        resume.add_argument("--timeout", type=float, default=3600.0)
+        resume.add_argument("--debug", action="store_true")
+        resume.add_argument("--no-browser", action="store_true")
 
 
 class GenrePipelineCommand:
@@ -75,6 +82,8 @@ class GenrePipelineCommand:
         port: int | None = None,
         timeout: float = 3600.0,
         debug: bool = False,
+        resume: bool = False,
+        no_browser: bool = False,
         runtime_factory: Callable[..., GenrePipelineRuntime] = GenrePipelineRuntime,
     ):
         self.project_path = Path(project_path)
@@ -83,8 +92,12 @@ class GenrePipelineCommand:
         self.mode = mode
         self.provider = provider
         self.port = spec.default_port if port is None else port
+        if not 1 <= self.port <= 65535:
+            raise ValueError("port must be between 1 and 65535")
         self.timeout = timeout
         self.debug = debug
+        self.resume = resume
+        self.no_browser = no_browser
         self.runtime_factory = runtime_factory
         self.session_file = (
             self.project_path
@@ -110,6 +123,8 @@ class GenrePipelineCommand:
                 port=self.port,
                 timeout=self.timeout,
                 debug=self.debug,
+                resume=self.resume,
+                no_browser=self.no_browser,
             )
             result = runtime.run()
         except GenrePipelineRuntimeError as exc:
@@ -128,6 +143,8 @@ class GenrePipelineCommand:
         print(f"Session: {result.session_file}")
         print(f"Identity: {result.identity_file}")
         print(f"Validate: auteur identity validate {result.identity_file}")
+        if result.url and not result.browser_opened:
+            print(f"Open: {result.url}")
         for warning in result.warnings:
             print(f"Warning: {warning}", file=sys.stderr)
 

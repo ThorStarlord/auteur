@@ -67,6 +67,7 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--max-iterations", type=int, default=3)
     p.add_argument("--provider", choices=["anthropic", "openai"], default="anthropic")
     p.add_argument("--model", default=None)
+    p.add_argument("--regenerate-outline", action="store_true", help="Regenerate an existing outline explicitly.")
 
     p = sub.add_parser("accept",
         help="Promote the latest draft_v*.md to final.md.")
@@ -745,6 +746,34 @@ def main(argv: list[str] | None = None) -> int:
         return handle_book_command(args)
 
     # === netorare ===
+    # Registered genre pipelines all share one command implementation.  Keep
+    # the legacy branches below as compatibility handlers for existing callers.
+    from auteur.genre_pipeline.registry import get_genre_pipeline
+    from auteur.genre_pipeline.cli import GenrePipelineCommand
+    try:
+        registered_spec = get_genre_pipeline(args.command)
+    except ValueError:
+        registered_spec = None
+    if registered_spec is not None and getattr(args, f"{registered_spec.slug}_command", None) in {"init", "resume"}:
+        command_name = getattr(args, f"{registered_spec.slug}_command")
+        try:
+            return GenrePipelineCommand(
+                project_path=args.project,
+                spec=registered_spec,
+                core_id=getattr(args, "core", registered_spec.default_core_id),
+                mode=getattr(args, "mode", None),
+                provider=getattr(args, "provider", None),
+                port=args.port,
+                timeout=args.timeout,
+                debug=args.debug,
+                resume=command_name == "resume",
+                no_browser=getattr(args, "no_browser", False),
+            ).run()
+        except ValueError as exc:
+            _err(str(exc))
+            return 2
+
+    # === netorare ===
     if args.command == "netorare":
         if args.netorare_command == "init":
             return handle_netorare_init(
@@ -790,7 +819,7 @@ def _draft_retry(args, *, is_retry: bool) -> int:
     proj = Project.load(args.project)
     client = build_client(args.provider, args.model, agent_type="bard", blueprint=proj.blueprint)
     result = handle_retry(proj, args.chapter, args.max_iterations, client) if is_retry else \
-             handle_draft(proj, args.chapter, args.max_iterations, client)
+             handle_draft(proj, args.chapter, args.max_iterations, client, regenerate_outline=getattr(args, "regenerate_outline", False))
     if not is_retry and result.data is None: return result.exit_code
     if is_retry and not result.is_success and result.data is None:
         _err(result.error); return result.exit_code

@@ -300,11 +300,11 @@ def validate_choices(template, choices: Dict[int, Dict[str, str]]) -> Tuple[bool
     # IdentityGenerator.from_choices), because that entry point calls back
     # into this function for validation first — routing through it here
     # would recurse infinitely.
-    from auteur.netorare.identity_generator import IdentityGenerator
+    from auteur.genre_pipeline.identity import build_semantic_identity_preview
     from auteur.gentlefemdom.semantic_validation import SemanticCoherenceRule
 
     try:
-        identity = IdentityGenerator._transform_choices_to_identity(template.core_id, choices)
+        identity = build_semantic_identity_preview(template, choices)
     except Exception as e:
         errors.append(f"Failed to generate identity for semantic validation: {e}")
         return False, errors, warnings

@@ -213,7 +213,7 @@ chapters/45/
 
 `outline.yaml`
 
-The Cartographer output for the chapter. It is a YAML mapping and may include `conflict_report`. Engine v1 parses it as a mapping but does not yet validate it against a dedicated outline schema.
+The Cartographer output for the chapter. It is a YAML mapping and may include `conflict_report`; `CartographerOutline` validates the supported structure before drafting.
 
 `draft_vN.md`
 

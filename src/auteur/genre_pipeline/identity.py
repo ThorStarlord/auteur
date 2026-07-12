@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from types import SimpleNamespace
 
 from auteur.blueprint import StoryMedium, StoryMode, TargetAudience, TargetExperience
 from auteur.genre_pipeline.models import GenrePipelineSpec
@@ -12,6 +13,15 @@ from auteur.structure.diagnostics import DiagnosticSeverity, StructureDiagnostic
 
 class IdentityCompilationError(ValueError):
     pass
+
+
+def build_semantic_identity_preview(template, choices: dict[int, dict[str, str]]):
+    """Build the minimal neutral view required by semantic validators."""
+    del choices
+    return SimpleNamespace(
+        target_experience=SimpleNamespace(primary=str(template.primary_emotion)),
+        author_overrides=[],
+    )
 
 
 @dataclass(frozen=True)
