@@ -79,12 +79,17 @@ The public entry points remain:
 auteur netorare init <project>
 auteur mystery init <project>
 auteur gentlefemdom init <project>
+auteur gentlefemdom resume <project>
 ```
 
 Each is a thin adapter over the same runtime. Core choices and default ports come
 from the registry. Story mode has a visible core-specific default and remains
 author-overridable. `--provider` is compatibility-only because interactive genre
 authoring performs no LLM call.
+
+`resume` reopens an existing incomplete session. Completed and archived sessions
+remain immutable. Project-local custom genre IDs are prompt guidance only in V1;
+they are not valid canonical `StoryIdentity.story_type.genre` values.
 
 ## Extension Rule
 

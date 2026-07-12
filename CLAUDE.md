@@ -195,16 +195,16 @@ Rules encode:
 
 ### Reusing Session/Server/UI Infrastructure
 
-The generic infrastructure in netorare is reusable without modification:
+The neutral infrastructure in `auteur.genre_pipeline` is the production runtime:
 
 ```python
-from auteur.netorare.session import SessionManager
-from auteur.netorare.browser.server import NetorareServer
-# Browser UI in browser/index.html works for all genres
+from auteur.genre_pipeline.session import GenreSessionStore
+from auteur.genre_pipeline.server import GenrePipelineServer
+# The packaged descriptor-driven browser works for every registered genre.
 ```
 
 Just create new:
-- `src/auteur/{genre}/cli_{genre}.py` → `handle_{genre}_init()`
+- `src/auteur/{genre}/cli_{genre}.py` → compatibility adapter
 - `src/auteur/{genre}/core_templates.py` → Genre-specific templates
 - `src/auteur/{genre}/validation.py` → Genre-specific rules
 
