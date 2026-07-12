@@ -36,6 +36,12 @@ from auteur.cli_netorare import handle_netorare_init
 from auteur.cli_mystery import handle_mystery_init
 from auteur.cli_gentlefemdom import handle_gentlefemdom_init
 from auteur.narrative_blueprint.cli_blueprint import handle_blueprint_init, handle_blueprint_list
+from auteur.narrative_orchestration.cli_orchestration import (
+    handle_orchestration_seed,
+    handle_orchestration_validate,
+    handle_orchestration_graph,
+    handle_orchestration_status,
+)
 from auteur.project import Project
 from auteur.structure.proposals import StructureProposal
 
@@ -794,6 +800,15 @@ def main(argv: list[str] | None = None) -> int:
                 return handle_blueprint_init(args.project, "netorare", working_title=args.title)
             elif args.netorare_blueprint_command == "list":
                 return handle_blueprint_list(args.project, "netorare")
+            elif args.netorare_blueprint_command == "seed":
+                identity_path = args.identity or args.project / "story_identity.yaml"
+                return handle_orchestration_seed(args.project, "netorare", identity_path, force=args.force)
+            elif args.netorare_blueprint_command == "validate":
+                return handle_orchestration_validate(args.project, "netorare")
+            elif args.netorare_blueprint_command == "graph":
+                return handle_orchestration_graph(args.project, "netorare", output_format=args.format)
+            elif args.netorare_blueprint_command == "status":
+                return handle_orchestration_status(args.project, "netorare")
 
     # === mystery ===
     if args.command == "mystery":
@@ -812,6 +827,15 @@ def main(argv: list[str] | None = None) -> int:
                 return handle_blueprint_init(args.project, "mystery", working_title=args.title)
             elif args.mystery_blueprint_command == "list":
                 return handle_blueprint_list(args.project, "mystery")
+            elif args.mystery_blueprint_command == "seed":
+                identity_path = args.identity or args.project / "story_identity.yaml"
+                return handle_orchestration_seed(args.project, "mystery", identity_path, force=args.force)
+            elif args.mystery_blueprint_command == "validate":
+                return handle_orchestration_validate(args.project, "mystery")
+            elif args.mystery_blueprint_command == "graph":
+                return handle_orchestration_graph(args.project, "mystery", output_format=args.format)
+            elif args.mystery_blueprint_command == "status":
+                return handle_orchestration_status(args.project, "mystery")
 
     # === gentlefemdom ===
     if args.command == "gentlefemdom":
@@ -830,6 +854,15 @@ def main(argv: list[str] | None = None) -> int:
                 return handle_blueprint_init(args.project, "gentlefemdom", working_title=args.title)
             elif args.gentlefemdom_blueprint_command == "list":
                 return handle_blueprint_list(args.project, "gentlefemdom")
+            elif args.gentlefemdom_blueprint_command == "seed":
+                identity_path = args.identity or args.project / "story_identity.yaml"
+                return handle_orchestration_seed(args.project, "gentlefemdom", identity_path, force=args.force)
+            elif args.gentlefemdom_blueprint_command == "validate":
+                return handle_orchestration_validate(args.project, "gentlefemdom")
+            elif args.gentlefemdom_blueprint_command == "graph":
+                return handle_orchestration_graph(args.project, "gentlefemdom", output_format=args.format)
+            elif args.gentlefemdom_blueprint_command == "status":
+                return handle_orchestration_status(args.project, "gentlefemdom")
 
     # === ontology ===
     if args.command == "ontology":

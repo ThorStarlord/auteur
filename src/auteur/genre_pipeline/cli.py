@@ -95,6 +95,49 @@ def register_genre_pipeline_subcommands(subparsers: Any) -> None:
         )
         blueprint_list.add_argument("project", type=Path, help="Project directory path.")
 
+        # Orchestration commands (seed, validate, graph, status)
+        blueprint_seed = blueprint_cmds.add_parser(
+            "seed",
+            help="Seed template outlines from story_identity.yaml.",
+        )
+        blueprint_seed.add_argument("project", type=Path, help="Project directory path.")
+        blueprint_seed.add_argument(
+            "identity",
+            type=Path,
+            nargs="?",
+            default=None,
+            help="Path to story_identity.yaml (default: project/story_identity.yaml).",
+        )
+        blueprint_seed.add_argument(
+            "--force",
+            action="store_true",
+            help="Overwrite existing outlines.",
+        )
+
+        blueprint_validate = blueprint_cmds.add_parser(
+            "validate",
+            help="Validate all outlines against reference, chronological, and contradiction validators.",
+        )
+        blueprint_validate.add_argument("project", type=Path, help="Project directory path.")
+
+        blueprint_graph = blueprint_cmds.add_parser(
+            "graph",
+            help="Display outline structure visualization.",
+        )
+        blueprint_graph.add_argument("project", type=Path, help="Project directory path.")
+        blueprint_graph.add_argument(
+            "--format",
+            choices=["text", "dot"],
+            default="text",
+            help="Output format (default: text for ASCII art).",
+        )
+
+        blueprint_status = blueprint_cmds.add_parser(
+            "status",
+            help="Display comprehensive outline status report.",
+        )
+        blueprint_status.add_argument("project", type=Path, help="Project directory path.")
+
 
 class GenrePipelineCommand:
     def __init__(
