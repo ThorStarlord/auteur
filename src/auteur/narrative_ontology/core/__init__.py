@@ -13,6 +13,8 @@ from auteur.narrative_ontology.core.narrative_concepts import (
     SETUP,
     REVELATION,
     REVERSAL,
+    ALL_CONCEPTS,
+    get_concept,
 )
 
 __all__ = [
@@ -28,4 +30,6 @@ __all__ = [
     "SETUP",
     "REVELATION",
     "REVERSAL",
+    "ALL_CONCEPTS",
+    "get_concept",
 ]
