@@ -24,7 +24,7 @@ def make_pilot(tmp_path: Path) -> tuple[ArtifactStore, Path, Path, Path, Path]:
     blueprint = project / "blueprint.yaml"
     chapter = project / "chapter_07.yaml"
     scene = project / "scene_07_03.yaml"
-    write_yaml(identity, {"title": "First", "core_answer": "Trust", "genre": "mystery"})
+    write_yaml(identity, {"title": "First", "core_answer": "Trust", "genre": "mystery", "emotional_core": "belonging"})
     write_yaml(blueprint, {"story_identity": "story_identity", "want": "Trust"})
     write_yaml(chapter, {"blueprint": "blueprint", "function": "reveal"})
     write_yaml(scene, {"chapter": "chapter_07", "outcome": "secret revealed"})
@@ -46,9 +46,9 @@ def test_initial_acceptance_records_sidecar_and_hash(tmp_path: Path) -> None:
 def test_yaml_formatting_does_not_change_hash_but_semantics_do(tmp_path: Path) -> None:
     store, identity, _, _, _ = make_pilot(tmp_path)
     first = store.accept(identity, "story_identity")
-    identity.write_text("genre: mystery\ncore_answer: Trust\ntitle: First\n", encoding="utf-8")
+    identity.write_text("genre: mystery\ncore_answer: Trust\nemotional_core: belonging\ntitle: First\n", encoding="utf-8")
     assert store.content_hash(identity) == first.content_hash
-    identity.write_text("genre: mystery\ncore_answer: Betrayal\ntitle: First\n", encoding="utf-8")
+    identity.write_text("genre: mystery\ncore_answer: Betrayal\nemotional_core: belonging\ntitle: First\n", encoding="utf-8")
     assert store.content_hash(identity) != first.content_hash
 
 
@@ -213,6 +213,94 @@ def test_duplicate_artifact_ids_are_invalid(tmp_path: Path) -> None:
     store, identity, _, _, _ = make_pilot(tmp_path)
     write_yaml(identity.parent / "duplicate.yaml", {"id": "story_identity"})
     assert store.status(identity, "story_identity").health == "invalid"
+
+
+def test_projection_metadata_and_emotional_core_projection(tmp_path: Path) -> None:
+    store, identity, blueprint, _, _ = make_pilot(tmp_path)
+    store.accept(identity, "story_identity")
+    store.accept(blueprint, "blueprint")
+    record = store._load("blueprint").dependencies[0]
+    assert record.projection.id == "story_identity.structural"
+    assert record.projection.version == 1
+    assert "emotional_core" in record.projection.fields
+    assert record.projected_hash
+    assert record.full_content_hash
+
+
+def test_emotional_core_change_stales_blueprint_but_title_does_not(tmp_path: Path) -> None:
+    store, identity, blueprint, _, _ = make_pilot(tmp_path)
+    store.accept(identity, "story_identity")
+    store.accept(blueprint, "blueprint")
+    write_yaml(identity, {"title": "Changed", "core_answer": "Trust", "genre": "mystery", "emotional_core": "belonging"})
+    assert store.status(blueprint, "blueprint").freshness == "fresh"
+    write_yaml(identity, {"title": "Changed", "core_answer": "Trust", "genre": "mystery", "emotional_core": "isolation"})
+    assert store.status(blueprint, "blueprint").freshness == "stale"
+
+
+def test_same_projection_new_upstream_revision_is_fresh(tmp_path: Path) -> None:
+    store, identity, blueprint, _, _ = make_pilot(tmp_path)
+    store.accept(identity, "story_identity")
+    store.accept(blueprint, "blueprint")
+    store.accept(identity, "story_identity")
+    assert store.status(blueprint, "blueprint").freshness == "fresh"
+
+
+def test_chapter_projection_limits_blueprint_impact(tmp_path: Path) -> None:
+    store, identity, blueprint, chapter, _ = make_pilot(tmp_path)
+    unrelated = tmp_path / "project" / "chapter_08.yaml"
+    write_yaml(unrelated, {"blueprint": "blueprint", "chapter_id": "chapter_08", "function": "unrelated"})
+    write_yaml(blueprint, {"story_identity": "story_identity", "chapters": {"chapter_07": {"function": "original"}, "chapter_08": {"function": "unrelated"}}})
+    store.accept(identity, "story_identity"); store.accept(blueprint, "blueprint")
+    store.accept(chapter, "chapter_outline"); store.accept(unrelated, "chapter_outline")
+    write_yaml(blueprint, {"story_identity": "story_identity", "chapters": {"chapter_07": {"function": "changed"}, "chapter_08": {"function": "unrelated"}}})
+    assert store.status(chapter, "chapter_outline").freshness == "stale"
+    assert store.status(unrelated, "chapter_outline").freshness == "fresh"
+
+
+def test_acknowledged_divergence_reopens_after_new_dependency_change(tmp_path: Path) -> None:
+    store, identity, blueprint, _, _ = make_pilot(tmp_path)
+    store.accept(identity, "story_identity"); store.accept(blueprint, "blueprint")
+    write_yaml(identity, {"title": "First", "core_answer": "Changed", "genre": "mystery"})
+    store.status(blueprint, "blueprint")
+    store.accept(blueprint, "blueprint", acknowledge_divergence=True, rationale="intentional")
+    assert store.status(blueprint, "blueprint").review_state is ReviewState.ACKNOWLEDGED_DIVERGENCE
+    write_yaml(identity, {"title": "First", "core_answer": "Changed again", "genre": "mystery"})
+    assert store.status(blueprint, "blueprint").review_state is ReviewState.REVIEW_REQUIRED
+
+
+def test_revision_snapshots_are_readable(tmp_path: Path) -> None:
+    store, identity, _, _, _ = make_pilot(tmp_path)
+    first = store.accept(identity, "story_identity")
+    second = store.accept(identity, "story_identity")
+    assert second.revision == 2
+    assert store.list_revisions("story_identity") == [1, 2]
+    assert store.get_revision("story_identity", first.revision).revision == 1
+    assert store.current("story_identity").revision == 2
+
+
+def test_affected_by_cli_has_human_and_json_modes(tmp_path: Path, capsys) -> None:
+    _, identity, blueprint, _, _ = make_pilot(tmp_path)
+    main(["state", "accept", str(identity), "--type", "story_identity"])
+    main(["state", "accept", str(blueprint), "--type", "blueprint"])
+    assert main(["state", "affected-by", str(identity)]) == 0
+    assert "blueprint" in capsys.readouterr().out
+    assert main(["state", "affected-by", str(identity), "--json"]) == 0
+    assert "\"artifact_id\": \"blueprint\"" in capsys.readouterr().out
+
+
+def test_impossible_knowledge_is_invalid_after_predecessor_revision(tmp_path: Path) -> None:
+    store = ArtifactStore(tmp_path / "project")
+    store.project.mkdir()
+    previous = store.project / "scene_01_01.yaml"
+    current = store.project / "scene_01_02.yaml"
+    write_yaml(previous, {"id": "scene_01_01", "chapter_id": "chapter_01", "exit_knowledge": [{"what": "the vault is open"}]})
+    write_yaml(current, {"id": "scene_01_02", "chapter_id": "chapter_01", "entry_knowledge": [{"what": "the vault is open", "source": "chapter_position"}], "temporal_relation": {"follows_scene": "scene_01_01"}})
+    store.accept(previous, "scene_realization")
+    store.accept(current, "scene_realization")
+    write_yaml(previous, {"id": "scene_01_01", "chapter_id": "chapter_01", "exit_knowledge": []})
+    status = store.status(current, "scene_realization")
+    assert status.freshness == "stale"
+    assert any("impossible_knowledge" in reason for reason in status.invalid_reasons)
 
 
 def test_state_adopt_and_status_cli(tmp_path: Path, capsys) -> None:

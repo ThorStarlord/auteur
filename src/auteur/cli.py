@@ -280,6 +280,7 @@ def _build_parser() -> argparse.ArgumentParser:
         ("adopt", "Create baseline provenance for a legacy artifact."),
         ("accept", "Accept a pilot artifact and create a provenance revision."),
         ("archive", "Archive a pilot artifact without deleting its content."),
+        ("affected-by", "Show direct and transitive artifacts affected by an artifact."),
     ):
         p = sts.add_parser(command, help=help_text)
         p.add_argument("artifact", type=Path)
@@ -287,6 +288,8 @@ def _build_parser() -> argparse.ArgumentParser:
             p.add_argument("--type", dest="artifact_type", default=None)
         if command == "archive":
             p.add_argument("--reason", default="archived by author")
+        if command == "affected-by":
+            p.add_argument("--json", action="store_true", dest="json_output")
 
     p = sub.add_parser("cartographer", help="Manage story outlines.")
     cs = p.add_subparsers(dest="cartographer_command", required=True)
@@ -735,12 +738,22 @@ def main(argv: list[str] | None = None) -> int:
             return state_canon(args.project, args.format)
         if args.state_command == "confirm":
             return state_confirm(args.project, args.recovery_run)
-        if args.state_command in {"status", "explain", "adopt", "accept", "archive"}:
+        if args.state_command in {"status", "explain", "adopt", "accept", "archive", "affected-by"}:
             from auteur.provenance import ArtifactStore
             artifact = args.artifact
             project = _pilot_project_root(artifact)
             artifact_type = getattr(args, "artifact_type", None) or _pilot_artifact_type(artifact)
             store = ArtifactStore(project)
+            if args.state_command == "affected-by":
+                affected = store.impact(store._artifact_id(artifact))
+                if args.json_output:
+                    print(json.dumps({"artifact_id": store._artifact_id(artifact), "affected": affected}, indent=2))
+                else:
+                    print(f"Affected by {store._artifact_id(artifact)}:")
+                    for item in affected:
+                        relation = "direct" if item["direct"] else "transitive"
+                        print(f"- {item['artifact_id']} ({relation}; {item['health']}/{item['freshness']}; {item['reason']})")
+                return 0
             if args.state_command == "status":
                 print(json.dumps(store.status(artifact, artifact_type).model_dump(mode="json"), indent=2))
                 return 0

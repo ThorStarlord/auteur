@@ -61,6 +61,24 @@ Edges are marked `declared`, `inferred`, `generated`, or `suggested`.
 Suggested model edges never become canonical automatically. Transitive impact
 is computed at runtime.
 
+Each dependency stores a versioned projection contract:
+
+```yaml
+projection:
+  id: story_identity.structural
+  version: 1
+  fields: [genre, emotional_core, target_experience, central_engine]
+projected_hash: sha256:...
+full_content_hash: sha256:...
+revision: 3
+```
+
+The projected hash controls semantic freshness. A revision change with the
+same projected hash is visible for audit but does not create false staleness.
+Projection versions require revalidation and are reported explicitly.
+Blueprint chapter dependencies use chapter-specific projections; scenes use
+their chapter projection unless they explicitly declare Blueprint fields.
+
 ## Hash policy
 
 YAML and JSON are parsed, Unicode-normalized to NFC, serialized with sorted
@@ -74,11 +92,17 @@ is outside this pilot.
 
 Initial acceptance creates revision 1 with the current content hash and direct
 dependency evidence. Revalidation creates a new revision, refreshes dependency
-evidence, and computes `fresh`.
+evidence, and computes `fresh`. The current metadata remains in
+`.auteur/state/artifacts/<artifact_id>.yaml`; immutable snapshots are stored in
+`.auteur/state/artifacts/revisions/<artifact_id>/000001.yaml` and subsequent
+numbered files. `list_revisions`, `current`, and `get_revision` expose this
+history.
 
-Intentional divergence also creates a new revision, retains stale dependency
-evidence, and sets `review_state: acknowledged_divergence`. It remains stale.
-Unreviewed stale artifacts remain unchanged and require review.
+Intentional divergence also creates a new revision, records the reviewed
+dependency snapshot and rationale, and sets
+`review_state: acknowledged_divergence`. The mismatch remains visible without
+re-entering unattended review. Any later dependency revision, projected hash,
+or projection-version change reopens `review_required`.
 
 ## Archival
 
@@ -95,6 +119,28 @@ a baseline sidecar without rewriting the source artifact. Repository-wide
 migration is not required.
 
 ## Pilot limitations
+
+## Author-facing impact and explanations
+
+The CLI provides:
+
+```text
+auteur state affected-by <artifact>
+auteur state affected-by <artifact> --json
+```
+
+Output identifies direct versus transitive impact, current health/freshness,
+review state, and the dependency path. `state explain` retains structured
+reason codes and hashes while adding summaries and recommended next actions.
+
+## Provenance and knowledge validation
+
+Provenance determines dependency freshness and artifact health; it does not
+own narrative knowledge semantics. Scene status invokes the existing Layer 3
+`KnowledgeValidator` boundary. When a state/order predecessor no longer
+supports an entry knowledge fact declared from chapter position, the Scene is
+invalid with an `impossible_knowledge` explanation while the dependency itself
+remains separately marked stale.
 
 This pilot does not implement collaboration, merge engines, branch
 reconciliation, automatic semantic rewriting, model-inferred canonical edges,

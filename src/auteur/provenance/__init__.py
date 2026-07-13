@@ -6,6 +6,7 @@ from auteur.provenance.store import (
     DependencyKind,
     DependencySource,
     DependencySpec,
+    Projection,
     Lifecycle,
     ReviewState,
 )
@@ -16,6 +17,7 @@ __all__ = [
     "DependencyKind",
     "DependencySource",
     "DependencySpec",
+    "Projection",
     "Lifecycle",
     "ReviewState",
 ]
