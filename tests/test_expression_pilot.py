@@ -132,3 +132,65 @@ def test_expression_cli_generate_inspect_accept(tmp_path: Path, capsys) -> None:
     assert "expression_scene_prose" in capsys.readouterr().out
     assert main(["expression", "accept", candidate_id, "--project", str(project)]) == 0
     assert "accepted" in capsys.readouterr().out
+
+
+def test_stale_candidate_requires_review_and_revalidation_creates_metadata_revision(tmp_path: Path) -> None:
+    project, scene = make_project(tmp_path)
+    store = ExpressionStore(project)
+    candidate = store.generate(scene, "Original.")
+    write_yaml(scene, {"id": "scene_07_01", "chapter_id": "chapter_07", "outcome": "revised outcome"})
+    try:
+        store.accept(candidate.candidate_id)
+    except ValueError as exc:
+        assert "stale" in str(exc)
+    else:
+        raise AssertionError("stale candidate was accepted")
+    revised = store.revalidate(candidate.candidate_id, reviewed_by="sam")
+    assert revised.metadata_revision == 2
+    assert revised.review_state.value == "none"
+    assert store.status(candidate.candidate_id)["freshness"] == "fresh"
+
+
+def test_divergence_requires_acknowledgement_and_reopens_after_later_change(tmp_path: Path) -> None:
+    project, scene = make_project(tmp_path)
+    store = ExpressionStore(project)
+    candidate = store.generate(scene, "Original.")
+    write_yaml(scene, {"id": "scene_07_01", "chapter_id": "chapter_07", "outcome": "new outcome"})
+    acknowledged = store.acknowledge(candidate.candidate_id, acknowledged_by="sam", reason="Author intentionally retains the original ending.")
+    assert acknowledged.review_state.value == "acknowledged_divergence"
+    accepted = store.accept(candidate.candidate_id, accepted_by="sam", allow_divergence=True)
+    assert accepted.lifecycle is Lifecycle.ACCEPTED
+    write_yaml(scene, {"id": "scene_07_01", "chapter_id": "chapter_07", "outcome": "third outcome"})
+    assert store.status(candidate.candidate_id)["review_state"] == "review_required"
+
+
+def test_structured_validation_evidence_and_semantic_findings_have_actions(tmp_path: Path) -> None:
+    project, scene = make_project(tmp_path)
+    store = ExpressionStore(project)
+    findings = store.validate_prose(scene, "Mara writes a scene.", realization_evidence={"outcome": {"status": "contradicted"}})
+    assert findings[0]["severity"] == "error"
+    assert findings[0]["recommended_action"]
+    findings = store.validate_prose(scene, "Jon privately knew the ledger exists.")
+    assert any(item["code"] == "private_knowledge_exposure" for item in findings)
+
+
+def test_compare_and_reject_preserve_candidates(tmp_path: Path) -> None:
+    project, scene = make_project(tmp_path)
+    store = ExpressionStore(project)
+    first = store.generate(scene, "First.")
+    second = store.generate(scene, "Second.")
+    comparison = store.compare(first.candidate_id, second.candidate_id)
+    assert "diff" in comparison
+    rejected = store.reject(first.candidate_id, rejected_by="sam", reason="Less precise.")
+    assert rejected.lifecycle is Lifecycle.REJECTED
+    assert store.prose_path(first.candidate_id).read_text() == "First."
+
+
+def test_proposal_records_target_hash_and_becomes_stale(tmp_path: Path) -> None:
+    project, scene = make_project(tmp_path)
+    store = ExpressionStore(project)
+    proposal = store.create_upstream_proposal(scene, problem="Insufficient pressure.", suggested_change="Strengthen opposition.", evidence="The decision is unblocked.")
+    assert proposal["target_projected_hash"].startswith("sha256:")
+    assert store.proposal_status(proposal["proposal_id"])["stale"] is False
+    write_yaml(scene, {"id": "scene_07_01", "chapter_id": "chapter_07", "outcome": "changed"})
+    assert store.proposal_status(proposal["proposal_id"])["status"] == "stale"

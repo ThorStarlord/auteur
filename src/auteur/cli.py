@@ -291,10 +291,29 @@ def _build_parser() -> argparse.ArgumentParser:
     p = expression_sub.add_parser("inspect", help="Inspect a prose candidate.")
     p.add_argument("candidate")
     p.add_argument("--project", type=Path, required=True)
+    p = expression_sub.add_parser("compare", help="Compare two prose candidates.")
+    p.add_argument("candidate_a")
+    p.add_argument("candidate_b")
+    p.add_argument("--project", type=Path, required=True)
+    p = expression_sub.add_parser("reject", help="Reject a prose candidate while preserving its history.")
+    p.add_argument("candidate")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--by", default="author")
+    p.add_argument("--reason", default="")
+    p = expression_sub.add_parser("revalidate", help="Review a stale candidate as aligned with the current Scene.")
+    p.add_argument("candidate")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--by", default="author")
+    p = expression_sub.add_parser("acknowledge", help="Acknowledge intentional divergence from the current Scene.")
+    p.add_argument("candidate")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--by", default="author")
+    p.add_argument("--reason", required=True)
     p = expression_sub.add_parser("accept", help="Explicitly accept a prose candidate.")
     p.add_argument("candidate")
     p.add_argument("--project", type=Path, required=True)
     p.add_argument("--by", default="author")
+    p.add_argument("--allow-divergence", action="store_true")
 
     for command, help_text in (
         ("status", "Show pilot provenance status for an artifact."),
@@ -763,9 +782,24 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         store = ExpressionStore(args.project)
         if args.expression_command == "inspect":
-            print(json.dumps({"metadata": store.inspect(args.candidate).model_dump(mode="json"), "status": store.status(args.candidate)}, indent=2))
+            metadata = store.inspect(args.candidate)
+            status = store.status(args.candidate)
+            print(f"Candidate {metadata.candidate_id} ({metadata.source_scene.artifact_id})")
+            print(f"Status: {status['lifecycle']}; freshness: {status['freshness']}; review: {status['review_state']}")
+            print("Recommended actions: " + "; ".join(status.get("recommended_actions", [])))
+            print(json.dumps({"metadata": metadata.model_dump(mode="json"), "status": status}, indent=2))
             return 0
-        metadata = store.accept(args.candidate, accepted_by=args.by)
+        if args.expression_command == "compare":
+            print(json.dumps(store.compare(args.candidate_a, args.candidate_b), indent=2))
+            return 0
+        if args.expression_command == "reject":
+            metadata = store.reject(args.candidate, rejected_by=args.by, reason=args.reason)
+        elif args.expression_command == "revalidate":
+            metadata = store.revalidate(args.candidate, reviewed_by=args.by)
+        elif args.expression_command == "acknowledge":
+            metadata = store.acknowledge(args.candidate, acknowledged_by=args.by, reason=args.reason)
+        else:
+            metadata = store.accept(args.candidate, accepted_by=args.by, allow_divergence=args.allow_divergence)
         print(json.dumps(metadata.model_dump(mode="json"), indent=2))
         return 0
 

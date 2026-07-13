@@ -60,16 +60,63 @@ Candidates remain drafts until explicitly accepted. Acceptance promotes one
 candidate to canonical Expression authority, preserves earlier candidates, and
 never updates Scene Realization or Bible state automatically.
 
+## Candidate lifecycle
+
+Candidates are accepted only when valid, fresh, and not review-required. A
+stale candidate must first be revalidated as aligned or have intentional
+divergence acknowledged with an author and rationale. Divergent acceptance
+requires an explicit `--allow-divergence` action and remains visibly divergent.
+Revalidation records a new metadata revision and current Scene dependency
+snapshot. Any later relevant Scene, projected-hash, transformation-contract,
+or Expression-constraint change reopens acknowledged divergence as
+`review_required`; formatting-only changes do not.
+
+Candidates may also be rejected. Rejection preserves prose and provenance and
+prevents normal acceptance until explicitly reopened by a future workflow.
+Candidates can be compared through a text diff plus lifecycle and validation
+summary. Human-readable inspection leads with status and recommended actions;
+JSON retains hashes and executor details.
+
 ## Validation and proposals
 
-Deterministic checks cover source acceptance, source revision, participant and
-POV validity, explicit outcome contradiction, and representable unavailable
-knowledge. Style, voice, tone, pacing, dialogue naturalness, and imagery remain
-advisory.
+Deterministic contract checks cover source acceptance, source availability,
+POV constraint validity, reviewed dependency snapshots, and lifecycle rules.
+Semantic prose validation is separate and confidence-bearing: structured
+contradictions may block, high-confidence inferred contradictions require
+review, and ambiguous knowledge or unreliable narration remains advisory.
+Style, voice, tone, pacing, dialogue naturalness, and imagery remain advisory.
+
+Derived realization evidence may be recorded without requiring paragraph-by-
+paragraph author annotation:
+
+```yaml
+realization_evidence:
+  outcome:
+    status: realized | contradicted | deferred | ambiguous
+    evidence:
+      - start_offset: 0
+        end_offset: 24
+        excerpt_hash: sha256:...
+  knowledge_disclosures:
+    - fact_id: ledger_exists
+      status: disclosed | concealed | contradicted
+      evidence: []
+  pov_assertions:
+    - fact_id: ledger_exists
+      holder: mara
+      source: entry_state
+```
+
+POV validation distinguishes direct private-knowledge exposure from attributed
+speech and a character's explicitly marked false belief. Ambiguous cases are
+review findings rather than automatic invalidity.
 
 If prose exposes a structural problem, the pilot creates an upstream proposal
-identifying the target artifact and layer, source Scene revision, problem,
-suggested change, and prose evidence. It never mutates upstream artifacts.
+identifying the target artifact and layer, target revision and projected hash,
+source candidate, transformation version, problem, suggested change, and prose
+evidence. A proposal becomes stale when its target revision or projected hash
+changes and cannot be applied until regenerated or manually rebased. It never
+mutates upstream artifacts automatically.
 
 When the source Scene changes, prose candidates become stale but remain
 preserved. No automatic regeneration occurs.

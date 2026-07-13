@@ -181,6 +181,23 @@ These are targeted follow-up concerns, not justification for a generic runtime.
 Recommended pilots are `identity.compile_blueprint`,
 `realization.generate_expression`, and `candidate.accept`.
 
+The Expression pilot applies the lifecycle boundary explicitly: stale prose
+cannot be accepted normally; aligned revalidation creates a metadata revision;
+intentional divergence requires author acknowledgement, rationale, and an
+explicit divergent acceptance action; later relevant dependency changes reopen
+review. Candidate rejection preserves history, and comparison is a derived
+text-diff/report operation.
+
+Expression validation separates deterministic contract checks from semantic
+prose findings. Structured realization evidence can support outcome and
+knowledge findings without making arbitrary natural-language interpretation a
+deterministic guarantee. High-confidence contradictions require review or are
+blocking when explicitly structured; ambiguous knowledge, unreliable
+narration, and style remain advisory.
+
+Upstream proposals record target revision and projected hash. Target changes
+make proposals stale; proposal application is never automatic.
+
 ## Non-goals
 
 This specification does not introduce a generic transformation runtime,

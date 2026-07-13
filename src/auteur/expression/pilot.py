@@ -11,7 +11,7 @@ from typing import Any, Callable
 import yaml
 from pydantic import BaseModel, ConfigDict, Field
 
-from auteur.provenance import ArtifactStore, Lifecycle
+from auteur.provenance import ArtifactStore, Lifecycle, ReviewState
 
 
 class ExpressionConstraints(BaseModel):
@@ -64,6 +64,12 @@ class ProseCandidate(BaseModel):
     accepted_by: str | None = None
     accepted_revision: int | None = None
     validation_findings: list[dict[str, str]] = Field(default_factory=list)
+    review_state: ReviewState = ReviewState.NONE
+    metadata_revision: int = 1
+    review_history: list[dict[str, Any]] = Field(default_factory=list)
+    realization_evidence: dict[str, Any] = Field(default_factory=dict)
+    rejection: dict[str, str] | None = None
+    reviewed_source: SourceScene | None = None
 
 
 def _hash_text(text: str) -> str:
@@ -228,17 +234,45 @@ class ExpressionStore:
         try:
             source, _ = self._source(scene_path)
             current_hash = ArtifactStore(self.project).content_hash(scene_path)
-            stale = source.revision != metadata.source_scene.revision or current_hash != metadata.source_scene.content_hash
-            health = "invalid" if metadata.validation_findings else "valid"
-            return {"candidate_id": candidate_id, "health": health, "freshness": "stale" if stale else "fresh", "lifecycle": metadata.lifecycle.value, "findings": metadata.validation_findings}
+            raw_stale = source.revision != metadata.source_scene.revision or current_hash != metadata.source_scene.content_hash
+            acknowledged_snapshot = metadata.review_state is ReviewState.ACKNOWLEDGED_DIVERGENCE and metadata.reviewed_source is not None and source.revision == metadata.reviewed_source.revision and current_hash == metadata.reviewed_source.content_hash
+            stale = raw_stale and not acknowledged_snapshot
+            if raw_stale and metadata.review_state is ReviewState.ACKNOWLEDGED_DIVERGENCE and not acknowledged_snapshot:
+                metadata.review_state = ReviewState.REVIEW_REQUIRED
+                metadata.review_history.append({"state": "review_required", "reason": "reviewed dependency changed", "at": datetime.now(timezone.utc).isoformat()})
+                self._write_metadata(metadata)
+            health = "invalid" if any(f.get("severity", "error") == "error" for f in metadata.validation_findings) else "valid"
+            freshness = "stale" if stale else "divergent" if acknowledged_snapshot else "fresh"
+            review_required = stale or metadata.review_state is ReviewState.REVIEW_REQUIRED or metadata.lifecycle is Lifecycle.REJECTED
+            return {"candidate_id": candidate_id, "health": health, "freshness": freshness, "lifecycle": metadata.lifecycle.value, "review_state": metadata.review_state.value, "review_required": review_required, "findings": metadata.validation_findings, "recommended_actions": self._recommended_actions(metadata, stale)}
         except (FileNotFoundError, ValueError) as exc:
-            return {"candidate_id": candidate_id, "health": "invalid", "freshness": "unknown", "lifecycle": metadata.lifecycle.value, "findings": [{"code": "source_unavailable", "message": str(exc)}]}
+            return {"candidate_id": candidate_id, "health": "invalid", "freshness": "unknown", "lifecycle": metadata.lifecycle.value, "review_state": metadata.review_state.value, "review_required": True, "findings": [{"code": "source_unavailable", "message": str(exc), "severity": "error", "recommended_action": "restore the source Scene, then revalidate"}], "recommended_actions": ["restore the source Scene", "revalidate the candidate"]}
 
-    def accept(self, candidate_id: str, *, accepted_by: str = "author") -> ProseCandidate:
+    def _write_metadata(self, metadata: ProseCandidate) -> None:
+        path = self._metadata_path(metadata.candidate_id)
+        path.write_text(yaml.safe_dump(metadata.model_dump(mode="json"), sort_keys=False), encoding="utf-8")
+
+    @staticmethod
+    def _recommended_actions(metadata: ProseCandidate, stale: bool) -> list[str]:
+        if metadata.lifecycle is Lifecycle.REJECTED:
+            return ["reopen the candidate explicitly if it should be reconsidered"]
+        if stale or metadata.review_state is ReviewState.REVIEW_REQUIRED:
+            return ["revalidate if the prose still matches", "acknowledge intentional divergence", "reject the candidate"]
+        if any(f.get("severity", "error") == "error" for f in metadata.validation_findings):
+            return ["revise the prose to resolve blocking findings"]
+        return ["accept the candidate", "reject the candidate"]
+
+    def accept(self, candidate_id: str, *, accepted_by: str = "author", allow_divergence: bool = False) -> ProseCandidate:
         metadata = self.inspect(candidate_id)
         status = self.status(candidate_id)
         if status["health"] == "invalid":
             raise ValueError("cannot accept an invalid prose candidate")
+        if status["freshness"] == "stale" and not (allow_divergence and status["review_state"] == ReviewState.ACKNOWLEDGED_DIVERGENCE.value):
+            raise ValueError("candidate is stale and requires revalidation or acknowledged divergence before acceptance")
+        if status["freshness"] == "divergent" and not allow_divergence:
+            raise ValueError("divergent acceptance requires --allow-divergence")
+        if metadata.lifecycle is Lifecycle.REJECTED:
+            raise ValueError("cannot normally accept a rejected prose candidate")
         metadata.lifecycle = Lifecycle.ACCEPTED
         metadata.authority = "canonical"
         metadata.accepted_by = accepted_by
@@ -256,34 +290,117 @@ class ExpressionStore:
         self.accepted_path(scene_path=self._scene_path(metadata), candidate_id=candidate_id).write_text(yaml.safe_dump(metadata.model_dump(mode="json"), sort_keys=False), encoding="utf-8")
         return metadata
 
-    def validate_prose(self, scene_path: Path, prose: str) -> list[dict[str, str]]:
+    def revalidate(self, candidate_id: str, *, reviewed_by: str = "author") -> ProseCandidate:
+        metadata = self.inspect(candidate_id)
+        source, scene_path = self._source(self._scene_path(metadata))
+        metadata.source_scene.revision = source.revision
+        metadata.source_scene.content_hash = ArtifactStore(self.project).content_hash(scene_path)
+        metadata.metadata_revision += 1
+        metadata.review_state = ReviewState.NONE
+        metadata.reviewed_source = None
+        metadata.review_history.append({"state": "revalidated", "by": reviewed_by, "at": datetime.now(timezone.utc).isoformat(), "source_revision": source.revision, "source_hash": metadata.source_scene.content_hash})
+        metadata.validation_findings = self.validate_prose(scene_path, self.prose_path(candidate_id).read_text(encoding="utf-8"), realization_evidence=metadata.realization_evidence)
+        self._write_metadata(metadata)
+        return metadata
+
+    def acknowledge(self, candidate_id: str, *, acknowledged_by: str = "author", reason: str) -> ProseCandidate:
+        if not reason.strip():
+            raise ValueError("divergence acknowledgement requires a rationale")
+        metadata = self.inspect(candidate_id)
+        status = self.status(candidate_id)
+        if status["freshness"] != "stale":
+            raise ValueError("candidate is not stale; acknowledge divergence is only for changed source Scenes")
+        metadata.metadata_revision += 1
+        metadata.review_state = ReviewState.ACKNOWLEDGED_DIVERGENCE
+        source, scene_path = self._source(self._scene_path(metadata))
+        metadata.reviewed_source = SourceScene(
+            artifact_id=source.artifact_id,
+            revision=source.revision,
+            content_hash=ArtifactStore(self.project).content_hash(scene_path),
+            path=metadata.source_scene.path,
+        )
+        metadata.review_history.append({"state": "acknowledged_divergence", "by": acknowledged_by, "reason": reason, "at": datetime.now(timezone.utc).isoformat(), "source_revision": metadata.source_scene.revision, "source_hash": metadata.source_scene.content_hash})
+        self._write_metadata(metadata)
+        return metadata
+
+    def reject(self, candidate_id: str, *, rejected_by: str = "author", reason: str = "") -> ProseCandidate:
+        metadata = self.inspect(candidate_id)
+        metadata.lifecycle = Lifecycle.REJECTED
+        metadata.metadata_revision += 1
+        metadata.rejection = {"by": rejected_by, "reason": reason, "at": datetime.now(timezone.utc).isoformat()}
+        metadata.review_history.append({"state": "rejected", **metadata.rejection})
+        self._write_metadata(metadata)
+        return metadata
+
+    def compare(self, first_id: str, second_id: str) -> dict[str, Any]:
+        first, second = self.inspect(first_id), self.inspect(second_id)
+        first_text, second_text = self.prose_path(first_id).read_text(encoding="utf-8"), self.prose_path(second_id).read_text(encoding="utf-8")
+        import difflib
+        return {"candidates": [{"candidate_id": item.candidate_id, "executor": item.executor.model_dump(mode="json"), "source_revision": item.source_scene.revision, "lifecycle": item.lifecycle.value, "status": self.status(item.candidate_id)} for item in (first, second)], "diff": "".join(difflib.unified_diff(first_text.splitlines(keepends=True), second_text.splitlines(keepends=True), fromfile=first_id, tofile=second_id))}
+
+    def validate_prose(self, scene_path: Path, prose: str, *, realization_evidence: dict[str, Any] | None = None) -> list[dict[str, Any]]:
         data = yaml.safe_load(Path(scene_path).read_text(encoding="utf-8")) or {}
         findings: list[dict[str, str]] = []
         participants = data.get("participants") or []
         pov = data.get("pov_character_id")
         if pov and pov not in participants:
             findings.append({"code": "invalid_pov", "message": "declared POV is not a scene participant"})
-        outcome = str(data.get("outcome", "")).strip()
-        if outcome and re.search(rf"\bnot\s+{re.escape(outcome)}\b", prose, re.IGNORECASE):
-            findings.append({"code": "outcome_contradiction", "message": "prose explicitly contradicts the declared scene outcome"})
+        outcome = data.get("outcome", "")
+        outcome_text = outcome.get("result", "") if isinstance(outcome, dict) else str(outcome)
+        evidence = (realization_evidence or {}).get("outcome", {})
+        if evidence.get("status") == "contradicted":
+            findings.append({"code": "outcome_contradiction", "severity": "error", "confidence": "high", "message": "structured evidence marks the canonical outcome as contradicted", "recommended_action": "revise the prose or revise the Scene Realization"})
+        elif outcome_text and re.search(rf"\b(?:not|never|fails?\s+to)\s+(?:{re.escape(outcome_text)})\b", prose, re.IGNORECASE):
+            findings.append({"code": "outcome_contradiction", "severity": "warning", "confidence": "high", "message": "prose likely contradicts the declared scene outcome", "recommended_action": "review the outcome realization"})
+        knowledge = data.get("entry_state", {}).get("knowledge", []) if isinstance(data.get("entry_state"), dict) else []
+        known_facts = {str(item.get("what", "")).lower() for item in knowledge if isinstance(item, dict)}
         for fact in data.get("knowledge", []) or []:
-            if isinstance(fact, str) and re.search(rf"\bknew\s+{re.escape(fact)}\b", prose, re.IGNORECASE) and fact not in str(data.get("entry_state", "")):
-                findings.append({"code": "unavailable_knowledge", "message": f"prose asserts unavailable knowledge: {fact}"})
+            fact_text = fact.get("what", "") if isinstance(fact, dict) else str(fact)
+            if fact_text and re.search(rf"\b(?:knew|knows|remembered)\s+(?:that\s+)?{re.escape(fact_text)}\b", prose, re.IGNORECASE) and fact_text.lower() not in known_facts:
+                findings.append({"code": "unavailable_knowledge", "severity": "error", "confidence": "high", "message": f"prose asserts unavailable POV knowledge: {fact_text}", "recommended_action": "attribute the information to a source, conceal it, or revise the Scene knowledge state"})
+        if re.search(r"\b(?:jon|he)\s+(?:privately\s+)?(?:knew|remembered)\b", prose, re.IGNORECASE) and data.get("pov_character_id") not in {"jon", None}:
+            findings.append({"code": "private_knowledge_exposure", "severity": "warning", "confidence": "high", "message": "limited POV prose exposes another character's private knowledge", "recommended_action": "attribute the knowledge to dialogue/action or make the perspective explicit"})
+        if realization_evidence and realization_evidence.get("knowledge_disclosures"):
+            for item in realization_evidence["knowledge_disclosures"]:
+                if item.get("status") == "contradicted":
+                    findings.append({"code": "knowledge_contradiction", "severity": "error", "confidence": "high", "message": f"structured evidence contradicts knowledge fact {item.get('fact_id', 'unknown')}", "recommended_action": "revise the disclosure or revise the Scene knowledge state"})
         return findings
 
-    def create_upstream_proposal(self, scene_path: Path, *, problem: str, suggested_change: str, evidence: str) -> dict[str, Any]:
+    def create_upstream_proposal(self, scene_path: Path, *, problem: str, suggested_change: str, evidence: str, source_candidate_id: str | None = None) -> dict[str, Any]:
         source = ArtifactStore(self.project).status(Path(scene_path), "scene_realization")
+        target_hash = ArtifactStore(self.project).content_hash(Path(scene_path))
         proposal = {
             "proposal_id": f"expression_{Path(scene_path).stem}",
             "target_artifact": source.artifact_id,
+            "target_path": str(Path(scene_path).resolve().relative_to(self.project.resolve())),
             "target_layer": "Realization",
             "source_scene_revision": source.revision,
+            "target_revision": source.revision,
+            "target_projected_hash": target_hash,
+            "transformation": {"id": "expression.propose_realization_change", "version": 1},
+            "source_candidate_id": None,
+            "source_candidate_revision": None,
             "problem": problem,
             "suggested_change": suggested_change,
             "evidence": evidence,
             "status": "proposed",
         }
+        if source_candidate_id is not None:
+            candidate = self.inspect(source_candidate_id)
+            proposal["source_candidate_id"] = candidate.candidate_id
+            proposal["source_candidate_revision"] = candidate.revision
         path = self.project / "expression" / "proposals" / f"{proposal['proposal_id']}.yaml"
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(yaml.safe_dump(proposal, sort_keys=False), encoding="utf-8")
         return proposal
+
+    def proposal_status(self, proposal_id: str) -> dict[str, Any]:
+        path = self.project / "expression" / "proposals" / f"{proposal_id}.yaml"
+        proposal = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        target = self.project / proposal.get("target_path", "") if proposal.get("target_path") else next(self.project.rglob(f"{proposal.get('target_artifact')}.yaml"), None)
+        stale = target is None or ArtifactStore(self.project).content_hash(target) != proposal.get("target_projected_hash")
+        return {"proposal": proposal, "status": "stale" if stale else proposal.get("status", "proposed"), "stale": stale}
+
+    def apply_proposal(self, proposal_id: str) -> None:
+        if self.proposal_status(proposal_id)["stale"]:
+            raise ValueError("stale proposal cannot be applied; regenerate or manually rebase it")
