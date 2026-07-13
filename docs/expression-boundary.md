@@ -123,6 +123,13 @@ preserved. No automatic regeneration occurs.
 
 ## Current limits
 
+Accepted Scene Expressions can be assembled by the focused
+`expression.compose_chapter` pilot into a derived Chapter Expression. The
+assembly preserves stable Scene markers and source revisions; it does not
+become a second canonical prose source and does not modify Scene artifacts.
+See [Expression Composition](expression-composition.md) for its ownership and
+round-trip boundary.
+
 This pilot does not provide a generic transformation runtime, chapter-wide
 drafting overhaul, complete Expression system, automatic Bible mutation,
 automatic repair, publishing, collaboration, or repository-wide provenance

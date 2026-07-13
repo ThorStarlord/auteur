@@ -314,6 +314,18 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--project", type=Path, required=True)
     p.add_argument("--by", default="author")
     p.add_argument("--allow-divergence", action="store_true")
+    p = expression_sub.add_parser("compose-chapter", help="Compose accepted Scene Expressions into a derived Chapter Expression.")
+    p.add_argument("chapter")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--scene", action="append", default=[], help="Override selected Scene as scene_id=prose_vNNN.")
+    p = expression_sub.add_parser("inspect-chapter", help="Inspect a Chapter Expression assembly.")
+    p.add_argument("chapter_expression")
+    p.add_argument("--project", type=Path, required=True)
+    p = expression_sub.add_parser("accept-chapter", help="Accept a Chapter Expression assembly.")
+    p.add_argument("chapter_expression")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--by", default="author")
+    p.add_argument("--allow-review", action="store_true")
 
     for command, help_text in (
         ("status", "Show pilot provenance status for an artifact."),
@@ -760,7 +772,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     # === expression pilot ===
     if args.command == "expression":
-        from auteur.expression import ExpressionConstraints, ExpressionStore
+        from auteur.expression import ChapterExpressionStore, ExpressionConstraints, ExpressionStore
         if args.expression_command == "generate":
             if args.text is None and args.text_file is None:
                 _err("expression generate requires --text or --text-file")
@@ -779,6 +791,26 @@ def main(argv: list[str] | None = None) -> int:
                 executor={"kind": args.executor_kind, "provider": args.provider, "model": args.model},
             )
             print(metadata.candidate_id)
+            return 0
+        if args.expression_command == "compose-chapter":
+            if args.scene:
+                _err("scene selection overrides are not supported in the deterministic pilot")
+                return 2
+            metadata = ChapterExpressionStore(args.project).compose(args.chapter)
+            print(metadata.artifact_id)
+            return 0
+        if args.expression_command == "inspect-chapter":
+            store = ChapterExpressionStore(args.project)
+            metadata = store.inspect(args.chapter_expression)
+            status = store.status(args.chapter_expression)
+            print(f"Chapter Expression {metadata.artifact_id}: {status['freshness']}")
+            for scene in metadata.source_scenes:
+                print(f"  {scene['scene_id']} -> prose_v{scene['expression_revision']:03d} ({scene['freshness']})")
+            print(json.dumps({"metadata": metadata.model_dump(mode="json"), "status": status}, indent=2))
+            return 0
+        if args.expression_command == "accept-chapter":
+            metadata = ChapterExpressionStore(args.project).accept(args.chapter_expression, accepted_by=args.by, allow_review=args.allow_review)
+            print(json.dumps(metadata.model_dump(mode="json"), indent=2))
             return 0
         store = ExpressionStore(args.project)
         if args.expression_command == "inspect":

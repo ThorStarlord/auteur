@@ -198,6 +198,12 @@ narration, and style remain advisory.
 Upstream proposals record target revision and projected hash. Target changes
 make proposals stale; proposal application is never automatic.
 
+`expression.compose_chapter` is a focused deterministic Projection. It creates
+a derived, versioned Chapter Expression assembly from accepted Scene
+Expressions, preserving Scene IDs, selected revisions, stable internal
+markers, and transition ownership. Its acceptance selects an assembly snapshot
+without changing canonical Scene or upstream artifacts.
+
 ## Non-goals
 
 This specification does not introduce a generic transformation runtime,
