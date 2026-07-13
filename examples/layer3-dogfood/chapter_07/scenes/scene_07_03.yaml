@@ -1,0 +1,142 @@
+id: scene_07_03
+chapter_id: chapter_07
+status: ready
+
+# Narrative positioning
+narrative_position: 3
+story_time: day_3_night
+
+# Temporal relations
+temporal_relation:
+  parallel_with: []
+  follows_scene: scene_07_02
+
+# Characters & perspective
+pov_character_id: elena
+participants:
+  - elena
+
+# Entry state: what Elena knows/feels at start (all knowledge from scenes 1-2)
+entry_state:
+  knowledge:
+    - what: "Daniel claims he was at the archive during the incident"
+      how_known: external_source
+      degree: probable
+      source: character_id
+    - what: "Archive access record was altered"
+      how_known: perceived
+      degree: certain
+      source: document
+    - what: "Someone has capability to modify historical records"
+      how_known: inferred
+      degree: certain
+      source: inference
+    - what: "Daniel is aware she is investigating the archive"
+      how_known: inferred
+      degree: probable
+      source: inference
+  emotional:
+    trust:
+      state: certainty
+      intensity: high
+    fear:
+      state: deepens
+      intensity: high
+
+# Dramatic action elements
+goal:
+  actor_id: elena
+  objective: "decide whether to confront Daniel or gather more evidence"
+  rationale: "This choice determines her immediate next move and long-term strategy"
+
+opposition:
+  source_id: external
+  pressure: "time is limited, Daniel is watching, evidence could disappear, need to protect herself"
+  rationale: "External pressure and Daniel's awareness force a decision"
+
+turn:
+  type: decision
+  event: "Elena realizes direct confrontation with Daniel could be dangerous"
+  impact: "She commits to a strategy of gathering more evidence before any confrontation"
+
+decision:
+  actor_id: elena
+  choice: "pursue the investigation quietly, gather evidence and allies, prepare for confrontation"
+  rationale: "Direct confrontation could be dangerous given Daniel's knowledge, resources, and willingness to manipulate records"
+
+outcome:
+  result: success
+  knowledge_added:
+    - "Elena must build a case before confronting Daniel"
+    - "She needs allies who can help without putting themselves at risk"
+  knowledge_questioned: []
+  emotional_shifts:
+    trust: resolve
+    fear: channels_into_determination
+  consequences:
+    - "Elena shifts from investigation to preparation for confrontation"
+    - "She begins identifying who she can trust"
+    - "The power imbalance becomes clear as Daniel actively opposes her"
+  arc_beats_realized:
+    - beat_id: clara_distrust_deepens
+      degree: full
+    - beat_id: clara_confrontation_imminent
+      degree: full
+
+# Exit state: what Elena knows/feels at end
+exit_state:
+  knowledge:
+    - what: "Daniel claims he was at the archive during the incident"
+      how_known: external_source
+      degree: probable
+      source: character_id
+    - what: "Archive access record was altered"
+      how_known: perceived
+      degree: certain
+      source: document
+    - what: "Someone has capability to modify historical records"
+      how_known: inferred
+      degree: certain
+      source: inference
+    - what: "Daniel is aware she is investigating the archive"
+      how_known: inferred
+      degree: probable
+      source: inference
+    - what: "Elena must gather evidence before confronting Daniel"
+      how_known: inferred
+      degree: certain
+      source: inference
+  emotional:
+    trust:
+      state: resolve
+      intensity: high
+      rationale: "Decision made, course of action clear"
+    fear:
+      state: channels_into_determination
+      intensity: high
+      rationale: "Fear is now motivation for strategic action rather than paralysis"
+
+# Arc beat realizations
+realizes_arc_beats:
+  - beat_id: clara_distrust_deepens
+    degree: full
+  - beat_id: clara_confrontation_imminent
+    degree: full
+
+# Setup/payoff tracking
+setups_created:
+  - clara_evidence_gathering
+  - clara_seeks_allies
+payoffs_triggered: []
+
+# Metadata
+tags:
+  - decision
+  - solo_scene
+  - netorare
+  - strategy
+notes: |
+  Elena's solo reflection scene where she moves from passive discovery to
+  active strategy. Her fear crystallizes into determination. This scene
+  marks the end of Chapter 7's rising action and the beginning of her
+  intentional counter-offensive.

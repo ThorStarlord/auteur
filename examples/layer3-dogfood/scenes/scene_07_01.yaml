@@ -1,0 +1,97 @@
+id: scene_07_01
+chapter_id: chapter_07
+status: ready
+narrative_position: 1
+story_time: week_2_evening
+temporal_relation:
+  parallel_with: []
+  follows_scene: null
+pov_character_id: elena
+participants:
+- elena
+- daniel
+- sylvia
+- james
+goal:
+  actor_id: elena
+  objective: enjoy the evening and support daniel at the gallery event
+  rationale: maintain relationship normalcy and celebrate his success
+opposition:
+  source_id: sylvia
+  pressure: monopolizes daniel's attention and touches him repeatedly
+  rationale: sylvia wants to flirt and destabilize the relationship
+turn:
+  type: discovery
+  event: elena observes daniel's body language toward sylvia - he leans in, laughs
+    too readily, does not redirect her touches
+  impact: elena's trust is first truly shaken; suspicion forms
+decision:
+  actor_id: elena
+  choice: maintain composure and observe rather than confront
+  rationale: need to understand the situation before acting
+outcome:
+  result: partial
+  knowledge_added:
+  - daniel responds positively to sylvia's attention
+  - daniel does not maintain physical boundaries with sylvia
+  knowledge_questioned:
+  - daniel is fully committed to our relationship
+  emotional_shifts:
+    elena: from confident to uncertain
+    daniel: unaware of elena's observation
+  consequences:
+  - elena begins secret observation of daniel
+  - sylvia gains confidence in her pursuit
+  arc_beats_realized: []
+entry_state:
+  knowledge:
+  - what: daniel and elena have been together for 5 years
+    how_known: external_source
+    degree: certain
+    source: chapter_position
+  - what: elena has no reason to suspect daniel
+    how_known: external_source
+    degree: certain
+    source: chapter_position
+  emotional:
+    love:
+      state: secure
+      intensity: high
+      rationale: relationship feels stable
+exit_state:
+  knowledge:
+  - what: daniel and elena have been together for 5 years
+    how_known: external_source
+    degree: certain
+    source: chapter_position
+  - what: daniel responds positively to sylvia's attention
+    how_known: perceived
+    degree: probable
+    source: chapter_position
+  - what: daniel does not maintain physical boundaries with sylvia
+    how_known: perceived
+    degree: probable
+    source: chapter_position
+  emotional:
+    trust:
+      state: uncertain
+      intensity: moderate
+      rationale: observed unexpected behavior
+    suspicion:
+      state: nascent
+      intensity: low
+      rationale: first sign of doubt
+realizes_arc_beats:
+- beat_id: elena_suspicion_emerges
+  degree: full
+setups_created:
+- sylvia_pursuit_pattern
+- daniel_receptiveness
+- elena_silent_observation
+payoffs_triggered: []
+notes: Gallery event. Elena witnesses daniel's attention to Sylvia. Marks turning
+  point from secure to suspicious.
+tags:
+- discovery
+- turning-point
+- suspicion-begins

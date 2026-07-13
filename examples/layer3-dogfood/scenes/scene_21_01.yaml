@@ -1,0 +1,120 @@
+id: scene_21_01
+chapter_id: chapter_21
+status: ready
+narrative_position: 1
+story_time: week_11_afternoon
+temporal_relation:
+  parallel_with: []
+  follows_scene: null
+pov_character_id: elena
+participants:
+- elena
+- daniel
+- sylvia
+goal:
+  actor_id: elena
+  objective: verify whether daniel kept his promise to end contact with sylvia
+  rationale: cannot live with doubt; needs certainty
+opposition:
+  source_id: daniel
+  pressure: has continued the affair and is now emerging from sylvia's apartment
+  rationale: daniel wants both women and chose to continue the affair
+turn:
+  type: reversal
+  event: elena sees daniel leaving sylvia's apartment, disheveled and guilty
+  impact: elena's last hope that daniel might change is destroyed; she must face his
+    true nature
+decision:
+  actor_id: elena
+  choice: accept that she cannot change daniel; transformation from victim to conscious
+    participant
+  rationale: must stop fighting against reality; freedom comes from acceptance not
+    resistance
+outcome:
+  result: success
+  knowledge_added:
+  - daniel has broken his promise and continued the affair
+  - daniel's deception is now undeniable
+  - elena cannot control daniel's choices
+  knowledge_questioned:
+  - the possibility of redemption
+  - the value of fighting against betrayal
+  - whether love alone can save a relationship
+  emotional_shifts:
+    elena: from devastation to strange liberation
+    daniel: from guilt to indifference
+  consequences:
+  - elena begins shift to acceptance
+  - elena contemplates the meaning of continued presence
+  - relationship fundamentally transformed
+  arc_beats_realized: []
+entry_state:
+  knowledge:
+  - what: daniel promised to end contact with sylvia
+    how_known: external_source
+    degree: certain
+    source: character_id
+  - what: daniel has been distant but claimed to be keeping promise
+    how_known: external_source
+    degree: probable
+    source: character_id
+  - what: elena has doubts about daniel's sincerity
+    how_known: perceived
+    degree: probable
+    source: chapter_position
+  emotional:
+    dread:
+      state: anticipating discovery
+      intensity: high
+      rationale: following daniel secretly
+    fragile_hope:
+      state: wanting to believe
+      intensity: low
+      rationale: clinging to possibility he kept promise
+exit_state:
+  knowledge:
+  - what: daniel has continued affair with sylvia
+    how_known: learned
+    degree: certain
+    source: chapter_position
+  - what: daniel's promise was a lie
+    how_known: inferred
+    degree: certain
+    source: inference
+  - what: elena cannot control or change daniel
+    how_known: inferred
+    degree: certain
+    source: inference
+  emotional:
+    acceptance:
+      state: liberated through surrender
+      intensity: moderate
+      rationale: stopped fighting the uncontrollable
+    transformation:
+      state: beginning anew
+      intensity: moderate
+      rationale: embracing new identity
+    strange_peace:
+      state: beyond devastation
+      intensity: moderate
+      rationale: clarity from acceptance
+realizes_arc_beats:
+- beat_id: elena_final_betrayal_witnessed
+  degree: full
+- beat_id: elena_transformation_begins
+  degree: full
+- beat_id: elena_accepts_reality
+  degree: full
+setups_created:
+- elena_liberation_moment
+- new_identity_possibility
+payoffs_triggered:
+- daniel_broken_promise
+- sylvia_gains_power
+notes: Climax scene. Elena follows daniel and discovers him leaving Sylvia's apartment.
+  Final betrayal witnessed. Elena begins transformation from victim to agent.
+tags:
+- climax
+- reversal
+- transformation
+- acceptance

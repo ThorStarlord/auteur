@@ -1,0 +1,227 @@
+{
+  "summary": {
+    "scenes_analyzed": 3,
+    "prose_word_count_avg": 268
+  },
+  "scene_analyses": [
+    {
+      "scene_id": "scene_07_01",
+      "chapter": "chapter_07",
+      "narrative_position": 1,
+      "story_time": "week_2_evening",
+      "pov": "elena",
+      "participants": [
+        "elena",
+        "daniel",
+        "sylvia",
+        "james"
+      ],
+      "goal": "enjoy the evening and support daniel at the gallery event",
+      "turn_type": "discovery",
+      "turn_event": "elena observes daniel's body language toward sylvia - he leans in, laughs too readily, does not redirect her touches",
+      "decision": "maintain composure and observe rather than confront",
+      "outcome_result": "partial",
+      "prose_word_count": 220,
+      "prose_preview": "Elena stepped into the gallery, Daniel's hand warm in hers. The white walls\nwere already crowded with the usual crowd\u2014collectors, artists, and the people who just liked to look\nimportant. She wore the...",
+      "what_prose_invented": [
+        "Specific dialogue (not in Layer 3)",
+        "Visual descriptions of setting (not in Layer 3)",
+        "Character mannerisms and body language (not in Layer 3)",
+        "Pacing and rhythm of scene unfold (not in Layer 3)",
+        "Elena's internal monologue voice/style (not in Layer 3)",
+        "Metaphors and emotional expression details (Layer 3 gives state label only)",
+        "Decision about whose perspective on actions dominates",
+        "Exposition method (how does reader learn entry_state knowledge?)"
+      ],
+      "layer3_constraints_respected": [
+        "POV from elena",
+        "Goal: enjoy the evening and support daniel at the gallery event",
+        "Opposition: sylvia",
+        "Turn type: discovery",
+        "Decision: maintain composure and observe rather than confront",
+        "Entry knowledge respected: 2 facts",
+        "Exit knowledge reached: 3 facts",
+        "Emotional transitions: entry ['love'] \u2192 exit ['trust', 'suspicion']"
+      ]
+    },
+    {
+      "scene_id": "scene_13_02",
+      "chapter": "chapter_13",
+      "narrative_position": 2,
+      "story_time": "week_6_night",
+      "pov": "elena",
+      "participants": [
+        "elena",
+        "daniel"
+      ],
+      "goal": "force daniel to admit the truth about sylvia and demand commitment",
+      "turn_type": "revelation",
+      "turn_event": "elena produces evidence (messages between daniel and sylvia) proving emotional affair",
+      "decision": "accept daniel's promise to end contact with sylvia and stay to rebuild trust",
+      "outcome_result": "partial",
+      "prose_word_count": 298,
+      "prose_preview": "\"I know about Sylvia,\" Elena said. Her hands were shaking. She'd practiced this\nmoment a hundred times, but nothing prepared her for the way Daniel's face went white.\n\n\"Elena, you're being\u2014\" He reache...",
+      "what_prose_invented": [
+        "Specific dialogue (not in Layer 3)",
+        "Visual descriptions of setting (not in Layer 3)",
+        "Character mannerisms and body language (not in Layer 3)",
+        "Pacing and rhythm of scene unfold (not in Layer 3)",
+        "Elena's internal monologue voice/style (not in Layer 3)",
+        "Metaphors and emotional expression details (Layer 3 gives state label only)",
+        "Decision about whose perspective on actions dominates",
+        "Exposition method (how does reader learn entry_state knowledge?)"
+      ],
+      "layer3_constraints_respected": [
+        "POV from elena",
+        "Goal: force daniel to admit the truth about sylvia and demand commitment",
+        "Opposition: daniel",
+        "Turn type: revelation",
+        "Decision: accept daniel's promise to end contact with sylvia and stay to rebuild trust",
+        "Entry knowledge respected: 3 facts",
+        "Exit knowledge reached: 3 facts",
+        "Emotional transitions: entry ['anger', 'betrayal'] \u2192 exit ['devastation', 'resignation', 'doubt']"
+      ]
+    },
+    {
+      "scene_id": "scene_21_01",
+      "chapter": "chapter_21",
+      "narrative_position": 1,
+      "story_time": "week_11_afternoon",
+      "pov": "elena",
+      "participants": [
+        "elena",
+        "daniel",
+        "sylvia"
+      ],
+      "goal": "verify whether daniel kept his promise to end contact with sylvia",
+      "turn_type": "reversal",
+      "turn_event": "elena sees daniel leaving sylvia's apartment, disheveled and guilty",
+      "decision": "accept that she cannot change daniel; transformation from victim to conscious participant",
+      "outcome_result": "success",
+      "prose_word_count": 286,
+      "prose_preview": "Elena sat in her car across from Sylvia's apartment building, knowing this made\nher a different kind of person. The kind who followed. The kind who didn't trust. The kind who had become\nsmall.\n\nThe do...",
+      "what_prose_invented": [
+        "Specific dialogue (not in Layer 3)",
+        "Visual descriptions of setting (not in Layer 3)",
+        "Character mannerisms and body language (not in Layer 3)",
+        "Pacing and rhythm of scene unfold (not in Layer 3)",
+        "Elena's internal monologue voice/style (not in Layer 3)",
+        "Metaphors and emotional expression details (Layer 3 gives state label only)",
+        "Decision about whose perspective on actions dominates",
+        "Exposition method (how does reader learn entry_state knowledge?)"
+      ],
+      "layer3_constraints_respected": [
+        "POV from elena",
+        "Goal: verify whether daniel kept his promise to end contact with sylvia",
+        "Opposition: daniel",
+        "Turn type: reversal",
+        "Decision: accept that she cannot change daniel; transformation from victim to conscious participant",
+        "Entry knowledge respected: 3 facts",
+        "Exit knowledge reached: 3 facts",
+        "Emotional transitions: entry ['dread', 'fragile_hope'] \u2192 exit ['acceptance', 'transformation', 'strange_peace']"
+      ]
+    }
+  ],
+  "layer3_provides": [
+    "POV character (first-person perspective)",
+    "Goal (what character wants)",
+    "Opposition (what blocks goal)",
+    "Turn/discovery (the pivotal moment)",
+    "Decision (character's choice)",
+    "Outcome (result and consequences)",
+    "Entry/exit knowledge states",
+    "Entry/exit emotional states",
+    "Participants (who's in the scene)",
+    "Temporal positioning (when)",
+    "Arc beats realized",
+    "Setups/payoffs for narrative continuity"
+  ],
+  "prose_invented_patterns": {
+    "dialogue": {
+      "layer3_constraint": "None - only dramatic action structure",
+      "prose_pattern": "Scene 1: None (internal observation only), Scene 2: Full naturalistic dialogue, Scene 3: None (internal monologue only)",
+      "risk": "MEDIUM - Prose may invent dialogue that violates POV knowledge or emotional constraints",
+      "example": "Scene 13: 'Nothing physical has happened' - character's exact words, not constrained by Layer 3"
+    },
+    "descriptive_details": {
+      "layer3_constraint": "None - only abstract location (gallery, apartment)",
+      "prose_pattern": "White walls, black dress, phone screen, car details, building exterior",
+      "risk": "LOW - Sensory details add texture without violating structure",
+      "example": "Elena wore the black dress Daniel liked - invented detail not in Layer 3"
+    },
+    "pacing_and_rhythm": {
+      "layer3_constraint": "None - only narrative_position",
+      "prose_pattern": "Scene 1: Slow pacing (observation), Scene 2: Escalating (confrontation), Scene 3: Contemplative (realization)",
+      "risk": "MEDIUM - Prose pacing may not match intended dramatic escalation",
+      "example": "Scene 2 compressed multi-turn dialogue into climactic exchange"
+    },
+    "character_voice": {
+      "layer3_constraint": "None - only pov_character_id and emotional_state labels",
+      "prose_pattern": "Elena's internal monologue varies: analytical (Scene 1), emotional (Scene 2), philosophical (Scene 3)",
+      "risk": "MEDIUM - POV character's voice not constrained; could sound inconsistent across scenes",
+      "example": "'She sat in her car and understood something fundamental' vs earlier more direct observations"
+    },
+    "minor_actions": {
+      "layer3_constraint": "None - only dramatic action",
+      "prose_pattern": "Adjusting shirt, reaching for phone, starting car, stepping back",
+      "risk": "LOW - Minor actions reinforce major beats but not constrained",
+      "example": "'He was adjusting his shirt' shows Daniel's casual indifference (invented)"
+    },
+    "emotional_expression": {
+      "layer3_constraint": "Semantic state labels (uncertain, devastation, acceptance)",
+      "prose_pattern": "Prose interprets states literally: something cold and small (uncertain), laugh broken (devastation), liberation (acceptance)",
+      "risk": "MEDIUM - Prose must literalize abstract emotional labels into concrete experience",
+      "example": "Emotional state 'uncertain' \u2192 prose shows 'something cold and small' in her chest"
+    },
+    "narrative_exposition": {
+      "layer3_constraint": "None - entry_state knowledge is structured but not exposition instructions",
+      "prose_pattern": "Scene 1: Implicit (shows observation), Scene 2: Dialogue-based (characters speak facts), Scene 3: Implied (reader infers from action)",
+      "risk": "MEDIUM - Prose must decide how to reveal entry knowledge without clumsy exposition",
+      "example": "Scene 2: Information about affair revealed through showing messages, not telling"
+    }
+  },
+  "information_gaps": [
+    {
+      "category": "Dialogue Constraints",
+      "layer3_missing": "No specification of dialogue pattern - formal/casual, who speaks, what topics are off-limits",
+      "layer4_needs": "Prose style guide (formality, archetype), dialogue tone rules, character speech patterns, topics that respect POV knowledge",
+      "impact": "Prose may create dialogue that violates emotional integrity or logical knowledge",
+      "example": "Could Daniel say things only Sylvia would know? Scene 3: Is internal monologue acceptable or should prose use external observation?"
+    },
+    {
+      "category": "Descriptive Focus",
+      "layer3_missing": "No guidance on what to describe (character appearances, locations, objects) vs what to skip",
+      "layer4_needs": "Visual/sensory emphasis (what POV character notices), descriptive depth guidance (sparse vs lush), focus priorities (people vs environment)",
+      "impact": "Prose could describe irrelevant details or skip crucial environmental context",
+      "example": "What does Sylvia's apartment look like? Layer 3 says 'learned the truth' but not 'describe the bedroom'"
+    },
+    {
+      "category": "Pacing Guidance",
+      "layer3_missing": "No temporal constraints - how fast/slow should dramatic action unfold?",
+      "layer4_needs": "Compression/expansion guidance (is this a quick discovery or slow dawning?), scene duration (moment vs hours?), rhythm (fast dialogue, slow description, etc.)",
+      "impact": "Prose pacing could undercut dramatic intention",
+      "example": "Scene 2 confrontation: Should they argue for 30 seconds or 30 minutes? Layer 3 doesn't specify"
+    },
+    {
+      "category": "POV Voice & Interiority",
+      "layer3_missing": "Emotional states are given but not how protagonist thinks/speaks to themselves",
+      "layer4_needs": "POV voice archetype (analytical vs emotional vs sardonic), thought pattern (linear vs spiral), vocabulary register",
+      "impact": "Prose character voice may sound inconsistent across scenes or wrong for the emotional core",
+      "example": "Should Elena's thoughts be logical analysis or emotional reaction? Should she use metaphor or direct observation?"
+    },
+    {
+      "category": "Stylistic Constraints",
+      "layer3_missing": "No guidance on prose style - literary devices, metaphor use, sentence structure",
+      "layer4_needs": "Style guide (no purple prose, prefer specifics, metaphor limits), literary device preferences (extended metaphor, stream of consciousness, etc.)",
+      "impact": "Prose could sound overwrought, detached, or inconsistent with genre tone",
+      "example": "Is 'something cold and small' in Elena's chest acceptable metaphor or purple prose?"
+    },
+    {
+      "category": "POV Knowledge Respect",
+      "layer3_missing": "Entry/exit knowledge defined, but prose must literalize entry knowledge subtly without clumsy exposition",
+      "layer4_needs": "Rules for how known facts are revealed to reader (implicit vs explicit, dialogue vs action), restrictions on what protagonist can notice/infer",
+      "impact": "Prose could reveal facts before entry_state allows or fail to show how knowledge shapes observation",
+      "example": "Scene 1: Elena enters unknowing Daniel will interact with Sylvia. Prose must show observation leading to knowledge, not knowledge leading to focused observation"
+    }
+  ]
+}

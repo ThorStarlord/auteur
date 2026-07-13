@@ -1,0 +1,122 @@
+id: scene_13_02
+chapter_id: chapter_13
+status: ready
+narrative_position: 2
+story_time: week_6_night
+temporal_relation:
+  parallel_with: []
+  follows_scene: scene_13_01
+pov_character_id: elena
+participants:
+- elena
+- daniel
+goal:
+  actor_id: elena
+  objective: force daniel to admit the truth about sylvia and demand commitment
+  rationale: cannot continue living with uncertainty; needs clarity to decide whether
+    to leave
+opposition:
+  source_id: daniel
+  pressure: denies involvement initially, then minimizes emotional connection, refuses
+    to cut contact
+  rationale: daniel wants both relationships - fears losing elena but also desires
+    sylvia
+turn:
+  type: revelation
+  event: elena produces evidence (messages between daniel and sylvia) proving emotional
+    affair
+  impact: daniel cannot deny; admits emotional involvement but insists it has not
+    become physical
+decision:
+  actor_id: elena
+  choice: accept daniel's promise to end contact with sylvia and stay to rebuild trust
+  rationale: believes in the possibility of redemption and wants to save the relationship
+outcome:
+  result: partial
+  knowledge_added:
+  - daniel admits emotional affair with sylvia
+  - daniel claims no physical involvement yet
+  - daniel promises to cut contact with sylvia
+  knowledge_questioned:
+  - daniel's fidelity
+  - daniel's honesty about boundaries
+  - daniel's love for elena
+  emotional_shifts:
+    elena: from anger to devastated acceptance
+    daniel: from defensive to guilt-ridden
+  consequences:
+  - daniel promises to end sylvia contact
+  - sylvia learns of confrontation through daniel
+  - elena's trust is fractured but not destroyed
+  - foundation laid for escalation
+  arc_beats_realized: []
+entry_state:
+  knowledge:
+  - what: daniel has been texting sylvia regularly
+    how_known: learned
+    degree: certain
+    source: document
+  - what: daniel denied sylvia matters to him
+    how_known: external_source
+    degree: certain
+    source: character_id
+  - what: elena has suspicions but no proof
+    how_known: perceived
+    degree: probable
+    source: chapter_position
+  emotional:
+    anger:
+      state: controlled rage
+      intensity: high
+      rationale: planning confrontation
+    betrayal:
+      state: wounded
+      intensity: moderate
+      rationale: discovering deception
+exit_state:
+  knowledge:
+  - what: daniel has emotional affair with sylvia
+    how_known: learned
+    degree: certain
+    source: document
+  - what: daniel claims no physical involvement
+    how_known: external_source
+    degree: probable
+    source: character_id
+  - what: daniel promised to end contact
+    how_known: external_source
+    degree: probable
+    source: character_id
+  emotional:
+    devastation:
+      state: heartbroken
+      intensity: high
+      rationale: betrayal confirmed
+    resignation:
+      state: accepting compromise
+      intensity: moderate
+      rationale: choosing to believe in redemption
+    doubt:
+      state: skeptical
+      intensity: high
+      rationale: unsure if daniel tells truth about physical limits
+realizes_arc_beats:
+- beat_id: elena_faces_betrayal
+  degree: full
+- beat_id: daniel_admits_guilt
+  degree: full
+- beat_id: midpoint_decision_to_stay
+  degree: full
+setups_created:
+- daniel_broken_promise
+- sylvia_gains_power
+payoffs_triggered:
+- sylvia_pursuit_pattern
+- daniel_receptiveness
+notes: Confrontation scene. Elena presents evidence. Daniel admits emotional affair.
+  Elena chooses to stay. Pivotal moment of no return.
+tags:
+- confrontation
+- revelation
+- midpoint
+- heartbreak

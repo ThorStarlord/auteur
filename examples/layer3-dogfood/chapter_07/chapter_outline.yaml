@@ -1,0 +1,61 @@
+scope: chapter
+chapter_id: chapter_07
+chapter_index: 7
+chapter_title: The Discovery
+chapter_summary: Elena discovers false alibi during archive research and realizes Daniel is aware of her investigation.
+
+narrative_arc:
+  purpose: "Elena uncovers concrete evidence that Daniel's alibi is false"
+  conflict: "Trust vs. suspicion as she realizes Daniel knows she's investigating"
+  turning_point: "Discovery of altered archive records forces confrontation"
+  outcome: "Elena commits to gathering more evidence rather than direct confrontation"
+
+phase: 3
+phase_name: Rising Action
+sequence_id: sequence_01
+parent_id: sequence_01
+
+arc_beats:
+  - beat_id: clara_distrust_deepens
+    beat_name: Distrust Deepens
+    arc_type: character_arc
+    phase_progression: 2→3
+
+  - beat_id: false_alibi_discovered
+    beat_name: False Alibi Discovered
+    arc_type: story_arc
+    phase_progression: 2→3
+
+  - beat_id: daniel_awareness
+    beat_name: Daniel Becomes Aware
+    arc_type: story_arc
+    phase_progression: 2→3
+
+  - beat_id: clara_confrontation_imminent
+    beat_name: Confrontation Becomes Imminent
+    arc_type: character_arc
+    phase_progression: 2→3
+
+character_state_changes:
+  - character: elena
+    field: trust_level
+    before: "guarded_confidence"
+    after: "active_suspicion"
+
+  - character: elena
+    field: investigation_status
+    before: "private_inquiry"
+    after: "discovered_by_daniel"
+
+expected_tension: 7
+emotional_tone: "suspicion, revelation, strategic caution"
+estimated_scene_count: 3
+contract_compliance:
+  - genre_netorare: discovery_of_infidelity_progression
+  - pacing: moderate_escalation
+  - consent_framework: active_decision_making
+
+key_turning_points:
+  - "Archive record alteration discovered"
+  - "Daniel reveals he knows of investigation"
+  - "Elena decides to continue investigation quietly"

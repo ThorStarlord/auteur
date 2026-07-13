@@ -1,0 +1,113 @@
+id: scene_07_01
+chapter_id: chapter_07
+status: ready
+
+# Narrative positioning
+narrative_position: 1
+story_time: day_3_evening
+
+# Temporal relations
+temporal_relation:
+  parallel_with: []
+  follows_scene: null
+
+# Characters & perspective
+pov_character_id: elena
+participants:
+  - elena
+  - archive_worker
+
+# Entry state: what Elena knows/feels at start
+entry_state:
+  knowledge:
+    - what: "Daniel claims he was at the archive during the incident"
+      how_known: external_source
+      degree: probable
+      source: character_id
+  emotional:
+    trust:
+      state: guarded
+      intensity: moderate
+      rationale: "Daniel's alibi seems solid but something feels off"
+
+# Dramatic action elements
+goal:
+  actor_id: elena
+  objective: "verify Daniel's archive access record"
+  rationale: "Prove or disprove his alibi"
+
+opposition:
+  source_id: archive_worker
+  pressure: "delays providing access records, claims system is slow"
+  rationale: "May be protecting someone or following procedure"
+
+turn:
+  type: discovery
+  event: "altered access record found, timestamp changed from original"
+  impact: "Elena can no longer believe Daniel's alibi is genuine"
+
+decision:
+  actor_id: elena
+  choice: "conceal the discovery temporarily"
+  rationale: "She needs time to understand implications and who altered it"
+
+outcome:
+  result: partial
+  knowledge_added:
+    - "archive access record was altered"
+    - "someone has capability to modify historical records"
+  knowledge_questioned:
+    - "daniel_alibi_validity"
+  emotional_shifts:
+    trust: suspicion
+  consequences:
+    - "Elena must decide whether to confront Daniel"
+    - "The archive worker may report her inquiry"
+  arc_beats_realized:
+    - beat_id: clara_distrust_deepens
+      degree: full
+    - beat_id: false_alibi_discovered
+      degree: full
+
+# Exit state: what Elena knows/feels at end
+exit_state:
+  knowledge:
+    - what: "Daniel claims he was at the archive during the incident"
+      how_known: external_source
+      degree: probable
+      source: character_id
+    - what: "Archive access record was altered"
+      how_known: perceived
+      degree: certain
+      source: document
+  emotional:
+    trust:
+      state: suspicion
+      intensity: high
+      rationale: "The altered record suggests Daniel lied or someone helped him"
+    fear:
+      state: emerging
+      intensity: moderate
+      rationale: "The record alteration proves someone has power to manipulate evidence"
+
+# Arc beat realizations
+realizes_arc_beats:
+  - beat_id: clara_distrust_deepens
+    degree: full
+  - beat_id: false_alibi_discovered
+    degree: full
+
+# Setup/payoff tracking
+setups_created:
+  - altered_record_signature
+payoffs_triggered: []
+
+# Metadata
+tags:
+  - investigation
+  - discovery
+  - netorare
+notes: |
+  Clara's discovery marks the inflection point where her trust shifts from
+  guarded confidence to active suspicion. The altered record is physical evidence
+  that someone has falsified records.

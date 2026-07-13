@@ -1,0 +1,42 @@
+id: betrayal_cycle_v1
+title: The Betrayal Cycle
+subtitle: Elena's Transformation
+author: Dogfood Test
+genre: netorare
+emotional_core: classic_humiliation
+tone: exploration of consent, transformation
+status: draft
+
+overview:
+  premise: "Elena discovers her partner Daniel has been unfaithful, leading her through stages of denial, humiliation, rage, and ultimately acceptance."
+  target_audience: "Readers interested in netorare with focus on character transformation and consent"
+  themes:
+    - betrayal and recovery
+    - trust and vulnerability
+    - acceptance and growth
+    - power dynamics in relationships
+
+structure:
+  book_count: 2
+  estimated_chapters: 20
+  series: standalone
+
+protagonist:
+  name: Elena
+  role: POV character
+  initial_state: "secure in relationship, trusting"
+  transformation_arc: "trust → suspicion → distrust → acceptance"
+
+protagonist_love_interest:
+  name: Daniel
+  role: catalyst for transformation
+  characterization: "not villainous; motivated but conflicted"
+
+genre_specific_notes:
+  humiliation_type: discovery and realization
+  consent_focus: "characters actively work through consent boundaries"
+  power_dynamic: "Elena initially passive, becomes agent of her own narrative"
+  intensity_level: moderate
+
+target_length: 60000-80000 words
+pov: single (Elena)

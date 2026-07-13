@@ -1,0 +1,132 @@
+id: scene_07_02
+chapter_id: chapter_07
+status: ready
+
+# Narrative positioning
+narrative_position: 2
+story_time: day_3_evening
+
+# Temporal relations
+temporal_relation:
+  parallel_with: []
+  follows_scene: scene_07_01
+
+# Characters & perspective
+pov_character_id: elena
+participants:
+  - elena
+  - daniel
+
+# Entry state: what Elena knows/feels at start (carries forward from scene 1)
+entry_state:
+  knowledge:
+    - what: "Daniel claims he was at the archive during the incident"
+      how_known: external_source
+      degree: probable
+      source: character_id
+    - what: "Archive access record was altered"
+      how_known: perceived
+      degree: certain
+      source: document
+    - what: "Someone has capability to modify historical records"
+      how_known: inferred
+      degree: certain
+      source: inference
+  emotional:
+    trust:
+      state: suspicion
+      intensity: high
+    fear:
+      state: emerging
+      intensity: moderate
+
+# Dramatic action elements
+goal:
+  actor_id: daniel
+  objective: "prevent Elena from acting on the altered record"
+  rationale: "He needs to control the narrative and minimize her investigation"
+
+opposition:
+  source_id: elena
+  pressure: "maintains her composure, gives nothing away"
+  rationale: "She is trying to gather more information before deciding"
+
+turn:
+  type: revelation
+  event: "Daniel mentions 'that archival matter' without context, referring to her investigation"
+  impact: "Elena realizes Daniel is aware she has been investigating the archive"
+
+decision:
+  actor_id: elena
+  choice: "pretend ignorance while probing for information"
+  rationale: "She needs to understand how much Daniel knows and how he found out"
+
+outcome:
+  result: partial
+  knowledge_added:
+    - "Daniel is aware of Elena's investigation"
+    - "Daniel's knowledge suggests he has other information sources"
+  knowledge_questioned: []
+  emotional_shifts:
+    trust: certainty
+    fear: deepens
+  consequences:
+    - "Daniel will try to influence or stop her investigation"
+    - "Their relationship dynamic has shifted from her investigating secretly to open awareness"
+  arc_beats_realized:
+    - beat_id: daniel_awareness
+      degree: full
+    - beat_id: clara_confrontation_imminent
+      degree: partial
+
+# Exit state: what Elena knows/feels at end
+exit_state:
+  knowledge:
+    - what: "Daniel claims he was at the archive during the incident"
+      how_known: external_source
+      degree: probable
+      source: character_id
+    - what: "Archive access record was altered"
+      how_known: perceived
+      degree: certain
+      source: document
+    - what: "Someone has capability to modify historical records"
+      how_known: inferred
+      degree: certain
+      source: inference
+    - what: "Daniel is aware she is investigating the archive"
+      how_known: inferred
+      degree: probable
+      source: inference
+  emotional:
+    trust:
+      state: certainty
+      intensity: high
+      rationale: "His knowledge of her investigation confirms her suspicions about his guilt"
+    fear:
+      state: deepens
+      intensity: high
+      rationale: "Daniel's involvement is now undeniable and he is demonstrating control"
+
+# Arc beat realizations
+realizes_arc_beats:
+  - beat_id: daniel_awareness
+    degree: full
+  - beat_id: clara_confrontation_imminent
+    degree: partial
+
+# Setup/payoff tracking
+setups_created: []
+payoffs_triggered:
+  - altered_record_signature
+
+# Metadata
+tags:
+  - confrontation
+  - netorare
+  - revelation
+notes: |
+  Daniel's casual reference forces Elena's hand. She must now acknowledge
+  (internally) that the power dynamic has shifted. Her secret investigation
+  is no longer secret. This marks the point where she must decide whether
+  to escalate or continue gathering evidence.
