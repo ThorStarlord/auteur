@@ -4,7 +4,7 @@ Validates temporal relationships and positioning of scenes:
 - Unique narrative_position within chapter (reading order)
 - Valid temporal relations (parallel_with, follows_scene)
 - Mutual parallel_with relationships (if A parallel B, then B parallel A)
-- No circular temporal dependency chains
+- No circular follows_scene dependency chains
 - Distinction between narrative_position (reading order) and story_time (world time)
 
 A scene has two temporal dimensions:
@@ -12,13 +12,17 @@ A scene has two temporal dimensions:
 2. story_time: When it occurs in story world (can have simultaneous events)
 
 Temporal relations track story-world simultaneity:
-- parallel_with: Scenes that occur at same time but different POVs/locations
-- follows_scene: Scene that must complete before this begins
+- parallel_with: Symmetric relationship. Scenes at same time, different POVs/locations.
+  If A parallel B, then B must parallel A (mutual reference, NOT causal).
+  Example: scene_a.parallel_with=[scene_b], scene_b.parallel_with=[scene_a] is VALID.
+- follows_scene: Directional dependency. Scene X must complete before Y begins.
+  Creates causal chain: A→B→C (directional).
+  Circular follows_scene chains (A→B→C→A) are INVALID.
 
 Validation rules:
 1. narrative_position unique within chapter
 2. parallel_with relationships must be mutual
-3. No circular parallel_with chains (A parallel B parallel C parallel A is invalid)
+3. No circular follows_scene chains (A→B→C→A via follows_scene is invalid)
 4. follows_scene must reference existing scene
 5. Scene cannot follow/parallel itself
 """
@@ -152,7 +156,7 @@ class TemporalValidator:
         # Validate cross-scene constraints
         all_violations.extend(self.validate_unique_positions())
         all_violations.extend(self.validate_temporal_relations_mutual())
-        all_violations.extend(self.validate_no_circular_parallels())
+        all_violations.extend(self.validate_no_circular_follows_chains())
 
         is_valid = len(all_violations) == 0
         return TemporalValidationResult(
@@ -362,13 +366,18 @@ class TemporalValidator:
 
         return violations
 
-    def validate_no_circular_parallels(self) -> List[TemporalViolation]:
-        """Validate no circular parallel_with chains.
+    def validate_no_circular_follows_chains(self) -> List[TemporalViolation]:
+        """Validate no circular follows_scene dependency chains.
 
-        A→B→C→A circular chain is invalid (would create impossible simultaneity).
+        A→B→C→A circular chain via follows_scene is invalid (creates impossible
+        temporal dependency where A must follow A).
+
+        NOTE: Symmetric parallel_with relationships (A↔B) are VALID and do NOT
+        constitute cycles. parallel_with is non-directional (mutual), while
+        follows_scene is directional (causal). Only directional chains can cycle.
 
         Returns:
-            List of violations (circular dependencies)
+            List of violations (circular follows_scene dependencies)
         """
         violations: List[TemporalViolation] = []
 
@@ -376,7 +385,7 @@ class TemporalValidator:
         rec_stack: Set[str] = set()
 
         def has_cycle(scene_id: str, path: List[str]) -> Tuple[bool, List[str]]:
-            """Detect cycle in parallel_with graph."""
+            """Detect cycle in follows_scene graph (directional only)."""
             visited.add(scene_id)
             rec_stack.add(scene_id)
             path.append(scene_id)
@@ -385,24 +394,25 @@ class TemporalValidator:
                 return False, path
 
             scene = self.scenes[scene_id]
-            if not scene.temporal_relation:
+            if not scene.temporal_relation or not scene.temporal_relation.follows_scene:
                 rec_stack.remove(scene_id)
                 return False, path
 
-            for neighbor in scene.temporal_relation.parallel_with:
-                if neighbor not in visited:
-                    is_cycle, cycle_path = has_cycle(neighbor, path[:])
-                    if is_cycle:
-                        return True, cycle_path
-                elif neighbor in rec_stack:
-                    # Found cycle
-                    cycle_path = path[path.index(neighbor) :] + [neighbor]
+            # Only check follows_scene (directional), NOT parallel_with (symmetric)
+            follows_id = scene.temporal_relation.follows_scene
+            if follows_id not in visited:
+                is_cycle, cycle_path = has_cycle(follows_id, path[:])
+                if is_cycle:
                     return True, cycle_path
+            elif follows_id in rec_stack:
+                # Found cycle
+                cycle_path = path[path.index(follows_id) :] + [follows_id]
+                return True, cycle_path
 
             rec_stack.remove(scene_id)
             return False, path
 
-        # Check each scene for cycles
+        # Check each scene for cycles in follows_scene chains
         for scene_id in self.scenes:
             if scene_id not in visited:
                 is_cycle, cycle_path = has_cycle(scene_id, [])
@@ -415,8 +425,8 @@ class TemporalValidator:
                                 scene_id=scene_in_cycle,
                                 violation_type=TemporalViolationType.CIRCULAR_PARALLEL,
                                 related_scene_id=None,
-                                message=f"Circular parallel_with chain detected: {cycle_str}",
-                                suggestion=f"Remove one or more parallel_with references to break the cycle",
+                                message=f"Circular follows_scene chain detected: {cycle_str}",
+                                suggestion=f"Remove or change follows_scene reference to break the cycle",
                             )
                         )
 

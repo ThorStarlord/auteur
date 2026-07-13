@@ -82,9 +82,9 @@ class NetorareSceneFactory:
             story_time="day_3_evening",
             pov_character_id="clara",
             participants=["clara", "archive_worker"],
-            # Scene 1 is the first scene in sequence
+            # Scene 1 is parallel with scene 2 (same story_time, different POV)
             temporal_relation=TemporalRelation(
-                parallel_with=[],
+                parallel_with=["scene_07_02"],
                 follows_scene=None,
             ),
             # Entry state: Clara trusts Daniel's alibi
@@ -199,10 +199,10 @@ class NetorareSceneFactory:
             story_time="day_3_evening",
             pov_character_id="clara",
             participants=["clara", "daniel"],
-            # Scene 2 follows scene 1
+            # Scene 2 is parallel with scene 1 (same story_time, simultaneous)
             temporal_relation=TemporalRelation(
-                parallel_with=[],
-                follows_scene="scene_07_01",
+                parallel_with=["scene_07_01"],
+                follows_scene=None,
             ),
             # Entry state: Clara has discovered the altered record (plus previous knowledge)
             entry_state=EntryState(
@@ -357,7 +357,7 @@ class NetorareSceneFactory:
                         source="document",
                     ),
                     KnowledgeFact(
-                        what="Daniel is aware she is investigating",
+                        what="Daniel is aware she is investigating the archive",
                         how_known="inferred",
                         degree="probable",
                         source="inference",
@@ -509,25 +509,34 @@ class TestSceneRealizationFromChapter:
 
     def test_newly_created_scene_passes_all_validators(self):
         """New scene should pass temporal, knowledge, and realization validators."""
-        scene = NetorareSceneFactory.build_scene_1_clara_researches()
+        scene1 = NetorareSceneFactory.build_scene_1_clara_researches()
+        scene2 = NetorareSceneFactory.build_scene_2_daniel_interrupts()
+        scene3 = NetorareSceneFactory.build_scene_3_clara_decides()
 
-        # Temporal validator (single scene should pass)
+        # Temporal validator (add all scenes since they reference each other)
         tv = TemporalValidator()
-        t_result = tv.validate_scene(scene)
+        tv.add_scene(scene1)
+        tv.add_scene(scene2)
+        tv.add_scene(scene3)
+        t_result = tv.validate_all_scenes()
         assert t_result.is_valid, f"Temporal violations: {t_result.violations}"
 
-        # Knowledge validator
+        # Knowledge validator (validate each scene)
         kv = KnowledgeValidator()
-        k_result = kv.validate_scene(scene)
-        assert k_result.is_valid, f"Knowledge violations: {k_result.violations}"
+        for scene in [scene1, scene2, scene3]:
+            k_result = kv.validate_scene(scene)
+            assert k_result.is_valid, f"Knowledge violations in {scene.id}: {k_result.violations}"
 
         # Realization validator (must register beats first)
         rv = RealizationValidator()
-        # Register the beats that the scene references
-        for beat_realization in scene.realizes_arc_beats:
-            rv.register_arc_beat(beat_realization.beat_id, "char_arc_clara_trust")
-        r_result = rv.validate_scene(scene)
-        assert r_result.is_valid, f"Realization violations: {r_result.violations}"
+        # Register the beats that the scenes reference
+        for scene in [scene1, scene2, scene3]:
+            for beat_realization in scene.realizes_arc_beats:
+                rv.register_arc_beat(beat_realization.beat_id, "char_arc_clara_trust")
+
+        for scene in [scene1, scene2, scene3]:
+            r_result = rv.validate_scene(scene)
+            assert r_result.is_valid, f"Realization violations in {scene.id}: {r_result.violations}"
 
 
 class TestMultipleScenesPerChapter:
@@ -701,8 +710,12 @@ class TestTemporalRelationships:
         # Scene 3 follows scene 2
         assert scene3.temporal_relation.follows_scene == "scene_07_02"
 
-    def test_circular_parallel_with_detected(self):
-        """Temporal validator detects circular parallel_with chains (mutual references)."""
+    def test_mutual_parallel_with_is_valid(self):
+        """Symmetric parallel_with relationships are VALID (not circular).
+
+        Two scenes with mutual parallel_with (A↔B) represent genuine simultaneity,
+        not a logical cycle. This is a symmetric relationship, not directional.
+        """
         scene1 = SceneOutline(
             id="scene_01_01",
             chapter_id="chapter_01",
@@ -748,10 +761,84 @@ class TestTemporalRelationships:
         tv.add_scene(scene2)
         result = tv.validate_all_scenes()
 
-        # Validator detects mutual parallel_with as circular - this is conservative behavior
-        # In practice, mutual parallel_with is valid for truly parallel scenes
-        # This test verifies that the validator catches mutual references
-        assert not result.is_valid  # Circular detected
+        # Mutual parallel_with is valid (symmetric relationship, not circular)
+        assert result.is_valid, "Mutual parallel_with should be valid"
+        assert not any(v.violation_type.value == "circular_parallel" for v in result.violations)
+
+    def test_circular_follows_chains_detected(self):
+        """Temporal validator detects circular follows_scene chains.
+
+        A→B→C→A via follows_scene creates impossible temporal ordering where
+        a scene must complete before itself. This is invalid.
+        """
+        scene1 = SceneOutline(
+            id="scene_01_01",
+            chapter_id="chapter_01",
+            narrative_position=1,
+            story_time="day_1",
+            pov_character_id="alice",
+            participants=["alice"],
+            goal=Goal(actor_id="alice", objective="test"),
+            opposition=Opposition(source_id="external", pressure="test"),
+            outcome=Outcome(result="success"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
+            turn=Turn(type="discovery", event="test", impact="test"),
+            decision=Decision(actor_id="alice", choice="test"),
+            status=SceneStatus.READY,
+            temporal_relation=TemporalRelation(
+                follows_scene="scene_01_03",  # A follows C
+            ),
+        )
+
+        scene2 = SceneOutline(
+            id="scene_01_02",
+            chapter_id="chapter_01",
+            narrative_position=2,
+            story_time="day_1_evening",
+            pov_character_id="bob",
+            participants=["bob"],
+            goal=Goal(actor_id="bob", objective="test"),
+            opposition=Opposition(source_id="external", pressure="test"),
+            outcome=Outcome(result="success"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
+            turn=Turn(type="discovery", event="test", impact="test"),
+            decision=Decision(actor_id="bob", choice="test"),
+            status=SceneStatus.READY,
+            temporal_relation=TemporalRelation(
+                follows_scene="scene_01_01",  # B follows A
+            ),
+        )
+
+        scene3 = SceneOutline(
+            id="scene_01_03",
+            chapter_id="chapter_01",
+            narrative_position=3,
+            story_time="day_2",
+            pov_character_id="charlie",
+            participants=["charlie"],
+            goal=Goal(actor_id="charlie", objective="test"),
+            opposition=Opposition(source_id="external", pressure="test"),
+            outcome=Outcome(result="success"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
+            turn=Turn(type="discovery", event="test", impact="test"),
+            decision=Decision(actor_id="charlie", choice="test"),
+            status=SceneStatus.READY,
+            temporal_relation=TemporalRelation(
+                follows_scene="scene_01_02",  # C follows B, completing cycle A→B→C→A
+            ),
+        )
+
+        tv = TemporalValidator()
+        tv.add_scene(scene1)
+        tv.add_scene(scene2)
+        tv.add_scene(scene3)
+        result = tv.validate_all_scenes()
+
+        # Validator should detect circular follows_scene chain
+        assert not result.is_valid, "Circular follows_scene chain should be invalid"
         assert any(v.violation_type.value == "circular_parallel" for v in result.violations)
 
 
@@ -835,19 +922,23 @@ class TestMultipleGenres:
 
     def test_netorare_scene_validates(self):
         """Netorare scene passes validation."""
-        scene = NetorareSceneFactory.build_scene_1_clara_researches()
+        scene1 = NetorareSceneFactory.build_scene_1_clara_researches()
+        scene2 = NetorareSceneFactory.build_scene_2_daniel_interrupts()
+        scene3 = NetorareSceneFactory.build_scene_3_clara_decides()
 
         tv = TemporalValidator()
-        tv.add_scene(scene)
+        tv.add_scene(scene1)
+        tv.add_scene(scene2)
+        tv.add_scene(scene3)
         t_result = tv.validate_all_scenes()
 
         kv = KnowledgeValidator()
-        k_result = kv.validate_scene(scene)
+        k_result = kv.validate_scene(scene1)
 
         rv = RealizationValidator()
-        for beat_realization in scene.realizes_arc_beats:
+        for beat_realization in scene1.realizes_arc_beats:
             rv.register_arc_beat(beat_realization.beat_id, "char_arc_clara")
-        r_result = rv.validate_scene(scene)
+        r_result = rv.validate_scene(scene1)
 
         assert t_result.is_valid
         assert k_result.is_valid
