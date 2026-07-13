@@ -82,7 +82,7 @@ class TestBeatReferences:
             pov_character_id="clara",
             participants=["clara"],
             realizes_arc_beats=[make_beat("beat_01")],
-            status=SceneStatus.READY,
+            status=SceneStatus.DRAFT,
         )
         validator.add_scene(scene)
 
@@ -106,7 +106,7 @@ class TestBeatReferences:
             pov_character_id="clara",
             participants=["clara"],
             realizes_arc_beats=[make_beat("beat_nonexistent")],
-            status=SceneStatus.READY,
+            status=SceneStatus.DRAFT,
         )
         validator.add_scene(scene)
 
@@ -131,7 +131,7 @@ class TestBeatReferences:
             pov_character_id="clara",
             participants=["clara"],
             realizes_arc_beats=[make_beat("beat_01"), make_beat("beat_02")],
-            status=SceneStatus.READY,
+            status=SceneStatus.DRAFT,
         )
         validator.add_scene(scene)
 
@@ -158,7 +158,7 @@ class TestBeatReferences:
             pov_character_id="clara",
             participants=["clara"],
             realizes_arc_beats=[make_beat("beat_01"), make_beat("beat_02")],
-            status=SceneStatus.READY,
+            status=SceneStatus.DRAFT,
         )
         validator.add_scene(scene)
 
@@ -190,7 +190,7 @@ class TestRealizationDegree:
                 pov_character_id="clara",
                 participants=["clara"],
                 realizes_arc_beats=[make_beat("beat_01", degree)],
-                status=SceneStatus.READY,
+                status=SceneStatus.DRAFT,
             )
             validator.add_scene(scene)
             result = validator.validate_scene(scene)
@@ -214,7 +214,7 @@ class TestCriticalBeatRealization:
             pov_character_id="clara",
             participants=["clara"],
             realizes_arc_beats=[make_beat("beat_critical", "full")],
-            status=SceneStatus.READY,
+            status=SceneStatus.DRAFT,
         )
         validator.add_scene(scene)
 
@@ -254,7 +254,7 @@ class TestCriticalBeatRealization:
             pov_character_id="clara",
             participants=["clara"],
             realizes_arc_beats=[make_beat("beat_critical", "partial")],
-            status=SceneStatus.READY,
+            status=SceneStatus.DRAFT,
         )
         validator.add_scene(scene)
 
@@ -279,7 +279,7 @@ class TestCriticalBeatRealization:
                 make_beat("beat_critical_01", "full"),
                 make_beat("beat_critical_02", "full"),
             ],
-            status=SceneStatus.READY,
+            status=SceneStatus.DRAFT,
         )
         validator.add_scene(scene)
 
@@ -318,7 +318,7 @@ class TestNonCriticalBeats:
             pov_character_id="clara",
             participants=["clara"],
             realizes_arc_beats=[make_beat("beat_01", "partial")],
-            status=SceneStatus.READY,
+            status=SceneStatus.DRAFT,
         )
         validator.add_scene(scene)
 
@@ -342,7 +342,7 @@ class TestMultipleScenes:
             pov_character_id="clara",
             participants=["clara"],
             realizes_arc_beats=[make_beat("beat_01")],
-            status=SceneStatus.READY,
+            status=SceneStatus.DRAFT,
         )
         validator.add_scene(scene)
 
@@ -362,7 +362,7 @@ class TestMultipleScenes:
             pov_character_id="clara",
             participants=["clara"],
             realizes_arc_beats=[make_beat("beat_01", "partial")],
-            status=SceneStatus.READY,
+            status=SceneStatus.DRAFT,
         )
 
         scene2 = SceneOutline(
@@ -373,7 +373,7 @@ class TestMultipleScenes:
             pov_character_id="clara",
             participants=["clara"],
             realizes_arc_beats=[make_beat("beat_01", "full")],
-            status=SceneStatus.READY,
+            status=SceneStatus.DRAFT,
         )
 
         validator.add_scene(scene1)
@@ -397,7 +397,7 @@ class TestMultipleScenes:
             pov_character_id="clara",
             participants=["clara"],
             realizes_arc_beats=[make_beat("beat_01")],
-            status=SceneStatus.READY,
+            status=SceneStatus.DRAFT,
         )
 
         scene2 = SceneOutline(
@@ -408,7 +408,7 @@ class TestMultipleScenes:
             pov_character_id="daniel",
             participants=["daniel"],
             realizes_arc_beats=[make_beat("beat_02")],
-            status=SceneStatus.READY,
+            status=SceneStatus.DRAFT,
         )
 
         validator.add_scene(scene1)
@@ -434,20 +434,20 @@ class TestEmptyScenes:
             pov_character_id="clara",
             participants=["clara"],
             realizes_arc_beats=[],  # No beats
-            status=SceneStatus.READY,
+            status=SceneStatus.DRAFT,
         )
         validator.add_scene(scene)
 
         result = validator.validate_scene(scene)
         assert result.is_valid is True
 
-    def test_no_scenes_no_errors(self):
-        """Test validator with no scenes and beats."""
+    def test_no_scenes_critical_beat_unrealized(self):
+        """Test validator with no scenes but critical beat registered."""
         validator = RealizationValidator()
-        validator.register_arc_beat("beat_01", "arc_01")
+        validator.register_arc_beat("beat_01", "arc_01", critical=True)
 
         result = validator.validate_all_scenes()
-        # No scenes means beat is unrealized
+        # Critical beat is unrealized when no scenes exist
         assert not result.is_valid
 
 
@@ -533,7 +533,7 @@ class TestRealizationIntegration:
             pov_character_id="clara",
             participants=["clara", "daniel"],
             realizes_arc_beats=[make_beat("beat_trust_01", "full")],
-            status=SceneStatus.READY,
+            status=SceneStatus.DRAFT,
         )
 
         scene2 = SceneOutline(
@@ -544,7 +544,7 @@ class TestRealizationIntegration:
             pov_character_id="daniel",
             participants=["daniel", "clara"],
             realizes_arc_beats=[make_beat("beat_deception_01", "full")],
-            status=SceneStatus.READY,
+            status=SceneStatus.DRAFT,
         )
 
         scene3 = SceneOutline(
@@ -555,7 +555,7 @@ class TestRealizationIntegration:
             pov_character_id="clara",
             participants=["clara", "daniel"],
             realizes_arc_beats=[make_beat("beat_trust_02", "full")],
-            status=SceneStatus.READY,
+            status=SceneStatus.DRAFT,
         )
 
         validator.add_scene(scene1)

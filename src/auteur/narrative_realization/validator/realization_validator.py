@@ -21,6 +21,35 @@ Validation ensures:
 - Critical beats marked as such and fully realized somewhere
 - Partial/implied beats have evidence field
 - No contradictory realizations (same beat fully realized in multiple ways)
+
+Key Relationships:
+------------------
+The realization validator bridges two layers:
+- Layer 2 Intention: Arc defines beats as "planned dramatic moments"
+- Layer 3 Realization: Scene realizes beats as "scenes where beat occurs"
+
+A single beat can be realized across multiple scenes:
+- Scene A: partial realization (beat starts)
+- Scene B: full realization (beat completed)
+- Scene C: deferred (beat planned but delayed)
+
+Critical beats are those marked "must be fully realized" by the arc author.
+The validator ensures story doesn't leave critical beats unresolved.
+
+Example Flow:
+- Arc "Clara's trust breaks" has beat "betrayal_revealed"
+- Scene 1 realizes this beat with degree=partial (hint of betrayal)
+- Scene 2 realizes this beat with degree=full (betrayal proven)
+- Validator confirms degree progression is logical
+
+Error Reporting:
+----------------
+The validator produces actionable error messages that identify:
+1. Which scene has the problem (scene_id)
+2. What type of problem (violation_type)
+3. Which beat is affected (beat_id)
+4. What the specific issue is (message)
+5. How to fix it (suggestion)
 """
 
 from dataclasses import dataclass
@@ -133,15 +162,12 @@ class RealizationValidator:
         violations: List[RealizationViolation] = []
         warnings: List[str] = []
 
-        # Skip draft scenes (minimal validation)
-        if scene.status == SceneStatus.DRAFT:
-            return RealizationValidationResult(
-                is_valid=True, violations=violations, warnings=warnings
-            )
-
-        # Validate beat references
+        # Always validate beat references (even for draft scenes)
         violations.extend(self.validate_beat_references(scene))
-        violations.extend(self.validate_realization_degree(scene))
+
+        # Skip degree validation for draft scenes (minimal validation)
+        if scene.status != SceneStatus.DRAFT:
+            violations.extend(self.validate_realization_degree(scene))
 
         is_valid = len(violations) == 0
         return RealizationValidationResult(
@@ -272,6 +298,17 @@ class RealizationValidator:
         If a beat is partially or implicitly realized, the scene should include
         an evidence field explaining why the realization is incomplete.
 
+        Evidence Requirements:
+        ----------------------
+        - degree="partial": evidence should explain what part of beat occurs
+          Example: "Clara learns of betrayal but doesn't confront Daniel yet"
+
+        - degree="implied": evidence should explain what happens off-stage
+          Example: "Daniel's guilt is revealed through letter, not dialogue"
+
+        - degree="deferred": evidence should explain why beat is delayed
+          Example: "Beat postponed until next chapter when Clara finds proof"
+
         Args:
             scene: Scene to validate
 
@@ -281,7 +318,19 @@ class RealizationValidator:
         violations: List[RealizationViolation] = []
 
         # This validation would be implemented in full schema version
-        # with structured ArcBeatRealization objects containing evidence field
+        # with structured ArcBeatRealization objects containing evidence field.
+        #
+        # When evidence field becomes available in ArcBeatRealization:
+        # for beat_realization in scene.realizes_arc_beats:
+        #     if beat_realization.degree in ["partial", "implied", "deferred"]:
+        #         if not beat_realization.evidence or not beat_realization.evidence.strip():
+        #             violations.append(RealizationViolation(
+        #                 scene_id=scene.id,
+        #                 violation_type=RealizationViolationType.MISSING_EVIDENCE,
+        #                 beat_id=beat_realization.beat_id,
+        #                 message=f"Beat {beat_realization.beat_id} has degree={beat_realization.degree} but no evidence",
+        #                 suggestion=f"Add evidence field explaining why realization is {beat_realization.degree}"
+        #             ))
 
         return violations
 
@@ -291,13 +340,35 @@ class RealizationValidator:
         A beat cannot be fully realized in one scene as one thing and
         fully realized in another scene as something contradictory.
 
+        Contradiction Examples:
+        -----------------------
+        VALID: Same beat, progressive realization
+        - Scene A: beat_trust_breaks (degree=partial) - Clara suspects Daniel
+        - Scene B: beat_trust_breaks (degree=full) - Clara proves Daniel lied
+        → Sequential realization of same beat is OK
+
+        INVALID: Same beat, contradictory full realizations
+        - Scene A: beat_trust_breaks (degree=full) - Clara's trust is broken
+        - Scene B: beat_trust_restored (degree=full) - Clara trusts Daniel again
+        → Each beat can have multiple scenes, but each beat must realize consistently
+
         Returns:
             List of violations (contradictory realizations)
         """
         violations: List[RealizationViolation] = []
 
         # This would require more detailed tracking of realization content
-        # in full implementation
+        # in full implementation.
+        #
+        # Future validation logic:
+        # 1. Group all scene realizations by beat_id
+        # 2. For beats with multiple full realizations:
+        #    - Check if they contradict (need semantic analysis of beat definitions)
+        #    - Report if full realization differs from other full realizations
+        # 3. Track partial→full progression (should be monotonic)
+        #    - partial should come before full for same beat
+        #    - deferred scenes must not come after full realization
+        # 4. Check for logical flow across scenes
 
         return violations
 

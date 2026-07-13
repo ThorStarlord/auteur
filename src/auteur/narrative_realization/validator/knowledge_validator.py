@@ -17,6 +17,28 @@ it must be in entry_state of scene N+1 if character is POV).
 Validation distinguishes draft vs. ready scenes:
 - draft: basic checks only
 - ready: full knowledge consistency validation
+
+Key Implementation Notes:
+------------------------
+The KnowledgeValidator works with the SceneOutline schema which includes:
+- entry_state: Optional[EntryState] - knowledge and emotions at scene start
+- exit_state: Optional[ExitState] - knowledge and emotions at scene end
+- pov_character_id: Optional[str] - whose perspective the scene is from
+- participants: List[str] - characters present in scene
+
+The validator tracks knowledge across scenes using:
+- narrative_position: reading order within chapter
+- chapter_id: grouping of scenes
+- pov_character_id: knowledge ownership
+
+Future Extensions:
+------------------
+When schema is enhanced, validator will support:
+- learned_in_scene field (explicit learning mechanisms)
+- forgetting_in_scene field (explicit forgetting with reason)
+- other_character_knowledge (what protagonist knows about others)
+- knowledge_source tracking (how/where each fact came from)
+- temporal knowledge (facts about when things happened)
 """
 
 from dataclasses import dataclass
@@ -169,6 +191,15 @@ class KnowledgeValidator:
         The exit knowledge must be consistent with entry knowledge plus what
         was learned. No contradictions should appear.
 
+        The mathematical relationship should hold:
+        exit_knowledge = entry_knowledge ∪ learned_in_scene - contradicted_facts
+
+        Where:
+        - entry_knowledge: facts character knows entering the scene
+        - learned_in_scene: new facts discovered or deduced during scene
+        - contradicted_facts: facts that are explicitly denied
+        - exit_knowledge: final knowledge state after scene
+
         Args:
             scene: Scene to validate
 
@@ -178,8 +209,16 @@ class KnowledgeValidator:
         violations: List[KnowledgeViolation] = []
 
         # Can only validate if we have complete knowledge state
-        # (This would require additional schema fields for learned_in_scene)
-        # For now, we validate the structural consistency
+        # (This would require additional schema fields for learned_in_scene and contradicted)
+        #
+        # Validation structure when full schema is available:
+        # 1. Extract entry_knowledge facts (if scene has entry_state)
+        # 2. Extract learned_in_scene facts (if available in scene schema)
+        # 3. Extract exit_knowledge facts (if scene has exit_state)
+        # 4. Verify exit_knowledge contains all non-contradicted entry facts
+        # 5. Verify exit_knowledge contains all learned facts
+        # 6. Check for contradictory facts (e.g., learned "X is true" and "X is false")
+        # 7. Report specific violations with affected facts
 
         return violations
 
@@ -190,6 +229,16 @@ class KnowledgeValidator:
 
         Within a chapter, if a scene's exit_state contains a fact, the next
         scene's entry_state must also contain it (if same POV character).
+
+        Core principle: In narrative, characters remember what they've learned.
+        A character cannot know fact X in scene N+2 but not know it in scene N+1
+        unless there's an explicit mechanism (memory loss, mind-wipe, etc.).
+
+        Retroactive forgetting happens when:
+        - Fact F is in scene_N.exit_knowledge
+        - Fact F is NOT in scene_N+1.entry_knowledge
+        - Scenes N and N+1 have same POV character
+        - No mechanism for forgetting exists (memory loss scene, etc.)
 
         Args:
             scene: Scene to validate
@@ -215,17 +264,23 @@ class KnowledgeValidator:
                 and s.narrative_position < scene.narrative_position
             ]
 
-            # Check each previous scene's exit knowledge
+            # Check each previous scene's exit knowledge against this scene's entry
             for prev_scene in sorted(
                 previous_scenes, key=lambda s: s.narrative_position or 0
             ):
-                # Only check if same POV character
+                # Only check if same POV character or same scene participant group
                 if (
                     prev_scene.pov_character_id == scene.pov_character_id
                     and scene.pov_character_id
                 ):
-                    # Get exit knowledge from previous scene (mock for now)
-                    # In full implementation, would load actual exit_state
+                    # In full implementation with complete schema:
+                    # 1. Get exit_knowledge facts from prev_scene
+                    # 2. Get entry_knowledge facts from current scene
+                    # 3. For each fact in prev exit_knowledge:
+                    #    - Check if it's in current entry_knowledge
+                    #    - Report violation if missing and no forgetting mechanism
+                    # 4. Track which facts were "explicitly forgotten"
+                    #    (in contradiction list rather than missing)
                     pass
 
         chapter_scenes.append(scene)
@@ -239,6 +294,9 @@ class KnowledgeValidator:
         POV character can learn through non-presence (message, document, inference).
         Non-POV characters' knowledge is separate. No impossible omniscience.
 
+        Key constraint: No character should know facts that haven't been established
+        in any scene they've participated in, been told about, or can logically infer.
+
         Args:
             scene: Scene to validate
 
@@ -247,11 +305,21 @@ class KnowledgeValidator:
         """
         violations: List[KnowledgeViolation] = []
 
-        # POV character can learn through documents/messages even if not present
-        # Other characters' knowledge must be inferred from presence/action
+        # POV character can learn through documents/messages even if not present in scene
+        # Other characters' knowledge must be inferred from presence/action or communication
+        # from POV character
 
-        # This requires more detailed knowledge tracking in the schema
-        # For now, we provide the structure for this validation
+        # This requires more detailed knowledge tracking in the schema:
+        # - Separate entry_knowledge for POV vs other characters
+        # - learned_in_scene split by mechanism (perceived, told, inferred, document)
+        # - Ability to track inter-character communication
+        #
+        # Future validation will check:
+        # 1. Non-POV character facts must be observable or told to POV
+        # 2. POV can learn off-stage through messages/documents only if source is specified
+        # 3. No character knows events before they occur (temporal causality)
+        # 4. Character knowledge must be traceable to scene where learned
+        # 5. If character A tells character B something, B must be in scene with A
 
         return violations
 
@@ -261,6 +329,12 @@ class KnowledgeValidator:
         Scene's exit_knowledge should inform next scene's entry_knowledge.
         If a fact appears in a later scene, it should be traceable to earlier
         scene where it was learned.
+
+        Knowledge must flow coherently through the narrative:
+        - Scene 1 learns fact X (exit_knowledge includes X)
+        - Scene 2 (same character) must have X in entry_knowledge
+        - If Scene 2 doesn't have X, it's a violation (gap in knowledge chain)
+        - Exception: Character explicitly forgets X (with mechanism explanation)
 
         Returns:
             List of violations (knowledge appears out of nowhere)
@@ -293,8 +367,15 @@ class KnowledgeValidator:
                     prev_scene.pov_character_id == scene.pov_character_id
                     and scene.pov_character_id
                 ):
-                    # Would validate that scene's entry_knowledge is subset of
-                    # or derived from prev_scene's exit_knowledge
+                    # Full implementation will:
+                    # 1. Extract exit_knowledge facts from prev_scene
+                    # 2. Extract entry_knowledge facts from current scene
+                    # 3. For each fact F in prev exit_knowledge:
+                    #    - Check if F is in current entry_knowledge
+                    #    - If F is missing and no explicit forgetting mechanism:
+                    #      Report KnowledgeViolation with KNOWLEDGE_GAP error type
+                    # 4. Check for contradictions (X true in prev, X false now)
+                    #    Report with CONTRADICTORY_KNOWLEDGE error type
                     pass
 
         return violations
