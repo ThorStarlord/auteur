@@ -1,4 +1,4 @@
-"""Reference validator for Layer 2.5 narrative orchestration.
+"""Reference validator for Structure composition.
 
 This module validates that all IDs in outline artifacts resolve correctly.
 It checks:

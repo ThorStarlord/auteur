@@ -1,4 +1,4 @@
-"""Composition constraints for Layer 2.5 narrative orchestration.
+"""Composition constraints for Structure orchestration.
 
 This module defines constraint types that govern how artifacts in a narrative
 composition must relate to each other. Constraints enforce domain rules about

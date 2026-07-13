@@ -1,4 +1,4 @@
-"""Validators for Layer 2.5 narrative orchestration.
+"""Validators for Structure composition and orchestration.
 
 This module provides validation for the complete narrative structure,
 ensuring coherence across all outline artifacts.

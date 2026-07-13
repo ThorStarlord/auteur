@@ -1,6 +1,6 @@
-"""Narrative orchestration (Layer 2.5) for composition and integration of narrative structures.
+"""Narrative orchestration for Structure composition and integration.
 
-Layer 2.5 defines ownership, references, validation, and orchestration across
+This package defines ownership, references, validation, and orchestration across
 Book, Sequence, Chapter, and Arc outlines. It transforms Layer 2 from disconnected
 schemas into one coherent narrative structure system.
 """

@@ -1,34 +1,28 @@
 # Auteur Narrative Artifacts
 
-This document describes the durable, version-controlled artifacts that Auteur produces at each narrative layer.
+> Canonical architecture: [Narrative Architecture](narrative-architecture.md).
+
+This document describes the durable, version-controlled artifacts that Auteur
+produces across its semantic layers and scopes.
 
 ## Layered Story Architecture
 
-Auteur implements a 7-layer narrative hierarchy, with each layer producing persistent artifacts:
+Auteur uses five semantic layers across optional narrative scopes. Not every
+scope/layer cell requires a persistent artifact. Universe, Series, Book,
+Chapter, and Scene are scopes, not layers.
 
-```
-Universe
-  ↓
-Series
-  ↓
-Book/Story Identity
-  ↓
-Blueprint
-  ↓
-Outline
-  ↓
-Draft
-  ↓
-Editing
+```text
+Ontology → Identity → Structure → Realization → Expression
 ```
 
-Each layer owns a different scale of narrative decision and produces durable YAML/JSON artifacts.
+The semantic axis is Ontology → Identity → Structure → Realization → Expression.
+Each scope/layer cell is optional unless a workflow explicitly requires it.
 
 ---
 
 ## Layer Artifacts
 
-### Layer 1: Universe (`universe_identity.yaml`)
+### Universe scope (`universe_identity.yaml`)
 
 Defines world rules, constraints, and lore that apply to all descendant Series.
 
@@ -47,7 +41,7 @@ Defines world rules, constraints, and lore that apply to all descendant Series.
 
 ---
 
-### Layer 2: Series (`series_identity.yaml`)
+### Series scope (`series_identity.yaml`)
 
 Defines multi-book continuity, character arcs, thematic throughlines, and relationships.
 
@@ -93,7 +87,7 @@ Defines multi-book continuity, character arcs, thematic throughlines, and relati
 
 ---
 
-### Layer 2B: Series Bible (`series_bible.json`)
+### Derived Series Bible (`series_bible.json`)
 
 Compiled operational reference derived from `series_identity.yaml` and book-level state.
 
@@ -132,7 +126,7 @@ Compiled operational reference derived from `series_identity.yaml` and book-leve
 
 ---
 
-### Layer 3: Book/Story Identity (`story_identity.yaml`)
+### Book Identity (`story_identity.yaml`)
 
 Defines a single book's genre, emotional core, mode, and narrative blueprint contract.
 
@@ -151,7 +145,7 @@ Defines a single book's genre, emotional core, mode, and narrative blueprint con
 
 ---
 
-### Layer 4: Blueprint (`blueprint.yaml`)
+### Structure: Blueprint (`blueprint.yaml`)
 
 Scene-by-scene narrative structure aligned to the 9-phase genre structure.
 
@@ -166,7 +160,7 @@ Scene-by-scene narrative structure aligned to the 9-phase genre structure.
 
 ---
 
-### Layer 5: Outline (`chapters/NN/outline.yaml`)
+### Structure/Realization boundary: Outline (`chapters/NN/outline.yaml`)
 
 Scene-by-scene breakdown (via Cartographer or manual authoring).
 
@@ -184,7 +178,7 @@ Scene-by-scene breakdown (via Cartographer or manual authoring).
 
 ---
 
-### Layer 6: Draft (`chapters/NN/draft_vN.md`)
+### Expression: Draft (`chapters/NN/draft_vN.md`)
 
 Actual prose generation and management.
 
@@ -199,9 +193,13 @@ Actual prose generation and management.
 
 ---
 
-### Layer 7: Editing (`<book>_review.md` / `<book>_drift_report.json`)
+### Cross-cutting Editing (`<book>_review.md` / `<book>_drift_report.json`)
 
 Refinement, review, and drift validation.
+
+Editing is cross-cutting. Its findings may require review of Expression,
+Realization, Structure, or Identity; an editing report does not silently rewrite
+those canonical sources.
 
 **Review Artifact (`<book>_review.md`):**
 - Generated editorial feedback

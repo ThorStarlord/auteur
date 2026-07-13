@@ -1,6 +1,6 @@
-"""Real Outline Integration Test for Layer 2.5 (Task 13).
+"""Real Outline Integration Test for Structure composition (Task 13).
 
-This comprehensive integration test validates the complete Layer 2.5 workflow
+This comprehensive integration test validates the complete Structure workflow
 using a real, complex StoryIdentity with:
 - Netorara genre (classic_humiliation emotional core)
 - 2 books with 6 sequences total (3 per book)

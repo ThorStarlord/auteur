@@ -1,4 +1,4 @@
-"""Outline Inspector for Layer 2.5 narrative orchestration.
+"""Outline Inspector for Structure orchestration.
 
 This module provides the OutlineInspector class for displaying and analyzing
 complete outline structures in readable format. It shows hierarchy, arc coverage,

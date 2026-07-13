@@ -1,4 +1,4 @@
-"""Composition Rules YAML Loader for Layer 2.5 narrative orchestration.
+"""Composition Rules YAML Loader for Structure orchestration.
 
 This module provides:
 - Loading and validation of composition rules from YAML files

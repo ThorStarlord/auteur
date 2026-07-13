@@ -37,7 +37,7 @@ This repository contains a working Engine v1 CLI and Python library covering the
 - **Subgenre Modifier Validation**: Registered subgenre modifiers (`locked_room`, `hardboiled`, `cozy`) with scope, setup, and misuse diagnostics.
 - **Structure Generation (top-down)**: Synthesizes a complete story engine from target experience, genre, and scope constraints.
 - **Structure Diagnosis (bottom-up)**: Maps author-described symptoms (e.g. "midpoint feels flat") to likely structural root causes with recommendations.
-- **Deterministic Diagnostics**: 20+ deterministic rules across layers 1-6 and 9, with repair proposals and full proposal lifecycle (diagnose → propose → select → apply).
+- **Deterministic Diagnostics**: 20+ deterministic rules across Identity, Structure, and Realization concerns, with repair proposals and full proposal lifecycle (diagnose → propose → select → apply).
 - **State Management**: Multi-layer coordination across all 9 structure layers via `auteur state` commands (check, update, prepare, canon, confirm).
 - **Outline Compiling**: Cartographer outline compilation from blueprint with deterministic validation.
 - **TDD Drafting**: Multi-critic verification loops (contract, arc, tension, slop, theme) against structured chapter contracts, with automatic rewrite attempts and manual accept/retry flows.
@@ -271,10 +271,12 @@ See [docs/project-format.md](docs/project-format.md) for the full artifact contr
 
 ## Structure Engine
 
+The canonical architecture is [Ontology → Identity → Structure → Realization → Expression](docs/narrative-architecture.md). The nine-step genre pipeline is a genre-specific authoring workflow, not a semantic layer model.
+
 Auteur is a whole-story structure engine first. The structure layer owns:
 
-- **9-layer model**: Target Experience → Promise/Form Contract → Scope/Scale → Structural Forces → Threads → Carriers → Representation → Modulation → Resonance/Coherence.
-- **Deterministic diagnostics**: 20+ rules across layers 1-6 and 9 for within-blueprint coherence, genre contract validation, and subgenre modifier validation.
+- **Five semantic layers**: Ontology (concepts) → Identity (commitments) → Structure (plans) → Realization (events and state changes) → Expression (language). Genre phases are not semantic layers.
+- **Deterministic diagnostics**: 20+ rules across Identity, Structure, and Realization concerns for within-blueprint coherence, genre contract validation, and subgenre modifier validation.
 - **Proposal lifecycle**: Full diagnose → propose → select → apply cycle with `auteur structure` commands.
 - **Top-down generation**: Synthesizes story engines from target experience downward via `auteur structure generate`.
 - **Bottom-up symptom diagnosis**: Maps author-described symptoms to structural root causes via `auteur structure generate --symptom`.
@@ -286,6 +288,7 @@ Chapter drafting is an optional downstream consumer of the structure engine. See
 ## Documentation
 
 - [Architecture](docs/architecture.md)
+- [Canonical narrative architecture](docs/narrative-architecture.md)
 - [Engine v1 Workflow](docs/engine-v1-workflow.md)
 - [Project Format](docs/project-format.md)
 - [Next Step Discovery](docs/next-step-discovery.md)

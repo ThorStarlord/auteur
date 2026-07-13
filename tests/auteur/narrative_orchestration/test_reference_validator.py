@@ -1,4 +1,4 @@
-"""Tests for Layer 2.5 reference validator.
+"""Tests for Structure reference validator.
 
 Tests cover:
 - Valid references that pass all checks

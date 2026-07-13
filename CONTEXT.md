@@ -1,12 +1,14 @@
 # Genre Pipeline Architecture Context
 
+> Canonical architecture: [Narrative Architecture](docs/narrative-architecture.md).
+
 This document defines the domain language and runtime ownership for Auteur's
 built-in interactive genre pipelines.
 
 ## Genre Pipeline
 
 A genre pipeline is a deterministic Narrative Engine workflow that turns an
-author's nine-layer choices into a validated `StoryIdentity`. Netorare, mystery,
+author's genre-specific choices into a validated `StoryIdentity`. Netorare, mystery,
 and gentlefemdom are built-in pipelines. A built-in pipeline is not an external
 plugin and is separate from project-local contracts created by Genre Builder.
 
@@ -22,7 +24,10 @@ The registry is operational: public genre commands resolve a specification and
 execute through `auteur.genre_pipeline`. Runtime code does not dispatch on genre
 names or import another genre's command, session, server, or identity generator.
 
-## Nine Layers
+## Genre phases and dimensions
+
+Genre pipelines use nine genre-specific phases/dimensions. These are not
+Auteur semantic architecture layers.
 
 1. Emotional core
 2. Genre contract

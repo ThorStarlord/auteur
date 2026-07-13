@@ -1,4 +1,4 @@
-"""Reference system definition for Layer 2.5 narrative orchestration.
+"""Reference system definition for Structure orchestration.
 
 This module defines the reference types and validation for cross-artifact references.
 References answer: "How do different artifacts point to each other?"
@@ -26,7 +26,7 @@ import re
 
 
 class ReferenceType(str, Enum):
-    """Enumeration of reference types in Layer 2.5."""
+    """Enumeration of reference types in Structure orchestration."""
 
     # Container hierarchy references
     BOOK_TO_SEQUENCE = "book_to_sequence"  # Book references its sequences

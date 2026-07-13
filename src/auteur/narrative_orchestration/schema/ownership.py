@@ -1,4 +1,4 @@
-"""Ownership rules definition for Layer 2.5 narrative orchestration.
+"""Ownership rules definition for Structure composition and orchestration.
 
 This module defines the canonical ownership mapping for narrative artifacts.
 Ownership answers: "Which artifact is the authoritative source for this structural fact?"

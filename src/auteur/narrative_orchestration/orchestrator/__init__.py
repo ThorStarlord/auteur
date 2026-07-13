@@ -1,4 +1,4 @@
-"""Orchestration components for Layer 2.5 narrative structure.
+"""Orchestration components for Structure composition.
 
 This module contains tools for composing, validating, and visualizing
 complete outline structures.

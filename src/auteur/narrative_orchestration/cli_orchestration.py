@@ -1,4 +1,4 @@
-"""Orchestration Workflow CLI for Layer 2.5 narrative structure.
+"""Orchestration Workflow CLI for Structure composition.
 
 Provides CLI commands for complete narrative orchestration workflow:
 - seed: Create template outlines from StoryIdentity

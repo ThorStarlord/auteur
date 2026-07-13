@@ -1,4 +1,4 @@
-"""Composition validator for Layer 2.5 narrative orchestration.
+"""Composition validator for Structure orchestration.
 
 This module implements CompositionValidator, which orchestrates all three
 validators (Reference, Chronological, Contradiction) to provide complete

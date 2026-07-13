@@ -1,4 +1,4 @@
-"""Contradiction validator for detecting conflicts between Layer 2.5 artifacts.
+"""Contradiction validator for detecting conflicts between Structure artifacts.
 
 This module implements ContradictionValidator, which detects conflicts between
 different outline artifacts (Book, Sequence, Chapter, CharacterArc, StoryArc).

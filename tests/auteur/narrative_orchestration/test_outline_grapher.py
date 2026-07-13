@@ -1,4 +1,4 @@
-"""Tests for Layer 2.5 outline grapher visualization.
+"""Tests for Structure outline grapher visualization.
 
 Tests cover:
 - Container hierarchy visualization (tree structure)

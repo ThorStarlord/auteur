@@ -1,4 +1,4 @@
-"""Tests for chronological validator in Layer 2.5 narrative orchestration."""
+"""Tests for chronological validator in Structure orchestration."""
 
 import pytest
 from datetime import datetime

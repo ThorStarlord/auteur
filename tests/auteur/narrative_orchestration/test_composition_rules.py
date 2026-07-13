@@ -1,4 +1,4 @@
-"""Comprehensive tests for composition constraints (Layer 2.5 Task 3).
+"""Comprehensive tests for composition constraints (Task 3).
 
 Tests cover all constraint types:
 - Optionality constraints

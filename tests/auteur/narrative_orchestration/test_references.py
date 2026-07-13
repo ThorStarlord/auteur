@@ -1,4 +1,4 @@
-"""Tests for Layer 2.5 reference system.
+"""Tests for Structure reference system.
 
 Tests cover:
 - ID format validation (IdFormat utility)

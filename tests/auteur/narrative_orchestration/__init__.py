@@ -1,1 +1,1 @@
-"""Tests for narrative orchestration (Layer 2.5)."""
+"""Tests for narrative orchestration and Structure composition."""

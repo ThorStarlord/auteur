@@ -56,20 +56,25 @@ When reviewing code changes or investigating test failures:
    - Can enforce repository behavior (e.g., "session storage must use neutral paths")
    - Add regression test when you discover an invariant was silently violated by code changes
 
-## Three layers
+## Semantic architecture
+
+See [docs/narrative-architecture.md](docs/narrative-architecture.md) for the
+canonical five-layer model and scope axis.
 
 Auteur has three distinct layers. Identify which layer a task belongs to
 before working — each has its own definition of "complete."
 
-1. **Narrative Engine** (Layers 1-5 + 9): Story identity, genre/medium/scope
-   contracts, structural forces, threads, theme. Owned by `auteur identity`,
-   `auteur blueprint`, `auteur structure`, `auteur state`. Fully contained in
-   the blueprint — no chapter artifacts required.
-2. **Chapter Outline Layer** (Layers 6-7): Cartographer outlines, Bible state,
-   scene carriers, character state changes. Owned by `auteur cartographer`,
-   `auteur plan`.
-3. **Prose Drafting Layer** (Layer 8): Chapter prose, TDD critics, iteration
-   loops. Owned by `auteur draft`, `auteur accept`, `auteur retry`.
+1. **Identity and Structure**: Story identity, genre/medium/scope contracts,
+   structural forces, threads, theme, and whole-story plans. Owned by
+   `auteur identity`, `auteur blueprint`, `auteur structure`, `auteur state`.
+   These can be fully represented in the blueprint without chapter artifacts.
+2. **Realization**: Cartographer outputs, Bible state, scene events, and
+   character state changes. Owned by `auteur cartographer`, `auteur plan`, and
+   realization workflows.
+3. **Expression**: Chapter prose, TDD critics, and iteration. Expression is
+   the fourth semantic layer; critics and iteration are cross-cutting
+   validation/orchestration workflows. Owned by `auteur draft`, `auteur accept`,
+   `auteur retry`.
 
 Do not conflate gaps across layers. A narrative engine gap (e.g., missing
 subgenre validation) is not fixed by improving the drafting pipeline.

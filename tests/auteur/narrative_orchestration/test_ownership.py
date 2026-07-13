@@ -1,4 +1,4 @@
-"""Tests for Layer 2.5 ownership rules schema and loading.
+"""Tests for Structure ownership rules schema and loading.
 
 Validates that:
 - OwnershipRule and OwnershipMapping Pydantic models work correctly

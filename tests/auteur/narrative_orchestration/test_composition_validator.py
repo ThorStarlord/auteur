@@ -1,4 +1,4 @@
-"""Tests for Layer 2.5 composition validator.
+"""Tests for Structure composition validator.
 
 Tests cover:
 - Valid outline (all validators pass)

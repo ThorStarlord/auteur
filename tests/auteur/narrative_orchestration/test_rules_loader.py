@@ -1,4 +1,4 @@
-"""Tests for Layer 2.5 composition rules YAML loader.
+"""Tests for Structure composition rules YAML loader.
 
 Validates that:
 - YAML rules file can be loaded and parsed

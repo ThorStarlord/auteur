@@ -1,4 +1,4 @@
-"""Chronological validator for Layer 2.5 narrative orchestration.
+"""Chronological validator for Structure orchestration.
 
 This module validates chronological ordering constraints across narrative artifacts.
 It ensures that:

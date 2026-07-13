@@ -1,4 +1,4 @@
-"""Comprehensive tests for ContradictionValidator (Layer 2.5 Task 7).
+"""Comprehensive tests for ContradictionValidator (Task 7).
 
 Tests cover all contradiction detection scenarios:
 - Arc beats vs Chapter outcomes conflicts

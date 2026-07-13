@@ -1,4 +1,4 @@
-"""Outline Builder for Layer 2.5 narrative orchestration.
+"""Outline Builder for Structure orchestration.
 
 This module implements OutlineBuilder, which seeds template outlines from StoryIdentity.
 The builder generates a complete outline structure including Book Outline, Sequence Outlines,

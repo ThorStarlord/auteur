@@ -1,4 +1,4 @@
-"""Tests for OutlineBuilder (Task 8): Layer 2.5 outline seeding.
+"""Tests for OutlineBuilder (Task 8): Structure outline seeding.
 
 Validates that:
 - OutlineBuilder accepts StoryIdentity and generates complete outline

@@ -1,5 +1,7 @@
 # Architecture
 
+> The semantic architecture is defined by [Narrative Architecture](narrative-architecture.md). This document describes interfaces and engine plumbing.
+
 Auteur has two distinct layers:
 
 ```text
