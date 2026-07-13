@@ -28,6 +28,8 @@ class ChapterExpression(BaseModel):
     source_chapter: dict[str, Any]
     source_scenes: list[dict[str, Any]]
     transitions: list[dict[str, Any]] = Field(default_factory=list)
+    transition_source_hash: str | None = None
+    source_order: list[str] = Field(default_factory=list)
     section_map: list[dict[str, Any]]
     content_hash: str
     transformation: dict[str, Any]
@@ -54,6 +56,19 @@ class ChapterExpressionStore:
         identifier = self.chapter_id(chapter)
         number = identifier.removeprefix("chapter_")
         return self.project / "chapters" / number / "expression"
+
+    def _transition_manifest_path(self, chapter: str | int) -> Path:
+        return self.chapter_dir(chapter) / "transitions.yaml"
+
+    def save_transitions(self, chapter: str | int, transitions: dict[str, dict[str, Any]]) -> Path:
+        path = self._transition_manifest_path(chapter)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(yaml.safe_dump(transitions, sort_keys=False), encoding="utf-8")
+        return path
+
+    def load_transitions(self, chapter: str | int) -> dict[str, dict[str, Any]]:
+        path = self._transition_manifest_path(chapter)
+        return yaml.safe_load(path.read_text(encoding="utf-8")) or {} if path.exists() else {}
 
     def _chapter_outline(self, chapter: str | int) -> Path:
         identifier = self.chapter_id(chapter)
@@ -124,7 +139,11 @@ class ChapterExpressionStore:
         chapter_store = ArtifactStore(self.project)
         chapter_status = chapter_store.status(chapter_path, "chapter_outline")
         if chapter_status.revision != metadata.source_chapter["revision"] or chapter_store.content_hash(chapter_path) != metadata.source_chapter["content_hash"]:
-            stale_reasons.append({"code": "chapter_structure_changed", "message": "Chapter Structure changed"})
+            current_order = self._scene_order(yaml.safe_load(chapter_path.read_text(encoding="utf-8")) or {})
+            stale_reasons.append({"code": "chapter_structure_changed", "previous_order": metadata.source_order, "current_order": current_order, "message": "Chapter Structure or Scene order changed"})
+        transition_path = self._transition_manifest_path(metadata.source_chapter["artifact_id"])
+        if metadata.transition_source_hash and transition_path.exists() and _hash_text(transition_path.read_text(encoding="utf-8")) != metadata.transition_source_hash:
+            stale_reasons.append({"code": "transition_changed", "message": "Chapter-owned transition content changed"})
         for item in metadata.source_scenes:
             try:
                 scene_meta, _ = self._accepted_scene(item["scene_id"])
@@ -136,7 +155,8 @@ class ChapterExpressionStore:
                     stale_reasons.append({"code": "scene_realization_changed", "scene_id": item["scene_id"], "message": f"Scene Realization changed for {item['scene_id']}"})
             except (FileNotFoundError, ValueError) as exc:
                 stale_reasons.append({"code": "scene_dependency_unavailable", "scene_id": item["scene_id"], "message": str(exc)})
-        return {"freshness": "stale" if stale_reasons else "fresh", "review_state": metadata.review_state.value, "lifecycle": metadata.lifecycle.value, "stale_reasons": stale_reasons, "health": "invalid" if metadata.validation_findings else "valid"}
+        invalid_transition = any(item.get("lifecycle") in {"rejected", "archived"} for item in metadata.transitions)
+        return {"freshness": "stale" if stale_reasons else "fresh", "review_state": metadata.review_state.value, "lifecycle": metadata.lifecycle.value, "stale_reasons": stale_reasons, "health": "invalid" if metadata.validation_findings or invalid_transition else "valid"}
 
     def status(self, expression_id: str) -> dict[str, Any]:
         return {"artifact_id": expression_id, **self._current_status(self.inspect(expression_id))}
@@ -154,7 +174,19 @@ class ChapterExpressionStore:
         chunks: list[str] = []
         transition_data = []
         review_required = False
-        transitions = transitions or {}
+        if transitions is None:
+            transitions = self.load_transitions(chapter)
+        transition_findings: list[dict[str, Any]] = []
+        valid_keys = {f"{scene_ids[index]}->{scene_ids[index + 1]}" for index in range(len(scene_ids) - 1)}
+        transition_by_boundary: dict[str, dict[str, Any]] = {}
+        for key, transition in transitions.items():
+            boundary = f"{transition.get('before_scene')}->{transition.get('after_scene')}"
+            if boundary not in valid_keys:
+                raise ValueError(f"invalid Scene boundary for transition {transition.get('transition_id', key)}")
+            if transition.get("before_scene") == transition.get("after_scene"):
+                raise ValueError(f"transition cannot reference itself: {transition.get('transition_id', key)}")
+            transition_by_boundary[boundary] = transition
+        transitions = transition_by_boundary
         for index, scene_id in enumerate(scene_ids):
             scene_meta, prose_path = self._accepted_scene(scene_id)
             from auteur.expression.pilot import ExpressionStore
@@ -181,6 +213,15 @@ class ChapterExpressionStore:
                 if transition:
                     if transition.get("before_scene") != scene_id or transition.get("after_scene") != scene_ids[index + 1]:
                         raise ValueError(f"transition references invalid Scene boundary: {key}")
+                    if transition.get("transition_id") in {item.get("transition_id") for item in transition_data}:
+                        raise ValueError(f"duplicate transition ID: {transition['transition_id']}")
+                    declared = transition.get("declared_events", [])
+                    adjacent_text = " ".join(str((yaml.safe_load(self._scene_path(item).read_text(encoding="utf-8")) or {}).get("outcome", "")) for item in (scene_id, scene_ids[index + 1])).lower()
+                    for event in declared:
+                        if str(event).lower() not in adjacent_text:
+                            transition_findings.append({"code": "unowned_transition_event", "severity": "review_required", "transition_id": transition.get("transition_id"), "message": f"Transition declares an event absent from adjacent Realization: {event}", "recommended_action": "create a Realization proposal or remove the event"})
+                    if re.search(r"\b(decided|revealed|killed|stole|met)\b", str(transition.get("text", "")), re.IGNORECASE):
+                        transition_findings.append({"code": "likely_unowned_transition_event", "severity": "advisory", "transition_id": transition.get("transition_id"), "message": "Transition prose may introduce a canonical event", "recommended_action": "review transition ownership"})
                     text = str(transition.get("text", "")).strip()
                     item = {"transition_id": transition.get("transition_id", f"transition_{scene_id}_{scene_ids[index + 1]}"), "before_scene": scene_id, "after_scene": scene_ids[index + 1], "revision": int(transition.get("revision", 1)), "lifecycle": transition.get("lifecycle", "accepted"), "text": text, "content_hash": _hash_text(text)}
                     transition_data.append(item)
@@ -191,7 +232,7 @@ class ChapterExpressionStore:
         text = "\n".join(chunks).rstrip() + "\n"
         revision = self._next_revision(chapter)
         artifact_id = f"{self.chapter_id(chapter)}:expression_v{revision:03d}"
-        metadata = ChapterExpression(artifact_id=artifact_id, revision=revision, review_state=ReviewState.REVIEW_REQUIRED if review_required else ReviewState.NONE, source_chapter={"artifact_id": self.chapter_id(chapter), "revision": outline_status.revision, "content_hash": chapter_store.content_hash(outline_path)}, source_scenes=selected, transitions=transition_data, section_map=sections, content_hash=_hash_text(text), transformation={"id": "expression.compose_chapter", "version": 1, "executor": "deterministic"})
+        metadata = ChapterExpression(artifact_id=artifact_id, revision=revision, review_state=ReviewState.REVIEW_REQUIRED if review_required or transition_findings else ReviewState.NONE, source_chapter={"artifact_id": self.chapter_id(chapter), "revision": outline_status.revision, "content_hash": chapter_store.content_hash(outline_path)}, source_scenes=selected, transitions=transition_data, section_map=sections, source_order=scene_ids, transition_source_hash=_hash_text(yaml.safe_dump(transitions, sort_keys=False)) if transitions else None, content_hash=_hash_text(text), transformation={"id": "expression.compose_chapter", "version": 1, "executor": "deterministic"}, validation_findings=transition_findings)
         directory = self.chapter_dir(chapter)
         directory.mkdir(parents=True, exist_ok=True)
         md_path, yaml_path = directory / f"chapter_v{revision:03d}.md", directory / f"chapter_v{revision:03d}.yaml"
@@ -202,6 +243,8 @@ class ChapterExpressionStore:
             yaml_tmp.write_text(yaml.safe_dump(metadata.model_dump(mode="json"), sort_keys=False), encoding="utf-8")
             md_tmp.replace(md_path)
             yaml_tmp.replace(yaml_path)
+            if transitions:
+                self.save_transitions(chapter, transitions)
         except Exception:
             for path in (md_tmp, yaml_tmp):
                 if path.exists(): path.unlink()
@@ -239,25 +282,63 @@ class ChapterExpressionStore:
 
     @staticmethod
     def inspect_markers(text: str) -> dict[str, Any]:
-        """Inspect internal markers without attempting semantic reconstruction."""
+        """Strictly inspect internal markers without semantic reconstruction."""
         findings: list[dict[str, str]] = []
         scenes: list[str] = []
         open_scene: str | None = None
-        for line in text.splitlines():
+        for line_number, line in enumerate(text.splitlines(), 1):
+            if "<!-- auteur:" in line and not MARKER_RE.match(line) and not END_MARKER_RE.match(line):
+                findings.append({"code": "malformed_marker", "line": str(line_number), "message": "Malformed Auteur marker-like syntax", "recommended_action": "restore the exact marker grammar"})
+                continue
             start = MARKER_RE.match(line)
             end = END_MARKER_RE.match(line)
             if start:
                 scene_id = start.group(1)
                 if open_scene is not None or scene_id in scenes:
-                    findings.append({"code": "ambiguous_marker", "message": f"duplicate or nested Scene marker: {scene_id}"})
+                    findings.append({"code": "ambiguous_marker", "line": str(line_number), "message": f"duplicate or nested Scene marker: {scene_id}", "recommended_action": "retain one ordered section marker"})
                 scenes.append(scene_id)
                 open_scene = scene_id
             elif end:
                 if open_scene != end.group(1):
-                    findings.append({"code": "ambiguous_marker", "message": f"unmatched Scene end marker: {end.group(1)}"})
+                    findings.append({"code": "ambiguous_marker", "line": str(line_number), "message": f"unmatched Scene end marker: {end.group(1)}", "recommended_action": "match the closing ID to its opening marker"})
                 open_scene = None
         if open_scene is not None:
-            findings.append({"code": "missing_marker", "message": f"missing end marker for {open_scene}"})
+            findings.append({"code": "missing_marker", "line": str(len(text.splitlines())), "message": f"missing end marker for {open_scene}", "recommended_action": f"add <!-- auteur:end-scene id={open_scene} -->"})
         if not scenes:
-            findings.append({"code": "unresolved_divergence", "message": "Chapter prose has no stable Scene markers"})
+            findings.append({"code": "unresolved_divergence", "line": "1", "message": "Chapter prose has no stable Scene markers", "recommended_action": "restore markers, manually map sections, retain Chapter divergence, create Scene candidates, or discard the import"})
         return {"scene_ids": scenes, "findings": findings, "status": "unresolved_divergence" if findings else "mapped"}
+
+    def inspect_manuscript(self, manuscript: Path, against: str) -> dict[str, Any]:
+        text = Path(manuscript).read_text(encoding="utf-8")
+        marker_report = self.inspect_markers(text)
+        if marker_report["status"] == "unresolved_divergence":
+            return {"status": "unresolved_divergence", "message": "No reliable Scene ownership can be established; source prose will not be overwritten.", "actions": ["restore markers", "manually map sections", "retain Chapter-local divergence", "create Scene-level candidates", "discard the import"], "marker_report": marker_report}
+        assembly = self.inspect(against)
+        expected = {item["scene_id"]: item for item in assembly.source_scenes}
+        positions: dict[str, list[int]] = {}
+        lines = text.splitlines()
+        current: str | None = None
+        sections: dict[str, list[str]] = {}
+        for line in lines:
+            start = MARKER_RE.match(line)
+            end = END_MARKER_RE.match(line)
+            if start:
+                current = start.group(1); positions.setdefault(current, []).append(len(positions.get(current, [])))
+                sections.setdefault(current, [])
+            elif end:
+                current = None
+            elif current:
+                sections.setdefault(current, []).append(line)
+        report: dict[str, Any] = {"status": "mapped", "unchanged": [], "modified": [], "moved": [], "missing": [], "duplicated": [], "unsourced": []}
+        expected_order = [item["scene_id"] for item in assembly.source_scenes]
+        actual_order = list(positions)
+        for scene_id, item in expected.items():
+            if scene_id not in positions:
+                report["missing"].append(scene_id); continue
+            if len(positions[scene_id]) > 1:
+                report["duplicated"].append(scene_id); continue
+            expected_prose = (self._scene_path(scene_id).parent / scene_id / f"prose_v{item['expression_revision']:03d}.md").read_text(encoding="utf-8").strip()
+            (report["unchanged"] if "\n".join(sections.get(scene_id, [])).strip() == expected_prose else report["modified"]).append({"scene_id": scene_id, "source": f"prose_v{item['expression_revision']:03d}"})
+        if actual_order != expected_order and set(actual_order) == set(expected_order):
+            report["moved"] = [{"scene_id": scene_id, "expected_position": expected_order.index(scene_id) + 1, "current_position": actual_order.index(scene_id) + 1} for scene_id in expected_order if expected_order.index(scene_id) != actual_order.index(scene_id)]
+        return report

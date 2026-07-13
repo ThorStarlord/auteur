@@ -68,11 +68,11 @@ def test_missing_or_rejected_scene_expression_blocks_composition(tmp_path: Path)
 def test_transition_is_chapter_owned_and_boundary_is_validated(tmp_path: Path) -> None:
     project, _, _ = make_project(tmp_path)
     store = ChapterExpressionStore(project)
-    assembly = store.compose("07", transitions={"scene_07_02->scene_07_01": {"transition_id": "t1", "before_scene": "scene_07_02", "after_scene": "scene_07_01", "text": "At dawn."}})
+    assembly = store.compose("07", transitions={"t1": {"transition_id": "t1", "before_scene": "scene_07_02", "after_scene": "scene_07_01", "text": "At dawn."}})
     assert assembly.transitions[0]["transition_id"] == "t1"
     assert assembly.section_map[1]["kind"] == "transition"
     with pytest.raises(ValueError, match="invalid Scene boundary"):
-        store.compose("07", transitions={"scene_07_02->scene_07_01": {"before_scene": "scene_07_01", "after_scene": "scene_07_03", "text": "Wrong."}})
+        store.compose("07", transitions={"bad": {"before_scene": "scene_07_02", "after_scene": "scene_07_03", "text": "Wrong."}})
 
 
 def test_acceptance_preserves_versions_and_staleness_is_dependency_specific(tmp_path: Path) -> None:
@@ -125,3 +125,61 @@ def test_divergent_scene_section_requires_chapter_review_acknowledgement(tmp_pat
     assert assembly.review_state.value == "review_required"
     with pytest.raises(ValueError, match="requires explicit review"):
         ChapterExpressionStore(project).accept(assembly.artifact_id)
+
+
+def test_transition_manifest_change_stales_assembly_and_event_requires_review(tmp_path: Path) -> None:
+    project, _, _ = make_project(tmp_path)
+    store = ChapterExpressionStore(project)
+    transition = {"t1": {"transition_id": "t1", "before_scene": "scene_07_02", "after_scene": "scene_07_01", "revision": 1, "lifecycle": "accepted", "text": "Mara crossed the hall.", "declared_events": ["new revelation"]}}
+    assembly = store.compose("07", transitions=transition)
+    assert assembly.review_state.value == "review_required"
+    transition["t1"]["text"] = "The archive fell silent."
+    store.save_transitions("07", transition)
+    status = store.status(assembly.artifact_id)
+    assert any(item["code"] == "transition_changed" for item in status["stale_reasons"])
+
+
+def test_transition_boundary_and_lifecycle_are_validated(tmp_path: Path) -> None:
+    project, _, _ = make_project(tmp_path)
+    store = ChapterExpressionStore(project)
+    with pytest.raises(ValueError, match="invalid Scene boundary"):
+        store.compose("07", transitions={"bad": {"transition_id": "bad", "before_scene": "scene_07_02", "after_scene": "scene_07_03", "text": "Wrong boundary."}})
+    assembly = store.compose("07", transitions={"t1": {"transition_id": "t1", "before_scene": "scene_07_02", "after_scene": "scene_07_01", "lifecycle": "archived", "text": "Old bridge."}})
+    assert store.status(assembly.artifact_id)["health"] == "invalid"
+
+
+def test_strict_marker_inspection_reports_malformed_and_mismatched_markers(tmp_path: Path) -> None:
+    report = ChapterExpressionStore(tmp_path).inspect_markers("""<!-- auteur:scene id=scene_01 expression_revision=x -->\nText\n<!-- auteur:end-scene id=scene_02 -->""")
+    codes = {finding["code"] for finding in report["findings"]}
+    assert "malformed_marker" in codes
+    assert "ambiguous_marker" in codes
+    assert all("line" in finding and "recommended_action" in finding for finding in report["findings"])
+
+
+def test_marked_and_markerless_manuscript_reports_are_read_only(tmp_path: Path) -> None:
+    project, scenes, _ = make_project(tmp_path)
+    store = ChapterExpressionStore(project)
+    assembly = store.compose("07")
+    manuscript = store.chapter_dir("07") / "external.md"
+    original_scene = scenes[0].read_text(encoding="utf-8")
+    internal = (store.chapter_dir("07") / "chapter_v001.md").read_text(encoding="utf-8")
+    manuscript.write_text(internal.replace("Prose for scene_07_02.", "Edited Scene Two."), encoding="utf-8")
+    report = store.inspect_manuscript(manuscript, assembly.artifact_id)
+    assert report["modified"][0]["scene_id"] == "scene_07_02"
+    manuscript.write_text("Markerless edited manuscript.", encoding="utf-8")
+    unresolved = store.inspect_manuscript(manuscript, assembly.artifact_id)
+    assert unresolved["status"] == "unresolved_divergence"
+    assert scenes[0].read_text(encoding="utf-8") == original_scene
+
+
+def test_export_and_chapter_comparison_cli(tmp_path: Path, capsys) -> None:
+    from auteur.cli import main
+    project, _, _ = make_project(tmp_path)
+    store = ChapterExpressionStore(project)
+    first = store.compose("07")
+    second = store.compose("07", transitions={"t1": {"transition_id": "t1", "before_scene": "scene_07_02", "after_scene": "scene_07_01", "text": "At dusk."}})
+    output = tmp_path / "clean.md"
+    assert main(["expression", "export-chapter", first.artifact_id, "--project", str(project), "--output", str(output), "--clean"]) == 0
+    assert "auteur:scene" not in output.read_text(encoding="utf-8")
+    assert main(["expression", "compare-chapters", first.artifact_id, second.artifact_id, "--project", str(project)]) == 0
+    assert "transitions_a" in capsys.readouterr().out

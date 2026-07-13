@@ -130,6 +130,12 @@ become a second canonical prose source and does not modify Scene artifacts.
 See [Expression Composition](expression-composition.md) for its ownership and
 round-trip boundary.
 
+Chapter-owned transitions are explicit dependencies: boundary IDs, lifecycle,
+revision, and content hash are recorded and participate in assembly freshness.
+Marked manuscript inspection is read-only; malformed or markerless external
+prose becomes actionable Chapter divergence and never silently rewrites Scene
+Expression.
+
 This pilot does not provide a generic transformation runtime, chapter-wide
 drafting overhaul, complete Expression system, automatic Bible mutation,
 automatic repair, publishing, collaboration, or repository-wide provenance

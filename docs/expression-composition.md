@@ -134,6 +134,32 @@ Direct Chapter edits create a Chapter Expression candidate. They do not mutate
 Scene prose. Section-aware editing, semantic merge, and full reconciliation
 are future work.
 
+The pilot provides read-only marked-manuscript inspection. It reports unchanged,
+modified, moved, missing, duplicated, and unresolved sections without writing
+back to Scene Expression. Markerless manuscripts receive an actionable
+`unresolved_divergence` report and are never heuristically split.
+
+Transition manifests are Chapter-owned dependencies. Their boundary, lifecycle,
+revision, and content hash participate in Chapter freshness. Structured events
+not found in adjacent Realization create review-required findings; likely prose
+events remain advisory. Transition changes never mutate upstream artifacts.
+
+The CLI supports concise inspection, technical JSON inspection, clean or
+marker-preserving export, marked-manuscript inspection, and Chapter assembly
+comparison:
+
+```bash
+auteur expression inspect-chapter chapter_07:expression_v001 --project PROJECT
+auteur expression inspect-chapter chapter_07:expression_v001 --project PROJECT --json
+auteur expression export-chapter chapter_07:expression_v001 --project PROJECT --output chapter_07.md --clean
+auteur expression export-chapter chapter_07:expression_v001 --project PROJECT --output chapter_07-marked.md --with-markers
+auteur expression inspect-manuscript edited.md --against chapter_07:expression_v001 --project PROJECT
+auteur expression compare-chapters chapter_07:expression_v001 chapter_07:expression_v002 --project PROJECT
+```
+
+Clean export removes internal markers and is not round-trip-safe. Marked export
+preserves the internal mapping. Neither export becomes canonical automatically.
+
 ## Progressive disclosure
 
 - Simple mode: concatenate accepted Scene prose in Chapter order.

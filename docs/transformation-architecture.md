@@ -204,6 +204,11 @@ Expressions, preserving Scene IDs, selected revisions, stable internal
 markers, and transition ownership. Its acceptance selects an assembly snapshot
 without changing canonical Scene or upstream artifacts.
 
+Composition inspection and export remain derived boundary operations. Clean
+exports intentionally remove traceability markers, while marked exports retain
+them for future reconciliation. External manuscript inspection reports section
+ownership and divergence but does not apply edits automatically.
+
 ## Non-goals
 
 This specification does not introduce a generic transformation runtime,

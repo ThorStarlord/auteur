@@ -321,11 +321,29 @@ def _build_parser() -> argparse.ArgumentParser:
     p = expression_sub.add_parser("inspect-chapter", help="Inspect a Chapter Expression assembly.")
     p.add_argument("chapter_expression")
     p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--verbose", action="store_true")
     p = expression_sub.add_parser("accept-chapter", help="Accept a Chapter Expression assembly.")
     p.add_argument("chapter_expression")
     p.add_argument("--project", type=Path, required=True)
     p.add_argument("--by", default="author")
     p.add_argument("--allow-review", action="store_true")
+    p = expression_sub.add_parser("inspect-manuscript", help="Inspect a marked or markerless external Chapter manuscript.")
+    p.add_argument("manuscript", type=Path)
+    p.add_argument("--against", required=True)
+    p.add_argument("--project", type=Path, required=True)
+    p = expression_sub.add_parser("export-chapter", help="Export a Chapter Expression manuscript.")
+    p.add_argument("chapter_expression")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--output", type=Path, required=True)
+    export_group = p.add_mutually_exclusive_group(required=True)
+    export_group.add_argument("--clean", action="store_true")
+    export_group.add_argument("--with-markers", action="store_true")
+    p = expression_sub.add_parser("compare-chapters", help="Compare two Chapter Expression assemblies.")
+    p.add_argument("assembly_a")
+    p.add_argument("assembly_b")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
 
     for command, help_text in (
         ("status", "Show pilot provenance status for an artifact."),
@@ -803,14 +821,44 @@ def main(argv: list[str] | None = None) -> int:
             store = ChapterExpressionStore(args.project)
             metadata = store.inspect(args.chapter_expression)
             status = store.status(args.chapter_expression)
-            print(f"Chapter Expression {metadata.artifact_id}: {status['freshness']}")
+            if args.json or args.verbose:
+                print(json.dumps({"metadata": metadata.model_dump(mode="json"), "status": status}, indent=2))
+                return 0
+            print(f"Chapter {metadata.source_chapter['artifact_id']} | assembly revision {metadata.revision} | {metadata.lifecycle.value} | {status['freshness']} | {status['health']}")
             for scene in metadata.source_scenes:
                 print(f"  {scene['scene_id']} -> prose_v{scene['expression_revision']:03d} ({scene['freshness']})")
-            print(json.dumps({"metadata": metadata.model_dump(mode="json"), "status": status}, indent=2))
+            for transition in metadata.transitions:
+                print(f"  transition {transition['transition_id']} ({transition['before_scene']} -> {transition['after_scene']})")
+            if status["stale_reasons"]:
+                print("Recommended action: recompose or review the affected dependencies.")
             return 0
         if args.expression_command == "accept-chapter":
             metadata = ChapterExpressionStore(args.project).accept(args.chapter_expression, accepted_by=args.by, allow_review=args.allow_review)
             print(json.dumps(metadata.model_dump(mode="json"), indent=2))
+            return 0
+        if args.expression_command == "inspect-manuscript":
+            print(json.dumps(ChapterExpressionStore(args.project).inspect_manuscript(args.manuscript, args.against), indent=2))
+            return 0
+        if args.expression_command == "export-chapter":
+            store = ChapterExpressionStore(args.project)
+            if args.output.exists():
+                _err(f"output already exists: {args.output}; choose another path")
+                return 2
+            text = store.clean_export(args.chapter_expression) if args.clean else store._metadata_path(args.chapter_expression).with_suffix(".md").read_text(encoding="utf-8")
+            args.output.write_text(text, encoding="utf-8")
+            if args.clean:
+                print("Warning: clean export removes Scene markers and is not round-trip-safe.", file=sys.stderr)
+            print(args.output)
+            return 0
+        if args.expression_command == "compare-chapters":
+            store = ChapterExpressionStore(args.project)
+            first, second = store.inspect(args.assembly_a), store.inspect(args.assembly_b)
+            report = {"assembly_a": first.artifact_id, "assembly_b": second.artifact_id, "scene_revisions": {item["scene_id"]: {"a": item["expression_revision"], "b": next((other["expression_revision"] for other in second.source_scenes if other["scene_id"] == item["scene_id"]), None)} for item in first.source_scenes}, "order_a": first.source_order, "order_b": second.source_order, "transitions_a": first.transitions, "transitions_b": second.transitions}
+            import difflib
+            text_a = store._metadata_path(first.artifact_id).with_suffix(".md").read_text(encoding="utf-8")
+            text_b = store._metadata_path(second.artifact_id).with_suffix(".md").read_text(encoding="utf-8")
+            report["diff"] = "".join(difflib.unified_diff(text_a.splitlines(True), text_b.splitlines(True), fromfile=first.artifact_id, tofile=second.artifact_id))
+            print(json.dumps(report, indent=2))
             return 0
         store = ExpressionStore(args.project)
         if args.expression_command == "inspect":
