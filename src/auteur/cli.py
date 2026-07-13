@@ -2,9 +2,28 @@
 
 from __future__ import annotations
 
-import argparse, datetime, hashlib, shutil, sys
+import argparse, datetime, hashlib, json, shutil, sys
 from pathlib import Path
 import yaml
+
+
+def _pilot_artifact_type(path: Path) -> str:
+    if path.name == "story_identity.yaml":
+        return "story_identity"
+    if path.name == "blueprint.yaml":
+        return "blueprint"
+    if path.name.startswith("scene_"):
+        return "scene_realization"
+    if path.name.startswith("chapter_") or path.name == "outline.yaml":
+        return "chapter_outline"
+    return path.stem
+
+
+def _pilot_project_root(path: Path) -> Path:
+    for parent in [path.parent, *path.parents]:
+        if (parent / ".auteur").is_dir() or (parent / "story_identity.yaml").exists() or (parent / "blueprint.yaml").exists():
+            return parent
+    return path.parent
 
 from auteur.blueprint import StoryBlueprint
 from auteur.cli_formatters import (
@@ -254,6 +273,20 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("project", type=Path)
     p.add_argument("recovery_run", type=Path,
         help="Path to the recovery_run.yaml payload.")
+
+    for command, help_text in (
+        ("status", "Show pilot provenance status for an artifact."),
+        ("explain", "Explain pilot provenance staleness or invalidity."),
+        ("adopt", "Create baseline provenance for a legacy artifact."),
+        ("accept", "Accept a pilot artifact and create a provenance revision."),
+        ("archive", "Archive a pilot artifact without deleting its content."),
+    ):
+        p = sts.add_parser(command, help=help_text)
+        p.add_argument("artifact", type=Path)
+        if command in {"adopt", "accept", "archive"}:
+            p.add_argument("--type", dest="artifact_type", default=None)
+        if command == "archive":
+            p.add_argument("--reason", default="archived by author")
 
     p = sub.add_parser("cartographer", help="Manage story outlines.")
     cs = p.add_subparsers(dest="cartographer_command", required=True)
@@ -702,6 +735,28 @@ def main(argv: list[str] | None = None) -> int:
             return state_canon(args.project, args.format)
         if args.state_command == "confirm":
             return state_confirm(args.project, args.recovery_run)
+        if args.state_command in {"status", "explain", "adopt", "accept", "archive"}:
+            from auteur.provenance import ArtifactStore
+            artifact = args.artifact
+            project = _pilot_project_root(artifact)
+            artifact_type = getattr(args, "artifact_type", None) or _pilot_artifact_type(artifact)
+            store = ArtifactStore(project)
+            if args.state_command == "status":
+                print(json.dumps(store.status(artifact, artifact_type).model_dump(mode="json"), indent=2))
+                return 0
+            if args.state_command == "explain":
+                print(json.dumps(store.explain(artifact, artifact_type), indent=2))
+                return 0
+            if args.state_command == "adopt":
+                store.adopt(artifact, artifact_type)
+                return 0
+            if args.state_command == "accept":
+                if store.accept(artifact, artifact_type) is None:
+                    _err("archived artifact cannot be accepted")
+                    return 1
+                return 0
+            store.archive(artifact, artifact_type, reason=args.reason, by="author")
+            return 0
     # === cartographer ===
     if args.command == "cartographer":
         if args.cartographer_command == "compile":
