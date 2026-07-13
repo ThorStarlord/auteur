@@ -70,19 +70,19 @@ class CuckoldryArc(BaseConcept):
             ],
             validation_rules=[
                 ValidationRule(
-                    rule_id="netorara_cuckoldry_stages",
+                    rule_id="netorare_cuckoldry_stages",
                     condition="Cuckoldry arc must have at least revelation and humiliation stages",
                     error_message="Cuckoldry arc requires revelation and humiliation stages",
                     applies_to=["Cuckoldry Arc"],
                 ),
                 ValidationRule(
-                    rule_id="netorara_cuckoldry_characters",
+                    rule_id="netorare_cuckoldry_characters",
                     condition="Cuckoldry arc must involve at least two characters",
                     error_message="Cuckoldry arc requires at least two distinct character roles",
                     applies_to=["Cuckoldry Arc"],
                 ),
                 ValidationRule(
-                    rule_id="netorara_cuckoldry_consent",
+                    rule_id="netorare_cuckoldry_consent",
                     condition="Cuckoldry arc must have explicit consent boundaries",
                     error_message="Cuckoldry arc requires defined consent boundaries for safety",
                     applies_to=["Cuckoldry Arc"],
@@ -145,19 +145,19 @@ class HumiliationProgression(BaseConcept):
             ],
             validation_rules=[
                 ValidationRule(
-                    rule_id="netorara_humiliation_levels",
+                    rule_id="netorare_humiliation_levels",
                     condition="Humiliation progression must have at least 2 intensity levels",
                     error_message="Humiliation progression requires multiple distinct intensity levels",
                     applies_to=["Humiliation Progression"],
                 ),
                 ValidationRule(
-                    rule_id="netorara_humiliation_consistency",
+                    rule_id="netorare_humiliation_consistency",
                     condition="Intensity levels must be consistent with progression type",
                     error_message="Humiliation progression type and intensity levels must align",
                     applies_to=["Humiliation Progression"],
                 ),
                 ValidationRule(
-                    rule_id="netorara_humiliation_theme_alignment",
+                    rule_id="netorare_humiliation_theme_alignment",
                     condition="Humiliation progression must align with netorare theme set",
                     error_message="Humiliation progression must use only netorare-approved themes",
                     applies_to=["Humiliation Progression"],
@@ -229,19 +229,19 @@ class ConsentBoundary(BaseConcept):
             ],
             validation_rules=[
                 ValidationRule(
-                    rule_id="netorara_consent_required",
+                    rule_id="netorare_consent_required",
                     condition="Every cuckoldry arc must have explicit consent boundary",
                     error_message="Consent boundary is mandatory for netorare content",
                     applies_to=["Consent Boundary", "Cuckoldry Arc"],
                 ),
                 ValidationRule(
-                    rule_id="netorara_consent_type_valid",
+                    rule_id="netorare_consent_type_valid",
                     condition="Boundary type must be one of: hard_stop, warning_zone, safe_zone",
                     error_message="Invalid consent boundary type",
                     applies_to=["Consent Boundary"],
                 ),
                 ValidationRule(
-                    rule_id="netorara_consent_coverage",
+                    rule_id="netorare_consent_coverage",
                     condition="Consent boundary must cover all potentially harmful content types",
                     error_message="Consent boundary must explicitly cover all content types",
                     applies_to=["Consent Boundary"],

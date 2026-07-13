@@ -4,7 +4,7 @@ This package contains genre-specific extensions to the base narrative ontology,
 defining concepts, relationships, and validation rules unique to each genre.
 """
 
-from auteur.narrative_ontology.genre.netorara_ontology import (
+from auteur.narrative_ontology.genre.netorare_ontology import (
     NetorareOntology,
     CuckoldryArc,
     HumiliationProgression,

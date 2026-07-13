@@ -13,7 +13,7 @@ from auteur.narrative_ontology.core.narrative_concepts import (
     GOAL,
     CONFLICT,
 )
-from auteur.narrative_ontology.genre.netorara_ontology import (
+from auteur.narrative_ontology.genre.netorare_ontology import (
     NetorareOntology,
     CuckoldryArc,
 )

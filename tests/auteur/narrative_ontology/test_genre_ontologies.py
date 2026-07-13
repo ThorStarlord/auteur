@@ -5,7 +5,7 @@ including concept definitions, relationships, validation rules, and theme sets.
 """
 
 import pytest
-from auteur.narrative_ontology.genre.netorara_ontology import (
+from auteur.narrative_ontology.genre.netorare_ontology import (
     NetorareOntology,
     CuckoldryArc,
     HumiliationProgression,
@@ -67,9 +67,9 @@ class TestNetorareOntology:
         arc = CuckoldryArc()
         rules = arc.validation_rules
         rule_ids = [rule.rule_id for rule in rules]
-        assert "netorara_cuckoldry_stages" in rule_ids
-        assert "netorara_cuckoldry_characters" in rule_ids
-        assert "netorara_cuckoldry_consent" in rule_ids
+        assert "netorare_cuckoldry_stages" in rule_ids
+        assert "netorare_cuckoldry_characters" in rule_ids
+        assert "netorare_cuckoldry_consent" in rule_ids
 
     def test_humiliation_progression_definition(self):
         """Test humiliation progression concept definition."""
@@ -90,9 +90,9 @@ class TestNetorareOntology:
         progression = HumiliationProgression()
         rules = progression.validation_rules
         rule_ids = [rule.rule_id for rule in rules]
-        assert "netorara_humiliation_levels" in rule_ids
-        assert "netorara_humiliation_consistency" in rule_ids
-        assert "netorara_humiliation_theme_alignment" in rule_ids
+        assert "netorare_humiliation_levels" in rule_ids
+        assert "netorare_humiliation_consistency" in rule_ids
+        assert "netorare_humiliation_theme_alignment" in rule_ids
 
     def test_consent_boundary_definition(self):
         """Test consent boundary concept definition."""
@@ -115,9 +115,9 @@ class TestNetorareOntology:
         boundary = ConsentBoundary()
         rules = boundary.validation_rules
         rule_ids = [rule.rule_id for rule in rules]
-        assert "netorara_consent_required" in rule_ids
-        assert "netorara_consent_type_valid" in rule_ids
-        assert "netorara_consent_coverage" in rule_ids
+        assert "netorare_consent_required" in rule_ids
+        assert "netorare_consent_type_valid" in rule_ids
+        assert "netorare_consent_coverage" in rule_ids
 
     def test_netorare_ontology_get_concept(self):
         """Test getting concept from netorare ontology."""

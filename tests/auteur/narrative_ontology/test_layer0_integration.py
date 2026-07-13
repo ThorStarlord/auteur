@@ -32,7 +32,7 @@ from auteur.narrative_ontology.schema.ontology_types import (
     Relationship,
     ValidationRule,
 )
-from auteur.narrative_ontology.genre.netorara_ontology import NetorareOntology
+from auteur.narrative_ontology.genre.netorare_ontology import NetorareOntology
 from auteur.narrative_ontology.genre.mystery_ontology import MysteryOntology
 from auteur.narrative_ontology.genre.gentlefemdom_ontology import GentleFemdomOntology
 
