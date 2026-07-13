@@ -207,6 +207,48 @@ class TemporalValidator:
 
         return violations
 
+    def validate_self_reference(self, scene: SceneOutline) -> List[TemporalViolation]:
+        """Validate scene doesn't reference itself in temporal relations.
+
+        Args:
+            scene: Scene to validate
+
+        Returns:
+            List of violations (self-references)
+        """
+        violations: List[TemporalViolation] = []
+
+        if not scene.temporal_relation:
+            return violations
+
+        tr = scene.temporal_relation
+
+        # Check for self-reference in follows_scene
+        if tr.follows_scene == scene.id:
+            violations.append(
+                TemporalViolation(
+                    scene_id=scene.id,
+                    violation_type=TemporalViolationType.SELF_REFERENCE,
+                    related_scene_id=None,
+                    message=f"Scene cannot follow itself",
+                    suggestion=f"Remove follows_scene or set it to another scene",
+                )
+            )
+
+        # Check for self-reference in parallel_with
+        if scene.id in tr.parallel_with:
+            violations.append(
+                TemporalViolation(
+                    scene_id=scene.id,
+                    violation_type=TemporalViolationType.SELF_REFERENCE,
+                    related_scene_id=None,
+                    message=f"Scene cannot be parallel with itself",
+                    suggestion=f"Remove scene from its own parallel_with list",
+                )
+            )
+
+        return violations
+
     def validate_temporal_relations(
         self, scene: SceneOutline
     ) -> List[TemporalViolation]:
