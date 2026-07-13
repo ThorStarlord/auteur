@@ -138,6 +138,51 @@ def register_genre_pipeline_subcommands(subparsers: Any) -> None:
         )
         blueprint_status.add_argument("project", type=Path, help="Project directory path.")
 
+        # Realization subcommands (Layer 3)
+        realization = commands.add_parser(
+            "realization",
+            help=f"Manage scene realization for {spec.slug} stories.",
+        )
+        realization_cmds = realization.add_subparsers(
+            dest=f"{spec.slug}_realization_command",
+            required=True,
+        )
+
+        realization_seed = realization_cmds.add_parser(
+            "seed",
+            help="Seed template scenes from chapter outlines.",
+        )
+        realization_seed.add_argument("project", type=Path, help="Project directory path.")
+        realization_seed.add_argument(
+            "--force",
+            action="store_true",
+            help="Overwrite existing scenes.",
+        )
+
+        realization_validate = realization_cmds.add_parser(
+            "validate",
+            help="Validate all scenes against knowledge, temporal, and reference validators.",
+        )
+        realization_validate.add_argument("project", type=Path, help="Project directory path.")
+
+        realization_inspect = realization_cmds.add_parser(
+            "inspect",
+            help="Display scene structure, coverage, and status.",
+        )
+        realization_inspect.add_argument("project", type=Path, help="Project directory path.")
+
+        realization_graph = realization_cmds.add_parser(
+            "graph",
+            help="Display scene sequence visualization.",
+        )
+        realization_graph.add_argument("project", type=Path, help="Project directory path.")
+        realization_graph.add_argument(
+            "--format",
+            choices=["text", "dot"],
+            default="text",
+            help="Output format (default: text for ASCII art).",
+        )
+
 
 class GenrePipelineCommand:
     def __init__(

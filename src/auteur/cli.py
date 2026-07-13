@@ -42,6 +42,12 @@ from auteur.narrative_orchestration.cli_orchestration import (
     handle_orchestration_graph,
     handle_orchestration_status,
 )
+from auteur.narrative_realization.cli_realization import (
+    handle_realization_seed,
+    handle_realization_validate,
+    handle_realization_inspect,
+    handle_realization_graph,
+)
 from auteur.project import Project
 from auteur.structure.proposals import StructureProposal
 
@@ -809,6 +815,15 @@ def main(argv: list[str] | None = None) -> int:
                 return handle_orchestration_graph(args.project, "netorare", output_format=args.format)
             elif args.netorare_blueprint_command == "status":
                 return handle_orchestration_status(args.project, "netorare")
+        if args.netorare_command == "realization":
+            if args.netorare_realization_command == "seed":
+                return handle_realization_seed(args.project, "netorare", force=args.force)
+            elif args.netorare_realization_command == "validate":
+                return handle_realization_validate(args.project, "netorare")
+            elif args.netorare_realization_command == "inspect":
+                return handle_realization_inspect(args.project, "netorare")
+            elif args.netorare_realization_command == "graph":
+                return handle_realization_graph(args.project, "netorare", output_format=args.format)
 
     # === mystery ===
     if args.command == "mystery":
@@ -836,6 +851,15 @@ def main(argv: list[str] | None = None) -> int:
                 return handle_orchestration_graph(args.project, "mystery", output_format=args.format)
             elif args.mystery_blueprint_command == "status":
                 return handle_orchestration_status(args.project, "mystery")
+        if args.mystery_command == "realization":
+            if args.mystery_realization_command == "seed":
+                return handle_realization_seed(args.project, "mystery", force=args.force)
+            elif args.mystery_realization_command == "validate":
+                return handle_realization_validate(args.project, "mystery")
+            elif args.mystery_realization_command == "inspect":
+                return handle_realization_inspect(args.project, "mystery")
+            elif args.mystery_realization_command == "graph":
+                return handle_realization_graph(args.project, "mystery", output_format=args.format)
 
     # === gentlefemdom ===
     if args.command == "gentlefemdom":
@@ -863,6 +887,15 @@ def main(argv: list[str] | None = None) -> int:
                 return handle_orchestration_graph(args.project, "gentlefemdom", output_format=args.format)
             elif args.gentlefemdom_blueprint_command == "status":
                 return handle_orchestration_status(args.project, "gentlefemdom")
+        if args.gentlefemdom_command == "realization":
+            if args.gentlefemdom_realization_command == "seed":
+                return handle_realization_seed(args.project, "gentlefemdom", force=args.force)
+            elif args.gentlefemdom_realization_command == "validate":
+                return handle_realization_validate(args.project, "gentlefemdom")
+            elif args.gentlefemdom_realization_command == "inspect":
+                return handle_realization_inspect(args.project, "gentlefemdom")
+            elif args.gentlefemdom_realization_command == "graph":
+                return handle_realization_graph(args.project, "gentlefemdom", output_format=args.format)
 
     # === ontology ===
     if args.command == "ontology":
