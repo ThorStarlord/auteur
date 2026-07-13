@@ -274,6 +274,28 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("recovery_run", type=Path,
         help="Path to the recovery_run.yaml payload.")
 
+    p = sub.add_parser("expression", help="Generate and review Scene Realization prose candidates.")
+    expression_sub = p.add_subparsers(dest="expression_command", required=True)
+    p = expression_sub.add_parser("generate", help="Generate one versioned prose candidate for a Scene Realization.")
+    p.add_argument("scene", type=Path)
+    p.add_argument("--text", default=None)
+    p.add_argument("--text-file", type=Path, default=None)
+    p.add_argument("--pov", default=None)
+    p.add_argument("--tense", default=None)
+    p.add_argument("--narrative-distance", default=None)
+    p.add_argument("--voice-id", default=None)
+    p.add_argument("--target-effect", default=None)
+    p.add_argument("--executor-kind", default="human-authored")
+    p.add_argument("--provider", default=None)
+    p.add_argument("--model", default=None)
+    p = expression_sub.add_parser("inspect", help="Inspect a prose candidate.")
+    p.add_argument("candidate")
+    p.add_argument("--project", type=Path, required=True)
+    p = expression_sub.add_parser("accept", help="Explicitly accept a prose candidate.")
+    p.add_argument("candidate")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--by", default="author")
+
     for command, help_text in (
         ("status", "Show pilot provenance status for an artifact."),
         ("explain", "Explain pilot provenance staleness or invalidity."),
@@ -717,6 +739,36 @@ def main(argv: list[str] | None = None) -> int:
                 except Exception as exc:
                     print(f"[WARNING] Failed to delete candidate directory {cd}: {exc}", file=sys.stderr)
         return 0
+    # === expression pilot ===
+    if args.command == "expression":
+        from auteur.expression import ExpressionConstraints, ExpressionStore
+        if args.expression_command == "generate":
+            if args.text is None and args.text_file is None:
+                _err("expression generate requires --text or --text-file")
+                return 1
+            if args.text is not None and args.text_file is not None:
+                _err("provide only one of --text or --text-file")
+                return 1
+            text = args.text if args.text is not None else args.text_file.read_text(encoding="utf-8")
+            project = _pilot_project_root(args.scene)
+            constraints = ExpressionConstraints(
+                pov=args.pov, tense=args.tense, narrative_distance=args.narrative_distance,
+                voice_id=args.voice_id, target_effect=args.target_effect,
+            )
+            metadata = ExpressionStore(project).generate(
+                args.scene, text, constraints=constraints,
+                executor={"kind": args.executor_kind, "provider": args.provider, "model": args.model},
+            )
+            print(metadata.candidate_id)
+            return 0
+        store = ExpressionStore(args.project)
+        if args.expression_command == "inspect":
+            print(json.dumps({"metadata": store.inspect(args.candidate).model_dump(mode="json"), "status": store.status(args.candidate)}, indent=2))
+            return 0
+        metadata = store.accept(args.candidate, accepted_by=args.by)
+        print(json.dumps(metadata.model_dump(mode="json"), indent=2))
+        return 0
+
     # === state ===
     if args.command == "state":
         from auteur.structure.state import (
