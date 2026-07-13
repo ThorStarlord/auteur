@@ -24,7 +24,7 @@ project produce one artifact for every layer.
 |---|---|---|---|
 | Universe | Shared world constraints and lore | Optional | World rules, chronology, factions |
 | Series | Cross-book continuity and progression | Optional | Book arcs, recurring relationships, setup/payoff |
-| Book | One complete narrative contract and structure | Required for a standalone book | Story identity, blueprint, book plan |
+| Book | One complete narrative contract and structure | Canonical for a standalone book; may begin as a minimal identity | Story identity, blueprint, book plan |
 | Chapter | A bounded contribution to a book | Optional | Chapter function, scene grouping, state changes |
 | Scene | A concrete local realization | Optional until needed | Location, action, knowledge, outcome |
 
@@ -61,9 +61,10 @@ are optional and may be added later.
 
 `Story Identity → Book/Chapter Structure → Scene Realization → Expression`
 
-Book Identity and book-level Structure are required. Scene Realization and
-Expression are added when the author proceeds toward drafting. Universe and
-Series scopes remain optional.
+Book Identity is required. Some form of Structure is recommended and may be
+lightweight, inferred, or expanded later. Scene Realization and Expression are
+added when the author proceeds toward drafting. Universe and Series scopes
+remain optional.
 
 ### Series
 
