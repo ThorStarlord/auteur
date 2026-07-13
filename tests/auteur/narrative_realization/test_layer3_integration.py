@@ -82,6 +82,11 @@ class NetorareSceneFactory:
             story_time="day_3_evening",
             pov_character_id="clara",
             participants=["clara", "archive_worker"],
+            # Scene 1 is the first scene in sequence
+            temporal_relation=TemporalRelation(
+                parallel_with=[],
+                follows_scene=None,
+            ),
             # Entry state: Clara trusts Daniel's alibi
             entry_state=EntryState(
                 knowledge=[
@@ -196,8 +201,8 @@ class NetorareSceneFactory:
             participants=["clara", "daniel"],
             # Scene 2 follows scene 1
             temporal_relation=TemporalRelation(
-                parallel_with=["scene_07_01"],
-                follows_scene=None,
+                parallel_with=[],
+                follows_scene="scene_07_01",
             ),
             # Entry state: Clara has discovered the altered record (plus previous knowledge)
             entry_state=EntryState(
