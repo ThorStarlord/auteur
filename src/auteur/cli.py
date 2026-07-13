@@ -344,6 +344,21 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("assembly_b")
     p.add_argument("--project", type=Path, required=True)
     p.add_argument("--json", action="store_true")
+    p = expression_sub.add_parser("reconcile", help="Inspect and propose Chapter manuscript reconciliation actions.")
+    reconcile_sub = p.add_subparsers(dest="reconcile_command", required=True)
+    p = reconcile_sub.add_parser("inspect", help="Create a read-only reconciliation inspection report.")
+    p.add_argument("manuscript", type=Path)
+    p.add_argument("--against", required=True)
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p = reconcile_sub.add_parser("propose", help="Create noncanonical reconciliation proposals.")
+    p.add_argument("inspection_id")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p = reconcile_sub.add_parser("show", help="Show a reconciliation run, inspection, or proposal.")
+    p.add_argument("identifier")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
 
     for command, help_text in (
         ("status", "Show pilot provenance status for an artifact."),
@@ -791,6 +806,27 @@ def main(argv: list[str] | None = None) -> int:
     # === expression pilot ===
     if args.command == "expression":
         from auteur.expression import ChapterExpressionStore, ExpressionConstraints, ExpressionStore
+        if args.expression_command == "reconcile":
+            from auteur.expression.reconciliation import ReconciliationStore
+            store = ReconciliationStore(args.project)
+            if args.reconcile_command == "inspect":
+                report = store.inspect(args.manuscript, args.against)
+                if args.json:
+                    print(json.dumps(report, indent=2))
+                else:
+                    print(f"Chapter reconciliation inspection {report['inspection_id']}")
+                    for finding in report["findings"]:
+                        print(f"{finding['classification'].upper()}: {finding.get('source_section') or 'chapter'} — {finding['evidence']}")
+                        print("  Actions: " + "; ".join(finding["recommended_actions"]))
+                    print(f"Status: {report['status']}")
+                return 0
+            if args.reconcile_command == "propose":
+                result = store.propose(args.inspection_id)
+                print(json.dumps(result, indent=2) if args.json else f"Created {len(result['proposal_ids'])} noncanonical proposals from {args.inspection_id}.")
+                return 0
+            result = store.proposal_status(args.identifier) if args.identifier.startswith("proposal_") else store.show(args.identifier)
+            print(json.dumps(result, indent=2) if args.json else yaml.safe_dump(result, sort_keys=False))
+            return 0
         if args.expression_command == "generate":
             if args.text is None and args.text_file is None:
                 _err("expression generate requires --text or --text-file")

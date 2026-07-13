@@ -183,3 +183,49 @@ def test_export_and_chapter_comparison_cli(tmp_path: Path, capsys) -> None:
     assert "auteur:scene" not in output.read_text(encoding="utf-8")
     assert main(["expression", "compare-chapters", first.artifact_id, second.artifact_id, "--project", str(project)]) == 0
     assert "transitions_a" in capsys.readouterr().out
+
+
+def test_reconciliation_inspection_and_scene_patch_proposal_are_noncanonical(tmp_path: Path) -> None:
+    from auteur.expression.reconciliation import ReconciliationStore
+    project, scenes, _ = make_project(tmp_path)
+    assembly_store = ChapterExpressionStore(project)
+    assembly = assembly_store.compose("07")
+    manuscript = assembly_store.chapter_dir("07") / "edited.md"
+    text = (assembly_store.chapter_dir("07") / "chapter_v001.md").read_text(encoding="utf-8")
+    manuscript.write_text(text.replace("Prose for scene_07_01.", "Mara kept the ledger close."), encoding="utf-8")
+    before = scenes[0].read_text(encoding="utf-8")
+    store = ReconciliationStore(project)
+    report = store.inspect(manuscript, assembly.artifact_id)
+    assert any(item["classification"] == "modified" for item in report["findings"])
+    result = store.propose(report["inspection_id"])
+    assert result["proposal_ids"]
+    assert scenes[0].read_text(encoding="utf-8") == before
+
+
+def test_reconciliation_classifies_markerless_cross_boundary_and_missing_sections(tmp_path: Path) -> None:
+    from auteur.expression.reconciliation import ReconciliationStore
+    project, _, _ = make_project(tmp_path)
+    assembly_store = ChapterExpressionStore(project)
+    assembly = assembly_store.compose("07")
+    manuscript = assembly_store.chapter_dir("07") / "markerless.md"
+    manuscript.write_text("A rewritten chapter without ownership markers.", encoding="utf-8")
+    report = ReconciliationStore(project).inspect(manuscript, assembly.artifact_id)
+    assert report["status"] == "unresolved"
+    assert any(item["classification"] == "markerless" for item in report["findings"])
+
+
+def test_reconciliation_cli_creates_and_shows_report(tmp_path: Path, capsys) -> None:
+    from auteur.cli import main
+    from auteur.expression.reconciliation import ReconciliationStore
+    project, _, _ = make_project(tmp_path)
+    assembly = ChapterExpressionStore(project).compose("07")
+    manuscript = tmp_path / "edited.md"
+    manuscript.write_text("No markers; manual mapping required.", encoding="utf-8")
+    assert main(["expression", "reconcile", "inspect", str(manuscript), "--against", assembly.artifact_id, "--project", str(project)]) == 0
+    output = capsys.readouterr().out
+    assert "reconciliation inspection" in output
+    report = next(project.glob("chapters/07/expression/reconciliation/inspections/*.yaml"))
+    import yaml as _yaml
+    inspection = _yaml.safe_load(report.read_text(encoding="utf-8"))
+    assert main(["expression", "reconcile", "show", inspection["inspection_id"], "--project", str(project)]) == 0
+    assert "unresolved" in capsys.readouterr().out

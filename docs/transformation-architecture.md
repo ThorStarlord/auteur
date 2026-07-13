@@ -209,6 +209,15 @@ exports intentionally remove traceability markers, while marked exports retain
 them for future reconciliation. External manuscript inspection reports section
 ownership and divergence but does not apply edits automatically.
 
+`expression.reconcile_chapter` is a bounded derived inspection/proposal
+transformation. It records source assembly and imported manuscript provenance,
+classifies ownership, and creates noncanonical proposals. Proposal application
+and canonical authority changes remain outside this pilot.
+
+`expression.reconcile_chapter` records imported manuscript provenance and
+creates derived findings and proposals. It does not apply proposals or change
+canonical authority.
+
 ## Non-goals
 
 This specification does not introduce a generic transformation runtime,

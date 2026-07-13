@@ -130,6 +130,10 @@ become a second canonical prose source and does not modify Scene artifacts.
 See [Expression Composition](expression-composition.md) for its ownership and
 round-trip boundary.
 
+Chapter manuscript reconciliation is a derived inspection and proposal
+workflow. It may suggest Scene Expression or transition revisions, but it does
+not apply them or mutate upstream narrative artifacts.
+
 Chapter-owned transitions are explicit dependencies: boundary IDs, lifecycle,
 revision, and content hash are recorded and participate in assembly freshness.
 Marked manuscript inspection is read-only; malformed or markerless external

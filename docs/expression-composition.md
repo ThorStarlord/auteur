@@ -134,6 +134,11 @@ Direct Chapter edits create a Chapter Expression candidate. They do not mutate
 Scene prose. Section-aware editing, semantic merge, and full reconciliation
 are future work.
 
+External edits are handled by the separate `expression.reconcile_chapter`
+inspection/proposal pilot. Inspection and proposal creation preserve the
+derived assembly and canonical Scene artifacts; proposal application is not
+part of that pilot.
+
 The pilot provides read-only marked-manuscript inspection. It reports unchanged,
 modified, moved, missing, duplicated, and unresolved sections without writing
 back to Scene Expression. Markerless manuscripts receive an actionable
