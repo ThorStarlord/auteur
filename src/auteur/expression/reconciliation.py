@@ -637,7 +637,7 @@ class ReconciliationStore:
         elif all(status in {"accepted", "rejected", "deferred"} for status in statuses): state = "all_candidates_decided"
         elif any(status in {"accepted", "rejected", "deferred"} for status in statuses): state = "partially_decided"
         else: state = "under_review"
-        return {"publication_id": publication_id, "status": state, "candidates": candidates, "next_actions": ["review pending candidates", "revalidate stale candidates", "recomposition is not implemented in this phase"]}
+        return {"publication_id": publication_id, "status": state, "candidates": candidates, "next_actions": ["review pending candidates", "revalidate stale candidates", "recompose explicitly from accepted sources when ready"]}
 
     def decide(self, candidate_id: str, decision: str, *, decided_by: str = "author", rationale: str = "") -> dict[str, Any]:
         if decision not in {"accepted", "rejected", "deferred"}:
