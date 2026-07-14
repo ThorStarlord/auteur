@@ -409,6 +409,20 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--project", type=Path, required=True)
     p.add_argument("--json", action="store_true")
     p.add_argument("--verbose", action="store_true")
+    p = reconcile_sub.add_parser("accept-chapter", help="Accept a recomposed Chapter Expression.")
+    p.add_argument("publication_id")
+    p.add_argument("chapter_expression")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--by", default="author")
+    p.add_argument("--allow-review", action="store_true")
+    p.add_argument("--json", action="store_true")
+    p = reconcile_sub.add_parser("complete", help="Close a reconciliation workflow.")
+    p.add_argument("publication_id")
+    p.add_argument("--status", required=True, choices=["reconciled", "partially_reconciled", "divergent", "abandoned", "superseded"])
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--by", default="author")
+    p.add_argument("--reason", default="")
+    p.add_argument("--json", action="store_true")
 
     for command, help_text in (
         ("status", "Show pilot provenance status for an artifact."),
@@ -926,6 +940,16 @@ def main(argv: list[str] | None = None) -> int:
                 except ValueError as exc: _err(str(exc)); return 1
                 if args.json or args.verbose: print(json.dumps(result, indent=2) if args.json else yaml.safe_dump(result, sort_keys=False))
                 else: print(f"Canonical-source Chapter recomposition\nChapter Expression: {result['chapter_expression']}\nStatus: {result['status']}\nSources: accepted only\nCanonical Chapter acceptance is not performed.")
+                return 0
+            if args.reconcile_command == "accept-chapter":
+                try: result = store.accept_recomposed_chapter(args.publication_id, args.chapter_expression, accepted_by=args.by, allow_review=args.allow_review)
+                except ValueError as exc: _err(str(exc)); return 1
+                print(json.dumps(result, indent=2) if args.json else f"Accepted Chapter Expression {result['chapter_expression']} from accepted sources. Reconciliation remains separately completable.")
+                return 0
+            if args.reconcile_command == "complete":
+                try: result = store.complete(args.publication_id, args.status, completed_by=args.by, rationale=args.reason)
+                except ValueError as exc: _err(str(exc)); return 1
+                print(json.dumps(result, indent=2) if args.json else f"Reconciliation {args.publication_id} completed as {args.status}.")
                 return 0
             if args.reconcile_command == "inspect":
                 report = store.inspect(args.manuscript, args.against)

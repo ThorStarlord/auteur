@@ -712,3 +712,32 @@ class ReconciliationStore:
             if manuscript_path.exists():
                 comparison = self.inspect(manuscript_path, chapter.artifact_id)
         return {"publication_id": publication_id, "chapter_expression": chapter.artifact_id, "transformation": chapter.transformation, "accepted_sources": accepted_sources, "comparison": comparison, "canonical": False, "status": "recomposed"}
+
+    def accept_recomposed_chapter(self, publication_id: str, expression_id: str, *, accepted_by: str = "author", allow_review: bool = False) -> dict[str, Any]:
+        manifest = self.inspect_publication(publication_id)
+        chapter = self.composition.inspect(expression_id)
+        if chapter.transformation.get("id") != "expression.recompose_after_reconciliation" or chapter.transformation.get("publication_id") != publication_id:
+            raise ValueError("Chapter Expression is not a recomposed expression for this publication")
+        for scene in chapter.source_scenes:
+            current, _ = self.composition._accepted_scene(scene["scene_id"])
+            if int(current["revision"]) != int(scene["expression_revision"]) or current["content_hash"] != scene["expression_content_hash"]:
+                raise ValueError("Chapter Expression has a stale accepted Scene source")
+        if any(item.get("lifecycle", "accepted") != "accepted" for item in chapter.transitions):
+            raise ValueError("Chapter Expression contains a non-accepted transition source")
+        accepted = self.composition.accept(expression_id, accepted_by=accepted_by, allow_review=allow_review)
+        return {"publication_id": publication_id, "chapter_expression": accepted.artifact_id, "status": "accepted", "accepted_by": accepted_by, "canonical": True, "source_publication": manifest["publication_id"]}
+
+    def complete(self, publication_id: str, status: str, *, completed_by: str = "author", rationale: str = "") -> dict[str, Any]:
+        allowed = {"reconciled", "partially_reconciled", "divergent", "abandoned", "superseded"}
+        if status not in allowed:
+            raise ValueError(f"completion status must be one of: {', '.join(sorted(allowed))}")
+        manifest_path = self._publication_manifest_path(publication_id)
+        path = self._decision_dir(manifest_path).parent / "completion.yaml"
+        if path.exists():
+            raise ValueError("reconciliation completion already recorded")
+        review = self.review(publication_id)
+        if status == "reconciled" and review["status"] != "all_candidates_decided":
+            raise ValueError("reconciled completion requires every candidate to have a decision")
+        result = {"publication_id": publication_id, "completion_status": status, "completed_by": completed_by, "completed_at": datetime.now(timezone.utc).isoformat(), "comparison_report": None, "remaining_divergence": [item for item in review["candidates"] if item["status"] not in {"accepted"}], "rationale": rationale}
+        path.write_text(yaml.safe_dump(result, sort_keys=False), encoding="utf-8")
+        return result

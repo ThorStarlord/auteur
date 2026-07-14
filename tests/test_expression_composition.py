@@ -480,3 +480,24 @@ def test_recompose_uses_current_accepted_sources_only(tmp_path: Path) -> None:
     assert recomposed.transformation["id"] == "expression.recompose_after_reconciliation"
     assert next(item for item in recomposed.source_scenes if item["scene_id"] == "scene_07_01")["expression_revision"] == 2
     assert recomposed.transitions[0]["revision"] == 1
+
+
+def test_recomposed_chapter_acceptance_and_reconciliation_completion_are_explicit(tmp_path: Path) -> None:
+    from auteur.expression.reconciliation import ReconciliationStore
+    project, _, _ = make_project(tmp_path)
+    assemblies = ChapterExpressionStore(project)
+    assembly = assemblies.compose("07")
+    manuscript = assemblies.chapter_dir("07") / "edited.md"
+    manuscript.write_text(assemblies._metadata_path(assembly.artifact_id).with_suffix(".md").read_text(encoding="utf-8").replace("Prose for scene_07_01.", "Edited."), encoding="utf-8")
+    store = ReconciliationStore(project)
+    report = store.inspect(manuscript, assembly.artifact_id)
+    proposals = store.propose(report["inspection_id"])
+    plan = store.plan(report["inspection_id"], proposals["proposal_ids"])
+    publication = store.publish(plan["application_set_id"])
+    scene = next(item for item in store.review(publication["publication_id"])["candidates"] if item["candidate_type"] == "scene")
+    store.decide(scene["candidate_id"], "accepted", decided_by="author")
+    recomposed = store.recompose(publication["publication_id"])
+    accepted = store.accept_recomposed_chapter(publication["publication_id"], recomposed["chapter_expression"], accepted_by="author")
+    assert accepted["canonical"] is True
+    completion = store.complete(publication["publication_id"], "partially_reconciled", completed_by="author", rationale="Some external edits remain.")
+    assert completion["completion_status"] == "partially_reconciled"
