@@ -362,6 +362,17 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--project", type=Path, required=True)
     p.add_argument("--json", action="store_true")
     p.add_argument("--verbose", action="store_true")
+    p = reconcile_sub.add_parser("plan", help="Create a read-only reconciliation application plan.")
+    p.add_argument("--inspection", required=True)
+    p.add_argument("--select", required=True, help="Comma-separated proposal IDs.")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--verbose", action="store_true")
+    p = reconcile_sub.add_parser("show-plan", help="Show a reconciliation application plan.")
+    p.add_argument("application_set_id")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--verbose", action="store_true")
 
     for command, help_text in (
         ("status", "Show pilot provenance status for an artifact."),
@@ -812,6 +823,27 @@ def main(argv: list[str] | None = None) -> int:
         if args.expression_command == "reconcile":
             from auteur.expression.reconciliation import ReconciliationStore
             store = ReconciliationStore(args.project)
+            if args.reconcile_command == "plan":
+                result = store.plan(args.inspection, [item for item in args.select.split(",") if item])
+                if args.json:
+                    print(json.dumps(result, indent=2))
+                else:
+                    print("Reconciliation application plan")
+                    print(f"Status: {result['readiness']}")
+                    print("Selected proposals:")
+                    for proposal_id in result["proposal_ids"]:
+                        print(f"- {proposal_id}")
+                    print("Planned outputs:")
+                    for output in result["planned_outputs"]:
+                        print(f"- {output['output_type']} for {output.get('target_scene', output.get('target_transition'))}")
+                    print("No canonical artifacts will be changed.")
+                    if result["readiness"] != "ready": print("Resolve the listed freshness or conflict findings before proceeding.")
+                return 0
+            if args.reconcile_command == "show-plan":
+                result = store.show_plan(args.application_set_id)
+                if args.json or args.verbose: print(json.dumps(result, indent=2) if args.json else yaml.safe_dump(result, sort_keys=False))
+                else: print(f"Reconciliation application plan {result['application_set_id']}\nStatus: {result['readiness']}\nSelected proposals: {len(result['proposal_ids'])}\nNo canonical artifacts will be changed.")
+                return 0
             if args.reconcile_command == "inspect":
                 report = store.inspect(args.manuscript, args.against)
                 if args.json:

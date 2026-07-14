@@ -110,6 +110,13 @@ an executor type, not a transformation category.
 7. Candidate creation does not overwrite canonical sources.
 8. Failed transformations do not leave partially accepted canonical output.
 9. Multi-artifact changes are explicit change sets or proposals.
+
+Reconciliation application planning is a derived change-set preview: it may
+describe Scene and transition candidates and an in-memory Chapter preview, but
+it creates no narrative artifact. The lifecycle remains planning → staging →
+publishing candidates → accepting candidates → recomposing from accepted
+sources. Scene and transition candidates follow symmetric explicit acceptance
+rules; canonical Chapter composition never consumes merely planned candidates.
 10. Accepted artifacts retain history.
 11. Lossy transformations declare what they discard, resolve, invent, summarize,
     or interpret.

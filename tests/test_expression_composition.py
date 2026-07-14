@@ -316,3 +316,39 @@ def test_reconciliation_cli_creates_and_shows_report(tmp_path: Path, capsys) -> 
     inspection = _yaml.safe_load(report.read_text(encoding="utf-8"))
     assert main(["expression", "reconcile", "show", inspection["inspection_id"], "--project", str(project)]) == 0
     assert "unresolved" in capsys.readouterr().out
+
+
+def test_reconciliation_application_plan_is_ready_and_noncanonical(tmp_path: Path) -> None:
+    from auteur.expression.reconciliation import ReconciliationStore
+    project, scenes, _ = make_project(tmp_path)
+    store = ChapterExpressionStore(project)
+    assembly = store.compose("07")
+    manuscript = store.chapter_dir("07") / "edited.md"
+    manuscript.write_text((store._metadata_path(assembly.artifact_id).with_suffix(".md")).read_text(encoding="utf-8").replace("Prose for scene_07_01.", "Edited prose."), encoding="utf-8")
+    reconcile = ReconciliationStore(project)
+    report = reconcile.inspect(manuscript, assembly.artifact_id)
+    proposals = reconcile.propose(report["inspection_id"])
+    plan = reconcile.plan(report["inspection_id"], proposals["proposal_ids"])
+    assert plan["readiness"] == "ready"
+    assert plan["planned_outputs"][0]["output_type"] == "scene_expression_candidate"
+    assert plan["recomposition_preview"]["canonical"] is False
+    assert not (project / "chapters/07/expression/scenes").exists()
+
+
+def test_reconciliation_application_plan_rejects_duplicate_and_stale_selection(tmp_path: Path) -> None:
+    from auteur.expression.reconciliation import ReconciliationStore
+    project, _, _ = make_project(tmp_path)
+    store = ChapterExpressionStore(project)
+    assembly = store.compose("07")
+    manuscript = store.chapter_dir("07") / "edited.md"
+    manuscript.write_text((store._metadata_path(assembly.artifact_id).with_suffix(".md")).read_text(encoding="utf-8").replace("Prose for scene_07_01.", "Edited prose."), encoding="utf-8")
+    reconcile = ReconciliationStore(project)
+    report = reconcile.inspect(manuscript, assembly.artifact_id)
+    proposal_id = reconcile.propose(report["inspection_id"])["proposal_ids"][0]
+    scenes_path = project / "chapters/07/scenes/scene_07_01.yaml"
+    ExpressionStore(project).generate(scenes_path, "New accepted prose.")
+    ExpressionStore(project).accept("scene_07_01:prose_v002")
+    plan = reconcile.plan(report["inspection_id"], [proposal_id, proposal_id])
+    assert plan["readiness"] in {"conflicted", "stale"}
+    assert any(item["conflict_code"] == "duplicate_proposal_selection" for item in plan["conflicts"])
+    assert any(item["classification"] == "stale" for item in plan["freshness_results"])

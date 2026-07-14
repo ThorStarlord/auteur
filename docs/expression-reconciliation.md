@@ -73,6 +73,11 @@ ownership dependencies change.
 No proposal application or canonical authority change is implemented in this
 pilot.
 
+Application planning is a separate read-only phase. It validates selected
+proposal freshness and compatibility and writes only a derived application-set
+plan. It does not publish or accept candidates, persist Chapter recomposition,
+or mutate canonical state.
+
 ## CLI
 
 ```bash
@@ -81,6 +86,9 @@ auteur expression reconcile inspect edited.md \
 auteur expression reconcile propose inspection_<id> --project PROJECT
 auteur expression reconcile show inspection_<id> --project PROJECT
 auteur expression reconcile show proposal_<id> --project PROJECT
+auteur expression reconcile plan --inspection inspection_<id> \
+  --select proposal_<id> --project PROJECT
+auteur expression reconcile show-plan application_set_<id> --project PROJECT
 ```
 
 Default output emphasizes ownership, change, and recommended actions. `--json`

@@ -283,3 +283,132 @@ class ReconciliationStore:
             if data.get("inspection_id") == identifier or data.get("proposal_id") == identifier or data.get("run_id") == identifier:
                 return data
         raise FileNotFoundError(f"reconciliation artifact not found: {identifier}")
+
+    SUPPORTED_APPLICATION_TYPES = {
+        "scene_expression_patch",
+        "scene_expression_replacement_candidate",
+        "transition_patch",
+    }
+    SUPPORTED_TRANSFORMATION = ("expression.reconcile_chapter", 1)
+
+    def _proposal_path(self, proposal_id: str) -> Path | None:
+        return next(self.project.glob(f"chapters/*/expression/reconciliation/proposals/{proposal_id}.yaml"), None)
+
+    def _load_plan(self, plan_id: str) -> dict[str, Any]:
+        path = next(self.project.glob(f"chapters/*/expression/reconciliation/plans/{plan_id}.yaml"), None)
+        if path is None:
+            raise FileNotFoundError(f"application plan not found: {plan_id}")
+        return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+
+    def plan(self, inspection_id: str, proposal_ids: list[str]) -> dict[str, Any]:
+        """Persist a deterministic, noncanonical application-set plan."""
+        inspection_path = next(self.project.glob(f"chapters/*/expression/reconciliation/inspections/{inspection_id}.yaml"), None)
+        if inspection_path is None:
+            raise FileNotFoundError(f"inspection not found: {inspection_id}")
+        inspection = yaml.safe_load(inspection_path.read_text(encoding="utf-8")) or {}
+        assembly_ref = inspection.get("source_assembly", {})
+        manuscript_ref = inspection.get("external_manuscript", {})
+        proposals: list[dict[str, Any]] = []
+        validations: list[dict[str, Any]] = []
+        conflicts: list[dict[str, Any]] = []
+        seen: set[str] = set()
+        for proposal_id in proposal_ids:
+            if proposal_id in seen:
+                conflicts.append({"conflict_code": "duplicate_proposal_selection", "proposal_ids": [proposal_id], "target_artifact": None, "target_section": None, "summary": "The same proposal was selected more than once.", "recommended_action": "Select each proposal once."})
+                continue
+            seen.add(proposal_id)
+            path = self._proposal_path(proposal_id)
+            if path is None:
+                validations.append({"proposal_id": proposal_id, "classification": "invalid", "reasons": ["proposal does not exist"]})
+                continue
+            proposal = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+            proposals.append(proposal)
+            reasons: list[str] = []
+            classification = "fresh"
+            kind = proposal.get("proposal_type")
+            if kind not in self.SUPPORTED_APPLICATION_TYPES:
+                classification, reasons = "unsupported", [f"proposal type is not supported: {kind}"]
+            elif proposal.get("status") in {"rejected", "superseded", "stale"}:
+                classification, reasons = "stale", [f"proposal status is no longer applicable: {proposal.get('status')}" ]
+            elif proposal.get("status") not in {"proposed", "review_required"}:
+                classification, reasons = "invalid", [f"proposal status is not applicable: {proposal.get('status')}" ]
+            elif proposal.get("source_inspection") != inspection_id:
+                classification, reasons = "invalid", ["proposal belongs to a different inspection"]
+            elif proposal.get("transformation", {}).get("id") != self.SUPPORTED_TRANSFORMATION[0] or proposal.get("transformation", {}).get("version") != self.SUPPORTED_TRANSFORMATION[1]:
+                classification, reasons = "unsupported", ["transformation contract is unsupported"]
+            else:
+                try:
+                    assembly = self.composition.inspect(assembly_ref["artifact_id"])
+                    if proposal.get("source_assembly") != assembly_ref:
+                        classification, reasons = "stale", ["proposal source Chapter assembly differs from inspection"]
+                    elif proposal.get("external_manuscript") != manuscript_ref:
+                        classification, reasons = "stale", ["proposal imported manuscript differs from inspection"]
+                    elif assembly.revision != assembly_ref.get("revision") or assembly.content_hash != assembly_ref.get("content_hash"):
+                        classification, reasons = "stale", ["source Chapter assembly revision or hash changed"]
+                    elif manuscript_ref.get("path") and (not Path(manuscript_ref["path"]).exists() or _hash(Path(manuscript_ref["path"]).read_text(encoding="utf-8")) != manuscript_ref.get("content_hash")):
+                        classification, reasons = "stale", ["imported manuscript hash changed"]
+                    elif kind == "transition_patch":
+                        transition = next((item for item in assembly.transitions if item.get("transition_id") == proposal.get("target_artifact_id")), None)
+                        if transition is None:
+                            classification, reasons = "invalid", ["target transition does not exist"]
+                        elif transition.get("revision") != proposal.get("target_revision") or transition.get("content_hash") != proposal.get("target_content_hash"):
+                            classification, reasons = "stale", ["target transition revision or hash changed"]
+                    else:
+                        metadata, _ = self.composition._accepted_scene(proposal["target_artifact_id"])
+                        if metadata.get("revision") != proposal.get("target_revision") or metadata.get("content_hash") != proposal.get("target_content_hash"):
+                            classification, reasons = "stale", ["target Scene Expression revision or hash changed"]
+                except (KeyError, FileNotFoundError, ValueError) as exc:
+                    classification, reasons = "invalid", [str(exc)]
+            validations.append({"proposal_id": proposal_id, "classification": classification, "reasons": reasons, "proposal_type": kind})
+
+        for left_index, left in enumerate(proposals):
+            for right in proposals[left_index + 1:]:
+                if left.get("source_assembly") != right.get("source_assembly"):
+                    conflicts.append({"conflict_code": "different_source_assemblies", "proposal_ids": [left["proposal_id"], right["proposal_id"]], "target_artifact": None, "target_section": None, "summary": "Selected proposals were generated from different Chapter assemblies.", "recommended_action": "Select proposals from one inspection assembly."})
+                if left.get("external_manuscript", {}).get("content_hash") != right.get("external_manuscript", {}).get("content_hash"):
+                    conflicts.append({"conflict_code": "different_imported_manuscripts", "proposal_ids": [left["proposal_id"], right["proposal_id"]], "target_artifact": None, "target_section": None, "summary": "Selected proposals were generated from different imported manuscripts.", "recommended_action": "Select proposals from one imported manuscript."})
+                same_target = left.get("target_artifact_id") == right.get("target_artifact_id")
+                if same_target and left.get("proposal_type") != "transition_patch" and right.get("proposal_type") != "transition_patch":
+                    code = "scene_patch_replacement_conflict" if left.get("proposal_type") != right.get("proposal_type") else "overlapping_scene_patches"
+                    conflicts.append({"conflict_code": code, "proposal_ids": [left["proposal_id"], right["proposal_id"]], "target_artifact": left.get("target_artifact_id"), "target_section": left.get("target_artifact_id"), "summary": "Selected Scene proposals target the same Scene.", "recommended_action": "Select one compatible Scene proposal."})
+                if same_target and left.get("proposal_type") == right.get("proposal_type") == "transition_patch":
+                    conflicts.append({"conflict_code": "transition_revision_conflict", "proposal_ids": [left["proposal_id"], right["proposal_id"]], "target_artifact": left.get("target_artifact_id"), "target_section": left.get("target_artifact_id"), "summary": "Selected transition patches target the same transition revision.", "recommended_action": "Select one transition patch."})
+
+        fresh = {item["proposal_id"] for item in validations if item["classification"] == "fresh"}
+        planned_outputs = []
+        for proposal in proposals:
+            if proposal["proposal_id"] not in fresh: continue
+            if proposal["proposal_type"] == "transition_patch":
+                planned_outputs.append({"output_type": "chapter_transition_candidate", "target_transition": proposal["target_artifact_id"], "source_transition_revision": proposal["target_revision"], "planned_candidate_id": f"planned:{proposal['proposal_id']}", "planned_revision": int(proposal["target_revision"]) + 1})
+            else:
+                item = {"output_type": "scene_expression_candidate", "target_scene": proposal["target_artifact_id"], "source_expression_revision": proposal["target_revision"], "planned_candidate_id": f"planned:{proposal['proposal_id']}"}
+                if proposal["proposal_type"] == "scene_expression_replacement_candidate": item["mode"] = "replacement"
+                item["planned_revision"] = int(proposal["target_revision"]) + 1
+                planned_outputs.append(item)
+        if conflicts: readiness = "conflicted"
+        elif any(item["classification"] == "unsupported" for item in validations): readiness = "unsupported"
+        elif any(item["classification"] == "invalid" for item in validations): readiness = "not_ready"
+        elif any(item["classification"] == "stale" for item in validations): readiness = "stale"
+        else: readiness = "ready"
+        preview_sources = []
+        expected_scene_order, expected_transition_order = [], []
+        try:
+            assembly = self.composition.inspect(assembly_ref["artifact_id"])
+            planned_by_target = {item.get("target_scene", item.get("target_transition")): item for item in planned_outputs}
+            for item in assembly.source_scenes:
+                expected_scene_order.append(item["scene_id"])
+                preview_sources.append({"section_id": item["scene_id"], "source_kind": "planned_candidate" if item["scene_id"] in planned_by_target else "accepted_scene_expression", "source_revision": planned_by_target.get(item["scene_id"], {}).get("planned_revision", item["expression_revision"]), "planned_candidate": planned_by_target.get(item["scene_id"], {}).get("planned_candidate_id")})
+            for item in assembly.transitions:
+                expected_transition_order.append(item["transition_id"])
+                preview_sources.append({"section_id": item["transition_id"], "source_kind": "planned_candidate" if item["transition_id"] in planned_by_target else "accepted_transition", "source_revision": planned_by_target.get(item["transition_id"], {}).get("planned_revision", item["revision"]), "planned_candidate": planned_by_target.get(item["transition_id"], {}).get("planned_candidate_id")})
+        except (KeyError, FileNotFoundError, ValueError):
+            pass
+        if not proposal_ids: readiness = "not_ready"
+        plan_id = "application_set_" + hashlib.sha256((inspection_id + "\0" + "\0".join(proposal_ids)).encode()).hexdigest()[:16]
+        plan = {"application_set_id": plan_id, "source_inspection": inspection_id, "source_assembly": assembly_ref, "proposal_ids": proposal_ids, "status": "planned", "readiness": readiness, "targets": [p.get("target_artifact_id") for p in proposals], "conflicts": conflicts, "freshness_results": validations, "planned_outputs": planned_outputs, "recomposition_preview": {"preview_sources": preview_sources, "expected_scene_order": expected_scene_order, "expected_transition_order": expected_transition_order, "blocking_gaps": [] if expected_scene_order else ["source Chapter assembly unavailable"], "label": "application_preview", "canonical": False}, "created_at": datetime.now(timezone.utc).isoformat()}
+        root = inspection_path.parent.parent
+        self._write_atomic(root / "plans" / f"{plan_id}.yaml", plan)
+        return plan
+
+    def show_plan(self, plan_id: str) -> dict[str, Any]:
+        return self._load_plan(plan_id)
