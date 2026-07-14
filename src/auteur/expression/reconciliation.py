@@ -244,6 +244,12 @@ class ReconciliationStore:
             else:
                 kind = "scene_expression_patch" if finding["owner"] == "Scene Expression" else "scene_expression_replacement_candidate"
             proposal = {"proposal_id": proposal_id, "proposal_type": kind, "target_artifact_id": finding.get("source_section"), "target_artifact_type": finding.get("owner"), "target_revision": finding.get("source_revision"), "target_content_hash": finding.get("expected_hash"), "source_assembly": report["source_assembly"], "external_manuscript": report["external_manuscript"], "source_inspection": inspection_id, "original_text": finding["detail"]["original"], "replacement_text": finding["detail"]["replacement"], "transformation": {"id": "expression.reconcile_chapter", "version": 1}, "status": "proposed", "created_at": datetime.now(timezone.utc).isoformat()}
+            if kind == "transition_patch":
+                transition = next((item for item in self.composition.inspect(report["source_assembly"]["artifact_id"]).transitions if item.get("transition_id") == finding.get("source_section")), None)
+                if transition is None:
+                    continue
+                proposal["boundary"] = {"before_scene": transition["before_scene"], "after_scene": transition["after_scene"]}
+                proposal["source_transition"] = {"transition_id": transition["transition_id"], "revision": transition["revision"], "content_hash": transition["content_hash"], "before_scene": transition["before_scene"], "after_scene": transition["after_scene"]}
             self._write_atomic(root / "proposals" / f"{proposal_id}.yaml", proposal)
             proposals.append(proposal); ids.append(proposal_id)
         report["proposal_ids"] = ids
@@ -349,9 +355,16 @@ class ReconciliationStore:
                     elif manuscript_ref.get("path") and (not Path(manuscript_ref["path"]).exists() or _hash(Path(manuscript_ref["path"]).read_text(encoding="utf-8")) != manuscript_ref.get("content_hash")):
                         classification, reasons = "stale", ["imported manuscript hash changed"]
                     elif kind == "transition_patch":
-                        transition = next((item for item in assembly.transitions if item.get("transition_id") == proposal.get("target_artifact_id")), None)
-                        if transition is None:
+                        if not proposal.get("boundary", {}).get("before_scene") or not proposal.get("boundary", {}).get("after_scene"):
+                            classification, reasons = "invalid", ["transition proposal is missing a boundary"]
+                        else:
+                            transition = next((item for item in assembly.transitions if item.get("transition_id") == proposal.get("target_artifact_id")), None)
+                        if classification != "fresh" and classification != "stale" and classification != "invalid":
+                            transition = None
+                        if transition is None and classification == "fresh":
                             classification, reasons = "invalid", ["target transition does not exist"]
+                        elif transition is not None and proposal.get("boundary") != {"before_scene": transition.get("before_scene"), "after_scene": transition.get("after_scene")}:
+                            classification, reasons = "stale", ["transition proposal boundary changed"]
                         elif transition.get("revision") != proposal.get("target_revision") or transition.get("content_hash") != proposal.get("target_content_hash"):
                             classification, reasons = "stale", ["target transition revision or hash changed"]
                     else:
@@ -380,7 +393,7 @@ class ReconciliationStore:
         for proposal in proposals:
             if proposal["proposal_id"] not in fresh: continue
             if proposal["proposal_type"] == "transition_patch":
-                planned_outputs.append({"output_type": "chapter_transition_candidate", "target_transition": proposal["target_artifact_id"], "source_transition_revision": proposal["target_revision"], "planned_candidate_id": f"planned:{proposal['proposal_id']}", "planned_revision": int(proposal["target_revision"]) + 1})
+                planned_outputs.append({"output_type": "chapter_transition_candidate", "target_transition": proposal["target_artifact_id"], "boundary": proposal.get("boundary"), "source_transition_revision": proposal["target_revision"], "planned_candidate_id": f"planned:{proposal['proposal_id']}", "planned_revision": int(proposal["target_revision"]) + 1})
             else:
                 item = {"output_type": "scene_expression_candidate", "target_scene": proposal["target_artifact_id"], "source_expression_revision": proposal["target_revision"], "planned_candidate_id": f"planned:{proposal['proposal_id']}"}
                 if proposal["proposal_type"] == "scene_expression_replacement_candidate": item["mode"] = "replacement"
@@ -451,17 +464,27 @@ class ReconciliationStore:
                     scene_overrides[proposal["target_artifact_id"]] = prose_path
                     scene_overrides[f"__metadata__:{proposal['target_artifact_id']}"] = metadata_path
                 elif proposal["proposal_type"] == "transition_patch":
-                    target = transitions.get(proposal["target_artifact_id"], {})
+                    boundary = proposal.get("boundary") or {}
+                    boundary_key = f"{boundary.get('before_scene')}->{boundary.get('after_scene')}"
+                    target_key = next((key for key, value in transitions.items() if value.get("transition_id") == proposal["target_artifact_id"]), None)
+                    if not boundary.get("before_scene") or not boundary.get("after_scene") or target_key is None:
+                        raise ValueError("transition candidate has missing or invalid boundary")
+                    target = transitions.get(target_key, {})
+                    if target.get("before_scene") != boundary["before_scene"] or target.get("after_scene") != boundary["after_scene"]:
+                        raise ValueError("transition candidate boundary does not match source transition")
                     target = dict(target)
                     revision = int(proposal["target_revision"]) + 1
-                    target.update({"transition_id": proposal["target_artifact_id"], "revision": revision, "text": proposal["replacement_text"], "lifecycle": Lifecycle.PROPOSED.value, "authority": "draft", "content_hash": _hash(proposal["replacement_text"]), "transformation": {"id": "expression.publish_application", "version": 1}, "application_plan": plan_id})
+                    candidate_id = f"transition_candidate_{proposal['target_artifact_id']}_v{revision:03d}"
+                    target.update({"candidate_id": candidate_id, "artifact_type": "chapter_transition_candidate", "transition_id": proposal["target_artifact_id"], "revision": revision, "lifecycle": Lifecycle.PROPOSED.value, "authority": "candidate", "boundary": boundary, "source_transition": proposal.get("source_transition"), "text": proposal["replacement_text"], "content_hash": _hash(proposal["replacement_text"]), "transformation": {"id": "expression.publish_application", "version": 1}, "source_application_plan": plan_id, "source_reconciliation": proposal.get("source_inspection"), "source_proposal": proposal["proposal_id"]})
                     transition_dir = self.composition.chapter_dir(chapter_id) / "transition_candidates"
                     md_path, yaml_path = transition_dir / f"{proposal['target_artifact_id']}_v{revision:03d}.md", transition_dir / f"{proposal['target_artifact_id']}_v{revision:03d}.yaml"
                     transition_dir.mkdir(parents=True, exist_ok=True)
                     md_path.write_text(proposal["replacement_text"], encoding="utf-8")
                     yaml_path.write_text(yaml.safe_dump(target, sort_keys=False), encoding="utf-8")
                     created.extend([md_path, yaml_path])
-                    transitions[proposal["target_artifact_id"]] = target
+                    transitions[boundary_key] = target
+                    if target_key != boundary_key:
+                        transitions.pop(target_key, None)
             chapter = self.composition.compose(chapter_id, transitions=transitions, scene_overrides=scene_overrides, persist_transitions=False, lifecycle=Lifecycle.PROPOSED, authority="draft", transformation={"id": "expression.publish_application", "version": 1, "application_plan": plan_id, "source_reconciliation": plan["source_inspection"]})
             chapter_meta = self.composition._metadata_path(chapter.artifact_id)
             chapter_md = chapter_meta.with_suffix(".md")

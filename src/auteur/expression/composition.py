@@ -231,7 +231,7 @@ class ChapterExpressionStore:
                     if re.search(r"\b(decided|revealed|killed|stole|met)\b", str(transition.get("text", "")), re.IGNORECASE):
                         transition_findings.append({"code": "likely_unowned_transition_event", "severity": "advisory", "transition_id": transition.get("transition_id"), "message": "Transition prose may introduce a canonical event", "recommended_action": "review transition ownership"})
                     text = str(transition.get("text", "")).strip()
-                    item = {"transition_id": transition.get("transition_id", f"transition_{scene_id}_{scene_ids[index + 1]}"), "before_scene": scene_id, "after_scene": scene_ids[index + 1], "revision": int(transition.get("revision", 1)), "lifecycle": transition.get("lifecycle", "accepted"), "text": text, "content_hash": _hash_text(text)}
+                    item = {"transition_id": transition.get("transition_id", f"transition_{scene_id}_{scene_ids[index + 1]}"), "candidate_id": transition.get("candidate_id"), "before_scene": scene_id, "after_scene": scene_ids[index + 1], "revision": int(transition.get("revision", 1)), "lifecycle": transition.get("lifecycle", "accepted"), "text": text, "content_hash": _hash_text(text)}
                     transition_data.append(item)
                     chunks.extend([f"<!-- auteur:transition id={item['transition_id']} revision={item['revision']} -->", text, f"<!-- auteur:end-transition id={item['transition_id']} -->"])
                     sections.append({"section_id": item["transition_id"], "kind": "transition", "before_scene": scene_id, "after_scene": scene_ids[index + 1]})

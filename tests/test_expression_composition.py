@@ -392,3 +392,25 @@ def test_reconciliation_publication_rolls_back_candidates_on_composition_failure
         store.publish(plan["application_set_id"])
     assert not list(project.glob("chapters/07/scenes/scene_07_01/prose_v002.yaml"))
     assert not list(project.glob("chapters/07/expression/transition_candidates/*"))
+
+
+def test_mixed_publication_preserves_transition_identity_and_boundary(tmp_path: Path) -> None:
+    from auteur.expression.reconciliation import ReconciliationStore
+    project, _, _ = make_project(tmp_path)
+    assemblies = ChapterExpressionStore(project)
+    assembly = assemblies.compose("07", transitions={"t1": {"transition_id": "t1", "before_scene": "scene_07_02", "after_scene": "scene_07_01", "revision": 1, "text": "At dawn."}})
+    manuscript = assemblies.chapter_dir("07") / "edited.md"
+    manuscript.write_text(assemblies._metadata_path(assembly.artifact_id).with_suffix(".md").read_text(encoding="utf-8").replace("Prose for scene_07_01.", "Published wording.").replace("At dawn.", "At dusk."), encoding="utf-8")
+    store = ReconciliationStore(project)
+    report = store.inspect(manuscript, assembly.artifact_id)
+    proposal_ids = store.propose(report["inspection_id"])["proposal_ids"]
+    plan = store.plan(report["inspection_id"], proposal_ids)
+    publication = store.publish(plan["application_set_id"])
+    transition = yaml.safe_load((project / "chapters/07/expression/transition_candidates/t1_v002.yaml").read_text(encoding="utf-8"))
+    assert transition["transition_id"] == "t1"
+    assert transition["boundary"] == {"before_scene": "scene_07_02", "after_scene": "scene_07_01"}
+    chapter = yaml.safe_load(assemblies._metadata_path(publication["chapter_expression"]).read_text(encoding="utf-8"))
+    published_transition = next(item for item in chapter["transitions"] if item["transition_id"] == "t1")
+    assert published_transition["before_scene"] == "scene_07_02"
+    assert published_transition["after_scene"] == "scene_07_01"
+    assert chapter["lifecycle"] == "proposed"
