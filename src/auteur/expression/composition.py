@@ -14,6 +14,8 @@ from auteur.provenance import ArtifactStore, Lifecycle, ReviewState
 
 MARKER_RE = re.compile(r"^<!-- auteur:scene id=([^ ]+) expression_revision=(\d+) -->$")
 END_MARKER_RE = re.compile(r"^<!-- auteur:end-scene id=([^ ]+) -->$")
+TRANSITION_MARKER_RE = re.compile(r"^<!-- auteur:transition id=([^ ]+) revision=(\d+) -->$")
+END_TRANSITION_MARKER_RE = re.compile(r"^<!-- auteur:end-transition id=([^ ]+) -->$")
 
 
 class ChapterExpression(BaseModel):
@@ -225,7 +227,7 @@ class ChapterExpressionStore:
                     text = str(transition.get("text", "")).strip()
                     item = {"transition_id": transition.get("transition_id", f"transition_{scene_id}_{scene_ids[index + 1]}"), "before_scene": scene_id, "after_scene": scene_ids[index + 1], "revision": int(transition.get("revision", 1)), "lifecycle": transition.get("lifecycle", "accepted"), "text": text, "content_hash": _hash_text(text)}
                     transition_data.append(item)
-                    chunks.append(text)
+                    chunks.extend([f"<!-- auteur:transition id={item['transition_id']} revision={item['revision']} -->", text, f"<!-- auteur:end-transition id={item['transition_id']} -->"])
                     sections.append({"section_id": item["transition_id"], "kind": "transition", "before_scene": scene_id, "after_scene": scene_ids[index + 1]})
                 else:
                     chunks.append("")
@@ -277,7 +279,7 @@ class ChapterExpressionStore:
         metadata = self.inspect(expression_id)
         path = self._metadata_path(expression_id).with_suffix(".md")
         text = path.read_text(encoding="utf-8")
-        lines = [line for line in text.splitlines() if not MARKER_RE.match(line) and not END_MARKER_RE.match(line)]
+        lines = [line for line in text.splitlines() if not any(pattern.match(line) for pattern in (MARKER_RE, END_MARKER_RE, TRANSITION_MARKER_RE, END_TRANSITION_MARKER_RE))]
         return "\n".join(lines).rstrip() + "\n"
 
     @staticmethod
@@ -287,7 +289,7 @@ class ChapterExpressionStore:
         scenes: list[str] = []
         open_scene: str | None = None
         for line_number, line in enumerate(text.splitlines(), 1):
-            if "<!-- auteur:" in line and not MARKER_RE.match(line) and not END_MARKER_RE.match(line):
+            if "<!-- auteur:" in line and not any(pattern.match(line) for pattern in (MARKER_RE, END_MARKER_RE, TRANSITION_MARKER_RE, END_TRANSITION_MARKER_RE)):
                 findings.append({"code": "malformed_marker", "line": str(line_number), "message": "Malformed Auteur marker-like syntax", "recommended_action": "restore the exact marker grammar"})
                 continue
             start = MARKER_RE.match(line)

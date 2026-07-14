@@ -214,6 +214,93 @@ def test_reconciliation_classifies_markerless_cross_boundary_and_missing_section
     assert any(item["classification"] == "markerless" for item in report["findings"])
 
 
+def test_reconciliation_clean_and_transition_ownership_have_no_unsourced_noise(tmp_path: Path) -> None:
+    from auteur.expression.reconciliation import ReconciliationStore
+    project, _, _ = make_project(tmp_path)
+    assembly_store = ChapterExpressionStore(project)
+    transition = {"t1": {"transition_id": "t1", "before_scene": "scene_07_02", "after_scene": "scene_07_01", "text": "At dusk."}}
+    assembly = assembly_store.compose("07", transitions=transition)
+    manuscript = assembly_store.chapter_dir("07") / "external.md"
+    manuscript.write_text(assembly_store._metadata_path(assembly.artifact_id).with_suffix(".md").read_text(encoding="utf-8"), encoding="utf-8")
+    report = ReconciliationStore(project).inspect(manuscript, assembly.artifact_id)
+    assert report["status"] == "no_changes"
+    assert report["findings"] == []
+    assert report["recognized_transitions"][0]["owner"] == "Chapter transition"
+
+
+def test_markerless_reconciliation_keeps_hierarchical_consequences(tmp_path: Path) -> None:
+    from auteur.expression.reconciliation import ReconciliationStore
+    project, _, _ = make_project(tmp_path)
+    assembly = ChapterExpressionStore(project).compose("07", transitions={"t1": {"transition_id": "t1", "before_scene": "scene_07_02", "after_scene": "scene_07_01", "text": "At dusk."}})
+    manuscript = tmp_path / "markerless.md"
+    manuscript.write_text("No ownership markers.", encoding="utf-8")
+    report = ReconciliationStore(project).inspect(manuscript, assembly.artifact_id)
+    assert [item["classification"] for item in report["findings"]].count("markerless") == 1
+    assert report["primary_finding"]["classification"] == "markerless"
+    assert not any(item["classification"] in {"missing", "unsourced"} for item in report["findings"])
+    consequences = report["findings"][0]["detail"]["consequences"]
+    assert any(item["code"] == "transition_mapping_unavailable" for item in consequences)
+
+
+def test_reconciliation_normalizes_transition_missing_duplicate_and_revision_errors(tmp_path: Path) -> None:
+    from auteur.expression.reconciliation import ReconciliationStore
+    project, _, _ = make_project(tmp_path)
+    transition = {"t1": {"transition_id": "t1", "before_scene": "scene_07_02", "after_scene": "scene_07_01", "revision": 1, "text": "At dusk."}}
+    assembly_store = ChapterExpressionStore(project)
+    assembly = assembly_store.compose("07", transitions=transition)
+    path = assembly_store._metadata_path(assembly.artifact_id).with_suffix(".md")
+    text = path.read_text(encoding="utf-8")
+    start = "<!-- auteur:transition id=t1 revision=1 -->"
+    end = "<!-- auteur:end-transition id=t1 -->"
+    missing = text.replace(start + "\nAt dusk.\n" + end, "")
+    missing_path = tmp_path / "missing.md"
+    missing_path.write_text(missing, encoding="utf-8")
+    missing_report = ReconciliationStore(project).inspect(missing_path, assembly.artifact_id)
+    assert any(item["classification"] == "transition_missing" for item in missing_report["findings"])
+
+    duplicate_path = tmp_path / "duplicate.md"
+    duplicate_path.write_text(text.replace(end, end + "\n" + start + "\nAt dusk.\n" + end), encoding="utf-8")
+    duplicate_report = ReconciliationStore(project).inspect(duplicate_path, assembly.artifact_id)
+    assert any(item["classification"] == "transition_duplicated" for item in duplicate_report["findings"])
+
+    malformed_path = tmp_path / "malformed.md"
+    malformed_path.write_text(text.replace(start, "<!-- auteur:transition id=t1 revision=9 -->"), encoding="utf-8")
+    malformed_report = ReconciliationStore(project).inspect(malformed_path, assembly.artifact_id)
+    assert any(item["classification"] == "transition_malformed" for item in malformed_report["findings"])
+
+
+def test_reconciliation_scene_change_persists_evidence_and_proposal_deduplicates(tmp_path: Path) -> None:
+    from auteur.expression.reconciliation import ReconciliationStore
+    project, _, _ = make_project(tmp_path)
+    assembly_store = ChapterExpressionStore(project)
+    assembly = assembly_store.compose("07")
+    path = assembly_store._metadata_path(assembly.artifact_id).with_suffix(".md")
+    manuscript = tmp_path / "edited.md"
+    manuscript.write_text(path.read_text(encoding="utf-8").replace("Prose for scene_07_01.", "Mara kept the ledger close."), encoding="utf-8")
+    store = ReconciliationStore(project)
+    report = store.inspect(manuscript, assembly.artifact_id)
+    scene = next(item for item in report["findings"] if item["classification"] == "modified")
+    assert scene["detail"]["change_metrics"]["classification_reason"]
+    result = store.propose(report["inspection_id"])
+    assert len(result["proposal_ids"]) == 1
+    assert len(store.propose(report["inspection_id"])["proposal_ids"]) == 1
+
+
+def test_reconciliation_records_structural_review_evidence_for_fact_like_rewrite(tmp_path: Path) -> None:
+    from auteur.expression.reconciliation import ReconciliationStore
+    project, _, _ = make_project(tmp_path)
+    assembly_store = ChapterExpressionStore(project)
+    assembly = assembly_store.compose("07")
+    path = assembly_store._metadata_path(assembly.artifact_id).with_suffix(".md")
+    manuscript = tmp_path / "structural.md"
+    manuscript.write_text(path.read_text(encoding="utf-8").replace("Prose for scene_07_01.", "Mara discovered the hidden archive and decided to leave."), encoding="utf-8")
+    report = ReconciliationStore(project).inspect(manuscript, assembly.artifact_id)
+    scene = next(item for item in report["findings"] if item["classification"] == "modified")
+    metrics = scene["detail"]["change_metrics"]
+    assert metrics["structured_fact_findings"]
+    assert "structural review" in metrics["classification_reason"]
+
+
 def test_reconciliation_cli_creates_and_shows_report(tmp_path: Path, capsys) -> None:
     from auteur.cli import main
     from auteur.expression.reconciliation import ReconciliationStore

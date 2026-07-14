@@ -351,14 +351,17 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--against", required=True)
     p.add_argument("--project", type=Path, required=True)
     p.add_argument("--json", action="store_true")
+    p.add_argument("--verbose", action="store_true")
     p = reconcile_sub.add_parser("propose", help="Create noncanonical reconciliation proposals.")
     p.add_argument("inspection_id")
     p.add_argument("--project", type=Path, required=True)
     p.add_argument("--json", action="store_true")
+    p.add_argument("--verbose", action="store_true")
     p = reconcile_sub.add_parser("show", help="Show a reconciliation run, inspection, or proposal.")
     p.add_argument("identifier")
     p.add_argument("--project", type=Path, required=True)
     p.add_argument("--json", action="store_true")
+    p.add_argument("--verbose", action="store_true")
 
     for command, help_text in (
         ("status", "Show pilot provenance status for an artifact."),
@@ -815,17 +818,47 @@ def main(argv: list[str] | None = None) -> int:
                     print(json.dumps(report, indent=2))
                 else:
                     print(f"Chapter reconciliation inspection {report['inspection_id']}")
-                    for finding in report["findings"]:
-                        print(f"{finding['classification'].upper()}: {finding.get('source_section') or 'chapter'} — {finding['evidence']}")
-                        print("  Actions: " + "; ".join(finding["recommended_actions"]))
                     print(f"Status: {report['status']}")
+                    if report["status"] == "no_changes":
+                        print("No changes detected.")
+                        for transition in report.get("recognized_transitions", []):
+                            print(f"Transition {transition['transition_id']}: {transition['classification']} — Owner: {transition['owner']}")
+                    elif any(f["classification"] == "markerless" for f in report["findings"]):
+                        print("Chapter manuscript cannot be reconciled automatically.")
+                        print("Reason: No Auteur Scene or transition markers were found.")
+                        consequences = report["findings"][0].get("detail", {}).get("consequences", [])
+                        for consequence in consequences:
+                            ids = consequence.get("scene_ids", consequence.get("transition_ids", []))
+                            print(f"  - {consequence['code']}: {', '.join(ids)}")
+                    else:
+                        for finding in report["findings"]:
+                            print(f"{finding['classification']}: {finding.get('source_section') or 'chapter'} — {finding['evidence']}")
+                            print(f"  Owner: {finding['owner']}")
+                    print(f"Proposals: {len(report.get('proposal_ids', []))}")
                 return 0
             if args.reconcile_command == "propose":
                 result = store.propose(args.inspection_id)
-                print(json.dumps(result, indent=2) if args.json else f"Created {len(result['proposal_ids'])} noncanonical proposals from {args.inspection_id}.")
+                if args.json:
+                    print(json.dumps(result, indent=2))
+                else:
+                    print(f"Reconciliation proposals for {args.inspection_id}: {len(result['proposal_ids'])} created.")
+                    for proposal in result["proposals"]:
+                        print(f"- {proposal['proposal_type']} → {proposal.get('target_artifact_id') or 'Chapter transition'}")
+                        print(f"  Source revision: {proposal['target_revision']}; Status: {proposal['status']}; Next action: review before applying")
                 return 0
             result = store.proposal_status(args.identifier) if args.identifier.startswith("proposal_") else store.show(args.identifier)
-            print(json.dumps(result, indent=2) if args.json else yaml.safe_dump(result, sort_keys=False))
+            if args.json or args.verbose:
+                print(json.dumps(result, indent=2) if args.json else yaml.safe_dump(result, sort_keys=False))
+            elif args.identifier.startswith("proposal_"):
+                proposal = result["proposal"] if "proposal" in result else result
+                print(f"Proposal {proposal['proposal_id']}: {proposal['proposal_type']}")
+                print(f"Target: {proposal.get('target_artifact_id') or 'Chapter transition'}")
+                print(f"Source revision: {proposal.get('target_revision')}; Status: {result.get('status', proposal.get('status'))}")
+                print("Next action: review the proposal before applying it.")
+            else:
+                print(f"Chapter reconciliation inspection {result.get('inspection_id', result.get('run_id', args.identifier))}")
+                print(f"Status: {result.get('status', 'unknown')}")
+                print(f"Findings: {len(result.get('findings', []))}; Proposals: {len(result.get('proposal_ids', []))}")
             return 0
         if args.expression_command == "generate":
             if args.text is None and args.text_file is None:

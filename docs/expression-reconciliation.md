@@ -42,6 +42,29 @@ not replace Chapter or Scene manifests.
 - Section deletion → review-required omission.
 - Section duplication → deterministic reconciliation error.
 
+Marked Chapter assemblies use strict transition spans:
+
+```html
+<!-- auteur:transition id=transition_t1 revision=1 -->
+By dusk, the archive had emptied.
+<!-- auteur:end-transition id=transition_t1 -->
+```
+
+Transition spans are owned by the Chapter. Legacy assemblies may omit these
+markers; adjacent Scene IDs, the accepted transition text, revision, and
+content hash are used to recognize the gap. Inspection normalizes transition
+results as `unchanged_transition`, `transition_modified`,
+`transition_missing`, `transition_duplicated`, `transition_malformed`, or
+`unresolved_transition_gap`. A recognized transition is never also reported as
+`unsourced`.
+
+An unchanged marked manuscript has status `no_changes`, with no findings or
+proposals. A markerless manuscript has one primary `markerless` finding and
+retains affected Scene and transition IDs as consequences; it creates no
+automatic patch proposals. Scene changes persist deterministic change metrics
+and a classification reason so wording patches, replacement candidates, and
+structural-review evidence remain explainable.
+
 Proposal artifacts record target revision/hash, target section, source assembly,
 imported manuscript hash, original/replacement text, transformation version,
 and status. Proposal status becomes stale when target, assembly, manuscript, or
