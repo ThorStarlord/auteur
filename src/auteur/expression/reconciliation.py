@@ -686,3 +686,29 @@ class ReconciliationStore:
 
     def decisions(self, publication_id: str) -> dict[str, Any]:
         return {"publication_id": publication_id, "decisions": self._decision_records(self._publication_manifest_path(publication_id)), "review": self.review(publication_id)}
+
+    def recompose(self, publication_id: str) -> dict[str, Any]:
+        """Create a Chapter Expression from current accepted sources only."""
+        manifest = self.inspect_publication(publication_id)
+        review = self.review(publication_id)
+        if review["status"] == "blocked":
+            raise ValueError("publication has stale or blocked candidates")
+        assembly = self.composition.inspect(manifest["chapter_expression"])
+        chapter_id = assembly.source_chapter["artifact_id"]
+        transitions = self.composition.load_transitions(chapter_id)
+        decisions = self._decision_records(self._publication_manifest_path(publication_id))
+        accepted_sources = {item["scene_id"]: item["expression_revision"] for item in assembly.source_scenes}
+        for item in decisions:
+            if item.get("decision") == "accepted" and item.get("candidate_type") == "scene":
+                candidate = item.get("result", {}).get("resulting_artifact")
+                if candidate:
+                    accepted_sources[item["target_snapshot"]["artifact_id"]] = item["result"].get("resulting_revision")
+        chapter = self.composition.compose(chapter_id, transitions=transitions, persist_transitions=False, transformation={"id": "expression.recompose_after_reconciliation", "version": 1, "publication_id": publication_id, "accepted_sources": accepted_sources}, lifecycle=Lifecycle.DRAFT, authority="derived")
+        comparison = None
+        plan_path = next(self.project.glob(f"chapters/*/expression/reconciliation/plans/{manifest.get('application_plan')}.yaml"), None)
+        if plan_path:
+            plan = yaml.safe_load(plan_path.read_text(encoding="utf-8")) or {}
+            manuscript_path = Path((plan.get("external_manuscript") or {}).get("path", ""))
+            if manuscript_path.exists():
+                comparison = self.inspect(manuscript_path, chapter.artifact_id)
+        return {"publication_id": publication_id, "chapter_expression": chapter.artifact_id, "transformation": chapter.transformation, "accepted_sources": accepted_sources, "comparison": comparison, "canonical": False, "status": "recomposed"}

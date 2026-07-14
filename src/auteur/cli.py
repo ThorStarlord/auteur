@@ -404,6 +404,11 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--project", type=Path, required=True)
     p.add_argument("--json", action="store_true")
     p.add_argument("--verbose", action="store_true")
+    p = reconcile_sub.add_parser("recompose", help="Recompose a Chapter from current accepted sources.")
+    p.add_argument("publication_id")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--verbose", action="store_true")
 
     for command, help_text in (
         ("status", "Show pilot provenance status for an artifact."),
@@ -915,6 +920,12 @@ def main(argv: list[str] | None = None) -> int:
             if args.reconcile_command == "decisions":
                 result = store.decisions(args.publication_id)
                 print(json.dumps(result, indent=2) if args.json else yaml.safe_dump(result, sort_keys=False) if args.verbose else f"Publication {args.publication_id}\nStatus: {result['review']['status']}\nDecisions: {len(result['decisions'])}")
+                return 0
+            if args.reconcile_command == "recompose":
+                try: result = store.recompose(args.publication_id)
+                except ValueError as exc: _err(str(exc)); return 1
+                if args.json or args.verbose: print(json.dumps(result, indent=2) if args.json else yaml.safe_dump(result, sort_keys=False))
+                else: print(f"Canonical-source Chapter recomposition\nChapter Expression: {result['chapter_expression']}\nStatus: {result['status']}\nSources: accepted only\nCanonical Chapter acceptance is not performed.")
                 return 0
             if args.reconcile_command == "inspect":
                 report = store.inspect(args.manuscript, args.against)

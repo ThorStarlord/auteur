@@ -55,9 +55,10 @@ published → under_review → partially_decided → all_candidates_decided
 decided but are not accepted. The preview remains `derived`, `proposed`,
 `noncanonical`, and `application_preview`; no preview can become canonical.
 
-Recomposition and Chapter acceptance are intentionally outside this slice.
-Canonical Chapter Expression may only be recomposed later from accepted Scene
-and transition revisions.
+Recomposition is available as a separate explicit operation and creates a new
+derived Chapter Expression from current accepted Scene and transition
+revisions only. Chapter acceptance remains outside this slice. Canonical
+Chapter Expression may never be recomposed from pending publication candidates.
 
 ## CLI
 
@@ -70,5 +71,12 @@ auteur expression reconcile decisions <publication> --project PROJECT
 ```
 
 `--json` and `--verbose` expose technical provenance. There is no publication-
-wide accept command, recomposition command, Chapter acceptance command, or
-completion command in V1.
+wide accept command, Chapter acceptance command, or completion command in V1.
+Recomposition is explicit:
+
+```bash
+auteur expression reconcile recompose <publication> --project PROJECT
+```
+
+It creates a derived assembly and comparison report; it does not accept the
+Chapter or close reconciliation.
