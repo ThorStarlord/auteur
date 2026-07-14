@@ -414,3 +414,25 @@ def test_mixed_publication_preserves_transition_identity_and_boundary(tmp_path: 
     assert published_transition["before_scene"] == "scene_07_02"
     assert published_transition["after_scene"] == "scene_07_01"
     assert chapter["lifecycle"] == "proposed"
+
+
+def test_publication_revalidates_stale_scene_plan_before_staging(tmp_path: Path) -> None:
+    from auteur.expression.reconciliation import PublicationRejected, ReconciliationStore
+    project, scenes, _ = make_project(tmp_path)
+    assemblies = ChapterExpressionStore(project)
+    assembly = assemblies.compose("07")
+    manuscript = assemblies.chapter_dir("07") / "edited.md"
+    manuscript.write_text(assemblies._metadata_path(assembly.artifact_id).with_suffix(".md").read_text(encoding="utf-8").replace("Prose for scene_07_01.", "Edited."), encoding="utf-8")
+    store = ReconciliationStore(project)
+    report = store.inspect(manuscript, assembly.artifact_id)
+    proposal_id = store.propose(report["inspection_id"])["proposal_ids"][0]
+    plan = store.plan(report["inspection_id"], [proposal_id])
+    ExpressionStore(project).generate(scenes[0], "New accepted source.")
+    ExpressionStore(project).accept("scene_07_01:prose_v002")
+    with pytest.raises(PublicationRejected) as error:
+        store.publish(plan["application_set_id"])
+    assert error.value.result["status"] == "rejected_stale"
+    assert any(item["code"] == "TARGET_REVISION_CHANGED" for item in error.value.result["stale_reasons"])
+    assert plan["planned_readiness"]["status"] == "ready"
+    assert not (project / "chapters/07/scenes/scene_07_01/prose_v003.yaml").exists()
+    assert not list((project / "chapters/07/expression/reconciliation/publications").glob("*"))

@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from auteur.provenance import Lifecycle
+from auteur.provenance import ArtifactStore, Lifecycle
 
 from auteur.expression.composition import (
     ChapterExpressionStore,
@@ -21,6 +21,12 @@ from auteur.expression.composition import (
 
 def _hash(value: str) -> str:
     return "sha256:" + hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+class PublicationRejected(ValueError):
+    def __init__(self, result: dict[str, Any]):
+        self.result = result
+        super().__init__(result.get("message", "publication rejected"))
 
 
 class ReconciliationStore:
@@ -419,7 +425,7 @@ class ReconciliationStore:
             pass
         if not proposal_ids: readiness = "not_ready"
         plan_id = "application_set_" + hashlib.sha256((inspection_id + "\0" + "\0".join(proposal_ids)).encode()).hexdigest()[:16]
-        plan = {"application_set_id": plan_id, "source_inspection": inspection_id, "source_assembly": assembly_ref, "proposal_ids": proposal_ids, "status": "planned", "readiness": readiness, "targets": [p.get("target_artifact_id") for p in proposals], "conflicts": conflicts, "freshness_results": validations, "planned_outputs": planned_outputs, "recomposition_preview": {"preview_sources": preview_sources, "expected_scene_order": expected_scene_order, "expected_transition_order": expected_transition_order, "blocking_gaps": [] if expected_scene_order else ["source Chapter assembly unavailable"], "label": "application_preview", "canonical": False}, "created_at": datetime.now(timezone.utc).isoformat()}
+        plan = {"application_set_id": plan_id, "source_inspection": inspection_id, "source_assembly": assembly_ref, "external_manuscript": manuscript_ref, "proposal_ids": proposal_ids, "status": "planned", "readiness": readiness, "planned_readiness": {"status": readiness, "evaluated_at": datetime.now(timezone.utc).isoformat()}, "targets": [p.get("target_artifact_id") for p in proposals], "conflicts": conflicts, "freshness_results": validations, "planned_outputs": planned_outputs, "recomposition_preview": {"preview_sources": preview_sources, "expected_scene_order": expected_scene_order, "expected_transition_order": expected_transition_order, "blocking_gaps": [] if expected_scene_order else ["source Chapter assembly unavailable"], "label": "application_preview", "canonical": False}, "created_at": datetime.now(timezone.utc).isoformat()}
         root = inspection_path.parent.parent
         self._write_atomic(root / "plans" / f"{plan_id}.yaml", plan)
         return plan
@@ -430,13 +436,14 @@ class ReconciliationStore:
     def publish(self, plan_id: str) -> dict[str, Any]:
         """Publish a ready plan transactionally into unaccepted candidates."""
         plan = self._load_plan(plan_id)
-        if plan.get("readiness") != "ready":
-            raise ValueError("application plan is not ready for publication")
         root = next(self.project.glob(f"chapters/*/expression/reconciliation/plans/{plan_id}.yaml")).parent.parent
         publication_id = "publication_" + plan_id.removeprefix("application_set_")
         publication_path = root / "publications" / f"{publication_id}.yaml"
         if publication_path.exists():
-            raise ValueError(f"application plan has already been published: {plan_id}")
+            raise PublicationRejected({"status": "rejected_duplicate", "message": f"application plan has already been published: {plan_id}", "visible_outputs_created": False})
+        validation = self._final_revalidate(plan)
+        if validation["status"] != "ready":
+            raise PublicationRejected(validation)
         proposals = []
         for proposal_id in plan.get("proposal_ids", []):
             path = self._proposal_path(proposal_id)
@@ -499,6 +506,68 @@ class ReconciliationStore:
             for parent in {path.parent for path in created}:
                 if parent.exists() and not any(parent.iterdir()): parent.rmdir()
             raise
+
+    def _final_revalidate(self, plan: dict[str, Any]) -> dict[str, Any]:
+        reasons: list[dict[str, Any]] = []
+        if plan.get("status") != "planned" or plan.get("planned_readiness", {}).get("status", plan.get("readiness")) != "ready":
+            reasons.append({"code": "PLAN_NOT_READY", "recommended_action": "create a new reconciliation plan"})
+        try:
+            inspection_path = next(self.project.glob(f"chapters/*/expression/reconciliation/inspections/{plan['source_inspection']}.yaml"))
+            inspection = yaml.safe_load(inspection_path.read_text(encoding="utf-8")) or {}
+        except (KeyError, StopIteration):
+            inspection = {}
+            reasons.append({"code": "SOURCE_ASSEMBLY_CHANGED", "recommended_action": "create a new reconciliation inspection and application plan"})
+        assembly_ref = plan.get("source_assembly", {})
+        try:
+            assembly = self.composition.inspect(assembly_ref["artifact_id"])
+            current_status = self.composition.status(assembly.artifact_id)
+            if assembly.revision != assembly_ref.get("revision") or assembly.content_hash != assembly_ref.get("content_hash") or current_status["freshness"] != "fresh" or current_status["health"] != "valid":
+                reasons.append({"code": "SOURCE_ASSEMBLY_CHANGED", "expected_revision": assembly_ref.get("revision"), "current_revision": assembly.revision, "recommended_action": "create a new reconciliation plan"})
+            chapter_path = self.composition._chapter_outline(assembly.source_chapter["artifact_id"])
+            chapter_status = ArtifactStore(self.project).status(chapter_path, "chapter_outline")
+            if chapter_status.revision != assembly.source_chapter.get("revision") or ArtifactStore(self.project).content_hash(chapter_path) != assembly.source_chapter.get("content_hash"):
+                reasons.append({"code": "STRUCTURE_CHANGED", "recommended_action": "create a new reconciliation plan"})
+        except (KeyError, FileNotFoundError, ValueError) as exc:
+            assembly = None
+            reasons.append({"code": "SOURCE_ASSEMBLY_CHANGED", "detail": str(exc), "recommended_action": "create a new reconciliation plan"})
+        manuscript_ref = plan.get("external_manuscript", {}) or inspection.get("external_manuscript", {})
+        if manuscript_ref.get("path"):
+            manuscript = Path(manuscript_ref["path"])
+            if not manuscript.exists():
+                reasons.append({"code": "MANUSCRIPT_HASH_CHANGED", "recommended_action": "restore the imported manuscript and create a new plan"})
+            elif _hash(manuscript.read_text(encoding="utf-8")) != manuscript_ref.get("content_hash"):
+                reasons.append({"code": "MANUSCRIPT_HASH_CHANGED", "recommended_action": "create a new reconciliation plan"})
+        proposals: list[dict[str, Any]] = []
+        for proposal_id in plan.get("proposal_ids", []):
+            path = self._proposal_path(proposal_id)
+            if path is None:
+                reasons.append({"code": "TARGET_MISSING", "proposal_id": proposal_id, "recommended_action": "create a new reconciliation plan"})
+                continue
+            proposal = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+            proposals.append(proposal)
+            if proposal.get("status") not in {"proposed", "review_required"}:
+                reasons.append({"code": "PROPOSAL_STATUS_CHANGED", "proposal_id": proposal_id, "current_status": proposal.get("status"), "recommended_action": "review or replace the proposal"})
+            if proposal.get("transformation", {}).get("version") != 1:
+                reasons.append({"code": "TRANSFORMATION_VERSION_CHANGED", "proposal_id": proposal_id, "recommended_action": "create a new reconciliation plan"})
+            if proposal.get("source_assembly") != assembly_ref:
+                reasons.append({"code": "SOURCE_ASSEMBLY_CHANGED", "proposal_id": proposal_id, "recommended_action": "create a new reconciliation plan"})
+            if proposal.get("proposal_type") == "transition_patch":
+                transition = next((item for item in (assembly.transitions if assembly else []) if item.get("transition_id") == proposal.get("target_artifact_id")), None)
+                boundary = proposal.get("boundary") or {}
+                if transition is None:
+                    reasons.append({"code": "TARGET_MISSING", "proposal_id": proposal_id, "recommended_action": "create a new reconciliation plan"})
+                else:
+                    if transition.get("revision") != proposal.get("target_revision"): reasons.append({"code": "TRANSITION_REVISION_CHANGED", "proposal_id": proposal_id, "expected_revision": proposal.get("target_revision"), "current_revision": transition.get("revision"), "recommended_action": "create a new reconciliation plan"})
+                    if transition.get("content_hash") != proposal.get("target_content_hash"): reasons.append({"code": "TRANSITION_HASH_CHANGED", "proposal_id": proposal_id, "recommended_action": "create a new reconciliation plan"})
+                    if {"before_scene": transition.get("before_scene"), "after_scene": transition.get("after_scene")} != boundary: reasons.append({"code": "TRANSITION_BOUNDARY_CHANGED", "proposal_id": proposal_id, "recommended_action": "create a new reconciliation plan"})
+            else:
+                try:
+                    metadata, _ = self.composition._accepted_scene(proposal["target_artifact_id"])
+                    if metadata.get("revision") != proposal.get("target_revision"): reasons.append({"code": "TARGET_REVISION_CHANGED", "proposal_id": proposal_id, "expected_revision": proposal.get("target_revision"), "current_revision": metadata.get("revision"), "recommended_action": "create a new reconciliation plan"})
+                    if metadata.get("content_hash") != proposal.get("target_content_hash"): reasons.append({"code": "TARGET_HASH_CHANGED", "proposal_id": proposal_id, "recommended_action": "create a new reconciliation plan"})
+                except (KeyError, FileNotFoundError, ValueError) as exc:
+                    reasons.append({"code": "TARGET_MISSING", "proposal_id": proposal_id, "detail": str(exc), "recommended_action": "create a new reconciliation plan"})
+        return {"status": "ready" if not reasons else "rejected_stale", "message": "publication dependencies are fresh" if not reasons else "application plan is stale", "stale_reasons": reasons, "visible_outputs_created": False, "publication_readiness": {"status": "ready" if not reasons else "stale", "evaluated_at": datetime.now(timezone.utc).isoformat(), "reasons": reasons}, "proposal_ids": [p.get("proposal_id") for p in proposals]}
 
     def inspect_publication(self, publication_id: str) -> dict[str, Any]:
         path = next(self.project.glob(f"chapters/*/expression/reconciliation/publications/{publication_id}.yaml"), None)
