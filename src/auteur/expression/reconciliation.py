@@ -574,3 +574,115 @@ class ReconciliationStore:
         if path is None:
             raise FileNotFoundError(f"publication not found: {publication_id}")
         return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+
+    def _publication_manifest_path(self, publication_id: str) -> Path:
+        path = next(self.project.glob(f"chapters/*/expression/reconciliation/publications/{publication_id}.yaml"), None)
+        if path is None:
+            raise FileNotFoundError(f"publication not found: {publication_id}")
+        return path
+
+    def _candidate_publication(self, candidate_id: str) -> tuple[dict[str, Any], Path, dict[str, Any]]:
+        for manifest_path in self.project.glob("chapters/*/expression/reconciliation/publications/*.yaml"):
+            manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8")) or {}
+            for relative in manifest.get("published_candidates", []):
+                candidate_path = self.project / relative.replace("\\", "/")
+                if not candidate_path.exists() or candidate_path.suffix != ".yaml":
+                    continue
+                metadata = yaml.safe_load(candidate_path.read_text(encoding="utf-8")) or {}
+                if metadata.get("candidate_id") == candidate_id or metadata.get("transition_id") == candidate_id:
+                    return manifest, candidate_path, metadata
+        raise FileNotFoundError(f"published candidate not found: {candidate_id}")
+
+    @staticmethod
+    def _decision_dir(manifest_path: Path) -> Path:
+        return manifest_path.with_suffix("") / "decisions"
+
+    def _decision_records(self, manifest_path: Path) -> list[dict[str, Any]]:
+        directory = self._decision_dir(manifest_path)
+        records = []
+        for path in sorted(directory.glob("decision_*.yaml")) if directory.exists() else []:
+            records.append(yaml.safe_load(path.read_text(encoding="utf-8")) or {})
+        return records
+
+    def review(self, publication_id: str) -> dict[str, Any]:
+        manifest_path = self._publication_manifest_path(publication_id)
+        manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8")) or {}
+        records = self._decision_records(manifest_path)
+        latest = {record["candidate_id"]: record for record in records}
+        candidates = []
+        for relative in manifest.get("published_candidates", []):
+            path = self.project / relative.replace("\\", "/")
+            if path.suffix != ".yaml" or not path.exists() or path.name.startswith("chapter_"):
+                continue
+            metadata = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+            candidate_id = metadata.get("candidate_id") or metadata.get("transition_id")
+            if not candidate_id:
+                continue
+            if metadata.get("artifact_type") == "chapter_transition_candidate":
+                owner, candidate_type = "Chapter transition", "transition"
+                freshness = "fresh"
+                chapter = self.composition.inspect(manifest["chapter_expression"])
+                transition = next((item for item in self.composition.load_transitions(chapter.source_chapter["artifact_id"]).values() if item.get("transition_id") == metadata.get("transition_id")), None)
+                if transition and (transition.get("revision") != metadata.get("source_transition", {}).get("revision") or _hash(str(transition.get("text", "")).strip()) != metadata.get("source_transition", {}).get("content_hash")):
+                    freshness = "stale"
+            else:
+                owner, candidate_type = "Scene Expression", "scene"
+                from auteur.expression.pilot import ExpressionStore
+                freshness = ExpressionStore(self.project).status(candidate_id).get("freshness", "unknown")
+            decision = latest.get(candidate_id)
+            candidates.append({"candidate_id": candidate_id, "candidate_type": candidate_type, "owner": owner, "status": decision["decision"] if decision else ("stale" if freshness == "stale" else "pending"), "freshness": freshness, "revision": metadata.get("revision"), "content_hash": metadata.get("content_hash"), "decision": decision})
+        statuses = [item["status"] for item in candidates]
+        if any(item["status"] in {"stale", "blocked"} for item in candidates): state = "blocked"
+        elif not records: state = "published"
+        elif all(status in {"accepted", "rejected", "deferred"} for status in statuses): state = "all_candidates_decided"
+        elif any(status in {"accepted", "rejected", "deferred"} for status in statuses): state = "partially_decided"
+        else: state = "under_review"
+        return {"publication_id": publication_id, "status": state, "candidates": candidates, "next_actions": ["review pending candidates", "revalidate stale candidates", "recomposition is not implemented in this phase"]}
+
+    def decide(self, candidate_id: str, decision: str, *, decided_by: str = "author", rationale: str = "") -> dict[str, Any]:
+        if decision not in {"accepted", "rejected", "deferred"}:
+            raise ValueError("decision must be accepted, rejected, or deferred")
+        manifest, candidate_path, metadata = self._candidate_publication(candidate_id)
+        publication_id = manifest["publication_id"]
+        manifest_path = self._publication_manifest_path(publication_id)
+        existing = [item for item in self._decision_records(manifest_path) if item.get("candidate_id") == candidate_id]
+        if existing:
+            if existing[-1].get("decision") == decision:
+                return existing[-1]
+            raise ValueError("candidate already has a decision; reopening is not implemented")
+        candidate_type = "transition" if metadata.get("artifact_type") == "chapter_transition_candidate" else "scene"
+        freshness = "fresh"
+        resulting = None
+        previous_revision = None
+        if candidate_type == "scene":
+            from auteur.expression.pilot import ExpressionStore
+            store = ExpressionStore(self.project)
+            freshness = store.status(metadata["candidate_id"])["freshness"]
+            if decision == "accepted":
+                if freshness != "fresh": raise ValueError("candidate is stale and requires revalidation or acknowledged divergence")
+                accepted = store.accept(metadata["candidate_id"], accepted_by=decided_by)
+                resulting, previous_revision = accepted.candidate_id, accepted.revision - 1
+            elif decision == "rejected":
+                store.reject(metadata["candidate_id"], rejected_by=decided_by, reason=rationale)
+        else:
+            if metadata.get("boundary", {}).get("before_scene") not in {item.get("before_scene") for item in self.composition.inspect(manifest["chapter_expression"]).transitions} and decision == "accepted":
+                raise ValueError("transition boundary is no longer valid")
+            source = metadata.get("source_transition", {})
+            transitions_path = self.composition._transition_manifest_path(self.composition.inspect(manifest["chapter_expression"]).source_chapter["artifact_id"])
+            transitions = self.composition.load_transitions(self.composition.inspect(manifest["chapter_expression"]).source_chapter["artifact_id"])
+            current_key, current = next(((key, value) for key, value in transitions.items() if value.get("transition_id") == metadata.get("transition_id")), (None, None))
+            if current and (current.get("revision") != source.get("revision") or _hash(str(current.get("text", "")).strip()) != source.get("content_hash")): freshness = "stale"
+            if decision == "accepted":
+                if freshness != "fresh": raise ValueError("transition candidate is stale")
+                if current_key is None: raise ValueError("accepted transition pointer is missing")
+                history = transitions_path.parent / "transition_candidates" / f"accepted_history_{metadata['transition_id']}_v{int(current['revision']):03d}.yaml"
+                history.parent.mkdir(parents=True, exist_ok=True); history.write_text(yaml.safe_dump(current, sort_keys=False), encoding="utf-8")
+                accepted = dict(metadata); accepted["lifecycle"] = "accepted"; accepted["authority"] = "canonical"; transitions[current_key] = accepted; transitions_path.write_text(yaml.safe_dump(transitions, sort_keys=False), encoding="utf-8"); resulting, previous_revision = metadata["candidate_id"], current.get("revision")
+            elif decision == "rejected":
+                metadata["lifecycle"] = "rejected"; candidate_path.write_text(yaml.safe_dump(metadata, sort_keys=False), encoding="utf-8")
+        record = {"decision_id": f"decision_{candidate_id.replace(':', '_')}_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S%f')}", "publication_id": publication_id, "candidate_id": candidate_id, "candidate_type": candidate_type, "owner": "Chapter transition" if candidate_type == "transition" else "Scene Expression", "decision": decision, "decided_by": decided_by, "decided_at": datetime.now(timezone.utc).isoformat(), "rationale": rationale, "candidate_snapshot": {"revision": metadata.get("revision"), "content_hash": metadata.get("content_hash"), "freshness": freshness, "lifecycle": metadata.get("lifecycle")}, "target_snapshot": {"artifact_id": metadata.get("transition_id") or metadata.get("source_scene", {}).get("artifact_id"), "revision": metadata.get("revision"), "content_hash": metadata.get("content_hash")}, "result": {"status": decision, "resulting_artifact": resulting, "resulting_revision": metadata.get("revision") if resulting else None, "accepted_pointer_changed": decision == "accepted"}, "provenance": {"source_plan": manifest.get("application_plan"), "source_inspection": manifest.get("source_reconciliation"), "source_proposal": metadata.get("source_proposal"), "transformation": {"id": "expression.accept_reconciliation_candidate", "version": 1}}}
+        directory = self._decision_dir(manifest_path); directory.mkdir(parents=True, exist_ok=True); path = directory / f"{record['decision_id']}.yaml"; path.write_text(yaml.safe_dump(record, sort_keys=False), encoding="utf-8")
+        return record
+
+    def decisions(self, publication_id: str) -> dict[str, Any]:
+        return {"publication_id": publication_id, "decisions": self._decision_records(self._publication_manifest_path(publication_id)), "review": self.review(publication_id)}

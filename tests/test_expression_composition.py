@@ -436,3 +436,24 @@ def test_publication_revalidates_stale_scene_plan_before_staging(tmp_path: Path)
     assert plan["planned_readiness"]["status"] == "ready"
     assert not (project / "chapters/07/scenes/scene_07_01/prose_v003.yaml").exists()
     assert not list((project / "chapters/07/expression/reconciliation/publications").glob("*"))
+
+
+def test_publication_candidate_decisions_are_independent(tmp_path: Path) -> None:
+    from auteur.expression.reconciliation import ReconciliationStore
+    project, _, _ = make_project(tmp_path)
+    assemblies = ChapterExpressionStore(project)
+    assembly = assemblies.compose("07", transitions={"t1": {"transition_id": "t1", "before_scene": "scene_07_02", "after_scene": "scene_07_01", "revision": 1, "text": "At dawn."}})
+    manuscript = assemblies.chapter_dir("07") / "edited.md"
+    manuscript.write_text(assemblies._metadata_path(assembly.artifact_id).with_suffix(".md").read_text(encoding="utf-8").replace("Prose for scene_07_01.", "Edited.").replace("At dawn.", "At dusk."), encoding="utf-8")
+    store = ReconciliationStore(project)
+    report = store.inspect(manuscript, assembly.artifact_id)
+    proposals = store.propose(report["inspection_id"])
+    plan = store.plan(report["inspection_id"], proposals["proposal_ids"])
+    publication = store.publish(plan["application_set_id"])
+    candidates = store.review(publication["publication_id"])["candidates"]
+    scene = next(item for item in candidates if item["candidate_type"] == "scene")
+    decision = store.decide(scene["candidate_id"], "accepted", decided_by="author")
+    summary = store.review(publication["publication_id"])
+    assert decision["result"]["accepted_pointer_changed"] is True
+    assert next(item for item in summary["candidates"] if item["candidate_type"] == "transition")["status"] == "pending"
+    assert summary["status"] == "partially_decided"

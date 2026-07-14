@@ -383,6 +383,27 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--project", type=Path, required=True)
     p.add_argument("--json", action="store_true")
     p.add_argument("--verbose", action="store_true")
+    p = reconcile_sub.add_parser("review", help="Review published reconciliation candidates.")
+    p.add_argument("publication_id")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--verbose", action="store_true")
+    p = reconcile_sub.add_parser("decide", help="Accept, reject, or defer one published candidate.")
+    p.add_argument("candidate_id")
+    decision_group = p.add_mutually_exclusive_group(required=True)
+    decision_group.add_argument("--accept", action="store_true")
+    decision_group.add_argument("--reject", action="store_true")
+    decision_group.add_argument("--defer", action="store_true")
+    p.add_argument("--by", default="author")
+    p.add_argument("--reason", default="")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--verbose", action="store_true")
+    p = reconcile_sub.add_parser("decisions", help="Show reconciliation candidate decisions.")
+    p.add_argument("publication_id")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--verbose", action="store_true")
 
     for command, help_text in (
         ("status", "Show pilot provenance status for an artifact."),
@@ -874,6 +895,26 @@ def main(argv: list[str] | None = None) -> int:
                 result = store.inspect_publication(args.publication_id)
                 if args.json: print(json.dumps(result, indent=2))
                 else: print(f"Reconciliation publication {result['publication_id']}\nStatus: {result['status']}\nChapter candidate: {result['chapter_expression']}")
+                return 0
+            if args.reconcile_command == "review":
+                result = store.review(args.publication_id)
+                if args.json or args.verbose: print(json.dumps(result, indent=2) if args.json else yaml.safe_dump(result, sort_keys=False))
+                else:
+                    print(f"Reconciliation publication review\n\nPublication: {result['publication_id']}\nStatus: {result['status']}")
+                    for candidate in result["candidates"]: print(f"- {candidate['owner']}: {candidate['candidate_id']} — {candidate['status']} ({candidate['freshness']})")
+                    print("\nNext actions:"); [print(f"- {action}") for action in result["next_actions"]]
+                return 0
+            if args.reconcile_command == "decide":
+                decision = "accepted" if args.accept else "rejected" if args.reject else "deferred"
+                try: result = store.decide(args.candidate_id, decision, decided_by=args.by, rationale=args.reason)
+                except ValueError as exc:
+                    _err(str(exc)); return 1
+                if args.json or args.verbose: print(json.dumps(result, indent=2) if args.json else yaml.safe_dump(result, sort_keys=False))
+                else: print(f"Candidate: {result['candidate_id']}\nDecision: {result['decision']}\nAccepted pointer changed: {result['result']['accepted_pointer_changed']}\nNext action: review the publication summary.")
+                return 0
+            if args.reconcile_command == "decisions":
+                result = store.decisions(args.publication_id)
+                print(json.dumps(result, indent=2) if args.json else yaml.safe_dump(result, sort_keys=False) if args.verbose else f"Publication {args.publication_id}\nStatus: {result['review']['status']}\nDecisions: {len(result['decisions'])}")
                 return 0
             if args.reconcile_command == "inspect":
                 report = store.inspect(args.manuscript, args.against)
