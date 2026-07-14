@@ -26,6 +26,8 @@ Evidence Collection
     ↓
 Hypothesis
     ↓
+Evaluation
+    ↓
 Claim / Diagnosis
     ↓
 Confidence
@@ -35,10 +37,10 @@ Recommendation
 Transformation Proposal
 ```
 
-The stages are deliberately separate. Evidence supports hypotheses; hypotheses
-explain observations; claims summarize the selected diagnosis; recommendations
-describe actionable responses; proposals instantiate a recommendation as an
-author-decidable transformation.
+The stages are deliberately separate. Evidence supports hypotheses; evaluation
+compares competing hypotheses; claims summarize an evaluated diagnosis;
+recommendations describe actionable responses; proposals instantiate a
+recommendation as an author-decidable transformation.
 
 ## Reasoning artifact
 
@@ -65,6 +67,14 @@ hypotheses:
     statement:
     supporting_evidence: []
     contradicting_evidence: []
+evaluation:
+  method:
+  hypothesis_results:
+    - hypothesis_id:
+      supporting_evidence: []
+      contradicting_evidence: []
+      result:
+      rationale:
 claims:
   - claim_id:
     statement:
@@ -134,12 +144,20 @@ a transition is missing
 Hypotheses remain provisional. They must list supporting and contradicting
 evidence where available. One hypothesis must not silently replace alternatives.
 
+### Evaluation
+
+Evaluation is the explicit comparison of competing hypotheses against the
+declared evidence and, where applicable, narrative contracts. It records the
+method, per-hypothesis result, rationale, and unresolved alternatives. An
+evaluation may identify a leading hypothesis, but it does not make that
+hypothesis canonical or suppress the alternatives.
+
 ### Claim / diagnosis
 
 A claim is the current explanatory conclusion selected from evaluated
 hypotheses. A diagnosis is a claim presented in a form useful for deciding
-whether intervention is warranted. Claims must identify their hypothesis basis,
-evidence, confidence, and unresolved alternatives.
+whether intervention is warranted. Claims must identify their evaluation and
+hypothesis basis, evidence, confidence, and unresolved alternatives.
 
 ### Confidence
 
@@ -229,15 +247,20 @@ stored as an unverified hypothesis or suggestion for review.
 2. Evidence identifies source artifact, revision, and content hash when the
    source is revisioned.
 3. Multiple hypotheses may coexist.
-4. Hypotheses do not become claims without an explicit evaluation result.
-5. Confidence always declares its method or is unknown.
-6. Recommendations identify the claim they address.
-7. Recommendations do not mutate narrative artifacts.
-8. Proposals remain author-decidable and noncanonical until accepted.
-9. Stale inputs make dependent reasoning stale or require re-evaluation.
-10. Reasoning cannot bypass Provenance or Transformation boundaries.
-11. A reasoning report never silently replaces a prior report.
-12. Failed reasoning runs leave no partial canonical mutation.
+4. Reasoning distinguishes evidence from inference; unsupported assertions are
+   explicitly marked as inference.
+5. Hypotheses do not become claims without an explicit evaluation result.
+6. A claim cannot cite another claim as evidence unless that claim is explicitly
+   represented as derived evidence.
+7. Reasoning dependency graphs are acyclic.
+8. Confidence always declares its method or is unknown.
+9. Recommendations identify the claim they address.
+10. Recommendations do not mutate narrative artifacts.
+11. Proposals remain author-decidable and noncanonical until accepted.
+12. Stale inputs make dependent reasoning stale or require re-evaluation.
+13. Reasoning cannot bypass Provenance or Transformation boundaries.
+14. A reasoning report never silently replaces a prior report.
+15. Failed reasoning runs leave no partial canonical mutation.
 
 ## Scope boundaries
 

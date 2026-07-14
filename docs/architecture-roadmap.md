@@ -110,7 +110,8 @@ These are extension points, not violations of the V1 foundations.
 
 ## Recommended sequence
 
-1. Define the Reasoning Architecture vocabulary and evidence contract.
+1. Define the Reasoning Architecture vocabulary, evidence contract, and
+   evaluation/acyclicity rules. See `docs/reasoning-architecture.md`.
 2. Adapt existing critic/analyzer findings into that contract without mutation.
 3. Connect reasoning recommendations to existing proposal generation.
 4. Dogfood author-facing explanations and confidence boundaries.
