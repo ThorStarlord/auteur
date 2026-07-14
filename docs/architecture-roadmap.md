@@ -112,10 +112,12 @@ These are extension points, not violations of the V1 foundations.
 
 1. Define the Reasoning Architecture vocabulary, evidence contract, and
    evaluation/acyclicity rules. See `docs/reasoning-architecture.md`.
-2. Adapt existing critic/analyzer findings into that contract without mutation.
-3. Connect reasoning recommendations to existing proposal generation.
-4. Dogfood author-facing explanations and confidence boundaries.
-5. Revisit grouped decisions only when explicit dependencies recur in real use.
+2. Standardize analyzer-to-report adapters through
+   `docs/critic-integration-contract.md`.
+3. Adapt existing critic/analyzer findings into that contract without mutation.
+4. Connect reasoning recommendations to existing proposal generation.
+5. Dogfood author-facing explanations and confidence boundaries.
+6. Revisit grouped decisions only when explicit dependencies recur in real use.
 
 ## Review conclusion
 
