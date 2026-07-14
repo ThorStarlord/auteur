@@ -373,6 +373,14 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--project", type=Path, required=True)
     p.add_argument("--json", action="store_true")
     p.add_argument("--verbose", action="store_true")
+    p = reconcile_sub.add_parser("publish", help="Publish a ready reconciliation plan into unaccepted candidates.")
+    p.add_argument("plan_id")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p = reconcile_sub.add_parser("inspect-publication", help="Inspect a reconciliation publication transaction.")
+    p.add_argument("publication_id")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
 
     for command, help_text in (
         ("status", "Show pilot provenance status for an artifact."),
@@ -843,6 +851,16 @@ def main(argv: list[str] | None = None) -> int:
                 result = store.show_plan(args.application_set_id)
                 if args.json or args.verbose: print(json.dumps(result, indent=2) if args.json else yaml.safe_dump(result, sort_keys=False))
                 else: print(f"Reconciliation application plan {result['application_set_id']}\nStatus: {result['readiness']}\nSelected proposals: {len(result['proposal_ids'])}\nNo canonical artifacts will be changed.")
+                return 0
+            if args.reconcile_command == "publish":
+                result = store.publish(args.plan_id)
+                if args.json: print(json.dumps(result, indent=2))
+                else: print(f"Reconciliation publication {result['publication_id']}\nStatus: published\nPublished candidates remain unaccepted.\nNo canonical artifacts were changed.")
+                return 0
+            if args.reconcile_command == "inspect-publication":
+                result = store.inspect_publication(args.publication_id)
+                if args.json: print(json.dumps(result, indent=2))
+                else: print(f"Reconciliation publication {result['publication_id']}\nStatus: {result['status']}\nChapter candidate: {result['chapter_expression']}")
                 return 0
             if args.reconcile_command == "inspect":
                 report = store.inspect(args.manuscript, args.against)

@@ -14,6 +14,7 @@ from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 
 class Lifecycle(str, Enum):
     DRAFT = "draft"
+    PROPOSED = "proposed"
     ACCEPTED = "accepted"
     REPLACED = "replaced"
     REJECTED = "rejected"

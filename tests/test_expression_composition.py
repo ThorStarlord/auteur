@@ -352,3 +352,43 @@ def test_reconciliation_application_plan_rejects_duplicate_and_stale_selection(t
     assert plan["readiness"] in {"conflicted", "stale"}
     assert any(item["conflict_code"] == "duplicate_proposal_selection" for item in plan["conflicts"])
     assert any(item["classification"] == "stale" for item in plan["freshness_results"])
+
+
+def test_reconciliation_publication_creates_unaccepted_candidates_and_chapter(tmp_path: Path) -> None:
+    from auteur.expression.reconciliation import ReconciliationStore
+    project, _, _ = make_project(tmp_path)
+    assembly_store = ChapterExpressionStore(project)
+    assembly = assembly_store.compose("07")
+    manuscript = assembly_store.chapter_dir("07") / "edited.md"
+    manuscript.write_text(assembly_store._metadata_path(assembly.artifact_id).with_suffix(".md").read_text(encoding="utf-8").replace("Prose for scene_07_01.", "Published wording."), encoding="utf-8")
+    store = ReconciliationStore(project)
+    report = store.inspect(manuscript, assembly.artifact_id)
+    proposal = store.propose(report["inspection_id"])["proposal_ids"][0]
+    plan = store.plan(report["inspection_id"], [proposal])
+    publication = store.publish(plan["application_set_id"])
+    assert publication["status"] == "published"
+    candidate = project / "chapters/07/scenes/scene_07_01/prose_v002.yaml"
+    metadata = yaml.safe_load(candidate.read_text(encoding="utf-8"))
+    assert metadata["lifecycle"] == "proposed"
+    assert metadata["authority"] == "draft"
+    chapter = yaml.safe_load((assembly_store._metadata_path(publication["chapter_expression"])).read_text(encoding="utf-8"))
+    assert chapter["lifecycle"] == "proposed"
+    assert chapter["transformation"]["id"] == "expression.publish_application"
+
+
+def test_reconciliation_publication_rolls_back_candidates_on_composition_failure(tmp_path: Path, monkeypatch) -> None:
+    from auteur.expression.reconciliation import ReconciliationStore
+    project, _, _ = make_project(tmp_path)
+    assembly_store = ChapterExpressionStore(project)
+    assembly = assembly_store.compose("07")
+    manuscript = assembly_store.chapter_dir("07") / "edited.md"
+    manuscript.write_text(assembly_store._metadata_path(assembly.artifact_id).with_suffix(".md").read_text(encoding="utf-8").replace("Prose for scene_07_01.", "Published wording."), encoding="utf-8")
+    store = ReconciliationStore(project)
+    report = store.inspect(manuscript, assembly.artifact_id)
+    proposal = store.propose(report["inspection_id"])["proposal_ids"][0]
+    plan = store.plan(report["inspection_id"], [proposal])
+    monkeypatch.setattr(store.composition, "compose", lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError("simulated filesystem failure")))
+    with pytest.raises(RuntimeError, match="simulated filesystem failure"):
+        store.publish(plan["application_set_id"])
+    assert not list(project.glob("chapters/07/scenes/scene_07_01/prose_v002.yaml"))
+    assert not list(project.glob("chapters/07/expression/transition_candidates/*"))

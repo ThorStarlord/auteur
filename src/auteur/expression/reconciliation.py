@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from auteur.provenance import Lifecycle
 
 from auteur.expression.composition import (
     ChapterExpressionStore,
@@ -412,3 +413,72 @@ class ReconciliationStore:
 
     def show_plan(self, plan_id: str) -> dict[str, Any]:
         return self._load_plan(plan_id)
+
+    def publish(self, plan_id: str) -> dict[str, Any]:
+        """Publish a ready plan transactionally into unaccepted candidates."""
+        plan = self._load_plan(plan_id)
+        if plan.get("readiness") != "ready":
+            raise ValueError("application plan is not ready for publication")
+        root = next(self.project.glob(f"chapters/*/expression/reconciliation/plans/{plan_id}.yaml")).parent.parent
+        publication_id = "publication_" + plan_id.removeprefix("application_set_")
+        publication_path = root / "publications" / f"{publication_id}.yaml"
+        if publication_path.exists():
+            raise ValueError(f"application plan has already been published: {plan_id}")
+        proposals = []
+        for proposal_id in plan.get("proposal_ids", []):
+            path = self._proposal_path(proposal_id)
+            if path is None:
+                raise ValueError(f"proposal not found: {proposal_id}")
+            proposals.append(yaml.safe_load(path.read_text(encoding="utf-8")) or {})
+        created: list[Path] = []
+        scene_overrides: dict[str, Path] = {}
+        assembly = self.composition.inspect(plan["source_assembly"]["artifact_id"])
+        chapter_id = assembly.source_chapter["artifact_id"]
+        transitions = self.composition.load_transitions(chapter_id)
+        try:
+            from auteur.expression.pilot import ExpressionStore
+            expression_store = ExpressionStore(self.project)
+            for proposal in proposals:
+                if proposal["proposal_type"] in {"scene_expression_patch", "scene_expression_replacement_candidate"}:
+                    scene_path = self.composition._scene_path(proposal["target_artifact_id"])
+                    candidate = expression_store.generate(scene_path, proposal["replacement_text"], executor={"kind": "reconciliation-publication"})
+                    metadata_path = expression_store._metadata_path(candidate.candidate_id)
+                    metadata = yaml.safe_load(metadata_path.read_text(encoding="utf-8")) or {}
+                    metadata.update({"lifecycle": Lifecycle.PROPOSED.value, "authority": "draft", "transformation": {"id": "expression.publish_application", "version": 1}, "realization_evidence": {"application_plan": plan_id, "source_reconciliation": proposal.get("source_inspection")}})
+                    metadata_path.write_text(yaml.safe_dump(metadata, sort_keys=False), encoding="utf-8")
+                    prose_path = metadata_path.with_suffix(".md")
+                    created.extend([prose_path, metadata_path])
+                    scene_overrides[proposal["target_artifact_id"]] = prose_path
+                    scene_overrides[f"__metadata__:{proposal['target_artifact_id']}"] = metadata_path
+                elif proposal["proposal_type"] == "transition_patch":
+                    target = transitions.get(proposal["target_artifact_id"], {})
+                    target = dict(target)
+                    revision = int(proposal["target_revision"]) + 1
+                    target.update({"transition_id": proposal["target_artifact_id"], "revision": revision, "text": proposal["replacement_text"], "lifecycle": Lifecycle.PROPOSED.value, "authority": "draft", "content_hash": _hash(proposal["replacement_text"]), "transformation": {"id": "expression.publish_application", "version": 1}, "application_plan": plan_id})
+                    transition_dir = self.composition.chapter_dir(chapter_id) / "transition_candidates"
+                    md_path, yaml_path = transition_dir / f"{proposal['target_artifact_id']}_v{revision:03d}.md", transition_dir / f"{proposal['target_artifact_id']}_v{revision:03d}.yaml"
+                    transition_dir.mkdir(parents=True, exist_ok=True)
+                    md_path.write_text(proposal["replacement_text"], encoding="utf-8")
+                    yaml_path.write_text(yaml.safe_dump(target, sort_keys=False), encoding="utf-8")
+                    created.extend([md_path, yaml_path])
+                    transitions[proposal["target_artifact_id"]] = target
+            chapter = self.composition.compose(chapter_id, transitions=transitions, scene_overrides=scene_overrides, persist_transitions=False, lifecycle=Lifecycle.PROPOSED, authority="draft", transformation={"id": "expression.publish_application", "version": 1, "application_plan": plan_id, "source_reconciliation": plan["source_inspection"]})
+            chapter_meta = self.composition._metadata_path(chapter.artifact_id)
+            chapter_md = chapter_meta.with_suffix(".md")
+            created.extend([chapter_meta, chapter_md])
+            publication = {"publication_id": publication_id, "application_plan": plan_id, "source_reconciliation": plan["source_inspection"], "published_candidates": [str(path.relative_to(self.project)) for path in created], "chapter_expression": chapter.artifact_id, "transformation": {"id": "expression.publish_application", "version": 1}, "status": "published", "created_at": datetime.now(timezone.utc).isoformat()}
+            self._write_atomic(publication_path, publication)
+            created.append(publication_path)
+            return publication
+        except Exception:
+            for path in reversed(created):
+                if path.exists(): path.unlink()
+            for parent in {path.parent for path in created}:
+                if parent.exists() and not any(parent.iterdir()): parent.rmdir()
+            raise
+
+    def inspect_publication(self, publication_id: str) -> dict[str, Any]:
+        path = next(self.project.glob(f"chapters/*/expression/reconciliation/publications/{publication_id}.yaml"), None)
+        if path is None:
+            raise FileNotFoundError(f"publication not found: {publication_id}")
+        return yaml.safe_load(path.read_text(encoding="utf-8")) or {}

@@ -163,7 +163,7 @@ class ChapterExpressionStore:
     def status(self, expression_id: str) -> dict[str, Any]:
         return {"artifact_id": expression_id, **self._current_status(self.inspect(expression_id))}
 
-    def compose(self, chapter: str | int, *, transitions: dict[str, dict[str, Any]] | None = None) -> ChapterExpression:
+    def compose(self, chapter: str | int, *, transitions: dict[str, dict[str, Any]] | None = None, scene_overrides: dict[str, Path] | None = None, persist_transitions: bool = True, transformation: dict[str, Any] | None = None, lifecycle: Lifecycle = Lifecycle.DRAFT, authority: str = "derived") -> ChapterExpression:
         outline_path = self._chapter_outline(chapter)
         chapter_store = ArtifactStore(self.project)
         outline_status = chapter_store.status(outline_path, "chapter_outline")
@@ -191,6 +191,12 @@ class ChapterExpressionStore:
         transitions = transition_by_boundary
         for index, scene_id in enumerate(scene_ids):
             scene_meta, prose_path = self._accepted_scene(scene_id)
+            if scene_overrides and scene_id in scene_overrides:
+                prose_path = Path(scene_overrides[scene_id])
+                scene_meta = dict(scene_meta)
+                candidate_metadata_path = scene_overrides.get(f"__metadata__:{scene_id}")
+                if candidate_metadata_path:
+                    scene_meta.update(yaml.safe_load(Path(candidate_metadata_path).read_text(encoding="utf-8")) or {})
             from auteur.expression.pilot import ExpressionStore
             expression_status = ExpressionStore(self.project).status(scene_meta["candidate_id"])
             if expression_status["health"] != "valid":
@@ -204,7 +210,7 @@ class ChapterExpressionStore:
             if scene_status.health != "valid":
                 raise ValueError(f"Scene Realization is invalid: {scene_id}")
             prose = prose_path.read_text(encoding="utf-8")
-            selected.append({"scene_id": scene_id, "expression_candidate_id": scene_meta["candidate_id"], "expression_revision": int(scene_meta["revision"]), "expression_content_hash": scene_meta["content_hash"], "source_scene_revision": scene_status.revision, "source_scene_content_hash": chapter_store.content_hash(scene_path), "freshness": scene_freshness, "review_state": scene_meta.get("review_state", "none")})
+            selected.append({"scene_id": scene_id, "expression_candidate_id": scene_meta["candidate_id"], "expression_revision": int(scene_meta["revision"]), "expression_content_hash": _hash_text(prose_path.read_text(encoding="utf-8")) if scene_overrides and scene_id in scene_overrides else scene_meta["content_hash"], "source_scene_revision": scene_status.revision, "source_scene_content_hash": chapter_store.content_hash(scene_path), "freshness": scene_freshness, "review_state": scene_meta.get("review_state", "none")})
             start = f"<!-- auteur:scene id={scene_id} expression_revision={int(scene_meta['revision'])} -->"
             end = f"<!-- auteur:end-scene id={scene_id} -->"
             chunks.extend([start, prose.rstrip(), end])
@@ -234,7 +240,7 @@ class ChapterExpressionStore:
         text = "\n".join(chunks).rstrip() + "\n"
         revision = self._next_revision(chapter)
         artifact_id = f"{self.chapter_id(chapter)}:expression_v{revision:03d}"
-        metadata = ChapterExpression(artifact_id=artifact_id, revision=revision, review_state=ReviewState.REVIEW_REQUIRED if review_required or transition_findings else ReviewState.NONE, source_chapter={"artifact_id": self.chapter_id(chapter), "revision": outline_status.revision, "content_hash": chapter_store.content_hash(outline_path)}, source_scenes=selected, transitions=transition_data, section_map=sections, source_order=scene_ids, transition_source_hash=_hash_text(yaml.safe_dump(transitions, sort_keys=False)) if transitions else None, content_hash=_hash_text(text), transformation={"id": "expression.compose_chapter", "version": 1, "executor": "deterministic"}, validation_findings=transition_findings)
+        metadata = ChapterExpression(artifact_id=artifact_id, revision=revision, lifecycle=lifecycle, authority=authority, review_state=ReviewState.REVIEW_REQUIRED if review_required or transition_findings else ReviewState.NONE, source_chapter={"artifact_id": self.chapter_id(chapter), "revision": outline_status.revision, "content_hash": chapter_store.content_hash(outline_path)}, source_scenes=selected, transitions=transition_data, section_map=sections, source_order=scene_ids, transition_source_hash=_hash_text(yaml.safe_dump(transitions, sort_keys=False)) if transitions else None, content_hash=_hash_text(text), transformation=transformation or {"id": "expression.compose_chapter", "version": 1, "executor": "deterministic"}, validation_findings=transition_findings)
         directory = self.chapter_dir(chapter)
         directory.mkdir(parents=True, exist_ok=True)
         md_path, yaml_path = directory / f"chapter_v{revision:03d}.md", directory / f"chapter_v{revision:03d}.yaml"
@@ -245,7 +251,7 @@ class ChapterExpressionStore:
             yaml_tmp.write_text(yaml.safe_dump(metadata.model_dump(mode="json"), sort_keys=False), encoding="utf-8")
             md_tmp.replace(md_path)
             yaml_tmp.replace(yaml_path)
-            if transitions:
+            if transitions and persist_transitions:
                 self.save_transitions(chapter, transitions)
         except Exception:
             for path in (md_tmp, yaml_tmp):
