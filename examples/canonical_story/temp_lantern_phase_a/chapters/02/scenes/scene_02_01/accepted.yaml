@@ -1,0 +1,39 @@
+candidate_id: scene_02_01:prose_v001
+artifact_type: expression_scene_prose
+revision: 1
+lifecycle: accepted
+authority: canonical
+source_scene:
+  artifact_id: scene_02_01
+  revision: 1
+  content_hash: sha256:492fc84789b6bbf7d51cca1c8a3b2d4d70e6e2dcc819c48b2f66ebd4ec960da5
+  path: chapters\02\scenes\scene_02_01.yaml
+transformation:
+  id: realization.generate_expression
+  category: generation
+  family: knowledge_creation
+  version: 1
+executor:
+  kind: canonical-reference
+  provider: null
+  model: null
+  configuration_hash: sha256:b65946299ccf0560ffe49c786f9c4570f501976753ea0f228f172b541a7e6838
+expression_constraints:
+  pov: null
+  tense: null
+  narrative_distance: null
+  voice_id: null
+  target_effect: null
+  content_boundaries: []
+content_hash: sha256:65d507d59d1b1e1165ab7c88311375935bc96588ff0a5057b4f2d0505e469d75
+generated_at: '2026-07-15T21:44:17.118167+00:00'
+accepted_at: '2026-07-15T21:44:17.299372+00:00'
+accepted_by: canonical-dogfood
+accepted_revision: 1
+validation_findings: []
+review_state: none
+metadata_revision: 1
+review_history: []
+realization_evidence: {}
+rejection: null
+reviewed_source: null

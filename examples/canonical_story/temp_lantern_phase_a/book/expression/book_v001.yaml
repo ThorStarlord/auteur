@@ -1,0 +1,27 @@
+book_expression_id: book_01:expression_v001
+book_id: book_01
+revision: 1
+authority: derived
+lifecycle: accepted
+freshness: fresh
+chapters: &id001
+- chapter_id: chapter_01
+  chapter_expression_id: chapter_01:expression_v001
+  accepted_revision: 1
+  content_hash: sha256:662f064b2590396994b6a2eea7e232205177df13ec822f68ea38c4eb84c68094
+  position: 1
+- chapter_id: chapter_02
+  chapter_expression_id: chapter_02:expression_v001
+  accepted_revision: 1
+  content_hash: sha256:28f0bf7e7a68836ac8b6780c52e9ada55e0cab48bbbb1c365c665d851899a68d
+  position: 2
+book_owned_content:
+  title: The Lantern at Low Water
+  separator: '---'
+transformation:
+  id: expression.compose_book
+  version: 1
+dependencies: *id001
+created_at: '2026-07-15T21:44:18.312629+00:00'
+accepted_by: canonical-dogfood
+accepted_at: '2026-07-15T21:44:18.349323+00:00'

@@ -1,0 +1,11 @@
+scene_id: scene_04
+title: The light
+pov: Mara
+entry_state: Mara has found the condemnation record.
+exit_state: The magistrate's boat reaches the safe channel.
+events:
+- Mara lights the beacon.
+- The boat turns toward the channel.
+id: scene_01_04
+chapter_id: chapter_01
+order: 4

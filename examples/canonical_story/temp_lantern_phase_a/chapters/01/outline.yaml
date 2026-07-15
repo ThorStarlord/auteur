@@ -1,0 +1,9 @@
+chapter_id: chapter_01
+chapter_number: 1
+blueprint_id: blueprint
+scenes:
+- scene_01_01
+- scene_01_02
+- scene_01_03
+- scene_01_04
+- scene_01_05

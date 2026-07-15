@@ -1,0 +1,30 @@
+artifact_id: scene_01_01
+artifact_type: scene_realization
+schema_version: 1
+revision: 1
+authority: canonical
+lifecycle: accepted
+review_state: none
+content_hash: sha256:46000119b95f75e3349f65028a5ce739dee80d1e6c0c94477d57047f882734e4
+dependencies:
+- artifact_id: blueprint
+  artifact_type: blueprint
+  path: blueprint.yaml
+  kind: structural
+  source: inferred
+  projection:
+    id: blueprint.chapter
+    version: 1
+    fields:
+    - chapters.chapter_01
+  projected_hash: sha256:1b4552fc072d0972a10f2feb3167858246609417c17894e7949a43cda5ac54d0
+  full_content_hash: sha256:c6c49714b8889c5d437e4681fdb8dc359b0ded030ec32af97826a046a1ddb4e7
+  fields:
+  - chapters.chapter_01
+  revision: 1
+stale_reasons: []
+invalid_reasons: []
+provenance_state: tracked
+accepted_at: null
+accepted_by: canonical-dogfood
+rationale: canonical demonstration project bootstrap

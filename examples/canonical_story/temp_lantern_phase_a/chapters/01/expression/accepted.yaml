@@ -1,0 +1,95 @@
+artifact_id: chapter_01:expression_v001
+artifact_type: expression_chapter
+revision: 1
+lifecycle: accepted
+authority: derived
+review_state: none
+source_chapter:
+  artifact_id: chapter_01
+  revision: 1
+  content_hash: sha256:8e5207098a8380ef368e4a9f7a68902729d339b26c8532b56ac8532871ff7d1b
+source_scenes:
+- scene_id: scene_01_01
+  expression_candidate_id: scene_01_01:prose_v001
+  expression_revision: 1
+  expression_content_hash: sha256:faa0cfe88eb142918ac6222309436e1c504255184f616adfcc43e92890ab99e0
+  source_scene_revision: 1
+  source_scene_content_hash: sha256:46000119b95f75e3349f65028a5ce739dee80d1e6c0c94477d57047f882734e4
+  freshness: fresh
+  review_state: none
+- scene_id: scene_01_02
+  expression_candidate_id: scene_01_02:prose_v001
+  expression_revision: 1
+  expression_content_hash: sha256:aafeadd45907cffbfa6c5c9dd2044b413e06c4fccd0c71ba96af17878d3ccdab
+  source_scene_revision: 1
+  source_scene_content_hash: sha256:f1b6d43174f9c6c8b28eae61eab02cba2509d5b240f30f295a82dbeb22dd539a
+  freshness: fresh
+  review_state: none
+- scene_id: scene_01_03
+  expression_candidate_id: scene_01_03:prose_v001
+  expression_revision: 1
+  expression_content_hash: sha256:56fae9a30ad121086604c32b390767e0a502de1a3831a4d98325b0438ffc8dd7
+  source_scene_revision: 1
+  source_scene_content_hash: sha256:a9404c5dd53919649b92ce0bf8c41da13e1f5d0823c99f5ac5e32a21791973fa
+  freshness: fresh
+  review_state: none
+- scene_id: scene_01_04
+  expression_candidate_id: scene_01_04:prose_v001
+  expression_revision: 1
+  expression_content_hash: sha256:0050bdbf385777d44594911ea51be5a71c6b5f9a529eb9800cd1cbd45622cd86
+  source_scene_revision: 1
+  source_scene_content_hash: sha256:c75b8ec391c1a28b6219ee344d4c578292a516679ed4da99bf508441613372de
+  freshness: fresh
+  review_state: none
+- scene_id: scene_01_05
+  expression_candidate_id: scene_01_05:prose_v001
+  expression_revision: 1
+  expression_content_hash: sha256:f3d11f8f43d64564dc4b7a667c10ddc10b0bf049739730570ca18ba0a03c6af3
+  source_scene_revision: 1
+  source_scene_content_hash: sha256:480a05be95b0ea53550f22dd715e337f87d52cca54f155754a1e616aa249f497
+  freshness: fresh
+  review_state: none
+transitions:
+- transition_id: transition_01_02
+  candidate_id: null
+  before_scene: scene_01_01
+  after_scene: scene_01_02
+  revision: 1
+  lifecycle: accepted
+  text: The river wind carries Tomas's warning up the tower.
+  content_hash: sha256:e3256475712b3a0b0d985af3794ac5b5ce13a4cc89d10a564174991b796b3120
+transition_source_hash: sha256:726c8fd46e9ecf4f7104186c6620df36af60dd672623838bed799ef160fa27b7
+source_order:
+- scene_01_01
+- scene_01_02
+- scene_01_03
+- scene_01_04
+- scene_01_05
+section_map:
+- section_id: scene_01_01
+  kind: scene
+  expression_revision: 1
+- section_id: transition_01_02
+  kind: transition
+  before_scene: scene_01_01
+  after_scene: scene_01_02
+- section_id: scene_01_02
+  kind: scene
+  expression_revision: 1
+- section_id: scene_01_03
+  kind: scene
+  expression_revision: 1
+- section_id: scene_01_04
+  kind: scene
+  expression_revision: 1
+- section_id: scene_01_05
+  kind: scene
+  expression_revision: 1
+content_hash: sha256:662f064b2590396994b6a2eea7e232205177df13ec822f68ea38c4eb84c68094
+transformation:
+  id: expression.compose_chapter
+  version: 1
+  executor: deterministic
+validation_findings: []
+accepted_at: '2026-07-15T21:44:16.299739+00:00'
+accepted_by: canonical-dogfood

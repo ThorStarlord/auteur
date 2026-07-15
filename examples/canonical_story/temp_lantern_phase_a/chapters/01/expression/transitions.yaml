@@ -1,0 +1,7 @@
+scene_01_01->scene_01_02:
+  transition_id: transition_01_02
+  before_scene: scene_01_01
+  after_scene: scene_01_02
+  revision: 1
+  lifecycle: accepted
+  text: The river wind carries Tomas's warning up the tower.
