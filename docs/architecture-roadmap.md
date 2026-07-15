@@ -115,10 +115,13 @@ These are extension points, not violations of the V1 foundations.
 2. Standardize analyzer-to-report adapters through
    `docs/critic-integration-contract.md`.
 3. Define critic discovery and compatibility through `docs/critic-registry.md`.
-4. Adapt existing critic/analyzer findings into that contract without mutation.
-5. Connect reasoning recommendations to existing proposal generation.
-6. Dogfood author-facing explanations and confidence boundaries.
-7. Revisit grouped decisions only when explicit dependencies recur in real use.
+4. Define runtime selection, dependency, freshness, and outcome boundaries in
+   `docs/reasoning-runtime.md`.
+5. Implement a minimal deterministic Reasoning Runtime slice.
+6. Adapt existing critic/analyzer findings into that contract without mutation.
+7. Aggregate reasoning reports and dogfood author-facing explanations.
+8. Connect reasoning recommendations to existing proposal generation.
+9. Revisit grouped decisions only when explicit dependencies recur in real use.
 
 ## Review conclusion
 
