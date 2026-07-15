@@ -120,8 +120,10 @@ These are extension points, not violations of the V1 foundations.
 5. Implement a minimal deterministic Reasoning Runtime slice.
 6. Adapt existing critic/analyzer findings into that contract without mutation.
 7. Aggregate reasoning reports and dogfood author-facing explanations.
-8. Connect reasoning recommendations to existing proposal generation.
-9. Revisit grouped decisions only when explicit dependencies recur in real use.
+8. Define derived multi-report review through
+   `docs/reasoning-synthesis-contract.md`.
+9. Connect reasoning recommendations to existing proposal generation.
+10. Revisit grouped decisions only when explicit dependencies recur in real use.
 
 ## Review conclusion
 

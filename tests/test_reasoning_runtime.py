@@ -91,6 +91,31 @@ def test_deterministic_rerun_has_same_plan_and_report(tmp_path):
     assert first.outcomes[0].report_id == second.outcomes[0].report_id
 
 
+def test_both_built_in_critics_run_together_without_mutating_inputs(tmp_path):
+    from copy import deepcopy
+    from pathlib import Path
+    from auteur.blueprint import StoryBlueprint
+    from auteur.reasoning import register_setup_payoff_critic, register_structure_critic
+
+    blueprint = StoryBlueprint.from_yaml(Path("examples/sample_blueprint.yaml"))
+    series = {"book_plans": [{"book_number": 1}], "narrative_setups": []}
+    original_blueprint = blueprint.model_dump(mode="json")
+    original_series = deepcopy(series)
+    registry = CriticRegistry()
+    register_structure_critic(registry)
+    register_setup_payoff_critic(registry)
+    runtime = ReasoningRuntime(registry, tmp_path / "reports")
+
+    result = runtime.run(RuntimeRequest(
+        critic_ids=("structure.blueprint", "structure.setup_payoff"),
+        inputs={"blueprint": blueprint, "series": series, "scope": "standalone"},
+    ))
+
+    assert [outcome.status for outcome in result.outcomes] == [RuntimeStatus.SUCCESS, RuntimeStatus.SUCCESS]
+    assert blueprint.model_dump(mode="json") == original_blueprint
+    assert series == original_series
+
+
 def test_runtime_rejects_dependency_cycle(tmp_path):
     registry = CriticRegistry()
     registry.register(_critic("a", requires=("b",)))
