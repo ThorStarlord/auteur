@@ -16,6 +16,7 @@ from auteur.reasoning import (
     register_setup_payoff_critic,
     synthesize_reports,
 )
+from auteur.canonical_story import CanonicalStoryBootstrap
 from auteur.reasoning.cli import format_review
 
 
@@ -38,8 +39,10 @@ def run() -> dict:
         "chapter_01/scene_05/expression.md",
     ]
     with tempfile.TemporaryDirectory(prefix="auteur-canonical-story-") as tmp:
-        workspace = Path(tmp) / "canonical_story"
-        shutil.copytree(ROOT, workspace)
+        bootstrap = CanonicalStoryBootstrap(ROOT)
+        workspace_root = Path(tmp)
+        workspace = bootstrap.copy_to(workspace_root)
+        accepted_realizations = bootstrap.accept_scene_realizations(workspace_root)
         report_dir = workspace / "reasoning"
         registry = CriticRegistry()
         register_setup_payoff_critic(registry)
@@ -67,12 +70,13 @@ def run() -> dict:
             "project": "The Lantern at Low Water",
             "copied_to_temporary_workspace": True,
             "required_artifacts_present": all((workspace / path).is_file() for path in required),
+            "accepted_scene_realizations": len(accepted_realizations),
             "critic_statuses": [outcome.status.value for outcome in result.outcomes],
             "review_id": review["review_id"],
             "review_text": format_review(review),
             "derived_artifacts_written_to": "temporary workspace only",
-            "untraversed_stages": ["external reconciliation", "publication", "candidate decision", "Chapter acceptance"],
-            "friction": "Canonical reference files are human-readable demonstration artifacts; complete reconciliation/publication stores require the existing project-specific artifact adapters.",
+            "untraversed_stages": ["native Blueprint acceptance", "Chapter Expression acceptance", "external reconciliation", "publication", "candidate decision", "Chapter acceptance"],
+            "friction": "Canonical reference files are human-readable demonstration artifacts; native Blueprint/Chapter/Expression and reconciliation stores require additional adapters.",
         }
 
 

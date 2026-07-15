@@ -17,6 +17,7 @@ def test_canonical_story_dogfood_uses_temporary_workspace():
     assert result["copied_to_temporary_workspace"] is True
     assert result["required_artifacts_present"] is True
     assert result["critic_statuses"] == ["success"]
+    assert result["accepted_scene_realizations"] == 5
     assert "Top concerns:" in result["review_text"]
     assert result["derived_artifacts_written_to"] == "temporary workspace only"
     assert "publication" in result["untraversed_stages"]
