@@ -26,6 +26,99 @@ import json
 import shutil
 from pathlib import Path
 from typing import Any
+from unittest import mock
+
+import pytest
+
+from auteur.canonical_story import CanonicalStoryBootstrap
+from auteur.provenance import ArtifactStore
+
+# Isolated dogfood workspace: deliberately OUTSIDE examples/canonical_story
+# (the bootstrap source) so that CanonicalStoryBootstrap.copy_to can never
+# recursively copy this workspace back into the canonical reference tree.
+# See src/auteur/canonical_story.py:CanonicalStoryBootstrap.copy_to for the
+# validation that enforces this at runtime, and defect-1-repair-brief.md for
+# the incident this isolation fixes. The directory is gitignored (/temp/) and
+# is fully rebuilt by `_bootstrap_workspace` before this module's tests run.
+WORKSPACE_ROOT = Path("temp/dogfood/lantern_phase_a")
+
+REFERENCE_ROOT = Path("examples/canonical_story")
+
+# Relative-to-workspace paths hashed into .auteur/baselines.json, used by
+# TestBookExternalRoutingDogfood.verify_baselines_unchanged to detect any
+# mutation of canonical artifacts during inspection/routing.
+_BASELINE_PATHS = {
+    "story_identity": ".auteur/state/artifacts/story_identity.yaml",
+    "blueprint": ".auteur/state/artifacts/blueprint.yaml",
+    "chapter_01": ".auteur/state/artifacts/chapter_01.yaml",
+    "chapter_02": ".auteur/state/artifacts/chapter_02.yaml",
+    "chapter_01_expression": "chapters/01/expression/chapter_v001.yaml",
+    "chapter_02_expression": "chapters/02/expression/chapter_v001.yaml",
+    "book_expression": "book/expression/book_v001.yaml",
+}
+
+
+def _bootstrap_workspace(workspace_root: Path) -> Path:
+    """(Re)build the Phase A dogfood workspace from the canonical reference.
+
+    Any existing workspace is wiped first, so calling this repeatedly against
+    the same path is idempotent and deterministic (see
+    test_repeated_bootstrap_succeeds). ``workspace_root`` must live outside
+    REFERENCE_ROOT -- CanonicalStoryBootstrap.copy_to enforces that and raises
+    ValueError instead of silently nesting the reference tree inside itself.
+    """
+    if workspace_root.exists():
+        shutil.rmtree(workspace_root)
+    workspace_root.mkdir(parents=True, exist_ok=True)
+
+    bootstrap = CanonicalStoryBootstrap(REFERENCE_ROOT)
+    bootstrap.copy_to(workspace_root)
+    bootstrap.accept_native_identity_and_structure(workspace_root)
+    bootstrap.accept_scene_realizations(workspace_root)
+    first_chapter = bootstrap.bootstrap_expressions(workspace_root)
+    second_chapter = bootstrap.bootstrap_second_chapter(workspace_root)
+    bootstrap.bootstrap_book(workspace_root, [
+        first_chapter["chapter_expression"]["artifact_id"],
+        second_chapter["chapter_expression"]["artifact_id"],
+    ])
+
+    # The marked, external-facing manuscript dogfood scenarios inspect is a
+    # plain copy of the derived, accepted Book manuscript.
+    manuscript_dir = workspace_root / ".auteur" / "book" / "expression"
+    manuscript_dir.mkdir(parents=True, exist_ok=True)
+    book_manuscript = workspace_root / "book" / "expression" / "book_v001.md"
+    (manuscript_dir / "manuscript.internal.md").write_text(
+        book_manuscript.read_text(encoding="utf-8"), encoding="utf-8"
+    )
+
+    # Hash via read_text().encode(), matching
+    # TestBookExternalRoutingDogfood.verify_baselines_unchanged, so the two
+    # computations agree regardless of platform newline translation.
+    baselines = {
+        name: hashlib.sha256((workspace_root / rel_path).read_text(encoding="utf-8").encode()).hexdigest()
+        for name, rel_path in _BASELINE_PATHS.items()
+    }
+    (workspace_root / ".auteur" / "baselines.json").write_text(
+        json.dumps(baselines, indent=2), encoding="utf-8"
+    )
+
+    return workspace_root
+
+
+def _hash_tree(root: Path) -> dict[str, str]:
+    """Content hash every file under ``root``, keyed by relative path."""
+    return {
+        str(path.relative_to(root)): hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in sorted(root.rglob("*"))
+        if path.is_file()
+    }
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _phase_a_workspace():
+    """Build the Phase A dogfood workspace once before this module's tests run."""
+    _bootstrap_workspace(WORKSPACE_ROOT)
+    yield WORKSPACE_ROOT
 
 
 def generate_message_from_inspection(inspection_report: dict[str, Any]) -> str:
@@ -175,7 +268,7 @@ def test_placeholder_a1_baseline():
 
 def test_unchanged_marked_book_inspection():
     """Scenario 2: Unchanged marked Book should produce no changes, proposals, or findings."""
-    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    project_root = WORKSPACE_ROOT
     manuscript_path = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
 
     # Inspect the unchanged Book manuscript
@@ -199,7 +292,7 @@ def test_unchanged_marked_book_inspection():
 
 def test_chapter_only_edit_creates_delegated_inspection():
     """Scenario 3: Chapter wording edit → one delegated Chapter inspection, zero Book proposals."""
-    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    project_root = WORKSPACE_ROOT
     original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
     test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_chapter_edit.md'
 
@@ -243,7 +336,7 @@ def test_separator_edit_creates_book_proposal():
     from auteur.expression.book_reconciliation import BookReconciliationStore
     import yaml
 
-    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    project_root = WORKSPACE_ROOT
     original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
     test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_separator_edit.md'
 
@@ -312,7 +405,7 @@ def test_stale_inspection_blocks_routing():
     from auteur.expression.book_reconciliation import BookReconciliationStore
     import yaml
 
-    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    project_root = WORKSPACE_ROOT
     original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
     test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_stale.md'
 
@@ -409,3 +502,239 @@ def test_stale_inspection_blocks_routing():
         restored_data['revision'] = original_revision
         restored_data['content_hash'] = original_content_hash
         accepted_file.write_text(yaml.safe_dump(restored_data, sort_keys=False), encoding='utf-8')
+
+
+def test_routing_atomicity_on_failure():
+    """Scenario 11: A move failure partway through routing must leave zero
+    partial artifacts. Either every proposal and the manifest are visible
+    together, or none of them are.
+    """
+    from auteur.expression.book_reconciliation import BookReconciliationStore
+    import yaml
+
+    project_root = WORKSPACE_ROOT
+    original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
+    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_atomic_failure.md'
+
+    shutil.copy(original_ms, test_ms)
+    content = test_ms.read_text(encoding='utf-8')
+    modified_content = content.replace(
+        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n---\n<!-- auteur:end-book-separator id=separator_01 -->",
+        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n===\n<!-- auteur:end-book-separator id=separator_01 -->"
+    )
+    test_ms.write_text(modified_content, encoding='utf-8')
+
+    try:
+        result = inspect_book_external_manuscript(project_root=project_root, manuscript_path=test_ms)
+        assert result['status'] == 'changed'
+        assert result['book_findings_count'] == 1
+        inspection_id = result['inspection_id']
+
+        store = BookReconciliationStore(project_root)
+        original_inspection_path = store._inspection_path(inspection_id)
+        original_inspection_bytes = original_inspection_path.read_bytes()
+
+        staged_dir = store.root / "staging" / inspection_id
+        final_manifest_path = store.root / "routing" / f"routing_{inspection_id}.yaml"
+        proposals_dir = store.root / "proposals"
+
+        real_move = shutil.move
+        call_count = {"n": 0}
+
+        def flaky_move(src, dst, *args, **kwargs):
+            call_count["n"] += 1
+            if call_count["n"] >= 2:
+                raise OSError("simulated failure during atomic routing move")
+            return real_move(src, dst, *args, **kwargs)
+
+        with mock.patch("auteur.expression.book_reconciliation.shutil.move", side_effect=flaky_move):
+            with pytest.raises(OSError):
+                store.route(inspection_id)
+
+        # At least one move must have been attempted (so this actually
+        # exercises a mid-batch failure, not a failure before anything moved).
+        assert call_count["n"] >= 2, "Expected the flaky move to be invoked at least twice"
+
+        # Staging must be fully cleaned up -- no orphaned working directory.
+        assert not staged_dir.exists(), f"Staging directory should be removed after failure, found {staged_dir}"
+
+        # No routing manifest should be visible.
+        assert not final_manifest_path.exists(), f"No routing manifest should exist after failed routing, found {final_manifest_path}"
+
+        # No proposals from this routing attempt should be visible.
+        if proposals_dir.exists():
+            leftover = list(proposals_dir.glob(f"proposal_{inspection_id}_*.yaml"))
+            assert leftover == [], f"Expected 0 proposals visible after failed routing, found {leftover}"
+
+        # The original inspection must survive untouched.
+        assert original_inspection_path.exists(), "Original inspection must be preserved after routing failure"
+        assert original_inspection_path.read_bytes() == original_inspection_bytes, \
+            "Original inspection content must be unchanged after routing failure"
+
+        # No canonical artifacts mutated.
+        assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during failed routing"
+    finally:
+        if test_ms.exists():
+            test_ms.unlink()
+
+
+def test_routing_success_is_atomic():
+    """Regression: successful routing publishes the manifest and all
+    proposals together, with no leftover staging artifacts.
+    """
+    from auteur.expression.book_reconciliation import BookReconciliationStore
+    import yaml
+
+    project_root = WORKSPACE_ROOT
+    original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
+    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_atomic_success.md'
+
+    shutil.copy(original_ms, test_ms)
+    content = test_ms.read_text(encoding='utf-8')
+    modified_content = content.replace(
+        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n---\n<!-- auteur:end-book-separator id=separator_01 -->",
+        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n===\n<!-- auteur:end-book-separator id=separator_01 -->"
+    )
+    test_ms.write_text(modified_content, encoding='utf-8')
+
+    try:
+        result = inspect_book_external_manuscript(project_root=project_root, manuscript_path=test_ms)
+        assert result['status'] == 'changed'
+        inspection_id = result['inspection_id']
+
+        store = BookReconciliationStore(project_root)
+        staged_dir = store.root / "staging" / inspection_id
+        final_manifest_path = store.root / "routing" / f"routing_{inspection_id}.yaml"
+        proposals_dir = store.root / "proposals"
+
+        routing_result = store.route(inspection_id)
+
+        assert routing_result['status'] == 'routed'
+        assert len(routing_result['book_proposals']) == 1
+
+        # Manifest and proposal must both be visible together.
+        assert final_manifest_path.exists(), "Routing manifest should exist after successful routing"
+        proposal_id = routing_result['book_proposals'][0]
+        proposal_path = proposals_dir / f"{proposal_id}.yaml"
+        assert proposal_path.exists(), f"Proposal should exist after successful routing at {proposal_path}"
+
+        # Staging must be cleaned up -- nothing left behind after commit.
+        assert not staged_dir.exists(), f"Staging directory should be removed after successful routing, found {staged_dir}"
+
+        assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during successful routing"
+    finally:
+        if test_ms.exists():
+            test_ms.unlink()
+
+
+def test_repeated_bootstrap_succeeds():
+    """Regression for Defect 1: bootstrapping the dogfood workspace twice in a
+    row must succeed both times and produce deterministic, non-duplicated
+    artifact state.
+
+    Before the fix, the dogfood workspace lived inside
+    examples/canonical_story/, so a later bootstrap against that reference
+    tree recursively copied the workspace into itself, producing nested
+    ``canonical_story/canonical_story/`` duplicates with conflicting
+    ``scene_01_0X`` / ``scene_02_01`` artifact IDs (health='invalid',
+    'duplicate_artifact_id'). Isolating the workspace under temp/dogfood/
+    (outside the reference tree) makes repeated bootstrap safe.
+    """
+    first_root = _bootstrap_workspace(WORKSPACE_ROOT)
+    first_manuscript = first_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
+    first_result = inspect_book_external_manuscript(project_root=first_root, manuscript_path=first_manuscript)
+    first_baselines = TestBookExternalRoutingDogfood.load_baselines(first_root)
+
+    second_root = _bootstrap_workspace(WORKSPACE_ROOT)
+    second_manuscript = second_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
+    second_result = inspect_book_external_manuscript(project_root=second_root, manuscript_path=second_manuscript)
+    second_baselines = TestBookExternalRoutingDogfood.load_baselines(second_root)
+
+    assert first_root == second_root == WORKSPACE_ROOT
+
+    # Both bootstraps must succeed and agree: no changes on a freshly
+    # rebuilt, unedited manuscript, either time.
+    assert first_result['status'] == 'no_changes', f"First bootstrap: expected 'no_changes', got {first_result['status']}"
+    assert second_result['status'] == 'no_changes', f"Second bootstrap: expected 'no_changes', got {second_result['status']}"
+
+    # Deterministic output: identical canonical content hashes across runs,
+    # for artifacts whose content is not itself timestamped. Story Identity,
+    # Blueprint, and the Chapter provenance records carry no wall-clock
+    # fields, so their hashes must match exactly run over run.
+    stable_keys = ("story_identity", "blueprint", "chapter_01", "chapter_02")
+    for key in stable_keys:
+        assert first_baselines[key] == second_baselines[key], (
+            f"Repeated bootstrap must produce an identical '{key}' hash, "
+            f"got {first_baselines[key]} vs {second_baselines[key]}"
+        )
+
+    # The derived Chapter/Book Expressions legitimately embed a fresh
+    # created_at/accepted_at timestamp on every compose+accept, so their raw
+    # byte hashes are expected to differ between runs. Determinism there
+    # means the same identity, revision, and narrative content -- not
+    # byte-identical timestamps.
+    import yaml as _yaml
+
+    def _stable_expression_fields(rel_path: str) -> dict[str, Any]:
+        first_data = _yaml.safe_load((first_root / rel_path).read_text(encoding="utf-8")) or {}
+        second_data = _yaml.safe_load((second_root / rel_path).read_text(encoding="utf-8")) or {}
+        volatile = {"created_at", "accepted_at"}
+        first_stable = {k: v for k, v in first_data.items() if k not in volatile}
+        second_stable = {k: v for k, v in second_data.items() if k not in volatile}
+        return first_stable, second_stable
+
+    for name, rel_path in _BASELINE_PATHS.items():
+        if name in stable_keys:
+            continue
+        first_stable, second_stable = _stable_expression_fields(rel_path)
+        assert first_stable == second_stable, (
+            f"Repeated bootstrap must produce identical '{name}' content "
+            f"(ignoring timestamps), got {first_stable} vs {second_stable}"
+        )
+
+    # No nested duplicate copy of the reference tree inside the workspace
+    # (the exact shape of the original defect).
+    nested_reference_copies = list((second_root / "canonical_story").rglob("canonical_story"))
+    assert nested_reference_copies == [], (
+        f"Bootstrap must not nest the reference tree inside itself, found {nested_reference_copies}"
+    )
+
+    # No duplicate artifact IDs anywhere in the freshly rebuilt workspace.
+    store = ArtifactStore(second_root)
+    scene_paths = {
+        "scene_01_01": second_root / "chapters" / "01" / "scenes" / "scene_01_01.yaml",
+        "scene_01_02": second_root / "chapters" / "01" / "scenes" / "scene_01_02.yaml",
+        "scene_01_03": second_root / "chapters" / "01" / "scenes" / "scene_01_03.yaml",
+        "scene_01_04": second_root / "chapters" / "01" / "scenes" / "scene_01_04.yaml",
+        "scene_01_05": second_root / "chapters" / "01" / "scenes" / "scene_01_05.yaml",
+        "scene_02_01": second_root / "chapters" / "02" / "scenes" / "scene_02_01.yaml",
+    }
+    for scene_id, scene_path in scene_paths.items():
+        status = store.status(scene_path, "scene_realization")
+        assert status.health == "valid", (
+            f"{scene_id} unexpectedly invalid after repeated bootstrap: "
+            f"health={status.health}"
+        )
+
+
+def test_canonical_reference_untouched():
+    """Regression for Defect 1: bootstrapping the dogfood workspace must never
+    write into, or leave a copy of itself inside, examples/canonical_story.
+    """
+    before = _hash_tree(REFERENCE_ROOT)
+
+    _bootstrap_workspace(WORKSPACE_ROOT)
+
+    after = _hash_tree(REFERENCE_ROOT)
+    assert before == after, "Canonical reference tree content was mutated by dogfood bootstrap"
+
+    # No dogfood/temp artifacts leaked into the canonical reference tree.
+    leaked = [
+        entry for entry in REFERENCE_ROOT.iterdir()
+        if entry.name.startswith("temp_") or entry.name == "canonical_story"
+    ]
+    assert leaked == [], f"Canonical reference tree contains leaked dogfood artifacts: {leaked}"
+
+    # The isolated workspace itself must live outside the reference tree.
+    assert REFERENCE_ROOT.resolve() not in WORKSPACE_ROOT.resolve().parents
+    assert WORKSPACE_ROOT.resolve() not in REFERENCE_ROOT.resolve().parents

@@ -120,6 +120,7 @@ class BookReconciliationStore:
             return {"routing_id": None, "status": "stale", "chapter_routes": [], "book_proposals": [], "unresolved": []}
         staged = self.root / "staging" / inspection_id
         final = self.root / "routing" / f"routing_{inspection_id}.yaml"
+        proposal_dir = self.root / "proposals"
         routes, proposals, delegated_paths = [], [], []
         try:
             for finding in report["chapter_findings"]:
@@ -127,17 +128,52 @@ class BookReconciliationStore:
                 delegated = ReconciliationStore(self.project).inspect(manuscript, finding["source_chapter_expression"])
                 delegated_paths.append(next(self.project.glob(f"chapters/*/expression/reconciliation/inspections/{delegated['inspection_id']}.yaml")))
                 routes.append({"chapter_id": finding["chapter_id"], "chapter_inspection_id": delegated["inspection_id"], "parent_book_inspection_id": inspection_id})
+            staged.mkdir(parents=True, exist_ok=True)
             for index, finding in enumerate(report["book_findings"], 1):
                 proposal_id = f"proposal_{inspection_id}_{index:03d}"
                 proposal = {"proposal_id": proposal_id, "artifact_type": "book_expression_proposal", "authority": "derived", "lifecycle": "proposed", "book_expression_id": report["book_expression_id"], "source_book_revision": report["book_revision"], "source_book_hash": report["book_content_hash"], "source_inspection_id": inspection_id, "proposal_type": finding["recommended_proposal"], "target": finding.get("target_id"), "expected_revision": report["book_revision"], "expected_hash": report["book_content_hash"], "original": finding.get("original_text"), "proposed": finding.get("edited_text"), "evidence": finding, "transformation": {"id": "expression.propose_book_change", "version": 1}, "created_at": datetime.now(timezone.utc).isoformat(), "freshness": "fresh"}
-                staged.mkdir(parents=True, exist_ok=True); (staged / f"{proposal_id}.yaml").write_text(yaml.safe_dump(proposal, sort_keys=False), encoding="utf-8"); proposals.append(proposal_id)
-            final.parent.mkdir(parents=True, exist_ok=True); manifest = {"routing_id": f"routing_{inspection_id}", "source_inspection_id": inspection_id, "source_book_expression": report["book_expression_id"], "external_manuscript_hash": report["external_manuscript"]["content_hash"], "chapter_routes": routes, "book_proposals": proposals, "unresolved": report["unresolved_findings"], "status": "unresolved" if report["unresolved_findings"] else "routed", "created_at": datetime.now(timezone.utc).isoformat()}; final.write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8")
-            proposal_dir = self.root / "proposals"; proposal_dir.mkdir(parents=True, exist_ok=True)
-            for path in staged.glob("*.yaml"): path.replace(proposal_dir / path.name)
+                (staged / f"{proposal_id}.yaml").write_text(yaml.safe_dump(proposal, sort_keys=False), encoding="utf-8"); proposals.append(proposal_id)
+            manifest = {"routing_id": f"routing_{inspection_id}", "source_inspection_id": inspection_id, "source_book_expression": report["book_expression_id"], "external_manuscript_hash": report["external_manuscript"]["content_hash"], "chapter_routes": routes, "book_proposals": proposals, "unresolved": report["unresolved_findings"], "status": "unresolved" if report["unresolved_findings"] else "routed", "created_at": datetime.now(timezone.utc).isoformat()}
+            staged_manifest = staged / "manifest.yaml"
+            staged_manifest.write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8")
+
+            # Validation pass: every artifact this routing is supposed to produce
+            # must exist in staging before anything is moved into place. This
+            # catches partial-write failures before they can become partial
+            # published state.
+            expected_files = {f"{proposal_id}.yaml" for proposal_id in proposals} | {"manifest.yaml"}
+            actual_files = {path.name for path in staged.glob("*.yaml")}
+            if actual_files != expected_files:
+                raise RuntimeError(
+                    f"Staged routing outputs incomplete for {inspection_id}: "
+                    f"expected {sorted(expected_files)}, found {sorted(actual_files)}"
+                )
+
+            # Commit: move every staged artifact into its final, visible
+            # location. If any move in this batch fails, we roll back every
+            # artifact already moved so the routing never becomes partially
+            # visible -- either every proposal and the manifest appear
+            # together, or none of them do.
+            proposal_dir.mkdir(parents=True, exist_ok=True)
+            final.parent.mkdir(parents=True, exist_ok=True)
+            moved: list[Path] = []
+            try:
+                for proposal_id in proposals:
+                    name = f"{proposal_id}.yaml"
+                    dest = proposal_dir / name
+                    shutil.move(str(staged / name), str(dest))
+                    moved.append(dest)
+                shutil.move(str(staged_manifest), str(final))
+                moved.append(final)
+            except Exception:
+                for path in moved:
+                    if path.exists(): path.unlink()
+                raise
+            if staged.exists(): shutil.rmtree(staged, ignore_errors=True)
             return manifest
         except Exception:
             if final.exists(): final.unlink()
-            if staged.exists(): shutil.rmtree(staged)
+            if staged.exists(): shutil.rmtree(staged, ignore_errors=True)
             for path in delegated_paths:
                 if path.exists(): path.unlink()
             raise
