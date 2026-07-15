@@ -151,6 +151,16 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Author-described symptom (e.g. 'midpoint feels flat'). When provided, "
         "runs bottom-up symptom diagnosis instead of top-down generation.")
 
+    p = sub.add_parser("reasoning", help="Inspect derived reasoning reviews.")
+    rs = p.add_subparsers(dest="reasoning_command", required=True)
+    p = rs.add_parser("review", help="Show an author-facing derived reasoning review.")
+    p.add_argument("review", type=Path)
+    p.add_argument("--json", action="store_true", help="Show the complete derived review JSON.")
+    p = rs.add_parser("inspect", help="Inspect one derived review group.")
+    p.add_argument("review", type=Path)
+    p.add_argument("group")
+    p.add_argument("--json", action="store_true", help="Show the complete group JSON.")
+
     p = sub.add_parser("identity", help="Manage story identities.",
         formatter_class=_HideSuppressedFormatter)
     iss = p.add_subparsers(dest="identity_command", required=True)
@@ -474,6 +484,26 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
+    if args.command == "reasoning":
+        from auteur.reasoning.cli import format_review, load_review
+        try:
+            review = load_review(args.review)
+        except FileNotFoundError:
+            _err(f"reasoning review not found: {args.review}")
+            return 1
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            _err(f"invalid reasoning review {args.review}: {exc}")
+            return 1
+        if args.reasoning_command == "review":
+            print(json.dumps(review, indent=2, sort_keys=True) if args.json else format_review(review))
+            return 0
+        group = next((item for item in review.get("groups", []) if item.get("group_id") == args.group), None)
+        if group is None:
+            _err(f"reasoning group not found: {args.group}")
+            return 1
+        print(json.dumps(group, indent=2, sort_keys=True) if args.json else
+              f"{group.get('group_id')}: {group.get('summary')}\nBasis: {group.get('overlap_basis')}\nClaims: {group.get('claim_refs')}")
+        return 0
     # === init ===
     if args.command == "init":
         path = args.path
