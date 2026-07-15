@@ -18,3 +18,14 @@ under `proposals/`; neither is canonical story content.
 
 Future capability work should answer both “does it work?” and “how does it
 behave on The Lantern at Low Water?”
+
+Run the bounded dogfood from the repository root:
+
+```powershell
+$env:PYTHONPATH = "."
+python scripts/dogfood-canonical-story.py
+```
+
+The runner copies this reference into a temporary workspace and reports which
+public workflow stages are exercised or still require project-specific
+adapters. It never writes derived artifacts into this committed directory.
