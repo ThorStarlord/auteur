@@ -2,6 +2,9 @@
 
 Date: 2026-07-15
 
+The durable principles for extending this platform are recorded in
+[Architecture Constitution](architecture-constitution.md).
+
 ## Conclusion
 
 Auteur's four foundational architectures are coherent and operational:

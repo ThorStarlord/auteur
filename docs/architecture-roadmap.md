@@ -4,6 +4,9 @@ This document connects the project’s foundational architecture documents and
 records the next architectural domain. It is a navigation and integrity review,
 not a generic workflow design.
 
+The stable principles governing all future extensions are recorded in
+[Architecture Constitution](architecture-constitution.md).
+
 ## Meta-architecture: rules and artifacts
 
 Auteur consists of two orthogonal systems:
