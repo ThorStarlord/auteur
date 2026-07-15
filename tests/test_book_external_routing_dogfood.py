@@ -1142,3 +1142,150 @@ def test_cross_chapter_movement_creates_unresolved():
     # Clean up test file
     if test_ms.exists():
         test_ms.unlink()
+
+
+def test_cross_chapter_movement_creates_unresolved():
+    """Scenario 9: Moving paragraph across chapter boundaries ? cross_boundary_move unresolved finding."""
+    from auteur.expression.book_reconciliation import BookReconciliationStore
+
+    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
+    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_cross_boundary.md'
+
+    # Create a copy of the manuscript with cross-chapter movement
+    shutil.copy(original_ms, test_ms)
+    content = test_ms.read_text(encoding='utf-8')
+
+    # Move a paragraph from chapter_01 to chapter_02
+    # Extract a paragraph from chapter_01 (the "# The messenger" section)
+    paragraph_to_move = "# The messenger\n\nTomas reached the tower without breath. A boat had grounded below the bend,\nand the magistrate was on it. Mara put one hand on the lantern door and heard\nthe river answer beneath them.\n\n"
+
+    # Remove the paragraph from chapter_01
+    modified_content = content.replace(paragraph_to_move, "")
+
+    # Insert it at the beginning of chapter_02 content (right after the chapter_02 marker)
+    modified_content = modified_content.replace(
+        "<!-- auteur:chapter id=chapter_02 expression_revision=1 -->",
+        "<!-- auteur:chapter id=chapter_02 expression_revision=1 -->\n" + paragraph_to_move
+    )
+
+    test_ms.write_text(modified_content, encoding='utf-8')
+
+    # Inspect the modified manuscript
+    result = inspect_book_external_manuscript(
+        project_root=project_root,
+        manuscript_path=test_ms
+    )
+
+    # Assertions for cross-chapter movement scenario
+    assert result['status'] == 'unresolved', f"Expected 'unresolved' status, got '{result['status']}'"
+    assert result['chapter_findings_count'] == 0, f"Expected 0 chapter findings, got {result['chapter_findings_count']}"
+    assert result['book_findings_count'] == 0, f"Expected 0 book findings, got {result['book_findings_count']}"
+    assert result['unresolved_findings_count'] == 1, f"Expected 1 unresolved finding, got {result['unresolved_findings_count']}"
+
+    # Verify the unresolved finding is a cross_boundary_move
+    full_report = result['full_report']
+    assert len(full_report['unresolved_findings']) == 1, "Expected exactly 1 unresolved finding"
+    unresolved_finding = full_report['unresolved_findings'][0]
+    assert unresolved_finding['classification'] == 'cross_boundary_move', f"Expected 'cross_boundary_move' classification, got '{unresolved_finding['classification']}'"
+
+    # Verify both chapters are identified as affected
+    assert 'chapter_01' in unresolved_finding.get('affected_chapters', []), "Expected chapter_01 in affected_chapters"
+    assert 'chapter_02' in unresolved_finding.get('affected_chapters', []), "Expected chapter_02 in affected_chapters"
+
+    # Verify routing creates no proposals (unresolved finding should not route)
+    store = BookReconciliationStore(project_root)
+    inspection_id = result['inspection_id']
+    routing_result = store.route(inspection_id)
+
+    assert routing_result['status'] == 'unresolved', f"Expected 'unresolved' routing status, got '{routing_result['status']}'"
+    assert len(routing_result['chapter_routes']) == 0, f"Expected 0 chapter routes, got {len(routing_result['chapter_routes'])}"
+    assert len(routing_result['book_proposals']) == 0, f"Expected 0 book proposals, got {len(routing_result['book_proposals'])}"
+
+    # Verify baselines remain unchanged
+    assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during inspection"
+
+    # Clean up test file
+    if test_ms.exists():
+        test_ms.unlink()
+
+
+def test_mixed_chapter_and_book_edit_creates_proposals():
+    """Scenario 6: Mixed Chapter wording + separator edit -> 1 chapter finding + 1 book finding with 2 routes."""
+    from auteur.expression.book_reconciliation import BookReconciliationStore
+    import yaml
+
+    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
+    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_mixed_edit.md'
+
+    # Create a copy of the manuscript with both chapter and separator edits
+    shutil.copy(original_ms, test_ms)
+    content = test_ms.read_text(encoding='utf-8')
+
+    # Make a chapter wording edit (like scenario 3)
+    modified_content = content.replace(
+        "The river wind carries Tomas's warning up the tower.",
+        "The river wind carries Tomas's solemn warning up the tower."
+    )
+
+    # Also make a separator edit (like scenario 4)
+    modified_content = modified_content.replace(
+        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n---\n<!-- auteur:end-book-separator id=separator_01 -->",
+        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n===\n<!-- auteur:end-book-separator id=separator_01 -->"
+    )
+    test_ms.write_text(modified_content, encoding='utf-8')
+
+    # Inspect the modified manuscript
+    result = inspect_book_external_manuscript(
+        project_root=project_root,
+        manuscript_path=test_ms
+    )
+
+    # Assertions for Mixed edit scenario
+    assert result['status'] == 'changed', f"Expected 'changed' status, got '{result['status']}'"
+    assert result['chapter_findings_count'] == 1, f"Expected 1 chapter finding, got {result['chapter_findings_count']}"
+    assert result['book_findings_count'] == 1, f"Expected 1 book finding, got {result['book_findings_count']}"
+    assert result['unresolved_findings_count'] == 0, f"Expected 0 unresolved findings, got {result['unresolved_findings_count']}"
+
+    # Verify the findings are as expected
+    full_report = result['full_report']
+    assert len(full_report['chapter_findings']) == 1, "Expected exactly 1 chapter finding"
+    assert len(full_report['book_findings']) == 1, "Expected exactly 1 book finding"
+
+    chapter_finding = full_report['chapter_findings'][0]
+    assert chapter_finding['classification'] == 'modified', f"Expected 'modified' classification, got '{chapter_finding['classification']}'"
+    assert chapter_finding['route'] == 'chapter_reconciliation', f"Expected 'chapter_reconciliation' route, got '{chapter_finding['route']}'"
+
+    book_finding = full_report['book_findings'][0]
+    assert book_finding['classification'] == 'separator_changed', f"Expected 'separator_changed' classification, got '{book_finding['classification']}'"
+    assert book_finding['recommended_proposal'] == 'book_separator_patch', f"Expected 'book_separator_patch' proposal type, got '{book_finding['recommended_proposal']}'"
+    assert book_finding['original_text'] == '---', f"Expected original separator '---', got '{book_finding['original_text']}'"
+    assert book_finding['edited_text'] == '===', f"Expected edited separator '===', got '{book_finding['edited_text']}'"
+
+    # Now route the inspection to generate the actual proposals
+    store = BookReconciliationStore(project_root)
+    inspection_id = result['inspection_id']
+    routing_result = store.route(inspection_id)
+
+    # Verify routing created the proposals
+    assert routing_result['status'] == 'routed', f"Expected 'routed' status, got '{routing_result['status']}'"
+
+    # Should have chapter routes and book proposals
+    chapter_routes = routing_result.get('chapter_routes', [])
+    book_proposals = routing_result.get('book_proposals', [])
+
+    assert len(chapter_routes) == 1, f"Expected 1 chapter route (delegated inspection), got {len(chapter_routes)}"
+    assert len(book_proposals) == 1, f"Expected 1 book proposal (separator patch), got {len(book_proposals)}"
+
+    # Verify the chapter route points to the correct chapter
+    chapter_route = chapter_routes[0]
+    assert chapter_route['chapter_id'] == 'chapter_01', f"Expected chapter route for chapter_01, got '{chapter_route['chapter_id']}'"
+    assert 'chapter_inspection_id' in chapter_route, "Expected chapter_inspection_id in chapter route"
+
+    # Verify baselines remain unchanged
+    assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during inspection"
+
+    # Clean up test file
+    if test_ms.exists():
+        test_ms.unlink()
