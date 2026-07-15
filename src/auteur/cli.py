@@ -376,6 +376,12 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("book_expression")
     p.add_argument("--project", type=Path, required=True)
     p.add_argument("--output", type=Path, required=True)
+    p = expression_sub.add_parser("inspect-book-manuscript", help="Inspect a marked external Book manuscript without mutation.")
+    p.add_argument("manuscript", type=Path); p.add_argument("--against", required=True); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
+    p = expression_sub.add_parser("route-book-inspection", help="Route a Book inspection to Chapter reconciliation or Book proposals.")
+    p.add_argument("inspection_id"); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true")
+    p = expression_sub.add_parser("show-book-inspection", help="Show a Book external-edit inspection.")
+    p.add_argument("inspection_id"); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true")
     p = expression_sub.add_parser("reconcile", help="Inspect and propose Chapter manuscript reconciliation actions.")
     reconcile_sub = p.add_subparsers(dest="reconcile_command", required=True)
     p = reconcile_sub.add_parser("inspect", help="Create a read-only reconciliation inspection report.")
@@ -1120,8 +1126,24 @@ def main(argv: list[str] | None = None) -> int:
             report["diff"] = "".join(difflib.unified_diff(text_a.splitlines(True), text_b.splitlines(True), fromfile=first.artifact_id, tofile=second.artifact_id))
             print(json.dumps(report, indent=2))
             return 0
-        if args.expression_command in {"compose-book", "inspect-book", "compare-books", "accept-book", "export-book"}:
+        if args.expression_command in {"compose-book", "inspect-book", "compare-books", "accept-book", "export-book", "inspect-book-manuscript", "route-book-inspection", "show-book-inspection"}:
             from auteur.expression.book import BookExpressionStore
+            from auteur.expression.book_reconciliation import BookReconciliationStore
+            if args.expression_command == "inspect-book-manuscript":
+                result = BookReconciliationStore(args.project).inspect(args.manuscript, args.against)
+                if args.json or args.verbose: print(json.dumps(result, indent=2))
+                else:
+                    print(f"Book edit inspection\nBook: {result['book_expression_id']}\nSource revision: {result['book_revision']}\nStatus: {result['status']}")
+                    print(f"Chapter-local changes: {len(result['chapter_findings'])}\nBook-owned changes: {len(result['book_findings'])}\nUnresolved: {len(result['unresolved_findings'])}\nNo canonical artifacts were changed.")
+                return 0
+            if args.expression_command == "route-book-inspection":
+                result = BookReconciliationStore(args.project).route(args.inspection_id)
+                print(json.dumps(result, indent=2) if args.json else f"Book inspection routing\nStatus: {result['status']}\nChapter routes: {len(result.get('chapter_routes', []))}\nBook proposals: {len(result.get('book_proposals', []))}\nUnresolved: {len(result.get('unresolved', []))}")
+                return 0
+            if args.expression_command == "show-book-inspection":
+                result = BookReconciliationStore(args.project)._load_inspection(args.inspection_id)
+                print(json.dumps(result, indent=2) if args.json else f"Book edit inspection {result['inspection_id']}\nStatus: {result['status']}\nChapter-local changes: {len(result['chapter_findings'])}\nBook-owned changes: {len(result['book_findings'])}\nUnresolved: {len(result['unresolved_findings'])}")
+                return 0
             if args.expression_command == "compose-book":
                 print(BookExpressionStore(args.project).compose(args.chapters, title=args.title, separator=args.separator)["book_expression_id"])
                 return 0

@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+import re
 
 from auteur.expression.composition import ChapterExpressionStore
 from auteur.provenance import Lifecycle
@@ -74,9 +75,14 @@ class BookExpressionStore:
                 "content_hash": chapter["content_hash"],
                 "position": position,
             })
-            sections.append(f"# Chapter {position}\n\n{self._chapter_text(chapter)}")
+            sections.append(f"<!-- auteur:chapter id={chapter['source_chapter']['artifact_id']} expression_revision={chapter['revision']} -->\n{self._chapter_text(chapter)}\n<!-- auteur:end-chapter id={chapter['source_chapter']['artifact_id']} -->")
         text = f"# {title}\n\n" if title else ""
-        text += f"\n\n{separator}\n\n".join(sections) + "\n"
+        pieces = []
+        for index, section in enumerate(sections):
+            if index:
+                pieces.append(f"<!-- auteur:book-separator id=separator_{index:02d} revision=1 -->\n{separator}\n<!-- auteur:end-book-separator id=separator_{index:02d} -->")
+            pieces.append(section)
+        text += "\n\n".join(pieces) + "\n"
         revision = self._next_revision()
         expression_id = f"{self.book_id}:expression_v{revision:03d}"
         manifest = {
@@ -144,5 +150,7 @@ class BookExpressionStore:
     def export(self, expression_id: str, output: Path) -> Path:
         output = Path(output)
         if output.exists(): raise FileExistsError(f"output already exists: {output}")
-        output.write_text(self._path(self._load(expression_id)["revision"], "md").read_text(encoding="utf-8"), encoding="utf-8")
+        text = self._path(self._load(expression_id)["revision"], "md").read_text(encoding="utf-8")
+        text = re.sub(r"^<!-- auteur:(?:chapter|end-chapter|book-separator|end-book-separator).*?-->\s*$", "", text, flags=re.MULTILINE)
+        output.write_text(text, encoding="utf-8")
         return output

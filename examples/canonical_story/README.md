@@ -48,3 +48,6 @@ adapters. It also bootstraps a coherent second Chapter in the temporary copy,
 composes and accepts a Book Manuscript, verifies Chapter-revision staleness and
 recomposition, and exports clean Markdown. It never writes derived artifacts
 into this committed directory.
+
+Book external-edit routing is read-only and specified in
+`docs/book-reconciliation.md`; it does not apply or publish Book proposals.

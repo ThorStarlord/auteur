@@ -65,6 +65,11 @@ auteur expression export-book book_01:expression_v001 --project PROJECT --output
 
 ## Canonical dogfood and non-goals
 
+Read-only external Book inspection and routing are specified separately in
+[`book-reconciliation.md`](book-reconciliation.md). Routing delegates
+Chapter-local edits to the existing Chapter reconciliation workflow and keeps
+Book-owned changes as noncanonical proposals.
+
 The Lantern at Low Water bootstraps two accepted Chapters in a temporary copy,
 composes and accepts a Book, revises Chapter 1 to stale the previous Book,
 recomposes, and exports clean Markdown. The committed reference is never a
