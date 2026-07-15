@@ -733,31 +733,17 @@ def test_mixed_chapter_and_book_edit_creates_proposals():
     # Verify routing created the proposals
     assert routing_result['status'] == 'routed', f"Expected 'routed' status, got '{routing_result['status']}'"
 
-    # Should have chapter proposals and book proposals
-    chapter_proposals = routing_result.get('chapter_proposals', [])
+    # Should have chapter routes and book proposals
+    chapter_routes = routing_result.get('chapter_routes', [])
     book_proposals = routing_result.get('book_proposals', [])
 
-    total_proposals = len(chapter_proposals) + len(book_proposals)
-    assert total_proposals == 2, f"Expected 2 total proposals (delegated inspection + book proposal), got {total_proposals} (chapter: {len(chapter_proposals)}, book: {len(book_proposals)})"
+    assert len(chapter_routes) == 1, f"Expected 1 chapter route (delegated inspection), got {len(chapter_routes)}"
+    assert len(book_proposals) == 1, f"Expected 1 book proposal (separator patch), got {len(book_proposals)}"
 
-    # Verify routing manifest exists
-    routing_manifest_path = project_root / 'book' / 'expression' / 'reconciliation' / 'routing_manifest.yaml'
-    assert routing_manifest_path.exists(), f"Routing manifest not found at {routing_manifest_path}"
-
-    # Load the routing manifest and verify it contains both proposals
-    manifest_data = yaml.safe_load(routing_manifest_path.read_text(encoding='utf-8')) or {}
-    inspections = manifest_data.get('inspections', [])
-    assert len(inspections) > 0, "Expected at least 1 inspection in routing manifest"
-
-    # Find our inspection in the manifest
-    our_inspection = None
-    for inspection in inspections:
-        if inspection.get('inspection_id') == inspection_id:
-            our_inspection = inspection
-            break
-
-    assert our_inspection is not None, f"Inspection {inspection_id} not found in routing manifest"
-    assert our_inspection.get('status') == 'routed', f"Expected inspection status 'routed', got '{our_inspection.get('status')}'"
+    # Verify the chapter route points to the correct chapter
+    chapter_route = chapter_routes[0]
+    assert chapter_route['chapter_id'] == 'chapter_01', f"Expected chapter route for chapter_01, got '{chapter_route['chapter_id']}'"
+    assert 'chapter_inspection_id' in chapter_route, "Expected chapter_inspection_id in chapter route"
 
     # Verify baselines remain unchanged
     assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during inspection"

@@ -1,0 +1,13 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.3, pytest-9.0.3, pluggy-1.6.0
+rootdir: H:\GithubRepositories\auteur
+configfile: pyproject.toml
+plugins: anyio-4.13.0, cov-7.1.0
+collected 1 item
+
+tests\test_book_external_routing_dogfood.py F
+
+=========================== short test summary info ===========================
+FAILED tests/test_book_external_routing_dogfood.py::test_atomic_routing_failure_leaves_no_partial_outputs
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+============================== 1 failed in 0.72s ==============================
