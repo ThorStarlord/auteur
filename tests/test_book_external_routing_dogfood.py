@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import shutil
 from pathlib import Path
 from typing import Any
 
@@ -194,3 +195,44 @@ def test_unchanged_marked_book_inspection():
 
     # Verify baselines remain unchanged
     assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during inspection"
+
+
+def test_chapter_only_edit_creates_delegated_inspection():
+    """Scenario 3: Chapter wording edit → one delegated Chapter inspection, zero Book proposals."""
+    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
+    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_chapter_edit.md'
+
+    # Create a copy of the manuscript with Chapter-only edits
+    shutil.copy(original_ms, test_ms)
+    content = test_ms.read_text(encoding='utf-8')
+
+    # Modify text only inside chapter_01 (between the markers)
+    # Find the chapter_01 text and modify only the prose within it
+    # Replace "The river wind carries Tomas's warning up the tower." with a modified version
+    modified_content = content.replace(
+        "The river wind carries Tomas's warning up the tower.",
+        "The river wind carries Tomas's solemn warning up the tower."
+    )
+    test_ms.write_text(modified_content, encoding='utf-8')
+
+    # Inspect the modified manuscript
+    result = inspect_book_external_manuscript(
+        project_root=project_root,
+        manuscript_path=test_ms
+    )
+
+    # Assertions for Chapter-only edit scenario
+    assert result['status'] == 'changed', f"Expected 'changed' status, got '{result['status']}'"
+    assert result['chapter_findings_count'] == 1, f"Expected 1 chapter finding, got {result['chapter_findings_count']}"
+    assert result['book_findings_count'] == 0, f"Expected 0 book findings, got {result['book_findings_count']}"
+    assert result['unresolved_findings_count'] == 0, f"Expected 0 unresolved findings, got {result['unresolved_findings_count']}"
+    assert result['routes'] == [], f"Expected no routes (inspection only, not routing), got {result['routes']}"
+    assert result['proposals'] == [], f"Expected no proposals (inspection only), got {result['proposals']}"
+
+    # Verify baselines remain unchanged
+    assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during inspection"
+
+    # Clean up test file
+    if test_ms.exists():
+        test_ms.unlink()
