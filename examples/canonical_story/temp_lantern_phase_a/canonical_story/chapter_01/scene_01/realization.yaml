@@ -1,8 +1,0 @@
-scene_id: scene_01
-title: The dark beacon
-pov: Mara
-entry_state: The river is below the safe line and the beacon is unlit.
-exit_state: Mara knows the beacon can still guide a boat.
-events:
-  - Mara climbs the wet tower.
-  - Mara finds the lamp empty.
