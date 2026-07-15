@@ -71,6 +71,51 @@ class TestBookExternalRoutingDogfood:
         return True
 
 
+def inspect_book_external_manuscript(project_root: Path, manuscript_path: Path) -> dict[str, Any]:
+    """Wrapper around Book inspection. Returns structured result dict.
+
+    Adapted from BookReconciliationStore.inspect() which returns:
+    - status: 'no_changes', 'changed', or 'unresolved'
+    - chapter_findings: list of chapter-level findings
+    - book_findings: list of book-level findings
+    - unresolved_findings: list of unresolved findings
+    """
+    from auteur.expression.book_reconciliation import BookReconciliationStore
+    import yaml
+
+    # Load the accepted book expression ID from accepted.yaml
+    book_dir = project_root / "book" / "expression"
+    accepted_file = book_dir / "accepted.yaml"
+    if not accepted_file.exists():
+        raise FileNotFoundError(f"No accepted book expression found at {accepted_file}")
+
+    accepted_data = yaml.safe_load(accepted_file.read_text(encoding='utf-8')) or {}
+    book_expression_id = accepted_data.get('book_expression_id')
+    if not book_expression_id:
+        raise ValueError("No book_expression_id found in accepted.yaml")
+
+    # Run the inspection
+    store = BookReconciliationStore(book_dir.parent.parent)  # Pass project root
+    inspection_report = store.inspect(manuscript_path, book_expression_id)
+
+    # Count findings by scope (classification for chapter/book/unresolved)
+    chapter_findings = inspection_report.get('chapter_findings', [])
+    book_findings = inspection_report.get('book_findings', [])
+    unresolved_findings = inspection_report.get('unresolved_findings', [])
+
+    return {
+        'status': inspection_report.get('status', 'unknown'),
+        'chapter_findings_count': len(chapter_findings),
+        'book_findings_count': len(book_findings),
+        'unresolved_findings_count': len(unresolved_findings),
+        'routes': [],  # Routes come from routing, not inspection
+        'proposals': [],  # Proposals come from routing, not inspection
+        'message': f"Status: {inspection_report.get('status')}. No changes detected. No canonical artifacts were changed.",
+        'inspection_id': inspection_report.get('inspection_id'),
+        'full_report': inspection_report  # Include full report for debugging
+    }
+
+
 # Scenario tests to be implemented in Tasks A2-A14
 def test_placeholder_a1_baseline():
     """Task A1: Baseline setup complete.
@@ -81,3 +126,27 @@ def test_placeholder_a1_baseline():
     - Test framework is ready for scenario implementation
     """
     assert True  # Framework structure verified
+
+
+def test_unchanged_marked_book_inspection():
+    """Scenario 2: Unchanged marked Book should produce no changes, proposals, or findings."""
+    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    manuscript_path = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
+
+    # Inspect the unchanged Book manuscript
+    result = inspect_book_external_manuscript(
+        project_root=project_root,
+        manuscript_path=manuscript_path
+    )
+
+    assert result['status'] == 'no_changes', f"Expected 'no_changes' status, got '{result['status']}'"
+    assert result['chapter_findings_count'] == 0, f"Expected 0 chapter findings, got {result['chapter_findings_count']}"
+    assert result['book_findings_count'] == 0, f"Expected 0 book findings, got {result['book_findings_count']}"
+    assert result['unresolved_findings_count'] == 0, f"Expected 0 unresolved findings, got {result['unresolved_findings_count']}"
+    assert result['routes'] == [], f"Expected empty routes, got {result['routes']}"
+    assert result['proposals'] == [], f"Expected empty proposals, got {result['proposals']}"
+    assert 'No changes detected' in result['message'], f"Expected 'No changes detected' in message, got: {result['message']}"
+    assert 'No canonical artifacts were changed' in result['message'], f"Expected 'No canonical artifacts were changed' in message, got: {result['message']}"
+
+    # Verify baselines remain unchanged
+    assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during inspection"
