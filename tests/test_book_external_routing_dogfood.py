@@ -672,6 +672,101 @@ def test_chapter_reorder_creates_book_order_proposal():
         test_ms.unlink()
 
 
+def test_mixed_chapter_and_book_edit_creates_proposals():
+    """Scenario 6: Mixed Chapter wording + separator edit -> 1 chapter finding + 1 book finding with 2 proposals."""
+    from auteur.expression.book_reconciliation import BookReconciliationStore
+    import yaml
+
+    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
+    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_mixed_edit.md'
+
+    # Create a copy of the manuscript with both chapter and separator edits
+    shutil.copy(original_ms, test_ms)
+    content = test_ms.read_text(encoding='utf-8')
+
+    # Make a chapter wording edit (like scenario 3)
+    modified_content = content.replace(
+        "The river wind carries Tomas's warning up the tower.",
+        "The river wind carries Tomas's solemn warning up the tower."
+    )
+
+    # Also make a separator edit (like scenario 4)
+    modified_content = modified_content.replace(
+        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n---\n<!-- auteur:end-book-separator id=separator_01 -->",
+        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n===\n<!-- auteur:end-book-separator id=separator_01 -->"
+    )
+    test_ms.write_text(modified_content, encoding='utf-8')
+
+    # Inspect the modified manuscript
+    result = inspect_book_external_manuscript(
+        project_root=project_root,
+        manuscript_path=test_ms
+    )
+
+    # Assertions for Mixed edit scenario
+    assert result['status'] == 'changed', f"Expected 'changed' status, got '{result['status']}'"
+    assert result['chapter_findings_count'] == 1, f"Expected 1 chapter finding, got {result['chapter_findings_count']}"
+    assert result['book_findings_count'] == 1, f"Expected 1 book finding, got {result['book_findings_count']}"
+    assert result['unresolved_findings_count'] == 0, f"Expected 0 unresolved findings, got {result['unresolved_findings_count']}"
+
+    # Verify the findings are as expected
+    full_report = result['full_report']
+    assert len(full_report['chapter_findings']) == 1, "Expected exactly 1 chapter finding"
+    assert len(full_report['book_findings']) == 1, "Expected exactly 1 book finding"
+
+    chapter_finding = full_report['chapter_findings'][0]
+    assert chapter_finding['classification'] == 'modified', f"Expected 'modified' classification, got '{chapter_finding['classification']}'"
+    assert chapter_finding['route'] == 'chapter_reconciliation', f"Expected 'chapter_reconciliation' route, got '{chapter_finding['route']}'"
+
+    book_finding = full_report['book_findings'][0]
+    assert book_finding['classification'] == 'separator_changed', f"Expected 'separator_changed' classification, got '{book_finding['classification']}'"
+    assert book_finding['recommended_proposal'] == 'book_separator_patch', f"Expected 'book_separator_patch' proposal type, got '{book_finding['recommended_proposal']}'"
+    assert book_finding['original_text'] == '---', f"Expected original separator '---', got '{book_finding['original_text']}'"
+    assert book_finding['edited_text'] == '===', f"Expected edited separator '===', got '{book_finding['edited_text']}'"
+
+    # Now route the inspection to generate the actual proposals
+    store = BookReconciliationStore(project_root)
+    inspection_id = result['inspection_id']
+    routing_result = store.route(inspection_id)
+
+    # Verify routing created the proposals
+    assert routing_result['status'] == 'routed', f"Expected 'routed' status, got '{routing_result['status']}'"
+
+    # Should have chapter proposals and book proposals
+    chapter_proposals = routing_result.get('chapter_proposals', [])
+    book_proposals = routing_result.get('book_proposals', [])
+
+    total_proposals = len(chapter_proposals) + len(book_proposals)
+    assert total_proposals == 2, f"Expected 2 total proposals (delegated inspection + book proposal), got {total_proposals} (chapter: {len(chapter_proposals)}, book: {len(book_proposals)})"
+
+    # Verify routing manifest exists
+    routing_manifest_path = project_root / 'book' / 'expression' / 'reconciliation' / 'routing_manifest.yaml'
+    assert routing_manifest_path.exists(), f"Routing manifest not found at {routing_manifest_path}"
+
+    # Load the routing manifest and verify it contains both proposals
+    manifest_data = yaml.safe_load(routing_manifest_path.read_text(encoding='utf-8')) or {}
+    inspections = manifest_data.get('inspections', [])
+    assert len(inspections) > 0, "Expected at least 1 inspection in routing manifest"
+
+    # Find our inspection in the manifest
+    our_inspection = None
+    for inspection in inspections:
+        if inspection.get('inspection_id') == inspection_id:
+            our_inspection = inspection
+            break
+
+    assert our_inspection is not None, f"Inspection {inspection_id} not found in routing manifest"
+    assert our_inspection.get('status') == 'routed', f"Expected inspection status 'routed', got '{our_inspection.get('status')}'"
+
+    # Verify baselines remain unchanged
+    assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during inspection"
+
+    # Clean up test file
+    if test_ms.exists():
+        test_ms.unlink()
+
+
 def test_malformed_marker_creates_unresolved_finding():
     """Scenario 8: Malformed marker → unresolved malformed-marker finding with line number and recommendation, 0 proposals."""
     project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
@@ -1031,7 +1126,7 @@ def test_cross_chapter_movement_creates_unresolved():
     )
 
     # Assertions for cross-chapter movement scenario
-    assert result['status'] == 'changed', f"Expected 'changed' status, got '{result['status']}'"
+    assert result['status'] == 'unresolved', f"Expected 'unresolved' status, got '{result['status']}'"
     assert result['chapter_findings_count'] == 0, f"Expected 0 chapter findings, got {result['chapter_findings_count']}"
     assert result['book_findings_count'] == 0, f"Expected 0 book findings, got {result['book_findings_count']}"
     assert result['unresolved_findings_count'] == 1, f"Expected 1 unresolved finding, got {result['unresolved_findings_count']}"
