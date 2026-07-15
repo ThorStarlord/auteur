@@ -354,6 +354,28 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("assembly_b")
     p.add_argument("--project", type=Path, required=True)
     p.add_argument("--json", action="store_true")
+    p = expression_sub.add_parser("compose-book", help="Compose accepted Chapter Expressions into a derived Book Manuscript.")
+    p.add_argument("project", type=Path)
+    p.add_argument("--chapter", action="append", dest="chapters", required=True)
+    p.add_argument("--title", default="")
+    p.add_argument("--separator", default="---")
+    p = expression_sub.add_parser("inspect-book", help="Inspect a Book Manuscript and its freshness.")
+    p.add_argument("book_expression")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p = expression_sub.add_parser("compare-books", help="Compare two Book Manuscript assemblies.")
+    p.add_argument("book_a")
+    p.add_argument("book_b")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p = expression_sub.add_parser("accept-book", help="Explicitly accept a Book Manuscript assembly.")
+    p.add_argument("book_expression")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--by", default="author")
+    p = expression_sub.add_parser("export-book", help="Export a clean Book Manuscript.")
+    p.add_argument("book_expression")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--output", type=Path, required=True)
     p = expression_sub.add_parser("reconcile", help="Inspect and propose Chapter manuscript reconciliation actions.")
     reconcile_sub = p.add_subparsers(dest="reconcile_command", required=True)
     p = reconcile_sub.add_parser("inspect", help="Create a read-only reconciliation inspection report.")
@@ -1097,6 +1119,32 @@ def main(argv: list[str] | None = None) -> int:
             text_b = store._metadata_path(second.artifact_id).with_suffix(".md").read_text(encoding="utf-8")
             report["diff"] = "".join(difflib.unified_diff(text_a.splitlines(True), text_b.splitlines(True), fromfile=first.artifact_id, tofile=second.artifact_id))
             print(json.dumps(report, indent=2))
+            return 0
+        if args.expression_command in {"compose-book", "inspect-book", "compare-books", "accept-book", "export-book"}:
+            from auteur.expression.book import BookExpressionStore
+            if args.expression_command == "compose-book":
+                print(BookExpressionStore(args.project).compose(args.chapters, title=args.title, separator=args.separator)["book_expression_id"])
+                return 0
+            book_store = BookExpressionStore(args.project)
+            if args.expression_command == "inspect-book":
+                result = book_store.inspect(args.book_expression)
+                if args.json:
+                    print(json.dumps(result, indent=2))
+                else:
+                    metadata = result["metadata"]
+                    print(f"Book {metadata['book_id']} | revision {metadata['revision']} | {metadata['lifecycle']} | {result['freshness']}")
+                    for chapter in metadata["chapters"]:
+                        print(f"  {chapter['position']}: {chapter['chapter_id']} -> {chapter['chapter_expression_id']} v{chapter['accepted_revision']:03d}")
+                    if result["stale_sources"]: print(f"Recommended action: {result['recommended_action']}")
+                return 0
+            if args.expression_command == "compare-books":
+                print(json.dumps(book_store.compare(args.book_a, args.book_b), indent=2))
+                return 0
+            if args.expression_command == "accept-book":
+                print(json.dumps(book_store.accept(args.book_expression, accepted_by=args.by), indent=2))
+                return 0
+            book_store.export(args.book_expression, args.output)
+            print(args.output)
             return 0
         store = ExpressionStore(args.project)
         if args.expression_command == "inspect":

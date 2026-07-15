@@ -18,7 +18,7 @@ long-form completeness.
 | Scene Realization | yes | yes | partial | partial | partial | yes | partial |
 | Scene Expression | yes | yes | yes | yes | yes | yes | yes |
 | Chapter Expression | yes | yes | yes | yes | yes | yes | yes |
-| Book Manuscript | partial | partial | no | no | no | partial | no |
+| Book Manuscript | yes | yes | no | no | no | yes | partial |
 
 The matrix is intentionally qualitative. “Partial” means a path exists but
 does not yet have the same reasoning, proposal, freshness propagation, and
@@ -139,7 +139,7 @@ multiple accepted Chapters → Book Manuscript
 → Book-level reasoning/editing → export-ready artifact
 ```
 
-This is a product-breadth candidate, not a new architectural foundation. It
-should begin only with a bounded multi-Chapter fixture and a friction log from
-actual author use. Structural revision propagation remains deferred because the
-canonical pilot produced no evidence that it is the highest-impact blockage.
+This bounded Book Manuscript slice is now proven on the canonical two-Chapter
+fixture. Book-level reasoning/editing and publishing formats remain deferred.
+Structural revision propagation remains deferred because the canonical pilot
+produced no evidence that it is the highest-impact blockage.

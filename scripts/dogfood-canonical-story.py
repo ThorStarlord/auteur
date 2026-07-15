@@ -18,6 +18,7 @@ from auteur.reasoning import (
 )
 from auteur.canonical_story import CanonicalStoryBootstrap
 from auteur.expression.reconciliation import ReconciliationStore
+from auteur.expression.composition import ChapterExpressionStore
 from auteur.reasoning.cli import format_review
 
 
@@ -38,6 +39,8 @@ def run() -> dict:
         "chapter_01/scene_04/expression.md",
         "chapter_01/scene_05/realization.yaml",
         "chapter_01/scene_05/expression.md",
+        "chapter_02/README.md", "chapter_02/scene_01/realization.yaml",
+        "chapter_02/scene_01/expression.md",
     ]
     with tempfile.TemporaryDirectory(prefix="auteur-canonical-story-") as tmp:
         bootstrap = CanonicalStoryBootstrap(ROOT)
@@ -46,6 +49,22 @@ def run() -> dict:
         native = bootstrap.accept_native_identity_and_structure(workspace_root)
         accepted_realizations = bootstrap.accept_scene_realizations(workspace_root)
         expressions = bootstrap.bootstrap_expressions(workspace_root)
+        second = bootstrap.bootstrap_second_chapter(workspace_root)
+        book = bootstrap.bootstrap_book(workspace_root, [
+            expressions["chapter_expression"]["artifact_id"],
+            second["chapter_expression"]["artifact_id"],
+        ])
+        from auteur.expression.book import BookExpressionStore
+        book_store = BookExpressionStore(workspace_root)
+        initial_book = book["accepted"]["book_expression_id"]
+        chapter_store = ChapterExpressionStore(workspace_root)
+        revised_chapter = chapter_store.compose("chapter_01")
+        revised_chapter = chapter_store.accept(revised_chapter.artifact_id, accepted_by="canonical-dogfood")
+        stale_book = book_store.inspect(initial_book)
+        recomposed_book = book_store.compose([revised_chapter.artifact_id.split(":", 1)[0], second["chapter_expression"]["artifact_id"].split(":", 1)[0]], title="The Lantern at Low Water")
+        accepted_book = book_store.accept(recomposed_book["book_expression_id"], accepted_by="canonical-dogfood")
+        exported_book = workspace_root / "book_export.md"
+        book_store.export(accepted_book["book_expression_id"], exported_book)
         report_dir = workspace / "reasoning"
         registry = CriticRegistry()
         register_setup_payoff_critic(registry)
@@ -112,6 +131,11 @@ def run() -> dict:
             "accepted_scene_expressions": len(expressions["scene_expressions"]),
             "accepted_chapter_expression": expressions["chapter_expression"]["artifact_id"],
             "accepted_transitions": len(expressions["transitions"]),
+            "accepted_second_chapter": second["chapter_expression"]["artifact_id"],
+            "accepted_book": accepted_book["book_expression_id"],
+            "book_initial": {"id": initial_book, "freshness_after_chapter_revision": stale_book["freshness"]},
+            "book_recomposed": recomposed_book["book_expression_id"],
+            "book_export_clean": "auteur:scene" not in exported_book.read_text(encoding="utf-8"),
             "critic_statuses": [outcome.status.value for outcome in result.outcomes],
             "review_id": review["review_id"],
             "review_text": format_review(review),

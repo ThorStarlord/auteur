@@ -10,7 +10,7 @@ carrying the magistrate who condemned her brother.
 ```text
 Story Identity → Blueprint → Chapter Structure → Scene Realization
 → Scene Expression → Chapter Expression → external edit
-→ reasoning review → reconciliation
+→ reasoning review → reconciliation → Book Manuscript
 ```
 
 Derived reports belong under `reasoning/`; proposed transformations belong
@@ -44,4 +44,7 @@ python scripts/dogfood-canonical-story.py
 
 The runner copies this reference into a temporary workspace and reports which
 public workflow stages are exercised or still require project-specific
-adapters. It never writes derived artifacts into this committed directory.
+adapters. It also bootstraps a coherent second Chapter in the temporary copy,
+composes and accepts a Book Manuscript, verifies Chapter-revision staleness and
+recomposition, and exports clean Markdown. It never writes derived artifacts
+into this committed directory.

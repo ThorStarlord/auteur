@@ -18,6 +18,7 @@ from auteur.identity import StoryIdentity
 from auteur.provenance import ArtifactStore
 from auteur.expression.pilot import ExpressionStore
 from auteur.expression.composition import ChapterExpressionStore
+from auteur.expression.book import BookExpressionStore
 
 
 class CanonicalStoryBootstrap:
@@ -89,6 +90,36 @@ class CanonicalStoryBootstrap:
         chapter = composition.compose("chapter_01", transitions=transitions, persist_transitions=True)
         accepted_chapter = composition.accept(chapter.artifact_id, accepted_by=accepted_by)
         return {"scene_expressions": accepted, "chapter_expression": accepted_chapter.model_dump(mode="json"), "transitions": transitions}
+
+    def bootstrap_second_chapter(self, project_root: Path, *, accepted_by: str = "canonical-dogfood") -> dict[str, Any]:
+        """Bootstrap the authored one-scene epilogue through native stores."""
+        root = Path(project_root)
+        artifact_store = ArtifactStore(root)
+        outline = root / "chapters" / "02" / "outline.yaml"
+        outline.parent.mkdir(parents=True, exist_ok=True)
+        outline.write_text(yaml.safe_dump({"chapter_id": "chapter_02", "chapter_number": 2, "scenes": ["scene_02_01"]}, sort_keys=False), encoding="utf-8")
+        outline_meta = artifact_store.accept(outline, "chapter_outline", accepted_by=accepted_by, rationale="canonical epilogue structure")
+        source = root / "canonical_story" / "chapter_02" / "scene_01" / "realization.yaml"
+        scene = root / "chapters" / "02" / "scenes" / "scene_02_01.yaml"
+        scene.parent.mkdir(parents=True, exist_ok=True)
+        data = yaml.safe_load(source.read_text(encoding="utf-8")) or {}
+        data.update({"id": "scene_02_01", "chapter_id": "chapter_02", "order": 1})
+        scene.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
+        realization = artifact_store.accept(scene, "scene_realization", accepted_by=accepted_by, rationale="canonical epilogue realization")
+        expression_store = ExpressionStore(root)
+        prose = (root / "canonical_story" / "chapter_02" / "scene_01" / "expression.md").read_text(encoding="utf-8")
+        candidate = expression_store.generate(scene, prose, executor={"kind": "canonical-reference"})
+        expression = expression_store.accept(candidate.candidate_id, accepted_by=accepted_by)
+        composition = ChapterExpressionStore(root)
+        chapter = composition.compose("chapter_02")
+        accepted_chapter = composition.accept(chapter.artifact_id, accepted_by=accepted_by)
+        return {"outline": outline_meta.model_dump(mode="json"), "realization": realization.model_dump(mode="json"), "expression": expression.model_dump(mode="json"), "chapter_expression": accepted_chapter.model_dump(mode="json")}
+
+    def bootstrap_book(self, project_root: Path, chapter_expression_ids: list[str], *, accepted_by: str = "canonical-dogfood") -> dict[str, Any]:
+        store = BookExpressionStore(project_root)
+        derived = store.compose([item.split(":", 1)[0] for item in chapter_expression_ids], title="The Lantern at Low Water")
+        accepted = store.accept(derived["book_expression_id"], accepted_by=accepted_by)
+        return {"derived": derived, "accepted": accepted}
 
     @staticmethod
     def external_edit_path(project_root: Path) -> Path:

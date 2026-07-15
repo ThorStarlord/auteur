@@ -28,6 +28,10 @@ def test_canonical_story_dogfood_uses_temporary_workspace():
     assert result["accepted_scene_expressions"] == 5
     assert result["accepted_chapter_expression"]
     assert result["accepted_transitions"] == 1
+    assert result["accepted_second_chapter"] == "chapter_02:expression_v001"
+    assert result["book_initial"]["freshness_after_chapter_revision"] == "stale"
+    assert result["book_recomposed"] == result["accepted_book"]
+    assert result["book_export_clean"] is True
     assert "Top concerns:" in result["review_text"]
     assert result["derived_artifacts_written_to"] == "temporary workspace only"
     assert result["untraversed_stages"] == []

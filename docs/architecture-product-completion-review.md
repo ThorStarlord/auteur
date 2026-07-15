@@ -66,6 +66,12 @@ breadth, usability, and richer authoring scenarios:
 These are intentionally deferred capabilities, not violations of the authority
 constitution.
 
+The bounded Book Manuscript assembly is now implemented: two accepted Chapters
+compose into a derived Book, explicit Book acceptance updates only the Book
+pointer, a changed Chapter stales the prior Book, and clean Markdown export is
+available. Full Book-level reasoning/editing and publishing formats remain
+deferred.
+
 ## Next evidence-driven slice
 
 The next candidate is Book-level workflow:
