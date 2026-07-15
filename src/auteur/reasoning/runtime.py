@@ -27,6 +27,28 @@ class RuntimeStatus(StrEnum):
 CriticRunner = Callable[..., list[dict[str, Any]]]
 
 
+class ArtifactRevision(BaseModel):
+    """Provenance snapshot carried beside a raw critic input."""
+
+    artifact_id: str
+    artifact_type: str
+    revision: int | str
+    content_hash: str
+
+
+class ArtifactRevisionAdapter:
+    """Build deterministic source snapshots without changing critic inputs."""
+
+    @staticmethod
+    def snapshot(revisions: Mapping[str, ArtifactRevision]) -> dict[str, dict[str, Any]]:
+        return {key: value.model_dump(mode="json") for key, value in sorted(revisions.items())}
+
+    @staticmethod
+    def hash_content(content: Any) -> str:
+        encoded = json.dumps(content, sort_keys=True, default=str, separators=(",", ":"))
+        return "sha256:" + hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
 class CriticSpec(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True, frozen=True)
 
@@ -74,6 +96,7 @@ class RuntimeRequest(BaseModel):
     request_id: str = "request"
     critic_ids: tuple[str, ...]
     inputs: dict[str, Any] = Field(default_factory=dict)
+    source_revisions: dict[str, ArtifactRevision] = Field(default_factory=dict)
 
 
 class ExecutionPlan(BaseModel):
@@ -166,10 +189,11 @@ class ReasoningRuntime:
 
         for critic_id in request.critic_ids:
             visit(critic_id)
-        snapshot = {
-            key: value.get("revision") if isinstance(value, Mapping) else None
-            for key, value in sorted(request.inputs.items())
-        }
+        snapshot = (ArtifactRevisionAdapter.snapshot(request.source_revisions)
+                    if request.source_revisions else {
+                        key: value.get("revision") if isinstance(value, Mapping) else None
+                        for key, value in sorted(request.inputs.items())
+                    })
         plan_id = _stable_id({"request": request.model_dump(exclude={"inputs"}), "inputs": request.inputs})
         return ExecutionPlan(
             plan_id=plan_id,
@@ -217,12 +241,16 @@ class ReasoningRuntime:
                     status=RuntimeStatus.FAILED, reason="critic execution failed", error=str(exc)))
         return ExecutionResult(plan=plan, outcomes=outcomes)
 
-    def report_is_fresh(self, report_id: str, inputs: Mapping[str, Any]) -> bool:
+    def report_is_fresh(self, report_id: str, inputs: Mapping[str, Any] | None = None,
+                        source_revisions: Mapping[str, ArtifactRevision] | None = None) -> bool:
         path = self.report_dir / f"{report_id}.json"
         if not path.exists():
             return False
         report = json.loads(path.read_text(encoding="utf-8"))
         expected = report.get("source_snapshot", {})
-        current = {key: value.get("revision") if isinstance(value, Mapping) else None
-                   for key, value in sorted(inputs.items())}
+        current = (ArtifactRevisionAdapter.snapshot(source_revisions)
+                   if source_revisions is not None else {
+                       key: value.get("revision") if isinstance(value, Mapping) else None
+                       for key, value in sorted((inputs or {}).items())
+                   })
         return expected == current

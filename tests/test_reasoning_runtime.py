@@ -3,6 +3,8 @@ import json
 import pytest
 
 from auteur.reasoning.runtime import (
+    ArtifactRevision,
+    ArtifactRevisionAdapter,
     CriticRegistry,
     CriticSpec,
     ReasoningRuntime,
@@ -44,6 +46,23 @@ def test_runtime_executes_and_persists_derived_report(tmp_path):
     assert report["findings"][0]["rule"] == "ok"
     assert {"observations", "evidence", "hypotheses", "evaluation", "claims",
             "confidence", "recommendations"} <= report.keys()
+
+
+def test_revision_adapter_preserves_raw_inputs_and_records_hashes(tmp_path):
+    revision = ArtifactRevision(artifact_id="blueprint-1", artifact_type="blueprint",
+                                revision=3, content_hash=ArtifactRevisionAdapter.hash_content({"x": 1}))
+    registry = CriticRegistry()
+    seen = []
+    registry.register(_critic(run=lambda blueprint: seen.append(blueprint) or []))
+    runtime = ReasoningRuntime(registry, tmp_path / "reports")
+    request = RuntimeRequest(critic_ids=("structure.blueprint",), inputs={"blueprint": {"x": 1}},
+                             source_revisions={"blueprint": revision})
+    result = runtime.run(request)
+    assert result.outcomes[0].status is RuntimeStatus.SUCCESS
+    assert seen == [{"x": 1}]
+    report = json.loads((tmp_path / "reports" / f"{result.outcomes[0].report_id}.json").read_text())
+    assert report["source_snapshot"]["blueprint"]["revision"] == 3
+    assert runtime.report_is_fresh(result.outcomes[0].report_id, source_revisions={"blueprint": revision})
 
 
 def test_runtime_rejects_stale_input_before_execution(tmp_path):
