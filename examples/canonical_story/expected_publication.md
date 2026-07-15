@@ -1,7 +1,9 @@
 # Expected publication shape
 
-An external edit proposing that the ledger revelation move from Scene 3 to
-Scene 2 may produce a noncanonical proposal, plan, and later publication. It
-must not silently alter accepted Scene Realization, Scene Expression, Chapter
-Expression, or the accepted Chapter pointer.
-
+The marker-preserving external edit produces noncanonical Scene and transition
+candidate outputs. The canonical dogfood accepts the first Scene candidate,
+rejects the third Scene candidate, and defers the Chapter transition. It then
+recomposes from accepted sources, explicitly accepts the derived Chapter
+Expression, and records `partially_reconciled`. Publication and acceptance must
+not silently alter Scene Realization, Identity, Structure, Bible/state, or any
+unrelated accepted Scene Expression.

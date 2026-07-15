@@ -1,4 +1,5 @@
 import importlib.util
+import hashlib
 from pathlib import Path
 
 
@@ -12,7 +13,10 @@ def _runner():
 
 
 def test_canonical_story_dogfood_uses_temporary_workspace():
+    reference = Path("examples/canonical_story/external_edit.md")
+    before = hashlib.sha256(reference.read_bytes()).hexdigest()
     result = _runner().run()
+    after = hashlib.sha256(reference.read_bytes()).hexdigest()
     assert result["project"] == "The Lantern at Low Water"
     assert result["copied_to_temporary_workspace"] is True
     assert result["required_artifacts_present"] is True
@@ -26,4 +30,13 @@ def test_canonical_story_dogfood_uses_temporary_workspace():
     assert result["accepted_transitions"] == 1
     assert "Top concerns:" in result["review_text"]
     assert result["derived_artifacts_written_to"] == "temporary workspace only"
-    assert "publication" in result["untraversed_stages"]
+    assert result["untraversed_stages"] == []
+    reconciliation = result["reconciliation"]
+    assert reconciliation["publication_status"] == "published"
+    assert set(reconciliation["decisions"].values()) == {"accepted", "rejected", "deferred"}
+    assert list(reconciliation["decisions"].values()).count("accepted") == 1
+    assert list(reconciliation["decisions"].values()).count("rejected") == 1
+    assert list(reconciliation["decisions"].values()).count("deferred") == 4
+    assert reconciliation["recomposed_chapter_expression"] == reconciliation["accepted_chapter_expression"]
+    assert reconciliation["completion_status"] == "partially_reconciled"
+    assert before == after

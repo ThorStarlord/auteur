@@ -30,8 +30,10 @@ Bootstrap mappings:
 The human-readable Blueprint is not lossless native YAML; the bootstrap keeps
 it unchanged and reports that adapter boundary. The bootstrap now creates five
 accepted Scene Expressions, one accepted Chapter-owned transition, and an
-accepted derived Chapter Expression. External reconciliation, publication,
-candidate decisions, and reconciliation Chapter acceptance remain untraversed.
+accepted derived Chapter Expression. The dogfood then runs the marker-preserving
+external edit through inspection, proposal, planning, publication, mixed
+candidate decisions, accepted-source recomposition, Chapter acceptance, and
+`partially_reconciled` completion.
 
 Run the bounded dogfood from the repository root:
 
