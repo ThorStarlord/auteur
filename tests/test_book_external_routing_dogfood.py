@@ -27,6 +27,41 @@ from pathlib import Path
 from typing import Any
 
 
+def generate_message_from_inspection(inspection_report: dict[str, Any]) -> str:
+    """Generate a dynamic message from an inspection report.
+
+    Returns:
+    - For no_changes status with 0 findings: "No changes detected. No canonical artifacts were changed."
+    - For changed status or when findings > 0: detailed findings count message
+    - Always includes the inspection status
+
+    Args:
+        inspection_report: Dict containing 'status', 'chapter_findings', 'book_findings', 'unresolved_findings'
+
+    Returns:
+        A message string reflecting the actual inspection findings
+    """
+    status = inspection_report.get('status', 'unknown')
+    chapter_findings = inspection_report.get('chapter_findings', [])
+    book_findings = inspection_report.get('book_findings', [])
+    unresolved_findings = inspection_report.get('unresolved_findings', [])
+
+    chapter_count = len(chapter_findings)
+    book_count = len(book_findings)
+    unresolved_count = len(unresolved_findings)
+
+    # If status is no_changes and all findings are 0, return no-changes message
+    if status == 'no_changes' and chapter_count == 0 and book_count == 0 and unresolved_count == 0:
+        return "No changes detected. No canonical artifacts were changed."
+
+    # For changed status or when findings exist, return detailed message
+    if chapter_count > 0 or book_count > 0 or unresolved_count > 0:
+        return f"{chapter_count} chapter findings, {book_count} book findings, {unresolved_count} unresolved findings detected."
+
+    # Default fallback
+    return f"Status: {status}. Inspection complete with no notable findings."
+
+
 class TestBookExternalRoutingDogfood:
     """Dogfood harness for Book external-edit routing scenarios.
 
@@ -74,11 +109,20 @@ class TestBookExternalRoutingDogfood:
 def inspect_book_external_manuscript(project_root: Path, manuscript_path: Path) -> dict[str, Any]:
     """Wrapper around Book inspection. Returns structured result dict.
 
+    Task A2 tests inspection-only mode (no routing). For scenarios A3-A14 that need routing,
+    call BookReconciliationStore.route(inspection_id) separately after inspection, or use
+    a route_book_inspection() wrapper (to be added in A3+).
+
     Adapted from BookReconciliationStore.inspect() which returns:
     - status: 'no_changes', 'changed', or 'unresolved'
     - chapter_findings: list of chapter-level findings
     - book_findings: list of book-level findings
     - unresolved_findings: list of unresolved findings
+
+    Routing path for A3+:
+    The wrapper's message generation is intentionally dynamic so that downstream scenarios
+    can rely on accurate feedback about what inspection found. The routing step (delegating
+    to Chapter or Book proposal engines) is separate and will be added in subsequent tasks.
     """
     from auteur.expression.book_reconciliation import BookReconciliationStore
     import yaml
@@ -110,7 +154,7 @@ def inspect_book_external_manuscript(project_root: Path, manuscript_path: Path) 
         'unresolved_findings_count': len(unresolved_findings),
         'routes': [],  # Routes come from routing, not inspection
         'proposals': [],  # Proposals come from routing, not inspection
-        'message': f"Status: {inspection_report.get('status')}. No changes detected. No canonical artifacts were changed.",
+        'message': generate_message_from_inspection(inspection_report),
         'inspection_id': inspection_report.get('inspection_id'),
         'full_report': inspection_report  # Include full report for debugging
     }

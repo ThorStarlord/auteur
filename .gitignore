@@ -7,3 +7,4 @@ __pycache__/
 venv/
 build/
 dist/
+.auteur/book/expression/reconciliation/inspections/
