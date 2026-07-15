@@ -4,6 +4,10 @@ This inventory separates architectural completeness from product completeness.
 It is a planning artifact, not a claim that every artifact scope has equal
 implementation depth.
 
+The canonical reference now provides evidence for the bounded single-Chapter
+path. The matrix below reflects that evidence; it does not imply Book-level or
+long-form completeness.
+
 ## Coverage matrix
 
 | Artifact stage | Create | Validate | Reason | Propose | Publish | Accept | Author UX |
@@ -11,7 +15,7 @@ implementation depth.
 | Story Identity | yes | yes | partial | partial | partial | yes | partial |
 | Blueprint | yes | yes | limited | partial | no | yes | partial |
 | Chapter Structure | yes | yes | partial | no | no | yes | partial |
-| Scene Realization | yes | yes | partial | partial | partial | partial | partial |
+| Scene Realization | yes | yes | partial | partial | partial | yes | partial |
 | Scene Expression | yes | yes | yes | yes | yes | yes | yes |
 | Chapter Expression | yes | yes | yes | yes | yes | yes | yes |
 | Book Manuscript | partial | partial | no | no | no | partial | no |
@@ -106,3 +110,36 @@ The pilot phase is complete when:
 4. The highest-impact missing capability has a reproducible example.
 5. The next implementation slice is selected from evidence rather than theory.
 
+## Canonical-story evidence update
+
+`The Lantern at Low Water` has now traversed the bounded single-Chapter path:
+
+```text
+Identity → Blueprint → Chapter Structure → 5 Scene Realizations
+→ 5 accepted Scene Expressions → accepted Chapter Expression
+→ external edit → reasoning review → reconciliation
+→ publication → mixed decisions → accepted-source recomposition
+→ Chapter acceptance → partially_reconciled completion
+```
+
+The dogfood verified one accepted Scene candidate, one rejected Scene candidate,
+and a deferred Chapter transition. It also verified that the committed
+reference project is not used as a write target.
+
+This evidence upgrades Scene Realization acceptance from `partial` to `yes` for
+the bounded canonical path. It does not upgrade Book Manuscript: multiple
+Chapters, Book-level assembly, and export remain untraversed.
+
+## Evidence-selected next slice
+
+The next candidate is Book-level workflow:
+
+```text
+multiple accepted Chapters → Book Manuscript
+→ Book-level reasoning/editing → export-ready artifact
+```
+
+This is a product-breadth candidate, not a new architectural foundation. It
+should begin only with a bounded multi-Chapter fixture and a friction log from
+actual author use. Structural revision propagation remains deferred because the
+canonical pilot produced no evidence that it is the highest-impact blockage.
