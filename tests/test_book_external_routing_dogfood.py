@@ -305,3 +305,107 @@ def test_separator_edit_creates_book_proposal():
     # Clean up test file
     if test_ms.exists():
         test_ms.unlink()
+
+
+def test_stale_inspection_blocks_routing():
+    """Scenario 10: Stale inspection → routing status=stale, 0 outputs, original inspection preserved."""
+    from auteur.expression.book_reconciliation import BookReconciliationStore
+    import yaml
+
+    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
+    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_stale.md'
+
+    # Create a copy of the manuscript with a Chapter edit
+    shutil.copy(original_ms, test_ms)
+    content = test_ms.read_text(encoding='utf-8')
+
+    # Modify text inside chapter_01
+    modified_content = content.replace(
+        "The river wind carries Tomas's warning up the tower.",
+        "The river wind carries Tomas's urgent warning up the tower."
+    )
+    test_ms.write_text(modified_content, encoding='utf-8')
+
+    # Perform the inspection - this captures the current state
+    result = inspect_book_external_manuscript(
+        project_root=project_root,
+        manuscript_path=test_ms
+    )
+
+    # Verify the inspection found the chapter change
+    assert result['status'] == 'changed', f"Expected 'changed' status for initial inspection, got '{result['status']}'"
+    assert result['chapter_findings_count'] == 1, f"Expected 1 chapter finding, got {result['chapter_findings_count']}"
+    inspection_id = result['inspection_id']
+
+    # Store the original inspection for later verification
+    store = BookReconciliationStore(project_root)
+    original_inspection_path = store._inspection_path(inspection_id)
+    original_inspection_content = original_inspection_path.read_text(encoding='utf-8')
+    original_inspection_data = yaml.safe_load(original_inspection_content) or {}
+
+    # Now simulate a Chapter being updated after the inspection was created
+    # We do this by modifying the chapter's accepted.yaml to have a different revision
+    chapter_dir = project_root / "chapters" / "01" / "expression"
+    accepted_file = chapter_dir / "accepted.yaml"
+    accepted_data = yaml.safe_load(accepted_file.read_text(encoding='utf-8')) or {}
+
+    # Save the original values for restoration
+    original_revision = accepted_data.get('revision', 1)
+    original_content_hash = accepted_data.get('content_hash')
+
+    # Change the revision to simulate the chapter being updated
+    accepted_data['revision'] = original_revision + 1
+    # Also change the content_hash to make it clearly different
+    accepted_data['content_hash'] = "sha256:different_hash_to_simulate_update"
+
+    # Write the modified accepted.yaml back
+    accepted_file.write_text(yaml.safe_dump(accepted_data, sort_keys=False), encoding='utf-8')
+
+    try:
+        # Now attempt to route the original inspection
+        # This should fail because the Chapter has been updated since inspection was created
+        routing_result = store.route(inspection_id)
+
+        # Verify routing detected staleness
+        assert routing_result['status'] == 'stale', f"Expected 'stale' status, got '{routing_result['status']}'"
+        assert len(routing_result['chapter_routes']) == 0, f"Expected 0 chapter routes, got {len(routing_result['chapter_routes'])}"
+        assert len(routing_result['book_proposals']) == 0, f"Expected 0 book proposals, got {len(routing_result['book_proposals'])}"
+        assert routing_result['routing_id'] is None, f"Expected no routing_id when stale, got '{routing_result['routing_id']}'"
+
+        # Verify the inspection was updated with stale status
+        updated_inspection_content = original_inspection_path.read_text(encoding='utf-8')
+        updated_inspection = yaml.safe_load(updated_inspection_content) or {}
+        assert updated_inspection.get('status') == 'stale', f"Expected inspection status 'stale', got '{updated_inspection.get('status')}'"
+        assert updated_inspection.get('freshness', {}).get('status') == 'stale', f"Expected freshness status 'stale'"
+        assert 'BOOK_OR_CHAPTER_REVISION_CHANGED' in updated_inspection.get('freshness', {}).get('reasons', []), \
+            f"Expected stale reason to identify changed artifact, got {updated_inspection.get('freshness', {}).get('reasons', [])}"
+
+        # Verify the original inspection structure is preserved (only freshness status changed)
+        assert updated_inspection.get('inspection_id') == inspection_id, "Inspection ID should remain unchanged"
+        assert updated_inspection.get('chapter_findings') == original_inspection_data.get('chapter_findings'), "Chapter findings should remain unchanged"
+        assert updated_inspection.get('book_findings') == original_inspection_data.get('book_findings'), "Book findings should remain unchanged"
+
+        # Verify no routing manifest was created
+        routing_manifest_path = store.root / "routing" / f"routing_{inspection_id}.yaml"
+        assert not routing_manifest_path.exists(), f"No routing manifest should exist for stale inspection, but found at {routing_manifest_path}"
+
+        # Verify no proposals directory contains new proposals
+        proposals_dir = store.root / "proposals"
+        if proposals_dir.exists():
+            proposals = list(proposals_dir.glob(f"proposal_{inspection_id}_*.yaml"))
+            assert len(proposals) == 0, f"Expected 0 proposals for stale inspection, found {len(proposals)}"
+
+        # Verify baselines remain unchanged
+        assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during inspection"
+    finally:
+        # Clean up test files and restore the Chapter's accepted.yaml
+        if test_ms.exists():
+            test_ms.unlink()
+
+        # Restore the original accepted.yaml to its original state
+        # Revert the revision and content_hash back to the original values
+        restored_data = accepted_data.copy()
+        restored_data['revision'] = original_revision
+        restored_data['content_hash'] = original_content_hash
+        accepted_file.write_text(yaml.safe_dump(restored_data, sort_keys=False), encoding='utf-8')
