@@ -1,0 +1,8 @@
+scene_id: scene_05
+title: No thanks
+pov: Mara
+entry_state: The boat and its passengers have survived.
+exit_state: Mara keeps the ledger and accepts responsibility for the next flood.
+events:
+  - The magistrate offers payment.
+  - Mara refuses and keeps the ledger.

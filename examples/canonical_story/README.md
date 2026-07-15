@@ -1,7 +1,8 @@
 # The Lantern at Low Water
 
-Auteur's canonical demonstration project is a small authored story used to
-show how narrative artifacts relate to governing capabilities.
+Auteur's canonical demonstration project is a small authored story and living
+reference program used to show how narrative artifacts relate to governing
+capabilities.
 
 Mara, a ferry keeper, must decide whether to light the river beacon for a boat
 carrying the magistrate who condemned her brother.
@@ -15,3 +16,5 @@ Story Identity → Blueprint → Chapter Structure → Scene Realization
 Derived reports belong under `reasoning/`; proposed transformations belong
 under `proposals/`; neither is canonical story content.
 
+Future capability work should answer both “does it work?” and “how does it
+behave on The Lantern at Low Water?”
