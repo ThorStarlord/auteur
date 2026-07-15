@@ -4,7 +4,77 @@ This document connects the project’s foundational architecture documents and
 records the next architectural domain. It is a navigation and integrity review,
 not a generic workflow design.
 
-## The three completed foundations
+## Meta-architecture: rules and artifacts
+
+Auteur consists of two orthogonal systems:
+
+1. Architectural capabilities that govern behavior.
+2. Narrative artifacts that represent the author's work.
+
+Architecture defines the rules; artifacts embody the story. Every architectural
+capability exists to govern, analyze, or evolve artifacts, but none of those
+capabilities is itself part of the narrative.
+
+### Architectural capabilities
+
+```text
+Narrative Ontology
+        ↓
+Narrative Architecture
+        ↓
+Provenance Architecture
+        ↓
+Transformation Architecture
+        ↓
+Reasoning Architecture
+        ↓
+Critic Integration Contract
+        ↓
+Critic Registry
+        ↓
+Reasoning Runtime
+        ↓
+Author Workflow
+```
+
+### Narrative artifacts
+
+```text
+Ontology
+        ↓
+Story Identity
+        ↓
+Blueprint
+        ↓
+Chapter Structure
+        ↓
+Scene Realization
+        ↓
+Scene Expression
+        ↓
+Chapter Expression
+        ↓
+Manuscript
+```
+
+Narrative artifacts are not architectural layers. They are concrete instances
+of the Narrative Architecture, just as records are instances of a data model.
+The governing capabilities operate on those artifacts without becoming story
+content.
+
+| Capability | Governs |
+|---|---|
+| Narrative Ontology | Entities, relationships, types, and semantic definitions |
+| Narrative Architecture | Semantic ownership and constraints |
+| Provenance Architecture | Revision history and authority |
+| Transformation Architecture | Legal movement between artifacts |
+| Reasoning Architecture | Explainable recommendations about artifacts |
+| Critic Integration Contract | How implementations produce reasoning reports |
+| Critic Registry | Critic identity, discovery, compatibility, and dependencies |
+| Reasoning Runtime | Selection and execution of critics |
+| Author Workflow | Human interaction with artifacts and decisions |
+
+## The four completed foundations
 
 ### Narrative Architecture — what knowledge exists
 
@@ -59,14 +129,14 @@ The foundations are coherent because each answers a different question:
 | What exists and what does it mean? | Narrative Architecture |
 | Which revision is authoritative? | Provenance Architecture |
 | How may knowledge move or change form? | Transformation Architecture |
-| Why should a change be recommended? | Not yet formalized |
+| Why should a change be recommended? | Reasoning Architecture |
 
 The main terminology risk is using “validation,” “diagnosis,” “proposal,” and
 “acceptance” interchangeably. Validation should report evidence; diagnosis
 should explain a problem; proposals should suggest an author-decidable change;
 acceptance should change authority.
 
-## The next architectural pillar: Reasoning Architecture
+### Reasoning Architecture — why change is justified
 
 Reasoning is distinct from transformation. A transformation answers how an
 approved change moves between artifacts. Reasoning answers why a change is
@@ -127,7 +197,8 @@ These are extension points, not violations of the V1 foundations.
 
 ## Review conclusion
 
-Auteur has three stable foundational architectures: Narrative, Provenance, and
-Transformation. The next major investment should be Reasoning Architecture,
-because the remaining core question is no longer how information moves, but why
-the system recommends that it move.
+Auteur has four stable foundational architectures: Narrative, Provenance,
+Transformation, and Reasoning. The Critic Integration Contract, Critic Registry,
+and Reasoning Runtime operationalize those foundations. The remaining work is
+vertical author workflow and capability refinement, not another foundational
+architecture.
