@@ -16,6 +16,8 @@ import yaml
 from auteur.blueprint import StoryBlueprint
 from auteur.identity import StoryIdentity
 from auteur.provenance import ArtifactStore
+from auteur.expression.pilot import ExpressionStore
+from auteur.expression.composition import ChapterExpressionStore
 
 
 class CanonicalStoryBootstrap:
@@ -66,9 +68,27 @@ class CanonicalStoryBootstrap:
 
         chapter_path = root / "chapters" / "01" / "outline.yaml"
         chapter_path.parent.mkdir(parents=True, exist_ok=True)
-        chapter_path.write_text(yaml.safe_dump({"chapter_id": "chapter_01", "chapter_number": 1, "blueprint_id": blueprint_meta.artifact_id if blueprint_meta else "blueprint", "scene_order": [f"scene_01_{i:02d}" for i in range(1, 6)]}, sort_keys=False), encoding="utf-8")
+        chapter_path.write_text(yaml.safe_dump({"chapter_id": "chapter_01", "chapter_number": 1, "blueprint_id": blueprint_meta.artifact_id if blueprint_meta else "blueprint", "scenes": [f"scene_01_{i:02d}" for i in range(1, 6)]}, sort_keys=False), encoding="utf-8")
         chapter_meta = store.accept(chapter_path, "chapter_outline", accepted_by=accepted_by, rationale="canonical five-scene structure")
         return {"identity": identity_meta.model_dump(mode="json") if identity_meta else None, "blueprint": blueprint_meta.model_dump(mode="json") if blueprint_meta else None, "chapter": chapter_meta.model_dump(mode="json") if chapter_meta else None}
+
+    def bootstrap_expressions(self, project_root: Path, *, accepted_by: str = "canonical-dogfood") -> dict[str, Any]:
+        """Generate/accept five Scene Expressions and compose an accepted Chapter."""
+        root = Path(project_root)
+        expression_store = ExpressionStore(root)
+        accepted = []
+        for index, scene_path in enumerate(sorted(root.glob("chapters/01/scenes/scene_01_*.yaml")), 1):
+            prose = (root / "canonical_story" / "chapter_01" / f"scene_{index:02d}" / "expression.md").read_text(encoding="utf-8")
+            candidate = expression_store.generate(scene_path, prose, executor={"kind": "canonical-reference"})
+            accepted.append(expression_store.accept(candidate.candidate_id, accepted_by=accepted_by).model_dump(mode="json"))
+        transitions = {
+            "scene_01_02": {"transition_id": "transition_01_02", "before_scene": "scene_01_01", "after_scene": "scene_01_02", "revision": 1, "lifecycle": "accepted", "text": "The river wind carries Tomas's warning up the tower."}
+        }
+        composition = ChapterExpressionStore(root)
+        composition.save_transitions("chapter_01", transitions)
+        chapter = composition.compose("chapter_01", transitions=transitions, persist_transitions=True)
+        accepted_chapter = composition.accept(chapter.artifact_id, accepted_by=accepted_by)
+        return {"scene_expressions": accepted, "chapter_expression": accepted_chapter.model_dump(mode="json"), "transitions": transitions}
 
     @staticmethod
     def external_edit_path(project_root: Path) -> Path:

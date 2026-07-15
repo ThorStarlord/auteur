@@ -28,9 +28,10 @@ Bootstrap mappings:
 - the five-scene order → native accepted Chapter Structure.
 
 The human-readable Blueprint is not lossless native YAML; the bootstrap keeps
-it unchanged and reports that adapter boundary. Scene Expressions, Chapter
-Expression, transitions, reconciliation, publication, decisions, and Chapter
-acceptance remain untraversed.
+it unchanged and reports that adapter boundary. The bootstrap now creates five
+accepted Scene Expressions, one accepted Chapter-owned transition, and an
+accepted derived Chapter Expression. External reconciliation, publication,
+candidate decisions, and reconciliation Chapter acceptance remain untraversed.
 
 Run the bounded dogfood from the repository root:
 

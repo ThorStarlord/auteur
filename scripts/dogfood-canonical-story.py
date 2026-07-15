@@ -44,6 +44,7 @@ def run() -> dict:
         workspace = bootstrap.copy_to(workspace_root)
         native = bootstrap.accept_native_identity_and_structure(workspace_root)
         accepted_realizations = bootstrap.accept_scene_realizations(workspace_root)
+        expressions = bootstrap.bootstrap_expressions(workspace_root)
         report_dir = workspace / "reasoning"
         registry = CriticRegistry()
         register_setup_payoff_critic(registry)
@@ -75,11 +76,14 @@ def run() -> dict:
             "accepted_identity": native["identity"] is not None,
             "accepted_blueprint": native["blueprint"] is not None,
             "accepted_chapter_structure": native["chapter"] is not None,
+            "accepted_scene_expressions": len(expressions["scene_expressions"]),
+            "accepted_chapter_expression": expressions["chapter_expression"]["artifact_id"],
+            "accepted_transitions": len(expressions["transitions"]),
             "critic_statuses": [outcome.status.value for outcome in result.outcomes],
             "review_id": review["review_id"],
             "review_text": format_review(review),
             "derived_artifacts_written_to": "temporary workspace only",
-            "untraversed_stages": ["Chapter Expression acceptance", "external reconciliation", "publication", "candidate decision", "Chapter acceptance"],
+            "untraversed_stages": ["external reconciliation", "publication", "candidate decision", "reconciliation Chapter acceptance"],
             "friction": "Canonical reference files are human-readable demonstration artifacts; native Blueprint/Chapter/Expression and reconciliation stores require additional adapters.",
         }
 
