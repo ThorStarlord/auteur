@@ -117,15 +117,21 @@ def _reasoning_sections(findings: list[dict[str, Any]]) -> dict[str, Any]:
         observations.append({"observation_id": finding_id, "statement": statement})
         evidence.append({"evidence_id": f"evidence-{index}", "source": rule,
                          "extraction": finding.get("evidence", statement)})
-        hypotheses.append({"hypothesis_id": f"hypothesis-{index}", "statement": statement,
-                           "supporting_evidence": [f"evidence-{index}"],
-                           "contradicting_evidence": []})
-        evaluation.append({"hypothesis_id": f"hypothesis-{index}", "result": "supported",
-                           "rationale": "deterministic analyzer finding"})
+        raw_hypotheses = finding.get("hypotheses") or [statement]
+        for hypothesis_index, hypothesis in enumerate(raw_hypotheses, 1):
+            hypotheses.append({"hypothesis_id": f"hypothesis-{index}-{hypothesis_index}",
+                               "statement": hypothesis,
+                               "supporting_evidence": [f"evidence-{index}"],
+                               "contradicting_evidence": []})
+            evaluation.append({"hypothesis_id": f"hypothesis-{index}-{hypothesis_index}",
+                               "result": "supported" if hypothesis_index == 1 else "plausible",
+                               "rationale": "deterministic analyzer finding"})
         claims.append({"claim_id": f"claim-{index}", "statement": statement,
-                       "hypothesis_id": f"hypothesis-{index}"})
-        recommendations.append({"recommendation_id": f"recommendation-{index}",
-                                "statement": finding.get("requested_change", "Review this finding."),
+                       "hypothesis_id": f"hypothesis-{index}-1"})
+        raw_recommendations = finding.get("recommendations") or [finding.get("requested_change", "Review this finding.")]
+        for recommendation_index, recommendation in enumerate(raw_recommendations, 1):
+            recommendations.append({"recommendation_id": f"recommendation-{index}-{recommendation_index}",
+                                "statement": recommendation,
                                 "claim_ids": [f"claim-{index}"],
                                 "possible_transformations": []})
     return {
