@@ -18,6 +18,19 @@ def _finding_key(report: Mapping[str, Any], finding: Mapping[str, Any]) -> str:
     return str(finding.get("rule") or finding.get("source") or finding.get("statement") or report.get("critic_id"))
 
 
+def _finding_for_claim(report: Mapping[str, Any], claim: Mapping[str, Any]) -> Mapping[str, Any]:
+    try:
+        index = int(str(claim.get("claim_id", "")).rsplit("-", 1)[-1]) - 1
+        finding = report.get("findings", [])[index]
+        return finding if isinstance(finding, Mapping) else {}
+    except (IndexError, ValueError, TypeError):
+        return {}
+
+
+def _severity_score(value: Any) -> int:
+    return {"critical": 4, "error": 3, "high": 3, "warning": 2, "medium": 2, "info": 1, "low": 1}.get(str(value).lower(), 0)
+
+
 def synthesize_reports(
     reports: Sequence[Mapping[str, Any]],
     *,
@@ -43,17 +56,21 @@ def synthesize_reports(
             key = _finding_key(report, claim)
             groups.setdefault(key, []).append({"report_id": report.get("report_id"),
                                                "critic_id": report.get("critic_id"),
-                                               "claim": claim})
+                                               "claim": claim, "finding": _finding_for_claim(report, claim)})
     group_items = []
     for index, (key, claims) in enumerate(sorted(groups.items()), 1):
         statements = {item["claim"].get("statement") for item in claims}
         conflict = len(statements) > 1
+        findings = [item.get("finding", {}) for item in claims]
         group_items.append({
             "group_id": f"group-{index}",
             "claim_refs": [{"report_id": item["report_id"], "claim_id": item["claim"].get("claim_id")} for item in claims],
             "overlap_basis": f"shared reasoning key: {key}",
             "summary": next(iter(statements)) if len(statements) == 1 else "Conflicting claims require author review.",
             "conflict": conflict,
+            "severity_score": max((_severity_score(item.get("severity")) for item in findings), default=0),
+            "affected_artifacts": sorted({str(item.get("artifact_id") or item.get("rule")) for item in findings if item.get("artifact_id") or item.get("rule")}),
+            "next_action": "Compare the source claims and choose the next author decision.",
             "evidence_count": sum(len(report.get("evidence", [])) for report in reports
                                    if report.get("report_id") in {item["report_id"] for item in claims}),
         })
@@ -62,8 +79,8 @@ def synthesize_reports(
                   "explanation": "Source critics make different claims for the same reasoning key."}
                  for i, group in enumerate((g for g in group_items if g["conflict"]), 1)]
     priorities = [{"group_id": group["group_id"], "rank": i,
-                   "rank_basis": "declared report evidence count; confidence methods not combined"}
-                  for i, group in enumerate(sorted(group_items, key=lambda item: (-item["evidence_count"], item["group_id"])), 1)]
+                  "rank_basis": "severity first, then evidence count; confidence methods not combined"}
+                  for i, group in enumerate(sorted(group_items, key=lambda item: (-item["severity_score"], -item["evidence_count"], item["group_id"])), 1)]
     review = {
         "review_id": _id([report.get("report_id") for report in reports]),
         "artifact_type": "reasoning_review",

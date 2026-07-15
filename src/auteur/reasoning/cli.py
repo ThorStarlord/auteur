@@ -20,7 +20,9 @@ def format_review(review: dict[str, Any]) -> str:
         if group is None:
             continue
         marker = "CONFLICT" if group.get("conflict") else ""
-        lines.append(f"  {item.get('rank')}. {group.get('summary')} {marker}".rstrip())
+        affected = f" [{', '.join(group.get('affected_artifacts', []))}]" if group.get("affected_artifacts") else ""
+        lines.append(f"  {item.get('rank')}. {group.get('summary')} {marker}{affected}".rstrip())
+        lines.append(f"     Next: {group.get('next_action', 'Inspect the source reasoning.')}")
     lines.append(f"Source reports: {len(review.get('source_reports', []))}")
     lines.append("Use --json for provenance and full claim references.")
     return "\n".join(lines)
@@ -28,4 +30,3 @@ def format_review(review: dict[str, Any]) -> str:
 
 def load_review(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
-
