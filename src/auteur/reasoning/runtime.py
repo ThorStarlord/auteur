@@ -103,6 +103,42 @@ def _stable_id(payload: Any) -> str:
     return hashlib.sha256(encoded.encode()).hexdigest()[:16]
 
 
+def _reasoning_sections(findings: list[dict[str, Any]]) -> dict[str, Any]:
+    observations = []
+    evidence = []
+    hypotheses = []
+    evaluation = []
+    claims = []
+    recommendations = []
+    for index, finding in enumerate(findings, 1):
+        rule = finding.get("rule", "critic.finding")
+        statement = finding.get("message") or finding.get("evidence") or str(finding)
+        finding_id = f"finding-{index}"
+        observations.append({"observation_id": finding_id, "statement": statement})
+        evidence.append({"evidence_id": f"evidence-{index}", "source": rule,
+                         "extraction": finding.get("evidence", statement)})
+        hypotheses.append({"hypothesis_id": f"hypothesis-{index}", "statement": statement,
+                           "supporting_evidence": [f"evidence-{index}"],
+                           "contradicting_evidence": []})
+        evaluation.append({"hypothesis_id": f"hypothesis-{index}", "result": "supported",
+                           "rationale": "deterministic analyzer finding"})
+        claims.append({"claim_id": f"claim-{index}", "statement": statement,
+                       "hypothesis_id": f"hypothesis-{index}"})
+        recommendations.append({"recommendation_id": f"recommendation-{index}",
+                                "statement": finding.get("requested_change", "Review this finding."),
+                                "claim_ids": [f"claim-{index}"],
+                                "possible_transformations": []})
+    return {
+        "observations": observations,
+        "evidence": evidence,
+        "hypotheses": hypotheses,
+        "evaluation": evaluation,
+        "claims": claims,
+        "confidence": {"score": None, "method": "deterministic_analyzer", "explanation": "uncalibrated"},
+        "recommendations": recommendations,
+    }
+
+
 class ReasoningRuntime:
     def __init__(self, registry: CriticRegistry, report_dir: Path) -> None:
         self.registry = registry
@@ -163,7 +199,7 @@ class ReasoningRuntime:
                 report = {"report_id": report_id, "status": "derived", "artifact_type": "reasoning_report",
                           "critic_id": critic_id, "critic_version": spec.version,
                           "plan_id": plan.plan_id, "source_snapshot": plan.source_snapshot,
-                          "findings": findings}
+                          "findings": findings, **_reasoning_sections(findings)}
                 self.report_dir.mkdir(parents=True, exist_ok=True)
                 (self.report_dir / f"{report_id}.json").write_text(
                     json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -174,3 +210,13 @@ class ReasoningRuntime:
                 outcomes.append(ExecutionOutcome(critic_id=critic_id, version=spec.version,
                     status=RuntimeStatus.FAILED, reason="critic execution failed", error=str(exc)))
         return ExecutionResult(plan=plan, outcomes=outcomes)
+
+    def report_is_fresh(self, report_id: str, inputs: Mapping[str, Any]) -> bool:
+        path = self.report_dir / f"{report_id}.json"
+        if not path.exists():
+            return False
+        report = json.loads(path.read_text(encoding="utf-8"))
+        expected = report.get("source_snapshot", {})
+        current = {key: value.get("revision") if isinstance(value, Mapping) else None
+                   for key, value in sorted(inputs.items())}
+        return expected == current

@@ -42,6 +42,8 @@ def test_runtime_executes_and_persists_derived_report(tmp_path):
     assert report["status"] == "derived"
     assert report["critic_id"] == "structure.blueprint"
     assert report["findings"][0]["rule"] == "ok"
+    assert {"observations", "evidence", "hypotheses", "evaluation", "claims",
+            "confidence", "recommendations"} <= report.keys()
 
 
 def test_runtime_rejects_stale_input_before_execution(tmp_path):
@@ -56,6 +58,37 @@ def test_runtime_rejects_stale_input_before_execution(tmp_path):
 
     assert result.outcomes[0].status is RuntimeStatus.STALE
     assert calls == []
+
+
+def test_persisted_report_becomes_stale_after_source_revision_changes(tmp_path):
+    registry = CriticRegistry()
+    registry.register(_critic(run=lambda blueprint: []))
+    runtime = ReasoningRuntime(registry, tmp_path / "reports")
+    result = runtime.run(RuntimeRequest(critic_ids=("structure.blueprint",),
+        inputs={"blueprint": {"revision": 1}}))
+    report_id = result.outcomes[0].report_id
+    assert runtime.report_is_fresh(report_id, {"blueprint": {"revision": 1}})
+    assert not runtime.report_is_fresh(report_id, {"blueprint": {"revision": 2}})
+
+
+def test_missing_and_malformed_inputs_are_explicit_failures(tmp_path):
+    registry = CriticRegistry()
+    registry.register(_critic(run=lambda blueprint: blueprint["required"]))
+    runtime = ReasoningRuntime(registry, tmp_path / "reports")
+    result = runtime.run(RuntimeRequest(critic_ids=("structure.blueprint",), inputs={}))
+    assert result.outcomes[0].status is RuntimeStatus.FAILED
+    assert list((tmp_path / "reports").glob("*.json")) == []
+
+
+def test_deterministic_rerun_has_same_plan_and_report(tmp_path):
+    registry = CriticRegistry()
+    registry.register(_critic(run=lambda blueprint: [{"rule": "same"}]))
+    runtime = ReasoningRuntime(registry, tmp_path / "reports")
+    request = RuntimeRequest(critic_ids=("structure.blueprint",), inputs={"blueprint": {"revision": 1}})
+    first = runtime.run(request)
+    second = runtime.run(request)
+    assert first.plan == second.plan
+    assert first.outcomes[0].report_id == second.outcomes[0].report_id
 
 
 def test_runtime_rejects_dependency_cycle(tmp_path):
