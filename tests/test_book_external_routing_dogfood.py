@@ -446,8 +446,12 @@ def test_stale_inspection_blocks_routing():
     accepted_file = chapter_dir / "accepted.yaml"
     accepted_data = yaml.safe_load(accepted_file.read_text(encoding='utf-8')) or {}
 
+    # Save the original values for restoration
+    original_revision = accepted_data.get('revision', 1)
+    original_content_hash = accepted_data.get('content_hash')
+
     # Change the revision to simulate the chapter being updated
-    accepted_data['revision'] = accepted_data.get('revision', 1) + 1
+    accepted_data['revision'] = original_revision + 1
     # Also change the content_hash to make it clearly different
     accepted_data['content_hash'] = "sha256:different_hash_to_simulate_update"
 
@@ -495,16 +499,10 @@ def test_stale_inspection_blocks_routing():
 
     # Restore the original accepted.yaml to its original state
     # Revert the revision and content_hash back to the original values
-    original_accepted_data = yaml.safe_load(original_inspection_path.read_text(encoding='utf-8'))
-    # Find the original chapter info from the Book inspection report
-    for chapter_ref in result['full_report'].get('accepted_chapters', []):
-        if chapter_ref['chapter_id'] == 'chapter_01':
-            # Restore the original revision and hash
-            restored_data = accepted_data.copy()
-            restored_data['revision'] = chapter_ref['accepted_revision']
-            restored_data['content_hash'] = chapter_ref['content_hash']
-            accepted_file.write_text(yaml.safe_dump(restored_data, sort_keys=False), encoding='utf-8')
-            break
+    restored_data = accepted_data.copy()
+    restored_data['revision'] = original_revision
+    restored_data['content_hash'] = original_content_hash
+    accepted_file.write_text(yaml.safe_dump(restored_data, sort_keys=False), encoding='utf-8')
 
 
 def test_markerless_manuscript_creates_unresolved_finding():
@@ -822,6 +820,243 @@ def test_atomic_routing_failure_leaves_no_partial_outputs():
     assert inspection_path.exists(), f"Original inspection should still exist at {inspection_path}"
     inspection_data = yaml.safe_load(inspection_path.read_text(encoding='utf-8')) or {}
     assert inspection_data.get('inspection_id') == inspection_id, "Inspection data should be intact"
+
+    # Clean up test file
+    if test_ms.exists():
+        test_ms.unlink()
+
+
+def test_scenario_12_author_facing_ux():
+    """Scenario 12: Author-Facing UX.
+
+    Verify that inspection output is clear and actionable by answering:
+    1. What changed?
+    2. Who owns it?
+    3. Which routed to Chapter?
+    4. Which became Book proposals?
+    5. Unresolved?
+    6. Stale?
+    7. Next action?
+    8. Canonical mutation?
+    """
+    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
+
+    def format_inspection_ux(inspection_result: dict[str, Any]) -> str:
+        """Format inspection result into author-facing UX output."""
+        status = inspection_result.get('status', 'unknown')
+        full_report = inspection_result.get('full_report', {})
+
+        chapter_findings = full_report.get('chapter_findings', [])
+        book_findings = full_report.get('book_findings', [])
+        unresolved_findings = full_report.get('unresolved_findings', [])
+        freshness = full_report.get('freshness', {})
+
+        output = []
+        output.append("=" * 60)
+        output.append("BOOK INSPECTION SUMMARY")
+        output.append("=" * 60)
+
+        # Q1: What changed?
+        output.append("\n[1] What changed?")
+        if status == 'no_changes':
+            output.append("    Nothing. Manuscript matches accepted Book.")
+        else:
+            if chapter_findings:
+                output.append(f"    - {len(chapter_findings)} chapter(s) with wording edits")
+            if book_findings:
+                output.append(f"    - {len(book_findings)} book-level change(s)")
+            if unresolved_findings:
+                output.append(f"    - {len(unresolved_findings)} marker issue(s)")
+
+        # Q2: Who owns it?
+        output.append("\n[2] Who owns it?")
+        if chapter_findings:
+            owner_ids = [f["chapter_id"] for f in chapter_findings]
+            output.append(f"    Chapter(s): {', '.join(owner_ids)}")
+        if book_findings:
+            output.append(f"    Book Expression: {len(book_findings)} finding(s)")
+        if not chapter_findings and not book_findings:
+            output.append("    No changes")
+
+        # Q3: Which routed to Chapter?
+        output.append("\n[3] Which routed to Chapter?")
+        if chapter_findings:
+            output.append(f"    {len(chapter_findings)} chapter(s) delegated to chapter-level reconciliation")
+        else:
+            output.append("    None")
+
+        # Q4: Which became Book proposals?
+        output.append("\n[4] Which became Book proposals?")
+        if book_findings:
+            for f in book_findings:
+                output.append(f"    - {f.get('recommended_proposal', 'unknown')}")
+        else:
+            output.append("    None")
+
+        # Q5: Unresolved?
+        output.append("\n[5] Unresolved?")
+        if unresolved_findings:
+            for f in unresolved_findings:
+                output.append(f"    [{f.get('classification', 'unknown')}] {f.get('recommended_action', 'manual intervention')}")
+        else:
+            output.append("    No")
+
+        # Q6: Stale?
+        output.append("\n[6] Stale?")
+        if freshness.get('status') == 'stale':
+            output.append(f"    Yes - {'; '.join(freshness.get('reasons', ['unknown']))}")
+        else:
+            output.append("    No")
+
+        # Q7: Next action?
+        output.append("\n[7] Next action?")
+        if status == 'no_changes':
+            output.append("    None - manuscript is in sync")
+        elif status == 'unresolved':
+            output.append("    Fix marker issues before routing")
+        else:
+            if chapter_findings:
+                output.append(f"    Delegate {len(chapter_findings)} chapter change(s)")
+            if book_findings:
+                output.append(f"    Review {len(book_findings)} book proposal(s)")
+
+        # Q8: Canonical mutation?
+        output.append("\n[8] Canonical mutation?")
+        output.append("    No - inspection is read-only")
+
+        output.append("=" * 60)
+        return "\n".join(output)
+
+    # Test 12.1: No changes scenario
+    test_ms_1 = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_ux_1.md'
+    shutil.copy(original_ms, test_ms_1)
+    result_1 = inspect_book_external_manuscript(project_root=project_root, manuscript_path=test_ms_1)
+    output_1 = format_inspection_ux(result_1)
+
+    # Verify all 8 questions are answered
+    assert "[1] What changed?" in output_1
+    assert "[2] Who owns it?" in output_1
+    assert "[3] Which routed to Chapter?" in output_1
+    assert "[4] Which became Book proposals?" in output_1
+    assert "[5] Unresolved?" in output_1
+    assert "[6] Stale?" in output_1
+    assert "[7] Next action?" in output_1
+    assert "[8] Canonical mutation?" in output_1
+    assert "Nothing. Manuscript matches accepted Book" in output_1
+    assert "None - manuscript is in sync" in output_1
+    if test_ms_1.exists():
+        test_ms_1.unlink()
+
+    # Test 12.2: Chapter-only edit scenario
+    test_ms_2 = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_ux_2.md'
+    shutil.copy(original_ms, test_ms_2)
+    content = test_ms_2.read_text(encoding='utf-8')
+    modified_content = content.replace(
+        "The river wind carries Tomas's warning up the tower.",
+        "The river wind carries Tomas's urgent warning up the tower."
+    )
+    test_ms_2.write_text(modified_content, encoding='utf-8')
+    result_2 = inspect_book_external_manuscript(project_root=project_root, manuscript_path=test_ms_2)
+    output_2 = format_inspection_ux(result_2)
+
+    assert "1 chapter(s) with wording edits" in output_2
+    assert "delegated to chapter-level reconciliation" in output_2
+    assert "Delegate 1 chapter change(s)" in output_2
+    if test_ms_2.exists():
+        test_ms_2.unlink()
+
+    # Test 12.3: Book-level edit scenario
+    test_ms_3 = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_ux_3.md'
+    shutil.copy(original_ms, test_ms_3)
+    content = test_ms_3.read_text(encoding='utf-8')
+    modified_content = content.replace(
+        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n---\n<!-- auteur:end-book-separator id=separator_01 -->",
+        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n***\n<!-- auteur:end-book-separator id=separator_01 -->"
+    )
+    test_ms_3.write_text(modified_content, encoding='utf-8')
+    result_3 = inspect_book_external_manuscript(project_root=project_root, manuscript_path=test_ms_3)
+    output_3 = format_inspection_ux(result_3)
+
+    assert "1 book-level change(s)" in output_3
+    assert "book_separator_patch" in output_3
+    assert "Review 1 book proposal(s)" in output_3
+    if test_ms_3.exists():
+        test_ms_3.unlink()
+
+    # Test 12.4: Unresolved scenario
+    test_ms_4 = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_ux_4.md'
+    test_ms_4.write_text("Plain text without markers.", encoding='utf-8')
+    result_4 = inspect_book_external_manuscript(project_root=project_root, manuscript_path=test_ms_4)
+    output_4 = format_inspection_ux(result_4)
+
+    assert "1 marker issue(s)" in output_4 or "unresolved" in output_4.lower()
+    assert "Fix marker issues before routing" in output_4
+    if test_ms_4.exists():
+        test_ms_4.unlink()
+
+    # Verify baselines unchanged across all scenarios
+    assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated"
+def test_cross_chapter_movement_creates_unresolved():
+    """Scenario 9: Moving paragraph across chapter boundaries ? cross_boundary_move unresolved finding."""
+    from auteur.expression.book_reconciliation import BookReconciliationStore
+
+    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
+    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_cross_boundary.md'
+
+    # Create a copy of the manuscript with cross-chapter movement
+    shutil.copy(original_ms, test_ms)
+    content = test_ms.read_text(encoding='utf-8')
+
+    # Move a paragraph from chapter_01 to chapter_02
+    # Extract a paragraph from chapter_01 (the "# The messenger" section)
+    paragraph_to_move = "# The messenger\n\nTomas reached the tower without breath. A boat had grounded below the bend,\nand the magistrate was on it. Mara put one hand on the lantern door and heard\nthe river answer beneath them.\n\n"
+
+    # Remove the paragraph from chapter_01
+    modified_content = content.replace(paragraph_to_move, "")
+
+    # Insert it at the beginning of chapter_02 content (right after the chapter_02 marker)
+    modified_content = modified_content.replace(
+        "<!-- auteur:chapter id=chapter_02 expression_revision=1 -->",
+        "<!-- auteur:chapter id=chapter_02 expression_revision=1 -->\n" + paragraph_to_move
+    )
+
+    test_ms.write_text(modified_content, encoding='utf-8')
+
+    # Inspect the modified manuscript
+    result = inspect_book_external_manuscript(
+        project_root=project_root,
+        manuscript_path=test_ms
+    )
+
+    # Assertions for cross-chapter movement scenario
+    assert result['status'] == 'changed', f"Expected 'changed' status, got '{result['status']}'"
+    assert result['chapter_findings_count'] == 0, f"Expected 0 chapter findings, got {result['chapter_findings_count']}"
+    assert result['book_findings_count'] == 0, f"Expected 0 book findings, got {result['book_findings_count']}"
+    assert result['unresolved_findings_count'] == 1, f"Expected 1 unresolved finding, got {result['unresolved_findings_count']}"
+
+    # Verify the unresolved finding is a cross_boundary_move
+    full_report = result['full_report']
+    assert len(full_report['unresolved_findings']) == 1, "Expected exactly 1 unresolved finding"
+    unresolved_finding = full_report['unresolved_findings'][0]
+    assert unresolved_finding['classification'] == 'cross_boundary_move', f"Expected 'cross_boundary_move' classification, got '{unresolved_finding['classification']}'"
+
+    # Verify both chapters are identified as affected
+    assert 'chapter_01' in unresolved_finding.get('affected_chapters', []), "Expected chapter_01 in affected_chapters"
+    assert 'chapter_02' in unresolved_finding.get('affected_chapters', []), "Expected chapter_02 in affected_chapters"
+
+    # Verify routing creates no proposals (unresolved finding should not route)
+    store = BookReconciliationStore(project_root)
+    inspection_id = result['inspection_id']
+    routing_result = store.route(inspection_id)
+
+    assert routing_result['status'] == 'unresolved', f"Expected 'unresolved' routing status, got '{routing_result['status']}'"
+    assert len(routing_result['chapter_routes']) == 0, f"Expected 0 chapter routes, got {len(routing_result['chapter_routes'])}"
+    assert len(routing_result['book_proposals']) == 0, f"Expected 0 book proposals, got {len(routing_result['book_proposals'])}"
+
+    # Verify baselines remain unchanged
+    assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during inspection"
 
     # Clean up test file
     if test_ms.exists():
