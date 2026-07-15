@@ -202,3 +202,12 @@ Transformation, and Reasoning. The Critic Integration Contract, Critic Registry,
 and Reasoning Runtime operationalize those foundations. The remaining work is
 vertical author workflow and capability refinement, not another foundational
 architecture.
+
+## Product coverage and pilot
+
+The architecture suite is mostly complete for V1, but product completeness is
+uneven across artifact scopes. The detailed coverage matrix and bounded pilot
+protocol are in `docs/capability-coverage.md`. Use that inventory and a real
+five-to-ten-chapter project to select the next implementation from author
+friction, with structural revision propagation as the leading candidate only
+if the pilot confirms it.
