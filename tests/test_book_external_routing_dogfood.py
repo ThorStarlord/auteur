@@ -305,3 +305,170 @@ def test_separator_edit_creates_book_proposal():
     # Clean up test file
     if test_ms.exists():
         test_ms.unlink()
+
+
+def test_markerless_manuscript_creates_unresolved_finding():
+    """Scenario 7: Markerless manuscript → one unresolved markerless finding, zero routes/proposals."""
+    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
+    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_markerless.md'
+
+    # Create a copy and remove all markers
+    shutil.copy(original_ms, test_ms)
+    content = test_ms.read_text(encoding='utf-8')
+
+    # Remove all markers by replacing them with empty strings
+    # Pattern: remove <!-- auteur:... --> markers
+    markerless_content = content
+    markerless_content = markerless_content.replace(
+        "<!-- auteur:chapter id=chapter_01 expression_revision=1 -->\n",
+        ""
+    )
+    markerless_content = markerless_content.replace(
+        "\n<!-- auteur:end-chapter id=chapter_01 -->",
+        ""
+    )
+    markerless_content = markerless_content.replace(
+        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n---\n<!-- auteur:end-book-separator id=separator_01 -->",
+        "---"
+    )
+    markerless_content = markerless_content.replace(
+        "<!-- auteur:chapter id=chapter_02 expression_revision=1 -->\n",
+        ""
+    )
+    markerless_content = markerless_content.replace(
+        "\n<!-- auteur:end-chapter id=chapter_02 -->",
+        ""
+    )
+    test_ms.write_text(markerless_content, encoding='utf-8')
+
+    # Inspect the markerless manuscript
+    result = inspect_book_external_manuscript(
+        project_root=project_root,
+        manuscript_path=test_ms
+    )
+
+    # Assertions for Markerless scenario
+    assert result['status'] == 'unresolved', f"Expected 'unresolved' status, got '{result['status']}'"
+    assert result['chapter_findings_count'] == 0, f"Expected 0 chapter findings, got {result['chapter_findings_count']}"
+    assert result['book_findings_count'] == 0, f"Expected 0 book findings, got {result['book_findings_count']}"
+    assert result['unresolved_findings_count'] == 1, f"Expected 1 unresolved finding, got {result['unresolved_findings_count']}"
+    assert result['routes'] == [], f"Expected empty routes, got {result['routes']}"
+    assert result['proposals'] == [], f"Expected empty proposals, got {result['proposals']}"
+
+    # Verify the unresolved finding is a markerless finding
+    full_report = result['full_report']
+    assert len(full_report['unresolved_findings']) == 1, "Expected exactly 1 unresolved finding"
+    markerless_finding = full_report['unresolved_findings'][0]
+    assert markerless_finding['classification'] == 'markerless', f"Expected 'markerless' classification, got '{markerless_finding['classification']}'"
+
+    # Verify the finding includes an actionable recommendation
+    assert 'recommended_action' in markerless_finding, "Expected 'recommended_action' in finding"
+    assert markerless_finding['recommended_action'] == 'restore Book markers or map the manuscript manually', \
+        f"Expected recommendation to restore markers or map manually, got '{markerless_finding['recommended_action']}'"
+
+    # Verify evidence and severity
+    assert markerless_finding['evidence'] == 'no Book ownership markers', \
+        f"Expected evidence 'no Book ownership markers', got '{markerless_finding['evidence']}'"
+    assert markerless_finding.get('severity') == 'unresolved' or markerless_finding.get('classification') == 'markerless', \
+        "Expected unresolved severity or markerless classification"
+
+    # Verify no noisy per-chapter findings
+    for finding in full_report['chapter_findings']:
+        assert finding['classification'] != 'markerless', "Should not have per-chapter markerless findings"
+
+    # Verify baselines remain unchanged
+    assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during inspection"
+
+    # Clean up test file
+    if test_ms.exists():
+        test_ms.unlink()
+
+
+def test_chapter_reorder_creates_book_order_proposal():
+    """Scenario 5: Chapter reorder → one book finding with book_order_change_proposal."""
+    from auteur.expression.book_reconciliation import BookReconciliationStore
+    import yaml
+    import re
+
+    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
+    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_chapter_reorder.md'
+
+    # Create a copy of the manuscript with reordered chapters
+    shutil.copy(original_ms, test_ms)
+    content = test_ms.read_text(encoding='utf-8')
+
+    # Reorder chapters: swap chapter_01 and chapter_02
+    # Extract chapter_02 section (including markers)
+    chapter_02_pattern = r'<!-- auteur:chapter id=chapter_02 expression_revision=1 -->.*?<!-- auteur:end-chapter id=chapter_02 -->'
+    chapter_02_match = re.search(chapter_02_pattern, content, re.DOTALL)
+    chapter_02_content = chapter_02_match.group(0) if chapter_02_match else ""
+
+    # Extract chapter_01 section (including markers)
+    chapter_01_pattern = r'<!-- auteur:chapter id=chapter_01 expression_revision=1 -->.*?<!-- auteur:end-chapter id=chapter_01 -->'
+    chapter_01_match = re.search(chapter_01_pattern, content, re.DOTALL)
+    chapter_01_content = chapter_01_match.group(0) if chapter_01_match else ""
+
+    # Extract separator
+    separator_pattern = r'<!-- auteur:book-separator id=separator_01 revision=1 -->.*?<!-- auteur:end-book-separator id=separator_01 -->'
+    separator_match = re.search(separator_pattern, content, re.DOTALL)
+    separator_content = separator_match.group(0) if separator_match else ""
+
+    # Extract title
+    title_pattern = r'^# The Lantern at Low Water\n'
+
+    # Reconstruct with chapters in reversed order: chapter_02, separator, chapter_01
+    modified_content = (
+        "# The Lantern at Low Water\n\n" +
+        chapter_02_content + "\n\n" +
+        separator_content + "\n\n" +
+        chapter_01_content
+    )
+    test_ms.write_text(modified_content, encoding='utf-8')
+
+    # Inspect the modified manuscript
+    result = inspect_book_external_manuscript(
+        project_root=project_root,
+        manuscript_path=test_ms
+    )
+
+    # Assertions for Chapter reorder scenario
+    assert result['status'] == 'changed', f"Expected 'changed' status, got '{result['status']}'"
+    assert result['chapter_findings_count'] == 0, f"Expected 0 chapter findings, got {result['chapter_findings_count']}"
+    assert result['book_findings_count'] == 1, f"Expected 1 book finding, got {result['book_findings_count']}"
+    assert result['unresolved_findings_count'] == 0, f"Expected 0 unresolved findings, got {result['unresolved_findings_count']}"
+
+    # Verify the book finding is an order change
+    full_report = result['full_report']
+    assert len(full_report['book_findings']) == 1, "Expected exactly 1 book finding"
+    order_finding = full_report['book_findings'][0]
+    assert order_finding['classification'] == 'order_changed', f"Expected 'order_changed' classification, got '{order_finding['classification']}'"
+    assert order_finding['recommended_proposal'] == 'book_order_change_proposal', f"Expected 'book_order_change_proposal' proposal type, got '{order_finding['recommended_proposal']}'"
+    assert order_finding['original_text'] == 'chapter_01, chapter_02', f"Expected original order 'chapter_01, chapter_02', got '{order_finding['original_text']}'"
+    assert order_finding['edited_text'] == 'chapter_02, chapter_01', f"Expected edited order 'chapter_02, chapter_01', got '{order_finding['edited_text']}'"
+
+    # Now route the inspection to generate the actual proposal
+    store = BookReconciliationStore(project_root)
+    inspection_id = result['inspection_id']
+    routing_result = store.route(inspection_id)
+
+    # Verify routing created the proposal
+    assert routing_result['status'] == 'routed', f"Expected 'routed' status, got '{routing_result['status']}'"
+    assert len(routing_result['book_proposals']) == 1, f"Expected 1 book proposal, got {len(routing_result['book_proposals'])}"
+    proposal_id = routing_result['book_proposals'][0]
+
+    # Load the proposal and verify it contains book_order_change_proposal
+    proposal_path = project_root / 'book' / 'expression' / 'reconciliation' / 'proposals' / f'{proposal_id}.yaml'
+    assert proposal_path.exists(), f"Proposal file not found at {proposal_path}"
+    proposal_data = yaml.safe_load(proposal_path.read_text(encoding='utf-8')) or {}
+    assert proposal_data.get('proposal_type') == 'book_order_change_proposal', f"Expected proposal_type 'book_order_change_proposal', got '{proposal_data.get('proposal_type')}'"
+    assert proposal_data.get('original') == 'chapter_01, chapter_02', f"Expected original 'chapter_01, chapter_02', got '{proposal_data.get('original')}'"
+    assert proposal_data.get('proposed') == 'chapter_02, chapter_01', f"Expected proposed 'chapter_02, chapter_01', got '{proposal_data.get('proposed')}'"
+
+    # Verify baselines remain unchanged
+    assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during inspection"
+
+    # Clean up test file
+    if test_ms.exists():
+        test_ms.unlink()
