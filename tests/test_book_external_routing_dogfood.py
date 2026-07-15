@@ -236,3 +236,72 @@ def test_chapter_only_edit_creates_delegated_inspection():
     # Clean up test file
     if test_ms.exists():
         test_ms.unlink()
+
+
+def test_separator_edit_creates_book_proposal():
+    """Scenario 4: Separator-only edit → one book finding with book_separator_patch proposal."""
+    from auteur.expression.book_reconciliation import BookReconciliationStore
+    import yaml
+
+    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
+    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_separator_edit.md'
+
+    # Create a copy of the manuscript with separator-only edits
+    shutil.copy(original_ms, test_ms)
+    content = test_ms.read_text(encoding='utf-8')
+
+    # Modify only the separator (change "---" to "===")
+    # The separator is between the markers: <!-- auteur:book-separator id=separator_01 revision=1 -->
+    # We need to replace the "---" line that appears between the separator markers
+    modified_content = content.replace(
+        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n---\n<!-- auteur:end-book-separator id=separator_01 -->",
+        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n===\n<!-- auteur:end-book-separator id=separator_01 -->"
+    )
+    test_ms.write_text(modified_content, encoding='utf-8')
+
+    # Inspect the modified manuscript
+    result = inspect_book_external_manuscript(
+        project_root=project_root,
+        manuscript_path=test_ms
+    )
+
+    # Assertions for Separator-only edit scenario
+    assert result['status'] == 'changed', f"Expected 'changed' status, got '{result['status']}'"
+    assert result['chapter_findings_count'] == 0, f"Expected 0 chapter findings, got {result['chapter_findings_count']}"
+    assert result['book_findings_count'] == 1, f"Expected 1 book finding, got {result['book_findings_count']}"
+    assert result['unresolved_findings_count'] == 0, f"Expected 0 unresolved findings, got {result['unresolved_findings_count']}"
+
+    # Verify the book finding is a separator change
+    full_report = result['full_report']
+    assert len(full_report['book_findings']) == 1, "Expected exactly 1 book finding"
+    separator_finding = full_report['book_findings'][0]
+    assert separator_finding['classification'] == 'separator_changed', f"Expected 'separator_changed' classification, got '{separator_finding['classification']}'"
+    assert separator_finding['recommended_proposal'] == 'book_separator_patch', f"Expected 'book_separator_patch' proposal type, got '{separator_finding['recommended_proposal']}'"
+    assert separator_finding['original_text'] == '---', f"Expected original separator '---', got '{separator_finding['original_text']}'"
+    assert separator_finding['edited_text'] == '===', f"Expected edited separator '===', got '{separator_finding['edited_text']}'"
+
+    # Now route the inspection to generate the actual proposal
+    store = BookReconciliationStore(project_root)
+    inspection_id = result['inspection_id']
+    routing_result = store.route(inspection_id)
+
+    # Verify routing created the proposal
+    assert routing_result['status'] == 'routed', f"Expected 'routed' status, got '{routing_result['status']}'"
+    assert len(routing_result['book_proposals']) == 1, f"Expected 1 book proposal, got {len(routing_result['book_proposals'])}"
+    proposal_id = routing_result['book_proposals'][0]
+
+    # Load the proposal and verify it contains book_separator_patch
+    proposal_path = project_root / 'book' / 'expression' / 'reconciliation' / 'proposals' / f'{proposal_id}.yaml'
+    assert proposal_path.exists(), f"Proposal file not found at {proposal_path}"
+    proposal_data = yaml.safe_load(proposal_path.read_text(encoding='utf-8')) or {}
+    assert proposal_data.get('proposal_type') == 'book_separator_patch', f"Expected proposal_type 'book_separator_patch', got '{proposal_data.get('proposal_type')}'"
+    assert proposal_data.get('original') == '---', f"Expected original '---', got '{proposal_data.get('original')}'"
+    assert proposal_data.get('proposed') == '===', f"Expected proposed '===', got '{proposal_data.get('proposed')}'"
+
+    # Verify baselines remain unchanged
+    assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during inspection"
+
+    # Clean up test file
+    if test_ms.exists():
+        test_ms.unlink()
