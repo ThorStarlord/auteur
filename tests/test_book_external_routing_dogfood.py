@@ -24,8 +24,10 @@ from __future__ import annotations
 import hashlib
 import json
 import shutil
+import pytest
 from pathlib import Path
 from typing import Any
+from unittest.mock import patch, MagicMock
 
 
 def generate_message_from_inspection(inspection_report: dict[str, Any]) -> str:
@@ -307,6 +309,204 @@ def test_separator_edit_creates_book_proposal():
         test_ms.unlink()
 
 
+def test_mixed_chapter_and_book_edit_creates_proposals():
+    """Scenario 6: Mixed Chapter wording + separator edit → 1 chapter finding + 1 book finding with 2 proposals."""
+    from auteur.expression.book_reconciliation import BookReconciliationStore
+    import yaml
+
+    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
+    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_mixed_edit.md'
+
+    # Create a copy of the manuscript with both chapter and separator edits
+    shutil.copy(original_ms, test_ms)
+    content = test_ms.read_text(encoding='utf-8')
+
+    # Make a chapter wording edit (like scenario 3)
+    modified_content = content.replace(
+        "The river wind carries Tomas's warning up the tower.",
+        "The river wind carries Tomas's solemn warning up the tower."
+    )
+
+    # Also make a separator edit (like scenario 4)
+    modified_content = modified_content.replace(
+        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n---\n<!-- auteur:end-book-separator id=separator_01 -->",
+        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n===\n<!-- auteur:end-book-separator id=separator_01 -->"
+    )
+    test_ms.write_text(modified_content, encoding='utf-8')
+
+    # Inspect the modified manuscript
+    result = inspect_book_external_manuscript(
+        project_root=project_root,
+        manuscript_path=test_ms
+    )
+
+    # Assertions for Mixed edit scenario
+    assert result['status'] == 'changed', f"Expected 'changed' status, got '{result['status']}'"
+    assert result['chapter_findings_count'] == 1, f"Expected 1 chapter finding, got {result['chapter_findings_count']}"
+    assert result['book_findings_count'] == 1, f"Expected 1 book finding, got {result['book_findings_count']}"
+    assert result['unresolved_findings_count'] == 0, f"Expected 0 unresolved findings, got {result['unresolved_findings_count']}"
+
+    # Verify the findings are as expected
+    full_report = result['full_report']
+    assert len(full_report['chapter_findings']) == 1, "Expected exactly 1 chapter finding"
+    assert len(full_report['book_findings']) == 1, "Expected exactly 1 book finding"
+
+    chapter_finding = full_report['chapter_findings'][0]
+    assert chapter_finding['classification'] == 'modified', f"Expected 'modified' classification, got '{chapter_finding['classification']}'"
+    assert chapter_finding['route'] == 'chapter_reconciliation', f"Expected 'chapter_reconciliation' route, got '{chapter_finding['route']}'"
+
+    book_finding = full_report['book_findings'][0]
+    assert book_finding['classification'] == 'separator_changed', f"Expected 'separator_changed' classification, got '{book_finding['classification']}'"
+    assert book_finding['recommended_proposal'] == 'book_separator_patch', f"Expected 'book_separator_patch' proposal type, got '{book_finding['recommended_proposal']}'"
+    assert book_finding['original_text'] == '---', f"Expected original separator '---', got '{book_finding['original_text']}'"
+    assert book_finding['edited_text'] == '===', f"Expected edited separator '===', got '{book_finding['edited_text']}'"
+
+    # Now route the inspection to generate the actual proposals
+    store = BookReconciliationStore(project_root)
+    inspection_id = result['inspection_id']
+    routing_result = store.route(inspection_id)
+
+    # Verify routing created the proposals
+    assert routing_result['status'] == 'routed', f"Expected 'routed' status, got '{routing_result['status']}'"
+
+    # Should have chapter proposals and book proposals
+    chapter_proposals = routing_result.get('chapter_proposals', [])
+    book_proposals = routing_result.get('book_proposals', [])
+
+    total_proposals = len(chapter_proposals) + len(book_proposals)
+    assert total_proposals == 2, f"Expected 2 total proposals (delegated inspection + book proposal), got {total_proposals} (chapter: {len(chapter_proposals)}, book: {len(book_proposals)})"
+
+    # Verify routing manifest exists
+    routing_manifest_path = project_root / 'book' / 'expression' / 'reconciliation' / 'routing_manifest.yaml'
+    assert routing_manifest_path.exists(), f"Routing manifest not found at {routing_manifest_path}"
+
+    # Load the routing manifest and verify it contains both proposals
+    manifest_data = yaml.safe_load(routing_manifest_path.read_text(encoding='utf-8')) or {}
+    inspections = manifest_data.get('inspections', [])
+    assert len(inspections) > 0, "Expected at least 1 inspection in routing manifest"
+
+    # Find our inspection in the manifest
+    our_inspection = None
+    for inspection in inspections:
+        if inspection.get('inspection_id') == inspection_id:
+            our_inspection = inspection
+            break
+
+    assert our_inspection is not None, f"Inspection {inspection_id} not found in routing manifest"
+    assert our_inspection.get('status') == 'routed', f"Expected inspection status 'routed', got '{our_inspection.get('status')}'"
+
+    # Verify baselines remain unchanged
+    assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during inspection"
+
+    # Clean up test file
+    if test_ms.exists():
+        test_ms.unlink()
+
+
+def test_stale_inspection_blocks_routing():
+    """Scenario 10: Stale inspection → routing status=stale, 0 outputs, original inspection preserved."""
+    from auteur.expression.book_reconciliation import BookReconciliationStore
+    import yaml
+
+    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
+    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_stale.md'
+
+    # Create a copy of the manuscript with a Chapter edit
+    shutil.copy(original_ms, test_ms)
+    content = test_ms.read_text(encoding='utf-8')
+
+    # Modify text inside chapter_01
+    modified_content = content.replace(
+        "The river wind carries Tomas's warning up the tower.",
+        "The river wind carries Tomas's urgent warning up the tower."
+    )
+    test_ms.write_text(modified_content, encoding='utf-8')
+
+    # Perform the inspection - this captures the current state
+    result = inspect_book_external_manuscript(
+        project_root=project_root,
+        manuscript_path=test_ms
+    )
+
+    # Verify the inspection found the chapter change
+    assert result['status'] == 'changed', f"Expected 'changed' status for initial inspection, got '{result['status']}'"
+    assert result['chapter_findings_count'] == 1, f"Expected 1 chapter finding, got {result['chapter_findings_count']}"
+    inspection_id = result['inspection_id']
+
+    # Store the original inspection for later verification
+    store = BookReconciliationStore(project_root)
+    original_inspection_path = store._inspection_path(inspection_id)
+    original_inspection_content = original_inspection_path.read_text(encoding='utf-8')
+
+    # Now simulate a Chapter being updated after the inspection was created
+    # We do this by modifying the accepted.yaml to have a different revision than what the Book references
+    chapter_dir = project_root / "chapters" / "01" / "expression"
+    accepted_file = chapter_dir / "accepted.yaml"
+    accepted_data = yaml.safe_load(accepted_file.read_text(encoding='utf-8')) or {}
+
+    # Change the revision to simulate the chapter being updated
+    accepted_data['revision'] = accepted_data.get('revision', 1) + 1
+    # Also change the content_hash to make it clearly different
+    accepted_data['content_hash'] = "sha256:different_hash_to_simulate_update"
+
+    # Write the modified accepted.yaml back
+    accepted_file.write_text(yaml.safe_dump(accepted_data, sort_keys=False), encoding='utf-8')
+
+    # Now attempt to route the original inspection
+    # This should fail because the Chapter has been updated since inspection was created
+    routing_result = store.route(inspection_id)
+
+    # Verify routing detected staleness
+    assert routing_result['status'] == 'stale', f"Expected 'stale' status, got '{routing_result['status']}'"
+    assert len(routing_result['chapter_routes']) == 0, f"Expected 0 chapter routes, got {len(routing_result['chapter_routes'])}"
+    assert len(routing_result['book_proposals']) == 0, f"Expected 0 book proposals, got {len(routing_result['book_proposals'])}"
+    assert routing_result['routing_id'] is None, f"Expected no routing_id when stale, got '{routing_result['routing_id']}'"
+
+    # Verify the inspection was updated with stale status
+    updated_inspection_content = original_inspection_path.read_text(encoding='utf-8')
+    updated_inspection = yaml.safe_load(updated_inspection_content) or {}
+    assert updated_inspection.get('status') == 'stale', f"Expected inspection status 'stale', got '{updated_inspection.get('status')}'"
+    assert updated_inspection.get('freshness', {}).get('status') == 'stale', f"Expected freshness status 'stale'"
+    assert 'BOOK_OR_CHAPTER_REVISION_CHANGED' in updated_inspection.get('freshness', {}).get('reasons', []), f"Expected stale reason to identify changed artifact"
+
+    # Verify the original inspection structure is preserved (only freshness status changed)
+    assert updated_inspection.get('inspection_id') == inspection_id, "Inspection ID should remain unchanged"
+    assert updated_inspection.get('chapter_findings') == result['full_report'].get('chapter_findings'), "Chapter findings should remain unchanged"
+    assert updated_inspection.get('book_findings') == result['full_report'].get('book_findings'), "Book findings should remain unchanged"
+
+    # Verify no routing manifest was created
+    routing_manifest_path = store.root / "routing" / f"routing_{inspection_id}.yaml"
+    assert not routing_manifest_path.exists(), f"No routing manifest should exist for stale inspection, but found at {routing_manifest_path}"
+
+    # Verify no proposals directory contains new proposals
+    proposals_dir = store.root / "proposals"
+    if proposals_dir.exists():
+        proposals = [f for f in proposals_dir.glob(f"proposal_{inspection_id}_*.yaml")]
+        assert len(proposals) == 0, f"Expected 0 proposals for stale inspection, found {len(proposals)}"
+
+    # Verify baselines remain unchanged
+    assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during inspection"
+
+    # Clean up test files and restore the Chapter's accepted.yaml
+    if test_ms.exists():
+        test_ms.unlink()
+
+    # Restore the original accepted.yaml to its original state
+    # Revert the revision and content_hash back to the original values
+    original_accepted_data = yaml.safe_load(original_inspection_path.read_text(encoding='utf-8'))
+    # Find the original chapter info from the Book inspection report
+    for chapter_ref in result['full_report'].get('accepted_chapters', []):
+        if chapter_ref['chapter_id'] == 'chapter_01':
+            # Restore the original revision and hash
+            restored_data = accepted_data.copy()
+            restored_data['revision'] = chapter_ref['accepted_revision']
+            restored_data['content_hash'] = chapter_ref['content_hash']
+            accepted_file.write_text(yaml.safe_dump(restored_data, sort_keys=False), encoding='utf-8')
+            break
+
+
 def test_markerless_manuscript_creates_unresolved_finding():
     """Scenario 7: Markerless manuscript → one unresolved markerless finding, zero routes/proposals."""
     project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
@@ -468,6 +668,160 @@ def test_chapter_reorder_creates_book_order_proposal():
 
     # Verify baselines remain unchanged
     assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during inspection"
+
+    # Clean up test file
+    if test_ms.exists():
+        test_ms.unlink()
+
+
+def test_malformed_marker_creates_unresolved_finding():
+    """Scenario 8: Malformed marker → unresolved malformed-marker finding with line number and recommendation, 0 proposals."""
+    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
+    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_malformed_marker.md'
+
+    # Create a copy of the manuscript with a malformed marker
+    shutil.copy(original_ms, test_ms)
+    content = test_ms.read_text(encoding='utf-8')
+
+    # Introduce a malformed marker by inserting a marker-like line with invalid format
+    # This creates a marker that contains "<!-- auteur:" but doesn't match the expected regex pattern
+    # Place it outside of chapter content to avoid affecting chapter parsing
+    modified_content = content.replace(
+        "<!-- auteur:end-book-separator id=separator_01 -->",
+        "<!-- auteur:end-book-separator id=separator_01 -->\n\n<!-- auteur:malformed-marker-with-typo -->"
+    )
+    test_ms.write_text(modified_content, encoding='utf-8')
+
+    # Inspect the modified manuscript
+    result = inspect_book_external_manuscript(
+        project_root=project_root,
+        manuscript_path=test_ms
+    )
+
+    # Assertions for Malformed marker scenario
+    assert result['status'] == 'changed', f"Expected 'changed' status, got '{result['status']}'"
+    assert result['chapter_findings_count'] == 0, f"Expected 0 chapter findings, got {result['chapter_findings_count']}"
+    assert result['book_findings_count'] == 0, f"Expected 0 book findings, got {result['book_findings_count']}"
+    assert result['unresolved_findings_count'] == 1, f"Expected 1 unresolved finding, got {result['unresolved_findings_count']}"
+    assert result['routes'] == [], f"Expected no routes (inspection only), got {result['routes']}"
+    assert result['proposals'] == [], f"Expected no proposals for malformed span, got {result['proposals']}"
+
+    # Verify the unresolved finding is a malformed-marker
+    full_report = result['full_report']
+    assert len(full_report['unresolved_findings']) == 1, "Expected exactly 1 unresolved finding"
+    malformed_finding = full_report['unresolved_findings'][0]
+    assert malformed_finding['classification'] == 'malformed_marker', f"Expected 'malformed_marker' classification, got '{malformed_finding['classification']}'"
+    assert 'line' in malformed_finding or 'line_range' in malformed_finding, "Expected line number or line_range in finding"
+    assert 'recommended_action' in malformed_finding, "Expected recommended_action in finding"
+    assert malformed_finding['recommended_action'] == 'repair the internal Book marker', f"Expected recommendation about repairing marker, got '{malformed_finding['recommended_action']}'"
+
+    # Verify baselines remain unchanged
+    assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during inspection"
+
+    # Clean up test file
+    if test_ms.exists():
+        test_ms.unlink()
+
+
+def test_atomic_routing_failure_leaves_no_partial_outputs():
+    """Scenario 11: Atomic routing failure → no partial outputs, staging removed, canonical unchanged.
+
+    When routing fails after partial outputs are staged (e.g., during delegated inspection or
+    proposal creation), the exception handler must:
+    1. Remove the staging directory entirely
+    2. Remove the final routing manifest if it was created
+    3. Remove any delegated inspection paths
+    4. Leave canonical artifacts unchanged
+    """
+    from auteur.expression.book_reconciliation import BookReconciliationStore
+    import yaml
+
+    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
+    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_atomic_failure.md'
+
+    # Create a copy of the manuscript with separator-only edits (book-level change)
+    shutil.copy(original_ms, test_ms)
+    content = test_ms.read_text(encoding='utf-8')
+
+    # Modify only the separator (change "---" to "===")
+    modified_content = content.replace(
+        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n---\n<!-- auteur:end-book-separator id=separator_01 -->",
+        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n===\n<!-- auteur:end-book-separator id=separator_01 -->"
+    )
+    test_ms.write_text(modified_content, encoding='utf-8')
+
+    # Inspect the modified manuscript
+    result = inspect_book_external_manuscript(
+        project_root=project_root,
+        manuscript_path=test_ms
+    )
+    inspection_id = result['inspection_id']
+
+    # Verify inspection found the change
+    assert result['status'] == 'changed', f"Expected 'changed' status, got '{result['status']}'"
+    assert result['book_findings_count'] == 1, f"Expected 1 book finding, got {result['book_findings_count']}"
+
+    # Save the current state of potentially affected directories
+    store = BookReconciliationStore(project_root)
+    staging_dir = store.root / "staging" / inspection_id
+    final_path = store.root / "routing" / f"routing_{inspection_id}.yaml"
+    proposals_dir = store.root / "proposals"
+
+    # Verify staging dir doesn't exist before routing
+    assert not staging_dir.exists(), f"Staging directory should not exist before routing: {staging_dir}"
+
+    # Save baseline of proposals directory (count of files)
+    proposals_before = len(list(proposals_dir.glob("*.yaml"))) if proposals_dir.exists() else 0
+
+    # Now simulate a failure during routing by patching yaml.safe_dump to raise an exception
+    # We'll fail after the proposals have been staged but before the final routing manifest is created
+    original_safe_dump = yaml.safe_dump
+    call_count = [0]  # Use list to allow mutation in nested function
+
+    def failing_yaml_safe_dump(data, **kwargs):
+        call_count[0] += 1
+        # With 1 book finding and no chapter findings, yaml.safe_dump will be called:
+        # - Once for the proposal file (in staging dir)
+        # - Once for the final routing manifest
+        # We fail on the second call to simulate failure after partial staging
+        if call_count[0] == 2:
+            raise RuntimeError("Simulated routing failure after partial staging")
+        return original_safe_dump(data, **kwargs)
+
+    # Patch yaml.safe_dump during route() to simulate failure
+    with patch('auteur.expression.book_reconciliation.yaml.safe_dump', side_effect=failing_yaml_safe_dump):
+        with pytest.raises(RuntimeError, match="Simulated routing failure after partial staging"):
+            store.route(inspection_id)
+
+    # Verify cleanup: staging directory should be removed
+    assert not staging_dir.exists(), (
+        f"Staging directory should be removed after failed routing, but exists at: {staging_dir}"
+    )
+
+    # Verify cleanup: final routing manifest should not exist or be removed
+    assert not final_path.exists(), (
+        f"Final routing manifest should not exist after failed routing, but exists at: {final_path}"
+    )
+
+    # Verify cleanup: no new proposals should be left in the proposals directory
+    proposals_after = len(list(proposals_dir.glob("*.yaml"))) if proposals_dir.exists() else 0
+    assert proposals_after == proposals_before, (
+        f"Proposals directory should be unchanged after failed routing. "
+        f"Before: {proposals_before}, After: {proposals_after}"
+    )
+
+    # Verify baselines remain unchanged (canonical artifacts untouched)
+    assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), (
+        "Baselines were mutated during failed routing"
+    )
+
+    # Verify the inspection itself still exists and is valid (it should not be deleted)
+    inspection_path = store._inspection_path(inspection_id)
+    assert inspection_path.exists(), f"Original inspection should still exist at {inspection_path}"
+    inspection_data = yaml.safe_load(inspection_path.read_text(encoding='utf-8')) or {}
+    assert inspection_data.get('inspection_id') == inspection_id, "Inspection data should be intact"
 
     # Clean up test file
     if test_ms.exists():
