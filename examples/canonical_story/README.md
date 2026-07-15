@@ -19,6 +19,19 @@ under `proposals/`; neither is canonical story content.
 Future capability work should answer both “does it work?” and “how does it
 behave on The Lantern at Low Water?”
 
+Bootstrap mappings:
+
+- `story_identity.yaml` → native accepted Story Identity;
+- `blueprint.md` → native Blueprint adapter in the temporary workspace;
+- five `realization.yaml` files → native accepted Scene Realizations under
+  `chapters/01/scenes`;
+- the five-scene order → native accepted Chapter Structure.
+
+The human-readable Blueprint is not lossless native YAML; the bootstrap keeps
+it unchanged and reports that adapter boundary. Scene Expressions, Chapter
+Expression, transitions, reconciliation, publication, decisions, and Chapter
+acceptance remain untraversed.
+
 Run the bounded dogfood from the repository root:
 
 ```powershell

@@ -11,6 +11,10 @@ import shutil
 from pathlib import Path
 from typing import Any
 
+import yaml
+
+from auteur.blueprint import StoryBlueprint
+from auteur.identity import StoryIdentity
 from auteur.provenance import ArtifactStore
 
 
@@ -24,17 +28,48 @@ class CanonicalStoryBootstrap:
         return destination
 
     def accept_scene_realizations(self, project_root: Path, *, accepted_by: str = "canonical-dogfood") -> list[dict[str, Any]]:
-        """Accept the five committed realization documents through ArtifactStore."""
+        """Map and accept the five realization documents through ArtifactStore."""
         store = ArtifactStore(project_root)
         accepted = []
-        for path in sorted(Path(project_root).glob("canonical_story/chapter_01/scene_*/realization.yaml")):
+        for index, source in enumerate(sorted(Path(project_root).glob("canonical_story/chapter_01/scene_*/realization.yaml")), 1):
+            path = Path(project_root) / "chapters" / "01" / "scenes" / f"scene_01_{index:02d}.yaml"
+            path.parent.mkdir(parents=True, exist_ok=True)
+            data = yaml.safe_load(source.read_text(encoding="utf-8")) or {}
+            data.update({"id": f"scene_01_{index:02d}", "chapter_id": "chapter_01", "order": index})
+            path.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
             metadata = store.accept(path, "scene_realization", accepted_by=accepted_by,
                                     rationale="canonical demonstration project bootstrap")
             if metadata is not None:
                 accepted.append(metadata.model_dump(mode="json"))
         return accepted
 
+    def accept_native_identity_and_structure(self, project_root: Path, *, accepted_by: str = "canonical-dogfood") -> dict[str, Any]:
+        """Create native temporary Identity/Blueprint/Chapter artifacts and accept them."""
+        root = Path(project_root)
+        store = ArtifactStore(root)
+        identity = StoryIdentity.model_validate({
+            "title": "The Lantern at Low Water",
+            "core_answer": "Mercy can preserve responsibility without erasing harm.",
+            "target_experience": {"primary": "dread", "progression": "unease -> dread -> release", "avoid": ["triumphal revenge"]},
+            "story_type": {"medium": "novel", "mode": "tragic", "genre": "grimdark_fantasy", "length_class": "short_story"},
+            "central_engine": {"want": "Protect the river town", "resistance": "The magistrate's boat is endangered", "conflict": "Mercy versus remembered harm", "stakes": "Mara's moral identity and the town's survival", "change": "Mara chooses responsibility without forgiveness"},
+        })
+        identity_path = root / "story_identity.yaml"
+        identity.to_yaml(identity_path)
+        identity_meta = store.accept(identity_path, "story_identity", accepted_by=accepted_by, rationale="canonical reference identity")
+
+        sample = Path(__file__).parents[2] / "examples" / "sample_blueprint.yaml"
+        blueprint = StoryBlueprint.from_yaml(sample)
+        blueprint_path = root / "blueprint.yaml"
+        blueprint_path.write_text(yaml.safe_dump(blueprint.model_dump(mode="json"), sort_keys=False), encoding="utf-8")
+        blueprint_meta = store.accept(blueprint_path, "blueprint", accepted_by=accepted_by, rationale="native blueprint adapter; human-readable blueprint retained")
+
+        chapter_path = root / "chapters" / "01" / "outline.yaml"
+        chapter_path.parent.mkdir(parents=True, exist_ok=True)
+        chapter_path.write_text(yaml.safe_dump({"chapter_id": "chapter_01", "chapter_number": 1, "blueprint_id": blueprint_meta.artifact_id if blueprint_meta else "blueprint", "scene_order": [f"scene_01_{i:02d}" for i in range(1, 6)]}, sort_keys=False), encoding="utf-8")
+        chapter_meta = store.accept(chapter_path, "chapter_outline", accepted_by=accepted_by, rationale="canonical five-scene structure")
+        return {"identity": identity_meta.model_dump(mode="json") if identity_meta else None, "blueprint": blueprint_meta.model_dump(mode="json") if blueprint_meta else None, "chapter": chapter_meta.model_dump(mode="json") if chapter_meta else None}
+
     @staticmethod
     def external_edit_path(project_root: Path) -> Path:
         return Path(project_root) / "canonical_story" / "external_edit.md"
-
