@@ -18,7 +18,7 @@ long-form completeness.
 | Scene Realization | yes | yes | partial | partial | partial | yes | partial |
 | Scene Expression | yes | yes | yes | yes | yes | yes | yes |
 | Chapter Expression | yes | yes | yes | yes | yes | yes | yes |
-| Book Manuscript | yes | yes | no | no | no | yes | partial |
+| Book Manuscript | yes | yes | no | yes | yes | yes | partial |
 
 The matrix is intentionally qualitative. “Partial” means a path exists but
 does not yet have the same reasoning, proposal, freshness propagation, and
@@ -140,6 +140,13 @@ multiple accepted Chapters → Book Manuscript
 ```
 
 This bounded Book Manuscript slice is now proven on the canonical two-Chapter
-fixture. Book-level reasoning/editing and publishing formats remain deferred.
-Structural revision propagation remains deferred because the canonical pilot
-produced no evidence that it is the highest-impact blockage.
+fixture. Book external-edit inspection and ownership routing (Phase A) produce
+noncanonical Book proposals, and Book proposal planning plus atomic candidate
+publication (Phase B) materialize durable, unaccepted Book candidates with a
+noncanonical preview and manifest — publication is not acceptance, and no
+accepted Book, Chapter, or upstream artifact is mutated. See
+[book-reconciliation-application.md](book-reconciliation-application.md).
+Book candidate acceptance, Book recomposition from candidates, Book-level
+reasoning/editing, and publishing formats remain deferred. Structural revision
+propagation remains deferred because the canonical pilot produced no evidence
+that it is the highest-impact blockage.

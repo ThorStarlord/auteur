@@ -1429,3 +1429,199 @@ def test_routing_rollback_removes_delegated_chapter_inspections():
     finally:
         if test_ms.exists():
             test_ms.unlink()
+
+
+# ---------------------------------------------------------------------------
+# Phase B dogfood: Book-owned proposal planning and atomic publication.
+#
+# Each scenario builds an isolated workspace (outside the canonical reference
+# tree) so publication artifacts never interfere with the Phase A scenarios or
+# with each other. Publication is not acceptance: no accepted Book or Chapter
+# pointer, and no Structure/Identity/Blueprint/Scene artifact, may move.
+# ---------------------------------------------------------------------------
+
+_PHASE_B_ROOT = Path("temp/dogfood/lantern_phase_b")
+
+
+def _phase_b_workspace(name: str):
+    from auteur.expression.book_reconciliation import BookReconciliationStore
+
+    root = _bootstrap_workspace(_PHASE_B_ROOT / name)
+    store = BookReconciliationStore(root)
+    accepted = yaml.safe_load((root / "book" / "expression" / "accepted.yaml").read_text(encoding="utf-8")) or {}
+    return root, store, accepted["book_expression_id"]
+
+
+def _book_manuscript_text(root: Path) -> str:
+    return (root / "book" / "expression" / "book_v001.md").read_text(encoding="utf-8")
+
+
+def _pointer_hashes(root: Path) -> dict:
+    watched = {
+        "book_accepted": root / "book" / "expression" / "accepted.yaml",
+        "structure": root / "book" / "structure.yaml",
+        "chapter_01_accepted": root / "chapters" / "01" / "expression" / "accepted.yaml",
+        "chapter_02_accepted": root / "chapters" / "02" / "expression" / "accepted.yaml",
+    }
+    return {name: hashlib.sha256(path.read_bytes()).hexdigest() for name, path in watched.items() if path.exists()}
+
+
+import re  # noqa: E402  (kept local to the Phase B block for clarity)
+import yaml  # noqa: E402  (kept local to the Phase B block for clarity)
+
+
+def test_phase_b_scenario_a_separator_publish_no_pointer_change():
+    """A. Separator proposal -> plan -> publish -> preview (no pointer change)."""
+    from auteur.expression.book_reconciliation import BookReconciliationStore
+
+    root, store, book_id = _phase_b_workspace("scenario_a")
+    edited = root / "edit_a.md"
+    edited.write_text(_book_manuscript_text(root).replace("\n---\n", "\n***\n"), encoding="utf-8")
+
+    before = _pointer_hashes(root)
+    inspection = store.inspect(edited, book_id)
+    routed = store.route(inspection["inspection_id"])
+    assert routed["status"] == "routed"
+    plan = store.plan(inspection["inspection_id"], routed["book_proposals"])
+    assert plan["readiness"]["status"] == "ready"
+    publication = store.publish(plan["plan_id"])
+
+    assert publication["acceptance_status"] == "none"
+    assert publication["accepted_book_pointer_changed"] is False
+    candidate = store.load_book_candidate(publication["published_candidates"][0])
+    assert candidate["artifact_type"] == "book_separator_candidate"
+    preview = store.load_book_preview(publication["publication_id"])
+    assert preview["role"] == "application_preview" and preview["canonical"] is False
+    assert _pointer_hashes(root) == before
+
+
+def test_phase_b_scenario_b_order_publish_structure_unchanged():
+    """B. Order proposal -> plan -> publish -> preview (Structure unchanged)."""
+    root, store, book_id = _phase_b_workspace("scenario_b")
+    content = _book_manuscript_text(root)
+    c2 = re.search(r"<!-- auteur:chapter id=chapter_02 expression_revision=1 -->.*?<!-- auteur:end-chapter id=chapter_02 -->", content, re.DOTALL).group(0)
+    c1 = re.search(r"<!-- auteur:chapter id=chapter_01 expression_revision=1 -->.*?<!-- auteur:end-chapter id=chapter_01 -->", content, re.DOTALL).group(0)
+    sep = re.search(r"<!-- auteur:book-separator id=separator_01 revision=1 -->.*?<!-- auteur:end-book-separator id=separator_01 -->", content, re.DOTALL).group(0)
+    edited = root / "edit_b.md"
+    edited.write_text("# The Lantern at Low Water\n\n" + c2 + "\n\n" + sep + "\n\n" + c1, encoding="utf-8")
+
+    structure_before = (root / "book" / "structure.yaml").read_text(encoding="utf-8")
+    inspection = store.inspect(edited, book_id)
+    routed = store.route(inspection["inspection_id"])
+    plan = store.plan(inspection["inspection_id"], routed["book_proposals"])
+    publication = store.publish(plan["plan_id"])
+
+    candidate = store.load_book_candidate(publication["published_candidates"][0])
+    assert candidate["artifact_type"] == "book_order_candidate"
+    preview = store.load_book_preview(publication["publication_id"])
+    assert [s["chapter_id"] for s in preview["accepted_chapter_sources"]] == ["chapter_02", "chapter_01"]
+    assert (root / "book" / "structure.yaml").read_text(encoding="utf-8") == structure_before
+
+
+def test_phase_b_scenario_c_mixed_one_plan_one_preview_one_manifest():
+    """C. Mixed compatible proposals: one plan, candidate(s), one preview, one manifest."""
+    root, store, book_id = _phase_b_workspace("scenario_c")
+    content = _book_manuscript_text(root)
+    edited = root / "edit_c.md"
+    edited.write_text(
+        content.replace("\n---\n", "\n***\n").replace(
+            "The river wind carries Tomas's warning up the tower.",
+            "The river wind carries Tomas's solemn warning up the tower.",
+        ),
+        encoding="utf-8",
+    )
+    inspection = store.inspect(edited, book_id)
+    routed = store.route(inspection["inspection_id"])
+    # Route delegates the Chapter edit and produces one Book (separator) proposal.
+    assert len(routed["book_proposals"]) == 1
+    plan = store.plan(inspection["inspection_id"], routed["book_proposals"])
+    publication = store.publish(plan["plan_id"])
+
+    pub_id = publication["publication_id"]
+    assert len(list((store.root / "publications").glob(f"{pub_id}.yaml"))) == 1
+    assert len(list((store.root / "previews").glob(f"{pub_id}.yaml"))) == 1
+    assert len(publication["published_candidates"]) == len(plan["planned_outputs"]) == 1
+    preview = store.load_book_preview(pub_id)
+    assert all(s.get("source_kind") != "chapter_local_proposal" for s in preview["candidate_sources"])
+
+
+def test_phase_b_scenario_d_stale_plan_rejects_publication():
+    """D. Stale plan: ready, then Book/separator changes, publication rejected."""
+    from auteur.expression.book_reconciliation import BookPublicationRejected
+    from auteur.expression.composition import ChapterExpressionStore
+
+    root, store, book_id = _phase_b_workspace("scenario_d")
+    edited = root / "edit_d.md"
+    edited.write_text(_book_manuscript_text(root).replace("\n---\n", "\n***\n"), encoding="utf-8")
+    inspection = store.inspect(edited, book_id)
+    routed = store.route(inspection["inspection_id"])
+    plan = store.plan(inspection["inspection_id"], routed["book_proposals"])
+    assert plan["readiness"]["status"] == "ready"
+
+    # Recompose+accept a Chapter so the accepted Book is no longer fresh.
+    cs = ChapterExpressionStore(root)
+    cs.accept(cs.compose("chapter_01").artifact_id)
+
+    with pytest.raises(BookPublicationRejected) as excinfo:
+        store.publish(plan["plan_id"])
+    assert excinfo.value.result["status"] == "rejected_stale"
+    assert excinfo.value.result["visible_outputs_created"] is False
+    pub_id = "book_publication_" + plan["plan_id"].removeprefix("book_application_set_")
+    assert not (store.root / "publications" / f"{pub_id}.yaml").exists()
+    assert not (store.root / "previews" / f"{pub_id}.yaml").exists()
+
+
+def test_phase_b_scenario_e_atomic_failure_removes_all():
+    """E. Atomic failure: after one candidate/preview moved, everything removed."""
+    from auteur.expression.book_reconciliation import BookReconciliationStore
+
+    root, store, book_id = _phase_b_workspace("scenario_e")
+    edited = root / "edit_e.md"
+    edited.write_text(_book_manuscript_text(root).replace("\n---\n", "\n***\n"), encoding="utf-8")
+    inspection = store.inspect(edited, book_id)
+    routed = store.route(inspection["inspection_id"])
+    plan = store.plan(inspection["inspection_id"], routed["book_proposals"])
+    pub_id = "book_publication_" + plan["plan_id"].removeprefix("book_application_set_")
+
+    real_move = shutil.move
+    calls = {"n": 0}
+
+    def flaky(src, dst, *a, **k):
+        calls["n"] += 1
+        if calls["n"] >= 2:  # first candidate move succeeds; the next fails.
+            raise OSError("simulated failure mid-publication")
+        return real_move(src, dst, *a, **k)
+
+    with mock.patch("auteur.expression.book_reconciliation.shutil.move", side_effect=flaky):
+        with pytest.raises(OSError):
+            store.publish(plan["plan_id"])
+
+    assert calls["n"] >= 2
+    assert not (store.root / "publications" / f"{pub_id}.yaml").exists()
+    assert not (store.root / "previews" / f"{pub_id}.yaml").exists()
+    assert not (store.root / "staging" / pub_id).exists()
+    if (store.root / "candidates").exists():
+        assert list((store.root / "candidates").glob("*.yaml")) == []
+
+
+def test_phase_b_scenario_f_duplicate_publication():
+    """F. Duplicate publication: publish twice, explicit duplicate, original preserved."""
+    from auteur.expression.book_reconciliation import BookPublicationRejected
+
+    root, store, book_id = _phase_b_workspace("scenario_f")
+    edited = root / "edit_f.md"
+    edited.write_text(_book_manuscript_text(root).replace("\n---\n", "\n***\n"), encoding="utf-8")
+    inspection = store.inspect(edited, book_id)
+    routed = store.route(inspection["inspection_id"])
+    plan = store.plan(inspection["inspection_id"], routed["book_proposals"])
+
+    first = store.publish(plan["plan_id"])
+    pub_path = store.root / "publications" / f"{first['publication_id']}.yaml"
+    original_bytes = pub_path.read_bytes()
+    candidates_before = sorted((store.root / "candidates").glob("*.yaml"))
+
+    with pytest.raises(BookPublicationRejected) as excinfo:
+        store.publish(plan["plan_id"])
+    assert excinfo.value.result["status"] == "rejected_duplicate"
+    assert pub_path.read_bytes() == original_bytes
+    assert sorted((store.root / "candidates").glob("*.yaml")) == candidates_before

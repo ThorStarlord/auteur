@@ -62,10 +62,23 @@ Normal output is concise; `--json` and `--verbose` expose hashes and provenance.
 There are intentionally no Book proposal apply, publish, accept, or complete
 commands.
 
+## Application planning and publication (Phase B)
+
+Book-owned proposals can be assembled into a derived, deterministic application
+plan and published transactionally into durable, unaccepted Book candidates plus
+a noncanonical preview and a publication manifest. Publication is not acceptance:
+no accepted Book or Chapter pointer, and no Structure/Identity/Blueprint/Scene
+artifact, is ever changed. See
+[book-reconciliation-application.md](book-reconciliation-application.md) for the
+plan schema, candidate model, preview behavior, live freshness gate, atomicity,
+duplicate/stale handling, CLI, and non-goals.
+
 ## Dogfood scenarios and non-goals
 
 The adapter is designed for Chapter wording edits, separator edits, explicit
 order proposals, unchanged marked Books, markerless Books, stale inspections,
-and cross-Chapter movement. It does not implement Book reconciliation,
-automatic markerless reconstruction, Chapter merge/split, front/back matter,
-publishing formats, or collaboration.
+and cross-Chapter movement. Phase B adds Book proposal planning and atomic
+candidate publication. It does not implement Book candidate acceptance, Book
+recomposition from candidates, reconciliation completion, automatic markerless
+reconstruction, Chapter merge/split, front/back matter, publishing formats, or
+collaboration.

@@ -382,6 +382,14 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("inspection_id"); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true")
     p = expression_sub.add_parser("show-book-inspection", help="Show a Book external-edit inspection.")
     p.add_argument("inspection_id"); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true")
+    p = expression_sub.add_parser("plan-book-reconciliation", help="Create a derived Book reconciliation application plan.")
+    p.add_argument("inspection_id"); p.add_argument("--proposal", action="append", dest="proposals", default=[], required=True, help="Book proposal ID (repeatable)."); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
+    p = expression_sub.add_parser("show-book-plan", help="Show a Book reconciliation application plan.")
+    p.add_argument("plan_id"); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
+    p = expression_sub.add_parser("publish-book-reconciliation", help="Publish a ready Book plan into unaccepted candidates.")
+    p.add_argument("plan_id"); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
+    p = expression_sub.add_parser("inspect-book-publication", help="Inspect a Book reconciliation publication transaction.")
+    p.add_argument("publication_id"); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
     p = expression_sub.add_parser("reconcile", help="Inspect and propose Chapter manuscript reconciliation actions.")
     reconcile_sub = p.add_subparsers(dest="reconcile_command", required=True)
     p = reconcile_sub.add_parser("inspect", help="Create a read-only reconciliation inspection report.")
@@ -1126,9 +1134,68 @@ def main(argv: list[str] | None = None) -> int:
             report["diff"] = "".join(difflib.unified_diff(text_a.splitlines(True), text_b.splitlines(True), fromfile=first.artifact_id, tofile=second.artifact_id))
             print(json.dumps(report, indent=2))
             return 0
-        if args.expression_command in {"compose-book", "inspect-book", "compare-books", "accept-book", "export-book", "inspect-book-manuscript", "route-book-inspection", "show-book-inspection"}:
+        if args.expression_command in {"compose-book", "inspect-book", "compare-books", "accept-book", "export-book", "inspect-book-manuscript", "route-book-inspection", "show-book-inspection", "plan-book-reconciliation", "show-book-plan", "publish-book-reconciliation", "inspect-book-publication"}:
             from auteur.expression.book import BookExpressionStore
-            from auteur.expression.book_reconciliation import BookReconciliationStore
+            from auteur.expression.book_reconciliation import BookPublicationRejected, BookReconciliationStore
+            if args.expression_command == "plan-book-reconciliation":
+                result = BookReconciliationStore(args.project).plan(args.inspection_id, args.proposals)
+                if args.json or args.verbose:
+                    print(json.dumps(result, indent=2))
+                else:
+                    print(f"Book reconciliation application plan {result['plan_id']}")
+                    print(f"Source Book: {result['source_book_expression']} (revision {result['source_book_revision']})")
+                    print(f"Selected proposals: {len(result['selected_proposals'])}")
+                    print(f"Readiness: {result['readiness']['status']}")
+                    if result["conflicts"]: print(f"Conflicts: {', '.join(sorted({c['conflict_code'] for c in result['conflicts']}))}")
+                    print("No candidates, preview, or pointers were created.")
+                    print("Recommended next action: " + ("publish this plan into unaccepted candidates" if result["readiness"]["status"] == "ready" else "resolve readiness issues, then re-plan"))
+                return 0
+            if args.expression_command == "show-book-plan":
+                result = BookReconciliationStore(args.project).show_book_plan(args.plan_id)
+                if args.json or args.verbose:
+                    print(json.dumps(result, indent=2))
+                else:
+                    print(f"Book reconciliation application plan {result['plan_id']}")
+                    print(f"Source Book: {result['source_book_expression']} (revision {result['source_book_revision']})")
+                    print(f"Selected proposals: {len(result['selected_proposals'])}")
+                    print(f"Planned candidates: {len(result['planned_outputs'])}")
+                    print(f"Readiness: {result['readiness']['status']}")
+                return 0
+            if args.expression_command == "publish-book-reconciliation":
+                try:
+                    result = BookReconciliationStore(args.project).publish(args.plan_id)
+                except BookPublicationRejected as exc:
+                    if args.json or args.verbose:
+                        print(json.dumps(exc.result, indent=2))
+                    else:
+                        print(f"Book publication rejected: {exc.result['status']}")
+                        for reason in exc.result.get("reasons", []):
+                            print(f"  - {reason.get('code')}: {reason.get('recommended_action')}")
+                        print(f"Visible outputs created: {exc.result.get('visible_outputs_created')}")
+                    return 1
+                if args.json or args.verbose:
+                    print(json.dumps(result, indent=2))
+                else:
+                    print(f"Book reconciliation publication {result['publication_id']}")
+                    print(f"Source Book: {result['source_book_expression']} (revision {result['source_book_revision']})")
+                    print(f"Published candidates: {len(result['published_candidates'])}")
+                    print(f"Preview status: {result['preview']['role']} ({result['preview']['lifecycle']}, noncanonical)")
+                    print("Acceptance status: none")
+                    print("Accepted Book pointer changed: no")
+                    print("Recommended next action: review the published candidates (acceptance is a separate, future step)")
+                return 0
+            if args.expression_command == "inspect-book-publication":
+                result = BookReconciliationStore(args.project).inspect_book_publication(args.publication_id)
+                if args.json or args.verbose:
+                    print(json.dumps(result, indent=2))
+                else:
+                    print(f"Book reconciliation publication {result['publication_id']}")
+                    print(f"Source Book: {result['source_book_expression']} (revision {result['source_book_revision']})")
+                    print(f"Published candidates: {len(result['published_candidates'])}")
+                    print(f"Preview status: {result['preview']['role']} ({result['preview']['lifecycle']}, noncanonical)")
+                    print(f"Acceptance status: {result['acceptance_status']}")
+                    print(f"Accepted Book pointer changed: {'yes' if result['accepted_book_pointer_changed'] else 'no'}")
+                return 0
             if args.expression_command == "inspect-book-manuscript":
                 result = BookReconciliationStore(args.project).inspect(args.manuscript, args.against)
                 if args.json or args.verbose: print(json.dumps(result, indent=2))

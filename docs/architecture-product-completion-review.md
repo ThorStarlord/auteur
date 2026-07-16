@@ -69,8 +69,15 @@ constitution.
 The bounded Book Manuscript assembly is now implemented: two accepted Chapters
 compose into a derived Book, explicit Book acceptance updates only the Book
 pointer, a changed Chapter stales the prior Book, and clean Markdown export is
-available. Full Book-level reasoning/editing and publishing formats remain
-deferred.
+available. Book external-edit inspection and ownership routing (Phase A) keep
+Book-owned edits as noncanonical proposals, and Book proposal planning plus
+atomic candidate publication (Phase B) produce durable, unaccepted Book
+candidates with a noncanonical preview and publication manifest. Publication is
+not acceptance: a stale plan publishes nothing, a duplicate publication is
+rejected, failure is atomic, and no accepted Book, Chapter Expression,
+Structure, Identity, Blueprint, Realization, or Scene is mutated. Book candidate
+acceptance, Book recomposition from candidates, reconciliation completion, and
+full Book-level reasoning/editing and publishing formats remain deferred.
 
 ## Next evidence-driven slice
 

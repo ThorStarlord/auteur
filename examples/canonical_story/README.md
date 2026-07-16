@@ -50,4 +50,10 @@ recomposition, and exports clean Markdown. It never writes derived artifacts
 into this committed directory.
 
 Book external-edit routing is read-only and specified in
-`docs/book-reconciliation.md`; it does not apply or publish Book proposals.
+`docs/book-reconciliation.md`. Book-owned proposals from routing can then be
+planned and published transactionally into durable, unaccepted Book candidates
+(with a noncanonical preview and manifest) as specified in
+`docs/book-reconciliation-application.md`. Publication is not acceptance: it
+creates no accepted Book, Chapter, or upstream mutation, a stale plan publishes
+nothing, and a duplicate publication is rejected. Book candidate acceptance and
+Book recomposition are not implemented.
