@@ -94,12 +94,27 @@ class BookReconciliationStore:
                 chapter_findings.append({"finding_id": f"chapter:{chapter_id}", "chapter_id": chapter_id, "source_chapter_expression": expected[chapter_id]["chapter_expression_id"], "source_revision": expected[chapter_id]["accepted_revision"], "source_hash": expected[chapter_id]["content_hash"], "classification": "modified", "change_summary": "Chapter wording changed", "original_text_hash": _hash(original), "edited_text_hash": _hash(item["text"]), "route": "chapter_reconciliation", "edited_text": item["text"]})
         if seen != [item["chapter_id"] for item in metadata["chapters"]] and seen:
             book_findings.append({"finding_id": "book:order", "owner": "book_expression", "target_id": metadata["book_id"], "classification": "order_changed", "source_revision": metadata["revision"], "source_hash": _hash(source_text), "original_text": ", ".join(item["chapter_id"] for item in metadata["chapters"]), "edited_text": ", ".join(seen), "recommended_proposal": "book_order_change_proposal"})
-        expected_separators = max(len(metadata["chapters"]) - 1, 0)
-        if len(parsed["separators"]) != expected_separators:
-            book_findings.append({"finding_id": "book:separator", "owner": "book_expression", "target_id": "separator_01", "classification": "separator_changed", "source_revision": metadata["revision"], "source_hash": _hash(source_text), "recommended_proposal": "book_separator_patch"})
-        elif any(item["text"] != metadata["book_owned_content"].get("separator", "---") for item in parsed["separators"]):
-            book_findings.append({"finding_id": "book:separator", "owner": "book_expression", "target_id": "separator_01", "classification": "separator_changed", "source_revision": metadata["revision"], "source_hash": _hash(source_text), "original_text": metadata["book_owned_content"].get("separator", "---"), "edited_text": parsed["separators"][0]["text"], "recommended_proposal": "book_separator_patch"})
-        if any(item["classification"] == "markerless" for item in unresolved):
+        # Detect cross-chapter text movement: multiple chapters modified, order unchanged
+        modified_chapters = [f["chapter_id"] for f in chapter_findings if f["classification"] == "modified"]
+        order_changed = any(f["classification"] == "order_changed" for f in book_findings)
+        if len(modified_chapters) > 1 and not order_changed:
+            unresolved.append({"finding_id": "unresolved:cross_boundary_move", "classification": "cross_boundary_move", "evidence": "Multiple chapters have text changes; text appears to have moved across chapter boundaries", "recommended_action": "Manually map the text movements or retain the divergence", "affected_chapters": modified_chapters, "severity": "unresolved"})
+            # Suppress the per-chapter "modified" findings: when text has moved
+            # across chapter boundaries we cannot cleanly attribute edits to
+            # individual chapters, and routing each chapter to independent
+            # reconciliation would risk duplicating or losing the moved text.
+            # The single cross_boundary_move finding requires manual mapping.
+            chapter_findings = [f for f in chapter_findings if f["classification"] != "modified"]
+        # Only check separators if the manuscript is marked (not markerless)
+        # Markerless manuscripts can't have meaningful separator checks since we lack ownership information
+        is_markerless = any(item["classification"] == "markerless" for item in parsed["findings"])
+        if not is_markerless:
+            expected_separators = max(len(metadata["chapters"]) - 1, 0)
+            if len(parsed["separators"]) != expected_separators:
+                book_findings.append({"finding_id": "book:separator", "owner": "book_expression", "target_id": "separator_01", "classification": "separator_changed", "source_revision": metadata["revision"], "source_hash": _hash(source_text), "recommended_proposal": "book_separator_patch"})
+            elif any(item["text"] != metadata["book_owned_content"].get("separator", "---") for item in parsed["separators"]):
+                book_findings.append({"finding_id": "book:separator", "owner": "book_expression", "target_id": "separator_01", "classification": "separator_changed", "source_revision": metadata["revision"], "source_hash": _hash(source_text), "original_text": metadata["book_owned_content"].get("separator", "---"), "edited_text": parsed["separators"][0]["text"], "recommended_proposal": "book_separator_patch"})
+        if any(item["classification"] in {"markerless", "cross_boundary_move"} for item in unresolved):
             status = "unresolved"
         elif chapter_findings or book_findings or unresolved:
             status = "changed"
