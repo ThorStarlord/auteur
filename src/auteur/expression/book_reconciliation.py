@@ -46,6 +46,10 @@ def _hash(text: str) -> str:
     return "sha256:" + hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+DECISION_TRANSFORMATION = {"id": "expression.decide_book_candidate", "version": 1}
+DECISION_STATUSES = ("accepted", "rejected", "deferred")
+
+
 class BookPublicationRejected(ValueError):
     """Raised when a Book application plan cannot be published.
 
@@ -58,6 +62,31 @@ class BookPublicationRejected(ValueError):
     def __init__(self, result: dict[str, Any]):
         self.result = result
         super().__init__(result.get("message", "book publication rejected"))
+
+
+class BookFreshnessRejectError(ValueError):
+    """Raised/returned when a candidate decision is blocked by stale sources.
+
+    ``result`` carries a structured rejection: ``status='rejected_stale'``, the
+    freshness ``reasons`` (each ``{code, expected, current, recommended_action}``),
+    and ``visible_outputs_created=False`` -- a stale decision creates nothing.
+    """
+
+    def __init__(self, result: dict[str, Any]):
+        self.result = result
+        super().__init__(result.get("message", "book candidate decision rejected"))
+
+
+class CandidateNotFoundError(ValueError):
+    """Raised when a decision targets a published candidate that does not exist."""
+
+
+class DuplicateDecisionError(ValueError):
+    """Raised when a candidate already carries an immutable decision.
+
+    Decisions are terminal: there is no revocation and no amendment. A second
+    decision on the same candidate -- with any status or reason -- is rejected.
+    """
 
 
 class BookManuscriptParser:
@@ -726,3 +755,258 @@ class BookReconciliationStore:
         if not path.exists():
             raise FileNotFoundError(f"Book candidate not found: {candidate_id}")
         return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+
+    # ------------------------------------------------------------------
+    # Candidate Decisions (Decision Lifecycle).
+    #
+    # An author independently accepts, rejects, or defers each published,
+    # unaccepted Book candidate. A decision is an immutable record (no
+    # revocation, no amendment, one per candidate). Deciding a candidate never
+    # recomposes the Book, never accepts a candidate as canonical, and never
+    # moves the accepted Book pointer. The only visible side effect besides the
+    # decision record is a regenerated, still-derived preview that reflects the
+    # accepted decisions.
+    # ------------------------------------------------------------------
+
+    def _decisions_dir(self) -> Path:
+        return self.root / "decisions"
+
+    def _decision_path(self, decision_id: str) -> Path:
+        return self._decisions_dir() / f"{decision_id}.yaml"
+
+    @staticmethod
+    def _decision_id(candidate_id: str, decision_status: str, reason: str) -> str:
+        digest = hashlib.sha256(
+            (candidate_id + "\0" + decision_status + "\0" + (reason or "")).encode("utf-8")
+        ).hexdigest()
+        return f"book_candidate_decision_{digest[:32]}"
+
+    def _load_decision(self, decision_id: str) -> dict[str, Any] | None:
+        path = self._decision_path(decision_id)
+        if not path.exists():
+            return None
+        return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+
+    def _decision_for_candidate(self, candidate_id: str) -> dict[str, Any] | None:
+        directory = self._decisions_dir()
+        if not directory.exists():
+            return None
+        for path in sorted(directory.glob("*.yaml")):
+            data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+            if data.get("candidate_id") == candidate_id:
+                return data
+        return None
+
+    def _decisions_for_publication(self, publication_id: str) -> dict[str, dict[str, Any]]:
+        directory = self._decisions_dir()
+        decisions: dict[str, dict[str, Any]] = {}
+        if not directory.exists():
+            return decisions
+        for path in sorted(directory.glob("*.yaml")):
+            data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+            if data.get("publication_id") == publication_id:
+                decisions[data.get("candidate_id")] = data
+        return decisions
+
+    def show_book_candidate_decision(self, decision_id: str) -> dict[str, Any]:
+        decision = self._load_decision(decision_id)
+        if decision is None:
+            raise FileNotFoundError(f"Book candidate decision not found: {decision_id}")
+        return decision
+
+    def _validate_candidate_freshness(self, candidate: dict[str, Any]) -> tuple[bool, list[dict[str, Any]]]:
+        """Live revalidation of every dependency a decision would rest on.
+
+        Persisted candidate freshness is never trusted; every source is
+        re-read from disk. Returns ``(is_fresh, reasons)`` where each reason is a
+        structured ``{code, expected, current, recommended_action}``.
+        """
+        reasons: list[dict[str, Any]] = []
+
+        def add(code: str, *, expected: Any = None, current: Any = None,
+                recommended_action: str = "publish a fresh Book candidate and decide again") -> None:
+            reasons.append({"code": code, "expected": expected, "current": current, "recommended_action": recommended_action})
+
+        # Candidate must still be a proposed, unaccepted candidate.
+        if candidate.get("authority") != "candidate":
+            add("CANDIDATE_AUTHORITY_CHANGED", expected="candidate", current=candidate.get("authority"))
+        if candidate.get("lifecycle") != "proposed":
+            add("CANDIDATE_NOT_PROPOSED", expected="proposed", current=candidate.get("lifecycle"))
+
+        # Source plan must still exist and carry the same transformation.
+        plan_id = candidate.get("source_plan_id")
+        plan: dict[str, Any] = {}
+        if not plan_id or not self._plan_path(plan_id).exists():
+            add("PLAN_MISSING", expected=plan_id, current=None)
+        else:
+            plan = self._load_plan(plan_id)
+            transformation = plan.get("transformation", {})
+            if (transformation.get("id"), transformation.get("version")) != (PUBLICATION_TRANSFORMATION["id"], PUBLICATION_TRANSFORMATION["version"]):
+                add("PLAN_CHANGED", expected=PUBLICATION_TRANSFORMATION, current=transformation)
+
+        # Source publication must still exist.
+        publication_id = candidate.get("publication_id")
+        publication_path = self.root / "publications" / f"{publication_id}.yaml"
+        if not publication_id or not publication_path.exists():
+            add("PUBLICATION_MISSING", expected=publication_id, current=None)
+
+        # Source inspection must still be locatable and unchanged.
+        inspection_id = candidate.get("source_inspection_id")
+        report: dict[str, Any] = {}
+        try:
+            report = self._load_inspection(inspection_id)
+        except FileNotFoundError:
+            add("INSPECTION_MISSING", expected=inspection_id, current=None)
+        if report:
+            transformation = report.get("provenance", {}).get("transformation", {})
+            if (transformation.get("id"), transformation.get("version")) != INSPECTION_TRANSFORMATION:
+                add("INSPECTION_CHANGED", expected=INSPECTION_TRANSFORMATION, current=transformation)
+
+        # Source proposal must still exist (no orphaned reference).
+        proposal_id = candidate.get("source_proposal_id")
+        proposal = self._load_proposal(proposal_id) if proposal_id else None
+        if proposal_id and proposal is None:
+            add("PROPOSAL_MISSING", expected=proposal_id, current=None)
+
+        # Book revision/hash must match; the target must still exist.
+        book = BookExpressionStore(self.project)
+        try:
+            inspected = book.inspect(candidate.get("book_expression_id"))
+            metadata = inspected["metadata"]
+            if inspected["freshness"] != "fresh":
+                add("BOOK_OR_CHAPTER_REVISION_CHANGED", expected="fresh", current=inspected["freshness"])
+            if metadata.get("revision") != candidate.get("source_book_revision"):
+                add("BOOK_REVISION_CHANGED", expected=candidate.get("source_book_revision"), current=metadata.get("revision"))
+            elif _hash(self._book_source_text(book, metadata)) != candidate.get("source_book_hash"):
+                add("BOOK_HASH_CHANGED", expected=candidate.get("source_book_hash"), current=_hash(self._book_source_text(book, metadata)))
+            if proposal is not None:
+                target_reason = self._target_current(proposal, metadata)
+                if target_reason is not None:
+                    add("TARGET_CHANGED", expected="unchanged target", current=target_reason)
+        except FileNotFoundError:
+            add("BOOK_MISSING", expected=candidate.get("book_expression_id"), current=None)
+
+        return (not reasons), reasons
+
+    def decide_candidate(
+        self,
+        candidate_id: str,
+        decision_status: str,
+        reason: str,
+        *,
+        decided_by: str = "author",
+    ) -> tuple[bool, dict[str, Any]]:
+        """Create an immutable decision for a published Book candidate.
+
+        Returns ``(True, decision)`` on success, or ``(False, error.result)`` on a
+        structured stale rejection. Raises ``CandidateNotFoundError`` for an
+        unknown candidate, ``DuplicateDecisionError`` for a second decision on the
+        same candidate, and ``ValueError`` for an invalid status. No candidate is
+        accepted, no Book is recomposed, and no pointer moves.
+        """
+        if decision_status not in DECISION_STATUSES:
+            raise ValueError(f"decision status must be one of {DECISION_STATUSES}: {decision_status}")
+
+        # 1. Locate the candidate.
+        try:
+            candidate = self.load_book_candidate(candidate_id)
+        except FileNotFoundError as exc:
+            raise CandidateNotFoundError(str(exc)) from exc
+
+        # 2. No duplicate decisions (terminal, immutable, one per candidate).
+        existing = self._decision_for_candidate(candidate_id)
+        if existing is not None:
+            raise DuplicateDecisionError(
+                f"candidate already decided ({existing['decision']['status']}); "
+                f"decisions are immutable: {candidate_id}"
+            )
+
+        # 3. Live freshness gate.
+        is_fresh, freshness_reasons = self._validate_candidate_freshness(candidate)
+        if not is_fresh:
+            error = BookFreshnessRejectError({
+                "status": "rejected_stale",
+                "message": "Book candidate is stale; no decision was recorded",
+                "candidate_id": candidate_id,
+                "reasons": freshness_reasons,
+                "visible_outputs_created": False,
+            })
+            return False, error.result
+
+        # 4. Create the immutable decision.
+        now = datetime.now(timezone.utc).isoformat()
+        decision_id = self._decision_id(candidate_id, decision_status, reason)
+        candidate_hash = _hash(yaml.safe_dump(candidate, sort_keys=True))
+        decision = {
+            "decision_id": decision_id,
+            "artifact_type": "book_candidate_decision",
+            "authority": "decision",
+            "lifecycle": "decided",
+            "candidate_id": candidate_id,
+            "book_expression_id": candidate.get("book_expression_id"),
+            "candidate_type": candidate.get("artifact_type"),
+            "publication_id": candidate.get("publication_id"),
+            "source_plan_id": candidate.get("source_plan_id"),
+            "decision": {
+                "status": decision_status,
+                "reason": reason,
+                "decided_by": decided_by,
+                "decided_at": now,
+            },
+            "source_candidate_id": candidate_id,
+            "source_candidate_revision": candidate.get("revision", 1),
+            "source_candidate_hash": candidate_hash,
+            "transformation": dict(DECISION_TRANSFORMATION),
+            "created_at": now,
+            "decided_at": now,
+            "freshness": {"status": "fresh", "reasons": []},
+        }
+
+        # 5. Persist immutably (append to history; never overwrite).
+        decision_path = self._decision_path(decision_id)
+        if decision_path.exists():
+            raise DuplicateDecisionError(f"decision already exists: {decision_id}")
+        decision_path.parent.mkdir(parents=True, exist_ok=True)
+        decision_path.write_text(yaml.safe_dump(decision, sort_keys=False), encoding="utf-8")
+
+        # 6. Regenerate the decision-aware preview (still derived/proposed).
+        publication_id = candidate.get("publication_id")
+        if publication_id:
+            self._generate_decision_aware_preview(publication_id)
+
+        return True, decision
+
+    def _generate_decision_aware_preview(self, publication_id: str) -> dict[str, Any]:
+        """Regenerate a publication's preview from its accepted decisions.
+
+        Accepted candidates are applied; rejected, deferred, and still-undecided
+        candidates are excluded. The preview is rebuilt from accepted Chapter
+        sources plus accepted Book-owned candidates and remains derived,
+        proposed, and noncanonical. No Book Expression is modified or accepted.
+        """
+        manifest = self.inspect_book_publication(publication_id)
+        plan = self._load_plan(manifest["source_plan_id"])
+        book = BookExpressionStore(self.project)
+        inspected = book.inspect(plan["source_book_expression"])
+        metadata = inspected["metadata"]
+        decisions = self._decisions_for_publication(publication_id)
+
+        accepted_candidates: list[dict[str, Any]] = []
+        applied_decisions: list[dict[str, Any]] = []
+        for candidate_id in manifest.get("published_candidates", []):
+            decision = decisions.get(candidate_id)
+            status = decision["decision"]["status"] if decision else "undecided"
+            applied_decisions.append({"candidate_id": candidate_id, "status": status})
+            if status == "accepted":
+                accepted_candidates.append(self.load_book_candidate(candidate_id))
+
+        preview = self._build_preview(plan, metadata, accepted_candidates, publication_id)
+        preview["decision_aware"] = True
+        preview["applied_decisions"] = applied_decisions
+        fresh = inspected["freshness"] == "fresh" and metadata.get("revision") == plan.get("source_book_revision")
+        preview["freshness"] = {"status": "fresh" if fresh else "stale", "reasons": [] if fresh else ["source Book changed since publication"]}
+
+        preview_path = self.root / "previews" / f"{publication_id}.yaml"
+        preview_path.parent.mkdir(parents=True, exist_ok=True)
+        preview_path.write_text(yaml.safe_dump(preview, sort_keys=False), encoding="utf-8")
+        return preview

@@ -200,6 +200,87 @@ transformation:
 - **Post-publication**: candidates and previews that depend on a changed source
   become stale, while independent candidates remain fresh.
 
+## Candidate decisions (decision lifecycle)
+
+Once candidates are published, the author decides each one independently:
+**accept**, **reject**, or **defer**. A decision is a durable, *immutable*
+record — it does **not** recompose the Book, does **not** accept a candidate as
+canonical, and does **not** move the accepted Book pointer.
+
+Path: `book/expression/reconciliation/decisions/<decision_id>.yaml`
+
+```yaml
+decision_id: book_candidate_decision_...
+artifact_type: book_candidate_decision
+authority: decision            # distinct from candidate / accepted / derived
+lifecycle: decided             # terminal
+candidate_id: book_candidate_fce60cdf...
+book_expression_id: book_01:expression_v001
+candidate_type: book_separator_candidate
+decision:
+  status: accepted             # accepted | rejected | deferred
+  reason: Author approved separator
+  decided_at: 2026-07-16T14:30:00+00:00
+source_candidate_id: book_candidate_fce60cdf...
+source_candidate_revision: 1
+source_candidate_hash: sha256:...   # snapshot of the decided candidate
+transformation:
+  id: expression.decide_book_candidate
+  version: 1
+freshness:
+  status: fresh
+  reasons: []
+```
+
+### Immutability
+
+Decisions are terminal. There is exactly **one decision per candidate**; there
+is no revocation and no amendment. The `decision_id` is deterministic
+(`SHA256(candidate_id + status + reason)`), and a second decision on the same
+candidate — with any status or reason — is rejected with a
+`DuplicateDecisionError`. Prior decisions are preserved, never deleted.
+
+### Live freshness gate at decision time
+
+Before a decision is written, every dependency is revalidated from disk
+(persisted candidate freshness is never trusted): the candidate is still a
+proposed, unaccepted candidate; its source plan, publication, inspection, and
+proposal still exist and are unchanged (plan/inspection transformations match);
+the accepted Book revision and hash still match the candidate's recorded source;
+and the candidate's target still exists. If anything changed, the decision is
+refused with a structured rejection and **no** decision record is written:
+
+```yaml
+status: rejected_stale
+reasons:
+  - code: BOOK_OR_CHAPTER_REVISION_CHANGED
+    expected: fresh
+    current: stale
+    recommended_action: publish a fresh Book candidate and decide again
+visible_outputs_created: false
+```
+
+### Decision-aware preview (not recomposition)
+
+Creating a decision regenerates the publication's preview from its decisions:
+**accepted** candidates are applied, while **rejected**, **deferred**, and
+still-**undecided** candidates are excluded. The regenerated preview is rebuilt
+from accepted Chapter sources plus accepted Book-owned candidates and remains
+`authority=derived`, `lifecycle=proposed`, `role=application_preview`,
+`canonical=false`. This is a *preview* of what recomposition would produce — no
+Book Expression is modified or accepted. The preview records `decision_aware:
+true` and an `applied_decisions` list.
+
+### Explicit preview-acceptance blocking
+
+`BookExpressionStore._validate_acceptable_artifact` blocks preview acceptance by
+**metadata**, not by path. An acceptable artifact must be `authority=accepted`,
+must not carry `role=application_preview`, and must be `lifecycle=accepted`. A
+derived, proposed preview fails all three and raises
+`BookPreviewNotAcceptableError` ("Previews are derived and proposed; they cannot
+become canonical accepted Book content."), replacing the previous incidental
+`FileNotFoundError`.
+
 ## CLI
 
 ```bash
@@ -208,20 +289,29 @@ auteur expression plan-book-reconciliation <inspection> \
 auteur expression show-book-plan <plan> --project PROJECT
 auteur expression publish-book-reconciliation <plan> --project PROJECT
 auteur expression inspect-book-publication <publication> --project PROJECT
+
+auteur expression accept-book-candidate <candidate> --reason "text" --project PROJECT
+auteur expression reject-book-candidate <candidate> --reason "text" --project PROJECT
+auteur expression defer-book-candidate  <candidate> --reason "text" --project PROJECT
+auteur expression show-book-candidate-decision <decision> --project PROJECT
 ```
 
 Normal output names the source Book, selected proposals, readiness, published
 candidates, the preview status, `Acceptance status: none`, `Accepted Book
-pointer changed: no`, and a recommended next action. Hashes and full metadata
-are shown only behind `--json` and `--verbose`.
+pointer changed: no`, and a recommended next action. Decision output names the
+candidate, the decision and reason, `Preview updated: yes`, and `Book pointer
+changed: no`. Hashes and full metadata are shown only behind `--json` and
+`--verbose`.
 
-There are intentionally **no** `accept-book-candidate`,
-`accept-book-publication`, `apply-book-proposal`, `recompose-book-reconciliation`,
-or `complete-book-reconciliation` commands. Candidate acceptance, Book
-recomposition, and reconciliation completion are out of scope for Phase B.
+The decision commands record accept/reject/defer only. There are still
+intentionally **no** `apply-book-proposal`, `recompose-book-reconciliation`, or
+`complete-book-reconciliation` commands: candidate *acceptance into canonical
+Book content*, Book recomposition, and reconciliation completion remain out of
+scope.
 
 ## Non-goals
 
-Phase B does not implement candidate acceptance, Book recomposition from
-candidates, reconciliation completion, or the combination of Chapter-local and
-Book-owned decisions. It does not mutate any accepted or canonical artifact.
+This slice does not implement Book recomposition from accepted candidates,
+acceptance of a recomposed Book, or reconciliation completion. Decisions record
+author intent and regenerate a derived preview; they never mutate any accepted
+or canonical artifact.
