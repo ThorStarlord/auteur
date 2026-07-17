@@ -67,6 +67,13 @@ ACCEPTED_SOURCE_KIND = {
     "book_inserted_material_candidate": "material",
 }
 
+RECOMPOSITION_TRANSFORMATION = {"id": "expression.recompose_book_from_accepted_sources", "version": 1}
+# Phase C1: pointer-based Book recomposition derives a noncanonical recomposed
+# Book by assembling the current accepted Chapter Expression pointers with the
+# current accepted Book-owned source pointers. It is READ-ONLY over accepted
+# sources: it never moves the accepted Book pointer, never accepts a candidate,
+# never completes reconciliation, and never reads unpublished candidates.
+
 POINTER_TRANSFORMATION = {"id": "expression.point_accepted_book_source", "version": 1}
 # The *current accepted-source pointer* is the ONLY mutable tier of the accepted
 # authority model. Approving a candidate moves the pointer to the newly created
@@ -107,18 +114,39 @@ class CandidateNotFoundError(ValueError):
 
 
 class RecompositionBlockedError(ValueError):
-    """Raised/returned when recomposition is blocked because the Book changed.
+    """Raised/returned when pointer-based Book recomposition is blocked.
 
-    ``result`` carries a structured block: ``status='blocked_stale_book'``, the
-    ``reasons`` (each ``{code, expected, current, recommended_action}``), and
-    ``visible_outputs_created=False``. Approving a candidate snapshots the Book
-    revision it was decided against; if the accepted Book advances afterward, the
-    approval no longer describes the current Book and recomposition must not run
-    until the author re-decides.
+    Recomposition is gated by comprehensive freshness validation. When any check
+    fails, this error is returned (never raised into a partial artifact) carrying
+    a structured block. ``result`` is the full structured dict; the flattened
+    attributes are provided for ergonomic access:
+
+    - ``status``   -- one of ``blocked_stale_chapter``, ``blocked_stale_book``,
+                      ``blocked_missing_target`` (``ready`` never blocks).
+    - ``reason``   -- the primary (first) failure code.
+    - ``details``  -- structured ``{reasons: [...], publication_id, ...}``.
+    - ``recommended_action`` -- the primary recommended remediation.
+
+    Approving a candidate snapshots the Book revision/hash it was decided
+    against; if any Chapter or the accepted Book advances afterward, the accepted
+    sources no longer describe the current Book and recomposition must not run
+    (no partial or stale recomposition is ever produced) until the author
+    re-decides.
     """
 
     def __init__(self, result: dict[str, Any]):
         self.result = result
+        reasons = result.get("reasons", []) or []
+        primary = reasons[0] if reasons else {}
+        self.status: str = result.get("status", "blocked")
+        self.reason: str = primary.get("code", result.get("status", "blocked"))
+        self.details: dict[str, Any] = {
+            "reasons": reasons,
+            "publication_id": result.get("publication_id"),
+        }
+        self.recommended_action: str = primary.get(
+            "recommended_action", result.get("message", "recompose from fresh accepted sources")
+        )
         super().__init__(result.get("message", "recomposition blocked"))
 
 
@@ -1451,3 +1479,369 @@ class BookReconciliationStore:
         preview_path.parent.mkdir(parents=True, exist_ok=True)
         preview_path.write_text(yaml.safe_dump(preview, sort_keys=False), encoding="utf-8")
         return preview
+
+    # ------------------------------------------------------------------
+    # Phase C1: pointer-based Book recomposition.
+    #
+    # Recomposition derives a candidate recomposed Book by assembling the current
+    # accepted Chapter Expression pointers with the current accepted Book-owned
+    # source pointers (Tier 3). The result is authority=derived, lifecycle=
+    # proposed, role=reconciliation_recomposition, canonical=false. It is
+    # READ-ONLY over accepted sources: it never moves the accepted Book pointer,
+    # never accepts a candidate, never completes reconciliation, never treats
+    # decisions as narrative sources, and never reads unpublished candidates.
+    #
+    # Recomposition is gated by comprehensive freshness validation and is atomic:
+    # any validation failure blocks with a structured RecompositionBlockedError
+    # and NO artifact (partial or stale) is written. Given the same publication,
+    # the same pointers, and the same Book state, recomposition is deterministic
+    # (a timestamp-independent content_hash is identical byte-for-byte).
+    # ------------------------------------------------------------------
+
+    def _recompositions_dir(self) -> Path:
+        return self.root / "recompositions"
+
+    def _recomposition_path(self, publication_id: str) -> Path:
+        return self._recompositions_dir() / f"{publication_id}_recomposed.yaml"
+
+    def _load_pointer_by_id(self, pointer_id: str) -> dict[str, Any] | None:
+        """Locate a current accepted-source pointer by its ``pointer_id``.
+
+        Pointers are keyed on disk by ``(owned_kind, element_id)``; this scans
+        every current pointer and returns the one whose id matches, or ``None``.
+        """
+        for pointer in self._all_pointers():
+            if pointer.get("pointer_id") == pointer_id:
+                return pointer
+        return None
+
+    def _block(self, status: str, publication_id: str, message: str, reasons: list[dict[str, Any]]) -> RecompositionBlockedError:
+        return RecompositionBlockedError({
+            "status": status,
+            "publication_id": publication_id,
+            "message": message,
+            "reasons": reasons,
+            "visible_outputs_created": False,
+        })
+
+    # -- Source resolution layer ------------------------------------------------
+
+    def _resolve_chapter_for_recomposition(
+        self, chapter_id: str, publication_id: str
+    ) -> tuple[bool, dict[str, Any] | RecompositionBlockedError]:
+        """Resolve a Chapter from its current Chapter Expression pointer and validate freshness.
+
+        The "Chapter Expression pointer" is the accepted Book's reference to the
+        Chapter Expression (``chapter_expression_id`` + ``accepted_revision`` +
+        ``content_hash``). The pointer target must exist (the accepted Chapter
+        Expression) and must be fresh (its current content hash must match).
+        """
+        book = BookExpressionStore(self.project)
+        manifest = self.inspect_book_publication(publication_id)
+        try:
+            metadata = book.inspect(manifest["source_book_expression"])["metadata"]
+        except FileNotFoundError:
+            return False, self._block("blocked_missing_target", publication_id, "recomposition blocked: accepted Book missing", [{"code": "BOOK_MISSING", "expected": manifest.get("source_book_expression"), "current": None, "recommended_action": "restore the accepted Book and recompose again"}])
+        reference = next((item for item in metadata["chapters"] if item["chapter_id"] == chapter_id), None)
+        if reference is None:
+            return False, self._block("blocked_missing_target", publication_id, "recomposition blocked: Chapter pointer missing", [{"code": "MISSING_CHAPTER_POINTER", "expected": chapter_id, "current": None, "recommended_action": "recompose the accepted Book so the Chapter pointer is restored"}])
+        try:
+            current = book._accepted_chapter(chapter_id)
+        except ValueError:
+            return False, self._block("blocked_missing_target", publication_id, "recomposition blocked: Chapter revision missing", [{"code": "MISSING_REVISION", "expected": reference.get("chapter_expression_id"), "current": None, "recommended_action": "restore the accepted Chapter Expression and recompose again"}])
+        if current["revision"] != reference["accepted_revision"] or current["content_hash"] != reference["content_hash"]:
+            return False, self._block("blocked_stale_chapter", publication_id, "recomposition blocked: Chapter changed since accepted", [{"code": "STALE_CHAPTER", "chapter_id": chapter_id, "expected": reference["accepted_revision"], "current": current["revision"], "recommended_action": "recompose the accepted Book from the current Chapter, then recompose reconciliation"}])
+        return True, {
+            "chapter_id": chapter_id,
+            "chapter_expression_id": reference["chapter_expression_id"],
+            "pointer_id": reference["chapter_expression_id"],
+            "accepted_revision": reference["accepted_revision"],
+            "content_hash": reference["content_hash"],
+        }
+
+    def _resolve_owned_for_recomposition(
+        self, pointer_id: str, publication_id: str
+    ) -> tuple[bool, dict[str, Any] | RecompositionBlockedError]:
+        """Resolve a Book-owned source from its current pointer; validate target exists and is fresh."""
+        pointer = self._load_pointer_by_id(pointer_id)
+        if pointer is None:
+            return False, self._block("blocked_missing_target", publication_id, "recomposition blocked: Book-owned pointer missing", [{"code": "MISSING_POINTER", "expected": pointer_id, "current": None, "recommended_action": "re-approve the Book-owned candidate to restore its pointer"}])
+        try:
+            source = self.load_accepted_book_owned_source(pointer["current_accepted_source_id"])
+        except FileNotFoundError:
+            return False, self._block("blocked_missing_target", publication_id, "recomposition blocked: accepted Book-owned revision missing", [{"code": "MISSING_REVISION", "expected": pointer.get("current_accepted_source_id"), "current": None, "recommended_action": "re-approve the Book-owned candidate to materialize its accepted revision"}])
+        return True, {"pointer": pointer, "source": source}
+
+    def _resolve_separator_for_recomposition(self, separator_pointer_id: str, publication_id: str) -> tuple[bool, Any]:
+        return self._resolve_owned_for_recomposition(separator_pointer_id, publication_id)
+
+    def _resolve_order_for_recomposition(self, order_pointer_id: str, publication_id: str) -> tuple[bool, Any]:
+        return self._resolve_owned_for_recomposition(order_pointer_id, publication_id)
+
+    def _resolve_title_for_recomposition(self, title_pointer_id: str, publication_id: str) -> tuple[bool, Any]:
+        return self._resolve_owned_for_recomposition(title_pointer_id, publication_id)
+
+    def _resolve_material_for_recomposition(self, material_pointer_id: str, publication_id: str) -> tuple[bool, Any]:
+        return self._resolve_owned_for_recomposition(material_pointer_id, publication_id)
+
+    # -- Freshness gate ---------------------------------------------------------
+
+    def _validate_recomposition_freshness(
+        self, publication_id: str, current_book: dict[str, Any] | None,
+        book_revision_required: str | None = None,
+    ) -> tuple[bool, str | RecompositionBlockedError]:
+        """Validate every pointer and target is fresh before recomposition runs.
+
+        Returns ``(True, "")`` when recomposition is ready, or ``(False, error)``
+        with a structured :class:`RecompositionBlockedError` when blocked. Blocks
+        immediately and atomically -- never produces partial or stale output.
+        Ordering: missing/incomplete publication and Book first, then Chapter
+        pointers (missing target then staleness), then Book-owned pointers, then
+        the Book-revision approval-snapshot match.
+        """
+        # 1. Publication exists and is complete (accepted|published).
+        try:
+            manifest = self.inspect_book_publication(publication_id)
+        except FileNotFoundError:
+            return False, self._block("blocked_missing_target", publication_id, "recomposition blocked: publication missing", [{"code": "PUBLICATION_MISSING", "expected": publication_id, "current": None, "recommended_action": "publish a Book reconciliation plan before recomposing"}])
+        if manifest.get("lifecycle") not in {"published", "accepted"} and manifest.get("acceptance_status") not in {"accepted"}:
+            return False, self._block("blocked_missing_target", publication_id, "recomposition blocked: publication not complete", [{"code": "PUBLICATION_NOT_COMPLETE", "expected": "published|accepted", "current": manifest.get("lifecycle"), "recommended_action": "complete publication before recomposing"}])
+
+        book = BookExpressionStore(self.project)
+        book_id = manifest.get("source_book_expression")
+        try:
+            inspected = book.inspect(book_id)
+        except FileNotFoundError:
+            return False, self._block("blocked_missing_target", publication_id, "recomposition blocked: accepted Book missing", [{"code": "BOOK_MISSING", "expected": book_id, "current": None, "recommended_action": "restore the accepted Book and recompose again"}])
+        metadata = inspected["metadata"]
+        current_revision = metadata.get("revision")
+        current_hash = _hash(self._book_source_text(book, metadata))
+
+        if book_revision_required is not None and str(current_revision) != str(book_revision_required):
+            return False, self._block("blocked_stale_book", publication_id, "recomposition blocked: required Book revision does not match", [{"code": "STALE_BOOK_REVISION", "expected": book_revision_required, "current": current_revision, "recommended_action": "recompose against the current Book revision or re-decide candidates"}])
+
+        # 2-4. Chapter pointers: exist, target exists, fresh. Missing targets
+        #      (blocked_missing_target) take precedence over staleness
+        #      (blocked_stale_chapter) so the author fixes the harder failure first.
+        order = self._current_order(metadata)
+        for chapter_id in order:
+            ok, result = self._resolve_chapter_for_recomposition(chapter_id, publication_id)
+            if not ok:
+                return False, result
+
+        # 5-7. Book-owned pointers for this publication: exist, target exists, fresh.
+        #      Iterate pointers directly (each pointer carries its origin
+        #      publication_id) rather than current_accepted_sources, which would
+        #      raise while eagerly resolving a deleted revision -- the very
+        #      missing-target case this check must report as a structured block.
+        for pointer in self._all_pointers():
+            if pointer.get("publication_id") != publication_id:
+                continue
+            ok, result = self._resolve_owned_for_recomposition(pointer["pointer_id"], publication_id)
+            if not ok:
+                return False, result
+
+        # 8. Current Book must match every approval snapshot. Approving a candidate
+        #    snapshots the Book revision/hash it was decided against; if the
+        #    accepted Book advanced afterward, the approval no longer describes the
+        #    current Book and recomposition is blocked until the author re-decides.
+        gate = self.assess_recomposition_freshness(publication_id)
+        if gate["status"] != "ready":
+            reasons = gate.get("reasons", []) or [{"code": "STALE_BOOK_REVISION", "recommended_action": "re-approve or create a new decision for the current Book"}]
+            return False, self._block("blocked_stale_book", publication_id, gate.get("message", "recomposition blocked: Book changed since decision"), reasons)
+
+        return True, ""
+
+    # -- Assembly ---------------------------------------------------------------
+
+    def _assemble_recomposition(
+        self, publication_id: str, manifest: dict[str, Any], metadata: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Deterministically resolve every source into the recomposed Book body.
+
+        Order resolution: an order pointer (if present) overrides the accepted
+        Book order; otherwise the accepted Book order is used. Separator, title,
+        and inserted-material pointers are each resolved independently. Returns
+        the fully resolved body plus the ``source_pointers`` map. Deterministic:
+        no timestamps enter the returned structure.
+        """
+        default_title = metadata["book_owned_content"].get("title", "")
+        default_separator = metadata["book_owned_content"].get("separator", "---")
+
+        separator_pointer_id = order_pointer_id = title_pointer_id = None
+        inserted_material_pointer_ids: list[str] = []
+        applied_separator = applied_order = applied_title = None
+        insertions: list[dict[str, Any]] = []
+
+        # Group this publication's current owned pointers by kind (pointer-based,
+        # NOT decision-based: defer/reject after an approval leave the pointer, so
+        # the accepted revision it names is still consumed).
+        for source in self.current_accepted_sources(publication_id):
+            pointer = self.current_accepted_source_pointer(source.get("target_id"), source.get("owned_kind"))
+            kind = source.get("owned_kind")
+            pid = pointer["pointer_id"]
+            if kind == "separator":
+                separator_pointer_id = pid
+                applied_separator = source.get("proposed")
+            elif kind == "order":
+                order_pointer_id = pid
+                applied_order = source.get("proposed")
+            elif kind == "title":
+                title_pointer_id = pid
+                applied_title = source.get("proposed")
+            elif kind == "material":
+                inserted_material_pointer_ids.append(pid)
+                insertions.append({"pointer_id": pid, "accepted_source_id": source.get("accepted_source_id"), "target_id": source.get("target_id"), "revision": source.get("revision"), "content": source.get("proposed")})
+
+        title = applied_title if applied_title is not None else default_title
+        separator = applied_separator if applied_separator is not None else default_separator
+        if applied_order is not None:
+            order = [item.strip() for item in applied_order.split(",")]
+        else:
+            order = self._current_order(metadata)
+
+        by_id = {item["chapter_id"]: item for item in metadata["chapters"]}
+        chapters = []
+        chapter_pointers = []
+        for chapter_id in order:
+            ok, resolved = self._resolve_chapter_for_recomposition(chapter_id, publication_id)
+            # Freshness already validated; resolution here cannot fail. Guard anyway.
+            reference = resolved if ok else by_id.get(chapter_id, {})
+            chapters.append({
+                "chapter_id": chapter_id,
+                "chapter_expression_id": reference.get("chapter_expression_id"),
+                "accepted_revision": reference.get("accepted_revision"),
+                "content_hash": reference.get("content_hash"),
+            })
+            chapter_pointers.append({"chapter_id": chapter_id, "pointer_id": reference.get("pointer_id") or reference.get("chapter_expression_id")})
+
+        insertions.sort(key=lambda item: (str(item.get("target_id")), str(item.get("pointer_id"))))
+        inserted_material_pointer_ids = sorted(inserted_material_pointer_ids)
+
+        body = {
+            "title_rendering": title,
+            "separator": separator,
+            "order": order,
+            "chapters": chapters,
+            "insertions": insertions,
+            "source_pointers": {
+                "chapters": chapter_pointers,
+                "book_owned": {
+                    "separator_pointer_id": separator_pointer_id,
+                    "order_pointer_id": order_pointer_id,
+                    "title_rendering_pointer_id": title_pointer_id,
+                    "inserted_material_pointer_ids": inserted_material_pointer_ids,
+                },
+            },
+        }
+        return body
+
+    @staticmethod
+    def _recomposition_content_hash(body: dict[str, Any]) -> str:
+        """Timestamp-independent content hash guaranteeing deterministic output.
+
+        Hashes only the resolved narrative content (title, separator, order,
+        Chapter identities+hashes, insertions) with stable JSON serialization.
+        Excludes ``recomposed_at`` and any provenance so repeated recomposition
+        over identical state yields a byte-identical hash.
+        """
+        signature = json.dumps({
+            "title_rendering": body["title_rendering"],
+            "separator": body["separator"],
+            "order": body["order"],
+            "chapters": [(item["chapter_id"], item["content_hash"]) for item in body["chapters"]],
+            "insertions": [(item.get("target_id"), item.get("content")) for item in body["insertions"]],
+            "source_pointers": body["source_pointers"],
+        }, sort_keys=True)
+        return _hash(signature)
+
+    def recompose_book_from_accepted_sources(
+        self, publication_id: str, book_revision_required: str | None = None,
+    ) -> tuple[bool, dict[str, Any] | RecompositionBlockedError]:
+        """Recompose a noncanonical Book from current accepted Chapter and Book-owned pointers.
+
+        Assembles a derived, proposed, noncanonical recomposed Book from the
+        current accepted Chapter Expression pointers plus the current accepted
+        Book-owned source pointers. Returns ``(True, recomposed_book_dict)`` on
+        success or ``(False, RecompositionBlockedError)`` on any stale/missing
+        block. READ-ONLY over accepted sources: it never moves the accepted Book
+        pointer, never accepts a candidate, never completes reconciliation, never
+        treats decisions as narrative sources, and never reads unpublished
+        candidates. Deterministic: the persisted ``content_hash`` is identical for
+        identical state. Atomic: on any block, no artifact is written.
+        """
+        # Freshness gate first; nothing is written unless every check passes.
+        ready, gate = self._validate_recomposition_freshness(publication_id, None, book_revision_required)
+        if not ready:
+            return False, gate
+
+        manifest = self.inspect_book_publication(publication_id)
+        book = BookExpressionStore(self.project)
+        metadata = book.inspect(manifest["source_book_expression"])["metadata"]
+
+        body = self._assemble_recomposition(publication_id, manifest, metadata)
+        content_hash = self._recomposition_content_hash(body)
+        # Snapshots of the Book revision each active approval was decided against.
+        approval_snapshots = [
+            {"owned_kind": source.get("owned_kind"), "target_id": source.get("target_id"), "book_revision_at_approval": source.get("source_book_revision"), "book_hash_at_approval": source.get("source_book_hash")}
+            for source in self.current_accepted_sources(publication_id)
+        ]
+
+        recomposed = {
+            "recomposition_id": f"book_recomposition_{publication_id}",
+            "artifact_type": "book_reconciliation_recomposition",
+            "authority": "derived",
+            "lifecycle": "proposed",
+            "role": "reconciliation_recomposition",
+            "canonical": False,
+            "book_expression_id": f"{manifest['source_book_expression']}:recomposition",
+            "source_book_expression": manifest["source_book_expression"],
+            "source_book_revision": metadata.get("revision"),
+            "content_hash": content_hash,
+            "title_rendering": body["title_rendering"],
+            "separator": body["separator"],
+            "order": body["order"],
+            "chapters": body["chapters"],
+            "insertions": body["insertions"],
+            "source_pointers": body["source_pointers"],
+            "inspection_id": manifest.get("source_inspection_id"),
+            "publication_id": publication_id,
+            "recomposed_at": datetime.now(timezone.utc).isoformat(),
+            "provenance": {
+                "method": "pointer_based_recomposition",
+                "transformation": dict(RECOMPOSITION_TRANSFORMATION),
+                "book_revision_at_approval": approval_snapshots,
+                "validation_status": "fresh",
+                "accepted_book_pointer_changed": False,
+            },
+        }
+
+        self._store_recomposed_book(recomposed)
+        return True, recomposed
+
+    def _store_recomposed_book(self, recomposed: dict[str, Any]) -> Path:
+        """Persist the recomposed Book as a transient derived artifact (atomic write).
+
+        Stored under ``recompositions/`` -- NOT in accepted-sources. This is a
+        noncanonical, proposed artifact; writing it changes no pointer and accepts
+        nothing. The write is atomic (temp + replace) so a reader never observes a
+        partially written recomposition.
+        """
+        path = self._recomposition_path(recomposed["publication_id"])
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix(".yaml.tmp")
+        try:
+            tmp.write_text(yaml.safe_dump(recomposed, sort_keys=False), encoding="utf-8")
+            tmp.replace(path)
+        except Exception:
+            if tmp.exists():
+                tmp.unlink()
+            raise
+        return path
+
+    def load_recomposed_book(self, publication_id: str) -> dict[str, Any]:
+        """Load the most recent recomposition artifact for a publication."""
+        path = self._recomposition_path(publication_id)
+        if not path.exists():
+            raise FileNotFoundError(f"Book recomposition not found: {publication_id}")
+        return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
