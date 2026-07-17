@@ -476,10 +476,156 @@ intentionally **no** `apply-book-proposal`, `recompose-book-reconciliation`, or
 Book content*, Book recomposition, and reconciliation completion remain out of
 scope.
 
+## Book Comparison (Phase C2)
+
+Comparison is a read-only, deterministic evaluation of whether a pointer-based
+recomposition (Phase C1) matches its external manuscript. The result is:
+
+```yaml
+authority: derived
+lifecycle: evaluated
+role: reconciliation_comparison
+canonical: false
+```
+
+It never accepts, mutates, or changes any source. It moves no pointer, completes
+no reconciliation, and generates no automatic proposals.
+
+Path: `book/expression/reconciliation/comparisons/<comparison_id>.yaml`
+
+```yaml
+authority: derived
+lifecycle: evaluated
+role: reconciliation_comparison
+canonical: false
+comparison_id: book_comparison_<sha256[:32]>
+source_recomposition_id: book_recomposition_<publication_id>
+source_recomposition_hash: sha256:...
+source_publication_id: book_publication_...
+external_manuscript:
+  path: /abs/path/to/manuscript.md
+  content_hash: sha256:...          # captured at comparison time
+  marker_contract_version: 1
+source_book_revision: 1
+source_book_hash: sha256:...
+chapter_sources:
+  - chapter_id: chapter_01
+    accepted_expression_id: chapter_01:expression_v001
+    revision: 1
+    content_hash: sha256:...
+book_owned_sources:
+  - pointer_id: book_pointer_separator_...
+    accepted_revision_id: book_accepted_separator_v001_...
+    owned_kind: separator
+    content_hash: sha256:...
+summary:
+  exact_match: false
+  ready_for_book_acceptance: true
+  residual_counts: {exact_match: 3, book_owned_residual: 1, chapter_owned_residual: 0,
+                    structural_residual: 0, marker_residual: 0, unresolved_residual: 0}
+findings:
+  - finding_id: finding_<sha256[:32]>
+    category: book_owned_residual
+    external_span: {start_line: 5, end_line: 7}
+    recomposed_span: {start_line: 0, end_line: 0}
+    ownership_analysis: {marker: separator, routing_target: separator, confidence: certain}
+    reason: separator differs from recomposition
+    recommended_action: accept the Book if this Book-owned difference is intended, ...
+transformation: {id: expression.compare_book_recomposition, version: 1}
+```
+
+### Residual classification
+
+Differences are classified using the marker contract and routing rules from
+Phase A. The recomposition is the source of truth; each divergence is one of:
+
+| Category | Meaning |
+|----------|---------|
+| `exact_match` | Recomposition and external agree (identical prose/title/separator/order) |
+| `book_owned_residual` | Belongs to separator, order, title, or inserted material |
+| `chapter_owned_residual` | Difference inside Chapter prose |
+| `structural_residual` | Missing / extra / reordered / malformed Chapter boundary |
+| `marker_residual` | Marker contract violation (duplicate/malformed marker, unsupported contract) |
+| `unresolved_residual` | Ownership cannot be determined safely (markerless, cross-Chapter movement) |
+
+Ownership routing uses `MarkerContract`: an invalid marker is a `marker_residual`;
+a valid Chapter marker routes to its Chapter (or, when the accepted Book does not
+know it, to a `structural` extra-Chapter problem); a valid separator marker routes
+to the Book. Multiple Chapters changed with the Chapter order unchanged is treated
+as cross-boundary movement and collapses to a single `unresolved_residual` rather
+than being mis-attributed to individual Chapters.
+
+### Readiness criteria
+
+A comparison is *ready for Book acceptance* when:
+
+- no unresolved residuals
+- no Chapter-owned residuals
+- no structural residuals
+- no marker residuals
+
+Book-owned residuals may remain nonzero if the Book-owned difference is intended.
+
+### Freshness validation (12-point gate)
+
+Comparison is gated by a 12-point freshness check; any failure blocks atomically
+(no report, partial or otherwise, is written) with a structured
+`ComparisonBlockedError`:
+
+1. Recomposition exists on disk
+2. Recomposition is `authority: derived`
+3. Recomposition is `lifecycle: proposed`
+4. Recomposition hash matches its stored body (not tampered)
+5. Phase C1 recomposition freshness gate passes
+6. Source publication still exists
+7. All accepted Chapter pointers unchanged
+8. All Book-owned pointers unchanged
+9. Pointer targets still exist on disk
+10. Accepted Book revision matches the recomposition snapshot
+11. External manuscript exists at the resolved path
+12. External manuscript hash is captured at comparison time
+
+Checks 7, 8, and 10 are enforced by re-assembling the recomposition from the
+current accepted pointers and Book state and comparing the deterministic content
+hash: any drift (a Chapter pointer advanced, a Book-owned pointer moved to
+different content, the Book revision changed) blocks with
+`blocked_pointer_moved` / `blocked_stale_recomposition`. A Chapter accepted after
+recomposition is caught by the Phase C1 gate as `blocked_stale_chapter`.
+
+### Determinism
+
+The comparison id is `SHA256(recomposition_id + external_hash + marker_version +
+sorted_finding_ids)` and each finding id is
+`SHA256(category + external_span + recomposed_span + routing_target + reason)`. No
+timestamp enters the artifact, so a repeated comparison over identical state
+overwrites the report with byte-identical content and an identical
+`comparison_id`.
+
+### CLI
+
+```bash
+auteur expression compare-book-recomposition <recomposition_id> \
+  --project PROJECT [--external-manuscript PATH] [--json] [--verbose]
+auteur expression inspect-book-comparison <comparison_id> \
+  --project PROJECT [--json]
+```
+
+When `--external-manuscript` is omitted the source inspection's manuscript is the
+default. Normal output names the exact-match count, the readiness flag, each
+residual count with the Book-owned types, `Accepted pointers changed: no`, and a
+recommended next action (`accept Book` / `re-examine residuals` /
+`re-approve sources`). A blocked comparison prints the block status, each
+structured reason, `No comparison report was created.`, and the recommended
+action. Full metadata and per-finding ownership reasoning are shown behind
+`--json` / `--verbose`.
+
 ## Non-goals
 
-This slice does not implement Book recomposition from accepted Book-owned
-sources, acceptance of a recomposed Book, or reconciliation completion. Decisions
-record author intent, produce accepted Book-owned sources on approval, and
-regenerate a derived preview; they never mutate any accepted or canonical
-artifact and never move the accepted Book pointer.
+This slice implements read-only Book comparison but does **not** implement
+acceptance of a recomposed Book, accepted Book-owned pointer movement driven by
+comparison, reconciliation completion, source mutation, or automatic proposal
+generation. Comparison evaluates and classifies; it never accepts, mutates, moves
+a pointer, or completes anything. Decisions record author intent, produce accepted
+Book-owned sources on approval, and regenerate a derived preview; they never
+mutate any accepted or canonical artifact and never move the accepted Book
+pointer.

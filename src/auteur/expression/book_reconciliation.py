@@ -81,6 +81,119 @@ POINTER_TRANSFORMATION = {"id": "expression.point_accepted_book_source", "versio
 # touches the pointer. Recomposition resolves the pointer (not decisions) to find
 # the current accepted revision for each Book-owned element.
 
+COMPARISON_TRANSFORMATION = {"id": "expression.compare_book_recomposition", "version": 1}
+# Phase C2: a READ-ONLY, deterministic comparison between a pointer-based Book
+# recomposition (Phase C1) and an external manuscript. It NEVER accepts the Book,
+# never moves the accepted Book pointer, never mutates any source, never completes
+# reconciliation, and never generates automatic proposals. Its only output is a
+# derived, evaluated, noncanonical comparison report classifying every divergence
+# by ownership (Book-owned / Chapter-owned / structural / marker / unresolved).
+SUPPORTED_MARKER_CONTRACT_VERSIONS = {1}
+# The six residual categories a comparison classifies every finding into. Only
+# ``exact_match`` and ``book_owned_residual`` are compatible with Book acceptance
+# readiness; the other four are blocking residuals.
+COMPARISON_CATEGORIES = (
+    "exact_match",
+    "book_owned_residual",
+    "chapter_owned_residual",
+    "structural_residual",
+    "marker_residual",
+    "unresolved_residual",
+)
+
+
+class MarkerContract:
+    """The Phase A Book marker contract, used to validate and route markers.
+
+    A comparison routes each external span to a Book or Chapter target using this
+    contract. ``is_valid`` enforces the marker grammar (a recognized ``kind`` and a
+    well-formed id); ``route`` maps a parsed element to ``("chapter", id)`` or
+    ``("book", owned_kind)``. The contract is versioned so an unsupported manuscript
+    contract blocks the comparison rather than being silently misinterpreted.
+    """
+
+    CHAPTER_ID = re.compile(r"^chapter_\w+$")
+    SEPARATOR_ID = re.compile(r"^separator_\w+$")
+
+    def __init__(self, version: int) -> None:
+        self.version = version
+
+    @property
+    def is_supported(self) -> bool:
+        return self.version in SUPPORTED_MARKER_CONTRACT_VERSIONS
+
+    def is_valid(self, marker: dict[str, Any] | None) -> bool:
+        if not isinstance(marker, dict):
+            return False
+        kind = marker.get("kind")
+        ident = marker.get("id")
+        if kind == "chapter":
+            return bool(ident) and bool(self.CHAPTER_ID.match(str(ident)))
+        if kind == "separator":
+            return bool(ident) and bool(self.SEPARATOR_ID.match(str(ident)))
+        return False
+
+    def route(self, marker: dict[str, Any], known_chapters: set[str]) -> tuple[str, str, str]:
+        """Route a valid marker to its ownership target.
+
+        Returns ``(ownership, target, confidence)`` where ownership is
+        ``chapter`` | ``book`` | ``unresolved``.
+        """
+        kind = marker.get("kind")
+        ident = str(marker.get("id"))
+        if kind == "chapter":
+            if ident in known_chapters:
+                return "chapter", ident, "certain"
+            # A well-formed Chapter marker the accepted Book does not know is a
+            # structural problem (an extra/unknown Chapter), not a Chapter edit.
+            return "structural", ident, "probable"
+        if kind == "separator":
+            return "book", "separator", "certain"
+        return "unresolved", "unknown_marker", "ambiguous"
+
+
+class ComparisonBlockedError(Exception):
+    """Raised/returned when a read-only Book comparison is blocked (never partial).
+
+    Comparison is gated by a 12-point freshness validation. When any check fails,
+    this error is returned (comparison writes NO artifact, partial or otherwise)
+    carrying a structured block. ``result`` is the full structured dict; flattened
+    attributes are provided for ergonomic access:
+
+    - ``status``  -- ``ready`` never blocks; otherwise one of
+                     ``blocked_stale_recomposition``, ``blocked_stale_manuscript``,
+                     ``blocked_missing_recomposition``,
+                     ``blocked_missing_external_manuscript``,
+                     ``blocked_missing_publication``, ``blocked_pointer_moved``,
+                     or a propagated Phase C1 recomposition block status.
+    - ``reason``  -- the primary (first) failure code.
+    - ``details`` -- structured ``{reasons: [...], recomposition_id, ...}``.
+    - ``recommended_action`` -- the primary recommended remediation.
+    """
+
+    def __init__(
+        self,
+        status: str,
+        recomposition_id: str,
+        message: str,
+        reasons: list[dict[str, Any]],
+    ) -> None:
+        primary = reasons[0] if reasons else {}
+        self.status = status
+        self.reason = primary.get("code", status)
+        self.recommended_action = primary.get(
+            "recommended_action", "recompose from fresh accepted sources, then compare again"
+        )
+        self.details = {"reasons": reasons, "recomposition_id": recomposition_id}
+        self.result = {
+            "status": status,
+            "recomposition_id": recomposition_id,
+            "message": message,
+            "reasons": reasons,
+            "visible_outputs_created": False,
+        }
+        super().__init__(message)
+
 
 class BookPublicationRejected(ValueError):
     """Raised when a Book application plan cannot be published.
@@ -1844,4 +1957,538 @@ class BookReconciliationStore:
         path = self._recomposition_path(publication_id)
         if not path.exists():
             raise FileNotFoundError(f"Book recomposition not found: {publication_id}")
+        return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+
+    # ------------------------------------------------------------------
+    # Phase C2: read-only, deterministic recomposition-vs-manuscript comparison.
+    #
+    # ``compare_book_recomposition`` evaluates whether a Phase C1 pointer-based
+    # recomposition matches an external manuscript and classifies every divergence
+    # by ownership. It is authority=derived, lifecycle=evaluated,
+    # role=reconciliation_comparison, canonical=false. It NEVER accepts the Book,
+    # moves the accepted Book pointer, mutates any source, moves any accepted
+    # pointer, completes reconciliation, or generates automatic proposals.
+    #
+    # Comparison is gated by a 12-point freshness validation and is atomic: any
+    # failure blocks with a structured ComparisonBlockedError and NO report (partial
+    # or otherwise) is written. Given the same recomposition, the same external
+    # manuscript, and the same marker contract, comparison is deterministic: the
+    # persisted report -- including comparison_id and every finding_id -- is
+    # byte-identical on repeat (no timestamps enter the artifact).
+    # ------------------------------------------------------------------
+
+    def _comparisons_dir(self) -> Path:
+        return self.root / "comparisons"
+
+    def _comparison_path(self, comparison_id: str) -> Path:
+        return self._comparisons_dir() / f"{comparison_id}.yaml"
+
+    @staticmethod
+    def _publication_id_from_recomposition(recomposition_id: str) -> str:
+        return recomposition_id.removeprefix("book_recomposition_")
+
+    @staticmethod
+    def _recomposition_body_view(recomposed: dict[str, Any]) -> dict[str, Any]:
+        """Rebuild the exact body shape ``_recomposition_content_hash`` hashes.
+
+        Used to re-derive the content hash from a stored recomposition's own fields
+        so tampering (a mutated field whose stored ``content_hash`` was not updated)
+        is detected.
+        """
+        return {
+            "title_rendering": recomposed.get("title_rendering", ""),
+            "separator": recomposed.get("separator", "---"),
+            "order": recomposed.get("order", []),
+            "chapters": recomposed.get("chapters", []),
+            "insertions": recomposed.get("insertions", []),
+            "source_pointers": recomposed.get("source_pointers", {}),
+        }
+
+    def _render_recomposition_text(self, recomposed: dict[str, Any]) -> str:
+        """Render a recomposition into a marked manuscript identical to compose().
+
+        The rendering mirrors ``BookExpressionStore.compose`` byte-for-byte (title
+        heading, Chapter markers, inter-Chapter separators) so a faithful external
+        manuscript compares as an exact match. Chapter prose is resolved from the
+        current accepted Chapter Expression (freshness already validated).
+        """
+        book = BookExpressionStore(self.project)
+        title = recomposed.get("title_rendering") or ""
+        separator = recomposed.get("separator", "---")
+        sections: list[str] = []
+        for item in recomposed.get("chapters", []):
+            chapter_id = item["chapter_id"]
+            revision = item.get("accepted_revision")
+            text = book._chapter_text(book._accepted_chapter(chapter_id))
+            sections.append(
+                f"<!-- auteur:chapter id={chapter_id} expression_revision={revision} -->\n"
+                f"{text}\n<!-- auteur:end-chapter id={chapter_id} -->"
+            )
+        out = f"# {title}\n\n" if title else ""
+        pieces: list[str] = []
+        for index, section in enumerate(sections):
+            if index:
+                pieces.append(
+                    f"<!-- auteur:book-separator id=separator_{index:02d} revision=1 -->\n"
+                    f"{separator}\n<!-- auteur:end-book-separator id=separator_{index:02d} -->"
+                )
+            pieces.append(section)
+        out += "\n\n".join(pieces) + "\n"
+        return out
+
+    @staticmethod
+    def _external_title(text: str) -> str | None:
+        """The manuscript's leading ``# `` heading, or None if absent."""
+        for line in text.splitlines():
+            if line.strip() == "":
+                continue
+            if line.startswith("# "):
+                return line[2:].strip()
+            return None
+        return None
+
+    def _determine_ownership(
+        self,
+        element_kind: str,
+        element_id: str,
+        contract: MarkerContract,
+        known_chapters: set[str],
+    ) -> tuple[str, str, str]:
+        """Route a parsed external element to (ownership, target, confidence).
+
+        Marker-based, using the Phase A marker contract: an invalid marker is a
+        ``marker_residual``; a valid one routes to a Chapter, a Book-owned element,
+        an unknown-Chapter ``structural`` problem, or ``unresolved``.
+        """
+        marker = {"kind": element_kind, "id": element_id}
+        if not contract.is_valid(marker):
+            return "marker", element_id, "certain"
+        return contract.route(marker, known_chapters)
+
+    @staticmethod
+    def _recommend_action(category: str, detail: str = "") -> str:
+        return {
+            "exact_match": "no action: recomposition and external manuscript agree",
+            "book_owned_residual": "accept the Book if this Book-owned difference is intended, or re-approve the Book-owned source",
+            "chapter_owned_residual": "reconcile the Chapter prose difference through Chapter reconciliation before Book acceptance",
+            "structural_residual": "restore the missing/duplicate/reordered Chapter boundary, then recompose and compare again",
+            "marker_residual": "repair the Book marker or manuscript marker contract, then compare again",
+            "unresolved_residual": "manually map the ambiguous or cross-boundary content; it cannot be attributed safely",
+        }.get(category, "review this difference before Book acceptance")
+
+    def _validate_comparison_freshness(
+        self, recomposition_id: str, publication_id: str
+    ) -> tuple[bool, dict[str, Any] | ComparisonBlockedError]:
+        """Run the 12-point freshness gate; block atomically on any failure.
+
+        Checks 1-10 (recomposition present, derived, proposed, untampered, Phase C1
+        fresh, publication present, Chapter pointers unchanged, Book-owned pointers
+        unchanged, pointer targets present, Book revision matches the recomposition
+        snapshot). Checks 11-12 (external manuscript present + hash captured) are
+        performed by the caller once the manuscript path is resolved. Returns
+        ``(True, recomposed)`` when ready, else ``(False, ComparisonBlockedError)``.
+        """
+        # 1. Recomposition exists on disk.
+        try:
+            recomposed = self.load_recomposed_book(publication_id)
+        except FileNotFoundError:
+            return False, ComparisonBlockedError(
+                "blocked_missing_recomposition", recomposition_id,
+                "comparison blocked: recomposition missing",
+                [{"code": "MISSING_RECOMPOSITION", "expected": recomposition_id, "current": None,
+                  "recommended_action": "run recompose-book-from-accepted before comparing"}],
+            )
+
+        # 2-3. Recomposition is derived and proposed.
+        if recomposed.get("authority") != "derived":
+            return False, ComparisonBlockedError(
+                "blocked_stale_recomposition", recomposition_id,
+                "comparison blocked: recomposition is not derived",
+                [{"code": "RECOMPOSITION_NOT_DERIVED", "expected": "derived", "current": recomposed.get("authority"),
+                  "recommended_action": "recompose the Book, then compare again"}],
+            )
+        if recomposed.get("lifecycle") != "proposed":
+            return False, ComparisonBlockedError(
+                "blocked_stale_recomposition", recomposition_id,
+                "comparison blocked: recomposition is not proposed",
+                [{"code": "RECOMPOSITION_NOT_PROPOSED", "expected": "proposed", "current": recomposed.get("lifecycle"),
+                  "recommended_action": "recompose the Book, then compare again"}],
+            )
+
+        # 4. Recomposition hash matches its own stored content (not tampered).
+        recomputed = self._recomposition_content_hash(self._recomposition_body_view(recomposed))
+        if recomputed != recomposed.get("content_hash"):
+            return False, ComparisonBlockedError(
+                "blocked_stale_recomposition", recomposition_id,
+                "comparison blocked: recomposition content hash does not match its body",
+                [{"code": "RECOMPOSITION_TAMPERED", "expected": recomposed.get("content_hash"), "current": recomputed,
+                  "recommended_action": "recompose the Book from accepted sources, then compare again"}],
+            )
+
+        # 5, 6, 9. Phase C1 freshness gate: publication complete, Chapter pointers
+        #          and Book-owned pointer targets present and fresh, approval
+        #          snapshots match the current Book.
+        ready, gate = self._validate_recomposition_freshness(publication_id, None)
+        if not ready:
+            block = gate.result
+            return False, ComparisonBlockedError(
+                block.get("status", "blocked_stale_recomposition"), recomposition_id,
+                block.get("message", "comparison blocked: recomposition is no longer fresh"),
+                block.get("reasons", []),
+            )
+
+        # 7, 8, 10. The recomposition must still describe the CURRENT accepted
+        #           sources: re-assemble from live pointers and Book state and
+        #           compare the deterministic content hash. Any drift (a Chapter
+        #           pointer advanced, a Book-owned pointer moved to different
+        #           content, the Book revision changed) blocks -- a stale
+        #           recomposition must never be compared as if current.
+        manifest = self.inspect_book_publication(publication_id)
+        book = BookExpressionStore(self.project)
+        metadata = book.inspect(manifest["source_book_expression"])["metadata"]
+        if str(metadata.get("revision")) != str(recomposed.get("source_book_revision")):
+            return False, ComparisonBlockedError(
+                "blocked_stale_recomposition", recomposition_id,
+                "comparison blocked: accepted Book revision changed since recomposition",
+                [{"code": "BOOK_REVISION_CHANGED", "expected": recomposed.get("source_book_revision"),
+                  "current": metadata.get("revision"),
+                  "recommended_action": "recompose the Book against the current revision, then compare again"}],
+            )
+        live_hash = self._recomposition_content_hash(
+            self._assemble_recomposition(publication_id, manifest, metadata)
+        )
+        if live_hash != recomposed.get("content_hash"):
+            return False, ComparisonBlockedError(
+                "blocked_pointer_moved", recomposition_id,
+                "comparison blocked: accepted pointers changed since recomposition",
+                [{"code": "ACCEPTED_POINTER_MOVED", "expected": recomposed.get("content_hash"), "current": live_hash,
+                  "recommended_action": "recompose the Book from the current accepted pointers, then compare again"}],
+            )
+
+        return True, recomposed
+
+    def compare_book_recomposition(
+        self, recomposition_id: str, external_manuscript_path: Path | str | None = None
+    ) -> tuple[bool, dict[str, Any] | ComparisonBlockedError]:
+        """Compare a pointer-based recomposition against an external manuscript.
+
+        Read-only and deterministic. Returns ``(True, comparison_report)`` on
+        success or ``(False, ComparisonBlockedError)`` on any stale/missing block.
+        The report is authority=derived, lifecycle=evaluated,
+        role=reconciliation_comparison, canonical=false and classifies every
+        divergence by ownership. It NEVER accepts the Book, moves any pointer,
+        mutates any source, completes reconciliation, or generates proposals. On any
+        block, NO report is written.
+        """
+        publication_id = self._publication_id_from_recomposition(recomposition_id)
+
+        # Freshness checks 1-10.
+        ready, gate = self._validate_comparison_freshness(recomposition_id, publication_id)
+        if not ready:
+            return False, gate
+        recomposed = gate  # type: ignore[assignment]
+
+        # Marker contract (from the source inspection) must be supported.
+        inspection: dict[str, Any] = {}
+        try:
+            inspection = self._load_inspection(recomposed.get("inspection_id"))
+        except FileNotFoundError:
+            inspection = {}
+        marker_version = inspection.get("marker_contract", {}).get("version", 1)
+        contract = MarkerContract(marker_version)
+        if not contract.is_supported:
+            return False, ComparisonBlockedError(
+                "blocked_stale_recomposition", recomposition_id,
+                "comparison blocked: unsupported marker contract",
+                [{"code": "UNSUPPORTED_MARKER_CONTRACT", "expected": sorted(SUPPORTED_MARKER_CONTRACT_VERSIONS),
+                  "current": marker_version,
+                  "recommended_action": "re-inspect the manuscript under a supported marker contract"}],
+            )
+
+        # 11. External manuscript exists at the resolved path.
+        default_path = inspection.get("external_manuscript", {}).get("path")
+        external_path = Path(external_manuscript_path) if external_manuscript_path else (
+            Path(default_path) if default_path else None
+        )
+        if external_path is None or not external_path.exists():
+            return False, ComparisonBlockedError(
+                "blocked_missing_external_manuscript", recomposition_id,
+                "comparison blocked: external manuscript missing",
+                [{"code": "MISSING_EXTERNAL_MANUSCRIPT", "expected": str(external_path) if external_path else None,
+                  "current": None,
+                  "recommended_action": "restore the external manuscript or pass --external-manuscript PATH"}],
+            )
+
+        # 12. Capture the external manuscript hash at comparison time.
+        external_text = external_path.read_text(encoding="utf-8")
+        external_hash = _hash(external_text)
+
+        # Deterministic comparison engine.
+        recomposed_text = self._render_recomposition_text(recomposed)
+        external_parsed = BookManuscriptParser().parse(external_text)
+        findings, residual_counts = self._build_comparison_findings(
+            recomposed, recomposed_text, external_text, external_parsed, contract
+        )
+
+        book = BookExpressionStore(self.project)
+        metadata = book.inspect(recomposed["source_book_expression"])["metadata"]
+        source_book_hash = _hash(self._book_source_text(book, metadata))
+
+        chapter_sources = [
+            {
+                "chapter_id": item.get("chapter_id"),
+                "accepted_expression_id": item.get("chapter_expression_id"),
+                "revision": item.get("accepted_revision"),
+                "content_hash": item.get("content_hash"),
+            }
+            for item in recomposed.get("chapters", [])
+        ]
+        book_owned_sources = [
+            {
+                "pointer_id": (self.current_accepted_source_pointer(source.get("target_id"), source.get("owned_kind")) or {}).get("pointer_id"),
+                "accepted_revision_id": source.get("accepted_source_id"),
+                "owned_kind": source.get("owned_kind"),
+                "content_hash": _hash(source.get("proposed") or ""),
+            }
+            for source in self.current_accepted_sources(publication_id)
+        ]
+
+        total = sum(residual_counts.values())
+        ready_for_acceptance = (
+            residual_counts["unresolved_residual"] == 0
+            and residual_counts["chapter_owned_residual"] == 0
+            and residual_counts["structural_residual"] == 0
+            and residual_counts["marker_residual"] == 0
+        )
+        exact_match = residual_counts["exact_match"] > 0 and total == residual_counts["exact_match"]
+
+        comparison_id = "book_comparison_" + hashlib.sha256(
+            (
+                recomposition_id + "\0" + external_hash + "\0" + str(contract.version) + "\0"
+                + "|".join(sorted(item["finding_id"] for item in findings))
+            ).encode("utf-8")
+        ).hexdigest()[:32]
+
+        report = {
+            "authority": "derived",
+            "lifecycle": "evaluated",
+            "role": "reconciliation_comparison",
+            "canonical": False,
+            "comparison_id": comparison_id,
+            "source_recomposition_id": recomposition_id,
+            "source_recomposition_hash": recomposed.get("content_hash"),
+            "source_publication_id": publication_id,
+            "external_manuscript": {
+                "path": str(external_path),
+                "content_hash": external_hash,
+                "marker_contract_version": contract.version,
+            },
+            "source_book_revision": recomposed.get("source_book_revision"),
+            "source_book_hash": source_book_hash,
+            "chapter_sources": chapter_sources,
+            "book_owned_sources": book_owned_sources,
+            "summary": {
+                "exact_match": exact_match,
+                "ready_for_book_acceptance": ready_for_acceptance,
+                "residual_counts": residual_counts,
+            },
+            "findings": findings,
+            "transformation": dict(COMPARISON_TRANSFORMATION),
+        }
+        self._store_comparison_report(report)
+        return True, report
+
+    def _build_comparison_findings(
+        self,
+        recomposed: dict[str, Any],
+        recomposed_text: str,
+        external_text: str,
+        external_parsed: dict[str, Any],
+        contract: MarkerContract,
+    ) -> tuple[list[dict[str, Any]], dict[str, int]]:
+        """Structured, marker-aware classification of every divergence.
+
+        The recomposition is the source of truth. Each Book-owned aspect (title,
+        separator, Chapter order), each Chapter's prose, and each Book-owned
+        insertion is compared to the external manuscript and classified into one of
+        the six residual categories. Deterministic: no timestamps or ordering
+        nondeterminism enter the findings.
+        """
+        findings: list[dict[str, Any]] = []
+        counts = {category: 0 for category in COMPARISON_CATEGORIES}
+
+        def emit(category: str, external_span: tuple[int, int], recomposed_span: tuple[int, int],
+                 marker: str | None, routing_target: str, confidence: str, reason: str) -> None:
+            finding_id = "finding_" + hashlib.sha256(
+                (
+                    category + "\0" + str(external_span) + "\0" + str(recomposed_span) + "\0"
+                    + str(routing_target) + "\0" + reason
+                ).encode("utf-8")
+            ).hexdigest()[:32]
+            counts[category] += 1
+            findings.append({
+                "finding_id": finding_id,
+                "category": category,
+                "external_span": {"start_line": external_span[0], "end_line": external_span[1]},
+                "recomposed_span": {"start_line": recomposed_span[0], "end_line": recomposed_span[1]},
+                "ownership_analysis": {"marker": marker, "routing_target": routing_target, "confidence": confidence},
+                "reason": reason,
+                "recommended_action": self._recommend_action(category, reason),
+            })
+
+        external_lines = external_text.count("\n") + 1
+        recomposed_parsed = BookManuscriptParser().parse(recomposed_text)
+        rec_chapter_span = {item["id"]: tuple(item["line_range"]) for item in recomposed_parsed["chapters"]}
+
+        # 1. Markerless / malformed marker contract violations. A markerless
+        #    manuscript is unresolved and short-circuits structural/content
+        #    attribution (there is no ownership information to route by).
+        markerless = False
+        for finding in external_parsed["findings"]:
+            classification = finding.get("classification")
+            if classification == "markerless":
+                markerless = True
+                emit("unresolved_residual", (1, external_lines), (1, recomposed_text.count("\n") + 1),
+                     None, "book", "ambiguous", "external manuscript has no Book ownership markers")
+            elif classification == "malformed_marker":
+                line = finding.get("line", 0)
+                emit("marker_residual", (line, line), (0, 0), None, "book", "certain",
+                     "malformed Book marker in external manuscript")
+        if markerless:
+            return findings, counts
+
+        recomposed_order = list(recomposed.get("order", []))
+        known_chapters = set(recomposed_order)
+
+        # 2. Duplicate Chapter markers -> marker contract violation.
+        seen: dict[str, int] = {}
+        for item in external_parsed["chapters"]:
+            seen[item["id"]] = seen.get(item["id"], 0) + 1
+        for chapter_id, occurrences in seen.items():
+            if occurrences > 1:
+                span = next(tuple(item["line_range"]) for item in external_parsed["chapters"] if item["id"] == chapter_id)
+                _own, target, confidence = self._determine_ownership("chapter", chapter_id, contract, known_chapters)
+                emit("marker_residual", span, rec_chapter_span.get(chapter_id, (0, 0)),
+                     chapter_id, chapter_id, "certain",
+                     f"Chapter marker {chapter_id} appears more than once")
+
+        ext_chapter_ids = [item["id"] for item in external_parsed["chapters"]]
+        ext_chapter_text = {item["id"]: item["text"] for item in external_parsed["chapters"]}
+        ext_spans = {item["id"]: tuple(item["line_range"]) for item in external_parsed["chapters"]}
+
+        # 3. Extra/unknown Chapters (in external, unknown to the recomposition).
+        for chapter_id in ext_chapter_ids:
+            ownership, target, confidence = self._determine_ownership("chapter", chapter_id, contract, known_chapters)
+            if ownership == "structural":
+                emit("structural_residual", ext_spans[chapter_id], (0, 0), chapter_id, chapter_id, confidence,
+                     f"external manuscript contains a Chapter the accepted Book does not know: {chapter_id}")
+
+        # 4. Missing Chapters (in the recomposition, absent from external).
+        for chapter_id in recomposed_order:
+            if chapter_id not in seen:
+                emit("structural_residual", (0, 0), rec_chapter_span.get(chapter_id, (0, 0)),
+                     chapter_id, chapter_id, "certain",
+                     f"external manuscript is missing Chapter {chapter_id}")
+
+        matched = [cid for cid in recomposed_order if seen.get(cid) == 1]
+        ext_matched_order = [cid for cid in ext_chapter_ids if cid in set(matched)]
+        sets_equal = set(matched) == set(ext_chapter_ids) and all(seen.get(c) == 1 for c in ext_chapter_ids)
+
+        # 5. Chapter order (Book-owned) -- only meaningful when the Chapter sets
+        #    agree; otherwise the missing/extra findings already explain it.
+        order_changed = False
+        if sets_equal and ext_matched_order != matched:
+            order_changed = True
+            emit("book_owned_residual", (1, external_lines), (1, recomposed_text.count("\n") + 1),
+                 None, "order", "certain",
+                 f"Chapter order differs: external {ext_matched_order} vs recomposed {matched}")
+
+        # 6. Title (Book-owned).
+        ext_title = self._external_title(external_text)
+        rec_title = recomposed.get("title_rendering") or ""
+        if (ext_title or "") == rec_title:
+            emit("exact_match", (1, 1), (1, 1), None, "title", "certain", "title rendering identical")
+        else:
+            emit("book_owned_residual", (1, 1), (1, 1), None, "title", "certain",
+                 f"title rendering differs: external {ext_title!r} vs recomposed {rec_title!r}")
+
+        # 7. Separator (Book-owned).
+        rec_separator = recomposed.get("separator", "---")
+        ext_separators = external_parsed["separators"]
+        expected_separators = max(len(matched) - 1, 0)
+        sep_span = tuple(ext_separators[0]["line_range"]) if ext_separators else (0, 0)
+        if len(ext_separators) != expected_separators or any(item["text"] != rec_separator for item in ext_separators):
+            emit("book_owned_residual", sep_span, (0, 0), "separator", "separator", "certain",
+                 "separator differs from recomposition")
+        else:
+            emit("exact_match", sep_span, (0, 0), "separator", "separator", "certain", "separator identical")
+
+        # 8. Per-Chapter prose (Chapter-owned) for Chapters present in both exactly
+        #    once. Cross-boundary movement (>1 Chapter changed with order unchanged)
+        #    cannot be attributed to individual Chapters and is unresolved.
+        chapter_diffs: list[tuple[str, tuple[int, int]]] = []
+        for chapter_id in matched:
+            if chapter_id not in ext_chapter_text:
+                continue
+            rec_text = self._chapter_prose(recomposed, chapter_id)
+            if ext_chapter_text[chapter_id] == rec_text:
+                emit("exact_match", ext_spans[chapter_id], rec_chapter_span.get(chapter_id, (0, 0)),
+                     chapter_id, chapter_id, "certain", f"Chapter {chapter_id} prose identical")
+            else:
+                chapter_diffs.append((chapter_id, ext_spans[chapter_id]))
+
+        if len(chapter_diffs) > 1 and not order_changed and sets_equal:
+            spans = [span for _cid, span in chapter_diffs]
+            lo = min(span[0] for span in spans)
+            hi = max(span[1] for span in spans)
+            emit("unresolved_residual", (lo, hi), (0, 0), None, "book", "ambiguous",
+                 "multiple Chapters changed with order unchanged: content appears to have moved across Chapter boundaries")
+        else:
+            for chapter_id, span in chapter_diffs:
+                emit("chapter_owned_residual", span, rec_chapter_span.get(chapter_id, (0, 0)),
+                     chapter_id, chapter_id, "certain", f"Chapter {chapter_id} prose differs")
+
+        # 9. Book-owned inserted material: each recomposition insertion must appear
+        #    verbatim in the external manuscript.
+        for insertion in recomposed.get("insertions", []):
+            content = insertion.get("content")
+            if content and content in external_text:
+                emit("exact_match", (0, 0), (0, 0), "material", "material", "certain",
+                     f"inserted material {insertion.get('target_id')} present")
+            elif content:
+                emit("book_owned_residual", (0, 0), (0, 0), "material", "material", "probable",
+                     f"inserted material {insertion.get('target_id')} missing from external manuscript")
+
+        return findings, counts
+
+    def _chapter_prose(self, recomposed: dict[str, Any], chapter_id: str) -> str:
+        """The accepted Chapter prose the recomposition renders for a Chapter."""
+        book = BookExpressionStore(self.project)
+        return book._chapter_text(book._accepted_chapter(chapter_id))
+
+    def _store_comparison_report(self, report: dict[str, Any]) -> Path:
+        """Persist the comparison report atomically (temp + replace).
+
+        Stored under ``comparisons/``. Writing it accepts nothing, moves no pointer,
+        and mutates no source. The write is atomic so a reader never observes a
+        partially written report. The content is fully deterministic (no timestamp),
+        so a repeated comparison over identical state overwrites with identical bytes.
+        """
+        path = self._comparison_path(report["comparison_id"])
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix(".yaml.tmp")
+        try:
+            tmp.write_text(yaml.safe_dump(report, sort_keys=False), encoding="utf-8")
+            tmp.replace(path)
+        except Exception:
+            if tmp.exists():
+                tmp.unlink()
+            raise
+        return path
+
+    def load_book_comparison(self, comparison_id: str) -> dict[str, Any]:
+        """Load a stored Book comparison report."""
+        path = self._comparison_path(comparison_id)
+        if not path.exists():
+            raise FileNotFoundError(f"Book comparison not found: {comparison_id}")
         return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
