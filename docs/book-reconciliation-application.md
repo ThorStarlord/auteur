@@ -619,13 +619,154 @@ structured reason, `No comparison report was created.`, and the recommended
 action. Full metadata and per-finding ownership reasoning are shown behind
 `--json` / `--verbose`.
 
+## Book Acceptance (Phase C3)
+
+Acceptance is an explicit, atomic authority crossing. It canonically accepts a
+recomposed Book only after an exact-match comparison is proven. The result is:
+
+```yaml
+authority: accepted
+lifecycle: accepted
+role: book_expression
+canonical: true
+```
+
+It is immutable once written: never deleted, never modified.
+
+`accept_recomposed_book(comparison_id, reason=None)` accepts the **comparison
+result** (not an arbitrary recomposition path). It returns `(True,
+{accepted_book_revision, acceptance_record})` on success, `(True, {status:
+'duplicate', ...})` when the comparison was already accepted, or `(False,
+AcceptanceBlockedError)` on any stale/blocked/concurrent condition.
+
+### Two Readiness States
+
+The comparison summary now carries two decoupled readiness flags:
+
+- **`ready_for_review`** — no chapter-owned, structural, marker, or unresolved
+  residuals. Book-owned residuals **are** allowed. Useful for inspection and
+  discussion. (`ready_for_book_acceptance` is retained as a backwards-compatible
+  alias of this flag.)
+- **`ready_for_acceptance`** — **all** residual categories zero **and**
+  `exact_match` true. An intentional Book-owned difference must go through a
+  separate override/resolution workflow — it is never silently canonicalized.
+
+### Authority Transition
+
+- Input: an exact-match comparison.
+- Output: an immutable accepted Book revision + an immutable acceptance record + a
+  single atomic pointer move.
+- The prior Book revision is preserved.
+- The recomposition remains derived evidence.
+- The comparison remains derived evidence.
+
+The Book revision is the narrative authority; the acceptance record
+(`authority: decision`) is the evidence explaining the authority crossing.
+
+### 20-Point Acceptance Gate
+
+Immediately before staging, `_validate_acceptance_gate` revalidates **all** of:
+(1) comparison exists, (2) derived, (3) evaluated, (4) supported transformation,
+(5) comparison content hash valid, (6) recomposition exists, (7) recomposition
+content hash valid, (8) Phase C1 freshness gate passes, (9) Phase C2 freshness
+gate passes, (10) external manuscript present, (11) manuscript hash matches,
+(12) accepted Book revision/pointer unchanged, (13) every Chapter pointer
+unchanged, (14) every Chapter target exists and hash matches, (15) every
+Book-owned pointer unchanged, (16) every Book-owned revision exists and hash
+matches, (17) marker contract supported, (18) `exact_match` true, (19) every
+residual count zero, (20) no previous acceptance. It **never trusts the persisted
+`ready_for_acceptance` flag** — every condition is re-derived from disk. It blocks
+atomically on the first failure and writes no artifact.
+
+### Book Revision Numbering
+
+The new revision is `current accepted Book pointer revision + 1`. On the first
+acceptance the baseline is the compose-time accepted Book revision (the comparison
+source); thereafter it is the Phase C3 `accepted-book-pointer.yaml`
+`current_revision`. If the current accepted Book no longer matches the comparison
+snapshot, acceptance is stale and blocks (`STALE_BOOK_POINTER`).
+
+### Atomic Transaction
+
+Acceptance stages the Book revision, the acceptance record, the new pointer
+document, and a transaction manifest, then validates the complete set (all files
+present, hashes match, no shadowing of an existing revision). It publishes in an
+order that prevents partial authority:
+
+```
+1. Book revision       (narrative authority)
+2. Acceptance record   (evidence)
+3. Transaction manifest
+4. Accepted Book pointer (LAST, single atomic replace via compare-and-swap)
+```
+
+If any operation fails, every moved artifact is removed and the prior pointer is
+restored. Central invariant: either the accepted Book revision, acceptance
+record, and pointer transition are **all** visible — or **none** are.
+
+### Duplicate and Concurrent Acceptance
+
+- **Duplicate** — a comparison already accepted returns `(True, {status:
+  'duplicate', prior_acceptance_id, accepted_book_revision, ...})`; it creates no
+  second Book revision or acceptance record and leaves the pointer unchanged.
+- **Concurrent** — the pointer replace is a compare-and-swap against the pointer
+  id captured before validation. If the accepted Book pointer changed during
+  acceptance, it aborts with `POINTER_CHANGED` / `BOOK_POINTER_CHANGED`, rolls
+  back, and publishes nothing.
+
+### Storage
+
+```
+book/expression/
+  book_<id>_v<revision>_accepted.yaml     # immutable accepted Book revision
+  accepted-book-pointer.yaml              # current accepted Book pointer (moved last)
+book/expression/reconciliation/acceptances/
+  <acceptance_id>.yaml                    # immutable acceptance record
+  manifests/<acceptance_id>.yaml          # transaction manifest
+```
+
+### CLI
+
+```bash
+auteur expression accept-recomposed-book <comparison_id> \
+  --project PROJECT [--reason "Approved after exact reconciliation"] [--json] [--verbose]
+auteur expression inspect-book-acceptance <acceptance_id> \
+  --project PROJECT [--json] [--verbose]
+```
+
+Normal `accept` output reports `Book accepted: yes`, the previous and accepted
+revisions, exact-match confirmation, the residual count, `Accepted Book pointer
+moved: yes`, `Chapter pointers changed: no`, `Book-owned pointers changed: no`,
+`Reconciliation completed: no`, and `Recommended next action: verify
+reconciliation completion eligibility`. A blocked acceptance prints the block
+status, the primary reason, `No accepted Book revision...`, and the recommended
+action, and creates nothing.
+
+### Scenarios
+
+Thirty semantic scenarios are covered by tests: exact-match accepts (1); each of
+the five residual categories and a forged readiness flag block (2–7); stale
+comparison, stale recomposition, external-manuscript change, chapter/Book-owned/
+Book pointer moves, missing pointer target, and tampered comparison/recomposition
+block (8–16); the new revision is immutable and the prior revision preserved,
+the pointer moves exactly once, Chapter and Book-owned pointers stay unchanged,
+and the recomposition/comparison remain derived (17–23); duplicate acceptance
+creates no second revision (24); failure before, during, and after pointer
+movement all roll back (25–27); a concurrent pointer change aborts safely (28);
+provenance is complete (29); and no reconciliation-completion artifact is created
+(30).
+
 ## Non-goals
 
-This slice implements read-only Book comparison but does **not** implement
-acceptance of a recomposed Book, accepted Book-owned pointer movement driven by
-comparison, reconciliation completion, source mutation, or automatic proposal
-generation. Comparison evaluates and classifies; it never accepts, mutates, moves
-a pointer, or completes anything. Decisions record author intent, produce accepted
-Book-owned sources on approval, and regenerate a derived preview; they never
-mutate any accepted or canonical artifact and never move the accepted Book
-pointer.
+This document's earlier slices implement read-only Book comparison; Phase C3 adds
+explicit, atomic Book acceptance. Together they still do **not** implement
+reconciliation completion, Chapter reconciliation closing, or any deletion of
+proposals, candidates, decisions, recompositions, or comparisons — all derived
+evidence is preserved. Comparison evaluates and classifies; it never accepts,
+mutates, or completes anything. Acceptance crosses the accepted-Book authority
+boundary and moves the accepted Book pointer, but it never completes
+reconciliation, never closes Chapter reconciliation, and never mutates any
+Chapter/Structure/Identity/Blueprint/Realization/Scene. Decisions record author
+intent, produce accepted Book-owned sources on approval, and regenerate a derived
+preview; they never mutate any accepted or canonical artifact and never move the
+accepted Book pointer.

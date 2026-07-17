@@ -81,6 +81,20 @@ POINTER_TRANSFORMATION = {"id": "expression.point_accepted_book_source", "versio
 # touches the pointer. Recomposition resolves the pointer (not decisions) to find
 # the current accepted revision for each Book-owned element.
 
+ACCEPTANCE_TRANSFORMATION = {"id": "expression.accept_recomposed_book", "version": 1}
+# Phase C3: explicit, atomic Book acceptance. When an exact-match comparison is
+# proven ready, acceptance creates an IMMUTABLE accepted Book revision
+# (authority=accepted, lifecycle=accepted, role=book_expression, canonical=true)
+# byte-identical to the recomposition, plus an immutable acceptance record
+# (authority=decision, evidence explaining the authority crossing), and moves the
+# accepted Book pointer atomically. It is gated by a 20-point revalidation that
+# never trusts persisted readiness flags. The recomposition and comparison remain
+# preserved as derived evidence; the prior Book revision is preserved. Acceptance
+# NEVER completes reconciliation, closes Chapter reconciliation, mutates Chapter/
+# Structure/Identity/Blueprint/Realization/Scene, or deletes any proposal,
+# candidate, decision, recomposition, or comparison.
+SUPPORTED_COMPARISON_TRANSFORMATION_VERSIONS = {1}
+
 COMPARISON_TRANSFORMATION = {"id": "expression.compare_book_recomposition", "version": 1}
 # Phase C2: a READ-ONLY, deterministic comparison between a pointer-based Book
 # recomposition (Phase C1) and an external manuscript. It NEVER accepts the Book,
@@ -261,6 +275,48 @@ class RecompositionBlockedError(ValueError):
             "recommended_action", result.get("message", "recompose from fresh accepted sources")
         )
         super().__init__(result.get("message", "recomposition blocked"))
+
+
+class AcceptanceBlockedError(Exception):
+    """Raised/returned when explicit Book acceptance is blocked (never partial).
+
+    Acceptance is gated by a 20-point revalidation that never trusts persisted
+    readiness flags. When any check fails, this error is returned (acceptance
+    writes NO artifact -- no Book revision, no acceptance record, no pointer move,
+    partial or otherwise) carrying a structured block. ``result`` is the full
+    structured dict; the flattened attributes are provided for ergonomic access:
+
+    - ``status`` -- a coarse block category, one of ``MISSING_COMPARISON``,
+                    ``MISSING_RECOMPOSITION``, ``MISSING_MANUSCRIPT``,
+                    ``STALE_COMPARISON``, ``STALE_RECOMPOSITION``,
+                    ``STALE_MANUSCRIPT``, ``STALE_BOOK_POINTER``, ``STALE_CHAPTER``,
+                    ``NON_EXACT_MATCH``, ``RESIDUALS_REMAIN``,
+                    ``MARKER_CONTRACT_UNSUPPORTED``, ``POINTER_CHANGED``,
+                    ``DUPLICATE_ACCEPTANCE``.
+    - ``reason`` -- the precise failure code (finer-grained than ``status``).
+    - ``details`` -- structured evidence ``{comparison_id, expected, current, ...}``.
+    - ``recommended_action`` -- the recommended remediation.
+    """
+
+    def __init__(
+        self,
+        status: str,
+        reason: str,
+        details: dict[str, Any],
+        recommended_action: str,
+    ) -> None:
+        self.status = status
+        self.reason = reason
+        self.details = details or {}
+        self.recommended_action = recommended_action
+        self.result = {
+            "status": status,
+            "reason": reason,
+            "details": self.details,
+            "recommended_action": recommended_action,
+            "visible_outputs_created": False,
+        }
+        super().__init__(f"{status}: {reason}")
 
 
 class BookManuscriptParser:
@@ -2254,13 +2310,25 @@ class BookReconciliationStore:
         ]
 
         total = sum(residual_counts.values())
-        ready_for_acceptance = (
+        # Two decoupled readiness states (Phase C3 policy):
+        #   ready_for_review     -- no blocking residuals; Book-owned differences
+        #                           are allowed (useful for inspection/discussion).
+        #   ready_for_acceptance -- ALL residual categories zero AND exact match;
+        #                           an intentional Book-owned difference must go
+        #                           through a separate override/resolution workflow,
+        #                           never silent acceptance.
+        ready_for_review = (
             residual_counts["unresolved_residual"] == 0
             and residual_counts["chapter_owned_residual"] == 0
             and residual_counts["structural_residual"] == 0
             and residual_counts["marker_residual"] == 0
         )
         exact_match = residual_counts["exact_match"] > 0 and total == residual_counts["exact_match"]
+        ready_for_acceptance = (
+            ready_for_review
+            and residual_counts["book_owned_residual"] == 0
+            and exact_match is True
+        )
 
         comparison_id = "book_comparison_" + hashlib.sha256(
             (
@@ -2289,7 +2357,10 @@ class BookReconciliationStore:
             "book_owned_sources": book_owned_sources,
             "summary": {
                 "exact_match": exact_match,
-                "ready_for_book_acceptance": ready_for_acceptance,
+                "ready_for_review": ready_for_review,
+                "ready_for_acceptance": ready_for_acceptance,
+                # Backwards-compatible alias (Phase C2): equals ready_for_review.
+                "ready_for_book_acceptance": ready_for_review,
                 "residual_counts": residual_counts,
             },
             "findings": findings,
@@ -2492,3 +2563,711 @@ class BookReconciliationStore:
         if not path.exists():
             raise FileNotFoundError(f"Book comparison not found: {comparison_id}")
         return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+
+    # ------------------------------------------------------------------
+    # Phase C3: explicit, atomic Book acceptance.
+    #
+    # ``accept_recomposed_book`` accepts a comparison result (not an arbitrary
+    # recomposition path) as canonical only after a 20-point revalidation proves an
+    # exact match with zero residuals. It creates an IMMUTABLE accepted Book
+    # revision (authority=accepted, lifecycle=accepted, role=book_expression,
+    # canonical=true) byte-identical to the recomposition, an immutable acceptance
+    # record (authority=decision) that is the evidence explaining the authority
+    # crossing, and moves the accepted Book pointer atomically (last, via
+    # compare-and-swap). The recomposition and comparison remain preserved as
+    # derived evidence; the prior Book revision is preserved.
+    #
+    # Acceptance NEVER completes reconciliation, closes Chapter reconciliation,
+    # mutates any Chapter/Structure/Identity/Blueprint/Realization/Scene, deletes
+    # any proposal/candidate/decision/recomposition/comparison, or produces a
+    # partial acceptance. Either the accepted Book revision, acceptance record, and
+    # pointer transition are ALL visible -- or NONE are.
+    # ------------------------------------------------------------------
+
+    def _acceptances_dir(self) -> Path:
+        return self.root / "acceptances"
+
+    def _acceptance_path(self, acceptance_id: str) -> Path:
+        return self._acceptances_dir() / f"{acceptance_id}.yaml"
+
+    def _acceptance_manifest_path(self, acceptance_id: str) -> Path:
+        return self._acceptances_dir() / "manifests" / f"{acceptance_id}.yaml"
+
+    def _acceptance_staging_dir(self, acceptance_id: str) -> Path:
+        return self.root / "staging" / f"acceptance_{acceptance_id}"
+
+    def _accepted_book_pointer_path(self) -> Path:
+        return self.project / "book" / "expression" / "accepted-book-pointer.yaml"
+
+    def _accepted_book_revision_path(self, book_id: str, revision: int) -> Path:
+        return self.project / "book" / "expression" / f"book_{book_id}_v{revision:03d}_accepted.yaml"
+
+    def _load_accepted_book_pointer(self) -> dict[str, Any] | None:
+        """The current reconciliation-accepted Book pointer, or ``None`` if never accepted.
+
+        This is the Phase C3 accepted Book pointer (distinct from the compose-time
+        ``accepted.yaml`` baseline). It is the single mutable authority tier for
+        recomposition-driven Book acceptance and is replaced atomically, last, on
+        every acceptance.
+        """
+        path = self._accepted_book_pointer_path()
+        if not path.exists():
+            return None
+        return yaml.safe_load(path.read_text(encoding="utf-8")) or None
+
+    def current_accepted_book_pointer(self) -> dict[str, Any] | None:
+        """Public accessor for the current reconciliation-accepted Book pointer."""
+        return self._load_accepted_book_pointer()
+
+    def load_accepted_book_revision(self, book_id: str, revision: int) -> dict[str, Any]:
+        """Load an immutable accepted Book revision by book id and revision."""
+        path = self._accepted_book_revision_path(book_id, revision)
+        if not path.exists():
+            raise FileNotFoundError(f"Accepted Book revision not found: {book_id} v{revision}")
+        return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+
+    def load_book_acceptance(self, acceptance_id: str) -> dict[str, Any]:
+        """Load an immutable acceptance record (decision evidence)."""
+        path = self._acceptance_path(acceptance_id)
+        if not path.exists():
+            raise FileNotFoundError(f"Book acceptance record not found: {acceptance_id}")
+        return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+
+    def _find_prior_acceptance(self, comparison_id: str) -> dict[str, Any] | None:
+        """Return the acceptance record already produced for a comparison, or ``None``.
+
+        A comparison is accepted at most once. This scans the acceptance records for
+        one whose ``source_comparison_id`` matches, guaranteeing acceptance is
+        idempotent: a second call creates no new Book revision or record.
+        """
+        directory = self._acceptances_dir()
+        if not directory.exists():
+            return None
+        for path in sorted(directory.glob("*.yaml")):
+            data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+            if isinstance(data, dict) and data.get("source_comparison_id") == comparison_id:
+                return data
+        return None
+
+    @staticmethod
+    def _recompute_comparison_id(comparison: dict[str, Any]) -> str:
+        """Re-derive a comparison's deterministic id from its stored fields.
+
+        Mirrors ``compare_book_recomposition``'s id derivation. A mismatch against
+        the stored ``comparison_id`` proves the report's findings/manuscript hash
+        were tampered with after the comparison was written.
+        """
+        external = comparison.get("external_manuscript", {}) or {}
+        finding_ids = sorted(str(item.get("finding_id")) for item in comparison.get("findings", []))
+        return "book_comparison_" + hashlib.sha256(
+            (
+                str(comparison.get("source_recomposition_id")) + "\0"
+                + str(external.get("content_hash")) + "\0"
+                + str(external.get("marker_contract_version")) + "\0"
+                + "|".join(finding_ids)
+            ).encode("utf-8")
+        ).hexdigest()[:32]
+
+    @staticmethod
+    def _residual_categories() -> tuple[str, ...]:
+        return (
+            "book_owned_residual",
+            "chapter_owned_residual",
+            "structural_residual",
+            "marker_residual",
+            "unresolved_residual",
+        )
+
+    def _validate_acceptance_gate(
+        self, comparison_id: str
+    ) -> tuple[bool, dict[str, Any] | AcceptanceBlockedError]:
+        """Run the 20-point acceptance gate; block atomically on the first failure.
+
+        Revalidates EVERY condition from disk and never trusts the persisted
+        ``ready_for_acceptance`` flag. Returns ``(True, context)`` -- a context dict
+        carrying every value acceptance needs to stage artifacts -- when ready, or
+        ``(False, AcceptanceBlockedError)`` on the first failed check. No artifact is
+        ever written by this method.
+        """
+        def block(status: str, reason: str, recommended_action: str, **details: Any) -> AcceptanceBlockedError:
+            return AcceptanceBlockedError(status, reason, {"comparison_id": comparison_id, **details}, recommended_action)
+
+        # 1. Comparison exists on disk.
+        try:
+            comparison = self.load_book_comparison(comparison_id)
+        except FileNotFoundError:
+            return False, block("MISSING_COMPARISON", "MISSING_COMPARISON",
+                                "run compare-book-recomposition to produce the comparison, then accept")
+
+        # 2. Comparison is derived.
+        if comparison.get("authority") != "derived":
+            return False, block("STALE_COMPARISON", "COMPARISON_NOT_DERIVED",
+                                "re-run the comparison; only a derived comparison can be accepted",
+                                expected="derived", current=comparison.get("authority"))
+        # 3. Comparison is evaluated.
+        if comparison.get("lifecycle") != "evaluated":
+            return False, block("STALE_COMPARISON", "COMPARISON_NOT_EVALUATED",
+                                "re-run the comparison; only an evaluated comparison can be accepted",
+                                expected="evaluated", current=comparison.get("lifecycle"))
+        # 4. Comparison transformation version is supported.
+        transformation = comparison.get("transformation", {}) or {}
+        if transformation.get("id") != COMPARISON_TRANSFORMATION["id"] or transformation.get("version") not in SUPPORTED_COMPARISON_TRANSFORMATION_VERSIONS:
+            return False, block("STALE_COMPARISON", "COMPARISON_TRANSFORMATION_UNSUPPORTED",
+                                "re-run the comparison under a supported transformation contract",
+                                expected=COMPARISON_TRANSFORMATION, current=transformation)
+        # 5. Comparison content hash is valid (matches stored content).
+        recomputed_comparison_id = self._recompute_comparison_id(comparison)
+        if recomputed_comparison_id != comparison.get("comparison_id"):
+            return False, block("STALE_COMPARISON", "COMPARISON_TAMPERED",
+                                "re-run the comparison; its stored content no longer matches its id",
+                                expected=comparison.get("comparison_id"), current=recomputed_comparison_id)
+
+        recomposition_id = comparison.get("source_recomposition_id")
+        publication_id = comparison.get("source_publication_id")
+
+        # 6. Source recomposition exists on disk.
+        try:
+            recomposed = self.load_recomposed_book(publication_id)
+        except FileNotFoundError:
+            return False, block("MISSING_RECOMPOSITION", "MISSING_RECOMPOSITION",
+                                "run recompose-book-from-accepted, then compare and accept",
+                                recomposition_id=recomposition_id)
+        if recomposed.get("recomposition_id") != recomposition_id:
+            return False, block("STALE_RECOMPOSITION", "RECOMPOSITION_ID_MISMATCH",
+                                "recompose and compare again; the stored recomposition differs from the comparison source",
+                                expected=recomposition_id, current=recomposed.get("recomposition_id"))
+
+        # 7. Recomposition content hash is valid (matches stored content).
+        recomputed_recomposition_hash = self._recomposition_content_hash(self._recomposition_body_view(recomposed))
+        if recomputed_recomposition_hash != recomposed.get("content_hash"):
+            return False, block("STALE_RECOMPOSITION", "RECOMPOSITION_TAMPERED",
+                                "recompose the Book from accepted sources, then compare and accept",
+                                expected=recomposed.get("content_hash"), current=recomputed_recomposition_hash)
+
+        # 8. Recomposition freshness gate passes (Phase C1).
+        ready_c1, gate_c1 = self._validate_recomposition_freshness(publication_id, None)
+        if not ready_c1:
+            b = gate_c1.result
+            return False, block("STALE_RECOMPOSITION", b.get("reasons", [{}])[0].get("code", "RECOMPOSITION_STALE"),
+                                b.get("reasons", [{}])[0].get("recommended_action", "recompose from fresh accepted sources, then compare and accept"),
+                                phase="C1", propagated_status=b.get("status"), reasons=b.get("reasons", []))
+
+        # 9. Comparison freshness gate passes (Phase C2). Revalidates recomposition
+        #    tamper, live pointer drift, and Book-revision match against the current
+        #    accepted sources.
+        ready_c2, gate_c2 = self._validate_comparison_freshness(recomposition_id, publication_id)
+        if not ready_c2:
+            b = gate_c2.result
+            return False, block("STALE_COMPARISON", b.get("reasons", [{}])[0].get("code", "COMPARISON_STALE"),
+                                b.get("reasons", [{}])[0].get("recommended_action", "recompose and compare again, then accept"),
+                                phase="C2", propagated_status=b.get("status"), reasons=b.get("reasons", []))
+
+        # 10. External manuscript still exists at the comparison path.
+        external = comparison.get("external_manuscript", {}) or {}
+        external_path = Path(external["path"]) if external.get("path") else None
+        if external_path is None or not external_path.exists():
+            return False, block("MISSING_MANUSCRIPT", "MISSING_MANUSCRIPT",
+                                "restore the external manuscript at the comparison path, then compare and accept",
+                                path=str(external_path) if external_path else None)
+        # 11. External manuscript hash still matches the comparison snapshot.
+        external_text = external_path.read_text(encoding="utf-8")
+        external_hash = _hash(external_text)
+        if external_hash != external.get("content_hash"):
+            return False, block("STALE_MANUSCRIPT", "MANUSCRIPT_HASH_CHANGED",
+                                "the external manuscript changed since comparison; compare again, then accept",
+                                expected=external.get("content_hash"), current=external_hash)
+
+        # Live accepted Book metadata for pointer/source checks.
+        book = BookExpressionStore(self.project)
+        source_book_expression = recomposed.get("source_book_expression")
+        try:
+            metadata = book.inspect(source_book_expression)["metadata"]
+        except FileNotFoundError:
+            return False, block("STALE_BOOK_POINTER", "BOOK_MISSING",
+                                "restore the accepted Book, then compare and accept",
+                                expected=source_book_expression, current=None)
+        book_id = metadata.get("book_id")
+        current_book_hash = _hash(self._book_source_text(book, metadata))
+
+        # 12. Accepted Book revision and pointer have not moved (same as comparison source).
+        if str(metadata.get("revision")) != str(comparison.get("source_book_revision")):
+            return False, block("STALE_BOOK_POINTER", "BOOK_REVISION_CHANGED",
+                                "the accepted Book advanced since comparison; recompose and compare again",
+                                expected=comparison.get("source_book_revision"), current=metadata.get("revision"))
+        if current_book_hash != comparison.get("source_book_hash"):
+            return False, block("STALE_BOOK_POINTER", "BOOK_HASH_CHANGED",
+                                "the accepted Book content changed since comparison; recompose and compare again",
+                                expected=comparison.get("source_book_hash"), current=current_book_hash)
+
+        by_id = {item["chapter_id"]: item for item in metadata["chapters"]}
+
+        # 13. Every accepted Chapter pointer unchanged (same id, same revision).
+        # 14. Every accepted Chapter target exists and hash matches (not deleted/modified).
+        accepted_chapter_sources: list[dict[str, Any]] = []
+        for source in comparison.get("chapter_sources", []):
+            chapter_id = source.get("chapter_id")
+            reference = by_id.get(chapter_id)
+            if reference is None:
+                return False, block("STALE_BOOK_POINTER", "CHAPTER_POINTER_MOVED",
+                                    "a Chapter left the accepted Book since comparison; recompose and compare again",
+                                    chapter_id=chapter_id)
+            if str(reference.get("accepted_revision")) != str(source.get("revision")) or reference.get("chapter_expression_id") != source.get("accepted_expression_id"):
+                return False, block("STALE_BOOK_POINTER", "CHAPTER_POINTER_MOVED",
+                                    "a Chapter pointer moved since comparison; recompose and compare again",
+                                    chapter_id=chapter_id, expected=source.get("revision"), current=reference.get("accepted_revision"))
+            try:
+                live_chapter = book._accepted_chapter(chapter_id)
+            except ValueError:
+                return False, block("STALE_CHAPTER", "MISSING_CHAPTER_TARGET",
+                                    "restore the accepted Chapter Expression, then recompose and compare again",
+                                    chapter_id=chapter_id)
+            if live_chapter.get("content_hash") != source.get("content_hash"):
+                return False, block("STALE_CHAPTER", "CHAPTER_TARGET_CHANGED",
+                                    "an accepted Chapter changed since comparison; recompose and compare again",
+                                    chapter_id=chapter_id, expected=source.get("content_hash"), current=live_chapter.get("content_hash"))
+            accepted_chapter_sources.append({
+                "chapter_id": chapter_id,
+                "expression_id": reference.get("chapter_expression_id"),
+                "revision": reference.get("accepted_revision"),
+                "content_hash": reference.get("content_hash"),
+                "pointer_id": reference.get("chapter_expression_id"),
+            })
+
+        # 15. Every Book-owned pointer unchanged (same id, same revision).
+        # 16. Every Book-owned accepted revision exists and hash matches.
+        accepted_book_owned_sources: list[dict[str, Any]] = []
+        for source in comparison.get("book_owned_sources", []):
+            pointer_id = source.get("pointer_id")
+            accepted_revision_id = source.get("accepted_revision_id")
+            pointer = self._load_pointer_by_id(pointer_id) if pointer_id else None
+            if pointer is None:
+                return False, block("STALE_BOOK_POINTER", "BOOK_OWNED_POINTER_MOVED",
+                                    "a Book-owned pointer is missing since comparison; recompose and compare again",
+                                    pointer_id=pointer_id)
+            if pointer.get("current_accepted_source_id") != accepted_revision_id:
+                return False, block("STALE_BOOK_POINTER", "BOOK_OWNED_POINTER_MOVED",
+                                    "a Book-owned pointer moved since comparison; recompose and compare again",
+                                    pointer_id=pointer_id, expected=accepted_revision_id, current=pointer.get("current_accepted_source_id"))
+            try:
+                accepted_revision = self.load_accepted_book_owned_source(accepted_revision_id)
+            except FileNotFoundError:
+                return False, block("STALE_BOOK_POINTER", "MISSING_BOOK_OWNED_TARGET",
+                                    "restore the accepted Book-owned revision, then recompose and compare again",
+                                    accepted_revision_id=accepted_revision_id)
+            live_owned_hash = _hash(accepted_revision.get("proposed") or "")
+            if live_owned_hash != source.get("content_hash"):
+                return False, block("STALE_BOOK_POINTER", "BOOK_OWNED_TARGET_CHANGED",
+                                    "a Book-owned accepted revision changed since comparison; recompose and compare again",
+                                    accepted_revision_id=accepted_revision_id, expected=source.get("content_hash"), current=live_owned_hash)
+            accepted_book_owned_sources.append({
+                "owned_kind": accepted_revision.get("owned_kind"),
+                "target_id": accepted_revision.get("target_id"),
+                "pointer_id": pointer_id,
+                "accepted_revision_id": accepted_revision_id,
+                "revision": accepted_revision.get("revision"),
+                "content_hash": source.get("content_hash"),
+            })
+
+        # 17. Marker contract version remains supported.
+        marker_version = external.get("marker_contract_version")
+        if marker_version not in SUPPORTED_MARKER_CONTRACT_VERSIONS:
+            return False, block("MARKER_CONTRACT_UNSUPPORTED", "MARKER_CONTRACT_UNSUPPORTED",
+                                "re-inspect and compare under a supported marker contract, then accept",
+                                expected=sorted(SUPPORTED_MARKER_CONTRACT_VERSIONS), current=marker_version)
+
+        summary = comparison.get("summary", {}) or {}
+        counts = summary.get("residual_counts", {}) or {}
+
+        # 18. exact_match is true (not false, not null). Revalidated from counts.
+        exact_match = counts.get("exact_match", 0) > 0 and sum(counts.values()) == counts.get("exact_match", 0)
+        if summary.get("exact_match") is not True or not exact_match:
+            return False, block("NON_EXACT_MATCH", "NON_EXACT_MATCH",
+                                "only an exact-match comparison can be accepted; resolve differences first",
+                                exact_match=summary.get("exact_match"), residual_counts=counts)
+
+        # 19. Every residual count is zero (do NOT trust ready_for_acceptance flag).
+        remaining = {category: counts.get(category, 0) for category in self._residual_categories() if counts.get(category, 0)}
+        if remaining:
+            return False, block("RESIDUALS_REMAIN", "RESIDUALS_REMAIN",
+                                "resolve every residual (including Book-owned) before acceptance",
+                                residuals=remaining)
+
+        # 20. No previous acceptance exists for this comparison (no duplicate).
+        if self._find_prior_acceptance(comparison_id) is not None:
+            return False, block("DUPLICATE_ACCEPTANCE", "DUPLICATE_ACCEPTANCE",
+                                "this comparison was already accepted; inspect the prior acceptance")
+
+        # Pointer baseline + revision numbering. The new revision is based on the
+        # current accepted Book pointer (Phase C3), NOT the recomposition's stored
+        # revision alone. On first acceptance the baseline is the compose-time
+        # accepted Book revision (the comparison source).
+        pointer = self._load_accepted_book_pointer()
+        if pointer is not None:
+            baseline_revision = int(pointer["current_revision"])
+            previous_accepted_book = {
+                "expression_id": pointer.get("accepted_book_expression_id"),
+                "revision": pointer.get("current_revision"),
+                "content_hash": pointer.get("content_hash"),
+            }
+            expected_previous_pointer_id = pointer.get("pointer_id")
+        else:
+            baseline_revision = int(comparison.get("source_book_revision"))
+            previous_accepted_book = {
+                "expression_id": source_book_expression,
+                "revision": comparison.get("source_book_revision"),
+                "content_hash": comparison.get("source_book_hash"),
+            }
+            expected_previous_pointer_id = None
+        new_revision = baseline_revision + 1
+
+        content = self._render_recomposition_text(recomposed)
+        content_hash = _hash(content)
+        source_comparison_hash = _hash(yaml.safe_dump(comparison, sort_keys=True))
+        accepted_book_expression_id = f"{book_id}:accepted_v{new_revision:03d}"
+        acceptance_id = "book_acceptance_" + hashlib.sha256(
+            (
+                comparison_id + "\0" + str(recomposed.get("content_hash")) + "\0"
+                + str(new_revision) + "\0" + str(previous_accepted_book.get("content_hash"))
+            ).encode("utf-8")
+        ).hexdigest()[:32]
+        new_pointer_id = "accepted_book_pointer_" + hashlib.sha256(
+            (accepted_book_expression_id + "\0" + str(new_revision) + "\0" + acceptance_id).encode("utf-8")
+        ).hexdigest()[:16]
+
+        context = {
+            "comparison": comparison,
+            "comparison_id": comparison_id,
+            "source_comparison_hash": source_comparison_hash,
+            "recomposed": recomposed,
+            "recomposition_id": recomposition_id,
+            "source_recomposition_hash": recomposed.get("content_hash"),
+            "publication_id": publication_id,
+            "metadata": metadata,
+            "book_id": book_id,
+            "source_book_expression": source_book_expression,
+            "content": content,
+            "content_hash": content_hash,
+            "new_revision": new_revision,
+            "accepted_book_expression_id": accepted_book_expression_id,
+            "acceptance_id": acceptance_id,
+            "new_pointer_id": new_pointer_id,
+            "expected_previous_pointer_id": expected_previous_pointer_id,
+            "previous_accepted_book": previous_accepted_book,
+            "accepted_chapter_sources": accepted_chapter_sources,
+            "accepted_book_owned_sources": accepted_book_owned_sources,
+        }
+        return True, context
+
+    def _create_accepted_book_revision(self, context: dict[str, Any], reason: str | None) -> dict[str, Any]:
+        """Build the immutable accepted Book revision with full provenance.
+
+        Byte-identical in content to the recomposition. Immutable once written:
+        never deleted, never modified. Carries authority=accepted, lifecycle=
+        accepted, role=book_expression, canonical=true and full source tracking
+        (recomposition, comparison, publication, Chapter sources, Book-owned
+        sources, prior Book reference).
+        """
+        now = datetime.now(timezone.utc).isoformat()
+        return {
+            "artifact_type": "book_expression",
+            "book_expression_id": context["accepted_book_expression_id"],
+            "book_id": context["book_id"],
+            "revision": context["new_revision"],
+            "authority": "accepted",
+            "lifecycle": "accepted",
+            "role": "book_expression",
+            "canonical": True,
+            "content": context["content"],
+            "content_hash": context["content_hash"],
+            "source_recomposition_id": context["recomposition_id"],
+            "source_recomposition_hash": context["source_recomposition_hash"],
+            "source_comparison_id": context["comparison_id"],
+            "source_comparison_hash": context["source_comparison_hash"],
+            "source_publication_id": context["publication_id"],
+            "accepted_chapter_sources": context["accepted_chapter_sources"],
+            "accepted_book_owned_sources": context["accepted_book_owned_sources"],
+            "previous_accepted_book": context["previous_accepted_book"],
+            "acceptance_id": context["acceptance_id"],
+            "accepted_at": now,
+            "reason": reason or "",
+            "transformation": dict(ACCEPTANCE_TRANSFORMATION),
+        }
+
+    def _create_acceptance_record(
+        self, book_revision: dict[str, Any], context: dict[str, Any], new_pointer: dict[str, Any], reason: str | None
+    ) -> dict[str, Any]:
+        """Build the immutable acceptance record (decision evidence).
+
+        The Book revision is narrative authority; this record is the evidence
+        explaining the authority crossing. It tracks the pointer transition (ids
+        and targets) and references (not copies) the Chapter and Book-owned
+        pointers that composed the accepted Book.
+        """
+        now = datetime.now(timezone.utc).isoformat()
+        previous = context["previous_accepted_book"]
+        return {
+            "artifact_type": "book_reconciliation_acceptance",
+            "acceptance_id": context["acceptance_id"],
+            "authority": "decision",
+            "lifecycle": "decided",
+            "source_comparison_id": context["comparison_id"],
+            "source_recomposition_id": context["recomposition_id"],
+            "accepted_book_expression_id": context["accepted_book_expression_id"],
+            "accepted_book_revision": context["new_revision"],
+            "previous_book_expression_id": previous.get("expression_id"),
+            "previous_book_revision": previous.get("revision"),
+            "accepted_chapter_sources": [
+                {"chapter_id": s["chapter_id"], "pointer_id": s["pointer_id"], "revision": s["revision"]}
+                for s in context["accepted_chapter_sources"]
+            ],
+            "accepted_book_owned_sources": [
+                {"owned_kind": s["owned_kind"], "target_id": s["target_id"], "pointer_id": s["pointer_id"], "revision": s["revision"]}
+                for s in context["accepted_book_owned_sources"]
+            ],
+            "reason": reason or "",
+            "accepted_at": now,
+            "pointer_transition": {
+                "previous_pointer_id": context["expected_previous_pointer_id"],
+                "current_pointer_id": new_pointer["pointer_id"],
+                "previous_pointer_target": previous.get("revision"),
+                "current_pointer_target": context["new_revision"],
+            },
+            "transformation": dict(ACCEPTANCE_TRANSFORMATION),
+        }
+
+    def _build_accepted_book_pointer(
+        self, book_revision: dict[str, Any], context: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Build the new accepted Book pointer document (moved last, atomically)."""
+        now = datetime.now(timezone.utc).isoformat()
+        prior_pointer = self._load_accepted_book_pointer()
+        history = list(prior_pointer.get("history", [])) if isinstance(prior_pointer, dict) else []
+        entry = {
+            "revision": context["new_revision"],
+            "accepted_book_expression_id": context["accepted_book_expression_id"],
+            "acceptance_id": context["acceptance_id"],
+            "content_hash": context["content_hash"],
+            "moved_at": now,
+        }
+        return {
+            "pointer_id": context["new_pointer_id"],
+            "artifact_type": "accepted_book_pointer",
+            "authority": "pointer",
+            "lifecycle": "current",
+            "book_id": context["book_id"],
+            "current_revision": context["new_revision"],
+            "target": self._accepted_book_revision_path(context["book_id"], context["new_revision"]).name,
+            "accepted_book_expression_id": context["accepted_book_expression_id"],
+            "content_hash": context["content_hash"],
+            "acceptance_id": context["acceptance_id"],
+            "previous_pointer_id": context["expected_previous_pointer_id"],
+            "source_comparison_id": context["comparison_id"],
+            "source_recomposition_id": context["recomposition_id"],
+            "updated_at": now,
+            "transformation": dict(ACCEPTANCE_TRANSFORMATION),
+            "history": history + [entry],
+        }
+
+    def _stage_acceptance(
+        self, book_revision: dict[str, Any], acceptance_record: dict[str, Any], new_pointer: dict[str, Any]
+    ) -> str:
+        """Stage all acceptance artifacts in a temporary directory. Return staging_dir.
+
+        Stages the immutable Book revision, the immutable acceptance record, the new
+        pointer document, and a transaction manifest listing every staged artifact
+        and its final target. Nothing is visible in a final location yet.
+        """
+        acceptance_id = acceptance_record["acceptance_id"]
+        book_id = book_revision["book_id"]
+        revision = book_revision["revision"]
+        staging = self._acceptance_staging_dir(acceptance_id)
+        if staging.exists():
+            shutil.rmtree(staging, ignore_errors=True)
+        staging.mkdir(parents=True, exist_ok=True)
+        (staging / "book_revision.yaml").write_text(yaml.safe_dump(book_revision, sort_keys=False), encoding="utf-8")
+        (staging / "acceptance_record.yaml").write_text(yaml.safe_dump(acceptance_record, sort_keys=False), encoding="utf-8")
+        (staging / "pointer.yaml").write_text(yaml.safe_dump(new_pointer, sort_keys=False), encoding="utf-8")
+        manifest = {
+            "artifact_type": "book_acceptance_transaction_manifest",
+            "acceptance_id": acceptance_id,
+            "accepted_book_expression_id": book_revision["book_expression_id"],
+            "accepted_book_revision": revision,
+            "staged_artifacts": ["book_revision.yaml", "acceptance_record.yaml", "pointer.yaml"],
+            "targets": {
+                "book_revision": str(self._accepted_book_revision_path(book_id, revision)),
+                "acceptance_record": str(self._acceptance_path(acceptance_id)),
+                "manifest": str(self._acceptance_manifest_path(acceptance_id)),
+                "pointer": str(self._accepted_book_pointer_path()),
+            },
+            "transformation": dict(ACCEPTANCE_TRANSFORMATION),
+        }
+        (staging / "manifest.yaml").write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8")
+        return str(staging)
+
+    def _validate_staged_acceptance(self, staging_dir: str) -> tuple[bool, str]:
+        """Validate the complete staged set. Return ``(True, "")`` or ``(False, error_msg)``.
+
+        Confirms all files present, hashes match, the pointer names the Book
+        revision, and no existing final revision or acceptance record would be
+        shadowed by the new (never-before-written) ones.
+        """
+        staging = Path(staging_dir)
+        expected = {"book_revision.yaml", "acceptance_record.yaml", "pointer.yaml", "manifest.yaml"}
+        actual = {p.name for p in staging.glob("*.yaml")}
+        if actual != expected:
+            return False, f"staged acceptance incomplete: expected {sorted(expected)}, found {sorted(actual)}"
+        book_revision = yaml.safe_load((staging / "book_revision.yaml").read_text(encoding="utf-8")) or {}
+        acceptance_record = yaml.safe_load((staging / "acceptance_record.yaml").read_text(encoding="utf-8")) or {}
+        pointer = yaml.safe_load((staging / "pointer.yaml").read_text(encoding="utf-8")) or {}
+        manifest = yaml.safe_load((staging / "manifest.yaml").read_text(encoding="utf-8")) or {}
+
+        if _hash(book_revision.get("content", "")) != book_revision.get("content_hash"):
+            return False, "staged Book revision content hash does not match its content"
+        if acceptance_record.get("acceptance_id") != book_revision.get("acceptance_id"):
+            return False, "staged acceptance record and Book revision disagree on acceptance_id"
+        if pointer.get("current_revision") != book_revision.get("revision"):
+            return False, "staged pointer revision does not match the Book revision"
+        if pointer.get("content_hash") != book_revision.get("content_hash"):
+            return False, "staged pointer content hash does not match the Book revision"
+        if pointer.get("target") != Path(manifest["targets"]["book_revision"]).name:
+            return False, "staged pointer target does not name the Book revision file"
+
+        book_id = book_revision.get("book_id")
+        revision = book_revision.get("revision")
+        if self._accepted_book_revision_path(book_id, revision).exists():
+            return False, f"an accepted Book revision already exists at v{revision} (would shadow a new revision)"
+        if self._acceptance_path(acceptance_record["acceptance_id"]).exists():
+            return False, "an acceptance record already exists for this acceptance_id"
+        return True, ""
+
+    def _publish_acceptance(
+        self, staging_dir: str, expected_previous_pointer_id: str | None
+    ) -> tuple[bool, AcceptanceBlockedError | None]:
+        """Publish the staged acceptance atomically. Return ``(True, None)`` or ``(False, error)``.
+
+        Publish order prevents partial authority: (1) Book revision (narrative
+        authority), (2) acceptance record (evidence), (3) manifest, (4) accepted
+        Book pointer LAST via compare-and-swap. If the pointer changed since
+        validation began, aborts with ``POINTER_CHANGED`` and restores the prior
+        state. On any failure every moved artifact is removed and the prior pointer
+        restored, so acceptance is all-or-nothing.
+        """
+        staging = Path(staging_dir)
+        manifest = yaml.safe_load((staging / "manifest.yaml").read_text(encoding="utf-8")) or {}
+        targets = manifest["targets"]
+        acceptance_id = manifest["acceptance_id"]
+
+        book_revision_dest = Path(targets["book_revision"])
+        acceptance_dest = Path(targets["acceptance_record"])
+        manifest_dest = Path(targets["manifest"])
+        pointer_dest = Path(targets["pointer"])
+
+        # Capture prior pointer bytes so a late failure can restore it exactly.
+        prior_pointer_bytes = pointer_dest.read_bytes() if pointer_dest.exists() else None
+
+        moved: list[Path] = []
+        try:
+            book_revision_dest.parent.mkdir(parents=True, exist_ok=True)
+            acceptance_dest.parent.mkdir(parents=True, exist_ok=True)
+            manifest_dest.parent.mkdir(parents=True, exist_ok=True)
+
+            # 1. Book revision (narrative authority).
+            shutil.move(str(staging / "book_revision.yaml"), str(book_revision_dest))
+            moved.append(book_revision_dest)
+            # 2. Acceptance record (evidence).
+            shutil.move(str(staging / "acceptance_record.yaml"), str(acceptance_dest))
+            moved.append(acceptance_dest)
+            # 3. Manifest.
+            shutil.move(str(staging / "manifest.yaml"), str(manifest_dest))
+            moved.append(manifest_dest)
+
+            # 4. Compare-and-swap the accepted Book pointer LAST.
+            current_pointer = self._load_accepted_book_pointer()
+            current_pointer_id = current_pointer.get("pointer_id") if current_pointer else None
+            if current_pointer_id != expected_previous_pointer_id:
+                # Pointer changed concurrently -> abort and roll back everything.
+                for path in moved:
+                    if path.exists():
+                        path.unlink()
+                return False, AcceptanceBlockedError(
+                    "POINTER_CHANGED", "BOOK_POINTER_CHANGED",
+                    {"expected": expected_previous_pointer_id, "current": current_pointer_id},
+                    "the accepted Book pointer changed during acceptance; recompose and compare again",
+                )
+
+            tmp = pointer_dest.with_suffix(".yaml.tmp")
+            tmp.write_text((staging / "pointer.yaml").read_text(encoding="utf-8"), encoding="utf-8")
+            tmp.replace(pointer_dest)
+            return True, None
+        except Exception:
+            # Restore prior pointer and remove every moved artifact (and any
+            # partially written pointer temp), so acceptance is all-or-nothing.
+            tmp = pointer_dest.with_suffix(".yaml.tmp")
+            if tmp.exists():
+                tmp.unlink()
+            if prior_pointer_bytes is not None:
+                pointer_dest.write_bytes(prior_pointer_bytes)
+            elif pointer_dest.exists():
+                pointer_dest.unlink()
+            for path in moved:
+                if path.exists():
+                    path.unlink()
+            raise
+
+    def accept_recomposed_book(
+        self, comparison_id: str, reason: str | None = None
+    ) -> tuple[bool, dict[str, Any] | AcceptanceBlockedError]:
+        """Accept a recomposed Book as canonical.
+
+        Accepts the comparison result (not an arbitrary recomposition path). On
+        success creates an immutable accepted Book revision and acceptance record
+        and moves the accepted Book pointer atomically (last, via compare-and-swap).
+        Returns ``(True, {accepted_book_revision, acceptance_record})`` on success,
+        ``(True, {status: 'duplicate', ...})`` when the comparison was already
+        accepted (no new revision or record created), or ``(False,
+        AcceptanceBlockedError)`` on any stale/blocked/concurrent condition. Never
+        produces a partial acceptance and never completes reconciliation.
+        """
+        # Duplicate acceptance is idempotent: intercept before the gate so a
+        # completed acceptance always returns its prior result.
+        prior = self._find_prior_acceptance(comparison_id)
+        if prior is not None:
+            return True, {
+                "status": "duplicate",
+                "prior_acceptance_id": prior["acceptance_id"],
+                "accepted_book_revision": prior["accepted_book_revision"],
+                "accepted_book_expression_id": prior["accepted_book_expression_id"],
+                "message": "comparison already accepted; no new Book revision or acceptance record created",
+                "visible_outputs_created": False,
+            }
+
+        # 20-point acceptance gate (revalidates all conditions from disk).
+        ok, gate = self._validate_acceptance_gate(comparison_id)
+        if not ok:
+            return False, gate
+        context = gate  # type: ignore[assignment]
+
+        # Build the immutable artifacts.
+        book_revision = self._create_accepted_book_revision(context, reason)
+        new_pointer = self._build_accepted_book_pointer(book_revision, context)
+        acceptance_record = self._create_acceptance_record(book_revision, context, new_pointer, reason)
+
+        # Stage, validate the complete set, then publish atomically.
+        staging_dir = self._stage_acceptance(book_revision, acceptance_record, new_pointer)
+        valid, message = self._validate_staged_acceptance(staging_dir)
+        if not valid:
+            shutil.rmtree(staging_dir, ignore_errors=True)
+            return False, AcceptanceBlockedError(
+                "STAGING_INVALID", "STAGING_INVALID",
+                {"comparison_id": comparison_id, "detail": message},
+                "acceptance staging failed validation; retry acceptance",
+            )
+
+        try:
+            published, error = self._publish_acceptance(staging_dir, context["expected_previous_pointer_id"])
+        finally:
+            shutil.rmtree(staging_dir, ignore_errors=True)
+        if not published:
+            return False, error
+
+        return True, {"accepted_book_revision": book_revision, "acceptance_record": acceptance_record}
