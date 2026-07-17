@@ -22,6 +22,8 @@ Structure, Identity, Blueprint, Realization, or Scene is ever mutated.
 | Book candidate | candidate | proposed | no |
 | Application preview | derived | proposed (`role=application_preview`) | no |
 | Publication manifest | derived | published | no (published ≠ accepted) |
+| Candidate decision | decision | decided | no |
+| Accepted Book-owned source | accepted | accepted | no (recomposition input, not the Book pointer) |
 
 A candidate is durable and unaccepted: it records what an application *would*
 change without changing any accepted Book state. A candidate-backed preview can
@@ -200,12 +202,27 @@ transformation:
 - **Post-publication**: candidates and previews that depend on a changed source
   become stale, while independent candidates remain fresh.
 
-## Candidate decisions (decision lifecycle)
+## Candidate decisions (decision lifecycle) — Model A (append-only)
 
 Once candidates are published, the author decides each one independently:
-**accept**, **reject**, or **defer**. A decision is a durable, *immutable*
-record — it does **not** recompose the Book, does **not** accept a candidate as
-canonical, and does **not** move the accepted Book pointer.
+**approve**, **reject**, or **defer**. Terminology is deliberate:
+
+- **Approve** = "use this candidate in the next recomposition." A *workflow*
+  decision. Approving materializes a durable **accepted Book-owned source** (see
+  below) that a future recomposition reads.
+- **Reject** = "do not use this candidate."
+- **Defer** = "not deciding yet." **Defer is nonterminal**: a deferred candidate
+  can later be approved or rejected.
+
+The word **accept** is reserved for a later, separate step — accepting a
+*recomposed Book* as canonical (out of scope in this slice). Candidate decisions
+never use "accept".
+
+Each decision is a durable, immutable record, but a candidate may be decided
+more than once. Decisions form an **append-only history**; the **latest**
+decision (highest `decision_sequence`) is the active one and supersedes all
+priors. A decision does **not** recompose the Book, does **not** accept a
+candidate as canonical, and does **not** move the accepted Book pointer.
 
 Path: `book/expression/reconciliation/decisions/<decision_id>.yaml`
 
@@ -213,17 +230,23 @@ Path: `book/expression/reconciliation/decisions/<decision_id>.yaml`
 decision_id: book_candidate_decision_...
 artifact_type: book_candidate_decision
 authority: decision            # distinct from candidate / accepted / derived
-lifecycle: decided             # terminal
+lifecycle: decided
 candidate_id: book_candidate_fce60cdf...
 book_expression_id: book_01:expression_v001
 candidate_type: book_separator_candidate
 decision:
-  status: accepted             # accepted | rejected | deferred
+  status: approved             # approved | rejected | deferred
   reason: Author approved separator
   decided_at: 2026-07-16T14:30:00+00:00
+decision_sequence: 2           # append-only ordinal; latest wins
+supersedes: book_candidate_decision_...   # prior active decision, or null
 source_candidate_id: book_candidate_fce60cdf...
 source_candidate_revision: 1
 source_candidate_hash: sha256:...   # snapshot of the decided candidate
+source_book_revision: 1             # Book snapshot; recomposition compares this
+source_book_hash: sha256:...
+accepted_source_id: book_accepted_separator_v001_...   # only on approval
+accepted_source_path: .../accepted-sources/book_accepted_separator_v001_....yaml
 transformation:
   id: expression.decide_book_candidate
   version: 1
@@ -232,13 +255,58 @@ freshness:
   reasons: []
 ```
 
-### Immutability
+### Append-only history and superseding
 
-Decisions are terminal. There is exactly **one decision per candidate**; there
-is no revocation and no amendment. The `decision_id` is deterministic
-(`SHA256(candidate_id + status + reason)`), and a second decision on the same
-candidate — with any status or reason — is rejected with a
-`DuplicateDecisionError`. Prior decisions are preserved, never deleted.
+A candidate may be decided any number of times: the natural workflow is
+`pending → deferred → approved`. Each `decide_candidate` call appends a new
+immutable record carrying an incrementing `decision_sequence` and a `supersedes`
+pointer to the prior active decision. Only the **latest** decision counts for the
+preview and for recomposition; prior records are preserved as the audit trail and
+are never deleted. The `decision_id` is deterministic
+(`SHA256(candidate_id + status + reason + sequence)`).
+
+`book_candidate_decision_history(candidate_id)` returns the ordered history plus
+the `active_status` / `active_decision_id`. The CLI exposes this as
+`book-candidate-history`.
+
+### Accepted Book-owned sources (produced on approval)
+
+Approving a candidate is not itself narrative acceptance, but it *does* produce a
+durable, accepted Book-owned **source** artifact — distinct from the candidate —
+that recomposition reads. Recomposition reads accepted sources, **not** decisions.
+
+Path: `book/expression/reconciliation/accepted-sources/<accepted_source_id>.yaml`
+
+| Candidate type | `owned_kind` | Revises |
+|----------------|--------------|---------|
+| `book_separator_candidate` | `separator` | Book separator |
+| `book_order_candidate` | `order` | Chapter assembly order |
+| `book_title_rendering_candidate` | `title` | Title rendering |
+| `book_inserted_material_candidate` | `material` | Inserted material |
+
+```yaml
+accepted_source_id: book_accepted_separator_v001_...
+artifact_type: accepted_book_owned_source
+owned_kind: separator
+authority: accepted            # distinct from candidate/derived/decision
+lifecycle: accepted
+book_expression_id: book_01:expression_v001
+target_id: separator_01
+revision: 1                    # bumps per (book, target, kind) on re-approval
+source_decision_id: book_candidate_decision_...
+source_candidate_id: book_candidate_fce60cdf...
+original: "---"
+proposed: "***"
+transformation:
+  id: expression.accept_book_owned_source
+  version: 1
+```
+
+An accepted source is **active** only while its candidate's latest decision is
+`approved`. A later reject/defer supersedes the approval and deactivates the
+source (it stays on disk for audit). `active_accepted_sources(publication_id)`
+returns only sources still backed by an active approval — the exact set a future
+recomposition would consume.
 
 ### Live freshness gate at decision time
 
@@ -262,14 +330,38 @@ visible_outputs_created: false
 
 ### Decision-aware preview (not recomposition)
 
-Creating a decision regenerates the publication's preview from its decisions:
-**accepted** candidates are applied, while **rejected**, **deferred**, and
-still-**undecided** candidates are excluded. The regenerated preview is rebuilt
-from accepted Chapter sources plus accepted Book-owned candidates and remains
+Creating a decision regenerates the publication's preview from each candidate's
+**latest** decision: **approved** candidates are applied, while **rejected**,
+**deferred**, and still-**undecided** candidates are excluded. Because only the
+latest decision counts, a `deferred → approved` supersede flips a candidate from
+excluded to included on the next preview. The regenerated preview is rebuilt from
+accepted Chapter sources plus approved Book-owned candidates and remains
 `authority=derived`, `lifecycle=proposed`, `role=application_preview`,
 `canonical=false`. This is a *preview* of what recomposition would produce — no
 Book Expression is modified or accepted. The preview records `decision_aware:
 true` and an `applied_decisions` list.
+
+### Book-change freshness gate for recomposition
+
+Approving a candidate snapshots the Book revision/hash it was decided against.
+`assess_recomposition_freshness(publication_id)` is the read-only gate a future
+recomposition MUST pass:
+
+- **Scenario A (Book revision changes after approval):** if the accepted Book
+  advances after an approval, the snapshot no longer matches the current Book.
+  The gate returns `status=blocked_stale_book` with structured reasons
+  (`BOOK_REVISION_CHANGED`, `BOOK_HASH_CHANGED`, or
+  `BOOK_OR_CHAPTER_REVISION_CHANGED`) and
+  `recommended_action: "Book changed since decision. Re-approve or create a new
+  decision."` Recomposition is **rejected** until the author re-decides for the
+  new Book.
+- **Scenario B (a source separator/order the candidate captured changes):**
+  candidates capture the source element's state at publication time; the
+  decision-time freshness gate already rejects a decision whose target moved.
+  Recomposition remains read-only and deterministic over the captured snapshot.
+
+Only active approvals are checked: a publication with no active approvals is
+always `ready` (nothing to recompose is stale).
 
 ### Explicit preview-acceptance blocking
 
@@ -290,20 +382,23 @@ auteur expression show-book-plan <plan> --project PROJECT
 auteur expression publish-book-reconciliation <plan> --project PROJECT
 auteur expression inspect-book-publication <publication> --project PROJECT
 
-auteur expression accept-book-candidate <candidate> --reason "text" --project PROJECT
-auteur expression reject-book-candidate <candidate> --reason "text" --project PROJECT
-auteur expression defer-book-candidate  <candidate> --reason "text" --project PROJECT
+auteur expression approve-book-candidate <candidate> --reason "text" --project PROJECT
+auteur expression reject-book-candidate  <candidate> --reason "text" --project PROJECT
+auteur expression defer-book-candidate   <candidate> --reason "text" --project PROJECT
 auteur expression show-book-candidate-decision <decision> --project PROJECT
+auteur expression book-candidate-history <candidate> --project PROJECT
 ```
 
-Normal output names the source Book, selected proposals, readiness, published
-candidates, the preview status, `Acceptance status: none`, `Accepted Book
-pointer changed: no`, and a recommended next action. Decision output names the
-candidate, the decision and reason, `Preview updated: yes`, and `Book pointer
-changed: no`. Hashes and full metadata are shown only behind `--json` and
-`--verbose`.
+`approve-book-candidate` replaces the former `accept-book-candidate`: "accept" is
+reserved for accepting a recomposed Book. Normal output names the source Book,
+selected proposals, readiness, published candidates, the preview status,
+`Acceptance status: none`, `Accepted Book pointer changed: no`, and a recommended
+next action. Decision output names the candidate, the decision, reason, and
+`decision_sequence`, any superseded decision, the accepted Book-owned source (on
+approval), `Preview updated: yes`, and `Book pointer changed: no`. Hashes and full
+metadata are shown only behind `--json` and `--verbose`.
 
-The decision commands record accept/reject/defer only. There are still
+The decision commands record approve/reject/defer only. There are still
 intentionally **no** `apply-book-proposal`, `recompose-book-reconciliation`, or
 `complete-book-reconciliation` commands: candidate *acceptance into canonical
 Book content*, Book recomposition, and reconciliation completion remain out of
@@ -311,7 +406,8 @@ scope.
 
 ## Non-goals
 
-This slice does not implement Book recomposition from accepted candidates,
-acceptance of a recomposed Book, or reconciliation completion. Decisions record
-author intent and regenerate a derived preview; they never mutate any accepted
-or canonical artifact.
+This slice does not implement Book recomposition from accepted Book-owned
+sources, acceptance of a recomposed Book, or reconciliation completion. Decisions
+record author intent, produce accepted Book-owned sources on approval, and
+regenerate a derived preview; they never mutate any accepted or canonical
+artifact and never move the accepted Book pointer.

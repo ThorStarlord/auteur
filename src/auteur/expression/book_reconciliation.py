@@ -47,7 +47,25 @@ def _hash(text: str) -> str:
 
 
 DECISION_TRANSFORMATION = {"id": "expression.decide_book_candidate", "version": 1}
-DECISION_STATUSES = ("accepted", "rejected", "deferred")
+# Candidate decisions are *workflow* decisions, not narrative acceptance.
+# ``approve`` means "use this candidate in the next recomposition"; the later,
+# separate acceptance of a recomposed Book ("accept") is out of scope in this
+# slice. ``defer`` is NONTERMINAL: a deferred candidate can later be approved or
+# rejected. Decisions form an append-only history and the latest one supersedes
+# all priors (see ``decide_candidate`` / ``_latest_decision_for_candidate``).
+DECISION_STATUSES = ("approved", "rejected", "deferred")
+
+ACCEPTED_SOURCE_TRANSFORMATION = {"id": "expression.accept_book_owned_source", "version": 1}
+# Approving a Book-owned candidate materializes a durable *accepted Book-owned
+# source*: the candidate itself stays a candidate, but its approval produces an
+# ``authority=accepted`` artifact that a future recomposition reads. Each
+# candidate type maps to one owned "kind".
+ACCEPTED_SOURCE_KIND = {
+    "book_separator_candidate": "separator",
+    "book_order_candidate": "order",
+    "book_title_rendering_candidate": "title",
+    "book_inserted_material_candidate": "material",
+}
 
 
 class BookPublicationRejected(ValueError):
@@ -81,12 +99,20 @@ class CandidateNotFoundError(ValueError):
     """Raised when a decision targets a published candidate that does not exist."""
 
 
-class DuplicateDecisionError(ValueError):
-    """Raised when a candidate already carries an immutable decision.
+class RecompositionBlockedError(ValueError):
+    """Raised/returned when recomposition is blocked because the Book changed.
 
-    Decisions are terminal: there is no revocation and no amendment. A second
-    decision on the same candidate -- with any status or reason -- is rejected.
+    ``result`` carries a structured block: ``status='blocked_stale_book'``, the
+    ``reasons`` (each ``{code, expected, current, recommended_action}``), and
+    ``visible_outputs_created=False``. Approving a candidate snapshots the Book
+    revision it was decided against; if the accepted Book advances afterward, the
+    approval no longer describes the current Book and recomposition must not run
+    until the author re-decides.
     """
+
+    def __init__(self, result: dict[str, Any]):
+        self.result = result
+        super().__init__(result.get("message", "recomposition blocked"))
 
 
 class BookManuscriptParser:
@@ -757,15 +783,23 @@ class BookReconciliationStore:
         return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
 
     # ------------------------------------------------------------------
-    # Candidate Decisions (Decision Lifecycle).
+    # Candidate Decisions (Decision Lifecycle) -- Model A (append-only).
     #
-    # An author independently accepts, rejects, or defers each published,
-    # unaccepted Book candidate. A decision is an immutable record (no
-    # revocation, no amendment, one per candidate). Deciding a candidate never
-    # recomposes the Book, never accepts a candidate as canonical, and never
-    # moves the accepted Book pointer. The only visible side effect besides the
-    # decision record is a regenerated, still-derived preview that reflects the
-    # accepted decisions.
+    # An author independently approves, rejects, or defers each published,
+    # unaccepted Book candidate. Decisions are an APPEND-ONLY history: a
+    # candidate may be decided more than once (for example deferred, then later
+    # approved). Each decision is an immutable record carrying a
+    # ``decision_sequence`` and a ``supersedes`` pointer; the LATEST decision
+    # (highest sequence) is the active one and supersedes all priors. Prior
+    # records are never deleted -- they are the audit trail.
+    #
+    # ``approve`` is a workflow decision meaning "use this candidate in the next
+    # recomposition"; it materializes a durable accepted Book-owned source that a
+    # future recomposition reads. It is NOT narrative acceptance of a recomposed
+    # Book. Deciding a candidate never recomposes the Book, never accepts a
+    # candidate as canonical, and never moves the accepted Book pointer. The only
+    # visible side effects are the new decision record, an accepted Book-owned
+    # source (on approval), and a regenerated, still-derived preview.
     # ------------------------------------------------------------------
 
     def _decisions_dir(self) -> Path:
@@ -775,9 +809,9 @@ class BookReconciliationStore:
         return self._decisions_dir() / f"{decision_id}.yaml"
 
     @staticmethod
-    def _decision_id(candidate_id: str, decision_status: str, reason: str) -> str:
+    def _decision_id(candidate_id: str, decision_status: str, reason: str, sequence: int = 1) -> str:
         digest = hashlib.sha256(
-            (candidate_id + "\0" + decision_status + "\0" + (reason or "")).encode("utf-8")
+            (candidate_id + "\0" + decision_status + "\0" + (reason or "") + "\0" + str(sequence)).encode("utf-8")
         ).hexdigest()
         return f"book_candidate_decision_{digest[:32]}"
 
@@ -787,32 +821,64 @@ class BookReconciliationStore:
             return None
         return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
 
-    def _decision_for_candidate(self, candidate_id: str) -> dict[str, Any] | None:
+    def _decision_history_for_candidate(self, candidate_id: str) -> list[dict[str, Any]]:
+        """Every decision recorded for a candidate, ordered by decision_sequence."""
         directory = self._decisions_dir()
+        history: list[dict[str, Any]] = []
         if not directory.exists():
-            return None
+            return history
         for path in sorted(directory.glob("*.yaml")):
             data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
             if data.get("candidate_id") == candidate_id:
-                return data
-        return None
+                history.append(data)
+        history.sort(key=lambda d: d.get("decision_sequence", 0))
+        return history
+
+    def _latest_decision_for_candidate(self, candidate_id: str) -> dict[str, Any] | None:
+        """The active (latest, highest-sequence) decision, or None if undecided."""
+        history = self._decision_history_for_candidate(candidate_id)
+        return history[-1] if history else None
 
     def _decisions_for_publication(self, publication_id: str) -> dict[str, dict[str, Any]]:
+        """Latest active decision per candidate for a publication.
+
+        History is append-only, so a candidate can have several records; only the
+        highest-sequence decision counts. Entries are keyed by candidate id.
+        """
         directory = self._decisions_dir()
-        decisions: dict[str, dict[str, Any]] = {}
+        latest: dict[str, dict[str, Any]] = {}
         if not directory.exists():
-            return decisions
+            return latest
         for path in sorted(directory.glob("*.yaml")):
             data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-            if data.get("publication_id") == publication_id:
-                decisions[data.get("candidate_id")] = data
-        return decisions
+            if data.get("publication_id") != publication_id:
+                continue
+            candidate_id = data.get("candidate_id")
+            existing = latest.get(candidate_id)
+            if existing is None or data.get("decision_sequence", 0) > existing.get("decision_sequence", 0):
+                latest[candidate_id] = data
+        return latest
 
     def show_book_candidate_decision(self, decision_id: str) -> dict[str, Any]:
         decision = self._load_decision(decision_id)
         if decision is None:
             raise FileNotFoundError(f"Book candidate decision not found: {decision_id}")
         return decision
+
+    def book_candidate_decision_history(self, candidate_id: str) -> dict[str, Any]:
+        """Full append-only decision history for a candidate plus its active state.
+
+        ``decisions`` is the ordered history (oldest first); ``active_status`` and
+        ``active_decision_id`` describe the superseding latest decision, if any.
+        """
+        history = self._decision_history_for_candidate(candidate_id)
+        active = history[-1] if history else None
+        return {
+            "candidate_id": candidate_id,
+            "decisions": history,
+            "active_status": active["decision"]["status"] if active else "undecided",
+            "active_decision_id": active["decision_id"] if active else None,
+        }
 
     def _validate_candidate_freshness(self, candidate: dict[str, Any]) -> tuple[bool, list[dict[str, Any]]]:
         """Live revalidation of every dependency a decision would rest on.
@@ -896,13 +962,17 @@ class BookReconciliationStore:
         *,
         decided_by: str = "author",
     ) -> tuple[bool, dict[str, Any]]:
-        """Create an immutable decision for a published Book candidate.
+        """Append an immutable decision for a published Book candidate (Model A).
 
-        Returns ``(True, decision)`` on success, or ``(False, error.result)`` on a
-        structured stale rejection. Raises ``CandidateNotFoundError`` for an
-        unknown candidate, ``DuplicateDecisionError`` for a second decision on the
-        same candidate, and ``ValueError`` for an invalid status. No candidate is
-        accepted, no Book is recomposed, and no pointer moves.
+        Decisions are append-only: a candidate may be decided any number of times
+        (for example ``deferred`` then later ``approved``). Each call records a new
+        immutable decision carrying a ``decision_sequence`` and a ``supersedes``
+        pointer to the prior active decision; the latest decision is the active
+        one. Returns ``(True, decision)`` on success, or ``(False, error.result)``
+        on a structured stale rejection. Raises ``CandidateNotFoundError`` for an
+        unknown candidate and ``ValueError`` for an invalid status. Approving a
+        candidate materializes an accepted Book-owned source but never recomposes
+        the Book, never accepts a recomposed Book, and never moves any pointer.
         """
         if decision_status not in DECISION_STATUSES:
             raise ValueError(f"decision status must be one of {DECISION_STATUSES}: {decision_status}")
@@ -913,15 +983,14 @@ class BookReconciliationStore:
         except FileNotFoundError as exc:
             raise CandidateNotFoundError(str(exc)) from exc
 
-        # 2. No duplicate decisions (terminal, immutable, one per candidate).
-        existing = self._decision_for_candidate(candidate_id)
-        if existing is not None:
-            raise DuplicateDecisionError(
-                f"candidate already decided ({existing['decision']['status']}); "
-                f"decisions are immutable: {candidate_id}"
-            )
+        # 2. Determine this decision's place in the append-only history. The prior
+        #    active (latest) decision, if any, is superseded by this one.
+        history = self._decision_history_for_candidate(candidate_id)
+        previous = history[-1] if history else None
+        sequence = (previous["decision_sequence"] + 1) if previous else 1
+        supersedes = previous["decision_id"] if previous else None
 
-        # 3. Live freshness gate.
+        # 3. Live freshness gate (never trusts persisted candidate freshness).
         is_fresh, freshness_reasons = self._validate_candidate_freshness(candidate)
         if not is_fresh:
             error = BookFreshnessRejectError({
@@ -933,9 +1002,9 @@ class BookReconciliationStore:
             })
             return False, error.result
 
-        # 4. Create the immutable decision.
+        # 4. Create the immutable decision record.
         now = datetime.now(timezone.utc).isoformat()
-        decision_id = self._decision_id(candidate_id, decision_status, reason)
+        decision_id = self._decision_id(candidate_id, decision_status, reason, sequence)
         candidate_hash = _hash(yaml.safe_dump(candidate, sort_keys=True))
         decision = {
             "decision_id": decision_id,
@@ -953,36 +1022,215 @@ class BookReconciliationStore:
                 "decided_by": decided_by,
                 "decided_at": now,
             },
+            "decision_sequence": sequence,
+            "supersedes": supersedes,
             "source_candidate_id": candidate_id,
             "source_candidate_revision": candidate.get("revision", 1),
             "source_candidate_hash": candidate_hash,
+            # Snapshot of the Book this decision was made against. Recomposition
+            # compares this against the current Book (see
+            # ``assess_recomposition_freshness``) and blocks on any mismatch.
+            "source_book_revision": candidate.get("source_book_revision"),
+            "source_book_hash": candidate.get("source_book_hash"),
             "transformation": dict(DECISION_TRANSFORMATION),
             "created_at": now,
             "decided_at": now,
             "freshness": {"status": "fresh", "reasons": []},
         }
 
-        # 5. Persist immutably (append to history; never overwrite).
+        # 5. On approval, materialize a durable accepted Book-owned source that a
+        #    future recomposition reads. This is distinct from the candidate and
+        #    carries authority=accepted; the candidate itself stays a candidate.
+        if decision_status == "approved":
+            accepted_source = self._create_accepted_source(candidate, decision, now)
+            decision["accepted_source_id"] = accepted_source["accepted_source_id"]
+            decision["accepted_source_path"] = str(self._accepted_source_path(accepted_source["accepted_source_id"]))
+
+        # 6. Persist the decision immutably (append; never overwrite an existing).
         decision_path = self._decision_path(decision_id)
         if decision_path.exists():
-            raise DuplicateDecisionError(f"decision already exists: {decision_id}")
+            raise ValueError(f"decision already exists (duplicate status+reason+sequence): {decision_id}")
         decision_path.parent.mkdir(parents=True, exist_ok=True)
         decision_path.write_text(yaml.safe_dump(decision, sort_keys=False), encoding="utf-8")
 
-        # 6. Regenerate the decision-aware preview (still derived/proposed).
+        # 7. Regenerate the decision-aware preview from the latest decisions.
         publication_id = candidate.get("publication_id")
         if publication_id:
             self._generate_decision_aware_preview(publication_id)
 
         return True, decision
 
-    def _generate_decision_aware_preview(self, publication_id: str) -> dict[str, Any]:
-        """Regenerate a publication's preview from its accepted decisions.
+    # ------------------------------------------------------------------
+    # Accepted Book-owned sources.
+    #
+    # Approving a candidate produces a durable, accepted Book-owned source in
+    # ``book/expression/reconciliation/accepted-sources/``. It is authority
+    # ``accepted``, references the candidate and the deciding decision, and is
+    # what recomposition reads -- recomposition never reads decisions directly.
+    # Materializing an accepted source does NOT move the accepted Book pointer or
+    # mutate any Chapter/Structure/Identity/Blueprint/Realization/Scene.
+    # ------------------------------------------------------------------
 
-        Accepted candidates are applied; rejected, deferred, and still-undecided
-        candidates are excluded. The preview is rebuilt from accepted Chapter
-        sources plus accepted Book-owned candidates and remains derived,
-        proposed, and noncanonical. No Book Expression is modified or accepted.
+    def _accepted_sources_dir(self) -> Path:
+        return self.root / "accepted-sources"
+
+    def _accepted_source_path(self, accepted_source_id: str) -> Path:
+        return self._accepted_sources_dir() / f"{accepted_source_id}.yaml"
+
+    def _accepted_source_revision(self, book_id: str, target_id: Any, kind: str) -> int:
+        """Next revision for an accepted source over the same Book target/kind."""
+        directory = self._accepted_sources_dir()
+        if not directory.exists():
+            return 1
+        revisions = [0]
+        for path in sorted(directory.glob("*.yaml")):
+            data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+            if data.get("book_expression_id") == book_id and data.get("owned_kind") == kind and data.get("target_id") == target_id:
+                revisions.append(data.get("revision", 0))
+        return max(revisions) + 1
+
+    def _create_accepted_source(self, candidate: dict[str, Any], decision: dict[str, Any], now: str) -> dict[str, Any]:
+        candidate_type = candidate.get("artifact_type")
+        kind = ACCEPTED_SOURCE_KIND.get(candidate_type, "unknown")
+        book_id = candidate.get("book_expression_id")
+        target_id = candidate.get("target_id")
+        revision = self._accepted_source_revision(book_id, target_id, kind)
+        accepted_source_id = f"book_accepted_{kind}_v{revision:03d}_" + hashlib.sha256(
+            decision["decision_id"].encode("utf-8")
+        ).hexdigest()[:16]
+        artifact = {
+            "accepted_source_id": accepted_source_id,
+            "artifact_type": "accepted_book_owned_source",
+            "owned_kind": kind,
+            "authority": "accepted",
+            "lifecycle": "accepted",
+            "book_expression_id": book_id,
+            "target_id": target_id,
+            "revision": revision,
+            "source_decision_id": decision["decision_id"],
+            "source_candidate_id": candidate.get("candidate_id"),
+            "candidate_type": candidate_type,
+            "publication_id": candidate.get("publication_id"),
+            "source_book_revision": candidate.get("source_book_revision"),
+            "source_book_hash": candidate.get("source_book_hash"),
+            "original": candidate.get("original"),
+            "proposed": candidate.get("proposed"),
+            "transformation": dict(ACCEPTED_SOURCE_TRANSFORMATION),
+            "created_at": now,
+        }
+        path = self._accepted_source_path(accepted_source_id)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(yaml.safe_dump(artifact, sort_keys=False), encoding="utf-8")
+        return artifact
+
+    def load_accepted_book_owned_source(self, accepted_source_id: str) -> dict[str, Any]:
+        path = self._accepted_source_path(accepted_source_id)
+        if not path.exists():
+            raise FileNotFoundError(f"Accepted Book-owned source not found: {accepted_source_id}")
+        return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+
+    def active_accepted_sources(self, publication_id: str) -> list[dict[str, Any]]:
+        """Accepted Book-owned sources whose candidate's latest decision is approved.
+
+        An approval materializes an accepted source, but a later reject/defer
+        supersedes it. Recomposition reads only the accepted sources still backed
+        by an active ``approved`` decision -- superseded sources remain on disk
+        for audit but are not returned here.
+        """
+        latest = self._decisions_for_publication(publication_id)
+        active_ids = {
+            decision.get("accepted_source_id")
+            for decision in latest.values()
+            if decision["decision"]["status"] == "approved" and decision.get("accepted_source_id")
+        }
+        directory = self._accepted_sources_dir()
+        sources: list[dict[str, Any]] = []
+        if not directory.exists():
+            return sources
+        for path in sorted(directory.glob("*.yaml")):
+            data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+            if data.get("accepted_source_id") in active_ids:
+                sources.append(data)
+        return sources
+
+    def assess_recomposition_freshness(self, publication_id: str) -> dict[str, Any]:
+        """Freshness gate a future recomposition MUST pass before running.
+
+        Approving a candidate snapshots the Book revision/hash it was decided
+        against. If the accepted Book advances afterward (Scenario A), the
+        approval no longer describes the current Book: this returns
+        ``status='blocked_stale_book'`` with structured reasons so recomposition
+        is refused until the author re-decides for the new Book. Returns
+        ``status='ready'`` when every active approval still matches the current
+        Book. This method is read-only and recomposes nothing.
+        """
+        reasons: list[dict[str, Any]] = []
+
+        def add(code: str, **extra: Any) -> None:
+            reasons.append({
+                "code": code,
+                "expected": extra.get("expected"),
+                "current": extra.get("current"),
+                "recommended_action": extra.get(
+                    "recommended_action",
+                    "Book changed since decision. Re-approve or create a new decision.",
+                ),
+            })
+
+        try:
+            manifest = self.inspect_book_publication(publication_id)
+        except FileNotFoundError:
+            add("PUBLICATION_MISSING", expected=publication_id, current=None,
+                recommended_action="publish a fresh Book plan and decide again")
+            return {"status": "blocked_stale_book", "publication_id": publication_id,
+                    "reasons": reasons, "visible_outputs_created": False,
+                    "message": "recomposition blocked: publication missing"}
+
+        book = BookExpressionStore(self.project)
+        book_id = manifest.get("source_book_expression")
+        try:
+            inspected = book.inspect(book_id)
+            metadata = inspected["metadata"]
+            current_revision = metadata.get("revision")
+            current_hash = _hash(self._book_source_text(book, metadata))
+            book_fresh = inspected["freshness"] == "fresh"
+        except FileNotFoundError:
+            metadata = {}
+            current_revision = current_hash = None
+            book_fresh = False
+            add("BOOK_MISSING", expected=book_id, current=None,
+                recommended_action="restore the accepted Book and decide again")
+
+        active_approvals = [
+            decision for decision in self._decisions_for_publication(publication_id).values()
+            if decision["decision"]["status"] == "approved"
+        ]
+        for decision in active_approvals:
+            if metadata:
+                if not book_fresh:
+                    add("BOOK_OR_CHAPTER_REVISION_CHANGED", expected="fresh", current=inspected["freshness"])
+                if decision.get("source_book_revision") != current_revision:
+                    add("BOOK_REVISION_CHANGED", expected=decision.get("source_book_revision"), current=current_revision)
+                elif decision.get("source_book_hash") not in (None, current_hash):
+                    add("BOOK_HASH_CHANGED", expected=decision.get("source_book_hash"), current=current_hash)
+
+        if reasons:
+            return {"status": "blocked_stale_book", "publication_id": publication_id,
+                    "reasons": reasons, "visible_outputs_created": False,
+                    "message": "recomposition blocked: Book changed since decision"}
+        return {"status": "ready", "publication_id": publication_id, "reasons": [],
+                "active_approvals": len(active_approvals),
+                "message": "Book unchanged since every active approval"}
+
+    def _generate_decision_aware_preview(self, publication_id: str) -> dict[str, Any]:
+        """Regenerate a publication's preview from each candidate's latest decision.
+
+        Only the latest (active) decision per candidate counts: ``approved``
+        candidates are applied, while ``rejected``, ``deferred``, and
+        still-``undecided`` candidates are excluded. The preview is rebuilt from
+        accepted Chapter sources plus approved Book-owned candidates and remains
+        derived, proposed, and noncanonical. No Book Expression is modified or
+        accepted.
         """
         manifest = self.inspect_book_publication(publication_id)
         plan = self._load_plan(manifest["source_plan_id"])
@@ -991,16 +1239,16 @@ class BookReconciliationStore:
         metadata = inspected["metadata"]
         decisions = self._decisions_for_publication(publication_id)
 
-        accepted_candidates: list[dict[str, Any]] = []
+        approved_candidates: list[dict[str, Any]] = []
         applied_decisions: list[dict[str, Any]] = []
         for candidate_id in manifest.get("published_candidates", []):
             decision = decisions.get(candidate_id)
             status = decision["decision"]["status"] if decision else "undecided"
             applied_decisions.append({"candidate_id": candidate_id, "status": status})
-            if status == "accepted":
-                accepted_candidates.append(self.load_book_candidate(candidate_id))
+            if status == "approved":
+                approved_candidates.append(self.load_book_candidate(candidate_id))
 
-        preview = self._build_preview(plan, metadata, accepted_candidates, publication_id)
+        preview = self._build_preview(plan, metadata, approved_candidates, publication_id)
         preview["decision_aware"] = True
         preview["applied_decisions"] = applied_decisions
         fresh = inspected["freshness"] == "fresh" and metadata.get("revision") == plan.get("source_book_revision")

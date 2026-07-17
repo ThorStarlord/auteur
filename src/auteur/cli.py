@@ -391,14 +391,16 @@ def _build_parser() -> argparse.ArgumentParser:
     p = expression_sub.add_parser("inspect-book-publication", help="Inspect a Book reconciliation publication transaction.")
     p.add_argument("publication_id"); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
     for _decision_cmd, _decision_help in (
-        ("accept-book-candidate", "Accept a published Book candidate (immutable decision; no recomposition)."),
-        ("reject-book-candidate", "Reject a published Book candidate (immutable decision; no recomposition)."),
-        ("defer-book-candidate", "Defer a published Book candidate (immutable decision; no recomposition)."),
+        ("approve-book-candidate", "Approve a published Book candidate for recomposition (append-only decision; no recomposition, no acceptance)."),
+        ("reject-book-candidate", "Reject a published Book candidate (append-only decision; supersedes any prior decision)."),
+        ("defer-book-candidate", "Defer a published Book candidate (nonterminal; can be approved or rejected later)."),
     ):
         p = expression_sub.add_parser(_decision_cmd, help=_decision_help)
         p.add_argument("candidate"); p.add_argument("--reason", required=True); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
-    p = expression_sub.add_parser("show-book-candidate-decision", help="Show an immutable Book candidate decision.")
+    p = expression_sub.add_parser("show-book-candidate-decision", help="Show a Book candidate decision record.")
     p.add_argument("decision"); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
+    p = expression_sub.add_parser("book-candidate-history", help="Show the append-only decision history and active status for a Book candidate.")
+    p.add_argument("candidate"); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
     p = expression_sub.add_parser("reconcile", help="Inspect and propose Chapter manuscript reconciliation actions.")
     reconcile_sub = p.add_subparsers(dest="reconcile_command", required=True)
     p = reconcile_sub.add_parser("inspect", help="Create a read-only reconciliation inspection report.")
@@ -1143,10 +1145,10 @@ def main(argv: list[str] | None = None) -> int:
             report["diff"] = "".join(difflib.unified_diff(text_a.splitlines(True), text_b.splitlines(True), fromfile=first.artifact_id, tofile=second.artifact_id))
             print(json.dumps(report, indent=2))
             return 0
-        if args.expression_command in {"compose-book", "inspect-book", "compare-books", "accept-book", "export-book", "inspect-book-manuscript", "route-book-inspection", "show-book-inspection", "plan-book-reconciliation", "show-book-plan", "publish-book-reconciliation", "inspect-book-publication", "accept-book-candidate", "reject-book-candidate", "defer-book-candidate", "show-book-candidate-decision"}:
+        if args.expression_command in {"compose-book", "inspect-book", "compare-books", "accept-book", "export-book", "inspect-book-manuscript", "route-book-inspection", "show-book-inspection", "plan-book-reconciliation", "show-book-plan", "publish-book-reconciliation", "inspect-book-publication", "approve-book-candidate", "reject-book-candidate", "defer-book-candidate", "show-book-candidate-decision", "book-candidate-history"}:
             from auteur.expression.book import BookExpressionStore
             from auteur.expression.book_reconciliation import BookPublicationRejected, BookReconciliationStore
-            _decision_status = {"accept-book-candidate": "accepted", "reject-book-candidate": "rejected", "defer-book-candidate": "deferred"}
+            _decision_status = {"approve-book-candidate": "approved", "reject-book-candidate": "rejected", "defer-book-candidate": "deferred"}
             if args.expression_command in _decision_status:
                 store = BookReconciliationStore(args.project)
                 success, result = store.decide_candidate(args.candidate, _decision_status[args.expression_command], args.reason)
@@ -1162,10 +1164,25 @@ def main(argv: list[str] | None = None) -> int:
                 decision = result
                 print("Book candidate decision")
                 print(f"Candidate: {decision['candidate_id']}")
-                print(f"Decision: {decision['decision']['status']} | \"{decision['decision']['reason']}\"")
+                print(f"Decision: {decision['decision']['status']} | \"{decision['decision']['reason']}\" (sequence {decision['decision_sequence']})")
+                if decision.get("supersedes"):
+                    print(f"Supersedes: {decision['supersedes']}")
+                if decision.get("accepted_source_id"):
+                    print(f"Accepted Book-owned source: {decision['accepted_source_id']}")
                 print(f"Decided at: {decision['decided_at']}")
                 print("Preview updated: yes")
                 print("Book pointer changed: no")
+                return 0
+            if args.expression_command == "book-candidate-history":
+                result = BookReconciliationStore(args.project).book_candidate_decision_history(args.candidate)
+                if args.json or args.verbose:
+                    print(json.dumps(result, indent=2))
+                else:
+                    print(f"Book candidate {result['candidate_id']}")
+                    print(f"Active status: {result['active_status']}")
+                    print(f"Decisions ({len(result['decisions'])}):")
+                    for d in result["decisions"]:
+                        print(f"  {d['decision_sequence']}. {d['decision']['status']} | \"{d['decision']['reason']}\" @ {d['decided_at']}")
                 return 0
             if args.expression_command == "show-book-candidate-decision":
                 result = BookReconciliationStore(args.project).show_book_candidate_decision(args.decision)
@@ -1174,7 +1191,11 @@ def main(argv: list[str] | None = None) -> int:
                 else:
                     print("Book candidate decision")
                     print(f"Candidate: {result['candidate_id']}")
-                    print(f"Decision: {result['decision']['status']} | \"{result['decision']['reason']}\"")
+                    print(f"Decision: {result['decision']['status']} | \"{result['decision']['reason']}\" (sequence {result.get('decision_sequence', 1)})")
+                    if result.get("supersedes"):
+                        print(f"Supersedes: {result['supersedes']}")
+                    if result.get("accepted_source_id"):
+                        print(f"Accepted Book-owned source: {result['accepted_source_id']}")
                     print(f"Decided at: {result['decided_at']}")
                     print(f"Authority: {result['authority']} | Lifecycle: {result['lifecycle']}")
                 return 0
