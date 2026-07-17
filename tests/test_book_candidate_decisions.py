@@ -311,15 +311,17 @@ def test_reject_and_defer_create_no_accepted_source(tmp_path: Path) -> None:
     assert "accepted_source_id" not in deferred
 
 
-def test_active_accepted_sources_reflect_latest_decision(tmp_path: Path) -> None:
+def test_active_accepted_sources_are_pointer_based_not_revoked_by_reject(tmp_path: Path) -> None:
     project, book_id = _make_book(tmp_path)
     store = BookReconciliationStore(project)
     publication, candidate_id = _publish_separator(store, book_id, project)
     store.decide_candidate(candidate_id, "approved", "a")
     assert len(store.active_accepted_sources(publication["publication_id"])) == 1
-    # Superseding the approval with a rejection deactivates the accepted source.
+    # Rejection records author intent but does NOT move the pointer, so the
+    # accepted source it approved remains current (Tier 3 is not revoked by a
+    # reject). This is the hardened behavior: accepted authority is durable.
     store.decide_candidate(candidate_id, "rejected", "changed my mind")
-    assert store.active_accepted_sources(publication["publication_id"]) == []
+    assert len(store.active_accepted_sources(publication["publication_id"])) == 1
 
 
 def test_reapproval_bumps_accepted_source_revision(tmp_path: Path) -> None:
@@ -689,3 +691,217 @@ def test_decide_no_chapter_mutation(tmp_path: Path) -> None:
     store.decide_candidate(candidate_id, "approved", "r")
     after = {name: path.read_bytes() for name, path in accepted.items() if path.exists()}
     assert after == before
+
+
+# ----------------------------------------------------------------------------
+# 10. Three-tier authority model: current accepted-source pointer (Tier 3)
+#
+# Decision history (Tier 1, append-only) is decoupled from accepted revisions
+# (Tier 2, immutable) which are decoupled from the current pointer (Tier 3, the
+# only mutable tier). Approve moves the pointer; defer and reject never do.
+# ----------------------------------------------------------------------------
+
+def _element_of(store: BookReconciliationStore, decision: dict) -> tuple:
+    """(element_id, owned_kind) for the accepted source an approval created."""
+    source = store.load_accepted_book_owned_source(decision["accepted_source_id"])
+    return source["target_id"], source["owned_kind"]
+
+
+def test_pointer_created_on_approval(tmp_path: Path) -> None:
+    project, book_id = _make_book(tmp_path)
+    store = BookReconciliationStore(project)
+    _, candidate_id = _publish_separator(store, book_id, project)
+    ok, decision = store.decide_candidate(candidate_id, "approved", "use it")
+    assert ok and decision["pointer_moved"] is True
+    element_id, owned_kind = _element_of(store, decision)
+    pointer = store.current_accepted_source_pointer(element_id, owned_kind)
+    assert pointer is not None
+    assert pointer["current_revision"] == 1
+    assert pointer["current_accepted_source_id"] == decision["accepted_source_id"]
+    assert pointer["active_decision_id"] == decision["decision_id"]
+    assert pointer["authority"] == "pointer"
+
+
+def test_no_pointer_when_only_deferred(tmp_path: Path) -> None:
+    project, book_id = _make_book(tmp_path)
+    store = BookReconciliationStore(project)
+    _, candidate_id = _publish_separator(store, book_id, project)
+    ok, decision = store.decide_candidate(candidate_id, "deferred", "later")
+    assert ok and decision["pointer_moved"] is False
+    # An element only crosses the accepted boundary via approval.
+    assert store.current_accepted_source_pointer("separator_01", "separator") is None
+
+
+def test_no_pointer_when_only_rejected(tmp_path: Path) -> None:
+    project, book_id = _make_book(tmp_path)
+    store = BookReconciliationStore(project)
+    _, candidate_id = _publish_separator(store, book_id, project)
+    ok, decision = store.decide_candidate(candidate_id, "rejected", "no")
+    assert ok and decision["pointer_moved"] is False
+    assert store.current_accepted_source_pointer("separator_01", "separator") is None
+
+
+def test_current_accepted_source_resolves_pointer_to_revision(tmp_path: Path) -> None:
+    project, book_id = _make_book(tmp_path)
+    store = BookReconciliationStore(project)
+    _, candidate_id = _publish_separator(store, book_id, project)
+    _, decision = store.decide_candidate(candidate_id, "approved", "use it")
+    element_id, owned_kind = _element_of(store, decision)
+    source = store.current_accepted_source(element_id, owned_kind)
+    assert source is not None
+    assert source["accepted_source_id"] == decision["accepted_source_id"]
+    assert source["authority"] == "accepted"
+    assert source["revision"] == 1
+
+
+def test_accepted_source_is_immutable_across_reapproval(tmp_path: Path) -> None:
+    project, book_id = _make_book(tmp_path)
+    store = BookReconciliationStore(project)
+    _, candidate_id = _publish_separator(store, book_id, project)
+    _, first = store.decide_candidate(candidate_id, "approved", "a1")
+    v1_bytes = store._accepted_source_path(first["accepted_source_id"]).read_bytes()
+    # A second approval mints a NEW revision; the first file is never modified.
+    _, second = store.decide_candidate(candidate_id, "approved", "a2")
+    assert store._accepted_source_path(first["accepted_source_id"]).read_bytes() == v1_bytes
+    assert first["accepted_source_id"] != second["accepted_source_id"]
+
+
+def test_revision_increments_per_element(tmp_path: Path) -> None:
+    project, book_id = _make_book(tmp_path)
+    store = BookReconciliationStore(project)
+    _, candidate_id = _publish_separator(store, book_id, project)
+    _, first = store.decide_candidate(candidate_id, "approved", "a1")
+    _, second = store.decide_candidate(candidate_id, "approved", "a2")
+    element_id, owned_kind = _element_of(store, first)
+    history = store.accepted_source_history(element_id, owned_kind)
+    assert [r["revision"] for r in history] == [1, 2]
+
+
+# --- Scenario 1: defer after approve -> pointer unchanged --------------------
+
+def test_scenario_defer_after_approve_pointer_unchanged(tmp_path: Path) -> None:
+    project, book_id = _make_book(tmp_path)
+    store = BookReconciliationStore(project)
+    _, candidate_id = _publish_separator(store, book_id, project)
+    _, approved = store.decide_candidate(candidate_id, "approved", "approve")
+    element_id, owned_kind = _element_of(store, approved)
+    before = store.current_accepted_source_pointer(element_id, owned_kind)
+    _, deferred = store.decide_candidate(candidate_id, "deferred", "on second thought, wait")
+    after = store.current_accepted_source_pointer(element_id, owned_kind)
+    assert deferred["pointer_moved"] is False
+    assert after["current_revision"] == before["current_revision"] == 1
+    assert after["current_accepted_source_id"] == before["current_accepted_source_id"]
+    # Decision history still records both, latest sequence is the deferral.
+    history = store._decision_history_for_candidate(candidate_id)
+    assert [d["decision"]["status"] for d in history] == ["approved", "deferred"]
+
+
+# --- Scenario 2: reject after approve -> pointer unchanged -------------------
+
+def test_scenario_reject_after_approve_pointer_unchanged(tmp_path: Path) -> None:
+    project, book_id = _make_book(tmp_path)
+    store = BookReconciliationStore(project)
+    _, candidate_id = _publish_separator(store, book_id, project)
+    _, approved = store.decide_candidate(candidate_id, "approved", "approve")
+    element_id, owned_kind = _element_of(store, approved)
+    before = store.current_accepted_source_pointer(element_id, owned_kind)
+    _, rejected = store.decide_candidate(candidate_id, "rejected", "actually no")
+    after = store.current_accepted_source_pointer(element_id, owned_kind)
+    assert rejected["pointer_moved"] is False
+    # Rejection records intent but does NOT revoke previously accepted state.
+    assert after["current_revision"] == before["current_revision"] == 1
+    assert after["current_accepted_source_id"] == before["current_accepted_source_id"]
+
+
+# --- Scenario 3: approve then approve again -> pointer moves, both preserved --
+
+def test_scenario_approve_then_approve_pointer_moves(tmp_path: Path) -> None:
+    project, book_id = _make_book(tmp_path)
+    store = BookReconciliationStore(project)
+    _, candidate_id = _publish_separator(store, book_id, project)
+    _, first = store.decide_candidate(candidate_id, "approved", "first")
+    element_id, owned_kind = _element_of(store, first)
+    assert store.current_accepted_source_pointer(element_id, owned_kind)["current_revision"] == 1
+    _, second = store.decide_candidate(candidate_id, "approved", "again")
+    pointer = store.current_accepted_source_pointer(element_id, owned_kind)
+    assert pointer["current_revision"] == 2
+    assert pointer["current_accepted_source_id"] == second["accepted_source_id"]
+    # Both immutable revisions survive; the pointer merely moved.
+    history = store.accepted_source_history(element_id, owned_kind)
+    assert [r["revision"] for r in history] == [1, 2]
+    assert store.load_accepted_book_owned_source(first["accepted_source_id"])["revision"] == 1
+
+
+# --- Scenario 4: approve -> Book change -> recomposition blocked -------------
+
+def test_scenario_approve_then_book_change_blocks_and_keeps_pointer(tmp_path: Path) -> None:
+    project, book_id = _make_book(tmp_path)
+    store = BookReconciliationStore(project)
+    publication, candidate_id = _publish_separator(store, book_id, project)
+    _, approved = store.decide_candidate(candidate_id, "approved", "approve")
+    element_id, owned_kind = _element_of(store, approved)
+    before = store.current_accepted_source_pointer(element_id, owned_kind)
+    cs = ChapterExpressionStore(project)
+    cs.accept(cs.compose("chapter_01").artifact_id)
+    result = store.assess_recomposition_freshness(publication["publication_id"])
+    assert result["status"] == "blocked_stale_book"
+    # The freshness gate blocks, but the accepted pointer is untouched.
+    after = store.current_accepted_source_pointer(element_id, owned_kind)
+    assert after["current_accepted_source_id"] == before["current_accepted_source_id"]
+
+
+# --- Scenario 5: pointer history vs decision history -------------------------
+
+def test_scenario_pointer_history_skips_defer_and_reject(tmp_path: Path) -> None:
+    project, book_id = _make_book(tmp_path)
+    store = BookReconciliationStore(project)
+    _, candidate_id = _publish_separator(store, book_id, project)
+    _, d1 = store.decide_candidate(candidate_id, "approved", "a1")
+    element_id, owned_kind = _element_of(store, d1)
+    store.decide_candidate(candidate_id, "deferred", "pause")
+    _, d3 = store.decide_candidate(candidate_id, "approved", "a2")
+    store.decide_candidate(candidate_id, "rejected", "reconsider")
+    # Decision history has all four; pointer history has only the two approvals.
+    assert len(store._decision_history_for_candidate(candidate_id)) == 4
+    ptr_history = store.pointer_history(element_id, owned_kind)
+    assert [e["revision"] for e in ptr_history] == [1, 2]
+    assert [e["decision_id"] for e in ptr_history] == [d1["decision_id"], d3["decision_id"]]
+    # Pointer currently rests on the last approval (rejection did not move it).
+    assert store.current_accepted_source_pointer(element_id, owned_kind)["current_revision"] == 2
+
+
+# --- Scenario 6: multiple elements track independent pointers ----------------
+
+def test_scenario_multiple_elements_independent_pointers(tmp_path: Path) -> None:
+    project, book_id = _make_book(tmp_path)
+    store = BookReconciliationStore(project)
+    sep_pub, sep_candidate = _publish_separator(store, book_id, project)
+    _, sep_decision = store.decide_candidate(sep_candidate, "approved", "sep ok")
+    ord_pub, ord_candidate = _publish_order(store, book_id, project)
+    _, ord_decision = store.decide_candidate(ord_candidate, "deferred", "order later")
+    sep_el, sep_kind = _element_of(store, sep_decision)
+    # Separator element has a pointer; the deferred order element has none.
+    assert store.current_accepted_source_pointer(sep_el, sep_kind)["owned_kind"] == "separator"
+    ord_candidate_obj = store.load_book_candidate(ord_candidate)
+    assert store.current_accepted_source_pointer(ord_candidate_obj["target_id"], "order") is None
+    # Each publication resolves only its own element's current sources.
+    assert len(store.current_accepted_sources(sep_pub["publication_id"])) == 1
+    assert store.current_accepted_sources(ord_pub["publication_id"]) == []
+
+
+# --- Preview / manifest integration reads the pointer, not the decision ------
+
+def test_preview_uses_pointer_reject_after_approve_stays_applied(tmp_path: Path) -> None:
+    project, book_id = _make_book(tmp_path)
+    store = BookReconciliationStore(project)
+    publication, candidate_id = _publish_separator(store, book_id, project)
+    store.decide_candidate(candidate_id, "approved", "approve")
+    store.decide_candidate(candidate_id, "rejected", "changed mind")
+    preview = store.load_book_preview(publication["publication_id"])
+    # Preview mirrors recomposition (pointer-based): the reject did not revoke,
+    # so the candidate is still applied even though the latest decision is reject.
+    assert preview["pointer_based"] is True
+    assert [s["candidate_id"] for s in preview["candidate_sources"]] == [candidate_id]
+    entry = next(d for d in preview["applied_decisions"] if d["candidate_id"] == candidate_id)
+    assert entry["status"] == "rejected" and entry["pointer_current"] is True
+    assert any(p["current_accepted_source_id"] for p in preview["current_pointers"])

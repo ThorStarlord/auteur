@@ -23,7 +23,8 @@ Structure, Identity, Blueprint, Realization, or Scene is ever mutated.
 | Application preview | derived | proposed (`role=application_preview`) | no |
 | Publication manifest | derived | published | no (published ≠ accepted) |
 | Candidate decision | decision | decided | no |
-| Accepted Book-owned source | accepted | accepted | no (recomposition input, not the Book pointer) |
+| Accepted Book-owned source | accepted | accepted | no (immutable recomposition input, not the Book pointer) |
+| Current accepted-source pointer | pointer | current | no (names the current accepted revision per element) |
 
 A candidate is durable and unaccepted: it records what an application *would*
 change without changing any accepted Book state. A candidate-backed preview can
@@ -302,11 +303,69 @@ transformation:
   version: 1
 ```
 
-An accepted source is **active** only while its candidate's latest decision is
-`approved`. A later reject/defer supersedes the approval and deactivates the
-source (it stays on disk for audit). `active_accepted_sources(publication_id)`
-returns only sources still backed by an active approval — the exact set a future
-recomposition would consume.
+### Accepted-source authority: three decoupled tiers
+
+Decision history, accepted revisions, and the current pointer are three distinct
+things. The earlier model derived all three from "latest decision", which let a
+later defer or reject silently revoke a previously accepted revision. They are now
+decoupled:
+
+1. **Decision history (Tier 1 — immutable, append-only).** Every approve, reject,
+   and defer is recorded with a `decision_sequence` and a `supersedes` pointer.
+   The latest decision is current author *intent*; prior records are the audit
+   trail and are never deleted.
+
+2. **Accepted Book-owned revisions (Tier 2 — immutable once written).** Each
+   *approval* mints a new revision (`revision: 1`, `2`, …) at
+   `accepted-sources/<accepted_source_id>.yaml`. A revision is never modified or
+   deleted; re-approval writes a *new* revision beside the old one.
+
+3. **Current accepted-source pointer (Tier 3 — the only mutable tier).** One
+   pointer per Book-owned element, keyed by `(owned_kind, element_id)`, at
+   `accepted-sources/pointers/<pointer_id>.yaml`. It names the revision that is
+   *currently* accepted and carries an append-only `history` of every move.
+
+```yaml
+pointer_id: book_pointer_separator_...
+artifact_type: current_accepted_source_pointer
+authority: pointer
+lifecycle: current
+owned_kind: separator
+element_id: separator_01
+current_revision: 2
+current_accepted_source_id: book_accepted_separator_v002_...
+active_decision_id: book_candidate_decision_...
+history:                          # append-only; one entry per approval
+  - revision: 1
+    accepted_source_id: book_accepted_separator_v001_...
+    decision_id: book_candidate_decision_...aaa
+  - revision: 2
+    accepted_source_id: book_accepted_separator_v002_...
+    decision_id: book_candidate_decision_...bbb
+```
+
+**Semantics by decision:**
+
+- **Approve** — mints a new immutable revision (Tier 2) and moves the pointer
+  (Tier 3) to it. The decision records `pointer_moved: true`.
+- **Defer** — records intent (Tier 1) only. `pointer_moved: false`; no revision,
+  no pointer move. Deferral means "take no new action", not "revoke".
+- **Reject** — records intent (Tier 1) only. `pointer_moved: false`; the
+  previously accepted revision remains current. Rejection prevents the preview
+  from being interpreted as an *undecided* candidate but does **not** revoke
+  accepted authority — an explicit revert operation (future work) would be
+  required to move the pointer back.
+
+**Consumption.** `current_accepted_source_pointer(element_id, owned_kind)` returns
+the pointer (or `None` if the element was never approved).
+`current_accepted_source(element_id, owned_kind)` resolves the pointer to its
+immutable revision — this is what recomposition reads. It reads pointers, **not**
+decisions. `current_accepted_sources(publication_id)` (aliased by the legacy name
+`active_accepted_sources`) returns the exact set a recomposition of that
+publication would consume. `accepted_source_history(element_id, owned_kind)`
+returns every revision ever written (Tier 2); `pointer_history(element_id,
+owned_kind)` returns only the authority-boundary crossings (approvals), so it is
+strictly shorter than the decision history whenever defers/rejects occurred.
 
 ### Live freshness gate at decision time
 
@@ -328,18 +387,26 @@ reasons:
 visible_outputs_created: false
 ```
 
-### Decision-aware preview (not recomposition)
+### Pointer-based preview (not recomposition)
 
-Creating a decision regenerates the publication's preview from each candidate's
-**latest** decision: **approved** candidates are applied, while **rejected**,
-**deferred**, and still-**undecided** candidates are excluded. Because only the
-latest decision counts, a `deferred → approved` supersede flips a candidate from
-excluded to included on the next preview. The regenerated preview is rebuilt from
-accepted Chapter sources plus approved Book-owned candidates and remains
-`authority=derived`, `lifecycle=proposed`, `role=application_preview`,
-`canonical=false`. This is a *preview* of what recomposition would produce — no
-Book Expression is modified or accepted. The preview records `decision_aware:
-true` and an `applied_decisions` list.
+Creating a decision regenerates the publication's preview from the **current
+accepted-source pointers**, not from raw decisions. A candidate is applied when
+its element's pointer names a revision that originated from this publication's
+candidate. Because the preview and recomposition both read pointers, the preview
+faithfully mirrors what a recomposition would produce:
+
+- An *approved* candidate is applied.
+- A candidate that was approved and then *deferred* or *rejected* stays applied —
+  the pointer was never moved, so accepted authority persists.
+- A candidate that was only ever deferred/rejected (or is still undecided) has no
+  pointer and is excluded.
+
+The regenerated preview is rebuilt from accepted Chapter sources plus
+pointer-current Book-owned candidates and remains `authority=derived`,
+`lifecycle=proposed`, `role=application_preview`, `canonical=false`. It records
+`decision_aware: true`, `pointer_based: true`, an `applied_decisions` list (each
+entry carries the latest `status` and a `pointer_current` flag), and a
+`current_pointers` summary. No Book Expression is modified or accepted.
 
 ### Book-change freshness gate for recomposition
 
@@ -360,8 +427,13 @@ recomposition MUST pass:
   decision-time freshness gate already rejects a decision whose target moved.
   Recomposition remains read-only and deterministic over the captured snapshot.
 
-Only active approvals are checked: a publication with no active approvals is
-always `ready` (nothing to recompose is stale).
+The gate is **pointer-based**: it checks every accepted source the publication's
+pointers currently name (the exact set recomposition would consume), comparing
+each source's captured Book revision/hash against the live Book. A publication
+whose elements have no pointer — never approved, or only ever deferred/rejected —
+is always `ready` (there is nothing current to be stale). Because a defer/reject
+never moves a pointer, an approve-then-reject element is still checked here: its
+revision is still current, so a later Book change still blocks recomposition.
 
 ### Explicit preview-acceptance blocking
 

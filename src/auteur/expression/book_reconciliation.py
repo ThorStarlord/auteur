@@ -67,6 +67,13 @@ ACCEPTED_SOURCE_KIND = {
     "book_inserted_material_candidate": "material",
 }
 
+POINTER_TRANSFORMATION = {"id": "expression.point_accepted_book_source", "version": 1}
+# The *current accepted-source pointer* is the ONLY mutable tier of the accepted
+# authority model. Approving a candidate moves the pointer to the newly created
+# immutable revision; deferring or rejecting records author intent but never
+# touches the pointer. Recomposition resolves the pointer (not decisions) to find
+# the current accepted revision for each Book-owned element.
+
 
 class BookPublicationRejected(ValueError):
     """Raised when a Book application plan cannot be published.
@@ -1038,13 +1045,29 @@ class BookReconciliationStore:
             "freshness": {"status": "fresh", "reasons": []},
         }
 
-        # 5. On approval, materialize a durable accepted Book-owned source that a
-        #    future recomposition reads. This is distinct from the candidate and
-        #    carries authority=accepted; the candidate itself stays a candidate.
+        # 5. On approval, materialize a durable accepted Book-owned source (Tier 2:
+        #    immutable, revisioned) AND move the current accepted-source pointer
+        #    (Tier 3: the only mutable tier) to that new revision. Deferral and
+        #    rejection deliberately touch NEITHER: they record author intent in the
+        #    decision history (Tier 1) but never revoke or move accepted authority.
+        #    An accepted source is distinct from the candidate and carries
+        #    authority=accepted; the candidate itself stays a candidate.
         if decision_status == "approved":
             accepted_source = self._create_accepted_source(candidate, decision, now)
             decision["accepted_source_id"] = accepted_source["accepted_source_id"]
             decision["accepted_source_path"] = str(self._accepted_source_path(accepted_source["accepted_source_id"]))
+            pointer = self._advance_accepted_source_pointer(candidate, accepted_source, decision, now)
+            decision["pointer_moved"] = True
+            decision["pointer"] = {
+                "owned_kind": pointer["owned_kind"],
+                "element_id": pointer["element_id"],
+                "current_revision": pointer["current_revision"],
+                "current_accepted_source_id": pointer["current_accepted_source_id"],
+            }
+        else:
+            # Defer/reject: pointer untouched. Recorded explicitly so the decision
+            # record proves the accepted authority was neither moved nor revoked.
+            decision["pointer_moved"] = False
 
         # 6. Persist the decision immutably (append; never overwrite an existing).
         decision_path = self._decision_path(decision_id)
@@ -1053,7 +1076,7 @@ class BookReconciliationStore:
         decision_path.parent.mkdir(parents=True, exist_ok=True)
         decision_path.write_text(yaml.safe_dump(decision, sort_keys=False), encoding="utf-8")
 
-        # 7. Regenerate the decision-aware preview from the latest decisions.
+        # 7. Regenerate the preview from the current accepted-source pointers.
         publication_id = candidate.get("publication_id")
         if publication_id:
             self._generate_decision_aware_preview(publication_id)
@@ -1061,14 +1084,16 @@ class BookReconciliationStore:
         return True, decision
 
     # ------------------------------------------------------------------
-    # Accepted Book-owned sources.
+    # Tier 2: accepted Book-owned sources (immutable, revisioned).
     #
     # Approving a candidate produces a durable, accepted Book-owned source in
     # ``book/expression/reconciliation/accepted-sources/``. It is authority
     # ``accepted``, references the candidate and the deciding decision, and is
-    # what recomposition reads -- recomposition never reads decisions directly.
-    # Materializing an accepted source does NOT move the accepted Book pointer or
-    # mutate any Chapter/Structure/Identity/Blueprint/Realization/Scene.
+    # immutable once written -- each approval mints a new revision, never
+    # overwriting a prior one. Recomposition reads these via the Tier 3 pointer,
+    # never via decisions directly. Materializing an accepted source does NOT move
+    # the accepted Book pointer or mutate any
+    # Chapter/Structure/Identity/Blueprint/Realization/Scene.
     # ------------------------------------------------------------------
 
     def _accepted_sources_dir(self) -> Path:
@@ -1129,29 +1154,170 @@ class BookReconciliationStore:
             raise FileNotFoundError(f"Accepted Book-owned source not found: {accepted_source_id}")
         return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
 
-    def active_accepted_sources(self, publication_id: str) -> list[dict[str, Any]]:
-        """Accepted Book-owned sources whose candidate's latest decision is approved.
+    # ------------------------------------------------------------------
+    # Tier 3: current accepted-source pointers.
+    #
+    # A pointer is the ONLY mutable tier. There is one pointer per Book-owned
+    # element -- keyed by ``(owned_kind, element_id)`` where ``element_id`` is the
+    # Book target the accepted source revises (for example ``separator_01`` or the
+    # Book id for an order). Approving a candidate advances that element's pointer
+    # to the freshly materialized immutable revision and appends to the pointer's
+    # own update history; deferral and rejection leave the pointer exactly where
+    # it is. Recomposition resolves pointers -- never decisions -- to find the
+    # current accepted revision for each element.
+    # ------------------------------------------------------------------
 
-        An approval materializes an accepted source, but a later reject/defer
-        supersedes it. Recomposition reads only the accepted sources still backed
-        by an active ``approved`` decision -- superseded sources remain on disk
-        for audit but are not returned here.
+    def _pointers_dir(self) -> Path:
+        return self._accepted_sources_dir() / "pointers"
+
+    @staticmethod
+    def _pointer_key(owned_kind: str, element_id: Any) -> str:
+        digest = hashlib.sha256(f"{owned_kind}\0{element_id}".encode("utf-8")).hexdigest()[:16]
+        return f"book_pointer_{owned_kind}_{digest}"
+
+    def _pointer_path(self, owned_kind: str, element_id: Any) -> Path:
+        return self._pointers_dir() / f"{self._pointer_key(owned_kind, element_id)}.yaml"
+
+    def _advance_accepted_source_pointer(
+        self, candidate: dict[str, Any], accepted_source: dict[str, Any], decision: dict[str, Any], now: str
+    ) -> dict[str, Any]:
+        """Move an element's current pointer to a newly accepted revision (approval only).
+
+        Overwrites the mutable ``current_*`` fields and appends one entry to the
+        pointer's append-only ``history``. The immutable revision it references
+        (Tier 2) is created separately and never modified here.
         """
-        latest = self._decisions_for_publication(publication_id)
-        active_ids = {
-            decision.get("accepted_source_id")
-            for decision in latest.values()
-            if decision["decision"]["status"] == "approved" and decision.get("accepted_source_id")
+        owned_kind = accepted_source["owned_kind"]
+        element_id = accepted_source["target_id"]
+        book_id = accepted_source["book_expression_id"]
+        path = self._pointer_path(owned_kind, element_id)
+        existing = yaml.safe_load(path.read_text(encoding="utf-8")) if path.exists() else None
+        history = (existing or {}).get("history", []) if isinstance(existing, dict) else []
+        entry = {
+            "revision": accepted_source["revision"],
+            "accepted_source_id": accepted_source["accepted_source_id"],
+            "decision_id": decision["decision_id"],
+            "decision_sequence": decision["decision_sequence"],
+            "publication_id": candidate.get("publication_id"),
+            "decided_at": now,
+            "reason": decision["decision"]["reason"],
         }
-        directory = self._accepted_sources_dir()
-        sources: list[dict[str, Any]] = []
+        pointer = {
+            "pointer_id": self._pointer_key(owned_kind, element_id),
+            "artifact_type": "current_accepted_source_pointer",
+            "authority": "pointer",
+            "lifecycle": "current",
+            "owned_kind": owned_kind,
+            "element_id": element_id,
+            "book_expression_id": book_id,
+            "current_revision": accepted_source["revision"],
+            "current_accepted_source_id": accepted_source["accepted_source_id"],
+            "active_decision_id": decision["decision_id"],
+            "decision_sequence": decision["decision_sequence"],
+            "publication_id": candidate.get("publication_id"),
+            "source_book_revision": accepted_source.get("source_book_revision"),
+            "source_book_hash": accepted_source.get("source_book_hash"),
+            "decided_at": now,
+            "reason": decision["decision"]["reason"],
+            "transformation": dict(POINTER_TRANSFORMATION),
+            "updated_at": now,
+            "history": history + [entry],
+        }
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(yaml.safe_dump(pointer, sort_keys=False), encoding="utf-8")
+        return pointer
+
+    def current_accepted_source_pointer(self, element_id: Any, owned_kind: str) -> dict[str, Any] | None:
+        """Return the current pointer for a Book-owned element, or ``None`` if none exists.
+
+        A pointer exists once the element has ever been approved; deferral and
+        rejection never create or remove it. ``None`` means the element has never
+        crossed the accepted-authority boundary.
+        """
+        path = self._pointer_path(owned_kind, element_id)
+        if not path.exists():
+            return None
+        return yaml.safe_load(path.read_text(encoding="utf-8")) or None
+
+    def current_accepted_source(self, element_id: Any, owned_kind: str) -> dict[str, Any] | None:
+        """Resolve an element's pointer to its current immutable accepted revision.
+
+        This is what recomposition consumes: it reads the pointer, then loads the
+        immutable revision the pointer names. Returns ``None`` when no pointer
+        exists.
+        """
+        pointer = self.current_accepted_source_pointer(element_id, owned_kind)
+        if pointer is None:
+            return None
+        return self.load_accepted_book_owned_source(pointer["current_accepted_source_id"])
+
+    def _all_pointers(self) -> list[dict[str, Any]]:
+        directory = self._pointers_dir()
+        pointers: list[dict[str, Any]] = []
         if not directory.exists():
-            return sources
+            return pointers
         for path in sorted(directory.glob("*.yaml")):
             data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-            if data.get("accepted_source_id") in active_ids:
-                sources.append(data)
+            if data.get("artifact_type") == "current_accepted_source_pointer":
+                pointers.append(data)
+        return pointers
+
+    def current_accepted_sources(self, publication_id: str) -> list[dict[str, Any]]:
+        """Accepted Book-owned sources a recomposition of this publication would consume.
+
+        Pointer-based, NOT decision-based: an element is included when its current
+        pointer names an accepted revision that originated from this publication.
+        Because deferral and rejection never move the pointer, an ``approve`` here
+        followed by a later ``defer``/``reject`` still returns the revision -- the
+        accepted authority is not revoked. An element whose pointer was later moved
+        by a different publication's approval drops out (that publication now owns
+        the element).
+        """
+        sources: list[dict[str, Any]] = []
+        for pointer in self._all_pointers():
+            source = self.current_accepted_source(pointer["element_id"], pointer["owned_kind"])
+            if source is not None and source.get("publication_id") == publication_id:
+                sources.append(source)
         return sources
+
+    # Backwards-compatible alias. Historically this returned the decision-derived
+    # active set; it is now pointer-derived so defer/reject no longer revoke.
+    def active_accepted_sources(self, publication_id: str) -> list[dict[str, Any]]:
+        return self.current_accepted_sources(publication_id)
+
+    def accepted_source_history(self, element_id: Any, owned_kind: str) -> list[dict[str, Any]]:
+        """Every immutable accepted revision ever written for an element (Tier 2).
+
+        Ordered by revision. Includes revisions no longer current -- accepted
+        history is never deleted.
+        """
+        book_id_filter = None  # element identity is (owned_kind, element_id)
+        directory = self._accepted_sources_dir()
+        revisions: list[dict[str, Any]] = []
+        if not directory.exists():
+            return revisions
+        for path in sorted(directory.glob("*.yaml")):
+            data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+            if data.get("artifact_type") != "accepted_book_owned_source":
+                continue
+            if data.get("owned_kind") == owned_kind and data.get("target_id") == element_id:
+                if book_id_filter is None or data.get("book_expression_id") == book_id_filter:
+                    revisions.append(data)
+        revisions.sort(key=lambda d: d.get("revision", 0))
+        return revisions
+
+    def pointer_history(self, element_id: Any, owned_kind: str) -> list[dict[str, Any]]:
+        """Ordered log of every time an element's pointer moved (Tier 3 history).
+
+        Each entry records the revision, the immutable accepted source it moved
+        to, and the approving decision. Deferrals and rejections never appear --
+        they never move the pointer -- so this shows only authority-boundary
+        crossings, distinct from the full decision history (Tier 1).
+        """
+        pointer = self.current_accepted_source_pointer(element_id, owned_kind)
+        if pointer is None:
+            return []
+        return list(pointer.get("history", []))
 
     def assess_recomposition_freshness(self, publication_id: str) -> dict[str, Any]:
         """Freshness gate a future recomposition MUST pass before running.
@@ -1201,36 +1367,43 @@ class BookReconciliationStore:
             add("BOOK_MISSING", expected=book_id, current=None,
                 recommended_action="restore the accepted Book and decide again")
 
-        active_approvals = [
-            decision for decision in self._decisions_for_publication(publication_id).values()
-            if decision["decision"]["status"] == "approved"
-        ]
-        for decision in active_approvals:
+        # Pointer-based, NOT decision-based: the gate checks every accepted source
+        # this publication currently points to (the exact set recomposition would
+        # consume). A pointer that a later defer/reject did NOT move is still
+        # checked -- because its revision is still current. Each accepted source
+        # carries the Book revision/hash it was approved against.
+        current_sources = self.current_accepted_sources(publication_id)
+        for source in current_sources:
             if metadata:
                 if not book_fresh:
                     add("BOOK_OR_CHAPTER_REVISION_CHANGED", expected="fresh", current=inspected["freshness"])
-                if decision.get("source_book_revision") != current_revision:
-                    add("BOOK_REVISION_CHANGED", expected=decision.get("source_book_revision"), current=current_revision)
-                elif decision.get("source_book_hash") not in (None, current_hash):
-                    add("BOOK_HASH_CHANGED", expected=decision.get("source_book_hash"), current=current_hash)
+                if source.get("source_book_revision") != current_revision:
+                    add("BOOK_REVISION_CHANGED", expected=source.get("source_book_revision"), current=current_revision)
+                elif source.get("source_book_hash") not in (None, current_hash):
+                    add("BOOK_HASH_CHANGED", expected=source.get("source_book_hash"), current=current_hash)
 
         if reasons:
             return {"status": "blocked_stale_book", "publication_id": publication_id,
                     "reasons": reasons, "visible_outputs_created": False,
                     "message": "recomposition blocked: Book changed since decision"}
         return {"status": "ready", "publication_id": publication_id, "reasons": [],
-                "active_approvals": len(active_approvals),
-                "message": "Book unchanged since every active approval"}
+                "active_approvals": len(current_sources),
+                "active_pointers": len(current_sources),
+                "message": "Book unchanged since every current accepted source"}
 
     def _generate_decision_aware_preview(self, publication_id: str) -> dict[str, Any]:
-        """Regenerate a publication's preview from each candidate's latest decision.
+        """Regenerate a publication's preview from the current accepted-source pointers.
 
-        Only the latest (active) decision per candidate counts: ``approved``
-        candidates are applied, while ``rejected``, ``deferred``, and
-        still-``undecided`` candidates are excluded. The preview is rebuilt from
-        accepted Chapter sources plus approved Book-owned candidates and remains
-        derived, proposed, and noncanonical. No Book Expression is modified or
-        accepted.
+        Pointer-based, NOT raw-decision-based: a candidate is applied when its
+        element's current pointer names an accepted revision that originated from
+        this publication's candidate. Because deferral and rejection never move a
+        pointer, a candidate approved and then deferred/rejected stays applied --
+        the preview mirrors exactly what recomposition (which also reads pointers)
+        would produce. Candidates never approved (still undecided, or only ever
+        deferred/rejected) have no pointer and are excluded. The preview is rebuilt
+        from accepted Chapter sources plus pointer-current Book-owned candidates and
+        remains derived, proposed, and noncanonical. No Book Expression is modified
+        or accepted.
         """
         manifest = self.inspect_book_publication(publication_id)
         plan = self._load_plan(manifest["source_plan_id"])
@@ -1239,18 +1412,38 @@ class BookReconciliationStore:
         metadata = inspected["metadata"]
         decisions = self._decisions_for_publication(publication_id)
 
-        approved_candidates: list[dict[str, Any]] = []
+        # Candidate ids the current pointers resolve to for this publication.
+        pointer_current_candidate_ids = {
+            source.get("source_candidate_id")
+            for source in self.current_accepted_sources(publication_id)
+        }
+        current_pointers = [
+            {
+                "owned_kind": p["owned_kind"],
+                "element_id": p["element_id"],
+                "current_revision": p["current_revision"],
+                "current_accepted_source_id": p["current_accepted_source_id"],
+                "active_decision_id": p["active_decision_id"],
+            }
+            for p in self._all_pointers()
+            if (self.current_accepted_source(p["element_id"], p["owned_kind"]) or {}).get("publication_id") == publication_id
+        ]
+
+        applied_candidates: list[dict[str, Any]] = []
         applied_decisions: list[dict[str, Any]] = []
         for candidate_id in manifest.get("published_candidates", []):
             decision = decisions.get(candidate_id)
             status = decision["decision"]["status"] if decision else "undecided"
-            applied_decisions.append({"candidate_id": candidate_id, "status": status})
-            if status == "approved":
-                approved_candidates.append(self.load_book_candidate(candidate_id))
+            pointer_current = candidate_id in pointer_current_candidate_ids
+            applied_decisions.append({"candidate_id": candidate_id, "status": status, "pointer_current": pointer_current})
+            if pointer_current:
+                applied_candidates.append(self.load_book_candidate(candidate_id))
 
-        preview = self._build_preview(plan, metadata, approved_candidates, publication_id)
+        preview = self._build_preview(plan, metadata, applied_candidates, publication_id)
         preview["decision_aware"] = True
+        preview["pointer_based"] = True
         preview["applied_decisions"] = applied_decisions
+        preview["current_pointers"] = current_pointers
         fresh = inspected["freshness"] == "fresh" and metadata.get("revision") == plan.get("source_book_revision")
         preview["freshness"] = {"status": "fresh" if fresh else "stale", "reasons": [] if fresh else ["source Book changed since publication"]}
 

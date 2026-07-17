@@ -1169,6 +1169,11 @@ def main(argv: list[str] | None = None) -> int:
                     print(f"Supersedes: {decision['supersedes']}")
                 if decision.get("accepted_source_id"):
                     print(f"Accepted Book-owned source: {decision['accepted_source_id']}")
+                if decision.get("pointer_moved"):
+                    ptr = decision["pointer"]
+                    print(f"Accepted-source pointer: {ptr['owned_kind']}/{ptr['element_id']} -> revision {ptr['current_revision']}")
+                else:
+                    print("Accepted-source pointer: unchanged")
                 print(f"Decided at: {decision['decided_at']}")
                 print("Preview updated: yes")
                 print("Book pointer changed: no")
