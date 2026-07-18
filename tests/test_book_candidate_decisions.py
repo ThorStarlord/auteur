@@ -22,7 +22,6 @@ from pathlib import Path
 import pytest
 import yaml
 
-from auteur.canonical_story import CanonicalStoryBootstrap
 from auteur.expression.book import BookExpressionStore, BookPreviewNotAcceptableError
 from auteur.expression.composition import ChapterExpressionStore
 from auteur.expression.book_reconciliation import (
@@ -36,17 +35,14 @@ from auteur.expression.book_reconciliation import (
 # ----------------------------------------------------------------------------
 
 def _make_book(tmp_path: Path) -> tuple[Path, str]:
-    bootstrap = CanonicalStoryBootstrap(Path("examples/canonical_story"))
-    bootstrap.copy_to(tmp_path)
-    bootstrap.accept_native_identity_and_structure(tmp_path)
-    bootstrap.accept_scene_realizations(tmp_path)
-    bootstrap.bootstrap_expressions(tmp_path)
-    bootstrap.bootstrap_second_chapter(tmp_path)
-    book = BookExpressionStore(tmp_path).compose(
+    project = tmp_path / "project"; project.mkdir(parents=True, exist_ok=True)
+    from conftest import copy_bootstrap_template as _cbt
+    _cbt(project)
+    book = BookExpressionStore(project).compose(
         ["chapter_01", "chapter_02"], title="The Lantern at Low Water"
     )
-    BookExpressionStore(tmp_path).accept(book["book_expression_id"])
-    return tmp_path, book["book_expression_id"]
+    BookExpressionStore(project).accept(book["book_expression_id"])
+    return project, book["book_expression_id"]
 
 
 def _book_md(project: Path) -> Path:

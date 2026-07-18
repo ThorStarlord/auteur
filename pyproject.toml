@@ -13,10 +13,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0"]
+dev = ["pytest>=8.0", "pytest-xdist>=3.0"]
 anthropic = ["anthropic>=0.39"]
 openai = ["openai>=1.40"]
-all = ["anthropic>=0.39", "openai>=1.40"]
+all = ["anthropic>=0.39", "openai>=1.40", "pytest-xdist>=3.0"]
 
 [project.scripts]
 auteur = "auteur.cli:main"
