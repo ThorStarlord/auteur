@@ -5,11 +5,10 @@ from __future__ import annotations
 
 import hashlib
 import re
-import shutil
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal
-from xml.etree.ElementTree import Element, SubElement, tostring
 from zipfile import ZipFile, ZIP_DEFLATED
 
 import yaml
@@ -452,23 +451,10 @@ class PublishingSnapshot:
             raise FileExistsError(f"output already exists: {output}")
         return _build_epub_archive(self, output, css=css)
 
-    def save_snapshot(
-        self,
-        renderer_results: list[dict[str, Any]],
-    ) -> dict[str, Any]:
-        snapshot_dir = self._project / ".auteur" / "publishing"
-        snapshot_dir.mkdir(parents=True, exist_ok=True)
-        snapshot = self._build_snapshot_manifest(renderer_results)
-        path = snapshot_dir / f"{self._snapshot_id}.yaml"
-        path.write_text(yaml.safe_dump(snapshot, sort_keys=False), encoding="utf-8")
-        latest = snapshot_dir / "latest.yaml"
-        latest.write_text(yaml.safe_dump(snapshot, sort_keys=False), encoding="utf-8")
-        return snapshot
-
-    def _build_snapshot_manifest(
-        self,
-        renderer_results: list[dict[str, Any]],
-    ) -> dict[str, Any]:
+    def _immutable_snapshot(self) -> dict[str, Any]:
+        """Source book state only — no renderer results or timestamps.
+        This is the immutable publication identity, written once.
+        """
         chapters = [
             {
                 "id": ch["id"],
@@ -482,7 +468,6 @@ class PublishingSnapshot:
             "artifact_type": "book_publishing_snapshot",
             "authority": "derived",
             "lifecycle": "published",
-            "created_at": datetime.now(timezone.utc).isoformat(),
             "source_book": {
                 "book_expression_id": self._manifest["book_expression_id"],
                 "revision": self._manifest["revision"],
@@ -491,13 +476,58 @@ class PublishingSnapshot:
             "title": self.title,
             "author": self.author,
             "chapters": chapters,
-            "renderers": renderer_results,
             "reproducibility": {
                 "auteur_version": "0.1.0",
                 "markdown_it_version": str(getattr(_md, "VERSION", "0") if _md else "0"),
-                "python_implementation": "cpython",  # pragma: no branch
+                "python_implementation": "cpython",
             },
         }
+
+    def _run_record(self, renderer_results: list[dict[str, Any]]) -> dict[str, Any]:
+        """A specific publish invocation: which snapshot + renderer results + timestamp."""
+        return {
+            "run_type": "publishing_run",
+            "snapshot_id": self._snapshot_id,
+            "source_book": {
+                "book_expression_id": self._manifest["book_expression_id"],
+                "revision": self._manifest["revision"],
+                "content_hash": self._book_hash,
+            },
+            "title": self.title,
+            "author": self.author,
+            "formats": [r["format"] for r in renderer_results],
+            "renderers": renderer_results,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        }
+
+    def save_snapshot(
+        self,
+        renderer_results: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        snapshot_dir = self._project / ".auteur" / "publishing"
+        snapshot_dir.mkdir(parents=True, exist_ok=True)
+
+        # Immutable snapshot: source book state, written ONCE (never overwritten).
+        snap_path = snapshot_dir / f"{self._snapshot_id}.yaml"
+        if not snap_path.exists():
+            snap_path.write_text(
+                yaml.safe_dump(self._immutable_snapshot(), sort_keys=False),
+                encoding="utf-8",
+            )
+
+        # Run record: this specific publish invocation.
+        run = self._run_record(renderer_results)
+        runs_dir = snapshot_dir / "runs"
+        runs_dir.mkdir(exist_ok=True)
+        ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%f")
+        uid = uuid.uuid4().hex[:8]
+        run_path = runs_dir / f"run_{ts}_{uid}.yaml"
+        run_path.write_text(yaml.safe_dump(run, sort_keys=False), encoding="utf-8")
+
+        # Convenience pointer to the latest run (overwritten each time).
+        latest = snapshot_dir / "latest.yaml"
+        latest.write_text(yaml.safe_dump(run, sort_keys=False), encoding="utf-8")
+        return run
 
 
 def publish(

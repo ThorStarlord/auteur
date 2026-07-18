@@ -222,35 +222,74 @@ class TestEpubRendering:
 
 
 class TestSnapshotManifest:
-    def test_snapshot_saved_to_auteur_dir(self, tmp_path: Path) -> None:
+    def test_run_record_returned(self, tmp_path: Path) -> None:
         project = _make_book(tmp_path)
         snapshot = PublishingSnapshot(project)
         r1 = snapshot.render_html(tmp_path / "book.html")
         r2 = snapshot.render_epub(tmp_path / "book.epub")
-        manifest = snapshot.save_snapshot([r1, r2])
-        assert manifest["snapshot_id"].startswith("pub_")
-        assert manifest["artifact_type"] == "book_publishing_snapshot"
-        assert manifest["lifecycle"] == "published"
-        assert manifest["title"] == "The Lantern at Low Water"
-        assert manifest["author"] == "Unknown Author"
-        assert manifest["source_book"]["revision"] >= 1
-        assert manifest["source_book"]["content_hash"].startswith("sha256:")
-        assert len(manifest["chapters"]) == 2
-        assert len(manifest["renderers"]) == 2
-        assert manifest["renderers"][0]["format"] == "html"
-        assert manifest["renderers"][1]["format"] == "epub"
+        run = snapshot.save_snapshot([r1, r2])
+        assert run["run_type"] == "publishing_run"
+        assert run["snapshot_id"].startswith("pub_")
+        assert run["title"] == "The Lantern at Low Water"
+        assert run["author"] == "Unknown Author"
+        assert run["source_book"]["revision"] >= 1
+        assert run["source_book"]["content_hash"].startswith("sha256:")
+        assert run["formats"] == ["html", "epub"]
+        assert len(run["renderers"]) == 2
+        assert run["renderers"][0]["format"] == "html"
+        assert run["renderers"][1]["format"] == "epub"
+        assert "created_at" in run
 
-    def test_snapshot_persisted_to_disk(self, tmp_path: Path) -> None:
+    def test_immutable_snapshot_written_once(self, tmp_path: Path) -> None:
+        """The snapshot file (no renderers) is written once and never overwritten."""
+        project = _make_book(tmp_path)
+        snap_dir = project / ".auteur" / "publishing"
+
+        # First publish
+        snapshot = PublishingSnapshot(project)
+        r1 = snapshot.render_html(tmp_path / "book.html")
+        snapshot.save_snapshot([r1])
+        imm_snap = yaml.safe_load(
+            (snap_dir / f"{snapshot._snapshot_id}.yaml").read_text(encoding="utf-8")
+        )
+        assert imm_snap["snapshot_id"] == snapshot._snapshot_id
+        assert "renderers" not in imm_snap
+        assert imm_snap["artifact_type"] == "book_publishing_snapshot"
+
+        # Second publish from same source — snapshot file must be unchanged
+        snapshot2 = PublishingSnapshot(project)
+        assert snapshot2._snapshot_id == snapshot._snapshot_id
+        r2 = snapshot2.render_html(tmp_path / "book_v2.html")
+        snapshot2.save_snapshot([r2])
+        imm_snap2 = yaml.safe_load(
+            (snap_dir / f"{snapshot._snapshot_id}.yaml").read_text(encoding="utf-8")
+        )
+        assert imm_snap2 == imm_snap  # byte-identical, never overwritten
+
+    def test_latest_is_convenience_pointer(self, tmp_path: Path) -> None:
         project = _make_book(tmp_path)
         snapshot = PublishingSnapshot(project)
-        result = snapshot.render_html(tmp_path / "book.html")
-        snapshot.save_snapshot([result])
-        snap_dir = project / ".auteur" / "publishing"
-        yamls = list(snap_dir.glob("*.yaml"))
-        assert len(yamls) == 2
-        assert (snap_dir / "latest.yaml").exists()
-        loaded = yaml.safe_load((snap_dir / "latest.yaml").read_text(encoding="utf-8"))
-        assert loaded["snapshot_id"] == snapshot._snapshot_id
+        r1 = snapshot.render_html(tmp_path / "first.html")
+        snapshot.save_snapshot([r1])
+        latest = yaml.safe_load(
+            (project / ".auteur" / "publishing" / "latest.yaml").read_text(encoding="utf-8")
+        )
+        assert latest["run_type"] == "publishing_run"
+        assert latest["snapshot_id"] == snapshot._snapshot_id
+        assert len(latest["renderers"]) == 1
+
+    def test_run_history_recorded(self, tmp_path: Path) -> None:
+        project = _make_book(tmp_path)
+        publish(project, formats=["html"], html_output=tmp_path / "a.html")
+        publish(project, formats=["epub"], epub_output=tmp_path / "a.epub")
+        runs_dir = project / ".auteur" / "publishing" / "runs"
+        run_files = sorted(runs_dir.glob("run_*.yaml"))
+        assert len(run_files) == 2
+        run0 = yaml.safe_load(run_files[0].read_text(encoding="utf-8"))
+        run1 = yaml.safe_load(run_files[1].read_text(encoding="utf-8"))
+        assert run0["run_type"] == "publishing_run"
+        assert run0["formats"] == ["html"]
+        assert run1["formats"] == ["epub"]
 
 
 # ---------------------------------------------------------------------------
