@@ -85,6 +85,15 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--json", action="store_true", help="Output raw JSON instead of formatted text.")
     p.add_argument("--verbose", action="store_true", help="Show detailed artifact IDs.")
 
+    p = sub.add_parser("publish", help="Render accepted Book to HTML, EPUB, or other formats.")
+    p.add_argument("--project", type=Path, default=Path("."), help="Project root directory (default: current directory).")
+    p.add_argument("--format", default="html", help="Output format(s): html, epub, or comma-separated (default: html).")
+    p.add_argument("--output", type=Path, default=None, help="Output file path (derived from project name if omitted).")
+    p.add_argument("--output-dir", type=Path, default=None, help="Output directory (default: project root).")
+    p.add_argument("--css", type=Path, default=None, help="Path to custom CSS file for HTML/EPUB styling.")
+    p.add_argument("--no-title-page", action="store_true", help="Omit title page from HTML output.")
+    p.add_argument("--no-toc", action="store_true", help="Omit table of contents from HTML output.")
+
     p = sub.add_parser("init", help="Create a new project directory.")
     p.add_argument("path", type=Path)
     p.add_argument("--from", dest="blueprint_path", type=Path, required=True)
@@ -577,6 +586,33 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps(status, indent=2, default=str))
         else:
             print(format_status(status, verbose=args.verbose))
+        return 0
+    # === publish ===
+    if args.command == "publish":
+        from auteur.publish import publish as _publish, PublishError, ALL_FORMATS
+        formats = [f.strip() for f in args.format.split(",")]
+        for f in formats:
+            if f not in ALL_FORMATS:
+                _err(f"unknown format: {f!r} (choose from {ALL_FORMATS})")
+                return 1
+        css = args.css.read_text(encoding="utf-8") if args.css else None
+        try:
+            result = _publish(
+                args.project,
+                formats=formats,
+                html_output=args.output if "html" in formats else None,
+                epub_output=args.output if "epub" in formats else None,
+                output_dir=args.output_dir,
+                css=css,
+                title_page=not args.no_title_page,
+                toc=not args.no_toc,
+            )
+        except (PublishError, FileExistsError) as exc:
+            _err(str(exc))
+            return 1
+        print(f"Published {result['title']} (snapshot {result['snapshot_id']})")
+        for r in result["renderers"]:
+            print(f"  [{r['format']}] {r['output_path']}")
         return 0
     # === init ===
     if args.command == "init":
