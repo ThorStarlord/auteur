@@ -1163,7 +1163,7 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         if args.expression_command in {"compose-book", "inspect-book", "compare-books", "accept-book", "export-book", "inspect-book-manuscript", "route-book-inspection", "show-book-inspection", "plan-book-reconciliation", "show-book-plan", "publish-book-reconciliation", "inspect-book-publication", "approve-book-candidate", "reject-book-candidate", "defer-book-candidate", "show-book-candidate-decision", "book-candidate-history", "recompose-book-from-accepted", "show-book-recomposition", "compare-book-recomposition", "inspect-book-comparison", "accept-recomposed-book", "inspect-book-acceptance", "complete-book-reconciliation", "inspect-book-reconciliation-completion"}:
             from auteur.expression.book import BookExpressionStore
-            from auteur.expression.book_reconciliation import BookPublicationRejected, BookReconciliationStore, CompleteBlockedError
+            from auteur.expression.book_reconciliation import BookPublicationRejected, BookReconciliationStore
             _decision_status = {"approve-book-candidate": "approved", "reject-book-candidate": "rejected", "defer-book-candidate": "deferred"}
             if args.expression_command in _decision_status:
                 store = BookReconciliationStore(args.project)

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import shutil
 from datetime import datetime, timezone
@@ -1793,18 +1794,6 @@ class BookReconciliationStore:
         except FileNotFoundError:
             return False, self._block("blocked_missing_target", publication_id, "recomposition blocked: accepted Book-owned revision missing", [{"code": "MISSING_REVISION", "expected": pointer.get("current_accepted_source_id"), "current": None, "recommended_action": "re-approve the Book-owned candidate to materialize its accepted revision"}])
         return True, {"pointer": pointer, "source": source}
-
-    def _resolve_separator_for_recomposition(self, separator_pointer_id: str, publication_id: str) -> tuple[bool, Any]:
-        return self._resolve_owned_for_recomposition(separator_pointer_id, publication_id)
-
-    def _resolve_order_for_recomposition(self, order_pointer_id: str, publication_id: str) -> tuple[bool, Any]:
-        return self._resolve_owned_for_recomposition(order_pointer_id, publication_id)
-
-    def _resolve_title_for_recomposition(self, title_pointer_id: str, publication_id: str) -> tuple[bool, Any]:
-        return self._resolve_owned_for_recomposition(title_pointer_id, publication_id)
-
-    def _resolve_material_for_recomposition(self, material_pointer_id: str, publication_id: str) -> tuple[bool, Any]:
-        return self._resolve_owned_for_recomposition(material_pointer_id, publication_id)
 
     # -- Freshness gate ---------------------------------------------------------
 
@@ -3602,7 +3591,7 @@ class BookReconciliationStore:
             1 for item in resolution_map.values() if item["resolution"] == "deferred"
         )
 
-        return list(resolution_map.values()), all_resolved, deferred_count
+        return sorted(resolution_map.values(), key=lambda r: r.get("candidate_id", "")), all_resolved, deferred_count
 
     def _plan_id_from_publication(self, publication_id: str) -> str:
         """Derive the plan id from a publication manifest."""
@@ -4013,10 +4002,10 @@ class BookReconciliationStore:
             manifest_dest.parent.mkdir(parents=True, exist_ok=True)
 
             # 1. Completion record (the only meaningful artifact).
-            shutil.move(str(staging / "completion_record.yaml"), str(completion_dest))
+            os.replace(str(staging / "completion_record.yaml"), str(completion_dest))
             moved.append(completion_dest)
             # 2. Manifest.
-            shutil.move(str(staging / "manifest.yaml"), str(manifest_dest))
+            os.replace(str(staging / "manifest.yaml"), str(manifest_dest))
             moved.append(manifest_dest)
 
             return True, None
