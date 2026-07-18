@@ -409,6 +409,10 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("comparison_id"); p.add_argument("--reason", default=None, help="Optional acceptance rationale recorded in the immutable artifacts."); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
     p = expression_sub.add_parser("inspect-book-acceptance", help="Inspect a Book acceptance record.")
     p.add_argument("acceptance_id"); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
+    p = expression_sub.add_parser("complete-book-reconciliation", help="Complete the Book reconciliation workflow (administrative closure, no narrative changes).")
+    p.add_argument("acceptance_id"); p.add_argument("--reason", default=None, help="Optional completion rationale recorded in the immutable record."); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
+    p = expression_sub.add_parser("inspect-book-reconciliation-completion", help="Inspect a Book reconciliation completion record.")
+    p.add_argument("completion_id"); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
     p = expression_sub.add_parser("show-book-candidate-decision", help="Show a Book candidate decision record.")
     p.add_argument("decision"); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
     p = expression_sub.add_parser("book-candidate-history", help="Show the append-only decision history and active status for a Book candidate.")
@@ -1157,9 +1161,9 @@ def main(argv: list[str] | None = None) -> int:
             report["diff"] = "".join(difflib.unified_diff(text_a.splitlines(True), text_b.splitlines(True), fromfile=first.artifact_id, tofile=second.artifact_id))
             print(json.dumps(report, indent=2))
             return 0
-        if args.expression_command in {"compose-book", "inspect-book", "compare-books", "accept-book", "export-book", "inspect-book-manuscript", "route-book-inspection", "show-book-inspection", "plan-book-reconciliation", "show-book-plan", "publish-book-reconciliation", "inspect-book-publication", "approve-book-candidate", "reject-book-candidate", "defer-book-candidate", "show-book-candidate-decision", "book-candidate-history", "recompose-book-from-accepted", "show-book-recomposition", "compare-book-recomposition", "inspect-book-comparison", "accept-recomposed-book", "inspect-book-acceptance"}:
+        if args.expression_command in {"compose-book", "inspect-book", "compare-books", "accept-book", "export-book", "inspect-book-manuscript", "route-book-inspection", "show-book-inspection", "plan-book-reconciliation", "show-book-plan", "publish-book-reconciliation", "inspect-book-publication", "approve-book-candidate", "reject-book-candidate", "defer-book-candidate", "show-book-candidate-decision", "book-candidate-history", "recompose-book-from-accepted", "show-book-recomposition", "compare-book-recomposition", "inspect-book-comparison", "accept-recomposed-book", "inspect-book-acceptance", "complete-book-reconciliation", "inspect-book-reconciliation-completion"}:
             from auteur.expression.book import BookExpressionStore
-            from auteur.expression.book_reconciliation import BookPublicationRejected, BookReconciliationStore
+            from auteur.expression.book_reconciliation import BookPublicationRejected, BookReconciliationStore, CompleteBlockedError
             _decision_status = {"approve-book-candidate": "approved", "reject-book-candidate": "rejected", "defer-book-candidate": "deferred"}
             if args.expression_command in _decision_status:
                 store = BookReconciliationStore(args.project)
@@ -1430,6 +1434,60 @@ def main(argv: list[str] | None = None) -> int:
                     print(f"Source recomposition: {result['source_recomposition_id']}")
                     print(f"Chapter sources: {len(result['accepted_chapter_sources'])} | Book-owned sources: {len(result['accepted_book_owned_sources'])}")
                     print(f"Pointer moved: {transition['previous_pointer_id']} -> {transition['current_pointer_id']}")
+                return 0
+            if args.expression_command == "complete-book-reconciliation":
+                store = BookReconciliationStore(args.project)
+                success, result = store.complete_book_reconciliation(args.acceptance_id, args.reason)
+                if args.json or args.verbose:
+                    print(json.dumps(result if success else result.result, indent=2, default=str))
+                    return 0 if success else 1
+                if not success:
+                    print(f"Reconciliation completion blocked: {result.status}")
+                    print(f"Primary reason: {result.reason}")
+                    print("No completion record was created.")
+                    print(f"Recommended action: {result.recommended_action}")
+                    return 1
+                if result.get("status") == "duplicate":
+                    print("Reconciliation completed: yes (duplicate)")
+                    print(f"Prior completion: {result['prior_completion_id']}")
+                    print("No new completion record created.")
+                    print("Recommended next action: inspect the prior completion")
+                    return 0
+                record = result["completion_record"]
+                ch_count = len(record.get("chapter_reconciliations", []))
+                ch_done = sum(1 for c in record.get("chapter_reconciliations", []) if "completed" in (c.get("status") or ""))
+                bo_count = len(record.get("book_owned_resolutions", []))
+                deferred = sum(1 for r in record.get("book_owned_resolutions", []) if "deferred" in (r.get("resolution") or ""))
+                print("Reconciliation completed: yes")
+                print(f"Accepted Book revision: {record['accepted_book']['revision']}")
+                print("Comparison exact match: yes")
+                print("Residual findings: 0")
+                print(f"Chapter reconciliations complete: {ch_done}/{ch_count}")
+                print(f"Book-owned proposals resolved: {bo_count}/{bo_count}")
+                print(f"Deferred items remaining: {deferred}")
+                print("Accepted Book pointer changed: no")
+                print("Narrative artifacts mutated: no")
+                return 0
+            if args.expression_command == "inspect-book-reconciliation-completion":
+                try:
+                    result = BookReconciliationStore(args.project).load_book_reconciliation_completion(args.completion_id)
+                except FileNotFoundError:
+                    print(f"No completion found: {args.completion_id}")
+                    print("Recommended action: run complete-book-reconciliation first.")
+                    return 1
+                if args.json or args.verbose:
+                    print(json.dumps(result, indent=2, default=str))
+                else:
+                    book = result["accepted_book"]
+                    ch = result.get("chapter_reconciliations", [])
+                    bo = result.get("book_owned_resolutions", [])
+                    print("Book reconciliation completion")
+                    print(f"Completion: {result['completion_id']}")
+                    print(f"Authority: {result['authority']} | Lifecycle: {result['lifecycle']}")
+                    print(f"Accepted Book: {book['expression_id']} (revision {book['revision']})")
+                    print(f"Source acceptance: {result['source_acceptance_id']}")
+                    print(f"Comparison exact match: {result['verification']['exact_match']}")
+                    print(f"Chapters: {len(ch)} | Book-owned resolutions: {len(bo)}")
                 return 0
             if args.expression_command == "inspect-book-manuscript":
                 result = BookReconciliationStore(args.project).inspect(args.manuscript, args.against)

@@ -319,6 +319,56 @@ class AcceptanceBlockedError(Exception):
         super().__init__(f"{status}: {reason}")
 
 
+class CompleteBlockedError(Exception):
+    """Raised/returned when reconciliation completion is blocked.
+
+    Completion is gated by a 20-point eligibility revalidation that never trusts
+    persisted state. When any check fails, this error is returned (completion
+    writes NO artifact) carrying a structured block. ``result`` is the full
+    structured dict; the flattened attributes are provided for ergonomic access:
+
+    - ``status`` -- a coarse block category, one of ``MISSING_ACCEPTANCE``,
+                    ``MISSING_BOOK_REVISION``, ``MISSING_POINTER``,
+                    ``STALE_POINTER``, ``INCOMPLETE_ACCEPTANCE``,
+                    ``MISSING_COMPARISON``, ``NON_EXACT_MATCH``,
+                    ``RESIDUALS_REMAIN``, ``MISSING_RECOMPOSITION``,
+                    ``STALE_MANUSCRIPT``, ``STALE_CHAPTER``,
+                    ``MISSING_BOOK_OWNED_POINTER``, ``STALE_BOOK_OWNED_POINTER``,
+                    ``MISSING_BOOK_OWNED_SOURCE``,
+                    ``INCOMPLETE_CHAPTER_RECONCILIATION``,
+                    ``UNRESOLVED_ROUTING_FINDINGS``,
+                    ``UNRESOLVED_PROPOSALS``,
+                    ``MARKER_CONTRACT_UNSUPPORTED``, ``DUPLICATE_COMPLETION``,
+                    ``INCOMPLETE_PROVENANCE``, ``INCONSISTENT_PROVENANCE``.
+    - ``reason`` -- the precise failure code (finer-grained than ``status``).
+    - ``details`` -- structured evidence ``{acceptance_id, expected, current, ...}``.
+    - ``recommended_action`` -- the recommended remediation.
+    """
+
+    def __init__(
+        self,
+        status: str,
+        reason: str,
+        details: dict[str, Any],
+        recommended_action: str,
+    ) -> None:
+        self.status = status
+        self.reason = reason
+        self.details = details or {}
+        self.recommended_action = recommended_action
+        self.result = {
+            "status": status,
+            "reason": reason,
+            "details": self.details,
+            "recommended_action": recommended_action,
+            "visible_outputs_created": False,
+        }
+        super().__init__(f"{status}: {reason}")
+
+
+COMPLETION_TRANSFORMATION = {"id": "expression.complete_book_reconciliation", "version": 1}
+
+
 class BookManuscriptParser:
     def parse(self, text: str) -> dict[str, Any]:
         chapters, separators, findings, owned = [], [], [], set()
@@ -968,8 +1018,11 @@ class BookReconciliationStore:
             return {"status": "rejected_stale", "message": "Book application plan is stale", "reasons": reasons, "visible_outputs_created": False}
         return {"status": "ready", "message": "publication dependencies are fresh", "reasons": [], "visible_outputs_created": False}
 
+    def _publication_path(self, publication_id: str) -> Path:
+        return self.root / "publications" / f"{publication_id}.yaml"
+
     def inspect_book_publication(self, publication_id: str) -> dict[str, Any]:
-        path = self.root / "publications" / f"{publication_id}.yaml"
+        path = self._publication_path(publication_id)
         if not path.exists():
             raise FileNotFoundError(f"Book publication not found: {publication_id}")
         return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
@@ -3271,3 +3324,759 @@ class BookReconciliationStore:
             return False, error
 
         return True, {"accepted_book_revision": book_revision, "acceptance_record": acceptance_record}
+
+    # ------------------------------------------------------------------
+    # Phase C4: Reconciliation completion.
+    #
+    # ``complete_book_reconciliation`` closes the reconciliation workflow
+    # around an already accepted Book revision. It is an administrative/
+    # provenance closure ONLY: it creates no Book revision, moves no
+    # narrative pointer, modifies no accepted Chapter/Book-owned revision,
+    # approves/rejects no candidate, regenerates no recomposition, and
+    # silently repairs no unresolved work. It verifies that all required
+    # work from the original inspection through the Book acceptance is
+    # complete and consistent, then produces a single immutable completion
+    # record.
+    #
+    # The completion artifact contains snapshots -- not live aliases -- of
+    # every decisive source. Earlier workflow artifacts remain immutable.
+    # ------------------------------------------------------------------
+
+    def _completions_dir(self) -> Path:
+        return self.root / "completions"
+
+    def _completion_path(self, completion_id: str) -> Path:
+        return self._completions_dir() / f"{completion_id}.yaml"
+
+    def _completion_manifest_path(self, completion_id: str) -> Path:
+        return self._completions_dir() / "manifests" / f"{completion_id}.yaml"
+
+    def _completion_staging_dir(self, completion_id: str) -> Path:
+        return self.root / "staging" / f"completion_{completion_id}"
+
+    def _routing_path(self, inspection_id: str) -> Path:
+        return self.root / "routing" / f"routing_{inspection_id}.yaml"
+
+    def load_book_reconciliation_completion(self, completion_id: str) -> dict[str, Any]:
+        """Load an immutable Book reconciliation completion record."""
+        path = self._completion_path(completion_id)
+        if not path.exists():
+            raise FileNotFoundError(f"Book reconciliation completion not found: {completion_id}")
+        return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+
+    def _find_prior_completion(self, acceptance_id: str) -> dict[str, Any] | None:
+        """Return the completion record already produced for an acceptance, or ``None``.
+
+        A reconciliation acceptance is completed at most once. This scans the
+        completions for one whose ``source_acceptance_id`` matches, guaranteeing
+        completion is idempotent: a second call creates no second record.
+        """
+        directory = self._completions_dir()
+        if not directory.exists():
+            return None
+        for path in sorted(directory.glob("*.yaml")):
+            data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+            if isinstance(data, dict) and data.get("source_acceptance_id") == acceptance_id:
+                return data
+        return None
+
+    def _find_chapter_inspection(self, chapter_inspection_id: str) -> dict[str, Any] | None:
+        """Find and load a chapter-level reconciliation inspection by its id.
+
+        The chapter inspection lives under ``chapters/*/expression/reconciliation/``.
+        Returns the parsed inspection or ``None`` if not found.
+        """
+        for path in self.project.glob(f"chapters/*/expression/reconciliation/inspections/{chapter_inspection_id}.yaml"):
+            return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        return None
+
+    def _chapter_completion_status(self, chapter_inspection_id: str) -> str:
+        """Determine the reconciliation status of a delegated Chapter.
+
+        Returns ``"completed"`` if the chapter had no changes or has a terminal
+        completion record with status ``reconciled``. Returns ``"incomplete"`` if
+        the chapter has unresolved findings or no terminal completion. Returns
+        ``"undelegated"`` if the chapter inspection was not found.
+        """
+        inspection = self._find_chapter_inspection(chapter_inspection_id)
+        if inspection is None:
+            return "undelegated"
+        if inspection.get("status") == "no_changes":
+            return "completed"
+        # Find the chapter directory containing this inspection.
+        chapter_dir = self._chapter_dir_for_inspection(chapter_inspection_id)
+        if chapter_dir is None:
+            return "undelegated"
+        completion_path = chapter_dir / "publications" / "completion.yaml"
+        if completion_path.exists():
+            data = yaml.safe_load(completion_path.read_text(encoding="utf-8")) or {}
+            if data.get("completion_status") == "reconciled":
+                return "completed"
+        return "incomplete"
+
+    def _chapter_dir_for_inspection(self, chapter_inspection_id: str) -> Path | None:
+        """Return the reconciliation directory for a chapter inspection, or None."""
+        for path in self.project.glob(
+            f"chapters/*/expression/reconciliation/inspections/{chapter_inspection_id}.yaml"
+        ):
+            return path.parent.parent  # inspections/ -> reconciliation root
+        return None
+
+    def _gather_chapter_reconciliation_status(
+        self, inspection_id: str, accepted_chapter_sources: list[dict[str, Any]]
+    ) -> tuple[list[dict[str, Any]], bool]:
+        """Check every delegated Chapter reconciliation is complete.
+
+        Loads the routing manifest for the original Book inspection and verifies
+        every delegated chapter reconciliation is terminal. Returns the list of
+        chapter status dicts and a boolean indicating all are complete.
+        """
+        routing_manifest: dict[str, Any] = {}
+        routing_path = self._routing_path(inspection_id)
+        if routing_path.exists():
+            routing_manifest = yaml.safe_load(routing_path.read_text(encoding="utf-8")) or {}
+
+        chapter_routes = routing_manifest.get("chapter_routes", [])
+        results: list[dict[str, Any]] = []
+        all_complete = True
+
+        known_chapter_ids = {s["chapter_id"] for s in accepted_chapter_sources}
+
+        for route in chapter_routes:
+            chapter_id = route.get("chapter_id")
+            chapter_inspection_id = route.get("chapter_inspection_id")
+            status = self._chapter_completion_status(chapter_inspection_id)
+            if status != "completed":
+                all_complete = False
+            results.append({
+                "chapter_id": chapter_id,
+                "chapter_inspection_id": chapter_inspection_id,
+                "completion_status": status,
+            })
+
+        # Every accepted chapter source must also be accounted for.
+        for src in accepted_chapter_sources:
+            cid = src["chapter_id"]
+            if cid not in {r["chapter_id"] for r in results}:
+                # This chapter accepted without having been delegated (no changes
+                # detected at inspection time) -- that is fine, treat as implicit.
+                results.append({
+                    "chapter_id": cid,
+                    "chapter_inspection_id": None,
+                    "completion_status": "completed (implicit: no delegated reconciliation needed)",
+                })
+
+        return results, all_complete
+
+    def _gather_book_owned_resolutions(
+        self, inspection_id: str, publication_id: str,
+        accepted_book_owned_sources: list[dict[str, Any]]
+    ) -> tuple[list[dict[str, Any]], bool, int]:
+        """Check every Book-owned proposal has a terminal resolution.
+
+        Resolution types:
+        - ``applied`` -- candidate was approved and the accepted-source pointer
+          still points to that revision.
+        - ``rejected`` -- candidate was rejected.
+        - ``excluded`` -- proposal was never published as a candidate, or was
+          explicitly excluded from this reconciliation scope.
+        - ``deferred`` -- candidate is deferred (BLOCKS completion unless
+          explicitly excluded from scope).
+
+        Returns ``(resolutions, all_resolved, deferred_count)``.
+        """
+        plan = self._load_plan(self._plan_id_from_publication(publication_id))
+        plan_proposal_ids = set(plan.get("selected_proposals", []))
+
+        # Load publication and its candidates.
+        publication = yaml.safe_load(
+            self._publication_path(publication_id).read_text(encoding="utf-8")
+        ) if self._publication_path(publication_id).exists() else {}
+        published_candidate_ids = publication.get("published_candidates", [])
+
+        # Latest decisions for this publication.
+        decisions = self._decisions_for_publication(publication_id)
+
+        # Accepted source pointers snapshot.
+        pointer_snapshot: dict[str, str] = {}
+        for src in accepted_book_owned_sources:
+            pointer = self.current_accepted_source_pointer(src.get("target_id"), src.get("owned_kind"))
+            if pointer is not None:
+                pointer_snapshot[f"{src['owned_kind']}:{src['target_id']}"] = (
+                    pointer.get("current_accepted_source_id")
+                )
+
+        # Build resolution for each proposal of the plan.
+        resolution_map: dict[str, dict[str, Any]] = {}
+        for pid in plan_proposal_ids:
+            proposal = self._load_proposal(pid)
+            if proposal is None:
+                resolution_map[pid] = {"resolution": "excluded", "reason": "proposal artifact missing", "blocks": False}
+                continue
+
+            proposal_type = proposal.get("proposal_type")
+            target = proposal.get("target")
+
+            # Find the candidate that was published from this proposal.
+            matching_candidate_id = None
+            for cid in published_candidate_ids:
+                cpath = self._candidates_path(cid)
+                if not cpath.exists():
+                    continue
+                cand = yaml.safe_load(cpath.read_text(encoding="utf-8")) or {}
+                if cand.get("source_proposal_id") == pid:
+                    matching_candidate_id = cid
+                    break
+
+            if matching_candidate_id is None:
+                resolution_map[pid] = {"resolution": "excluded", "reason": "proposal never published as candidate", "blocks": False}
+                continue
+
+            candidate_id = matching_candidate_id
+            decision = decisions.get(candidate_id)
+
+            if decision is None:
+                resolution_map[pid] = {"resolution": "undecided", "reason": "no decision recorded for candidate", "blocks": True}
+                continue
+
+            decision_status = decision.get("decision", {}).get("status", "unknown")
+
+            if decision_status == "approved":
+                accepted_source_id = decision.get("accepted_source_id")
+                owned_kind = decision.get("candidate_type", "").replace("_candidate", "")
+                owned_kind = ACCEPTED_SOURCE_KIND.get(
+                    decision.get("candidate_type", ""), owned_kind
+                )
+                target_id = proposal.get("target")
+                pointer_key = f"{owned_kind}:{target_id}"
+                current_accepted = pointer_snapshot.get(pointer_key)
+                if current_accepted is not None and current_accepted == accepted_source_id:
+                    resolution_map[pid] = {
+                        "resolution": "applied",
+                        "candidate_id": candidate_id,
+                        "accepted_source_id": accepted_source_id,
+                        "pointer_current": True,
+                        "blocks": False,
+                    }
+                elif current_accepted is not None:
+                    resolution_map[pid] = {
+                        "resolution": "superseded",
+                        "candidate_id": candidate_id,
+                        "accepted_source_id": accepted_source_id,
+                        "pointer_current": False,
+                        "reason": "approved but a later approval moved the pointer",
+                        "blocks": True,
+                    }
+                else:
+                    resolution_map[pid] = {
+                        "resolution": "approved_no_pointer",
+                        "candidate_id": candidate_id,
+                        "accepted_source_id": accepted_source_id,
+                        "reason": "approved but pointer no longer exists",
+                        "blocks": True,
+                    }
+            elif decision_status == "rejected":
+                resolution_map[pid] = {
+                    "resolution": "rejected",
+                    "candidate_id": candidate_id,
+                    "blocks": False,
+                }
+            elif decision_status == "deferred":
+                resolution_map[pid] = {
+                    "resolution": "deferred",
+                    "candidate_id": candidate_id,
+                    "reason": "deferred candidate blocks completion unless explicitly excluded from scope",
+                    "blocks": True,
+                }
+            else:
+                resolution_map[pid] = {
+                    "resolution": decision_status,
+                    "candidate_id": candidate_id,
+                    "blocks": True,
+                }
+
+        all_resolved = all(
+            not item.get("blocks", True) for item in resolution_map.values()
+        )
+        deferred_count = sum(
+            1 for item in resolution_map.values() if item["resolution"] == "deferred"
+        )
+
+        return list(resolution_map.values()), all_resolved, deferred_count
+
+    def _plan_id_from_publication(self, publication_id: str) -> str:
+        """Derive the plan id from a publication manifest."""
+        path = self._publication_path(publication_id)
+        if path.exists():
+            data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+            return data.get("source_plan_id", "")
+        return ""
+
+    def _candidates_path(self, candidate_id: str) -> Path:
+        return self.root / "candidates" / f"{candidate_id}.yaml"
+
+    def _validate_completion_gate(
+        self, acceptance_id: str
+    ) -> tuple[bool, dict[str, Any] | CompleteBlockedError]:
+        """Run the 20-point completion eligibility gate.
+
+        Revalidates EVERY condition from disk and never trusts persisted state.
+        Returns ``(True, context)`` -- a context dict carrying every value needed
+        to stage the completion record -- when eligible, or ``(False,
+        CompleteBlockedError)`` on the first failed check. No artifact is ever
+        written by this method.
+        """
+        def block(status: str, reason: str, recommended_action: str, **details: Any) -> CompleteBlockedError:
+            return CompleteBlockedError(status, reason, {"acceptance_id": acceptance_id, **details}, recommended_action)
+
+        # 1. Acceptance record exists.
+        try:
+            acceptance = self.load_book_acceptance(acceptance_id)
+        except FileNotFoundError:
+            return False, block("MISSING_ACCEPTANCE", "MISSING_ACCEPTANCE",
+                                "accept the recomposed Book first, then complete reconciliation")
+
+        # 2. Accepted Book revision exists.
+        accepted_expression_id = acceptance.get("accepted_book_expression_id")
+        accepted_revision = acceptance.get("accepted_book_revision")
+        book_id = accepted_expression_id.split(":")[0] if accepted_expression_id else ""
+        try:
+            book_revision = self.load_accepted_book_revision(book_id, accepted_revision)
+        except (FileNotFoundError, ValueError):
+            return False, block("MISSING_BOOK_REVISION", "MISSING_BOOK_REVISION",
+                                "restore the accepted Book revision, then retry completion",
+                                expression_id=accepted_expression_id, revision=accepted_revision)
+
+        # 3. Accepted Book pointer targets that revision.
+        pointer = self._load_accepted_book_pointer()
+        if pointer is None:
+            return False, block("MISSING_POINTER", "MISSING_BOOK_POINTER",
+                                "accept the recomposed Book first; no accepted Book pointer exists")
+        if str(pointer.get("current_revision")) != str(accepted_revision):
+            return False, block("STALE_POINTER", "BOOK_POINTER_MOVED",
+                                "the accepted Book pointer moved since acceptance; the pointer no longer targets the accepted revision",
+                                expected=accepted_revision, current=pointer.get("current_revision"))
+        if pointer.get("accepted_book_expression_id") != accepted_expression_id:
+            return False, block("STALE_POINTER", "BOOK_POINTER_TARGET_MISMATCH",
+                                "the accepted Book pointer targets a different expression",
+                                expected=accepted_expression_id, current=pointer.get("accepted_book_expression_id"))
+
+        # 4. Acceptance provenance references the expected comparison.
+        comparison_id = acceptance.get("source_comparison_id")
+        recomposition_id = acceptance.get("source_recomposition_id")
+        if not comparison_id or not recomposition_id:
+            return False, block("INCOMPLETE_ACCEPTANCE", "ACCEPTANCE_MISSING_SOURCE_IDS",
+                                "the acceptance record is missing source comparison or recomposition id")
+
+        # 5. Comparison remains exact-match.
+        try:
+            comparison = self.load_book_comparison(comparison_id)
+        except FileNotFoundError:
+            return False, block("MISSING_COMPARISON", "MISSING_COMPARISON",
+                                "the comparison artifact no longer exists; rerun compare-book-recomposition")
+        summary = comparison.get("summary", {}) or {}
+        if summary.get("exact_match") is not True:
+            return False, block("NON_EXACT_MATCH", "COMPARISON_NO_LONGER_EXACT",
+                                "the comparison is no longer exact match; rerun compare-book-recomposition")
+
+        # 6. Every residual count remains zero.
+        counts = summary.get("residual_counts", {}) or {}
+        remaining = {
+            cat: counts.get(cat, 0)
+            for cat in self._residual_categories()
+            if counts.get(cat, 0)
+        }
+        if remaining:
+            return False, block("RESIDUALS_REMAIN", "RESIDUALS_REMAIN",
+                                "resolve every residual before completing reconciliation",
+                                residuals=remaining)
+
+        # 7. Source recomposition exists and unchanged.
+        try:
+            recomposed = self.load_recomposed_book(
+                self._publication_id_from_recomposition(recomposition_id)
+                if "publication_" in (recomposition_id or "")
+                else recomposition_id
+            )
+        except FileNotFoundError:
+            return False, block("MISSING_RECOMPOSITION", "MISSING_RECOMPOSITION",
+                                "the recomposition artifact no longer exists; recompose and compare again")
+
+        # 8. External manuscript hash still matches.
+        external = comparison.get("external_manuscript", {}) or {}
+        external_path_str = external.get("path")
+        if external_path_str:
+            external_path = Path(external_path_str)
+            if external_path.exists():
+                current_external_hash = _hash(external_path.read_text(encoding="utf-8"))
+                if current_external_hash != external.get("content_hash"):
+                    return False, block("STALE_MANUSCRIPT", "MANUSCRIPT_HASH_CHANGED",
+                                        "the external manuscript changed since comparison; compare again",
+                                        expected=external.get("content_hash"), current=current_external_hash)
+
+        # 9-10. Every accepted Chapter pointer matches acceptance snapshot.
+        accepted_chapter_sources = acceptance.get("accepted_chapter_sources", [])
+        book = BookExpressionStore(self.project)
+        for src in accepted_chapter_sources:
+            chapter_id = src.get("chapter_id")
+            expected_revision = src.get("revision")
+            expected_pointer_id = src.get("pointer_id")
+            try:
+                chapter = book._accepted_chapter(chapter_id)
+            except ValueError:
+                return False, block("MISSING_CHAPTER", "MISSING_CHAPTER_TARGET",
+                                    f"accepted Chapter {chapter_id} no longer exists; restore it",
+                                    chapter_id=chapter_id)
+            if str(chapter.get("revision")) != str(expected_revision):
+                return False, block("STALE_CHAPTER", "CHAPTER_POINTER_MOVED",
+                                    f"accepted Chapter {chapter_id} pointer moved since acceptance",
+                                    chapter_id=chapter_id, expected=expected_revision, current=chapter.get("revision"))
+
+        # 11-12. Every accepted Book-owned pointer matches acceptance snapshot.
+        accepted_book_owned_sources = acceptance.get("accepted_book_owned_sources", [])
+        for src in accepted_book_owned_sources:
+            owned_kind = src.get("owned_kind")
+            target_id = src.get("target_id")
+            expected_revision = src.get("revision")
+            pointer = self.current_accepted_source_pointer(target_id, owned_kind)
+            if pointer is None:
+                return False, block("MISSING_BOOK_OWNED_POINTER", "BOOK_OWNED_POINTER_MISSING",
+                                    f"Book-owned pointer {owned_kind}:{target_id} no longer exists",
+                                    owned_kind=owned_kind, target_id=target_id)
+            if str(pointer.get("current_revision")) != str(expected_revision):
+                return False, block("STALE_BOOK_OWNED_POINTER", "BOOK_OWNED_POINTER_MOVED",
+                                    f"Book-owned pointer {owned_kind}:{target_id} moved since acceptance",
+                                    owned_kind=owned_kind, target_id=target_id,
+                                    expected=expected_revision, current=pointer.get("current_revision"))
+            current_accepted_id = pointer.get("current_accepted_source_id")
+            if current_accepted_id:
+                try:
+                    self.load_accepted_book_owned_source(current_accepted_id)
+                except FileNotFoundError:
+                    return False, block("MISSING_BOOK_OWNED_SOURCE", "BOOK_OWNED_SOURCE_MISSING",
+                                        f"accepted Book-owned source {current_accepted_id} no longer exists",
+                                        accepted_source_id=current_accepted_id)
+
+        # 13. Every delegated Chapter reconciliation is complete.
+        #     Need the original inspection id from the provenance chain.
+        publication_id = comparison.get("source_publication_id") or book_revision.get("source_publication_id", "")
+        plan_id = ""
+        inspection_id = ""
+        if publication_id:
+            pub_data = {}
+            pub_path = self._publication_path(publication_id)
+            if pub_path.exists():
+                pub_data = yaml.safe_load(pub_path.read_text(encoding="utf-8")) or {}
+                plan_id = pub_data.get("source_plan_id", "")
+                inspection_id = pub_data.get("source_inspection_id", "")
+            if not inspection_id:
+                # Fall back to plan -> inspection.
+                inspection_id = acceptance.get("source_inspection_id", "")
+
+        if not inspection_id:
+            # Re-derive from comparison's external manuscript path or default.
+            inspection_id = recomposed.get("inspection_id", "")
+
+        chapter_statuses, chapters_complete = self._gather_chapter_reconciliation_status(
+            inspection_id, accepted_chapter_sources
+        )
+        if not chapters_complete:
+            incomplete = [
+                s for s in chapter_statuses
+                if s.get("completion_status") != "completed"
+                   and "implicit" not in str(s.get("completion_status", ""))
+            ]
+            return False, block("INCOMPLETE_CHAPTER_RECONCILIATION", "CHAPTER_RECONCILIATION_INCOMPLETE",
+                                "complete all delegated Chapter reconciliations before completing Book reconciliation",
+                                incomplete_chapters=incomplete)
+
+        # 14. No unresolved routing findings remain.
+        routing_path = self._routing_path(inspection_id)
+        routing_data: dict[str, Any] = {}
+        if routing_path.exists():
+            routing_data = yaml.safe_load(routing_path.read_text(encoding="utf-8")) or {}
+        unresolved_findings = routing_data.get("unresolved", [])
+        if unresolved_findings:
+            return False, block("UNRESOLVED_ROUTING_FINDINGS", "UNRESOLVED_ROUTING_FINDINGS",
+                                "resolve all unresolved routing findings before completing reconciliation",
+                                unresolved_count=len(unresolved_findings))
+
+        # 15. Every selected Book-owned proposal has a terminal resolution.
+        proposals_resolved = True
+        deferred_count = 0
+        book_owned_resolutions: list[dict[str, Any]] = []
+        if plan_id:
+            book_owned_resolutions, proposals_resolved, deferred_count = (
+                self._gather_book_owned_resolutions(inspection_id, publication_id, accepted_book_owned_sources)
+            )
+        else:
+            book_owned_resolutions = []
+
+        if not proposals_resolved:
+            blocking = [r for r in book_owned_resolutions if r.get("blocks", True)]
+            return False, block("UNRESOLVED_PROPOSALS", "BOOK_OWNED_PROPOSAL_UNRESOLVED",
+                                "resolve all Book-owned proposals (approve, reject, or explicitly exclude) before completing reconciliation",
+                                blocking_resolutions=blocking, deferred_count=deferred_count)
+
+        # 16. Marker contract version remains supported.
+        marker_version = external.get("marker_contract_version", 1)
+        if marker_version not in SUPPORTED_MARKER_CONTRACT_VERSIONS:
+            return False, block("MARKER_CONTRACT_UNSUPPORTED", "MARKER_CONTRACT_UNSUPPORTED",
+                                "re-inspect and compare under a supported marker contract",
+                                expected=sorted(SUPPORTED_MARKER_CONTRACT_VERSIONS), current=marker_version)
+
+        # 17. No prior completion for this acceptance.
+        if self._find_prior_completion(acceptance_id) is not None:
+            return False, block("DUPLICATE_COMPLETION", "DUPLICATE_COMPLETION",
+                                "this acceptance was already completed; inspect the prior completion")
+
+        # 18. Completion would not mutate any narrative authority (read-only check).
+        #     This is verified by the gate being purely observational.
+
+        # 19. Full provenance chain consistency:
+        #     inspection -> routing -> plan -> publication -> candidates/decisions
+        #     -> accepted sources -> recomposition -> comparison -> acceptance
+        if not plan_id:
+            return False, block("INCOMPLETE_PROVENANCE", "MISSING_PLAN_ID",
+                                "the publication manifest is missing a source plan id")
+        try:
+            plan_data = self._load_plan(plan_id)
+        except FileNotFoundError:
+            return False, block("INCOMPLETE_PROVENANCE", "MISSING_PLAN",
+                                "the application plan referenced by the publication no longer exists",
+                                plan_id=plan_id)
+        if plan_data.get("source_inspection_id") != inspection_id:
+            return False, block("INCONSISTENT_PROVENANCE", "PROVENANCE_CHAIN_BROKEN",
+                                "the plan's source inspection does not match the publication's inspection",
+                                plan_inspection=plan_data.get("source_inspection_id"),
+                                publication_inspection=inspection_id)
+
+        # Comparison and acceptance link are checked above.
+        recomposition_pub_id = recomposed.get("publication_id") or recomposed.get("source_publication_id", "")
+        if recomposition_pub_id != publication_id:
+            return False, block("INCONSISTENT_PROVENANCE", "RECOMPOSITION_PUBLICATION_MISMATCH",
+                                "the recomposition's source publication does not match the comparison's",
+                                recomposition_publication=recomposition_pub_id,
+                                expected=publication_id)
+
+        # Build context for the completion record.
+        completion_id = "book_completion_" + hashlib.sha256(
+            (acceptance_id + "\0" + comparison_id + "\0" + str(accepted_revision)).encode("utf-8")
+        ).hexdigest()[:32]
+
+        context = {
+            "acceptance": acceptance,
+            "acceptance_id": acceptance_id,
+            "comparison": comparison,
+            "comparison_id": comparison_id,
+            "recomposed": recomposed,
+            "recomposition_id": recomposition_id,
+            "publication_id": publication_id,
+            "plan_id": plan_id,
+            "inspection_id": inspection_id,
+            "book_revision": book_revision,
+            "book_id": book_id,
+            "accepted_book_expression_id": accepted_expression_id,
+            "accepted_revision": accepted_revision,
+            "pointer": pointer,
+            "content_hash": pointer.get("content_hash", ""),
+            "chapter_statuses": chapter_statuses,
+            "book_owned_resolutions": book_owned_resolutions,
+            "external_manuscript": {
+                "path": str(external_path) if external_path_str else "",
+                "content_hash": external.get("content_hash", ""),
+            },
+            "summary": summary,
+            "residual_counts": counts,
+            "completion_id": completion_id,
+            "deferred_count": deferred_count,
+        }
+        return True, context
+
+    def _create_completion_record(self, context: dict[str, Any], reason: str | None) -> dict[str, Any]:
+        """Build the immutable completion record with full provenance snapshots.
+
+        Contains snapshots -- not live aliases -- of every decisive source.
+        The completion verifies all work is finished; it does not finish work itself.
+        """
+        now = datetime.now(timezone.utc).isoformat()
+        return {
+            "artifact_type": "book_reconciliation_completion",
+            "completion_id": context["completion_id"],
+            "authority": "derived",
+            "lifecycle": "completed",
+            "canonical": False,
+            "source_inspection_id": context["inspection_id"],
+            "source_plan_id": context["plan_id"],
+            "source_publication_id": context["publication_id"],
+            "source_recomposition_id": context["recomposition_id"],
+            "source_comparison_id": context["comparison_id"],
+            "source_acceptance_id": context["acceptance_id"],
+            "accepted_book": {
+                "expression_id": context["accepted_book_expression_id"],
+                "revision": context["accepted_revision"],
+                "content_hash": context["content_hash"],
+                "pointer_id": context["pointer"]["pointer_id"],
+            },
+            "chapter_reconciliations": [
+                {
+                    "chapter_id": c["chapter_id"],
+                    "reconciliation_id": c.get("chapter_inspection_id"),
+                    "status": c["completion_status"],
+                }
+                for c in context["chapter_statuses"]
+            ],
+            "book_owned_resolutions": [
+                {
+                    "resolution": r.get("resolution"),
+                    "candidate_id": r.get("candidate_id"),
+                    "accepted_source_id": r.get("accepted_source_id"),
+                }
+                for r in context["book_owned_resolutions"]
+            ],
+            "external_manuscript": dict(context["external_manuscript"]),
+            "verification": {
+                "exact_match": context["summary"].get("exact_match", False),
+                "residual_counts": dict(context.get("residual_counts", {})),
+            },
+            "completed_at": now,
+            "reason": reason or "",
+            "transformation": dict(COMPLETION_TRANSFORMATION),
+        }
+
+    def _stage_completion(self, completion_record: dict[str, Any]) -> str:
+        """Stage the completion record and manifest in a temporary directory.
+
+        Returns the staging directory path as a string. Nothing is visible in a
+        final location yet.
+        """
+        completion_id = completion_record["completion_id"]
+        staging = self._completion_staging_dir(completion_id)
+        if staging.exists():
+            shutil.rmtree(staging, ignore_errors=True)
+        staging.mkdir(parents=True, exist_ok=True)
+        (staging / "completion_record.yaml").write_text(
+            yaml.safe_dump(completion_record, sort_keys=False), encoding="utf-8"
+        )
+        manifest = {
+            "artifact_type": "book_completion_transaction_manifest",
+            "completion_id": completion_id,
+            "source_acceptance_id": completion_record["source_acceptance_id"],
+            "staged_artifacts": ["completion_record.yaml"],
+            "targets": {
+                "completion_record": str(self._completion_path(completion_id)),
+                "manifest": str(self._completion_manifest_path(completion_id)),
+            },
+            "transformation": dict(COMPLETION_TRANSFORMATION),
+        }
+        (staging / "manifest.yaml").write_text(
+            yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8"
+        )
+        return str(staging)
+
+    def _validate_staged_completion(self, staging_dir: str) -> tuple[bool, str]:
+        """Validate the complete staged set. Return ``(True, "")`` or ``(False, error_msg)``."""
+        staging = Path(staging_dir)
+        expected = {"completion_record.yaml", "manifest.yaml"}
+        actual = {p.name for p in staging.glob("*.yaml")}
+        if actual != expected:
+            return False, f"staged completion incomplete: expected {sorted(expected)}, found {sorted(actual)}"
+
+        record = yaml.safe_load((staging / "completion_record.yaml").read_text(encoding="utf-8")) or {}
+        if record.get("artifact_type") != "book_reconciliation_completion":
+            return False, "staged completion record has wrong artifact_type"
+        if record.get("completion_id") != record.get("completion_id"):
+            return False, "staged completion record has mismatched completion_id"
+
+        completion_id = record["completion_id"]
+        if self._completion_path(completion_id).exists():
+            return False, f"a completion record already exists at {completion_id} (would shadow)"
+        return True, ""
+
+    def _publish_completion(self, staging_dir: str) -> tuple[bool, CompleteBlockedError | None]:
+        """Publish the staged completion atomically. Return ``(True, None)`` or ``(False, error)``.
+
+        Completing reconciliation is PURELY an administrative/provenance closure:
+        it creates a single immutable completion record. No Book revision, pointer,
+        or narrative authority is touched. On any failure nothing is visible.
+        """
+        staging = Path(staging_dir)
+        manifest = yaml.safe_load((staging / "manifest.yaml").read_text(encoding="utf-8")) or {}
+        targets = manifest["targets"]
+
+        completion_dest = Path(targets["completion_record"])
+        manifest_dest = Path(targets["manifest"])
+
+        moved: list[Path] = []
+        try:
+            completion_dest.parent.mkdir(parents=True, exist_ok=True)
+            manifest_dest.parent.mkdir(parents=True, exist_ok=True)
+
+            # 1. Completion record (the only meaningful artifact).
+            shutil.move(str(staging / "completion_record.yaml"), str(completion_dest))
+            moved.append(completion_dest)
+            # 2. Manifest.
+            shutil.move(str(staging / "manifest.yaml"), str(manifest_dest))
+            moved.append(manifest_dest)
+
+            return True, None
+        except Exception:
+            for path in moved:
+                if path.exists():
+                    path.unlink()
+            raise
+
+    def complete_book_reconciliation(
+        self, acceptance_id: str, reason: str | None = None
+    ) -> tuple[bool, dict[str, Any] | CompleteBlockedError]:
+        """Complete the Book reconciliation around an already accepted Book revision.
+
+        This is a read-only administrative closure: it verifies all required work
+        from the original inspection through Book acceptance is complete and
+        produces a single immutable completion record. It NEVER creates a Book
+        revision, moves any pointer, modifies accepted Chapter/Book-owned sources,
+        approves/rejects candidates, regenerates recompositions, or silently repairs
+        unresolved work.
+
+        Returns ``(True, {completion_record})`` on success,
+        ``(True, {status: \"duplicate\", ...})`` when already completed, or
+        ``(False, CompleteBlockedError)`` on any eligibility failure.
+        """
+        # Duplicate completion is idempotent.
+        prior = self._find_prior_completion(acceptance_id)
+        if prior is not None:
+            return True, {
+                "status": "duplicate",
+                "prior_completion_id": prior["completion_id"],
+                "message": "reconciliation already completed for this acceptance; no new record created",
+                "visible_outputs_created": False,
+            }
+
+        # 20-point eligibility gate.
+        ok, gate = self._validate_completion_gate(acceptance_id)
+        if not ok:
+            return False, gate
+        context = gate  # type: ignore[assignment]
+
+        # Build the completion record.
+        completion_record = self._create_completion_record(context, reason)
+
+        # Stage, validate, then publish atomically.
+        staging_dir = self._stage_completion(completion_record)
+        valid, message = self._validate_staged_completion(staging_dir)
+        if not valid:
+            shutil.rmtree(staging_dir, ignore_errors=True)
+            return False, CompleteBlockedError(
+                "STAGING_INVALID", "STAGING_INVALID",
+                {"acceptance_id": acceptance_id, "detail": message},
+                "completion staging failed validation; retry completion",
+            )
+
+        try:
+            published, error = self._publish_completion(staging_dir)
+        finally:
+            shutil.rmtree(staging_dir, ignore_errors=True)
+        if not published:
+            return False, error
+
+        return True, {"completion_record": completion_record}

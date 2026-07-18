@@ -851,7 +851,6 @@ def test_store_exposes_no_candidate_acceptance_surface() -> None:
         "accept_book_publication",
         "apply_book_proposal",
         "recompose_book_reconciliation",
-        "complete_book_reconciliation",
         "decide_book_candidate",
     }
     assert forbidden.isdisjoint(set(dir(BookReconciliationStore)))
