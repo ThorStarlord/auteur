@@ -18,7 +18,7 @@ long-form completeness.
 | Scene Realization | yes | yes | partial | partial | partial | yes | partial |
 | Scene Expression | yes | yes | yes | yes | yes | yes | yes |
 | Chapter Expression | yes | yes | yes | yes | yes | yes | yes |
-| Book Manuscript | yes | yes | no | no | no | yes | partial |
+| Book Manuscript | yes | yes | no | yes | yes | yes | partial |
 
 The matrix is intentionally qualitative. “Partial” means a path exists but
 does not yet have the same reasoning, proposal, freshness propagation, and
@@ -30,8 +30,12 @@ The deepest current path is:
 
 ```text
 Scene Realization → Scene Expression → Chapter Expression
-→ external editing → reconciliation → proposal → publication
+→ Chapter external editing → reconciliation → proposal → publication
 → independent decision → recomposition → Chapter acceptance
+→ Book Manuscript assembly → Book external editing
+→ Book reconciliation → Book proposal → Book publication
+→ Book candidate decisions → Book recomposition → Book comparison
+→ Book acceptance → Book reconciliation completion
 ```
 
 The main unbalanced path is structural revision:
@@ -140,6 +144,16 @@ multiple accepted Chapters → Book Manuscript
 ```
 
 This bounded Book Manuscript slice is now proven on the canonical two-Chapter
-fixture. Book-level reasoning/editing and publishing formats remain deferred.
-Structural revision propagation remains deferred because the canonical pilot
-produced no evidence that it is the highest-impact blockage.
+fixture. Book external-edit inspection and ownership routing (Phase A) produce
+noncanonical Book proposals, and Book proposal planning plus atomic candidate
+publication (Phase B) materialize durable, unaccepted Book candidates with a
+noncanonical preview and manifest — publication is not acceptance, and no
+accepted Book, Chapter, or upstream artifact is mutated. See
+[book-reconciliation-application.md](book-reconciliation-application.md).
+Book candidate acceptance (Phase C3), Book recomposition from accepted sources,
+Book comparison, and Book reconciliation completion (Phase C4) are now
+implemented: the full Book workflow from inspection through completion has been
+committed with 300+ passing tests. Book-level reasoning/editing and publishing
+formats remain deferred. Structural revision propagation remains deferred
+because the canonical pilot produced no evidence that it is the highest-impact
+blockage.

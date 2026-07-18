@@ -24,10 +24,101 @@ from __future__ import annotations
 import hashlib
 import json
 import shutil
-import pytest
 from pathlib import Path
 from typing import Any
-from unittest.mock import patch, MagicMock
+from unittest import mock
+
+import pytest
+
+from auteur.canonical_story import CanonicalStoryBootstrap
+from auteur.provenance import ArtifactStore
+
+# Isolated dogfood workspace: deliberately OUTSIDE examples/canonical_story
+# (the bootstrap source) so that CanonicalStoryBootstrap.copy_to can never
+# recursively copy this workspace back into the canonical reference tree.
+# See src/auteur/canonical_story.py:CanonicalStoryBootstrap.copy_to for the
+# validation that enforces this at runtime, and defect-1-repair-brief.md for
+# the incident this isolation fixes. The directory is gitignored (/temp/) and
+# is fully rebuilt by `_bootstrap_workspace` before this module's tests run.
+WORKSPACE_ROOT = Path("temp/dogfood/lantern_phase_a")
+
+REFERENCE_ROOT = Path("examples/canonical_story")
+
+# Relative-to-workspace paths hashed into .auteur/baselines.json, used by
+# TestBookExternalRoutingDogfood.verify_baselines_unchanged to detect any
+# mutation of canonical artifacts during inspection/routing.
+_BASELINE_PATHS = {
+    "story_identity": ".auteur/state/artifacts/story_identity.yaml",
+    "blueprint": ".auteur/state/artifacts/blueprint.yaml",
+    "chapter_01": ".auteur/state/artifacts/chapter_01.yaml",
+    "chapter_02": ".auteur/state/artifacts/chapter_02.yaml",
+    "chapter_01_expression": "chapters/01/expression/chapter_v001.yaml",
+    "chapter_02_expression": "chapters/02/expression/chapter_v001.yaml",
+    "book_expression": "book/expression/book_v001.yaml",
+}
+
+
+def _bootstrap_workspace(workspace_root: Path) -> Path:
+    """(Re)build the Phase A dogfood workspace from the canonical reference.
+
+    Any existing workspace is wiped first, so calling this repeatedly against
+    the same path is idempotent and deterministic (see
+    test_repeated_bootstrap_succeeds). ``workspace_root`` must live outside
+    REFERENCE_ROOT -- CanonicalStoryBootstrap.copy_to enforces that and raises
+    ValueError instead of silently nesting the reference tree inside itself.
+    """
+    if workspace_root.exists():
+        shutil.rmtree(workspace_root)
+    workspace_root.mkdir(parents=True, exist_ok=True)
+
+    bootstrap = CanonicalStoryBootstrap(REFERENCE_ROOT)
+    bootstrap.copy_to(workspace_root)
+    bootstrap.accept_native_identity_and_structure(workspace_root)
+    bootstrap.accept_scene_realizations(workspace_root)
+    first_chapter = bootstrap.bootstrap_expressions(workspace_root)
+    second_chapter = bootstrap.bootstrap_second_chapter(workspace_root)
+    bootstrap.bootstrap_book(workspace_root, [
+        first_chapter["chapter_expression"]["artifact_id"],
+        second_chapter["chapter_expression"]["artifact_id"],
+    ])
+
+    # The marked, external-facing manuscript dogfood scenarios inspect is a
+    # plain copy of the derived, accepted Book manuscript.
+    manuscript_dir = workspace_root / ".auteur" / "book" / "expression"
+    manuscript_dir.mkdir(parents=True, exist_ok=True)
+    book_manuscript = workspace_root / "book" / "expression" / "book_v001.md"
+    (manuscript_dir / "manuscript.internal.md").write_text(
+        book_manuscript.read_text(encoding="utf-8"), encoding="utf-8"
+    )
+
+    # Hash via read_text().encode(), matching
+    # TestBookExternalRoutingDogfood.verify_baselines_unchanged, so the two
+    # computations agree regardless of platform newline translation.
+    baselines = {
+        name: hashlib.sha256((workspace_root / rel_path).read_text(encoding="utf-8").encode()).hexdigest()
+        for name, rel_path in _BASELINE_PATHS.items()
+    }
+    (workspace_root / ".auteur" / "baselines.json").write_text(
+        json.dumps(baselines, indent=2), encoding="utf-8"
+    )
+
+    return workspace_root
+
+
+def _hash_tree(root: Path) -> dict[str, str]:
+    """Content hash every file under ``root``, keyed by relative path."""
+    return {
+        str(path.relative_to(root)): hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in sorted(root.rglob("*"))
+        if path.is_file()
+    }
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _phase_a_workspace():
+    """Build the Phase A dogfood workspace once before this module's tests run."""
+    _bootstrap_workspace(WORKSPACE_ROOT)
+    yield WORKSPACE_ROOT
 
 
 def generate_message_from_inspection(inspection_report: dict[str, Any]) -> str:
@@ -177,7 +268,7 @@ def test_placeholder_a1_baseline():
 
 def test_unchanged_marked_book_inspection():
     """Scenario 2: Unchanged marked Book should produce no changes, proposals, or findings."""
-    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    project_root = WORKSPACE_ROOT
     manuscript_path = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
 
     # Inspect the unchanged Book manuscript
@@ -201,7 +292,7 @@ def test_unchanged_marked_book_inspection():
 
 def test_chapter_only_edit_creates_delegated_inspection():
     """Scenario 3: Chapter wording edit → one delegated Chapter inspection, zero Book proposals."""
-    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    project_root = WORKSPACE_ROOT
     original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
     test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_chapter_edit.md'
 
@@ -245,7 +336,7 @@ def test_separator_edit_creates_book_proposal():
     from auteur.expression.book_reconciliation import BookReconciliationStore
     import yaml
 
-    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    project_root = WORKSPACE_ROOT
     original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
     test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_separator_edit.md'
 
@@ -309,107 +400,12 @@ def test_separator_edit_creates_book_proposal():
         test_ms.unlink()
 
 
-def test_mixed_chapter_and_book_edit_creates_proposals():
-    """Scenario 6: Mixed Chapter wording + separator edit → 1 chapter finding + 1 book finding with 2 proposals."""
-    from auteur.expression.book_reconciliation import BookReconciliationStore
-    import yaml
-
-    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
-    original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
-    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_mixed_edit.md'
-
-    # Create a copy of the manuscript with both chapter and separator edits
-    shutil.copy(original_ms, test_ms)
-    content = test_ms.read_text(encoding='utf-8')
-
-    # Make a chapter wording edit (like scenario 3)
-    modified_content = content.replace(
-        "The river wind carries Tomas's warning up the tower.",
-        "The river wind carries Tomas's solemn warning up the tower."
-    )
-
-    # Also make a separator edit (like scenario 4)
-    modified_content = modified_content.replace(
-        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n---\n<!-- auteur:end-book-separator id=separator_01 -->",
-        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n===\n<!-- auteur:end-book-separator id=separator_01 -->"
-    )
-    test_ms.write_text(modified_content, encoding='utf-8')
-
-    # Inspect the modified manuscript
-    result = inspect_book_external_manuscript(
-        project_root=project_root,
-        manuscript_path=test_ms
-    )
-
-    # Assertions for Mixed edit scenario
-    assert result['status'] == 'changed', f"Expected 'changed' status, got '{result['status']}'"
-    assert result['chapter_findings_count'] == 1, f"Expected 1 chapter finding, got {result['chapter_findings_count']}"
-    assert result['book_findings_count'] == 1, f"Expected 1 book finding, got {result['book_findings_count']}"
-    assert result['unresolved_findings_count'] == 0, f"Expected 0 unresolved findings, got {result['unresolved_findings_count']}"
-
-    # Verify the findings are as expected
-    full_report = result['full_report']
-    assert len(full_report['chapter_findings']) == 1, "Expected exactly 1 chapter finding"
-    assert len(full_report['book_findings']) == 1, "Expected exactly 1 book finding"
-
-    chapter_finding = full_report['chapter_findings'][0]
-    assert chapter_finding['classification'] == 'modified', f"Expected 'modified' classification, got '{chapter_finding['classification']}'"
-    assert chapter_finding['route'] == 'chapter_reconciliation', f"Expected 'chapter_reconciliation' route, got '{chapter_finding['route']}'"
-
-    book_finding = full_report['book_findings'][0]
-    assert book_finding['classification'] == 'separator_changed', f"Expected 'separator_changed' classification, got '{book_finding['classification']}'"
-    assert book_finding['recommended_proposal'] == 'book_separator_patch', f"Expected 'book_separator_patch' proposal type, got '{book_finding['recommended_proposal']}'"
-    assert book_finding['original_text'] == '---', f"Expected original separator '---', got '{book_finding['original_text']}'"
-    assert book_finding['edited_text'] == '===', f"Expected edited separator '===', got '{book_finding['edited_text']}'"
-
-    # Now route the inspection to generate the actual proposals
-    store = BookReconciliationStore(project_root)
-    inspection_id = result['inspection_id']
-    routing_result = store.route(inspection_id)
-
-    # Verify routing created the proposals
-    assert routing_result['status'] == 'routed', f"Expected 'routed' status, got '{routing_result['status']}'"
-
-    # Should have chapter proposals and book proposals
-    chapter_proposals = routing_result.get('chapter_proposals', [])
-    book_proposals = routing_result.get('book_proposals', [])
-
-    total_proposals = len(chapter_proposals) + len(book_proposals)
-    assert total_proposals == 2, f"Expected 2 total proposals (delegated inspection + book proposal), got {total_proposals} (chapter: {len(chapter_proposals)}, book: {len(book_proposals)})"
-
-    # Verify routing manifest exists
-    routing_manifest_path = project_root / 'book' / 'expression' / 'reconciliation' / 'routing_manifest.yaml'
-    assert routing_manifest_path.exists(), f"Routing manifest not found at {routing_manifest_path}"
-
-    # Load the routing manifest and verify it contains both proposals
-    manifest_data = yaml.safe_load(routing_manifest_path.read_text(encoding='utf-8')) or {}
-    inspections = manifest_data.get('inspections', [])
-    assert len(inspections) > 0, "Expected at least 1 inspection in routing manifest"
-
-    # Find our inspection in the manifest
-    our_inspection = None
-    for inspection in inspections:
-        if inspection.get('inspection_id') == inspection_id:
-            our_inspection = inspection
-            break
-
-    assert our_inspection is not None, f"Inspection {inspection_id} not found in routing manifest"
-    assert our_inspection.get('status') == 'routed', f"Expected inspection status 'routed', got '{our_inspection.get('status')}'"
-
-    # Verify baselines remain unchanged
-    assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during inspection"
-
-    # Clean up test file
-    if test_ms.exists():
-        test_ms.unlink()
-
-
 def test_stale_inspection_blocks_routing():
     """Scenario 10: Stale inspection → routing status=stale, 0 outputs, original inspection preserved."""
     from auteur.expression.book_reconciliation import BookReconciliationStore
     import yaml
 
-    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    project_root = WORKSPACE_ROOT
     original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
     test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_stale.md'
 
@@ -439,9 +435,10 @@ def test_stale_inspection_blocks_routing():
     store = BookReconciliationStore(project_root)
     original_inspection_path = store._inspection_path(inspection_id)
     original_inspection_content = original_inspection_path.read_text(encoding='utf-8')
+    original_inspection_data = yaml.safe_load(original_inspection_content) or {}
 
     # Now simulate a Chapter being updated after the inspection was created
-    # We do this by modifying the accepted.yaml to have a different revision than what the Book references
+    # We do this by modifying the chapter's accepted.yaml to have a different revision
     chapter_dir = project_root / "chapters" / "01" / "expression"
     accepted_file = chapter_dir / "accepted.yaml"
     accepted_data = yaml.safe_load(accepted_file.read_text(encoding='utf-8')) or {}
@@ -458,129 +455,289 @@ def test_stale_inspection_blocks_routing():
     # Write the modified accepted.yaml back
     accepted_file.write_text(yaml.safe_dump(accepted_data, sort_keys=False), encoding='utf-8')
 
-    # Now attempt to route the original inspection
-    # This should fail because the Chapter has been updated since inspection was created
-    routing_result = store.route(inspection_id)
+    try:
+        # Now attempt to route the original inspection
+        # This should fail because the Chapter has been updated since inspection was created
+        routing_result = store.route(inspection_id)
 
-    # Verify routing detected staleness
-    assert routing_result['status'] == 'stale', f"Expected 'stale' status, got '{routing_result['status']}'"
-    assert len(routing_result['chapter_routes']) == 0, f"Expected 0 chapter routes, got {len(routing_result['chapter_routes'])}"
-    assert len(routing_result['book_proposals']) == 0, f"Expected 0 book proposals, got {len(routing_result['book_proposals'])}"
-    assert routing_result['routing_id'] is None, f"Expected no routing_id when stale, got '{routing_result['routing_id']}'"
+        # Verify routing detected staleness
+        assert routing_result['status'] == 'stale', f"Expected 'stale' status, got '{routing_result['status']}'"
+        assert len(routing_result['chapter_routes']) == 0, f"Expected 0 chapter routes, got {len(routing_result['chapter_routes'])}"
+        assert len(routing_result['book_proposals']) == 0, f"Expected 0 book proposals, got {len(routing_result['book_proposals'])}"
+        assert routing_result['routing_id'] is None, f"Expected no routing_id when stale, got '{routing_result['routing_id']}'"
 
-    # Verify the inspection was updated with stale status
-    updated_inspection_content = original_inspection_path.read_text(encoding='utf-8')
-    updated_inspection = yaml.safe_load(updated_inspection_content) or {}
-    assert updated_inspection.get('status') == 'stale', f"Expected inspection status 'stale', got '{updated_inspection.get('status')}'"
-    assert updated_inspection.get('freshness', {}).get('status') == 'stale', f"Expected freshness status 'stale'"
-    assert 'BOOK_OR_CHAPTER_REVISION_CHANGED' in updated_inspection.get('freshness', {}).get('reasons', []), f"Expected stale reason to identify changed artifact"
+        # Verify the inspection was updated with stale status
+        updated_inspection_content = original_inspection_path.read_text(encoding='utf-8')
+        updated_inspection = yaml.safe_load(updated_inspection_content) or {}
+        assert updated_inspection.get('status') == 'stale', f"Expected inspection status 'stale', got '{updated_inspection.get('status')}'"
+        assert updated_inspection.get('freshness', {}).get('status') == 'stale', f"Expected freshness status 'stale'"
+        assert 'BOOK_OR_CHAPTER_REVISION_CHANGED' in updated_inspection.get('freshness', {}).get('reasons', []), \
+            f"Expected stale reason to identify changed artifact, got {updated_inspection.get('freshness', {}).get('reasons', [])}"
 
-    # Verify the original inspection structure is preserved (only freshness status changed)
-    assert updated_inspection.get('inspection_id') == inspection_id, "Inspection ID should remain unchanged"
-    assert updated_inspection.get('chapter_findings') == result['full_report'].get('chapter_findings'), "Chapter findings should remain unchanged"
-    assert updated_inspection.get('book_findings') == result['full_report'].get('book_findings'), "Book findings should remain unchanged"
+        # Verify the original inspection structure is preserved (only freshness status changed)
+        assert updated_inspection.get('inspection_id') == inspection_id, "Inspection ID should remain unchanged"
+        assert updated_inspection.get('chapter_findings') == original_inspection_data.get('chapter_findings'), "Chapter findings should remain unchanged"
+        assert updated_inspection.get('book_findings') == original_inspection_data.get('book_findings'), "Book findings should remain unchanged"
 
-    # Verify no routing manifest was created
-    routing_manifest_path = store.root / "routing" / f"routing_{inspection_id}.yaml"
-    assert not routing_manifest_path.exists(), f"No routing manifest should exist for stale inspection, but found at {routing_manifest_path}"
+        # Verify no routing manifest was created
+        routing_manifest_path = store.root / "routing" / f"routing_{inspection_id}.yaml"
+        assert not routing_manifest_path.exists(), f"No routing manifest should exist for stale inspection, but found at {routing_manifest_path}"
 
-    # Verify no proposals directory contains new proposals
-    proposals_dir = store.root / "proposals"
-    if proposals_dir.exists():
-        proposals = [f for f in proposals_dir.glob(f"proposal_{inspection_id}_*.yaml")]
-        assert len(proposals) == 0, f"Expected 0 proposals for stale inspection, found {len(proposals)}"
+        # Verify no proposals directory contains new proposals
+        proposals_dir = store.root / "proposals"
+        if proposals_dir.exists():
+            proposals = list(proposals_dir.glob(f"proposal_{inspection_id}_*.yaml"))
+            assert len(proposals) == 0, f"Expected 0 proposals for stale inspection, found {len(proposals)}"
 
-    # Verify baselines remain unchanged
-    assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during inspection"
+        # Verify baselines remain unchanged
+        assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during inspection"
+    finally:
+        # Clean up test files and restore the Chapter's accepted.yaml
+        if test_ms.exists():
+            test_ms.unlink()
 
-    # Clean up test files and restore the Chapter's accepted.yaml
-    if test_ms.exists():
-        test_ms.unlink()
-
-    # Restore the original accepted.yaml to its original state
-    # Revert the revision and content_hash back to the original values
-    restored_data = accepted_data.copy()
-    restored_data['revision'] = original_revision
-    restored_data['content_hash'] = original_content_hash
-    accepted_file.write_text(yaml.safe_dump(restored_data, sort_keys=False), encoding='utf-8')
+        # Restore the original accepted.yaml to its original state
+        # Revert the revision and content_hash back to the original values
+        restored_data = accepted_data.copy()
+        restored_data['revision'] = original_revision
+        restored_data['content_hash'] = original_content_hash
+        accepted_file.write_text(yaml.safe_dump(restored_data, sort_keys=False), encoding='utf-8')
 
 
-def test_markerless_manuscript_creates_unresolved_finding():
-    """Scenario 7: Markerless manuscript → one unresolved markerless finding, zero routes/proposals."""
-    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+def test_routing_atomicity_on_failure():
+    """Scenario 11: A move failure partway through routing must leave zero
+    partial artifacts. Either every proposal and the manifest are visible
+    together, or none of them are.
+    """
+    from auteur.expression.book_reconciliation import BookReconciliationStore
+    import yaml
+
+    project_root = WORKSPACE_ROOT
     original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
-    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_markerless.md'
+    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_atomic_failure.md'
 
-    # Create a copy and remove all markers
     shutil.copy(original_ms, test_ms)
     content = test_ms.read_text(encoding='utf-8')
-
-    # Remove all markers by replacing them with empty strings
-    # Pattern: remove <!-- auteur:... --> markers
-    markerless_content = content
-    markerless_content = markerless_content.replace(
-        "<!-- auteur:chapter id=chapter_01 expression_revision=1 -->\n",
-        ""
-    )
-    markerless_content = markerless_content.replace(
-        "\n<!-- auteur:end-chapter id=chapter_01 -->",
-        ""
-    )
-    markerless_content = markerless_content.replace(
+    modified_content = content.replace(
         "<!-- auteur:book-separator id=separator_01 revision=1 -->\n---\n<!-- auteur:end-book-separator id=separator_01 -->",
-        "---"
+        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n===\n<!-- auteur:end-book-separator id=separator_01 -->"
     )
-    markerless_content = markerless_content.replace(
-        "<!-- auteur:chapter id=chapter_02 expression_revision=1 -->\n",
-        ""
+    test_ms.write_text(modified_content, encoding='utf-8')
+
+    try:
+        result = inspect_book_external_manuscript(project_root=project_root, manuscript_path=test_ms)
+        assert result['status'] == 'changed'
+        assert result['book_findings_count'] == 1
+        inspection_id = result['inspection_id']
+
+        store = BookReconciliationStore(project_root)
+        original_inspection_path = store._inspection_path(inspection_id)
+        original_inspection_bytes = original_inspection_path.read_bytes()
+
+        staged_dir = store.root / "staging" / inspection_id
+        final_manifest_path = store.root / "routing" / f"routing_{inspection_id}.yaml"
+        proposals_dir = store.root / "proposals"
+
+        real_move = shutil.move
+        call_count = {"n": 0}
+
+        def flaky_move(src, dst, *args, **kwargs):
+            call_count["n"] += 1
+            if call_count["n"] >= 2:
+                raise OSError("simulated failure during atomic routing move")
+            return real_move(src, dst, *args, **kwargs)
+
+        with mock.patch("auteur.expression.book_reconciliation.shutil.move", side_effect=flaky_move):
+            with pytest.raises(OSError):
+                store.route(inspection_id)
+
+        # At least one move must have been attempted (so this actually
+        # exercises a mid-batch failure, not a failure before anything moved).
+        assert call_count["n"] >= 2, "Expected the flaky move to be invoked at least twice"
+
+        # Staging must be fully cleaned up -- no orphaned working directory.
+        assert not staged_dir.exists(), f"Staging directory should be removed after failure, found {staged_dir}"
+
+        # No routing manifest should be visible.
+        assert not final_manifest_path.exists(), f"No routing manifest should exist after failed routing, found {final_manifest_path}"
+
+        # No proposals from this routing attempt should be visible.
+        if proposals_dir.exists():
+            leftover = list(proposals_dir.glob(f"proposal_{inspection_id}_*.yaml"))
+            assert leftover == [], f"Expected 0 proposals visible after failed routing, found {leftover}"
+
+        # The original inspection must survive untouched.
+        assert original_inspection_path.exists(), "Original inspection must be preserved after routing failure"
+        assert original_inspection_path.read_bytes() == original_inspection_bytes, \
+            "Original inspection content must be unchanged after routing failure"
+
+        # No canonical artifacts mutated.
+        assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during failed routing"
+    finally:
+        if test_ms.exists():
+            test_ms.unlink()
+
+
+def test_routing_success_is_atomic():
+    """Regression: successful routing publishes the manifest and all
+    proposals together, with no leftover staging artifacts.
+    """
+    from auteur.expression.book_reconciliation import BookReconciliationStore
+    import yaml
+
+    project_root = WORKSPACE_ROOT
+    original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
+    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_atomic_success.md'
+
+    shutil.copy(original_ms, test_ms)
+    content = test_ms.read_text(encoding='utf-8')
+    modified_content = content.replace(
+        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n---\n<!-- auteur:end-book-separator id=separator_01 -->",
+        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n===\n<!-- auteur:end-book-separator id=separator_01 -->"
     )
-    markerless_content = markerless_content.replace(
-        "\n<!-- auteur:end-chapter id=chapter_02 -->",
-        ""
+    test_ms.write_text(modified_content, encoding='utf-8')
+
+    try:
+        result = inspect_book_external_manuscript(project_root=project_root, manuscript_path=test_ms)
+        assert result['status'] == 'changed'
+        inspection_id = result['inspection_id']
+
+        store = BookReconciliationStore(project_root)
+        staged_dir = store.root / "staging" / inspection_id
+        final_manifest_path = store.root / "routing" / f"routing_{inspection_id}.yaml"
+        proposals_dir = store.root / "proposals"
+
+        routing_result = store.route(inspection_id)
+
+        assert routing_result['status'] == 'routed'
+        assert len(routing_result['book_proposals']) == 1
+
+        # Manifest and proposal must both be visible together.
+        assert final_manifest_path.exists(), "Routing manifest should exist after successful routing"
+        proposal_id = routing_result['book_proposals'][0]
+        proposal_path = proposals_dir / f"{proposal_id}.yaml"
+        assert proposal_path.exists(), f"Proposal should exist after successful routing at {proposal_path}"
+
+        # Staging must be cleaned up -- nothing left behind after commit.
+        assert not staged_dir.exists(), f"Staging directory should be removed after successful routing, found {staged_dir}"
+
+        assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during successful routing"
+    finally:
+        if test_ms.exists():
+            test_ms.unlink()
+
+
+def test_repeated_bootstrap_succeeds():
+    """Regression for Defect 1: bootstrapping the dogfood workspace twice in a
+    row must succeed both times and produce deterministic, non-duplicated
+    artifact state.
+
+    Before the fix, the dogfood workspace lived inside
+    examples/canonical_story/, so a later bootstrap against that reference
+    tree recursively copied the workspace into itself, producing nested
+    ``canonical_story/canonical_story/`` duplicates with conflicting
+    ``scene_01_0X`` / ``scene_02_01`` artifact IDs (health='invalid',
+    'duplicate_artifact_id'). Isolating the workspace under temp/dogfood/
+    (outside the reference tree) makes repeated bootstrap safe.
+    """
+    first_root = _bootstrap_workspace(WORKSPACE_ROOT)
+    first_manuscript = first_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
+    first_result = inspect_book_external_manuscript(project_root=first_root, manuscript_path=first_manuscript)
+    first_baselines = TestBookExternalRoutingDogfood.load_baselines(first_root)
+
+    second_root = _bootstrap_workspace(WORKSPACE_ROOT)
+    second_manuscript = second_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
+    second_result = inspect_book_external_manuscript(project_root=second_root, manuscript_path=second_manuscript)
+    second_baselines = TestBookExternalRoutingDogfood.load_baselines(second_root)
+
+    assert first_root == second_root == WORKSPACE_ROOT
+
+    # Both bootstraps must succeed and agree: no changes on a freshly
+    # rebuilt, unedited manuscript, either time.
+    assert first_result['status'] == 'no_changes', f"First bootstrap: expected 'no_changes', got {first_result['status']}"
+    assert second_result['status'] == 'no_changes', f"Second bootstrap: expected 'no_changes', got {second_result['status']}"
+
+    # Deterministic output: identical canonical content hashes across runs,
+    # for artifacts whose content is not itself timestamped. Story Identity,
+    # Blueprint, and the Chapter provenance records carry no wall-clock
+    # fields, so their hashes must match exactly run over run.
+    stable_keys = ("story_identity", "blueprint", "chapter_01", "chapter_02")
+    for key in stable_keys:
+        assert first_baselines[key] == second_baselines[key], (
+            f"Repeated bootstrap must produce an identical '{key}' hash, "
+            f"got {first_baselines[key]} vs {second_baselines[key]}"
+        )
+
+    # The derived Chapter/Book Expressions legitimately embed a fresh
+    # created_at/accepted_at timestamp on every compose+accept, so their raw
+    # byte hashes are expected to differ between runs. Determinism there
+    # means the same identity, revision, and narrative content -- not
+    # byte-identical timestamps.
+    import yaml as _yaml
+
+    def _stable_expression_fields(rel_path: str) -> dict[str, Any]:
+        first_data = _yaml.safe_load((first_root / rel_path).read_text(encoding="utf-8")) or {}
+        second_data = _yaml.safe_load((second_root / rel_path).read_text(encoding="utf-8")) or {}
+        volatile = {"created_at", "accepted_at"}
+        first_stable = {k: v for k, v in first_data.items() if k not in volatile}
+        second_stable = {k: v for k, v in second_data.items() if k not in volatile}
+        return first_stable, second_stable
+
+    for name, rel_path in _BASELINE_PATHS.items():
+        if name in stable_keys:
+            continue
+        first_stable, second_stable = _stable_expression_fields(rel_path)
+        assert first_stable == second_stable, (
+            f"Repeated bootstrap must produce identical '{name}' content "
+            f"(ignoring timestamps), got {first_stable} vs {second_stable}"
+        )
+
+    # No nested duplicate copy of the reference tree inside the workspace
+    # (the exact shape of the original defect).
+    nested_reference_copies = list((second_root / "canonical_story").rglob("canonical_story"))
+    assert nested_reference_copies == [], (
+        f"Bootstrap must not nest the reference tree inside itself, found {nested_reference_copies}"
     )
-    test_ms.write_text(markerless_content, encoding='utf-8')
 
-    # Inspect the markerless manuscript
-    result = inspect_book_external_manuscript(
-        project_root=project_root,
-        manuscript_path=test_ms
-    )
+    # No duplicate artifact IDs anywhere in the freshly rebuilt workspace.
+    store = ArtifactStore(second_root)
+    scene_paths = {
+        "scene_01_01": second_root / "chapters" / "01" / "scenes" / "scene_01_01.yaml",
+        "scene_01_02": second_root / "chapters" / "01" / "scenes" / "scene_01_02.yaml",
+        "scene_01_03": second_root / "chapters" / "01" / "scenes" / "scene_01_03.yaml",
+        "scene_01_04": second_root / "chapters" / "01" / "scenes" / "scene_01_04.yaml",
+        "scene_01_05": second_root / "chapters" / "01" / "scenes" / "scene_01_05.yaml",
+        "scene_02_01": second_root / "chapters" / "02" / "scenes" / "scene_02_01.yaml",
+    }
+    for scene_id, scene_path in scene_paths.items():
+        status = store.status(scene_path, "scene_realization")
+        assert status.health == "valid", (
+            f"{scene_id} unexpectedly invalid after repeated bootstrap: "
+            f"health={status.health}"
+        )
 
-    # Assertions for Markerless scenario
-    assert result['status'] == 'unresolved', f"Expected 'unresolved' status, got '{result['status']}'"
-    assert result['chapter_findings_count'] == 0, f"Expected 0 chapter findings, got {result['chapter_findings_count']}"
-    assert result['book_findings_count'] == 0, f"Expected 0 book findings, got {result['book_findings_count']}"
-    assert result['unresolved_findings_count'] == 1, f"Expected 1 unresolved finding, got {result['unresolved_findings_count']}"
-    assert result['routes'] == [], f"Expected empty routes, got {result['routes']}"
-    assert result['proposals'] == [], f"Expected empty proposals, got {result['proposals']}"
 
-    # Verify the unresolved finding is a markerless finding
-    full_report = result['full_report']
-    assert len(full_report['unresolved_findings']) == 1, "Expected exactly 1 unresolved finding"
-    markerless_finding = full_report['unresolved_findings'][0]
-    assert markerless_finding['classification'] == 'markerless', f"Expected 'markerless' classification, got '{markerless_finding['classification']}'"
+def test_canonical_reference_untouched():
+    """Regression for Defect 1: bootstrapping the dogfood workspace must never
+    write into, or leave a copy of itself inside, examples/canonical_story.
+    """
+    before = _hash_tree(REFERENCE_ROOT)
 
-    # Verify the finding includes an actionable recommendation
-    assert 'recommended_action' in markerless_finding, "Expected 'recommended_action' in finding"
-    assert markerless_finding['recommended_action'] == 'restore Book markers or map the manuscript manually', \
-        f"Expected recommendation to restore markers or map manually, got '{markerless_finding['recommended_action']}'"
+    _bootstrap_workspace(WORKSPACE_ROOT)
 
-    # Verify evidence and severity
-    assert markerless_finding['evidence'] == 'no Book ownership markers', \
-        f"Expected evidence 'no Book ownership markers', got '{markerless_finding['evidence']}'"
-    assert markerless_finding.get('severity') == 'unresolved' or markerless_finding.get('classification') == 'markerless', \
-        "Expected unresolved severity or markerless classification"
+    after = _hash_tree(REFERENCE_ROOT)
+    assert before == after, "Canonical reference tree content was mutated by dogfood bootstrap"
 
-    # Verify no noisy per-chapter findings
-    for finding in full_report['chapter_findings']:
-        assert finding['classification'] != 'markerless', "Should not have per-chapter markerless findings"
+    # No dogfood/temp artifacts leaked into the canonical reference tree.
+    leaked = [
+        entry for entry in REFERENCE_ROOT.iterdir()
+        if entry.name.startswith("temp_") or entry.name == "canonical_story"
+    ]
+    assert leaked == [], f"Canonical reference tree contains leaked dogfood artifacts: {leaked}"
 
-    # Verify baselines remain unchanged
-    assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during inspection"
-
-    # Clean up test file
-    if test_ms.exists():
-        test_ms.unlink()
+    # The isolated workspace itself must live outside the reference tree.
+    assert REFERENCE_ROOT.resolve() not in WORKSPACE_ROOT.resolve().parents
+    assert WORKSPACE_ROOT.resolve() not in REFERENCE_ROOT.resolve().parents
 
 
 def test_chapter_reorder_creates_book_order_proposal():
@@ -589,7 +746,7 @@ def test_chapter_reorder_creates_book_order_proposal():
     import yaml
     import re
 
-    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    project_root = WORKSPACE_ROOT
     original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
     test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_chapter_reorder.md'
 
@@ -612,9 +769,6 @@ def test_chapter_reorder_creates_book_order_proposal():
     separator_pattern = r'<!-- auteur:book-separator id=separator_01 revision=1 -->.*?<!-- auteur:end-book-separator id=separator_01 -->'
     separator_match = re.search(separator_pattern, content, re.DOTALL)
     separator_content = separator_match.group(0) if separator_match else ""
-
-    # Extract title
-    title_pattern = r'^# The Lantern at Low Water\n'
 
     # Reconstruct with chapters in reversed order: chapter_02, separator, chapter_01
     modified_content = (
@@ -673,11 +827,11 @@ def test_chapter_reorder_creates_book_order_proposal():
 
 
 def test_mixed_chapter_and_book_edit_creates_proposals():
-    """Scenario 6: Mixed Chapter wording + separator edit -> 1 chapter finding + 1 book finding with 2 proposals."""
+    """Scenario 6: Mixed Chapter wording + separator edit -> 1 chapter finding + 1 book finding with 2 routes."""
     from auteur.expression.book_reconciliation import BookReconciliationStore
     import yaml
 
-    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    project_root = WORKSPACE_ROOT
     original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
     test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_mixed_edit.md'
 
@@ -753,9 +907,86 @@ def test_mixed_chapter_and_book_edit_creates_proposals():
         test_ms.unlink()
 
 
+def test_markerless_manuscript_creates_unresolved_finding():
+    """Scenario 7: Markerless manuscript → one unresolved markerless finding, zero routes/proposals."""
+    project_root = WORKSPACE_ROOT
+    original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
+    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_markerless.md'
+
+    # Create a copy and remove all markers
+    shutil.copy(original_ms, test_ms)
+    content = test_ms.read_text(encoding='utf-8')
+
+    # Remove all markers by replacing them with empty strings
+    markerless_content = content
+    markerless_content = markerless_content.replace(
+        "<!-- auteur:chapter id=chapter_01 expression_revision=1 -->\n",
+        ""
+    )
+    markerless_content = markerless_content.replace(
+        "\n<!-- auteur:end-chapter id=chapter_01 -->",
+        ""
+    )
+    markerless_content = markerless_content.replace(
+        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n---\n<!-- auteur:end-book-separator id=separator_01 -->",
+        "---"
+    )
+    markerless_content = markerless_content.replace(
+        "<!-- auteur:chapter id=chapter_02 expression_revision=1 -->\n",
+        ""
+    )
+    markerless_content = markerless_content.replace(
+        "\n<!-- auteur:end-chapter id=chapter_02 -->",
+        ""
+    )
+    test_ms.write_text(markerless_content, encoding='utf-8')
+
+    # Inspect the markerless manuscript
+    result = inspect_book_external_manuscript(
+        project_root=project_root,
+        manuscript_path=test_ms
+    )
+
+    # Assertions for Markerless scenario
+    assert result['status'] == 'unresolved', f"Expected 'unresolved' status, got '{result['status']}'"
+    assert result['chapter_findings_count'] == 0, f"Expected 0 chapter findings, got {result['chapter_findings_count']}"
+    assert result['book_findings_count'] == 0, f"Expected 0 book findings, got {result['book_findings_count']}"
+    assert result['unresolved_findings_count'] == 1, f"Expected 1 unresolved finding, got {result['unresolved_findings_count']}"
+    assert result['routes'] == [], f"Expected empty routes, got {result['routes']}"
+    assert result['proposals'] == [], f"Expected empty proposals, got {result['proposals']}"
+
+    # Verify the unresolved finding is a markerless finding
+    full_report = result['full_report']
+    assert len(full_report['unresolved_findings']) == 1, "Expected exactly 1 unresolved finding"
+    markerless_finding = full_report['unresolved_findings'][0]
+    assert markerless_finding['classification'] == 'markerless', f"Expected 'markerless' classification, got '{markerless_finding['classification']}'"
+
+    # Verify the finding includes an actionable recommendation
+    assert 'recommended_action' in markerless_finding, "Expected 'recommended_action' in finding"
+    assert markerless_finding['recommended_action'] == 'restore Book markers or map the manuscript manually', \
+        f"Expected recommendation to restore markers or map manually, got '{markerless_finding['recommended_action']}'"
+
+    # Verify evidence and severity
+    assert markerless_finding['evidence'] == 'no Book ownership markers', \
+        f"Expected evidence 'no Book ownership markers', got '{markerless_finding['evidence']}'"
+    assert markerless_finding.get('severity') == 'unresolved' or markerless_finding.get('classification') == 'markerless', \
+        "Expected unresolved severity or markerless classification"
+
+    # Verify no noisy per-chapter findings
+    for finding in full_report['chapter_findings']:
+        assert finding['classification'] != 'markerless', "Should not have per-chapter markerless findings"
+
+    # Verify baselines remain unchanged
+    assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during inspection"
+
+    # Clean up test file
+    if test_ms.exists():
+        test_ms.unlink()
+
+
 def test_malformed_marker_creates_unresolved_finding():
     """Scenario 8: Malformed marker → unresolved malformed-marker finding with line number and recommendation, 0 proposals."""
-    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    project_root = WORKSPACE_ROOT
     original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
     test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_malformed_marker.md'
 
@@ -764,8 +995,6 @@ def test_malformed_marker_creates_unresolved_finding():
     content = test_ms.read_text(encoding='utf-8')
 
     # Introduce a malformed marker by inserting a marker-like line with invalid format
-    # This creates a marker that contains "<!-- auteur:" but doesn't match the expected regex pattern
-    # Place it outside of chapter content to avoid affecting chapter parsing
     modified_content = content.replace(
         "<!-- auteur:end-book-separator id=separator_01 -->",
         "<!-- auteur:end-book-separator id=separator_01 -->\n\n<!-- auteur:malformed-marker-with-typo -->"
@@ -803,32 +1032,30 @@ def test_malformed_marker_creates_unresolved_finding():
         test_ms.unlink()
 
 
-def test_atomic_routing_failure_leaves_no_partial_outputs():
-    """Scenario 11: Atomic routing failure → no partial outputs, staging removed, canonical unchanged.
-
-    When routing fails after partial outputs are staged (e.g., during delegated inspection or
-    proposal creation), the exception handler must:
-    1. Remove the staging directory entirely
-    2. Remove the final routing manifest if it was created
-    3. Remove any delegated inspection paths
-    4. Leave canonical artifacts unchanged
-    """
+def test_cross_chapter_movement_creates_unresolved():
+    """Scenario 9: Moving paragraph across chapter boundaries -> cross_boundary_move unresolved finding."""
     from auteur.expression.book_reconciliation import BookReconciliationStore
-    import yaml
 
-    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    project_root = WORKSPACE_ROOT
     original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
-    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_atomic_failure.md'
+    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_cross_boundary.md'
 
-    # Create a copy of the manuscript with separator-only edits (book-level change)
+    # Create a copy of the manuscript with cross-chapter movement
     shutil.copy(original_ms, test_ms)
     content = test_ms.read_text(encoding='utf-8')
 
-    # Modify only the separator (change "---" to "===")
-    modified_content = content.replace(
-        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n---\n<!-- auteur:end-book-separator id=separator_01 -->",
-        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n===\n<!-- auteur:end-book-separator id=separator_01 -->"
+    # Move a paragraph from chapter_01 to chapter_02
+    paragraph_to_move = "# The messenger\n\nTomas reached the tower without breath. A boat had grounded below the bend,\nand the magistrate was on it. Mara put one hand on the lantern door and heard\nthe river answer beneath them.\n\n"
+
+    # Remove the paragraph from chapter_01
+    modified_content = content.replace(paragraph_to_move, "")
+
+    # Insert it at the beginning of chapter_02 content (right after the chapter_02 marker)
+    modified_content = modified_content.replace(
+        "<!-- auteur:chapter id=chapter_02 expression_revision=1 -->",
+        "<!-- auteur:chapter id=chapter_02 expression_revision=1 -->\n" + paragraph_to_move
     )
+
     test_ms.write_text(modified_content, encoding='utf-8')
 
     # Inspect the modified manuscript
@@ -836,71 +1063,34 @@ def test_atomic_routing_failure_leaves_no_partial_outputs():
         project_root=project_root,
         manuscript_path=test_ms
     )
-    inspection_id = result['inspection_id']
 
-    # Verify inspection found the change
-    assert result['status'] == 'changed', f"Expected 'changed' status, got '{result['status']}'"
-    assert result['book_findings_count'] == 1, f"Expected 1 book finding, got {result['book_findings_count']}"
+    # Assertions for cross-chapter movement scenario
+    assert result['status'] == 'unresolved', f"Expected 'unresolved' status, got '{result['status']}'"
+    assert result['chapter_findings_count'] == 0, f"Expected 0 chapter findings, got {result['chapter_findings_count']}"
+    assert result['book_findings_count'] == 0, f"Expected 0 book findings, got {result['book_findings_count']}"
+    assert result['unresolved_findings_count'] == 1, f"Expected 1 unresolved finding, got {result['unresolved_findings_count']}"
 
-    # Save the current state of potentially affected directories
+    # Verify the unresolved finding is a cross_boundary_move
+    full_report = result['full_report']
+    assert len(full_report['unresolved_findings']) == 1, "Expected exactly 1 unresolved finding"
+    unresolved_finding = full_report['unresolved_findings'][0]
+    assert unresolved_finding['classification'] == 'cross_boundary_move', f"Expected 'cross_boundary_move' classification, got '{unresolved_finding['classification']}'"
+
+    # Verify both chapters are identified as affected
+    assert 'chapter_01' in unresolved_finding.get('affected_chapters', []), "Expected chapter_01 in affected_chapters"
+    assert 'chapter_02' in unresolved_finding.get('affected_chapters', []), "Expected chapter_02 in affected_chapters"
+
+    # Verify routing creates no proposals (unresolved finding should not route)
     store = BookReconciliationStore(project_root)
-    staging_dir = store.root / "staging" / inspection_id
-    final_path = store.root / "routing" / f"routing_{inspection_id}.yaml"
-    proposals_dir = store.root / "proposals"
+    inspection_id = result['inspection_id']
+    routing_result = store.route(inspection_id)
 
-    # Verify staging dir doesn't exist before routing
-    assert not staging_dir.exists(), f"Staging directory should not exist before routing: {staging_dir}"
+    assert routing_result['status'] == 'unresolved', f"Expected 'unresolved' routing status, got '{routing_result['status']}'"
+    assert len(routing_result['chapter_routes']) == 0, f"Expected 0 chapter routes, got {len(routing_result['chapter_routes'])}"
+    assert len(routing_result['book_proposals']) == 0, f"Expected 0 book proposals, got {len(routing_result['book_proposals'])}"
 
-    # Save baseline of proposals directory (count of files)
-    proposals_before = len(list(proposals_dir.glob("*.yaml"))) if proposals_dir.exists() else 0
-
-    # Now simulate a failure during routing by patching yaml.safe_dump to raise an exception
-    # We'll fail after the proposals have been staged but before the final routing manifest is created
-    original_safe_dump = yaml.safe_dump
-    call_count = [0]  # Use list to allow mutation in nested function
-
-    def failing_yaml_safe_dump(data, **kwargs):
-        call_count[0] += 1
-        # With 1 book finding and no chapter findings, yaml.safe_dump will be called:
-        # - Once for the proposal file (in staging dir)
-        # - Once for the final routing manifest
-        # We fail on the second call to simulate failure after partial staging
-        if call_count[0] == 2:
-            raise RuntimeError("Simulated routing failure after partial staging")
-        return original_safe_dump(data, **kwargs)
-
-    # Patch yaml.safe_dump during route() to simulate failure
-    with patch('auteur.expression.book_reconciliation.yaml.safe_dump', side_effect=failing_yaml_safe_dump):
-        with pytest.raises(RuntimeError, match="Simulated routing failure after partial staging"):
-            store.route(inspection_id)
-
-    # Verify cleanup: staging directory should be removed
-    assert not staging_dir.exists(), (
-        f"Staging directory should be removed after failed routing, but exists at: {staging_dir}"
-    )
-
-    # Verify cleanup: final routing manifest should not exist or be removed
-    assert not final_path.exists(), (
-        f"Final routing manifest should not exist after failed routing, but exists at: {final_path}"
-    )
-
-    # Verify cleanup: no new proposals should be left in the proposals directory
-    proposals_after = len(list(proposals_dir.glob("*.yaml"))) if proposals_dir.exists() else 0
-    assert proposals_after == proposals_before, (
-        f"Proposals directory should be unchanged after failed routing. "
-        f"Before: {proposals_before}, After: {proposals_after}"
-    )
-
-    # Verify baselines remain unchanged (canonical artifacts untouched)
-    assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), (
-        "Baselines were mutated during failed routing"
-    )
-
-    # Verify the inspection itself still exists and is valid (it should not be deleted)
-    inspection_path = store._inspection_path(inspection_id)
-    assert inspection_path.exists(), f"Original inspection should still exist at {inspection_path}"
-    inspection_data = yaml.safe_load(inspection_path.read_text(encoding='utf-8')) or {}
-    assert inspection_data.get('inspection_id') == inspection_id, "Inspection data should be intact"
+    # Verify baselines remain unchanged
+    assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during inspection"
 
     # Clean up test file
     if test_ms.exists():
@@ -911,16 +1101,11 @@ def test_scenario_12_author_facing_ux():
     """Scenario 12: Author-Facing UX.
 
     Verify that inspection output is clear and actionable by answering:
-    1. What changed?
-    2. Who owns it?
-    3. Which routed to Chapter?
-    4. Which became Book proposals?
-    5. Unresolved?
-    6. Stale?
-    7. Next action?
-    8. Canonical mutation?
+    1. What changed? 2. Who owns it? 3. Which routed to Chapter?
+    4. Which became Book proposals? 5. Unresolved? 6. Stale?
+    7. Next action? 8. Canonical mutation?
     """
-    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    project_root = WORKSPACE_ROOT
     original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
 
     def format_inspection_ux(inspection_result: dict[str, Any]) -> str:
@@ -1078,214 +1263,365 @@ def test_scenario_12_author_facing_ux():
 
     # Verify baselines unchanged across all scenarios
     assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated"
-def test_cross_chapter_movement_creates_unresolved():
-    """Scenario 9: Moving paragraph across chapter boundaries ? cross_boundary_move unresolved finding."""
+
+
+def test_copy_to_rejects_workspace_inside_reference(tmp_path):
+    """Scenario 17: Workspace recursion prevention.
+
+    CanonicalStoryBootstrap.copy_to must refuse a workspace nested inside the
+    canonical reference tree (and refuse a reference nested inside the
+    workspace), raising ValueError rather than recursively copying the
+    reference tree into itself -- the exact recursion that caused Defect 1.
+    A sibling workspace outside the reference tree is accepted.
+    """
+    reference = tmp_path / "reference"
+    reference.mkdir()
+    (reference / "marker.txt").write_text("canonical", encoding="utf-8")
+    bootstrap = CanonicalStoryBootstrap(reference)
+
+    # Workspace inside the reference tree must be rejected.
+    with pytest.raises(ValueError):
+        bootstrap.copy_to(reference / "temp_dogfood")
+
+    # Reference inside the requested workspace must also be rejected
+    # (tmp_path contains `reference`).
+    with pytest.raises(ValueError):
+        bootstrap.copy_to(tmp_path)
+
+    # A sibling workspace outside the reference tree is accepted and produces
+    # a real copy of the reference contents.
+    sibling = tmp_path / "workspace"
+    destination = bootstrap.copy_to(sibling)
+    assert destination.exists()
+    assert (destination / "marker.txt").read_text(encoding="utf-8") == "canonical"
+
+
+def test_routing_rolls_back_before_any_publication():
+    """Scenario 12: Failure before final publication.
+
+    If the very first publication move fails, nothing becomes visible -- no
+    proposal lands in proposals/, no routing manifest is written -- and the
+    staging directory and original inspection are left clean and intact.
+    """
     from auteur.expression.book_reconciliation import BookReconciliationStore
 
-    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    project_root = WORKSPACE_ROOT
     original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
-    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_cross_boundary.md'
+    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_rollback_before_pub.md'
 
-    # Create a copy of the manuscript with cross-chapter movement
     shutil.copy(original_ms, test_ms)
     content = test_ms.read_text(encoding='utf-8')
-
-    # Move a paragraph from chapter_01 to chapter_02
-    # Extract a paragraph from chapter_01 (the "# The messenger" section)
-    paragraph_to_move = "# The messenger\n\nTomas reached the tower without breath. A boat had grounded below the bend,\nand the magistrate was on it. Mara put one hand on the lantern door and heard\nthe river answer beneath them.\n\n"
-
-    # Remove the paragraph from chapter_01
-    modified_content = content.replace(paragraph_to_move, "")
-
-    # Insert it at the beginning of chapter_02 content (right after the chapter_02 marker)
-    modified_content = modified_content.replace(
-        "<!-- auteur:chapter id=chapter_02 expression_revision=1 -->",
-        "<!-- auteur:chapter id=chapter_02 expression_revision=1 -->\n" + paragraph_to_move
+    modified_content = content.replace(
+        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n---\n<!-- auteur:end-book-separator id=separator_01 -->",
+        "<!-- auteur:book-separator id=separator_01 revision=1 -->\n===\n<!-- auteur:end-book-separator id=separator_01 -->"
     )
-
     test_ms.write_text(modified_content, encoding='utf-8')
 
-    # Inspect the modified manuscript
-    result = inspect_book_external_manuscript(
-        project_root=project_root,
-        manuscript_path=test_ms
-    )
+    try:
+        result = inspect_book_external_manuscript(project_root=project_root, manuscript_path=test_ms)
+        assert result['status'] == 'changed'
+        assert result['book_findings_count'] == 1
+        inspection_id = result['inspection_id']
 
-    # Assertions for cross-chapter movement scenario
-    assert result['status'] == 'unresolved', f"Expected 'unresolved' status, got '{result['status']}'"
-    assert result['chapter_findings_count'] == 0, f"Expected 0 chapter findings, got {result['chapter_findings_count']}"
-    assert result['book_findings_count'] == 0, f"Expected 0 book findings, got {result['book_findings_count']}"
-    assert result['unresolved_findings_count'] == 1, f"Expected 1 unresolved finding, got {result['unresolved_findings_count']}"
+        store = BookReconciliationStore(project_root)
+        original_inspection_path = store._inspection_path(inspection_id)
+        original_inspection_bytes = original_inspection_path.read_bytes()
+        staged_dir = store.root / "staging" / inspection_id
+        final_manifest_path = store.root / "routing" / f"routing_{inspection_id}.yaml"
+        proposals_dir = store.root / "proposals"
 
-    # Verify the unresolved finding is a cross_boundary_move
-    full_report = result['full_report']
-    assert len(full_report['unresolved_findings']) == 1, "Expected exactly 1 unresolved finding"
-    unresolved_finding = full_report['unresolved_findings'][0]
-    assert unresolved_finding['classification'] == 'cross_boundary_move', f"Expected 'cross_boundary_move' classification, got '{unresolved_finding['classification']}'"
+        call_count = {"n": 0}
 
-    # Verify both chapters are identified as affected
-    assert 'chapter_01' in unresolved_finding.get('affected_chapters', []), "Expected chapter_01 in affected_chapters"
-    assert 'chapter_02' in unresolved_finding.get('affected_chapters', []), "Expected chapter_02 in affected_chapters"
+        def failing_move(src, dst, *args, **kwargs):
+            call_count["n"] += 1
+            raise OSError("simulated failure on the first publication move")
 
-    # Verify routing creates no proposals (unresolved finding should not route)
-    store = BookReconciliationStore(project_root)
-    inspection_id = result['inspection_id']
-    routing_result = store.route(inspection_id)
+        with mock.patch("auteur.expression.book_reconciliation.shutil.move", side_effect=failing_move):
+            with pytest.raises(OSError):
+                store.route(inspection_id)
 
-    assert routing_result['status'] == 'unresolved', f"Expected 'unresolved' routing status, got '{routing_result['status']}'"
-    assert len(routing_result['chapter_routes']) == 0, f"Expected 0 chapter routes, got {len(routing_result['chapter_routes'])}"
-    assert len(routing_result['book_proposals']) == 0, f"Expected 0 book proposals, got {len(routing_result['book_proposals'])}"
+        # The failure occurred on the very first move -- before any artifact
+        # was published.
+        assert call_count["n"] == 1, f"Expected failure on the first move, saw {call_count['n']} moves"
+        assert not final_manifest_path.exists(), "No routing manifest may be published when publication fails at the start"
+        if proposals_dir.exists():
+            leftover = list(proposals_dir.glob(f"proposal_{inspection_id}_*.yaml"))
+            assert leftover == [], f"No proposals may be published when the first move fails, found {leftover}"
+        assert not staged_dir.exists(), f"Staging must be cleaned after failure, found {staged_dir}"
+        assert original_inspection_path.exists(), "Original inspection must survive a failed routing"
+        assert original_inspection_path.read_bytes() == original_inspection_bytes, "Original inspection must be unchanged"
+        assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during failed routing"
+    finally:
+        if test_ms.exists():
+            test_ms.unlink()
 
-    # Verify baselines remain unchanged
-    assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during inspection"
 
-    # Clean up test file
-    if test_ms.exists():
-        test_ms.unlink()
+def test_routing_rollback_removes_delegated_chapter_inspections():
+    """Scenario 14: Rollback removes delegated outputs.
 
-
-def test_cross_chapter_movement_creates_unresolved():
-    """Scenario 9: Moving paragraph across chapter boundaries ? cross_boundary_move unresolved finding."""
+    A mixed edit delegates a Chapter inspection (into
+    chapters/*/expression/reconciliation/inspections/) and stages a Book
+    proposal. If publication then fails, the rollback must remove the
+    delegated Chapter inspection it created, leaving no orphaned delegated
+    output behind.
+    """
     from auteur.expression.book_reconciliation import BookReconciliationStore
 
-    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
+    project_root = WORKSPACE_ROOT
     original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
-    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_cross_boundary.md'
+    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_rollback_delegated.md'
 
-    # Create a copy of the manuscript with cross-chapter movement
     shutil.copy(original_ms, test_ms)
     content = test_ms.read_text(encoding='utf-8')
-
-    # Move a paragraph from chapter_01 to chapter_02
-    # Extract a paragraph from chapter_01 (the "# The messenger" section)
-    paragraph_to_move = "# The messenger\n\nTomas reached the tower without breath. A boat had grounded below the bend,\nand the magistrate was on it. Mara put one hand on the lantern door and heard\nthe river answer beneath them.\n\n"
-
-    # Remove the paragraph from chapter_01
-    modified_content = content.replace(paragraph_to_move, "")
-
-    # Insert it at the beginning of chapter_02 content (right after the chapter_02 marker)
-    modified_content = modified_content.replace(
-        "<!-- auteur:chapter id=chapter_02 expression_revision=1 -->",
-        "<!-- auteur:chapter id=chapter_02 expression_revision=1 -->\n" + paragraph_to_move
-    )
-
-    test_ms.write_text(modified_content, encoding='utf-8')
-
-    # Inspect the modified manuscript
-    result = inspect_book_external_manuscript(
-        project_root=project_root,
-        manuscript_path=test_ms
-    )
-
-    # Assertions for cross-chapter movement scenario
-    assert result['status'] == 'unresolved', f"Expected 'unresolved' status, got '{result['status']}'"
-    assert result['chapter_findings_count'] == 0, f"Expected 0 chapter findings, got {result['chapter_findings_count']}"
-    assert result['book_findings_count'] == 0, f"Expected 0 book findings, got {result['book_findings_count']}"
-    assert result['unresolved_findings_count'] == 1, f"Expected 1 unresolved finding, got {result['unresolved_findings_count']}"
-
-    # Verify the unresolved finding is a cross_boundary_move
-    full_report = result['full_report']
-    assert len(full_report['unresolved_findings']) == 1, "Expected exactly 1 unresolved finding"
-    unresolved_finding = full_report['unresolved_findings'][0]
-    assert unresolved_finding['classification'] == 'cross_boundary_move', f"Expected 'cross_boundary_move' classification, got '{unresolved_finding['classification']}'"
-
-    # Verify both chapters are identified as affected
-    assert 'chapter_01' in unresolved_finding.get('affected_chapters', []), "Expected chapter_01 in affected_chapters"
-    assert 'chapter_02' in unresolved_finding.get('affected_chapters', []), "Expected chapter_02 in affected_chapters"
-
-    # Verify routing creates no proposals (unresolved finding should not route)
-    store = BookReconciliationStore(project_root)
-    inspection_id = result['inspection_id']
-    routing_result = store.route(inspection_id)
-
-    assert routing_result['status'] == 'unresolved', f"Expected 'unresolved' routing status, got '{routing_result['status']}'"
-    assert len(routing_result['chapter_routes']) == 0, f"Expected 0 chapter routes, got {len(routing_result['chapter_routes'])}"
-    assert len(routing_result['book_proposals']) == 0, f"Expected 0 book proposals, got {len(routing_result['book_proposals'])}"
-
-    # Verify baselines remain unchanged
-    assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during inspection"
-
-    # Clean up test file
-    if test_ms.exists():
-        test_ms.unlink()
-
-
-def test_mixed_chapter_and_book_edit_creates_proposals():
-    """Scenario 6: Mixed Chapter wording + separator edit -> 1 chapter finding + 1 book finding with 2 routes."""
-    from auteur.expression.book_reconciliation import BookReconciliationStore
-    import yaml
-
-    project_root = Path('./examples/canonical_story/temp_lantern_phase_a')
-    original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
-    test_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.test_mixed_edit.md'
-
-    # Create a copy of the manuscript with both chapter and separator edits
-    shutil.copy(original_ms, test_ms)
-    content = test_ms.read_text(encoding='utf-8')
-
-    # Make a chapter wording edit (like scenario 3)
     modified_content = content.replace(
         "The river wind carries Tomas's warning up the tower.",
-        "The river wind carries Tomas's solemn warning up the tower."
+        "The river wind carries Tomas's grave warning up the tower."
     )
-
-    # Also make a separator edit (like scenario 4)
     modified_content = modified_content.replace(
         "<!-- auteur:book-separator id=separator_01 revision=1 -->\n---\n<!-- auteur:end-book-separator id=separator_01 -->",
         "<!-- auteur:book-separator id=separator_01 revision=1 -->\n===\n<!-- auteur:end-book-separator id=separator_01 -->"
     )
     test_ms.write_text(modified_content, encoding='utf-8')
 
-    # Inspect the modified manuscript
-    result = inspect_book_external_manuscript(
-        project_root=project_root,
-        manuscript_path=test_ms
+    chapter_inspection_glob = "chapters/*/expression/reconciliation/inspections/*.yaml"
+
+    try:
+        result = inspect_book_external_manuscript(project_root=project_root, manuscript_path=test_ms)
+        assert result['status'] == 'changed'
+        assert result['chapter_findings_count'] == 1, f"Expected 1 chapter finding, got {result['chapter_findings_count']}"
+        assert result['book_findings_count'] == 1, f"Expected 1 book finding, got {result['book_findings_count']}"
+        inspection_id = result['inspection_id']
+
+        store = BookReconciliationStore(project_root)
+        staged_dir = store.root / "staging" / inspection_id
+        final_manifest_path = store.root / "routing" / f"routing_{inspection_id}.yaml"
+        proposals_dir = store.root / "proposals"
+
+        # Snapshot the delegated-inspection set BEFORE routing so we can prove
+        # the one this routing creates is rolled back (leftovers from earlier
+        # tests in this module are allowed; we assert no *net* change).
+        before = set(project_root.glob(chapter_inspection_glob))
+
+        call_count = {"n": 0}
+
+        def failing_move(src, dst, *args, **kwargs):
+            call_count["n"] += 1
+            raise OSError("simulated failure after Chapter delegation, during publication")
+
+        with mock.patch("auteur.expression.book_reconciliation.shutil.move", side_effect=failing_move):
+            with pytest.raises(OSError):
+                store.route(inspection_id)
+
+        # Delegation ran (it does not use shutil.move), then publication failed.
+        assert call_count["n"] >= 1, "Publication move must have been attempted"
+
+        after = set(project_root.glob(chapter_inspection_glob))
+        assert after == before, (
+            "The delegated Chapter inspection created by this routing must be "
+            f"rolled back; orphaned delegated outputs: {sorted(after - before)}"
+        )
+        assert not final_manifest_path.exists(), "No routing manifest may be published after a failed routing"
+        if proposals_dir.exists():
+            leftover = list(proposals_dir.glob(f"proposal_{inspection_id}_*.yaml"))
+            assert leftover == [], f"No proposals may be published after a failed routing, found {leftover}"
+        assert not staged_dir.exists(), f"Staging must be cleaned after failure, found {staged_dir}"
+        assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during failed routing"
+    finally:
+        if test_ms.exists():
+            test_ms.unlink()
+
+
+# ---------------------------------------------------------------------------
+# Phase B dogfood: Book-owned proposal planning and atomic publication.
+#
+# Each scenario builds an isolated workspace (outside the canonical reference
+# tree) so publication artifacts never interfere with the Phase A scenarios or
+# with each other. Publication is not acceptance: no accepted Book or Chapter
+# pointer, and no Structure/Identity/Blueprint/Scene artifact, may move.
+# ---------------------------------------------------------------------------
+
+_PHASE_B_ROOT = Path("temp/dogfood/lantern_phase_b")
+
+
+def _phase_b_workspace(name: str):
+    from auteur.expression.book_reconciliation import BookReconciliationStore
+
+    root = _bootstrap_workspace(_PHASE_B_ROOT / name)
+    store = BookReconciliationStore(root)
+    accepted = yaml.safe_load((root / "book" / "expression" / "accepted.yaml").read_text(encoding="utf-8")) or {}
+    return root, store, accepted["book_expression_id"]
+
+
+def _book_manuscript_text(root: Path) -> str:
+    return (root / "book" / "expression" / "book_v001.md").read_text(encoding="utf-8")
+
+
+def _pointer_hashes(root: Path) -> dict:
+    watched = {
+        "book_accepted": root / "book" / "expression" / "accepted.yaml",
+        "structure": root / "book" / "structure.yaml",
+        "chapter_01_accepted": root / "chapters" / "01" / "expression" / "accepted.yaml",
+        "chapter_02_accepted": root / "chapters" / "02" / "expression" / "accepted.yaml",
+    }
+    return {name: hashlib.sha256(path.read_bytes()).hexdigest() for name, path in watched.items() if path.exists()}
+
+
+import re  # noqa: E402  (kept local to the Phase B block for clarity)
+import yaml  # noqa: E402  (kept local to the Phase B block for clarity)
+
+
+def test_phase_b_scenario_a_separator_publish_no_pointer_change():
+    """A. Separator proposal -> plan -> publish -> preview (no pointer change)."""
+    from auteur.expression.book_reconciliation import BookReconciliationStore
+
+    root, store, book_id = _phase_b_workspace("scenario_a")
+    edited = root / "edit_a.md"
+    edited.write_text(_book_manuscript_text(root).replace("\n---\n", "\n***\n"), encoding="utf-8")
+
+    before = _pointer_hashes(root)
+    inspection = store.inspect(edited, book_id)
+    routed = store.route(inspection["inspection_id"])
+    assert routed["status"] == "routed"
+    plan = store.plan(inspection["inspection_id"], routed["book_proposals"])
+    assert plan["readiness"]["status"] == "ready"
+    publication = store.publish(plan["plan_id"])
+
+    assert publication["acceptance_status"] == "none"
+    assert publication["accepted_book_pointer_changed"] is False
+    candidate = store.load_book_candidate(publication["published_candidates"][0])
+    assert candidate["artifact_type"] == "book_separator_candidate"
+    preview = store.load_book_preview(publication["publication_id"])
+    assert preview["role"] == "application_preview" and preview["canonical"] is False
+    assert _pointer_hashes(root) == before
+
+
+def test_phase_b_scenario_b_order_publish_structure_unchanged():
+    """B. Order proposal -> plan -> publish -> preview (Structure unchanged)."""
+    root, store, book_id = _phase_b_workspace("scenario_b")
+    content = _book_manuscript_text(root)
+    c2 = re.search(r"<!-- auteur:chapter id=chapter_02 expression_revision=1 -->.*?<!-- auteur:end-chapter id=chapter_02 -->", content, re.DOTALL).group(0)
+    c1 = re.search(r"<!-- auteur:chapter id=chapter_01 expression_revision=1 -->.*?<!-- auteur:end-chapter id=chapter_01 -->", content, re.DOTALL).group(0)
+    sep = re.search(r"<!-- auteur:book-separator id=separator_01 revision=1 -->.*?<!-- auteur:end-book-separator id=separator_01 -->", content, re.DOTALL).group(0)
+    edited = root / "edit_b.md"
+    edited.write_text("# The Lantern at Low Water\n\n" + c2 + "\n\n" + sep + "\n\n" + c1, encoding="utf-8")
+
+    structure_before = (root / "book" / "structure.yaml").read_text(encoding="utf-8")
+    inspection = store.inspect(edited, book_id)
+    routed = store.route(inspection["inspection_id"])
+    plan = store.plan(inspection["inspection_id"], routed["book_proposals"])
+    publication = store.publish(plan["plan_id"])
+
+    candidate = store.load_book_candidate(publication["published_candidates"][0])
+    assert candidate["artifact_type"] == "book_order_candidate"
+    preview = store.load_book_preview(publication["publication_id"])
+    assert [s["chapter_id"] for s in preview["accepted_chapter_sources"]] == ["chapter_02", "chapter_01"]
+    assert (root / "book" / "structure.yaml").read_text(encoding="utf-8") == structure_before
+
+
+def test_phase_b_scenario_c_mixed_one_plan_one_preview_one_manifest():
+    """C. Mixed compatible proposals: one plan, candidate(s), one preview, one manifest."""
+    root, store, book_id = _phase_b_workspace("scenario_c")
+    content = _book_manuscript_text(root)
+    edited = root / "edit_c.md"
+    edited.write_text(
+        content.replace("\n---\n", "\n***\n").replace(
+            "The river wind carries Tomas's warning up the tower.",
+            "The river wind carries Tomas's solemn warning up the tower.",
+        ),
+        encoding="utf-8",
     )
+    inspection = store.inspect(edited, book_id)
+    routed = store.route(inspection["inspection_id"])
+    # Route delegates the Chapter edit and produces one Book (separator) proposal.
+    assert len(routed["book_proposals"]) == 1
+    plan = store.plan(inspection["inspection_id"], routed["book_proposals"])
+    publication = store.publish(plan["plan_id"])
 
-    # Assertions for Mixed edit scenario
-    assert result['status'] == 'changed', f"Expected 'changed' status, got '{result['status']}'"
-    assert result['chapter_findings_count'] == 1, f"Expected 1 chapter finding, got {result['chapter_findings_count']}"
-    assert result['book_findings_count'] == 1, f"Expected 1 book finding, got {result['book_findings_count']}"
-    assert result['unresolved_findings_count'] == 0, f"Expected 0 unresolved findings, got {result['unresolved_findings_count']}"
+    pub_id = publication["publication_id"]
+    assert len(list((store.root / "publications").glob(f"{pub_id}.yaml"))) == 1
+    assert len(list((store.root / "previews").glob(f"{pub_id}.yaml"))) == 1
+    assert len(publication["published_candidates"]) == len(plan["planned_outputs"]) == 1
+    preview = store.load_book_preview(pub_id)
+    assert all(s.get("source_kind") != "chapter_local_proposal" for s in preview["candidate_sources"])
 
-    # Verify the findings are as expected
-    full_report = result['full_report']
-    assert len(full_report['chapter_findings']) == 1, "Expected exactly 1 chapter finding"
-    assert len(full_report['book_findings']) == 1, "Expected exactly 1 book finding"
 
-    chapter_finding = full_report['chapter_findings'][0]
-    assert chapter_finding['classification'] == 'modified', f"Expected 'modified' classification, got '{chapter_finding['classification']}'"
-    assert chapter_finding['route'] == 'chapter_reconciliation', f"Expected 'chapter_reconciliation' route, got '{chapter_finding['route']}'"
+def test_phase_b_scenario_d_stale_plan_rejects_publication():
+    """D. Stale plan: ready, then Book/separator changes, publication rejected."""
+    from auteur.expression.book_reconciliation import BookPublicationRejected
+    from auteur.expression.composition import ChapterExpressionStore
 
-    book_finding = full_report['book_findings'][0]
-    assert book_finding['classification'] == 'separator_changed', f"Expected 'separator_changed' classification, got '{book_finding['classification']}'"
-    assert book_finding['recommended_proposal'] == 'book_separator_patch', f"Expected 'book_separator_patch' proposal type, got '{book_finding['recommended_proposal']}'"
-    assert book_finding['original_text'] == '---', f"Expected original separator '---', got '{book_finding['original_text']}'"
-    assert book_finding['edited_text'] == '===', f"Expected edited separator '===', got '{book_finding['edited_text']}'"
+    root, store, book_id = _phase_b_workspace("scenario_d")
+    edited = root / "edit_d.md"
+    edited.write_text(_book_manuscript_text(root).replace("\n---\n", "\n***\n"), encoding="utf-8")
+    inspection = store.inspect(edited, book_id)
+    routed = store.route(inspection["inspection_id"])
+    plan = store.plan(inspection["inspection_id"], routed["book_proposals"])
+    assert plan["readiness"]["status"] == "ready"
 
-    # Now route the inspection to generate the actual proposals
-    store = BookReconciliationStore(project_root)
-    inspection_id = result['inspection_id']
-    routing_result = store.route(inspection_id)
+    # Recompose+accept a Chapter so the accepted Book is no longer fresh.
+    cs = ChapterExpressionStore(root)
+    cs.accept(cs.compose("chapter_01").artifact_id)
 
-    # Verify routing created the proposals
-    assert routing_result['status'] == 'routed', f"Expected 'routed' status, got '{routing_result['status']}'"
+    with pytest.raises(BookPublicationRejected) as excinfo:
+        store.publish(plan["plan_id"])
+    assert excinfo.value.result["status"] == "rejected_stale"
+    assert excinfo.value.result["visible_outputs_created"] is False
+    pub_id = "book_publication_" + plan["plan_id"].removeprefix("book_application_set_")
+    assert not (store.root / "publications" / f"{pub_id}.yaml").exists()
+    assert not (store.root / "previews" / f"{pub_id}.yaml").exists()
 
-    # Should have chapter routes and book proposals
-    chapter_routes = routing_result.get('chapter_routes', [])
-    book_proposals = routing_result.get('book_proposals', [])
 
-    assert len(chapter_routes) == 1, f"Expected 1 chapter route (delegated inspection), got {len(chapter_routes)}"
-    assert len(book_proposals) == 1, f"Expected 1 book proposal (separator patch), got {len(book_proposals)}"
+def test_phase_b_scenario_e_atomic_failure_removes_all():
+    """E. Atomic failure: after one candidate/preview moved, everything removed."""
+    from auteur.expression.book_reconciliation import BookReconciliationStore
 
-    # Verify the chapter route points to the correct chapter
-    chapter_route = chapter_routes[0]
-    assert chapter_route['chapter_id'] == 'chapter_01', f"Expected chapter route for chapter_01, got '{chapter_route['chapter_id']}'"
-    assert 'chapter_inspection_id' in chapter_route, "Expected chapter_inspection_id in chapter route"
+    root, store, book_id = _phase_b_workspace("scenario_e")
+    edited = root / "edit_e.md"
+    edited.write_text(_book_manuscript_text(root).replace("\n---\n", "\n***\n"), encoding="utf-8")
+    inspection = store.inspect(edited, book_id)
+    routed = store.route(inspection["inspection_id"])
+    plan = store.plan(inspection["inspection_id"], routed["book_proposals"])
+    pub_id = "book_publication_" + plan["plan_id"].removeprefix("book_application_set_")
 
-    # Verify baselines remain unchanged
-    assert TestBookExternalRoutingDogfood.verify_baselines_unchanged(project_root), "Baselines were mutated during inspection"
+    real_move = shutil.move
+    calls = {"n": 0}
 
-    # Clean up test file
-    if test_ms.exists():
-        test_ms.unlink()
+    def flaky(src, dst, *a, **k):
+        calls["n"] += 1
+        if calls["n"] >= 2:  # first candidate move succeeds; the next fails.
+            raise OSError("simulated failure mid-publication")
+        return real_move(src, dst, *a, **k)
+
+    with mock.patch("auteur.expression.book_reconciliation.shutil.move", side_effect=flaky):
+        with pytest.raises(OSError):
+            store.publish(plan["plan_id"])
+
+    assert calls["n"] >= 2
+    assert not (store.root / "publications" / f"{pub_id}.yaml").exists()
+    assert not (store.root / "previews" / f"{pub_id}.yaml").exists()
+    assert not (store.root / "staging" / pub_id).exists()
+    if (store.root / "candidates").exists():
+        assert list((store.root / "candidates").glob("*.yaml")) == []
+
+
+def test_phase_b_scenario_f_duplicate_publication():
+    """F. Duplicate publication: publish twice, explicit duplicate, original preserved."""
+    from auteur.expression.book_reconciliation import BookPublicationRejected
+
+    root, store, book_id = _phase_b_workspace("scenario_f")
+    edited = root / "edit_f.md"
+    edited.write_text(_book_manuscript_text(root).replace("\n---\n", "\n***\n"), encoding="utf-8")
+    inspection = store.inspect(edited, book_id)
+    routed = store.route(inspection["inspection_id"])
+    plan = store.plan(inspection["inspection_id"], routed["book_proposals"])
+
+    first = store.publish(plan["plan_id"])
+    pub_path = store.root / "publications" / f"{first['publication_id']}.yaml"
+    original_bytes = pub_path.read_bytes()
+    candidates_before = sorted((store.root / "candidates").glob("*.yaml"))
+
+    with pytest.raises(BookPublicationRejected) as excinfo:
+        store.publish(plan["plan_id"])
+    assert excinfo.value.result["status"] == "rejected_duplicate"
+    assert pub_path.read_bytes() == original_bytes
+    assert sorted((store.root / "candidates").glob("*.yaml")) == candidates_before

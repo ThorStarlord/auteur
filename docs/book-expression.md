@@ -68,7 +68,10 @@ auteur expression export-book book_01:expression_v001 --project PROJECT --output
 Read-only external Book inspection and routing are specified separately in
 [`book-reconciliation.md`](book-reconciliation.md). Routing delegates
 Chapter-local edits to the existing Chapter reconciliation workflow and keeps
-Book-owned changes as noncanonical proposals.
+Book-owned changes as noncanonical proposals. Those Book-owned proposals can be
+planned and published transactionally into durable, unaccepted Book candidates
+(never accepted, never canonical) as specified in
+[`book-reconciliation-application.md`](book-reconciliation-application.md).
 
 The Lantern at Low Water bootstraps two accepted Chapters in a temporary copy,
 composes and accepts a Book, revises Chapter 1 to stale the previous Book,

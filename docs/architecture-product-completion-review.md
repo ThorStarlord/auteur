@@ -66,11 +66,31 @@ breadth, usability, and richer authoring scenarios:
 These are intentionally deferred capabilities, not violations of the authority
 constitution.
 
-The bounded Book Manuscript assembly is now implemented: two accepted Chapters
-compose into a derived Book, explicit Book acceptance updates only the Book
-pointer, a changed Chapter stales the prior Book, and clean Markdown export is
-available. Full Book-level reasoning/editing and publishing formats remain
-deferred.
+The full Book reconciliation workflow is now implemented:
+
+1. **Phase A (Inspection & Routing):** Book external-edit inspection and
+   ownership routing keep Book-owned edits as noncanonical proposals.
+2. **Phase B (Planning & Publication):** Book proposal planning plus atomic
+   candidate publication produce durable, unaccepted Book candidates with a
+   noncanonical preview and publication manifest. Publication is not acceptance:
+   a stale plan publishes nothing, a duplicate publication is rejected, failure
+   is atomic, and no accepted Book, Chapter, or upstream artifact is mutated.
+3. **Phase C1 (Recomposition):** Pointer-based recomposition from current
+   accepted Chapter and Book-owned sources produces a derived, noncanonical
+   Book — no pointer movement, no acceptance.
+4. **Phase C2 (Comparison):** Read-only, deterministic comparison of
+   recomposed Book against external manuscript with per-finding ownership
+   classification (chapter-owned, book-owned, structural, marker).
+5. **Phase C3 (Acceptance):** Acceptance creates an immutable accepted Book
+   revision (authority=accepted, canonical=true) plus an immutable acceptance
+   record (authority=decision), then moves the accepted Book pointer atomically
+   (compare-and-swap, last). Duplicate acceptance is idempotent.
+6. **Phase C4 (Completion):** Administrative/provenance closure that creates a
+   single immutable completion record (authority=derived, lifecycle=completed,
+   canonical=false) after a 20-point eligibility gate. No pointer, revision, or
+   narrative authority is touched. Duplicate completion is idempotent.
+
+Full Book-level reasoning/editing and publishing formats remain deferred.
 
 ## Next evidence-driven slice
 
@@ -78,14 +98,16 @@ The next candidate is Book-level workflow:
 
 ```text
 multiple accepted Chapters
-→ Book Manuscript
-→ Book-level reasoning/editing
-→ export-ready artifact
+→ Book Manuscript → Book external edit
+→ Book inspection → Book proposals → Book plan
+→ Book publication → Book candidate decisions → Book recomposition
+→ Book comparison → Book acceptance → completion
 ```
 
-Before implementation, create or select a bounded multi-Chapter reference and
-record actual author friction. Do not infer Book-level requirements from the
-single-Chapter implementation, and do not add another foundational architecture.
+The full Book reconciliation workflow is now implemented and committed with
+300+ passing tests. The remaining gap is Book-level reasoning/editing (an
+LLM-backed cross-cutting workflow outside the deterministic reconciliation
+pipeline) and production publishing formats.
 
 ## Decision rule
 

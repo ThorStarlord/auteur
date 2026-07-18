@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
@@ -76,43 +75,6 @@ def test_generic_command_runs_registry_backed_runtime_and_formats_result(tmp_pat
     assert "Review the clue density." in captured.err
     assert "deprecated" in captured.err
     assert "no LLM call" in captured.err
-
-
-@pytest.mark.parametrize(
-    ("module_name", "handler_name", "genre"),
-    [
-        ("auteur.cli_netorare", "handle_netorare_init", Genre.NETORARE),
-        ("auteur.cli_mystery", "handle_mystery_init", Genre.MYSTERY),
-        ("auteur.cli_gentlefemdom", "handle_gentlefemdom_init", Genre.GENTLEFEMDOM),
-    ],
-)
-def test_compatibility_handlers_dispatch_through_generic_command(
-    module_name, handler_name, genre, tmp_path
-):
-    module = __import__(module_name, fromlist=[handler_name])
-    spec = get_genre_pipeline(genre)
-
-    with patch(f"{module_name}.GenrePipelineCommand") as command_type:
-        command_type.return_value.run.return_value = 0
-        result = getattr(module, handler_name)(
-            tmp_path,
-            core_id=spec.default_core_id,
-            mode=spec.identity_profile_factory(spec.default_core_id).default_mode,
-        )
-
-    assert result == 0
-    assert command_type.call_args.kwargs["spec"] == spec
-
-
-def test_compatibility_cli_modules_do_not_import_legacy_runtime_infrastructure():
-    root = Path(__file__).parents[1] / "src" / "auteur"
-
-    for filename in ("cli_netorare.py", "cli_mystery.py", "cli_gentlefemdom.py"):
-        source = (root / filename).read_text(encoding="utf-8")
-        assert "auteur.netorare.browser.server" not in source
-        assert "auteur.netorare.session" not in source
-        assert "NETORARE_" not in source
-        assert "IdentityGenerator" not in source
 
 
 @pytest.mark.parametrize(

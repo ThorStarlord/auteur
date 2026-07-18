@@ -20,6 +20,16 @@ def _hash(value: str) -> str:
     return "sha256:" + hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
+class BookPreviewNotAcceptableError(ValueError):
+    """Raised when a derived/proposed artifact (such as an application preview)
+    is submitted for Book acceptance.
+
+    Acceptance is reserved for canonical, accepted Book content. Previews are
+    derived and proposed by construction, so blocking is expressed as explicit
+    metadata validation rather than an incidental path lookup failure.
+    """
+
+
 class BookExpressionStore:
     """Own Book ordering and assembly, never Chapter content or authority."""
 
@@ -125,7 +135,33 @@ class BookExpressionStore:
         manifest["freshness"] = "stale" if stale_sources else "fresh"
         return {"metadata": manifest, "freshness": manifest["freshness"], "stale_sources": stale_sources, "recommended_action": "recompose the Book Manuscript" if stale_sources else "none"}
 
-    def accept(self, expression_id: str, *, accepted_by: str = "author") -> dict[str, Any]:
+    def _validate_acceptable_artifact(self, artifact: dict[str, Any]) -> None:
+        """Explicitly reject artifacts that can never become accepted Book content.
+
+        Metadata-driven (not path-based): an acceptable artifact must be
+        ``authority == 'accepted'``, must not be an ``application_preview`` role,
+        and must be ``lifecycle == 'accepted'``. A derived, proposed preview
+        fails every one of these, so it is blocked with an explicit message
+        instead of an incidental ``FileNotFoundError``.
+        """
+        message = (
+            "Previews are derived and proposed; they cannot become canonical "
+            "accepted Book content."
+        )
+        if artifact.get("authority") != "accepted":
+            raise BookPreviewNotAcceptableError(message)
+        if artifact.get("role") == "application_preview":
+            raise BookPreviewNotAcceptableError(message)
+        if artifact.get("lifecycle") != "accepted":
+            raise BookPreviewNotAcceptableError(message)
+
+    def accept(self, expression_id: Any, *, accepted_by: str = "author") -> dict[str, Any]:
+        if isinstance(expression_id, dict):
+            # A full artifact dict was supplied directly (for example a preview).
+            # Validate its metadata explicitly before any disk lookup so a
+            # derived/proposed artifact is blocked with a precise error.
+            self._validate_acceptable_artifact(expression_id)
+            expression_id = expression_id.get("book_expression_id")
         inspected = self.inspect(expression_id)
         if inspected["freshness"] != "fresh":
             raise ValueError("cannot accept stale Book Manuscript")

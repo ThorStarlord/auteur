@@ -2,6 +2,7 @@
 
 A project is a directory:
     project/
+      .auteur/project.yaml       (project metadata, schema version)
       blueprint.yaml
       bible.json
       chapters/01/{outline.yaml,draft_v1.md,validation_v1.json,...,final.md}
@@ -10,6 +11,7 @@ A project is a directory:
 from __future__ import annotations
 
 import json
+import warnings
 from pathlib import Path
 from typing import Any
 
@@ -17,6 +19,28 @@ import yaml
 
 from auteur.bible import StoryBible
 from auteur.blueprint import StoryBlueprint
+
+SCHEMA_VERSION = 1
+
+
+def _project_metadata_path(path: Path) -> Path:
+    return path / ".auteur" / "project.yaml"
+
+
+def _read_project_metadata(path: Path) -> dict[str, Any]:
+    p = _project_metadata_path(path)
+    if not p.exists():
+        return {}
+    try:
+        return yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+    except (OSError, yaml.YAMLError):
+        return {}
+
+
+def _write_project_metadata(path: Path, data: dict[str, Any]) -> None:
+    p = _project_metadata_path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
 
 
 class Project:
@@ -35,6 +59,7 @@ class Project:
             yaml.safe_dump(blueprint.model_dump(mode="json"), sort_keys=False),
             encoding="utf-8",
         )
+        _write_project_metadata(path, {"schema_version": SCHEMA_VERSION, "created_at": None})
         bible = StoryBible(path / "bible.json")
         return cls(path, blueprint, bible)
 
@@ -42,6 +67,21 @@ class Project:
     def load(cls, path: Path) -> "Project":
         if not path.is_dir():
             raise FileNotFoundError(f"Project path is not a directory: {path}")
+        metadata = _read_project_metadata(path)
+        stored_version = metadata.get("schema_version", 0)
+        if stored_version > SCHEMA_VERSION:
+            raise ValueError(
+                f"Project schema version {stored_version} is newer than "
+                f"this version of Auteur (supports up to v{SCHEMA_VERSION}). "
+                "Please upgrade Auteur."
+            )
+        if stored_version < SCHEMA_VERSION:
+            warnings.warn(
+                f"Project schema version {stored_version} is older than "
+                f"the current schema v{SCHEMA_VERSION}. "
+                "Run migration or expect limited compatibility.",
+                stacklevel=2,
+            )
         blueprint = StoryBlueprint.from_yaml(path / "blueprint.yaml")
         bible = StoryBible(path / "bible.json")
         return cls(path, blueprint, bible)
