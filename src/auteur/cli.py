@@ -51,9 +51,6 @@ from auteur.cli_serializers import (
     serialize_identity_validate, serialize_story_discovery, serialize_structure_diagnose,
     serialize_structure_generate_text, serialize_structure_propose_repairs,
 )
-from auteur.cli_netorare import handle_netorare_init
-from auteur.cli_mystery import handle_mystery_init
-from auteur.cli_gentlefemdom import handle_gentlefemdom_init
 from auteur.narrative_blueprint.cli_blueprint import handle_blueprint_init, handle_blueprint_list
 from auteur.narrative_orchestration.cli_orchestration import (
     handle_orchestration_seed,
@@ -82,6 +79,11 @@ def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="auteur",
         description="Agentic narrative engineering toolkit.")
     sub = parser.add_subparsers(dest="command", required=True)
+
+    p = sub.add_parser("status", help="Show project health summary (like git status for a novel).")
+    p.add_argument("--project", type=Path, default=Path("."), help="Project root directory (default: current directory).")
+    p.add_argument("--json", action="store_true", help="Output raw JSON instead of formatted text.")
+    p.add_argument("--verbose", action="store_true", help="Show detailed artifact IDs.")
 
     p = sub.add_parser("init", help="Create a new project directory.")
     p.add_argument("path", type=Path)
@@ -566,6 +568,15 @@ def main(argv: list[str] | None = None) -> int:
             return 1
         print(json.dumps(group, indent=2, sort_keys=True) if args.json else
               f"{group.get('group_id')}: {group.get('summary')}\nBasis: {group.get('overlap_basis')}\nClaims: {group.get('claim_refs')}")
+        return 0
+    # === status ===
+    if args.command == "status":
+        from auteur.status import gather_status, format_status
+        status = gather_status(args.project)
+        if args.json:
+            print(json.dumps(status, indent=2, default=str))
+        else:
+            print(format_status(status, verbose=args.verbose))
         return 0
     # === init ===
     if args.command == "init":
@@ -1691,113 +1702,6 @@ def main(argv: list[str] | None = None) -> int:
             _err(str(exc))
             return 2
 
-    # === netorare ===
-    if args.command == "netorare":
-        if args.netorare_command == "init":
-            return handle_netorare_init(
-                project_path=args.project,
-                core_id=args.core,
-                provider=args.provider,
-                port=args.port,
-                timeout=args.timeout,
-                debug=args.debug,
-                mode=args.mode,
-            )
-        if args.netorare_command == "blueprint":
-            if args.netorare_blueprint_command == "init":
-                return handle_blueprint_init(args.project, "netorare", working_title=args.title)
-            elif args.netorare_blueprint_command == "list":
-                return handle_blueprint_list(args.project, "netorare")
-            elif args.netorare_blueprint_command == "seed":
-                identity_path = args.identity or args.project / "story_identity.yaml"
-                return handle_orchestration_seed(args.project, "netorare", identity_path, force=args.force)
-            elif args.netorare_blueprint_command == "validate":
-                return handle_orchestration_validate(args.project, "netorare")
-            elif args.netorare_blueprint_command == "graph":
-                return handle_orchestration_graph(args.project, "netorare", output_format=args.format)
-            elif args.netorare_blueprint_command == "status":
-                return handle_orchestration_status(args.project, "netorare")
-        if args.netorare_command == "realization":
-            if args.netorare_realization_command == "seed":
-                return handle_realization_seed(args.project, "netorare", force=args.force)
-            elif args.netorare_realization_command == "validate":
-                return handle_realization_validate(args.project, "netorare")
-            elif args.netorare_realization_command == "inspect":
-                return handle_realization_inspect(args.project, "netorare")
-            elif args.netorare_realization_command == "graph":
-                return handle_realization_graph(args.project, "netorare", output_format=args.format)
-
-    # === mystery ===
-    if args.command == "mystery":
-        if args.mystery_command == "init":
-            return handle_mystery_init(
-                project_path=args.project,
-                core_id=args.core,
-                provider=args.provider,
-                port=args.port,
-                timeout=args.timeout,
-                debug=args.debug,
-                mode=args.mode,
-            )
-        if args.mystery_command == "blueprint":
-            if args.mystery_blueprint_command == "init":
-                return handle_blueprint_init(args.project, "mystery", working_title=args.title)
-            elif args.mystery_blueprint_command == "list":
-                return handle_blueprint_list(args.project, "mystery")
-            elif args.mystery_blueprint_command == "seed":
-                identity_path = args.identity or args.project / "story_identity.yaml"
-                return handle_orchestration_seed(args.project, "mystery", identity_path, force=args.force)
-            elif args.mystery_blueprint_command == "validate":
-                return handle_orchestration_validate(args.project, "mystery")
-            elif args.mystery_blueprint_command == "graph":
-                return handle_orchestration_graph(args.project, "mystery", output_format=args.format)
-            elif args.mystery_blueprint_command == "status":
-                return handle_orchestration_status(args.project, "mystery")
-        if args.mystery_command == "realization":
-            if args.mystery_realization_command == "seed":
-                return handle_realization_seed(args.project, "mystery", force=args.force)
-            elif args.mystery_realization_command == "validate":
-                return handle_realization_validate(args.project, "mystery")
-            elif args.mystery_realization_command == "inspect":
-                return handle_realization_inspect(args.project, "mystery")
-            elif args.mystery_realization_command == "graph":
-                return handle_realization_graph(args.project, "mystery", output_format=args.format)
-
-    # === gentlefemdom ===
-    if args.command == "gentlefemdom":
-        if args.gentlefemdom_command == "init":
-            return handle_gentlefemdom_init(
-                project_path=args.project,
-                core_id=args.core,
-                provider=args.provider,
-                port=args.port,
-                timeout=args.timeout,
-                debug=args.debug,
-                mode=args.mode,
-            )
-        if args.gentlefemdom_command == "blueprint":
-            if args.gentlefemdom_blueprint_command == "init":
-                return handle_blueprint_init(args.project, "gentlefemdom", working_title=args.title)
-            elif args.gentlefemdom_blueprint_command == "list":
-                return handle_blueprint_list(args.project, "gentlefemdom")
-            elif args.gentlefemdom_blueprint_command == "seed":
-                identity_path = args.identity or args.project / "story_identity.yaml"
-                return handle_orchestration_seed(args.project, "gentlefemdom", identity_path, force=args.force)
-            elif args.gentlefemdom_blueprint_command == "validate":
-                return handle_orchestration_validate(args.project, "gentlefemdom")
-            elif args.gentlefemdom_blueprint_command == "graph":
-                return handle_orchestration_graph(args.project, "gentlefemdom", output_format=args.format)
-            elif args.gentlefemdom_blueprint_command == "status":
-                return handle_orchestration_status(args.project, "gentlefemdom")
-        if args.gentlefemdom_command == "realization":
-            if args.gentlefemdom_realization_command == "seed":
-                return handle_realization_seed(args.project, "gentlefemdom", force=args.force)
-            elif args.gentlefemdom_realization_command == "validate":
-                return handle_realization_validate(args.project, "gentlefemdom")
-            elif args.gentlefemdom_realization_command == "inspect":
-                return handle_realization_inspect(args.project, "gentlefemdom")
-            elif args.gentlefemdom_realization_command == "graph":
-                return handle_realization_graph(args.project, "gentlefemdom", output_format=args.format)
 
     # === ontology ===
     if args.command == "ontology":

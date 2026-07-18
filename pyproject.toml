@@ -25,5 +25,18 @@ auteur = "auteur.cli:main"
 packages = ["src/auteur"]
 
 [tool.pytest.ini_options]
-addopts = "-q --tb=no"
+addopts = "-q --tb=short -W ignore::UserWarning"
 testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+include = ["src/auteur/**/*.py", "tests/**/*.py"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]
+ignore = ["E501"]
+
+[tool.coverage.run]
+source = ["src/auteur"]
+omit = ["src/auteur/**/test_*", "src/auteur/**/browser/*"]
