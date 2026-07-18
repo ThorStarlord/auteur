@@ -111,7 +111,11 @@ class CanonicalStoryBootstrap:
         identity.to_yaml(identity_path)
         identity_meta = store.accept(identity_path, "story_identity", accepted_by=accepted_by, rationale="canonical reference identity")
 
-        sample = Path(__file__).parents[2] / "examples" / "sample_blueprint.yaml"
+        sample = (
+            Path(__file__).parent / "data" / "sample_blueprint.yaml"
+        )
+        if not sample.exists():
+            sample = Path(__file__).parents[2] / "examples" / "sample_blueprint.yaml"
         blueprint = StoryBlueprint.from_yaml(sample)
         blueprint_path = root / "blueprint.yaml"
         blueprint_path.write_text(yaml.safe_dump(blueprint.model_dump(mode="json"), sort_keys=False), encoding="utf-8")

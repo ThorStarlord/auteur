@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "auteur"
-version = "0.1.0"
+version = "0.2.0"
 description = "Agentic narrative engineering: a literary compiler for long-form fiction."
 requires-python = ">=3.11"
 dependencies = [
@@ -23,6 +23,9 @@ auteur = "auteur.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/auteur"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/auteur/data/"]
 
 [tool.pytest.ini_options]
 addopts = "-q --tb=short -W ignore::UserWarning"
