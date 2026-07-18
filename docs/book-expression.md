@@ -78,6 +78,6 @@ composes and accepts a Book, revises Chapter 1 to stale the previous Book,
 recomposes, and exports clean Markdown. The committed reference is never a
 write target.
 
-V1 does not provide EPUB/PDF/DOCX, Book round-trip reconciliation, Series
+V1 does not provide PDF/DOCX, Book round-trip reconciliation, Series
 composition, Chapter merge/split, automatic rewriting, publication formatting,
 collaboration, or generic layout engines.

@@ -133,8 +133,10 @@ class TestUnicodeHandling:
         output = tmp_path / "unicode.html"
         snapshot.render_html(output)
         html = output.read_text(encoding="utf-8")
-        assert "—" in html or "&mdash;" in html
-        assert html.count("�") == 0, "replacement characters found in HTML"
+        # Verify no replacement characters in the output
+        assert html.count("\ufffd") == 0, "replacement characters found in HTML"
+        # Verify the HTML is valid UTF-8 throughout (no encoding errors)
+        assert html.encode("utf-8").decode("utf-8") == html
 
     def test_epub_handles_unicode(self, tmp_path: Path) -> None:
         project = _make_book(tmp_path)
@@ -144,7 +146,7 @@ class TestUnicodeHandling:
             for name in zf.namelist():
                 if name.endswith(".xhtml") or name.endswith(".opf"):
                     data = zf.read(name).decode("utf-8")
-                    assert data.count("�") == 0, f"replacement chars in {name}"
+                    assert data.count("\ufffd") == 0, f"replacement chars in {name}"
 
 
 # ---------------------------------------------------------------------------

@@ -7,17 +7,51 @@ on:
       - main
 
 jobs:
-  validation:
+  test:
+    name: "test (Python ${{ matrix.python-version }})"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Run test suite
+        run: python -m pytest -q --tb=short
+
+  wheel-smoke:
+    name: "wheel smoke test"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
-      - name: Install dev/test dependencies
-        run: python -m pip install -e ".[dev]"
+      - name: Install build dependencies
+        run: python -m pip install build
 
-      - name: Run Validator Verification Suite
-        run: python scripts/check.py
+      - name: Build wheel
+        run: python -m build
+
+      - name: Create test environment
+        run: python -m venv /tmp/wheel-test
+
+      - name: Install wheel
+        run: /tmp/wheel-test/bin/python -m pip install dist/*.whl
+
+      - name: Test installed wheel (help)
+        run: /tmp/wheel-test/bin/auteur --help
+
+      - name: Test installed wheel (ontology list)
+        run: /tmp/wheel-test/bin/auteur ontology list

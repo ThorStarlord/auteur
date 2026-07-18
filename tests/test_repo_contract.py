@@ -29,4 +29,4 @@ def test_repo_has_pytest_config() -> None:
     ini_opts = data["tool"]["pytest"].get("ini_options", {})
     addopts = ini_opts.get("addopts", "")
     assert "-q" in addopts, "ini_options.addopts should include quiet mode (-q)"
-    assert "--tb=no" in addopts, "ini_options.addopts should suppress tracebacks (--tb=no)"
+    assert "--tb=short" in addopts, "ini_options.addopts should use --tb=short"

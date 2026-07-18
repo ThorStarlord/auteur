@@ -41,9 +41,10 @@ def test_github_actions_runs_standard_check_command() -> None:
 
     workflow = workflow_path.read_text(encoding="utf-8")
 
-    assert 'python-version: "3.11"' in workflow
+    # CI uses a Python version matrix and wheel smoke test
+    assert 'matrix.python-version' in workflow
     assert 'python -m pip install -e ".[dev]"' in workflow
-    assert "python scripts/check.py" in workflow
+    assert "python -m pytest" in workflow
     assert "validate-artifact.py" not in workflow
 
 

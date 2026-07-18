@@ -299,10 +299,12 @@ class TestOntologyValidatorUsage:
         # Should have no structural errors
         assert len(errors) == 0, f"Base ontology has errors: {errors}"
 
-        # Validate genre ontologies
+        # Validate genre ontologies (merged with base, since genre concepts
+        # reference base concepts like Character, Arc, etc.)
         for genre in ["netorare", "mystery", "gentlefemdom"]:
             genre_ont = loader.load_genre_ontology(genre)
-            errors = loader.validate_ontology_structure(genre_ont)
+            merged = loader.merge_ontologies(base, genre_ont)
+            errors = loader.validate_ontology_structure(merged)
             assert len(errors) == 0, f"{genre} ontology has errors: {errors}"
 
 

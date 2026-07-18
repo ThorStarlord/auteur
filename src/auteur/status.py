@@ -250,9 +250,13 @@ def _find_blocks(project_root: Path) -> list[dict[str, str]]:
 
 def _suggest_command(project_root: Path) -> str | None:
     """Suggest the next sensible CLI command based on project state."""
-    bp = project_root / "blueprint.yaml"
-    if not bp.exists() or not bp.is_file():
-        return "auteur init --from <story_identity.yaml> <project_path>"
+    bp_path = project_root / "blueprint.yaml"
+    identity_path = project_root / "story_identity.yaml"
+
+    if not bp_path.exists() or not bp_path.is_file():
+        if identity_path.exists():
+            return f"auteur blueprint init {identity_path} {project_root / 'blueprint.yaml'}"
+        return f"auteur identity compile <story_identity.yaml> --output blueprint.yaml && auteur init blueprint.yaml <project_path>"
 
     chapter_dirs = sorted(project_root.glob("chapters/*"))
     has_accepted_chapters = False
@@ -263,24 +267,22 @@ def _suggest_command(project_root: Path) -> str | None:
             break
 
     if not has_accepted_chapters:
-        # Find first chapter dir
         for ch in chapter_dirs:
             if ch.is_dir():
-                return f"auteur draft {project_root} {int(ch.name):d}"
-        return "auteur cartographer compile <blueprint_path>"
+                return f"auteur draft {int(ch.name)} --project {project_root}"
+        return f"auteur cartographer compile --blueprint {bp_path} --project {project_root}"
 
     book_acc = project_root / "book" / "expression" / "accepted.yaml"
     if not book_acc.exists():
         chapters = [ch.name for ch in chapter_dirs if ch.is_dir()]
         ch_ids = [f"chapter_{int(ch.name):02d}" for ch in chapter_dirs if ch.is_dir()]
         if len(ch_ids) >= 2:
-            return f"auteur expression compose-book {project_root} --chapter {ch_ids[0]} --chapter {ch_ids[1]} --title \"My Novel\""
-        return f"auteur expression compose-book {project_root} --chapter {ch_ids[0]} --title \"My Novel\""
+            return f"auteur expression compose-book --project {project_root} --chapter {ch_ids[0]} --chapter {ch_ids[1]} --title \"My Novel\""
+        return f"auteur expression compose-book --project {project_root} --chapter {ch_ids[0]} --title \"My Novel\""
 
-    # Check if book reconciliation is complete
     status = _reconciliation_status(project_root)
     if status.get("completion"):
-        return None  # Everything is done
+        return None
     if status.get("acceptance"):
         return f"auteur expression complete-book-reconciliation <acceptance_id> --project {project_root}"
     return f"auteur expression inspect-book-manuscript <manuscript> --against <book_id> --project {project_root}"
@@ -296,10 +298,16 @@ def gather_status(project_root: Path) -> dict[str, Any]:
         identity_data = _read_yaml(root / ".auteur" / "state" / "artifacts" / "story_identity.yaml")
     identity_status: dict[str, Any] = {"status": "missing"}
     if identity_data:
+        # Current schema: genres are in story_type.genre
+        story_type = _safe_nested(identity_data, "story_type", default={})
+        genre = story_type.get("genre", "unknown")
+        mode = story_type.get("mode", "unknown")
+        medium = story_type.get("medium", "unknown")
         identity_status = {
             "status": identity_data.get("lifecycle", "present"),
-            "genres": _safe_nested(identity_data, "genre", "primary", "unknown"),
-            "medium": _safe_nested(identity_data, "medium", "primary", "unknown"),
+            "genre": genre,
+            "mode": mode,
+            "medium": medium,
             "title": identity_data.get("title", identity_data.get("working_title", "untitled")),
         }
 

@@ -1,0 +1,126 @@
+# Netorare Genre Ontology Extensions
+# Genre-specific concepts for netorare narratives
+# Extends base ontology with cuckoldry-specific concepts
+
+extends: base
+
+concepts:
+  CuckoldryArc:
+    name: CuckoldryArc
+    definition: A narrative arc progression specific to netorare that tracks the emotional and psychological journey through stages of revelation, humiliation, and acceptance or resolution.
+    category: genre-specific
+    parent_concepts:
+      - Arc
+    relationships:
+      - source_concept: CuckoldryArc
+        target_concept: Character
+        cardinality: many-to-many
+        description: Cuckoldry arc involves characters in the dynamic (primary, secondary, tertiary partners)
+        required: true
+      - source_concept: CuckoldryArc
+        target_concept: Setup
+        cardinality: one-to-one
+        description: Cuckoldry arc setup initiates the reveal
+        required: false
+    validation_rules:
+      - rule_id: cuckoldry_arc_has_stages
+        condition: Cuckoldry arc must progress through identifiable emotional stages
+        error_message: Cuckoldry arc lacks clear stage progression
+        applies_to: [netorare]
+      - rule_id: cuckoldry_arc_tracks_emotional_journey
+        condition: Each stage should show measurable emotional change
+        error_message: Cuckoldry arc stages do not show emotional progression
+        applies_to: [netorare]
+
+  HumiliationProgression:
+    name: HumiliationProgression
+    definition: The escalation or modulation of humiliation elements within a netorare narrative, tracking intensity, frequency, and consent boundaries.
+    category: genre-specific
+    parent_concepts:
+      - Conflict
+    relationships:
+      - source_concept: HumiliationProgression
+        target_concept: Arc
+        cardinality: many-to-many
+        description: Humiliation progression occurs within arcs
+        required: false
+      - source_concept: HumiliationProgression
+        target_concept: Setup
+        cardinality: one-to-many
+        description: Humiliation setups drive progression moments
+        required: false
+    validation_rules:
+      - rule_id: humiliation_respects_consent
+        condition: Humiliation must not violate established consent boundaries
+        error_message: Humiliation violates character consent framework
+        applies_to: [netorare]
+      - rule_id: humiliation_has_emotional_impact
+        condition: Each humiliation element must affect character emotional state
+        error_message: Humiliation element has no emotional consequence
+        applies_to: [netorare]
+
+  ConsentBoundary:
+    name: ConsentBoundary
+    definition: A defined limit or agreement about what kinds of interactions, humiliation, or physical contact are permitted within the narrative between characters.
+    category: genre-specific
+    parent_concepts: []
+    relationships:
+      - source_concept: ConsentBoundary
+        target_concept: Character
+        cardinality: many-to-many
+        description: Consent boundary applies to characters involved
+        required: true
+      - source_concept: ConsentBoundary
+        target_concept: Relationship
+        cardinality: many-to-many
+        description: Consent boundary governs relationship dynamics
+        required: true
+    validation_rules:
+      - rule_id: consent_boundary_explicitly_defined
+        condition: Consent boundaries must be explicitly established or implied clearly
+        error_message: Consent boundary is ambiguous or undefined
+        applies_to: [netorare]
+      - rule_id: consent_boundary_consistent
+        condition: Violations of consent boundary must be narratively justified
+        error_message: Consent boundary violated without narrative justification
+        applies_to: [netorare]
+
+  DesireManipulation:
+    name: DesireManipulation
+    definition: Psychological or emotional manipulation of character desires, often involving deception about the nature of interactions or relationships.
+    category: genre-specific
+    parent_concepts:
+      - Conflict
+    relationships:
+      - source_concept: DesireManipulation
+        target_concept: Character
+        cardinality: many-to-many
+        description: Manipulation targets characters' understanding of their own desires
+        required: true
+      - source_concept: DesireManipulation
+        target_concept: Revelation
+        cardinality: one-to-many
+        description: Manipulations are often revealed later in narrative
+        required: false
+    validation_rules:
+      - rule_id: desire_manipulation_has_origin
+        condition: Desire manipulation must originate from some narrative cause
+        error_message: Desire manipulation appears unmotivated
+        applies_to: [netorare]
+      - rule_id: desire_manipulation_affects_choices
+        condition: Manipulation must influence character decisions
+        error_message: Desire manipulation has no effect on narrative
+        applies_to: [netorare]
+
+metadata:
+  version: "1.0"
+  last_updated: "2026-07-12"
+  description: "Genre-specific concepts for netorare narratives"
+  genre: netorare
+  extends: base
+  new_concepts_count: 4
+  new_concepts:
+    - CuckoldryArc
+    - HumiliationProgression
+    - ConsentBoundary
+    - DesireManipulation

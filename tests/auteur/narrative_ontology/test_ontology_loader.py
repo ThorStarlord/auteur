@@ -181,10 +181,10 @@ class TestConceptRetrieval:
         assert concept["name"] == "Character"
 
     def test_get_concept_not_found(self):
-        """Test retrieving non-existent concept raises error."""
+        """Test retrieving non-existent concept returns empty dict."""
         loader = OntologyLoader()
-        with pytest.raises(ValueError):
-            loader.get_concept("NonExistentConcept")
+        concept = loader.get_concept("NonExistentConcept")
+        assert concept == {}, f"Expected empty dict, got {concept}"
 
     def test_get_concept_with_genre(self):
         """Test retrieving concept with genre context."""
@@ -357,10 +357,10 @@ class TestEdgeCases:
         loader = OntologyLoader()
         # "Character" should work
         concept = loader.get_concept("Character")
-        assert concept is not None
-        # "character" should fail
-        with pytest.raises(ValueError):
-            loader.get_concept("character")
+        assert concept is not None and concept.get("name") == "Character"
+        # "character" should return empty dict (not found)
+        concept_lower = loader.get_concept("character")
+        assert concept_lower == {}, f"Expected empty dict for 'character', got {concept_lower}"
 
     def test_invalid_genre_raises_error(self):
         """Test loading invalid genre raises error."""
