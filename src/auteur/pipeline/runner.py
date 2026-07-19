@@ -34,14 +34,16 @@ _REASONING_RUNTIME: ReasoningRuntime | None = None
 _REASONING_REGISTRY: CriticRegistry | None = None
 
 
-def _get_reasoning_runtime() -> ReasoningRuntime:
+def _get_reasoning_runtime(reasoning_runtime: ReasoningRuntime | None = None) -> ReasoningRuntime:
+    """Return the supplied instance or the lazy-global default."""
+    if reasoning_runtime is not None:
+        return reasoning_runtime
     global _REASONING_RUNTIME, _REASONING_REGISTRY
     if _REASONING_RUNTIME is None:
         _REASONING_REGISTRY = CriticRegistry()
         register_draft_critics(_REASONING_REGISTRY)
         _REASONING_RUNTIME = ReasoningRuntime(_REASONING_REGISTRY, report_dir=Path())
     return _REASONING_RUNTIME
-
 
 def _run_critics_via_runtime(
     *,
@@ -52,15 +54,14 @@ def _run_critics_via_runtime(
     chapter_index: int,
     iteration: int,
     llm: LLMClient,
+    reasoning_runtime: ReasoningRuntime | None = None,
 ) -> ValidationReport:
-    """Execute the five draft critics through the ReasoningRuntime and project
-    outcomes into a legacy-compatible ValidationReport."""
     import json
     from auteur.llm.counting import _CountingClient
 
     counted = _CountingClient(llm) if not isinstance(llm, _CountingClient) else llm
 
-    runtime = _get_reasoning_runtime()
+    runtime = _get_reasoning_runtime(reasoning_runtime)
     req = RuntimeRequest(
         critic_ids=["draft.contract", "draft.arc", "draft.tension", "draft.slop", "draft.theme"],
         inputs={
@@ -118,9 +119,11 @@ def _run_critics_via_runtime(
 
 
 class PipelineRunner:
-    def __init__(self, blueprint: StoryBlueprint, bible: StoryBible | None = None):
+    def __init__(self, blueprint: StoryBlueprint, bible: StoryBible | None = None, *,
+                 reasoning_runtime: ReasoningRuntime | None = None):
         self.blueprint = blueprint
         self.bible = bible
+        self._reasoning_runtime = reasoning_runtime
 
     def plan_chapter(self, chapter_index: int) -> PlanResult:
         call = PlanningCall.for_chapter(self.blueprint, chapter_index)
@@ -197,6 +200,7 @@ class PipelineRunner:
                 chapter_index=chapter_index,
                 iteration=i,
                 llm=counted_llm,
+                reasoning_runtime=self._reasoning_runtime,
             )
             project.write_validation(chapter_index, i, report)
             last_report = report

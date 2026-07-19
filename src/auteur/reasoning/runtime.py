@@ -2,19 +2,37 @@
 
 The runtime owns no narrative authority. It reads caller-supplied inputs and
 writes only derived reports beneath the caller-supplied report directory.
+
+Execution: independent critics run concurrently in dependency layers.
+Synthesis depends on completion of all critic outcomes.
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Callable, Mapping
+import time
+from collections.abc import Callable as CallableType, Mapping, Sequence
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime, timezone
 from enum import StrEnum
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
+from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field
 
+
+# ---------------------------------------------------------------------------
+# Constants
+# ---------------------------------------------------------------------------
+
+_DEFAULT_MAX_WORKERS = 5
+
+
+# ---------------------------------------------------------------------------
+# Types
+# ---------------------------------------------------------------------------
 
 class RuntimeStatus(StrEnum):
     SUCCESS = "success"
@@ -94,7 +112,7 @@ def register_structure_critic(registry: CriticRegistry) -> None:
 
 class RuntimeRequest(BaseModel):
     request_id: str = "request"
-    critic_ids: tuple[str, ...]
+    critic_ids: list[str] = Field(default_factory=list)
     inputs: dict[str, Any] = Field(default_factory=dict)
     source_revisions: dict[str, ArtifactRevision] = Field(default_factory=dict)
 
@@ -102,8 +120,8 @@ class RuntimeRequest(BaseModel):
 class ExecutionPlan(BaseModel):
     plan_id: str
     request_id: str
-    selected_critics: tuple[str, ...]
-    dependency_order: tuple[str, ...]
+    selected_critics: tuple[str, ...] = ()
+    dependency_order: tuple[str, ...] = ()
     source_snapshot: dict[str, Any]
 
 
@@ -111,9 +129,12 @@ class ExecutionOutcome(BaseModel):
     critic_id: str
     version: str
     status: RuntimeStatus
-    reason: str = ""
     report_id: str | None = None
+    reason: str | None = None
     error: str | None = None
+    duration_ms: int | None = None
+    input_tokens: int | None = None
+    output_tokens: int | None = None
 
 
 class ExecutionResult(BaseModel):
@@ -163,15 +184,55 @@ def _reasoning_sections(findings: list[dict[str, Any]]) -> dict[str, Any]:
         "hypotheses": hypotheses,
         "evaluation": evaluation,
         "claims": claims,
-        "confidence": {"score": None, "method": "deterministic_analyzer", "explanation": "uncalibrated"},
         "recommendations": recommendations,
+        "confidence": {"overall": "confirmed" if not findings else "disputed" if any(
+            f.get("severity") in ("error", "high") for f in findings
+        ) else "plausible"},
     }
 
+def _dependency_layers(
+    selected_critics: dict[str, CriticSpec],
+) -> list[list[str]]:
+    """Group critics into layers by dependency depth.
+
+    Layer 0: critics with no unresolved dependencies.
+    Layer N: critics whose dependencies all completed in layers < N.
+
+    Returns a list of lists, where each inner list is a layer of critic IDs
+    that may execute concurrently.
+    """
+    remaining = set(selected_critics)
+    resolved: set[str] = set()
+    layers: list[list[str]] = []
+
+    while remaining:
+        layer = [
+            cid for cid in remaining
+            if all(dep in resolved for dep in selected_critics[cid].requires)
+        ]
+        if not layer:
+            unresolved = remaining.copy()
+            raise ValueError(
+                f"cannot resolve dependencies for: {sorted(unresolved)}"
+            )
+        layer.sort()  # deterministic ordering within the layer
+        layers.append(layer)
+        remaining -= set(layer)
+        resolved.update(layer)
+
+    return layers
+
+
+# ---------------------------------------------------------------------------
+# Runtime
+# ---------------------------------------------------------------------------
 
 class ReasoningRuntime:
-    def __init__(self, registry: CriticRegistry, report_dir: Path) -> None:
+    def __init__(self, registry: CriticRegistry, report_dir: Path, *,
+                 max_workers: int = _DEFAULT_MAX_WORKERS):
         self.registry = registry
         self.report_dir = Path(report_dir)
+        self.max_workers = max_workers
 
     def plan(self, request: RuntimeRequest) -> ExecutionPlan:
         selected: dict[str, CriticSpec] = {}
@@ -195,51 +256,85 @@ class ReasoningRuntime:
                         for key, value in sorted(request.inputs.items())
                     })
         plan_id = _stable_id({"request": request.model_dump(exclude={"inputs"}), "inputs": request.inputs})
+        layers = _dependency_layers(selected)
         return ExecutionPlan(
             plan_id=plan_id,
             request_id=request.request_id,
             selected_critics=tuple(selected),
-            dependency_order=tuple(selected),
+            dependency_order=tuple(cid for layer in layers for cid in layer),
             source_snapshot=snapshot,
         )
 
     def run(self, request: RuntimeRequest, *, expected_revisions: Mapping[str, int] | None = None) -> ExecutionResult:
         plan = self.plan(request)
         expected_revisions = expected_revisions or {}
-        outcomes: list[ExecutionOutcome] = []
-        reports: dict[str, str] = {}
-        for critic_id in plan.dependency_order:
-            spec = self.registry.discover(critic_id=critic_id)
-            stale = [key for key, revision in expected_revisions.items()
-                      if isinstance(request.inputs.get(key), Mapping)
-                      and request.inputs[key].get("revision") != revision]
-            if stale:
-                outcomes.append(ExecutionOutcome(critic_id=critic_id, version=spec.version,
-                    status=RuntimeStatus.STALE, reason=f"stale inputs: {', '.join(stale)}"))
-                continue
-            if any(o.critic_id in spec.requires and o.status is not RuntimeStatus.SUCCESS for o in outcomes):
-                outcomes.append(ExecutionOutcome(critic_id=critic_id, version=spec.version,
-                    status=RuntimeStatus.BLOCKED, reason="dependency did not succeed"))
-                continue
-            try:
-                findings = spec.run(**request.inputs)
-                if not isinstance(findings, list):
-                    raise TypeError("critic must return a list of findings")
-                report_id = _stable_id({"plan": plan.plan_id, "critic": critic_id})
-                report = {"report_id": report_id, "status": "derived", "artifact_type": "reasoning_report",
-                          "critic_id": critic_id, "critic_version": spec.version,
-                          "plan_id": plan.plan_id, "source_snapshot": plan.source_snapshot,
-                          "findings": findings, **_reasoning_sections(findings)}
-                self.report_dir.mkdir(parents=True, exist_ok=True)
-                (self.report_dir / f"{report_id}.json").write_text(
-                    json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-                reports[critic_id] = report_id
-                outcomes.append(ExecutionOutcome(critic_id=critic_id, version=spec.version,
-                    status=RuntimeStatus.SUCCESS, report_id=report_id))
-            except Exception as exc:  # noqa: BLE001 - outcome must be explicit
-                outcomes.append(ExecutionOutcome(critic_id=critic_id, version=spec.version,
-                    status=RuntimeStatus.FAILED, reason="critic execution failed", error=str(exc)))
-        return ExecutionResult(plan=plan, outcomes=outcomes)
+        layers = _dependency_layers({
+            cid: self.registry.discover(critic_id=cid)
+            for cid in plan.dependency_order
+        })
+        all_outcomes: list[ExecutionOutcome] = []
+
+        for layer in layers:
+            layer_outcomes: list[ExecutionOutcome] = {}
+            lock: Any = None  # currently sequential; parallel handled per-critic
+
+            def execute_critic(critic_id: str) -> ExecutionOutcome:
+                spec = self.registry.discover(critic_id=critic_id)
+                t0 = time.monotonic()
+
+                stale = [key for key, revision in expected_revisions.items()
+                         if isinstance(request.inputs.get(key), Mapping)
+                         and request.inputs[key].get("revision") != revision]
+                if stale:
+                    return ExecutionOutcome(critic_id=critic_id, version=spec.version,
+                        status=RuntimeStatus.STALE, reason=f"stale inputs: {', '.join(stale)}",
+                        duration_ms=int((time.monotonic() - t0) * 1000))
+
+                blocked_by = [o.critic_id for o in all_outcomes
+                              if o.critic_id in spec.requires and o.status is not RuntimeStatus.SUCCESS]
+                if blocked_by:
+                    return ExecutionOutcome(critic_id=critic_id, version=spec.version,
+                        status=RuntimeStatus.BLOCKED, reason=f"dependency failed: {', '.join(blocked_by)}",
+                        duration_ms=int((time.monotonic() - t0) * 1000))
+
+                try:
+                    findings = spec.run(**request.inputs)
+                    if not isinstance(findings, list):
+                        raise TypeError("critic must return a list of findings")
+                    report_id = _stable_id({"plan": plan.plan_id, "critic": critic_id})
+                    # Capture token usage from the LLM client if available
+                    llm = request.inputs.get("llm")
+                    inp_tokens = getattr(llm, "input_tokens", None) or getattr(llm, "prompt_tokens", None)
+                    out_tokens = getattr(llm, "output_tokens", None) or getattr(llm, "completion_tokens", None)
+                    report = {"report_id": report_id, "status": "derived", "artifact_type": "reasoning_report",
+                              "critic_id": critic_id, "critic_version": spec.version,
+                              "plan_id": plan.plan_id, "source_snapshot": plan.source_snapshot,
+                              "findings": findings, "usage": {"input_tokens": inp_tokens, "output_tokens": out_tokens},
+                              **_reasoning_sections(findings)}
+                    self.report_dir.mkdir(parents=True, exist_ok=True)
+                    (self.report_dir / f"{report_id}.json").write_text(
+                        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+                    return ExecutionOutcome(critic_id=critic_id, version=spec.version,
+                        status=RuntimeStatus.SUCCESS, report_id=report_id,
+                        duration_ms=int((time.monotonic() - t0) * 1000),
+                        input_tokens=inp_tokens, output_tokens=out_tokens)
+                except Exception as exc:
+                    return ExecutionOutcome(critic_id=critic_id, version=spec.version,
+                        status=RuntimeStatus.FAILED, reason="critic execution failed",
+                        error=str(exc), duration_ms=int((time.monotonic() - t0) * 1000))
+
+            if len(layer) == 1:
+                all_outcomes.append(execute_critic(layer[0]))
+            else:
+                with ThreadPoolExecutor(max_workers=min(self.max_workers, len(layer))) as pool:
+                    fut_map = {pool.submit(execute_critic, cid): cid for cid in layer}
+                    for fut in as_completed(fut_map):
+                        all_outcomes.append(fut.result())
+                # Sort outcomes by the deterministic layer order
+                order = {cid: i for i, cid in enumerate(layer)}
+                all_outcomes.sort(key=lambda o: order.get(o.critic_id, 999))
+
+        return ExecutionResult(plan=plan, outcomes=all_outcomes)
 
     def report_is_fresh(self, report_id: str, inputs: Mapping[str, Any] | None = None,
                         source_revisions: Mapping[str, ArtifactRevision] | None = None) -> bool:
