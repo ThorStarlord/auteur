@@ -135,6 +135,8 @@ class ExecutionOutcome(BaseModel):
     duration_ms: int | None = None
     input_tokens: int | None = None
     output_tokens: int | None = None
+    provider: str | None = None
+    model: str | None = None
 
 
 class ExecutionResult(BaseModel):
@@ -223,9 +225,63 @@ def _dependency_layers(
     return layers
 
 
+def _normalize_findings_for_synthesis(findings: list[dict[str, Any]]) -> dict[str, Any]:
+    """Normalize CriticFinding dicts into the synthesis contract.
+
+    Preserves all standard CriticFinding fields:
+    - critic, severity, rule, evidence, requested_change
+    Maps to synthesis observations, claims, and recommendations.
+    """
+    observations = []
+    evidence = []
+    hypotheses = []
+    evaluation = []
+    claims = []
+    recommendations = []
+    for index, finding in enumerate(findings, 1):
+        rule = finding.get("rule", "critic.finding")
+        statement = finding.get("message") or finding.get("evidence") or str(finding)
+        finding_id = f"finding-{index}"
+        observations.append({"observation_id": finding_id, "statement": statement,
+                             "severity": finding.get("severity", "info"),
+                             "critic": finding.get("critic", "unknown"),
+                             "rule": rule,
+                             "evidence": finding.get("evidence", ""),
+                             "requested_change": finding.get("requested_change", "")})
+        evidence.append({"evidence_id": f"evidence-{index}", "source": rule,
+                         "extraction": finding.get("evidence", statement)})
+        raw_hypotheses = finding.get("hypotheses") or [statement]
+        for hi, hypothesis in enumerate(raw_hypotheses, 1):
+            hypotheses.append({"hypothesis_id": f"hypothesis-{index}-{hi}",
+                               "statement": hypothesis,
+                               "supporting_evidence": [f"evidence-{index}"],
+                               "contradicting_evidence": []})
+            evaluation.append({"hypothesis_id": f"hypothesis-{index}-{hi}",
+                               "result": "supported" if hi == 1 else "plausible",
+                               "rationale": "deterministic analyzer finding"})
+        claims.append({"claim_id": f"claim-{index}", "statement": statement,
+                       "hypothesis_id": f"hypothesis-{index}-1",
+                       "critic": finding.get("critic", "unknown"),
+                       "severity": finding.get("severity", "info"),
+                       "rule": rule,
+                       "requested_change": finding.get("requested_change", "")})
+        raw_recs = finding.get("recommendations") or [finding.get("requested_change", "Review this finding.")]
+        for ri, rec in enumerate(raw_recs, 1):
+            recommendations.append({"recommendation_id": f"recommendation-{index}-{ri}",
+                                    "statement": rec, "claim_ids": [f"claim-{index}"],
+                                    "possible_transformations": []})
+    return {
+        "observations": observations, "evidence": evidence,
+        "hypotheses": hypotheses, "evaluation": evaluation,
+        "claims": claims, "recommendations": recommendations,
+        "confidence": {"overall": "confirmed" if not findings else "disputed" if any(
+            f.get("severity") in ("error", "high") for f in findings
+        ) else "plausible"},
+    }
+
+
 # ---------------------------------------------------------------------------
 # Runtime
-# ---------------------------------------------------------------------------
 
 class ReasoningRuntime:
     def __init__(self, registry: CriticRegistry, report_dir: Path, *,
@@ -302,14 +358,16 @@ class ReasoningRuntime:
                     if not isinstance(findings, list):
                         raise TypeError("critic must return a list of findings")
                     report_id = _stable_id({"plan": plan.plan_id, "critic": critic_id})
-                    # Capture token usage from the LLM client if available
                     llm = request.inputs.get("llm")
                     inp_tokens = getattr(llm, "input_tokens", None) or getattr(llm, "prompt_tokens", None)
                     out_tokens = getattr(llm, "output_tokens", None) or getattr(llm, "completion_tokens", None)
+                    provider = getattr(llm, "provider", None) or getattr(llm, "_provider", None) or type(llm).__module__.split(".")[-1] if llm else None
+                    model = getattr(llm, "model", None) or getattr(llm, "_model", None) or None
                     report = {"report_id": report_id, "status": "derived", "artifact_type": "reasoning_report",
                               "critic_id": critic_id, "critic_version": spec.version,
                               "plan_id": plan.plan_id, "source_snapshot": plan.source_snapshot,
                               "findings": findings, "usage": {"input_tokens": inp_tokens, "output_tokens": out_tokens},
+                              "provider": provider, "model": model,
                               **_reasoning_sections(findings)}
                     self.report_dir.mkdir(parents=True, exist_ok=True)
                     (self.report_dir / f"{report_id}.json").write_text(
@@ -317,7 +375,12 @@ class ReasoningRuntime:
                     return ExecutionOutcome(critic_id=critic_id, version=spec.version,
                         status=RuntimeStatus.SUCCESS, report_id=report_id,
                         duration_ms=int((time.monotonic() - t0) * 1000),
-                        input_tokens=inp_tokens, output_tokens=out_tokens)
+                        input_tokens=inp_tokens, output_tokens=out_tokens,
+                        provider=provider, model=model)
+                except TimeoutError:
+                    return ExecutionOutcome(critic_id=critic_id, version=spec.version,
+                        status=RuntimeStatus.FAILED, reason="critic timed out",
+                        duration_ms=int((time.monotonic() - t0) * 1000))
                 except Exception as exc:
                     return ExecutionOutcome(critic_id=critic_id, version=spec.version,
                         status=RuntimeStatus.FAILED, reason="critic execution failed",
