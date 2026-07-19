@@ -153,7 +153,8 @@ accepted Book, Chapter, or upstream artifact is mutated. See
 Book candidate acceptance (Phase C3), Book recomposition from accepted sources,
 Book comparison, and Book reconciliation completion (Phase C4) are now
 implemented: the full Book workflow from inspection through completion has been
-committed with 300+ passing tests. Book-level reasoning/editing and publishing
-formats remain deferred. Structural revision propagation remains deferred
-because the canonical pilot produced no evidence that it is the highest-impact
-blockage.
+committed with 300+ passing tests. Book-level reasoning/editing remains deferred.
+**HTML and EPUB3 publishing formats are now implemented** (`auteur publish` with
+52 tests — see `docs/v1-architecture-completion-report.md` section Priority 2).
+Structural revision propagation remains deferred because the canonical pilot
+produced no evidence that it is the highest-impact blockage.

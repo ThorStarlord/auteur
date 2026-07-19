@@ -124,57 +124,34 @@ Acceptance: creates immutable revision + moves pointer (compare-and-swap, last)
 
 **Maintenance burden:** Low (cosmetic/structural changes to cli.py).
 
-### Priority 2: Export / Publishing Pipeline
+### Priority 2: Export / Publishing Pipeline ✅ (Completed in v0.2.0)
 
-**Missing capability:** Convert accepted Book manuscript to standard publishing formats (EPUB, PDF, HTML, DOCX).
+**Implementation status:** `auteur publish --format html|epub` is fully implemented with:
+- `PublishingSnapshot` — Content-addressed immutable snapshot with write-once identity
+- HTML renderer — Title page, TOC, default CSS, custom CSS support
+- EPUB3 renderer — Valid EPUB archive (XHTML chapters, OPF manifest, nav document, stylesheet, mimetype-first ordering, no new runtime dependencies)
+- Snapshot model — Separate immutable identity (`pub_<id>.yaml`) from mutable run records (`runs/run_<ts>.yaml`)
+- 52 tests (30 unit + 22 release qualification) covering deterministic bytes, EPUB3 conformance, Unicode, output collision, tampering detection
 
-**Evidence:** Book expression exists (`book/expression/book_v001.md`) and the full reconciliation pipeline is complete. But no command produces a publishable artifact. The roundtrip module handles chapter-level markdown only. No format conversion exists.
+**Remaining:** PDF output still deferred. EPUB implementation uses pure stdlib (zipfile + ElementTree).
 
-**Why the architecture needs it:** The primary product of Auteur is a novel manuscript. An author must be able to produce something readable outside Auteur.
+### Priority 3: Schema Migration ✅ (Completed in v0.2.0)
 
-**Foundational:** Yes — this is the end deliverable of the entire pipeline.
+**Implementation status:** `Project.init()` now writes `.auteur/project.yaml` with `schema_version` field. `Project.load()` validates and warns on version mismatch. Minimal migration framework exists — future format changes can register migrations.
 
-**Dependencies:** Book expression (complete), Book reconciliation (complete).
+**Remaining:** No automated v1→v2 migration path yet (no v2 format exists to migrate to). The current `schema_version` is 1.
 
-**Implementation estimate:** Medium (2-3 weeks). Markdown → EPUB via `pandoc` or pure-Python libraries. Add `auteur publish` command. Handle cover page, TOC, metadata.
+### Priority 4: Remove Stale / Duplicated Code ✅ (Partially completed in v0.2.0)
 
-**Maintenance burden:** Low-medium (format libraries change, but thin wrapper).
+**Completed:**
+- 3 stale genre CLI adapters removed (~107 lines of legacy handler branches and dead test files)
+- 5 misplaced test files moved from `src/` to `tests/`
+- Pre-commit hooks with ruff auto-fix + format configured
 
-### Priority 3: Schema Migration
-
-**Missing capability:** Versioned project schemas with migration support.
-
-**Evidence:** `blueprint.yaml` and `bible.json` have no `schema_version` field. The `provenance` module tracks artifact freshness but doesn't handle schema evolution. If the blueprint format changes, old projects cannot be upgraded. The `project-format.md` doc describes the current format with no versioning.
-
-**Why the architecture needs it:** Any format change between v1 and v2 will orphan existing user projects. Schema versioning is the minimum requirement for production use.
-
-**Foundational:** Yes — without it, the project cannot evolve.
-
-**Dependencies:** `project.py`, `blueprint.py`, `bible.py`, `provenance/`.
-
-**Implementation estimate:** Small (1-2 weeks). Add `schema_version` to project files, create migration framework, write v1→v2 migration if needed.
-
-**Maintenance burden:** Low (once framework exists, each migration is additive).
-
-### Priority 4: Remove Stale / Duplicated Code
-
-**Missing capability:** Clean codebase without dead paths.
-
-**Evidence:**
-- Three genre-specific CLI adapters (`cli_netorare.py`, `cli_mystery.py`, `cli_gentlefemdom.py`) — these are legacy compatibility wrappers. The generic `get_genre_pipeline()` path exists but the old branches remain as dead code (~100 lines).
-- Tests in `src/` directory (`narrative_realization/*/test_*.py` and `test_cli_realization.py`) — pytest doesn't discover these.
-- Narrative blueprint package (~15 files with mostly empty stubs).
-- Narrative ontology, realization, orchestration packages — large CLIs but the backends are stub/empty.
-
-**Why the architecture needs it:** Dead code increases maintenance cost, confuses navigation, and creates a false sense of completeness. Tests in `src/` give a false sense of coverage.
-
-**Foundational:** No — but it's low-cost cleanup with high signal-to-noise improvement.
-
-**Dependencies:** None (safe deletions).
-
-**Implementation estimate:** Small (1 week). Delete stale genre CLI branches, move tests from `src/` to `tests/`, decide on experimental package fate (complete or formally archive).
-
-**Maintenance burden:** Negative (less code to maintain).
+**Remaining:**
+- `pipeline/extraction.py` and `pipeline/parsing.py` have wrong docstrings and 28 lines of dead copy-pasted imports each
+- `narrative_ontology` has a dual-schema problem (`base_concept.py` dataclasses vs `schema/ontology_types.py` Pydantic models)
+- Ontology, realization, and orchestration packages now have substantial real backends (per 2026-07-18 audit). Their "stub/empty" description is outdated.**
 
 ### Priority 5: Code Quality Infrastructure
 
@@ -259,14 +236,16 @@ The following are intentionally excluded from v1:
 
 ## Roadmap for v2
 
-### Phase 1: UX & Publishing (4-6 weeks)
-1. **CLI overhaul** — command groups, guided workflows, standard errors, tab-completion
-2. **Export pipeline** — `auteur publish` for EPUB/PDF/HTML
-3. **Schema migration** — versioned project format
+### Phase 1: UX & Publishing ✅ (Substantially completed in v0.2.x)
+- **Export pipeline** ✅ — `auteur publish` for HTML/EPUB (52 tests)
+- **Schema migration** ✅ — `project.yaml` with `schema_version` field and load validation
+- **CLI overhaul** ⬜ — partially done (command groups exist, but no guided wizard or `auteur help`)
+- **PDF output** ⬜ — deferred
 
-### Phase 2: Cleanup & Quality (2-3 weeks)
-4. **Dead code removal** — stale genre adapters, misplaced tests, experimental packages
-5. **CI quality gates** — linting, type-checking, coverage, matrix testing
+### Phase 2: Cleanup & Quality ✅ (Partially completed in v0.2.x)
+- **Stale genre adapters** ✅ — removed
+- **Misplaced tests** ✅ — moved from `src/` to `tests/`
+- **CI quality gates** ✅ — ruff config, pre-commit hooks, coverage config
 
 ### Phase 3: Visualization & Performance (6-10 weeks)
 6. **Visualization** — rendered graphs, HTML reconciliation dashboard
