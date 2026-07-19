@@ -1,4 +1,4 @@
-"""Backward compatibility and platform tests for v0.4.0."""
+"""Backward compatibility and platform tests for v0.3.2."""
 
 from __future__ import annotations
 
