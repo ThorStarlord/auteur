@@ -571,12 +571,20 @@ def main(argv: list[str] | None = None) -> int:
         if args.reasoning_command == "review":
             print(json.dumps(review, indent=2, sort_keys=True) if args.json else format_review(review))
             return 0
+        # inspect: search groups first, then critic_summaries (with bare-name fallback)
         group = next((item for item in review.get("groups", []) if item.get("group_id") == args.group), None)
+        if group is None:
+            group = next((cs for cs in review.get("critic_summaries", [])
+                          if cs.get("critic_id") == args.group
+                          or cs.get("critic_id") == f"draft.{args.group}"
+                          or cs.get("critic_id", "").replace("draft.", "") == args.group), None)
         if group is None:
             _err(f"reasoning group not found: {args.group}")
             return 1
         print(json.dumps(group, indent=2, sort_keys=True) if args.json else
-              f"{group.get('group_id')}: {group.get('summary')}\nBasis: {group.get('overlap_basis')}\nClaims: {group.get('claim_refs')}")
+              f"{group.get('group_id', group.get('critic_id'))}: {group.get('summary', group.get('status', '?'))}\n"
+              f"Basis: {group.get('overlap_basis', '')}\n"
+              f"Claims: {group.get('claim_refs', group.get('finding_count', 0))}")
         return 0
     # === status ===
     if args.command == "status":

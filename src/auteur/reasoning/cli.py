@@ -7,10 +7,19 @@ from pathlib import Path
 from typing import Any
 
 
+def _freshness_label(review: dict[str, Any]) -> str:
+    freshness = review.get("freshness")
+    if isinstance(freshness, dict):
+        return freshness.get("status", "unknown")
+    return str(freshness) if freshness is not None else "unknown"
+
+
 def format_review(review: dict[str, Any]) -> str:
-    lines = [f"Reasoning review {review.get('review_id', '(unnamed)')}",
-             f"Status: {review.get('freshness', {}).get('status', 'unknown')}"]
-    stale = review.get("freshness", {}).get("stale_reports", [])
+    lines = [
+        f"Reasoning review {review.get('review_id', '(unnamed)')}",
+        f"Status: {_freshness_label(review)}",
+    ]
+    stale = review.get("freshness", {}).get("stale_reports", []) if isinstance(review.get("freshness"), dict) else []
     if stale:
         lines.append(f"Stale reports: {', '.join(stale)}")
     lines.append("Top concerns:")

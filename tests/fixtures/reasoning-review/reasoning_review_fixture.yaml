@@ -1,0 +1,74 @@
+review_id: review_fixture_001
+run_id: run_fixture_001
+artifact_type: reasoning_review
+authority: derived
+lifecycle: published
+chapter_index: 1
+iteration: 1
+created_at: 2026-07-19T00:00:00Z
+overall_status: failed
+execution:
+  mode: concurrent
+  max_workers: 5
+usage:
+  total:
+    input_tokens: 1200
+    output_tokens: 350
+  complete: true
+critic_summaries:
+- critic_id: draft.contract
+  status: failed
+  version: "0.1.0"
+  finding_count: 1
+  duration_ms: 6800
+  usage:
+    input_tokens: 400
+    output_tokens: 100
+- critic_id: draft.arc
+  status: success
+  version: "0.1.0"
+  finding_count: 0
+  duration_ms: 7200
+  usage:
+    input_tokens: 350
+    output_tokens: 95
+- critic_id: draft.tension
+  status: success
+  version: "0.1.0"
+  finding_count: 0
+  duration_ms: 6500
+  usage:
+    input_tokens: 200
+    output_tokens: 50
+- critic_id: draft.slop
+  status: success
+  version: "0.1.0"
+  finding_count: 0
+  duration_ms: 7000
+  usage:
+    input_tokens: 150
+    output_tokens: 55
+- critic_id: draft.theme
+  status: success
+  version: "0.1.0"
+  finding_count: 1
+  duration_ms: 7100
+  usage:
+    input_tokens: 100
+    output_tokens: 50
+blocking_findings:
+- critic: draft.contract
+  rule: critic_parse_failure
+  evidence: LLM response could not be parsed as structured YAML findings
+  requested_change: Review the critic prompt or LLM output format
+warnings: []
+synthesis: The chapter reads well structurally, but the contract critic
+  could not parse its results due to a format mismatch. The non-blocking
+  critics all completed successfully.
+recommended_actions:
+- Check the contract critic prompt output format
+- Consider retrying the draft iteration
+source_snapshot:
+  draft_hash: abc123
+  outline_hash: def456
+freshness: fresh
