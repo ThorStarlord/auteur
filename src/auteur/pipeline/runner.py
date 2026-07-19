@@ -1,16 +1,6 @@
-"""
+"""PipelineRunner — orchestrates planning, drafting, validation, iteration."""
+
 from __future__ import annotations
-from auteur.llm.counting import _CountingClient
-from auteur.pipeline.extraction import extract_character_state_changes
-from auteur.pipeline.models import DraftResult, PlanResult
-from auteur.pipeline.parsing import _parse_outline_yaml
-PipelineRunner — orchestrates planning, drafting, validation, iteration."""
-from auteur.llm.counting import _CountingClient
-from auteur.pipeline.extraction import extract_character_state_changes
-from auteur.pipeline.models import DraftResult, PlanResult
-from auteur.pipeline.parsing import _parse_outline_yaml
-
-
 
 from dataclasses import dataclass
 from pathlib import Path
@@ -21,20 +11,110 @@ import yaml
 
 from auteur.bard import draft_chapter as bard_draft
 from auteur.bible import StoryBible
+from auteur.cartographer import render_cartographer_prompt
 from auteur.cartographer_models import PlanningCall
 from auteur.blueprint import StoryBlueprint
-from auteur.cartographer import render_cartographer_prompt
-from auteur.critic import ValidationReport, run_critics
+from auteur.critic import CriticFinding, ValidationReport
 from auteur.critic.repair_writer import write_critic_proposals
 from auteur.llm import LLMClient, LLMRequest, LLMResponse
+from auteur.llm.counting import _CountingClient
+from auteur.pipeline.extraction import extract_character_state_changes
+from auteur.pipeline.models import DraftResult, PlanResult
+from auteur.pipeline.parsing import _parse_outline_yaml
+from auteur.reasoning.draft_critics import register_draft_critics
+from auteur.reasoning.draft_review import persist_reasoning_run
+from auteur.reasoning.runtime import CriticRegistry, ReasoningRuntime, RuntimeRequest
 
 
 CARTOGRAPHER_TEMPERATURE = 0.4
 CARTOGRAPHER_MAX_TOKENS = 4000
 
+# Lazy-global ReasoningRuntime, initialised on first use.
+_REASONING_RUNTIME: ReasoningRuntime | None = None
+_REASONING_REGISTRY: CriticRegistry | None = None
 
 
-"""Pipeline orchestration — chapter drafting and planning."""
+def _get_reasoning_runtime() -> ReasoningRuntime:
+    global _REASONING_RUNTIME, _REASONING_REGISTRY
+    if _REASONING_RUNTIME is None:
+        _REASONING_REGISTRY = CriticRegistry()
+        register_draft_critics(_REASONING_REGISTRY)
+        _REASONING_RUNTIME = ReasoningRuntime(_REASONING_REGISTRY, report_dir=Path())
+    return _REASONING_RUNTIME
+
+
+def _run_critics_via_runtime(
+    *,
+    draft: str,
+    outline: dict[str, Any],
+    blueprint: StoryBlueprint,
+    bible: StoryBible,
+    chapter_index: int,
+    iteration: int,
+    llm: LLMClient,
+) -> ValidationReport:
+    """Execute the five draft critics through the ReasoningRuntime and project
+    outcomes into a legacy-compatible ValidationReport."""
+    import json
+    from auteur.llm.counting import _CountingClient
+
+    counted = _CountingClient(llm) if not isinstance(llm, _CountingClient) else llm
+
+    runtime = _get_reasoning_runtime()
+    req = RuntimeRequest(
+        critic_ids=["draft.contract", "draft.arc", "draft.tension", "draft.slop", "draft.theme"],
+        inputs={
+            "draft": draft,
+            "outline": outline,
+            "blueprint": blueprint,
+            "bible": bible,
+            "chapter_index": chapter_index,
+            "llm": counted,
+        },
+    )
+    result = runtime.run(req)
+
+    # Convert ExecutionOutcomes into CriticFindings
+    findings: list[CriticFinding] = []
+    for oc in result.outcomes:
+        if oc.status == "success" and oc.report_id:
+            report_path = runtime.report_dir / f"{oc.report_id}.json"
+            if report_path.exists():
+                report = json.loads(report_path.read_text(encoding="utf-8"))
+                for f in report.get("findings", []):
+                    # Strip 'draft.' prefix to match CriticFinding Literal types
+                    raw_critic = f.get("critic", oc.critic_id)
+                    critic_name = raw_critic.replace("draft.", "")
+                    findings.append(CriticFinding(
+                        critic=critic_name,
+                        severity=f.get("severity", "error"),
+                        rule=f.get("rule", ""),
+                        evidence=f.get("evidence", ""),
+                        requested_change=f.get("requested_change", ""),
+                    ))
+        elif oc.status == "failed":
+            critic_name = oc.critic_id.replace("draft.", "")
+            findings.append(CriticFinding(
+                critic=critic_name, severity="error",
+                rule="critic.execution_failure",
+                evidence=oc.error or "critic execution failed",
+                requested_change=f"Resolve execution error in {critic_name} critic",
+            ))
+        elif oc.status == "stale":
+            critic_name = oc.critic_id.replace("draft.", "")
+            findings.append(CriticFinding(
+                critic=critic_name, severity="error",
+                rule="critic.stale_inputs",
+                evidence=oc.reason or "stale inputs",
+                requested_change=f"Re-run with fresh inputs for {critic_name}",
+            ))
+
+    return ValidationReport(
+        chapter_index=chapter_index,
+        iteration=iteration,
+        findings=findings,
+        passed=not any(f.severity == "error" for f in findings),
+    )
 
 
 class PipelineRunner:
@@ -108,7 +188,8 @@ class PipelineRunner:
             )
             project.write_draft(chapter_index, i, prose)
 
-            report = run_critics(
+            # Execute critics through ReasoningRuntime instead of direct run_critics
+            report = _run_critics_via_runtime(
                 draft=prose,
                 outline=outline,
                 blueprint=self.blueprint,
@@ -177,5 +258,3 @@ class PipelineRunner:
             total_input_tokens=counted_llm.input_tokens,
             total_output_tokens=counted_llm.output_tokens,
         )
-
-
