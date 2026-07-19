@@ -102,6 +102,15 @@ def persist_reasoning_run(
 
     overall_status = "success" if all(o.status == "success" for o in result.outcomes) else "partial" if any(o.status == "success" for o in result.outcomes) else "failed"
 
+    # Aggregate token usage from outcomes
+    total_in = sum(o.input_tokens or 0 for o in result.outcomes)
+    total_out = sum(o.output_tokens or 0 for o in result.outcomes)
+    usage_complete = all(o.input_tokens is not None or o.output_tokens is not None for o in result.outcomes)
+    per_critic_usage = {
+        o.critic_id: {"input_tokens": o.input_tokens, "output_tokens": o.output_tokens}
+        for o in result.outcomes
+    }
+
     run_record = {
         "run_id": rid,
         "artifact_type": "reasoning_run_record",
@@ -114,6 +123,15 @@ def persist_reasoning_run(
         "overall_status": overall_status,
         "critic_ids": list(result.plan.dependency_order),
         "outcome_count": len(result.outcomes),
+        "execution": {
+            "mode": "concurrent",
+            "max_workers": getattr(result, "max_workers", 5),
+        },
+        "usage": {
+            "critics": per_critic_usage,
+            "total": {"input_tokens": total_in, "output_tokens": total_out},
+            "complete": usage_complete,
+        },
         "outcomes": [
             {
                 "critic_id": o.critic_id,
@@ -121,6 +139,8 @@ def persist_reasoning_run(
                 "status": str(o.status) if hasattr(o.status, 'value') else o.status,
                 "report_id": o.report_id,
                 "error": o.error if o.error else None,
+                "duration_ms": o.duration_ms,
+                "usage": {"input_tokens": o.input_tokens, "output_tokens": o.output_tokens},
             }
             for o in result.outcomes
         ],
@@ -158,12 +178,19 @@ def persist_reasoning_run(
         "critic_summaries": [
             {
                 "critic_id": o.critic_id,
-                "status": str(o.status) if hasattr(o.status, 'value') else o.status,
+                "status": str(o.status) if hasattr(o.status, "value") else o.status,
                 "version": o.version,
                 "finding_count": 0,
+                "duration_ms": o.duration_ms,
+                "usage": {"input_tokens": o.input_tokens, "output_tokens": o.output_tokens},
             }
             for o in result.outcomes
         ],
+        "usage": {
+            "total": {"input_tokens": total_in, "output_tokens": total_out},
+            "complete": usage_complete,
+        },
+        "execution": run_record["execution"],
         "blocking_findings": [],
         "warnings": [],
         "synthesis": "",
@@ -238,12 +265,8 @@ def review_source_freshness(
             stale.append(key)
     return {"fresh": len(stale) == 0, "stale_sources": stale}
 
-
-# ---------------------------------------------------------------------------
-# Markdown rendering
-# ---------------------------------------------------------------------------
-
 def _render_review_markdown(review: dict[str, Any]) -> str:
+
     """Render a reasoning review as readable Markdown for the author."""
     lines = [
         f"# Reasoning Review — Chapter {review.get('chapter_index', '?')}",
@@ -251,30 +274,52 @@ def _render_review_markdown(review: dict[str, Any]) -> str:
         f"**Iteration:** {review.get('iteration', '?')}",
         f"**Overall:** {review.get('overall_status', '?')}",
         f"**Freshness:** {review.get('freshness', '?')}",
+        f"**Execution:** {review.get('execution', {}).get('mode', '?')}",
         "",
     ]
+
+    # Token usage summary
+    usage = review.get("usage", {})
+    total_usage = usage.get("total", {})
+    inp = total_usage.get("input_tokens")
+    out = total_usage.get("output_tokens")
+    if inp is not None or out is not None:
+        inp_str = str(inp) if inp is not None else "N/A"
+        out_str = str(out) if out is not None else "N/A"
+        lines.append(f"**Tokens:** {inp_str} in / {out_str} out")
+        if not usage.get("complete", True):
+            lines.append("⚠️ Some critics did not report token usage.")
+
+    lines.append("")
     lines.append("## Critics")
     for cs in review.get("critic_summaries", []):
         icon = "✅" if cs.get("status") == "success" else "❌" if cs.get("status") in ("failed", "stale") else "⚠️"
-        lines.append(f"- {icon} **{cs['critic_id']}** — v{cs.get('version', '?')} — {cs.get('status', '?')}")
+        dur = cs.get("duration_ms")
+        dur_str = f" ({dur}ms)" if dur is not None else ""
+        lines.append(f"- {icon} **{cs['critic_id']}** — v{cs.get('version', '?')} — {cs.get('status', '?')}{dur_str}")
+
     blocking = review.get("blocking_findings", [])
     if blocking:
         lines.extend(["", "## Blocking Findings"])
         for bf in blocking:
             lines.append(f"- **{bf.get('critic', bf.get('critic_id', '?'))}**: {bf.get('evidence', bf.get('message', ''))}")
-    warnings = review.get("warnings", [])
-    if warnings:
+
+    warnings_list = review.get("warnings", [])
+    if warnings_list:
         lines.extend(["", "## Warnings"])
-        for w in warnings:
+        for w in warnings_list:
             lines.append(f"- {w.get('evidence', w.get('message', ''))}")
+
     synthesis = review.get("synthesis", "")
     if synthesis:
         lines.extend(["", "## Synthesis", "", synthesis])
+
     actions = review.get("recommended_actions", [])
     if actions:
         lines.extend(["", "## Recommended Next Actions"])
         for i, action in enumerate(actions, 1):
             lines.append(f"{i}. {action}")
+
     return "\n".join(lines) + "\n"
 
 
