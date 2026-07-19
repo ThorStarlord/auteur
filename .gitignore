@@ -26,3 +26,6 @@ examples/canonical_story/temp_*/
 
 # ReasoningRuntime report output (generated test artifacts)
 reports/
+
+# Root-level JSON files (test/report artifacts)
+/*.json

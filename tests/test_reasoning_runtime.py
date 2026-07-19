@@ -44,8 +44,7 @@ def test_runtime_executes_and_persists_derived_report(tmp_path):
     assert report["status"] == "derived"
     assert report["critic_id"] == "structure.blueprint"
     assert report["findings"][0]["rule"] == "ok"
-    assert {"observations", "evidence", "hypotheses", "evaluation", "claims",
-            "confidence", "recommendations"} <= report.keys()
+    assert {"observations", "evidence", "claims", "confidence", "recommendations"} <= report.keys()
 
 
 def test_revision_adapter_preserves_raw_inputs_and_records_hashes(tmp_path):

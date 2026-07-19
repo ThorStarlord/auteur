@@ -184,3 +184,187 @@ class TestConcurrencyOverlap:
         req = RuntimeRequest(critic_ids=["draft.a", "draft.b"], inputs={})
         rt.run(req)
         assert max_active[0] <= 1, f"max_workers=1 violated: {max_active[0]} concurrent"
+
+
+class TestTimeoutEnforcement:
+    """Verify that critic_timeout actually enforces a deadline."""
+
+    def test_timeout_kills_slow_critic(self, tmp_path: Path):
+        """A critic that runs longer than critic_timeout must be killed."""
+        from auteur.reasoning.runtime import CriticRegistry, CriticSpec, ReasoningRuntime, RuntimeRequest, RuntimeStatus
+        import time
+
+        def slow(**i):
+            time.sleep(5)  # longer than the timeout
+            return [{"critic": "slow", "severity": "info", "rule": "slow", "evidence": "", "requested_change": ""}]
+
+        reg = CriticRegistry()
+        reg.register(CriticSpec(critic_id="draft.slow", version="1.0", requires=(), input_keys=(), run=slow))
+        rt = ReasoningRuntime(reg, tmp_path / "reports", max_workers=2, critic_timeout=0.2)
+        req = RuntimeRequest(critic_ids=["draft.slow"], inputs={})
+        result = rt.run(req)
+        assert result.outcomes[0].status == RuntimeStatus.FAILED
+        assert "timed out" in (result.outcomes[0].reason or "")
+
+    def test_fast_critic_not_affected_by_timeout(self, tmp_path: Path):
+        """A fast critic must succeed when timeout is set."""
+        from auteur.reasoning.runtime import CriticRegistry, CriticSpec, ReasoningRuntime, RuntimeRequest, RuntimeStatus
+
+        def fast(**i):
+            return [{"critic": "fast", "severity": "info", "rule": "fast", "evidence": "", "requested_change": ""}]
+
+        reg = CriticRegistry()
+        reg.register(CriticSpec(critic_id="draft.fast", version="1.0", requires=(), input_keys=(), run=fast))
+        rt = ReasoningRuntime(reg, tmp_path / "reports", max_workers=2, critic_timeout=5)
+        req = RuntimeRequest(critic_ids=["draft.fast"], inputs={})
+        result = rt.run(req)
+        assert result.outcomes[0].status == RuntimeStatus.SUCCESS
+
+    def test_timeout_in_multi_critic_layer(self, tmp_path: Path):
+        """When one critic in a layer times out, the other must still succeed."""
+        from auteur.reasoning.runtime import CriticRegistry, CriticSpec, ReasoningRuntime, RuntimeRequest, RuntimeStatus
+        import time
+
+        def slow(**i):
+            time.sleep(5)
+            return [{"critic": "slow", "severity": "info", "rule": "slow", "evidence": "", "requested_change": ""}]
+
+        def fast(**i):
+            return [{"critic": "fast", "severity": "info", "rule": "fast", "evidence": "", "requested_change": ""}]
+
+        reg = CriticRegistry()
+        reg.register(CriticSpec(critic_id="draft.slow", version="1.0", requires=(), input_keys=(), run=slow))
+        reg.register(CriticSpec(critic_id="draft.fast", version="1.0", requires=(), input_keys=(), run=fast))
+        rt = ReasoningRuntime(reg, tmp_path / "reports", max_workers=2, critic_timeout=0.2)
+        req = RuntimeRequest(critic_ids=["draft.slow", "draft.fast"], inputs={})
+        result = rt.run(req)
+        outcomes = {o.critic_id: o for o in result.outcomes}
+        assert outcomes["draft.slow"].status == RuntimeStatus.FAILED
+        assert "timed out" in (outcomes["draft.slow"].reason or "")
+        assert outcomes["draft.fast"].status == RuntimeStatus.SUCCESS
+
+
+class TestProviderMetadata:
+    """Provider/model must come from formal LLM client attributes only."""
+
+    def test_provider_model_from_llm(self, tmp_path: Path):
+        from auteur.reasoning.runtime import CriticRegistry, CriticSpec, ReasoningRuntime, RuntimeRequest, RuntimeStatus
+
+        class FakeLLM:
+            provider = "openai"
+            model = "gpt-4"
+            input_tokens = 5
+            output_tokens = 10
+
+        llm = FakeLLM()
+        captured = {}
+
+        def capturer(**i):
+            captured["llm"] = i.get("llm")
+            return [{"critic": "test", "severity": "info", "rule": "test", "evidence": "", "requested_change": ""}]
+
+        reg = CriticRegistry()
+        reg.register(CriticSpec(critic_id="draft.test", version="1.0", requires=(), input_keys=(), run=capturer))
+        rt = ReasoningRuntime(reg, tmp_path / "reports")
+        req = RuntimeRequest(critic_ids=["draft.test"], inputs={"llm": llm})
+        result = rt.run(req)
+        assert result.outcomes[0].status == RuntimeStatus.SUCCESS
+        assert result.outcomes[0].provider == "openai"
+        assert result.outcomes[0].model == "gpt-4"
+
+    def test_prefixed_attributes_not_accepted(self, tmp_path: Path):
+        """_provider and _model must not be used as provider/model."""
+        from auteur.reasoning.runtime import CriticRegistry, CriticSpec, ReasoningRuntime, RuntimeRequest, RuntimeStatus
+
+        class WrappedLLM:
+            _provider = "wrapped"
+            _model = "wrapped-model"
+
+        llm = WrappedLLM()
+
+        def ok(**i):
+            return [{"critic": "test", "severity": "info", "rule": "test", "evidence": "", "requested_change": ""}]
+
+        reg = CriticRegistry()
+        reg.register(CriticSpec(critic_id="draft.test", version="1.0", requires=(), input_keys=(), run=ok))
+        rt = ReasoningRuntime(reg, tmp_path / "reports")
+        req = RuntimeRequest(critic_ids=["draft.test"], inputs={"llm": llm})
+        result = rt.run(req)
+        assert result.outcomes[0].provider is None
+        assert result.outcomes[0].model is None
+
+    def test_no_llm_no_provider_model(self, tmp_path: Path):
+        """Without llm in inputs, provider/model must be None."""
+        from auteur.reasoning.runtime import CriticRegistry, CriticSpec, ReasoningRuntime, RuntimeRequest
+
+        def ok(**i):
+            return [{"critic": "test", "severity": "info", "rule": "test", "evidence": "", "requested_change": ""}]
+
+        reg = CriticRegistry()
+        reg.register(CriticSpec(critic_id="draft.test", version="1.0", requires=(), input_keys=(), run=ok))
+        rt = ReasoningRuntime(reg, tmp_path / "reports")
+        req = RuntimeRequest(critic_ids=["draft.test"], inputs={})
+        result = rt.run(req)
+        assert result.outcomes[0].provider is None
+        assert result.outcomes[0].model is None
+
+    def test_no_module_name_fallback(self, tmp_path: Path):
+        """A bare object with no provider attribute must not derive a bogus provider from its module."""
+        from auteur.reasoning.runtime import CriticRegistry, CriticSpec, ReasoningRuntime, RuntimeRequest
+
+        class BareThing:
+            pass
+
+        def ok(**i):
+            return [{"critic": "test", "severity": "info", "rule": "test", "evidence": "", "requested_change": ""}]
+
+        reg = CriticRegistry()
+        reg.register(CriticSpec(critic_id="draft.test", version="1.0", requires=(), input_keys=(), run=ok))
+        rt = ReasoningRuntime(reg, tmp_path / "reports")
+        req = RuntimeRequest(critic_ids=["draft.test"], inputs={"llm": BareThing()})
+        result = rt.run(req)
+        assert result.outcomes[0].provider is None, "Must not derive provider from module name"
+
+
+class TestNormalizationFaithfulness:
+    """_reasoning_sections must not manufacture synthetic certainty."""
+
+    def test_no_hypotheses_section(self):
+        from auteur.reasoning.runtime import _reasoning_sections
+        r = _reasoning_sections([{"critic": "test", "severity": "error", "rule": "t", "evidence": "msg"}])
+        assert "hypotheses" not in r
+        assert "evaluation" not in r
+
+    def test_confidence_is_unknown(self):
+        from auteur.reasoning.runtime import _reasoning_sections
+        r = _reasoning_sections([{"critic": "test", "severity": "error", "rule": "t", "evidence": "msg"}])
+        assert r["confidence"]["overall"] == "unknown"
+
+    def test_observations_preserve_fields(self):
+        from auteur.reasoning.runtime import _reasoning_sections
+        r = _reasoning_sections([{"critic": "draft.contract", "severity": "error", "rule": "contract.structure",
+                                  "evidence": "missing heading", "requested_change": "add heading"}])
+        obs = r["observations"][0]
+        assert obs["critic"] == "draft.contract"
+        assert obs["severity"] == "error"
+        assert obs["rule"] == "contract.structure"
+        assert obs["evidence"] == "missing heading"
+        assert obs["requested_change"] == "add heading"
+
+    def test_claims_preserve_fields(self):
+        from auteur.reasoning.runtime import _reasoning_sections
+        r = _reasoning_sections([{"critic": "draft.arc", "severity": "warning", "rule": "arc.pacing",
+                                  "evidence": "too fast", "requested_change": "slow down"}])
+        claim = r["claims"][0]
+        assert claim["critic"] == "draft.arc"
+        assert claim["severity"] == "warning"
+        assert claim["rule"] == "arc.pacing"
+        assert claim["requested_change"] == "slow down"
+
+    def test_recommendations_only_when_requested_change_present(self):
+        from auteur.reasoning.runtime import _reasoning_sections
+        r_with = _reasoning_sections([{"critic": "test", "severity": "info", "rule": "t",
+                                       "evidence": "msg", "requested_change": "fix"}])
+        assert len(r_with["recommendations"]) == 1
+        r_without = _reasoning_sections([{"critic": "test", "severity": "info", "rule": "t", "evidence": "msg"}])
+        assert len(r_without["recommendations"]) == 0
