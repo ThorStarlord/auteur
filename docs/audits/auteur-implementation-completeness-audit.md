@@ -3,8 +3,26 @@
 **Audit date:** 2026-07-18
 **HEAD commit:** `8bc942c`
 **Version:** 0.2.1
-**Test count:** 2,842 tests across 181 test files
-**Test result:** All passing (0 failures, 0 errors)
+**Test count:** 2,842 collected; 2,811 passed, 28 xfailed, 3 xpassed across 181 test files
+**Test result:** 0 failures, 0 errors, 0 skipped. Exit code 0.
+
+**Methodology note:** This audit began on the pre-v0.2.1 repository and discovered release-integrity problems that were fixed during the audit cycle (v0.2.1 hardening). All findings below that mention v0.2.1 have been re-verified against commit `8bc942c`. Findings from the baseline inspection that were resolved by v0.2.1 are explicitly marked `[RESOLVED IN v0.2.1]`. Unresolved findings describe the state at `8bc942c`.
+
+### Finding Lifecycle
+
+| Finding | Baseline (pre-v0.2.1) | Remediation (v0.2.1) | Final (8bc942c) |
+|---------|----------------------|---------------------|------------------|
+| Ontology resources | Repository-relative imports | Moved into package `data/` directory | RESOLVED |
+| EPUB mimetype | Compressed in archive | Written first with `ZIP_STORED` | RESOLVED |
+| Publishing determinism | Timestamp-dependent metadata | Stable metadata and ZIP timestamps | RESOLVED |
+| Accepted-Book tampering | Not detected | Content-hash verification before publishing | RESOLVED |
+| Status schema/commands | Incorrect schema detection | Corrected and tested in release-integrity suite | RESOLVED |
+| Publishing version metadata | Wrong version in output | Uses `__version__` from `auteur.__init__` | RESOLVED |
+| Wheel packaging | Data files missing | Hatch build target includes `auteur/data/` | RESOLVED |
+| Repository hygiene | Scratch/generated artifacts tracked | `.gitignore` and cleanup pass | RESOLVED |
+| Realization integration | Partial (xfail tests, stub validators) | Out of scope for v0.2.1 | REMAINS |
+| Reasoning production wiring | Not wired | Out of scope for v0.2.1 | REMAINS |
+| Editing breadth | Single pass only | Out of scope for v0.2.1 | REMAINS |
 
 ---
 
@@ -13,12 +31,12 @@
 Auteur v0.2.1 is a **substantially complete** narrative engineering platform. The five-layer semantic architecture (Ontology → Identity → Structure → Realization → Expression) has real, working implementations at every layer. The core author workflow — from project initialization through identity, blueprint, structure diagnosis, chapter drafting, critic evaluation, chapter/book reconciliation, and HTML/EPUB publishing — is **functional end-to-end**.
 
 **Key findings:**
-- **4 of 5 semantic layers are COMPLETE or FUNCTIONAL_BUT_PARTIAL.** Only Layer 0 (Ontology) is scaffolded but not integrated into production workflows.
-- **No stubs exist** in production code. Zero `NotImplementedError` strings found. Zero CLI commands print "not yet implemented."
-- **Supporting packages** (critic, provenance, reasoning, pipeline, series, universe, character, relations, genre pipeline, LLM abstraction) are all fully implemented.
-- **The publishing pipeline** (HTML/EPUB) is complete with release qualification tests.
-- **The only zero-test-coverage module** is `status.py` (450 lines, provides `auteur status` like `git status` for a novel).
-- **All 2,842 tests pass** with no failures and no errors.
+- **4 of 5 semantic layers are COMPLETE or FUNCTIONAL_BUT_PARTIAL.** Layer 0 (Ontology) is FUNCTIONAL_BUT_PARTIAL and designated EXPERIMENTAL — real implementation exists but is not production-wired.
+- **Zero `NotImplementedError` strings** found in production code. Zero CLI commands print "not yet implemented." However, 4 minor production stubs exist (documented pass bodies) in narrative_orchestration and narrative_realization validators.
+- **Publishing pipeline** (HTML/EPUB) is COMPLETE for v0.2.1 scope with release qualification tests.
+- **`status.py` has partial test coverage:** `gather_status()` is exercised indirectly by 8 release-integrity tests. `format_status()` has zero tests. The `auteur status` CLI command has no end-to-end test.
+- **Test results:** 2,811 passed, 28 xfailed (<1%), 3 xpassed (unexpected passes — may indicate partial resolution of SceneOutline.goal issue), 0 failed, 0 errors.
+- **Supporting packages** vary in production integration depth (see per-package analysis).
 - **7 documentation discrepancies** found between documented state and actual implementation.
 
 ---
@@ -37,25 +55,29 @@ Auteur v0.2.1 is a **substantially complete** narrative engineering platform. Th
 
 ### Scope Axis
 
-| Scope | Responsibility | Status |
-|-------|--------------|--------|
-| Universe | Shared world constraints and lore | COMPLETE |
-| Series | Cross-book continuity and progression | COMPLETE |
-| Book | One complete narrative contract and structure | COMPLETE |
-| Chapter | A bounded contribution to a book | COMPLETE |
-| Scene | A concrete local realization | COMPLETE |
+Scope completeness measures whether every semantic layer has mature implementation at that scope. A scope with Identity and Structure models is not "COMPLETE" unless Expression, reconciliation, provenance, and publishing are also mature at that scope.
+
+| Scope | Responsibility | Status | Mature Layers |
+|-------|--------------|--------|---------------|
+| Universe | Shared world constraints and lore | FUNCTIONAL_BUT_PARTIAL | Identity, Structure, diagnostics |
+| Series | Cross-book continuity and progression | FUNCTIONAL_BUT_PARTIAL | Identity, Structure, diagnostics, compilation |
+| Book | One complete narrative contract | COMPLETE (for v0.2.1 workflow) | Identity through Expression, reconciliation, publishing |
+| Chapter | A bounded contribution to a book | COMPLETE (for v0.2.1 workflow) | Identity through Expression, reconciliation |
+| Scene | A concrete local realization | FUNCTIONAL_BUT_PARTIAL | Realization, Expression, but state ownership overlaps Bible/Relations |
 
 ### Cross-Cutting Systems
 
-| System | Status | Key Modules |
-|--------|--------|-------------|
-| Provenance | COMPLETE | `provenance/store.py` (ArtifactStore, lifecycle, freshness) |
-| Reasoning | COMPLETE | `reasoning/runtime.py`, `synthesis.py`, `cli.py` |
-| Critics | COMPLETE | `critic/` (5 critics + base + repair_writer) |
-| Pipeline | COMPLETE | `pipeline/runner.py` (draft orchestration) |
-| LLM Abstraction | COMPLETE | `llm/` (provider abstraction, retrying, fake) |
-| Editing | FUNCTIONAL_BUT_PARTIAL | `editing/` (1 pass: aiisms only) |
-| Roundtrip | FUNCTIONAL_BUT_PARTIAL | `roundtrip/` (markdown only, V1 scope) |
+Status uses two axes: subsystem implementation depth, and production integration breadth.
+
+| System | Subsystem Status | Production Integration | Key Modules |
+|--------|-----------------|----------------------|-------------|
+| Provenance | COMPLETE (design and Expression path) | PARTIAL (not adopted by Identity, Structure, Universe, Series, Relations) | `provenance/store.py` (ArtifactStore, lifecycle, freshness) |
+| Reasoning | COMPLETE (runtime, synthesis, CLI) | PARTIAL (runtime and synthesis not called from production pipeline) | `reasoning/runtime.py`, `synthesis.py`, `cli.py` |
+| Critics (LLM) | FUNCTIONAL | FULL (wired into drafting pipeline) | `critic/` (5 critics + base + repair_writer) |
+| Pipeline | FUNCTIONAL | FULL (orchestrates drafting) | `pipeline/runner.py` |
+| LLM Abstraction | COMPLETE | FULL (used by pipeline, critics, cartographer) | `llm/` (provider abstraction, retrying, fake) |
+| Editing | FUNCTIONAL_BUT_PARTIAL | PARTIAL (1 pass: aiisms only; architecture supports more) | `editing/` (1 pass + patcher + CLI) |
+| Roundtrip | FUNCTIONAL_BUT_PARTIAL | PARTIAL (markdown only, V1 scope) | `roundtrip/` (markdown export/import) |
 
 ---
 
@@ -63,21 +85,22 @@ Auteur v0.2.1 is a **substantially complete** narrative engineering platform. Th
 
 ### Layer 0 — Ontology
 
-**Status: SCAFFOLDED**
+**Status: FUNCTIONAL_BUT_PARTIAL | Product designation: EXPERIMENTAL**
 
 Has:
 - `narrative_ontology/` package with Pydantic schemas, loader, validator, CLI
-- `src/auteur/data/ontology/` YAML genre ontology data files
+- `src/auteur/data/ontology/` YAML genre ontology data files (packaged as wheel resources [RESOLVED IN v0.2.1])
 - 10 test files (332 tests) covering models, loader, validator, CLI
+- Real CLI commands: `auteur ontology inspect`, `list`, `validate`, `themes`
+- `auteur ontology validate` works from installed wheel [RESOLVED IN v0.2.1]
 
-Missing:
-- Not integrated into any production workflow (CLI exists but no pipeline uses it)
+Missing/Partial:
+- **Not integrated** into any production workflow. No pipeline, no identity/blueprint compilation step uses ontology as the canonical vocabulary authority.
 - `OntologyLoader._validate_ontology_structure()` returns `([], [])` — stub
-- Pydantic models in `ontology_types.py` coexist with dataclasses in `base_concept.py` (dual schema)
-- No production call sites outside CLI commands
-- Imported by nothing in the main `__init__.py`
+- Dual-schema problem: Pydantic models in `schema/ontology_types.py` coexist with dataclasses in `base_concept.py`
+- No production call sites outside CLI commands (not imported by `__init__.py`)
 
-**Verdict:** Implemented as an independent package with real schema and validation, but not connected to the narrative engine. It is usable through CLI commands only. Should be explicitly designated as "experimental" or completed through integration.
+**Verdict:** This is not merely scaffolded. It has real schemas, data files, loaders, validation, CLI, and hundreds of tests. But it is not connected to the narrative engine. The `EXPERIMENTAL` designation describes its support policy; `FUNCTIONAL_BUT_PARTIAL` describes its implementation depth. It should either be integrated as the production vocabulary source or formally kept as a separate experimental package.
 
 ### Layer 1 — Identity
 
@@ -301,16 +324,16 @@ Test coverage: EXCELLENT
 
 | # | Documentation Says | Code Reality | Severity | Action |
 |---|-------------------|-------------|----------|--------|
-| 1 | `docs/v1-architecture-completion-report.md`: "version v1, roadmap for v2 includes `auteur publish` for EPUB/PDF/HTML" | v0.2.1, `auteur publish` is already implemented for HTML and EPUB | MEDIUM | Update report to reflect v0.2.x status with implemented publishing |
-| 2 | `docs/v1-architecture-completion-report.md`: Priority 1 gaps include "Coherent, guided CLI workflow" and "100+ leaf commands in a flat namespace" | The CLI has been partially organized: expression reconcile subcommands use dashes (`book-reconciliation-inspect`) and the parser tree uses `add_subparsers`. But no `auteur help` or guided wizard exists. | LOW | Partial improvement already; document remaining UX gap |
-| 3 | `docs/artifacts.md`: Genre sessions stored at legacy `<project>/<genre>/session.json` | Code detects but never silently migrates legacy paths. Active sessions are now stored at `.auteur/genre_sessions/<genre>/session.json` | LOW | Doc is accurate (says legacy path "is detected but never silently migrated") |
-| 4 | `docs/v1-architecture-completion-report.md`: Priority 3: "Schema migration — blueprint.yaml and bible.json have no schema_version field" | `Project.init()` now writes `.auteur/project.yaml` with `schema_version`, and `Project.load()` validates/warns on mismatch | MEDIUM | Report is outdated; schema versioning was implemented |
-| 5 | `docs/v1-architecture-completion-report.md`: Priority 4: "3 stale genre CLI adapters remain" | These were already removed in v0.2.0 | LOW | Already fixed; doc needs update or is already accurate as "planned" |
-| 6 | `docs/capability-coverage.md`: "Book-level reasoning/editing and publishing formats remain deferred" | Publishing formats (HTML/EPUB) are now implemented. Book-level reasoning/editing still deferred. | MEDIUM | Update coverage matrix |
-| 7 | `docs/artifacts.md`: Missing references to book reconciliation artifacts (decision records, acceptance records, completion records) | These artifacts exist in the codebase with real persistence paths | LOW | Add to artifacts doc |
-| 8 | `docs/v1-architecture-completion-report.md`: Architecture maturity statement says "v1" with confidence | The product is at v0.2.1 with substantive changes since the report was written | LOW | Version the report or note as historical |
-| 9 | `CONTEXT.md` and `docs/artifacts.md`: No mention of publishing snapshots or the `.auteur/publishing/` directory | Publishing implements a sophisticated snapshot model with `.auteur/publishing/pub_*` and runs/ | LOW | Add publishing artifacts to documentation |
-| 10 | `docs/engine-v1-workflow.md`: Documents V1 chapter-level workflow. No mention of Book-level reconciliation or publishing | Book reconciliation (Phases A–C4) and publishing are implemented features | MEDIUM | Update workflow doc for v0.2.x scope |
+| 1 | `v1-architecture-completion-report.md`: "roadmap for v2 includes `auteur publish` for EPUB/PDF/HTML" | v0.2.1, `auteur publish` already implemented for HTML and EPUB | MEDIUM | Update report to reflect v0.2.x status with implemented publishing — **done in this audit** |
+| 2 | `v1-architecture-completion-report.md`: Priority 1: "Coherent, guided CLI workflow" and "100+ leaf commands in flat namespace" | CLI partially organized (expression reconcile subcommands use dashes). No `auteur help` or guided wizard exists. | LOW | Still accurate as a gap — guided wizard and help command remain unimplemented |
+| 3 | `v1-architecture-completion-report.md`: Priority 3: "blueprint.yaml and bible.json have no schema_version field" | `Project.init()` now writes `.auteur/project.yaml` with `schema_version` — **no longer accurate** at 8bc942c | MEDIUM | Report updated in this audit (marked complete) |
+| 4 | `v1-architecture-completion-report.md`: Priority 4: "3 stale genre CLI adapters remain" | These were removed in v0.2.0 — **no longer accurate** | LOW | Report updated in this audit (marked partially complete) |
+| 5 | `capability-coverage.md`: "Book assembly and export remain untraversed" | Book reconciliation and publishing are now implemented — **contradicts its own later passages** | MEDIUM | Document updated in this audit; matrix needs structural rewrite to separate historical pilot from current state |
+| 6 | `capability-coverage.md`: "single-Chapter" scope described as current evidence, followed by "two-Chapter Book" scope as proven | Document has accumulated chronological updates without reconciliation — historical and current evidence interleaved | MEDIUM | Restructure into: Current Capability Matrix, Current Proven Verticals, Remaining Gaps, Historical Pilot Evidence |
+| 7 | `artifacts.md`: No mention of book reconciliation artifacts (decision records, acceptance records, completion records, publishing snapshots) | These artifacts exist in the codebase with real persistence paths | LOW | Add to artifacts doc |
+| 8 | `engine-v1-workflow.md`: Documents V1 chapter-level workflow; no Book reconciliation or publishing | Book reconciliation (Phases A–C4) and publishing exist | MEDIUM | Update workflow doc for v0.2.x scope |
+| 9 | `v1-architecture-completion-report.md`: Labels Ontology as "experimental" and Realization as "partial" with stub backends | Ontology and Realization backends are substantially more complete than reported — **no longer accurate** | MEDIUM | Report updated in this audit to reflect current state |
+| 10 | `capability-coverage.md`: "Book-level reasoning/editing — remaining deferred" | Still accurate — Book reconciliation exists but Book-level reasoning/critic workflow does not | LOW | No update needed; distinction correctly preserved |
 
 ---
 
@@ -433,9 +456,11 @@ Test coverage: EXCELLENT
 | `test_realization_knowledge.py` | 11 | Same `goal` field issue — class-level xfail |
 | `test_realization_temporal.py` | 11 | Same `goal` field issue — class-level xfail |
 
-**Total xfail: 27 tests** (out of 2,842 = <1%)
+**Total xfail: 28 tests** (out of 2,842 collected = <1%)
 
 These are grouped xfail markers on entire test classes in `test_realization_knowledge.py` (23 tests total, ~11 xfail) and `test_realization_temporal.py` (20 tests total, ~11 xfail) plus individual function xfail in `test_realization_cli.py` (18 tests, 5 xfail). The root cause is the `SceneOutline` schema validation requirement for a `goal` field that test fixtures don't provide — this is a fixture design issue, not necessarily a production code bug.
+
+**Xpassed (unexpected passes):** 3 tests marked xfail that now pass. This suggests the `SceneOutline.goal` issue has been partially resolved — test fixtures may have been updated for some but not all paths.
 
 ---
 
@@ -443,11 +468,11 @@ These are grouped xfail markers on entire test classes in `test_realization_know
 
 | # | Gap | Category | Current State | Missing | Severity | Product Blocker | Effort | Recommendation | Release |
 |---|-----|----------|-------------|---------|----------|----------------|--------|----------------|---------|
-| 1 | **status.py test coverage** | Infrastructure | 450 lines of code, zero tests | Test suite for `gather_status()` and `format_status()` | HIGH | No (works in practice) | Small | Write tests | v0.2.x |
+| 1 | **status.py test coverage** | Testing | `gather_status()` exercised by 8 release-integrity tests (indirect). `format_status()` has zero tests. `auteur status` CLI has no end-to-end test. | Direct tests for `format_status()`, CLI end-to-end test | MEDIUM | No (works in practice) | Small | Write direct tests; add CLI smoke test | v0.2.x |
 | 2 | **Editing: single pass only** | Feature | Only aiisms pass implemented | Additional editorial passes (passive voice, readability, pacing, dialogue) | MEDIUM | No | Medium | Implement 2-3 more passes | v0.3 |
 | 3 | **Roundtrip: markdown only** | Feature | Markdown export/import only | EPUB roundtrip, DOCX roundtrip | MEDIUM | No | Medium | Add format adapters | v0.3 |
 | 4 | **Reasoning Runtime not wired** | Architecture | `ReasoningRuntime` is fully implemented and tested but never called from production code | CLI pipeline integration for `run_critics` → synthesize → review display | MEDIUM | No | Small | Wire into `cli.py` and `pipeline/runner.py` | v0.3 |
-| 5 | **Status.py untested** | Testing | See #1 (duplicate — merged) | — | — | — | — | — | — |
+| 5 | **Domain-specific critic wiring** | Architecture | 5 LLM critics run via raw `ThreadPoolExecutor` fan-out. ReasoningRuntime with dependency resolution, staleness, and synthesis unused. | Production integration of ReasoningRuntime | MEDIUM | No | Small | Wire ReasoningRuntime into pipeline | v0.3 |
 | 6 | **CLI UX: no guided workflow** | UX | 30+ commands, flat namespace, no `auteur help` or wizard | Guided workflow, `auteur init --wizard`, progressive disclosure | HIGH | Yes (for new users) | Medium | Add guided mode | v0.3 |
 | 7 | **Pydantic deprecation warnings** | Tech debt | `schema` field shadow in `universe/constraints.py`, class-based config in `scene_state.py` | Clean Pydantic v2 usage | LOW | No | Small | Rename `schema` → `constraint_schema`; migrate to ConfigDict | v0.2.x |
 | 8 | **Docstring rot in pipeline/** | Quality | `extraction.py` and `parsing.py` have wrong docstrings and dead copy-pasted imports | Clean module headers | LOW | No | Trivial | Fix docstrings | v0.2.x |
@@ -460,9 +485,9 @@ These are grouped xfail markers on entire test classes in `test_realization_know
 | 15 | **Expression boundary specification** | Architecture | Described but unspecified (narrative-architecture.md §89) | Specification and implementation | LOW | No | Medium | Specify boundary rules | v1.0 |
 
 ### Product Blocker Assessment
-- **Critical:** None (2,842 tests pass, core workflow is functional)
-- **High:** CLI UX for new users (#6), status.py test coverage (#1)
-- **Medium:** Editing incomplete (#2), roundtrip limited (#3), ReasoningRuntime not wired (#4), xfail tests (#10), no visualization (#12)
+- **Critical:** None (2,811 passed, 0 failed, core workflow is functional)
+- **High:** CLI UX for new users (#6)
+- **Medium:** Editing incomplete (#2), roundtrip limited (#3), ReasoningRuntime not wired (#4), xfail tests (#10), status test gaps (#1), no visualization (#12)
 
 ---
 
@@ -470,15 +495,17 @@ These are grouped xfail markers on entire test classes in `test_realization_know
 
 ### A. Architectural completeness — Are all five semantic layers implemented?
 
-**Yes — but with important gradations.**
+**All five layers have real implementation. Not all five are complete and integrated.**
 
 | Layer | Status | Evidence |
 |-------|--------|----------|
-| Layer 0 — Ontology | SCAFFOLDED | Package exists with real schema and tests, but not integrated into any production workflow |
+| Layer 0 — Ontology | FUNCTIONAL_BUT_PARTIAL / EXPERIMENTAL | Package with schemas, data, loader, CLI, 332 tests exists. Not integrated into any production workflow. Dual-schema problem. |
 | Layer 1 — Identity | COMPLETE | `identity.py`, `blueprint.py`, genre pipeline, deterministic validation |
-| Layer 2 — Structure | COMPLETE | 1,646-line analyzer with 40+ rules, proposal pipeline, state commands |
-| Layer 3 — Realization | FUNCTIONAL_BUT_PARTIAL | Bible, cartographer, character analysis, relation tracking all work. `SceneOutline.goal` field causes 27 xfail tests. Two `pass` stubs in KnowledgeValidator. |
-| Layer 4 — Expression | COMPLETE | Scene prose, chapter assembly, book assembly, chapter/book reconciliation (A–C4), critics, pipeline orchestration |
+| Layer 2 — Structure | COMPLETE (primary engine); PARTIAL convergence | `narrative_blueprint`/orchestration representation not fully reconciled with primary Structure authority |
+| Layer 3 — Realization | FUNCTIONAL_BUT_PARTIAL | Bible, cartographer, character analysis, relation tracking all work. `SceneOutline.goal` field causes 28 xfail tests. State ownership overlaps Bible/Relations. |
+| Layer 4 — Expression | COMPLETE (for supported workflow) | Scene prose, chapter assembly, book assembly, chapter/book reconciliation (A–C4), critics, pipeline orchestration |
+
+This is the cleanest resolution between "yes, all layers exist" and "no, all layers are not complete." Implementation existence is very broad; uniform architectural maturity (provenance, transformation, lifecycle across every subsystem) is narrower.
 
 ### B. Core product completeness — Can an author complete the supported opinionated workflow?
 
@@ -509,17 +536,22 @@ Artifacts implemented but not fully documented:
 
 ### D. Feature completeness — Are all documented public features functional?
 
-**Yes — every documented public feature is functional.**
+**Every registered public command has a nontrivial backend — but not every command has equal production readiness, integration depth, or testing confidence.**
 
-All commands listed in CLI help and documentation:
-- `auteur status` — works (zero tests, but functional)
-- `auteur publish` — works (excellent tests)
-- `auteur structure *` — all work (excellent tests)
-- `auteur expression *` — all work (excellent tests)
-- `auteur init/draft/accept/retry/plan` — all work
-- `auteur series/universe/character/relations/export/import/edit` — all work
-- `auteur ontology *` — works but experimental
-- Genre pipelines (netorare/mystery/gentlefemdom) — all work
+| Category | Status | Evidence |
+|----------|--------|----------|
+| Core CLI (`auteur init/draft/accept/retry/plan`) | FUNCTIONAL | Works end-to-end with tests |
+| Status (`auteur status`) | FUNCTIONAL | Works but `format_status()` untested; no CLI end-to-end test |
+| Publishing (`auteur publish`) | COMPLETE (v0.2.1 scope) | HTML/EPUB with 52 release-qualification tests |
+| Structure (`auteur structure *`) | COMPLETE | 15+ test files, 40+ diagnostic rules |
+| Expression/reconciliation (`auteur expression *`) | COMPLETE | 12+ test files, 8 book-reconciliation test suites |
+| State (`auteur state *`) | COMPLETE | 2 test files |
+| Cartographer (`auteur cartographer *`) | FUNCTIONAL | 2 test files; compiler has only 2 tests |
+| Series/Universe/Character/Relations | FUNCTIONAL | Real models and CLI, less provenance depth than Expression |
+| Editing (`auteur edit`) | PARTIAL | 1 pass (aiisms) only |
+| Export/Import (`auteur export/import`) | PARTIAL | Markdown only |
+| Genre pipelines (`auteur {genre} init/resume`) | COMPLETE | 10+ test files across 3 genres + registry |
+| Ontology (`auteur ontology *`) | EXPERIMENTAL | Works from CLI but not integrated
 
 ### E. Vision completeness — Are all conceptual packages and long-term ambitions implemented?
 
@@ -593,13 +625,23 @@ Wiring the ReasoningRuntime would:
 Auteur v0.2.1 is a **functional, release-quality narrative engineering platform** with:
 
 - **~45,000+ lines of production Python** across ~30 packages
-- **2,842 passing tests** (0 failures, 0 errors)
+- **2,811 passed, 28 xfailed, 3 xpassed** (0 failures, 0 errors)
 - **0 `NotImplementedError` strings** in production code
 - **0 CLI commands** that are bare parsers without real backends
-- **1 untested module** (`status.py` — 450 lines)
-- **27 xfail tests** (<1% of suite) due to `SceneOutline.goal` field requirement in test fixtures
-- **4 production stubs** (all in narrative_realization and narrative_orchestration, documented with comments)
+- **4 minor production stubs** (documented pass bodies in validators)
+- **`format_status()` untested** — no direct tests; CLI end-to-end untested. `gather_status()` exercised by 8 indirect release-integrity tests.
+- **No product-blocking gaps** — every gap has a path to resolution
 
-The product successfully executes the opinionated author workflow from project initialization through structure analysis, chapter drafting with critic-guided iteration, chapter and book reconciliation, and HTML/EPUB publishing. No foundational architecture is missing. The remaining gaps are UX polish (guided workflows), breadth (more editing passes, more export formats), and integration (wiring the existing ReasoningRuntime into the production pipeline).
+The product successfully executes the opinionated author workflow from project initialization through structure analysis, chapter drafting with critic-guided iteration, chapter and book reconciliation, and HTML/EPUB publishing. No foundational architecture is missing. The remaining gaps are UX polish (guided workflows), breadth (more editing passes, more export formats), production integration (wiring the existing ReasoningRuntime into the pipeline), and universal provenance adoption.
 
-The architecture completion report written at the v1.1 boundary remains substantially accurate. Updates needed: publishing pipeline status (now complete, not deferred), schema versioning (now implemented), and dead code removal (stale genre adapters removed).
+### Recommended documentation hierarchy
+
+After this audit, the canonical document set should be organized as:
+
+| Document | Role |
+|----------|------|
+| `architecture-constitution.md` | **Canonical rules and invariants** — stable, should rarely change |
+| `narrative-architecture.md` | **Canonical semantic layers and scope model** |
+| `docs/audits/auteur-implementation-completeness-audit.md` | **Current implementation snapshot** — corrected after each release |
+| `capability-coverage.md` | **Current product capability matrix only** — rewrite to separate historical pilot evidence from current state |
+| `v1-architecture-completion-report.md` | **Historical milestone** — label as "Superseded for implementation status by the v0.2.1 completeness audit" |
