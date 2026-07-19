@@ -11,23 +11,31 @@ from auteur.llm import LLMClient
 from auteur.reasoning.runtime import CriticRegistry, CriticSpec
 
 
-def _make_adapter(critic_name: str, render_fn: Any, temperature: float, max_tokens: int):
-    """Factory: return a CriticRunner that delegates to the existing critic."""
+def _make_adapter(full_critic_id: str, render_fn: Any, temperature: float, max_tokens: int):
+    """Factory: return a CriticRunner that delegates to the existing critic.
+
+    The ``full_critic_id`` (e.g. ``\"draft.contract\"``) is used for Runtime
+    registration and discovery.  The bare name (``\"contract\"``) is passed to
+    ``_run_critic`` so that ``CriticFinding.critic`` matches the expected
+    ``Literal[\"contract\", \"arc\", \"tension\", \"slop\", \"theme\"]`` type.
+    """
+    bare_name = full_critic_id.replace("draft.", "")
 
     def adapter(**inputs: Any) -> list[dict[str, Any]]:
         llm: LLMClient = inputs["llm"]
         kwargs = {k: inputs[k] for k in ("draft", "outline", "blueprint", "bible", "chapter_index") if k in inputs}
-        return _run_critic(
+        findings = _run_critic(
             render_fn,
             llm=llm,
-            critic_name=critic_name,
+            critic_name=bare_name,
             temperature=temperature,
             max_tokens=max_tokens,
             **kwargs,
         )
+        # Convert CriticFinding Pydantic objects to plain dicts for the Runtime
+        return [f.model_dump() if hasattr(f, "model_dump") else dict(f) for f in findings]
 
     return adapter
-
 
 def register_draft_critics(registry: CriticRegistry) -> None:
     """Register all five LLM-based draft critics with the Runtime registry.
