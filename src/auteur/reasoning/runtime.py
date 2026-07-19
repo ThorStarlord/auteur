@@ -13,7 +13,7 @@ import hashlib
 import json
 import time
 from collections.abc import Callable as CallableType, Mapping, Sequence
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed, wait
 from datetime import datetime, timezone
 from enum import StrEnum
 from pathlib import Path
@@ -135,6 +135,8 @@ class ExecutionOutcome(BaseModel):
     duration_ms: int | None = None
     input_tokens: int | None = None
     output_tokens: int | None = None
+    provider: str | None = None
+    model: str | None = None
 
 
 class ExecutionResult(BaseModel):
@@ -148,47 +150,71 @@ def _stable_id(payload: Any) -> str:
 
 
 def _reasoning_sections(findings: list[dict[str, Any]]) -> dict[str, Any]:
+    """Transform findings into synthesis-compatible sections.
+
+    Faithfully represents each finding — observations and claims always present;
+    hypotheses and evaluation sections included only when findings contain
+    genuine 'hypotheses' or 'evaluation' keys (never manufactured).
+    """
     observations = []
     evidence = []
-    hypotheses = []
-    evaluation = []
     claims = []
     recommendations = []
+    hypotheses: list[dict[str, Any]] = []
+    evaluations: list[dict[str, Any]] = []
     for index, finding in enumerate(findings, 1):
         rule = finding.get("rule", "critic.finding")
         statement = finding.get("message") or finding.get("evidence") or str(finding)
         finding_id = f"finding-{index}"
-        observations.append({"observation_id": finding_id, "statement": statement})
+        observations.append({"observation_id": finding_id, "statement": statement,
+                             "severity": finding.get("severity", "info"),
+                             "critic": finding.get("critic", "unknown"),
+                             "rule": rule,
+                             "evidence": finding.get("evidence", ""),
+                             "requested_change": finding.get("requested_change", "")})
         evidence.append({"evidence_id": f"evidence-{index}", "source": rule,
                          "extraction": finding.get("evidence", statement)})
-        raw_hypotheses = finding.get("hypotheses") or [statement]
-        for hypothesis_index, hypothesis in enumerate(raw_hypotheses, 1):
-            hypotheses.append({"hypothesis_id": f"hypothesis-{index}-{hypothesis_index}",
-                               "statement": hypothesis,
-                               "supporting_evidence": [f"evidence-{index}"],
-                               "contradicting_evidence": []})
-            evaluation.append({"hypothesis_id": f"hypothesis-{index}-{hypothesis_index}",
-                               "result": "supported" if hypothesis_index == 1 else "plausible",
-                               "rationale": "deterministic analyzer finding"})
         claims.append({"claim_id": f"claim-{index}", "statement": statement,
-                       "hypothesis_id": f"hypothesis-{index}-1"})
-        raw_recommendations = finding.get("recommendations") or [finding.get("requested_change", "Review this finding.")]
-        for recommendation_index, recommendation in enumerate(raw_recommendations, 1):
-            recommendations.append({"recommendation_id": f"recommendation-{index}-{recommendation_index}",
-                                "statement": recommendation,
-                                "claim_ids": [f"claim-{index}"],
-                                "possible_transformations": []})
-    return {
+                       "critic": finding.get("critic", "unknown"),
+                       "severity": finding.get("severity", "info"),
+                       "rule": rule,
+                       "requested_change": finding.get("requested_change", "")})
+        # Use genuine recommendations list from finding; fall back to requested_change
+        raw_recs = finding.get("recommendations")
+        if raw_recs:
+            for ri, rec in enumerate(raw_recs, 1):
+                recommendations.append({"recommendation_id": f"recommendation-{index}-{ri}",
+                                        "statement": rec if isinstance(rec, str) else str(rec),
+                                        "claim_ids": [f"claim-{index}"]})
+        elif finding.get("requested_change"):
+            recommendations.append({"recommendation_id": f"recommendation-{index}",
+                                    "statement": finding.get("requested_change", ""),
+                                    "claim_ids": [f"claim-{index}"]})
+        # Preserve genuine hypotheses/evaluation from findings (draft critics
+        # don't produce these; structural critics like setup_payoff do).
+        raw_hypotheses = finding.get("hypotheses")
+        if raw_hypotheses:
+            for hi, h in enumerate(raw_hypotheses, 1):
+                hypotheses.append({"hypothesis_id": f"hypothesis-{index}-{hi}",
+                                   "statement": h})
+        raw_evaluation = finding.get("evaluation")
+        if raw_evaluation:
+            for ei, e in enumerate(raw_evaluation, 1):
+                evaluations.append({"evaluation_id": f"evaluation-{index}-{ei}",
+                                    "result": e.get("result", "unknown"),
+                                    "rationale": e.get("rationale", str(e))})
+    result = {
         "observations": observations,
         "evidence": evidence,
-        "hypotheses": hypotheses,
-        "evaluation": evaluation,
         "claims": claims,
         "recommendations": recommendations,
-        "confidence": {"overall": "confirmed" if not findings else "disputed" if any(
-            f.get("severity") in ("error", "high") for f in findings
-        ) else "plausible"},
+        "confidence": {"overall": "unknown"},
     }
+    if hypotheses:
+        result["hypotheses"] = hypotheses
+    if evaluations:
+        result["evaluation"] = evaluations
+    return result
 
 def _dependency_layers(
     selected_critics: dict[str, CriticSpec],
@@ -223,16 +249,17 @@ def _dependency_layers(
     return layers
 
 
-# ---------------------------------------------------------------------------
+
 # Runtime
-# ---------------------------------------------------------------------------
 
 class ReasoningRuntime:
     def __init__(self, registry: CriticRegistry, report_dir: Path, *,
-                 max_workers: int = _DEFAULT_MAX_WORKERS):
+                 max_workers: int = _DEFAULT_MAX_WORKERS,
+                 critic_timeout: float | None = None):
         self.registry = registry
         self.report_dir = Path(report_dir)
         self.max_workers = max_workers
+        self.critic_timeout = critic_timeout
 
     def plan(self, request: RuntimeRequest) -> ExecutionPlan:
         selected: dict[str, CriticSpec] = {}
@@ -275,9 +302,6 @@ class ReasoningRuntime:
         all_outcomes: list[ExecutionOutcome] = []
 
         for layer in layers:
-            layer_outcomes: list[ExecutionOutcome] = {}
-            lock: Any = None  # currently sequential; parallel handled per-critic
-
             def execute_critic(critic_id: str) -> ExecutionOutcome:
                 spec = self.registry.discover(critic_id=critic_id)
                 t0 = time.monotonic()
@@ -302,14 +326,17 @@ class ReasoningRuntime:
                     if not isinstance(findings, list):
                         raise TypeError("critic must return a list of findings")
                     report_id = _stable_id({"plan": plan.plan_id, "critic": critic_id})
-                    # Capture token usage from the LLM client if available
                     llm = request.inputs.get("llm")
                     inp_tokens = getattr(llm, "input_tokens", None) or getattr(llm, "prompt_tokens", None)
                     out_tokens = getattr(llm, "output_tokens", None) or getattr(llm, "completion_tokens", None)
+                    # Provider/model from formal LLM client attributes only
+                    provider = getattr(llm, "provider", None) if llm else None
+                    model = getattr(llm, "model", None) if llm else None
                     report = {"report_id": report_id, "status": "derived", "artifact_type": "reasoning_report",
                               "critic_id": critic_id, "critic_version": spec.version,
                               "plan_id": plan.plan_id, "source_snapshot": plan.source_snapshot,
                               "findings": findings, "usage": {"input_tokens": inp_tokens, "output_tokens": out_tokens},
+                              "provider": provider, "model": model,
                               **_reasoning_sections(findings)}
                     self.report_dir.mkdir(parents=True, exist_ok=True)
                     (self.report_dir / f"{report_id}.json").write_text(
@@ -317,19 +344,51 @@ class ReasoningRuntime:
                     return ExecutionOutcome(critic_id=critic_id, version=spec.version,
                         status=RuntimeStatus.SUCCESS, report_id=report_id,
                         duration_ms=int((time.monotonic() - t0) * 1000),
-                        input_tokens=inp_tokens, output_tokens=out_tokens)
+                        input_tokens=inp_tokens, output_tokens=out_tokens,
+                        provider=provider, model=model)
                 except Exception as exc:
+                    reason = "critic timed out" if isinstance(exc, TimeoutError) else "critic execution failed"
                     return ExecutionOutcome(critic_id=critic_id, version=spec.version,
-                        status=RuntimeStatus.FAILED, reason="critic execution failed",
-                        error=str(exc), duration_ms=int((time.monotonic() - t0) * 1000))
+                        status=RuntimeStatus.FAILED, reason=reason,
+                        error=str(exc) if not isinstance(exc, TimeoutError) else None,
+                        duration_ms=int((time.monotonic() - t0) * 1000))
 
             if len(layer) == 1:
-                all_outcomes.append(execute_critic(layer[0]))
+                # Use a daemon thread with timeout
+                if self.critic_timeout is not None and self.critic_timeout > 0:
+                    with ThreadPoolExecutor(max_workers=1) as pool:
+                        fut = pool.submit(execute_critic, layer[0])
+                        done, not_done = wait([fut], timeout=self.critic_timeout)
+                        if not_done:
+                            spec = self.registry.discover(critic_id=layer[0])
+                            all_outcomes.append(ExecutionOutcome(critic_id=layer[0], version=spec.version,
+                                status=RuntimeStatus.FAILED, reason="critic timed out",
+                                duration_ms=0))
+                        else:
+                            all_outcomes.append(fut.result())
+                else:
+                    all_outcomes.append(execute_critic(layer[0]))
             else:
                 with ThreadPoolExecutor(max_workers=min(self.max_workers, len(layer))) as pool:
                     fut_map = {pool.submit(execute_critic, cid): cid for cid in layer}
-                    for fut in as_completed(fut_map):
-                        all_outcomes.append(fut.result())
+                    done, not_done = wait(fut_map, timeout=self.critic_timeout)
+                    for fut in done:
+                        try:
+                            all_outcomes.append(fut.result())
+                        except Exception as exc:
+                            cid = fut_map[fut]
+                            spec = self.registry.discover(critic_id=cid)
+                            reason = "critic timed out" if isinstance(exc, TimeoutError) else "critic execution failed"
+                            all_outcomes.append(ExecutionOutcome(critic_id=cid, version=spec.version,
+                                status=RuntimeStatus.FAILED, reason=reason,
+                                error=str(exc) if not isinstance(exc, TimeoutError) else None,
+                                duration_ms=0))
+                    for fut in not_done:
+                        cid = fut_map[fut]
+                        spec = self.registry.discover(critic_id=cid)
+                        all_outcomes.append(ExecutionOutcome(critic_id=cid, version=spec.version,
+                            status=RuntimeStatus.FAILED, reason="critic timed out",
+                            duration_ms=0))
                 # Sort outcomes by the deterministic layer order
                 order = {cid: i for i, cid in enumerate(layer)}
                 all_outcomes.sort(key=lambda o: order.get(o.critic_id, 999))

@@ -102,9 +102,9 @@ class TestKnowledgeConsistency:
 
 
 class TestRetractiveForgetting:
-    pytestmark = pytest.mark.xfail(reason="SceneOutline schema requires goal field; Layer 3 narrative_realization documented as Partial", strict=False)
     """Test detection of retroactive forgetting violations."""
 
+    @pytest.mark.xfail(reason="SceneOutline schema requires goal field; Layer 3 narrative_realization documented as Partial", strict=False)
     def test_no_forgetting_in_single_scene(self):
         """Test single scene with knowledge doesn't trigger forgetting error."""
         validator = KnowledgeValidator()
@@ -195,7 +195,6 @@ class TestOffStageLearning:
 
 
 class TestCrossSceneValidation:
-    pytestmark = pytest.mark.xfail(reason="SceneOutline schema requires goal field; Layer 3 narrative_realization documented as Partial", strict=False)
     """Test validation across multiple scenes."""
 
     def test_validate_all_scenes_empty(self):
@@ -205,6 +204,7 @@ class TestCrossSceneValidation:
         assert result.is_valid is True
         assert len(result.violations) == 0
 
+    @pytest.mark.xfail(reason="SceneOutline schema requires goal field; Layer 3 narrative_realization documented as Partial", strict=False)
     def test_validate_all_scenes_multiple(self):
         """Test validating multiple scenes."""
         validator = KnowledgeValidator()
@@ -227,7 +227,6 @@ class TestCrossSceneValidation:
 
 
 class TestErrorReporting:
-    pytestmark = pytest.mark.xfail(reason="SceneOutline schema requires goal field; Layer 3 narrative_realization documented as Partial", strict=False)
     """Test error message generation."""
 
     def test_violation_report_no_errors(self):
@@ -242,6 +241,7 @@ class TestErrorReporting:
             KnowledgeViolation,
         )
 
+        validator = KnowledgeValidator()
         violation = KnowledgeViolation(
             scene_id="scene_01_01",
             violation_type=KnowledgeViolationType.RETROACTIVE_FORGETTING,

@@ -141,6 +141,8 @@ def persist_reasoning_run(
                 "error": o.error if o.error else None,
                 "duration_ms": o.duration_ms,
                 "usage": {"input_tokens": o.input_tokens, "output_tokens": o.output_tokens},
+                "provider": o.provider,
+                "model": o.model,
             }
             for o in result.outcomes
         ],
@@ -183,6 +185,8 @@ def persist_reasoning_run(
                 "finding_count": 0,
                 "duration_ms": o.duration_ms,
                 "usage": {"input_tokens": o.input_tokens, "output_tokens": o.output_tokens},
+                "provider": o.provider,
+                "model": o.model,
             }
             for o in result.outcomes
         ],

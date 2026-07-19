@@ -1,6 +1,77 @@
 # Changelog
 
 
+
+## v0.3.2 (2026-07-19) — Reasoning Runtime Completeness
+
+### Normalized synthesis
+
+- `_reasoning_sections()` no longer manufactures synthetic `hypotheses` or `evaluation`
+  sections; claims and observations faithfully preserve critic, severity, rule,
+  evidence, and requested_change from source findings
+- Removed dead `_normalize_findings_for_synthesis` function (duplicated the same
+  flawed approach but was never called)
+
+### Provider/metadata capture
+
+- Provider and model fields captured from formal LLM client attributes
+  (`provider`, `model`) only — no `_provider`/`_model` prefix fallback, no
+  module-name heuristic that could return misleading values
+- Fields persisted in ExecutionOutcome and draft_review artifacts
+
+### Timeout enforcement
+
+- `critic_timeout` parameter on `ReasoningRuntime.__init__()` enables bounded
+  per-critic execution deadlines via `concurrent.futures.wait()`
+- Hung critics are killed and recorded as `FAILED` with `reason="critic timed out"`
+- Timeout handling tested with slow critics that exceed deadline
+- Default `None` preserves backward-compatible behavior (no timeout)
+
+### Test rigor
+
+- 12 new platform tests covering timeout enforcement, provider metadata
+  (explicit, prefixed, absent, no module-name leak), and faithful normalization
+- 61 total focused reasoning tests passing
+- Backward compatibility tests for v0.3.0/v0.3.1 artifact reading
+- Negative CLI tests for missing/malformed/empty files
+- Failure semantics tests (multi-failure coexistence, no false pass)
+
+### Other
+
+- `concurrent.futures.wait()` replaces `as_completed()` in runtime pool
+  execution for cleaner timeout semantics
+- Acceptance proof corrected: baseline is v0.3.1, not v0.3.0
+
+
+## v0.3.1 (2026-07-18) — Reasoning Runtime Hardening
+
+### Concurrent critic execution
+
+- `_dependency_layers()` groups critics by dependency depth; each layer executes
+  via `ThreadPoolExecutor(max_workers=5)`; deterministic ordering preserved
+- Token accounting: per-critic `input_tokens`/`output_tokens` captured from LLM
+  client; aggregated in run/review artifacts; displayed in Markdown review
+- Duration tracking in `ExecutionOutcome.duration_ms`
+- Synthesis adaptation: CriticFinding fields mapped into reasoning sections
+- Runtime dependency injection: `PipelineRunner.__init__(reasoning_runtime=None)`
+
+### CLI qualification
+
+- `format_review()` and `reasoning inspect` support string `freshness` fields and
+  bare-name critic fallback (`contract` → `draft.contract`)
+- All commands work without API key using persisted fixtures
+- 42 new tests across 3 files
+
+
+## v0.3.0 (2026-07-18) — Production Reasoning Runtime Integration
+
+- Created `src/auteur/reasoning/draft_critics.py` — 5 critic adapters
+- Created `src/auteur/reasoning/draft_review.py` — atomic persistence, freshness detection
+- Modified `PipelineRunner.draft_chapter()` to call runtime
+- Compatibility projection: `ExecutionOutcome` → `CriticFinding` → `ValidationReport`
+- Real-provider dogfood (Gemini 2.5 Flash) verified all 5 critics
+- 18 new tests
+
 ## v0.2.1 (2026-07-18) — Release Integrity and Product Invariants Hardening
 
 ### Repository hygiene
