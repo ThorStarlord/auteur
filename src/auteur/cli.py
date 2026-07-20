@@ -548,6 +548,9 @@ def _build_parser() -> argparse.ArgumentParser:
     from auteur.narrative_ontology.cli_ontology import register_ontology_subcommands
     register_ontology_subcommands(sub)
 
+    from auteur.workflow.cli import register_workflow_subcommands
+    register_workflow_subcommands(sub)
+
     return parser
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -1763,6 +1766,77 @@ def main(argv: list[str] | None = None) -> int:
             return handle_ontology_validate(args)
         if args.ontology_command == "themes":
             return handle_ontology_themes(args)
+
+    # === workflow ===
+    if args.command == "workflow":
+        from auteur.workflow.cli import (
+            format_workflow_status,
+            handle_workflow_explain,
+            handle_workflow_next,
+            handle_workflow_status,
+        )
+        if args.workflow_command == "status":
+            result = handle_workflow_status(args.project)
+            if not result.is_success:
+                _err(result.error or "workflow status failed")
+                return result.exit_code
+            if args.json:
+                print(json.dumps(result.data.state.to_dict(), indent=2))
+            else:
+                output = format_workflow_status(result)
+                if output:
+                    print(output)
+            return 0
+        if args.workflow_command == "next":
+            result = handle_workflow_next(args.project, execute=args.execute)
+            if not result.is_success:
+                _err(result.error or "workflow next failed")
+                return result.exit_code
+            if args.json:
+                print(json.dumps(result.data, indent=2, default=str))
+            else:
+                data = result.data
+                action = data.get("action")
+                if action:
+                    label = action.label if hasattr(action, "label") else action.get("label", "")
+                    command = action.command if hasattr(action, "command") else action.get("command", "")
+                    authority = action.authority.value if hasattr(action, "authority") else action.get("authority", "")
+                    description = action.description if hasattr(action, "description") else action.get("description", "")
+                    print(f"Next: {label}")
+                    print(f"  Command: {command}")
+                    print(f"  Authority: {authority}")
+                    if description:
+                        print(f"  {description}")
+                else:
+                    print("No next action — all stages complete.")
+            return 0
+        if args.workflow_command == "explain":
+            result = handle_workflow_explain(args.project, args.stage)
+            if not result.is_success:
+                _err(result.error or "workflow explain failed")
+                return result.exit_code
+            if args.json:
+                print(json.dumps(result.data, indent=2))
+            else:
+                data = result.data
+                if "stage" in data:
+                    stage = data["stage"]
+                    complete = data["is_complete"]
+                    print(f"Stage: {stage} ({'complete' if complete else 'incomplete'})")
+                    if data.get("current_artifact"):
+                        print(f"  Current artifact: {data['current_artifact']}")
+                    for b in data.get("blockers", []):
+                        print(f"  [{b['severity']}] {b['category']}: {b['message']}")
+                        if b.get("artifact"):
+                            print(f"    artifact: {b['artifact']}")
+                else:
+                    cs = data.get("current_stage")
+                    if cs:
+                        print(f"Current stage: {cs}")
+                    else:
+                        print("All stages complete.")
+                    print(f"Summary: {data.get('summary', '')}")
+            return 0
 
     return 0
 

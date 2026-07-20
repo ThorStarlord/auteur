@@ -1,0 +1,25 @@
+title: "Test Story"
+core_answer: "A test story for workflow fixtures"
+target_experience:
+  primary: "wonder"
+  progression: "curiosity -> wonder -> satisfaction"
+  avoid:
+    - "boredom"
+story_type:
+  medium: "novel"
+  mode: "heroic"
+  genre: "fantasy"
+  target_audience: "adult"
+central_engine:
+  want: "Find the lost artifact"
+  resistance: "The dark order guards it"
+  conflict: "Race against time to secure the artifact"
+  stakes: "The kingdom falls if they fail"
+  change: "The hero learns to trust others"
+not_this: []
+open_questions: ["How will the hero grow?"]
+confidence: 0.85
+alternatives: []
+why_this_is_best: "Straightforward fantasy quest"
+rejected_directions: []
+author_overrides: []

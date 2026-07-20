@@ -1,0 +1,26 @@
+project_identity:
+  title: "Test Story"
+  author: "Test Author"
+  genre: fantasy
+  medium: novel
+  mode: heroic
+chapters:
+  - index: 1
+    title: "The Beginning"
+    summary: "The hero sets out"
+  - index: 2
+    title: "The Middle"
+    summary: "The hero struggles"
+  - index: 3
+    title: "The End"
+    summary: "The hero triumphs"
+story_engine:
+  main_thread:
+    protagonist: "Hero"
+    want: "Find the lost artifact"
+    resistance: "The dark order"
+    conflict: "Race against time"
+    stakes: "The kingdom falls"
+    change: "Learns to trust"
+    thread_type: main
+    function: primary
