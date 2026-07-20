@@ -551,6 +551,9 @@ def _build_parser() -> argparse.ArgumentParser:
     from auteur.workflow.cli import register_workflow_subcommands
     register_workflow_subcommands(sub)
 
+    from auteur.impact.cli import register_impact_subcommands
+    register_impact_subcommands(sub)
+
     return parser
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:

@@ -30,6 +30,12 @@ existing status layer to provide stage detection, blocker inference, and
 recommended next actions. This addresses the “no guided CLI workflow” gap
 identified in the v1 architecture completion report.
 
+**v0.5.0 update:** The “Impact” column adds `auteur impact {status|analyze|
+explain|plan}` commands for structural revision propagation. This addresses
+the main unbalanced path — detecting changes, tracing dependencies, classifying
+impact severity, preserving unaffected artifacts, and producing ordered repair
+plans. The system is deterministic, offline, and preserves author authority.
+
 ## Proven and incomplete verticals
 
 The deepest current path is:
@@ -44,15 +50,19 @@ Scene Realization → Scene Expression → Chapter Expression
 → Book acceptance → Book reconciliation completion
 ```
 
-The main unbalanced path is structural revision:
+The structural revision path (previously unbalanced) is now addressed by
+v0.5.0's impact planning subsystem:
 
 ```text
-Structure change → affected Realizations stale
-→ preserve unaffected prose → repair impacted material
+Structure change → impact analysis → dependency graph
+→ direct and transitive impact → preservation classification
+→ ordered repair plan → workflow integration
 ```
 
-That path should be selected only after pilot evidence shows it is the highest
-friction gap.
+Artifact-level propagation is production-supported. Explicit semantic
+references (character arc checkpoints, setup/payoff IDs, scene dependency IDs,
+declared thematic obligations, structure links) are supported where structurally
+declared. Free-form semantic inference is not part of v0.5.0.
 
 ## Controlled pilot boundary
 
