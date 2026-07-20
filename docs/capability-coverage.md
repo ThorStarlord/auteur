@@ -24,6 +24,12 @@ The matrix is intentionally qualitative. “Partial” means a path exists but
 does not yet have the same reasoning, proposal, freshness propagation, and
 author-facing depth as the proven Expression path.
 
+**v0.4.0 update:** The “Author UX” column now includes the
+uteur workflow {status|next|explain} commands. These compose with the
+existing status layer to provide stage detection, blocker inference, and
+recommended next actions. This addresses the “no guided CLI workflow” gap
+identified in the v1 architecture completion report.
+
 ## Proven and incomplete verticals
 
 The deepest current path is:

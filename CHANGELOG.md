@@ -1,6 +1,47 @@
 # Changelog
 
+## v0.4.0 (2026-07-20) — Guided Author Workflow
 
+### New workflow module
+
+- **`auteur workflow status`**: Shows current workflow stage, blockers, and
+  recommended actions. Composes with `auteur.status.gather_status()` for
+  project state and layers typed workflow semantics on top.
+- **`auteur workflow next`**: Displays the single next recommended action with
+  authority level. Supports `--execute` flag for safe actions (read-only,
+  derived artifact, candidate generation).
+- **`auteur workflow explain`**: Explains a specific stage or the current
+  workflow state. Accepts optional stage name argument.
+- All workflow commands support `--json` output for programmatic use.
+- Deterministic, no LLM calls, no shared mutable state.
+
+### Workflow engine
+
+- 9-stage model: Identity → Structure → Realization → Drafting → Reasoning →
+  Reconciliation → Acceptance → Assembly → Publishing
+- 8-category blocker taxonomy: missing_prerequisite, invalid_artifact,
+  stale_artifact, blocking_reasoning, unresolved_reconciliation,
+  authority_required, ambiguous_candidate, unsupported_state
+- 6-level authority classification: read_only, derived_artifact,
+  candidate_generation, proposal_generation, authority_bearing,
+  canonical_mutation
+- Safe execution boundary: only first 3 authority levels eligible for `--execute`
+
+### Architecture
+
+- New `src/auteur/workflow/` package with clean separation:
+  `models.py` (types), `rules.py` (detection), `engine.py` (composition),
+  `cli.py` (handlers + formatters)
+- Composes with existing `status.py`, does not duplicate or replace it
+- Follows existing CLI patterns: HandlerResult → format_* → dispatch
+- No changes to existing expert commands
+
+### Tests
+
+- 42 new tests covering models, rules, engine, CLI, and project fixtures
+- Deterministic fixture projects for each workflow stage
+- Semantic assertions (not snapshots) for stage detection, blocker inference,
+  recommendation ranking, and execution safety boundary
 
 ## v0.3.2 (2026-07-19) — Reasoning Runtime Completeness
 

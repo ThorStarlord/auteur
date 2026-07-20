@@ -75,6 +75,7 @@ Status uses two axes: subsystem implementation depth, and production integration
 | Reasoning | COMPLETE (runtime, synthesis, CLI) | PARTIAL (runtime and synthesis not called from production pipeline) | `reasoning/runtime.py`, `synthesis.py`, `cli.py` |
 | Critics (LLM) | FUNCTIONAL | FULL (wired into drafting pipeline) | `critic/` (5 critics + base + repair_writer) |
 | Pipeline | FUNCTIONAL | FULL (orchestrates drafting) | `pipeline/runner.py` |
+| Workflow Guidance | FUNCTIONAL (v0.4.0) | FULL (composes with status module, wired into CLI) | `workflow/` (models, rules, engine, CLI) |
 | LLM Abstraction | COMPLETE | FULL (used by pipeline, critics, cartographer) | `llm/` (provider abstraction, retrying, fake) |
 | Editing | FUNCTIONAL_BUT_PARTIAL | PARTIAL (1 pass: aiisms only; architecture supports more) | `editing/` (1 pass + patcher + CLI) |
 | Roundtrip | FUNCTIONAL_BUT_PARTIAL | PARTIAL (markdown only, V1 scope) | `roundtrip/` (markdown export/import) |
@@ -325,7 +326,7 @@ Test coverage: EXCELLENT
 | # | Documentation Says | Code Reality | Severity | Action |
 |---|-------------------|-------------|----------|--------|
 | 1 | `v1-architecture-completion-report.md`: "roadmap for v2 includes `auteur publish` for EPUB/PDF/HTML" | v0.2.1, `auteur publish` already implemented for HTML and EPUB | MEDIUM | Update report to reflect v0.2.x status with implemented publishing — **done in this audit** |
-| 2 | `v1-architecture-completion-report.md`: Priority 1: "Coherent, guided CLI workflow" and "100+ leaf commands in flat namespace" | CLI partially organized (expression reconcile subcommands use dashes). No `auteur help` or guided wizard exists. | LOW | Still accurate as a gap — guided wizard and help command remain unimplemented |
+| 2 | `v1-architecture-completion-report.md`: Priority 1: "Coherent, guided CLI workflow" and "100+ leaf commands in flat namespace" | CLI partially organized (expression reconcile subcommands use dashes). No `auteur help` or guided wizard exists. **v0.4.0 adds `auteur workflow {status|next|explain}` — guided CLI workflow is no longer a gap.** | LOW | Partially addressed by v0.4.0 Guided Author Workflow — stage detection, blocker inference, recommended actions, safe execution boundary. Guided wizard and `auteur help` command remain unimplemented. |
 | 3 | `v1-architecture-completion-report.md`: Priority 3: "blueprint.yaml and bible.json have no schema_version field" | `Project.init()` now writes `.auteur/project.yaml` with `schema_version` — **no longer accurate** at 8bc942c | MEDIUM | Report updated in this audit (marked complete) |
 | 4 | `v1-architecture-completion-report.md`: Priority 4: "3 stale genre CLI adapters remain" | These were removed in v0.2.0 — **no longer accurate** | LOW | Report updated in this audit (marked partially complete) |
 | 5 | `capability-coverage.md`: "Book assembly and export remain untraversed" | Book reconciliation and publishing are now implemented — **contradicts its own later passages** | MEDIUM | Document updated in this audit; matrix needs structural rewrite to separate historical pilot from current state |
