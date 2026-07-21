@@ -1,5 +1,68 @@
 # Changelog
 
+## v0.5.0 (2026-07-20) — Structural Revision Propagation and Impact Planning
+
+### New impact planning subsystem
+
+- **`auteur impact status`**: Shows unresolved impact summary (blocked,
+  reconcile, regenerate, review counts) with human-readable or `--json` output.
+- **`auteur impact analyze`**: Detects content-hash changes, traces dependency
+  graph, classifies direct and transitive impact with severity taxonomy.
+- **`auteur impact explain <artifact-or-id>`**: Shows dependency paths,
+  propagation rules, preservation status, and recommended actions.
+- **`auteur impact plan`**: Generates ordered repair plan with deterministic
+  ordering (BLOCKED > RECONCILE > REGENERATE_CANDIDATE > REVIEW, by chapter).
+- All commands support `--project`, `--json`, `--save` for persistence.
+
+### Architecture
+
+- New `src/auteur/impact/` package with clean separation:
+  `models.py` (types), `graph.py` (dependency graph), `analyzer.py`
+  (change detection + propagation), `rules.py` (rule catalog R001–R017),
+  `planner.py` (repair plan), `persistence.py` (immutable reports),
+  `cli.py` (handlers + formatters).
+- Composes with existing `auteur.provenance.store.ArtifactStore` —
+  reuses content hashing, lifecycle, dependency records; does not duplicate.
+- Integrates with `auteur workflow` via `ImpactAnalyzer.workflow_actions()`.
+- Deterministic, offline, no LLM calls.
+
+### Impact taxonomy
+
+- 5-level severity: NONE → REVIEW → RECONCILE → REGENERATE_CANDIDATE → BLOCKED
+- 5-level preservation: PRESERVE → PRESERVE_WITH_REVIEW → PARTIAL_PRESERVATION
+  → REGENERATE → UNKNOWN
+- 14+ explicit propagation rules covering the full workflow chain
+- Severity combination: highest severity wins, all paths preserved
+
+### Repair planning
+
+- Deterministic ordering: missing deps → BLOCKED → RECONCILE → REGENERATE →
+  REVIEW, by chapter index, alphabetical tie-break
+- Prerequisite tracking between actions
+- Safe-to-execute flag based on authority level
+- Preservation guidance with preserved artifact list
+
+### Persistence
+
+- Immutable historical analysis and plan reports under `.auteur/impact/`
+- `latest.yaml` convenience pointer (replaced, not appended)
+- `authority: derived`, `canonical: false`
+
+### Tests
+
+- 111 new focused tests across 8 test files:
+  - `test_graph.py` — construction, cycles, missing deps, serialization (21)
+  - `test_rules.py` — rule matching, severity combination (12)
+  - `test_analyzer.py` — graph building, change detection, propagation (14)
+  - `test_planner.py` — ordering, prerequisites, blocking (10)
+  - `test_persistence.py` — save/load, immutability, latest pointer (12)
+  - `test_cli.py` — registration, handlers, missing project (14)
+  - `test_models.py` — model roundtrip, enums, defaults (16)
+  - `test_workflow_integration.py` — unresolved impact, workflow actions (6)
+  - `test_dogfood.py` — 10 dogfood scenarios (16)
+- Semantic assertions (not snapshots) for artifact IDs, severity, ordering
+- No broad skips or xfails
+
 ## v0.4.0 (2026-07-20) — Guided Author Workflow
 
 ### New workflow module
