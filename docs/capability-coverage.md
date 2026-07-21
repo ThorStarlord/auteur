@@ -36,6 +36,15 @@ the main unbalanced path — detecting changes, tracing dependencies, classifyin
 impact severity, preserving unaffected artifacts, and producing ordered repair
 plans. The system is deterministic, offline, and preserves author authority.
 
+**v0.6.0 update:** The “Realization Convergence” column adds `auteur realization
+{status|revise|candidates|generate-candidate|register-candidate|compare|reconcile}`
+commands for bounded scene/chapter revision. Impact findings (severity RECONCILE)
+resolve to convergence targets. Obligations are collected from identity, structure,
+and outline sources. Preservation analysis identifies what can be kept. Candidates
+are noncanonical and historically retained. Comparison is deterministic and
+multidimensional. Reconciliation produces typed proposals with explicit
+authority-required choices. No accepted prose is silently replaced.
+
 ## Proven and incomplete verticals
 
 The deepest current path is:
