@@ -557,6 +557,9 @@ def _build_parser() -> argparse.ArgumentParser:
     from auteur.convergence.cli import register_realization_subcommands
     register_realization_subcommands(sub)
 
+    from auteur.decision.cli import register_decision_subcommands
+    register_decision_subcommands(sub)
+
     return parser
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -1777,6 +1780,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "realization":
         from auteur.convergence.cli import dispatch_realization
         return dispatch_realization(args)
+
+    # === decision ===
+    if args.command == "decision":
+        from auteur.decision.cli import dispatch_decision
+        return dispatch_decision(args)
 
     # === workflow ===
     if args.command == "workflow":
