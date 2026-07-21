@@ -101,9 +101,8 @@ def _build_prerequisites(
         aid = a.affected_artifact.artifact_id
         artifact_type = a.affected_artifact.artifact_type
 
-        # RECONCILE for upstream must precede REGENERATE for downstream
+        # REGENERATE depends on RECONCILE — reconcile before regenerate
         if "reconcile" in a.title.lower() or a.authority == "candidate_generation":
-            # Find REGENERATE actions for same chapter
             for other in actions:
                 if other.action_id == a.action_id:
                     continue
@@ -111,8 +110,8 @@ def _build_prerequisites(
                     continue
                 if other.affected_artifact.chapter_index == a.affected_artifact.chapter_index:
                     if "regenerate" in other.title.lower():
-                        if other.action_id not in prereq_map.setdefault(a.action_id, []):
-                            prereq_map.setdefault(a.action_id, []).append(other.action_id)
+                        if a.action_id not in prereq_map[other.action_id]:
+                            prereq_map[other.action_id].append(a.action_id)
 
     return prereq_map
 

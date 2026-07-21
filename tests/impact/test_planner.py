@@ -84,6 +84,38 @@ class TestRepairPlanOrdering:
         for a in plan.actions:
             assert a.prerequisites is not None
 
+    def test_reconcile_before_regenerate_prerequisite(self) -> None:
+        """REGENERATE should declare RECONCILE as a prerequisite, not the reverse."""
+        findings = [
+            self._make_finding("ch1_outline", "chapter_outline", ImpactSeverity.RECONCILE, chapter=1),
+            self._make_finding("ch1_expr", "chapter_expression", ImpactSeverity.REGENERATE_CANDIDATE, chapter=1),
+        ]
+        plan = self._plan(findings)
+        reconcile_id = None
+        regenerate_id = None
+        for a in plan.actions:
+            if a.affected_artifact and a.affected_artifact.artifact_id == "ch1_outline":
+                reconcile_id = a.action_id
+            if a.affected_artifact and a.affected_artifact.artifact_id == "ch1_expr":
+                regenerate_id = a.action_id
+        if reconcile_id and regenerate_id:
+            # Find the regenerate action; its prereqs should include reconcile
+            for a in plan.actions:
+                if a.action_id == regenerate_id:
+                    assert reconcile_id in a.prerequisites, (
+                        f"Expected regenerate {regenerate_id} to have reconcile {reconcile_id} "
+                        f"as prerequisite, got {a.prerequisites}"
+                    )
+                    break
+            # Find the reconcile action; it should NOT have regenerate as a prereq
+            for a in plan.actions:
+                if a.action_id == reconcile_id:
+                    assert regenerate_id not in a.prerequisites, (
+                        f"Reconcile action should not depend on regenerate, "
+                        f"got prereqs: {a.prerequisites}"
+                    )
+                    break
+
     def test_blocking_actions(self) -> None:
         """BLOCKED actions should have blocking=True."""
         findings = [
