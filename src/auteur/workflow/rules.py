@@ -257,6 +257,12 @@ def recommend_actions(
             authority=AuthorityLevel.DERIVED_ARTIFACT,
             description="Generate chapter outlines from the blueprint (requires LLM).",
         ))
+        actions.append(WorkflowAction(
+            label="Check realization convergence status",
+            command="auteur realization status --chapter 1 --project .",
+            authority=AuthorityLevel.READ_ONLY,
+            description="Inspect scene/chapter convergence and revision status.",
+        ))
     elif cs == WorkflowStage.DRAFTING:
         actions.append(WorkflowAction(
             label="Draft first chapter",

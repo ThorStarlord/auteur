@@ -1,12 +1,14 @@
 # Auteur Repository-Wide Architecture and Feature Completeness Audit
 
-**Audit date:** 2026-07-18
-**HEAD commit:** `8bc942c`
-**Version:** 0.2.1
-**Test count:** 2,842 collected; 2,811 passed, 28 xfailed, 3 xpassed across 181 test files
-**Test result:** 0 failures, 0 errors, 0 skipped. Exit code 0.
+**Audit date:** 2026-07-21 (v0.6.0 update appended)
+**HEAD commit:** `65cbe35` (v0.5.0 base; v0.6.0 update appended)
+**Version:** 0.6.0 (v0.6.0 update appended)
+**Test count:** 3,059 collected; 0 failures, 27 xfailed (pre-existing Layer 3 SceneOutline), 0 xpassed
+**Test result:** 0 failures, 0 errors, 0 unexpected XPASS
 
-**Methodology note:** This audit began on the pre-v0.2.1 repository and discovered release-integrity problems that were fixed during the audit cycle (v0.2.1 hardening). All findings below that mention v0.2.1 have been re-verified against commit `8bc942c`. Findings from the baseline inspection that were resolved by v0.2.1 are explicitly marked `[RESOLVED IN v0.2.1]`. Unresolved findings describe the state at `8bc942c`.
+**Methodology note:** This audit began on the pre-v0.2.1 repository and discovered release-integrity problems that were fixed during the audit cycle (v0.2.1 hardening). **v0.6.0 update:** Realization Convergence subsystem added � bounded scene/chapter revision with typed candidates, obligation tracking, preservation analysis, deterministic comparison, reconciliation proposals, and workflow integration. See `docs/acceptance/v0.6.0-realization-convergence-acceptance.md`.
+
+v0.2.1 hardening). All findings below that mention v0.2.1 have been re-verified against commit `8bc942c`. Findings from the baseline inspection that were resolved by v0.2.1 are explicitly marked `[RESOLVED IN v0.2.1]`. Unresolved findings describe the state at `8bc942c`.
 
 ### Finding Lifecycle
 
@@ -623,10 +625,10 @@ Wiring the ReasoningRuntime would:
 
 ## 14. Final Product Status Statement
 
-Auteur v0.2.1 is a **functional, release-quality narrative engineering platform** with:
+Auteur v0.6.0 is a **functional, release-quality narrative engineering platform** with:
 
-- **~45,000+ lines of production Python** across ~30 packages
-- **2,811 passed, 28 xfailed, 3 xpassed** (0 failures, 0 errors)
+- **~50,000+ lines of production Python** across ~30 packages
+- **3,059 collected; 0 failures, 27 xfailed, 0 xpassed** (0 failures, 0 errors)
 - **0 `NotImplementedError` strings** in production code
 - **0 CLI commands** that are bare parsers without real backends
 - **4 minor production stubs** (documented pass bodies in validators)

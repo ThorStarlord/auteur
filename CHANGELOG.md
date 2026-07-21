@@ -1,5 +1,63 @@
 # Changelog
 
+## v0.6.0 (2026-07-21) — Realization Convergence and Scene-Level Revision Workflow
+
+### New convergence subsystem
+
+- **`auteur realization status`**: Shows convergence status for a chapter/scene
+  including target info, obligations, preserved regions, and candidates.
+- **`auteur realization revise`**: Inspects or initializes a revision workflow
+  for a bounded target. Does not rewrite content.
+- **`auteur realization candidates`**: Lists candidates for a revision target
+  with status, freshness, and strategy.
+- **`auteur realization generate-candidate`**: Generates a noncanonical candidate
+  realization using a specified strategy (minimal_repair, continuity_preserving,
+  structural_alternative, full_regeneration).
+- **`auteur realization register-candidate`**: Registers an externally authored
+  candidate from a file path. No model call required.
+- **`auteur realization compare`**: Deterministic, multidimensional comparison
+  of candidates with obligation coverage, freshness, evaluation status, and
+  preservation conflict detection.
+- **`auteur realization reconcile`**: Creates a typed reconciliation proposal
+  with satisfied/unsatisfied obligations, conflicts, continuity risks, and
+  authority-required choices.
+- All commands support `--project`, `--json`, `--chapter`, `--scene`.
+
+### Architecture
+
+- New `src/auteur/convergence/` package with clean separation:
+  `models.py` (typed models), `scope.py` (target resolution), `obligations.py`
+  (obligation collection from structure/identity/impact),
+  `preservation.py` (preservation analysis), `candidates.py` (candidate
+  lifecycle, generation, registration), `comparison.py` (deterministic
+  comparison), `planner.py` (reconciliation proposals), `persistence.py`
+  (immutable artifact storage), `cli.py` (CLI subcommand registration).
+- Composes with existing `auteur.impact.models` (ImpactSeverity, PreservationStatus),
+  `auteur.workflow.models` (WorkflowAction, AuthorityLevel),
+  `auteur.provenance` (artifact lifecycle, content hashing).
+- No parallel acceptance, provenance, or reconciliation system.
+- Deterministic, offline, no LLM calls for workflow/inspection/comparison.
+
+### Central invariant
+
+- Candidate generation ≠ reconciliation ≠ acceptance ≠ canonical mutation.
+- Generated and registered candidates are always noncanonical.
+- No accepted prose is ever silently replaced.
+- Acceptance remains explicit and authority-bearing.
+
+### Tests
+
+- 61 new convergence tests across 2 test files:
+  - `test_convergence.py` — target resolution, obligations, preservation,
+    candidate lifecycle, comparison, reconciliation, persistence, acceptance
+    boundary, strategies (53 tests)
+  - `test_convergence_e2e.py` — end-to-end dogfood scenarios including
+    changed outline requiring repair, external registration, preserved beats,
+    missing boundaries, JSON output, missing project, stale candidates (8 tests)
+- Semantic assertions (not snapshots) for IDs, status, authority, lifecycle.
+- Zero new xfails or skips.
+- All pre-existing xfails unchanged (Layer 3 SceneOutline only).
+
 ## v0.5.0 (2026-07-20) — Structural Revision Propagation and Impact Planning
 
 ### New impact planning subsystem

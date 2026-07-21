@@ -554,6 +554,9 @@ def _build_parser() -> argparse.ArgumentParser:
     from auteur.impact.cli import register_impact_subcommands
     register_impact_subcommands(sub)
 
+    from auteur.convergence.cli import register_realization_subcommands
+    register_realization_subcommands(sub)
+
     return parser
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -1769,6 +1772,11 @@ def main(argv: list[str] | None = None) -> int:
             return handle_ontology_validate(args)
         if args.ontology_command == "themes":
             return handle_ontology_themes(args)
+
+    # === realization (convergence) ===
+    if args.command == "realization":
+        from auteur.convergence.cli import dispatch_realization
+        return dispatch_realization(args)
 
     # === workflow ===
     if args.command == "workflow":
