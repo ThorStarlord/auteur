@@ -166,7 +166,7 @@ class CandidateStore:
         if candidate is None:
             return None
         candidate.status = status
-        self._save_candidate(candidate)
+        self._write_candidate(candidate)
         return candidate
 
     def mark_stale(self, candidate_id: str) -> CandidateRef | None:
@@ -178,11 +178,9 @@ class CandidateStore:
     def reject(self, candidate_id: str) -> CandidateRef | None:
         return self.update_status(candidate_id, CandidateStatus.REJECTED)
 
-    def _save_candidate(self, candidate: CandidateRef) -> None:
-        """Persist a candidate atomically (immutable: does not overwrite)."""
+    def _write_candidate(self, candidate: CandidateRef) -> None:
+        """Write candidate atomically (overwrites existing)."""
         path = self._candidate_path(candidate.candidate_id)
-        if path.exists():
-            return
         path.parent.mkdir(parents=True, exist_ok=True)
         temp = path.with_suffix(".tmp")
         try:
@@ -195,6 +193,13 @@ class CandidateStore:
             if temp.exists():
                 temp.unlink()
             raise
+
+    def _save_candidate(self, candidate: CandidateRef) -> None:
+        """Persist a candidate atomically (immutable: does not overwrite)."""
+        path = self._candidate_path(candidate.candidate_id)
+        if path.exists():
+            return
+        self._write_candidate(candidate)
 
     def _load_candidate(self, candidate_id: str) -> CandidateRef | None:
         path = self._candidate_path(candidate_id)

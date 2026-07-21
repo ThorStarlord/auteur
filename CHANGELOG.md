@@ -47,13 +47,13 @@
 
 ### Tests
 
-- 53 new focused convergence tests across 2 test files:
+- 61 new convergence tests across 2 test files:
   - `test_convergence.py` — target resolution, obligations, preservation,
     candidate lifecycle, comparison, reconciliation, persistence, acceptance
-    boundary, strategies (40 tests)
+    boundary, strategies (53 tests)
   - `test_convergence_e2e.py` — end-to-end dogfood scenarios including
     changed outline requiring repair, external registration, preserved beats,
-    missing boundaries, JSON output, missing project, stale candidates (13 tests)
+    missing boundaries, JSON output, missing project, stale candidates (8 tests)
 - Semantic assertions (not snapshots) for IDs, status, authority, lifecycle.
 - Zero new xfails or skips.
 - All pre-existing xfails unchanged (Layer 3 SceneOutline only).
