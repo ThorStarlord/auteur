@@ -582,3 +582,269 @@ class TestDecisionIntegration:
         assembler = DecisionAssembler(Path("."))
         freshness = assembler.detect_freshness(decision)
         assert freshness == EvidenceFreshness.STALE
+
+
+class TestDecisionWorkspaceService:
+    """Integration tests for DecisionWorkspaceService."""
+
+    def test_service_initializes_with_valid_project(self, tmp_path):
+        """Service initializes with valid Auteur project."""
+        from auteur.decision.service import DecisionWorkspaceService
+
+        # Create minimal .auteur marker
+        auteur_dir = tmp_path / ".auteur"
+        auteur_dir.mkdir()
+
+        service = DecisionWorkspaceService(tmp_path)
+        assert service.project_root == tmp_path
+        assert service.artifact_store is not None
+        assert service.impact_store is not None
+        assert service.convergence_store is not None
+        assert service.decision_store is not None
+
+    def test_service_rejects_non_project(self, tmp_path):
+        """Service rejects non-Auteur projects."""
+        from auteur.decision.service import DecisionWorkspaceService
+
+        with pytest.raises(ValueError, match="Not an Auteur project"):
+            DecisionWorkspaceService(tmp_path)
+
+    def test_service_status_empty_project(self, tmp_path):
+        """Status shows zeros for empty project."""
+        from auteur.decision.service import DecisionWorkspaceService
+
+        auteur_dir = tmp_path / ".auteur"
+        auteur_dir.mkdir(parents=True, exist_ok=True)
+
+        service = DecisionWorkspaceService(tmp_path)
+        status = service.status()
+
+        assert status["total_decisions"] == 0
+        assert status["open_impact_findings"] == 0
+        assert status["ready_for_acceptance"] == 0
+
+    def test_service_list_decisions_empty(self, tmp_path):
+        """List decisions returns empty list for empty project."""
+        from auteur.decision.service import DecisionWorkspaceService
+
+        auteur_dir = tmp_path / ".auteur"
+        auteur_dir.mkdir(parents=True, exist_ok=True)
+
+        service = DecisionWorkspaceService(tmp_path)
+        decisions = service.list_decisions()
+
+        assert decisions == []
+
+    def test_service_inspect_nonexistent_decision(self, tmp_path):
+        """Inspect raises ValueError for nonexistent decision."""
+        from auteur.decision.service import DecisionWorkspaceService
+
+        auteur_dir = tmp_path / ".auteur"
+        auteur_dir.mkdir(parents=True, exist_ok=True)
+
+        service = DecisionWorkspaceService(tmp_path)
+
+        with pytest.raises(ValueError, match="Decision not found"):
+            service.inspect("nonexistent-id")
+
+    def test_service_evidence_for_decision(self, tmp_path):
+        """Evidence retrieval handles missing decision gracefully."""
+        from auteur.decision.service import DecisionWorkspaceService
+
+        auteur_dir = tmp_path / ".auteur"
+        auteur_dir.mkdir(parents=True, exist_ok=True)
+
+        service = DecisionWorkspaceService(tmp_path)
+
+        with pytest.raises(ValueError):
+            service.evidence_for_decision("nonexistent-id")
+
+    def test_service_compare_candidates_no_comparison(self, tmp_path):
+        """Compare candidates reports missing comparison gracefully."""
+        from auteur.decision.service import DecisionWorkspaceService
+
+        auteur_dir = tmp_path / ".auteur"
+        auteur_dir.mkdir(parents=True, exist_ok=True)
+
+        service = DecisionWorkspaceService(tmp_path)
+        # Create a minimal decision for comparison
+        decision = AuthorDecision(
+            decision_id="test-dec",
+            project="test",
+            chapter_index=1,
+            target_artifact_id="target-1",
+            candidates=[
+                CandidateSummary(
+                    candidate_id="cand-1",
+                    status="generated",
+                    freshness=EvidenceFreshness.CURRENT,
+                ),
+            ],
+        )
+
+        # Mock the list_decisions method to return our test decision
+        original_list = service.list_decisions
+
+        def mock_list(*args, **kwargs):
+            return [decision]
+
+        service.list_decisions = mock_list
+
+        # Now test comparison
+        result = service.compare_candidates("test-dec")
+        assert result["comparison_available"] is False
+
+    def test_service_next_action_for_needs_candidate(self, tmp_path):
+        """Next action recommends candidate generation."""
+        from auteur.decision.service import DecisionWorkspaceService
+
+        auteur_dir = tmp_path / ".auteur"
+        auteur_dir.mkdir(parents=True, exist_ok=True)
+
+        service = DecisionWorkspaceService(tmp_path)
+
+        decision = AuthorDecision(
+            decision_id="test-dec",
+            project="test",
+            chapter_index=1,
+            target_artifact_id="target-1",
+            candidates=[],
+            readiness=DecisionReadiness.NEEDS_CANDIDATE,
+        )
+
+        # Mock list_decisions
+        service.list_decisions = lambda *args, **kwargs: [decision]
+
+        action_result = service.next_action("test-dec")
+        assert action_result["action_id"] == "generate-candidate"
+
+    def test_service_prepare_acceptance_missing_candidate(self, tmp_path):
+        """Prepare acceptance reports missing candidate."""
+        from auteur.decision.service import DecisionWorkspaceService
+
+        auteur_dir = tmp_path / ".auteur"
+        auteur_dir.mkdir(parents=True, exist_ok=True)
+
+        service = DecisionWorkspaceService(tmp_path)
+
+        decision = AuthorDecision(
+            decision_id="test-dec",
+            project="test",
+            chapter_index=1,
+            target_artifact_id="target-1",
+            candidates=[],
+        )
+
+        # Mock
+        service.list_decisions = lambda *args, **kwargs: [decision]
+
+        result = service.prepare_acceptance("test-dec", "nonexistent-cand")
+        assert result.is_ready is False
+        assert any("Candidate" in b and "found" in b for b in result.blockers)
+
+    def test_service_prepare_acceptance_checks_freshness(self, tmp_path):
+        """Prepare acceptance verifies candidate freshness."""
+        from auteur.decision.service import DecisionWorkspaceService
+
+        auteur_dir = tmp_path / ".auteur"
+        auteur_dir.mkdir(parents=True, exist_ok=True)
+
+        service = DecisionWorkspaceService(tmp_path)
+
+        candidate = CandidateSummary(
+            candidate_id="cand-1",
+            status="evaluated",
+            freshness=EvidenceFreshness.STALE,  # Stale!
+            reasoning_evidence=["ev-1"],
+            obligations_satisfied=["ob-1"],
+            obligations_unsatisfied=[],
+        )
+
+        decision = AuthorDecision(
+            decision_id="test-dec",
+            project="test",
+            chapter_index=1,
+            target_artifact_id="target-1",
+            candidates=[candidate],
+        )
+
+        # Mock
+        service.list_decisions = lambda *args, **kwargs: [decision]
+
+        result = service.prepare_acceptance("test-dec", "cand-1")
+        assert result.is_ready is False
+        assert "stale" in str(result.blockers).lower()
+
+    def test_service_prepare_acceptance_checks_obligations(self, tmp_path):
+        """Prepare acceptance verifies obligations are satisfied."""
+        from auteur.decision.service import DecisionWorkspaceService
+
+        auteur_dir = tmp_path / ".auteur"
+        auteur_dir.mkdir(parents=True, exist_ok=True)
+
+        service = DecisionWorkspaceService(tmp_path)
+
+        candidate = CandidateSummary(
+            candidate_id="cand-1",
+            status="evaluated",
+            freshness=EvidenceFreshness.CURRENT,
+            reasoning_evidence=["ev-1"],
+            obligations_satisfied=["ob-1"],
+            obligations_unsatisfied=["ob-2"],  # Unsatisfied!
+        )
+
+        decision = AuthorDecision(
+            decision_id="test-dec",
+            project="test",
+            chapter_index=1,
+            target_artifact_id="target-1",
+            candidates=[candidate],
+        )
+
+        service.list_decisions = lambda *args, **kwargs: [decision]
+
+        result = service.prepare_acceptance("test-dec", "cand-1")
+        assert result.is_ready is False
+        assert any("Unsatisfied obligations" in b for b in result.blockers)
+
+    def test_service_prepare_acceptance_ready(self, tmp_path):
+        """Prepare acceptance succeeds when all checks pass."""
+        from auteur.decision.service import DecisionWorkspaceService
+
+        auteur_dir = tmp_path / ".auteur"
+        auteur_dir.mkdir(parents=True, exist_ok=True)
+
+        service = DecisionWorkspaceService(tmp_path)
+
+        candidate = CandidateSummary(
+            candidate_id="cand-1",
+            status="evaluated",
+            freshness=EvidenceFreshness.CURRENT,
+            reasoning_evidence=["ev-1"],
+            obligations_satisfied=["ob-1", "ob-2"],
+            obligations_unsatisfied=[],
+        )
+
+        decision = AuthorDecision(
+            decision_id="test-dec",
+            project="test",
+            chapter_index=1,
+            target_artifact_id="target-1",
+            candidates=[candidate],
+        )
+
+        service.list_decisions = lambda *args, **kwargs: [decision]
+
+        result = service.prepare_acceptance("test-dec", "cand-1")
+        assert result.is_ready is True
+        assert len(result.blockers) == 0
+
+    def test_service_refresh_succeeds(self, tmp_path):
+        """Refresh operation completes without error."""
+        from auteur.decision.service import DecisionWorkspaceService
+
+        auteur_dir = tmp_path / ".auteur"
+        auteur_dir.mkdir(parents=True, exist_ok=True)
+
+        service = DecisionWorkspaceService(tmp_path)
+        service.refresh()  # Should not raise
