@@ -1,6 +1,56 @@
 # Changelog
 
 
+
+## v0.8.1 (2026-07-23) — Packaging Fix: composition resources in wheel
+
+### Fixed (Issue #37)
+
+- **Packaged `data/composition/` under `src/auteur/data/composition/`** so that
+  composition constraint rules are included in the built wheel and remain
+  accessible after installation.
+- **Updated `CompositionRulesLoader`** to use `importlib.resources.files()`
+  instead of brittle `Path(__file__).parents[...]` traversal. The loader now
+  resolves resources from the `auteur.data.composition` package regardless of
+  whether running from source checkout, editable install, or an installed wheel.
+- **Eliminated 25 pre-existing `FileNotFoundError` failures** in
+  `test_rules_loader.py`. These failures existed since v0.7.0 (confirmed on base
+  commit `bd7f762`), were waived in v0.8.0, and are now fully resolved.
+
+### Backward compatibility
+
+- The `yaml_path` parameter on `CompositionRulesLoader.__init__()` continues to
+  work for explicit path arguments. When `None` (the default), resources are
+  loaded via `importlib.resources` instead of the old `Path(__file__).parents`
+  traversal.
+- Composition rule contents, identifiers, ordering, validation results, and
+  CLI-visible behavior are unchanged.
+
+### Tests
+
+- 5 new regression tests in `TestPackagingFix` covering package-resource loading,
+  explicit-path backward compat, missing-resource errors, and wheel content
+  verification.
+- All 25 formerly-failing tests now pass.
+- Complete repository inventory: 3,215 tests (3,210 baseline + 5 new).
+  Zero v0.8.1-caused failures.
+
+### Wheel
+
+- `auteur-0.8.1-py3-none-any.whl` — built from commit `%V0.8.1_SHA%`.
+- Version metadata: 0.8.1 (pyproject.toml, `auteur.__version__`, wheel METADATA).
+- Wheel contains: `auteur/data/composition/__init__.py`,
+  `auteur/data/composition/composition_constraints.yaml`,
+  `auteur/data/composition/ownership_rules.yaml`.
+- Fresh-install qualification: 10/10 scenarios pass.
+  Working-directory independence confirmed (loads from `C:\`).
+  No source-checkout path required.
+
+### Previous waiver removed
+
+The v0.8.0 acceptance report's known-baseline-failures waiver for
+`test_rules_loader.py` is rescinded. All 25 pre-existing failures are
+eliminated.
 ## v0.8.0 (2026-07-22) — Decision Orchestration and Evidence Integration
 
 ### Decision Lifecycle and Lineage

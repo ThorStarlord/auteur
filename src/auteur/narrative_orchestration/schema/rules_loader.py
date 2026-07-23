@@ -308,66 +308,83 @@ class CompositionRules(BaseModel):
             return self.state_validity_rules
         elif rule_type == RuleType.ARC_COVERAGE:
             return self.arc_coverage_rules
-        return []
-
 
 class CompositionRulesLoader:
     """Loads and validates composition rules from YAML files.
 
     This loader:
-    - Reads composition_constraints.yaml
+    - Reads composition_constraints.yaml from package resources
     - Parses global and genre-specific rules
     - Provides methods to get rules by genre
     - Supports rule merging and override strategies
     - Validates rule structure and consistency
 
     Attributes:
-        yaml_path: Path to composition_constraints.yaml
+        yaml_path: Path to composition_constraints.yaml (may be explicit Path or None for package resource)
         raw_data: Loaded YAML data (dict)
         global_rules: CompositionRules for global constraints
         genre_rules: Dict mapping genre name to CompositionRules
     """
 
     SUPPORTED_GENRES = {"netorare", "mystery", "gentlefemdom"}
+    _COMPOSITION_PACKAGE = "auteur.data.composition"
+    _COMPOSITION_FILENAME = "composition_constraints.yaml"
 
     def __init__(self, yaml_path: Optional[Path] = None):
         """Initialize the rules loader.
 
         Args:
-            yaml_path: Path to composition_constraints.yaml
-                      If None, loads from default data/composition/ location
+            yaml_path: Explicit path to composition_constraints.yaml.
+                      If None, loads via importlib.resources from the
+                      auteur.data.composition package (works in both
+                      source checkout and installed wheel).
         """
         if yaml_path is None:
-            # Default location: from schema/rules_loader.py navigate to project root/data/composition/
-            # Path is: src/auteur/narrative_orchestration/schema/rules_loader.py
-            # Go up to: src -> project root -> data/composition/
-            yaml_path = (
-                Path(__file__).parent.parent.parent.parent.parent
-                / "data"
-                / "composition"
-                / "composition_constraints.yaml"
-            )
+            self.yaml_path = None  # Will load via package resources
+        else:
+            self.yaml_path = yaml_path
 
-        self.yaml_path = yaml_path
         self.raw_data: Dict[str, Any] = {}
         self.global_rules: Optional[CompositionRules] = None
         self.genre_rules: Dict[str, CompositionRules] = {}
 
         self.load_rules()
 
+    def _resolve_path(self) -> str:
+        """Return a human-readable path description for error messages."""
+        if self.yaml_path:
+            return str(self.yaml_path)
+        return f"{self._COMPOSITION_PACKAGE}/{self._COMPOSITION_FILENAME}"
+
     def load_rules(self) -> None:
-        """Load and parse composition rules from YAML file.
+        """Load and parse composition rules from YAML.
+
+        Uses importlib.resources when no explicit path is given (package mode),
+        falling back to direct filesystem access for explicit paths.
 
         Raises:
             FileNotFoundError: If YAML file doesn't exist
             yaml.YAMLError: If YAML is invalid
             ValueError: If rule structure is invalid
         """
-        if not self.yaml_path.exists():
-            raise FileNotFoundError(f"Rules file not found: {self.yaml_path}")
-
-        with open(self.yaml_path, "r") as f:
-            self.raw_data = yaml.safe_load(f)
+        if self.yaml_path:
+            # Explicit path mode (backward compatible)
+            if not self.yaml_path.exists():
+                raise FileNotFoundError(f"Rules file not found: {self.yaml_path}")
+            with open(self.yaml_path, "r") as f:
+                self.raw_data = yaml.safe_load(f)
+        else:
+            # Package resource mode (works in source checkout and installed wheel)
+            try:
+                import importlib.resources as _resources
+                ref = _resources.files(self._COMPOSITION_PACKAGE).joinpath(self._COMPOSITION_FILENAME)
+                with ref.open("r", encoding="utf-8") as f:
+                    self.raw_data = yaml.safe_load(f)
+            except (ModuleNotFoundError, FileNotFoundError, TypeError, AttributeError) as exc:
+                raise FileNotFoundError(
+                    f"Rules file not found: {self._resolve_path()}. "
+                    f"Ensure auteur is installed correctly. Error: {exc}"
+                ) from exc
 
         if not self.raw_data:
             raise ValueError("YAML file is empty or invalid")
@@ -389,6 +406,7 @@ class CompositionRulesLoader:
                 self.genre_rules[genre_name] = self._parse_composition_rules(
                     genre_name, merged_data, genre_data.get("description", "")
                 )
+
 
     def _parse_composition_rules(
         self, scope: str, data: Dict[str, Any], description: str

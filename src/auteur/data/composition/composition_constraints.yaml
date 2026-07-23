@@ -1,0 +1,456 @@
+# Structure Composition Constraints and Rules
+# Defines ordering, optionality, state validity, and arc coverage rules
+# Version: 1.0.0
+# Last Updated: 2026-07-12
+
+version: "1.0.0"
+description: "Layer 2.5 composition constraints for narrative orchestration"
+last_updated: "2026-07-12"
+
+# Global constraints (apply to all genres unless overridden)
+global_constraints:
+  optionality:
+    - constraint_id: "global_chapter_required"
+      artifact_type: "chapter"
+      optionality_level: "required"
+      description: "Every book must have at least one chapter"
+      reason: "Chapters are the fundamental narrative unit"
+
+    - constraint_id: "global_sequence_optional"
+      artifact_type: "sequence"
+      optionality_level: "optional"
+      description: "Sequences are optional organizational structures"
+      reason: "Books can use direct chapter structure without sequences"
+      condition: "Sequences can be omitted if book uses direct chapter structure"
+
+    - constraint_id: "global_book_required"
+      artifact_type: "book"
+      optionality_level: "required"
+      description: "Series must contain at least one book"
+      reason: "A series is defined by multiple books"
+
+    - constraint_id: "global_character_arc_optional_short"
+      artifact_type: "character_arc"
+      optionality_level: "conditional"
+      description: "Character arcs optional for short stories (under 5 chapters)"
+      reason: "Short stories may focus purely on plot without character growth"
+      condition: "Required for books with 5+ chapters, optional for shorter works"
+
+    - constraint_id: "global_story_arc_required"
+      artifact_type: "story_arc"
+      optionality_level: "required"
+      description: "Every book must have a primary story arc"
+      reason: "Story arc represents the main plot progression"
+
+  chronological_ordering:
+    - constraint_id: "global_payoff_after_setup"
+      name: "payoff_after_setup"
+      source_artifact_type: "setup_event"
+      source_phase: null
+      target_artifact_type: "payoff_event"
+      target_phase: null
+      description: "Payoff events must occur after setup events"
+      reason: "Narrative cause-effect requires setup before payoff"
+      severity: "error"
+
+    - constraint_id: "global_crisis_before_resolution"
+      name: "crisis_before_resolution"
+      source_artifact_type: "crisis_chapter"
+      source_phase: 5
+      target_artifact_type: "resolution_chapter"
+      target_phase: 8
+      description: "Story crisis must occur before resolution"
+      reason: "9-phase structure requires crisis in phase 5, resolution in phases 8-9"
+      severity: "error"
+
+    - constraint_id: "global_midpoint_before_third_act"
+      name: "midpoint_before_third_act"
+      source_artifact_type: "midpoint_chapter"
+      source_phase: 4
+      target_artifact_type: "third_act_chapter"
+      target_phase: 6
+      description: "Midpoint twist must occur before third act"
+      reason: "Narrative structure requires midpoint to trigger final act"
+      severity: "error"
+
+    - constraint_id: "global_inciting_before_midpoint"
+      name: "inciting_before_midpoint"
+      source_artifact_type: "inciting_chapter"
+      source_phase: 2
+      target_artifact_type: "midpoint_chapter"
+      target_phase: 4
+      description: "Inciting incident must occur before midpoint"
+      reason: "Inciting incident triggers rising action"
+      severity: "error"
+
+  state_validity: []
+
+  arc_coverage:
+    - constraint_id: "global_protagonist_arc_coverage"
+      character_id: "*protagonist*"
+      minimum_beats: 2
+      minimum_chapters: 1
+      description: "Protagonist must have transformation beats in multiple chapters"
+      reason: "Protagonist arc is core to any story structure"
+      severity: "error"
+
+    - constraint_id: "global_story_arc_chapter_span"
+      artifact_type: "story_arc"
+      character_id: null
+      minimum_beats: 1
+      minimum_chapters: 1
+      description: "Story arc must span at least the book's climactic chapters"
+      reason: "Story arc must encompass the main narrative progression"
+      severity: "error"
+
+# Genre-specific constraint overrides and additions
+genre_constraints:
+  netorare:
+    description: "Netorare (cuckoldry) genre composition rules"
+
+    optionality_overrides:
+      - constraint_id: "netorare_sequence_optional"
+        artifact_type: "sequence"
+        optionality_level: "optional"
+        description: "Sequences optional in netorare for flexible pacing"
+        reason: "Humiliation arcs can be structured without strict sequences"
+
+      - constraint_id: "netorare_character_arc_optional_short"
+        artifact_type: "character_arc"
+        optionality_level: "conditional"
+        description: "Character arcs optional for short stories"
+        reason: "Short stories may focus purely on plot without character growth"
+        condition: "Required for 5+ chapter works, optional for one-shots"
+
+    chronological_ordering_additions:
+      - constraint_id: "netorare_humiliation_progression"
+        name: "humiliation_setup_before_peak"
+        source_artifact_type: "humiliation_setup"
+        source_phase: 2
+        target_artifact_type: "humiliation_peak"
+        target_phase: 5
+        description: "Humiliation setup must occur before peak"
+        reason: "Netorare requires gradual humiliation progression"
+        severity: "error"
+
+      - constraint_id: "netorare_betrayal_revelation_before_climax"
+        name: "betrayal_revelation_before_climax"
+        source_artifact_type: "betrayal_revelation"
+        source_phase: 6
+        target_artifact_type: "climactic_humiliation"
+        target_phase: 8
+        description: "Betrayal must be revealed before climactic moment"
+        reason: "Reader must understand the emotional stakes before climax"
+        severity: "error"
+
+      - constraint_id: "netorare_acceptance_after_crisis"
+        name: "acceptance_after_crisis"
+        source_artifact_type: "emotional_crisis"
+        source_phase: 7
+        target_artifact_type: "acceptance_moment"
+        target_phase: 9
+        description: "Character acceptance/resignation must follow crisis"
+        reason: "Netorare arc requires character to process humiliation"
+        severity: "error"
+
+    state_validity_additions:
+      - constraint_id: "netorare_protagonist_distrust_arc"
+        character_id: "*protagonist*"
+        valid_transitions:
+          - from_state: "trust"
+            to_state: "suspicion"
+            description: "Protagonist begins to suspect partner's behavior"
+          - from_state: "suspicion"
+            to_state: "shock"
+            description: "Protagonist's suspicions confirmed"
+          - from_state: "shock"
+            to_state: "humiliation"
+            description: "Protagonist experiences intense shame"
+          - from_state: "humiliation"
+            to_state: "acceptance"
+            description: "Protagonist accepts their situation"
+          - from_state: "acceptance"
+            to_state: "resignation"
+            description: "Protagonist settles into their role"
+        description: "Protagonist emotional journey in netorare"
+        reason: "Netorare requires specific emotional progression for protagonist"
+
+      - constraint_id: "netorare_partner_confidence_arc"
+        character_id: "*partner*"
+        valid_transitions:
+          - from_state: "commitment"
+            to_state: "temptation"
+            description: "Partner becomes attracted to third party"
+          - from_state: "temptation"
+            to_state: "betrayal"
+            description: "Partner commits to affair"
+          - from_state: "betrayal"
+            to_state: "dominance"
+            description: "Partner becomes bolder in infidelity"
+        description: "Partner emotional journey in netorare"
+        reason: "Partner character must show progression in their betrayal"
+
+    arc_coverage_additions:
+      - constraint_id: "netorare_protagonist_coverage_all_books"
+        character_id: "*protagonist*"
+        artifact_type: null
+        minimum_beats: 3
+        minimum_chapters: 1
+        required_coverage_type: "each_book"
+        description: "Protagonist must have transformation beats in every book"
+        reason: "Protagonist arc must span entire series"
+        severity: "warning"
+
+      - constraint_id: "netorare_betrayal_arc_coverage"
+        artifact_type: "story_arc"
+        character_id: null
+        minimum_beats: 1
+        minimum_chapters: 5
+        description: "Betrayal story arc must span multiple chapters"
+        reason: "Betrayal arc needs time to build tension"
+        severity: "error"
+
+  mystery:
+    description: "Mystery genre composition rules"
+
+    optionality_overrides:
+      - constraint_id: "mystery_sequence_optional"
+        artifact_type: "sequence"
+        optionality_level: "optional"
+        description: "Sequences can organize investigation phases"
+        reason: "Mysteries may follow investigation structure without strict sequences"
+
+    chronological_ordering_additions:
+      - constraint_id: "mystery_investigation_before_revelation"
+        name: "investigation_before_revelation"
+        source_artifact_type: "investigation_phase"
+        source_phase: 3
+        target_artifact_type: "revelation_phase"
+        target_phase: 7
+        description: "Investigation must occur before final revelation"
+        reason: "Mystery structure requires clues before solution"
+        severity: "error"
+
+      - constraint_id: "mystery_clue_ordering"
+        name: "clues_build_logically"
+        source_artifact_type: "initial_clue"
+        source_phase: 1
+        target_artifact_type: "final_clue"
+        target_phase: 6
+        description: "Clues must be introduced before they're solved"
+        reason: "Reader must see evidence before conclusion"
+        severity: "error"
+
+      - constraint_id: "mystery_solution_consistency"
+        name: "solution_consistency"
+        source_artifact_type: "established_facts"
+        source_phase: null
+        target_artifact_type: "proposed_solution"
+        target_phase: 8
+        description: "Solution must be consistent with established facts"
+        reason: "Mystery requires logical consistency"
+        severity: "error"
+
+    state_validity_additions:
+      - constraint_id: "mystery_detective_deduction_arc"
+        character_id: "*detective*"
+        valid_transitions:
+          - from_state: "confusion"
+            to_state: "investigation"
+            description: "Detective begins systematic investigation"
+          - from_state: "investigation"
+            to_state: "hypothesis"
+            description: "Detective forms working theories"
+          - from_state: "hypothesis"
+            to_state: "certainty"
+            description: "Detective gains confidence in solution"
+          - from_state: "certainty"
+            to_state: "revelation"
+            description: "Detective reveals solution to others"
+        description: "Detective logical progression in mystery"
+        reason: "Mystery requires logical detective progression"
+
+    arc_coverage_additions:
+      - constraint_id: "mystery_detective_arc_full_span"
+        character_id: "*detective*"
+        artifact_type: null
+        minimum_beats: 4
+        minimum_chapters: 1
+        description: "Detective must have logical beats throughout story"
+        reason: "Detective arc spans entire mystery"
+        severity: "error"
+
+      - constraint_id: "mystery_suspect_introduction_early"
+        artifact_type: "character_arc"
+        character_id: "*suspect*"
+        minimum_beats: 1
+        minimum_chapters: 1
+        description: "All key suspects must be introduced in early acts"
+        reason: "Reader must know suspects before revelation"
+        severity: "error"
+
+  gentlefemdom:
+    description: "Gentle Femdom (consensual dominance) genre composition rules"
+
+    optionality_overrides:
+      - constraint_id: "gentlefemdom_sequence_optional"
+        artifact_type: "sequence"
+        optionality_level: "optional"
+        description: "Sequences can mark relationship development stages"
+        reason: "Relationship arcs can progress without strict sequences"
+
+    chronological_ordering_additions:
+      - constraint_id: "gentlefemdom_trust_before_surrender"
+        name: "trust_before_surrender"
+        source_artifact_type: "trust_building_phase"
+        source_phase: 2
+        target_artifact_type: "surrender_phase"
+        target_phase: 6
+        description: "Trust must be established before vulnerability"
+        reason: "Gentle femdom requires mutual consent and trust"
+        severity: "error"
+
+      - constraint_id: "gentlefemdom_boundaries_before_exploration"
+        name: "boundaries_before_exploration"
+        source_artifact_type: "boundary_negotiation"
+        source_phase: 1
+        target_artifact_type: "power_exchange"
+        target_phase: 3
+        description: "Boundaries must be negotiated before power exchange"
+        reason: "Consent requires explicit boundary discussion"
+        severity: "error"
+
+      - constraint_id: "gentlefemdom_intimacy_progression"
+        name: "intimacy_progression"
+        source_artifact_type: "emotional_connection"
+        source_phase: 2
+        target_artifact_type: "physical_intimacy"
+        target_phase: 4
+        description: "Emotional connection must precede physical intimacy"
+        reason: "Gentle femdom emphasizes emotional bonds"
+        severity: "error"
+
+      - constraint_id: "gentlefemdom_resolution_requires_affirmation"
+        name: "resolution_with_affirmation"
+        source_artifact_type: "vulnerable_moment"
+        source_phase: 7
+        target_artifact_type: "affirmation_moment"
+        target_phase: 8
+        description: "Vulnerable moments must be followed by affirmation"
+        reason: "Gentle femdom requires emotional reassurance after vulnerability"
+        severity: "error"
+
+    state_validity_additions:
+      - constraint_id: "gentlefemdom_submissive_trust_arc"
+        character_id: "*submissive*"
+        valid_transitions:
+          - from_state: "hesitation"
+            to_state: "curiosity"
+            description: "Submissive becomes curious about power exchange"
+          - from_state: "curiosity"
+            to_state: "trust"
+            description: "Submissive develops trust in partner"
+          - from_state: "trust"
+            to_state: "surrender"
+            description: "Submissive consensually surrenders control"
+          - from_state: "surrender"
+            to_state: "fulfillment"
+            description: "Submissive finds satisfaction in dynamic"
+        description: "Submissive emotional journey in gentle femdom"
+        reason: "Gentle femdom requires consensual emotional progression"
+
+      - constraint_id: "gentlefemdom_dominant_care_arc"
+        character_id: "*dominant*"
+        valid_transitions:
+          - from_state: "patience"
+            to_state: "tenderness"
+            description: "Dominant expresses care through power"
+          - from_state: "tenderness"
+            to_state: "protection"
+            description: "Dominant protects submissive's vulnerability"
+          - from_state: "protection"
+            to_state: "affection"
+            description: "Dominant shows deep affection and respect"
+        description: "Dominant emotional journey in gentle femdom"
+        reason: "Dominant character must show care alongside power"
+
+    arc_coverage_additions:
+      - constraint_id: "gentlefemdom_submissive_arc_required"
+        character_id: "*submissive*"
+        artifact_type: null
+        minimum_beats: 3
+        minimum_chapters: 3
+        description: "Submissive must have character arc across multiple chapters"
+        reason: "Gentle femdom requires mutual emotional growth"
+        severity: "error"
+
+      - constraint_id: "gentlefemdom_dominant_arc_required"
+        character_id: "*dominant*"
+        artifact_type: null
+        minimum_beats: 3
+        minimum_chapters: 3
+        description: "Dominant must have character arc across multiple chapters"
+        reason: "Gentle femdom requires mutual emotional growth"
+        severity: "error"
+
+      - constraint_id: "gentlefemdom_intimacy_arc_required"
+        artifact_type: "theme_arc"
+        character_id: null
+        minimum_beats: 1
+        minimum_chapters: 3
+        description: "Intimacy theme must be developed across multiple chapters"
+        reason: "Gentle femdom emphasizes emotional and physical intimacy"
+        severity: "error"
+
+# Validation rules (how to apply constraints)
+validation_rules:
+  optionality_validation:
+    description: "Validate that artifacts meet optionality requirements"
+    method: "check_artifact_presence"
+    applies_to: ["optionality"]
+    error_on_missing_required: true
+    warning_on_missing_optional: false
+
+  chronological_validation:
+    description: "Validate chronological ordering of events"
+    method: "check_artifact_ordering"
+    applies_to: ["chronological_ordering"]
+    error_on_ordering_violation: true
+    check_phase_ordering: true
+    allow_same_phase_ordering: false
+
+  state_validity_validation:
+    description: "Validate character state transitions"
+    method: "check_state_transitions"
+    applies_to: ["state_validity"]
+    error_on_invalid_transition: true
+    require_state_definition: true
+
+  arc_coverage_validation:
+    description: "Validate arc coverage requirements"
+    method: "check_arc_coverage"
+    applies_to: ["arc_coverage"]
+    error_on_insufficient_coverage: true
+    minimum_arc_span: 1
+    require_chapter_mapping: true
+
+# Composition rule merging strategy
+merging_strategy:
+  optionality:
+    priority: "genre_specific"  # Genre rules override global rules
+    conflict_resolution: "genre_wins"
+
+  chronological_ordering:
+    priority: "genre_specific"
+    conflict_resolution: "genre_wins"
+    allow_multiple_rules: true  # Multiple ordering rules can apply
+
+  state_validity:
+    priority: "genre_specific"
+    conflict_resolution: "genre_wins"
+    require_valid_transitions: true
+
+  arc_coverage:
+    priority: "genre_specific"
+    conflict_resolution: "genre_wins"
+    allow_multiple_rules: true

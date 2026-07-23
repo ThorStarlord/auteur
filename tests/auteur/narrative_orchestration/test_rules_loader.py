@@ -297,13 +297,24 @@ class TestCompositionRulesLoading:
     """Test loading composition rules from YAML file."""
 
     def test_rules_loader_initialization(self):
-        """Test initializing CompositionRulesLoader."""
+        """Test initializing CompositionRulesLoader from package resources."""
         loader = CompositionRulesLoader()
 
+        # yaml_path is None when loading from package resources (v0.8.1+)
+        # Verification is done by checking that rules were actually loaded
+        assert loader.raw_data is not None, "raw_data should be loaded"
+        assert loader.global_rules is not None, "global_rules should be loaded"
+        assert len(loader.genre_rules) > 0, "genre_rules should be populated"
+
+    def test_rules_loader_explicit_path(self):
+        """Test initializing CompositionRulesLoader with explicit path."""
+        from pathlib import Path
+        pkg_path = Path(__file__).parent.parent.parent.parent
+        explicit = pkg_path / "data" / "composition" / "composition_constraints.yaml"
+        loader = CompositionRulesLoader(yaml_path=explicit)
+        assert loader.yaml_path is not None
         assert loader.yaml_path.exists()
-        assert loader.raw_data is not None
         assert loader.global_rules is not None
-        assert len(loader.genre_rules) > 0
 
     def test_load_global_rules(self):
         """Test loading global composition rules."""
@@ -589,3 +600,47 @@ class TestRuleIntegration:
 
         # Should have conditional rules for short/long story handling
         assert len(conditional_rules) > 0
+
+
+class TestPackagingFix:
+    """Regression tests for v0.8.1 packaging fix (Issue #37).
+
+    These tests prove that composition rules can be loaded from package
+    resources without relying on source-checkout paths.
+    """
+
+    def test_loader_uses_package_resources(self):
+        """Loader succeeds without explicit yaml_path."""
+        loader = CompositionRulesLoader()
+        assert loader.global_rules is not None
+        assert len(loader.genre_rules) > 0
+
+    def test_package_resource_path_is_none(self):
+        """When no yaml_path given, yaml_path is None (package mode)."""
+        loader = CompositionRulesLoader()
+        assert loader.yaml_path is None
+
+    def test_explicit_path_still_works(self, tmp_path):
+        """Backward compat: explicit yaml_path still loads correctly."""
+        from pathlib import Path
+        pkg_path = Path(__file__).parent.parent.parent.parent
+        explicit = pkg_path / "data" / "composition" / "composition_constraints.yaml"
+        loader = CompositionRulesLoader(yaml_path=explicit)
+        assert loader.global_rules is not None
+        assert len(loader.genre_rules) > 0
+        assert loader.yaml_path == explicit
+
+    def test_missing_package_resource_raises(self):
+        """Missing resource raises FileNotFoundError with actionable message."""
+        with pytest.raises(FileNotFoundError, match="Rules file not found"):
+            from auteur.narrative_orchestration.schema.rules_loader import CompositionRulesLoader
+
+            # Create loader, then break the resource reference
+            loader = CompositionRulesLoader.__new__(CompositionRulesLoader)
+            loader.yaml_path = None
+            loader._COMPOSITION_PACKAGE = "auteur.nonexistent"
+            loader._COMPOSITION_FILENAME = "missing.yaml"
+            loader.raw_data = {}
+            loader.global_rules = None
+            loader.genre_rules = {}
+            loader.load_rules()

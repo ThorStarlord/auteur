@@ -1,0 +1,117 @@
+# Structure Composition Ownership Rules
+# Defines which artifact type is the authoritative source for each structural fact
+# Version: 1.0.0
+# Last Updated: 2026-07-12
+
+version: "1.0.0"
+description: "Layer 2.5 canonical ownership mapping for narrative orchestration"
+last_updated: "2026-07-12"
+
+rules:
+  # Container hierarchy facts
+  - fact: "books_in_series"
+    owner: "series_outline"
+    description: |
+      Series Outline is authoritative for which books belong to a series.
+      It maintains the ordered list of book references and series-level metadata
+      that apply to all contained books.
+    is_derived: false
+
+  - fact: "sequences_in_book"
+    owner: "book_outline"
+    description: |
+      Book Outline is authoritative for which sequences partition a book.
+      It defines the major structural divisions within a single book
+      and their ordering and relationship to the 9-phase structure.
+    is_derived: false
+
+  - fact: "chapters_in_sequence"
+    owner: "sequence_outline"
+    description: |
+      Sequence Outline is authoritative for which chapters belong to a sequence.
+      It maintains the ordered list of chapter references and sequence-level
+      metadata (themes, emotional arc, arc beats within this sequence).
+    is_derived: false
+
+  - fact: "chapter_ordering"
+    owner: "sequence_outline"
+    description: |
+      Sequence Outline defines the order of chapters within its scope.
+      While chapters can be renumbered globally, their relative order
+      within their owning sequence is canonical.
+    is_derived: false
+
+  # Artifact content facts
+  - fact: "chapter_purpose"
+    owner: "chapter_outline"
+    description: |
+      Chapter Outline is authoritative for the chapter's narrative purpose:
+      what plot/character/thematic objectives this chapter accomplishes.
+      This is the core authored content of a chapter.
+    is_derived: false
+
+  - fact: "chapter_summary"
+    owner: "chapter_outline"
+    description: |
+      Chapter Outline is authoritative for the chapter's summary:
+      the high-level description of what happens in the chapter.
+      This is authored content distinct from arc beat descriptions.
+    is_derived: false
+
+  # Arc-specific facts
+  - fact: "character_transformation"
+    owner: "character_arc"
+    description: |
+      Character Arc is authoritative for how a character believes/feels.
+      It tracks the character's transformation from initial to final state,
+      including all turning points where beliefs shift.
+    is_derived: false
+
+  - fact: "plot_progression"
+    owner: "story_arc"
+    description: |
+      Story Arc is authoritative for how plot/thematic elements progress.
+      It tracks the arc's advancement through phases and checkpoints,
+      establishing the major narrative curve independent of chapter structure.
+    is_derived: false
+
+  - fact: "arc_beat_locations"
+    owner: "story_arc"
+    description: |
+      Story Arc is authoritative for which chapters contain specific arc beats.
+      While Chapter Outline describes local events, Story Arc defines
+      which chapters are narrative milestones for the arc's progression.
+    is_derived: false
+
+  # Derived facts (computed, not authored)
+  - fact: "chapter_count"
+    owner: "chapter_outline"
+    description: |
+      Chapter count is derived by aggregating all chapter outlines in a book.
+      It flows from individual chapter existence, not separately declared.
+      Useful for validation that estimated vs. actual chapters align.
+    is_derived: true
+
+  - fact: "sequence_count"
+    owner: "sequence_outline"
+    description: |
+      Sequence count is derived by aggregating all sequence outlines in a book.
+      It flows from individual sequence existence, not separately declared.
+      Validation that book structure matches planned sequences.
+    is_derived: true
+
+  - fact: "arc_span_chapters"
+    owner: "story_arc"
+    description: |
+      Arc span is derived by finding all chapters that arc beats reference.
+      It flows from arc beat locations, not separately declared.
+      Enables cross-cutting analysis of which chapters serve arc progression.
+    is_derived: true
+
+  - fact: "narrative_phase_assignment"
+    owner: "book_outline"
+    description: |
+      Phase assignments are derived by mapping chapters to phases via sequence structure.
+      It flows from book phases_summary and chapter ordering, not separately declared.
+      Enables validation that arcs respect phase boundaries.
+    is_derived: true
