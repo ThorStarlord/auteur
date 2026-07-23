@@ -29,8 +29,6 @@ from auteur.workflow.rules import (
 # Characters that have special meaning in shells and must not appear
 # in command arguments when dispatching via subprocess with a list.
 _SHELL_METACHARACTERS = frozenset(";&|`$(){}[]!#~")
-# Subcommand families that must never be dispatched recursively.
-_FORBIDDEN_SUBCOMMAND_PREFIXES = frozenset(["workflow"])
 
 
 def _find_auteur_command() -> str | None:
@@ -57,33 +55,64 @@ def _validate_arg_safety(args: list[str]) -> str | None:
             if segment == "..":
                 pass  # allow relative paths like ../blueprint.yaml
     return None
-
-
 def _has_placeholders(args: list[str]) -> list[str]:
     """Return args that look like placeholders needing author substitution."""
+    import re as _re
     return [
-        p for p in args
-        if re.fullmatch(r"[A-Z_][A-Z0-9_]*", p)
-        or (p.startswith("<") and p.endswith(">"))
+        a for a in args
+        if _re.fullmatch(r"[A-Z_]+", a) or _re.fullmatch(r"<[^>]+>", a)
     ]
 
+
+# Decision subcommands that are safe for automatic dispatch
+# All other decision subcommands require author authority.
+_SAFE_DECISION_SUBCOMMANDS: frozenset[str] = frozenset([
+    "impact-preview",
+    "compare",
+    "next",
+    "conflicts",
+    "list",
+    "evidence",
+    "inspect",
+    "status",
+    "history",
+    "lineage",
+    "diff",
+    "refresh",
+    "revalidate",
+])
+
+
+# Workflow subcommand families that must never be dispatched recursively.
+_FORBIDDEN_SUBCOMMAND_PREFIXES = frozenset(["workflow", "decision"])
 
 class WorkflowEngine:
     """Deterministic workflow analysis engine.
 
     Composes with ``auteur.status.gather_status()`` for project state, then
-    layers typed workflow semantics on top. Never mutates artifacts.
+    layers typed workflow semantics on top. Optionally integrates with the
+    Decision Workspace for decision-aware actions.
     """
 
-    def __init__(self, project_root: str | Path) -> None:
+    def __init__(self, project_root: str | Path, decision_service: Any | None = None) -> None:
         self.root = Path(project_root)
+        self._decision_service = decision_service
 
     def analyze(self) -> WorkflowState:
         """Analyze project state and return a complete WorkflowState."""
         stages = detect_stages(self.root)
         cs = current_stage(stages)
         blockers = collect_blockers(stages)
-        actions = recommend_actions(stages)
+
+        # Query decisions if a decision service is configured
+        decisions: list[Any] | None = None
+        if self._decision_service is not None:
+            try:
+                decisions = self._decision_service.list_decisions()
+            except Exception:
+                decisions = None
+
+        actions = recommend_actions(stages, decisions=decisions)
         status = gather_status(self.root)
 
         summary = self._build_summary(stages, cs, blockers)
@@ -106,6 +135,18 @@ class WorkflowEngine:
         if not stages:
             return "No stages detected."
         if cs is None:
+            if self._decision_service is not None:
+                try:
+                    status = self._decision_service.status()
+                    open_count = status.get("total_decisions", 0)
+                    ready_count = status.get("ready_for_acceptance", 0)
+                    if open_count > 0:
+                        parts = [f"Workflow complete, {open_count} open decision(s)"]
+                        if ready_count > 0:
+                            parts.append(f"{ready_count} ready for acceptance")
+                        return " — ".join(parts)
+                except Exception:
+                    pass
             return "All workflow stages are complete."
         blocking = [b for b in blockers if b.severity.value == "blocking"]
         if blocking:
@@ -114,17 +155,28 @@ class WorkflowEngine:
 
     def can_execute(self, action: WorkflowAction) -> bool:
         """Check if an action is eligible for safe execution."""
-        return action.authority in EXECUTABLE_AUTHORITIES
+        from auteur.workflow.models import SAFE_DECISION_ACTIONS
+
+        if action.authority in EXECUTABLE_AUTHORITIES:
+            return True
+
+        action_label = action.label.lower()
+        for safe_id in SAFE_DECISION_ACTIONS:
+            if safe_id.replace("-", " ") in action_label:
+                return True
+
+        return False
 
     def filter_safe_actions(self, actions: list[WorkflowAction]) -> list[WorkflowAction]:
-        """Return only read-only / derived / candidate actions."""
-        return [a for a in actions if a.authority in SAFE_AUTHORITIES]
+        """Return only safe-executable actions."""
+        return [a for a in actions if self.can_execute(a)]
 
     def execute(self, action: WorkflowAction) -> dict:
         """Execute a workflow action by dispatching the underlying CLI command.
 
         Safety guarantees:
         - Only actions with eligible authority levels are dispatched.
+        - Decision authority-bearing actions are refused.
         - Commands with placeholder arguments (UPPERCASE, <angle>) are refused.
         - ``workflow`` subcommands are blocked to prevent recursion.
         - Arguments with shell metacharacters (;&|`$(){}[]!#~) are rejected.
@@ -165,19 +217,35 @@ class WorkflowEngine:
             }
 
         subcommand = parts[1].lower()
-        args = parts[1:]  # everything after "auteur", e.g. ["structure", "diagnose", ...]
+        args = parts[1:]  # everything after "auteur"
 
-        # Recursion prevention: block workflow subcommands
+        # Recursion prevention: block workflow subcommands and
+        # non-safe decision subcommands
         if subcommand in _FORBIDDEN_SUBCOMMAND_PREFIXES:
-            return {
-                "action": action.label,
-                "executed": False,
-                "exit_code": 2,
-                "error": f"Cannot execute '{action.label}': workflow subcommands "
-                         f"are not eligible for automatic dispatch.",
-            }
+            if subcommand == "decision":
+                subcmd = args[1] if len(args) > 1 else ""
+                if subcmd in _SAFE_DECISION_SUBCOMMANDS:
+                    pass
+                else:
+                    return {
+                        "action": action.label,
+                        "executed": False,
+                        "exit_code": 2,
+                        "error": (
+                            f"Cannot execute '{action.label}': "
+                            f"'{subcmd}' decision subcommand requires author authority."
+                        ),
+                    }
+            else:
+                return {
+                    "action": action.label,
+                    "executed": False,
+                    "exit_code": 2,
+                    "error": f"Cannot execute '{action.label}': workflow subcommands "
+                             f"are not eligible for automatic dispatch.",
+                }
 
-        # Reject placeholder arguments that need author substitution
+        # Reject placeholder arguments
         placeholders = _has_placeholders(args)
         if placeholders:
             return {
@@ -186,8 +254,7 @@ class WorkflowEngine:
                 "exit_code": 2,
                 "error": (
                     f"Cannot execute '{action.label}': command contains "
-                    f"placeholders {placeholders} that require author input. "
-                    f"Run the command manually: {action.command}"
+                    f"placeholders {placeholders}. Run manually: {action.command}"
                 ),
             }
 
@@ -208,20 +275,13 @@ class WorkflowEngine:
                 "action": action.label,
                 "executed": False,
                 "exit_code": -1,
-                "error": "auteur CLI not found on PATH. Is the package installed?",
+                "error": "auteur CLI not found on PATH.",
             }
 
-        # Construct structured argument vector (no shell=True, no string interpolation)
         cmd = [auteur_exe] + args
 
         try:
-            proc = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                cwd=str(self.root),
-                timeout=120,
-            )
+            proc = subprocess.run(cmd, capture_output=True, text=True, cwd=str(self.root), timeout=120)
             return {
                 "action": action.label,
                 "executed": proc.returncode == 0,
@@ -231,30 +291,10 @@ class WorkflowEngine:
                 "authority": action.authority.value,
             }
         except subprocess.TimeoutExpired:
-            return {
-                "action": action.label,
-                "executed": False,
-                "exit_code": -1,
-                "error": "Command timed out after 120 seconds.",
-            }
+            return {"action": action.label, "executed": False, "exit_code": -1, "error": "Command timed out."}
         except FileNotFoundError:
-            return {
-                "action": action.label,
-                "executed": False,
-                "exit_code": -1,
-                "error": f"auteur CLI executable not found: {auteur_exe}",
-            }
+            return {"action": action.label, "executed": False, "exit_code": -1, "error": "auteur CLI not found."}
         except OSError as exc:
-            return {
-                "action": action.label,
-                "executed": False,
-                "exit_code": -1,
-                "error": f"Failed to launch {auteur_exe}: {exc}",
-            }
+            return {"action": action.label, "executed": False, "exit_code": -1, "error": f"Failed: {exc}"}
         except Exception as exc:
-            return {
-                "action": action.label,
-                "executed": False,
-                "exit_code": -1,
-                "error": f"Execution failed: {exc}",
-            }
+            return {"action": action.label, "executed": False, "exit_code": -1, "error": f"Execution failed: {exc}"}

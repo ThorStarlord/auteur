@@ -268,3 +268,36 @@ class RepairPlan:
             authority=d.get("authority", "derived"),
             canonical=d.get("canonical", False),
         )
+
+
+# ---------------------------------------------------------------------------
+# v0.8.0 — Impact preview simulation models
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class ImpactedArtifact:
+    """An artifact that would be affected by accepting a candidate."""
+    artifact_id: str
+    artifact_type: str = ""
+    chapter_index: int | None = None
+    impact_kind: str = "definite"  # "definite" or "inferred"
+    impact_reason: str = ""
+    downstream_cost: int = 1
+
+
+@dataclass(frozen=True)
+class ImpactPreview:
+    """Simulation of consequences of accepting a candidate, no state mutation."""
+    candidate_id: str
+    target_artifact_id: str
+    simulated_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    definite_impacts: list[ImpactedArtifact] = field(default_factory=list)
+    inferred_impacts: list[ImpactedArtifact] = field(default_factory=list)
+    unchanged_artifacts: list[str] = field(default_factory=list)
+    downstream_work_summary: str = ""
+    impact_graph: dict[str, Any] = field(default_factory=dict)
+
+    def total_cost_score(self) -> int:
+        """Heuristic: definite*2 + inferred."""
+        return len(self.definite_impacts) * 2 + len(self.inferred_impacts)

@@ -213,97 +213,214 @@ def collect_blockers(stages: list[StageProgress]) -> list[WorkflowBlocker]:
     return result
 
 
+def integrate_decision_actions(
+    decisions: list[Any],
+    current_stage: WorkflowStage | None,
+) -> list[WorkflowAction]:
+    """Convert AuthorDecision next-actions to WorkflowActions.
+
+    Returns actions ranked by priority: blocked first, then author-decision,
+    then evaluation/comparison, then acceptance-ready.
+    """
+    if not decisions:
+        return []
+
+    from auteur.decision.models import DecisionReadiness
+    from auteur.workflow.models import FORBIDDEN_DECISION_ACTIONS, SAFE_DECISION_ACTIONS
+
+    workflow_actions: list[WorkflowAction] = []
+
+    for decision in decisions:
+        # Map DecisionReadiness to workflow action
+        readiness = decision.readiness
+        decision_id = decision.decision_id
+
+        if readiness == DecisionReadiness.BLOCKED:
+            workflow_actions.append(WorkflowAction(
+                label=f"Review blockers: {decision_id[:12]}...",
+                command=f"auteur decision inspect {decision_id}",
+                authority=AuthorityLevel.READ_ONLY,
+                description=f"Decision {decision_id[:12]}... is blocked. Inspect to see blockers.",
+                auto_executable=True,
+            ))
+        elif readiness == DecisionReadiness.NEEDS_CANDIDATE:
+            workflow_actions.append(WorkflowAction(
+                label=f"Generate candidate: {decision_id[:12]}...",
+                command=f"auteur decision next {decision_id}",
+                authority=AuthorityLevel.CANDIDATE_GENERATION,
+                description=f"Decision {decision_id[:12]}... needs a candidate.",
+                auto_executable=True,
+            ))
+        elif readiness == DecisionReadiness.NEEDS_EVALUATION:
+            workflow_actions.append(WorkflowAction(
+                label=f"Evaluate candidate: {decision_id[:12]}...",
+                command=f"auteur decision next {decision_id}",
+                authority=AuthorityLevel.CANDIDATE_GENERATION,
+                description=f"Decision {decision_id[:12]}... has unevaluated candidates.",
+                auto_executable=True,
+            ))
+        elif readiness == DecisionReadiness.NEEDS_COMPARISON:
+            workflow_actions.append(WorkflowAction(
+                label=f"Compare candidates: {decision_id[:12]}...",
+                command=f"auteur decision compare {decision_id}",
+                authority=AuthorityLevel.DERIVED_ARTIFACT,
+                description=f"Decision {decision_id[:12]}... has multiple candidates to compare.",
+                auto_executable=True,
+            ))
+        elif readiness == DecisionReadiness.NEEDS_RECONCILIATION:
+            workflow_actions.append(WorkflowAction(
+                label=f"Resolve conflicts: {decision_id[:12]}...",
+                command=f"auteur decision conflicts {decision_id}",
+                authority=AuthorityLevel.READ_ONLY,
+                description=f"Decision {decision_id[:12]}... has unresolved reconciliation conflicts.",
+                auto_executable=False,
+            ))
+        elif readiness == DecisionReadiness.NEEDS_AUTHOR_DECISION:
+            workflow_actions.append(WorkflowAction(
+                label=f"Author decision needed: {decision_id[:12]}...",
+                command=f"auteur decision inspect {decision_id}",
+                authority=AuthorityLevel.AUTHORITY_BEARING,
+                description=f"Decision {decision_id[:12]}... requires author input.",
+                auto_executable=False,
+            ))
+        elif readiness == DecisionReadiness.READY_FOR_ACCEPTANCE:
+            workflow_actions.append(WorkflowAction(
+                label=f"Prepare acceptance: {decision_id[:12]}...",
+                command=f"auteur decision prepare-acceptance {decision_id} --candidate <id>",
+                authority=AuthorityLevel.DERIVED_ARTIFACT,
+                description=f"Decision {decision_id[:12]}... is ready for acceptance preparation.",
+                auto_executable=False,
+            ))
+
+    return workflow_actions
+
+
 def recommend_actions(
     stages: list[StageProgress],
     status: dict | None = None,
+    decisions: list[Any] | None = None,
 ) -> list[WorkflowAction]:
-    """Generate recommended actions based on current stage and blockers."""
+    """Generate recommended actions based on current stage, blockers, and open decisions."""
     actions: list[WorkflowAction] = []
     cs = current_stage(stages)
 
-    if cs is None:
-        actions.append(WorkflowAction(
-            label="All stages complete",
-            command="",
-            authority=AuthorityLevel.READ_ONLY,
-            description="All workflow stages are complete.",
-        ))
+    # Generate decision-aware actions when decisions are provided
+    decision_actions: list[WorkflowAction] = []
+    if decisions:
+        decision_actions = integrate_decision_actions(decisions, cs)
+
+    # When no decisions are open, pure workflow behavior
+    if not decision_actions:
+        if cs is None:
+            actions.append(WorkflowAction(
+                label="All stages complete",
+                command="",
+                authority=AuthorityLevel.READ_ONLY,
+                description="All workflow stages are complete.",
+            ))
+            return actions
+
+        if cs == WorkflowStage.IDENTITY:
+            actions.append(WorkflowAction(
+                label="Define story identity",
+                command="auteur identity recommend your_premise.txt --output story_identity.yaml",
+                authority=AuthorityLevel.CANDIDATE_GENERATION,
+                description="Generate a recommended story identity from a premise text file.",
+            ))
+        elif cs == WorkflowStage.STRUCTURE:
+            actions.append(WorkflowAction(
+                label="Diagnose structure",
+                command="auteur structure diagnose blueprint.yaml",
+                authority=AuthorityLevel.READ_ONLY,
+                description="Run structural diagnostics on the blueprint.",
+            ))
+            actions.append(WorkflowAction(
+                label="Seed blueprint from identity",
+                command="auteur blueprint seed story_identity.yaml --output blueprint.yaml",
+                authority=AuthorityLevel.DERIVED_ARTIFACT,
+                description="Compile identity into a blueprint skeleton.",
+            ))
+        elif cs == WorkflowStage.REALIZATION:
+            actions.append(WorkflowAction(
+                label="Compile chapter outlines",
+                command="auteur cartographer compile --blueprint blueprint.yaml --project .",
+                authority=AuthorityLevel.DERIVED_ARTIFACT,
+                description="Generate chapter outlines from the blueprint (requires LLM).",
+            ))
+            actions.append(WorkflowAction(
+                label="Check realization convergence status",
+                command="auteur realization status --chapter 1 --project .",
+                authority=AuthorityLevel.READ_ONLY,
+                description="Inspect scene/chapter convergence and revision status.",
+            ))
+        elif cs == WorkflowStage.DRAFTING:
+            actions.append(WorkflowAction(
+                label="Draft first chapter",
+                command="auteur draft . 1",
+                authority=AuthorityLevel.CANDIDATE_GENERATION,
+                description="Draft chapter 1 through the planning and iteration pipeline.",
+            ))
+        elif cs == WorkflowStage.REASONING:
+            actions.append(WorkflowAction(
+                label="Review reasoning findings",
+                command="auteur reasoning review PATH_TO_REVIEW --project .",
+                authority=AuthorityLevel.READ_ONLY,
+                description="Inspect derived reasoning reviews.",
+            ))
+        elif cs == WorkflowStage.RECONCILIATION:
+            actions.append(WorkflowAction(
+                label="Inspect reconciliation",
+                command="auteur expression inspect-book-manuscript PATH_TO_MANUSCRIPT --project .",
+                authority=AuthorityLevel.READ_ONLY,
+                description="Inspect book manuscript reconciliation status.",
+            ))
+        elif cs == WorkflowStage.ACCEPTANCE:
+            actions.append(WorkflowAction(
+                label="Accept book expression",
+                command="auteur expression compose-book --project .",
+                authority=AuthorityLevel.DERIVED_ARTIFACT,
+                description="Compose and accept the book-level expression.",
+            ))
+        elif cs == WorkflowStage.ASSEMBLY:
+            actions.append(WorkflowAction(
+                label="Complete assembly",
+                command="auteur expression complete-book-reconciliation ACCEPTANCE_ID --project .",
+                authority=AuthorityLevel.AUTHORITY_BEARING,
+                description="Complete book-level reconciliation.",
+            ))
+        elif cs == WorkflowStage.PUBLISHING:
+            actions.append(WorkflowAction(
+                label="Create release",
+                command="auteur publishing release --project .",
+                authority=AuthorityLevel.AUTHORITY_BEARING,
+                description="Create a publishing release.",
+            ))
+
         return actions
 
-    if cs == WorkflowStage.IDENTITY:
+    # Decisions are open — interleave decision actions with workflow stage actions
+    # Decision actions come first when relevant to the current stage
+    actions.extend(decision_actions)
+
+    # Append current-stage workflow action if it exists (for context)
+    if cs is not None:
+        stage_labels = {
+            WorkflowStage.IDENTITY: "Current stage: Identity — continue with story definition",
+            WorkflowStage.STRUCTURE: "Current stage: Structure — continue with structural planning",
+            WorkflowStage.REALIZATION: "Current stage: Realization — continue with scene/outline work",
+            WorkflowStage.DRAFTING: "Current stage: Drafting — continue with chapter drafting",
+            WorkflowStage.REASONING: "Current stage: Reasoning — continue with review",
+            WorkflowStage.RECONCILIATION: "Current stage: Reconciliation",
+            WorkflowStage.ACCEPTANCE: "Current stage: Acceptance",
+            WorkflowStage.ASSEMBLY: "Current stage: Assembly",
+            WorkflowStage.PUBLISHING: "Current stage: Publishing",
+        }
+        label = stage_labels.get(cs, f"Current stage: {cs.value}")
         actions.append(WorkflowAction(
-            label="Define story identity",
-            command="auteur identity recommend your_premise.txt --output story_identity.yaml",
-            authority=AuthorityLevel.CANDIDATE_GENERATION,
-            description="Generate a recommended story identity from a premise text file.",
-        ))
-    elif cs == WorkflowStage.STRUCTURE:
-        actions.append(WorkflowAction(
-            label="Diagnose structure",
-            command="auteur structure diagnose blueprint.yaml",
+            label=label,
+            command="",
             authority=AuthorityLevel.READ_ONLY,
-            description="Run structural diagnostics on the blueprint.",
-        ))
-        actions.append(WorkflowAction(
-            label="Seed blueprint from identity",
-            command="auteur blueprint seed story_identity.yaml --output blueprint.yaml",
-            authority=AuthorityLevel.DERIVED_ARTIFACT,
-            description="Compile identity into a blueprint skeleton.",
-        ))
-    elif cs == WorkflowStage.REALIZATION:
-        actions.append(WorkflowAction(
-            label="Compile chapter outlines",
-            command="auteur cartographer compile --blueprint blueprint.yaml --project .",
-            authority=AuthorityLevel.DERIVED_ARTIFACT,
-            description="Generate chapter outlines from the blueprint (requires LLM).",
-        ))
-        actions.append(WorkflowAction(
-            label="Check realization convergence status",
-            command="auteur realization status --chapter 1 --project .",
-            authority=AuthorityLevel.READ_ONLY,
-            description="Inspect scene/chapter convergence and revision status.",
-        ))
-    elif cs == WorkflowStage.DRAFTING:
-        actions.append(WorkflowAction(
-            label="Draft first chapter",
-            command="auteur draft . 1",
-            authority=AuthorityLevel.CANDIDATE_GENERATION,
-            description="Draft chapter 1 through the planning and iteration pipeline (requires LLM).",
-        ))
-    elif cs == WorkflowStage.REASONING:
-        actions.append(WorkflowAction(
-            label="Review reasoning findings",
-            command="auteur reasoning review PATH_TO_REVIEW --project .",
-            authority=AuthorityLevel.READ_ONLY,
-            description="Inspect derived reasoning reviews for the latest chapter. Replace PATH_TO_REVIEW with the actual review path.",
-        ))
-    elif cs == WorkflowStage.RECONCILIATION:
-        actions.append(WorkflowAction(
-            label="Inspect reconciliation",
-            command="auteur expression inspect-book-manuscript PATH_TO_MANUSCRIPT --project .",
-            authority=AuthorityLevel.READ_ONLY,
-            description="Inspect book manuscript reconciliation status. Replace PATH_TO_MANUSCRIPT with the actual manuscript path.",
-        ))
-    elif cs == WorkflowStage.ACCEPTANCE:
-        actions.append(WorkflowAction(
-            label="Accept book expression",
-            command="auteur expression compose-book --project .",
-            authority=AuthorityLevel.DERIVED_ARTIFACT,
-            description="Compose and accept the book-level expression.",
-        ))
-    elif cs == WorkflowStage.ASSEMBLY:
-        actions.append(WorkflowAction(
-            label="Complete assembly",
-            command="auteur expression complete-book-reconciliation ACCEPTANCE_ID --project .",
-            authority=AuthorityLevel.AUTHORITY_BEARING,
-            description="Complete book-level reconciliation. Replace ACCEPTANCE_ID with the acceptance record ID.",
-        ))
-    elif cs == WorkflowStage.PUBLISHING:
-        actions.append(WorkflowAction(
-            label="Create release",
-            command="auteur publishing release --project .",
-            authority=AuthorityLevel.AUTHORITY_BEARING,
-            description="Create a publishing release.",
+            description=f"Workflow stage: {cs.value}",
         ))
 
     return actions

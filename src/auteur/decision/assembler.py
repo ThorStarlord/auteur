@@ -282,8 +282,11 @@ class DecisionAssembler:
         return None
 
     def to_dict(self, decision: AuthorDecision) -> dict[str, Any]:
-        """Serialize decision to dict."""
+        """Serialize decision to dict including schema and lineage metadata."""
         return {
+            "schema_version": decision.schema_version,
+            "snapshot_id": decision.snapshot_id,
+            "preceding_snapshot_id": decision.preceding_snapshot_id,
             "decision_id": decision.decision_id,
             "project": decision.project,
             "chapter_index": decision.chapter_index,

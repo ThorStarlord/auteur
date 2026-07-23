@@ -46,6 +46,26 @@ EXECUTABLE_AUTHORITIES = {
 # generated-repair scenario. It may be added to EXECUTABLE_AUTHORITIES
 # in a future release when a concrete action requires it.
 
+# Decision action IDs that are safe to execute through the workflow engine.
+# These are deterministic, read-only, or produce non-canonical derived artifacts.
+SAFE_DECISION_ACTIONS: frozenset[str] = frozenset({
+    "generate-candidate",
+    "evaluate-candidate",
+    "compare-candidates",
+    "prepare-acceptance",
+    "refresh-impact-analysis",
+    "refresh-decision-snapshots",
+    "run-deterministic-validation",
+})
+
+# Authority-bearing decision actions that must NEVER execute automatically
+FORBIDDEN_DECISION_ACTIONS: frozenset[str] = frozenset({
+    "resolve-conflicts",
+    "author-decision",
+    "accept-candidate",
+    "approve-acceptance",
+})
+
 
 class BlockerSeverity(enum.Enum):
     BLOCKING = "blocking"

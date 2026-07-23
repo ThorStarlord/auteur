@@ -71,12 +71,27 @@ class EvidenceClassification(str, enum.Enum):
     DERIVED_INFERENCE = "derived_inference"
     RECOMMENDATION = "recommendation"
     AUTHOR_CHOICE = "author_choice"
+    CONTEXTUAL_OBSERVATION = "contextual_observation"
 
 
 class EvidenceFreshness(str, enum.Enum):
     CURRENT = "current"
     STALE = "stale"
     UNKNOWN = "unknown"
+
+
+class ConflictType(str, enum.Enum):
+    FACTUAL = "factual"
+    STRUCTURAL = "structural"
+    INTERPRETIVE = "interpretive"
+    CREATIVE = "creative"
+
+
+class ResolutionBoundary(str, enum.Enum):
+    RECOMPUTE = "recompute"
+    RECONCILE = "reconcile"
+    REQUEST_AUTHOR_CHOICE = "request_author_choice"
+    BLOCK_ACCEPTANCE = "block_acceptance"
 
 
 @dataclass(frozen=True)
@@ -187,13 +202,44 @@ class CandidateSummary:
 
 @dataclass(frozen=True)
 class DecisionConflict:
-    """Explicit conflict in decision evidence."""
+    """Explicit conflict in decision evidence with type and resolution boundary."""
     conflict_id: str
     title: str
-    claim_a: str
-    claim_b: str
+    conflict_type: ConflictType = ConflictType.FACTUAL
+    resolution_boundary: ResolutionBoundary = ResolutionBoundary.RECOMPUTE
+    source_subsystem: EvidenceSource | None = None
+    claim_a: str = ""
+    claim_b: str = ""
+    claims: list[dict[str, Any]] = field(default_factory=list)
     affected_candidates: list[str] = field(default_factory=list)
     resolution_options: list[str] = field(default_factory=list)
+    detected_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+
+    @classmethod
+    def create(
+        cls,
+        title: str,
+        conflict_type: ConflictType = ConflictType.FACTUAL,
+        resolution_boundary: ResolutionBoundary = ResolutionBoundary.RECOMPUTE,
+        source_subsystem: EvidenceSource | None = None,
+        claim_a: str = "",
+        claim_b: str = "",
+        claims: list[dict[str, Any]] | None = None,
+        affected_candidates: list[str] | None = None,
+        resolution_options: list[str] | None = None,
+    ) -> DecisionConflict:
+        return cls(
+            conflict_id=str(uuid.uuid4()),
+            title=title,
+            conflict_type=conflict_type,
+            resolution_boundary=resolution_boundary,
+            source_subsystem=source_subsystem,
+            claim_a=claim_a,
+            claim_b=claim_b,
+            claims=claims or [],
+            affected_candidates=affected_candidates or [],
+            resolution_options=resolution_options or [],
+        )
 
 
 @dataclass(frozen=True)
@@ -240,6 +286,11 @@ class AuthorDecision:
     authority_required: AuthorityLevel = AuthorityLevel.AUTHORITY_BEARING
     safe_actions: list[DecisionAction] = field(default_factory=list)
 
+    # Schema versioning (v0.8.0+)
+    schema_version: str = "decision-snapshot-v1"
+    snapshot_id: str | None = None
+    preceding_snapshot_id: str | None = None
+
     # Metadata
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     last_updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
@@ -257,14 +308,20 @@ class AuthorDecision:
 
 @dataclass(frozen=True)
 class AcceptancePreparation:
-    """Verification of acceptance readiness without performing acceptance."""
+    """Enhanced acceptance readiness review with prerequisites, tradeoffs, and impact."""
     decision_id: str
     candidate_id: str
     is_ready: bool
     blockers: list[str] = field(default_factory=list)
+    satisfied_prerequisites: list[str] = field(default_factory=list)
+    unsatisfied_prerequisites: list[str] = field(default_factory=list)
+    candidate_tradeoffs: list[str] = field(default_factory=list)
+    reasoning_evidence_summary: dict[str, Any] = field(default_factory=dict)
+    reconciliation_evidence_summary: dict[str, Any] = field(default_factory=dict)
+    downstream_impact: Any | None = None  # ImpactPreview
+    stale_after_acceptance: list[str] = field(default_factory=list)
+    acceptance_request: dict[str, Any] | None = None
     verification_results: dict[str, bool] = field(default_factory=dict)
-
     will_change_canonical: bool = False
     affected_downstream: list[str] = field(default_factory=list)
-
     prepared_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))

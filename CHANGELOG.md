@@ -1,5 +1,146 @@
 # Changelog
 
+
+## v0.8.0 (2026-07-22) — Decision Orchestration and Evidence Integration
+
+### Decision Lifecycle and Lineage
+
+- **`auteur decision history <id>`**: Shows snapshot history with readiness, state, freshness.
+- **`auteur decision lineage <id>`**: Shows snapshot chain with lineage depth and preceding IDs.
+- **`auteur decision diff <a> <b>`**: Field-level diff between two snapshots.
+- All snapshots carry deterministic `snapshot_id` and link via `preceding_snapshot_id`.
+
+### Versioned Contract Schemas
+
+- All decision artifacts versioned with `schema_version` field (`"decision-snapshot-v1"`).
+- v0.7.0 snapshots auto-detected and upgraded on load.
+- Fixture factories for testing (`make_snapshot_fixture`, `make_evidence_fixture`, etc.).
+
+### Direct Reasoning Integration
+
+- New `ReasoningAdapter` reads critic reports and synthesis reviews per candidate.
+- Reasoning evidence mapped to `DecisionEvidence` with preservation of nuanced findings.
+- Staleness detection via source content hash comparison.
+- Missing reasoning surfaces as `NEEDS_EVALUATION`.
+
+### Direct Reconciliation Integration
+
+- New `ReconciliationAdapter` wraps `ReconciliationStore` from expression layer.
+- Conflict classification: technical (`NEEDS_RECONCILIATION`) vs creative (`NEEDS_AUTHOR_DECISION`).
+- Proposal application and prose merging kept outside automatic execution.
+
+### Decision Conflict Model
+
+- `ConflictType`: FACTUAL, STRUCTURAL, INTERPRETIVE, CREATIVE.
+- `ResolutionBoundary`: RECOMPUTE, RECONCILE, REQUEST_AUTHOR_CHOICE, BLOCK_ACCEPTANCE.
+- No single subsystem is silently authoritative — all conflicting claims preserved.
+- CLI: `auteur decision conflicts <id>`.
+
+### Downstream Impact Preview
+
+- `auteur decision impact-preview <id> --candidate <cand>` simulates acceptance consequences.
+- Definite and inferred impact classification via dependency graph.
+- Completely read-only: no canonical or accepted-state mutation.
+
+### Bidirectional Workflow Integration
+
+- `workflow next` queries the Decision Workspace when a `decision_service` is configured.
+- Decision actions (blocked, needs-author, evaluation, acceptance-ready) rank alongside workflow actions.
+- Safe decision actions (inspect, compare, conflicts, impact-preview) eligible for auto-execution through the engine.
+- Authority-bearing decision actions refused by `can_execute()`.
+- Workflow and non-safe decision subcommands blocked from recursive/auto dispatch.
+- When no decisions are open, behavior is identical to v0.7.0.
+
+### Executable Safe Actions
+
+- `SAFE_DECISION_ACTIONS` registry: generate-candidate, evaluate-candidate, compare-candidates, prepare-acceptance, refresh-impact-analysis, refresh-decision-snapshots, run-deterministic-validation.
+- Idempotent snapshot refreshes (`auteur decision refresh`).
+- Deterministic validation (`auteur decision revalidate`).
+- All operations preserve failure diagnostics.
+
+### Acceptance Preparation
+
+- Enriched `AcceptancePreparation` with satisfied/unsatisfied prerequisites, candidate tradeoffs, reasoning and reconciliation summaries, downstream impact, and stale-after-acceptance identification.
+- Typed acceptance request generated only when all prerequisites met.
+- Acceptance itself is never performed automatically.
+
+### Status Improvements
+
+- `auteur decision list` supports filters: `--readiness`, `--stale`, `--fresh`, `--requires-author`, `--bypass-low-priority`.
+- Grouping by chapter, target, and readiness.
+- Decisions sorted deterministically by chapter then ID.
+
+### Qualification Harness
+
+- 10 canonical qualification scenarios in `tests/qualification/`.
+- Each scenario uses subprocess CLI invocations against deterministic fixture projects.
+- Verifies exit codes, JSON output, and no canonical/accepted-state mutation.
+- Scenarios: impact creates decision, no candidate, unevaluated candidate, candidate comparison, stale reasoning, reconciliation conflict, author choice, acceptance-ready, blocked acceptance, decision resolution.
+
+### Architecture
+
+- New `src/auteur/decision/contracts.py` — versioned schema definitions.
+- New `src/auteur/decision/adapters/` — subsystem adapter pattern.
+- New `src/auteur/decision/conflict_detector.py` — cross-evidence conflict classification.
+- Adapters are the only integration points importing from their target subsystem.
+- All existing tests preserved with zero regressions.
+
+## v0.7.0 (2026-07-21) — Author Decision Workspace
+
+### New decision workspace subsystem
+
+- **`auteur decision status`**: Shows project-level decision status including
+  open impact findings, decisions by readiness, and highest-priority blocker.
+- **`auteur decision list`**: Lists all assembled decisions from impact and
+  convergence state with readiness, freshness, and lifecycle state.
+- **`auteur decision inspect <id>`**: Full decision detail with evidence,
+  candidates, blockers, and unresolved choices.
+- **`auteur decision evidence <id>`**: Evidence grouped by classification
+  (fact, derived_inference, recommendation, author_choice).
+- **`auteur decision compare <id>`**: Candidate comparison with dimensions,
+  conflicts, and recommendation.
+- **`auteur decision next <id>`**: Recommended next action with authority level
+  and safe-to-execute flag.
+- **`auteur decision prepare-acceptance <id> --candidate <id>`**: Readiness
+  verification without performing acceptance. Checks freshness, reasoning
+  evidence, obligations, author choices, and reconciliation.
+- All commands support `--project` and `--json`.
+
+### Decision lifecycle model
+
+- 6 lifecycle states: OPEN → EVIDENCE_INCOMPLETE → READY_FOR_ACCEPTANCE →
+  AUTHOR_DECISION_REQUIRED → BLOCKED → STALE
+- 9 readiness levels: BLOCKED, NEEDS_AUTHOR_DECISION, NEEDS_RECONCILIATION,
+  NEEDS_COMPARISON, NEEDS_EVALUATION, NEEDS_CANDIDATE, READY_FOR_ACCEPTANCE,
+  RESOLVED, STALE
+- Evidence classification: FACT, DERIVED_INFERENCE, RECOMMENDATION, AUTHOR_CHOICE
+- Evidence freshness: CURRENT, STALE, UNKNOWN
+
+### Subsystem integration
+
+- Impact findings → decisions from `auteur.impact.analyzer` with evidence mapping.
+- Convergence targets → decisions from `auteur.convergence` with candidate loading.
+- Reconciliation conflicts loaded from convergence proposals.
+- Next action recommendation based on decision readiness with authority-level
+  gating for safe-to-execute actions.
+
+### Architecture
+
+- New `src/auteur/decision/` package with clean separation:
+  `models.py` (decision types), `assembler.py` (subsystem → decision mapping),
+  `persistence.py` (immutable snapshots), `service.py` (workspace composition),
+  `cli.py` (subcommand registration and handlers).
+- Composes with `auteur.impact`, `auteur.convergence`, `auteur.workflow`,
+  `auteur.provenance`.
+- No LLM calls. Deterministic composition from persisted subsystem state.
+- Immutable snapshots under `.auteur/decisions/`.
+
+### Tests
+
+- 41 new tests covering decision models, assembler, persistence, store, and
+  workspace service integration.
+- Deterministic fixture projects with impact and convergence state.
+- Semantic assertions for readiness, evidence, candidates, and lifecycle.
 ## v0.6.0 (2026-07-21) — Realization Convergence and Scene-Level Revision Workflow
 
 ### New convergence subsystem
