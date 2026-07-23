@@ -84,7 +84,6 @@ def build_minimal_project(root: Path, **overrides: Any) -> Path:
             "chapter_index": 1,
             "scene_id": "scene_01_01",
             "affected_artifact": overrides.get("affected_artifact", "artifact-001"),
-            "target_version": 1,
         }
         (conv_dir / "targets" / f"{target['target_id']}.yaml").write_text(yaml.safe_dump(target))
 

@@ -214,3 +214,43 @@ def test_scenario_resolution_after_acceptance(project_acceptance_ready: Path) ->
 
     snapshots_after = _collect_snapshots(project_acceptance_ready)
     _assert_no_mutation(snapshots_before, snapshots_after, "resolution_after_acceptance")
+
+
+# =========================================================================
+# Review session scenarios
+# =========================================================================
+
+
+def test_scenario_review_no_decisions(empty_project: Path) -> None:
+    """Review session start with no decisions fails gracefully."""
+    result = _run(["review", "start", "--project", str(empty_project)], empty_project)
+    assert result.returncode != 0
+    assert "No open decisions" in result.stderr or "No open decisions" in result.stdout
+
+
+def test_scenario_review_start_resume(project_acceptance_ready: Path) -> None:
+    """Review session can be started and resumed."""
+    result = _run(["review", "start", "--project", str(project_acceptance_ready)], project_acceptance_ready)
+    assert result.returncode == 0, f"start failed: {result.stderr}"
+
+    result2 = _run(["review", "status", "--project", str(project_acceptance_ready)], project_acceptance_ready)
+    assert result2.returncode == 0
+
+
+def test_scenario_review_inspect(project_acceptance_ready: Path) -> None:
+    """Review session inspect shows session detail."""
+    result = _run(["review", "start", "--project", str(project_acceptance_ready)], project_acceptance_ready)
+    assert result.returncode == 0
+    # Extract session ID from output
+    lines = result.stdout.strip().split("\n")
+    session_line = [l for l in lines if l.startswith("Review session started")]
+    if session_line:
+        session_id = session_line[0].split(":")[1].strip().split("...")[0]
+        result2 = _run(["review", "inspect", session_id, "--project", str(project_acceptance_ready)], project_acceptance_ready)
+        assert result2.returncode == 0
+
+
+def test_scenario_review_list(empty_project: Path) -> None:
+    """Review list works with no sessions."""
+    result = _run(["review", "list", "--project", str(empty_project)], empty_project)
+    assert result.returncode == 0

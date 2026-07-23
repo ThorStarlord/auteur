@@ -560,6 +560,9 @@ def _build_parser() -> argparse.ArgumentParser:
     from auteur.decision.cli import register_decision_subcommands
     register_decision_subcommands(sub)
 
+    from auteur.review.cli import register_review_subcommands
+    register_review_subcommands(sub)
+
     return parser
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -1785,6 +1788,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "decision":
         from auteur.decision.cli import dispatch_decision
         return dispatch_decision(args)
+
+    # === review ===
+    if args.command == "review":
+        from auteur.review.cli import dispatch_review
+        return dispatch_review(args)
 
     # === workflow ===
     if args.command == "workflow":
