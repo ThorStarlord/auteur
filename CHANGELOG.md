@@ -41,7 +41,7 @@
 - Version metadata: 0.8.1 (pyproject.toml, `auteur.__version__`, wheel METADATA).
 - Wheel contains: `auteur/data/composition/__init__.py`,
   `auteur/data/composition/composition_constraints.yaml`,
-- `auteur-0.8.1-py3-none-any.whl` — built from commit `24b82de`.
+- `auteur-0.8.1-py3-none-any.whl` — built from commit `86ba700`.
 - Fresh-install qualification: 10/10 scenarios pass.
   Working-directory independence confirmed (loads from `C:\`).
   No source-checkout path required.
