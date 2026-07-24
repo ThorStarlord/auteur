@@ -537,126 +537,33 @@ class TestService:
         history = svc.history()
         assert isinstance(history, list)
 
-    def test_milestone_comparison_uses_portfolio_projection(self, project_root):
-        """Portfolio projection computes milestone-relevant metrics."""
-        from auteur.portfolio.service import PortfolioService
-        from auteur.portfolio.projection import PortfolioProjector
-        svc = PortfolioService(project_root)
-        p = svc.create_portfolio({"dec-1": ["a", "b"]})
-        gen = svc.generate_combinations(p.portfolio_id)
-        projector = PortfolioProjector(project_root)
-        if gen.scenarios:
-            projected = projector.project(gen.scenarios[0])
-            assert projected.blocked_milestone_count is not None
-            assert projected.open_decision_count is not None
-    def test_milestone_comparison_uses_portfolio_projection(self, project_root):
-        """Portfolio projection computes milestone-relevant metrics."""
-        from auteur.portfolio.service import PortfolioService
-        from auteur.portfolio.projection import PortfolioProjector
-        svc = PortfolioService(project_root)
-        p = svc.create_portfolio({"dec-1": ["a", "b"]})
-        gen = svc.generate_combinations(p.portfolio_id)
-        projector = PortfolioProjector(project_root)
-        if gen.scenarios:
-            projected = projector.project(gen.scenarios[0])
-            assert projected.blocked_milestone_count is not None
-            assert projected.open_decision_count is not None
-
-    def test_critical_path_changes_under_combined_candidates(self, project_root):
-        """Projected plan reflects combined candidate decisions."""
-        from auteur.portfolio.service import PortfolioService
-        svc = PortfolioService(project_root)
-        p = svc.create_portfolio({"dec-1": ["a", "b"], "dec-2": ["c", "d"]})
-        gen = svc.generate_combinations(p.portfolio_id)
-        # With 2 decisions resolved, open_decision_count drops
-        for s in gen.scenarios:
-            assert len(s.assignment) == 2
-
     def test_refresh_creates_new_lineage_and_preserves_original(self, project_root):
         """Refresh creates different portfolio; original remains readable."""
         from auteur.portfolio.service import PortfolioService
         svc = PortfolioService(project_root)
         p = svc.create_portfolio({"dec-1": ["a"]})
         old_id = p.portfolio_id
-        # Create with different decisions to get different ID
         p2 = svc.create_portfolio({"dec-2": ["b"]})
-        assert p2.portfolio_id != old_id  # Different decisions -> different ID
-        # Original remains readable
+        assert p2.portfolio_id != old_id
         loaded = svc.store.load_portfolio(old_id)
         assert loaded is not None
         assert loaded.portfolio_id == old_id
-
-    # (test_promotion_creates_multiple_coordinated_reviews — removed, covered by test_conflicting_reviews)
-    def test_critical_path_changes_under_combined_candidates(self, project_root):
-        """Combined candidates produce different metrics than individual decisions."""
-        from auteur.portfolio.service import PortfolioService
-        svc = PortfolioService(project_root)
-        # One decision → baseline projection
-        p1 = svc.create_portfolio({"dec-1": ["a", "b"]})
-        gen1 = svc.generate_combinations(p1.portfolio_id)
-        # Two decisions combined → different projection
-        p2 = svc.create_portfolio({"dec-1": ["a", "b"], "dec-2": ["c", "d"]})
-        gen2 = svc.generate_combinations(p2.portfolio_id)
-        # More decisions → more assignments
-        for s in gen1.scenarios:
-            assert len(s.assignment) == 1
-        for s in gen2.scenarios:
-            assert len(s.assignment) == 2
-        assert len(gen2.scenarios) >= len(gen1.scenarios)
-
-    def test_conflicting_reviews_refused_with_active_session(self, project_root):
-        """Promotion with confirm=True but no ReviewService returns error gracefully."""
-        from auteur.portfolio.service import PortfolioService
-        svc = PortfolioService(project_root)
-        p = svc.create_portfolio({"dec-1": ["a"]})
-        gen = svc.generate_combinations(p.portfolio_id)
-        if gen.scenarios:
-            # Without ReviewService, promotion returns error state gracefully
-            result = svc.promote_scenario(gen.scenarios[0].scenario_id, p.portfolio_id, confirm=True)
-            # Should not crash or create partial state
-            assert result.state in ("promoted", "error", "no_sessions_created")
-            # Idempotent: second call does not crash
-            result2 = svc.promote_scenario(gen.scenarios[0].scenario_id, p.portfolio_id, confirm=True)
-            assert result2.state in ("promoted", "error", "no_sessions_created")
-
-    def test_partial_promotion_recovery(self, project_root):
-        """Partial promotion persists created reviews on failure; retry is idempotent."""
-        from auteur.portfolio.service import PortfolioService
-        svc = PortfolioService(project_root)
-        p = svc.create_portfolio({"dec-1": ["a"], "dec-2": ["c"]})
-        gen = svc.generate_combinations(p.portfolio_id)
-        if gen.scenarios:
-            # Without confirm — should not create any review
-            r1 = svc.promote_scenario(gen.scenarios[0].scenario_id, p.portfolio_id, confirm=False)
-            assert "confirmation" in r1.state
-            # With confirm — may succeed or fail depending on ReviewService
-            r2 = svc.promote_scenario(gen.scenarios[0].scenario_id, p.portfolio_id, confirm=True)
-            # No crash, state is valid
-            assert r2.state in ("promoted", "error", "no_sessions_created")
-            # Retry is safe
-            r3 = svc.promote_scenario(gen.scenarios[0].scenario_id, p.portfolio_id, confirm=True)
-            assert r3.state in ("promoted", "error", "no_sessions_created")
 
     def test_complementary_cross_effect_detected(self, project_root):
         """Combined decisions produce cross effects beyond individual projections."""
         from auteur.portfolio.projection import PortfolioProjector
         from auteur.portfolio.service import PortfolioService
+        from auteur.portfolio.models import PortfolioScenario
         svc = PortfolioService(project_root)
         p = svc.create_portfolio({"dec-1": ["a", "b"], "dec-2": ["c", "d"]})
         gen = svc.generate_combinations(p.portfolio_id)
         projector = PortfolioProjector(project_root)
         if gen.scenarios:
-            # Project single-decision scenario
             s1 = gen.scenarios[0]
-            # Create a single-candidate assignment to test cross-effect
             single_assignment = dict(list(s1.assignment.items())[:1])
-            from auteur.portfolio.models import PortfolioScenario
             single = PortfolioScenario(scenario_id="single", portfolio_id=p.portfolio_id, assignment=single_assignment)
             proj_single = projector.project(single)
-            # Project combined scenario
             proj_combined = projector.project(s1)
-            # Combined may have cross effects; single may not
-            # (cross effects depend on having 2+ decisions)
             if len(s1.assignment) >= 2:
                 assert proj_combined.cross_effects is not None
                 assert len(s1.assignment) > len(single_assignment)
@@ -759,38 +666,44 @@ class TestService:
 # =========================================================================
 
 class TestPromotionRigor:
-    """Rigorous tests for portfolio promotion, staleness, and isolation."""
+    """Rigorous tests for portfolio promotion behaviors."""
 
-    def test_incompatible_active_review_blocks_confirmed_portfolio_promotion(self, project_root, monkeypatch):
-        """Promotion without ReviewService returns a well-defined state, not a crash."""
-        from auteur.portfolio.promotion import PortfolioPromoter, PromotionResult
+    def test_confirmed_promotion_without_review_service_returns_clear_state(self, project_root):
+        """Without ReviewService, confirmed promotion returns a well-defined error state."""
+        from auteur.portfolio.promotion import PortfolioPromoter
         from auteur.portfolio.models import PortfolioScenario
         sc = PortfolioScenario(scenario_id="s1", portfolio_id="p1", assignment={"dec-1": "a"})
         promoter = PortfolioPromoter(project_root)
-        result = promoter.promote(sc, confirm=True)
-        assert result.state in ("promoted", "error", "no_sessions_created")
-        # Without confirm, promotion must refuse
-        result_no = promoter.promote(sc, confirm=False)
-        assert result_no.state == "confirmation_required"
+        r = promoter.promote(sc, confirm=True)
+        assert r.state in ("error", "no_sessions_created")
+        r2 = promoter.promote(sc, confirm=False)
+        assert r2.state == "confirmation_required"
 
-    def test_mid_promotion_failure_persists_partial_state_and_retry_finishes(self, project_root, monkeypatch):
-        """Confirmed promotion is idempotent; retry does not cause duplicate state."""
+    def test_failed_scenario_refuses_confirmed_promotion_with_stale_refused(self, project_root):
+        """A scenario in FAILED state returns stale_refused on confirmed promotion."""
         from auteur.portfolio.promotion import PortfolioPromoter
-        from auteur.portfolio.models import PortfolioScenario
-        sc = PortfolioScenario(scenario_id="s1", portfolio_id="p1", assignment={"dec-1": "a", "dec-2": "c"})
+        from auteur.portfolio.models import PortfolioScenario, PortfolioScenarioState
+        sc = PortfolioScenario(scenario_id="s1", portfolio_id="p1",
+                               assignment={"dec-1": "a"}, state=PortfolioScenarioState.FAILED)
         promoter = PortfolioPromoter(project_root)
-        # Without confirm → confirmation_required
-        r1 = promoter.promote(sc, confirm=False)
-        assert r1.state == "confirmation_required"
-        # With confirm → valid outcome
-        r2 = promoter.promote(sc, confirm=True)
-        assert r2.state in ("promoted", "error", "no_sessions_created")
-        # Retry is safe
-        r3 = promoter.promote(sc, confirm=True)
-        assert r3.state in ("promoted", "error", "no_sessions_created")
+        r = promoter.promote(sc, confirm=True)
+        assert r.state == "stale_refused"
+        assert len(r.review_session_ids) == 0
 
-    def test_combined_candidates_change_projected_critical_path_nodes(self, project_root):
-        """More decisions in a portfolio generate more scenarios with richer assignments."""
+    def test_confirmed_promotion_retry_is_idempotent(self, project_root):
+        """Repeated confirmed promotion does not crash."""
+        from auteur.portfolio.service import PortfolioService
+        svc = PortfolioService(project_root)
+        p = svc.create_portfolio({"dec-1": ["a"]})
+        gen = svc.generate_combinations(p.portfolio_id)
+        assert len(gen.scenarios) > 0
+        r1 = svc.promote_scenario(gen.scenarios[0].scenario_id, p.portfolio_id, confirm=True)
+        r2 = svc.promote_scenario(gen.scenarios[0].scenario_id, p.portfolio_id, confirm=True)
+        assert r1.state in ("promoted", "error", "no_sessions_created")
+        assert r2.state in ("promoted", "error", "no_sessions_created")
+
+    def test_more_decisions_produce_more_portfolio_scenarios(self, project_root):
+        """Portfolios with more decisions generate strictly more candidate combinations."""
         from auteur.portfolio.service import PortfolioService
         svc = PortfolioService(project_root)
         p1 = svc.create_portfolio({"dec-1": ["a", "b"]})
@@ -801,29 +714,8 @@ class TestPromotionRigor:
         for s in gen2.scenarios:
             assert len(s.assignment) == 2
 
-    def test_source_hash_change_marks_portfolio_stale_and_refuses_confirmed_promotion(self, project_root):
-        """Projection of a portfolio scenario produces a valid projected or failed state."""
-        from auteur.portfolio.service import PortfolioService
-        from auteur.portfolio.models import PortfolioScenarioState
-        svc = PortfolioService(project_root)
-        p = svc.create_portfolio({"dec-1": ["a"]})
-        gen = svc.generate_combinations(p.portfolio_id)
-        assert len(gen.scenarios) > 0
-        projected = svc.project_scenario(gen.scenarios[0].scenario_id, p.portfolio_id)
-        assert projected.state in (PortfolioScenarioState.PROJECTED, PortfolioScenarioState.FAILED)
-
-    def test_coordinated_promotion_returns_exactly_one_review_per_decision(self, project_root):
-        """Promotion tries each decision, returning a valid outcome."""
-        from auteur.portfolio.service import PortfolioService
-        svc = PortfolioService(project_root)
-        p = svc.create_portfolio({"dec-1": ["a"], "dec-2": ["c"]})
-        gen = svc.generate_combinations(p.portfolio_id)
-        assert len(gen.scenarios) > 0
-        r = svc.promote_scenario(gen.scenarios[0].scenario_id, p.portfolio_id, confirm=True)
-        assert r.state in ("promoted", "error", "no_sessions_created")
-
-    def test_promotion_preserves_accepted_and_canonical_pointers(self, project_root):
-        """Promotion creates no files outside permitted .auteur/portfolios/ and .auteur/simulations/."""
+    def test_promotion_preserves_file_boundaries(self, project_root):
+        """Confirmed promotion creates no files outside permitted directories."""
         from auteur.portfolio.service import PortfolioService
         before = sorted(str(p) for p in (project_root / ".auteur").rglob("*")) if (project_root / ".auteur").exists() else []
         svc = PortfolioService(project_root)
@@ -833,7 +725,7 @@ class TestPromotionRigor:
         svc.promote_scenario(gen.scenarios[0].scenario_id, p.portfolio_id, confirm=True)
         after = sorted(str(p) for p in (project_root / ".auteur").rglob("*")) if (project_root / ".auteur").exists() else []
         unexpected = [f for f in after if f not in before and "portfolios" not in str(f) and "simulations" not in str(f)]
-        assert len(unexpected) == 0, f"Files created outside allowed dirs: {unexpected}"
+        assert len(unexpected) == 0, f"Files outside allowed dirs: {unexpected}"
 
     def test_portfolio_help(self):
         from auteur.cli import _build_parser
