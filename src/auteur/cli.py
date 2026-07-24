@@ -563,7 +563,11 @@ def _build_parser() -> argparse.ArgumentParser:
     from auteur.review.cli import register_review_subcommands
     register_review_subcommands(sub)
 
+    from auteur.simulation.cli import register_simulate_subcommands
+    register_simulate_subcommands(sub)
+
     return parser
+
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     """Parse command-line arguments and return namespace."""
@@ -1788,6 +1792,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "review":
         from auteur.review.cli import dispatch_review
         return dispatch_review(args)
+
+    # === simulate ===
+    if args.command == "simulate":
+        from auteur.simulation.cli import dispatch_simulate
+        return dispatch_simulate(args)
 
     # === workflow ===
     if args.command == "workflow":
