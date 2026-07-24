@@ -112,6 +112,20 @@ class SimulationService:
         self.store.save_scenario(projected)
         self.store.save_latest(projected.scenario_id)
         return projected
+
+    def compare_scenarios(
+        self, scenario_a_id: str, scenario_b_id: str,
+    ) -> ScenarioComparison:
+        """Compare two scenarios."""
+        a = self.store.load_scenario(scenario_a_id)
+        b = self.store.load_scenario(scenario_b_id)
+        if a is None:
+            raise ValueError(f"Scenario not found: {scenario_a_id}")
+        if b is None:
+            raise ValueError(f"Scenario not found: {scenario_b_id}")
+        comparison = self.comparator.compare(a, b)
+        self.store.save_comparison(comparison)
+        return comparison
     def promote_scenario(
         self, scenario_id: str, confirm: bool = False,
     ) -> ScenarioPromotionResult:
