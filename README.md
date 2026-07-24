@@ -116,6 +116,17 @@ auteur plan explain <id>     # Explain a node or action
 auteur plan history          # Show plan history
 ```
 
+### Compare counterfactual scenarios (v0.11.0+)
+
+Project downstream consequences of multiple decision candidates without mutating project state:
+
+```powershell
+auteur simulate create --decision <id> --candidate <id>   # Create scenario
+auteur simulate compare <scenario-a> <scenario-b>          # Compare projections
+auteur simulate promote <id> --confirm                     # Promote into review
+auteur simulate inspect <id> --evidence --uncertainty      # Inspect details
+```
+
 Draft chapter 1 with Anthropic:
 
 ```powershell

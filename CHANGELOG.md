@@ -2,6 +2,74 @@
 
 
 
+## v0.11.0 (2026-07-22) — Counterfactual Narrative Planning
+
+### New: Simulation subsystem
+
+- **`src/auteur/simulation/`** — 10 modules implementing deterministic
+  counterfactual scenario comparison. Lets authors compare projected
+  consequences of multiple decision candidates without mutating any
+  live project state.
+
+### Key capabilities
+
+- **Immutable baselines**: Captures current project state (decisions,
+  accepted/canonical pointers, provenance hashes, review sessions) as
+  a read-only snapshot.
+- **Isolated scenario overlay**: Candidate-specific hypothetical delta
+  applied over a baseline — no cloning, no live mutation.
+- **Deterministic identity**: Scenario ID derives from project + baseline
+  + decision + candidate + normalized assumptions.
+- **Consequence classification**: KNOWN, DERIVED, INFERRED, and UNKNOWN
+  remain distinct with evidence-based confidence (CERTAIN through
+  UNDETERMINED).
+- **Projection**: Reuses v0.10 impact analysis and project planning
+  contracts through isolated overlay — no live store writes.
+- **Comparison**: Shared, unique, opposing consequences; evidence and
+  uncertainty asymmetry; milestone and critical-path differences.
+  **No automatic winner or artistic ranking.**
+- **Promotion**: Safe delegation into v0.9 Author Review Sessions.
+  Requires `--confirm`. Never accepts, never mutates pointers.
+- **Staleness detection**: Scenario becomes stale when baseline sources
+  change. Stale scenarios remain inspectable but cannot be promoted.
+  Refresh creates new lineage.
+
+### CLI surface
+
+```
+auteur simulate create       — create counterfactual scenario
+auteur simulate status       — show simulation status
+auteur simulate inspect      — inspect scenario with evidence/uncertainty/plan
+auteur simulate project      — run projection
+auteur simulate compare      — compare two scenarios
+auteur simulate refresh      — refresh stale scenario (new lineage)
+auteur simulate promote      — promote into author review (--confirm required)
+auteur simulate discard      — discard scenario
+auteur simulate history      — show simulation history
+auteur simulate list         — list all scenarios
+```
+
+### Architecture
+
+- Composes v0.10 project planning, v0.9 review sessions, and v0.8
+  decision orchestration without duplicating any subsystem.
+- Immutable persistence: baselines, scenarios, projections, comparisons,
+  and promotion records stored under `.auteur/simulations/`.
+- Scenario overlay avoids full repository clone — only state deltas.
+
+### Tests
+
+- 62 new focused tests covering models, baseline capture, scenario
+  identity, projection, comparison, overlay isolation, persistence,
+  promotion boundaries, service integration, and CLI.
+- Zero regressions: 3376 collected, 3348 passed, 27 xfailed, 0 failed.
+  (62 new tests added to v0.10.0's 3314 baseline.)
+
+### Wheel
+
+- `auteur-0.11.0-py3-none-any.whl` — 316 files, 10 simulation modules,
+  0 test artifacts.
+
 ## v0.10.0 (2026-07-22) — Project-Level Narrative Planning and Critical-Path Coordination
 
 ### New: Planning subsystem

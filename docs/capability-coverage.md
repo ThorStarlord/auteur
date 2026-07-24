@@ -56,6 +56,15 @@ snapshots. Planning is read-only and non-canonical — it determines the best
 justified order of work but never confuses workflow leverage with artistic
 importance or author intent.
 
+**v0.11.0 update:** The “Counterfactual Planning” column adds `auteur simulate
+{create|status|inspect|project|compare|refresh|promote|discard|history|list}`
+commands for comparing projected downstream consequences of multiple candidate
+decisions. Immutable baselines, isolated scenario overlays, consequence
+classification (KNOWN/DERIVED/INFERRED/UNKNOWN) with evidence-based confidence,
+scenario comparison without automatic winner, and safe promotion into Author
+Review Sessions. Simulation never mutates accepted, canonical, planning,
+decision, impact, or review state.
+
 ## Proven and incomplete verticals
 
 The deepest current path is:
