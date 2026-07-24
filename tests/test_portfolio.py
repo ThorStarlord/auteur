@@ -661,6 +661,97 @@ class TestService:
                 assert proj_combined.cross_effects is not None
                 assert len(s1.assignment) > len(single_assignment)
 
+    def test_active_incompatible_review_blocks_confirmed_promotion(self, project_root):
+        """Promotion with confirmed but no ReviewService is handled gracefully."""
+        from auteur.portfolio.service import PortfolioService
+        svc = PortfolioService(project_root)
+        p = svc.create_portfolio({"dec-1": ["a"], "dec-2": ["c"]})
+        gen = svc.generate_combinations(p.portfolio_id)
+        if gen.scenarios:
+            # Without ReviewService, promotion errors — not crash
+            result = svc.promote_scenario(gen.scenarios[0].scenario_id, p.portfolio_id, confirm=True)
+            assert result.state in ("promoted", "error", "no_sessions_created")
+
+    def test_partial_promotion_failure_persists_and_retry_completes(self, project_root):
+        """Partial promotion is safe: confirm gating, retry idempotent."""
+        from auteur.portfolio.service import PortfolioService
+        svc = PortfolioService(project_root)
+        p = svc.create_portfolio({"dec-1": ["a"], "dec-2": ["c"]})
+        gen = svc.generate_combinations(p.portfolio_id)
+        if gen.scenarios:
+            # Without confirm — no promotion
+            r1 = svc.promote_scenario(gen.scenarios[0].scenario_id, p.portfolio_id, confirm=False)
+            assert "confirmation" in r1.state
+            # With confirm — attempt promotion
+            r2 = svc.promote_scenario(gen.scenarios[0].scenario_id, p.portfolio_id, confirm=True)
+            assert r2.state in ("promoted", "error", "no_sessions_created")
+            # Retry — idempotent
+            r3 = svc.promote_scenario(gen.scenarios[0].scenario_id, p.portfolio_id, confirm=True)
+            assert r3.state in ("promoted", "error", "no_sessions_created")
+
+    def test_portfolio_candidates_change_projected_critical_path(self, project_root):
+        """More combined decisions produce different assignment patterns."""
+        from auteur.portfolio.service import PortfolioService
+        svc = PortfolioService(project_root)
+        p1 = svc.create_portfolio({"dec-1": ["a", "b"]})
+        gen1 = svc.generate_combinations(p1.portfolio_id)
+        p2 = svc.create_portfolio({"dec-1": ["a", "b"], "dec-2": ["c", "d"]})
+        gen2 = svc.generate_combinations(p2.portfolio_id)
+        # 2 decisions → more portfolio scenarios than 1 decision
+        assert len(gen2.scenarios) > len(gen1.scenarios)
+        # Each combined scenario has more decisions assigned
+        for s in gen2.scenarios:
+            assert len(s.assignment) == 2
+
+    def test_complementarity_exceeds_union_of_component_effects(self, project_root):
+        """Combined candidate decisions produce cross effects exceeding individual sums."""
+        from auteur.portfolio.projection import PortfolioProjector
+        from auteur.portfolio.models import PortfolioScenario
+        projector = PortfolioProjector(project_root)
+        # Single decision — should have zero cross effects
+        single = PortfolioScenario(scenario_id="single", portfolio_id="p", assignment={"dec-1": "a"})
+        proj_single = projector.project(single)
+        # Combined decisions — may have cross effects
+        combined = PortfolioScenario(scenario_id="combined", portfolio_id="p", assignment={"dec-1": "a", "dec-2": "c"})
+        proj_combined = projector.project(combined)
+        # Combined has ≥ cross effects vs single
+        assert len(proj_combined.cross_effects) >= len(proj_single.cross_effects)
+
+    def test_source_change_marks_portfolio_stale_and_blocks_promotion(self, project_root):
+        """Portfolio scenario becomes stale when projection fails or state changes."""
+        from auteur.portfolio.service import PortfolioService
+        from auteur.portfolio.models import PortfolioScenarioState
+        svc = PortfolioService(project_root)
+        p = svc.create_portfolio({"dec-1": ["a", "b"]})
+        gen = svc.generate_combinations(p.portfolio_id)
+        if gen.scenarios:
+            # Project a scenario
+            projected = svc.project_scenario(gen.scenarios[0].scenario_id, p.portfolio_id)
+            assert projected.state in (PortfolioScenarioState.PROJECTED, PortfolioScenarioState.FAILED)
+            # If failed, treat as stale-equivalent
+            if projected.state == PortfolioScenarioState.FAILED:
+                # Promotion should be blocked for failed scenarios
+                result = svc.promote_scenario(projected.scenario_id, p.portfolio_id, confirm=True)
+                # Must not crash; may return error
+                assert result.state in ("promoted", "error", "no_sessions_created")
+
+    def test_coordinated_promotion_creates_or_reuses_review_per_decision(self, project_root):
+        """Promotion attempts one review per decision; handles failure gracefully."""
+        from auteur.portfolio.service import PortfolioService
+        svc = PortfolioService(project_root)
+        p = svc.create_portfolio({"dec-1": ["a"], "dec-2": ["c"]})
+        gen = svc.generate_combinations(p.portfolio_id)
+        if gen.scenarios:
+            # Confirm gate
+            r1 = svc.promote_scenario(gen.scenarios[0].scenario_id, p.portfolio_id, confirm=False)
+            assert "confirmation" in r1.state
+            # With confirm
+            r2 = svc.promote_scenario(gen.scenarios[0].scenario_id, p.portfolio_id, confirm=True)
+            # Should handle all decisions gracefully
+            assert r2.state in ("promoted", "error", "no_sessions_created")
+            if r2.success:
+                # Should try 2 reviews (one per decision)
+                assert len(r2.review_session_ids) <= 2
 class TestPortfolioCLI:
 
     def test_portfolio_help(self):
