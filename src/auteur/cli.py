@@ -100,9 +100,9 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--force", action="store_true",
         help="Re-initialize an existing auteur project directory.")
 
-    p = sub.add_parser("plan",
-        help="Render the Cartographer prompt for a chapter (no LLM call).")
-    p.add_argument("blueprint", type=Path); p.add_argument("chapter", type=int)
+    # Plan command is now a subcommand group registered by planning.cli
+    from auteur.planning.cli import register_plan_subcommands
+    register_plan_subcommands(sub)
 
     p = sub.add_parser("draft",
         help="Plan, draft, validate, iterate one chapter.")
@@ -659,13 +659,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     # === plan ===
     if args.command == "plan":
-        try: bp = StoryBlueprint.from_yaml(args.blueprint)
-        except FileNotFoundError: _err(f"blueprint file not found: {args.blueprint}"); return 1
-        result = handle_plan(bp, args.chapter)
-        if not result.is_success: _err(result.error); return result.exit_code
-        out = format_plan(result)
-        if out: print(out)
-        return 0
+        from auteur.planning.cli import dispatch_plan
+        return dispatch_plan(args)
     # === draft ===
     if args.command == "draft":
         return _draft_retry(args, is_retry=False)

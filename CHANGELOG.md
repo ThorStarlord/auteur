@@ -2,6 +2,106 @@
 
 
 
+## v0.10.0 (2026-07-22) — Project-Level Narrative Planning and Critical-Path Coordination
+
+### New: Planning subsystem
+
+- **`src/auteur/planning/`** — 11 modules implementing deterministic project-level
+  narrative planning. Coordinates open decisions, review sessions, milestones,
+  blockers, and downstream dependencies across an entire manuscript.
+
+### Package structure
+
+```
+src/auteur/planning/
+    __init__.py          — exports and public API
+    models.py            — plan, node, edge, milestone, path, action, snapshot contracts
+    graph.py             — decision and milestone dependency graph
+    assembler.py         — load real state from decision, review, impact, provenance
+    milestones.py        — derive and evaluate project milestones
+    critical_path.py     — compute deterministic blocking paths and leverage
+    coordinator.py       — session conflicts, staleness, safe parallel work
+    planner.py           — produce ordered actions and project plans
+    persistence.py       — immutable plan snapshots and atomic latest pointers
+    service.py           — application-service boundary used by CLI and workflow
+    cli.py               — rendering and argument handling only
+```
+
+### Key capabilities
+
+- **Project plan model**: `ProjectPlan` with typed `PlanningNode`, `PlanDependency`,
+  `PlanMilestone`, `CriticalPath`, `PlanAction`, and `CoordinationFinding`.
+  Deterministic serialization with schema versioning.
+- **Dependency graph**: Directed graph with 8 dependency types, 3 strength levels,
+  source-backed evidence, transitive walk, cycle detection, and subgraph extraction
+  by planning horizon (PROJECT / BOOK / ACT / CHAPTER / SCENE).
+- **Milestone engine**: Derives milestone states from real artifact and authority
+  state: identity acceptance, structure validity, chapter acceptance, reasoning
+  freshness, reconciliation completion, book assembly, book acceptance,
+  publication currency.
+- **Critical path**: Leverage-scored blocking path based on graph structure and
+  milestone impact (not duration-based CPM). Labelled "blocking critical path",
+  not "creative priority".
+- **Session coordination**: Detects conflicting, compatible, stale, superseded,
+  and blocked review sessions across the project.
+- **Parallel work detection**: Conservative 5-condition check for safe concurrent
+  work.
+- **Deterministic next action**: 10-tier priority ordering from cycle resolution
+  through lower-leverage independent work.
+- **Immutable plan snapshots**: Content-addressed, conflict-detecting persistence
+  with atomic latest pointer.
+- **Plan history**: Semantic change tracking between plan snapshots.
+
+### CLI surface
+
+```
+auteur plan status              — show plan summary
+auteur plan graph               — show dependency graph
+auteur plan next                — show recommended next action
+auteur plan critical-path       — show blocking critical path
+auteur plan milestones          — show milestone state
+auteur plan explain <id>        — explain node or action
+auteur plan refresh             — create fresh plan snapshot
+auteur plan history             — show plan history
+auteur plan list                — list plan snapshots
+auteur plan render <bp> <ch>   — legacy cartographer render
+```
+
+All commands support `--project` and `--json` output.
+
+### Architecture
+
+- Composes v0.5 impact analysis, v0.7 decisions, v0.8 orchestration, and v0.9
+  review sessions without duplicating any subsystem.
+- Planning is read-only and non-canonical: it aggregates, analyzes, recommends,
+  but never mutates manuscript prose, accepted pointers, or authority state.
+
+### Backward compatibility
+
+- The old `auteur plan <blueprint> <chapter>` (Cartographer render) moves to
+  `auteur plan render <blueprint> <chapter>`.
+- No existing subsystem contracts, storage formats, or CLI commands are modified.
+
+### Deferred
+
+- Calendar scheduling, duration estimation, team collaboration, generic issue
+  tracking, Gantt charts, automatic artistic prioritization, user-defined
+  milestones — these remain explicitly out of scope for v0.10.0.
+
+### Tests
+
+- 76 new focused tests covering models, graph, milestones, critical path,
+  parallel work, session coordination, plan assembly, persistence, CLI, smoke
+  tests, and serialization round-trips.
+- Zero regressions: 3286 passed, 27 xfailed, 0 failed (baseline: 3210).
+  1 skip for backward-compatible render test without valid fixture.
+
+### Wheel
+
+- `auteur-0.10.0-py3-none-any.whl` — 306 files, all 11 planning modules packaged.
+- Fresh-install qualification: all planning modules load, CLI works, version
+  reported as 0.10.0 from site-packages.
+
 ## v0.8.1 (2026-07-23) — Packaging Fix: composition resources in wheel
 
 ### Fixed (Issue #37)

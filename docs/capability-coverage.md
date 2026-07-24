@@ -45,6 +45,17 @@ are noncanonical and historically retained. Comparison is deterministic and
 multidimensional. Reconciliation produces typed proposals with explicit
 authority-required choices. No accepted prose is silently replaced.
 
+**v0.10.0 update:** The “Project Planning” column adds `auteur plan
+{status|graph|next|critical-path|milestones|explain|refresh|history|list}`
+commands for project-level narrative planning and critical-path coordination.
+Coordinates open decisions, review sessions, milestones, blockers, and
+downstream dependencies across the entire manuscript. Dependency graph with
+cycle detection, deterministic critical path with leverage scoring, session
+conflict detection, safe parallel work identification, and immutable plan
+snapshots. Planning is read-only and non-canonical — it determines the best
+justified order of work but never confuses workflow leverage with artistic
+importance or author intent.
+
 ## Proven and incomplete verticals
 
 The deepest current path is:

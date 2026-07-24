@@ -44,8 +44,8 @@ def test_cli_init_refuses_existing(tmp_path):
     assert rc == 1
 
 
-def test_cli_plan_still_works(tmp_path, capsys):
-    rc = main(["plan", str(SAMPLE_YAML), "1"])
+def test_cli_plan_render_still_works(tmp_path, capsys):
+    rc = main(["plan", "render", str(SAMPLE_YAML), "1"])
     assert rc == 0
     out = capsys.readouterr().out
     assert "SYSTEM PROMPT" in out

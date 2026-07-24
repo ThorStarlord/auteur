@@ -15,6 +15,9 @@ dist/
 # and must never be committed -- see CanonicalStoryBootstrap.copy_to)
 /temp/
 
+# Agent/runner artifact directories (generated work products, never committed)
+/artifacts/
+
 # Scratch/development directories (agent scratchpads, brainstorm outputs)
 .superpowers/
 

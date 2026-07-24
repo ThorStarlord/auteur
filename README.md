@@ -95,12 +95,25 @@ Initialize a project from the seeded blueprint:
 
 ```powershell
 auteur init .\tmp\shattered_crown --from .\tmp\blueprint.yaml
-```
-
-Render a Cartographer prompt without making an LLM call:
+### Plan a chapter's cartographer prompt (no LLM call)
 
 ```powershell
-auteur plan .\examples\sample_blueprint.yaml 1
+auteur plan render .\examples\sample_blueprint.yaml 1
+```
+
+### Project-level narrative planning (v0.10.0+)
+
+Coordinate decisions, review sessions, milestones, and critical paths across the manuscript:
+
+```powershell
+auteur plan status           # Show project plan summary
+auteur plan graph            # Show dependency graph
+auteur plan next             # Show recommended next action
+auteur plan critical-path    # Show blocking critical path
+auteur plan milestones       # Show milestone state
+auteur plan refresh          # Create fresh plan snapshot
+auteur plan explain <id>     # Explain a node or action
+auteur plan history          # Show plan history
 ```
 
 Draft chapter 1 with Anthropic:
@@ -177,7 +190,7 @@ Two modes:
 
 Creates a project directory with `blueprint.yaml`, `bible.json`, and `chapters/`.
 
-`auteur plan <blueprint.yaml> <chapter>`
+`auteur plan render <blueprint.yaml> <chapter>`
 
 Renders the Cartographer system prompt and user message. This is useful for prompt debugging and does not call an LLM.
 
