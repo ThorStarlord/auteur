@@ -575,6 +575,9 @@ def _build_parser() -> argparse.ArgumentParser:
     from auteur.lifecycle.cli import register_lifecycle_subcommands
     register_lifecycle_subcommands(sub)
 
+    from auteur.notify.cli import register_notify_subcommands
+    register_notify_subcommands(sub)
+
     return parser
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -1815,6 +1818,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "lifecycle":
         from auteur.lifecycle.cli import dispatch_lifecycle
         return dispatch_lifecycle(args)
+
+    # === notify ===
+    if args.command == "notify":
+        from auteur.notify.cli import dispatch_notify
+        return dispatch_notify(args)
     # === simulate ===
     if args.command == "simulate":
         from auteur.simulation.cli import dispatch_simulate
