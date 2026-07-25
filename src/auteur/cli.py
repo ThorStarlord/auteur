@@ -569,6 +569,9 @@ def _build_parser() -> argparse.ArgumentParser:
     from auteur.portfolio.cli import register_portfolio_subcommands
     register_portfolio_subcommands(sub)
 
+    from auteur.commitment.cli import register_commit_subcommands
+    register_commit_subcommands(sub)
+
     return parser
 
 
@@ -1800,6 +1803,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "portfolio":
         from auteur.portfolio.cli import dispatch_portfolio
         return dispatch_portfolio(args)
+
+    # === commit ===
+    if args.command == "commit":
+        from auteur.commitment.cli import dispatch_commit
+        return dispatch_commit(args)
     # === simulate ===
     if args.command == "simulate":
         from auteur.simulation.cli import dispatch_simulate
