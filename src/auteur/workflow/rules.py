@@ -300,14 +300,18 @@ def recommend_actions(
     status: dict | None = None,
     decisions: list[Any] | None = None,
     lifecycle: dict[str, Any] | None = None,
+    commitment: dict[str, Any] | None = None,
 ) -> list[WorkflowAction]:
-    """Generate recommended actions based on current stage, blockers, open decisions, and lifecycle gaps."""
+    """Generate recommended actions based on current stage, blockers, open decisions, lifecycle gaps, and commitment state."""
     actions: list[WorkflowAction] = []
     cs = current_stage(stages)
 
     # Generate lifecycle-gap actions
     lifecycle_actions = _recommend_lifecycle_actions(lifecycle)
     actions.extend(lifecycle_actions)
+
+    # Generate commitment-gap actions
+    commitment_actions = _recommend_commitment_actions(commitment)
 
     # Generate decision-aware actions when decisions are provided
     decision_actions: list[WorkflowAction] = []
@@ -484,6 +488,38 @@ def _recommend_lifecycle_actions(lifecycle: dict[str, Any] | None) -> list[Workf
             command="auteur lifecycle summary --project . --json",
             authority=AuthorityLevel.READ_ONLY,
             description=f"{gaps} lifecycle gap(s) detected across decisions.",
+        ))
+
+    return actions
+
+
+def _recommend_commitment_actions(commitment: dict[str, Any] | None) -> list[WorkflowAction]:
+    """Generate actions for commitment gaps."""
+    if not commitment:
+        return []
+    cm_total = commitment.get("total_commitments", 0)
+    if not cm_total and not commitment.get("has_commitments"):
+        return []
+
+    actions: list[WorkflowAction] = []
+    state = commitment.get("state", "")
+    failed = commitment.get("failed_steps", 0)
+    diverged = commitment.get("diverged", 0)
+
+    if failed > 0:
+        actions.append(WorkflowAction(
+            label=f"Review {failed} failed execution step(s)",
+            command="auteur commit execute LATEST --project .",
+            authority=AuthorityLevel.READ_ONLY,
+            description=f"{failed} commitment execution step(s) failed.",
+        ))
+
+    if diverged > 0:
+        actions.append(WorkflowAction(
+            label=f"Check diverged commitment(s)",
+            command="auteur commit check LATEST --project .",
+            authority=AuthorityLevel.READ_ONLY,
+            description="Commitment has diverged from live state.",
         ))
 
     return actions

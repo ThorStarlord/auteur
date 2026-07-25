@@ -65,8 +65,10 @@ def handle_workflow_status(project_path: Path) -> HandlerResult:
     """Analyze project and return full workflow status."""
     try:
         from auteur.lifecycle.service import LifecycleService
-        lc_service = LifecycleService(project_path)
-        engine = WorkflowEngine(project_path, lifecycle_service=lc_service)
+        from auteur.commitment.service import CommitmentService
+        lc = LifecycleService(project_path)
+        cm = CommitmentService(project_path)
+        engine = WorkflowEngine(project_path, lifecycle_service=lc, commitment_service=cm)
     except Exception:
         engine = WorkflowEngine(project_path)
     try:
@@ -85,8 +87,10 @@ def handle_workflow_next(
     """Analyze project and return the single next recommended action."""
     try:
         from auteur.lifecycle.service import LifecycleService
-        lc_service = LifecycleService(project_path)
-        engine = WorkflowEngine(project_path, lifecycle_service=lc_service)
+        from auteur.commitment.service import CommitmentService
+        lc = LifecycleService(project_path)
+        cm = CommitmentService(project_path)
+        engine = WorkflowEngine(project_path, lifecycle_service=lc, commitment_service=cm)
     except Exception:
         engine = WorkflowEngine(project_path)
     try:
@@ -209,6 +213,27 @@ def format_workflow_status(result: HandlerResult) -> str | None:
             lines.append(f"  Diverged:        {lc['diverged']}")
         if lc.get("with_gaps", 0) > 0:
             lines.append(f"  With gaps:       {lc['with_gaps']}")
+
+    # Commitment section
+    cm = state.commitment or {}
+    cm_total = cm.get("total_commitments", 0)
+    if cm_total > 0 or cm.get("has_commitments"):
+        lines.append("")
+        lines.append("Commitments:")
+        lines.append(f"  Total:           {cm_total}")
+        cm_state = cm.get("state", "")
+        if cm_state:
+            lines.append(f"  State:           {cm_state}")
+        cs_done = cm.get("completed_steps", 0)
+        cs_total = cm.get("total_steps", 0)
+        if cs_total > 0:
+            lines.append(f"  Execution:       {cs_done}/{cs_total} steps")
+        asgn = cm.get("assignments", 0)
+        if asgn > 0:
+            lines.append(f"  Assignments:     {asgn}")
+        if cm.get("diverged", 0) > 0:
+            lines.append(f"  Diverged:        {cm['diverged']}")
+
     if state.blockers:
         lines.append("")
         lines.append("Blockers:")
