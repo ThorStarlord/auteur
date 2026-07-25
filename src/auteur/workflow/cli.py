@@ -64,7 +64,12 @@ class WorkflowStatusData:
 def handle_workflow_status(project_path: Path) -> HandlerResult:
     """Analyze project and return full workflow status."""
     try:
+        from auteur.lifecycle.service import LifecycleService
+        lc_service = LifecycleService(project_path)
+        engine = WorkflowEngine(project_path, lifecycle_service=lc_service)
+    except Exception:
         engine = WorkflowEngine(project_path)
+    try:
         state = engine.analyze()
     except Exception as exc:
         return HandlerResult.failure(f"Failed to analyze workflow: {exc}")
@@ -79,7 +84,12 @@ def handle_workflow_next(
 ) -> HandlerResult:
     """Analyze project and return the single next recommended action."""
     try:
+        from auteur.lifecycle.service import LifecycleService
+        lc_service = LifecycleService(project_path)
+        engine = WorkflowEngine(project_path, lifecycle_service=lc_service)
+    except Exception:
         engine = WorkflowEngine(project_path)
+    try:
         state = engine.analyze()
     except Exception as exc:
         return HandlerResult.failure(f"Failed to analyze workflow: {exc}")
@@ -181,6 +191,24 @@ def format_workflow_status(result: HandlerResult) -> str | None:
         b_str = f" ({blockers} blocker(s))" if blockers else ""
         lines.append(f"  [{icon}] {sp.stage.value}{b_str}")
 
+
+    # Lifecycle section
+    lc = state.lifecycle or {}
+    total = lc.get("total_decisions", 0)
+    if total > 0:
+        lines.append("")
+        lines.append("Lifecycle:")
+        lines.append(f"  Decisions:       {total} total")
+        by_stage = lc.get("by_stage", {})
+        for stage_key in ["open", "evidence_gathered", "simulated", "portfolio",
+                           "under_review", "acceptance_ready", "accepted", "committed"]:
+            count = by_stage.get(stage_key, 0)
+            if count > 0:
+                lines.append(f"    {stage_key.replace('_', ' ').title():<18} {count}")
+        if lc.get("diverged", 0) > 0:
+            lines.append(f"  Diverged:        {lc['diverged']}")
+        if lc.get("with_gaps", 0) > 0:
+            lines.append(f"  With gaps:       {lc['with_gaps']}")
     if state.blockers:
         lines.append("")
         lines.append("Blockers:")

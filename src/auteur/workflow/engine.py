@@ -94,13 +94,24 @@ class WorkflowEngine:
     Decision Workspace for decision-aware actions.
     """
 
-    def __init__(self, project_root: str | Path, decision_service: Any | None = None) -> None:
+    def __init__(self, project_root: str | Path, decision_service: Any | None = None,
+                 lifecycle_service: Any | None = None) -> None:
         self.root = Path(project_root)
         self._decision_service = decision_service
+        self._lifecycle_service = lifecycle_service
 
     def analyze(self) -> WorkflowState:
         """Analyze project state and return a complete WorkflowState."""
         stages = detect_stages(self.root)
+
+        # Probe lifecycle data if a lifecycle service is configured
+        lifecycle_data: dict[str, Any] = {}
+        if self._lifecycle_service is not None:
+            try:
+                lc = self._lifecycle_service.summary()
+                lifecycle_data = lc.to_dict() if hasattr(lc, "to_dict") else {}
+            except Exception:
+                lifecycle_data = {"total_decisions": 0}
         cs = current_stage(stages)
         blockers = collect_blockers(stages)
 
@@ -112,10 +123,10 @@ class WorkflowEngine:
             except Exception:
                 decisions = None
 
-        actions = recommend_actions(stages, decisions=decisions)
+        actions = recommend_actions(stages, decisions=decisions, lifecycle=lifecycle_data)
         status = gather_status(self.root)
 
-        summary = self._build_summary(stages, cs, blockers)
+        summary = self._build_summary(stages, cs, blockers, lifecycle=lifecycle_data)
 
         return WorkflowState(
             project_path=str(self.root),
@@ -124,35 +135,60 @@ class WorkflowEngine:
             blockers=blockers,
             actions=actions,
             status_summary=summary,
+            lifecycle=lifecycle_data,
         )
+
 
     def _build_summary(
         self,
         stages: list,
         cs: Any,
         blockers: list[WorkflowBlocker],
+        lifecycle: dict[str, Any] | None = None,
     ) -> str:
+        lc = lifecycle or {}
+        total = lc.get("total_decisions", 0)
+        open_count = lc.get("by_stage", {}).get("open", 0)
+        simulated = lc.get("simulated", 0)
+        committed = lc.get("committed", 0)
+        diverged = lc.get("diverged", 0)
+
         if not stages:
             return "No stages detected."
         if cs is None:
             if self._decision_service is not None:
                 try:
                     status = self._decision_service.status()
-                    open_count = status.get("total_decisions", 0)
+                    decision_count = status.get("total_decisions", 0)
                     ready_count = status.get("ready_for_acceptance", 0)
-                    if open_count > 0:
-                        parts = [f"Workflow complete, {open_count} open decision(s)"]
+                    if decision_count > 0:
+                        parts = [f"Workflow complete, {decision_count} open decision(s)"]
                         if ready_count > 0:
                             parts.append(f"{ready_count} ready for acceptance")
                         return " — ".join(parts)
                 except Exception:
                     pass
-            return "All workflow stages are complete."
+            base = "All workflow stages are complete."
+            if total > 0:
+                base += f" ({total} decision{'s' if total != 1 else ''})"
+            return base
         blocking = [b for b in blockers if b.severity.value == "blocking"]
-        if blocking:
-            return f"Blocked at {cs.value}: {blocking[0].message}"
-        return f"Current stage: {cs.value}"
+        summary = f"Blocked at {cs.value}: {blocking[0].message}" if blocking else f"Current stage: {cs.value}"
 
+        # Append lifecycle info when decisions exist
+        if total > 0:
+            parts = [f"Decisions: {total} total"]
+            if open_count > 0:
+                parts.append(f"{open_count} open")
+            if simulated > 0:
+                parts.append(f"{simulated} simulated")
+            if committed > 0:
+                parts.append(f"{committed} committed")
+            if diverged > 0:
+                parts.append(f"{diverged} diverged")
+            summary += " | " + ", ".join(parts)
+
+        return summary
     def can_execute(self, action: WorkflowAction) -> bool:
         """Check if an action is eligible for safe execution."""
         from auteur.workflow.models import SAFE_DECISION_ACTIONS

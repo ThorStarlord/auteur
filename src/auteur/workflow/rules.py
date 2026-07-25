@@ -299,10 +299,15 @@ def recommend_actions(
     stages: list[StageProgress],
     status: dict | None = None,
     decisions: list[Any] | None = None,
+    lifecycle: dict[str, Any] | None = None,
 ) -> list[WorkflowAction]:
-    """Generate recommended actions based on current stage, blockers, and open decisions."""
+    """Generate recommended actions based on current stage, blockers, open decisions, and lifecycle gaps."""
     actions: list[WorkflowAction] = []
     cs = current_stage(stages)
+
+    # Generate lifecycle-gap actions
+    lifecycle_actions = _recommend_lifecycle_actions(lifecycle)
+    actions.extend(lifecycle_actions)
 
     # Generate decision-aware actions when decisions are provided
     decision_actions: list[WorkflowAction] = []
@@ -421,6 +426,64 @@ def recommend_actions(
             command="",
             authority=AuthorityLevel.READ_ONLY,
             description=f"Workflow stage: {cs.value}",
+        ))
+
+    return actions
+
+
+def _recommend_lifecycle_actions(lifecycle: dict[str, Any] | None) -> list[WorkflowAction]:
+    """Generate actions for lifecycle gaps."""
+    if not lifecycle:
+        return []
+    total = lifecycle.get("total_decisions", 0)
+    if total == 0:
+        return []
+
+    actions: list[WorkflowAction] = []
+    gaps = lifecycle.get("with_gaps", 0)
+    diverged = lifecycle.get("diverged", 0)
+    open_count = lifecycle.get("by_stage", {}).get("open", 0)
+    simulated_count = lifecycle.get("by_stage", {}).get("simulated", 0)
+    portfolio_count = lifecycle.get("by_stage", {}).get("portfolio", 0)
+
+    if open_count > 0:
+        actions.append(WorkflowAction(
+            label=f"Inspect {open_count} open decision(s) — no simulation scenarios",
+            command="auteur lifecycle summary --project .",
+            authority=AuthorityLevel.READ_ONLY,
+            description=f"{open_count} decision(s) have no simulation scenarios. Use 'auteur lifecycle status' to see details.",
+        ))
+
+    if simulated_count > 0:
+        actions.append(WorkflowAction(
+            label=f"Assign {simulated_count} simulated decision(s) to a portfolio",
+            command="auteur lifecycle status --project . --json",
+            authority=AuthorityLevel.READ_ONLY,
+            description=f"{simulated_count} decision(s) are simulated but not in any portfolio.",
+        ))
+
+    if portfolio_count > 0:
+        actions.append(WorkflowAction(
+            label=f"Promote portfolio decision(s) to review",
+            command="auteur lifecycle summary --project .",
+            authority=AuthorityLevel.READ_ONLY,
+            description="Portfolio decisions not yet promoted to review. Use 'auteur portfolio promote'.",
+        ))
+
+    if diverged > 0:
+        actions.append(WorkflowAction(
+            label=f"Check {diverged} diverged commitment(s)",
+            command="auteur commit check LATEST --project .",
+            authority=AuthorityLevel.READ_ONLY,
+            description=f"{diverged} commitment(s) have diverged from live state.",
+        ))
+
+    if gaps > 0 and not actions:
+        actions.append(WorkflowAction(
+            label=f"Review {gaps} lifecycle gap(s)",
+            command="auteur lifecycle summary --project . --json",
+            authority=AuthorityLevel.READ_ONLY,
+            description=f"{gaps} lifecycle gap(s) detected across decisions.",
         ))
 
     return actions

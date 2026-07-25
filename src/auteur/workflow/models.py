@@ -118,7 +118,7 @@ class WorkflowState:
     blockers: list[WorkflowBlocker] = field(default_factory=list)
     actions: list[WorkflowAction] = field(default_factory=list)
     status_summary: str = ""
-
+    lifecycle: dict[str, Any] = field(default_factory=dict)
     def stage_by_name(self, name: str) -> StageProgress | None:
         for s in self.stages:
             if s.stage.value == name:
@@ -169,4 +169,5 @@ class WorkflowState:
                 }
                 for a in self.actions
             ],
+            "lifecycle": self.lifecycle,
         }
