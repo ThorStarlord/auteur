@@ -250,12 +250,16 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--json", action="store_true",
         help="Output as JSON.")
 
+    from auteur.editing.cli import register_edit_subcommands
+    register_edit_subcommands(sub)
+    from auteur.character.cli import register_character_subcommands
+    register_character_subcommands(sub)
     from auteur.series.cli import register_series_subcommands
     register_series_subcommands(sub)
-    from auteur.relations.cli import register_relations_subcommands
-    register_relations_subcommands(sub)
     from auteur.roundtrip.cli import register_roundtrip_subcommands
     register_roundtrip_subcommands(sub)
+    from auteur.relations.cli import register_relations_subcommands
+    register_relations_subcommands(sub)
     from auteur.universe.cli import register_universe_subcommands
     register_universe_subcommands(sub)
     from auteur.book.cli import register_book_subcommands

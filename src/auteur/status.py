@@ -282,11 +282,13 @@ def _suggest_command(project_root: Path) -> str | None:
                 return f"chapter_{int(name):02d}"
             except ValueError:
                 return str(name)
-        ch_ids = [_ch_id(ch) for ch in chapters]
+        ch_ids = [_ch_id(ch.name) for ch in chapter_dirs if ch.is_dir()]
         if len(ch_ids) >= 2:
             return f"auteur expression compose-book --project {project_root} --chapter {ch_ids[0]} --chapter {ch_ids[1]} --title \"My Novel\""
-        return f"auteur expression compose-book --project {project_root} --chapter {ch_ids[0]} --title \"My Novel\""
-
+        elif len(ch_ids) == 1:
+            return f"auteur expression compose-book --project {project_root} --chapter {ch_ids[0]} --title \"My Novel\""
+        else:
+            return None
     status = _reconciliation_status(project_root)
     if status.get("completion"):
         return None

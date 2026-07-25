@@ -18,6 +18,7 @@ from auteur.cli_formatters import (
     format_identity_recommend, format_identity_validate, format_identity_validate_success, format_init,
     format_plan, format_publish, format_retry, format_state_canon,
     format_state_check, format_state_confirm, format_state_prepare,
+    format_state_update,
     format_structure_apply, format_structure_diagnose,
     format_structure_generate, format_structure_propose_repairs,
     format_apply_impact_proposal,
