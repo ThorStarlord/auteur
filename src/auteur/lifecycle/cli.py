@@ -28,18 +28,67 @@ def register_lifecycle_subcommands(sub) -> None:
     p_summary.add_argument("--project", type=Path, default=Path("."))
     p_summary.add_argument("--json", action="store_true")
 
+    p_fill = ps.add_parser("fill", help="Fill lifecycle gaps automatically (requires --confirm).")
+    p_fill.add_argument("--gap", default=None, choices=["simulate", "portfolio", "promote"],
+                        help="Specific gap type to fill.")
+    p_fill.add_argument("--confirm", action="store_true", required=True)
+    p_fill.add_argument("--project", type=Path, default=Path("."))
+    p_fill.add_argument("--json", action="store_true")
+
 
 def _get_service(args) -> Any:
     from auteur.lifecycle.service import LifecycleService
     return LifecycleService(args.project)
 
 
+def _handle_fill(args) -> int:
+    import json as _json
+    try:
+        from auteur.lifecycle.filler import LifecycleFiller
+        filler = LifecycleFiller(args.project)
+
+        if args.gap:
+            results = filler.fill_gap(args.gap, confirm=args.confirm)
+        else:
+            # Show fillable gaps
+            gaps = filler.detect_fillable_gaps()
+            if args.json:
+                print(_json.dumps(gaps, indent=2, default=str))
+            else:
+                if not gaps:
+                    print("No fillable gaps detected.")
+                    return 0
+                print("Fillable gaps:")
+                for g in gaps:
+                    print(f"  [{g['gap_type']}] {g['title']}")
+                    print(f"       {g['description']}")
+                    print(f"       → {g['command']}")
+            return 0
+
+        if args.json:
+            print(_json.dumps(results, indent=2, default=str))
+        else:
+            for r in results:
+                status_icon = {"created": "✓", "skipped": "·", "failed": "✗"}.get(r.get("status", ""), "?")
+                print(f"  {status_icon} {r.get('action', '?')}: {r.get('message', '')[:80]}")
+        return 0
+    except ValueError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+
+
 def dispatch_lifecycle(args) -> int:
+    """Dispatch lifecycle command to appropriate handler."""
     handlers = {
         "status": _handle_status,
         "inspect": _handle_inspect,
         "summary": _handle_summary,
+        "fill": _handle_fill,
     }
+
     handler = handlers.get(args.lifecycle_command)
     if handler:
         return handler(args)
