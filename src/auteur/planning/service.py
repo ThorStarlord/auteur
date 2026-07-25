@@ -191,6 +191,22 @@ class PlanningService:
         """List all plan snapshots."""
         return self.store.list_snapshots()
 
+
+    def diff(self, plan_a_id: str, plan_b_id: str | None = None) -> dict[str, Any]:
+        """Diff two plan snapshots. plan_b_id=None → latest."""
+        plan_a = self.store.load_snapshot(plan_a_id)
+        if plan_a is None:
+            raise ValueError(f"Plan not found: {plan_a_id}")
+        if plan_b_id:
+            plan_b = self.store.load_snapshot(plan_b_id)
+            if plan_b is None:
+                raise ValueError(f"Plan not found: {plan_b_id}")
+        else:
+            plan_b = self.store.load_latest()
+            if plan_b is None:
+                raise ValueError("No latest plan available")
+        from auteur.planning.differ import diff_plans
+        return diff_plans(plan_a, plan_b).to_dict()
     # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
