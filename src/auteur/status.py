@@ -356,9 +356,11 @@ def gather_status(project_root: Path) -> dict[str, Any]:
         "accepted": scene_accepted,
     } if scene_total > 0 else {}
     
-    # Book
-    book = _book_status(root)
-
+    scene_status = {
+        "total": scene_total,
+        "accepted": scene_accepted,
+    } if scene_total > 0 else {}
+    
     # Book
     book = _book_status(root)
 
@@ -384,10 +386,68 @@ def gather_status(project_root: Path) -> dict[str, Any]:
         commitment_data = cm.get_status()
     except Exception:
         pass
-
+    
+    # Build per-stage summary from collected data
+    stages: dict[str, Any] = {}
+    identity = identity_status
+    stages["identity"] = {
+        "complete": identity.get("status") != "missing",
+        "detail": identity.get("title", identity.get("status", "missing")),
+    }
+    
+    # Compute chapter counts for stage status
+    ch_accepted = 0
+    ch_drafted = 0
+    if chapters:
+        for ch in chapters:
+            if isinstance(ch, dict):
+                if "accepted" in ch.get("expression", ""):
+                    ch_accepted += 1
+                elif ch.get("expression", "missing") not in ("missing",):
+                    ch_drafted += 1
+    
+    stages["structure"] = {
+        "complete": latest_diag is not None or bp_data is not None,
+        "detail": f"{latest_diag['errors']} errors, {latest_diag['warnings']} warnings" if latest_diag else "not diagnosed",
+    }
+    stages["realization"] = {
+        "complete": ch_accepted > 0,
+        "detail": f"{scene_accepted} of {scene_total} scenes accepted" if scene_total > 0 else "no scenes",
+    }
+    stages["drafting"] = {
+        "complete": ch_drafted > 0 or ch_accepted > 0,
+        "detail": f"{ch_drafted + ch_accepted} chapters with content" if (ch_drafted + ch_accepted) > 0 else "no drafts",
+    }
+    stages["reasoning"] = {
+        "complete": False,
+        "detail": f"{lifecycle_data.get('total_decisions', 0)} decisions tracked" if lifecycle_data.get("total_decisions", 0) > 0 else "not started",
+    }
+    stages["reconciliation"] = {
+        "complete": reconciliation.get("status") == "completed",
+        "detail": reconciliation.get("status","not_started"),
+    }
+    stages["acceptance"] = {
+        "complete": book.get("acceptances", 0) > 0,
+        "detail": f"{book.get('acceptances', 0)} acceptances",
+    }
+    stages["assembly"] = {
+        "complete": book.get("expression") == "accepted",
+        "detail": book.get("expression", "missing"),
+    }
+    stages["publishing"] = {
+        "complete": bool(book.get("completions", 0)),
+        "detail": f"{book.get('completions', 0)} completions" if book.get("completions") else "not published",
+    }
+    # Find current stage
+    current = "publishing"
+    for sk in ["identity","structure","realization","drafting","reasoning","reconciliation","acceptance","assembly","publishing"]:
+        if not stages[sk]["complete"]:
+            current = sk
+            break
+    
     # Suggested command
     suggested = _suggest_command(root)
-
+    
     # Freshness overview
     stale_items = [b["artifact"] for b in blocks if b.get("severity") == "warning"]
     return {
@@ -397,6 +457,8 @@ def gather_status(project_root: Path) -> dict[str, Any]:
         "blueprint": blueprint_status,
         "structure_diagnostics": latest_diag,
         "scenes": scene_status,
+        "stages": stages,
+        "current_stage": current,
         "chapters": chapters,
         "book": book,
         "reconciliation": reconciliation,

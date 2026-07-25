@@ -29,7 +29,11 @@ Updates since v0.22.0:
 - **v0.26.0**: Blueprint | Publish | no → yes (blueprint publish command)
 - **v0.22.0**: Chapter Structure | Propose | no → yes (structure propose command)
 - **v0.30.0**: Chapter Structure | Publish | no → yes (structure publish command)
-- **v0.27.0/v0.30.0**: Author UX improvements (dashboard, lifecycle in status)
+- **v0.31.0**: Blueprint | Reason | limited → partial (blueprint coherence critic)
+- **v0.32.0**: Scene Realization | Publish | partial → yes (scene publish command)
+- **v0.32.0**: Scene Realization | Reason | partial → yes (scene analysis critic)
+- **v0.32.0**: All stages | Author UX | improved (per-stage status in gather_status)
+- **v0.32.0**: Structural Revision | freshness | Phase 3 (auto hash update on proposal accept)
 
 **v0.4.0 update:** The “Author UX” column now includes the
 uteur workflow {status|next|explain} commands. These compose with the

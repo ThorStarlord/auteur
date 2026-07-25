@@ -137,6 +137,16 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output path for the published document.")
     p.add_argument("--format", choices=["yaml", "md"], default="md",
         help="Output format (default: markdown).")
+    p = sub.add_parser("scene", help="Manage scene realization artifacts.")
+    scs = p.add_subparsers(dest="scene_command", required=True)
+    p = scs.add_parser("publish",
+        help="Publish scene realization artifacts as a standalone document.")
+    p.add_argument("--project", type=Path, default=Path("."),
+        help="Project root directory.")
+    p.add_argument("--output", type=Path, default=None,
+        help="Output path for the published document.")
+    p.add_argument("--format", choices=["yaml", "md"], default="md",
+        help="Output format (default: markdown).")
     p = sub.add_parser("reasoning", help="Inspect derived reasoning reviews and run book-level analysis.")
     rs = p.add_subparsers(dest="reasoning_command", required=True)
     p = rs.add_parser("review", help="Show an author-facing derived reasoning review.")
