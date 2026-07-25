@@ -52,13 +52,6 @@ from auteur.structure.analyzer import run_all_diagnostics
 from auteur.structure.diagnostics import DiagnosticLayer, StructureDiagnostic
 from auteur.structure.proposal_resolution import load_resolved_rules, resolve_proposal
 from auteur.structure.proposals import write_audit_repair_proposals
-from auteur.structure.state import (
-    state_canon,
-    state_check,
-    state_confirm,
-    state_prepare,
-    state_update,
-)
 
 
 @dataclass
@@ -121,6 +114,57 @@ class PlanData:
     system_prompt: str
     user_message: str
 
+
+@dataclass
+class PublishData:
+    """Structured data returned by handle_publish."""
+    title: str
+    snapshot_id: str
+    renderers: list[dict]  # list of {"format": str, "output_path": str, ...}
+
+
+@dataclass
+class StateCheckData:
+    """Structured data returned by handle_state_check."""
+    diagnostics: list  # list of StructureDiagnostic objects
+    diagnostics_dir: Path
+    project_name: str
+    error_count: int
+    warning_count: int
+    total_count: int
+    had_raw_diagnostics: bool
+    had_resolved_diagnostics: bool
+
+
+@dataclass
+class StateUpdateData:
+    """Structured data returned by handle_state_update."""
+    file_type: str  # "blueprint" or "bible"
+    key: str
+    file_path: Path
+    data: Any  # StoryBlueprint or dict
+
+
+@dataclass
+class StatePrepareData:
+    """Structured data returned by handle_state_prepare."""
+    template: str
+    out_path: Path | None
+
+
+@dataclass
+class StateCanonData:
+    """Structured data returned by handle_state_canon."""
+    output: str
+
+
+@dataclass
+class StateConfirmData:
+    """Structured data returned by handle_state_confirm."""
+    blueprint: StoryBlueprint
+    bible_data: dict
+    blueprint_path: Path
+    bible_path: Path
 
 @dataclass
 class RecommendOpinionatedData:
@@ -1491,28 +1535,148 @@ def handle_audit(
 
 
 # ---------------------------------------------------------------------------
-# State command handler wrappers
+# State command handlers
 # ---------------------------------------------------------------------------
-# These wrap the existing state.py functions that still do inline printing
-# and file writes. The wrappers convert their int exit codes to HandlerResult.
-# Full handler extraction (separating domain from I/O) is deferred to a
-# future task.
 
 
 def handle_state_check(
     project_path: Path, *, outline: dict | None = None
 ) -> HandlerResult:
-    """Run Structure Diagnostic and Bible Audit in one pass."""
-    code = state_check(project_path, outline=outline)
-    return HandlerResult(exit_code=code)
+    """Run Structure Diagnostic and Bible Audit in one pass, returning structured data.
+
+    Returns:
+        HandlerResult with StateCheckData containing diagnostics, counts, and metadata.
+    """
+    blueprint_path = project_path / "blueprint.yaml"
+    bible_path = project_path / "bible.json"
+
+    if not blueprint_path.exists():
+        return HandlerResult.failure(f"blueprint.yaml not found at {blueprint_path}")
+    if not bible_path.exists():
+        return HandlerResult.failure(f"bible.json not found at {bible_path}")
+
+    try:
+        blueprint = StoryBlueprint.from_yaml(blueprint_path)
+        bible = StoryBible(bible_path)
+    except Exception as exc:
+        return HandlerResult.failure(f"Error loading project: {exc}")
+
+    from auteur.structure.proposal_resolution import load_resolved_rules
+    resolved_rules = load_resolved_rules(project_path)
+
+    raw_diagnostics = run_all_diagnostics(blueprint, bible, outline=outline)
+    diagnostics = [d for d in raw_diagnostics if d.rule not in resolved_rules]
+
+    from collections import defaultdict
+    _LAYER_ORDER = [
+        (1, DiagnosticLayer.TARGET_EXPERIENCE, "Target Experience"),
+        (2, DiagnosticLayer.CONSTRAINTS, "Promise / Constraints"),
+        (3, DiagnosticLayer.SCOPE, "Scope / Container"),
+        (4, DiagnosticLayer.STRUCTURAL_FORCES, "Structural Forces"),
+        (5, DiagnosticLayer.THREADS, "Threads / Modules"),
+        (6, DiagnosticLayer.CARRIERS, "Carriers"),
+        (7, DiagnosticLayer.REPRESENTATION, "Representation (Scene Outline)"),
+        (8, DiagnosticLayer.MODULATION, "Modulation"),
+        (9, DiagnosticLayer.THEME, "Theme / Resonance"),
+    ]
+    groups = defaultdict(list)
+    for d in diagnostics:
+        groups[d.layer].append(d)
+
+    errors = sum(1 for d in diagnostics if d.severity == DiagnosticSeverity.ERROR)
+    warnings = sum(1 for d in diagnostics if d.severity == DiagnosticSeverity.WARNING)
+
+    exit_code = 4 if errors > 0 else 0
+
+    diagnostics_dir = project_path / "structure" / "diagnostics"
+    return HandlerResult(
+        exit_code=exit_code,
+        data=StateCheckData(
+            diagnostics=diagnostics,
+            diagnostics_dir=diagnostics_dir,
+            project_name=project_path.name,
+            error_count=errors,
+            warning_count=warnings,
+            total_count=len(diagnostics),
+            had_raw_diagnostics=bool(raw_diagnostics),
+            had_resolved_diagnostics=bool(raw_diagnostics and not diagnostics),
+        ),
+    )
 
 
 def handle_state_update(
     project_path: Path, file_path: Path, key: str, val_str: str
 ) -> HandlerResult:
-    """Safe, transactional update of project file backed by schema validation."""
-    code = state_update(project_path, file_path, key, val_str)
-    return HandlerResult(exit_code=code)
+    """Safe, transactional update of project file backed by schema validation.
+
+    Validates the update in memory and returns the validated model.
+    The serializer writes the result to disk.
+
+    Returns:
+        HandlerResult with StateUpdateData containing the validated model.
+    """
+    if not file_path.exists():
+        resolved_path = project_path / file_path
+        if not resolved_path.exists():
+            return HandlerResult.failure(f"Target file not found: {file_path}")
+        file_path = resolved_path
+
+    from auteur.structure.state import parse_value
+    val = parse_value(val_str)
+
+    if file_path.suffix in {".yaml", ".yml"}:
+        try:
+            blueprint = StoryBlueprint.from_yaml(file_path)
+        except Exception as exc:
+            return HandlerResult.failure(f"Error loading blueprint: {exc}")
+
+        from auteur.structure.state import set_deep_attribute
+        try:
+            set_deep_attribute(blueprint, key, val)
+            validated = StoryBlueprint.model_validate(blueprint.model_dump())
+        except Exception as exc:
+            return HandlerResult.failure(
+                f"Schema validation failed. Transaction rolled back.\nDetails: {exc}"
+            )
+
+        return HandlerResult.success(
+            data=StateUpdateData(
+                file_type="blueprint",
+                key=key,
+                file_path=file_path,
+                data=validated,
+            )
+        )
+
+    elif file_path.suffix == ".json":
+        try:
+            bible = StoryBible(file_path)
+        except Exception as exc:
+            return HandlerResult.failure(f"Error loading bible: {exc}")
+
+        from auteur.structure.state import set_deep_attribute
+        from auteur.structure.state import StoryBibleModel
+        original_data = json.loads(json.dumps(bible.data))
+        try:
+            set_deep_attribute(bible.data, key, val)
+            StoryBibleModel.model_validate(bible.data)
+        except Exception as exc:
+            bible.data = original_data
+            return HandlerResult.failure(
+                f"Schema validation failed. Transaction rolled back.\nDetails: {exc}"
+            )
+
+        return HandlerResult.success(
+            data=StateUpdateData(
+                file_type="bible",
+                key=key,
+                file_path=file_path,
+                data=bible.data,
+            )
+        )
+
+    else:
+        return HandlerResult.failure(f"Unsupported file format {file_path.suffix}")
 
 
 def handle_state_prepare(
@@ -1522,20 +1686,440 @@ def handle_state_prepare(
     out_path: Path | None,
     chapter_idx: int | None,
 ) -> HandlerResult:
-    """Compile context packets formatted according to strict handoff skeletons."""
-    code = state_prepare(project_path, phase, scope, out_path, chapter_idx)
-    return HandlerResult(exit_code=code)
+    """Compile context packets formatted according to strict handoff skeletons.
+
+    Returns:
+        HandlerResult with StatePrepareData containing the template string.
+        The serializer writes it to disk if out_path is provided.
+    """
+    blueprint_path = project_path / "blueprint.yaml"
+    bible_path = project_path / "bible.json"
+
+    if not blueprint_path.exists() or not bible_path.exists():
+        return HandlerResult.failure("Missing blueprint.yaml or bible.json in project.")
+
+    try:
+        blueprint = StoryBlueprint.from_yaml(blueprint_path)
+        bible = StoryBible(bible_path)
+    except Exception as exc:
+        return HandlerResult.failure(f"Error loading project: {exc}")
+
+    chapter_str = f"Chapter {chapter_idx}" if chapter_idx else "Chapter [Index]"
+    pov_char = "[Name]"
+    active_characters = []
+    want = ""
+    resistance = ""
+    conflict = ""
+    stakes = ""
+
+    outline = None
+    if chapter_idx is not None:
+        outline_path = project_path / "chapters" / f"{chapter_idx:02d}" / "outline.yaml"
+        if outline_path.exists():
+            try:
+                outline = yaml.safe_load(outline_path.read_text(encoding="utf-8"))
+            except Exception:
+                pass
+
+    if chapter_idx is not None:
+        if blueprint.story_engine is not None:
+            want = blueprint.story_engine.main_thread.want.author_text
+            resistance = blueprint.story_engine.main_thread.resistance.author_text
+            conflict = blueprint.story_engine.main_thread.conflict.author_text
+            stakes = blueprint.story_engine.main_thread.stakes.author_text
+
+        chars = bible.data.get("characters", {})
+        for name, info in chars.items():
+            if info.get("location") == f"chapter_{chapter_idx}":
+                active_characters.append(f"{name} ({info.get('physical', 'stable')}, {info.get('emotional', 'stable')})")
+        if not active_characters:
+            active_characters = ["[None recorded at this location]"]
+
+    if phase == "drafting":
+        target_scene_function = "[Generate chapter outline using Cartographer]"
+        target_intensity_curve = "[Peak intensity: 7/10 at mid-scene]"
+        scene_details = ""
+
+        if outline:
+            if outline.get("chapter_summary"):
+                target_scene_function = outline["chapter_summary"]
+            if outline.get("estimated_chapter_tension"):
+                target_intensity_curve = f"Peak intensity: {outline['estimated_chapter_tension']}/10 at mid-scene"
+            if outline.get("scenes") and isinstance(outline["scenes"], list):
+                pov_char = outline["scenes"][0].get("pov_character") or pov_char
+                scene_list_str = []
+                for s in outline["scenes"]:
+                    sid = s.get("scene_id", "?")
+                    spov = s.get("pov_character", "?")
+                    sloc = s.get("location", "?")
+                    ssum = s.get("summary", "")
+                    scene_list_str.append(f"  * Scene {sid} ({spov} @ {sloc}): {ssum}")
+                scene_details = "\n" + "\n".join(scene_list_str)
+
+        template = f"""# Phase Handoff: DRAFTING
+* **Current Phase**: Drafting Handoff
+* **Active Story Object**: {chapter_str}
+* **Drafting Scope**: {scope.upper()}
+
+## 1. Scene Specifications
+* **Target Scene Function**: {target_scene_function}
+* **Target Intensity Curve**: {target_intensity_curve}
+* **Target POV Character**: {pov_char}
+* **Word Count Target**: 3,000 words{scene_details}
+
+## 2. Ingested 9-Layer Context
+* **Emotional Tone (Layer 1)**: {blueprint.emotional_design.overall_emotional_arc if blueprint.emotional_design else 'Bittersweet'}
+* **Structural Forces (Layer 4)**:
+  * **Want**: {want or '[Protagonist Goal]'}
+  * **Resistance**: {resistance or '[Obstacles/Forces]'}
+  * **Conflict**: {conflict or '[The Climax]'}
+  * **Stakes**: {stakes or '[What is at risk]'}
+* **Thread Focus (Layer 5)**: Main Thread - 100%
+* **Carrier Reference (Layer 6)**:
+  * **Characters Present**: {", ".join(active_characters) if active_characters else '[Protagonist]'}
+  * **Setting Details**: [Location settings and rules]
+
+## 3. Downstream Constraints & Foreshadowing
+* **Downstream Constraints**: [Keep consistency with previous events]
+* **Foreshadowing Requirements**: [Plant elements for future acts]
+"""
+    elif phase == "revision":
+        intended_scene_function = "[Intended drafting goal]"
+        intensity_val = "7/10"
+        facts_established = []
+        canon_deltas = []
+
+        if outline:
+            if outline.get("chapter_summary"):
+                intended_scene_function = outline["chapter_summary"]
+            if outline.get("estimated_chapter_tension"):
+                intensity_val = f"{outline['estimated_chapter_tension']}/10"
+            if outline.get("scenes") and isinstance(outline["scenes"], list):
+                pov_char = outline["scenes"][0].get("pov_character") or pov_char
+                for s in outline["scenes"]:
+                    for event in s.get("key_events", []) or []:
+                        facts_established.append(f"  * {event}")
+
+            from auteur.pipeline.extraction import extract_character_state_changes
+            state_changes = extract_character_state_changes(outline)
+            for change in state_changes:
+                char = change.get("character", "?")
+                field = change.get("field", "?")
+                before = change.get("before")
+                after = change.get("after")
+                canon_deltas.append(f"  * {char}: {field} = {before or 'None'} -> {after or 'None'}")
+
+        if not facts_established:
+            facts_established = ["  * [Fact 1]"]
+        if not canon_deltas:
+            canon_deltas = [f"  * {pov_char}: stable -> [Realized state change]"]
+
+        facts_str = "\n".join(facts_established)
+        deltas_str = "\n".join(canon_deltas)
+
+        template = f"""# Phase Handoff: REVISION
+* **Current Phase**: Revision Handoff
+* **Active Story Object**: {chapter_str}
+* **Scope**: {scope.upper()}
+  * *Rationale*: Compiling realized facts and character updates from the drafted chapter.
+
+## 1. Intended vs Realized Analysis
+* **Intended Scene Function**: {intended_scene_function}
+* **Realized Scene Function**: [Review draft text against outline]
+* **Intensity Deviation**: [No deviation reported, Target: {intensity_val}]
+
+## 2. Canon Delta Log (Layer 6 Changes)
+* **New Facts Established**:
+{facts_str}
+* **Character State Transitions**:
+{deltas_str}
+
+## 3. Legacy Drift & Issues Detected
+* **Contradictions Found**: [Identify any conflicts with blueprint or previous chapters]
+* **Stray Threads**: [Details]
+"""
+    elif phase == "recovery":
+        template = f"""# Phase Handoff: RECOVERY
+* **Current Phase**: Bridge Recovery
+* **Active Story Object**: Raw draft fragments
+* **Scope**: {scope.upper()}
+  * *Rationale*: Reverse-engineering full narrative skeleton from unfinished prose fragments.
+
+## 1. Recovery Metadata & Confidence Matrix
+| Layer | Name | Confidence | Candidate Locked State | Speculative / Sandbox |
+| :--- | :--- | :--- | :--- | :--- |
+| **Layer 1** | Target Experience | Med | {blueprint.identity.target_experience.primary if blueprint.identity.target_experience else 'Bittersweet'} | [Speculative ideas] |
+| **Layer 2** | Promise/Constraints| High | {blueprint.identity.genre.value} | [Speculative ideas] |
+| **Layer 3** | Scope / Container | Med | {blueprint.identity.length_class.value} | [Speculative ideas] |
+| **Layer 4** | Structural Forces | Med | {want or 'Want/Resistance map'} | [Speculative ideas] |
+| **Layer 5** | Threads / Modules | Med | [Main Plot Thread] | [Speculative ideas] |
+| **Layer 6** | Carriers | Med | [Bible database characters] | [Speculative ideas] |
+| **Layer 7** | Representation | Med | [Scene sequence outline] | [Speculative ideas] |
+| **Layer 8** | Modulation | Med | [Tension waveform peaks] | [Speculative ideas] |
+| **Layer 9** | Resonance/Coherence| Med | {blueprint.theme.thesis if blueprint.theme else 'Thematic question'} | [Speculative ideas] |
+
+## 2. Legacy Drift & Contradiction Notes
+* **Legacy Drift**: [Check for old character names or aborted subplot concepts]
+* **Contradictions Found**: [Check if draft text conflicts with engine layers]
+
+## 3. Candidate Locked Layers
+* [List of layers proposed for immediate lock with rationales]
+
+## 4. Recommended Next Workflow
+* **Next Target Phase**: State Update
+* **Author Confirmation Required**:
+  * Question 1: Resolve Speculative Layer 7
+  * Question 2: Approve Candidate Locked Layer 4
+"""
+    else:
+        template = f"""# Phase Handoff: IDEATION
+* **Current Phase**: Ideation Handoff
+* **Active Story Object**: {chapter_str}
+* **Scope**: {scope.upper()}
+
+## Conceptual Design Map
+* **Target Genre**: {blueprint.identity.genre.value}
+* **Mandatory Ending Tone**: {blueprint.contract.mandatory_ending_tone.value}
+* **Thematic Thesis**: {blueprint.theme.thesis if blueprint.theme else '[Thesis Statement]'}
+"""
+
+    return HandlerResult.success(
+        data=StatePrepareData(template=template, out_path=out_path)
+    )
 
 
 def handle_state_canon(project_path: Path, format: str) -> HandlerResult:
-    """Generate canonical reference manual output."""
-    code = state_canon(project_path, format)
-    return HandlerResult(exit_code=code)
+    """Generate canonical reference manual output.
+
+    Returns:
+        HandlerResult with StateCanonData containing the formatted output string.
+    """
+    bible_path = project_path / "bible.json"
+    if not bible_path.exists():
+        return HandlerResult.failure(f"bible.json not found at {bible_path}")
+
+    try:
+        bible = StoryBible(bible_path)
+    except Exception as exc:
+        return HandlerResult.failure(f"Error loading bible: {exc}")
+
+    if format == "json":
+        output = json.dumps(bible.data, indent=2, ensure_ascii=False)
+        return HandlerResult.success(data=StateCanonData(output=output))
+
+    output = []
+    output.append("# Canonical Reference Manual\n")
+
+    output.append("## \U0001f465 Character Registry")
+    chars = bible.data.get("characters", {})
+    if not chars:
+        output.append("*No characters recorded in bible.*")
+    else:
+        for name, info in sorted(chars.items()):
+            output.append(f"\n### {name}")
+            output.append(f"* **Current Location**: {info.get('location', 'Unknown')}")
+            output.append(f"* **Physical State**: {info.get('physical', 'Stable')}")
+            output.append(f"* **Emotional State**: {info.get('emotional', 'Stable')}")
+            if info.get("inventory"):
+                output.append(f"* **Inventory**: {', '.join(info['inventory'])}")
+            if info.get("relationships"):
+                rels = [f"{k}: {v}" for k, v in info["relationships"].items()]
+                output.append(f"* **Relationships**: {', '.join(rels)}")
+            if info.get("secrets_known"):
+                output.append(f"* **Secrets Known**: {', '.join(info['secrets_known'])}")
+            output.append(f"* **Current Arc Progress**: {info.get('current_arc_pct', 0)}%")
+    output.append("")
+
+    output.append("## \U0001f4cd Settings & Factions")
+    locs = bible.data.get("locations", {})
+    if not locs:
+        output.append("*No locations recorded in bible.*")
+    else:
+        for name, info in sorted(locs.items()):
+            output.append(f"\n### Location: {name}")
+            output.append(f"* **Description**: {info.get('description', 'No description.')}")
+            output.append(f"* **Mood**: {info.get('mood', 'Neutral')}")
+            if info.get("occupants"):
+                output.append(f"* **Occupants**: {', '.join(info['occupants'])}")
+
+    factions = bible.data.get("factions", {})
+    if factions:
+        for name, info in sorted(factions.items()):
+            output.append(f"\n### Faction: {name}")
+            if info.get("members"):
+                output.append(f"* **Members**: {', '.join(info['members'])}")
+            if info.get("relationships"):
+                rels = [f"{k}: {v}" for k, v in info["relationships"].items()]
+                output.append(f"* **Relationships**: {', '.join(rels)}")
+            if info.get("plans"):
+                output.append(f"* **Plans**: {', '.join(info['plans'])}")
+    output.append("")
+
+    output.append("## \U0001f4dc Historical Timeline")
+    events = bible.data.get("events", [])
+    if not events:
+        output.append("*No events recorded in bible timeline.*")
+    else:
+        for ev in events:
+            output.append(f"* **Chapter {ev.get('chapter_index', 0)}**: {ev.get('summary', 'No summary.')}")
+
+    return HandlerResult.success(data=StateCanonData(output="\n".join(output)))
 
 
 def handle_state_confirm(
     project_path: Path, recovery_run_path: Path
 ) -> HandlerResult:
-    """Validate and safely merge recovery run locked layers into blueprint/bible."""
-    code = state_confirm(project_path, recovery_run_path)
-    return HandlerResult(exit_code=code)
+    """Validate and safely merge recovery run locked layers into blueprint/bible.
+
+    Returns:
+        HandlerResult with StateConfirmData containing validated models.
+        The serializer writes them to disk.
+    """
+    if not recovery_run_path.exists():
+        return HandlerResult.failure(f"Recovery run file not found: {recovery_run_path}")
+
+    try:
+        recovery_payload = yaml.safe_load(recovery_run_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        return HandlerResult.failure(f"Error loading recovery run file: {exc}")
+
+    blueprint_path = project_path / "blueprint.yaml"
+    bible_path = project_path / "bible.json"
+
+    if not blueprint_path.exists() or not bible_path.exists():
+        return HandlerResult.failure("Missing blueprint.yaml or bible.json in project.")
+
+    try:
+        blueprint = StoryBlueprint.from_yaml(blueprint_path)
+        bible = StoryBible(bible_path)
+    except Exception as exc:
+        return HandlerResult.failure(f"Error loading project: {exc}")
+
+    locked = recovery_payload.get("candidate_locked_layers") or recovery_payload.get("candidate_locked_state")
+    if not locked:
+        return HandlerResult.failure(
+            "Recovery run file has no 'candidate_locked_layers' or 'candidate_locked_state'."
+        )
+
+    from auteur.blueprint import TargetExperience
+    from auteur.structure.state import StoryBibleModel, set_deep_attribute
+
+    try:
+        if "target_experience" in locked:
+            te = locked["target_experience"]
+            if isinstance(te, str):
+                blueprint.identity.target_experience = TargetExperience(primary=te, progression="quiet pressure", avoid=[])
+            elif isinstance(te, dict):
+                blueprint.identity.target_experience = TargetExperience(
+                    primary=te.get("primary", "bittersweet"),
+                    progression=te.get("progression", "quiet pressure"),
+                    avoid=te.get("avoid", []),
+                )
+        if "promise_constraints" in locked:
+            pc = locked["promise_constraints"]
+            if isinstance(pc, dict):
+                if "genre" in pc:
+                    blueprint.identity.genre = pc["genre"]
+                if "mode" in pc:
+                    blueprint.identity.mode = pc["mode"]
+        if "scope_container" in locked:
+            ss = locked["scope_container"]
+            if isinstance(ss, dict):
+                if "length_class" in ss:
+                    blueprint.identity.length_class = ss["length_class"]
+                if "estimated_chapters" in ss:
+                    blueprint.structure.estimated_chapters = ss["estimated_chapters"]
+
+        if "structural_forces" in locked:
+            sf = locked["structural_forces"]
+            if isinstance(sf, dict) and blueprint.story_engine:
+                if "want" in sf:
+                    blueprint.story_engine.main_thread.want.author_text = sf["want"]
+                if "resistance" in sf:
+                    blueprint.story_engine.main_thread.resistance.author_text = sf["resistance"]
+                if "conflict" in sf:
+                    blueprint.story_engine.main_thread.conflict.author_text = sf["conflict"]
+                if "stakes" in sf:
+                    blueprint.story_engine.main_thread.stakes.author_text = sf["stakes"]
+
+
+        validated_bp = StoryBlueprint.model_validate(blueprint.model_dump())
+
+        if "carriers" in locked:
+            carriers = locked["carriers"]
+            if isinstance(carriers, dict):
+                for section in {"characters", "locations", "items", "factions"}:
+                    if section in carriers:
+                        for name, info in carriers[section].items():
+                            if section == "characters":
+                                bible.upsert_character(name, **info)
+                            else:
+                                if name not in bible.data[section]:
+                                    bible.data[section][name] = {}
+                                bible.data[section][name].update(info)
+        StoryBibleModel.model_validate(bible.data)
+
+    except Exception as exc:
+        return HandlerResult.failure(
+            f"Recovery merge validation failed. Transaction rolled back.\nDetails: {exc}"
+        )
+
+    return HandlerResult.success(
+        data=StateConfirmData(
+            blueprint=validated_bp,
+            bible_data=bible.data,
+            blueprint_path=blueprint_path,
+            bible_path=bible_path,
+        )
+    )
+
+
+# ---------------------------------------------------------------------------
+# Publish handler
+# ---------------------------------------------------------------------------
+
+
+def handle_publish(
+    project: Path,
+    *,
+    formats: list[str],
+    html_output: Path | None = None,
+    epub_output: Path | None = None,
+    output_dir: Path | None = None,
+    css: str | None = None,
+    title_page: bool = True,
+    toc: bool = True,
+) -> HandlerResult:
+    """Render an accepted Book to HTML, EPUB, or other formats.
+
+    Validates output formats, calls publish(), and returns structured data.
+    """
+    from auteur.publish import publish as _publish, PublishError, ALL_FORMATS
+
+    for f in formats:
+        if f not in ALL_FORMATS:
+            return HandlerResult.failure(
+                f"unknown format: {f!r} (choose from {ALL_FORMATS})"
+            )
+
+    try:
+        result = _publish(
+            project,
+            formats=formats,
+            html_output=html_output,
+            epub_output=epub_output,
+            output_dir=output_dir,
+            css=css,
+            title_page=title_page,
+            toc=toc,
+        )
+    except (PublishError, FileExistsError) as exc:
+        return HandlerResult.failure(str(exc))
+
+    return HandlerResult.success(
+        data=PublishData(
+            title=result["title"],
+            snapshot_id=result["snapshot_id"],
+            renderers=result["renderers"],
+        )
+    )

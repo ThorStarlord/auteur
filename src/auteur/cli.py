@@ -31,24 +31,32 @@ from auteur.cli_formatters import (
     format_cartographer_compile_success, format_cartographer_validate,
     format_cartographer_validate_success, format_draft, format_draft_not_accepted,
     format_error, format_identity_compile, format_identity_compile_success,
-    format_identity_validate, format_identity_validate_success, format_init,
-    format_plan, format_retry, format_structure_apply, format_structure_diagnose,
+    format_identity_recommend, format_identity_validate, format_identity_validate_success, format_init,
+    format_plan, format_publish, format_retry, format_state_canon,
+    format_state_check, format_state_confirm, format_state_prepare,
+    format_state_update, format_structure_apply, format_structure_diagnose,
     format_structure_generate, format_structure_propose_repairs,
 )
 from auteur.cli_handlers import (
-    IdentityValidateData, RecommendOpenEndedData,
-    RecommendOpinionatedData, handle_accept, handle_audit,
+    IdentityValidateData, PublishData, RecommendOpenEndedData,
+    RecommendOpinionatedData, StateCanonData, StateCheckData,
+    StateConfirmData, StatePrepareData, StateUpdateData,
+    handle_accept, handle_audit,
     handle_audit_resolve_proposal, handle_cartographer_compile,
     handle_cartographer_validate, handle_compile_to_blueprint, handle_draft,
     handle_identity_promote, handle_identity_recommend,
-    handle_identity_validate, handle_init, handle_plan, handle_retry,
+    handle_identity_validate, handle_init, handle_plan, handle_publish, handle_retry,
+    handle_state_canon, handle_state_check, handle_state_confirm,
+    handle_state_prepare, handle_state_update,
     handle_structure_apply, handle_structure_diagnose,
     handle_structure_generate, handle_structure_propose_repairs,
 )
 from auteur.cli_serializers import (
     serialize_audit, serialize_compile_blueprint, serialize_identity_openended,
     serialize_identity_opinionated, serialize_identity_promote,
-    serialize_identity_validate, serialize_story_discovery, serialize_structure_diagnose,
+    serialize_identity_validate, serialize_publish, serialize_state_check,
+    serialize_state_confirm, serialize_state_prepare, serialize_state_update,
+    serialize_story_discovery, serialize_structure_diagnose,
     serialize_structure_generate_text, serialize_structure_propose_repairs,
 )
 from auteur.narrative_blueprint.cli_blueprint import handle_blueprint_init, handle_blueprint_list
@@ -817,30 +825,25 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     # === publish ===
     if args.command == "publish":
-        from auteur.publish import publish as _publish, PublishError, ALL_FORMATS
         formats = [f.strip() for f in args.format.split(",")]
-        for f in formats:
-            if f not in ALL_FORMATS:
-                _err(f"unknown format: {f!r} (choose from {ALL_FORMATS})")
-                return 1
         css = args.css.read_text(encoding="utf-8") if args.css else None
-        try:
-            result = _publish(
-                args.project,
-                formats=formats,
-                html_output=args.output if "html" in formats else None,
-                epub_output=args.output if "epub" in formats else None,
-                output_dir=args.output_dir,
-                css=css,
-                title_page=not args.no_title_page,
-                toc=not args.no_toc,
-            )
-        except (PublishError, FileExistsError) as exc:
-            _err(str(exc))
-            return 1
-        print(f"Published {result['title']} (snapshot {result['snapshot_id']})")
-        for r in result["renderers"]:
-            print(f"  [{r['format']}] {r['output_path']}")
+        result = handle_publish(
+            args.project,
+            formats=formats,
+            html_output=args.output if "html" in formats else None,
+            epub_output=args.output if "epub" in formats else None,
+            output_dir=args.output_dir,
+            css=css,
+            title_page=not args.no_title_page,
+            toc=not args.no_toc,
+        )
+        if not result.is_success:
+            _err(result.error)
+            return result.exit_code
+        serialize_publish(result, args.output)
+        out = format_publish(result)
+        if out:
+            print(out)
         return 0
     # === init ===
     if args.command == "init":
@@ -1275,18 +1278,13 @@ def main(argv: list[str] | None = None) -> int:
         data = result.data
         if isinstance(data, RecommendOpinionatedData):
             serialize_identity_opinionated(data, args.output, debug=args.debug, timestamp=ts)
-            print(f"Success: saved recommended story identity to {args.output}")
-            if data.warnings:
-                print("Warnings encountered during generation:")
-                for w in data.warnings: print(f" - {w}")
+            out = format_identity_recommend(result, output_path=args.output)
+            if out: print(out)
             return 0
         elif isinstance(data, RecommendOpenEndedData):
             written = serialize_identity_openended(data, args.output, args.premise)
-            cdir = written[0].parent if written else args.output.parent / "story_identity_candidates"
-            for p in written[:len(data.candidates)]: print(f"  Wrote {p.name}")
-            print(f"\nSuccess: generated {len(data.candidates)} candidates under {cdir}/")
-            print(f"Metadata index written to {cdir / 'recommendation_set.yaml'}")
-            print(f"Comparison document written to {cdir / 'comparison.md'}")
+            out = format_identity_recommend(result, written_paths=written)
+            if out: print(out)
             return 0
         return 1
     # === identity accept-candidate ===
@@ -1930,8 +1928,6 @@ def main(argv: list[str] | None = None) -> int:
 
     # === state ===
     if args.command == "state":
-        from auteur.structure.state import (
-            state_check, state_update, state_prepare, state_canon, state_confirm)
         if args.state_command == "check":
             ol: Path | None = getattr(args, "outline", None)
             if ol is not None:
@@ -1939,16 +1935,45 @@ def main(argv: list[str] | None = None) -> int:
                 from auteur.structure.outline_audit import load_outline
                 try: outline = load_outline(str(ol))
                 except ValueError as exc: _err(str(exc)); return 1
-                return state_check(args.project, outline=outline)
-            return state_check(args.project)
+                result = handle_state_check(args.project, outline=outline)
+            else:
+                result = handle_state_check(args.project)
+            # state_check returns exit_code 4 for diagnostics found, not a crash
+            if result.exit_code != 0 and result.exit_code != 4:
+                _err(result.error or "state check failed")
+                return result.exit_code
+            out = format_state_check(result)
+            if out: print(out)
+            serialize_state_check(result)
+            return result.exit_code
         if args.state_command == "update":
-            return state_update(args.project, args.file, args.key, args.val)
+            result = handle_state_update(args.project, args.file, args.key, args.val)
+            if not result.is_success: _err(result.error or "state update failed"); return result.exit_code
+            out = format_state_update(result)
+            if out: print(out)
+            serialize_state_update(result)
+            return 0
         if args.state_command == "prepare":
-            return state_prepare(args.project, args.phase, args.scope, args.out, args.chapter)
+            result = handle_state_prepare(args.project, args.phase, args.scope, args.out, args.chapter)
+            if not result.is_success: _err(result.error or "state prepare failed"); return result.exit_code
+            out = format_state_prepare(result)
+            if out: print(out)
+            if args.out:
+                serialize_state_prepare(result)
+            return 0
         if args.state_command == "canon":
-            return state_canon(args.project, args.format)
+            result = handle_state_canon(args.project, args.format)
+            if not result.is_success: _err(result.error or "state canon failed"); return result.exit_code
+            out = format_state_canon(result)
+            if out: print(out)
+            return 0
         if args.state_command == "confirm":
-            return state_confirm(args.project, args.recovery_run)
+            result = handle_state_confirm(args.project, args.recovery_run)
+            if not result.is_success: _err(result.error or "state confirm failed"); return result.exit_code
+            out = format_state_confirm(result)
+            if out: print(out)
+            serialize_state_confirm(result)
+            return 0
         if args.state_command in {"status", "explain", "adopt", "accept", "archive", "affected-by"}:
             from auteur.provenance import ArtifactStore
             artifact = args.artifact
