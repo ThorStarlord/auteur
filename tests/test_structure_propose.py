@@ -19,8 +19,8 @@ def project_root(tmp_path: Path) -> Path:
 class TestCLI:
 
     def test_structure_propose_help(self):
-        from auteur.cli import _build_parser
-        parser = _build_parser()
+        from auteur.cli_parser import build_parser
+        parser = build_parser()
         with pytest.raises(SystemExit) as exc:
             parser.parse_args(["structure", "propose", "--help"])
         assert exc.value.code == 0

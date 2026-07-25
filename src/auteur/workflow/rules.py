@@ -310,6 +310,11 @@ def recommend_actions(
     # Generate impact-aware actions
     impact_actions = _recommend_impact_actions(project_root)
     actions.extend(impact_actions)
+    
+    # Generate series-aware actions when a series identity exists
+    series_actions = _recommend_series_actions(project_root)
+    actions.extend(series_actions)
+    
     # Generate lifecycle-gap actions
     lifecycle_actions = _recommend_lifecycle_actions(lifecycle)
     actions.extend(lifecycle_actions)
@@ -562,6 +567,36 @@ def _recommend_impact_actions(project_root: Path | None) -> list[WorkflowAction]
     ]
 
 
+def _recommend_series_actions(project_root: Path | None) -> list[WorkflowAction]:
+    """Generate workflow actions when a series identity exists."""
+    if project_root is None:
+        return []
+    series_yaml = project_root / "series_identity.yaml"
+    if not series_yaml.exists():
+        return []
+    try:
+        import yaml
+        data = yaml.safe_load(series_yaml.read_text(encoding="utf-8"))
+        title = data.get("title", "untitled series")
+        series_type = data.get("series_type", "")
+    except Exception:
+        return []
+    return [
+        WorkflowAction(
+            label=f"Series: {title} ({series_type})",
+            command=f"auteur series status --project {project_root}",
+            authority=AuthorityLevel.READ_ONLY,
+            description="A series identity exists. Validate and compile book plans.",
+        ),
+        WorkflowAction(
+            label="Validate series",
+            command="auteur series validate series_identity.yaml",
+            authority=AuthorityLevel.READ_ONLY,
+            description="Run validation on the series identity.",
+        ),
+    ]
+    
+    
 def _reconciliation_done(root: Path) -> bool:
     """Check if book-level reconciliation is complete."""
     for base in [root / ".auteur" / "book" / "expression" / "reconciliation",

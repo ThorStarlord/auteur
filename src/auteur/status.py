@@ -420,13 +420,16 @@ def format_status(status: dict[str, Any], verbose: bool = False) -> str:
     # Chapters
     chapters = status.get("chapters")
     if chapters:
-        lines.append(f"\nChapters:")
+        total = len(chapters)
+        accepted = sum(1 for ch in chapters if "accepted" in ch.get("expression", ""))
+        drafted = sum(1 for ch in chapters if ch.get("expression", "missing") not in ("missing", "accepted") and ch.get("expression") != "missing")
+        missing = sum(1 for ch in chapters if ch.get("expression", "missing") == "missing")
+        lines.append(f"\nChapters: {total} total ({accepted} accepted, {drafted} drafted, {missing} missing)")
         for ch in chapters:
             sc = ch.get("scenes", 0)
             expr = ch.get("expression", "missing")
             recon = ch.get("reconciliation", "not_started")
             lines.append(f"  {ch['chapter_id']}:  {expr}, {sc} scenes, reconciliation: {recon}")
-
     # Book
     book = status.get("book", {})
     lines.append(f"\nBook:")
@@ -454,8 +457,13 @@ def format_status(status: dict[str, Any], verbose: bool = False) -> str:
         lines.append(f"\nStale: {', '.join(stale)}")
 
     # Blocks
-    lines.append("")
-
+    blocks = status.get("blocks", [])
+    if blocks:
+        lines.append("\nBlocks:")
+        for b in blocks:
+            lines.append(f"  [{b.get('severity', 'info')}] {b.get('message', b.get('artifact', '?'))}")
+    else:
+        lines.append("")
     # Decision lifecycle
     lc = status.get("lifecycle", {})
     lc_total = lc.get("total_decisions", 0)

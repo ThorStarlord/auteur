@@ -315,8 +315,8 @@ class TestService:
 class TestCLI:
 
     def test_commit_help(self):
-        from auteur.cli import _build_parser
-        parser = _build_parser()
+        from auteur.cli_parser import build_parser
+        parser = build_parser()
         with pytest.raises(SystemExit) as exc:
             parser.parse_args(["commit", "--help"])
         assert exc.value.code == 0

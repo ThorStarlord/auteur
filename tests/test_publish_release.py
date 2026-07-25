@@ -252,8 +252,8 @@ class TestCrossFormatConsistency:
 
 class TestCLIIntegration:
     def test_cli_parser_accepts_publish(self) -> None:
-        from auteur.cli import _build_parser
-        parser = _build_parser()
+        from auteur.cli_parser import build_parser
+        parser = build_parser()
         args = parser.parse_args(["publish", "--project", ".", "--format", "html"])
         assert args.command == "publish"
         assert args.format == "html"

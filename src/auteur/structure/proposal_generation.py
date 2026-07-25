@@ -475,3 +475,58 @@ def propose_repairs_from_audit_diagnostics(
     return proposals
 
 
+
+
+def propose_repairs_from_impact_findings(
+    findings: list[dict[str, Any]],
+) -> list[StructureProposal]:
+    """Convert impact analysis findings into human-editable repair proposals.
+
+    Each finding is expected to have ``rule``, ``severity``, ``message``,
+    ``evidence``, and ``recommended_action`` keys (matching the ImpactAnalyzer
+    finding shape).  Proposals are typed as REPAIR with
+    ``source_domain='impact'``.
+
+    Parameters
+    ----------
+    findings : list[dict]
+        Impact findings from ``ImpactAnalyzer.analyze()``.
+
+    Returns
+    -------
+    list[StructureProposal]
+        Zero or more repair proposals.
+    """
+    proposals: list[StructureProposal] = []
+    for index, finding in enumerate(findings, start=1):
+        severity = finding.get("severity", "info")
+        if severity in ("none", "info"):
+            continue
+        rule = finding.get("rule", finding.get("rule_id", "impact.unknown"))
+        message = finding.get("message", "") or finding.get("evidence", str(finding))
+        recommended = finding.get("recommended_action", finding.get("recommendation", ""))
+
+        options: list[ProposalOption] = []
+        if recommended:
+            options.append(ProposalOption(
+                id="recommended",
+                summary=recommended,
+                tradeoffs="Recommended action from impact analysis.",
+                data={},
+            ))
+        options.append(ProposalOption(
+            id="author_override",
+            summary="Author override — no action needed",
+            tradeoffs="The author may have intentionally accepted the divergence.",
+            data={},
+        ))
+
+        proposals.append(StructureProposal(
+            proposal_id=f"impact_repair_{index}_{_proposal_slug(rule)}",
+            type=ProposalType.REPAIR,
+            source_rule=rule,
+            source_domain="impact",
+            summary=f"[{severity}] {message}",
+            options=options,
+        ))
+    return proposals

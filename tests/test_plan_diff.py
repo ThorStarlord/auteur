@@ -151,8 +151,8 @@ class TestServiceDiff:
 class TestCLI:
 
     def test_plan_diff_help(self):
-        from auteur.cli import _build_parser
-        parser = _build_parser()
+        from auteur.cli_parser import build_parser
+        parser = build_parser()
         with pytest.raises(SystemExit) as exc:
             parser.parse_args(["plan", "diff", "--help"])
         assert exc.value.code == 0

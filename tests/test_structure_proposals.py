@@ -199,3 +199,38 @@ def test_converts_diagnostic_report_to_repair_proposal_yaml_artifact():
     assert recovered.type == ProposalType.REPAIR
     assert recovered.source_rule == "main_thread.change_duplicates_want"
     assert recovered.selection.selected_option_id == ""
+
+
+class TestImpactProposalBridge:
+    """Tests for propose_repairs_from_impact_findings."""
+
+    def test_returns_proposals_for_severe_findings(self):
+        from auteur.structure.proposal_generation import propose_repairs_from_impact_findings
+        findings = [
+            {"rule": "impact.continuity", "severity": "blocked", "message": "Chapter 3 contradicts chapter 1", "recommended_action": "Reconcile chapter 3"},
+        ]
+        proposals = propose_repairs_from_impact_findings(findings)
+        assert len(proposals) == 1
+        assert proposals[0].source_domain == "impact"
+        assert proposals[0].source_rule == "impact.continuity"
+
+    def test_skips_info_severity(self):
+        from auteur.structure.proposal_generation import propose_repairs_from_impact_findings
+        findings = [
+            {"rule": "impact.info", "severity": "info", "message": "Nothing to see here"},
+        ]
+        proposals = propose_repairs_from_impact_findings(findings)
+        assert len(proposals) == 0
+
+    def test_sets_source_domain(self):
+        from auteur.structure.proposal_generation import propose_repairs_from_impact_findings
+        findings = [
+            {"rule": "impact.test", "severity": "reconcile", "message": "Test finding"},
+        ]
+        proposals = propose_repairs_from_impact_findings(findings)
+        assert all(p.source_domain == "impact" for p in proposals)
+
+    def test_empty_findings(self):
+        from auteur.structure.proposal_generation import propose_repairs_from_impact_findings
+        proposals = propose_repairs_from_impact_findings([])
+        assert proposals == []
