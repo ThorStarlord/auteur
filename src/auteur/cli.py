@@ -266,24 +266,26 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Output path (default: <blueprint_dir>/published/).")
     p.add_argument("--format", choices=["yaml", "md"], default="md",
         help="Output format (default: markdown).")
+    from auteur.genre_builder.cli import register_genre_builder_subcommands
+    register_genre_builder_subcommands(sub)
 
-    from auteur.character.cli import register_character_subcommands
-    register_character_subcommands(sub)
+    p = sub.add_parser("dashboard",
+        help="Show a unified author dashboard with status, lifecycle, and alerts.")
+    p.add_argument("--project", type=Path, default=Path("."),
+        help="Project root directory (default: current directory).")
+    p.add_argument("--json", action="store_true",
+        help="Output as JSON.")
+
     from auteur.series.cli import register_series_subcommands
     register_series_subcommands(sub)
-    from auteur.editing.cli import register_edit_subcommands
-    register_edit_subcommands(sub)
     from auteur.relations.cli import register_relations_subcommands
     register_relations_subcommands(sub)
     from auteur.roundtrip.cli import register_roundtrip_subcommands
     register_roundtrip_subcommands(sub)
-    from auteur.genre_builder.cli import register_genre_builder_subcommands
-    register_genre_builder_subcommands(sub)
     from auteur.universe.cli import register_universe_subcommands
     register_universe_subcommands(sub)
     from auteur.book.cli import register_book_subcommands
     register_book_subcommands(sub)
-
     p = sub.add_parser("state",
         help="Manage story state layers programmatically.")
     sts = p.add_subparsers(dest="state_command", required=True)
@@ -673,6 +675,7 @@ def _handle_reasoning_book(project: Path, json_output: bool = False) -> int:
                         for r in recs:
                             print(f"       - {r}")
 
+    return 0
 
 def _write_blueprint_markdown(bp: Any, path: Path) -> None:
     """Render a StoryBlueprint to a readable Markdown document."""
@@ -858,6 +861,19 @@ def main(argv: list[str] | None = None) -> int:
         out = format_init(result)
         if out: print(out)
         else: print(f"Initialized project at {path}")
+        return 0
+    # === dashboard ===
+    if args.command == "dashboard":
+        from auteur.ui.dashboard import build_dashboard, format_dashboard
+        try:
+            data = build_dashboard(args.project)
+        except Exception as exc:
+            _err(f"failed to build dashboard: {exc}"); return 1
+        if args.json:
+            import json as _json
+            print(_json.dumps(data, indent=2, default=str))
+        else:
+            print(format_dashboard(data))
         return 0
     # === plan ===
     if args.command == "plan":
