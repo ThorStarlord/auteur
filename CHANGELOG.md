@@ -2,6 +2,53 @@
 
 
 
+## v0.12.0 (2026-07-22) — Narrative Decision Portfolio
+
+### New: Portfolio subsystem
+
+- **`src/auteur/portfolio/`** — 12 modules implementing bounded multi-decision
+  portfolio comparison. Compares coherent candidate combinations across
+  multiple decisions, detects conflicts, projects combined effects, and
+  presents an operational tradeoff frontier.
+
+### Key capabilities
+
+- **Bounded combination generation** with configurable limits (default 100).
+  Hard constraints prune; soft tensions remain visible.
+- **Non-dominated frontier** on operational dimensions (blockers, stale
+  artifacts, uncertainty, optionality). No artistic quality dimension.
+  Unknown values prevent false dominance.
+- **Cross-decision effects**: conflict, synergy, joint milestone unlocks.
+- **Coordinated promotion**: creates review sessions via ReviewService
+  for each decision in the portfolio. Requires `--confirm`.
+  No acceptance, no pointer mutation.
+- **Optionality analysis**: remaining viable paths, reversibility.
+
+### CLI surface
+
+```
+auteur portfolio create     — create portfolio from decisions/candidates
+auteur portfolio generate   — generate bounded candidate combinations
+auteur portfolio project    — project combined effects
+auteur portfolio compare    — compare two portfolio scenarios
+auteur portfolio frontier   — calculate non-dominated frontier
+auteur portfolio promote    — promote into coordinated review (--confirm)
+auteur portfolio status     — show portfolio status
+auteur portfolio inspect    — inspect portfolio
+auteur portfolio list       — list portfolios
+auteur portfolio history    — show portfolio history
+```
+
+### Tests
+
+- 55 new focused tests covering models, combinations, constraints,
+  frontier, comparison, optionality, persistence, service, and CLI.
+- No regressions: all portfolio tests pass.
+
+### Wheel
+
+- `auteur-0.12.0-py3-none-any.whl` — 329 files, 13 portfolio modules.
+
 ## v0.11.0 (2026-07-22) — Counterfactual Narrative Planning
 
 ### New: Simulation subsystem

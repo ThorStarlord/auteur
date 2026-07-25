@@ -566,6 +566,9 @@ def _build_parser() -> argparse.ArgumentParser:
     from auteur.simulation.cli import register_simulate_subcommands
     register_simulate_subcommands(sub)
 
+    from auteur.portfolio.cli import register_portfolio_subcommands
+    register_portfolio_subcommands(sub)
+
     return parser
 
 
@@ -1793,6 +1796,10 @@ def main(argv: list[str] | None = None) -> int:
         from auteur.review.cli import dispatch_review
         return dispatch_review(args)
 
+    # === portfolio ===
+    if args.command == "portfolio":
+        from auteur.portfolio.cli import dispatch_portfolio
+        return dispatch_portfolio(args)
     # === simulate ===
     if args.command == "simulate":
         from auteur.simulation.cli import dispatch_simulate
