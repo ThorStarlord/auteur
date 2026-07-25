@@ -1,4 +1,4 @@
-__version__ = "0.28.0"
+__version__ = "0.29.0"
 
 from auteur.blueprint import (
     ActStructure,

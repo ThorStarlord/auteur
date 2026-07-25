@@ -156,7 +156,7 @@ class WorkflowEngine:
                 decisions = None
 
         actions = recommend_actions(stages, decisions=decisions, lifecycle=lifecycle_data,
-                                    commitment=commitment_data)
+                                    commitment=commitment_data, project_root=self.root)
         status = gather_status(self.root)
 
         summary = self._build_summary(stages, cs, blockers, lifecycle=lifecycle_data,

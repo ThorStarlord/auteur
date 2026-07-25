@@ -301,11 +301,15 @@ def recommend_actions(
     decisions: list[Any] | None = None,
     lifecycle: dict[str, Any] | None = None,
     commitment: dict[str, Any] | None = None,
+    project_root: Path | None = None,
 ) -> list[WorkflowAction]:
-    """Generate recommended actions based on current stage, blockers, open decisions, lifecycle gaps, and commitment state."""
     actions: list[WorkflowAction] = []
     cs = current_stage(stages)
 
+
+    # Generate impact-aware actions
+    impact_actions = _recommend_impact_actions(project_root)
+    actions.extend(impact_actions)
     # Generate lifecycle-gap actions
     lifecycle_actions = _recommend_lifecycle_actions(lifecycle)
     actions.extend(lifecycle_actions)
@@ -523,6 +527,39 @@ def _recommend_commitment_actions(commitment: dict[str, Any] | None) -> list[Wor
         ))
 
     return actions
+
+
+def _recommend_impact_actions(project_root: Path | None) -> list[WorkflowAction]:
+    """Generate workflow actions for unresolved impact findings."""
+    if project_root is None:
+        return []
+    try:
+        from auteur.impact.analyzer import ImpactAnalyzer
+        analyzer = ImpactAnalyzer(project_root)
+        findings = analyzer.analyze()
+    except Exception:
+        return []
+    if not findings:
+        return []
+    severe = [f for f in findings
+              if f.get("severity") in ("blocked", "reconcile")
+              or f.get("preservation") in ("regenerate", "blocked")]
+    if not severe:
+        return []
+    return [
+        WorkflowAction(
+            label=f"Resolve {len(severe)} impact finding(s)",
+            command="auteur impact analyze --project . --json",
+            authority=AuthorityLevel.READ_ONLY,
+            description=f"Impact analysis found {len(severe)} high-severity findings requiring attention.",
+        ),
+        WorkflowAction(
+            label="Review impact plan",
+            command="auteur impact plan --project .",
+            authority=AuthorityLevel.DERIVED_ARTIFACT,
+            description="Generate an ordered repair plan from impact findings.",
+        ),
+    ]
 
 
 def _reconciliation_done(root: Path) -> bool:

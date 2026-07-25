@@ -258,3 +258,18 @@ class TestRecommendActions:
         actions = recommend_actions(stages)
         assert len(actions) == 1
         assert "complete" in actions[0].label.lower()
+
+
+    def test_impact_actions_with_project_root(self, empty_project: Path) -> None:
+        """_recommend_impact_actions should return empty for a fresh project."""
+        from auteur.workflow.rules import _recommend_impact_actions
+        actions = _recommend_impact_actions(empty_project)
+        assert isinstance(actions, list)
+        # Fresh project should have no impact findings
+        assert len(actions) == 0
+
+    def test_impact_actions_none_project_root(self) -> None:
+        """_recommend_impact_actions should return empty when project_root is None."""
+        from auteur.workflow.rules import _recommend_impact_actions
+        actions = _recommend_impact_actions(None)
+        assert actions == []

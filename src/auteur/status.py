@@ -349,13 +349,29 @@ def gather_status(project_root: Path) -> dict[str, Any]:
 
     # Blocks
     blocks = _find_blocks(root)
+    # Decision lifecycle
+    lifecycle_data: dict[str, Any] = {}
+    try:
+        from auteur.lifecycle.service import LifecycleService
+        lc = LifecycleService(root)
+        lifecycle_data = lc.get_status()
+    except Exception:
+        pass
+    
+    # Commitment data
+    commitment_data: dict[str, Any] = {}
+    try:
+        from auteur.commitment.service import CommitmentService
+        cm = CommitmentService(root)
+        commitment_data = cm.get_status()
+    except Exception:
+        pass
 
     # Suggested command
     suggested = _suggest_command(root)
 
     # Freshness overview
     stale_items = [b["artifact"] for b in blocks if b.get("severity") == "warning"]
-
     return {
         "project": str(root),
         "gathered_at": datetime.now(timezone.utc).isoformat(),
@@ -365,6 +381,8 @@ def gather_status(project_root: Path) -> dict[str, Any]:
         "chapters": chapters,
         "book": book,
         "reconciliation": reconciliation,
+        "lifecycle": lifecycle_data,
+        "commitment": commitment_data,
         "stale": stale_items,
         "blocks": blocks,
         "suggested_command": suggested,
@@ -436,23 +454,32 @@ def format_status(status: dict[str, Any], verbose: bool = False) -> str:
         lines.append(f"\nStale: {', '.join(stale)}")
 
     # Blocks
-    blocks = status.get("blocks", [])
-    blocking = [b for b in blocks if b.get("severity") == "blocking"]
-    warnings = [b for b in blocks if b.get("severity") == "warning"]
-    if blocking:
-        lines.append(f"\nBLOCKING:")
-        for b in blocking:
-            lines.append(f"  {b['artifact']}: {b['message']}")
-    if warnings:
-        lines.append(f"\nWarnings:")
-        for b in warnings:
-            lines.append(f"  {b['artifact']}: {b['message']}")
+    lines.append("")
 
-    # Suggested command
-    cmd = status.get("suggested_command")
-    if cmd:
-        lines.append(f"\nSuggested next:\n  {cmd}")
-    else:
-        lines.append(f"\nNo suggested next command — everything looks current.")
+    # Decision lifecycle
+    lc = status.get("lifecycle", {})
+    lc_total = lc.get("total_decisions", 0)
+    if lc_total > 0:
+        lines.append("Lifecycle:")
+        lines.append(f"  Total decisions:    {lc_total}")
+        by_stage = lc.get("by_stage", {})
+        for sk in ["open", "evidence_gathered", "simulated", "portfolio",
+                    "under_review", "acceptance_ready", "accepted", "committed"]:
+            c = by_stage.get(sk, 0)
+            if c > 0:
+                lines.append(f"    {sk.replace('_', ' ').title():<20} {c}")
+        if lc.get("diverged", 0) > 0:
+            lines.append(f"  Diverged:           {lc['diverged']}")
+        if lc.get("with_gaps", 0) > 0:
+            lines.append(f"  With gaps:          {lc['with_gaps']}")
+
+    # Commitment
+    cm = status.get("commitment", {})
+    cm_total = cm.get("total_commitments", 0)
+    if cm_total > 0:
+        lines.append("Commitments:")
+        lines.append(f"  Total:              {cm_total}")
+        if cm.get("state"):
+            lines.append(f"  State:              {cm['state']}")
 
     return "\n".join(lines)
