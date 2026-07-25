@@ -45,10 +45,13 @@ def register_plan_subcommands(sub) -> None:
     p_cp.add_argument("--act", type=int, default=None, help="Scope to act.")
 
     # plan milestones
-    p_mil = ps.add_parser("milestones", help="Show milestone state.")
+    p_mil = ps.add_parser("milestones", help="Show or manage milestone state.")
+    p_mil.add_argument("--add", default=None, type=str, help="Add a user-defined milestone with this title.")
+    p_mil.add_argument("--remove", default=None, type=str, help="Remove a user-defined milestone by ID.")
+    p_mil.add_argument("--scope", default="project", type=str, help="Scope for new milestone (project, chapter, book).")
+    p_mil.add_argument("--description", default="", type=str, help="Description for new milestone.")
     p_mil.add_argument("--project", type=Path, default=Path("."), help="Project root directory.")
     p_mil.add_argument("--json", action="store_true", help="Output JSON.")
-
     # plan explain
     p_exp = ps.add_parser("explain", help="Explain a node or action ID.")
     p_exp.add_argument("node_or_action_id", type=str, help="Node or action ID to explain.")
@@ -280,48 +283,95 @@ def handle_plan_critical_path(args) -> int:
 
 def handle_plan_milestones(args) -> int:
     """Handle 'plan milestones' command."""
+    import json as _json
     try:
         service = _get_service(args)
+
+        # Handle --add
+        if args.add:
+            entry = service.add_user_milestone(args.add, scope=args.scope, description=args.description)
+            if args.json:
+                print(_json.dumps(entry, indent=2, default=str))
+            else:
+                print(f"Added milestone: {entry['title']} ({entry['milestone_id'][:16]}...)")
+            return 0
+
+        # Handle --remove
+        if args.remove:
+            found = service.remove_user_milestone(args.remove)
+            if args.json:
+                print(_json.dumps({"removed": found, "milestone_id": args.remove}))
+            else:
+                if found:
+                    print(f"Removed milestone: {args.remove[:24]}...")
+                else:
+                    print(f"Milestone not found: {args.remove[:24]}...")
+                    return 1
+            return 0
+
+        # Default: list milestones (system + user)
         plan = service.refresh(save=False)
+        user_ms = service.list_user_milestones()
 
         if args.json:
-            print(json.dumps({
+            print(_json.dumps({
                 "plan_id": plan.plan_id,
-                "milestones": [_m_to_dict(m) for m in plan.milestones],
+                "system_milestones": [_m_to_dict(m) for m in plan.milestones],
+                "user_milestones": user_ms,
             }, indent=2, default=str))
         else:
-            if not plan.milestones:
+            all_ms = list(plan.milestones)
+            has_user = len(user_ms) > 0
+
+            if not all_ms and not has_user:
                 print("No milestones defined.")
                 return 0
 
-            counts = {}
-            for m in plan.milestones:
-                counts[m.state.value] = counts.get(m.state.value, 0) + 1
+            # System milestones
+            if all_ms:
+                counts = {}
+                for m in plan.milestones:
+                    counts[m.state.value] = counts.get(m.state.value, 0) + 1
 
-            print(f"Milestones — {plan.title}")
-            print(f"  {counts.get('completed', 0)} completed")
-            print(f"  {counts.get('in_progress', 0)} in progress")
-            print(f"  {counts.get('blocked', 0)} blocked")
-            print(f"  {counts.get('ready', 0)} ready")
-            print(f"  {counts.get('not_started', 0)} not started")
-            print(f"  {counts.get('stale', 0)} stale")
-            print()
+                print(f"Milestones — {plan.title}")
+                print(f"  {counts.get('completed', 0)} completed")
+                print(f"  {counts.get('in_progress', 0)} in progress")
+                print(f"  {counts.get('blocked', 0)} blocked")
+                print(f"  {counts.get('ready', 0)} ready")
+                print(f"  {counts.get('not_started', 0)} not started")
+                print(f"  {counts.get('stale', 0)} stale")
+                print()
 
-            for m in plan.milestones:
-                indicator = {
-                    "completed": "✓",
-                    "in_progress": "►",
-                    "blocked": "✗",
-                    "ready": "○",
-                    "not_started": "·",
-                    "stale": "!",
-                }.get(m.state.value, "?")
-                print(f"  {indicator} [{m.state.value.upper()}] {m.title}")
-                if m.blocked_conditions:
-                    for bc in m.blocked_conditions[:2]:
-                        print(f"       blocked: {bc}")
-                if m.status_reason:
-                    print(f"       {m.status_reason}")
+                for m in plan.milestones:
+                    indicator = {
+                        "completed": "✓",
+                        "in_progress": "►",
+                        "blocked": "✗",
+                        "ready": "○",
+                        "not_started": "·",
+                        "stale": "!",
+                    }.get(m.state.value, "?")
+                    print(f"  {indicator} [{m.state.value.upper()}] {m.title}")
+                    if m.blocked_conditions:
+                        for bc in m.blocked_conditions[:2]:
+                            print(f"       blocked: {bc}")
+                    if m.status_reason:
+                        print(f"       {m.status_reason}")
+
+            # User milestones
+            if has_user:
+                if all_ms:
+                    print()
+                print("User-defined:")
+                for m in user_ms:
+                    mid = m.get("milestone_id", "?")[:16]
+                    state = m.get("state", "not_started")
+                    title = m.get("title", "?")
+                    indicator = {"completed": "✓", "in_progress": "►", "not_started": "·", "blocked": "✗"}.get(state, "?")
+                    print(f"  {indicator} [{state.upper()}] {title} ({m.get('scope', 'project')})")
+                    desc = m.get("description", "")
+                    if desc:
+                        print(f"       {desc}")
 
         return 0
     except ValueError as e:
