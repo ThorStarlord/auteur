@@ -269,13 +269,20 @@ def _suggest_command(project_root: Path) -> str | None:
     if not has_accepted_chapters:
         for ch in chapter_dirs:
             if ch.is_dir():
-                return f"auteur draft {int(ch.name)} --project {project_root}"
-        return f"auteur cartographer compile --blueprint {bp_path} --project {project_root}"
+                try:
+                    return f"auteur draft {int(ch.name)} --project {project_root}"
+                except ValueError:
+                    return f"auteur draft {ch.name} --project {project_root}"
 
     book_acc = project_root / "book" / "expression" / "accepted.yaml"
     if not book_acc.exists():
         chapters = [ch.name for ch in chapter_dirs if ch.is_dir()]
-        ch_ids = [f"chapter_{int(ch.name):02d}" for ch in chapter_dirs if ch.is_dir()]
+        def _ch_id(name: str) -> str:
+            try:
+                return f"chapter_{int(name):02d}"
+            except ValueError:
+                return str(name)
+        ch_ids = [_ch_id(ch) for ch in chapters]
         if len(ch_ids) >= 2:
             return f"auteur expression compose-book --project {project_root} --chapter {ch_ids[0]} --chapter {ch_ids[1]} --title \"My Novel\""
         return f"auteur expression compose-book --project {project_root} --chapter {ch_ids[0]} --title \"My Novel\""

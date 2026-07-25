@@ -11,18 +11,7 @@ from typing import Any
 
 
 def build_dashboard(project_root: Path) -> dict[str, Any]:
-    """Build a unified dashboard dict by composing status, lifecycle, and alerts.
-
-    Parameters
-    ----------
-    project_root : Path
-        Path to the auteur project.
-
-    Returns
-    -------
-    dict
-        Dashboard data with keys: status, lifecycle, alerts, commitment.
-    """
+    """Build a unified dashboard dict by composing status, lifecycle, and alerts."""
     dashboard: dict[str, Any] = {
         "project": str(project_root),
         "status": {},
@@ -43,7 +32,9 @@ def build_dashboard(project_root: Path) -> dict[str, Any]:
     from auteur.lifecycle.service import LifecycleService
     try:
         lc = LifecycleService(project_root)
-        dashboard["lifecycle"] = lc.get_status()
+        lc_summary = lc.summary()
+        lc_dict = lc_summary.to_dict() if hasattr(lc_summary, "to_dict") else {"total_decisions": 0}
+        dashboard["lifecycle"] = lc_dict
     except Exception as exc:
         dashboard["alerts"].append({"severity": "warning", "message": f"Lifecycle data unavailable: {exc}"})
 
@@ -51,22 +42,23 @@ def build_dashboard(project_root: Path) -> dict[str, Any]:
     from auteur.commitment.service import CommitmentService
     try:
         cm = CommitmentService(project_root)
-        dashboard["commitment"] = cm.get_status()
+        dashboard["commitment"] = cm.status()
     except Exception as exc:
         dashboard["alerts"].append({"severity": "info", "message": f"Commitment data unavailable: {exc}"})
 
     # Check for divergence and gaps
     lc_data = dashboard.get("lifecycle", {})
-    if lc_data.get("diverged", 0) > 0:
-        dashboard["alerts"].append({
-            "severity": "warning",
-            "message": f"{lc_data['diverged']} commitment(s) diverged from live state",
-        })
-    if lc_data.get("with_gaps", 0) > 0:
-        dashboard["alerts"].append({
-            "severity": "info",
-            "message": f"{lc_data['with_gaps']} decision(s) have lifecycle gaps",
-        })
+    if isinstance(lc_data, dict):
+        if lc_data.get("diverged", 0) > 0:
+            dashboard["alerts"].append({
+                "severity": "warning",
+                "message": f"{lc_data['diverged']} commitment(s) diverged from live state",
+            })
+        if lc_data.get("with_gaps", 0) > 0:
+            dashboard["alerts"].append({
+                "severity": "info",
+                "message": f"{lc_data['with_gaps']} decision(s) have lifecycle gaps",
+            })
 
     return dashboard
 
@@ -100,10 +92,10 @@ def format_dashboard(data: dict[str, Any]) -> str:
     # Lifecycle
     lc = data.get("lifecycle", {})
     lines.append("## Decision Lifecycle")
-    total = lc.get("total_decisions", 0)
+    total = lc.get("total_decisions", 0) if isinstance(lc, dict) else 0
     if total > 0:
         lines.append(f"  Total decisions:    {total}")
-        by_stage = lc.get("by_stage", {})
+        by_stage = lc.get("by_stage", {}) if isinstance(lc, dict) else {}
         for sk in ["open", "evidence_gathered", "simulated", "portfolio",
                     "under_review", "acceptance_ready", "accepted", "committed"]:
             c = by_stage.get(sk, 0)
@@ -116,7 +108,7 @@ def format_dashboard(data: dict[str, Any]) -> str:
     # Commitment
     cm = data.get("commitment", {})
     lines.append("## Commitments")
-    cm_total = cm.get("total_commitments", 0)
+    cm_total = cm.get("total_commitments", 0) if isinstance(cm, dict) else 0
     if cm_total > 0:
         lines.append(f"  Total commitments:  {cm_total}")
         cm_state = cm.get("state", "")
@@ -133,11 +125,11 @@ def format_dashboard(data: dict[str, Any]) -> str:
     try:
         from auteur.workflow.cli import handle_workflow_next
         result = handle_workflow_next(Path(data["project"]))
-        if result.is_success:
+        if result.is_success and isinstance(result.data, dict):
             action = result.data.get("action", {})
             if action:
                 label = action.label if hasattr(action, "label") else action.get("label", "")
-                lines.append(f"  → {label}")
+                lines.append(f"  \u2192 {label}")
     except Exception:
         lines.append("  Run 'auteur workflow next' for the next action.")
 
