@@ -18,6 +18,8 @@ class PromotionResult:
     reused_session_ids: list[str] = field(default_factory=list)
     conflicting_session_ids: list[str] = field(default_factory=list)
     new_session_ids: list[str] = field(default_factory=list)
+    decision_to_review: dict[str, str] = field(default_factory=dict)
+    failed_decisions: list[str] = field(default_factory=list)
     state: str = ""
 
 
@@ -32,101 +34,139 @@ class PortfolioPromoter:
     ) -> PromotionResult:
         """Promote portfolio scenario into review sessions.
 
-        Performs these checks in order:
-        1. Confirmation gate (confirm=False → refusal)
-        2. Staleness check (failed/blocked scenarios → refusal)
-        3. Conflict detection (existing sessions for same decisions → reported)
-        4. Session creation or reuse for each decision
-        5. Partial state tracking (some may succeed, some may fail)
+        State transitions:
+          confirm=False → confirmation_required
+          FAILED scenario + confirm → stale_refused
+          incompatible active review → review_conflict
+          partial success → partially_promoted
+          full success → promoted
+          complete failure → error / no_sessions_created
         """
         if not confirm:
             return PromotionResult(success=False, state="confirmation_required")
 
-        # Staleness check
         if scenario.state in (PortfolioScenarioState.FAILED,):
-            return PromotionResult(
-                success=False, state="stale_refused",
-                review_session_ids=[],
-            )
+            return PromotionResult(success=False, state="stale_refused")
 
         try:
             from auteur.review.service import ReviewService
             svc = ReviewService(self.project_root)
 
-            # Conflict detection: find existing sessions for these decisions
-            existing_sessions = self._get_existing_sessions(svc)
-            conflicting: list[str] = []
-            for dec_id in scenario.assignment:
-                if dec_id in existing_sessions:
-                    conflicting.append(existing_sessions[dec_id])
-
-            review_ids: list[str] = []
+            decision_to_review: dict[str, str] = {}
             new_ids: list[str] = []
             reused_ids: list[str] = []
-            failed_decisions: list[str] = []
+            conflicting_ids: list[str] = []
+            failed_list: list[str] = []
 
             for dec_id, cand_id in scenario.assignment.items():
-                # Check for conflicting active sessions
-                if dec_id in existing_sessions:
-                    reused_ids.append(existing_sessions[dec_id])
-                    review_ids.append(existing_sessions[dec_id])
+                # Check for existing reviews
+                existing = self._session_for_decision(svc, dec_id)
+                if existing:
+                    # Incompatible candidate check
+                    existing_cand = self._session_candidate(svc, existing)
+                    if existing_cand and existing_cand != cand_id:
+                        conflicting_ids.append(existing)
+                        decision_to_review[dec_id] = existing
+                        continue
+
+                    # Compatible — reuse
+                    reused_ids.append(existing)
+                    decision_to_review[dec_id] = existing
                     continue
 
-                # Try to create a new session
+                # Create new session
                 try:
                     session = svc.start_session(decision_id=dec_id, candidate_id=cand_id)
                     sid = session.session_id if hasattr(session, "session_id") else str(session)
-                    review_ids.append(sid)
                     new_ids.append(sid)
+                    decision_to_review[dec_id] = sid
                 except Exception as e:
                     logger.warning(f"Could not create review for {dec_id}: {e}")
-                    failed_decisions.append(dec_id)
+                    failed_list.append(dec_id)
+
+            all_ids = list(decision_to_review.values())
 
             # Determine result state
-            if new_ids and failed_decisions:
+            if conflicting_ids:
                 return PromotionResult(
-                    success=True,
-                    review_session_ids=review_ids,
+                    success=False, state="review_conflict",
+                    review_session_ids=list(set(all_ids)),
                     new_session_ids=new_ids,
                     reused_session_ids=reused_ids,
-                    state="partially_promoted",
+                    conflicting_session_ids=conflicting_ids,
+                    decision_to_review=decision_to_review,
+                    failed_decisions=failed_list,
                 )
-            elif new_ids or reused_ids:
+
+            if new_ids and failed_list:
                 return PromotionResult(
-                    success=True,
-                    review_session_ids=review_ids,
+                    success=True, state="partially_promoted",
+                    review_session_ids=list(set(all_ids)),
                     new_session_ids=new_ids,
                     reused_session_ids=reused_ids,
-                    state="promoted",
+                    decision_to_review=decision_to_review,
+                    failed_decisions=failed_list,
                 )
-            else:
+
+            if all_ids:
                 return PromotionResult(
-                    success=False, state="no_sessions_created",
-                    review_session_ids=review_ids,
+                    success=True, state="promoted",
+                    review_session_ids=list(set(all_ids)),
+                    new_session_ids=new_ids,
+                    reused_session_ids=reused_ids,
+                    decision_to_review=decision_to_review,
                 )
+
+            return PromotionResult(
+                success=False, state="no_sessions_created",
+                review_session_ids=[],
+                decision_to_review=decision_to_review,
+                failed_decisions=failed_list,
+            )
 
         except Exception as e:
             logger.exception(f"Promotion failed")
-            return PromotionResult(success=False, state="error", review_session_ids=review_ids)
+            return PromotionResult(success=False, state="error")
 
-    def _get_existing_sessions(self, svc) -> dict[str, str]:
-        """Get existing review sessions by decision ID.
-
-        Returns dict of decision_id → session_id for active sessions.
-        """
-        result: dict[str, str] = {}
+    def _session_for_decision(self, svc, decision_id: str) -> str | None:
+        """Return active session ID for a decision, or None."""
         try:
             sessions = svc.list_sessions()
             for s in sessions:
-                sid = getattr(s, "session_id", None) or (s.get("session_id") if isinstance(s, dict) else None)
-                state = getattr(s, "state", None) or (s.get("state") if isinstance(s, dict) else None)
-                target = getattr(s, "target", {}) if hasattr(s, "target") else (s.get("target", {}) if isinstance(s, dict) else {})
+                sid = getattr(s, "session_id", None)
+                if isinstance(s, dict):
+                    sid = s.get("session_id", sid)
+                state = getattr(s, "state", None)
+                if isinstance(s, dict):
+                    state = s.get("state", state)
+                target = getattr(s, "target", {})
+                if isinstance(s, dict):
+                    target = s.get("target", target)
                 if isinstance(target, dict):
                     dec_id = target.get("decision_id", "")
                 else:
                     dec_id = getattr(target, "decision_id", "")
-                if dec_id and state in ("open", "inspecting", "awaiting_choice"):
-                    result[dec_id] = sid
+                if dec_id == decision_id and state in ("open", "inspecting", "awaiting_choice"):
+                    return sid
         except Exception:
             pass
-        return result
+        return None
+
+    def _session_candidate(self, svc, session_id: str) -> str | None:
+        """Return the target candidate for a session, or None."""
+        try:
+            sessions = svc.list_sessions()
+            for s in sessions:
+                sid = getattr(s, "session_id", None)
+                if isinstance(s, dict):
+                    sid = s.get("session_id", sid)
+                if sid == session_id:
+                    target = getattr(s, "target", {})
+                    if isinstance(s, dict):
+                        target = s.get("target", target)
+                    if isinstance(target, dict):
+                        return target.get("candidate_id", "")
+                    return getattr(target, "candidate_id", None)
+        except Exception:
+            pass
+        return None
