@@ -340,6 +340,24 @@ def gather_status(project_root: Path) -> dict[str, Any]:
         chapters.append(_chapter_status(root, cid))
     if not chapters:
         chapters = None
+    
+    # Scene realization summary
+    scene_total = 0
+    scene_accepted = 0
+    if chapters:
+        for ch in chapters:
+            if isinstance(ch, dict):
+                ch_scenes = ch.get("scenes", 0)
+                scene_total += ch_scenes
+                if "accepted" in ch.get("expression", ""):
+                    scene_accepted += ch_scenes
+    scene_status = {
+        "total": scene_total,
+        "accepted": scene_accepted,
+    } if scene_total > 0 else {}
+    
+    # Book
+    book = _book_status(root)
 
     # Book
     book = _book_status(root)
@@ -378,6 +396,7 @@ def gather_status(project_root: Path) -> dict[str, Any]:
         "identity": identity_status,
         "blueprint": blueprint_status,
         "structure_diagnostics": latest_diag,
+        "scenes": scene_status,
         "chapters": chapters,
         "book": book,
         "reconciliation": reconciliation,
@@ -399,16 +418,34 @@ def format_status(status: dict[str, Any], verbose: bool = False) -> str:
     # Identity
     id_s = status.get("identity", {})
     lines.append(f"\nIdentity:  {id_s.get('status', 'missing')}")
-    if id_s.get("genres"):
+    if id_s.get("title"):
+        lines.append(f"  Title:    {id_s['title']}")
+    if id_s.get("genre"):
+        lines.append(f"  Genre:    {id_s['genre']}")
+    elif id_s.get("genres"):
         lines.append(f"  Genre:    {id_s['genres']}")
+    if id_s.get("mode"):
+        lines.append(f"  Mode:     {id_s['mode']}")
     if id_s.get("medium"):
         lines.append(f"  Medium:   {id_s['medium']}")
+    if id_s.get("pov_type"):
+        lines.append(f"  POV:      {id_s['pov_type']}")
+    if id_s.get("lifecycle") and id_s["lifecycle"] != "present":
+        lines.append(f"  Lifecycle: {id_s['lifecycle']}")
 
     # Blueprint
     bp_s = status.get("blueprint", {})
     if bp_s.get("status") == "present":
-        ch_count = bp_s.get("chapters", "?")
-        lines.append(f"\nBlueprint: accepted ({ch_count} chapters planned)")
+        ch_count = bp_s.get("chapters", bp_s.get("chapter_count", "?"))
+        lines.append(f"\nBlueprint: published ({ch_count} chapters planned)")
+        if bp_s.get("published"):
+            lines.append(f"  Published: {bp_s['published']}")
+    elif bp_s.get("status"):
+        lines.append(f"\nBlueprint: {bp_s['status']}")
+    # Show structure publish status
+    struct_pub = status.get("structure_publish", "")
+    if struct_pub:
+        lines.append(f"  Structure published: {struct_pub}")
 
     # Structure diagnostics
     diag = status.get("structure_diagnostics")
@@ -416,6 +453,18 @@ def format_status(status: dict[str, Any], verbose: bool = False) -> str:
         lines.append(f"\nStructure: {diag['errors']} errors, {diag['warnings']} warnings ({diag['total']} total)")
     else:
         lines.append(f"\nStructure: not yet diagnosed")
+
+    # Scene Realization
+    sc = status.get("scenes", {})
+    if sc:
+        total = sc.get("total", 0)
+        accepted = sc.get("accepted", 0)
+        if accepted == total:
+            lines.append(f"\nScenes: {total}/{total} accepted — complete")
+        elif accepted > 0:
+            lines.append(f"\nScenes: {accepted}/{total} accepted ({total - accepted} remaining)")
+        else:
+            lines.append(f"\nScenes: {total} total (none accepted yet)")
 
     # Chapters
     chapters = status.get("chapters")

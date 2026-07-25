@@ -129,7 +129,14 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--symptom", type=str, default=None,
         help="Author-described symptom (e.g. 'midpoint feels flat'). When provided, "
         "runs bottom-up symptom diagnosis instead of top-down generation.")
-
+    p = ss.add_parser("publish",
+        help="Publish chapter structure artifacts as a standalone document.")
+    p.add_argument("--project", type=Path, default=Path("."),
+        help="Project root directory.")
+    p.add_argument("--output", type=Path, default=None,
+        help="Output path for the published document.")
+    p.add_argument("--format", choices=["yaml", "md"], default="md",
+        help="Output format (default: markdown).")
     p = sub.add_parser("reasoning", help="Inspect derived reasoning reviews and run book-level analysis.")
     rs = p.add_subparsers(dest="reasoning_command", required=True)
     p = rs.add_parser("review", help="Show an author-facing derived reasoning review.")

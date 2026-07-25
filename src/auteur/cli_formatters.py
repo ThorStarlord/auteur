@@ -148,6 +148,30 @@ def format_structure_apply(result: HandlerResult) -> str | None:
     return json.dumps(payload, indent=2)
 
 
+def format_apply_impact_proposal(result: HandlerResult) -> str | None:
+    """Format the output of ``apply_impact_proposal``.
+
+    Returns JSON with target path, selected option id, and decision metadata
+    (author, status, accepted_at), plus optional fields the CLI may inject.
+    """
+    if not result.is_success:
+        return format_error(result.error or "apply failed")
+    import json
+    data = result.data
+    payload: dict = {
+        "target_path": str(data["target_path"]),
+        "selected_option_id": data["selected_option_id"],
+        "decision_author": data.get("decision_author"),
+        "decision_status": data["decision_status"],
+        "decision_accepted_at": data.get("decision_accepted_at"),
+    }
+    if "proposal_path" in data:
+        payload["proposal_path"] = str(data["proposal_path"])
+    if "source_blueprint_path" in data:
+        payload["source_blueprint_path"] = str(data["source_blueprint_path"])
+    return json.dumps(payload, indent=2)
+
+
 def format_structure_generate(result: HandlerResult) -> str | None:
     """Format the output of ``_cmd_structure_generate``.
 

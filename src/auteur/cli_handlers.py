@@ -1096,6 +1096,70 @@ def handle_structure_apply(
     )
 
 
+def apply_impact_proposal(
+    proposal: StructureProposal,
+    blueprint: StoryBlueprint,
+    *,
+    in_place: bool = False,
+    output_dir: str | None = None,
+    original_path: str | None = None,
+) -> HandlerResult:
+    """Apply an impact-generated proposal that has been through an author decision.
+
+    Validates that the author has recorded a decision via ``proposal.accept()``
+    (or equivalent) before delegating to ``apply_proposal_to_blueprint``. This
+    enforces the author decision boundary for impact analysis proposals.
+
+    If the decision was recorded after serialization (e.g. loaded from YAML with
+    ``decision`` but without ``selection`` synced), this function syncs the
+    decision's selected option into ``selection`` before applying.
+
+    Returns the target path and decision metadata for the caller to report.
+    """
+    if proposal.decision is None:
+        return HandlerResult.failure(
+            "proposal must have a recorded decision before apply. "
+            "Use proposal.accept() to record an author decision."
+        )
+    if proposal.decision.status != "accepted":
+        return HandlerResult.failure(
+            f"proposal decision status is '{proposal.decision.status}', not 'accepted'"
+        )
+
+    # Sync decision -> selection when the proposal was loaded from YAML
+    # with an accepted decision but selection was not yet propagated
+    if not proposal.selection.selected_option_id:
+        proposal.selection.selected_option_id = proposal.decision.selected_option_id
+        if not proposal.selection.custom_data and proposal.decision.custom_data:
+            proposal.selection.custom_data = proposal.decision.custom_data
+
+    try:
+        _, target_path = apply_proposal_to_blueprint(
+            proposal,
+            blueprint,
+            output_dir=output_dir,
+            original_path=original_path,
+            in_place=in_place,
+        )
+    except (ValueError, OSError, yaml.YAMLError) as exc:
+        return HandlerResult.failure(f"failed to apply impact proposal: {exc}")
+
+    return HandlerResult.success(
+        data={
+            "target_path": target_path,
+            "selected_option_id": proposal.selection.selected_option_id,
+            "decision_author": proposal.decision.author,
+            "decision_status": proposal.decision.status,
+            "decision_accepted_at": (
+                proposal.decision.accepted_at.isoformat()
+                if proposal.decision.accepted_at
+                else None
+            ),
+            "in_place": in_place,
+        }
+    )
+
+
 def handle_structure_generate(
     blueprint: StoryBlueprint,
     *,

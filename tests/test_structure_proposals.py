@@ -1,5 +1,7 @@
-import yaml
+import json
+from pathlib import Path
 import pytest
+import yaml
 from pydantic import ValidationError
 
 from auteur.structure import (
@@ -14,6 +16,9 @@ from auteur.structure.proposals import (
     propose_repairs_from_diagnostic_report,
     propose_repairs_from_diagnostics,
 )
+from auteur.blueprint import StoryBlueprint
+
+SAMPLE_YAML = Path(__file__).parent.parent / "examples" / "sample_blueprint.yaml"
 
 def test_proposal_parsing_from_yaml():
     yaml_text = """
@@ -234,3 +239,111 @@ class TestImpactProposalBridge:
         from auteur.structure.proposal_generation import propose_repairs_from_impact_findings
         proposals = propose_repairs_from_impact_findings([])
         assert proposals == []
+
+
+class TestApplyImpactProposal:
+    """Tests for apply_impact_proposal — author decision boundary for impact proposals."""
+
+    def _make_impact_proposal(self, *, accepted: bool = True) -> StructureProposal:
+        """Build a typical impact proposal for testing."""
+        from auteur.structure.proposal_generation import propose_repairs_from_impact_findings
+        proposals = propose_repairs_from_impact_findings([
+            {"rule": "impact.continuity", "severity": "blocked",
+             "message": "Chapter 3 contradicts chapter 1",
+             "recommended_action": "Reconcile chapter 3"},
+        ])
+        prop = proposals[0]
+        if accepted:
+            prop.accept("recommended", author="test_author")
+        return prop
+
+    def test_rejects_proposal_without_decision(self, tmp_path):
+        """apply_impact_proposal fails when no decision has been recorded."""
+        from auteur.cli_handlers import apply_impact_proposal
+        blueprint = StoryBlueprint.from_yaml(SAMPLE_YAML)
+        prop = self._make_impact_proposal(accepted=False)
+        # selection is empty since accept() was never called
+        result = apply_impact_proposal(prop, blueprint, output_dir=str(tmp_path))
+        assert not result.is_success
+        assert "decision" in result.error
+
+    def test_rejects_non_accepted_decision(self, tmp_path):
+        """apply_impact_proposal fails when decision status is not 'accepted'."""
+        from auteur.cli_handlers import apply_impact_proposal
+        from auteur.structure.proposal_models import ProposalDecision
+        blueprint = StoryBlueprint.from_yaml(SAMPLE_YAML)
+        prop = self._make_impact_proposal(accepted=False)
+        # Set a rejected decision directly
+        prop.decision = ProposalDecision(
+            selected_option_id="author_override",
+            status="rejected",
+            author="test_author",
+        )
+        result = apply_impact_proposal(prop, blueprint, output_dir=str(tmp_path))
+        assert not result.is_success
+        assert "not 'accepted'" in result.error
+
+    def test_applies_accepted_impact_proposal(self, tmp_path):
+        """Full flow: generate impact proposal, accept, apply."""
+        from auteur.cli_handlers import apply_impact_proposal
+        blueprint = StoryBlueprint.from_yaml(SAMPLE_YAML)
+        prop = self._make_impact_proposal(accepted=True)
+        result = apply_impact_proposal(prop, blueprint, output_dir=str(tmp_path))
+        assert result.is_success
+        assert result.data["target_path"] is not None
+        assert result.data["selected_option_id"] == "recommended"
+        assert result.data["decision_author"] == "test_author"
+        assert result.data["decision_status"] == "accepted"
+        # Verify the output file was created
+        assert Path(result.data["target_path"]).exists()
+        # Verify sidecar was created
+        assert Path(result.data["target_path"] + ".meta.yaml").exists()
+
+    def test_applies_impact_proposal_with_override_option(self, tmp_path):
+        """Applying an impact proposal with author_override works."""
+        from auteur.cli_handlers import apply_impact_proposal
+        blueprint = StoryBlueprint.from_yaml(SAMPLE_YAML)
+        prop = self._make_impact_proposal(accepted=True)
+        prop.accept("author_override", author="test_author")
+        result = apply_impact_proposal(prop, blueprint, output_dir=str(tmp_path))
+        assert result.is_success
+        assert result.data["selected_option_id"] == "author_override"
+
+    def test_in_place_apply(self, tmp_path):
+        """in_place=True writes the blueprint back to the original path."""
+        from auteur.cli_handlers import apply_impact_proposal
+        import shutil
+        bp_path = tmp_path / "blueprint.yaml"
+        shutil.copy2(str(SAMPLE_YAML), str(bp_path))
+        blueprint = StoryBlueprint.from_yaml(bp_path)
+        prop = self._make_impact_proposal(accepted=True)
+        result = apply_impact_proposal(prop, blueprint, in_place=True, original_path=str(bp_path))
+        assert result.is_success
+        assert result.data["target_path"] == str(bp_path)
+        # The file should have been overwritten with the same content (no-op merge)
+        assert bp_path.exists()
+
+    def test_format_apply_impact_proposal(self, tmp_path):
+        """format_apply_impact_proposal produces valid JSON with decision metadata."""
+        from auteur.cli_handlers import apply_impact_proposal, HandlerResult
+        from auteur.cli_formatters import format_apply_impact_proposal
+        import json
+        blueprint = StoryBlueprint.from_yaml(SAMPLE_YAML)
+        prop = self._make_impact_proposal(accepted=True)
+        result = apply_impact_proposal(prop, blueprint, output_dir=str(tmp_path))
+        output = format_apply_impact_proposal(result)
+        assert output is not None
+        parsed = json.loads(output)
+        assert parsed["selected_option_id"] == "recommended"
+        assert parsed["decision_author"] == "test_author"
+        assert parsed["decision_status"] == "accepted"
+        assert "target_path" in parsed
+
+    def test_format_apply_impact_proposal_error(self):
+        """format_apply_impact_proposal formats an error result."""
+        from auteur.cli_handlers import HandlerResult
+        from auteur.cli_formatters import format_apply_impact_proposal
+        result = HandlerResult.failure("no decision")
+        output = format_apply_impact_proposal(result)
+        assert output is not None
+        assert "no decision" in output.lower()
