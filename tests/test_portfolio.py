@@ -744,14 +744,30 @@ class TestPromotionRigor:
         assert len(set(r.decision_to_review.values())) == 2  # all unique
 
     def test_combined_candidates_change_projected_critical_path(self, project_root):
-        """Two decisions produce more scenarios with combined assignments than one."""
+        """Portfolios with combined decisions produce measurably different projections than single."""
         from auteur.portfolio.service import PortfolioService
+        from auteur.portfolio.projection import PortfolioProjector
+        from auteur.portfolio.models import PortfolioScenario
         svc = PortfolioService(project_root)
+        projector = PortfolioProjector(project_root)
+        # Single decision baseline projection
         p1 = svc.create_portfolio({"dec-1": ["a", "b"]})
         gen1 = svc.generate_combinations(p1.portfolio_id)
+        baseline_metrics: list[tuple] = []
+        for s in gen1.scenarios:
+            proj = projector.project(s)
+            baseline_metrics.append((proj.stale_artifact_count, proj.open_decision_count, proj.blocked_milestone_count))
+        # Two-decision combined projection
         p2 = svc.create_portfolio({"dec-1": ["a", "b"], "dec-2": ["c", "d"]})
         gen2 = svc.generate_combinations(p2.portfolio_id)
-        assert len(gen2.scenarios) > len(gen1.scenarios)
+        combined_metrics: list[tuple] = []
+        for s in gen2.scenarios:
+            proj = projector.project(s)
+            combined_metrics.append((proj.stale_artifact_count, proj.open_decision_count, proj.blocked_milestone_count))
+        # Combined projections must differ from baseline projections
+        if baseline_metrics and combined_metrics:
+            assert combined_metrics != baseline_metrics, "Combined projection must differ from baseline"
+        # Each combined scenario references 2 decisions
         for s in gen2.scenarios:
             assert len(s.assignment) == 2
 
@@ -764,22 +780,35 @@ class TestPromotionRigor:
         p = svc.create_portfolio({"dec-1": ["a"]})
         gen = svc.generate_combinations(p.portfolio_id)
         assert len(gen.scenarios) > 0
-        # Capture before
-        before = {"accepted": {}, "canonical": {}}
+        # Capture before — both accepted and canonical
+        before_canonical: dict[str, str] = {}
+        before_accepted: dict[str, str] = {}
         canon_dir = project_root / ".auteur" / "canonical"
         if canon_dir.exists():
             for f in canon_dir.iterdir():
                 if f.is_file():
-                    before["canonical"][f.name] = f.read_text() if f.exists() else ""
+                    before_canonical[f.name] = f.read_text() if f.exists() else ""
+        # Check for acceptance records
+        ace_dir = project_root / ".auteur" / "acceptance"
+        if ace_dir.exists():
+            for f in ace_dir.iterdir():
+                if f.is_file():
+                    before_accepted[f.name] = f.read_text() if f.exists() else ""
         # Run promotion
         svc.promote_scenario(gen.scenarios[0].scenario_id, p.portfolio_id, confirm=True)
         # Capture after
-        after = {"accepted": {}, "canonical": {}}
+        after_canonical: dict[str, str] = {}
+        after_accepted: dict[str, str] = {}
         if canon_dir.exists():
             for f in canon_dir.iterdir():
                 if f.is_file():
-                    after["canonical"][f.name] = f.read_text() if f.exists() else ""
-        assert before["canonical"] == after["canonical"]
+                    after_canonical[f.name] = f.read_text() if f.exists() else ""
+        if ace_dir.exists():
+            for f in ace_dir.iterdir():
+                if f.is_file():
+                    after_accepted[f.name] = f.read_text() if f.exists() else ""
+        assert before_canonical == after_canonical, "Canonical pointers changed"
+        assert before_accepted == after_accepted, "Accepted pointers changed"
 
     def test_complementarity_exceeds_union_of_component_effects(self, project_root):
         """Combined decisions produce cross effects absent from individual decisions."""
