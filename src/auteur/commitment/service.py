@@ -126,3 +126,75 @@ class CommitmentService:
 
     def history(self) -> list[dict[str, Any]]:
         return self.store.list_history()
+
+    def batch_accept(
+        self,
+        commitment_id: str,
+        assignment_filter: str | None = None,
+        confirm: bool = False,
+    ) -> list[dict[str, Any]]:
+        """Accept one or all committed assignments through review service.
+
+        Args:
+            commitment_id: The commitment to accept assignments from.
+            assignment_filter: If set, only accept this specific decision_id.
+            confirm: Must be True to proceed.
+
+        Returns:
+            List of per-assignment results with status, decision_id, candidate_id, message.
+        """
+        if not confirm:
+            raise ValueError("Confirmation required. Pass confirm=True.")
+
+        commitment = self.store.load_commitment(commitment_id)
+        if commitment is None:
+            raise ValueError(f"Commitment not found: {commitment_id}")
+
+        from auteur.review.service import ReviewService
+        rv = ReviewService(self.project_root)
+
+        results: list[dict[str, Any]] = []
+
+        for dec_id, cand_id in commitment.assignments.items():
+            if assignment_filter and dec_id != assignment_filter:
+                continue
+
+            # Find review session for this decision
+            sessions = rv.list_sessions() if hasattr(rv, "list_sessions") else []
+            session_id = ""
+            for s in sessions:
+                s_dec = s.get("decision_id", "") if isinstance(s, dict) else getattr(s, "decision_id", "")
+                if s_dec == dec_id:
+                    session_id = s.get("session_id", "") if isinstance(s, dict) else getattr(s, "session_id", "")
+                    break
+
+            if not session_id:
+                results.append({
+                    "decision_id": dec_id,
+                    "candidate_id": cand_id,
+                    "status": "skipped",
+                    "message": f"No review session found for decision {dec_id[:16]}...",
+                })
+                continue
+
+            try:
+                # Prepare acceptance
+                rv.prepare_acceptance(session_id, cand_id)
+                # Accept as committed
+                result = rv.accept(session_id, cand_id, as_committed=True)
+                results.append({
+                    "decision_id": dec_id,
+                    "candidate_id": cand_id,
+                    "status": "accepted",
+                    "message": f"Accepted as committed",
+                    "session_id": session_id,
+                })
+            except Exception as e:
+                results.append({
+                    "decision_id": dec_id,
+                    "candidate_id": cand_id,
+                    "status": "failed",
+                    "message": str(e),
+                })
+
+        return results

@@ -44,6 +44,13 @@ def register_commit_subcommands(sub) -> None:
     p_check.add_argument("--project", type=Path, default=Path("."))
     p_check.add_argument("--json", action="store_true")
 
+    p_accept = ps.add_parser("accept", help="Accept committed decision(s) through review.")
+    p_accept.add_argument("commitment_id", type=str)
+    p_accept.add_argument("--assignment", default=None, help="Accept only this decision ID.")
+    p_accept.add_argument("--confirm", action="store_true", required=True)
+    p_accept.add_argument("--project", type=Path, default=Path("."))
+    p_accept.add_argument("--json", action="store_true")
+
     p_list = ps.add_parser("list", help="List commitments.")
     p_list.add_argument("--project", type=Path, default=Path("."))
     p_list.add_argument("--json", action="store_true")
@@ -58,7 +65,40 @@ def _get_service(args) -> Any:
     return CommitmentService(args.project)
 
 
+def _handle_accept(args) -> int:
+    """Handle 'commit accept' command."""
+    import json
+    try:
+        svc = _get_service(args)
+        results = svc.batch_accept(
+            commitment_id=args.commitment_id,
+            assignment_filter=args.assignment,
+            confirm=args.confirm,
+        )
+        if args.json:
+            print(json.dumps(results, indent=2, default=str))
+        else:
+            accepted = sum(1 for r in results if r["status"] == "accepted")
+            skipped = sum(1 for r in results if r["status"] == "skipped")
+            failed = sum(1 for r in results if r["status"] == "failed")
+            print(f"Batch acceptance for {args.commitment_id[:16]}...")
+            print(f"  Accepted: {accepted}")
+            print(f"  Skipped:  {skipped}")
+            print(f"  Failed:   {failed}")
+            for r in results:
+                icon = {"accepted": "✓", "skipped": "·", "failed": "✗"}.get(r["status"], "?")
+                print(f"    {icon} {r['decision_id'][:24]}... → {r['message'][:60]}")
+        return 0
+    except ValueError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+
+
 def dispatch_commit(args) -> int:
+    """Dispatch commit command to appropriate handler."""
     handlers = {
         "create": _handle_create,
         "status": _handle_status,
@@ -66,9 +106,11 @@ def dispatch_commit(args) -> int:
         "plan": _handle_plan,
         "execute": _handle_execute,
         "check": _handle_check,
+        "accept": _handle_accept,
         "list": _handle_list,
         "history": _handle_history,
     }
+
     handler = handlers.get(args.commit_command)
     if handler:
         return handler(args)
