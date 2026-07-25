@@ -173,7 +173,7 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Author-described symptom (e.g. 'midpoint feels flat'). When provided, "
         "runs bottom-up symptom diagnosis instead of top-down generation.")
 
-    p = sub.add_parser("reasoning", help="Inspect derived reasoning reviews.")
+    p = sub.add_parser("reasoning", help="Inspect derived reasoning reviews and run book-level analysis.")
     rs = p.add_subparsers(dest="reasoning_command", required=True)
     p = rs.add_parser("review", help="Show an author-facing derived reasoning review.")
     p.add_argument("review", type=Path)
@@ -182,7 +182,11 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("review", type=Path)
     p.add_argument("group")
     p.add_argument("--json", action="store_true", help="Show the complete group JSON.")
-
+    p = rs.add_parser("book", help="Run deterministic Book Manuscript reasoning analysis.")
+    p.add_argument("--project", type=Path, default=Path("."),
+        help="Project root directory (default: current directory).")
+    p.add_argument("--json", action="store_true",
+        help="Output as JSON.")
     p = sub.add_parser("identity", help="Manage story identities.",
         formatter_class=_HideSuppressedFormatter)
     iss = p.add_subparsers(dest="identity_command", required=True)
@@ -591,6 +595,77 @@ def _build_parser() -> argparse.ArgumentParser:
 
     return parser
 
+
+def _handle_reasoning_book(project: Path, json_output: bool = False) -> int:
+    """Run Book Manuscript reasoning and display findings."""
+    from auteur.reasoning.runtime import CriticRegistry, ReasoningRuntime, RuntimeRequest
+    from auteur.reasoning.registrar import register_all_builtins
+
+    report_dir = project / ".auteur" / "reasoning"
+    registry = CriticRegistry()
+    register_all_builtins(registry)
+    runtime = ReasoningRuntime(registry, report_dir)
+
+    request = RuntimeRequest(
+        request_id="book_reasoning",
+        critic_ids=["book.manuscript"],
+        inputs={"project": project},
+    )
+    result = runtime.run(request)
+    outcomes = result.outcomes
+
+    if json_output:
+        out: list[dict[str, object]] = []
+        for o in outcomes:
+            entry: dict[str, object] = {
+                "critic_id": o.critic_id,
+                "version": o.version,
+                "status": o.status.value,
+            }
+            if o.reason:
+                entry["reason"] = o.reason
+            if o.error:
+                entry["error"] = o.error
+            if o.report_id:
+                report_path = report_dir / f"{o.report_id}.json"
+                if report_path.exists():
+                    import json as _json
+                    entry["report"] = _json.loads(report_path.read_text(encoding="utf-8"))
+            out.append(entry)
+        import json as _json
+        print(_json.dumps(out, indent=2, default=str))
+        return 0
+
+    # Human-readable output
+    for o in outcomes:
+        print(f"Critic: {o.critic_id} ({o.version})")
+        print(f"  Status: {o.status.value}")
+        if o.status.value == "failed":
+            print(f"  Error: {o.error or o.reason or 'unknown'}")
+            continue
+        if o.report_id:
+            report_path = report_dir / f"{o.report_id}.json"
+            if report_path.exists():
+                import json as _json
+                report = _json.loads(report_path.read_text(encoding="utf-8"))
+                findings = report.get("findings", [])
+                if not findings:
+                    print("  No findings.")
+                for fi, f in enumerate(findings, 1):
+                    severity = f.get("severity", "info")
+                    print(f"  {fi}. [{severity}] {f.get('message', '(no message)')}")
+                    evidence = f.get("evidence", {})
+                    if evidence:
+                        for k, v in evidence.items():
+                            if v:
+                                print(f"     {k}: {v}")
+                    recs = f.get("recommendations", [])
+                    if recs:
+                        print("     Recommendations:")
+                        for r in recs:
+                            print(f"       - {r}")
+    return 0
+
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     """Parse command-line arguments and return namespace."""
     parser = _build_parser()
@@ -600,6 +675,8 @@ def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
     if args.command == "reasoning":
+        if args.reasoning_command == "book":
+            return _handle_reasoning_book(args.project, args.json)
         from auteur.reasoning.cli import format_review, load_review
         try:
             review = load_review(args.review)
