@@ -151,6 +151,17 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Output directory for new blueprint (default: source blueprint directory).")
     p.add_argument("--in-place", action="store_true",
         help="Overwrite the source blueprint file. Disabled by default.")
+
+    p = ss.add_parser("propose",
+        help="Generate chapter structure proposals from diagnostics.")
+    p.add_argument("--project", type=Path, default=Path("."),
+        help="Project root directory.")
+    p.add_argument("--apply", type=str, default=None,
+        help="Proposal ID to apply.")
+    p.add_argument("--list", action="store_true",
+        help="List pending proposals.")
+    p.add_argument("--json", action="store_true",
+        help="Output as JSON.")
     p = ss.add_parser("generate",
         help="Generate a story engine from target experience (top-down synthesis), "
         "or diagnose structural issues from a symptom (bottom-up).")
@@ -789,6 +800,72 @@ def main(argv: list[str] | None = None) -> int:
         out = format_structure_apply(result)
         if out: print(out)
         return 0
+
+    # === structure propose ===
+    if args.command == "structure" and args.structure_command == "propose":
+        project = args.project
+        diag_dir = project / ".auteur" / "structure" / "diagnostics"
+        proposals_dir = project / ".auteur" / "structure" / "proposals"
+
+        if args.list or (not args.apply):
+            # List proposals
+            proposals_dir.mkdir(parents=True, exist_ok=True)
+            proposals = sorted(proposals_dir.glob("*.yaml"))
+            if args.json:
+                data = []
+                for p in proposals:
+                    try:
+                        from auteur.structure.proposal_models import StructureProposal
+                        prop = StructureProposal.from_yaml(p)
+                        data.append(prop.model_dump(mode="json"))
+                    except Exception:
+                        data.append({"proposal_id": p.stem, "error": "parse failed"})
+                print(json.dumps(data, indent=2, default=str))
+            else:
+                if not proposals:
+                    print("No proposals found.")
+                else:
+                    print(f"Proposals ({len(proposals)}):")
+                    for p in proposals:
+                        try:
+                            from auteur.structure.proposal_models import StructureProposal
+                            prop = StructureProposal.from_yaml(p)
+                            sel = prop.selection.selected_option_id if prop.selection else ""
+                            marker = "✓" if sel else "·"
+                            print(f"  {marker} {prop.proposal_id[:24]}... {prop.summary[:60]}")
+                        except Exception:
+                            print(f"  ? {p.stem}")
+            return 0
+
+        if args.apply:
+            apply_path = proposals_dir / f"{args.apply}.yaml"
+            if not apply_path.exists():
+                # Try matching by ID prefix
+                matches = list(proposals_dir.glob(f"{args.apply}*.yaml"))
+                if not matches:
+                    _err(f"Proposal not found: {args.apply}")
+                    return 1
+                apply_path = matches[0]
+            try:
+                from auteur.structure.proposal_models import StructureProposal
+                prop = StructureProposal.from_yaml(apply_path)
+                bp_path = project / "blueprint.yaml"
+                if not bp_path.exists():
+                    # Try .auteur version
+                    bp_path = project / ".auteur" / "state" / "artifacts" / "blueprint.yaml"
+                if not bp_path.exists():
+                    _err("No blueprint found in project")
+                    return 1
+                bp = StoryBlueprint.from_yaml(bp_path)
+                result = handle_structure_apply(prop, bp, in_place=True)
+                if not result.is_success:
+                    _err(result.error)
+                    return result.exit_code
+                print(f"Applied proposal: {prop.proposal_id[:24]}...")
+            except Exception as e:
+                _err(f"Failed to apply proposal: {e}")
+                return 1
+            return 0
     # === structure generate ===
     if args.command == "structure" and args.structure_command == "generate":
         try: bp = StoryBlueprint.from_yaml(args.blueprint)
