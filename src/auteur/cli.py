@@ -258,6 +258,14 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("identity", type=Path)
     p.add_argument("--output", type=Path, required=True,
         help="Target output path for the compiled blueprint.yaml skeleton.")
+    p = bs.add_parser("publish",
+        help="Publish a blueprint as a standalone human-readable document.")
+    p.add_argument("blueprint", type=Path,
+        help="Path to blueprint.yaml.")
+    p.add_argument("--output", type=Path, default=None,
+        help="Output path (default: <blueprint_dir>/published/).")
+    p.add_argument("--format", choices=["yaml", "md"], default="md",
+        help="Output format (default: markdown).")
 
     from auteur.character.cli import register_character_subcommands
     register_character_subcommands(sub)
@@ -664,7 +672,98 @@ def _handle_reasoning_book(project: Path, json_output: bool = False) -> int:
                         print("     Recommendations:")
                         for r in recs:
                             print(f"       - {r}")
-    return 0
+
+
+def _write_blueprint_markdown(bp: Any, path: Path) -> None:
+    """Render a StoryBlueprint to a readable Markdown document."""
+    lines: list[str] = []
+    data = bp.model_dump(mode="json") if hasattr(bp, "model_dump") else bp
+    if isinstance(data, dict):
+        # Identity section
+        ident = data.get("identity", {}) or data.get("project_identity", {})
+        if ident:
+            lines.append("# Story Identity")
+            for key, val in ident.items():
+                if isinstance(val, dict):
+                    lines.append(f"\n## {key.replace('_', ' ').title()}")
+                    for sk, sv in val.items():
+                        if isinstance(sv, (list, dict)):
+                            continue
+                        lines.append(f"- **{sk.replace('_', ' ').title()}**: {sv}")
+                elif not isinstance(val, (list, dict)):
+                    lines.append(f"- **{key.replace('_', ' ').title()}**: {val}")
+
+        # Structure section
+        struct = data.get("structure", {}) or data.get("structural_constants", {})
+        if struct:
+            lines.append("\n# Structural Constants")
+            for key, val in struct.items():
+                if isinstance(val, dict):
+                    lines.append(f"\n## {key.replace('_', ' ').title()}")
+                    for sk, sv in val.items():
+                        if not isinstance(sv, (list, dict)):
+                            lines.append(f"- **{sk.replace('_', ' ').title()}**: {sv}")
+                elif not isinstance(val, (list, dict)):
+                    lines.append(f"- **{key.replace('_', ' ').title()}**: {val}")
+
+        # Characters section
+        chars = data.get("characters", [])
+        if chars:
+            lines.append("\n# Characters")
+            for ch in chars:
+                name = ch.get("name", ch.get("role", "Unknown"))
+                lines.append(f"\n## {name}")
+                for key, val in ch.items():
+                    if key == "name":
+                        continue
+                    if isinstance(val, (list, dict)):
+                        continue
+                    lines.append(f"- **{key.replace('_', ' ').title()}**: {val}")
+
+        # Contract section
+        contract = data.get("contract", {}) or data.get("author_audience_contract", {})
+        if contract:
+            lines.append("\n# Author-Audience Contract")
+            for key, val in contract.items():
+                if isinstance(val, dict):
+                    lines.append(f"\n## {key.replace('_', ' ').title()}")
+                    for sk, sv in val.items():
+                        if not isinstance(sv, (list, dict)):
+                            lines.append(f"- **{sk.replace('_', ' ').title()}**: {sv}")
+                elif not isinstance(val, (list, dict)):
+                    lines.append(f"- **{key.replace('_', ' ').title()}**: {val}")
+
+        # Theme section
+        theme = data.get("theme", {}) or data.get("thematic_core", {})
+        if theme:
+            lines.append("\n# Theme")
+            for key, val in theme.items():
+                if isinstance(val, dict):
+                    lines.append(f"\n## {key.replace('_', ' ').title()}")
+                    for sk, sv in val.items():
+                        if not isinstance(sv, (list, dict)):
+                            lines.append(f"- **{sk.replace('_', ' ').title()}**: {sv}")
+                elif not isinstance(val, (list, dict)):
+                    lines.append(f"- **{key.replace('_', ' ').title()}**: {val}")
+
+        # Remaining top-level fields
+        top_level_keys = ["identity", "project_identity", "structure", "structural_constants",
+                          "characters", "contract", "author_audience_contract", "theme", "thematic_core",
+                          "story_engine", "tension_waveform", "emotional_design"]
+        for key, val in data.items():
+            if key in top_level_keys:
+                continue
+            if isinstance(val, dict) and val:
+                lines.append(f"\n# {key.replace('_', ' ').title()}")
+                for sk, sv in val.items():
+                    if isinstance(sv, (list, dict)):
+                        continue
+                    lines.append(f"- **{sk.replace('_', ' ').title()}**: {sv}")
+
+    lines.append("\n---")
+    lines.append(f"*Generated by Auteur v0.26.0 — Blueprint Publish*")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     """Parse command-line arguments and return namespace."""
@@ -1102,8 +1201,36 @@ def main(argv: list[str] | None = None) -> int:
         except Exception as exc:
             _err(f"failed to write blueprint to {args.output}: {exc}"); return 1
         print(format_identity_compile_success(str(args.identity), str(args.output)))
+    # === blueprint publish ===
+    if args.command == "blueprint" and args.blueprint_command == "publish":
+        bp_path = args.blueprint
+        if not bp_path.exists():
+            _err(f"blueprint not found: {bp_path}"); return 1
+        try:
+            from auteur.blueprint import StoryBlueprint
+            bp = StoryBlueprint.from_yaml(bp_path)
+        except Exception as exc:
+            _err(f"failed to load blueprint: {exc}"); return 1
+        output = args.output
+        if output is None:
+            output = bp_path.parent / "published"
+            output.mkdir(parents=True, exist_ok=True)
+            name = bp_path.stem
+            output = output / f"{name}.{args.format}"
+        elif output.is_dir():
+            output = output / f"blueprint.{args.format}"
+        output.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            if args.format == "yaml":
+                import yaml as _yaml
+                _yaml.safe_dump(bp.model_dump(mode="json"), output.open("w", encoding="utf-8"),
+                                sort_keys=False, allow_unicode=True)
+            else:
+                _write_blueprint_markdown(bp, output)
+        except Exception as exc:
+            _err(f"failed to publish blueprint: {exc}"); return 1
+        print(f"Blueprint published to {output}")
         return 0
-    # === identity recommend ===
     if args.command == "identity" and args.identity_command == "recommend":
         ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         pt = args.premise
