@@ -97,13 +97,20 @@ def handle_workflow_next(
         state = engine.analyze()
     except Exception as exc:
         return HandlerResult.failure(f"Failed to analyze workflow: {exc}")
-
     if not state.actions:
         return HandlerResult.success(
             data=WorkflowStatusData(state=state),
         )
 
     next_action = state.actions[0]
+
+    # Check for lifecycle alerts
+    lc = state.lifecycle or {}
+    alerts: list[str] = []
+    if lc.get("diverged", 0) > 0:
+        alerts.append(f"{lc['diverged']} commitment(s) diverged from live state")
+    if lc.get("with_gaps", 0) > 0:
+        alerts.append(f"{lc['with_gaps']} decision(s) have lifecycle gaps")
 
     if execute:
         result = engine.execute(next_action)
@@ -112,12 +119,16 @@ def handle_workflow_next(
                 result.get("error", f"Execution failed (exit {result.get('exit_code')})"),
                 exit_code=result.get("exit_code", 4),
             )
-        return HandlerResult.success(data=result)
+        return HandlerResult.success(data={
+            **result,
+            "alerts": alerts,
+        })
 
     return HandlerResult.success(
         data={
             "action": next_action,
             "executed": False,
+            "alerts": alerts,
         }
     )
 

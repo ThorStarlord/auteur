@@ -146,3 +146,8 @@ class TestCLIIntegration:
         from auteur.cli import main
         rc = main(["workflow", "explain", str(project_root), "lifecycle", "--json"])
         assert rc == 0
+
+    def test_workflow_next_shows_alerts(self, project_root):
+        from auteur.cli import main
+        rc = main(["workflow", "next", str(project_root)])
+        assert rc == 0

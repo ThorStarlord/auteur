@@ -1935,6 +1935,14 @@ def main(argv: list[str] | None = None) -> int:
             else:
                 data = result.data
                 action = data.get("action")
+                alerts = data.get("alerts", [])
+
+                # Show alerts first
+                if alerts:
+                    for alert in alerts:
+                        print(f"  ⚠ {alert}")
+                    print("")
+
                 if action:
                     label = action.label if hasattr(action, "label") else action.get("label", "")
                     command = action.command if hasattr(action, "command") else action.get("command", "")
