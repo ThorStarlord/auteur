@@ -787,7 +787,120 @@ def dispatch(args: argparse.Namespace) -> int:
             _err(f"failed to publish structure: {exc}"); return 1
         print(f"Chapter structure published to {output}")
         return 0
-    # === scene publish ===
+    # === structure revision ===
+    if args.command == "structure" and args.structure_command == "revision":
+        from auteur.structure.revision_service import RevisionService
+        svc = RevisionService(args.project)
+        cmd = args.revision_command
+        if cmd == "plan":
+            proposal = args.proposal
+            plan = svc.plan(proposal_path=proposal)
+            print(f"Revision plan created: {plan.plan_id}")
+            print(f"  Targets: {len(plan.scope.target_artifact_ids)}")
+            print(f"  Operations: {len(plan.operations)}")
+            print(f"  State: {plan.state.value}")
+            return 0
+        if cmd == "inspect":
+            data = svc.inspect(args.plan_id)
+            if args.json:
+                import json as _json
+                print(_json.dumps(data, indent=2, default=str))
+            else:
+                print(f"Plan: {data.get('plan_id', '?')}")
+                print(f"State: {data.get('state', '?')}")
+                print(f"Targets: {data.get('scope', {}).get('target_artifact_ids', [])}")
+                print(f"Operations: {len(data.get('operations', []))}")
+            return 0
+        if cmd == "validate":
+            state, preconditions = svc.validate(args.plan_id)
+            if args.json:
+                import json as _json
+                print(_json.dumps({"state": state, "preconditions": [p.model_dump() for p in preconditions]}, indent=2, default=str))
+            else:
+                print(f"Validation state: {state}")
+                for p in preconditions:
+                    mark = "✓" if p.met else "✗"
+                    print(f"  {mark} {p.target_id}: {p.message}")
+            return 0 if state == "ready" else 1
+        if cmd == "apply":
+            if not args.confirm:
+                _err("Confirmation required. Use --confirm to authorize.")
+                return 1
+            app_result = svc.apply(args.plan_id, confirmed=True)
+            if args.json:
+                import json as _json
+                print(_json.dumps(app_result.model_dump(), indent=2, default=str))
+            else:
+                print(f"Application: {app_result.application_id}")
+                for tr in app_result.target_results:
+                    status = "✓" if tr.success else "✗"
+                    print(f"  {status} {tr.target_id}: {tr.before_hash[:12]} -> {tr.after_hash[:12] if tr.after_hash else 'FAILED'}")
+            return 0
+        if cmd == "reconcile":
+            result = svc.reconcile(args.application_id)
+            if args.json:
+                import json as _json
+                print(_json.dumps(result.model_dump(), indent=2))
+            else:
+                print(f"Impact reconciliation")
+                print(f"  Changed: {len(result.changed_artifact_ids)}")
+                print(f"  Directly affected: {len(result.directly_affected)}")
+                print(f"  Transitively affected: {len(result.transitively_affected)}")
+            return 0
+        if cmd == "reevaluate":
+            result = svc.reevaluate(args.application_id)
+            if args.json:
+                import json as _json
+                print(_json.dumps(result.model_dump(), indent=2))
+            else:
+                print(f"Re-evaluation: {result.critic_id}")
+                print(f"  Resolved: {len(result.resolved_finding_ids)}")
+                print(f"  Remaining: {len(result.remaining_finding_ids)}")
+                print(f"  New findings: {len(result.new_findings)}")
+            return 0
+        if cmd == "status":
+            data = svc.status(args.revision_id)
+            if args.json:
+                import json as _json
+                print(_json.dumps(data, indent=2, default=str))
+            else:
+                for k, v in data.items():
+                    print(f"  {k}: {v}")
+            return 0
+        if cmd == "history":
+            events = svc.history(plan_id=args.plan_id)
+            if args.json:
+                import json as _json
+                print(_json.dumps([e.model_dump() for e in events], indent=2, default=str))
+            else:
+                print(f"Revision history ({len(events)} events):")
+                for e in events:
+                    print(f"  {e.event_type}: {e.event_id[:16]}...")
+            return 0
+        if cmd == "supersede":
+            if not args.confirm:
+                _err("Confirmation required. Use --confirm to authorize.")
+                return 1
+            plan = svc.supersede(args.plan_id, args.proposal, confirmed=True)
+            print(f"Superseded by plan: {plan.plan_id}")
+            return 0
+        if cmd == "abort":
+            if not args.confirm:
+                _err("Confirmation required. Use --confirm to authorize.")
+                return 1
+            svc.abort(args.plan_id, confirmed=True)
+            print(f"Plan {args.plan_id} aborted.")
+            return 0
+        if cmd == "list":
+            plans = svc.list_plans()
+            if args.json:
+                import json as _json
+                print(_json.dumps(plans, indent=2))
+            else:
+                print(f"Revision plans ({len(plans)}):")
+                for p_id in plans:
+                    print(f"  {p_id}")
+            return 0
     if args.command == "scene" and args.scene_command == "publish":
         project_path = args.project
         output = args.output

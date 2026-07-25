@@ -137,7 +137,73 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output path for the published document.")
     p.add_argument("--format", choices=["yaml", "md"], default="md",
         help="Output format (default: markdown).")
-    p = sub.add_parser("scene", help="Manage scene realization artifacts.")
+    _rp = ss.add_parser("revision",
+        help="Scoped structural revision — plan, validate, apply, reconcile, and complete.")
+    _rs = _rp.add_subparsers(dest="revision_command", required=True)
+    _r = _rs.add_parser("plan",
+        help="Create a scoped revision plan from a structural proposal.")
+    _r.add_argument("--proposal", type=Path, required=True,
+        help="Path to the structural proposal YAML.")
+    _r.add_argument("--project", type=Path, default=Path("."),
+        help="Project root directory.")
+    _r = _rs.add_parser("inspect",
+        help="Inspect a revision plan or application.")
+    _r.add_argument("plan_id", help="Revision plan ID.")
+    _r.add_argument("--project", type=Path, default=Path("."))
+    _r.add_argument("--json", action="store_true")
+    _r = _rs.add_parser("validate",
+        help="Validate a revision plan against current project state.")
+    _r.add_argument("plan_id", help="Revision plan ID.")
+    _r.add_argument("--project", type=Path, default=Path("."))
+    _r.add_argument("--json", action="store_true")
+    _r = _rs.add_parser("apply",
+        help="Apply a confirmed revision plan.")
+    _r.add_argument("plan_id", help="Revision plan ID.")
+    _r.add_argument("--confirm", action="store_true",
+        help="Explicitly confirm authority to apply the revision.")
+    _r.add_argument("--project", type=Path, default=Path("."))
+    _r.add_argument("--json", action="store_true")
+    _r = _rs.add_parser("reconcile",
+        help="Reconcile impact and freshness after application.")
+    _r.add_argument("application_id", help="Application ID.")
+    _r.add_argument("--project", type=Path, default=Path("."))
+    _r.add_argument("--json", action="store_true")
+    _r = _rs.add_parser("reevaluate",
+        help="Rerun structural reasoning after revision.")
+    _r.add_argument("application_id", help="Application ID.")
+    _r.add_argument("--project", type=Path, default=Path("."))
+    _r.add_argument("--json", action="store_true")
+    _r = _rs.add_parser("status",
+        help="Show revision plan or application status.")
+    _r.add_argument("revision_id", help="Plan or application ID.")
+    _r.add_argument("--project", type=Path, default=Path("."))
+    _r.add_argument("--json", action="store_true")
+    _r = _rs.add_parser("history",
+        help="Show revision history.")
+    _r.add_argument("plan_id", nargs="?", default=None,
+        help="Optional plan ID to filter history.")
+    _r.add_argument("--project", type=Path, default=Path("."))
+    _r.add_argument("--json", action="store_true")
+    _r = _rs.add_parser("supersede",
+        help="Supersede a revision plan with a new proposal.")
+    _r.add_argument("plan_id", help="Existing plan ID to supersede.")
+    _r.add_argument("--proposal", type=Path, required=True,
+        help="New structural proposal path.")
+    _r.add_argument("--confirm", action="store_true",
+        help="Explicitly confirm supersession.")
+    _r.add_argument("--project", type=Path, default=Path("."))
+    _r = _rs.add_parser("abort",
+        help="Abort a revision plan without applying.")
+    _r.add_argument("plan_id", help="Plan ID to abort.")
+    _r.add_argument("--confirm", action="store_true",
+        help="Explicitly confirm abort.")
+    _r.add_argument("--project", type=Path, default=Path("."))
+    _r = _rs.add_parser("list",
+        help="List all revision plans.")
+    _r.add_argument("--project", type=Path, default=Path("."))
+    _r.add_argument("--json", action="store_true")
+    p = sub.add_parser("scene",
+        help="Manage scene realization artifacts.")
     scs = p.add_subparsers(dest="scene_command", required=True)
     p = scs.add_parser("publish",
         help="Publish scene realization artifacts as a standalone document.")
