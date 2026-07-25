@@ -1957,7 +1957,10 @@ def main(argv: list[str] | None = None) -> int:
                 print(json.dumps(result.data, indent=2))
             else:
                 data = result.data
-                if "stage" in data:
+                if data.get("explanation"):
+                    # Lifecycle or custom explanation
+                    print(data["explanation"])
+                elif "stage" in data:
                     stage = data["stage"]
                     complete = data["is_complete"]
                     print(f"Stage: {stage} ({'complete' if complete else 'incomplete'})")
@@ -1974,6 +1977,34 @@ def main(argv: list[str] | None = None) -> int:
                     else:
                         print("All stages complete.")
                     print(f"Summary: {data.get('summary', '')}")
+
+                # Show lifecycle and commitment data for non-stage explanations
+                if not data.get("stage"):
+                    lc = data.get("lifecycle", {})
+                    cm = data.get("commitment", {})
+                    total = lc.get("total_decisions", 0)
+                    if total > 0:
+                        print("")
+                        print("Lifecycle:")
+                        print(f"  Decisions:       {total} total")
+                        by_stage = lc.get("by_stage", {})
+                        for sk in ["open", "evidence_gathered", "simulated", "portfolio",
+                                   "under_review", "acceptance_ready", "accepted", "committed"]:
+                            c = by_stage.get(sk, 0)
+                            if c > 0:
+                                print(f"    {sk.replace('_', ' ').title():<18} {c}")
+                        if lc.get("diverged", 0) > 0:
+                            print(f"  Diverged:        {lc['diverged']}")
+                        if lc.get("with_gaps", 0) > 0:
+                            print(f"  With gaps:       {lc['with_gaps']}")
+                    cm_total = cm.get("total_commitments", 0)
+                    if cm_total > 0 or cm.get("has_commitments"):
+                        print("")
+                        print("Commitments:")
+                        print(f"  Total:           {cm_total}")
+                        cm_state = cm.get("state", "")
+                        if cm_state:
+                            print(f"  State:           {cm_state}")
             return 0
 
     return 0

@@ -128,39 +128,51 @@ def handle_workflow_explain(
 ) -> HandlerResult:
     """Analyze project and return an explanation of current state or a specific stage."""
     try:
+        from auteur.lifecycle.service import LifecycleService
+        from auteur.commitment.service import CommitmentService
+        lc = LifecycleService(project_path)
+        cm = CommitmentService(project_path)
+        engine = WorkflowEngine(project_path, lifecycle_service=lc, commitment_service=cm)
+    except Exception:
         engine = WorkflowEngine(project_path)
+    try:
         state = engine.analyze()
     except Exception as exc:
         return HandlerResult.failure(f"Failed to analyze workflow: {exc}")
 
+    data = {
+        "summary": state.status_summary,
+        "current_stage": state.current_stage.value if state.current_stage else None,
+        "lifecycle": state.lifecycle,
+        "commitment": state.commitment,
+    }
+
     if stage_name:
+        if stage_name == "lifecycle":
+            # Return lifecycle-specific explanation
+            lc = state.lifecycle or {}
+            data["explanation"] = _explain_lifecycle(lc)
+            return HandlerResult.success(data=data)
         match = state.stage_by_name(stage_name)
         if not match:
             return HandlerResult.failure(f"Unknown stage: {stage_name}")
-        return HandlerResult.success(
-            data={
-                "stage": match.stage.value,
-                "is_complete": match.is_complete,
-                "current_artifact": match.current_artifact,
-                "blockers": [
-                    {
-                        "category": b.category.value,
-                        "severity": b.severity.value,
-                        "message": b.message,
-                        "artifact": b.artifact,
-                    }
-                    for b in match.blockers
-                ],
-            }
-        )
+        data.update({
+            "stage": match.stage.value,
+            "is_complete": match.is_complete,
+            "current_artifact": match.current_artifact,
+            "blockers": [
+                {
+                    "category": b.category.value,
+                    "severity": b.severity.value,
+                    "message": b.message,
+                    "artifact": b.artifact,
+                }
+                for b in match.blockers
+            ],
+        })
+        return HandlerResult.success(data=data)
 
-    return HandlerResult.success(
-        data={
-            "current_stage": state.current_stage.value if state.current_stage else None,
-            "summary": state.status_summary,
-        }
-    )
-
+    return HandlerResult.success(data=data)
 
 # ---------------------------------------------------------------------------
 # Formatters
@@ -251,5 +263,34 @@ def format_workflow_status(result: HandlerResult) -> str | None:
             lines.append(f"     {a.command}")
             if a.description:
                 lines.append(f"     {a.description}")
+
+    return "\n".join(lines)
+
+
+def _explain_lifecycle(lc: dict) -> str:
+    """Build a human-readable lifecycle explanation."""
+    lines: list[str] = []
+    total = lc.get("total_decisions", 0)
+    if total == 0:
+        lines.append("No decisions in the decision lifecycle.")
+        return "\n".join(lines)
+
+    lines.append(f"Decision Lifecycle ({total} total):")
+    by_stage = lc.get("by_stage", {})
+    for sk in ["open", "evidence_gathered", "simulated", "portfolio",
+               "under_review", "acceptance_ready", "accepted", "committed"]:
+        c = by_stage.get(sk, 0)
+        if c > 0:
+            lines.append(f"  {sk.replace('_', ' ').title():<18} {c}")
+
+    gaps = lc.get("with_gaps", 0)
+    diverged = lc.get("diverged", 0)
+    if gaps or diverged:
+        lines.append("")
+        lines.append("Issues:")
+        if diverged > 0:
+            lines.append(f"  ⚠ {diverged} commitment(s) diverged from live state")
+        if gaps > 0:
+            lines.append(f"  · {gaps} decision(s) with lifecycle gaps")
 
     return "\n".join(lines)
