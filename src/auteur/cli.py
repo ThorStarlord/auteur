@@ -572,8 +572,10 @@ def _build_parser() -> argparse.ArgumentParser:
     from auteur.commitment.cli import register_commit_subcommands
     register_commit_subcommands(sub)
 
-    return parser
+    from auteur.lifecycle.cli import register_lifecycle_subcommands
+    register_lifecycle_subcommands(sub)
 
+    return parser
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     """Parse command-line arguments and return namespace."""
@@ -1808,6 +1810,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "commit":
         from auteur.commitment.cli import dispatch_commit
         return dispatch_commit(args)
+
+    # === lifecycle ===
+    if args.command == "lifecycle":
+        from auteur.lifecycle.cli import dispatch_lifecycle
+        return dispatch_lifecycle(args)
     # === simulate ===
     if args.command == "simulate":
         from auteur.simulation.cli import dispatch_simulate
