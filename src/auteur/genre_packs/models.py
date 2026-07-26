@@ -225,4 +225,5 @@ class GenreRecommendation(BaseModel):
     rejected_profiles: list[RejectedProfileAnalysis] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)
     questions_or_uncertainties: list[str] = Field(default_factory=list)
+    context: dict[str, Any] = Field(default_factory=dict)
     created_at: str | None = None

@@ -46,40 +46,59 @@ def save_recommendation(rec: GenreRecommendation, project_dir: Path | str | None
     Project-local storage (.auteur/genre_recommendations/) is authoritative when project_dir is provided.
     """
     _PENDING_RECOMMENDATIONS[rec.recommendation_id] = rec
+    
+    if project_dir:
+        p_resolved = str(Path(project_dir).resolve())
+        rec.context = rec.context or {}
+        rec.context["_project_dir"] = p_resolved
+
     data = rec.model_dump(mode="json")
     
+    saved_path = None
     if project_dir:
         target = Path(project_dir) / ".auteur" / "genre_recommendations" / f"{rec.recommendation_id}.json"
         _atomic_write_json(target, data)
-        return target
+        saved_path = target
 
     home_target = Path.home() / ".auteur" / "genre_recommendations" / f"{rec.recommendation_id}.json"
     _atomic_write_json(home_target, data)
-    return home_target
+    return saved_path or home_target
 
 
 def load_recommendation(rec_id: str, project_dir: Path | str | None = None) -> GenreRecommendation:
     """Retrieve recommendation by ID from memory cache or project-local disk persistence.
     
-    If project_dir is provided, project-local storage is authoritative to prevent cross-project leaks.
+    Project-local storage is authoritative. Cross-project cross-resolution is rejected.
     """
     if rec_id in _PENDING_RECOMMENDATIONS:
-        return _PENDING_RECOMMENDATIONS[rec_id]
+        rec = _PENDING_RECOMMENDATIONS[rec_id]
+        if project_dir and rec.context and rec.context.get("_project_dir"):
+            if rec.context["_project_dir"] != str(Path(project_dir).resolve()):
+                raise GenrePackError(GenreErrorCode.RECOMMENDATION_NOT_FOUND, f"Recommendation ID '{rec_id}' not found in project '{project_dir}'.")
+        return rec
 
-    paths_to_check: list[Path] = []
+    # 1. Project-local check (Authoritative)
     if project_dir:
-        # Project-local is strictly authoritative when project_dir is specified
-        paths_to_check.append(Path(project_dir) / ".auteur" / "genre_recommendations" / f"{rec_id}.json")
-    else:
-        # Fallback to home user cache only when no project context is specified
-        paths_to_check.append(Path.home() / ".auteur" / "genre_recommendations" / f"{rec_id}.json")
-
-    for target_file in paths_to_check:
-        if target_file.exists():
-            data = json.loads(target_file.read_text(encoding="utf-8"))
+        proj_file = Path(project_dir) / ".auteur" / "genre_recommendations" / f"{rec_id}.json"
+        if proj_file.exists():
+            data = json.loads(proj_file.read_text(encoding="utf-8"))
             rec = GenreRecommendation.model_validate(data)
             _PENDING_RECOMMENDATIONS[rec_id] = rec
             return rec
+
+    # 2. Global home cache fallback
+    home_file = Path.home() / ".auteur" / "genre_recommendations" / f"{rec_id}.json"
+    if home_file.exists():
+        data = json.loads(home_file.read_text(encoding="utf-8"))
+        rec = GenreRecommendation.model_validate(data)
+        
+        # Enforce cross-project isolation on global cache fallback
+        if project_dir and rec.context and rec.context.get("_project_dir"):
+            if rec.context["_project_dir"] != str(Path(project_dir).resolve()):
+                raise GenrePackError(GenreErrorCode.RECOMMENDATION_NOT_FOUND, f"Recommendation ID '{rec_id}' not found in project '{project_dir}'.")
+
+        _PENDING_RECOMMENDATIONS[rec_id] = rec
+        return rec
 
     raise GenrePackError(GenreErrorCode.RECOMMENDATION_NOT_FOUND, f"Recommendation ID '{rec_id}' not found.")
 
