@@ -53,9 +53,9 @@ def save_recommendation(rec: GenreRecommendation, project_dir: Path | str | None
         _atomic_write_json(target, data)
         return target
 
-    target = Path.home() / ".auteur" / "genre_recommendations" / f"{rec.recommendation_id}.json"
-    _atomic_write_json(target, data)
-    return target
+    home_target = Path.home() / ".auteur" / "genre_recommendations" / f"{rec.recommendation_id}.json"
+    _atomic_write_json(home_target, data)
+    return home_target
 
 
 def load_recommendation(rec_id: str, project_dir: Path | str | None = None) -> GenreRecommendation:
@@ -68,7 +68,7 @@ def load_recommendation(rec_id: str, project_dir: Path | str | None = None) -> G
 
     paths_to_check: list[Path] = []
     if project_dir:
-        # Project-local is authoritative when project_dir is specified
+        # Project-local is strictly authoritative when project_dir is specified
         paths_to_check.append(Path(project_dir) / ".auteur" / "genre_recommendations" / f"{rec_id}.json")
     else:
         # Fallback to home user cache only when no project context is specified
