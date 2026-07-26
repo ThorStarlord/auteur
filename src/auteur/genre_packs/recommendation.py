@@ -26,7 +26,7 @@ _PENDING_RECOMMENDATIONS: dict[str, GenreRecommendation] = {}
 
 
 def _atomic_write_json(file_path: Path, data: dict[str, Any]) -> None:
-    """Write data to a temporary file in target directory and atomically replace destination."""
+    """Write dictionary to file atomically using a temporary file and os.replace."""
     file_path.parent.mkdir(parents=True, exist_ok=True)
     temp_path = file_path.with_name(f".tmp_{file_path.name}_{uuid.uuid4().hex}")
     try:
@@ -43,7 +43,8 @@ def _atomic_write_json(file_path: Path, data: dict[str, Any]) -> None:
 def save_recommendation(rec: GenreRecommendation, project_dir: Path | str | None = None) -> Path:
     """Persist recommendation to disk atomically for process-restart durability.
     
-    Project-local storage (.auteur/genre_recommendations/) is authoritative when project_dir is provided.
+    When project_dir is provided, recommendation content is stored strictly project-local
+    (.auteur/genre_recommendations/) to preserve privacy and single-authority boundaries.
     """
     _PENDING_RECOMMENDATIONS[rec.recommendation_id] = rec
     
@@ -54,56 +55,64 @@ def save_recommendation(rec: GenreRecommendation, project_dir: Path | str | None
 
     data = rec.model_dump(mode="json")
     
-    saved_path = None
     if project_dir:
         target = Path(project_dir) / ".auteur" / "genre_recommendations" / f"{rec.recommendation_id}.json"
         _atomic_write_json(target, data)
-        saved_path = target
+        return target
 
     home_target = Path.home() / ".auteur" / "genre_recommendations" / f"{rec.recommendation_id}.json"
     _atomic_write_json(home_target, data)
-    return saved_path or home_target
+    return home_target
 
 
 def load_recommendation(rec_id: str, project_dir: Path | str | None = None) -> GenreRecommendation:
     """Retrieve recommendation by ID from memory cache or project-local disk persistence.
     
-    Project-local storage is authoritative. Relocation within project directory updates location metadata.
+    When project_dir is provided, project-local storage (.auteur/genre_recommendations/)
+    is strictly authoritative. No silent global fallback is performed.
     """
     if project_dir:
         p_res = str(Path(project_dir).resolve())
         if rec_id in _PENDING_RECOMMENDATIONS:
             cached_rec = _PENDING_RECOMMENDATIONS[rec_id]
             cached_p = cached_rec.context.get("_project_dir") if cached_rec.context else None
-            if cached_p is None or cached_p == p_res:
+            if cached_p == p_res:
                 return cached_rec
             else:
                 _PENDING_RECOMMENDATIONS.pop(rec_id, None)
-    elif rec_id in _PENDING_RECOMMENDATIONS:
-        return _PENDING_RECOMMENDATIONS[rec_id]
 
-    # 1. Project-local check (Authoritative)
-    if project_dir:
         proj_file = Path(project_dir) / ".auteur" / "genre_recommendations" / f"{rec_id}.json"
-        if proj_file.exists():
+        if not proj_file.exists():
+            raise GenrePackError(GenreErrorCode.RECOMMENDATION_NOT_FOUND, f"Recommendation ID '{rec_id}' not found in project '{project_dir}'.")
+        
+        try:
             data = json.loads(proj_file.read_text(encoding="utf-8"))
             rec = GenreRecommendation.model_validate(data)
-            rec.context = rec.context or {}
-            rec.context["_project_dir"] = str(Path(project_dir).resolve())
-            _PENDING_RECOMMENDATIONS[rec_id] = rec
-            return rec
+        except Exception as err:
+            raise GenrePackError(GenreErrorCode.RECOMMENDATION_NOT_FOUND, f"Corrupt recommendation artifact at '{proj_file}': {err}")
 
-    # 2. Global home cache fallback
+        rec.context = rec.context or {}
+        rec.context["_project_dir"] = p_res
+        _PENDING_RECOMMENDATIONS[rec_id] = rec
+        return rec
+
+    # Global lookup (when project_dir is None)
+    if rec_id in _PENDING_RECOMMENDATIONS:
+        cached_rec = _PENDING_RECOMMENDATIONS[rec_id]
+        if not cached_rec.context or not cached_rec.context.get("_project_dir"):
+            return cached_rec
+
     home_file = Path.home() / ".auteur" / "genre_recommendations" / f"{rec_id}.json"
     if home_file.exists():
-        data = json.loads(home_file.read_text(encoding="utf-8"))
-        rec = GenreRecommendation.model_validate(data)
-        
-        # Enforce cross-project isolation on global cache fallback
-        if project_dir and rec.context and rec.context.get("_project_dir"):
-            if rec.context["_project_dir"] != str(Path(project_dir).resolve()):
-                raise GenrePackError(GenreErrorCode.RECOMMENDATION_NOT_FOUND, f"Recommendation ID '{rec_id}' not found in project '{project_dir}'.")
+        try:
+            data = json.loads(home_file.read_text(encoding="utf-8"))
+            rec = GenreRecommendation.model_validate(data)
+        except Exception as err:
+            raise GenrePackError(GenreErrorCode.RECOMMENDATION_NOT_FOUND, f"Corrupt global recommendation artifact at '{home_file}': {err}")
 
+        if rec.context and rec.context.get("_project_dir"):
+            raise GenrePackError(GenreErrorCode.RECOMMENDATION_NOT_FOUND, f"Recommendation ID '{rec_id}' belongs to project '{rec.context['_project_dir']}'. Pass --project to access.")
+        
         _PENDING_RECOMMENDATIONS[rec_id] = rec
         return rec
 

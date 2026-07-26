@@ -443,6 +443,88 @@ def test_recommendation_survives_restart_and_project_relocation(tmp_path: Path):
     assert reloaded.recommended_profile_id == rec.recommended_profile_id
 
 
+def test_project_local_artifact_missing_no_silent_global_fallback(tmp_path: Path):
+    from auteur.genre_packs.recommendation import save_recommendation, load_recommendation, _PENDING_RECOMMENDATIONS
+    proj = tmp_path / "proj_missing"
+    proj.mkdir()
+    rec = recommend_genre_profile("Testing no silent global fallback")
+    save_recommendation(rec, proj)
+    rec_id = rec.recommendation_id
+
+    # Delete project-local recommendation artifact
+    local_file = proj / ".auteur" / "genre_recommendations" / f"{rec_id}.json"
+    local_file.unlink()
+
+    # Clear memory cache
+    _PENDING_RECOMMENDATIONS.clear()
+
+    # Attempting to load project recommendation must NOT silently load from global cache
+    with pytest.raises(GenrePackError) as exc_info:
+        load_recommendation(rec_id, proj)
+    assert exc_info.value.code == GenreErrorCode.RECOMMENDATION_NOT_FOUND
+
+
+def test_project_local_artifact_malformed_reports_corruption(tmp_path: Path):
+    from auteur.genre_packs.recommendation import save_recommendation, load_recommendation, _PENDING_RECOMMENDATIONS
+    proj = tmp_path / "proj_malformed"
+    proj.mkdir()
+    rec = recommend_genre_profile("Testing malformed local artifact")
+    save_recommendation(rec, proj)
+    rec_id = rec.recommendation_id
+
+    # Corrupt local artifact
+    local_file = proj / ".auteur" / "genre_recommendations" / f"{rec_id}.json"
+    local_file.write_text("{invalid_json: true", encoding="utf-8")
+
+    # Clear memory cache
+    _PENDING_RECOMMENDATIONS.clear()
+
+    with pytest.raises(GenrePackError) as exc_info:
+        load_recommendation(rec_id, proj)
+    assert exc_info.value.code == GenreErrorCode.RECOMMENDATION_NOT_FOUND
+    assert "Corrupt" in str(exc_info.value)
+
+
+def test_two_projects_same_recommendation_id_isolated(tmp_path: Path):
+    from auteur.genre_packs.recommendation import save_recommendation, load_recommendation, _PENDING_RECOMMENDATIONS
+    proj_a = tmp_path / "proj_a"
+    proj_b = tmp_path / "proj_b"
+    proj_a.mkdir(); proj_b.mkdir()
+
+    rec_a = recommend_genre_profile("Premise A")
+    save_recommendation(rec_a, proj_a)
+    
+    # Save rec with same ID in project B but different premise
+    rec_b = recommend_genre_profile("Premise B")
+    rec_b.recommendation_id = rec_a.recommendation_id
+    save_recommendation(rec_b, proj_b)
+
+    _PENDING_RECOMMENDATIONS.clear()
+
+    loaded_a = load_recommendation(rec_a.recommendation_id, proj_a)
+    loaded_b = load_recommendation(rec_a.recommendation_id, proj_b)
+
+    assert loaded_a.why_this_is_best == rec_a.why_this_is_best
+    assert loaded_b.why_this_is_best == rec_b.why_this_is_best
+
+
+def test_global_only_recommendation_cannot_be_treated_as_project_bound(tmp_path: Path):
+    from auteur.genre_packs.recommendation import save_recommendation, load_recommendation, _PENDING_RECOMMENDATIONS
+    rec = recommend_genre_profile("Global recommendation premise")
+    save_recommendation(rec, project_dir=None)
+    rec_id = rec.recommendation_id
+
+    _PENDING_RECOMMENDATIONS.clear()
+
+    proj = tmp_path / "some_proj"
+    proj.mkdir()
+
+    # Querying global recommendation with project_dir should fail
+    with pytest.raises(GenrePackError) as exc_info:
+        load_recommendation(rec_id, proj)
+    assert exc_info.value.code == GenreErrorCode.RECOMMENDATION_NOT_FOUND
+
+
 def test_installed_genre_pack_journey(tmp_path: Path):
     ident = _make_minimal_identity(tmp_path)
 
