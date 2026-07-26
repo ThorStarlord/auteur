@@ -226,7 +226,9 @@ def dispatch_genre_pack_commands(args: Any) -> bool:
 
         if sub_cmd == "inspect":
             rec_id = args.rec_id
-            project_dir = getattr(args, "project", None) or Path(".")
+            project_dir = getattr(args, "project", None)
+            if project_dir is None and (Path(".") / ".auteur" / "genre_recommendations" / f"{rec_id}.json").exists():
+                project_dir = Path(".")
             rec = load_recommendation(rec_id, project_dir)
             if getattr(args, "json", False):
                 print(json.dumps(rec.model_dump(mode="json"), indent=2))
@@ -238,7 +240,9 @@ def dispatch_genre_pack_commands(args: Any) -> bool:
 
         elif sub_cmd in ("accept", "override"):
             rec_id = args.rec_id
-            project_dir = getattr(args, "project", None) or Path(".")
+            project_dir = getattr(args, "project", None)
+            if project_dir is None and ((Path(".") / ".auteur" / "genre_recommendations" / f"{rec_id}.json").exists() or (Path(".") / "story_identity.yaml").exists()):
+                project_dir = Path(".")
             try:
                 rec = load_recommendation(rec_id, project_dir)
             except GenrePackError:
