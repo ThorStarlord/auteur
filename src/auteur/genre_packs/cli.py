@@ -31,6 +31,16 @@ def _get_or_add_parser(subparser_action: Any, name: str, help_text: str) -> Any:
     return subparser_action.add_parser(name, help=help_text)
 
 
+def _add_arg_if_missing(parser: Any, *args_flags: str, **kwargs: Any) -> None:
+    dest_name = kwargs.get("dest")
+    if not dest_name and args_flags:
+        dest_name = args_flags[0].lstrip("-")
+    existing_dests = {a.dest for a in parser._actions}
+    if dest_name in existing_dests:
+        return
+    parser.add_argument(*args_flags, **kwargs)
+
+
 def register_genre_pack_subcommands(subparsers: _SubParsersAction) -> None:
     """Register 'genre' subcommand hierarchy for Genre Packs."""
     if "genre" in subparsers._name_parser_map:
@@ -60,20 +70,20 @@ def register_genre_pack_subcommands(subparsers: _SubParsersAction) -> None:
         pack_sub = pack_parser.add_subparsers(dest="pack_command", help="Pack commands")
 
     p_list = _get_or_add_parser(pack_sub, "list", "List installed genre packs")
-    p_list.add_argument("--json", action="store_true", help="Output JSON format")
+    _add_arg_if_missing(p_list, "--json", action="store_true", help="Output JSON format")
 
     p_inspect = _get_or_add_parser(pack_sub, "inspect", "Inspect a genre pack")
-    p_inspect.add_argument("pack_id", nargs="?", default="erotic_fiction", help="Genre Pack ID")
-    p_inspect.add_argument("--version", default="0.1.0", help="Genre Pack version")
-    p_inspect.add_argument("--json", action="store_true", help="Output JSON format")
+    _add_arg_if_missing(p_inspect, "pack_id", nargs="?", default="erotic_fiction", help="Genre Pack ID")
+    _add_arg_if_missing(p_inspect, "--version", default="0.1.0", help="Genre Pack version")
+    _add_arg_if_missing(p_inspect, "--json", action="store_true", help="Output JSON format")
 
     # 2. recommend
     rec_p = _get_or_add_parser(genre_sub, "recommend", "Generate opinionated genre recommendation candidate")
-    rec_p.add_argument("--project", type=Path, default=None, help="Project directory")
-    rec_p.add_argument("--premise", type=str, default=None, help="Raw story premise text")
-    rec_p.add_argument("--pack", type=str, default="erotic_fiction", help="Genre Pack ID")
-    rec_p.add_argument("--version", type=str, default="0.1.0", help="Genre Pack version")
-    rec_p.add_argument("--json", action="store_true", help="Output JSON format")
+    _add_arg_if_missing(rec_p, "--project", type=Path, default=None, help="Project directory")
+    _add_arg_if_missing(rec_p, "--premise", type=str, default=None, help="Raw story premise text")
+    _add_arg_if_missing(rec_p, "--pack", type=str, default="erotic_fiction", help="Genre Pack ID")
+    _add_arg_if_missing(rec_p, "--version", type=str, default="0.1.0", help="Genre Pack version")
+    _add_arg_if_missing(rec_p, "--json", action="store_true", help="Output JSON format")
 
     # 3. recommendation subcommands
     rec_cmd_p = _get_or_add_parser(genre_sub, "recommendation", "Recommendation candidate inspection and acceptance")
@@ -87,22 +97,22 @@ def register_genre_pack_subcommands(subparsers: _SubParsersAction) -> None:
         rec_cmd_sub = rec_cmd_p.add_subparsers(dest="recommendation_command", help="Recommendation commands")
 
     r_inspect = _get_or_add_parser(rec_cmd_sub, "inspect", "Inspect a recommendation candidate")
-    r_inspect.add_argument("rec_id", help="Recommendation ID")
-    r_inspect.add_argument("--json", action="store_true", help="Output JSON format")
+    _add_arg_if_missing(r_inspect, "rec_id", help="Recommendation ID")
+    _add_arg_if_missing(r_inspect, "--json", action="store_true", help="Output JSON format")
 
     r_accept = _get_or_add_parser(rec_cmd_sub, "accept", "Explicitly accept a recommendation candidate into StoryIdentity")
-    r_accept.add_argument("rec_id", help="Recommendation ID")
-    r_accept.add_argument("--project", type=Path, default=None, help="Project directory")
-    r_accept.add_argument("--confirm", action="store_true", help="Confirm acceptance")
-    r_accept.add_argument("--json", action="store_true", help="Output JSON format")
+    _add_arg_if_missing(r_accept, "rec_id", help="Recommendation ID")
+    _add_arg_if_missing(r_accept, "--project", type=Path, default=None, help="Project directory")
+    _add_arg_if_missing(r_accept, "--confirm", action="store_true", help="Confirm acceptance")
+    _add_arg_if_missing(r_accept, "--json", action="store_true", help="Output JSON format")
 
     r_override = _get_or_add_parser(rec_cmd_sub, "override", "Explicitly accept a recommendation candidate with author overrides")
-    r_override.add_argument("rec_id", help="Recommendation ID")
-    r_override.add_argument("--project", type=Path, default=None, help="Project directory")
-    r_override.add_argument("--target", required=True, help="Target expectation ID")
-    r_override.add_argument("--replacement", required=True, help="Accepted replacement value")
-    r_override.add_argument("--rationale", required=True, help="Author rationale for override")
-    r_override.add_argument("--json", action="store_true", help="Output JSON format")
+    _add_arg_if_missing(r_override, "rec_id", help="Recommendation ID")
+    _add_arg_if_missing(r_override, "--project", type=Path, default=None, help="Project directory")
+    _add_arg_if_missing(r_override, "--target", required=True, help="Target expectation ID")
+    _add_arg_if_missing(r_override, "--replacement", required=True, help="Accepted replacement value")
+    _add_arg_if_missing(r_override, "--rationale", required=True, help="Author rationale for override")
+    _add_arg_if_missing(r_override, "--json", action="store_true", help="Output JSON format")
 
     # 4. profile show
     prof_p = _get_or_add_parser(genre_sub, "profile", "Active genre profile management")
@@ -115,19 +125,19 @@ def register_genre_pack_subcommands(subparsers: _SubParsersAction) -> None:
     if prof_sub is None:
         prof_sub = prof_p.add_subparsers(dest="profile_command", help="Profile commands")
     p_show = _get_or_add_parser(prof_sub, "show", "Show active accepted genre profile commitment")
-    p_show.add_argument("--project", type=Path, default=None, help="Project directory")
-    p_show.add_argument("--json", action="store_true", help="Output JSON format")
+    _add_arg_if_missing(p_show, "--project", type=Path, default=None, help="Project directory")
+    _add_arg_if_missing(p_show, "--json", action="store_true", help="Output JSON format")
 
     # 5. validate
     val_p = _get_or_add_parser(genre_sub, "validate", "Validate accepted StoryIdentity or custom genre contract")
-    val_p.add_argument("contract", type=Path, nargs="?", default=None, help="Custom genre contract file path (optional)")
-    val_p.add_argument("--project", type=Path, default=None, help="Project directory")
-    val_p.add_argument("--json", action="store_true", help="Output JSON format")
+    _add_arg_if_missing(val_p, "contract", type=Path, nargs="?", default=None, help="Custom genre contract file path (optional)")
+    _add_arg_if_missing(val_p, "--project", type=Path, default=None, help="Project directory")
+    _add_arg_if_missing(val_p, "--json", action="store_true", help="Output JSON format")
 
     # 6. diagnose
     diag_p = _get_or_add_parser(genre_sub, "diagnose", "Run Layer 2 structural genre diagnostics")
-    diag_p.add_argument("--project", type=Path, default=None, help="Project directory")
-    diag_p.add_argument("--json", action="store_true", help="Output JSON format")
+    _add_arg_if_missing(diag_p, "--project", type=Path, default=None, help="Project directory")
+    _add_arg_if_missing(diag_p, "--json", action="store_true", help="Output JSON format")
 
 
 def dispatch_genre_pack_commands(args: Any) -> bool:
