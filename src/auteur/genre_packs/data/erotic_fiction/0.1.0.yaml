@@ -1,0 +1,310 @@
+pack_id: erotic_fiction
+display_name: Erotic Fiction
+version: 0.1.0
+schema_version: 1
+description: >
+  Genre knowledge for stories in which erotic desire, intimacy,
+  or erotic transformation is a central organizing force rather
+  than incidental content.
+
+audience_promises:
+  - id: erotic_desire_is_structurally_central
+    description: Erotic desire materially drives character choices and structural progression.
+    strength: HARD_CONSTRAINT
+    applicable_profiles: [erotic_romance, erotic_psychological_drama, erotic_horror]
+  - id: intimacy_or_erotic_experience_changes_state
+    description: Intimate scenes perform narrative work, transforming character, relationship, identity, power, knowledge, or stakes.
+    strength: STRONG_DEFAULT
+    applicable_profiles: [erotic_romance, erotic_psychological_drama, erotic_horror]
+  - id: resolution_addresses_erotic_arc
+    description: The final act confronts and resolves the established erotic arc and emotional commitments.
+    strength: HARD_CONSTRAINT
+    applicable_profiles: [erotic_romance, erotic_psychological_drama, erotic_horror]
+
+emotional_targets:
+  - id: desire
+    name: Desire
+    description: Intense attraction and compelling pull toward connection or expression.
+    default_weight: 1.0
+  - id: anticipation
+    name: Anticipation
+    description: Building tension and charged delay before physical or emotional exposure.
+    default_weight: 0.9
+  - id: intimacy
+    name: Intimacy
+    description: Deep emotional or sensory closeness and shared vulnerability.
+    default_weight: 0.9
+  - id: vulnerability
+    name: Vulnerability
+    description: Exposure of inner self, risking psychological or relational safety.
+    default_weight: 0.8
+  - id: fascination
+    name: Fascination
+    description: Irresistible psychological focus on a transformative or complex partner/force.
+    default_weight: 0.8
+  - id: transgression
+    name: Transgression
+    description: Crossing social, personal, or moral boundaries in pursuit of desire.
+    default_weight: 0.7
+  - id: release
+    name: Release
+    description: Culmination of built emotional, physical, or narrative tension.
+    default_weight: 0.9
+  - id: dread
+    name: Dread
+    description: Chilling foreboding when desire becomes destabilizing or perilous.
+    default_weight: 0.7
+
+narrative_engines:
+  - id: desire_and_resistance
+    name: Desire & Resistance
+    description: External prohibitions or internal fears oppose an intensifying mutual attraction.
+    core_conflict: Irresistible desire colliding with prohibitive boundaries or self-protection.
+  - id: intimacy_and_emotional_exposure
+    name: Intimacy & Emotional Exposure
+    description: Physical or emotional closeness forces characters to strip away psychological armor.
+    core_conflict: The safety of isolation versus the transformative risk of vulnerability.
+  - id: erotic_identity_transformation
+    name: Erotic Identity Transformation
+    description: Experiencing desire shifts a character's core self-image, values, or life direction.
+    core_conflict: Preserving an old identity versus embracing a newly awakened erotic self.
+  - id: power_negotiation
+    name: Power Negotiation
+    description: Dynamics of control, surrender, and agency are tested through intimate encounters.
+    core_conflict: Assertion of autonomy versus the desire for surrender or shared power.
+  - id: taboo_and_consequence
+    name: Taboo & Consequence
+    description: Pursuing forbidden desire risks societal, personal, or mortal fallout.
+    core_conflict: Gratification of forbidden impulse versus the inevitability of consequence.
+
+core_conventions:
+  - id: desire_affects_decisions
+    description: Erotic desire materially shapes key plot choices rather than operating as background decoration.
+    strength: HARD_CONSTRAINT
+    diagnostic_severity: ERROR
+    revision_direction: Ensure desire directly motivates or complicates major character choices.
+  - id: intimate_scenes_perform_work
+    description: Every intimate scene changes narrative state (relationship, power, secret, or stakes).
+    strength: STRONG_DEFAULT
+    diagnostic_severity: WARNING
+    revision_direction: Add a narrative state change (knowledge gained, boundary shifted, power rebalanced) to static intimate scenes.
+  - id: erotic_tension_escalation
+    description: Erotic tension changes dynamically across acts rather than staying at a static level.
+    strength: STRONG_DEFAULT
+    diagnostic_severity: WARNING
+    revision_direction: Vary the nature and stakes of attraction and resistance between key beats.
+  - id: agency_and_boundaries_legible
+    description: Character agency and boundary negotiations remain narrative-clear and intentional.
+    strength: HARD_CONSTRAINT
+    diagnostic_severity: ERROR
+    revision_direction: Clarify character intent, consent, or explicit boundary shifts.
+  - id: erotic_consequence
+    description: Intimate milestones generate downstream plot or emotional consequences.
+    strength: STRONG_DEFAULT
+    diagnostic_severity: WARNING
+    revision_direction: Trace the fallout of intimacy into character decisions and external subplots.
+
+scene_functions:
+  - id: establish_attraction
+    name: Establish Attraction
+    description: Introduce sensory, psychological, or emotional pull between characters.
+    narrative_impact: Establishes the baseline erotic engine.
+  - id: create_anticipation
+    name: Create Anticipation
+    description: Build charged friction and delayed gratification.
+    narrative_impact: Heightens reader emotional investment and character focus.
+  - id: test_boundary
+    name: Test Boundary
+    description: Push against a personal, moral, or relational prohibition.
+    narrative_impact: Tests character resolve and exposes unspoken desire.
+  - id: expose_vulnerability
+    name: Expose Vulnerability
+    description: Reveal an authentic fear, flaw, or deep fantasy during an intimate moment.
+    narrative_impact: Shifts relationship from superficial attraction to emotional stakes.
+  - id: renegotiate_power
+    name: Renegotiate Power
+    description: Shift control, dominance, or surrender between partners.
+    narrative_impact: Rebalances character dynamics.
+  - id: intensify_intimacy
+    name: Intensify Intimacy
+    description: Deepen sensory or emotional connection to a new threshold.
+    narrative_impact: Raises stakes and solidifies mutual attachment.
+  - id: reveal_fantasy
+    name: Reveal Fantasy
+    description: Express a hidden erotic desire or secret preference.
+    narrative_impact: Unlocks deeper psychological authenticity.
+  - id: produce_consequence
+    name: Produce Consequence
+    description: Intimacy leads directly to external or internal complication.
+    narrative_impact: Bridges erotic arc with main plot escalation.
+  - id: complicate_attachment
+    name: Complicate Attachment
+    description: Conflicting loyalties or fears strain the growing bond.
+    narrative_impact: Creates Act 2 crisis in the erotic arc.
+  - id: transform_identity
+    name: Transform Identity
+    description: Intimate breakthrough irreversibly changes a character's self-concept.
+    narrative_impact: Delivers psychological transformation.
+  - id: deliver_release
+    name: Deliver Release
+    description: Climax of erotic and emotional tension.
+    narrative_impact: Fulfills built-up audience expectations.
+  - id: establish_aftermath
+    name: Establish Aftermath
+    description: Reflect on the changed reality following intimate culmination.
+    narrative_impact: Locks in state change for subsequent scenes.
+
+conflict_families:
+  - id: desire_vs_duty
+    name: Desire vs Duty
+    description: Erotic pull conflicts with professional, familial, or moral obligations.
+  - id: desire_vs_self_image
+    name: Desire vs Self-Image
+    description: Attraction threatens the protagonist's established identity or values.
+  - id: intimacy_vs_autonomy
+    name: Intimacy vs Autonomy
+    description: The fear of losing self-control or independence vs the drive for connection.
+  - id: attraction_vs_prohibition
+    name: Attraction vs Prohibition
+    description: External social or environmental rules forbid the relationship.
+  - id: pleasure_vs_fear
+    name: Pleasure vs Fear
+    description: Vulnerability offers fulfillment but risks emotional devastation.
+  - id: fantasy_vs_consequence
+    name: Fantasy vs Consequence
+    description: Pursuing idealized erotic impulses collides with messy reality.
+  - id: control_vs_surrender
+    name: Control vs Surrender
+    description: Struggling between maintaining psychological defense and yielding to desire.
+
+framing_modes:
+  - affirmative
+  - romantic
+  - heroic
+  - horrific
+  - tragic
+  - comic
+  - unsettling
+
+subgenre_profiles:
+  - profile_id: erotic_romance
+    display_name: Erotic Romance
+    description: Stories where erotic desire and emotional vulnerability culminate in a satisfying relationship resolution.
+    base_pack_id: erotic_fiction
+    primary_emotions: [desire, intimacy, vulnerability, release]
+    preferred_narrative_engines: [desire_and_resistance, intimacy_and_emotional_exposure]
+    preferred_framing: romantic
+    resolution_expectations: [relational_fulfillment, emotional_trust, mutual_commitment]
+    boundary_warnings: [cynical_estrangement, unmotivated_violence]
+    evaluation_priorities: [intimate_scenes_perform_work, resolution_erotic_arc_payoff]
+
+  - profile_id: erotic_psychological_drama
+    display_name: Erotic Psychological Drama
+    description: Stories exploring complex desire, identity transformation, ambivalence, and relational fallout.
+    base_pack_id: erotic_fiction
+    primary_emotions: [desire, fascination, vulnerability, transgression]
+    preferred_narrative_engines: [erotic_identity_transformation, power_negotiation]
+    preferred_framing: unsettling
+    resolution_expectations: [psychological_transformation, self_realization, altered_worldview]
+    boundary_warnings: [superficial_happy_ending, unexamined_compulsion]
+    evaluation_priorities: [desire_affects_decisions, scene_function_diversity]
+
+  - profile_id: erotic_horror
+    display_name: Erotic Horror
+    description: Stories where desire blends with dread, bodily destabilization, fascination, and dangerous transgression.
+    base_pack_id: erotic_fiction
+    primary_emotions: [desire, dread, fascination, transgression]
+    preferred_narrative_engines: [taboo_and_consequence, erotic_identity_transformation]
+    preferred_framing: horrific
+    resolution_expectations: [monstrous_transformation, perilous_surrender, fatal_consequence]
+    boundary_warnings: [cozy_comfort, unexamined_slasher_tropes]
+    evaluation_priorities: [desire_affects_decisions, resolution_erotic_arc_payoff]
+
+resolution_patterns:
+  - id: transformative_resolution
+    name: Transformative Resolution
+    description: Erotic arc irreversibly changes character identity and relationship.
+  - id: relational_fulfillment
+    name: Relational Fulfillment
+    description: Erotic and emotional harmony established between partners.
+  - id: dark_transgression_resolution
+    name: Dark Transgression Resolution
+    description: Acceptance of a dangerous or uncanny erotic reality.
+
+escalation_patterns:
+  - id: sensory_to_emotional
+    name: Sensory to Emotional
+    description: Attraction starts with physical awareness and deepens into vulnerability.
+  - id: boundary_dissolution
+    name: Boundary Dissolution
+    description: Sequential breaking of personal defenses across narrative acts.
+
+boundary_rules:
+  - id: avoid_incidental_eroticism
+    description: Erotic elements should not be tacked on without narrative impact.
+    strength: BOUNDARY_WARNING
+    warning_message: Erotic scenes appear disconnected from character arcs and stakes.
+  - id: avoid_opaque_agency
+    description: Character motivations during intimate scenes must be legible.
+    strength: BOUNDARY_WARNING
+    warning_message: Character intent or consent appears unintentionally ambiguous.
+
+failure_modes:
+  - id: erotic_content_is_incidental
+    name: Erotic Content Is Incidental
+    description: Intimacy is decorative and has no impact on plot or character.
+    diagnostic_severity: ERROR
+    revision_direction: Integrate intimate outcomes into key decision points.
+  - id: attraction_asserted_not_dramatized
+    name: Attraction Asserted Not Dramatized
+    description: Reader is told characters desire each other without dramatized tension.
+    diagnostic_severity: WARNING
+    revision_direction: Show sensory focus, boundary testing, or nonverbal friction.
+  - id: intimate_scenes_repeat_without_state_change
+    name: Intimate Scenes Repeat Without State Change
+    description: Multiple intimate scenes occur without advancing emotional state or stakes.
+    diagnostic_severity: WARNING
+    revision_direction: Give each intimate scene a distinct scene function and state change.
+  - id: erotic_arc_disappears_from_resolution
+    name: Erotic Arc Disappears From Resolution
+    description: Climax ignores the erotic stakes established earlier.
+    diagnostic_severity: ERROR
+    revision_direction: Ensure Act 3 resolves the erotic tension and commitment.
+
+evaluation_rules:
+  - id: desire_affects_decisions
+    name: Desire Affects Decisions
+    description: Erotic desire materially shapes key character choices.
+    severity: ERROR
+    evidence_expectation: Character decisions explicitly motivated or complicated by desire.
+    explanation: In Erotic Fiction, desire is an active engine, not passive scenery.
+    revision_direction: Connect protagonist's critical choices to their erotic motivation.
+  - id: intimate_scenes_change_state
+    name: Intimate Scenes Change State
+    description: Intimate scenes modify character, relationship, power, or knowledge state.
+    severity: WARNING
+    evidence_expectation: Distinct state change recorded before and after intimate scenes.
+    explanation: Static intimate scenes stall narrative momentum.
+    revision_direction: Add explicit knowledge, power, or relational change to the scene exit.
+  - id: scene_function_diversity
+    name: Scene Function Diversity
+    description: Consecutive intimate scenes utilize distinct scene functions.
+    severity: WARNING
+    evidence_expectation: Varied scene function IDs across intimate beats.
+    explanation: Repeating the same scene function causes structural stagnation.
+    revision_direction: Alternate between testing boundaries, exposing vulnerability, and renegotiating power.
+  - id: resolution_addresses_erotic_arc
+    name: Resolution Addresses Erotic Arc
+    description: Act 3 climax directly addresses the accepted erotic commitment.
+    severity: ERROR
+    evidence_expectation: Climax or resolution beat addresses the erotic relationship/arc.
+    explanation: Dropping the erotic arc in Act 3 violates audience contract.
+    revision_direction: Integrate the erotic arc resolution into the story climax.
+
+revision_strategies:
+  - id: inject_state_change_to_scene
+    name: Inject State Change to Scene
+    description: Add a specific secret reveal or boundary shift to an intimate scene.
+  - id: align_climax_with_erotic_promise
+    name: Align Climax with Erotic Promise
+    description: Restructure Act 3 climax so erotic choices carry story-resolving weight.

@@ -26,7 +26,7 @@ def register_genre_builder_subcommands(sub) -> None:
     p.add_argument("--output", type=Path, required=True)
 
     p = commands.add_parser("validate", help="Validate a custom genre contract.")
-    p.add_argument("contract", type=Path)
+    p.add_argument("contract", type=Path, nargs="?", default=None)
 
     p = commands.add_parser("explain", help="Render a human-readable guide from a custom genre contract.")
     p.add_argument("contract", type=Path)

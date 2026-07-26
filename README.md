@@ -32,6 +32,7 @@ The current Engine v1 is a hybrid system:
 
 This repository contains a working Engine v1 CLI and Python library covering the full narrative compilation lifecycle:
 
+- **Genre Packs**: Versioned, reusable genre knowledge packages (`erotic_fiction` v0.1.0 MVP) supplying audience promises, emotional targets, narrative engines, scene functions, subgenre profiles (`erotic_romance`, `erotic_psychological_drama`, `erotic_horror`), opinionated recommendations, explicit author acceptance/overrides, and genre-aware diagnostics.
 - **Opinionated Story Identity**: Recommended story-engine validation and seeding via Pydantic model contracts, including rationale, rejected directions, and author overrides.
 - **Genre Overrides**: Declared author bypasses for genre contract expectations, classified into four consequence types (`safe_variation`, `compression`, `subversion`, `reclassification`).
 - **Subgenre Modifier Validation**: Registered subgenre modifiers (`locked_room`, `hardboiled`, `cozy`) with scope, setup, and misuse diagnostics.

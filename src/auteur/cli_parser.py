@@ -437,4 +437,7 @@ def build_parser() -> argparse.ArgumentParser:
     from auteur.notify.cli import register_notify_subcommands
     register_notify_subcommands(sub)
 
+    from auteur.genre_packs.cli import register_genre_pack_subcommands
+    register_genre_pack_subcommands(sub)
+
     return parser

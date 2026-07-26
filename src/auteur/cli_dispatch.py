@@ -1321,9 +1321,18 @@ def dispatch(args: argparse.Namespace) -> int:
     if args.command == "import":
         from auteur.roundtrip.cli import handle_import_command
         return handle_import_command(args)
-    # === genre builder ===
+    # === genre builder & genre packs ===
     if args.command == "genre":
+        from auteur.genre_packs.cli import dispatch_genre_pack_commands
         from auteur.genre_builder.cli import handle_genre_builder_command
+        g_cmd = getattr(args, "genre_command", None)
+        if g_cmd in ("pack", "recommend", "recommendation", "profile", "validate-pack", "diagnose"):
+            return dispatch_genre_pack_commands(args)
+        elif g_cmd == "validate":
+            contract_file = getattr(args, "contract", None)
+            if contract_file and Path(contract_file).exists() and Path(contract_file).is_file():
+                return handle_genre_builder_command(args)
+            return dispatch_genre_pack_commands(args)
         return handle_genre_builder_command(args)
 
     # === universe ===

@@ -25,6 +25,7 @@ does not yet have the same reasoning, proposal, freshness propagation, and
 author-facing depth as the proven Expression path.
 
 Updates since v0.22.0:
+- **v0.36.0**: Genre Packs | Erotic Fiction MVP (versioned schema, opinionated recommendations, Layer 1 commitments, provenance, diagnostics)
 - **v0.25.0**: Book Manuscript | Reason | no → yes (book.manuscript critic)
 - **v0.26.0**: Blueprint | Publish | no → yes (blueprint publish command)
 - **v0.22.0**: Chapter Structure | Propose | no → yes (structure propose command)
