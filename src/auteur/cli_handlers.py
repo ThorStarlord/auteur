@@ -2200,8 +2200,10 @@ def handle_identity_init(
     """Initialize an author-editable StoryIdentity skeleton offline without an LLM API key."""
     from auteur.identity import StoryIdentity, TargetExperience, StoryType, HighLevelCentralEngine
 
-    if project_path:
-        target_file = Path(project_path) / "story_identity.yaml"
+    if output_path and Path(output_path).is_absolute():
+        target_file = Path(output_path)
+    elif project_path:
+        target_file = Path(project_path) / (output_path or "story_identity.yaml")
     elif output_path:
         target_file = Path(output_path)
     else:

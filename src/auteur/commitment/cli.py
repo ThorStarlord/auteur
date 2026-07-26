@@ -179,7 +179,7 @@ def _handle_inspect(args) -> int:
             print(f"  State: {c.state.value}")
             print(f"  Assignments: {len(c.assignments)}")
             for d, ca in c.assignments.items():
-                print(f"    {d[:24]}... → {ca[:24]}...")
+                print(f"    {d[:24]}... -> {ca[:24]}...")
         return 0
     except ValueError as e:
         print(f"Error: {e}", file=sys.stderr)

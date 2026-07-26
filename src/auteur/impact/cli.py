@@ -241,7 +241,7 @@ def handle_impact_explain(
             print(f"  Severity: {f.severity.value if hasattr(f.severity, 'value') else f.severity}")
             print(f"  Rule: {f.rule_id}")
             print(f"  Reason: {f.reason}")
-            print(f"  Path: {' → '.join(f.dependency_path)}")
+            print(f"  Path: {' -> '.join(f.dependency_path)}")
             print(f"  Preservation: {f.preservation.value if hasattr(f.preservation, 'value') else f.preservation}")
             print(f"  Recommended: {f.recommended_action}")
             if f.source_change:
