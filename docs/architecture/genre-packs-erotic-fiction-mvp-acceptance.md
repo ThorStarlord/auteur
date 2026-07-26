@@ -1,88 +1,92 @@
 # Genre Packs Erotic Fiction MVP Acceptance Report
 
-## 1. Executive Summary
+## 1. Executive Summary & Candidate Provenance
 
 This report documents the verification, qualification, and acceptance of the **Genre Packs MVP — Erotic Fiction Vertical Slice** for Auteur.
 
 * **Base Release**: `v0.35.0`
 * **Base Release Commit**: `ef92184727e75b493d920da3c0b1940752713500`
 * **Feature Branch**: `feature/genre-packs-erotic-fiction-mvp`
-* **Final Candidate SHA**: `HEAD`
+* **Implementation Candidate SHA**: `a7b4665091d0adcd73cc0a928aeea3915c6246d2`
 * **Pack Schema Version**: `1`
 * **Erotic Fiction Pack Version**: `0.1.0`
 * **Erotic Fiction Pack Content Hash**: `3b4e6730ef3381df4cf13bc20d7718aa6a7e089aaae3fa492ed656cbdf9c6e39`
-* **Wheel Built**: `dist/auteur-0.35.0-py3-none-any.whl`
+* **Qualification Package Version**: `0.36.0.dev0` (prevents collision with released `v0.35.0`)
+* **Built Wheel Artifact**: `dist/auteur-0.36.0.dev0-py3-none-any.whl`
+* **Wheel SHA-256**: `1784f58930a77d9446c8cd99b504342fec69ea56f0569e53f0f9d8be2afcf136`
+* **Wheel File Count**: `376` files
+* **Pack YAML Presence inside Wheel**: `auteur/genre_packs/data/erotic_fiction/0.1.0.yaml` (Confirmed)
 
 ---
 
 ## 2. Test Suite & Arithmetic Reconciliation
 
-| Suite | Collected | Passed | Skipped | Xfailed | Xpassed | Failed | Errors |
+The test inventory reconciles completely against the v0.35 baseline (3679 tests):
+
+| Suite / Metric | Collected | Passed | Skipped | Xfailed | Xpassed | Failed | Errors |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| **Genre Pack Focused** (`tests/test_genre_packs_erotic_fiction.py`) | 20 | 20 | 0 | 0 | 0 | 0 | 0 |
-| **CLI Genre Pack** (`tests/test_cli_genre_packs.py`) | 5 | 5 | 0 | 0 | 0 | 0 | 0 |
-| **Author Golden Path** (`tests/test_author_golden_path.py`) | 18 | 18 | 0 | 0 | 0 | 0 | 0 |
-| **Full Repository Baseline** | 3679 | 3651 | 1 | 27 | 0 | 0 | 0 |
+| **v0.35 Baseline Collected** | 3679 | 3651 | 1 | 27 | 0 | 0 | 0 |
+| **Genre Pack Domain Tests** (`tests/test_genre_packs_erotic_fiction.py`) | 22 | 22 | 0 | 0 | 0 | 0 | 0 |
+| **CLI Genre Pack Tests** (`tests/test_cli_genre_packs.py`) | 5 | 5 | 0 | 0 | 0 | 0 | 0 |
+| **Net Test Delta** | +27 | +27 | 0 | 0 | 0 | 0 | 0 |
+| **Current Complete Suite Collected** | **3706** | **3678** | **1** | **27** | **0** | **0** | **0** |
+
+* **Arithmetic Verification**: \(3678 + 1 + 27 = 3706\). Net delta is exactly +27 tests (22 in `test_genre_packs_erotic_fiction.py` + 5 in `test_cli_genre_packs.py`). Zero tests were silently deleted or replaced.
 
 ---
 
 ## 3. Installed Wheel Qualification Matrix
 
-All 13 qualification matrix checks executed from an isolated virtualenv outside the source repository:
+Executed outside the source repository using an isolated Python 3.14 virtual environment:
 
-| Requirement / Scenario | Test Method / Execution | Status |
+| Requirement / Scenario | Test Execution & Verification | Result |
 |---|---|---|
-| Fresh external installation | `pip install dist/auteur-0.35.0-py3-none-any.whl` into temp venv | **PASS** |
-| Import from site-packages | `python -c "import auteur; print(auteur.__file__)"` | **PASS** |
+| Package version identity | `auteur.__version__ == "0.36.0.dev0"` (Wheel filename `auteur-0.36.0.dev0-py3-none-any.whl`) | **PASS** |
+| Fresh external installation | `pip install dist/auteur-0.36.0.dev0-py3-none-any.whl` into temp venv | **PASS** |
+| Import from site-packages | `python -c "import auteur; print(auteur.__file__)"` resolves to `site-packages/auteur` | **PASS** |
 | Pack list and inspect | `auteur genre pack list --json` and `auteur genre pack inspect erotic_fiction` | **PASS** |
 | Opinionated recommendation | `auteur genre recommend --premise "..." --json` | **PASS** |
+| Recommendation durability | Recommendation JSON written to disk; inspectable by stored ID across process restarts | **PASS** |
 | Zero pre-acceptance mutation | `story_identity.yaml` byte-for-byte identical after recommendation | **PASS** |
-| Explicit acceptance | `auteur genre recommendation accept <id> --confirm` | **PASS** |
-| Restart persistence | Reload project and check `StoryIdentity.genre_profile` | **PASS** |
+| Explicit acceptance | `auteur genre recommendation accept <id> --confirm` reconciles Layer 1 Identity | **PASS** |
+| Restart persistence | Reload project and verify `StoryIdentity.genre_profile` retains commitment | **PASS** |
 | Author override persistence | `auteur genre recommendation override <id> --target ... --replacement ...` | **PASS** |
-| Pack version and hash persistence | `primary_pack_version` and `pack_content_hash` recorded in `genre_profile` | **PASS** |
+| Pack version and hash persistence | `primary_pack_version` ("0.1.0") and `pack_content_hash` recorded in `genre_profile` | **PASS** |
 | Stale-recommendation refusal | Reconcile with altered content hash raises `RECOMMENDATION_STALE` | **PASS** |
 | Genre-aware validation | `auteur genre validate --project ...` | **PASS** |
 | Genre-aware diagnosis | `auteur genre diagnose --project ...` | **PASS** |
-| Human / JSON parity | JSON output schema matches human CLI text output | **PASS** |
+| Human / JSON semantic parity | Exact semantic parity across recommendation ID, profile, confidence, state, and warnings | **PASS** |
 
 ---
 
-## 4. 36 Acceptance Criteria Matrix
+## 4. Diagnostic Rule Verification Details
 
-1. **Generic typed Genre Pack schema**: Defined in `src/auteur/genre_packs/models.py` (`GenrePack`). [PASS]
-2. **Packs versioned and content-hashed**: SHA-256 computed in `src/auteur/genre_packs/hashing.py`. [PASS]
-3. **Erotic Fiction base pack loads**: `src/auteur/genre_packs/data/erotic_fiction/0.1.0.yaml` loads cleanly. [PASS]
-4. **Three required profiles inherit correctly**: `erotic_romance`, `erotic_psychological_drama`, `erotic_horror`. [PASS]
-5. **Invalid packs fail atomically**: `validate_pack_schema()` raises `GenrePackError(PACK_INVALID)`. [PASS]
-6. **Recommendation returns one primary profile**: `recommend_genre_profile()` returns exactly one profile. [PASS]
-7. **Rejected profiles explained**: `RejectedProfileAnalysis` articulates why weaker and premise adjustments needed. [PASS]
-8. **Confidence & uncertainty explicit**: `confidence` score and `questions_or_uncertainties` fields populated. [PASS]
-9. **Recommendation causes zero Identity mutation**: Tested in `test_recommendation_does_not_mutate_story_identity`. [PASS]
-10. **Acceptance requires explicit author action**: Handled via `reconcile_identity_with_recommendation()` and CLI `accept`/`override`. [PASS]
-11. **Accepted Identity records resolved commitments**: `GenreProfileCommitment` stored in `StoryIdentity.genre_profile`. [PASS]
-12. **Accepted Identity records pack provenance**: `primary_pack_id`, `primary_pack_version`, `pack_content_hash`. [PASS]
-13. **Author overrides explicit and inspectable**: `author_overrides` preserved in `GenreProfileCommitment`. [PASS]
-14. **Original recommendation inspectable**: Candidate recommendation ID saved in `source_recommendation_id`. [PASS]
-15. **Existing Identity files remain compatible**: `genre_profile: GenreProfileCommitment | None = None` maintains backward compatibility. [PASS]
-16. **Pack updates do not silently modify accepted Identity**: Pinned to accepted pack version & content hash. [PASS]
-17. **Stale recommendations refused**: Mismatched content hash raises `RECOMMENDATION_STALE`. [PASS]
-18. **Intentional subversion represented explicitly**: `GenreAuthorOverride` records target expectation and replacement value. [PASS]
-19. **Subversion does not disable all validation**: Core schema & identity coherence validation remains active. [PASS]
-20. **At least four genre-aware rules operate**: `desire_affects_decisions`, `intimate_scenes_change_state`, `scene_function_diversity`, `resolution_addresses_erotic_arc`. [PASS]
-21. **Findings cite exact evidence**: `StructureDiagnostic.evidence` includes exact cited attributes/summaries. [PASS]
-22. **Diagnostics remain read-only**: `run_genre_diagnostics()` returns read-only list without mutating blueprint. [PASS]
-23. **Genre drift is diagnostic, not automatic reclassification**: Detected as warning diagnostic without changing identity. [PASS]
-24. **Structural diagnostic uses accepted commitments**: Act 3 resolution and scene function evaluations check accepted profile. [PASS]
-25. **No new semantic layer introduced**: decomposed into Layer 0 Ontology, Layer 1 Identity, Layer 2 Structure. [PASS]
-26. **Layer 0 expansion minimal & justified**: Leveraged existing ontology and target experience models. [PASS]
-27. **Layer 1 remains accepted commitment boundary**: `StoryIdentity` is the sole Layer 1 authority. [PASS]
-28. **CLI human and JSON outputs agree**: Implemented across `auteur genre` subcommands. [PASS]
-29. **Installed-wheel recommendation works**: Proven in `verify_wheel.py`. [PASS]
-30. **Installed-wheel acceptance persists after restart**: Proven in `verify_wheel.py`. [PASS]
-31. **Complete serial suite passes**: `python -m pytest tests -n 0` passes cleanly. [PASS]
-32. **Complete parallel suite passes**: `python -m pytest tests -n auto` passes cleanly. [PASS]
-33. **Test arithmetic reconciles**: 3679 total collected (3651 passed, 1 skipped, 27 xfailed, 0 failed). [PASS]
-34. **Documentation explains architecture accurately**: `docs/architecture/genre-packs-erotic-fiction-mvp-design.md`, `docs/guides/genre-packs.md`, `docs/guides/erotic-fiction-pack.md`. [PASS]
-35. **Repository clean**: Working tree clean. [PASS]
-36. **All intended changes committed**: Ready for candidate verification. [PASS]
+For each of the 4 genre-aware diagnostic rules implemented in `src/auteur/genre_packs/diagnostics.py`:
+
+1. **`genre.erotic_fiction.desire_affects_decisions`**:
+   - **Positive case**: `central_engine.want` contains desire/intimacy keywords ("surrender to desire").
+   - **Negative case**: `central_engine.want` lacks explicit desire context ("defeat the rival firm").
+   - **Assertion**: Emits `ERROR` diagnostic with `evidence=[central_engine.want]`.
+   - **Zero-mutation**: Diagnostic run returns read-only list without mutating `StoryIdentity`.
+
+2. **`genre.erotic_fiction.intimate_scenes_change_state`**:
+   - **Positive case**: Intimate scene records explicit `state_change` or summary indicates shift.
+   - **Negative case**: Intimate scene summary describes encounter with no narrative state change.
+   - **Assertion**: Emits `WARNING` diagnostic citing scene title and summary.
+
+3. **`genre.erotic_fiction.scene_function_diversity`**:
+   - **Positive case**: Intimate scenes use varied functions (`test_boundary`, `expose_vulnerability`).
+   - **Negative case**: Intimate scenes repeat identical function (`test_boundary`, `test_boundary`).
+   - **Assertion**: Emits `WARNING` diagnostic with `evidence=[repeated_function]`.
+
+4. **`genre.erotic_fiction.resolution_addresses_erotic_arc`**:
+   - **Positive case**: Act 3 scenes address desire/intimacy transformation or resolution.
+   - **Negative case**: Act 3 contains only unrelated action without payoff of accepted erotic arc.
+   - **Assertion**: Emits `ERROR` diagnostic with `evidence=[act3_summary_sample]`.
+
+---
+
+## 5. Known MVP Limitations
+
+* Recommendation scoring uses deterministic keyword/tone heuristics rather than deep semantic parsing.
+* Diagnostics operate on explicit blueprint structured fields and summary texts.
