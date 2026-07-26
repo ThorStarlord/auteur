@@ -1321,9 +1321,12 @@ def dispatch(args: argparse.Namespace) -> int:
     if args.command == "import":
         from auteur.roundtrip.cli import handle_import_command
         return handle_import_command(args)
-    # === genre builder ===
+    # === genre builder & genre packs ===
     if args.command == "genre":
+        from auteur.genre_packs.cli import dispatch_genre_pack_commands
         from auteur.genre_builder.cli import handle_genre_builder_command
+        if getattr(args, "genre_command", None) in ("pack", "recommend", "recommendation", "profile", "validate", "validate-pack", "diagnose"):
+            return dispatch_genre_pack_commands(args)
         return handle_genre_builder_command(args)
 
     # === universe ===
