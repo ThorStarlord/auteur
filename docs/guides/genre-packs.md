@@ -26,8 +26,14 @@ A **Genre Pack** is a versioned, product-level package of reusable genre knowled
 * When an author accepts a recommendation, `StoryIdentity.genre_profile` records `primary_pack_id`, `primary_pack_version`, and `pack_content_hash`.
 * If a built-in pack is later updated on disk, existing accepted projects remain pinned to their accepted version/hash, ensuring stability.
 
-## Author Overrides & Subversion
+## Recommendation Persistence & Project Isolation
 
-Authors can explicitly override recommended profile preferences (e.g., changing primary framing or resolution contracts).
-* Overrides are explicitly stored in `genre_profile.author_overrides`.
-* Intentional subversions downgrade potential genre warnings to informative logs rather than disabling validation entirely.
+* **Authoritative Location**: Project-local storage at `.auteur/genre_recommendations/<rec_id>.json` is primary and authoritative.
+* **Process-Restart Durability**: Recommendations are written atomically (`_atomic_write_json`) to prevent partial/corrupted files during interrupted writes.
+* **Cross-Project Isolation**: Recommendations are strictly scoped to their project directory when project context is specified. Loading a recommendation from another project root is rejected to prevent cross-project leaks.
+* **Project Relocation**: Because recommendation artifacts reside inside `.auteur/genre_recommendations/` within the project root directory, moving or renaming a project preserves inspectability.
+
+## MVP Diagnostic Limitations
+
+* **Deterministic Proxies**: Diagnostic rules in the MVP (e.g. `genre.erotic_fiction.desire_affects_decisions`) use deterministic lexical and structural proxies derived from explicit fields like `central_engine.want` or scene summary texts.
+* **Explicit Evidence**: Rule evaluations report exact evidence snippets and level of proof, ensuring clear diagnostic feedback without claiming unrestricted semantic understanding.

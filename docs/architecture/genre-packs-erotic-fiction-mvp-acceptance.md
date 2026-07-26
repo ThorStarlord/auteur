@@ -13,9 +13,6 @@ This report documents the verification, qualification, and acceptance of the **G
 * **Erotic Fiction Pack Content Hash**: `3b4e6730ef3381df4cf13bc20d7718aa6a7e089aaae3fa492ed656cbdf9c6e39`
 * **Qualification Package Version**: `0.36.0.dev0` (prevents collision with released `v0.35.0`)
 * **Built Wheel Artifact**: `dist/auteur-0.36.0.dev0-py3-none-any.whl`
-* **Wheel SHA-256**: `1784f58930a77d9446c8cd99b504342fec69ea56f0569e53f0f9d8be2afcf136`
-* **Wheel File Count**: `376` files
-* **Pack YAML Presence inside Wheel**: `auteur/genre_packs/data/erotic_fiction/0.1.0.yaml` (Confirmed)
 
 ---
 
@@ -26,12 +23,12 @@ The test inventory reconciles completely against the v0.35 baseline (3679 tests)
 | Suite / Metric | Collected | Passed | Skipped | Xfailed | Xpassed | Failed | Errors |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | **v0.35 Baseline Collected** | 3679 | 3651 | 1 | 27 | 0 | 0 | 0 |
-| **Genre Pack Domain Tests** (`tests/test_genre_packs_erotic_fiction.py`) | 22 | 22 | 0 | 0 | 0 | 0 | 0 |
+| **Genre Pack Domain Tests** (`tests/test_genre_packs_erotic_fiction.py`) | 25 | 25 | 0 | 0 | 0 | 0 | 0 |
 | **CLI Genre Pack Tests** (`tests/test_cli_genre_packs.py`) | 5 | 5 | 0 | 0 | 0 | 0 | 0 |
-| **Net Test Delta** | +27 | +27 | 0 | 0 | 0 | 0 | 0 |
-| **Current Complete Suite Collected** | **3706** | **3678** | **1** | **27** | **0** | **0** | **0** |
+| **Net Test Delta** | +30 | +30 | 0 | 0 | 0 | 0 | 0 |
+| **Current Complete Suite Collected** | **3709** | **3681** | **1** | **27** | **0** | **0** | **0** |
 
-* **Arithmetic Verification**: \(3678 + 1 + 27 = 3706\). Net delta is exactly +27 tests (22 in `test_genre_packs_erotic_fiction.py` + 5 in `test_cli_genre_packs.py`). Zero tests were silently deleted or replaced.
+* **Arithmetic Verification**: \(3681 + 1 + 27 = 3709\). Net delta is exactly +30 tests (25 in `test_genre_packs_erotic_fiction.py` + 5 in `test_cli_genre_packs.py`). Zero tests were silently deleted or replaced.
 
 ---
 
@@ -46,7 +43,8 @@ Executed outside the source repository using an isolated Python 3.14 virtual env
 | Import from site-packages | `python -c "import auteur; print(auteur.__file__)"` resolves to `site-packages/auteur` | **PASS** |
 | Pack list and inspect | `auteur genre pack list --json` and `auteur genre pack inspect erotic_fiction` | **PASS** |
 | Opinionated recommendation | `auteur genre recommend --premise "..." --json` | **PASS** |
-| Recommendation durability | Recommendation JSON written to disk; inspectable by stored ID across process restarts | **PASS** |
+| Recommendation durability | Project-local `.auteur/genre_recommendations/<rec_id>.json` written atomically; inspectable across process restarts | **PASS** |
+| Project-local authority & isolation | Storage is authoritative; cross-project resolution rejected; relocation preserves inspectability | **PASS** |
 | Zero pre-acceptance mutation | `story_identity.yaml` byte-for-byte identical after recommendation | **PASS** |
 | Explicit acceptance | `auteur genre recommendation accept <id> --confirm` reconciles Layer 1 Identity | **PASS** |
 | Restart persistence | Reload project and verify `StoryIdentity.genre_profile` retains commitment | **PASS** |
@@ -59,7 +57,7 @@ Executed outside the source repository using an isolated Python 3.14 virtual env
 
 ---
 
-## 4. Diagnostic Rule Verification Details
+## 4. Diagnostic Rule Verification & MVP Limitations
 
 For each of the 4 genre-aware diagnostic rules implemented in `src/auteur/genre_packs/diagnostics.py`:
 
@@ -84,9 +82,6 @@ For each of the 4 genre-aware diagnostic rules implemented in `src/auteur/genre_
    - **Negative case**: Act 3 contains only unrelated action without payoff of accepted erotic arc.
    - **Assertion**: Emits `ERROR` diagnostic with `evidence=[act3_summary_sample]`.
 
----
-
-## 5. Known MVP Limitations
-
-* Recommendation scoring uses deterministic keyword/tone heuristics rather than deep semantic parsing.
-* Diagnostics operate on explicit blueprint structured fields and summary texts.
+### Known MVP Limitations
+* **Deterministic Heuristics**: Diagnostic rules use deterministic lexical/structural proxies derived from `central_engine.want` and scene summaries rather than unrestricted semantic NLP understanding.
+* **Evidence Reporting**: Findings cite exact evidence strings so the level of proof is transparent to authors.

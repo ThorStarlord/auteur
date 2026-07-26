@@ -380,6 +380,69 @@ def test_accepted_identity_pack_version_stability(tmp_path: Path):
     assert reloaded.genre_profile.primary_profile_id == "erotic_psychological_drama"
 
 
+def test_recommendation_project_local_authority_and_isolation(tmp_path: Path):
+    from auteur.genre_packs.recommendation import save_recommendation, load_recommendation, _PENDING_RECOMMENDATIONS
+    proj_a = tmp_path / "proj_a"
+    proj_b = tmp_path / "proj_b"
+    proj_a.mkdir()
+    proj_b.mkdir()
+
+    rec_a = recommend_genre_profile("Project A story of passion")
+    save_recommendation(rec_a, proj_a)
+    rec_id = rec_a.recommendation_id
+
+    # Clear memory cache
+    _PENDING_RECOMMENDATIONS.clear()
+
+    # Proj A loads rec_a cleanly
+    loaded_a = load_recommendation(rec_id, proj_a)
+    assert loaded_a.recommendation_id == rec_id
+
+    # Clear memory cache
+    _PENDING_RECOMMENDATIONS.clear()
+
+    # Proj B cannot cross-resolve rec_a (isolation enforced)
+    with pytest.raises(GenrePackError) as exc_info:
+        load_recommendation(rec_id, proj_b)
+    assert exc_info.value.code == GenreErrorCode.RECOMMENDATION_NOT_FOUND
+
+
+def test_recommendation_atomic_write_safety(tmp_path: Path):
+    from auteur.genre_packs.recommendation import _atomic_write_json
+    rec = recommend_genre_profile("Test atomic write")
+    target_file = tmp_path / ".auteur" / "genre_recommendations" / f"{rec.recommendation_id}.json"
+
+    _atomic_write_json(target_file, rec.model_dump(mode="json"))
+    assert target_file.exists()
+    
+    # Ensure no leftover temp files exist
+    temp_files = list(target_file.parent.glob(".tmp_*"))
+    assert len(temp_files) == 0
+
+
+def test_recommendation_survives_restart_and_project_relocation(tmp_path: Path):
+    from auteur.genre_packs.recommendation import save_recommendation, load_recommendation, _PENDING_RECOMMENDATIONS
+    import shutil
+    orig_proj = tmp_path / "original_proj"
+    orig_proj.mkdir()
+
+    rec = recommend_genre_profile("Story surviving relocation")
+    save_recommendation(rec, orig_proj)
+    rec_id = rec.recommendation_id
+
+    # Relocate project directory
+    new_proj = tmp_path / "relocated_proj"
+    shutil.move(str(orig_proj), str(new_proj))
+
+    # Clear in-memory store
+    _PENDING_RECOMMENDATIONS.clear()
+
+    # Inspect from relocated path succeeds because artifact is project-local
+    reloaded = load_recommendation(rec_id, new_proj)
+    assert reloaded.recommendation_id == rec_id
+    assert reloaded.recommended_profile_id == rec.recommended_profile_id
+
+
 def test_installed_genre_pack_journey(tmp_path: Path):
     ident = _make_minimal_identity(tmp_path)
 
