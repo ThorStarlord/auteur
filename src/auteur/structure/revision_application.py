@@ -626,19 +626,26 @@ def _handle_update_outline_field(
     try:
         current = yaml.safe_load(target_path.read_text(encoding="utf-8")) or {}
         if isinstance(current, dict) and field:
-            current[field] = value
+            # Support dotted field paths for nested dict access
+            parts = field.split(".")
+            target = current
+            for part in parts[:-1]:
+                if part not in target or not isinstance(target[part], dict):
+                    target[part] = {}
+                target = target[part]
+            target[parts[-1]] = value
         _atomic_write(target_path, yaml.safe_dump(current, sort_keys=False))
+        return RevisionTargetResult(
+            target_id=op.target_id, target_type=op.target_type,
+            before_hash=before_hash, success=True,
+            operation_ids=[op.operation_id],
+        )
     except Exception as exc:
         return RevisionTargetResult(
             target_id=op.target_id, target_type=op.target_type,
             before_hash=before_hash, success=False, error=str(exc),
             operation_ids=[op.operation_id],
         )
-    return RevisionTargetResult(
-        target_id=op.target_id, target_type=op.target_type,
-        before_hash=before_hash, success=True,
-        operation_ids=[op.operation_id],
-    )
 
 
 def _handle_apply_existing_impact_proposal(
