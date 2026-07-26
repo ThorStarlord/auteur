@@ -635,6 +635,11 @@ def _handle_update_outline_field(
                 target = target[part]
             target[parts[-1]] = value
         _atomic_write(target_path, yaml.safe_dump(current, sort_keys=False))
+        return RevisionTargetResult(
+            target_id=op.target_id, target_type=op.target_type,
+            before_hash=before_hash, success=True,
+            operation_ids=[op.operation_id],
+        )
     except Exception as exc:
         return RevisionTargetResult(
             target_id=op.target_id, target_type=op.target_type,
