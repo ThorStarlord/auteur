@@ -40,6 +40,8 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 
+from auteur.structure.revision_application import apply_revision
+
 class StructuralRevisionPlan(BaseModel):
     """A revision plan describing operations to apply to structural artifacts."""
 
@@ -64,6 +66,28 @@ class StructuralRevisionPlan(BaseModel):
 # Internal planner — convert proposals / diagnostics into revision plans
 # ---------------------------------------------------------------------------
 
+
+
+
+def _dict_to_operations(
+    prefix: str, data: dict, start_index: int
+) -> list[dict]:
+    """Convert a nested dict into revision operations targeting blueprint.yaml."""
+    ops: list[dict] = []
+    for key, value in data.items():
+        field_path = f"{prefix}.{key}"
+        if isinstance(value, dict):
+            ops.extend(_dict_to_operations(field_path, value, start_index + len(ops)))
+        else:
+            ops.append({
+                "operation_id": f"op_{start_index + len(ops)}",
+                "target_id": "blueprint",
+                "target_type": "blueprint",
+                "operation_type": "update_outline_field",
+                "requested_change": {"field": field_path, "value": value},
+                "order": start_index + len(ops),
+            })
+    return ops
 
 class _RevisionPlanner:
     """Lightweight planner that builds revision plans from proposals or
@@ -102,6 +126,30 @@ class _RevisionPlanner:
 
         operations: list[RevisionOperation] = []
         raw_ops = data.get("operations", [])
+        
+        # If no raw operations, try extracting from StructureProposal options
+        if not raw_ops:
+            options = data.get("options", [])
+            selection = data.get("selection", {})
+            selected_id = selection.get("selected_option_id", "") if isinstance(selection, dict) else ""
+            if selected_id:
+                for opt in options:
+                    if isinstance(opt, dict) and opt.get("id") == selected_id:
+                        opt_data = opt.get("data", {})
+                        for key, value in opt_data.items():
+                            if isinstance(value, dict):
+                                ops = _dict_to_operations(key, value, len(raw_ops))
+                                raw_ops.extend(ops)
+                            elif isinstance(value, list):
+                                raw_ops.append({
+                                    "operation_id": f"op_{len(raw_ops)}",
+                                    "target_id": key,
+                                    "target_type": "blueprint_field",
+                                    "operation_type": "replace",
+                                    "requested_change": {key: value},
+                                    "order": len(raw_ops),
+                                })
+        
         for i, op in enumerate(raw_ops):
             operations.append(
                 RevisionOperation(
@@ -117,10 +165,8 @@ class _RevisionPlanner:
                     order=op.get("order", i),
                 )
             )
-
         target_hashes: dict[str, str] = data.get("target_hashes", {})
         source_ids: list[str] = data.get("source_ids", [proposal_id])
-
         plan_id = _stable_plan_id(
             project=self.project_root.name,
             source_ids=source_ids,
@@ -129,7 +175,6 @@ class _RevisionPlanner:
             operations=operations,
             scope=scope,
         )
-
         now = datetime.now(timezone.utc).isoformat()
         return StructuralRevisionPlan(
             plan_id=plan_id,
@@ -222,7 +267,7 @@ class _RevisionPlanner:
 
 
 class _RevisionApplicationExecutor:
-    """Lightweight executor that validates and applies revision plans."""
+    """Executor adapter that delegates to the real apply_revision() API."""
 
     def __init__(self, project_root: Path) -> None:
         self.project_root = Path(project_root).resolve()
@@ -230,15 +275,12 @@ class _RevisionApplicationExecutor:
     def validate_preconditions(
         self, plan: StructuralRevisionPlan
     ) -> list[RevisionPrecondition]:
-        """Check every precondition in the plan against current hashes.
-
-        For each precondition, compares ``expected_hash`` to a hash
-        derived from the current file on disk.  Returns a fresh list of
-        precondition states.
-        """
+        """Check every precondition against current hashes."""
+        current_app = apply_revision(plan, self.project_root, confirmed=False)
+        # When unconfirmed, apply_revision doesn't check preconditions in detail
+        # so we compute them ourselves
         resolved: list[RevisionPrecondition] = []
         for pc in plan.preconditions:
-            # Attempt to compute current hash from the target artifact file
             current_hash = self._resolve_artifact_hash(pc.target_id)
             met = current_hash is not None and current_hash == pc.expected_hash
             resolved.append(
@@ -262,100 +304,30 @@ class _RevisionApplicationExecutor:
         ]
         for path in candidates:
             if path.exists():
-                content = path.read_bytes()
                 import hashlib
-                return hashlib.sha256(content).hexdigest()
+                return hashlib.sha256(path.read_bytes()).hexdigest()
         return None
 
     def execute(
         self, plan: StructuralRevisionPlan, confirmed: bool = False
     ) -> RevisionApplication:
-        """Execute the operations in *plan*, returning an application record.
-
-        Args:
-            plan: The plan to apply.
-            confirmed: Must be ``True`` for mutation to proceed.
-
-        Returns:
-            A :class:`RevisionApplication` with per-target results.
+        """Execute revision plan by delegating to the real apply_revision().
+        
+        This replaces the previous no-op placeholder that logged operations
+        without performing any mutation.
         """
-        if not confirmed:
-            raise PermissionError(
-                "Authority gating: apply requires confirmed=True"
-            )
-
-        app_id = _stable_app_id(plan.plan_id, confirmed)
-
-        target_results: list = []
-        for op in plan.operations:
-            before_hash = self._resolve_artifact_hash(op.target_id) or "unknown"
-            try:
-                self._apply_single_operation(op)
-                after_hash = (
-                    self._resolve_artifact_hash(op.target_id) or "unknown"
-                )
-                from auteur.structure.revision_models import RevisionTargetResult
-
-                target_results.append(
-                    RevisionTargetResult(
-                        target_id=op.target_id,
-                        target_type=op.target_type,
-                        before_hash=before_hash,
-                        after_hash=after_hash,
-                        diff={},
-                        operation_ids=[op.operation_id],
-                        success=True,
-                    )
-                )
-            except Exception as exc:
-                from auteur.structure.revision_models import RevisionTargetResult
-
-                target_results.append(
-                    RevisionTargetResult(
-                        target_id=op.target_id,
-                        target_type=op.target_type,
-                        before_hash=before_hash,
-                        after_hash=None,
-                        diff={},
-                        operation_ids=[op.operation_id],
-                        success=False,
-                        error=str(exc),
-                    )
-                )
-                # Stop on first failure
-                break
-
-        now = datetime.now(timezone.utc).isoformat()
-        return RevisionApplication(
-            application_id=app_id,
-            plan_id=plan.plan_id,
-            state="applied",
-            target_results=target_results,
-            created_at=now,
-            confirmed=confirmed,
-        )
-
-    def _apply_single_operation(
-        self, op: RevisionOperation
-    ) -> None:
-        """Apply one operation to the project filesystem.
-
-        This is a placeholder that records the intent.  Real implementations
-        would delegate to blueprint patching, outline rewriting, etc.
-        """
-        # Log the operation for future real implementations
+        import logging
+        logger = logging.getLogger(__name__)
         logger.info(
-            "Applying operation %s: %s on %s (%s)",
-            op.operation_id,
-            op.operation_type.value,
-            op.target_id,
-            op.target_type,
+            "Executing revision %s (confirmed=%s) via apply_revision adapter",
+            plan.plan_id, confirmed,
         )
+        return apply_revision(plan, self.project_root, confirmed=confirmed)
+    # ------------------------------------------------------------------
+    # Validation
+    # ------------------------------------------------------------------
 
 
-# ---------------------------------------------------------------------------
-# Persistence helpers
-# ---------------------------------------------------------------------------
 
 
 def _ensure_dirs(base: Path) -> None:
@@ -408,6 +380,7 @@ def _serialise(obj: BaseModel) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 # RevisionService — lifecycle coordination
 # ---------------------------------------------------------------------------
+
 
 
 class RevisionService:
