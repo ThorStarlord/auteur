@@ -15,6 +15,8 @@ from pydantic import BaseModel, Field, model_validator
 if TYPE_CHECKING:
     from auteur.genres.models import GenreContract
 
+from auteur.genre_packs.models import GenreProfileCommitment
+
 from auteur.blueprint import (
     Genre,
     StoryMode,
@@ -100,6 +102,7 @@ class StoryIdentity(BaseModel):
     rejected_directions: list[str] = Field(default_factory=list)
     author_overrides: list[str] = Field(default_factory=list)
     genre_contract_snapshot: GenreContract | None = None
+    genre_profile: GenreProfileCommitment | None = None
 
     @model_validator(mode="after")
     def _hydrate_genre_contract(self) -> Self:
@@ -117,6 +120,10 @@ class StoryIdentity(BaseModel):
             StructureDiagnostic,
         )
         diagnostics: list[StructureDiagnostic] = []
+
+        if self.genre_profile:
+            from auteur.genre_packs.validation import validate_genre_profile_identity
+            diagnostics.extend(validate_genre_profile_identity(self))
 
         # 1. Want-Change Coherence
         def _normalize(text: str) -> str:
