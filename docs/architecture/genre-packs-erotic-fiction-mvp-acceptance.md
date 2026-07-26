@@ -7,12 +7,15 @@ This report documents the verification, qualification, and acceptance of the **G
 * **Base Release**: `v0.35.0`
 * **Base Release Commit**: `ef92184727e75b493d920da3c0b1940752713500`
 * **Feature Branch**: `feature/genre-packs-erotic-fiction-mvp`
-* **Implementation Candidate SHA**: `a7b4665091d0adcd73cc0a928aeea3915c6246d2`
+* **Exact Qualified Candidate HEAD**: `b673689408b0aeebfb54b1f4fa85c88cfefdca40`
 * **Pack Schema Version**: `1`
 * **Erotic Fiction Pack Version**: `0.1.0`
 * **Erotic Fiction Pack Content Hash**: `3b4e6730ef3381df4cf13bc20d7718aa6a7e089aaae3fa492ed656cbdf9c6e39`
 * **Qualification Package Version**: `0.36.0.dev0` (prevents collision with released `v0.35.0`)
 * **Built Wheel Artifact**: `dist/auteur-0.36.0.dev0-py3-none-any.whl`
+* **Wheel SHA-256**: `d7dc1287ce156967c286664542f93d3bf0e4099f1511b4b50f93749dc8c0856a`
+* **Wheel File Count**: `376` files
+* **Pack YAML Presence inside Wheel**: `auteur/genre_packs/data/erotic_fiction/0.1.0.yaml` (Confirmed)
 
 ---
 
