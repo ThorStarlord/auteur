@@ -68,14 +68,19 @@ def save_recommendation(rec: GenreRecommendation, project_dir: Path | str | None
 def load_recommendation(rec_id: str, project_dir: Path | str | None = None) -> GenreRecommendation:
     """Retrieve recommendation by ID from memory cache or project-local disk persistence.
     
-    Project-local storage is authoritative. Cross-project cross-resolution is rejected.
+    Project-local storage is authoritative. Relocation within project directory updates location metadata.
     """
-    if rec_id in _PENDING_RECOMMENDATIONS:
-        rec = _PENDING_RECOMMENDATIONS[rec_id]
-        if project_dir and rec.context and rec.context.get("_project_dir"):
-            if rec.context["_project_dir"] != str(Path(project_dir).resolve()):
-                raise GenrePackError(GenreErrorCode.RECOMMENDATION_NOT_FOUND, f"Recommendation ID '{rec_id}' not found in project '{project_dir}'.")
-        return rec
+    if project_dir:
+        p_res = str(Path(project_dir).resolve())
+        if rec_id in _PENDING_RECOMMENDATIONS:
+            cached_rec = _PENDING_RECOMMENDATIONS[rec_id]
+            cached_p = cached_rec.context.get("_project_dir") if cached_rec.context else None
+            if cached_p is None or cached_p == p_res:
+                return cached_rec
+            else:
+                _PENDING_RECOMMENDATIONS.pop(rec_id, None)
+    elif rec_id in _PENDING_RECOMMENDATIONS:
+        return _PENDING_RECOMMENDATIONS[rec_id]
 
     # 1. Project-local check (Authoritative)
     if project_dir:
@@ -83,6 +88,8 @@ def load_recommendation(rec_id: str, project_dir: Path | str | None = None) -> G
         if proj_file.exists():
             data = json.loads(proj_file.read_text(encoding="utf-8"))
             rec = GenreRecommendation.model_validate(data)
+            rec.context = rec.context or {}
+            rec.context["_project_dir"] = str(Path(project_dir).resolve())
             _PENDING_RECOMMENDATIONS[rec_id] = rec
             return rec
 

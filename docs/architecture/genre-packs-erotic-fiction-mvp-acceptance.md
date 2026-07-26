@@ -7,7 +7,9 @@ This report documents the verification, qualification, and acceptance of the **G
 * **Base Release**: `v0.35.0`
 * **Base Release Commit**: `ef92184727e75b493d920da3c0b1940752713500`
 * **Feature Branch**: `feature/genre-packs-erotic-fiction-mvp`
-* **Exact Qualified Candidate HEAD**: `b673689408b0aeebfb54b1f4fa85c88cfefdca40`
+* **Implementation Candidate Commit**: `14f3610f9c61686347e152bdf0baeb607ac14721` (Code, schemas, and test implementation)
+* **Tracked Acceptance Document Commit**: Commit containing this report
+* **Final Audited Candidate HEAD**: Recorded in external handoff and audit report
 * **Pack Schema Version**: `1`
 * **Erotic Fiction Pack Version**: `0.1.0`
 * **Erotic Fiction Pack Content Hash**: `3b4e6730ef3381df4cf13bc20d7718aa6a7e089aaae3fa492ed656cbdf9c6e39`
