@@ -32,3 +32,6 @@ reports/
 
 # Root-level JSON files (test/report artifacts)
 /*.json
+
+# Generated project state directories (test artifacts, dogfood workspaces)
+**/.auteur/
