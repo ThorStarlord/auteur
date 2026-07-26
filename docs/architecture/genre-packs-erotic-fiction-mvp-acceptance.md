@@ -16,7 +16,7 @@ This report documents the verification, qualification, and acceptance of the **G
 * **Pack Schema Version**: `1`
 * **Erotic Fiction Pack Version**: `0.1.0`
 * **Erotic Fiction Pack Content Hash**: `3b4e6730ef3381df4cf13bc20d7718aa6a7e089aaae3fa492ed656cbdf9c6e39`
-* **Qualification Package Version**: `0.36.0.dev0` (prevents collision with released `v0.35.0`)
+* **Qualification Package Version**: `0.36.0` (prevents collision with released `v0.35.0`)
 * **Proposed Release**: `v0.36.0` (Genre Packs MVP — Erotic Fiction vertical slice product expansion)
 
 ---
@@ -56,8 +56,8 @@ Executed outside the source repository using an isolated Python 3.14 virtual env
 
 | Requirement / Scenario | Test Execution & Verification | Result |
 |---|---|---|
-| Package version identity | `auteur.__version__ == "0.36.0.dev0"` (Wheel filename `auteur-0.36.0.dev0-py3-none-any.whl`) | **PASS** |
-| Fresh external installation | `pip install dist/auteur-0.36.0.dev0-py3-none-any.whl` into temp venv | **PASS** |
+| Package version identity | `auteur.__version__ == "0.36.0"` (Wheel filename `auteur-0.36.0-py3-none-any.whl`) | **PASS** |
+| Fresh external installation | `pip install dist/auteur-0.36.0-py3-none-any.whl` into temp venv | **PASS** |
 | Import from site-packages | `python -c "import auteur; print(auteur.__file__)"` resolves to `site-packages/auteur` | **PASS** |
 | Pack list and inspect | `auteur genre pack list --json` and `auteur genre pack inspect erotic_fiction` | **PASS** |
 | Opinionated recommendation | `auteur genre recommend --premise "..." --json` | **PASS** |
