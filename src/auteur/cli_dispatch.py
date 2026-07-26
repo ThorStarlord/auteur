@@ -1105,20 +1105,23 @@ def dispatch(args: argparse.Namespace) -> int:
         except Exception as exc:
             _err(f"failed to publish blueprint: {exc}"); return 1
         print(f"Blueprint published to {output}")
-        if args.command == "identity" and args.identity_command == "init":
-            from auteur.cli_handlers import handle_identity_init
-            res = handle_identity_init(
-                premise_text=args.premise,
-                output_path=args.output,
-                title=args.title,
-                genre=args.genre,
-                project_path=args.project,
-            )
-            if not res.is_success:
-                _err(res.error)
-                return res.exit_code
-            print(f"Success: StoryIdentity skeleton initialized.")
-            return 0
+        return 0
+
+    # === identity init ===
+    if args.command == "identity" and args.identity_command == "init":
+        from auteur.cli_handlers import handle_identity_init
+        res = handle_identity_init(
+            premise_text=args.premise,
+            output_path=args.output,
+            title=args.title,
+            genre=args.genre,
+            project_path=args.project,
+        )
+        if not res.is_success:
+            _err(res.error)
+            return res.exit_code
+        print("Success: StoryIdentity skeleton initialized.")
+        return 0
 
     if args.command == "identity" and args.identity_command == "recommend":
         ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
