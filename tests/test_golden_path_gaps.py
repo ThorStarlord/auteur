@@ -272,7 +272,7 @@ def test_identity_init_authority_semantics(tmp_path):
 
     assert identity.title == "Custom Title"
     assert identity.story_type.genre.value == "sci_fi"
-    assert identity.confidence == 0.5
+    assert identity.confidence is None  # Un-evaluated offline skeleton has no AI confidence claim!
     assert "Seeded offline identity skeleton" in identity.why_this_is_best
     assert identity.genre_profile is None  # Zero unearned GenreProfileCommitment!
 

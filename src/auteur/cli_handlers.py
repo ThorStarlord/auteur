@@ -2243,7 +2243,7 @@ def handle_identity_init(
             change="The protagonist undergoes a meaningful identity transformation.",
         ),
         open_questions=["What is the central climactic turning point?"],
-        confidence=0.5,
+        confidence=None,
         why_this_is_best="Seeded offline identity skeleton. Edit these fields to define your accepted commitments.",
     )
 
