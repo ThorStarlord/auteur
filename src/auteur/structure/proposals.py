@@ -20,3 +20,4 @@ from auteur.structure.proposal_resolution import (  # noqa: F401
     resolve_proposal,
     write_audit_repair_proposals,
 )
+from auteur.structure.freshness import propagate_acceptance  # noqa: F401

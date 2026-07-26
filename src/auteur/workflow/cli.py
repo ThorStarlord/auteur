@@ -64,7 +64,14 @@ class WorkflowStatusData:
 def handle_workflow_status(project_path: Path) -> HandlerResult:
     """Analyze project and return full workflow status."""
     try:
+        from auteur.lifecycle.service import LifecycleService
+        from auteur.commitment.service import CommitmentService
+        lc = LifecycleService(project_path)
+        cm = CommitmentService(project_path)
+        engine = WorkflowEngine(project_path, lifecycle_service=lc, commitment_service=cm)
+    except Exception:
         engine = WorkflowEngine(project_path)
+    try:
         state = engine.analyze()
     except Exception as exc:
         return HandlerResult.failure(f"Failed to analyze workflow: {exc}")
@@ -79,17 +86,31 @@ def handle_workflow_next(
 ) -> HandlerResult:
     """Analyze project and return the single next recommended action."""
     try:
+        from auteur.lifecycle.service import LifecycleService
+        from auteur.commitment.service import CommitmentService
+        lc = LifecycleService(project_path)
+        cm = CommitmentService(project_path)
+        engine = WorkflowEngine(project_path, lifecycle_service=lc, commitment_service=cm)
+    except Exception:
         engine = WorkflowEngine(project_path)
+    try:
         state = engine.analyze()
     except Exception as exc:
         return HandlerResult.failure(f"Failed to analyze workflow: {exc}")
-
     if not state.actions:
         return HandlerResult.success(
             data=WorkflowStatusData(state=state),
         )
 
     next_action = state.actions[0]
+
+    # Check for lifecycle alerts
+    lc = state.lifecycle or {}
+    alerts: list[str] = []
+    if lc.get("diverged", 0) > 0:
+        alerts.append(f"{lc['diverged']} commitment(s) diverged from live state")
+    if lc.get("with_gaps", 0) > 0:
+        alerts.append(f"{lc['with_gaps']} decision(s) have lifecycle gaps")
 
     if execute:
         result = engine.execute(next_action)
@@ -98,12 +119,16 @@ def handle_workflow_next(
                 result.get("error", f"Execution failed (exit {result.get('exit_code')})"),
                 exit_code=result.get("exit_code", 4),
             )
-        return HandlerResult.success(data=result)
+        return HandlerResult.success(data={
+            **result,
+            "alerts": alerts,
+        })
 
     return HandlerResult.success(
         data={
             "action": next_action,
             "executed": False,
+            "alerts": alerts,
         }
     )
 
@@ -114,39 +139,51 @@ def handle_workflow_explain(
 ) -> HandlerResult:
     """Analyze project and return an explanation of current state or a specific stage."""
     try:
+        from auteur.lifecycle.service import LifecycleService
+        from auteur.commitment.service import CommitmentService
+        lc = LifecycleService(project_path)
+        cm = CommitmentService(project_path)
+        engine = WorkflowEngine(project_path, lifecycle_service=lc, commitment_service=cm)
+    except Exception:
         engine = WorkflowEngine(project_path)
+    try:
         state = engine.analyze()
     except Exception as exc:
         return HandlerResult.failure(f"Failed to analyze workflow: {exc}")
 
+    data = {
+        "summary": state.status_summary,
+        "current_stage": state.current_stage.value if state.current_stage else None,
+        "lifecycle": state.lifecycle,
+        "commitment": state.commitment,
+    }
+
     if stage_name:
+        if stage_name == "lifecycle":
+            # Return lifecycle-specific explanation
+            lc = state.lifecycle or {}
+            data["explanation"] = _explain_lifecycle(lc)
+            return HandlerResult.success(data=data)
         match = state.stage_by_name(stage_name)
         if not match:
             return HandlerResult.failure(f"Unknown stage: {stage_name}")
-        return HandlerResult.success(
-            data={
-                "stage": match.stage.value,
-                "is_complete": match.is_complete,
-                "current_artifact": match.current_artifact,
-                "blockers": [
-                    {
-                        "category": b.category.value,
-                        "severity": b.severity.value,
-                        "message": b.message,
-                        "artifact": b.artifact,
-                    }
-                    for b in match.blockers
-                ],
-            }
-        )
+        data.update({
+            "stage": match.stage.value,
+            "is_complete": match.is_complete,
+            "current_artifact": match.current_artifact,
+            "blockers": [
+                {
+                    "category": b.category.value,
+                    "severity": b.severity.value,
+                    "message": b.message,
+                    "artifact": b.artifact,
+                }
+                for b in match.blockers
+            ],
+        })
+        return HandlerResult.success(data=data)
 
-    return HandlerResult.success(
-        data={
-            "current_stage": state.current_stage.value if state.current_stage else None,
-            "summary": state.status_summary,
-        }
-    )
-
+    return HandlerResult.success(data=data)
 
 # ---------------------------------------------------------------------------
 # Formatters
@@ -181,6 +218,45 @@ def format_workflow_status(result: HandlerResult) -> str | None:
         b_str = f" ({blockers} blocker(s))" if blockers else ""
         lines.append(f"  [{icon}] {sp.stage.value}{b_str}")
 
+
+    # Lifecycle section
+    lc = state.lifecycle or {}
+    total = lc.get("total_decisions", 0)
+    if total > 0:
+        lines.append("")
+        lines.append("Lifecycle:")
+        lines.append(f"  Decisions:       {total} total")
+        by_stage = lc.get("by_stage", {})
+        for stage_key in ["open", "evidence_gathered", "simulated", "portfolio",
+                           "under_review", "acceptance_ready", "accepted", "committed"]:
+            count = by_stage.get(stage_key, 0)
+            if count > 0:
+                lines.append(f"    {stage_key.replace('_', ' ').title():<18} {count}")
+        if lc.get("diverged", 0) > 0:
+            lines.append(f"  Diverged:        {lc['diverged']}")
+        if lc.get("with_gaps", 0) > 0:
+            lines.append(f"  With gaps:       {lc['with_gaps']}")
+
+    # Commitment section
+    cm = state.commitment or {}
+    cm_total = cm.get("total_commitments", 0)
+    if cm_total > 0 or cm.get("has_commitments"):
+        lines.append("")
+        lines.append("Commitments:")
+        lines.append(f"  Total:           {cm_total}")
+        cm_state = cm.get("state", "")
+        if cm_state:
+            lines.append(f"  State:           {cm_state}")
+        cs_done = cm.get("completed_steps", 0)
+        cs_total = cm.get("total_steps", 0)
+        if cs_total > 0:
+            lines.append(f"  Execution:       {cs_done}/{cs_total} steps")
+        asgn = cm.get("assignments", 0)
+        if asgn > 0:
+            lines.append(f"  Assignments:     {asgn}")
+        if cm.get("diverged", 0) > 0:
+            lines.append(f"  Diverged:        {cm['diverged']}")
+
     if state.blockers:
         lines.append("")
         lines.append("Blockers:")
@@ -198,5 +274,34 @@ def format_workflow_status(result: HandlerResult) -> str | None:
             lines.append(f"     {a.command}")
             if a.description:
                 lines.append(f"     {a.description}")
+
+    return "\n".join(lines)
+
+
+def _explain_lifecycle(lc: dict) -> str:
+    """Build a human-readable lifecycle explanation."""
+    lines: list[str] = []
+    total = lc.get("total_decisions", 0)
+    if total == 0:
+        lines.append("No decisions in the decision lifecycle.")
+        return "\n".join(lines)
+
+    lines.append(f"Decision Lifecycle ({total} total):")
+    by_stage = lc.get("by_stage", {})
+    for sk in ["open", "evidence_gathered", "simulated", "portfolio",
+               "under_review", "acceptance_ready", "accepted", "committed"]:
+        c = by_stage.get(sk, 0)
+        if c > 0:
+            lines.append(f"  {sk.replace('_', ' ').title():<18} {c}")
+
+    gaps = lc.get("with_gaps", 0)
+    diverged = lc.get("diverged", 0)
+    if gaps or diverged:
+        lines.append("")
+        lines.append("Issues:")
+        if diverged > 0:
+            lines.append(f"  ⚠ {diverged} commitment(s) diverged from live state")
+        if gaps > 0:
+            lines.append(f"  · {gaps} decision(s) with lifecycle gaps")
 
     return "\n".join(lines)

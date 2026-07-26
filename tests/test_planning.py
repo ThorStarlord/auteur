@@ -808,8 +808,8 @@ class TestPlanningSmoke:
 class TestPlanCLI:
 
     def test_plan_help(self):
-        from auteur.cli import _build_parser
-        parser = _build_parser()
+        from auteur.cli_parser import build_parser
+        parser = build_parser()
         # help doesn't raise
 
     def test_plan_refresh(self, project_root):

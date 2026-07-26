@@ -94,13 +94,56 @@ class WorkflowEngine:
     Decision Workspace for decision-aware actions.
     """
 
-    def __init__(self, project_root: str | Path, decision_service: Any | None = None) -> None:
+    def __init__(self, project_root: str | Path, decision_service: Any | None = None,
+                 lifecycle_service: Any | None = None,
+                 commitment_service: Any | None = None) -> None:
         self.root = Path(project_root)
         self._decision_service = decision_service
+        self._lifecycle_service = lifecycle_service
+        self._commitment_service = commitment_service
 
     def analyze(self) -> WorkflowState:
         """Analyze project state and return a complete WorkflowState."""
         stages = detect_stages(self.root)
+
+        # Probe lifecycle data if a lifecycle service is configured
+        lifecycle_data: dict[str, Any] = {}
+        if self._lifecycle_service is not None:
+            try:
+                lc = self._lifecycle_service.summary()
+                lifecycle_data = lc.to_dict() if hasattr(lc, "to_dict") else {}
+            except Exception:
+                lifecycle_data = {"total_decisions": 0}
+
+        # Probe commitment data if a commitment service is configured
+        commitment_data: dict[str, Any] = {}
+        if self._commitment_service is not None:
+            try:
+                cm = self._commitment_service.status()
+                commitment_data = cm if isinstance(cm, dict) else {"has_commitments": False}
+                # Add execution plan progress
+                latest_id = commitment_data.get("latest_commitment_id", "")
+                if latest_id:
+                    c = self._commitment_service.inspect(latest_id)
+                    if c is not None:
+                        commitment_data["state"] = getattr(c, "state", "")
+                        commitment_data["assignments"] = len(getattr(c, "assignments", {}))
+                        # Try to load execution plan progress
+                        try:
+                            plan = self._commitment_service.plan(latest_id)
+                            steps = getattr(plan, "steps", [])
+                            commitment_data["total_steps"] = len(steps)
+                            commitment_data["completed_steps"] = sum(
+                                1 for s in steps if getattr(s, "state", "").value == "completed"
+                            )
+                            commitment_data["failed_steps"] = sum(
+                                1 for s in steps if getattr(s, "state", "").value == "failed"
+                            )
+                        except Exception:
+                            pass
+            except Exception:
+                commitment_data = {"has_commitments": False}
+
         cs = current_stage(stages)
         blockers = collect_blockers(stages)
 
@@ -112,10 +155,12 @@ class WorkflowEngine:
             except Exception:
                 decisions = None
 
-        actions = recommend_actions(stages, decisions=decisions)
+        actions = recommend_actions(stages, decisions=decisions, lifecycle=lifecycle_data,
+                                    commitment=commitment_data, project_root=self.root)
         status = gather_status(self.root)
 
-        summary = self._build_summary(stages, cs, blockers)
+        summary = self._build_summary(stages, cs, blockers, lifecycle=lifecycle_data,
+                                      commitment=commitment_data)
 
         return WorkflowState(
             project_path=str(self.root),
@@ -124,34 +169,76 @@ class WorkflowEngine:
             blockers=blockers,
             actions=actions,
             status_summary=summary,
+            lifecycle=lifecycle_data,
+            commitment=commitment_data,
         )
+
 
     def _build_summary(
         self,
         stages: list,
         cs: Any,
         blockers: list[WorkflowBlocker],
+        lifecycle: dict[str, Any] | None = None,
+        commitment: dict[str, Any] | None = None,
     ) -> str:
+        lc = lifecycle or {}
+        cm = commitment or {}
+        total = lc.get("total_decisions", 0)
+        open_count = lc.get("by_stage", {}).get("open", 0)
+        simulated = lc.get("simulated", 0)
+        committed_lc = lc.get("committed", 0)
+        diverged = lc.get("diverged", 0)
+
         if not stages:
             return "No stages detected."
         if cs is None:
             if self._decision_service is not None:
                 try:
                     status = self._decision_service.status()
-                    open_count = status.get("total_decisions", 0)
+                    decision_count = status.get("total_decisions", 0)
                     ready_count = status.get("ready_for_acceptance", 0)
-                    if open_count > 0:
-                        parts = [f"Workflow complete, {open_count} open decision(s)"]
+                    if decision_count > 0:
+                        parts = [f"Workflow complete, {decision_count} open decision(s)"]
                         if ready_count > 0:
                             parts.append(f"{ready_count} ready for acceptance")
                         return " — ".join(parts)
                 except Exception:
                     pass
-            return "All workflow stages are complete."
+            base = "All workflow stages are complete."
+            if total > 0:
+                base += f" ({total} decision{'s' if total != 1 else ''})"
+            return base
         blocking = [b for b in blockers if b.severity.value == "blocking"]
-        if blocking:
-            return f"Blocked at {cs.value}: {blocking[0].message}"
-        return f"Current stage: {cs.value}"
+        summary = f"Blocked at {cs.value}: {blocking[0].message}" if blocking else f"Current stage: {cs.value}"
+
+        # Append lifecycle info when decisions exist
+        if total > 0:
+            parts = [f"Decisions: {total} total"]
+            if open_count > 0:
+                parts.append(f"{open_count} open")
+            if simulated > 0:
+                parts.append(f"{simulated} simulated")
+            if committed_lc > 0:
+                parts.append(f"{committed_lc} committed")
+            if diverged > 0:
+                parts.append(f"{diverged} diverged")
+            summary += " | " + ", ".join(parts)
+
+        # Append commitment info
+        cm_total = cm.get("total_commitments", 0)
+        cm_state = cm.get("state", "")
+        if cm_total > 0:
+            cm_parts = [f"Commitments: {cm_total}"]
+            if cm_state:
+                cm_parts.append(f"state={cm_state}")
+            cs_completed = cm.get("completed_steps", 0)
+            cs_total = cm.get("total_steps", 0)
+            if cs_total > 0:
+                cm_parts.append(f"execution {cs_completed}/{cs_total}")
+            summary += " | " + ", ".join(cm_parts)
+
+        return summary
 
     def can_execute(self, action: WorkflowAction) -> bool:
         """Check if an action is eligible for safe execution."""

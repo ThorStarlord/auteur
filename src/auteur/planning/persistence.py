@@ -38,6 +38,7 @@ class PlanStore:
         self._snapshots_dir = self._base / "snapshots"
         self._history_dir = self._base / "history"
         self._latest_path = self._base / "latest.yaml"
+        self._user_milestones_path = self._base / "user_milestones.yaml"
 
     def ensure_dirs(self) -> None:
         """Create storage directories if they don't exist."""
@@ -246,6 +247,28 @@ class PlanStore:
             except (json.JSONDecodeError, OSError):
                 continue
         return sorted(entries, key=lambda x: x.get("timestamp", ""), reverse=True)
+
+    # ------------------------------------------------------------------
+    # User-defined milestones
+    # ------------------------------------------------------------------
+
+    def save_user_milestones(self, milestones: list[dict[str, Any]]) -> None:
+        """Save user-defined milestones."""
+        self.ensure_dirs()
+        import yaml
+        with open(self._user_milestones_path, "w", encoding="utf-8") as f:
+            yaml.dump({"milestones": milestones}, f, default_flow_style=False, sort_keys=False)
+
+    def load_user_milestones(self) -> list[dict[str, Any]]:
+        """Load user-defined milestones."""
+        import yaml
+        if not self._user_milestones_path.exists():
+            return []
+        try:
+            data = yaml.safe_load(self._user_milestones_path.read_text(encoding="utf-8"))
+            return data.get("milestones", []) if data else []
+        except Exception:
+            return []
 
     # ------------------------------------------------------------------
     # Helpers

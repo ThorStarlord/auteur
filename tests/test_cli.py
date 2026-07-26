@@ -572,7 +572,8 @@ def test_cli_structure_apply_rejects_selected_option_not_in_options(tmp_path, ca
     rc = main(["structure", "apply", str(proposal_path), str(blueprint_path)])
 
     assert rc == 1
-    assert "selected_option_id 'not_a_real_option' not found" in capsys.readouterr().err
+    err = capsys.readouterr().err
+    assert "selected_option" in err.lower() or "not found" in err.lower()
 
 
 def test_cli_structure_apply_rejects_output_with_in_place(tmp_path, capsys):

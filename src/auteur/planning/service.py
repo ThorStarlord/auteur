@@ -191,6 +191,61 @@ class PlanningService:
         """List all plan snapshots."""
         return self.store.list_snapshots()
 
+
+    def diff(self, plan_a_id: str, plan_b_id: str | None = None) -> dict[str, Any]:
+        """Diff two plan snapshots. plan_b_id=None → latest."""
+        plan_a = self.store.load_snapshot(plan_a_id)
+        if plan_a is None:
+            raise ValueError(f"Plan not found: {plan_a_id}")
+        if plan_b_id:
+            plan_b = self.store.load_snapshot(plan_b_id)
+            if plan_b is None:
+                raise ValueError(f"Plan not found: {plan_b_id}")
+        else:
+            plan_b = self.store.load_latest()
+            if plan_b is None:
+                raise ValueError("No latest plan available")
+        from auteur.planning.differ import diff_plans
+        return diff_plans(plan_a, plan_b).to_dict()
+
+    # ------------------------------------------------------------------
+    # User-defined milestones
+    # ------------------------------------------------------------------
+
+    def add_user_milestone(self, title: str, scope: str = "project", description: str = "") -> dict[str, Any]:
+        """Add a user-defined milestone."""
+        import hashlib
+        mid = hashlib.sha256(f"user|{title}|{scope}".encode()).hexdigest()[:16]
+        user_ms = self.store.load_user_milestones()
+        # Check duplicate
+        for m in user_ms:
+            if m.get("milestone_id") == mid:
+                raise ValueError(f"Milestone already exists: {title}")
+        entry = {
+            "milestone_id": mid,
+            "title": title,
+            "scope": scope,
+            "description": description,
+            "state": "not_started",
+        }
+        user_ms.append(entry)
+        self.store.save_user_milestones(user_ms)
+        return entry
+
+    def remove_user_milestone(self, milestone_id: str) -> bool:
+        """Remove a user-defined milestone by ID. Returns True if found."""
+        user_ms = self.store.load_user_milestones()
+        filtered = [m for m in user_ms if m.get("milestone_id") != milestone_id]
+        if len(filtered) == len(user_ms):
+            return False
+        self.store.save_user_milestones(filtered)
+        return True
+
+    def list_user_milestones(self) -> list[dict[str, Any]]:
+        """List all user-defined milestones."""
+        return self.store.load_user_milestones()
+
+
     # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
@@ -225,6 +280,7 @@ class PlanningService:
         """Persist a plan snapshot and update latest pointer."""
         try:
             self.store.save_snapshot(plan)
+            plan_id = plan.plan_id
             self.store.save_latest(plan)
             if plan.plan_history:
                 self.store.save_history(plan.plan_id, plan.plan_history)

@@ -299,10 +299,28 @@ def recommend_actions(
     stages: list[StageProgress],
     status: dict | None = None,
     decisions: list[Any] | None = None,
+    lifecycle: dict[str, Any] | None = None,
+    commitment: dict[str, Any] | None = None,
+    project_root: Path | None = None,
 ) -> list[WorkflowAction]:
-    """Generate recommended actions based on current stage, blockers, and open decisions."""
     actions: list[WorkflowAction] = []
     cs = current_stage(stages)
+
+
+    # Generate impact-aware actions
+    impact_actions = _recommend_impact_actions(project_root)
+    actions.extend(impact_actions)
+    
+    # Generate series-aware actions when a series identity exists
+    series_actions = _recommend_series_actions(project_root)
+    actions.extend(series_actions)
+    
+    # Generate lifecycle-gap actions
+    lifecycle_actions = _recommend_lifecycle_actions(lifecycle)
+    actions.extend(lifecycle_actions)
+
+    # Generate commitment-gap actions
+    commitment_actions = _recommend_commitment_actions(commitment)
 
     # Generate decision-aware actions when decisions are provided
     decision_actions: list[WorkflowAction] = []
@@ -426,6 +444,159 @@ def recommend_actions(
     return actions
 
 
+def _recommend_lifecycle_actions(lifecycle: dict[str, Any] | None) -> list[WorkflowAction]:
+    """Generate actions for lifecycle gaps."""
+    if not lifecycle:
+        return []
+    total = lifecycle.get("total_decisions", 0)
+    if total == 0:
+        return []
+
+    actions: list[WorkflowAction] = []
+    gaps = lifecycle.get("with_gaps", 0)
+    diverged = lifecycle.get("diverged", 0)
+    open_count = lifecycle.get("by_stage", {}).get("open", 0)
+    simulated_count = lifecycle.get("by_stage", {}).get("simulated", 0)
+    portfolio_count = lifecycle.get("by_stage", {}).get("portfolio", 0)
+
+    if open_count > 0:
+        actions.append(WorkflowAction(
+            label=f"Inspect {open_count} open decision(s) — no simulation scenarios",
+            command="auteur lifecycle summary --project .",
+            authority=AuthorityLevel.READ_ONLY,
+            description=f"{open_count} decision(s) have no simulation scenarios. Use 'auteur lifecycle status' to see details.",
+        ))
+
+    if simulated_count > 0:
+        actions.append(WorkflowAction(
+            label=f"Assign {simulated_count} simulated decision(s) to a portfolio",
+            command="auteur lifecycle status --project . --json",
+            authority=AuthorityLevel.READ_ONLY,
+            description=f"{simulated_count} decision(s) are simulated but not in any portfolio.",
+        ))
+
+    if portfolio_count > 0:
+        actions.append(WorkflowAction(
+            label=f"Promote portfolio decision(s) to review",
+            command="auteur lifecycle summary --project .",
+            authority=AuthorityLevel.READ_ONLY,
+            description="Portfolio decisions not yet promoted to review. Use 'auteur portfolio promote'.",
+        ))
+
+    if diverged > 0:
+        actions.append(WorkflowAction(
+            label=f"Check {diverged} diverged commitment(s)",
+            command="auteur commit check LATEST --project .",
+            authority=AuthorityLevel.READ_ONLY,
+            description=f"{diverged} commitment(s) have diverged from live state.",
+        ))
+
+    if gaps > 0 and not actions:
+        actions.append(WorkflowAction(
+            label=f"Review {gaps} lifecycle gap(s)",
+            command="auteur lifecycle summary --project . --json",
+            authority=AuthorityLevel.READ_ONLY,
+            description=f"{gaps} lifecycle gap(s) detected across decisions.",
+        ))
+
+    return actions
+
+
+def _recommend_commitment_actions(commitment: dict[str, Any] | None) -> list[WorkflowAction]:
+    """Generate actions for commitment gaps."""
+    if not commitment:
+        return []
+    cm_total = commitment.get("total_commitments", 0)
+    if not cm_total and not commitment.get("has_commitments"):
+        return []
+
+    actions: list[WorkflowAction] = []
+    state = commitment.get("state", "")
+    failed = commitment.get("failed_steps", 0)
+    diverged = commitment.get("diverged", 0)
+
+    if failed > 0:
+        actions.append(WorkflowAction(
+            label=f"Review {failed} failed execution step(s)",
+            command="auteur commit execute LATEST --project .",
+            authority=AuthorityLevel.READ_ONLY,
+            description=f"{failed} commitment execution step(s) failed.",
+        ))
+
+    if diverged > 0:
+        actions.append(WorkflowAction(
+            label=f"Check diverged commitment(s)",
+            command="auteur commit check LATEST --project .",
+            authority=AuthorityLevel.READ_ONLY,
+            description="Commitment has diverged from live state.",
+        ))
+
+    return actions
+
+
+def _recommend_impact_actions(project_root: Path | None) -> list[WorkflowAction]:
+    """Generate workflow actions for unresolved impact findings."""
+    if project_root is None:
+        return []
+    try:
+        from auteur.impact.analyzer import ImpactAnalyzer
+        analyzer = ImpactAnalyzer(project_root)
+        findings = analyzer.analyze()
+    except Exception:
+        return []
+    if not findings:
+        return []
+    severe = [f for f in findings
+              if f.get("severity") in ("blocked", "reconcile")
+              or f.get("preservation") in ("regenerate", "blocked")]
+    if not severe:
+        return []
+    return [
+        WorkflowAction(
+            label=f"Resolve {len(severe)} impact finding(s)",
+            command="auteur impact analyze --project . --json",
+            authority=AuthorityLevel.READ_ONLY,
+            description=f"Impact analysis found {len(severe)} high-severity findings requiring attention.",
+        ),
+        WorkflowAction(
+            label="Review impact plan",
+            command="auteur impact plan --project .",
+            authority=AuthorityLevel.DERIVED_ARTIFACT,
+            description="Generate an ordered repair plan from impact findings.",
+        ),
+    ]
+
+
+def _recommend_series_actions(project_root: Path | None) -> list[WorkflowAction]:
+    """Generate workflow actions when a series identity exists."""
+    if project_root is None:
+        return []
+    series_yaml = project_root / "series_identity.yaml"
+    if not series_yaml.exists():
+        return []
+    try:
+        import yaml
+        data = yaml.safe_load(series_yaml.read_text(encoding="utf-8"))
+        title = data.get("title", "untitled series")
+        series_type = data.get("series_type", "")
+    except Exception:
+        return []
+    return [
+        WorkflowAction(
+            label=f"Series: {title} ({series_type})",
+            command=f"auteur series status --project {project_root}",
+            authority=AuthorityLevel.READ_ONLY,
+            description="A series identity exists. Validate and compile book plans.",
+        ),
+        WorkflowAction(
+            label="Validate series",
+            command="auteur series validate series_identity.yaml",
+            authority=AuthorityLevel.READ_ONLY,
+            description="Run validation on the series identity.",
+        ),
+    ]
+    
+    
 def _reconciliation_done(root: Path) -> bool:
     """Check if book-level reconciliation is complete."""
     for base in [root / ".auteur" / "book" / "expression" / "reconciliation",

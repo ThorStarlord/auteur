@@ -45,10 +45,13 @@ def register_plan_subcommands(sub) -> None:
     p_cp.add_argument("--act", type=int, default=None, help="Scope to act.")
 
     # plan milestones
-    p_mil = ps.add_parser("milestones", help="Show milestone state.")
+    p_mil = ps.add_parser("milestones", help="Show or manage milestone state.")
+    p_mil.add_argument("--add", default=None, type=str, help="Add a user-defined milestone with this title.")
+    p_mil.add_argument("--remove", default=None, type=str, help="Remove a user-defined milestone by ID.")
+    p_mil.add_argument("--scope", default="project", type=str, help="Scope for new milestone (project, chapter, book).")
+    p_mil.add_argument("--description", default="", type=str, help="Description for new milestone.")
     p_mil.add_argument("--project", type=Path, default=Path("."), help="Project root directory.")
     p_mil.add_argument("--json", action="store_true", help="Output JSON.")
-
     # plan explain
     p_exp = ps.add_parser("explain", help="Explain a node or action ID.")
     p_exp.add_argument("node_or_action_id", type=str, help="Node or action ID to explain.")
@@ -74,6 +77,13 @@ def register_plan_subcommands(sub) -> None:
     p_list.add_argument("--project", type=Path, default=Path("."), help="Project root directory.")
     p_list.add_argument("--json", action="store_true", help="Output JSON.")
 
+
+    # plan diff
+    p_diff = ps.add_parser("diff", help="Diff two plan snapshots.")
+    p_diff.add_argument("plan_id_a", type=str, help="First plan ID.")
+    p_diff.add_argument("plan_id_b", nargs="?", default=None, type=str, help="Second plan ID (default: latest).")
+    p_diff.add_argument("--project", type=Path, default=Path("."), help="Project root directory.")
+    p_diff.add_argument("--json", action="store_true", help="Output JSON.")
     # plan render (backward-compatible Cartographer plan)
     p_render = ps.add_parser("render", help="Render Cartographer prompt for a chapter (no LLM call).")
     p_render.add_argument("blueprint", type=Path)
@@ -273,48 +283,95 @@ def handle_plan_critical_path(args) -> int:
 
 def handle_plan_milestones(args) -> int:
     """Handle 'plan milestones' command."""
+    import json as _json
     try:
         service = _get_service(args)
+
+        # Handle --add
+        if args.add:
+            entry = service.add_user_milestone(args.add, scope=args.scope, description=args.description)
+            if args.json:
+                print(_json.dumps(entry, indent=2, default=str))
+            else:
+                print(f"Added milestone: {entry['title']} ({entry['milestone_id'][:16]}...)")
+            return 0
+
+        # Handle --remove
+        if args.remove:
+            found = service.remove_user_milestone(args.remove)
+            if args.json:
+                print(_json.dumps({"removed": found, "milestone_id": args.remove}))
+            else:
+                if found:
+                    print(f"Removed milestone: {args.remove[:24]}...")
+                else:
+                    print(f"Milestone not found: {args.remove[:24]}...")
+                    return 1
+            return 0
+
+        # Default: list milestones (system + user)
         plan = service.refresh(save=False)
+        user_ms = service.list_user_milestones()
 
         if args.json:
-            print(json.dumps({
+            print(_json.dumps({
                 "plan_id": plan.plan_id,
-                "milestones": [_m_to_dict(m) for m in plan.milestones],
+                "system_milestones": [_m_to_dict(m) for m in plan.milestones],
+                "user_milestones": user_ms,
             }, indent=2, default=str))
         else:
-            if not plan.milestones:
+            all_ms = list(plan.milestones)
+            has_user = len(user_ms) > 0
+
+            if not all_ms and not has_user:
                 print("No milestones defined.")
                 return 0
 
-            counts = {}
-            for m in plan.milestones:
-                counts[m.state.value] = counts.get(m.state.value, 0) + 1
+            # System milestones
+            if all_ms:
+                counts = {}
+                for m in plan.milestones:
+                    counts[m.state.value] = counts.get(m.state.value, 0) + 1
 
-            print(f"Milestones — {plan.title}")
-            print(f"  {counts.get('completed', 0)} completed")
-            print(f"  {counts.get('in_progress', 0)} in progress")
-            print(f"  {counts.get('blocked', 0)} blocked")
-            print(f"  {counts.get('ready', 0)} ready")
-            print(f"  {counts.get('not_started', 0)} not started")
-            print(f"  {counts.get('stale', 0)} stale")
-            print()
+                print(f"Milestones — {plan.title}")
+                print(f"  {counts.get('completed', 0)} completed")
+                print(f"  {counts.get('in_progress', 0)} in progress")
+                print(f"  {counts.get('blocked', 0)} blocked")
+                print(f"  {counts.get('ready', 0)} ready")
+                print(f"  {counts.get('not_started', 0)} not started")
+                print(f"  {counts.get('stale', 0)} stale")
+                print()
 
-            for m in plan.milestones:
-                indicator = {
-                    "completed": "✓",
-                    "in_progress": "►",
-                    "blocked": "✗",
-                    "ready": "○",
-                    "not_started": "·",
-                    "stale": "!",
-                }.get(m.state.value, "?")
-                print(f"  {indicator} [{m.state.value.upper()}] {m.title}")
-                if m.blocked_conditions:
-                    for bc in m.blocked_conditions[:2]:
-                        print(f"       blocked: {bc}")
-                if m.status_reason:
-                    print(f"       {m.status_reason}")
+                for m in plan.milestones:
+                    indicator = {
+                        "completed": "✓",
+                        "in_progress": "►",
+                        "blocked": "✗",
+                        "ready": "○",
+                        "not_started": "·",
+                        "stale": "!",
+                    }.get(m.state.value, "?")
+                    print(f"  {indicator} [{m.state.value.upper()}] {m.title}")
+                    if m.blocked_conditions:
+                        for bc in m.blocked_conditions[:2]:
+                            print(f"       blocked: {bc}")
+                    if m.status_reason:
+                        print(f"       {m.status_reason}")
+
+            # User milestones
+            if has_user:
+                if all_ms:
+                    print()
+                print("User-defined:")
+                for m in user_ms:
+                    mid = m.get("milestone_id", "?")[:16]
+                    state = m.get("state", "not_started")
+                    title = m.get("title", "?")
+                    indicator = {"completed": "✓", "in_progress": "►", "not_started": "·", "blocked": "✗"}.get(state, "?")
+                    print(f"  {indicator} [{state.upper()}] {title} ({m.get('scope', 'project')})")
+                    desc = m.get("description", "")
+                    if desc:
+                        print(f"       {desc}")
 
         return 0
     except ValueError as e:
@@ -486,6 +543,60 @@ def handle_plan_render(args) -> int:
         return 1
 
 
+
+def handle_plan_diff(args) -> int:
+    """Handle 'plan diff' command."""
+    import json
+    try:
+        from auteur.planning.service import PlanningService
+        svc = PlanningService(args.project)
+        result = svc.diff(args.plan_id_a, args.plan_id_b)
+        if args.json:
+            print(json.dumps(result, indent=2, default=str))
+        else:
+            if not result.get("has_changes"):
+                print("No changes between plan snapshots.")
+                return 0
+            print(f"Plan Diff: {result['plan_a_id'][:16]}... → {result['plan_b_id'][:16]}...")
+            nodes = result.get("nodes", {})
+            if nodes.get("added"):
+                print(f"\n  Nodes added:   {len(nodes['added'])}")
+                for n in nodes["added"][:5]:
+                    print(f"    + {n.get('node_id', n.get('id', '?'))[:40]}")
+            if nodes.get("removed"):
+                print(f"  Nodes removed: {len(nodes['removed'])}")
+                for n in nodes["removed"][:5]:
+                    print(f"    - {n.get('node_id', n.get('id', '?'))[:40]}")
+            if nodes.get("changed"):
+                print(f"  Nodes changed: {len(nodes['changed'])}")
+                for n in nodes["changed"][:5]:
+                    print(f"    ~ {n.get('node_id', '?')} ({n.get('from', '?')} → {n.get('to', '?')})")
+            if result.get("edges_added"):
+                print(f"  Edges added:   {result['edges_added']}")
+            if result.get("edges_removed"):
+                print(f"  Edges removed: {result['edges_removed']}")
+            ms = result.get("milestones", {})
+            if ms.get("state_changed"):
+                print(f"  Milestones changed: {len(ms['state_changed'])}")
+                for m in ms["state_changed"][:5]:
+                    print(f"    ~ {m.get('milestone_id', '?')[:40]} ({m.get('from', '?')} → {m.get('to', '?')})")
+            bl = result.get("blockers", {})
+            if bl.get("resolved"):
+                print(f"  Blockers resolved: {len(bl['resolved'])}")
+            if bl.get("new"):
+                print(f"  New blockers:       {len(bl['new'])}")
+            if result.get("actions_added"):
+                print(f"  Actions added:   {result['actions_added']}")
+            if result.get("actions_removed"):
+                print(f"  Actions removed: {result['actions_removed']}")
+        return 0
+    except ValueError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+
 def dispatch_plan(args) -> int:
     """Dispatch plan command to appropriate handler."""
     handlers = {
@@ -499,13 +610,14 @@ def dispatch_plan(args) -> int:
         "history": handle_plan_history,
         "list": handle_plan_list,
         "render": handle_plan_render,
+        "diff": handle_plan_diff,
     }
+
     handler = handlers.get(args.plan_command)
     if handler:
         return handler(args)
     print(f"Unknown plan command: {args.plan_command}", file=sys.stderr)
     return 1
-
 
 # ---------------------------------------------------------------------------
 # Serialization helpers

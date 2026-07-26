@@ -16,9 +16,13 @@ import yaml
 from auteur.cli_handlers import (
     CompileBlueprintData,
     HandlerResult,
-    IdentityValidateData,
+    PublishData,
     RecommendOpenEndedData,
     RecommendOpinionatedData,
+    StateCheckData,
+    StateConfirmData,
+    StatePrepareData,
+    StateUpdateData,
 )
 
 if TYPE_CHECKING:
@@ -309,3 +313,133 @@ def serialize_audit(result: HandlerResult, output_dir: Path) -> Path | None:
         encoding="utf-8",
     )
     return path
+
+
+# ---------------------------------------------------------------------------
+# Publish serializer
+# ---------------------------------------------------------------------------
+
+
+def serialize_publish(result: HandlerResult, output_path: Path | None = None) -> Path | None:
+    """Return the first renderer output path, if available.
+
+    The publish handler already writes rendered files via ``publish()``, so
+    this serializer is a no-op for file writing.  It returns the first
+    renderer's output path for the caller's convenience.
+    """
+    if not result.is_success or result.data is None:
+        return None
+    data: PublishData = result.data
+    if data.renderers:
+        return Path(data.renderers[0]["output_path"])
+    return None
+
+
+# ---------------------------------------------------------------------------
+# State command serializers
+# ---------------------------------------------------------------------------
+
+
+def serialize_state_check(result: HandlerResult, output_dir: Path | None = None) -> Path | None:
+    """Write ``state_report.json`` from a state-check result.
+
+    Args:
+        result: HandlerResult from handle_state_check.
+        output_dir: Override directory (defaults to data.diagnostics_dir).
+
+    Returns:
+        The written Path, or None if result has no data.
+    """
+    if result.data is None:
+        return None
+    data: StateCheckData = result.data
+    diagnostics_dir = output_dir or data.diagnostics_dir
+    diagnostics_dir.mkdir(parents=True, exist_ok=True)
+    artifact_path = diagnostics_dir / "state_report.json"
+    diagnostics_json = [d.model_dump(mode="json") for d in data.diagnostics]
+    state_report = {"diagnostics": diagnostics_json}
+    artifact_path.write_text(
+        f"{json.dumps(state_report, indent=2)}\n",
+        encoding="utf-8",
+    )
+    return artifact_path
+
+
+def serialize_state_update(result: HandlerResult, output_path: Path | None = None) -> Path | None:
+    """Write the updated file from a state-update result.
+
+    Args:
+        result: HandlerResult from handle_state_update.
+        output_path: Override file path (defaults to data.file_path).
+
+    Returns:
+        The written Path, or None if result has no data.
+    """
+    if not result.is_success or result.data is None:
+        return None
+    data: StateUpdateData = result.data
+    file_path = output_path or data.file_path
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if data.file_type == "blueprint":
+        file_path.write_text(
+            yaml.safe_dump(data.data.model_dump(mode="json"), sort_keys=False),
+            encoding="utf-8",
+        )
+    elif data.file_type == "bible":
+        from auteur.bible import StoryBible
+        bible = StoryBible(file_path)
+        bible.data = data.data
+        bible.save()
+    return file_path
+
+
+def serialize_state_prepare(result: HandlerResult, output_path: Path | None = None) -> Path | None:
+    """Write the prepared handoff template from a state-prepare result.
+
+    Args:
+        result: HandlerResult from handle_state_prepare.
+        output_path: Override output path (defaults to data.out_path).
+
+    Returns:
+        The written Path, or None if no output path specified.
+    """
+    if not result.is_success or result.data is None:
+        return None
+    data: StatePrepareData = result.data
+    out_path = output_path or data.out_path
+    if out_path is None:
+        return None
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(data.template, encoding="utf-8")
+    return out_path
+
+
+def serialize_state_confirm(result: HandlerResult, output_dir: Path | None = None) -> Path | None:
+    """Write blueprint and bible from a state-confirm result.
+
+    Args:
+        result: HandlerResult from handle_state_confirm.
+        output_dir: Override project directory (defaults to data.blueprint_path.parent).
+
+    Returns:
+        The blueprint Path, or None if result has no data.
+    """
+    if not result.is_success or result.data is None:
+        return None
+    data: StateConfirmData = result.data
+    bp_path = output_dir / "blueprint.yaml" if output_dir else data.blueprint_path
+    bible_path = output_dir / "bible.json" if output_dir else data.bible_path
+
+    bp_path.parent.mkdir(parents=True, exist_ok=True)
+    bp_path.write_text(
+        yaml.safe_dump(data.blueprint.model_dump(mode="json"), sort_keys=False),
+        encoding="utf-8",
+    )
+
+    from auteur.bible import StoryBible
+    bible = StoryBible(bible_path)
+    bible.data = data.bible_data
+    bible.save()
+
+    return bp_path

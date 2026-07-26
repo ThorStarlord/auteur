@@ -13,16 +13,27 @@ long-form completeness.
 | Artifact stage | Create | Validate | Reason | Propose | Publish | Accept | Author UX |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | Story Identity | yes | yes | partial | partial | partial | yes | partial |
-| Blueprint | yes | yes | limited | partial | no | yes | partial |
-| Chapter Structure | yes | yes | partial | no | no | yes | partial |
+| Blueprint | yes | yes | limited | partial | yes | yes | partial |
+| Chapter Structure | yes | yes | partial | yes | yes | yes | partial |
 | Scene Realization | yes | yes | partial | partial | partial | yes | partial |
 | Scene Expression | yes | yes | yes | yes | yes | yes | yes |
 | Chapter Expression | yes | yes | yes | yes | yes | yes | yes |
-| Book Manuscript | yes | yes | no | yes | yes | yes | partial |
+| Book Manuscript | yes | yes | yes | yes | yes | yes | partial |
 
-The matrix is intentionally qualitative. “Partial” means a path exists but
+The matrix is intentionally qualitative. "Partial" means a path exists but
 does not yet have the same reasoning, proposal, freshness propagation, and
 author-facing depth as the proven Expression path.
+
+Updates since v0.22.0:
+- **v0.25.0**: Book Manuscript | Reason | no → yes (book.manuscript critic)
+- **v0.26.0**: Blueprint | Publish | no → yes (blueprint publish command)
+- **v0.22.0**: Chapter Structure | Propose | no → yes (structure propose command)
+- **v0.30.0**: Chapter Structure | Publish | no → yes (structure publish command)
+- **v0.31.0**: Blueprint | Reason | limited → partial (blueprint coherence critic)
+- **v0.32.0**: Scene Realization | Publish | partial → yes (scene publish command)
+- **v0.32.0**: Scene Realization | Reason | partial → yes (scene analysis critic)
+- **v0.32.0**: All stages | Author UX | improved (per-stage status in gather_status)
+- **v0.32.0**: Structural Revision | freshness | Phase 3 (auto hash update on proposal accept)
 
 **v0.4.0 update:** The “Author UX” column now includes the
 uteur workflow {status|next|explain} commands. These compose with the

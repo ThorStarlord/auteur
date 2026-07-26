@@ -13,9 +13,17 @@ from auteur.cli_handlers import (
     CompileBlueprintData,
     DraftResultData,
     HandlerResult,
-    IdentityValidateData,
     PlanData,
+    PublishData,
+    RecommendOpinionatedData,
+    RecommendOpenEndedData,
+    StateCanonData,
+    StateCheckData,
+    StateConfirmData,
+    StatePrepareData,
+    StateUpdateData,
 )
+from pathlib import Path
 
 
 # ---------------------------------------------------------------------------
@@ -132,6 +140,30 @@ def format_structure_apply(result: HandlerResult) -> str | None:
         "target_path": str(data["target_path"]),
         "in_place": data["in_place"],
         "selected_option_id": data["selected_option_id"],
+    }
+    if "proposal_path" in data:
+        payload["proposal_path"] = str(data["proposal_path"])
+    if "source_blueprint_path" in data:
+        payload["source_blueprint_path"] = str(data["source_blueprint_path"])
+    return json.dumps(payload, indent=2)
+
+
+def format_apply_impact_proposal(result: HandlerResult) -> str | None:
+    """Format the output of ``apply_impact_proposal``.
+
+    Returns JSON with target path, selected option id, and decision metadata
+    (author, status, accepted_at), plus optional fields the CLI may inject.
+    """
+    if not result.is_success:
+        return format_error(result.error or "apply failed")
+    import json
+    data = result.data
+    payload: dict = {
+        "target_path": str(data["target_path"]),
+        "selected_option_id": data["selected_option_id"],
+        "decision_author": data.get("decision_author"),
+        "decision_status": data["decision_status"],
+        "decision_accepted_at": data.get("decision_accepted_at"),
     }
     if "proposal_path" in data:
         payload["proposal_path"] = str(data["proposal_path"])
@@ -415,3 +447,149 @@ def format_cartographer_validate(result: HandlerResult) -> str | None:
 def format_cartographer_validate_success(outline_path: str) -> str:
     """Format the success message for cartographer validate."""
     return f"Success: outline {outline_path} is valid."
+
+
+def format_identity_recommend(
+    result: HandlerResult,
+    *,
+    output_path: Path | None = None,
+    written_paths: list[Path] | None = None,
+) -> str | None:
+    """Format the output of ``_cmd_identity_recommend``.
+
+    Returns a ready-to-print string or ``None`` (nothing to print — caller
+    handles errors via ``format_error``).
+    """
+    if not result.is_success:
+        return None  # error already output via _err
+    data = result.data
+    if isinstance(data, RecommendOpinionatedData):
+        lines = [f"Success: saved recommended story identity to {output_path}"]
+        if data.warnings:
+            lines.append("Warnings encountered during generation:")
+            for w in data.warnings:
+                lines.append(f" - {w}")
+        return "\n".join(lines)
+    if isinstance(data, RecommendOpenEndedData):
+        written = written_paths or []
+        lines = []
+        for p in written[:len(data.candidates)]:
+            lines.append(f"  Wrote {p.name}")
+        cdir = written[0].parent if written else Path("story_identity_candidates")
+        lines.append(f"\nSuccess: generated {len(data.candidates)} candidates under {cdir}/")
+        lines.append(f"Metadata index written to {cdir / 'recommendation_set.yaml'}")
+        lines.append(f"Comparison document written to {cdir / 'comparison.md'}")
+        return "\n".join(lines)
+    return None
+
+
+def format_publish(result: HandlerResult) -> str | None:
+    """Format the output of ``handle_publish``."""
+    if not result.is_success:
+        return format_error(result.error or "publish failed")
+    data: PublishData = result.data
+    lines = [f"Published {data.title} (snapshot {data.snapshot_id})"]
+    for r in data.renderers:
+        lines.append(f"  [{r['format']}] {r['output_path']}")
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
+# State command formatters
+# ---------------------------------------------------------------------------
+
+
+
+def format_state_check(result: HandlerResult) -> str | None:
+    """Format the output of ``handle_state_check``."""
+    if result.data is None:
+        return None
+    data: StateCheckData = result.data
+
+    if not data.had_raw_diagnostics:
+        return "No structural or lore issues detected."
+
+    if data.had_resolved_diagnostics:
+        return "All previously detected issues have been resolved."
+
+    from collections import defaultdict
+    from auteur.structure.diagnostics import DiagnosticLayer, DiagnosticSeverity
+    _LAYER_ORDER = [
+        (1, DiagnosticLayer.TARGET_EXPERIENCE, "Target Experience"),
+        (2, DiagnosticLayer.CONSTRAINTS, "Promise / Constraints"),
+        (3, DiagnosticLayer.SCOPE, "Scope / Container"),
+        (4, DiagnosticLayer.STRUCTURAL_FORCES, "Structural Forces"),
+        (5, DiagnosticLayer.THREADS, "Threads / Modules"),
+        (6, DiagnosticLayer.CARRIERS, "Carriers"),
+        (7, DiagnosticLayer.REPRESENTATION, "Representation (Scene Outline)"),
+        (8, DiagnosticLayer.MODULATION, "Modulation"),
+        (9, DiagnosticLayer.THEME, "Theme / Resonance"),
+    ]
+    groups = defaultdict(list)
+    for d in data.diagnostics:
+        groups[d.layer].append(d)
+
+    BOX_TL = "\u2554"
+    BOX_H = "\u2550"
+    BOX_BL = "\u255a"
+    BOX_V = "\u2551"
+    BOX_TR = "\u2557"
+    BOX_BR = "\u255d"
+
+    lines = []
+    lines.append(f"{BOX_TL}{BOX_H * 3} Story State Report {BOX_H * 39}{BOX_TR}")
+    lines.append(f"{BOX_V} Project: {data.project_name:<48} {BOX_V}")
+    lines.append(f"{BOX_BL}{BOX_H * 55}{BOX_BR}\n")
+
+    for num, layer, name in _LAYER_ORDER:
+        items = groups.get(layer, [])
+        if not items:
+            continue
+        label = "finding" if len(items) == 1 else "findings"
+        lines.append(f"Layer {num} \u2014 {name} ({len(items)} {label})")
+        for d in items:
+            severity_label = d.severity.value.upper()
+            lines.append(f"  {severity_label}: {d.message}")
+            if d.evidence:
+                lines.append("    Evidence:")
+                for line in d.evidence:
+                    lines.append(f"      - {line}")
+        lines.append("")
+
+    lines.append(f"{data.total_count} findings total ({data.error_count} error(s), {data.warning_count} warning(s)).")
+    lines.append(f"State report written to {data.diagnostics_dir / 'state_report.json'}")
+
+    return "\n".join(lines)
+
+
+def format_state_update(result: HandlerResult) -> str | None:
+    """Format the output of ``handle_state_update``."""
+    if not result.is_success or result.data is None:
+        return None
+    data: StateUpdateData = result.data
+    return f"Success: Updated '{data.key}' in {data.file_type}."
+
+
+def format_state_prepare(result: HandlerResult) -> str | None:
+    """Format the output of ``handle_state_prepare``."""
+    if not result.is_success or result.data is None:
+        return None
+    data: StatePrepareData = result.data
+    if data.out_path:
+        return f"Success: Prepared handoff context saved to {data.out_path}."
+    return data.template
+
+
+def format_state_canon(result: HandlerResult) -> str | None:
+    """Format the output of ``handle_state_canon``."""
+    if not result.is_success or result.data is None:
+        return None
+    data: StateCanonData = result.data
+    return data.output
+
+
+def format_state_confirm(result: HandlerResult) -> str | None:
+    """Format the output of ``handle_state_confirm``."""
+    if not result.is_success:
+        return None
+    return "Success: Recovery candidate layers validated and merged into blueprint and bible."
