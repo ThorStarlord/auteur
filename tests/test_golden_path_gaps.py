@@ -265,7 +265,7 @@ def test_identity_init_authority_semantics(tmp_path):
         premise_text="A space detective investigates a mystery.",
         output_path=output,
         title="Custom Title",
-        genre="sci-fi",
+        genre="Sci-Fi",
     )
     assert res.is_success
     identity = StoryIdentity.from_yaml(output)

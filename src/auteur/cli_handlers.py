@@ -2219,7 +2219,14 @@ def handle_identity_init(
         except Exception:
             pass
 
-    clean_genre = (genre or "other").replace("-", "_")
+    clean_genre_str = (genre or "other").lower().replace("-", "_")
+    try:
+        from auteur.blueprint import Genre
+        valid_genre = Genre(clean_genre_str)
+    except ValueError:
+        from auteur.blueprint import Genre
+        valid_genre = Genre.OTHER
+
     identity = StoryIdentity(
         title=title,
         core_answer=clean_premise,
@@ -2231,7 +2238,7 @@ def handle_identity_init(
         story_type=StoryType(
             medium="novel",
             mode="intimate",
-            genre=clean_genre,
+            genre=valid_genre,
             subgenres=[],
             target_audience="adult",
         ),
