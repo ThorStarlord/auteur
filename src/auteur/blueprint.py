@@ -99,6 +99,7 @@ class Genre(str, Enum):
     NETORARE = "netorare"
     NETORI = "netori"
     GENTLEFEMDOM = "gentlefemdom"
+    EROTIC_FICTION = "erotic_fiction"
     OTHER = "other"
 
 
