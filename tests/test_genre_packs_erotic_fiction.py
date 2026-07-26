@@ -321,12 +321,63 @@ def test_resolution_missing_erotic_arc_payoff_produces_finding(tmp_path: Path):
     assert "genre.erotic_fiction.resolution_addresses_erotic_arc" in rules
 
 
-def test_human_and_json_outputs_agree():
+def test_recommendation_durability_across_process_restart(tmp_path: Path):
+    from auteur.genre_packs.recommendation import save_recommendation, load_recommendation, _PENDING_RECOMMENDATIONS
+    ident = _make_minimal_identity(tmp_path)
+    rec = recommend_genre_profile(ident.core_answer)
+    save_recommendation(rec, tmp_path)
+    rec_id = rec.recommendation_id
+
+    # 1. Simulate process restart by wiping in-memory dictionary
+    _PENDING_RECOMMENDATIONS.clear()
+
+    # 2. Inspect recommendation from stored ID
+    reloaded_rec = load_recommendation(rec_id, tmp_path)
+    assert reloaded_rec.recommendation_id == rec_id
+    assert reloaded_rec.recommended_profile_id == rec.recommended_profile_id
+    assert reloaded_rec.confidence == rec.confidence
+
+    # 3. Accept recommendation
+    updated = reconcile_identity_with_recommendation(ident, reloaded_rec)
+    p = tmp_path / "story_identity.yaml"
+    updated.to_yaml(p)
+
+    # 4. Simulate process restart again
+    _PENDING_RECOMMENDATIONS.clear()
+
+    # 5. Inspect original recommendation after restart and acceptance
+    post_accept_rec = load_recommendation(rec_id, tmp_path)
+    assert post_accept_rec.recommendation_id == rec_id
+    assert post_accept_rec.recommended_profile_id == rec.recommended_profile_id
+
+
+def test_cli_human_json_semantic_parity():
     rec = recommend_genre_profile("A psychological story of desire and identity facades.")
     data = rec.model_dump(mode="json")
-    json_str = json.dumps(data)
-    parsed = json.loads(json_str)
-    assert parsed["recommended_profile_id"] == rec.recommended_profile_id
+    
+    # Assert exact semantic parity across representation formats
+    assert data["recommendation_id"] == rec.recommendation_id
+    assert data["recommended_pack_id"] == rec.recommended_pack_id
+    assert data["recommended_pack_version"] == rec.recommended_pack_version
+    assert data["recommended_profile_id"] == rec.recommended_profile_id
+    assert data["confidence"] == rec.confidence
+    assert data["why_this_is_best"] == rec.why_this_is_best
+    assert len(data["rejected_profiles"]) == len(rec.rejected_profiles)
+
+
+def test_accepted_identity_pack_version_stability(tmp_path: Path):
+    ident = _make_minimal_identity(tmp_path)
+    rec = recommend_genre_profile(ident.core_answer)
+    updated = reconcile_identity_with_recommendation(ident, rec)
+    
+    p = tmp_path / "story_identity.yaml"
+    updated.to_yaml(p)
+
+    # Reload identity and verify accepted profile remains pinned
+    reloaded = StoryIdentity.from_yaml(p)
+    assert reloaded.genre_profile.primary_pack_version == "0.1.0"
+    assert reloaded.genre_profile.pack_content_hash == rec.pack_content_hash
+    assert reloaded.genre_profile.primary_profile_id == "erotic_psychological_drama"
 
 
 def test_installed_genre_pack_journey(tmp_path: Path):

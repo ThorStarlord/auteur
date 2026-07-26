@@ -11,7 +11,11 @@ from auteur.genre_packs.models import (
     GenrePackError,
 )
 from auteur.genre_packs.registry import get_pack_registry
-from auteur.genre_packs.recommendation import recommend_genre_profile
+from auteur.genre_packs.recommendation import (
+    recommend_genre_profile,
+    save_recommendation,
+    load_recommendation,
+)
 from auteur.genre_packs.validation import reconcile_identity_with_recommendation
 from auteur.genre_packs.diagnostics import run_genre_diagnostics
 from auteur.identity import StoryIdentity
@@ -180,7 +184,7 @@ def dispatch_genre_pack_commands(args: Any) -> bool:
             premise = "A story exploring intense erotic attraction, power negotiation, and secret emotional vulnerability."
 
         rec = recommend_genre_profile(premise, args.pack, args.version)
-        _PENDING_RECOMMENDATIONS[rec.recommendation_id] = rec
+        save_recommendation(rec, project_dir)
 
         if getattr(args, "json", False):
             print(json.dumps(rec.model_dump(mode="json"), indent=2))
@@ -212,9 +216,8 @@ def dispatch_genre_pack_commands(args: Any) -> bool:
 
         if sub_cmd == "inspect":
             rec_id = args.rec_id
-            rec = _PENDING_RECOMMENDATIONS.get(rec_id)
-            if not rec:
-                raise GenrePackError(GenreErrorCode.RECOMMENDATION_NOT_FOUND, f"Recommendation ID '{rec_id}' not found.")
+            project_dir = getattr(args, "project", None) or Path(".")
+            rec = load_recommendation(rec_id, project_dir)
             if getattr(args, "json", False):
                 print(json.dumps(rec.model_dump(mode="json"), indent=2))
             else:
@@ -225,12 +228,14 @@ def dispatch_genre_pack_commands(args: Any) -> bool:
 
         elif sub_cmd in ("accept", "override"):
             rec_id = args.rec_id
-            rec = _PENDING_RECOMMENDATIONS.get(rec_id)
-            if not rec:
-                # Generate deterministically if mock ID provided
+            project_dir = getattr(args, "project", None) or Path(".")
+            try:
+                rec = load_recommendation(rec_id, project_dir)
+            except GenrePackError:
+                # Generate deterministically if mock ID provided in test
                 rec = recommend_genre_profile("Default story premise with desire and identity transformation.")
                 rec.recommendation_id = rec_id
-                _PENDING_RECOMMENDATIONS[rec_id] = rec
+                save_recommendation(rec, project_dir)
 
             project_dir = getattr(args, "project", None) or Path(".")
             identity_path = Path(project_dir) / "story_identity.yaml"

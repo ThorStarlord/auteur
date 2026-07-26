@@ -4,7 +4,9 @@ Analyzes premise or story inputs and generates a candidate GenreRecommendation.
 Zero mutation occurs prior to explicit author acceptance.
 """
 
+import json
 import uuid
+from pathlib import Path
 from datetime import datetime, timezone
 from typing import Any
 from auteur.genre_packs.models import (
@@ -16,6 +18,53 @@ from auteur.genre_packs.models import (
     GenrePackError,
 )
 from auteur.genre_packs.registry import get_pack_registry
+
+_PENDING_RECOMMENDATIONS: dict[str, GenreRecommendation] = {}
+
+
+def save_recommendation(rec: GenreRecommendation, project_dir: Path | str | None = None) -> Path:
+    """Persist recommendation to disk for process-restart durability."""
+    _PENDING_RECOMMENDATIONS[rec.recommendation_id] = rec
+    
+    saved_path = None
+    paths_to_write = []
+    
+    if project_dir:
+        p_dir = Path(project_dir) / ".auteur" / "genre_recommendations"
+        p_dir.mkdir(parents=True, exist_ok=True)
+        paths_to_write.append(p_dir / f"{rec.recommendation_id}.json")
+
+    home_dir = Path.home() / ".auteur" / "genre_recommendations"
+    home_dir.mkdir(parents=True, exist_ok=True)
+    paths_to_write.append(home_dir / f"{rec.recommendation_id}.json")
+
+    for target_file in paths_to_write:
+        target_file.write_text(json.dumps(rec.model_dump(mode="json"), indent=2), encoding="utf-8")
+        if not saved_path:
+            saved_path = target_file
+            
+    return saved_path or (home_dir / f"{rec.recommendation_id}.json")
+
+
+def load_recommendation(rec_id: str, project_dir: Path | str | None = None) -> GenreRecommendation:
+    """Retrieve recommendation by ID from memory cache or disk persistence."""
+    if rec_id in _PENDING_RECOMMENDATIONS:
+        return _PENDING_RECOMMENDATIONS[rec_id]
+
+    paths_to_check = []
+    if project_dir:
+        paths_to_check.append(Path(project_dir) / ".auteur" / "genre_recommendations" / f"{rec_id}.json")
+
+    paths_to_check.append(Path.home() / ".auteur" / "genre_recommendations" / f"{rec_id}.json")
+
+    for target_file in paths_to_check:
+        if target_file.exists():
+            data = json.loads(target_file.read_text(encoding="utf-8"))
+            rec = GenreRecommendation.model_validate(data)
+            _PENDING_RECOMMENDATIONS[rec_id] = rec
+            return rec
+
+    raise GenrePackError(GenreErrorCode.RECOMMENDATION_NOT_FOUND, f"Recommendation ID '{rec_id}' not found.")
 
 
 def recommend_genre_profile(
