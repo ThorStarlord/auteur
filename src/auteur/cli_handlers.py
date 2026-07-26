@@ -2187,3 +2187,64 @@ def handle_publish(
             renderers=result["renderers"],
         )
     )
+
+
+def handle_identity_init(
+    premise_text: str = "",
+    output_path: Path | str | None = None,
+    title: str = "Untitled Story",
+    genre: str = "other",
+    project_path: Path | str | None = None,
+    overwrite: bool = True,
+) -> HandlerResult:
+    """Initialize an author-editable StoryIdentity skeleton offline without an LLM API key."""
+    from auteur.identity import StoryIdentity, TargetExperience, StoryType, HighLevelCentralEngine
+
+    if project_path:
+        target_file = Path(project_path) / "story_identity.yaml"
+    elif output_path:
+        target_file = Path(output_path)
+    else:
+        target_file = Path("story_identity.yaml")
+
+    if target_file.exists() and not overwrite:
+        return HandlerResult.failure(f"StoryIdentity file already exists at {target_file}")
+
+    clean_premise = premise_text.strip() if premise_text else "A newly initialized story concept."
+    if clean_premise and Path(clean_premise).exists() and Path(clean_premise).is_file():
+        try:
+            clean_premise = Path(clean_premise).read_text(encoding="utf-8").strip()
+        except Exception:
+            pass
+
+    clean_genre = (genre or "other").replace("-", "_")
+    identity = StoryIdentity(
+        title=title,
+        core_answer=clean_premise,
+        target_experience=TargetExperience(
+            primary="dread",
+            progression="unease -> tension -> catharsis",
+            avoid=["generic fluff"],
+        ),
+        story_type=StoryType(
+            medium="novel",
+            mode="intimate",
+            genre=clean_genre,
+            subgenres=[],
+            target_audience="adult",
+        ),
+        central_engine=HighLevelCentralEngine(
+            want=f"The protagonist wants to address: {clean_premise[:80]}",
+            resistance="Antagonistic forces and internal hesitation oppose this goal.",
+            conflict="Pursuing this want forces a difficult personal choice.",
+            stakes="Failure results in permanent emotional or external loss.",
+            change="The protagonist undergoes a meaningful identity transformation.",
+        ),
+        open_questions=["What is the central climactic turning point?"],
+        confidence=0.5,
+        why_this_is_best="Seeded offline identity skeleton. Edit these fields to define your accepted commitments.",
+    )
+
+    target_file.parent.mkdir(parents=True, exist_ok=True)
+    identity.to_yaml(target_file)
+    return HandlerResult.success(identity)

@@ -98,6 +98,7 @@ def register_genre_pack_subcommands(subparsers: _SubParsersAction) -> None:
 
     r_inspect = _get_or_add_parser(rec_cmd_sub, "inspect", "Inspect a recommendation candidate")
     _add_arg_if_missing(r_inspect, "rec_id", help="Recommendation ID")
+    _add_arg_if_missing(r_inspect, "--project", type=Path, default=None, help="Project directory")
     _add_arg_if_missing(r_inspect, "--json", action="store_true", help="Output JSON format")
 
     r_accept = _get_or_add_parser(rec_cmd_sub, "accept", "Explicitly accept a recommendation candidate into StoryIdentity")
@@ -194,6 +195,25 @@ def dispatch_genre_pack_commands(args: Any) -> bool:
             premise = "A story exploring intense erotic attraction, power negotiation, and secret emotional vulnerability."
 
         rec = recommend_genre_profile(premise, args.pack, args.version)
+
+        # Check if recommendation result is an abstention advisory
+        if hasattr(rec, "status") and getattr(rec, "status") == "no_applicable_pack":
+            if getattr(args, "json", False):
+                print(json.dumps(rec.model_dump(mode="json"), indent=2))
+            else:
+                print("==================================================")
+                print("GENRE PACK ADVISORY — NO APPLICABLE PACK MATCH")
+                print("==================================================")
+                print(f"Status   : {rec.message}")
+                print("\nEvaluated Packs:")
+                for p_eval in rec.evaluated_packs:
+                    print(f"  - {p_eval.pack_id} (v{p_eval.version}): {p_eval.status.value.upper()} (score: {p_eval.applicability_score})")
+                    print(f"    {p_eval.explanation}")
+                print("\nZero state mutation has occurred. Recommended next actions:")
+                for act in rec.recommended_next_actions:
+                    print(f"  - {act}")
+            return 0
+
         save_recommendation(rec, project_dir)
 
         if getattr(args, "json", False):
@@ -248,13 +268,25 @@ def dispatch_genre_pack_commands(args: Any) -> bool:
             except GenrePackError:
                 # Generate deterministically if mock ID provided in test
                 rec = recommend_genre_profile("Default story premise with desire and identity transformation.")
-                rec.recommendation_id = rec_id
-                save_recommendation(rec, project_dir)
+                if hasattr(rec, "recommendation_id"):
+                    rec.recommendation_id = rec_id
+                    save_recommendation(rec, project_dir)
 
             project_dir = getattr(args, "project", None) or Path(".")
             identity_path = Path(project_dir) / "story_identity.yaml"
             if not identity_path.exists():
-                raise GenrePackError(GenreErrorCode.PACK_NOT_FOUND, f"StoryIdentity file not found at '{identity_path}'.")
+                err_msg = (
+                    f"No story_identity.yaml found at '{identity_path}'.\n"
+                    f"Your saved recommendation '{rec_id}' remains preserved in '.auteur/genre_recommendations/'.\n\n"
+                    f"To proceed:\n"
+                    f"  1. Run 'auteur identity init --project {project_dir}' to create an editable StoryIdentity skeleton.\n"
+                    f"  2. Re-run 'auteur genre recommendation accept {rec_id} --project {project_dir} --confirm'."
+                )
+                if getattr(args, "json", False):
+                    print(json.dumps({"error": "MISSING_STORY_IDENTITY", "message": err_msg, "recommendation_id": rec_id}, indent=2))
+                else:
+                    print(f"Error: {err_msg}")
+                return 1
 
             identity = StoryIdentity.from_yaml(identity_path)
 
