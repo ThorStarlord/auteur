@@ -89,6 +89,25 @@ def _dict_to_operations(
             })
     return ops
 
+
+def _hash_one_artifact(project_root: Path, target_id: str) -> str | None:
+    """Compute content hash matching the canonical hash used by apply_revision."""
+    from auteur.provenance.store import canonical_content_hash
+    from auteur.structure.revision_application import _resolve_target_path
+    path = _resolve_target_path(target_id, project_root)
+    if path and path.exists():
+        return canonical_content_hash(path)
+    # Fallback: try raw SHA of common paths
+    import hashlib
+    candidates = [
+        project_root / ".auteur" / "state" / "artifacts" / f"{target_id}.yaml",
+        project_root / ".auteur" / "state" / "artifacts" / f"{target_id}.json",
+    ]
+    for c in candidates:
+        if c.exists():
+            return hashlib.sha256(c.read_bytes()).hexdigest()
+    return None
+
 class _RevisionPlanner:
     """Lightweight planner that builds revision plans from proposals or
     diagnostics."""
@@ -165,7 +184,26 @@ class _RevisionPlanner:
                     order=op.get("order", i),
                 )
             )
-        target_hashes: dict[str, str] = data.get("target_hashes", {})
+        # Compute target hashes from actual artifacts
+        _hashes: dict[str, str] = {}
+        for op in operations:
+            if op.target_id and op.target_id not in _hashes:
+                h = _hash_one_artifact(self.project_root, op.target_id)
+                if h:
+                    _hashes[op.target_id] = h
+        if not _hashes:
+            _hashes = data.get("target_hashes", {})
+        target_hashes = _hashes
+        # Build preconditions from target hashes
+        computed_preconds = [
+            RevisionPrecondition(
+                target_id=tid,
+                expected_hash=h,
+                actual_hash=_hash_one_artifact(self.project_root, tid) or "",
+                met=True, message="",
+            )
+            for tid, h in sorted(target_hashes.items())
+        ]
         source_ids: list[str] = data.get("source_ids", [proposal_id])
         plan_id = _stable_plan_id(
             project=self.project_root.name,
@@ -187,7 +225,7 @@ class _RevisionPlanner:
             operations=operations,
             scope=scope,
             state=RevisionPlanState.DRAFT,
-            preconditions=[],
+            preconditions=computed_preconds,
             created_at=now,
             updated_at=now,
         )
