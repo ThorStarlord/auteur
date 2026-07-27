@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from typing import Dict, List, Literal, Optional
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class KnowledgeFact(BaseModel):
@@ -69,9 +69,8 @@ class KnowledgeFact(BaseModel):
             raise ValueError("what must not be empty or only whitespace")
         return v.strip()
 
-    class Config:
-        """Pydantic config for KnowledgeFact."""
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "what": "The victim was poisoned with arsenic",
                 "how_known": "learned",
@@ -79,6 +78,7 @@ class KnowledgeFact(BaseModel):
                 "source": "character_id",
             }
         }
+    )
 
 
 class EmotionalState(BaseModel):
@@ -130,15 +130,15 @@ class EmotionalState(BaseModel):
             return None
         return v.strip() if v else None
 
-    class Config:
-        """Pydantic config for EmotionalState."""
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "state": "guarded",
                 "intensity": "high",
                 "rationale": "Character suspects the protagonist is lying",
             }
         }
+    )
 
 
 class EntryState(BaseModel):
@@ -163,9 +163,8 @@ class EntryState(BaseModel):
         description="Emotional states at scene start (emotion name → state)",
     )
 
-    class Config:
-        """Pydantic config for EntryState."""
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "knowledge": [
                     {
@@ -183,6 +182,7 @@ class EntryState(BaseModel):
                 },
             }
         }
+    )
 
 
 class ExitState(BaseModel):
@@ -206,9 +206,8 @@ class ExitState(BaseModel):
         description="Emotional states at scene end (emotion name → state)",
     )
 
-    class Config:
-        """Pydantic config for ExitState."""
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "knowledge": [
                     {
@@ -233,3 +232,4 @@ class ExitState(BaseModel):
                 },
             }
         }
+    )

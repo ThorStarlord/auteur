@@ -137,34 +137,63 @@ def evaluate_pack_applicability(
             "temptation", "surrender", "lust", "seduction", "physical attraction",
             "obsession", "romance", "romantic", "intimate", "identity facades",
         ]
-        negated_cues = [
-            "non-erotic", "no romance", "platonic only", "strictly professional",
-            "rejects desire", "avoids all intimacy", "no intimacy", "avoids desire", "never attracted",
+
+        global_negations = [
+            "not an erotic", "not erotic", "no erotic", "non-erotic", "not a romance",
+            "no romance", "not romance", "not romantic", "attraction is not part",
+            "attraction is not a part", "contains no erotic", "has no erotic",
+            "without any erotic", "platonic only", "strictly professional", "never erotic",
+            "is not part of the story", "not part of the plot",
+            "studies erotic", "analyzes erotic", "analyzing erotic", "catalogs romance",
+            "critic analyzes erotic", "scholar studies erotic",
+        ]
+
+        local_negated_cues = [
+            "rejects desire", "avoids all intimacy", "no intimacy", "avoids desire",
+            "never attracted", "feels no attraction", "no sexual", "rejects all desire",
+            "avoids intimacy", "rejects intimacy",
         ]
 
         matched = [sig for sig in domain_signals if sig in premise_lower]
-        negated = [cue for cue in negated_cues if cue in premise_lower]
+        matched_global_negations = [g for g in global_negations if g in premise_lower]
+        matched_local_negations = [c for c in local_negated_cues if c in premise_lower]
+        negated = list(dict.fromkeys(matched_global_negations + matched_local_negations))
 
-        if negated or len(matched) == 0:
+        # Filter out domain signals that appear inside any negation phrase (global or local)
+        effective_matched = []
+        for sig in matched:
+            inside_negation = any(sig in phrase for phrase in negated)
+            if not inside_negation:
+                effective_matched.append(sig)
+
+        if matched_global_negations and len(effective_matched) < 2:
+            score = 0.05
+            status = PackApplicabilityStatus.NOT_APPLICABLE
+            explanation = f"Premise explicitly negates or frames out domain '{pack_id}'."
+        elif negated and len(effective_matched) == 0:
+            score = 0.05
+            status = PackApplicabilityStatus.NOT_APPLICABLE
+            explanation = f"Premise lacks un-negated core domain signals for pack '{pack_id}'."
+        elif len(effective_matched) == 0:
             score = 0.05
             status = PackApplicabilityStatus.NOT_APPLICABLE
             explanation = f"Premise lacks core domain signals for pack '{pack_id}'."
-        elif len(matched) == 1:
+        elif len(effective_matched) == 1:
             score = 0.40
             status = PackApplicabilityStatus.APPLICABLE
-            explanation = f"Premise contains initial domain signal '{matched[0]}'."
+            explanation = f"Premise contains initial domain signal '{effective_matched[0]}'."
         else:
-            score = min(0.95, 0.50 + len(matched) * 0.15)
+            score = min(0.95, 0.50 + len(effective_matched) * 0.15)
             status = PackApplicabilityStatus.APPLICABLE
-            explanation = f"Premise strongly aligns with domain signals ({', '.join(matched[:3])})."
+            explanation = f"Premise strongly aligns with domain signals ({', '.join(effective_matched[:3])})."
 
         return PackApplicabilityEvaluation(
             pack_id=pack_id,
             version=version,
             status=status,
             applicability_score=round(score, 2),
-            matched_signals=matched,
-            missing_signals=[s for s in domain_signals if s not in matched][:5],
+            matched_signals=effective_matched,
+            missing_signals=[s for s in domain_signals if s not in effective_matched][:5],
             negated_signals=negated,
             explanation=explanation,
         )
