@@ -1,9 +1,72 @@
 # Genre Pipeline Architecture Context
 
 > Canonical architecture: [Narrative Architecture](docs/narrative-architecture.md).
+> Release policy: [Release Qualification](docs/engineering/release-qualification.md).
 
 This document defines the domain language and runtime ownership for Auteur's
-built-in interactive genre pipelines.
+built-in interactive genre pipelines and versioned Genre Packs.
+
+## Interactive Genre Pipelines vs Genre Packs
+
+Auteur has two distinct genre mechanisms.
+
+### Interactive Genre Pipelines
+
+Interactive pipelines are deterministic authoring workflows that collect
+genre-specific choices and compile them into a `StoryIdentity`.
+
+They own:
+- interactive session state;
+- phase choices;
+- browser/runtime orchestration;
+- deterministic completion validation;
+- explicit ratification.
+
+Their working state is non-canonical until explicitly compiled and
+accepted.
+
+### Genre Packs
+
+Genre Packs are versioned bodies of genre knowledge used to:
+- evaluate whether a pack applies to a premise;
+- recommend one strongest profile inside an applicable pack;
+- explain rejected alternatives;
+- diagnose accepted story commitments.
+
+Genre Packs do not constitute a new semantic layer.
+
+A recommendation is advisory and causes no Layer 1 mutation until explicit
+acceptance or override.
+
+When no installed pack is a strong fit, Auteur returns an honest
+`no_applicable_pack` advisory rather than forcing the only available pack.
+
+### Shared authority rule
+
+`StoryIdentity` remains the canonical Layer 1 authority. Pipeline sessions,
+Genre Pack recommendations, advisories, diagnostics, and generated
+blueprints are working, proposed, or derived artifacts unless explicitly
+promoted through the documented author-confirmation path.
+
+## Authority and mutation
+
+Any operation that modifies `StoryIdentity` must:
+1. require explicit author action;
+2. show the proposed change;
+3. persist atomically;
+4. retain provenance and rationale;
+5. leave the prior state unchanged on failure.
+
+Recommendation acceptance and author override require explicit
+confirmation.
+
+## Applicability scores
+
+Genre Pack applicability scores are deterministic heuristic policy scores,
+not calibrated probabilities or unrestricted semantic judgments.
+
+Known limitations include curated phrase coverage, nested negation,
+coreference, euphemism, and low-margin classifications.
 
 ## Genre Pipeline
 
@@ -165,4 +228,4 @@ under `genre_sessions/<genre>/history/` with lock-protected transitions.
 compiles one BookPlan into a StoryIdentity. Series graph output includes a Mermaid
 companion beside the YAML graph.
 
-Last updated: 2026-07-11.
+Last updated: 2026-07-27.

@@ -56,66 +56,67 @@ When reviewing code changes or investigating test failures:
    - Can enforce repository behavior (e.g., "session storage must use neutral paths")
    - Add regression test when you discover an invariant was silently violated by code changes
 
-## Release qualification
+## Qualification and release evidence
 
-No command claiming release readiness is valid unless preceded by the exact exit state of the previous phase. These phases are sequential and each creates a new immutable SHA:
+For candidate qualification and releases, follow
+`docs/engineering/release-qualification.md`.
 
-```
-IMPLEMENTED
-  code committed, focused tests pass
-→ CANDIDATE
-  tree clean, SHA frozen, no changes after freeze
-→ SOURCE-QUALIFIED
-  targeted suite passes, serial+parallel suites pass, required checks accounted for
-→ ARTIFACT-QUALIFIED
-  wheel built from frozen SHA, hash recorded, installed in fresh environment, public workflow passes
-→ RELEASE-READY
-  version finalized, notes finalized, remote state checked, publication authorized
-→ PUBLISHED
-  main pushed, tag pushed, release created, remote invariant verified
-```
+Mandatory rules:
 
-A source, test, version, or packaged-resource change after SOURCE-QUALIFIED creates a new SHA and invalidates all downstream evidence. Do not carry forward wheel hashes or install logs from a different SHA.
+1. Never call work "fully repaired," "qualified," "merge-ready," or
+   "release-ready" before the corresponding evidence gate is complete.
+2. Record the exact candidate SHA before qualification.
+3. Any source, test, version, packaging, or packaged-resource change
+   invalidates downstream evidence and requires qualification from the new
+   SHA.
+4. Report pytest categories separately: collected, passed, skipped,
+   xfailed, xpassed, failed, and errors.
+5. A timed-out or terminated command is incomplete evidence.
+6. Compare required-check failures against the baseline before calling them
+   pre-existing.
+7. Build and installed-test artifacts from the exact frozen release SHA.
+8. Publication requires explicit authorization separate from qualification.
+9. Preserve author authority: any Layer 1 mutation requires explicit author
+   action, atomic persistence, and auditable provenance.
 
-### Baseline failure policy for non-Auteur checks
+### Baseline failure policy
 
-Checks like `scripts/check.py` (which exercises third-party validator tooling, not Auteur product code) may fail identically on baseline and candidate. Classify as:
+Checks like `scripts/check.py` (third-party validator tooling, not Auteur
+product code) may fail identically on baseline and candidate. Classify as:
 
 - **REGRESSION**: fails on candidate, passes on baseline → BLOCK
-- **KNOWN BASELINE FAILURE**: fails identically on both → may proceed if candidate does not touch the affected boundary
-- **SHIFTED FAILURE**: different failure shape or count between baseline and candidate → INVESTIGATE
+- **KNOWN BASELINE FAILURE**: fails identically on both → proceed if
+  candidate does not touch the affected boundary
+- **SHIFTED FAILURE**: different failure shape or count → INVESTIGATE
 
-Never report a known baseline failure as passing. Never block a release on a failure the baseline already had unless the failure changed shape.
+Never report a known baseline failure as passing. Never block a release on
+a baseline-identical failure unless its shape changed.
 
-### Evidence manifest
+## Completion language
 
-At the CANDIDATE gate and again at RELEASE-READY, run:
+Use evidence-bounded language:
 
-```
-python scripts/qualify_release.py
-```
+- "implemented" means the code exists
+- "focused tests pass" means only the named tests passed
+- "source-qualified" means the complete source gate passed
+- "artifact-qualified" means the exact built artifact passed installed testing
+- "release-ready" means publication prerequisites are complete
+- "published" means remote state has been verified
 
-This produces `release-manifest.json` containing baseline SHA, candidate SHA, test counts, wheel filename, and SHA-256. If the candidate SHA differs between the two runs (because code changed after qualification began), qualification is invalid and must restart from CANDIDATE.
+Do not use these terms interchangeably.
 
 ## Semantic architecture
 
-See [docs/narrative-architecture.md](docs/narrative-architecture.md) for the
-canonical five-layer model and scope axis.
+`docs/narrative-architecture.md` is the sole authority for semantic layer
+names, count, ownership, and boundaries.
 
-Auteur has three distinct layers. Identify which layer a task belongs to
-before working — each has its own definition of "complete."
+The canonical model defines five semantic layers (0: Ontology, 1: Identity,
+2: Structure, 3: Realization, 4: Expression) and five scope containers
+(Universe, Series, Book, Chapter, Scene). Scopes are not layers.
 
-1. **Identity and Structure**: Story identity, genre/medium/scope contracts,
-   structural forces, threads, theme, and whole-story plans. Owned by
-   `auteur identity`, `auteur blueprint`, `auteur structure`, `auteur state`.
-   These can be fully represented in the blueprint without chapter artifacts.
-2. **Realization**: Cartographer outputs, Bible state, scene events, and
-   character state changes. Owned by `auteur cartographer`, `auteur plan`, and
-   realization workflows.
-3. **Expression**: Chapter prose, TDD critics, and iteration. Expression is
-   the fourth semantic layer; critics and iteration are cross-cutting
-   validation/orchestration workflows. Owned by `auteur draft`, `auteur accept`,
-   `auteur retry`.
+Root agent files may summarize but must not define competing layer models.
+When a summary conflicts with the canonical document, the canonical
+document wins.
 
 Do not conflate gaps across layers. A narrative engine gap (e.g., missing
 subgenre validation) is not fixed by improving the drafting pipeline.

@@ -6,28 +6,31 @@ Developer guidelines for the auteur narrative engineering toolkit.
 
 **Blame processes, not people.** Build systems and patterns that scale, not heroic individual efforts.
 
+## Sources of truth
+
+Before making architectural or release claims, consult:
+
+- `docs/narrative-architecture.md` — canonical semantic architecture (5 layers, 5 scopes)
+- `CONTEXT.md` — current repository domain and runtime context
+- `docs/adr/` — accepted architectural decisions
+- `docs/engineering/release-qualification.md` — qualification and release evidence policy
+- `AGENTS.md` — repository-wide agent behavior
+
+Do not treat historical implementation plans, release reviews, or this
+summary as more authoritative than those documents.
+
 ## Architecture Patterns & Reusability
 
-### Layered Story Architecture (NOW COMPLETE)
+### Semantic architecture
 
-Auteur implements the complete 7-layer narrative hierarchy:
+See `docs/narrative-architecture.md` for the canonical layer model.
 
-1. **Universe** ✅ (defines world rules, constraints for all descendant layers)
-2. **Series** ✅ (establishes multi-book continuity, character arcs, thematic throughlines)
-3. **Book/Story Identity** ✅ (establishes genre contract and emotional core)
-4. **Blueprint** ✅ (story beats aligned to 9-phase genre structure)
-5. **Outline** ✅ (scene-by-scene breakdown via Cartographer)
-6. **Draft** ✅ (actual prose generation and management)
-7. **Editing** ✅ (refinement, review, drift validation)
+Auteur implements five semantic layers (Ontology, Identity, Structure,
+Realization, Expression) and five scope containers (Universe, Series,
+Book, Chapter, Scene). Scopes are not layers. Cross-cutting systems
+(validation, orchestration, editing, diagnostics) operate across layers.
 
-Each layer:
-- Owns a different scale of narrative decision
-- Inherits constraints from all higher layers
-- Produces durable YAML/JSON/Markdown artifacts
-- Can produce diagnostics when coherence is violated
-- Validates independently without special-casing in shared code
-
-The Universe layer (implemented 2026-07-11) completes the hierarchy. See
+The Universe scope was implemented 2026-07-11. See
 `docs/superpowers/specs/2026-07-11-universe-layer-spec.md` for the full specification.
 
 **Backwards Compatibility:** No breaking changes to existing Series, Book, or Story Identity layers.
@@ -59,13 +62,25 @@ When building opinionated pipelines (genre templates, validation engines, identi
 
 **Validation threshold:** If you can implement the same architecture for three different genres (netorare, mystery, gentle femdom) with zero infrastructure changes, the pattern is production-ready for additional genres.
 
+## Process discipline
+
+- Blame processes, not people.
+- Do not repair during an observation-only review.
+- Separate observation, scope approval, implementation, qualification, and
+  publication.
+- Do not declare completion from focused tests alone.
+- Treat every source or packaging change as a new candidate.
+- Prefer machine-generated evidence manifests over manually reconstructed
+  summaries.
+- Never hide inherited check failures; classify them against the baseline.
+
 ### Current Genre Pipelines
 
-| Genre | Emotional Cores | Templates | Validation Rules | CLI Port | Tests |
-|-------|-----------------|-----------|------------------|----------|-------|
-| Netorare | Classic Humiliation, Horror, Mystery | 3 × 9-phase | 15 rules | 8765 | 154 |
-| Mystery | Howdunit, Paranoia, Cozy | 3 × 9-phase | 12 rules | 8766 | 75 |
-| Gentle Femdom | Sensual Dominance, Tender Surrender, Romantic Authority | 3 × 9-phase | 12 rules | 8767 | 101 |
+| Genre | Emotional Cores | Implemented |
+|-------|-----------------|-------------|
+| Netorare | Classic Humiliation, Horror, Mystery | Yes |
+| Mystery | Howdunit, Paranoia, Cozy | Yes |
+| Gentle Femdom | Sensual Dominance, Tender Surrender, Romantic Authority | Yes |
 
 ## Development Velocity & Subagent-Driven Development
 
@@ -191,7 +206,7 @@ Rules encode:
 - Genre directories: lowercase (netorare, mystery, gentlefemdom)
 - Module exports via `__init__.py`
 - CLI commands: `auteur {genre} init ./project --core {core_id}`
-- Port allocation: netorare=8765, mystery=8766, gentlefemdom=8767, +1 per new genre
+- Port allocation: registered per genre in `auteur.genre_pipeline.registry`
 
 ### Reusing Session/Server/UI Infrastructure
 
@@ -224,5 +239,4 @@ The architecture succeeds when a new genre needs only templates + validation + i
 
 ---
 
-**Last Updated:** 2026-07-11  
-**Validated By:** Three complete genre pipelines (netorare, mystery, gentle femdom) with zero infrastructure modifications across 1090+ tests; genre-neutral runtime consolidation verified with regression coverage for session storage invariants
+**Validated By:** Three complete genre pipelines (netorare, mystery, gentle femdom) with zero infrastructure modifications; genre-neutral runtime consolidation verified with regression coverage for session storage invariants
