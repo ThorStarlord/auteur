@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from auteur.blueprint import StoryBlueprint
+from auteur.blueprint import StoryBlueprint, EndingTone
 from auteur.structure.diagnostics import (
     DiagnosticLayer,
     DiagnosticSeverity,
@@ -1557,7 +1557,119 @@ def _add_layer9_resonance_diagnostics(
                 )
             )
 
-    # 4. Auto-generated thesis detection
+    # 5. Profile-derived diagnostics (Layer: STRUCTURAL_FORCES)
+    if blueprint.profile_derivation is not None:
+        profile = blueprint.profile_derivation
+        rc_field = "genre_profile.accepted_resolution_contract"
+
+        # D-RES-001: Missing required outcome in expected_elements
+        for oblig in profile.obligations_applied:
+            if oblig.startswith("expected_elements: "):
+                outcome = oblig.split("expected_elements: ", 1)[1]
+                if outcome not in blueprint.contract.expected_elements:
+                    diagnostics.append(
+                        StructureDiagnostic(
+                            severity=DiagnosticSeverity.WARNING,
+                            layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                            rule="profile.resolution_contract.missing_required_outcome",
+                            message=(
+                                f"Required outcome '{outcome}' from the genre profile's "
+                                f"resolution contract is missing from blueprint expected_elements."
+                            ),
+                            evidence=[
+                                f"source = {rc_field}.required_outcomes",
+                                f"missing = {outcome}",
+                                f"expected_elements = {blueprint.contract.expected_elements}",
+                                f"recommendation_id = {profile.recommendation_id}",
+                            ],
+                            repair_options=RepairOptions(
+                                preserve_intent=[
+                                    f"Add '{outcome}' to the contract expected_elements list."
+                                ],
+                                challenge_intent=[
+                                    "Override or suppress this required outcome via author override."
+                                ],
+                            ),
+                        )
+                    )
+
+        # D-RES-002: Rejected outcome present in contract
+        for oblig in profile.obligations_applied:
+            if oblig.startswith("forbidden_tropes: "):
+                outcome = oblig.split("forbidden_tropes: ", 1)[1]
+                if outcome in blueprint.contract.expected_elements:
+                    diagnostics.append(
+                        StructureDiagnostic(
+                            severity=DiagnosticSeverity.WARNING,
+                            layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                            rule="profile.resolution_contract.rejected_outcome_present",
+                            message=(
+                                f"Rejected outcome '{outcome}' from the genre profile's "
+                                f"resolution contract appears in expected_elements."
+                            ),
+                            evidence=[
+                                f"source = {rc_field}.rejected_outcomes",
+                                f"outcome = {outcome}",
+                                f"expected_elements = {blueprint.contract.expected_elements}",
+                                f"forbidden_tropes = {blueprint.contract.forbidden_tropes}",
+                                f"recommendation_id = {profile.recommendation_id}",
+                            ],
+                            repair_options=RepairOptions(
+                                preserve_intent=[
+                                    f"Remove '{outcome}' from expected_elements or revise the resolution contract."
+                                ],
+                                challenge_intent=[
+                                    "Accept the tension if the story intentionally includes a rejected outcome."
+                                ],
+                            ),
+                        )
+                    )
+
+        # D-RES-003: Ending tone vs profile pattern conflict
+        _PATTERN_TONE_MAP: dict[str, list[EndingTone]] = {
+            "transformative_resolution": [EndingTone.HOPEFUL, EndingTone.BITTERSWEET],
+            "relational_fulfillment": [EndingTone.HOPEFUL, EndingTone.BITTERSWEET],
+            "dark_transgression_resolution": [EndingTone.TRAGIC],
+            "ambiguous_loss": [EndingTone.AMBIGUOUS, EndingTone.TRAGIC],
+            "mutual_destruction": [EndingTone.TRAGIC],
+            "redemptive_sacrifice": [EndingTone.BITTERSWEET],
+            "cyclical_return": [EndingTone.AMBIGUOUS, EndingTone.OPEN],
+        }
+        for oblig in profile.obligations_applied:
+            if oblig.startswith("resolution_pattern: "):
+                pattern = oblig.split("resolution_pattern: ", 1)[1]
+                implied_tones = _PATTERN_TONE_MAP.get(pattern)
+                if implied_tones and blueprint.contract.mandatory_ending_tone not in implied_tones:
+                    diagnostics.append(
+                        StructureDiagnostic(
+                            severity=DiagnosticSeverity.WARNING,
+                            layer=DiagnosticLayer.STRUCTURAL_FORCES,
+                            rule="profile.resolution_contract.ending_tone_conflict",
+                            message=(
+                                f"Resolution pattern '{pattern}' implies ending tone(s) "
+                                f"{[t.value for t in implied_tones]}, but the blueprint has "
+                                f"mandatory_ending_tone = '{blueprint.contract.mandatory_ending_tone.value}'."
+                            ),
+                            evidence=[
+                                f"source = {rc_field}.pattern",
+                                f"pattern = {pattern}",
+                                f"implied_tones = {[t.value for t in implied_tones]}",
+                                f"mandatory_ending_tone = {blueprint.contract.mandatory_ending_tone.value}",
+                                f"recommendation_id = {profile.recommendation_id}",
+                            ],
+                            repair_options=RepairOptions(
+                                preserve_intent=[
+                                    "Align the mandatory ending tone with the profile's implied resolution pattern."
+                                ],
+                                challenge_intent=[
+                                    "Override the resolution pattern if the ending is an intentional subversion."
+                                ],
+                            ),
+                        )
+                    )
+                break
+
+    # 4. Auto-generated thesis detection (renumbered)
     thesis = blueprint.theme.thesis
     if thesis:
         thesis_lower = thesis.casefold()
