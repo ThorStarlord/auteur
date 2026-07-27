@@ -43,7 +43,7 @@ def main():
         yaml_present = any("erotic_fiction/0.1.0.yaml" in f or "0.1.0.yaml" in f for f in namelist)
 
     print(f"Built wheel: {wheel_path.name}")
-    print(f"  Package Version: 0.36.0")
+    print(f"  Package Version: 0.37.0")
     print(f"  Wheel SHA-256  : {wheel_sha256}")
     print(f"  Wheel File Count: {wheel_file_count}")
     print(f"  Pack YAML Present: {yaml_present}")
@@ -71,7 +71,7 @@ def main():
     installed_file = stdout_lines[0]
     installed_ver = stdout_lines[1]
     assert "site-packages" in installed_file or "dist-packages" in installed_file or "venv" in installed_file.lower()
-    assert installed_ver == "0.36.0"
+    assert installed_ver == "0.37.0"
     print(f"  [PASS] Import from site-packages (version {installed_ver})")
 
     # Qualification Check 2: Pack list & inspect
