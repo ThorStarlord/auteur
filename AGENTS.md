@@ -56,6 +56,47 @@ When reviewing code changes or investigating test failures:
    - Can enforce repository behavior (e.g., "session storage must use neutral paths")
    - Add regression test when you discover an invariant was silently violated by code changes
 
+## Release qualification
+
+No command claiming release readiness is valid unless preceded by the exact exit state of the previous phase. These phases are sequential and each creates a new immutable SHA:
+
+```
+IMPLEMENTED
+  code committed, focused tests pass
+→ CANDIDATE
+  tree clean, SHA frozen, no changes after freeze
+→ SOURCE-QUALIFIED
+  targeted suite passes, serial+parallel suites pass, required checks accounted for
+→ ARTIFACT-QUALIFIED
+  wheel built from frozen SHA, hash recorded, installed in fresh environment, public workflow passes
+→ RELEASE-READY
+  version finalized, notes finalized, remote state checked, publication authorized
+→ PUBLISHED
+  main pushed, tag pushed, release created, remote invariant verified
+```
+
+A source, test, version, or packaged-resource change after SOURCE-QUALIFIED creates a new SHA and invalidates all downstream evidence. Do not carry forward wheel hashes or install logs from a different SHA.
+
+### Baseline failure policy for non-Auteur checks
+
+Checks like `scripts/check.py` (which exercises third-party validator tooling, not Auteur product code) may fail identically on baseline and candidate. Classify as:
+
+- **REGRESSION**: fails on candidate, passes on baseline → BLOCK
+- **KNOWN BASELINE FAILURE**: fails identically on both → may proceed if candidate does not touch the affected boundary
+- **SHIFTED FAILURE**: different failure shape or count between baseline and candidate → INVESTIGATE
+
+Never report a known baseline failure as passing. Never block a release on a failure the baseline already had unless the failure changed shape.
+
+### Evidence manifest
+
+At the CANDIDATE gate and again at RELEASE-READY, run:
+
+```
+python scripts/qualify_release.py
+```
+
+This produces `release-manifest.json` containing baseline SHA, candidate SHA, test counts, wheel filename, and SHA-256. If the candidate SHA differs between the two runs (because code changed after qualification began), qualification is invalid and must restart from CANDIDATE.
+
 ## Semantic architecture
 
 See [docs/narrative-architecture.md](docs/narrative-architecture.md) for the
