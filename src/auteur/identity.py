@@ -6,6 +6,7 @@ boundaries, and open questions) before generating a valid blueprint structure.
 """
 
 from __future__ import annotations
+from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Self, TYPE_CHECKING
@@ -52,6 +53,7 @@ from auteur.blueprint import (
     NarrativeRunway,
     ScopeComplexity,
     MechanicalLoad,
+    ProfileDerivation,
 )
 
 
@@ -757,6 +759,38 @@ def compile_to_blueprint(identity: StoryIdentity) -> StoryBlueprint:
         custom_rules=[],
     )
 
+    # 3a. Profile-derived contract obligations (resolution contract)
+    profile_obligations: list[str] = []
+    if identity.genre_profile is not None:
+        rc = identity.genre_profile.accepted_resolution_contract
+        if rc:
+            overrides = identity.genre_profile.author_overrides
+            required_ov = next(
+                (o for o in overrides if o.target_expectation == "accepted_resolution_contract.required_outcomes"),
+                None,
+            )
+
+            if required_ov:
+                val = required_ov.replacement_value
+                if val not in contract.expected_elements:
+                    contract.expected_elements.append(val)
+                    profile_obligations.append(f"expected_elements: {val}")
+                profile_obligations.append(
+                    f"override: accepted_resolution_contract.required_outcomes "
+                    f"({required_ov.recommended_value} -> {required_ov.replacement_value})"
+                )
+            else:
+                for outcome in rc.required_outcomes:
+                    if outcome not in contract.expected_elements:
+                        contract.expected_elements.append(outcome)
+                        profile_obligations.append(f"expected_elements: {outcome}")
+            for outcome in rc.rejected_outcomes:
+                if outcome not in contract.forbidden_tropes:
+                    contract.forbidden_tropes.append(outcome)
+                    profile_obligations.append(f"forbidden_tropes: {outcome}")
+            if rc.pattern:
+                profile_obligations.insert(0, f"resolution_pattern: {rc.pattern}")
+
     # 4. Emotional Blueprint
     progression_steps = []
     if identity.target_experience.progression:
@@ -968,6 +1002,15 @@ def compile_to_blueprint(identity: StoryIdentity) -> StoryBlueprint:
         tension_waveform=tension_waveform,
         theme=theme,
     )
+
+    # 9a. Profile derivation provenance
+    if identity.genre_profile is not None and profile_obligations:
+        blueprint.profile_derivation = ProfileDerivation(
+            source_field="genre_profile.accepted_resolution_contract",
+            recommendation_id=identity.genre_profile.source_recommendation_id,
+            derived_at=datetime.now(timezone.utc).isoformat(),
+            obligations_applied=profile_obligations,
+        )
 
     return blueprint
 

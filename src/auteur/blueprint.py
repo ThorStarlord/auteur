@@ -674,6 +674,35 @@ class StoryEngine(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Profile derivation provenance
+# ---------------------------------------------------------------------------
+
+
+class ProfileDerivation(BaseModel):
+    """Lightweight provenance for profile-derived Blueprint obligations.
+
+    Records which StoryIdentity genre_profile field produced which Blueprint
+    obligations, from which recommendation (if any), so diagnostics can trace
+    structural consequences back to accepted commitments.
+    """
+
+    source_field: str = Field(
+        description="Dot-path to the identity field, e.g. 'genre_profile.accepted_resolution_contract'"
+    )
+    recommendation_id: str | None = Field(
+        default=None,
+        description="ID of the GenreRecommendation that produced this profile commitment",
+    )
+    derived_at: str = Field(
+        description="ISO 8601 timestamp of compilation"
+    )
+    obligations_applied: list[str] = Field(
+        default_factory=list,
+        description="Human-readable list of obligations derived, e.g. 'expected_elements: protagonist_transformation'",
+    )
+
+
+# ---------------------------------------------------------------------------
 # Root: StoryBlueprint
 # ---------------------------------------------------------------------------
 
@@ -689,6 +718,10 @@ class StoryBlueprint(BaseModel):
     characters: list[Character] = Field(default_factory=list)
     tension_waveform: TensionWaveform = Field(default_factory=TensionWaveform)
     theme: ThematicCore
+    profile_derivation: ProfileDerivation | None = Field(
+        default=None,
+        description="Provenance record for profile-derived obligations. None when no genre_profile is present.",
+    )
 
     # -- Per-agent LLM model routing -------------------------------------
     cartographer_model: str | None = Field(
