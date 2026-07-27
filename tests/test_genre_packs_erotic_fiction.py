@@ -409,7 +409,7 @@ def test_recommendation_project_local_authority_and_isolation(tmp_path: Path):
 
 def test_recommendation_atomic_write_safety(tmp_path: Path):
     from auteur.genre_packs.recommendation import _atomic_write_json
-    rec = recommend_genre_profile("Test atomic write")
+    rec = recommend_genre_profile("A dark erotic romance story testing atomic write and desire")
     target_file = tmp_path / ".auteur" / "genre_recommendations" / f"{rec.recommendation_id}.json"
 
     _atomic_write_json(target_file, rec.model_dump(mode="json"))
@@ -426,7 +426,7 @@ def test_recommendation_survives_restart_and_project_relocation(tmp_path: Path):
     orig_proj = tmp_path / "original_proj"
     orig_proj.mkdir()
 
-    rec = recommend_genre_profile("Story surviving relocation")
+    rec = recommend_genre_profile("A dark erotic romance story surviving relocation and intense passion")
     save_recommendation(rec, orig_proj)
     rec_id = rec.recommendation_id
 
@@ -447,7 +447,7 @@ def test_project_local_artifact_missing_no_silent_global_fallback(tmp_path: Path
     from auteur.genre_packs.recommendation import save_recommendation, load_recommendation, _PENDING_RECOMMENDATIONS
     proj = tmp_path / "proj_missing"
     proj.mkdir()
-    rec = recommend_genre_profile("Testing no silent global fallback")
+    rec = recommend_genre_profile("Testing no silent global fallback for erotic romance desire")
     save_recommendation(rec, proj)
     rec_id = rec.recommendation_id
 
@@ -468,7 +468,7 @@ def test_project_local_artifact_malformed_reports_corruption(tmp_path: Path):
     from auteur.genre_packs.recommendation import save_recommendation, load_recommendation, _PENDING_RECOMMENDATIONS
     proj = tmp_path / "proj_malformed"
     proj.mkdir()
-    rec = recommend_genre_profile("Testing malformed local artifact")
+    rec = recommend_genre_profile("Testing malformed local artifact for erotic romance desire")
     save_recommendation(rec, proj)
     rec_id = rec.recommendation_id
 
@@ -491,11 +491,11 @@ def test_two_projects_same_recommendation_id_isolated(tmp_path: Path):
     proj_b = tmp_path / "proj_b"
     proj_a.mkdir(); proj_b.mkdir()
 
-    rec_a = recommend_genre_profile("Premise A")
+    rec_a = recommend_genre_profile("Erotic romance premise A with desire")
     save_recommendation(rec_a, proj_a)
     
     # Save rec with same ID in project B but different premise
-    rec_b = recommend_genre_profile("Premise B")
+    rec_b = recommend_genre_profile("Erotic romance premise B with passion")
     rec_b.recommendation_id = rec_a.recommendation_id
     save_recommendation(rec_b, proj_b)
 
@@ -510,7 +510,7 @@ def test_two_projects_same_recommendation_id_isolated(tmp_path: Path):
 
 def test_global_only_recommendation_cannot_be_treated_as_project_bound(tmp_path: Path):
     from auteur.genre_packs.recommendation import save_recommendation, load_recommendation, _PENDING_RECOMMENDATIONS
-    rec = recommend_genre_profile("Global recommendation premise")
+    rec = recommend_genre_profile("Global recommendation erotic romance premise with desire")
     save_recommendation(rec, project_dir=None)
     rec_id = rec.recommendation_id
 

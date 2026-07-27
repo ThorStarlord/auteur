@@ -16,6 +16,9 @@ from auteur.genre_packs.models import (
     ResolutionContractCommitment,
     GenreErrorCode,
     GenrePackError,
+    PackApplicabilityStatus,
+    PackApplicabilityEvaluation,
+    GenreRecommendationAdvisory,
 )
 from auteur.genre_packs.registry import get_pack_registry
 
@@ -119,16 +122,89 @@ def load_recommendation(rec_id: str, project_dir: Path | str | None = None) -> G
     raise GenrePackError(GenreErrorCode.RECOMMENDATION_NOT_FOUND, f"Recommendation ID '{rec_id}' not found.")
 
 
+def evaluate_pack_applicability(
+    premise_text: str,
+    pack_id: str = "erotic_fiction",
+    version: str = "0.1.0",
+) -> PackApplicabilityEvaluation:
+    """Evaluate whether a Genre Pack is applicable to the raw premise text."""
+    premise_lower = premise_text.casefold()
+
+    if pack_id == "erotic_fiction":
+        domain_signals = [
+            "desire", "intimacy", "erotic", "passion", "sexual", "romantic attraction",
+            "sensual", "affair", "lover", "relationship boundary", "longing", "attraction",
+            "temptation", "surrender", "lust", "seduction", "physical attraction",
+            "obsession", "romance", "romantic", "intimate", "identity facades",
+        ]
+        negated_cues = [
+            "non-erotic", "no romance", "platonic only", "strictly professional",
+            "rejects desire", "avoids all intimacy", "no intimacy", "avoids desire", "never attracted",
+        ]
+
+        matched = [sig for sig in domain_signals if sig in premise_lower]
+        negated = [cue for cue in negated_cues if cue in premise_lower]
+
+        if negated or len(matched) == 0:
+            score = 0.05
+            status = PackApplicabilityStatus.NOT_APPLICABLE
+            explanation = f"Premise lacks core domain signals for pack '{pack_id}'."
+        elif len(matched) == 1:
+            score = 0.40
+            status = PackApplicabilityStatus.APPLICABLE
+            explanation = f"Premise contains initial domain signal '{matched[0]}'."
+        else:
+            score = min(0.95, 0.50 + len(matched) * 0.15)
+            status = PackApplicabilityStatus.APPLICABLE
+            explanation = f"Premise strongly aligns with domain signals ({', '.join(matched[:3])})."
+
+        return PackApplicabilityEvaluation(
+            pack_id=pack_id,
+            version=version,
+            status=status,
+            applicability_score=round(score, 2),
+            matched_signals=matched,
+            missing_signals=[s for s in domain_signals if s not in matched][:5],
+            negated_signals=negated,
+            explanation=explanation,
+        )
+
+    return PackApplicabilityEvaluation(
+        pack_id=pack_id,
+        version=version,
+        status=PackApplicabilityStatus.INSUFFICIENT_EVIDENCE,
+        applicability_score=0.0,
+        explanation=f"Pack '{pack_id}' evaluation rule set is unconfigured.",
+    )
+
+
 def recommend_genre_profile(
     premise_text: str,
     pack_id: str = "erotic_fiction",
     version: str = "0.1.0",
     context: dict[str, Any] | None = None,
-) -> GenreRecommendation:
-    """Analyze premise and return exactly one opinionated GenreRecommendation candidate.
+) -> GenreRecommendation | GenreRecommendationAdvisory:
+    """Analyze premise and return an opinionated GenreRecommendation or an abstention advisory.
     
     This function is strictly read-only and causes zero pre-acceptance state mutation.
     """
+    applicability = evaluate_pack_applicability(premise_text, pack_id=pack_id, version=version)
+    if applicability.status != PackApplicabilityStatus.APPLICABLE:
+        return GenreRecommendationAdvisory(
+            status="no_applicable_pack",
+            message=(
+                f"No installed Genre Pack is a strong fit for this premise. "
+                f"Evaluated pack '{pack_id}' status: {applicability.status.value} (score: {applicability.applicability_score})."
+            ),
+            evaluated_packs=[applicability],
+            recommended_next_actions=[
+                "Run 'auteur story-discovery' to explore open-ended interpretations",
+                "Use 'auteur identity init' to create an author-editable StoryIdentity skeleton",
+                "Manually specify your desired genre when creating story identity",
+            ],
+            mutated_state=False,
+        )
+
     registry = get_pack_registry()
     pack, content_hash = registry.get_pack(pack_id, version)
 

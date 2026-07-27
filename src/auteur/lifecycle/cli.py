@@ -62,7 +62,7 @@ def _handle_fill(args) -> int:
                 for g in gaps:
                     print(f"  [{g['gap_type']}] {g['title']}")
                     print(f"       {g['description']}")
-                    print(f"       → {g['command']}")
+                    print(f"       -> {g['command']}")
             return 0
 
         if args.json:

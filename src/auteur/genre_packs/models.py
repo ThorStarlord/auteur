@@ -23,6 +23,33 @@ class AdherencePosture(str, Enum):
     DECONSTRUCTIVE = "deconstructive"
 
 
+class PackApplicabilityStatus(str, Enum):
+    APPLICABLE = "applicable"
+    WEAK_FIT = "weak_fit"
+    NOT_APPLICABLE = "not_applicable"
+    INSUFFICIENT_EVIDENCE = "insufficient_evidence"
+
+
+class PackApplicabilityEvaluation(BaseModel):
+    pack_id: str
+    version: str
+    status: PackApplicabilityStatus
+    applicability_score: float = Field(ge=0.0, le=1.0)
+    matched_signals: list[str] = Field(default_factory=list)
+    missing_signals: list[str] = Field(default_factory=list)
+    negated_signals: list[str] = Field(default_factory=list)
+    explanation: str
+
+
+class GenreRecommendationAdvisory(BaseModel):
+    status: str = "no_applicable_pack"
+    message: str
+    evaluated_packs: list[PackApplicabilityEvaluation] = Field(default_factory=list)
+    recommended_next_actions: list[str] = Field(default_factory=list)
+    mutated_state: bool = False
+
+
+
 class GenreErrorCode(str, Enum):
     PACK_NOT_FOUND = "PACK_NOT_FOUND"
     PACK_INVALID = "PACK_INVALID"

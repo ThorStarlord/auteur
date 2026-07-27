@@ -324,9 +324,20 @@ class StoryIdentity(BaseModel):
         # 5. Subgenre Validation Checks
         if self.story_type.subgenres:
             from auteur.genres.subgenres import load_subgenre_modifier
+            from auteur.genre_packs.registry import get_pack_registry
+            registry = get_pack_registry()
+            all_pack_profiles = set()
+            for p_info in registry.list_packs():
+                try:
+                    pack_obj, _ = registry.get_pack(p_info["pack_id"], p_info["version"])
+                    for prof in pack_obj.subgenre_profiles:
+                        all_pack_profiles.add(prof.profile_id)
+                except Exception:
+                    pass
+
             for sub in self.story_type.subgenres:
                 modifier = load_subgenre_modifier(sub)
-                if not modifier:
+                if not modifier and sub not in all_pack_profiles:
                     diagnostics.append(
                         StructureDiagnostic(
                             severity=DiagnosticSeverity.WARNING,
@@ -340,7 +351,7 @@ class StoryIdentity(BaseModel):
                             )
                         )
                     )
-                else:
+                elif modifier:
                     if self.story_type.genre not in modifier.allowed_primary_genres:
                         diagnostics.append(
                             StructureDiagnostic(

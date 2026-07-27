@@ -182,10 +182,10 @@ def handle_decision_diff(args) -> int:
             if not result["has_changes"]:
                 print("No differences between snapshots.")
             else:
-                print(f"Differences — {result['decision_id']}")
-                print(f"  {result['snapshot_a'][:8]}… → {result['snapshot_b'][:8]}…")
+                print(f"Differences -- {result['decision_id']}")
+                print(f"  {result['snapshot_a'][:8]}... -> {result['snapshot_b'][:8]}...")
                 for field, change in result["changes"].items():
-                    print(f"  {field}: {change['from']} → {change['to']}")
+                    print(f"  {field}: {change['from']} -> {change['to']}")
         return 0
     except ValueError as e:
         print(f"Error: {e}", file=sys.stderr)

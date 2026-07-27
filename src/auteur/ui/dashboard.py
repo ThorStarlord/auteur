@@ -129,7 +129,7 @@ def format_dashboard(data: dict[str, Any]) -> str:
             action = result.data.get("action", {})
             if action:
                 label = action.label if hasattr(action, "label") else action.get("label", "")
-                lines.append(f"  \u2192 {label}")
+                lines.append(f"  -> {label}")
     except Exception:
         lines.append("  Run 'auteur workflow next' for the next action.")
 

@@ -1106,6 +1106,23 @@ def dispatch(args: argparse.Namespace) -> int:
             _err(f"failed to publish blueprint: {exc}"); return 1
         print(f"Blueprint published to {output}")
         return 0
+
+    # === identity init ===
+    if args.command == "identity" and args.identity_command == "init":
+        from auteur.cli_handlers import handle_identity_init
+        res = handle_identity_init(
+            premise_text=args.premise,
+            output_path=args.output,
+            title=args.title,
+            genre=args.genre,
+            project_path=args.project,
+        )
+        if not res.is_success:
+            _err(res.error)
+            return res.exit_code
+        print("Success: StoryIdentity skeleton initialized.")
+        return 0
+
     if args.command == "identity" and args.identity_command == "recommend":
         ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         pt = args.premise
@@ -1119,6 +1136,28 @@ def dispatch(args: argparse.Namespace) -> int:
                 "Use --recommend-mode open-ended instead.", file=sys.stderr)
             rec_mode = "open_ended"; story_mode = None
         if rec_mode == "open-ended": rec_mode = "open_ended"
+
+        # Check for provider API key prerequisite before initiating LLM calls
+        import os
+        anthropic_key = os.environ.get("ANTHROPIC_API_KEY")
+        openai_key = os.environ.get("OPENAI_API_KEY")
+        is_test_or_mock = (
+            getattr(args, "provider", None) in ("mock", "test")
+            or os.environ.get("PYTEST_CURRENT_TEST")
+            or os.environ.get("AUTEUR_TEST_MODE")
+        )
+        if not is_test_or_mock and not anthropic_key and not openai_key:
+            _err(
+                "Error: No LLM API key configured for AI Story Identity recommendation.\n\n"
+                "To use AI Story Identity recommendation, set an API key:\n"
+                "  PowerShell: $env:ANTHROPIC_API_KEY = \"sk-ant-...\"\n"
+                "  Bash      : export ANTHROPIC_API_KEY=\"sk-ant-...\"\n"
+                "  OpenAI    : $env:OPENAI_API_KEY = \"sk-...\"\n\n"
+                "For offline Story Identity skeleton generation without an API key, run:\n"
+                "  auteur identity init --premise \"<your premise>\""
+            )
+            return 1
+
         from auteur.llm.factory import build_client
         client = build_client(args.provider, args.model, agent_type="identity")
         result = handle_identity_recommend(client=client, premise_text=pt,

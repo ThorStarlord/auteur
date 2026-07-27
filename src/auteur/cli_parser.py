@@ -257,6 +257,12 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--strict-candidate-count", action="store_true", help=argparse.SUPPRESS)
     p.add_argument("--debug", action="store_true",
         help="Export all failed candidate attempts to .auteur/runs/<timestamp>/.")
+    p = iss.add_parser("init", help="Initialize an editable StoryIdentity skeleton offline without an API key.")
+    p.add_argument("--premise", type=str, default="", help="Raw premise text or path to file containing it.")
+    p.add_argument("--output", type=Path, default=None, help="Target output path for story_identity.yaml.")
+    p.add_argument("--title", type=str, default="Untitled Story", help="Story title.")
+    p.add_argument("--genre", type=str, default="other", help="Primary genre.")
+    p.add_argument("--project", type=Path, default=None, help="Project directory.")
     p = iss.add_parser("accept-candidate", help=argparse.SUPPRESS)
     p.add_argument("candidate", type=Path, help=argparse.SUPPRESS)
     p.add_argument("--output", type=Path, default=Path("story_identity.yaml"),
