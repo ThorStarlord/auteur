@@ -328,3 +328,91 @@ def test_identity_subgenre_unknown_validation():
     assert len(subgenre_warnings_unknown) == 1
 
 
+# =====================================================================
+# V0.37.X HARDENING TESTS (F-01, F-02, F-03)
+# =====================================================================
+
+def test_negation_explicit_global_domain_negation():
+    """Explicit domain negation like 'This is not an erotic story' must evaluate as NOT_APPLICABLE."""
+    negated_premises = [
+        "This is not an erotic story. A detective investigates sabotage aboard a research station.",
+        "The story is not erotic and contains no romance or intimacy.",
+        "Attraction is not part of the story. The protagonist escapes a cult.",
+        "A scholar studies erotic literature in a university library.",
+        "A film critic analyzes erotic horror movies for a journal article.",
+    ]
+    for premise in negated_premises:
+        eval_result = evaluate_pack_applicability(premise, "erotic_fiction")
+        assert eval_result.status == PackApplicabilityStatus.NOT_APPLICABLE
+        assert eval_result.applicability_score < 0.10
+
+
+def test_negation_character_denial_with_positive_evidence():
+    """Character denial inside an in-domain premise must not cause false abstention when positive evidence exists."""
+    in_domain_premises = [
+        "She denies her desire in public, but private longing and physical intimacy drive every decision.",
+        "He insists the relationship is not romantic, while their erotic obsession intensifies.",
+    ]
+    for premise in in_domain_premises:
+        eval_result = evaluate_pack_applicability(premise, "erotic_fiction")
+        assert eval_result.status == PackApplicabilityStatus.APPLICABLE
+        assert eval_result.applicability_score >= 0.40
+
+
+def test_cli_override_requires_confirm(tmp_path):
+    """genre recommendation override must refuse mutation without --confirm flag."""
+    from argparse import Namespace
+    from auteur.genre_packs.cli import dispatch_genre_pack_commands
+    from auteur.identity import StoryIdentity
+
+    project_dir = tmp_path / "proj"
+    project_dir.mkdir()
+    identity_path = project_dir / "story_identity.yaml"
+    
+    # Initialize skeleton
+    StoryIdentity(
+        title="Test Title",
+        core_answer="Core answer",
+        target_experience={"primary": "desire"},
+        story_type={"medium": "novel", "mode": "intimate", "genre": "erotic_fiction"},
+        central_engine={"want": "w", "resistance": "r", "conflict": "c", "stakes": "s", "change": "ch"}
+    ).to_yaml(identity_path)
+
+    # Attempt override without --confirm
+    args_no_confirm = Namespace(
+        genre_command="recommendation",
+        recommendation_command="override",
+        rec_id="rec_12345",
+        project=project_dir,
+        target="erotic_romance",
+        replacement="erotic_psychological_drama",
+        rationale="Author rationale",
+        confirm=False,
+        json=False,
+    )
+    exit_code = dispatch_genre_pack_commands(args_no_confirm)
+    assert exit_code == 1
+
+    # Verify StoryIdentity was NOT mutated
+    identity_after = StoryIdentity.from_yaml(identity_path)
+    assert identity_after.genre_profile is None
+
+
+def test_pydantic_v2_configdict_import_warnings():
+    """Importing scene_state module should produce no Pydantic deprecation warnings."""
+    import warnings
+
+    with warnings.catch_warnings(record=True) as recorded_warnings:
+        warnings.simplefilter("always")
+        import importlib
+        import auteur.narrative_realization.schema.scene_state as scene_state
+        importlib.reload(scene_state)
+
+        pydantic_warnings = [
+            w for w in recorded_warnings
+            if "PydanticDeprecatedSince20" in str(w.message) or "class-based `config`" in str(w.message)
+        ]
+        assert len(pydantic_warnings) == 0
+
+
+

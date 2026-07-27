@@ -113,6 +113,7 @@ def register_genre_pack_subcommands(subparsers: _SubParsersAction) -> None:
     _add_arg_if_missing(r_override, "--target", required=True, help="Target expectation ID")
     _add_arg_if_missing(r_override, "--replacement", required=True, help="Accepted replacement value")
     _add_arg_if_missing(r_override, "--rationale", required=True, help="Author rationale for override")
+    _add_arg_if_missing(r_override, "--confirm", action="store_true", help="Confirm explicit author override and StoryIdentity update")
     _add_arg_if_missing(r_override, "--json", action="store_true", help="Output JSON format")
 
     # 4. profile show
@@ -261,6 +262,17 @@ def dispatch_genre_pack_commands(args: Any) -> bool:
         elif sub_cmd in ("accept", "override"):
             rec_id = args.rec_id
             project_dir = getattr(args, "project", None)
+
+            if not getattr(args, "confirm", False):
+                err_msg = (
+                    f"Recommendation mutation requires explicit author confirmation.\n"
+                    f"Re-run with '--confirm' to confirm mutation of 'story_identity.yaml'."
+                )
+                if getattr(args, "json", False):
+                    print(json.dumps({"error": "UNCONFIRMED_MUTATION", "message": err_msg, "recommendation_id": rec_id}, indent=2))
+                else:
+                    print(f"Error: {err_msg}")
+                return 1
             if project_dir is None and ((Path(".") / ".auteur" / "genre_recommendations" / f"{rec_id}.json").exists() or (Path(".") / "story_identity.yaml").exists()):
                 project_dir = Path(".")
             try:
