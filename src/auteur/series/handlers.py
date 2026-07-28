@@ -152,7 +152,10 @@ def _collect_universe_diagnostics(series: SeriesIdentity) -> list:
         )]
 
     try:
-        from auteur.series.universe_advisory import validate_forbidden_elements
+        from auteur.series.universe_advisory import (
+            validate_forbidden_elements,
+            validate_required_elements,
+        )
         from auteur.series.universe_integration import validate_series_against_universe
         from auteur.universe.models import UniverseIdentity
 
@@ -161,6 +164,11 @@ def _collect_universe_diagnostics(series: SeriesIdentity) -> list:
         # Advisory forbidden_elements diagnostics (auteur#38 Decision A, Phase 2).
         # Separate path from StructuredConstraint.type dispatch; both feed the same list.
         diagnostics = diagnostics + validate_forbidden_elements(series, universe.forbidden_elements)
+        # Advisory required_elements diagnostics (auteur#38 Decision B, Phase 3).
+        # Appended after forbidden so the aggregate order is structured ->
+        # forbidden -> required; the conversion loop below is severity-driven
+        # and needs no change.
+        diagnostics = diagnostics + validate_required_elements(series, universe.required_elements)
         converted = []
         for diagnostic in diagnostics:
             severity = {

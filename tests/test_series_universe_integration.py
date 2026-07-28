@@ -135,13 +135,9 @@ def test_series_diagnose_enforces_structured_universe_constraints(tmp_path):
 # that phase's diagnostic code is introduced.
 
 
-# Advisory codes still unimplemented after Phase 2 (auteur#43): required_elements
-# is Phase 3 (#38 Decision B) and cross_story_constraints is Phase 4 (Decision C).
-_UNIMPLEMENTED_ADVISORY_DIAGNOSTIC_IDS = (
-    "UNIVERSE_REQUIRED_ELEMENT_MISSING",
-    "UNIVERSE_REQUIRED_ELEMENT_UNEVALUABLE",
-    "UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED",
-)
+# Advisory codes still unimplemented after Phase 3 (auteur#45): only
+# cross_story_constraints remains, as Phase 4 (#38 Decision C).
+_UNIMPLEMENTED_ADVISORY_DIAGNOSTIC_IDS = ("UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED",)
 
 
 def test_forbidden_element_in_title_produces_present_diagnostic(tmp_path):
@@ -182,10 +178,15 @@ def test_forbidden_element_in_title_produces_present_diagnostic(tmp_path):
     assert "Glasswing Choir Accord" in present[0].message
 
 
-def test_baseline_required_element_currently_produces_no_diagnostic(tmp_path):
-    """Baseline: a Series missing a required phrase gets no advisory diagnostic today.
+def test_missing_required_element_produces_missing_diagnostic(tmp_path):
+    """Phase 3 (auteur#45): a Series missing a required phrase is flagged.
 
-    Phase 3 must update this assertion once required_elements enforcement ships.
+    This was the Phase 1 baseline test
+    `test_baseline_required_element_currently_produces_no_diagnostic`; its two
+    negative assertions were deliberately converted to positive Phase 3
+    behavior assertions when required_elements enforcement shipped. The
+    UNEVALUABLE assertion stays negative on purpose: this fixture has plenty of
+    searchable text, so only MISSING may fire.
     """
     data = valid_trilogy_data()
     # The Series has plenty of searchable text (title, core_question, book
@@ -210,8 +211,16 @@ def test_baseline_required_element_currently_produces_no_diagnostic(tmp_path):
     result = handle_series_diagnose(series)
     rules = [d.rule for d in result.data.diagnostics]
 
-    assert "UNIVERSE_REQUIRED_ELEMENT_MISSING" not in rules
+    assert "UNIVERSE_REQUIRED_ELEMENT_MISSING" in rules
     assert "UNIVERSE_REQUIRED_ELEMENT_UNEVALUABLE" not in rules
+
+    missing = [
+        d for d in result.data.diagnostics if d.rule == "UNIVERSE_REQUIRED_ELEMENT_MISSING"
+    ]
+    assert len(missing) == 1
+    assert missing[0].severity == DiagnosticSeverity.WARNING
+    assert required_phrase in missing[0].message
+    assert "not found in any searchable Series field" in missing[0].message
 
 
 def test_baseline_cross_story_constraint_currently_produces_no_diagnostic(tmp_path):
@@ -247,15 +256,15 @@ def test_baseline_cross_story_constraint_currently_produces_no_diagnostic(tmp_pa
     assert "UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED" not in rules
 
 
-def test_baseline_advisory_fields_silent_while_structured_validation_still_active(tmp_path):
-    """Baseline: advisory fields stay silent even while structured enforcement runs.
+def test_structured_forbidden_and_required_diagnostics_coexist_on_one_run(tmp_path):
+    """Structured, forbidden and required enforcement all fire on the same run.
 
     This proves the baseline tests exercise real Universe-to-Series validation
     (the genre-rule structured constraint still fires, exactly as in
     test_series_diagnose_enforces_structured_universe_constraints above)
-    rather than accidentally bypassing it. Phases 3-4 must update the
-    remaining "advisory IDs absent" assertions as each phase ships; the
-    structured genre-violation assertion keeps passing unchanged.
+    rather than accidentally bypassing it. Phase 4 must update the remaining
+    "advisory IDs absent" assertion when it ships; the structured
+    genre-violation assertion keeps passing unchanged.
 
     Phase 2 (auteur#43) narrowed this test: the forbidden_elements entry is now
     "Ash Empire", a phrase that genuinely appears in the default fixture title
@@ -264,7 +273,12 @@ def test_baseline_advisory_fields_silent_while_structured_validation_still_activ
     the default fixture text, which under the ratified contract means neither
     PRESENT nor UNEVALUABLE -- indistinguishable from a wiring failure, so it
     could not serve as the positive Phase 2 assertion this test needs.
-    required_elements and cross_story_constraints remain silent.
+
+    Phase 3 (auteur#45) converted the required_elements half: the existing
+    "Obsidian Marrow Requiem" entry is genuinely absent from the default
+    fixture text, so it now yields a positive MISSING assertion. Only
+    cross_story_constraints (Phase 4) remains silent. The Phase 2 assertions
+    are unchanged and must not be weakened.
     """
     data = valid_trilogy_data()
 
@@ -308,7 +322,16 @@ def test_baseline_advisory_fields_silent_while_structured_validation_still_activ
     assert "UNIVERSE_FORBIDDEN_ELEMENT_PRESENT" in rules
     assert "UNIVERSE_FORBIDDEN_ELEMENT_UNEVALUABLE" not in rules
 
-    # Phases 3-4 are still unimplemented: those codes remain silent.
+    # Phase 3 shipped: the absent required element is now reported on the same run.
+    assert rules.count("UNIVERSE_REQUIRED_ELEMENT_MISSING") == 1
+    assert "UNIVERSE_REQUIRED_ELEMENT_UNEVALUABLE" not in rules
+    required_missing = next(
+        d for d in result.data.diagnostics if d.rule == "UNIVERSE_REQUIRED_ELEMENT_MISSING"
+    )
+    assert required_missing.severity == DiagnosticSeverity.WARNING
+    assert "Obsidian Marrow Requiem" in required_missing.message
+
+    # Phase 4 is still unimplemented: that code remains silent.
     for advisory_id in _UNIMPLEMENTED_ADVISORY_DIAGNOSTIC_IDS:
         assert advisory_id not in rules
 
@@ -431,8 +454,14 @@ def test_forbidden_element_only_in_excluded_field_stays_silent(tmp_path):
     assert "UNIVERSE_FORBIDDEN_ELEMENT_PRESENT" not in rules
 
 
-def test_required_elements_remain_silent_alongside_forbidden_enforcement(tmp_path):
-    """Phase 3 has not shipped: required_elements stays silent while Phase 2 fires."""
+def test_required_and_forbidden_enforcement_coexist(tmp_path):
+    """Phase 3 (auteur#45): forbidden PRESENT and required MISSING coexist.
+
+    This replaces the Phase 2 test
+    `test_required_elements_remain_silent_alongside_forbidden_enforcement`,
+    whose premise ("required_elements stays silent") became false in Phase 3.
+    Neither validator suppresses the other, and cross-story stays silent.
+    """
     data = valid_trilogy_data()
     universe = UniverseIdentity(
         name="Mixed Advisory World",
@@ -455,9 +484,21 @@ def test_required_elements_remain_silent_alongside_forbidden_enforcement(tmp_pat
     data["universe_constraint_path"] = str(universe_path)
     series = SeriesIdentity.model_validate(data)
 
-    rules = [d.rule for d in handle_series_diagnose(series).data.diagnostics]
+    diagnostics = handle_series_diagnose(series).data.diagnostics
+    rules = [d.rule for d in diagnostics]
 
+    # Phase 2 behavior remains intact.
     assert "UNIVERSE_FORBIDDEN_ELEMENT_PRESENT" in rules
+    # Phase 3 fires on the same run.
+    assert rules.count("UNIVERSE_REQUIRED_ELEMENT_MISSING") == 1
+    assert "UNIVERSE_REQUIRED_ELEMENT_UNEVALUABLE" not in rules
+
+    # Deterministic aggregate order: forbidden diagnostics precede required ones.
+    assert rules.index("UNIVERSE_FORBIDDEN_ELEMENT_PRESENT") < rules.index(
+        "UNIVERSE_REQUIRED_ELEMENT_MISSING"
+    )
+
+    # Phase 4 remains unimplemented.
     for advisory_id in _UNIMPLEMENTED_ADVISORY_DIAGNOSTIC_IDS:
         assert advisory_id not in rules
 
@@ -480,3 +521,158 @@ def test_blank_forbidden_element_surfaces_unsupported_diagnostic(tmp_path):
     # The valid sibling entry is still evaluated normally.
     assert rules.count("UNIVERSE_FORBIDDEN_ELEMENT_PRESENT") == 1
     assert "UNIVERSE_FORBIDDEN_ELEMENT_UNEVALUABLE" not in rules
+
+
+# --- Phase 3 handler-level behavior (auteur#45) ----------------------------
+
+
+def _universe_requiring(tmp_path, *required: str, name: str = "Requiring World") -> Path:
+    universe = UniverseIdentity(
+        name=name,
+        slug="requiring-world",
+        description="",
+        setting_profile=SettingProfile(setting_type="single_world", primary_location="Realm"),
+        timeline=TimelineProfile(current_era="Now"),
+        required_elements=list(required),
+    )
+    universe_path = tmp_path / "universe.yaml"
+    universe.to_yaml(universe_path)
+    return universe_path
+
+
+def test_present_required_element_produces_no_diagnostic_through_handler(tmp_path):
+    """A satisfied required element emits nothing -- no positive success diagnostic."""
+    data = valid_trilogy_data()
+    # "Ash Empire" genuinely appears in the default fixture title.
+    data["universe_constraint_path"] = str(_universe_requiring(tmp_path, "Ash Empire"))
+    series = SeriesIdentity.model_validate(data)
+
+    rules = [d.rule for d in handle_series_diagnose(series).data.diagnostics]
+
+    assert "UNIVERSE_REQUIRED_ELEMENT_MISSING" not in rules
+    assert "UNIVERSE_REQUIRED_ELEMENT_UNEVALUABLE" not in rules
+
+
+def test_empty_searchable_series_emits_one_unevaluable_per_required_element(tmp_path):
+    """Every searchable field blank -> one UNEVALUABLE per required element, no MISSING."""
+    data = valid_trilogy_data()
+    data["title"] = "  "
+    data["core_question"] = " \t "
+    data["global_arc"] = {"beginning": " ", "midpoint": " ", "ending": None}
+    for book in data["book_plans"]:
+        book["title"] = " "
+        book["core_answer"] = " "
+    data["recurring_symbols"] = []
+    data["universe_constraint_path"] = str(
+        _universe_requiring(tmp_path, "Obsidian Marrow Requiem", "Ash Empire")
+    )
+    series = SeriesIdentity.model_validate(data)
+
+    diagnostics = handle_series_diagnose(series).data.diagnostics
+    rules = [d.rule for d in diagnostics]
+
+    assert rules.count("UNIVERSE_REQUIRED_ELEMENT_UNEVALUABLE") == 2
+    assert "UNIVERSE_REQUIRED_ELEMENT_MISSING" not in rules
+
+    unevaluable = [
+        d for d in diagnostics if d.rule == "UNIVERSE_REQUIRED_ELEMENT_UNEVALUABLE"
+    ]
+    assert all(d.severity == DiagnosticSeverity.INFO for d in unevaluable)
+    assert unevaluable[0].message == (
+        'Required element "Obsidian Marrow Requiem" could not be evaluated: '
+        "no searchable Series text is present"
+    )
+
+
+def test_blank_required_element_surfaces_unsupported_diagnostic(tmp_path):
+    """Malformed required input is reported, not silently skipped (#38 Decision D)."""
+    data = valid_trilogy_data()
+    data["universe_constraint_path"] = str(
+        _universe_requiring(tmp_path, "  ", "Obsidian Marrow Requiem")
+    )
+    series = SeriesIdentity.model_validate(data)
+
+    diagnostics = handle_series_diagnose(series).data.diagnostics
+    rules = [d.rule for d in diagnostics]
+
+    assert rules.count("UNIVERSE_ADVISORY_RULE_UNSUPPORTED") == 1
+    unsupported = next(d for d in diagnostics if d.rule == "UNIVERSE_ADVISORY_RULE_UNSUPPORTED")
+    assert unsupported.severity == DiagnosticSeverity.INFO
+    assert "required_elements[0]" in unsupported.message
+    assert "empty or whitespace-only" in unsupported.message
+
+    # The valid sibling entry is still evaluated normally.
+    assert rules.count("UNIVERSE_REQUIRED_ELEMENT_MISSING") == 1
+
+
+def test_structured_and_required_diagnostics_coexist(tmp_path):
+    """A violated structured constraint and a missing required element both fire."""
+    data = valid_trilogy_data()
+    universe = UniverseIdentity(
+        name="Structured-Plus-Required World",
+        slug="structured-plus-required",
+        description="",
+        setting_profile=SettingProfile(setting_type="single_world", primary_location="Realm"),
+        timeline=TimelineProfile(current_era="Now"),
+        required_elements=["Obsidian Marrow Requiem"],
+        structured_constraints=[
+            StructuredConstraint(
+                id="allowed_genre",
+                type=ConstraintType.GENRE_RULE,
+                description="Only mystery books are allowed",
+                enforcement=ConstraintEnforcement.DETERMINISTIC,
+                schema={"allowed_values": ["mystery"]},
+            )
+        ],
+    )
+    universe_path = tmp_path / "universe.yaml"
+    universe.to_yaml(universe_path)
+    data["universe_constraint_path"] = str(universe_path)
+    series = SeriesIdentity.model_validate(data)
+
+    rules = [d.rule for d in handle_series_diagnose(series).data.diagnostics]
+
+    assert any(rule.startswith("UNIVERSE_GENRE_VIOLATION") for rule in rules)
+    assert "UNIVERSE_REQUIRED_ELEMENT_MISSING" in rules
+
+
+def test_required_enforcement_does_not_wake_cross_story_notices(tmp_path):
+    """Phase 4 stays silent while Phase 3 enforcement fires."""
+    data = valid_trilogy_data()
+    universe = UniverseIdentity(
+        name="Cross-Story-Plus-Required World",
+        slug="cross-story-plus-required",
+        description="",
+        setting_profile=SettingProfile(setting_type="single_world", primary_location="Realm"),
+        timeline=TimelineProfile(current_era="Now"),
+        required_elements=["Obsidian Marrow Requiem"],
+        cross_story_constraints=[
+            CrossStoryConstraint(
+                rule="Stories should explore power without resorting to magic solutions",
+                applies_to_all_stories=True,
+                severity="required",
+            )
+        ],
+    )
+    universe_path = tmp_path / "universe.yaml"
+    universe.to_yaml(universe_path)
+    data["universe_constraint_path"] = str(universe_path)
+    series = SeriesIdentity.model_validate(data)
+
+    rules = [d.rule for d in handle_series_diagnose(series).data.diagnostics]
+
+    assert "UNIVERSE_REQUIRED_ELEMENT_MISSING" in rules
+    assert "UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED" not in rules
+
+
+def test_duplicate_required_entries_each_produce_a_diagnostic_through_handler(tmp_path):
+    """Duplicate configuration entries are not deduplicated by the handler path."""
+    data = valid_trilogy_data()
+    data["universe_constraint_path"] = str(
+        _universe_requiring(tmp_path, "Obsidian Marrow Requiem", "Obsidian Marrow Requiem")
+    )
+    series = SeriesIdentity.model_validate(data)
+
+    rules = [d.rule for d in handle_series_diagnose(series).data.diagnostics]
+
+    assert rules.count("UNIVERSE_REQUIRED_ELEMENT_MISSING") == 2

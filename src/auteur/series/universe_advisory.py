@@ -1,4 +1,4 @@
-"""Advisory Universe-field diagnostics for Series (auteur#38 Decision A, Phase 2).
+"""Advisory Universe-field diagnostics for Series (auteur#38 Decisions A/B, Phases 2-3).
 
 This module is deliberately separate from :class:`UniverseToSeriesValidator` in
 ``universe_integration.py``. That validator dispatches on
@@ -7,8 +7,16 @@ This module is deliberately separate from :class:`UniverseToSeriesValidator` in
 constraint-type dispatch, so forcing it through that dispatch would be a
 category error.
 
-Scope: ``forbidden_elements`` only. ``required_elements`` (Phase 3) and
-``cross_story_constraints`` (Phase 4) are intentionally not implemented here.
+Scope: ``forbidden_elements`` (Phase 2, auteur#43) and ``required_elements``
+(Phase 3, auteur#45). ``cross_story_constraints`` (Phase 4) is intentionally
+not implemented here.
+
+The two advisory validators share the same text machinery
+(:func:`normalize_text`, :func:`extract_searchable_fields`,
+:func:`phrase_matches`) and invert only the reporting rule:
+``forbidden_elements`` reports when a phrase IS found (per matched field),
+``required_elements`` reports when a phrase is NOT found in any searchable
+field (union presence, one diagnostic per absent entry).
 """
 
 from __future__ import annotations
@@ -24,6 +32,8 @@ if TYPE_CHECKING:
 
 FORBIDDEN_ELEMENT_PRESENT = "UNIVERSE_FORBIDDEN_ELEMENT_PRESENT"
 FORBIDDEN_ELEMENT_UNEVALUABLE = "UNIVERSE_FORBIDDEN_ELEMENT_UNEVALUABLE"
+REQUIRED_ELEMENT_MISSING = "UNIVERSE_REQUIRED_ELEMENT_MISSING"
+REQUIRED_ELEMENT_UNEVALUABLE = "UNIVERSE_REQUIRED_ELEMENT_UNEVALUABLE"
 ADVISORY_RULE_UNSUPPORTED = "UNIVERSE_ADVISORY_RULE_UNSUPPORTED"
 
 # Repository-wide `conflict_source` convention: every ValidationDiagnostic in
@@ -91,6 +101,38 @@ def phrase_matches(normalized_phrase: str, normalized_text: str) -> bool:
     return re.search(pattern, normalized_text) is not None
 
 
+def _unsupported_rule_diagnostic(
+    *,
+    field_name: str,
+    index: int,
+    element: str,
+    label: str,
+    rule_kind: str,
+    remedy: str,
+) -> ValidationDiagnostic:
+    """Build the shared ``UNIVERSE_ADVISORY_RULE_UNSUPPORTED`` diagnostic.
+
+    Malformed advisory input (an empty or whitespace-only rule) is reported,
+    never silently discarded, per auteur#38 Decision D. Both
+    :func:`validate_forbidden_elements` and :func:`validate_required_elements`
+    use this single construction so the two phases cannot drift into
+    incompatible unsupported-rule policies.
+    """
+    return ValidationDiagnostic(
+        id=ADVISORY_RULE_UNSUPPORTED,
+        severity="INFO",
+        constraint=element,
+        source=f"universe:{field_name}[{index}]",
+        conflict=f"{label} is empty or whitespace-only",
+        conflict_source=f"{UNIVERSE_ARTIFACT}:{field_name}[{index}]",
+        explanation=(
+            f"Universe {field_name}[{index}] is empty or whitespace-only "
+            f"and cannot be processed as a {rule_kind} rule. {remedy}"
+        ),
+        lsm_context={},
+    )
+
+
 def validate_forbidden_elements(
     series: SeriesIdentity,
     forbidden_elements: Sequence[str],
@@ -131,19 +173,15 @@ def validate_forbidden_elements(
         # emitted for it, and evaluation of the remaining entries continues.
         if not normalized_element:
             diagnostics.append(
-                ValidationDiagnostic(
-                    id=ADVISORY_RULE_UNSUPPORTED,
-                    severity="INFO",
-                    constraint=element,
-                    source=source,
-                    conflict="Forbidden element is empty or whitespace-only",
-                    conflict_source=f"{UNIVERSE_ARTIFACT}:forbidden_elements[{index}]",
-                    explanation=(
-                        f"Universe forbidden_elements[{index}] is empty or whitespace-only "
-                        "and cannot be processed as a forbidden-element rule. Remove the "
-                        "entry or replace it with the phrase that should be forbidden."
+                _unsupported_rule_diagnostic(
+                    field_name="forbidden_elements",
+                    index=index,
+                    element=element,
+                    label="Forbidden element",
+                    rule_kind="forbidden-element",
+                    remedy=(
+                        "Remove the entry or replace it with the phrase that should be forbidden."
                     ),
-                    lsm_context={},
                 )
             )
             continue
@@ -185,5 +223,102 @@ def validate_forbidden_elements(
                     lsm_context={},
                 )
             )
+
+    return diagnostics
+
+
+def validate_required_elements(
+    series: SeriesIdentity,
+    required_elements: Sequence[str],
+) -> list[ValidationDiagnostic]:
+    """Produce deterministic ``required_elements`` diagnostics for a Series.
+
+    Presence is a union across the ratified searchable fields: a required
+    element is satisfied when it matches in *any one* field, so a satisfied
+    element produces no diagnostic at all (there is no positive "present"
+    diagnostic, unlike ``forbidden_elements``).
+
+    Cardinality, per auteur#38 Decision B/D:
+
+    * exactly one ``UNIVERSE_REQUIRED_ELEMENT_MISSING`` (WARNING) per
+      well-formed element that is absent from every searchable field, when
+      searchable Series text exists somewhere -- not one per searched field;
+    * exactly one ``UNIVERSE_REQUIRED_ELEMENT_UNEVALUABLE`` (INFO) per
+      well-formed element when every searchable field is empty or
+      whitespace-only, and never a MISSING in that state;
+    * exactly one ``UNIVERSE_ADVISORY_RULE_UNSUPPORTED`` (INFO) per malformed
+      (empty/whitespace-only) entry, which is never silently skipped.
+
+    Entries are evaluated in original list order and keep their original list
+    indices; duplicate identical entries are not deduplicated. The Series is
+    never mutated.
+    """
+    if not required_elements:
+        return []
+
+    searchable = extract_searchable_fields(series)
+    normalized_fields = [(path, normalize_text(value)) for path, value in searchable]
+    has_searchable_text = any(text for _, text in normalized_fields)
+
+    diagnostics: list[ValidationDiagnostic] = []
+
+    for index, element in enumerate(required_elements):
+        source = f"universe:required_elements[{index}]"
+        normalized_element = normalize_text(element)
+
+        if not normalized_element:
+            diagnostics.append(
+                _unsupported_rule_diagnostic(
+                    field_name="required_elements",
+                    index=index,
+                    element=element,
+                    label="Required element",
+                    rule_kind="required-element",
+                    remedy=(
+                        "Remove the entry or replace it with the phrase that should be required."
+                    ),
+                )
+            )
+            continue
+
+        if not has_searchable_text:
+            diagnostics.append(
+                ValidationDiagnostic(
+                    id=REQUIRED_ELEMENT_UNEVALUABLE,
+                    severity="INFO",
+                    constraint=element,
+                    source=source,
+                    conflict="No searchable Series text is present",
+                    conflict_source=SERIES_ARTIFACT,
+                    explanation=(
+                        f'Required element "{element}" could not be evaluated: '
+                        "no searchable Series text is present"
+                    ),
+                    lsm_context={},
+                )
+            )
+            continue
+
+        if any(phrase_matches(normalized_element, text) for _, text in normalized_fields):
+            continue
+
+        diagnostics.append(
+            ValidationDiagnostic(
+                id=REQUIRED_ELEMENT_MISSING,
+                severity="WARNING",
+                constraint=element,
+                source=source,
+                conflict="Required element not found in any searchable Series field",
+                conflict_source=SERIES_ARTIFACT,
+                explanation=(
+                    f'Required element "{element}" was not found in any searchable '
+                    "Series field. Options: (1) Introduce the element in the Series "
+                    "title, core question, global arc, book plans, thematic arcs, lore "
+                    "entries or recurring symbols, (2) Relax the Universe "
+                    "required_elements entry if it no longer applies."
+                ),
+                lsm_context={},
+            )
+        )
 
     return diagnostics
