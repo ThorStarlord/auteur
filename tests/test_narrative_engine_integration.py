@@ -13,6 +13,7 @@ import pytest
 from auteur.bible import StoryBible
 from auteur.blueprint import StoryBlueprint
 from auteur.cartographer_models import PlanningCall, PlanningScope
+from auteur.cartographer_outline import CartographerOutline
 from auteur.cartographer import _user_message
 from auteur.structure.analyzer import run_all_diagnostics
 
@@ -210,6 +211,87 @@ def test_prompt_contradictions_section_none(blueprint_with_psychology):
 
     assert "## CHARACTER CONTRADICTIONS" in msg
     assert "(none)" in msg
+
+
+def test_profile_emotional_targets_bridge_to_planning_call(blueprint_with_psychology):
+    blueprint_with_psychology.contract.profile_emotional_targets = {
+        "hope": 0.123456789,
+        "dread": 0.9,
+    }
+
+    call = PlanningCall.for_chapter(blueprint_with_psychology, 1)
+
+    assert call.profile_emotional_targets == {
+        "hope": 0.123456789,
+        "dread": 0.9,
+    }
+
+
+def test_empty_profile_emotional_targets_do_not_change_prompt(blueprint_with_psychology):
+    call = PlanningCall.for_chapter(blueprint_with_psychology, 1)
+    message = _user_message(call)
+
+    assert "ACCEPTED PROFILE EMOTIONAL TARGETS" not in message
+
+
+def test_profile_emotional_targets_render_as_separate_sorted_section(blueprint_with_psychology):
+    blueprint_with_psychology.identity.target_experience.primary = "dread"
+    blueprint_with_psychology.contract.profile_emotional_targets = {
+        "hope": 0.123456789,
+        "dread": 0.9,
+    }
+
+    message = _user_message(PlanningCall.for_chapter(blueprint_with_psychology, 1))
+
+    section = message.split("## ACCEPTED PROFILE EMOTIONAL TARGETS\n", 1)[1]
+    assert section.index("- dread: 0.9") < section.index("- hope: 0.123456789")
+    assert "## EMOTIONAL TARGET\n" in message
+    assert "Suspense" not in section
+    assert "Numeric weights are preserved profile values with undefined semantics" in section
+    assert "intensity" in section
+    assert "priority" in section
+
+
+def test_profile_target_section_does_not_make_weight_claims(blueprint_with_psychology):
+    blueprint_with_psychology.contract.profile_emotional_targets = {"dread": 0.9}
+
+    message = _user_message(PlanningCall.for_chapter(blueprint_with_psychology, 1))
+    section = message.split("## ACCEPTED PROFILE EMOTIONAL TARGETS\n", 1)[1]
+
+    assert "emphasize higher" not in section.lower()
+    assert "most important" not in section.lower()
+    assert "fulfillment" not in section.lower()
+
+
+def test_profile_emotion_same_as_authored_target_is_not_deduplicated(blueprint_with_psychology):
+    blueprint_with_psychology.identity.target_experience.primary = "dread"
+    blueprint_with_psychology.emotional_design.overall_emotional_arc = "dread"
+    blueprint_with_psychology.contract.profile_emotional_targets = {"dread": 0.9}
+
+    message = _user_message(PlanningCall.for_chapter(blueprint_with_psychology, 1))
+
+    assert message.count("dread") >= 2
+    assert "## EMOTIONAL TARGET" in message
+    assert "## ACCEPTED PROFILE EMOTIONAL TARGETS" in message
+
+
+def test_profile_target_context_does_not_mutate_blueprint(blueprint_with_psychology):
+    blueprint_with_psychology.contract.profile_emotional_targets = {"dread": 0.9}
+    before = blueprint_with_psychology.model_dump(mode="json")
+
+    call = PlanningCall.for_chapter(blueprint_with_psychology, 1)
+    _user_message(call)
+
+    assert blueprint_with_psychology.model_dump(mode="json") == before
+
+
+def test_planning_call_output_schema_remains_unchanged(blueprint_with_psychology):
+    assert set(CartographerOutline.model_fields) == {
+        "scope", "chapter_index", "chapter_summary", "scenes", "arc_pushes",
+        "contract_compliance", "expected_elements_touched",
+        "forbidden_tropes_avoided", "estimated_chapter_tension",
+        "thematic_reinforcement", "conflict_report",
+    }
 
 
 def test_planning_call_scope_and_structure(blueprint_with_psychology):

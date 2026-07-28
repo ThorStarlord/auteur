@@ -105,6 +105,7 @@ class PlanningCall(BaseModel):
 
     # Theme
     thematic_beat: str
+    profile_emotional_targets: dict[str, float] = Field(default_factory=dict)
 
     @classmethod
     def for_chapter(
@@ -148,6 +149,7 @@ class PlanningCall(BaseModel):
             story_engine_change=engine.main_thread.change.author_text if engine else None,
             character_contradictions=contradictions,
             emotional_target=emotional_target,
+            profile_emotional_targets=dict(contract.profile_emotional_targets),
             arc_directives=[
                 _arc_directive(c) for c in blueprint.characters
             ],

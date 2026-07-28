@@ -84,18 +84,34 @@ def _user_message(call: PlanningCall) -> str:
         _section("SCOPE", _scope_block(call)),
         _section("CONTRACT", _contract_block(call)),
         _section("EMOTIONAL TARGET", call.emotional_target),
+    ]
+    if call.profile_emotional_targets:
+        parts.append(_section("ACCEPTED PROFILE EMOTIONAL TARGETS", _profile_emotional_targets_block(call)))
+    parts.extend([
         _section("TENSION TARGET", _tension_block(call)),
         _section("STRUCTURAL FORCES", _structural_forces_block(call)),
         _section("CHARACTER CONTRADICTIONS", _contradictions_block(call)),
         _section("ARC DIRECTIVES", _arc_block(call)),
         _section("THEMATIC BEAT", call.thematic_beat),
         "Produce the YAML outline now. No prose, no commentary.",
-    ]
+    ])
     return "\n\n".join(parts)
 
 
 def _section(title: str, body: str) -> str:
     return f"## {title}\n{body}"
+
+
+def _profile_emotional_targets_block(call: PlanningCall) -> str:
+    lines = [
+        f"- {emotion}: {call.profile_emotional_targets[emotion]}"
+        for emotion in sorted(call.profile_emotional_targets)
+    ]
+    lines.append(
+        "Numeric weights are preserved profile values with undefined semantics; "
+        "do not interpret them as intensity or priority."
+    )
+    return "\n".join(lines)
 
 
 def _project_block(call: PlanningCall) -> str:
