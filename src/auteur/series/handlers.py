@@ -152,11 +152,15 @@ def _collect_universe_diagnostics(series: SeriesIdentity) -> list:
         )]
 
     try:
+        from auteur.series.universe_advisory import validate_forbidden_elements
         from auteur.series.universe_integration import validate_series_against_universe
         from auteur.universe.models import UniverseIdentity
 
         universe = UniverseIdentity.from_yaml(contract_path)
         diagnostics = validate_series_against_universe(series, universe, universe.structured_constraints)
+        # Advisory forbidden_elements diagnostics (auteur#38 Decision A, Phase 2).
+        # Separate path from StructuredConstraint.type dispatch; both feed the same list.
+        diagnostics = diagnostics + validate_forbidden_elements(series, universe.forbidden_elements)
         converted = []
         for diagnostic in diagnostics:
             severity = {
