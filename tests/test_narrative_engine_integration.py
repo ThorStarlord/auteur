@@ -250,6 +250,10 @@ def test_profile_emotional_targets_render_as_separate_sorted_section(blueprint_w
     assert "Numeric weights are preserved profile values with undefined semantics" in section
     assert "intensity" in section
     assert "priority" in section
+    assert "probability" in section
+    assert "confidence" in section
+    assert "importance" in section
+    assert "proportion" in section
 
 
 def test_profile_target_section_does_not_make_weight_claims(blueprint_with_psychology):

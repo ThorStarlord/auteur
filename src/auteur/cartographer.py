@@ -109,7 +109,8 @@ def _profile_emotional_targets_block(call: PlanningCall) -> str:
     ]
     lines.append(
         "Numeric weights are preserved profile values with undefined semantics; "
-        "do not interpret them as intensity or priority."
+        "do not interpret them as intensity, priority, probability, confidence, "
+        "importance, or proportion."
     )
     return "\n".join(lines)
 
