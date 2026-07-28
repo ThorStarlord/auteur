@@ -1,7 +1,10 @@
 # Profile Emotional-Target Consumption Verification
 
 Date: 2026-07-28  
-Candidate SHA: `ebc4ff073a01a5e6af48916a561817985e64ebe2`  
+Implementation SHA: `850b962`  
+Disclaimer SHA: `3dfb76b`  
+Original verification SHA: `ebc4ff0`  
+Qualification source/test SHA: `3dfb76b8ddf4a5482035a0b03db5285bdfa24058`  
 Baseline SHA: `cb588390614e51141ef391262d60330ef15485c5`  
 Branch: `main`
 
@@ -49,6 +52,8 @@ The affected Cartographer, planning, profile propagation, and diagnostic visibil
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | Candidate serial (`-n 0`) | 3,815 | 3,786 | 28 | 0 | 0 | 1 | 0 | 1 |
 | Candidate serial rerun 1 (`-n 0`) | 3,815 | 3,787 | 28 | 0 | 0 | 0 | 0 | 0 |
+| Candidate serial A (`-n 0`) | 3,815 | 3,787 | 28 | 0 | 0 | 0 | 0 | 0 |
+| Candidate serial B (`-n 0`) | 3,815 | 3,787 | 28 | 0 | 0 | 0 | 0 | 0 |
 | Candidate parallel (`-n auto`) | 3,815 | 3,787 | 28 | 0 | 0 | 0 | 0 | 0 |
 | Baseline serial (`-n 0`) | 3,808 | 3,780 | 28 | 0 | 0 | 0 | 0 | 0 |
 
@@ -73,6 +78,12 @@ The candidate serial and parallel full outputs and JUnit evidence are preserved 
 
 Authored `emotional_target` remains separate and unchanged; duplicate labels are not deduplicated or given precedence. The `CartographerOutline` output fields remain unchanged. No EmotionalBlueprint, diagnostics, posture, CLI, or other planner behavior was modified.
 
+## Finite flake policy
+
+Two additional complete serial runs were selected as a finite acceptance rule. The rule is satisfied when both pass after the original one-off failure, yielding three consecutive clean candidate serial runs, alongside clean focused, isolated release-integrity, parallel, and baseline serial evidence. Both additional runs passed with 3,815 collected, 3,787 passed, 28 skipped, zero failures/errors, and exit 0. Qualification stopped after the rule was satisfied.
+
+Final classification: **PASS WITH NON-REPRODUCIBLE TRANSIENT FLAKE**. One initial candidate serial process encountered an unreproduced release-metadata mismatch. Three subsequent complete candidate serial processes, the complete parallel process, the isolated release-integrity module, and the isolated baseline serial process all completed cleanly. No candidate mutation or reproducible causal sequence was identified. The event is classified as a non-reproducible environment/import-state flake, not a demonstrated candidate regression.
+
 ## Qualification update
 
 The required second fresh candidate serial run completed cleanly: 3,815 collected, 3,787 passed, 28 skipped, zero failures/errors, exit 0. This establishes intermittent behavior rather than a reproducible candidate failure. Because the original candidate-only failure remains unexplained, the final review gate remains blocked and no correction or new candidate SHA was created.
@@ -87,3 +98,16 @@ The required second fresh candidate serial run completed cleanly: 3,815 collecte
 - Ready for review: **NO** — serial qualification is not clean
 
 The approved specification remains intentionally uncommitted pending final review.
+
+## Final bounded-policy decision
+
+- Collection issue understood: **PASS**
+- Candidate regression demonstrated: **NO**
+- Focused suite: **PASS**
+- Serial qualification: **PASS WITH TRANSIENT FLAKE RECORDED**
+- Parallel qualification: **PASS**
+- Results reconciled: **PASS**
+- Ready for final review: **YES**
+- Ready for merge: **NO**
+
+This bounded-policy decision supersedes the earlier provisional verdict above; the original failure remains recorded and was not erased.
