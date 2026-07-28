@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from auteur.blueprint import StoryBlueprint, EndingTone
+from auteur.genre_packs.models import AdherencePosture
 from auteur.structure.diagnostics import (
     DiagnosticLayer,
     DiagnosticSeverity,
@@ -63,7 +64,13 @@ def run_all_diagnostics(
     return diagnostics
 
 
-def analyze_structure(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
+def analyze_structure(
+    blueprint: StoryBlueprint,
+    *,
+    adherence_posture: AdherencePosture | str | None = None,
+) -> list[StructureDiagnostic]:
+    from auteur.structure.profile_severity import severity_for_profile_diagnostic
+
     diagnostics: list[StructureDiagnostic] = []
     engine = blueprint.story_engine
 
@@ -1096,7 +1103,12 @@ def analyze_structure(blueprint: StoryBlueprint) -> list[StructureDiagnostic]:
     # Layer 9 resonance expansion — beyond thesis_unrepresented
     # -------------------------------------------------------------------------
     if engine is not None:
-        _add_layer9_resonance_diagnostics(blueprint, diagnostics, engine)
+        _add_layer9_resonance_diagnostics(
+            blueprint,
+            diagnostics,
+            engine,
+            adherence_posture=adherence_posture,
+        )
 
     # -------------------------------------------------------------------------
     # Coverage gaps — modulation layer
@@ -1408,7 +1420,11 @@ def _add_layer9_resonance_diagnostics(
     blueprint: StoryBlueprint,
     diagnostics: list[StructureDiagnostic],
     engine: object,
+    *,
+    adherence_posture: AdherencePosture | str | None = None,
 ) -> None:
+    from auteur.structure.profile_severity import severity_for_profile_diagnostic
+
     from auteur.blueprint import StoryEngine
 
     if not isinstance(engine, StoryEngine):
@@ -1562,6 +1578,8 @@ def _add_layer9_resonance_diagnostics(
         profile = blueprint.profile_derivation
         rc_field = "genre_profile.accepted_resolution_contract"
 
+        posture_value = getattr(adherence_posture, "value", adherence_posture)
+
         # D-RES-001: Missing required outcome in expected_elements
         for oblig in profile.obligations_applied:
             if oblig.startswith("expected_elements: "):
@@ -1569,12 +1587,19 @@ def _add_layer9_resonance_diagnostics(
                 if outcome not in blueprint.contract.expected_elements:
                     diagnostics.append(
                         StructureDiagnostic(
-                            severity=DiagnosticSeverity.WARNING,
+                        severity=severity_for_profile_diagnostic(
+                            adherence_posture,
+                            "profile.resolution_contract.missing_required_outcome",
+                        ),
                             layer=DiagnosticLayer.STRUCTURAL_FORCES,
                             rule="profile.resolution_contract.missing_required_outcome",
                             message=(
                                 f"Required outcome '{outcome}' from the genre profile's "
-                                f"resolution contract is missing from blueprint expected_elements."
+                                f"resolution contract is missing from blueprint expected_elements. "
+                                f"The accepted profile uses {str(posture_value or 'conventional').upper()} "
+                                f"adherence, so this is reported as a "
+                                f"{severity_for_profile_diagnostic(adherence_posture, 'profile.resolution_contract.missing_required_outcome').value} "
+                                "rather than a warning."
                             ),
                             evidence=[
                                 f"source = {rc_field}.required_outcomes",
@@ -1590,6 +1615,13 @@ def _add_layer9_resonance_diagnostics(
                                     "Override or suppress this required outcome via author override."
                                 ],
                             ),
+                            genre_recommendation_flow={
+                                "adherence_posture": posture_value or AdherencePosture.CONVENTIONAL.value,
+                                "effective_severity": severity_for_profile_diagnostic(
+                                    adherence_posture,
+                                    "profile.resolution_contract.missing_required_outcome",
+                                ).value,
+                            },
                         )
                     )
 
@@ -1600,12 +1632,16 @@ def _add_layer9_resonance_diagnostics(
                 if outcome in blueprint.contract.expected_elements:
                     diagnostics.append(
                         StructureDiagnostic(
-                            severity=DiagnosticSeverity.WARNING,
+                            severity=severity_for_profile_diagnostic(
+                                adherence_posture,
+                                "profile.resolution_contract.rejected_outcome_present",
+                            ),
                             layer=DiagnosticLayer.STRUCTURAL_FORCES,
                             rule="profile.resolution_contract.rejected_outcome_present",
                             message=(
                                 f"Rejected outcome '{outcome}' from the genre profile's "
-                                f"resolution contract appears in expected_elements."
+                                f"resolution contract appears in expected_elements. "
+                                f"The accepted profile uses {str(posture_value or 'conventional').upper()} adherence."
                             ),
                             evidence=[
                                 f"source = {rc_field}.rejected_outcomes",
@@ -1622,6 +1658,13 @@ def _add_layer9_resonance_diagnostics(
                                     "Accept the tension if the story intentionally includes a rejected outcome."
                                 ],
                             ),
+                            genre_recommendation_flow={
+                                "adherence_posture": posture_value or AdherencePosture.CONVENTIONAL.value,
+                                "effective_severity": severity_for_profile_diagnostic(
+                                    adherence_posture,
+                                    "profile.resolution_contract.rejected_outcome_present",
+                                ).value,
+                            },
                         )
                     )
 
@@ -1649,7 +1692,10 @@ def _add_layer9_resonance_diagnostics(
                 if implied_tones and blueprint.contract.mandatory_ending_tone not in implied_tones:
                     diagnostics.append(
                         StructureDiagnostic(
-                            severity=DiagnosticSeverity.WARNING,
+                            severity=severity_for_profile_diagnostic(
+                                adherence_posture,
+                                "profile.resolution_contract.ending_tone_conflict",
+                            ),
                             layer=DiagnosticLayer.STRUCTURAL_FORCES,
                             rule="profile.resolution_contract.ending_tone_conflict",
                             message=(
@@ -1672,6 +1718,13 @@ def _add_layer9_resonance_diagnostics(
                                     "Override the resolution pattern if the ending is an intentional subversion."
                                 ],
                             ),
+                            genre_recommendation_flow={
+                                "adherence_posture": posture_value or AdherencePosture.CONVENTIONAL.value,
+                                "effective_severity": severity_for_profile_diagnostic(
+                                    adherence_posture,
+                                    "profile.resolution_contract.ending_tone_conflict",
+                                ).value,
+                            },
                         )
                     )
                 break

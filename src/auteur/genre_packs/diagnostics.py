@@ -47,7 +47,14 @@ def run_genre_diagnostics(
     # callers on the pack-specific path; canonical analysis requires the
     # complete structural model.
     if blueprint is not None and hasattr(blueprint, "story_engine"):
-        for d in analyze_structure(blueprint):
+        for d in analyze_structure(
+            blueprint,
+            adherence_posture=(
+                identity.genre_profile.adherence_posture
+                if identity.genre_profile is not None
+                else None
+            ),
+        ):
             if d.rule not in seen_rules:
                 diagnostics.append(d)
                 seen_rules.add(d.rule)
