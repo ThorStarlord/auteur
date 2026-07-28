@@ -460,3 +460,23 @@ def test_required_elements_remain_silent_alongside_forbidden_enforcement(tmp_pat
     assert "UNIVERSE_FORBIDDEN_ELEMENT_PRESENT" in rules
     for advisory_id in _UNIMPLEMENTED_ADVISORY_DIAGNOSTIC_IDS:
         assert advisory_id not in rules
+
+
+def test_blank_forbidden_element_surfaces_unsupported_diagnostic(tmp_path):
+    """Malformed advisory input is reported, not silently skipped (#38 Decision D)."""
+    data = valid_trilogy_data()
+    data["title"] = "The Ash Empire Trilogy: An Iron Crown"
+    data["universe_constraint_path"] = str(_universe_forbidding(tmp_path, "  ", "iron"))
+    series = SeriesIdentity.model_validate(data)
+
+    diagnostics = handle_series_diagnose(series).data.diagnostics
+    rules = [d.rule for d in diagnostics]
+
+    assert rules.count("UNIVERSE_ADVISORY_RULE_UNSUPPORTED") == 1
+    unsupported = next(d for d in diagnostics if d.rule == "UNIVERSE_ADVISORY_RULE_UNSUPPORTED")
+    assert unsupported.severity == DiagnosticSeverity.INFO
+    assert "empty or whitespace-only" in unsupported.message
+
+    # The valid sibling entry is still evaluated normally.
+    assert rules.count("UNIVERSE_FORBIDDEN_ELEMENT_PRESENT") == 1
+    assert "UNIVERSE_FORBIDDEN_ELEMENT_UNEVALUABLE" not in rules

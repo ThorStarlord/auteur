@@ -10,6 +10,7 @@ from series_fixtures import valid_trilogy_data
 
 from auteur.series.models import SeriesIdentity
 from auteur.series.universe_advisory import (
+    ADVISORY_RULE_UNSUPPORTED,
     FORBIDDEN_ELEMENT_PRESENT,
     FORBIDDEN_ELEMENT_UNEVALUABLE,
     extract_searchable_fields,
@@ -53,7 +54,7 @@ def test_exact_single_word_match():
     series = _series(title="The Dragons Return")
     diagnostics = validate_forbidden_elements(series, ["dragons"])
     assert [d.id for d in diagnostics] == [FORBIDDEN_ELEMENT_PRESENT]
-    assert diagnostics[0].conflict_source.endswith("title")
+    assert diagnostics[0].conflict_source == "series_identity.yaml:title"
 
 
 def test_case_insensitive_match():
@@ -74,7 +75,7 @@ def test_whitespace_collapse_across_spaces_tabs_and_newlines():
     series = _series(core_question="Will the glasswing \t\n  choir sing?")
     diagnostics = validate_forbidden_elements(series, ["glasswing choir"])
     assert len(diagnostics) == 1
-    assert diagnostics[0].conflict_source.endswith("core_question")
+    assert diagnostics[0].conflict_source == "series_identity.yaml:core_question"
 
 
 def test_whole_word_negative_iron_does_not_match_ironic():
@@ -166,7 +167,10 @@ def test_repeated_occurrences_in_one_field_produce_one_diagnostic():
 def test_same_element_in_multiple_fields_produces_one_diagnostic_per_field():
     series = _series(title="An iron crown", core_question="Is iron enough?")
     diagnostics = validate_forbidden_elements(series, ["iron"])
-    assert [d.conflict_source.split(":")[-1] for d in diagnostics] == ["title", "core_question"]
+    assert [d.conflict_source for d in diagnostics] == [
+        "series_identity.yaml:title",
+        "series_identity.yaml:core_question",
+    ]
 
 
 def test_blank_series_emits_one_unevaluable_per_element():
@@ -192,3 +196,110 @@ def test_series_is_not_mutated_during_validation():
     before = series.model_dump(mode="json")
     validate_forbidden_elements(series, ["iron"])
     assert series.model_dump(mode="json") == before
+
+
+# --- exact conflict_source field paths --------------------------------------
+
+
+def test_conflict_source_is_exact_for_top_level_and_nested_paths():
+    """conflict_source preserves the exact matched field path verbatim.
+
+    Exact equality, not substring containment. The repository-wide
+    `series_identity.yaml:` artifact prefix (see continuity_validators.py and
+    universe_integration.py) is retained; the ratified auteur#43 field path is
+    the entire remainder of the string.
+    """
+    data = valid_trilogy_data()
+    data["title"] = "Glasswing Choir Accord"
+    data["global_arc"]["midpoint"] = "The Glasswing Choir Accord collapses."
+    data["book_plans"][1]["core_answer"] = "The Glasswing Choir Accord is signed."
+    data["lore_entries"] = [
+        {"id": "accord", "book": 1, "content": "The Glasswing Choir Accord endures."}
+    ]
+    data["recurring_symbols"] = ["Glasswing Choir Accord"]
+    series = SeriesIdentity.model_validate(data)
+
+    diagnostics = validate_forbidden_elements(series, ["Glasswing Choir Accord"])
+
+    assert [d.conflict_source for d in diagnostics] == [
+        "series_identity.yaml:title",
+        "series_identity.yaml:global_arc.midpoint",
+        "series_identity.yaml:book_plans[1].core_answer",
+        "series_identity.yaml:lore_entries[0].content",
+        "series_identity.yaml:recurring_symbols[0]",
+    ]
+    # The ratified exact field path is recoverable verbatim from conflict_source.
+    assert [d.conflict_source.split(":", 1)[1] for d in diagnostics] == [
+        "title",
+        "global_arc.midpoint",
+        "book_plans[1].core_answer",
+        "lore_entries[0].content",
+        "recurring_symbols[0]",
+    ]
+
+
+def test_unevaluable_conflict_source_is_the_series_artifact():
+    diagnostics = validate_forbidden_elements(_blank_series(), ["iron"])
+    assert diagnostics[0].conflict_source == "series_identity.yaml"
+
+
+# --- malformed advisory entries (auteur#38 Decision D) ----------------------
+
+
+def test_empty_forbidden_element_emits_advisory_rule_unsupported():
+    series = _series(title="An iron crown")
+    diagnostics = validate_forbidden_elements(series, [""])
+
+    assert len(diagnostics) == 1
+    diagnostic = diagnostics[0]
+    assert diagnostic.id == ADVISORY_RULE_UNSUPPORTED
+    assert diagnostic.severity == "INFO"
+    assert diagnostic.source == "universe:forbidden_elements[0]"
+    assert diagnostic.constraint == ""
+    assert "empty or whitespace-only" in diagnostic.explanation
+
+
+def test_whitespace_only_forbidden_element_emits_advisory_rule_unsupported():
+    series = _series(title="An iron crown")
+    diagnostics = validate_forbidden_elements(series, ["  \t\n "])
+
+    assert [d.id for d in diagnostics] == [ADVISORY_RULE_UNSUPPORTED]
+    # `constraint` carries the literal original value, unnormalized.
+    assert diagnostics[0].constraint == "  \t\n "
+    assert diagnostics[0].conflict_source == "universe_identity.yaml:forbidden_elements[0]"
+
+
+def test_malformed_entry_never_yields_present_or_unevaluable():
+    series = _series(title="An iron crown")
+    ids = {d.id for d in validate_forbidden_elements(series, ["   "])}
+    assert FORBIDDEN_ELEMENT_PRESENT not in ids
+    assert FORBIDDEN_ELEMENT_UNEVALUABLE not in ids
+
+    # Also true when there is no searchable text at all.
+    ids = {d.id for d in validate_forbidden_elements(_blank_series(), ["   "])}
+    assert ids == {ADVISORY_RULE_UNSUPPORTED}
+
+
+def test_malformed_and_valid_entries_together_use_deterministic_indices():
+    series = _series(title="An iron crown")
+    diagnostics = validate_forbidden_elements(series, ["", "iron", "   ", "dragons"])
+
+    assert [(d.id, d.source) for d in diagnostics] == [
+        (ADVISORY_RULE_UNSUPPORTED, "universe:forbidden_elements[0]"),
+        (FORBIDDEN_ELEMENT_PRESENT, "universe:forbidden_elements[1]"),
+        (ADVISORY_RULE_UNSUPPORTED, "universe:forbidden_elements[2]"),
+    ]
+    # The valid, matching element is still evaluated normally.
+    assert diagnostics[1].conflict_source == "series_identity.yaml:title"
+    assert diagnostics[1].constraint == "iron"
+
+
+def test_exactly_one_unsupported_diagnostic_per_malformed_entry():
+    series = _series(title="An iron crown")
+    diagnostics = validate_forbidden_elements(series, ["", " ", "\t"])
+    assert [d.id for d in diagnostics] == [ADVISORY_RULE_UNSUPPORTED] * 3
+    assert [d.source for d in diagnostics] == [
+        "universe:forbidden_elements[0]",
+        "universe:forbidden_elements[1]",
+        "universe:forbidden_elements[2]",
+    ]

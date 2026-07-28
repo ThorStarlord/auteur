@@ -24,6 +24,16 @@ if TYPE_CHECKING:
 
 FORBIDDEN_ELEMENT_PRESENT = "UNIVERSE_FORBIDDEN_ELEMENT_PRESENT"
 FORBIDDEN_ELEMENT_UNEVALUABLE = "UNIVERSE_FORBIDDEN_ELEMENT_UNEVALUABLE"
+ADVISORY_RULE_UNSUPPORTED = "UNIVERSE_ADVISORY_RULE_UNSUPPORTED"
+
+# Repository-wide `conflict_source` convention: every ValidationDiagnostic in
+# continuity_validators.py and universe_integration.py prefixes the artifact
+# filename, either bare ("series_identity.yaml") or as
+# "series_identity.yaml:<field path>". This module follows that convention;
+# the exact matched field path required by auteur#43 is preserved verbatim
+# after the ":" separator, and also appears in `conflict`/`explanation`.
+SERIES_ARTIFACT = "series_identity.yaml"
+UNIVERSE_ARTIFACT = "universe_identity.yaml"
 
 _WHITESPACE_RUN = re.compile(r"\s+")
 
@@ -92,7 +102,14 @@ def validate_forbidden_elements(
 
     When every searchable field is empty or whitespace-only, one
     ``UNIVERSE_FORBIDDEN_ELEMENT_UNEVALUABLE`` diagnostic is emitted per
-    forbidden element instead, and no PRESENT diagnostics are emitted.
+    (well-formed) forbidden element instead, and no PRESENT diagnostics are
+    emitted.
+
+    A forbidden element that is empty or whitespace-only after normalization is
+    malformed advisory input: exactly one
+    ``UNIVERSE_ADVISORY_RULE_UNSUPPORTED`` (INFO) diagnostic is emitted for it
+    and it is never silently discarded, per auteur#38 Decision D. Remaining
+    entries are still evaluated deterministically.
     """
     if not forbidden_elements:
         return []
@@ -105,6 +122,31 @@ def validate_forbidden_elements(
 
     for index, element in enumerate(forbidden_elements):
         source = f"universe:forbidden_elements[{index}]"
+        normalized_element = normalize_text(element)
+
+        # Malformed advisory input (empty or whitespace-only rule) is reported,
+        # never silently discarded, per auteur#38 Decision D
+        # (UNIVERSE_ADVISORY_RULE_UNSUPPORTED, INFO, non-blocking). Exactly one
+        # diagnostic per malformed entry; neither PRESENT nor UNEVALUABLE is
+        # emitted for it, and evaluation of the remaining entries continues.
+        if not normalized_element:
+            diagnostics.append(
+                ValidationDiagnostic(
+                    id=ADVISORY_RULE_UNSUPPORTED,
+                    severity="INFO",
+                    constraint=element,
+                    source=source,
+                    conflict="Forbidden element is empty or whitespace-only",
+                    conflict_source=f"{UNIVERSE_ARTIFACT}:forbidden_elements[{index}]",
+                    explanation=(
+                        f"Universe forbidden_elements[{index}] is empty or whitespace-only "
+                        "and cannot be processed as a forbidden-element rule. Remove the "
+                        "entry or replace it with the phrase that should be forbidden."
+                    ),
+                    lsm_context={},
+                )
+            )
+            continue
 
         if not has_searchable_text:
             diagnostics.append(
@@ -114,7 +156,7 @@ def validate_forbidden_elements(
                     constraint=element,
                     source=source,
                     conflict="No searchable Series text is present",
-                    conflict_source="series",
+                    conflict_source=SERIES_ARTIFACT,
                     explanation=(
                         f'Forbidden element "{element}" could not be evaluated: '
                         "no searchable Series text is present"
@@ -122,10 +164,6 @@ def validate_forbidden_elements(
                     lsm_context={},
                 )
             )
-            continue
-
-        normalized_element = normalize_text(element)
-        if not normalized_element:
             continue
 
         for path, text in normalized_fields:
@@ -138,7 +176,7 @@ def validate_forbidden_elements(
                     constraint=element,
                     source=source,
                     conflict=f"Forbidden element found in {path}",
-                    conflict_source=f"series_identity.yaml:{path}",
+                    conflict_source=f"{SERIES_ARTIFACT}:{path}",
                     explanation=(
                         f'Universe forbids "{element}", but it appears in Series field '
                         f"{path}. Options: (1) Remove or rename the element in {path}, "
