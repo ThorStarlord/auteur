@@ -763,6 +763,10 @@ def compile_to_blueprint(identity: StoryIdentity) -> StoryBlueprint:
     # 3a. Profile-derived contract obligations (resolution contract)
     profile_obligations: list[str] = []
     if identity.genre_profile is not None:
+        for emotion, weight in identity.genre_profile.accepted_target_emotions.items():
+            contract.profile_emotional_targets[emotion] = weight
+            profile_obligations.append(f"profile_emotional_targets: {emotion} = {weight}")
+
         rc = identity.genre_profile.accepted_resolution_contract
         if rc:
             overrides = identity.genre_profile.author_overrides
@@ -1007,7 +1011,14 @@ def compile_to_blueprint(identity: StoryIdentity) -> StoryBlueprint:
     # 9a. Profile derivation provenance
     if identity.genre_profile is not None and profile_obligations:
         blueprint.profile_derivation = ProfileDerivation(
-            source_field="genre_profile.accepted_resolution_contract",
+            source_field=(
+                "genre_profile.accepted_resolution_contract"
+                if any(
+                    obligation.startswith(("resolution_pattern:", "expected_elements:", "rejected_outcomes:", "forbidden_tropes:"))
+                    for obligation in profile_obligations
+                )
+                else "genre_profile.accepted_target_emotions"
+            ),
             recommendation_id=identity.genre_profile.source_recommendation_id,
             derived_at=datetime.now(timezone.utc).isoformat(),
             obligations_applied=profile_obligations,

@@ -487,6 +487,10 @@ class AuthorAudienceContract(BaseModel):
         default_factory=list,
         description="Terminal states rejected by an accepted genre profile resolution contract.",
     )
+    profile_emotional_targets: dict[str, float] = Field(
+        default_factory=dict,
+        description="Weighted emotional expectations accepted through a genre profile.",
+    )
     custom_rules: list[str] = Field(
         default_factory=list,
         description="Free-text rules the Critic checks line-by-line.",

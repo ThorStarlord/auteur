@@ -79,13 +79,16 @@ def _make_profile_commitment(
     posture: AdherencePosture = AdherencePosture.CONVENTIONAL,
     rec_id: str = "rec_propagation_test",
     overrides: list[GenreAuthorOverride] | None = None,
+    emotions: dict[str, float] | None = None,
 ) -> GenreProfileCommitment:
     return GenreProfileCommitment(
         primary_pack_id="erotic_fiction",
         primary_pack_version="0.1.0",
         pack_content_hash="abcdef1234567890",
         primary_profile_id="erotic_psychological_drama",
-        accepted_target_emotions={"desire": 1.0, "vulnerability": 0.7},
+        accepted_target_emotions=(
+            {"desire": 1.0, "vulnerability": 0.7} if emotions is None else emotions
+        ),
         accepted_narrative_engine="erotic_identity_transformation",
         accepted_framing=FramingCommitment(primary="romantic", secondary=["unsettling"]),
         accepted_resolution_contract=ResolutionContractCommitment(
@@ -128,6 +131,107 @@ class TestRejectedOutcomeRepresentation:
             d.rule == "profile.resolution_contract.rejected_outcome_present"
             for d in analyze_structure(bp)
         )
+
+
+class TestEmotionalTargetRepresentation:
+    def test_profile_emotions_copy_without_mutating_authored_intent(self):
+        identity = _make_base_identity()
+        identity.genre_profile = _make_profile_commitment(
+            emotions={"dread": 0.9, "hope": 0.4},
+        )
+        authored = identity.target_experience.model_dump(mode="json")
+
+        bp = compile_to_blueprint(identity)
+
+        assert bp.contract.profile_emotional_targets == {"dread": 0.9, "hope": 0.4}
+        assert identity.target_experience.model_dump(mode="json") == authored
+        assert bp.identity.target_experience.model_dump(mode="json") == authored
+        assert bp.contract.expected_elements == []
+        assert bp.contract.rejected_outcomes == []
+        assert bp.contract.forbidden_tropes == []
+
+    def test_same_emotion_remains_in_both_authorities(self):
+        identity = _make_base_identity()
+        identity.target_experience.primary = "dread"
+        identity.target_experience.primary_emotional_promise = "dread"
+        identity.genre_profile = _make_profile_commitment(emotions={"dread": 0.9})
+
+        bp = compile_to_blueprint(identity)
+
+        assert bp.identity.target_experience.primary == "dread"
+        assert bp.contract.profile_emotional_targets == {"dread": 0.9}
+
+    def test_empty_profile_emotions_have_no_emotional_provenance(self):
+        identity = _make_base_identity()
+        identity.genre_profile = _make_profile_commitment(emotions={})
+
+        bp = compile_to_blueprint(identity)
+
+        assert bp.contract.profile_emotional_targets == {}
+        assert bp.profile_derivation is not None
+        assert not any(
+            obligation.startswith("profile_emotional_targets:")
+            for obligation in bp.profile_derivation.obligations_applied
+        )
+
+    def test_emotional_provenance_records_each_weighted_destination(self):
+        identity = _make_base_identity()
+        identity.genre_profile = _make_profile_commitment(
+            emotions={"dread": 0.9, "fascination": 0.7},
+        )
+
+        bp = compile_to_blueprint(identity)
+
+        assert bp.profile_derivation is not None
+        obligations = bp.profile_derivation.obligations_applied
+        assert "profile_emotional_targets: dread = 0.9" in obligations
+        assert "profile_emotional_targets: fascination = 0.7" in obligations
+
+    def test_emotional_blueprint_is_unchanged_by_profile_targets(self):
+        base = _make_base_identity()
+        profiled = _make_base_identity()
+        profiled.genre_profile = _make_profile_commitment(emotions={"dread": 0.9})
+
+        base_bp = compile_to_blueprint(base)
+        profiled_bp = compile_to_blueprint(profiled)
+
+        assert profiled_bp.emotional_design.model_dump(mode="json") == base_bp.emotional_design.model_dump(mode="json")
+
+    def test_profile_emotions_round_trip_exactly(self):
+        identity = _make_base_identity()
+        identity.genre_profile = _make_profile_commitment(
+            emotions={"dread": 0.9, "fascination": 0.7},
+        )
+        bp = compile_to_blueprint(identity)
+
+        reloaded = StoryBlueprint.model_validate(bp.model_dump(mode="json"))
+
+        assert reloaded.contract.profile_emotional_targets == {
+            "dread": 0.9,
+            "fascination": 0.7,
+        }
+        assert reloaded.identity.target_experience.model_dump(mode="json") == bp.identity.target_experience.model_dump(mode="json")
+
+    def test_compilation_is_idempotent_for_profile_emotions(self):
+        identity = _make_base_identity()
+        identity.genre_profile = _make_profile_commitment(
+            emotions={"dread": 0.9, "fascination": 0.7},
+        )
+
+        first = compile_to_blueprint(identity)
+        second = compile_to_blueprint(identity)
+
+        assert first.contract.profile_emotional_targets == second.contract.profile_emotional_targets
+        assert first.profile_derivation.obligations_applied == second.profile_derivation.obligations_applied
+
+    def test_legacy_blueprint_without_field_loads_with_empty_mapping(self):
+        bp = compile_to_blueprint(_make_base_identity())
+        data = bp.model_dump(mode="json")
+        data["contract"].pop("profile_emotional_targets", None)
+
+        reloaded = StoryBlueprint.model_validate(data)
+
+        assert reloaded.contract.profile_emotional_targets == {}
 
     def test_legacy_provenance_fallback_is_diagnostic_only(self):
         identity = _make_base_identity()
@@ -589,6 +693,7 @@ class TestUnitCoverage:
         identity.genre_profile = _make_profile_commitment(
             required=[],
             rejected=[],
+            emotions={},
         )
         bp = compile_to_blueprint(identity)
         assert bp.profile_derivation is not None
