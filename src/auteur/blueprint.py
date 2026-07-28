@@ -483,6 +483,10 @@ class AuthorAudienceContract(BaseModel):
         default_factory=list,
         description="Tropes that auto-fail validation, e.g. 'chosen_one_prophecy'.",
     )
+    rejected_outcomes: list[str] = Field(
+        default_factory=list,
+        description="Terminal states rejected by an accepted genre profile resolution contract.",
+    )
     custom_rules: list[str] = Field(
         default_factory=list,
         description="Free-text rules the Critic checks line-by-line.",
