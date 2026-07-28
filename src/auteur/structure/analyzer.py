@@ -1626,10 +1626,17 @@ def _add_layer9_resonance_diagnostics(
                     )
 
         # D-RES-002: Rejected outcome present in contract
+        reported_rejected_outcomes: set[str] = set()
         for oblig in profile.obligations_applied:
-            if oblig.startswith("forbidden_tropes: "):
-                outcome = oblig.split("forbidden_tropes: ", 1)[1]
+            if oblig.startswith("rejected_outcomes: ") or oblig.startswith("forbidden_tropes: "):
+                prefix = "rejected_outcomes: " if oblig.startswith("rejected_outcomes: ") else "forbidden_tropes: "
+                outcome = oblig.split(prefix, 1)[1]
+                if outcome in reported_rejected_outcomes:
+                    continue
+                if oblig.startswith("rejected_outcomes: ") and outcome not in blueprint.contract.rejected_outcomes:
+                    continue
                 if outcome in blueprint.contract.expected_elements:
+                    reported_rejected_outcomes.add(outcome)
                     diagnostics.append(
                         StructureDiagnostic(
                             severity=severity_for_profile_diagnostic(
@@ -1647,7 +1654,7 @@ def _add_layer9_resonance_diagnostics(
                                 f"source = {rc_field}.rejected_outcomes",
                                 f"outcome = {outcome}",
                                 f"expected_elements = {blueprint.contract.expected_elements}",
-                                f"forbidden_tropes = {blueprint.contract.forbidden_tropes}",
+                                f"rejected_outcomes = {blueprint.contract.rejected_outcomes}",
                                 f"recommendation_id = {profile.recommendation_id}",
                             ],
                             repair_options=RepairOptions(

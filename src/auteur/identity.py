@@ -756,6 +756,7 @@ def compile_to_blueprint(identity: StoryIdentity) -> StoryBlueprint:
         mandatory_ending_tone=ending_tone,
         expected_elements=[],
         forbidden_tropes=[],
+        rejected_outcomes=[],
         custom_rules=[],
     )
 
@@ -785,9 +786,9 @@ def compile_to_blueprint(identity: StoryIdentity) -> StoryBlueprint:
                         contract.expected_elements.append(outcome)
                         profile_obligations.append(f"expected_elements: {outcome}")
             for outcome in rc.rejected_outcomes:
-                if outcome not in contract.forbidden_tropes:
-                    contract.forbidden_tropes.append(outcome)
-                    profile_obligations.append(f"forbidden_tropes: {outcome}")
+                if outcome not in contract.rejected_outcomes:
+                    contract.rejected_outcomes.append(outcome)
+                    profile_obligations.append(f"rejected_outcomes: {outcome}")
             if rc.pattern:
                 profile_obligations.insert(0, f"resolution_pattern: {rc.pattern}")
 

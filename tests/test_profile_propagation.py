@@ -108,6 +108,61 @@ def _normalized_forbidden_tropes(bp: StoryBlueprint) -> list[str]:
     return sorted(set(bp.contract.forbidden_tropes))
 
 
+class TestRejectedOutcomeRepresentation:
+    def test_profile_outcomes_are_not_dual_written(self):
+        identity = _make_base_identity()
+        identity.genre_profile = _make_profile_commitment(rejected=["permanent_separation"])
+
+        bp = compile_to_blueprint(identity)
+
+        assert bp.contract.rejected_outcomes == ["permanent_separation"]
+        assert bp.contract.forbidden_tropes == []
+        assert "rejected_outcomes: permanent_separation" in bp.profile_derivation.obligations_applied
+
+    def test_authored_trope_does_not_trigger_profile_diagnostic(self):
+        bp = compile_to_blueprint(_make_base_identity())
+        bp.contract.forbidden_tropes = ["permanent_separation"]
+        bp.contract.expected_elements = ["permanent_separation"]
+
+        assert not any(
+            d.rule == "profile.resolution_contract.rejected_outcome_present"
+            for d in analyze_structure(bp)
+        )
+
+    def test_legacy_provenance_fallback_is_diagnostic_only(self):
+        identity = _make_base_identity()
+        identity.genre_profile = _make_profile_commitment(rejected=["permanent_separation"])
+        bp = compile_to_blueprint(identity)
+        bp.contract.rejected_outcomes = []
+        bp.contract.forbidden_tropes = ["permanent_separation"]
+        bp.profile_derivation.obligations_applied = ["forbidden_tropes: permanent_separation"]
+        bp.contract.expected_elements.append("permanent_separation")
+        before = bp.model_dump(mode="json")
+
+        diagnostics = analyze_structure(bp)
+
+        assert sum(d.rule == "profile.resolution_contract.rejected_outcome_present" for d in diagnostics) == 1
+        assert bp.model_dump(mode="json") == before
+        assert bp.contract.rejected_outcomes == []
+        assert bp.contract.forbidden_tropes == ["permanent_separation"]
+
+    def test_legacy_trope_without_provenance_is_not_reclassified(self):
+        bp = compile_to_blueprint(_make_base_identity())
+        bp.contract.forbidden_tropes = ["permanent_separation"]
+        bp.contract.expected_elements = ["permanent_separation"]
+        bp.profile_derivation = ProfileDerivation(
+            source_field="genre_profile.accepted_resolution_contract",
+            recommendation_id="legacy",
+            derived_at=datetime.now(timezone.utc).isoformat(),
+            obligations_applied=[],
+        )
+
+        assert not any(
+            d.rule == "profile.resolution_contract.rejected_outcome_present"
+            for d in analyze_structure(bp)
+        )
+
+
 # ===========================================================================
 # Test 1 — No profile versus accepted profile
 # ===========================================================================
@@ -130,8 +185,9 @@ class TestNoProfileVsAccepted:
         assert "protagonist_transformation" in bp.contract.expected_elements
         assert "cathartic_release" in bp.contract.expected_elements
 
-        # Rejected outcomes should appear in forbidden_tropes
-        assert "superficial_happy_ending" in bp.contract.forbidden_tropes
+        # Rejected outcomes have their own semantic destination.
+        assert "superficial_happy_ending" in bp.contract.rejected_outcomes
+        assert "superficial_happy_ending" not in bp.contract.forbidden_tropes
 
     def test_base_identity_fields_unchanged(self):
         identity = _make_base_identity()
@@ -196,8 +252,8 @@ class TestTwoProfiles:
         assert "moral_collapse" in bp_b.contract.expected_elements
 
         # Difference is not just metadata — actual obligation content differs
-        assert "permanent_separation" in bp_a.contract.forbidden_tropes
-        assert "redemptive_twist" in bp_b.contract.forbidden_tropes
+        assert "permanent_separation" in bp_a.contract.rejected_outcomes
+        assert "redemptive_twist" in bp_b.contract.rejected_outcomes
 
     def test_profile_id_not_the_only_difference(self):
         identity = _make_base_identity()
@@ -222,8 +278,8 @@ class TestTwoProfiles:
         assert "emotional_intimacy" in bp_a.contract.expected_elements
         assert "emotional_intimacy" in bp_b.contract.expected_elements
 
-        # But different rejected outcomes = different forbidden_tropes
-        assert _normalized_forbidden_tropes(bp_a) != _normalized_forbidden_tropes(bp_b)
+        # But different rejected outcomes remain distinguishable.
+        assert bp_a.contract.rejected_outcomes != bp_b.contract.rejected_outcomes
 
 
 # ===========================================================================
@@ -471,6 +527,7 @@ class TestRoundTrip:
         bp_reloaded = compile_to_blueprint(loaded_identity)
 
         assert bp_direct.contract.expected_elements == bp_reloaded.contract.expected_elements
+        assert bp_direct.contract.rejected_outcomes == bp_reloaded.contract.rejected_outcomes
         assert bp_direct.contract.forbidden_tropes == bp_reloaded.contract.forbidden_tropes
 
     def test_profile_derivation_survives_blueprint_roundtrip(self):
@@ -523,7 +580,8 @@ class TestUnitCoverage:
         bp = compile_to_blueprint(identity)
         # Should not have duplicates
         assert bp.contract.expected_elements.count("item_x") <= 1
-        assert bp.contract.forbidden_tropes.count("item_x") <= 1
+        assert bp.contract.rejected_outcomes.count("item_x") <= 1
+        assert "item_x" not in bp.contract.forbidden_tropes
 
     def test_empty_resolution_contract(self):
         """Empty resolution contract produces no obligations."""
