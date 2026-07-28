@@ -18,6 +18,17 @@ from auteur.narrative_orchestration.schema.ownership import (
     StructuralFact,
 )
 
+# Repository-relative path to the committed canonical ownership rules fixture.
+# Resolved from this test file's location so it works regardless of clone
+# location, operating system, or working directory (unlike a hardcoded
+# machine-specific absolute path).
+OWNERSHIP_RULES_PATH = (
+    Path(__file__).resolve().parents[3]
+    / "data"
+    / "composition"
+    / "ownership_rules.yaml"
+)
+
 
 class TestOwnershipRuleCreation:
     """Test OwnershipRule model creation and validation."""
@@ -296,9 +307,7 @@ class TestOwnershipRulesYAMLLoading:
 
     def test_load_ownership_rules_from_yaml(self):
         """Test loading canonical ownership rules from YAML data file."""
-        yaml_path = Path(
-            "H:/GithubRepositories/auteur/data/composition/ownership_rules.yaml"
-        )
+        yaml_path = OWNERSHIP_RULES_PATH
 
         # Verify file exists
         assert yaml_path.exists(), f"YAML file not found at {yaml_path}"
@@ -317,9 +326,7 @@ class TestOwnershipRulesYAMLLoading:
 
     def test_yaml_rules_cover_all_8_core_facts(self):
         """Test that YAML contains all 8 core ownership facts."""
-        yaml_path = Path(
-            "H:/GithubRepositories/auteur/data/composition/ownership_rules.yaml"
-        )
+        yaml_path = OWNERSHIP_RULES_PATH
 
         with open(yaml_path, "r") as f:
             data = yaml.safe_load(f)
@@ -344,9 +351,7 @@ class TestOwnershipRulesYAMLLoading:
 
     def test_yaml_rules_have_meaningful_descriptions(self):
         """Test that all YAML rules have substantive descriptions."""
-        yaml_path = Path(
-            "H:/GithubRepositories/auteur/data/composition/ownership_rules.yaml"
-        )
+        yaml_path = OWNERSHIP_RULES_PATH
 
         with open(yaml_path, "r") as f:
             data = yaml.safe_load(f)
@@ -364,9 +369,7 @@ class TestOwnershipSchemaConsistency:
 
     def test_each_artifact_type_owns_at_least_one_fact(self):
         """Test that most artifact types own at least one fact."""
-        yaml_path = Path(
-            "H:/GithubRepositories/auteur/data/composition/ownership_rules.yaml"
-        )
+        yaml_path = OWNERSHIP_RULES_PATH
 
         with open(yaml_path, "r") as f:
             data = yaml.safe_load(f)
@@ -383,9 +386,7 @@ class TestOwnershipSchemaConsistency:
 
     def test_derived_facts_are_subset_of_all_facts(self):
         """Test that derived facts are a subset of all facts."""
-        yaml_path = Path(
-            "H:/GithubRepositories/auteur/data/composition/ownership_rules.yaml"
-        )
+        yaml_path = OWNERSHIP_RULES_PATH
 
         with open(yaml_path, "r") as f:
             data = yaml.safe_load(f)
@@ -402,9 +403,7 @@ class TestOwnershipSchemaConsistency:
 
     def test_fact_ownership_is_mutually_exclusive(self):
         """Test that each fact has exactly one owner."""
-        yaml_path = Path(
-            "H:/GithubRepositories/auteur/data/composition/ownership_rules.yaml"
-        )
+        yaml_path = OWNERSHIP_RULES_PATH
 
         with open(yaml_path, "r") as f:
             data = yaml.safe_load(f)
