@@ -111,3 +111,15 @@ The approved specification remains intentionally uncommitted pending final revie
 - Ready for merge: **NO**
 
 This bounded-policy decision supersedes the earlier provisional verdict above; the original failure remains recorded and was not erased.
+
+## Final integration
+
+- Specification commit: `b09b299bcdca246f74c26b07517b31d905f9abf7`
+- Merge commit: `2e4e41be145a44daf80ac2b2e53076d9e9ec70c1`
+- Merge mode: `--no-ff` after `origin/main` had an understood unrelated descendant
+- Pre-merge smoke: PASS, exit 0
+- Post-merge smoke including release-integrity: PASS, exit 0
+- Post-merge serial: 3,847 collected; 3,819 passed; 28 skipped; 0 failed; 0 errors; exit 0
+- Post-merge parallel: 3,847 collected; 3,819 passed; 28 skipped; 0 failed; 0 errors; exit 0
+- Post-merge source/test changes were the already-understood origin/main forbidden-elements slice; complete suites were rerun accordingly.
+- No package version, release metadata, tag, package, or publication was changed or created.
