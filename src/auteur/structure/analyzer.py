@@ -1626,13 +1626,20 @@ def _add_layer9_resonance_diagnostics(
                     )
 
         # D-RES-003: Ending tone vs profile pattern conflict
+        #
+        # Compatibility policy: context-dependent patterns
+        # (transformative_resolution, relational_fulfillment) are compatible
+        # with every ending tone.  Only narrow patterns with proven
+        # contradictions are restricted — the map below lists tones that
+        # ARE compatible for each pattern.  Patterns not in the map are
+        # unrestricted (no false positives from incomplete allowlists).
         _PATTERN_TONE_MAP: dict[str, list[EndingTone]] = {
-            "transformative_resolution": [EndingTone.HOPEFUL, EndingTone.BITTERSWEET],
-            "relational_fulfillment": [EndingTone.HOPEFUL, EndingTone.BITTERSWEET],
+            "transformative_resolution": [t for t in EndingTone],
+            "relational_fulfillment": [t for t in EndingTone],
             "dark_transgression_resolution": [EndingTone.TRAGIC],
             "ambiguous_loss": [EndingTone.AMBIGUOUS, EndingTone.TRAGIC],
             "mutual_destruction": [EndingTone.TRAGIC],
-            "redemptive_sacrifice": [EndingTone.BITTERSWEET],
+            "redemptive_sacrifice": [EndingTone.BITTERSWEET, EndingTone.TRAGIC],
             "cyclical_return": [EndingTone.AMBIGUOUS, EndingTone.OPEN],
         }
         for oblig in profile.obligations_applied:

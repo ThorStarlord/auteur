@@ -389,7 +389,23 @@ def dispatch_genre_pack_commands(args: Any) -> bool:
             raise GenrePackError(GenreErrorCode.PACK_NOT_FOUND, f"StoryIdentity file not found at '{identity_path}'.")
 
         identity = StoryIdentity.from_yaml(identity_path)
-        diags = run_genre_diagnostics(identity)
+
+        # Try to locate a blueprint for profile diagnostics
+        from auteur.blueprint import StoryBlueprint
+        blueprint: StoryBlueprint | None = None
+        for candidate in (
+            project_dir / "blueprint.yaml",
+            project_dir / ".auteur" / "blueprint.yaml",
+            project_dir / ".auteur" / "state" / "artifacts" / "blueprint.yaml",
+        ):
+            if candidate.exists():
+                try:
+                    blueprint = StoryBlueprint.from_yaml(candidate)
+                except Exception:
+                    pass
+                break
+
+        diags = run_genre_diagnostics(identity, blueprint=blueprint)
 
         if getattr(args, "json", False):
             print(json.dumps([d.model_dump(mode="json") for d in diags], indent=2))
