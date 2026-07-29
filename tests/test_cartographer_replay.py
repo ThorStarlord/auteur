@@ -7,7 +7,6 @@ from pathlib import Path
 
 import pytest
 import yaml
-from test_narrative_engine_integration import blueprint_with_psychology as _blueprint_fixture
 
 from auteur.cartographer import render_cartographer_prompt
 from auteur.cartographer_models import PlanningCall
@@ -38,7 +37,7 @@ from auteur.cartographer_compiler import compile_outline
 
 @pytest.fixture
 def blueprint_with_psychology():
-    return _blueprint_fixture.__wrapped__()
+    return StoryBlueprint.from_yaml(Path("examples/sample_blueprint.yaml"))
 
 
 def _capture(call: PlanningCall, *, condition: str = "control", raw: str = "conflict_report: archived"):
