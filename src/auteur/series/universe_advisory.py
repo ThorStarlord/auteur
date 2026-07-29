@@ -1,4 +1,4 @@
-"""Advisory Universe-field diagnostics for Series (auteur#38 Decisions A/B, Phases 2-3).
+"""Advisory Universe-field diagnostics for Series (auteur#38 Decisions A/B/C, Phases 2-4).
 
 This module is deliberately separate from :class:`UniverseToSeriesValidator` in
 ``universe_integration.py``. That validator dispatches on
@@ -7,16 +7,24 @@ This module is deliberately separate from :class:`UniverseToSeriesValidator` in
 constraint-type dispatch, so forcing it through that dispatch would be a
 category error.
 
-Scope: ``forbidden_elements`` (Phase 2, auteur#43) and ``required_elements``
-(Phase 3, auteur#45). ``cross_story_constraints`` (Phase 4) is intentionally
-not implemented here.
+Scope: ``forbidden_elements`` (Phase 2, auteur#43), ``required_elements``
+(Phase 3, auteur#45) and ``cross_story_constraints`` (Phase 4, auteur#47,
+#38 Decision C).
 
-The two advisory validators share the same text machinery
+The two *text-matching* advisory validators share the same text machinery
 (:func:`normalize_text`, :func:`extract_searchable_fields`,
 :func:`phrase_matches`) and invert only the reporting rule:
 ``forbidden_elements`` reports when a phrase IS found (per matched field),
 ``required_elements`` reports when a phrase is NOT found in any searchable
 field (union presence, one diagnostic per absent entry).
+
+``cross_story_constraints`` is deliberately different in kind and shares none
+of that machinery: :func:`surface_cross_story_constraints` performs no search,
+reads no Series text, and makes no compliance judgement. It emits one
+non-blocking ``INFO`` human-review notice per configured entry stating that the
+rule was *not* automatically evaluated. A single ``SeriesIdentity`` cannot
+prove or disprove a cross-story invariant, so no pass/fail outcome is ever
+claimed.
 """
 
 from __future__ import annotations
@@ -29,12 +37,14 @@ from auteur.series.continuity_validators import ValidationDiagnostic
 
 if TYPE_CHECKING:
     from auteur.series.models import SeriesIdentity
+    from auteur.universe.models import CrossStoryConstraint
 
 FORBIDDEN_ELEMENT_PRESENT = "UNIVERSE_FORBIDDEN_ELEMENT_PRESENT"
 FORBIDDEN_ELEMENT_UNEVALUABLE = "UNIVERSE_FORBIDDEN_ELEMENT_UNEVALUABLE"
 REQUIRED_ELEMENT_MISSING = "UNIVERSE_REQUIRED_ELEMENT_MISSING"
 REQUIRED_ELEMENT_UNEVALUABLE = "UNIVERSE_REQUIRED_ELEMENT_UNEVALUABLE"
 ADVISORY_RULE_UNSUPPORTED = "UNIVERSE_ADVISORY_RULE_UNSUPPORTED"
+CROSS_STORY_CONSTRAINT_NOT_EVALUATED = "UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED"
 
 # Repository-wide `conflict_source` convention: every ValidationDiagnostic in
 # continuity_validators.py and universe_integration.py prefixes the artifact
@@ -316,6 +326,86 @@ def validate_required_elements(
                     "title, core question, global arc, book plans, thematic arcs, lore "
                     "entries or recurring symbols, (2) Relax the Universe "
                     "required_elements entry if it no longer applies."
+                ),
+                lsm_context={},
+            )
+        )
+
+    return diagnostics
+
+
+def _severity_label(severity: object) -> str:
+    """Render a configured ``ConstraintSeverity`` deterministically as text.
+
+    ``CrossStoryConstraint`` sets ``model_config = ConfigDict(use_enum_values=True)``,
+    so at runtime ``severity`` is normally the plain ``str`` value ("required",
+    "warning", "info"). An enum member is still accepted defensively so the
+    rendered label never leaks a ``ConstraintSeverity.REQUIRED`` repr into
+    operator-facing text.
+    """
+    return str(getattr(severity, "value", severity))
+
+
+def surface_cross_story_constraints(
+    cross_story_constraints: Sequence[CrossStoryConstraint],
+) -> list[ValidationDiagnostic]:
+    """Surface each configured ``cross_story_constraints`` entry for human review.
+
+    auteur#38 Decision C / Phase 4 (auteur#47). This function performs **no
+    evaluation whatsoever**: it does not receive a :class:`SeriesIdentity`, does
+    not read Series text, and deliberately shares none of the text machinery
+    used by :func:`validate_forbidden_elements` /
+    :func:`validate_required_elements` (:func:`extract_searchable_fields`,
+    :func:`normalize_text`, :func:`phrase_matches`). A cross-story invariant
+    cannot be proven or disproven from a single Series artifact, so the system
+    must never claim it was checked.
+
+    Cardinality and ordering:
+
+    * exactly one ``UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED`` (INFO,
+      non-blocking) notice per configured entry;
+    * an empty list produces no notices;
+    * source-list order and original list indices are preserved;
+    * duplicate rule strings at different indices stay distinct -- no
+      deduplication, no suppression based on rule text;
+    * no success diagnostic and no violation diagnostic is ever emitted;
+    * repeated calls on identical input produce identical output.
+
+    The notice's own severity is always ``INFO`` because it reports
+    non-evaluation, not a rule outcome. The configured ``severity``
+    (``required`` / ``warning`` / ``info``) and ``applies_to_all_stories`` are
+    carried as explanatory metadata only and never upgrade the notice to
+    WARNING or ERROR.
+
+    Malformed input is out of scope by design: ``CrossStoryConstraint.rule`` is
+    declared ``Field(min_length=1)``, so a blank rule fails Universe model
+    loading and surfaces through the existing ``UNIVERSE_CONTRACT_INVALID``
+    path. Phase 4 neither relaxes that schema nor disguises that failure as a
+    cross-story notice.
+
+    Neither the constraints nor any Universe/Series data are mutated.
+    """
+    if not cross_story_constraints:
+        return []
+
+    diagnostics: list[ValidationDiagnostic] = []
+
+    for index, constraint in enumerate(cross_story_constraints):
+        rule = constraint.rule
+        severity_label = _severity_label(constraint.severity)
+        diagnostics.append(
+            ValidationDiagnostic(
+                id=CROSS_STORY_CONSTRAINT_NOT_EVALUATED,
+                severity="INFO",
+                constraint=rule,
+                source=f"universe:cross_story_constraints[{index}]",
+                conflict="Cross-story constraint requires human review",
+                conflict_source=f"{UNIVERSE_ARTIFACT}:cross_story_constraints[{index}]",
+                explanation=(
+                    f'Cross-story constraint "{rule}" was not automatically evaluated '
+                    "and requires human review. "
+                    f"applies_to_all_stories={constraint.applies_to_all_stories}; "
+                    f"configured_severity={severity_label}."
                 ),
                 lsm_context={},
             )

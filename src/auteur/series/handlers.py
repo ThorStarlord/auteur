@@ -153,6 +153,7 @@ def _collect_universe_diagnostics(series: SeriesIdentity) -> list:
 
     try:
         from auteur.series.universe_advisory import (
+            surface_cross_story_constraints,
             validate_forbidden_elements,
             validate_required_elements,
         )
@@ -169,6 +170,13 @@ def _collect_universe_diagnostics(series: SeriesIdentity) -> list:
         # forbidden -> required; the conversion loop below is severity-driven
         # and needs no change.
         diagnostics = diagnostics + validate_required_elements(series, universe.required_elements)
+        # Advisory cross_story_constraints human-review notices (auteur#38
+        # Decision C, Phase 4). Appended last so the aggregate order is
+        # structured -> forbidden -> required -> cross-story. These notices are
+        # INFO/non-blocking and report NON-evaluation: no Series text is read
+        # and no compliance outcome is claimed. The severity-driven conversion
+        # loop below needs no change.
+        diagnostics = diagnostics + surface_cross_story_constraints(universe.cross_story_constraints)
         converted = []
         for diagnostic in diagnostics:
             severity = {
