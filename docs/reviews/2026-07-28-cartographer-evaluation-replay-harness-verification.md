@@ -91,3 +91,15 @@ Live recording, fixed provider/model configuration, real capture import, human r
 - Ready for final review: YES
 
 Behavioral usefulness is not proven by this harness implementation. The harness makes future evaluation repeatable; it does not itself provide live behavioral evidence.
+
+## Final integration
+
+- Specification SHA: `19b05bd`
+- Evaluation-report SHA: `485d0e6`
+- Feature final SHA before merge: `485d0e6`
+- Integration mode: `--no-ff`
+- Merge/main SHA: `12bf9f1`
+- Pre-merge smoke: PASS, exit 0
+- Post-merge smoke: PASS, exit 0
+- Origin/main before push: `8e3985f961099c88d145dd07f9a72109329ca266`
+- Publication: no release, tag, package build, or package publication
