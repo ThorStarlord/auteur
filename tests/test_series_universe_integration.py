@@ -123,21 +123,17 @@ def test_series_diagnose_enforces_structured_universe_constraints(tmp_path):
 # `cross_story_constraints`), per the ratified product contract in
 # auteur#38 (https://github.com/ThorStarlord/auteur/issues/38#issuecomment-5103131461).
 #
-# They are PASSING baseline tests, not failing tests and not expected-failure
-# tests. They document that these advisory fields are currently silent (no
-# diagnostic is emitted for them at all) rather than asserting that this
-# silence is correct or desirable. Passing today is not evidence that this
-# is the right behavior -- see auteur#38 for the ratified target contract.
+# They began as PASSING baseline tests documenting that these advisory fields
+# were silent (no diagnostic emitted at all), without asserting that the
+# silence was correct or desirable -- see auteur#38 for the ratified target
+# contract. Every one of those negative assertions has since been converted to
+# a positive behavior assertion by the phase that implemented the field.
 #
 # Phase 2 (`forbidden_elements`), Phase 3 (`required_elements`), and Phase 4
-# (`cross_story_constraints` human-review notices) are each expected to
-# deliberately update or replace the relevant negative assertion below as
-# that phase's diagnostic code is introduced.
-
-
-# Advisory codes still unimplemented after Phase 3 (auteur#45): only
-# cross_story_constraints remains, as Phase 4 (#38 Decision C).
-_UNIMPLEMENTED_ADVISORY_DIAGNOSTIC_IDS = ("UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED",)
+# (`cross_story_constraints` human-review notices) each deliberately updated or
+# replaced the relevant negative assertion below as that phase's diagnostic
+# code shipped. All three advisory fields are now implemented, so no negative
+# "still unimplemented" assertion remains in this module.
 
 
 def test_forbidden_element_in_title_produces_present_diagnostic(tmp_path):
@@ -223,13 +219,17 @@ def test_missing_required_element_produces_missing_diagnostic(tmp_path):
     assert "not found in any searchable Series field" in missing[0].message
 
 
-def test_baseline_cross_story_constraint_currently_produces_no_diagnostic(tmp_path):
-    """Baseline: a populated cross_story_constraints entry gets no notice today.
+def test_cross_story_constraint_produces_human_review_notice(tmp_path):
+    """Phase 4 (auteur#47): a configured cross-story rule is surfaced for human review.
 
-    Phase 4 must update this assertion once the human-review "not evaluated"
-    notice (UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED) ships.
+    This was the Phase 1 baseline test
+    `test_baseline_cross_story_constraint_currently_produces_no_diagnostic`; its
+    negative assertion was deliberately converted to positive Phase 4 behavior
+    assertions when the human-review notice shipped. The notice reports
+    NON-evaluation -- it must never claim the rule passed or failed.
     """
     data = valid_trilogy_data()
+    rule = "Stories should explore power without resorting to magic solutions"
 
     universe = UniverseIdentity(
         name="Cross-Story-Constrained World",
@@ -239,7 +239,7 @@ def test_baseline_cross_story_constraint_currently_produces_no_diagnostic(tmp_pa
         timeline=TimelineProfile(current_era="Now"),
         cross_story_constraints=[
             CrossStoryConstraint(
-                rule="Stories should explore power without resorting to magic solutions",
+                rule=rule,
                 applies_to_all_stories=True,
                 severity="required",
             )
@@ -253,7 +253,26 @@ def test_baseline_cross_story_constraint_currently_produces_no_diagnostic(tmp_pa
     result = handle_series_diagnose(series)
     rules = [d.rule for d in result.data.diagnostics]
 
-    assert "UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED" not in rules
+    assert rules.count("UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED") == 1
+
+    notice = next(
+        d
+        for d in result.data.diagnostics
+        if d.rule == "UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED"
+    )
+    # A configured severity of "required" must NOT upgrade the notice: it
+    # reports non-evaluation, not a rule outcome.
+    assert notice.severity == DiagnosticSeverity.INFO
+    assert rule in notice.message
+    assert "not automatically evaluated" in notice.message.lower()
+    assert "human review" in notice.message.lower()
+    assert "applies_to_all_stories=True" in notice.message
+    assert "configured_severity=required" in notice.message
+
+    # No automatic pass/fail claim exists anywhere in the generated wording.
+    generated = notice.message.replace(rule, " ").lower()
+    for word in ("passed", "failed", "satisfied", "violated", "enforced", "compliant"):
+        assert word not in generated
 
 
 def test_structured_forbidden_and_required_diagnostics_coexist_on_one_run(tmp_path):
@@ -262,9 +281,8 @@ def test_structured_forbidden_and_required_diagnostics_coexist_on_one_run(tmp_pa
     This proves the baseline tests exercise real Universe-to-Series validation
     (the genre-rule structured constraint still fires, exactly as in
     test_series_diagnose_enforces_structured_universe_constraints above)
-    rather than accidentally bypassing it. Phase 4 must update the remaining
-    "advisory IDs absent" assertion when it ships; the structured
-    genre-violation assertion keeps passing unchanged.
+    rather than accidentally bypassing it. The structured genre-violation
+    assertion keeps passing unchanged across every phase.
 
     Phase 2 (auteur#43) narrowed this test: the forbidden_elements entry is now
     "Ash Empire", a phrase that genuinely appears in the default fixture title
@@ -276,9 +294,13 @@ def test_structured_forbidden_and_required_diagnostics_coexist_on_one_run(tmp_pa
 
     Phase 3 (auteur#45) converted the required_elements half: the existing
     "Obsidian Marrow Requiem" entry is genuinely absent from the default
-    fixture text, so it now yields a positive MISSING assertion. Only
-    cross_story_constraints (Phase 4) remains silent. The Phase 2 assertions
-    are unchanged and must not be weakened.
+    fixture text, so it now yields a positive MISSING assertion.
+
+    Phase 4 (auteur#47) converted the last negative half: the configured
+    cross_story_constraints entry now yields a positive NOT_EVALUATED
+    human-review notice, and this run additionally proves the full ratified
+    aggregate order structured -> forbidden -> required -> cross-story. The
+    Phase 2 and Phase 3 assertions are unchanged and must not be weakened.
     """
     data = valid_trilogy_data()
 
@@ -331,9 +353,22 @@ def test_structured_forbidden_and_required_diagnostics_coexist_on_one_run(tmp_pa
     assert required_missing.severity == DiagnosticSeverity.WARNING
     assert "Obsidian Marrow Requiem" in required_missing.message
 
-    # Phase 4 is still unimplemented: that code remains silent.
-    for advisory_id in _UNIMPLEMENTED_ADVISORY_DIAGNOSTIC_IDS:
-        assert advisory_id not in rules
+    # Phase 4 shipped: the cross-story rule is surfaced for human review on the
+    # same run, without suppressing or being suppressed by the others.
+    assert rules.count("UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED") == 1
+    cross_story = next(
+        d
+        for d in result.data.diagnostics
+        if d.rule == "UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED"
+    )
+    assert cross_story.severity == DiagnosticSeverity.INFO
+    assert "not automatically evaluated" in cross_story.message.lower()
+    assert "human review" in cross_story.message.lower()
+
+    # Ratified aggregate order: structured -> forbidden -> required -> cross-story.
+    assert rules.index("UNIVERSE_FORBIDDEN_ELEMENT_PRESENT") < rules.index(
+        "UNIVERSE_REQUIRED_ELEMENT_MISSING"
+    ) < rules.index("UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED")
 
 
 # --- Phase 2 handler-level behavior (auteur#43) ----------------------------
@@ -460,7 +495,9 @@ def test_required_and_forbidden_enforcement_coexist(tmp_path):
     This replaces the Phase 2 test
     `test_required_elements_remain_silent_alongside_forbidden_enforcement`,
     whose premise ("required_elements stays silent") became false in Phase 3.
-    Neither validator suppresses the other, and cross-story stays silent.
+    Phase 4 (auteur#47) extended it again: the cross-story human-review notice
+    now fires on the same run. No advisory validator suppresses another, and
+    the aggregate order is forbidden -> required -> cross-story.
     """
     data = valid_trilogy_data()
     universe = UniverseIdentity(
@@ -493,14 +530,17 @@ def test_required_and_forbidden_enforcement_coexist(tmp_path):
     assert rules.count("UNIVERSE_REQUIRED_ELEMENT_MISSING") == 1
     assert "UNIVERSE_REQUIRED_ELEMENT_UNEVALUABLE" not in rules
 
-    # Deterministic aggregate order: forbidden diagnostics precede required ones.
+    # Phase 4 fires on the same run as a non-blocking INFO human-review notice.
+    assert rules.count("UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED") == 1
+    cross_story = next(
+        d for d in diagnostics if d.rule == "UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED"
+    )
+    assert cross_story.severity == DiagnosticSeverity.INFO
+
+    # Deterministic aggregate order: forbidden -> required -> cross-story.
     assert rules.index("UNIVERSE_FORBIDDEN_ELEMENT_PRESENT") < rules.index(
         "UNIVERSE_REQUIRED_ELEMENT_MISSING"
-    )
-
-    # Phase 4 remains unimplemented.
-    for advisory_id in _UNIMPLEMENTED_ADVISORY_DIAGNOSTIC_IDS:
-        assert advisory_id not in rules
+    ) < rules.index("UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED")
 
 
 def test_blank_forbidden_element_surfaces_unsupported_diagnostic(tmp_path):
@@ -636,8 +676,12 @@ def test_structured_and_required_diagnostics_coexist(tmp_path):
     assert "UNIVERSE_REQUIRED_ELEMENT_MISSING" in rules
 
 
-def test_required_enforcement_does_not_wake_cross_story_notices(tmp_path):
-    """Phase 4 stays silent while Phase 3 enforcement fires."""
+def test_required_enforcement_and_cross_story_notices_coexist(tmp_path):
+    """Phase 3 enforcement and Phase 4 notices fire together, neither suppressing the other.
+
+    This replaces `test_required_enforcement_does_not_wake_cross_story_notices`,
+    whose premise ("Phase 4 stays silent") became false when auteur#47 shipped.
+    """
     data = valid_trilogy_data()
     universe = UniverseIdentity(
         name="Cross-Story-Plus-Required World",
@@ -659,10 +703,17 @@ def test_required_enforcement_does_not_wake_cross_story_notices(tmp_path):
     data["universe_constraint_path"] = str(universe_path)
     series = SeriesIdentity.model_validate(data)
 
-    rules = [d.rule for d in handle_series_diagnose(series).data.diagnostics]
+    diagnostics = handle_series_diagnose(series).data.diagnostics
+    rules = [d.rule for d in diagnostics]
 
     assert "UNIVERSE_REQUIRED_ELEMENT_MISSING" in rules
-    assert "UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED" not in rules
+    assert rules.count("UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED") == 1
+
+    cross_story = next(
+        d for d in diagnostics if d.rule == "UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED"
+    )
+    assert cross_story.severity == DiagnosticSeverity.INFO
+    assert "human review" in cross_story.message.lower()
 
 
 def test_duplicate_required_entries_each_produce_a_diagnostic_through_handler(tmp_path):
@@ -676,3 +727,224 @@ def test_duplicate_required_entries_each_produce_a_diagnostic_through_handler(tm
     rules = [d.rule for d in handle_series_diagnose(series).data.diagnostics]
 
     assert rules.count("UNIVERSE_REQUIRED_ELEMENT_MISSING") == 2
+
+# --- Phase 4 handler-level behavior (auteur#47, #38 Decision C) -------------
+
+
+def _universe_with_cross_story(
+    tmp_path,
+    *rules: str,
+    name: str = "Cross-Story World",
+    applies_to_all_stories: bool = True,
+    severity: str = "required",
+    forbidden: tuple[str, ...] = (),
+    required: tuple[str, ...] = (),
+) -> Path:
+    universe = UniverseIdentity(
+        name=name,
+        slug="cross-story-world",
+        description="",
+        setting_profile=SettingProfile(setting_type="single_world", primary_location="Realm"),
+        timeline=TimelineProfile(current_era="Now"),
+        forbidden_elements=list(forbidden),
+        required_elements=list(required),
+        cross_story_constraints=[
+            CrossStoryConstraint(
+                rule=rule,
+                applies_to_all_stories=applies_to_all_stories,
+                severity=severity,
+            )
+            for rule in rules
+        ],
+    )
+    universe_path = tmp_path / "universe.yaml"
+    universe.to_yaml(universe_path)
+    return universe_path
+
+
+def test_blank_searchable_series_still_produces_cross_story_notice(tmp_path):
+    """Cross-story notices do not depend on Series text at all.
+
+    Forbidden and required both degrade to UNEVALUABLE when every searchable
+    field is blank; the cross-story notice fires regardless, because Phase 4
+    never searches Series text in the first place.
+    """
+    data = valid_trilogy_data()
+    data["title"] = "  "
+    data["core_question"] = " \t "
+    data["global_arc"] = {"beginning": " ", "midpoint": " ", "ending": None}
+    for book in data["book_plans"]:
+        book["title"] = " "
+        book["core_answer"] = " "
+    data["recurring_symbols"] = []
+    data["universe_constraint_path"] = str(
+        _universe_with_cross_story(
+            tmp_path,
+            "Stories must not resolve conflicts with off-page deities",
+            forbidden=("Glasswing Choir Accord",),
+            required=("Obsidian Marrow Requiem",),
+        )
+    )
+    series = SeriesIdentity.model_validate(data)
+
+    diagnostics = handle_series_diagnose(series).data.diagnostics
+    rules = [d.rule for d in diagnostics]
+
+    assert rules.count("UNIVERSE_FORBIDDEN_ELEMENT_UNEVALUABLE") == 1
+    assert rules.count("UNIVERSE_REQUIRED_ELEMENT_UNEVALUABLE") == 1
+    assert rules.count("UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED") == 1
+
+    notice = next(
+        d for d in diagnostics if d.rule == "UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED"
+    )
+    assert notice.severity == DiagnosticSeverity.INFO
+    assert "not automatically evaluated" in notice.message.lower()
+
+
+def test_multiple_cross_story_constraints_preserve_order_through_handler(tmp_path):
+    """One notice per configured entry, in configured order, with no dedup."""
+    data = valid_trilogy_data()
+    data["universe_constraint_path"] = str(
+        _universe_with_cross_story(
+            tmp_path,
+            "Rule alpha about the Concordat",
+            "Rule beta about the Concordat",
+            "Rule alpha about the Concordat",
+        )
+    )
+    series = SeriesIdentity.model_validate(data)
+
+    diagnostics = handle_series_diagnose(series).data.diagnostics
+    notices = [
+        d for d in diagnostics if d.rule == "UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED"
+    ]
+
+    assert len(notices) == 3
+    assert all(d.severity == DiagnosticSeverity.INFO for d in notices)
+    assert "Rule alpha about the Concordat" in notices[0].message
+    assert "Rule beta about the Concordat" in notices[1].message
+    assert "Rule alpha about the Concordat" in notices[2].message
+
+
+def test_cross_story_notice_severity_stays_info_for_every_configured_severity(tmp_path):
+    """Configured severity is metadata only; the notice never becomes WARNING/ERROR."""
+    for configured in ("required", "warning", "info"):
+        target = tmp_path / configured
+        target.mkdir()
+        data = valid_trilogy_data()
+        data["universe_constraint_path"] = str(
+            _universe_with_cross_story(
+                target,
+                "Stories must not resolve conflicts with off-page deities",
+                severity=configured,
+            )
+        )
+        series = SeriesIdentity.model_validate(data)
+
+        diagnostics = handle_series_diagnose(series).data.diagnostics
+        notice = next(
+            d for d in diagnostics if d.rule == "UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED"
+        )
+
+        assert notice.severity == DiagnosticSeverity.INFO
+        assert f"configured_severity={configured}" in notice.message
+
+
+def test_cross_story_notice_does_not_suppress_structured_diagnostics(tmp_path):
+    """A violated structured constraint still fires alongside the cross-story notice."""
+    data = valid_trilogy_data()
+    universe = UniverseIdentity(
+        name="Structured-Plus-Cross-Story World",
+        slug="structured-plus-cross-story",
+        description="",
+        setting_profile=SettingProfile(setting_type="single_world", primary_location="Realm"),
+        timeline=TimelineProfile(current_era="Now"),
+        cross_story_constraints=[
+            CrossStoryConstraint(
+                rule="Stories must not resolve conflicts with off-page deities",
+                applies_to_all_stories=False,
+                severity="warning",
+            )
+        ],
+        structured_constraints=[
+            StructuredConstraint(
+                id="allowed_genre",
+                type=ConstraintType.GENRE_RULE,
+                description="Only mystery books are allowed",
+                enforcement=ConstraintEnforcement.DETERMINISTIC,
+                schema={"allowed_values": ["mystery"]},
+            )
+        ],
+    )
+    universe_path = tmp_path / "universe.yaml"
+    universe.to_yaml(universe_path)
+    data["universe_constraint_path"] = str(universe_path)
+    series = SeriesIdentity.model_validate(data)
+
+    diagnostics = handle_series_diagnose(series).data.diagnostics
+    rules = [d.rule for d in diagnostics]
+
+    assert any(rule.startswith("UNIVERSE_GENRE_VIOLATION") for rule in rules)
+    assert rules.count("UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED") == 1
+
+    notice = next(
+        d for d in diagnostics if d.rule == "UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED"
+    )
+    assert "applies_to_all_stories=False" in notice.message
+    assert "configured_severity=warning" in notice.message
+    # Structured diagnostics precede every advisory diagnostic.
+    assert rules.index(
+        next(r for r in rules if r.startswith("UNIVERSE_GENRE_VIOLATION"))
+    ) < rules.index("UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED")
+
+
+def test_handler_path_does_not_mutate_series_or_universe_artifact(tmp_path):
+    """Diagnosing twice mutates nothing and yields identical output."""
+    data = valid_trilogy_data()
+    universe_path = _universe_with_cross_story(
+        tmp_path,
+        "Stories must not resolve conflicts with off-page deities",
+        forbidden=("Ash Empire",),
+        required=("Obsidian Marrow Requiem",),
+    )
+    data["universe_constraint_path"] = str(universe_path)
+    series = SeriesIdentity.model_validate(data)
+
+    series_before = series.model_dump(mode="json")
+    universe_before = universe_path.read_bytes()
+
+    first = [
+        (d.rule, d.severity, d.message) for d in handle_series_diagnose(series).data.diagnostics
+    ]
+    second = [
+        (d.rule, d.severity, d.message) for d in handle_series_diagnose(series).data.diagnostics
+    ]
+
+    assert first == second
+    assert series.model_dump(mode="json") == series_before
+    assert universe_path.read_bytes() == universe_before
+
+
+def test_blank_cross_story_rule_still_fails_universe_loading(tmp_path):
+    """Malformed-input boundary is unchanged: Phase 4 does not disguise it.
+
+    `CrossStoryConstraint.rule` is `Field(min_length=1)`, so a blank rule fails
+    pydantic validation during Universe loading and surfaces through the
+    existing UNIVERSE_CONTRACT_INVALID path -- never as a cross-story notice and
+    never as UNIVERSE_ADVISORY_RULE_UNSUPPORTED.
+    """
+    data = valid_trilogy_data()
+    universe_path = _universe_with_cross_story(tmp_path, "Placeholder rule text")
+    universe_path.write_text(
+        universe_path.read_text(encoding="utf-8").replace("Placeholder rule text", ""),
+        encoding="utf-8",
+    )
+    data["universe_constraint_path"] = str(universe_path)
+    series = SeriesIdentity.model_validate(data)
+
+    diagnostics = handle_series_diagnose(series).data.diagnostics
+    rules = [d.rule for d in diagnostics]
+
+    assert "UNIVERSE_CONTRACT_INVALID" in rules
+    assert "UNIVERSE_CROSS_STORY_CONSTRAINT_NOT_EVALUATED" not in rules
+    assert "UNIVERSE_ADVISORY_RULE_UNSUPPORTED" not in rules
