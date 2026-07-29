@@ -1,0 +1,34 @@
+artifact_type: cartographer_agent_blinded_review
+schema_version: 1
+evaluation_id: synthetic-evaluation-id
+pair_id: A1
+reviewer:
+  pseudonym: synthetic-reviewer
+  type: human
+rubric_version: 1
+blinded_order: [output-a, output-b]
+initial_review_timestamp: synthetic-timestamp
+output_a:
+  artifact_path: synthetic-output-a
+  condition: HIDDEN
+output_b:
+  artifact_path: synthetic-output-b
+  condition: HIDDEN
+authored_emotional_target: synthetic-target
+ratings:
+  attributable_emotional_influence: null
+  authored_intent_preservation: null
+  planning_usefulness: null
+  structural_coherence: null
+  genre_profile_alignment: null
+  weight_semantic_restraint: null
+  prompt_parroting_avoidance: null
+  authority_separation: null
+scale: '-2 clearly worse; -1 somewhat worse; 0 no meaningful difference; +1 somewhat better; +2 clearly better'
+confidence: null
+rationale: null
+revealed_after_initial_rating:
+  condition_mapping: HIDDEN_UNTIL_REVEAL
+  profile_targets: HIDDEN_UNTIL_REVEAL
+  attribution_ratings: null
+  reveal_timestamp: NOT_REVEALED

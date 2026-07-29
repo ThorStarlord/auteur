@@ -1,0 +1,38 @@
+artifact_type: cartographer_agent_task
+schema_version: 1
+evaluation_id: synthetic-evaluation-id
+pair_id: A1
+condition_token: opaque-a
+repetition: 1
+repository_sha: exact-repository-sha
+protocol_version: agent-native-cartographer-pilot-v1
+instruction_files:
+  - path: AGENTS.md
+    sha256: synthetic-instruction-hash
+wrapper:
+  version: wrapper-v1
+  sha256: synthetic-wrapper-hash
+rendered_prompt_sha256: synthetic-rendered-prompt-hash
+planning_call: synthetic-exact-planning-call
+story_context: synthetic-non-sensitive-context
+authored_emotional_target: mounting dread
+profile_emotional_targets: {}
+output_contract:
+  type: CartographerOutline
+  format: yaml
+  path: .local/evaluations/cartographer-agent/A1/opaque-a/outline.yaml
+validation_command: python -m auteur.cli cartographer validate <output-path>
+repair_limit: 2
+completion_report_required: true
+allowed_actions:
+  - read specified repository files
+  - write one evaluation artifact
+  - run the exact validator
+  - repair syntax or schema errors twice maximum
+forbidden_actions:
+  - modify production source or tests
+  - modify prompts or schemas
+  - inspect sibling condition artifacts
+  - call external providers
+  - install dependencies
+  - commit or push
