@@ -1077,6 +1077,9 @@ def dispatch(args: argparse.Namespace) -> int:
         except Exception as exc:
             _err(f"failed to write blueprint to {args.output}: {exc}"); return 1
         print(format_identity_compile_success(str(args.identity), str(args.output)))
+        if result.data is not None and getattr(result.data, "propagation_warnings", None):
+            for warning in result.data.propagation_warnings:
+                print(f"warning: {warning}")
     # === blueprint publish ===
     if args.command == "blueprint" and args.blueprint_command == "publish":
         bp_path = args.blueprint

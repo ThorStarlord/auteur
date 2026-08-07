@@ -86,6 +86,37 @@ class BestBasis(str, Enum):
     FAITHFUL_TO_INPUT = "faithful_to_input"
 
 
+class IdentityCharacter(BaseModel):
+    """Author-declared named character at Identity time (commitment layer).
+
+    This is a 4-field commitment reference, NOT a duplicate of
+    ``auteur.character.models.CharacterIdentity`` (the blueprint-side content
+    model). It reuses the existing enum vocabularies ``CharacterRole`` and
+    ``ArcType``.
+
+    ``undergoes_central_change`` is tri-state: ``None`` means the author made
+    no commitment (UNKNOWN), ``False`` is an explicit "no" — the two must
+    remain distinguishable.
+    """
+
+    name: str = Field(min_length=1)
+    structural_role: CharacterRole | None = Field(
+        default=None,
+        description="Explicit author assignment of the character's structural role.",
+    )
+    undergoes_central_change: bool | None = Field(
+        default=None,
+        description=(
+            "Whether this character participates in the central transformation. "
+            "None = no commitment (UNKNOWN); False = explicit no."
+        ),
+    )
+    arc_type: ArcType | None = Field(
+        default=None,
+        description="EXPLICIT ONLY — never defaulted by propagation.",
+    )
+
+
 class StoryIdentity(BaseModel):
     title: str = Field(min_length=1)
     core_answer: str = Field(min_length=1)
@@ -103,6 +134,7 @@ class StoryIdentity(BaseModel):
     why_this_is_best: str | None = Field(default=None, min_length=1)
     rejected_directions: list[str] = Field(default_factory=list)
     author_overrides: list[str] = Field(default_factory=list)
+    characters: list[IdentityCharacter] = Field(default_factory=list)
     genre_contract_snapshot: GenreContract | None = None
     genre_profile: GenreProfileCommitment | None = None
 
@@ -1023,6 +1055,15 @@ def compile_to_blueprint(identity: StoryIdentity) -> StoryBlueprint:
             derived_at=datetime.now(timezone.utc).isoformat(),
             obligations_applied=profile_obligations,
         )
+
+    # 10. Bounded identity-to-structure propagation (contract commitments,
+    #     naming, role rule). Deterministic; provenance persisted on the
+    #     blueprint so every caller observes identical semantics.
+    from auteur.identity_propagation import propagate_identity
+
+    propagation = propagate_identity(identity, blueprint)
+    if propagation is not None:
+        blueprint.identity_propagation = propagation
 
     return blueprint
 

@@ -908,3 +908,47 @@ no denylist (ยง6.1), diagnostics universal via persisted provenance + analyzer
 (ยง10), provenance field justified (ยง11), branch strategy recorded (ยง18).
 No genuinely new product uncertainty was found; product discovery was not
 reopened.
+
+---
+
+## 19. Implementation alignment notes (feature branch)
+
+Recorded during production implementation on
+`feature/identity-structure-bounded-propagation` (base: canonical main
+`f7a89d2`). These notes supersede the corresponding sketches above where they
+conflict; no historical discovery conclusions are rewritten.
+
+1. **No `derived_at` in `IdentityPropagationDerivation`** (ง11 sketch). The
+   shipped model carries only `outcomes`. Propagation is fully deterministic
+   and a wall-clock timestamp would make otherwise identical compilation
+   outputs byte-different (the known `ProfileDerivation.derived_at`
+   nondeterminism). This implements the implementation-gate clarification;
+   ง8 of the implementation prompt.
+2. **Frozen placeholder set interpretation** (ง7 Stage 4, ง8.4). The set
+   `{protagonist, antagonist, lover a, lover b}` enumerates the placeholder
+   KINDS the compiler seeds. The concrete seeded names are
+   `Protagonist`/`Antagonist` (default genres), `Detective`/`Culprit`
+   (mystery), `Lover A`/`Lover B` (romance) — all six are compiler
+   placeholders (`PLACEHOLDER_NAMES` in `identity_propagation.py`). This keeps
+   naming and role correction genre-uniform. Safe because propagation runs
+   only inside `compile_to_blueprint` on freshly seeded slots.
+3. **Rule ordering: naming (A4) runs before the role rule (B1)**. A declared
+   opponent name occupies the antagonist seat first, so the seat is no longer
+   a placeholder and the role rule fails closed (Stage 5) instead of recasting
+   it — the production form of opposition precedence. A declared protagonist
+   name makes the role rule's Stage-2 "already represented" restraint fire
+   naturally.
+4. **`undergoes_central_change` is tri-state** (`bool | None`, default
+   `None`) — UNKNOWN is distinguishable from explicit `False`, per the
+   implementation-gate clarification. The role rule triggers only on `True`.
+5. **Same-name restraint**: naming and role rules treat a slot that already
+   carries the declared name as already represented (no outcome, no trace) —
+   the Experiment-3 case-1 guard.
+6. **Fixture note**: `tests/fixtures/workflow/project_identity/story_identity.yaml`
+   cannot be loaded as a `StoryIdentity` on main (pre-existing: `mode:
+   heroic` / `genre: fantasy` are outside the current enum vocabulary; no
+   test loads it). Compatibility coverage uses `examples/story_identity.yaml`,
+   which loads and compiles with `not_this` propagating to `custom_rules`.
+7. **Provenance store integration**: `StoryIdentity.characters` was added to
+   `semantic_fields` in `src/auteur/provenance/store.py` so character
+   commitment edits invalidate dependent artifacts in dependency inference.

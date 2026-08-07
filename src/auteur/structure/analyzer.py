@@ -64,6 +64,56 @@ def run_all_diagnostics(
     return diagnostics
 
 
+def _identity_propagation_diagnostics(
+    blueprint: StoryBlueprint,
+) -> list[StructureDiagnostic]:
+    """Convert blocked identity-propagation outcomes into StructureDiagnostics.
+
+    The persisted provenance record (``blueprint.identity_propagation``) is the
+    single source of truth: every caller of ``analyze_structure`` /
+    ``run_all_diagnostics`` observes the same refusal semantics regardless of
+    which caller compiled the blueprint. Applied outcomes are not diagnostics.
+    """
+    derivation = blueprint.identity_propagation
+    if derivation is None:
+        return []
+
+    diagnostics: list[StructureDiagnostic] = []
+    for outcome in derivation.outcomes:
+        if outcome.classification != "BLOCKED_INSUFFICIENT_EXPLICIT_INPUT":
+            continue
+        layer = (
+            DiagnosticLayer.CONSTRAINTS
+            if outcome.rule.startswith("identity.propagation.contract")
+            else DiagnosticLayer.STRUCTURAL_FORCES
+        )
+        evidence: list[str] = []
+        if outcome.source:
+            evidence.append(f"source: {outcome.source}")
+        if outcome.value:
+            evidence.append(f"value: {outcome.value}")
+        if outcome.destination:
+            evidence.append(f"destination: {outcome.destination}")
+        diagnostics.append(
+            StructureDiagnostic(
+                severity=DiagnosticSeverity.WARNING,
+                layer=layer,
+                rule=outcome.rule,
+                message=outcome.reason or f"Identity propagation refused ({outcome.rule}).",
+                evidence=evidence,
+                repair_options=RepairOptions(
+                    preserve_intent=[
+                        "Resolve the contradiction in the StoryIdentity (author-decision required).",
+                    ],
+                    challenge_intent=[
+                        "Declare the missing structured commitment so propagation can proceed deterministically.",
+                    ],
+                ),
+            )
+        )
+    return diagnostics
+
+
 def analyze_structure(
     blueprint: StoryBlueprint,
     *,
@@ -72,6 +122,7 @@ def analyze_structure(
     from auteur.structure.profile_severity import severity_for_profile_diagnostic
 
     diagnostics: list[StructureDiagnostic] = []
+    diagnostics.extend(_identity_propagation_diagnostics(blueprint))
     engine = blueprint.story_engine
 
     medium_diagnostic: StructureDiagnostic | None = None
