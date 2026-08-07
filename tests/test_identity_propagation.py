@@ -911,6 +911,36 @@ class TestFinalBlueprintValidation:
             raise AssertionError(f"propagated blueprint failed validation: {exc}") from exc
         assert reloaded.model_dump(mode="json") == serialized
 
+    def test_correction_exceeding_max_pov_fails_compile(self):
+        """Pinned LOW-1 behavior: a deterministic role correction that would
+        violate max_pov_characters must fail through normal StoryBlueprint
+        validation rather than return an invalid blueprint.
+
+        SHORT_STORY derives max_pov_characters == 1; the correction would
+        create a second POV-eligible character (deuteragonist), so the final
+        revalidation rejects the blueprint and compile_to_blueprint raises.
+        """
+        from pydantic import ValidationError
+
+        identity = _make_base_identity()
+        identity.story_type.medium = StoryMedium.SHORT_STORY
+        identity = _with_characters(identity, [
+            {"name": "Ines", "undergoes_central_change": True, "arc_type": "growth"},
+        ])
+
+        try:
+            compile_to_blueprint(identity)
+        except ValidationError as exc:
+            message = str(exc)
+        else:
+            raise AssertionError(
+                "compile_to_blueprint must fail when a role correction "
+                "violates max_pov_characters (final validation must not be "
+                "bypassable)"
+            )
+        assert "max_pov_characters" in message
+        assert "POV-eligible" in message
+
 
 # ---------------------------------------------------------------------------
 # Romance placeholders (Lover A / Lover B) — reviewer gap
