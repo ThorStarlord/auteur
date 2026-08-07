@@ -34,4 +34,9 @@ rejected_directions:
   - "A heroic chosen-one victory would break the grimdark corruption promise."
   - "A cozy rebellion adventure would undercut the target experience of dread."
 author_overrides:
+  # NOTE: repository usage of author_overrides is semantically mixed. The
+  # validation gates consume exact-match bypass markers ("ending_tone",
+  # "runway_compression"); this entry is a free-text story mandate, which is
+  # NOT propagated or enforced (see design section 6.1 and section 19.8 - A2 deliberately
+  # dropped; a future identity-level mandates field is a separate decision).
   - "Keep Kael's final transformation tragic rather than redemptive."

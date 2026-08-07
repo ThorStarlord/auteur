@@ -325,18 +325,27 @@ rejected for the Experiment-3 verb lists).
 
 Established facts:
 
-1. In production today, `StoryIdentity.author_overrides` is a
-   **workflow/compiler control field**: its members are exact-match bypass
-   markers for validation gates — `"ending_tone"` (`identity.py:165`) and
-   `"runway_compression"` (`identity.py:284`) — consumed by
-   `validate_identity` only.
+1. In production today, `StoryIdentity.author_overrides` is consumed as a
+   **workflow/compiler control field** by the validation gates: the known
+   members `"ending_tone"` (`identity.py:165`) and `"runway_compression"`
+   (`identity.py:284`) are exact-match bypass markers consumed by
+   `validate_identity`; the CLI contract-fit handler additionally forbids
+   auto-generating overrides (`cli_handlers.py:763-776`). **Repository usage
+   is semantically mixed, not purely control**: the canonical example
+   `examples/story_identity.yaml` carries a free-text story mandate in
+   `author_overrides` (`"Keep Kael's final transformation tragic rather than
+   redemptive."`). That mandate is not propagated or enforced by this feature;
+   the field therefore cannot be relied on as a pure control channel. A future
+   identity-level free-text mandates field (e.g. `author_constraints`) is a
+   separate product decision (see the fix-pass note, section 19.8).
 2. Story-semantic overrides already have a **structured home at profile
    level**: `GenreAuthorOverride` (`genre_packs/models.py:206-226`:
    `target_expectation`, `replacement_value`), propagated through the
    existing profile path (`identity.py:770-786`).
 3. The Experiment-2 A2 rule assumed free-text mandates lived in
    `author_overrides`; that assumption is not supported by the current
-   production consumers.
+   production consumers (the mixed usage in fact 1 is example-fixture data,
+   not a validated mandate mechanism).
 
 Decision: **A2 is dropped from the design.** `author_overrides` keeps its
 existing bypass-marker semantics and is never propagated. If the product later
@@ -952,3 +961,29 @@ conflict; no historical discovery conclusions are rewritten.
 7. **Provenance store integration**: `StoryIdentity.characters` was added to
    `semantic_fields` in `src/auteur/provenance/store.py` so character
    commitment edits invalidate dependent artifacts in dependency inference.
+8. **Review-fix pass (MEDIUM-1, LOW-1, LOW-2, LOW-3)**. Recorded after the
+   independent code review classified the implementation NEEDS_FIXES; no
+   design rollback, no discovery reopened. (a) **Cross-rule fail-closed
+   (MEDIUM-1)**: `apply_character_naming` now returns the set of
+   `structural_role` values whose naming correspondence was ambiguous
+   (BLOCKED), and `apply_role_rule` excludes subjects claiming those roles
+   (Stage 0.5). An ambiguity refused by naming can no longer be acted on by
+   the role rule; no extra diagnostic is emitted because the naming refusal
+   is already recorded. (b) **Final validation (LOW-1)**: the propagation
+   hook runs after the `StoryBlueprint` constructor, so `compile_to_blueprint`
+   re-validates the final blueprint through
+   `StoryBlueprint.model_validate(blueprint.model_dump(mode="json"))` when
+   any outcome occurred. Propagation-created state therefore passes the
+   normal model validators (including `Character._arc_bounds_consistent` and
+   the root `_apply_and_validate` checks), and an invalid propagated state
+   fails the compile loudly instead of serializing an unloadable blueprint.
+   Note: a correction that creates a second POV-eligible character now fails
+   compile for length classes whose `max_pov_characters == 1` (e.g.
+   SHORT_STORY) instead of silently producing an invalid blueprint.
+   (c) **Case-normalized representation (LOW-2)**: name representation and
+   restraint comparisons casefold both sides; authored names are never
+   rewritten in serialized output. (d) **`author_overrides` claim softened
+   (LOW-3)**: see section 6.1 - repository usage is mixed (the canonical
+   example carries a free-text mandate); the A2 decision (never propagated,
+   no denylist) is unchanged; a future `author_constraints` field is a
+   separate product decision.

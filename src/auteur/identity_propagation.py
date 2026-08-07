@@ -139,7 +139,7 @@ def apply_character_naming(
     identity: StoryIdentity,
     blueprint: StoryBlueprint,
     outcomes: list[PropagationOutcome],
-) -> None:
+) -> set[CharacterRole]:
     """A4: name placeholder slots from explicit ``structural_role`` declarations.
 
     - An entry with an explicit ``structural_role`` names the unique blueprint
@@ -149,7 +149,13 @@ def apply_character_naming(
     - An entry without ``structural_role`` -> no naming. Unnamed entities are
       never invented.
     - Naming never depends on ``arc_type``.
+
+    Returns the set of ``structural_role`` values whose correspondence was
+    ambiguous (BLOCKED). Later propagation rules MUST NOT act on declarations
+    claiming one of these roles: an unresolved correspondence is not safe to
+    mutate (fail-closed cross-rule invariant).
     """
+    blocked_roles: set[CharacterRole] = set()
     role_counts: dict[CharacterRole, int] = {}
     for declared in identity.characters:
         if declared.structural_role is not None:
@@ -159,6 +165,7 @@ def apply_character_naming(
         if declared.structural_role is None:
             continue
         if role_counts[declared.structural_role] > 1:
+            blocked_roles.add(declared.structural_role)
             outcomes.append(
                 PropagationOutcome(
                     rule="identity.propagation.naming.ambiguous",
@@ -183,6 +190,7 @@ def apply_character_naming(
             # No compiler placeholder slot with that role: restraint, no trace.
             continue
         if len(matching_slots) > 1:
+            blocked_roles.add(declared.structural_role)
             outcomes.append(
                 PropagationOutcome(
                     rule="identity.propagation.naming.ambiguous",
@@ -199,8 +207,11 @@ def apply_character_naming(
             continue
 
         slot_index, slot = matching_slots[0]
-        if slot.name == declared.name:
+        if slot.name.casefold() == declared.name.casefold():
             # Already represented: restraint, no trace (the case-1 guard).
+            # Comparison is casefolded so "Protagonist" vs "protagonist" are
+            # the same character (review LOW-2); authored names are never
+            # rewritten.
             continue
         slot.name = declared.name
         outcomes.append(
@@ -212,12 +223,14 @@ def apply_character_naming(
                 source=f"characters[{index}].name",
             )
         )
+    return blocked_roles
 
 
 def apply_role_rule(
     identity: StoryIdentity,
     blueprint: StoryBlueprint,
     outcomes: list[PropagationOutcome],
+    blocked_roles: set[CharacterRole] | None = None,
 ) -> None:
     """B1: role consistency for declared transformation subjects.
 
@@ -225,10 +238,16 @@ def apply_role_rule(
 
     - Stage 0: no entry with ``undergoes_central_change=True`` -> NOT_APPLICABLE
       (no action, no trace).
+    - Stage 0.5: a subject whose ``structural_role`` naming correspondence was
+      BLOCKED as ambiguous by the naming rule (see ``apply_character_naming``)
+      is excluded from candidacy -- the unresolved correspondence is not safe
+      to mutate, so the role rule refuses it too (fail-closed, no extra
+      diagnostic: the naming ambiguity refusal is already recorded).
     - Stage 1: a subject explicitly framed as opposition
       (``structural_role == ANTAGONIST``) is never recast (NOT_APPLICABLE).
-    - Stage 2: a subject already represented by a blueprint slot (name match on
-      a non-antagonist slot, or a slot matching the declared role) is restraint.
+    - Stage 2: a subject already represented by a blueprint slot (casefolded
+      name match on a non-antagonist slot, or a slot matching the declared
+      role) is restraint.
     - Stage 3: ambiguity (multiple remaining subjects, or no eligible
       placeholder target) -> BLOCKED_INSUFFICIENT_EXPLICIT_INPUT, no mutation.
     - Stage 4: exactly one unambiguous subject, a contradictory compiler
@@ -242,19 +261,25 @@ def apply_role_rule(
     if not subjects:
         return  # Stage 0: no explicit transformation commitment.
 
-    # Stage 1: opposition precedence — a changing explicit opponent is not recast.
+    blocked_roles = blocked_roles or set()
+
+    # Stage 1 + 0.5: opposition precedence, and refused ambiguous role
+    # correspondences, are never acted on.
     candidates = [
         (index, subject)
         for index, subject in enumerate(identity.characters)
         if subject.undergoes_central_change is True
         and subject.structural_role != CharacterRole.ANTAGONIST
+        and subject.structural_role not in blocked_roles
     ]
 
-    # Stage 2: already represented — restraint, no action.
+    # Stage 2: already represented -- restraint, no action. Name comparison is
+    # casefolded so case-only differences cannot change semantic decisions
+    # (review LOW-2).
     remaining: list[tuple[int, IdentityCharacter]] = []
     for index, subject in candidates:
         represented = any(
-            slot.name == subject.name
+            slot.name.casefold() == subject.name.casefold()
             and (slot.role != CharacterRole.ANTAGONIST or slot.role == subject.structural_role)
             for slot in blueprint.characters
         )
@@ -382,11 +407,17 @@ def propagate_identity(
     Returns ``None`` when no outcome (applied or blocked) occurred — inert
     identities leave no trace, keeping their blueprints unchanged. Restraint
     (NOT_APPLICABLE) outcomes are never recorded.
+
+    Rule ordering (naming before role) is deliberate: a declared name occupies
+    its seat first, so the role rule sees authored slots and fails closed
+    instead of recasting them. Roles whose naming correspondence was ambiguous
+    are threaded into the role rule as blocked (fail-closed cross-rule
+    invariant).
     """
     outcomes: list[PropagationOutcome] = []
     apply_contract_propagation(identity, blueprint.contract, outcomes)
-    apply_character_naming(identity, blueprint, outcomes)
-    apply_role_rule(identity, blueprint, outcomes)
+    blocked_roles = apply_character_naming(identity, blueprint, outcomes)
+    apply_role_rule(identity, blueprint, outcomes, blocked_roles)
     if not outcomes:
         return None
     return IdentityPropagationDerivation(outcomes=outcomes)

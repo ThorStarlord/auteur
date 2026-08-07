@@ -797,6 +797,208 @@ class TestCompatibility:
         assert bp.characters[0].name == "Rowan"
         assert bp.profile_derivation.model_dump() != bp.identity_propagation.model_dump()
 
+# ---------------------------------------------------------------------------
+# Cross-rule fail-closed (review MEDIUM-1)
+# ---------------------------------------------------------------------------
+
+class TestCrossRuleFailClosed:
+    def test_naming_ambiguity_blocks_role_rule(self):
+        """An ambiguous role claim refused by naming must not be acted on by
+        the role rule: the reviewer's adversarial scenario."""
+        identity = _with_characters(_make_base_identity(), [
+            {"name": "Rowan", "structural_role": "protagonist", "undergoes_central_change": True, "arc_type": "growth"},
+            {"name": "Mara", "structural_role": "protagonist"},
+        ])
+        bp = compile_to_blueprint(identity)
+
+        # Naming refused both claims; the role rule must NOT recast the seat.
+        assert bp.characters[0].name == "Protagonist"
+        assert bp.characters[0].role.value == "protagonist"
+        assert bp.characters[1].name == "Antagonist"
+        assert bp.characters[1].role.value == "antagonist"
+        rules = [o.rule for o in bp.identity_propagation.outcomes]
+        assert rules.count("identity.propagation.naming.ambiguous") == 2
+        assert "identity.role_rule.correction" not in rules
+
+    def test_naming_ambiguity_blocks_role_rule_other_role(self):
+        """Generality: an ambiguous deuteragonist claim is also refused by the
+        role rule (without the fix it would recast the antagonist seat)."""
+        identity = _with_characters(_make_base_identity(), [
+            {"name": "Ines", "structural_role": "deuteragonist", "undergoes_central_change": True, "arc_type": "growth"},
+            {"name": "Sam", "structural_role": "deuteragonist"},
+        ])
+        bp = compile_to_blueprint(identity)
+
+        assert bp.characters[1].name == "Antagonist"
+        assert bp.characters[1].role.value == "antagonist"
+        rules = [o.rule for o in bp.identity_propagation.outcomes]
+        assert rules.count("identity.propagation.naming.ambiguous") == 2
+        assert "identity.role_rule.correction" not in rules
+
+    def test_unambiguous_claim_still_corrected_when_other_role_ambiguous(self):
+        """A clean co-transforming lead is NOT collateral damage: only the
+        ambiguous role's claims are blocked."""
+        identity = _with_characters(_make_base_identity(), [
+            {"name": "Rowan", "structural_role": "protagonist"},
+            {"name": "Mara", "structural_role": "protagonist"},
+            {"name": "Ines", "undergoes_central_change": True, "arc_type": "healing"},
+        ])
+        bp = compile_to_blueprint(identity)
+
+        assert bp.characters[1].name == "Ines"
+        assert bp.characters[1].role.value == "deuteragonist"
+        rules = [o.rule for o in bp.identity_propagation.outcomes]
+        assert rules.count("identity.propagation.naming.ambiguous") == 2
+        assert "identity.role_rule.correction" in rules
+
+
+# ---------------------------------------------------------------------------
+# Case-normalized representation (review LOW-2)
+# ---------------------------------------------------------------------------
+
+class TestCaseNormalizedRepresentation:
+    def test_case_variants_of_placeholder_name_are_restraint(self):
+        """'protagonist', 'Protagonist' and mixed case must all be the same
+        character for the role rule's representation check."""
+        for variant in ("protagonist", "Protagonist", "PrOtAgOnIsT"):
+            identity = _with_characters(_make_base_identity(), [
+                {"name": variant, "undergoes_central_change": True, "arc_type": "growth"},
+            ])
+            bp = compile_to_blueprint(identity)
+
+            assert bp.characters[0].name == "Protagonist"
+            assert bp.characters[0].role.value == "protagonist"
+            assert bp.characters[1].name == "Antagonist"
+            assert bp.characters[1].role.value == "antagonist"
+            assert bp.identity_propagation is None  # restraint leaves no trace
+
+    def test_case_variant_same_name_naming_restraint(self):
+        """Naming restraint is case-insensitive too: the seeded slot already
+        represents the declared name, so no rename happens and no trace is
+        left."""
+        identity = _with_characters(_make_base_identity(), [
+            {"name": "PROTAGONIST", "structural_role": "protagonist"},
+        ])
+        bp = compile_to_blueprint(identity)
+
+        assert bp.characters[0].name == "Protagonist"  # authored case NOT applied
+        assert bp.identity_propagation is None
+
+
+# ---------------------------------------------------------------------------
+# Final blueprint validation (review LOW-1)
+# ---------------------------------------------------------------------------
+
+class TestFinalBlueprintValidation:
+    def test_propagated_blueprint_passes_full_model_validation(self):
+        """The compiled blueprint — with contract propagation, naming and a
+        correction applied — must pass normal StoryBlueprint validation and
+        round-trip through its own serialized form."""
+        from pydantic import ValidationError
+
+        identity = _make_base_identity()
+        identity.not_this = ["no chosen one prophecy"]
+        identity = _with_characters(identity, [
+            {"name": "Rowan", "structural_role": "protagonist"},
+            {"name": "Ines", "undergoes_central_change": True, "arc_type": "growth"},
+        ])
+        bp = compile_to_blueprint(identity)
+
+        serialized = bp.model_dump(mode="json")
+        try:
+            reloaded = StoryBlueprint.model_validate(serialized)
+        except ValidationError as exc:  # pragma: no cover - failure path
+            raise AssertionError(f"propagated blueprint failed validation: {exc}") from exc
+        assert reloaded.model_dump(mode="json") == serialized
+
+
+# ---------------------------------------------------------------------------
+# Romance placeholders (Lover A / Lover B) — reviewer gap
+# ---------------------------------------------------------------------------
+
+class TestRomancePlaceholders:
+    def _romance(self, characters: list[dict]) -> StoryIdentity:
+        identity = _make_base_identity()
+        identity.story_type.genre = Genre.ROMANCE
+        return _with_characters(identity, characters)
+
+    def test_romance_naming_lover_slots(self):
+        bp = compile_to_blueprint(self._romance([
+            {"name": "Ari", "structural_role": "protagonist"},
+            {"name": "Dev", "structural_role": "antagonist"},
+        ]))
+
+        assert bp.characters[0].name == "Ari"
+        assert bp.characters[0].role.value == "protagonist"
+        assert bp.characters[1].name == "Dev"
+        assert bp.characters[1].role.value == "antagonist"
+
+    def test_romance_co_transforming_lead_corrected(self):
+        bp = compile_to_blueprint(self._romance([
+            {"name": "Ines", "undergoes_central_change": True, "arc_type": "healing"},
+        ]))
+
+        assert bp.characters[1].name == "Ines"
+        assert bp.characters[1].role.value == "deuteragonist"
+        assert bp.characters[1].arc_type.value == "healing"
+
+    def test_romance_declared_opponent_not_recast(self):
+        bp = compile_to_blueprint(self._romance([
+            {"name": "Dev", "structural_role": "antagonist", "undergoes_central_change": True},
+            {"name": "Ines", "undergoes_central_change": True, "arc_type": "growth"},
+        ]))
+
+        assert bp.characters[1].name == "Dev"
+        assert bp.characters[1].role.value == "antagonist"
+        rules = [o.rule for o in bp.identity_propagation.outcomes]
+        assert "identity.role_rule.correction" not in rules
+        assert "identity.propagation.role_contradiction.unresolved" in rules
+
+
+# ---------------------------------------------------------------------------
+# Considered review-gap coverage
+# ---------------------------------------------------------------------------
+
+class TestConsideredGaps:
+    def test_stage4_declared_non_pov_role_honored(self):
+        """A declared mentor/ally/foil/supporting role is honored by the
+        correction (design Stage 4: role := declared structural_role)."""
+        for role in ("mentor", "ally", "foil", "supporting"):
+            identity = _with_characters(_make_base_identity(), [
+                {"name": "Ines", "structural_role": role, "undergoes_central_change": True, "arc_type": "growth"},
+            ])
+            bp = compile_to_blueprint(identity)
+
+            assert bp.characters[1].name == "Ines"
+            assert bp.characters[1].role.value == role
+
+    def test_stage4_explicit_flat_arc_applies(self):
+        """An explicitly declared flat arc is applied verbatim (0-100); the
+        Character validator exempts FLAT from the non-flat bounds check."""
+        identity = _with_characters(_make_base_identity(), [
+            {"name": "Ines", "undergoes_central_change": True, "arc_type": "flat"},
+        ])
+        bp = compile_to_blueprint(identity)
+
+        assert bp.characters[1].name == "Ines"
+        assert bp.characters[1].arc_type.value == "flat"
+        assert bp.characters[1].arc_start_percentage == 0
+        assert bp.characters[1].arc_end_percentage == 100
+
+    def test_pre_existing_expected_custom_conflict_not_flagged(self):
+        """A conflict that predates propagation is not propagation's to flag:
+        the refusal fires only for items this pass appends (documented
+        boundary, design §6)."""
+        identity = _make_base_identity()  # no commitments
+        contract = _make_contract_with_custom_rules(["Already Present"])
+        contract.expected_elements = ["already present"]
+        outcomes = []
+        apply_contract_propagation(identity, contract, outcomes)
+
+        assert contract.custom_rules == ["Already Present"]
+        assert outcomes == []
+
+
 def _make_contract_with_custom_rules(rules: list[str]):
     from auteur.blueprint import AuthorAudienceContract, ContentRating, EndingTone
 

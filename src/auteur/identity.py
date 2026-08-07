@@ -1064,6 +1064,13 @@ def compile_to_blueprint(identity: StoryIdentity) -> StoryBlueprint:
     propagation = propagate_identity(identity, blueprint)
     if propagation is not None:
         blueprint.identity_propagation = propagation
+        # Propagation mutates characters/contract after the constructor's
+        # validation, so re-run the full StoryBlueprint validation on the
+        # final state (review LOW-1). Revalidating through the serialized
+        # form also proves the propagated blueprint round-trips: anything the
+        # validators reject fails the compile loudly instead of shipping an
+        # invalid blueprint.
+        blueprint = StoryBlueprint.model_validate(blueprint.model_dump(mode="json"))
 
     return blueprint
 
