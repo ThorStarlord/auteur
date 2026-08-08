@@ -272,7 +272,7 @@ class ArtifactStore:
         specs: list[DependencySpec] = []
         identity = self.project / "story_identity.yaml"
         blueprint = self.project / "blueprint.yaml"
-        semantic_fields = ["genre", "emotional_core", "target_experience", "story_type", "central_engine", "core_answer", "not_this", "open_questions", "recommendation_mode", "best_basis", "why_this_is_best", "rejected_directions", "author_overrides", "genre_contract_snapshot"]
+        semantic_fields = ["genre", "emotional_core", "target_experience", "story_type", "central_engine", "core_answer", "not_this", "open_questions", "recommendation_mode", "best_basis", "why_this_is_best", "rejected_directions", "author_overrides", "characters", "genre_contract_snapshot"]
         identity_projection = Projection(id="story_identity.structural", version=1, fields=semantic_fields)
         if artifact_type == "blueprint" and identity.exists():
             specs.append(DependencySpec("story_identity", "story_identity", identity, DependencyKind.SEMANTIC, DependencySource.INFERRED, semantic_fields, identity_projection))

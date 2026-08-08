@@ -710,6 +710,55 @@ class ProfileDerivation(BaseModel):
     )
 
 
+class PropagationOutcome(BaseModel):
+    """One applied or blocked consequence of identity-to-structure propagation.
+
+    Records ``source commitment -> rule -> destination consequence`` for
+    applied outcomes, and the refusal reason for blocked outcomes. Restraint
+    (NOT_APPLICABLE) outcomes are never persisted: they leave no trace.
+    """
+
+    rule: str = Field(
+        description=(
+            "Rule id, e.g. 'identity.not_this.custom_rules' (applied) or "
+            "'identity.propagation.contract.conflict' (blocked diagnostic id)."
+        )
+    )
+    classification: Literal[
+        "DIRECT_DETERMINISTIC",
+        "BLOCKED_INSUFFICIENT_EXPLICIT_INPUT",
+    ] = Field(description="Outcome classification from the approved propagation design.")
+    destination: str | None = Field(
+        default=None,
+        description="Dot path of the applied consequence, e.g. 'contract.custom_rules[0]'.",
+    )
+    value: str | None = Field(
+        default=None,
+        description="Verbatim value applied.",
+    )
+    source: str | None = Field(
+        default=None,
+        description="Source commitment path, e.g. 'not_this[0]'.",
+    )
+    reason: str | None = Field(
+        default=None,
+        description="Human-readable refusal reason (blocked outcomes).",
+    )
+
+
+class IdentityPropagationDerivation(BaseModel):
+    """Provenance record for identity-to-structure propagation.
+
+    Deliberately carries no wall-clock timestamp: propagation is fully
+    deterministic, and a ``derived_at`` field would make otherwise identical
+    compilation outputs byte-different (the known ``ProfileDerivation.derived_at``
+    nondeterminism). The record is set on ``StoryBlueprint.identity_propagation``
+    only when at least one outcome (applied or blocked) occurred.
+    """
+
+    outcomes: list[PropagationOutcome] = Field(default_factory=list)
+
+
 # ---------------------------------------------------------------------------
 # Root: StoryBlueprint
 # ---------------------------------------------------------------------------
@@ -729,6 +778,13 @@ class StoryBlueprint(BaseModel):
     profile_derivation: ProfileDerivation | None = Field(
         default=None,
         description="Provenance record for profile-derived obligations. None when no genre_profile is present.",
+    )
+    identity_propagation: IdentityPropagationDerivation | None = Field(
+        default=None,
+        description=(
+            "Provenance record for identity-to-structure propagation (contract "
+            "commitments, naming, role rule). None when no outcome occurred."
+        ),
     )
 
     # -- Per-agent LLM model routing -------------------------------------

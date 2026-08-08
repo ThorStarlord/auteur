@@ -106,6 +106,7 @@ class IdentityValidateData:
 class CompileBlueprintData:
     """Structured data returned by handle_compile_to_blueprint."""
     blueprint: StoryBlueprint
+    propagation_warnings: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -372,7 +373,23 @@ def handle_compile_to_blueprint(identity: StoryIdentity) -> HandlerResult:
     except Exception as exc:
         return HandlerResult.failure(f"Failed to compile identity to blueprint: {exc}")
 
-    return HandlerResult.success(data=CompileBlueprintData(blueprint=blueprint))
+    # Immediate author feedback for refused propagation outcomes. This is a
+    # convenience projection of blueprint.identity_propagation (the single
+    # source of truth consumed by the analyzer); removing it would not change
+    # diagnostic availability for any caller.
+    propagation_warnings: list[str] = []
+    if blueprint.identity_propagation is not None:
+        for outcome in blueprint.identity_propagation.outcomes:
+            if outcome.classification == "BLOCKED_INSUFFICIENT_EXPLICIT_INPUT":
+                reason = outcome.reason or "blocked"
+                propagation_warnings.append(f"[{outcome.rule}] {reason}")
+
+    return HandlerResult.success(
+        data=CompileBlueprintData(
+            blueprint=blueprint,
+            propagation_warnings=propagation_warnings,
+        )
+    )
 
 
 # ---------------------------------------------------------------------------

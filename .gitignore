@@ -21,6 +21,9 @@ dist/
 # Scratch/development directories (agent scratchpads, brainstorm outputs)
 .superpowers/
 
+# Local pytest basetemp (required on hosts where the system temp-dir cleanup fails)
+.pytest-tmp/
+
 # Example temp/dogfood directories (regenerated from canonical example)
 examples/canonical_story/temp_*/
 
