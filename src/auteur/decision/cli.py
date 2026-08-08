@@ -15,6 +15,11 @@ def register_decision_subcommands(sub) -> None:
     p = sub.add_parser("decision", help="Author Decision Workspace — composition of impact, convergence, reasoning, and reconciliation state.")
     ds = p.add_subparsers(dest="decision_command", required=True)
 
+    # Author decision objects (M4 + thin M2, bounded M3): create/accept/evaluate/view.
+    from auteur.author_decisions.cli import register_author_decision_subcommands
+
+    register_author_decision_subcommands(ds)
+
     p_status = ds.add_parser("status", help="Show workspace status and open decisions.")
     p_status.add_argument("--project", type=Path, default=Path("."), help="Project root directory.")
     p_status.add_argument("--json", action="store_true", help="Output JSON.")
@@ -662,6 +667,10 @@ def dispatch_decision(args) -> int:
     }
 
     handler = handlers.get(args.decision_command)
+    if handler is None:
+        from auteur.author_decisions.cli import author_decision_handlers
+
+        handler = author_decision_handlers().get(args.decision_command)
     if handler is None:
         print(f"Error: Unknown decision command: {args.decision_command}", file=sys.stderr)
         return 1

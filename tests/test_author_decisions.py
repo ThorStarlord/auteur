@@ -196,3 +196,23 @@ def load_identity(path: Path):
 def load_blueprint(path: Path):
     from auteur.blueprint import StoryBlueprint
     return StoryBlueprint.from_yaml(path)
+def test_derived_choice_id_comes_from_decision_id_not_question():
+    """Guard: editing question/option wording must not change the derived choice identity."""
+    base = {
+        "alternative_ids": ["a", "b"],
+        "combination": {"rule": "one_of"},
+        "criterion": {"text": "c", "evaluator": "author_or_consumer"},
+    }
+    d1 = AuthorDecision.from_dict({
+        **base,
+        "decision_id": "stable-id",
+        "unresolved_choice": {"question": "First wording?", "options": ["a", "b"]},
+    })
+    d2 = AuthorDecision.from_dict({
+        **base,
+        "decision_id": "stable-id",
+        "unresolved_choice": {"question": "Completely edited wording!", "options": ["a", "b"]},
+    })
+    assert d1.unresolved_choice.choice_id == "stable-id"
+    assert d2.unresolved_choice.choice_id == "stable-id"
+    assert d1.unresolved_choice.choice_id == d2.unresolved_choice.choice_id
