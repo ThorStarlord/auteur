@@ -1,7 +1,8 @@
 """TDD tests for Author Decision Objects (M4 + thin M2, bounded M3).
 
-Design: docs/design/2026-08-post-propagation-author-decision-objects.md (approved
-with revisions). Golden acceptance fixtures: frozen discovery Cases D and E.
+Approved design: "Author Decision Objects" (post-propagation solution discovery,
+2026-08; full document lives in the implementation-design worktree). Golden
+acceptance fixtures: frozen discovery Cases D and E.
 
 First batch is expected RED: the `auteur.author_decisions` module does not exist yet.
 """
@@ -216,3 +217,80 @@ def test_derived_choice_id_comes_from_decision_id_not_question():
     assert d1.unresolved_choice.choice_id == "stable-id"
     assert d2.unresolved_choice.choice_id == "stable-id"
     assert d1.unresolved_choice.choice_id == d2.unresolved_choice.choice_id
+
+# ---------------------------------------------------------------------------
+# Review fixes — F2: provenance multiplicity (multiset equality)
+# ---------------------------------------------------------------------------
+
+def _blocked_outcome(rule, source):
+    from auteur.blueprint import PropagationOutcome
+    return PropagationOutcome(
+        rule=rule,
+        classification="BLOCKED_INSUFFICIENT_EXPLICIT_INPUT",
+        source=source,
+    )
+
+
+def _decision_with_blocked_refs(refs):
+    return AuthorDecision.from_dict({
+        "decision_id": "f2-test",
+        "unresolved_choice": {"question": "q", "options": ["a", "b"]},
+        "alternative_ids": ["a", "b"],
+        "combination": {"rule": "one_of"},
+        "criterion": {"text": "c", "evaluator": "author_or_consumer"},
+        "blocked_provenance": {"outcome_refs": refs},
+    })
+
+
+def _blueprint_with_blocked(outcomes):
+    bp = load_blueprint(CASE_D / "blueprint.yaml")
+    bp.identity_propagation.outcomes = outcomes
+    return bp
+
+
+def _f2_ref(rule, source):
+    return {"rule": rule, "classification": "BLOCKED_INSUFFICIENT_EXPLICIT_INPUT", "source": source}
+
+
+def test_duplicate_refs_cannot_be_satisfied_by_one_outcome():
+    dec = _decision_with_blocked_refs([_f2_ref("r.x", "s.a"), _f2_ref("r.x", "s.a")])
+    bp = _blueprint_with_blocked([_blocked_outcome("r.x", "s.a")])
+    with pytest.raises(DecisionValidationError):
+        build_decision_context(dec, load_identity(CASE_D / "story_identity.yaml"), bp)
+
+
+def test_two_identical_outcomes_satisfy_two_identical_refs():
+    dec = _decision_with_blocked_refs([_f2_ref("r.x", "s.a"), _f2_ref("r.x", "s.a")])
+    bp = _blueprint_with_blocked([_blocked_outcome("r.x", "s.a"), _blocked_outcome("r.x", "s.a")])
+    ctx = build_decision_context(dec, load_identity(CASE_D / "story_identity.yaml"), bp)
+    assert ctx.blocked_provenance_verified is True
+
+
+def test_missing_occurrence_fails():
+    dec = _decision_with_blocked_refs([_f2_ref("r.x", "s.a")])
+    bp = _blueprint_with_blocked([_blocked_outcome("r.x", "s.a"), _blocked_outcome("r.x", "s.a")])
+    with pytest.raises(DecisionValidationError):
+        build_decision_context(dec, load_identity(CASE_D / "story_identity.yaml"), bp)
+
+
+def test_extra_occurrence_fails():
+    dec = _decision_with_blocked_refs([_f2_ref("r.x", "s.a"), _f2_ref("r.x", "s.a")])
+    bp = _blueprint_with_blocked([_blocked_outcome("r.x", "s.a")])
+    with pytest.raises(DecisionValidationError):
+        build_decision_context(dec, load_identity(CASE_D / "story_identity.yaml"), bp)
+
+
+def test_ordering_of_outcomes_is_irrelevant():
+    dec = _decision_with_blocked_refs([_f2_ref("r.x", "s.a"), _f2_ref("r.y", "s.b")])
+    bp = _blueprint_with_blocked([_blocked_outcome("r.y", "s.b"), _blocked_outcome("r.x", "s.a")])
+    ctx = build_decision_context(dec, load_identity(CASE_D / "story_identity.yaml"), bp)
+    assert ctx.blocked_provenance_verified is True
+
+def test_one_of_rejects_stray_k():
+    with pytest.raises(DecisionValidationError):
+        AuthorDecision.from_dict({
+            "unresolved_choice": {"question": "q", "options": ["a", "b"]},
+            "alternative_ids": ["a", "b"],
+            "combination": {"rule": "one_of", "k": 2},
+            "criterion": {"text": "c", "evaluator": "author_or_consumer"},
+        })

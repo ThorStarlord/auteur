@@ -8,6 +8,7 @@ level (anti-creep rule from the approved design).
 """
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import Any, Literal
 
@@ -19,6 +20,19 @@ from auteur.decision.models import UnresolvedChoice
 
 class DecisionValidationError(ValueError):
     """Raised when an author decision artifact is invalid or its references cannot be resolved."""
+
+
+# Lowest shared boundary for path safety: no filesystem path may ever be derived
+# from a decision_id that fails this pattern (review finding F1).
+_DECISION_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
+
+
+def validate_decision_id(decision_id: str) -> None:
+    """Raise DecisionValidationError unless decision_id is a safe, stable artifact id."""
+    if not isinstance(decision_id, str) or _DECISION_ID_RE.fullmatch(decision_id) is None:
+        raise DecisionValidationError(
+            f"invalid decision_id {decision_id!r}: must match {_DECISION_ID_RE.pattern}"
+        )
 
 
 class CombinationRule(BaseModel):
@@ -116,6 +130,9 @@ class AuthorDecision(BaseModel):
                 )
         if self.decision_id is None:
             self.decision_id = self.unresolved_choice.choice_id or "unnamed"
+        validate_decision_id(self.decision_id)  # F1: path safety at the model boundary
+        if self.combination.rule == "one_of" and self.combination.k is not None:
+            raise DecisionValidationError("one_of must not carry k")
         return self
 
     @classmethod

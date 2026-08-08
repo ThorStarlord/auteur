@@ -16,12 +16,16 @@ from pathlib import Path
 
 import yaml as _yaml
 
+from auteur.author_decisions.models import DecisionValidationError, validate_decision_id
+
 
 def artifact_path(project: Path, decision_id: str) -> Path:
+    validate_decision_id(decision_id)  # F1: no path is derived from an unvalidated ID
     return project / "author_decisions" / f"{decision_id}.yaml"
 
 
 def acceptance_path(project: Path, decision_id: str) -> Path:
+    validate_decision_id(decision_id)  # F1
     return project / "author_decisions" / ".acceptance" / f"{decision_id}.yaml"
 
 

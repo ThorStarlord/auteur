@@ -95,6 +95,12 @@ def handle_create(args) -> int:
         if out.exists() and not args.force:
             print(f"Error: artifact already exists: {out} (use --force to overwrite)", file=sys.stderr)
             return 1
+        if out.exists() and args.force and store.load_acceptance_record(args.project, args.decision_id) is not None:
+            print(
+                f"Error: {args.decision_id} is accepted; --force refuses to overwrite accepted creative authority",
+                file=sys.stderr,
+            )
+            return 1
         data = {
             "decision_id": args.decision_id,
             "unresolved_choice": {
@@ -125,13 +131,19 @@ def handle_create(args) -> int:
 def handle_accept(args) -> int:
     try:
         decision = _load_decision(args.project, args.decision_id)
-        identity = _load_identity(args.identity)
-        blueprint = _load_blueprint(args.blueprint)
-        ctx = build_decision_context(decision, identity, blueprint)
+        if decision.decision_id != args.decision_id:
+            print(
+                f"Error: artifact decision_id {decision.decision_id!r} does not match filename stem {args.decision_id!r}",
+                file=sys.stderr,
+            )
+            return 1
         if store.load_acceptance_record(args.project, args.decision_id) is not None:
             print(f"Error: decision {args.decision_id} is already accepted; re-acceptance is not in this slice.",
                   file=sys.stderr)
             return 1
+        identity = _load_identity(args.identity)
+        blueprint = _load_blueprint(args.blueprint)
+        ctx = build_decision_context(decision, identity, blueprint)
         summary = {
             "decision_id": decision.decision_id,
             "question": decision.unresolved_choice.question,
@@ -178,6 +190,12 @@ def handle_accept(args) -> int:
 def handle_evaluate(args) -> int:
     try:
         decision = _load_decision(args.project, args.decision_id)
+        if decision.decision_id != args.decision_id:
+            print(
+                f"Error: artifact decision_id {decision.decision_id!r} does not match filename stem {args.decision_id!r}",
+                file=sys.stderr,
+            )
+            return 1
         identity = _load_identity(args.identity)
         blueprint = _load_blueprint(args.blueprint)
         ctx = build_decision_context(decision, identity, blueprint)
@@ -205,6 +223,12 @@ def handle_evaluate(args) -> int:
 def handle_view(args) -> int:
     try:
         decision = _load_decision(args.project, args.decision_id)
+        if decision.decision_id != args.decision_id:
+            print(
+                f"Error: artifact decision_id {decision.decision_id!r} does not match filename stem {args.decision_id!r}",
+                file=sys.stderr,
+            )
+            return 1
         out = {
             "authored": {
                 "decision_id": decision.decision_id,

@@ -218,3 +218,91 @@ def test_missing_alternatives_never_repaired_from_open_questions(tmp_path):
     assert "at least 2" in err
     # No repair: the artifact is byte-identical after the failed accept.
     assert bad.read_bytes() == before
+# ---------------------------------------------------------------------------
+# Review fixes — F1: decision_id path safety (persistence-level invariant)
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("bad_id", [
+    "..\\evil", "../evil", "a/b", "C:\\abs_evil", ".leading_dot", "a b", "a..b/evil",
+])
+def test_create_rejects_path_unsafe_decision_ids(tmp_path, bad_id):
+    proj = tmp_path / "p"
+    proj.mkdir()
+    rc, out, err = run(["decision", "create", bad_id, "--question", "Q?",
+                        "--alternative", "A", "--alternative", "B", "--criterion", "C",
+                        "--project", "."], proj)
+    assert rc != 0
+    assert "decision_id" in err
+
+
+def test_valid_decision_id_allows_dots_dashes_underscores(tmp_path):
+    proj = tmp_path / "p"
+    proj.mkdir()
+    rc, out, err = run(["decision", "create", "my.decision_1-x", "--question", "Q?",
+                        "--alternative", "A", "--alternative", "B", "--criterion", "C",
+                        "--project", "."], proj)
+    assert rc == 0
+    assert (proj / "author_decisions" / "my.decision_1-x.yaml").exists()
+
+
+def test_persistence_path_helpers_reject_invalid_ids(tmp_path):
+    from auteur.author_decisions import persistence as store
+    from auteur.author_decisions.models import DecisionValidationError
+    for bad in ("..\\evil", "../evil", "C:\\abs_evil", ".dot", "a b"):
+        with pytest.raises(DecisionValidationError):
+            store.artifact_path(tmp_path, bad)
+        with pytest.raises(DecisionValidationError):
+            store.acceptance_path(tmp_path, bad)
+
+
+def test_accept_rejects_artifact_with_invalid_internal_decision_id(tmp_path):
+    proj = tmp_path / "p"
+    proj.mkdir()
+    (proj / "author_decisions").mkdir()
+    bad = proj / "author_decisions" / "x.yaml"
+    bad.write_text(_yaml.safe_dump({
+        "decision_id": "..\\evil",
+        "unresolved_choice": {"choice_id": "x", "question": "Q?", "options": ["A", "B"]},
+        "alternative_ids": ["A", "B"],
+        "combination": {"rule": "one_of"},
+        "criterion": {"text": "C", "evaluator": "author_or_consumer"},
+    }), encoding="utf-8")
+    shutil.copy(FIXTURES / "case-e" / "story_identity.yaml", proj / "story_identity.yaml")
+    shutil.copy(FIXTURES / "case-e" / "blueprint.yaml", proj / "blueprint.yaml")
+    rc, out, err = run(["decision", "accept", "x", "--identity", "story_identity.yaml",
+                        "--blueprint", "blueprint.yaml", "--project", "."], proj)
+    assert rc != 0
+
+
+# ---------------------------------------------------------------------------
+# Review fixes — F4: decision_id must match filename stem (fail closed)
+# ---------------------------------------------------------------------------
+
+def test_accept_requires_decision_id_matches_filename_stem(tmp_path):
+    proj = make_project(tmp_path, "case-e", E_DECISION)
+    renamed = proj / "author_decisions" / "other-name.yaml"
+    shutil.copy(proj / "author_decisions" / f"{E_DECISION}.yaml", renamed)
+    rc, out, err = run(["decision", "accept", "other-name", "--identity", "story_identity.yaml",
+                        "--blueprint", "blueprint.yaml", "--project", "."], proj)
+    assert rc != 0
+    assert "filename" in err
+
+
+# ---------------------------------------------------------------------------
+# Review fixes — F3: create --force must not overwrite an accepted artifact
+# ---------------------------------------------------------------------------
+
+def test_create_force_refuses_overwrite_of_accepted_artifact(tmp_path):
+    proj = make_project(tmp_path, "case-e", E_DECISION)
+    rc, out, err = run(["decision", "accept", E_DECISION, "--identity", "story_identity.yaml",
+                        "--blueprint", "blueprint.yaml", "--project", "."], proj)
+    assert rc == 0
+    rc, out, err = run(["decision", "create", E_DECISION, "--force", "--question", "NEW?",
+                        "--alternative", "Z1", "--alternative", "Z2", "--criterion", "C",
+                        "--project", "."], proj)
+    assert rc != 0
+    assert "accepted" in err
+    # acceptance record preserved; artifact not overwritten
+    assert (proj / "author_decisions" / ".acceptance" / f"{E_DECISION}.yaml").exists()
+    data = _yaml.safe_load((proj / "author_decisions" / f"{E_DECISION}.yaml").read_text(encoding="utf-8"))
+    assert data["unresolved_choice"]["question"].startswith("Which subplot")

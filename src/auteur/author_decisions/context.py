@@ -9,6 +9,7 @@ mismatched reference. Nothing is copied unless a golden-rubric item requires it.
 from __future__ import annotations
 
 import re
+from collections import Counter
 from typing import Any
 
 from auteur.author_decisions.models import (
@@ -98,15 +99,12 @@ def _verify_blocked_provenance(blueprint: StoryBlueprint, refs) -> bool:
     if blueprint.identity_propagation is not None:
         outcomes = list(blueprint.identity_propagation.outcomes or [])
     blocked = [o for o in outcomes if o.classification == "BLOCKED_INSUFFICIENT_EXPLICIT_INPUT"]
-    if len(blocked) != len(refs):
-        return False
-    for ref in refs:
-        if not any(
-            o.rule == ref.rule and o.classification == ref.classification and o.source == ref.source
-            for o in blocked
-        ):
-            return False
-    return True
+    # F2: multiset equality — duplicate refs must be satisfied by equally many
+    # indistinguishable outcomes (set semantics could over-verify). Ordering is
+    # irrelevant; multiplicity is exact. No stable outcome IDs are invented.
+    ref_counts = Counter((r.rule, r.classification, r.source) for r in refs)
+    out_counts = Counter((o.rule, o.classification, o.source) for o in blocked)
+    return ref_counts == out_counts
 
 
 def build_decision_context(
