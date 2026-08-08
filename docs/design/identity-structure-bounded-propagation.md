@@ -927,31 +927,31 @@ Recorded during production implementation on
 `f7a89d2`). These notes supersede the corresponding sketches above where they
 conflict; no historical discovery conclusions are rewritten.
 
-1. **No `derived_at` in `IdentityPropagationDerivation`** (§11 sketch). The
+1. **No `derived_at` in `IdentityPropagationDerivation`** (Â§11 sketch). The
    shipped model carries only `outcomes`. Propagation is fully deterministic
    and a wall-clock timestamp would make otherwise identical compilation
    outputs byte-different (the known `ProfileDerivation.derived_at`
    nondeterminism). This implements the implementation-gate clarification;
-   §8 of the implementation prompt.
-2. **Frozen placeholder set interpretation** (§7 Stage 4, §8.4). The set
+   Â§8 of the implementation prompt.
+2. **Frozen placeholder set interpretation** (Â§7 Stage 4, Â§8.4). The set
    `{protagonist, antagonist, lover a, lover b}` enumerates the placeholder
    KINDS the compiler seeds. The concrete seeded names are
    `Protagonist`/`Antagonist` (default genres), `Detective`/`Culprit`
-   (mystery), `Lover A`/`Lover B` (romance) — all six are compiler
+   (mystery), `Lover A`/`Lover B` (romance) â€” all six are compiler
    placeholders (`PLACEHOLDER_NAMES` in `identity_propagation.py`). This keeps
    naming and role correction genre-uniform. Safe because propagation runs
    only inside `compile_to_blueprint` on freshly seeded slots.
 3. **Rule ordering: naming (A4) runs before the role rule (B1)**. A declared
    opponent name occupies the antagonist seat first, so the seat is no longer
    a placeholder and the role rule fails closed (Stage 5) instead of recasting
-   it — the production form of opposition precedence. A declared protagonist
+   it â€” the production form of opposition precedence. A declared protagonist
    name makes the role rule's Stage-2 "already represented" restraint fire
    naturally.
 4. **`undergoes_central_change` is tri-state** (`bool | None`, default
-   `None`) — UNKNOWN is distinguishable from explicit `False`, per the
+   `None`) â€” UNKNOWN is distinguishable from explicit `False`, per the
    implementation-gate clarification. The role rule triggers only on `True`.
 5. **Same-name restraint**: naming and role rules treat a slot that already
-   carries the declared name as already represented (no outcome, no trace) —
+   carries the declared name as already represented (no outcome, no trace) â€”
    the Experiment-3 case-1 guard.
 6. **Fixture note**: `tests/fixtures/workflow/project_identity/story_identity.yaml`
    cannot be loaded as a `StoryIdentity` on main (pre-existing: `mode:
