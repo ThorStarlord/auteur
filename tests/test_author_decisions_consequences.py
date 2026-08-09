@@ -172,6 +172,33 @@ def test_roster_slot_identity_missing_fails_closed():
     assert f["message"] == "probe not run: no identity character named Nobody"
 
 
+def test_roster_slot_ambiguous_name_fails_closed():
+    # Duplicate in the identity roster -> ambiguous identity name (blueprint probe skipped).
+    identity = load_identity(E_DIR / "story_identity.yaml")
+    identity.characters.append(identity.characters[0])
+    dec = AuthorDecision.from_yaml(E_DIR / E_DEC)
+    ctx = build_decision_context(dec, identity, load_blueprint(E_DIR / "blueprint.yaml"))
+    msgs = [f["message"] for f in ctx.build_report()["consequences"]["observations"]
+            if f["probe_id"] == "roster_slot"]
+    assert "probe not run: ambiguous identity name Signe" in msgs
+    # Duplicate in the blueprint roster only -> ambiguous roster name.
+    bp = load_blueprint(E_DIR / "blueprint.yaml")
+    bp.characters.append(bp.characters[0])
+    ctx2 = build_decision_context(dec, load_identity(E_DIR / "story_identity.yaml"), bp)
+    msgs2 = [f["message"] for f in ctx2.build_report()["consequences"]["observations"]
+             if f["probe_id"] == "roster_slot"]
+    assert "probe not run: ambiguous roster name Signe" in msgs2
+
+
+def test_consequences_require_resolved_identity_and_blueprint():
+    from auteur.author_decisions.consequences import build_consequences
+
+    ctx = case_ctx(D_DIR, D_DEC)
+    ctx.identity = None
+    with pytest.raises(DecisionValidationError, match="resolved identity and blueprint"):
+        build_consequences(ctx)
+
+
 def test_thread_carrier_capability_statement():
     c = case_consequences(D_DIR, D_DEC)
     f = next(f for f in c["observations"] if f["probe_id"] == "thread_carrier")

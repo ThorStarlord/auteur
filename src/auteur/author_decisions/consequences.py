@@ -24,7 +24,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from auteur.author_decisions.models import AuthorDecision
+from auteur.author_decisions.models import AuthorDecision, DecisionValidationError
 
 # Explicit identity field path, e.g. "characters[3].undergoes_central_change".
 _IDENTITY_CHAR_REF_RE = re.compile(r"^characters\[(\d+)\]\.(.+)$")
@@ -109,8 +109,8 @@ def _probe_roster_slot(decision: AuthorDecision, identity, blueprint) -> list[De
     label/id matching."""
     out: list[DecisionConsequence] = []
     for i, rc in enumerate(decision.required_characters):
-        ident_idx = next((j for j, c in enumerate(identity.characters) if c.name == rc.name), None)
-        if ident_idx is None:
+        ident_matches = [j for j, c in enumerate(identity.characters) if c.name == rc.name]
+        if not ident_matches:
             out.append(DecisionConsequence(
                 probe_id="roster_slot",
                 severity="info",
@@ -118,14 +118,22 @@ def _probe_roster_slot(decision: AuthorDecision, identity, blueprint) -> list[De
                 refs=ConsequenceRefs(decision=f"required_characters[{i}]"),
             ))
             continue
-        bp_idx = next((k for k, c in enumerate(blueprint.characters) if c.name == rc.name), None)
-        standing = rc.standing or "unset"
-        if bp_idx is None:
+        if len(ident_matches) > 1:
+            out.append(DecisionConsequence(
+                probe_id="roster_slot",
+                severity="info",
+                message=f"probe not run: ambiguous identity name {rc.name}",
+                refs=ConsequenceRefs(decision=f"required_characters[{i}]"),
+            ))
+            continue
+        ident_idx = ident_matches[0]
+        bp_matches = [k for k, c in enumerate(blueprint.characters) if c.name == rc.name]
+        if not bp_matches:
             out.append(DecisionConsequence(
                 probe_id="roster_slot",
                 severity="warning",
                 message=(
-                    f"required character {rc.name} (standing={standing}) has no "
+                    f"required character {rc.name} (standing={rc.standing or 'unset'}) has no "
                     "roster slot in the current Blueprint"
                 ),
                 refs=ConsequenceRefs(
@@ -134,7 +142,20 @@ def _probe_roster_slot(decision: AuthorDecision, identity, blueprint) -> list[De
                 ),
             ))
             continue
+        if len(bp_matches) > 1:
+            out.append(DecisionConsequence(
+                probe_id="roster_slot",
+                severity="info",
+                message=f"probe not run: ambiguous roster name {rc.name}",
+                refs=ConsequenceRefs(
+                    decision=f"required_characters[{i}]",
+                    identity=f"characters[{ident_idx}]",
+                ),
+            ))
+            continue
+        bp_idx = bp_matches[0]
         ch = blueprint.characters[bp_idx]
+        standing = rc.standing or "unset"
         refs = ConsequenceRefs(
             decision=f"required_characters[{i}]",
             identity=f"characters[{ident_idx}]",
@@ -255,7 +276,16 @@ def _probe_blocked_provenance_relevance(decision: AuthorDecision, identity) -> l
 # ---------------------------------------------------------------------------
 
 def build_consequences(ctx) -> dict[str, Any]:
-    """Deterministic consequence inventory for an accepted decision context."""
+    """Deterministic consequence inventory for an accepted decision context.
+
+    ``ctx`` must come from ``build_decision_context`` (which carries the
+    resolved Identity and Blueprint objects); missing objects fail closed.
+    """
+    if getattr(ctx, "identity", None) is None or getattr(ctx, "blueprint", None) is None:
+        raise DecisionValidationError(
+            "consequence consumer requires the resolved identity and blueprint "
+            "(build the context via build_decision_context)"
+        )
     decision = ctx.decision
     identity = ctx.identity
     blueprint = ctx.blueprint
@@ -289,7 +319,7 @@ def build_consequences(ctx) -> dict[str, Any]:
         for sig in reps:
             if all(any(_sig(f) == sig for f in alt_map[a]) for a in alt_ids[1:]):
                 lift_sigs.add(sig)
-    for sig in lift_sigs:
+    for sig in sorted(lift_sigs):
         rep = reps[sig]
         common.append(DecisionConsequence(
             **rep.model_dump(), scope="common", target="",
@@ -299,6 +329,8 @@ def build_consequences(ctx) -> dict[str, Any]:
             alt_map[alt] = [f for f in alt_map[alt] if _sig(f) != sig]
 
     for f in common:
+        # Decision-level findings were computed over the decision as a whole;
+        # members records every alternative they apply to (grouping provenance).
         f.members = alt_ids
         f.discriminates = False
     for alt in alt_ids:
@@ -309,6 +341,9 @@ def build_consequences(ctx) -> dict[str, Any]:
             f.discriminates = True
 
     axes = sorted({f.probe_id for alt in alt_ids for f in alt_map[alt]})
+    # NOTE: distinguishability values are representational-only descriptors of
+    # the finding sets (COMMON_ONLY / SINGLE_AXIS / MULTIPLE_AXES); they are
+    # NOT evaluative signals about the alternatives and never imply ranking.
     if not axes:
         status = "COMMON_ONLY"
         note = ("all alternatives share these consequences; the current "
