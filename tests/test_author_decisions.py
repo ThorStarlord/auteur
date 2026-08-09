@@ -196,7 +196,10 @@ def load_identity(path: Path):
 
 def load_blueprint(path: Path):
     from auteur.blueprint import StoryBlueprint
+
     return StoryBlueprint.from_yaml(path)
+
+
 def test_derived_choice_id_comes_from_decision_id_not_question():
     """Guard: editing question/option wording must not change the derived choice identity."""
     base = {
