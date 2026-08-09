@@ -1,9 +1,9 @@
 """Author Decision Objects (M4 + thin M2, bounded M3).
 
 Approved implementation design: "Author Decision Objects" (post-propagation
-solution discovery, 2026-08). Design document lives in the design worktree
-(`H:/GithubRepositories/auteur-implementation-design/docs/design/`); the
-selected mechanism is M4 + thin M2 with a bounded deterministic M3 companion.
+solution discovery, 2026-08). The detailed design document lives in a separate
+design worktree; this module implements the M4 + thin M2 mechanism with a
+bounded deterministic M3 companion.
 An author decision object is an authored, validated artifact carrying an
 unresolved question, explicit alternatives, combination/cardinality, hard
 constraints, required commitments, blocked provenance, default references, and
