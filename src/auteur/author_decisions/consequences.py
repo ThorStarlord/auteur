@@ -321,10 +321,14 @@ def build_consequences(ctx) -> dict[str, Any]:
                 lift_sigs.add(sig)
     for sig in sorted(lift_sigs):
         rep = reps[sig]
-        common.append(DecisionConsequence(
-            **rep.model_dump(), scope="common", target="",
-            discriminates=False, members=alt_ids,
-        ))
+        # DORMANT PATH (bug #59 same root cause): unreachable with the shipped
+        # probes — the only per-alternative probe (declared_relationship) embeds
+        # the target alternative id in its message, so identical signatures
+        # across alternatives cannot occur. model_copy keeps it correct-by-
+        # construction if a future probe ever makes it live.
+        common.append(rep.model_copy(update={
+            "scope": "common", "target": "", "discriminates": False, "members": alt_ids,
+        }))
         for alt in alt_ids:
             alt_map[alt] = [f for f in alt_map[alt] if _sig(f) != sig]
 
@@ -374,10 +378,9 @@ def build_consequences(ctx) -> dict[str, Any]:
             findings: list[DecisionConsequence] = []
             for cid in combo:
                 for f in alt_map[cid]:
-                    findings.append(DecisionConsequence(
-                        **f.model_dump(), scope="combination",
-                        target=target, members=[target],
-                    ))
+                    findings.append(f.model_copy(update={
+                        "scope": "combination", "target": target, "members": [target],
+                    }))
             combos.append({
                 "combination": list(combo),
                 "findings": [f.model_dump() for f in findings],
