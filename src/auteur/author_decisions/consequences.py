@@ -278,7 +278,7 @@ def _probe_blocked_provenance_relevance(decision: AuthorDecision, identity,
     )]
 
 
-def _entity_summary(entity, identity=None) -> str:
+def _entity_summary(entity) -> str:
     """Deterministic verbatim summary of a resolved binding entity."""
     name = getattr(entity, "name", None)
     if name is None:

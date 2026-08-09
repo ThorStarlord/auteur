@@ -138,9 +138,10 @@ def _resolve_entity_ref(identity: StoryIdentity, blueprint: StoryBlueprint, enti
                 raise DecisionValidationError(f"malformed entity_ref: {entity_ref!r}")
             name, _, span = part.partition("[")
             span = span[:-1]
-            # strict grammar: decimal digits only — int() would otherwise accept
-            # [-1] (binds the LAST entity silently), [ 1], [+1], [1_0]
-            if not span or not span.isdigit():
+            # strict grammar: ASCII decimal digits only — int() would otherwise
+            # accept [-1] (binds the LAST entity silently), [ 1], [+1], [1_0];
+            # unicode digits (e.g. superscripts) must not reach int() untyped
+            if not span or not span.isascii() or not span.isdigit():
                 raise DecisionValidationError(f"malformed entity_ref index: {entity_ref!r}")
             idx = int(span)
             part = name
