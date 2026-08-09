@@ -32,6 +32,20 @@ class ResolvedConstraint:
         self.text = text
 
 
+class ResolvedBinding:
+    """One resolved M1 alternative->entity binding: exact field-path reference
+    plus the resolved entity object. Resolution is exact and fail-closed; the
+    consumer derives consequences FROM these, never creates them."""
+
+    __slots__ = ("alternative_id", "entity_ref", "relationship", "entity")
+
+    def __init__(self, alternative_id: str, entity_ref: str, relationship, entity: Any) -> None:
+        self.alternative_id = alternative_id
+        self.entity_ref = entity_ref
+        self.relationship = relationship
+        self.entity = entity
+
+
 class DecisionContext:
     """The thin resolved context; carries only what the decision references."""
 
@@ -44,6 +58,7 @@ class DecisionContext:
         resolved_defaults: dict[str, Any],
         identity: Any = None,
         blueprint: Any = None,
+        resolved_bindings: list[ResolvedBinding] | None = None,
     ) -> None:
         self.decision = decision
         self.constraints = constraints
@@ -54,6 +69,7 @@ class DecisionContext:
         # consequence consumer can probe concrete structure with exact refs.
         self.identity = identity
         self.blueprint = blueprint
+        self.resolved_bindings = resolved_bindings or []
 
     @property
     def alternative_labels(self) -> list[str]:
@@ -100,6 +116,44 @@ def _resolve_default(blueprint: StoryBlueprint, default_id: str) -> Any:
     return obj
 
 
+def _resolve_entity_ref(identity: StoryIdentity, blueprint: StoryBlueprint, entity_ref: str) -> Any:
+    """Exact field-path resolution for M1 bindings (design Q4).
+
+    Allowed roots: identity (Layer 1) and blueprint (Layer 2) ONLY. Grammar is
+    the shipped field-path form (e.g. identity.characters[0],
+    identity.characters[3].undergoes_central_change). Fail closed on any
+    unknown path, non-list index, malformed index, or out-of-range index.
+    """
+    if entity_ref in ("identity", "blueprint") or entity_ref.startswith(("identity.", "blueprint.")) is False:
+        raise DecisionValidationError(
+            f"entity_ref must be a field path rooted at identity or blueprint: {entity_ref!r}"
+        )
+    root_name, _, rest = entity_ref.partition(".")
+    root = identity if root_name == "identity" else blueprint
+    obj: Any = root
+    for part in rest.split("."):
+        idx = None
+        if "[" in part:
+            if not part.endswith("]"):
+                raise DecisionValidationError(f"malformed entity_ref: {entity_ref!r}")
+            name, _, span = part.partition("[")
+            try:
+                idx = int(span[:-1])
+            except ValueError:
+                raise DecisionValidationError(f"malformed entity_ref index: {entity_ref!r}")
+            part = name
+        obj = getattr(obj, part, None)
+        if obj is None:
+            raise DecisionValidationError(f"unresolvable entity_ref: {entity_ref!r}")
+        if idx is not None:
+            if not isinstance(obj, (list, tuple)) or idx >= len(obj):
+                raise DecisionValidationError(
+                    f"entity_ref index out of range: {entity_ref!r}"
+                )
+            obj = obj[idx]
+    return obj
+
+
 def _verify_blocked_provenance(blueprint: StoryBlueprint, refs) -> bool:
     outcomes = []
     if blueprint.identity_propagation is not None:
@@ -141,6 +195,12 @@ def build_decision_context(
     for dref in decision.default_references:
         resolved_defaults[dref.default_id] = _resolve_default(blueprint, dref.default_id)
 
+    resolved_bindings: list[ResolvedBinding] = []
+    for b in decision.alternative_bindings:
+        for r in b.references:
+            entity = _resolve_entity_ref(identity, blueprint, r.entity_ref)
+            resolved_bindings.append(ResolvedBinding(b.alternative_id, r.entity_ref, r.relationship, entity))
+
     return DecisionContext(
         decision=decision,
         constraints=constraints,
@@ -149,4 +209,5 @@ def build_decision_context(
         resolved_defaults=resolved_defaults,
         identity=identity,
         blueprint=blueprint,
+        resolved_bindings=resolved_bindings,
     )
