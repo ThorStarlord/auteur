@@ -42,12 +42,18 @@ class DecisionContext:
         blocked_count: int,
         blocked_provenance_verified: bool,
         resolved_defaults: dict[str, Any],
+        identity: Any = None,
+        blueprint: Any = None,
     ) -> None:
         self.decision = decision
         self.constraints = constraints
         self.blocked_count = blocked_count
         self.blocked_provenance_verified = blocked_provenance_verified
         self.resolved_defaults = resolved_defaults
+        # Objects the resolution ran against; carried so the deterministic
+        # consequence consumer can probe concrete structure with exact refs.
+        self.identity = identity
+        self.blueprint = blueprint
 
     @property
     def alternative_labels(self) -> list[str]:
@@ -141,4 +147,6 @@ def build_decision_context(
         blocked_count=len(refs),
         blocked_provenance_verified=verified,
         resolved_defaults=resolved_defaults,
+        identity=identity,
+        blueprint=blueprint,
     )

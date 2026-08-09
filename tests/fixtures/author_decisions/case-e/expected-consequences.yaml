@@ -1,0 +1,142 @@
+# Golden expected consequences for Case E (Salt of the Earth) — frozen under the
+# no-inference rule (design revision 1). Distinguishability: COMMON_ONLY — the
+# accepted representation cannot distinguish the three subplot combinations;
+# "signe_marriage" establishes NO relationship with "Signe".
+observations:
+  - probe_id: explicit_alternative_relations
+    severity: info
+    message: "per-alternative roster/thread/provenance probes were not run: the AuthorDecision schema exposes no explicit alternative-entity relationship"
+    refs:
+      decision: default_references
+      identity: null
+      blueprint: null
+      outcome: null
+    scope: common
+    target: ""
+    discriminates: false
+    members: [anders_debt, marta_pregnancy, signe_marriage]
+  - probe_id: combination_direction
+    severity: info
+    message: "combination membership is explicit; keep/cut interpretation is unspecified"
+    refs:
+      decision: combination
+      identity: null
+      blueprint: null
+      outcome: null
+    scope: common
+    target: ""
+    discriminates: false
+    members: [anders_debt, marta_pregnancy, signe_marriage]
+  - probe_id: roster_slot
+    severity: info
+    message: "required character Signe (standing=protagonist) is represented in the roster as protagonist, arc growth"
+    refs:
+      decision: required_characters[0]
+      identity: characters[0]
+      blueprint: characters[0]
+      outcome: null
+    scope: common
+    target: ""
+    discriminates: false
+    members: [anders_debt, marta_pregnancy, signe_marriage]
+  - probe_id: roster_slot
+    severity: warning
+    message: "roster slot for Signe is not linked to an identity character"
+    refs:
+      decision: required_characters[0]
+      identity: characters[0]
+      blueprint: characters[0]
+      outcome: null
+    scope: common
+    target: ""
+    discriminates: false
+    members: [anders_debt, marta_pregnancy, signe_marriage]
+  - probe_id: roster_slot
+    severity: warning
+    message: "required character Anders (standing=unset) has no roster slot in the current Blueprint"
+    refs:
+      decision: required_characters[1]
+      identity: characters[1]
+      blueprint: null
+      outcome: null
+    scope: common
+    target: ""
+    discriminates: false
+    members: [anders_debt, marta_pregnancy, signe_marriage]
+  - probe_id: roster_slot
+    severity: warning
+    message: "required character Marta (standing=unset) has no roster slot in the current Blueprint"
+    refs:
+      decision: required_characters[2]
+      identity: characters[2]
+      blueprint: null
+      outcome: null
+    scope: common
+    target: ""
+    discriminates: false
+    members: [anders_debt, marta_pregnancy, signe_marriage]
+  - probe_id: roster_slot
+    severity: warning
+    message: "required character Halvor (standing=unset) has no roster slot in the current Blueprint"
+    refs:
+      decision: required_characters[3]
+      identity: characters[3]
+      blueprint: null
+      outcome: null
+    scope: common
+    target: ""
+    discriminates: false
+    members: [anders_debt, marta_pregnancy, signe_marriage]
+  - probe_id: thread_carrier
+    severity: info
+    message: "thread structure has 3 thread(s): Secondary Struggle, Relationship Echo, Secondary Subplot 3; the Blueprint exposes no explicit thread-to-character linkage, so thread carriers for decision characters cannot be verified"
+    refs:
+      decision: null
+      identity: null
+      blueprint: story_engine.threads
+      outcome: null
+    scope: common
+    target: ""
+    discriminates: false
+    members: [anders_debt, marta_pregnancy, signe_marriage]
+  - probe_id: declared_relationship
+    severity: warning
+    message: "declared relationship: contract.mandatory_ending_tone = bittersweet [conflicts_with] relates_to not_this[3]"
+    refs:
+      decision: default_references[0]
+      identity: null
+      blueprint: contract.mandatory_ending_tone
+      outcome: null
+    scope: common
+    target: ""
+    discriminates: false
+    members: [anders_debt, marta_pregnancy, signe_marriage]
+  - probe_id: blocked_provenance_relevance
+    severity: info
+    message: "no blocked propagation outcomes reference decision characters"
+    refs:
+      decision: blocked_provenance.outcome_refs
+      identity: null
+      blueprint: identity_propagation.outcomes
+      outcome: null
+    scope: common
+    target: ""
+    discriminates: false
+    members: [anders_debt, marta_pregnancy, signe_marriage]
+alternatives:
+  - alternative_id: anders_debt
+    findings: []
+  - alternative_id: marta_pregnancy
+    findings: []
+  - alternative_id: signe_marriage
+    findings: []
+combinations:
+  - combination: [anders_debt, marta_pregnancy]
+    findings: []
+  - combination: [anders_debt, signe_marriage]
+    findings: []
+  - combination: [marta_pregnancy, signe_marriage]
+    findings: []
+distinguishability: COMMON_ONLY
+distinguishability_axes: []
+distinguishability_note: "all alternatives share these consequences; the current representation cannot distinguish them further"

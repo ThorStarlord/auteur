@@ -1,0 +1,193 @@
+# Golden expected consequences for Case D (The Nine Chairs) — frozen under the
+# no-inference rule (design revision 1). Distinguishability: SINGLE_AXIS
+# [declared_relationship] — the only per-alternative information derives from
+# explicitly authored default_references[].relates_to.
+observations:
+  - probe_id: explicit_alternative_relations
+    severity: info
+    message: "per-alternative roster/thread/provenance probes were not run: the AuthorDecision schema exposes no explicit alternative-entity relationship"
+    refs:
+      decision: default_references
+      identity: null
+      blueprint: null
+      outcome: null
+    scope: common
+    target: ""
+    discriminates: false
+    members: [nine_parallel_arcs, one_structural_spine]
+  - probe_id: roster_slot
+    severity: warning
+    message: "required character Ansel (standing=equal) has no roster slot in the current Blueprint"
+    refs:
+      decision: required_characters[0]
+      identity: characters[0]
+      blueprint: null
+      outcome: null
+    scope: common
+    target: ""
+    discriminates: false
+    members: [nine_parallel_arcs, one_structural_spine]
+  - probe_id: roster_slot
+    severity: warning
+    message: "required character Priya (standing=equal) has no roster slot in the current Blueprint"
+    refs:
+      decision: required_characters[1]
+      identity: characters[1]
+      blueprint: null
+      outcome: null
+    scope: common
+    target: ""
+    discriminates: false
+    members: [nine_parallel_arcs, one_structural_spine]
+  - probe_id: roster_slot
+    severity: warning
+    message: "required character Tomas (standing=equal) has no roster slot in the current Blueprint"
+    refs:
+      decision: required_characters[2]
+      identity: characters[2]
+      blueprint: null
+      outcome: null
+    scope: common
+    target: ""
+    discriminates: false
+    members: [nine_parallel_arcs, one_structural_spine]
+  - probe_id: roster_slot
+    severity: warning
+    message: "required character Ines (standing=equal) has no roster slot in the current Blueprint"
+    refs:
+      decision: required_characters[3]
+      identity: characters[3]
+      blueprint: null
+      outcome: null
+    scope: common
+    target: ""
+    discriminates: false
+    members: [nine_parallel_arcs, one_structural_spine]
+  - probe_id: roster_slot
+    severity: warning
+    message: "required character Jun (standing=equal) has no roster slot in the current Blueprint"
+    refs:
+      decision: required_characters[4]
+      identity: characters[4]
+      blueprint: null
+      outcome: null
+    scope: common
+    target: ""
+    discriminates: false
+    members: [nine_parallel_arcs, one_structural_spine]
+  - probe_id: roster_slot
+    severity: warning
+    message: "required character Marguerite (standing=equal) has no roster slot in the current Blueprint"
+    refs:
+      decision: required_characters[5]
+      identity: characters[5]
+      blueprint: null
+      outcome: null
+    scope: common
+    target: ""
+    discriminates: false
+    members: [nine_parallel_arcs, one_structural_spine]
+  - probe_id: roster_slot
+    severity: warning
+    message: "required character Osei (standing=equal) has no roster slot in the current Blueprint"
+    refs:
+      decision: required_characters[6]
+      identity: characters[6]
+      blueprint: null
+      outcome: null
+    scope: common
+    target: ""
+    discriminates: false
+    members: [nine_parallel_arcs, one_structural_spine]
+  - probe_id: roster_slot
+    severity: warning
+    message: "required character Ruthanne (standing=equal) has no roster slot in the current Blueprint"
+    refs:
+      decision: required_characters[7]
+      identity: characters[7]
+      blueprint: null
+      outcome: null
+    scope: common
+    target: ""
+    discriminates: false
+    members: [nine_parallel_arcs, one_structural_spine]
+  - probe_id: roster_slot
+    severity: warning
+    message: "required character The Child (standing=equal) has no roster slot in the current Blueprint"
+    refs:
+      decision: required_characters[8]
+      identity: characters[8]
+      blueprint: null
+      outcome: null
+    scope: common
+    target: ""
+    discriminates: false
+    members: [nine_parallel_arcs, one_structural_spine]
+  - probe_id: thread_carrier
+    severity: info
+    message: "thread structure has 3 thread(s): Secondary Struggle, Relationship Echo, Secondary Subplot 3; the Blueprint exposes no explicit thread-to-character linkage, so thread carriers for decision characters cannot be verified"
+    refs:
+      decision: null
+      identity: null
+      blueprint: story_engine.threads
+      outcome: null
+    scope: common
+    target: ""
+    discriminates: false
+    members: [nine_parallel_arcs, one_structural_spine]
+  - probe_id: declared_relationship
+    severity: warning
+    message: "declared relationship: characters = [Protagonist, Antagonist] [conflicts_with] relates_to not_this[3]"
+    refs:
+      decision: default_references[2]
+      identity: null
+      blueprint: characters
+      outcome: null
+    scope: common
+    target: ""
+    discriminates: false
+    members: [nine_parallel_arcs, one_structural_spine]
+  - probe_id: blocked_provenance_relevance
+    severity: warning
+    message: "9 blocked propagation outcome(s) reference decision characters: characters[0].undergoes_central_change, characters[1].undergoes_central_change, characters[2].undergoes_central_change, characters[3].undergoes_central_change, characters[4].undergoes_central_change, characters[5].undergoes_central_change, characters[6].undergoes_central_change, characters[7].undergoes_central_change, characters[8].undergoes_central_change; the decision does not resolve them"
+    refs:
+      decision: blocked_provenance.outcome_refs
+      identity: null
+      blueprint: identity_propagation.outcomes
+      outcome: null
+    scope: common
+    target: ""
+    discriminates: false
+    members: [nine_parallel_arcs, one_structural_spine]
+alternatives:
+  - alternative_id: nine_parallel_arcs
+    findings:
+      - probe_id: declared_relationship
+        severity: warning
+        message: "declared relationship: identity.pov_type = third_person_limited_single [conflicts_with] relates_to nine_parallel_arcs"
+        refs:
+          decision: default_references[0]
+          identity: null
+          blueprint: identity.pov_type
+          outcome: null
+        scope: alternative
+        target: nine_parallel_arcs
+        discriminates: true
+        members: [nine_parallel_arcs]
+      - probe_id: declared_relationship
+        severity: warning
+        message: "declared relationship: structure.act_structure = three_act [conflicts_with] relates_to nine_parallel_arcs"
+        refs:
+          decision: default_references[1]
+          identity: null
+          blueprint: structure.act_structure
+          outcome: null
+        scope: alternative
+        target: nine_parallel_arcs
+        discriminates: true
+        members: [nine_parallel_arcs]
+  - alternative_id: one_structural_spine
+    findings: []
+distinguishability: SINGLE_AXIS
+distinguishability_axes: [declared_relationship]
+distinguishability_note: "only this structural axis differs: declared_relationship"
