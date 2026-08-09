@@ -49,8 +49,10 @@ def file_hashes(root: Path) -> dict[str, str]:
 
 def test_import_path_is_feature_worktree():
     import auteur
-    assert "auteur-author-decisions" in str(Path(auteur.__file__).resolve())
 
+    repo_root = Path(__file__).resolve().parents[1]
+    auteur_path = Path(auteur.__file__).resolve()
+    assert (repo_root / "src").resolve() in auteur_path.parents
 
 def test_create_never_extracts_alternatives_from_prose(tmp_path):
     proj = tmp_path / "p"
