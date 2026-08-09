@@ -146,6 +146,19 @@ def test_bogus_entity_ref_fails_closed():
         ctx_for(AuthorDecision.from_dict(data), CASE_E)
 
 
+def test_negative_and_malformed_indices_rejected():
+    """Strict index grammar: [-1] would silently bind the LAST entity via int();
+    [ 1] / [+1] / [1_0] are malformed. All fail closed."""
+    for ref in ("identity.characters[-1]", "identity.characters[ 1]",
+                "identity.characters[+1]", "identity.characters[1_0]"):
+        data = _yaml.safe_load((CASE_E / "salt-of-the-earth-subplot-cut.yaml").read_text(encoding="utf-8"))
+        data["alternative_bindings"] = [
+            {"alternative_id": "signe_marriage", "references": [{"entity_ref": ref}]},
+        ]
+        with pytest.raises(DecisionValidationError):
+            ctx_for(AuthorDecision.from_dict(data), CASE_E)
+
+
 def test_non_identity_blueprint_root_rejected():
     data = _yaml.safe_load((CASE_E / "salt-of-the-earth-subplot-cut.yaml").read_text(encoding="utf-8"))
     data["alternative_bindings"] = [
@@ -168,29 +181,29 @@ def test_case_d_bound_golden():
     # frozen artifact's default_references target nine_parallel_arcs)
     assert cons["distinguishability_axes"] == [
         "blocked_provenance_relevance", "declared_relationship", "entity_link", "roster_slot"]
-    # nine_parallel_arcs: 8 roster warnings (Ansel's identical warning is lifted
-    # to common because Ansel is bound in BOTH alternatives) + 1 blocked
-    # relevance (9 outcomes) + 9 entity links + 2 shipped declared_relationship
-    # findings from the frozen default_references
+    # nine_parallel_arcs: 9 roster warnings (Ansel's warning is per-alternative
+    # in BOTH alternatives because each finding's decision ref points at its own
+    # binding block, so the shipped common-lifting does not merge them) + 1
+    # blocked relevance (9 outcomes) + 9 entity links + 2 shipped
+    # declared_relationship findings from the frozen default_references
     n9 = per_alt["nine_parallel_arcs"]
-    assert len([f for f in n9 if f["probe_id"] == "roster_slot"]) == 8
+    assert len([f for f in n9 if f["probe_id"] == "roster_slot"]) == 9
     assert len([f for f in n9 if f["probe_id"] == "entity_link"]) == 9
     assert len([f for f in n9 if f["probe_id"] == "declared_relationship"]) == 2
     assert [f for f in n9 if f["probe_id"] == "blocked_provenance_relevance"][0]["severity"] == "warning"
-    # one_structural_spine: Ansel's roster warning lifted to common (identical
-    # finding across every alternative) -> 0 roster + 1 blocked (1 outcome) + 1 link
+    # one_structural_spine: 1 roster warning (Ansel, bound-scope) + 1 blocked
+    # relevance (1 outcome) + 1 entity link
     spine = per_alt["one_structural_spine"]
-    assert len([f for f in spine if f["probe_id"] == "roster_slot"]) == 0
+    assert len([f for f in spine if f["probe_id"] == "roster_slot"]) == 1
     assert len([f for f in spine if f["probe_id"] == "entity_link"]) == 1
     assert "characters[0].undergoes_central_change" in [f for f in spine if f["probe_id"] == "blocked_provenance_relevance"][0]["message"]
-    # the lifted Ansel warning (bound-scope standing=unset) is a common
-    # observation carrying both members; the decision-level roster warning
-    # (standing=equal, from required_characters) is a separate common observation
-    lifted = [o for o in cons["observations"]
-              if o["probe_id"] == "roster_slot" and "Ansel" in o["message"] and "standing=unset" in o["message"]]
-    assert len(lifted) == 1
-    assert lifted[0]["scope"] == "common"
-    assert lifted[0]["members"] == ["nine_parallel_arcs", "one_structural_spine"]
+    # decision-ref provenance: the bound Ansel findings point at their own
+    # binding blocks, never at the artifact's required_characters row
+    ans = [f for f in per_alt["nine_parallel_arcs"] if f["probe_id"] == "roster_slot" and "Ansel" in f["message"]][0]
+    assert ans["refs"]["decision"] == "alternative_bindings[nine_parallel_arcs][0]"
+    # the decision-level roster warning (standing=equal, from required_characters)
+    # remains a separate common observation
+    assert any(o["probe_id"] == "roster_slot" and "standing=equal" in o["message"] for o in cons["observations"])
 
 
 def test_case_e_bound_golden_and_anti_inference():

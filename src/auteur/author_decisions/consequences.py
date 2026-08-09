@@ -104,7 +104,8 @@ def _probe_combination_direction(decision: AuthorDecision) -> list[DecisionConse
 
 
 def _probe_roster_slot(decision: AuthorDecision, identity, blueprint,
-                       required: list[RequiredCharacter] | None = None) -> list[DecisionConsequence]:
+                       required: list[RequiredCharacter] | None = None,
+                       decision_ref: str = "required_characters") -> list[DecisionConsequence]:
     """Roster probe over explicit character names (decision-level
     required_characters by default; M1 bindings pass a per-alternative scope).
     Lookup is exact name equality of an explicit reference — never
@@ -118,7 +119,7 @@ def _probe_roster_slot(decision: AuthorDecision, identity, blueprint,
                 probe_id="roster_slot",
                 severity="info",
                 message=f"probe not run: no identity character named {rc.name}",
-                refs=ConsequenceRefs(decision=f"required_characters[{i}]"),
+                refs=ConsequenceRefs(decision=f"{decision_ref}[{i}]"),
             ))
             continue
         if len(ident_matches) > 1:
@@ -126,7 +127,7 @@ def _probe_roster_slot(decision: AuthorDecision, identity, blueprint,
                 probe_id="roster_slot",
                 severity="info",
                 message=f"probe not run: ambiguous identity name {rc.name}",
-                refs=ConsequenceRefs(decision=f"required_characters[{i}]"),
+                refs=ConsequenceRefs(decision=f"{decision_ref}[{i}]"),
             ))
             continue
         ident_idx = ident_matches[0]
@@ -140,7 +141,7 @@ def _probe_roster_slot(decision: AuthorDecision, identity, blueprint,
                     "roster slot in the current Blueprint"
                 ),
                 refs=ConsequenceRefs(
-                    decision=f"required_characters[{i}]",
+                    decision=f"{decision_ref}[{i}]",
                     identity=f"characters[{ident_idx}]",
                 ),
             ))
@@ -151,7 +152,7 @@ def _probe_roster_slot(decision: AuthorDecision, identity, blueprint,
                 severity="info",
                 message=f"probe not run: ambiguous roster name {rc.name}",
                 refs=ConsequenceRefs(
-                    decision=f"required_characters[{i}]",
+                    decision=f"{decision_ref}[{i}]",
                     identity=f"characters[{ident_idx}]",
                 ),
             ))
@@ -160,7 +161,7 @@ def _probe_roster_slot(decision: AuthorDecision, identity, blueprint,
         ch = blueprint.characters[bp_idx]
         standing = rc.standing or "unset"
         refs = ConsequenceRefs(
-            decision=f"required_characters[{i}]",
+            decision=f"{decision_ref}[{i}]",
             identity=f"characters[{ident_idx}]",
             blueprint=f"characters[{bp_idx}]",
         )
@@ -302,14 +303,20 @@ def _bound_standing(entity) -> str | None:
     return str(getattr(role, "value", role))
 
 
-def _probe_entity_link(alt_id: str, bindings, identity, blueprint) -> list[DecisionConsequence]:
+def _probe_entity_link(alt_id: str, bindings) -> list[DecisionConsequence]:
     """M1 link echo (design Q7): quotes the authored binding with its resolved
     value; follows the shipped declared_relationship conventions (never asserts
-    the relationship holds)."""
+    the relationship holds). Refs are root-routed: identity refs point at the
+    identity slot, blueprint refs at the blueprint slot."""
     out: list[DecisionConsequence] = []
     for rb in bindings:
         summary = _entity_summary(rb.entity)
         severity = "warning" if rb.relationship.value == "conflicts_with" else "info"
+        refs = ConsequenceRefs(decision=f"alternative_bindings[{alt_id}]")
+        if rb.entity_ref.startswith("identity."):
+            refs.identity = rb.entity_ref
+        else:
+            refs.blueprint = rb.entity_ref
         out.append(DecisionConsequence(
             probe_id="entity_link",
             severity=severity,
@@ -317,7 +324,7 @@ def _probe_entity_link(alt_id: str, bindings, identity, blueprint) -> list[Decis
                 f"declared entity link: alternative {alt_id} [{rb.relationship.value}] "
                 f"relates to {rb.entity_ref} = {summary}"
             ),
-            refs=ConsequenceRefs(decision=f"alternative_bindings[{alt_id}]", identity=rb.entity_ref),
+            refs=refs,
             scope="alternative",
             target=alt_id,
             discriminates=True,
@@ -397,10 +404,12 @@ def build_consequences(ctx) -> dict[str, Any]:
                 name=getattr(rb.entity, "name", None) or rb.entity_ref,
                 standing=_bound_standing(rb.entity),
             ) for rb in bound]
-            alt_map[alt].extend(_probe_roster_slot(decision, identity, blueprint, required=required))
+            alt_map[alt].extend(_probe_roster_slot(
+                decision, identity, blueprint, required=required,
+                decision_ref=f"alternative_bindings[{alt}]"))
             alt_map[alt].extend(_probe_blocked_provenance_relevance(
                 decision, identity, required_names=[rc.name for rc in required]))
-            alt_map[alt].extend(_probe_entity_link(alt, bound, identity, blueprint))
+            alt_map[alt].extend(_probe_entity_link(alt, bound))
 
     # Provenance-preserving common extraction: lift findings that are identical
     # (probe_id, message, refs) across EVERY alternative; lifted entries keep

@@ -137,10 +137,12 @@ def _resolve_entity_ref(identity: StoryIdentity, blueprint: StoryBlueprint, enti
             if not part.endswith("]"):
                 raise DecisionValidationError(f"malformed entity_ref: {entity_ref!r}")
             name, _, span = part.partition("[")
-            try:
-                idx = int(span[:-1])
-            except ValueError:
+            span = span[:-1]
+            # strict grammar: decimal digits only — int() would otherwise accept
+            # [-1] (binds the LAST entity silently), [ 1], [+1], [1_0]
+            if not span or not span.isdigit():
                 raise DecisionValidationError(f"malformed entity_ref index: {entity_ref!r}")
+            idx = int(span)
             part = name
         obj = getattr(obj, part, None)
         if obj is None:
