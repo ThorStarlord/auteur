@@ -1,0 +1,90 @@
+decision_id: nine-chairs-structure
+unresolved_choice:
+  choice_id: nine-chairs-structure
+  question: "Can nine parallel arcs cohere, or does the story need one character's arc as the through-line?"
+  options:
+    - "Nine comparable parallel arcs (rotating POV)"
+    - "One character's arc as structural through-line"
+alternative_ids:
+  - nine_parallel_arcs
+  - one_structural_spine
+combination:
+  rule: one_of
+criterion:
+  text: "Which structure best serves the theme: coherence of nine arcs vs clarity of a spine"
+  evaluator: author_or_consumer
+hard_constraints:
+  - ref: not_this[0]
+    snapshot: "a character who authoritatively explains the room's rules"
+  - ref: not_this[1]
+    snapshot: "escape through violence"
+  - ref: not_this[2]
+    snapshot: "a revealed mechanism resolving the room (deus ex)"
+  - ref: not_this[3]
+    snapshot: "an accidental single protagonist with structurally dominant weight"
+  - ref: rejected_directions[0]
+    snapshot: "A revealed mechanism (a test, a god, a warden) that explains and resolves the room would violate the constraint that the room is not resolved by explanation."
+  - ref: rejected_directions[1]
+    snapshot: "A violent escape or struggle for the exit would break the premise that leaving requires each occupant's own decision."
+  - ref: target_experience.avoid[0]
+    snapshot: "an explained resolution (deus ex)"
+  - ref: target_experience.avoid[1]
+    snapshot: "violent escape"
+required_characters:
+  - name: Ansel
+    standing: equal
+  - name: Priya
+    standing: equal
+  - name: Tomas
+    standing: equal
+  - name: Ines
+    standing: equal
+  - name: Jun
+    standing: equal
+  - name: Marguerite
+    standing: equal
+  - name: Osei
+    standing: equal
+  - name: Ruthanne
+    standing: equal
+  - name: The Child
+    standing: equal
+blocked_provenance:
+  outcome_refs:
+    - rule: identity.propagation.role_rule.ambiguous_subject
+      classification: BLOCKED_INSUFFICIENT_EXPLICIT_INPUT
+      source: characters[0].undergoes_central_change
+    - rule: identity.propagation.role_rule.ambiguous_subject
+      classification: BLOCKED_INSUFFICIENT_EXPLICIT_INPUT
+      source: characters[1].undergoes_central_change
+    - rule: identity.propagation.role_rule.ambiguous_subject
+      classification: BLOCKED_INSUFFICIENT_EXPLICIT_INPUT
+      source: characters[2].undergoes_central_change
+    - rule: identity.propagation.role_rule.ambiguous_subject
+      classification: BLOCKED_INSUFFICIENT_EXPLICIT_INPUT
+      source: characters[3].undergoes_central_change
+    - rule: identity.propagation.role_rule.ambiguous_subject
+      classification: BLOCKED_INSUFFICIENT_EXPLICIT_INPUT
+      source: characters[4].undergoes_central_change
+    - rule: identity.propagation.role_rule.ambiguous_subject
+      classification: BLOCKED_INSUFFICIENT_EXPLICIT_INPUT
+      source: characters[5].undergoes_central_change
+    - rule: identity.propagation.role_rule.ambiguous_subject
+      classification: BLOCKED_INSUFFICIENT_EXPLICIT_INPUT
+      source: characters[6].undergoes_central_change
+    - rule: identity.propagation.role_rule.ambiguous_subject
+      classification: BLOCKED_INSUFFICIENT_EXPLICIT_INPUT
+      source: characters[7].undergoes_central_change
+    - rule: identity.propagation.role_rule.ambiguous_subject
+      classification: BLOCKED_INSUFFICIENT_EXPLICIT_INPUT
+      source: characters[8].undergoes_central_change
+default_references:
+  - default_id: identity.pov_type
+    relates_to: nine_parallel_arcs
+    relationship: conflicts_with
+  - default_id: structure.act_structure
+    relates_to: nine_parallel_arcs
+    relationship: conflicts_with
+  - default_id: characters
+    relates_to: not_this[3]
+    relationship: conflicts_with
