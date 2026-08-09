@@ -29,8 +29,10 @@ def build_report(ctx) -> dict[str, Any]:
     Deliberately contains no 'verdict' and no 'recommended' key: choosing between
     constraint-consistent alternatives is the author's/consumer's responsibility.
     """
+    from auteur.author_decisions.consequences import build_consequences
+
     combos = enumerate_combinations(ctx.decision)
-    return {
+    report = {
         "decision_id": ctx.decision.decision_id,
         "question": ctx.decision.unresolved_choice.question,
         "alternatives": ctx.alternative_labels,
@@ -46,3 +48,5 @@ def build_report(ctx) -> dict[str, Any]:
         "criterion": ctx.decision.criterion.text,
         "criterion_evaluator": ctx.decision.criterion.evaluator,
     }
+    report["consequences"] = build_consequences(ctx)
+    return report

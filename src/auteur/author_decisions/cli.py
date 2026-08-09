@@ -210,6 +210,7 @@ def handle_evaluate(args) -> int:
             print(f"Constraints: {len(report['constraints'])} (verbatim)")
             print(f"Blocked provenance: {report['blocked_provenance']}")
             print(f"Resolved defaults: {report['resolved_defaults']}")
+            _render_consequences(report.get("consequences", {}))
             print("No verdict is rendered; creative evaluation is the author's responsibility.")
         return 0
     except (DecisionValidationError, FileNotFoundError) as exc:
@@ -307,6 +308,31 @@ def handle_view(args) -> int:
     except Exception as exc:  # pragma: no cover
         print(f"Error: {exc}", file=sys.stderr)
         return 1
+
+
+def _render_consequences(c: dict) -> None:
+    """Deterministic text rendering of the consequence inventory (no ranking)."""
+    if not c:
+        return
+    n_obs = len(c.get("observations", []))
+    n_alt = sum(len(a.get("findings", [])) for a in c.get("alternatives", []))
+    axes = c.get("distinguishability_axes", [])
+    status = c.get("distinguishability", "COMMON_ONLY")
+    if axes:
+        print(f"Consequences: {n_obs} observation(s), {n_alt} per-alternative finding(s); "
+              f"distinguishability: {status} [{', '.join(axes)}]")
+    else:
+        print(f"Consequences: {n_obs} observation(s), {n_alt} per-alternative finding(s); "
+              f"distinguishability: {status}")
+    note = c.get("distinguishability_note")
+    if note:
+        print(f"  {note}")
+    for f in c.get("observations", []):
+        print(f"  [{f['severity']}] ({f['probe_id']}) {f['message']}")
+    for a in c.get("alternatives", []):
+        for f in a.get("findings", []):
+            print(f"  [{f['severity']}] ({f['probe_id']}) {f['message']}")
+    print("No consequence implies a recommendation; alternatives are not ranked.")
 
 
 def _load_identity(path: Path):
