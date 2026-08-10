@@ -14,7 +14,7 @@ next_task: Run full test suite before any new work
 1. artifacts/domain_alignment_report.md -- Domain Alignment Report  
 2. docs/adr/011-ci-pipeline-architecture.md -- ADR-011  
 3. docs/adr/012-per-agent-model-routing.md -- ADR-012  
-4. docs/adr/013-state-confirm-recovery-merge.md -- ADR-013  
+4. ADR-013  
 5. docs/prd-domain-alignment-layer-consistency.md -- PRD  
 6. docs/issue-list-domain-alignment.md -- Issue List  
 7. docs/agent-brief-domain-alignment.md -- Agent Brief  
