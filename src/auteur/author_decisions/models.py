@@ -134,14 +134,28 @@ class AnchorRelationshipKind(str, enum.Enum):
     bears_on = "bears_on"
 
 
+class AnchorRelationshipNature(str, enum.Enum):
+    """N1 closed relationship-nature vocabulary (design 2026-08-relationship-
+    nature-n1.md): EXACTLY {sustains, pressures} in this slice. Every value has
+    pinned author meaning, consumer meaning, and composed kept/cut semantics.
+    complicates/resolves are deferred candidates, NOT schema values: if Auteur
+    accepts a semantic relationship, the shipped consumer knows what it means."""
+
+    sustains = "sustains"
+    pressures = "pressures"
+
+
 class AnchorBearsOn(BaseModel):
     """One explicit anchor->canonical relationship (e.g. a subplot bears on the
-    ending constraint)."""
+    ending constraint). ``nature`` describes HOW the anchor relates to THAT
+    target (per-relationship, never anchor-global); None = "relationship nature
+    not explicitly supplied" (the bears_on relevance remains valid)."""
 
     model_config = ConfigDict(extra="forbid")
 
     ref: str  # explicit-root ref (identity. / blueprint. / decision.)
     relationship: AnchorRelationshipKind = AnchorRelationshipKind.bears_on
+    nature: AnchorRelationshipNature | None = None
 
 
 class StructuralAnchor(BaseModel):

@@ -408,10 +408,15 @@ def _probe_anchor(alt_id: str, anchor, ctx, identity, blueprint) -> list[Decisio
             refs=refs, scope="alternative", target=alt_id, discriminates=True,
         ))
     if ra.bears_on:
-        for ref, value in ra.bears_on:
+        for ref, value, nature in ra.bears_on:
+            if nature is None:
+                message = f"anchor {anchor.anchor_id} bears on {ref} = {value}"
+            else:
+                message = (f"anchor {anchor.anchor_id} bears on {ref} = {value} "
+                           f"(nature: {nature.value})")
             out.append(DecisionConsequence(
                 probe_id="anchor_bears_on", severity="info",
-                message=f"anchor {anchor.anchor_id} bears on {ref} = {value}",
+                message=message,
                 refs=refs, scope="alternative", target=alt_id, discriminates=True,
             ))
     else:
@@ -420,6 +425,37 @@ def _probe_anchor(alt_id: str, anchor, ctx, identity, blueprint) -> list[Decisio
             message=f"anchor {anchor.anchor_id} bears on nothing declared",
             refs=refs, scope="alternative", target=alt_id, discriminates=True,
         ))
+    return out
+
+
+def _compose_nature_consequence(ctx, alternative_id: str, verb: str, op: str) -> list[DecisionConsequence]:
+    """N1 deterministic composition (design 1.1/1.2/5): for each authored
+    bears_on entry with nature on the resolved anchor of ``alternative_id``,
+    emit ``<op> alternative <X> <verb>s its declared <nature-word> relationship
+    to <ref> = <value>``. ``verb`` is 'remove' for cut members and 'preserve'
+    for kept members. ``preserve`` refers ONLY to preserving the declared
+    relationship by retaining the anchor — never a judgment that the target
+    itself will be preserved."""
+    out: list[DecisionConsequence] = []
+    for ra in getattr(ctx, "resolved_anchors", []) or []:
+        # match anchors bound to this alternative
+        bound = [rb for rb in getattr(ctx, "resolved_bindings", []) or []
+                 if rb.alternative_id == alternative_id
+                 and getattr(rb.entity, "anchor_id", None) == ra.anchor_id]
+        if not bound:
+            continue
+        for ref, value, nature in ra.bears_on:
+            if nature is None:
+                continue
+            nature_word = "sustaining" if nature.value == "sustains" else "pressuring"
+            message = (f"{op} alternative {alternative_id} {verb} its declared "
+                       f"{nature_word} relationship to {ref} = {value}")
+            out.append(DecisionConsequence(
+                probe_id="nature_consequence", severity="info",
+                message=message,
+                refs=ConsequenceRefs(decision=f"structural_anchors[{ra.anchor_id}]"),
+                scope="combination", target=str((alternative_id,)), discriminates=True,
+            ))
     return out
 
 
@@ -577,6 +613,16 @@ def build_consequences(ctx) -> dict[str, Any]:
             elif direction == "cut":
                 combo_entry["kept"] = [a for a in alt_ids if a not in combo]
                 combo_entry["cut"] = list(combo)
+            if direction is not None:
+                # N1 composed consequence: authored nature x authored kept/cut x
+                # resolved target value. States what the operation removes or
+                # preserves (the DECLARED relationship), never a judgment on
+                # the target itself. Non-ranking / non-verdict.
+                for member in combo_entry["cut"]:
+                    findings.extend(_compose_nature_consequence(ctx, member, "removes", "cut"))
+                for member in combo_entry["kept"]:
+                    findings.extend(_compose_nature_consequence(ctx, member, "preserves", "kept"))
+                combo_entry["findings"] = [f.model_dump() for f in findings]
             combos.append(combo_entry)
         report["combinations"] = combos
 
