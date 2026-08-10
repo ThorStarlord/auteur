@@ -2,20 +2,15 @@
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 import pytest
 import yaml
 
 from auteur.convergence.cli import (
-    dispatch_realization,
     handle_realization_status,
     handle_realization_revise,
-    handle_realization_generate_candidate,
     handle_realization_register_candidate,
-    handle_realization_compare,
-    handle_realization_reconcile,
 )
 from auteur.convergence.models import GenerationStrategy
 from auteur.convergence.persistence import ConvergenceStore

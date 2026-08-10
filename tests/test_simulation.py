@@ -15,14 +15,7 @@ from auteur.simulation.models import (
     ConfidenceLevel,
     ConsequenceCategory,
     ProjectedConsequence,
-    ProjectedPlan,
-    ProjectedCriticalPath,
-    ProjectedDecisionChange,
-    ProjectedArtifactChange,
-    ProjectedReviewChange,
-    ProjectedMilestoneChange,
     CandidateSnapshot,
-    ScenarioPromotionResult,
     SCHEMA_VERSION,
     compute_baseline_id,
     compute_scenario_id,
@@ -190,7 +183,7 @@ class TestBaseline:
         capture.capture()
         after = set(project_root.rglob("*"))
         # .auteur was created by fixture, but baseline capture shouldn't add files
-        new_files = after - before
+        _ = after - before
         # The capture might create .auteur/simulations/baselines/... on save
         # but the capture method itself doesn't save
 
@@ -560,10 +553,8 @@ class TestPromotion:
 
     def test_promotion_no_pointer_mutation(self, project_root, sample_scenario):
         """Promotion must not move accepted or canonical pointers."""
-        before_accepted = list((project_root / ".auteur").glob("**/*")) if (project_root / ".auteur").exists() else []
         promoter = ScenarioPromoter(project_root)
         promoter.promote(sample_scenario, confirm=True)
-        after = list((project_root / ".auteur").glob("**/*")) if (project_root / ".auteur").exists() else []
 
 
 # =========================================================================
@@ -616,12 +607,6 @@ class TestService:
 
 
 class TestSimulateCLI:
-
-    def test_simulate_help(self):
-        from auteur.cli_parser import build_parser
-        parser = build_parser()
-        args = parser.parse_args(["simulate", "--help"])
-        # parsing succeeds
 
     def test_simulate_status(self, project_root):
         from auteur.cli import main

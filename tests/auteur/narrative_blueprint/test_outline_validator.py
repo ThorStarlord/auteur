@@ -2,11 +2,9 @@
 
 import pytest
 from datetime import datetime
-from typing import List
 
 from auteur.narrative_blueprint.schema.book_outline import BookOutline
 from auteur.narrative_blueprint.schema.chapter_outline import ChapterOutline
-from auteur.narrative_blueprint.schema.outline_types import ContainerArtifact
 
 
 class TestContainerValidatorImports:

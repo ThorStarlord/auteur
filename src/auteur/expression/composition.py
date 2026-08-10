@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import hashlib
-import json
 import re
 from datetime import datetime, timezone
 from pathlib import Path
@@ -255,7 +254,8 @@ class ChapterExpressionStore:
                 self.save_transitions(chapter, transitions)
         except Exception:
             for path in (md_tmp, yaml_tmp):
-                if path.exists(): path.unlink()
+                if path.exists():
+                    path.unlink()
             raise
         return metadata
 
@@ -282,7 +282,7 @@ class ChapterExpressionStore:
         return metadata
 
     def clean_export(self, expression_id: str) -> str:
-        metadata = self.inspect(expression_id)
+        self.inspect(expression_id)
         path = self._metadata_path(expression_id).with_suffix(".md")
         text = path.read_text(encoding="utf-8")
         lines = [line for line in text.splitlines() if not any(pattern.match(line) for pattern in (MARKER_RE, END_MARKER_RE, TRANSITION_MARKER_RE, END_TRANSITION_MARKER_RE))]
@@ -331,7 +331,8 @@ class ChapterExpressionStore:
             start = MARKER_RE.match(line)
             end = END_MARKER_RE.match(line)
             if start:
-                current = start.group(1); positions.setdefault(current, []).append(len(positions.get(current, [])))
+                current = start.group(1)
+                positions.setdefault(current, []).append(len(positions.get(current, [])))
                 sections.setdefault(current, [])
             elif end:
                 current = None
@@ -342,9 +343,11 @@ class ChapterExpressionStore:
         actual_order = list(positions)
         for scene_id, item in expected.items():
             if scene_id not in positions:
-                report["missing"].append(scene_id); continue
+                report["missing"].append(scene_id)
+                continue
             if len(positions[scene_id]) > 1:
-                report["duplicated"].append(scene_id); continue
+                report["duplicated"].append(scene_id)
+                continue
             expected_prose = (self._scene_path(scene_id).parent / scene_id / f"prose_v{item['expression_revision']:03d}.md").read_text(encoding="utf-8").strip()
             (report["unchanged"] if "\n".join(sections.get(scene_id, [])).strip() == expected_prose else report["modified"]).append({"scene_id": scene_id, "source": f"prose_v{item['expression_revision']:03d}"})
         if actual_order != expected_order and set(actual_order) == set(expected_order):

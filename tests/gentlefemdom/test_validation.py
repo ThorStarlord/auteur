@@ -1,9 +1,7 @@
 """Tests for gentle femdom validation rules."""
 
-import pytest
 from auteur.gentlefemdom.validation import (
     ValidationRule,
-    RuleSet,
     SensualDominanceRuleSet,
     TenderSurrenderRuleSet,
     RomanticAuthorityRuleSet,

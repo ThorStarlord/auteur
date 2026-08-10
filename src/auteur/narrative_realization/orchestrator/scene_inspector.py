@@ -12,7 +12,7 @@ Key Features:
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional
 from auteur.narrative_realization.schema.scene_outline import (
     SceneOutline,
     SceneStatus,

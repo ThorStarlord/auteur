@@ -17,17 +17,16 @@ various ways:
 - generate_summary(): Comprehensive status report
 """
 
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional
 from dataclasses import dataclass
-from datetime import datetime
 
 from auteur.narrative_blueprint.schema.outline_types import OutlineArtifact
 from auteur.narrative_blueprint.schema.series_outline import SeriesOutline
 from auteur.narrative_blueprint.schema.book_outline import BookOutline
 from auteur.narrative_blueprint.schema.sequence_outline import SequenceOutline
 from auteur.narrative_blueprint.schema.chapter_outline import ChapterOutline
-from auteur.narrative_blueprint.schema.character_arc import CharacterArc, TurningPoint
-from auteur.narrative_blueprint.schema.story_arc import StoryArc, ArcCheckpoint
+from auteur.narrative_blueprint.schema.character_arc import CharacterArc
+from auteur.narrative_blueprint.schema.story_arc import StoryArc
 
 
 @dataclass
@@ -244,7 +243,7 @@ class OutlineInspector:
             lines.append(f"├── Genre Themes: {', '.join(arc.genre_themes)}")
 
             if arc.turning_points:
-                lines.append(f"└── Turning Points:")
+                lines.append("└── Turning Points:")
                 for tp_idx, tp in enumerate(arc.turning_points):
                     is_last = tp_idx == len(arc.turning_points) - 1
                     prefix = "    └── " if is_last else "    ├── "
@@ -294,7 +293,7 @@ class OutlineInspector:
                 lines.append(f"├── Spans Chapters: {chapters_str}")
 
             if arc.checkpoints:
-                lines.append(f"└── Checkpoints:")
+                lines.append("└── Checkpoints:")
                 for cp_idx, cp in enumerate(arc.checkpoints):
                     is_last = cp_idx == len(arc.checkpoints) - 1
                     prefix = "    └── " if is_last else "    ├── "
@@ -588,7 +587,7 @@ class OutlineInspector:
         """
         sections = [
             ("=" * 60),
-            (f"OUTLINE STATUS REPORT"),
+            ("OUTLINE STATUS REPORT"),
             (f"Genre: {self.genre or '(unknown)'} | Story ID: {self.story_id or '(unknown)'}"),
             ("=" * 60),
             (""),

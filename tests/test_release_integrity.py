@@ -24,8 +24,6 @@ from auteur.narrative_ontology.loader.ontology_loader import (
     _read_ontology_yaml,
 )
 from auteur.publish import (
-    CSS,
-    ALL_FORMATS,
     AUTEUR_VERSION,
     PublishError,
     PublishingSnapshot,

@@ -16,6 +16,7 @@ import yaml
 from auteur.cli_handlers import (
     CompileBlueprintData,
     HandlerResult,
+    IdentityValidateData,
     PublishData,
     RecommendOpenEndedData,
     RecommendOpinionatedData,
@@ -26,7 +27,6 @@ from auteur.cli_handlers import (
 )
 
 if TYPE_CHECKING:
-    from auteur.blueprint import StoryBlueprint
     from auteur.identity import StoryIdentity
 
 # ---------------------------------------------------------------------------

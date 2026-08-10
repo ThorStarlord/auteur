@@ -386,13 +386,8 @@ class TestCircularParallel:
         validator.add_scene(scene2)
         validator.add_scene(scene3)
 
-        result = validator.validate_all_scenes()
+        validator.validate_all_scenes()
         # No circular dependency here
-        circular_errors = [
-            v
-            for v in result.violations
-            if v.violation_type == TemporalViolationType.CIRCULAR_PARALLEL
-        ]
         # May have non-mutual errors but not circular
         # (This depends on implementation interpretation)
 
@@ -426,7 +421,7 @@ class TestCircularParallel:
         validator.add_scene(scene1)
         validator.add_scene(scene2)
 
-        result = validator.validate_all_scenes()
+        validator.validate_all_scenes()
         # This is a valid mutual relationship, not a cycle
 
 
@@ -490,7 +485,7 @@ class TestPositionVsTime:
         validator.add_scene(scene1)
         validator.add_scene(scene2)
 
-        result = validator.validate_all_scenes()
+        validator.validate_all_scenes()
         # Same story_time with parallel_with is valid
 
 

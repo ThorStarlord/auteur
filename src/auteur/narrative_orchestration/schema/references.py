@@ -20,7 +20,7 @@ References enable:
 """
 
 from enum import Enum
-from typing import List, Optional, Dict, Callable, Any
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field, field_validator
 import re
 

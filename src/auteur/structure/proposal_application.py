@@ -3,18 +3,15 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from pathlib import Path
 from typing import Any
 from datetime import datetime, timezone
 
+import re
 import yaml
 import os
 
 from auteur.blueprint import StoryBlueprint
 from auteur.structure.proposal_models import (
-    ProposalOption,
-    ProposalSelection,
-    ProposalType,
     StructureProposal,
 )
 

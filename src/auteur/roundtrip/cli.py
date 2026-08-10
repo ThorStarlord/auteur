@@ -3,7 +3,6 @@ from __future__ import annotations
 from pathlib import Path
 
 from auteur.roundtrip.handlers import (
-    ExportData,
     ImportData,
     confirm_import_proposal,
     handle_export_chapter,

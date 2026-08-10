@@ -18,7 +18,6 @@ import pytest
 from auteur.narrative_realization.schema.scene_outline import (
     SceneOutline,
     SceneStatus,
-    TemporalRelation,
 )
 from auteur.narrative_realization.schema.scene_state import (
     KnowledgeFact,
@@ -123,7 +122,7 @@ class TestRetractiveForgetting:
 
     def test_forgetting_detected_across_scenes(self):
         """Test retroactive forgetting is detected across sequential scenes."""
-        validator = KnowledgeValidator()
+        KnowledgeValidator()
 
         # Note: Full test would require loading complete scene data with entry/exit knowledge
         # This test structure demonstrates the expected behavior

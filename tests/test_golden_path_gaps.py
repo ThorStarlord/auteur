@@ -8,9 +8,6 @@ Verifies:
 5. Prerequisites orchestration during genre recommendation acceptance when story_identity.yaml is missing.
 """
 
-import json
-from pathlib import Path
-import pytest
 
 from auteur.genre_packs.models import (
     PackApplicabilityStatus,
@@ -368,7 +365,7 @@ def test_cli_override_requires_confirm(tmp_path):
     project_dir = tmp_path / "proj"
     project_dir.mkdir()
     identity_path = project_dir / "story_identity.yaml"
-    
+
     # Initialize skeleton
     StoryIdentity(
         title="Test Title",

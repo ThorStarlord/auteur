@@ -38,7 +38,6 @@ from auteur.llm import LLMClient, LLMRequest
 from auteur.pipeline import PipelineRunner
 from auteur.project import Project
 from auteur.structure import DiagnosticSeverity, analyze_structure
-from auteur.structure.generator import GenerationProposal
 from auteur.structure.proposals import (
     StructureProposal,
     apply_proposal_to_blueprint,
@@ -51,7 +50,6 @@ from auteur.critic import ValidationReport
 from auteur.structure.analyzer import run_all_diagnostics
 from auteur.structure.diagnostics import DiagnosticLayer, StructureDiagnostic
 from auteur.structure.proposal_resolution import load_resolved_rules, resolve_proposal
-from auteur.structure.proposals import write_audit_repair_proposals
 
 
 @dataclass
@@ -572,7 +570,6 @@ def handle_identity_recommend(
 
     from auteur.identity import StoryIdentity
     from auteur.genres.registry import load_genre_contract, load_project_genre_contract
-    from auteur.genres.subgenres import load_subgenre_modifier
     from auteur.structure.diagnostics import StructureDiagnostic, DiagnosticSeverity, DiagnosticLayer, RepairOptions
 
     # Resolve premise text (already done by CLI, but support Path strings)
@@ -956,7 +953,7 @@ Make sure the output is valid YAML, contains no conversational preamble/postambl
         # Build comparison lines
         comparison_lines = [
             "# Story Discovery Comparison",
-            f"\nSource Premise File/Text: ``",
+            "\nSource Premise File/Text: ``",
             f"Generated At: {rec_set.generated_at}\n",
             "Contract fit measures compliance with the declared genre and structural contract. It is not a story-quality ranking.\n",
             "## Search Strategy",
@@ -2083,7 +2080,7 @@ def handle_state_confirm(
         )
 
     from auteur.blueprint import TargetExperience
-    from auteur.structure.state import StoryBibleModel, set_deep_attribute
+    from auteur.structure.state import StoryBibleModel
 
     try:
         if "target_experience" in locked:

@@ -27,7 +27,8 @@ def _pilot_project_root(path: Path) -> Path:
 
 class _HideSuppressedFormatter(argparse.HelpFormatter):
     def _format_action(self, action):
-        if action.help == argparse.SUPPRESS: return ""
+        if action.help == argparse.SUPPRESS:
+            return ""
         return super()._format_action(action)
 
 
@@ -63,7 +64,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("draft",
         help="Plan, draft, validate, iterate one chapter.")
-    p.add_argument("project", type=Path); p.add_argument("chapter", type=int)
+    p.add_argument("project", type=Path)
+    p.add_argument("chapter", type=int)
     p.add_argument("--max-iterations", type=int, default=3)
     p.add_argument("--provider", choices=["anthropic", "openai"], default="anthropic")
     p.add_argument("--model", default=None)
@@ -71,11 +73,13 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("accept",
         help="Promote the latest draft_v*.md to final.md.")
-    p.add_argument("project", type=Path); p.add_argument("chapter", type=int)
+    p.add_argument("project", type=Path)
+    p.add_argument("chapter", type=int)
 
     p = sub.add_parser("retry",
         help="Continue iterating past previous max-iterations cap.")
-    p.add_argument("project", type=Path); p.add_argument("chapter", type=int)
+    p.add_argument("project", type=Path)
+    p.add_argument("chapter", type=int)
     p.add_argument("--max-iterations", type=int, default=3)
     p.add_argument("--provider", choices=["anthropic", "openai"], default="anthropic")
     p.add_argument("--model", default=None)
@@ -103,7 +107,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("blueprint", type=Path)
     p = ss.add_parser("apply",
         help="Apply a selected structure proposal option to a blueprint.")
-    p.add_argument("proposal", type=Path); p.add_argument("blueprint", type=Path)
+    p.add_argument("proposal", type=Path)
+    p.add_argument("blueprint", type=Path)
     p.add_argument("--output", type=Path, default=None,
         help="Output directory for new blueprint (default: source blueprint directory).")
     p.add_argument("--in-place", action="store_true",
@@ -349,7 +354,8 @@ def build_parser() -> argparse.ArgumentParser:
         "When omitted, a warning is emitted and Layer 7 is skipped.")
     p = sts.add_parser("update",
         help="Safe, transactional update of project files.")
-    p.add_argument("project", type=Path); p.add_argument("file", type=Path)
+    p.add_argument("project", type=Path)
+    p.add_argument("file", type=Path)
     p.add_argument("--key", type=str, required=True)
     p.add_argument("--val", type=str, required=True,
         help="New value (parsed dynamically as JSON or string).")

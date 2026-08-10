@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from auteur.series.continuity_validators import ValidationDiagnostic
 from auteur.universe.constraints import ConstraintEnforcement, ConstraintType
@@ -85,7 +85,7 @@ class UniverseToSeriesValidator:
                                 constraint=constraint.description,
                                 source=f"universe:{constraint.id}",
                                 conflict=f"Theme '{theme_name}' required in Book {book_num} but arc {arc.id} excludes it",
-                                conflict_source=f"series_identity.yaml:thematic_arcs",
+                                conflict_source="series_identity.yaml:thematic_arcs",
                                 explanation=f"Universe rule requires theme '{theme_name}' to appear in Book {book_num}, but it's not included. Add Book {book_num} to the arc's books list.",
                             )
                         )
@@ -133,7 +133,7 @@ class UniverseToSeriesValidator:
                             constraint=constraint.description,
                             source=f"universe:{constraint.id}",
                             conflict=f"Character '{required_char}' must be '{required_state}' but is not",
-                            conflict_source=f"series_identity.yaml:character_states",
+                            conflict_source="series_identity.yaml:character_states",
                             explanation=f"Universe rule requires '{required_char}' to have state '{required_state}'. Update character state entries.",
                         )
                     )
@@ -179,7 +179,7 @@ class UniverseToSeriesValidator:
                             constraint=constraint.description,
                             source=f"universe:{constraint.id}",
                             conflict=f"Relationship {party_a}-{party_b} must be '{required_state}' but is '{rel.state}'",
-                            conflict_source=f"series_identity.yaml:relationships",
+                            conflict_source="series_identity.yaml:relationships",
                             explanation=f"Universe rule requires {party_a} and {party_b} to be '{required_state}'. Update the relationship state.",
                         )
                     )

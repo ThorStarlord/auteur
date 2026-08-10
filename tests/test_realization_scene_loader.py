@@ -9,7 +9,6 @@ Tests cover:
 - Error handling (missing files, corrupt YAML, invalid schemas)
 """
 
-import tempfile
 from pathlib import Path
 
 import pytest

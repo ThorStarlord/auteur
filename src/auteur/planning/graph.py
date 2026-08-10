@@ -10,7 +10,6 @@ from auteur.planning.models import (
     PlanDependency,
     PlanningNode,
     PlanningHorizon,
-    _stable_id,
 )
 
 

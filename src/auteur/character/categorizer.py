@@ -12,9 +12,7 @@ from auteur.character.enums import (
     MotifType,
     PhilosophyTag,
     RelationshipType,
-    RelationshipArcStage,
     TropeTag,
-    TrustProgressionType,
     ValidationSource,
     VulnerabilityFamily,
 )
@@ -40,7 +38,6 @@ from auteur.character.models import (
     SceneEnergySignature,
     StructuralRole,
     TextureLayer,
-    TextureVoice,
 )
 
 CharacterIdentity.model_rebuild()

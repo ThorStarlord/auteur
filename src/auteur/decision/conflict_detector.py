@@ -3,7 +3,6 @@ across evidence from impact, reasoning, convergence, and reconciliation subsyste
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from typing import Any
 
 from auteur.decision.models import (
@@ -167,7 +166,7 @@ class ConflictDetector:
             for fact in factuals:
                 if ac.candidate_id == fact.candidate_id or (ac.candidate_id is None and fact.candidate_id is not None):
                     conflicts.append(DecisionConflict.create(
-                        title=f"Creative conflict: author intention vs realized state",
+                        title="Creative conflict: author intention vs realized state",
                         conflict_type=ConflictType.CREATIVE,
                         resolution_boundary=ResolutionBoundary.BLOCK_ACCEPTANCE,
                         source_subsystem=ac.source_subsystem,

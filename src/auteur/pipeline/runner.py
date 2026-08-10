@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from pathlib import Path
-from threading import Lock
 from typing import Any, Callable
 
-import yaml
 
 from auteur.bard import draft_chapter as bard_draft
 from auteur.bible import StoryBible
@@ -16,13 +13,12 @@ from auteur.cartographer_models import PlanningCall
 from auteur.blueprint import StoryBlueprint
 from auteur.critic import CriticFinding, ValidationReport
 from auteur.critic.repair_writer import write_critic_proposals
-from auteur.llm import LLMClient, LLMRequest, LLMResponse
+from auteur.llm import LLMClient, LLMRequest
 from auteur.llm.counting import _CountingClient
 from auteur.pipeline.extraction import extract_character_state_changes
 from auteur.pipeline.models import DraftResult, PlanResult
 from auteur.pipeline.parsing import _parse_outline_yaml
 from auteur.reasoning.draft_critics import register_draft_critics
-from auteur.reasoning.draft_review import persist_reasoning_run
 from auteur.reasoning.runtime import CriticRegistry, ReasoningRuntime, RuntimeRequest
 
 

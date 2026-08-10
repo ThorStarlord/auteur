@@ -23,7 +23,6 @@ from auteur.narrative_realization.cli_realization import (
 )
 from auteur.narrative_blueprint.schema.chapter_outline import ChapterOutline
 from auteur.narrative_blueprint.loader.outline_loader import OutlineLoader
-from auteur.narrative_realization.schema.scene_outline import SceneOutline
 
 
 @pytest.fixture

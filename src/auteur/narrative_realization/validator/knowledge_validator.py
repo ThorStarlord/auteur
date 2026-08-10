@@ -42,15 +42,10 @@ When schema is enhanced, validator will support:
 """
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional
 from enum import Enum
 
 from auteur.narrative_realization.schema.scene_outline import SceneOutline, SceneStatus
-from auteur.narrative_realization.schema.scene_state import (
-    KnowledgeFact,
-    EntryState,
-    ExitState,
-)
 
 
 class KnowledgeViolationType(str, Enum):

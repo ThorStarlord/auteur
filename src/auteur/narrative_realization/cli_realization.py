@@ -12,9 +12,7 @@ All commands work identically across all 3 genres (netorara, mystery, gentlefemd
 from __future__ import annotations
 
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
 
 from auteur.narrative_blueprint.loader.outline_loader import OutlineLoader
 from auteur.narrative_blueprint.schema.chapter_outline import ChapterOutline

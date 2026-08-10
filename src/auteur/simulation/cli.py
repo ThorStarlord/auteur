@@ -147,7 +147,7 @@ def _handle_status(args) -> int:
         if args.json:
             print(json.dumps(result, indent=2, default=str))
         else:
-            print(f"Simulation Status")
+            print("Simulation Status")
             print(f"  Latest scenario: {result.get('latest_scenario_id', '(none)')[:24]}...")
             print(f"  Total scenarios: {result.get('total_scenarios', 0)}")
             print(f"  Active: {result.get('active_scenarios', 0)}")
@@ -199,11 +199,11 @@ def _handle_inspect(args) -> int:
                     print(f"\n  Uncertainty: {scenario.uncertainty_summary}")
             if args.plan and scenario.projected_plan:
                 pp = scenario.projected_plan
-                print(f"\n  Projected Plan:")
+                print("\n  Projected Plan:")
                 print(f"    Open decisions: {pp.open_decision_count}")
                 print(f"    Blocked milestones: {pp.blocked_milestone_count}")
             if args.impact:
-                print(f"\n  Projected Impact:")
+                print("\n  Projected Impact:")
                 for c in scenario.projected_consequences:
                     print(f"    {c.target[:40]}: {c.description[:60]}")
         return 0
@@ -257,7 +257,7 @@ def _handle_compare(args) -> int:
                 "milestone_differences": comparison.milestone_differences,
             }, indent=2, default=str))
         else:
-            print(f"Scenario Comparison")
+            print("Scenario Comparison")
             print(f"  A: {comparison.scenario_a_id[:24]}...")
             print(f"  B: {comparison.scenario_b_id[:24]}...")
             print(f"  Shared consequences: {len(comparison.shared_consequences)}")
@@ -272,7 +272,7 @@ def _handle_compare(args) -> int:
                 print(f"  Unknowns: {len(comparison.unknowns)}")
             if comparison.milestone_differences:
                 print(f"  Milestone differences: {len(comparison.milestone_differences)}")
-            print(f"\nThis comparison is not a winner ranking.")
+            print("\nThis comparison is not a winner ranking.")
         return 0
     except ValueError as e:
         print(f"Error: {e}", file=sys.stderr)
@@ -303,7 +303,7 @@ def _handle_refresh(args) -> int:
                 "state": new_projected.state.value,
             }, indent=2, default=str))
         else:
-            print(f"Refresh created new lineage:")
+            print("Refresh created new lineage:")
             print(f"  Old: {args.scenario_id[:24]}...")
             print(f"  New: {new_projected.scenario_id[:24]}...")
             print(f"  State: {new_projected.state.value}")

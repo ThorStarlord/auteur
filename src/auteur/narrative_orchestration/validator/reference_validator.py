@@ -13,7 +13,7 @@ The ReferenceValidator orchestrates all reference validation checks and provides
 comprehensive error reporting with artifact_id, reference_id, and error_message.
 """
 
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 
 from auteur.narrative_orchestration.schema.references import (
@@ -21,7 +21,6 @@ from auteur.narrative_orchestration.schema.references import (
     ReferenceResolver,
     ReferenceGraph,
     ReferenceType,
-    IdFormat,
 )
 
 

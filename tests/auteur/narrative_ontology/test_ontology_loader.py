@@ -5,9 +5,6 @@ Covers base ontology, genre-specific extensions, and all three genres identicall
 """
 
 import pytest
-import tempfile
-import shutil
-from pathlib import Path
 from auteur.narrative_ontology.loader.ontology_loader import OntologyLoader
 
 
@@ -62,7 +59,6 @@ class TestOntologyLoaderBasic:
         """Test that relationships reference concepts in the ontology."""
         loader = OntologyLoader()
         base = loader.load_base_ontology()
-        concept_names = set(base.keys())
 
         for concept_name, concept in base.items():
             relationships = concept.get("relationships", [])

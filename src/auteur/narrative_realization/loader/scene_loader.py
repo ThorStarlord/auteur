@@ -14,17 +14,14 @@ enabling scenes to be stored and retrieved without information loss. Handles:
 
 from __future__ import annotations
 
-from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import yaml
 from pydantic import ValidationError
 
 from auteur.narrative_realization.schema.scene_outline import (
     SceneOutline,
-    SceneStatus,
-    TemporalRelation,
 )
 
 
@@ -202,7 +199,7 @@ class SceneLoader:
             try:
                 scene = self.load_scene(str(scene_file))
                 scenes.append(scene)
-            except (FileNotFoundError, ValueError) as e:
+            except (FileNotFoundError, ValueError):
                 # Log but continue loading other scenes
                 # In production, might want to raise after collecting all errors
                 pass

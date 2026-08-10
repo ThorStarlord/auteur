@@ -281,7 +281,8 @@ def test_choose_k_of_n_with_bindings_renders_combinations():
 # ---------------------------------------------------------------------------
 
 def test_create_scaffolds_empty_bindings(tmp_path):
-    import subprocess, sys
+    import subprocess
+    import sys
     proj = tmp_path / "p"
     proj.mkdir()
     r = subprocess.run(
@@ -296,7 +297,9 @@ def test_create_scaffolds_empty_bindings(tmp_path):
 
 
 def test_accept_records_resolved_bindings(tmp_path):
-    import shutil, subprocess, sys
+    import shutil
+    import subprocess
+    import sys
     proj = tmp_path / "p"
     proj.mkdir(parents=True)
     for name in ("story_identity.yaml", "blueprint.yaml"):
@@ -321,7 +324,9 @@ def test_accept_records_resolved_bindings(tmp_path):
 
 
 def test_evaluate_bound_decision_exit0(tmp_path):
-    import shutil, subprocess, sys
+    import shutil
+    import subprocess
+    import sys
     proj = tmp_path / "p"
     proj.mkdir(parents=True)
     for name in ("story_identity.yaml", "blueprint.yaml"):

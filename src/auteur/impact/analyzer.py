@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import uuid
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -18,7 +16,7 @@ from auteur.impact.models import (
     ImpactSeverity,
     PreservationStatus,
 )
-from auteur.impact.rules import RULES, highest_severity, match_rule
+from auteur.impact.rules import highest_severity, match_rule
 from auteur.provenance.store import ArtifactStore, canonical_content_hash
 
 
@@ -206,7 +204,6 @@ def _classify_impact(
 
 def _deduplicate_findings(findings: list[ImpactFinding]) -> list[ImpactFinding]:
     """Deduplicate findings for the same artifact, keeping highest severity."""
-    from auteur.impact.rules import SEVERITY_ORDER, highest_severity
     best_per_artifact: dict[str, ImpactFinding] = {}
     for f in findings:
         if not f.affected_artifact:

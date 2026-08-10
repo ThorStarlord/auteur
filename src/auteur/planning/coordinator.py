@@ -7,8 +7,6 @@ from auteur.planning.models import (
     CoordinationFindingType,
     DependencyStrength,
     ParallelWorkGroup,
-    PlanAction,
-    PlanDependency,
     PlanningNode,
     NodeType,
     _stable_id,

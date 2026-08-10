@@ -25,13 +25,6 @@ from auteur.narrative_orchestration.validator.composition_validator import (
     AggregatedViolation,
     ValidationSeverity,
 )
-from auteur.narrative_orchestration.validator.reference_validator import (
-    ValidationError,
-)
-from auteur.narrative_orchestration.validator.chronological_validator import (
-    ChronologicalViolation,
-    ChronologyViolationType,
-)
 
 
 # Test fixtures: Mock outline artifacts

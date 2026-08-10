@@ -2,9 +2,6 @@
 
 import pytest
 from auteur.netorare.identity_generator import IdentityGenerator
-from auteur.gentlefemdom.core_templates import (
-    SensualDominanceTemplate, TenderSurrenderTemplate, RomanticAuthorityTemplate
-)
 from auteur.identity import StoryIdentity
 from auteur.blueprint import Genre
 

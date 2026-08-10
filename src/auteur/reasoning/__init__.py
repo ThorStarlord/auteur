@@ -24,4 +24,5 @@ __all__ = [
     "register_setup_payoff_critic", "run_setup_payoff",
     "register_blueprint_coherence_critic", "run_blueprint_analysis",
     "register_scene_critic", "run_scene_analysis",
+    "synthesize_reports",
 ]

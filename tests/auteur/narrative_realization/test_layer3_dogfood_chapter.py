@@ -19,14 +19,10 @@ Dogfood Data:
 - Validators: Temporal, Knowledge, Realization (all 3 exercise full capability)
 """
 
-import tempfile
-from pathlib import Path
 from typing import List
 
 import pytest
-import yaml
 
-from auteur.narrative_realization.loader.scene_loader import SceneLoader
 from auteur.narrative_realization.schema import (
     ArcBeatRealization,
     Decision,
@@ -44,11 +40,8 @@ from auteur.narrative_realization.schema import (
 )
 from auteur.narrative_realization.validator import (
     KnowledgeValidator,
-    KnowledgeViolation,
     TemporalValidator,
-    TemporalViolation,
     RealizationValidator,
-    RealizationViolation,
 )
 
 
@@ -827,7 +820,7 @@ class TestErrorScenariosAndRecovery:
         4. Author fixes gaps by adding missing facts to entry state
         """
         scene1 = Chapter07SceneFactory.build_scene_1_archive_research()
-        scene2 = Chapter07SceneFactory.build_scene_2_confrontation()
+        Chapter07SceneFactory.build_scene_2_confrontation()
 
         # Simulate author error: Scene 2 entry is missing critical knowledge
         scene2_bad = Chapter07SceneFactory.build_scene_2_confrontation()
@@ -867,7 +860,7 @@ class TestErrorScenariosAndRecovery:
         validator.add_scene(Chapter07SceneFactory.build_scene_2_confrontation())
         validator.add_scene(scene3)
 
-        result = validator.validate_all_scenes()
+        validator.validate_all_scenes()
         # This may or may not be caught depending on validator logic
         # But error should be understandable if detected
 

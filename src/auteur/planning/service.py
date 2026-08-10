@@ -280,7 +280,6 @@ class PlanningService:
         """Persist a plan snapshot and update latest pointer."""
         try:
             self.store.save_snapshot(plan)
-            plan_id = plan.plan_id
             self.store.save_latest(plan)
             if plan.plan_history:
                 self.store.save_history(plan.plan_id, plan.plan_history)

@@ -6,7 +6,6 @@ import json
 import sys
 from pathlib import Path
 
-import yaml
 
 from auteur.blueprint import StoryBlueprint
 from auteur.character.analyzer import analyze_character_categorization

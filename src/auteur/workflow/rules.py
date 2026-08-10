@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 from auteur.status import gather_status
 from auteur.workflow.models import (
@@ -226,7 +227,6 @@ def integrate_decision_actions(
         return []
 
     from auteur.decision.models import DecisionReadiness
-    from auteur.workflow.models import FORBIDDEN_DECISION_ACTIONS, SAFE_DECISION_ACTIONS
 
     workflow_actions: list[WorkflowAction] = []
 
@@ -310,17 +310,17 @@ def recommend_actions(
     # Generate impact-aware actions
     impact_actions = _recommend_impact_actions(project_root)
     actions.extend(impact_actions)
-    
+
     # Generate series-aware actions when a series identity exists
     series_actions = _recommend_series_actions(project_root)
     actions.extend(series_actions)
-    
+
     # Generate lifecycle-gap actions
     lifecycle_actions = _recommend_lifecycle_actions(lifecycle)
     actions.extend(lifecycle_actions)
 
     # Generate commitment-gap actions
-    commitment_actions = _recommend_commitment_actions(commitment)
+    _recommend_commitment_actions(commitment)
 
     # Generate decision-aware actions when decisions are provided
     decision_actions: list[WorkflowAction] = []
@@ -477,7 +477,7 @@ def _recommend_lifecycle_actions(lifecycle: dict[str, Any] | None) -> list[Workf
 
     if portfolio_count > 0:
         actions.append(WorkflowAction(
-            label=f"Promote portfolio decision(s) to review",
+            label="Promote portfolio decision(s) to review",
             command="auteur lifecycle summary --project .",
             authority=AuthorityLevel.READ_ONLY,
             description="Portfolio decisions not yet promoted to review. Use 'auteur portfolio promote'.",
@@ -511,7 +511,6 @@ def _recommend_commitment_actions(commitment: dict[str, Any] | None) -> list[Wor
         return []
 
     actions: list[WorkflowAction] = []
-    state = commitment.get("state", "")
     failed = commitment.get("failed_steps", 0)
     diverged = commitment.get("diverged", 0)
 
@@ -525,7 +524,7 @@ def _recommend_commitment_actions(commitment: dict[str, Any] | None) -> list[Wor
 
     if diverged > 0:
         actions.append(WorkflowAction(
-            label=f"Check diverged commitment(s)",
+            label="Check diverged commitment(s)",
             command="auteur commit check LATEST --project .",
             authority=AuthorityLevel.READ_ONLY,
             description="Commitment has diverged from live state.",
@@ -595,8 +594,8 @@ def _recommend_series_actions(project_root: Path | None) -> list[WorkflowAction]
             description="Run validation on the series identity.",
         ),
     ]
-    
-    
+
+
 def _reconciliation_done(root: Path) -> bool:
     """Check if book-level reconciliation is complete."""
     for base in [root / ".auteur" / "book" / "expression" / "reconciliation",

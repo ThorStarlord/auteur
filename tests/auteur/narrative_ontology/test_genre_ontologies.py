@@ -4,7 +4,6 @@ Tests cover netorare, mystery, and gentle femdom genre ontologies,
 including concept definitions, relationships, validation rules, and theme sets.
 """
 
-import pytest
 from auteur.narrative_ontology.genre.netorare_ontology import (
     NetorareOntology,
     CuckoldryArc,
@@ -23,7 +22,7 @@ from auteur.narrative_ontology.genre.gentlefemdom_ontology import (
     SurrenderBeat,
     TrustCheckpoint,
 )
-from auteur.narrative_ontology.base_concept import BaseConcept, Relationship, ValidationRule
+from auteur.narrative_ontology.base_concept import BaseConcept
 
 
 class TestNetorareOntology:

@@ -14,7 +14,7 @@ def test_init_creates_directory_with_blueprint_and_bible(tmp_path):
     proj_dir = tmp_path / "novel"
     blueprint = StoryBlueprint.from_yaml(SAMPLE_YAML)
 
-    project = Project.init(proj_dir, blueprint)
+    Project.init(proj_dir, blueprint)
 
     assert proj_dir.is_dir()
     assert (proj_dir / "blueprint.yaml").exists()

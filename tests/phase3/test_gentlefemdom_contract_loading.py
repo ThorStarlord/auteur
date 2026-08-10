@@ -1,6 +1,5 @@
 """Tests: gentlefemdom genre contract loads and provides expected structure."""
 
-import pytest
 from auteur.genres.registry import load_genre_contract
 from auteur.blueprint import Genre
 

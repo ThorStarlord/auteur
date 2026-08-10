@@ -10,7 +10,7 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 from typing import Optional
 
-from auteur.blueprint import StoryBlueprint, StoryEngine, MainThread, StoryThread, ThreadType
+from auteur.blueprint import StoryBlueprint, ThreadType
 from auteur.structure.diagnostics import DiagnosticLayer, DiagnosticSeverity, StructureDiagnostic
 
 
@@ -59,7 +59,6 @@ def synthesize_structural_forces(blueprint: StoryBlueprint) -> StructuralForcesS
 
     primary_feeling = target_exp.primary
     genre = blueprint.identity.genre
-    mode = blueprint.identity.mode
 
     # Get narrative runway if scope_contract is defined
     scope = "unknown"
@@ -323,7 +322,7 @@ def generate_subordinate_threads(
     """
     threads: list[GeneratedThread] = []
     characters = blueprint.characters
-    all_carrier_names = _extract_carrier_names(blueprint)
+    _extract_carrier_names(blueprint)
 
     # Character arc for protagonist
     if characters:

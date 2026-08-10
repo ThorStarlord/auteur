@@ -7,7 +7,6 @@ from pathlib import Path
 import pytest
 
 from auteur.workflow.engine import WorkflowEngine
-from auteur.workflow.models import WorkflowStage
 from auteur.lifecycle.service import LifecycleService
 
 
@@ -57,7 +56,6 @@ class TestEngineLifecycle:
         state = engine.analyze()
 
         # Should see the committed decision
-        by_stage = state.lifecycle.get("by_stage", {})
         # The decision only appears if it exists in DecisionWorkspaceService
         # The commitment probe won't find it as a decision, but lifecycle should still work
         assert "total_decisions" in state.lifecycle

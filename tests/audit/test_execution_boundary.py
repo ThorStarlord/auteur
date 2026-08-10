@@ -13,7 +13,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
 
 from auteur.workflow.engine import WorkflowEngine
 from auteur.workflow.models import (
@@ -91,7 +90,7 @@ class TestRecursionPrevention:
         e = _engine(tmp_path)
         for action_id in SAFE_DECISION_ACTIONS:
             label = action_id.replace("-", " ")
-            action = _action(label, f"auteur decision next x", authority=AuthorityLevel.READ_ONLY)
+            action = _action(label, "auteur decision next x", authority=AuthorityLevel.READ_ONLY)
             assert e.can_execute(action) is True, f"Safe action {action_id} rejected by can_execute"
 
     def test_workflow_action_cannot_dispatch_workflow(self, tmp_path: Path) -> None:
@@ -103,16 +102,12 @@ class TestRecursionPrevention:
 
     def test_workflow_action_cannot_dispatch_non_safe_decision(self, tmp_path: Path) -> None:
         """A workflow action cannot dispatch a decision subcommand that requires authority."""
-        from auteur.workflow.engine import _SAFE_DECISION_SUBCOMMANDS
         e = _engine(tmp_path)
-
-        authority_levels = [m.value for m in list(AuthorityLevel)]
-        safe_names = {v.replace("-", " ") for v in _SAFE_DECISION_SUBCOMMANDS}
 
         for level in AuthorityLevel:
             if level in (AuthorityLevel.READ_ONLY, AuthorityLevel.DERIVED_ARTIFACT, AuthorityLevel.CANDIDATE_GENERATION):
                 continue  # These could pass can_execute
-            action = _action(f"test-{level.value}", f"auteur decision inspect x", authority=level)
+            action = _action(f"test-{level.value}", "auteur decision inspect x", authority=level)
             assert e.can_execute(action) is False, f"Level {level.value} should not be executable"
 
 

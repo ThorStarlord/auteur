@@ -342,11 +342,6 @@ class TestArcVsChapterAgreement:
         validator.validate_arc_vs_chapter_agreement()
 
         # Should find emotional contradiction
-        contradictions = [
-            c
-            for c in validator.contradictions
-            if c.contradiction_type == "arc_vs_chapter_emotional_conflict"
-        ]
         # This might find contradictions depending on the heuristic
         # The important thing is that the method runs without error
 
@@ -424,11 +419,6 @@ class TestStoryArcVsChapters:
         validator.validate_story_arc_vs_chapters()
 
         # Should have no mismatches
-        contradictions = [
-            c
-            for c in validator.contradictions
-            if c.contradiction_type == "story_arc_progress_mismatch"
-        ]
         # Might not find mismatch if investigation keyword matches
         # The important thing is that method runs without error
 
@@ -465,11 +455,6 @@ class TestStoryArcVsChapters:
         validator.validate_story_arc_vs_chapters()
 
         # Might find mismatches
-        contradictions = [
-            c
-            for c in validator.contradictions
-            if c.contradiction_type == "story_arc_progress_mismatch"
-        ]
         # Method runs without error
 
 
@@ -553,11 +538,6 @@ class TestCharacterStateConsistency:
         validator.validate_character_state_consistency()
 
         # Might find contradictions
-        contradictions = [
-            c
-            for c in validator.contradictions
-            if c.contradiction_type == "character_state_contradiction"
-        ]
         # Method runs without error
 
     def test_single_turning_point_no_contradiction(
@@ -724,11 +704,6 @@ class TestSequenceChapterAlignment:
         validator.validate_sequence_chapter_alignment()
 
         # Should have no misalignments
-        contradictions = [
-            c
-            for c in validator.contradictions
-            if c.contradiction_type == "sequence_chapter_misalignment"
-        ]
         # Method runs without error
 
     def test_misaligned_sequence_and_chapters(
@@ -751,11 +726,6 @@ class TestSequenceChapterAlignment:
         validator.validate_sequence_chapter_alignment()
 
         # Might find misalignments
-        contradictions = [
-            c
-            for c in validator.contradictions
-            if c.contradiction_type == "sequence_chapter_misalignment"
-        ]
         # Method runs without error
 
     def test_empty_sequence_range(self, base_book_outline, sample_chapters):
@@ -887,7 +857,7 @@ class TestEdgeCases:
             genre="netorare",
         )
 
-        no_contradictions, contradictions = validator.validate_no_contradictions()
+        no_contradictions, _ = validator.validate_no_contradictions()
         assert no_contradictions is True
 
     def test_no_arcs(self, base_book_outline, sample_chapters):
@@ -900,7 +870,7 @@ class TestEdgeCases:
             story_arcs={},
         )
 
-        no_contradictions, contradictions = validator.validate_no_contradictions()
+        no_contradictions, _ = validator.validate_no_contradictions()
         assert no_contradictions is True
 
     def test_no_sequences(self, base_book_outline, sample_chapters):
@@ -912,7 +882,7 @@ class TestEdgeCases:
             sequence_outlines={},
         )
 
-        no_contradictions, contradictions = validator.validate_no_contradictions()
+        no_contradictions, _ = validator.validate_no_contradictions()
         assert no_contradictions is True
 
     def test_multiple_arcs(self, base_book_outline, sample_chapters):
@@ -952,7 +922,7 @@ class TestEdgeCases:
             character_arcs={"arc_001": arc1, "arc_002": arc2},
         )
 
-        no_contradictions, contradictions = validator.validate_no_contradictions()
+        validator.validate_no_contradictions()
         # Should handle multiple arcs without error
 
     def test_contradiction_to_dict(self):

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from auteur.critic.base import parse_findings_yaml, run_critic as _run_critic
+from auteur.critic.base import run_critic as _run_critic
 from auteur.llm import LLMClient
 from auteur.reasoning.runtime import CriticRegistry, CriticSpec
 

@@ -16,8 +16,7 @@ Key Features:
 """
 
 from datetime import datetime
-from typing import Dict, List, Optional, Any, Tuple
-from enum import Enum
+from typing import Dict, List, Optional, Tuple
 
 from auteur.identity import StoryIdentity
 from auteur.blueprint import Genre
@@ -30,7 +29,6 @@ from auteur.narrative_blueprint.schema.outline_types import PhaseRange
 
 from auteur.narrative_orchestration.validator.reference_validator import (
     ReferenceValidator,
-    ValidationResult,
 )
 from auteur.narrative_orchestration.validator.chronological_validator import (
     ChronologicalValidator,
@@ -410,9 +408,9 @@ class OutlineBuilder:
             ]
         else:
             objectives = [
-                f"Setup and establish stakes",
-                f"Rising conflict and escalation",
-                f"Crisis and climax",
+                "Setup and establish stakes",
+                "Rising conflict and escalation",
+                "Crisis and climax",
             ]
 
         # Cycle through available objectives
@@ -463,7 +461,7 @@ class OutlineBuilder:
                 title=f"Chapter {ch_num}",
                 goal=goal,
                 conflict=conflict,
-                turning_point=f"Turning point that advances the narrative.",
+                turning_point="Turning point that advances the narrative.",
                 emotional_beat="tension rising",
                 arc_progressions={},
             )
@@ -669,7 +667,7 @@ class OutlineBuilder:
         artifact_registry = {}
 
         # Add book outline
-        book_id = f"book_001"
+        book_id = "book_001"
         artifact_registry[book_id] = self.book_outline
 
         # Add sequence outlines
@@ -700,7 +698,7 @@ class OutlineBuilder:
                 f"{err.artifact_id}: {err.message}" for err in ref_result.errors
             ]
             raise ValueError(
-                f"Reference validation failed:\n" + "\n".join(error_messages[:5])
+                "Reference validation failed:\n" + "\n".join(error_messages[:5])
             )
 
         # Run chronological validator (basic checks)
@@ -734,7 +732,7 @@ class OutlineBuilder:
                 for v in chrono_validator.violations[:5]
             ]
             raise ValueError(
-                f"Chronological validation failed:\n" + "\n".join(error_messages)
+                "Chronological validation failed:\n" + "\n".join(error_messages)
             )
 
         # Run contradiction validator
@@ -773,10 +771,10 @@ class OutlineBuilder:
                     for c in contradiction_result.contradictions[:5]
                 ]
                 raise ValueError(
-                    f"Contradiction validation failed:\n"
+                    "Contradiction validation failed:\n"
                     + "\n".join(error_messages)
                 )
-        except Exception as e:
+        except Exception:
             # Contradiction validator might not be fully implemented
             # Log but don't fail on it
             pass

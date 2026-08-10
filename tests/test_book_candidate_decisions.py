@@ -35,7 +35,8 @@ from auteur.expression.book_reconciliation import (
 # ----------------------------------------------------------------------------
 
 def _make_book(tmp_path: Path) -> tuple[Path, str]:
-    project = tmp_path / "project"; project.mkdir(parents=True, exist_ok=True)
+    project = tmp_path / "project"
+    project.mkdir(parents=True, exist_ok=True)
     from conftest import copy_bootstrap_template as _cbt
     _cbt(project)
     book = BookExpressionStore(project).compose(
@@ -638,7 +639,7 @@ def test_dogfood_scenario_c_multiple_approvals_latest_wins(tmp_path: Path) -> No
     store = BookReconciliationStore(project)
     before = _pointer_snapshot(project)
     publication, candidate_id = _publish_separator(store, book_id, project)
-    _, first = store.decide_candidate(candidate_id, "approved", "first pass")
+    store.decide_candidate(candidate_id, "approved", "first pass")
     _, second = store.decide_candidate(candidate_id, "approved", "second, better reason")
     latest = store._latest_decision_for_candidate(candidate_id)
     assert latest["decision_id"] == second["decision_id"]

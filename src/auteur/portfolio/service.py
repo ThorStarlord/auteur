@@ -8,7 +8,6 @@ from typing import Any
 
 from auteur.portfolio.models import (
     NarrativePortfolio,
-    PortfolioConstraint,
     PortfolioDecision,
     PortfolioFrontier,
     PortfolioScenario,

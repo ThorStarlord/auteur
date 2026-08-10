@@ -43,10 +43,10 @@ def test_compliant_thriller_no_warnings():
         },
         "threads": [],
     }
-    
+
     blueprint = StoryBlueprint.model_validate(data)
     diagnostics = analyze_structure(blueprint)
-    
+
     # Check that there are no genre-based warnings or errors
     genre_rules = [d for d in diagnostics if d.rule.startswith("genre.")]
     assert genre_rules == []
@@ -66,10 +66,10 @@ def test_thriller_therapy_bias_warning():
         },
         "threads": [],
     }
-    
+
     blueprint = StoryBlueprint.model_validate(data)
     diagnostics = analyze_structure(blueprint)
-    
+
     # Filter for the therapy bias trap warning
     warnings = [d for d in diagnostics if d.rule == "genre.psychology_budget.therapy_bias_trap"]
     assert len(warnings) == 1
@@ -95,10 +95,10 @@ def test_romance_tragic_ending_forbidden_error():
         },
         "threads": [],
     }
-    
+
     blueprint = StoryBlueprint.model_validate(data)
     diagnostics = analyze_structure(blueprint)
-    
+
     # Filter for forbidden mismatches
     errors = [d for d in diagnostics if d.rule == "genre.forbidden_mismatch.ending_tone"]
     assert len(errors) == 1
@@ -123,10 +123,10 @@ def test_romance_required_trope_forbidden_error():
         },
         "threads": [],
     }
-    
+
     blueprint = StoryBlueprint.model_validate(data)
     diagnostics = analyze_structure(blueprint)
-    
+
     # Filter for the required trope forbidden mismatch
     errors = [d for d in diagnostics if d.rule == "genre.forbidden_mismatch.required_trope_forbidden"]
     assert len(errors) == 1

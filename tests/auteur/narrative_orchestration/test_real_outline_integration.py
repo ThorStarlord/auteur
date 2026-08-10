@@ -25,10 +25,7 @@ Coverage: 15+ tests validating real-world scenario end-to-end.
 """
 
 import pytest
-from datetime import datetime
-from typing import Dict, List, Tuple, Optional
-import json
-from pathlib import Path
+from typing import Dict
 
 from auteur.identity import StoryIdentity, HighLevelCentralEngine, StoryType
 from auteur.blueprint import (
@@ -40,16 +37,12 @@ from auteur.blueprint import (
 )
 from auteur.narrative_orchestration.orchestrator.outline_builder import (
     OutlineBuilder,
-    GenreDefaults,
 )
 from auteur.narrative_blueprint.schema.book_outline import BookOutline
-from auteur.narrative_blueprint.schema.sequence_outline import SequenceOutline
-from auteur.narrative_blueprint.schema.chapter_outline import ChapterOutline
-from auteur.narrative_blueprint.schema.character_arc import CharacterArc, TurningPoint
-from auteur.narrative_blueprint.schema.story_arc import StoryArc, ArcCheckpoint
+from auteur.narrative_blueprint.schema.character_arc import CharacterArc
+from auteur.narrative_blueprint.schema.story_arc import StoryArc
 from auteur.narrative_orchestration.validator.reference_validator import (
     ReferenceValidator,
-    ValidationResult,
 )
 from auteur.narrative_orchestration.validator.chronological_validator import (
     ChronologicalValidator,

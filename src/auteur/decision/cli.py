@@ -6,7 +6,6 @@ import json
 import sys
 from pathlib import Path
 
-from auteur.decision.persistence import DecisionStore
 from auteur.decision.service import DecisionWorkspaceService
 
 
@@ -310,7 +309,7 @@ def handle_decision_inspect(args) -> int:
         decision = service.inspect(args.decision_id)
 
         if getattr(args, "json", False):
-            import dataclasses, json as _json
+            import json as _json
             print(_json.dumps(decision, indent=2, default=str))
         else:
             print(f"Decision: {decision.decision_id}")
@@ -322,11 +321,11 @@ def handle_decision_inspect(args) -> int:
             print(f"  Candidates: {len(decision.candidates)}")
             print(f"  Evidence: {len(decision.evidence)} items")
             if decision.blockers:
-                print(f"  Blockers:")
+                print("  Blockers:")
                 for b in decision.blockers:
                     print(f"    - {b}")
             if decision.unresolved_choices:
-                print(f"  Open choices:")
+                print("  Open choices:")
                 for c in decision.unresolved_choices:
                     print(f"    - {c.question}")
         return 0
@@ -532,7 +531,8 @@ def handle_decision_impact_preview(args) -> int:
         preview = service.impact_preview(args.decision_id, args.candidate)
 
         if getattr(args, "json", False):
-            import dataclasses, json as _json
+            import dataclasses
+            import json as _json
             print(_json.dumps(dataclasses.asdict(preview), indent=2, default=str))
         else:
             print(f"Impact Preview — {args.decision_id}")
@@ -625,7 +625,8 @@ def handle_decision_conflicts(args) -> int:
         conflicts = service.conflicts(args.decision_id)
 
         if getattr(args, "json", False):
-            import dataclasses, json as _json
+            import dataclasses
+            import json as _json
             print(_json.dumps([dataclasses.asdict(c) for c in conflicts], indent=2, default=str))
         else:
             if not conflicts:

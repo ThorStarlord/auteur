@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
 import yaml
 
 from auteur.impact.analyzer import ImpactAnalyzer
@@ -19,7 +18,7 @@ def _write_yaml(path: Path, data: dict) -> None:
 class TestUnresolvedImpact:
     def test_has_unresolved_impact(self) -> None:
         """BLOCKED or RECONCILE impact should be detected as unresolved."""
-        from auteur.impact.models import ArtifactRef, ChangeRecord, ImpactFinding
+        from auteur.impact.models import ArtifactRef, ImpactFinding
         analyzer = ImpactAnalyzer.__new__(ImpactAnalyzer)
         analyzer.project_root = Path(".")
 
@@ -51,7 +50,7 @@ class TestUnresolvedImpact:
 
     def test_workflow_actions_generated(self) -> None:
         """Impact findings should generate workflow-compatible actions."""
-        from auteur.impact.models import ArtifactRef, ChangeRecord, ImpactFinding
+        from auteur.impact.models import ArtifactRef, ImpactFinding
         analyzer = ImpactAnalyzer.__new__(ImpactAnalyzer)
         analyzer.project_root = Path(".")
 

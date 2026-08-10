@@ -66,7 +66,7 @@ def build_dashboard(project_root: Path) -> dict[str, Any]:
 def format_dashboard(data: dict[str, Any]) -> str:
     """Render dashboard data as human-readable text."""
     lines: list[str] = []
-    lines.append(f"# Auteur Dashboard")
+    lines.append("# Auteur Dashboard")
     lines.append(f"Project: {data.get('project', '?')}")
     lines.append("")
 

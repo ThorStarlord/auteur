@@ -13,8 +13,6 @@ import pytest
 from auteur.narrative_orchestration.orchestrator.outline_grapher import (
     OutlineGrapher,
     OutlineNode,
-    ArcReference,
-    SetupPayoffFlow,
     TreeFormatter,
 )
 

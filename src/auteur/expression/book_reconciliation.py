@@ -415,7 +415,8 @@ class BookReconciliationStore:
 
     def _load_inspection(self, inspection_id: str) -> dict[str, Any]:
         path = next(self.root.glob(f"inspections/{inspection_id}.yaml"), None)
-        if path is None: raise FileNotFoundError(f"Book inspection not found: {inspection_id}")
+        if path is None:
+            raise FileNotFoundError(f"Book inspection not found: {inspection_id}")
         return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
 
     def inspect(self, manuscript: Path, against: str) -> dict[str, Any]:
@@ -432,9 +433,11 @@ class BookReconciliationStore:
             unresolved = [{"finding_id": "unresolved:markerless", **parsed["findings"][0]}]
         seen = []
         for item in parsed["chapters"]:
-            chapter_id = item["id"]; seen.append(chapter_id)
+            chapter_id = item["id"]
+            seen.append(chapter_id)
             if chapter_id not in expected:
-                unresolved.append({"finding_id": f"unresolved:unknown:{chapter_id}", "classification": "unknown_chapter", "line_range": item["line_range"], "evidence": chapter_id, "recommended_action": "map the Chapter explicitly"}); continue
+                unresolved.append({"finding_id": f"unresolved:unknown:{chapter_id}", "classification": "unknown_chapter", "line_range": item["line_range"], "evidence": chapter_id, "recommended_action": "map the Chapter explicitly"})
+                continue
             original = book._chapter_text(book._accepted_chapter(chapter_id))
             if item["text"] != original:
                 chapter_findings.append({"finding_id": f"chapter:{chapter_id}", "chapter_id": chapter_id, "source_chapter_expression": expected[chapter_id]["chapter_expression_id"], "source_revision": expected[chapter_id]["accepted_revision"], "source_hash": expected[chapter_id]["content_hash"], "classification": "modified", "change_summary": "Chapter wording changed", "original_text_hash": _hash(original), "edited_text_hash": _hash(item["text"]), "route": "chapter_reconciliation", "edited_text": item["text"]})
@@ -464,7 +467,8 @@ class BookReconciliationStore:
             status = "unresolved"
         elif chapter_findings or book_findings or unresolved:
             status = "changed"
-        else: status = "no_changes"
+        else:
+            status = "no_changes"
         inspection_id = "inspection_" + datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S%f")
         report = {"inspection_id": inspection_id, "artifact_type": "book_edit_inspection", "authority": "derived", "lifecycle": "generated", "book_expression_id": against, "book_revision": metadata["revision"], "book_content_hash": _hash(source_text), "external_manuscript": {"path": str(manuscript), "content_hash": _hash(external)}, "marker_contract": {"version": 1}, "status": status, "chapter_findings": chapter_findings, "book_findings": book_findings, "unresolved_findings": unresolved, "provenance": {"transformation": {"id": "expression.inspect_book_manuscript", "version": 1}, "accepted_book": against, "accepted_chapters": metadata["chapters"], "created_at": datetime.now(timezone.utc).isoformat()}, "freshness": {"status": "fresh", "reasons": []}}
         self._inspection_path(inspection_id).parent.mkdir(parents=True, exist_ok=True)
@@ -493,7 +497,8 @@ class BookReconciliationStore:
             for index, finding in enumerate(report["book_findings"], 1):
                 proposal_id = f"proposal_{inspection_id}_{index:03d}"
                 proposal = {"proposal_id": proposal_id, "artifact_type": "book_expression_proposal", "authority": "derived", "lifecycle": "proposed", "book_expression_id": report["book_expression_id"], "source_book_revision": report["book_revision"], "source_book_hash": report["book_content_hash"], "source_inspection_id": inspection_id, "proposal_type": finding["recommended_proposal"], "target": finding.get("target_id"), "expected_revision": report["book_revision"], "expected_hash": report["book_content_hash"], "original": finding.get("original_text"), "proposed": finding.get("edited_text"), "evidence": finding, "transformation": {"id": "expression.propose_book_change", "version": 1}, "created_at": datetime.now(timezone.utc).isoformat(), "freshness": "fresh"}
-                (staged / f"{proposal_id}.yaml").write_text(yaml.safe_dump(proposal, sort_keys=False), encoding="utf-8"); proposals.append(proposal_id)
+                (staged / f"{proposal_id}.yaml").write_text(yaml.safe_dump(proposal, sort_keys=False), encoding="utf-8")
+                proposals.append(proposal_id)
             manifest = {"routing_id": f"routing_{inspection_id}", "source_inspection_id": inspection_id, "source_book_expression": report["book_expression_id"], "external_manuscript_hash": report["external_manuscript"]["content_hash"], "chapter_routes": routes, "book_proposals": proposals, "unresolved": report["unresolved_findings"], "status": "unresolved" if report["unresolved_findings"] else "routed", "created_at": datetime.now(timezone.utc).isoformat()}
             staged_manifest = staged / "manifest.yaml"
             staged_manifest.write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8")
@@ -528,15 +533,20 @@ class BookReconciliationStore:
                 moved.append(final)
             except Exception:
                 for path in moved:
-                    if path.exists(): path.unlink()
+                    if path.exists():
+                        path.unlink()
                 raise
-            if staged.exists(): shutil.rmtree(staged, ignore_errors=True)
+            if staged.exists():
+                shutil.rmtree(staged, ignore_errors=True)
             return manifest
         except Exception:
-            if final.exists(): final.unlink()
-            if staged.exists(): shutil.rmtree(staged, ignore_errors=True)
+            if final.exists():
+                final.unlink()
+            if staged.exists():
+                shutil.rmtree(staged, ignore_errors=True)
             for path in delegated_paths:
-                if path.exists(): path.unlink()
+                if path.exists():
+                    path.unlink()
             raise
 
     # ------------------------------------------------------------------
@@ -1826,7 +1836,7 @@ class BookReconciliationStore:
             return False, self._block("blocked_missing_target", publication_id, "recomposition blocked: accepted Book missing", [{"code": "BOOK_MISSING", "expected": book_id, "current": None, "recommended_action": "restore the accepted Book and recompose again"}])
         metadata = inspected["metadata"]
         current_revision = metadata.get("revision")
-        current_hash = _hash(self._book_source_text(book, metadata))
+        _hash(self._book_source_text(book, metadata))
 
         if book_revision_required is not None and str(current_revision) != str(book_revision_required):
             return False, self._block("blocked_stale_book", publication_id, "recomposition blocked: required Book revision does not match", [{"code": "STALE_BOOK_REVISION", "expected": book_revision_required, "current": current_revision, "recommended_action": "recompose against the current Book revision or re-decide candidates"}])
@@ -3197,7 +3207,7 @@ class BookReconciliationStore:
         staging = Path(staging_dir)
         manifest = yaml.safe_load((staging / "manifest.yaml").read_text(encoding="utf-8")) or {}
         targets = manifest["targets"]
-        acceptance_id = manifest["acceptance_id"]
+        manifest["acceptance_id"]
 
         book_revision_dest = Path(targets["book_revision"])
         acceptance_dest = Path(targets["acceptance_record"])
@@ -3429,7 +3439,7 @@ class BookReconciliationStore:
         results: list[dict[str, Any]] = []
         all_complete = True
 
-        known_chapter_ids = {s["chapter_id"] for s in accepted_chapter_sources}
+        {s["chapter_id"] for s in accepted_chapter_sources}
 
         for route in chapter_routes:
             chapter_id = route.get("chapter_id")
@@ -3502,9 +3512,6 @@ class BookReconciliationStore:
             if proposal is None:
                 resolution_map[pid] = {"resolution": "excluded", "reason": "proposal artifact missing", "blocks": False}
                 continue
-
-            proposal_type = proposal.get("proposal_type")
-            target = proposal.get("target")
 
             # Find the candidate that was published from this proposal.
             matching_candidate_id = None
@@ -3709,7 +3716,6 @@ class BookReconciliationStore:
         for src in accepted_chapter_sources:
             chapter_id = src.get("chapter_id")
             expected_revision = src.get("revision")
-            expected_pointer_id = src.get("pointer_id")
             try:
                 chapter = book._accepted_chapter(chapter_id)
             except ValueError:

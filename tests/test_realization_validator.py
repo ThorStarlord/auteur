@@ -8,7 +8,6 @@ Tests validate:
 - Critical beat validation
 """
 
-import pytest
 
 from auteur.narrative_realization.schema.scene_outline import (
     SceneOutline,

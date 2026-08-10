@@ -62,7 +62,8 @@ from auteur.expression.formatters import (
 )
 from auteur.expression.serializers import serialize_export_book, serialize_export_chapter
 
-_err = lambda m: print(format_error(m), file=sys.stderr)
+def _err(m):
+    print(format_error(m), file=sys.stderr)
 
 
 def _pilot_project_root(path: Path) -> Path:
@@ -166,46 +167,105 @@ def register_expression_subcommands(sub):
     p.add_argument("--project", type=Path, required=True)
     p.add_argument("--output", type=Path, required=True)
     p = expression_sub.add_parser("inspect-book-manuscript", help="Inspect a marked external Book manuscript without mutation.")
-    p.add_argument("manuscript", type=Path); p.add_argument("--against", required=True); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
+    p.add_argument("manuscript", type=Path)
+    p.add_argument("--against", required=True)
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--verbose", action="store_true")
     p = expression_sub.add_parser("route-book-inspection", help="Route a Book inspection to Chapter reconciliation or Book proposals.")
-    p.add_argument("inspection_id"); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true")
+    p.add_argument("inspection_id")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
     p = expression_sub.add_parser("show-book-inspection", help="Show a Book external-edit inspection.")
-    p.add_argument("inspection_id"); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true")
+    p.add_argument("inspection_id")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
     p = expression_sub.add_parser("plan-book-reconciliation", help="Create a derived Book reconciliation application plan.")
-    p.add_argument("inspection_id"); p.add_argument("--proposal", action="append", dest="proposals", default=[], required=True, help="Book proposal ID (repeatable)."); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
+    p.add_argument("inspection_id")
+    p.add_argument("--proposal", action="append", dest="proposals", default=[], required=True, help="Book proposal ID (repeatable).")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--verbose", action="store_true")
     p = expression_sub.add_parser("show-book-plan", help="Show a Book reconciliation application plan.")
-    p.add_argument("plan_id"); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
+    p.add_argument("plan_id")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--verbose", action="store_true")
     p = expression_sub.add_parser("publish-book-reconciliation", help="Publish a ready Book plan into unaccepted candidates.")
-    p.add_argument("plan_id"); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
+    p.add_argument("plan_id")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--verbose", action="store_true")
     p = expression_sub.add_parser("inspect-book-publication", help="Inspect a Book reconciliation publication transaction.")
-    p.add_argument("publication_id"); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
+    p.add_argument("publication_id")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--verbose", action="store_true")
     for _decision_cmd, _decision_help in (
         ("approve-book-candidate", "Approve a published Book candidate for recomposition (append-only decision; no recomposition, no acceptance)."),
         ("reject-book-candidate", "Reject a published Book candidate (append-only decision; supersedes any prior decision)."),
         ("defer-book-candidate", "Defer a published Book candidate (nonterminal; can be approved or rejected later)."),
     ):
         p = expression_sub.add_parser(_decision_cmd, help=_decision_help)
-        p.add_argument("candidate"); p.add_argument("--reason", required=True); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
+        p.add_argument("candidate")
+        p.add_argument("--reason", required=True)
+        p.add_argument("--project", type=Path, required=True)
+        p.add_argument("--json", action="store_true")
+        p.add_argument("--verbose", action="store_true")
     p = expression_sub.add_parser("recompose-book-from-accepted", help="Recompose a derived, noncanonical Book from current accepted Chapter and Book-owned pointers.")
-    p.add_argument("publication_id"); p.add_argument("--require-book-revision", dest="require_book_revision", default=None, help="Block unless the current accepted Book is this revision."); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
+    p.add_argument("publication_id")
+    p.add_argument("--require-book-revision", dest="require_book_revision", default=None, help="Block unless the current accepted Book is this revision.")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--verbose", action="store_true")
     p = expression_sub.add_parser("show-book-recomposition", help="Show the most recent Book recomposition artifact.")
-    p.add_argument("publication_id"); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
+    p.add_argument("publication_id")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--verbose", action="store_true")
     p = expression_sub.add_parser("compare-book-recomposition", help="Compare a Book recomposition against an external manuscript (read-only, deterministic).")
-    p.add_argument("recomposition_id"); p.add_argument("--external-manuscript", dest="external_manuscript", type=Path, default=None, help="External manuscript path (defaults to the source inspection's manuscript)."); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
+    p.add_argument("recomposition_id")
+    p.add_argument("--external-manuscript", dest="external_manuscript", type=Path, default=None, help="External manuscript path (defaults to the source inspection's manuscript).")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--verbose", action="store_true")
     p = expression_sub.add_parser("inspect-book-comparison", help="Inspect a Book recomposition-vs-manuscript comparison report.")
-    p.add_argument("comparison_id"); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
+    p.add_argument("comparison_id")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--verbose", action="store_true")
     p = expression_sub.add_parser("accept-recomposed-book", help="Accept an exact-match recomposed Book as canonical (immutable revision + acceptance record, atomic pointer move).")
-    p.add_argument("comparison_id"); p.add_argument("--reason", default=None, help="Optional acceptance rationale recorded in the immutable artifacts."); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
+    p.add_argument("comparison_id")
+    p.add_argument("--reason", default=None, help="Optional acceptance rationale recorded in the immutable artifacts.")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--verbose", action="store_true")
     p = expression_sub.add_parser("inspect-book-acceptance", help="Inspect a Book acceptance record.")
-    p.add_argument("acceptance_id"); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
+    p.add_argument("acceptance_id")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--verbose", action="store_true")
     p = expression_sub.add_parser("complete-book-reconciliation", help="Complete the Book reconciliation workflow (administrative closure, no narrative changes).")
-    p.add_argument("acceptance_id"); p.add_argument("--reason", default=None, help="Optional completion rationale recorded in the immutable record."); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
+    p.add_argument("acceptance_id")
+    p.add_argument("--reason", default=None, help="Optional completion rationale recorded in the immutable record.")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--verbose", action="store_true")
     p = expression_sub.add_parser("inspect-book-reconciliation-completion", help="Inspect a Book reconciliation completion record.")
-    p.add_argument("completion_id"); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
+    p.add_argument("completion_id")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--verbose", action="store_true")
     p = expression_sub.add_parser("show-book-candidate-decision", help="Show a Book candidate decision record.")
-    p.add_argument("decision"); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
+    p.add_argument("decision")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--verbose", action="store_true")
     p = expression_sub.add_parser("book-candidate-history", help="Show the append-only decision history and active status for a Book candidate.")
-    p.add_argument("candidate"); p.add_argument("--project", type=Path, required=True); p.add_argument("--json", action="store_true"); p.add_argument("--verbose", action="store_true")
+    p.add_argument("candidate")
+    p.add_argument("--project", type=Path, required=True)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--verbose", action="store_true")
     p = expression_sub.add_parser("reconcile", help="Inspect and propose Chapter manuscript reconciliation actions.")
     reconcile_sub = p.add_subparsers(dest="reconcile_command", required=True)
     p = reconcile_sub.add_parser("inspect", help="Create a read-only reconciliation inspection report.")
@@ -323,7 +383,8 @@ def dispatch_expression(args) -> int:
                 try:
                     result = store.decide(args.candidate_id, decision, decided_by=args.by, rationale=args.reason)
                 except ValueError as exc:
-                    _err(str(exc)); return 1
+                    _err(str(exc))
+                    return 1
                 print(format_reconcile_decide(result, json_mode=args.json, verbose=args.verbose))
                 return 0
             if args.reconcile_command == "decisions":
@@ -334,21 +395,24 @@ def dispatch_expression(args) -> int:
                 try:
                     result = store.recompose(args.publication_id)
                 except ValueError as exc:
-                    _err(str(exc)); return 1
+                    _err(str(exc))
+                    return 1
                 print(format_reconcile_recompose(result, json_mode=args.json, verbose=args.verbose))
                 return 0
             if args.reconcile_command == "accept-chapter":
                 try:
                     result = store.accept_recomposed_chapter(args.publication_id, args.chapter_expression, accepted_by=args.by, allow_review=args.allow_review)
                 except ValueError as exc:
-                    _err(str(exc)); return 1
+                    _err(str(exc))
+                    return 1
                 print(format_reconcile_accept_chapter(result, json_mode=args.json))
                 return 0
             if args.reconcile_command == "complete":
                 try:
                     result = store.complete(args.publication_id, args.status, completed_by=args.by, rationale=args.reason)
                 except ValueError as exc:
-                    _err(str(exc)); return 1
+                    _err(str(exc))
+                    return 1
                 print(format_reconcile_complete(result, json_mode=args.json, publication_id=args.publication_id, status=args.status))
                 return 0
             if args.reconcile_command == "inspect":

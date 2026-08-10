@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -12,10 +11,8 @@ from auteur.convergence.models import (
     CandidateComparison,
     CandidateRef,
     ConvergenceState,
-    ConvergenceAction,
     ReconciliationProposal,
     RevisionTarget,
-    SourceObligation,
 )
 
 

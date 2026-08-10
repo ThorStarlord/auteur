@@ -5,8 +5,6 @@ responses. They require no project directory, no YAML blueprint, and no
 API key — just pydantic + pyyaml + the Python standard library.
 """
 
-import sys
-from pathlib import Path
 
 import pytest
 

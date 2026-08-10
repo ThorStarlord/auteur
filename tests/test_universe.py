@@ -1,12 +1,12 @@
 import pytest
-from pathlib import Path
 from auteur.universe.models import (
     UniverseIdentity,
     SettingProfile,
-    MythologyProfile,
     TimelineProfile,
     CrossStoryConstraint,
 )
+from auteur.universe.validation import validate_universe_identity
+from auteur.universe.compiler import compile_universe_constraints
 
 
 def test_universe_identity_requires_name_and_slug():
@@ -86,12 +86,6 @@ def test_cross_story_constraint_severity_levels():
 
     with pytest.raises(ValueError):
         CrossStoryConstraint(rule="Test rule", applies_to_all_stories=True, severity="invalid")
-
-
-from auteur.universe.validation import (
-    validate_universe_identity,
-    ValidationDiagnostic,
-)
 
 
 def test_validate_empty_forbidden_and_required():
@@ -198,9 +192,6 @@ def test_validate_passes_for_coherent_universe():
     errors = [d for d in diagnostics if d.severity == "error"]
 
     assert len(errors) == 0
-
-
-from auteur.universe.compiler import compile_universe_constraints, CompiledUniverseConstraints
 
 
 def test_compile_universe_constraints():

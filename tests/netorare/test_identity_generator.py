@@ -1,7 +1,6 @@
 """Tests for identity_generator: converts choices to story_identity.yaml."""
 
 import pytest
-from pathlib import Path
 import yaml
 
 from auteur.netorare.identity_generator import IdentityGenerator
@@ -14,7 +13,7 @@ class TestIdentityGeneratorBasics:
 
     def test_from_choices_humiliation_minimal(self):
         """Generate minimal valid humiliation story identity from choices."""
-        template = HumiliationTemplate()
+        HumiliationTemplate()
         choices = {
             1: {"primary": "humiliation"},
             2: {"genre": "netorare"},
@@ -41,7 +40,7 @@ class TestIdentityGeneratorBasics:
 
     def test_from_choices_validates_before_generating(self):
         """from_choices validates the choices before generating."""
-        template = HumiliationTemplate()
+        HumiliationTemplate()
         invalid_choices = {
             4: {
                 "want": "want-dignity",
@@ -59,7 +58,7 @@ class TestIdentityGeneratorBasics:
 
     def test_from_choices_horror(self):
         """Generate horror story identity from choices."""
-        template = HorrorTemplate()
+        HorrorTemplate()
         choices = {
             1: {"primary": "dread"},
             2: {"genre": "horror"},
@@ -83,7 +82,7 @@ class TestIdentityGeneratorBasics:
 
     def test_from_choices_mystery(self):
         """Generate mystery (netorare core) story identity from choices."""
-        template = MysteryTemplate()
+        MysteryTemplate()
         choices = {
             1: {"primary": "voyeurism"},
             2: {"genre": "netorare"},
@@ -110,7 +109,7 @@ class TestIdentityGeneratorYAML:
 
     def test_to_yaml_produces_valid_yaml(self):
         """to_yaml produces valid YAML string."""
-        template = HumiliationTemplate()
+        HumiliationTemplate()
         choices = {
             1: {"primary": "humiliation"},
             2: {"genre": "netorare"},
@@ -138,7 +137,7 @@ class TestIdentityGeneratorYAML:
 
     def test_yaml_roundtrip(self):
         """YAML serialization can be deserialized back to StoryIdentity."""
-        template = HumiliationTemplate()
+        HumiliationTemplate()
         choices = {
             1: {"primary": "humiliation"},
             2: {"genre": "netorare"},
@@ -167,7 +166,7 @@ class TestIdentityGeneratorYAML:
 
     def test_yaml_output_structure(self):
         """Generated YAML has all required fields at top level."""
-        template = HumiliationTemplate()
+        HumiliationTemplate()
         choices = {
             4: {
                 "want": "want-dignity",

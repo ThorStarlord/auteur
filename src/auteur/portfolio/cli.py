@@ -216,7 +216,7 @@ def _handle_frontier(args) -> int:
             print(f"  Non-dominated: {len(frontier.non_dominated_ids)}")
             for e in frontier.explanations[:5]:
                 print(f"    {e}")
-            print(f"  No artistic winner is selected.")
+            print("  No artistic winner is selected.")
         return 0
     except ValueError as e:
         print(f"Error: {e}", file=sys.stderr)
@@ -261,7 +261,7 @@ def _handle_status(args) -> int:
         if args.json:
             print(json.dumps(result, indent=2, default=str))
         else:
-            print(f"Portfolio Status")
+            print("Portfolio Status")
             print(f"  Latest: {result.get('latest_portfolio_id', '(none)')[:24]}...")
             print(f"  Total: {result.get('total_portfolios', 0)}")
         return 0

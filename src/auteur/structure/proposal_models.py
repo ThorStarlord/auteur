@@ -1,21 +1,15 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Mapping
+from typing import Any
 from datetime import datetime, timezone
-import os
 import re
-from copy import deepcopy
-import yaml
 
 from pydantic import BaseModel, Field, model_validator
-from auteur.blueprint import StoryBlueprint, CharacterRole
-from auteur.structure.diagnostics import StructureDiagnostic
 
 
 
 
-import re
 
 
 def _proposal_slug(text: str) -> str:

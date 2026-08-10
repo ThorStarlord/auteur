@@ -14,7 +14,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
 import yaml as _yaml
 
 from auteur.author_decisions import AuthorDecision, build_decision_context

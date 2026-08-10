@@ -11,7 +11,6 @@ Validates that:
 """
 
 import pytest
-import yaml
 from pathlib import Path
 from auteur.narrative_orchestration.schema.rules_loader import (
     CompositionRulesLoader,
@@ -20,7 +19,6 @@ from auteur.narrative_orchestration.schema.rules_loader import (
     StateValidityRule,
     StateTransition,
     ArcCoverageRule,
-    CompositionRules,
     RuleType,
     OptionalityLevel,
     Severity,
@@ -308,7 +306,6 @@ class TestCompositionRulesLoading:
 
     def test_rules_loader_explicit_path(self):
         """Test initializing CompositionRulesLoader with explicit path."""
-        from pathlib import Path
         pkg_path = Path(__file__).parent.parent.parent.parent
         explicit = pkg_path / "data" / "composition" / "composition_constraints.yaml"
         loader = CompositionRulesLoader(yaml_path=explicit)
@@ -622,7 +619,6 @@ class TestPackagingFix:
 
     def test_explicit_path_still_works(self, tmp_path):
         """Backward compat: explicit yaml_path still loads correctly."""
-        from pathlib import Path
         pkg_path = Path(__file__).parent.parent.parent.parent
         explicit = pkg_path / "data" / "composition" / "composition_constraints.yaml"
         loader = CompositionRulesLoader(yaml_path=explicit)

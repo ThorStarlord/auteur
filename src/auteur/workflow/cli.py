@@ -11,10 +11,7 @@ from typing import Any
 from auteur.cli_handlers import HandlerResult
 from auteur.workflow.engine import WorkflowEngine
 from auteur.workflow.models import (
-    EXECUTABLE_AUTHORITIES,
     SAFE_AUTHORITIES,
-    WorkflowAction,
-    WorkflowBlocker,
     WorkflowState,
 )
 

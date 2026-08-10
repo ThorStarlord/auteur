@@ -11,21 +11,11 @@ These tests ensure Layer 0 is production-ready and provides the foundational
 semantic layer for all narrative engineering.
 """
 
-import pytest
-from typing import Dict, Any
 
 from auteur.narrative_ontology.validator.ontology_validator import OntologyValidator
 from auteur.narrative_ontology.core.narrative_concepts import (
     ALL_CONCEPTS,
     get_concept,
-    CHARACTER,
-    ARC,
-    THEME,
-    CONFLICT,
-    GOAL,
-    BEAT,
-    PAYOFF,
-    SETUP,
 )
 from auteur.narrative_ontology.schema.ontology_types import (
     Concept,
@@ -404,7 +394,7 @@ class TestConceptRelationshipHierarchy:
             "Character", "netorare"
         )
         for related_concept in character_related:
-            related_related = self.validator.get_related_concepts(
+            self.validator.get_related_concepts(
                 related_concept, "netorare"
             )
             # Goal and Beat should not circle back to Character directly
@@ -521,7 +511,7 @@ class TestOntologyExtensibility:
 
     def test_add_concept_integration_pattern(self):
         """Should be able to add concept and integrate with validator."""
-        validator = OntologyValidator()
+        OntologyValidator()
 
         # Create new concept
         new_rule = ValidationRule(

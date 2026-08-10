@@ -205,7 +205,7 @@ class TemporalValidator:
                                 violation_type=TemporalViolationType.DUPLICATE_POSITION,
                                 related_scene_id=None,
                                 message=f"Narrative position {pos} is shared with {len(scene_ids) - 1} other scene(s) in chapter {chapter_id}",
-                                suggestion=f"Change narrative_position of one or more scenes to avoid duplicates within chapter",
+                                suggestion="Change narrative_position of one or more scenes to avoid duplicates within chapter",
                             )
                         )
 
@@ -234,8 +234,8 @@ class TemporalValidator:
                     scene_id=scene.id,
                     violation_type=TemporalViolationType.SELF_REFERENCE,
                     related_scene_id=None,
-                    message=f"Scene cannot follow itself",
-                    suggestion=f"Remove follows_scene or set it to another scene",
+                    message="Scene cannot follow itself",
+                    suggestion="Remove follows_scene or set it to another scene",
                 )
             )
 
@@ -246,8 +246,8 @@ class TemporalValidator:
                     scene_id=scene.id,
                     violation_type=TemporalViolationType.SELF_REFERENCE,
                     related_scene_id=None,
-                    message=f"Scene cannot be parallel with itself",
-                    suggestion=f"Remove scene from its own parallel_with list",
+                    message="Scene cannot be parallel with itself",
+                    suggestion="Remove scene from its own parallel_with list",
                 )
             )
 
@@ -283,7 +283,7 @@ class TemporalValidator:
                         scene_id=scene.id,
                         violation_type=TemporalViolationType.SELF_REFERENCE,
                         related_scene_id=None,
-                        message=f"Scene cannot follow itself",
+                        message="Scene cannot follow itself",
                         suggestion=f"Remove follows_scene: {tr.follows_scene}",
                     )
                 )
@@ -306,7 +306,7 @@ class TemporalValidator:
                         scene_id=scene.id,
                         violation_type=TemporalViolationType.SELF_REFERENCE,
                         related_scene_id=None,
-                        message=f"Scene cannot be parallel with itself",
+                        message="Scene cannot be parallel with itself",
                         suggestion=f"Remove {parallel_scene_id} from parallel_with",
                     )
                 )
@@ -426,7 +426,7 @@ class TemporalValidator:
                                 violation_type=TemporalViolationType.CIRCULAR_PARALLEL,
                                 related_scene_id=None,
                                 message=f"Circular follows_scene chain detected: {cycle_str}",
-                                suggestion=f"Remove or change follows_scene reference to break the cycle",
+                                suggestion="Remove or change follows_scene reference to break the cycle",
                             )
                         )
 

@@ -17,7 +17,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from auteur.cartographer import render_cartographer_prompt
-from auteur.llm import LLMClient, LLMRequest, LLMResponse
+from auteur.llm import LLMRequest, LLMResponse
 
 
 class CaptureError(ValueError):

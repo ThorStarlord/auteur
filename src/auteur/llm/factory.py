@@ -7,7 +7,12 @@ RetryingClient for transient error resilience.
 
 from __future__ import annotations
 
-from auteur.llm import LLMClient, LLMRequest, LLMResponse
+from typing import TYPE_CHECKING
+
+from auteur.llm import LLMClient
+
+if TYPE_CHECKING:
+    from auteur.blueprint import StoryBlueprint
 
 __all__ = ["build_client"]
 

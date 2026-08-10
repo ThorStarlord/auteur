@@ -18,7 +18,6 @@ from auteur.review.models import (
     ReviewSession,
     ReviewSessionState,
     ReviewTarget,
-    _event_hash,
 )
 
 

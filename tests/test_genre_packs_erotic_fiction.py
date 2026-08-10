@@ -1,6 +1,5 @@
 """Comprehensive test suite for Genre Packs Erotic Fiction MVP."""
 
-import json
 from pathlib import Path
 import pytest
 
@@ -9,9 +8,23 @@ from auteur.blueprint import (
     StoryMedium,
     StoryMode,
     TargetExperience,
-    StoryBlueprint,
 )
 from pydantic import BaseModel, Field
+
+from auteur.identity import StoryIdentity, HighLevelCentralEngine, StoryType
+from auteur.genre_packs import (
+    get_pack_registry,
+    load_genre_pack,
+    recommend_genre_profile,
+    validate_pack_schema,
+    validate_genre_profile_identity,
+    reconcile_identity_with_recommendation,
+    run_genre_diagnostics,
+    GenreAuthorOverride,
+    GenrePackError,
+    GenreErrorCode,
+)
+from auteur.structure.diagnostics import DiagnosticSeverity
 
 
 class TestScene(BaseModel):
@@ -35,23 +48,6 @@ class TestAct(BaseModel):
 
 class DummyBlueprint(BaseModel):
     acts: list[TestAct] = Field(default_factory=list)
-from auteur.identity import StoryIdentity, HighLevelCentralEngine, StoryType
-from auteur.genre_packs import (
-    GenrePack,
-    GenrePackRegistry,
-    get_pack_registry,
-    load_genre_pack,
-    compute_pack_content_hash,
-    recommend_genre_profile,
-    validate_pack_schema,
-    validate_genre_profile_identity,
-    reconcile_identity_with_recommendation,
-    run_genre_diagnostics,
-    GenreAuthorOverride,
-    GenrePackError,
-    GenreErrorCode,
-)
-from auteur.structure.diagnostics import DiagnosticSeverity
 
 
 def _make_minimal_identity(tmp_path: Path) -> StoryIdentity:
@@ -178,7 +174,7 @@ def test_author_override_is_persisted_explicitly(tmp_path: Path):
 
 
 def test_existing_minimal_story_identity_remains_compatible(tmp_path: Path):
-    ident = _make_minimal_identity(tmp_path)
+    _make_minimal_identity(tmp_path)
     p = tmp_path / "story_identity.yaml"
     loaded = StoryIdentity.from_yaml(p)
     assert loaded.genre_profile is None
@@ -244,7 +240,7 @@ def test_genre_drift_is_diagnostic_not_automatic_mutation(tmp_path: Path):
     updated = reconcile_identity_with_recommendation(ident, rec)
 
     # Run diagnostics
-    diags = run_genre_diagnostics(updated)
+    run_genre_diagnostics(updated)
     # Ensure diagnostics do not mutate StoryIdentity
     assert updated.genre_profile.primary_profile_id == rec.recommended_profile_id
 
@@ -354,7 +350,7 @@ def test_recommendation_durability_across_process_restart(tmp_path: Path):
 def test_cli_human_json_semantic_parity():
     rec = recommend_genre_profile("A psychological story of desire and identity facades.")
     data = rec.model_dump(mode="json")
-    
+
     # Assert exact semantic parity across representation formats
     assert data["recommendation_id"] == rec.recommendation_id
     assert data["recommended_pack_id"] == rec.recommended_pack_id
@@ -369,7 +365,7 @@ def test_accepted_identity_pack_version_stability(tmp_path: Path):
     ident = _make_minimal_identity(tmp_path)
     rec = recommend_genre_profile(ident.core_answer)
     updated = reconcile_identity_with_recommendation(ident, rec)
-    
+
     p = tmp_path / "story_identity.yaml"
     updated.to_yaml(p)
 
@@ -414,7 +410,7 @@ def test_recommendation_atomic_write_safety(tmp_path: Path):
 
     _atomic_write_json(target_file, rec.model_dump(mode="json"))
     assert target_file.exists()
-    
+
     # Ensure no leftover temp files exist
     temp_files = list(target_file.parent.glob(".tmp_*"))
     assert len(temp_files) == 0
@@ -489,11 +485,12 @@ def test_two_projects_same_recommendation_id_isolated(tmp_path: Path):
     from auteur.genre_packs.recommendation import save_recommendation, load_recommendation, _PENDING_RECOMMENDATIONS
     proj_a = tmp_path / "proj_a"
     proj_b = tmp_path / "proj_b"
-    proj_a.mkdir(); proj_b.mkdir()
+    proj_a.mkdir()
+    proj_b.mkdir()
 
     rec_a = recommend_genre_profile("Erotic romance premise A with desire")
     save_recommendation(rec_a, proj_a)
-    
+
     # Save rec with same ID in project B but different premise
     rec_b = recommend_genre_profile("Erotic romance premise B with passion")
     rec_b.recommendation_id = rec_a.recommendation_id

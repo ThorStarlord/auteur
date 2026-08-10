@@ -22,6 +22,7 @@ from auteur.structure.diagnostics import (
     DiagnosticLayer,
     DiagnosticSeverity,
     RepairOptions,
+    StructureDiagnostic,
 )
 
 
@@ -121,9 +122,6 @@ def audit_bible_locations(bible: StoryBible) -> list[BibleAuditDiagnostic]:
             last_location[character] = (after, i)
 
     return diagnostics
-
-
-from auteur.structure.diagnostics import StructureDiagnostic
 
 
 def as_structure_diagnostic(bible_diag: BibleAuditDiagnostic) -> StructureDiagnostic:

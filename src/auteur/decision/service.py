@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -13,6 +12,7 @@ from auteur.decision.assembler import DecisionAssembler
 from auteur.decision.models import (
     AuthorDecision,
     CandidateSummary,
+    DecisionConflict,
     DecisionEvidence,
     DecisionReadiness,
     DecisionTrigger,
@@ -27,7 +27,6 @@ from auteur.decision.persistence import DecisionStore
 from auteur.impact.models import ImpactFinding, ImpactPreview
 from auteur.impact.persistence import ImpactStore
 from auteur.provenance.store import ArtifactStore
-from auteur.workflow.models import AuthorityLevel
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +78,7 @@ class DecisionWorkspaceService:
                 "blocked_decisions": decisions_by_readiness.get(DecisionReadiness.BLOCKED.value, 0),
                 "highest_priority_readiness": self._get_highest_priority_readiness(decisions),
             }
-        except Exception as e:
+        except Exception:
             logger.exception("Error getting workspace status")
             raise
 
@@ -113,7 +112,7 @@ class DecisionWorkspaceService:
                     decisions[decision.decision_id] = decision
 
             return sorted(decisions.values(), key=lambda d: (d.chapter_index, d.decision_id))
-        except Exception as e:
+        except Exception:
             logger.exception("Error listing decisions")
             raise
 
@@ -173,7 +172,7 @@ class DecisionWorkspaceService:
             # Enrich with full evidence details
             decision = self._enrich_decision(decision)
             return decision
-        except Exception as e:
+        except Exception:
             logger.exception(f"Error inspecting decision {decision_id}")
             raise
 
@@ -381,7 +380,7 @@ class DecisionWorkspaceService:
                 acceptance_request=acceptance_request,
                 verification_results=verification_results,
             )
-        except Exception as e:
+        except Exception:
             logger.exception(f"Error preparing acceptance for {decision_id}")
             raise
 
@@ -627,7 +626,7 @@ class DecisionWorkspaceService:
             # Reload convergence targets and candidates
             targets = self._load_convergence_targets(force=True)
             logger.info(f"Refreshed {len(targets)} convergence targets")
-        except Exception as e:
+        except Exception:
             logger.exception("Error refreshing workspace")
             raise
 
@@ -644,34 +643,6 @@ class DecisionWorkspaceService:
         "inspect-reasoning-evidence",
         "prepare-acceptance-evidence",
     })
-
-    def refresh_snapshots(self, decision_id: str | None = None) -> dict[str, Any]:
-        """Re-assemble and persist updated snapshots.
-
-        Idempotent: skips writes when content is unchanged.
-        """
-        try:
-            if decision_id:
-                decision = self.inspect(decision_id)
-                preceding = self._compute_preceding_snapshot_id(decision_id)
-                sid = self.decision_store.save_snapshot(decision, preceding_snapshot_id=preceding)
-                self.decision_store.save_latest_pointer(decision)
-                return {"status": "ok", "snapshot_id": sid, "decision_id": decision_id}
-
-            decisions = self.list_decisions()
-            saved = 0
-            for d in decisions:
-                try:
-                    preceding = self._compute_preceding_snapshot_id(d.decision_id)
-                    self.decision_store.save_snapshot(d, preceding_snapshot_id=preceding)
-                    self.decision_store.save_latest_pointer(d)
-                    saved += 1
-                except Exception as e:
-                    logger.warning(f"Failed to save snapshot for {d.decision_id}: {e}")
-            return {"status": "ok", "saved": saved, "total": len(decisions)}
-        except Exception as e:
-            logger.exception("Error refreshing snapshots")
-            return {"status": "failed", "error": str(e)}
 
     def run_comparison(self, decision_id: str) -> dict[str, Any]:
         """Run deterministic candidate comparison for a decision."""

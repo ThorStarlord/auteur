@@ -12,7 +12,7 @@ All ownership rules are genre-agnostic and apply identically across all story ty
 """
 
 from enum import Enum
-from typing import List, Dict, Optional
+from typing import List, Optional
 from pydantic import BaseModel, Field, field_validator
 
 

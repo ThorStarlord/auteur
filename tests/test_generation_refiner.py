@@ -7,8 +7,6 @@ import yaml
 
 from auteur.blueprint import (
     StoryBlueprint,
-    TargetExperience,
-    ThreadType,
 )
 from auteur.llm import LLMResponse
 from auteur.llm.fake import FakeClient

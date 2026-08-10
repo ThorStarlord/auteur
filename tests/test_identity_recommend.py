@@ -1,13 +1,13 @@
-import pytest
 from pathlib import Path
 import yaml
 from auteur.cli import main
 from auteur.llm import LLMResponse
 from auteur.llm.fake import FakeClient
 
+
 def test_cli_identity_recommend_success(tmp_path, monkeypatch):
     identity_yaml_path = tmp_path / "story_identity.yaml"
-    
+
     # Successful YAML output on the first try
     success_yaml = """
 title: "The Silent Crown"
@@ -40,18 +40,18 @@ rejected_directions:
   - "heroic victory"
 author_overrides: []
 """
-    
+
     fake_response = LLMResponse(
         text=f"```yaml\n{success_yaml}\n```",
         input_tokens=100,
         output_tokens=100
     )
-    
+
     fake_client = FakeClient([fake_response])
-    
+
     # Monkeypatch build_client to return fake_client
     monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model, **kwargs: fake_client)
-    
+
     exit_code = main([
         "identity", "recommend",
         "A detective investigates a murder in a royal palace.",
@@ -60,10 +60,10 @@ author_overrides: []
         "--mode", "tragic",
         "--output", str(identity_yaml_path)
     ])
-    
+
     assert exit_code == 0
     assert identity_yaml_path.exists()
-    
+
     with open(identity_yaml_path, "r", encoding="utf-8") as f:
         saved_data = yaml.safe_load(f)
     assert saved_data["title"] == "The Silent Crown"
@@ -74,7 +74,7 @@ author_overrides: []
 
 def test_cli_identity_recommend_retry_loop(tmp_path, monkeypatch):
     identity_yaml_path = tmp_path / "story_identity_retry.yaml"
-    
+
     # First response fails validation (duplicate want/change)
     fail_yaml = """
 title: "The Silent Crown"
@@ -125,19 +125,19 @@ central_engine:
         input_tokens=200,
         output_tokens=200
     )
-    
+
     fake_client = FakeClient([resp_fail, resp_success])
     monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model, **kwargs: fake_client)
-    
+
     exit_code = main([
         "identity", "recommend",
         "A detective investigates a murder.",
         "--output", str(identity_yaml_path)
     ])
-    
+
     assert exit_code == 0
     assert identity_yaml_path.exists()
-    
+
     with open(identity_yaml_path, "r", encoding="utf-8") as f:
         saved_data = yaml.safe_load(f)
     assert saved_data["central_engine"]["change"] == "The detective changes completely."
@@ -145,7 +145,7 @@ central_engine:
 
 def test_cli_identity_recommend_max_retries_fail(tmp_path, monkeypatch):
     identity_yaml_path = tmp_path / "story_identity_fail.yaml"
-    
+
     # All responses fail validation
     fail_yaml = """
 title: "Failed Story"
@@ -165,21 +165,21 @@ central_engine:
   stakes: "Stakes."
   change: "The detective wants to solve the murder."
 """
-    
+
     responses = [
         LLMResponse(text=f"```yaml\n{fail_yaml}\n```", input_tokens=50, output_tokens=50)
         for _ in range(4)
     ]
-    
+
     fake_client = FakeClient(responses)
     monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model, **kwargs: fake_client)
-    
+
     exit_code = main([
         "identity", "recommend",
         "A detective investigates a murder.",
         "--output", str(identity_yaml_path)
     ])
-    
+
     assert exit_code == 1
     assert not identity_yaml_path.exists()
 
@@ -398,9 +398,10 @@ author_overrides: []
     assert dest_yaml.exists()
     assert candidate_dir.exists()
 
+
 def test_cli_identity_recommend_auto_override_rejection(tmp_path, monkeypatch):
     identity_yaml_path = tmp_path / "story_identity_override.yaml"
-    
+
     # First response attempts to inject an author override to cheat ending_tone/runway
     fail_yaml = """
 title: "The Silent Crown"
@@ -474,19 +475,19 @@ author_overrides: []
         input_tokens=200,
         output_tokens=200
     )
-    
+
     fake_client = FakeClient([resp_fail, resp_success])
     monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model, **kwargs: fake_client)
-    
+
     exit_code = main([
         "identity", "recommend",
         "A detective investigates a murder.",
         "--output", str(identity_yaml_path)
     ])
-    
+
     assert exit_code == 0
     assert identity_yaml_path.exists()
-    
+
     with open(identity_yaml_path, "r", encoding="utf-8") as f:
         saved_data = yaml.safe_load(f)
     assert saved_data["author_overrides"] == []
@@ -495,7 +496,7 @@ author_overrides: []
 
 def test_cli_identity_recommend_warning_confidence_penalty(tmp_path, monkeypatch):
     identity_yaml_path = tmp_path / "story_identity_warning.yaml"
-    
+
     # Valid YAML but includes an unknown subgenre which generates a warning
     warning_yaml = """
 title: "The Silent Crown"
@@ -533,22 +534,22 @@ author_overrides: []
         input_tokens=100,
         output_tokens=100
     )
-    
+
     fake_client = FakeClient([resp])
     monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model, **kwargs: fake_client)
-    
+
     exit_code = main([
         "identity", "recommend",
         "A detective investigates a murder.",
         "--output", str(identity_yaml_path)
     ])
-    
+
     assert exit_code == 0
     assert identity_yaml_path.exists()
-    
+
     with open(identity_yaml_path, "r", encoding="utf-8") as f:
         saved_data = yaml.safe_load(f)
-    
+
     assert saved_data["confidence"] == 0.85
 
 
@@ -603,7 +604,6 @@ author_overrides: []
 
 def test_cli_identity_recommend_recommend_mode_clean_path(tmp_path, monkeypatch, capsys):
     """--recommend-mode open-ended does NOT print deprecation warning."""
-    candidate_dir = tmp_path / "story_identity_candidates"
     valid_yaml_tmpl = """
 title: "Test {idx}"
 core_answer: "A test."
@@ -779,7 +779,7 @@ author_overrides: []
 
 def test_cli_identity_recommend_debug_logging(tmp_path, monkeypatch):
     identity_yaml_path = tmp_path / "story_identity_debug.yaml"
-    
+
     # First response fails validation (duplicate want/change)
     fail_yaml = """
 title: "The Silent Crown"
@@ -844,32 +844,32 @@ author_overrides: []
 
     resp_fail = LLMResponse(text=f"```yaml\n{fail_yaml}\n```", input_tokens=100, output_tokens=100)
     resp_success = LLMResponse(text=f"```yaml\n{success_yaml}\n```", input_tokens=100, output_tokens=100)
-    
+
     fake_client = FakeClient([resp_fail, resp_success])
     monkeypatch.setattr("auteur.llm.factory.build_client", lambda provider, model, **kwargs: fake_client)
-    
+
     import shutil
     runs_dir = Path(".auteur/runs")
     if runs_dir.exists():
         shutil.rmtree(runs_dir)
-        
+
     exit_code = main([
         "identity", "recommend",
         "A detective investigates a murder.",
         "--output", str(identity_yaml_path),
         "--debug"
     ])
-    
+
     assert exit_code == 0
     assert runs_dir.exists()
-    
+
     subdirs = list(runs_dir.iterdir())
     assert len(subdirs) == 1
-    
+
     attempt_files = list(subdirs[0].glob("*.txt"))
     assert len(attempt_files) == 1
     assert "attempt_1" in attempt_files[0].name
-    
+
     content = attempt_files[0].read_text(encoding="utf-8")
     assert "The detective wants to solve the murder." in content
     assert "change_duplicates_want" in content
@@ -937,7 +937,6 @@ author_overrides: []
 
 def test_cli_identity_recommend_recommend_mode_no_warning(tmp_path, monkeypatch, capsys):
     """Test that --recommend-mode open-ended does NOT emit deprecation warning."""
-    candidate_dir = tmp_path / "story_identity_candidates"
 
     valid_yaml_tmpl = """
 title: "The Silent Crown {idx}"

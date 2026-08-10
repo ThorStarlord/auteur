@@ -2,7 +2,7 @@
 
 from typing import Optional
 from auteur.genre_packs.models import GenrePack, SubgenreProfile, GenreErrorCode, GenrePackError
-from auteur.genre_packs.loader import load_built_in_pack, load_genre_pack
+from auteur.genre_packs.loader import load_built_in_pack
 
 
 class GenrePackRegistry:

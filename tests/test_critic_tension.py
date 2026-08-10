@@ -18,7 +18,7 @@ def test_tension_critic_passes_when_within_tolerance(tmp_path):
     outline = {"scope": "chapter", "estimated_chapter_tension": 4}
     client = FakeClient([LLMResponse(text="findings: []", input_tokens=1, output_tokens=1)])
 
-    findings = run_critic(render_tension, llm=client, critic_name="tension", 
+    findings = run_critic(render_tension, llm=client, critic_name="tension",
         draft="A quiet conversation by the hearth.",
         outline=outline,
         blueprint=blueprint,
@@ -41,7 +41,7 @@ def test_tension_critic_flags_severe_drift(tmp_path):
 """
     client = FakeClient([LLMResponse(text=fake, input_tokens=1, output_tokens=10)])
 
-    findings = run_critic(render_tension, llm=client, critic_name="tension", 
+    findings = run_critic(render_tension, llm=client, critic_name="tension",
         draft="They sat by the river and reflected on their friendship.",
         outline=outline,
         blueprint=blueprint,
@@ -58,7 +58,7 @@ def test_tension_critic_includes_target_in_prompt(tmp_path):
     outline = {"scope": "chapter", "estimated_chapter_tension": 9}
     client = FakeClient([LLMResponse(text="findings: []", input_tokens=1, output_tokens=1)])
 
-    run_critic(render_tension, llm=client, critic_name="tension", 
+    run_critic(render_tension, llm=client, critic_name="tension",
         draft="x",
         outline=outline,
         blueprint=blueprint,

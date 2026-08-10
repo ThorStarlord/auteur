@@ -21,10 +21,7 @@ from auteur.portfolio.models import (
     ContradictionClass,
     FrontierDimension,
     ExcludedCombination,
-    OptionalityReport,
     SCHEMA_VERSION,
-    MAX_COMBINATIONS_DEFAULT,
-    _stable_id,
 )
 from auteur.portfolio.combinations import CombinationGenerator
 from auteur.portfolio.constraints import ConstraintEngine
@@ -176,7 +173,7 @@ class TestCombinations:
                 reason="Soft tension between a and b",
             ),
         ]
-        scenarios, excluded, theoretical = gen.generate(decisions, constraints=constraints)
+        scenarios, excluded, _ = gen.generate(decisions, constraints=constraints)
         # Soft tension should not prune
         assert len(scenarios) == 2
         assert len(excluded) == 0
@@ -186,7 +183,7 @@ class TestCombinations:
         decisions = [
             PortfolioDecision(decision_id="dec-1", candidate_ids=[str(i) for i in range(20)]),
         ]
-        scenarios, excluded, theoretical = gen.generate(decisions, max_combinations=5)
+        scenarios, _, theoretical = gen.generate(decisions, max_combinations=5)
         assert len(scenarios) <= 5
         assert theoretical == 20
 
@@ -235,7 +232,7 @@ class TestCombinations:
                 reason="a requires c",
             ),
         ]
-        scenarios, excluded, _ = gen.generate(decisions, constraints=constraints)
+        scenarios, _, _ = gen.generate(decisions, constraints=constraints)
         # a requires c — since c is always present, all combos valid
         assert len(scenarios) >= 1
 
@@ -299,7 +296,7 @@ class TestConstraintEngine:
             source_candidates=["a"],
             target_candidates=["c"],
         )
-        cls, reason = engine.classify_contradiction(
+        cls, _ = engine.classify_contradiction(
             {"dec-1": "a", "dec-2": "c"}, [constraint],
         )
         assert cls == ContradictionClass.HARD_CONTRADICTION
@@ -503,7 +500,7 @@ class TestService:
         from auteur.portfolio.service import PortfolioService
         svc = PortfolioService(project_root)
         p = svc.create_portfolio({"dec-1": ["a", "b"]})
-        gen = svc.generate_combinations(p.portfolio_id)
+        svc.generate_combinations(p.portfolio_id)
         frontier = svc.calculate_frontier(p.portfolio_id)
         assert frontier.frontier_id
         assert len(frontier.dimensions) > 0
@@ -562,7 +559,7 @@ class TestService:
             s1 = gen.scenarios[0]
             single_assignment = dict(list(s1.assignment.items())[:1])
             single = PortfolioScenario(scenario_id="single", portfolio_id=p.portfolio_id, assignment=single_assignment)
-            proj_single = projector.project(single)
+            projector.project(single)
             proj_combined = projector.project(s1)
             if len(s1.assignment) >= 2:
                 assert proj_combined.cross_effects is not None
@@ -747,7 +744,6 @@ class TestPromotionRigor:
         """Portfolios with combined decisions produce measurably different projections than single."""
         from auteur.portfolio.service import PortfolioService
         from auteur.portfolio.projection import PortfolioProjector
-        from auteur.portfolio.models import PortfolioScenario
         svc = PortfolioService(project_root)
         projector = PortfolioProjector(project_root)
         # Single decision baseline projection
@@ -773,7 +769,6 @@ class TestPromotionRigor:
 
     def test_promotion_preserves_accepted_and_canonical_pointers(self, project_root, monkeypatch):
         """Confirmed promotion does not alter accepted or canonical pointer values."""
-        import types
         self._make_svc(project_root, monkeypatch, sessions=[])
         from auteur.portfolio.service import PortfolioService
         svc = PortfolioService(project_root)

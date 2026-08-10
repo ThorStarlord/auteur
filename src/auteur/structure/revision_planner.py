@@ -24,7 +24,6 @@ from auteur.structure.revision_models import (
     RevisionPlanState,
     RevisionScope,
     StructuralRevisionPlan,
-    _stable_event_id,
     _stable_plan_id,
 )
 

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 
 from auteur.convergence.models import (
     CandidateComparison,
@@ -197,7 +196,6 @@ def _check_incompatible_obligations(a: CandidateRef, b: CandidateRef) -> Conflic
     b_unsatisfied = set(b.obligations_unsatisfied)
 
     # An obligation satisfied by one but unsatisfied by the other is a conflict
-    conflicts = (a_satisfied - b_satisfied) & (a_unsatisfied - b_unsatisfied)
     # Actually, check: obligations satisfied by A but unsatisfied by B
     diff = (a_satisfied - b_satisfied) & b_unsatisfied
     diff |= (b_satisfied - a_satisfied) & a_unsatisfied

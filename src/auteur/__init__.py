@@ -1,5 +1,3 @@
-__version__ = "0.37.1"
-
 from auteur.blueprint import (
     ActStructure,
     ArcType,
@@ -52,6 +50,8 @@ from auteur.structure import (
     analyze_structure,
 )
 from auteur.identity import BestBasis, RecommendationMode, StoryIdentity, compile_to_blueprint
+
+__version__ = "0.37.1"
 
 __all__ = [
     "ActStructure",

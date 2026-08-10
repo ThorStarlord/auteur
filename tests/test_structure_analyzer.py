@@ -1,6 +1,5 @@
 from pathlib import Path
 
-import pytest
 
 from auteur.bible import StoryBible
 from auteur.blueprint import StoryBlueprint

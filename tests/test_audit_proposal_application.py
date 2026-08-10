@@ -5,7 +5,6 @@ applied to cartographer_outline.yaml or bible.json on disk.
 """
 from __future__ import annotations
 
-import json
 from pathlib import Path
 import yaml
 import pytest
@@ -22,7 +21,7 @@ SAMPLE_YAML = Path(__file__).parent.parent / "examples" / "sample_blueprint.yaml
 def test_project(tmp_path) -> Project:
     blueprint = StoryBlueprint.from_yaml(SAMPLE_YAML)
     project = Project.init(tmp_path / "test_novel", blueprint)
-    
+
     # Write a dummy bible state
     project.bible.record_event(
         chapter_index=1,
@@ -48,7 +47,7 @@ def test_resolve_proposal_with_bible_delta_updates_bible_on_disk(test_project):
     it should update the specific bible event's delta on disk."""
     proposals_dir = test_project.structure_proposals_dir()
     proposal_path = proposals_dir / "repair_teleportation.yaml"
-    
+
     proposal_data = {
         "proposal_id": "repair_teleportation",
         "type": "repair",
@@ -72,17 +71,17 @@ def test_resolve_proposal_with_bible_delta_updates_bible_on_disk(test_project):
             }
         ]
     }
-    
+
     proposal_path.write_text(yaml.safe_dump(proposal_data), encoding="utf-8")
-    
+
     # Run resolution
     rc = resolve_proposal(test_project.path, "repair_teleportation", "retroactive_update")
     assert rc == 0
-    
+
     # Verify proposal marked as resolved
     resolved = load_resolved_rules(test_project.path)
     assert "carriers.location_teleportation" in resolved
-    
+
     # Verify bible.json changed on disk
     updated_bible = StoryBible(test_project.bible.file_path)
     events = updated_bible.data["events"]
@@ -119,10 +118,10 @@ def test_resolve_proposal_with_cartographer_outline_injects_scene(test_project):
         ]
     }
     outline_path.write_text(yaml.safe_dump(outline_data), encoding="utf-8")
-    
+
     proposals_dir = test_project.structure_proposals_dir()
     proposal_path = proposals_dir / "repair_travel.yaml"
-    
+
     proposal_data = {
         "proposal_id": "repair_travel",
         "type": "repair",
@@ -147,11 +146,11 @@ def test_resolve_proposal_with_cartographer_outline_injects_scene(test_project):
         ]
     }
     proposal_path.write_text(yaml.safe_dump(proposal_data), encoding="utf-8")
-    
+
     # Run resolution
     rc = resolve_proposal(test_project.path, "repair_travel", "insert_travel_scene")
     assert rc == 0
-    
+
     # Verify cartographer_outline.yaml on disk has the new scene card inserted
     updated_outline = yaml.safe_load(outline_path.read_text(encoding="utf-8"))
     scenes = updated_outline["chapters"][0]["scenes"]
@@ -165,7 +164,7 @@ def test_resolve_proposal_rolls_back_and_fails_on_validation_error(test_project)
     should roll back safely without modifying the target files on disk, and return 1."""
     proposals_dir = test_project.structure_proposals_dir()
     proposal_path = proposals_dir / "repair_invalid.yaml"
-    
+
     proposal_data = {
         "proposal_id": "repair_invalid",
         "type": "repair",
@@ -189,11 +188,11 @@ def test_resolve_proposal_rolls_back_and_fails_on_validation_error(test_project)
         ]
     }
     proposal_path.write_text(yaml.safe_dump(proposal_data), encoding="utf-8")
-    
+
     # Run resolution
     rc = resolve_proposal(test_project.path, "repair_invalid", "invalid_delta")
     assert rc == 1  # Should fail due to schema validation check!
-    
+
     # Verify bible event delta remains unchanged on disk
     updated_bible = StoryBible(test_project.bible.file_path)
     events = updated_bible.data["events"]

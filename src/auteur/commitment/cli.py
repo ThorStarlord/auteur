@@ -153,7 +153,7 @@ def _handle_status(args) -> int:
         if args.json:
             print(json.dumps(result, indent=2, default=str))
         else:
-            print(f"Commitment Status")
+            print("Commitment Status")
             print(f"  Latest: {result.get('latest_commitment_id', '(none)')[:24]}...")
             print(f"  Total: {result.get('total_commitments', 0)}")
         return 0

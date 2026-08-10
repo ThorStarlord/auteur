@@ -25,6 +25,7 @@ def test_check_script_runs_validator_suite_before_repo_validator_and_pytest() ->
     assert module.CHECK_COMMANDS == (
         (sys.executable, "scripts/test-validators.py"),
         (sys.executable, "scripts/validate-repo.py"),
+        (sys.executable, "-m", "ruff", "check", "src", "tests"),
         (sys.executable, "-m", "pytest", "tests", "-q", "--tb=no"),
     )
 

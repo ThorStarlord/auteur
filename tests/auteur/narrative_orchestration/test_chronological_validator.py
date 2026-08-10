@@ -1,6 +1,5 @@
 """Tests for chronological validator in Structure orchestration."""
 
-import pytest
 from datetime import datetime
 
 from auteur.narrative_orchestration.validator.chronological_validator import (
@@ -8,7 +7,6 @@ from auteur.narrative_orchestration.validator.chronological_validator import (
     ChronologyViolationType,
 )
 from auteur.narrative_blueprint.schema.book_outline import BookOutline
-from auteur.narrative_blueprint.schema.sequence_outline import SequenceOutline
 from auteur.narrative_blueprint.schema.chapter_outline import ChapterOutline
 from auteur.narrative_blueprint.schema.character_arc import CharacterArc, TurningPoint
 from auteur.narrative_blueprint.schema.story_arc import StoryArc, ArcCheckpoint

@@ -8,8 +8,8 @@ import json
 import logging
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
-from typing import Optional, Dict, Any, Tuple
-from urllib.parse import urlparse, parse_qs
+from typing import Optional, Dict, Any
+from urllib.parse import urlparse
 
 from auteur.netorare.session import SessionManager, SessionError
 from auteur.netorare.validation import validate_choices
@@ -94,7 +94,6 @@ class NetorareRequestHandler(BaseHTTPRequestHandler):
         """Handle GET requests."""
         parsed_url = urlparse(self.path)
         path = parsed_url.path
-        query_params = parse_qs(parsed_url.query)
 
         try:
             if path == "/":
@@ -228,7 +227,7 @@ class NetorareRequestHandler(BaseHTTPRequestHandler):
             # Body can be empty, but if provided should be valid JSON
             if body:
                 try:
-                    data = json.loads(body.decode())
+                    json.loads(body.decode())
                 except (json.JSONDecodeError, UnicodeDecodeError) as e:
                     self.send_error_response(f"Invalid JSON: {str(e)}", status_code=400)
                     return

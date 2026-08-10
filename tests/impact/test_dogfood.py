@@ -17,11 +17,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
 import yaml
 
 from auteur.impact.graph import DependencyGraph
-from auteur.impact.models import ArtifactRef, ImpactSeverity, PreservationStatus
+from auteur.impact.models import ArtifactRef, ImpactSeverity
 from auteur.provenance.store import ArtifactStore
 
 
@@ -74,13 +73,10 @@ class TestScenario1ChapterOutlineChanged:
 
         from auteur.impact.analyzer import ImpactAnalyzer
         analyzer = ImpactAnalyzer(root)
-        findings = analyzer.analyze()
-        affected = [f for f in findings if f.affected_artifact and f.severity != ImpactSeverity.NONE]
+        analyzer.analyze()
         # Chapter 1's outline changed — its dependents would be affected
         # At minimum, we detect the change
         changes = analyzer.detect_changes()
-        ch1_changes = [c for c in changes if c.artifact_ref and "chapter_1" in c.artifact_ref.artifact_id
-                      or c.artifact_ref and "1" in c.artifact_ref.artifact_id]
         assert len(changes) > 0
 
     def test_preservation(self, tmp_path: Path) -> None:
@@ -148,9 +144,8 @@ class TestScenario4AcceptedSourceChanged:
         # This would need a chapter expression with accepted source tracking
         from auteur.impact.analyzer import ImpactAnalyzer
         analyzer = ImpactAnalyzer(root)
-        changes = analyzer.detect_changes()
+        analyzer.detect_changes()
         # At minimum, no crash
-        assertTrue = True
 
 
 # ---------------------------------------------------------------------------
@@ -168,7 +163,6 @@ class TestScenario7UnrelatedChapter:
         analyzer = ImpactAnalyzer(root)
         findings = analyzer.analyze()
         # Chapter 1 should not be affected
-        ch1_findings = [f for f in findings if f.affected_artifact and "chapter_1" in f.affected_artifact.artifact_id]
         # May affect adjacent chapters via R012 (continuity) but not distant ones
         ch5_findings = [f for f in findings if f.affected_artifact and "chapter_5" in f.affected_artifact.artifact_id]
         assert len(ch5_findings) == 0 or all(f.severity == ImpactSeverity.NONE for f in ch5_findings)

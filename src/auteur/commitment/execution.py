@@ -6,7 +6,6 @@ import logging
 from pathlib import Path
 
 from auteur.commitment.models import (
-    ExecutionPlan,
     ExecutionStep,
     ExecutionStepState,
     ExecutionStepType,

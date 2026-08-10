@@ -5,7 +5,8 @@ from auteur.expression.book_reconciliation import BookReconciliationStore
 
 
 def make_book(tmp_path: Path) -> tuple[Path, str]:
-    project = tmp_path / "project"; project.mkdir(parents=True, exist_ok=True)
+    project = tmp_path / "project"
+    project.mkdir(parents=True, exist_ok=True)
     from conftest import copy_bootstrap_template as _cbt
     _cbt(project)
     book = BookExpressionStore(project).compose(
@@ -44,7 +45,6 @@ def test_separator_edit_creates_book_proposal_without_canonical_mutation(tmp_pat
 
 def test_stale_book_blocks_routing(tmp_path: Path) -> None:
     project, book_id = make_book(tmp_path)
-    book = BookExpressionStore(project)
     manuscript = project / "book" / "expression" / "book_v001.md"
     inspection = BookReconciliationStore(project).inspect(manuscript, book_id)
     chapter_store = __import__("auteur.expression.composition", fromlist=["ChapterExpressionStore"]).ChapterExpressionStore(project)

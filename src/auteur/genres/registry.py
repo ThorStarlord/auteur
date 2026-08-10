@@ -8,7 +8,7 @@ _REGISTRY_CACHE: dict[Genre, GenreContract] = {}
 
 def load_genre_contract(genre: Genre | str) -> GenreContract:
     """Load and return the GenreContract for the given Genre.
-    
+
     Caches loaded contracts in memory to avoid repeated disk reads.
     If the genre is not pre-registered or has no YAML file, falls back to
     creating a minimal contract.
@@ -64,7 +64,7 @@ def load_project_genre_contract(project_path: Path, genre: Genre | str) -> Genre
 def _create_fallback_contract(genre: Genre) -> GenreContract:
     from auteur.blueprint import LengthClass, MechanicalLoad, NarrativeRunway, ScopeComplexity
     from auteur.genres.models import PsychologyBudget, PsychologyLevel, RequirementLevel, ScopeProfile, SetupContract
-    
+
     if genre == Genre.LITERARY:
         level = PsychologyLevel.PSYCHOLOGICALLY_DEEP
         reason = "Literary fiction focuses heavily on interiority and character change."
@@ -130,8 +130,8 @@ def _create_fallback_contract(genre: Genre) -> GenreContract:
 
 # Compatibility imports: contract loading remains in this module while the
 # operational interactive-pipeline registry lives in auteur.genre_pipeline.
-from auteur.genre_pipeline.models import CoreIdentityProfile, GenrePipelineSpec  # noqa: E402
-from auteur.genre_pipeline.registry import (  # noqa: E402
+from auteur.genre_pipeline.models import CoreIdentityProfile, GenrePipelineSpec  # noqa: E402, F401
+from auteur.genre_pipeline.registry import (  # noqa: E402, F401
     get_all_genres,
     get_genre_pipeline,
     get_genre_pipeline_for_core,

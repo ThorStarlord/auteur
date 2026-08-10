@@ -5,11 +5,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from auteur.bible import StoryBible
 from auteur.blueprint import StoryBlueprint
-from auteur.critic import CriticFinding
-from auteur.critic.base import format_outline_block, parse_findings_yaml
-from auteur.llm import LLMClient, LLMRequest
+from auteur.critic.base import format_outline_block
 
 
 TEMPERATURE = 0.0

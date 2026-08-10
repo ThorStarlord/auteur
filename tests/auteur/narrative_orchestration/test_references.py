@@ -21,7 +21,6 @@ from auteur.narrative_orchestration.schema.references import (
     ReferenceResolver,
     ReferenceGraph,
     IdFormat,
-    ArtifactTypePrefix,
 )
 
 

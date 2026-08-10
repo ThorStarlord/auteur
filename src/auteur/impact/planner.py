@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
 
 from auteur.impact.graph import DependencyGraph
 from auteur.impact.models import (
@@ -11,7 +10,6 @@ from auteur.impact.models import (
     ChangeRecord,
     ImpactFinding,
     ImpactSeverity,
-    PreservationStatus,
     RepairAction,
     RepairPlan,
 )
@@ -80,7 +78,6 @@ def _build_prerequisites(
     - Assembly before publishing
     - Earlier chapters before later chapters
     """
-    action_map: dict[str, RepairAction] = {a.action_id: a for a in actions}
     prereq_map: dict[str, list[str]] = {a.action_id: [] for a in actions}
 
     # Map action_id -> artifact_id
@@ -98,8 +95,6 @@ def _build_prerequisites(
     for a in actions:
         if not a.affected_artifact:
             continue
-        aid = a.affected_artifact.artifact_id
-        artifact_type = a.affected_artifact.artifact_type
 
         # REGENERATE depends on RECONCILE — reconcile before regenerate
         if "reconcile" in a.title.lower() or a.authority == "candidate_generation":

@@ -25,21 +25,16 @@ Violations are categorized:
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Any
 
 from auteur.narrative_orchestration.validator.reference_validator import (
     ReferenceValidator,
-    ValidationError,
-    ValidationResult,
 )
 from auteur.narrative_orchestration.validator.chronological_validator import (
     ChronologicalValidator,
-    ChronologicalViolation,
-    ChronologyViolationType,
 )
 from auteur.narrative_orchestration.validator.contradiction_validator import (
     ContradictionValidator,
-    Contradiction,
     ContradictionSeverity,
 )
 

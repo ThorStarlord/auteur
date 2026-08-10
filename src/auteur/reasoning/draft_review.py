@@ -11,7 +11,6 @@ Historical runs are immutable. Only ``latest.yaml`` is overwritten on each run.
 from __future__ import annotations
 
 import hashlib
-import json
 import os
 from datetime import datetime, timezone
 from pathlib import Path

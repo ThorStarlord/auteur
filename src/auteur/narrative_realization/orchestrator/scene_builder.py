@@ -13,18 +13,11 @@ Key Features:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import List, Optional, Dict, Any
-from enum import Enum
+from typing import List
 
 from auteur.narrative_realization.schema.scene_outline import (
     SceneOutline,
     SceneStatus,
-    TemporalRelation,
-)
-from auteur.narrative_realization.schema.scene_action import (
-    Goal,
-    Opposition,
 )
 from auteur.narrative_blueprint.schema.chapter_outline import ChapterOutline
 

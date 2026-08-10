@@ -6,7 +6,6 @@ validator infrastructure as mystery and gentlefemdom, proving the architecture
 requires zero genre-specific infrastructure changes.
 """
 
-import pytest
 from datetime import datetime
 
 from auteur.narrative_blueprint.schema.book_outline import BookOutline

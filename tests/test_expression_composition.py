@@ -55,7 +55,7 @@ def test_mixed_scene_expression_revisions_are_valid(tmp_path: Path) -> None:
 
 
 def test_missing_or_rejected_scene_expression_blocks_composition(tmp_path: Path) -> None:
-    project, scenes, _ = make_project(tmp_path)
+    project, _, _ = make_project(tmp_path)
     accepted = project / "chapters" / "07" / "scenes" / "scene_07_02" / "accepted.yaml"
     metadata = yaml.safe_load(accepted.read_text(encoding="utf-8"))
     metadata["lifecycle"] = Lifecycle.REJECTED.value
@@ -103,7 +103,7 @@ def test_clean_export_removes_markers_but_internal_manuscript_keeps_them(tmp_pat
 def test_marker_inspection_maps_marked_text_and_flags_markerless_divergence(tmp_path: Path) -> None:
     project, _, _ = make_project(tmp_path)
     store = ChapterExpressionStore(project)
-    assembly = store.compose("07")
+    store.compose("07")
     manuscript = (store.chapter_dir("07") / "chapter_v001.md").read_text(encoding="utf-8")
     assert store.inspect_markers(manuscript)["status"] == "mapped"
     assert store.inspect_markers("Edited chapter without markers.")["status"] == "unresolved_divergence"
@@ -112,7 +112,7 @@ def test_marker_inspection_maps_marked_text_and_flags_markerless_divergence(tmp_
 def test_divergent_scene_section_requires_chapter_review_acknowledgement(tmp_path: Path) -> None:
     project, scenes, _ = make_project(tmp_path)
     expressions = ExpressionStore(project)
-    candidate = expressions.generate(scenes[0], "Divergent prose.")
+    expressions.generate(scenes[0], "Divergent prose.")
     scene_dir = scenes[0].parent / scenes[0].stem
     accepted = yaml.safe_load((scene_dir / "accepted.yaml").read_text(encoding="utf-8"))
     accepted["lifecycle"] = "accepted"
@@ -303,7 +303,6 @@ def test_reconciliation_records_structural_review_evidence_for_fact_like_rewrite
 
 def test_reconciliation_cli_creates_and_shows_report(tmp_path: Path, capsys) -> None:
     from auteur.cli import main
-    from auteur.expression.reconciliation import ReconciliationStore
     project, _, _ = make_project(tmp_path)
     assembly = ChapterExpressionStore(project).compose("07")
     manuscript = tmp_path / "edited.md"
@@ -320,7 +319,7 @@ def test_reconciliation_cli_creates_and_shows_report(tmp_path: Path, capsys) -> 
 
 def test_reconciliation_application_plan_is_ready_and_noncanonical(tmp_path: Path) -> None:
     from auteur.expression.reconciliation import ReconciliationStore
-    project, scenes, _ = make_project(tmp_path)
+    project, _, _ = make_project(tmp_path)
     store = ChapterExpressionStore(project)
     assembly = store.compose("07")
     manuscript = store.chapter_dir("07") / "edited.md"

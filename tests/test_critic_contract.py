@@ -28,7 +28,7 @@ def test_contract_critic_renders_prompt_with_required_sections(tmp_path):
     fake_response = """findings: []"""
     client = FakeClient([LLMResponse(text=fake_response, input_tokens=10, output_tokens=2)])
 
-    findings = run_critic(render_contract, llm=client, critic_name="contract", 
+    findings = run_critic(render_contract, llm=client, critic_name="contract",
         draft="A long prose chapter about Kael.",
         outline=_sample_outline(),
         blueprint=blueprint,
@@ -60,7 +60,7 @@ def test_contract_critic_parses_error_finding(tmp_path):
 """
     client = FakeClient([LLMResponse(text=fake_response, input_tokens=10, output_tokens=20)])
 
-    findings = run_critic(render_contract, llm=client, critic_name="contract", 
+    findings = run_critic(render_contract, llm=client, critic_name="contract",
         draft="...",
         outline=_sample_outline(),
         blueprint=blueprint,
@@ -79,7 +79,7 @@ def test_contract_critic_uses_low_temperature(tmp_path):
     bible = StoryBible(tmp_path / "b.json")
     client = FakeClient([LLMResponse(text="findings: []", input_tokens=1, output_tokens=1)])
 
-    run_critic(render_contract, llm=client, critic_name="contract", 
+    run_critic(render_contract, llm=client, critic_name="contract",
         draft="x",
         outline=_sample_outline(),
         blueprint=blueprint,

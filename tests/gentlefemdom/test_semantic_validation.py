@@ -4,7 +4,6 @@ These tests verify that generated identities match their template's emotional co
 catching silent semantic failures where structure is valid but meaning is wrong.
 """
 
-import pytest
 from auteur.gentlefemdom.semantic_validation import SemanticCoherenceRule
 from auteur.netorare.identity_generator import IdentityGenerator
 from auteur.gentlefemdom.core_templates import get_template

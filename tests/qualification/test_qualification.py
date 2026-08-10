@@ -11,10 +11,7 @@ from __future__ import annotations
 
 import json
 import subprocess
-import sys
 from pathlib import Path
-
-import pytest
 
 
 def _auteur_cli() -> str:
@@ -82,7 +79,7 @@ def test_scenario_no_candidate(project_with_impact: Path) -> None:
 
     result = _run(["decision", "list", "--project", str(project_with_impact), "--json"], project_with_impact)
     assert result.returncode == 0, f"list failed: {result.stderr}"
-    data = json.loads(result.stdout)
+    json.loads(result.stdout)
 
     snapshots_after = _collect_snapshots(project_with_impact)
     _assert_no_mutation(snapshots_before, snapshots_after, "no_candidate")
@@ -243,7 +240,7 @@ def test_scenario_review_inspect(project_acceptance_ready: Path) -> None:
     assert result.returncode == 0
     # Extract session ID from output
     lines = result.stdout.strip().split("\n")
-    session_line = [l for l in lines if l.startswith("Review session started")]
+    session_line = [line for line in lines if line.startswith("Review session started")]
     if session_line:
         session_id = session_line[0].split(":")[1].strip().split("...")[0]
         result2 = _run(["review", "inspect", session_id, "--project", str(project_acceptance_ready)], project_acceptance_ready)

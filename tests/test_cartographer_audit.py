@@ -7,17 +7,13 @@ import pytest
 
 from auteur.blueprint import StoryBlueprint
 from auteur.cartographer_outline import (
-    ArcAdvancement,
     CartographerOutline,
-    ContractComplianceItem,
     OutlineScene,
-    StateChange,
 )
 from auteur.structure.cartographer_audit import (
     _extract_keywords,
     audit_outline_vs_story_engine,
 )
-from auteur.structure.diagnostics import DiagnosticSeverity, StructureDiagnostic
 
 _MINIMAL_DATA: dict = {
     "identity": {

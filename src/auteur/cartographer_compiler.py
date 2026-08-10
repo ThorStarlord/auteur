@@ -60,10 +60,10 @@ def compile_outline(
             cleaned_text = "\n".join(lines).strip()
 
         chapter_outline_data = _yaml.safe_load(cleaned_text)
-        
+
         # Verify schema
         CartographerOutline.model_validate(chapter_outline_data)
-        
+
         chapter_outline_data["index"] = idx
         compiled_chapters.append(chapter_outline_data)
 
@@ -99,7 +99,7 @@ def validate_outline(
         raise FileNotFoundError(f"Outline file not found: {outline_path}")
 
     data = _yaml.safe_load(outline_path.read_text(encoding="utf-8"))
-    
+
     if isinstance(data, dict) and "chapters" in data:
         chapters = data["chapters"]
     else:

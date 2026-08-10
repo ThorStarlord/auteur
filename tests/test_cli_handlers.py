@@ -13,13 +13,11 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
-import yaml
 from auteur.blueprint import StoryBlueprint
 
 from auteur.cli_handlers import (
     AcceptResultData,
     AuditResultData,
-    CandidateOutput,
     CompileBlueprintData,
     DraftResultData,
     HandlerResult,
@@ -48,7 +46,6 @@ from auteur.cli_handlers import (
 from auteur.identity import StoryIdentity
 from auteur.llm import LLMResponse
 from auteur.llm.fake import FakeClient
-from auteur.project import Project
 
 
 SAMPLE_BLUEPRINT = Path(__file__).parent.parent / "examples" / "sample_blueprint.yaml"
@@ -105,6 +102,7 @@ class TestHandleIdentityValidate:
         """Verifies the API contract: always returns HandlerResult."""
         result = handle_identity_validate(sample_identity)
         assert isinstance(result, HandlerResult)
+
 
 class TestHandleCompileToBlueprint:
     """handle_compile_to_blueprint compiles a StoryIdentity into a StoryBlueprint."""
@@ -595,7 +593,7 @@ class TestHandleDraft:
 
     def test_data_type_is_draftresultdata(self):
         import inspect
-        hints = inspect.get_annotations(handle_draft)
+        inspect.get_annotations(handle_draft)
         assert True
 
 

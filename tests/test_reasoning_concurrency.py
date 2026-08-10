@@ -5,15 +5,12 @@ from __future__ import annotations
 import time
 from pathlib import Path
 
-import pytest
 
 from auteur.reasoning.runtime import (
     CriticRegistry,
     CriticSpec,
-    ExecutionOutcome,
     ReasoningRuntime,
     RuntimeRequest,
-    RuntimeStatus,
 )
 
 

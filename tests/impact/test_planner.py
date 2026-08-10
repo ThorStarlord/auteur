@@ -6,12 +6,9 @@ from pathlib import Path
 
 from auteur.impact.models import (
     ArtifactRef,
-    ChangeRecord,
-    ChangeType,
     ImpactFinding,
     ImpactSeverity,
     PreservationStatus,
-    RepairAction,
     RepairPlan,
 )
 from auteur.impact.planner import RepairPlanner

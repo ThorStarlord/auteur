@@ -11,17 +11,14 @@ Requirements:
 import json
 from pathlib import Path
 
-import pytest
 import yaml
 
 from auteur.blueprint import (
-    StoryBlueprint,
     Genre,
     StoryMode,
     StoryMedium,
     TargetAudience,
     TargetExperience,
-    EndingTone,
 )
 from auteur.cli import main
 from auteur.genre_packs.diagnostics import run_genre_diagnostics
@@ -38,7 +35,6 @@ from auteur.identity import (
     HighLevelCentralEngine,
     compile_to_blueprint,
 )
-from auteur.structure.diagnostics import DiagnosticSeverity
 from auteur.structure.analyzer import analyze_structure
 
 

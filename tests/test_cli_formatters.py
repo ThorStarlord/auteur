@@ -30,7 +30,6 @@ from auteur.cli_formatters import (
 from auteur.cli_handlers import (
     AcceptResultData,
     AuditResultData,
-    CompileBlueprintData,
     DraftResultData,
     HandlerResult,
     IdentityValidateData,

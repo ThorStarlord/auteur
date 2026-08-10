@@ -200,7 +200,7 @@ def reconcile_identity_with_recommendation(
     author_overrides: list[GenreAuthorOverride] | None = None,
 ) -> "StoryIdentity":
     """Perform atomic reconciliation of an accepted GenreRecommendation into StoryIdentity.
-    
+
     Returns a new or updated StoryIdentity instance. Fails atomically if invalid.
     """
     from auteur.blueprint import Genre, TargetExperience
@@ -225,6 +225,7 @@ def reconcile_identity_with_recommendation(
     # Build GenreProfileCommitment
     overrides_list = list(author_overrides or [])
 
+    prev_commitment = locals().get("commitment")
     commitment = GenreProfileCommitment(
         primary_pack_id=recommendation.recommended_pack_id,
         primary_pack_version=recommendation.recommended_pack_version,
@@ -235,7 +236,7 @@ def reconcile_identity_with_recommendation(
         accepted_narrative_engine=recommendation.recommended_narrative_engine,
         accepted_framing=recommendation.recommended_framing,
         accepted_resolution_contract=recommendation.recommended_resolution_contract,
-        adherence_posture=identity.genre_profile.adherence_posture if identity.genre_profile else commitment.adherence_posture if 'commitment' in locals() else "conventional",
+        adherence_posture=identity.genre_profile.adherence_posture if identity.genre_profile else (prev_commitment.adherence_posture if prev_commitment is not None else "conventional"),
         source_recommendation_id=recommendation.recommendation_id,
         author_overrides=overrides_list,
         accepted_at=datetime.now(timezone.utc).isoformat(),

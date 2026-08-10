@@ -6,13 +6,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from auteur.series.models import (
-    CharacterState,
-    LoreEntry,
-    NarrativeSetup,
-    Relationship,
     SeriesIdentity,
-    ThematicArc,
-    TimelineEvent,
 )
 
 
@@ -40,9 +34,7 @@ class ThematicProgressionValidator:
 
         for arc in series.thematic_arcs:
             # Validate that progression develops sequentially
-            prev_state = None
             for book in sorted(arc.progression.keys()):
-                state = arc.progression[book]
                 if book > total_books:
                     diagnostics.append(
                         ValidationDiagnostic(
@@ -131,7 +123,6 @@ class CharacterContinuityValidator:
         # Validate consistency across books for each character
         for char_id, states in chars_by_id.items():
             sorted_states = sorted(states, key=lambda s: s.book)
-            first_state = sorted_states[0].state
 
             # Check that state fields remain consistent
             for i, state in enumerate(sorted_states[1:], start=1):

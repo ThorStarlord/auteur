@@ -146,7 +146,7 @@ def _handle_inspect(args) -> int:
                 print(f"  Current:     {entry.current_candidate}")
                 print(f"  Diverged:    {'YES' if entry.diverged else 'no'}")
             if entry.gaps:
-                print(f"  Gaps:")
+                print("  Gaps:")
                 for g in entry.gaps:
                     print(f"    • {g}")
         return 0
@@ -162,9 +162,9 @@ def _handle_summary(args) -> int:
         if args.json:
             print(json.dumps(summary.to_dict(), indent=2, default=str))
         else:
-            print(f"Decision Lifecycle Summary")
+            print("Decision Lifecycle Summary")
             print(f"  Total decisions:  {summary.total_decisions}")
-            print(f"  By stage:")
+            print("  By stage:")
             for stage_key in LifecycleStageOrder:
                 count = summary.by_stage.get(stage_key, 0)
                 if count > 0:

@@ -13,7 +13,6 @@ Spec: docs/superpowers/specs/2026-07-27-genre-profile-blueprint-propagation.md
 from datetime import datetime, timezone
 from copy import deepcopy
 
-import pytest
 import yaml
 
 from auteur.blueprint import (
@@ -23,7 +22,6 @@ from auteur.blueprint import (
     StoryMedium,
     TargetAudience,
     TargetExperience,
-    LengthClass,
     ProfileDerivation,
 )
 from auteur.genre_packs.models import (
@@ -39,7 +37,6 @@ from auteur.identity import (
     HighLevelCentralEngine,
     compile_to_blueprint,
 )
-from auteur.structure.diagnostics import DiagnosticSeverity
 from auteur.structure.analyzer import analyze_structure
 
 
@@ -724,7 +721,7 @@ class TestUnitCoverage:
         orig_subgenres = list(identity.story_type.subgenres)
         orig_profile = identity.genre_profile.model_dump(mode="json")
 
-        bp = compile_to_blueprint(identity)
+        compile_to_blueprint(identity)
 
         # Identity should be unchanged
         assert identity.story_type.genre == orig_genre

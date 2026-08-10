@@ -1,6 +1,5 @@
 """Tests: identity prose uses template labels, not ID-to-readable conversion."""
 
-import pytest
 from auteur.netorare.identity_generator import IdentityGenerator
 from auteur.gentlefemdom.core_templates import get_template
 from auteur.netorare.core_templates import HumiliationTemplate
@@ -118,7 +117,7 @@ class TestLabelAwareProseGeneration:
         choices = valid_choices_for("sensual_dominance")
         identity = IdentityGenerator.from_choices("sensual_dominance", choices)
 
-        template = get_template("sensual_dominance")
+        get_template("sensual_dominance")
 
         # Each field should have richer prose than mechanical ID-splitting
         for field in ["want", "resistance", "conflict", "stakes", "change"]:
@@ -149,7 +148,7 @@ class TestLabelAwareProseGeneration:
         """Mystery howdunit core also uses labels."""
         choices = HOWDUNIT_CHOICES
         identity = IdentityGenerator.from_choices("howdunit", choices)
-        template = HowdunitTemplate()
+        HowdunitTemplate()
 
         # Should use template labels, not slug conversion
         assert "puzzle" in identity.central_engine.want.lower() or "solve" in identity.central_engine.want.lower()

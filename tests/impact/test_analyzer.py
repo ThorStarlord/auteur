@@ -11,8 +11,6 @@ from auteur.impact.analyzer import ImpactAnalyzer
 from auteur.impact.graph import DependencyGraph
 from auteur.impact.models import (
     ArtifactRef,
-    ImpactSeverity,
-    PreservationStatus,
 )
 from auteur.provenance.store import ArtifactStore
 
@@ -131,7 +129,6 @@ class TestImpactPropagation:
 
         analyzer = ImpactAnalyzer.__new__(ImpactAnalyzer)
         analyzer.project_root = Path(".")
-        from auteur.impact.analyzer import _detect_changes, _classify_impact
         # Skip analyzer init, use graph directly
 
     def test_transitive_impact(self) -> None:

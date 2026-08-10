@@ -20,9 +20,8 @@ The dogfood used is the netorare story with Clara and Daniel:
 
 import tempfile
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import List
 
-import pytest
 
 from auteur.narrative_realization.loader.scene_loader import SceneLoader
 from auteur.narrative_realization.schema import (
@@ -42,11 +41,8 @@ from auteur.narrative_realization.schema import (
 )
 from auteur.narrative_realization.validator import (
     KnowledgeValidator,
-    KnowledgeViolation,
     TemporalValidator,
-    TemporalViolation,
     RealizationValidator,
-    RealizationViolation,
 )
 
 
@@ -633,7 +629,7 @@ class TestKnowledgeConsistency:
         scene2 = NetorareSceneFactory.build_scene_2_daniel_interrupts()
 
         # Scene 1's exit knowledge should be reflected in scene 2's entry
-        scene1_exit_facts = {k.what for k in scene1.exit_state.knowledge}
+        {k.what for k in scene1.exit_state.knowledge}
         scene2_entry_facts = {k.what for k in scene2.entry_state.knowledge}
 
         # Scene 2 should know about the altered record discovered in scene 1

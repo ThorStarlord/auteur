@@ -1,6 +1,5 @@
-import pytest
 from auteur.blueprint import Genre
-from auteur.genres.models import GenreContract, PsychologyLevel, RequirementLevel
+from auteur.genres.models import PsychologyLevel, RequirementLevel
 from auteur.genres.registry import load_genre_contract
 
 def test_load_grimdark_fantasy():

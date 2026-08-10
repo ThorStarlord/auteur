@@ -5,7 +5,6 @@ from pathlib import Path
 
 from auteur.genre_builder.builder import build_custom_genre_contract
 from auteur.genre_builder.explainer import explain_custom_genre_contract
-from auteur.genre_builder.models import CustomGenreContract
 from auteur.genre_builder.parser import parse_genre_brief
 from auteur.genre_builder.serializers import load_custom_genre_contract
 from auteur.genre_builder.validation import has_errors, validate_custom_genre_contract

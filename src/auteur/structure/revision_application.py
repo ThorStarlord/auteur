@@ -34,7 +34,6 @@ Key properties
 
 from __future__ import annotations
 
-import hashlib
 import json
 import os
 from datetime import datetime, timezone
@@ -103,10 +102,6 @@ def apply_revision(
     preconditions: list[RevisionPrecondition] = list(
         (plan.get("preconditions") or []) if isinstance(plan, dict)
         else (getattr(plan, "preconditions") or [])
-    )
-    target_hashes: dict[str, str] = dict(
-        (plan.get("target_hashes") or {}) if isinstance(plan, dict)
-        else (getattr(plan, "target_hashes", None) or {})
     )
 
     app_id = _stable_app_id(plan_id, confirmed)

@@ -22,7 +22,7 @@ def test_theme_critic_emits_only_warnings(tmp_path):
 """
     client = FakeClient([LLMResponse(text=fake, input_tokens=1, output_tokens=10)])
 
-    findings = run_critic(render_theme, llm=client, critic_name="theme", 
+    findings = run_critic(render_theme, llm=client, critic_name="theme",
         draft="A long chapter about sailing.",
         outline={"scope": "chapter"},
         blueprint=blueprint,
@@ -38,7 +38,7 @@ def test_theme_critic_prompt_includes_central_question_and_motifs(tmp_path):
     bible = StoryBible(tmp_path / "b.json")
     client = FakeClient([LLMResponse(text="findings: []", input_tokens=1, output_tokens=1)])
 
-    run_critic(render_theme, llm=client, critic_name="theme", 
+    run_critic(render_theme, llm=client, critic_name="theme",
         draft="x",
         outline={"scope": "chapter"},
         blueprint=blueprint,

@@ -425,7 +425,7 @@ def test_detects_teleportation_per_character_independently(tmp_path):
     assert "Forest" in mara_diags[0].message
 
 def test_as_structure_diagnostic_preserves_genre_recommendation_flow():
-    from auteur.structure.bible_audit import BibleAuditDiagnostic, as_structure_diagnostic
+    from auteur.structure.bible_audit import as_structure_diagnostic
     from auteur.structure.diagnostics import DiagnosticSeverity, DiagnosticLayer
 
     source = BibleAuditDiagnostic(

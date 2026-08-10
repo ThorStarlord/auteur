@@ -5,10 +5,9 @@ It accepts raw choices, validates them, transforms them into a StoryIdentity Pyd
 model, and serializes to YAML that passes auteur's identity validate command.
 """
 
-from typing import Dict, Any
+from typing import Dict
 import yaml
 
-from auteur.netorare.validation import validate_choices
 from auteur.netorare.core_templates import HumiliationTemplate, HorrorTemplate, MysteryTemplate
 from auteur.identity import StoryIdentity, StoryType, HighLevelCentralEngine
 from auteur.blueprint import StoryMode, StoryMedium, TargetAudience, Genre, TargetExperience, LengthClass
@@ -95,12 +94,7 @@ class IdentityGenerator:
         - Layer 4 (structural_forces) -> central_engine + conflict generation
         - Layers 5-9 -> metadata (open_questions, alternatives, etc.)
         """
-        layer1 = choices.get(1, {})
-        layer2 = choices.get(2, {})
-        layer3 = choices.get(3, {})
         layer4 = choices.get(4, {})
-        layer5 = choices.get(5, {})
-        layer6 = choices.get(6, {})
         layer7 = choices.get(7, {})
         layer8 = choices.get(8, {})
         layer9 = choices.get(9, {})

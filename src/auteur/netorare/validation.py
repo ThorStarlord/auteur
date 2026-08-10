@@ -1,9 +1,6 @@
 """Deterministic validation rules for netorare story structure."""
 
-from typing import Tuple, List, Dict, Any
-from auteur.netorare.core_templates import (
-    HumiliationTemplate, HorrorTemplate, MysteryTemplate
-)
+from typing import Tuple, List, Dict
 
 
 class ValidationError(Exception):

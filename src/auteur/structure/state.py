@@ -648,7 +648,7 @@ def state_confirm(project_path: Path, recovery_run_path: Path) -> int:
 
         validated_bp = StoryBlueprint.model_validate(blueprint.model_dump())
 
-        original_bible_data = json.loads(json.dumps(bible.data))
+        json.loads(json.dumps(bible.data))
         if "carriers" in locked:
             carriers = locked["carriers"]
             if isinstance(carriers, dict):

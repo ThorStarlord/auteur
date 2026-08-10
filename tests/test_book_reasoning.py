@@ -1,12 +1,11 @@
 """Tests for Book Manuscript reasoning (v0.25.0).
 
-Tests the deterministic BookManuscriptReasonAnalyzer and the 
+Tests the deterministic BookManuscriptReasonAnalyzer and the
 'auteur reasoning book' CLI command.
 """
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 import pytest

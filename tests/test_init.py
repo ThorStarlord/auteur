@@ -2,7 +2,6 @@
 
 import json
 
-import yaml
 
 from auteur.cli import main
 

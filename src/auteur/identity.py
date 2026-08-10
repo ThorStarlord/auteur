@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from auteur.genres.models import GenreContract
 
 from auteur.genre_packs.models import GenreProfileCommitment
+from auteur.structure.diagnostics import StructureDiagnostic
 
 from auteur.blueprint import (
     Genre,
@@ -50,9 +51,6 @@ from auteur.blueprint import (
     ThreadType,
     SupportFunction,
     ScopeContract,
-    NarrativeRunway,
-    ScopeComplexity,
-    MechanicalLoad,
     ProfileDerivation,
 )
 
@@ -186,13 +184,13 @@ class StoryIdentity(BaseModel):
         # 2. Genre Ending Tone/Mode Mismatch
         if self.genre_contract_snapshot:
             ending_tone_str = "tragic" if self.story_type.mode == StoryMode.TRAGIC else "bittersweet"
-            
+
             is_mismatch = False
             forbidden_type = ""
             if ending_tone_str == "tragic" and "tragic ending" in self.genre_contract_snapshot.forbidden_mismatches:
                 is_mismatch = True
                 forbidden_type = "tragic ending"
-            
+
             if is_mismatch:
                 if "ending_tone" not in self.author_overrides:
                     diagnostics.append(
@@ -236,7 +234,7 @@ class StoryIdentity(BaseModel):
         # 3. Target Experience Avoidance Clash
         avoided = {a.casefold().strip() for a in self.target_experience.avoid}
         primary = self.target_experience.primary.casefold().strip()
-        
+
         if primary in avoided:
             diagnostics.append(
                 StructureDiagnostic(
@@ -257,7 +255,7 @@ class StoryIdentity(BaseModel):
                     )
                 )
             )
-        
+
         progression_steps = [
             s.casefold().strip()
             for s in self.target_experience.progression.split("->")
@@ -296,22 +294,22 @@ class StoryIdentity(BaseModel):
                     LengthClass.EPIC_NOVEL: 4,
                     LengthClass.SERIES: 5,
                 }
-                
+
                 # Resolve active length class
                 length_class = self.story_type.length_class
                 if length_class is None:
                     length_class = resolve_length_class(self.story_type.medium)
-                
+
                 # In case min_viable is a string, resolve it to LengthClass
                 if isinstance(min_viable, str):
                     try:
                         min_viable = LengthClass(min_viable)
                     except ValueError:
                         pass
-                
+
                 val_resolved = order.get(length_class, 3)
                 val_min = order.get(min_viable, 1)
-                
+
                 if val_resolved < val_min:
                     if "runway_compression" not in self.author_overrides:
                         diagnostics.append(
@@ -440,7 +438,7 @@ def resolve_length_class(medium: StoryMedium) -> LengthClass:
 
 def _generate_checkable_claims(text: str, claim_type: str) -> list[str]:
     """Generate simple checkable claims from force author_text.
-    
+
     Extracts key phrases that can be verified in a draft (character achieves X,
     event Y happens, transformation Z occurs).
     """
@@ -747,7 +745,7 @@ def compile_to_blueprint(identity: StoryIdentity) -> StoryBlueprint:
             cast_load=sp.cast_load,
             scope_notes=[
                 f"Auto-generated from {identity.genre_contract_snapshot.display_name} contract.",
-                f"Natural lengths: {', '.join(l.value for l in sp.natural_lengths)}.",
+                f"Natural lengths: {', '.join(length.value for length in sp.natural_lengths)}.",
             ],
         )
 
@@ -1075,7 +1073,8 @@ def compile_to_blueprint(identity: StoryIdentity) -> StoryBlueprint:
     return blueprint
 
 
-from auteur.genres.models import GenreContract
+# Late import: breaks a circular chain (auteur.identity -> auteur.genres.models).
+from auteur.genres.models import GenreContract  # noqa: E402
 StoryIdentity.model_rebuild()
 
 

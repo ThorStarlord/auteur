@@ -9,9 +9,8 @@ This module provides ASCII art visualization of outline relationships, showing:
 Visualizations are suitable for terminal display and documentation.
 """
 
-from typing import Dict, List, Optional, Any, Tuple, Set
+from typing import Dict, List, Optional
 from dataclasses import dataclass
-from abc import ABC, abstractmethod
 
 
 @dataclass

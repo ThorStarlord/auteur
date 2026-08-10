@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
-from uuid import uuid4
+from typing import Any, Mapping
 import re
 
 from auteur.blueprint import StoryBlueprint, CharacterRole
@@ -11,7 +10,6 @@ from auteur.structure.diagnostics import StructureDiagnostic
 from auteur.structure.proposal_models import (
     _proposal_slug,
     ProposalOption,
-    ProposalSelection,
     ProposalType,
     StructureProposal,
 )
@@ -217,8 +215,8 @@ def propose_story_engine(blueprint: StoryBlueprint) -> StructureProposal:
     option_c = ProposalOption(
         id="thematic_ensemble",
         summary=(
-            f"Main thread interrogates the central question directly; a thematic-echo "
-            f"thread dramatises the thesis from an opposing or complementary angle."
+            "Main thread interrogates the central question directly; a thematic-echo "
+            "thread dramatises the thesis from an opposing or complementary angle."
         ),
         tradeoffs=(
             f"Produces philosophically layered storytelling aligned with the {genre} genre. "

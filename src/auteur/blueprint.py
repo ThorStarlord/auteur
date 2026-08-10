@@ -12,6 +12,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Literal, Self, TYPE_CHECKING
 
+import yaml
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 if TYPE_CHECKING:
@@ -332,7 +333,7 @@ class TargetExperience(BaseModel):
         # Check that we have a primary emotional promise
         if not self.primary and not self.primary_emotional_promise:
             raise ValueError("Either 'primary' or 'primary_emotional_promise' must be specified.")
-        
+
         # Populate defaults and cross-populate
         if not self.primary:
             self.primary = self.primary_emotional_promise
@@ -911,13 +912,14 @@ def _format_validation_error(exc: object, path: Path) -> str:
 
     lines = [f"Blueprint validation failed ({len(exc.errors())} issue(s)):"]
     for err in exc.errors():
-        loc = ".".join(str(l) for l in err["loc"])
+        loc = ".".join(str(part) for part in err["loc"])
         msg = err["msg"]
         lines.append(f"  - {loc}: {msg}")
     lines.append(f"\nSee {path} and fix the listed fields.")
     return "\n".join(lines)
 
 
-from auteur.genres.models import GenreContract
+# Late import: breaks a circular chain (auteur.blueprint -> auteur.genres.models).
+from auteur.genres.models import GenreContract  # noqa: E402
 ProjectIdentity.model_rebuild()
 StoryBlueprint.model_rebuild()

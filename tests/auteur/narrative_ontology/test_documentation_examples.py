@@ -8,10 +8,9 @@ These tests demonstrate how to:
 4. Integrate with validation rules
 """
 
-import pytest
 from auteur.narrative_ontology.loader import OntologyLoader
 from auteur.narrative_ontology.validator import OntologyValidator
-from auteur.narrative_ontology.schema.ontology_types import Concept, Relationship, ValidationRule
+from auteur.narrative_ontology.schema.ontology_types import Concept
 
 
 class TestAddConceptExample:
@@ -289,7 +288,7 @@ class TestOntologyValidatorUsage:
 
     def test_validate_ontology_structure(self):
         """Example: Validate complete ontology structure."""
-        validator = OntologyValidator()
+        OntologyValidator()
         loader = OntologyLoader()
 
         # Validate base ontology
@@ -382,7 +381,7 @@ class TestConceptIntegrationPatterns:
         Shows how to use ontology rules in custom validators.
         """
         loader = OntologyLoader()
-        validator = OntologyValidator()
+        OntologyValidator()
 
         # Get concept and extract rules
         character = loader.get_concept("Character")

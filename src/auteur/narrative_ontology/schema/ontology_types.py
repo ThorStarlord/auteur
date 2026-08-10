@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field, field_validator
 
 class Relationship(BaseModel):
     """Represents a relationship between two concepts.
-    
+
     Attributes:
         source_concept: Name of the source concept
         target_concept: Name of the target concept
@@ -29,7 +29,7 @@ class Relationship(BaseModel):
 
 class ValidationRule(BaseModel):
     """Represents a validation rule for concepts.
-    
+
     Attributes:
         rule_id: Unique identifier for the rule
         condition: String representation of the validation condition
@@ -64,7 +64,7 @@ class ValidationRule(BaseModel):
 
 class Concept(BaseModel):
     """Represents a concept in the narrative ontology.
-    
+
     Attributes:
         name: Name of the concept (must be unique within base or genre)
         definition: Human-readable definition
@@ -84,7 +84,7 @@ class Concept(BaseModel):
 
 class GenreOntologyExtension(BaseModel):
     """Represents a genre-specific extension of the base ontology.
-    
+
     Attributes:
         genre: Genre identifier
         extends: Base ontology or another genre this extends

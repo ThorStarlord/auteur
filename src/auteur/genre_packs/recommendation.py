@@ -23,7 +23,6 @@ from auteur.genre_packs.models import (
 from auteur.genre_packs.registry import get_pack_registry
 
 import os
-import tempfile
 
 _PENDING_RECOMMENDATIONS: dict[str, GenreRecommendation] = {}
 
@@ -45,19 +44,19 @@ def _atomic_write_json(file_path: Path, data: dict[str, Any]) -> None:
 
 def save_recommendation(rec: GenreRecommendation, project_dir: Path | str | None = None) -> Path:
     """Persist recommendation to disk atomically for process-restart durability.
-    
+
     When project_dir is provided, recommendation content is stored strictly project-local
     (.auteur/genre_recommendations/) to preserve privacy and single-authority boundaries.
     """
     _PENDING_RECOMMENDATIONS[rec.recommendation_id] = rec
-    
+
     if project_dir:
         p_resolved = str(Path(project_dir).resolve())
         rec.context = rec.context or {}
         rec.context["_project_dir"] = p_resolved
 
     data = rec.model_dump(mode="json")
-    
+
     if project_dir:
         target = Path(project_dir) / ".auteur" / "genre_recommendations" / f"{rec.recommendation_id}.json"
         _atomic_write_json(target, data)
@@ -70,7 +69,7 @@ def save_recommendation(rec: GenreRecommendation, project_dir: Path | str | None
 
 def load_recommendation(rec_id: str, project_dir: Path | str | None = None) -> GenreRecommendation:
     """Retrieve recommendation by ID from memory cache or project-local disk persistence.
-    
+
     When project_dir is provided, project-local storage (.auteur/genre_recommendations/)
     is strictly authoritative. No silent global fallback is performed.
     """
@@ -87,7 +86,7 @@ def load_recommendation(rec_id: str, project_dir: Path | str | None = None) -> G
         proj_file = Path(project_dir) / ".auteur" / "genre_recommendations" / f"{rec_id}.json"
         if not proj_file.exists():
             raise GenrePackError(GenreErrorCode.RECOMMENDATION_NOT_FOUND, f"Recommendation ID '{rec_id}' not found in project '{project_dir}'.")
-        
+
         try:
             data = json.loads(proj_file.read_text(encoding="utf-8"))
             rec = GenreRecommendation.model_validate(data)
@@ -115,7 +114,7 @@ def load_recommendation(rec_id: str, project_dir: Path | str | None = None) -> G
 
         if rec.context and rec.context.get("_project_dir"):
             raise GenrePackError(GenreErrorCode.RECOMMENDATION_NOT_FOUND, f"Recommendation ID '{rec_id}' belongs to project '{rec.context['_project_dir']}'. Pass --project to access.")
-        
+
         _PENDING_RECOMMENDATIONS[rec_id] = rec
         return rec
 
@@ -214,7 +213,7 @@ def recommend_genre_profile(
     context: dict[str, Any] | None = None,
 ) -> GenreRecommendation | GenreRecommendationAdvisory:
     """Analyze premise and return an opinionated GenreRecommendation or an abstention advisory.
-    
+
     This function is strictly read-only and causes zero pre-acceptance state mutation.
     """
     applicability = evaluate_pack_applicability(premise_text, pack_id=pack_id, version=version)
@@ -285,7 +284,7 @@ def recommend_genre_profile(
             else:
                 why = "The premise lacks explicit focus on psychological ambivalence and identity facade breakdown."
                 adj = "Heighten internal identity conflict, compulsion, and psychological secrecy."
-            
+
             rejected_profiles.append(
                 RejectedProfileAnalysis(
                     profile_id=p.profile_id,

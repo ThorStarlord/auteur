@@ -185,7 +185,7 @@ _SUBGENRE_REGISTRY: dict[str, SubgenreModifier] = {
 
 def load_subgenre_modifier(subgenre_id: str) -> SubgenreModifier | None:
     """Retrieve the SubgenreModifier for the given subgenre identifier.
-    
+
     Returns None if the subgenre is not pre-registered.
     """
     return _SUBGENRE_REGISTRY.get(subgenre_id.lower().strip())

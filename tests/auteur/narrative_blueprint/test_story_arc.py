@@ -2,7 +2,6 @@
 
 import pytest
 from datetime import datetime
-from typing import Literal
 from auteur.narrative_blueprint.schema.story_arc import (
     ArcCheckpoint,
     StoryArc,

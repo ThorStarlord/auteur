@@ -14,7 +14,7 @@ from auteur.narrative_orchestration.orchestrator.outline_inspector import (
 )
 
 try:
-    from auteur.narrative_orchestration.orchestrator.outline_grapher import (
+    from auteur.narrative_orchestration.orchestrator.outline_grapher import (  # noqa: F401
         OutlineGrapher,
         OutlineNode,
         ArcReference,

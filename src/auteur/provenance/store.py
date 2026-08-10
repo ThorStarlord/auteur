@@ -376,7 +376,7 @@ class ArtifactStore:
             invalid.append("artifact_missing")
         else:
             try:
-                document = yaml.safe_load(path.read_text(encoding="utf-8"))
+                yaml.safe_load(path.read_text(encoding="utf-8"))
                 matching_ids = 0
                 for candidate in self.project.rglob("*.yaml"):
                     if ".auteur" in candidate.parts:

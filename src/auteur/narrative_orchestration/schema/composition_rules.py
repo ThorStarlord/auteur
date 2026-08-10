@@ -11,7 +11,6 @@ Constraint Types:
 4. Arc Coverage: Which books/chapters must have character arcs
 """
 
-from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional, Set, Tuple
 

@@ -9,11 +9,11 @@ import pytest
 sys.modules["anthropic"] = MagicMock()
 sys.modules["openai"] = MagicMock()
 
-from auteur.llm import LLMRequest, LLMResponse, RetriableError
-from auteur.llm.fake import FakeClient
-from auteur.llm.retrying import RetryingClient
-from auteur.llm.anthropic import AnthropicClient
-from auteur.llm.openai import OpenAIClient
+from auteur.llm import LLMRequest, LLMResponse, RetriableError  # noqa: E402  (SDK mocks above must precede provider imports)
+from auteur.llm.fake import FakeClient  # noqa: E402
+from auteur.llm.retrying import RetryingClient  # noqa: E402
+from auteur.llm.anthropic import AnthropicClient  # noqa: E402
+from auteur.llm.openai import OpenAIClient  # noqa: E402
 
 
 # ---------------------------------------------------------------------------

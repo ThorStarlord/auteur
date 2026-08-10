@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from auteur.impact.graph import DependencyGraph
-from auteur.impact.models import ArtifactRef, DependencyEdge
+from auteur.impact.models import ArtifactRef
 
 
 class TestGraphConstruction:

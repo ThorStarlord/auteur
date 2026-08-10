@@ -12,12 +12,9 @@ All commands work identically across all 3 genres (netorara, mystery, gentlefemd
 from __future__ import annotations
 
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
 
 from auteur.identity import StoryIdentity
-from auteur.blueprint import Genre
 from auteur.narrative_blueprint.loader.outline_loader import OutlineLoader
 from auteur.narrative_orchestration.orchestrator.outline_builder import OutlineBuilder
 from auteur.narrative_orchestration.orchestrator.outline_inspector import OutlineInspector
@@ -516,7 +513,7 @@ class CliOrchestrationCommands:
                 if "book" in yaml_file.stem:
                     from auteur.narrative_blueprint.schema.book_outline import BookOutline
                     artifact = self.loader.load_outline(str(yaml_file), BookOutline)
-                    artifacts[f"book_001"] = artifact
+                    artifacts["book_001"] = artifact
 
                 elif "sequence" in yaml_file.stem:
                     from auteur.narrative_blueprint.schema.sequence_outline import SequenceOutline

@@ -133,7 +133,6 @@ def parse_refinement_response(text: str) -> dict:
     cleaned = text.strip()
     if cleaned.startswith("```"):
         lines = cleaned.splitlines()
-        fence_char = lines[0][3:].strip() or "yaml"
         if lines[0].startswith("```"):
             cleaned = "\n".join(lines[1:])
             if cleaned.endswith("```"):

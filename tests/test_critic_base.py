@@ -1,11 +1,9 @@
-import pytest
 
 from auteur.critic.base import (
     parse_findings_yaml,
     format_bible_context,
     format_outline_block,
 )
-from auteur.critic import CriticFinding
 from auteur.bible import StoryBible
 
 

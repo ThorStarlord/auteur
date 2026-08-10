@@ -7,7 +7,7 @@ from the story specification schema.
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Self
+from typing import Self
 
 from pydantic import BaseModel, Field
 

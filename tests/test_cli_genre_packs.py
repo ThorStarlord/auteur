@@ -2,7 +2,6 @@
 
 import json
 from pathlib import Path
-import pytest
 
 from auteur.cli import main
 from auteur.identity import StoryIdentity, HighLevelCentralEngine, StoryType

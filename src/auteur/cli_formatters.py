@@ -10,16 +10,15 @@ from __future__ import annotations
 from auteur.cli_handlers import (
     AcceptResultData,
     AuditResultData,
-    CompileBlueprintData,
     DraftResultData,
     HandlerResult,
+    IdentityValidateData,
     PlanData,
     PublishData,
     RecommendOpinionatedData,
     RecommendOpenEndedData,
     StateCanonData,
     StateCheckData,
-    StateConfirmData,
     StatePrepareData,
     StateUpdateData,
 )
@@ -360,15 +359,12 @@ def format_identity_validate(result: HandlerResult) -> str | None:
 
     lines: list[str] = []
     if diagnostics:
-        has_error = data.has_error
         for diag in diagnostics:
             severity_str = (
                 diag.severity.value.upper()
                 if hasattr(diag.severity, "value")
                 else str(diag.severity).upper()
             )
-            if severity_str == "ERROR":
-                has_error = True
             lines.append(
                 f"[{severity_str}] Layer: "
                 f"{diag.layer.value if hasattr(diag.layer, 'value') else diag.layer}"
@@ -513,7 +509,7 @@ def format_state_check(result: HandlerResult) -> str | None:
         return "All previously detected issues have been resolved."
 
     from collections import defaultdict
-    from auteur.structure.diagnostics import DiagnosticLayer, DiagnosticSeverity
+    from auteur.structure.diagnostics import DiagnosticLayer
     _LAYER_ORDER = [
         (1, DiagnosticLayer.TARGET_EXPERIENCE, "Target Experience"),
         (2, DiagnosticLayer.CONSTRAINTS, "Promise / Constraints"),

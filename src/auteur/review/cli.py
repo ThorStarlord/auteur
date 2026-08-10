@@ -5,7 +5,9 @@ from __future__ import annotations
 import json as _json
 import sys
 from pathlib import Path
+from typing import Any
 
+from auteur.review.models import ReviewEvent, ReviewSession, ReviewSessionState
 from auteur.review.service import ReviewService
 
 
@@ -348,7 +350,6 @@ def _handle_abort(args) -> int:
 
 
 def _session_to_dict(session: ReviewSession) -> dict[str, Any]:
-    from auteur.review.models import ReviewSession, ReviewSessionState
     return {
         "session_id": session.session_id,
         "project": session.project,
@@ -390,7 +391,6 @@ def _session_to_dict(session: ReviewSession) -> dict[str, Any]:
 
 
 def _event_to_dict(event: ReviewEvent) -> dict[str, Any]:
-    from auteur.review.models import ReviewEvent
     return {
         "event_id": event.event_id,
         "sequence": event.sequence,

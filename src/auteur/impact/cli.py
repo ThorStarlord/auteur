@@ -6,10 +6,9 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Any
 
 from auteur.impact.analyzer import ImpactAnalyzer
-from auteur.impact.models import ImpactSeverity, PreservationStatus
+from auteur.impact.models import ImpactSeverity
 from auteur.impact.persistence import ImpactStore
 from auteur.impact.planner import RepairPlanner
 
@@ -294,19 +293,19 @@ def _print_analysis_output(
     print(f"Impact Analysis — {root.name}")
 
     if changes:
-        print(f"\nChanged:")
+        print("\nChanged:")
         for c in changes:
             aid = c.artifact_ref.artifact_id if c.artifact_ref else "?"
             ct = c.change_type.value if hasattr(c.change_type, 'value') else c.change_type
             print(f"  {aid} — {ct}")
     else:
-        print(f"\nNo changes detected.")
+        print("\nNo changes detected.")
         return
 
     # Directly affected
     direct = [f for f in findings if f.is_direct and f.severity != ImpactSeverity.NONE]
     if direct:
-        print(f"\nDirectly affected:")
+        print("\nDirectly affected:")
         for f in _sorted_by_chapter(direct):
             aid = f.affected_artifact.artifact_id if f.affected_artifact else "?"
             sev = f.severity.value.upper() if hasattr(f.severity, 'value') else str(f.severity).upper()
@@ -316,7 +315,7 @@ def _print_analysis_output(
     # Transitively affected
     transitive = [f for f in findings if not f.is_direct and f.severity != ImpactSeverity.NONE]
     if transitive:
-        print(f"\nTransitively affected:")
+        print("\nTransitively affected:")
         for f in _sorted_by_chapter(transitive):
             aid = f.affected_artifact.artifact_id if f.affected_artifact else "?"
             sev = f.severity.value.upper() if hasattr(f.severity, 'value') else str(f.severity).upper()
@@ -325,7 +324,7 @@ def _print_analysis_output(
     # Preserved
     preserved = [f for f in findings if f.severity == ImpactSeverity.NONE]
     if preserved:
-        print(f"\nPreserved:")
+        print("\nPreserved:")
         for f in _sorted_by_chapter(preserved):
             aid = f.affected_artifact.artifact_id if f.affected_artifact else "?"
             print(f"  {aid}")
@@ -339,7 +338,7 @@ def _print_plan_output(root: Path, plan) -> None:
         print("  No repair actions required.")
         return
 
-    print(f"\nRecommended repair order:")
+    print("\nRecommended repair order:")
     for i, action in enumerate(plan.actions, 1):
         blocking_mark = " [BLOCKING]" if action.blocking else ""
         safe_mark = " [safe]" if action.safe_to_execute else ""
@@ -350,21 +349,21 @@ def _print_plan_output(root: Path, plan) -> None:
             print(f"     Command: {action.command}")
 
     if plan.preserved_artifacts:
-        print(f"\nPreserved:")
+        print("\nPreserved:")
         for ref in _sorted_refs(plan.preserved_artifacts):
             print(f"  {ref.artifact_id}")
 
     # Next safe action
     safe_actions = [a for a in plan.actions if a.safe_to_execute and not a.blocking]
     if safe_actions:
-        print(f"\nNext safe action:")
+        print("\nNext safe action:")
         print(f"  {safe_actions[0].command or safe_actions[0].title}")
     elif plan.actions:
-        print(f"\nNext action:")
+        print("\nNext action:")
         print(f"  {plan.actions[0].command or plan.actions[0].title}")
 
-    print(f"\nAuthority:")
-    print(f"  This is a derived analysis. It does not accept prose or mutate artifacts.")
+    print("\nAuthority:")
+    print("  This is a derived analysis. It does not accept prose or mutate artifacts.")
 
 
 def _sorted_by_chapter(findings: list) -> list:

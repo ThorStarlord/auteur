@@ -1,6 +1,5 @@
 """Tests: template emotional data flows to identity."""
 
-import pytest
 from auteur.netorare.identity_generator import IdentityGenerator
 from auteur.gentlefemdom.core_templates import get_template
 
@@ -81,7 +80,7 @@ class TestTemplateEmotionalPreservation:
         """Identity progression matches template emotion arc, not hardcoded fallback."""
         choices = SENSUAL_DOMINANCE_CHOICES
         identity = IdentityGenerator.from_choices("sensual_dominance", choices)
-        template = get_template("sensual_dominance")
+        get_template("sensual_dominance")
         # Template progression should appear in identity, not generic "tension -> escalation -> climax"
         from auteur.gentlefemdom.emotion_arcs import get_emotion_arc
         arc = get_emotion_arc("sensual_dominance")

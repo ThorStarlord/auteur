@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 
 import pytest
 
@@ -12,7 +11,6 @@ from auteur.planning.models import (
     NodeType,
     PlanDependency,
     DependencyType,
-    DependencyStrength,
     PlanMilestone,
     PlanningHorizon,
     MilestoneState,

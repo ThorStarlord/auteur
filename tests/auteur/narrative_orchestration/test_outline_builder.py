@@ -10,8 +10,6 @@ Validates that:
 """
 
 import pytest
-from datetime import datetime
-from typing import List
 
 from auteur.identity import StoryIdentity, HighLevelCentralEngine, StoryType
 from auteur.blueprint import (
@@ -135,7 +133,6 @@ class TestOutlineBuilderIdFormatting:
         for i, chapter in enumerate(chapters, 1):
             assert chapter.chapter_number == i
             # ID format: chapter_{02d}
-            expected_id = f"chapter_{i:02d}"
             # Note: chapter artifacts use chapter_number, not ID attribute
 
     def test_sequence_ids_follow_format(self):
@@ -162,7 +159,6 @@ class TestOutlineBuilderIdFormatting:
         for i, sequence in enumerate(sequences, 1):
             assert sequence.sequence_number == i
             # ID format: sequence_{i}
-            expected_id = f"sequence_{i:02d}"
 
 
 class TestOutlineBuilderGenreSpecifics:
@@ -456,7 +452,7 @@ class TestOutlineBuilderValidation:
 
         # Should not raise any validation errors
         try:
-            book_outline, sequences, chapters, char_arc, story_arc = (
+            book_outline, _, chapters, _, _ = (
                 builder.seed_from_story_identity()
             )
             # If we get here, validation passed

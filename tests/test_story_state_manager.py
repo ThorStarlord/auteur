@@ -1,9 +1,8 @@
 """Tests for the unified Story State Manager — run_all_diagnostics()."""
 
-from pathlib import Path
 
 from auteur.bible import StoryBible
-from auteur.structure import DiagnosticLayer, DiagnosticSeverity
+from auteur.structure import DiagnosticLayer
 from auteur.structure.bible_audit import audit_bible_locations
 from auteur.structure.analyzer import analyze_structure, run_all_diagnostics
 

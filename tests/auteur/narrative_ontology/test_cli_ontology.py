@@ -8,10 +8,8 @@ Tests the following commands:
 - auteur ontology themes <genre>
 """
 
-from pathlib import Path
 from auteur.cli import main
 import json
-import pytest
 
 
 class TestOntologyInspect:
@@ -142,7 +140,7 @@ class TestOntologyValidate:
     def test_validate_outputs_errors_if_any(self, capsys):
         """Validate reports errors if structure is invalid."""
         # This tests the error reporting path
-        rc = main(["ontology", "validate", "netorare"])
+        main(["ontology", "validate", "netorare"])
         out = capsys.readouterr().out
         # Should either report valid or list specific errors
         assert ("valid" in out.lower()) or ("error" in out.lower())

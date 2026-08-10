@@ -3,13 +3,11 @@
 from __future__ import annotations
 
 import logging
-import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 from auteur.decision.models import (
-    DecisionReadiness,
     EvidenceFreshness,
 )
 from auteur.decision.service import DecisionWorkspaceService
@@ -25,7 +23,6 @@ from auteur.review.models import (
     ReviewSessionState,
     ReviewTarget,
     ReviewSessionSummary,
-    _event_hash,
     _stable_id,
 )
 from auteur.review.persistence import ReviewStore
@@ -495,7 +492,6 @@ class ReviewService:
                 self.decision_service.refresh()
 
             # Impact preview
-            impact = None
             new_decisions: list[str] = []
             stale_decisions: list[str] = []
             affected: list[str] = []

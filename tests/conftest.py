@@ -16,7 +16,6 @@ from pathlib import Path
 import pytest
 
 from auteur.canonical_story import CanonicalStoryBootstrap
-from auteur.expression.book import BookExpressionStore
 
 _BOOTSTRAP_CACHE: Path | None = None
 

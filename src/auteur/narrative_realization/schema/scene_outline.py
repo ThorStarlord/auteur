@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import re
 from enum import Enum
-from typing import Literal, Optional, Self
+from typing import Optional, Self
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -30,10 +30,8 @@ from auteur.narrative_realization.schema.scene_action import (
     Turn,
 )
 from auteur.narrative_realization.schema.scene_state import (
-    EmotionalState,
     EntryState,
     ExitState,
-    KnowledgeFact,
 )
 
 

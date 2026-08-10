@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from auteur.commitment.models import (
-    AssignmentState,
     CommitmentProgress,
     PortfolioCommitment,
 )

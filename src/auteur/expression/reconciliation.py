@@ -209,9 +209,7 @@ class ReconciliationStore:
             before = next((item for item in blocks if item["scene_id"] == transition["before_scene"]), None)
             after = next((item for item in blocks if item["scene_id"] == transition["after_scene"]), None)
             if before and after:
-                expected = str(transition.get("text", "")).strip()
                 start, end = before["end_line"], after["start_line"] - 1
-                gap = "\n".join(lines[start:end]).strip()
                 # Adjacent gaps belong to the declared Chapter transition even
                 # when their content changed; classification owns the delta.
                 owned.update(range(start, end))
@@ -257,7 +255,8 @@ class ReconciliationStore:
                 proposal["boundary"] = {"before_scene": transition["before_scene"], "after_scene": transition["after_scene"]}
                 proposal["source_transition"] = {"transition_id": transition["transition_id"], "revision": transition["revision"], "content_hash": transition["content_hash"], "before_scene": transition["before_scene"], "after_scene": transition["after_scene"]}
             self._write_atomic(root / "proposals" / f"{proposal_id}.yaml", proposal)
-            proposals.append(proposal); ids.append(proposal_id)
+            proposals.append(proposal)
+            ids.append(proposal_id)
         report["proposal_ids"] = ids
         report["status"] = "proposals_created" if ids else report.get("status", "inspected")
         self._write_atomic(path, report)
@@ -290,7 +289,7 @@ class ReconciliationStore:
         return {"proposal_id": proposal_id, "status": "stale" if stale_reasons else proposal.get("status", "proposed"), "stale_reasons": stale_reasons, "proposal": proposal}
 
     def show(self, identifier: str) -> dict[str, Any]:
-        matches = list(self.project.glob(f"chapters/*/expression/reconciliation/**/*.yaml"))
+        matches = list(self.project.glob("chapters/*/expression/reconciliation/**/*.yaml"))
         for path in matches:
             data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
             if data.get("inspection_id") == identifier or data.get("proposal_id") == identifier or data.get("run_id") == identifier:
@@ -397,19 +396,26 @@ class ReconciliationStore:
         fresh = {item["proposal_id"] for item in validations if item["classification"] == "fresh"}
         planned_outputs = []
         for proposal in proposals:
-            if proposal["proposal_id"] not in fresh: continue
+            if proposal["proposal_id"] not in fresh:
+                continue
             if proposal["proposal_type"] == "transition_patch":
                 planned_outputs.append({"output_type": "chapter_transition_candidate", "target_transition": proposal["target_artifact_id"], "boundary": proposal.get("boundary"), "source_transition_revision": proposal["target_revision"], "planned_candidate_id": f"planned:{proposal['proposal_id']}", "planned_revision": int(proposal["target_revision"]) + 1})
             else:
                 item = {"output_type": "scene_expression_candidate", "target_scene": proposal["target_artifact_id"], "source_expression_revision": proposal["target_revision"], "planned_candidate_id": f"planned:{proposal['proposal_id']}"}
-                if proposal["proposal_type"] == "scene_expression_replacement_candidate": item["mode"] = "replacement"
+                if proposal["proposal_type"] == "scene_expression_replacement_candidate":
+                    item["mode"] = "replacement"
                 item["planned_revision"] = int(proposal["target_revision"]) + 1
                 planned_outputs.append(item)
-        if conflicts: readiness = "conflicted"
-        elif any(item["classification"] == "unsupported" for item in validations): readiness = "unsupported"
-        elif any(item["classification"] == "invalid" for item in validations): readiness = "not_ready"
-        elif any(item["classification"] == "stale" for item in validations): readiness = "stale"
-        else: readiness = "ready"
+        if conflicts:
+            readiness = "conflicted"
+        elif any(item["classification"] == "unsupported" for item in validations):
+            readiness = "unsupported"
+        elif any(item["classification"] == "invalid" for item in validations):
+            readiness = "not_ready"
+        elif any(item["classification"] == "stale" for item in validations):
+            readiness = "stale"
+        else:
+            readiness = "ready"
         preview_sources = []
         expected_scene_order, expected_transition_order = [], []
         try:
@@ -423,7 +429,8 @@ class ReconciliationStore:
                 preview_sources.append({"section_id": item["transition_id"], "source_kind": "planned_candidate" if item["transition_id"] in planned_by_target else "accepted_transition", "source_revision": planned_by_target.get(item["transition_id"], {}).get("planned_revision", item["revision"]), "planned_candidate": planned_by_target.get(item["transition_id"], {}).get("planned_candidate_id")})
         except (KeyError, FileNotFoundError, ValueError):
             pass
-        if not proposal_ids: readiness = "not_ready"
+        if not proposal_ids:
+            readiness = "not_ready"
         plan_id = "application_set_" + hashlib.sha256((inspection_id + "\0" + "\0".join(proposal_ids)).encode()).hexdigest()[:16]
         plan = {"application_set_id": plan_id, "source_inspection": inspection_id, "source_assembly": assembly_ref, "external_manuscript": manuscript_ref, "proposal_ids": proposal_ids, "status": "planned", "readiness": readiness, "planned_readiness": {"status": readiness, "evaluated_at": datetime.now(timezone.utc).isoformat()}, "targets": [p.get("target_artifact_id") for p in proposals], "conflicts": conflicts, "freshness_results": validations, "planned_outputs": planned_outputs, "recomposition_preview": {"preview_sources": preview_sources, "expected_scene_order": expected_scene_order, "expected_transition_order": expected_transition_order, "blocking_gaps": [] if expected_scene_order else ["source Chapter assembly unavailable"], "label": "application_preview", "canonical": False}, "created_at": datetime.now(timezone.utc).isoformat()}
         root = inspection_path.parent.parent
@@ -502,9 +509,11 @@ class ReconciliationStore:
             return publication
         except Exception:
             for path in reversed(created):
-                if path.exists(): path.unlink()
+                if path.exists():
+                    path.unlink()
             for parent in {path.parent for path in created}:
-                if parent.exists() and not any(parent.iterdir()): parent.rmdir()
+                if parent.exists() and not any(parent.iterdir()):
+                    parent.rmdir()
             raise
 
     def _final_revalidate(self, plan: dict[str, Any]) -> dict[str, Any]:
@@ -557,14 +566,19 @@ class ReconciliationStore:
                 if transition is None:
                     reasons.append({"code": "TARGET_MISSING", "proposal_id": proposal_id, "recommended_action": "create a new reconciliation plan"})
                 else:
-                    if transition.get("revision") != proposal.get("target_revision"): reasons.append({"code": "TRANSITION_REVISION_CHANGED", "proposal_id": proposal_id, "expected_revision": proposal.get("target_revision"), "current_revision": transition.get("revision"), "recommended_action": "create a new reconciliation plan"})
-                    if transition.get("content_hash") != proposal.get("target_content_hash"): reasons.append({"code": "TRANSITION_HASH_CHANGED", "proposal_id": proposal_id, "recommended_action": "create a new reconciliation plan"})
-                    if {"before_scene": transition.get("before_scene"), "after_scene": transition.get("after_scene")} != boundary: reasons.append({"code": "TRANSITION_BOUNDARY_CHANGED", "proposal_id": proposal_id, "recommended_action": "create a new reconciliation plan"})
+                    if transition.get("revision") != proposal.get("target_revision"):
+                        reasons.append({"code": "TRANSITION_REVISION_CHANGED", "proposal_id": proposal_id, "expected_revision": proposal.get("target_revision"), "current_revision": transition.get("revision"), "recommended_action": "create a new reconciliation plan"})
+                    if transition.get("content_hash") != proposal.get("target_content_hash"):
+                        reasons.append({"code": "TRANSITION_HASH_CHANGED", "proposal_id": proposal_id, "recommended_action": "create a new reconciliation plan"})
+                    if {"before_scene": transition.get("before_scene"), "after_scene": transition.get("after_scene")} != boundary:
+                        reasons.append({"code": "TRANSITION_BOUNDARY_CHANGED", "proposal_id": proposal_id, "recommended_action": "create a new reconciliation plan"})
             else:
                 try:
                     metadata, _ = self.composition._accepted_scene(proposal["target_artifact_id"])
-                    if metadata.get("revision") != proposal.get("target_revision"): reasons.append({"code": "TARGET_REVISION_CHANGED", "proposal_id": proposal_id, "expected_revision": proposal.get("target_revision"), "current_revision": metadata.get("revision"), "recommended_action": "create a new reconciliation plan"})
-                    if metadata.get("content_hash") != proposal.get("target_content_hash"): reasons.append({"code": "TARGET_HASH_CHANGED", "proposal_id": proposal_id, "recommended_action": "create a new reconciliation plan"})
+                    if metadata.get("revision") != proposal.get("target_revision"):
+                        reasons.append({"code": "TARGET_REVISION_CHANGED", "proposal_id": proposal_id, "expected_revision": proposal.get("target_revision"), "current_revision": metadata.get("revision"), "recommended_action": "create a new reconciliation plan"})
+                    if metadata.get("content_hash") != proposal.get("target_content_hash"):
+                        reasons.append({"code": "TARGET_HASH_CHANGED", "proposal_id": proposal_id, "recommended_action": "create a new reconciliation plan"})
                 except (KeyError, FileNotFoundError, ValueError) as exc:
                     reasons.append({"code": "TARGET_MISSING", "proposal_id": proposal_id, "detail": str(exc), "recommended_action": "create a new reconciliation plan"})
         return {"status": "ready" if not reasons else "rejected_stale", "message": "publication dependencies are fresh" if not reasons else "application plan is stale", "stale_reasons": reasons, "visible_outputs_created": False, "publication_readiness": {"status": "ready" if not reasons else "stale", "evaluated_at": datetime.now(timezone.utc).isoformat(), "reasons": reasons}, "proposal_ids": [p.get("proposal_id") for p in proposals]}
@@ -632,11 +646,16 @@ class ReconciliationStore:
             decision = latest.get(candidate_id)
             candidates.append({"candidate_id": candidate_id, "candidate_type": candidate_type, "owner": owner, "status": decision["decision"] if decision else ("stale" if freshness == "stale" else "pending"), "freshness": freshness, "revision": metadata.get("revision"), "content_hash": metadata.get("content_hash"), "decision": decision})
         statuses = [item["status"] for item in candidates]
-        if any(item["status"] in {"stale", "blocked"} for item in candidates): state = "blocked"
-        elif not records: state = "published"
-        elif all(status in {"accepted", "rejected", "deferred"} for status in statuses): state = "all_candidates_decided"
-        elif any(status in {"accepted", "rejected", "deferred"} for status in statuses): state = "partially_decided"
-        else: state = "under_review"
+        if any(item["status"] in {"stale", "blocked"} for item in candidates):
+            state = "blocked"
+        elif not records:
+            state = "published"
+        elif all(status in {"accepted", "rejected", "deferred"} for status in statuses):
+            state = "all_candidates_decided"
+        elif any(status in {"accepted", "rejected", "deferred"} for status in statuses):
+            state = "partially_decided"
+        else:
+            state = "under_review"
         return {"publication_id": publication_id, "status": state, "candidates": candidates, "next_actions": ["review pending candidates", "revalidate stale candidates", "recompose explicitly from accepted sources when ready"]}
 
     def decide(self, candidate_id: str, decision: str, *, decided_by: str = "author", rationale: str = "") -> dict[str, Any]:
@@ -653,15 +672,15 @@ class ReconciliationStore:
         candidate_type = "transition" if metadata.get("artifact_type") == "chapter_transition_candidate" else "scene"
         freshness = "fresh"
         resulting = None
-        previous_revision = None
         if candidate_type == "scene":
             from auteur.expression.pilot import ExpressionStore
             store = ExpressionStore(self.project)
             freshness = store.status(metadata["candidate_id"])["freshness"]
             if decision == "accepted":
-                if freshness != "fresh": raise ValueError("candidate is stale and requires revalidation or acknowledged divergence")
+                if freshness != "fresh":
+                    raise ValueError("candidate is stale and requires revalidation or acknowledged divergence")
                 accepted = store.accept(metadata["candidate_id"], accepted_by=decided_by)
-                resulting, previous_revision = accepted.candidate_id, accepted.revision - 1
+                resulting, _ = accepted.candidate_id, accepted.revision - 1
             elif decision == "rejected":
                 store.reject(metadata["candidate_id"], rejected_by=decided_by, reason=rationale)
         else:
@@ -671,17 +690,30 @@ class ReconciliationStore:
             transitions_path = self.composition._transition_manifest_path(self.composition.inspect(manifest["chapter_expression"]).source_chapter["artifact_id"])
             transitions = self.composition.load_transitions(self.composition.inspect(manifest["chapter_expression"]).source_chapter["artifact_id"])
             current_key, current = next(((key, value) for key, value in transitions.items() if value.get("transition_id") == metadata.get("transition_id")), (None, None))
-            if current and (current.get("revision") != source.get("revision") or _hash(str(current.get("text", "")).strip()) != source.get("content_hash")): freshness = "stale"
+            if current and (current.get("revision") != source.get("revision") or _hash(str(current.get("text", "")).strip()) != source.get("content_hash")):
+                freshness = "stale"
             if decision == "accepted":
-                if freshness != "fresh": raise ValueError("transition candidate is stale")
-                if current_key is None: raise ValueError("accepted transition pointer is missing")
+                if freshness != "fresh":
+                    raise ValueError("transition candidate is stale")
+                if current_key is None:
+                    raise ValueError("accepted transition pointer is missing")
                 history = transitions_path.parent / "transition_candidates" / f"accepted_history_{metadata['transition_id']}_v{int(current['revision']):03d}.yaml"
-                history.parent.mkdir(parents=True, exist_ok=True); history.write_text(yaml.safe_dump(current, sort_keys=False), encoding="utf-8")
-                accepted = dict(metadata); accepted["lifecycle"] = "accepted"; accepted["authority"] = "canonical"; transitions[current_key] = accepted; transitions_path.write_text(yaml.safe_dump(transitions, sort_keys=False), encoding="utf-8"); resulting, previous_revision = metadata["candidate_id"], current.get("revision")
+                history.parent.mkdir(parents=True, exist_ok=True)
+                history.write_text(yaml.safe_dump(current, sort_keys=False), encoding="utf-8")
+                accepted = dict(metadata)
+                accepted["lifecycle"] = "accepted"
+                accepted["authority"] = "canonical"
+                transitions[current_key] = accepted
+                transitions_path.write_text(yaml.safe_dump(transitions, sort_keys=False), encoding="utf-8")
+                resulting, _ = metadata["candidate_id"], current.get("revision")
             elif decision == "rejected":
-                metadata["lifecycle"] = "rejected"; candidate_path.write_text(yaml.safe_dump(metadata, sort_keys=False), encoding="utf-8")
+                metadata["lifecycle"] = "rejected"
+                candidate_path.write_text(yaml.safe_dump(metadata, sort_keys=False), encoding="utf-8")
         record = {"decision_id": f"decision_{candidate_id.replace(':', '_')}_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S%f')}", "publication_id": publication_id, "candidate_id": candidate_id, "candidate_type": candidate_type, "owner": "Chapter transition" if candidate_type == "transition" else "Scene Expression", "decision": decision, "decided_by": decided_by, "decided_at": datetime.now(timezone.utc).isoformat(), "rationale": rationale, "candidate_snapshot": {"revision": metadata.get("revision"), "content_hash": metadata.get("content_hash"), "freshness": freshness, "lifecycle": metadata.get("lifecycle")}, "target_snapshot": {"artifact_id": metadata.get("transition_id") or metadata.get("source_scene", {}).get("artifact_id"), "revision": metadata.get("revision"), "content_hash": metadata.get("content_hash")}, "result": {"status": decision, "resulting_artifact": resulting, "resulting_revision": metadata.get("revision") if resulting else None, "accepted_pointer_changed": decision == "accepted"}, "provenance": {"source_plan": manifest.get("application_plan"), "source_inspection": manifest.get("source_reconciliation"), "source_proposal": metadata.get("source_proposal"), "transformation": {"id": "expression.accept_reconciliation_candidate", "version": 1}}}
-        directory = self._decision_dir(manifest_path); directory.mkdir(parents=True, exist_ok=True); path = directory / f"{record['decision_id']}.yaml"; path.write_text(yaml.safe_dump(record, sort_keys=False), encoding="utf-8")
+        directory = self._decision_dir(manifest_path)
+        directory.mkdir(parents=True, exist_ok=True)
+        path = directory / f"{record['decision_id']}.yaml"
+        path.write_text(yaml.safe_dump(record, sort_keys=False), encoding="utf-8")
         return record
 
     def decisions(self, publication_id: str) -> dict[str, Any]:

@@ -13,8 +13,6 @@ Validates that:
 import pytest
 import tempfile
 from pathlib import Path
-from datetime import datetime, timezone
-from typing import Optional
 
 from auteur.identity import StoryIdentity, HighLevelCentralEngine, StoryType
 from auteur.blueprint import (

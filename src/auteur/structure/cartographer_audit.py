@@ -157,8 +157,8 @@ def audit_outline_vs_story_engine(
                             f"to enact thread '{thread.name}'.",
                         ],
                         challenge_intent=[
-                            f"Drop character coverage if the thread is designed to "
-                            f"affect them off-screen this chapter.",
+                            "Drop character coverage if the thread is designed to "
+                            "affect them off-screen this chapter.",
                         ],
                     ),
                 ))
@@ -290,8 +290,8 @@ def audit_outline_vs_story_engine(
                         ],
                         repair_options=RepairOptions(
                             preserve_intent=[
-                                f"Reduce the tension score to match the high-energy tone, "
-                                f"or rewrite the tone to reflect a low-energy register.",
+                                "Reduce the tension score to match the high-energy tone, "
+                                "or rewrite the tone to reflect a low-energy register.",
                             ],
                             challenge_intent=[
                                 "Keep if the low tension with high-energy tone is "
@@ -326,8 +326,8 @@ def audit_outline_vs_story_engine(
                         ],
                         repair_options=RepairOptions(
                             preserve_intent=[
-                                f"Increase the tension score to match the low-energy tone, "
-                                f"or rewrite the tone to reflect high stakes.",
+                                "Increase the tension score to match the low-energy tone, "
+                                "or rewrite the tone to reflect high stakes.",
                             ],
                             challenge_intent=[
                                 "Keep if the high tension with a low-energy description "

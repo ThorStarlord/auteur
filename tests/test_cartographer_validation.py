@@ -10,7 +10,6 @@ import yaml
 import pytest
 
 from auteur.cartographer_compiler import validate_outline
-from auteur.blueprint import StoryBlueprint
 
 SAMPLE_YAML = Path(__file__).parent.parent / "examples" / "sample_blueprint.yaml"
 
@@ -67,10 +66,10 @@ def test_validation_passes_for_valid_outline(tmp_path):
             }
         ]
     }
-    
+
     outline_path = tmp_path / "valid_outline.yaml"
     outline_path.write_text(yaml.safe_dump(outline_data), encoding="utf-8")
-    
+
     # Should run cleanly and return True/0
     rc = validate_outline(outline_path, SAMPLE_YAML)
     assert rc is True
@@ -97,7 +96,7 @@ def test_validation_fails_on_chapter_index_gaps(tmp_path):
     }
     outline_path = tmp_path / "gapped_outline.yaml"
     outline_path.write_text(yaml.safe_dump(outline_data), encoding="utf-8")
-    
+
     with pytest.raises(ValueError, match="Chapter index sequence gap detected"):
         validate_outline(outline_path, SAMPLE_YAML)
 
@@ -118,7 +117,7 @@ def test_validation_fails_on_high_tension_deviation(tmp_path):
     }
     outline_path = tmp_path / "tension_drift_outline.yaml"
     outline_path.write_text(yaml.safe_dump(outline_data), encoding="utf-8")
-    
+
     with pytest.raises(ValueError, match="estimated_chapter_tension deviates from blueprint target"):
         validate_outline(outline_path, SAMPLE_YAML)
 
@@ -168,6 +167,6 @@ def test_validation_fails_on_scene_level_carrier_teleportation(tmp_path):
     }
     outline_path = tmp_path / "teleportation_outline.yaml"
     outline_path.write_text(yaml.safe_dump(outline_data), encoding="utf-8")
-    
+
     with pytest.raises(ValueError, match="carriers.location_teleportation.*Kael.*Tavern.*Dungeon"):
         validate_outline(outline_path, SAMPLE_YAML)

@@ -28,10 +28,10 @@ from auteur.structure.revision_models import (
     RevisionPrecondition,
     RevisionReevaluationResult,
     RevisionScope,
-    _stable_app_id,
     _stable_event_id,
     _stable_plan_id,
 )
+from auteur.structure.revision_application import apply_revision
 
 logger = logging.getLogger(__name__)
 
@@ -39,8 +39,6 @@ logger = logging.getLogger(__name__)
 # StructuralRevisionPlan — typed plan contract
 # ---------------------------------------------------------------------------
 
-
-from auteur.structure.revision_application import apply_revision
 
 class StructuralRevisionPlan(BaseModel):
     """A revision plan describing operations to apply to structural artifacts."""
@@ -145,7 +143,7 @@ class _RevisionPlanner:
 
         operations: list[RevisionOperation] = []
         raw_ops = data.get("operations", [])
-        
+
         # If no raw operations, try extracting from StructureProposal options
         if not raw_ops:
             options = data.get("options", [])
@@ -168,7 +166,7 @@ class _RevisionPlanner:
                                     "requested_change": {key: value},
                                     "order": len(raw_ops),
                                 })
-        
+
         for i, op in enumerate(raw_ops):
             operations.append(
                 RevisionOperation(
@@ -314,7 +312,7 @@ class _RevisionApplicationExecutor:
         self, plan: StructuralRevisionPlan
     ) -> list[RevisionPrecondition]:
         """Check every precondition against current hashes."""
-        current_app = apply_revision(plan, self.project_root, confirmed=False)
+        apply_revision(plan, self.project_root, confirmed=False)
         # When unconfirmed, apply_revision doesn't check preconditions in detail
         # so we compute them ourselves
         resolved: list[RevisionPrecondition] = []
@@ -350,7 +348,7 @@ class _RevisionApplicationExecutor:
         self, plan: StructuralRevisionPlan, confirmed: bool = False
     ) -> RevisionApplication:
         """Execute revision plan by delegating to the real apply_revision().
-        
+
         This replaces the previous no-op placeholder that logged operations
         without performing any mutation.
         """
@@ -676,7 +674,6 @@ class RevisionService:
                 if tid not in changed_ids:
                     transitively_affected.append(tid)
 
-        now = datetime.now(timezone.utc).isoformat()
         result = RevisionImpactResult(
             changed_artifact_ids=changed_ids,
             directly_affected=directly_affected,

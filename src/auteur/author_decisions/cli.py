@@ -22,7 +22,6 @@ from auteur.author_decisions.models import (
     DecisionValidationError,
 )
 from auteur.author_decisions.context import build_decision_context
-from auteur.author_decisions.report import enumerate_combinations
 from auteur.author_decisions import persistence as store
 
 
@@ -303,7 +302,7 @@ def handle_view(args) -> int:
             print(f"Constraint refs (authored): {[c['ref'] for c in out['authored']['hard_constraints']]}")
             print(f"Alternative bindings (authored): {[(b['alternative_id'], [(r['entity_ref'], r['relationship']) for r in b['references']]) for b in out['authored']['alternative_bindings']]}")
             if out["resolved"] is not None:
-                print(f"=== RESOLVED ===")
+                print("=== RESOLVED ===")
                 if "error" in out["resolved"]:
                     print(f"resolution failed: {out['resolved']['error']}")
                 else:
@@ -314,7 +313,7 @@ def handle_view(args) -> int:
             else:
                 print("=== RESOLVED: not shown (pass --identity/--blueprint) ===")
             if out["acceptance"] is not None:
-                print(f"=== ACCEPTANCE ===")
+                print("=== ACCEPTANCE ===")
                 print(f"accepted_at: {out['acceptance']['accepted_at']}")
                 if "staleness" in out["acceptance"]:
                     print(f"staleness vs current Identity/Blueprint: {out['acceptance']['staleness']}")

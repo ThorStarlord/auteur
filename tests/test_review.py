@@ -7,9 +7,6 @@ from pathlib import Path
 import pytest
 
 from auteur.review.models import (
-    AcceptancePreparation,
-    AcceptanceResult,
-    ImpactRefreshResult,
     ReviewChoice,
     ReviewEvent,
     ReviewEventType,

@@ -14,9 +14,8 @@ from auteur.character.enums import (
     MotifType,
     PersonalityTrait,
     PhilosophyTag,
-    RelationshipArcStage,
     RelationshipType,
-    TrustProgressionType,
+    TropeTag,
     ValidationSource,
     VulnerabilityFamily,
 )

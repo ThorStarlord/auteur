@@ -2,19 +2,14 @@
 
 from __future__ import annotations
 
-import os
-import re
 import shutil
 import subprocess
-import sys
 from pathlib import Path
 from typing import Any
 
 from auteur.status import gather_status
 from auteur.workflow.models import (
     EXECUTABLE_AUTHORITIES,
-    SAFE_AUTHORITIES,
-    AuthorityLevel,
     WorkflowAction,
     WorkflowBlocker,
     WorkflowState,
@@ -157,7 +152,7 @@ class WorkflowEngine:
 
         actions = recommend_actions(stages, decisions=decisions, lifecycle=lifecycle_data,
                                     commitment=commitment_data, project_root=self.root)
-        status = gather_status(self.root)
+        gather_status(self.root)
 
         summary = self._build_summary(stages, cs, blockers, lifecycle=lifecycle_data,
                                       commitment=commitment_data)

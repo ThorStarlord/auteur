@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
 import pytest
 
@@ -114,6 +113,7 @@ class TestBackwardCompatibility:
         assert result["schema_version"] == SCHEMA_VERSION
         assert result["evidence"] == []
         assert result["candidates"] == []
+
     def test_upgrade_passes_v1_through(self):
         """upgrade_if_needed passes v1 unchanged."""
         v1 = make_snapshot_fixture()
@@ -219,7 +219,7 @@ class TestSerializationRoundtrip:
     def test_serialize_author_decision_full(self, tmp_path):
         """Full serialization preserves evidence, candidates, conflicts."""
         store = DecisionStore(tmp_path)
-        from auteur.decision.models import DecisionEvidence, EvidenceClassification, EvidenceFreshness, EvidenceSource, EvidenceType
+        from auteur.decision.models import DecisionEvidence, EvidenceClassification, EvidenceSource, EvidenceType
 
         evidence = [
             DecisionEvidence.create(
@@ -237,7 +237,7 @@ class TestSerializationRoundtrip:
             target_artifact_id="t-1",
             evidence=evidence,
         )
-        sid = store.save_snapshot(decision)
+        store.save_snapshot(decision)
         loaded = store.load_snapshot("full-dec")
         assert loaded is not None
         assert len(loaded.evidence) == 1

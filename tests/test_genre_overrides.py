@@ -1,4 +1,4 @@
-from auteur.blueprint import StoryBlueprint, OverrideType
+from auteur.blueprint import StoryBlueprint
 from auteur.structure import DiagnosticLayer, DiagnosticSeverity, analyze_structure
 from tests.test_structure_analyzer import _blueprint_data_with_story_engine
 
@@ -8,31 +8,31 @@ def test_runway_no_override_has_flow():
     data = _blueprint_data_with_story_engine()
     data["identity"]["genre"] = "netorare"
     data["identity"]["length_class"] = "short_story"
-    
+
     blueprint = StoryBlueprint.model_validate(data)
     diagnostics = analyze_structure(blueprint)
-    
+
     runway_diagnostics = [d for d in diagnostics if d.rule == "genre.setup_contract.insufficient_runway"]
     assert len(runway_diagnostics) == 1
-    
+
     d = runway_diagnostics[0]
     assert d.severity == DiagnosticSeverity.WARNING
     assert d.layer == DiagnosticLayer.SCOPE
     assert d.genre_recommendation_flow is not None
-    
+
     flow = d.genre_recommendation_flow
     assert flow["selected_genre"] == "netorare"
     assert flow["load_bearing_expectation"] == "emotional_runway_before_betrayal"
     assert flow["user_override"] == "remove_long_build_up"
     assert flow["auteur_diagnosis"] == "genre_contract_risk"
     assert "betrayal impact" in flow["consequence"]
-    
+
     options = flow["options"]
     assert "preserve_genre" in options
     assert "subvert_genre" in options
     assert "reclassify" in options
     assert "override_anyway" in options
-    
+
     assert "compressed emotional runway" in options["preserve_genre"]["recommendation"]
     assert "shock, destabilization, brutality" in options["subvert_genre"]["recommendation"]
     assert "betrayal vignette" in options["reclassify"]["recommendation"]
@@ -51,18 +51,18 @@ def test_runway_override_compression():
             "rationale": "Tight execution constraint"
         }
     }
-    
+
     blueprint = StoryBlueprint.model_validate(data)
     diagnostics = analyze_structure(blueprint)
-    
+
     # Original mismatch warning should be suppressed
     original = [d for d in diagnostics if d.rule == "genre.setup_contract.insufficient_runway"]
     assert len(original) == 0
-    
+
     # Advice override diagnostic should exist
     override_diagnostics = [d for d in diagnostics if d.rule == "genre.setup_contract.insufficient_runway.compressed"]
     assert len(override_diagnostics) == 1
-    
+
     d = override_diagnostics[0]
     assert d.severity == DiagnosticSeverity.WARNING
     assert d.layer == DiagnosticLayer.SCOPE
@@ -83,13 +83,13 @@ def test_runway_override_subversion():
             "rationale": "Jarring artistic shock"
         }
     }
-    
+
     blueprint = StoryBlueprint.model_validate(data)
     diagnostics = analyze_structure(blueprint)
-    
+
     override_diagnostics = [d for d in diagnostics if d.rule == "genre.setup_contract.insufficient_runway.subverted"]
     assert len(override_diagnostics) == 1
-    
+
     d = override_diagnostics[0]
     assert d.severity == DiagnosticSeverity.WARNING
     assert d.layer == DiagnosticLayer.SCOPE
@@ -110,13 +110,13 @@ def test_runway_override_reclassification():
             "rationale": "Not a full novel narrative"
         }
     }
-    
+
     blueprint = StoryBlueprint.model_validate(data)
     diagnostics = analyze_structure(blueprint)
-    
+
     override_diagnostics = [d for d in diagnostics if d.rule == "genre.setup_contract.insufficient_runway.reclassified"]
     assert len(override_diagnostics) == 1
-    
+
     d = override_diagnostics[0]
     assert d.severity == DiagnosticSeverity.WARNING
     assert d.layer == DiagnosticLayer.SCOPE
@@ -137,18 +137,18 @@ def test_ending_tone_override():
             "rationale": "Artistic subversion"
         }
     }
-    
+
     blueprint = StoryBlueprint.model_validate(data)
     diagnostics = analyze_structure(blueprint)
-    
+
     # Error should be suppressed
     errors = [d for d in diagnostics if d.rule == "genre.forbidden_mismatch.ending_tone"]
     assert len(errors) == 0
-    
+
     # Advice diagnostic warning should exist
     override_diagnostics = [d for d in diagnostics if d.rule == "genre.forbidden_mismatch.ending_tone.subversion"]
     assert len(override_diagnostics) == 1
-    
+
     d = override_diagnostics[0]
     assert d.severity == DiagnosticSeverity.WARNING
     assert d.layer == DiagnosticLayer.CONSTRAINTS
@@ -168,18 +168,18 @@ def test_required_trope_override():
             "rationale": "Shifting to gothic tragedy"
         }
     }
-    
+
     blueprint = StoryBlueprint.model_validate(data)
     diagnostics = analyze_structure(blueprint)
-    
+
     # Error should be suppressed
     errors = [d for d in diagnostics if d.rule == "genre.forbidden_mismatch.required_trope_forbidden"]
     assert len(errors) == 0
-    
+
     # Advice diagnostic warning should exist
     override_diagnostics = [d for d in diagnostics if d.rule == "genre.forbidden_mismatch.required_trope_forbidden.reclassification"]
     assert len(override_diagnostics) == 1
-    
+
     d = override_diagnostics[0]
     assert d.severity == DiagnosticSeverity.WARNING
     assert d.layer == DiagnosticLayer.CONSTRAINTS

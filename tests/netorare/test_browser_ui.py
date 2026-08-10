@@ -1,13 +1,10 @@
 """Tests for netorare browser UI HTML and integration with server API."""
 
 import json
-import pytest
-import tempfile
 import threading
 import time
 from pathlib import Path
 from urllib.request import Request, urlopen
-from urllib.error import HTTPError
 
 from auteur.netorare.session import SessionManager
 from auteur.netorare.browser.server import NetorareServer
@@ -57,7 +54,7 @@ class TestBrowserUIStructure:
         # Should not have external stylesheet links (except potentially fonts)
         import re
         links = re.findall(r'<link[^>]*rel="stylesheet"[^>]*>', content)
-        stylesheet_links = [l for l in links if "fonts" not in l.lower()]
+        stylesheet_links = [link for link in links if "fonts" not in link.lower()]
         assert len(stylesheet_links) == 0
 
     def test_html_has_embedded_javascript(self):
@@ -183,7 +180,7 @@ class TestBrowserAPIIntegration:
             port=8020,
             html_content=html_content
         )
-        thread = self._start_server_background(server)
+        self._start_server_background(server)
 
         try:
             # Fetch HTML from server
@@ -217,7 +214,7 @@ class TestBrowserAPIIntegration:
             port=8021,
             html_content=html_content
         )
-        thread = self._start_server_background(server)
+        self._start_server_background(server)
 
         try:
             # Fetch session directly to verify it works
@@ -446,7 +443,7 @@ class TestBrowserUIIntegrationWorkflow:
             port=8022,
             html_content=html_content
         )
-        thread = self._start_server_background(server)
+        self._start_server_background(server)
 
         try:
             # 1. Load HTML (UI starts here)

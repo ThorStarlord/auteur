@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
 
 
 class TestModeDeprecationWarning:
@@ -14,7 +13,7 @@ class TestModeDeprecationWarning:
         fake = FakeClient([LLMResponse(text="yaml:\n  title: Test", input_tokens=10, output_tokens=5)])
         monkeypatch.setattr("auteur.llm.factory.build_client", lambda *a, **kw: fake)
         from auteur.cli import main
-        rc = main([
+        main([
             "identity", "recommend",
             "A test premise",
             "--mode", "open-ended",
@@ -30,7 +29,7 @@ class TestModeDeprecationWarning:
         fake = FakeClient([LLMResponse(text="yaml:\n  title: Test", input_tokens=10, output_tokens=5)])
         monkeypatch.setattr("auteur.llm.factory.build_client", lambda *a, **kw: fake)
         from auteur.cli import main
-        rc = main([
+        main([
             "identity", "recommend",
             "A test premise",
             "--recommend-mode", "open-ended",

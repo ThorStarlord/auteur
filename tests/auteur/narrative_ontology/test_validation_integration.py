@@ -11,10 +11,7 @@ Tests validate that:
 import pytest
 from datetime import datetime
 
-from auteur.narrative_blueprint.schema.character_arc import CharacterArc, TurningPoint
-from auteur.narrative_blueprint.schema.story_arc import StoryArc, ArcCheckpoint
-from auteur.narrative_blueprint.schema.outline_types import PhaseRange
-from auteur.narrative_blueprint.schema.book_outline import BookOutline
+from auteur.narrative_blueprint.schema.character_arc import CharacterArc
 from auteur.narrative_blueprint.schema.chapter_outline import ChapterOutline
 from auteur.narrative_blueprint.validator.arc_validator import ArcValidator
 from auteur.narrative_blueprint.validator.outline_validator import ContainerValidator

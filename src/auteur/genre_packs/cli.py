@@ -1,6 +1,6 @@
 """CLI registration, handlers, and formatters for Genre Packs."""
 
-from argparse import ArgumentParser, _SubParsersAction
+from argparse import _SubParsersAction
 import json
 from pathlib import Path
 from typing import Any
@@ -191,7 +191,7 @@ def dispatch_genre_pack_commands(args: Any) -> bool:
         if not premise and identity_path and identity_path.exists():
             ident = StoryIdentity.from_yaml(identity_path)
             premise = f"{ident.core_answer} {ident.central_engine.want}"
-        
+
         if not premise:
             premise = "A story exploring intense erotic attraction, power negotiation, and secret emotional vulnerability."
 
@@ -265,8 +265,8 @@ def dispatch_genre_pack_commands(args: Any) -> bool:
 
             if not getattr(args, "confirm", False):
                 err_msg = (
-                    f"Recommendation mutation requires explicit author confirmation.\n"
-                    f"Re-run with '--confirm' to confirm mutation of 'story_identity.yaml'."
+                    "Recommendation mutation requires explicit author confirmation.\n"
+                    "Re-run with '--confirm' to confirm mutation of 'story_identity.yaml'."
                 )
                 if getattr(args, "json", False):
                     print(json.dumps({"error": "UNCONFIRMED_MUTATION", "message": err_msg, "recommendation_id": rec_id}, indent=2))

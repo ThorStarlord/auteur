@@ -16,7 +16,7 @@ from pathlib import Path
 
 import yaml as _yaml
 
-from auteur.author_decisions.models import DecisionValidationError, validate_decision_id
+from auteur.author_decisions.models import validate_decision_id
 
 
 def artifact_path(project: Path, decision_id: str) -> Path:

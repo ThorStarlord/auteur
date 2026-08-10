@@ -221,7 +221,7 @@ class RealizationValidator:
                         violation_type=RealizationViolationType.INVALID_BEAT_REFERENCE,
                         beat_id=beat_id,
                         message=f"Scene references non-existent beat: {beat_id}",
-                        suggestion=f"Verify beat ID exists in character/story arcs or remove from scene",
+                        suggestion="Verify beat ID exists in character/story arcs or remove from scene",
                     )
                 )
 
@@ -240,8 +240,6 @@ class RealizationValidator:
             List of violations (invalid degree, missing evidence)
         """
         violations: List[RealizationViolation] = []
-
-        valid_degrees = {"full", "partial", "implied", "deferred"}
 
         # Note: This validator currently works with arc_beat_ids list.
         # In full implementation with structured ArcBeatRealization objects,
@@ -284,7 +282,7 @@ class RealizationValidator:
                             violation_type=RealizationViolationType.CRITICAL_BEAT_NOT_FULLY_REALIZED,
                             beat_id=beat_id,
                             message=f"Critical beat {beat_id} is not fully realized in any scene",
-                            suggestion=f"Add a scene that fully realizes this beat, or mark it as non-critical if appropriate",
+                            suggestion="Add a scene that fully realizes this beat, or mark it as non-critical if appropriate",
                         )
                     )
 

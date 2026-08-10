@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import json
-import tempfile
 from pathlib import Path
 
 import pytest
@@ -12,13 +10,11 @@ import yaml
 from auteur.convergence.candidates import CandidateStore
 from auteur.convergence.comparison import compare_candidates
 from auteur.convergence.models import (
-    CandidateComparison,
     CandidateRef,
     CandidateStatus,
     GenerationStrategy,
     ObligationKind,
     ObligationSource,
-    PreservedRegion,
     PreservationStatus,
     ReconciliationProposal,
     RevisionTarget,
@@ -255,7 +251,7 @@ class TestObligations:
 
     def test_obligations_from_chapter_outline(self, tmp_project):
         target = resolve_target(tmp_project, chapter_index=1, scene_id="scene_01_01")
-        obligations = collect_obligations(tmp_project, target)
+        collect_obligations(tmp_project, target)
 
     def test_required_vs_advisory(self):
         req = SourceObligation(

@@ -1,10 +1,9 @@
 """Tests for Mystery genre validation rules."""
 
-import pytest
 from auteur.mystery.core_templates import (
     HowdunitTemplate, ParanoiaTemplate, CozyTemplate
 )
-from auteur.mystery.validation import validate_choices, RuleSet, ValidationRule
+from auteur.mystery.validation import validate_choices, RuleSet
 
 
 class TestHowdunitValidationRules:

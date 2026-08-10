@@ -1,7 +1,6 @@
 """Tests for deterministic validation rules engine."""
 
-import pytest
-from auteur.netorare.validation import validate_choices, ValidationError
+from auteur.netorare.validation import validate_choices
 from auteur.netorare.core_templates import HumiliationTemplate, HorrorTemplate, MysteryTemplate
 
 

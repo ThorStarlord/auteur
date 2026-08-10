@@ -14,10 +14,9 @@ Contradiction types:
 Each contradiction has severity (hard = structural error, soft = inconsistency).
 """
 
-from dataclasses import dataclass, field
-from datetime import datetime
+from dataclasses import dataclass
 from enum import Enum
-from typing import List, Dict, Optional, Tuple, Set, Any
+from typing import List, Dict, Optional, Tuple, Any
 
 from auteur.narrative_blueprint.schema.book_outline import BookOutline
 from auteur.narrative_blueprint.schema.chapter_outline import ChapterOutline
@@ -287,8 +286,8 @@ class ContradictionValidator:
                             ),
                             evidence_a=f"Chapter {current_tp.chapter}: {current_tp.belief_shift}",
                             evidence_b=f"Chapter {next_tp.chapter}: {next_tp.belief_shift}",
-                            context=f"Character state must progress consistently, "
-                            f"not oscillate between incompatible beliefs",
+                            context="Character state must progress consistently, "
+                            "not oscillate between incompatible beliefs",
                         )
                     )
 
@@ -580,8 +579,6 @@ class ContradictionValidator:
 
         # Check for high-level alignment (both are about conflict, emotion, etc.)
         conflict_words = {"conflict", "tension", "challenge", "obstacle"}
-        emotion_words = {"emotional", "feeling", "reaction", "response"}
-        resolution_words = {"resolve", "conclude", "end", "climax"}
 
         objective_has_conflict = any(kw in objective_lower for kw in conflict_words)
         any_goal_has_conflict = any(

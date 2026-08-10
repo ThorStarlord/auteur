@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import difflib
 import hashlib
-import json
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -54,7 +53,6 @@ class BookExpressionStore:
         raise FileNotFoundError(f"Book Manuscript not found: {expression_id}")
 
     def _accepted_chapter(self, chapter_id: str) -> dict[str, Any]:
-        path = next(self.project.glob(f"chapters/*/expression/accepted.yaml"), None)
         matches = []
         for candidate in self.project.glob("chapters/*/expression/accepted.yaml"):
             data = yaml.safe_load(candidate.read_text(encoding="utf-8")) or {}
@@ -109,12 +107,14 @@ class BookExpressionStore:
         try:
             md_tmp.write_text(text, encoding="utf-8")
             yaml_tmp.write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8")
-            md_tmp.replace(md_path); yaml_tmp.replace(yaml_path)
+            md_tmp.replace(md_path)
+            yaml_tmp.replace(yaml_path)
             self.structure_path.parent.mkdir(parents=True, exist_ok=True)
             self.structure_path.write_text(yaml.safe_dump({"book_id": self.book_id, "chapters": chapter_ids}, sort_keys=False), encoding="utf-8")
         except Exception:
             for path in (md_tmp, yaml_tmp):
-                if path.exists(): path.unlink()
+                if path.exists():
+                    path.unlink()
             raise
         return manifest
 
@@ -185,7 +185,8 @@ class BookExpressionStore:
 
     def export(self, expression_id: str, output: Path) -> Path:
         output = Path(output)
-        if output.exists(): raise FileExistsError(f"output already exists: {output}")
+        if output.exists():
+            raise FileExistsError(f"output already exists: {output}")
         text = self._path(self._load(expression_id)["revision"], "md").read_text(encoding="utf-8")
         text = re.sub(r"^<!-- auteur:(?:chapter|end-chapter|book-separator|end-book-separator).*?-->\s*$", "", text, flags=re.MULTILINE)
         output.write_text(text, encoding="utf-8")

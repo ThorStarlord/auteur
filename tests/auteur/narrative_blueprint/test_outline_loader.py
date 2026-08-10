@@ -1,9 +1,8 @@
 """Tests for OutlineLoader YAML serialization."""
 
-import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Type, TypeVar
+from typing import TypeVar
 
 import pytest
 

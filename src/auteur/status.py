@@ -236,7 +236,7 @@ def _find_blocks(project_root: Path) -> list[dict[str, str]]:
         if data and data.get("freshness") == "stale":
             src = data.get("source_chapter", {})
             sid = src.get("artifact_id", cid)
-            blocks.append({"artifact": f"chapter:{sid}", "severity": "warning", "message": f"chapter expression is stale"})
+            blocks.append({"artifact": f"chapter:{sid}", "severity": "warning", "message": "chapter expression is stale"})
 
     # Book expression
     book_acc = project_root / "book" / "expression" / "accepted.yaml"
@@ -256,7 +256,7 @@ def _suggest_command(project_root: Path) -> str | None:
     if not bp_path.exists() or not bp_path.is_file():
         if identity_path.exists():
             return f"auteur blueprint init {identity_path} {project_root / 'blueprint.yaml'}"
-        return f"auteur identity compile <story_identity.yaml> --output blueprint.yaml && auteur init blueprint.yaml <project_path>"
+        return "auteur identity compile <story_identity.yaml> --output blueprint.yaml && auteur init blueprint.yaml <project_path>"
 
     chapter_dirs = sorted(project_root.glob("chapters/*"))
     has_accepted_chapters = False
@@ -276,7 +276,6 @@ def _suggest_command(project_root: Path) -> str | None:
 
     book_acc = project_root / "book" / "expression" / "accepted.yaml"
     if not book_acc.exists():
-        chapters = [ch.name for ch in chapter_dirs if ch.is_dir()]
         def _ch_id(name: str) -> str:
             try:
                 return f"chapter_{int(name):02d}"
@@ -349,7 +348,7 @@ def gather_status(project_root: Path) -> dict[str, Any]:
         chapters.append(_chapter_status(root, cid))
     if not chapters:
         chapters = None
-    
+
     # Scene realization summary
     scene_total = 0
     scene_accepted = 0
@@ -364,12 +363,12 @@ def gather_status(project_root: Path) -> dict[str, Any]:
         "total": scene_total,
         "accepted": scene_accepted,
     } if scene_total > 0 else {}
-    
+
     scene_status = {
         "total": scene_total,
         "accepted": scene_accepted,
     } if scene_total > 0 else {}
-    
+
     # Book
     book = _book_status(root)
 
@@ -386,7 +385,7 @@ def gather_status(project_root: Path) -> dict[str, Any]:
         lifecycle_data = lc.get_status()
     except Exception:
         pass
-    
+
     # Commitment data
     commitment_data: dict[str, Any] = {}
     try:
@@ -395,7 +394,7 @@ def gather_status(project_root: Path) -> dict[str, Any]:
         commitment_data = cm.get_status()
     except Exception:
         pass
-    
+
     # Build per-stage summary from collected data
     stages: dict[str, Any] = {}
     identity = identity_status
@@ -403,7 +402,7 @@ def gather_status(project_root: Path) -> dict[str, Any]:
         "complete": identity.get("status") != "missing",
         "detail": identity.get("title", identity.get("status", "missing")),
     }
-    
+
     # Compute chapter counts for stage status
     ch_accepted = 0
     ch_drafted = 0
@@ -414,7 +413,7 @@ def gather_status(project_root: Path) -> dict[str, Any]:
                     ch_accepted += 1
                 elif ch.get("expression", "missing") not in ("missing",):
                     ch_drafted += 1
-    
+
     stages["structure"] = {
         "complete": latest_diag is not None or bp_data is not None,
         "detail": f"{latest_diag['errors']} errors, {latest_diag['warnings']} warnings" if latest_diag else "not diagnosed",
@@ -453,10 +452,10 @@ def gather_status(project_root: Path) -> dict[str, Any]:
         if not stages[sk]["complete"]:
             current = sk
             break
-    
+
     # Suggested command
     suggested = _suggest_command(root)
-    
+
     # Freshness overview
     stale_items = [b["artifact"] for b in blocks if b.get("severity") == "warning"]
     return {
@@ -523,7 +522,7 @@ def format_status(status: dict[str, Any], verbose: bool = False) -> str:
     if diag:
         lines.append(f"\nStructure: {diag['errors']} errors, {diag['warnings']} warnings ({diag['total']} total)")
     else:
-        lines.append(f"\nStructure: not yet diagnosed")
+        lines.append("\nStructure: not yet diagnosed")
 
     # Scene Realization
     sc = status.get("scenes", {})
@@ -552,7 +551,7 @@ def format_status(status: dict[str, Any], verbose: bool = False) -> str:
             lines.append(f"  {ch['chapter_id']}:  {expr}, {sc} scenes, reconciliation: {recon}")
     # Book
     book = status.get("book", {})
-    lines.append(f"\nBook:")
+    lines.append("\nBook:")
     lines.append(f"  Expression: {book.get('expression', 'missing')}")
     lines.append(f"  Acceptances: {book.get('acceptances', 0)}")
     if book.get("completions"):

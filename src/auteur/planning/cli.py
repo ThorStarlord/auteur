@@ -118,7 +118,7 @@ def handle_plan_status(args) -> int:
             print(json.dumps(result, indent=2, default=str))
         else:
             if result.get("has_plan"):
-                print(f"Project Plan Status")
+                print("Project Plan Status")
                 print(f"  Plan ID: {result['plan_id'][:16]}...")
                 print(f"  Created: {result.get('created_at', 'unknown')[:19]}")
                 print(f"  Horizon: {result.get('horizon', 'project')}")
@@ -128,7 +128,7 @@ def handle_plan_status(args) -> int:
                 print(f"  Blocked milestones: {result.get('blocked_milestone_count', 0)}")
                 if result.get("is_stale"):
                     print(f"  [STALE] {result.get('stale_reason', '')}")
-                print(f"\nRun 'auteur plan refresh' to create a fresh plan.")
+                print("\nRun 'auteur plan refresh' to create a fresh plan.")
             else:
                 print(result.get("message", "No plan available."))
 
@@ -206,7 +206,7 @@ def handle_plan_next(args) -> int:
 
             action = plan.recommended_next_action
             if action:
-                print(f"Recommended Next Action")
+                print("Recommended Next Action")
                 print(f"  Title: {action.title}")
                 print(f"  Reason: {action.reason}")
                 print(f"  Authority: {action.authority.value}")
@@ -219,12 +219,12 @@ def handle_plan_next(args) -> int:
                 print("No next action — all project work is current.")
 
             if plan.safe_parallel_work:
-                print(f"\nSafe parallel work:")
+                print("\nSafe parallel work:")
                 for g in plan.safe_parallel_work:
                     print(f"  Group: {', '.join(a[:16] for a in g.action_ids)}")
 
             if plan.authority_required_actions:
-                print(f"\nRequires author authority:")
+                print("\nRequires author authority:")
                 for a in plan.authority_required_actions:
                     print(f"  {a.title}")
 
@@ -258,7 +258,7 @@ def handle_plan_critical_path(args) -> int:
                 print(f"Critical Path {i + 1} (leverage: {cp.cumulative_leverage:.1f})")
                 print(f"  {cp.explanation}")
                 if cp.authority_required_steps:
-                    print(f"\n  Authority-required steps:")
+                    print("\n  Authority-required steps:")
                     for nid in cp.authority_required_steps:
                         n = next((n for n in plan.nodes if n.node_id == nid), None)
                         label = n.label if n else nid
@@ -364,7 +364,6 @@ def handle_plan_milestones(args) -> int:
                     print()
                 print("User-defined:")
                 for m in user_ms:
-                    mid = m.get("milestone_id", "?")[:16]
                     state = m.get("state", "not_started")
                     title = m.get("title", "?")
                     indicator = {"completed": "✓", "in_progress": "►", "not_started": "·", "blocked": "✗"}.get(state, "?")
@@ -402,7 +401,7 @@ def handle_plan_explain(args) -> int:
                 print(f"  Source: {result.get('source_subsystem', '?')}")
                 print(f"  Freshness: {result.get('freshness', '?')}")
                 if result.get("in_cycles"):
-                    print(f"  [IN CYCLE]")
+                    print("  [IN CYCLE]")
                 if result.get("blocked_milestones"):
                     print(f"  Blocked milestones: {', '.join(result['blocked_milestones'])}")
             else:

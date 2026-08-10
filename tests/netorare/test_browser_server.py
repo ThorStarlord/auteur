@@ -2,16 +2,14 @@
 
 import json
 import pytest
-import tempfile
 import threading
 import time
-from pathlib import Path
 from urllib.request import Request, urlopen
-from urllib.error import URLError, HTTPError
+from urllib.error import HTTPError
 
-from auteur.netorare.session import SessionManager, SessionError
+from auteur.netorare.session import SessionManager
 from auteur.netorare.browser.server import (
-    NetorareServer, NetorareRequestHandler, ServerError
+    NetorareServer, ServerError
 )
 
 
@@ -31,7 +29,7 @@ class TestServerInitialization:
         # Create session
         project_path = tmp_path / "project"
         project_path.mkdir()
-        session = SessionManager.create_session(project_path, "classic_humiliation")
+        SessionManager.create_session(project_path, "classic_humiliation")
 
         # Initialize server
         session_file = project_path / "netorare" / "session.json"
@@ -44,7 +42,7 @@ class TestServerInitialization:
         """Server accepts optional HTML content for serving."""
         project_path = tmp_path / "project"
         project_path.mkdir()
-        session = SessionManager.create_session(project_path, "horror")
+        SessionManager.create_session(project_path, "horror")
         session_file = project_path / "netorare" / "session.json"
 
         html = "<html><body>Test</body></html>"
@@ -60,7 +58,7 @@ class TestServerInitialization:
         """Server stores the configured port."""
         project_path = tmp_path / "project"
         project_path.mkdir()
-        session = SessionManager.create_session(project_path, "mystery")
+        SessionManager.create_session(project_path, "mystery")
         session_file = project_path / "netorare" / "session.json"
 
         server = NetorareServer(session_file=session_file, port=8765)
@@ -71,7 +69,7 @@ class TestServerInitialization:
         """Server defaults to port 8000 if not specified."""
         project_path = tmp_path / "project"
         project_path.mkdir()
-        session = SessionManager.create_session(project_path, "classic_humiliation")
+        SessionManager.create_session(project_path, "classic_humiliation")
         session_file = project_path / "netorare" / "session.json"
 
         server = NetorareServer(session_file=session_file)
@@ -102,7 +100,7 @@ class TestServerEndpoints:
 
         # Start server
         server = NetorareServer(session_file=session_file, port=8001)
-        thread = self._start_server_background(server)
+        self._start_server_background(server)
 
         try:
             # Make request
@@ -127,7 +125,7 @@ class TestServerEndpoints:
         session_file = project_path / "netorare" / "session.json"
 
         server = NetorareServer(session_file=session_file, port=8002)
-        thread = self._start_server_background(server)
+        self._start_server_background(server)
 
         try:
             response = urlopen("http://localhost:8002/session")
@@ -144,7 +142,7 @@ class TestServerEndpoints:
         session_file = project_path / "netorare" / "session.json"
 
         server = NetorareServer(session_file=session_file, port=8003)
-        thread = self._start_server_background(server)
+        self._start_server_background(server)
 
         try:
             # Send update
@@ -185,7 +183,7 @@ class TestServerEndpoints:
         session_file = project_path / "netorare" / "session.json"
 
         server = NetorareServer(session_file=session_file, port=8004)
-        thread = self._start_server_background(server)
+        self._start_server_background(server)
 
         try:
             # Send update with additional field
@@ -220,7 +218,7 @@ class TestServerEndpoints:
         session_file = project_path / "netorare" / "session.json"
 
         server = NetorareServer(session_file=session_file, port=8005)
-        thread = self._start_server_background(server)
+        self._start_server_background(server)
 
         try:
             # Send complete request
@@ -260,7 +258,7 @@ class TestServerEndpoints:
         session_file = project_path / "netorare" / "session.json"
 
         server = NetorareServer(session_file=session_file, port=8006)
-        thread = self._start_server_background(server)
+        self._start_server_background(server)
 
         try:
             response = urlopen("http://localhost:8006/session/validate")
@@ -288,7 +286,7 @@ class TestServerEndpoints:
             port=8007,
             html_content=html_content
         )
-        thread = self._start_server_background(server)
+        self._start_server_background(server)
 
         try:
             response = urlopen("http://localhost:8007/")
@@ -308,7 +306,7 @@ class TestServerEndpoints:
         session_file = project_path / "netorare" / "session.json"
 
         server = NetorareServer(session_file=session_file, port=8008)
-        thread = self._start_server_background(server)
+        self._start_server_background(server)
 
         try:
             response = urlopen("http://localhost:8008/")
@@ -328,7 +326,7 @@ class TestServerEndpoints:
         session_file = project_path / "netorare" / "session.json"
 
         server = NetorareServer(session_file=session_file, port=8009)
-        thread = self._start_server_background(server)
+        self._start_server_background(server)
 
         try:
             req = Request(
@@ -363,7 +361,7 @@ class TestErrorHandling:
         session_file = project_path / "netorare" / "session.json"
 
         server = NetorareServer(session_file=session_file, port=8010)
-        thread = self._start_server_background(server)
+        self._start_server_background(server)
 
         try:
             req = Request(
@@ -388,7 +386,7 @@ class TestErrorHandling:
         session_file = project_path / "netorare" / "session.json"
 
         server = NetorareServer(session_file=session_file, port=8011)
-        thread = self._start_server_background(server)
+        self._start_server_background(server)
 
         try:
             # Missing "choices" field
@@ -414,7 +412,7 @@ class TestErrorHandling:
         session_file = project_path / "netorare" / "session.json"
 
         server = NetorareServer(session_file=session_file, port=8012)
-        thread = self._start_server_background(server)
+        self._start_server_background(server)
 
         try:
             # phase should be int, not string
@@ -443,7 +441,7 @@ class TestErrorHandling:
         session_file = project_path / "netorare" / "session.json"
 
         server = NetorareServer(session_file=session_file, port=8013)
-        thread = self._start_server_background(server)
+        self._start_server_background(server)
 
         try:
             with pytest.raises(HTTPError) as exc_info:
@@ -462,7 +460,7 @@ class TestErrorHandling:
         session_file = project_path / "netorare" / "session.json"
 
         server = NetorareServer(session_file=session_file, port=8014)
-        thread = self._start_server_background(server)
+        self._start_server_background(server)
 
         try:
             req = Request(
@@ -500,7 +498,7 @@ class TestServerIntegration:
         session_file = project_path / "netorare" / "session.json"
 
         server = NetorareServer(session_file=session_file, port=8015)
-        thread = self._start_server_background(server)
+        self._start_server_background(server)
 
         try:
             # 1. Read initial state
@@ -557,7 +555,7 @@ class TestServerIntegration:
         session_file = project_path / "netorare" / "session.json"
 
         server = NetorareServer(session_file=session_file, port=8016)
-        thread = self._start_server_background(server)
+        self._start_server_background(server)
 
         try:
             # Update phase 4

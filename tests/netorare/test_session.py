@@ -2,8 +2,6 @@
 
 import json
 import pytest
-import tempfile
-from pathlib import Path
 from datetime import datetime, timezone
 from auteur.netorare.session import SessionManager, SessionError
 
@@ -16,7 +14,7 @@ class TestSessionCreation:
         project_path = tmp_path / "project"
         project_path.mkdir()
 
-        session = SessionManager.create_session(project_path, "classic_humiliation")
+        SessionManager.create_session(project_path, "classic_humiliation")
 
         assert (project_path / "netorare").exists()
         assert (project_path / "netorare" / "session.json").exists()
@@ -98,7 +96,7 @@ class TestSessionPersistence:
         project_path = tmp_path / "project"
         project_path.mkdir()
 
-        session = SessionManager.create_session(project_path, "classic_humiliation")
+        SessionManager.create_session(project_path, "classic_humiliation")
         session_file = project_path / "netorare" / "session.json"
 
         assert session_file.exists()
@@ -111,7 +109,7 @@ class TestSessionPersistence:
         project_path = tmp_path / "project"
         project_path.mkdir()
 
-        session = SessionManager.create_session(project_path, "horror")
+        SessionManager.create_session(project_path, "horror")
         session_file = project_path / "netorare" / "session.json"
 
         # Should not raise
@@ -123,7 +121,7 @@ class TestSessionPersistence:
         project_path = tmp_path / "project"
         project_path.mkdir()
 
-        session = SessionManager.create_session(project_path, "mystery")
+        SessionManager.create_session(project_path, "mystery")
         session_file = project_path / "netorare" / "session.json"
 
         with open(session_file) as f:
@@ -451,10 +449,10 @@ class TestSessionEdgeCases:
         project_path = tmp_path / "project"
         project_path.mkdir()
 
-        session1 = SessionManager.create_session(project_path, "classic_humiliation")
+        SessionManager.create_session(project_path, "classic_humiliation")
         # Attempting to create another in the same project should error
         with pytest.raises(SessionError):
-            session2 = SessionManager.create_session(project_path, "horror")
+            SessionManager.create_session(project_path, "horror")
 
 
 class TestSessionIntegration:

@@ -22,7 +22,7 @@ def make_valid_trilogy():
         stakes="Everything they know",
         change="Understanding of the world"
     )
-    
+
     books = [
         BookPlan(
             book_number=i,

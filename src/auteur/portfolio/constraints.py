@@ -7,7 +7,6 @@ from auteur.portfolio.models import (
     ConstraintType,
     ContradictionClass,
     PortfolioConstraint,
-    _stable_id,
 )
 
 

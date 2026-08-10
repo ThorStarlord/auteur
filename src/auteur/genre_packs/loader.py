@@ -12,7 +12,7 @@ from auteur.genre_packs.hashing import compute_pack_content_hash
 
 def load_genre_pack(path_or_text: Union[str, Path]) -> tuple[GenrePack, str]:
     """Load a GenrePack from a YAML file path or raw YAML string.
-    
+
     Returns:
         tuple[GenrePack, content_hash]
     """

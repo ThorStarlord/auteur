@@ -9,7 +9,6 @@ import yaml
 
 from auteur.workflow.models import (
     BlockerCategory,
-    BlockerSeverity,
     WorkflowStage,
 )
 from auteur.workflow.rules import (

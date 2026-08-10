@@ -26,7 +26,7 @@ def test_arc_critic_passes_when_milestone_supported(tmp_path):
     bible = StoryBible(tmp_path / "b.json")
     client = FakeClient([LLMResponse(text="findings: []", input_tokens=5, output_tokens=2)])
 
-    findings = run_critic(render_arc, llm=client, critic_name="arc", 
+    findings = run_critic(render_arc, llm=client, critic_name="arc",
         draft="Kael lied to the merchant without flinching, untroubled.",
         outline=_outline_with_arc_advancement(),
         blueprint=blueprint,
@@ -48,7 +48,7 @@ def test_arc_critic_flags_unsupported_milestone(tmp_path):
 """
     client = FakeClient([LLMResponse(text=fake, input_tokens=5, output_tokens=20)])
 
-    findings = run_critic(render_arc, llm=client, critic_name="arc", 
+    findings = run_critic(render_arc, llm=client, critic_name="arc",
         draft="Kael spent the day repairing his cart.",
         outline=_outline_with_arc_advancement(),
         blueprint=blueprint,
@@ -66,7 +66,7 @@ def test_arc_critic_user_message_includes_arc_directives(tmp_path):
     bible = StoryBible(tmp_path / "b.json")
     client = FakeClient([LLMResponse(text="findings: []", input_tokens=1, output_tokens=1)])
 
-    run_critic(render_arc, llm=client, critic_name="arc", 
+    run_critic(render_arc, llm=client, critic_name="arc",
         draft="x",
         outline=_outline_with_arc_advancement(),
         blueprint=blueprint,

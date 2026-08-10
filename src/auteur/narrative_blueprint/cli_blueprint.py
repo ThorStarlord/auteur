@@ -12,7 +12,6 @@ from __future__ import annotations
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
 
 from auteur.genre_pipeline.session import GenreSessionStore
 from auteur.genre_pipeline.registry import get_genre_pipeline
@@ -136,7 +135,7 @@ def handle_blueprint_list(
 
         print(f"Outlines in {genre}:")
         print()
-        loader = OutlineLoader()
+        OutlineLoader()
 
         for yaml_file in yaml_files:
             try:

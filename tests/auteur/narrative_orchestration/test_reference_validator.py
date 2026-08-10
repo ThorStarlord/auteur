@@ -14,10 +14,8 @@ Tests cover:
 - Comprehensive validation orchestration
 """
 
-from datetime import datetime
-from typing import Dict, List, Optional, Any
+from typing import List, Optional, Any
 
-import pytest
 
 from auteur.narrative_orchestration.validator.reference_validator import (
     ReferenceValidator,

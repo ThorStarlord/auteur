@@ -1,7 +1,6 @@
 """Integration and unit tests for auteur state CLI commands."""
 
 import json
-from pathlib import Path
 import pytest
 import yaml
 from pydantic import BaseModel
@@ -9,7 +8,6 @@ from pydantic import BaseModel
 from auteur.cli import main
 from auteur.blueprint import StoryBlueprint
 from auteur.bible import StoryBible
-from auteur.structure.state import state_check
 from auteur.structure.diagnostics import DiagnosticSeverity, DiagnosticLayer
 from auteur.structure.bible_audit import BibleAuditDiagnostic
 
@@ -44,15 +42,15 @@ def test_project(tmp_path):
     """Fixture that initializes a valid blueprint and bible in a temporary directory."""
     bp_data = _minimal_blueprint_data()
     blueprint = StoryBlueprint.model_validate(bp_data)
-    
+
     bp_path = tmp_path / "blueprint.yaml"
     bp_path.write_text(yaml.safe_dump(blueprint.model_dump(mode="json"), sort_keys=False), encoding="utf-8")
-    
+
     bible_path = tmp_path / "bible.json"
     bible = StoryBible(bible_path)
     bible.upsert_character("Aldric", location="chapter_1", physical="stable", emotional="focused")
     bible.save()
-    
+
     return tmp_path
 
 
@@ -60,7 +58,7 @@ def test_state_check_empty_blueprint(test_project, capsys):
     """Verify state check reports unresolved structural diagnostics."""
     rc = main(["state", "check", str(test_project)])
     captured = capsys.readouterr()
-    
+
     assert "Story State Report" in captured.out
     assert "findings total" in captured.out
     # Missing story engine should be flagged as structural force error
@@ -79,10 +77,10 @@ def test_state_update_blueprint_success(test_project, capsys):
         "--key", "identity.title", "--val", '"A Brand New Odyssey"'
     ])
     captured = capsys.readouterr()
-    
+
     assert rc == 0
     assert "Success: Updated 'identity.title'" in captured.out
-    
+
     # Reload and check
     bp = StoryBlueprint.from_yaml(test_project / "blueprint.yaml")
     assert bp.identity.title == "A Brand New Odyssey"
@@ -91,16 +89,16 @@ def test_state_update_blueprint_success(test_project, capsys):
 def test_state_update_blueprint_validation_failure(test_project, capsys):
     """Verify that invalid updates to blueprint fail, roll back, and leave file unchanged."""
     original_title = "Test Story"
-    
+
     rc = main([
         "state", "update", str(test_project), "blueprint.yaml",
         "--key", "identity.length_class", "--val", '"invalid_length_class"'
     ])
     captured = capsys.readouterr()
-    
+
     assert rc == 1
     assert "Error: Schema validation failed" in captured.err
-    
+
     # Verify title and length_class remain completely untouched (transactional rollback)
     bp = StoryBlueprint.from_yaml(test_project / "blueprint.yaml")
     assert bp.identity.title == original_title
@@ -114,10 +112,10 @@ def test_state_update_bible_success(test_project, capsys):
         "--key", "characters.Aldric.location", "--val", '"Dungeon"'
     ])
     captured = capsys.readouterr()
-    
+
     assert rc == 0
     assert "Success: Updated 'characters.Aldric.location'" in captured.out
-    
+
     # Reload and check
     bible = StoryBible(test_project / "bible.json")
     assert bible.data["characters"]["Aldric"]["location"] == "Dungeon"
@@ -130,10 +128,10 @@ def test_state_update_bible_validation_failure(test_project, capsys):
         "--key", "realized_tension", "--val", '"not_a_list"'
     ])
     captured = capsys.readouterr()
-    
+
     assert rc == 1
     assert "Error: Schema validation failed" in captured.err
-    
+
     # Verify realized_tension was not mutated to the string
     bible = StoryBible(test_project / "bible.json")
     assert isinstance(bible.data["realized_tension"], list)
@@ -146,7 +144,7 @@ def test_state_prepare_drafting_stdout(test_project, capsys):
         "--scope", "chapter", "--chapter", "1"
     ])
     captured = capsys.readouterr()
-    
+
     assert rc == 0
     assert "# Phase Handoff: DRAFTING" in captured.out
     assert "**Active Story Object**: Chapter 1" in captured.out
@@ -162,11 +160,11 @@ def test_state_prepare_drafting_file(test_project, capsys):
         "--scope", "prose", "--out", str(out_file)
     ])
     captured = capsys.readouterr()
-    
+
     assert rc == 0
     assert "Success: Prepared handoff context saved to" in captured.out
     assert out_file.exists()
-    
+
     content = out_file.read_text(encoding="utf-8")
     assert "# Phase Handoff: DRAFTING" in content
     assert "**Drafting Scope**: PROSE" in content
@@ -176,7 +174,7 @@ def test_state_canon_markdown(test_project, capsys):
     """Verify state canon returns a structured Markdown reference report."""
     rc = main(["state", "canon", str(test_project), "--format", "markdown"])
     captured = capsys.readouterr()
-    
+
     assert rc == 0
     assert "# Canonical Reference Manual" in captured.out
     assert "Character Registry" in captured.out
@@ -207,23 +205,23 @@ def test_state_confirm_recovery_merge(test_project, capsys):
             }
         }
     }
-    
+
     recovery_file = test_project / "recovery_run.yaml"
     recovery_file.write_text(yaml.safe_dump(recovery_payload), encoding="utf-8")
-    
+
     rc = main(["state", "confirm", str(test_project), str(recovery_file)])
     captured = capsys.readouterr()
-    
+
     assert rc == 0
     assert "Success: Recovery candidate layers validated and merged" in captured.out
-    
+
     # Check blueprint updates
     bp = StoryBlueprint.from_yaml(test_project / "blueprint.yaml")
     assert bp.identity.genre.value == "epic_fantasy"
     assert bp.identity.mode.value == "noir"
     assert bp.identity.length_class.value == "novella"
     assert bp.structure.estimated_chapters == 12
-    
+
     # Check bible updates
     bible = StoryBible(test_project / "bible.json")
     assert bible.data["characters"]["Aldric"]["location"] == "Dungeon"
@@ -282,26 +280,26 @@ def test_state_prepare_with_dynamic_outline(test_project, capsys):
             }
         ]
     }
-    
+
     chapter_dir = test_project / "chapters" / "01"
     chapter_dir.mkdir(parents=True, exist_ok=True)
     outline_file = chapter_dir / "outline.yaml"
     outline_file.write_text(yaml.safe_dump(outline_data), encoding="utf-8")
-    
+
     # 1. Test Drafting Phase Handoff
     rc = main(["state", "prepare", str(test_project), "drafting", "--scope", "chapter", "--chapter", "1"])
     captured = capsys.readouterr()
-    
+
     assert rc == 0
     assert "Aldric confronts the Dark Sorcerer." in captured.out
     assert "Peak intensity: 8/10 at mid-scene" in captured.out
     assert "**Target POV Character**: Aldric" in captured.out
     assert "Scene 1 (Aldric @ Throne Room): The confrontation starts." in captured.out
-    
+
     # 2. Test Revision Phase Handoff
     rc = main(["state", "prepare", str(test_project), "revision", "--scope", "chapter", "--chapter", "1"])
     captured = capsys.readouterr()
-    
+
     assert rc == 0
     assert "Aldric confronts the Dark Sorcerer." in captured.out
     assert "Target: 8/10" in captured.out
@@ -318,7 +316,7 @@ def test_state_prepare_with_dynamic_outline(test_project, capsys):
 def test_state_check_without_outline_emits_representation_warning(test_project, capsys):
     """When auteur state check is called without --outline, a Layer 7 WARNING
     with rule='representation.outline_missing' must appear in output."""
-    rc = main(["state", "check", str(test_project)])
+    main(["state", "check", str(test_project)])
     captured = capsys.readouterr()
 
     # Must mention the outline_missing warning OR Layer 7 / Representation
@@ -349,7 +347,7 @@ def test_state_check_with_valid_outline_produces_no_carrier_mismatch(test_projec
         encoding="utf-8",
     )
 
-    rc = main(["state", "check", str(test_project), "--outline", str(outline_path)])
+    main(["state", "check", str(test_project), "--outline", str(outline_path)])
     captured = capsys.readouterr()
 
     output = captured.out + captured.err
@@ -357,22 +355,23 @@ def test_state_check_with_valid_outline_produces_no_carrier_mismatch(test_projec
         f"Unexpected carrier mismatch error in output:\n{output}"
     )
 
-# ISSUE-001: Verify _LAYER_ORDER includes MODULATION  
-def test_state_check_layer_order_includes_modulation():  
-    """Verify that _LAYER_ORDER includes MODULATION at position 8 and THEME at 9."""  
-    _LAYER_ORDER = [  
-        (1, DiagnosticLayer.TARGET_EXPERIENCE, "Target Experience"),  
-        (2, DiagnosticLayer.CONSTRAINTS, "Promise / Constraints"),  
-        (3, DiagnosticLayer.SCOPE, "Scope / Container"),  
-        (4, DiagnosticLayer.STRUCTURAL_FORCES, "Structural Forces"),  
-        (5, DiagnosticLayer.THREADS, "Threads / Modules"),  
-        (6, DiagnosticLayer.CARRIERS, "Carriers"),  
-        (7, DiagnosticLayer.REPRESENTATION, "Representation (Scene Outline)"),  
-        (8, DiagnosticLayer.MODULATION, "Modulation"),  
-        (9, DiagnosticLayer.THEME, "Theme / Resonance"),  
-    ]  
-    assert len(_LAYER_ORDER) == 9  
-    assert _LAYER_ORDER[7][1] == DiagnosticLayer.MODULATION  
+
+# ISSUE-001: Verify _LAYER_ORDER includes MODULATION
+def test_state_check_layer_order_includes_modulation():
+    """Verify that _LAYER_ORDER includes MODULATION at position 8 and THEME at 9."""
+    _LAYER_ORDER = [
+        (1, DiagnosticLayer.TARGET_EXPERIENCE, "Target Experience"),
+        (2, DiagnosticLayer.CONSTRAINTS, "Promise / Constraints"),
+        (3, DiagnosticLayer.SCOPE, "Scope / Container"),
+        (4, DiagnosticLayer.STRUCTURAL_FORCES, "Structural Forces"),
+        (5, DiagnosticLayer.THREADS, "Threads / Modules"),
+        (6, DiagnosticLayer.CARRIERS, "Carriers"),
+        (7, DiagnosticLayer.REPRESENTATION, "Representation (Scene Outline)"),
+        (8, DiagnosticLayer.MODULATION, "Modulation"),
+        (9, DiagnosticLayer.THEME, "Theme / Resonance"),
+    ]
+    assert len(_LAYER_ORDER) == 9
+    assert _LAYER_ORDER[7][1] == DiagnosticLayer.MODULATION
 
 
 def test_bible_audit_diagnostic_is_pydantic_base_model() -> None:

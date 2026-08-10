@@ -35,7 +35,8 @@ from auteur.expression.book_reconciliation import (
 # ----------------------------------------------------------------------------
 
 def _make_book(tmp_path: Path) -> tuple[Path, str]:
-    project = tmp_path / "project"; project.mkdir(parents=True, exist_ok=True)
+    project = tmp_path / "project"
+    project.mkdir(parents=True, exist_ok=True)
     from conftest import copy_bootstrap_template as _cbt
     _cbt(project)
     book = BookExpressionStore(project).compose(
@@ -65,7 +66,6 @@ def _faithful_manuscript(project: Path) -> Path:
 
 def _swap_order_and_separator(project: Path, sep_text: str = "***") -> Path:
     """Create a manuscript with swapped chapter order AND changed separator."""
-    import re
     text = _book_md(project).read_text(encoding="utf-8")
     ext = f"external_order_swap_{hash(sep_text)}.md"
     # Find each chapter boundary via marker regex
@@ -814,7 +814,6 @@ def test_scenario_29_provenance_chain_preserved(tmp_path: Path) -> None:
     # The chain from acceptance backward
     acceptance = store.load_book_acceptance(record["source_acceptance_id"])
     comparison = store.load_book_comparison(acceptance["source_comparison_id"])
-    recomposition_id = acceptance.get("source_recomposition_id", "")
     pub_id = comparison.get("source_publication_id", "")
     assert pub_id
 

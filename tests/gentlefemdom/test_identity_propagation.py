@@ -6,7 +6,6 @@ the gentlefemdom core template's primary_emotion and the corresponding
 emotion arc, rather than leaving them at generic netorare/mystery defaults.
 """
 
-import pytest
 
 from auteur.netorare.identity_generator import IdentityGenerator
 from auteur.gentlefemdom.emotion_arcs import get_emotion_arc

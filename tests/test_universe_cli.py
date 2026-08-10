@@ -1,5 +1,3 @@
-import pytest
-from pathlib import Path
 from auteur.universe.models import UniverseIdentity, SettingProfile, TimelineProfile
 from auteur.universe.cli import register_universe_subcommands, handle_universe_command
 import argparse

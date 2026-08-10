@@ -325,9 +325,8 @@ class TestApplyImpactProposal:
 
     def test_format_apply_impact_proposal(self, tmp_path):
         """format_apply_impact_proposal produces valid JSON with decision metadata."""
-        from auteur.cli_handlers import apply_impact_proposal, HandlerResult
+        from auteur.cli_handlers import apply_impact_proposal
         from auteur.cli_formatters import format_apply_impact_proposal
-        import json
         blueprint = StoryBlueprint.from_yaml(SAMPLE_YAML)
         prop = self._make_impact_proposal(accepted=True)
         result = apply_impact_proposal(prop, blueprint, output_dir=str(tmp_path))

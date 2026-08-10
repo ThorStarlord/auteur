@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
 
 from auteur.reasoning.runtime import CriticRegistry, CriticSpec
 from auteur.reasoning.draft_critics import register_draft_critics

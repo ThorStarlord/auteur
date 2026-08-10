@@ -3,7 +3,7 @@
 import pytest
 from auteur.mystery.core_templates import (
     HowdunitTemplate, ParanoiaTemplate, CozyTemplate,
-    get_template, TemplateOption
+    get_template
 )
 
 

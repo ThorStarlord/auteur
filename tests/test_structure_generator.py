@@ -10,14 +10,10 @@ from copy import deepcopy
 import pytest
 
 from auteur.blueprint import (
-    Character,
-    CharacterRole,
     StoryBlueprint,
-    TargetExperience,
     ThreadType,
 )
-from auteur.identity import StoryIdentity
-from auteur.structure.diagnostics import DiagnosticLayer, DiagnosticSeverity
+from auteur.structure.diagnostics import DiagnosticLayer
 from auteur.structure.generator import (
     GenerationProposal,
     StructuralForcesSynthesis,

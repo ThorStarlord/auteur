@@ -8,7 +8,6 @@ from typing import Any
 
 from auteur.commitment.models import (
     ExecutionPlan,
-    ExecutionStep,
     ExecutionStepState,
     PortfolioCommitment,
     CommitmentState,
@@ -181,12 +180,12 @@ class CommitmentService:
                 # Prepare acceptance
                 rv.prepare_acceptance(session_id, cand_id)
                 # Accept as committed
-                result = rv.accept(session_id, cand_id, as_committed=True)
+                rv.accept(session_id, cand_id, as_committed=True)
                 results.append({
                     "decision_id": dec_id,
                     "candidate_id": cand_id,
                     "status": "accepted",
-                    "message": f"Accepted as committed",
+                    "message": "Accepted as committed",
                     "session_id": session_id,
                 })
             except Exception as e:

@@ -7,7 +7,6 @@ from __future__ import annotations
 
 from pathlib import Path
 import yaml
-import pytest
 
 from auteur.project import Project
 from auteur.blueprint import StoryBlueprint
@@ -55,19 +54,19 @@ def test_compile_outline_generates_unified_outline_and_splits_chapters(tmp_path)
     and programmatically split them into chapters/{idx:02d}/outline.yaml."""
     blueprint = StoryBlueprint.from_yaml(SAMPLE_YAML)
     project = Project.init(tmp_path / "test_novel", blueprint)
-    
+
     # 2 chapters in the sample blueprint (let's verify or pad)
     num_chapters = blueprint.structure.estimated_chapters or 2
-    
+
     # Set up FakeClient responses (one outline per chapter)
     responses = [
         LLMResponse(text=_mock_cartographer_outline(i), input_tokens=10, output_tokens=20)
         for i in range(1, num_chapters + 1)
     ]
     client = FakeClient(responses)
-    
+
     output_path = project.path / "cartographer_outline.yaml"
-    
+
     # Run compiler
     compile_outline(
         project_path=project.path,
@@ -76,13 +75,13 @@ def test_compile_outline_generates_unified_outline_and_splits_chapters(tmp_path)
         split_output=True,
         llm=client
     )
-    
+
     # Verify unified outline file exists on disk
     assert output_path.exists()
     unified_data = yaml.safe_load(output_path.read_text(encoding="utf-8"))
     assert unified_data["total_chapters"] == num_chapters
     assert len(unified_data["chapters"]) == num_chapters
-    
+
     # Verify split chapter outline exists on disk
     ch1_outline = project.path / "chapters" / "01" / "outline.yaml"
     assert ch1_outline.exists()
@@ -97,7 +96,7 @@ def test_cartographer_cli_compile_and_validate(tmp_path):
     from auteur.cli import main
     blueprint = StoryBlueprint.from_yaml(SAMPLE_YAML)
     project = Project.init(tmp_path / "test_cli_novel", blueprint)
-    
+
     from unittest.mock import patch
     num_chapters = blueprint.structure.estimated_chapters or 2
     responses = [
@@ -105,9 +104,9 @@ def test_cartographer_cli_compile_and_validate(tmp_path):
         for i in range(1, num_chapters + 1)
     ]
     client = FakeClient(responses)
-    
+
     output_path = project.path / "cartographer_outline.yaml"
-    
+
     with patch("auteur.llm.factory.build_client", return_value=client):
         # Run compiler command via main
         argv = [
@@ -121,9 +120,9 @@ def test_cartographer_cli_compile_and_validate(tmp_path):
         ]
         rc = main(argv)
         assert rc == 0
-        
+
     assert output_path.exists()
-    
+
     # Run validator command via main
     argv_val = [
         "cartographer",

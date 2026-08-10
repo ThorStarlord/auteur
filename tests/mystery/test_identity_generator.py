@@ -2,9 +2,6 @@
 
 import pytest
 from auteur.netorare.identity_generator import IdentityGenerator
-from auteur.mystery.core_templates import (
-    HowdunitTemplate, ParanoiaTemplate, CozyTemplate
-)
 
 
 class TestMysteryIdentityGeneratorBasics:

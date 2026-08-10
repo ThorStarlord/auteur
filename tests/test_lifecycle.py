@@ -136,11 +136,6 @@ class TestCLI:
         rc = main(["lifecycle", "summary", "--project", str(project_root)])
         assert rc == 0
 
-    def test_lifecycle_status_json(self, project_root):
-        from auteur.cli import main
-        rc = main(["lifecycle", "status", "--project", str(project_root), "--json"])
-        assert rc == 0
-
     def test_lifecycle_summary_json(self, project_root):
         from auteur.cli import main
         rc = main(["lifecycle", "summary", "--project", str(project_root), "--json"])

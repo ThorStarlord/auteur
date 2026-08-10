@@ -1,4 +1,3 @@
-import pytest
 from auteur.netorare.core_templates import HumiliationTemplate, HorrorTemplate, MysteryTemplate
 
 def test_humiliation_template_has_all_phases():

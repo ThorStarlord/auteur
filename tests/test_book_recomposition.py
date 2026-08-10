@@ -20,7 +20,6 @@ import hashlib
 import re
 from pathlib import Path
 
-import pytest
 import yaml
 
 from auteur.expression.book import BookExpressionStore
@@ -36,7 +35,8 @@ from auteur.expression.book_reconciliation import (
 # ----------------------------------------------------------------------------
 
 def _make_book(tmp_path: Path) -> tuple[Path, str]:
-    project = tmp_path / "project"; project.mkdir(parents=True, exist_ok=True)
+    project = tmp_path / "project"
+    project.mkdir(parents=True, exist_ok=True)
     from conftest import copy_bootstrap_template as _cbt
     _cbt(project)
     book = BookExpressionStore(project).compose(

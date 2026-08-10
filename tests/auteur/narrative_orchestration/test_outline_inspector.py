@@ -11,9 +11,8 @@ Tests cover:
 
 import pytest
 from datetime import datetime
-from typing import List, Dict, Optional
 
-from auteur.narrative_orchestration.orchestrator import OutlineInspector, ValidationStatus
+from auteur.narrative_orchestration.orchestrator import OutlineInspector
 from auteur.narrative_blueprint.schema.series_outline import SeriesOutline
 from auteur.narrative_blueprint.schema.book_outline import BookOutline
 from auteur.narrative_blueprint.schema.sequence_outline import SequenceOutline

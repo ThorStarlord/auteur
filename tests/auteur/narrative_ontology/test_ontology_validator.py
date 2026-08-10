@@ -4,21 +4,7 @@ Tests cover concept validation, relationship validation, arc properties,
 character properties, and genre-specific rule enforcement.
 """
 
-import pytest
 from auteur.narrative_ontology.validator.ontology_validator import OntologyValidator
-from auteur.narrative_ontology.core.narrative_concepts import (
-    CHARACTER,
-    ARC,
-    THEME,
-    GOAL,
-    CONFLICT,
-)
-from auteur.narrative_ontology.genre.netorare_ontology import (
-    NetorareOntology,
-    CuckoldryArc,
-)
-from auteur.narrative_ontology.genre.mystery_ontology import MysteryOntology
-from auteur.narrative_ontology.genre.gentlefemdom_ontology import GentleFemdomOntology
 
 
 class TestOntologyValidatorBasicConcepts:
@@ -143,7 +129,6 @@ class TestOntologyValidatorArcProperties:
     def test_validate_arc_properties_base_arc(self):
         """Test validating properties of a base Arc type."""
         validator = OntologyValidator()
-        arc_data = {"type": "Arc", "start_state": "initial", "end_state": "resolved"}
         result = validator.validate_arc_properties("Arc", "netorare")
         assert result is True
 

@@ -9,8 +9,6 @@ Layer 0 Task 7: Implements CLI commands to expose ontology inspection and valida
 
 import json
 import sys
-from typing import Optional
-from pathlib import Path
 
 from auteur.narrative_ontology.loader.ontology_loader import OntologyLoader
 
@@ -296,19 +294,19 @@ def _print_concept_formatted(concept_data: dict) -> None:
     print(f"\nConcept: {concept_data['name']}")
     print("=" * 60)
 
-    print(f"\nDefinition:")
+    print("\nDefinition:")
     print(f"  {concept_data['definition']}")
 
     if concept_data.get("category"):
         print(f"\nCategory: {concept_data['category']}")
 
     if concept_data.get("parent_concepts"):
-        print(f"\nParent Concepts:")
+        print("\nParent Concepts:")
         for parent in concept_data["parent_concepts"]:
             print(f"  - {parent}")
 
     if concept_data.get("relationships"):
-        print(f"\nRelationships:")
+        print("\nRelationships:")
         for rel in concept_data["relationships"]:
             source = rel.get("source_concept", rel.get("source", ""))
             target = rel.get("target_concept", rel.get("target", ""))
@@ -322,7 +320,7 @@ def _print_concept_formatted(concept_data: dict) -> None:
                 print(f"    Description: {description}")
 
     if concept_data.get("validation_rules"):
-        print(f"\nValidation Rules:")
+        print("\nValidation Rules:")
         for rule in concept_data["validation_rules"]:
             rule_id = rule.get("rule_id", "")
             condition = rule.get("condition", "")
@@ -335,7 +333,7 @@ def _print_concept_formatted(concept_data: dict) -> None:
                 print(f"    Error: {error_msg}")
 
     if concept_data.get("metadata"):
-        print(f"\nMetadata:")
+        print("\nMetadata:")
         for key, value in concept_data["metadata"].items():
             if isinstance(value, (list, dict)):
                 print(f"  {key}: {json.dumps(value, indent=4)}")

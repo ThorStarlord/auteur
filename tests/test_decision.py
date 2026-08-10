@@ -7,8 +7,6 @@ from datetime import datetime, timezone
 from auteur.decision.models import (
     AuthorDecision,
     CandidateSummary,
-    DecisionAction,
-    DecisionConflict,
     DecisionEvidence,
     DecisionReadiness,
     DecisionTrigger,
@@ -683,7 +681,6 @@ class TestDecisionWorkspaceService:
         )
 
         # Mock the list_decisions method to return our test decision
-        original_list = service.list_decisions
 
         def mock_list(*args, **kwargs):
             return [decision]

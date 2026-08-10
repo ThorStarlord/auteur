@@ -19,9 +19,7 @@ from auteur.convergence.persistence import ConvergenceStore
 from auteur.convergence.planner import ProposalStore
 from auteur.convergence.preservation import analyze_preservation
 from auteur.convergence.scope import (
-    handle_ambiguous_target,
     resolve_target,
-    resolve_target_from_impact,
 )
 
 

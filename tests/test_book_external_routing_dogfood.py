@@ -470,7 +470,7 @@ def test_stale_inspection_blocks_routing():
         updated_inspection_content = original_inspection_path.read_text(encoding='utf-8')
         updated_inspection = yaml.safe_load(updated_inspection_content) or {}
         assert updated_inspection.get('status') == 'stale', f"Expected inspection status 'stale', got '{updated_inspection.get('status')}'"
-        assert updated_inspection.get('freshness', {}).get('status') == 'stale', f"Expected freshness status 'stale'"
+        assert updated_inspection.get('freshness', {}).get('status') == 'stale', "Expected freshness status 'stale'"
         assert 'BOOK_OR_CHAPTER_REVISION_CHANGED' in updated_inspection.get('freshness', {}).get('reasons', []), \
             f"Expected stale reason to identify changed artifact, got {updated_inspection.get('freshness', {}).get('reasons', [])}"
 
@@ -510,7 +510,6 @@ def test_routing_atomicity_on_failure():
     together, or none of them are.
     """
     from auteur.expression.book_reconciliation import BookReconciliationStore
-    import yaml
 
     project_root = WORKSPACE_ROOT
     original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
@@ -583,7 +582,6 @@ def test_routing_success_is_atomic():
     proposals together, with no leftover staging artifacts.
     """
     from auteur.expression.book_reconciliation import BookReconciliationStore
-    import yaml
 
     project_root = WORKSPACE_ROOT
     original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
@@ -829,7 +827,6 @@ def test_chapter_reorder_creates_book_order_proposal():
 def test_mixed_chapter_and_book_edit_creates_proposals():
     """Scenario 6: Mixed Chapter wording + separator edit -> 1 chapter finding + 1 book finding with 2 routes."""
     from auteur.expression.book_reconciliation import BookReconciliationStore
-    import yaml
 
     project_root = WORKSPACE_ROOT
     original_ms = project_root / '.auteur' / 'book' / 'expression' / 'manuscript.internal.md'
@@ -1472,7 +1469,6 @@ import yaml  # noqa: E402  (kept local to the Phase B block for clarity)
 
 def test_phase_b_scenario_a_separator_publish_no_pointer_change():
     """A. Separator proposal -> plan -> publish -> preview (no pointer change)."""
-    from auteur.expression.book_reconciliation import BookReconciliationStore
 
     root, store, book_id = _phase_b_workspace("scenario_a")
     edited = root / "edit_a.md"
@@ -1573,7 +1569,6 @@ def test_phase_b_scenario_d_stale_plan_rejects_publication():
 
 def test_phase_b_scenario_e_atomic_failure_removes_all():
     """E. Atomic failure: after one candidate/preview moved, everything removed."""
-    from auteur.expression.book_reconciliation import BookReconciliationStore
 
     root, store, book_id = _phase_b_workspace("scenario_e")
     edited = root / "edit_e.md"

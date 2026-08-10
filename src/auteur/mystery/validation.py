@@ -1,9 +1,6 @@
 """Deterministic validation rules for mystery story structure."""
 
-from typing import Tuple, List, Dict, Any
-from auteur.mystery.core_templates import (
-    HowdunitTemplate, ParanoiaTemplate, CozyTemplate
-)
+from typing import Tuple, List, Dict
 
 
 class ValidationError(Exception):

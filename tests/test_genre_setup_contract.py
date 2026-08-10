@@ -37,14 +37,14 @@ def test_insufficient_runway_diagnostic_warning():
     data = _blueprint_data_with_story_engine()
     data["identity"]["genre"] = "netorare"
     data["identity"]["length_class"] = "short_story"
-    
+
     blueprint = StoryBlueprint.model_validate(data)
     diagnostics = analyze_structure(blueprint)
-    
+
     # Filter the insufficient runway warning
     runway_diagnostics = [d for d in diagnostics if d.rule == "genre.setup_contract.insufficient_runway"]
     assert len(runway_diagnostics) == 1
-    
+
     d = runway_diagnostics[0]
     assert d.severity == DiagnosticSeverity.WARNING
     assert d.layer == DiagnosticLayer.SCOPE
@@ -60,9 +60,9 @@ def test_sufficient_runway_diagnostic_no_warning():
     data = _blueprint_data_with_story_engine()
     data["identity"]["genre"] = "netorare"
     data["identity"]["length_class"] = "novel"
-    
+
     blueprint = StoryBlueprint.model_validate(data)
     diagnostics = analyze_structure(blueprint)
-    
+
     runway_diagnostics = [d for d in diagnostics if d.rule == "genre.setup_contract.insufficient_runway"]
     assert len(runway_diagnostics) == 0

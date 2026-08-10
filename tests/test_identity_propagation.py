@@ -22,7 +22,6 @@ from auteur.blueprint import (
     StoryMedium,
     TargetAudience,
     TargetExperience,
-    LengthClass,
 )
 from auteur.genre_packs.models import (
     GenreProfileCommitment,

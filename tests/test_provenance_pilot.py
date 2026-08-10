@@ -250,8 +250,10 @@ def test_chapter_projection_limits_blueprint_impact(tmp_path: Path) -> None:
     unrelated = tmp_path / "project" / "chapter_08.yaml"
     write_yaml(unrelated, {"blueprint": "blueprint", "chapter_id": "chapter_08", "function": "unrelated"})
     write_yaml(blueprint, {"story_identity": "story_identity", "chapters": {"chapter_07": {"function": "original"}, "chapter_08": {"function": "unrelated"}}})
-    store.accept(identity, "story_identity"); store.accept(blueprint, "blueprint")
-    store.accept(chapter, "chapter_outline"); store.accept(unrelated, "chapter_outline")
+    store.accept(identity, "story_identity")
+    store.accept(blueprint, "blueprint")
+    store.accept(chapter, "chapter_outline")
+    store.accept(unrelated, "chapter_outline")
     write_yaml(blueprint, {"story_identity": "story_identity", "chapters": {"chapter_07": {"function": "changed"}, "chapter_08": {"function": "unrelated"}}})
     assert store.status(chapter, "chapter_outline").freshness == "stale"
     assert store.status(unrelated, "chapter_outline").freshness == "fresh"
@@ -259,7 +261,8 @@ def test_chapter_projection_limits_blueprint_impact(tmp_path: Path) -> None:
 
 def test_acknowledged_divergence_reopens_after_new_dependency_change(tmp_path: Path) -> None:
     store, identity, blueprint, _, _ = make_pilot(tmp_path)
-    store.accept(identity, "story_identity"); store.accept(blueprint, "blueprint")
+    store.accept(identity, "story_identity")
+    store.accept(blueprint, "blueprint")
     write_yaml(identity, {"title": "First", "core_answer": "Changed", "genre": "mystery"})
     store.status(blueprint, "blueprint")
     store.accept(blueprint, "blueprint", acknowledge_divergence=True, rationale="intentional")

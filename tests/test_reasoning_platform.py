@@ -120,7 +120,7 @@ class TestFailureSemantics:
         """When synthesis fails, validation must not pass."""
         from auteur.reasoning.draft_review import persist_reasoning_run
         from auteur.reasoning.runtime import (
-            CriticRegistry, CriticSpec, ReasoningRuntime, RuntimeRequest, RuntimeStatus
+            CriticRegistry, CriticSpec, ReasoningRuntime, RuntimeRequest
         )
         def ok(**i):
             return [{"critic": "ok", "severity": "info", "rule": "test", "evidence": "", "requested_change": ""}]
@@ -274,7 +274,7 @@ class TestProviderMetadata:
 
     def test_prefixed_attributes_not_accepted(self, tmp_path: Path):
         """_provider and _model must not be used as provider/model."""
-        from auteur.reasoning.runtime import CriticRegistry, CriticSpec, ReasoningRuntime, RuntimeRequest, RuntimeStatus
+        from auteur.reasoning.runtime import CriticRegistry, CriticSpec, ReasoningRuntime, RuntimeRequest
 
         class WrappedLLM:
             _provider = "wrapped"

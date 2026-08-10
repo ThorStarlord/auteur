@@ -18,7 +18,6 @@ from auteur.decision.models import (
     EvidenceType,
     UnresolvedChoice,
 )
-from auteur.workflow.models import AuthorityLevel
 
 
 class ReconciliationAdapter:
@@ -43,9 +42,9 @@ class ReconciliationAdapter:
         """
         try:
             from auteur.expression.reconciliation import ReconciliationStore
-            store = ReconciliationStore(self.project_root)
             # The reconciliation store works at the book level via composition store
             # We try to locate proposals by inspecting manuscript-level state
+            ReconciliationStore(self.project_root)
             return []  # TODO: wire real proposal loading in Task 2
         except ImportError:
             return []

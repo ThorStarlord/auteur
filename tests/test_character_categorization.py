@@ -5,11 +5,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
 import yaml
 
 from auteur.blueprint import (
-    ArcMilestone,
     ArcType,
     Character,
     CharacterRole,
@@ -28,13 +26,9 @@ from auteur.character.enums import (
     EssenceTraitSource,
     MoralAlignment,
     MotifType,
-    PersonalityTrait,
     PhilosophyTag,
-    ProtagonistSubtype,
     RelationshipType,
     TropeTag,
-    Vice,
-    Virtue,
     VulnerabilityFamily,
 )
 from auteur.character.models import (

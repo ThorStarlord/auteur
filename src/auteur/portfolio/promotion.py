@@ -124,8 +124,8 @@ class PortfolioPromoter:
                 failed_decisions=failed_list,
             )
 
-        except Exception as e:
-            logger.exception(f"Promotion failed")
+        except Exception:
+            logger.exception("Promotion failed")
             return PromotionResult(success=False, state="error")
 
     def _session_for_decision(self, svc, decision_id: str) -> str | None:

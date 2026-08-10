@@ -14,7 +14,7 @@ def test_story_identity_valid_minimal():
             "change": "The angel changes from an aloof divine observer to a deeply feeling mortal.",
         }
     }
-    
+
     identity = StoryIdentity.model_validate(data)
     assert identity.title == "The Fallen Angel"
     assert identity.core_answer.startswith("A tragic story")
@@ -118,7 +118,7 @@ def test_story_identity_includes_genre_contract_snapshot(tmp_path):
             "genre": "grimdark_fantasy",
         }
     }
-    
+
     identity = StoryIdentity.model_validate(data)
     assert identity.genre_contract_snapshot is not None
     assert identity.genre_contract_snapshot.genre_id.value == "grimdark_fantasy"
@@ -131,7 +131,7 @@ def test_story_identity_includes_genre_contract_snapshot(tmp_path):
 
     identity_path = tmp_path / "story_identity.yaml"
     identity_romance.to_yaml(identity_path)
-    
+
     round_tripped = StoryIdentity.from_yaml(identity_path)
     assert round_tripped.genre_contract_snapshot is not None
     assert round_tripped.genre_contract_snapshot.genre_id.value == "romance"
@@ -152,7 +152,7 @@ def test_story_identity_want_change_duplicate_fails():
     }
     identity = StoryIdentity.model_validate(data)
     diagnostics = identity.validate_identity()
-    
+
     assert len(diagnostics) == 1
     assert diagnostics[0].severity.value == "error"
     assert diagnostics[0].rule == "identity.central_engine.change_duplicates_want"
@@ -177,7 +177,7 @@ def test_story_identity_forbidden_ending_tone_fails():
     }
     identity = StoryIdentity.model_validate(data)
     diagnostics = identity.validate_identity()
-    
+
     errors = [d for d in diagnostics if d.severity.value == "error"]
     assert len(errors) == 1
     assert errors[0].rule == "identity.genre.forbidden_mismatch.ending_tone"
@@ -202,10 +202,10 @@ def test_story_identity_forbidden_ending_tone_with_override_warns():
     }
     identity = StoryIdentity.model_validate(data)
     diagnostics = identity.validate_identity()
-    
+
     errors = [d for d in diagnostics if d.severity.value == "error"]
     warnings = [d for d in diagnostics if d.severity.value == "warning"]
-    
+
     assert len(errors) == 0
     assert len(warnings) == 1
     assert warnings[0].rule == "identity.genre.forbidden_mismatch.ending_tone.override"
@@ -230,7 +230,7 @@ def test_story_identity_avoided_experience_clash_fails():
     }
     identity = StoryIdentity.model_validate(data)
     diagnostics = identity.validate_identity()
-    
+
     errors = [d for d in diagnostics if d.severity.value == "error"]
     rules = [d.rule for d in errors]
     assert "identity.target_experience.avoid_clashes_with_primary" in rules
@@ -240,7 +240,7 @@ def test_story_identity_avoided_experience_clash_fails():
 def test_cli_identity_validation_and_compile_failures(tmp_path):
     identity_yaml_path = tmp_path / "story_identity_invalid.yaml"
     blueprint_yaml_path = tmp_path / "blueprint.yaml"
-    
+
     # Create invalid identity data (duplicate want/change)
     identity_data = {
         "title": "Invalid Story",
@@ -253,15 +253,15 @@ def test_cli_identity_validation_and_compile_failures(tmp_path):
             "change": "The king wants to preserve the trade routes.",  # Duplicate!
         }
     }
-    
+
     import yaml
     identity_yaml_path.write_text(yaml.safe_dump(identity_data), encoding="utf-8")
-    
+
     # 1. Test validate command returns error code 1
     from auteur.cli import main
     exit_code_validate = main(["identity", "validate", str(identity_yaml_path)])
     assert exit_code_validate == 1
-    
+
     # 2. Test compile command aborts and returns error code 1
     exit_code_compile = main(["identity", "compile", str(identity_yaml_path), "--output", str(blueprint_yaml_path)])
     assert exit_code_compile == 1
@@ -284,7 +284,7 @@ def test_story_identity_runway_validation_and_overrides():
             "medium": "short_story",  # short_story resolves to length_class: short_story
         }
     }
-    
+
     identity = StoryIdentity.model_validate(data)
     # netorare minimum viable length is novella.
     # Since length class resolved is short_story, it should fail.
@@ -292,14 +292,14 @@ def test_story_identity_runway_validation_and_overrides():
     errors = [d for d in diagnostics if d.severity.value == "error"]
     assert len(errors) == 1
     assert errors[0].rule == "identity.genre.scope.runway_mismatch"
-    
+
     # Now let's try with override
     data["author_overrides"] = ["runway_compression"]
     identity_overridden = StoryIdentity.model_validate(data)
     diagnostics_overridden = identity_overridden.validate_identity()
     errors_overridden = [d for d in diagnostics_overridden if d.severity.value == "error"]
     warnings_overridden = [d for d in diagnostics_overridden if d.severity.value == "warning"]
-    
+
     assert len(errors_overridden) == 0
     assert len(warnings_overridden) == 1
     assert warnings_overridden[0].rule == "identity.genre.scope.runway_mismatch.override"

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from auteur.portfolio.models import (
-    FrontierDimension,
     PortfolioFrontier,
     PortfolioScenario,
     _stable_id,

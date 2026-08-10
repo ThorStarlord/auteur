@@ -15,12 +15,9 @@ All functions accept a
 
 from __future__ import annotations
 
-import hashlib
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-import yaml
 
 from auteur.impact.analyzer import ImpactAnalyzer
 from auteur.impact.models import ImpactSeverity
@@ -31,7 +28,6 @@ from auteur.structure.revision_models import (
     RevisionFreshnessResult,
     RevisionImpactResult,
     RevisionReevaluationResult,
-    RevisionTargetResult,
 )
 
 # ---------------------------------------------------------------------------
@@ -253,7 +249,6 @@ def propagate_freshness(
 
     # Artifacts whose dependency changed but don't have blockers are eligible
     # for auto-refresh
-    from auteur.impact.models import ImpactSeverity as _ImpactSeverity
 
     for aid in affected_stale:
         target_path = _resolve_target_path(aid, project_path)

@@ -9,7 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable
 
-from auteur.impact.models import ChangeType, ImpactSeverity
+from auteur.impact.models import ImpactSeverity
 
 
 @dataclass(frozen=True)

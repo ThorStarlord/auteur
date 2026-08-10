@@ -8,7 +8,6 @@ from __future__ import annotations
 import yaml
 
 from auteur.structure.proposals import (
-    ProposalType,
     StructureProposal,
     propose_repairs_from_diagnostics,
 )

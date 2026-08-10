@@ -4,12 +4,10 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Any
 
 from auteur.planning.models import (
     CriticalPath,
     PlanAction,
-    PlanBlocker,
     PlanMilestone,
     PlanningNode,
     PlanningHorizon,
@@ -166,7 +164,7 @@ class Planner:
                     actions.append(PlanAction(
                         action_id=_stable_id("auth", nid),
                         title=f"Resolve: {n.label}",
-                        reason=f"On critical path; requires author authority",
+                        reason="On critical path; requires author authority",
                         source_node_id=nid,
                         authority="authority_required",
                         safe_to_execute=False,

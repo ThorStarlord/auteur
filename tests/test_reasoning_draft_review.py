@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import yaml
 from pathlib import Path
-import pytest
 
 from auteur.reasoning.runtime import (
     CriticRegistry,
@@ -12,7 +10,6 @@ from auteur.reasoning.runtime import (
     ExecutionResult,
     ReasoningRuntime,
     RuntimeRequest,
-    RuntimeStatus,
 )
 from auteur.reasoning.draft_review import (
     load_latest_run,
@@ -61,9 +58,9 @@ class TestPersistReasoningRun:
 
     def test_immutable_historical_runs(self, tmp_path: Path) -> None:
         result1 = _make_result(tmp_path)
-        run1 = persist_reasoning_run(tmp_path, chapter_index=1, iteration=1, result=result1)
+        persist_reasoning_run(tmp_path, chapter_index=1, iteration=1, result=result1)
         result2 = _make_result(tmp_path)
-        run2 = persist_reasoning_run(tmp_path, chapter_index=1, iteration=2, result=result2)
+        persist_reasoning_run(tmp_path, chapter_index=1, iteration=2, result=result2)
         root = tmp_path / "chapters" / "01" / "reasoning"
         runs = list((root / "runs").iterdir())
         assert len(runs) >= 2

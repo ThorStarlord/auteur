@@ -19,8 +19,8 @@ from enum import Enum
 from auteur.narrative_blueprint.schema.book_outline import BookOutline
 from auteur.narrative_blueprint.schema.sequence_outline import SequenceOutline
 from auteur.narrative_blueprint.schema.chapter_outline import ChapterOutline
-from auteur.narrative_blueprint.schema.character_arc import CharacterArc, TurningPoint
-from auteur.narrative_blueprint.schema.story_arc import StoryArc, ArcCheckpoint
+from auteur.narrative_blueprint.schema.character_arc import CharacterArc
+from auteur.narrative_blueprint.schema.story_arc import StoryArc
 
 
 class ChronologyViolationType(str, Enum):
@@ -237,7 +237,6 @@ class ChronologicalValidator:
                 continue
 
             # Extract phases from checkpoints
-            checkpoint_phases = [cp.phase for cp in arc.checkpoints]
 
             # Check if phases are within the arc's phase range and in order
             previous_phase = arc.phase_range.start - 1
@@ -334,7 +333,7 @@ class ChronologicalValidator:
         violations = []
 
         # Sort books by assumed order (if IDs indicate ordering)
-        sorted_books = sorted(self.books.values(), key=lambda b: b.name)
+        sorted(self.books.values(), key=lambda b: b.name)
 
         # Check character arc progression across books
         for arc_id, arc in self.character_arcs.items():

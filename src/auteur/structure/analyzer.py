@@ -13,7 +13,6 @@ from auteur.blueprint import SupportFunction
 
 from auteur.bible import StoryBible
 from auteur.structure.bible_audit import (
-    BibleAuditDiagnostic,
     audit_bible_locations,
     as_structure_diagnostic,
 )
@@ -119,7 +118,6 @@ def analyze_structure(
     *,
     adherence_posture: AdherencePosture | str | None = None,
 ) -> list[StructureDiagnostic]:
-    from auteur.structure.profile_severity import severity_for_profile_diagnostic
 
     diagnostics: list[StructureDiagnostic] = []
     diagnostics.extend(_identity_propagation_diagnostics(blueprint))
@@ -425,7 +423,7 @@ def analyze_structure(
             "forgiving herself", "forgiving oneself"
         }
         found_terms: set[str] = set()
-        
+
         # Helper to scan text
         def scan_text(text: str) -> None:
             if not text:
@@ -476,7 +474,7 @@ def analyze_structure(
     # 2. Rule: Forbidden Mismatches (Ending Tone)
     ending_tone_str = blueprint.contract.mandatory_ending_tone.value
     override = blueprint.identity.genre_overrides.get("ending_tone")
-    
+
     is_mismatch = False
     forbidden_type = ""
     if ending_tone_str == "tragic" and "tragic ending" in contract_snap.forbidden_mismatches:
@@ -497,13 +495,13 @@ def analyze_structure(
                 "consequence": f"Audience expecting the core product of {contract_snap.display_name} will be disappointed/alienated by a {ending_tone_str} ending.",
                 "options": {
                     "preserve_genre": {
-                        "recommendation": f"Change ending tone to bittersweet or one allowed by the contract."
+                        "recommendation": "Change ending tone to bittersweet or one allowed by the contract."
                     },
                     "subvert_genre": {
-                        "recommendation": f"Make the unexpected ending tone itself the focus (subvert expectations intentionally)."
+                        "recommendation": "Make the unexpected ending tone itself the focus (subvert expectations intentionally)."
                     },
                     "reclassify": {
-                        "recommendation": f"Reclassify the story to another genre that supports tragic/hopeful ending tones."
+                        "recommendation": "Reclassify the story to another genre that supports tragic/hopeful ending tones."
                     },
                     "override_anyway": {
                         "recommendation": "Proceed, but mark genre confidence lower."
@@ -822,7 +820,7 @@ def analyze_structure(
                             "recommendation": f"Remove '{trope}' from the forbidden tropes list and integrate it."
                         },
                         "subvert_genre": {
-                            "recommendation": f"Deliver a subverted alternative trope that serves the same emotional function."
+                            "recommendation": "Deliver a subverted alternative trope that serves the same emotional function."
                         },
                         "reclassify": {
                             "recommendation": f"Reclassify the story to a genre that does not require the '{trope}' trope."
@@ -886,7 +884,6 @@ def analyze_structure(
             # 1. Subgenre scope compatibility
             if modifier.scope_biases:
                 scope_bias_text = " ".join(modifier.scope_biases).lower()
-                is_scope_aligned = True
                 scope_mismatches: list[str] = []
 
                 # Check subplot_budget against scope biases
@@ -998,7 +995,7 @@ def analyze_structure(
             is_mismatch = True
         elif runway_val == "medium" and length_val == "short_story":
             is_mismatch = True
-            
+
         if is_mismatch:
             # Check for override
             override = blueprint.identity.genre_overrides.get("emotional_runway")
@@ -1170,7 +1167,6 @@ def analyze_structure(
             len(blueprint.characters),
         )
         max_pov = blueprint.structure.max_pov_characters
-        max_total = blueprint.structure.max_characters_total
         if max_pov and actual_counts[0] > 0 and actual_counts[0] < max_pov * 0.5:
             diagnostics.append(
                 StructureDiagnostic(
@@ -1292,7 +1288,7 @@ def _add_scope_fit_diagnostics(
     # 3. Length outside natural range
     natural_lengths = scope_profile.natural_lengths
     if natural_lengths and length_class not in natural_lengths:
-        natural_names = [l.value if hasattr(l, "value") else str(l) for l in natural_lengths]
+        natural_names = [length.value if hasattr(length, "value") else str(length) for length in natural_lengths]
         diagnostics.append(
             StructureDiagnostic(
                 severity=DiagnosticSeverity.WARNING,
@@ -1438,7 +1434,7 @@ def _add_medium_runway_diagnostics(
 
     # Check 2: Medium warns about "novel-scale machinery" and genre has high mechanical load
     if "novel-scale machinery" in failure_modes_text and genre_mechanical:
-        if _mechanical_load_order(ml) >= 2:
+        if _mechanical_load_order(genre_mechanical) >= 2:
             diagnostics.append(
                 StructureDiagnostic(
                     severity=DiagnosticSeverity.WARNING,
@@ -1446,12 +1442,12 @@ def _add_medium_runway_diagnostics(
                     rule="medium.genre_runway_mismatch.machinery_overload",
                     message=(
                         f"The '{medium_name}' medium warns against novel-scale machinery, "
-                        f"but the '{genre_name}' genre requires '{ml}' mechanical load. "
+                        f"but the '{genre_name}' genre requires '{genre_mechanical}' mechanical load. "
                         f"The medium may be too short for the genre's machinery."
                     ),
                     evidence=[
                         f"medium = {medium_name}",
-                        f"genre.mechanical_load = {ml.value if hasattr(ml, 'value') else ml}",
+                        f"genre.mechanical_load = {genre_mechanical.value if hasattr(genre_mechanical, 'value') else genre_mechanical}",
                         f"length_class = {length_name}",
                     ],
                     repair_options=RepairOptions(

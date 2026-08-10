@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Any
 
 from auteur.simulation.models import (
     CandidateSnapshot,
@@ -27,7 +26,8 @@ logger = logging.getLogger(__name__)
 
 def _normalize_assumptions(assumptions: list[ScenarioAssumption]) -> str:
     """Compute a deterministic hash of normalized assumptions."""
-    import hashlib, json
+    import hashlib
+    import json
     sorted_text = sorted(a.description for a in assumptions)
     return hashlib.sha256(json.dumps(sorted_text, sort_keys=True).encode()).hexdigest()[:16]
 

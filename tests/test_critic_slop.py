@@ -16,7 +16,7 @@ def test_slop_critic_passes_clean_prose(tmp_path):
     bible = StoryBible(tmp_path / "b.json")
     client = FakeClient([LLMResponse(text="findings: []", input_tokens=1, output_tokens=1)])
 
-    findings = run_critic(render_slop, llm=client, critic_name="slop", 
+    findings = run_critic(render_slop, llm=client, critic_name="slop",
         draft="Kael drew his blade. The cold wind cut through his cloak.",
         outline={"scope": "chapter"},
         blueprint=blueprint,
@@ -38,7 +38,7 @@ def test_slop_critic_flags_clichés(tmp_path):
 """
     client = FakeClient([LLMResponse(text=fake, input_tokens=1, output_tokens=10)])
 
-    findings = run_critic(render_slop, llm=client, critic_name="slop", 
+    findings = run_critic(render_slop, llm=client, critic_name="slop",
         draft="Her stance was a testament to her courage.",
         outline={"scope": "chapter"},
         blueprint=blueprint,
@@ -59,7 +59,7 @@ def test_slop_critic_includes_phrase_list_in_prompt(tmp_path):
     bible = StoryBible(tmp_path / "b.json")
     client = FakeClient([LLMResponse(text="findings: []", input_tokens=1, output_tokens=1)])
 
-    run_critic(render_slop, llm=client, critic_name="slop", 
+    run_critic(render_slop, llm=client, critic_name="slop",
         draft="x",
         outline={"scope": "chapter"},
         blueprint=blueprint,

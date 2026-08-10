@@ -2,15 +2,11 @@
 
 from __future__ import annotations
 
-import json
-import os
 from pathlib import Path
 
 import pytest
-import yaml
 
 from auteur.planning.models import (
-    CoordinationFinding,
     CoordinationFindingType,
     CriticalPath,
     DependencyEvidence,
@@ -19,7 +15,6 @@ from auteur.planning.models import (
     MilestoneState,
     NodeType,
     PlanAction,
-    PlanBlocker,
     PlanDependency,
     PlanHistoryEntry,
     PlanMilestone,
@@ -553,7 +548,7 @@ class TestPlanAssembly:
 
     def test_no_work(self, project_root):
         assembler = PlanAssembler(project_root)
-        graph, nodes, edges, sessions = assembler.assemble(
+        graph, _, _, _ = assembler.assemble(
             decisions=[], sessions=[], status_data={},
         )
         assert graph.node_count() == 0
@@ -572,9 +567,11 @@ class TestPlanAssembly:
             conflicts = []
             candidates = []
             unresolved_choices = []
-            def has_open_choices(self): return False
 
-        graph, nodes, edges, sessions = assembler.assemble(
+            def has_open_choices(self):
+                return False
+
+        graph, nodes, _, _ = assembler.assemble(
             decisions=[FakeDecision()], sessions=[],
         )
         assert graph.node_count() >= 1
@@ -582,7 +579,7 @@ class TestPlanAssembly:
 
     def test_missing_subsystem_tolerated(self, project_root):
         assembler = PlanAssembler(project_root)
-        graph, nodes, edges, sessions = assembler.assemble(
+        graph, _, _, _ = assembler.assemble(
             decisions=None, sessions=None,
         )
         assert graph.node_count() == 0  # Graceful handling of missing subsystems
@@ -601,13 +598,15 @@ class TestPlanAssembly:
             conflicts = []
             candidates = []
             unresolved_choices = []
-            def has_open_choices(self): return True
+
+            def has_open_choices(self):
+                return True
 
         sessions = [
             {"session_id": "s1", "state": "open", "decision_id": "dec-001",
              "target": {"decision_id": "dec-001"}},
         ]
-        graph, nodes, edges, sessions = assembler.assemble(
+        _, nodes, edges, _ = assembler.assemble(
             decisions=[FakeDecision()], sessions=sessions,
         )
         # Check that nodes include both the decision and the session
@@ -809,7 +808,7 @@ class TestPlanCLI:
 
     def test_plan_help(self):
         from auteur.cli_parser import build_parser
-        parser = build_parser()
+        build_parser()
         # help doesn't raise
 
     def test_plan_refresh(self, project_root):
@@ -873,6 +872,7 @@ class TestPlanCLI:
         except Exception:
             pytest.skip("Blueprint fixture not compatible with current schema")
 
+
 @pytest.fixture
 def sample_blueprint():
     """Find a test blueprint for plan render test."""
@@ -932,7 +932,7 @@ class TestSerialization:
         ev = DependencyEvidence(reason="test", source_subsystem="impact",
                                 supporting_artifact="path/to/artifact",
                                 freshness="current")
-        edge = PlanDependency(edge_id="e1", source_id="s1", target_id="t1",
+        PlanDependency(edge_id="e1", source_id="s1", target_id="t1",
                               dependency_type=DependencyType.BLOCKS,
                               strength=DependencyStrength.HARD,
                               reason="test", evidence=ev)
