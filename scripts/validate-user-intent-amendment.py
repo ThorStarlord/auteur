@@ -24,7 +24,7 @@ def validate_user_intent_amendment(artifact_path, repo_root="."):
     # 1. Load artifact
     if not os.path.exists(artifact_path):
         errors.append(format_error(MISSING_FIELD, f"Artifact file not found: {artifact_path}"))
-        return errors
+        return False
 
     with open(artifact_path, "r", encoding="utf-8") as f:
         content = f.read()
@@ -37,18 +37,18 @@ def validate_user_intent_amendment(artifact_path, repo_root="."):
     )
     if not match:
         errors.append(format_error(YAML_MALFORMED, "No YAML block found between --- markers"))
-        return errors
+        return False
 
     yaml_text = match.group(1).strip()
     try:
         artifact = yaml.safe_load(yaml_text)
     except Exception as e:
         errors.append(format_error(YAML_MALFORMED, f"Failed to parse YAML block: {e}"))
-        return errors
+        return False
 
     if not isinstance(artifact, dict):
         errors.append(format_error(YAML_MALFORMED, "YAML block must be a dictionary, not a list"))
-        return errors
+        return False
 
     # 3. Check required fields
     required_fields = [
