@@ -1,5 +1,9 @@
 # Repository Sensemaking Brief: Sample
 
+```yaml
+artifact_id: repository_sensemaking_brief
+```
+
 ## repository_goal
 Sample: what the repository builds.
 

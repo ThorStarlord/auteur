@@ -18,7 +18,7 @@ Low impact - these are test infrastructure changes only.
 
 - **Failure Mode Class**: Class 9: Validator Mismatch
 - **Defect Source**: fixture_defect
-- **Source Report**: [README.md](README.md)
+- **Source Report**: [source-report.md](../source-report.md)
 - **Evidence Snippet**: > The test validators report missing fixture directories.
 - **Recommended Action**: fixture_edit
 - **Do Not Edit List**: tests/fixtures/ already has valid content once created.
