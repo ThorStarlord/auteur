@@ -285,7 +285,7 @@ def validate_plan(plan_path, repo_root="."):
 
     # 8. Approval Gates & Behavior Check
     plan_gates = plan_data.get("approval_gates", [])
-    step_gates = [s.get("gate") for s in plan_steps if s.get("gate")]
+    step_gates = [s.get("gate") for s in plan_steps if s.get("gate") and s.get("gate") != "none"]
     if plan_gates != step_gates:
         errors.append(format_error(GATE_MISMATCH, f"approval_gates mismatch: plan has {plan_gates}, steps have {step_gates}"))
 

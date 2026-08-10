@@ -14,7 +14,10 @@
 - **gate**: review_diagnosis
 - **output_artifact**: repository_sensemaking_brief
 - **artifact_path**: artifacts/repository_sensemaking_brief.md
-- **validator_stack**: L2_generic, L3_specialized
+- **validator_stack**:
+  - level: L2_generic
+    command: python scripts/validate-artifact.py repository_sensemaking_brief artifacts/repository_sensemaking_brief.md
+    result: PASSED
 
 ## Final State
 Completed successfully. All checks passed.

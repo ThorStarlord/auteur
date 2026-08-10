@@ -16,7 +16,7 @@ Low impact - these are test infrastructure changes only.
 - **Rerun Scenario**: Run test-validators.py with the new fixtures
 - **Success Criteria**: All validators pass
 
-- **Failure Mode Class**: Operational Fault
+- **Failure Mode Class**: Class 9: Validator Mismatch
 - **Defect Source**: fixture_defect
 - **Source Report**: [README.md](README.md)
 - **Evidence Snippet**: > The test validators report missing fixture directories.
