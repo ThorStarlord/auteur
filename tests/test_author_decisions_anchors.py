@@ -248,6 +248,24 @@ def test_empty_anchor_fields_absence_semantics():
 
 
 # ---------------------------------------------------------------------------
+# Acceptance-record value serialization
+# ---------------------------------------------------------------------------
+
+def test_record_value_yaml_safe():
+    from auteur.author_decisions.cli import _record_value
+    import enum
+    from auteur.author_decisions.models import StructuralAnchor
+
+    class _E(enum.Enum):
+        v = "kept"
+
+    assert _record_value("bittersweet") == "bittersweet"
+    assert _record_value(_E.v) == "kept"
+    model = StructuralAnchor(anchor_id="a")
+    assert _record_value(model) == model.model_dump()
+
+
+# ---------------------------------------------------------------------------
 # CLI surface
 # ---------------------------------------------------------------------------
 
