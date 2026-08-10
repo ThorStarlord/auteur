@@ -399,7 +399,9 @@ def test_record_value_yaml_safe():
 # ---------------------------------------------------------------------------
 
 def test_accept_records_resolved_anchors(tmp_path):
-    import shutil, subprocess, sys
+    import shutil
+    import subprocess
+    import sys
     proj = tmp_path / "p"
     proj.mkdir(parents=True)
     for name in ("story_identity.yaml", "blueprint.yaml"):
@@ -424,7 +426,9 @@ def test_accept_records_resolved_anchors(tmp_path):
 
 
 def test_evaluate_anchored_decision_exit0(tmp_path):
-    import shutil, subprocess, sys
+    import shutil
+    import subprocess
+    import sys
     proj = tmp_path / "p"
     proj.mkdir(parents=True)
     for name in ("story_identity.yaml", "blueprint.yaml"):

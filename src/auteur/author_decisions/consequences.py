@@ -384,7 +384,9 @@ def _probe_anchor(alt_id: str, anchor, ctx, identity, blueprint) -> list[Decisio
         for f in _probe_roster_slot(None, identity, blueprint, required=required,
                                     decision_ref=f"structural_anchors[{anchor.anchor_id}]"):
             d = f.model_dump()
-            d["scope"] = "alternative"; d["target"] = alt_id; d["discriminates"] = True
+            d["scope"] = "alternative"
+            d["target"] = alt_id
+            d["discriminates"] = True
             out.append(DecisionConsequence(**d))
     else:
         out.append(DecisionConsequence(
