@@ -175,7 +175,9 @@ def handle_accept(args) -> int:
                 {"anchor_id": ra.anchor_id, "kind": ra.kind.value,
                  "participants": [ref for _, ref in ra.participants],
                  "carrier_refs": [ref for _, ref in ra.carrier_refs],
-                 "bears_on": [{"ref": ref, "value": _record_value(value)} for ref, value in ra.bears_on]}
+                 "bears_on": [{"ref": ref, "value": _record_value(value),
+                              "nature": nature.value if nature else None}
+                             for ref, value, nature in ra.bears_on]}
                 for ra in ctx.resolved_anchors
             ],
             "combination_direction": ctx.combination_direction,
@@ -279,7 +281,8 @@ def handle_view(args) -> int:
                 "structural_anchors": [
                     {"anchor_id": a.anchor_id, "kind": a.kind.value,
                      "participants": a.participants, "carrier_refs": a.carrier_refs,
-                     "bears_on": [{"ref": b.ref, "relationship": b.relationship.value} for b in a.bears_on]}
+                     "bears_on": [{"ref": b.ref, "relationship": b.relationship.value,
+                                  "nature": b.nature.value if b.nature else None} for b in a.bears_on]}
                     for a in decision.structural_anchors
                 ],
                 "combination_direction": decision.combination_direction,
@@ -305,7 +308,9 @@ def handle_view(args) -> int:
                         {"anchor_id": ra.anchor_id, "kind": ra.kind.value,
                          "participants": [ref for _, ref in ra.participants],
                          "carrier_refs": [ref for _, ref in ra.carrier_refs],
-                         "bears_on": [{"ref": ref, "value": value} for ref, value in ra.bears_on]}
+                         "bears_on": [{"ref": ref, "value": _record_value(value),
+                                       "nature": nature.value if nature else None}
+                                      for ref, value, nature in ra.bears_on]}
                         for ra in ctx.resolved_anchors
                     ],
                     "combination_direction": ctx.combination_direction,
@@ -391,6 +396,15 @@ def _render_consequences(c: dict) -> None:
     for a in c.get("alternatives", []):
         for f in a.get("findings", []):
             print(f"  [{f['severity']}] ({f['probe_id']}) {f['message']}")
+    for combo in c.get("combinations", []):
+        kept = combo.get("kept")
+        cut = combo.get("cut")
+        line = f"  combination {combo['combination']}"
+        if kept is not None and cut is not None:
+            line += f" (kept: {kept}, cut: {cut})"
+        print(line)
+        for f in combo.get("findings", []):
+            print(f"    [{f['severity']}] ({f['probe_id']}) {f['message']}")
     print("No consequence implies a recommendation; alternatives are not ranked.")
 
 

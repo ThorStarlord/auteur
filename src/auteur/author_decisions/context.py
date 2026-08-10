@@ -60,7 +60,7 @@ class ResolvedAnchor:
         self.kind = kind
         self.participants = participants          # [(resolved entity, ref)]
         self.carrier_refs = carrier_refs          # [(resolved entity, ref)]
-        self.bears_on = bears_on                  # [(ref, resolved value)]
+        self.bears_on = bears_on                  # [(ref, resolved value, nature|None)]
 
 
 class DecisionContext:
@@ -318,7 +318,7 @@ def build_decision_context(
                     f"target category the consumer cannot render; bears_on requires "
                     f"scalar/constraint-like values"
                 )
-            bears_on.append((b.ref, value))
+            bears_on.append((b.ref, value, b.nature))
         resolved_anchors.append(ResolvedAnchor(a.anchor_id, a.kind, participants, carriers, bears_on))
 
     return DecisionContext(
