@@ -52,7 +52,8 @@ def test_github_actions_runs_standard_check_command() -> None:
 def test_readme_documents_ci_standard_check_command() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
 
-    assert "CI runs the same verification entrypoint: `python scripts/check.py`." in readme
+    assert "CI runs the same verification entrypoint" in readme
+    assert "python scripts/check.py --skip-pytest" in readme
 
 
 def test_regressions_yaml_exists() -> None:

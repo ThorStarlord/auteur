@@ -28,6 +28,9 @@ jobs:
       - name: Run test suite
         run: python -m pytest -q --tb=short
 
+      - name: Run verification stack (validators, repo checks, ruff)
+        run: python scripts/check.py --skip-pytest
+
   wheel-smoke:
     name: "wheel smoke test"
     runs-on: ubuntu-latest

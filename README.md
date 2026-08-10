@@ -338,7 +338,8 @@ python -m pytest
 python scripts/check.py
 ```
 
-CI runs the same verification entrypoint: `python scripts/check.py`.
+CI runs the same verification entrypoint — `python scripts/check.py --skip-pytest` —
+plus the pytest matrix and a wheel smoke, in `.github/workflows/validation.yml`.
 
 The manual real-LLM smoke script is not part of pytest because it spends real tokens:
 
