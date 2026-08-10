@@ -178,6 +178,24 @@ def test_composed_consequences_kept_forms():
                for f in kept_both["findings"])
 
 
+def test_composed_consequences_direction_cut():
+    """direction=cut inverts the composition: combo members are CUT (remove),
+    the complement is KEPT (preserve)."""
+    data = _yaml.safe_load((CASE_E / "salt-of-the-earth-subplot-cut-with-nature.yaml").read_text(encoding="utf-8"))
+    data["combination_direction"] = "cut"
+    cons = ctx_for(AuthorDecision.from_dict(data), CASE_E).build_report()["consequences"]
+    by_members = {tuple(c["combination"]): c for c in cons["combinations"]}
+    cut_both = by_members[("anders_debt", "marta_pregnancy")]
+    assert any("cut alternative anders_debt removes its declared pressuring relationship to "
+               "blueprint.contract.mandatory_ending_tone = bittersweet" in f["message"]
+               for f in cut_both["findings"])
+    assert any("cut alternative marta_pregnancy removes its declared sustaining relationship to "
+               "blueprint.contract.mandatory_ending_tone = bittersweet" in f["message"]
+               for f in cut_both["findings"])
+    # kept complement (signe) has no authored nature -> no composed consequence
+    assert not any("preserves its declared" in f["message"] for f in cut_both["findings"])
+
+
 def test_no_direction_no_composition():
     """Nature echoes at relationship level only when direction is absent."""
     data = _yaml.safe_load((CASE_E / "salt-of-the-earth-subplot-cut-with-nature.yaml").read_text(encoding="utf-8"))

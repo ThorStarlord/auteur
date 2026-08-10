@@ -281,7 +281,8 @@ def handle_view(args) -> int:
                 "structural_anchors": [
                     {"anchor_id": a.anchor_id, "kind": a.kind.value,
                      "participants": a.participants, "carrier_refs": a.carrier_refs,
-                     "bears_on": [{"ref": b.ref, "relationship": b.relationship.value} for b in a.bears_on]}
+                     "bears_on": [{"ref": b.ref, "relationship": b.relationship.value,
+                                  "nature": b.nature.value if b.nature else None} for b in a.bears_on]}
                     for a in decision.structural_anchors
                 ],
                 "combination_direction": decision.combination_direction,
