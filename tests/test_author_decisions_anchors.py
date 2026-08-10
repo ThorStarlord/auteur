@@ -179,6 +179,36 @@ def test_anchor_ref_stable_under_reorder():
     assert rb.entity.participants == ["identity.characters[0]"]
 
 
+def test_positional_anchor_ref_rejected():
+    """R2.1: structural_anchors[N] positional refs are rejected — anchor
+    identity is the anchor_id only."""
+    data = base_e_dict()
+    data["structural_anchors"] = [{"anchor_id": "a", "participants": []}]
+    data["alternative_bindings"] = [
+        {"alternative_id": "signe_marriage",
+         "references": [{"entity_ref": "decision.structural_anchors[0]"}]},
+    ]
+    with pytest.raises(DecisionValidationError, match="positional"):
+        ctx_for(AuthorDecision.from_dict(data), CASE_E)
+
+
+def test_carrier_positive_path_thread_accepted():
+    """R2.2 positive path: a thread-like carrier resolves and is reported
+    per-alternative when the anchor is bound."""
+    data = base_e_dict()
+    data["structural_anchors"] = [
+        {"anchor_id": "a", "carrier_refs": ["blueprint.story_engine.threads[0]"]},
+    ]
+    data["alternative_bindings"] = [
+        {"alternative_id": "signe_marriage",
+         "references": [{"entity_ref": "decision.structural_anchors[id=a]"}]},
+    ]
+    dec = AuthorDecision.from_dict(data)
+    cons = ctx_for(dec, CASE_E).build_report()["consequences"]
+    per_alt = {a["alternative_id"]: a["findings"] for a in cons["alternatives"]}
+    assert any("carried by" in f["message"] for f in per_alt["signe_marriage"])
+
+
 def test_unknown_anchor_id_ref_fails_closed():
     data = base_e_dict()
     data["structural_anchors"] = [{"anchor_id": "a", "participants": []}]
@@ -333,7 +363,7 @@ def test_empty_anchor_fields_absence_semantics():
     ]
     data["alternative_bindings"] = [
         {"alternative_id": "signe_marriage",
-         "references": [{"entity_ref": "decision.structural_anchors[0]"}]},
+         "references": [{"entity_ref": "decision.structural_anchors[id=empty_anchor]"}]},
     ]
     dec = AuthorDecision.from_dict(data)
     cons = ctx_for(dec, CASE_E).build_report()["consequences"]

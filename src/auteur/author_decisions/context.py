@@ -211,6 +211,14 @@ def _resolve_entity_ref(identity: StoryIdentity, blueprint: StoryBlueprint, enti
                     )
                 obj = matches[0]
             else:
+                # R2.1: positional indices are forbidden for decision-local
+                # structural anchors — semantic identity is the anchor_id only
+                if root_name == "decision" and name == "structural_anchors":
+                    raise DecisionValidationError(
+                        f"positional structural_anchors ref is not allowed: "
+                        f"{entity_ref!r}; reference anchors by "
+                        f"decision.structural_anchors[id=<anchor_id>]"
+                    )
                 # strict grammar: ASCII decimal digits only — int() would
                 # otherwise accept [-1] (binds the LAST entity silently),
                 # [ 1], [+1], [1_0]; unicode digits must not reach int()
