@@ -8,6 +8,7 @@ level (anti-creep rule from the approved design).
 """
 from __future__ import annotations
 
+import enum
 import re
 from pathlib import Path
 from typing import Any, Literal
@@ -92,6 +93,34 @@ class DefaultReference(BaseModel):
     relationship: str = "conflicts_with"
 
 
+class EntityReferenceKind(str, enum.Enum):
+    """Accepted relationship vocabulary (design rev 2, binding): EXACTLY two
+    values, both with defined shipped consumer semantics. requires/preserves
+    are deferred candidates, NOT schema values: Auteur must not accept authored
+    semantic declarations that are silently inert."""
+
+    concerns = "concerns"
+    conflicts_with = "conflicts_with"
+
+
+class EntityReference(BaseModel):
+    """One explicit authored alternative->entity link (M1)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_ref: str  # exact field-path ref, roots identity|blueprint (Q4)
+    relationship: EntityReferenceKind = EntityReferenceKind.concerns
+
+
+class AlternativeBinding(BaseModel):
+    """Bindings authored directly on one alternative (M1)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    alternative_id: str
+    references: list[EntityReference] = Field(min_length=1)
+
+
 class AuthorDecision(BaseModel):
     """Authored, validated author decision artifact (YAML)."""
 
@@ -106,6 +135,7 @@ class AuthorDecision(BaseModel):
     required_characters: list[RequiredCharacter] = Field(default_factory=list)
     blocked_provenance: BlockedProvenance = Field(default_factory=BlockedProvenance)
     default_references: list[DefaultReference] = Field(default_factory=list)
+    alternative_bindings: list[AlternativeBinding] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def _validate_semantics(self) -> "AuthorDecision":
@@ -133,7 +163,38 @@ class AuthorDecision(BaseModel):
         validate_decision_id(self.decision_id)  # F1: path safety at the model boundary
         if self.combination.rule == "one_of" and self.combination.k is not None:
             raise DecisionValidationError("one_of must not carry k")
+        self._validate_bindings()
         return self
+
+    def _validate_bindings(self) -> None:
+        """M1 schema integrity (design Q8): unknown alternative_id, duplicate
+        blocks, duplicate identical references, and conflicting relationship
+        declarations all fail closed; no merge is performed."""
+        alt_ids = set(self.alternative_ids)
+        seen_blocks: set[str] = set()
+        for b in self.alternative_bindings:
+            if b.alternative_id not in alt_ids:
+                raise DecisionValidationError(
+                    f"binding references unknown alternative_id: {b.alternative_id!r}"
+                )
+            if b.alternative_id in seen_blocks:
+                raise DecisionValidationError(
+                    f"duplicate binding block for alternative: {b.alternative_id!r}"
+                )
+            seen_blocks.add(b.alternative_id)
+            declared: dict[str, EntityReferenceKind] = {}
+            for r in b.references:
+                if r.entity_ref in declared:
+                    if declared[r.entity_ref] == r.relationship:
+                        raise DecisionValidationError(
+                            f"duplicate identical reference in binding for "
+                            f"{b.alternative_id!r}: {r.entity_ref}"
+                        )
+                    raise DecisionValidationError(
+                        f"conflicting relationship declarations for "
+                        f"{b.alternative_id!r} / {r.entity_ref}"
+                    )
+                declared[r.entity_ref] = r.relationship
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "AuthorDecision":

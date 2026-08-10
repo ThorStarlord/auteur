@@ -115,6 +115,7 @@ def handle_create(args) -> int:
             "required_characters": [],
             "blocked_provenance": {"outcome_refs": []},
             "default_references": [],
+            "alternative_bindings": [],
         }
         AuthorDecision.from_dict(data)  # schema sanity: round-trips or fails
         store.atomic_write_yaml(out, data)
@@ -153,6 +154,11 @@ def handle_accept(args) -> int:
             "resolved_constraints": [{"ref": c.ref, "text": c.text} for c in ctx.constraints],
             "blocked_provenance": {"expected": ctx.blocked_count, "verified": ctx.blocked_provenance_verified},
             "resolved_defaults": ctx.resolved_defaults,
+            "resolved_bindings": [
+                {"alternative_id": rb.alternative_id, "entity_ref": rb.entity_ref,
+                 "relationship": rb.relationship.value}
+                for rb in ctx.resolved_bindings
+            ],
         }
         if args.json:
             print(_yaml.safe_dump(summary, sort_keys=False))
@@ -176,6 +182,7 @@ def handle_accept(args) -> int:
             blocked_count=ctx.blocked_count,
             blocked_provenance_verified=ctx.blocked_provenance_verified,
             resolved_defaults=ctx.resolved_defaults,
+            resolved_bindings=summary["resolved_bindings"],
         )
         print(f"Accepted (provenance recorded): {store.acceptance_path(args.project, decision.decision_id)}")
         return 0
@@ -242,6 +249,11 @@ def handle_view(args) -> int:
                 "required_characters": [c.model_dump() for c in decision.required_characters],
                 "blocked_provenance": [r.model_dump() for r in decision.blocked_provenance.outcome_refs],
                 "default_references": [r.model_dump() for r in decision.default_references],
+                "alternative_bindings": [
+                    {"alternative_id": b.alternative_id,
+                     "references": [r.model_dump() for r in b.references]}
+                    for b in decision.alternative_bindings
+                ],
             },
             "resolved": None,
             "acceptance": None,
@@ -255,6 +267,11 @@ def handle_view(args) -> int:
                     "constraints": [{"ref": c.ref, "text": c.text} for c in ctx.constraints],
                     "blocked_provenance": {"expected": ctx.blocked_count, "verified": ctx.blocked_provenance_verified},
                     "resolved_defaults": ctx.resolved_defaults,
+                    "resolved_bindings": [
+                        {"alternative_id": rb.alternative_id, "entity_ref": rb.entity_ref,
+                         "relationship": rb.relationship.value}
+                        for rb in ctx.resolved_bindings
+                    ],
                 }
             except (DecisionValidationError, FileNotFoundError) as exc:
                 out["resolved"] = {"error": str(exc)}
@@ -284,6 +301,7 @@ def handle_view(args) -> int:
             print(f"Combination: {out['authored']['combination']}")
             print(f"Criterion: {out['authored']['criterion']}")
             print(f"Constraint refs (authored): {[c['ref'] for c in out['authored']['hard_constraints']]}")
+            print(f"Alternative bindings (authored): {[(b['alternative_id'], [(r['entity_ref'], r['relationship']) for r in b['references']]) for b in out['authored']['alternative_bindings']]}")
             if out["resolved"] is not None:
                 print(f"=== RESOLVED ===")
                 if "error" in out["resolved"]:
@@ -292,6 +310,7 @@ def handle_view(args) -> int:
                     print(f"constraints: {len(out['resolved']['constraints'])} resolved verbatim")
                     print(f"blocked provenance: {out['resolved']['blocked_provenance']}")
                     print(f"product defaults: {out['resolved']['resolved_defaults']}")
+                    print(f"resolved bindings: {[(r['alternative_id'], r['entity_ref'], r['relationship']) for r in out['resolved']['resolved_bindings']]}")
             else:
                 print("=== RESOLVED: not shown (pass --identity/--blueprint) ===")
             if out["acceptance"] is not None:
