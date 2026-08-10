@@ -41,3 +41,45 @@ reports/
 
 # Machine-specific local settings (proxy URLs, personal config)
 **/.claude/settings.local.json
+
+# Local qualification artifacts (pytest logs/XML, rejected-outcome and
+# emotional-target runs) -- previously local-only in .git/info/exclude
+/pytest-rejected-outcomes-parallel.log
+/pytest-rejected-outcomes-parallel.xml
+/pytest-rejected-outcomes-serial.log
+/pytest-rejected-outcomes-serial.xml
+/qualification-rejected-collect.txt
+/pytest-emotional-targets-collect.txt
+/pytest-emotional-targets-parallel.log
+/pytest-emotional-targets-parallel.xml
+/pytest-emotional-targets-serial.log
+/pytest-emotional-targets-serial.xml
+/pytest-emotional-targets-serial-retry.log
+/pytest-emotional-targets-serial-retry.xml
+/.qualification-emotional/
+/pytest-cartographer-profile-emotions-collect-serial.txt
+/pytest-cartographer-profile-emotions-collect-parallel.txt
+/pytest-cartographer-profile-emotions-serial.log
+/pytest-cartographer-profile-emotions-serial.xml
+/pytest-cartographer-profile-emotions-parallel.log
+/pytest-cartographer-profile-emotions-parallel.xml
+/pytest-cartographer-profile-emotions-baseline-serial.log
+/pytest-cartographer-profile-emotions-baseline-serial.xml
+/pytest-cartographer-profile-emotions-serial-rerun1.log
+/pytest-cartographer-profile-emotions-serial-rerun1.xml
+/pytest-cartographer-profile-emotions-serial-A.log
+/pytest-cartographer-profile-emotions-serial-A.xml
+/pytest-cartographer-profile-emotions-serial-B.log
+/pytest-cartographer-profile-emotions-serial-B.xml
+/pytest-cartographer-postmerge-serial.log
+/pytest-cartographer-postmerge-serial.xml
+/pytest-cartographer-postmerge-parallel.log
+/pytest-cartographer-postmerge-parallel.xml
+/pytest-cartographer-replay-collect-serial.txt
+/pytest-cartographer-replay-collect-parallel.txt
+/pytest-cartographer-replay-serial.log
+/pytest-cartographer-replay-serial.xml
+/pytest-cartographer-replay-parallel.log
+/pytest-cartographer-replay-parallel.xml
+/.local/evaluations/cartographer/
+/.local/evaluations/cartographer-agent-pilot/
