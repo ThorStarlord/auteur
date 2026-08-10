@@ -56,6 +56,7 @@
       command: validate-output.py workflow_orchestration_plan
       result: PASSED
 - **gate**: review_orchestration_plan
+- gate_result: approved_by_user
 - **status**: COMPLETED
 
 ## Decisions & Overrides
