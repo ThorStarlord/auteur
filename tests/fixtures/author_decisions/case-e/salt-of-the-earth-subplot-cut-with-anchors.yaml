@@ -51,13 +51,13 @@ default_references:
 alternative_bindings:
   - alternative_id: anders_debt
     references:
-      - {entity_ref: 'decision.structural_anchors[0]', relationship: concerns}
+      - {entity_ref: 'decision.structural_anchors[id=anders_debt]', relationship: concerns}
   - alternative_id: marta_pregnancy
     references:
-      - {entity_ref: 'decision.structural_anchors[1]', relationship: concerns}
+      - {entity_ref: 'decision.structural_anchors[id=marta_pregnancy]', relationship: concerns}
   - alternative_id: signe_marriage
     references:
-      - {entity_ref: 'decision.structural_anchors[2]', relationship: concerns}
+      - {entity_ref: 'decision.structural_anchors[id=signe_marriage]', relationship: concerns}
 structural_anchors:
   - anchor_id: anders_debt
     kind: subplot

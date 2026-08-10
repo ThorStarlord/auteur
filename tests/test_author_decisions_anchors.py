@@ -155,9 +155,52 @@ def test_decision_root_resolves_anchor():
     dec = AuthorDecision.from_yaml(CASE_E / "salt-of-the-earth-subplot-cut-with-anchors.yaml")
     ctx = ctx_for(dec, CASE_E)
     rb = {r.alternative_id: r for r in ctx.resolved_bindings}
-    # bindings in the anchored fixture target anchors via the decision root
-    assert rb["signe_marriage"].entity_ref == "decision.structural_anchors[2]"
+    # bindings in the anchored fixture target anchors via stable anchor_id
+    assert rb["signe_marriage"].entity_ref == "decision.structural_anchors[id=signe_marriage]"
     assert rb["signe_marriage"].entity.anchor_id == "signe_marriage"
+
+
+def test_anchor_ref_stable_under_reorder():
+    """R2.1: reordering anchors must not change what a stable anchor_id ref
+    resolves to."""
+    data = base_e_dict()
+    data["structural_anchors"] = [
+        {"anchor_id": "marta_pregnancy", "participants": ["identity.characters[2]"]},
+        {"anchor_id": "signe_marriage", "participants": ["identity.characters[0]"]},
+        {"anchor_id": "anders_debt", "participants": ["identity.characters[1]"]},
+    ]
+    data["alternative_bindings"] = [
+        {"alternative_id": "signe_marriage",
+         "references": [{"entity_ref": "decision.structural_anchors[id=signe_marriage]"}]},
+    ]
+    ctx = ctx_for(AuthorDecision.from_dict(data), CASE_E)
+    rb = ctx.resolved_bindings[0]
+    assert rb.entity.anchor_id == "signe_marriage"
+    assert rb.entity.participants == ["identity.characters[0]"]
+
+
+def test_unknown_anchor_id_ref_fails_closed():
+    data = base_e_dict()
+    data["structural_anchors"] = [{"anchor_id": "a", "participants": []}]
+    data["alternative_bindings"] = [
+        {"alternative_id": "signe_marriage",
+         "references": [{"entity_ref": "decision.structural_anchors[id=no_such]"}]},
+    ]
+    with pytest.raises(DecisionValidationError, match="unknown anchor_id"):
+        ctx_for(AuthorDecision.from_dict(data), CASE_E)
+
+
+def test_anchor_id_ref_never_falls_back_to_names():
+    """R2.1: the anchor_id lookup is exact-id-only; a character named like the
+    anchor must not resolve in its place."""
+    data = base_e_dict()
+    data["structural_anchors"] = [{"anchor_id": "a", "participants": []}]
+    data["alternative_bindings"] = [
+        {"alternative_id": "signe_marriage",
+         "references": [{"entity_ref": "decision.structural_anchors[id=Signe]"}]},
+    ]
+    with pytest.raises(DecisionValidationError, match="unknown anchor_id"):
+        ctx_for(AuthorDecision.from_dict(data), CASE_E)
 
 
 def test_unresolvable_anchor_ref_fails_closed():
@@ -172,6 +215,39 @@ def test_unresolvable_anchor_ref_fails_closed():
     data = base_e_dict()
     data["structural_anchors"] = [{"anchor_id": "a", "bears_on": [{"ref": "blueprint.no_such"}]}]
     with pytest.raises(DecisionValidationError):
+        ctx_for(AuthorDecision.from_dict(data), CASE_E)
+
+
+def test_participants_semantic_type_rejected():
+    """R2.2: participants must be character entities; a scalar/contract value
+    fails closed instead of becoming an accepted meaningless relationship."""
+    data = base_e_dict()
+    data["structural_anchors"] = [
+        {"anchor_id": "a", "participants": ["blueprint.contract.mandatory_ending_tone"]},
+    ]
+    with pytest.raises(DecisionValidationError, match="non-character"):
+        ctx_for(AuthorDecision.from_dict(data), CASE_E)
+
+
+def test_carrier_semantic_type_rejected():
+    """R2.2: carrier_refs must be thread-like carriers; an identity character
+    fails closed."""
+    data = base_e_dict()
+    data["structural_anchors"] = [
+        {"anchor_id": "a", "carrier_refs": ["identity.characters[0]"]},
+    ]
+    with pytest.raises(DecisionValidationError, match="non-thread"):
+        ctx_for(AuthorDecision.from_dict(data), CASE_E)
+
+
+def test_bears_on_semantic_type_rejected():
+    """R2.2: bears_on must resolve to scalar/constraint-like values the
+    consumer can render; an entity (character) fails closed."""
+    data = base_e_dict()
+    data["structural_anchors"] = [
+        {"anchor_id": "a", "bears_on": [{"ref": "blueprint.characters[0]"}]},
+    ]
+    with pytest.raises(DecisionValidationError, match="cannot render"):
         ctx_for(AuthorDecision.from_dict(data), CASE_E)
 
 
@@ -206,10 +282,33 @@ def test_case_e_anchored_golden():
     assert by_members[("marta_pregnancy", "signe_marriage")]["cut"] == ["anders_debt"]
 
 
+def test_case_e_anchored_golden_direction_cut():
+    """R2.3: direction=cut -> members CUT, complement KEPT."""
+    data = _yaml.safe_load((CASE_E / "salt-of-the-earth-subplot-cut-with-anchors.yaml").read_text(encoding="utf-8"))
+    data["combination_direction"] = "cut"
+    dec = AuthorDecision.from_dict(data)
+    cons = ctx_for(dec, CASE_E).build_report()["consequences"]
+    by_members = {tuple(c["combination"]): c for c in cons["combinations"]}
+    assert by_members[("anders_debt", "marta_pregnancy")]["cut"] == ["anders_debt", "marta_pregnancy"]
+    assert by_members[("anders_debt", "marta_pregnancy")]["kept"] == ["signe_marriage"]
+    assert by_members[("marta_pregnancy", "signe_marriage")]["cut"] == ["marta_pregnancy", "signe_marriage"]
+
+
 def test_direction_absent_membership_unspecified():
     dec = AuthorDecision.from_yaml(CASE_E / "salt-of-the-earth-subplot-cut.yaml")
     cons = ctx_for(dec, CASE_E).build_report()["consequences"]
     assert any("keep/cut interpretation is unspecified" in o["message"] for o in cons["observations"])
+
+
+def test_question_wording_never_infers_direction():
+    """R2.3: the frozen question says "which subplot must be cut" but the
+    artifact has no combination_direction -> membership only, no inference,
+    no kept/cut keys in combinations."""
+    dec = AuthorDecision.from_yaml(CASE_E / "salt-of-the-earth-subplot-cut.yaml")
+    cons = ctx_for(dec, CASE_E).build_report()["consequences"]
+    assert any("keep/cut interpretation is unspecified" in o["message"] for o in cons["observations"])
+    for c in cons["combinations"]:
+        assert "kept" not in c and "cut" not in c
 
 
 def test_case_d_no_op_control():

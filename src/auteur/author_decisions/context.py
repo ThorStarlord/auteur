@@ -15,6 +15,7 @@ from typing import Any
 from auteur.author_decisions.models import (
     AuthorDecision,
     DecisionValidationError,
+    _DECISION_ID_RE,
 )
 from auteur.blueprint import StoryBlueprint
 from auteur.identity import StoryIdentity
@@ -136,6 +137,31 @@ def _resolve_default(blueprint: StoryBlueprint, default_id: str) -> Any:
     return obj
 
 
+def _is_character_entity(entity) -> bool:
+    """Semantic target category for anchor participants: identity or blueprint
+    character entities (named entities with a role field)."""
+    return hasattr(entity, "name") and (hasattr(entity, "structural_role") or hasattr(entity, "role"))
+
+
+def _is_thread_entity(entity) -> bool:
+    """Semantic target category for anchor carrier_refs: thread-like structural
+    carriers (entities exposing the shipped StoryThread structure fields)."""
+    return all(hasattr(entity, f) for f in ("want", "resistance", "conflict", "stakes", "change"))
+
+
+def _is_scalar_value(value) -> bool:
+    """Semantic target category for anchor bears_on: scalar/constraint-like
+    values the consumer can render — str/int/float/bool, enums with a scalar
+    value, or lists of strings. Entities (models, characters) are NOT scalar."""
+    if isinstance(value, (str, int, float, bool)):
+        return True
+    if isinstance(value, list):
+        return all(isinstance(x, str) for x in value)
+    if hasattr(value, "value"):
+        return isinstance(getattr(value, "value"), (str, int, float, bool))
+    return False
+
+
 def _resolve_entity_ref(identity: StoryIdentity, blueprint: StoryBlueprint, entity_ref: str,
                          decision=None) -> Any:
     """Exact field-path resolution for M1 bindings and B4 anchors (design Q3/Q4).
@@ -165,22 +191,45 @@ def _resolve_entity_ref(identity: StoryIdentity, blueprint: StoryBlueprint, enti
                 raise DecisionValidationError(f"malformed entity_ref: {entity_ref!r}")
             name, _, span = part.partition("[")
             span = span[:-1]
-            # strict grammar: ASCII decimal digits only — int() would otherwise
-            # accept [-1] (binds the LAST entity silently), [ 1], [+1], [1_0];
-            # unicode digits (e.g. superscripts) must not reach int() untyped
-            if not span or not span.isascii() or not span.isdigit():
-                raise DecisionValidationError(f"malformed entity_ref index: {entity_ref!r}")
-            idx = int(span)
-            part = name
-        obj = getattr(obj, part, None)
-        if obj is None:
-            raise DecisionValidationError(f"unresolvable entity_ref: {entity_ref!r}")
-        if idx is not None:
-            if not isinstance(obj, (list, tuple)) or idx >= len(obj):
-                raise DecisionValidationError(
-                    f"entity_ref index out of range: {entity_ref!r}"
-                )
-            obj = obj[idx]
+            if span.startswith("id="):
+                # R2.1 stable named lookup: find the list element whose
+                # anchor_id equals the authored id. NO name/label/prose
+                # matching — identity is the explicit id only.
+                target_id = span[3:]
+                if not target_id or not _DECISION_ID_RE.fullmatch(target_id):
+                    raise DecisionValidationError(
+                        f"malformed anchor id in entity_ref: {entity_ref!r}"
+                    )
+                part = name
+                obj = getattr(obj, part, None)
+                if not isinstance(obj, (list, tuple)):
+                    raise DecisionValidationError(f"unresolvable entity_ref: {entity_ref!r}")
+                matches = [e for e in obj if getattr(e, "anchor_id", None) == target_id]
+                if not matches:
+                    raise DecisionValidationError(
+                        f"unknown anchor_id in entity_ref: {entity_ref!r}"
+                    )
+                obj = matches[0]
+            else:
+                # strict grammar: ASCII decimal digits only — int() would
+                # otherwise accept [-1] (binds the LAST entity silently),
+                # [ 1], [+1], [1_0]; unicode digits must not reach int()
+                if not span or not span.isascii() or not span.isdigit():
+                    raise DecisionValidationError(f"malformed entity_ref index: {entity_ref!r}")
+                idx = int(span)
+                part = name
+                obj = getattr(obj, part, None)
+                if obj is None:
+                    raise DecisionValidationError(f"unresolvable entity_ref: {entity_ref!r}")
+                if not isinstance(obj, (list, tuple)) or idx >= len(obj):
+                    raise DecisionValidationError(
+                        f"entity_ref index out of range: {entity_ref!r}"
+                    )
+                obj = obj[idx]
+        else:
+            obj = getattr(obj, part, None)
+            if obj is None:
+                raise DecisionValidationError(f"unresolvable entity_ref: {entity_ref!r}")
     return obj
 
 
@@ -235,14 +284,32 @@ def build_decision_context(
     for a in decision.structural_anchors:
         participants = []
         for ref in a.participants:
-            participants.append((_resolve_entity_ref(identity, blueprint, ref, decision), ref))
+            entity = _resolve_entity_ref(identity, blueprint, ref, decision)
+            if not _is_character_entity(entity):
+                raise DecisionValidationError(
+                    f"anchor {a.anchor_id!r} participant ref {ref!r} resolves to a "
+                    f"non-character target; participants require character entities"
+                )
+            participants.append((entity, ref))
         carriers = []
         for ref in a.carrier_refs:
-            carriers.append((_resolve_entity_ref(identity, blueprint, ref, decision), ref))
+            entity = _resolve_entity_ref(identity, blueprint, ref, decision)
+            if not _is_thread_entity(entity):
+                raise DecisionValidationError(
+                    f"anchor {a.anchor_id!r} carrier ref {ref!r} resolves to a "
+                    f"non-thread target; carrier_refs require thread-like carriers"
+                )
+            carriers.append((entity, ref))
         bears_on = []
         for b in a.bears_on:
             value = _resolve_entity_ref(identity, blueprint, b.ref, decision)
             value = getattr(value, "value", value)
+            if not _is_scalar_value(value):
+                raise DecisionValidationError(
+                    f"anchor {a.anchor_id!r} bears_on ref {b.ref!r} resolves to a "
+                    f"target category the consumer cannot render; bears_on requires "
+                    f"scalar/constraint-like values"
+                )
             bears_on.append((b.ref, value))
         resolved_anchors.append(ResolvedAnchor(a.anchor_id, a.kind, participants, carriers, bears_on))
 
