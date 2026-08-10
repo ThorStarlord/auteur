@@ -46,6 +46,22 @@ class ResolvedBinding:
         self.entity = entity
 
 
+class ResolvedAnchor:
+    """One resolved B4 structural anchor: verbatim anchor identity plus
+    resolved participants / carriers / bears_on values. Resolution is exact
+    and fail-closed; the consumer derives consequences FROM these, never
+    creates them."""
+
+    __slots__ = ("anchor_id", "kind", "participants", "carrier_refs", "bears_on")
+
+    def __init__(self, anchor_id: str, kind, participants: list, carrier_refs: list, bears_on: list) -> None:
+        self.anchor_id = anchor_id
+        self.kind = kind
+        self.participants = participants          # [(resolved entity, ref)]
+        self.carrier_refs = carrier_refs          # [(resolved entity, ref)]
+        self.bears_on = bears_on                  # [(ref, resolved value)]
+
+
 class DecisionContext:
     """The thin resolved context; carries only what the decision references."""
 
@@ -59,6 +75,8 @@ class DecisionContext:
         identity: Any = None,
         blueprint: Any = None,
         resolved_bindings: list[ResolvedBinding] | None = None,
+        resolved_anchors: list[ResolvedAnchor] | None = None,
+        combination_direction: str | None = None,
     ) -> None:
         self.decision = decision
         self.constraints = constraints
@@ -70,6 +88,8 @@ class DecisionContext:
         self.identity = identity
         self.blueprint = blueprint
         self.resolved_bindings = resolved_bindings or []
+        self.resolved_anchors = resolved_anchors or []
+        self.combination_direction = combination_direction
 
     @property
     def alternative_labels(self) -> list[str]:
@@ -116,20 +136,27 @@ def _resolve_default(blueprint: StoryBlueprint, default_id: str) -> Any:
     return obj
 
 
-def _resolve_entity_ref(identity: StoryIdentity, blueprint: StoryBlueprint, entity_ref: str) -> Any:
-    """Exact field-path resolution for M1 bindings (design Q4).
+def _resolve_entity_ref(identity: StoryIdentity, blueprint: StoryBlueprint, entity_ref: str,
+                         decision=None) -> Any:
+    """Exact field-path resolution for M1 bindings and B4 anchors (design Q3/Q4).
 
-    Allowed roots: identity (Layer 1) and blueprint (Layer 2) ONLY. Grammar is
-    the shipped field-path form (e.g. identity.characters[0],
-    identity.characters[3].undergoes_central_change). Fail closed on any
-    unknown path, non-list index, malformed index, or out-of-range index.
+    Allowed roots: identity (Layer 1), blueprint (Layer 2), and decision (the
+    AuthorDecision artifact itself, B4). Grammar is the shipped field-path form
+    (e.g. identity.characters[0], decision.structural_anchors[0]). Fail closed
+    on any unknown path, non-list index, malformed index, or out-of-range
+    index. The shipped root-relative default-reference grammar is untouched.
     """
-    if entity_ref in ("identity", "blueprint") or entity_ref.startswith(("identity.", "blueprint.")) is False:
+    if entity_ref.startswith(("identity.", "blueprint.", "decision.")) is False:
         raise DecisionValidationError(
-            f"entity_ref must be a field path rooted at identity or blueprint: {entity_ref!r}"
+            f"entity_ref must be a field path rooted at identity, blueprint, or decision: {entity_ref!r}"
         )
     root_name, _, rest = entity_ref.partition(".")
-    root = identity if root_name == "identity" else blueprint
+    if root_name == "decision":
+        if decision is None:
+            raise DecisionValidationError(f"decision root unavailable: {entity_ref!r}")
+        root = decision
+    else:
+        root = identity if root_name == "identity" else blueprint
     obj: Any = root
     for part in rest.split("."):
         idx = None
@@ -201,8 +228,23 @@ def build_decision_context(
     resolved_bindings: list[ResolvedBinding] = []
     for b in decision.alternative_bindings:
         for r in b.references:
-            entity = _resolve_entity_ref(identity, blueprint, r.entity_ref)
+            entity = _resolve_entity_ref(identity, blueprint, r.entity_ref, decision)
             resolved_bindings.append(ResolvedBinding(b.alternative_id, r.entity_ref, r.relationship, entity))
+
+    resolved_anchors: list[ResolvedAnchor] = []
+    for a in decision.structural_anchors:
+        participants = []
+        for ref in a.participants:
+            participants.append((_resolve_entity_ref(identity, blueprint, ref, decision), ref))
+        carriers = []
+        for ref in a.carrier_refs:
+            carriers.append((_resolve_entity_ref(identity, blueprint, ref, decision), ref))
+        bears_on = []
+        for b in a.bears_on:
+            value = _resolve_entity_ref(identity, blueprint, b.ref, decision)
+            value = getattr(value, "value", value)
+            bears_on.append((b.ref, value))
+        resolved_anchors.append(ResolvedAnchor(a.anchor_id, a.kind, participants, carriers, bears_on))
 
     return DecisionContext(
         decision=decision,
@@ -213,4 +255,6 @@ def build_decision_context(
         identity=identity,
         blueprint=blueprint,
         resolved_bindings=resolved_bindings,
+        resolved_anchors=resolved_anchors,
+        combination_direction=decision.combination_direction,
     )

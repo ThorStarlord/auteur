@@ -115,6 +115,8 @@ def handle_create(args) -> int:
             "blocked_provenance": {"outcome_refs": []},
             "default_references": [],
             "alternative_bindings": [],
+            "structural_anchors": [],
+            "combination_direction": None,
         }
         AuthorDecision.from_dict(data)  # schema sanity: round-trips or fails
         store.atomic_write_yaml(out, data)
@@ -158,6 +160,14 @@ def handle_accept(args) -> int:
                  "relationship": rb.relationship.value}
                 for rb in ctx.resolved_bindings
             ],
+            "resolved_anchors": [
+                {"anchor_id": ra.anchor_id, "kind": ra.kind.value,
+                 "participants": [ref for _, ref in ra.participants],
+                 "carrier_refs": [ref for _, ref in ra.carrier_refs],
+                 "bears_on": [{"ref": ref, "value": value} for ref, value in ra.bears_on]}
+                for ra in ctx.resolved_anchors
+            ],
+            "combination_direction": ctx.combination_direction,
         }
         if args.json:
             print(_yaml.safe_dump(summary, sort_keys=False))
@@ -182,6 +192,8 @@ def handle_accept(args) -> int:
             blocked_provenance_verified=ctx.blocked_provenance_verified,
             resolved_defaults=ctx.resolved_defaults,
             resolved_bindings=summary["resolved_bindings"],
+            resolved_anchors=summary["resolved_anchors"],
+            combination_direction=summary["combination_direction"],
         )
         print(f"Accepted (provenance recorded): {store.acceptance_path(args.project, decision.decision_id)}")
         return 0
@@ -253,6 +265,13 @@ def handle_view(args) -> int:
                      "references": [r.model_dump() for r in b.references]}
                     for b in decision.alternative_bindings
                 ],
+                "structural_anchors": [
+                    {"anchor_id": a.anchor_id, "kind": a.kind.value,
+                     "participants": a.participants, "carrier_refs": a.carrier_refs,
+                     "bears_on": [{"ref": b.ref, "relationship": b.relationship.value} for b in a.bears_on]}
+                    for a in decision.structural_anchors
+                ],
+                "combination_direction": decision.combination_direction,
             },
             "resolved": None,
             "acceptance": None,
@@ -271,6 +290,14 @@ def handle_view(args) -> int:
                          "relationship": rb.relationship.value}
                         for rb in ctx.resolved_bindings
                     ],
+                    "resolved_anchors": [
+                        {"anchor_id": ra.anchor_id, "kind": ra.kind.value,
+                         "participants": [ref for _, ref in ra.participants],
+                         "carrier_refs": [ref for _, ref in ra.carrier_refs],
+                         "bears_on": [{"ref": ref, "value": value} for ref, value in ra.bears_on]}
+                        for ra in ctx.resolved_anchors
+                    ],
+                    "combination_direction": ctx.combination_direction,
                 }
             except (DecisionValidationError, FileNotFoundError) as exc:
                 out["resolved"] = {"error": str(exc)}
@@ -301,6 +328,8 @@ def handle_view(args) -> int:
             print(f"Criterion: {out['authored']['criterion']}")
             print(f"Constraint refs (authored): {[c['ref'] for c in out['authored']['hard_constraints']]}")
             print(f"Alternative bindings (authored): {[(b['alternative_id'], [(r['entity_ref'], r['relationship']) for r in b['references']]) for b in out['authored']['alternative_bindings']]}")
+            print(f"Structural anchors (authored): {[(a['anchor_id'], a['kind'], a['participants'], a['carrier_refs'], a['bears_on']) for a in out['authored']['structural_anchors']]}")
+            print(f"Combination direction (authored): {out['authored']['combination_direction']}")
             if out["resolved"] is not None:
                 print("=== RESOLVED ===")
                 if "error" in out["resolved"]:
@@ -310,6 +339,7 @@ def handle_view(args) -> int:
                     print(f"blocked provenance: {out['resolved']['blocked_provenance']}")
                     print(f"product defaults: {out['resolved']['resolved_defaults']}")
                     print(f"resolved bindings: {[(r['alternative_id'], r['entity_ref'], r['relationship']) for r in out['resolved']['resolved_bindings']]}")
+                    print(f"resolved anchors: {[(r['anchor_id'], r['participants'], r['bears_on']) for r in out['resolved']['resolved_anchors']]}")
             else:
                 print("=== RESOLVED: not shown (pass --identity/--blueprint) ===")
             if out["acceptance"] is not None:

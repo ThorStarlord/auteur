@@ -1,0 +1,80 @@
+﻿decision_id: salt-of-the-earth-subplot-cut
+unresolved_choice:
+  choice_id: salt-of-the-earth-subplot-cut
+  question: "Which subplot must be cut so the ending can stay ambiguous?"
+  options:
+    - "Anders' debt"
+    - "Marta's pregnancy"
+    - "Signe's marriage"
+alternative_ids:
+  - anders_debt
+  - marta_pregnancy
+  - signe_marriage
+combination:
+  rule: choose_k_of_n
+  k: 2
+criterion:
+  text: "Which cut best preserves the ambiguous/unresolved ending"
+  evaluator: author_or_consumer
+hard_constraints:
+  - ref: not_this[0]
+    snapshot: "a redemption arc for Halvor"
+  - ref: not_this[1]
+    snapshot: "violence"
+  - ref: not_this[2]
+    snapshot: "a tidy reconciliation of the family"
+  - ref: not_this[3]
+    snapshot: "a fully resolved ending (the land's fate decided and closed)"
+  - ref: rejected_directions[0]
+    snapshot: "A redemption or clarity arc for Halvor would violate the constraint that the father does not transform, apologize, or achieve clarity."
+  - ref: rejected_directions[1]
+    snapshot: "A warm family reconciliation ending would contradict the constraints that the ending remains ambiguous and the family does not unite tidily."
+  - ref: target_experience.avoid[0]
+    snapshot: "a tidy reconciliation"
+  - ref: target_experience.avoid[1]
+    snapshot: "a fully resolved ending"
+required_characters:
+  - name: Signe
+    standing: protagonist
+  - name: Anders
+    standing: null
+  - name: Marta
+    standing: null
+  - name: Halvor
+    standing: null
+blocked_provenance:
+  outcome_refs: []
+default_references:
+  - default_id: contract.mandatory_ending_tone
+    relates_to: not_this[3]
+    relationship: conflicts_with
+alternative_bindings:
+  - alternative_id: anders_debt
+    references:
+      - {entity_ref: 'decision.structural_anchors[0]', relationship: concerns}
+  - alternative_id: marta_pregnancy
+    references:
+      - {entity_ref: 'decision.structural_anchors[1]', relationship: concerns}
+  - alternative_id: signe_marriage
+    references:
+      - {entity_ref: 'decision.structural_anchors[2]', relationship: concerns}
+structural_anchors:
+  - anchor_id: anders_debt
+    kind: subplot
+    participants: ['identity.characters[1]']
+    carrier_refs: []
+    bears_on:
+      - {ref: 'blueprint.contract.mandatory_ending_tone', relationship: bears_on}
+  - anchor_id: marta_pregnancy
+    kind: subplot
+    participants: ['identity.characters[2]']
+    carrier_refs: []
+    bears_on:
+      - {ref: 'blueprint.contract.mandatory_ending_tone', relationship: bears_on}
+  - anchor_id: signe_marriage
+    kind: subplot
+    participants: ['identity.characters[0]']
+    carrier_refs: []
+    bears_on:
+      - {ref: 'blueprint.contract.mandatory_ending_tone', relationship: bears_on}
+combination_direction: kept
