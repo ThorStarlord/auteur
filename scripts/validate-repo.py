@@ -1,7 +1,9 @@
 import os
-import yaml
-import sys
 import re
+import subprocess
+import sys
+
+import yaml
 
 def validate_repo():
     errors = []
@@ -335,8 +337,7 @@ def validate_repo():
                             content = file.read()
                             if "file:///" in content:
                                 errors.append(f"Example {f} in {root} contains absolute file:/// paths")
-                        
-                        import subprocess
+
                         # 8a. Validate orchestration plans
                         if "## 11. Machine-readable plan" in content:
                             cmd = [sys.executable, "scripts/validate-plan.py", path, "--repo-root", "."]
@@ -372,6 +373,21 @@ def validate_repo():
                             else:
                                 if res.returncode != 0:
                                     errors.append(f"Example plan {f} failed validation:\n{res.stdout}{res.stderr}")
+
+    # 9. Tracked filename sanity (private-use-area and non-ASCII chars defeat
+    #    gitignore globs and break cross-platform checkout).
+    try:
+        ls_files = subprocess.run(
+            ["git", "-c", "core.quotepath=false", "ls-files"], capture_output=True, text=True, check=True
+        ).stdout.splitlines()
+    except Exception as e:
+        errors.append(f"git ls-files failed: {e}")
+        ls_files = []
+    for name in ls_files:
+        try:
+            name.encode("ascii")
+        except UnicodeEncodeError:
+            errors.append(f"Non-ASCII tracked filename: {name!r}")
 
     if errors:
         print("Validation errors (repo is misaligned):")
