@@ -324,12 +324,13 @@ def _probe_entity_link(alt_id: str, bindings) -> list[DecisionConsequence]:
         summary = _entity_summary(rb.entity)
         severity = "warning" if rb.relationship.value == "conflicts_with" else "info"
         refs = ConsequenceRefs(decision=f"alternative_bindings[{alt_id}]")
+        # the decision slot is ARTIFACT provenance (the binding block);
+        # identity/blueprint slots hold the resolved entity path; decision-root
+        # entity paths stay verbatim in the message (no slot collision)
         if rb.entity_ref.startswith("identity."):
             refs.identity = rb.entity_ref
         elif rb.entity_ref.startswith("blueprint."):
             refs.blueprint = rb.entity_ref
-        else:
-            refs.decision = rb.entity_ref
         out.append(DecisionConsequence(
             probe_id="entity_link",
             severity=severity,
