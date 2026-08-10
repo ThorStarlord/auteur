@@ -121,6 +121,43 @@ class AlternativeBinding(BaseModel):
     references: list[EntityReference] = Field(min_length=1)
 
 
+class StructuralAnchorKind(str, enum.Enum):
+    """Minimal structural-kind vocabulary (B4 design Q1): ONLY the kind
+    justified by the Case E reasoning requirement."""
+
+    subplot = "subplot"
+
+
+class AnchorRelationshipKind(str, enum.Enum):
+    """Minimal anchor relationship vocabulary: ONLY bears_on in this slice."""
+
+    bears_on = "bears_on"
+
+
+class AnchorBearsOn(BaseModel):
+    """One explicit anchor->canonical relationship (e.g. a subplot bears on the
+    ending constraint)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    ref: str  # explicit-root ref (identity. / blueprint. / decision.)
+    relationship: AnchorRelationshipKind = AnchorRelationshipKind.bears_on
+
+
+class StructuralAnchor(BaseModel):
+    """Decision-scoped author context (B4): an explicit structural entity or
+    relationship the canonical story representation does not carry. NEVER
+    promoted into canonical Blueprint/Identity state."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    anchor_id: str
+    kind: StructuralAnchorKind = StructuralAnchorKind.subplot
+    participants: list[str] = Field(default_factory=list)  # explicit entity_refs
+    carrier_refs: list[str] = Field(default_factory=list)  # empty = not declared
+    bears_on: list[AnchorBearsOn] = Field(default_factory=list)
+
+
 class AuthorDecision(BaseModel):
     """Authored, validated author decision artifact (YAML)."""
 
@@ -136,6 +173,8 @@ class AuthorDecision(BaseModel):
     blocked_provenance: BlockedProvenance = Field(default_factory=BlockedProvenance)
     default_references: list[DefaultReference] = Field(default_factory=list)
     alternative_bindings: list[AlternativeBinding] = Field(default_factory=list)
+    structural_anchors: list[StructuralAnchor] = Field(default_factory=list)
+    combination_direction: Literal["kept", "cut"] | None = None
 
     @model_validator(mode="after")
     def _validate_semantics(self) -> "AuthorDecision":
@@ -164,7 +203,40 @@ class AuthorDecision(BaseModel):
         if self.combination.rule == "one_of" and self.combination.k is not None:
             raise DecisionValidationError("one_of must not carry k")
         self._validate_bindings()
+        self._validate_anchors()
         return self
+
+    def _validate_anchors(self) -> None:
+        """B4 schema integrity (design Q8): duplicate anchor ids, duplicate
+        refs within lists, and one_of+direction all fail closed."""
+        if self.combination_direction is not None and self.combination.rule != "choose_k_of_n":
+            raise DecisionValidationError(
+                "combination_direction requires combination rule choose_k_of_n"
+            )
+        seen: set[str] = set()
+        for a in self.structural_anchors:
+            if not _DECISION_ID_RE.fullmatch(a.anchor_id):
+                raise DecisionValidationError(
+                    f"invalid anchor_id {a.anchor_id!r}: must match {_DECISION_ID_RE.pattern}"
+                )
+            if a.anchor_id in seen:
+                raise DecisionValidationError(
+                    f"duplicate anchor_id: {a.anchor_id!r}"
+                )
+            seen.add(a.anchor_id)
+            if len(set(a.participants)) != len(a.participants):
+                raise DecisionValidationError(
+                    f"duplicate participant ref in anchor {a.anchor_id!r}"
+                )
+            if len(set(a.carrier_refs)) != len(a.carrier_refs):
+                raise DecisionValidationError(
+                    f"duplicate carrier ref in anchor {a.anchor_id!r}"
+                )
+            refs = [b.ref for b in a.bears_on]
+            if len(set(refs)) != len(refs):
+                raise DecisionValidationError(
+                    f"duplicate bears_on ref in anchor {a.anchor_id!r}"
+                )
 
     def _validate_bindings(self) -> None:
         """M1 schema integrity (design Q8): unknown alternative_id, duplicate

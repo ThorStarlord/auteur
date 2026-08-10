@@ -24,7 +24,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from auteur.author_decisions.models import AuthorDecision, DecisionValidationError, RequiredCharacter
+from auteur.author_decisions.models import AuthorDecision, DecisionValidationError, RequiredCharacter, StructuralAnchor
 
 # Explicit identity field path, e.g. "characters[3].undergoes_central_change".
 _IDENTITY_CHAR_REF_RE = re.compile(r"^characters\[(\d+)\]\.(.+)$")
@@ -91,14 +91,22 @@ def _probe_explicit_alternative_relations(decision: AuthorDecision) -> list[Deci
 
 
 def _probe_combination_direction(decision: AuthorDecision) -> list[DecisionConsequence]:
-    """Neutral statement for choose_k_of_n: membership is explicit, the
-    keep/cut direction is not machine-decidable and is never interpreted."""
+    """choose_k_of_n membership semantics: an authored combination_direction
+    is reported verbatim; otherwise membership-only is stated and the
+    keep/cut interpretation is never inferred."""
     if decision.combination.rule != "choose_k_of_n":
         return []
+    if decision.combination_direction is not None:
+        message = (
+            f"authored combination direction: choose_k_of_n k={decision.combination.k} "
+            f"means {decision.combination_direction}"
+        )
+    else:
+        message = "combination membership is explicit; keep/cut interpretation is unspecified"
     return [DecisionConsequence(
         probe_id="combination_direction",
         severity="info",
-        message="combination membership is explicit; keep/cut interpretation is unspecified",
+        message=message,
         refs=ConsequenceRefs(decision="combination"),
     )]
 
@@ -280,6 +288,9 @@ def _probe_blocked_provenance_relevance(decision: AuthorDecision, identity,
 
 def _entity_summary(entity) -> str:
     """Deterministic verbatim summary of a resolved binding entity."""
+    anchor_id = getattr(entity, "anchor_id", None)
+    if anchor_id is not None:
+        return f"anchor {anchor_id}"
     name = getattr(entity, "name", None)
     if name is None:
         return _fmt_value(entity)
@@ -313,9 +324,12 @@ def _probe_entity_link(alt_id: str, bindings) -> list[DecisionConsequence]:
         summary = _entity_summary(rb.entity)
         severity = "warning" if rb.relationship.value == "conflicts_with" else "info"
         refs = ConsequenceRefs(decision=f"alternative_bindings[{alt_id}]")
+        # the decision slot is ARTIFACT provenance (the binding block);
+        # identity/blueprint slots hold the resolved entity path; decision-root
+        # entity paths stay verbatim in the message (no slot collision)
         if rb.entity_ref.startswith("identity."):
             refs.identity = rb.entity_ref
-        else:
+        elif rb.entity_ref.startswith("blueprint."):
             refs.blueprint = rb.entity_ref
         out.append(DecisionConsequence(
             probe_id="entity_link",
@@ -345,6 +359,68 @@ def _probe_binding_absence(alt_id: str) -> list[DecisionConsequence]:
         target=alt_id,
         discriminates=True,
     )]
+
+
+def _probe_anchor(alt_id: str, anchor, ctx, identity, blueprint) -> list[DecisionConsequence]:
+    """B4 anchor consumption (design Q10): per-alternative consequences derived
+    ONLY from the explicit anchor rows — participant roster status, carrier
+    presence/absence, bears_on echoes. Never decides the creative answer."""
+    ra = next((r for r in getattr(ctx, "resolved_anchors", []) or []
+               if r.anchor_id == anchor.anchor_id), None)
+    if ra is None:
+        return [DecisionConsequence(
+            probe_id="resolution_error", severity="warning",
+            message=f"anchor {anchor.anchor_id!r} was not resolved",
+            refs=ConsequenceRefs(decision="structural_anchors"),
+            scope="alternative", target=alt_id, discriminates=True,
+        )]
+    out: list[DecisionConsequence] = []
+    refs = ConsequenceRefs(decision=f"structural_anchors[{anchor.anchor_id}]")
+    if ra.participants:
+        required = [RequiredCharacter(
+            name=getattr(e, "name", None) or ref,
+            standing=_bound_standing(e),
+        ) for e, ref in ra.participants]
+        for f in _probe_roster_slot(None, identity, blueprint, required=required,
+                                    decision_ref=f"structural_anchors[{anchor.anchor_id}]"):
+            d = f.model_dump()
+            d["scope"] = "alternative"
+            d["target"] = alt_id
+            d["discriminates"] = True
+            out.append(DecisionConsequence(**d))
+    else:
+        out.append(DecisionConsequence(
+            probe_id="anchor_participants", severity="info",
+            message=f"no participants declared for anchor {anchor.anchor_id}",
+            refs=refs, scope="alternative", target=alt_id, discriminates=True,
+        ))
+    if ra.carrier_refs:
+        for entity, ref in ra.carrier_refs:
+            out.append(DecisionConsequence(
+                probe_id="anchor_carrier", severity="info",
+                message=f"anchor {anchor.anchor_id} is carried by {ref} = {_entity_summary(entity)}",
+                refs=refs, scope="alternative", target=alt_id, discriminates=True,
+            ))
+    else:
+        out.append(DecisionConsequence(
+            probe_id="anchor_carrier", severity="info",
+            message=f"no carrier declared for anchor {anchor.anchor_id}",
+            refs=refs, scope="alternative", target=alt_id, discriminates=True,
+        ))
+    if ra.bears_on:
+        for ref, value in ra.bears_on:
+            out.append(DecisionConsequence(
+                probe_id="anchor_bears_on", severity="info",
+                message=f"anchor {anchor.anchor_id} bears on {ref} = {value}",
+                refs=refs, scope="alternative", target=alt_id, discriminates=True,
+            ))
+    else:
+        out.append(DecisionConsequence(
+            probe_id="anchor_bears_on", severity="info",
+            message=f"anchor {anchor.anchor_id} bears on nothing declared",
+            refs=refs, scope="alternative", target=alt_id, discriminates=True,
+        ))
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -400,15 +476,20 @@ def build_consequences(ctx) -> dict[str, Any]:
             if not bound:
                 alt_map[alt].extend(_probe_binding_absence(alt))
                 continue
+            char_bound = [rb for rb in bound if not isinstance(rb.entity, StructuralAnchor)]
+            anchor_bound = [rb for rb in bound if isinstance(rb.entity, StructuralAnchor)]
             required = [RequiredCharacter(
                 name=getattr(rb.entity, "name", None) or rb.entity_ref,
                 standing=_bound_standing(rb.entity),
-            ) for rb in bound]
-            alt_map[alt].extend(_probe_roster_slot(
-                decision, identity, blueprint, required=required,
-                decision_ref=f"alternative_bindings[{alt}]"))
-            alt_map[alt].extend(_probe_blocked_provenance_relevance(
-                decision, identity, required_names=[rc.name for rc in required]))
+            ) for rb in char_bound]
+            if required:
+                alt_map[alt].extend(_probe_roster_slot(
+                    decision, identity, blueprint, required=required,
+                    decision_ref=f"alternative_bindings[{alt}]"))
+                alt_map[alt].extend(_probe_blocked_provenance_relevance(
+                    decision, identity, required_names=[rc.name for rc in required]))
+            for rb in anchor_bound:
+                alt_map[alt].extend(_probe_anchor(alt, rb.entity, ctx, identity, blueprint))
             alt_map[alt].extend(_probe_entity_link(alt, bound))
 
     # Provenance-preserving common extraction: lift findings that are identical
@@ -485,10 +566,18 @@ def build_consequences(ctx) -> dict[str, Any]:
                     findings.append(f.model_copy(update={
                         "scope": "combination", "target": target, "members": [target],
                     }))
-            combos.append({
+            combo_entry = {
                 "combination": list(combo),
                 "findings": [f.model_dump() for f in findings],
-            })
+            }
+            direction = getattr(ctx, "combination_direction", None)
+            if direction == "kept":
+                combo_entry["kept"] = list(combo)
+                combo_entry["cut"] = [a for a in alt_ids if a not in combo]
+            elif direction == "cut":
+                combo_entry["kept"] = [a for a in alt_ids if a not in combo]
+                combo_entry["cut"] = list(combo)
+            combos.append(combo_entry)
         report["combinations"] = combos
 
     return report
