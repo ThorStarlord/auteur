@@ -121,6 +121,14 @@ def test_direction_validated():
         AuthorDecision.from_dict(data)
 
 
+def test_anchor_id_safe_grammar():
+    for bad in ("bad id", "../escape", "", "a" * 200):
+        data = base_e_dict()
+        data["structural_anchors"] = [{"anchor_id": bad}]
+        with pytest.raises(DecisionValidationError):
+            AuthorDecision.from_dict(data)
+
+
 def test_one_of_with_direction_rejected():
     data = base_e_dict()
     data["combination"] = {"rule": "one_of", "k": None}
@@ -176,6 +184,10 @@ def test_case_e_anchored_golden():
     cons = ctx_for(dec, CASE_E).build_report()["consequences"]
     per_alt = {a["alternative_id"]: a["findings"] for a in cons["alternatives"]}
     signe = per_alt["signe_marriage"]
+    # entity_link ref routing: decision-root bindings point at the DECISION slot
+    link = [f for f in signe if f["probe_id"] == "entity_link"][0]
+    assert link["refs"]["decision"] == "alternative_bindings[signe_marriage]"
+    assert link["refs"]["identity"] is None and link["refs"]["blueprint"] is None
     assert any("represented in the roster as protagonist" in f["message"] for f in signe)
     assert any("no carrier declared for anchor signe_marriage" in f["message"] for f in signe)
     assert any("bears on blueprint.contract.mandatory_ending_tone = bittersweet" in f["message"] for f in signe)

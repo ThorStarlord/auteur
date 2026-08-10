@@ -326,8 +326,10 @@ def _probe_entity_link(alt_id: str, bindings) -> list[DecisionConsequence]:
         refs = ConsequenceRefs(decision=f"alternative_bindings[{alt_id}]")
         if rb.entity_ref.startswith("identity."):
             refs.identity = rb.entity_ref
-        else:
+        elif rb.entity_ref.startswith("blueprint."):
             refs.blueprint = rb.entity_ref
+        else:
+            refs.decision = rb.entity_ref
         out.append(DecisionConsequence(
             probe_id="entity_link",
             severity=severity,

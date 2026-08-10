@@ -12,6 +12,7 @@ Evaluation never implies acceptance; acceptance never implies a creative verdict
 """
 from __future__ import annotations
 
+import enum
 import sys
 from pathlib import Path
 
@@ -23,6 +24,16 @@ from auteur.author_decisions.models import (
 )
 from auteur.author_decisions.context import build_decision_context
 from auteur.author_decisions import persistence as store
+
+
+def _record_value(value):
+    """Serialize a resolved value for the acceptance record (YAML-safe):
+    pydantic models -> dict, enums -> their value, else verbatim."""
+    if hasattr(value, "model_dump"):
+        return value.model_dump()
+    if isinstance(value, enum.Enum):
+        return value.value
+    return value
 
 
 def register_author_decision_subcommands(ds) -> None:
@@ -164,7 +175,7 @@ def handle_accept(args) -> int:
                 {"anchor_id": ra.anchor_id, "kind": ra.kind.value,
                  "participants": [ref for _, ref in ra.participants],
                  "carrier_refs": [ref for _, ref in ra.carrier_refs],
-                 "bears_on": [{"ref": ref, "value": value} for ref, value in ra.bears_on]}
+                 "bears_on": [{"ref": ref, "value": _record_value(value)} for ref, value in ra.bears_on]}
                 for ra in ctx.resolved_anchors
             ],
             "combination_direction": ctx.combination_direction,

@@ -215,6 +215,10 @@ class AuthorDecision(BaseModel):
             )
         seen: set[str] = set()
         for a in self.structural_anchors:
+            if not _DECISION_ID_RE.fullmatch(a.anchor_id):
+                raise DecisionValidationError(
+                    f"invalid anchor_id {a.anchor_id!r}: must match {_DECISION_ID_RE.pattern}"
+                )
             if a.anchor_id in seen:
                 raise DecisionValidationError(
                     f"duplicate anchor_id: {a.anchor_id!r}"
