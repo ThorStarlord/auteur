@@ -38,3 +38,6 @@ reports/
 
 # Generated project state directories (test artifacts, dogfood workspaces)
 **/.auteur/
+
+# Machine-specific local settings (proxy URLs, personal config)
+**/.claude/settings.local.json
