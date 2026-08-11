@@ -321,6 +321,13 @@ def build_decision_context(
             bears_on.append((b.ref, value, b.nature))
         resolved_anchors.append(ResolvedAnchor(a.anchor_id, a.kind, participants, carriers, bears_on))
 
+    # F1 (design 2026-08-cross-goal-significance-f1.md @ 9ec4ef0): goal refs
+    # are already resolved against the current story by the shared anchor
+    # resolution above (every ordered ref is a bears_on ref by schema, and
+    # every bears_on ref is resolved there) — stale/unknown refs fail closed
+    # via that shared machinery. The ordering is echo-only — resolved values
+    # are never stored or used.
+
     return DecisionContext(
         decision=decision,
         constraints=constraints,
