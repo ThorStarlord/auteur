@@ -91,18 +91,31 @@ def _probe_explicit_alternative_relations(decision: AuthorDecision) -> list[Deci
 
 
 def _probe_combination_direction(decision: AuthorDecision) -> list[DecisionConsequence]:
-    """choose_k_of_n membership semantics: an authored combination_direction
-    is reported verbatim; otherwise membership-only is stated and the
-    keep/cut interpretation is never inferred."""
-    if decision.combination.rule != "choose_k_of_n":
+    """Membership semantics for the two shipped decision shapes. For
+    choose_k_of_n an authored combination_direction is reported verbatim;
+    otherwise membership-only is stated and keep/cut is never inferred. For
+    one_of the same rule applies to the singleton selection: an authored
+    direction is reported verbatim; without direction, selection-membership-
+    only is stated and no keep/cut composition is performed. Direction is
+    NEVER derived from question/criterion text, labels, or alternative ids."""
+    rule = decision.combination.rule
+    if rule == "choose_k_of_n":
+        if decision.combination_direction is not None:
+            message = (
+                f"authored combination direction: choose_k_of_n k={decision.combination.k} "
+                f"means {decision.combination_direction}"
+            )
+        else:
+            message = "combination membership is explicit; keep/cut interpretation is unspecified"
+    elif rule == "one_of":
+        if decision.combination_direction is not None:
+            message = (
+                f"authored combination direction: one_of means {decision.combination_direction}"
+            )
+        else:
+            message = "selection membership is explicit; no keep/cut composition is performed"
+    else:  # fail closed: unsupported shape
         return []
-    if decision.combination_direction is not None:
-        message = (
-            f"authored combination direction: choose_k_of_n k={decision.combination.k} "
-            f"means {decision.combination_direction}"
-        )
-    else:
-        message = "combination membership is explicit; keep/cut interpretation is unspecified"
     return [DecisionConsequence(
         probe_id="combination_direction",
         severity="info",
@@ -600,6 +613,16 @@ def build_consequences(ctx) -> dict[str, Any]:
 
     if decision.combination.rule == "choose_k_of_n":
         k = decision.combination.k or 1
+    elif (decision.combination.rule == "one_of"
+          and getattr(ctx, "combination_direction", None) is not None):
+        # one_of + authored direction is the semantic equivalent of
+        # choose_k_of_n(k=1): singleton combinations, direction-gated kept/cut,
+        # same nature x operation x resolved-target composition. Without an
+        # authored direction one_of stays membership-only (no composition).
+        k = 1
+    else:
+        k = None
+    if k is not None:
         combos: list[dict] = []
         for combo in itertools.combinations(alt_ids, k):
             target = repr(tuple(combo))

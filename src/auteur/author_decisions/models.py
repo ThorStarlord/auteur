@@ -222,10 +222,13 @@ class AuthorDecision(BaseModel):
 
     def _validate_anchors(self) -> None:
         """B4 schema integrity (design Q8): duplicate anchor ids, duplicate
-        refs within lists, and one_of+direction all fail closed."""
-        if self.combination_direction is not None and self.combination.rule != "choose_k_of_n":
+        refs within lists, and unsupported direction shapes all fail closed.
+        combination_direction is valid ONLY for choose_k_of_n and one_of
+        (design 2026-08-choice-shape-composition.md); any other shape rejects."""
+        if (self.combination_direction is not None
+                and self.combination.rule not in ("choose_k_of_n", "one_of")):
             raise DecisionValidationError(
-                "combination_direction requires combination rule choose_k_of_n"
+                "combination_direction requires combination rule one_of or choose_k_of_n"
             )
         seen: set[str] = set()
         for a in self.structural_anchors:

@@ -266,8 +266,15 @@ def test_combination_direction_neutral_and_only_for_choose_k_of_n():
     assert f["message"] == "combination membership is explicit; keep/cut interpretation is unspecified"
     for banned in ("retained", "removed", "selected for inclusion", "kept"):
         assert banned not in f["message"].lower()
+    # one_of (Case D) now states the honest membership-only observation; it
+    # must not claim an operation (approved design 2026-08-choice-shape-composition.md)
     c_d = case_consequences(D_DIR, D_DEC)
-    assert all(f["probe_id"] != "combination_direction" for f in c_d["observations"])
+    f_d = next(f for f in c_d["observations"] if f["probe_id"] == "combination_direction")
+    assert f_d["message"] == "selection membership is explicit; no keep/cut composition is performed"
+    # "kept"/"cut" as an OPERATION claim is banned; the negative "no keep/cut
+    # composition" phrasing is the honest absence statement
+    for banned in ("retained", "removed", "selected for inclusion", "kept"):
+        assert banned not in f_d["message"].lower()
 
 
 # ---------------------------------------------------------------------------

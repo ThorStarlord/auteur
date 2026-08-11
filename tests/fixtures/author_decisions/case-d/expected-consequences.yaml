@@ -15,6 +15,18 @@ observations:
     target: ""
     discriminates: false
     members: [nine_parallel_arcs, one_structural_spine]
+  - probe_id: combination_direction
+    severity: info
+    message: "selection membership is explicit; no keep/cut composition is performed"
+    refs:
+      decision: combination
+      identity: null
+      blueprint: null
+      outcome: null
+    scope: common
+    target: ""
+    discriminates: false
+    members: [nine_parallel_arcs, one_structural_spine]
   - probe_id: roster_slot
     severity: warning
     message: "required character Ansel (standing=equal) has no roster slot in the current Blueprint"

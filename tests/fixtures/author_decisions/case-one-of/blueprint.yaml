@@ -1,0 +1,461 @@
+identity:
+  title: Salt of the Earth
+  author_intent: A family's inheritance is not the land but the permission to choose
+    differently than it did.
+  target_experience:
+    primary: gravity
+    progression: tension -> reckoning -> quiet uncertainty
+    secondary: []
+    avoid:
+    - a tidy reconciliation
+    - a fully resolved ending
+    primary_emotional_promise: gravity
+    secondary_palette: []
+    avoided_experiences:
+    - a tidy reconciliation
+    - a fully resolved ending
+    emotional_trajectory: null
+    genre_emotion_stack: null
+    pov_experience_contracts: null
+  length_class: novel
+  genre: literary
+  subgenre: working-class drama
+  subgenres:
+  - working-class drama
+  - family drama
+  mode: intimate
+  medium: novel
+  medium_contract:
+    medium: novel
+    format: standalone_book
+    release_model: complete_release
+    interaction_model: passive_reader
+    unit_of_delivery: chapter
+    representation_units:
+    - prose narration
+    - scenes
+    - chapters
+    modulation_biases:
+    - sustained immersion
+    - controlled interiority
+    - chapter-level tension curves
+    medium_failure_modes:
+    - delivery relies on spectacle the prose cannot directly show
+    - chapter pacing ignores reader re-entry and exit points
+  target_audience: adult
+  pov_type: third_person_limited_single
+  genre_contract_snapshot:
+    genre_id: literary
+    display_name: Literary Fiction
+    core_truth: The examined life, rendered with precision, reveals the universal
+      through the particular.
+    audience_product: Emotional truth, linguistic beauty, psychological insight, moral
+      complexity.
+    primary_excitement_beats:
+    - a moment of profound self-recognition
+    - a relationship redefined by a single conversation or event
+    - a suppressed truth surfacing under pressure
+    - an everyday moment rendered with extraordinary precision
+    - the quiet aftermath of a major life decision
+    required_tropes:
+    - interiority and psychological depth as primary narrative engine
+    - prose style that rewards close reading
+    - moral ambiguity without clear resolution
+    optional_tropes:
+    - nonlinear or fragmented narrative structure
+    - unreliable narrator
+    - multiple perspectives on the same event
+    - epiphany or moment of clarity
+    - domestic or small-scale setting
+    forbidden_mismatches:
+    - plot-driven structure where character interiority is secondary
+    - clear moral conclusions or didactic messaging
+    - genre tropes deployed without ironic or deconstructive intent
+    - prose that prioritizes plot efficiency over linguistic texture
+    common_failure_modes:
+    - Interiority becomes navel-gazing without external pressure to test it
+    - The prose draws attention to itself without serving character or theme
+    - Nothing happens externally, making the story feel static rather than contemplative
+    - The moral ambiguity is confused with lack of thematic point
+    psychology_budget:
+      level: psychologically_deep
+      reason: Literary fiction's primary engine is psychological depth and interiority.
+        Full psychological exploration is the product.
+      motivation_clarity: required
+      psychological_depth: required
+      character_texture: required
+    scope_profile:
+      natural_lengths:
+      - novella
+      - novel
+      minimum_viable_length: novella
+      default_length: novel
+      narrative_runway: medium
+      recommended_complexity: focused
+      mechanical_load: low
+      worldbuilding_load: low
+      cast_load: low
+      compression_strategies:
+      - Focus on a single compressed timeframe (a day, a weekend, a journey).
+      - Use one or two POV characters with deep access to interiority.
+      expansion_strategies:
+      - Expand character ensemble to provide contrasting interior perspectives.
+      - Extend timeline to show the long aftermath and cumulative weight of choices.
+      scope_failure_modes:
+      - A large cast dilutes the psychological depth available per character.
+      - Plot machinery (mystery, thriller pacing) crowds out contemplative space.
+    setup_contract:
+      emotional_runway: medium
+      relationship_establishment: required
+      baseline_world_establishment: optional
+      minimum_setup_beats:
+      - 'Establish the protagonist''s interior baseline: their voice, preoccupations,
+        and unspoken assumptions'
+      - Introduce the destabilizing element (event, person, memory) that pressures
+        the interior world
+      - Establish the relational landscape and its hidden tensions
+      forbidden_shortcuts:
+      - External plot mechanics that bypass interior processing
+      - Therapeutic language that replaces literary precision
+      compression_strategies:
+      - Start in the middle of a significant moment and reveal context through memory
+        and reflection.
+      - Use a single symbolic event to stand in for broader societal pressure.
+    default_engine_biases:
+    - Main thread is primarily internal, with external events serving as catalysts
+      for interior change
+    - Thematic resonance is more important than plot mechanics
+    recommended_subversions:
+    - Employ genre elements (mystery, romance) as scaffolding for literary exploration
+    - The epiphany leads to a wrong or destructive choice
+  genre_overrides: {}
+structure:
+  estimated_chapters: 25
+  estimated_word_count: 90000
+  act_structure: three_act
+  max_pov_characters: 3
+  max_characters_total: 25
+  subplot_budget: 3
+  scope_contract:
+    recommended_complexity: focused
+    narrative_runway: medium
+    mechanical_load: low
+    setting_footprint: null
+    timeframe: null
+    worldbuilding_load: low
+    cast_load: low
+    trope_load: null
+    scope_notes:
+    - Auto-generated from Literary Fiction contract.
+    - 'Natural lengths: novella, novel.'
+    scope_warnings: []
+story_engine:
+  main_thread:
+    type: main_plot
+    want:
+      author_text: Signe wants the family to decide the land's fate without the decision
+        destroying what remains of the family.
+      checkable_claims:
+      - 'protagonist acts on desire: Signe wants the family to decide the land''s
+        fate without the decision destroying'
+      consequence_scale: null
+      escalation_ceiling: null
+    resistance:
+      author_text: Anders' debts, Marta's hopes for the saltworks, their father's
+        unreadable silence, and the fact that every option costs someone the life
+        they imagined.
+      checkable_claims:
+      - 'resistance from: Anders'' debts, Marta''s hopes for the saltworks, their
+        father'
+      - 'resistance from: the fact that every option costs someone the life they imagi'
+      consequence_scale: null
+      escalation_ceiling: null
+    conflict:
+      author_text: The land can be sold, kept, or left to die - but the family cannot
+        agree, and each sibling's private stake (debt, pregnancy, marriage) makes
+        every argument also a betrayal.
+      checkable_claims:
+      - 'collision point emerges: The land can be sold, kept, or left to die - but
+        the family cannot agree, and ea'
+      consequence_scale: null
+      escalation_ceiling: null
+    stakes:
+      author_text: The family's future, the land's fate, and each sibling's private
+        life - the decision will be made with or without agreement, and the cost lands
+        unevenly.
+      checkable_claims:
+      - 'personal stakes are tested: The family''s future, the land''s fate, and each
+        sibling''s private life - the deci'
+      consequence_scale: null
+      escalation_ceiling: null
+    change:
+      author_text: Signe changes from believing the family's fate is a problem with
+        three options - sell, keep, die - into someone who can hold the family's real
+        legacy, which turns out not to be the land at all.
+      checkable_claims:
+      - 'protagonist undergoes transformation: Signe changes from believing the family''s
+        fate is a problem with three options -'
+      consequence_scale: null
+      escalation_ceiling: null
+    thematic_function: 'Explores the central question: Which subplot must be cut so
+      the ending can stay ambiguous? (Anders'' debt, Marta''s pregnancy, Signe''s
+      marriage - the story has budget for two)'
+  threads:
+  - name: Secondary Struggle
+    type: thematic_echo
+    want:
+      author_text: Establish a secondary goal.
+      checkable_claims:
+      - 'protagonist acts on desire: Establish a secondary goal.'
+      consequence_scale: null
+      escalation_ceiling: null
+    resistance:
+      author_text: Opposition from a secondary force.
+      checkable_claims:
+      - 'resistance manifests: Opposition from a secondary force.'
+      consequence_scale: null
+      escalation_ceiling: null
+    conflict:
+      author_text: Friction between secondary and main goals.
+      checkable_claims:
+      - 'collision point emerges: Friction between secondary and main goals.'
+      consequence_scale: null
+      escalation_ceiling: null
+    stakes:
+      author_text: Secondary loss compounding main stakes.
+      checkable_claims:
+      - 'external stakes are tested: Secondary loss compounding main stakes.'
+      consequence_scale: null
+      escalation_ceiling: null
+    change:
+      author_text: A secondary transformation or cost paid.
+      checkable_claims:
+      - 'protagonist undergoes transformation: A secondary transformation or cost
+        paid.'
+      consequence_scale: null
+      escalation_ceiling: null
+    supports_main_by:
+    - complicates
+    thematic_function: Echoes the main thematic argument.
+  - name: Relationship Echo
+    type: relationship_arc
+    want:
+      author_text: Build connection with a support character.
+      checkable_claims:
+      - 'protagonist acts on desire: Build connection with a support character.'
+      consequence_scale: null
+      escalation_ceiling: null
+    resistance:
+      author_text: Misunderstanding or divergent goals.
+      checkable_claims:
+      - 'resistance manifests: Misunderstanding or divergent goals.'
+      consequence_scale: null
+      escalation_ceiling: null
+    conflict:
+      author_text: Competing values during a crucial choice.
+      checkable_claims:
+      - 'collision point emerges: Competing values during a crucial choice.'
+      consequence_scale: null
+      escalation_ceiling: null
+    stakes:
+      author_text: Emotional isolation or betrayal.
+      checkable_claims:
+      - 'external stakes are tested: Emotional isolation or betrayal.'
+      consequence_scale: null
+      escalation_ceiling: null
+    change:
+      author_text: A compromise that allows deeper connection.
+      checkable_claims:
+      - 'protagonist undergoes transformation: A compromise that allows deeper connection.'
+      consequence_scale: null
+      escalation_ceiling: null
+    supports_main_by:
+    - pressures_change
+    thematic_function: Forces protagonist to reconsider their approach.
+  - name: Secondary Subplot 3
+    type: thematic_echo
+    want:
+      author_text: Secondary want.
+      checkable_claims:
+      - 'protagonist acts on desire: Secondary want.'
+      consequence_scale: null
+      escalation_ceiling: null
+    resistance:
+      author_text: Secondary resistance.
+      checkable_claims:
+      - 'resistance manifests: Secondary resistance.'
+      consequence_scale: null
+      escalation_ceiling: null
+    conflict:
+      author_text: Secondary conflict.
+      checkable_claims:
+      - 'collision point emerges: Secondary conflict.'
+      consequence_scale: null
+      escalation_ceiling: null
+    stakes:
+      author_text: Secondary stakes.
+      checkable_claims:
+      - 'external stakes are tested: Secondary stakes.'
+      consequence_scale: null
+      escalation_ceiling: null
+    change:
+      author_text: Secondary change.
+      checkable_claims:
+      - 'protagonist undergoes transformation: Secondary change.'
+      consequence_scale: null
+      escalation_ceiling: null
+    supports_main_by:
+    - complicates
+    thematic_function: Supports the main thread.
+contract:
+  content_rating: R
+  explicit_violence: implied_only
+  explicit_sex: fade_to_black
+  profanity: moderate
+  on_page_torture: false
+  child_harm: false
+  mandatory_ending_tone: bittersweet
+  expected_elements: []
+  forbidden_tropes: []
+  rejected_outcomes: []
+  profile_emotional_targets: {}
+  custom_rules:
+  - a redemption arc for Halvor
+  - violence
+  - a tidy reconciliation of the family
+  - a fully resolved ending (the land's fate decided and closed)
+  - A redemption or clarity arc for Halvor would violate the constraint that the father
+    does not transform, apologize, or achieve clarity.
+  - A warm family reconciliation ending would contradict the constraints that the
+    ending remains ambiguous and the family does not unite tidily.
+emotional_design:
+  overall_emotional_arc: A intimate arc focusing on gravity.
+  per_act_tones:
+  - act_index: 1
+    label: Setup
+    tone: 'Tension: Establishing the initial situation and the core desire: Signe
+      wants the family to decide the land''s fate without the.'
+  - act_index: 2
+    label: Confrontation
+    tone: 'Reckoning: Rising conflict driven by the core resistance: Anders'' debts,
+      Marta''s hopes for the saltworks, their father.'
+  - act_index: 3
+    label: Resolution
+    tone: 'Quiet uncertainty: The final confrontation, high stakes, and the ultimate
+      transformation: Signe changes from believing the family''s fate is a problem
+      .'
+characters:
+- name: Signe
+  role: protagonist
+  arc_type: growth
+  arc_start_percentage: 0
+  arc_end_percentage: 100
+  current_arc_percentage: 0
+  key_milestones:
+  - at_percentage: 25
+    description: Commitment to search.
+  - at_percentage: 50
+    description: The point of no return.
+  - at_percentage: 75
+    description: The lowest ebb.
+  - at_percentage: 100
+    description: The final choice.
+  current_state:
+    location: start_location
+    physical: healthy
+    emotional: determined
+    inventory: []
+    relationships: []
+    secrets_known: []
+  identity: null
+  categorization: null
+- name: Antagonist
+  role: antagonist
+  arc_type: flat
+  arc_start_percentage: 0
+  arc_end_percentage: 0
+  current_arc_percentage: 0
+  key_milestones: []
+  current_state:
+    location: start_location
+    physical: intact
+    emotional: unyielding
+    inventory: []
+    relationships: []
+    secrets_known: []
+  identity: null
+  categorization: null
+tension_waveform:
+  target_curve:
+  - chapter_index: 1
+    score: 3
+    label: opening
+  - chapter_index: 12
+    score: 7
+    label: midpoint
+  - chapter_index: 22
+    score: 9
+    label: climax
+  - chapter_index: 25
+    score: 5
+    label: coda
+  realized_scores: []
+theme:
+  central_question: Which subplot must be cut so the ending can stay ambiguous? (Anders'
+    debt, Marta's pregnancy, Signe's marriage - the story has budget for two)
+  thesis: The pursuit of Signe wants the family to deci leads to The land can be sold,
+    kept, or, resulting in Signe changes from believing t.
+  motifs:
+  - shadows
+  - contracts
+  - sacrifices
+profile_derivation: null
+identity_propagation:
+  outcomes:
+  - rule: identity.not_this.custom_rules
+    classification: DIRECT_DETERMINISTIC
+    destination: contract.custom_rules[0]
+    value: a redemption arc for Halvor
+    source: not_this[0]
+    reason: null
+  - rule: identity.not_this.custom_rules
+    classification: DIRECT_DETERMINISTIC
+    destination: contract.custom_rules[1]
+    value: violence
+    source: not_this[1]
+    reason: null
+  - rule: identity.not_this.custom_rules
+    classification: DIRECT_DETERMINISTIC
+    destination: contract.custom_rules[2]
+    value: a tidy reconciliation of the family
+    source: not_this[2]
+    reason: null
+  - rule: identity.not_this.custom_rules
+    classification: DIRECT_DETERMINISTIC
+    destination: contract.custom_rules[3]
+    value: a fully resolved ending (the land's fate decided and closed)
+    source: not_this[3]
+    reason: null
+  - rule: identity.rejected_directions.custom_rules
+    classification: DIRECT_DETERMINISTIC
+    destination: contract.custom_rules[4]
+    value: A redemption or clarity arc for Halvor would violate the constraint that
+      the father does not transform, apologize, or achieve clarity.
+    source: rejected_directions[0]
+    reason: null
+  - rule: identity.rejected_directions.custom_rules
+    classification: DIRECT_DETERMINISTIC
+    destination: contract.custom_rules[5]
+    value: A warm family reconciliation ending would contradict the constraints that
+      the ending remains ambiguous and the family does not unite tidily.
+    source: rejected_directions[1]
+    reason: null
+  - rule: identity.naming.protagonist
+    classification: DIRECT_DETERMINISTIC
+    destination: characters[0].name
+    value: Signe
+    source: characters[0].name
+    reason: null
+cartographer_model: null
+bard_model: null
+critic_model: null

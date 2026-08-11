@@ -129,12 +129,17 @@ def test_anchor_id_safe_grammar():
             AuthorDecision.from_dict(data)
 
 
-def test_one_of_with_direction_rejected():
+def test_one_of_with_direction_accepted():
+    """combination_direction now extends to one_of (approved design
+    2026-08-choice-shape-composition.md); the schema no longer rejects it."""
     data = base_e_dict()
     data["combination"] = {"rule": "one_of", "k": None}
     data["combination_direction"] = "kept"
-    with pytest.raises(DecisionValidationError):
-        AuthorDecision.from_dict(data)
+    dec = AuthorDecision.from_dict(data)
+    assert dec.combination_direction == "kept"
+    data["combination_direction"] = "cut"
+    dec = AuthorDecision.from_dict(data)
+    assert dec.combination_direction == "cut"
 
 
 # ---------------------------------------------------------------------------
