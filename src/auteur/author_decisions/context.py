@@ -322,11 +322,11 @@ def build_decision_context(
         resolved_anchors.append(ResolvedAnchor(a.anchor_id, a.kind, participants, carriers, bears_on))
 
     # F1 (design 2026-08-cross-goal-significance-f1.md @ 9ec4ef0): goal refs
-    # must resolve against the current story (fail closed on stale/unknown).
-    # The ordering is echo-only — resolved values are NOT stored or used.
-    if decision.goal_significance is not None and decision.goal_significance.ordered:
-        for ref in decision.goal_significance.ordered:
-            _resolve_entity_ref(identity, blueprint, ref, decision)
+    # are already resolved against the current story by the shared anchor
+    # resolution above (every ordered ref is a bears_on ref by schema, and
+    # every bears_on ref is resolved there) — stale/unknown refs fail closed
+    # via that shared machinery. The ordering is echo-only — resolved values
+    # are never stored or used.
 
     return DecisionContext(
         decision=decision,

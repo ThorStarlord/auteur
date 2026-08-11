@@ -184,6 +184,25 @@ def test_unrelated_goal_ref_rejected():
         AuthorDecision.from_dict(data)
 
 
+def test_stale_ref_fails_closed_at_context_build():
+    """A goal_significance ref that passes schema (it is a bears_on ref) but
+    does not resolve in the current story must fail closed at context build.
+    Resolution runs through the shared anchor/bears_on machinery, so a stale
+    ref surfaces as DecisionValidationError there - the F1 declaration never
+    reaches the report."""
+    data = base_dict()
+    stale = "blueprint.contract.nonexistent_goal"
+    data["structural_anchors"][0]["bears_on"].append(
+        {"ref": stale, "relationship": "bears_on", "nature": "sustains"}
+    )
+    data["goal_significance"] = {"ordered": [
+        "blueprint.contract.mandatory_ending_tone", stale,
+    ]}
+    dec = AuthorDecision.from_dict(data)  # schema: both refs are bears_on refs
+    with pytest.raises(DecisionValidationError):
+        ctx_for(dec, CASE)
+
+
 def test_numeric_weights_rejected():
     data = base_dict()
     data["goal_significance"] = {
