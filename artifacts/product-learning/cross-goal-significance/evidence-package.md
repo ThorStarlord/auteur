@@ -160,3 +160,61 @@ All falsifications above are synthetic (product runs + paper mechanism analysis)
 claim that a surviving mechanism **materially helps an author resolve or clarify** the
 tradeoff requires human judgment — per the brief, no such claim is made here. Production
 code untouched.
+
+---
+
+# HUMAN REACTION — F1 zero-code test (2026-08-11)
+
+Per the human's selection, F1 advanced to a zero-production-change human reaction test
+before Implementation Design: the post-S1 competing-goals case (DECISION_CLARIFIED
+evidence), presented in two neutral conditions (A: shipped composed consequences only;
+B: same consequences + an authored, decision-scoped significance declaration), across the
+three required controls (explicit priority / context-dependent priority / intentional
+non-ranking). The reaction was solicited before any interpretation.
+
+## Reaction (verbatim)
+
+> Condition B is useful, but not because it tells me anything I did not already know. The
+> value is that it puts the missing decision criterion next to the consequences it
+> governs. In Control 1, once I have authored that the ending-tone goal matters more for
+> this decision, I no longer have to hold that preference separately in my head while
+> reading the mirrored consequences. ... F1 **reduces cognitive work and gives the
+> consequences the context they were missing**. I would want that significance preserved
+> with the decision rather than living only in my memory or surrounding prose. But I
+> would not call the current F1 surface itself a major new reasoning capability. It
+> largely displays an authored fact beside deterministic consequences; I can still perform
+> the final comparison myself. Control 2 is particularly persuasive for making the
+> significance **decision-local** rather than canonical: the same two story goals can
+> legitimately reverse importance in another decision. Control 3 is also valuable.
+> "Unranked — the tension is intentional" is not a failure to answer; it is meaningful
+> author intent. Preserving that explicitly prevents Auteur from later inventing a
+> hierarchy that I deliberately refused to establish.
+>
+> So my judgment is: **useful enough to preserve as first-class decision context,
+> primarily because it lowers cognitive/context-reconstruction burden and records a
+> decision-local value judgment.** It is not useful because Auteur has discovered or
+> ranked anything for me.
+
+## Recorded selections
+
+- NOT "merely repeats what I know": new information is not the only form of product
+  value — keeping the relevant authored significance attached to the tradeoff is useful
+  state even when the author supplied it.
+- NOT "materially helps resolve" under this test's wording: the authored priority itself
+  resolves the valuation gap; F1 mainly makes that priority durable and legible.
+- "genuinely unsettled" (6) does NOT apply to Controls 1/2/3 — those deliberately supply
+  a significance judgment; F3 remains the candidate for the genuinely unsettled case.
+
+## Judgment (narrow claim, binding)
+
+> **F1 author impact: `DECISION_CONTEXT_IMPROVED` — cognitive/context-reconstruction
+> burden reduced and a decision-local value judgment preserved durably and legibly
+> beside the composed consequences. NOT `DECISION_RESOLVED_BY_PRODUCT`.**
+
+## Decision-rule outcome (per the protocol)
+
+F1 produced material author progress beyond Condition A (cognitive burden reduction +
+useful first-class decision context, explicitly distinguished from mere echo) → **proceed
+to Implementation Design**, with the narrow claim above. F3 remains the candidate for the
+genuinely unsettled case; F4 untested (the reaction did not expose the parked
+disagreement/provisional-choice condition).
