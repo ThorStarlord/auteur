@@ -1,0 +1,82 @@
+decision_id: control-1-obvious-priority
+unresolved_choice:
+  choice_id: control-1-obvious-priority
+  question: Which subplot should be cut? The ending-tone goal takes precedence over
+    the POV-contract goal in this decision.
+  options:
+  - Marta's pregnancy
+  - Signe's marriage
+alternative_ids:
+- marta_pregnancy
+- signe_marriage
+combination:
+  rule: one_of
+criterion:
+  text: Cut the subplot whose loss least harms the ending tone, which outranks the
+    POV contract here
+  evaluator: author_or_consumer
+hard_constraints:
+- ref: not_this[0]
+  snapshot: a redemption arc for Halvor
+- ref: not_this[1]
+  snapshot: violence
+- ref: not_this[2]
+  snapshot: a tidy reconciliation of the family
+- ref: not_this[3]
+  snapshot: a fully resolved ending (the land's fate decided and closed)
+- ref: rejected_directions[0]
+  snapshot: A redemption or clarity arc for Halvor would violate the constraint that
+    the father does not transform, apologize, or achieve clarity.
+- ref: rejected_directions[1]
+  snapshot: A warm family reconciliation ending would contradict the constraints that
+    the ending remains ambiguous and the family does not unite tidily.
+- ref: target_experience.avoid[0]
+  snapshot: a tidy reconciliation
+- ref: target_experience.avoid[1]
+  snapshot: a fully resolved ending
+required_characters:
+- name: Marta
+  standing: null
+- name: Signe
+  standing: protagonist
+blocked_provenance:
+  outcome_refs: []
+default_references:
+- default_id: contract.mandatory_ending_tone
+  relates_to: not_this[3]
+  relationship: conflicts_with
+alternative_bindings:
+- alternative_id: marta_pregnancy
+  references:
+  - entity_ref: decision.structural_anchors[id=marta_pregnancy]
+    relationship: concerns
+- alternative_id: signe_marriage
+  references:
+  - entity_ref: decision.structural_anchors[id=signe_marriage]
+    relationship: concerns
+structural_anchors:
+- anchor_id: marta_pregnancy
+  kind: subplot
+  participants:
+  - identity.characters[2]
+  carrier_refs: []
+  bears_on:
+  - ref: blueprint.contract.mandatory_ending_tone
+    relationship: bears_on
+    nature: sustains
+  - ref: blueprint.identity.pov_type
+    relationship: bears_on
+    nature: pressures
+- anchor_id: signe_marriage
+  kind: subplot
+  participants:
+  - identity.characters[0]
+  carrier_refs: []
+  bears_on:
+  - ref: blueprint.identity.pov_type
+    relationship: bears_on
+    nature: sustains
+  - ref: blueprint.contract.mandatory_ending_tone
+    relationship: bears_on
+    nature: pressures
+combination_direction: cut

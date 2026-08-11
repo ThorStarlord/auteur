@@ -1,0 +1,48 @@
+﻿Decision: control-3a-context-ending-matters [accepted]
+Enumerated combinations: [['marta_pregnancy'], ['signe_marriage']]
+Constraints: 8 (verbatim)
+Blocked provenance: {'expected': 0, 'verified': True}
+Resolved defaults: {'contract.mandatory_ending_tone': 'bittersweet'}
+Consequences: 7 observation(s), 11 per-alternative finding(s); distinguishability: MULTIPLE_AXES [anchor_bears_on, anchor_carrier, entity_link, roster_slot]
+  alternatives differ on axes: anchor_bears_on, anchor_carrier, entity_link, roster_slot
+  [info] (combination_direction) authored combination direction: one_of means cut
+  [warning] (roster_slot) required character Marta (standing=unset) has no roster slot in the current Blueprint
+  [info] (roster_slot) required character Signe (standing=protagonist) is represented in the roster as protagonist, arc growth
+  [warning] (roster_slot) roster slot for Signe is not linked to an identity character
+  [info] (thread_carrier) thread structure has 3 thread(s): Secondary Struggle, Relationship Echo, Secondary Subplot 3; the Blueprint exposes no explicit thread-to-character linkage, so thread carriers for decision characters cannot be verified
+  [warning] (declared_relationship) declared relationship: contract.mandatory_ending_tone = bittersweet [conflicts_with] relates_to not_this[3]
+  [info] (blocked_provenance_relevance) no blocked propagation outcomes reference decision characters
+  [warning] (roster_slot) required character Marta (standing=unset) has no roster slot in the current Blueprint
+  [info] (anchor_carrier) no carrier declared for anchor marta_pregnancy
+  [info] (anchor_bears_on) anchor marta_pregnancy bears on blueprint.contract.mandatory_ending_tone = bittersweet (nature: sustains)
+  [info] (anchor_bears_on) anchor marta_pregnancy bears on blueprint.identity.pov_type = third_person_limited_single (nature: pressures)
+  [info] (entity_link) declared entity link: alternative marta_pregnancy [concerns] relates to decision.structural_anchors[id=marta_pregnancy] = anchor marta_pregnancy
+  [info] (roster_slot) required character Signe (standing=protagonist) is represented in the roster as protagonist, arc growth
+  [warning] (roster_slot) roster slot for Signe is not linked to an identity character
+  [info] (anchor_carrier) no carrier declared for anchor signe_marriage
+  [info] (anchor_bears_on) anchor signe_marriage bears on blueprint.identity.pov_type = third_person_limited_single (nature: sustains)
+  [info] (anchor_bears_on) anchor signe_marriage bears on blueprint.contract.mandatory_ending_tone = bittersweet (nature: pressures)
+  [info] (entity_link) declared entity link: alternative signe_marriage [concerns] relates to decision.structural_anchors[id=signe_marriage] = anchor signe_marriage
+  combination ['marta_pregnancy'] (kept: ['signe_marriage'], cut: ['marta_pregnancy'])
+    [warning] (roster_slot) required character Marta (standing=unset) has no roster slot in the current Blueprint
+    [info] (anchor_carrier) no carrier declared for anchor marta_pregnancy
+    [info] (anchor_bears_on) anchor marta_pregnancy bears on blueprint.contract.mandatory_ending_tone = bittersweet (nature: sustains)
+    [info] (anchor_bears_on) anchor marta_pregnancy bears on blueprint.identity.pov_type = third_person_limited_single (nature: pressures)
+    [info] (entity_link) declared entity link: alternative marta_pregnancy [concerns] relates to decision.structural_anchors[id=marta_pregnancy] = anchor marta_pregnancy
+    [info] (nature_consequence) cut alternative marta_pregnancy removes its declared sustaining relationship to blueprint.contract.mandatory_ending_tone = bittersweet
+    [info] (nature_consequence) cut alternative marta_pregnancy removes its declared pressuring relationship to blueprint.identity.pov_type = third_person_limited_single
+    [info] (nature_consequence) kept alternative signe_marriage preserves its declared sustaining relationship to blueprint.identity.pov_type = third_person_limited_single
+    [info] (nature_consequence) kept alternative signe_marriage preserves its declared pressuring relationship to blueprint.contract.mandatory_ending_tone = bittersweet
+  combination ['signe_marriage'] (kept: ['marta_pregnancy'], cut: ['signe_marriage'])
+    [info] (roster_slot) required character Signe (standing=protagonist) is represented in the roster as protagonist, arc growth
+    [warning] (roster_slot) roster slot for Signe is not linked to an identity character
+    [info] (anchor_carrier) no carrier declared for anchor signe_marriage
+    [info] (anchor_bears_on) anchor signe_marriage bears on blueprint.identity.pov_type = third_person_limited_single (nature: sustains)
+    [info] (anchor_bears_on) anchor signe_marriage bears on blueprint.contract.mandatory_ending_tone = bittersweet (nature: pressures)
+    [info] (entity_link) declared entity link: alternative signe_marriage [concerns] relates to decision.structural_anchors[id=signe_marriage] = anchor signe_marriage
+    [info] (nature_consequence) cut alternative signe_marriage removes its declared sustaining relationship to blueprint.identity.pov_type = third_person_limited_single
+    [info] (nature_consequence) cut alternative signe_marriage removes its declared pressuring relationship to blueprint.contract.mandatory_ending_tone = bittersweet
+    [info] (nature_consequence) kept alternative marta_pregnancy preserves its declared sustaining relationship to blueprint.contract.mandatory_ending_tone = bittersweet
+    [info] (nature_consequence) kept alternative marta_pregnancy preserves its declared pressuring relationship to blueprint.identity.pov_type = third_person_limited_single
+No consequence implies a recommendation; alternatives are not ranked.
+No verdict is rendered; creative evaluation is the author's responsibility.
