@@ -224,7 +224,10 @@ class AuthorDecision(BaseModel):
         """B4 schema integrity (design Q8): duplicate anchor ids, duplicate
         refs within lists, and unsupported direction shapes all fail closed.
         combination_direction is valid ONLY for choose_k_of_n and one_of
-        (design 2026-08-choice-shape-composition.md); any other shape rejects."""
+        (design 2026-08-choice-shape-composition.md). The shape guard is
+        defense-in-depth: the rule Literal already rejects unknown shapes at
+        parse time, but any future shape added to the Literal must not inherit
+        direction semantics unless deliberately designed."""
         if (self.combination_direction is not None
                 and self.combination.rule not in ("choose_k_of_n", "one_of")):
             raise DecisionValidationError(

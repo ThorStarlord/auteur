@@ -89,9 +89,11 @@ def test_direction_value_closed_vocabulary():
 
 
 def test_direction_fail_closed_unknown_shape():
-    """If a future decision shape were added, direction must be rejected on it.
-    The rule Literal only admits one_of|choose_k_of_n today, so this exercises
-    the validator's fail-closed structure via a forced invalid rule."""
+    """If a future decision shape were added to the rule Literal, direction
+    must be rejected on it. The Literal only admits one_of|choose_k_of_n
+    today, so an invalid rule is rejected at parse (wrapped by from_dict);
+    the validator's shape guard is defense-in-depth for future Literal
+    extensions and is exercised directly by the rule-Literal rejection here."""
     data = _yaml.safe_load((CASE_ONE_OF / "one-of-directionless.yaml").read_text(encoding="utf-8"))
     data["combination"] = {"rule": "choose_two"}
     with pytest.raises(DecisionValidationError):
