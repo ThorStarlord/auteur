@@ -479,6 +479,31 @@ def _compose_nature_consequence(ctx, alternative_id: str, verb: str, op: str,
     return out
 
 
+def _probe_goal_significance(decision: AuthorDecision) -> list[DecisionConsequence]:
+    """F1 (design 2026-08-cross-goal-significance-f1.md @ 9ec4ef0): echoes the
+    authored, decision-scoped significance declaration as a provenance-labeled
+    observation. ECHO ONLY — never used to rank, score, reorder, or filter any
+    consequence; deterministic consequence content is byte-identical with or
+    without it. Absent declaration -> no observation."""
+    gs = decision.goal_significance
+    if gs is None:
+        return []
+    if gs.unranked is True:
+        message = (
+            "authored goal significance (this decision): unranked — "
+            "no goal has authored precedence; non-ranking is intentional"
+        )
+    else:
+        refs = gs.ordered
+        message = f"authored goal significance (this decision): {refs[0]} > {refs[1]}"
+    return [DecisionConsequence(
+        probe_id="goal_significance",
+        severity="info",
+        message=message,
+        refs=ConsequenceRefs(decision="goal_significance"),
+    )]
+
+
 # ---------------------------------------------------------------------------
 # Builder: grouping, provenance-preserving common extraction, distinguishability
 # ---------------------------------------------------------------------------
@@ -511,6 +536,7 @@ def build_consequences(ctx) -> dict[str, Any]:
         probe_set.append(_probe_explicit_alternative_relations(decision))
     probe_set += [
         _probe_combination_direction(decision),
+        _probe_goal_significance(decision),
         _probe_roster_slot(decision, identity, blueprint),
         _probe_thread_carrier(blueprint),
         _probe_declared_relationship(decision, ctx.resolved_defaults),

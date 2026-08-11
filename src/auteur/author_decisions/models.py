@@ -172,6 +172,50 @@ class StructuralAnchor(BaseModel):
     bears_on: list[AnchorBearsOn] = Field(default_factory=list)
 
 
+class GoalSignificance(BaseModel):
+    """F1: decision-scoped authored relative significance (design
+    2026-08-cross-goal-significance-f1.md @ 9ec4ef0). Closed shape: exactly
+    ``{ordered: [ref, ref]}`` (two distinct participating goal refs, most
+    significant first — purely author-authored) or ``{unranked: true}``
+    (affirmative intentional non-precedence). ECHO ONLY: never used to rank,
+    score, or apply. Genuinely unsettled significance ("I don't know") is NOT
+    representable here — leave the field absent; that case belongs to the
+    deferred F3 interaction."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    ordered: list[str] | None = None
+    unranked: bool | None = None
+
+    @model_validator(mode="after")
+    def _validate_shape(self) -> "GoalSignificance":
+        if (self.ordered is not None) == (self.unranked is not None):
+            raise DecisionValidationError(
+                "goal_significance must be exactly {ordered: [ref, ref]} or {unranked: true}"
+            )
+        if self.unranked is not None and self.unranked is not True:
+            raise DecisionValidationError(
+                "goal_significance.unranked must be true when present"
+            )
+        if self.ordered is not None:
+            if len(self.ordered) != 2:
+                raise DecisionValidationError(
+                    "goal_significance.ordered requires exactly two goal refs in this "
+                    "slice (three-or-more goal ordering is not supported)"
+                )
+            if len(set(self.ordered)) != 2:
+                raise DecisionValidationError(
+                    "goal_significance.ordered refs must be distinct"
+                )
+            for ref in self.ordered:
+                if not ref.startswith(("identity.", "blueprint.", "decision.")):
+                    raise DecisionValidationError(
+                        f"goal_significance ref {ref!r} must use an explicit root "
+                        "(identity. / blueprint. / decision.)"
+                    )
+        return self
+
+
 class AuthorDecision(BaseModel):
     """Authored, validated author decision artifact (YAML)."""
 
@@ -189,6 +233,7 @@ class AuthorDecision(BaseModel):
     alternative_bindings: list[AlternativeBinding] = Field(default_factory=list)
     structural_anchors: list[StructuralAnchor] = Field(default_factory=list)
     combination_direction: Literal["kept", "cut"] | None = None
+    goal_significance: GoalSignificance | None = None
 
     @model_validator(mode="after")
     def _validate_semantics(self) -> "AuthorDecision":
@@ -218,6 +263,7 @@ class AuthorDecision(BaseModel):
             raise DecisionValidationError("one_of must not carry k")
         self._validate_bindings()
         self._validate_anchors()
+        self._validate_goal_significance()
         return self
 
     def _validate_anchors(self) -> None:
@@ -256,6 +302,26 @@ class AuthorDecision(BaseModel):
             if len(set(refs)) != len(refs):
                 raise DecisionValidationError(
                     f"duplicate bears_on ref in anchor {a.anchor_id!r}"
+                )
+
+    def _validate_goal_significance(self) -> None:
+        """F1 schema integrity (design 2026-08-cross-goal-significance-f1.md
+        @ 9ec4ef0): every ordered ref must participate in this decision's
+        represented cross-goal tradeoff — a bears_on ref of this decision's
+        structural anchors. Stale/unknown/unrelated refs fail closed. The
+        ordering is echo-only; nothing here ranks or scores."""
+        gs = self.goal_significance
+        if gs is None or gs.ordered is None:
+            return
+        tradeoff_refs = {
+            b.ref for a in self.structural_anchors for b in a.bears_on
+        }
+        for ref in gs.ordered:
+            if ref not in tradeoff_refs:
+                raise DecisionValidationError(
+                    f"goal_significance ref {ref!r} does not participate in this "
+                    "decision's represented cross-goal tradeoff (must be a bears_on "
+                    "ref of this decision's structural anchors)"
                 )
 
     def _validate_bindings(self) -> None:

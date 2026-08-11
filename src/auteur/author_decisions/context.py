@@ -321,6 +321,13 @@ def build_decision_context(
             bears_on.append((b.ref, value, b.nature))
         resolved_anchors.append(ResolvedAnchor(a.anchor_id, a.kind, participants, carriers, bears_on))
 
+    # F1 (design 2026-08-cross-goal-significance-f1.md @ 9ec4ef0): goal refs
+    # must resolve against the current story (fail closed on stale/unknown).
+    # The ordering is echo-only — resolved values are NOT stored or used.
+    if decision.goal_significance is not None and decision.goal_significance.ordered:
+        for ref in decision.goal_significance.ordered:
+            _resolve_entity_ref(identity, blueprint, ref, decision)
+
     return DecisionContext(
         decision=decision,
         constraints=constraints,

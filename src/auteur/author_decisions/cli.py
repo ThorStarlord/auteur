@@ -286,6 +286,10 @@ def handle_view(args) -> int:
                     for a in decision.structural_anchors
                 ],
                 "combination_direction": decision.combination_direction,
+                "goal_significance": (
+                    decision.goal_significance.model_dump()
+                    if decision.goal_significance else None
+                ),
             },
             "resolved": None,
             "acceptance": None,
@@ -346,6 +350,7 @@ def handle_view(args) -> int:
             print(f"Alternative bindings (authored): {[(b['alternative_id'], [(r['entity_ref'], r['relationship']) for r in b['references']]) for b in out['authored']['alternative_bindings']]}")
             print(f"Structural anchors (authored): {[(a['anchor_id'], a['kind'], a['participants'], a['carrier_refs'], a['bears_on']) for a in out['authored']['structural_anchors']]}")
             print(f"Combination direction (authored): {out['authored']['combination_direction']}")
+            print(f"Goal significance (authored, decision-scoped): {out['authored']['goal_significance']}")
             if out["resolved"] is not None:
                 print("=== RESOLVED ===")
                 if "error" in out["resolved"]:
