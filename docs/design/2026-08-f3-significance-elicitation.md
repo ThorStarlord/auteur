@@ -1,4 +1,4 @@
-# Implementation Design — F3: consequence-focused elicitation for genuinely unsettled cross-goal significance
+﻿# Implementation Design — F3: consequence-focused elicitation for genuinely unsettled cross-goal significance
 
 > Phase: implementation design. Mechanism **M1 — `decision elicit` subcommand**,
 > agent-selected under delegated product authority (human brief 2026-08-11; discovery
@@ -51,10 +51,10 @@ renders:
 3. **Valid outcomes block:** the three valid author states with the exact record
    commands (ordered / unranked / undecided).
 
-Render is deterministic and identical for fixtures differing only in question/criterion
-prose (anti-inference control).
-
-### 1.2 Record mode (`--record`; explicit author action; atomic; auditable)
+Render is deterministic; the authored Question line is echoed verbatim, and
+everything after it (composed losses, elicitation question, valid outcomes)
+is byte-identical for fixtures differing only in question/criterion prose
+(anti-inference control).
 
 - **`--record ordered <REF1> <REF2>`** — validates the pair through the existing F1
   fail-closed path (`AuthorDecision.from_dict` with `goal_significance` set:
@@ -90,7 +90,8 @@ prose (anti-inference control).
 1. **Render golden** — competing-goals case (`case-goal-significance` fixtures):
    per-cut loss grouping + consequence-focused question + valid outcomes; exit 0.
 2. **Anti-inference render** — `unsettled-prose.yaml` and `absent.yaml` render
-   **byte-identical** (prose never parsed).
+   **byte-identical after the echoed authored Question line** (prose never
+   parsed).
 3. **Directionless one_of** — no composed losses exist; render says so honestly
    (no manufactured losses; no composition without authored direction).
 4. **Record ordered** — YAML gains `goal_significance.ordered`; reload via
