@@ -72,6 +72,31 @@ def register_author_decision_subcommands(ds) -> None:
     p_view.add_argument("--project", type=Path, default=Path("."))
     p_view.add_argument("--json", action="store_true")
 
+    p_elicit = ds.add_parser(
+        "elicit",
+        help="Consequence-focused elicitation for a genuinely unsettled author "
+             "(F3, design 2026-08-f3-elicitation.md @ 37bc784). Read-only by default; "
+             "--record writes the author's explicit outcome into the existing F1 "
+             "goal_significance field, or records undecided (no write).",
+    )
+    p_elicit.add_argument("decision_id", type=str)
+    p_elicit.add_argument("--identity", type=Path, required=True,
+                          help="Accepted story_identity.yaml path.")
+    p_elicit.add_argument("--blueprint", type=Path, required=True,
+                          help="Current blueprint.yaml path.")
+    p_elicit.add_argument("--project", type=Path, default=Path("."))
+    p_elicit.add_argument(
+        "--record", choices=["ordered", "unranked", "undecided"], default=None,
+        help="Explicit author outcome: ordered (two participating goal refs), "
+             "unranked (intentional non-precedence), or undecided (no write). "
+             "Without --record the command is read-only.",
+    )
+    p_elicit.add_argument(
+        "--refs", nargs="+", default=None,
+        help="Exactly two participating goal refs for --record ordered (most "
+             "significant first).",
+    )
+
 
 def author_decision_handlers() -> dict:
     return {
@@ -79,6 +104,7 @@ def author_decision_handlers() -> dict:
         "accept": handle_accept,
         "evaluate": handle_evaluate,
         "view": handle_view,
+        "elicit": handle_elicit,
     }
 
 
@@ -370,6 +396,117 @@ def handle_view(args) -> int:
                     print(f"staleness vs current Identity/Blueprint: {out['acceptance']['staleness']}")
             else:
                 print("=== ACCEPTANCE: none (authored only) ===")
+        return 0
+    except (DecisionValidationError, FileNotFoundError) as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+    except Exception as exc:  # pragma: no cover
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+
+
+def handle_elicit(args) -> int:
+    """F3 (design 2026-08-f3-elicitation.md @ 37bc784): consequence-focused
+    elicitation for a genuinely unsettled author. Render mode (default) shows the
+    ALREADY-COMPOSED concrete losses (verbatim nature_consequence findings grouped
+    per cut) plus the consequence-focused question and the three valid outcomes —
+    nothing inferred from prose, nothing ranked, no recommendation. Record mode
+    (--record) writes the author's explicit outcome into the EXISTING F1
+    goal_significance field (ordered | unranked), or records undecided by writing
+    nothing. Fail-closed via AuthorDecision.from_dict round-trip; authored
+    significance is never silently overwritten."""
+    try:
+        decision = _load_decision(args.project, args.decision_id)
+        if decision.decision_id != args.decision_id:
+            print(
+                f"Error: artifact decision_id {decision.decision_id!r} does not match filename stem {args.decision_id!r}",
+                file=sys.stderr,
+            )
+            return 1
+        identity = _load_identity(args.identity)
+        blueprint = _load_blueprint(args.blueprint)
+        ctx = build_decision_context(decision, identity, blueprint)
+        report = ctx.build_report()
+        cons = report.get("consequences", {})
+
+        # --- render mode (always shown first) ---
+        print(f"=== ELICITATION: {decision.decision_id} ===")
+        print(f"Question: {decision.unresolved_choice.question}")
+        combos = cons.get("combinations", [])
+        if not combos:
+            print()
+            print("No composed consequences exist for this decision yet — an authored")
+            print("combination_direction (one_of means kept or cut) is required before")
+            print("the concrete losses of each cut can be composed. Nothing to elicit.")
+            if args.record is not None:
+                print()
+                print("No outcome can be recorded against an uncomposed decision.")
+            return 0 if args.record is None else 1
+        print()
+        print("CONCRETE CONSEQUENCES (composed, verbatim):")
+        for combo in combos:
+            cut_members = combo.get("cut") or []
+            findings = combo.get("findings", [])
+            for member in cut_members:
+                print(f"  If you CUT {member}, you remove:")
+                removes = [
+                    f["message"] for f in findings
+                    if f.get("probe_id") == "nature_consequence"
+                    and f["message"].startswith(f"cut alternative {member} removes")
+                ]
+                if not removes:
+                    print("    (no declared nature consequences for this cut)")
+                for msg in removes:
+                    print(f"    - {msg}")
+        print()
+        print("QUESTION (consequence-focused):")
+        print("  Which of these concrete losses would you regret more?")
+        print()
+        print("VALID OUTCOMES (nothing is recorded unless you choose):")
+        print("  - you discover a priority       -> auteur decision elicit <id> \\")
+        print("       --identity ... --blueprint ... --record ordered <REF1> <REF2>")
+        print("  - intentional non-precedence    -> auteur decision elicit <id> \\")
+        print("       --identity ... --blueprint ... --record unranked")
+        print("  - still genuinely undecided     -> auteur decision elicit <id> \\")
+        print("       --identity ... --blueprint ... --record undecided (nothing is written)")
+
+        # --- record mode: explicit author action ---
+        if args.record is None:
+            return 0
+        if decision.goal_significance is not None:
+            print(
+                "Error: this decision already declares authored significance "
+                f"({decision.goal_significance.model_dump()}); elicitation is for "
+                "genuinely unsettled decisions. Edit the decision YAML directly to "
+                "change an existing declaration.",
+                file=sys.stderr,
+            )
+            return 1
+        if args.record == "undecided":
+            print()
+            print("Recorded: continue-undecided. The decision remains genuinely")
+            print("undecided — a valid outcome. No significance field was written;")
+            print("you may revisit this tradeoff later.")
+            return 0
+        if args.record == "ordered":
+            if not args.refs or len(args.refs) != 2:
+                print("Error: --record ordered requires exactly two --refs (most significant first).",
+                      file=sys.stderr)
+                return 1
+            goal_significance = {"ordered": list(args.refs)}
+        else:  # unranked
+            goal_significance = {"unranked": True}
+
+        # Fail-closed write: round-trip the whole artifact through the schema.
+        path = store.artifact_path(args.project, args.decision_id)
+        data = store.read_yaml(path)
+        data["goal_significance"] = goal_significance
+        AuthorDecision.from_dict(data)  # raises DecisionValidationError on any violation
+        store.atomic_write_yaml(path, data)
+        print()
+        print(f"Recorded into the existing F1 goal_significance field: {goal_significance}")
+        if args.record == "ordered":
+            print(f"Authored significance (this decision): {args.refs[0]} > {args.refs[1]}")
         return 0
     except (DecisionValidationError, FileNotFoundError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
