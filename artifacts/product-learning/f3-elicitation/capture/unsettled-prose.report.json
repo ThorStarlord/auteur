@@ -1,0 +1,682 @@
+{
+  "decision_id": "goal-significance-unsettled-prose",
+  "has_goal_significance": false,
+  "observations": [
+    {
+      "probe_id": "combination_direction",
+      "severity": "info",
+      "message": "authored combination direction: one_of means cut",
+      "refs": {
+        "decision": "combination",
+        "identity": null,
+        "blueprint": null,
+        "outcome": null
+      },
+      "scope": "common",
+      "target": "",
+      "discriminates": false,
+      "members": [
+        "marta_pregnancy",
+        "signe_marriage"
+      ]
+    },
+    {
+      "probe_id": "roster_slot",
+      "severity": "warning",
+      "message": "required character Marta (standing=unset) has no roster slot in the current Blueprint",
+      "refs": {
+        "decision": "required_characters[0]",
+        "identity": "characters[2]",
+        "blueprint": null,
+        "outcome": null
+      },
+      "scope": "common",
+      "target": "",
+      "discriminates": false,
+      "members": [
+        "marta_pregnancy",
+        "signe_marriage"
+      ]
+    },
+    {
+      "probe_id": "roster_slot",
+      "severity": "info",
+      "message": "required character Signe (standing=protagonist) is represented in the roster as protagonist, arc growth",
+      "refs": {
+        "decision": "required_characters[1]",
+        "identity": "characters[0]",
+        "blueprint": "characters[0]",
+        "outcome": null
+      },
+      "scope": "common",
+      "target": "",
+      "discriminates": false,
+      "members": [
+        "marta_pregnancy",
+        "signe_marriage"
+      ]
+    },
+    {
+      "probe_id": "roster_slot",
+      "severity": "warning",
+      "message": "roster slot for Signe is not linked to an identity character",
+      "refs": {
+        "decision": "required_characters[1]",
+        "identity": "characters[0]",
+        "blueprint": "characters[0]",
+        "outcome": null
+      },
+      "scope": "common",
+      "target": "",
+      "discriminates": false,
+      "members": [
+        "marta_pregnancy",
+        "signe_marriage"
+      ]
+    },
+    {
+      "probe_id": "thread_carrier",
+      "severity": "info",
+      "message": "thread structure has 3 thread(s): Secondary Struggle, Relationship Echo, Secondary Subplot 3; the Blueprint exposes no explicit thread-to-character linkage, so thread carriers for decision characters cannot be verified",
+      "refs": {
+        "decision": null,
+        "identity": null,
+        "blueprint": "story_engine.threads",
+        "outcome": null
+      },
+      "scope": "common",
+      "target": "",
+      "discriminates": false,
+      "members": [
+        "marta_pregnancy",
+        "signe_marriage"
+      ]
+    },
+    {
+      "probe_id": "declared_relationship",
+      "severity": "warning",
+      "message": "declared relationship: contract.mandatory_ending_tone = bittersweet [conflicts_with] relates_to not_this[3]",
+      "refs": {
+        "decision": "default_references[0]",
+        "identity": null,
+        "blueprint": "contract.mandatory_ending_tone",
+        "outcome": null
+      },
+      "scope": "common",
+      "target": "",
+      "discriminates": false,
+      "members": [
+        "marta_pregnancy",
+        "signe_marriage"
+      ]
+    },
+    {
+      "probe_id": "blocked_provenance_relevance",
+      "severity": "info",
+      "message": "no blocked propagation outcomes reference decision characters",
+      "refs": {
+        "decision": "blocked_provenance.outcome_refs",
+        "identity": null,
+        "blueprint": "identity_propagation.outcomes",
+        "outcome": null
+      },
+      "scope": "common",
+      "target": "",
+      "discriminates": false,
+      "members": [
+        "marta_pregnancy",
+        "signe_marriage"
+      ]
+    }
+  ],
+  "alternatives": [
+    {
+      "alternative_id": "marta_pregnancy",
+      "findings": [
+        {
+          "probe_id": "roster_slot",
+          "severity": "warning",
+          "message": "required character Marta (standing=unset) has no roster slot in the current Blueprint",
+          "refs": {
+            "decision": "structural_anchors[marta_pregnancy][0]",
+            "identity": "characters[2]",
+            "blueprint": null,
+            "outcome": null
+          },
+          "scope": "alternative",
+          "target": "marta_pregnancy",
+          "discriminates": true,
+          "members": [
+            "marta_pregnancy"
+          ]
+        },
+        {
+          "probe_id": "anchor_carrier",
+          "severity": "info",
+          "message": "no carrier declared for anchor marta_pregnancy",
+          "refs": {
+            "decision": "structural_anchors[marta_pregnancy]",
+            "identity": null,
+            "blueprint": null,
+            "outcome": null
+          },
+          "scope": "alternative",
+          "target": "marta_pregnancy",
+          "discriminates": true,
+          "members": [
+            "marta_pregnancy"
+          ]
+        },
+        {
+          "probe_id": "anchor_bears_on",
+          "severity": "info",
+          "message": "anchor marta_pregnancy bears on blueprint.contract.mandatory_ending_tone = bittersweet (nature: sustains)",
+          "refs": {
+            "decision": "structural_anchors[marta_pregnancy]",
+            "identity": null,
+            "blueprint": null,
+            "outcome": null
+          },
+          "scope": "alternative",
+          "target": "marta_pregnancy",
+          "discriminates": true,
+          "members": [
+            "marta_pregnancy"
+          ]
+        },
+        {
+          "probe_id": "anchor_bears_on",
+          "severity": "info",
+          "message": "anchor marta_pregnancy bears on blueprint.identity.pov_type = third_person_limited_single (nature: pressures)",
+          "refs": {
+            "decision": "structural_anchors[marta_pregnancy]",
+            "identity": null,
+            "blueprint": null,
+            "outcome": null
+          },
+          "scope": "alternative",
+          "target": "marta_pregnancy",
+          "discriminates": true,
+          "members": [
+            "marta_pregnancy"
+          ]
+        },
+        {
+          "probe_id": "entity_link",
+          "severity": "info",
+          "message": "declared entity link: alternative marta_pregnancy [concerns] relates to decision.structural_anchors[id=marta_pregnancy] = anchor marta_pregnancy",
+          "refs": {
+            "decision": "alternative_bindings[marta_pregnancy]",
+            "identity": null,
+            "blueprint": null,
+            "outcome": null
+          },
+          "scope": "alternative",
+          "target": "marta_pregnancy",
+          "discriminates": true,
+          "members": [
+            "marta_pregnancy"
+          ]
+        }
+      ]
+    },
+    {
+      "alternative_id": "signe_marriage",
+      "findings": [
+        {
+          "probe_id": "roster_slot",
+          "severity": "info",
+          "message": "required character Signe (standing=protagonist) is represented in the roster as protagonist, arc growth",
+          "refs": {
+            "decision": "structural_anchors[signe_marriage][0]",
+            "identity": "characters[0]",
+            "blueprint": "characters[0]",
+            "outcome": null
+          },
+          "scope": "alternative",
+          "target": "signe_marriage",
+          "discriminates": true,
+          "members": [
+            "signe_marriage"
+          ]
+        },
+        {
+          "probe_id": "roster_slot",
+          "severity": "warning",
+          "message": "roster slot for Signe is not linked to an identity character",
+          "refs": {
+            "decision": "structural_anchors[signe_marriage][0]",
+            "identity": "characters[0]",
+            "blueprint": "characters[0]",
+            "outcome": null
+          },
+          "scope": "alternative",
+          "target": "signe_marriage",
+          "discriminates": true,
+          "members": [
+            "signe_marriage"
+          ]
+        },
+        {
+          "probe_id": "anchor_carrier",
+          "severity": "info",
+          "message": "no carrier declared for anchor signe_marriage",
+          "refs": {
+            "decision": "structural_anchors[signe_marriage]",
+            "identity": null,
+            "blueprint": null,
+            "outcome": null
+          },
+          "scope": "alternative",
+          "target": "signe_marriage",
+          "discriminates": true,
+          "members": [
+            "signe_marriage"
+          ]
+        },
+        {
+          "probe_id": "anchor_bears_on",
+          "severity": "info",
+          "message": "anchor signe_marriage bears on blueprint.identity.pov_type = third_person_limited_single (nature: sustains)",
+          "refs": {
+            "decision": "structural_anchors[signe_marriage]",
+            "identity": null,
+            "blueprint": null,
+            "outcome": null
+          },
+          "scope": "alternative",
+          "target": "signe_marriage",
+          "discriminates": true,
+          "members": [
+            "signe_marriage"
+          ]
+        },
+        {
+          "probe_id": "anchor_bears_on",
+          "severity": "info",
+          "message": "anchor signe_marriage bears on blueprint.contract.mandatory_ending_tone = bittersweet (nature: pressures)",
+          "refs": {
+            "decision": "structural_anchors[signe_marriage]",
+            "identity": null,
+            "blueprint": null,
+            "outcome": null
+          },
+          "scope": "alternative",
+          "target": "signe_marriage",
+          "discriminates": true,
+          "members": [
+            "signe_marriage"
+          ]
+        },
+        {
+          "probe_id": "entity_link",
+          "severity": "info",
+          "message": "declared entity link: alternative signe_marriage [concerns] relates to decision.structural_anchors[id=signe_marriage] = anchor signe_marriage",
+          "refs": {
+            "decision": "alternative_bindings[signe_marriage]",
+            "identity": null,
+            "blueprint": null,
+            "outcome": null
+          },
+          "scope": "alternative",
+          "target": "signe_marriage",
+          "discriminates": true,
+          "members": [
+            "signe_marriage"
+          ]
+        }
+      ]
+    }
+  ],
+  "combinations": [
+    {
+      "combination": [
+        "marta_pregnancy"
+      ],
+      "findings": [
+        {
+          "probe_id": "roster_slot",
+          "severity": "warning",
+          "message": "required character Marta (standing=unset) has no roster slot in the current Blueprint",
+          "refs": {
+            "decision": "structural_anchors[marta_pregnancy][0]",
+            "identity": "characters[2]",
+            "blueprint": null,
+            "outcome": null
+          },
+          "scope": "combination",
+          "target": "('marta_pregnancy',)",
+          "discriminates": true,
+          "members": [
+            "('marta_pregnancy',)"
+          ]
+        },
+        {
+          "probe_id": "anchor_carrier",
+          "severity": "info",
+          "message": "no carrier declared for anchor marta_pregnancy",
+          "refs": {
+            "decision": "structural_anchors[marta_pregnancy]",
+            "identity": null,
+            "blueprint": null,
+            "outcome": null
+          },
+          "scope": "combination",
+          "target": "('marta_pregnancy',)",
+          "discriminates": true,
+          "members": [
+            "('marta_pregnancy',)"
+          ]
+        },
+        {
+          "probe_id": "anchor_bears_on",
+          "severity": "info",
+          "message": "anchor marta_pregnancy bears on blueprint.contract.mandatory_ending_tone = bittersweet (nature: sustains)",
+          "refs": {
+            "decision": "structural_anchors[marta_pregnancy]",
+            "identity": null,
+            "blueprint": null,
+            "outcome": null
+          },
+          "scope": "combination",
+          "target": "('marta_pregnancy',)",
+          "discriminates": true,
+          "members": [
+            "('marta_pregnancy',)"
+          ]
+        },
+        {
+          "probe_id": "anchor_bears_on",
+          "severity": "info",
+          "message": "anchor marta_pregnancy bears on blueprint.identity.pov_type = third_person_limited_single (nature: pressures)",
+          "refs": {
+            "decision": "structural_anchors[marta_pregnancy]",
+            "identity": null,
+            "blueprint": null,
+            "outcome": null
+          },
+          "scope": "combination",
+          "target": "('marta_pregnancy',)",
+          "discriminates": true,
+          "members": [
+            "('marta_pregnancy',)"
+          ]
+        },
+        {
+          "probe_id": "entity_link",
+          "severity": "info",
+          "message": "declared entity link: alternative marta_pregnancy [concerns] relates to decision.structural_anchors[id=marta_pregnancy] = anchor marta_pregnancy",
+          "refs": {
+            "decision": "alternative_bindings[marta_pregnancy]",
+            "identity": null,
+            "blueprint": null,
+            "outcome": null
+          },
+          "scope": "combination",
+          "target": "('marta_pregnancy',)",
+          "discriminates": true,
+          "members": [
+            "('marta_pregnancy',)"
+          ]
+        },
+        {
+          "probe_id": "nature_consequence",
+          "severity": "info",
+          "message": "cut alternative marta_pregnancy removes its declared sustaining relationship to blueprint.contract.mandatory_ending_tone = bittersweet",
+          "refs": {
+            "decision": "structural_anchors[marta_pregnancy]",
+            "identity": null,
+            "blueprint": null,
+            "outcome": null
+          },
+          "scope": "combination",
+          "target": "('marta_pregnancy',)",
+          "discriminates": true,
+          "members": [
+            "('marta_pregnancy',)"
+          ]
+        },
+        {
+          "probe_id": "nature_consequence",
+          "severity": "info",
+          "message": "cut alternative marta_pregnancy removes its declared pressuring relationship to blueprint.identity.pov_type = third_person_limited_single",
+          "refs": {
+            "decision": "structural_anchors[marta_pregnancy]",
+            "identity": null,
+            "blueprint": null,
+            "outcome": null
+          },
+          "scope": "combination",
+          "target": "('marta_pregnancy',)",
+          "discriminates": true,
+          "members": [
+            "('marta_pregnancy',)"
+          ]
+        },
+        {
+          "probe_id": "nature_consequence",
+          "severity": "info",
+          "message": "kept alternative signe_marriage preserves its declared sustaining relationship to blueprint.identity.pov_type = third_person_limited_single",
+          "refs": {
+            "decision": "structural_anchors[signe_marriage]",
+            "identity": null,
+            "blueprint": null,
+            "outcome": null
+          },
+          "scope": "combination",
+          "target": "('marta_pregnancy',)",
+          "discriminates": true,
+          "members": [
+            "('marta_pregnancy',)"
+          ]
+        },
+        {
+          "probe_id": "nature_consequence",
+          "severity": "info",
+          "message": "kept alternative signe_marriage preserves its declared pressuring relationship to blueprint.contract.mandatory_ending_tone = bittersweet",
+          "refs": {
+            "decision": "structural_anchors[signe_marriage]",
+            "identity": null,
+            "blueprint": null,
+            "outcome": null
+          },
+          "scope": "combination",
+          "target": "('marta_pregnancy',)",
+          "discriminates": true,
+          "members": [
+            "('marta_pregnancy',)"
+          ]
+        }
+      ],
+      "kept": [
+        "signe_marriage"
+      ],
+      "cut": [
+        "marta_pregnancy"
+      ]
+    },
+    {
+      "combination": [
+        "signe_marriage"
+      ],
+      "findings": [
+        {
+          "probe_id": "roster_slot",
+          "severity": "info",
+          "message": "required character Signe (standing=protagonist) is represented in the roster as protagonist, arc growth",
+          "refs": {
+            "decision": "structural_anchors[signe_marriage][0]",
+            "identity": "characters[0]",
+            "blueprint": "characters[0]",
+            "outcome": null
+          },
+          "scope": "combination",
+          "target": "('signe_marriage',)",
+          "discriminates": true,
+          "members": [
+            "('signe_marriage',)"
+          ]
+        },
+        {
+          "probe_id": "roster_slot",
+          "severity": "warning",
+          "message": "roster slot for Signe is not linked to an identity character",
+          "refs": {
+            "decision": "structural_anchors[signe_marriage][0]",
+            "identity": "characters[0]",
+            "blueprint": "characters[0]",
+            "outcome": null
+          },
+          "scope": "combination",
+          "target": "('signe_marriage',)",
+          "discriminates": true,
+          "members": [
+            "('signe_marriage',)"
+          ]
+        },
+        {
+          "probe_id": "anchor_carrier",
+          "severity": "info",
+          "message": "no carrier declared for anchor signe_marriage",
+          "refs": {
+            "decision": "structural_anchors[signe_marriage]",
+            "identity": null,
+            "blueprint": null,
+            "outcome": null
+          },
+          "scope": "combination",
+          "target": "('signe_marriage',)",
+          "discriminates": true,
+          "members": [
+            "('signe_marriage',)"
+          ]
+        },
+        {
+          "probe_id": "anchor_bears_on",
+          "severity": "info",
+          "message": "anchor signe_marriage bears on blueprint.identity.pov_type = third_person_limited_single (nature: sustains)",
+          "refs": {
+            "decision": "structural_anchors[signe_marriage]",
+            "identity": null,
+            "blueprint": null,
+            "outcome": null
+          },
+          "scope": "combination",
+          "target": "('signe_marriage',)",
+          "discriminates": true,
+          "members": [
+            "('signe_marriage',)"
+          ]
+        },
+        {
+          "probe_id": "anchor_bears_on",
+          "severity": "info",
+          "message": "anchor signe_marriage bears on blueprint.contract.mandatory_ending_tone = bittersweet (nature: pressures)",
+          "refs": {
+            "decision": "structural_anchors[signe_marriage]",
+            "identity": null,
+            "blueprint": null,
+            "outcome": null
+          },
+          "scope": "combination",
+          "target": "('signe_marriage',)",
+          "discriminates": true,
+          "members": [
+            "('signe_marriage',)"
+          ]
+        },
+        {
+          "probe_id": "entity_link",
+          "severity": "info",
+          "message": "declared entity link: alternative signe_marriage [concerns] relates to decision.structural_anchors[id=signe_marriage] = anchor signe_marriage",
+          "refs": {
+            "decision": "alternative_bindings[signe_marriage]",
+            "identity": null,
+            "blueprint": null,
+            "outcome": null
+          },
+          "scope": "combination",
+          "target": "('signe_marriage',)",
+          "discriminates": true,
+          "members": [
+            "('signe_marriage',)"
+          ]
+        },
+        {
+          "probe_id": "nature_consequence",
+          "severity": "info",
+          "message": "cut alternative signe_marriage removes its declared sustaining relationship to blueprint.identity.pov_type = third_person_limited_single",
+          "refs": {
+            "decision": "structural_anchors[signe_marriage]",
+            "identity": null,
+            "blueprint": null,
+            "outcome": null
+          },
+          "scope": "combination",
+          "target": "('signe_marriage',)",
+          "discriminates": true,
+          "members": [
+            "('signe_marriage',)"
+          ]
+        },
+        {
+          "probe_id": "nature_consequence",
+          "severity": "info",
+          "message": "cut alternative signe_marriage removes its declared pressuring relationship to blueprint.contract.mandatory_ending_tone = bittersweet",
+          "refs": {
+            "decision": "structural_anchors[signe_marriage]",
+            "identity": null,
+            "blueprint": null,
+            "outcome": null
+          },
+          "scope": "combination",
+          "target": "('signe_marriage',)",
+          "discriminates": true,
+          "members": [
+            "('signe_marriage',)"
+          ]
+        },
+        {
+          "probe_id": "nature_consequence",
+          "severity": "info",
+          "message": "kept alternative marta_pregnancy preserves its declared sustaining relationship to blueprint.contract.mandatory_ending_tone = bittersweet",
+          "refs": {
+            "decision": "structural_anchors[marta_pregnancy]",
+            "identity": null,
+            "blueprint": null,
+            "outcome": null
+          },
+          "scope": "combination",
+          "target": "('signe_marriage',)",
+          "discriminates": true,
+          "members": [
+            "('signe_marriage',)"
+          ]
+        },
+        {
+          "probe_id": "nature_consequence",
+          "severity": "info",
+          "message": "kept alternative marta_pregnancy preserves its declared pressuring relationship to blueprint.identity.pov_type = third_person_limited_single",
+          "refs": {
+            "decision": "structural_anchors[marta_pregnancy]",
+            "identity": null,
+            "blueprint": null,
+            "outcome": null
+          },
+          "scope": "combination",
+          "target": "('signe_marriage',)",
+          "discriminates": true,
+          "members": [
+            "('signe_marriage',)"
+          ]
+        }
+      ],
+      "kept": [
+        "marta_pregnancy"
+      ],
+      "cut": [
+        "signe_marriage"
+      ]
+    }
+  ]
+}
