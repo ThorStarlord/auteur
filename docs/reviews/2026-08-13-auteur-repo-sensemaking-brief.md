@@ -15,9 +15,9 @@ Auteur is an opinionated **narrative-engine toolkit for long-form fiction**. It 
 
 ## 3. Strong signals
 
-1. **Verification gap is zero.** The README's declared check (`scripts/check.py`) is actually enforced in CI: `verification_gap.vg = 0.0`, `declared=['scripts/check.py']`, `enforced=['pytest', 'scripts/check.py']` (`artifacts/09-orchestration-run/probe-report.yaml`; `README.md:337-343`; `.github/workflows/validation.yml:28-32`). The "deterministic rails" claim is genuinely wired, not aspirational.
+1. **Verification gap is zero.** The README's declared check (`scripts/check.py`) is actually enforced in CI: `verification_gap.vg = 0.0`, `declared=['scripts/check.py']`, `enforced=['pytest', 'scripts/check.py']` (`docs/reviews/2026-08-13-auteur-repo-sensemaking-probe-report.yaml`; `README.md:337-343`; `.github/workflows/validation.yml:28-32`). The "deterministic rails" claim is genuinely wired, not aspirational.
 2. **Version is consistent.** Probe `relationships.version.findings` is empty; declared version `0.37.1` (`pyproject.toml:7`) is the single distinct value across 114 doc/test version claims. No version drift.
-3. **Mature decision history.** 18 ADRs, all `Accepted`, 001-017 (`artifacts/09-orchestration-run/probe-report.yaml` `relationships.adr.catalog`).
+3. **Mature decision history.** 18 ADRs, all `Accepted`, 001-017 (`docs/reviews/2026-08-13-auteur-repo-sensemaking-probe-report.yaml` `relationships.adr.catalog`).
 4. **Deterministic validation culture.** 15 validators, 73% fixture coverage, aggregated under `scripts/check.py` -> `test-validators.py` + `validate-repo.py` + ruff + pytest (`scripts/check.py:11-16`).
 5. **Clean working tree** (dirty=1, one unrelated file `.claude/settings.json`).
 
@@ -49,7 +49,7 @@ The most fragile boundary is the **repository's self-description: its decision r
 
 <!-- mode: investigative -->
 
-`docs/adr/013-series-graph-semantics.md:1` and `docs/adr/013-universe-to-series-propagation.md:1` both declare `# ADR 013` for two different topics ("Series Dependency Graph Semantics" vs. "Universe-to-Series Constraint Propagation"); the probe catalog confirms both entries carry `id: '013'` (`artifacts/09-orchestration-run/probe-report.yaml: relationships.adr.catalog`). `HANDOFF.md:57` still links `file:///h:/GithubRepositories/auteur/...` absolute paths and `HANDOFF.md:64` claims "184 unit and integration tests", whereas the probe counts 741 test files today. `scripts/validate-repo.py:13-54` enumerates the core-file/registry contracts but has no check for duplicate ADR numbers, and its `file:///` check (`scripts/validate-repo.py:338-339`) only scans `examples/`, so `HANDOFF.md`'s absolute paths are unguarded.
+`docs/adr/013-series-graph-semantics.md:1` and `docs/adr/013-universe-to-series-propagation.md:1` both declare `# ADR 013` for two different topics ("Series Dependency Graph Semantics" vs. "Universe-to-Series Constraint Propagation"); the probe catalog confirms both entries carry `id: '013'` (`docs/reviews/2026-08-13-auteur-repo-sensemaking-probe-report.yaml: relationships.adr.catalog`). `HANDOFF.md:57` still links `file:///h:/GithubRepositories/auteur/...` absolute paths and `HANDOFF.md:64` claims "184 unit and integration tests", whereas the probe counts 741 test files today. `scripts/validate-repo.py:13-54` enumerates the core-file/registry contracts but has no check for duplicate ADR numbers, and its `file:///` check (`scripts/validate-repo.py:338-339`) only scans `examples/`, so `HANDOFF.md`'s absolute paths are unguarded.
 
 Logic trace: the repo's trust model is "deterministic code owns artifact writing and validation rails" (`README.md:25-29`), and CI genuinely enforces the declared check (`verification_gap.vg = 0.0`). The rail that is *not* enforced is the one that keeps the repo's own names canonical: two ADRs share identifier `013` (no validator rejects the collision), and the root handoff document still speaks in a superseded release's vocabulary. Because the verified current state (741 test files, 18 accepted ADRs, v0.37.1) disagrees with the registered state (duplicate 013, "184 tests"), the self-description boundary is the weakest — a human or downstream skill reading "ADR 013" cannot tell which decision it names.
 
@@ -105,7 +105,7 @@ If the registry/handoff drift stays weak, "ADR 013" is permanently ambiguous (tw
 
 ## 11. Recommended next step
 
-Renumber the duplicate ADR and add a `validate-repo.py` duplicate-identifier guard. This is the smallest, highest-leverage fix and closes the registry-drift boundary with a deterministic check, consistent with the repo's existing "deterministic validation rails" philosophy. (Verified current state per `artifacts/09-orchestration-run/probe-report.yaml: relationships.adr.catalog` — both `013` entries `Accepted`.)
+Renumber the duplicate ADR and add a `validate-repo.py` duplicate-identifier guard. This is the smallest, highest-leverage fix and closes the registry-drift boundary with a deterministic check, consistent with the repo's existing "deterministic validation rails" philosophy. (Verified current state per `docs/reviews/2026-08-13-auteur-repo-sensemaking-probe-report.yaml: relationships.adr.catalog` — both `013` entries `Accepted`.)
 
 ## 12. Recommended workflow
 
@@ -116,7 +116,7 @@ Renumber the duplicate ADR and add a `validate-repo.py` duplicate-identifier gua
 ```yaml
 artifact_id: repository_sensemaking_brief
 schema_version: 1
-source_intent_ref: artifacts/09-orchestration-run/00-user-intent.md
+source_intent_ref: docs/reviews/2026-08-13-auteur-repo-sensemaking-intent.md
 user_implied_fog_type: unknown
 primary_fog_type: docs_fog
 diagnosis_conflict: false
@@ -127,7 +127,7 @@ evidence:
   - "HANDOFF.md (L57, L64): stale handoff - absolute file:/// paths and '184 tests' claim vs 741 current"
   - "src/auteur/reasoning/runtime.py (L339-341): writes {report_id}.json into caller-supplied report_dir"
   - ".gitignore (L33-37): reactive reports/ and /*.json rules hide root report sprawl"
-  - "artifacts/09-orchestration-run/probe-report.yaml fixtures_coverage: missing_fixtures [validate-mode-coverage, validate-project-classification, validate-repo, validate-workflow-design]"
+  - "docs/reviews/2026-08-13-auteur-repo-sensemaking-probe-report.yaml fixtures_coverage: missing_fixtures [validate-mode-coverage, validate-project-classification, validate-repo, validate-workflow-design]"
 recommended_workflow_id: docs-contract-reconciliation
 recommended_execution_mode: plan_only
 weakest_boundary: "Documentation/registry self-description drift (duplicate ADR 013; stale HANDOFF.md; unenforced reasoning-report output location)"
