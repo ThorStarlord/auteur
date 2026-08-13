@@ -175,6 +175,18 @@ def main():
     fixtures_base = args.fixtures_dir
     regressions_path = os.path.join(fixtures_base, "REGRESSIONS.yaml")
     
+    # Validators that validate the repository as a whole have valid-only
+    # coverage: a negative (invalid/) fixture is unsatisfiable because the
+    # repo state itself is the input (commit 9994238 retired their invalid/
+    # samples for exactly this reason). Their negative cases are exercised by
+    # the live repo state via scripts/check.py.
+    VALID_ONLY_VALIDATORS = {
+        "validate-repo",
+        "validate-mode-coverage",
+        "validate-project-classification",
+        "validate-workflow-design",
+    }
+    
     results = []
     
     # 0. Discover all validators in scripts/
@@ -196,6 +208,17 @@ def main():
         fixture_dir = os.path.join(fixtures_base, base_name)
         if not os.path.exists(fixture_dir) or not os.path.isdir(fixture_dir):
             coverage_failures.append(script)
+            continue
+        # Each validator needs a positive (valid/) fixture; negative (invalid/)
+        # fixtures are required too, EXCEPT for repo-wide validators whose
+        # negative case is the repo state itself and is therefore unsatisfiable
+        # as a portable fixture (see commit 9994238 and the valid-only convention).
+        if not os.path.isdir(os.path.join(fixture_dir, "valid")):
+            coverage_failures.append(f"{script} (missing valid/ fixtures)")
+        elif not os.path.isdir(os.path.join(fixture_dir, "invalid")) \
+                and base_name not in VALID_ONLY_VALIDATORS:
+            coverage_failures.append(
+                f"{script} (missing invalid/ fixtures and not a documented valid-only validator)")
 
     # 1. Discover validators in fixtures dir
     if os.path.exists(fixtures_base):
