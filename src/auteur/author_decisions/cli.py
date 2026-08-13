@@ -1,4 +1,4 @@
-"""CLI surface for author decision objects, registered under the existing
+﻿"""CLI surface for author decision objects, registered under the existing
 'decision' namespace: `auteur decision create|accept|evaluate|view`.
 
 NOTE: the read-only artifact view is named `view` because the existing
@@ -416,7 +416,7 @@ def handle_view(args) -> int:
             print(f"Structural anchors (authored): {[(a['anchor_id'], a['kind'], a['participants'], a['carrier_refs'], a['bears_on']) for a in out['authored']['structural_anchors']]}")
             print(f"Combination direction (authored): {out['authored']['combination_direction']}")
             print(f"Goal significance (authored, decision-scoped): {out['authored']['goal_significance']}")
-            if out["authored"].get("elicitation"):
+            if out["authored"].get("elicitation") and out["authored"]["elicitation"]["state"] != "declared":
                 _render_elicitation_hint(decision, args, out["authored"]["elicitation"]["state"])
             if out["resolved"] is not None:
                 print("=== RESOLVED ===")
