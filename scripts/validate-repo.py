@@ -428,7 +428,7 @@ def validate_repo():
     if root_derived:
         errors.append(
             f"{len(root_derived)} root-level .json artifact(s) present (e.g. {root_derived[0]}) - "
-            "reasoning reports must be written under <project>/.auteur/reasoning, not the repo root"
+            "derived report artifacts must live under <project>/.auteur/reasoning, not the repo root"
         )
 
     if errors:

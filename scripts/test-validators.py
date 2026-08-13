@@ -177,9 +177,13 @@ def main():
     
     # Validators that validate the repository as a whole have valid-only
     # coverage: a negative (invalid/) fixture is unsatisfiable because the
-    # repo state itself is the input (commit 9994238 retired their invalid/
-    # samples for exactly this reason). Their negative cases are exercised by
-    # the live repo state via scripts/check.py.
+    # input is the repo state itself, not a sample file. validate-project-
+    # classification scans hardcoded test projects (ignores file args) and
+    # validate-workflow-design / validate-repo / validate-mode-coverage take a
+    # repository root, so a portable negative fixture would have to be a full
+    # broken repo. Commit 9994238 retired their invalid/ samples for this
+    # reason; their negative cases are exercised by the live repo state via
+    # scripts/check.py.
     VALID_ONLY_VALIDATORS = {
         "validate-repo",
         "validate-mode-coverage",
