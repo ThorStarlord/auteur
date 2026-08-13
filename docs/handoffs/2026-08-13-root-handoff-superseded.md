@@ -1,3 +1,8 @@
+> **SUPERSEDED (2026-08-13).** Point-in-time handoff archived from the repo root during
+> docs-contract-reconciliation (see `docs/reviews/2026-08-13-auteur-repo-sensemaking-brief.md`).
+> It describes a superseded release ("newly implemented" Cartographer, "184 tests") and links
+> absolute `file:///` paths. Current state: v0.37.1, 741 test files, 18+ ADRs.
+
 # Auteur Cartographer Handoff & Release Guide
 
 Welcome to the new release of **Auteur**, now featuring a robust, production-grade story outline compilation and validation pipeline via the new **Cartographer** subcommands and programmatic proposal-resolution mutations.
