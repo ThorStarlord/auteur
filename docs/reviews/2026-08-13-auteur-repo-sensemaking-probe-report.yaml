@@ -1,0 +1,166 @@
+schema_version: 1
+probe_tool: sensemaking-skills probe-repo v1
+generated_at: '2026-08-13T01:22:08Z'
+repo_root: H:\GithubRepositories\auteur
+git_state:
+  is_git_repo: true
+  branch: main
+  head_sha: 3acf8a1
+  head_message: "docs(engineering): standing delegated-authority envelope \u2014 supersedes\
+    \ F3-specific delegation"
+  tracked_file_count: 1123
+  untracked_file_count: 0
+  ignored_present_entry_count: 0
+  dirty_file_count: 1
+verification_gap:
+  declared_checks:
+  - scripts/check.py
+  enforced_checks:
+  - pytest
+  - scripts/check.py
+  declared_in_ci:
+  - scripts/check.py
+  vg: 0.0
+  notes: ''
+context_entropy:
+  tracked_volume: 1123
+  untracked_volume: 0
+  ignored_present_volume: 0
+  ce: 0.0
+  notes: untracked+ignored (0) / tracked (1123)
+test_collection:
+  test_file_count: 741
+  pytest_config_present: true
+  markers_declared: ''
+fixtures_coverage:
+  total_validators: 15
+  covered_validators: 11
+  missing_fixtures:
+  - validate-mode-coverage
+  - validate-project-classification
+  - validate-repo
+  - validate-workflow-design
+  coverage: 0.73
+churn:
+  commits_scanned: 50
+  changed_files_last_n: 383
+  top_changed_files:
+  - src/auteur/author_decisions/consequences.py
+  - src/auteur/author_decisions/context.py
+  - src/auteur/author_decisions/cli.py
+  - src/auteur/author_decisions/models.py
+  - tests/test_author_decisions_anchors.py
+relationships:
+  doc_surface:
+    total: 510
+    live: 140
+    by_class:
+      example: 20
+      fixture: 27
+      generated: 206
+      historical: 111
+      live: 140
+      vendor: 6
+  version:
+    declarations: 2
+    subpackage_declarations: 2
+    claims: 114
+    distinct_values:
+    - 0.37.1
+    findings: []
+  adr:
+    files: 18
+    catalog:
+    - id: '001'
+      file: docs/adr/001-structure-proposal-format.md
+      title: 'ADR 001: Structure Proposal Artifact Format'
+      status: accepted
+      raw_status: Accepted
+    - id: '002'
+      file: docs/adr/002-shared-structure-proposal-format.md
+      title: 'ADR 002: Shared StructureProposal Format Across Audit and Structure
+        Paths'
+      status: accepted
+      raw_status: Accepted
+    - id: '003'
+      file: docs/adr/003-bible-audit-placement.md
+      title: 'ADR 003: Temporary Placement of bible_audit.py in auteur.structure'
+      status: accepted
+      raw_status: Accepted (deferred move)
+    - id: '004'
+      file: docs/adr/004-story-identity-schema.md
+      title: 'ADR 004: Story Identity Schema and Compilation Workflow'
+      status: accepted
+      raw_status: Accepted
+    - id: '005'
+      file: docs/adr/005-unified-diagnostics-and-state-commands.md
+      title: 'ADR 005: Unified Diagnostics and State Commands'
+      status: accepted
+      raw_status: Accepted
+    - id: '006'
+      file: docs/adr/006-opinionated-story-identity.md
+      title: 'ADR 006: Opinionated Story Identity Recommendation Metadata'
+      status: accepted
+      raw_status: Accepted
+    - id: '007'
+      file: docs/adr/007-medium-contract.md
+      title: 'ADR 007: Medium Contract As Layer 2 Delivery Grammar'
+      status: accepted
+      raw_status: Accepted
+    - id: 008
+      file: docs/adr/008-rich-target-experience.md
+      title: 'ADR 008: Rich Target Experience As Layer 1 Master Emotional Promise'
+      status: accepted
+      raw_status: Accepted
+    - id: 009
+      file: docs/adr/009-genre-setup-contract.md
+      title: 'ADR 009: Setup Contract and Emotional Runway in Genre Contracts'
+      status: accepted
+      raw_status: Accepted
+    - id: '010'
+      file: docs/adr/010-genre-overrides-classification.md
+      title: 'ADR 010: First-Class Genre Overrides and Consequence Classification'
+      status: accepted
+      raw_status: Accepted
+    - id: '011'
+      file: docs/adr/011-story-discovery-narrative-search.md
+      title: 'ADR 011: Story Discovery as Narrative Search'
+      status: accepted
+      raw_status: Accepted
+    - id: '012'
+      file: docs/adr/012-series-engine-v1.md
+      title: 'ADR 012: Series Engine V1'
+      status: accepted
+      raw_status: Accepted
+    - id: '013'
+      file: docs/adr/013-series-graph-semantics.md
+      title: 'ADR 013: Series Dependency Graph Semantics'
+      status: accepted
+      raw_status: Accepted
+    - id: '013'
+      file: docs/adr/013-universe-to-series-propagation.md
+      title: 'ADR 013: Universe-to-Series Constraint Propagation'
+      status: accepted
+      raw_status: Accepted
+    - id: '014'
+      file: docs/adr/014-agentic-editing-mode-v1.md
+      title: 'ADR 014: Agentic Editing Mode V1'
+      status: accepted
+      raw_status: Accepted.
+    - id: '015'
+      file: docs/adr/015-relationship-map-and-roundtrip.md
+      title: 'ADR 015: Relationship Map And Markdown Round-Trip'
+      status: accepted
+      raw_status: Accepted.
+    - id: '016'
+      file: docs/adr/016-genre-guide-template-builder.md
+      title: 'ADR 016: Genre Guide / Template Builder V1'
+      status: accepted
+      raw_status: Accepted.
+    - id: '017'
+      file: docs/adr/017-operational-genre-pipeline-runtime.md
+      title: 'ADR 017: Operational Genre Pipeline Runtime'
+      status: accepted
+      raw_status: Accepted.
+    references: 15
+    findings: []
