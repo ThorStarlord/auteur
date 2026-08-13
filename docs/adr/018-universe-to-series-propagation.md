@@ -1,4 +1,4 @@
-# ADR 013: Universe-to-Series Constraint Propagation
+# ADR 018: Universe-to-Series Constraint Propagation
 
 **Date:** 2026-07-11  
 **Status:** Accepted  

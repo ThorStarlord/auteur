@@ -389,6 +389,48 @@ def validate_repo():
         except UnicodeEncodeError:
             errors.append(f"Non-ASCII tracked filename: {name!r}")
 
+    # 10. ADR identifier uniqueness (registry self-description boundary):
+    #     every docs/adr/NNN-*.md must have a unique NNN, and the in-file
+    #     '# ADR NNN' header must match the filename number.
+    adr_dir = "docs/adr"
+    if os.path.isdir(adr_dir):
+        seen_numbers = {}
+        for f in sorted(os.listdir(adr_dir)):
+            if not f.endswith(".md"):
+                continue
+            m = re.match(r"^(\d{3})-.*\.md$", f)
+            if not m:
+                errors.append(f"ADR file does not match NNN-name.md convention: docs/adr/{f}")
+                continue
+            num = m.group(1)
+            if num in seen_numbers:
+                errors.append(
+                    f"Duplicate ADR identifier {num}: docs/adr/{seen_numbers[num]} and "
+                    f"docs/adr/{f} both claim number {num} - renumber one to the next free number."
+                )
+            else:
+                seen_numbers[num] = f
+            with open(os.path.join(adr_dir, f), 'r', encoding='utf-8') as fh:
+                first_line = fh.readline()
+            hm = re.search(r"^# ADR\s+(\d{3})", first_line)
+            if not hm:
+                errors.append(f"ADR file missing '# ADR NNN' header on line 1: docs/adr/{f}")
+            elif hm.group(1) != num:
+                errors.append(
+                    f"ADR header/file mismatch: docs/adr/{f} header claims ADR {hm.group(1)} "
+                    f"but filename says {num}"
+                )
+
+    # 11. Root-level derived artifacts must not accumulate (report_dir contract):
+    #     reasoning reports belong under <project>/.auteur/reasoning, never the repo
+    #     root. .gitignore's /*.json rule hides them reactively; this rule rejects them.
+    root_derived = [f for f in sorted(os.listdir(".")) if f.endswith(".json") and os.path.isfile(f)]
+    if root_derived:
+        errors.append(
+            f"{len(root_derived)} root-level .json artifact(s) present (e.g. {root_derived[0]}) - "
+            "derived report artifacts must live under <project>/.auteur/reasoning, not the repo root"
+        )
+
     if errors:
         print("Validation errors (repo is misaligned):")
         for err in errors:

@@ -30,15 +30,28 @@ _REASONING_RUNTIME: ReasoningRuntime | None = None
 _REASONING_REGISTRY: CriticRegistry | None = None
 
 
-def _get_reasoning_runtime(reasoning_runtime: ReasoningRuntime | None = None) -> ReasoningRuntime:
-    """Return the supplied instance or the lazy-global default."""
+def _get_reasoning_runtime(reasoning_runtime: ReasoningRuntime | None = None, *,
+                           report_dir: Path | None = None) -> ReasoningRuntime:
+    """Return the supplied instance or the lazy-global default.
+
+    The report_dir contract: reasoning reports are written to
+    ``<project>/.auteur/reasoning/<report_id>.json`` (see cli_dispatch.py).
+    The repo root is never a report target — a caller that knows its project
+    passes ``report_dir=<project>/.auteur/reasoning``; otherwise the default
+    resolves to ``.auteur/reasoning`` under the current directory.
+    """
     if reasoning_runtime is not None:
         return reasoning_runtime
     global _REASONING_RUNTIME, _REASONING_REGISTRY
     if _REASONING_RUNTIME is None:
         _REASONING_REGISTRY = CriticRegistry()
         register_draft_critics(_REASONING_REGISTRY)
-        _REASONING_RUNTIME = ReasoningRuntime(_REASONING_REGISTRY, report_dir=Path())
+        _REASONING_RUNTIME = ReasoningRuntime(
+            _REASONING_REGISTRY, report_dir=report_dir or Path(".auteur") / "reasoning")
+    elif report_dir is not None and _REASONING_RUNTIME.report_dir != report_dir:
+        # Project-scoped call: use a runtime bound to that project's canonical
+        # report dir instead of the shared default.
+        return ReasoningRuntime(_REASONING_REGISTRY, report_dir=report_dir)
     return _REASONING_RUNTIME
 
 def _run_critics_via_runtime(
@@ -51,13 +64,14 @@ def _run_critics_via_runtime(
     iteration: int,
     llm: LLMClient,
     reasoning_runtime: ReasoningRuntime | None = None,
+    report_dir: Path | None = None,
 ) -> ValidationReport:
     import json
     from auteur.llm.counting import _CountingClient
 
     counted = _CountingClient(llm) if not isinstance(llm, _CountingClient) else llm
 
-    runtime = _get_reasoning_runtime(reasoning_runtime)
+    runtime = _get_reasoning_runtime(reasoning_runtime, report_dir=report_dir)
     req = RuntimeRequest(
         critic_ids=["draft.contract", "draft.arc", "draft.tension", "draft.slop", "draft.theme"],
         inputs={
@@ -197,6 +211,8 @@ class PipelineRunner:
                 iteration=i,
                 llm=counted_llm,
                 reasoning_runtime=self._reasoning_runtime,
+                report_dir=(getattr(project, "path", None) / ".auteur" / "reasoning")
+                if getattr(project, "path", None) is not None else None,
             )
             project.write_validation(chapter_index, i, report)
             last_report = report

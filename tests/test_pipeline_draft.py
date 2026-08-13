@@ -140,3 +140,30 @@ conflict_report: "tension target 3 conflicts with required arc milestone (betray
     assert result.conflict_report == "tension target 3 conflicts with required arc milestone (betrayal)"
     assert (project.chapter_dir(1) / "outline.yaml").exists()
     assert not (project.chapter_dir(1) / "draft_v1.md").exists()
+
+
+def test_draft_chapter_reports_land_in_project_reasoning_dir(tmp_path):
+    """Reasoning reports must land under <project>/.auteur/reasoning, never the repo root.
+
+    Regression for the root-level report sprawl: ReasoningRuntime was created with
+    report_dir=Path() in runner.py, writing {report_id}.json into the working directory
+    (the repo root during dogfood/test runs).
+    """
+    blueprint = StoryBlueprint.from_yaml(SAMPLE_YAML)
+    project = Project.init(tmp_path / "novel", blueprint)
+
+    cartographer = LLMResponse(text=_cartographer_outline_yaml(), input_tokens=50, output_tokens=80)
+    iteration = _scripted_draft_iteration(fail=False)
+    client = FakeClient([cartographer, *iteration])
+
+    root_json_before = {p.name for p in Path.cwd().glob("*.json") if p.is_file()}
+    runner = PipelineRunner(blueprint, bible=project.bible)
+    result = runner.draft_chapter(1, llm=client, project=project, max_iterations=3)
+
+    assert result.accepted is True
+    report_dir = project.path / ".auteur" / "reasoning"
+    assert report_dir.is_dir()
+    reports = list(report_dir.glob("*.json"))
+    assert reports, "reasoning reports must land under <project>/.auteur/reasoning"
+    root_json_after = {p.name for p in Path.cwd().glob("*.json") if p.is_file()}
+    assert root_json_after == root_json_before, "draft pipeline wrote *.json to the repo root"

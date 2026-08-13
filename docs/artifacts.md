@@ -57,7 +57,7 @@ Defines multi-book continuity, character arcs, thematic throughlines, and relati
 - `book_plans`: List of BookPlan objects (1-N books)
   - Each includes: number, title, series_function, core_answer, target_experience, story_type, central_engine
 
-**Continuity (ADR 013):**
+**Continuity (ADR 018):**
 - `universe_constraint_path` (optional): Path to universe_identity.yaml for constraint validation
 - `universe_contract` (compatibility alias): Older name for the same path
 - `thematic_arcs`: Thematic progression across books
@@ -75,7 +75,7 @@ Defines multi-book continuity, character arcs, thematic throughlines, and relati
 - `narrative_setups`: Setups to be paid off
   - `id`, `book_introduced`, `description`, `expected_payoff_by_book`, `status`, `payoff_id`
 
-**Arcs (Legacy, pre-ADR 013):**
+**Arcs (Legacy, pre-ADR 018):**
 - `character_arcs`: Character progression across series
 - `relationship_arcs`: Relationship evolution
 - `faction_arcs`: Faction state changes
@@ -313,7 +313,7 @@ project/
 ---
 
 **Last updated:** 2026-07-11  
-**Related:** CONTEXT.md (Genre Pipeline Architecture), ADR 013 (Universe-to-Series Propagation)
+**Related:** CONTEXT.md (Genre Pipeline Architecture), ADR 018 (Universe-to-Series Propagation)
 
 ## Operational Extensions
 
