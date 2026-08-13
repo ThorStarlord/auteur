@@ -1,4 +1,4 @@
-"""Universe-to-Series constraint validation (ADR 013)."""
+"""Universe-to-Series constraint validation (ADR 018)."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class UniverseToSeriesValidator:
-    """Validates that Series respects Universe constraints (ADR 013)."""
+    """Validates that Series respects Universe constraints (ADR 018)."""
 
     def validate(self, series: SeriesIdentity, universe: UniverseIdentity, constraints: list[StructuredConstraint]) -> list[ValidationDiagnostic]:
         """Check that Series does not violate Universe constraints.
@@ -204,7 +204,7 @@ class UniverseToSeriesValidator:
 def validate_series_against_universe(
     series: SeriesIdentity, universe: UniverseIdentity, constraints: list[StructuredConstraint] | None = None
 ) -> list[ValidationDiagnostic]:
-    """Validate that a Series respects its Universe constraints (ADR 013).
+    """Validate that a Series respects its Universe constraints (ADR 018).
 
     Args:
         series: The SeriesIdentity to validate

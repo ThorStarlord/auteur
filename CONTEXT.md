@@ -165,7 +165,7 @@ Adding a built-in genre requires templates, deterministic validation, core
 identity profiles, a genre contract, one registry entry, and tests. It must not
 require edits to session, server, browser, or identity compilation logic.
 
-## Series Continuity & Universe Propagation (ADR 013)
+## Series Continuity & Universe Propagation (ADR 018)
 
 Series narratives are validated for continuity across books using deterministic validators:
 
@@ -176,7 +176,7 @@ Series narratives are validated for continuity across books using deterministic 
 - **Chronology**: Timeline events must respect causality; impossible dates are errors.
 - **Setup/Payoff Tracking**: Unresolved setups past their deadline generate warnings.
 
-**Universe-to-Series Propagation (ADR 013):**
+**Universe-to-Series Propagation (ADR 018):**
 
 Universe constraints propagate downward to Series and Books. Constraints are classified:
 
@@ -207,7 +207,7 @@ Validation is opt-in via `universe_constraint_path` in `SeriesIdentity`; the old
 `structured_constraints`, which are converted into deterministic Series diagnostics.
 Missing or invalid referenced contracts are errors, not silently skipped.
 
-**Canonical Ownership (ADR 013):**
+**Canonical Ownership (ADR 018):**
 - `SeriesIdentity` (series_identity.yaml) is the canonical author-edited contract
 - `SeriesBible` (series_bible.json) is a compiled operational artifact derived from identity, book plans, and continuity state
 
