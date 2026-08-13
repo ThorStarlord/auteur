@@ -278,6 +278,32 @@ def handle_evaluate(args) -> int:
         return 1
 
 
+def _elicitation_state(decision, report) -> dict:
+    """A2 (design 2026-08-a2-surface-elicitation.md @ 94b09f8): deterministic
+    elicitation-availability state for the author-decision view surface. Three
+    states: unsettled (no goal_significance + composed combinations exist),
+    no_composed_consequences (no significance + no composed combinations),
+    declared (goal_significance present — F1 is the destination). The hint
+    never ranks, recommends, or infers from prose."""
+    if decision.goal_significance is not None:
+        return {"state": "declared"}
+    combos = report.get("consequences", {}).get("combinations") or []
+    if not combos:
+        return {"state": "no_composed_consequences"}
+    return {"state": "unsettled"}
+
+
+def _render_elicitation_hint(decision, args, state: str) -> None:
+    if state == "unsettled":
+        print("Elicitation (F3): available — examine the concrete tradeoff:")
+        print(f"  auteur decision elicit {decision.decision_id} "
+              f"--identity {args.identity} --blueprint {args.blueprint} "
+              f"--project {args.project}")
+    elif state == "no_composed_consequences":
+        print("Elicitation (F3): not applicable — no composed consequences yet "
+              "(an authored combination_direction is required to compose them).")
+
+
 def handle_view(args) -> int:
     try:
         decision = _load_decision(args.project, args.decision_id)
@@ -287,6 +313,7 @@ def handle_view(args) -> int:
                 file=sys.stderr,
             )
             return 1
+        elicitation = None
         out = {
             "authored": {
                 "decision_id": decision.decision_id,
@@ -301,7 +328,9 @@ def handle_view(args) -> int:
                 "default_references": [r.model_dump() for r in decision.default_references],
                 "alternative_bindings": [
                     {"alternative_id": b.alternative_id,
-                     "references": [r.model_dump() for r in b.references]}
+                     "references": [{"entity_ref": r.entity_ref,
+                                     "relationship": r.relationship.value}
+                                    for r in b.references]}
                     for b in decision.alternative_bindings
                 ],
                 "structural_anchors": [
@@ -316,6 +345,7 @@ def handle_view(args) -> int:
                     decision.goal_significance.model_dump()
                     if decision.goal_significance else None
                 ),
+                "elicitation": elicitation,
             },
             "resolved": None,
             "acceptance": None,
@@ -325,6 +355,15 @@ def handle_view(args) -> int:
                 identity = _load_identity(args.identity)
                 blueprint = _load_blueprint(args.blueprint)
                 ctx = build_decision_context(decision, identity, blueprint)
+                report = ctx.build_report()
+                elicitation = _elicitation_state(decision, report)
+                if elicitation["state"] == "unsettled":
+                    elicitation["command"] = (
+                        f"auteur decision elicit {decision.decision_id} "
+                        f"--identity {args.identity} --blueprint {args.blueprint} "
+                        f"--project {args.project}"
+                    )
+                out["authored"]["elicitation"] = elicitation
                 out["resolved"] = {
                     "constraints": [{"ref": c.ref, "text": c.text} for c in ctx.constraints],
                     "blocked_provenance": {"expected": ctx.blocked_count, "verified": ctx.blocked_provenance_verified},
@@ -377,6 +416,8 @@ def handle_view(args) -> int:
             print(f"Structural anchors (authored): {[(a['anchor_id'], a['kind'], a['participants'], a['carrier_refs'], a['bears_on']) for a in out['authored']['structural_anchors']]}")
             print(f"Combination direction (authored): {out['authored']['combination_direction']}")
             print(f"Goal significance (authored, decision-scoped): {out['authored']['goal_significance']}")
+            if out["authored"].get("elicitation"):
+                _render_elicitation_hint(decision, args, out["authored"]["elicitation"]["state"])
             if out["resolved"] is not None:
                 print("=== RESOLVED ===")
                 if "error" in out["resolved"]:
