@@ -463,12 +463,12 @@ def handle_elicit(args) -> int:
         print("  Which of these concrete losses would you regret more?")
         print()
         print("VALID OUTCOMES (nothing is recorded unless you choose):")
-        print("  - you discover a priority       -> auteur decision elicit <id> \\")
-        print("       --identity ... --blueprint ... --record ordered <REF1> <REF2>")
-        print("  - intentional non-precedence    -> auteur decision elicit <id> \\")
-        print("       --identity ... --blueprint ... --record unranked")
-        print("  - still genuinely undecided     -> auteur decision elicit <id> \\")
-        print("       --identity ... --blueprint ... --record undecided (nothing is written)")
+        print("  - you discover a priority       -> --record ordered <REF1> <REF2>")
+        print("       (auteur decision elicit <id> --identity ... --blueprint ...)")
+        print("  - intentional non-precedence    -> --record unranked")
+        print("       (auteur decision elicit <id> --identity ... --blueprint ...)")
+        print("  - still genuinely undecided     -> --record undecided (nothing is written)")
+        print("       (auteur decision elicit <id> --identity ... --blueprint ...)")
 
         # --- record mode: explicit author action ---
         if args.record is None:
@@ -482,6 +482,12 @@ def handle_elicit(args) -> int:
                 file=sys.stderr,
             )
             return 1
+        if args.refs and args.record in ("unranked", "undecided"):
+            print(
+                "Warning: --refs are ignored for --record "
+                f"{args.record} (refs apply only to --record ordered).",
+                file=sys.stderr,
+            )
         if args.record == "undecided":
             print()
             print("Recorded: continue-undecided. The decision remains genuinely")
