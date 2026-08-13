@@ -80,7 +80,7 @@ class TestCLINegativeCases:
 
 
 class TestFailureSemantics:
-    def test_multiple_failures_inspectable(self):
+    def test_multiple_failures_inspectable(self, tmp_path: Path):
         """Multiple failed critics should all appear in outcomes."""
         from auteur.reasoning.runtime import (
             CriticRegistry, CriticSpec, ReasoningRuntime, RuntimeRequest, RuntimeStatus
@@ -90,14 +90,14 @@ class TestFailureSemantics:
         reg = CriticRegistry()
         reg.register(CriticSpec(critic_id="draft.a", version="1.0", requires=(), input_keys=(), run=failing))
         reg.register(CriticSpec(critic_id="draft.b", version="1.0", requires=(), input_keys=(), run=failing))
-        rt = ReasoningRuntime(reg, Path())
+        rt = ReasoningRuntime(reg, tmp_path / "reports")
         req = RuntimeRequest(critic_ids=["draft.a", "draft.b"], inputs={})
         result = rt.run(req)
         assert len(result.outcomes) == 2
         assert all(o.status == RuntimeStatus.FAILED for o in result.outcomes)
         assert all("critic crashed" in (o.error or "") for o in result.outcomes)
 
-    def test_success_and_failure_coexist(self):
+    def test_success_and_failure_coexist(self, tmp_path: Path):
         """Successful critics must persist even when a peer fails."""
         from auteur.reasoning.runtime import (
             CriticRegistry, CriticSpec, ReasoningRuntime, RuntimeRequest, RuntimeStatus
@@ -109,7 +109,7 @@ class TestFailureSemantics:
         reg = CriticRegistry()
         reg.register(CriticSpec(critic_id="draft.ok", version="1.0", requires=(), input_keys=(), run=ok))
         reg.register(CriticSpec(critic_id="draft.fail", version="1.0", requires=(), input_keys=(), run=fail))
-        rt = ReasoningRuntime(reg, Path())
+        rt = ReasoningRuntime(reg, tmp_path / "reports")
         req = RuntimeRequest(critic_ids=["draft.ok", "draft.fail"], inputs={})
         result = rt.run(req)
         outcomes = {o.critic_id: o for o in result.outcomes}
