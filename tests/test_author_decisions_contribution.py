@@ -58,7 +58,6 @@ def _contribution(proj: Path, *args: str):
     return subprocess.run(
         [PY, "-m", "auteur.cli", "decision", "contribution",
          "goal-significance-absent", *args,
-         "--identity", "story_identity.yaml",
          "--blueprint", "blueprint.yaml", "--project", "."],
         cwd=str(proj), capture_output=True, text=True, timeout=120)
 
@@ -357,7 +356,6 @@ def test_contribution_unknown_decision_fails_closed(tmp_path):
     r = subprocess.run(
         [PY, "-m", "auteur.cli", "decision", "contribution", "no-such-decision",
          "--referent", "x", "--add", CONTRIBUTION,
-         "--identity", "story_identity.yaml",
          "--blueprint", "blueprint.yaml", "--project", "."],
         cwd=str(proj), capture_output=True, text=True, timeout=120)
     assert r.returncode == 1
@@ -383,6 +381,25 @@ def test_contribution_provenance_recorded(tmp_path):
     assert ref.contribution_provenance.declared_in_decision_id == \
         "goal-significance-absent"
     assert ref.contribution_provenance.declared_at  # ISO timestamp
+
+
+def test_contribution_decision_id_stem_mismatch_fails_closed(tmp_path):
+    """The action must refuse when the artifact's inner decision_id does not
+    match the filename stem (fail closed under ambiguity)."""
+    proj = _project(tmp_path)
+    _promote(proj)
+    data = _yaml.safe_load(
+        (proj / "author_decisions" / "goal-significance-absent.yaml")
+        .read_text(encoding="utf-8"))
+    data["decision_id"] = "different-id"
+    (proj / "author_decisions" / "goal-significance-absent.yaml").write_text(
+        _yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
+    r = _contribution(proj, "--add", CONTRIBUTION)
+    assert r.returncode == 1
+    assert "does not match filename stem" in r.stderr
+    # blueprint untouched
+    ref = _referent(proj)
+    assert ref.thematic_contributions == []
 
 
 def test_contribution_requires_mode_flag(tmp_path):

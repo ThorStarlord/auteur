@@ -116,7 +116,9 @@ def register_author_decision_subcommands(ds) -> None:
              "contribution and its current operative state. The action is an "
              "author-controlled canonical state declaration — it NEVER consults "
              "chosen/combination_direction, never parses contribution prose, and "
-             "never applies the decision outcome.",
+             "never applies the decision outcome. --operative unset records an "
+             "explicit 'currently undeclared' declaration (None) with fresh "
+             "provenance.",
     )
     p_contribution.add_argument("decision_id", type=str)
     p_contribution.add_argument("--referent", type=str, default=None,
@@ -130,7 +132,6 @@ def register_author_decision_subcommands(ds) -> None:
                                 help="Declare current operative state: yes "
                                      "(operative), no (non-operative), unset "
                                      "(None — not explicitly declared).")
-    p_contribution.add_argument("--identity", type=Path, required=True)
     p_contribution.add_argument("--blueprint", type=Path, required=True)
     p_contribution.add_argument("--project", type=Path, default=Path("."))
 

@@ -57,7 +57,9 @@ Backward compatible: existing referents default to `[]` / `None` / `None`.
 `auteur decision contribution <decision_id> --referent <id> --operative yes|no|unset`
 
 - `--add` appends opaque text (idempotent on exact duplicate; fail closed on empty);
-- `--operative yes|no|unset` declares current state (unset → None);
+- `--operative yes|no|unset` declares current state (unset → None, recorded as an
+  explicit "currently undeclared" declaration with fresh provenance — NOT the same
+  as never-declared);
 - fail closed on unknown referent / unknown decision / no mode flag;
 - `--referent` defaults to the single referent when unambiguous;
 - provenance records `declared_in_decision_id` + ISO timestamp on each declaration.
