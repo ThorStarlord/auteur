@@ -122,15 +122,15 @@ def test_duplicate_promotion_is_idempotent(tmp_path):
 
 def test_promotion_does_not_enact_outcome(tmp_path):
     proj = _project(tmp_path, with_chosen=True)
-    _ = _blueprint_bytes(proj)  # noqa: F841 — pre-state captured
+    before = _blueprint(proj)
     r = _promote(proj)
     assert r.returncode == 0, r.stderr
-    # blueprint may gain structural_referents, but threads/characters unchanged
-    bp = _blueprint(proj)
-    assert bp.story_engine is not None
-    # the only canonical delta is the referents registry (asserted elsewhere);
-    # threads count/names unchanged (no cut enacted):
-    assert len(bp.story_engine.threads) >= 1
+    after = _blueprint(proj)
+    # promotion must NOT enact the outcome: story_engine and characters are
+    # unchanged; only structural_referents may change.
+    assert after.story_engine == before.story_engine
+    assert after.characters == before.characters
+    assert after.structural_referents != before.structural_referents
 
 
 # ---------------------------------------------------------------------------
@@ -165,4 +165,18 @@ def test_existing_blueprint_without_referents_loads(tmp_path):
 def test_promote_fails_closed_on_unknown_anchor(tmp_path):
     proj = _project(tmp_path, with_chosen=True)
     r = _promote(proj, anchor="does_not_exist")
+    assert r.returncode != 0
+
+
+def test_promote_fails_closed_on_stale_participant_ref(tmp_path):
+    proj = _project(tmp_path, with_chosen=True)
+    data = _yaml.safe_load(
+        (proj / "author_decisions" / "goal-significance-absent.yaml").read_text(encoding="utf-8"))
+    # corrupt the signe_marriage anchor's participant to an unresolvable path
+    for a in data["structural_anchors"]:
+        if a["anchor_id"] == "signe_marriage":
+            a["participants"] = ["identity.characters[999]"]
+    (proj / "author_decisions" / "goal-significance-absent.yaml").write_text(
+        _yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
+    r = _promote(proj)
     assert r.returncode != 0

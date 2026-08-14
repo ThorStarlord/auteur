@@ -491,13 +491,22 @@ def handle_promote(args) -> int:
                   f"{args.decision_id!r}", file=sys.stderr)
             return 1
 
-        # Fail closed: resolve participants + carriers against the story (no
-        # stale/invalid refs may be promoted). No name/prose matching — refs are
-        # the explicit authored paths only.
+        # Fail closed: resolve participants + carriers against the story with the
+        # SAME semantic categories accept enforces (participant = character,
+        # carrier = thread). No name/prose matching — refs are the explicit
+        # authored paths only.
         for ref in anchor.participants:
-            _resolve_entity_ref_checked(identity, blueprint, ref, decision)
+            entity = _resolve_entity_ref_checked(identity, blueprint, ref, decision)
+            if not _is_character_entity_checked(entity):
+                print(f"Error: participant ref {ref!r} does not resolve to a character "
+                      f"entity; promotion requires character participants", file=sys.stderr)
+                return 1
         for ref in anchor.carrier_refs:
-            _resolve_entity_ref_checked(identity, blueprint, ref, decision)
+            entity = _resolve_entity_ref_checked(identity, blueprint, ref, decision)
+            if not _is_thread_entity_checked(entity):
+                print(f"Error: carrier ref {ref!r} does not resolve to a thread-like "
+                      f"carrier; promotion requires thread carriers", file=sys.stderr)
+                return 1
 
         # Build the durable referent (durable subset only).
         referent = {
@@ -539,7 +548,17 @@ def handle_promote(args) -> int:
 
 def _resolve_entity_ref_checked(identity, blueprint, ref, decision):
     from auteur.author_decisions.context import _resolve_entity_ref
-    _resolve_entity_ref(identity, blueprint, ref, decision)
+    return _resolve_entity_ref(identity, blueprint, ref, decision)
+
+
+def _is_character_entity_checked(entity):
+    from auteur.author_decisions.context import _is_character_entity
+    return _is_character_entity(entity)
+
+
+def _is_thread_entity_checked(entity):
+    from auteur.author_decisions.context import _is_thread_entity
+    return _is_thread_entity(entity)
 
 
 def _from_blueprint_dict(data):

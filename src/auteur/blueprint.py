@@ -687,6 +687,8 @@ class ReferentProvenance(BaseModel):
     durable referent back to the originating AuthorDecision anchor it was
     promoted from. The referent is NOT the anchor: bears_on/nature (how the thing
     mattered in one decision) remain decision-local."""
+    model_config = ConfigDict(extra="forbid")
+
     promoted_from_decision_id: str
     promoted_from_anchor_id: str
     promoted_at: str  # ISO-8601
@@ -698,11 +700,25 @@ class StructuralReferent(BaseModel):
     decision-local anchor. Deliberately neutral — NOT a subplot ontology. The
     durable subset is identity + kind + participants + carriers; decision-
     contextual semantics (bears_on, nature) are never promoted."""
+    model_config = ConfigDict(extra="forbid")
+
     referent_id: str
     kind: str = "subplot"  # mirrors StructuralAnchorKind; promotion copies kind.value
     participants: list[str] = Field(default_factory=list)
     carrier_refs: list[str] = Field(default_factory=list)
     provenance: ReferentProvenance
+
+    @field_validator("kind")
+    @classmethod
+    def _kind_known(cls, v: str) -> str:
+        # Mirrors StructuralAnchorKind (author_decisions). Only the single shipped
+        # value is accepted; any other string fails closed rather than silently
+        # broadening the durable kind vocabulary.
+        if v != "subplot":
+            raise ValueError(
+                f"unknown structural referent kind {v!r}; only 'subplot' is defined"
+            )
+        return v
 
 
 # ---------------------------------------------------------------------------
