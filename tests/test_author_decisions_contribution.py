@@ -163,6 +163,13 @@ def test_operative_unset_via_flag_no_finding(tmp_path):
     proj = _project(tmp_path)
     bp = _promoted_with_contribution(proj, operative_args="unset")
     assert _loss_findings(bp) == []
+    # explicitly-undeclared is a fresh declaration act with provenance —
+    # distinguishable from never-declared (load-bearing distinction)
+    ref = _referent(bp, "signe_marriage")
+    assert ref.operative is None
+    assert ref.contribution_provenance is not None
+    assert ref.contribution_provenance.declared_in_decision_id == \
+        "goal-significance-absent"
 
 
 # ---------------------------------------------------------------------------

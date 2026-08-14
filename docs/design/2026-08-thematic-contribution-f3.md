@@ -72,7 +72,7 @@ contribution; evidence includes `referent_id`, `operative = false`, and declared
 
 ## Tests
 
-`tests/test_author_decisions_contribution.py` — 21 tests: 12 hardened controls +
+`tests/test_author_decisions_contribution.py` — 22 tests: 12 hardened controls +
 action fail-closed + provenance + idempotency + mode requirement.
 
 ## Verification (merge path)
