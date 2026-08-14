@@ -97,6 +97,19 @@ def register_author_decision_subcommands(ds) -> None:
              "significant first).",
     )
 
+    p_promote = ds.add_parser(
+        "promote",
+        help="F2: explicitly promote a decision-local structural anchor into a "
+             "durable StructuralReferent on the Blueprint (stable canonical "
+             "address). Promotion never enacts the chosen outcome.",
+    )
+    p_promote.add_argument("decision_id", type=str)
+    p_promote.add_argument("--anchor", type=str, required=True,
+                           help="anchor_id of the structural anchor to promote.")
+    p_promote.add_argument("--identity", type=Path, required=True)
+    p_promote.add_argument("--blueprint", type=Path, required=True)
+    p_promote.add_argument("--project", type=Path, default=Path("."))
+
 
 def author_decision_handlers() -> dict:
     return {
@@ -105,6 +118,7 @@ def author_decision_handlers() -> dict:
         "evaluate": handle_evaluate,
         "view": handle_view,
         "elicit": handle_elicit,
+        "promote": handle_promote,
     }
 
 
@@ -447,6 +461,109 @@ def handle_view(args) -> int:
     except Exception as exc:  # pragma: no cover
         print(f"Error: {exc}", file=sys.stderr)
         return 1
+
+
+def handle_promote(args) -> int:
+    """F2 (design 2026-08-canonical-referents @ 90515ac): explicit, author-
+    controlled promotion of a decision-local structural anchor into a durable
+    StructuralReferent on the Blueprint. Durable subset only: anchor_id
+    (->referent_id), kind, participants, carrier_refs. bears_on/nature are
+    decision-contextual and are NEVER promoted. Promotion MAY create the durable
+    referent; it NEVER enacts the chosen outcome (no cut/keep interpretation, no
+    story-content restructure) and NEVER promotes F1 significance. Idempotent on
+    duplicate promotion; fail closed on unknown anchor or stale refs."""
+    from datetime import datetime, timezone
+
+
+    try:
+        decision = _load_decision(args.project, args.decision_id)
+        if decision.decision_id != args.decision_id:
+            print(f"Error: artifact decision_id {decision.decision_id!r} does not match "
+                  f"filename stem {args.decision_id!r}", file=sys.stderr)
+            return 1
+        identity = _load_identity(args.identity)
+        blueprint = _load_blueprint(args.blueprint)
+
+        anchor = next((a for a in decision.structural_anchors
+                       if a.anchor_id == args.anchor), None)
+        if anchor is None:
+            print(f"Error: no structural anchor {args.anchor!r} in decision "
+                  f"{args.decision_id!r}", file=sys.stderr)
+            return 1
+
+        # Fail closed: resolve participants + carriers against the story with the
+        # SAME semantic categories accept enforces (participant = character,
+        # carrier = thread). No name/prose matching — refs are the explicit
+        # authored paths only.
+        for ref in anchor.participants:
+            entity = _resolve_entity_ref_checked(identity, blueprint, ref, decision)
+            if not _is_character_entity_checked(entity):
+                print(f"Error: participant ref {ref!r} does not resolve to a character "
+                      f"entity; promotion requires character participants", file=sys.stderr)
+                return 1
+        for ref in anchor.carrier_refs:
+            entity = _resolve_entity_ref_checked(identity, blueprint, ref, decision)
+            if not _is_thread_entity_checked(entity):
+                print(f"Error: carrier ref {ref!r} does not resolve to a thread-like "
+                      f"carrier; promotion requires thread carriers", file=sys.stderr)
+                return 1
+
+        # Build the durable referent (durable subset only).
+        referent = {
+            "referent_id": anchor.anchor_id,
+            "kind": anchor.kind.value,
+            "participants": list(anchor.participants),
+            "carrier_refs": list(anchor.carrier_refs),
+            "provenance": {
+                "promoted_from_decision_id": decision.decision_id,
+                "promoted_from_anchor_id": anchor.anchor_id,
+                "promoted_at": datetime.now(timezone.utc).isoformat(),
+            },
+        }
+
+        # Write the referent into the Blueprint, idempotently.
+        bp_path = args.blueprint.resolve()
+        data = store.read_yaml(bp_path)
+        existing = data.setdefault("structural_referents", [])
+        if any(r.get("referent_id") == anchor.anchor_id for r in existing):
+            print(f"Already promoted: {anchor.anchor_id} (idempotent, no change).")
+            return 0
+        existing.append(referent)
+        # Round-trip through the schema to ensure the enriched blueprint is valid.
+        _from_blueprint_dict(data)
+        store.atomic_write_yaml(bp_path, data)
+        print(f"Promoted durable structural referent: {anchor.anchor_id}")
+        print(f"  kind={anchor.kind.value} participants={anchor.participants} "
+              f"carriers={anchor.carrier_refs}")
+        print("  (bears_on/nature and chosen outcome NOT applied — promotion is not "
+              "enactment.)")
+        return 0
+    except (DecisionValidationError, FileNotFoundError) as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+    except Exception as exc:  # pragma: no cover
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+
+
+def _resolve_entity_ref_checked(identity, blueprint, ref, decision):
+    from auteur.author_decisions.context import _resolve_entity_ref
+    return _resolve_entity_ref(identity, blueprint, ref, decision)
+
+
+def _is_character_entity_checked(entity):
+    from auteur.author_decisions.context import _is_character_entity
+    return _is_character_entity(entity)
+
+
+def _is_thread_entity_checked(entity):
+    from auteur.author_decisions.context import _is_thread_entity
+    return _is_thread_entity(entity)
+
+
+def _from_blueprint_dict(data):
+    from auteur.blueprint import StoryBlueprint
+    StoryBlueprint.model_validate(data)
 
 
 def handle_elicit(args) -> int:
