@@ -1,4 +1,4 @@
-# Implementation Design — Canonical Structural Referents (F2): explicit anchor promotion
+﻿# Implementation Design — Canonical Structural Referents (F2): explicit anchor promotion
 
 > Phase: implementation design only (no construction). Mechanism **F2 — explicit,
 > author-controlled promotion of a decision-local structural anchor into a durable
@@ -83,20 +83,20 @@ keeps its decision-local `anchor_id`; the referent carries a provenance pointer 
 No name matching — the id is explicit.
 
 ## 5. Separation: promotion ≠ application (binding)
-
-Promotion answers "what durable thing was the decision about?" It does NOT enact
-`cut`/`keep`, does NOT delete/add Blueprint structure, does NOT apply `chosen`, and does
-NOT promote F1 significance. Downstream application remains the separate parked campaign.
-The promoted referent gives downstream reasoning an addressable target; enactment
-semantics stay out of scope.
-
+Promotion answers "what durable thing was the decision about?" **Promotion MAY mutate
+canonical Blueprint by creating the durable structural_referents registry entry - that
+is the purpose of F2.** It must NOT enact the AuthorDecision outcome: it does NOT
+interpret chosen + combination_direction as an instruction to cut, keep, delete, add,
+or restructure story content, and it does NOT promote F1 significance. Downstream
+application remains the separate parked campaign. The promoted referent gives
+downstream reasoning an addressable target; enactment semantics stay out of scope.
 ## 6. Binding invariants (verbatim from the brief)
 
 - no name matching / prose parsing / fuzzy / semantic / LLM matching;
 - no automatic promotion or automatic canonicalization of every anchor;
 - no assumption that referents are universally "subplots";
 - no automatic application of `chosen`;
-- no automatic deletion/addition of Blueprint structure;
+- promotion may create the durable structural_referents entry, but never enacts the chosen outcome or otherwise adds/deletes/restructures story content;
 - no global promotion of F1 significance;
 - no ranking/recommendation;
 - provenance explicit;
