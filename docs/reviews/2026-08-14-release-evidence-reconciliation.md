@@ -60,10 +60,20 @@ unresolved:
 | Candidate SHA identifies the tested bytes | **VERIFIED** | Provenance guard recorded `clean_for_candidate: true` and the permitted non-candidate changes; the pre-fix candidate 27c5282 artifact documents the fail-closed gate behaving correctly |
 | Wheel evidence comes from the existing verifier, not a reimplementation | **VERIFIED** | Artifact `wheel`: `source: scripts/verify_wheel.py`, `status: PASS`, `exit_code: 0`, banner + sha256 captured; the verifier's 10 checks were not duplicated |
 | No hand-transcribed accounting in the new path | **VERIFIED** | Every value in the artifact derives from execution or git; no prose was scraped (`-rA` parsing not used) |
-| Historical records preserved, not rewritten | **VERIFIED** | v0.35/v0.37 hand-maintained tables untouched; the two failed-attempt artifacts (27c5282) remain candidate-addressed |
-| Changelog drift fixed by this task | **DISPUTED** (claim not made) | Out of scope by design; recorded as a separate finding |
+| Historical records preserved, not rewritten | **VERIFIED** | v0.35/v0.37 hand-maintained tables untouched; the failed-attempt artifact (27c5282) remains candidate-addressed |
 
-**Omitted:** none material. One nuance recorded rather than hidden: the first qualification run failed (stale environment collection errors) and the second failed on wheel (PYTHONPATH leak); both are preserved as the candidate-addressed 27c5282 artifact, and the leak was fixed in 309a473.
+**Omitted:** none material. One nuance recorded rather than hidden: the first
+qualification run failed (stale environment collection errors) and the second
+failed on wheel (PYTHONPATH leak); both are preserved as the candidate-
+addressed 27c5282 artifact, and the leak was fixed in 309a473.
+
+**Non-claims (outside the work_claim; not classified):** the CHANGELOG.md
+currency drift was deliberately out of scope and never claimed. The first
+pass of this table incorrectly listed it as `DISPUTED`; that was a
+reconciliation classification error, corrected here per the taxonomy:
+`claim + contradicting evidence -> DISPUTED`; `should-have-been-made ->
+OMITTED`; `outside the work_claim and consequential scope -> not classified`.
+The drift remains a separate, unclosed finding.
 
 ## Repair verification (finding-specific)
 
@@ -87,11 +97,53 @@ observation (finding-specific):
     -> this record cites the artifact by sha address
 
 disposition: closed
-  (the suite-evidence provenance path is mechanically closed; the
-   acceptance-record citation convention applies to future release records;
-   changelog drift remains a separate, unclosed finding)
+```
+
+**Precise maturity state (per review, 2026-08-14):**
+
+```text
+release-evidence producer defect:      CLOSED
+  (canonical durable producer exists; candidate provenance, mechanical
+   reconciliation, wheel integration, and fail-closed behavior all
+   demonstrated -- including refusing to manufacture green evidence when
+   the environment was wrong)
+
+release-qualification production path: READY FOR FIRST REAL ADOPTION
+  (not yet demonstrated:
+   1. baseline comparison against a prior candidate (needs --reference on a
+      later run)
+   2. `python scripts/check.py --qualify` as the end-to-end operator entry
+      point (the producer was invoked directly this run)
+   3. a real release/acceptance record consuming the immutable artifact)
 ```
 
 Generic-green note: "all 4252 tests green" alone is not the closure proof —
 the closure proof is the existence and content of the candidate-addressed,
 mechanically reconciled artifact that this record cites.
+
+## Workflow-v0 friction observed (preserved; no changes made)
+
+```text
+category:          Skill boundary/problem
+observation:       output-reconciler classified a NON-claim (changelog
+                   drift, deliberately out of scope) as DISPUTED in the
+                   first pass; the correct taxonomy treats it as outside
+                   the work_claim and leaves it unclassified
+decision-blocking: no
+disposition:       recorded only. One occurrence is dogfood evidence, not
+                   a reason for another Sensemaking architecture cycle.
+                   If it repeats across runs, investigate the Skill.
+```
+
+```text
+category:          artifact handoff / identity (watch item, no design now)
+observation:       candidate-addressed identity
+                   (qualification-evidence/<candidate-sha>.json) currently
+                   also serves as attempt identity; candidate 27c5282
+                   experienced two distinct failed conditions (stale
+                   environment; wheel env leakage) preserved in one
+                   artifact. Watch for the concrete failure mode: "did
+                   rerunning qualification against the same candidate
+                   overwrite evidence we needed to preserve?" If it never
+                   hurts, candidate-addressed identity is simpler and stays.
+```
