@@ -694,12 +694,27 @@ class ReferentProvenance(BaseModel):
     promoted_at: str  # ISO-8601
 
 
+class ContributionProvenance(BaseModel):
+    """Provenance for the last explicit author declaration of a referent's
+    thematic contribution state (F3). The decision is provenance CONTEXT (which
+    author act declared the state), never the source of the state: operative is
+    an explicit canonical current-state assertion, not derived from chosen or
+    combination_direction."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    declared_in_decision_id: str
+    declared_at: str  # ISO-8601
+
+
 class StructuralReferent(BaseModel):
     """A durable, author-promoted structural referent (F2): gives a stable
     canonical address to a structural thing that first became explicit inside a
     decision-local anchor. Deliberately neutral — NOT a subplot ontology. The
     durable subset is identity + kind + participants + carriers; decision-
-    contextual semantics (bears_on, nature) are never promoted."""
+    contextual semantics (bears_on, nature) are never promoted. F3 adds
+    referent-local thematic contributions (opaque authored text) and an explicit
+    current operative state (None = not explicitly declared)."""
     model_config = ConfigDict(extra="forbid")
 
     referent_id: str
@@ -707,6 +722,9 @@ class StructuralReferent(BaseModel):
     participants: list[str] = Field(default_factory=list)
     carrier_refs: list[str] = Field(default_factory=list)
     provenance: ReferentProvenance
+    thematic_contributions: list[str] = Field(default_factory=list)
+    operative: bool | None = None
+    contribution_provenance: ContributionProvenance | None = None
 
     @field_validator("kind")
     @classmethod

@@ -110,6 +110,31 @@ def register_author_decision_subcommands(ds) -> None:
     p_promote.add_argument("--blueprint", type=Path, required=True)
     p_promote.add_argument("--project", type=Path, default=Path("."))
 
+    p_contribution = ds.add_parser(
+        "contribution",
+        help="F3: explicitly declare a structural referent's thematic "
+             "contribution and its current operative state. The action is an "
+             "author-controlled canonical state declaration — it NEVER consults "
+             "chosen/combination_direction, never parses contribution prose, and "
+             "never applies the decision outcome. --operative unset records an "
+             "explicit 'currently undeclared' declaration (None) with fresh "
+             "provenance.",
+    )
+    p_contribution.add_argument("decision_id", type=str)
+    p_contribution.add_argument("--referent", type=str, default=None,
+                                help="referent_id on the Blueprint (default: "
+                                     "single referent when unambiguous).")
+    p_contribution.add_argument("--add", type=str, default=None, action="append",
+                                help="Append an opaque authored contribution "
+                                     "text (idempotent on exact duplicate).")
+    p_contribution.add_argument("--operative", type=str, default=None,
+                                choices=["yes", "no", "unset"],
+                                help="Declare current operative state: yes "
+                                     "(operative), no (non-operative), unset "
+                                     "(None — not explicitly declared).")
+    p_contribution.add_argument("--blueprint", type=Path, required=True)
+    p_contribution.add_argument("--project", type=Path, default=Path("."))
+
 
 def author_decision_handlers() -> dict:
     return {
@@ -119,6 +144,7 @@ def author_decision_handlers() -> dict:
         "view": handle_view,
         "elicit": handle_elicit,
         "promote": handle_promote,
+        "contribution": handle_contribution,
     }
 
 
@@ -537,6 +563,101 @@ def handle_promote(args) -> int:
               f"carriers={anchor.carrier_refs}")
         print("  (bears_on/nature and chosen outcome NOT applied — promotion is not "
               "enactment.)")
+        return 0
+    except (DecisionValidationError, FileNotFoundError) as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+    except Exception as exc:  # pragma: no cover
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+
+
+def handle_contribution(args) -> int:
+    """F3 (design hardening @ 0623b48): explicit author-controlled declaration of
+    a structural referent's thematic contribution and its current operative state.
+
+    Binding authority semantics:
+    - operative is an explicit canonical CURRENT-STATE assertion (yes/no/unset),
+      never derived from chosen/combination_direction, never a second statement
+      of the decision outcome;
+    - contribution text is opaque — Auteur reasons about presence/absence only;
+    - the decision is provenance context only (declared_in_decision_id);
+    - chosen alone never mutates contribution/operative state.
+    """
+    from datetime import datetime, timezone
+
+    try:
+        decision = _load_decision(args.project, args.decision_id)
+        if decision.decision_id != args.decision_id:
+            print(
+                f"Error: artifact decision_id {decision.decision_id!r} does not "
+                f"match filename stem {args.decision_id!r}",
+                file=sys.stderr,
+            )
+            return 1
+
+        bp_path = args.blueprint.resolve()
+        data = store.read_yaml(bp_path)
+        refs = data.setdefault("structural_referents", [])
+
+        if args.referent is not None:
+            matches = [r for r in refs if r.get("referent_id") == args.referent]
+        else:
+            matches = refs
+        if len(matches) != 1:
+            names = [r.get("referent_id") for r in matches]
+            requested = args.referent if args.referent is not None else "(any)"
+            print(
+                f"Error: expected exactly one referent to declare against; found "
+                f"{len(matches)}: {names!r} (requested {requested!r}). "
+                f"Use --referent to disambiguate.",
+                file=sys.stderr,
+            )
+            return 1
+        ref = matches[0]
+
+        if args.add is not None:
+            for text in args.add:
+                if not text or not text.strip():
+                    print("Error: contribution text must be non-empty.",
+                          file=sys.stderr)
+                    return 1
+            existing = ref.setdefault("thematic_contributions", [])
+            for text in args.add:
+                if text not in existing:
+                    existing.append(text)
+
+        if args.operative is not None:
+            if args.operative == "yes":
+                ref["operative"] = True
+            elif args.operative == "no":
+                ref["operative"] = False
+            else:  # unset
+                ref["operative"] = None
+
+        if args.add is None and args.operative is None:
+            print("Error: nothing to declare — pass --add and/or --operative.",
+                  file=sys.stderr)
+            return 1
+
+        ref["contribution_provenance"] = {
+            "declared_in_decision_id": decision.decision_id,
+            "declared_at": datetime.now(timezone.utc).isoformat(),
+        }
+
+        # Round-trip through the schema to ensure the enriched blueprint is valid.
+        _from_blueprint_dict(data)
+        store.atomic_write_yaml(bp_path, data)
+
+        rid = ref["referent_id"]
+        added = args.add or []
+        op = ref.get("operative")
+        op_txt = "unset" if op is None else ("yes" if op else "no")
+        print(f"Declared thematic contribution state for referent: {rid}")
+        for t in added:
+            print(f"  + contribution: {t}")
+        print(f"  operative = {op_txt} (explicit canonical current-state "
+              f"assertion; decision history not consulted)")
         return 0
     except (DecisionValidationError, FileNotFoundError) as exc:
         print(f"Error: {exc}", file=sys.stderr)

@@ -113,6 +113,56 @@ def _identity_propagation_diagnostics(
     return diagnostics
 
 
+def _referent_contribution_diagnostics(
+    blueprint: StoryBlueprint,
+) -> list[StructureDiagnostic]:
+    """F3 (design hardening @ 0623b48): a durable structural referent that is
+    explicitly non-operative while carrying authored thematic contributions.
+
+    Composes TWO independently authored facts — operative=False (explicit
+    canonical current-state assertion) AND a declared contribution — into the
+    consequence "contribution absent from the operative story". Fires ONLY on
+    explicit False; None (unset) asserts nothing. Contribution text is opaque:
+    presence/absence only, never parsed."""
+    out: list[StructureDiagnostic] = []
+    for ref in blueprint.structural_referents:
+        if ref.operative is not False:
+            continue
+        if not ref.thematic_contributions:
+            continue
+        out.append(
+            StructureDiagnostic(
+                severity=DiagnosticSeverity.INFO,
+                layer=DiagnosticLayer.REPRESENTATION,
+                rule="structural_referent.contribution_non_operative",
+                message=(
+                    f"Durable structural referent '{ref.referent_id}' is not "
+                    f"operative; its authored thematic contribution(s) are "
+                    f"absent from the operative story. "
+                    f"{len(ref.thematic_contributions)} contribution(s) declared."
+                ),
+                evidence=[
+                    f"referent_id = {ref.referent_id}",
+                    "operative = false (explicit author declaration)",
+                    f"declared contribution(s) = {len(ref.thematic_contributions)}",
+                ],
+                repair_options=RepairOptions(
+                    preserve_intent=[
+                        "Restore the contribution's operative state "
+                        "(`decision contribution --operative yes`) if the work "
+                        "the referent performed has moved elsewhere or survives "
+                        "in altered form."
+                    ],
+                    challenge_intent=[
+                        "Keep the contribution non-operative only if the "
+                        "thematic work it performed is genuinely gone."
+                    ],
+                ),
+            )
+        )
+    return out
+
+
 def analyze_structure(
     blueprint: StoryBlueprint,
     *,
@@ -121,6 +171,7 @@ def analyze_structure(
 
     diagnostics: list[StructureDiagnostic] = []
     diagnostics.extend(_identity_propagation_diagnostics(blueprint))
+    diagnostics.extend(_referent_contribution_diagnostics(blueprint))
     engine = blueprint.story_engine
 
     medium_diagnostic: StructureDiagnostic | None = None
