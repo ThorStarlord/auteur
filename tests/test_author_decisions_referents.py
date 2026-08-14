@@ -180,3 +180,17 @@ def test_promote_fails_closed_on_stale_participant_ref(tmp_path):
         _yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
     r = _promote(proj)
     assert r.returncode != 0
+
+
+def test_promote_fails_closed_on_wrong_category_participant(tmp_path):
+    proj = _project(tmp_path, with_chosen=True)
+    data = _yaml.safe_load(
+        (proj / "author_decisions" / "goal-significance-absent.yaml").read_text(encoding="utf-8"))
+    # resolvable but NOT a character: a blueprint scalar field as a participant
+    for a in data["structural_anchors"]:
+        if a["anchor_id"] == "signe_marriage":
+            a["participants"] = ["blueprint.structure.subplot_budget"]
+    (proj / "author_decisions" / "goal-significance-absent.yaml").write_text(
+        _yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
+    r = _promote(proj)
+    assert r.returncode != 0
