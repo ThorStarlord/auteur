@@ -5,10 +5,16 @@ import subprocess
 import sys
 import tempfile
 import json
+import tomllib
 from pathlib import Path
 
 import hashlib
 import zipfile
+
+def expected_version() -> str:
+    with open(Path(__file__).resolve().parent.parent / "pyproject.toml", "rb") as f:
+        return tomllib.load(f)["project"]["version"]
+
 
 def run_cmd(cmd: list[str], cwd: str | None = None, env: dict | None = None) -> subprocess.CompletedProcess:
     environ = os.environ.copy()
@@ -43,7 +49,7 @@ def main():
         yaml_present = any("erotic_fiction/0.1.0.yaml" in f or "0.1.0.yaml" in f for f in namelist)
 
     print(f"Built wheel: {wheel_path.name}")
-    print(f"  Package Version: 0.37.0")
+    print(f"  Package Version: {expected_version()}")
     print(f"  Wheel SHA-256  : {wheel_sha256}")
     print(f"  Wheel File Count: {wheel_file_count}")
     print(f"  Pack YAML Present: {yaml_present}")
@@ -71,7 +77,7 @@ def main():
     installed_file = stdout_lines[0]
     installed_ver = stdout_lines[1]
     assert "site-packages" in installed_file or "dist-packages" in installed_file or "venv" in installed_file.lower()
-    assert installed_ver == "0.37.0"
+    assert installed_ver == expected_version()
     print(f"  [PASS] Import from site-packages (version {installed_ver})")
 
     # Qualification Check 2: Pack list & inspect
