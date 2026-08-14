@@ -682,6 +682,29 @@ class StoryEngine(BaseModel):
     threads: list[StoryThread] = Field(default_factory=list)
 
 
+class ReferentProvenance(BaseModel):
+    """Provenance for an explicitly promoted structural referent (F2). Links the
+    durable referent back to the originating AuthorDecision anchor it was
+    promoted from. The referent is NOT the anchor: bears_on/nature (how the thing
+    mattered in one decision) remain decision-local."""
+    promoted_from_decision_id: str
+    promoted_from_anchor_id: str
+    promoted_at: str  # ISO-8601
+
+
+class StructuralReferent(BaseModel):
+    """A durable, author-promoted structural referent (F2): gives a stable
+    canonical address to a structural thing that first became explicit inside a
+    decision-local anchor. Deliberately neutral — NOT a subplot ontology. The
+    durable subset is identity + kind + participants + carriers; decision-
+    contextual semantics (bears_on, nature) are never promoted."""
+    referent_id: str
+    kind: str = "subplot"  # mirrors StructuralAnchorKind; promotion copies kind.value
+    participants: list[str] = Field(default_factory=list)
+    carrier_refs: list[str] = Field(default_factory=list)
+    provenance: ReferentProvenance
+
+
 # ---------------------------------------------------------------------------
 # Profile derivation provenance
 # ---------------------------------------------------------------------------
@@ -785,6 +808,14 @@ class StoryBlueprint(BaseModel):
         description=(
             "Provenance record for identity-to-structure propagation (contract "
             "commitments, naming, role rule). None when no outcome occurred."
+        ),
+    )
+    structural_referents: list[StructuralReferent] = Field(
+        default_factory=list,
+        description=(
+            "Author-promoted durable structural referents (F2). Explicitly "
+            "promoted from decision-local anchors; empty default keeps existing "
+            "blueprints backward compatible."
         ),
     )
 
