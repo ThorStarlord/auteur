@@ -180,10 +180,13 @@ def suite_accounting(plugin: PytestEvidencePlugin) -> dict:
 # ---------------------------------------------------------------------------
 
 def wheel_qualification() -> dict:
+    # The isolated venv must test the installed wheel, not a source tree the
+    # caller's environment points at: strip PYTHONPATH leakage.
+    env = {k: v for k, v in os.environ.items() if k.upper() != "PYTHONPATH"}
     try:
         result = subprocess.run(
             [sys.executable, str(WHEEL_SCRIPT)],
-            cwd=ROOT, capture_output=True, text=True, timeout=WHEEL_TIMEOUT_SECONDS,
+            cwd=ROOT, env=env, capture_output=True, text=True, timeout=WHEEL_TIMEOUT_SECONDS,
         )
     except subprocess.TimeoutExpired:
         return {
