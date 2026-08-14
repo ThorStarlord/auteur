@@ -269,7 +269,11 @@ class AuthorDecision(BaseModel):
                     )
             elif self.combination.rule == "choose_k_of_n":
                 k = self.combination.k
-                if k is None or len(self.chosen) != k:
+                if k is None:
+                    raise DecisionValidationError(
+                        "chosen cannot be set for choose_k_of_n without an explicit k"
+                    )
+                if len(self.chosen) != k:
                     raise DecisionValidationError(
                         f"chosen must contain exactly {k} member(s) for choose_k_of_n k={k}"
                     )
