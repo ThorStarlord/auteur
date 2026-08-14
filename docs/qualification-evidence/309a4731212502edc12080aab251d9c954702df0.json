@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "produced_by": "scripts/release_evidence.py",
+  "created_at": "2026-08-14T21:03:27.114369+00:00",
+  "candidate": {
+    "sha": "309a4731212502edc12080aab251d9c954702df0",
+    "repository_state": {
+      "clean_for_candidate": true,
+      "permitted_non_candidate_changes": [
+        ".claude/settings.json",
+        ".codex/",
+        ".local/",
+        ".reasonix/",
+        "docs/qualification-evidence/",
+        "reasonix.toml",
+        "scripts/reasonix-clean.ps1",
+        "scripts/reasonix-isolate.ps1"
+      ]
+    }
+  },
+  "suite": {
+    "collected": 4252,
+    "outcomes": {
+      "passed": 4224,
+      "skipped": 1,
+      "xfailed": 27,
+      "xpassed": 0,
+      "failed": 0,
+      "errors": 0
+    },
+    "reconciles": true,
+    "failure_nodes": [],
+    "xpassed_nodes": [],
+    "collection_errors": [],
+    "session_errors": []
+  },
+  "baseline": {
+    "reference_candidate": null,
+    "current_failure_nodes": [],
+    "baseline_failure_nodes": [],
+    "added_failures": [],
+    "removed_failures": [],
+    "unchanged_failures": []
+  },
+  "wheel": {
+    "source": "scripts/verify_wheel.py",
+    "status": "PASS",
+    "exit_code": 0,
+    "output_ref": "ALL INSTALLED WHEEL QUALIFICATION MATRIX CHECKS PASSED!",
+    "sha256": "983b83ce825afa7847b5b24cbd7c74f2a481945d1f3062d2c6c006741c473838"
+  },
+  "evidence_note": "Documentation-only evidence per docs/engineering/release-qualification.md: docs/ is not packaged (pyproject.toml packages only src/auteur), so the evidence commit does not change the qualified candidate. candidate.sha attests to the revision whose bytes produced this evidence."
+}
