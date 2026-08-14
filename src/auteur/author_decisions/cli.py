@@ -233,6 +233,7 @@ def handle_accept(args) -> int:
             resolved_bindings=summary["resolved_bindings"],
             resolved_anchors=summary["resolved_anchors"],
             combination_direction=summary["combination_direction"],
+            chosen=decision.chosen,
         )
         print(f"Accepted (provenance recorded): {store.acceptance_path(args.project, decision.decision_id)}")
         return 0
@@ -345,6 +346,7 @@ def handle_view(args) -> int:
                     decision.goal_significance.model_dump()
                     if decision.goal_significance else None
                 ),
+                "chosen": decision.chosen,
                 "elicitation": elicitation,
             },
             "resolved": None,
@@ -416,6 +418,7 @@ def handle_view(args) -> int:
             print(f"Structural anchors (authored): {[(a['anchor_id'], a['kind'], a['participants'], a['carrier_refs'], a['bears_on']) for a in out['authored']['structural_anchors']]}")
             print(f"Combination direction (authored): {out['authored']['combination_direction']}")
             print(f"Goal significance (authored, decision-scoped): {out['authored']['goal_significance']}")
+            print(f"Chosen (authored): {out['authored']['chosen']}")
             if out["authored"].get("elicitation") and out["authored"]["elicitation"]["state"] != "declared":
                 _render_elicitation_hint(decision, args, out["authored"]["elicitation"]["state"])
             if out["resolved"] is not None:

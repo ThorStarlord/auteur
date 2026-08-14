@@ -234,6 +234,7 @@ class AuthorDecision(BaseModel):
     structural_anchors: list[StructuralAnchor] = Field(default_factory=list)
     combination_direction: Literal["kept", "cut"] | None = None
     goal_significance: GoalSignificance | None = None
+    chosen: list[str] | None = None
 
     @model_validator(mode="after")
     def _validate_semantics(self) -> "AuthorDecision":
@@ -250,6 +251,28 @@ class AuthorDecision(BaseModel):
             )
         if len(set(self.alternative_ids)) != n:
             raise DecisionValidationError("alternative_ids must be unique")
+        if self.chosen is not None:
+            if not self.chosen:
+                raise DecisionValidationError("chosen must be a non-empty list when present")
+            if len(set(self.chosen)) != len(self.chosen):
+                raise DecisionValidationError("chosen members must be distinct")
+            alt_set = set(self.alternative_ids)
+            for ref in self.chosen:
+                if ref not in alt_set:
+                    raise DecisionValidationError(
+                        f"chosen member {ref!r} is not a declared alternative_id"
+                    )
+            if self.combination.rule == "one_of":
+                if len(self.chosen) != 1:
+                    raise DecisionValidationError(
+                        "chosen must contain exactly one member for a one_of decision"
+                    )
+            elif self.combination.rule == "choose_k_of_n":
+                k = self.combination.k
+                if k is None or len(self.chosen) != k:
+                    raise DecisionValidationError(
+                        f"chosen must contain exactly {k} member(s) for choose_k_of_n k={k}"
+                    )
         if self.combination.rule == "choose_k_of_n":
             k = self.combination.k
             if k is None or k < 1 or k > n:

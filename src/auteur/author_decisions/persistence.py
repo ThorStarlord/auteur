@@ -73,6 +73,7 @@ def write_acceptance_record(
     resolved_bindings: list[dict] | None = None,
     resolved_anchors: list[dict] | None = None,
     combination_direction: str | None = None,
+    chosen: list[str] | None = None,
 ) -> Path:
     record = {
         "decision_id": decision_id,
@@ -86,6 +87,7 @@ def write_acceptance_record(
         "resolved_bindings": resolved_bindings or [],
         "resolved_anchors": resolved_anchors or [],
         "combination_direction": combination_direction,
+        "chosen": chosen or [],
     }
     out = acceptance_path(project, decision_id)
     atomic_write_yaml(out, record)
