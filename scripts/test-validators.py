@@ -35,7 +35,6 @@ def detect_validator_signature(validator_path):
     if validator_name in {
         "validate-plan.py",
         "validate-brief.py",
-        "validate-project-classification.py",
         "validate-prompt-handoff.py",
         "validate-run-log.py",
         "validate-skill-improvement-plan.py",
@@ -177,17 +176,14 @@ def main():
     
     # Validators that validate the repository as a whole have valid-only
     # coverage: a negative (invalid/) fixture is unsatisfiable because the
-    # input is the repo state itself, not a sample file. validate-project-
-    # classification scans hardcoded test projects (ignores file args) and
-    # validate-workflow-design / validate-repo / validate-mode-coverage take a
-    # repository root, so a portable negative fixture would have to be a full
-    # broken repo. Commit 9994238 retired their invalid/ samples for this
-    # reason; their negative cases are exercised by the live repo state via
-    # scripts/check.py.
+    # input is the repo state itself, not a sample file. validate-workflow-
+    # design / validate-repo / validate-mode-coverage take repository state,
+    # so a portable negative fixture would have to be a full broken repo.
+    # Commit 9994238 retired their invalid/ samples for this reason; their
+    # negative cases are exercised by the live repo state via scripts/check.py.
     VALID_ONLY_VALIDATORS = {
         "validate-repo",
         "validate-mode-coverage",
-        "validate-project-classification",
         "validate-workflow-design",
     }
     

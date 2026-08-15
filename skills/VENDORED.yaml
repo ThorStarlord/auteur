@@ -4,34 +4,33 @@
 # Skills framework (owner decision 2026-08-14). This manifest makes that
 # relationship explicit and governable. It is machine-read by
 # scripts/verify-vendored-contract.py (drift detection wired into
-# scripts/check.py). This snapshot is NOT a complete current Sensemaking
-# installation.
+# scripts/check.py).
+#
+# `source.revision` is the canonical upstream COMPARISON baseline. Auteur is
+# still a curated subset and may retain explicitly documented legacy
+# deviations; the pin does not claim that every included file byte-matches
+# upstream.
 schema_version: 1
 contract_name: vendored-sensemaking-subset
 status: intentional_curated_subset
 
 source:
   repository: sensemaking-skills (upstream framework)
-  # UNRECORDED: no single upstream revision reconstructs the full snapshot.
-  # Bounded git/content investigation (2026-08-15) classified the snapshot
-  # as MIXED_OR_LOCALLY_MODIFIED: skills/repo-sensemaker/SKILL.md is
-  # content-identical (modulo BOM) to upstream commit 95b2962 (2026-05-19,
-  # pre workflow-orchestrator->workflow-planner rename), while
-  # scripts/validate-repo.py and
-  # skills/workflow-orchestrator/references/workflow-registry.yaml differ
-  # from every upstream revision in the pre-rename era. No source SHA is
-  # invented. The next intentional update MUST record the upstream SHA here.
-  revision: UNRECORDED
-  revision_note: "Historical snapshot predating the workflow-planner rename and the probe engine; no upstream SHA was recorded at vendoring time. The next intentional update MUST record the upstream SHA here."
+  revision: 1458f9210c79336175878b8527ed7ecba1e0b6a3
+  revision_note: "First canonical pinned comparison baseline, established by the intentional vendoring reconciliation on 2026-08-15. The baseline identifies the upstream state against which future curated updates are evaluated; retained legacy deviations are explicit below and are not claimed to byte-match upstream."
+  baseline_status: canonical_pinned
+  recorded_at: "2026-08-15"
+
+historical_provenance:
+  previous_revision: UNRECORDED
   provenance_status: unrecoverable_for_pinning
-  provenance_investigation: "2026-08-15 bounded git/content comparison against the upstream sensemaking-skills history (window 2026-05-13..2026-05-22): repo-sensemaker/SKILL.md content-identical (modulo BOM) to 95b2962 (2026-05-19); validate-repo.py and the workflow-orchestrator registry differ from every era revision (registry is an auto-invocation-era variant; validate-repo.py differs ~72 lines). Classification: MIXED_OR_LOCALLY_MODIFIED_SNAPSHOT."
-  best_supported_range: "pre-rename workflow-orchestrator era, 2026-05-13 .. 2026-05-19; repo-sensemaker SKILL.md exactly matches 95b2962 (2026-05-19); other vendored files are locally-modified/mixed pre-rename variants"
-  historical_exception: "Owner decision 2026-08-15: historical snapshots may truthfully retain UNRECORDED provenance when a single exact source revision cannot be reconstructed; the first intentional update after adoption of this contract establishes the first authoritative pinned baseline."
-  recorded_at: "2026-08-14"
+  provenance_investigation: "2026-08-15 bounded git/content comparison against the upstream sensemaking-skills history (window 2026-05-13..2026-05-22): repo-sensemaker/SKILL.md content-identical (modulo BOM) to 95b2962 (2026-05-19); validate-repo.py and the workflow-orchestrator registry differ from every era revision. Classification: MIXED_OR_LOCALLY_MODIFIED_SNAPSHOT."
+  best_supported_range: "pre-rename workflow-orchestrator era, 2026-05-13 .. 2026-05-19; repo-sensemaker/SKILL.md exactly matches 95b2962 (2026-05-19); other vendored files are locally-modified/mixed pre-rename variants"
+  historical_exception_resolution: "The pre-2026-08-15 snapshot remains unrecoverable_for_pinning and is NOT retrospectively pinned. The owner-approved requirement that the next intentional update establish the first authoritative upstream SHA is satisfied by source.revision 1458f9210c79336175878b8527ed7ecba1e0b6a3."
 
 intent:
-  statement: "Auteur intentionally vendors a curated, pinned subset of Sensemaking Skills (owner decision 2026-08-14)."
-  is_not: "a complete current Sensemaking installation"
+  statement: "Auteur intentionally vendors a curated subset of Sensemaking Skills against an explicit upstream comparison baseline."
+  is_not: "a complete current Sensemaking installation or a byte-for-byte mirror of the baseline"
 
 included:
   skills:
@@ -48,7 +47,6 @@ included:
     - to-issues
     - to-prd
     - triage
-    - project-classifier
     - data-access-layer-auditor
     - tdd
   scripts:
@@ -64,7 +62,6 @@ included:
     - validate-mode-coverage.py
     - validate-output.py
     - validate-plan.py
-    - validate-project-classification.py
     - validate-prompt-handoff.py
     - validate-repo.py
     - validate-run-log.py
@@ -80,9 +77,45 @@ included:
     - docs/PRD-V1-Sensemaking.md
     - docs/mode-coverage.yaml
 
-# Current-era Sensemaking components NOT part of this snapshot. If one of
-# these appears, the drift check fails: adding current-era machinery is an
-# intentional contract change and must be recorded here first.
+# Retained compatibility surface that does not exist under the same identity
+# at the canonical upstream baseline. These components are intentionally NOT
+# upgraded or removed in this bounded reconciliation because doing so would
+# require a larger dependency migration. Their presence is explicit rather
+# than being mistaken for upstream byte identity.
+retained_legacy_deviations:
+  skills:
+    - path: skills/prompt-handoff
+      disposition: RETAIN_PENDING_RECONCILIATION
+      note: "Upstream baseline uses the newer handoff capability; Auteur retains prompt-handoff compatibility for now."
+    - path: skills/workflow-orchestrator
+      disposition: RETAIN_PENDING_RECONCILIATION
+      note: "Upstream baseline uses workflow-planner; Auteur has live cross-references to workflow-orchestrator, so rename/migration is a separate engineering slice."
+    - path: skills/triage
+      disposition: RETAIN_PENDING_RECONCILIATION
+      note: "Absent from the upstream baseline under this identity; ownership not adjudicated in this bounded update."
+    - path: skills/data-access-layer-auditor
+      disposition: RETAIN_PENDING_RECONCILIATION
+      note: "Absent from the upstream baseline under this identity; ownership not adjudicated in this bounded update."
+    - path: skills/tdd
+      disposition: RETAIN_PENDING_RECONCILIATION
+      note: "Absent from the upstream baseline under this identity; ownership not adjudicated in this bounded update."
+  scripts:
+    - path: scripts/orchestration-runner.py
+      disposition: RETAIN_PENDING_RECONCILIATION
+    - path: scripts/package_skill.py
+      disposition: RETAIN_PENDING_RECONCILIATION
+    - path: scripts/router.py
+      disposition: RETAIN_PENDING_RECONCILIATION
+    - path: scripts/skill-execution-agent.py
+      disposition: RETAIN_PENDING_RECONCILIATION
+    - path: scripts/skill_execution_dispatcher.py
+      disposition: RETAIN_PENDING_RECONCILIATION
+    - path: scripts/workflow-execution-engine.py
+      disposition: RETAIN_PENDING_RECONCILIATION
+
+# Current-era Sensemaking components NOT part of Auteur's curated subset. If
+# one of these appears, the drift check fails: adding current-era machinery is
+# an intentional contract change and must be recorded here first.
 excluded:
   - skills/workflow-planner
   - scripts/probe-repo.py
@@ -91,13 +124,15 @@ excluded:
   - scripts/brief_skeleton.py
 
 known_characteristics:
-  - "The vendored validate-repo.py reports non-critical warnings: recursive workflow-orchestrator steps in fast-path-workflow and full-fog-workflow; unregistered artifacts ui_flows and screen_specs in ui-implementation-workflow. These are characteristics of the frozen snapshot and the gate treats them as warnings (non-blocking)."
+  - "The vendored validate-repo.py reports non-critical warnings: recursive workflow-orchestrator steps in fast-path-workflow and full-fog-workflow; unregistered artifacts ui_flows and screen_specs in ui-implementation-workflow. These are characteristics of the retained compatibility surface and the gate treats them as warnings (non-blocking)."
 
 update_policy:
-  - "Manual and gated: any intentional update of the vendored subset must record the upstream SHA in source.revision and adjust included/excluded lists."
-  - "The first intentional update after adoption of this contract establishes the first canonical pinned baseline (historical exception)."
+  - "Manual and gated: every intentional update must select and record an exact upstream Sensemaking SHA in source.revision and reconcile the included/excluded inventory against it."
+  - "The first canonical pinned baseline is 1458f9210c79336175878b8527ed7ecba1e0b6a3 (2026-08-15). The earlier mixed snapshot remains historically unrecoverable and must never be described as retrospectively pinned."
+  - "A baseline pin is a comparison anchor, not a byte-identity claim. Any retained upstream-absent or intentionally modified compatibility surface must remain explicit in retained_legacy_deviations until reconciled."
   - "scripts/sync_interface_skills.py covers a DIFFERENT source (interface-skills -> .agents/skills) and is NOT the update mechanism for this subset."
 
 validation_expectations:
-  - "scripts/check.py validates this curated subset as a pinned snapshot, not as a complete current Sensemaking installation."
-  - "scripts/verify-vendored-contract.py enforces the included/excluded lists (drift detection)."
+  - "scripts/check.py validates this curated subset, not a complete current Sensemaking installation."
+  - "scripts/verify-vendored-contract.py enforces the included/excluded path contract."
+  - "Review/reconciliation evidence must separately verify the recorded upstream SHA and any claimed retirement or migration; path-level drift validation alone does not prove semantic equivalence."
