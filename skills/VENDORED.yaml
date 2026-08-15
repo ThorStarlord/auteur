@@ -1,0 +1,92 @@
+# Vendored Sensemaking Skills - curated subset contract
+#
+# Auteur intentionally vendors a curated, pinned subset of the Sensemaking
+# Skills framework (owner decision 2026-08-14). This manifest makes that
+# relationship explicit and governable. It is machine-read by
+# scripts/verify-vendored-contract.py (drift detection wired into
+# scripts/check.py). This snapshot is NOT a complete current Sensemaking
+# installation.
+schema_version: 1
+contract_name: vendored-sensemaking-subset
+status: intentional_curated_subset
+
+source:
+  repository: sensemaking-skills (upstream framework)
+  # UNRECORDED: historical snapshot predating the workflow-planner rename
+  # and the probe engine; no upstream SHA was recorded at vendoring time.
+  # The next intentional update MUST record the upstream SHA here.
+  revision: UNRECORDED
+  revision_note: "Historical snapshot predating the workflow-planner rename and the probe engine; no upstream SHA was recorded at vendoring time. The next intentional update MUST record the upstream SHA here."
+  recorded_at: "2026-08-14"
+
+intent:
+  statement: "Auteur intentionally vendors a curated, pinned subset of Sensemaking Skills (owner decision 2026-08-14)."
+  is_not: "a complete current Sensemaking installation"
+
+included:
+  skills:
+    - repo-sensemaker
+    - problem-framer
+    - unknowns-mapper
+    - prompt-handoff
+    - setup-sensemaking-skills
+    - sensemaking-docs-reconciler
+    - skill-maintainer
+    - usage-researcher
+    - workflow-orchestrator
+    - docs-aligner
+    - to-issues
+    - to-prd
+    - triage
+    - project-classifier
+    - data-access-layer-auditor
+    - tdd
+  scripts:
+    - analyze-run-failures.py
+    - orchestration-runner.py
+    - package_skill.py
+    - router.py
+    - skill-execution-agent.py
+    - skill_execution_dispatcher.py
+    - test-validators.py
+    - validate-artifact.py
+    - validate-brief.py
+    - validate-mode-coverage.py
+    - validate-output.py
+    - validate-plan.py
+    - validate-project-classification.py
+    - validate-prompt-handoff.py
+    - validate-repo.py
+    - validate-run-log.py
+    - validate-skill-improvement-plan.py
+    - validate-unknowns-map.py
+    - validate-usage-research-report.py
+    - validate-user-intent-amendment.py
+    - validate-user-intent.py
+    - validate-workflow-design.py
+    - workflow-execution-engine.py
+    - _validator_utils.py
+  framework_docs:
+    - docs/PRD-V1-Sensemaking.md
+    - docs/mode-coverage.yaml
+
+# Current-era Sensemaking components NOT part of this snapshot. If one of
+# these appears, the drift check fails: adding current-era machinery is an
+# intentional contract change and must be recorded here first.
+excluded:
+  - skills/workflow-planner
+  - scripts/probe-repo.py
+  - scripts/repo_probes.py
+  - scripts/validate-probe-report.py
+  - scripts/brief_skeleton.py
+
+known_characteristics:
+  - "The vendored validate-repo.py reports non-critical warnings: recursive workflow-orchestrator steps in fast-path-workflow and full-fog-workflow; unregistered artifacts ui_flows and screen_specs in ui-implementation-workflow. These are characteristics of the frozen snapshot and the gate treats them as warnings (non-blocking)."
+
+update_policy:
+  - "Manual and gated: any intentional update of the vendored subset must record the upstream SHA in source.revision and adjust included/excluded lists."
+  - "scripts/sync_interface_skills.py covers a DIFFERENT source (interface-skills -> .agents/skills) and is NOT the update mechanism for this subset."
+
+validation_expectations:
+  - "scripts/check.py validates this curated subset as a pinned snapshot, not as a complete current Sensemaking installation."
+  - "scripts/verify-vendored-contract.py enforces the included/excluded lists (drift detection)."

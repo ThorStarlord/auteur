@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CHECK_COMMANDS = (
     (sys.executable, "scripts/test-validators.py"),
     (sys.executable, "scripts/validate-repo.py"),
+    (sys.executable, "scripts/verify_vendored_contract.py"),
     (sys.executable, "-m", "ruff", "check", "src", "tests"),
     (sys.executable, "-m", "pytest", "tests", "-q", "--tb=no"),
 )
