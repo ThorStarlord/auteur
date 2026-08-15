@@ -12,11 +12,21 @@ status: intentional_curated_subset
 
 source:
   repository: sensemaking-skills (upstream framework)
-  # UNRECORDED: historical snapshot predating the workflow-planner rename
-  # and the probe engine; no upstream SHA was recorded at vendoring time.
-  # The next intentional update MUST record the upstream SHA here.
+  # UNRECORDED: no single upstream revision reconstructs the full snapshot.
+  # Bounded git/content investigation (2026-08-15) classified the snapshot
+  # as MIXED_OR_LOCALLY_MODIFIED: skills/repo-sensemaker/SKILL.md is
+  # content-identical (modulo BOM) to upstream commit 95b2962 (2026-05-19,
+  # pre workflow-orchestrator->workflow-planner rename), while
+  # scripts/validate-repo.py and
+  # skills/workflow-orchestrator/references/workflow-registry.yaml differ
+  # from every upstream revision in the pre-rename era. No source SHA is
+  # invented. The next intentional update MUST record the upstream SHA here.
   revision: UNRECORDED
   revision_note: "Historical snapshot predating the workflow-planner rename and the probe engine; no upstream SHA was recorded at vendoring time. The next intentional update MUST record the upstream SHA here."
+  provenance_status: unrecoverable_for_pinning
+  provenance_investigation: "2026-08-15 bounded git/content comparison against the upstream sensemaking-skills history (window 2026-05-13..2026-05-22): repo-sensemaker/SKILL.md content-identical (modulo BOM) to 95b2962 (2026-05-19); validate-repo.py and the workflow-orchestrator registry differ from every era revision (registry is an auto-invocation-era variant; validate-repo.py differs ~72 lines). Classification: MIXED_OR_LOCALLY_MODIFIED_SNAPSHOT."
+  best_supported_range: "pre-rename workflow-orchestrator era, 2026-05-13 .. 2026-05-19; repo-sensemaker SKILL.md exactly matches 95b2962 (2026-05-19); other vendored files are locally-modified/mixed pre-rename variants"
+  historical_exception: "Owner decision 2026-08-15: historical snapshots may truthfully retain UNRECORDED provenance when a single exact source revision cannot be reconstructed; the first intentional update after adoption of this contract establishes the first authoritative pinned baseline."
   recorded_at: "2026-08-14"
 
 intent:
@@ -85,6 +95,7 @@ known_characteristics:
 
 update_policy:
   - "Manual and gated: any intentional update of the vendored subset must record the upstream SHA in source.revision and adjust included/excluded lists."
+  - "The first intentional update after adoption of this contract establishes the first canonical pinned baseline (historical exception)."
   - "scripts/sync_interface_skills.py covers a DIFFERENT source (interface-skills -> .agents/skills) and is NOT the update mechanism for this subset."
 
 validation_expectations:

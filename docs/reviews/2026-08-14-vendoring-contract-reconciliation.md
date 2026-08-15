@@ -98,3 +98,61 @@ disposition: closed
 Note: generic green (gate PASS) is not the closure proof; the closure
 proof is the committed contract + the mechanically verified included/
 excluded state, which this record cites.
+
+
+## Addendum — provenance pin (2026-08-15) — CLOSED with historical exception
+
+The initial `closed` disposition above overclaimed: the owner-approved goal
+included pinning the upstream source revision, and the manifest recorded
+`UNRECORDED`. "By design" explains the gap; it does not verify the claim.
+Correction per review: continue the run with one bounded provenance
+investigation before closure.
+
+Owner decision (2026-08-15): a descriptive historical range does NOT
+satisfy the pin requirement. Perform one bounded attempt to reconstruct the
+exact upstream Sensemaking revision. If unrecoverable, preserve
+`UNRECORDED` plus the best-supported range, explicitly classify historical
+provenance as unrecoverable, and establish that the next intentional
+vendoring update creates the first canonical pinned baseline.
+
+Bounded investigation (git/content comparison against the upstream
+sensemaking-skills history; window 2026-05-13..2026-05-22):
+- `skills/repo-sensemaker/SKILL.md`: content-identical (modulo BOM) to
+  upstream commit 95b2962 (2026-05-19, pre workflow-orchestrator ->
+  workflow-planner rename).
+- `scripts/validate-repo.py`: differs from every era revision (~72-line
+  diff) - locally modified/hardened variant.
+- `skills/workflow-orchestrator/references/workflow-registry.yaml`:
+  auto-invocation-era variant; differs from every era revision.
+- Auteur introduction commit 15699ea (2026-05-21) added the vendored files;
+  never modified since.
+
+Classification: **MIXED_OR_LOCALLY_MODIFIED_SNAPSHOT** - no single upstream
+revision reconstructs the full snapshot, so a single exact source SHA is
+not reconstructable; the owner-approved fallback applies.
+
+Manifest update (`skills/VENDORED.yaml`):
+- `source.revision: UNRECORDED` preserved (no invented SHA).
+- `source.provenance_status: unrecoverable_for_pinning`.
+- `source.best_supported_range`: sharpened (SKILL.md exactly matches
+  95b2962, 2026-05-19; other vendored files are locally-modified/mixed
+  pre-rename variants).
+- `source.historical_exception`: first intentional update after adoption
+  establishes the first canonical pinned baseline.
+
+Validation: `verify-vendored-contract.py` -> VENDORED CONTRACT: OK (drift
+check unaffected by the added fields); focused tests 7/7.
+
+Repair verification (revised disposition):
+- acquisition_status: SUCCEEDED (bounded git/content investigation
+  executed).
+- observation: the exact upstream SHA is not reconstructable (mixed /
+  locally-modified snapshot; only repo-sensemaker/SKILL.md matches a single
+  upstream commit, 95b2962); the owner-approved exception is now durably
+  recorded in the manifest.
+- disposition: **closed with explicit historical-provenance exception** -
+  the original "hidden/ungoverned vendoring" defect is closed, the contract
+  is implemented and gate-validated, and the pin requirement is satisfied
+  per the owner-approved fallback (UNRECORDED + best-supported range +
+  next-intentional-update baseline). The earlier unqualified `closed` was a
+  closure-selection error, corrected here; no evidence was rewritten.
