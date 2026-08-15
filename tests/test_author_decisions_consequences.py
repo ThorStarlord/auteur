@@ -210,14 +210,14 @@ def test_thread_carrier_capability_statement():
     )
 
 
-def test_thread_carrier_no_threads_fails_closed():
+def test_thread_carrier_no_subordinate_threads_fails_closed():
     bp = load_blueprint(E_DIR / "blueprint.yaml")
     bp.story_engine.threads = []
     dec = AuthorDecision.from_yaml(E_DIR / E_DEC)
     ctx2 = build_decision_context(dec, load_identity(E_DIR / "story_identity.yaml"), bp)
     c = ctx2.build_report()["consequences"]
     f = next(f for f in c["observations"] if f["probe_id"] == "thread_carrier")
-    assert f["message"] == "probe not run: blueprint has no thread structure"
+    assert f["message"] == "probe not run: blueprint has no subordinate threads"
 
 
 def test_declared_relationship_target_alternative_vs_common():

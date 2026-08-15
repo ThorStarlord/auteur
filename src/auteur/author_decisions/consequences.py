@@ -214,7 +214,7 @@ def _probe_thread_carrier(blueprint) -> list[DecisionConsequence]:
         return [DecisionConsequence(
             probe_id="thread_carrier",
             severity="info",
-            message="probe not run: blueprint has no thread structure",
+            message="probe not run: blueprint has no subordinate threads",
             refs=ConsequenceRefs(blueprint="story_engine.threads"),
         )]
     names = ", ".join(t.name for t in threads)

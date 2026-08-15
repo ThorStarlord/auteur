@@ -104,11 +104,9 @@ def test_compile_novel_romance():
     assert "Friction:" in blueprint.emotional_design.per_act_tones[1].tone
     assert "Devotion:" in blueprint.emotional_design.per_act_tones[2].tone
 
-    # 3. Subplots (Budget = 3)
-    assert len(blueprint.story_engine.threads) == 3
-    assert blueprint.story_engine.threads[0].name == "Rivalry & Foil Obstacles"
-    assert blueprint.story_engine.threads[1].name == "Self-Worth & Career Pressure"
-    assert blueprint.story_engine.threads[2].name.startswith("Secondary Subplot")
+    # 3. Subplot budget is capacity, not compile-time story invention.
+    assert blueprint.structure.subplot_budget == 3
+    assert blueprint.story_engine.threads == []
 
     # 4. Genre-aligned Characters
     assert blueprint.characters[0].name == "Lover A"
@@ -155,3 +153,4 @@ def test_compile_explicit_length_override():
     assert blueprint.identity.length_class == LengthClass.NOVEL
     assert blueprint.structure.estimated_chapters == 25
     assert blueprint.structure.subplot_budget == 3
+    assert blueprint.story_engine.threads == []
