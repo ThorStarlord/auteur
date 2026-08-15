@@ -15,7 +15,16 @@ class TestManifestLoad:
         manifest = vvc.load_manifest()
         assert manifest["contract_name"] == "vendored-sensemaking-subset"
         assert manifest["status"] == "intentional_curated_subset"
-        assert manifest["source"]["revision"] == "UNRECORDED"
+        assert (
+            manifest["source"]["revision"]
+            == "1458f9210c79336175878b8527ed7ecba1e0b6a3"
+        )
+        assert manifest["source"]["baseline_status"] == "canonical_pinned"
+        assert manifest["historical_provenance"]["previous_revision"] == "UNRECORDED"
+        assert (
+            manifest["historical_provenance"]["provenance_status"]
+            == "unrecoverable_for_pinning"
+        )
 
     def test_missing_manifest_raises(self, tmp_path):
         with pytest.raises(FileNotFoundError):
