@@ -15,4 +15,3 @@ def test_validator_signature_mapping_uses_cli_contracts():
     root = Path(__file__).parents[1] / "scripts"
     assert harness.detect_validator_signature(root / "validate-output.py") == "two_arg"
     assert harness.detect_validator_signature(root / "validate-plan.py") == "single_arg"
-    assert harness.detect_validator_signature(root / "validate-workflow-design.py") == "single_no_repo_root"

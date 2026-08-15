@@ -30,8 +30,6 @@ def detect_validator_signature(validator_path):
         return "two_arg"
     if validator_name in {"validate-repo.py", "validate-mode-coverage.py"}:
         return "no_arg"
-    if validator_name == "validate-workflow-design.py":
-        return "single_no_repo_root"
     if validator_name in {
         "validate-plan.py",
         "validate-brief.py",
@@ -102,10 +100,6 @@ def run_validator(validator_path, fixture_path, repo_root=".", extra_args=None):
         cmd.append(artifact_id)
         cmd.append(fixture_path)
         cmd.extend(["--repo-root", repo_root])
-    elif sig == 'single_no_repo_root':
-        if extra_args:
-            cmd.extend(extra_args)
-        cmd.append(fixture_path)
     else:
         # Single-argument validators (standard)
         if extra_args:
@@ -176,15 +170,14 @@ def main():
     
     # Validators that validate the repository as a whole have valid-only
     # coverage: a negative (invalid/) fixture is unsatisfiable because the
-    # input is the repo state itself, not a sample file. validate-workflow-
-    # design / validate-repo / validate-mode-coverage take repository state,
-    # so a portable negative fixture would have to be a full broken repo.
-    # Commit 9994238 retired their invalid/ samples for this reason; their
-    # negative cases are exercised by the live repo state via scripts/check.py.
+    # input is the repo state itself, not a sample file. validate-repo and
+    # validate-mode-coverage take repository state, so a portable negative
+    # fixture would have to be a full broken repo. Commit 9994238 retired their
+    # invalid/ samples for this reason; their negative cases are exercised by
+    # the live repo state via scripts/check.py.
     VALID_ONLY_VALIDATORS = {
         "validate-repo",
         "validate-mode-coverage",
-        "validate-workflow-design",
     }
     
     results = []
