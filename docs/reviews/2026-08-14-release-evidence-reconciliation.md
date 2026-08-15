@@ -147,3 +147,40 @@ observation:       candidate-addressed identity
                    overwrite evidence we needed to preserve?" If it never
                    hurts, candidate-addressed identity is simpler and stays.
 ```
+
+
+## Next real release: capture checklist (2026-08-14)
+
+The next genuine Auteur release is the experiment that tests the three
+remaining boundaries (operator entry, baseline comparison, actual consumer).
+Do NOT create a special validation campaign; use the new mechanism in the
+normal release flow. Capture enough evidence to answer:
+
+```text
+candidate:            what revision was actually qualified?
+entry point:          was `python scripts/check.py --qualify` really used
+                      (not a lower-level script chosen by insider knowledge)?
+baseline:             what prior evidence was referenced (309a473...)?
+                      were added/removed/unchanged deltas correct?
+qualification:        did candidate provenance hold?
+                      did accounting reconcile?
+                      did wheel verification remain isolated and green?
+                      did anything fail closed?
+durability:           what candidate-addressed artifact was produced?
+consumption:          did the actual release/acceptance record cite that
+                      artifact (not manually duplicated counts in prose)?
+manual duplication:   were mechanical counts copied back into prose anyway?
+friction:             did the operator need hidden knowledge or
+                      conversational context?
+```
+
+Maturity rule: if all three remaining boundaries survive, the
+release-evidence production path is **OPERATIONALLY DEMONSTRATED**. Do not
+claim "production-ready" from one release; that stronger label requires
+repeated reliability/support/recovery evidence.
+
+Artifact-identity reopen trigger (kept concrete): "Did multiple
+qualification attempts against one candidate cause important evidence to be
+overwritten, confused, or unreconstructable?" Until that occurs,
+`qualification-evidence/<candidate-sha>.json` remains the simpler
+representation.
