@@ -70,7 +70,6 @@ included:
     - validate-usage-research-report.py
     - validate-user-intent-amendment.py
     - validate-user-intent.py
-    - validate-workflow-design.py
     - workflow-execution-engine.py
     - _validator_utils.py
   framework_docs:
