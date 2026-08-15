@@ -893,28 +893,6 @@ def compile_to_blueprint(identity: StoryIdentity) -> StoryBlueprint:
     )
 
     # 6. Story Engine
-    # Load subplots based on budget
-    recommended = _get_recommended_subplots(identity.story_type.genre)
-    seeded_threads = []
-    for i in range(subplot_budget):
-        if i < len(recommended):
-            seeded_threads.append(_populate_thread_claims(recommended[i], identity.story_type.genre.value))
-        else:
-            seeded_threads.append(_populate_thread_claims(
-                StoryThread(
-                    name=f"Secondary Subplot {i+1}",
-                    type=ThreadType.THEMATIC_ECHO,
-                    want=StructuralClaim(author_text="Secondary want.", checkable_claims=[]),
-                    resistance=StructuralClaim(author_text="Secondary resistance.", checkable_claims=[]),
-                    conflict=StructuralClaim(author_text="Secondary conflict.", checkable_claims=[]),
-                    stakes=StructuralClaim(author_text="Secondary stakes.", checkable_claims=[]),
-                    change=StructuralClaim(author_text="Secondary change.", checkable_claims=[]),
-                    supports_main_by=[SupportFunction.COMPLICATES],
-                    thematic_function="Supports the main thread.",
-                ),
-                identity.story_type.genre.value,
-            ))
-
     engine = StoryEngine(
         main_thread=MainThread(
             want=StructuralClaim(
@@ -939,7 +917,8 @@ def compile_to_blueprint(identity: StoryIdentity) -> StoryBlueprint:
             ),
             thematic_function=f"Explores the central question: {theme_question}",
         ),
-        threads=seeded_threads,
+        # Subplot budget is capacity, not accepted story content.
+        threads=[],
     )
 
     # 7. Characters
