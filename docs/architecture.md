@@ -30,15 +30,17 @@ Deterministic code owns:
 - YAML/JSON parsing.
 - Critic finding and validation report models.
 - Draft retry and resume behavior.
+- Story Discovery artifact boundaries, workflow routing, and explicit author-acceptance authority.
 
 LLMs own:
 
-- Story identity recommendation (opinionated narrative engine — `auteur identity recommend`).
+- Story Discovery candidate generation and comparative advisory judgment (`auteur story-discovery run ... --recommend`).
+- Direct single-engine story identity recommendation for advanced/scripted use (`auteur identity recommend`).
 - Cartographer chapter outline generation.
 - Bard prose drafting and rewriting.
 - Critic judgment for contract, arc, tension, slop, and theme.
 
-The purpose is not to remove LLM non-determinism. The purpose is to bound it: every creative output is routed through structured prompts, parsed artifacts, validation reports, and iteration state.
+The purpose is not to remove LLM non-determinism. The purpose is to bound it: every creative output is routed through structured prompts, parsed artifacts, validation reports, and iteration state. In Story Discovery specifically, generated alternatives and the advisory winner remain non-canonical until the author explicitly accepts a candidate.
 
 Structure analysis is intentionally split from generation. Pydantic models say whether a blueprint is parseable; `auteur.structure` says whether the declared whole-story structure is complete and coherent enough for downstream work.
 
@@ -101,9 +103,9 @@ Defines the provider-agnostic `LLMClient` protocol and concrete Anthropic/OpenAI
 
 ## Current Engine Reality
 
-Deterministic code owns schemas/diagnostics/artifacts. LLMs own identity recommendation, outlining, drafting, and critic judgment. Per-agent model routing now exists.
+Deterministic code owns schemas, diagnostics, artifacts, Story Discovery authority boundaries, and workflow routing. LLMs own Story Discovery candidate generation/advisory judgment, direct identity recommendation, outlining, drafting, and critic judgment. Per-agent model routing now exists.
 
-The current CLI also includes deterministic Story Discovery, Series and Universe
+The current CLI also includes Story Discovery orchestration, deterministic Series and Universe
 contracts, Genre Builder guides, round-trip import/export, controlled editing,
 and the genre-neutral interactive pipeline runtime. These packages produce
-derivative reports and artifacts without replacing canonical author contracts.
+working or derivative reports and artifacts without replacing canonical author contracts; Story Discovery becomes canonical only through explicit candidate acceptance.

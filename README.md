@@ -1,15 +1,19 @@
 # Auteur
 
-Auteur is an opinionated narrative-engine toolkit for long-form fiction. It helps creative beginners turn raw creative input into a recommended story engine, validates that engine deterministically, and treats chapter outlining and prose generation as optional downstream stages.
+Auteur is an opinionated narrative-engine toolkit for long-form fiction. It helps creative beginners turn raw creative input into multiple plausible story engines, recommends the strongest direction with explicit tradeoffs, and keeps canonical story state under author control.
 
 Auteur coordinates high-level narrative-engine recommendation with deterministic execution rails under a unified narrative compilation lifecycle:
 
 ```text
 raw idea
   ↓
-opinionated interpretation
+narrative search (multiple plausible story engines)
   ↓
-story_identity.yaml (accepted recommended story engine)
+advisory recommendation + tradeoffs
+  ↓
+explicit author choice
+  ↓
+story_identity.yaml (accepted story engine)
   ↓
 blueprint.yaml (structural design canvas)
   ↓
@@ -39,8 +43,9 @@ valuable outcome.
 
 This repository contains a working Engine v1 CLI and Python library covering the full narrative compilation lifecycle:
 
+- **Story Discovery**: Generates multiple plausible `StoryIdentity` interpretations, compares them with a bounded advisory judge, recommends one direction with tradeoffs, and leaves canonical state unchanged until explicit author acceptance.
+- **Opinionated Story Identity**: Recommended story-engine validation and seeding via Pydantic model contracts, including rationale, rejected directions, and author overrides. The direct `identity recommend` command remains available as an advanced single-engine shortcut.
 - **Genre Packs**: Versioned, reusable genre knowledge packages (`erotic_fiction` v0.1.0 MVP) supplying audience promises, emotional targets, narrative engines, scene functions, subgenre profiles (`erotic_romance`, `erotic_psychological_drama`, `erotic_horror`), opinionated recommendations, explicit author acceptance/overrides, and genre-aware diagnostics.
-- **Opinionated Story Identity**: Recommended story-engine validation and seeding via Pydantic model contracts, including rationale, rejected directions, and author overrides.
 - **Genre Overrides**: Declared author bypasses for genre contract expectations, classified into four consequence types (`safe_variation`, `compression`, `subversion`, `reclassification`).
 - **Subgenre Modifier Validation**: Registered subgenre modifiers (`locked_room`, `hardboiled`, `cozy`) with scope, setup, and misuse diagnostics.
 - **Structure Generation (top-down)**: Synthesizes a complete story engine from target experience, genre, and scope constraints.
@@ -83,26 +88,46 @@ python -m pip install -e ".[dev,all]"
 
 ## Quick Start
 
-Generate a recommended story engine from a raw premise, validate it, and compile the blueprint:
+For a fresh project, Auteur's default Identity-stage path is Story Discovery: explore multiple narrative engines, receive an advisory recommendation, then explicitly accept the direction you choose.
 
 ```powershell
-# 1. Recommend a story engine from a raw premise
-auteur identity recommend "A detective investigates a locked manor murder" --output .\tmp\story_identity.yaml
+# 1. Create a fresh working directory and ask Auteur for the next step
+New-Item -ItemType Directory -Force .\tmp\shattered_crown | Out-Null
+Push-Location .\tmp\shattered_crown
+auteur workflow next .
 
-# 2. Validate the story identity
-auteur identity validate .\tmp\story_identity.yaml
+# 2. Explore multiple story engines and receive an advisory recommendation
+auteur story-discovery run "A detective investigates a locked manor murder" --recommend --output story_discovery --project .
 
-# 3. Compile into a blueprint skeleton
-auteur blueprint seed .\tmp\story_identity.yaml --output .\tmp\blueprint.yaml
+# 3. Ask again: Auteur now points to the recommended candidate
+auteur workflow next .
 
-# 4. Run whole-story structure diagnostics
-auteur structure diagnose .\tmp\blueprint.yaml
+# 4. Review story_discovery\comparison.md, then explicitly accept the direction you choose
+# Replace candidate_X with the candidate you want to make canonical.
+auteur story-discovery accept story_discovery\candidate_X.yaml --output story_identity.yaml
+
+# 5. Compile the accepted identity into a blueprint skeleton
+auteur blueprint seed story_identity.yaml --output blueprint.yaml
+
+# 6. Run whole-story structure diagnostics
+auteur structure diagnose blueprint.yaml
+Pop-Location
 ```
 
-Initialize a project from the seeded blueprint:
+Story Discovery is advisory: it writes candidate/comparison artifacts, not canonical `story_identity.yaml`. The author chooses what becomes true. `auteur workflow next . --execute` will not auto-accept a Story Discovery candidate.
+
+The direct single-engine path remains available for advanced or scripted use:
 
 ```powershell
-auteur init .\tmp\shattered_crown --from .\tmp\blueprint.yaml
+auteur identity recommend "A detective investigates a locked manor murder" --output .\tmp\story_identity.yaml
+```
+
+Initialize a project from a seeded blueprint:
+
+```powershell
+auteur init .\tmp\shattered_crown_project --from .\tmp\shattered_crown\blueprint.yaml
+```
+
 ### Plan a chapter's cartographer prompt (no LLM call)
 
 ```powershell
@@ -161,11 +186,19 @@ auteur retry .\tmp\shattered_crown 1 --max-iterations 2
 
 ## CLI Commands
 
-### 1. Identity & Narrative Engine Seeding
+### 1. Story Discovery & Identity
+
+`auteur story-discovery run <premise> --recommend --output <directory> [--project <path>]`
+
+Explores multiple plausible `StoryIdentity` interpretations, writes candidate and comparison artifacts, and produces an advisory recommendation. Search and recommendation do not promote canonical state.
+
+`auteur story-discovery accept <candidate.yaml> --output <story_identity.yaml>`
+
+Validates and explicitly promotes the selected Story Discovery candidate to canonical `story_identity.yaml`. This is the author-authority boundary: recommendation alone never performs this step.
 
 `auteur identity recommend <premise> --output <path>`
 
-Translates a raw premise (text or path to a file) into a validated `StoryIdentity` YAML document. Auteur recommends exactly one story engine optimized for the genre contract promise, explains its reasoning in `why_this_is_best`, and records `rejected_directions`. Accepts optional `--genre`, `--medium`, and `--mode` constraints.
+Advanced direct path that translates a raw premise (text or path to a file) into one validated `StoryIdentity` YAML document. Auteur recommends exactly one story engine optimized for the genre contract promise, explains its reasoning in `why_this_is_best`, and records `rejected_directions`. Accepts optional `--genre`, `--medium`, and `--mode` constraints.
 
 `auteur identity validate <story_identity.yaml>`
 
@@ -354,5 +387,3 @@ The manual real-LLM smoke script is not part of pytest because it spends real to
 ```powershell
 python .\scripts\smoke_real_llm.py
 ```
-
-
