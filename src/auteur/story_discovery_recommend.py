@@ -241,6 +241,8 @@ def _recommendation_surface_lines(
     """Build the author-facing recommendation surface without changing state."""
     winner_output = _candidate_by_id(candidate_outputs, winner)
     identity = winner_output.identity
+    target_experience = identity.target_experience.model_dump(mode="json")
+    central_engine = identity.central_engine.model_dump(mode="json")
     accept_command = (
         f"auteur story-discovery accept {output_dir / (winner + '.yaml')} "
         "--output story_identity.yaml"
@@ -277,9 +279,9 @@ def _recommendation_surface_lines(
         rationale,
         "",
         "What this choice emphasizes",
-        f"- Reader experience: {identity.target_experience.primary}",
-        f"- Central conflict: {identity.central_engine.conflict}",
-        f"- Stakes: {identity.central_engine.stakes}",
+        f"- Reader experience: {target_experience['primary']}",
+        f"- Central conflict: {central_engine['conflict']}",
+        f"- Stakes: {central_engine['stakes']}",
         "",
         "Alternatives",
     ]
