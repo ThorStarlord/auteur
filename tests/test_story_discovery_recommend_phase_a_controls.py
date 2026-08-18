@@ -60,6 +60,7 @@ class _Identity:
         self.confidence = 0.8
         self.why_this_is_best = f"advocacy {suffix}"
         self.rejected_directions = []
+        self.author_overrides = []
         self.genre_contract_snapshot = contract
 
     def model_dump(self, mode: str = "json") -> dict:
@@ -247,9 +248,21 @@ def test_phase_a_project_local_contract_remains_authoritative(tmp_path, monkeypa
     assert "Cozy Political Fantasy" in co.yaml_content
 
 
-def test_phase_a_judge_request_excludes_generated_summary_fields():
+def test_phase_a_judge_request_uses_bounded_story_evidence():
     first = _candidate("candidate_1", "one", fit=90)
     second = _candidate("candidate_2", "two", fit=70)
+    first.candidate.lens = "PROVENANCE LENS ONE"
+    second.candidate.lens = "PROVENANCE LENS TWO"
+    first.candidate.best_basis = SimpleNamespace(value="PROVENANCE BASIS ONE")
+    second.candidate.best_basis = SimpleNamespace(value="PROVENANCE BASIS TWO")
+    first.identity.alternatives = ["SELF ADVOCACY ALTERNATIVE ONE"]
+    second.identity.alternatives = ["SELF ADVOCACY ALTERNATIVE TWO"]
+    first.identity.confidence = 0.12345
+    second.identity.confidence = 0.54321
+    first.identity.rejected_directions = ["SELF ADVOCACY REJECTED ONE"]
+    second.identity.rejected_directions = ["SELF ADVOCACY REJECTED TWO"]
+    first.identity.author_overrides = ["AUTHOR OVERRIDE ONE"]
+    second.identity.author_overrides = ["AUTHOR OVERRIDE TWO"]
     for co in (first, second):
         co.candidate.recommendation_summary = "SELF ADVOCACY SUMMARY"
         co.candidate.tradeoffs = ["SELF ADVOCACY TRADEOFF"]
@@ -263,12 +276,27 @@ def test_phase_a_judge_request_excludes_generated_summary_fields():
         medium=None,
         mode=None,
     )
-    assert "SELF ADVOCACY SUMMARY" not in request.user
-    assert "SELF ADVOCACY TRADEOFF" not in request.user
-    assert "SELF ADVOCACY RISK" not in request.user
-    assert "SELF ADVOCACY BEST FOR" not in request.user
-    assert "advocacy one" not in request.user
-    assert "advocacy two" not in request.user
+    for excluded in (
+        "SELF ADVOCACY SUMMARY",
+        "SELF ADVOCACY TRADEOFF",
+        "SELF ADVOCACY RISK",
+        "SELF ADVOCACY BEST FOR",
+        "advocacy one",
+        "advocacy two",
+        "PROVENANCE LENS ONE",
+        "PROVENANCE LENS TWO",
+        "PROVENANCE BASIS ONE",
+        "PROVENANCE BASIS TWO",
+        "SELF ADVOCACY ALTERNATIVE ONE",
+        "SELF ADVOCACY ALTERNATIVE TWO",
+        "0.12345",
+        "0.54321",
+        "SELF ADVOCACY REJECTED ONE",
+        "SELF ADVOCACY REJECTED TWO",
+    ):
+        assert excluded not in request.user
+    assert "AUTHOR OVERRIDE ONE" in request.user
+    assert "AUTHOR OVERRIDE TWO" in request.user
 
     winner, rationale, rejected = _parse_judgment(
         '{"recommended_candidate_id":"candidate_2",'

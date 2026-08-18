@@ -29,7 +29,7 @@ EVIDENCE RULES
 - A higher contract-fit number does not automatically win.
 - Scope and emotional runway are capacity evidence, not artistic-quality scores.
 - Explicit author constraints are hard boundaries unless the author explicitly overrides them.
-- Generated candidate summaries, tradeoffs, risks, and best-for lists are not evidence for this judgment.
+- Generation provenance and self-evaluation (lens, basis, confidence, alternatives, rejected directions, summaries, tradeoffs, risks, best-for) are not evidence for this judgment.
 
 DEFAULT DECISION PRIORITY
 1. Genre/reader promise is the primary optimization basis.
@@ -115,8 +115,6 @@ def _candidate_evidence(co: Any) -> dict[str, Any]:
     candidate = co.candidate
     return {
         "candidate_id": co.candidate_id,
-        "lens": getattr(candidate, "lens", ""),
-        "best_basis": getattr(getattr(candidate, "best_basis", None), "value", None),
         "story_identity": {
             "title": identity.title,
             "core_answer": identity.core_answer,
@@ -125,9 +123,7 @@ def _candidate_evidence(co: Any) -> dict[str, Any]:
             "central_engine": identity.central_engine.model_dump(mode="json"),
             "not_this": identity.not_this,
             "open_questions": identity.open_questions,
-            "alternatives": identity.alternatives,
-            "confidence": identity.confidence,
-            "rejected_directions": identity.rejected_directions,
+            "author_overrides": identity.author_overrides,
             "genre_contract": _bounded_contract_evidence(identity),
         },
         "validation_status": candidate.validation_status,
