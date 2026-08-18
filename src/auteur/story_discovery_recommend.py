@@ -219,6 +219,107 @@ def _single_survivor(candidate_id: str, requested: int) -> tuple[str, str, dict[
     )
 
 
+def _candidate_by_id(candidate_outputs: list[Any], candidate_id: str) -> Any:
+    matches = [co for co in candidate_outputs if co.candidate_id == candidate_id]
+    if len(matches) != 1:
+        raise ValueError(
+            f"candidate lookup for {candidate_id!r} expected exactly one match; "
+            f"found {len(matches)}"
+        )
+    return matches[0]
+
+
+def _recommendation_surface_lines(
+    *,
+    winner: str,
+    rationale: str,
+    rejected: dict[str, str],
+    candidate_outputs: list[Any],
+    output_dir: Path,
+    requested_candidates: int,
+) -> list[str]:
+    """Build the author-facing recommendation surface without changing state."""
+    winner_output = _candidate_by_id(candidate_outputs, winner)
+    identity = winner_output.identity
+    target_experience = identity.target_experience.model_dump(mode="json")
+    central_engine = identity.central_engine.model_dump(mode="json")
+    accept_command = (
+        f"auteur story-discovery accept {output_dir / (winner + '.yaml')} "
+        "--output story_identity.yaml"
+    )
+
+    if len(candidate_outputs) == 1:
+        return [
+            "Story Discovery",
+            f"1 viable interpretation survived from a {requested_candidates}-candidate search.",
+            "",
+            f"ONLY VIABLE INTERPRETATION — {identity.title} (`{winner}`)",
+            identity.core_answer,
+            "",
+            "Why this result is different",
+            rationale,
+            "",
+            "Nothing has been accepted yet.",
+            "",
+            "Next",
+            "  Accept this interpretation:",
+            f"    {accept_command}",
+            "",
+            "  Or revise the premise/constraints and run Story Discovery again.",
+        ]
+
+    lines = [
+        "Story Discovery",
+        f"Found {len(candidate_outputs)} viable interpretations of your premise.",
+        "",
+        f"RECOMMENDED — {identity.title} (`{winner}`)",
+        identity.core_answer,
+        "",
+        "Why Auteur recommends it",
+        rationale,
+        "",
+        "What this choice emphasizes",
+        f"- Reader experience: {target_experience['primary']}",
+        f"- Central conflict: {central_engine['conflict']}",
+        f"- Stakes: {central_engine['stakes']}",
+        "",
+        "Alternatives",
+    ]
+    for co in candidate_outputs:
+        if co.candidate_id == winner:
+            continue
+        reason = rejected[co.candidate_id]
+        lines.append(f"- {co.identity.title} (`{co.candidate_id}`) — {reason}")
+
+    lines.extend(
+        [
+            "",
+            "Nothing has been accepted yet.",
+            "",
+            "Next",
+            "  Accept the recommendation:",
+            f"    {accept_command}",
+            "",
+            "  Or choose another interpretation:",
+        ]
+    )
+    for co in candidate_outputs:
+        if co.candidate_id == winner:
+            continue
+        lines.append(
+            "    auteur story-discovery accept "
+            f"{output_dir / (co.candidate_id + '.yaml')} --output story_identity.yaml"
+        )
+    lines.extend(
+        [
+            "",
+            "  Review the full comparison:",
+            f"    {output_dir / 'comparison.md'}",
+        ]
+    )
+    return lines
+
+
 def _resolve_premise(raw: str) -> str:
     try:
         path = Path(raw)
@@ -257,7 +358,7 @@ def _augment_artifacts(
     winner: str,
     rationale: str,
     rejected: dict[str, str],
-    candidate_outputs: list[Any],
+    surface_lines: list[str],
 ) -> None:
     discovery_set_path = output_dir / "discovery_set.yaml"
     report_path = output_dir / "discovery_report.yaml"
@@ -282,17 +383,7 @@ def _augment_artifacts(
     )
 
     lines = comparison_path.read_text(encoding="utf-8").splitlines()
-    lines.extend(["", "## Auteur Advisory Recommendation", "", f"**Recommended candidate**: `{winner}`", f"**Why**: {rationale}"])
-    if rejected:
-        lines.extend(["", "**Why the other surviving candidates lose:**"])
-        for co in candidate_outputs:
-            candidate_id = co.candidate_id
-            if candidate_id != winner:
-                lines.append(f"- `{candidate_id}`: {rejected[candidate_id]}")
-    lines.extend([
-        "",
-        "This recommendation is advisory. Canonical StoryIdentity changes only after an explicit `auteur story-discovery accept ...` command.",
-    ])
+    lines.extend(["", "## Auteur Advisory Recommendation", "", *surface_lines[1:]])
     comparison_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -322,7 +413,15 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
         project_path=args.project,
     )
     if not result.is_success:
-        _err(result.error)
+        if result.error.strip().startswith("0 valid candidates survived"):
+            _err("no Story Discovery candidate survived validation.")
+            print("Try revising the premise or constraints and run again.", file=sys.stderr)
+            print(
+                "Use --debug to preserve failed candidate attempts when deeper inspection is needed.",
+                file=sys.stderr,
+            )
+        else:
+            _err(result.error)
         return result.exit_code
     data = result.data
     if not isinstance(data, RecommendOpenEndedData):
@@ -331,7 +430,12 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
 
     candidate_outputs = data.candidates
     if not candidate_outputs:
-        _err("0 valid candidates survived validation checks.")
+        _err("no Story Discovery candidate survived validation.")
+        print("Try revising the premise or constraints and run again.", file=sys.stderr)
+        print(
+            "Use --debug to preserve failed candidate attempts when deeper inspection is needed.",
+            file=sys.stderr,
+        )
         return 1
 
     try:
@@ -361,20 +465,30 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
 
     data.rec_set.recommended_candidate_id = winner
     written = serialize_story_discovery(data, args.output, args.brain_dump)
+    surface_lines = _recommendation_surface_lines(
+        winner=winner,
+        rationale=rationale,
+        rejected=rejected,
+        candidate_outputs=candidate_outputs,
+        output_dir=args.output,
+        requested_candidates=args.candidates,
+    )
     _augment_artifacts(
         args.output,
         winner=winner,
         rationale=rationale,
         rejected=rejected,
-        candidate_outputs=candidate_outputs,
+        surface_lines=surface_lines,
     )
 
+    print()
+    for line in surface_lines:
+        print(line)
+
     candidate_count = len(data.candidates)
+    print("\nArtifacts")
     for path in written[:candidate_count]:
-        print(f"  Wrote {path.name}")
-    print(f"\nSuccess: generated {candidate_count} Story Discovery candidates under {args.output}/")
-    print(f"Discovery report written to {args.output / 'discovery_report.yaml'}")
-    print(f"Comparison document written to {args.output / 'comparison.md'}")
-    print(f"Auteur advisory recommendation: {winner}")
-    print("  Canonical state is unchanged; use `auteur story-discovery accept ...` to promote a candidate.")
+        print(f"  {path.name}")
+    print(f"  {args.output / 'discovery_report.yaml'}")
+    print(f"  {args.output / 'comparison.md'}")
     return 0
