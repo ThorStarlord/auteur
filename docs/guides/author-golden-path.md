@@ -1,9 +1,9 @@
 # Author Golden Path — Guided Journeys
 
-This guide shows three canonical end-to-end author journeys that prove
-Auteur's capabilities form a coherent product. Each journey starts with
-a narrative problem and reaches a justified, current, publishable result
-without requiring knowledge of Auteur's internal architecture.
+This guide shows the canonical author journeys that prove Auteur's capabilities
+form a coherent product. Each journey starts with a narrative problem and reaches
+a justified, current, publishable result without requiring knowledge of Auteur's
+internal architecture.
 
 ## Starting point
 
@@ -12,6 +12,48 @@ auteur dashboard --project .
 ```
 
 Shows project overview, current stage, and primary next action.
+
+For an established project, continue with:
+
+```bash
+auteur workflow next .
+```
+
+For a fresh project with no accepted `story_identity.yaml`, the same workflow
+surface now routes into Story Discovery rather than directly generating one
+canonical identity.
+
+## New project — discover and choose the story direction
+
+**Problem**: You have a premise or brain dump, but the story's narrative engine
+has not been accepted yet.
+
+```bash
+# 1. Ask Auteur what to do next
+auteur workflow next .
+
+# 2. Explore multiple viable narrative engines and receive an advisory recommendation
+auteur story-discovery run <premise-or-file> --recommend --output story_discovery --project .
+
+# 3. Ask again after discovery; Auteur now points to the recommended candidate
+auteur workflow next .
+
+# 4. Review the comparison before deciding
+#    story_discovery/comparison.md
+
+# 5. Explicitly accept the direction you choose
+auteur story-discovery accept story_discovery/candidate_X.yaml --output story_identity.yaml
+
+# 6. Verify the workflow advances to Structure
+auteur workflow next .
+```
+
+Authority invariant:
+
+- Story Discovery search and recommendation are advisory and non-canonical.
+- `workflow next --execute` must not auto-accept a Story Discovery candidate.
+- `story_identity.yaml` becomes canonical only when the author explicitly runs
+  `story-discovery accept` for the chosen candidate.
 
 ## Journey A — Repair a chapter-level structural problem
 
@@ -98,6 +140,8 @@ auteur scene publish --project .
 | `auteur dashboard` | Broad project overview |
 | `auteur workflow next` | One authoritative next action |
 | `auteur workflow explain` | Why that action is recommended |
+| `auteur story-discovery run ... --recommend` | Explore narrative engines and receive an advisory recommendation |
+| `auteur story-discovery accept` | Explicitly promote the chosen Story Discovery candidate to canonical identity |
 | `auteur structure diagnose` | Detect structural weaknesses |
 | `auteur structure propose-repairs` | Generate repair proposals |
 | `auteur structure apply` | Apply a proposal with authority |
