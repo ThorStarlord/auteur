@@ -231,7 +231,8 @@ class TestRecommendActions:
         stages = detect_stages(empty_project)
         actions = recommend_actions(stages)
         assert len(actions) >= 1
-        assert "identity" in actions[0].label.lower()
+        assert actions[0].label == "Discover story direction"
+        assert "story-discovery run" in actions[0].command
 
     def test_identity_stage(self, identity_project: Path) -> None:
         stages = detect_stages(identity_project)

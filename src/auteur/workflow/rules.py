@@ -214,6 +214,30 @@ def collect_blockers(stages: list[StageProgress]) -> list[WorkflowBlocker]:
     return result
 
 
+def _story_discovery_recommendation(project_root: Path | None) -> tuple[str, Path] | None:
+    """Return a usable advisory Story Discovery winner for an identity-stage project."""
+    if project_root is None:
+        return None
+
+    root = Path(project_root)
+    discovery_dir = root / "story_discovery"
+    payload = _read_yaml(discovery_dir / "discovery_set.yaml")
+    if not isinstance(payload, dict):
+        return None
+
+    raw_winner = payload.get("recommended_candidate_id")
+    if not isinstance(raw_winner, str) or not raw_winner.strip():
+        return None
+    winner = raw_winner.strip()
+    if Path(winner).name != winner:
+        return None
+
+    candidate_path = discovery_dir / f"{winner}.yaml"
+    if not candidate_path.is_file():
+        return None
+    return winner, candidate_path
+
+
 def integrate_decision_actions(
     decisions: list[Any],
     current_stage: WorkflowStage | None,
@@ -339,12 +363,34 @@ def recommend_actions(
             return actions
 
         if cs == WorkflowStage.IDENTITY:
-            actions.append(WorkflowAction(
-                label="Define story identity",
-                command="auteur identity recommend your_premise.txt --output story_identity.yaml",
-                authority=AuthorityLevel.CANDIDATE_GENERATION,
-                description="Generate a recommended story identity from a premise text file.",
-            ))
+            recommendation = _story_discovery_recommendation(project_root)
+            if recommendation is not None:
+                winner, _candidate_path = recommendation
+                actions.append(WorkflowAction(
+                    label="Choose recommended story direction",
+                    command=(
+                        "auteur story-discovery accept "
+                        f"story_discovery/{winner}.yaml --output story_identity.yaml"
+                    ),
+                    authority=AuthorityLevel.AUTHORITY_BEARING,
+                    description=(
+                        "Review the Story Discovery recommendation and explicitly accept it "
+                        "to make the selected StoryIdentity canonical."
+                    ),
+                ))
+            else:
+                actions.append(WorkflowAction(
+                    label="Discover story direction",
+                    command=(
+                        "auteur story-discovery run <premise-or-file> --recommend "
+                        "--output story_discovery --project ."
+                    ),
+                    authority=AuthorityLevel.CANDIDATE_GENERATION,
+                    description=(
+                        "Explore multiple narrative engines, receive an advisory recommendation, "
+                        "and keep canonical state unchanged until explicit acceptance."
+                    ),
+                ))
         elif cs == WorkflowStage.STRUCTURE:
             actions.append(WorkflowAction(
                 label="Diagnose structure",
