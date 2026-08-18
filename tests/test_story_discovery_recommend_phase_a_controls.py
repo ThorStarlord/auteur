@@ -6,6 +6,7 @@ from types import SimpleNamespace
 import pytest
 import yaml
 
+from auteur.cli_handlers import RecommendOpenEndedData
 from auteur.llm import LLMResponse
 from auteur.story_discovery_recommend import (
     _build_judge_request,
@@ -130,9 +131,10 @@ def _serializer(data, output_dir: Path, premise: str):
 def test_phase_a_false_numeric_winner_is_not_automatically_selected(tmp_path, monkeypatch):
     high_fit = _candidate("candidate_1", "high-fit", fit=100)
     lower_fit = _candidate("candidate_2", "premise-specific", fit=60)
-    data = SimpleNamespace(
+    data = RecommendOpenEndedData(
         candidates=[high_fit, lower_fit],
         rec_set=SimpleNamespace(recommended_candidate_id=None),
+        comparison_lines=[],
     )
     result = SimpleNamespace(is_success=True, data=data, error="", exit_code=0)
 
@@ -166,9 +168,10 @@ def test_phase_a_false_numeric_winner_is_not_automatically_selected(tmp_path, mo
 
 def test_phase_a_one_survivor_skips_comparative_judge(tmp_path, monkeypatch):
     survivor = _candidate("candidate_1", "only", fit=70)
-    data = SimpleNamespace(
+    data = RecommendOpenEndedData(
         candidates=[survivor],
         rec_set=SimpleNamespace(recommended_candidate_id=None),
+        comparison_lines=[],
     )
     result = SimpleNamespace(is_success=True, data=data, error="", exit_code=0)
 
