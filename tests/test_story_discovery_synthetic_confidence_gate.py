@@ -17,233 +17,192 @@ from auteur.story_discovery_recommend import (
 
 
 @dataclass(frozen=True)
-class CandidateSpec:
+class EngineSeed:
     key: str
     title: str
-    core_answer: str
-    primary: str
-    want: str
-    resistance: str
     conflict: str
-    stakes: str
     change: str
-    genre: str = "mystery"
-    medium: str = "novella"
-    mode: str = "dramatic"
-    why: str = "Synthetic provider self-advocacy; excluded from comparative evidence."
-    confidence: float = 0.8
+    genre: str = "other"
 
 
 @dataclass(frozen=True)
-class NaturalisticCase:
+class SyntheticCase:
     case_id: str
     premise_class: str
     premise: str
-    candidates: tuple[CandidateSpec, CandidateSpec, CandidateSpec]
+    seeds: tuple[EngineSeed, EngineSeed, EngineSeed]
     preferred_key: str
-    rationale: str
 
 
-def _spec(
-    key: str,
-    title: str,
-    core: str,
-    primary: str,
-    conflict: str,
-    *,
-    want: str | None = None,
-    resistance: str | None = None,
-    stakes: str | None = None,
-    change: str | None = None,
-    genre: str = "mystery",
-) -> CandidateSpec:
-    return CandidateSpec(
-        key=key,
-        title=title,
-        core_answer=core,
-        primary=primary,
-        want=want or f"The protagonist must pursue the {key} objective before the window closes.",
-        resistance=resistance or f"The {key} opposition makes every direct route costly.",
-        conflict=conflict,
-        stakes=stakes or f"Failure permanently destroys what the {key} objective was meant to protect.",
-        change=change or f"The protagonist abandons the old certainty and adopts the {key} truth as a new way of acting.",
-        genre=genre,
-    )
-
-
-NATURALISTIC_CASES = (
-    NaturalisticCase(
+CASES = (
+    SyntheticCase(
         "U1",
         "underdetermined",
         "A lighthouse keeper receives letters from ships that sank decades ago.",
         (
-            _spec("grief", "The Last Mailboat", "A keeper follows impossible letters to finish the dead sailors' unresolved promises.", "melancholy curiosity becoming release", "Each delivered promise makes the keeper complicit in a history the town buried."),
-            _spec("conspiracy", "Signal Below", "The letters expose a living smuggling network using old wrecks as cover.", "suspicion becoming hunted certainty", "The keeper must expose present criminals while the entire port profits from the old lie."),
-            _spec("identity", "Names in the Fog", "The letters reveal the keeper is connected to a wreck whose official passenger list was falsified.", "uncanny recognition becoming self-redefinition", "The keeper's search for a sender becomes a fight over who has the right to define the keeper's past."),
+            EngineSeed("grief", "The Last Mailboat", "Delivering the dead sailors' promises exposes the town's buried history.", "The keeper gives up protective isolation and becomes a witness for the dead."),
+            EngineSeed("conspiracy", "Signal Below", "The letters expose a living smuggling network using old wrecks as cover.", "The keeper stops trusting official history and chooses public exposure."),
+            EngineSeed("identity", "Names in the Fog", "A falsified passenger list ties the keeper personally to one of the wrecks.", "The keeper replaces an inherited identity with a deliberately chosen one."),
         ),
         "identity",
-        "The identity engine makes the supernatural correspondence causal to the protagonist's own stakes while preserving the premise's mystery.",
     ),
-    NaturalisticCase(
+    SyntheticCase(
         "U2",
         "underdetermined",
         "Every Tuesday, a child finds a different key under the same tree.",
         (
-            _spec("wonder", "The Tuesday Doors", "Each key opens one temporary place the child must understand before sunset.", "wonder becoming bittersweet responsibility", "The child wants to keep the magical places, but every opened door must close forever."),
-            _spec("family", "Keys to Before", "The keys open sealed rooms from the child's family's forgotten past.", "curiosity becoming difficult belonging", "The child must uncover family truths while the adults keep rewriting what happened."),
-            _spec("choice", "The Unused Key", "Each key corresponds to a future choice, and using one erases the others.", "playful curiosity becoming moral weight", "The child wants certainty about the future but every answer permanently narrows who they can become."),
+            EngineSeed("wonder", "The Tuesday Doors", "Every key opens a temporary place that disappears at sunset.", "The child learns that wonder can matter without being possessed."),
+            EngineSeed("family", "Keys to Before", "The keys open sealed rooms from the family's forgotten past.", "The child replaces inherited family stories with earned belonging."),
+            EngineSeed("choice", "The Unused Key", "Each key reveals one future but using it permanently erases another.", "The child gives up certainty and accepts responsibility for irreversible choice."),
         ),
         "choice",
-        "The choice engine turns the repeating key mechanic into escalating irreversible decisions rather than episodic novelty.",
     ),
-    NaturalisticCase(
+    SyntheticCase(
         "U3",
         "underdetermined",
-        "A retired astronaut starts hearing mission-control chatter in her empty apartment.",
+        "A retired astronaut hears mission-control chatter in her empty apartment.",
         (
-            _spec("memory", "Dead Channel", "The chatter recreates the failed mission she has spent years misremembering.", "dread becoming painful clarity", "She must reconstruct the mission while her own protective memory edits the evidence."),
-            _spec("rescue", "One More Orbit", "The chatter comes from an astronaut trapped in a time-displaced version of her old mission.", "urgency becoming impossible hope", "She must mount a rescue with obsolete knowledge while authorities treat the signal as trauma."),
-            _spec("coverup", "Ground Loop", "The chatter is a covert transmission proving mission control sacrificed her crew for a classified objective.", "paranoia becoming righteous anger", "She must expose the people who own the official history before they silence the only surviving evidence."),
+            EngineSeed("memory", "Dead Channel", "The chatter reconstructs a failed mission she has spent years misremembering.", "She gives up protective memory and accepts an accurate account of her choices.", "sci_fi"),
+            EngineSeed("rescue", "One More Orbit", "The chatter belongs to a time-displaced survivor of her old mission.", "She stops treating retirement as surrender and chooses one last rescue attempt.", "sci_fi"),
+            EngineSeed("coverup", "Ground Loop", "The signal proves mission control sacrificed her crew for a classified objective.", "She abandons loyalty to the institution and becomes its public accuser.", "sci_fi"),
         ),
         "memory",
-        "The memory engine binds the impossible chatter directly to the retired astronaut's unresolved transformation and premise-specific emotional core.",
     ),
-    NaturalisticCase(
+    SyntheticCase(
         "C1",
         "constraint-heavy",
-        "A murder mystery in one elevator: six strangers, no supernatural explanation, and the killer must never leave the elevator.",
+        "A murder mystery in one elevator: six strangers, no supernatural explanation, and the killer never leaves the elevator.",
         (
-            _spec("timing", "Between Floors", "The detective proves the murder happened during a staged emergency stop while every suspect remained inside.", "claustrophobic suspicion becoming mechanical clarity", "The detective must reconstruct seconds of hidden action while the suspects can alter the tiny crime scene."),
-            _spec("identity", "Sixth Passenger", "The victim's false identity makes motive, not access, the central puzzle inside the sealed elevator.", "social suspicion becoming revelation", "The detective must determine who the victim really was while every suspect has a reason to preserve the false identity."),
-            _spec("collusion", "All Doors Closed", "Several passengers helped conceal one killer's act for different reasons, though only one committed the murder.", "mistrust becoming moral disgust", "The detective must separate murder from collective concealment without inventing an outside accomplice."),
+            EngineSeed("timing", "Between Floors", "The murder occurred during a staged emergency stop while everyone remained inside.", "The detective replaces intuition with a precise reconstruction of hidden seconds.", "mystery"),
+            EngineSeed("identity", "Sixth Passenger", "The victim's false identity makes motive the central sealed-room puzzle.", "The detective learns that access matters less than the social identity everyone protected.", "mystery"),
+            EngineSeed("collusion", "All Doors Closed", "Several passengers conceal one killer's act for different reasons.", "The detective distinguishes collective concealment from individual guilt.", "mystery"),
         ),
         "timing",
-        "The timing engine uses the elevator constraint as the causal puzzle rather than treating the sealed location as decoration.",
     ),
-    NaturalisticCase(
+    SyntheticCase(
         "C2",
         "constraint-heavy",
-        "A romance told only through grocery lists; the couple never meets on page, and the ending must be hopeful rather than tragic.",
+        "A romance told only through grocery lists; the couple never meets on page, and the ending must be hopeful.",
         (
-            _spec("care", "Things We Leave in the Cart", "Two neighbors alter shared grocery lists until practical substitutions become declarations of care.", "amusement becoming tenderness", "Each person wants to be known without breaking the list-only ritual that made honesty possible.", genre="romance"),
-            _spec("misread", "Substitutions", "A chain of mistaken grocery substitutions makes each person infer a life the other is not actually living.", "comic uncertainty becoming vulnerable recognition", "They must correct increasingly intimate assumptions without ever speaking directly on page.", genre="romance"),
-            _spec("recovery", "For Next Week", "Lists exchanged during illness become a record of one person's recovery and the other's growing commitment.", "concern becoming hopeful intimacy", "The pair must let practical caregiving become mutual choice without turning the ending into loss.", genre="romance"),
+            EngineSeed("care", "Things We Leave in the Cart", "Shared grocery lists turn practical substitutions into declarations of care.", "Both writers risk making their private care legible and choose a shared future.", "romance"),
+            EngineSeed("misread", "Substitutions", "Mistaken substitutions make each person infer a life the other is not living.", "They replace projection with vulnerable, accurate attention.", "romance"),
+            EngineSeed("recovery", "For Next Week", "Lists exchanged during illness become a record of recovery and commitment.", "Caregiving becomes mutual choice rather than one-sided obligation.", "romance"),
         ),
         "care",
-        "The care engine makes the formal list constraint itself carry the romantic progression and preserves the required hopeful ending.",
     ),
-    NaturalisticCase(
+    SyntheticCase(
         "C3",
         "constraint-heavy",
         "A heist where nothing can be stolen, nobody may lie, and the crew must still defeat a corrupt museum director.",
         (
-            _spec("provenance", "Nothing Missing", "The crew publicly re-proves the provenance of every object until the director's ownership claims collapse.", "cleverness becoming public vindication", "The crew must use only true statements and leave every object physically untouched while dismantling the director's authority."),
-            _spec("access", "Open House", "The crew uses lawful access rules to force hidden records into public view without taking them.", "procedural tension becoming exposure", "They must turn the museum's own transparent procedures against a director who controls interpretation but cannot suppress every record."),
-            _spec("performance", "The Honest Con", "A staged exhibition composed entirely of true statements causes donors and investigators to infer the director's fraud themselves.", "playful tension becoming collective recognition", "The crew must orchestrate truthful context so the audience reaches the damaging conclusion without a single false claim."),
+            EngineSeed("provenance", "Nothing Missing", "The crew re-proves every object's provenance until the director's ownership claims collapse.", "The crew replaces possession with public proof as its definition of victory."),
+            EngineSeed("access", "Open House", "Lawful access rules force hidden records into public view without taking them.", "The crew learns to weaponize procedure instead of secrecy."),
+            EngineSeed("performance", "The Honest Con", "A staged exhibition of true statements causes the audience to infer the fraud.", "The crew gives up deception and learns to control context instead."),
         ),
         "provenance",
-        "The provenance engine most directly solves the apparent contradiction: a heist-shaped victory with no theft and no lies.",
     ),
-    NaturalisticCase(
+    SyntheticCase(
         "G1",
         "strong-genre-promise",
-        "A cozy mystery baker investigates who poisoned the town's annual pie contest without killing anyone.",
+        "A cozy-mystery baker investigates who poisoned the town pie contest without killing anyone.",
         (
-            _spec("community", "A Slice of Suspicion", "The baker traces harmless poisonings to a feud threatening the town's shared traditions.", "comfort disrupted by curiosity, restored through repair", "The baker must expose sabotage without destroying the relationships that make the town worth protecting."),
-            _spec("competition", "Blue Ribbon Alibi", "The baker reconstructs rivalries, recipes, and timing to identify a contestant manipulating the judging.", "playful rivalry becoming satisfying deduction", "The baker must solve a fair-play puzzle while every suspect has a plausible competitive motive."),
-            _spec("inheritance", "Recipe for Trouble", "The poisoning points to an old recipe dispute that conceals a contested family inheritance.", "nostalgia becoming reconciled truth", "The baker must untangle family history before the contest turns a private grievance into permanent community division."),
+            EngineSeed("community", "A Slice of Suspicion", "The sabotage exposes a feud threatening the town's shared traditions.", "The baker learns to solve harm while repairing the community that produced it.", "cozy_mystery"),
+            EngineSeed("competition", "Blue Ribbon Alibi", "Recipes and judging times reveal a contestant manipulating the competition.", "The baker replaces friendly assumptions with fair-minded scrutiny.", "cozy_mystery"),
+            EngineSeed("inheritance", "Recipe for Trouble", "An old recipe dispute conceals a contested family inheritance.", "The baker turns nostalgia into an honest account of what the town owes its families.", "cozy_mystery"),
         ),
         "community",
-        "The community engine best preserves the cozy promise by making detection restore a damaged social fabric rather than merely solve sabotage.",
     ),
-    NaturalisticCase(
+    SyntheticCase(
         "G2",
         "strong-genre-promise",
-        "A thriller about a commuter who realizes the same stranger boards every train she takes, even after she changes cities.",
+        "A commuter realizes the same stranger boards every train she takes, even after she changes cities.",
         (
-            _spec("pursuit", "Next Stop", "The commuter tests routes and cities to prove the stranger is tracking her toward a hidden objective.", "unease escalating into hunted urgency", "She must discover what the pursuer wants while every attempt to flee reveals more of her pattern."),
-            _spec("network", "Platform Pattern", "The stranger is one visible node in a surveillance network built from transit systems and ordinary routines.", "paranoia escalating into systemic dread", "She must break a network that predicts her movements better than she understands them herself."),
-            _spec("self", "Last Train Home", "The stranger is following clues the commuter herself unknowingly left during a dissociative period.", "fear escalating into destabilizing self-recognition", "She must determine whether she is being hunted or retracing actions she cannot remember before someone else exploits the gap."),
+            EngineSeed("pursuit", "Next Stop", "The commuter tests routes to prove the stranger is tracking her toward a hidden objective.", "She stops running randomly and becomes an active counter-pursuer.", "thriller"),
+            EngineSeed("network", "Platform Pattern", "The stranger is one node in a surveillance network built from transit routines.", "She gives up the fantasy of anonymity and learns to disrupt the system predicting her.", "thriller"),
+            EngineSeed("memory", "Last Train Home", "The stranger follows clues the commuter unknowingly left during a memory gap.", "She replaces fear of the stranger with a harder investigation of her missing self.", "thriller"),
         ),
         "network",
-        "The network engine turns the impossible recurrence across cities into escalating systemic pressure while preserving thriller momentum.",
     ),
-    NaturalisticCase(
+    SyntheticCase(
         "G3",
         "strong-genre-promise",
-        "A horror story in which a family inherits a house that becomes one room smaller every night.",
+        "A family inherits a house that becomes one room smaller every night.",
         (
-            _spec("consumption", "The Missing Room", "The house consumes rooms in the order the family uses them to avoid confronting old harm.", "unease becoming inescapable dread", "The family must face what each disappearing room represented before the house leaves no space for them at all."),
-            _spec("boundary", "Measured Walls", "The shrinking floor plan reveals the house is sealing something into progressively less space with the family.", "spatial unease becoming trapped terror", "They must discover what the house is containing before the final rooms force them into contact with it."),
-            _spec("inheritance", "Square Footage", "Each lost room corresponds to an erased person in the family's inheritance history.", "uncanny curiosity becoming ancestral horror", "The heirs must restore the people their family removed from the record before the house erases the heirs in turn."),
+            EngineSeed("avoidance", "The Missing Room", "Rooms disappear in the order the family uses them to avoid old harm.", "The family stops spatializing denial and confronts the injury holding them together.", "horror"),
+            EngineSeed("containment", "Measured Walls", "The shrinking plan reveals the house is sealing something into less space with them.", "The family gives up escape and chooses what must be contained or released.", "horror"),
+            EngineSeed("inheritance", "Square Footage", "Each lost room corresponds to a person erased from the inheritance record.", "The heirs restore the excluded dead to the family's account of itself.", "horror"),
         ),
-        "consumption",
-        "The consumption engine makes the shrinking-house mechanism an escalating expression of the family's avoidance and gives each lost room causal emotional force.",
+        "avoidance",
     ),
-    NaturalisticCase(
+    SyntheticCase(
         "A1",
         "author-boundary",
-        "The protagonist must never discover that her brother caused the disaster; the reader should know by the midpoint, and the ending must still resolve her external goal.",
+        "The protagonist must never learn that her brother caused the disaster; the reader knows by the midpoint, and her external goal still resolves.",
         (
-            _spec("dramatic-irony", "What She Saves", "The reader watches the protagonist save a project her brother ruined while she permanently misattributes the original cause.", "dread becoming bittersweet accomplishment", "She must solve the external crisis using incomplete beliefs while the reader understands the brother's hidden responsibility."),
-            _spec("brother-agency", "His Quiet Repair", "The brother secretly helps her repair the disaster he caused without confessing, creating a second causal line the reader can track.", "tension becoming morally complicated relief", "He must aid her success without revealing the truth she is required never to learn."),
-            _spec("institution", "The Official Cause", "An institution knowingly gives her a false but actionable explanation so she can solve the external problem while the reader sees the protected brother behind it.", "frustration becoming uneasy resolution", "She must beat the institutional obstacle without uncovering the protected family truth."),
+            EngineSeed("irony", "What She Saves", "She repairs the disaster while permanently misattributing its original cause.", "She gains competence and closure without receiving the forbidden knowledge."),
+            EngineSeed("brother", "His Quiet Repair", "Her brother secretly helps repair the disaster he caused without confessing.", "He accepts responsibility through action while she completes her external arc without learning why."),
+            EngineSeed("institution", "The Official Cause", "An institution gives her a false but actionable explanation while protecting her brother.", "She defeats the external obstacle but retains a deliberately incomplete private history."),
         ),
-        "dramatic-irony",
-        "The dramatic-irony engine satisfies the hard knowledge boundary while still allowing a complete external arc and meaningful reader superiority.",
+        "irony",
     ),
-    NaturalisticCase(
+    SyntheticCase(
         "A2",
         "author-boundary",
-        "No redemption arc for the tyrant: the story may explain him, but must never excuse him or make forgiveness the hero's victory.",
+        "No redemption arc for the tyrant: explain him, but never excuse him or make forgiveness the hero's victory.",
         (
-            _spec("accountability", "The Cost of Understanding", "The hero learns exactly how the tyrant became cruel and uses that knowledge to dismantle his power without forgiving him.", "anger becoming lucid resolve", "Understanding creates strategic leverage but never converts accountability into absolution."),
-            _spec("inheritance", "After the Throne", "The conflict centers on institutions built around the tyrant, so defeating him requires refusing the systems that would reproduce him.", "oppression becoming wary agency", "The hero must end the tyrant's rule and reject the tempting structures that explain how such rule persists."),
-            _spec("witness", "No Pardon", "The hero's victory is preserving testimony the tyrant cannot rewrite, even when political peace pressures survivors to forgive.", "grief becoming defiant memory", "The hero must secure truth and justice while refusing reconciliation as the price of closure."),
+            EngineSeed("accountability", "The Cost of Understanding", "The hero learns how the tyrant became cruel and uses that knowledge to dismantle his power.", "Understanding becomes strategic clarity rather than forgiveness."),
+            EngineSeed("institution", "After the Throne", "Defeating the tyrant requires refusing the institutions that would reproduce him.", "The hero rejects both the tyrant and the structures that made his rule repeatable."),
+            EngineSeed("witness", "No Pardon", "The hero preserves testimony when political peace pressures survivors to forgive.", "The hero chooses durable truth and justice over reconciliatory closure."),
         ),
         "accountability",
-        "The accountability engine uses explanation as strategic knowledge while making the no-redemption/no-forgiveness boundary structurally explicit.",
     ),
-    NaturalisticCase(
+    SyntheticCase(
         "A3",
         "author-boundary",
-        "A time-travel story where history cannot be changed; the protagonist can only change what the trip means to the people who remember it.",
+        "History cannot be changed; a time traveler can only change what the trip means to people who remember it.",
         (
-            _spec("witness", "Fixed Point", "The traveler returns to an unchangeable tragedy to recover testimony that changes how survivors understand it.", "helplessness becoming meaningful witness", "The traveler cannot prevent events and must instead decide what truth to carry back and whom it can help."),
-            _spec("relationship", "The Same Goodbye", "Repeated visits cannot alter a loved one's death but can alter the traveler's final conversations and the memories shared afterward.", "grief becoming chosen tenderness", "The traveler must stop treating time as a rescue mechanism and use fixed encounters to transform present relationships."),
-            _spec("legacy", "Annotations", "The traveler leaves no changes in history but creates a present-day archive explaining why forgotten choices mattered.", "curiosity becoming custodial purpose", "The trip cannot alter events, only the interpretive legacy available to people who remember them."),
+            EngineSeed("witness", "Fixed Point", "The traveler revisits an unchangeable tragedy to recover testimony for present survivors.", "She gives up rescue fantasies and becomes a deliberate witness.", "sci_fi"),
+            EngineSeed("relationship", "The Same Goodbye", "Repeated visits cannot prevent a death but can change the conversations remembered afterward.", "She stops using time as rescue and uses fixed encounters to transform present relationships.", "sci_fi"),
+            EngineSeed("legacy", "Annotations", "The traveler creates a present-day archive explaining why unchanged past choices mattered.", "She replaces intervention with custodianship as her measure of agency.", "sci_fi"),
         ),
         "witness",
-        "The witness engine most directly turns immutable history from a limitation into the causal source of the protagonist's transformation.",
     ),
 )
 
 
 class _SyntheticProvider:
-    def __init__(self, specs: tuple[CandidateSpec, ...], preferred_key: str, rationale: str):
-        self._generation = list(specs)
-        self._preferred_key = preferred_key
-        self._rationale = rationale
+    def __init__(self, seeds: tuple[EngineSeed, ...], preferred_key: str):
+        self.seeds = seeds
+        self.preferred_key = preferred_key
+        self.generation_index = 0
         self.judge_requests = []
-        self._generation_index = 0
 
     def complete(self, request):
         if "comparative narrative architect" in request.system:
             self.judge_requests.append(request)
-            payload = json.loads(request.user.split("SURVIVING CANDIDATE EVIDENCE\n", 1)[1])
-            by_title = {item["story_identity"]["title"]: item["candidate_id"] for item in payload}
-            preferred = next(spec for spec in self._generation if spec.key == self._preferred_key)
+            evidence = json.loads(request.user.split("SURVIVING CANDIDATE EVIDENCE\n", 1)[1])
+            by_title = {
+                item["story_identity"]["title"]: item["candidate_id"]
+                for item in evidence
+            }
+            preferred = next(seed for seed in self.seeds if seed.key == self.preferred_key)
             winner = by_title[preferred.title]
             rejected = {
-                item["candidate_id"]: f"Synthetic contrast: {item['story_identity']['title']} optimizes a different tradeoff."
-                for item in payload
+                item["candidate_id"]: (
+                    f"Synthetic contrast: {item['story_identity']['title']} "
+                    "optimizes a different tradeoff."
+                )
+                for item in evidence
                 if item["candidate_id"] != winner
             }
             return LLMResponse(
                 text=json.dumps(
                     {
                         "recommended_candidate_id": winner,
-                        "recommendation_rationale": self._rationale,
+                        "recommendation_rationale": (
+                            "Synthetic blind expectation prefers the content-defined engine, "
+                            "not its position or candidate ID."
+                        ),
                         "rejected_candidate_reasons": rejected,
                     }
                 ),
@@ -265,44 +224,47 @@ class _SyntheticProvider:
                 output_tokens=1,
             )
 
-        spec = self._generation[self._generation_index]
-        self._generation_index += 1
+        seed = self.seeds[self.generation_index]
+        self.generation_index += 1
         basis = "genre_aligned"
         if "best_basis: 'emotionally_powerful'" in request.system:
             basis = "emotionally_powerful"
         elif "best_basis: 'structurally_coherent'" in request.system:
             basis = "structurally_coherent"
         data = {
-            "title": spec.title,
-            "core_answer": spec.core_answer,
+            "title": seed.title,
+            "core_answer": (
+                f"{seed.title}: the protagonist pursues a premise-specific goal, "
+                "meets escalating resistance, and reaches a changed relationship to it."
+            ),
             "target_experience": {
-                "primary": spec.primary,
-                "progression": f"{spec.primary} -> pressure -> transformed understanding",
+                "primary": f"mounting pressure around the {seed.key} interpretation",
+                "progression": "curiosity -> pressure -> transformed understanding",
                 "avoid": ["emotional flatness"],
             },
             "story_type": {
-                "medium": spec.medium,
-                "mode": spec.mode,
-                "genre": spec.genre,
+                "medium": "novel",
+                "mode": "other",
+                "genre": seed.genre,
                 "subgenres": [],
                 "target_audience": "adult",
                 "length_class": None,
             },
             "central_engine": {
-                "want": spec.want,
-                "resistance": spec.resistance,
-                "conflict": spec.conflict,
-                "stakes": spec.stakes,
-                "change": spec.change,
+                "want": f"The protagonist must resolve the {seed.key} objective before it closes.",
+                "resistance": f"Opposition rooted in the {seed.key} engine blocks the direct solution.",
+                "conflict": seed.conflict,
+                "stakes": f"Failure makes the {seed.key} loss permanent and public.",
+                "change": seed.change,
             },
             "not_this": ["a generic version that ignores the premise mechanism"],
-            "open_questions": ["Which concrete scene best demonstrates the engine?"],
-            "confidence": spec.confidence,
-            "alternatives": ["Synthetic alternative metadata excluded from judge evidence."],
+            "open_questions": ["Which scene proves this engine most clearly?"],
+            "confidence": 0.8,
+            "alternatives": ["Synthetic self-advocacy metadata."],
             "recommendation_mode": "open_ended",
             "best_basis": basis,
-            "why_this_is_best": spec.why,
-            "rejected_directions": ["Synthetic rejected direction excluded from judge evidence."],
+            "why_this_is_best": "Synthetic provider self-advocacy metadata.",
+            "rejected_directions": ["Synthetic provider rejected-direction metadata."],
             "author_overrides": [],
         }
         return LLMResponse(
@@ -312,7 +274,7 @@ class _SyntheticProvider:
         )
 
 
-def _args(tmp_path: Path, case: NaturalisticCase, *, output_name: str = "story_discovery"):
+def _args(tmp_path: Path, case: SyntheticCase, output_name: str = "story_discovery"):
     return SimpleNamespace(
         candidates=3,
         brain_dump=case.premise,
@@ -329,44 +291,56 @@ def _args(tmp_path: Path, case: NaturalisticCase, *, output_name: str = "story_d
     )
 
 
-@pytest.mark.parametrize("case", NATURALISTIC_CASES, ids=lambda c: c.case_id)
-def test_phase_d_naturalistic_cases_use_real_story_discovery_path(case, tmp_path, monkeypatch, capsys):
-    provider = _SyntheticProvider(case.candidates, case.preferred_key, case.rationale)
-    monkeypatch.setattr("auteur.llm.factory.build_client", lambda *a, **k: provider)
+@pytest.mark.parametrize("case", CASES, ids=lambda case: case.case_id)
+def test_phase_d_naturalistic_cases_use_real_story_discovery_path(
+    case, tmp_path, monkeypatch, capsys
+):
+    provider = _SyntheticProvider(case.seeds, case.preferred_key)
+    monkeypatch.setattr("auteur.llm.factory.build_client", lambda *args, **kwargs: provider)
 
     exit_code = dispatch_story_discovery_recommend(_args(tmp_path, case))
     output = capsys.readouterr().out
 
     assert exit_code == 0
     assert len(provider.judge_requests) == 1
-    for spec in case.candidates:
-        assert spec.title in output
-    preferred = next(spec for spec in case.candidates if spec.key == case.preferred_key)
+    for seed in case.seeds:
+        assert seed.title in output
+    preferred = next(seed for seed in case.seeds if seed.key == case.preferred_key)
     assert f"RECOMMENDED — {preferred.title}" in output
     assert "Nothing has been accepted yet." in output
     assert not (tmp_path / "story_identity.yaml").exists()
     discovery_set = yaml.safe_load(
         (tmp_path / "story_discovery" / "discovery_set.yaml").read_text(encoding="utf-8")
     )
-    assert discovery_set["recommended_candidate_id"] in {"candidate_1", "candidate_2", "candidate_3"}
+    assert discovery_set["recommended_candidate_id"] in {
+        "candidate_1",
+        "candidate_2",
+        "candidate_3",
+    }
 
 
-def _dumpable_candidate(candidate_id: str, spec: CandidateSpec, *, fit: int = 80, advocacy: str = "baseline"):
+def _dumpable_candidate(
+    candidate_id: str,
+    seed: EngineSeed,
+    *,
+    fit: int = 80,
+    advocacy: str = "baseline",
+):
     class Dumpable(SimpleNamespace):
         def model_dump(self, mode="json"):
             return dict(self.__dict__)
 
     identity = SimpleNamespace(
-        title=spec.title,
-        core_answer=spec.core_answer,
-        target_experience=Dumpable(primary=spec.primary, progression="a -> b -> c", avoid=[]),
-        story_type=Dumpable(genre=spec.genre, medium=spec.medium, mode=spec.mode),
+        title=seed.title,
+        core_answer=f"Controlled core answer for {seed.title}.",
+        target_experience=Dumpable(primary="controlled feeling", progression="a -> b -> c", avoid=[]),
+        story_type=Dumpable(genre=seed.genre, medium="novel", mode="other"),
         central_engine=Dumpable(
-            want=spec.want,
-            resistance=spec.resistance,
-            conflict=spec.conflict,
-            stakes=spec.stakes,
-            change=spec.change,
+            want=f"want {seed.key}",
+            resistance=f"resistance {seed.key}",
+            conflict=seed.conflict,
+            stakes=f"stakes {seed.key}",
+            change=seed.change,
         ),
         not_this=[],
         open_questions=[],
@@ -395,14 +369,18 @@ def _dumpable_candidate(candidate_id: str, spec: CandidateSpec, *, fit: int = 80
 
 
 def test_phase_d_self_advocacy_mutation_does_not_change_bounded_judge_evidence():
-    case = NATURALISTIC_CASES[0]
+    case = CASES[0]
     baseline = [
-        _dumpable_candidate(f"candidate_{i}", spec, advocacy="BASELINE SELF ADVOCACY")
-        for i, spec in enumerate(case.candidates, 1)
+        _dumpable_candidate(f"candidate_{index}", seed, advocacy="BASELINE SELF ADVOCACY")
+        for index, seed in enumerate(case.seeds, 1)
     ]
     mutated = [
-        _dumpable_candidate(f"candidate_{i}", spec, advocacy="MUTATED SELF ADVOCACY SHOULD NOT LEAK")
-        for i, spec in enumerate(case.candidates, 1)
+        _dumpable_candidate(
+            f"candidate_{index}",
+            seed,
+            advocacy="MUTATED SELF ADVOCACY SHOULD NOT LEAK",
+        )
+        for index, seed in enumerate(case.seeds, 1)
     ]
 
     first = _build_judge_request(case.premise, baseline, genre=None, medium=None, mode=None)
@@ -413,81 +391,96 @@ def test_phase_d_self_advocacy_mutation_does_not_change_bounded_judge_evidence()
 
 
 @pytest.mark.parametrize("order", [(0, 1, 2), (2, 0, 1), (1, 2, 0)])
-def test_phase_d_candidate_order_preserves_content_defined_winner(order, tmp_path, monkeypatch, capsys):
-    original = NATURALISTIC_CASES[1]
-    reordered = replace(original, candidates=tuple(original.candidates[i] for i in order))
-    provider = _SyntheticProvider(reordered.candidates, reordered.preferred_key, reordered.rationale)
-    monkeypatch.setattr("auteur.llm.factory.build_client", lambda *a, **k: provider)
+def test_phase_d_candidate_order_preserves_content_defined_winner(
+    order, tmp_path, monkeypatch, capsys
+):
+    original = CASES[1]
+    reordered = replace(original, seeds=tuple(original.seeds[index] for index in order))
+    provider = _SyntheticProvider(reordered.seeds, reordered.preferred_key)
+    monkeypatch.setattr("auteur.llm.factory.build_client", lambda *args, **kwargs: provider)
 
-    assert dispatch_story_discovery_recommend(_args(tmp_path, reordered, output_name=f"order_{''.join(map(str, order))}")) == 0
+    output_name = "order_" + "".join(str(index) for index in order)
+    assert dispatch_story_discovery_recommend(_args(tmp_path, reordered, output_name)) == 0
     output = capsys.readouterr().out
-    preferred = next(spec for spec in reordered.candidates if spec.key == reordered.preferred_key)
+    preferred = next(seed for seed in reordered.seeds if seed.key == reordered.preferred_key)
     assert f"RECOMMENDED — {preferred.title}" in output
     assert not (tmp_path / "story_identity.yaml").exists()
 
 
 def test_phase_d_candidate_id_remap_preserves_content_mapping():
-    case = NATURALISTIC_CASES[2]
+    case = CASES[2]
     ids = ["candidate_3", "candidate_1", "candidate_2"]
-    outputs = [_dumpable_candidate(candidate_id, spec) for candidate_id, spec in zip(ids, case.candidates)]
+    outputs = [
+        _dumpable_candidate(candidate_id, seed)
+        for candidate_id, seed in zip(ids, case.seeds, strict=True)
+    ]
     request = _build_judge_request(case.premise, outputs, genre=None, medium=None, mode=None)
     evidence = json.loads(request.user.split("SURVIVING CANDIDATE EVIDENCE\n", 1)[1])
-    title_to_id = {item["story_identity"]["title"]: item["candidate_id"] for item in evidence}
-    preferred = next(spec for spec in case.candidates if spec.key == case.preferred_key)
-    assert title_to_id[preferred.title] == ids[list(case.candidates).index(preferred)]
+    title_to_id = {
+        item["story_identity"]["title"]: item["candidate_id"]
+        for item in evidence
+    }
+    preferred = next(seed for seed in case.seeds if seed.key == case.preferred_key)
+    preferred_index = list(case.seeds).index(preferred)
+    assert title_to_id[preferred.title] == ids[preferred_index]
 
 
 def test_phase_d_high_contract_fit_is_evidence_not_a_deterministic_winner():
-    case = NATURALISTIC_CASES[3]
-    high = _dumpable_candidate("candidate_1", case.candidates[0], fit=100)
-    lower = _dumpable_candidate("candidate_2", case.candidates[1], fit=60)
-    request = _build_judge_request(case.premise, [high, lower], genre="mystery", medium=None, mode=None)
+    case = CASES[3]
+    high = _dumpable_candidate("candidate_1", case.seeds[0], fit=100)
+    lower = _dumpable_candidate("candidate_2", case.seeds[1], fit=60)
+    request = _build_judge_request(
+        case.premise,
+        [high, lower],
+        genre="mystery",
+        medium=None,
+        mode=None,
+    )
     assert '"contract_fit": 100' in request.user
     assert '"contract_fit": 60' in request.user
     assert "A higher contract-fit number does not automatically win." in request.system
 
 
-def test_phase_d_exact_duplicate_is_rejected_but_semantic_near_duplicate_is_known_limitation():
-    base = NATURALISTIC_CASES[4].candidates[0]
-    exact_a = _dumpable_candidate("candidate_1", base)
-    exact_b = _dumpable_candidate("candidate_2", base)
+def test_phase_d_exact_duplicate_and_semantic_near_duplicate_boundary():
+    seed = CASES[4].seeds[0]
+    exact_a = _dumpable_candidate("candidate_1", seed)
+    exact_b = _dumpable_candidate("candidate_2", seed)
     with pytest.raises(ValueError, match="exact duplicates"):
         _require_distinct_engines([exact_a, exact_b])
 
     near = replace(
-        base,
-        want=base.want.replace("pursue", "seek"),
-        resistance=base.resistance.replace("makes", "renders"),
-        conflict=base.conflict + " in essentially the same causal pattern",
-        stakes=base.stakes.replace("permanently destroys", "irreversibly ruins"),
-        change=base.change.replace("adopts", "embraces"),
+        seed,
+        conflict=seed.conflict + " in essentially the same causal pattern",
+        change=seed.change + " while preserving the same underlying transformation",
     )
     _require_distinct_engines([exact_a, _dumpable_candidate("candidate_2", near)])
 
 
 def test_phase_d_explicit_constraints_remain_visible_to_comparative_judge():
-    case = NATURALISTIC_CASES[6]
+    case = CASES[6]
     outputs = [
-        _dumpable_candidate(f"candidate_{i}", spec)
-        for i, spec in enumerate(case.candidates[:2], 1)
+        _dumpable_candidate(f"candidate_{index}", seed)
+        for index, seed in enumerate(case.seeds[:2], 1)
     ]
     request = _build_judge_request(
         case.premise,
         outputs,
         genre="mystery",
-        medium="novella",
-        mode="dramatic",
+        medium="novel",
+        mode="other",
     )
     assert '"genre": "mystery"' in request.user
-    assert '"medium": "novella"' in request.user
-    assert '"mode": "dramatic"' in request.user
+    assert '"medium": "novel"' in request.user
+    assert '"mode": "other"' in request.user
     assert case.premise in request.user
 
 
-def test_phase_d_judge_schema_requires_complete_rejection_coverage(tmp_path, monkeypatch, capsys):
-    case = NATURALISTIC_CASES[7]
-    provider = _SyntheticProvider(case.candidates, case.preferred_key, case.rationale)
-    original_complete = provider.complete
+def test_phase_d_judge_schema_requires_complete_rejection_coverage(
+    tmp_path, monkeypatch, capsys
+):
+    case = CASES[7]
+    provider = _SyntheticProvider(case.seeds, case.preferred_key)
+    normal_complete = provider.complete
 
     def malformed(request):
         if "comparative narrative architect" in request.system:
@@ -496,26 +489,32 @@ def test_phase_d_judge_schema_requires_complete_rejection_coverage(tmp_path, mon
                     {
                         "recommended_candidate_id": "candidate_1",
                         "recommendation_rationale": "Incomplete synthetic judgment.",
-                        "rejected_candidate_reasons": {"candidate_2": "Only one rejection."},
+                        "rejected_candidate_reasons": {
+                            "candidate_2": "Only one rejection."
+                        },
                     }
                 ),
                 input_tokens=1,
                 output_tokens=1,
             )
-        return original_complete(request)
+        return normal_complete(request)
 
     provider.complete = malformed
-    monkeypatch.setattr("auteur.llm.factory.build_client", lambda *a, **k: provider)
+    monkeypatch.setattr("auteur.llm.factory.build_client", lambda *args, **kwargs: provider)
+
     assert dispatch_story_discovery_recommend(_args(tmp_path, case)) == 1
-    err = capsys.readouterr().err
-    assert "rejection reasons must cover exactly every non-selected survivor" in err
+    error = capsys.readouterr().err
+    assert "rejection reasons must cover exactly every non-selected survivor" in error
     assert not (tmp_path / "story_identity.yaml").exists()
 
 
-def test_phase_d_authority_gate_recommendation_never_promotes_canonical_identity(tmp_path, monkeypatch):
-    case = NATURALISTIC_CASES[-1]
-    provider = _SyntheticProvider(case.candidates, case.preferred_key, case.rationale)
-    monkeypatch.setattr("auteur.llm.factory.build_client", lambda *a, **k: provider)
+def test_phase_d_authority_gate_recommendation_never_promotes_canonical_identity(
+    tmp_path, monkeypatch
+):
+    case = CASES[-1]
+    provider = _SyntheticProvider(case.seeds, case.preferred_key)
+    monkeypatch.setattr("auteur.llm.factory.build_client", lambda *args, **kwargs: provider)
+
     assert dispatch_story_discovery_recommend(_args(tmp_path, case)) == 0
     assert (tmp_path / "story_discovery" / "comparison.md").exists()
     assert not (tmp_path / "story_identity.yaml").exists()
