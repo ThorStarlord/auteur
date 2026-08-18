@@ -35,7 +35,7 @@ The Universe scope was implemented 2026-07-11. See
 
 **Backwards Compatibility:** No breaking changes to existing Series, Book, or Story Identity layers.
 
-### The 9-Layer Genre Pipeline Pattern
+### The 9-Phase Genre Pipeline Pattern
 
 Auteur's genre pipelines (netorare, mystery, gentle femdom) share a proven architecture:
 

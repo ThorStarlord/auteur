@@ -131,9 +131,9 @@ subgenre validation) is not fixed by improving the drafting pipeline.
   - Pydantic models answer whether a blueprint is shaped correctly.
   - `auteur.structure` analyzers answer whether it is complete or coherent.
 - Prefer proposal and report artifacts over direct blueprint mutation.
-- Structure generation/diagnosis operates in the Narrative Engine layer only.
-  Do not generate or diagnose chapter outlines or prose structure unless the
-  task explicitly crosses layers.
+- Structure generation/diagnosis operates in the whole-story Narrative Engine
+  scope only. Do not generate or diagnose chapter outlines or prose structure
+  unless the task explicitly crosses the scope boundary.
 
 ## Implementation
 

@@ -1,9 +1,112 @@
 # Opinionated Narrative Engine
 
-Auteur is an automated AI story architect for beginner-to-intermediate fiction
-writers who need decisive narrative direction. It transforms raw creative input
-into a recommended, validated story engine before any chapter outline or prose
-draft is treated as the product.
+Auteur is an automated AI story architect for creative beginners who need
+decisive narrative direction. It transforms raw creative input into a
+recommended, validated story engine before any chapter outline or prose draft
+is treated as the product.
+
+## Product Persona
+
+Auteur's primary persona is a **creative beginner**: someone inexperienced in
+long-form narrative craft, regardless of technical ability. Technical expertise
+is not a requirement of the product and is not its defining audience.
+
+Product design should progressively hide internal machinery such as CLI
+commands, YAML, Pydantic, and Auteur's specialist vocabulary from users who do
+not need to understand it. This is a product-design hypothesis, not a semantic
+layer or runtime-architecture decision.
+
+## System Definition vs Product Design
+
+Auteur's **system definition** is the settled technical and domain contract:
+the narrative compiler, five semantic layers, canonical author commitments,
+deterministic diagnostics, bounded generation, and explicit authority
+boundaries.
+
+Auteur's **product design** is how a creative beginner discovers, understands,
+and operates that contract: onboarding, progressive disclosure, vocabulary,
+diagnostic presentation, repair decisions, and the default interaction surface.
+The system definition is substantially established; product design remains an
+active design and research area. This distinction does not introduce another
+semantic layer.
+
+## First Value (Working Product Promise)
+
+Auteur's first valuable outcome is helping a creative beginner turn a raw idea
+into a clear, accepted whole-story direction: a `StoryIdentity` plus enough
+Structure to understand what the story is and where its risks are. Immediate
+prose generation is not the primary first-value promise.
+
+## Default Interaction Surface (Working Product Hypothesis)
+
+The default creative-beginner path should be guided authoring. Users should not
+need to edit YAML, understand Pydantic, or operate the CLI directly to reach
+the first valuable outcome. Canonical artifacts, provenance, and advanced CLI
+surfaces remain inspectable and available for users who want them. The specific
+guided surface—browser, TUI, editor integration, or another form—remains open.
+
+## Recommendation Posture (Working Product Promise)
+
+The default experience should present one strongest recommended story direction,
+explain why it fits, and show meaningful rejected alternatives. The author can
+accept, modify, or override the recommendation. Auteur reduces uncertainty; it
+does not remove authorial control.
+
+## Explicit Ratification (Working Product Promise)
+
+Identity-level recommendations require explicit author ratification before
+Auteur compiles Structure from them. The guided interface may make acceptance
+simple and plain-language, but recommendation must never silently become canon.
+
+## Primary Entry Path (Working Product Promise)
+
+The primary path begins with a premise, idea, character impulse, or desired
+reader experience and guides the author toward `StoryIdentity`. Existing scenes
+or manuscripts may become a later reverse-engineering or diagnostic workflow,
+but they are not part of the primary entry promise.
+
+## Product Success (Working Product Promise)
+
+Auteur succeeds when the author understands and accepts a coherent story
+direction, can explain the main commitments in ordinary language, and knows the
+next useful creative decision. Artifact production and prose volume are not
+sufficient measures of product success.
+
+## Author-Facing Vocabulary (Working Product Promise)
+
+The guided experience should present plain-language meanings first while keeping
+canonical Auteur terms visible alongside them. For example: “Story Identity —
+the commitments that define what this story is.” The product should translate
+the domain model for beginners, not replace or rename the canonical model.
+
+In the default flow, “story direction” or “story shape” may be used as the
+plain-language explanation for the canonical narrative engine. “Narrative
+engine” remains the canonical term in artifacts and advanced views.
+
+The five-layer architecture remains canonical, but the beginner-facing flow
+should disclose it progressively: Identity and lightweight Structure first,
+followed by Realization and Expression when the author moves toward scenes and
+prose.
+
+## Diagnostic Presentation (Working Product Promise)
+
+Structural diagnostics should be presented to creative beginners as plain-
+language editorial guidance: what seems wrong, why it matters, and what repair
+choices are available. The exact deterministic finding, severity, provenance,
+and proposal lifecycle remain available for inspection. Guidance must not become
+silent mutation or an unbounded judgment that the story is “good” or “bad.”
+
+Unresolved structural errors block downstream prose generation by default;
+warnings remain advisory and may be acknowledged. A deliberate author decision
+to continue past a blocker must remain explicit and auditable.
+
+AI may diagnose a structural issue and propose repair options, but it must not
+apply a repair or rewrite an accepted story commitment without an explicit
+author selection.
+
+The repair lifecycle remains visible to the author: diagnose, propose, select,
+apply, and ratify. The guided experience may simplify the presentation, but it
+must not collapse these authority boundaries.
 
 ## Product Contract
 
@@ -18,14 +121,14 @@ genre/subgenre. Structural coherence and fidelity to author input still constrai
 the recommendation, while emotional power is used to sharpen ties and explain
 the recommendation.
 
-## Three Layers
+## Three Product Stages
 
-1. **Narrative Engine**: The primary product scope. This layer locks the core
+1. **Narrative Engine**: The primary product scope. This stage locks the core
    answer, target experience, genre promise, protagonist want, resistance,
    conflict, stakes, change, ending shape, rejected directions, and rationale.
-2. **Chapter Outline**: Optional downstream automation. This layer sequences the
+2. **Chapter Outline**: Optional downstream automation. This stage sequences the
    accepted story engine into chapters after the engine is locked.
-3. **Prose**: Optional execution. This layer drafts words from the accepted
+3. **Prose**: Optional execution. This stage drafts words from the accepted
    structure and should not invent or silently rewrite the story engine.
 
 ## Modes

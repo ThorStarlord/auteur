@@ -39,7 +39,7 @@ ranking.
 
 ## Consequences
 
-- Story Discovery remains inside the Narrative Engine layer and does not create
+- Story Discovery remains inside the Narrative Engine scope and does not create
   chapter outlines or prose artifacts.
 - Auteur keeps the compiler-style path of proposals, validation, promotion, and
   canonical state.

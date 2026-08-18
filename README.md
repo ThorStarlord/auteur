@@ -1,6 +1,6 @@
 # Auteur
 
-Auteur is an opinionated narrative-engine toolkit for long-form fiction. It helps beginner-to-intermediate writers turn raw creative input into a recommended story engine, validates that engine deterministically, and treats chapter outlining and prose generation as optional downstream stages.
+Auteur is an opinionated narrative-engine toolkit for long-form fiction. It helps creative beginners turn raw creative input into a recommended story engine, validates that engine deterministically, and treats chapter outlining and prose generation as optional downstream stages.
 
 Auteur coordinates high-level narrative-engine recommendation with deterministic execution rails under a unified narrative compilation lifecycle:
 
@@ -28,6 +28,13 @@ The current Engine v1 is a hybrid system:
 - LLM calls provide creative planning, prose generation, and critic judgment.
 - The pipeline keeps LLM output inside a repeatable plan -> draft -> critique -> iterate loop.
 
+The current repository's primary implementation surface is a Python CLI with
+YAML, JSON, and Markdown artifacts. This remains a transparent advanced-author
+and engineering surface. The intended default experience for creative beginners
+is guided authoring with progressive disclosure, so users do not need to edit
+YAML, understand Pydantic, or operate the CLI directly to reach the first
+valuable outcome.
+
 ## Status
 
 This repository contains a working Engine v1 CLI and Python library covering the full narrative compilation lifecycle:
@@ -39,7 +46,7 @@ This repository contains a working Engine v1 CLI and Python library covering the
 - **Structure Generation (top-down)**: Synthesizes a complete story engine from target experience, genre, and scope constraints.
 - **Structure Diagnosis (bottom-up)**: Maps author-described symptoms (e.g. "midpoint feels flat") to likely structural root causes with recommendations.
 - **Deterministic Diagnostics**: 20+ deterministic rules across Identity, Structure, and Realization concerns, with repair proposals and full proposal lifecycle (diagnose → propose → select → apply).
-- **State Management**: Multi-layer coordination across all 9 structure layers via `auteur state` commands (check, update, prepare, canon, confirm).
+- **State Management**: Multi-layer coordination across the relevant semantic layers and scopes via `auteur state` commands (check, update, prepare, canon, confirm).
 - **Outline Compiling**: Cartographer outline compilation from blueprint with deterministic validation.
 - **TDD Drafting**: Multi-critic verification loops (contract, arc, tension, slop, theme) against structured chapter contracts, with automatic rewrite attempts and manual accept/retry flows.
 - **Dual LLM Provider Support**: Anthropic Claude and OpenAI GPT adapters with per-agent model routing and exponential-backoff retry.
@@ -320,6 +327,7 @@ Chapter drafting is an optional downstream consumer of the structure engine. See
 - [LLM Adapters](docs/llm-adapters.md)
 - [Structure Engine v1](docs/structure-engine-v1.md)
 - [Opinionated Narrative Engine](docs/opinionated-narrative-engine.md)
+- [Product Design Research](docs/research/product-design-research.md)
 - [Genre Overrides](docs/genre-overrides.md)
 
 The files under `docs/archived/superpowers/` are historical planning notes, not current user-facing documentation. The user-facing docs above describe the current repository behavior.
