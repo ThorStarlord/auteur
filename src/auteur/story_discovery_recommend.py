@@ -127,7 +127,6 @@ def _candidate_evidence(co: Any) -> dict[str, Any]:
             "open_questions": identity.open_questions,
             "alternatives": identity.alternatives,
             "confidence": identity.confidence,
-            "why_this_is_best": identity.why_this_is_best,
             "rejected_directions": identity.rejected_directions,
             "genre_contract": _bounded_contract_evidence(identity),
         },

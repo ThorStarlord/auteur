@@ -267,6 +267,8 @@ def test_phase_a_judge_request_excludes_generated_summary_fields():
     assert "SELF ADVOCACY TRADEOFF" not in request.user
     assert "SELF ADVOCACY RISK" not in request.user
     assert "SELF ADVOCACY BEST FOR" not in request.user
+    assert "advocacy one" not in request.user
+    assert "advocacy two" not in request.user
 
     winner, rationale, rejected = _parse_judgment(
         '{"recommended_candidate_id":"candidate_2",'
