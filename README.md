@@ -93,7 +93,7 @@ For a fresh project, Auteur's default Identity-stage path is Story Discovery: ex
 ```powershell
 # 1. Create a fresh working directory and ask Auteur for the next step
 New-Item -ItemType Directory -Force .\tmp\shattered_crown | Out-Null
-Set-Location .\tmp\shattered_crown
+Push-Location .\tmp\shattered_crown
 auteur workflow next .
 
 # 2. Explore multiple story engines and receive an advisory recommendation
@@ -111,6 +111,7 @@ auteur blueprint seed story_identity.yaml --output blueprint.yaml
 
 # 6. Run whole-story structure diagnostics
 auteur structure diagnose blueprint.yaml
+Pop-Location
 ```
 
 Story Discovery is advisory: it writes candidate/comparison artifacts, not canonical `story_identity.yaml`. The author chooses what becomes true. `auteur workflow next . --execute` will not auto-accept a Story Discovery candidate.
