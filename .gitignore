@@ -83,3 +83,4 @@ reports/
 /pytest-cartographer-replay-parallel.xml
 /.local/evaluations/cartographer/
 /.local/evaluations/cartographer-agent-pilot/
+/.worktrees/

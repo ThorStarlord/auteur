@@ -28,6 +28,8 @@ engine second. Agent work should preserve that distinction.
   analyzer, CLI, or pipeline behavior.
 - Keep user-authorial choices explicit. Do not silently fill or rewrite the
   story spine.
+- Treat workspace identity as a preflight condition, not something the
+  executor should discover or repair after work begins.
 
 ### Code Review & Verification
 
@@ -55,6 +57,41 @@ When reviewing code changes or investigating test failures:
    - Can't prevent environment issues (stale packages, PATH misconfiguration)
    - Can enforce repository behavior (e.g., "session storage must use neutral paths")
    - Add regression test when you discover an invariant was silently violated by code changes
+
+### Workspace and repository identity
+
+Treat these as distinct, because they can diverge silently:
+
+- agent/session workspace root;
+- Git repository;
+- Git branch;
+- linked Git worktree;
+- standalone clone.
+
+Before work whose correctness depends on repository identity or isolation:
+
+1. Verify the workspace root with `git rev-parse --show-toplevel`.
+2. Verify the Git common directory with `git rev-parse --git-common-dir`.
+3. Verify the exact HEAD with `git rev-parse HEAD`.
+4. Determine whether the checkout is a standalone repository or a linked
+   worktree before changing branches, creating worktrees, or moving work.
+   Path location does not determine isolation; `.git` topology does.
+
+A branch switch does not change repositories. A shell `cd` does not
+necessarily change the coding-agent session workspace. A linked worktree
+shares the originating repository's Git object/ref universe; a standalone
+clone has its own.
+
+If the task requires a different repository or an isolated Git universe,
+configure that repository as the agent workspace before creating the
+execution session. Do not start in one repository and repair the workspace
+mid-session.
+
+When terminology such as "workspace", "repo", "branch", or "worktree" is
+ambiguous, inspect first and ask rather than choosing an interpretation.
+
+See `docs/agents/workspace-isolation.md` for the detailed procedure and
+`scripts/verify-agent-workspace.ps1` for a machine-checkable preflight.
 
 ## Qualification and release evidence
 

@@ -74,6 +74,22 @@ When building opinionated pipelines (genre templates, validation engines, identi
   summaries.
 - Never hide inherited check failures; classify them against the baseline.
 
+### Workspace preflight
+
+Before autonomous or isolated work, distinguish the session workspace, Git
+repository, branch, linked worktree, and standalone clone. Repository
+identity, branch identity, Git worktree identity, and agent-session
+workspace identity are different things and must be verified separately.
+
+If repository identity matters, verify the workspace root, Git common
+directory, and exact HEAD before execution begins. Do not treat switching
+branches or changing a shell directory as equivalent to changing the
+agent's workspace.
+
+When isolation is required, launch the agent from the isolated repository
+rather than asking an already-running session to move into it.
+See `AGENTS.md` and `docs/agents/workspace-isolation.md`.
+
 ### Current Genre Pipelines
 
 | Genre | Emotional Cores | Implemented |
