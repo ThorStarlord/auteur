@@ -8,8 +8,10 @@ preferences are known.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
+from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
@@ -83,34 +85,79 @@ def _effective_constraints(brief: DiscoveryBrief) -> tuple[str | None, str | Non
     return genre, medium, mode
 
 
-def _apply_brief_commitments(candidate_outputs: list[Any], brief: DiscoveryBrief) -> list[Any]:
-    """Enforce explicit brief commitments before comparative judgment.
+def _refresh_content_hashes(candidate_outputs: list[Any]) -> None:
+    for co in candidate_outputs:
+        co.candidate.content_hash = (
+            "sha256:" + hashlib.sha256(co.yaml_content.encode("utf-8")).hexdigest()
+        )
 
-    The provider is asked to honor the brief, but this deterministic pass keeps prior
-    author intent authoritative over candidate-generated values and revalidates the
-    resulting StoryIdentity objects before they remain in the search set.
+
+def _declared_target_experience_fields(brief: DiscoveryBrief) -> dict[str, Any]:
+    if brief.target_experience is None:
+        return {}
+    return brief.target_experience.model_dump(
+        mode="json",
+        include=brief.target_experience.model_fields_set,
+        exclude_none=True,
+    )
+
+
+def _apply_brief_commitments(candidate_outputs: list[Any], brief: DiscoveryBrief) -> list[Any]:
+    """Validate candidate output against prior intent, then attach explicit commitments.
+
+    Genre, medium, mode, audience, and the governing primary reader experience are
+    never silently rewritten here. If candidate generation contradicts those declared
+    values, F2 fails closed. Explicit subordinate TargetExperience fields are merged,
+    while architecture preferences and hard constraints are copied as author
+    commitments before comparative judgment and serialization.
     """
 
     from auteur.cli_handlers import analyze_contract_fit
 
-    survivors: list[Any] = []
+    target_fields = _declared_target_experience_fields(brief)
     for co in candidate_outputs:
         identity = co.identity
+        mismatches: list[str] = []
         story_type = brief.story_type
         if story_type is not None:
-            if story_type.genre is not None:
-                identity.story_type.genre = story_type.genre
-            if story_type.medium is not None:
-                identity.story_type.medium = story_type.medium
-            if story_type.mode is not None:
-                identity.story_type.mode = story_type.mode
-            if story_type.target_audience is not None:
-                identity.story_type.target_audience = story_type.target_audience
+            for field_name in ("genre", "medium", "mode", "target_audience"):
+                expected = getattr(story_type, field_name)
+                if expected is None:
+                    continue
+                actual = getattr(identity.story_type, field_name)
+                if actual != expected:
+                    mismatches.append(
+                        f"story_type.{field_name}: expected {expected.value!r}, got {actual.value!r}"
+                    )
 
         if brief.target_experience is not None:
-            identity.target_experience = brief.target_experience.model_copy(deep=True)
-        if brief.architecture_preferences is not None:
-            identity.architecture_preferences = brief.architecture_preferences.model_copy(deep=True)
+            expected_primary = brief.target_experience.primary
+            if identity.target_experience.primary != expected_primary:
+                mismatches.append(
+                    "target_experience.primary: expected "
+                    f"{expected_primary!r}, got {identity.target_experience.primary!r}"
+                )
+
+        if mismatches:
+            raise ValueError(
+                f"{co.candidate_id} contradicts declared author intent: "
+                + "; ".join(mismatches)
+            )
+
+        if target_fields:
+            target_payload = identity.target_experience.model_dump(mode="json")
+            target_payload.update(target_fields)
+            identity.target_experience = identity.target_experience.__class__.model_validate(
+                target_payload
+            )
+
+        # Structured-brief architecture commitments must represent only what the
+        # author declared before generation, never an inferred candidate preference.
+        identity.architecture_preferences = (
+            brief.architecture_preferences.model_copy(deep=True)
+            if brief.architecture_preferences is not None
+            else None
+        )
         identity.hard_constraints = list(brief.hard_constraints)
 
         diagnostics = identity.validate_identity()
@@ -124,7 +171,10 @@ def _apply_brief_commitments(candidate_outputs: list[Any], brief: DiscoveryBrief
             )
         ]
         if errors:
-            continue
+            details = "; ".join(f"{d.rule}: {d.message}" for d in errors)
+            raise ValueError(
+                f"{co.candidate_id} is invalid after applying declared author intent: {details}"
+            )
 
         warnings = [
             diagnostic
@@ -147,8 +197,9 @@ def _apply_brief_commitments(candidate_outputs: list[Any], brief: DiscoveryBrief
             sort_keys=False,
             allow_unicode=True,
         )
-        survivors.append(co)
-    return survivors
+
+    _refresh_content_hashes(candidate_outputs)
+    return candidate_outputs
 
 
 def _intent_candidate_evidence(co: Any) -> dict[str, Any]:
@@ -183,6 +234,37 @@ def _build_intent_judge_request(
     )
 
 
+def _build_intent_comparison_lines(data: Any, brief: DiscoveryBrief) -> list[str]:
+    """Rebuild comparison evidence after explicit brief commitments are attached."""
+    candidate_outputs = data.candidates
+    lines = [
+        "# Story Discovery Comparison",
+        "\nSource Premise File/Text: ``",
+        f"Generated At: {data.rec_set.generated_at}\n",
+        "Intent-aware comparison against a structured Discovery Brief. Omitted brief fields remain UNKNOWN.\n",
+        "Contract fit measures compliance with declared genre and structural contracts. It is not a story-quality ranking.\n",
+        "## Declared Author Intent",
+        "```json",
+        json.dumps(brief.declared_intent(), indent=2, ensure_ascii=False),
+        "```",
+        "\n## Candidate Interpretations\n",
+        "| Candidate | Genre | Audience | Primary experience | Central conflict | Contract fit |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    for co in candidate_outputs:
+        candidate = co.candidate
+        identity = co.identity
+        lines.append(
+            "| "
+            f"`{co.candidate_id}` | {identity.story_type.genre.value} | "
+            f"{identity.story_type.target_audience.value} | "
+            f"{identity.target_experience.primary} | "
+            f"{identity.central_engine.conflict} | "
+            f"{candidate.contract_fit} ({candidate.contract_fit_status}) |"
+        )
+    return lines
+
+
 def _qualify_surface(lines: list[str], *, intent_aware: bool) -> list[str]:
     qualified = list(lines)
     if not qualified:
@@ -211,10 +293,11 @@ def _qualify_surface(lines: list[str], *, intent_aware: bool) -> list[str]:
 
 
 def _augment_intent_artifacts(
-    output_dir: Any,
+    output_dir: Path,
     *,
     brief: DiscoveryBrief | None,
     adequacy: IntentAdequacy | None,
+    brief_path: Path | None = None,
 ) -> None:
     mode = "intent_aware" if brief is not None else "exploratory"
     declared = brief.declared_intent() if brief is not None else None
@@ -230,6 +313,10 @@ def _augment_intent_artifacts(
         payload["intent_mode"] = mode
         payload["declared_author_intent"] = declared
         payload["intent_adequacy"] = adequacy_data
+        if brief_path is not None:
+            payload["source_brief_path"] = str(brief_path)
+        if brief is not None and name == "discovery_report.yaml":
+            payload["premise_summary"] = brief.premise
         path.write_text(
             yaml.safe_dump(payload, sort_keys=False, allow_unicode=True),
             encoding="utf-8",
@@ -326,10 +413,15 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
 
     candidate_outputs = data.candidates
     if brief is not None:
-        candidate_outputs = _apply_brief_commitments(candidate_outputs, brief)
+        try:
+            candidate_outputs = _apply_brief_commitments(candidate_outputs, brief)
+        except Exception as exc:
+            _err(f"Story Discovery candidate failed declared-intent validation: {exc}")
+            return 1
         data.candidates = candidate_outputs
         data.rec_set.candidates = [co.candidate for co in candidate_outputs]
         data.rec_set.valid_candidates = len(candidate_outputs)
+        data.comparison_lines = _build_intent_comparison_lines(data, brief)
 
     if not candidate_outputs:
         _err("no Story Discovery candidate survived validation after applying declared author intent.")
@@ -339,6 +431,7 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
     try:
         contract_args = SimpleNamespace(project=args.project, genre=genre)
         _refresh_project_contract(candidate_outputs, contract_args)
+        _refresh_content_hashes(candidate_outputs)
         _require_distinct_engines(candidate_outputs)
         if len(candidate_outputs) == 1:
             winner, rationale, rejected = _single_survivor(
@@ -387,7 +480,12 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
         rejected=rejected,
         surface_lines=surface_lines,
     )
-    _augment_intent_artifacts(args.output, brief=brief, adequacy=adequacy)
+    _augment_intent_artifacts(
+        args.output,
+        brief=brief,
+        adequacy=adequacy,
+        brief_path=brief_path,
+    )
 
     print()
     for line in surface_lines:
