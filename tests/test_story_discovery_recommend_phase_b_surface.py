@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -104,6 +105,40 @@ def _serializer(data, output_dir: Path, premise: str):
     comparison.write_text("# Story Discovery\n", encoding="utf-8")
     written.extend([discovery_set, report, comparison])
     return written
+
+
+def _profile_response(request):
+    evidence = json.loads(request.user.split("BOUNDED STORY EVIDENCE\n", 1)[1])
+    conflict = evidence["candidate_commitments"]["central_engine"]["conflict"]
+    suffix = conflict.replace("conflict ", "")
+    return {
+        "primary_strategy": f"resolve through {suffix}",
+        "causal_owner": "protagonist-led",
+        "external_action_pattern": [f"act {suffix}", f"pressure {suffix}", f"resolve {suffix}"],
+        "pressure_system": f"resistance {suffix}",
+        "reversal_mechanics": [f"{suffix} reverses the plan"],
+        "climax_mechanic": f"resolve through the {suffix} mechanism",
+        "scene_families": [f"{suffix} setup", f"{suffix} pressure", f"{suffix} climax"],
+        "evidence_gaps": [],
+    }
+
+
+def _diversity_response(request):
+    pairs = json.loads(request.user.split("CAUSAL PROFILE PAIRS\n", 1)[1])
+    return {
+        "assessments": [
+            {
+                "left_evidence_key": pair["left_evidence_key"],
+                "right_evidence_key": pair["right_evidence_key"],
+                "classification": "distinct",
+                "shared_causal_mechanics": ["same controlled premise"],
+                "material_differences": ["different controlled conflict mechanics"],
+                "scene_consequence": "The controlled candidates imply different major scenes.",
+                "rationale": "Phase B compatibility fixture through F3.",
+            }
+            for pair in pairs
+        ]
+    }
 
 
 def test_phase_b_multi_survivor_surface_is_author_facing_and_ordered(tmp_path):
@@ -235,6 +270,10 @@ def test_phase_b_dispatch_prints_surface_without_promoting_canon(tmp_path, monke
 
     class _Client:
         def complete(self, request):
+            if "bounded narrative-causality profiler" in request.system:
+                return LLMResponse(text=json.dumps(_profile_response(request)), input_tokens=1, output_tokens=1)
+            if "causal-diversity assessor" in request.system:
+                return LLMResponse(text=json.dumps(_diversity_response(request)), input_tokens=1, output_tokens=1)
             return LLMResponse(text=judge_json, input_tokens=1, output_tokens=1)
 
     monkeypatch.setattr("auteur.llm.factory.build_client", lambda *a, **k: _Client())
