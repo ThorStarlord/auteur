@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from auteur.genres.models import GenreContract
 
 from auteur.genre_packs.models import GenreProfileCommitment
+from auteur.narrative_ontology.architecture_preferences import NarrativeArchitecturePreferences
 from auteur.structure.diagnostics import StructureDiagnostic
 
 from auteur.blueprint import (
@@ -123,6 +124,13 @@ class StoryIdentity(BaseModel):
     )
     story_type: StoryType = Field(default_factory=StoryType)
     central_engine: HighLevelCentralEngine
+    architecture_preferences: NarrativeArchitecturePreferences | None = Field(
+        default=None,
+        description=(
+            "Explicit author commitments about narrative architecture. None = no "
+            "architecture-preference commitment (UNKNOWN)."
+        ),
+    )
     not_this: list[str] = Field(default_factory=list)
     open_questions: list[str] = Field(default_factory=list)
     confidence: float | None = Field(default=None, ge=0.0, le=1.0)
