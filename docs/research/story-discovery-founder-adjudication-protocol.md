@@ -109,6 +109,39 @@ Useful shorthand:
 
 Candidates may share ingredients, but their **primary causal engines** should be separable enough that the author is choosing among genuinely different stories.
 
+### Craft-layer propagation
+
+Case 5 exposed a surface requirement beyond simple `What you gain / What you give up` prose. A useful recommendation should teach **which craft layer changes** and how that decision propagates downstream into the actual writing and reader experience.
+
+For Phase E, distinguish at least these layers:
+
+1. **Author intent** — genre promise, audience, target experience, hard constraints, complexity preference, causation preference.
+2. **Primary causal engine** — the dominant system of forces that repeatedly converts character intention into conflict, consequence, escalation, and resolution.
+3. **Agency / causal ownership** — which character, relationship, institution, or system owns the decisive causal weight.
+4. **External action pattern** — what characters repeatedly do: investigate, repair, negotiate, deceive, rescue, confront, and so on.
+5. **Pressure system** — what repeatedly makes those actions difficult and escalating.
+6. **Scene texture** — the recurring experiential quality and family of scenes the author will spend pages writing.
+7. **Aesthetic / tonal framing** — the genre-tonal interpretation of that scene experience.
+8. **Reader experience** — the emotional progression those choices are expected to create.
+9. **Thematic consequence** — what the resulting causal pattern implies about the story's underlying questions.
+
+The causal engine is therefore **not identical** to external acts, texture, aesthetic framing, or audience emotion. It is generally upstream of them, while target experience also acts as an upstream author constraint when selecting among engines.
+
+A strong alternative explanation should make the propagation legible:
+
+> craft layer changed → different causal weight / protagonist verbs → different scene families and pressure → different texture / aesthetic → different reader emotion → different thematic implication.
+
+`What you gain / What you give up` should not merely state that one option is “more intimate,” “more institutional,” or “more complex.” It should identify **where the narrative weight moves** and what the author will concretely write more or less of as a result.
+
+For composable alternatives, the surface should also say:
+
+- which layer is being borrowed;
+- whether it remains primary or becomes subordinate;
+- what emotional or thematic effect that borrowed layer adds;
+- what risk would cause it to displace the intended primary engine.
+
+This requirement is conceptually compatible with the current StoryIdentity separation between central engine, story type / audience, and target experience; Phase E is evaluating whether the recommendation surface should make those relationships much more explicit for authors.
+
 ## Case selection
 
 Six cases are selected from the Phase D corpus for high information value. Selection favors cases where:
@@ -116,7 +149,7 @@ Six cases are selected from the Phase D corpus for high information value. Selec
 - multiple directions are plausibly attractive;
 - the recommendation requires an actual creative tradeoff rather than obvious defect detection;
 - premise constraints create pressure on interpretation;
-- emotional, structural, genre, authority, complexity, or causal choices can pull in different directions.
+- emotional, structural, genre, authority, complexity, causal, or craft-layer choices can pull in different directions.
 
 The packet is not intended to estimate a success rate across the full corpus.
 
@@ -137,6 +170,8 @@ Then briefly address:
 - **Baseline fit:** Do the directions satisfy the declared genre, audience, target experience, and hard constraints?
 - **Causal distinctness:** Do the directions imply genuinely different primary actions, obstacles, reversals, and climax mechanics?
 - **Recommendation clarity:** Is it clear why Auteur prefers its recommendation relative to the declared author brief?
+- **Craft-layer clarity:** Can the founder tell which narrative layer each alternative changes and how that affects causal ownership, external acts, pressure, and scene texture?
+- **Reader-experience propagation:** Is it clear why those craft changes would alter the aesthetic / emotional experience of the audience?
 - **Insight:** Did the comparison reveal or clarify something about the story decision?
 - **Alternative fairness:** Are the alternatives presented as credible options rather than strawmen?
 - **Authority feel:** Does Auteur remain opinionated without making disagreement feel like disobedience?
@@ -165,7 +200,7 @@ Classify negative or non-adjudicable cases as:
 - **CONTEXT / INTENT FAILURE** — the recommendation problem is under-specified relative to the author's desired genre promise, audience, target experience, complexity preference, causation preference, or hard constraints;
 - **SEARCH / CHOICE FAILURE** — directions are not meaningfully distinct at the level of primary causal strategy;
 - **JUDGMENT FAILURE** — the recommended direction is not defensible relative to the alternatives and declared intent;
-- **RATIONALE / SURFACE FAILURE** — the underlying choice may be sound, but the explanation is generic, unfair, or unhelpful;
+- **RATIONALE / SURFACE FAILURE** — the underlying choice may be sound, but the explanation is generic, unfair, unhelpful, or fails to teach how the craft-layer change propagates into scenes and reader experience;
 - **AUTHORITY UX FAILURE** — the recommendation presentation feels coercive or pre-canonical.
 
 A case may have more than one classification if the founder response supports it.
@@ -179,11 +214,11 @@ Move to implementation only if founder responses reveal a repeated pattern tied 
 - repeated context / intent failures → revisit what Story Discovery needs to know before comparative judgment;
 - repeated false choices → revisit search diversity and causal distinctness;
 - repeated unpersuaded recommendations with attractive alternatives → revisit comparative judgment;
-- repeated understanding without insight → revisit recommendation rationale / surface;
+- repeated understanding without craft-layer insight → revisit recommendation rationale / surface and teach the propagation from engine to action to texture to reader experience;
 - repeated composition requests → investigate a post-recommendation operation that preserves the primary engine while borrowing subordinate mechanisms;
 - repeated authority discomfort → revisit recommendation language and handoff.
 
-If most adequately specified cases are either strong agreement or respectful disagreement, with credible alternatives, causal distinctness, and clear authority, the founder-confidence layer is considered encouraging and the next product question may move to conversational onboarding or optional live-provider dogfood.
+If most adequately specified cases are either strong agreement or respectful disagreement, with credible alternatives, causal distinctness, craft-layer clarity, and clear authority, the founder-confidence layer is considered encouraging and the next product question may move to conversational onboarding or optional live-provider dogfood.
 
 ## Workflow
 
