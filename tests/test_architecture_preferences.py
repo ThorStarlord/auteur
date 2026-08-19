@@ -1,8 +1,9 @@
 """Phase F1 tests for narrative-architecture preferences.
 
-F1 defines vocabulary and Identity commitments only. It must preserve UNKNOWN
-semantics, survive Story Discovery acceptance, and remain inert during bounded
-Identity-to-Structure propagation until later Phase F slices define behavior.
+F1 defines a Layer 0 controlled vocabulary and Layer 1 Identity commitments only.
+It must preserve UNKNOWN semantics, survive Story Discovery acceptance, and remain
+inert during bounded Identity-to-Structure propagation until later Phase F slices
+define behavior.
 """
 
 from copy import deepcopy
@@ -50,24 +51,27 @@ def _identity(
     )
 
 
-def test_base_ontology_exposes_narrative_architecture_preference():
+def test_architecture_preferences_are_layer0_vocabulary_not_base_narrative_concept():
+    """Preference dimensions type Identity but are not a 13th in-story entity."""
     loader = OntologyLoader()
-    concept = loader.get_concept("NarrativeArchitecturePreference")
 
-    assert concept["name"] == "NarrativeArchitecturePreference"
-    dimensions = concept["metadata"]["dimensions"]
-    assert dimensions["complexity"]["values"] == ["focused", "layered", "maximalist"]
-    assert dimensions["causal_distribution"]["values"] == [
+    assert len(loader.load_base_ontology()) == 12
+    assert loader.get_concept("NarrativeArchitecturePreference") == {}
+    assert [value.value for value in ComplexityPreference] == [
+        "focused",
+        "layered",
+        "maximalist",
+    ]
+    assert [value.value for value in CausalDistributionPreference] == [
         "concentrated",
         "layered",
         "mixed",
     ]
-    assert dimensions["engine_hierarchy"]["values"] == [
+    assert [value.value for value in EngineHierarchyPreference] == [
         "single_center",
         "primary_with_layers",
         "ensemble",
     ]
-    assert loader.validate_ontology_structure(loader.load_base_ontology()) == []
 
 
 def test_legacy_story_identity_has_no_hidden_architecture_default():
