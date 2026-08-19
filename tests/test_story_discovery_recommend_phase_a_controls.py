@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -129,6 +130,40 @@ def _serializer(data, output_dir: Path, premise: str):
     return written
 
 
+def _profile_for_request(request):
+    evidence = json.loads(request.user.split("BOUNDED STORY EVIDENCE\n", 1)[1])
+    conflict = evidence["candidate_commitments"]["central_engine"]["conflict"]
+    suffix = conflict.replace("conflict ", "")
+    return {
+        "primary_strategy": f"resolve through the {suffix} causal strategy",
+        "causal_owner": "protagonist-led",
+        "external_action_pattern": [f"investigate {suffix}", f"pressure {suffix}", f"resolve {suffix}"],
+        "pressure_system": f"resistance {suffix}",
+        "reversal_mechanics": [f"new {suffix} evidence changes the plan"],
+        "climax_mechanic": f"resolve the {suffix} conflict through its defining action",
+        "scene_families": [f"{suffix} setup", f"{suffix} escalation", f"{suffix} climax"],
+        "evidence_gaps": [],
+    }
+
+
+def _distinct_response(request):
+    pairs = json.loads(request.user.split("CAUSAL PROFILE PAIRS\n", 1)[1])
+    return {
+        "assessments": [
+            {
+                "left_evidence_key": pair["left_evidence_key"],
+                "right_evidence_key": pair["right_evidence_key"],
+                "classification": "distinct",
+                "shared_causal_mechanics": ["same controlled premise"],
+                "material_differences": ["different controlled engine commitments"],
+                "scene_consequence": "The controlled candidates imply different major scenes.",
+                "rationale": "Phase A compatibility fixture through F3.",
+            }
+            for pair in pairs
+        ]
+    }
+
+
 def test_phase_a_false_numeric_winner_is_not_automatically_selected(tmp_path, monkeypatch):
     high_fit = _candidate("candidate_1", "high-fit", fit=100)
     lower_fit = _candidate("candidate_2", "premise-specific", fit=60)
@@ -148,6 +183,10 @@ def test_phase_a_false_numeric_winner_is_not_automatically_selected(tmp_path, mo
 
     class _Client:
         def complete(self, request):
+            if "bounded narrative-causality profiler" in request.system:
+                return LLMResponse(text=json.dumps(_profile_for_request(request)), input_tokens=1, output_tokens=1)
+            if "causal-diversity assessor" in request.system:
+                return LLMResponse(text=json.dumps(_distinct_response(request)), input_tokens=1, output_tokens=1)
             # Contract fit remains visible as compliance evidence, but there is no
             # deterministic ranker that can override the comparative judgment.
             assert '"contract_fit": 100' in request.user
@@ -164,6 +203,7 @@ def test_phase_a_false_numeric_winner_is_not_automatically_selected(tmp_path, mo
         (tmp_path / "story_discovery" / "discovery_report.yaml").read_text(encoding="utf-8")
     )
     assert report["recommended_candidate_id"] == "candidate_2"
+    assert report["causal_analysis"]["status"] == "qualified"
     assert not (tmp_path / "story_identity.yaml").exists()
 
 
