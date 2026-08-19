@@ -8,7 +8,6 @@ may propose inside a StoryIdentity candidate.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Self
 
 import yaml
 from pydantic import BaseModel, Field
@@ -40,7 +39,7 @@ class DiscoveryBrief(BaseModel):
     hard_constraints: list[str] = Field(default_factory=list)
 
     @classmethod
-    def from_yaml(cls, path: str | Path) -> Self:
+    def from_yaml(cls, path: str | Path) -> "DiscoveryBrief":
         data = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
         return cls.model_validate(data)
 
