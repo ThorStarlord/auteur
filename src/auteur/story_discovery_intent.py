@@ -1,7 +1,7 @@
 """Intent-aware Story Discovery orchestration.
 
-This adapter preserves the F2 prior-author-intent boundary while adding F3 causal
-qualification before comparative recommendation.
+This adapter preserves the F2 prior-author-intent boundary while applying F3
+causal qualification and F4 grounded craft teaching before comparative output.
 """
 
 from __future__ import annotations
@@ -103,7 +103,7 @@ def _declared_target_experience_fields(brief: DiscoveryBrief) -> dict[str, Any]:
 
 
 def _apply_brief_commitments(candidate_outputs: list[Any], brief: DiscoveryBrief) -> list[Any]:
-    """Validate candidate output against prior intent, then attach explicit commitments."""
+    """Validate generated candidates against prior intent, then attach explicit commitments."""
 
     from auteur.cli_handlers import analyze_contract_fit
 
@@ -153,12 +153,12 @@ def _apply_brief_commitments(candidate_outputs: list[Any], brief: DiscoveryBrief
 
         diagnostics = identity.validate_identity()
         errors = [
-            diagnostic
-            for diagnostic in diagnostics
+            d
+            for d in diagnostics
             if (
-                diagnostic.severity.value.lower() == "error"
-                if hasattr(diagnostic.severity, "value")
-                else str(diagnostic.severity).lower() == "error"
+                d.severity.value.lower() == "error"
+                if hasattr(d.severity, "value")
+                else str(d.severity).lower() == "error"
             )
         ]
         if errors:
@@ -168,12 +168,12 @@ def _apply_brief_commitments(candidate_outputs: list[Any], brief: DiscoveryBrief
             )
 
         warnings = [
-            diagnostic
-            for diagnostic in diagnostics
+            d
+            for d in diagnostics
             if (
-                diagnostic.severity.value.lower() == "warning"
-                if hasattr(diagnostic.severity, "value")
-                else str(diagnostic.severity).lower() == "warning"
+                d.severity.value.lower() == "warning"
+                if hasattr(d.severity, "value")
+                else str(d.severity).lower() == "warning"
             )
         ]
         fit, status, problems, notes = analyze_contract_fit(identity)
@@ -193,11 +193,7 @@ def _apply_brief_commitments(candidate_outputs: list[Any], brief: DiscoveryBrief
     return candidate_outputs
 
 
-def _intent_candidate_evidence(
-    co: Any,
-    *,
-    causal_profile: Any | None = None,
-) -> dict[str, Any]:
+def _intent_candidate_evidence(co: Any, *, causal_profile: Any | None = None) -> dict[str, Any]:
     evidence = _candidate_evidence(co, causal_profile=causal_profile)
     story_identity = evidence["story_identity"]
     preferences = getattr(co.identity, "architecture_preferences", None)
@@ -238,7 +234,6 @@ def _build_intent_judge_request(
 
 
 def _build_intent_comparison_lines(data: Any, brief: DiscoveryBrief) -> list[str]:
-    """Rebuild comparison evidence after explicit brief commitments are attached."""
     candidate_outputs = data.candidates
     lines = [
         "# Story Discovery Comparison",
@@ -273,7 +268,8 @@ def _qualify_surface(lines: list[str], *, intent_aware: bool) -> list[str]:
     if not qualified:
         return qualified
     has_recommendation = any(
-        line.startswith("RECOMMENDED —") or line.startswith("ONLY VIABLE INTERPRETATION —")
+        line.startswith("RECOMMENDED —")
+        or line.startswith("ONLY VIABLE INTERPRETATION —")
         for line in qualified
     )
     if intent_aware:
@@ -343,18 +339,16 @@ def _augment_intent_artifacts(
     heading = (
         "## Discovery Intent\n\n"
         + (
-            "This comparison is judged against the structured author brief supplied before "
-            "candidate generation.\n"
+            "This comparison is judged against the structured author brief supplied before candidate generation.\n"
             if brief is not None
-            else "This is exploratory ranking under Auteur's default criteria because no "
-            "structured author brief was supplied.\n"
+            else "This is exploratory analysis because no structured author brief was supplied.\n"
         )
     )
     comparison_path.write_text(comparison + "\n" + heading, encoding="utf-8")
 
 
 def dispatch_story_discovery_recommend(args: Any) -> int:
-    """Run Story Discovery with F2 intent boundaries and F3 causal qualification."""
+    """Run intent-aware Story Discovery through F2 intent, F3 causality, and F4 craft gates."""
 
     if args.candidates < 2:
         _err("Story Discovery --recommend requires --candidates >= 2 so a narrative search actually occurs.")
@@ -371,6 +365,12 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
         derive_causal_profiles,
         non_adjudicable_surface_lines,
         persist_causal_analysis,
+    )
+    from auteur.story_discovery_craft import derive_craft_impacts, persist_craft_analysis
+    from auteur.story_discovery_craft_surface import (
+        append_craft_comparison,
+        compact_craft_lines,
+        replace_generic_alternatives_with_craft,
     )
 
     brief: DiscoveryBrief | None = None
@@ -424,10 +424,6 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
         if result.error and result.error.strip().startswith("0 valid candidates survived"):
             _err("no Story Discovery candidate survived validation.")
             print("Try revising the premise or constraints and run again.", file=sys.stderr)
-            print(
-                "Use --debug to preserve failed candidate attempts when deeper inspection is needed.",
-                file=sys.stderr,
-            )
         else:
             _err(result.error or "Story Discovery failed")
         return result.exit_code
@@ -451,23 +447,19 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
 
     if not candidate_outputs:
         _err("no Story Discovery candidate survived validation after applying declared author intent.")
-        print("Revise the brief or premise and run again.", file=sys.stderr)
         return 1
 
     winner: str | None = None
     rationale = ""
     rejected: dict[str, str] = {}
-    causal_analysis: CausalAnalysis
+    craft_analysis = None
     try:
         contract_args = SimpleNamespace(project=args.project, genre=genre)
         _refresh_project_contract(candidate_outputs, contract_args)
         _refresh_content_hashes(candidate_outputs)
         _require_distinct_engines(candidate_outputs)
         if len(candidate_outputs) == 1:
-            causal_analysis = CausalAnalysis(
-                status="not_applicable_single_survivor",
-                profiles={},
-            )
+            causal_analysis = CausalAnalysis(status="not_applicable_single_survivor", profiles={})
             winner, rationale, rejected = _single_survivor(
                 candidate_outputs[0].candidate_id,
                 args.candidates,
@@ -505,6 +497,14 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
                     response.text,
                     [co.candidate_id for co in candidate_outputs],
                 )
+                craft_analysis = derive_craft_impacts(
+                    base_client,
+                    winner,
+                    candidate_outputs,
+                    profiles,
+                    premise_text,
+                    declared_author_intent=declared,
+                )
     except Exception as exc:
         _err(f"Failed to produce comparative Story Discovery recommendation: {exc}")
         return 1
@@ -528,6 +528,11 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
             output_dir=args.output,
             requested_candidates=args.candidates,
         )
+        if craft_analysis is not None:
+            surface_lines = replace_generic_alternatives_with_craft(
+                surface_lines,
+                compact_craft_lines(craft_analysis, profiles, candidate_outputs),
+            )
         surface_lines = _qualify_surface(surface_lines, intent_aware=brief is not None)
         _augment_artifacts(
             args.output,
@@ -536,6 +541,13 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
             rejected=rejected,
             surface_lines=surface_lines,
         )
+        if craft_analysis is not None:
+            persist_craft_analysis(
+                args.output,
+                craft_analysis,
+                artifact_names=("discovery_set.yaml", "discovery_report.yaml"),
+            )
+            append_craft_comparison(args.output, craft_analysis, profiles, candidate_outputs)
     else:
         surface_lines = non_adjudicable_surface_lines(
             causal_analysis,
