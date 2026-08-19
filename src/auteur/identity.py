@@ -347,7 +347,7 @@ class StoryIdentity(BaseModel):
                                 severity=DiagnosticSeverity.WARNING,
                                 layer=DiagnosticLayer.SCOPE,
                                 rule="identity.genre.scope.runway_mismatch.override",
-                                message=f"The resolved length '{length_class.value if hasattr(length_class, 'value') else length_class}' is too short for the minimum viable length '{min_viable.value if hasattr(min_viable, 'value') else min_viable}' required by the '{identity.genre_contract_snapshot.display_name}' genre contract. Overridden by author.",
+                                message=f"The resolved length '{length_class.value if hasattr(length_class, 'value') else length_class}' is too short for the minimum viable length '{min_viable.value if hasattr(min_viable, 'value') else min_viable}' required by the '{self.genre_contract_snapshot.display_name}' genre contract. Overridden by author.",
                                 evidence=[
                                     f"resolved_length = {length_class.value if hasattr(length_class, 'value') else length_class}",
                                     f"minimum_viable_length = {min_viable.value if hasattr(min_viable, 'value') else min_viable}",
