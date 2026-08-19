@@ -139,8 +139,9 @@ def test_all_distinct_pairs_qualify_without_numeric_score():
     assert analysis.status == "qualified"
     assert len(analysis.pairwise_assessments) == 3
     assert {item.classification for item in analysis.pairwise_assessments} == {"distinct"}
-    assert "score" not in client.requests[0].system.lower()
     assert "numeric" in client.requests[0].system.lower()
+    assert "similarity_score" not in client.requests[0].user
+    assert "diversity_score" not in client.requests[0].user
 
 
 def test_near_duplicate_pair_blocks_comparative_adjudication():
