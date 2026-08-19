@@ -2,7 +2,7 @@
 
 ## Status
 
-In progress. Three founder cases have been adjudicated. The research PR remains draft until the remaining cases are reviewed and the final pattern analysis is recorded.
+In progress. Four founder cases have been adjudicated. The research PR remains draft until the remaining cases are reviewed and the final pattern analysis is recorded.
 
 ## Evidence boundary
 
@@ -48,6 +48,23 @@ A useful diagnostic shorthand is:
 > Different engine ≠ different interpretation. Different engine = different causal strategy producing meaningfully different scene pressure and resolution mechanics.
 
 This does not require candidates to share no ingredients. It requires their **primary causal engines** to be separable enough that an author is choosing among genuinely different stories rather than differently framed versions of the same operational plan.
+
+## Protocol amendment after Case 4
+
+The founder explicitly requested that **maximalism** and **mixed causation** be part of the initial author intent used for subsequent comparison.
+
+Phase E therefore extends the simulated author brief with two optional preference dimensions:
+
+- **Authorial complexity preference — maximalism:** prefer layered story architecture, multiple interacting dramatic mechanisms, and dense but legible causation rather than the minimum sufficient mechanism.
+- **Causation preference — mixed causation:** prefer major events, reversals, and outcomes to arise from several compatible causal layers rather than a single isolated cause.
+
+These preferences should be recorded alongside the premise, not rewritten into the literal premise sentence. The premise remains story content; maximalism and mixed causation describe how the author wants the story architecture to behave.
+
+The intended hierarchy remains important:
+
+> one primary engine governs the reader promise; compatible secondary mechanisms may deepen motive, obstruction, consequence, or reversal without displacing that engine.
+
+This makes composition a first-class research possibility without collapsing all candidates into one undifferentiated hybrid.
 
 ## Case 1 — retired astronaut / mission-control chatter
 
@@ -155,12 +172,47 @@ A stronger version of the candidate set would differ at the level of primary ver
 
 Those options could still share the same premise and constraints while producing materially different major scenes, obstacle structures, and climax forms.
 
+## Case 4 — family inherits a shrinking house
+
+### Simulated author brief
+
+- **Primary genre:** domestic supernatural horror / family gothic.
+- **Target audience:** adult horror readers who enjoy supernatural rules, family secrets, escalating spatial dread, and emotionally consequential mysteries.
+- **Target emotion:** unease → loss of safety and personal space → mounting claustrophobia → painful family revelation → bittersweet or disturbing catharsis.
+- **Hard constraints:** the house genuinely loses one room every night; inheritance matters; the family remains the narrative center; the supernatural mechanism creates escalating external pressure; the explanation cannot reduce the phenomenon to a mundane trick.
+
+### Simulated candidate distinction
+
+The case was deliberately reframed after Case 3 so the three engines differed in causal strategy rather than aesthetic vocabulary:
+
+1. **`The Missing Room` — relational engine:** recognize → confront → reconcile / reckon; the disappearing rooms externalize current-family avoidance.
+2. **`Measured Walls` — containment engine:** map → investigate → penetrate / contain; the house is physically compressing toward something inherited and contained.
+3. **`Square Footage` — restitution engine:** research → trace → restore / restitute; vanished rooms correspond to people excluded from the inheritance history.
+
+### Founder response
+
+**Pass.**
+
+The founder found the revised case sufficiently clear and causally differentiated for adjudication.
+
+The founder then asked that **maximalism and mixed causation be added to the initial author intent** for subsequent cases.
+
+### Research classification
+
+**CLEAR PASS with AUTHOR-PREFERENCE EXPANSION.**
+
+Case 4 supports the causal-distinctness correction introduced after Case 3: once alternatives differ in what the characters actually do and how the climax works, the choice becomes legible.
+
+It also strengthens the composition signal from Case 2. The founder is not merely asking to merge arbitrary alternatives; the declared preference is for layered, mixed causation under a legible primary engine.
+
 ## Emerging Phase E signals
 
-After three cases:
+After four cases:
 
 1. **Intent adequacy is a prerequisite for comparative “best.”** A sparse premise may support exploration, but not necessarily a justified author-intent-optimal recommendation.
-2. **Narrative-engine diversity must be causal, not merely rhetorical.** Different labels, themes, or institutional framings are insufficient when the protagonist’s external strategy and major scene chain remain substantially the same.
-3. **Meaningful alternatives can be composable rather than mutually exclusive.** Auteur may eventually benefit from a post-recommendation operation such as “keep this engine, borrow these mechanisms.”
-4. **Strong recommendation and author authority remain compatible.** Cases 1 and 2 both showed that Auteur can sound opinionated without making disagreement feel wrong.
-5. **No production change is justified yet.** The intent gap and causal-distinctness criterion are now strong research signals, while composition remains an opportunity. Phase E should complete the remaining high-information cases before routing implementation work.
+2. **Narrative-engine diversity must be causal, not merely rhetorical.** Different labels, themes, or framings are insufficient when the protagonist’s external strategy and major scene chain remain substantially the same.
+3. **Authorial complexity preference belongs in the initial brief.** For this founder, maximalism and mixed causation materially affect what counts as the strongest architecture and should be available to the comparator as author intent rather than inferred from candidate outputs.
+4. **Meaningful alternatives can be composable rather than mutually exclusive.** Auteur may eventually benefit from a post-recommendation operation such as “keep this engine, borrow these mechanisms.”
+5. **Composition requires hierarchy.** One primary engine should continue to govern the reader promise while secondary mechanisms deepen causation, motive, obstruction, or reversal.
+6. **Strong recommendation and author authority remain compatible.** The founder has not reported coercive authority tone in the adjudicated cases.
+7. **No production change is justified yet.** The intent gap, causal-distinctness criterion, maximalism / mixed-causation preference, and composition opportunity are now strong signals, but Phase E should complete the remaining high-information cases before routing implementation work.
