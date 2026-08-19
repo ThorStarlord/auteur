@@ -1,9 +1,7 @@
-"""F2 intent-aware Story Discovery orchestration.
+"""Intent-aware Story Discovery orchestration.
 
-This adapter keeps the qualified Story Discovery search/judge mechanics intact while
-adding one explicit prior-author-intent input contract. Raw premise recommendation
-remains available, but is labeled exploratory rather than pretending undeclared
-preferences are known.
+This adapter preserves the F2 prior-author-intent boundary while adding F3 causal
+qualification before comparative recommendation.
 """
 
 from __future__ import annotations
@@ -46,6 +44,8 @@ target experience, architecture preference, or constraints.
 - Candidate-generated fields may demonstrate how a direction realizes the brief;
   they must not be treated as evidence that the author wanted an omitted value.
 - Omitted brief fields remain UNKNOWN. Do not invent preferences to fill them.
+- Architecture preferences may influence the winner but must not turn profile
+  length or complexity into an automatic quality signal.
 """
 
 
@@ -103,14 +103,7 @@ def _declared_target_experience_fields(brief: DiscoveryBrief) -> dict[str, Any]:
 
 
 def _apply_brief_commitments(candidate_outputs: list[Any], brief: DiscoveryBrief) -> list[Any]:
-    """Validate candidate output against prior intent, then attach explicit commitments.
-
-    Genre, medium, mode, audience, and the governing primary reader experience are
-    never silently rewritten here. If candidate generation contradicts those declared
-    values, F2 fails closed. Explicit subordinate TargetExperience fields are merged,
-    while architecture preferences and hard constraints are copied as author
-    commitments before comparative judgment and serialization.
-    """
+    """Validate candidate output against prior intent, then attach explicit commitments."""
 
     from auteur.cli_handlers import analyze_contract_fit
 
@@ -151,8 +144,6 @@ def _apply_brief_commitments(candidate_outputs: list[Any], brief: DiscoveryBrief
                 target_payload
             )
 
-        # Structured-brief architecture commitments must represent only what the
-        # author declared before generation, never an inferred candidate preference.
         identity.architecture_preferences = (
             brief.architecture_preferences.model_copy(deep=True)
             if brief.architecture_preferences is not None
@@ -202,8 +193,12 @@ def _apply_brief_commitments(candidate_outputs: list[Any], brief: DiscoveryBrief
     return candidate_outputs
 
 
-def _intent_candidate_evidence(co: Any) -> dict[str, Any]:
-    evidence = _candidate_evidence(co)
+def _intent_candidate_evidence(
+    co: Any,
+    *,
+    causal_profile: Any | None = None,
+) -> dict[str, Any]:
+    evidence = _candidate_evidence(co, causal_profile=causal_profile)
     story_identity = evidence["story_identity"]
     preferences = getattr(co.identity, "architecture_preferences", None)
     story_identity["architecture_preferences"] = (
@@ -216,8 +211,16 @@ def _intent_candidate_evidence(co: Any) -> dict[str, Any]:
 def _build_intent_judge_request(
     brief: DiscoveryBrief,
     candidate_outputs: list[Any],
+    *,
+    causal_profiles: dict[str, Any] | None = None,
 ) -> LLMRequest:
-    evidence = [_intent_candidate_evidence(co) for co in candidate_outputs]
+    evidence = [
+        _intent_candidate_evidence(
+            co,
+            causal_profile=(causal_profiles or {}).get(co.candidate_id),
+        )
+        for co in candidate_outputs
+    ]
     user = (
         "DISCOVERY MODE\nintent_aware\n\n"
         "DECLARED AUTHOR INTENT (PRIOR TO CANDIDATE GENERATION)\n"
@@ -228,7 +231,7 @@ def _build_intent_judge_request(
     return LLMRequest(
         system=_INTENT_JUDGE_SYSTEM,
         user=user,
-        max_tokens=1600,
+        max_tokens=1800,
         temperature=0.2,
         model=None,
     )
@@ -269,17 +272,30 @@ def _qualify_surface(lines: list[str], *, intent_aware: bool) -> list[str]:
     qualified = list(lines)
     if not qualified:
         return qualified
+    has_recommendation = any(
+        line.startswith("RECOMMENDED —") or line.startswith("ONLY VIABLE INTERPRETATION —")
+        for line in qualified
+    )
     if intent_aware:
         qualified.insert(
             1,
-            "Intent-aware recommendation against your declared Discovery Brief.",
+            (
+                "Intent-aware recommendation against your declared Discovery Brief."
+                if has_recommendation
+                else "Intent-aware causal assessment against your declared Discovery Brief."
+            ),
         )
         return qualified
 
     qualified.insert(
         1,
-        "Exploratory recommendation using Auteur's default criteria; no structured "
-        "Discovery Brief was supplied, so this is not a claim about undeclared author intent.",
+        (
+            "Exploratory recommendation using Auteur's default criteria; no structured "
+            "Discovery Brief was supplied, so this is not a claim about undeclared author intent."
+            if has_recommendation
+            else "Exploratory causal assessment; no structured Discovery Brief was supplied, "
+            "so this is not a claim about undeclared author intent."
+        ),
     )
     for index, line in enumerate(qualified):
         if line.startswith("RECOMMENDED —"):
@@ -338,7 +354,7 @@ def _augment_intent_artifacts(
 
 
 def dispatch_story_discovery_recommend(args: Any) -> int:
-    """Run exploratory or intent-aware Story Discovery with F2 evidence boundaries."""
+    """Run Story Discovery with F2 intent boundaries and F3 causal qualification."""
 
     if args.candidates < 2:
         _err("Story Discovery --recommend requires --candidates >= 2 so a narrative search actually occurs.")
@@ -347,6 +363,15 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
     from auteur.cli_handlers import RecommendOpenEndedData, handle_identity_recommend
     from auteur.cli_serializers import serialize_story_discovery
     from auteur.llm.factory import build_client
+    from auteur.story_discovery_causality import (
+        CausalAnalysis,
+        CausalGuidanceClient,
+        append_causal_comparison,
+        assess_causal_diversity,
+        derive_causal_profiles,
+        non_adjudicable_surface_lines,
+        persist_causal_analysis,
+    )
 
     brief: DiscoveryBrief | None = None
     adequacy: IntentAdequacy | None = None
@@ -380,7 +405,8 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
         source_input = args.brain_dump
 
     base_client = build_client(args.provider, args.model, agent_type="identity")
-    client = _BriefAwareClient(base_client, brief) if brief is not None else base_client
+    guided_client = CausalGuidanceClient(base_client)
+    client = _BriefAwareClient(guided_client, brief) if brief is not None else guided_client
     result = handle_identity_recommend(
         client=client,
         premise_text=premise_text,
@@ -428,58 +454,96 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
         print("Revise the brief or premise and run again.", file=sys.stderr)
         return 1
 
+    winner: str | None = None
+    rationale = ""
+    rejected: dict[str, str] = {}
+    causal_analysis: CausalAnalysis
     try:
         contract_args = SimpleNamespace(project=args.project, genre=genre)
         _refresh_project_contract(candidate_outputs, contract_args)
         _refresh_content_hashes(candidate_outputs)
         _require_distinct_engines(candidate_outputs)
         if len(candidate_outputs) == 1:
+            causal_analysis = CausalAnalysis(
+                status="not_applicable_single_survivor",
+                profiles={},
+            )
             winner, rationale, rejected = _single_survivor(
                 candidate_outputs[0].candidate_id,
                 args.candidates,
             )
-        elif brief is not None:
-            response = base_client.complete(_build_intent_judge_request(brief, candidate_outputs))
-            winner, rationale, rejected = _parse_judgment(
-                response.text,
-                [co.candidate_id for co in candidate_outputs],
-            )
         else:
-            response = base_client.complete(
-                _build_judge_request(
-                    premise_text,
-                    candidate_outputs,
-                    genre=genre,
-                    medium=medium,
-                    mode=mode,
+            declared = brief.declared_intent() if brief is not None else None
+            profiles = derive_causal_profiles(
+                base_client,
+                candidate_outputs,
+                premise_text,
+                declared_author_intent=declared,
+            )
+            causal_analysis = assess_causal_diversity(base_client, profiles)
+            if causal_analysis.status == "qualified":
+                if brief is not None:
+                    response = base_client.complete(
+                        _build_intent_judge_request(
+                            brief,
+                            candidate_outputs,
+                            causal_profiles=profiles,
+                        )
+                    )
+                else:
+                    response = base_client.complete(
+                        _build_judge_request(
+                            premise_text,
+                            candidate_outputs,
+                            genre=genre,
+                            medium=medium,
+                            mode=mode,
+                            causal_profiles=profiles,
+                        )
+                    )
+                winner, rationale, rejected = _parse_judgment(
+                    response.text,
+                    [co.candidate_id for co in candidate_outputs],
                 )
-            )
-            winner, rationale, rejected = _parse_judgment(
-                response.text,
-                [co.candidate_id for co in candidate_outputs],
-            )
     except Exception as exc:
         _err(f"Failed to produce comparative Story Discovery recommendation: {exc}")
         return 1
 
-    data.rec_set.recommended_candidate_id = winner
+    if winner is not None:
+        data.rec_set.recommended_candidate_id = winner
     written = serialize_story_discovery(data, args.output, source_input)
-    surface_lines = _recommendation_surface_lines(
-        winner=winner,
-        rationale=rationale,
-        rejected=rejected,
-        candidate_outputs=candidate_outputs,
-        output_dir=args.output,
-        requested_candidates=args.candidates,
-    )
-    surface_lines = _qualify_surface(surface_lines, intent_aware=brief is not None)
-    _augment_artifacts(
+    persist_causal_analysis(
         args.output,
-        winner=winner,
-        rationale=rationale,
-        rejected=rejected,
-        surface_lines=surface_lines,
+        analysis=causal_analysis,
+        artifact_names=("discovery_set.yaml", "discovery_report.yaml"),
     )
+    append_causal_comparison(args.output, causal_analysis)
+
+    if winner is not None:
+        surface_lines = _recommendation_surface_lines(
+            winner=winner,
+            rationale=rationale,
+            rejected=rejected,
+            candidate_outputs=candidate_outputs,
+            output_dir=args.output,
+            requested_candidates=args.candidates,
+        )
+        surface_lines = _qualify_surface(surface_lines, intent_aware=brief is not None)
+        _augment_artifacts(
+            args.output,
+            winner=winner,
+            rationale=rationale,
+            rejected=rejected,
+            surface_lines=surface_lines,
+        )
+    else:
+        surface_lines = non_adjudicable_surface_lines(
+            causal_analysis,
+            candidate_outputs,
+            args.output,
+        )
+        surface_lines = _qualify_surface(surface_lines, intent_aware=brief is not None)
+
     _augment_intent_artifacts(
         args.output,
         brief=brief,

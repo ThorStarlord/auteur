@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -370,6 +371,45 @@ def test_intent_aware_dispatch_records_declared_intent_without_promoting_canon(
 
     class _JudgeClient:
         def complete(self, request: LLMRequest) -> LLMResponse:
+            if "bounded narrative-causality profiler" in request.system:
+                return LLMResponse(
+                    text=json.dumps(
+                        {
+                            "primary_strategy": "reconstruct hidden timing through conflicting evidence",
+                            "causal_owner": "detective-led investigation",
+                            "external_action_pattern": ["reconstruct", "compare", "test", "expose"],
+                            "pressure_system": "sealed-space assumptions and conflicting testimony",
+                            "reversal_mechanics": ["new timing evidence invalidates the current reconstruction"],
+                            "climax_mechanic": "a precise timing reconstruction proves the physically possible murder",
+                            "scene_families": ["timing reconstruction", "testimony comparison", "final demonstration"],
+                            "evidence_gaps": [],
+                        }
+                    ),
+                    input_tokens=1,
+                    output_tokens=1,
+                )
+            if "causal-diversity assessor" in request.system:
+                pairs = json.loads(request.user.split("CAUSAL PROFILE PAIRS\n", 1)[1])
+                return LLMResponse(
+                    text=json.dumps(
+                        {
+                            "assessments": [
+                                {
+                                    "left_evidence_key": pair["left_evidence_key"],
+                                    "right_evidence_key": pair["right_evidence_key"],
+                                    "classification": "distinct",
+                                    "shared_causal_mechanics": ["both investigate one sealed-space murder"],
+                                    "material_differences": ["controlled fixture treats the candidate mechanics as distinct"],
+                                    "scene_consequence": "Choosing the alternative changes the reconstruction path and decisive scene.",
+                                    "rationale": "Controlled F3 fixture.",
+                                }
+                                for pair in pairs
+                            ]
+                        }
+                    ),
+                    input_tokens=1,
+                    output_tokens=1,
+                )
             assert "DECLARED AUTHOR INTENT" in request.user
             return LLMResponse(
                 text=(
@@ -402,6 +442,7 @@ def test_intent_aware_dispatch_records_declared_intent_without_promoting_canon(
     assert report["intent_adequacy"]["adequate"] is True
     assert report["declared_author_intent"]["story_type"]["genre"] == "mystery"
     assert report["premise_summary"] == brief.premise
+    assert report["causal_analysis"]["status"] == "qualified"
     assert report["recommended_candidate_id"] == "candidate_1"
 
 
