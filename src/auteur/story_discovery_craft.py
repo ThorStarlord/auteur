@@ -2,7 +2,9 @@
 
 F4 consumes qualified F3 causal profiles and explains how choosing one engine over
 another changes the actual writing problem. Analysis remains advisory and
-non-canonical.
+non-canonical. If the explainer cannot produce valid bounded evidence, the craft
+layer becomes explicitly unavailable rather than fabricating claims or erasing an
+otherwise qualified F3 recommendation.
 """
 
 from __future__ import annotations
@@ -143,9 +145,10 @@ class CraftAnalysis(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     schema_version: Literal[1] = 1
-    status: Literal["diagnostic_only", "complete"] = "diagnostic_only"
+    status: Literal["diagnostic_only", "complete", "unavailable"] = "diagnostic_only"
     primary_candidate_id: str
     impacts: dict[str, CraftImpactRecord]
+    unavailable_reason: str | None = None
 
 
 def _dump(value: Any) -> dict[str, Any]:
@@ -207,6 +210,8 @@ def build_craft_impact_request(
 
 
 def parse_craft_impact(text: str) -> CraftImpact:
+    """Parse one strict craft-impact object. Invalid output never becomes evidence."""
+
     match = re.search(r"\{.*\}", text.strip(), re.DOTALL)
     if not match:
         raise ValueError("craft-impact response did not contain a JSON object")
@@ -255,6 +260,13 @@ def derive_craft_impacts(
     *,
     declared_author_intent: dict[str, Any] | None = None,
 ) -> CraftAnalysis:
+    """Derive all winner/alternative impacts, or explicitly mark the layer unavailable.
+
+    F4a still fails closed at the evidence boundary: malformed output is never
+    converted into a CraftImpact. At the orchestration boundary, however, an
+    unavailable teaching layer does not invalidate an already-qualified F3 winner.
+    """
+
     by_id = {candidate_output.candidate_id: candidate_output for candidate_output in candidate_outputs}
     if winner not in by_id:
         raise ValueError("craft analysis winner must be one of the surviving candidates")
@@ -263,17 +275,25 @@ def derive_craft_impacts(
 
     primary = by_id[winner]
     impacts: dict[str, CraftImpactRecord] = {}
-    for candidate_id, alternative in by_id.items():
-        if candidate_id == winner:
-            continue
-        impacts[candidate_id] = derive_craft_impact(
-            client,
-            primary,
-            alternative,
-            profiles[winner],
-            profiles[candidate_id],
-            premise_text,
-            declared_author_intent=declared_author_intent,
+    try:
+        for candidate_id, alternative in by_id.items():
+            if candidate_id == winner:
+                continue
+            impacts[candidate_id] = derive_craft_impact(
+                client,
+                primary,
+                alternative,
+                profiles[winner],
+                profiles[candidate_id],
+                premise_text,
+                declared_author_intent=declared_author_intent,
+            )
+    except Exception as exc:
+        return CraftAnalysis(
+            status="unavailable",
+            primary_candidate_id=winner,
+            impacts={},
+            unavailable_reason=str(exc),
         )
     return CraftAnalysis(
         status="complete",

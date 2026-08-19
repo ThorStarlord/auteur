@@ -1,8 +1,8 @@
 """Advisory convergence for Story Discovery.
 
 The existing Story Discovery search remains the source of candidates. This layer
-adds bounded causal qualification and one advisory comparative recommendation
-without promoting canonical state.
+adds bounded causal qualification, advisory comparative judgment, and grounded
+craft explanation without promoting canonical state.
 """
 
 from __future__ import annotations
@@ -66,11 +66,6 @@ def _normalize(value: Any) -> str:
 
 
 def _engine_signature(identity: Any) -> tuple[str, ...]:
-    """Return the exact normalized central-engine force tuple.
-
-    This remains deterministic exact-duplicate protection. Semantic near-
-    duplicate handling belongs to the separate F3 causal-diversity assessor.
-    """
     engine = identity.central_engine
     return tuple(
         _normalize(getattr(engine, field))
@@ -79,6 +74,7 @@ def _engine_signature(identity: Any) -> tuple[str, ...]:
 
 
 def _require_distinct_engines(candidate_outputs: list[Any]) -> None:
+    """Retain deterministic exact-force-tuple duplicate protection."""
     seen: dict[tuple[str, ...], str] = {}
     duplicates: list[str] = []
     for co in candidate_outputs:
@@ -155,10 +151,7 @@ def _build_judge_request(
         if value is not None
     }
     evidence = [
-        _candidate_evidence(
-            co,
-            causal_profile=(causal_profiles or {}).get(co.candidate_id),
-        )
+        _candidate_evidence(co, causal_profile=(causal_profiles or {}).get(co.candidate_id))
         for co in candidate_outputs
     ]
     user = (
@@ -235,8 +228,7 @@ def _candidate_by_id(candidate_outputs: list[Any], candidate_id: str) -> Any:
     matches = [co for co in candidate_outputs if co.candidate_id == candidate_id]
     if len(matches) != 1:
         raise ValueError(
-            f"candidate lookup for {candidate_id!r} expected exactly one match; "
-            f"found {len(matches)}"
+            f"candidate lookup for {candidate_id!r} expected exactly one match; found {len(matches)}"
         )
     return matches[0]
 
@@ -250,7 +242,6 @@ def _recommendation_surface_lines(
     output_dir: Path,
     requested_candidates: int,
 ) -> list[str]:
-    """Build the author-facing recommendation surface without changing state."""
     winner_output = _candidate_by_id(candidate_outputs, winner)
     identity = winner_output.identity
     target_experience = identity.target_experience.model_dump(mode="json")
@@ -300,8 +291,7 @@ def _recommendation_surface_lines(
     for co in candidate_outputs:
         if co.candidate_id == winner:
             continue
-        reason = rejected[co.candidate_id]
-        lines.append(f"- {co.identity.title} (`{co.candidate_id}`) — {reason}")
+        lines.append(f"- {co.identity.title} (`{co.candidate_id}`) — {rejected[co.candidate_id]}")
 
     lines.extend(
         [
@@ -316,12 +306,11 @@ def _recommendation_surface_lines(
         ]
     )
     for co in candidate_outputs:
-        if co.candidate_id == winner:
-            continue
-        lines.append(
-            "    auteur story-discovery accept "
-            f"{output_dir / (co.candidate_id + '.yaml')} --output story_identity.yaml"
-        )
+        if co.candidate_id != winner:
+            lines.append(
+                "    auteur story-discovery accept "
+                f"{output_dir / (co.candidate_id + '.yaml')} --output story_identity.yaml"
+            )
     lines.extend(
         [
             "",
@@ -343,11 +332,10 @@ def _resolve_premise(raw: str) -> str:
 
 
 def _refresh_project_contract(candidate_outputs: list[Any], args: Any) -> None:
-    """Keep project-local GenreContract authority intact for experiment evidence."""
     if args.project is None or args.genre is None:
         return
-    from auteur.genres.registry import load_project_genre_contract
     from auteur.cli_handlers import analyze_contract_fit
+    from auteur.genres.registry import load_project_genre_contract
 
     contract = load_project_genre_contract(args.project, args.genre.lower().strip())
     for co in candidate_outputs:
@@ -400,7 +388,7 @@ def _augment_artifacts(
 
 
 def dispatch_story_discovery_recommend(args: Any) -> int:
-    """Run Story Discovery search, qualify causal diversity, then recommend if justified."""
+    """Run search, qualify causal diversity, recommend, then teach grounded craft effects."""
     if args.candidates < 2:
         _err("Story Discovery --recommend requires --candidates >= 2 so a narrative search actually occurs.")
         return 1
@@ -417,12 +405,17 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
         non_adjudicable_surface_lines,
         persist_causal_analysis,
     )
+    from auteur.story_discovery_craft import derive_craft_impacts, persist_craft_analysis
+    from auteur.story_discovery_craft_surface import (
+        append_craft_comparison,
+        compact_craft_lines,
+        replace_generic_alternatives_with_craft,
+    )
 
     premise_text = _resolve_premise(args.brain_dump)
     base_client = build_client(args.provider, args.model, agent_type="identity")
-    generation_client = CausalGuidanceClient(base_client)
     result = handle_identity_recommend(
-        client=generation_client,
+        client=CausalGuidanceClient(base_client),
         premise_text=premise_text,
         genre=args.genre,
         medium=args.medium,
@@ -453,45 +446,45 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
     candidate_outputs = data.candidates
     if not candidate_outputs:
         _err("no Story Discovery candidate survived validation.")
-        print("Try revising the premise or constraints and run again.", file=sys.stderr)
         return 1
 
     winner: str | None = None
     rationale = ""
     rejected: dict[str, str] = {}
-    causal_analysis: CausalAnalysis
+    craft_analysis = None
     try:
         _refresh_project_contract(candidate_outputs, args)
         _require_distinct_engines(candidate_outputs)
         if len(candidate_outputs) == 1:
-            causal_analysis = CausalAnalysis(
-                status="not_applicable_single_survivor",
-                profiles={},
-            )
+            causal_analysis = CausalAnalysis(status="not_applicable_single_survivor", profiles={})
             winner, rationale, rejected = _single_survivor(
                 candidate_outputs[0].candidate_id,
                 args.candidates,
             )
         else:
-            profiles = derive_causal_profiles(
-                base_client,
-                candidate_outputs,
-                premise_text,
-            )
+            profiles = derive_causal_profiles(base_client, candidate_outputs, premise_text)
             causal_analysis = assess_causal_diversity(base_client, profiles)
             if causal_analysis.status == "qualified":
-                request = _build_judge_request(
-                    premise_text,
-                    candidate_outputs,
-                    genre=args.genre,
-                    medium=args.medium,
-                    mode=args.mode,
-                    causal_profiles=profiles,
+                response = base_client.complete(
+                    _build_judge_request(
+                        premise_text,
+                        candidate_outputs,
+                        genre=args.genre,
+                        medium=args.medium,
+                        mode=args.mode,
+                        causal_profiles=profiles,
+                    )
                 )
-                response = base_client.complete(request)
                 winner, rationale, rejected = _parse_judgment(
                     response.text,
                     [co.candidate_id for co in candidate_outputs],
+                )
+                craft_analysis = derive_craft_impacts(
+                    base_client,
+                    winner,
+                    candidate_outputs,
+                    profiles,
+                    premise_text,
                 )
     except Exception as exc:
         _err(f"Failed to produce comparative Story Discovery recommendation: {exc}")
@@ -516,6 +509,11 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
             output_dir=args.output,
             requested_candidates=args.candidates,
         )
+        if craft_analysis is not None:
+            surface_lines = replace_generic_alternatives_with_craft(
+                surface_lines,
+                compact_craft_lines(craft_analysis, profiles, candidate_outputs),
+            )
         _augment_artifacts(
             args.output,
             winner=winner,
@@ -523,6 +521,13 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
             rejected=rejected,
             surface_lines=surface_lines,
         )
+        if craft_analysis is not None:
+            persist_craft_analysis(
+                args.output,
+                craft_analysis,
+                artifact_names=("discovery_set.yaml", "discovery_report.yaml"),
+            )
+            append_craft_comparison(args.output, craft_analysis, profiles, candidate_outputs)
     else:
         surface_lines = non_adjudicable_surface_lines(
             causal_analysis,
