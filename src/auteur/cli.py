@@ -51,6 +51,14 @@ def _prepare_argv(argv: list[str] | None) -> tuple[list[str], bool]:
     return raw, recommend
 
 
+def _attach_story_discovery_brief(args: argparse.Namespace, brief_path: Path | None) -> None:
+    if args.command == "story-discovery" and args.story_discovery_command == "run":
+        # ``brief`` is scoped only to Story Discovery so it cannot clobber the
+        # unrelated genre-builder positional argument with the same attribute name.
+        setattr(args, "brief", brief_path)
+        setattr(args, "discovery_brief", brief_path)
+
+
 def main(argv: list[str] | None = None) -> int:
     try:
         raw, recommend, discovery_brief = _prepare_story_discovery_argv(argv)
@@ -60,8 +68,7 @@ def main(argv: list[str] | None = None) -> int:
 
     parser = build_parser()
     args = parser.parse_args(raw)
-    if args.command == "story-discovery" and args.story_discovery_command == "run":
-        setattr(args, "discovery_brief", discovery_brief)
+    _attach_story_discovery_brief(args, discovery_brief)
 
     if recommend:
         if discovery_brief is not None:
@@ -80,8 +87,7 @@ def main(argv: list[str] | None = None) -> int:
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     raw, recommend, discovery_brief = _prepare_story_discovery_argv(argv)
     args = build_parser().parse_args(raw)
-    if args.command == "story-discovery" and args.story_discovery_command == "run":
-        setattr(args, "discovery_brief", discovery_brief)
+    _attach_story_discovery_brief(args, discovery_brief)
     if recommend:
         setattr(args, "recommend", True)
     return args
