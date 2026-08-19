@@ -93,13 +93,26 @@ def replace_generic_alternatives_with_craft(
     base_lines: list[str],
     craft_lines: list[str],
 ) -> list[str]:
-    """Replace the generic alternative list while preserving authority/next commands."""
+    """Replace generic tradeoffs only when the richer craft analysis is complete.
+
+    When craft analysis is unavailable, preserve the already-qualified alternative
+    titles and rejection reasons. The fallback may add an explicit unavailable
+    note, but it must not erase useful comparison evidence merely because the
+    downstream craft explainer could not establish additional claims.
+    """
 
     try:
         start = base_lines.index("Alternatives")
         end = base_lines.index("Nothing has been accepted yet.", start)
     except ValueError:
         return [*base_lines, "", *craft_lines]
+
+    craft_unavailable = any(
+        "Detailed craft-impact explanation was unavailable" in line for line in craft_lines
+    )
+    if craft_unavailable:
+        return [*base_lines[:end], "", *craft_lines, "", *base_lines[end:]]
+
     prefix = base_lines[:start]
     suffix = base_lines[end:]
     return [*prefix, *craft_lines, "", *suffix]
