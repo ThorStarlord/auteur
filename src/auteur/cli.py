@@ -4,17 +4,20 @@ from __future__ import annotations
 
 import argparse
 import sys
+from pathlib import Path
 
 from auteur.cli_parser import build_parser
 from auteur.cli_dispatch import dispatch
 
 
-def _prepare_argv(argv: list[str] | None) -> tuple[list[str], bool]:
-    """Recognize the experimental Story Discovery convergence flag.
+_BRIEF_SENTINEL = "__auteur_structured_discovery_brief__"
 
-    The existing parser remains unchanged while the experiment is opt-in. Only
-    ``story-discovery run`` may consume ``--recommend``; every other command is
-    parsed exactly as before.
+
+def _prepare_argv(argv: list[str] | None) -> tuple[list[str], bool, Path | None]:
+    """Recognize Story Discovery convergence and structured-brief adapter flags.
+
+    ``--recommend`` and F2 ``--brief`` remain adapter flags so the ordinary parser
+    and non-recommend Story Discovery behavior stay backward-compatible.
     """
     raw = list(sys.argv[1:] if argv is None else argv)
     is_story_discovery_run = (
@@ -23,25 +26,48 @@ def _prepare_argv(argv: list[str] | None) -> tuple[list[str], bool]:
         and raw[1] == "run"
     )
     recommend = is_story_discovery_run and "--recommend" in raw
+    brief_path: Path | None = None
+
+    if is_story_discovery_run and "--brief" in raw:
+        if not recommend:
+            raise ValueError("story-discovery --brief currently requires --recommend")
+        if raw.count("--brief") != 1:
+            raise ValueError("story-discovery --brief may be supplied only once")
+        index = raw.index("--brief")
+        if index + 1 >= len(raw) or raw[index + 1].startswith("--"):
+            raise ValueError("story-discovery --brief requires a YAML file path")
+        brief_path = Path(raw[index + 1])
+        del raw[index:index + 2]
+        # The legacy parser still requires the raw brain_dump positional. F2 keeps
+        # the parser surface stable and uses this sentinel only inside the adapter.
+        raw.append(_BRIEF_SENTINEL)
+
     if recommend:
         raw = [token for token in raw if token != "--recommend"]
-    return raw, recommend
+    return raw, recommend, brief_path
 
 
 def main(argv: list[str] | None = None) -> int:
-    raw, recommend = _prepare_argv(argv)
+    try:
+        raw, recommend, brief_path = _prepare_argv(argv)
+    except ValueError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 2
+
     parser = build_parser()
     args = parser.parse_args(raw)
+    setattr(args, "brief", brief_path)
     if recommend:
-        from auteur.story_discovery_recommend import dispatch_story_discovery_recommend
+        from auteur.story_discovery_intent import dispatch_story_discovery_recommend
 
         return dispatch_story_discovery_recommend(args)
     return dispatch(args)
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    raw, recommend = _prepare_argv(argv)
+    raw, recommend, brief_path = _prepare_argv(argv)
     args = build_parser().parse_args(raw)
+    setattr(args, "brief", brief_path)
     if recommend:
         setattr(args, "recommend", True)
     return args
