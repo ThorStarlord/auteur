@@ -321,3 +321,36 @@ The affected v1.1 scenarios are rerun under the following identifiers:
 
 The complete persona and evaluator transcripts belong in the append-only v1.2
 section of the [stress simulation findings report](premise-to-story-identity-stress-simulation-findings.md).
+
+## v1.2 evidence storage
+
+The v1.2 evidence is organized into a concise
+[v1.2 simulation registry](premise-to-story-identity-stress-simulation-v1-2.md)
+and one standalone run record for each simulation in
+[`premise-to-story-identity-stress-simulation-runs/`](premise-to-story-identity-stress-simulation-runs/).
+
+The registry owns run discovery, fixed metadata, result summaries,
+cross-scenario findings, and the v1.2 decision. A run record owns the frozen
+premise, participant-facing packet, complete persona pass, separate evaluator
+pass, revision status, next creative decision, evaluator assessment, result,
+and any required protocol change.
+
+Every run record must include:
+
+- protocol, persona, evaluator, record type, run ID, date, and human-participant
+  count;
+- a simulation-only status statement;
+- the exact scenario and packet shown to the persona;
+- separate persona and evaluator transcripts;
+- an explicit proposal/canon boundary and author decision;
+- revision status and next creative decision or safe-stop continuation decision;
+- evaluator classification and rationale.
+
+Run records are append-only and use a new identifier for every rehearsal. A
+new protocol version is required when a guide, packet, prompt, persona, or
+evaluator changes. The historical full findings archive remains preserved; it
+is not rewritten or deleted when a standalone record is created.
+
+All registry and run records are synthetic simulation evidence. They must not
+be described as human participant research, creative-beginner validation, or
+product validation. No human participant data belongs in these records.
