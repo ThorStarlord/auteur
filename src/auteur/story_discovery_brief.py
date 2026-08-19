@@ -8,6 +8,7 @@ may propose inside a StoryIdentity candidate.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import yaml
 from pydantic import BaseModel, Field
@@ -43,9 +44,38 @@ class DiscoveryBrief(BaseModel):
         data = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
         return cls.model_validate(data)
 
+    @staticmethod
+    def _explicit_fields(model: BaseModel) -> dict[str, Any]:
+        return model.model_dump(
+            mode="json",
+            include=model.model_fields_set,
+            exclude_none=True,
+        )
+
     def declared_intent(self) -> dict[str, object]:
-        """Return only declared prior-author-intent evidence for prompts/artifacts."""
-        return self.model_dump(mode="json", exclude_none=True, exclude_defaults=True)
+        """Return only prior intent that was explicitly present in the brief.
+
+        This intentionally avoids serializing model defaults as author commitments.
+        The existing TargetExperience model may backfill compatibility fields during
+        validation; those fields can appear when needed to represent the same declared
+        promise, but unrelated omitted optional fields remain absent.
+        """
+        declared: dict[str, object] = {"premise": self.premise}
+        if self.story_type is not None:
+            story_type = self._explicit_fields(self.story_type)
+            if story_type:
+                declared["story_type"] = story_type
+        if self.target_experience is not None:
+            target_experience = self._explicit_fields(self.target_experience)
+            if target_experience:
+                declared["target_experience"] = target_experience
+        if self.architecture_preferences is not None:
+            preferences = self._explicit_fields(self.architecture_preferences)
+            if preferences:
+                declared["architecture_preferences"] = preferences
+        if "hard_constraints" in self.model_fields_set:
+            declared["hard_constraints"] = list(self.hard_constraints)
+        return declared
 
 
 class IntentAdequacy(BaseModel):
