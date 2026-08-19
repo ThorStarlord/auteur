@@ -13,11 +13,19 @@ from auteur.cli_dispatch import dispatch
 _BRIEF_SENTINEL = "__auteur_structured_discovery_brief__"
 
 
+def _raw_argv(argv: list[str] | None) -> list[str]:
+    return list(sys.argv[1:] if argv is None else argv)
+
+
+def _is_story_discovery_compose(raw: list[str]) -> bool:
+    return len(raw) >= 2 and raw[0] == "story-discovery" and raw[1] == "compose"
+
+
 def _prepare_story_discovery_argv(
     argv: list[str] | None,
 ) -> tuple[list[str], bool, Path | None]:
     """Recognize Story Discovery adapter flags without changing the base parser."""
-    raw = list(sys.argv[1:] if argv is None else argv)
+    raw = _raw_argv(argv)
     is_story_discovery_run = (
         len(raw) >= 2
         and raw[0] == "story-discovery"
@@ -60,8 +68,14 @@ def _attach_story_discovery_brief(args: argparse.Namespace, brief_path: Path | N
 
 
 def main(argv: list[str] | None = None) -> int:
+    raw_input = _raw_argv(argv)
+    if _is_story_discovery_compose(raw_input):
+        from auteur.story_discovery_compose_cli import dispatch_compose_argv
+
+        return dispatch_compose_argv(raw_input[2:])
+
     try:
-        raw, recommend, discovery_brief = _prepare_story_discovery_argv(argv)
+        raw, recommend, discovery_brief = _prepare_story_discovery_argv(raw_input)
     except ValueError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 2
@@ -85,7 +99,13 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    raw, recommend, discovery_brief = _prepare_story_discovery_argv(argv)
+    raw_input = _raw_argv(argv)
+    if _is_story_discovery_compose(raw_input):
+        from auteur.story_discovery_compose_cli import parse_compose_args
+
+        return parse_compose_args(raw_input[2:])
+
+    raw, recommend, discovery_brief = _prepare_story_discovery_argv(raw_input)
     args = build_parser().parse_args(raw)
     _attach_story_discovery_brief(args, discovery_brief)
     if recommend:
