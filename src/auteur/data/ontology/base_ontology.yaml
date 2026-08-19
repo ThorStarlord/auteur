@@ -1,7 +1,8 @@
 # Base Narrative Ontology
 # Core concepts that form the foundation of all narratives
-# 12 core concepts: Character, Arc, Theme, Goal, Conflict, Payoff, Symbol,
-#                   Relationship, Beat, Setup, Revelation, Reversal
+# 13 core concepts: Character, Arc, Theme, Goal, Conflict, Payoff, Symbol,
+#                   Relationship, Beat, Setup, Revelation, Reversal,
+#                   NarrativeArchitecturePreference
 
 concepts:
   Character:
@@ -328,8 +329,36 @@ concepts:
         error_message: Reversal is predictable or expected
         applies_to: [netorare, mystery, gentlefemdom]
 
+  NarrativeArchitecturePreference:
+    name: NarrativeArchitecturePreference
+    definition: An authorial preference describing how narrative machinery should be composed, including complexity density, causal distribution, and hierarchy among engines. It is distinct from genre, target experience, premise content, and any particular story engine.
+    category: base
+    parent_concepts: []
+    relationships: []
+    validation_rules:
+      - rule_id: architecture_preference_is_optional
+        condition: Every architecture-preference dimension may remain unspecified until the author makes an explicit commitment
+        error_message: Unspecified architecture preference was silently converted into a concrete value
+        applies_to: [identity]
+      - rule_id: architecture_preference_dimensions_are_independent
+        condition: Complexity, causal distribution, and engine hierarchy are independently optional dimensions
+        error_message: One architecture-preference dimension was inferred solely from another dimension
+        applies_to: [identity]
+    metadata:
+      dimensions:
+        complexity:
+          definition: Preferred density of simultaneously active narrative machinery
+          values: [focused, layered, maximalist]
+        causal_distribution:
+          definition: Preferred distribution of meaningful causes behind important outcomes
+          values: [concentrated, layered, mixed]
+        engine_hierarchy:
+          definition: Preferred hierarchy among multiple narrative engines or causal systems
+          values: [single_center, primary_with_layers, ensemble]
+      unknown_semantics: Omission means UNKNOWN / no author commitment; it is never a hidden default.
+
 metadata:
-  version: "1.0"
-  last_updated: "2026-07-12"
+  version: "1.1"
+  last_updated: "2026-08-19"
   description: "Core narrative concepts that form the foundation of all narrative structures"
-  concept_count: 12
+  concept_count: 13
