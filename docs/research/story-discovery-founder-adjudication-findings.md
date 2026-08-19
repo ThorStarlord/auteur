@@ -2,7 +2,7 @@
 
 ## Status
 
-In progress. Four founder cases have been adjudicated. The research PR remains draft until the remaining cases are reviewed and the final pattern analysis is recorded.
+In progress. Five founder cases have been reviewed. Cases 1–4 have a settled classification; Case 5 produced a recommendation-surface refinement and remains conceptually promising rather than being forced into a premature pass / fail label. The research PR remains draft until Case 6 and final pattern analysis are complete.
 
 ## Evidence boundary
 
@@ -65,6 +65,32 @@ The intended hierarchy remains important:
 > one primary engine governs the reader promise; compatible secondary mechanisms may deepen motive, obstruction, consequence, or reversal without displacing that engine.
 
 This makes composition a first-class research possibility without collapsing all candidates into one undifferentiated hybrid.
+
+## Protocol amendment after Case 5
+
+Case 5 exposed a third surface-level requirement: `What you gain / What you give up` is not sufficiently educational if it only summarizes outcomes such as “more intimate,” “more institutional,” or “more complex.”
+
+The founder wants the recommendation to identify **which creative-writing layer is being changed** and teach how that change propagates into the actual book.
+
+Phase E therefore distinguishes:
+
+1. **author intent** — genre promise, audience, target emotion, constraints, maximalism / mixed-causation preferences;
+2. **primary causal engine** — what system of forces repeatedly converts intention into conflict, consequence, escalation, and resolution;
+3. **agency / causal ownership** — who or what carries decisive causal weight;
+4. **external action pattern** — what the characters repeatedly do;
+5. **pressure system** — what makes those actions difficult and escalating;
+6. **scene texture** — the recurring kinds and experiential quality of scenes the author will actually write;
+7. **aesthetic / tonal framing** — how those scenes are interpreted at the genre / style level;
+8. **reader experience** — the emotional progression those choices tend to generate;
+9. **thematic consequence** — what the resulting pattern comes to mean.
+
+The causal engine is not identical to external acts, texture, aesthetic framing, or reader emotion. It is generally upstream of them, while target experience is also an upstream author constraint when comparing candidate engines.
+
+The desired explanatory chain is:
+
+> craft layer changed → different causal ownership / protagonist verbs → different scene families and pressure → different texture / aesthetic → different reader emotion → different thematic implication.
+
+This is classified as a **RATIONALE / SURFACE TEACHING SIGNAL**, not yet as a production defect. The final Phase E synthesis should decide whether the pattern is strong enough to warrant a dedicated implementation phase.
 
 ## Case 1 — retired astronaut / mission-control chatter
 
@@ -205,14 +231,46 @@ Case 4 supports the causal-distinctness correction introduced after Case 3: once
 
 It also strengthens the composition signal from Case 2. The founder is not merely asking to merge arbitrary alternatives; the declared preference is for layered, mixed causation under a legible primary engine.
 
+## Case 5 — protagonist never learns the brother caused the disaster
+
+### Simulated author brief
+
+- **Primary genre:** character-driven dramatic thriller / family tragedy with strong dramatic irony.
+- **Target audience:** adult readers who enjoy morally complicated relationships, asymmetrical knowledge, consequential secrets, and external success without complete emotional closure.
+- **Target emotion:** suspicion → reader dread as the truth becomes clear → hope that the protagonist can still succeed → painful dramatic irony → bittersweet, morally unresolved catharsis.
+- **Hard constraints:** the brother caused the disaster; the protagonist never learns this; the reader knows by approximately the midpoint; the external goal resolves; the protagonist's arc cannot depend on discovering an equivalent truth.
+- **Complexity preference:** maximalist.
+- **Causation preference:** mixed causation.
+
+### Simulated recommendation
+
+`What She Saves` was presented as the primary protagonist-recovery engine, with `His Quiet Repair` as a possible brother-attribution / atonement layer and `The Official Cause` as a possible institutional / epistemic layer.
+
+### Founder response
+
+The founder liked the composite idea but found the recommendation surface insufficiently educational. `What you gain / What you give up` should teach **what creative-writing layer is changing**, not just describe high-level pros and cons.
+
+The founder specifically asked whether the causal engine refers to external acts / story texture and how changing that engine alters aesthetic framing and the emotions experienced by the audience.
+
+### Research classification
+
+**CONCEPTUALLY PROMISING with RATIONALE / SURFACE TEACHING SIGNAL.**
+
+The case should not be forced into a final pass / failure label yet. The response indicates that causal hierarchy and composition are useful, but the explanatory surface needs to show the author the propagation from architecture to craft:
+
+> causal engine / ownership → external acts → pressure → scene texture → aesthetic / tone → reader emotion → thematic meaning.
+
+This is important because the StoryIdentity model already separates central engine from story type / audience and target experience. Phase E suggests that the product surface should teach authors how those layers interact rather than collapse them into a single vague “tradeoff.”
+
 ## Emerging Phase E signals
 
-After four cases:
+After five reviewed cases:
 
 1. **Intent adequacy is a prerequisite for comparative “best.”** A sparse premise may support exploration, but not necessarily a justified author-intent-optimal recommendation.
 2. **Narrative-engine diversity must be causal, not merely rhetorical.** Different labels, themes, or framings are insufficient when the protagonist’s external strategy and major scene chain remain substantially the same.
 3. **Authorial complexity preference belongs in the initial brief.** For this founder, maximalism and mixed causation materially affect what counts as the strongest architecture and should be available to the comparator as author intent rather than inferred from candidate outputs.
 4. **Meaningful alternatives can be composable rather than mutually exclusive.** Auteur may eventually benefit from a post-recommendation operation such as “keep this engine, borrow these mechanisms.”
 5. **Composition requires hierarchy.** One primary engine should continue to govern the reader promise while secondary mechanisms deepen causation, motive, obstruction, or reversal.
-6. **Strong recommendation and author authority remain compatible.** The founder has not reported coercive authority tone in the adjudicated cases.
-7. **No production change is justified yet.** The intent gap, causal-distinctness criterion, maximalism / mixed-causation preference, and composition opportunity are now strong signals, but Phase E should complete the remaining high-information cases before routing implementation work.
+6. **Recommendation tradeoffs should teach craft-layer propagation.** The surface should explain not merely what is gained or lost, but which layer changes and how that change affects protagonist verbs, scene families, pressure, texture, emotion, and theme.
+7. **Strong recommendation and author authority remain compatible.** The founder has not reported coercive authority tone in the reviewed cases.
+8. **No production change is justified yet.** The intent gap, causal-distinctness criterion, maximalism / mixed-causation preference, composition opportunity, and craft-teaching requirement are now strong signals, but Phase E should complete Case 6 before routing implementation work.
