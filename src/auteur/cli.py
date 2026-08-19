@@ -13,12 +13,10 @@ from auteur.cli_dispatch import dispatch
 _BRIEF_SENTINEL = "__auteur_structured_discovery_brief__"
 
 
-def _prepare_argv(argv: list[str] | None) -> tuple[list[str], bool, Path | None]:
-    """Recognize Story Discovery convergence and structured-brief adapter flags.
-
-    ``--recommend`` and F2 ``--brief`` remain adapter flags so the ordinary parser
-    and non-recommend Story Discovery behavior stay backward-compatible.
-    """
+def _prepare_story_discovery_argv(
+    argv: list[str] | None,
+) -> tuple[list[str], bool, Path | None]:
+    """Recognize Story Discovery adapter flags without changing the base parser."""
     raw = list(sys.argv[1:] if argv is None else argv)
     is_story_discovery_run = (
         len(raw) >= 2
@@ -39,7 +37,7 @@ def _prepare_argv(argv: list[str] | None) -> tuple[list[str], bool, Path | None]
         brief_path = Path(raw[index + 1])
         del raw[index:index + 2]
         # The legacy parser still requires the raw brain_dump positional. F2 keeps
-        # the parser surface stable and uses this sentinel only inside the adapter.
+        # that parser contract intact and uses this sentinel only inside the adapter.
         raw.append(_BRIEF_SENTINEL)
 
     if recommend:
@@ -47,27 +45,43 @@ def _prepare_argv(argv: list[str] | None) -> tuple[list[str], bool, Path | None]
     return raw, recommend, brief_path
 
 
+def _prepare_argv(argv: list[str] | None) -> tuple[list[str], bool]:
+    """Preserve the qualified Phase A adapter contract for existing callers/tests."""
+    raw, recommend, _ = _prepare_story_discovery_argv(argv)
+    return raw, recommend
+
+
 def main(argv: list[str] | None = None) -> int:
     try:
-        raw, recommend, brief_path = _prepare_argv(argv)
+        raw, recommend, discovery_brief = _prepare_story_discovery_argv(argv)
     except ValueError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 2
 
     parser = build_parser()
     args = parser.parse_args(raw)
-    setattr(args, "brief", brief_path)
+    if args.command == "story-discovery" and args.story_discovery_command == "run":
+        setattr(args, "discovery_brief", discovery_brief)
+
     if recommend:
-        from auteur.story_discovery_intent import dispatch_story_discovery_recommend
+        if discovery_brief is not None:
+            from auteur.story_discovery_intent import dispatch_story_discovery_recommend
+
+            return dispatch_story_discovery_recommend(args)
+
+        # Raw-premise recommendation stays on the already-qualified Phase A/B
+        # adapter. F2 adds intent-aware ranking without changing legacy raw behavior.
+        from auteur.story_discovery_recommend import dispatch_story_discovery_recommend
 
         return dispatch_story_discovery_recommend(args)
     return dispatch(args)
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    raw, recommend, brief_path = _prepare_argv(argv)
+    raw, recommend, discovery_brief = _prepare_story_discovery_argv(argv)
     args = build_parser().parse_args(raw)
-    setattr(args, "brief", brief_path)
+    if args.command == "story-discovery" and args.story_discovery_command == "run":
+        setattr(args, "discovery_brief", discovery_brief)
     if recommend:
         setattr(args, "recommend", True)
     return args
