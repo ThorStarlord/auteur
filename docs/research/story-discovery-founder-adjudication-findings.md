@@ -2,7 +2,7 @@
 
 ## Status
 
-In progress. Two founder cases have been adjudicated. The research PR remains draft until the remaining cases are reviewed and the final pattern analysis is recorded.
+In progress. Three founder cases have been adjudicated. The research PR remains draft until the remaining cases are reviewed and the final pattern analysis is recorded.
 
 ## Evidence boundary
 
@@ -34,6 +34,20 @@ This is distinct from **False choice**, which is reserved for cases where the di
 A new failure class is therefore recognized:
 
 - **CONTEXT / INTENT FAILURE** — the recommendation problem is under-specified relative to the author’s desired genre promise, audience, target experience, or hard constraints.
+
+## Protocol amendment after Case 3
+
+Case 3 exposed a second missing condition: candidate alternatives can sound different while remaining too similar at the level of external causal action.
+
+Phase E therefore adds a stronger **narrative-engine distinctness** criterion:
+
+> Two candidates are not meaningfully distinct merely because they use different thematic framing, metaphors, institutional vocabulary, or stated advantages. A materially different narrative engine should change the causal strategy by which the protagonist pursues the central objective, and therefore imply different major actions, obstacles, reversals, and climax mechanics.
+
+A useful diagnostic shorthand is:
+
+> Different engine ≠ different interpretation. Different engine = different causal strategy producing meaningfully different scene pressure and resolution mechanics.
+
+This does not require candidates to share no ingredients. It requires their **primary causal engines** to be separable enough that an author is choosing among genuinely different stories rather than differently framed versions of the same operational plan.
 
 ## Case 1 — retired astronaut / mission-control chatter
 
@@ -102,11 +116,51 @@ For this case, a coherent composition would be:
 
 The hierarchy matters. Treating all three as equal centers could blur the fair-play impossible-crime promise; treating the latter two as subordinate causal layers preserves the brief while supporting a more maximalist story.
 
+## Case 3 — no-stealing / no-lying museum heist
+
+### Simulated author brief
+
+- **Primary genre:** constraint-driven ensemble heist / caper.
+- **Target audience:** adult readers who enjoy elaborate plans, specialized team roles, procedural ingenuity, reversals, and clever exploitation of rules.
+- **Target emotion:** impossible constraint → fascination with the plan → escalating operational pressure → exhilarating public reversal.
+- **Hard constraints:** nothing may be stolen or permanently removed; nobody on the crew knowingly makes a false statement; the crew must defeat the corrupt museum director through an orchestrated operation; the museum itself should be essential to the scheme.
+
+### Simulated recommendation
+
+`Nothing Missing` was recommended over `Open House` and `The Honest Con`.
+
+### Founder response
+
+The founder liked the overall idea but could not identify sufficiently concrete differences among the alternatives. The key question was whether the options differed in **actual external acts** or merely in aesthetic / interpretive framing.
+
+The founder’s reading was especially that `Nothing Missing` and `Open House` could collapse into essentially the same operational chain:
+
+> gain access → uncover or surface records → authenticate evidence → maneuver the institution into revealing it → expose the director publicly.
+
+`The Honest Con` was somewhat more distinct because its external sequence could center on staging an exhibition, manipulating expectations without false statements, provoking the director, and causing self-exposure.
+
+### Research classification
+
+**PARTIAL FALSE CHOICE / SEARCH–CHOICE WEAKNESS.**
+
+The candidate set is differentiated rhetorically more strongly than it is differentiated causally. This is not yet a clean three-way narrative-engine choice.
+
+The recommendation itself may still be defensible, but the search space is too compressed for the founder to evaluate it as a strong comparative recommendation.
+
+A stronger version of the candidate set would differ at the level of primary verbs and climax mechanics, for example:
+
+1. **Evidence engine:** retrieve → authenticate → connect → disclose; climax is an irrefutable provenance proof.
+2. **Systems engine:** schedule → trigger → constrain → force choice; climax is the director being trapped by mutually incompatible institutional obligations.
+3. **Social-engineering engine:** stage → misdirect → provoke → expose; climax is the director incriminating himself through his response to a truthful operation.
+
+Those options could still share the same premise and constraints while producing materially different major scenes, obstacle structures, and climax forms.
+
 ## Emerging Phase E signals
 
-After two cases:
+After three cases:
 
 1. **Intent adequacy is a prerequisite for comparative “best.”** A sparse premise may support exploration, but not necessarily a justified author-intent-optimal recommendation.
-2. **Meaningful alternatives can be composable rather than mutually exclusive.** Auteur may eventually benefit from a post-recommendation operation such as “keep this engine, borrow these mechanisms.”
-3. **Strong recommendation and author authority are compatible.** In both cases the founder found the recommendation understandable and non-coercive.
-4. **No production change is justified yet.** The intent gap is a strong signal from Case 1, and composition is an opportunity from Case 2, but Phase E should complete the remaining high-information cases before routing implementation work.
+2. **Narrative-engine diversity must be causal, not merely rhetorical.** Different labels, themes, or institutional framings are insufficient when the protagonist’s external strategy and major scene chain remain substantially the same.
+3. **Meaningful alternatives can be composable rather than mutually exclusive.** Auteur may eventually benefit from a post-recommendation operation such as “keep this engine, borrow these mechanisms.”
+4. **Strong recommendation and author authority remain compatible.** Cases 1 and 2 both showed that Auteur can sound opinionated without making disagreement feel wrong.
+5. **No production change is justified yet.** The intent gap and causal-distinctness criterion are now strong research signals, while composition remains an opportunity. Phase E should complete the remaining high-information cases before routing implementation work.
