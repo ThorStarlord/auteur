@@ -32,24 +32,31 @@ has not been accepted yet.
 # 1. Ask Auteur what to do next
 auteur workflow next .
 
-# 2. Explore multiple viable narrative engines and receive an advisory recommendation
-auteur story-discovery run <premise-or-file> --recommend --output story_discovery --project .
+# 2. Tell Auteur what story you are trying to write. This creates/resumes
+#    story_discovery/brief.yaml; it does not create canonical story state.
+auteur story-discovery start --project .
 
-# 3. Ask again after discovery; Auteur now points to the recommended candidate
+# 3. Ask again. Once the brief has genre/reader promise, audience, and a
+#    governing target experience, workflow routes to intent-aware discovery.
 auteur workflow next .
 
-# 4. Review the comparison before deciding
+# 4. Run the recommended intent-aware Story Discovery search.
+auteur story-discovery run --brief story_discovery/brief.yaml --recommend --output story_discovery --project .
+
+# 5. Review the comparison before deciding
 #    story_discovery/comparison.md
 
-# 5. Explicitly accept the direction you choose
+# 6. Explicitly accept the direction you choose
 auteur story-discovery accept story_discovery/candidate_X.yaml --output story_identity.yaml
 
-# 6. Verify the workflow advances to Structure
+# 7. Verify the workflow advances to Structure
 auteur workflow next .
 ```
 
 Authority invariant:
 
+- Guided brief capture is non-canonical and never requires an LLM provider.
+- `workflow next --execute` must not answer guided author-intent questions.
 - Story Discovery search and recommendation are advisory and non-canonical.
 - `workflow next --execute` must not auto-accept a Story Discovery candidate.
 - `story_identity.yaml` becomes canonical only when the author explicitly runs
@@ -140,6 +147,7 @@ auteur scene publish --project .
 | `auteur dashboard` | Broad project overview |
 | `auteur workflow next` | One authoritative next action |
 | `auteur workflow explain` | Why that action is recommended |
+| `auteur story-discovery start` | Create or resume the non-canonical guided Discovery Brief |
 | `auteur story-discovery run ... --recommend` | Explore narrative engines and receive an advisory recommendation |
 | `auteur story-discovery accept` | Explicitly promote the chosen Story Discovery candidate to canonical identity |
 | `auteur structure diagnose` | Detect structural weaknesses |

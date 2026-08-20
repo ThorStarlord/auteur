@@ -152,6 +152,10 @@ class WorkflowEngine:
 
         actions = recommend_actions(stages, decisions=decisions, lifecycle=lifecycle_data,
                                     commitment=commitment_data, project_root=self.root)
+        if cs is not None and cs.value == "identity" and not decisions:
+            from auteur.story_discovery_workflow import apply_story_discovery_workflow_routing
+
+            actions = apply_story_discovery_workflow_routing(self.root, actions)
         gather_status(self.root)
 
         summary = self._build_summary(stages, cs, blockers, lifecycle=lifecycle_data,
@@ -230,7 +234,7 @@ class WorkflowEngine:
             cs_completed = cm.get("completed_steps", 0)
             cs_total = cm.get("total_steps", 0)
             if cs_total > 0:
-                cm_parts.append(f"execution {cs_completed}/{cs_total}")
+                cm_parts.append(f"execution {cs_completed}/{cs_total} steps")
             summary += " | " + ", ".join(cm_parts)
 
         return summary

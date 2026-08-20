@@ -84,8 +84,29 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(raw)
     _attach_story_discovery_brief(args, discovery_brief)
 
+    if args.command == "story-discovery" and args.story_discovery_command == "start":
+        from auteur.story_discovery_guidance import dispatch_story_discovery_start
+
+        return dispatch_story_discovery_start(args)
+
     if recommend:
         if discovery_brief is not None:
+            # G1a keeps the F2 engine unchanged but replaces its schema-first recovery
+            # at the real CLI boundary. This preflight is deterministic and happens
+            # before any provider can be constructed.
+            from auteur.story_discovery_brief import DiscoveryBrief, assess_intent_adequacy
+            from auteur.story_discovery_guidance import print_inadequate_brief_recovery
+
+            try:
+                parsed_brief = DiscoveryBrief.from_yaml(discovery_brief)
+            except Exception:
+                parsed_brief = None
+            if parsed_brief is not None:
+                adequacy = assess_intent_adequacy(parsed_brief)
+                if not adequacy.adequate:
+                    print_inadequate_brief_recovery(adequacy)
+                    return 1
+
             from auteur.story_discovery_intent import dispatch_story_discovery_recommend
 
             return dispatch_story_discovery_recommend(args)
