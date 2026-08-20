@@ -277,6 +277,14 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("story-discovery",
         help="Explore narrative interpretations before promoting a story identity.")
     sds = p.add_subparsers(dest="story_discovery_command", required=True)
+    p = sds.add_parser("start",
+        help="Create or resume a guided, non-canonical Story Discovery brief.")
+    p.add_argument("--project", type=Path, default=Path("."),
+        help="Project root directory (default: current directory).")
+    p.add_argument("--brief", type=Path, default=None,
+        help="Working brief path relative to the project (default: story_discovery/brief.yaml).")
+    p.add_argument("--premise", type=str, default=None,
+        help="Preseed a new brief with premise text or a premise file.")
     p = sds.add_parser("run",
         help="Generate StoryIdentity candidates and an architectural comparison.")
     p.add_argument("brain_dump", type=str,
