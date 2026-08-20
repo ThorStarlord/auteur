@@ -43,8 +43,8 @@ auteur workflow next .
 # 4. Run the recommended intent-aware Story Discovery search.
 auteur story-discovery run --brief story_discovery/brief.yaml --recommend --output story_discovery --project .
 
-# 5. Review the comparison before deciding
-#    story_discovery/comparison.md
+# 5. Reconstruct the current recommendation and evidence in writer language.
+auteur story-discovery review --project .
 
 # 6. Explicitly accept the direction you choose
 auteur story-discovery accept story_discovery/candidate_X.yaml --output story_identity.yaml
@@ -58,6 +58,8 @@ Authority invariant:
 - Guided brief capture is non-canonical and never requires an LLM provider.
 - `workflow next --execute` must not answer guided author-intent questions.
 - Story Discovery search and recommendation are advisory and non-canonical.
+- Story Discovery review is deterministic, read-only, provider-free, and never
+  changes which candidate is canonical.
 - `workflow next --execute` must not auto-accept a Story Discovery candidate.
 - `story_identity.yaml` becomes canonical only when the author explicitly runs
   `story-discovery accept` for the chosen candidate.
@@ -102,6 +104,24 @@ or the primary reader experience may intentionally make the brief incomplete
 again. Because intent-aware Story Discovery compares persisted declared intent
 by content, a real edit also makes an older structured recommendation stale.
 Nothing becomes canonical until explicit `story-discovery accept`.
+
+### Review without opening machine artifacts
+
+After an adjudicable Story Discovery run, use:
+
+```bash
+auteur story-discovery review --project .
+```
+
+The review reconstructs the persisted recommendation, causal mechanics, reader
+experience, craft tradeoffs, compatible subordinate mechanisms, and any current
+composed candidate. It does not call an LLM and it does not write project files.
+If the causal analysis is near-duplicate or uncertain, review says that there is
+no defensible recommendation instead of manufacturing a winner.
+
+`story_discovery/comparison.md` and the YAML artifacts remain available for
+diagnostics and scripting, but writers do not need to open them for the normal
+review journey.
 
 ## Journey A — Repair a chapter-level structural problem
 
@@ -192,6 +212,7 @@ auteur scene publish --project .
 | `auteur story-discovery start --refine` | Optionally add richer declared intent without inventing unknowns |
 | `auteur story-discovery start --edit` | Edit or clear previously declared Story Discovery intent |
 | `auteur story-discovery run ... --recommend` | Explore narrative engines and receive an advisory recommendation |
+| `auteur story-discovery review` | Reconstruct current Story Discovery evidence in writer language, read-only |
 | `auteur story-discovery accept` | Explicitly promote the chosen Story Discovery candidate to canonical identity |
 | `auteur structure diagnose` | Detect structural weaknesses |
 | `auteur structure propose-repairs` | Generate repair proposals |

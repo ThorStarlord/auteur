@@ -25,6 +25,10 @@ def _is_story_discovery_compose(raw: list[str]) -> bool:
     return len(raw) >= 2 and raw[0] == "story-discovery" and raw[1] == "compose"
 
 
+def _is_story_discovery_review(raw: list[str]) -> bool:
+    return len(raw) >= 2 and raw[0] == "story-discovery" and raw[1] == "review"
+
+
 def _prepare_story_discovery_argv(
     argv: list[str] | None,
 ) -> tuple[list[str], bool, Path | None]:
@@ -81,6 +85,10 @@ def main(argv: list[str] | None = None) -> int:
         from auteur.story_discovery_compose_cli import dispatch_compose_argv
 
         return dispatch_compose_argv(raw_input[2:])
+    if _is_story_discovery_review(raw_input):
+        from auteur.story_discovery_review_cli import dispatch_review_argv
+
+        return dispatch_review_argv(raw_input[2:])
 
     try:
         raw, recommend, discovery_brief = _prepare_story_discovery_argv(raw_input)
@@ -132,6 +140,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         from auteur.story_discovery_compose_cli import parse_compose_args
 
         return parse_compose_args(raw_input[2:])
+    if _is_story_discovery_review(raw_input):
+        from auteur.story_discovery_review_cli import parse_review_args
+
+        return parse_review_args(raw_input[2:])
 
     raw, recommend, discovery_brief = _prepare_story_discovery_argv(raw_input)
     args = build_parser().parse_args(raw)
