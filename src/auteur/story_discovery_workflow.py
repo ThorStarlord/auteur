@@ -8,6 +8,15 @@ from auteur.story_discovery_state import StoryDiscoveryStateKind, classify_story
 from auteur.workflow.models import AuthorityLevel, WorkflowAction
 
 
+def _review_action(label: str, description: str) -> WorkflowAction:
+    return WorkflowAction(
+        label=label,
+        command="auteur story-discovery review --project .",
+        authority=AuthorityLevel.READ_ONLY,
+        description=description,
+    )
+
+
 def _front_door_action(root: Path) -> WorkflowAction:
     state = classify_story_discovery_project(root)
 
@@ -31,11 +40,34 @@ def _front_door_action(root: Path) -> WorkflowAction:
                 "questions required for intent-aware recommendation."
             ),
         )
+    if state.kind is StoryDiscoveryStateKind.NON_ADJUDICABLE:
+        return _review_action(
+            "Review why Auteur cannot recommend a direction yet",
+            (
+                "Read the persisted causal evidence and recovery options. Review never "
+                "manufactures a winner or changes canonical state."
+            ),
+        )
+    if state.kind is StoryDiscoveryStateKind.COMPOSED_CANDIDATE_AVAILABLE:
+        return _review_action(
+            "Review composed story direction",
+            (
+                "Compare the composed candidate with its governing primary and inspect "
+                "the persisted hierarchy evidence before deciding."
+            ),
+        )
+    if state.kind is StoryDiscoveryStateKind.RECOMMENDATION_AVAILABLE:
+        return _review_action(
+            "Review recommended story direction",
+            (
+                "Reconstruct the advisory recommendation, causal mechanics, and craft "
+                "tradeoffs before any explicit acceptance decision."
+            ),
+        )
     if (
         state.brief_state.value == "adequate"
         and state.kind in {
             StoryDiscoveryStateKind.READY_TO_DISCOVER,
-            StoryDiscoveryStateKind.NON_ADJUDICABLE,
             StoryDiscoveryStateKind.DISCOVERY_INVALID,
         }
     ):
@@ -49,21 +81,6 @@ def _front_door_action(root: Path) -> WorkflowAction:
             description=(
                 "Run intent-aware Story Discovery against the current working brief. "
                 "Canonical state remains unchanged."
-            ),
-        )
-    if state.has_recommendation:
-        assert state.recommended_candidate_id is not None
-        return WorkflowAction(
-            label="Choose recommended story direction",
-            command=(
-                "auteur story-discovery accept "
-                f"story_discovery/{state.recommended_candidate_id}.yaml "
-                "--output story_identity.yaml"
-            ),
-            authority=AuthorityLevel.AUTHORITY_BEARING,
-            description=(
-                "Review the Story Discovery recommendation and explicitly accept it "
-                "to make the selected StoryIdentity canonical."
             ),
         )
     return WorkflowAction(

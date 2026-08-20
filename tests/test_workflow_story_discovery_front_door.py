@@ -1,4 +1,4 @@
-"""Story Discovery front-door controls across generic rules and G1a engine routing."""
+"""Story Discovery front-door controls across generic rules and derived routing."""
 
 from __future__ import annotations
 
@@ -29,11 +29,38 @@ def _write_brief(root: Path, *, experience: str = "claustrophobic suspicion") ->
     return DiscoveryBrief.from_yaml(path)
 
 
+def _profile(key: str) -> dict:
+    return {
+        "primary_strategy": "investigation under social pressure",
+        "causal_owner": "ensemble",
+        "external_action_pattern": ["interrogate", "test alibis"],
+        "pressure_system": "mutual suspicion",
+        "reversal_mechanics": ["evidence reframes motive"],
+        "climax_mechanic": "forced reconstruction",
+        "scene_families": ["interrogations", "locked-room tests"],
+        "evidence_gaps": [],
+        "evidence_key": key,
+    }
+
+
+def _causal(status: str) -> dict:
+    return {
+        "schema_version": 1,
+        "status": status,
+        "profiles": {
+            "candidate_1": _profile("aaaaaaaa11111111"),
+            "candidate_2": _profile("bbbbbbbb22222222"),
+        },
+        "pairwise_assessments": [],
+    }
+
+
 def _write_recommendation(
     root: Path,
     winner: str = "candidate_2",
     *,
     brief: DiscoveryBrief | None = None,
+    causal_status: str | None = None,
 ) -> None:
     discovery = root / "story_discovery"
     payload = {"recommended_candidate_id": winner}
@@ -44,8 +71,34 @@ def _write_recommendation(
                 "declared_author_intent": brief.declared_intent(),
             }
         )
+    if causal_status is not None:
+        payload["causal_analysis"] = _causal(causal_status)
     _write_yaml(discovery / "discovery_set.yaml", payload)
     _write_yaml(discovery / f"{winner}.yaml", {"title": "Recommended direction"})
+
+
+def _write_composition(root: Path) -> None:
+    _write_yaml(root / "story_discovery" / "composed_candidate.yaml", {"title": "Composed"})
+    _write_yaml(
+        root / "story_discovery" / "composition_report.yaml",
+        {
+            "schema_version": 1,
+            "status": "candidate_only",
+            "primary_candidate_id": "candidate_1",
+            "borrowed": [{"candidate_id": "candidate_2", "mechanism": "family obligation"}],
+            "primary_evidence_key": "aaaaaaaa11111111",
+            "borrowed_evidence_keys": {"candidate_2": "bbbbbbbb22222222"},
+            "hierarchy_assessment": {
+                "classification": "primary_preserved",
+                "rationale": "The investigation still governs decisive causation.",
+                "primary_mechanics_preserved": ["investigation"],
+                "borrowed_mechanics_subordinate": ["family conflict"],
+                "risks": [],
+            },
+            "composed_causal_profile": _profile("cccccccc33333333"),
+            "output_candidate": "story_discovery/composed_candidate.yaml",
+        },
+    )
 
 
 def test_generic_rule_layer_preserves_legacy_raw_discovery_action(tmp_path: Path) -> None:
@@ -83,34 +136,27 @@ def test_fresh_project_engine_routes_to_guided_capture_and_refuses_auto_answer(
     assert "requires author decision" in result["error"]
 
 
-def test_existing_raw_recommendation_still_routes_to_explicit_acceptance(tmp_path: Path) -> None:
+def test_existing_raw_recommendation_routes_to_read_only_review(tmp_path: Path) -> None:
     root = tmp_path / "recommended"
     root.mkdir()
     _write_recommendation(root, "candidate_2")
 
     action = WorkflowEngine(root).analyze().actions[0]
 
-    assert action.label == "Choose recommended story direction"
-    assert action.authority == AuthorityLevel.AUTHORITY_BEARING
-    assert action.command == (
-        "auteur story-discovery accept story_discovery/candidate_2.yaml "
-        "--output story_identity.yaml"
-    )
+    assert action.label == "Review recommended story direction"
+    assert action.authority == AuthorityLevel.READ_ONLY
+    assert action.command == "auteur story-discovery review --project ."
 
 
-def test_acceptance_action_cannot_auto_promote_canon(tmp_path: Path) -> None:
+def test_review_routing_never_surfaces_an_acceptance_command(tmp_path: Path) -> None:
     root = tmp_path / "recommended"
     root.mkdir()
     _write_recommendation(root)
     engine = WorkflowEngine(root)
     action = engine.analyze().actions[0]
 
-    result = engine.execute(action)
-
-    assert action.authority == AuthorityLevel.AUTHORITY_BEARING
-    assert result["executed"] is False
-    assert result["exit_code"] == 4
-    assert "requires author decision" in result["error"]
+    assert engine.can_execute(action) is True
+    assert "story-discovery accept" not in action.command
     assert not (root / "story_identity.yaml").exists()
 
 
@@ -194,7 +240,7 @@ def test_changed_declared_intent_makes_prior_intent_run_stale(tmp_path: Path) ->
     assert action.label == "Discover story directions against your intent"
 
 
-def test_matching_intent_aware_recommendation_routes_to_acceptance(tmp_path: Path) -> None:
+def test_matching_intent_aware_recommendation_routes_to_review(tmp_path: Path) -> None:
     root = tmp_path / "matching"
     root.mkdir()
     brief = _write_brief(root)
@@ -202,7 +248,40 @@ def test_matching_intent_aware_recommendation_routes_to_acceptance(tmp_path: Pat
 
     action = WorkflowEngine(root).analyze().actions[0]
 
-    assert action.label == "Choose recommended story direction"
+    assert action.label == "Review recommended story direction"
+    assert action.authority == AuthorityLevel.READ_ONLY
+
+
+def test_non_adjudicable_run_routes_to_explanatory_review(tmp_path: Path) -> None:
+    root = tmp_path / "non-adjudicable"
+    root.mkdir()
+    brief = _write_brief(root)
+    _write_recommendation(
+        root,
+        brief=brief,
+        causal_status="not_adjudicable_uncertain",
+    )
+
+    action = WorkflowEngine(root).analyze().actions[0]
+
+    assert action.label == "Review why Auteur cannot recommend a direction yet"
+    assert action.command == "auteur story-discovery review --project ."
+    assert action.authority == AuthorityLevel.READ_ONLY
+
+
+def test_current_composed_candidate_routes_to_composed_review(tmp_path: Path) -> None:
+    root = tmp_path / "composed"
+    root.mkdir()
+    brief = _write_brief(root)
+    _write_yaml(root / "story_discovery" / "candidate_2.yaml", {"title": "Secondary"})
+    _write_recommendation(root, winner="candidate_1", brief=brief, causal_status="qualified")
+    _write_composition(root)
+
+    action = WorkflowEngine(root).analyze().actions[0]
+
+    assert action.label == "Review composed story direction"
+    assert action.command == "auteur story-discovery review --project ."
+    assert action.authority == AuthorityLevel.READ_ONLY
 
 
 def test_accepted_identity_continues_to_structure_unchanged(tmp_path: Path) -> None:
