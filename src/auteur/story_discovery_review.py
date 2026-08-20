@@ -137,7 +137,7 @@ def _render_tradeoffs(root: Path, discovery_set: dict[str, Any], state: StoryDis
         candidate_path = root / "story_discovery" / f"{candidate_id}.yaml"
         print(f"\n{_title(candidate_path, candidate_id)}")
         print(f"Gain: {_text(impact.get('gain'))}")
-        print(f"Give up: {_text(impact.get('give_up'), 'No explicit give-up was recorded.')}" )
+        print(f"Give up: {_text(impact.get('give_up'), 'No explicit give-up was recorded.')}")
         print(
             "Thematic effect: "
             + _text(impact.get("thematic_effect"), "No explicit thematic shift was recorded.")
@@ -317,7 +317,7 @@ def dispatch_story_discovery_review(args: object) -> int:
             _render_non_adjudicable(root, state)
             return 0
         if state.kind is StoryDiscoveryStateKind.COMPOSED_CANDIDATE_AVAILABLE:
-            _render_composed(root, state)
+            _render_compose(root, state)
             return 0
         if state.kind is StoryDiscoveryStateKind.RECOMMENDATION_AVAILABLE:
             _render_recommendation(root, state)
