@@ -17,6 +17,10 @@ def _raw_argv(argv: list[str] | None) -> list[str]:
     return list(sys.argv[1:] if argv is None else argv)
 
 
+def _is_story_discovery_start(raw: list[str]) -> bool:
+    return len(raw) >= 2 and raw[0] == "story-discovery" and raw[1] == "start"
+
+
 def _is_story_discovery_compose(raw: list[str]) -> bool:
     return len(raw) >= 2 and raw[0] == "story-discovery" and raw[1] == "compose"
 
@@ -69,6 +73,10 @@ def _attach_story_discovery_brief(args: argparse.Namespace, brief_path: Path | N
 
 def main(argv: list[str] | None = None) -> int:
     raw_input = _raw_argv(argv)
+    if _is_story_discovery_start(raw_input):
+        from auteur.story_discovery_start_cli import dispatch_start_argv
+
+        return dispatch_start_argv(raw_input[2:])
     if _is_story_discovery_compose(raw_input):
         from auteur.story_discovery_compose_cli import dispatch_compose_argv
 
@@ -83,11 +91,6 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(raw)
     _attach_story_discovery_brief(args, discovery_brief)
-
-    if args.command == "story-discovery" and args.story_discovery_command == "start":
-        from auteur.story_discovery_guidance import dispatch_story_discovery_start
-
-        return dispatch_story_discovery_start(args)
 
     if recommend:
         if discovery_brief is not None:
@@ -121,6 +124,10 @@ def main(argv: list[str] | None = None) -> int:
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     raw_input = _raw_argv(argv)
+    if _is_story_discovery_start(raw_input):
+        from auteur.story_discovery_start_cli import parse_start_args
+
+        return parse_start_args(raw_input[2:])
     if _is_story_discovery_compose(raw_input):
         from auteur.story_discovery_compose_cli import parse_compose_args
 
