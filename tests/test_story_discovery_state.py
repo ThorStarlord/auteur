@@ -6,6 +6,7 @@ from pathlib import Path
 
 import yaml
 
+from auteur.story_discovery_brief import DiscoveryBrief
 from auteur.story_discovery_guidance import BriefLifecycleState
 from auteur.story_discovery_state import StoryDiscoveryStateKind, classify_story_discovery_project
 
@@ -21,8 +22,9 @@ def _write_brief(root: Path, *, experience: str = "claustrophobic suspicion") ->
         "story_type": {"genre": "mystery", "target_audience": "adult"},
         "target_experience": {"primary_emotional_promise": experience},
     }
-    _write_yaml(root / "story_discovery" / "brief.yaml", payload)
-    return payload
+    path = root / "story_discovery" / "brief.yaml"
+    _write_yaml(path, payload)
+    return DiscoveryBrief.from_yaml(path).declared_intent()
 
 
 def _profile(key: str) -> dict:
