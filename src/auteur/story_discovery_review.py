@@ -53,42 +53,6 @@ def _print_list(label: str, values: list[str]) -> None:
         print(f"- {value}")
 
 
-def _experience_lines(discovery_set: dict[str, Any], candidate: dict[str, Any]) -> list[str]:
-    target = candidate.get("target_experience")
-    if not isinstance(target, dict):
-        declared = discovery_set.get("declared_author_intent")
-        if isinstance(declared, dict):
-            target = declared.get("target_experience")
-    if not isinstance(target, dict):
-        return ["Primary: Not recorded in the persisted evidence."]
-
-    primary = target.get("primary_emotional_promise") or target.get("primary")
-    secondary = target.get("secondary_palette") or target.get("secondary") or []
-    avoid = target.get("avoided_experiences") or target.get("avoid") or []
-    trajectory = target.get("emotional_trajectory")
-
-    lines = [f"Primary: {_text(primary)}"]
-    secondary_items = _items(secondary)
-    if secondary_items:
-        lines.append("Supporting: " + ", ".join(secondary_items))
-    if isinstance(trajectory, dict):
-        parts = [
-            _text(trajectory.get("start"), ""),
-            _text(trajectory.get("midpoint"), ""),
-            _text(trajectory.get("ending"), ""),
-        ]
-        parts = [part for part in parts if part]
-        pattern = _text(trajectory.get("pattern"), "")
-        if pattern or parts:
-            rendered = " -> ".join(parts)
-            prefix = f"{pattern}: " if pattern else ""
-            lines.append(f"Trajectory: {prefix}{rendered}".rstrip())
-    avoid_items = _items(avoid)
-    if avoid_items:
-        lines.append("Avoid: " + ", ".join(avoid_items))
-    return lines
-
-
 def _profile(discovery_set: dict[str, Any], candidate_id: str) -> dict[str, Any]:
     causal = discovery_set.get("causal_analysis")
     if not isinstance(causal, dict):
@@ -111,21 +75,61 @@ def _render_mechanics(profile: dict[str, Any]) -> None:
     _print_list("Recurring scene families:", _items(profile.get("scene_families")))
 
 
+def _experience_lines(discovery_set: dict[str, Any], candidate: dict[str, Any]) -> list[str]:
+    target = candidate.get("target_experience")
+    if not isinstance(target, dict):
+        declared = discovery_set.get("declared_author_intent")
+        if isinstance(declared, dict):
+            target = declared.get("target_experience")
+    if not isinstance(target, dict):
+        return ["Primary: Not recorded in the persisted evidence."]
+
+    primary = target.get("primary_emotional_promise") or target.get("primary")
+    secondary = target.get("secondary_palette") or target.get("secondary") or []
+    avoided = target.get("avoided_experiences") or target.get("avoid") or []
+    trajectory = target.get("emotional_trajectory")
+
+    lines = [f"Primary: {_text(primary)}"]
+    secondary_items = _items(secondary)
+    if secondary_items:
+        lines.append("Supporting: " + ", ".join(secondary_items))
+    if isinstance(trajectory, dict):
+        points = [
+            _text(trajectory.get("start"), ""),
+            _text(trajectory.get("midpoint"), ""),
+            _text(trajectory.get("ending"), ""),
+        ]
+        points = [point for point in points if point]
+        pattern = _text(trajectory.get("pattern"), "")
+        if points or pattern:
+            route = " -> ".join(points)
+            prefix = f"{pattern}: " if pattern else ""
+            lines.append(f"Trajectory: {prefix}{route}".rstrip())
+    avoided_items = _items(avoided)
+    if avoided_items:
+        lines.append("Avoid: " + ", ".join(avoided_items))
+    return lines
+
+
 def _craft_impacts(discovery_set: dict[str, Any]) -> dict[str, dict[str, Any]]:
     craft = discovery_set.get("craft_analysis")
     if not isinstance(craft, dict) or craft.get("status") != "complete":
         return {}
-    raw = craft.get("impacts")
-    if not isinstance(raw, dict):
+    impacts = craft.get("impacts")
+    if not isinstance(impacts, dict):
         return {}
     return {
         str(candidate_id): impact
-        for candidate_id, impact in raw.items()
+        for candidate_id, impact in impacts.items()
         if isinstance(impact, dict)
     }
 
 
-def _render_tradeoffs(root: Path, discovery_set: dict[str, Any], state: StoryDiscoveryProjectState) -> None:
+def _render_tradeoffs(
+    root: Path,
+    discovery_set: dict[str, Any],
+    state: StoryDiscoveryProjectState,
+) -> None:
     impacts = _craft_impacts(discovery_set)
     if not impacts and not state.problems:
         return
@@ -153,7 +157,7 @@ def _render_tradeoffs(root: Path, discovery_set: dict[str, Any], state: StoryDis
             print(f"- {problem}")
 
 
-def _render_actions(root: Path, state: StoryDiscoveryProjectState) -> None:
+def _render_recommendation_actions(root: Path, state: StoryDiscoveryProjectState) -> None:
     print("\nNothing canonical has changed.")
     print("\nYou can:")
     if state.recommended_candidate_path is not None:
@@ -163,10 +167,10 @@ def _render_actions(root: Path, state: StoryDiscoveryProjectState) -> None:
             display_path = state.recommended_candidate_path
         print("- Accept this direction explicitly:")
         print(f"    auteur story-discovery accept {display_path} --output story_identity.yaml")
-    if state.can_compose and state.recommended_candidate_id is not None:
+    if state.can_compose:
         alternatives = ", ".join(state.compatible_secondary_candidate_ids)
         print(f"- Explore a compatible composition from: {alternatives}")
-        print("  The existing compose command still requires you to name the mechanism to borrow.")
+        print("  The compose command still requires you to name the mechanism to borrow.")
     print("- Change your declared intent:")
     print("    auteur story-discovery start --project . --edit")
     print("- Generate a different search space:")
@@ -194,13 +198,11 @@ def _render_recommendation(root: Path, state: StoryDiscoveryProjectState) -> Non
         )
     )
     _render_mechanics(profile)
-
     print("\nReader experience")
     for line in _experience_lines(discovery_set, candidate):
         print(line)
-
     _render_tradeoffs(root, discovery_set, state)
-    _render_actions(root, state)
+    _render_recommendation_actions(root, state)
 
 
 def _shared_profile_summary(discovery_set: dict[str, Any]) -> None:
@@ -301,7 +303,8 @@ def _render_unreviewable(state: StoryDiscoveryProjectState) -> int:
         StoryDiscoveryStateKind.READY_TO_DISCOVER: "The current brief needs a fresh Story Discovery run.",
         StoryDiscoveryStateKind.DISCOVERY_INVALID: "The current Story Discovery evidence is invalid.",
     }
-    print(f"Error: {messages.get(state.kind, 'There is nothing reviewable yet.')}", file=sys.stderr)
+    message = messages.get(state.kind, "There is nothing reviewable yet.")
+    print(f"Error: {message}", file=sys.stderr)
     for problem in state.problems:
         print(f"- {problem}", file=sys.stderr)
     return 1
@@ -317,7 +320,7 @@ def dispatch_story_discovery_review(args: object) -> int:
             _render_non_adjudicable(root, state)
             return 0
         if state.kind is StoryDiscoveryStateKind.COMPOSED_CANDIDATE_AVAILABLE:
-            _render_compose(root, state)
+            _render_composed(root, state)
             return 0
         if state.kind is StoryDiscoveryStateKind.RECOMMENDATION_AVAILABLE:
             _render_recommendation(root, state)
