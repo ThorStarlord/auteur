@@ -1,50 +1,17 @@
-"""G1a Story Discovery routing layered over the generic workflow rules."""
+"""Story Discovery routing layered over the generic workflow rules."""
 
 from __future__ import annotations
 
 from pathlib import Path
 
-import yaml
-
-from auteur.story_discovery_guidance import (
-    BriefLifecycleState,
-    inspect_working_brief,
-    intent_aware_run_matches_brief,
-)
+from auteur.story_discovery_state import StoryDiscoveryStateKind, classify_story_discovery_project
 from auteur.workflow.models import AuthorityLevel, WorkflowAction
 
 
-def _usable_recommendation(root: Path, current_brief: object | None) -> str | None:
-    discovery_dir = root / "story_discovery"
-    try:
-        payload = yaml.safe_load(
-            (discovery_dir / "discovery_set.yaml").read_text(encoding="utf-8")
-        ) or {}
-    except (OSError, yaml.YAMLError):
-        return None
-    if not isinstance(payload, dict):
-        return None
-
-    if current_brief is not None and not intent_aware_run_matches_brief(root, current_brief):
-        return None
-
-    raw_winner = payload.get("recommended_candidate_id")
-    if not isinstance(raw_winner, str) or not raw_winner.strip():
-        return None
-    winner = raw_winner.strip()
-    if Path(winner).name != winner:
-        return None
-    if not (discovery_dir / f"{winner}.yaml").is_file():
-        return None
-    return winner
-
-
 def _front_door_action(root: Path) -> WorkflowAction:
-    status = inspect_working_brief(root)
-    current_brief = status.brief
-    winner = _usable_recommendation(root, current_brief)
+    state = classify_story_discovery_project(root)
 
-    if status.state is BriefLifecycleState.INVALID:
+    if state.kind is StoryDiscoveryStateKind.INVALID_BRIEF:
         return WorkflowAction(
             label="Repair your Story Discovery brief",
             command="auteur story-discovery start --project .",
@@ -54,7 +21,7 @@ def _front_door_action(root: Path) -> WorkflowAction:
                 "or guess author intent."
             ),
         )
-    if status.state is BriefLifecycleState.INCOMPLETE:
+    if state.kind is StoryDiscoveryStateKind.INCOMPLETE_BRIEF:
         return WorkflowAction(
             label="Continue clarifying what you want",
             command="auteur story-discovery start --project .",
@@ -64,7 +31,14 @@ def _front_door_action(root: Path) -> WorkflowAction:
                 "questions required for intent-aware recommendation."
             ),
         )
-    if status.state is BriefLifecycleState.ADEQUATE and winner is None:
+    if (
+        state.brief_state.value == "adequate"
+        and state.kind in {
+            StoryDiscoveryStateKind.READY_TO_DISCOVER,
+            StoryDiscoveryStateKind.NON_ADJUDICABLE,
+            StoryDiscoveryStateKind.DISCOVERY_INVALID,
+        }
+    ):
         return WorkflowAction(
             label="Discover story directions against your intent",
             command=(
@@ -77,12 +51,14 @@ def _front_door_action(root: Path) -> WorkflowAction:
                 "Canonical state remains unchanged."
             ),
         )
-    if winner is not None:
+    if state.has_recommendation:
+        assert state.recommended_candidate_id is not None
         return WorkflowAction(
             label="Choose recommended story direction",
             command=(
                 "auteur story-discovery accept "
-                f"story_discovery/{winner}.yaml --output story_identity.yaml"
+                f"story_discovery/{state.recommended_candidate_id}.yaml "
+                "--output story_identity.yaml"
             ),
             authority=AuthorityLevel.AUTHORITY_BEARING,
             description=(
@@ -105,7 +81,7 @@ def apply_story_discovery_workflow_routing(
     project_root: str | Path,
     actions: list[WorkflowAction],
 ) -> list[WorkflowAction]:
-    """Replace the generic Identity Story Discovery action with the G1a front door."""
+    """Replace the generic Identity Story Discovery action with the derived front door."""
 
     replacement = _front_door_action(Path(project_root))
     routed: list[WorkflowAction] = []
