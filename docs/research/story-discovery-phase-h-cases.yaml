@@ -1,0 +1,141 @@
+schema_version: 1
+cases:
+  - id: h01_dead_channel
+    purpose: Test whether live search separates psychological reconstruction, rescue, and institutional-betrayal engines rather than varying only framing.
+    focus:
+      - candidate causal distinctness
+      - causal-profile accuracy
+      - comparative judgment quality
+    brief:
+      premise: A retired astronaut hears mission-control chatter in her empty apartment.
+      story_type:
+        genre: sci_fi
+        target_audience: adult
+      target_experience:
+        primary_emotional_promise: haunted self-reckoning under impossible evidence
+      architecture_preferences:
+        complexity: layered
+        causal_distribution: layered
+        engine_hierarchy: primary_with_layers
+      hard_constraints:
+        - The protagonist is genuinely retired at the beginning.
+        - The mission-control chatter must remain causally important rather than decorative atmosphere.
+
+  - id: h02_between_floors
+    purpose: Stress fair-play physical causation in a sealed-space mystery while allowing layered social pressure without losing one governing puzzle engine.
+    focus:
+      - candidate causal distinctness
+      - causal-profile accuracy
+      - craft-teaching usefulness
+    brief:
+      premise: "A murder mystery in one elevator: six strangers, no supernatural explanation, and the killer never leaves the elevator."
+      story_type:
+        genre: mystery
+        target_audience: adult
+      target_experience:
+        primary_emotional_promise: claustrophobic suspicion resolving into reconstructive relief
+        secondary_palette:
+          - dread
+          - moral uncertainty
+        avoided_experiences:
+          - supernatural awe
+      architecture_preferences:
+        complexity: maximalist
+        causal_distribution: mixed
+        engine_hierarchy: primary_with_layers
+      hard_constraints:
+        - The killer never leaves the elevator.
+        - The final solution is physically possible and retrospectively fair.
+        - The sealed-space mechanics must materially matter to the solution.
+
+  - id: h03_nothing_missing
+    purpose: Test whether the live model treats restrictive heist rules as the source of the engine instead of escaping them through semantic loopholes.
+    focus:
+      - comparative judgment quality
+      - constraint fidelity
+      - craft-teaching usefulness
+    brief:
+      premise: A heist where nothing can be stolen, nobody may lie, and the crew must still defeat a corrupt museum director.
+      story_type:
+        genre: thriller
+        target_audience: adult
+      target_experience:
+        primary_emotional_promise: delighted procedural cleverness under escalating institutional pressure
+      architecture_preferences:
+        complexity: layered
+        causal_distribution: mixed
+        engine_hierarchy: primary_with_layers
+      hard_constraints:
+        - No object may be stolen or secretly removed from the museum.
+        - No crew member may knowingly state a lie.
+        - The climax must still feel like an active coordinated operation rather than a paperwork-only exposé.
+
+  - id: h04_missing_room
+    purpose: Test whether supernatural, relational, and investigative engines become genuinely different major-scene systems rather than metaphor-only variants.
+    focus:
+      - candidate causal distinctness
+      - causal-profile accuracy
+      - reader-experience propagation
+    brief:
+      premise: A family inherits a house that becomes one room smaller every night.
+      story_type:
+        genre: horror
+        target_audience: adult
+      target_experience:
+        primary_emotional_promise: intimate dread as physical compression forces avoided family truths into the open
+      architecture_preferences:
+        complexity: layered
+        causal_distribution: layered
+        engine_hierarchy: primary_with_layers
+      hard_constraints:
+        - The shrinking house must remain an active causal mechanism throughout the story.
+        - The family conflict must not become merely backstory for an unrelated monster or containment plot.
+
+  - id: h05_what_she_saves
+    purpose: Stress permanent information asymmetry, dramatic irony, and bounded composition opportunities without letting the hidden brother displace the protagonist's engine.
+    focus:
+      - comparative judgment quality
+      - craft-teaching usefulness
+      - later composition eligibility
+    brief:
+      premise: The protagonist must never learn that her brother caused the disaster; the reader knows by the midpoint, and her external goal still resolves.
+      story_type:
+        genre: literary
+        target_audience: adult
+      target_experience:
+        primary_emotional_promise: painful dramatic irony that resolves into earned but incomplete agency
+        secondary_palette:
+          - dread
+          - compassion
+          - bittersweet relief
+      architecture_preferences:
+        complexity: maximalist
+        causal_distribution: mixed
+        engine_hierarchy: primary_with_layers
+      hard_constraints:
+        - The brother caused the disaster.
+        - The protagonist never learns that her brother caused the disaster.
+        - The reader knows the brother's responsibility by the midpoint.
+        - The protagonist's external goal resolves through her own consequential choices.
+
+  - id: h06_fixed_point
+    purpose: Test whether an intervention-disabled time-travel premise produces active witness/preservation engines with consequential present-day action rather than passive exposition.
+    focus:
+      - candidate causal distinctness
+      - craft-teaching usefulness
+      - experienced-writer creative persuasiveness
+    brief:
+      premise: History cannot be changed; a time traveler can only change what the trip means to people who remember it.
+      story_type:
+        genre: sci_fi
+        target_audience: adult
+      target_experience:
+        primary_emotional_promise: grief transformed into consequential responsibility without undoing loss
+      architecture_preferences:
+        complexity: layered
+        causal_distribution: layered
+        engine_hierarchy: primary_with_layers
+      hard_constraints:
+        - No trip changes any historical event or outcome.
+        - The protagonist must still make consequential choices in the present.
+        - Time travel must remain necessary to the story rather than replaceable by ordinary archival research.
