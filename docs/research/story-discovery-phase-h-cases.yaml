@@ -28,7 +28,7 @@ cases:
       - causal-profile accuracy
       - craft-teaching usefulness
     brief:
-      premise: A murder mystery in one elevator: six strangers, no supernatural explanation, and the killer never leaves the elevator.
+      premise: "A murder mystery in one elevator: six strangers, no supernatural explanation, and the killer never leaves the elevator."
       story_type:
         genre: mystery
         target_audience: adult
