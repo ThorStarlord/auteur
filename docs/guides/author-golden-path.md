@@ -46,10 +46,16 @@ auteur story-discovery run --brief story_discovery/brief.yaml --recommend --outp
 # 5. Reconstruct the current recommendation and evidence in writer language.
 auteur story-discovery review --project .
 
-# 6. Explicitly accept the direction you choose
+# 6. Optional: if review exposes compatible subordinate alternatives, compose
+#    them interactively while preserving the recommended primary engine.
+auteur story-discovery compose --project .
+auteur story-discovery review --project .
+
+# 7. Explicitly accept the direction you choose. This may be the analyzed
+#    primary candidate or the reviewed composed candidate.
 auteur story-discovery accept story_discovery/candidate_X.yaml --output story_identity.yaml
 
-# 7. Verify the workflow advances to Structure
+# 8. Verify the workflow advances to Structure
 auteur workflow next .
 ```
 
@@ -60,6 +66,11 @@ Authority invariant:
 - Story Discovery search and recommendation are advisory and non-canonical.
 - Story Discovery review is deterministic, read-only, provider-free, and never
   changes which candidate is canonical.
+- Guided composition requires explicit author choices, writes only a candidate
+  plus derived composition evidence, and delegates generation/hierarchy checks
+  to the existing F5 engine.
+- Workflow routing never supplies guided composition answers on the author's
+  behalf; it routes post-discovery states through read-only review instead.
 - `workflow next --execute` must not auto-accept a Story Discovery candidate.
 - `story_identity.yaml` becomes canonical only when the author explicitly runs
   `story-discovery accept` for the chosen candidate.
@@ -122,6 +133,43 @@ no defensible recommendation instead of manufacturing a winner.
 `story_discovery/comparison.md` and the YAML artifacts remain available for
 diagnostics and scripting, but writers do not need to open them for the normal
 review journey.
+
+### Optional composition — borrow subordinate mechanisms without replacing the primary
+
+When review reports one or more alternatives as `compatible_as_secondary`, the
+writer-facing composition path is:
+
+```bash
+auteur story-discovery compose --project .
+```
+
+Guided composition first asks you to confirm the current recommendation as the
+governing primary. It then shows only F4-approved compatible alternatives, asks
+which layer you want, and records your natural-language description of the
+mechanism to borrow. You can add more than one distinct compatible layer.
+
+The guided adapter does not implement a second composition engine. After your
+choices are complete it delegates the same primary and borrow requests to F5,
+which independently reloads F3/F4 evidence before provider construction,
+re-profiles the result, and rejects any composition that displaces the primary
+engine. The default outputs remain non-canonical:
+
+- `story_discovery/composed_candidate.yaml`
+- `story_discovery/composition_report.yaml`
+
+Guided mode refuses to overwrite existing composition artifacts. Review or move
+those artifacts first. The explicit advanced syntax remains available for
+scripting and custom output paths:
+
+```bash
+auteur story-discovery compose story_discovery \
+  --primary candidate_1 \
+  --borrow "candidate_2:secret intervention layer" \
+  --output scratch/composed.yaml
+```
+
+Neither guided nor advanced composition changes `story_identity.yaml`; promotion
+still requires explicit `story-discovery accept`.
 
 ## Journey A — Repair a chapter-level structural problem
 
@@ -213,6 +261,7 @@ auteur scene publish --project .
 | `auteur story-discovery start --edit` | Edit or clear previously declared Story Discovery intent |
 | `auteur story-discovery run ... --recommend` | Explore narrative engines and receive an advisory recommendation |
 | `auteur story-discovery review` | Reconstruct current Story Discovery evidence in writer language, read-only |
+| `auteur story-discovery compose --project .` | Interactively borrow only F4-compatible subordinate mechanisms under the recommended primary |
 | `auteur story-discovery accept` | Explicitly promote the chosen Story Discovery candidate to canonical identity |
 | `auteur structure diagnose` | Detect structural weaknesses |
 | `auteur structure propose-repairs` | Generate repair proposals |
