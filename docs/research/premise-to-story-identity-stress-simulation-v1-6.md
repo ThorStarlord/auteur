@@ -145,4 +145,6 @@ evidence remains reserved for
 - [v1.6 learning context](premise-to-story-identity-stress-simulation-v1-5-learning-synthesis.md)
 - [v1.5 registry](premise-to-story-identity-stress-simulation-v1-5.md)
 - [v1.5 stale-proposal run](premise-to-story-identity-stress-simulation-v1-5-runs/stress-v15-mutation-stale-primary-24.md)
+- [cross-version simulation retrospective](premise-to-story-identity-simulation-retrospective.md)
+- [human-research readiness](premise-to-story-identity-human-research-readiness.md)
 - [historical v1.2 findings archive](premise-to-story-identity-stress-simulation-findings.md)

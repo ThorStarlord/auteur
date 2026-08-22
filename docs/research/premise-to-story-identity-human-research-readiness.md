@@ -299,3 +299,4 @@ available, or that Auteur has been validated.
 - [V1.6 stress-simulation registry](premise-to-story-identity-stress-simulation-v1-6.md)
 - [V1.6 repeated-revision run](premise-to-story-identity-stress-simulation-v1-6-runs/stress-v16-mutation-repeated-revision-29.md)
 - [Stress-simulation protocol](premise-to-story-identity-stress-simulation.md)
+- [Cross-version simulation retrospective](premise-to-story-identity-simulation-retrospective.md)
