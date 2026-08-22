@@ -187,9 +187,25 @@ def _render_recommendation(root: Path, state: StoryDiscoveryProjectState) -> Non
     candidate = _load_mapping(state.recommended_candidate_path)
     profile = _profile(discovery_set, state.recommended_candidate_id)
 
-    print("Recommended story direction\n")
+    if state.recommendation_basis == "explicit_intent_fit":
+        print("Best fit to your declared intent\n")
+        rationale_heading = "Why this direction fits what you said you want"
+        basis_note = None
+    elif state.recommendation_basis == "advisory_artistic_preference":
+        print("Auteur's advisory preference\n")
+        rationale_heading = "Why Auteur prefers it"
+        basis_note = (
+            "This is a craft judgment among compatible directions, not an additional author requirement."
+        )
+    else:
+        # Legacy artifacts predate the recommendation-basis contract. Preserve
+        # their old surface without retroactively claiming an evidentiary basis.
+        print("Recommended story direction\n")
+        rationale_heading = "Why this fits what you said you want"
+        basis_note = None
+
     print(_title(state.recommended_candidate_path, state.recommended_candidate_id))
-    print("\nWhy this fits what you said you want")
+    print(f"\n{rationale_heading}")
     print(
         _text(
             discovery_set.get("recommendation_rationale"),
@@ -197,6 +213,8 @@ def _render_recommendation(root: Path, state: StoryDiscoveryProjectState) -> Non
             "additional rationale was saved.",
         )
     )
+    if basis_note is not None:
+        print(f"\n{basis_note}")
     _render_mechanics(profile)
     print("\nReader experience")
     for line in _experience_lines(discovery_set, candidate):
@@ -220,8 +238,64 @@ def _shared_profile_summary(discovery_set: dict[str, Any]) -> None:
         )
 
 
+def _candidate_tradeoffs(discovery_set: dict[str, Any]) -> dict[str, str]:
+    raw = discovery_set.get("candidate_tradeoffs")
+    if not isinstance(raw, dict):
+        return {}
+    result: dict[str, str] = {}
+    for candidate_id, tradeoff in raw.items():
+        if isinstance(candidate_id, str) and isinstance(tradeoff, str) and tradeoff.strip():
+            result[candidate_id] = tradeoff.strip()
+    return result
+
+
+def _render_comparative_non_adjudicable(
+    root: Path,
+    discovery_set: dict[str, Any],
+) -> None:
+    print("Auteur does not have an honest preference here.\n")
+    print(
+        "The surviving directions are causally distinct, but your current intent leaves "
+        "the deciding artistic value genuinely open. Auteur will not invent that preference for you."
+    )
+    rationale = discovery_set.get("recommendation_rationale")
+    if isinstance(rationale, str) and rationale.strip():
+        print(f"\n{rationale.strip()}")
+
+    tradeoffs = _candidate_tradeoffs(discovery_set)
+    if tradeoffs:
+        print("\nMeaningful alternatives")
+        for candidate_id, tradeoff in tradeoffs.items():
+            path = root / "story_discovery" / f"{candidate_id}.yaml"
+            print(f"- {_title(path, candidate_id)} (`{candidate_id}`) — {tradeoff}")
+
+    print("\nNothing canonical has changed.")
+    print("\nYou can:")
+    for candidate_id in tradeoffs:
+        path = root / "story_discovery" / f"{candidate_id}.yaml"
+        if not path.is_file():
+            continue
+        try:
+            display_path = path.relative_to(root)
+        except ValueError:
+            display_path = path
+        print(f"- Choose {_title(path, candidate_id)} explicitly:")
+        print(f"    auteur story-discovery accept {display_path} --output story_identity.yaml")
+    print("- Refine or change what you want:")
+    print("    auteur story-discovery start --project . --edit")
+    print("- Generate a different search space:")
+    print(
+        "    auteur story-discovery run --brief story_discovery/brief.yaml "
+        "--recommend --output story_discovery --project ."
+    )
+
+
 def _render_non_adjudicable(root: Path, state: StoryDiscoveryProjectState) -> None:
     discovery_set = _load_mapping(root / "story_discovery" / "discovery_set.yaml")
+    if state.non_adjudicable_reason == "comparative_judgment":
+        _render_comparative_non_adjudicable(root, discovery_set)
+        return
+
     print("Auteur does not have a defensible recommendation yet.\n")
     if state.causal_status == "not_adjudicable_near_duplicate":
         print(

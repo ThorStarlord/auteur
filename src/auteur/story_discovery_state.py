@@ -38,6 +38,9 @@ class StoryDiscoveryProjectState:
     intent_mode: str | None = None
     run_matches_current_brief: bool = False
     causal_status: str | None = None
+    recommendation_status: str | None = None
+    recommendation_basis: str | None = None
+    non_adjudicable_reason: str | None = None
     recommended_candidate_id: str | None = None
     recommended_candidate_path: Path | None = None
     craft_status: str | None = None
@@ -171,6 +174,28 @@ def _current_composition(
     return candidate_path, report_path, None
 
 
+def _invalid_state(
+    *,
+    brief_state: BriefLifecycleState,
+    intent_mode: str | None,
+    matches: bool,
+    causal_status: str | None,
+    recommendation_status: str | None,
+    recommendation_basis: str | None,
+    problem: str,
+) -> StoryDiscoveryProjectState:
+    return StoryDiscoveryProjectState(
+        kind=StoryDiscoveryStateKind.DISCOVERY_INVALID,
+        brief_state=brief_state,
+        intent_mode=intent_mode,
+        run_matches_current_brief=matches,
+        causal_status=causal_status,
+        recommendation_status=recommendation_status,
+        recommendation_basis=recommendation_basis,
+        problems=(problem,),
+    )
+
+
 def classify_story_discovery_project(project_root: str | Path) -> StoryDiscoveryProjectState:
     """Derive the current Story Discovery state from project-local artifacts only."""
 
@@ -224,49 +249,149 @@ def classify_story_discovery_project(project_root: str | Path) -> StoryDiscovery
             run_matches_current_brief=False,
         )
 
+    raw_recommendation_status = discovery_set.get("recommendation_status")
+    recommendation_status = (
+        raw_recommendation_status if isinstance(raw_recommendation_status, str) else None
+    )
+    raw_recommendation_basis = discovery_set.get("recommendation_basis")
+    recommendation_basis = (
+        raw_recommendation_basis if isinstance(raw_recommendation_basis, str) else None
+    )
+    if raw_recommendation_status is not None and recommendation_status is None:
+        return _invalid_state(
+            brief_state=brief_status.state,
+            intent_mode=intent_mode,
+            matches=matches,
+            causal_status=None,
+            recommendation_status=None,
+            recommendation_basis=recommendation_basis,
+            problem="recommendation_status must be text when present",
+        )
+    if raw_recommendation_basis is not None and recommendation_basis is None:
+        return _invalid_state(
+            brief_state=brief_status.state,
+            intent_mode=intent_mode,
+            matches=matches,
+            causal_status=None,
+            recommendation_status=recommendation_status,
+            recommendation_basis=None,
+            problem="recommendation_basis must be text or null",
+        )
+
     causal, causal_error = _parse_causal(discovery_set)
     causal_status = causal.status if causal is not None else None
     if causal_error is not None:
-        return StoryDiscoveryProjectState(
-            kind=StoryDiscoveryStateKind.DISCOVERY_INVALID,
+        return _invalid_state(
             brief_state=brief_status.state,
             intent_mode=intent_mode,
-            run_matches_current_brief=matches,
-            problems=(f"causal analysis is invalid: {causal_error}",),
+            matches=matches,
+            causal_status=None,
+            recommendation_status=recommendation_status,
+            recommendation_basis=recommendation_basis,
+            problem=f"causal analysis is invalid: {causal_error}",
         )
     if causal_status in {
         "not_adjudicable_near_duplicate",
         "not_adjudicable_uncertain",
     }:
+        reason = (
+            "causal_near_duplicate"
+            if causal_status == "not_adjudicable_near_duplicate"
+            else "causal_uncertain"
+        )
         return StoryDiscoveryProjectState(
             kind=StoryDiscoveryStateKind.NON_ADJUDICABLE,
             brief_state=brief_status.state,
             intent_mode=intent_mode,
             run_matches_current_brief=matches,
             causal_status=causal_status,
+            recommendation_status=recommendation_status,
+            recommendation_basis=recommendation_basis,
+            non_adjudicable_reason=reason,
         )
     if causal_status == "malformed_analysis":
-        return StoryDiscoveryProjectState(
-            kind=StoryDiscoveryStateKind.DISCOVERY_INVALID,
+        return _invalid_state(
             brief_state=brief_status.state,
             intent_mode=intent_mode,
-            run_matches_current_brief=matches,
+            matches=matches,
             causal_status=causal_status,
-            problems=("causal analysis is malformed",),
+            recommendation_status=recommendation_status,
+            recommendation_basis=recommendation_basis,
+            problem="causal analysis is malformed",
         )
 
     winner, winner_path = _safe_candidate_path(
         discovery_dir,
         discovery_set.get("recommended_candidate_id"),
     )
-    if causal_status == "qualified" and winner is None:
+
+    if causal_status == "qualified" and recommendation_status == "not_adjudicable":
+        if winner is not None:
+            return _invalid_state(
+                brief_state=brief_status.state,
+                intent_mode=intent_mode,
+                matches=matches,
+                causal_status=causal_status,
+                recommendation_status=recommendation_status,
+                recommendation_basis=recommendation_basis,
+                problem="not_adjudicable recommendation judgment must not select a candidate",
+            )
+        if recommendation_basis is not None:
+            return _invalid_state(
+                brief_state=brief_status.state,
+                intent_mode=intent_mode,
+                matches=matches,
+                causal_status=causal_status,
+                recommendation_status=recommendation_status,
+                recommendation_basis=recommendation_basis,
+                problem="not_adjudicable recommendation judgment must not claim a basis",
+            )
         return StoryDiscoveryProjectState(
-            kind=StoryDiscoveryStateKind.DISCOVERY_INVALID,
+            kind=StoryDiscoveryStateKind.NON_ADJUDICABLE,
             brief_state=brief_status.state,
             intent_mode=intent_mode,
             run_matches_current_brief=matches,
             causal_status=causal_status,
-            problems=("qualified discovery has no usable recommended candidate",),
+            recommendation_status=recommendation_status,
+            recommendation_basis=None,
+            non_adjudicable_reason="comparative_judgment",
+        )
+
+    if recommendation_status not in {None, "recommended"}:
+        return _invalid_state(
+            brief_state=brief_status.state,
+            intent_mode=intent_mode,
+            matches=matches,
+            causal_status=causal_status,
+            recommendation_status=recommendation_status,
+            recommendation_basis=recommendation_basis,
+            problem=f"unsupported recommendation_status: {recommendation_status}",
+        )
+
+    if (
+        causal_status == "qualified"
+        and recommendation_status == "recommended"
+        and recommendation_basis not in {"explicit_intent_fit", "advisory_artistic_preference"}
+    ):
+        return _invalid_state(
+            brief_state=brief_status.state,
+            intent_mode=intent_mode,
+            matches=matches,
+            causal_status=causal_status,
+            recommendation_status=recommendation_status,
+            recommendation_basis=recommendation_basis,
+            problem="qualified recommendation must record a valid recommendation_basis",
+        )
+
+    if causal_status == "qualified" and winner is None:
+        return _invalid_state(
+            brief_state=brief_status.state,
+            intent_mode=intent_mode,
+            matches=matches,
+            causal_status=causal_status,
+            recommendation_status=recommendation_status,
+            recommendation_basis=recommendation_basis,
+            problem="qualified discovery has no usable recommended candidate or explicit non-adjudicable judgment",
         )
     if winner is None:
         kind = (
@@ -280,6 +405,8 @@ def classify_story_discovery_project(project_root: str | Path) -> StoryDiscovery
             intent_mode=intent_mode,
             run_matches_current_brief=matches,
             causal_status=causal_status,
+            recommendation_status=recommendation_status,
+            recommendation_basis=recommendation_basis,
         )
 
     craft, craft_error = _parse_craft(discovery_set)
@@ -310,6 +437,8 @@ def classify_story_discovery_project(project_root: str | Path) -> StoryDiscovery
         intent_mode=intent_mode,
         run_matches_current_brief=matches,
         causal_status=causal_status,
+        recommendation_status=recommendation_status,
+        recommendation_basis=recommendation_basis,
         recommended_candidate_id=winner,
         recommended_candidate_path=winner_path,
         craft_status=craft_status,

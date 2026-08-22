@@ -8,7 +8,6 @@ craft explanation without promoting canonical state.
 from __future__ import annotations
 
 import json
-import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -16,14 +15,20 @@ from typing import Any
 import yaml
 
 from auteur.llm import LLMRequest
+from auteur.story_discovery_judgment import (
+    RecommendationJudgment,
+    parse_recommendation_judgment,
+    single_survivor_judgment,
+)
 
 
 _JUDGE_SYSTEM = """You are Auteur's comparative narrative architect.
 
-Choose one advisory winner from the supplied surviving StoryIdentity candidates.
-The candidates already survived hard StoryIdentity validation and causal-
-distinctness qualification. Compare them; do not invent a candidate and do not
-mutate or claim to mutate canonical state.
+Compare the supplied surviving StoryIdentity candidates. The candidates already
+survived hard StoryIdentity validation and causal-distinctness qualification.
+Your job is to make a bounded advisory judgment without inventing author intent,
+without numeric creative scoring, and without mutating or claiming to mutate
+canonical state.
 
 EVIDENCE RULES
 - Deterministic contract fit is compliance evidence, not a story-quality ranking.
@@ -34,27 +39,44 @@ EVIDENCE RULES
 - A derived causal profile describes implied actions, pressure, reversals, and climax mechanics. It is evidence, not a quality score.
 - Causal distinctness is a prerequisite for comparison, not a reason to reward the longest, most complex, or most ornate profile.
 
-DEFAULT DECISION PRIORITY
-1. Genre/reader promise is the primary optimization basis.
-2. Explicit author constraints and scope/runway viability constrain the choice.
-3. Among genre-credible candidates, prefer stronger causal architecture and premise fidelity.
-4. Use target-experience/emotional power to sharpen close calls, not as an automatic winner.
-5. Explain meaningful tradeoffs against the actual alternatives.
+DECISION CALIBRATION
+1. Use recommendation_basis = explicit_intent_fit only when a declared author
+   preference or hard constraint actually distinguishes the winner from the
+   alternatives. Name that declared preference in the rationale.
+2. Use recommendation_basis = advisory_artistic_preference when multiple
+   candidates legitimately satisfy the available author evidence but Auteur has
+   a defensible craft preference among their different pleasures/tradeoffs.
+   Present that criterion as Auteur's advisory taste, not as an undeclared author
+   requirement.
+3. Use recommendation_status = not_adjudicable only when even a bounded advisory
+   preference would require inventing a criterion unsupported by the evidence.
+   Multiple good options by itself is not enough reason to decline judgment.
+4. When a winner exists, describe losing candidates as tradeoffs rather than
+   deficiencies when they remain legitimate stories.
+
+DEFAULT ADVISORY PRIORITY
+When no declared preference settles the question, Auteur may prefer stronger
+premise fidelity, causal architecture, genre/reader-promise delivery, or a more
+coherent target-experience realization. Those are advisory craft criteria. They
+must not be rewritten as author intent unless the author actually declared them.
 
 Return JSON only with exactly these keys:
-- recommended_candidate_id
-- recommendation_rationale
-- rejected_candidate_reasons
+- recommendation_status: "recommended" or "not_adjudicable"
+- recommendation_basis: "explicit_intent_fit", "advisory_artistic_preference", or null
+- recommended_candidate_id: a surviving candidate ID, or null
+- recommendation_rationale: non-empty explanation
+- candidate_tradeoffs: mapping of candidate IDs to non-empty tradeoff explanations
 
-rejected_candidate_reasons must contain one non-empty reason for every surviving
-candidate except the selected winner, and no other candidate IDs.
+For recommendation_status = recommended:
+- recommendation_basis must be non-null;
+- recommended_candidate_id must name one survivor;
+- candidate_tradeoffs must cover exactly every non-selected survivor.
+
+For recommendation_status = not_adjudicable:
+- recommendation_basis and recommended_candidate_id must both be null;
+- candidate_tradeoffs must cover every surviving candidate;
+- the rationale must explain why the deciding artistic value remains genuinely open.
 """
-
-_REQUIRED_JUDGE_KEYS = {
-    "recommended_candidate_id",
-    "recommendation_rationale",
-    "rejected_candidate_reasons",
-}
 
 
 def _err(message: str) -> None:
@@ -155,10 +177,13 @@ def _build_judge_request(
         for co in candidate_outputs
     ]
     user = (
+        "DISCOVERY MODE\nexploratory\n\n"
         "RAW PREMISE\n"
         f"{premise_text}\n\n"
-        "EXPLICIT AUTHOR CONSTRAINTS\n"
+        "EXPLICIT RUN CONSTRAINTS\n"
         f"{json.dumps(constraints, indent=2, ensure_ascii=False)}\n\n"
+        "This is not a structured Discovery Brief. recommendation_basis MUST NOT be "
+        "explicit_intent_fit; any comparative winner is an advisory artistic preference.\n\n"
         "SURVIVING CANDIDATE EVIDENCE\n"
         f"{json.dumps(evidence, indent=2, ensure_ascii=False)}"
     )
@@ -174,54 +199,22 @@ def _build_judge_request(
 def _parse_judgment(
     text: str,
     surviving_candidate_ids: list[str],
-) -> tuple[str, str, dict[str, str]]:
-    if len(surviving_candidate_ids) < 2:
-        raise ValueError("comparative judgment requires at least two surviving candidates")
-    if len(set(surviving_candidate_ids)) != len(surviving_candidate_ids):
-        raise ValueError("surviving candidate IDs must be unique")
-
-    match = re.search(r"\{.*\}", text.strip(), re.DOTALL)
-    if not match:
-        raise ValueError("comparative judgment did not contain a JSON object")
-    payload = json.loads(match.group(0))
-    if not isinstance(payload, dict) or set(payload) != _REQUIRED_JUDGE_KEYS:
-        raise ValueError("comparative judgment must contain exactly the required keys")
-
-    winner = payload["recommended_candidate_id"]
-    if not isinstance(winner, str) or winner.strip() not in surviving_candidate_ids:
-        raise ValueError("recommended candidate must be one of the surviving candidates")
-    winner = winner.strip()
-
-    rationale = payload["recommendation_rationale"]
-    if not isinstance(rationale, str) or not rationale.strip():
-        raise ValueError("recommendation rationale is required")
-    rationale = rationale.strip()
-
-    raw_reasons = payload["rejected_candidate_reasons"]
-    if not isinstance(raw_reasons, dict):
-        raise ValueError("rejected_candidate_reasons must be a mapping")
-    reasons: dict[str, str] = {}
-    for candidate_id, reason in raw_reasons.items():
-        if not isinstance(candidate_id, str) or not isinstance(reason, str):
-            raise ValueError("rejection reasons must map candidate IDs to strings")
-        reasons[candidate_id.strip()] = reason.strip()
-
-    expected = set(surviving_candidate_ids) - {winner}
-    if set(reasons) != expected:
-        raise ValueError("rejection reasons must cover exactly every non-selected survivor")
-    if any(not reasons[candidate_id] for candidate_id in expected):
-        raise ValueError("every rejected survivor requires a non-empty reason")
-    return winner, rationale, reasons
+    *,
+    allow_explicit_intent_fit: bool = True,
+) -> RecommendationJudgment:
+    return parse_recommendation_judgment(
+        text,
+        surviving_candidate_ids,
+        allow_explicit_intent_fit=allow_explicit_intent_fit,
+    )
 
 
 def _single_survivor(candidate_id: str, requested: int) -> tuple[str, str, dict[str, str]]:
-    return (
-        candidate_id,
-        f"{candidate_id} is the only candidate that survived StoryIdentity validation "
-        f"from a {requested}-candidate search. This is a viability result, not a "
-        "comparative artistic-quality judgment.",
-        {},
-    )
+    """Preserve the historic helper contract for focused tests/callers."""
+    judgment = single_survivor_judgment(candidate_id, requested)
+    winner, rationale, rejected = judgment
+    assert winner is not None
+    return winner, rationale, rejected
 
 
 def _candidate_by_id(candidate_outputs: list[Any], candidate_id: str) -> Any:
@@ -241,6 +234,7 @@ def _recommendation_surface_lines(
     candidate_outputs: list[Any],
     output_dir: Path,
     requested_candidates: int,
+    basis: str | None = None,
 ) -> list[str]:
     winner_output = _candidate_by_id(candidate_outputs, winner)
     identity = winner_output.identity
@@ -271,23 +265,44 @@ def _recommendation_surface_lines(
             "  Or revise the premise/constraints and run Story Discovery again.",
         ]
 
+    if basis == "explicit_intent_fit":
+        recommendation_heading = f"BEST FIT TO YOUR DECLARED INTENT — {identity.title} (`{winner}`)"
+        why_heading = "Why this direction fits what you said you want"
+        basis_note = None
+    elif basis == "advisory_artistic_preference":
+        recommendation_heading = f"AUTEUR'S ADVISORY PREFERENCE — {identity.title} (`{winner}`)"
+        why_heading = "Why Auteur prefers it"
+        basis_note = (
+            "This is a craft judgment among compatible directions, not an additional author requirement."
+        )
+    else:
+        recommendation_heading = f"RECOMMENDED — {identity.title} (`{winner}`)"
+        why_heading = "Why Auteur recommends it"
+        basis_note = None
+
     lines = [
         "Story Discovery",
         f"Found {len(candidate_outputs)} viable interpretations of your premise.",
         "",
-        f"RECOMMENDED — {identity.title} (`{winner}`)",
+        recommendation_heading,
         identity.core_answer,
         "",
-        "Why Auteur recommends it",
+        why_heading,
         rationale,
-        "",
-        "What this choice emphasizes",
-        f"- Reader experience: {target_experience['primary']}",
-        f"- Central conflict: {central_engine['conflict']}",
-        f"- Stakes: {central_engine['stakes']}",
-        "",
-        "Alternatives",
     ]
+    if basis_note is not None:
+        lines.extend(["", basis_note])
+    lines.extend(
+        [
+            "",
+            "What this choice emphasizes",
+            f"- Reader experience: {target_experience['primary']}",
+            f"- Central conflict: {central_engine['conflict']}",
+            f"- Stakes: {central_engine['stakes']}",
+            "",
+            "Alternatives",
+        ]
+    )
     for co in candidate_outputs:
         if co.candidate_id == winner:
             continue
@@ -316,6 +331,46 @@ def _recommendation_surface_lines(
             "",
             "  Review the full comparison:",
             f"    {output_dir / 'comparison.md'}",
+        ]
+    )
+    return lines
+
+
+def _judgment_non_adjudicable_surface_lines(
+    *,
+    rationale: str,
+    tradeoffs: dict[str, str],
+    candidate_outputs: list[Any],
+    output_dir: Path,
+) -> list[str]:
+    lines = [
+        "Story Discovery",
+        "AUTEUR DOES NOT HAVE AN HONEST PREFERENCE HERE",
+        "",
+        (
+            "The surviving directions are causally distinct, but the available author intent "
+            "does not settle the deciding artistic value. Auteur will not invent that preference for you."
+        ),
+        "",
+        rationale,
+        "",
+        "Meaningful alternatives",
+    ]
+    for co in candidate_outputs:
+        lines.append(
+            f"- {co.identity.title} (`{co.candidate_id}`) — {tradeoffs[co.candidate_id]}"
+        )
+    lines.extend(["", "Nothing has been accepted yet.", "", "You can:"])
+    for co in candidate_outputs:
+        lines.append(
+            "- Choose this direction explicitly: "
+            f"auteur story-discovery accept {output_dir / (co.candidate_id + '.yaml')} "
+            "--output story_identity.yaml"
+        )
+    lines.extend(
+        [
+            "- Change your declared intent, if you want Auteur to optimize for a sharper preference.",
+            "- Generate a different search space.",
         ]
     )
     return lines
@@ -355,35 +410,38 @@ def _refresh_project_contract(candidate_outputs: list[Any], args: Any) -> None:
 def _augment_artifacts(
     output_dir: Path,
     *,
-    winner: str,
+    winner: str | None,
     rationale: str,
     rejected: dict[str, str],
     surface_lines: list[str],
+    recommendation_status: str = "recommended",
+    recommendation_basis: str | None = None,
+    candidate_tradeoffs: dict[str, str] | None = None,
 ) -> None:
     discovery_set_path = output_dir / "discovery_set.yaml"
     report_path = output_dir / "discovery_report.yaml"
     comparison_path = output_dir / "comparison.md"
+    tradeoffs = dict(candidate_tradeoffs if candidate_tradeoffs is not None else rejected)
 
-    discovery_set = yaml.safe_load(discovery_set_path.read_text(encoding="utf-8")) or {}
-    discovery_set["recommended_candidate_id"] = winner
-    discovery_set["recommendation_rationale"] = rationale
-    discovery_set["rejected_candidate_reasons"] = rejected
-    discovery_set_path.write_text(
-        yaml.safe_dump(discovery_set, sort_keys=False, allow_unicode=True),
-        encoding="utf-8",
-    )
-
-    report = yaml.safe_load(report_path.read_text(encoding="utf-8")) or {}
-    report["recommended_candidate_id"] = winner
-    report["recommendation_rationale"] = rationale
-    report["rejected_candidate_reasons"] = rejected
-    report_path.write_text(
-        yaml.safe_dump(report, sort_keys=False, allow_unicode=True),
-        encoding="utf-8",
-    )
+    for path in (discovery_set_path, report_path):
+        payload = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        if winner is None:
+            payload.pop("recommended_candidate_id", None)
+        else:
+            payload["recommended_candidate_id"] = winner
+        payload["recommendation_status"] = recommendation_status
+        payload["recommendation_basis"] = recommendation_basis
+        payload["recommendation_rationale"] = rationale
+        payload["candidate_tradeoffs"] = tradeoffs
+        # Backward-compatible field retained for recommendation consumers.
+        payload["rejected_candidate_reasons"] = rejected
+        path.write_text(
+            yaml.safe_dump(payload, sort_keys=False, allow_unicode=True),
+            encoding="utf-8",
+        )
 
     lines = comparison_path.read_text(encoding="utf-8").splitlines()
-    lines.extend(["", "## Auteur Advisory Recommendation", "", *surface_lines[1:]])
+    lines.extend(["", "## Auteur Recommendation Judgment", "", *surface_lines[1:]])
     comparison_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -448,16 +506,15 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
         _err("no Story Discovery candidate survived validation.")
         return 1
 
-    winner: str | None = None
-    rationale = ""
-    rejected: dict[str, str] = {}
+    judgment: RecommendationJudgment | None = None
     craft_analysis = None
+    profiles: dict[str, Any] = {}
     try:
         _refresh_project_contract(candidate_outputs, args)
         _require_distinct_engines(candidate_outputs)
         if len(candidate_outputs) == 1:
             causal_analysis = CausalAnalysis(status="not_applicable_single_survivor", profiles={})
-            winner, rationale, rejected = _single_survivor(
+            judgment = single_survivor_judgment(
                 candidate_outputs[0].candidate_id,
                 args.candidates,
             )
@@ -475,21 +532,25 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
                         causal_profiles=profiles,
                     )
                 )
-                winner, rationale, rejected = _parse_judgment(
+                judgment = _parse_judgment(
                     response.text,
                     [co.candidate_id for co in candidate_outputs],
+                    allow_explicit_intent_fit=False,
                 )
-                craft_analysis = derive_craft_impacts(
-                    base_client,
-                    winner,
-                    candidate_outputs,
-                    profiles,
-                    premise_text,
-                )
+                if judgment.status == "recommended":
+                    assert judgment.recommended_candidate_id is not None
+                    craft_analysis = derive_craft_impacts(
+                        base_client,
+                        judgment.recommended_candidate_id,
+                        candidate_outputs,
+                        profiles,
+                        premise_text,
+                    )
     except Exception as exc:
         _err(f"Failed to produce comparative Story Discovery recommendation: {exc}")
         return 1
 
+    winner = judgment.recommended_candidate_id if judgment is not None else None
     if winner is not None:
         data.rec_set.recommended_candidate_id = winner
     written = serialize_story_discovery(data, args.output, args.brain_dump)
@@ -500,14 +561,16 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
     )
     append_causal_comparison(args.output, causal_analysis)
 
-    if winner is not None:
+    if judgment is not None and judgment.status == "recommended":
+        assert winner is not None
         surface_lines = _recommendation_surface_lines(
             winner=winner,
-            rationale=rationale,
-            rejected=rejected,
+            rationale=judgment.rationale,
+            rejected=judgment.rejected_candidate_reasons,
             candidate_outputs=candidate_outputs,
             output_dir=args.output,
             requested_candidates=args.candidates,
+            basis=judgment.basis,
         )
         if craft_analysis is not None:
             surface_lines = replace_generic_alternatives_with_craft(
@@ -517,9 +580,12 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
         _augment_artifacts(
             args.output,
             winner=winner,
-            rationale=rationale,
-            rejected=rejected,
+            rationale=judgment.rationale,
+            rejected=judgment.rejected_candidate_reasons,
             surface_lines=surface_lines,
+            recommendation_status=judgment.status,
+            recommendation_basis=judgment.basis,
+            candidate_tradeoffs=judgment.candidate_tradeoffs,
         )
         if craft_analysis is not None:
             persist_craft_analysis(
@@ -528,6 +594,23 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
                 artifact_names=("discovery_set.yaml", "discovery_report.yaml"),
             )
             append_craft_comparison(args.output, craft_analysis, profiles, candidate_outputs)
+    elif judgment is not None:
+        surface_lines = _judgment_non_adjudicable_surface_lines(
+            rationale=judgment.rationale,
+            tradeoffs=judgment.candidate_tradeoffs,
+            candidate_outputs=candidate_outputs,
+            output_dir=args.output,
+        )
+        _augment_artifacts(
+            args.output,
+            winner=None,
+            rationale=judgment.rationale,
+            rejected={},
+            surface_lines=surface_lines,
+            recommendation_status=judgment.status,
+            recommendation_basis=None,
+            candidate_tradeoffs=judgment.candidate_tradeoffs,
+        )
     else:
         surface_lines = non_adjudicable_surface_lines(
             causal_analysis,
