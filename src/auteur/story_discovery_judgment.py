@@ -2,7 +2,7 @@
 
 The recommendation layer distinguishes evidence-backed author-intent fit from
 Auteur's own advisory craft preference, and can decline to manufacture a
-preference when neither is defensible.  The result remains advisory and never
+preference when neither is defensible. The result remains advisory and never
 mutates canonical StoryIdentity state.
 """
 
@@ -39,7 +39,9 @@ class RecommendationJudgment:
 
     ``__iter__`` intentionally preserves the historic three-value unpacking
     contract used by older tests/callers: winner, rationale, rejected reasons.
-    New code should inspect ``status`` and ``basis`` directly.
+    New v2 callers should inspect ``status`` and ``basis`` directly. A ``None``
+    basis on a recommended result means the response used the pre-calibration
+    legacy contract and therefore supplied no defensible basis classification.
     """
 
     status: RecommendationStatus
@@ -105,9 +107,10 @@ def parse_recommendation_judgment(
     payload = _json_object(text)
     keys = set(payload)
 
-    # Backward-compatible fixture/artifact response support.  A legacy result can
-    # prove only that the old judge preferred a candidate; it cannot establish
-    # that the preference came from explicit author intent.
+    # Backward-compatible fixture/artifact response support. A legacy result can
+    # prove only that the old judge preferred a candidate. It cannot establish
+    # *why* that candidate won under the new calibrated basis contract, so the
+    # basis deliberately remains unclassified instead of being guessed.
     if keys == _LEGACY_KEYS:
         winner = payload["recommended_candidate_id"]
         if not isinstance(winner, str) or winner.strip() not in surviving_candidate_ids:
@@ -125,7 +128,7 @@ def parse_recommendation_judgment(
             raise ValueError("rejection reasons must cover exactly every non-selected survivor")
         return RecommendationJudgment(
             status="recommended",
-            basis="advisory_artistic_preference",
+            basis=None,
             recommended_candidate_id=winner,
             rationale=rationale.strip(),
             candidate_tradeoffs=reasons,
