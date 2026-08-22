@@ -21,7 +21,11 @@ from auteur.story_discovery_causality import (
     CausalProfileRecord,
     PairwiseAssessmentRecord,
 )
-from auteur.story_discovery_compose import CompositionReport, HierarchyAssessment
+from auteur.story_discovery_compose import (
+    CompositionReport,
+    HierarchyAssessment,
+    HierarchyDimensionAssessment,
+)
 from auteur.story_discovery_craft import (
     CraftAnalysis,
     CraftImpactRecord,
@@ -239,6 +243,24 @@ def _composed_from(primary: StoryIdentity) -> StoryIdentity:
     return composed
 
 
+def _dimension(*, experiential: bool = False) -> dict:
+    if experiential:
+        return {
+            "classification": "primary_preserved",
+            "rationale": "Painful dramatic irony still governs recurring emotional attention and trajectory.",
+            "primary_evidence_preserved": ["her incomplete knowledge organizes reader anticipation"],
+            "borrowed_evidence_subordinate": ["hidden repair adds tenderness without owning the emotional arc"],
+            "risks": ["too much brother-focused scene time could displace the reader-experience center"],
+        }
+    return {
+        "classification": "primary_preserved",
+        "rationale": "Her recovery strategy and climax remain decisive.",
+        "primary_evidence_preserved": ["protagonist-led recovery", "protagonist-owned climax"],
+        "borrowed_evidence_subordinate": ["brother hidden repair"],
+        "risks": ["too many successful repairs could displace her causal ownership"],
+    }
+
+
 class _ComposeClient:
     def __init__(self, composed: StoryIdentity):
         self.composed = composed
@@ -264,11 +286,8 @@ class _ComposeClient:
         elif "bounded narrative hierarchy assessor" in request.system:
             text = json.dumps(
                 {
-                    "classification": "primary_preserved",
-                    "rationale": "Her recovery strategy and climax remain decisive.",
-                    "primary_mechanics_preserved": ["protagonist-led recovery", "protagonist-owned climax"],
-                    "borrowed_mechanics_subordinate": ["brother hidden repair"],
-                    "risks": ["too many successful repairs could displace her causal ownership"],
+                    "causal": _dimension(),
+                    "experiential": _dimension(experiential=True),
                 }
             )
         else:
@@ -280,22 +299,42 @@ def _persist_current_composition(root: Path, primary: StoryIdentity) -> None:
     discovery = root / "story_discovery"
     composed = _composed_from(primary)
     composed.to_yaml(discovery / "composed_candidate.yaml")
+    causal_dimension = HierarchyDimensionAssessment.model_validate(_dimension())
+    experiential_dimension = HierarchyDimensionAssessment.model_validate(
+        _dimension(experiential=True)
+    )
     report = CompositionReport(
+        schema_version=2,
         primary_candidate_id="candidate_1",
         borrowed=[
             {
                 "candidate_id": "candidate_2",
                 "mechanism": "secret atonement through hidden repairs",
+                "job": (
+                    "Use this requested mechanism only as a subordinate complication, pressure, "
+                    "or texture layer: secret atonement through hidden repairs"
+                ),
+                "forbidden_ownership": [
+                    "governing external objective",
+                    "decisive reversal chain",
+                    "climax",
+                    "governing reader-experience promise",
+                ],
             }
         ],
         primary_evidence_key="aaaaaaaa111111111111",
         borrowed_evidence_keys={"candidate_2": "bbbbbbbb222222222222"},
         hierarchy_assessment=HierarchyAssessment(
             classification="primary_preserved",
-            rationale="Her recovery strategy and climax remain decisive.",
+            rationale=(
+                "Causal hierarchy: Her recovery strategy and climax remain decisive. "
+                "Experiential hierarchy: Painful dramatic irony still governs recurring emotional attention and trajectory."
+            ),
             primary_mechanics_preserved=["protagonist-led recovery"],
             borrowed_mechanics_subordinate=["hidden repair"],
             risks=[],
+            causal=causal_dimension,
+            experiential=experiential_dimension,
         ),
         composed_causal_profile=_profile(
             "cccccccc333333333333",

@@ -22,10 +22,14 @@ from auteur.story_discovery_causality import (
     PairwiseAssessmentRecord,
 )
 from auteur.story_discovery_compose import (
+    CompositionReport,
     _validate_preserved_commitments,
+    _with_policy_boundary,
     build_composition_request,
+    build_hierarchy_request,
     dispatch_story_discovery_compose,
     parse_borrow_spec,
+    parse_hierarchy_assessment,
 )
 from auteur.story_discovery_craft import (
     CraftAnalysis,
@@ -122,7 +126,12 @@ def _impact(candidate_id: str, composability: str = "compatible_as_secondary") -
     )
 
 
-def _write_run(tmp_path: Path, *, composability: str = "compatible_as_secondary", causal_status: str = "qualified"):
+def _write_run(
+    tmp_path: Path,
+    *,
+    composability: str = "compatible_as_secondary",
+    causal_status: str = "qualified",
+):
     discovery = tmp_path / "story_discovery"
     discovery.mkdir()
     primary = _identity(
@@ -230,10 +239,36 @@ def _args(discovery: Path, *, borrow=None, output=None):
     )()
 
 
+def _dimension(classification: str, *, experiential: bool = False) -> dict:
+    if experiential:
+        rationale = "Painful dramatic irony remains the recurring emotional and thematic center."
+        primary = ["the protagonist's incomplete knowledge still organizes reader anticipation"]
+        subordinate = ["the brother's hidden intervention adds pity without owning the emotional arc"]
+        risks = ["too much brother-focused scene time could make atonement the emotional primary"]
+    else:
+        rationale = "The protagonist's recovery strategy and climax remain decisive."
+        primary = ["protagonist-led repair", "protagonist-owned climax"]
+        subordinate = ["brother hidden intervention"]
+        risks = ["too many successful interventions could displace the protagonist"]
+    return {
+        "classification": classification,
+        "rationale": rationale,
+        "primary_evidence_preserved": primary,
+        "borrowed_evidence_subordinate": subordinate,
+        "risks": risks,
+    }
+
+
 class ComposeClient:
-    def __init__(self, composed: StoryIdentity, hierarchy="primary_preserved"):
+    def __init__(
+        self,
+        composed: StoryIdentity,
+        causal_hierarchy: str = "primary_preserved",
+        experiential_hierarchy: str = "primary_preserved",
+    ):
         self.composed = composed
-        self.hierarchy = hierarchy
+        self.causal_hierarchy = causal_hierarchy
+        self.experiential_hierarchy = experiential_hierarchy
         self.requests: list[LLMRequest] = []
 
     def complete(self, request: LLMRequest) -> LLMResponse:
@@ -265,11 +300,11 @@ class ComposeClient:
             return LLMResponse(
                 text=json.dumps(
                     {
-                        "classification": self.hierarchy,
-                        "rationale": "The protagonist's recovery strategy and climax remain decisive.",
-                        "primary_mechanics_preserved": ["protagonist-led repair", "protagonist-owned climax"],
-                        "borrowed_mechanics_subordinate": ["brother hidden intervention"],
-                        "risks": ["too many successful interventions could displace the protagonist"],
+                        "causal": _dimension(self.causal_hierarchy),
+                        "experiential": _dimension(
+                            self.experiential_hierarchy,
+                            experiential=True,
+                        ),
                     }
                 ),
                 input_tokens=1,
@@ -329,6 +364,8 @@ def test_borrow_spec_splits_only_first_colon():
     borrow = parse_borrow_spec("candidate_2:secret intervention: moral cost")
     assert borrow.candidate_id == "candidate_2"
     assert borrow.mechanism == "secret intervention: moral cost"
+    assert borrow.job is None
+    assert borrow.forbidden_ownership == []
 
 
 def test_missing_self_duplicate_and_incompatible_borrows_fail_before_provider(tmp_path, monkeypatch):
@@ -369,21 +406,49 @@ def test_nonqualified_causal_set_fails_before_provider(tmp_path, monkeypatch):
     assert dispatch_story_discovery_compose(_args(discovery)) == 1
 
 
-def test_composition_request_excludes_primary_and_alternative_self_advocacy(tmp_path):
-    discovery, primary, secondary, causal, craft = _write_run(tmp_path)
-    request = build_composition_request(
+def test_composition_and_hierarchy_requests_include_bounded_job_and_forbidden_ownership(tmp_path):
+    _discovery, primary, secondary, causal, craft = _write_run(tmp_path)
+    borrow = _with_policy_boundary(parse_borrow_spec("candidate_2:secret interventions"))
+    resolved = [(borrow, secondary, craft.impacts["candidate_2"])]
+
+    composition_request = build_composition_request(
         "candidate_1",
         primary,
-        [(parse_borrow_spec("candidate_2:secret interventions"), secondary, craft.impacts["candidate_2"])],
+        resolved,
         causal,
         declared_author_intent={"premise": "controlled premise"},
     )
-    assert "SELF ADVOCACY" not in request.user
-    assert "0.99" not in request.user
-    assert '"requested_mechanism": "secret interventions"' in request.user
-    assert '"hard_constraints"' in request.user
-    assert '"architecture_preferences"' in request.user
-    assert "primary_with_layers" in request.user
+    assert "SELF ADVOCACY" not in composition_request.user
+    assert "0.99" not in composition_request.user
+    assert '"requested_mechanism": "secret interventions"' in composition_request.user
+    assert '"job": "Use this requested mechanism only as a subordinate complication' in composition_request.user
+    assert '"governing external objective"' in composition_request.user
+    assert '"governing reader-experience promise"' in composition_request.user
+    assert '"hard_constraints"' in composition_request.user
+    assert '"architecture_preferences"' in composition_request.user
+    assert "primary_with_layers" in composition_request.user
+
+    composed = _composed_from(primary)
+    composed_profile = _profile(
+        "dddddddd444444444444",
+        "repair visible consequences with subordinate hidden intervention",
+        ["repair", "organize", "adapt"],
+        "the protagonist resolves the external crisis",
+    )
+    hierarchy_request = build_hierarchy_request(
+        "candidate_1",
+        primary,
+        composed,
+        causal.profiles["candidate_1"],
+        composed_profile,
+        resolved,
+        causal,
+        declared_author_intent={"premise": "controlled premise"},
+    )
+    assert "DUAL-HIERARCHY" in hierarchy_request.user
+    assert '"forbidden_ownership"' in hierarchy_request.user
+    assert '"reader_experience_shift"' in hierarchy_request.user
+    assert "same target-experience label is not proof" in hierarchy_request.system.lower()
 
 
 def test_preserved_commitment_mismatch_fails_closed():
@@ -394,9 +459,42 @@ def test_preserved_commitment_mismatch_fails_closed():
         _validate_preserved_commitments(primary, composed)
 
 
-def test_hierarchy_displacement_writes_no_composed_candidate(tmp_path, monkeypatch):
+def test_hierarchy_parser_derives_aggregate_deterministically():
+    response = json.dumps(
+        {
+            "causal": _dimension("primary_preserved"),
+            "experiential": _dimension("uncertain", experiential=True),
+        }
+    )
+    hierarchy = parse_hierarchy_assessment(response)
+    assert hierarchy.classification == "uncertain"
+    assert hierarchy.causal is not None
+    assert hierarchy.experiential is not None
+    assert hierarchy.causal.classification == "primary_preserved"
+    assert hierarchy.experiential.classification == "uncertain"
+
+
+@pytest.mark.parametrize(
+    ("causal_hierarchy", "experiential_hierarchy"),
+    [
+        ("primary_displaced", "primary_preserved"),
+        ("primary_preserved", "primary_displaced"),
+        ("uncertain", "primary_preserved"),
+        ("primary_preserved", "uncertain"),
+    ],
+)
+def test_any_displaced_or_uncertain_dimension_writes_no_composed_candidate(
+    tmp_path,
+    monkeypatch,
+    causal_hierarchy: str,
+    experiential_hierarchy: str,
+):
     discovery, primary, *_ = _write_run(tmp_path)
-    client = ComposeClient(_composed_from(primary), hierarchy="primary_displaced")
+    client = ComposeClient(
+        _composed_from(primary),
+        causal_hierarchy=causal_hierarchy,
+        experiential_hierarchy=experiential_hierarchy,
+    )
     monkeypatch.setattr("auteur.llm.factory.build_client", lambda *a, **k: client)
 
     assert dispatch_story_discovery_compose(_args(discovery)) == 1
@@ -405,7 +503,67 @@ def test_hierarchy_displacement_writes_no_composed_candidate(tmp_path, monkeypat
     assert not (tmp_path / "story_identity.yaml").exists()
 
 
-def test_successful_composition_writes_candidate_and_report_without_changing_source_recommendation(
+def _legacy_report_payload() -> dict:
+    profile = _profile(
+        "dddddddd444444444444",
+        "repair visible consequences with subordinate hidden intervention",
+        ["repair", "organize", "adapt"],
+        "the protagonist resolves the external crisis",
+    )
+    return {
+        "schema_version": 1,
+        "status": "candidate_only",
+        "primary_candidate_id": "candidate_1",
+        "borrowed": [
+            {
+                "candidate_id": "candidate_2",
+                "mechanism": "secret interventions",
+            }
+        ],
+        "primary_evidence_key": "aaaaaaaa111111111111",
+        "borrowed_evidence_keys": {"candidate_2": "bbbbbbbb222222222222"},
+        "hierarchy_assessment": {
+            "classification": "primary_preserved",
+            "rationale": "The primary still governs decisive causation.",
+            "primary_mechanics_preserved": ["repair", "climax"],
+            "borrowed_mechanics_subordinate": ["hidden intervention"],
+            "risks": [],
+        },
+        "composed_causal_profile": profile.model_dump(mode="json"),
+        "output_candidate": "story_discovery/composed_candidate.yaml",
+    }
+
+
+def test_legacy_v1_composition_report_remains_readable():
+    report = CompositionReport.model_validate(_legacy_report_payload())
+    assert report.schema_version == 1
+    assert report.hierarchy_assessment.classification == "primary_preserved"
+    assert report.hierarchy_assessment.causal is None
+    assert report.borrowed[0].job is None
+
+
+def test_v2_report_requires_both_dimensions_and_consistent_aggregate():
+    missing_dimensions = _legacy_report_payload()
+    missing_dimensions["schema_version"] = 2
+    missing_dimensions["borrowed"][0]["job"] = "subordinate pressure"
+    missing_dimensions["borrowed"][0]["forbidden_ownership"] = ["climax"]
+    with pytest.raises(ValueError, match="requires causal and experiential"):
+        CompositionReport.model_validate(missing_dimensions)
+
+    inconsistent = _legacy_report_payload()
+    inconsistent["schema_version"] = 2
+    inconsistent["borrowed"][0]["job"] = "subordinate pressure"
+    inconsistent["borrowed"][0]["forbidden_ownership"] = ["climax"]
+    inconsistent["hierarchy_assessment"]["causal"] = _dimension("primary_preserved")
+    inconsistent["hierarchy_assessment"]["experiential"] = _dimension(
+        "primary_displaced",
+        experiential=True,
+    )
+    with pytest.raises(ValueError, match="aggregate is inconsistent"):
+        CompositionReport.model_validate(inconsistent)
+
+
+def test_successful_composition_writes_v2_candidate_and_report_without_changing_source_recommendation(
     tmp_path, monkeypatch, capsys
 ):
     discovery, primary, *_ = _write_run(tmp_path)
@@ -432,10 +590,18 @@ def test_successful_composition_writes_candidate_and_report_without_changing_sou
     assert composed.hard_constraints == primary.hard_constraints
 
     report = yaml.safe_load(report_path.read_text(encoding="utf-8"))
+    assert report["schema_version"] == 2
     assert report["status"] == "candidate_only"
     assert report["primary_candidate_id"] == "candidate_1"
-    assert report["borrowed"][0]["candidate_id"] == "candidate_2"
-    assert report["hierarchy_assessment"]["classification"] == "primary_preserved"
+    borrow = report["borrowed"][0]
+    assert borrow["candidate_id"] == "candidate_2"
+    assert "subordinate complication" in borrow["job"]
+    assert "governing external objective" in borrow["forbidden_ownership"]
+    assert "governing reader-experience promise" in borrow["forbidden_ownership"]
+    hierarchy = report["hierarchy_assessment"]
+    assert hierarchy["classification"] == "primary_preserved"
+    assert hierarchy["causal"]["classification"] == "primary_preserved"
+    assert hierarchy["experiential"]["classification"] == "primary_preserved"
     assert report["composed_causal_profile"]["causal_owner"].startswith("protagonist-led")
 
     assert yaml.safe_load((discovery / "discovery_report.yaml").read_text(encoding="utf-8")) == original_report
