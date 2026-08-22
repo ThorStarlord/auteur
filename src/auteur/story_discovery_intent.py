@@ -17,18 +17,19 @@ import yaml
 
 from auteur.llm import LLMRequest
 from auteur.story_discovery_brief import DiscoveryBrief, IntentAdequacy, assess_intent_adequacy
+from auteur.story_discovery_judgment import RecommendationJudgment, single_survivor_judgment
 from auteur.story_discovery_recommend import (
     _JUDGE_SYSTEM,
     _augment_artifacts,
     _build_judge_request,
     _candidate_evidence,
     _err,
+    _judgment_non_adjudicable_surface_lines,
     _parse_judgment,
     _recommendation_surface_lines,
     _refresh_project_contract,
     _require_distinct_engines,
     _resolve_premise,
-    _single_survivor,
 )
 
 
@@ -46,6 +47,11 @@ target experience, architecture preference, or constraints.
 - Omitted brief fields remain UNKNOWN. Do not invent preferences to fill them.
 - Architecture preferences may influence the winner but must not turn profile
   length or complexity into an automatic quality signal.
+- Use explicit_intent_fit only when a declared value actually distinguishes the
+  recommendation. If the deciding value is Auteur's own craft preference, use
+  advisory_artistic_preference and name the tradeoff honestly.
+- If neither declared intent nor a defensible advisory craft preference settles the
+  comparison, return not_adjudicable rather than manufacturing certainty.
 """
 
 
@@ -267,9 +273,14 @@ def _qualify_surface(lines: list[str], *, intent_aware: bool) -> list[str]:
     qualified = list(lines)
     if not qualified:
         return qualified
+    recommendation_prefixes = (
+        "RECOMMENDED —",
+        "BEST FIT TO YOUR DECLARED INTENT —",
+        "AUTEUR'S ADVISORY PREFERENCE —",
+        "ONLY VIABLE INTERPRETATION —",
+    )
     has_recommendation = any(
-        line.startswith("RECOMMENDED —")
-        or line.startswith("ONLY VIABLE INTERPRETATION —")
+        line.startswith(recommendation_prefixes)
         for line in qualified
     )
     if intent_aware:
@@ -278,7 +289,7 @@ def _qualify_surface(lines: list[str], *, intent_aware: bool) -> list[str]:
             (
                 "Intent-aware recommendation against your declared Discovery Brief."
                 if has_recommendation
-                else "Intent-aware causal assessment against your declared Discovery Brief."
+                else "Intent-aware comparative assessment against your declared Discovery Brief."
             ),
         )
         return qualified
@@ -289,7 +300,7 @@ def _qualify_surface(lines: list[str], *, intent_aware: bool) -> list[str]:
             "Exploratory recommendation using Auteur's default criteria; no structured "
             "Discovery Brief was supplied, so this is not a claim about undeclared author intent."
             if has_recommendation
-            else "Exploratory causal assessment; no structured Discovery Brief was supplied, "
+            else "Exploratory comparative assessment; no structured Discovery Brief was supplied, "
             "so this is not a claim about undeclared author intent."
         ),
     )
@@ -449,10 +460,9 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
         _err("no Story Discovery candidate survived validation after applying declared author intent.")
         return 1
 
-    winner: str | None = None
-    rationale = ""
-    rejected: dict[str, str] = {}
+    judgment: RecommendationJudgment | None = None
     craft_analysis = None
+    profiles: dict[str, Any] = {}
     try:
         contract_args = SimpleNamespace(project=args.project, genre=genre)
         _refresh_project_contract(candidate_outputs, contract_args)
@@ -460,7 +470,7 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
         _require_distinct_engines(candidate_outputs)
         if len(candidate_outputs) == 1:
             causal_analysis = CausalAnalysis(status="not_applicable_single_survivor", profiles={})
-            winner, rationale, rejected = _single_survivor(
+            judgment = single_survivor_judgment(
                 candidate_outputs[0].candidate_id,
                 args.candidates,
             )
@@ -493,22 +503,26 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
                             causal_profiles=profiles,
                         )
                     )
-                winner, rationale, rejected = _parse_judgment(
+                judgment = _parse_judgment(
                     response.text,
                     [co.candidate_id for co in candidate_outputs],
+                    allow_explicit_intent_fit=brief is not None,
                 )
-                craft_analysis = derive_craft_impacts(
-                    base_client,
-                    winner,
-                    candidate_outputs,
-                    profiles,
-                    premise_text,
-                    declared_author_intent=declared,
-                )
+                if judgment.status == "recommended":
+                    assert judgment.recommended_candidate_id is not None
+                    craft_analysis = derive_craft_impacts(
+                        base_client,
+                        judgment.recommended_candidate_id,
+                        candidate_outputs,
+                        profiles,
+                        premise_text,
+                        declared_author_intent=declared,
+                    )
     except Exception as exc:
         _err(f"Failed to produce comparative Story Discovery recommendation: {exc}")
         return 1
 
+    winner = judgment.recommended_candidate_id if judgment is not None else None
     if winner is not None:
         data.rec_set.recommended_candidate_id = winner
     written = serialize_story_discovery(data, args.output, source_input)
@@ -519,14 +533,16 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
     )
     append_causal_comparison(args.output, causal_analysis)
 
-    if winner is not None:
+    if judgment is not None and judgment.status == "recommended":
+        assert winner is not None
         surface_lines = _recommendation_surface_lines(
             winner=winner,
-            rationale=rationale,
-            rejected=rejected,
+            rationale=judgment.rationale,
+            rejected=judgment.rejected_candidate_reasons,
             candidate_outputs=candidate_outputs,
             output_dir=args.output,
             requested_candidates=args.candidates,
+            basis=judgment.basis,
         )
         if craft_analysis is not None:
             surface_lines = replace_generic_alternatives_with_craft(
@@ -537,9 +553,12 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
         _augment_artifacts(
             args.output,
             winner=winner,
-            rationale=rationale,
-            rejected=rejected,
+            rationale=judgment.rationale,
+            rejected=judgment.rejected_candidate_reasons,
             surface_lines=surface_lines,
+            recommendation_status=judgment.status,
+            recommendation_basis=judgment.basis,
+            candidate_tradeoffs=judgment.candidate_tradeoffs,
         )
         if craft_analysis is not None:
             persist_craft_analysis(
@@ -548,6 +567,24 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
                 artifact_names=("discovery_set.yaml", "discovery_report.yaml"),
             )
             append_craft_comparison(args.output, craft_analysis, profiles, candidate_outputs)
+    elif judgment is not None:
+        surface_lines = _judgment_non_adjudicable_surface_lines(
+            rationale=judgment.rationale,
+            tradeoffs=judgment.candidate_tradeoffs,
+            candidate_outputs=candidate_outputs,
+            output_dir=args.output,
+        )
+        surface_lines = _qualify_surface(surface_lines, intent_aware=brief is not None)
+        _augment_artifacts(
+            args.output,
+            winner=None,
+            rationale=judgment.rationale,
+            rejected={},
+            surface_lines=surface_lines,
+            recommendation_status=judgment.status,
+            recommendation_basis=None,
+            candidate_tradeoffs=judgment.candidate_tradeoffs,
+        )
     else:
         surface_lines = non_adjudicable_surface_lines(
             causal_analysis,
