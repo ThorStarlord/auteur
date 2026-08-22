@@ -155,7 +155,12 @@ def _impact(composability: str = "compatible_as_secondary") -> CraftImpactRecord
     )
 
 
-def _persist_run(root: Path, brief: DiscoveryBrief, *, causal_status: str = "qualified") -> StoryIdentity:
+def _persist_run(
+    root: Path,
+    brief: DiscoveryBrief,
+    *,
+    causal_status: str = "qualified",
+) -> StoryIdentity:
     discovery = root / "story_discovery"
     primary = _identity(
         "What She Saves",
@@ -173,7 +178,11 @@ def _persist_run(root: Path, brief: DiscoveryBrief, *, causal_status: str = "qua
         right_evidence_key="bbbbbbbb222222222222",
         left_candidate_id="candidate_1",
         right_candidate_id="candidate_2",
-        classification="near_duplicate" if causal_status == "not_adjudicable_near_duplicate" else "distinct",
+        classification=(
+            "near_duplicate"
+            if causal_status == "not_adjudicable_near_duplicate"
+            else "distinct"
+        ),
         shared_causal_mechanics=["same disaster aftermath"],
         material_differences=(
             []
@@ -201,7 +210,9 @@ def _persist_run(root: Path, brief: DiscoveryBrief, *, causal_status: str = "qua
     )
     payload = {
         "recommended_candidate_id": "candidate_1",
-        "recommendation_rationale": "The visible recovery engine best preserves the declared reader promise.",
+        "recommendation_rationale": (
+            "The visible recovery engine best preserves the declared reader promise."
+        ),
         "intent_mode": "intent_aware",
         "declared_author_intent": brief.declared_intent(),
         "causal_analysis": causal.model_dump(mode="json"),
@@ -231,8 +242,12 @@ def _composed_from(primary: StoryIdentity) -> StoryIdentity:
     )
     composed.central_engine = HighLevelCentralEngine(
         want=primary.central_engine.want,
-        resistance="Incomplete knowledge and hidden repairs complicate recovery without solving it for her.",
-        conflict="She must keep rebuilding while unseen interventions change obstacles she still owns.",
+        resistance=(
+            "Incomplete knowledge and hidden repairs complicate recovery without solving it for her."
+        ),
+        conflict=(
+            "She must keep rebuilding while unseen interventions change obstacles she still owns."
+        ),
         stakes=primary.central_engine.stakes,
         change=primary.central_engine.change,
     )
@@ -257,18 +272,44 @@ class _ComposeClient:
                     "pressure_system": "incomplete knowledge plus hidden interventions",
                     "reversal_mechanics": ["a hidden repair changes the recovery plan"],
                     "climax_mechanic": "her own public decision resolves the crisis",
-                    "scene_families": ["recovery operation", "hidden repair consequence", "public choice"],
+                    "scene_families": [
+                        "recovery operation",
+                        "hidden repair consequence",
+                        "public choice",
+                    ],
                     "evidence_gaps": [],
                 }
             )
         elif "bounded narrative hierarchy assessor" in request.system:
             text = json.dumps(
                 {
-                    "classification": "primary_preserved",
-                    "rationale": "Her recovery strategy and climax remain decisive.",
-                    "primary_mechanics_preserved": ["protagonist-led recovery", "protagonist-owned climax"],
-                    "borrowed_mechanics_subordinate": ["brother hidden repair"],
-                    "risks": ["too many successful repairs could displace her causal ownership"],
+                    "causal": {
+                        "classification": "primary_preserved",
+                        "rationale": "Her recovery strategy and climax remain decisive.",
+                        "preserved_evidence": [
+                            "protagonist-led recovery",
+                            "protagonist-owned climax",
+                        ],
+                        "subordinate_evidence": ["brother hidden repair"],
+                        "risks": [
+                            "too many successful repairs could displace her causal ownership"
+                        ],
+                    },
+                    "experiential": {
+                        "classification": "primary_preserved",
+                        "rationale": (
+                            "Her painful dramatic irony and practical agency remain the emotional center."
+                        ),
+                        "preserved_evidence": [
+                            "recovery scenes still organize around her incomplete knowledge"
+                        ],
+                        "subordinate_evidence": [
+                            "hidden repairs deepen dread and tenderness without taking over"
+                        ],
+                        "risks": [
+                            "repeated brother scenes could become the audience's practical center"
+                        ],
+                    },
                 }
             )
         else:
@@ -323,7 +364,10 @@ def test_phase_g_scenario_a_guided_review_compose_accept_advances_to_structure(
     assert brief.architecture_preferences is not None
     assert brief.architecture_preferences.complexity == ComplexityPreference.MAXIMALIST
     assert brief.architecture_preferences.causal_distribution == CausalDistributionPreference.MIXED
-    assert brief.architecture_preferences.engine_hierarchy == EngineHierarchyPreference.PRIMARY_WITH_LAYERS
+    assert (
+        brief.architecture_preferences.engine_hierarchy
+        == EngineHierarchyPreference.PRIMARY_WITH_LAYERS
+    )
     assert not (root / "story_identity.yaml").exists()
 
     discovery_action = WorkflowEngine(root).analyze().actions[0]
@@ -399,7 +443,9 @@ def test_phase_g_scenario_b_non_adjudicable_review_has_no_fake_accept_or_compose
 
     monkeypatch.setattr(
         "auteur.llm.factory.build_client",
-        lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("provider must not be constructed")),
+        lambda *args, **kwargs: (_ for _ in ()).throw(
+            AssertionError("provider must not be constructed")
+        ),
     )
     assert main(["story-discovery", "compose", "--project", str(root)]) == 1
     assert not (root / "story_identity.yaml").exists()
@@ -416,7 +462,10 @@ def test_phase_g_scenario_c_writer_edit_stales_recommendation_and_composition(
     brief = _capture_minimum_brief(root, monkeypatch)
     primary = _persist_run(root, brief)
     _persist_current_composition(root, primary)
-    assert classify_story_discovery_project(root).kind == StoryDiscoveryStateKind.COMPOSED_CANDIDATE_AVAILABLE
+    assert (
+        classify_story_discovery_project(root).kind
+        == StoryDiscoveryStateKind.COMPOSED_CANDIDATE_AVAILABLE
+    )
 
     _answers(monkeypatch, ["4", "reconstructive relief", "done"])
     assert main(["story-discovery", "start", "--project", str(root), "--edit"]) == 0
@@ -438,7 +487,9 @@ def test_phase_g_scenario_c_writer_edit_stales_recommendation_and_composition(
 
     monkeypatch.setattr(
         "auteur.llm.factory.build_client",
-        lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("provider must not be constructed")),
+        lambda *args, **kwargs: (_ for _ in ()).throw(
+            AssertionError("provider must not be constructed")
+        ),
     )
     assert main(["story-discovery", "compose", "--project", str(root)]) == 1
     assert not (root / "story_identity.yaml").exists()

@@ -14,7 +14,7 @@ from types import SimpleNamespace
 from typing import Any, Literal
 
 import yaml
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from auteur.identity import StoryIdentity
 from auteur.llm import LLMRequest
@@ -26,6 +26,13 @@ from auteur.story_discovery_causality import (
 from auteur.story_discovery_craft import CraftAnalysis, CraftImpactRecord
 
 
+_FORBIDDEN_BORROW_OWNERSHIP = (
+    "governing external objective",
+    "decisive reversal chain",
+    "climax",
+    "governing reader-experience promise",
+)
+
 _COMPOSITION_SYSTEM = """You are Auteur's bounded narrative composition architect.
 
 Create one new StoryIdentity candidate by preserving the supplied PRIMARY ENGINE
@@ -35,6 +42,9 @@ approved alternatives.
 AUTHORITY AND HIERARCHY RULES
 - This is candidate generation only. Never claim canonical state changed.
 - The primary engine must continue to govern the story's decisive causal turns.
+- The primary engine must continue to govern the intended reader experience.
+- Each borrowed layer has an explicit subordinate job and forbidden ownership.
+  Treat those boundaries as hard composition constraints.
 - Borrowed mechanisms may deepen motive, obstruction, consequence, reversal, or
   texture, but must remain subordinate to the primary engine.
 - Preserve every supplied primary hard constraint.
@@ -51,24 +61,41 @@ the JSON object.
 
 _HIERARCHY_SYSTEM = """You are Auteur's bounded narrative hierarchy assessor.
 
-Determine whether the composed candidate still has the declared PRIMARY ENGINE as
-its governing causal engine after subordinate mechanisms were borrowed.
+Evaluate the composed candidate on TWO INDEPENDENT dimensions. This is not a
+quality score and the dimensions must not be collapsed into one intuitive verdict.
 
-This is not a quality score. Compare major action patterns, recurring pressure,
-reversal mechanics, and the climax. A composition preserves the primary only when
-borrowed mechanisms enrich or complicate those mechanics without taking ownership
-of the decisive turns or climax.
+CAUSAL HIERARCHY
+Ask whether the declared PRIMARY ENGINE still owns the governing external
+objective, major recurring action pattern, decisive reversals, and climax.
 
-Classifications:
-- primary_preserved: the primary engine still governs decisive causation;
-- primary_displaced: a borrowed mechanism now governs decisive causation;
+EXPERIENTIAL HIERARCHY
+Ask whether the declared PRIMARY ENGINE still governs what recurring scenes are
+emotionally organized around: anticipation/dread/grief/etc., the emotional
+trajectory, thematic center, and the audience's practical center of gravity.
+
+A matching target-experience primary label is a required deterministic commitment,
+but it is NOT proof that experiential hierarchy was preserved. A borrowed layer
+may leave the climax causally subordinate while nevertheless becoming what the
+story is emotionally about.
+
+For each dimension use exactly one classification:
+- primary_preserved: the primary still governs that dimension;
+- primary_displaced: a borrowed mechanism now governs that dimension;
 - uncertain: evidence is insufficient for a defensible hierarchy claim.
 
-Return JSON only with exactly these keys:
+Respect each borrowed layer's explicit job and forbidden ownership. Those
+boundaries are evidence for what the borrow is allowed to do, not proof that the
+result actually stayed within them.
+
+Return JSON only with exactly these top-level keys:
+- causal
+- experiential
+
+Each dimension must contain exactly:
 - classification
 - rationale
-- primary_mechanics_preserved
-- borrowed_mechanics_subordinate
+- preserved_evidence
+- subordinate_evidence
 - risks
 """
 
@@ -80,6 +107,8 @@ class BorrowRequest(BaseModel):
 
     candidate_id: str = Field(min_length=1)
     mechanism: str = Field(min_length=1)
+    job: str | None = None
+    forbidden_ownership: list[str] = Field(default_factory=list)
 
     @field_validator("candidate_id", "mechanism")
     @classmethod
@@ -89,8 +118,20 @@ class BorrowRequest(BaseModel):
             raise ValueError("borrow candidate and mechanism must be non-empty")
         return value
 
+    @field_validator("job")
+    @classmethod
+    def _trim_job(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        value = value.strip()
+        if not value:
+            raise ValueError("borrow job must be non-empty when supplied")
+        return value
+
 
 class HierarchyAssessment(BaseModel):
+    """Aggregate hierarchy result retained for v1/report-reader compatibility."""
+
     model_config = ConfigDict(extra="forbid")
 
     classification: HierarchyClassification
@@ -100,18 +141,104 @@ class HierarchyAssessment(BaseModel):
     risks: list[str]
 
 
+class HierarchyDimensionAssessment(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    classification: HierarchyClassification
+    rationale: str = Field(min_length=1)
+    preserved_evidence: list[str]
+    subordinate_evidence: list[str]
+    risks: list[str]
+
+
+class DualHierarchyAssessment(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    causal: HierarchyDimensionAssessment
+    experiential: HierarchyDimensionAssessment
+
+
+def _aggregate_classification(
+    causal: HierarchyClassification,
+    experiential: HierarchyClassification,
+) -> HierarchyClassification:
+    classifications = {causal, experiential}
+    if "primary_displaced" in classifications:
+        return "primary_displaced"
+    if "uncertain" in classifications:
+        return "uncertain"
+    return "primary_preserved"
+
+
+def aggregate_hierarchy_assessment(dual: DualHierarchyAssessment) -> HierarchyAssessment:
+    """Derive the legacy aggregate deterministically from the two dimensions."""
+
+    classification = _aggregate_classification(
+        dual.causal.classification,
+        dual.experiential.classification,
+    )
+    preserved = [
+        *(f"Causal: {item}" for item in dual.causal.preserved_evidence),
+        *(f"Experiential: {item}" for item in dual.experiential.preserved_evidence),
+    ]
+    subordinate = [
+        *(f"Causal: {item}" for item in dual.causal.subordinate_evidence),
+        *(f"Experiential: {item}" for item in dual.experiential.subordinate_evidence),
+    ]
+    risks = list(dict.fromkeys([*dual.causal.risks, *dual.experiential.risks]))
+    return HierarchyAssessment(
+        classification=classification,
+        rationale=(
+            f"Causal hierarchy: {dual.causal.rationale} "
+            f"Experiential hierarchy: {dual.experiential.rationale}"
+        ),
+        primary_mechanics_preserved=preserved,
+        borrowed_mechanics_subordinate=subordinate,
+        risks=risks,
+    )
+
+
 class CompositionReport(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: Literal[1] = 1
+    schema_version: Literal[1, 2] = 1
     status: Literal["candidate_only"] = "candidate_only"
     primary_candidate_id: str
     borrowed: list[BorrowRequest]
     primary_evidence_key: str
     borrowed_evidence_keys: dict[str, str]
     hierarchy_assessment: HierarchyAssessment
+    causal_hierarchy_assessment: HierarchyDimensionAssessment | None = None
+    experiential_hierarchy_assessment: HierarchyDimensionAssessment | None = None
     composed_causal_profile: CausalProfileRecord
     output_candidate: str
+
+    @model_validator(mode="after")
+    def _validate_schema_version(self) -> CompositionReport:
+        if self.schema_version == 1:
+            return self
+
+        if self.causal_hierarchy_assessment is None:
+            raise ValueError("v2 composition report requires causal_hierarchy_assessment")
+        if self.experiential_hierarchy_assessment is None:
+            raise ValueError("v2 composition report requires experiential_hierarchy_assessment")
+
+        expected = _aggregate_classification(
+            self.causal_hierarchy_assessment.classification,
+            self.experiential_hierarchy_assessment.classification,
+        )
+        if self.hierarchy_assessment.classification != expected:
+            raise ValueError(
+                "v2 aggregate hierarchy classification must be derived from causal and "
+                "experiential assessments"
+            )
+        for borrow in self.borrowed:
+            if borrow.job is None or not borrow.forbidden_ownership:
+                raise ValueError(
+                    "v2 composition report requires a subordinate job and forbidden ownership "
+                    "for every borrowed mechanism"
+                )
+        return self
 
 
 def _err(message: str) -> None:
@@ -128,6 +255,20 @@ def parse_borrow_spec(raw: str) -> BorrowRequest:
         )
     candidate_id, mechanism = raw.split(":", 1)
     return BorrowRequest(candidate_id=candidate_id, mechanism=mechanism)
+
+
+def _bound_borrow(borrow: BorrowRequest) -> BorrowRequest:
+    """Attach the deterministic subordinate job/ownership policy to an author borrow."""
+
+    return borrow.model_copy(
+        update={
+            "job": (
+                f"Use {borrow.mechanism} only as subordinate pressure, complication, "
+                "consequence, or texture under the governing primary."
+            ),
+            "forbidden_ownership": list(_FORBIDDEN_BORROW_OWNERSHIP),
+        }
+    )
 
 
 def _load_identity(path: Path) -> StoryIdentity:
@@ -211,7 +352,8 @@ def _validate_requests(
         raise ValueError("each borrowed candidate may be supplied only once")
 
     resolved: list[tuple[BorrowRequest, StoryIdentity, CraftImpactRecord]] = []
-    for borrow in borrows:
+    for raw_borrow in borrows:
+        borrow = _bound_borrow(raw_borrow)
         if borrow.candidate_id not in causal.profiles:
             raise ValueError(
                 f"borrowed candidate has no F3 causal profile: {borrow.candidate_id}"
@@ -234,6 +376,28 @@ def _validate_requests(
     return primary, resolved
 
 
+def _bounded_craft_impact(impact: CraftImpactRecord) -> dict[str, Any]:
+    raw = impact.model_dump(
+        mode="json",
+        exclude={
+            "primary_candidate_id",
+            "compared_candidate_id",
+            "primary_evidence_key",
+            "compared_evidence_key",
+        },
+    )
+    keep = {
+        "causal_ownership_shift",
+        "external_action_shift",
+        "pressure_texture_shift",
+        "reader_experience_shift",
+        "thematic_effect",
+        "composition_note",
+        "primary_risk",
+    }
+    return {key: value for key, value in raw.items() if key in keep}
+
+
 def build_composition_request(
     primary_id: str,
     primary: StoryIdentity,
@@ -253,17 +417,11 @@ def build_composition_request(
             {
                 "candidate_id": borrow.candidate_id,
                 "requested_mechanism": borrow.mechanism,
+                "job": borrow.job,
+                "forbidden_ownership": borrow.forbidden_ownership,
                 "story_commitments": _bounded_identity(identity),
                 "causal_profile": causal.profiles[borrow.candidate_id].model_dump(mode="json"),
-                "craft_impact": impact.model_dump(
-                    mode="json",
-                    exclude={
-                        "primary_candidate_id",
-                        "compared_candidate_id",
-                        "primary_evidence_key",
-                        "compared_evidence_key",
-                    },
-                ),
+                "craft_impact": _bounded_craft_impact(impact),
             }
             for borrow, identity, impact in borrows
         ],
@@ -343,40 +501,58 @@ def _resolve_composition_premise(
     if isinstance(premise_summary, str) and premise_summary.strip():
         return premise_summary.strip()
 
-    # Historical/raw discovery artifacts may not preserve a dedicated source premise.
-    # Falling back to the accepted primary candidate's core answer keeps F5 compatible
-    # without inventing context.
     return primary.core_answer
 
 
 def build_hierarchy_request(
+    primary_id: str,
+    primary: StoryIdentity,
+    composed: StoryIdentity,
     primary_profile: CausalProfileRecord,
     composed_profile: CausalProfileRecord,
-    borrows: list[BorrowRequest],
+    borrows: list[tuple[BorrowRequest, StoryIdentity, CraftImpactRecord]],
     causal: CausalAnalysis,
+    *,
+    declared_author_intent: dict[str, Any] | None,
 ) -> LLMRequest:
     evidence = {
-        "primary_profile": primary_profile.model_dump(mode="json"),
-        "composed_profile": composed_profile.model_dump(mode="json"),
-        "borrowed_mechanisms": [
+        "declared_author_intent": declared_author_intent,
+        "primary": {
+            "candidate_id": primary_id,
+            "story_commitments": _bounded_identity(primary),
+            "causal_profile": primary_profile.model_dump(mode="json"),
+        },
+        "composed": {
+            "story_commitments": _bounded_identity(composed),
+            "causal_profile": composed_profile.model_dump(mode="json"),
+        },
+        "borrowed_layers": [
             {
                 "candidate_id": borrow.candidate_id,
                 "requested_mechanism": borrow.mechanism,
-                "source_profile": causal.profiles[borrow.candidate_id].model_dump(mode="json"),
+                "job": borrow.job,
+                "forbidden_ownership": borrow.forbidden_ownership,
+                "source_story_commitments": _bounded_identity(identity),
+                "source_causal_profile": causal.profiles[borrow.candidate_id].model_dump(
+                    mode="json"
+                ),
+                "craft_impact": _bounded_craft_impact(impact),
             }
-            for borrow in borrows
+            for borrow, identity, impact in borrows
         ],
     }
     return LLMRequest(
         system=_HIERARCHY_SYSTEM,
         user="BOUNDED HIERARCHY EVIDENCE\n" + json.dumps(evidence, indent=2, ensure_ascii=False),
-        max_tokens=1400,
+        max_tokens=2200,
         temperature=0.1,
         model=None,
     )
 
 
 def parse_hierarchy_assessment(text: str) -> HierarchyAssessment:
+    """Parse the historical one-dimensional hierarchy shape for v1 compatibility."""
+
     match = re.search(r"\{.*\}", text.strip(), re.DOTALL)
     if not match:
         raise ValueError("hierarchy assessment did not contain a JSON object")
@@ -384,6 +560,16 @@ def parse_hierarchy_assessment(text: str) -> HierarchyAssessment:
         return HierarchyAssessment.model_validate(json.loads(match.group(0)))
     except Exception as exc:
         raise ValueError(f"hierarchy assessment failed schema validation: {exc}") from exc
+
+
+def parse_dual_hierarchy_assessment(text: str) -> DualHierarchyAssessment:
+    match = re.search(r"\{.*\}", text.strip(), re.DOTALL)
+    if not match:
+        raise ValueError("dual hierarchy assessment did not contain a JSON object")
+    try:
+        return DualHierarchyAssessment.model_validate(json.loads(match.group(0)))
+    except Exception as exc:
+        raise ValueError(f"dual hierarchy assessment failed schema validation: {exc}") from exc
 
 
 def dispatch_story_discovery_compose(args: Any) -> int:
@@ -437,16 +623,21 @@ def dispatch_story_discovery_compose(args: Any) -> int:
         )
         hierarchy_response = client.complete(
             build_hierarchy_request(
+                args.primary,
+                primary,
+                composed,
                 causal.profiles[args.primary],
                 composed_profile,
-                borrow_requests,
+                resolved,
                 causal,
+                declared_author_intent=declared,
             )
         )
-        hierarchy = parse_hierarchy_assessment(hierarchy_response.text)
+        dual_hierarchy = parse_dual_hierarchy_assessment(hierarchy_response.text)
+        hierarchy = aggregate_hierarchy_assessment(dual_hierarchy)
         if hierarchy.classification != "primary_preserved":
             raise ValueError(
-                "composition hierarchy did not preserve the primary engine: "
+                "composition hierarchy did not preserve both causal and experiential primacy: "
                 f"{hierarchy.classification} — {hierarchy.rationale}"
             )
     except Exception as exc:
@@ -462,6 +653,7 @@ def dispatch_story_discovery_compose(args: Any) -> int:
     )
     composed.to_yaml(output)
     composition_report = CompositionReport(
+        schema_version=2,
         primary_candidate_id=args.primary,
         borrowed=borrow_requests,
         primary_evidence_key=causal.profiles[args.primary].evidence_key,
@@ -470,6 +662,8 @@ def dispatch_story_discovery_compose(args: Any) -> int:
             for borrow in borrow_requests
         },
         hierarchy_assessment=hierarchy,
+        causal_hierarchy_assessment=dual_hierarchy.causal,
+        experiential_hierarchy_assessment=dual_hierarchy.experiential,
         composed_causal_profile=composed_profile,
         output_candidate=str(output),
     )
@@ -484,6 +678,8 @@ def dispatch_story_discovery_compose(args: Any) -> int:
 
     print(f"COMPOSED CANDIDATE — {composed.title}")
     print(f"Primary engine retained: {args.primary}")
+    print("Causal hierarchy: primary_preserved")
+    print("Experiential hierarchy: primary_preserved")
     print("Borrowed subordinate mechanisms:")
     for borrow in borrow_requests:
         print(f"- {borrow.candidate_id}: {borrow.mechanism}")
