@@ -254,3 +254,4 @@ findings document.
 - [Simulation Protocol](premise-to-story-identity-simulation.md)
 - [Stress Simulation Protocol](premise-to-story-identity-stress-simulation.md)
 - [Stress Simulation Findings](premise-to-story-identity-stress-simulation-findings.md)
+- [Human-Research Readiness Addendum](premise-to-story-identity-human-research-readiness.md)
