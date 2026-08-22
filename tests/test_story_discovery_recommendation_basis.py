@@ -116,7 +116,7 @@ def test_malformed_recommendation_basis_combinations_fail_closed(
         _parse_judgment(response, ["candidate_1", "candidate_2"])
 
 
-def test_legacy_judge_payload_is_conservatively_advisory() -> None:
+def test_legacy_judge_payload_remains_basis_unclassified() -> None:
     legacy = json.dumps(
         {
             "recommended_candidate_id": "candidate_1",
@@ -126,7 +126,7 @@ def test_legacy_judge_payload_is_conservatively_advisory() -> None:
     )
     judgment = _parse_judgment(legacy, ["candidate_1", "candidate_2"])
     assert judgment.status == "recommended"
-    assert judgment.basis == "advisory_artistic_preference"
+    assert judgment.basis is None
 
 
 def _write_yaml(path: Path, payload: dict) -> None:
