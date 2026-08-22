@@ -24,7 +24,6 @@ from auteur.story_discovery_causality import (
 from auteur.story_discovery_compose import (
     CompositionReport,
     DualHierarchyAssessment,
-    HierarchyAssessment,
     HierarchyDimensionAssessment,
     _bound_borrow,
     _validate_preserved_commitments,
