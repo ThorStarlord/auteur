@@ -55,9 +55,7 @@ def _print_list(label: str, values: list[str]) -> None:
 
 def _profile(discovery_set: dict[str, Any], candidate_id: str) -> dict[str, Any]:
     causal = discovery_set.get("causal_analysis")
-    if not isinstance(causal, dict):
-        return {}
-    profiles = causal.get("profiles")
+    profiles = causal.get("profiles") if isinstance(causal, dict) else None
     if not isinstance(profiles, dict):
         return {}
     raw = profiles.get(candidate_id)
@@ -133,7 +131,6 @@ def _render_tradeoffs(
     impacts = _craft_impacts(discovery_set)
     if not impacts and not state.problems:
         return
-
     print("\nTradeoffs and meaningful alternatives")
     if not impacts:
         print("Detailed craft comparison is unavailable from the current persisted evidence.")
@@ -150,7 +147,6 @@ def _render_tradeoffs(
         note = impact.get("composition_note")
         if isinstance(note, str) and note.strip():
             print(f"Composition note: {note.strip()}")
-
     if state.problems:
         print("\nEvidence notes")
         for problem in state.problems:
@@ -170,7 +166,7 @@ def _render_recommendation_actions(root: Path, state: StoryDiscoveryProjectState
     if state.can_compose:
         alternatives = ", ".join(state.compatible_secondary_candidate_ids)
         print(f"- Explore a compatible composition from: {alternatives}")
-        print("  The compose command still requires you to name the mechanism to borrow.")
+        print("  Name only what you want to borrow; Auteur enforces hierarchy internally.")
     print("- Change your declared intent:")
     print("    auteur story-discovery start --project . --edit")
     print("- Generate a different search space:")
@@ -198,8 +194,6 @@ def _render_recommendation(root: Path, state: StoryDiscoveryProjectState) -> Non
             "This is a craft judgment among compatible directions, not an additional author requirement."
         )
     else:
-        # Legacy artifacts predate the recommendation-basis contract. Preserve
-        # their old surface without retroactively claiming an evidentiary basis.
         print("Recommended story direction\n")
         rationale_heading = "Why this fits what you said you want"
         basis_note = None
@@ -209,8 +203,7 @@ def _render_recommendation(root: Path, state: StoryDiscoveryProjectState) -> Non
     print(
         _text(
             discovery_set.get("recommendation_rationale"),
-            "The persisted run records this as the advisory recommendation, but no "
-            "additional rationale was saved.",
+            "The persisted run records this as the advisory recommendation, but no additional rationale was saved.",
         )
     )
     if basis_note is not None:
@@ -223,6 +216,17 @@ def _render_recommendation(root: Path, state: StoryDiscoveryProjectState) -> Non
     _render_recommendation_actions(root, state)
 
 
+def _candidate_tradeoffs(discovery_set: dict[str, Any]) -> dict[str, str]:
+    raw = discovery_set.get("candidate_tradeoffs")
+    if not isinstance(raw, dict):
+        return {}
+    return {
+        candidate_id: tradeoff.strip()
+        for candidate_id, tradeoff in raw.items()
+        if isinstance(candidate_id, str) and isinstance(tradeoff, str) and tradeoff.strip()
+    }
+
+
 def _shared_profile_summary(discovery_set: dict[str, Any]) -> None:
     causal = discovery_set.get("causal_analysis")
     profiles = causal.get("profiles") if isinstance(causal, dict) else None
@@ -230,29 +234,14 @@ def _shared_profile_summary(discovery_set: dict[str, Any]) -> None:
         return
     print("\nWhat the analyzed directions currently have in common")
     for candidate_id, raw in profiles.items():
-        if not isinstance(raw, dict):
-            continue
-        print(
-            f"- {candidate_id}: {_text(raw.get('primary_strategy'))}; "
-            f"pressure = {_text(raw.get('pressure_system'))}"
-        )
+        if isinstance(raw, dict):
+            print(
+                f"- {candidate_id}: {_text(raw.get('primary_strategy'))}; "
+                f"pressure = {_text(raw.get('pressure_system'))}"
+            )
 
 
-def _candidate_tradeoffs(discovery_set: dict[str, Any]) -> dict[str, str]:
-    raw = discovery_set.get("candidate_tradeoffs")
-    if not isinstance(raw, dict):
-        return {}
-    result: dict[str, str] = {}
-    for candidate_id, tradeoff in raw.items():
-        if isinstance(candidate_id, str) and isinstance(tradeoff, str) and tradeoff.strip():
-            result[candidate_id] = tradeoff.strip()
-    return result
-
-
-def _render_comparative_non_adjudicable(
-    root: Path,
-    discovery_set: dict[str, Any],
-) -> None:
+def _render_comparative_non_adjudicable(root: Path, discovery_set: dict[str, Any]) -> None:
     print("Auteur does not have an honest preference here.\n")
     print(
         "The surviving directions are causally distinct, but your current intent leaves "
@@ -261,14 +250,12 @@ def _render_comparative_non_adjudicable(
     rationale = discovery_set.get("recommendation_rationale")
     if isinstance(rationale, str) and rationale.strip():
         print(f"\n{rationale.strip()}")
-
     tradeoffs = _candidate_tradeoffs(discovery_set)
     if tradeoffs:
         print("\nMeaningful alternatives")
         for candidate_id, tradeoff in tradeoffs.items():
             path = root / "story_discovery" / f"{candidate_id}.yaml"
             print(f"- {_title(path, candidate_id)} (`{candidate_id}`) — {tradeoff}")
-
     print("\nNothing canonical has changed.")
     print("\nYou can:")
     for candidate_id in tradeoffs:
@@ -295,7 +282,6 @@ def _render_non_adjudicable(root: Path, state: StoryDiscoveryProjectState) -> No
     if state.non_adjudicable_reason == "comparative_judgment":
         _render_comparative_non_adjudicable(root, discovery_set)
         return
-
     print("Auteur does not have a defensible recommendation yet.\n")
     if state.causal_status == "not_adjudicable_near_duplicate":
         print(
@@ -319,6 +305,36 @@ def _render_non_adjudicable(root: Path, state: StoryDiscoveryProjectState) -> No
     )
 
 
+def _dimension(hierarchy: dict[str, Any], name: str) -> dict[str, Any] | None:
+    raw = hierarchy.get(name)
+    return raw if isinstance(raw, dict) else None
+
+
+def _render_dimension(title: str, assessment: dict[str, Any]) -> None:
+    print(f"\n{title}")
+    print(_text(assessment.get("rationale")))
+    preserved = _items(assessment.get("primary_evidence_preserved"))
+    subordinate = _items(assessment.get("borrowed_evidence_subordinate"))
+    if preserved:
+        _print_list("Primary evidence preserved:", preserved)
+    if subordinate:
+        _print_list("Borrowed evidence kept subordinate:", subordinate)
+
+
+def _render_borrow_boundary(item: dict[str, Any]) -> None:
+    candidate_id = _text(item.get("candidate_id"))
+    mechanism = _text(item.get("mechanism"))
+    print(f"- {candidate_id}: {mechanism}")
+    job = item.get("job")
+    if isinstance(job, str) and job.strip():
+        print(f"  Job: {job.strip()}")
+    forbidden = _items(item.get("forbidden_ownership"))
+    if forbidden:
+        print("  It may not take ownership of:")
+        for boundary in forbidden:
+            print(f"  - {boundary}")
+
+
 def _render_composed(root: Path, state: StoryDiscoveryProjectState) -> None:
     assert state.composed_candidate_path is not None
     assert state.composition_report_path is not None
@@ -339,16 +355,23 @@ def _render_composed(root: Path, state: StoryDiscoveryProjectState) -> None:
     if isinstance(borrowed, list) and borrowed:
         for item in borrowed:
             if isinstance(item, dict):
-                print(f"- {_text(item.get('candidate_id'))}: {_text(item.get('mechanism'))}")
+                _render_borrow_boundary(item)
     else:
         print("- Not recorded in the persisted evidence.")
 
-    print("\nWhy the primary still governs")
-    print(_text(hierarchy.get("rationale")))
+    causal = _dimension(hierarchy, "causal")
+    experiential = _dimension(hierarchy, "experiential")
+    if report.get("schema_version") == 2 and causal is not None and experiential is not None:
+        _render_dimension("Why the primary still governs the plot", causal)
+        _render_dimension("Why it still governs the reader experience", experiential)
+    else:
+        print("\nWhy the primary still governs")
+        print(_text(hierarchy.get("rationale")))
+
     _render_mechanics(profile)
     risks = _items(hierarchy.get("risks"))
     if risks:
-        _print_list("\nHierarchy risks:", risks)
+        _print_list("\nRemaining displacement risks:", risks)
 
     print("\nNothing canonical has changed.")
     print("\nYou can:")
@@ -377,8 +400,7 @@ def _render_unreviewable(state: StoryDiscoveryProjectState) -> int:
         StoryDiscoveryStateKind.READY_TO_DISCOVER: "The current brief needs a fresh Story Discovery run.",
         StoryDiscoveryStateKind.DISCOVERY_INVALID: "The current Story Discovery evidence is invalid.",
     }
-    message = messages.get(state.kind, "There is nothing reviewable yet.")
-    print(f"Error: {message}", file=sys.stderr)
+    print(f"Error: {messages.get(state.kind, 'There is nothing reviewable yet.')}", file=sys.stderr)
     for problem in state.problems:
         print(f"- {problem}", file=sys.stderr)
     return 1
