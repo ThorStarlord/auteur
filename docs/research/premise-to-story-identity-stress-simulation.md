@@ -354,3 +354,410 @@ is not rewritten or deleted when a standalone record is created.
 All registry and run records are synthetic simulation evidence. They must not
 be described as human participant research, creative-beginner validation, or
 product validation. No human participant data belongs in these records.
+
+## Protocol v1.3 - controlled mutation challenges
+
+Protocol version: `v1.3`
+
+Status: `INTERNAL SIMULATION PROTOCOL`
+
+V1.3 is an adversarial evaluator rehearsal. It retains the v1.2 Book-level
+interaction and authority boundaries, but introduces controlled defects into
+participant-facing packets to test whether the evaluator can detect them. The
+records are synthetic and are not human research or product validation.
+
+### Frozen test basis
+
+All four runs use the exact v1.2 primary-secondary premise from
+`stress-v12-primary-secondary-07`. The premise, persona, evaluator, record
+type, and interaction flow remain fixed. Packet mutations are the only intended
+variable.
+
+> Six weeks before a mountain valley's only night bus is sold to a private
+> operator, a young mechanic wants to keep the route serving isolated villages,
+> while her older brother wants to recover their late mother's recordings about
+> a mining company that poisoned the river. The operator will preserve the
+> route only if the recordings remain private. The story must stay hopeful, and
+> no one may speak for the villages or accept a settlement without the
+> residents choosing the public position themselves.
+
+The run sequence remains: premise inventory; primary-thread recommendation;
+author accept/revise decision; context triage and preservation map; observable
+constraint map; one recommended direction and rejected alternatives; proposed
+`StoryIdentity`; paraphrase; accept/reject/revise; one bounded revision; and
+next creative decision.
+
+### Mutation rules
+
+The control packet is an unmodified valid v1.2 packet. Each mutation is
+described in an evaluator-only section of its run record and is not shown to
+the persona during the persona pass. The evaluator receives the mutation
+description only after the complete persona transcript is captured.
+
+The evaluator must report two separate outcomes:
+
+1. the ordinary protocol classification: `SIMULATION_PASS`,
+   `SIMULATION_FAILURE`, or `SIMULATION_INCONCLUSIVE`;
+2. the mutation-detection outcome: `DETECTED`, `MISSED`, or `INCONCLUSIVE`.
+
+A mutation is detected only when the evaluator identifies the defect and cites
+transcript evidence. A deliberate defect is not itself sufficient to classify
+the ordinary flow as a failure. Conversely, an evaluator detecting a defect
+does not erase an authority-boundary failure experienced by the persona.
+
+### Frozen v1.3 runs
+
+| Run ID | Controlled packet condition | Expected evaluator finding |
+|---|---|---|
+| `stress-v13-control-08` | Valid v1.2 packet with all protections present | No mutation; normal flow should pass. |
+| `stress-v13-mutation-thread-09` | The recordings goal is silently demoted to background context | The packet fails to give an important premise intention an explicit active disposition. |
+| `stress-v13-mutation-constraint-10` | Resident authority is expressed only as an abstract assurance | The packet lacks observable must/must-not behavior for a non-negotiable constraint. |
+| `stress-v13-mutation-authority-11` | A `StoryIdentity` is shown before primary-thread ratification and its provisional status is unclear | The packet presents Identity before sufficient author authorization and risks proposal/canon confusion. |
+
+### Participant-facing protection
+
+Mutation disclosures, expected findings, and evaluator criteria must never
+appear in the participant-facing packet or neutral facilitator prompts. The
+persona may notice and challenge a defective packet; that is evidence. The
+facilitator may clarify what a prompt asks, but may not reveal the mutation,
+choose the primary thread, or repair the packet substantively.
+
+### Freeze decision
+
+V1.3 is internally ready to freeze only when the valid control passes, every
+mutation is detected, the persona/evaluator roles remain separate, no mutation
+silently becomes canon, and safe-stop and next-decision rules remain intact.
+If any mutation is missed or role separation fails, preserve the records and
+design v1.4. An authority-boundary failure can also block readiness even when
+the evaluator correctly detects it, because detection is not the same as a
+safe author-facing flow.
+
+The v1.3 [registry](premise-to-story-identity-stress-simulation-v1-3.md)
+contains the run index and decision. Full records are stored in the
+[v1.3 run directory](premise-to-story-identity-stress-simulation-v1-3-runs/).
+The human evidence file
+`premise-to-story-identity-findings.md` remains reserved for human participant
+research and is not part of this protocol.
+
+## Protocol v1.4 - pre-Identity authority gate
+
+Protocol version: `v1.4`
+
+Status: `INTERNAL SIMULATION PROTOCOL`
+
+V1.4 hardens the authority boundary exposed by the repeated v1.3 authority
+mutation. It keeps the Book-level scope, frozen premise basis, persona,
+evaluator, and interaction flow unchanged while making Identity presentation
+conditional on an earlier author decision.
+
+### V1.4 authority rules
+
+The participant-facing flow must enforce all of these conditions:
+
+1. Show the raw premise, plain-language inventory, recommended primary thread,
+   and primary-thread decision before showing any `StoryIdentity` fields.
+2. Do not show a `StoryIdentity`, Identity field, or Identity-shaped summary
+   before the author explicitly accepts or revises the primary-thread
+   recommendation.
+3. After primary-thread authorization, label every Identity proposal exactly as
+   `PROPOSED / NOT CANON` or an equally explicit plain-language statement that
+   it has not been accepted.
+4. Do not use `working direction`, `StoryIdentity direction`, or another
+   provisional-sounding label as a substitute for explicit proposal status.
+5. Ask for paraphrase and an explicit accept, reject, or revise decision before
+   treating the proposal as accepted.
+6. Preserve the one bounded revision with visible before/after commitments and
+   end with a next creative decision.
+7. If primary-thread authorization is incomplete or ambiguous, stop before
+   Identity presentation and name the decision required to continue.
+
+Ordering and status are independent protections. A packet that has explicit
+`PROPOSED / NOT CANON` status but shows Identity too early is defective. A
+packet that waits until after ratification but omits explicit status is also
+defective. If the persona treats Identity as accepted before explicit
+authorization, the normal classification is a failure even when the evaluator
+detects the mutation.
+
+### Frozen v1.4 basis and flow
+
+All four v1.4 runs use the exact premise from
+`stress-v12-primary-secondary-07`. Packet mutations are the only intended
+variable. The fixed metadata is:
+
+- Protocol: `v1.4`;
+- Persona: `creative-beginner-v1.0`;
+- Evaluator: `simulation-evaluator-v1.0`;
+- Record type: `SIMULATION`;
+- Human participants: `0`.
+
+The sequence is: premise inventory; primary-thread recommendation; explicit
+primary-thread accept or revise decision; context triage and preservation map;
+observable constraint map; one recommended direction and rejected alternatives;
+`PROPOSED / NOT CANON` `StoryIdentity`; paraphrase; accept/reject/revise; one
+bounded revision; and next creative decision. The control must make the
+pre-Identity gate visible. Mutation runs may violate one or both protections,
+but the mutation must remain hidden from the persona.
+
+### Frozen v1.4 runs
+
+| Run ID | Controlled packet condition | Expected evaluator finding |
+|---|---|---|
+| `stress-v14-control-13` | Primary-thread ratification precedes Identity; proposal has explicit `PROPOSED / NOT CANON` status | No mutation; normal flow should pass. |
+| `stress-v14-mutation-order-14` | Identity appears before primary-thread ratification; status remains explicit | Ordering mutation is detected even though the label is correct. |
+| `stress-v14-mutation-status-15` | Primary-thread ratification precedes Identity; proposal status is absent or ambiguous | Status mutation is detected even though ordering is correct. |
+| `stress-v14-mutation-combined-16` | Identity appears before ratification and status is ambiguous | Both authority protections are defective and the combined mutation is detected. |
+
+### Classification and freeze gate
+
+Each run reports both the ordinary classification
+(`SIMULATION_PASS`, `SIMULATION_FAILURE`, or `SIMULATION_INCONCLUSIVE`) and,
+for mutation runs, the separate mutation-detection outcome (`DETECTED`,
+`MISSED`, or `INCONCLUSIVE`). The evaluator must cite transcript evidence.
+Detection does not erase an author-facing authority failure.
+
+V1.4 is ready to freeze for later human research only when the control passes,
+all three mutations are detected, no persona treats Identity as canon
+prematurely, proposal/canon separation remains understandable, safe-stop and
+next-decision behavior remain intact, and persona/evaluator roles remain
+separate. If any condition fails or evidence is inconclusive, preserve the
+records and design v1.5.
+
+This is a protocol-readiness decision only. It does not authorize runtime,
+schema, CLI, semantic architecture, or product-surface changes. Candidate
+Auteur implications belong in the v1.4 registry as product hypotheses only.
+
+### V1.4 evidence storage
+
+The [v1.4 registry](premise-to-story-identity-stress-simulation-v1-4.md) owns
+metadata, the run index, aggregate findings, product hypotheses, limitations,
+and the freeze decision. Each standalone record in the
+[v1.4 run directory](premise-to-story-identity-stress-simulation-v1-4-runs/)
+owns the exact participant-facing packet, complete persona transcript,
+evaluator-only mutation disclosure, separate evaluator transcript, result,
+revision status, next decision, and limitations.
+
+V1.3 records and the historical archive remain unchanged. If the v1.4 packet,
+guide, prompt, persona, evaluator, or mutation method must change during a
+run, preserve the affected record and create v1.5 rather than combining
+pre-change and post-change evidence.
+
+## Protocol v1.5 - enforced authority gate
+
+V1.5 is an internal simulation protocol that replaces v1.4's detect-after-
+exposure behavior with a gate that withholds invalid Identity presentation
+before it reaches the persona. It remains limited to the Book-level premise-
+to-`StoryIdentity` interaction. It does not add runtime state, schemas, APIs,
+CLI behavior, semantic layers, or a product surface.
+
+### Explicit protocol states
+
+The protocol records these states and permits only the following transitions:
+
+| State | Allowed participant-facing content and entry condition |
+| --- | --- |
+| `PRE_IDENTITY` | Premise inventory, primary-thread recommendation, preservation map, context triage, and observable constraints only. Identity fields are forbidden. |
+| `PRIMARY_AUTHORIZED` | Entered only after the author explicitly accepts or revises the primary-thread recommendation. The primary decision is recorded before any Identity fields are shown. |
+| `IDENTITY_PROPOSED` | Entered only after `PRIMARY_AUTHORIZED`. The proposal must be visibly labeled exactly `PROPOSED / NOT CANON`. |
+| `IDENTITY_ACCEPTED` | Entered only after the author paraphrases the proposal and explicitly accepts it. Acceptance is an author decision, not an evaluator inference. |
+| `GATE_BLOCKED` | Entered when ordering is invalid, proposal status is missing or ambiguous, or authorization is incomplete. Identity is withheld and the reason plus a concrete next decision are recorded. |
+
+The normal sequence is `PRE_IDENTITY` -> `PRIMARY_AUTHORIZED` ->
+`IDENTITY_PROPOSED` -> `IDENTITY_ACCEPTED`. A blocked attempt may move to
+`GATE_BLOCKED`, but it may continue only after the defect is corrected and
+the author makes the required decision. A blocked flow always ends its current
+turn with a safe-stop explanation and a concrete next decision; it never
+silently converts a proposal into canon.
+
+### Enforced gate rules
+
+- No Identity field, summary, or equivalent working direction is shown while
+  the state is `PRE_IDENTITY`.
+- A primary-thread recommendation is not authorization. The protocol must
+  capture an explicit author accept/revise decision before entering
+  `PRIMARY_AUTHORIZED`.
+- Every pre-canon Identity display carries the exact visible status
+  `PROPOSED / NOT CANON`.
+- Ordering and status are checked separately. A valid status cannot repair
+  early ordering, and valid ordering cannot repair missing status.
+- When a gate check fails, the evaluator records the defect separately and the
+  participant-facing packet contains no invalid Identity fields.
+- Recovery requires a corrected packet, the required author decision, and a
+  fresh gate check before the flow may continue through paraphrase, bounded
+  revision, acceptance, and the next creative decision.
+
+### Frozen v1.5 basis and run matrix
+
+V1.5 uses the same Book-level premise as v1.2-v1.4 so gate behavior, rather
+than premise complexity, is the main variable:
+
+> Six weeks before a mountain valley's only night bus is sold to a private
+> operator, a young mechanic wants to keep the route serving isolated villages,
+> while her older brother wants to recover their late mother's recordings about
+> a mining company that poisoned the river. The operator will preserve the route
+> only if the recordings remain private. The story must stay hopeful, and no one
+> may speak for the villages or accept a settlement without the residents
+> choosing the public position themselves.
+
+| Run | Condition |
+| --- | --- |
+| `stress-v15-control-18` | Valid authorization ordering and explicit proposal status. |
+| `stress-v15-mutation-order-19` | Identity is attempted before primary-thread authorization; the gate must block before exposure. |
+| `stress-v15-mutation-status-20` | Primary authorization is present but proposal status is missing; the gate must withhold Identity until status is repaired. |
+| `stress-v15-mutation-combined-21` | Both ordering and status defects are attempted; the complete invalid mutation must be blocked before exposure. |
+| `stress-v15-recovery-22` | A blocked condition is explained, the author makes the required decision, and a corrected explicitly labeled proposal continues to completion. |
+
+Every run uses `Protocol: v1.5`, `Persona: creative-beginner-v1.0`,
+`Evaluator: simulation-evaluator-v1.0`, `Record type: SIMULATION`, and
+`Human participants: 0`. Mutation disclosures are evaluator-only and never
+appear in the persona-facing packet. The ordinary result remains one of
+`SIMULATION_PASS`, `SIMULATION_FAILURE`, or `SIMULATION_INCONCLUSIVE`; gate
+and mutation outcomes are recorded separately.
+
+### V1.5 safe-stop and freeze gate
+
+The safe-stop wording must tell the author that the proposal is unavailable,
+state what decision or repair is missing, and name the next decision. The
+evaluator distinguishes a defect blocked before exposure from a defect exposed
+to the persona, persona confusion, premature canon treatment, successful
+recovery, and ordinary protocol classification.
+
+V1.5 is ready to freeze for later human research only if the control is
+`SIMULATION_PASS`, all three injected mutations are blocked before Identity
+exposure and detected, no persona treats Identity as canon prematurely, every
+blocked flow has an explicit safe stop and next decision, the recovery run
+completes without substantive coaching, proposal status remains explicit after
+recovery, and persona/evaluator roles remain separate. Otherwise the registry
+records `NOT READY TO FREEZE` and defines v1.6 work.
+
+This is a protocol-readiness decision only. Synthetic runs are not human
+participant evidence and do not validate creative-beginner behavior. Candidate
+Auteur capabilities such as an enforced Identity-rendering gate, explicit
+proposal status, authorization provenance, and safe-stop/recovery states remain
+product hypotheses; they do not authorize implementation.
+
+### V1.5 evidence storage
+
+The [v1.5 registry](premise-to-story-identity-stress-simulation-v1-5.md) owns
+fixed metadata, the run index, aggregate findings, recovery findings, product
+hypotheses, limitations, and the freeze decision. Each standalone record in
+the [v1.5 run directory](premise-to-story-identity-stress-simulation-v1-5-runs/)
+owns the participant-facing material actually shown after gate enforcement,
+the complete persona transcript, evaluator-only defect disclosure, separate
+evaluator transcript, gate result, ordinary classification, revision status,
+next decision, and limitations. Run numbering is append-only.
+
+V1.2, v1.3, and v1.4 records remain unchanged. If a v1.5 packet, guide,
+prompt, persona, evaluator, or gate method must change during execution,
+preserve the affected record, increment the protocol version, and rerun only
+the affected scenario under v1.6. The human evidence file
+`premise-to-story-identity-findings.md` remains reserved for human participant
+research and is not part of this protocol.
+
+## Protocol v1.6 - enforced proposal alignment
+
+V1.6 extends the v1.5 authority gate with a content-alignment check. It tests
+whether a proposed `StoryIdentity` still matches the latest author-authorized
+primary thread, secondary dispositions, and observable constraints. It remains
+an internal simulation protocol at Book-level premise-to-Identity scope. It
+does not add runtime state, schemas, APIs, CLI behavior, semantic layers, or a
+product surface.
+
+### Alignment gate
+
+After `PRIMARY_AUTHORIZED` and before `IDENTITY_PROPOSED`, the evaluator records
+an alignment ledger containing:
+
+- the system recommendation;
+- the author's action: accept, reject, or revise;
+- the latest author-authorized primary thread;
+- each important secondary intention and its authorized disposition;
+- each non-negotiable constraint and its observable commitment;
+- the corresponding proposed primary, secondary dispositions, and constraints.
+
+The proposal passes alignment only when the proposed primary equals the latest
+authorized primary, important secondary intentions retain their authorized
+disposition, and non-negotiable constraints remain represented as observable
+commitments. Ordering and proposal status remain separate checks: valid order or
+`PROPOSED / NOT CANON` status cannot repair content misalignment.
+
+### Alignment failure and recovery
+
+An alignment failure enters `GATE_BLOCKED` with reason
+`ALIGNMENT_MISMATCH`. The defective Identity is withheld from the persona. The
+safe stop states that the proposal requires repair and names a concrete next
+decision, without exposing evaluator mutation details.
+
+Recovery must invalidate, repair, or regenerate the defective proposal. The
+corrected packet receives a fresh alignment check before entering
+`IDENTITY_PROPOSED`. Only a corrected proposal marked `PROPOSED / NOT CANON`
+may proceed through paraphrase, bounded revision, explicit acceptance, and the
+next creative decision. The invalid proposal never becomes canon and is not
+silently reused.
+
+The ordinary result remains one of `SIMULATION_PASS`, `SIMULATION_FAILURE`, or
+`SIMULATION_INCONCLUSIVE`. Gate result, detection phase, alignment outcome,
+recovery outcome, and ordinary classification are recorded separately. The
+evaluator distinguishes `BLOCKED_BEFORE_EXPOSURE`, `DETECTED_AFTER_EXPOSURE`,
+`MISSED`, and `INCONCLUSIVE` detection phases. Mutation disclosures remain
+evaluator-only.
+
+### Frozen v1.6 basis and run matrix
+
+V1.6 uses the same Book-level premise as v1.2-v1.5 so proposal alignment is the
+main variable:
+
+> Six weeks before a mountain valley's only night bus is sold to a private
+> operator, a young mechanic wants to keep the route serving isolated villages,
+> while her older brother wants to recover their late mother's recordings about
+> a mining company that poisoned the river. The operator will preserve the route
+> only if the recordings remain private. The story must stay hopeful, and no one
+> may speak for the villages or accept a settlement without the residents
+> choosing the public position themselves.
+
+| Run | Alignment condition |
+| --- | --- |
+| `stress-v16-control-25` | Valid primary, secondary, constraint, ordering, and status alignment. |
+| `stress-v16-mutation-primary-26` | The proposal retains a rejected route recommendation after recording-recovery becomes the authorized primary. |
+| `stress-v16-mutation-secondary-27` | The proposal silently drops or demotes the recordings after they were authorized as an important secondary intention. |
+| `stress-v16-mutation-constraint-28` | The proposal weakens or omits the observable resident-authority constraint. |
+
+Every run uses `Protocol: v1.6`, `Persona: creative-beginner-v1.0`,
+`Evaluator: simulation-evaluator-v1.0`, `Record type: SIMULATION`, and
+`Human participants: 0`. Each mutation run must block before defective Identity
+exposure, then document bounded repair and corrected continuation.
+
+### V1.6 freeze gate
+
+V1.6 is ready to freeze for later human research only when the control is
+`SIMULATION_PASS`, all three mutations are blocked before Identity exposure and
+detected with transcript support, repaired proposals align with the latest
+author decisions, no stale/demoted/weakened commitment reaches the persona,
+recovery completes without substantive coaching, no persona treats Identity as
+canon prematurely, proposal/canon status remains explicit, and persona and
+evaluator roles remain separate. If any mutation is exposed or missed, recovery
+fails, or evidence is inconclusive, record `NOT READY TO FREEZE` and design
+v1.7.
+
+This is a protocol-readiness decision only. Candidate Auteur capabilities such
+as authorization provenance, proposal-alignment validation, stale-proposal
+invalidation, disposition preservation, and before/after commitment views are
+product hypotheses only. They do not authorize implementation or alter the
+canonical architecture.
+
+### V1.6 evidence storage
+
+The [v1.6 registry](premise-to-story-identity-stress-simulation-v1-6.md) owns
+fixed metadata, the run index, aggregate alignment findings, recovery findings,
+product hypotheses, limitations, and the freeze decision. Each standalone
+record in the [v1.6 run directory](premise-to-story-identity-stress-simulation-v1-6-runs/)
+owns the participant-facing packet, complete persona transcript,
+evaluator-only mutation disclosure, alignment ledger, separate evaluator
+transcript, gate and detection results, recovery result, classification,
+revision status, next decision, and limitations. Run numbering is append-only.
+
+V1.5 records and the v1.5 registry remain unchanged. If a v1.6 packet, guide,
+prompt, evaluator, or alignment method must change during execution, preserve
+the affected record and create v1.7 rather than combining pre-change and
+post-change evidence. The human evidence file
+`premise-to-story-identity-findings.md` remains reserved for human participant
+research and is not part of this protocol.

@@ -430,3 +430,9 @@ and its [findings report](premise-to-story-identity-stress-simulation-findings.m
 The v1.2 synthetic gate does not count as human participant evidence. A later
 founder self-study must use `Record type: SELF_STUDY`, participant count `1`,
 and explicitly record the researcher/participant overlap.
+
+Preparation for any future human session is documented in the
+[Human-Research Readiness Addendum](premise-to-story-identity-human-research-readiness.md).
+It adds the v1.6 manual alignment checklist and privacy boundary without
+starting recruitment, collecting consent, or changing this guide's approved
+session flow.
