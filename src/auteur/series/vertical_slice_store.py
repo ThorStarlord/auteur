@@ -5,7 +5,7 @@ from pathlib import Path
 import yaml
 from pydantic import BaseModel
 
-from auteur.provenance import ArtifactMetadata, ArtifactStore
+from auteur.provenance import ArtifactMetadata, ArtifactStore, Lifecycle
 from auteur.series.vertical_slice_models import (
     AcceptedSeriesDirection,
     SeriesDirectionProposal,
@@ -88,9 +88,19 @@ class VerticalSliceStore:
         path = self.accepted_series_direction_path
         if not path.is_file():
             return None
-        return AcceptedSeriesDirection.model_validate(
+        metadata = self.artifact_store.current(path.stem)
+        if (
+            metadata is None
+            or metadata.lifecycle is not Lifecycle.ACCEPTED
+            or metadata.artifact_id != path.stem
+            or metadata.artifact_type != "series_direction"
+            or self.artifact_store.content_hash(path) != metadata.content_hash
+        ):
+            return None
+        accepted = AcceptedSeriesDirection.model_validate(
             yaml.safe_load(path.read_text(encoding="utf-8"))
         )
+        return accepted if accepted.artifact_id == metadata.artifact_id else None
 
     def load_series_direction_metadata(self) -> ArtifactMetadata | None:
         return self.artifact_store.current(

@@ -125,3 +125,59 @@ def test_new_proposal_does_not_modify_accepted_series_direction(
 
     assert service.load_accepted_series_direction() == accepted_before
     assert service.load_series_direction_metadata() == metadata_before
+
+
+def test_accepted_series_direction_requires_metadata_sidecar(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = service.propose_series_direction(load_direction())
+    service.accept_series_direction(proposal.proposal_id, accepted_by="author")
+    metadata = service.load_series_direction_metadata()
+    assert metadata is not None
+
+    service.store.artifact_store.sidecar_path(metadata.artifact_id).unlink()
+
+    assert service.load_accepted_series_direction() is None
+
+
+def test_accepted_series_direction_rejects_modified_payload(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = service.propose_series_direction(load_direction())
+    service.accept_series_direction(proposal.proposal_id, accepted_by="author")
+    accepted_path = service.store.accepted_series_direction_path
+    payload = yaml.safe_load(accepted_path.read_text(encoding="utf-8"))
+    payload["direction"]["promise"] = "Tampered after acceptance."
+    accepted_path.write_text(
+        yaml.safe_dump(payload, sort_keys=False), encoding="utf-8"
+    )
+
+    assert service.load_accepted_series_direction() is None
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("artifact_id", "other-artifact"),
+        ("artifact_type", "blueprint"),
+        ("lifecycle", "draft"),
+    ],
+)
+def test_accepted_series_direction_requires_matching_accepted_metadata(
+    tmp_path: Path,
+    field: str,
+    value: str,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = service.propose_series_direction(load_direction())
+    service.accept_series_direction(proposal.proposal_id, accepted_by="author")
+    metadata = service.load_series_direction_metadata()
+    assert metadata is not None
+    sidecar = service.store.artifact_store.sidecar_path(metadata.artifact_id)
+    payload = yaml.safe_load(sidecar.read_text(encoding="utf-8"))
+    payload[field] = value
+    sidecar.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
+
+    assert service.load_accepted_series_direction() is None

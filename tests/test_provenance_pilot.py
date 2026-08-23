@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from pathlib import Path
 
 import yaml
@@ -41,6 +42,10 @@ def test_initial_acceptance_records_sidecar_and_hash(tmp_path: Path) -> None:
     assert metadata.review_state is ReviewState.NONE
     assert metadata.content_hash.startswith("sha256:")
     assert store.sidecar_path("story_identity").is_file()
+    persisted = store.current("story_identity")
+    assert persisted is not None
+    assert persisted.accepted_at is not None
+    assert datetime.fromisoformat(persisted.accepted_at).utcoffset() == timezone.utc.utcoffset(None)
 
 
 def test_yaml_formatting_does_not_change_hash_but_semantics_do(tmp_path: Path) -> None:

@@ -4,6 +4,7 @@ import hashlib
 import json
 import unicodedata
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -353,6 +354,7 @@ class ArtifactStore:
             dependencies=records,
             stale_reasons=acknowledged_reasons,
             provenance_state="tracked",
+            accepted_at=datetime.now(timezone.utc).isoformat(),
             accepted_by=accepted_by,
             rationale=rationale,
         )
