@@ -903,6 +903,53 @@ def test_accepted_realization_bundle_enforces_bounded_content(
         vertical_slice_models.AcceptedRealizationBundle.model_validate(raw)
 
 
+def test_duplicate_transition_ids_are_rejected_before_realization_acceptance(
+    tmp_path: Path,
+) -> None:
+    candidate = load_realization_candidate()
+    duplicate = candidate.transitions[0].model_copy(
+        update={"subject": "duplicate-source"}
+    )
+    candidate_payload = candidate.model_dump(mode="json")
+    candidate_payload["transitions"].append(duplicate.model_dump(mode="json"))
+
+    with pytest.raises(ValidationError, match="transition_id values must be unique"):
+        vertical_slice_models.RealizationCandidate.model_validate(
+            candidate_payload
+        )
+
+    bundle_payload = {
+        "artifact_id": "realization-bundle-duplicate-transitions",
+        "bundle_id": "realization-bundle-duplicate-transitions",
+        "candidate_id": candidate.candidate_id,
+        "book_number": candidate.book_number,
+        "transitions": candidate_payload["transitions"],
+    }
+    with pytest.raises(ValidationError, match="transition_id values must be unique"):
+        vertical_slice_models.AcceptedRealizationBundle.model_validate(
+            bundle_payload
+        )
+
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_book(service)
+    service.propose_realization(candidate)
+    candidate_path = service.store.realization_candidate_path(
+        candidate.candidate_id
+    )
+    candidate_path.write_text(
+        yaml.safe_dump(candidate_payload, sort_keys=False), encoding="utf-8"
+    )
+    state_before = service.load_canonical_state()
+
+    with pytest.raises(ValidationError, match="transition_id values must be unique"):
+        service.accept_realization(candidate.candidate_id, accepted_by="author")
+
+    bundle_id = f"realization-bundle-{candidate.candidate_id}"
+    assert not service.store.accepted_realization_bundle_path(bundle_id).exists()
+    assert service.store.artifact_store.current(bundle_id) is None
+    assert service.load_canonical_state() == state_before
+
+
 def test_accepting_unknown_series_direction_proposal_is_rejected(
     tmp_path: Path,
 ) -> None:

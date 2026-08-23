@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from auteur.identity import StoryIdentity
 
@@ -88,6 +88,23 @@ class StateTransition(BaseModel):
     explanation: str
 
 
+def _require_unique_transition_ids(
+    transitions: list[StateTransition],
+) -> list[StateTransition]:
+    seen: set[str] = set()
+    duplicates: set[str] = set()
+    for transition in transitions:
+        if transition.transition_id in seen:
+            duplicates.add(transition.transition_id)
+        seen.add(transition.transition_id)
+    if duplicates:
+        raise ValueError(
+            "transition_id values must be unique: "
+            + ", ".join(sorted(duplicates))
+        )
+    return transitions
+
+
 class RealizationCandidate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -96,6 +113,13 @@ class RealizationCandidate(BaseModel):
     summary: str
     transitions: list[StateTransition] = Field(min_length=1)
     source_refs: list[ArtifactRef] = Field(min_length=1)
+
+    @field_validator("transitions")
+    @classmethod
+    def require_unique_transition_ids(
+        cls, transitions: list[StateTransition]
+    ) -> list[StateTransition]:
+        return _require_unique_transition_ids(transitions)
 
 
 class AcceptedRealizationBundle(BaseModel):
@@ -106,6 +130,13 @@ class AcceptedRealizationBundle(BaseModel):
     candidate_id: str
     book_number: int = Field(ge=1)
     transitions: list[StateTransition] = Field(min_length=1)
+
+    @field_validator("transitions")
+    @classmethod
+    def require_unique_transition_ids(
+        cls, transitions: list[StateTransition]
+    ) -> list[StateTransition]:
+        return _require_unique_transition_ids(transitions)
 
 
 class CanonicalState(BaseModel):
