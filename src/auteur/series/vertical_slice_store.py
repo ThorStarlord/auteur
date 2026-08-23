@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import yaml
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 from auteur.provenance import (
     ArtifactMetadata,
@@ -296,6 +296,33 @@ class VerticalSliceStore:
             or dependency.revision is None
             or dependency.fields != []
             or dependency.projection.id != "full"
+            or dependency.projection.fields != []
+        ):
+            return None
+        if self.load_accepted_series_direction() is None:
+            return None
+        try:
+            series_revision = self.artifact_store.get_revision(
+                dependency.artifact_id, dependency.revision
+            )
+        except (OSError, UnicodeError, yaml.YAMLError, ValidationError):
+            return None
+        current_full_hash = self.artifact_store.content_hash(
+            self.accepted_series_direction_path
+        )
+        current_projected_hash = self.artifact_store.content_hash(
+            self.accepted_series_direction_path,
+            dependency.projection.fields,
+        )
+        if (
+            series_revision.artifact_id != dependency.artifact_id
+            or series_revision.artifact_type != dependency.artifact_type
+            or series_revision.revision != dependency.revision
+            or series_revision.lifecycle is not Lifecycle.ACCEPTED
+            or dependency.full_content_hash != current_full_hash
+            or dependency.full_content_hash != series_revision.content_hash
+            or dependency.projected_hash != current_projected_hash
+            or dependency.projected_hash != dependency.full_content_hash
         ):
             return None
         accepted = AcceptedBookDirection.model_validate(

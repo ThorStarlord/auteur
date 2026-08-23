@@ -473,3 +473,104 @@ def test_accepted_book_direction_requires_matching_accepted_metadata(
     sidecar.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
 
     assert service.load_accepted_book_direction(1) is None
+
+
+def test_accepted_book_direction_rejects_invented_dependency_revision(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_series(service)
+    proposal = service.propose_book_direction(load_book_direction())
+    service.accept_book_direction(proposal.proposal_id, accepted_by="author")
+    metadata = service.load_book_direction_metadata(1)
+    assert metadata is not None
+    sidecar = service.store.artifact_store.sidecar_path(metadata.artifact_id)
+    payload = yaml.safe_load(sidecar.read_text(encoding="utf-8"))
+    payload["dependencies"][0]["revision"] = 999
+    sidecar.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
+
+    assert service.load_accepted_book_direction(1) is None
+
+
+def test_accepted_book_direction_rejects_altered_projected_hash(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_series(service)
+    proposal = service.propose_book_direction(load_book_direction())
+    service.accept_book_direction(proposal.proposal_id, accepted_by="author")
+    metadata = service.load_book_direction_metadata(1)
+    assert metadata is not None
+    sidecar = service.store.artifact_store.sidecar_path(metadata.artifact_id)
+    payload = yaml.safe_load(sidecar.read_text(encoding="utf-8"))
+    payload["dependencies"][0]["projected_hash"] = "sha256:altered"
+    sidecar.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
+
+    assert service.load_accepted_book_direction(1) is None
+
+
+def test_accepted_book_direction_rejects_altered_full_content_hash(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_series(service)
+    proposal = service.propose_book_direction(load_book_direction())
+    service.accept_book_direction(proposal.proposal_id, accepted_by="author")
+    metadata = service.load_book_direction_metadata(1)
+    assert metadata is not None
+    sidecar = service.store.artifact_store.sidecar_path(metadata.artifact_id)
+    payload = yaml.safe_load(sidecar.read_text(encoding="utf-8"))
+    payload["dependencies"][0]["full_content_hash"] = "sha256:altered"
+    sidecar.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
+
+    assert service.load_accepted_book_direction(1) is None
+
+
+def test_accepted_book_direction_requires_valid_current_series_authority(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_series(service)
+    proposal = service.propose_book_direction(load_book_direction())
+    service.accept_book_direction(proposal.proposal_id, accepted_by="author")
+    series_sidecar = service.store.artifact_store.sidecar_path("series-direction")
+    payload = yaml.safe_load(series_sidecar.read_text(encoding="utf-8"))
+    payload["lifecycle"] = "draft"
+    series_sidecar.write_text(
+        yaml.safe_dump(payload, sort_keys=False), encoding="utf-8"
+    )
+
+    assert service.load_accepted_book_direction(1) is None
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("artifact_id", "other-artifact"),
+        ("artifact_type", "blueprint"),
+        ("lifecycle", "draft"),
+        ("content_hash", "sha256:altered"),
+    ],
+)
+def test_accepted_book_direction_requires_valid_series_dependency_revision(
+    tmp_path: Path,
+    field: str,
+    value: str,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_series(service)
+    proposal = service.propose_book_direction(load_book_direction())
+    service.accept_book_direction(proposal.proposal_id, accepted_by="author")
+    revision_path = (
+        service.store.artifact_store.root
+        / "revisions"
+        / "series-direction"
+        / "000001.yaml"
+    )
+    payload = yaml.safe_load(revision_path.read_text(encoding="utf-8"))
+    payload[field] = value
+    revision_path.write_text(
+        yaml.safe_dump(payload, sort_keys=False), encoding="utf-8"
+    )
+
+    assert service.load_accepted_book_direction(1) is None
