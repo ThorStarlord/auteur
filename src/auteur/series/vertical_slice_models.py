@@ -74,3 +74,42 @@ class AcceptedBookDirection(BaseModel):
     artifact_id: str
     proposal_id: str
     direction: BookDirection
+
+
+class StateTransition(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    transition_id: str
+    subject: str
+    attribute: str
+    before: str | None = None
+    after: str
+    explanation: str
+
+
+class RealizationCandidate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str
+    book_number: int = Field(ge=1)
+    summary: str
+    transitions: list[StateTransition] = Field(min_length=1)
+    source_refs: list[ArtifactRef] = Field(min_length=1)
+
+
+class AcceptedRealizationBundle(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_id: str
+    bundle_id: str
+    candidate_id: str
+    book_number: int
+    transitions: list[StateTransition]
+
+
+class CanonicalState(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    state_version: int = Field(ge=0)
+    values: dict[str, str] = Field(default_factory=dict)
+    applied_bundle_ids: list[str] = Field(default_factory=list)

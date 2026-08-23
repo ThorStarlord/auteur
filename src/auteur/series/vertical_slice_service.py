@@ -6,10 +6,13 @@ from uuid import uuid4
 from auteur.provenance import ArtifactMetadata
 from auteur.series.vertical_slice_models import (
     AcceptedBookDirection,
+    AcceptedRealizationBundle,
     AcceptedSeriesDirection,
     ArtifactRef,
     BookDirection,
     BookDirectionProposal,
+    CanonicalState,
+    RealizationCandidate,
     SeriesDirection,
     SeriesDirectionProposal,
 )
@@ -158,3 +161,96 @@ class SeriesVerticalSliceService:
         self, book_number: int
     ) -> ArtifactMetadata | None:
         return self.store.load_book_direction_metadata(book_number)
+
+    def _accepted_book_source(
+        self, book_number: int
+    ) -> tuple[AcceptedBookDirection, ArtifactMetadata]:
+        accepted = self.load_accepted_book_direction(book_number)
+        metadata = self.load_book_direction_metadata(book_number)
+        if accepted is None or metadata is None:
+            raise ValueError(
+                "An accepted Book Direction is required for a Realization"
+            )
+        return accepted, metadata
+
+    def _current_book_source_ref(self, book_number: int) -> ArtifactRef:
+        accepted, metadata = self._accepted_book_source(book_number)
+        return ArtifactRef(
+            artifact_id=accepted.artifact_id,
+            revision=metadata.revision,
+        )
+
+    def propose_realization(
+        self, candidate: RealizationCandidate
+    ) -> RealizationCandidate:
+        current_source = self._current_book_source_ref(candidate.book_number)
+        if candidate.source_refs != [current_source]:
+            raise ValueError(
+                "Realization candidate does not reference the current accepted "
+                "Book Direction revision"
+            )
+        self.store.validate_current_book_dependency(
+            candidate.book_number, current_source
+        )
+        self.store.save_realization_candidate(candidate)
+        return candidate
+
+    def accept_realization(
+        self,
+        candidate_id: str,
+        *,
+        accepted_by: str,
+        rationale: str | None = None,
+    ) -> AcceptedRealizationBundle:
+        candidate = self.store.load_realization_candidate(candidate_id)
+        current_source = self._current_book_source_ref(candidate.book_number)
+        if candidate.source_refs != [current_source]:
+            raise ValueError(
+                "Realization candidate does not reference the current accepted "
+                "Book Direction revision"
+            )
+        accepted = AcceptedRealizationBundle(
+            artifact_id="realization-bundles",
+            bundle_id=f"bundle-{candidate.candidate_id}",
+            candidate_id=candidate.candidate_id,
+            book_number=candidate.book_number,
+            transitions=candidate.transitions,
+        )
+        previous_state = self.store.snapshot_canonical_state()
+        metadata = self.store.save_accepted_realization_bundle(
+            accepted,
+            book_source=current_source,
+            accepted_by=accepted_by,
+            rationale=rationale,
+        )
+        try:
+            self.rebuild_canonical_state()
+        except Exception:
+            self.store.rollback_accepted_realization_bundle(
+                accepted.bundle_id, metadata.revision
+            )
+            self.store.restore_canonical_state(previous_state)
+            raise
+        return accepted
+
+    def rebuild_canonical_state(self) -> CanonicalState:
+        values: dict[str, str] = {}
+        applied_bundle_ids: list[str] = []
+        state_version = 0
+        for bundle, metadata in self.store.load_accepted_realization_bundles():
+            for transition in bundle.transitions:
+                values[f"{transition.subject}.{transition.attribute}"] = (
+                    transition.after
+                )
+            applied_bundle_ids.append(bundle.bundle_id)
+            state_version = metadata.revision
+        state = CanonicalState(
+            state_version=state_version,
+            values=values,
+            applied_bundle_ids=applied_bundle_ids,
+        )
+        self.store.save_canonical_state(state)
+        return state
+
+    def load_canonical_state(self) -> CanonicalState:
+        return self.store.load_canonical_state()

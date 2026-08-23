@@ -4,6 +4,7 @@ import pytest
 import yaml
 from pydantic import ValidationError
 
+from auteur.series import vertical_slice_models
 from auteur.provenance import (
     ArtifactMetadata,
     DependencyKind,
@@ -26,6 +27,7 @@ FIXTURE = (
     / "series_direction.yaml"
 )
 BOOK_FIXTURE = FIXTURE.with_name("book_1_direction.yaml")
+OUTCOME_FIXTURE = FIXTURE.with_name("book_1_outcome.yaml")
 
 
 def load_direction() -> SeriesDirection:
@@ -40,6 +42,12 @@ def load_book_direction() -> BookDirection:
     )
 
 
+def load_realization_candidate():
+    return vertical_slice_models.RealizationCandidate.model_validate(
+        yaml.safe_load(OUTCOME_FIXTURE.read_text(encoding="utf-8"))
+    )
+
+
 def accept_archive_series(
     service: SeriesVerticalSliceService,
 ) -> tuple[AcceptedSeriesDirection, ArtifactMetadata]:
@@ -50,6 +58,17 @@ def accept_archive_series(
     metadata = service.load_series_direction_metadata()
     assert metadata is not None
     return accepted, metadata
+
+
+def accept_archive_book(service: SeriesVerticalSliceService) -> ArtifactMetadata:
+    accept_archive_series(service)
+    proposal = service.propose_book_direction(load_book_direction())
+    service.accept_book_direction(
+        proposal.proposal_id, accepted_by="archive-author"
+    )
+    metadata = service.load_book_direction_metadata(1)
+    assert metadata is not None
+    return metadata
 
 
 def test_proposal_round_trips_without_becoming_accepted(tmp_path: Path) -> None:
@@ -126,6 +145,258 @@ def test_acceptance_round_trip_preserves_author_and_source_revision(
     }.isdisjoint(stored_payload)
     assert not accepted_path.with_suffix(".tmp").exists()
     assert not (accepted_path.parent / ".staging" / accepted_path.name).exists()
+
+
+def test_unaccepted_outcome_does_not_change_canonical_state(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_book(service)
+    state_before = service.load_canonical_state()
+
+    candidate = service.propose_realization(load_realization_candidate())
+
+    assert service.load_canonical_state() == state_before
+    assert service.store.load_realization_candidate(candidate.candidate_id) == candidate
+    assert service.store.load_accepted_realization_bundles() == []
+
+
+def test_accepting_outcome_creates_bundle_and_state_transition(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_book(service)
+    candidate = service.propose_realization(load_realization_candidate())
+
+    accepted = service.accept_realization(
+        candidate.candidate_id,
+        accepted_by="archive-author",
+        rationale="The recovered ledger resolves the Book 1 archival dispute.",
+    )
+
+    state = service.load_canonical_state()
+    assert accepted.candidate_id == candidate.candidate_id
+    assert accepted.book_number == 1
+    assert accepted.transitions == candidate.transitions
+    assert state.values["archive.founding_record"] == "confirmed fraudulent"
+    assert state.state_version == 1
+    assert state.applied_bundle_ids == [accepted.bundle_id]
+    stored = service.store.load_accepted_realization_bundles()
+    assert [bundle for bundle, _metadata in stored] == [accepted]
+    assert stored[0][1].accepted_by == "archive-author"
+    assert stored[0][1].rationale == (
+        "The recovered ledger resolves the Book 1 archival dispute."
+    )
+
+
+def test_reloading_rebuilds_same_state_from_accepted_bundles(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_book(service)
+    candidate = service.propose_realization(load_realization_candidate())
+    service.accept_realization(candidate.candidate_id, accepted_by="archive-author")
+    expected = service.load_canonical_state()
+
+    service.store.canonical_state_path.unlink()
+    reloaded = SeriesVerticalSliceService(tmp_path)
+    rebuilt = reloaded.rebuild_canonical_state()
+
+    assert rebuilt == expected
+    assert reloaded.load_canonical_state() == expected
+
+
+def test_state_rebuild_ignores_unaccepted_outcome_files(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_book(service)
+    candidate = service.propose_realization(load_realization_candidate())
+    service.accept_realization(candidate.candidate_id, accepted_by="archive-author")
+    expected = service.load_canonical_state()
+    unrelated_transition = candidate.transitions[0].model_copy(
+        update={
+            "transition_id": "founding-ledger-hidden-again",
+            "after": "suppressed",
+        }
+    )
+    unaccepted = candidate.model_copy(
+        update={
+            "candidate_id": "unaccepted-suppression",
+            "transitions": [unrelated_transition],
+        }
+    )
+    service.propose_realization(unaccepted)
+
+    rebuilt = service.rebuild_canonical_state()
+
+    assert rebuilt == expected
+    assert rebuilt.values["archive.founding_record"] == "confirmed fraudulent"
+
+
+def test_accepted_outcome_preserves_source_revisions(tmp_path: Path) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    book_metadata = accept_archive_book(service)
+    candidate = service.propose_realization(load_realization_candidate())
+    accepted = service.accept_realization(
+        candidate.candidate_id, accepted_by="archive-author"
+    )
+
+    reloaded = SeriesVerticalSliceService(tmp_path)
+    stored = reloaded.store.load_accepted_realization_bundles()
+
+    assert len(stored) == 1
+    bundle, metadata = stored[0]
+    assert bundle == accepted
+    assert len(metadata.dependencies) == 1
+    dependency = metadata.dependencies[0]
+    assert dependency.artifact_id == "book-1-direction"
+    assert dependency.artifact_type == "book_direction"
+    assert dependency.revision == book_metadata.revision
+    assert dependency.full_content_hash == book_metadata.content_hash
+    assert dependency.projected_hash == book_metadata.content_hash
+    payload = yaml.safe_load(
+        reloaded.store.accepted_realization_bundle_path(
+            bundle.bundle_id
+        ).read_text(encoding="utf-8")
+    )
+    assert "source_refs" not in payload
+
+
+def test_deleting_derived_state_preserves_authority_and_rebuild_restores_it(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_book(service)
+    candidate = service.propose_realization(load_realization_candidate())
+    accepted = service.accept_realization(
+        candidate.candidate_id, accepted_by="archive-author"
+    )
+    expected_state = service.load_canonical_state()
+    bundle_path = service.store.accepted_realization_bundle_path(
+        accepted.bundle_id
+    )
+    bundle_bytes = bundle_path.read_bytes()
+    stored = service.store.load_accepted_realization_bundles()
+    metadata = stored[0][1]
+    sidecar = service.store.artifact_store.sidecar_path(metadata.artifact_id)
+    sidecar_bytes = sidecar.read_bytes()
+    revisions = service.store.artifact_store.list_revisions(metadata.artifact_id)
+
+    service.store.canonical_state_path.unlink()
+
+    assert bundle_path.read_bytes() == bundle_bytes
+    assert sidecar.read_bytes() == sidecar_bytes
+    assert service.store.artifact_store.list_revisions(metadata.artifact_id) == revisions
+    assert service.rebuild_canonical_state() == expected_state
+    assert service.load_canonical_state() == expected_state
+
+
+def test_failed_realization_metadata_accept_leaves_no_partial_authority(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_book(service)
+    candidate = service.propose_realization(load_realization_candidate())
+    original_accept = service.store.artifact_store.accept
+
+    def fail_accept(*args: object, **kwargs: object) -> None:
+        original_accept(*args, **kwargs)
+        raise OSError("realization metadata persistence failed")
+
+    monkeypatch.setattr(service.store.artifact_store, "accept", fail_accept)
+
+    with pytest.raises(OSError, match="realization metadata persistence failed"):
+        service.accept_realization(candidate.candidate_id, accepted_by="author")
+
+    assert service.store.load_accepted_realization_bundles() == []
+    assert service.store.artifact_store.current("realization-bundles") is None
+    assert service.store.artifact_store.list_revisions("realization-bundles") == []
+    assert service.load_canonical_state() == vertical_slice_models.CanonicalState(
+        state_version=0
+    )
+
+
+def test_failed_canonical_state_write_rolls_back_accepted_realization(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_book(service)
+    candidate = service.propose_realization(load_realization_candidate())
+    original_save = service.store.save_canonical_state
+
+    def fail_save(state: object) -> None:
+        original_save(state)
+        raise OSError("canonical state persistence failed")
+
+    monkeypatch.setattr(service.store, "save_canonical_state", fail_save)
+
+    with pytest.raises(OSError, match="canonical state persistence failed"):
+        service.accept_realization(candidate.candidate_id, accepted_by="author")
+
+    assert service.store.load_realization_candidate(candidate.candidate_id) == candidate
+    assert service.store.load_accepted_realization_bundles() == []
+    assert service.store.artifact_store.current("realization-bundles") is None
+    assert service.store.artifact_store.list_revisions("realization-bundles") == []
+    assert service.load_canonical_state() == vertical_slice_models.CanonicalState(
+        state_version=0
+    )
+
+
+def test_realization_candidate_id_must_be_path_safe(tmp_path: Path) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_book(service)
+    candidate = load_realization_candidate().model_copy(
+        update={"candidate_id": "../outside"}
+    )
+
+    with pytest.raises(ValueError, match="path-safe"):
+        service.propose_realization(candidate)
+
+
+def test_realization_acceptance_validates_book_dependency_revision(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_book(service)
+    candidate = service.propose_realization(load_realization_candidate())
+    revision_path = (
+        service.store.artifact_store.root
+        / "revisions"
+        / "book-1-direction"
+        / "000001.yaml"
+    )
+    payload = yaml.safe_load(revision_path.read_text(encoding="utf-8"))
+    payload["content_hash"] = "sha256:mismatched"
+    revision_path.write_text(
+        yaml.safe_dump(payload, sort_keys=False), encoding="utf-8"
+    )
+
+    with pytest.raises(ValueError, match="Book Direction dependency revision"):
+        service.accept_realization(candidate.candidate_id, accepted_by="author")
+
+    assert service.store.load_accepted_realization_bundles() == []
+    assert service.store.artifact_store.current("realization-bundles") is None
+
+
+def test_accepted_realization_requires_matching_current_metadata(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_book(service)
+    candidate = service.propose_realization(load_realization_candidate())
+    service.accept_realization(candidate.candidate_id, accepted_by="author")
+    sidecar = service.store.artifact_store.sidecar_path("realization-bundles")
+    payload = yaml.safe_load(sidecar.read_text(encoding="utf-8"))
+    payload["content_hash"] = "sha256:altered"
+    sidecar.write_text(
+        yaml.safe_dump(payload, sort_keys=False), encoding="utf-8"
+    )
+
+    with pytest.raises(ValueError, match="metadata history"):
+        service.rebuild_canonical_state()
 
 
 def test_accepting_unknown_series_direction_proposal_is_rejected(
