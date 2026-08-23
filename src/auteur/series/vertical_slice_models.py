@@ -4,6 +4,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from auteur.identity import StoryIdentity
+
 
 class ArtifactRef(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -47,3 +49,28 @@ class AcceptedSeriesDirection(BaseModel):
     artifact_id: str
     proposal_id: str
     direction: SeriesDirection
+
+
+class BookDirection(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    book_number: int = Field(ge=1)
+    identity: StoryIdentity
+    series_commitment_ids: list[str] = Field(min_length=1)
+
+
+class BookDirectionProposal(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    proposal_id: str
+    revision: int = Field(ge=1)
+    direction: BookDirection
+    source_refs: list[ArtifactRef]
+
+
+class AcceptedBookDirection(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_id: str
+    proposal_id: str
+    direction: BookDirection
