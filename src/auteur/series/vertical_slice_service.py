@@ -26,7 +26,11 @@ from auteur.series.vertical_slice_store import VerticalSliceStore
 _BOOK_CONTEXT_DERIVATION_VERSION = "archive-of-lies-book-2-v1"
 _BOOK_CONTEXT_STATE_TRANSITIONS = {
     ("archive-of-lies", 2): {
-        "founding-ledger-exposed": (
+        (
+            "realization-bundle-recovered-founding-ledger",
+            1,
+            "founding-ledger-exposed",
+        ): (
             "The exposed founding fraud makes the archive's official history "
             "an active constraint on Book 2."
         )
@@ -284,6 +288,14 @@ class SeriesVerticalSliceService:
     def enter_book_planning(
         self, book_number: int, *, entered_by: str
     ) -> PlanningEntry:
+        existing = self.store.load_planning_entry(book_number)
+        if existing is not None:
+            if existing.entered_by != entered_by:
+                raise ValueError(
+                    f"Book {book_number} planning was already entered by "
+                    f"{existing.entered_by}"
+                )
+            return existing
         entry = PlanningEntry(
             book_number=book_number,
             entered_by=entered_by,
@@ -303,6 +315,18 @@ class SeriesVerticalSliceService:
         previous_book_number = book_number - 1
         accepted_book, book_metadata = self._accepted_book_source(
             previous_book_number
+        )
+        self.store.validate_book_context_source(
+            series_metadata,
+            artifact_id=accepted_series.artifact_id,
+            artifact_type="series_direction",
+            path=self.store.accepted_series_direction_path,
+        )
+        self.store.validate_book_context_source(
+            book_metadata,
+            artifact_id=accepted_book.artifact_id,
+            artifact_type="book_direction",
+            path=self.store.accepted_book_direction_path(previous_book_number),
         )
         series_ref = ArtifactRef(
             artifact_id=accepted_series.artifact_id,
@@ -342,17 +366,30 @@ class SeriesVerticalSliceService:
         selected_transition_reasons = _BOOK_CONTEXT_STATE_TRANSITIONS.get(
             (accepted_series.direction.series_id, book_number), {}
         )
-        selected_transition_ids: set[str] = set()
+        selected_transition_sources: set[tuple[str, int, str]] = set()
         selected_bundle_refs: list[ArtifactRef] = []
         for bundle, metadata in self.store.load_accepted_realization_bundles():
             if bundle.book_number != previous_book_number:
                 continue
             for transition in bundle.transitions:
+                transition_source = (
+                    bundle.artifact_id,
+                    metadata.revision,
+                    transition.transition_id,
+                )
                 why_matters_now = selected_transition_reasons.get(
-                    transition.transition_id
+                    transition_source
                 )
                 if why_matters_now is None:
                     continue
+                self.store.validate_book_context_source(
+                    metadata,
+                    artifact_id=bundle.artifact_id,
+                    artifact_type="accepted_realization_bundle",
+                    path=self.store.accepted_realization_bundle_path(
+                        bundle.bundle_id
+                    ),
+                )
                 bundle_ref = ArtifactRef(
                     artifact_id=bundle.artifact_id,
                     revision=metadata.revision,
@@ -369,17 +406,16 @@ class SeriesVerticalSliceService:
                         source_refs=[bundle_ref],
                     )
                 )
-                selected_transition_ids.add(transition.transition_id)
+                selected_transition_sources.add(transition_source)
                 if bundle_ref not in selected_bundle_refs:
                     selected_bundle_refs.append(bundle_ref)
 
-        missing_transition_ids = (
-            set(selected_transition_reasons) - selected_transition_ids
+        missing_transition_sources = (
+            set(selected_transition_reasons) - selected_transition_sources
         )
-        if missing_transition_ids:
+        if missing_transition_sources:
             raise ValueError(
-                "Accepted Book state is missing carry-forward transition(s): "
-                + ", ".join(sorted(missing_transition_ids))
+                "Accepted Book state is missing a carry-forward source"
             )
 
         context = BookPlanningContext(

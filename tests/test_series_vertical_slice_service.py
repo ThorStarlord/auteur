@@ -91,6 +91,8 @@ def accept_archive_outcome(
 
 def accept_unrelated_newer_outcome(
     service: SeriesVerticalSliceService,
+    *,
+    transition_id: str = "mara-at-north-quay",
 ) -> tuple[
     vertical_slice_models.AcceptedRealizationBundle,
     ArtifactMetadata,
@@ -103,7 +105,7 @@ def accept_unrelated_newer_outcome(
         summary="Mara reaches the north quay after the ledger is exposed.",
         transitions=[
             vertical_slice_models.StateTransition(
-                transition_id="mara-at-north-quay",
+                transition_id=transition_id,
                 subject="mara",
                 attribute="location",
                 before=None,
@@ -165,6 +167,25 @@ def test_book_2_planning_requires_explicit_author_entry(tmp_path: Path) -> None:
         service.derive_book_context(2)
 
 
+def test_mismatched_planning_entry_cannot_unlock_book_2_context(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_outcome(service)
+    service.enter_book_planning(3, entered_by="archive-author")
+    book_3_path = service.store.planning_entry_path(3)
+    book_2_path = service.store.planning_entry_path(2)
+    book_2_path.parent.mkdir(parents=True, exist_ok=True)
+    book_2_path.write_bytes(book_3_path.read_bytes())
+
+    with pytest.raises(ValueError, match="does not match requested Book 2"):
+        service.store.load_planning_entry(2)
+    with pytest.raises(ValueError, match="does not match requested Book 2"):
+        service.derive_book_context(2)
+
+    assert not service.store.book_planning_context_path(2).exists()
+
+
 def test_book_2_entry_does_not_create_book_2_direction_or_canon(
     tmp_path: Path,
 ) -> None:
@@ -185,6 +206,24 @@ def test_book_2_entry_does_not_create_book_2_direction_or_canon(
     assert service.store.load_accepted_realization_bundles() == bundles_before
 
 
+def test_repeated_book_planning_entry_preserves_original_workflow_record(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    first = service.enter_book_planning(2, entered_by="archive-author")
+    path = service.store.planning_entry_path(2)
+    original_bytes = path.read_bytes()
+
+    repeated = service.enter_book_planning(2, entered_by="archive-author")
+
+    assert repeated == first
+    assert path.read_bytes() == original_bytes
+    with pytest.raises(ValueError, match="already entered by archive-author"):
+        service.enter_book_planning(2, entered_by="different-author")
+    assert service.store.load_planning_entry(2) == first
+    assert path.read_bytes() == original_bytes
+
+
 def test_context_contains_only_explicitly_relevant_accepted_sources(
     tmp_path: Path,
 ) -> None:
@@ -200,6 +239,32 @@ def test_context_contains_only_explicitly_relevant_accepted_sources(
         "series-commitment-contested-history",
         "state-change-founding-ledger-exposed",
     ]
+    assert unrelated.artifact_id not in {
+        ref.artifact_id
+        for item in context.items
+        for ref in item.source_refs
+    }
+    assert unrelated.artifact_id not in {
+        ref.artifact_id for ref in context.generated_from
+    }
+
+
+def test_context_relevance_requires_exact_bundle_and_transition_source(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_outcome(service)
+    unrelated, _unrelated_metadata = accept_unrelated_newer_outcome(
+        service, transition_id="founding-ledger-exposed"
+    )
+    service.enter_book_planning(2, entered_by="archive-author")
+
+    context = service.derive_book_context(2)
+
+    assert context == load_expected_book_2_context()
+    assert [item.item_id for item in context.items].count(
+        "state-change-founding-ledger-exposed"
+    ) == 1
     assert unrelated.artifact_id not in {
         ref.artifact_id
         for item in context.items
@@ -230,6 +295,25 @@ def test_every_context_item_has_why_now_and_source_revisions(
         assert metadata is not None
         assert metadata.lifecycle is Lifecycle.ACCEPTED
         assert metadata.revision == source_ref[1]
+
+
+def test_context_rejects_current_metadata_without_revision_snapshot(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_outcome(service)
+    service.enter_book_planning(2, entered_by="archive-author")
+    sidecar = service.store.artifact_store.sidecar_path("series-direction")
+    payload = yaml.safe_load(sidecar.read_text(encoding="utf-8"))
+    payload["revision"] = 999
+    sidecar.write_text(
+        yaml.safe_dump(payload, sort_keys=False), encoding="utf-8"
+    )
+
+    with pytest.raises(ValueError, match="Book planning context source metadata"):
+        service.derive_book_context(2)
+
+    assert not service.store.book_planning_context_path(2).exists()
 
 
 def test_deleted_context_rebuilds_semantically_equivalent_from_accepted_sources(

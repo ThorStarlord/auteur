@@ -274,6 +274,34 @@ class VerticalSliceStore:
             self.accepted_series_direction_path.stem
         )
 
+    def validate_book_context_source(
+        self,
+        metadata: ArtifactMetadata,
+        *,
+        artifact_id: str,
+        artifact_type: str,
+        path: Path,
+    ) -> None:
+        try:
+            current = self.artifact_store.current(artifact_id)
+            revision = self.artifact_store.get_revision(
+                artifact_id, metadata.revision
+            )
+            content_hash = self.artifact_store.content_hash(path)
+        except (OSError, UnicodeError, yaml.YAMLError, ValidationError) as error:
+            raise ValueError(
+                "Invalid Book planning context source metadata"
+            ) from error
+        if (
+            current != metadata
+            or revision != metadata
+            or metadata.artifact_id != artifact_id
+            or metadata.artifact_type != artifact_type
+            or metadata.lifecycle is not Lifecycle.ACCEPTED
+            or metadata.content_hash != content_hash
+        ):
+            raise ValueError("Invalid Book planning context source metadata")
+
     def _load_accepted_series_revision(
         self, artifact_id: str, revision: int
     ) -> ArtifactMetadata | None:
@@ -820,9 +848,15 @@ class VerticalSliceStore:
         path = self.planning_entry_path(book_number)
         if not path.is_file():
             return None
-        return PlanningEntry.model_validate(
+        entry = PlanningEntry.model_validate(
             yaml.safe_load(path.read_text(encoding="utf-8"))
         )
+        if entry.book_number != book_number:
+            raise ValueError(
+                f"Planning entry Book {entry.book_number} does not match "
+                f"requested Book {book_number}"
+            )
+        return entry
 
     def save_book_planning_context(self, context: BookPlanningContext) -> None:
         self._write_model(
