@@ -22,6 +22,8 @@ from auteur.series.vertical_slice_models import (
     BookDirectionProposal,
     BookPlanningContext,
     CanonicalState,
+    DecisionAction,
+    NextDecisionProposal,
     PlanningEntry,
     RealizationCandidate,
     SeriesDirectionProposal,
@@ -74,6 +76,30 @@ class VerticalSliceStore:
         if book_number <= 1:
             raise ValueError("Planning context requires a Book number greater than 1")
         return self.root / "derived" / f"book-{book_number}-context.yaml"
+
+    def next_decision_proposal_path(self, proposal_id: str) -> Path:
+        if _PATH_SAFE_IDENTIFIER.fullmatch(proposal_id) is None:
+            raise FileNotFoundError(
+                f"Unknown Next Decision proposal: {proposal_id}"
+            )
+        return (
+            self.root
+            / "proposals"
+            / "next-decision"
+            / f"{proposal_id}.yaml"
+        )
+
+    def decision_actions_path(self, proposal_id: str) -> Path:
+        if _PATH_SAFE_IDENTIFIER.fullmatch(proposal_id) is None:
+            raise FileNotFoundError(
+                f"Unknown Next Decision proposal: {proposal_id}"
+            )
+        return (
+            self.root
+            / "workflow"
+            / "decision-actions"
+            / f"{proposal_id}.yaml"
+        )
 
     def realization_candidate_path(self, candidate_id: str) -> Path:
         if _PATH_SAFE_IDENTIFIER.fullmatch(candidate_id) is None:
@@ -209,6 +235,50 @@ class VerticalSliceStore:
         return BookDirectionProposal.model_validate(
             yaml.safe_load(path.read_text(encoding="utf-8"))
         )
+
+    def save_next_decision_proposal(
+        self, proposal: NextDecisionProposal
+    ) -> None:
+        self._write_model(
+            self.next_decision_proposal_path(proposal.proposal_id), proposal
+        )
+
+    def load_next_decision_proposal(
+        self, proposal_id: str
+    ) -> NextDecisionProposal:
+        path = self.next_decision_proposal_path(proposal_id)
+        if not path.is_file():
+            raise FileNotFoundError(
+                f"Unknown Next Decision proposal: {proposal_id}"
+            )
+        return NextDecisionProposal.model_validate(
+            yaml.safe_load(path.read_text(encoding="utf-8"))
+        )
+
+    def save_decision_action(self, action: DecisionAction) -> None:
+        actions = self.load_decision_actions(action.proposal_id)
+        actions.append(action)
+        path = self.decision_actions_path(action.proposal_id)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        rendered = yaml.safe_dump(
+            [item.model_dump(mode="json") for item in actions],
+            sort_keys=False,
+        )
+        temporary = path.with_suffix(".tmp")
+        temporary.write_text(rendered, encoding="utf-8")
+        temporary.replace(path)
+
+    def load_decision_actions(self, proposal_id: str) -> list[DecisionAction]:
+        path = self.decision_actions_path(proposal_id)
+        if not path.is_file():
+            return []
+        payload = yaml.safe_load(path.read_text(encoding="utf-8"))
+        actions = [DecisionAction.model_validate(item) for item in payload]
+        if any(action.proposal_id != proposal_id for action in actions):
+            raise ValueError(
+                "Decision action proposal does not match the requested proposal"
+            )
+        return actions
 
     def save_accepted_series_direction(
         self,

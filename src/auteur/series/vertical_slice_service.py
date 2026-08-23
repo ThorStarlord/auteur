@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Literal
 from uuid import uuid4
 
 from auteur.provenance import ArtifactMetadata
@@ -15,6 +16,9 @@ from auteur.series.vertical_slice_models import (
     BookPlanningContext,
     CanonicalState,
     CarryForwardItem,
+    DecisionAction,
+    DecisionOption,
+    NextDecisionProposal,
     PlanningEntry,
     RealizationCandidate,
     SeriesDirection,
@@ -36,6 +40,10 @@ _BOOK_CONTEXT_STATE_TRANSITIONS = {
         )
     }
 }
+_BOOK_2_DECISION_CONTEXT_ITEMS = (
+    "series-commitment-contested-history",
+    "state-change-founding-ledger-exposed",
+)
 
 
 class SeriesVerticalSliceService:
@@ -429,3 +437,114 @@ class SeriesVerticalSliceService:
 
     def delete_derived_book_context(self, book_number: int) -> None:
         self.store.delete_book_planning_context(book_number)
+
+    def propose_next_decision(
+        self, book_number: int
+    ) -> NextDecisionProposal:
+        context = self.derive_book_context(book_number)
+        context_item_ids = tuple(item.item_id for item in context.items)
+        if (
+            book_number != 2
+            or context_item_ids != _BOOK_2_DECISION_CONTEXT_ITEMS
+        ):
+            raise ValueError(
+                "The bounded Book 2 decision requires its two accepted "
+                "carry-forward context items"
+            )
+
+        proposal = NextDecisionProposal(
+            proposal_id=f"book-{book_number}-next-decision-{uuid4().hex}",
+            book_number=book_number,
+            question=(
+                "How should Book 2 turn the exposed founding fraud into a new "
+                "conflict over official history?"
+            ),
+            recommended_option_id="center-living-witness",
+            options=[
+                DecisionOption(
+                    option_id="center-living-witness",
+                    label="Center a living witness",
+                    summary=(
+                        "Follow someone whose lived memory contradicts the "
+                        "archive's newly exposed founding record."
+                    ),
+                    tradeoff=(
+                        "This makes testimony and personal credibility central, "
+                        "leaving the institutions that protected the fraud less "
+                        "directly examined."
+                    ),
+                ),
+                DecisionOption(
+                    option_id="trace-institutional-cover-up",
+                    label="Trace the cover-up",
+                    summary=(
+                        "Investigate who preserved the fraudulent founding "
+                        "record and who still benefits from it."
+                    ),
+                    tradeoff=(
+                        "This foregrounds institutional investigation, giving "
+                        "less space to the lived memories harmed by the official "
+                        "history."
+                    ),
+                ),
+            ],
+            rationale=(
+                "Centering a living witness is preferred because the accepted "
+                "Series commitment requires a consequential conflict between "
+                "official history and lived memory, while the accepted "
+                "founding-ledger exposure gives that witness a concrete record "
+                "to contest."
+            ),
+            accepted_input_refs=context.generated_from,
+        )
+        self.store.save_next_decision_proposal(proposal)
+        return proposal
+
+    def record_decision_action(
+        self,
+        proposal_id: str,
+        *,
+        action: Literal["choose_recommended", "choose_other", "defer"],
+        selected_option_id: str | None = None,
+    ) -> DecisionAction:
+        proposal = self.store.load_next_decision_proposal(proposal_id)
+        option_ids = {option.option_id for option in proposal.options}
+
+        if action == "choose_recommended":
+            if (
+                selected_option_id is not None
+                and selected_option_id != proposal.recommended_option_id
+            ):
+                raise ValueError(
+                    "The recommended action must select the recommended option"
+                )
+            selected_option_id = proposal.recommended_option_id
+            status = "resolved"
+        elif action == "choose_other":
+            if selected_option_id not in option_ids:
+                raise ValueError(
+                    f"Unknown decision option: {selected_option_id}"
+                )
+            if selected_option_id == proposal.recommended_option_id:
+                raise ValueError(
+                    "Choose another option must select a presented alternative"
+                )
+            status = "resolved"
+        elif action == "defer":
+            if selected_option_id is not None:
+                raise ValueError("A deferred decision cannot select an option")
+            status = "deferred"
+        else:
+            raise ValueError(f"Unknown decision action: {action}")
+
+        recorded = DecisionAction(
+            proposal_id=proposal.proposal_id,
+            action=action,
+            selected_option_id=selected_option_id,
+            recorded_at=datetime.now(timezone.utc),
+        )
+        self.store.save_decision_action(recorded)
+        self.store.save_next_decision_proposal(
+            proposal.model_copy(update={"status": status})
+        )
+        return recorded

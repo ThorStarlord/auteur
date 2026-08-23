@@ -172,3 +172,34 @@ class BookPlanningContext(BaseModel):
     generated_from: list[ArtifactRef] = Field(min_length=1)
     items: list[CarryForwardItem] = Field(min_length=1)
     derivation_version: str
+
+
+class DecisionOption(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    option_id: str
+    label: str
+    summary: str
+    tradeoff: str
+
+
+class NextDecisionProposal(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    proposal_id: str
+    book_number: int
+    question: str
+    recommended_option_id: str
+    options: list[DecisionOption] = Field(min_length=2)
+    rationale: str
+    accepted_input_refs: list[ArtifactRef] = Field(min_length=1)
+    status: Literal["proposed", "resolved", "deferred"] = "proposed"
+
+
+class DecisionAction(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    proposal_id: str
+    action: Literal["choose_recommended", "choose_other", "defer"]
+    selected_option_id: str | None = None
+    recorded_at: datetime

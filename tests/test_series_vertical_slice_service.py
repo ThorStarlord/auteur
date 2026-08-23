@@ -30,6 +30,7 @@ FIXTURE = (
 BOOK_FIXTURE = FIXTURE.with_name("book_1_direction.yaml")
 OUTCOME_FIXTURE = FIXTURE.with_name("book_1_outcome.yaml")
 CONTEXT_FIXTURE = FIXTURE.with_name("book_2_context_expected.yaml")
+DECISION_FIXTURE = FIXTURE.with_name("book_2_decision_expected.yaml")
 
 
 def load_direction() -> SeriesDirection:
@@ -133,6 +134,158 @@ def load_expected_book_2_context():
     return vertical_slice_models.BookPlanningContext.model_validate(
         yaml.safe_load(CONTEXT_FIXTURE.read_text(encoding="utf-8"))
     )
+
+
+def load_expected_book_2_decision(proposal_id: str):
+    expected = vertical_slice_models.NextDecisionProposal.model_validate(
+        yaml.safe_load(DECISION_FIXTURE.read_text(encoding="utf-8"))
+    )
+    return expected.model_copy(update={"proposal_id": proposal_id})
+
+
+def prepare_book_2_decision(
+    service: SeriesVerticalSliceService,
+):
+    accept_archive_outcome(service)
+    service.enter_book_planning(2, entered_by="archive-author")
+    return service.propose_next_decision(2)
+
+
+def decision_authority_snapshot(service: SeriesVerticalSliceService):
+    return (
+        service.load_accepted_series_direction(),
+        service.load_series_direction_metadata(),
+        service.load_accepted_book_direction(1),
+        service.load_book_direction_metadata(1),
+        service.load_accepted_book_direction(2),
+        service.load_book_direction_metadata(2),
+        service.store.load_accepted_realization_bundles(),
+        service.load_canonical_state(),
+    )
+
+
+def assert_decision_action_is_non_canonical(
+    service: SeriesVerticalSliceService,
+    authority_before: object,
+) -> None:
+    assert decision_authority_snapshot(service) == authority_before
+    assert not list(service.store.project_root.rglob("bible.json"))
+
+
+def test_next_decision_cites_context_inputs_and_tradeoff(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_outcome(service)
+
+    with pytest.raises(ValueError, match="explicitly enter Book 2 planning"):
+        service.propose_next_decision(2)
+
+    service.enter_book_planning(2, entered_by="archive-author")
+    service.derive_book_context(2)
+    service.delete_derived_book_context(2)
+
+    proposal = service.propose_next_decision(2)
+
+    assert proposal == load_expected_book_2_decision(proposal.proposal_id)
+    assert proposal.accepted_input_refs == [
+        ArtifactRef(artifact_id="series-direction", revision=1),
+        ArtifactRef(artifact_id="book-1-direction", revision=1),
+        ArtifactRef(
+            artifact_id="realization-bundle-recovered-founding-ledger",
+            revision=1,
+        ),
+    ]
+    assert proposal.recommended_option_id in {
+        option.option_id for option in proposal.options
+    }
+    assert proposal.rationale.strip()
+    assert all(option.tradeoff.strip() for option in proposal.options)
+
+
+def test_choose_recommended_does_not_accept_book_2_direction(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = prepare_book_2_decision(service)
+    authority_before = decision_authority_snapshot(service)
+
+    action = service.record_decision_action(
+        proposal.proposal_id,
+        action="choose_recommended",
+    )
+
+    assert action.selected_option_id == proposal.recommended_option_id
+    assert service.store.load_next_decision_proposal(
+        proposal.proposal_id
+    ).status == "resolved"
+    assert service.store.load_decision_actions(proposal.proposal_id) == [action]
+    assert_decision_action_is_non_canonical(service, authority_before)
+
+
+def test_choose_another_presented_option_is_non_canonical(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = prepare_book_2_decision(service)
+    authority_before = decision_authority_snapshot(service)
+    other_option = next(
+        option
+        for option in proposal.options
+        if option.option_id != proposal.recommended_option_id
+    )
+
+    action = service.record_decision_action(
+        proposal.proposal_id,
+        action="choose_other",
+        selected_option_id=other_option.option_id,
+    )
+
+    assert action.selected_option_id == other_option.option_id
+    assert service.store.load_next_decision_proposal(
+        proposal.proposal_id
+    ).status == "resolved"
+    assert service.store.load_decision_actions(proposal.proposal_id) == [action]
+    assert_decision_action_is_non_canonical(service, authority_before)
+
+
+def test_defer_preserves_open_decision_without_canonical_mutation(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = prepare_book_2_decision(service)
+    authority_before = decision_authority_snapshot(service)
+
+    action = service.record_decision_action(
+        proposal.proposal_id,
+        action="defer",
+    )
+
+    assert action.selected_option_id is None
+    assert service.store.load_next_decision_proposal(
+        proposal.proposal_id
+    ).status == "deferred"
+    assert service.store.load_decision_actions(proposal.proposal_id) == [action]
+    assert_decision_action_is_non_canonical(service, authority_before)
+
+
+def test_unknown_decision_option_is_rejected(tmp_path: Path) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = prepare_book_2_decision(service)
+    authority_before = decision_authority_snapshot(service)
+
+    with pytest.raises(ValueError, match="Unknown decision option"):
+        service.record_decision_action(
+            proposal.proposal_id,
+            action="choose_other",
+            selected_option_id="invent-a-book-two-direction",
+        )
+
+    assert service.store.load_next_decision_proposal(
+        proposal.proposal_id
+    ).status == "proposed"
+    assert service.store.load_decision_actions(proposal.proposal_id) == []
+    assert_decision_action_is_non_canonical(service, authority_before)
 
 
 def test_book_planning_models_enforce_bounded_shape() -> None:
