@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -113,3 +114,30 @@ class CanonicalState(BaseModel):
     state_version: int = Field(ge=0)
     values: dict[str, str] = Field(default_factory=dict)
     applied_bundle_ids: list[str] = Field(default_factory=list)
+
+
+class PlanningEntry(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    book_number: int = Field(gt=1)
+    entered_by: str
+    entered_at: datetime
+
+
+class CarryForwardItem(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    item_id: str
+    kind: Literal["series_commitment", "state_change"]
+    summary: str
+    why_matters_now: str
+    source_refs: list[ArtifactRef] = Field(min_length=1)
+
+
+class BookPlanningContext(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    book_number: int = Field(gt=1)
+    generated_from: list[ArtifactRef] = Field(min_length=1)
+    items: list[CarryForwardItem] = Field(min_length=1)
+    derivation_version: str

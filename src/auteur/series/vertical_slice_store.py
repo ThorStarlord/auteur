@@ -20,7 +20,9 @@ from auteur.series.vertical_slice_models import (
     AcceptedSeriesDirection,
     ArtifactRef,
     BookDirectionProposal,
+    BookPlanningContext,
     CanonicalState,
+    PlanningEntry,
     RealizationCandidate,
     SeriesDirectionProposal,
 )
@@ -62,6 +64,16 @@ class VerticalSliceStore:
     @property
     def canonical_state_path(self) -> Path:
         return self.root / "derived" / "canonical-state.yaml"
+
+    def planning_entry_path(self, book_number: int) -> Path:
+        if book_number <= 1:
+            raise ValueError("Planning entry requires a Book number greater than 1")
+        return self.root / "workflow" / f"book-{book_number}-planning.yaml"
+
+    def book_planning_context_path(self, book_number: int) -> Path:
+        if book_number <= 1:
+            raise ValueError("Planning context requires a Book number greater than 1")
+        return self.root / "derived" / f"book-{book_number}-context.yaml"
 
     def realization_candidate_path(self, candidate_id: str) -> Path:
         if _PATH_SAFE_IDENTIFIER.fullmatch(candidate_id) is None:
@@ -800,6 +812,27 @@ class VerticalSliceStore:
                 self.canonical_state_path.read_text(encoding="utf-8")
             )
         )
+
+    def save_planning_entry(self, entry: PlanningEntry) -> None:
+        self._write_model(self.planning_entry_path(entry.book_number), entry)
+
+    def load_planning_entry(self, book_number: int) -> PlanningEntry | None:
+        path = self.planning_entry_path(book_number)
+        if not path.is_file():
+            return None
+        return PlanningEntry.model_validate(
+            yaml.safe_load(path.read_text(encoding="utf-8"))
+        )
+
+    def save_book_planning_context(self, context: BookPlanningContext) -> None:
+        self._write_model(
+            self.book_planning_context_path(context.book_number), context
+        )
+
+    def delete_book_planning_context(self, book_number: int) -> None:
+        path = self.book_planning_context_path(book_number)
+        path.with_suffix(".tmp").unlink(missing_ok=True)
+        path.unlink(missing_ok=True)
 
     def snapshot_canonical_state(self) -> bytes | None:
         if not self.canonical_state_path.is_file():

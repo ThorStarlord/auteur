@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -28,6 +29,7 @@ FIXTURE = (
 )
 BOOK_FIXTURE = FIXTURE.with_name("book_1_direction.yaml")
 OUTCOME_FIXTURE = FIXTURE.with_name("book_1_outcome.yaml")
+CONTEXT_FIXTURE = FIXTURE.with_name("book_2_context_expected.yaml")
 
 
 def load_direction() -> SeriesDirection:
@@ -69,6 +71,221 @@ def accept_archive_book(service: SeriesVerticalSliceService) -> ArtifactMetadata
     metadata = service.load_book_direction_metadata(1)
     assert metadata is not None
     return metadata
+
+
+def accept_archive_outcome(
+    service: SeriesVerticalSliceService,
+) -> tuple[
+    vertical_slice_models.AcceptedRealizationBundle,
+    ArtifactMetadata,
+]:
+    accept_archive_book(service)
+    candidate = service.propose_realization(load_realization_candidate())
+    accepted = service.accept_realization(
+        candidate.candidate_id, accepted_by="archive-author"
+    )
+    bundles = service.store.load_accepted_realization_bundles()
+    assert bundles[-1][0] == accepted
+    return bundles[-1]
+
+
+def accept_unrelated_newer_outcome(
+    service: SeriesVerticalSliceService,
+) -> tuple[
+    vertical_slice_models.AcceptedRealizationBundle,
+    ArtifactMetadata,
+]:
+    book_metadata = service.load_book_direction_metadata(1)
+    assert book_metadata is not None
+    candidate = vertical_slice_models.RealizationCandidate(
+        candidate_id="mara-reaches-north-quay",
+        book_number=1,
+        summary="Mara reaches the north quay after the ledger is exposed.",
+        transitions=[
+            vertical_slice_models.StateTransition(
+                transition_id="mara-at-north-quay",
+                subject="mara",
+                attribute="location",
+                before=None,
+                after="north quay",
+                explanation="Mara travels there after the archive hearing.",
+            )
+        ],
+        source_refs=[
+            ArtifactRef(
+                artifact_id="book-1-direction",
+                revision=book_metadata.revision,
+            )
+        ],
+    )
+    service.propose_realization(candidate)
+    accepted = service.accept_realization(
+        candidate.candidate_id, accepted_by="archive-author"
+    )
+    bundles = service.store.load_accepted_realization_bundles()
+    assert bundles[-1][0] == accepted
+    return bundles[-1]
+
+
+def load_expected_book_2_context():
+    return vertical_slice_models.BookPlanningContext.model_validate(
+        yaml.safe_load(CONTEXT_FIXTURE.read_text(encoding="utf-8"))
+    )
+
+
+def test_book_planning_models_enforce_bounded_shape() -> None:
+    with pytest.raises(ValidationError):
+        vertical_slice_models.PlanningEntry(
+            book_number=1,
+            entered_by="archive-author",
+            entered_at=datetime.now(timezone.utc),
+        )
+    with pytest.raises(ValidationError):
+        vertical_slice_models.CarryForwardItem(
+            item_id="invalid",
+            kind="series_commitment",
+            summary="Invalid because it has no source.",
+            why_matters_now="It does not.",
+            source_refs=[],
+        )
+    with pytest.raises(ValidationError):
+        vertical_slice_models.BookPlanningContext(
+            book_number=2,
+            generated_from=[],
+            items=[],
+            derivation_version="archive-of-lies-book-2-v1",
+        )
+
+
+def test_book_2_planning_requires_explicit_author_entry(tmp_path: Path) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_outcome(service)
+
+    with pytest.raises(ValueError, match="explicitly enter Book 2 planning"):
+        service.derive_book_context(2)
+
+
+def test_book_2_entry_does_not_create_book_2_direction_or_canon(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_outcome(service)
+    state_before = service.load_canonical_state()
+    bundles_before = service.store.load_accepted_realization_bundles()
+
+    entry = service.enter_book_planning(2, entered_by="archive-author")
+
+    assert entry.book_number == 2
+    assert entry.entered_by == "archive-author"
+    assert entry.entered_at.utcoffset() == timezone.utc.utcoffset(entry.entered_at)
+    assert service.store.load_planning_entry(2) == entry
+    assert service.load_accepted_book_direction(2) is None
+    assert service.load_book_direction_metadata(2) is None
+    assert service.load_canonical_state() == state_before
+    assert service.store.load_accepted_realization_bundles() == bundles_before
+
+
+def test_context_contains_only_explicitly_relevant_accepted_sources(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_outcome(service)
+    unrelated, _unrelated_metadata = accept_unrelated_newer_outcome(service)
+    service.enter_book_planning(2, entered_by="archive-author")
+
+    context = service.derive_book_context(2)
+
+    assert context == load_expected_book_2_context()
+    assert [item.item_id for item in context.items] == [
+        "series-commitment-contested-history",
+        "state-change-founding-ledger-exposed",
+    ]
+    assert unrelated.artifact_id not in {
+        ref.artifact_id
+        for item in context.items
+        for ref in item.source_refs
+    }
+    assert unrelated.artifact_id not in {
+        ref.artifact_id for ref in context.generated_from
+    }
+
+
+def test_every_context_item_has_why_now_and_source_revisions(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_outcome(service)
+    service.enter_book_planning(2, entered_by="archive-author")
+
+    context = service.derive_book_context(2)
+
+    assert all(item.why_matters_now.strip() for item in context.items)
+    assert all(item.source_refs for item in context.items)
+    for source_ref in {
+        (ref.artifact_id, ref.revision)
+        for item in context.items
+        for ref in item.source_refs
+    }:
+        metadata = service.store.artifact_store.current(source_ref[0])
+        assert metadata is not None
+        assert metadata.lifecycle is Lifecycle.ACCEPTED
+        assert metadata.revision == source_ref[1]
+
+
+def test_deleted_context_rebuilds_semantically_equivalent_from_accepted_sources(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_outcome(service)
+    service.enter_book_planning(2, entered_by="archive-author")
+    original = service.derive_book_context(2)
+
+    service.delete_derived_book_context(2)
+
+    assert not service.store.book_planning_context_path(2).exists()
+    rebuilt = service.derive_book_context(2)
+    assert rebuilt.model_dump(mode="json") == original.model_dump(mode="json")
+    assert [item.item_id for item in rebuilt.items] == [
+        item.item_id for item in original.items
+    ]
+    assert [item.why_matters_now for item in rebuilt.items] == [
+        item.why_matters_now for item in original.items
+    ]
+    assert [item.source_refs for item in rebuilt.items] == [
+        item.source_refs for item in original.items
+    ]
+
+
+def test_rebuilding_context_does_not_change_authority_or_canonical_state(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_outcome(service)
+    service.enter_book_planning(2, entered_by="archive-author")
+    accepted_before = (
+        service.load_accepted_series_direction(),
+        service.load_series_direction_metadata(),
+        service.load_accepted_book_direction(1),
+        service.load_book_direction_metadata(1),
+        service.store.load_accepted_realization_bundles(),
+    )
+    state_before = service.load_canonical_state()
+    state_bytes_before = service.store.canonical_state_path.read_bytes()
+
+    service.derive_book_context(2)
+    service.delete_derived_book_context(2)
+    service.derive_book_context(2)
+
+    assert (
+        service.load_accepted_series_direction(),
+        service.load_series_direction_metadata(),
+        service.load_accepted_book_direction(1),
+        service.load_book_direction_metadata(1),
+        service.store.load_accepted_realization_bundles(),
+    ) == accepted_before
+    assert service.load_accepted_book_direction(2) is None
+    assert service.load_canonical_state() == state_before
+    assert service.store.canonical_state_path.read_bytes() == state_bytes_before
 
 
 def test_proposal_round_trips_without_becoming_accepted(tmp_path: Path) -> None:
