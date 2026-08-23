@@ -538,13 +538,14 @@ class SeriesVerticalSliceService:
             raise ValueError(f"Unknown decision action: {action}")
 
         recorded = DecisionAction(
-            proposal_id=proposal.proposal_id,
+            proposal_id=proposal_id,
             action=action,
             selected_option_id=selected_option_id,
             recorded_at=datetime.now(timezone.utc),
         )
-        self.store.save_decision_action(recorded)
-        self.store.save_next_decision_proposal(
-            proposal.model_copy(update={"status": status})
+        self.store.validate_decision_action(proposal, recorded)
+        self.store.save_decision_action_with_status(
+            recorded,
+            proposal.model_copy(update={"status": status}),
         )
         return recorded

@@ -1,9 +1,15 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal
+from typing import Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_validator,
+    model_validator,
+)
 
 from auteur.identity import StoryIdentity
 
@@ -194,6 +200,16 @@ class NextDecisionProposal(BaseModel):
     rationale: str
     accepted_input_refs: list[ArtifactRef] = Field(min_length=1)
     status: Literal["proposed", "resolved", "deferred"] = "proposed"
+
+    @model_validator(mode="after")
+    def require_presented_recommendation(self) -> Self:
+        if self.recommended_option_id not in {
+            option.option_id for option in self.options
+        }:
+            raise ValueError(
+                "recommended_option_id must reference a presented option"
+            )
+        return self
 
 
 class DecisionAction(BaseModel):

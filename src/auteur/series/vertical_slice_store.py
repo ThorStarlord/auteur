@@ -251,11 +251,19 @@ class VerticalSliceStore:
             raise FileNotFoundError(
                 f"Unknown Next Decision proposal: {proposal_id}"
             )
-        return NextDecisionProposal.model_validate(
+        proposal = NextDecisionProposal.model_validate(
             yaml.safe_load(path.read_text(encoding="utf-8"))
         )
+        if proposal.proposal_id != proposal_id:
+            raise ValueError(
+                f"Next Decision proposal {proposal.proposal_id} does not match "
+                f"requested proposal {proposal_id}"
+            )
+        return proposal
 
     def save_decision_action(self, action: DecisionAction) -> None:
+        proposal = self.load_next_decision_proposal(action.proposal_id)
+        self.validate_decision_action(proposal, action)
         actions = self.load_decision_actions(action.proposal_id)
         actions.append(action)
         path = self.decision_actions_path(action.proposal_id)
@@ -274,11 +282,70 @@ class VerticalSliceStore:
             return []
         payload = yaml.safe_load(path.read_text(encoding="utf-8"))
         actions = [DecisionAction.model_validate(item) for item in payload]
-        if any(action.proposal_id != proposal_id for action in actions):
+        proposal = self.load_next_decision_proposal(proposal_id)
+        for action in actions:
+            self.validate_decision_action(proposal, action)
+        return actions
+
+    @staticmethod
+    def validate_decision_action(
+        proposal: NextDecisionProposal, action: DecisionAction
+    ) -> None:
+        if action.proposal_id != proposal.proposal_id:
             raise ValueError(
                 "Decision action proposal does not match the requested proposal"
             )
-        return actions
+        option_ids = {option.option_id for option in proposal.options}
+        if action.action == "choose_recommended":
+            if action.selected_option_id != proposal.recommended_option_id:
+                raise ValueError(
+                    "The recommended action must select the recommended option"
+                )
+        elif action.action == "choose_other":
+            if action.selected_option_id not in option_ids:
+                raise ValueError(
+                    f"Unknown decision option: {action.selected_option_id}"
+                )
+            if action.selected_option_id == proposal.recommended_option_id:
+                raise ValueError(
+                    "Choose another option must select a presented alternative"
+                )
+        elif action.selected_option_id is not None:
+            raise ValueError("A deferred decision cannot select an option")
+
+    def save_decision_action_with_status(
+        self,
+        action: DecisionAction,
+        proposal: NextDecisionProposal,
+    ) -> None:
+        if action.proposal_id != proposal.proposal_id:
+            raise ValueError(
+                "Decision action proposal does not match the status proposal"
+            )
+        proposal_path = self.next_decision_proposal_path(proposal.proposal_id)
+        actions_path = self.decision_actions_path(proposal.proposal_id)
+        proposal_snapshot = proposal_path.read_bytes()
+        actions_snapshot = (
+            actions_path.read_bytes() if actions_path.is_file() else None
+        )
+        try:
+            self.save_decision_action(action)
+            self.save_next_decision_proposal(proposal)
+        except Exception:
+            self._restore_workflow_file(proposal_path, proposal_snapshot)
+            self._restore_workflow_file(actions_path, actions_snapshot)
+            raise
+
+    @staticmethod
+    def _restore_workflow_file(path: Path, snapshot: bytes | None) -> None:
+        path.with_suffix(".tmp").unlink(missing_ok=True)
+        if snapshot is None:
+            path.unlink(missing_ok=True)
+            return
+        path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = path.with_suffix(".rollback.tmp")
+        temporary.write_bytes(snapshot)
+        temporary.replace(path)
 
     def save_accepted_series_direction(
         self,

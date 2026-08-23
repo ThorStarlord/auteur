@@ -288,6 +288,139 @@ def test_unknown_decision_option_is_rejected(tmp_path: Path) -> None:
     assert_decision_action_is_non_canonical(service, authority_before)
 
 
+def test_next_decision_load_rejects_payload_with_different_proposal_id(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = prepare_book_2_decision(service)
+    proposal_path = service.store.next_decision_proposal_path(
+        proposal.proposal_id
+    )
+    payload = yaml.safe_load(proposal_path.read_text(encoding="utf-8"))
+    payload["proposal_id"] = "different-next-decision"
+    proposal_path.write_text(
+        yaml.safe_dump(payload, sort_keys=False), encoding="utf-8"
+    )
+
+    with pytest.raises(ValueError, match="does not match requested proposal"):
+        service.store.load_next_decision_proposal(proposal.proposal_id)
+    with pytest.raises(ValueError, match="does not match requested proposal"):
+        service.record_decision_action(
+            proposal.proposal_id,
+            action="choose_recommended",
+        )
+
+    assert not service.store.decision_actions_path(proposal.proposal_id).exists()
+    assert not service.store.decision_actions_path(
+        "different-next-decision"
+    ).exists()
+
+
+def test_next_decision_rejects_unknown_recommended_option() -> None:
+    payload = yaml.safe_load(DECISION_FIXTURE.read_text(encoding="utf-8"))
+    payload["recommended_option_id"] = "not-a-presented-option"
+
+    with pytest.raises(
+        ValidationError,
+        match="recommended_option_id must reference a presented option",
+    ):
+        vertical_slice_models.NextDecisionProposal.model_validate(payload)
+
+
+def test_choose_recommended_rejects_reloaded_unknown_recommended_option(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = prepare_book_2_decision(service)
+    proposal_path = service.store.next_decision_proposal_path(
+        proposal.proposal_id
+    )
+    payload = yaml.safe_load(proposal_path.read_text(encoding="utf-8"))
+    payload["recommended_option_id"] = "not-a-presented-option"
+    proposal_path.write_text(
+        yaml.safe_dump(payload, sort_keys=False), encoding="utf-8"
+    )
+
+    with pytest.raises(
+        ValidationError,
+        match="recommended_option_id must reference a presented option",
+    ):
+        service.record_decision_action(
+            proposal.proposal_id,
+            action="choose_recommended",
+        )
+
+    assert not service.store.decision_actions_path(proposal.proposal_id).exists()
+
+
+def test_reloaded_decision_action_rejects_unknown_selected_option(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = prepare_book_2_decision(service)
+    other_option = next(
+        option
+        for option in proposal.options
+        if option.option_id != proposal.recommended_option_id
+    )
+    service.record_decision_action(
+        proposal.proposal_id,
+        action="choose_other",
+        selected_option_id=other_option.option_id,
+    )
+    actions_path = service.store.decision_actions_path(proposal.proposal_id)
+    payload = yaml.safe_load(actions_path.read_text(encoding="utf-8"))
+    payload[0]["selected_option_id"] = "not-a-presented-option"
+    actions_path.write_text(
+        yaml.safe_dump(payload, sort_keys=False), encoding="utf-8"
+    )
+
+    with pytest.raises(ValueError, match="Unknown decision option"):
+        service.store.load_decision_actions(proposal.proposal_id)
+
+
+def test_decision_status_failure_restores_prior_proposal_and_action_state(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = prepare_book_2_decision(service)
+    deferred = service.record_decision_action(
+        proposal.proposal_id,
+        action="defer",
+    )
+    proposal_path = service.store.next_decision_proposal_path(
+        proposal.proposal_id
+    )
+    actions_path = service.store.decision_actions_path(proposal.proposal_id)
+    proposal_before = proposal_path.read_bytes()
+    actions_before = actions_path.read_bytes()
+    authority_before = decision_authority_snapshot(service)
+
+    def fail_status_write(_proposal: object) -> None:
+        raise OSError("decision status persistence failed")
+
+    monkeypatch.setattr(
+        service.store,
+        "save_next_decision_proposal",
+        fail_status_write,
+    )
+
+    with pytest.raises(OSError, match="decision status persistence failed"):
+        service.record_decision_action(
+            proposal.proposal_id,
+            action="choose_recommended",
+        )
+
+    assert proposal_path.read_bytes() == proposal_before
+    assert actions_path.read_bytes() == actions_before
+    assert service.store.load_next_decision_proposal(
+        proposal.proposal_id
+    ).status == "deferred"
+    assert service.store.load_decision_actions(proposal.proposal_id) == [deferred]
+    assert_decision_action_is_non_canonical(service, authority_before)
+
+
 def test_book_planning_models_enforce_bounded_shape() -> None:
     with pytest.raises(ValidationError):
         vertical_slice_models.PlanningEntry(
