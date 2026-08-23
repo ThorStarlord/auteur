@@ -103,8 +103,8 @@ class AcceptedRealizationBundle(BaseModel):
     artifact_id: str
     bundle_id: str
     candidate_id: str
-    book_number: int
-    transitions: list[StateTransition]
+    book_number: int = Field(ge=1)
+    transitions: list[StateTransition] = Field(min_length=1)
 
 
 class CanonicalState(BaseModel):

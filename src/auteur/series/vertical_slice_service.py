@@ -210,8 +210,8 @@ class SeriesVerticalSliceService:
                 "Book Direction revision"
             )
         accepted = AcceptedRealizationBundle(
-            artifact_id="realization-bundles",
-            bundle_id=f"bundle-{candidate.candidate_id}",
+            artifact_id=f"realization-bundle-{candidate.candidate_id}",
+            bundle_id=f"realization-bundle-{candidate.candidate_id}",
             candidate_id=candidate.candidate_id,
             book_number=candidate.book_number,
             transitions=candidate.transitions,
@@ -237,13 +237,24 @@ class SeriesVerticalSliceService:
         values: dict[str, str] = {}
         applied_bundle_ids: list[str] = []
         state_version = 0
-        for bundle, metadata in self.store.load_accepted_realization_bundles():
+        for bundle, _metadata in self.store.load_accepted_realization_bundles():
             for transition in bundle.transitions:
-                values[f"{transition.subject}.{transition.attribute}"] = (
-                    transition.after
-                )
+                key = f"{transition.subject}.{transition.attribute}"
+                # A null before value means the attribute must not exist yet.
+                if transition.before is None:
+                    if key in values:
+                        raise ValueError(
+                            f"State transition {transition.transition_id} before "
+                            f"value requires initial absence for {key}"
+                        )
+                elif values.get(key) != transition.before:
+                    raise ValueError(
+                        f"State transition {transition.transition_id} before "
+                        f"value does not match {key}"
+                    )
+                values[key] = transition.after
             applied_bundle_ids.append(bundle.bundle_id)
-            state_version = metadata.revision
+            state_version += 1
         state = CanonicalState(
             state_version=state_version,
             values=values,

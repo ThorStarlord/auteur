@@ -27,7 +27,7 @@ from auteur.series.vertical_slice_models import (
 
 
 _PATH_SAFE_IDENTIFIER = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*\Z")
-_REALIZATION_ARTIFACT_ID = "realization-bundles"
+_REALIZATION_ARTIFACT_PREFIX = "realization-bundle-"
 
 
 class VerticalSliceStore:
@@ -487,19 +487,32 @@ class VerticalSliceStore:
         accepted_by: str,
         rationale: str | None,
     ) -> ArtifactMetadata:
+        existing = self.load_accepted_realization_bundles()
         self.validate_current_book_dependency(
             accepted.book_number, book_source
         )
         path = self.accepted_realization_bundle_path(accepted.bundle_id)
-        if path.exists():
+        if (
+            accepted.artifact_id != accepted.bundle_id
+            or path.stem != accepted.artifact_id
+            or not accepted.artifact_id.startswith(
+                _REALIZATION_ARTIFACT_PREFIX
+            )
+        ):
+            raise ValueError(
+                "Accepted Realization artifact ID must match its bundle path"
+            )
+        artifact_id = accepted.artifact_id
+        sidecar = self.artifact_store.sidecar_path(artifact_id)
+        revision_dir = self.artifact_store.root / "revisions" / artifact_id
+        if path.exists() or sidecar.exists() or revision_dir.exists():
             raise ValueError(
                 f"Realization candidate is already accepted: {accepted.candidate_id}"
             )
-        staged_path = path.parent / ".staging" / f"{_REALIZATION_ARTIFACT_ID}.yaml"
-        sidecar = self.artifact_store.sidecar_path(_REALIZATION_ARTIFACT_ID)
+        staged_path = path.parent / ".staging" / path.name
         previous_sidecar = sidecar.read_bytes() if sidecar.is_file() else None
         previous_revisions = set(
-            self.artifact_store.list_revisions(_REALIZATION_ARTIFACT_ID)
+            self.artifact_store.list_revisions(artifact_id)
         )
         dependencies = [
             DependencySpec(
@@ -510,6 +523,23 @@ class VerticalSliceStore:
                 source=DependencySource.DECLARED,
             )
         ]
+        if existing:
+            previous_bundle, previous_metadata = existing[-1]
+            if previous_metadata.revision != 1:
+                raise ValueError(
+                    "Invalid accepted Realization metadata history"
+                )
+            dependencies.append(
+                DependencySpec(
+                    artifact_id=previous_bundle.artifact_id,
+                    artifact_type="accepted_realization_bundle",
+                    path=self.accepted_realization_bundle_path(
+                        previous_bundle.bundle_id
+                    ),
+                    kind=DependencyKind.STATE_ORDER,
+                    source=DependencySource.DECLARED,
+                )
+            )
         try:
             self._write_model(staged_path, accepted)
             metadata = self.artifact_store.accept(
@@ -525,7 +555,7 @@ class VerticalSliceStore:
             return metadata
         except Exception:
             self._restore_artifact_metadata(
-                _REALIZATION_ARTIFACT_ID,
+                artifact_id,
                 previous_sidecar,
                 previous_revisions,
             )
@@ -538,14 +568,19 @@ class VerticalSliceStore:
             except OSError:
                 pass
 
-    def _validate_realization_dependency(
+    def _validate_realization_book_dependency(
         self,
         bundle: AcceptedRealizationBundle,
         metadata: ArtifactMetadata,
     ) -> bool:
-        if len(metadata.dependencies) != 1:
+        book_dependencies = [
+            dependency
+            for dependency in metadata.dependencies
+            if dependency.kind is DependencyKind.SEMANTIC
+        ]
+        if len(book_dependencies) != 1:
             return False
-        dependency = metadata.dependencies[0]
+        dependency = book_dependencies[0]
         book_path = self.accepted_book_direction_path(bundle.book_number)
         expected_path = str(
             book_path.resolve().relative_to(self.project_root.resolve())
@@ -573,95 +608,182 @@ class VerticalSliceStore:
             and dependency.projected_hash == dependency.full_content_hash
         )
 
+    def _realization_history_artifact_ids(
+        self,
+    ) -> tuple[set[str], set[str], set[str]]:
+        payload_ids = {
+            path.stem
+            for path in (self.root / "accepted" / "realization").glob("*.yaml")
+        }
+        sidecar_ids = {
+            path.stem
+            for path in self.artifact_store.root.glob("*.yaml")
+            if path.stem.startswith(_REALIZATION_ARTIFACT_PREFIX)
+            or path.stem == "realization-bundles"
+        }
+        revision_root = self.artifact_store.root / "revisions"
+        revision_ids = (
+            {
+                path.name
+                for path in revision_root.iterdir()
+                if path.is_dir()
+                and (
+                    path.name.startswith(_REALIZATION_ARTIFACT_PREFIX)
+                    or path.name == "realization-bundles"
+                )
+            }
+            if revision_root.is_dir()
+            else set()
+        )
+        return payload_ids, sidecar_ids, revision_ids
+
     def load_accepted_realization_bundles(
         self,
     ) -> list[tuple[AcceptedRealizationBundle, ArtifactMetadata]]:
-        revisions = self.artifact_store.list_revisions(
-            _REALIZATION_ARTIFACT_ID
+        payload_ids, sidecar_ids, revision_ids = (
+            self._realization_history_artifact_ids()
         )
-        current = self.artifact_store.current(_REALIZATION_ARTIFACT_ID)
-        if not revisions:
+        if not payload_ids and not sidecar_ids and not revision_ids:
             return []
-        if (
-            current is None
-            or current.lifecycle is not Lifecycle.ACCEPTED
-            or current.artifact_id != _REALIZATION_ARTIFACT_ID
-            or current.artifact_type != "accepted_realization_bundle"
-            or current.revision != revisions[-1]
-        ):
+        if payload_ids != sidecar_ids or payload_ids != revision_ids:
             raise ValueError("Invalid accepted Realization metadata history")
 
-        bundle_paths = list(
-            (self.root / "accepted" / "realization").glob("*.yaml")
-        )
-        loaded: list[tuple[AcceptedRealizationBundle, ArtifactMetadata]] = []
-        used_paths: set[Path] = set()
-        for revision in revisions:
+        loaded_by_id: dict[
+            str, tuple[AcceptedRealizationBundle, ArtifactMetadata]
+        ] = {}
+        predecessor_by_id: dict[str, str | None] = {}
+        for artifact_id in sorted(payload_ids):
+            path = self.accepted_realization_bundle_path(artifact_id)
             try:
-                metadata = self.artifact_store.get_revision(
-                    _REALIZATION_ARTIFACT_ID, revision
+                bundle = AcceptedRealizationBundle.model_validate(
+                    yaml.safe_load(path.read_text(encoding="utf-8"))
                 )
+                current = self.artifact_store.current(artifact_id)
+                revisions = self.artifact_store.list_revisions(artifact_id)
             except (OSError, UnicodeError, yaml.YAMLError, ValidationError) as error:
                 raise ValueError(
                     "Invalid accepted Realization metadata history"
                 ) from error
             if (
-                metadata.artifact_id != _REALIZATION_ARTIFACT_ID
-                or metadata.artifact_type != "accepted_realization_bundle"
-                or metadata.lifecycle is not Lifecycle.ACCEPTED
-                or metadata.revision != revision
-                or (revision == current.revision and metadata != current)
+                bundle.artifact_id != artifact_id
+                or bundle.bundle_id != artifact_id
+                or current is None
+                or current.artifact_id != artifact_id
+                or current.artifact_type != "accepted_realization_bundle"
+                or current.lifecycle is not Lifecycle.ACCEPTED
+                or current.revision != 1
+                or revisions != [1]
             ):
                 raise ValueError(
                     "Invalid accepted Realization metadata history"
                 )
-            matches = [
-                path
-                for path in bundle_paths
-                if path not in used_paths
-                and self.artifact_store.content_hash(path)
-                == metadata.content_hash
-            ]
-            if len(matches) != 1:
-                raise ValueError(
-                    "Accepted Realization payload does not match metadata"
-                )
-            path = matches[0]
-            bundle = AcceptedRealizationBundle.model_validate(
-                yaml.safe_load(path.read_text(encoding="utf-8"))
+            revision_dir = (
+                self.artifact_store.root / "revisions" / artifact_id
             )
+            revision_files = list(revision_dir.glob("*.yaml"))
+            if len(revision_files) != 1 or revision_files[0].stem != "000001":
+                raise ValueError(
+                    "Invalid accepted Realization metadata history"
+                )
+            try:
+                revision_metadata = self.artifact_store.get_revision(
+                    artifact_id, 1
+                )
+            except (OSError, UnicodeError, yaml.YAMLError, ValidationError) as error:
+                raise ValueError(
+                    "Invalid accepted Realization metadata history"
+                ) from error
+            state_dependencies = [
+                dependency
+                for dependency in current.dependencies
+                if dependency.kind is DependencyKind.STATE_ORDER
+            ]
             if (
-                bundle.artifact_id != _REALIZATION_ARTIFACT_ID
-                or bundle.bundle_id != path.stem
-                or not self._validate_realization_dependency(bundle, metadata)
+                revision_metadata != current
+                or self.artifact_store.content_hash(path)
+                != current.content_hash
+                or not self._validate_realization_book_dependency(
+                    bundle, current
+                )
+                or len(state_dependencies) > 1
+                or len(current.dependencies) != 1 + len(state_dependencies)
             ):
                 raise ValueError(
-                    "Accepted Realization payload does not match metadata"
+                    "Invalid accepted Realization metadata history"
                 )
-            used_paths.add(path)
-            loaded.append((bundle, metadata))
-        return loaded
+            predecessor_by_id[artifact_id] = (
+                state_dependencies[0].artifact_id
+                if state_dependencies
+                else None
+            )
+            loaded_by_id[artifact_id] = (bundle, current)
+
+        successors: dict[str, str] = {}
+        roots: list[str] = []
+        for artifact_id, predecessor_id in predecessor_by_id.items():
+            if predecessor_id is None:
+                roots.append(artifact_id)
+                continue
+            if predecessor_id not in loaded_by_id or predecessor_id in successors:
+                raise ValueError("Invalid accepted Realization metadata history")
+            dependency = next(
+                dependency
+                for dependency in loaded_by_id[artifact_id][1].dependencies
+                if dependency.kind is DependencyKind.STATE_ORDER
+            )
+            predecessor_bundle, predecessor_metadata = loaded_by_id[
+                predecessor_id
+            ]
+            predecessor_path = self.accepted_realization_bundle_path(
+                predecessor_bundle.bundle_id
+            )
+            expected_path = str(
+                predecessor_path.resolve().relative_to(
+                    self.project_root.resolve()
+                )
+            )
+            if (
+                dependency.artifact_type != "accepted_realization_bundle"
+                or dependency.source is not DependencySource.DECLARED
+                or dependency.path != expected_path
+                or dependency.revision != predecessor_metadata.revision
+                or dependency.full_content_hash
+                != predecessor_metadata.content_hash
+                or dependency.projected_hash
+                != dependency.full_content_hash
+                or dependency.fields != []
+                or dependency.projection.id != "full"
+                or dependency.projection.fields != []
+            ):
+                raise ValueError("Invalid accepted Realization metadata history")
+            successors[predecessor_id] = artifact_id
+
+        if len(roots) != 1:
+            raise ValueError("Invalid accepted Realization metadata history")
+        ordered: list[tuple[AcceptedRealizationBundle, ArtifactMetadata]] = []
+        current_id: str | None = roots[0]
+        while current_id is not None:
+            ordered.append(loaded_by_id[current_id])
+            current_id = successors.get(current_id)
+        if len(ordered) != len(loaded_by_id):
+            raise ValueError("Invalid accepted Realization metadata history")
+        return ordered
 
     def rollback_accepted_realization_bundle(
         self, bundle_id: str, revision: int
     ) -> None:
-        current = self.artifact_store.current(_REALIZATION_ARTIFACT_ID)
+        current = self.artifact_store.current(bundle_id)
         if current is None or current.revision != revision:
             raise RuntimeError("Cannot roll back accepted Realization revision")
         self.accepted_realization_bundle_path(bundle_id).unlink(missing_ok=True)
-        sidecar = self.artifact_store.sidecar_path(_REALIZATION_ARTIFACT_ID)
+        sidecar = self.artifact_store.sidecar_path(bundle_id)
         sidecar.unlink(missing_ok=True)
         revision_dir = (
             self.artifact_store.root
             / "revisions"
-            / _REALIZATION_ARTIFACT_ID
+            / bundle_id
         )
         (revision_dir / f"{revision:06d}.yaml").unlink(missing_ok=True)
-        if revision > 1:
-            previous = revision_dir / f"{revision - 1:06d}.yaml"
-            temporary = sidecar.with_suffix(".rollback.tmp")
-            temporary.write_bytes(previous.read_bytes())
-            temporary.replace(sidecar)
         try:
             revision_dir.rmdir()
         except OSError:
