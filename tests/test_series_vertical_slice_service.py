@@ -95,6 +95,7 @@ def test_acceptance_round_trip_preserves_author_and_source_revision(
         "freshness",
     }.isdisjoint(stored_payload)
     assert not accepted_path.with_suffix(".tmp").exists()
+    assert not (accepted_path.parent / ".staging" / accepted_path.name).exists()
 
 
 def test_accepting_unknown_series_direction_proposal_is_rejected(
@@ -181,3 +182,39 @@ def test_accepted_series_direction_requires_matching_accepted_metadata(
     sidecar.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
 
     assert service.load_accepted_series_direction() is None
+
+
+def test_failed_metadata_accept_preserves_previous_series_direction(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal_a = service.propose_series_direction(load_direction())
+    accepted_a = service.accept_series_direction(
+        proposal_a.proposal_id, accepted_by="author"
+    )
+    metadata_a = service.load_series_direction_metadata()
+    assert metadata_a is not None
+    revisions_a = service.store.artifact_store.list_revisions(metadata_a.artifact_id)
+
+    direction_b = load_direction().model_copy(
+        update={"promise": "A replacement direction that must not be accepted."}
+    )
+    proposal_b = service.propose_series_direction(direction_b)
+    original_accept = service.store.artifact_store.accept
+
+    def fail_accept(*args: object, **kwargs: object) -> None:
+        original_accept(*args, **kwargs)
+        raise OSError("metadata persistence failed")
+
+    monkeypatch.setattr(service.store.artifact_store, "accept", fail_accept)
+
+    with pytest.raises(OSError, match="metadata persistence failed"):
+        service.accept_series_direction(proposal_b.proposal_id, accepted_by="author")
+
+    accepted_path = service.store.accepted_series_direction_path
+    assert service.load_accepted_series_direction() == accepted_a
+    assert service.load_series_direction_metadata() == metadata_a
+    assert service.store.artifact_store.list_revisions(metadata_a.artifact_id) == revisions_a
+    assert service.store.artifact_store.content_hash(accepted_path) == metadata_a.content_hash
+    assert not (accepted_path.parent / ".staging" / "series-direction.yaml").exists()

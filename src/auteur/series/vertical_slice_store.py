@@ -43,6 +43,29 @@ class VerticalSliceStore:
         temporary.write_text(rendered, encoding="utf-8")
         temporary.replace(path)
 
+    def _restore_artifact_metadata(
+        self,
+        artifact_id: str,
+        previous_sidecar: bytes | None,
+        previous_revisions: set[int],
+    ) -> None:
+        sidecar = self.artifact_store.sidecar_path(artifact_id)
+        sidecar.with_suffix(".tmp").unlink(missing_ok=True)
+        if previous_sidecar is None:
+            sidecar.unlink(missing_ok=True)
+        else:
+            temporary = sidecar.with_suffix(".rollback.tmp")
+            temporary.write_bytes(previous_sidecar)
+            temporary.replace(sidecar)
+
+        revision_dir = self.artifact_store.root / "revisions" / artifact_id
+        for revision in set(self.artifact_store.list_revisions(artifact_id)) - previous_revisions:
+            (revision_dir / f"{revision:06d}.yaml").unlink(missing_ok=True)
+        try:
+            revision_dir.rmdir()
+        except OSError:
+            pass
+
     def save_series_direction_proposal(
         self, proposal: SeriesDirectionProposal
     ) -> None:
@@ -70,17 +93,36 @@ class VerticalSliceStore:
         rationale: str | None,
     ) -> ArtifactMetadata:
         path = self.accepted_series_direction_path
-        self._write_model(path, accepted)
-        metadata = self.artifact_store.accept(
-            path,
-            "series_direction",
-            dependencies=[],
-            accepted_by=accepted_by,
-            rationale=rationale,
-        )
-        if metadata is None:
-            raise RuntimeError("Accepted Series Direction metadata is archived")
-        return metadata
+        staged_path = path.parent / ".staging" / path.name
+        artifact_id = staged_path.stem
+        sidecar = self.artifact_store.sidecar_path(artifact_id)
+        previous_sidecar = sidecar.read_bytes() if sidecar.is_file() else None
+        previous_revisions = set(self.artifact_store.list_revisions(artifact_id))
+        try:
+            self._write_model(staged_path, accepted)
+            metadata = self.artifact_store.accept(
+                staged_path,
+                "series_direction",
+                dependencies=[],
+                accepted_by=accepted_by,
+                rationale=rationale,
+            )
+            if metadata is None:
+                raise RuntimeError("Accepted Series Direction metadata is archived")
+            staged_path.replace(path)
+            return metadata
+        except Exception:
+            self._restore_artifact_metadata(
+                artifact_id, previous_sidecar, previous_revisions
+            )
+            raise
+        finally:
+            staged_path.unlink(missing_ok=True)
+            staged_path.with_suffix(".tmp").unlink(missing_ok=True)
+            try:
+                staged_path.parent.rmdir()
+            except OSError:
+                pass
 
     def load_accepted_series_direction(
         self,
