@@ -143,6 +143,7 @@ class SeriesVerticalSliceService:
         )
         self.store.save_accepted_book_direction(
             accepted,
+            series_source=proposal.source_refs[0],
             accepted_by=accepted_by,
             rationale=rationale,
         )

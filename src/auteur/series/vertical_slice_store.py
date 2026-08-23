@@ -16,6 +16,7 @@ from auteur.provenance import (
 from auteur.series.vertical_slice_models import (
     AcceptedBookDirection,
     AcceptedSeriesDirection,
+    ArtifactRef,
     BookDirectionProposal,
     SeriesDirectionProposal,
 )
@@ -215,13 +216,65 @@ class VerticalSliceStore:
             self.accepted_series_direction_path.stem
         )
 
+    def _load_accepted_series_revision(
+        self, artifact_id: str, revision: int
+    ) -> ArtifactMetadata | None:
+        if artifact_id != self.accepted_series_direction_path.stem:
+            return None
+        try:
+            metadata = self.artifact_store.get_revision(artifact_id, revision)
+        except (OSError, UnicodeError, yaml.YAMLError, ValidationError):
+            return None
+        if (
+            metadata.artifact_id != artifact_id
+            or metadata.artifact_type != "series_direction"
+            or metadata.revision != revision
+            or metadata.lifecycle is not Lifecycle.ACCEPTED
+        ):
+            return None
+        return metadata
+
+    def _validate_current_series_dependency(
+        self, source_ref: ArtifactRef
+    ) -> None:
+        try:
+            accepted = self.load_accepted_series_direction()
+            current_metadata = self.load_series_direction_metadata()
+        except (OSError, UnicodeError, yaml.YAMLError, ValidationError) as error:
+            raise ValueError(
+                "Invalid accepted Series Direction dependency revision"
+            ) from error
+        series_revision = self._load_accepted_series_revision(
+            source_ref.artifact_id, source_ref.revision
+        )
+        current_hash = self.artifact_store.content_hash(
+            self.accepted_series_direction_path
+        )
+        if (
+            accepted is None
+            or current_metadata is None
+            or accepted.artifact_id != source_ref.artifact_id
+            or current_metadata.artifact_id != source_ref.artifact_id
+            or current_metadata.artifact_type != "series_direction"
+            or current_metadata.revision != source_ref.revision
+            or current_metadata.lifecycle is not Lifecycle.ACCEPTED
+            or current_metadata.content_hash != current_hash
+            or series_revision is None
+            or series_revision.content_hash != current_hash
+        ):
+            raise ValueError(
+                "Invalid accepted Series Direction dependency revision"
+            )
+
     def save_accepted_book_direction(
         self,
         accepted: AcceptedBookDirection,
         *,
+        series_source: ArtifactRef,
         accepted_by: str,
         rationale: str | None,
     ) -> ArtifactMetadata:
+        self._validate_current_series_dependency(series_source)
         path = self.accepted_book_direction_path(
             accepted.direction.book_number
         )
@@ -299,29 +352,12 @@ class VerticalSliceStore:
             or dependency.projection.fields != []
         ):
             return None
-        if self.load_accepted_series_direction() is None:
-            return None
-        try:
-            series_revision = self.artifact_store.get_revision(
-                dependency.artifact_id, dependency.revision
-            )
-        except (OSError, UnicodeError, yaml.YAMLError, ValidationError):
-            return None
-        current_full_hash = self.artifact_store.content_hash(
-            self.accepted_series_direction_path
-        )
-        current_projected_hash = self.artifact_store.content_hash(
-            self.accepted_series_direction_path,
-            dependency.projection.fields,
+        series_revision = self._load_accepted_series_revision(
+            dependency.artifact_id, dependency.revision
         )
         if (
-            series_revision.artifact_id != dependency.artifact_id
-            or series_revision.artifact_type != dependency.artifact_type
-            or series_revision.revision != dependency.revision
-            or series_revision.lifecycle is not Lifecycle.ACCEPTED
-            or dependency.full_content_hash != current_full_hash
+            series_revision is None
             or dependency.full_content_hash != series_revision.content_hash
-            or dependency.projected_hash != current_projected_hash
             or dependency.projected_hash != dependency.full_content_hash
         ):
             return None

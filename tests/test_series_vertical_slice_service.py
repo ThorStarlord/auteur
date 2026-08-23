@@ -526,13 +526,12 @@ def test_accepted_book_direction_rejects_altered_full_content_hash(
     assert service.load_accepted_book_direction(1) is None
 
 
-def test_accepted_book_direction_requires_valid_current_series_authority(
+def test_book_acceptance_requires_valid_current_series_authority(
     tmp_path: Path,
 ) -> None:
     service = SeriesVerticalSliceService(tmp_path)
     accept_archive_series(service)
     proposal = service.propose_book_direction(load_book_direction())
-    service.accept_book_direction(proposal.proposal_id, accepted_by="author")
     series_sidecar = service.store.artifact_store.sidecar_path("series-direction")
     payload = yaml.safe_load(series_sidecar.read_text(encoding="utf-8"))
     payload["lifecycle"] = "draft"
@@ -540,7 +539,11 @@ def test_accepted_book_direction_requires_valid_current_series_authority(
         yaml.safe_dump(payload, sort_keys=False), encoding="utf-8"
     )
 
-    assert service.load_accepted_book_direction(1) is None
+    with pytest.raises(ValueError, match="accepted Series Direction"):
+        service.accept_book_direction(proposal.proposal_id, accepted_by="author")
+
+    assert not service.store.accepted_book_direction_path(1).exists()
+    assert service.load_book_direction_metadata(1) is None
 
 
 @pytest.mark.parametrize(
@@ -574,3 +577,119 @@ def test_accepted_book_direction_requires_valid_series_dependency_revision(
     )
 
     assert service.load_accepted_book_direction(1) is None
+
+
+@pytest.mark.parametrize(
+    "tamper",
+    ["missing", "invalid_lifecycle", "mismatched_hash"],
+)
+def test_book_acceptance_validates_series_revision_before_writing(
+    tmp_path: Path,
+    tamper: str,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_series(service)
+    proposal = service.propose_book_direction(load_book_direction())
+    revision_path = (
+        service.store.artifact_store.root
+        / "revisions"
+        / "series-direction"
+        / "000001.yaml"
+    )
+    if tamper == "missing":
+        revision_path.unlink()
+    else:
+        payload = yaml.safe_load(revision_path.read_text(encoding="utf-8"))
+        if tamper == "invalid_lifecycle":
+            payload["lifecycle"] = "draft"
+        else:
+            payload["content_hash"] = "sha256:mismatched"
+        revision_path.write_text(
+            yaml.safe_dump(payload, sort_keys=False), encoding="utf-8"
+        )
+
+    with pytest.raises(ValueError, match="Series Direction dependency revision"):
+        service.accept_book_direction(proposal.proposal_id, accepted_by="author")
+
+    accepted_path = service.store.accepted_book_direction_path(1)
+    assert not accepted_path.exists()
+    assert service.load_book_direction_metadata(1) is None
+    assert service.store.artifact_store.list_revisions("book-1-direction") == []
+    assert not (accepted_path.parent / ".staging" / accepted_path.name).exists()
+
+
+def test_accepted_book_direction_remains_loadable_when_series_becomes_stale(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_series(service)
+    book_proposal = service.propose_book_direction(load_book_direction())
+    accepted_book = service.accept_book_direction(
+        book_proposal.proposal_id, accepted_by="author"
+    )
+    book_metadata = service.load_book_direction_metadata(1)
+    assert book_metadata is not None
+    assert book_metadata.dependencies[0].revision == 1
+
+    revised_series = load_direction().model_copy(
+        update={"promise": "Every recovered account changes who controls history."}
+    )
+    series_proposal = service.propose_series_direction(revised_series)
+    service.accept_series_direction(series_proposal.proposal_id, accepted_by="author")
+
+    assert service.load_accepted_book_direction(1) == accepted_book
+    preserved_metadata = service.load_book_direction_metadata(1)
+    assert preserved_metadata is not None
+    assert preserved_metadata.dependencies[0].revision == 1
+    status = service.store.artifact_store.status(
+        service.store.accepted_book_direction_path(1), "book_direction"
+    )
+    assert status.lifecycle is Lifecycle.ACCEPTED
+    assert status.freshness == "stale"
+    assert status.stale_reasons[0].previous_revision == 1
+    assert status.stale_reasons[0].current_revision == 2
+
+
+def test_failed_book_metadata_accept_preserves_previous_book_direction(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_series(service)
+    proposal_a = service.propose_book_direction(load_book_direction())
+    accepted_a = service.accept_book_direction(
+        proposal_a.proposal_id, accepted_by="author"
+    )
+    metadata_a = service.load_book_direction_metadata(1)
+    assert metadata_a is not None
+    accepted_path = service.store.accepted_book_direction_path(1)
+    accepted_bytes_a = accepted_path.read_bytes()
+    revisions_a = service.store.artifact_store.list_revisions(
+        metadata_a.artifact_id
+    )
+
+    replacement_identity = load_book_direction().identity.model_copy(
+        update={"title": "The Counterfeit Ledger"}
+    )
+    replacement = load_book_direction().model_copy(
+        update={"identity": replacement_identity}
+    )
+    proposal_b = service.propose_book_direction(replacement)
+    original_accept = service.store.artifact_store.accept
+
+    def fail_accept(*args: object, **kwargs: object) -> None:
+        original_accept(*args, **kwargs)
+        raise OSError("book metadata persistence failed")
+
+    monkeypatch.setattr(service.store.artifact_store, "accept", fail_accept)
+
+    with pytest.raises(OSError, match="book metadata persistence failed"):
+        service.accept_book_direction(proposal_b.proposal_id, accepted_by="author")
+
+    assert service.load_accepted_book_direction(1) == accepted_a
+    assert service.load_book_direction_metadata(1) == metadata_a
+    assert accepted_path.read_bytes() == accepted_bytes_a
+    assert service.store.artifact_store.list_revisions(metadata_a.artifact_id) == (
+        revisions_a
+    )
+    assert not (accepted_path.parent / ".staging" / accepted_path.name).exists()
