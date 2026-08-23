@@ -32,6 +32,9 @@ from auteur.series.vertical_slice_models import (
 
 _PATH_SAFE_IDENTIFIER = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*\Z")
 _REALIZATION_ARTIFACT_PREFIX = "realization-bundle-"
+_NEXT_DECISION_PROPOSAL_ID = re.compile(
+    r"book-2-next-decision-[0-9a-f]{32}\Z"
+)
 
 
 class VerticalSliceStore:
@@ -239,11 +242,20 @@ class VerticalSliceStore:
     def save_next_decision_proposal(
         self, proposal: NextDecisionProposal
     ) -> None:
+        self._validate_next_decision_identity(proposal)
         self._write_model(
             self.next_decision_proposal_path(proposal.proposal_id), proposal
         )
 
     def load_next_decision_proposal(
+        self, proposal_id: str
+    ) -> NextDecisionProposal:
+        proposal = self._load_next_decision_proposal_payload(proposal_id)
+        actions = self._load_decision_action_payloads(proposal)
+        self.validate_decision_history(proposal, actions)
+        return proposal
+
+    def _load_next_decision_proposal_payload(
         self, proposal_id: str
     ) -> NextDecisionProposal:
         path = self.next_decision_proposal_path(proposal_id)
@@ -254,17 +266,35 @@ class VerticalSliceStore:
         proposal = NextDecisionProposal.model_validate(
             yaml.safe_load(path.read_text(encoding="utf-8"))
         )
-        if proposal.proposal_id != proposal_id:
+        self._validate_next_decision_identity(
+            proposal, requested_id=proposal_id
+        )
+        return proposal
+
+    @staticmethod
+    def _validate_next_decision_identity(
+        proposal: NextDecisionProposal,
+        *,
+        requested_id: str | None = None,
+    ) -> None:
+        if requested_id is not None and proposal.proposal_id != requested_id:
             raise ValueError(
                 f"Next Decision proposal {proposal.proposal_id} does not match "
-                f"requested proposal {proposal_id}"
+                f"requested proposal {requested_id}"
             )
-        return proposal
+        if proposal.book_number != 2:
+            raise ValueError("Next Decision proposal must be for Book 2")
+        if _NEXT_DECISION_PROPOSAL_ID.fullmatch(proposal.proposal_id) is None:
+            raise ValueError(
+                "Next Decision proposal ID does not match Book 2 convention"
+            )
 
     def save_decision_action(self, action: DecisionAction) -> None:
         proposal = self.load_next_decision_proposal(action.proposal_id)
         self.validate_decision_action(proposal, action)
         actions = self.load_decision_actions(action.proposal_id)
+        if proposal.status != "proposed" or actions:
+            raise ValueError("Next Decision proposal already has a terminal action")
         actions.append(action)
         path = self.decision_actions_path(action.proposal_id)
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -277,12 +307,19 @@ class VerticalSliceStore:
         temporary.replace(path)
 
     def load_decision_actions(self, proposal_id: str) -> list[DecisionAction]:
-        path = self.decision_actions_path(proposal_id)
+        proposal = self._load_next_decision_proposal_payload(proposal_id)
+        actions = self._load_decision_action_payloads(proposal)
+        self.validate_decision_history(proposal, actions)
+        return actions
+
+    def _load_decision_action_payloads(
+        self, proposal: NextDecisionProposal
+    ) -> list[DecisionAction]:
+        path = self.decision_actions_path(proposal.proposal_id)
         if not path.is_file():
             return []
         payload = yaml.safe_load(path.read_text(encoding="utf-8"))
         actions = [DecisionAction.model_validate(item) for item in payload]
-        proposal = self.load_next_decision_proposal(proposal_id)
         for action in actions:
             self.validate_decision_action(proposal, action)
         return actions
@@ -313,6 +350,25 @@ class VerticalSliceStore:
         elif action.selected_option_id is not None:
             raise ValueError("A deferred decision cannot select an option")
 
+    @staticmethod
+    def validate_decision_history(
+        proposal: NextDecisionProposal,
+        actions: list[DecisionAction],
+    ) -> None:
+        consistent = False
+        if proposal.status == "proposed":
+            consistent = not actions
+        elif proposal.status == "resolved":
+            consistent = (
+                len(actions) == 1
+                and actions[0].action
+                in {"choose_recommended", "choose_other"}
+            )
+        elif proposal.status == "deferred":
+            consistent = len(actions) == 1 and actions[0].action == "defer"
+        if not consistent:
+            raise ValueError("Next Decision proposal status/history mismatch")
+
     def save_decision_action_with_status(
         self,
         action: DecisionAction,
@@ -322,6 +378,7 @@ class VerticalSliceStore:
             raise ValueError(
                 "Decision action proposal does not match the status proposal"
             )
+        self.validate_decision_history(proposal, [action])
         proposal_path = self.next_decision_proposal_path(proposal.proposal_id)
         actions_path = self.decision_actions_path(proposal.proposal_id)
         proposal_snapshot = proposal_path.read_bytes()

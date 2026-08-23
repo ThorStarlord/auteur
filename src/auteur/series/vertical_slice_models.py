@@ -193,7 +193,7 @@ class NextDecisionProposal(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     proposal_id: str
-    book_number: int
+    book_number: int = Field(gt=1)
     question: str
     recommended_option_id: str
     options: list[DecisionOption] = Field(min_length=2)
@@ -203,9 +203,10 @@ class NextDecisionProposal(BaseModel):
 
     @model_validator(mode="after")
     def require_presented_recommendation(self) -> Self:
-        if self.recommended_option_id not in {
-            option.option_id for option in self.options
-        }:
+        option_ids = [option.option_id for option in self.options]
+        if len(option_ids) != len(set(option_ids)):
+            raise ValueError("option_id values must be unique")
+        if self.recommended_option_id not in option_ids:
             raise ValueError(
                 "recommended_option_id must reference a presented option"
             )

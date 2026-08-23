@@ -442,15 +442,7 @@ class SeriesVerticalSliceService:
         self, book_number: int
     ) -> NextDecisionProposal:
         context = self.derive_book_context(book_number)
-        context_item_ids = tuple(item.item_id for item in context.items)
-        if (
-            book_number != 2
-            or context_item_ids != _BOOK_2_DECISION_CONTEXT_ITEMS
-        ):
-            raise ValueError(
-                "The bounded Book 2 decision requires its two accepted "
-                "carry-forward context items"
-            )
+        self._validate_next_decision_context(context)
 
         proposal = NextDecisionProposal(
             proposal_id=f"book-{book_number}-next-decision-{uuid4().hex}",
@@ -500,6 +492,18 @@ class SeriesVerticalSliceService:
         self.store.save_next_decision_proposal(proposal)
         return proposal
 
+    @staticmethod
+    def _validate_next_decision_context(context: BookPlanningContext) -> None:
+        context_item_ids = tuple(item.item_id for item in context.items)
+        if (
+            context.book_number != 2
+            or context_item_ids != _BOOK_2_DECISION_CONTEXT_ITEMS
+        ):
+            raise ValueError(
+                "The bounded Book 2 decision requires its two accepted "
+                "carry-forward context items"
+            )
+
     def record_decision_action(
         self,
         proposal_id: str,
@@ -508,6 +512,12 @@ class SeriesVerticalSliceService:
         selected_option_id: str | None = None,
     ) -> DecisionAction:
         proposal = self.store.load_next_decision_proposal(proposal_id)
+        current_context = self.derive_book_context(proposal.book_number)
+        self._validate_next_decision_context(current_context)
+        if proposal.accepted_input_refs != current_context.generated_from:
+            raise ValueError(
+                "Next Decision proposal accepted inputs are stale"
+            )
         option_ids = {option.option_id for option in proposal.options}
 
         if action == "choose_recommended":
@@ -536,6 +546,18 @@ class SeriesVerticalSliceService:
             status = "deferred"
         else:
             raise ValueError(f"Unknown decision action: {action}")
+
+        existing_actions = self.store.load_decision_actions(proposal_id)
+        if proposal.status != "proposed":
+            existing = existing_actions[0]
+            if (
+                existing.action == action
+                and existing.selected_option_id == selected_option_id
+            ):
+                return existing
+            raise ValueError(
+                "Next Decision proposal already has a conflicting action"
+            )
 
         recorded = DecisionAction(
             proposal_id=proposal_id,

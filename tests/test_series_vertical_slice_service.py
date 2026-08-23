@@ -385,16 +385,11 @@ def test_decision_status_failure_restores_prior_proposal_and_action_state(
 ) -> None:
     service = SeriesVerticalSliceService(tmp_path)
     proposal = prepare_book_2_decision(service)
-    deferred = service.record_decision_action(
-        proposal.proposal_id,
-        action="defer",
-    )
     proposal_path = service.store.next_decision_proposal_path(
         proposal.proposal_id
     )
     actions_path = service.store.decision_actions_path(proposal.proposal_id)
     proposal_before = proposal_path.read_bytes()
-    actions_before = actions_path.read_bytes()
     authority_before = decision_authority_snapshot(service)
 
     def fail_status_write(_proposal: object) -> None:
@@ -413,12 +408,237 @@ def test_decision_status_failure_restores_prior_proposal_and_action_state(
         )
 
     assert proposal_path.read_bytes() == proposal_before
-    assert actions_path.read_bytes() == actions_before
+    assert not actions_path.exists()
     assert service.store.load_next_decision_proposal(
         proposal.proposal_id
-    ).status == "deferred"
-    assert service.store.load_decision_actions(proposal.proposal_id) == [deferred]
+    ).status == "proposed"
+    assert service.store.load_decision_actions(proposal.proposal_id) == []
     assert_decision_action_is_non_canonical(service, authority_before)
+
+
+def test_stale_next_decision_inputs_reject_action_without_workflow_mutation(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = prepare_book_2_decision(service)
+    proposal_path = service.store.next_decision_proposal_path(
+        proposal.proposal_id
+    )
+    proposal_before = proposal_path.read_bytes()
+
+    revised_series = load_direction().model_copy(
+        update={"promise": "Every recovered account changes who controls history."}
+    )
+    series_proposal = service.propose_series_direction(revised_series)
+    service.accept_series_direction(
+        series_proposal.proposal_id,
+        accepted_by="archive-author",
+    )
+    book_proposal = service.propose_book_direction(load_book_direction())
+    service.accept_book_direction(
+        book_proposal.proposal_id,
+        accepted_by="archive-author",
+    )
+    assert service.load_series_direction_metadata().revision == 2
+    assert service.load_book_direction_metadata(1).revision == 2
+    authority_before = decision_authority_snapshot(service)
+
+    with pytest.raises(ValueError, match="accepted inputs are stale"):
+        service.record_decision_action(
+            proposal.proposal_id,
+            action="choose_recommended",
+        )
+
+    assert proposal_path.read_bytes() == proposal_before
+    assert service.store.load_next_decision_proposal(
+        proposal.proposal_id
+    ).status == "proposed"
+    assert service.store.load_decision_actions(proposal.proposal_id) == []
+    assert_decision_action_is_non_canonical(service, authority_before)
+
+
+@pytest.mark.parametrize(
+    "tampering",
+    ["proposed-with-action", "resolved-without-action", "deferred-with-choose"],
+)
+def test_decision_reload_rejects_status_history_mismatch(
+    tmp_path: Path,
+    tampering: str,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path / tampering)
+    proposal = prepare_book_2_decision(service)
+    actions_path = service.store.decision_actions_path(proposal.proposal_id)
+
+    if tampering == "proposed-with-action":
+        action = vertical_slice_models.DecisionAction(
+            proposal_id=proposal.proposal_id,
+            action="choose_recommended",
+            selected_option_id=proposal.recommended_option_id,
+            recorded_at=datetime.now(timezone.utc),
+        )
+        actions_path.parent.mkdir(parents=True, exist_ok=True)
+        actions_path.write_text(
+            yaml.safe_dump([action.model_dump(mode="json")], sort_keys=False),
+            encoding="utf-8",
+        )
+    elif tampering == "resolved-without-action":
+        service.record_decision_action(
+            proposal.proposal_id,
+            action="choose_recommended",
+        )
+        actions_path.unlink()
+    else:
+        service.record_decision_action(
+            proposal.proposal_id,
+            action="defer",
+        )
+        payload = yaml.safe_load(actions_path.read_text(encoding="utf-8"))
+        payload[0]["action"] = "choose_recommended"
+        payload[0]["selected_option_id"] = proposal.recommended_option_id
+        actions_path.write_text(
+            yaml.safe_dump(payload, sort_keys=False), encoding="utf-8"
+        )
+
+    with pytest.raises(ValueError, match="status/history mismatch"):
+        service.store.load_next_decision_proposal(proposal.proposal_id)
+    with pytest.raises(ValueError, match="status/history mismatch"):
+        service.store.load_decision_actions(proposal.proposal_id)
+
+
+@pytest.mark.parametrize(
+    ("action", "selected_option"),
+    [
+        ("choose_recommended", None),
+        ("choose_other", "trace-institutional-cover-up"),
+        ("defer", None),
+    ],
+)
+def test_repeated_identical_decision_action_is_idempotent(
+    tmp_path: Path,
+    action: str,
+    selected_option: str | None,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path / action)
+    proposal = prepare_book_2_decision(service)
+    first = service.record_decision_action(
+        proposal.proposal_id,
+        action=action,
+        selected_option_id=selected_option,
+    )
+    proposal_path = service.store.next_decision_proposal_path(
+        proposal.proposal_id
+    )
+    actions_path = service.store.decision_actions_path(proposal.proposal_id)
+    proposal_after_first = proposal_path.read_bytes()
+    actions_after_first = actions_path.read_bytes()
+
+    repeated = service.record_decision_action(
+        proposal.proposal_id,
+        action=action,
+        selected_option_id=selected_option,
+    )
+
+    assert repeated == first
+    assert proposal_path.read_bytes() == proposal_after_first
+    assert actions_path.read_bytes() == actions_after_first
+    assert service.store.load_decision_actions(proposal.proposal_id) == [first]
+
+
+@pytest.mark.parametrize(
+    ("first_action", "conflicting_action"),
+    [
+        ("choose_recommended", "defer"),
+        ("defer", "choose_recommended"),
+    ],
+)
+def test_conflicting_action_after_terminal_decision_is_rejected(
+    tmp_path: Path,
+    first_action: str,
+    conflicting_action: str,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path / first_action)
+    proposal = prepare_book_2_decision(service)
+    first = service.record_decision_action(
+        proposal.proposal_id,
+        action=first_action,
+    )
+    proposal_path = service.store.next_decision_proposal_path(
+        proposal.proposal_id
+    )
+    actions_path = service.store.decision_actions_path(proposal.proposal_id)
+    proposal_before = proposal_path.read_bytes()
+    actions_before = actions_path.read_bytes()
+
+    with pytest.raises(ValueError, match="already has a conflicting action"):
+        service.record_decision_action(
+            proposal.proposal_id,
+            action=conflicting_action,
+        )
+
+    assert proposal_path.read_bytes() == proposal_before
+    assert actions_path.read_bytes() == actions_before
+    assert service.store.load_decision_actions(proposal.proposal_id) == [first]
+
+
+def test_next_decision_requires_unique_option_ids() -> None:
+    payload = yaml.safe_load(DECISION_FIXTURE.read_text(encoding="utf-8"))
+    payload["options"][1]["option_id"] = payload["options"][0]["option_id"]
+
+    with pytest.raises(
+        ValidationError,
+        match="option_id values must be unique",
+    ):
+        vertical_slice_models.NextDecisionProposal.model_validate(payload)
+
+
+def test_next_decision_book_number_must_be_greater_than_one() -> None:
+    payload = yaml.safe_load(DECISION_FIXTURE.read_text(encoding="utf-8"))
+    payload["book_number"] = 1
+
+    with pytest.raises(ValidationError):
+        vertical_slice_models.NextDecisionProposal.model_validate(payload)
+
+
+def test_book_two_decision_rejects_mutated_book_number_on_reload_and_action(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = prepare_book_2_decision(service)
+    proposal_path = service.store.next_decision_proposal_path(
+        proposal.proposal_id
+    )
+    payload = yaml.safe_load(proposal_path.read_text(encoding="utf-8"))
+    payload["book_number"] = 3
+    proposal_path.write_text(
+        yaml.safe_dump(payload, sort_keys=False), encoding="utf-8"
+    )
+
+    with pytest.raises(ValueError, match="must be for Book 2"):
+        service.store.load_next_decision_proposal(proposal.proposal_id)
+    with pytest.raises(ValueError, match="must be for Book 2"):
+        service.record_decision_action(
+            proposal.proposal_id,
+            action="choose_recommended",
+        )
+    assert not service.store.decision_actions_path(proposal.proposal_id).exists()
+
+
+def test_book_two_decision_rejects_invalid_proposal_id_convention(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = prepare_book_2_decision(service)
+    invalid_id = "book-2-next-decision-not-a-uuid"
+    payload = proposal.model_dump(mode="json")
+    payload["proposal_id"] = invalid_id
+    invalid_path = service.store.next_decision_proposal_path(invalid_id)
+    invalid_path.parent.mkdir(parents=True, exist_ok=True)
+    invalid_path.write_text(
+        yaml.safe_dump(payload, sort_keys=False), encoding="utf-8"
+    )
+
+    with pytest.raises(ValueError, match="ID does not match Book 2 convention"):
+        service.store.load_next_decision_proposal(invalid_id)
 
 
 def test_book_planning_models_enforce_bounded_shape() -> None:
