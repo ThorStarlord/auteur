@@ -151,6 +151,28 @@ def prepare_book_2_decision(
     return service.propose_next_decision(2)
 
 
+def advance_archive_series_and_book_provenance(
+    service: SeriesVerticalSliceService,
+) -> None:
+    revised_series = load_direction().model_copy(
+        update={
+            "promise": "Every recovered account changes who controls history."
+        }
+    )
+    series_proposal = service.propose_series_direction(revised_series)
+    service.accept_series_direction(
+        series_proposal.proposal_id,
+        accepted_by="archive-author",
+    )
+    book_proposal = service.propose_book_direction(load_book_direction())
+    service.accept_book_direction(
+        book_proposal.proposal_id,
+        accepted_by="archive-author",
+    )
+    assert service.load_series_direction_metadata().revision == 2
+    assert service.load_book_direction_metadata(1).revision == 2
+
+
 def decision_authority_snapshot(service: SeriesVerticalSliceService):
     return (
         service.load_accepted_series_direction(),
@@ -426,21 +448,7 @@ def test_stale_next_decision_inputs_reject_action_without_workflow_mutation(
     )
     proposal_before = proposal_path.read_bytes()
 
-    revised_series = load_direction().model_copy(
-        update={"promise": "Every recovered account changes who controls history."}
-    )
-    series_proposal = service.propose_series_direction(revised_series)
-    service.accept_series_direction(
-        series_proposal.proposal_id,
-        accepted_by="archive-author",
-    )
-    book_proposal = service.propose_book_direction(load_book_direction())
-    service.accept_book_direction(
-        book_proposal.proposal_id,
-        accepted_by="archive-author",
-    )
-    assert service.load_series_direction_metadata().revision == 2
-    assert service.load_book_direction_metadata(1).revision == 2
+    advance_archive_series_and_book_provenance(service)
     authority_before = decision_authority_snapshot(service)
 
     with pytest.raises(ValueError, match="accepted inputs are stale"):
@@ -455,6 +463,67 @@ def test_stale_next_decision_inputs_reject_action_without_workflow_mutation(
     ).status == "proposed"
     assert service.store.load_decision_actions(proposal.proposal_id) == []
     assert_decision_action_is_non_canonical(service, authority_before)
+
+
+def test_terminal_decision_exact_retry_is_idempotent_after_inputs_stale(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = prepare_book_2_decision(service)
+    first = service.record_decision_action(
+        proposal.proposal_id,
+        action="choose_recommended",
+    )
+    proposal_path = service.store.next_decision_proposal_path(
+        proposal.proposal_id
+    )
+    actions_path = service.store.decision_actions_path(proposal.proposal_id)
+    proposal_before = proposal_path.read_bytes()
+    actions_before = actions_path.read_bytes()
+
+    advance_archive_series_and_book_provenance(service)
+    authority_before = decision_authority_snapshot(service)
+
+    repeated = service.record_decision_action(
+        proposal.proposal_id,
+        action="choose_recommended",
+    )
+
+    assert repeated == first
+    assert proposal_path.read_bytes() == proposal_before
+    assert actions_path.read_bytes() == actions_before
+    with pytest.raises(ValueError, match="already has a conflicting action"):
+        service.record_decision_action(
+            proposal.proposal_id,
+            action="defer",
+        )
+    assert proposal_path.read_bytes() == proposal_before
+    assert actions_path.read_bytes() == actions_before
+    assert_decision_action_is_non_canonical(service, authority_before)
+
+
+def test_direct_proposal_status_save_rejects_history_mismatch_without_write(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = prepare_book_2_decision(service)
+    proposal_path = service.store.next_decision_proposal_path(
+        proposal.proposal_id
+    )
+    actions_path = service.store.decision_actions_path(proposal.proposal_id)
+    proposal_before = proposal_path.read_bytes()
+
+    with pytest.raises(ValueError, match="status/history mismatch"):
+        service.store.save_next_decision_proposal(
+            proposal.model_copy(update={"status": "resolved"})
+        )
+
+    assert proposal_path.read_bytes() == proposal_before
+    assert not actions_path.exists()
+    assert service.store.load_next_decision_proposal(
+        proposal.proposal_id
+    ).status == "proposed"
+    assert service.store.load_decision_actions(proposal.proposal_id) == []
 
 
 @pytest.mark.parametrize(

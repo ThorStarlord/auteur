@@ -512,12 +512,7 @@ class SeriesVerticalSliceService:
         selected_option_id: str | None = None,
     ) -> DecisionAction:
         proposal = self.store.load_next_decision_proposal(proposal_id)
-        current_context = self.derive_book_context(proposal.book_number)
-        self._validate_next_decision_context(current_context)
-        if proposal.accepted_input_refs != current_context.generated_from:
-            raise ValueError(
-                "Next Decision proposal accepted inputs are stale"
-            )
+        existing_actions = self.store.load_decision_actions(proposal_id)
         option_ids = {option.option_id for option in proposal.options}
 
         if action == "choose_recommended":
@@ -547,7 +542,6 @@ class SeriesVerticalSliceService:
         else:
             raise ValueError(f"Unknown decision action: {action}")
 
-        existing_actions = self.store.load_decision_actions(proposal_id)
         if proposal.status != "proposed":
             existing = existing_actions[0]
             if (
@@ -557,6 +551,13 @@ class SeriesVerticalSliceService:
                 return existing
             raise ValueError(
                 "Next Decision proposal already has a conflicting action"
+            )
+
+        current_context = self.derive_book_context(proposal.book_number)
+        self._validate_next_decision_context(current_context)
+        if proposal.accepted_input_refs != current_context.generated_from:
+            raise ValueError(
+                "Next Decision proposal accepted inputs are stale"
             )
 
         recorded = DecisionAction(

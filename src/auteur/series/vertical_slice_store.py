@@ -243,6 +243,8 @@ class VerticalSliceStore:
         self, proposal: NextDecisionProposal
     ) -> None:
         self._validate_next_decision_identity(proposal)
+        actions = self._load_decision_action_payloads(proposal)
+        self.validate_decision_history(proposal, actions)
         self._write_model(
             self.next_decision_proposal_path(proposal.proposal_id), proposal
         )
