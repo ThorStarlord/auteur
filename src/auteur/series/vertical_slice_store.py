@@ -456,6 +456,7 @@ class VerticalSliceStore:
                 dependencies=[],
                 accepted_by=accepted_by,
                 rationale=rationale,
+                record_accepted_at=True,
             )
             if metadata is None:
                 raise RuntimeError("Accepted Series Direction metadata is archived")
@@ -611,6 +612,7 @@ class VerticalSliceStore:
                 dependencies=dependencies,
                 accepted_by=accepted_by,
                 rationale=rationale,
+                record_accepted_at=True,
             )
             if metadata is None:
                 raise RuntimeError("Accepted Book Direction metadata is archived")
@@ -813,6 +815,7 @@ class VerticalSliceStore:
                 dependencies=dependencies,
                 accepted_by=accepted_by,
                 rationale=rationale,
+                record_accepted_at=True,
             )
             if metadata is None:
                 raise RuntimeError("Accepted Realization metadata is archived")

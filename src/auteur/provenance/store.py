@@ -328,6 +328,7 @@ class ArtifactStore:
         accepted_by: str = "author",
         rationale: str | None = None,
         acknowledge_divergence: bool = False,
+        record_accepted_at: bool = False,
     ) -> ArtifactMetadata | None:
         artifact_id = self._artifact_id(path)
         previous = self._load(artifact_id)
@@ -354,7 +355,11 @@ class ArtifactStore:
             dependencies=records,
             stale_reasons=acknowledged_reasons,
             provenance_state="tracked",
-            accepted_at=datetime.now(timezone.utc).isoformat(),
+            accepted_at=(
+                datetime.now(timezone.utc).isoformat()
+                if record_accepted_at
+                else None
+            ),
             accepted_by=accepted_by,
             rationale=rationale,
         )

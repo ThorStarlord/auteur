@@ -194,6 +194,37 @@ def assert_decision_action_is_non_canonical(
     assert not list(service.store.project_root.rglob("bible.json"))
 
 
+def test_vertical_slice_acceptances_record_timestamps(tmp_path: Path) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    _, series_metadata = accept_archive_series(service)
+    book_proposal = service.propose_book_direction(load_book_direction())
+    service.accept_book_direction(
+        book_proposal.proposal_id,
+        accepted_by="archive-author",
+    )
+    book_metadata = service.load_book_direction_metadata(1)
+    assert book_metadata is not None
+    realization = service.propose_realization(load_realization_candidate())
+    service.accept_realization(
+        realization.candidate_id,
+        accepted_by="archive-author",
+    )
+    _, realization_metadata = service.store.load_accepted_realization_bundles()[-1]
+
+    timestamps = (
+        series_metadata.accepted_at,
+        book_metadata.accepted_at,
+        realization_metadata.accepted_at,
+    )
+    assert all(timestamp is not None for timestamp in timestamps)
+    assert all(
+        datetime.fromisoformat(timestamp).utcoffset()
+        == timezone.utc.utcoffset(None)
+        for timestamp in timestamps
+        if timestamp is not None
+    )
+
+
 def test_next_decision_cites_context_inputs_and_tradeoff(
     tmp_path: Path,
 ) -> None:
