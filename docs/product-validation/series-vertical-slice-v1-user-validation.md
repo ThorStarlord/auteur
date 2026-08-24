@@ -316,3 +316,23 @@ Possible findings include a need for free-form Book 2 Direction, clearer
 why-now explanations, a more legible acceptance boundary, less or more
 carry-forward context, or a guided presentation surface. These are hypotheses
 until participant evidence supports one.
+
+## Focused wording hypothesis
+
+The synthetic wording experiment found a specific hypothesis to test with a
+real participant:
+
+> Explicitly state that the Focus action is a planning/exploration choice and
+> does not make Book 2 canon or accept Book 2 Direction.
+
+The current wording and two candidate variants are documented in the separate
+[synthetic wording experiment](series-vertical-slice-v1-synthetic-wording-experiment.md).
+For a human session, keep the scenario, recommendation, tradeoff, and options
+constant while varying only the presentation wording. Counterbalance the
+wording order when more than one participant is available. Ask Q5 and Q6
+before explaining the intended semantics, and score with the existing
+pre-registered criteria.
+
+This is a research hypothesis, not a V2 implementation instruction. Record
+whether the explicit sentence feels clear, over-explained, restrictive, or
+natural, and whether it changes trust or willingness to choose.
