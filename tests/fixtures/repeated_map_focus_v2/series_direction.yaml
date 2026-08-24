@@ -8,3 +8,6 @@ commitments:
   - commitment_id: contested-history
     statement: Every Book must expose a consequential conflict between official history and lived memory.
     scope: series
+  - commitment_id: commitment-falsifier
+    statement: The person who falsified the founding record must be identified.
+    scope: series

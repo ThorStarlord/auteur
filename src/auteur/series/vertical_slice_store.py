@@ -20,6 +20,7 @@ from auteur.series.vertical_slice_models import (
     AcceptedSeriesDirection,
     ArtifactRef,
     BookDirectionProposal,
+    BookPlanningIntent,
     BookPlanningContext,
     CanonicalState,
     DecisionAction,
@@ -74,6 +75,18 @@ class VerticalSliceStore:
         if book_number <= 1:
             raise ValueError("Planning entry requires a Book number greater than 1")
         return self.root / "workflow" / f"book-{book_number}-planning.yaml"
+
+    def book_planning_intent_path(self, book_number: int) -> Path:
+        if book_number <= 1:
+            raise ValueError(
+                "Planning intent requires a Book number greater than 1"
+            )
+        return (
+            self.root
+            / "workflow"
+            / "book-planning-intent"
+            / f"book-{book_number}.yaml"
+        )
 
     def book_planning_context_path(self, book_number: int) -> Path:
         if book_number <= 1:
@@ -1085,6 +1098,27 @@ class VerticalSliceStore:
                 f"requested Book {book_number}"
             )
         return entry
+
+    def save_book_planning_intent(self, intent: BookPlanningIntent) -> None:
+        self._write_model(
+            self.book_planning_intent_path(intent.book_number), intent
+        )
+
+    def load_book_planning_intent(
+        self, book_number: int
+    ) -> BookPlanningIntent | None:
+        path = self.book_planning_intent_path(book_number)
+        if not path.is_file():
+            return None
+        intent = BookPlanningIntent.model_validate(
+            yaml.safe_load(path.read_text(encoding="utf-8"))
+        )
+        if intent.book_number != book_number:
+            raise ValueError(
+                f"Planning intent Book {intent.book_number} does not match "
+                f"requested Book {book_number}"
+            )
+        return intent
 
     def save_book_planning_context(self, context: BookPlanningContext) -> None:
         self._write_model(

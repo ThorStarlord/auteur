@@ -21,6 +21,14 @@ class ArtifactRef(BaseModel):
     revision: int
 
 
+class AcceptedFactRef(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_id: str
+    revision: int
+    fact_id: str
+
+
 class DirectionCommitment(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -119,6 +127,7 @@ class RealizationCandidate(BaseModel):
     summary: str
     transitions: list[StateTransition] = Field(min_length=1)
     source_refs: list[ArtifactRef] = Field(min_length=1)
+    resolved_commitment_ids: list[str] = Field(default_factory=list)
 
     @field_validator("transitions")
     @classmethod
@@ -136,6 +145,7 @@ class AcceptedRealizationBundle(BaseModel):
     candidate_id: str
     book_number: int = Field(ge=1)
     transitions: list[StateTransition] = Field(min_length=1)
+    resolved_commitment_ids: list[str] = Field(default_factory=list)
 
     @field_validator("transitions")
     @classmethod
@@ -159,6 +169,14 @@ class PlanningEntry(BaseModel):
     book_number: int = Field(gt=1)
     entered_by: str
     entered_at: datetime
+
+
+class BookPlanningIntent(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    book_number: int = Field(gt=1)
+    intent: str
+    relevance_refs: list[AcceptedFactRef] = Field(default_factory=list)
 
 
 class CarryForwardItem(BaseModel):

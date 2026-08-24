@@ -8,6 +8,7 @@ from uuid import uuid4
 from auteur.provenance import ArtifactMetadata
 from auteur.series.repeated_map_focus import AcceptedHistorySnapshot
 from auteur.series.vertical_slice_models import (
+    AcceptedFactRef,
     AcceptedBookDirection,
     AcceptedRealizationBundle,
     AcceptedSeriesDirection,
@@ -15,6 +16,7 @@ from auteur.series.vertical_slice_models import (
     BookDirection,
     BookDirectionProposal,
     BookPlanningContext,
+    BookPlanningIntent,
     CanonicalState,
     CarryForwardItem,
     DecisionAction,
@@ -231,6 +233,19 @@ class SeriesVerticalSliceService:
         rationale: str | None = None,
     ) -> AcceptedRealizationBundle:
         candidate = self.store.load_realization_candidate(candidate_id)
+        accepted_series, _series_metadata = self._accepted_series_source()
+        known_commitment_ids = {
+            commitment.commitment_id
+            for commitment in accepted_series.direction.commitments
+        }
+        unknown_resolved_ids = sorted(
+            set(candidate.resolved_commitment_ids) - known_commitment_ids
+        )
+        if unknown_resolved_ids:
+            raise ValueError(
+                "Unknown accepted Series commitment resolution(s): "
+                + ", ".join(unknown_resolved_ids)
+            )
         current_source = self._current_book_source_ref(candidate.book_number)
         if candidate.source_refs != [current_source]:
             raise ValueError(
@@ -243,6 +258,7 @@ class SeriesVerticalSliceService:
             candidate_id=candidate.candidate_id,
             book_number=candidate.book_number,
             transitions=candidate.transitions,
+            resolved_commitment_ids=candidate.resolved_commitment_ids,
         )
         previous_state = self.store.snapshot_canonical_state()
         metadata = self.store.save_accepted_realization_bundle(
@@ -371,6 +387,25 @@ class SeriesVerticalSliceService:
                 )
             )
 
+        explicitly_resolved_commitment_ids = tuple(
+            dict.fromkeys(
+                commitment_id
+                for bundle in realizations
+                for commitment_id in bundle.resolved_commitment_ids
+            )
+        )
+        accepted_fact_refs = tuple(
+            AcceptedFactRef(
+                artifact_id=bundle.artifact_id,
+                revision=realization_ref.revision,
+                fact_id=transition.transition_id,
+            )
+            for bundle, realization_ref in zip(
+                realizations, realization_refs, strict=True
+            )
+            for transition in bundle.transitions
+        )
+
         return AcceptedHistorySnapshot(
             planning_book_number=book_number,
             series=accepted_series,
@@ -379,6 +414,10 @@ class SeriesVerticalSliceService:
             book_refs=tuple(book_refs),
             realizations=tuple(realizations),
             realization_refs=tuple(realization_refs),
+            explicitly_resolved_commitment_ids=(
+                explicitly_resolved_commitment_ids
+            ),
+            accepted_fact_refs=accepted_fact_refs,
             canonical_state=self._canonical_state_from_bundles(realizations),
         )
 
@@ -400,6 +439,38 @@ class SeriesVerticalSliceService:
         )
         self.store.save_planning_entry(entry)
         return entry
+
+    def enter_repeated_book_planning(
+        self,
+        book_number: int,
+        *,
+        entered_by: str,
+        intent: str,
+        relevance_refs: list[AcceptedFactRef],
+    ) -> BookPlanningIntent:
+        planning_intent = BookPlanningIntent(
+            book_number=book_number,
+            intent=intent,
+            relevance_refs=relevance_refs,
+        )
+        accepted_history = self.load_repeated_history_for_book(book_number)
+        unknown_refs = [
+            ref
+            for ref in planning_intent.relevance_refs
+            if ref not in accepted_history.accepted_fact_refs
+        ]
+        if unknown_refs:
+            rendered_refs = ", ".join(
+                f"{ref.artifact_id}@{ref.revision}/{ref.fact_id}"
+                for ref in unknown_refs
+            )
+            raise ValueError(
+                "Planning intent relevance reference(s) are not in accepted "
+                f"history: {rendered_refs}"
+            )
+        self.enter_book_planning(book_number, entered_by=entered_by)
+        self.store.save_book_planning_intent(planning_intent)
+        return planning_intent
 
     def derive_book_context(self, book_number: int) -> BookPlanningContext:
         if self.store.load_planning_entry(book_number) is None:

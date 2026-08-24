@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from auteur.series.vertical_slice_models import (
+    AcceptedFactRef,
     AcceptedBookDirection,
     AcceptedRealizationBundle,
     AcceptedSeriesDirection,
@@ -20,4 +21,6 @@ class AcceptedHistorySnapshot:
     book_refs: tuple[ArtifactRef, ...]
     realizations: tuple[AcceptedRealizationBundle, ...]
     realization_refs: tuple[ArtifactRef, ...]
+    explicitly_resolved_commitment_ids: tuple[str, ...]
+    accepted_fact_refs: tuple[AcceptedFactRef, ...]
     canonical_state: CanonicalState
