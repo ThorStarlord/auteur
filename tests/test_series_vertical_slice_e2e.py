@@ -22,15 +22,11 @@ from auteur.series.vertical_slice_models import (
 from auteur.series.vertical_slice_service import SeriesVerticalSliceService
 
 
-FIXTURE_ROOT = (
-    Path(__file__).parent / "fixtures" / "archive_of_lies_vertical_slice"
-)
+FIXTURE_ROOT = Path(__file__).parent / "fixtures" / "archive_of_lies_vertical_slice"
 
 
 def _load_fixture(name: str, model_type: type[BaseModel]) -> Any:
-    payload = yaml.safe_load(
-        (FIXTURE_ROOT / name).read_text(encoding="utf-8")
-    )
+    payload = yaml.safe_load((FIXTURE_ROOT / name).read_text(encoding="utf-8"))
     return model_type.model_validate(payload)
 
 
@@ -53,9 +49,7 @@ def test_archive_of_lies_series_vertical_slice_end_to_end(tmp_path: Path) -> Non
     series_direction = _load_fixture("series_direction.yaml", SeriesDirection)
     book_direction = _load_fixture("book_1_direction.yaml", BookDirection)
     outcome = _load_fixture("book_1_outcome.yaml", RealizationCandidate)
-    expected_context = _load_fixture(
-        "book_2_context_expected.yaml", BookPlanningContext
-    )
+    expected_context = _load_fixture("book_2_context_expected.yaml", BookPlanningContext)
 
     assert series_direction.series_type == "ongoing"
     assert "book_plans" not in series_direction.model_dump()
@@ -103,6 +97,11 @@ def test_archive_of_lies_series_vertical_slice_end_to_end(tmp_path: Path) -> Non
     assert state_after_outcome.values["archive.founding_record"] == "confirmed fraudulent"
     assert state_after_outcome.applied_bundle_ids == [accepted_bundle.bundle_id]
 
+    canonical_state_path = service.store.canonical_state_path
+    assert canonical_state_path.exists()
+    canonical_state_path.unlink()
+    assert not canonical_state_path.exists()
+
     service = SeriesVerticalSliceService(project)
     assert service.load_accepted_series_direction() == accepted_series
     assert service.load_accepted_book_direction(1) == accepted_book
@@ -125,13 +124,8 @@ def test_archive_of_lies_series_vertical_slice_end_to_end(tmp_path: Path) -> Non
     ]
     assert all(item.why_matters_now.strip() for item in context.items)
     assert all(item.source_refs for item in context.items)
-    context_source_refs = {
-        (source_ref.artifact_id, source_ref.revision)
-        for source_ref in context.generated_from
-    } | {
-        (source_ref.artifact_id, source_ref.revision)
-        for item in context.items
-        for source_ref in item.source_refs
+    context_source_refs = {(source_ref.artifact_id, source_ref.revision) for source_ref in context.generated_from} | {
+        (source_ref.artifact_id, source_ref.revision) for item in context.items for source_ref in item.source_refs
     }
     for artifact_id, revision in context_source_refs:
         metadata = service.store.artifact_store.current(artifact_id)
@@ -140,9 +134,7 @@ def test_archive_of_lies_series_vertical_slice_end_to_end(tmp_path: Path) -> Non
         assert metadata.revision == revision
 
     unrelated_book_1_datum = book_direction.identity.open_questions[0]
-    surfaced_context = "\n".join(
-        f"{item.summary}\n{item.why_matters_now}" for item in context.items
-    )
+    surfaced_context = "\n".join(f"{item.summary}\n{item.why_matters_now}" for item in context.items)
     assert unrelated_book_1_datum not in surfaced_context
 
     authority_before_rebuild = _authority_snapshot(service)
@@ -154,19 +146,21 @@ def test_archive_of_lies_series_vertical_slice_end_to_end(tmp_path: Path) -> Non
     assert _authority_snapshot(service) == authority_before_rebuild
     assert service.load_canonical_state() == state_before_planning
 
+    authority_before_decision = _authority_snapshot(service)
+    canonical_state_before_decision = service.load_canonical_state()
     decision = service.propose_next_decision(2)
-    expected_decision = _load_fixture(
-        "book_2_decision_expected.yaml", NextDecisionProposal
-    ).model_copy(update={"proposal_id": decision.proposal_id})
+    assert _authority_snapshot(service) == authority_before_decision
+    assert service.load_canonical_state() == canonical_state_before_decision
+    expected_decision = _load_fixture("book_2_decision_expected.yaml", NextDecisionProposal).model_copy(
+        update={"proposal_id": decision.proposal_id}
+    )
     assert decision == expected_decision
     assert len(decision.options) == 2
     assert len({option.summary for option in decision.options}) == 2
     assert len({option.tradeoff for option in decision.options}) == 2
 
     alternative_option_id = next(
-        option.option_id
-        for option in decision.options
-        if option.option_id != decision.recommended_option_id
+        option.option_id for option in decision.options if option.option_id != decision.recommended_option_id
     )
     actions = (
         ("recommended", "choose_recommended", None),
@@ -178,6 +172,10 @@ def test_archive_of_lies_series_vertical_slice_end_to_end(tmp_path: Path) -> Non
         shutil.copytree(project, isolated_project)
         isolated_service = SeriesVerticalSliceService(isolated_project)
         authority_before_action = _authority_snapshot(isolated_service)
+        series_before_action = isolated_service.load_accepted_series_direction()
+        book_1_before_action = isolated_service.load_accepted_book_direction(1)
+        realizations_before_action = isolated_service.store.load_accepted_realization_bundles()
+        state_before_action = isolated_service.load_canonical_state()
 
         recorded = isolated_service.record_decision_action(
             decision.proposal_id,
@@ -185,10 +183,26 @@ def test_archive_of_lies_series_vertical_slice_end_to_end(tmp_path: Path) -> Non
             selected_option_id=selected_option_id,
         )
 
-        assert recorded.action == action
-        assert isolated_service.load_accepted_book_direction(2) is None
-        assert isolated_service.load_book_direction_metadata(2) is None
-        assert _authority_snapshot(isolated_service) == authority_before_action
+        expected_selected_option_id = (
+            decision.recommended_option_id if action == "choose_recommended" else selected_option_id
+        )
+        expected_status = "deferred" if action == "defer" else "resolved"
+        reloaded_service = SeriesVerticalSliceService(isolated_project)
+        persisted_actions = reloaded_service.store.load_decision_actions(decision.proposal_id)
+        persisted_proposal = reloaded_service.store.load_next_decision_proposal(decision.proposal_id)
+
+        assert len(persisted_actions) == 1
+        assert persisted_actions[0] == recorded
+        assert persisted_actions[0].action == action
+        assert persisted_actions[0].selected_option_id == expected_selected_option_id
+        assert persisted_proposal.status == expected_status
+        assert reloaded_service.load_accepted_book_direction(2) is None
+        assert reloaded_service.load_book_direction_metadata(2) is None
+        assert reloaded_service.load_accepted_series_direction() == series_before_action
+        assert reloaded_service.load_accepted_book_direction(1) == book_1_before_action
+        assert reloaded_service.store.load_accepted_realization_bundles() == realizations_before_action
+        assert reloaded_service.load_canonical_state() == state_before_action
+        assert _authority_snapshot(reloaded_service) == authority_before_action
         assert not list(isolated_project.rglob("bible.json"))
 
     map_output = format_series_journey_map(context, decision)
@@ -208,9 +222,31 @@ def test_archive_of_lies_series_vertical_slice_end_to_end(tmp_path: Path) -> Non
     assert "Choose recommended" in focus_output
     assert "Choose another option" in focus_output
     assert "Defer" in focus_output
-    assert "revision 1" not in map_output
-    assert "revision 1" not in focus_output
+
+    known_artifact_ids = (
+        "series-direction",
+        "book-1-direction",
+        "realization-bundle-recovered-founding-ledger",
+    )
+    for default_output in (map_output, focus_output):
+        assert "revision 1" not in default_output
+        assert "Source references" not in default_output
+        assert "Accepted input sources" not in default_output
+        assert "Proposal ID:" not in default_output
+        assert "Option IDs" not in default_output
+        assert decision.proposal_id not in default_output
+        assert all(artifact_id not in default_output for artifact_id in known_artifact_ids)
+        assert all(option.option_id not in default_output for option in decision.options)
+
     assert "Source references" in detailed_map
     assert "Accepted input sources" in detailed_focus
     assert "series-direction (revision 1)" in detailed_map
+    assert "book-1-direction (revision 1)" in detailed_map
+    assert "realization-bundle-recovered-founding-ledger (revision 1)" in detailed_map
+    assert "series-direction (revision 1)" in detailed_focus
+    assert "book-1-direction (revision 1)" in detailed_focus
     assert "realization-bundle-recovered-founding-ledger (revision 1)" in detailed_focus
+    assert f"Proposal ID: {decision.proposal_id}" in detailed_map
+    assert f"Proposal ID: {decision.proposal_id}" in detailed_focus
+    assert "Option IDs" in detailed_focus
+    assert all(option.option_id in detailed_focus for option in decision.options)
