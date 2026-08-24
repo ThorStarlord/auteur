@@ -9,6 +9,8 @@ from auteur.provenance import ArtifactMetadata
 from auteur.series.repeated_map_focus import (
     AcceptedHistorySnapshot,
     CurrentStateEvidence,
+    RepeatedBookPlanningContext,
+    select_repeated_continuity,
 )
 from auteur.series.vertical_slice_models import (
     AcceptedFactRef,
@@ -455,6 +457,35 @@ class SeriesVerticalSliceService:
                     superseded_fact_ids=superseded_fact_ids,
                 )
         return evidence
+
+    def derive_repeated_book_context(
+        self, book_number: int
+    ) -> RepeatedBookPlanningContext:
+        """Derive opening Book-N continuity from accepted history through N-1."""
+        planning_entry = self.store.load_planning_entry(book_number)
+        planning_intent = self.store.load_book_planning_intent(book_number)
+        if planning_entry is None or planning_intent is None:
+            raise ValueError(
+                f"An explicit Book {book_number} planning intent is required "
+                "before repeated continuity can be derived"
+            )
+
+        history = self.load_repeated_history_for_book(book_number)
+        unknown_refs = [
+            ref
+            for ref in planning_intent.relevance_refs
+            if ref not in history.accepted_fact_refs
+        ]
+        if unknown_refs:
+            raise ValueError(
+                "Planning intent relevance reference(s) are not in accepted "
+                "history"
+            )
+        return select_repeated_continuity(
+            history,
+            planning_intent,
+            self.derive_current_state_evidence(book_number),
+        )
 
     def enter_book_planning(
         self, book_number: int, *, entered_by: str
