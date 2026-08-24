@@ -10,6 +10,10 @@ system, or a general-purpose relevance engine.
 
 Evidence basis: [Synthetic Repeated Map/Focus Probe](../product-validation/series-vertical-slice-v1-synthetic-repeated-map-focus-probe.md).
 
+This contract corrects the opening planning-checkpoint chronology without
+rewriting that historical probe. The probe remains product-design evidence;
+the scenarios below state the authority available when each Book opens.
+
 ## Capability statement
 
 A writer entering planning for Book `N > 1` can see a compact, derived view of
@@ -43,7 +47,8 @@ The continuity derivation may locally distinguish the following dispositions:
   longer an active next-decision driver;
 - dormant: an accepted historical fact has no present relevance trigger;
 - reactivated: a dormant fact becomes relevant because current accepted
-  Direction, state, or the proposed decision points to it;
+  Direction, state, non-authoritative Book-`N` planning intent, or the proposed
+  decision points to it;
 - superseded: an older accepted state has been replaced by a later accepted
   state; and
 - irrelevant: accepted material that supports neither active continuity nor
@@ -62,8 +67,13 @@ For Book `N`, the derived planning context may use:
 - accepted realization bundles and their state transitions through Book
   `N - 1`;
 - the rebuildable Canonical State derived from those accepted bundles; and
-- the explicitly entered planning point and current Book Direction context
-  available to the workflow.
+- the explicitly entered planning point plus present Book-`N` planning intent
+  or a non-authoritative proposal, but only as a relevance trigger.
+
+Opening Book-`N` Map/Focus uses accepted narrative authority only through Book
+`N - 1`. Present Book-`N` planning intent may trigger relevance, but it cannot
+be used as accepted Book-`N` authority. Accepted Book-`N` Direction or
+realization is not required at this opening checkpoint.
 
 It must not use as authoritative context:
 
@@ -77,6 +87,14 @@ Every surfaced item or group must be supported by exact accepted source
 references. A derived context or proposal must be invalidated or recomputed
 when those accepted inputs change.
 
+Five distinctions govern this contract:
+
+- authority is not relevance;
+- currentness is not relevance;
+- old accepted material is not necessarily irrelevant;
+- derived continuity is not canon; and
+- a Focus action does not accept Book Direction.
+
 ## Map contract
 
 At a planning checkpoint for Book `N`, Map must:
@@ -84,9 +102,9 @@ At a planning checkpoint for Book `N`, Map must:
 1. preserve active Series commitments that still govern the current Book;
 2. surface current accepted state changes that constrain or enable the next
    decision;
-3. reactivate an older accepted fact only when current accepted Direction,
-   current accepted state, or the proposed next decision supplies a present
-   relevance trigger;
+3. reactivate an older accepted fact only when accepted Direction or state
+   through Book `N - 1`, present Book-`N` planning intent, or a
+   non-authoritative proposal supplies a present relevance trigger;
 4. omit resolved, superseded, dormant, irrelevant, proposed, and unaccepted
    material from the active item list unless a compact historical summary is
    needed to explain the present condition;
@@ -147,11 +165,16 @@ Given:
   founding record is forged;
 - `book-1-realization@1 / monastery-testimony` is accepted but dormant;
 - `book-1-realization@1 / broken-lantern` is accepted but irrelevant; and
-- `book-2-burn-archive` is proposed but unaccepted;
+- Book 2 Direction is not yet accepted, while `book-2-burn-archive` is proposed
+  but unaccepted;
 
 when the author enters Book 2 planning,
 
-then Map surfaces:
+then opening Map/Focus uses only the accepted Series Direction, accepted Book 1
+Direction, and accepted Book 1 realization. Neither Book 2 Direction nor the
+burn-archive proposal is required or authoritative,
+
+and Map surfaces:
 
 - the active Series pressure;
 - the forged founding record; and
@@ -180,9 +203,12 @@ Given the accepted R1 history plus:
 - `book-2-direction@1` continues the pressure and investigates the falsifier;
 - `book-2-realization@1 / named-falsifier` identifies the falsifier and
   resolves the falsifier question;
-- `book-2-realization@1 / public-admission` records a public admission;
-- `book-3-direction@1` continues the pressure; and
-- `book-3-realization@1 / admission-retracted` is accepted;
+- `book-2-realization@1` records two accepted council transitions in order:
+  `book-2-realization@1 / public-admission`, followed by
+  `book-2-realization@1 / admission-retracted`;
+- Book 3 Direction and realization remain unaccepted at opening; and
+- Book 3 planning intent references the accepted retraction but remains a
+  non-authoritative relevance trigger;
 
 when the author enters Book 3 planning,
 
@@ -196,9 +222,11 @@ then Map:
 - may show the resolved question and superseded admission only as compact
   history when they explain the current retraction.
 
-The current retraction must have a why-now explanation tied to accepted Book 3
-context and accepted source references. The Map must omit irrelevant recent
-information and unaccepted alternatives.
+The current retraction must have a why-now explanation tied to accepted Book 2
+realization history and the present Book 3 planning intent. Its accepted source
+references stop at Book 2; the planning intent is identified separately as a
+non-authoritative trigger. The Map must omit irrelevant recent information and
+unaccepted alternatives.
 
 Focus presents one current-Book question equivalent in meaning to:
 
@@ -213,11 +241,15 @@ insufficient; listing all history is also insufficient.
 
 Given the accepted R2 history plus:
 
+- `book-3-direction@1` continues the pressure while responding to the accepted
+  council retraction;
 - `book-3-realization@1 / archive-protected` records that a treaty protects
   the archive because it contains the only evidentiary chain;
 - `book-3-realization@1 / repaired-lantern` is recent but irrelevant;
 - `book-3-ally-militia` is proposed but unaccepted; and
-- `book-4-direction@1` points back to the monastery testimony;
+- Book 4 Direction remains unaccepted, while Book 4 planning intent explicitly
+  references the accepted `book-1-realization@1 / monastery-testimony` as a
+  non-authoritative relevance trigger;
 
 when the author enters Book 4 planning,
 
@@ -225,7 +257,7 @@ then Map:
 
 - keeps the Series pressure active;
 - surfaces the treaty-protected archive as current accepted state;
-- reactivates the old monastery testimony because current Book 4 Direction
+- reactivates the old monastery testimony because Book 4 planning intent
   supplies the relevance trigger;
 - explains why the old fact matters now; and
 - omits the resolved falsifier question, superseded admission, irrelevant
