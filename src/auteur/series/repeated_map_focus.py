@@ -13,6 +13,15 @@ from auteur.series.vertical_slice_models import (
 
 
 @dataclass(frozen=True)
+class CurrentStateEvidence:
+    key: str
+    current_value: str
+    current_fact_id: str
+    current_source_ref: AcceptedFactRef
+    superseded_fact_ids: tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class AcceptedHistorySnapshot:
     planning_book_number: int
     series: AcceptedSeriesDirection

@@ -6,7 +6,10 @@ from typing import Iterable, Literal
 from uuid import uuid4
 
 from auteur.provenance import ArtifactMetadata
-from auteur.series.repeated_map_focus import AcceptedHistorySnapshot
+from auteur.series.repeated_map_focus import (
+    AcceptedHistorySnapshot,
+    CurrentStateEvidence,
+)
 from auteur.series.vertical_slice_models import (
     AcceptedFactRef,
     AcceptedBookDirection,
@@ -420,6 +423,38 @@ class SeriesVerticalSliceService:
             accepted_fact_refs=accepted_fact_refs,
             canonical_state=self._canonical_state_from_bundles(realizations),
         )
+
+    def derive_current_state_evidence(
+        self, book_number: int
+    ) -> dict[str, CurrentStateEvidence]:
+        history = self.load_repeated_history_for_book(book_number)
+        evidence: dict[str, CurrentStateEvidence] = {}
+        for bundle, realization_ref in zip(
+            history.realizations, history.realization_refs, strict=True
+        ):
+            for transition in bundle.transitions:
+                key = f"{transition.subject}.{transition.attribute}"
+                previous = evidence.get(key)
+                superseded_fact_ids = (
+                    ()
+                    if previous is None
+                    else (
+                        *previous.superseded_fact_ids,
+                        previous.current_fact_id,
+                    )
+                )
+                evidence[key] = CurrentStateEvidence(
+                    key=key,
+                    current_value=transition.after,
+                    current_fact_id=transition.transition_id,
+                    current_source_ref=AcceptedFactRef(
+                        artifact_id=bundle.artifact_id,
+                        revision=realization_ref.revision,
+                        fact_id=transition.transition_id,
+                    ),
+                    superseded_fact_ids=superseded_fact_ids,
+                )
+        return evidence
 
     def enter_book_planning(
         self, book_number: int, *, entered_by: str

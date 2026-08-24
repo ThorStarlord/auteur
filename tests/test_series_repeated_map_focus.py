@@ -5,7 +5,7 @@ import pytest
 import yaml
 from pydantic import BaseModel
 
-from auteur.series import vertical_slice_models
+from auteur.series import repeated_map_focus, vertical_slice_models
 from auteur.series.vertical_slice_models import (
     BookDirection,
     RealizationCandidate,
@@ -115,6 +115,54 @@ def corrupt_book_two_metadata(service: SeriesVerticalSliceService) -> None:
     sidecar.write_text(
         yaml.safe_dump(payload, sort_keys=False), encoding="utf-8"
     )
+
+
+def test_current_state_evidence_keeps_latest_transition_current(
+    tmp_path: Path,
+) -> None:
+    service = build_repeated_ledger(tmp_path)
+
+    evidence = service.derive_current_state_evidence(3)
+
+    assert evidence["council.archive_position"] == (
+        repeated_map_focus.CurrentStateEvidence(
+            key="council.archive_position",
+            current_value="retracted admission",
+            current_fact_id="admission-retracted",
+            current_source_ref=vertical_slice_models.AcceptedFactRef(
+                artifact_id="realization-bundle-book-2-history",
+                revision=1,
+                fact_id="admission-retracted",
+            ),
+            superseded_fact_ids=("public-admission",),
+        )
+    )
+
+
+def test_superseded_state_is_not_selected_as_current_map_evidence(
+    tmp_path: Path,
+) -> None:
+    service = build_repeated_ledger(tmp_path)
+
+    evidence = service.derive_current_state_evidence(3)
+
+    current = evidence["council.archive_position"]
+    assert current.current_fact_id != "public-admission"
+    assert "public-admission" in current.superseded_fact_ids
+
+
+def test_current_state_evidence_does_not_mutate_canonical_state(
+    tmp_path: Path,
+) -> None:
+    service = build_repeated_ledger(tmp_path)
+    accept_book_three_direction(service)
+    before = service.load_canonical_state()
+    stored_before = service.store.canonical_state_path.read_bytes()
+
+    service.derive_current_state_evidence(4)
+
+    assert service.load_canonical_state() == before
+    assert service.store.canonical_state_path.read_bytes() == stored_before
 
 
 def test_book_n_history_includes_only_accepted_sources_through_previous_book(
