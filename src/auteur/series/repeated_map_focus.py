@@ -20,7 +20,7 @@ from auteur.series.vertical_slice_models import (
 
 
 _ACTIVE_DISPOSITIONS = frozenset({"active", "reactivated"})
-_DERIVATION_VERSION = "repeated-map-focus-grouping-v1"
+_DERIVATION_VERSION = "repeated-map-focus-v2-r1"
 
 
 @dataclass(frozen=True)

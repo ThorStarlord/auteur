@@ -27,6 +27,7 @@ from auteur.series.vertical_slice_models import (
     NextDecisionProposal,
     PlanningEntry,
     RealizationCandidate,
+    RepeatedBookPlanningContext,
     SeriesDirectionProposal,
 )
 
@@ -92,6 +93,17 @@ class VerticalSliceStore:
         if book_number <= 1:
             raise ValueError("Planning context requires a Book number greater than 1")
         return self.root / "derived" / f"book-{book_number}-context.yaml"
+
+    def repeated_book_context_path(self, book_number: int) -> Path:
+        if book_number <= 1:
+            raise ValueError(
+                "Repeated planning context requires a Book number greater than 1"
+            )
+        return (
+            self.root
+            / "derived"
+            / f"repeated-book-{book_number}-context.yaml"
+        )
 
     def next_decision_proposal_path(self, proposal_id: str) -> Path:
         if _PATH_SAFE_IDENTIFIER.fullmatch(proposal_id) is None:
@@ -1127,6 +1139,34 @@ class VerticalSliceStore:
 
     def delete_book_planning_context(self, book_number: int) -> None:
         path = self.book_planning_context_path(book_number)
+        path.with_suffix(".tmp").unlink(missing_ok=True)
+        path.unlink(missing_ok=True)
+
+    def save_repeated_book_context(
+        self, context: RepeatedBookPlanningContext
+    ) -> None:
+        self._write_model(
+            self.repeated_book_context_path(context.book_number), context
+        )
+
+    def load_repeated_book_context(
+        self, book_number: int
+    ) -> RepeatedBookPlanningContext | None:
+        path = self.repeated_book_context_path(book_number)
+        if not path.is_file():
+            return None
+        context = RepeatedBookPlanningContext.model_validate(
+            yaml.safe_load(path.read_text(encoding="utf-8"))
+        )
+        if context.book_number != book_number:
+            raise ValueError(
+                f"Repeated planning context Book {context.book_number} does "
+                f"not match requested Book {book_number}"
+            )
+        return context
+
+    def delete_repeated_book_context(self, book_number: int) -> None:
+        path = self.repeated_book_context_path(book_number)
         path.with_suffix(".tmp").unlink(missing_ok=True)
         path.unlink(missing_ok=True)
 

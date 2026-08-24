@@ -150,6 +150,29 @@ def derive_repeated_context(
     return service.derive_repeated_book_context(book_number)
 
 
+def repeated_authority_snapshot(
+    service: SeriesVerticalSliceService,
+) -> dict[str, bytes]:
+    roots = (
+        service.store.root / "accepted",
+        service.store.root / "workflow",
+        service.store.artifact_store.root,
+    )
+    paths = [
+        path
+        for root in roots
+        if root.exists()
+        for path in root.rglob("*")
+        if path.is_file()
+    ]
+    if service.store.canonical_state_path.is_file():
+        paths.append(service.store.canonical_state_path)
+    return {
+        str(path.relative_to(service.store.project_root)): path.read_bytes()
+        for path in paths
+    }
+
+
 def accept_unrelated_book_two_outcome(
     service: SeriesVerticalSliceService,
 ) -> None:
@@ -494,6 +517,66 @@ def test_selector_requires_explicit_current_book_planning_intent(
 
     with pytest.raises(ValueError, match="planning intent"):
         derive_repeated_context(service, 4)
+
+
+def test_repeated_context_round_trip_through_derived_storage(
+    tmp_path: Path,
+) -> None:
+    service = build_repeated_scenario(tmp_path, 4)
+
+    derived = derive_repeated_context(service, 4)
+
+    path = service.store.repeated_book_context_path(4)
+    assert path == (
+        tmp_path
+        / ".auteur"
+        / "series"
+        / "vertical-slice"
+        / "derived"
+        / "repeated-book-4-context.yaml"
+    )
+    assert path.is_file()
+    assert yaml.safe_load(path.read_text(encoding="utf-8"))[
+        "derivation_version"
+    ] == "repeated-map-focus-v2-r1"
+    reloaded = SeriesVerticalSliceService(
+        tmp_path
+    ).store.load_repeated_book_context(4)
+    assert reloaded == derived
+    assert reloaded.model_dump(mode="json") == derived.model_dump(mode="json")
+
+
+def test_repeated_context_delete_and_rebuild_are_equivalent(
+    tmp_path: Path,
+) -> None:
+    service = build_repeated_scenario(tmp_path, 4)
+    original = derive_repeated_context(service, 4)
+
+    service.store.delete_repeated_book_context(4)
+
+    assert not service.store.repeated_book_context_path(4).exists()
+    assert service.store.load_repeated_book_context(4) is None
+    rebuilt_service = SeriesVerticalSliceService(tmp_path)
+    rebuilt = derive_repeated_context(rebuilt_service, 4)
+    assert rebuilt.model_dump(mode="json") == original.model_dump(mode="json")
+    assert rebuilt_service.store.load_repeated_book_context(4) == rebuilt
+
+
+def test_repeated_context_rebuild_preserves_authority_snapshot(
+    tmp_path: Path,
+) -> None:
+    service = build_repeated_scenario(tmp_path, 4)
+    authority_before = repeated_authority_snapshot(service)
+
+    derive_repeated_context(service, 4)
+    assert repeated_authority_snapshot(service) == authority_before
+
+    service.store.delete_repeated_book_context(4)
+    assert repeated_authority_snapshot(service) == authority_before
+
+    derive_repeated_context(SeriesVerticalSliceService(tmp_path), 4)
+    assert repeated_authority_snapshot(service) == authority_before
+    assert service.load_accepted_book_direction(4) is None
 
 
 def test_grouping_keeps_one_group_for_multiple_consequences_of_one_commitment(

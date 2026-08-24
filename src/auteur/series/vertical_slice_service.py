@@ -481,11 +481,13 @@ class SeriesVerticalSliceService:
                 "Planning intent relevance reference(s) are not in accepted "
                 "history"
             )
-        return select_repeated_continuity(
+        context = select_repeated_continuity(
             history,
             planning_intent,
             self.derive_current_state_evidence(book_number),
         )
+        self.store.save_repeated_book_context(context)
+        return context
 
     def enter_book_planning(
         self, book_number: int, *, entered_by: str
