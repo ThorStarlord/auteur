@@ -37,6 +37,7 @@ def build_repeated_ledger(
     book_two_resolved_commitment_ids: list[str] | None = None,
     use_unrelated_book_two_outcome: bool = False,
     accepted_through_book: int = 3,
+    duplicate_fact_id_across_books: bool = False,
 ) -> SeriesVerticalSliceService:
     ledger = load_repeated_ledger_fixture()
     service = SeriesVerticalSliceService(tmp_path)
@@ -75,6 +76,23 @@ def build_repeated_ledger(
         realization = RealizationCandidate.model_validate(
             accepted_book["realization"]
         )
+        if book_number == 3 and duplicate_fact_id_across_books:
+            duplicate = realization.transitions[0].model_copy(
+                update={
+                    "transition_id": "monastery-testimony",
+                    "subject": "monastery_copy",
+                    "attribute": "testimony",
+                    "before": None,
+                    "after": "copied",
+                    "explanation": (
+                        "A separate accepted Book 3 fact reuses the "
+                        "bundle-local transition ID."
+                    ),
+                }
+            )
+            realization = realization.model_copy(
+                update={"transitions": [*realization.transitions, duplicate]}
+            )
         resolved_ids = accepted_book.get("resolved_commitment_ids", [])
         if book_number == 2 and book_two_resolved_commitment_ids is not None:
             resolved_ids = book_two_resolved_commitment_ids
@@ -476,3 +494,130 @@ def test_selector_requires_explicit_current_book_planning_intent(
 
     with pytest.raises(ValueError, match="planning intent"):
         derive_repeated_context(service, 4)
+
+
+def test_grouping_keeps_one_group_for_multiple_consequences_of_one_commitment(
+    tmp_path: Path,
+) -> None:
+    context = derive_repeated_context(build_repeated_scenario(tmp_path, 4), 4)
+
+    assert context.group_ids == ("contested-history",)
+    assert context.group("contested-history").entry_ids == [
+        "realization-bundle-book-1-history@1/monastery-testimony",
+        "realization-bundle-book-3-history@1/archive-protected",
+    ]
+    assert context.group_source_fact_ids("contested-history") == {
+        "monastery-testimony",
+        "archive-protected",
+    }
+
+
+def test_grouping_preserves_exact_book_one_and_three_supporting_sources(
+    tmp_path: Path,
+) -> None:
+    context = derive_repeated_context(build_repeated_scenario(tmp_path, 4), 4)
+
+    assert context.group("contested-history").source_refs == [
+        vertical_slice_models.ArtifactRef(
+            artifact_id="series-direction",
+            revision=1,
+        ),
+        vertical_slice_models.ArtifactRef(
+            artifact_id="book-1-direction",
+            revision=1,
+        ),
+        vertical_slice_models.ArtifactRef(
+            artifact_id="book-3-direction",
+            revision=1,
+        ),
+        vertical_slice_models.AcceptedFactRef(
+            artifact_id="realization-bundle-book-1-history",
+            revision=1,
+            fact_id="monastery-testimony",
+        ),
+        vertical_slice_models.AcceptedFactRef(
+            artifact_id="realization-bundle-book-3-history",
+            revision=1,
+            fact_id="archive-protected",
+        ),
+    ]
+    assert context.model_dump(mode="json")["groups"][0]["source_refs"] == [
+        {
+            "artifact_id": "series-direction",
+            "revision": 1,
+        },
+        {
+            "artifact_id": "book-1-direction",
+            "revision": 1,
+        },
+        {
+            "artifact_id": "book-3-direction",
+            "revision": 1,
+        },
+        {
+            "artifact_id": "realization-bundle-book-1-history",
+            "revision": 1,
+            "fact_id": "monastery-testimony",
+        },
+        {
+            "artifact_id": "realization-bundle-book-3-history",
+            "revision": 1,
+            "fact_id": "archive-protected",
+        },
+    ]
+
+
+def test_grouped_item_has_specific_book_four_monastery_why_now(
+    tmp_path: Path,
+) -> None:
+    context = derive_repeated_context(build_repeated_scenario(tmp_path, 4), 4)
+
+    testimony = context.item("monastery-testimony")
+    assert "Book 4" in testimony.why_matters_now
+    assert "monastery-testimony" in testimony.why_matters_now
+    assert testimony.is_current_constraint
+    assert testimony.source_refs == (accepted_monastery_fact_ref(),)
+    assert all(entry.source_refs for entry in context.entries)
+    assert all(group.source_refs for group in context.groups)
+
+
+def test_fact_identity_distinguishes_duplicate_ids_across_accepted_bundles(
+    tmp_path: Path,
+) -> None:
+    service = build_repeated_ledger(
+        tmp_path,
+        duplicate_fact_id_across_books=True,
+    )
+    book_one_ref = accepted_monastery_fact_ref()
+    book_three_ref = vertical_slice_models.AcceptedFactRef(
+        artifact_id="realization-bundle-book-3-history",
+        revision=1,
+        fact_id="monastery-testimony",
+    )
+    service.enter_repeated_book_planning(
+        4,
+        entered_by="archive-author",
+        intent="Use both accepted testimony facts.",
+        relevance_refs=[book_one_ref, book_three_ref],
+    )
+
+    context = derive_repeated_context(service, 4)
+    book_one_entry_id = (
+        "realization-bundle-book-1-history@1/monastery-testimony"
+    )
+    book_three_entry_id = (
+        "realization-bundle-book-3-history@1/monastery-testimony"
+    )
+
+    assert context.item(book_one_entry_id).source_refs == (book_one_ref,)
+    assert context.item(book_three_entry_id).source_refs == (book_three_ref,)
+    with pytest.raises(ValueError, match="ambiguous"):
+        context.item("monastery-testimony")
+    assert context.dispositions[book_one_entry_id] == "reactivated"
+    assert context.dispositions[book_three_entry_id] == "active"
+    assert "monastery-testimony" not in context.dispositions
+    assert set(context.group("contested-history").entry_ids) == {
+        book_one_entry_id,
+        book_three_entry_id,
+    }
+    assert "monastery-testimony" in context.active_fact_ids
