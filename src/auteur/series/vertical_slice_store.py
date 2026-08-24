@@ -245,6 +245,23 @@ class VerticalSliceStore:
         self._validate_next_decision_identity(proposal)
         actions = self._load_decision_action_payloads(proposal)
         self.validate_decision_history(proposal, actions)
+        path = self.next_decision_proposal_path(proposal.proposal_id)
+        if path.is_file():
+            persisted = self._load_next_decision_proposal_payload(
+                proposal.proposal_id
+            )
+            persisted_actions = self._load_decision_action_payloads(persisted)
+            self.validate_decision_history(persisted, persisted_actions)
+            if proposal != persisted:
+                raise ValueError(
+                    "Next Decision proposal is immutable once created"
+                )
+            return
+        self._write_next_decision_proposal(proposal)
+
+    def _write_next_decision_proposal(
+        self, proposal: NextDecisionProposal
+    ) -> None:
         self._write_model(
             self.next_decision_proposal_path(proposal.proposal_id), proposal
         )
@@ -292,16 +309,15 @@ class VerticalSliceStore:
             )
 
     def save_decision_action(self, action: DecisionAction) -> None:
-        proposal = self.load_next_decision_proposal(action.proposal_id)
-        self.validate_decision_action(proposal, action)
-        actions = self.load_decision_actions(action.proposal_id)
-        if proposal.status != "proposed" or actions:
-            raise ValueError("Next Decision proposal already has a terminal action")
-        actions.append(action)
+        raise ValueError(
+            "Decision actions must be saved with proposal status"
+        )
+
+    def _write_decision_action(self, action: DecisionAction) -> None:
         path = self.decision_actions_path(action.proposal_id)
         path.parent.mkdir(parents=True, exist_ok=True)
         rendered = yaml.safe_dump(
-            [item.model_dump(mode="json") for item in actions],
+            [action.model_dump(mode="json")],
             sort_keys=False,
         )
         temporary = path.with_suffix(".tmp")
@@ -380,6 +396,19 @@ class VerticalSliceStore:
             raise ValueError(
                 "Decision action proposal does not match the status proposal"
             )
+        persisted = self.load_next_decision_proposal(proposal.proposal_id)
+        persisted_actions = self.load_decision_actions(proposal.proposal_id)
+        if proposal.model_copy(
+            update={"status": "proposed"}
+        ) != persisted.model_copy(update={"status": "proposed"}):
+            raise ValueError(
+                "Decision status proposal does not match persisted proposal"
+            )
+        if persisted.status != "proposed" or persisted_actions:
+            raise ValueError(
+                "Next Decision proposal already has a terminal action"
+            )
+        self.validate_decision_action(persisted, action)
         self.validate_decision_history(proposal, [action])
         proposal_path = self.next_decision_proposal_path(proposal.proposal_id)
         actions_path = self.decision_actions_path(proposal.proposal_id)
@@ -388,8 +417,8 @@ class VerticalSliceStore:
             actions_path.read_bytes() if actions_path.is_file() else None
         )
         try:
-            self.save_decision_action(action)
-            self.save_next_decision_proposal(proposal)
+            self._write_decision_action(action)
+            self._write_next_decision_proposal(proposal)
         except Exception:
             self._restore_workflow_file(proposal_path, proposal_snapshot)
             self._restore_workflow_file(actions_path, actions_snapshot)

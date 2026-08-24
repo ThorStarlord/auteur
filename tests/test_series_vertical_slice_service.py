@@ -419,7 +419,7 @@ def test_decision_status_failure_restores_prior_proposal_and_action_state(
 
     monkeypatch.setattr(
         service.store,
-        "save_next_decision_proposal",
+        "_write_next_decision_proposal",
         fail_status_write,
     )
 
@@ -523,6 +523,129 @@ def test_direct_proposal_status_save_rejects_history_mismatch_without_write(
     assert service.store.load_next_decision_proposal(
         proposal.proposal_id
     ).status == "proposed"
+    assert service.store.load_decision_actions(proposal.proposal_id) == []
+
+
+def test_proposed_next_decision_proposal_is_immutable_after_creation(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = prepare_book_2_decision(service)
+    proposal_path = service.store.next_decision_proposal_path(
+        proposal.proposal_id
+    )
+    proposal_before = proposal_path.read_bytes()
+
+    service.store.save_next_decision_proposal(proposal)
+    assert proposal_path.read_bytes() == proposal_before
+
+    with pytest.raises(ValueError, match="immutable once created"):
+        service.store.save_next_decision_proposal(
+            proposal.model_copy(
+                update={"rationale": "Replace the persisted recommendation."}
+            )
+        )
+
+    assert proposal_path.read_bytes() == proposal_before
+    assert service.store.load_next_decision_proposal(
+        proposal.proposal_id
+    ) == proposal
+
+
+def test_terminal_next_decision_proposal_is_immutable(tmp_path: Path) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = prepare_book_2_decision(service)
+    action = service.record_decision_action(
+        proposal.proposal_id,
+        action="choose_recommended",
+    )
+    terminal = service.store.load_next_decision_proposal(
+        proposal.proposal_id
+    )
+    proposal_path = service.store.next_decision_proposal_path(
+        proposal.proposal_id
+    )
+    actions_path = service.store.decision_actions_path(proposal.proposal_id)
+    proposal_before = proposal_path.read_bytes()
+    actions_before = actions_path.read_bytes()
+
+    with pytest.raises(ValueError, match="immutable once created"):
+        service.store.save_next_decision_proposal(
+            terminal.model_copy(
+                update={"question": "Replace the persisted question?"}
+            )
+        )
+
+    assert proposal_path.read_bytes() == proposal_before
+    assert actions_path.read_bytes() == actions_before
+    assert service.store.load_next_decision_proposal(
+        proposal.proposal_id
+    ) == terminal
+    assert service.store.load_decision_actions(proposal.proposal_id) == [action]
+
+
+def test_direct_decision_action_save_refuses_partial_history(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = prepare_book_2_decision(service)
+    proposal_path = service.store.next_decision_proposal_path(
+        proposal.proposal_id
+    )
+    actions_path = service.store.decision_actions_path(proposal.proposal_id)
+    proposal_before = proposal_path.read_bytes()
+    action = vertical_slice_models.DecisionAction(
+        proposal_id=proposal.proposal_id,
+        action="choose_recommended",
+        selected_option_id=proposal.recommended_option_id,
+        recorded_at=datetime.now(timezone.utc),
+    )
+
+    with pytest.raises(ValueError, match="saved with proposal status"):
+        service.store.save_decision_action(action)
+
+    assert proposal_path.read_bytes() == proposal_before
+    assert not actions_path.exists()
+    assert service.store.load_next_decision_proposal(
+        proposal.proposal_id
+    ).status == "proposed"
+    assert service.store.load_decision_actions(proposal.proposal_id) == []
+
+
+def test_coordinated_decision_save_rejects_semantic_proposal_mutation(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = prepare_book_2_decision(service)
+    proposal_path = service.store.next_decision_proposal_path(
+        proposal.proposal_id
+    )
+    actions_path = service.store.decision_actions_path(proposal.proposal_id)
+    proposal_before = proposal_path.read_bytes()
+    action = vertical_slice_models.DecisionAction(
+        proposal_id=proposal.proposal_id,
+        action="choose_recommended",
+        selected_option_id=proposal.recommended_option_id,
+        recorded_at=datetime.now(timezone.utc),
+    )
+    mutated_terminal = proposal.model_copy(
+        update={
+            "rationale": "Replace the persisted recommendation.",
+            "status": "resolved",
+        }
+    )
+
+    with pytest.raises(ValueError, match="does not match persisted proposal"):
+        service.store.save_decision_action_with_status(
+            action,
+            mutated_terminal,
+        )
+
+    assert proposal_path.read_bytes() == proposal_before
+    assert not actions_path.exists()
+    assert service.store.load_next_decision_proposal(
+        proposal.proposal_id
+    ) == proposal
     assert service.store.load_decision_actions(proposal.proposal_id) == []
 
 
