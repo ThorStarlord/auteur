@@ -14,6 +14,7 @@ from auteur.series.vertical_slice_models import (
     ContinuityDisposition,
     ContinuityEntry,
     ContinuityGroup,
+    DecisionOption,
     RepeatedBookPlanningContext,
     StateTransition,
 )
@@ -30,6 +31,14 @@ class CurrentStateEvidence:
     current_fact_id: str
     current_source_ref: AcceptedFactRef
     superseded_fact_ids: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class RepeatedDecisionSeed:
+    question: str
+    recommended_option_id: str
+    options: tuple[DecisionOption, ...]
+    rationale: str
 
 
 @dataclass(frozen=True)

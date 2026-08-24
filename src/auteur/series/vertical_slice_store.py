@@ -35,7 +35,7 @@ from auteur.series.vertical_slice_models import (
 _PATH_SAFE_IDENTIFIER = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*\Z")
 _REALIZATION_ARTIFACT_PREFIX = "realization-bundle-"
 _NEXT_DECISION_PROPOSAL_ID = re.compile(
-    r"book-2-next-decision-[0-9a-f]{32}\Z"
+    r"book-(?P<book_number>[1-9][0-9]*)-next-decision-[0-9a-f]{32}\Z"
 )
 
 
@@ -326,11 +326,21 @@ class VerticalSliceStore:
                 f"Next Decision proposal {proposal.proposal_id} does not match "
                 f"requested proposal {requested_id}"
             )
-        if proposal.book_number != 2:
-            raise ValueError("Next Decision proposal must be for Book 2")
-        if _NEXT_DECISION_PROPOSAL_ID.fullmatch(proposal.proposal_id) is None:
+        identity_match = _NEXT_DECISION_PROPOSAL_ID.fullmatch(
+            proposal.proposal_id
+        )
+        if identity_match is None:
             raise ValueError(
-                "Next Decision proposal ID does not match Book 2 convention"
+                "Next Decision proposal ID does not match Book "
+                f"{proposal.book_number} convention"
+            )
+        identity_book_number = int(identity_match.group("book_number"))
+        if identity_book_number != proposal.book_number:
+            if identity_book_number == 2:
+                raise ValueError("Next Decision proposal must be for Book 2")
+            raise ValueError(
+                "Next Decision proposal ID Book number does not match its "
+                "proposal Book number"
             )
 
     def save_decision_action(self, action: DecisionAction) -> None:

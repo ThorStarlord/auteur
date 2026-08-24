@@ -194,6 +194,89 @@ def accepted_monastery_fact_ref() -> vertical_slice_models.AcceptedFactRef:
     )
 
 
+def book_three_decision_seed() -> "repeated_map_focus.RepeatedDecisionSeed":
+    return repeated_map_focus.RepeatedDecisionSeed(
+        question=(
+            "How should Book 3 respond to the council's retraction while "
+            "preserving the witness's authority?"
+        ),
+        recommended_option_id="publish-witness-account",
+        options=(
+            vertical_slice_models.DecisionOption(
+                option_id="publish-witness-account",
+                label="Publish the witness account",
+                summary=(
+                    "Give the witness an independent public record that the "
+                    "council cannot retract."
+                ),
+                tradeoff=(
+                    "This protects the witness's authority but exposes the "
+                    "witness to direct institutional retaliation."
+                ),
+            ),
+            vertical_slice_models.DecisionOption(
+                option_id="force-council-hearing",
+                label="Force another council hearing",
+                summary=(
+                    "Use the named falsifier to compel the council to answer "
+                    "the witness in public."
+                ),
+                tradeoff=(
+                    "This keeps institutional accountability central but "
+                    "lets the council control the forum and timing."
+                ),
+            ),
+        ),
+        rationale=(
+            "The accepted retraction makes the council unreliable, while the "
+            "resolved falsifier question gives the witness a concrete basis "
+            "for an independent account."
+        ),
+    )
+
+
+def book_four_decision_seed() -> "repeated_map_focus.RepeatedDecisionSeed":
+    return repeated_map_focus.RepeatedDecisionSeed(
+        question=(
+            "How should Book 4 bring the monastery testimony back into "
+            "public memory without destroying the archive's evidentiary "
+            "chain?"
+        ),
+        recommended_option_id="publish-verified-testimony",
+        options=(
+            vertical_slice_models.DecisionOption(
+                option_id="publish-verified-testimony",
+                label="Publish verified testimony",
+                summary=(
+                    "Authenticate and publish the testimony while the "
+                    "protected archive keeps the original evidence secure."
+                ),
+                tradeoff=(
+                    "This preserves the evidentiary chain but delays public "
+                    "release until verification is complete."
+                ),
+            ),
+            vertical_slice_models.DecisionOption(
+                option_id="stage-protected-hearing",
+                label="Stage a protected hearing",
+                summary=(
+                    "Present the testimony beside selected archive evidence "
+                    "under the treaty's protections."
+                ),
+                tradeoff=(
+                    "This creates immediate public pressure but reveals which "
+                    "archive records carry the strongest evidence."
+                ),
+            ),
+        ),
+        rationale=(
+            "The monastery testimony matters again because Book 4 planning "
+            "references it, while the accepted treaty requires the archive's "
+            "evidentiary chain to remain intact."
+        ),
+    )
+
+
 def write_unaccepted_book_direction_proposal(
     service: SeriesVerticalSliceService, *, book_number: int
 ) -> vertical_slice_models.BookDirectionProposal:
@@ -704,3 +787,205 @@ def test_fact_identity_distinguishes_duplicate_ids_across_accepted_bundles(
         book_three_entry_id,
     }
     assert "monastery-testimony" in context.active_fact_ids
+
+
+def test_book_three_focus_proposal_uses_current_book_and_context(
+    tmp_path: Path,
+) -> None:
+    service = build_repeated_scenario(tmp_path, 3)
+    context = service.derive_repeated_book_context(3)
+    seed = book_three_decision_seed()
+
+    proposal = service.propose_repeated_next_decision(
+        3, decision_seed=seed
+    )
+
+    assert proposal.book_number == 3
+    assert proposal.question == seed.question
+    assert proposal.recommended_option_id == seed.recommended_option_id
+    assert proposal.options == list(seed.options)
+    assert proposal.rationale == seed.rationale
+    assert proposal.accepted_input_refs == context.generated_from
+    assert len(proposal.options) >= 2
+    assert len({option.tradeoff for option in proposal.options}) == len(
+        proposal.options
+    )
+
+
+def test_repeated_focus_rejects_legacy_book_two_route(tmp_path: Path) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+
+    with pytest.raises(ValueError, match="Book 3 or later"):
+        service.propose_repeated_next_decision(
+            2, decision_seed=book_three_decision_seed()
+        )
+
+    proposal_root = service.store.root / "proposals" / "next-decision"
+    assert not proposal_root.exists()
+
+
+def test_repeated_focus_copies_mutable_seed_options(tmp_path: Path) -> None:
+    service = build_repeated_scenario(tmp_path, 3)
+    seed = book_three_decision_seed()
+    original_option = seed.options[0].model_copy(deep=True)
+    proposal = service.propose_repeated_next_decision(
+        3, decision_seed=seed
+    )
+
+    seed.options[0].tradeoff = "Mutated after proposal persistence."
+
+    assert proposal.options[0] == original_option
+    action = service.record_decision_action(
+        proposal.proposal_id,
+        action="choose_recommended",
+    )
+    assert action.selected_option_id == proposal.recommended_option_id
+    persisted = service.store.load_next_decision_proposal(
+        proposal.proposal_id
+    )
+    assert persisted.options[0] == original_option
+
+
+@pytest.mark.parametrize(
+    ("action", "selected_option_index", "expected_status"),
+    [
+        ("choose_recommended", None, "resolved"),
+        ("choose_other", 1, "resolved"),
+        ("defer", None, "deferred"),
+    ],
+)
+def test_repeated_focus_action_does_not_create_current_book_authority(
+    tmp_path: Path,
+    action: str,
+    selected_option_index: int | None,
+    expected_status: str,
+) -> None:
+    service = build_repeated_scenario(tmp_path / action, 3)
+    proposal = service.propose_repeated_next_decision(
+        3, decision_seed=book_three_decision_seed()
+    )
+    canonical_before = service.load_canonical_state()
+    realizations_before = service.store.load_accepted_realization_bundles()
+    selected_option_id = (
+        None
+        if selected_option_index is None
+        else proposal.options[selected_option_index].option_id
+    )
+
+    recorded = service.record_decision_action(
+        proposal.proposal_id,
+        action=action,
+        selected_option_id=selected_option_id,
+    )
+
+    assert service.store.load_next_decision_proposal(
+        proposal.proposal_id
+    ).status == expected_status
+    assert service.store.load_decision_actions(proposal.proposal_id) == [
+        recorded
+    ]
+    assert service.load_accepted_book_direction(3) is None
+    assert service.load_canonical_state() == canonical_before
+    assert service.store.load_accepted_realization_bundles() == (
+        realizations_before
+    )
+
+
+def test_book_four_focus_proposal_shape_uses_current_book(
+    tmp_path: Path,
+) -> None:
+    service = build_repeated_scenario(tmp_path, 4)
+    seed = book_four_decision_seed()
+
+    proposal = service.propose_repeated_next_decision(
+        4, decision_seed=seed
+    )
+
+    assert proposal.book_number == 4
+    assert proposal.question == seed.question
+    assert "Book 4" in proposal.question
+    assert "Book 2" not in proposal.question
+    assert proposal.recommended_option_id == seed.recommended_option_id
+    assert proposal.options == list(seed.options)
+    assert proposal.rationale == seed.rationale
+    assert len({option.tradeoff for option in proposal.options}) == len(
+        proposal.options
+    )
+
+
+@pytest.mark.parametrize("book_number", [3, 10])
+def test_current_book_proposal_store_round_trips_matching_book_identity(
+    tmp_path: Path,
+    book_number: int,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = vertical_slice_models.NextDecisionProposal(
+        proposal_id=f"book-{book_number}-next-decision-{'a' * 32}",
+        book_number=book_number,
+        question=(
+            f"Which bounded Book {book_number} direction should planning "
+            "examine?"
+        ),
+        recommended_option_id="first-option",
+        options=(
+            vertical_slice_models.DecisionOption(
+                option_id="first-option",
+                label="First option",
+                summary="Examine the first bounded option.",
+                tradeoff="This prioritizes the first pressure.",
+            ),
+            vertical_slice_models.DecisionOption(
+                option_id="second-option",
+                label="Second option",
+                summary="Examine the second bounded option.",
+                tradeoff="This prioritizes the second pressure.",
+            ),
+        ),
+        rationale="The current accepted inputs support this bounded choice.",
+        accepted_input_refs=[
+            vertical_slice_models.ArtifactRef(
+                artifact_id="series-direction", revision=1
+            )
+        ],
+    )
+
+    service.store.save_next_decision_proposal(proposal)
+
+    assert service.store.load_next_decision_proposal(
+        proposal.proposal_id
+    ) == proposal
+
+
+@pytest.mark.parametrize(
+    ("encoded_book_number", "book_number"),
+    [("02", 2), ("010", 10)],
+)
+def test_current_book_proposal_store_rejects_leading_zero_identity_alias(
+    tmp_path: Path,
+    encoded_book_number: str,
+    book_number: int,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    seed = book_three_decision_seed()
+    proposal = vertical_slice_models.NextDecisionProposal(
+        proposal_id=(
+            f"book-{encoded_book_number}-next-decision-{'a' * 32}"
+        ),
+        book_number=book_number,
+        question=seed.question,
+        recommended_option_id=seed.recommended_option_id,
+        options=seed.options,
+        rationale=seed.rationale,
+        accepted_input_refs=[
+            vertical_slice_models.ArtifactRef(
+                artifact_id="series-direction", revision=1
+            )
+        ],
+    )
+
+    with pytest.raises(ValueError, match="ID does not match Book"):
+        service.store.save_next_decision_proposal(proposal)
+
+    assert not service.store.next_decision_proposal_path(
+        proposal.proposal_id
+    ).exists()

@@ -10,6 +10,7 @@ from auteur.series.repeated_map_focus import (
     AcceptedHistorySnapshot,
     CurrentStateEvidence,
     RepeatedBookPlanningContext,
+    RepeatedDecisionSeed,
     select_repeated_continuity,
 )
 from auteur.series.vertical_slice_models import (
@@ -720,6 +721,35 @@ class SeriesVerticalSliceService:
         self.store.save_next_decision_proposal(proposal)
         return proposal
 
+    def propose_repeated_next_decision(
+        self,
+        book_number: int,
+        *,
+        decision_seed: RepeatedDecisionSeed,
+    ) -> NextDecisionProposal:
+        """Build a bounded proposal from the current repeated context."""
+        if book_number <= 2:
+            raise ValueError(
+                "Repeated Next Decision proposals require Book 3 or later"
+            )
+        context = self.derive_repeated_book_context(book_number)
+        proposal = NextDecisionProposal(
+            proposal_id=(
+                f"book-{book_number}-next-decision-{uuid4().hex}"
+            ),
+            book_number=book_number,
+            question=decision_seed.question,
+            recommended_option_id=decision_seed.recommended_option_id,
+            options=tuple(
+                option.model_copy(deep=True)
+                for option in decision_seed.options
+            ),
+            rationale=decision_seed.rationale,
+            accepted_input_refs=context.generated_from,
+        )
+        self.store.save_next_decision_proposal(proposal)
+        return proposal
+
     @staticmethod
     def _validate_next_decision_context(context: BookPlanningContext) -> None:
         context_item_ids = tuple(item.item_id for item in context.items)
@@ -781,8 +811,13 @@ class SeriesVerticalSliceService:
                 "Next Decision proposal already has a conflicting action"
             )
 
-        current_context = self.derive_book_context(proposal.book_number)
-        self._validate_next_decision_context(current_context)
+        if proposal.book_number == 2:
+            current_context = self.derive_book_context(proposal.book_number)
+            self._validate_next_decision_context(current_context)
+        else:
+            current_context = self.derive_repeated_book_context(
+                proposal.book_number
+            )
         if proposal.accepted_input_refs != current_context.generated_from:
             raise ValueError(
                 "Next Decision proposal accepted inputs are stale"
