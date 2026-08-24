@@ -29,6 +29,12 @@ def format_series_journey_map(
                 f"  Why it matters now: {item.why_matters_now}",
             ]
         )
+        if detail:
+            lines.append("  Source references:")
+            lines.extend(
+                f"    - {_format_source_ref(source_ref)}"
+                for source_ref in item.source_refs
+            )
 
     lines.extend(
         [
@@ -40,11 +46,6 @@ def format_series_journey_map(
     )
 
     if detail:
-        lines.extend(["", "Source references"])
-        lines.extend(
-            f"- {_format_source_ref(source_ref)}"
-            for source_ref in context.generated_from
-        )
         lines.extend(["", f"Proposal ID: {decision.proposal_id}"])
 
     return "\n".join(lines)

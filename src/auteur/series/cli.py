@@ -117,21 +117,34 @@ def register_series_subcommands(sub) -> None:
     )
     p.add_argument("project", type=Path)
     p.add_argument("--book", type=int, required=True)
-    p.add_argument("--detail", action="store_true")
+    p.add_argument(
+        "--detail",
+        action="store_true",
+        help="Show artifact and revision IDs hidden by default.",
+    )
 
     p = journey_commands.add_parser(
         "focus", help="Show one recommendation and the author choices."
     )
     p.add_argument("project", type=Path)
     p.add_argument("--book", type=int, required=True)
-    p.add_argument("--detail", action="store_true")
+    p.add_argument(
+        "--detail",
+        action="store_true",
+        help="Show artifact and revision IDs hidden by default.",
+    )
 
     p = journey_commands.add_parser(
         "decide", help="Record a bounded, non-authoritative workflow choice."
     )
     p.add_argument("project", type=Path)
     p.add_argument("proposal_id")
-    p.add_argument("--choice", required=True)
+    p.add_argument(
+        "--choice",
+        required=True,
+        metavar="recommended|<presented-option-id>|defer",
+        help="Choose the recommendation, a presented option ID, or defer.",
+    )
 
 
 def load_series(path: Path) -> SeriesIdentity:
