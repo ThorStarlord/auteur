@@ -1,0 +1,25 @@
+candidate_id: book-1-history
+book_number: 1
+summary: The founding fraud is exposed while other accepted facts remain in history.
+transitions:
+  - transition_id: founding-record
+    subject: archive
+    attribute: founding_record
+    before: null
+    after: forged
+    explanation: The recovered ledger proves the founding record was forged.
+  - transition_id: monastery-testimony
+    subject: monastery
+    attribute: testimony
+    before: null
+    after: preserved
+    explanation: The monastery preserves testimony that may matter later.
+  - transition_id: broken-lantern
+    subject: archive_lantern
+    attribute: condition
+    before: null
+    after: broken
+    explanation: A lantern was broken during the archive search.
+source_refs:
+  - artifact_id: book-1-direction
+    revision: 1

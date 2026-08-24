@@ -1,0 +1,25 @@
+candidate_id: book-2-history
+book_number: 2
+summary: The falsifier is named and the council retracts its public admission.
+transitions:
+  - transition_id: named-falsifier
+    subject: archive
+    attribute: falsifier
+    before: null
+    after: named
+    explanation: Accepted evidence identifies the person who falsified the record.
+  - transition_id: public-admission
+    subject: council
+    attribute: archive_position
+    before: null
+    after: admitted fraud
+    explanation: The council publicly admits that the archive record was falsified.
+  - transition_id: admission-retracted
+    subject: council
+    attribute: archive_position
+    before: admitted fraud
+    after: retracted admission
+    explanation: The council later retracts its public admission.
+source_refs:
+  - artifact_id: book-2-direction
+    revision: 1

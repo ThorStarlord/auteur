@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Literal
+from typing import Iterable, Literal
 from uuid import uuid4
 
 from auteur.provenance import ArtifactMetadata
+from auteur.series.repeated_map_focus import AcceptedHistorySnapshot
 from auteur.series.vertical_slice_models import (
     AcceptedBookDirection,
     AcceptedRealizationBundle,
@@ -261,10 +262,24 @@ class SeriesVerticalSliceService:
         return accepted
 
     def rebuild_canonical_state(self) -> CanonicalState:
+        bundles = [
+            bundle
+            for bundle, _metadata in (
+                self.store.load_accepted_realization_bundles()
+            )
+        ]
+        state = self._canonical_state_from_bundles(bundles)
+        self.store.save_canonical_state(state)
+        return state
+
+    @staticmethod
+    def _canonical_state_from_bundles(
+        bundles: Iterable[AcceptedRealizationBundle],
+    ) -> CanonicalState:
         values: dict[str, str] = {}
         applied_bundle_ids: list[str] = []
         state_version = 0
-        for bundle, _metadata in self.store.load_accepted_realization_bundles():
+        for bundle in bundles:
             for transition in bundle.transitions:
                 key = f"{transition.subject}.{transition.attribute}"
                 # A null before value means the attribute must not exist yet.
@@ -287,11 +302,85 @@ class SeriesVerticalSliceService:
             values=values,
             applied_bundle_ids=applied_bundle_ids,
         )
-        self.store.save_canonical_state(state)
         return state
 
     def load_canonical_state(self) -> CanonicalState:
         return self.store.load_canonical_state()
+
+    def load_repeated_history_for_book(
+        self, book_number: int
+    ) -> AcceptedHistorySnapshot:
+        """Load accepted authority through book_number - 1 only."""
+        if book_number <= 1:
+            raise ValueError(
+                "Repeated history requires a planning Book number greater than 1"
+            )
+
+        accepted_series, series_metadata = self._accepted_series_source()
+        self.store.validate_book_context_source(
+            series_metadata,
+            artifact_id=accepted_series.artifact_id,
+            artifact_type="series_direction",
+            path=self.store.accepted_series_direction_path,
+        )
+        series_ref = ArtifactRef(
+            artifact_id=accepted_series.artifact_id,
+            revision=series_metadata.revision,
+        )
+
+        books: list[AcceptedBookDirection] = []
+        book_refs: list[ArtifactRef] = []
+        for accepted_book_number in range(1, book_number):
+            accepted_book, book_metadata = self._accepted_book_source(
+                accepted_book_number
+            )
+            self.store.validate_book_context_source(
+                book_metadata,
+                artifact_id=accepted_book.artifact_id,
+                artifact_type="book_direction",
+                path=self.store.accepted_book_direction_path(
+                    accepted_book_number
+                ),
+            )
+            books.append(accepted_book)
+            book_refs.append(
+                ArtifactRef(
+                    artifact_id=accepted_book.artifact_id,
+                    revision=book_metadata.revision,
+                )
+            )
+
+        realizations: list[AcceptedRealizationBundle] = []
+        realization_refs: list[ArtifactRef] = []
+        for bundle, metadata in self.store.load_accepted_realization_bundles():
+            if bundle.book_number >= book_number:
+                continue
+            self.store.validate_book_context_source(
+                metadata,
+                artifact_id=bundle.artifact_id,
+                artifact_type="accepted_realization_bundle",
+                path=self.store.accepted_realization_bundle_path(
+                    bundle.bundle_id
+                ),
+            )
+            realizations.append(bundle)
+            realization_refs.append(
+                ArtifactRef(
+                    artifact_id=bundle.artifact_id,
+                    revision=metadata.revision,
+                )
+            )
+
+        return AcceptedHistorySnapshot(
+            planning_book_number=book_number,
+            series=accepted_series,
+            series_ref=series_ref,
+            books=tuple(books),
+            book_refs=tuple(book_refs),
+            realizations=tuple(realizations),
+            realization_refs=tuple(realization_refs),
+            canonical_state=self._canonical_state_from_bundles(realizations),
+        )
 
     def enter_book_planning(
         self, book_number: int, *, entered_by: str
