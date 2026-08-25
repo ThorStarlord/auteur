@@ -27,6 +27,7 @@ from auteur.series.serializers import (
     serialize_series_graph,
 )
 from auteur.series.vertical_slice_formatters import (
+    format_accepted_facts,
     format_repeated_series_focus,
     format_repeated_series_map,
     format_series_journey_focus,
@@ -125,6 +126,17 @@ def register_series_subcommands(sub) -> None:
         "--detail",
         action="store_true",
         help="Show artifact and revision IDs hidden by default.",
+    )
+    p = journey_commands.add_parser(
+        "accepted-facts",
+        help="List accepted historical facts in understandable language.",
+    )
+    p.add_argument("project", type=Path)
+    p.add_argument("--book", type=int, required=True)
+    p.add_argument(
+        "--detail",
+        action="store_true",
+        help="Show internal artifact, revision, and fact IDs hidden by default.",
     )
     p = journey_commands.add_parser(
         "focus", help="Show one recommendation and the author choices."
@@ -239,6 +251,13 @@ def handle_series_journey_command(args) -> int:
                 args.book, entered_by=_CLI_AUTHOR
             )
             print(f"Entered exploratory planning for Book {entry.book_number}.")
+            return 0
+
+        if args.journey_command == "accepted-facts":
+            snapshot = service.load_repeated_history_for_book(args.book)
+            print(
+                format_accepted_facts(snapshot, detail=args.detail)
+            )
             return 0
 
         if args.journey_command == "map":

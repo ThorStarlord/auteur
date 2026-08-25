@@ -1839,3 +1839,66 @@ def test_format_accepted_facts_detail_reveals_exact_provenance(
     assert "monastery.testimony is preserved." in text
     assert "burn-archive" not in text
     assert "ally-militia" not in text
+
+
+def test_cli_accepted_facts_lists_books_1_3_without_detail(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    service = build_repeated_ledger(tmp_path)
+    authority_before = repeated_authority_snapshot(service)
+    state_before = service.load_canonical_state()
+
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "accepted-facts",
+                str(tmp_path),
+                "--book",
+                "4",
+            ]
+        )
+        == 0
+    )
+    out = capsys.readouterr().out
+    assert "[B1-" in out
+    assert "monastery.testimony is preserved." in out
+    assert "Accepted in Book 1" in out
+    # Internal provenance hidden by default.
+    assert "realization-bundle-book-1-realization" not in out
+    assert "revision" not in out
+    assert "fact monastery-testimony" not in out
+    # Unaccepted and past-state material is never selectable.
+    assert "burn-archive" not in out
+    assert "ally-militia" not in out
+    # Read-only: no authority or Canonical State mutation.
+    assert service.load_canonical_state() == state_before
+    assert repeated_authority_snapshot(service) == authority_before
+
+
+def test_cli_accepted_facts_detail_reveals_provenance(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    service = build_repeated_ledger(tmp_path)
+
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "accepted-facts",
+                str(tmp_path),
+                "--book",
+                "4",
+                "--detail",
+            ]
+        )
+        == 0
+    )
+    out = capsys.readouterr().out
+    assert "artifact realization-bundle-book-1-realization" in out
+    assert "revision 1" in out
+    assert "fact monastery-testimony" in out
