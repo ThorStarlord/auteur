@@ -7,10 +7,10 @@ Status: closed; documentation-only handoff
 
 - Worktree: `H:/GithubRepositories/auteur/.worktrees/repeated-map-focus-v2`
 - Branch: `feat/repeated-map-focus-v2`
-- Current HEAD: `4721e2e9b5465b3232d417ec1097826e9bd4d840`
+- Current HEAD: `1536c06d3fa0a66bd85c6a7a723394af4208751d`
 - Working tree: clean
 - Qualified product candidate: `2e066108db51ff4b42b41316d5ea5e8d627eef71`
-- Candidate relationship: `2e06610` is an ancestor of `4721e2e`; the latter is a documentation/evidence handoff commit.
+- Candidate relationship: `2e06610` is an ancestor of `4721e2e`, and `4721e2e` is an ancestor of this closure commit. `4721e2e` is the qualification handoff; `1536c06` is the closure handoff.
 - Mainline: `main` remains at `bcd8db2` and does not contain the candidate or handoff commits.
 - Integration status: the implementation exists only on this feature branch/worktree. It has not been merged into mainline.
 - `CONTEXT.md`: unchanged on this branch and left untouched because no safe milestone-only update was necessary.
@@ -142,4 +142,4 @@ Finite or uncertain Series extent, general recommendation-content generation, hu
 
 ## Fresh-session starting instruction
 
-Begin by reading this handoff, the behavioral contract, the implementation-boundary analysis, the TDD plan, and the qualification report. Treat `2e06610` as the qualified product candidate and `4721e2e` as the documentation handoff. Preserve all explicit non-claims. Do not infer that the feature branch is integrated into mainline, and do not begin implementation or discovery until a separate next decision has been made.
+Begin by reading this handoff, the behavioral contract, the implementation-boundary analysis, the TDD plan, and the qualification report. Treat `2e06610` as the qualified product candidate, `4721e2e` as the qualification handoff, and `1536c06` as the closure commit. Preserve all explicit non-claims. Do not infer that the feature branch is integrated into mainline, and do not begin implementation or discovery until a separate next decision has been made.
