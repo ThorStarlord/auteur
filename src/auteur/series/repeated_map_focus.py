@@ -15,6 +15,7 @@ from auteur.series.vertical_slice_models import (
     ContinuityEntry,
     ContinuityGroup,
     DecisionOption,
+    NextDecisionProposal,
     RepeatedBookPlanningContext,
     StateTransition,
 )
@@ -39,6 +40,36 @@ class RepeatedDecisionSeed:
     recommended_option_id: str
     options: tuple[DecisionOption, ...]
     rationale: str
+
+
+def validate_repeated_decision_proposal(
+    proposal: NextDecisionProposal,
+    context: RepeatedBookPlanningContext,
+) -> None:
+    """Reject stale or state-incompatible repeated proposals."""
+    if proposal.accepted_input_refs != context.generated_from:
+        raise ValueError(
+            "Repeated Next Decision proposal is stale against the current "
+            "accepted state; recompute it before recording an action"
+        )
+
+    recommended_option = next(
+        option
+        for option in proposal.options
+        if option.option_id == proposal.recommended_option_id
+    )
+    if (
+        recommended_option.incompatible_with_state_refs
+        or recommended_option.incompatibility_reason is not None
+    ):
+        message = (
+            "Recommended option is incompatible with current accepted state"
+        )
+        if recommended_option.incompatibility_reason:
+            message = (
+                f"{message}: {recommended_option.incompatibility_reason}"
+            )
+        raise ValueError(message)
 
 
 @dataclass(frozen=True)

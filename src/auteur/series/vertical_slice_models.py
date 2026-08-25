@@ -354,6 +354,10 @@ class DecisionOption(BaseModel):
     label: str
     summary: str
     tradeoff: str
+    incompatible_with_state_refs: list[ArtifactRef] = Field(
+        default_factory=list
+    )
+    incompatibility_reason: str | None = None
 
 
 class NextDecisionProposal(BaseModel):

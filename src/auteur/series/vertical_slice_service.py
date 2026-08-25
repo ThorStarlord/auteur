@@ -12,6 +12,7 @@ from auteur.series.repeated_map_focus import (
     RepeatedBookPlanningContext,
     RepeatedDecisionSeed,
     select_repeated_continuity,
+    validate_repeated_decision_proposal as validate_repeated_proposal,
 )
 from auteur.series.vertical_slice_models import (
     AcceptedFactRef,
@@ -750,6 +751,13 @@ class SeriesVerticalSliceService:
         self.store.save_next_decision_proposal(proposal)
         return proposal
 
+    def validate_repeated_decision_proposal(
+        self,
+        proposal: NextDecisionProposal,
+    ) -> None:
+        context = self.derive_repeated_book_context(proposal.book_number)
+        validate_repeated_proposal(proposal, context)
+
     @staticmethod
     def _validate_next_decision_context(context: BookPlanningContext) -> None:
         context_item_ids = tuple(item.item_id for item in context.items)
@@ -814,14 +822,10 @@ class SeriesVerticalSliceService:
         if proposal.book_number == 2:
             current_context = self.derive_book_context(proposal.book_number)
             self._validate_next_decision_context(current_context)
-        else:
-            current_context = self.derive_repeated_book_context(
-                proposal.book_number
-            )
-        if proposal.accepted_input_refs != current_context.generated_from:
-            raise ValueError(
-                "Next Decision proposal accepted inputs are stale"
-            )
+            if proposal.accepted_input_refs != current_context.generated_from:
+                raise ValueError(
+                    "Next Decision proposal accepted inputs are stale"
+                )
 
         recorded = DecisionAction(
             proposal_id=proposal_id,
@@ -830,6 +834,8 @@ class SeriesVerticalSliceService:
             recorded_at=datetime.now(timezone.utc),
         )
         self.store.validate_decision_action(proposal, recorded)
+        if proposal.book_number > 2:
+            self.validate_repeated_decision_proposal(proposal)
         self.store.save_decision_action_with_status(
             recorded,
             proposal.model_copy(update={"status": status}),

@@ -277,6 +277,91 @@ def book_four_decision_seed() -> "repeated_map_focus.RepeatedDecisionSeed":
     )
 
 
+def book_four_burn_archive_recommendation_seed(
+) -> "repeated_map_focus.RepeatedDecisionSeed":
+    return repeated_map_focus.RepeatedDecisionSeed(
+        question=(
+            "How should Book 4 bring the monastery testimony back into "
+            "public memory without losing the archive's evidentiary chain?"
+        ),
+        recommended_option_id="burn-archive",
+        options=(
+            vertical_slice_models.DecisionOption(
+                option_id="burn-archive",
+                label="Burn the archive",
+                summary=(
+                    "Destroy the archive so the monastery testimony becomes "
+                    "the only surviving public account."
+                ),
+                tradeoff=(
+                    "This makes the testimony unavoidable but destroys the "
+                    "accepted evidentiary chain that can authenticate it."
+                ),
+                incompatible_with_state_refs=[
+                    vertical_slice_models.ArtifactRef(
+                        artifact_id="realization-bundle-book-3-history",
+                        revision=1,
+                    )
+                ],
+                incompatibility_reason=(
+                    "Burning the archive contradicts the current accepted "
+                    "archive.protection state of treaty protected."
+                ),
+            ),
+            vertical_slice_models.DecisionOption(
+                option_id="publish-verified-testimony",
+                label="Publish verified testimony",
+                summary=(
+                    "Authenticate and publish the testimony while preserving "
+                    "the protected archive."
+                ),
+                tradeoff=(
+                    "This preserves the evidentiary chain but delays public "
+                    "release until verification is complete."
+                ),
+            ),
+        ),
+        rationale=(
+            "The monastery testimony matters again, but this recommendation "
+            "conflicts with the accepted treaty protection."
+        ),
+    )
+
+
+def accept_additional_book_three_state(
+    service: SeriesVerticalSliceService,
+) -> None:
+    candidate = RealizationCandidate(
+        candidate_id="book-3-archive-access-tightened",
+        book_number=3,
+        summary="The treaty adds a controlled-access rule for the archive.",
+        transitions=[
+            vertical_slice_models.StateTransition(
+                transition_id="archive-access-tightened",
+                subject="archive",
+                attribute="public_access",
+                before=None,
+                after="treaty controlled",
+                explanation=(
+                    "The accepted treaty limits public access while keeping "
+                    "the archive available for verification."
+                ),
+            )
+        ],
+        source_refs=[
+            vertical_slice_models.ArtifactRef(
+                artifact_id="book-3-direction",
+                revision=1,
+            )
+        ],
+    )
+    service.propose_realization(candidate)
+    service.accept_realization(
+        candidate.candidate_id,
+        accepted_by="archive-author",
+    )
+
+
 def write_unaccepted_book_direction_proposal(
     service: SeriesVerticalSliceService, *, book_number: int
 ) -> vertical_slice_models.BookDirectionProposal:
@@ -911,6 +996,82 @@ def test_book_four_focus_proposal_shape_uses_current_book(
     assert len({option.tradeoff for option in proposal.options}) == len(
         proposal.options
     )
+
+
+def test_contradictory_recommended_option_is_rejected(
+    tmp_path: Path,
+) -> None:
+    service = build_repeated_scenario(tmp_path, 4)
+    context = service.derive_repeated_book_context(4)
+    proposal = service.propose_repeated_next_decision(
+        4,
+        decision_seed=book_four_burn_archive_recommendation_seed(),
+    )
+    authority_before = repeated_authority_snapshot(service)
+    canonical_before = service.load_canonical_state()
+
+    with pytest.raises(
+        ValueError,
+        match="incompatible.*current accepted state",
+    ):
+        repeated_map_focus.validate_repeated_decision_proposal(
+            proposal,
+            context,
+        )
+    with pytest.raises(
+        ValueError,
+        match="incompatible.*current accepted state",
+    ):
+        service.validate_repeated_decision_proposal(proposal)
+    with pytest.raises(
+        ValueError,
+        match="incompatible.*current accepted state",
+    ):
+        service.record_decision_action(
+            proposal.proposal_id,
+            action="choose_recommended",
+        )
+
+    assert repeated_authority_snapshot(service) == authority_before
+    assert service.load_canonical_state() == canonical_before
+    assert service.store.load_next_decision_proposal(
+        proposal.proposal_id
+    ) == proposal
+    assert service.store.load_decision_actions(proposal.proposal_id) == []
+
+
+def test_stale_repeated_focus_proposal_cannot_be_exercised(
+    tmp_path: Path,
+) -> None:
+    service = build_repeated_scenario(tmp_path, 4)
+    proposal = service.propose_repeated_next_decision(
+        4,
+        decision_seed=book_four_decision_seed(),
+    )
+    accept_additional_book_three_state(service)
+    current_context = service.derive_repeated_book_context(4)
+    authority_before = repeated_authority_snapshot(service)
+    canonical_before = service.load_canonical_state()
+
+    with pytest.raises(ValueError, match="stale"):
+        repeated_map_focus.validate_repeated_decision_proposal(
+            proposal,
+            current_context,
+        )
+    with pytest.raises(ValueError, match="stale"):
+        service.validate_repeated_decision_proposal(proposal)
+    with pytest.raises(ValueError, match="stale"):
+        service.record_decision_action(
+            proposal.proposal_id,
+            action="choose_recommended",
+        )
+
+    assert repeated_authority_snapshot(service) == authority_before
+    assert service.load_canonical_state() == canonical_before
+    assert service.store.load_next_decision_proposal(
+        proposal.proposal_id
+    ) == proposal
+    assert service.store.load_decision_actions(proposal.proposal_id) == []
 
 
 @pytest.mark.parametrize("book_number", [3, 10])
