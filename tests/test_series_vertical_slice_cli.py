@@ -6,7 +6,6 @@ import pytest
 import yaml
 
 from auteur.cli import main
-from auteur.series import vertical_slice_models
 from auteur.series.vertical_slice_models import (
     BookDirection,
     RealizationCandidate,
@@ -65,111 +64,6 @@ def _proposal_id(output: str) -> str:
         line for line in output.splitlines() if line.startswith("Proposal ID: ")
     )
     return line.removeprefix("Proposal ID: ")
-
-
-def _repeated_presentation_objects() -> tuple[
-    vertical_slice_models.RepeatedBookPlanningContext,
-    vertical_slice_models.NextDecisionProposal,
-]:
-    series_ref = vertical_slice_models.ArtifactRef(
-        artifact_id="series-direction", revision=1
-    )
-    fact_ref = vertical_slice_models.AcceptedFactRef(
-        artifact_id="realization-bundle-book-1-history",
-        revision=1,
-        fact_id="monastery-testimony",
-    )
-    active_entry = vertical_slice_models.ContinuityEntry(
-        entry_id=(
-            "realization-bundle-book-1-history@1/monastery-testimony"
-        ),
-        kind="fact",
-        summary="monastery.testimony is preserved.",
-        why_matters_now=(
-            "Book 4 planning explicitly references accepted fact "
-            "monastery-testimony."
-        ),
-        source_refs=(fact_ref,),
-        disposition="reactivated",
-        group_id="contested-history",
-        is_current_constraint=True,
-    )
-    history_entry = vertical_slice_models.ContinuityEntry(
-        entry_id="resolved-falsifier",
-        kind="commitment",
-        summary="The falsifier was already identified.",
-        why_matters_now="This remains history support only.",
-        source_refs=(series_ref,),
-        disposition="resolved",
-        is_current_constraint=False,
-    )
-    context = vertical_slice_models.RepeatedBookPlanningContext(
-        book_number=4,
-        generated_from=[series_ref],
-        groups=[
-            vertical_slice_models.ContinuityGroup(
-                group_id="contested-history",
-                summary="Official history still conflicts with lived memory.",
-                why_matters_now=(
-                    "The accepted pressure remains active for Book 4."
-                ),
-                source_refs=[series_ref, fact_ref],
-                entry_ids=[active_entry.entry_id],
-            )
-        ],
-        entries=[active_entry],
-        history_entries=[history_entry],
-        trigger_refs=[fact_ref],
-        derivation_version="repeated-map-focus-v2-r1",
-    )
-    proposal = vertical_slice_models.NextDecisionProposal(
-        proposal_id=f"book-4-next-decision-{'a' * 32}",
-        book_number=4,
-        question="How should Book 4 restore the testimony?",
-        recommended_option_id="publish-testimony",
-        options=[
-            vertical_slice_models.DecisionOption(
-                option_id="publish-testimony",
-                label="Publish the testimony",
-                summary="Publish an authenticated account.",
-                tradeoff="Verification delays publication.",
-            ),
-            vertical_slice_models.DecisionOption(
-                option_id="hold-hearing",
-                label="Hold a protected hearing",
-                summary="Present the testimony under treaty protection.",
-                tradeoff="The hearing exposes part of the evidence chain.",
-            ),
-        ],
-        rationale="The accepted testimony is relevant again in Book 4.",
-        accepted_input_refs=context.generated_from,
-    )
-    return context, proposal
-
-
-def _use_repeated_presentation_service(monkeypatch) -> None:
-    context, proposal = _repeated_presentation_objects()
-
-    class RepeatedPresentationService:
-        def __init__(self, _project: Path) -> None:
-            pass
-
-        def derive_book_context(
-            self, book_number: int
-        ) -> vertical_slice_models.RepeatedBookPlanningContext:
-            assert book_number == 4
-            return context
-
-        def propose_next_decision(
-            self, book_number: int
-        ) -> vertical_slice_models.NextDecisionProposal:
-            assert book_number == 4
-            return proposal
-
-    monkeypatch.setattr(
-        "auteur.series.cli.SeriesVerticalSliceService",
-        RepeatedPresentationService,
-    )
 
 
 def test_map_shows_established_context_and_next_available_decision(
@@ -235,61 +129,6 @@ def test_focus_shows_recommendation_rationale_tradeoff_and_choices(
     assert "Choose recommended" in output
     assert "Choose another option" in output
     assert "Defer" in output
-
-
-def test_cli_dispatches_repeated_map_presentation(
-    tmp_path: Path,
-    capsys,
-    monkeypatch,
-) -> None:
-    _use_repeated_presentation_service(monkeypatch)
-
-    assert (
-        main(
-            [
-                "series",
-                "journey",
-                "map",
-                str(tmp_path),
-                "--book",
-                "4",
-            ]
-        )
-        == 0
-    )
-
-    output = capsys.readouterr().out
-    assert "Series Map: Book 4" in output
-    assert "Active continuity" in output
-    assert "Current constraints" in output
-    assert "The falsifier was already identified." not in output
-
-
-def test_cli_dispatches_repeated_focus_presentation(
-    tmp_path: Path,
-    capsys,
-    monkeypatch,
-) -> None:
-    _use_repeated_presentation_service(monkeypatch)
-
-    assert (
-        main(
-            [
-                "series",
-                "journey",
-                "focus",
-                str(tmp_path),
-                "--book",
-                "4",
-            ]
-        )
-        == 0
-    )
-
-    output = capsys.readouterr().out
-    assert "Series Focus: Book 4" in output
-    assert "This is a planning choice, not Book 4 canon." in output
-    assert "Book 2 canon" not in output
 
 
 def test_default_surface_hides_revision_ids_but_deep_output_can_show_sources(

@@ -5,6 +5,7 @@ import pytest
 import yaml
 from pydantic import BaseModel
 
+from auteur.cli import main
 from auteur.series import (
     repeated_map_focus,
     vertical_slice_formatters,
@@ -278,6 +279,27 @@ def book_four_decision_seed() -> "repeated_map_focus.RepeatedDecisionSeed":
             "references it, while the accepted treaty requires the archive's "
             "evidentiary chain to remain intact."
         ),
+    )
+
+
+def write_repeated_decision_seed(
+    path: Path,
+    seed: "repeated_map_focus.RepeatedDecisionSeed",
+) -> None:
+    path.write_text(
+        yaml.safe_dump(
+            {
+                "question": seed.question,
+                "recommended_option_id": seed.recommended_option_id,
+                "options": [
+                    option.model_dump(mode="json")
+                    for option in seed.options
+                ],
+                "rationale": seed.rationale,
+            },
+            sort_keys=False,
+        ),
+        encoding="utf-8",
     )
 
 
@@ -985,6 +1007,99 @@ def test_format_repeated_focus_detail_preserves_ids_and_accepted_refs(
     assert "book-2-direction (revision 1)" in output
     assert "Option IDs" in output
     assert all(option.option_id in output for option in proposal.options)
+
+
+def test_cli_repeated_map_uses_real_service_context(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    service = build_repeated_scenario(tmp_path, 4)
+
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "map",
+                str(tmp_path),
+                "--book",
+                "4",
+            ]
+        )
+        == 0
+    )
+
+    output = capsys.readouterr().out
+    assert "Series Map: Book 4" in output
+    assert "Active continuity" in output
+    assert "monastery.testimony is preserved." in output
+    assert "The person who falsified" not in output
+    assert service.load_accepted_book_direction(4) is None
+
+
+def test_cli_repeated_focus_uses_real_service_and_explicit_seed(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    service = build_repeated_scenario(tmp_path, 4)
+    seed_path = tmp_path / "book-4-focus-seed.yaml"
+    seed = book_four_decision_seed()
+    write_repeated_decision_seed(seed_path, seed)
+
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "focus",
+                str(tmp_path),
+                "--book",
+                "4",
+                "--input",
+                str(seed_path),
+                "--detail",
+            ]
+        )
+        == 0
+    )
+
+    output = capsys.readouterr().out
+    assert "Series Focus: Book 4" in output
+    assert "This is a planning choice, not Book 4 canon." in output
+    assert "Publish verified testimony" in output
+    assert "Book 2 canon" not in output
+    proposal_id = next(
+        line.removeprefix("Proposal ID: ")
+        for line in output.splitlines()
+        if line.startswith("Proposal ID: ")
+    )
+    proposal = service.store.load_next_decision_proposal(proposal_id)
+    assert proposal.book_number == 4
+    assert proposal.question == seed.question
+    assert proposal.options == list(seed.options)
+    assert service.load_accepted_book_direction(4) is None
+
+
+def test_cli_repeated_focus_requires_explicit_seed_input(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    build_repeated_scenario(tmp_path, 4)
+
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "focus",
+                str(tmp_path),
+                "--book",
+                "4",
+            ]
+        )
+        == 1
+    )
+    assert "Book 4 Focus requires --input" in capsys.readouterr().out
 
 
 def test_book_three_focus_proposal_uses_current_book_and_context(
