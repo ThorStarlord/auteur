@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass
 
 from auteur.series.vertical_slice_models import (
@@ -23,6 +24,25 @@ from auteur.series.vertical_slice_models import (
 
 _ACTIVE_DISPOSITIONS = frozenset({"active", "reactivated"})
 _DERIVATION_VERSION = "repeated-map-focus-v2-r1"
+
+
+def selection_token_for(source_ref: AcceptedFactRef) -> str:
+    """Derive a deterministic, non-authoritative selection token.
+
+    ``selection_token`` is a presentation locator, never an identity. It is
+    computed from the exact revisioned ``AcceptedFactRef`` and is never
+    persisted as narrative identity or authority. The internal artifact id,
+    revision, and fact id remain visible only under ``--detail``.
+
+    Fail-closed guarantees (see ``resolve_accepted_fact_selection_token``):
+    the fingerprint is bound to the exact accepted source, so a changed
+    revision or artifact id stops an old token resolving. It is not an alias
+    system and uses no fuzzy matching.
+    """
+    digest = hashlib.sha256(
+        f"{source_ref.artifact_id}\0{source_ref.revision}\0{source_ref.fact_id}".encode()
+    ).hexdigest()
+    return digest[:6].upper()
 
 
 @dataclass(frozen=True)
