@@ -29,7 +29,6 @@ Historical claim:       Series Vertical Slice V1 passes in isolation from base `
 The new claim is narrowly:
 
 > **Series Vertical Slice V1 is integration-qualified against current remote Story Discovery main (`ffa22bf`).**
-
 ---
 
 ## Merge analysis
@@ -132,32 +131,33 @@ ruff check src tests → All checks passed!
 
 ---
 
+## Wheel qualification
+
+- Wheel built from exact candidate SHA `4ef666697f24933706682ad62491265bcd99f644`
+- Wheel filename: `auteur-0.37.1-py3-none-any.whl`
+- Wheel SHA-256: `cce22b5bf6a1fcb110f1db682697ed8cd72b771d2c90099f993cc6f2ee2e904a`
+- Installed into fresh venv and all 10 qualification matrix checks passed:
+  - Import from site-packages (version 0.37.1) ✅
+  - Pack list ✅
+  - Pack inspect ✅
+  - Opinionated recommendation ✅
+  - Recommendation artifact durability across process restart ✅
+  - Zero pre-acceptance mutation ✅
+  - Explicit acceptance updates Identity ✅
+  - Restart persistence ✅
+  - Pack version and hash persist ✅
+  - Genre validation ✅
+  - Genre diagnosis ✅
+
 ## Qualification claim
 
 > Series Vertical Slice V1 (Campaign 1, commits `bef94c5`..`ee3ed74`) is integration-qualified
-> against remote Story Discovery main at `ffa22bf`.
+> against remote Story Discovery main at `ffa22bf`, with installed-wheel artifact qualification.
 >
-> The integration candidate is merge commit `4ef6666`.
+> The integration candidate is merge commit `4ef666697f24933706682ad62491265bcd99f644`.
+> Wheel SHA-256: `cce22b5bf6a1fcb110f1db682697ed8cd72b771d2c90099f993cc6f2ee2e904a`.
 >
 > No regressions were introduced relative to the remote main baseline.
 > All Series Vertical Slice focused tests pass.
 > All Story Discovery regression tests pass.
 > The full source suite passes at baseline parity.
-
----
-
-## Qualification evidence ancestry
-
-```
-origin/main @ ffa22bf
-        |
-        +── [22 Campaign-1 commits] ──> ee3ed74 (historical qualified tip)
-        |                                    |
-        |           e523676 ◄── in ancestry  |
-        |                                    |
-        └────────────── MERGE ──────────────-+
-                           |
-                    4ef6666 ← THIS CANDIDATE
-                           |
-              [qualification record] ← this document
-```
