@@ -2091,3 +2091,96 @@ def test_cli_map_book_2_keeps_legacy_v1_route_unrelated_to_repeated(
     assert "Next available decision" in out
     # No repeated-map language leaks into the V1 route.
     assert "Active continuity" not in out
+
+
+def _corrupt_accepted_realization_revision(service: SeriesVerticalSliceService) -> None:
+    """Bump an accepted realization bundle sidecar revision to simulate drift.
+
+    Accepted realization bundles are always revision 1 and immutable, so a
+    changed revision represents a source that no longer matches the previously
+    qualified accepted history. Reused by the stale-token CLI barrier test.
+    """
+    bundles = service.store.load_accepted_realization_bundles()
+    assert bundles
+    bundle, metadata = bundles[0]
+    sidecar = service.store.artifact_store.sidecar_path(metadata.artifact_id)
+    payload = yaml.safe_load(sidecar.read_text(encoding="utf-8"))
+    payload["revision"] = 999
+    sidecar.write_text(
+        yaml.safe_dump(payload, sort_keys=False), encoding="utf-8"
+    )
+
+
+def test_cli_stale_selection_token_after_accepted_source_revision_fails_closed(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    """A token captured before a source revision change must stop resolving.
+
+    1. list accepted facts and capture a valid token;
+    2. change the accepted source (bump an accepted realization revision);
+    3. attempt to use the old token;
+    4. require a clear stale/invalid error and prove nothing is written.
+    """
+    service = build_repeated_ledger(tmp_path)
+    snapshot = service.load_repeated_history_for_book(4)
+    facts_text = vertical_slice_formatters.format_accepted_facts(snapshot)
+    monastery_token = next(
+        line.split("]")[0].lstrip("[")
+        for line in facts_text.splitlines()
+        if "monastery.testimony is preserved." in line
+    )
+
+    _corrupt_accepted_realization_revision(service)
+
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "plan-next-book",
+                str(tmp_path),
+                "--book",
+                "4",
+                "--intent",
+                "Return to the monastery testimony.",
+                "--relevance",
+                monastery_token,
+            ]
+        )
+        == 1
+    )
+    assert "accepted" in capsys.readouterr().out.lower()
+    assert service.store.load_book_planning_intent(4) is None
+    assert service.store.load_planning_entry(4) is None
+    assert service.load_accepted_book_direction(4) is None
+
+
+def test_cli_unknown_and_unaccepted_selection_tokens_fail_closed(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    """Unknown and unaccepted selectors fail clearly with no partial write."""
+    service = build_repeated_ledger(tmp_path)
+
+    for bad_token in ("B1-99~ZZZZZZ", "burn-archive"):
+        assert (
+            main(
+                [
+                    "series",
+                    "journey",
+                    "plan-next-book",
+                    str(tmp_path),
+                    "--book",
+                    "4",
+                    "--intent",
+                    "Return to the monastery testimony.",
+                    "--relevance",
+                    bad_token,
+                ]
+            )
+            == 1
+        )
+        assert "accepted" in capsys.readouterr().out.lower()
+        assert service.store.load_book_planning_intent(4) is None
+        assert service.store.load_planning_entry(4) is None
