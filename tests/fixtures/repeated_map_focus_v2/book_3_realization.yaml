@@ -1,0 +1,19 @@
+candidate_id: book-3-realization
+book_number: 3
+summary: A treaty protects the archive while a damaged lantern is repaired.
+transitions:
+  - transition_id: archive-protected
+    subject: archive
+    attribute: protection
+    before: null
+    after: treaty protected
+    explanation: A treaty protects the archive as the only evidentiary chain.
+  - transition_id: repaired-lantern
+    subject: archive_lantern
+    attribute: condition
+    before: broken
+    after: repaired
+    explanation: The archive lantern is repaired.
+source_refs:
+  - artifact_id: book-3-direction
+    revision: 1

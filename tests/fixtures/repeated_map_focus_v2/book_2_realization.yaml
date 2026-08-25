@@ -1,6 +1,8 @@
-candidate_id: book-2-history
+candidate_id: book-2-realization
 book_number: 2
 summary: The falsifier is named and the council retracts its public admission.
+resolved_commitment_ids:
+  - commitment-falsifier
 transitions:
   - transition_id: named-falsifier
     subject: archive

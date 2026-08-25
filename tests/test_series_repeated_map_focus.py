@@ -36,6 +36,23 @@ def load_repeated_ledger_fixture() -> dict[str, Any]:
     )
 
 
+def load_repeated_decision_seed(
+    name: str,
+) -> "repeated_map_focus.RepeatedDecisionSeed":
+    payload = yaml.safe_load(
+        (FIXTURE_ROOT / "decision_seeds.yaml").read_text(encoding="utf-8")
+    )[name]
+    return repeated_map_focus.RepeatedDecisionSeed(
+        question=payload["question"],
+        recommended_option_id=payload["recommended_option_id"],
+        options=tuple(
+            vertical_slice_models.DecisionOption.model_validate(option)
+            for option in payload["options"]
+        ),
+        rationale=payload["rationale"],
+    )
+
+
 def build_repeated_ledger(
     tmp_path: Path,
     *,
@@ -78,8 +95,14 @@ def build_repeated_ledger(
         if book_number == 2 and use_unrelated_book_two_outcome:
             accept_unrelated_book_two_outcome(service)
             continue
-        realization = RealizationCandidate.model_validate(
-            accepted_book["realization"]
+        realization = (
+            load_fixture(
+                accepted_book["realization_fixture"], RealizationCandidate
+            )
+            if "realization_fixture" in accepted_book
+            else RealizationCandidate.model_validate(
+                accepted_book["realization"]
+            )
         )
         if book_number == 3 and duplicate_fact_id_across_books:
             duplicate = realization.transitions[0].model_copy(
@@ -132,12 +155,19 @@ def build_repeated_scenario(
 def enter_fixture_planning_intent(
     service: SeriesVerticalSliceService, book_number: int
 ) -> None:
-    ledger = load_repeated_ledger_fixture()
-    intent = next(
-        item
-        for item in ledger["planning_intents"]
-        if item["book_number"] == book_number
-    )
+    if book_number == 4:
+        intent = yaml.safe_load(
+            (FIXTURE_ROOT / "book_4_planning_intent.yaml").read_text(
+                encoding="utf-8"
+            )
+        )
+    else:
+        ledger = load_repeated_ledger_fixture()
+        intent = next(
+            item
+            for item in ledger["planning_intents"]
+            if item["book_number"] == book_number
+        )
     service.enter_repeated_book_planning(
         book_number,
         entered_by="archive-author",
@@ -193,93 +223,18 @@ def accept_unrelated_book_two_outcome(
 
 def accepted_monastery_fact_ref() -> vertical_slice_models.AcceptedFactRef:
     return vertical_slice_models.AcceptedFactRef(
-        artifact_id="realization-bundle-book-1-history",
+        artifact_id="realization-bundle-book-1-realization",
         revision=1,
         fact_id="monastery-testimony",
     )
 
 
 def book_three_decision_seed() -> "repeated_map_focus.RepeatedDecisionSeed":
-    return repeated_map_focus.RepeatedDecisionSeed(
-        question=(
-            "How should Book 3 respond to the council's retraction while "
-            "preserving the witness's authority?"
-        ),
-        recommended_option_id="publish-witness-account",
-        options=(
-            vertical_slice_models.DecisionOption(
-                option_id="publish-witness-account",
-                label="Publish the witness account",
-                summary=(
-                    "Give the witness an independent public record that the "
-                    "council cannot retract."
-                ),
-                tradeoff=(
-                    "This protects the witness's authority but exposes the "
-                    "witness to direct institutional retaliation."
-                ),
-            ),
-            vertical_slice_models.DecisionOption(
-                option_id="force-council-hearing",
-                label="Force another council hearing",
-                summary=(
-                    "Use the named falsifier to compel the council to answer "
-                    "the witness in public."
-                ),
-                tradeoff=(
-                    "This keeps institutional accountability central but "
-                    "lets the council control the forum and timing."
-                ),
-            ),
-        ),
-        rationale=(
-            "The accepted retraction makes the council unreliable, while the "
-            "resolved falsifier question gives the witness a concrete basis "
-            "for an independent account."
-        ),
-    )
+    return load_repeated_decision_seed("book_three")
 
 
 def book_four_decision_seed() -> "repeated_map_focus.RepeatedDecisionSeed":
-    return repeated_map_focus.RepeatedDecisionSeed(
-        question=(
-            "How should Book 4 bring the monastery testimony back into "
-            "public memory without destroying the archive's evidentiary "
-            "chain?"
-        ),
-        recommended_option_id="publish-verified-testimony",
-        options=(
-            vertical_slice_models.DecisionOption(
-                option_id="publish-verified-testimony",
-                label="Publish verified testimony",
-                summary=(
-                    "Authenticate and publish the testimony while the "
-                    "protected archive keeps the original evidence secure."
-                ),
-                tradeoff=(
-                    "This preserves the evidentiary chain but delays public "
-                    "release until verification is complete."
-                ),
-            ),
-            vertical_slice_models.DecisionOption(
-                option_id="stage-protected-hearing",
-                label="Stage a protected hearing",
-                summary=(
-                    "Present the testimony beside selected archive evidence "
-                    "under the treaty's protections."
-                ),
-                tradeoff=(
-                    "This creates immediate public pressure but reveals which "
-                    "archive records carry the strongest evidence."
-                ),
-            ),
-        ),
-        rationale=(
-            "The monastery testimony matters again because Book 4 planning "
-            "references it, while the accepted treaty requires the archive's "
-            "evidentiary chain to remain intact."
-        ),
-    )
+    return load_repeated_decision_seed("book_four")
 
 
 def write_repeated_decision_seed(
@@ -305,53 +260,7 @@ def write_repeated_decision_seed(
 
 def book_four_burn_archive_recommendation_seed(
 ) -> "repeated_map_focus.RepeatedDecisionSeed":
-    return repeated_map_focus.RepeatedDecisionSeed(
-        question=(
-            "How should Book 4 bring the monastery testimony back into "
-            "public memory without losing the archive's evidentiary chain?"
-        ),
-        recommended_option_id="burn-archive",
-        options=(
-            vertical_slice_models.DecisionOption(
-                option_id="burn-archive",
-                label="Burn the archive",
-                summary=(
-                    "Destroy the archive so the monastery testimony becomes "
-                    "the only surviving public account."
-                ),
-                tradeoff=(
-                    "This makes the testimony unavoidable but destroys the "
-                    "accepted evidentiary chain that can authenticate it."
-                ),
-                incompatible_with_state_refs=[
-                    vertical_slice_models.ArtifactRef(
-                        artifact_id="realization-bundle-book-3-history",
-                        revision=1,
-                    )
-                ],
-                incompatibility_reason=(
-                    "Burning the archive contradicts the current accepted "
-                    "archive.protection state of treaty protected."
-                ),
-            ),
-            vertical_slice_models.DecisionOption(
-                option_id="publish-verified-testimony",
-                label="Publish verified testimony",
-                summary=(
-                    "Authenticate and publish the testimony while preserving "
-                    "the protected archive."
-                ),
-                tradeoff=(
-                    "This preserves the evidentiary chain but delays public "
-                    "release until verification is complete."
-                ),
-            ),
-        ),
-        rationale=(
-            "The monastery testimony matters again, but this recommendation "
-            "conflicts with the accepted treaty protection."
-        ),
-    )
+    return load_repeated_decision_seed("book_four_burn_archive")
 
 
 def accept_additional_book_three_state(
@@ -422,7 +331,7 @@ def test_current_state_evidence_keeps_latest_transition_current(
             current_value="retracted admission",
             current_fact_id="admission-retracted",
             current_source_ref=vertical_slice_models.AcceptedFactRef(
-                artifact_id="realization-bundle-book-2-history",
+                artifact_id="realization-bundle-book-2-realization",
                 revision=1,
                 fact_id="admission-retracted",
             ),
@@ -612,7 +521,7 @@ def test_selector_keeps_active_series_pressure_and_current_consequence(
     )
     assert founding_record.source_refs == (
         vertical_slice_models.AcceptedFactRef(
-            artifact_id="realization-bundle-book-1-history",
+            artifact_id="realization-bundle-book-1-realization",
             revision=1,
             fact_id="founding-record",
         ),
@@ -780,8 +689,8 @@ def test_grouping_keeps_one_group_for_multiple_consequences_of_one_commitment(
 
     assert context.group_ids == ("contested-history",)
     assert context.group("contested-history").entry_ids == [
-        "realization-bundle-book-1-history@1/monastery-testimony",
-        "realization-bundle-book-3-history@1/archive-protected",
+        "realization-bundle-book-1-realization@1/monastery-testimony",
+        "realization-bundle-book-3-realization@1/archive-protected",
     ]
     assert context.group_source_fact_ids("contested-history") == {
         "monastery-testimony",
@@ -808,12 +717,12 @@ def test_grouping_preserves_exact_book_one_and_three_supporting_sources(
             revision=1,
         ),
         vertical_slice_models.AcceptedFactRef(
-            artifact_id="realization-bundle-book-1-history",
+            artifact_id="realization-bundle-book-1-realization",
             revision=1,
             fact_id="monastery-testimony",
         ),
         vertical_slice_models.AcceptedFactRef(
-            artifact_id="realization-bundle-book-3-history",
+            artifact_id="realization-bundle-book-3-realization",
             revision=1,
             fact_id="archive-protected",
         ),
@@ -832,12 +741,12 @@ def test_grouping_preserves_exact_book_one_and_three_supporting_sources(
             "revision": 1,
         },
         {
-            "artifact_id": "realization-bundle-book-1-history",
+            "artifact_id": "realization-bundle-book-1-realization",
             "revision": 1,
             "fact_id": "monastery-testimony",
         },
         {
-            "artifact_id": "realization-bundle-book-3-history",
+            "artifact_id": "realization-bundle-book-3-realization",
             "revision": 1,
             "fact_id": "archive-protected",
         },
@@ -867,7 +776,7 @@ def test_fact_identity_distinguishes_duplicate_ids_across_accepted_bundles(
     )
     book_one_ref = accepted_monastery_fact_ref()
     book_three_ref = vertical_slice_models.AcceptedFactRef(
-        artifact_id="realization-bundle-book-3-history",
+        artifact_id="realization-bundle-book-3-realization",
         revision=1,
         fact_id="monastery-testimony",
     )
@@ -880,10 +789,10 @@ def test_fact_identity_distinguishes_duplicate_ids_across_accepted_bundles(
 
     context = derive_repeated_context(service, 4)
     book_one_entry_id = (
-        "realization-bundle-book-1-history@1/monastery-testimony"
+        "realization-bundle-book-1-realization@1/monastery-testimony"
     )
     book_three_entry_id = (
-        "realization-bundle-book-3-history@1/monastery-testimony"
+        "realization-bundle-book-3-realization@1/monastery-testimony"
     )
 
     assert context.item(book_one_entry_id).source_refs == (book_one_ref,)
@@ -943,17 +852,17 @@ def test_format_repeated_map_detail_preserves_provenance_and_history(
     assert "Source references:" in output
     assert "Group ID: contested-history" in output
     assert (
-        "Entry ID: realization-bundle-book-1-history@1/"
+        "Entry ID: realization-bundle-book-1-realization@1/"
         "monastery-testimony"
     ) in output
     assert "book-1-direction (revision 1)" in output
     assert "book-3-direction (revision 1)" in output
     assert (
-        "realization-bundle-book-1-history "
+        "realization-bundle-book-1-realization "
         "(revision 1, fact monastery-testimony)"
     ) in output
     assert (
-        "realization-bundle-book-3-history "
+        "realization-bundle-book-3-realization "
         "(revision 1, fact archive-protected)"
     ) in output
     assert "Historical continuity" in output
@@ -1378,3 +1287,126 @@ def test_current_book_proposal_store_rejects_leading_zero_identity_alias(
     assert not service.store.next_decision_proposal_path(
         proposal.proposal_id
     ).exists()
+
+
+def test_r1_book_two_surfaces_active_pressure_and_new_consequence(
+    tmp_path: Path,
+) -> None:
+    service = build_repeated_scenario(tmp_path, 2)
+    context = derive_repeated_context(service, 2)
+
+    assert "founding-record" in context.active_fact_ids
+    assert "broken-lantern" not in context.active_fact_ids
+    assert context.item("founding-record").source_refs == (
+        vertical_slice_models.AcceptedFactRef(
+            artifact_id="realization-bundle-book-1-realization",
+            revision=1,
+            fact_id="founding-record",
+        ),
+    )
+
+
+def test_r2_book_three_omits_resolved_and_superseded_items(
+    tmp_path: Path,
+) -> None:
+    service = build_repeated_scenario(tmp_path, 3)
+    context = derive_repeated_context(service, 3)
+
+    assert service.load_accepted_book_direction(3) is None
+    assert "commitment-falsifier" not in context.active_ids
+    assert context.dispositions["commitment-falsifier"] == "resolved"
+    assert "public-admission" not in context.active_fact_ids
+    assert context.dispositions["public-admission"] == "superseded"
+
+
+def test_r3_book_four_reactivates_old_fact_from_planning_intent(
+    tmp_path: Path,
+) -> None:
+    service = build_repeated_scenario(tmp_path, 4)
+    context = derive_repeated_context(service, 4)
+
+    assert service.load_accepted_book_direction(4) is None
+    assert "monastery-testimony" in context.active_fact_ids
+    assert context.dispositions["monastery-testimony"] == "reactivated"
+    assert accepted_monastery_fact_ref() in context.trigger_refs
+
+
+def test_r4_context_delete_rebuild_is_equivalent(tmp_path: Path) -> None:
+    service = build_repeated_scenario(tmp_path, 4)
+    original = derive_repeated_context(service, 4)
+
+    service.store.delete_repeated_book_context(4)
+
+    rebuilt = derive_repeated_context(service, 4)
+
+    assert rebuilt.model_dump(mode="json") == original.model_dump(mode="json")
+
+
+def test_r5_map_focus_does_not_mutate_authority(
+    tmp_path: Path,
+) -> None:
+    service = build_repeated_scenario(tmp_path, 4)
+    authority_before = repeated_authority_snapshot(service)
+    state_before = service.load_canonical_state()
+
+    service.derive_repeated_book_context(4)
+
+    assert repeated_authority_snapshot(service) == authority_before
+    assert service.load_canonical_state() == state_before
+    assert service.load_accepted_book_direction(4) is None
+
+
+def test_recent_and_unaccepted_material_never_enters_corrected_map(
+    tmp_path: Path,
+) -> None:
+    context = derive_repeated_context(build_repeated_scenario(tmp_path, 4), 4)
+
+    assert "repaired-lantern" not in context.active_fact_ids
+    assert "ally-militia" not in context.active_fact_ids
+    assert "burn-archive" not in context.active_fact_ids
+    assert "ally-militia" not in context.dispositions
+    assert "burn-archive" not in context.dispositions
+
+
+def test_grouping_preserves_corrected_book_one_and_three_provenance(
+    tmp_path: Path,
+) -> None:
+    context = derive_repeated_context(build_repeated_scenario(tmp_path, 4), 4)
+    group = context.group("contested-history")
+
+    assert {ref.artifact_id for ref in group.source_refs} >= {
+        "book-1-direction",
+        "book-3-direction",
+        "realization-bundle-book-1-realization",
+        "realization-bundle-book-3-realization",
+    }
+
+
+def test_contradictory_book_four_recommendation_is_rejected(
+    tmp_path: Path,
+) -> None:
+    service = build_repeated_scenario(tmp_path, 4)
+    proposal = service.propose_repeated_next_decision(
+        4,
+        decision_seed=book_four_burn_archive_recommendation_seed(),
+    )
+
+    with pytest.raises(ValueError, match="incompatible"):
+        service.validate_repeated_decision_proposal(proposal)
+
+
+def test_stale_repeated_focus_proposal_is_rejected(
+    tmp_path: Path,
+) -> None:
+    service = build_repeated_scenario(tmp_path, 4)
+    proposal = service.propose_repeated_next_decision(
+        4,
+        decision_seed=book_four_decision_seed(),
+    )
+    accept_additional_book_three_state(service)
+
+    with pytest.raises(ValueError, match="stale"):
+        service.record_decision_action(
+            proposal.proposal_id,
+            action="choose_recommended",
+        )

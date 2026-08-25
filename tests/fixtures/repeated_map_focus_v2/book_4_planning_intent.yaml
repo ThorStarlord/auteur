@@ -1,0 +1,9 @@
+book_number: 4
+intent: Return to the monastery testimony without breaking the protected archive.
+relevance_refs:
+  - artifact_id: realization-bundle-book-1-realization
+    revision: 1
+    fact_id: monastery-testimony
+  - artifact_id: realization-bundle-book-3-realization
+    revision: 1
+    fact_id: archive-protected

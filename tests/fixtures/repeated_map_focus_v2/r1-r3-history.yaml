@@ -3,123 +3,25 @@ series_direction_fixture: series_direction.yaml
 accepted_books:
   - book_number: 1
     direction_fixture: book_1_direction.yaml
+    realization_fixture: book_1_realization.yaml
     series_commitment_ids:
       - contested-history
       - commitment-falsifier
-    realization:
-      candidate_id: book-1-history
-      book_number: 1
-      summary: The founding fraud is exposed while other accepted facts remain in history.
-      transitions:
-        - transition_id: founding-record
-          subject: archive
-          attribute: founding_record
-          before: null
-          after: forged
-          explanation: The recovered ledger proves the founding record was forged.
-        - transition_id: monastery-testimony
-          subject: monastery
-          attribute: testimony
-          before: null
-          after: preserved
-          explanation: The monastery preserves testimony that may matter later.
-        - transition_id: broken-lantern
-          subject: archive_lantern
-          attribute: condition
-          before: null
-          after: broken
-          explanation: A lantern was broken during the archive search.
-      source_refs:
-        - artifact_id: book-1-direction
-          revision: 1
 
   - book_number: 2
     direction_fixture: book_2_direction.yaml
+    realization_fixture: book_2_realization.yaml
+    resolved_commitment_ids:
+      - commitment-falsifier
     series_commitment_ids:
       - contested-history
       - commitment-falsifier
-    resolved_commitment_ids:
-      - commitment-falsifier
-    realization:
-      candidate_id: book-2-history
-      book_number: 2
-      summary: The falsifier is named and the council retracts its public admission.
-      transitions:
-        - transition_id: named-falsifier
-          subject: archive
-          attribute: falsifier
-          before: null
-          after: named
-          explanation: Accepted evidence identifies the person who falsified the record.
-        - transition_id: public-admission
-          subject: council
-          attribute: archive_position
-          before: null
-          after: admitted fraud
-          explanation: The council publicly admits that the archive record was falsified.
-        - transition_id: admission-retracted
-          subject: council
-          attribute: archive_position
-          before: admitted fraud
-          after: retracted admission
-          explanation: The council later retracts its public admission.
-      source_refs:
-        - artifact_id: book-2-direction
-          revision: 1
 
   - book_number: 3
-    direction:
-      book_number: 3
-      identity:
-        title: The Protected Archive
-        core_answer: Public memory survives when its evidentiary chain remains protected.
-        target_experience:
-          primary: suspicion
-          progression: retreat -> protection -> renewed inquiry
-          avoid:
-            - effortless certainty
-        story_type:
-          medium: novel
-          mode: procedural
-          genre: mystery
-          target_audience: adult
-        central_engine:
-          want: Protect the archive after the council retracts its admission.
-          resistance: The retraction makes the archive's evidence vulnerable to seizure.
-          conflict: The investigator must secure the evidence without silencing its witnesses.
-          stakes: Losing the archive will sever the only chain that can authenticate the testimony.
-          change: The investigator learns that evidence needs durable protection as well as public exposure.
-        not_this:
-          - A final resolution of every Series pressure.
-        open_questions:
-          - How can the protected evidence restore witness authority?
-        confidence: 0.82
-        alternatives: []
-        why_this_is_best: It responds to the accepted retraction through a concrete protection constraint.
-        rejected_directions: []
-        author_overrides: []
-      series_commitment_ids:
-        - contested-history
-    realization:
-      candidate_id: book-3-history
-      book_number: 3
-      summary: A treaty protects the archive while a damaged lantern is repaired.
-      transitions:
-        - transition_id: archive-protected
-          subject: archive
-          attribute: protection
-          before: null
-          after: treaty protected
-          explanation: A treaty protects the archive as the only evidentiary chain.
-        - transition_id: repaired-lantern
-          subject: archive_lantern
-          attribute: condition
-          before: broken
-          after: repaired
-          explanation: The archive lantern is repaired.
-      source_refs:
-        - artifact_id: book-3-direction
-          revision: 1
+    direction_fixture: book_3_direction.yaml
+    realization_fixture: book_3_realization.yaml
+    series_commitment_ids:
+      - contested-history
 
 unaccepted_realizations:
   - candidate_id: book-2-burn-archive
@@ -154,23 +56,13 @@ planning_intents:
   - book_number: 2
     intent: Make the forged founding record matter to lived memory.
     relevance_refs:
-      - artifact_id: realization-bundle-book-1-history
+      - artifact_id: realization-bundle-book-1-realization
         revision: 1
         fact_id: founding-record
 
   - book_number: 3
     intent: Respond to the council's accepted retraction.
     relevance_refs:
-      - artifact_id: realization-bundle-book-2-history
+      - artifact_id: realization-bundle-book-2-realization
         revision: 1
         fact_id: admission-retracted
-
-  - book_number: 4
-    intent: Return to the monastery testimony without breaking the protected archive.
-    relevance_refs:
-      - artifact_id: realization-bundle-book-1-history
-        revision: 1
-        fact_id: monastery-testimony
-      - artifact_id: realization-bundle-book-3-history
-        revision: 1
-        fact_id: archive-protected
