@@ -209,6 +209,35 @@ def repeated_authority_snapshot(
     }
 
 
+def accepted_authority_snapshot(
+    service: SeriesVerticalSliceService,
+) -> dict[str, bytes]:
+    """Snapshot accepted authority plus artifact store and Canonical State.
+
+    Excludes the non-authoritative ``workflow/`` tree, which legitimately grows
+    as planning intent and decision actions are recorded. Used to prove a
+    surface action never mutates narrative authority or Canonical State even
+    when it is expected to write workflow state.
+    """
+    roots = (
+        service.store.root / "accepted",
+        service.store.artifact_store.root,
+    )
+    paths = [
+        path
+        for root in roots
+        if root.exists()
+        for path in root.rglob("*")
+        if path.is_file()
+    ]
+    if service.store.canonical_state_path.is_file():
+        paths.append(service.store.canonical_state_path)
+    return {
+        str(path.relative_to(service.store.project_root)): path.read_bytes()
+        for path in paths
+    }
+
+
 def accept_unrelated_book_two_outcome(
     service: SeriesVerticalSliceService,
 ) -> None:
@@ -1476,16 +1505,23 @@ def test_cli_books_2_3_4_probe_surface_journey(
 ) -> None:
     """The full Books 2/3/4 accepted surface journey, through the real CLI.
 
-    RED baseline (before Boundary-2 surface): the ``accepted-facts`` command and
-    the ``plan-next-book --intent/--relevance`` arguments do not exist yet, so
-    the CLI exits non-zero and nothing is written. Each book asserts discoverable
-    accepted facts, planning-intent entry via the supported surface, reachable
-    Map/Focus, and exact authority non-mutation.
+    Book 2 proves the two new probe-enabling CLI affordances through
+    ``main(...)`` (``accepted-facts`` discovery and
+    ``plan-next-book --intent/--relevance`` intent entry), while R1 repeated
+    activation semantics are asserted through the already-qualified service
+    seam because ``journey map --book 2`` deliberately remains on the existing
+    V1 route. Books 3+ prove the repeated Map/Focus CLI route end to end.
+
+    RED baseline (before Boundary-2 surface): the ``accepted-facts`` command
+    and the ``plan-next-book --intent/--relevance`` arguments do not exist yet,
+    so the CLI exits non-zero and nothing is written. Each book asserts
+    discoverable accepted facts, planning-intent entry via the supported
+    surface, reachable Map/Focus, and exact authority non-mutation.
     """
     # ---- Book 2: accepted through Book 1, fixture trigger = founding-record ----
     book2 = tmp_path / "book2"
     service2 = build_repeated_ledger(book2, accepted_through_book=1)
-    authority2_before = repeated_authority_snapshot(service2)
+    authority2_before = accepted_authority_snapshot(service2)
     state2_before = service2.load_canonical_state()
 
     assert (
@@ -1531,13 +1567,15 @@ def test_cli_books_2_3_4_probe_surface_journey(
         == 0
     )
     assert "Entered planning intent for Book 2." in capsys.readouterr().out
-    assert (
-        main(
-            ["series", "journey", "map", str(book2), "--book", "2"]
-        )
-        == 0
-    )
-    assert "Series Map: Book 2" in capsys.readouterr().out
+    # R1 repeated activation at the already-qualified service seam: CLI
+    # ``map --book 2`` deliberately stays on the pre-existing V1 route, so the
+    # repeated activation semantics (founding-record active, monastery dormant)
+    # are asserted through derive_repeated_book_context(2).
+    context2 = service2.derive_repeated_book_context(2)
+    assert context2.book_number == 2
+    assert "founding-record" in context2.active_fact_ids
+    assert "monastery-testimony" not in context2.active_fact_ids
+    assert context2.dispositions["monastery-testimony"] == "dormant"
     intent2 = service2.store.load_book_planning_intent(2)
     assert intent2 is not None
     assert intent2.relevance_refs == [
@@ -1549,12 +1587,12 @@ def test_cli_books_2_3_4_probe_surface_journey(
     ]
     assert service2.load_accepted_book_direction(2) is None
     assert service2.load_canonical_state() == state2_before
-    assert repeated_authority_snapshot(service2) == authority2_before
+    assert accepted_authority_snapshot(service2) == authority2_before
 
     # ---- Book 3: accepted through Book 2, fixture trigger = retraction ----
     book3 = tmp_path / "book3"
     service3 = build_repeated_ledger(book3, accepted_through_book=2)
-    authority3_before = repeated_authority_snapshot(service3)
+    authority3_before = accepted_authority_snapshot(service3)
     state3_before = service3.load_canonical_state()
 
     assert (
@@ -1573,7 +1611,10 @@ def test_cli_books_2_3_4_probe_surface_journey(
     facts3_out = capsys.readouterr().out
     assert "archive.founding_record is forged." in facts3_out
     assert "council.archive_position is retracted admission." in facts3_out
-    assert "council.archive_position is admitted fraud." not in facts3_out
+    # Both accepted council transitions are discovered (the earlier adverse
+    # admission remains accepted history even though it is superseded in the
+    # current state).
+    assert "council.archive_position is admitted fraud." in facts3_out
     assert "realization-bundle" not in facts3_out
     (retraction_token,) = [
         line.split("]")[0].lstrip("[")
@@ -1615,12 +1656,12 @@ def test_cli_books_2_3_4_probe_surface_journey(
     ]
     assert service3.load_accepted_book_direction(3) is None
     assert service3.load_canonical_state() == state3_before
-    assert repeated_authority_snapshot(service3) == authority3_before
+    assert accepted_authority_snapshot(service3) == authority3_before
 
     # ---- Book 4: accepted through Book 3, the reactivation case ----
     book4 = tmp_path / "book4"
     service4 = build_repeated_ledger(book4, accepted_through_book=3)
-    authority4_before = repeated_authority_snapshot(service4)
+    authority4_before = accepted_authority_snapshot(service4)
     state4_before = service4.load_canonical_state()
 
     assert (
@@ -1721,7 +1762,7 @@ def test_cli_books_2_3_4_probe_surface_journey(
 
     assert service4.load_accepted_book_direction(4) is None
     assert service4.load_canonical_state() == state4_before
-    assert repeated_authority_snapshot(service4) == authority4_before
+    assert accepted_authority_snapshot(service4) == authority4_before
 
 
 def test_revise_accepted_book_one_source_invalidates_old_selection_token(
@@ -1882,7 +1923,7 @@ def test_cli_accepted_facts_detail_reveals_provenance(
     tmp_path: Path,
     capsys,
 ) -> None:
-    service = build_repeated_ledger(tmp_path)
+    build_repeated_ledger(tmp_path)
 
     assert (
         main(
@@ -1902,3 +1943,151 @@ def test_cli_accepted_facts_detail_reveals_provenance(
     assert "artifact realization-bundle-book-1-realization" in out
     assert "revision 1" in out
     assert "fact monastery-testimony" in out
+
+
+def test_cli_plan_next_book_accepts_intent_and_full_selection_token(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    service = build_repeated_ledger(tmp_path)
+    snapshot = service.load_repeated_history_for_book(4)
+    token = vertical_slice_formatters.format_accepted_facts(snapshot).splitlines()
+    monastery_token = next(
+        line.split("]")[0].lstrip("[")
+        for line in token
+        if "monastery.testimony is preserved." in line
+    )
+    authority_before = accepted_authority_snapshot(service)
+    state_before = service.load_canonical_state()
+
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "plan-next-book",
+                str(tmp_path),
+                "--book",
+                "4",
+                "--intent",
+                "Return to the monastery testimony as a route back to "
+                "lived memory.",
+                "--relevance",
+                monastery_token,
+            ]
+        )
+        == 0
+    )
+    assert "Entered planning intent for Book 4." in capsys.readouterr().out
+
+    intent = service.store.load_book_planning_intent(4)
+    assert intent is not None
+    assert intent.intent == (
+        "Return to the monastery testimony as a route back to lived memory."
+    )
+    assert intent.relevance_refs == [accepted_monastery_fact_ref()]
+    assert service.load_accepted_book_direction(4) is None
+    assert service.load_canonical_state() == state_before
+    assert accepted_authority_snapshot(service) == authority_before
+
+
+def test_cli_plan_next_book_relevance_without_intent_fails_closed(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    service = build_repeated_ledger(tmp_path)
+
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "plan-next-book",
+                str(tmp_path),
+                "--book",
+                "4",
+                "--relevance",
+                "B1-02~K7M4Q9",
+            ]
+        )
+        == 1
+    )
+    assert "requires --intent" in capsys.readouterr().out
+    assert service.store.load_book_planning_intent(4) is None
+    assert service.store.load_planning_entry(4) is None
+
+
+def test_cli_plan_next_book_no_args_preserves_legacy_behavior(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    service = build_repeated_ledger(tmp_path)
+
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "plan-next-book",
+                str(tmp_path),
+                "--book",
+                "4",
+            ]
+        )
+        == 0
+    )
+    assert "Entered exploratory planning for Book 4." in capsys.readouterr().out
+    assert service.store.load_planning_entry(4) is not None
+    assert service.store.load_book_planning_intent(4) is None
+
+
+def test_cli_map_book_2_keeps_legacy_v1_route_unrelated_to_repeated(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    """``journey map --book 2`` remains the pre-existing V1 route.
+
+    Boundary 2 fixes accepted-fact discovery and Book-N intent entry; it does
+    not re-route Book-2 Map. A V1-shaped Book-2 journey (the same ledger the
+    qualified V1 Book-2 Map uses) must still render the legacy established
+    context, proving the CLI routing is unchanged.
+    """
+    fixture_root = Path(__file__).parent / "fixtures" / "archive_of_lies_vertical_slice"
+
+    def _load_model(name: str, model_type):
+        return model_type.model_validate(
+            yaml.safe_load((fixture_root / name).read_text(encoding="utf-8"))
+        )
+
+    service = SeriesVerticalSliceService(tmp_path)
+    series_proposal = service.propose_series_direction(
+        _load_model("series_direction.yaml", SeriesDirection)
+    )
+    service.accept_series_direction(
+        series_proposal.proposal_id, accepted_by="archive-author"
+    )
+    book_proposal = service.propose_book_direction(
+        _load_model("book_1_direction.yaml", BookDirection)
+    )
+    service.accept_book_direction(
+        book_proposal.proposal_id, accepted_by="archive-author"
+    )
+    candidate = service.propose_realization(
+        _load_model("book_1_outcome.yaml", RealizationCandidate)
+    )
+    service.accept_realization(
+        candidate.candidate_id, accepted_by="archive-author"
+    )
+    service.enter_book_planning(2, entered_by="archive-author")
+
+    assert (
+        main(
+            ["series", "journey", "map", str(tmp_path), "--book", "2"]
+        )
+        == 0
+    )
+    out = capsys.readouterr().out
+    assert "Established context" in out
+    assert "Next available decision" in out
+    # No repeated-map language leaks into the V1 route.
+    assert "Active continuity" not in out

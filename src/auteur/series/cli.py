@@ -116,6 +116,20 @@ def register_series_subcommands(sub) -> None:
     )
     p.add_argument("project", type=Path)
     p.add_argument("--book", type=int, required=True)
+    p.add_argument(
+        "--intent",
+        type=str,
+        default=None,
+        help="Plain-language current Book-N planning intent (repeated planning).",
+    )
+    p.add_argument(
+        "--relevance",
+        action="append",
+        default=None,
+        metavar="SELECTION-TOKEN",
+        help="Accepted-fact selection token to treat as a relevance trigger. "
+        "Repeatable; requires --intent.",
+    )
 
     p = journey_commands.add_parser(
         "map", help="Show established context and the next decision."
@@ -247,10 +261,29 @@ def handle_series_journey_command(args) -> int:
             return 0
 
         if args.journey_command == "plan-next-book":
-            entry = service.enter_book_planning(
-                args.book, entered_by=_CLI_AUTHOR
-            )
-            print(f"Entered exploratory planning for Book {entry.book_number}.")
+            if args.relevance and args.intent is None:
+                raise ValueError("--relevance requires --intent")
+            if args.intent is not None:
+                relevance_refs = [
+                    service.resolve_accepted_fact_selection_token(
+                        args.book, token
+                    )
+                    for token in (args.relevance or [])
+                ]
+                service.enter_repeated_book_planning(
+                    args.book,
+                    entered_by=_CLI_AUTHOR,
+                    intent=args.intent,
+                    relevance_refs=relevance_refs,
+                )
+                print(f"Entered planning intent for Book {args.book}.")
+            else:
+                entry = service.enter_book_planning(
+                    args.book, entered_by=_CLI_AUTHOR
+                )
+                print(
+                    f"Entered exploratory planning for Book {entry.book_number}."
+                )
             return 0
 
         if args.journey_command == "accepted-facts":
