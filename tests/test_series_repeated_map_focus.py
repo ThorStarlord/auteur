@@ -1736,7 +1736,7 @@ def test_revise_accepted_book_one_source_invalidates_old_selection_token(
     new fact, and nothing is written.
     """
     l1 = tmp_path / "l1"
-    service1 = build_repeated_ledger(l1)
+    build_repeated_ledger(l1)
     token = repeated_map_focus.selection_token_for(
         accepted_monastery_fact_ref()
     )
@@ -1806,3 +1806,36 @@ def test_list_accepted_facts_is_deterministic_and_excludes_unaccepted(
     }
     ordered_books = [book_numbers[ref.artifact_id] for ref in facts]
     assert ordered_books == sorted(ordered_books)
+
+
+def test_format_accepted_facts_default_shows_token_summary_book(
+    tmp_path: Path,
+) -> None:
+    service = build_repeated_ledger(tmp_path)
+    snapshot = service.load_repeated_history_for_book(4)
+
+    text = vertical_slice_formatters.format_accepted_facts(snapshot)
+
+    assert "[B1-02~" in text
+    assert "monastery.testimony is preserved." in text
+    assert "Accepted in Book 1" in text
+    # Internal provenance is hidden by default.
+    assert "realization-bundle-book-1-realization" not in text
+    assert "revision" not in text
+    assert "fact monastery-testimony" not in text
+
+
+def test_format_accepted_facts_detail_reveals_exact_provenance(
+    tmp_path: Path,
+) -> None:
+    service = build_repeated_ledger(tmp_path)
+    snapshot = service.load_repeated_history_for_book(4)
+
+    text = vertical_slice_formatters.format_accepted_facts(snapshot, detail=True)
+
+    assert "artifact realization-bundle-book-1-realization" in text
+    assert "revision 1" in text
+    assert "fact monastery-testimony" in text
+    assert "monastery.testimony is preserved." in text
+    assert "burn-archive" not in text
+    assert "ally-militia" not in text

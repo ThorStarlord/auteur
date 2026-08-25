@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from auteur.series.repeated_map_focus import AcceptedHistorySnapshot, selection_token_display
 from auteur.series.vertical_slice_models import (
     AcceptedContinuitySourceRef,
     AcceptedFactRef,
@@ -53,6 +54,53 @@ def _append_repeated_entry(
         f"{prefix}    - {_format_continuity_source_ref(source_ref)}"
         for source_ref in entry.source_refs
     )
+
+
+def format_accepted_facts(
+    snapshot: AcceptedHistorySnapshot,
+    *,
+    detail: bool = False,
+) -> str:
+    """Render accepted historical facts for read-only discovery.
+
+    Default output shows a deterministic selection token (``B{book}-{position}~
+    {fingerprint}``), a plain-language fact summary, and the accepted source
+    Book. Internal artifact id, revision, and fact id are shown only when
+    ``detail=True`` (opt-in), mirroring the progressive disclosure of Map/Focus.
+    The selection token is user-facing and is never hidden behind ``--detail``.
+
+    Only accepted facts are rendered; proposed or unaccepted candidates never
+    appear.
+    """
+    lines: list[str] = [f"Accepted facts through Book {snapshot.planning_book_number - 1}"]
+    counters: dict[int, int] = {}
+    for bundle, realization_ref in zip(
+        snapshot.realizations, snapshot.realization_refs, strict=True
+    ):
+        position = counters.get(bundle.book_number, 0)
+        for transition in bundle.transitions:
+            position += 1
+            counters[bundle.book_number] = position
+            source_ref = AcceptedFactRef(
+                artifact_id=bundle.artifact_id,
+                revision=realization_ref.revision,
+                fact_id=transition.transition_id,
+            )
+            token = selection_token_display(
+                bundle.book_number, position, source_ref
+            )
+            lines.append(
+                f"[{token}] {transition.subject}.{transition.attribute} "
+                f"is {transition.after}."
+            )
+            lines.append(f"  Accepted in Book {bundle.book_number}")
+            if detail:
+                lines.append(
+                    "  Accepted source: artifact "
+                    f"{source_ref.artifact_id}, revision {source_ref.revision}, "
+                    f"fact {source_ref.fact_id}"
+                )
+    return "\n".join(lines)
 
 
 def format_repeated_series_map(

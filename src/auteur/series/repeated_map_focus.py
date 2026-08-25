@@ -27,12 +27,12 @@ _DERIVATION_VERSION = "repeated-map-focus-v2-r1"
 
 
 def selection_token_for(source_ref: AcceptedFactRef) -> str:
-    """Derive a deterministic, non-authoritative selection token.
+    """Derive a deterministic, non-authoritative selection-token fingerprint.
 
-    ``selection_token`` is a presentation locator, never an identity. It is
-    computed from the exact revisioned ``AcceptedFactRef`` and is never
-    persisted as narrative identity or authority. The internal artifact id,
-    revision, and fact id remain visible only under ``--detail``.
+    ``selection_token`` is a presentation locator, never an identity. The
+    fingerprint is computed from the exact revisioned ``AcceptedFactRef`` and
+    is never persisted as narrative identity or authority. The internal
+    artifact id, revision, and fact id remain visible only under ``--detail``.
 
     Fail-closed guarantees (see ``resolve_accepted_fact_selection_token``):
     the fingerprint is bound to the exact accepted source, so a changed
@@ -43,6 +43,21 @@ def selection_token_for(source_ref: AcceptedFactRef) -> str:
         f"{source_ref.artifact_id}\0{source_ref.revision}\0{source_ref.fact_id}".encode()
     ).hexdigest()
     return digest[:6].upper()
+
+
+def selection_token_display(
+    source_book_number: int, position: int, source_ref: AcceptedFactRef
+) -> str:
+    """Compose the user-facing selection token for one listed accepted fact.
+
+    ``B{book}-{position:02d}~{fingerprint}`` gives a human-readable display
+    position (Book and per-Book 1-based index in the deterministic accepted
+    listing order) plus a fingerprint bound to the exact revisioned ref. The
+    full token is the selection handle passed to ``--relevance``.
+    """
+    return (
+        f"B{source_book_number}-{position:02d}~{selection_token_for(source_ref)}"
+    )
 
 
 @dataclass(frozen=True)
