@@ -1,0 +1,26 @@
+book_number: 2
+generated_from:
+  - artifact_id: series-direction
+    revision: 1
+  - artifact_id: book-1-direction
+    revision: 1
+  - artifact_id: realization-bundle-recovered-founding-ledger
+    revision: 1
+items:
+  - item_id: series-commitment-contested-history
+    kind: series_commitment
+    summary: Every Book must expose a consequential conflict between official history and lived memory.
+    why_matters_now: Book 1 explicitly carried this Series commitment, so it still governs Book 2 planning.
+    source_refs:
+      - artifact_id: series-direction
+        revision: 1
+      - artifact_id: book-1-direction
+        revision: 1
+  - item_id: state-change-founding-ledger-exposed
+    kind: state_change
+    summary: archive.founding_record changed to confirmed fraudulent.
+    why_matters_now: The exposed founding fraud makes the archive's official history an active constraint on Book 2.
+    source_refs:
+      - artifact_id: realization-bundle-recovered-founding-ledger
+        revision: 1
+derivation_version: archive-of-lies-book-2-v1

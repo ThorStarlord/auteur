@@ -1,0 +1,22 @@
+proposal_id: generated
+book_number: 2
+question: How should Book 2 turn the exposed founding fraud into a new conflict over official history?
+recommended_option_id: center-living-witness
+options:
+  - option_id: center-living-witness
+    label: Center a living witness
+    summary: Follow someone whose lived memory contradicts the archive's newly exposed founding record.
+    tradeoff: This makes testimony and personal credibility central, leaving the institutions that protected the fraud less directly examined.
+  - option_id: trace-institutional-cover-up
+    label: Trace the cover-up
+    summary: Investigate who preserved the fraudulent founding record and who still benefits from it.
+    tradeoff: This foregrounds institutional investigation, giving less space to the lived memories harmed by the official history.
+rationale: Centering a living witness is preferred because the accepted Series commitment requires a consequential conflict between official history and lived memory, while the accepted founding-ledger exposure gives that witness a concrete record to contest.
+accepted_input_refs:
+  - artifact_id: series-direction
+    revision: 1
+  - artifact_id: book-1-direction
+    revision: 1
+  - artifact_id: realization-bundle-recovered-founding-ledger
+    revision: 1
+status: proposed

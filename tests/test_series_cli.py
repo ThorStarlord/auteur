@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import yaml
 
 from auteur.cli import main
+from auteur.cli_parser import build_parser
 from series_fixtures import valid_trilogy_data
 
 
@@ -58,3 +60,23 @@ def test_series_diagnose_graph_and_bible_write_artifacts(tmp_path):
     assert json.loads(report.read_text(encoding="utf-8"))["diagnostics"] == []
     assert yaml.safe_load(graph.read_text(encoding="utf-8"))["nodes"]
     assert json.loads(bible.read_text(encoding="utf-8"))["mysteries"]
+
+
+def test_existing_full_series_commands_are_still_registered():
+    parser = build_parser()
+
+    validate = parser.parse_args(["series", "validate", "series.yaml"])
+    compile_ = parser.parse_args(
+        ["series", "compile", "series.yaml", "--output", "books"]
+    )
+    diagnose = parser.parse_args(["series", "diagnose", "series.yaml"])
+    graph = parser.parse_args(["series", "graph", "series.yaml"])
+    bible = parser.parse_args(["series", "bible", "series.yaml"])
+
+    assert validate.series_command == "validate"
+    assert compile_.series_command == "compile"
+    assert diagnose.series_command == "diagnose"
+    assert graph.series_command == "graph"
+    assert bible.series_command == "bible"
+    assert validate.series == compile_.series == diagnose.series
+    assert validate.series == graph.series == bible.series == Path("series.yaml")

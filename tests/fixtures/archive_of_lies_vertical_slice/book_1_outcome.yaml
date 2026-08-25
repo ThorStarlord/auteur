@@ -1,0 +1,13 @@
+candidate_id: recovered-founding-ledger
+book_number: 1
+summary: Mara verifies that the archive's founding ledger was falsified.
+transitions:
+  - transition_id: founding-ledger-exposed
+    subject: archive
+    attribute: founding_record
+    before: null
+    after: confirmed fraudulent
+    explanation: The recovered ledger and its matching seal establish the forgery.
+source_refs:
+  - artifact_id: book-1-direction
+    revision: 1
