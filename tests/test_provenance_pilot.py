@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from pathlib import Path
 
 import yaml
@@ -34,13 +35,43 @@ def make_pilot(tmp_path: Path) -> tuple[ArtifactStore, Path, Path, Path, Path]:
 def test_initial_acceptance_records_sidecar_and_hash(tmp_path: Path) -> None:
     store, identity, _, _, _ = make_pilot(tmp_path)
 
-    metadata = store.accept(identity, "story_identity")
+    metadata = store.accept(
+        identity,
+        "story_identity",
+        record_accepted_at=True,
+    )
 
     assert metadata.revision == 1
     assert metadata.lifecycle is Lifecycle.ACCEPTED
     assert metadata.review_state is ReviewState.NONE
     assert metadata.content_hash.startswith("sha256:")
     assert store.sidecar_path("story_identity").is_file()
+    persisted = store.current("story_identity")
+    assert persisted is not None
+    assert persisted.accepted_at is not None
+    assert datetime.fromisoformat(persisted.accepted_at).utcoffset() == timezone.utc.utcoffset(None)
+
+
+def test_legacy_acceptance_sidecar_is_deterministic_without_timestamp(
+    tmp_path: Path,
+) -> None:
+    first_root = tmp_path / "first"
+    second_root = tmp_path / "second"
+    first_root.mkdir()
+    second_root.mkdir()
+    first_store, first_identity, _, _, _ = make_pilot(first_root)
+    second_store, second_identity, _, _, _ = make_pilot(second_root)
+
+    first = first_store.accept(first_identity, "story_identity")
+    second = second_store.accept(second_identity, "story_identity")
+
+    assert first is not None
+    assert second is not None
+    assert first.accepted_at is None
+    assert second.accepted_at is None
+    assert first_store.sidecar_path("story_identity").read_bytes() == second_store.sidecar_path(
+        "story_identity"
+    ).read_bytes()
 
 
 def test_yaml_formatting_does_not_change_hash_but_semantics_do(tmp_path: Path) -> None:
