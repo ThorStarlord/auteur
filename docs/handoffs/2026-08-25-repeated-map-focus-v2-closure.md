@@ -7,10 +7,10 @@ Status: closed; documentation-only handoff
 
 - Worktree: `H:/GithubRepositories/auteur/.worktrees/repeated-map-focus-v2`
 - Branch: `feat/repeated-map-focus-v2`
-- Current HEAD: `1536c06d3fa0a66bd85c6a7a723394af4208751d`
+- Closure documentation base: `1536c06d3fa0a66bd85c6a7a723394af4208751d`; any later branch-tip commit is only a correction to this handoff.
 - Working tree: clean
 - Qualified product candidate: `2e066108db51ff4b42b41316d5ea5e8d627eef71`
-- Candidate relationship: `2e06610` is an ancestor of `4721e2e`, and `4721e2e` is an ancestor of this closure commit. `4721e2e` is the qualification handoff; `1536c06` is the closure handoff.
+- Candidate relationship: `2e06610` is an ancestor of `4721e2e`, and `4721e2e` is an ancestor of the closure documentation. `4721e2e` is the qualification handoff; `1536c06` begins the closure handoff.
 - Mainline: `main` remains at `bcd8db2` and does not contain the candidate or handoff commits.
 - Integration status: the implementation exists only on this feature branch/worktree. It has not been merged into mainline.
 - `CONTEXT.md`: unchanged on this branch and left untouched because no safe milestone-only update was necessary.
