@@ -26,12 +26,17 @@ from auteur.series.serializers import (
     serialize_series_graph,
 )
 from auteur.series.vertical_slice_formatters import (
+    format_repeated_series_focus,
+    format_repeated_series_map,
     format_series_journey_focus,
     format_series_journey_map,
 )
 from auteur.series.vertical_slice_models import (
     BookDirection,
+    BookPlanningContext,
+    NextDecisionProposal,
     RealizationCandidate,
+    RepeatedBookPlanningContext,
     SeriesDirection,
 )
 from auteur.series.vertical_slice_service import SeriesVerticalSliceService
@@ -158,6 +163,27 @@ def _load_journey_input(path: Path, model_type):
     return model_type.model_validate(payload)
 
 
+def _format_journey_map(
+    context: BookPlanningContext | RepeatedBookPlanningContext,
+    decision: NextDecisionProposal,
+    *,
+    detail: bool,
+) -> str:
+    if isinstance(context, RepeatedBookPlanningContext):
+        return format_repeated_series_map(context, detail=detail)
+    return format_series_journey_map(context, decision, detail=detail)
+
+
+def _format_journey_focus(
+    decision: NextDecisionProposal,
+    *,
+    detail: bool,
+) -> str:
+    if decision.book_number > 2:
+        return format_repeated_series_focus(decision, detail=detail)
+    return format_series_journey_focus(decision, detail=detail)
+
+
 def handle_series_journey_command(args) -> int:
     service = SeriesVerticalSliceService(args.project)
     try:
@@ -222,18 +248,12 @@ def handle_series_journey_command(args) -> int:
         if args.journey_command == "map":
             context = service.derive_book_context(args.book)
             decision = service.propose_next_decision(args.book)
-            print(
-                format_series_journey_map(
-                    context, decision, detail=args.detail
-                )
-            )
+            print(_format_journey_map(context, decision, detail=args.detail))
             return 0
 
         if args.journey_command == "focus":
             decision = service.propose_next_decision(args.book)
-            print(
-                format_series_journey_focus(decision, detail=args.detail)
-            )
+            print(_format_journey_focus(decision, detail=args.detail))
             return 0
 
         if args.journey_command == "decide":

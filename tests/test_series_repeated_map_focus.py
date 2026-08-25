@@ -5,7 +5,11 @@ import pytest
 import yaml
 from pydantic import BaseModel
 
-from auteur.series import repeated_map_focus, vertical_slice_models
+from auteur.series import (
+    repeated_map_focus,
+    vertical_slice_formatters,
+    vertical_slice_models,
+)
 from auteur.series.vertical_slice_models import (
     BookDirection,
     RealizationCandidate,
@@ -872,6 +876,115 @@ def test_fact_identity_distinguishes_duplicate_ids_across_accepted_bundles(
         book_three_entry_id,
     }
     assert "monastery-testimony" in context.active_fact_ids
+
+
+def test_format_repeated_map_groups_current_book_why_now_and_hides_history(
+    tmp_path: Path,
+) -> None:
+    context = derive_repeated_context(
+        build_repeated_scenario(tmp_path, 4), 4
+    )
+    group = context.group("contested-history")
+    testimony = context.item("monastery-testimony")
+
+    output = vertical_slice_formatters.format_repeated_series_map(context)
+
+    assert output.startswith("Series Map: Book 4\n")
+    assert "Active continuity" in output
+    assert group.summary in output
+    assert f"Why it matters now: {group.why_matters_now}" in output
+    assert "Current constraints" in output
+    assert testimony.summary in output
+    assert f"Why it matters now: {testimony.why_matters_now}" in output
+    assert "Source references" not in output
+    assert "Entry ID:" not in output
+    assert "Disposition:" not in output
+    assert all(
+        entry.summary not in output for entry in context.history_entries
+    )
+    assert all(
+        ref.artifact_id not in output for ref in context.generated_from
+    )
+
+
+def test_format_repeated_map_detail_preserves_provenance_and_history(
+    tmp_path: Path,
+) -> None:
+    context = derive_repeated_context(
+        build_repeated_scenario(tmp_path, 4), 4
+    )
+
+    output = vertical_slice_formatters.format_repeated_series_map(
+        context, detail=True
+    )
+
+    assert "Source references:" in output
+    assert "Group ID: contested-history" in output
+    assert (
+        "Entry ID: realization-bundle-book-1-history@1/"
+        "monastery-testimony"
+    ) in output
+    assert "book-1-direction (revision 1)" in output
+    assert "book-3-direction (revision 1)" in output
+    assert (
+        "realization-bundle-book-1-history "
+        "(revision 1, fact monastery-testimony)"
+    ) in output
+    assert (
+        "realization-bundle-book-3-history "
+        "(revision 1, fact archive-protected)"
+    ) in output
+    assert "Historical continuity" in output
+    assert "Entry ID: commitment-falsifier" in output
+    assert "Disposition: resolved" in output
+
+
+def test_format_repeated_focus_uses_current_book_noncanonical_language(
+    tmp_path: Path,
+) -> None:
+    service = build_repeated_scenario(tmp_path, 4)
+    proposal = service.propose_repeated_next_decision(
+        4, decision_seed=book_four_decision_seed()
+    )
+
+    output = vertical_slice_formatters.format_repeated_series_focus(proposal)
+
+    assert output.startswith("Series Focus: Book 4\n")
+    assert proposal.question in output
+    assert proposal.rationale in output
+    for option in proposal.options:
+        assert option.label in output
+        assert option.summary in output
+        assert option.tradeoff in output
+    assert "This is a planning choice, not Book 4 canon." in output
+    assert (
+        "Choosing an option records what you want to explore next. You can "
+        "change or develop it before accepting a Book 4 direction."
+    ) in output
+    assert "Book 2 canon" not in output
+    assert "Proposal ID:" not in output
+    assert "Accepted input sources" not in output
+    assert "Option IDs" not in output
+
+
+def test_format_repeated_focus_detail_preserves_ids_and_accepted_refs(
+    tmp_path: Path,
+) -> None:
+    service = build_repeated_scenario(tmp_path, 3)
+    proposal = service.propose_repeated_next_decision(
+        3, decision_seed=book_three_decision_seed()
+    )
+
+    output = vertical_slice_formatters.format_repeated_series_focus(
+        proposal, detail=True
+    )
+
+    assert f"Proposal ID: {proposal.proposal_id}" in output
+    assert "Accepted input sources" in output
+    assert "series-direction (revision 1)" in output
+    assert "book-2-direction (revision 1)" in output
+    assert "Option IDs" in output
+    assert all(option.option_id in output for option in proposal.options)
 
 
 def test_book_three_focus_proposal_uses_current_book_and_context(
