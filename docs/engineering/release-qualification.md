@@ -110,3 +110,52 @@ Do not pipe all progress through a filter that only emits the final summary.
 
 Source release, artifact attachment, and package-registry publication are
 separate authorization decisions.
+
+## Pull-request merge qualification
+
+A merge requires sufficient qualification evidence for the behavioral risk
+introduced by the change.
+
+### Code-bearing changes
+
+Changes to source code, tests, version metadata, packaged resources, or build
+configuration normally require successful CI on the exact pull-request head
+before merge.
+
+An explicitly recorded equivalent complete qualification may substitute for
+remote CI when:
+
+- it qualifies the exact candidate being merged;
+- all required repository and artifact checks completed successfully; and
+- no candidate-invalidating change occurred afterward.
+
+If the complete local qualification is incomplete — including timeout,
+interruption, or unavailable environment — successful exact-head CI is required.
+
+A missing CI run is not a passing CI run.
+
+### Documentation/evidence-only changes
+
+A documentation-only or evidence-only change may merge without CI when:
+
+- executable behavior is demonstrably unchanged;
+- the qualified product candidate remains unchanged;
+- relevant repository/document validation passes; and
+- the absence of CI is explicitly recorded rather than represented as a pass.
+
+Where qualification uses an evidence-only publication commit after a qualified
+candidate, the source/test distinction must be explicit and mechanically
+verifiable.
+
+### Post-merge CI
+
+Post-merge CI is useful additional evidence, but it does not retroactively
+satisfy a pre-merge CI requirement.
+
+If pre-merge CI was mandatory for the change, it must pass before merge.
+
+### Enforcement
+
+Repository settings may enforce some or all of these rules mechanically.
+Where GitHub does not enforce them, they remain project policy and must be
+enforced by the publication workflow.
