@@ -12,6 +12,8 @@ from auteur.series.repeated_map_focus import (
     RepeatedBookPlanningContext,
     RepeatedDecisionSeed,
     select_repeated_continuity,
+    selection_token_display,
+    selection_token_for,
     validate_repeated_decision_proposal as validate_repeated_proposal,
 )
 from auteur.series.vertical_slice_models import (
@@ -509,6 +511,82 @@ class SeriesVerticalSliceService:
         )
         self.store.save_planning_entry(entry)
         return entry
+
+    def list_accepted_facts(self, book_number: int) -> list[AcceptedFactRef]:
+        """Return the accepted-fact refs through Book ``book_number - 1``.
+
+        Deterministic: order derives from the already-deterministic accepted
+        realization bundle ordering (sorted artifact ids) and each bundle's
+        transition order. Only accepted facts are returned; proposed or
+        unaccepted candidates never appear.
+        """
+        return [ref for _book, _position, ref in self._accepted_fact_rows(
+            book_number
+        )]
+
+    def _accepted_fact_rows(
+        self, book_number: int
+    ) -> list[tuple[int, int, AcceptedFactRef]]:
+        """Ordered ``(source_book, position_within_book, ref)`` accepted facts.
+
+        ``position_within_book`` is 1-based and derives from the deterministic
+        accepted realization bundle order, then each bundle's transition order.
+        This is the single ordering both listing and resolution consume, so a
+        selection token always reproduces the same display position for the same
+        accepted snapshot.
+        """
+        history = self.load_repeated_history_for_book(book_number)
+        rows: list[tuple[int, int, AcceptedFactRef]] = []
+        counters: dict[int, int] = {}
+        for bundle, realization_ref in zip(
+            history.realizations, history.realization_refs, strict=True
+        ):
+            position = counters.get(bundle.book_number, 0) + 1
+            for transition in bundle.transitions:
+                counters[bundle.book_number] = position
+                rows.append(
+                    (
+                        bundle.book_number,
+                        position,
+                        AcceptedFactRef(
+                            artifact_id=bundle.artifact_id,
+                            revision=realization_ref.revision,
+                            fact_id=transition.transition_id,
+                        ),
+                    )
+                )
+                position += 1
+        return rows
+
+    def resolve_accepted_fact_selection_token(
+        self, book_number: int, token: str
+    ) -> AcceptedFactRef:
+        """Resolve a selection token to exactly one exact AcceptedFactRef.
+
+        The token must identify a current accepted fact for ``book_number``.
+        Both a full display token (``B{book}-{position}~{fingerprint}``) and a
+        bare fingerprint are accepted. Fail closed: zero matches raises
+        (invalid/stale), more than one match raises (ambiguous). No fuzzy
+        fallback and no alias system.
+        """
+        matches = []
+        for source_book, position, ref in self._accepted_fact_rows(book_number):
+            full = selection_token_display(
+                source_book, position, ref
+            )
+            if token == full or token == selection_token_for(ref):
+                matches.append(ref)
+        if len(matches) == 1:
+            return matches[0]
+        if len(matches) > 1:
+            raise ValueError(
+                f"Selection token {token!r} is ambiguous; it does not identify "
+                "a single accepted fact"
+            )
+        raise ValueError(
+            f"Selection token {token!r} no longer identifies a current accepted "
+            "fact for this Book; re-list the accepted facts"
+        )
 
     def enter_repeated_book_planning(
         self,

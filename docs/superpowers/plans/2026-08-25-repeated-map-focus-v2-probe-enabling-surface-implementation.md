@@ -185,8 +185,12 @@ while Tasks 1–5 land and goes GREEN at Task 6.
   1. `accepted-facts --book 2` → exit 0; lists only Book 1 facts (tokens for
      `founding-record`, `monastery-testimony`, `broken-lantern`); no internal IDs.
   2. `plan-next-book --book 2 --intent "Make the forged founding record matter to lived memory." --relevance <founding-record token>` → exit 0.
-  3. `map --book 2` → exit 0; `focus --book 2` → exit 0 (Book 2 uses the
-     existing journey routes — surface reachability is the claim here).
+  3. R1 repeated activation is asserted at the already-qualified service seam
+     via `derive_repeated_book_context(2)` (`founding-record` active,
+     `monastery-testimony` dormant). `journey map --book 2` deliberately remains
+     the pre-existing V1 route and is regression-tested separately; it is not
+     re-routed by Boundary 2 (Book 2 only proves the two new CLI affordances
+     through `main(...)`; Books 3+ prove the repeated Map/Focus CLI route).
   4. Assert persisted intent == `[founding-record@1]`; `load_accepted_book_direction(2) is None`;
      canonical state byte-identical.
 - **Book 3** (ledger accepted through Book 2; fixture intent = admission-retracted):
@@ -470,6 +474,33 @@ Task 4: plan-next-book --intent/--relevance        -> CLI RED -> GREEN (frozen i
 Task 5: stale/unknown/unaccepted/ambiguous barrier -> RED -> GREEN (fail closed)
 Task 6: acceptance proof                           -> GREEN (Task 0 test passes; no new RED)
 ```
+
+## 5a. Bounded surface asymmetry — Book-2 Map routing (evidence note)
+
+During implementation it was confirmed that `journey map --book 2` routes to
+the **pre-existing V1** Map path, not the repeated Map surface. Boundary 2 does
+**not** change that routing: re-routing Book-2 Map would be a third surface
+behavior change beyond the two demonstrated blockers and would risk silently
+replacing qualified V1 behavior.
+
+Consequence for the acceptance shape:
+
+- Book 2 proves the two new probe-enabling CLI affordances through `main(...)`
+  (`accepted-facts` discovery and `plan-next-book --intent/--relevance` intent
+  entry); the R1 repeated activation semantics are asserted through the
+  already-qualified `derive_repeated_book_context(2)` service seam.
+- Books 3 and 4 exercise the repeated Map/Focus CLI route end-to-end.
+- A regression test proves the legacy `journey map --book 2` route renders the
+  unchanged V1 context.
+
+Downstream consequence for the Human Validation Contract (recorded, not acted
+on in Boundary 2): the Book-2 participant checkpoint may present via the
+existing V1 Book-2 surface while the repeated R1 activation semantics remain
+service-qualified; Books 3 and 4 exercise the repeated production Map/Focus
+surface. Whether Book 2 should eventually use the same repeated surface is a
+separate presentation-unification question, not a Boundary 2 requirement. If,
+when preparing the participant kit, the split proves incoherent, that is the
+decision point for whether Book-2 surface unification is genuinely required.
 
 ## 6. Regression and qualification strategy
 

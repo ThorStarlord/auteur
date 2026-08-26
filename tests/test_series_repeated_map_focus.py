@@ -17,6 +17,7 @@ from auteur.series.vertical_slice_models import (
     SeriesDirection,
 )
 from auteur.series.vertical_slice_service import SeriesVerticalSliceService
+from auteur.series import vertical_slice_service as vertical_slice_service_module
 
 
 FIXTURE_ROOT = Path(__file__).parent / "fixtures" / "repeated_map_focus_v2"
@@ -191,6 +192,35 @@ def repeated_authority_snapshot(
     roots = (
         service.store.root / "accepted",
         service.store.root / "workflow",
+        service.store.artifact_store.root,
+    )
+    paths = [
+        path
+        for root in roots
+        if root.exists()
+        for path in root.rglob("*")
+        if path.is_file()
+    ]
+    if service.store.canonical_state_path.is_file():
+        paths.append(service.store.canonical_state_path)
+    return {
+        str(path.relative_to(service.store.project_root)): path.read_bytes()
+        for path in paths
+    }
+
+
+def accepted_authority_snapshot(
+    service: SeriesVerticalSliceService,
+) -> dict[str, bytes]:
+    """Snapshot accepted authority plus artifact store and Canonical State.
+
+    Excludes the non-authoritative ``workflow/`` tree, which legitimately grows
+    as planning intent and decision actions are recorded. Used to prove a
+    surface action never mutates narrative authority or Canonical State even
+    when it is expected to write workflow state.
+    """
+    roots = (
+        service.store.root / "accepted",
         service.store.artifact_store.root,
     )
     paths = [
@@ -1410,3 +1440,747 @@ def test_stale_repeated_focus_proposal_is_rejected(
             proposal.proposal_id,
             action="choose_recommended",
         )
+
+
+def _accept_ledger_with_custom_book_one(
+    project: Path, *, candidate_id: str
+) -> SeriesVerticalSliceService:
+    """Accept the standard ledger but with a custom Book-1 realization id.
+
+    Reused by stale-token coverage to build a *different* accepted snapshot whose
+    Book-1 realization artifact id differs from the canonical one.
+    """
+    ledger = load_repeated_ledger_fixture()
+    service = SeriesVerticalSliceService(project)
+    series = load_fixture(str(ledger["series_direction_fixture"]), SeriesDirection)
+    series_proposal = service.propose_series_direction(series)
+    service.accept_series_direction(
+        series_proposal.proposal_id, accepted_by="archive-author"
+    )
+    for accepted_book in ledger["accepted_books"]:
+        book_number = accepted_book["book_number"]
+        direction = load_fixture(
+            accepted_book["direction_fixture"], BookDirection
+        ).model_copy(
+            update={
+                "book_number": book_number,
+                "series_commitment_ids": accepted_book["series_commitment_ids"],
+            }
+        )
+        book_proposal = service.propose_book_direction(direction)
+        service.accept_book_direction(
+            book_proposal.proposal_id, accepted_by="archive-author"
+        )
+        realization = load_fixture(
+            accepted_book["realization_fixture"], RealizationCandidate
+        )
+        if book_number == 1:
+            realization = realization.model_copy(
+                update={
+                    "candidate_id": candidate_id,
+                    "source_refs": [
+                        vertical_slice_models.ArtifactRef(
+                            artifact_id=realization.source_refs[0].artifact_id,
+                            revision=realization.source_refs[0].revision,
+                        )
+                    ],
+                }
+            )
+        service.propose_realization(realization)
+        service.accept_realization(
+            realization.candidate_id, accepted_by="archive-author"
+        )
+    for candidate_payload in ledger["unaccepted_realizations"]:
+        if candidate_payload["book_number"] > 3:
+            continue
+        service.propose_realization(
+            RealizationCandidate.model_validate(candidate_payload)
+        )
+    return service
+
+
+def test_cli_books_2_3_4_probe_surface_journey(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    """The full Books 2/3/4 accepted surface journey, through the real CLI.
+
+    Book 2 proves the two new probe-enabling CLI affordances through
+    ``main(...)`` (``accepted-facts`` discovery and
+    ``plan-next-book --intent/--relevance`` intent entry), while R1 repeated
+    activation semantics are asserted through the already-qualified service
+    seam because ``journey map --book 2`` deliberately remains on the existing
+    V1 route. Books 3+ prove the repeated Map/Focus CLI route end to end.
+
+    RED baseline (before Boundary-2 surface): the ``accepted-facts`` command
+    and the ``plan-next-book --intent/--relevance`` arguments do not exist yet,
+    so the CLI exits non-zero and nothing is written. Each book asserts
+    discoverable accepted facts, planning-intent entry via the supported
+    surface, reachable Map/Focus, and exact authority non-mutation.
+    """
+    # ---- Book 2: accepted through Book 1, fixture trigger = founding-record ----
+    book2 = tmp_path / "book2"
+    service2 = build_repeated_ledger(book2, accepted_through_book=1)
+    authority2_before = accepted_authority_snapshot(service2)
+    state2_before = service2.load_canonical_state()
+
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "accepted-facts",
+                str(book2),
+                "--book",
+                "2",
+            ]
+        )
+        == 0
+    )
+    facts2_out = capsys.readouterr().out
+    assert "[B1-" in facts2_out
+    assert "archive.founding_record is forged." in facts2_out
+    assert "monastery.testimony is preserved." in facts2_out
+    assert "archive_lantern.condition is broken." in facts2_out
+    assert "realization-bundle-book-1-realization" not in facts2_out
+    assert "burn-archive" not in facts2_out
+    (founding_token,) = [
+        line.split("]")[0].lstrip("[")
+        for line in facts2_out.splitlines()
+        if "archive.founding_record is forged." in line
+    ]
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "plan-next-book",
+                str(book2),
+                "--book",
+                "2",
+                "--intent",
+                "Make the forged founding record matter to lived memory.",
+                "--relevance",
+                founding_token,
+            ]
+        )
+        == 0
+    )
+    assert "Entered planning intent for Book 2." in capsys.readouterr().out
+    # R1 repeated activation at the already-qualified service seam: CLI
+    # ``map --book 2`` deliberately stays on the pre-existing V1 route, so the
+    # repeated activation semantics (founding-record active, monastery dormant)
+    # are asserted through derive_repeated_book_context(2).
+    context2 = service2.derive_repeated_book_context(2)
+    assert context2.book_number == 2
+    assert "founding-record" in context2.active_fact_ids
+    assert "monastery-testimony" not in context2.active_fact_ids
+    assert context2.dispositions["monastery-testimony"] == "dormant"
+    intent2 = service2.store.load_book_planning_intent(2)
+    assert intent2 is not None
+    assert intent2.relevance_refs == [
+        vertical_slice_models.AcceptedFactRef(
+            artifact_id="realization-bundle-book-1-realization",
+            revision=1,
+            fact_id="founding-record",
+        )
+    ]
+    assert service2.load_accepted_book_direction(2) is None
+    assert service2.load_canonical_state() == state2_before
+    assert accepted_authority_snapshot(service2) == authority2_before
+
+    # ---- Book 3: accepted through Book 2, fixture trigger = retraction ----
+    book3 = tmp_path / "book3"
+    service3 = build_repeated_ledger(book3, accepted_through_book=2)
+    authority3_before = accepted_authority_snapshot(service3)
+    state3_before = service3.load_canonical_state()
+
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "accepted-facts",
+                str(book3),
+                "--book",
+                "3",
+            ]
+        )
+        == 0
+    )
+    facts3_out = capsys.readouterr().out
+    assert "archive.founding_record is forged." in facts3_out
+    assert "council.archive_position is retracted admission." in facts3_out
+    # Both accepted council transitions are discovered (the earlier adverse
+    # admission remains accepted history even though it is superseded in the
+    # current state).
+    assert "council.archive_position is admitted fraud." in facts3_out
+    assert "realization-bundle" not in facts3_out
+    (retraction_token,) = [
+        line.split("]")[0].lstrip("[")
+        for line in facts3_out.splitlines()
+        if "council.archive_position is retracted admission." in line
+    ]
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "plan-next-book",
+                str(book3),
+                "--book",
+                "3",
+                "--intent",
+                "Respond to the council's accepted retraction.",
+                "--relevance",
+                retraction_token,
+            ]
+        )
+        == 0
+    )
+    assert (
+        main(
+            ["series", "journey", "map", str(book3), "--book", "3"]
+        )
+        == 0
+    )
+    assert "Series Map: Book 3" in capsys.readouterr().out
+    intent3 = service3.store.load_book_planning_intent(3)
+    assert intent3 is not None
+    assert intent3.relevance_refs == [
+        vertical_slice_models.AcceptedFactRef(
+            artifact_id="realization-bundle-book-2-realization",
+            revision=1,
+            fact_id="admission-retracted",
+        )
+    ]
+    assert service3.load_accepted_book_direction(3) is None
+    assert service3.load_canonical_state() == state3_before
+    assert accepted_authority_snapshot(service3) == authority3_before
+
+    # ---- Book 4: accepted through Book 3, the reactivation case ----
+    book4 = tmp_path / "book4"
+    service4 = build_repeated_ledger(book4, accepted_through_book=3)
+    authority4_before = accepted_authority_snapshot(service4)
+    state4_before = service4.load_canonical_state()
+
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "accepted-facts",
+                str(book4),
+                "--book",
+                "4",
+            ]
+        )
+        == 0
+    )
+    facts4_out = capsys.readouterr().out
+    assert "monastery.testimony is preserved." in facts4_out
+    assert "archive.protection is treaty protected." in facts4_out
+    assertions = facts4_out.splitlines()
+    monastery_token = next(
+        line.split("]")[0].lstrip("[")
+        for line in assertions
+        if "monastery.testimony is preserved." in line
+    )
+    protected_token = next(
+        line.split("]")[0].lstrip("[")
+        for line in assertions
+        if "archive.protection is treaty protected." in line
+    )
+    assert monastery_token != protected_token
+
+    seed_path = book4 / "book-4-focus-seed.yaml"
+    write_repeated_decision_seed(seed_path, book_four_decision_seed())
+
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "plan-next-book",
+                str(book4),
+                "--book",
+                "4",
+                "--intent",
+                "Return to the monastery testimony without breaking the "
+                "protected archive.",
+                "--relevance",
+                monastery_token,
+                "--relevance",
+                protected_token,
+            ]
+        )
+        == 0
+    )
+    intent4 = service4.store.load_book_planning_intent(4)
+    assert intent4 is not None
+    assert intent4.relevance_refs == [
+        vertical_slice_models.AcceptedFactRef(
+            artifact_id="realization-bundle-book-1-realization",
+            revision=1,
+            fact_id="monastery-testimony",
+        ),
+        vertical_slice_models.AcceptedFactRef(
+            artifact_id="realization-bundle-book-3-realization",
+            revision=1,
+            fact_id="archive-protected",
+        ),
+    ]
+
+    assert (
+        main(
+            ["series", "journey", "map", str(book4), "--book", "4"]
+        )
+        == 0
+    )
+    map4_out = capsys.readouterr().out
+    assert "Series Map: Book 4" in map4_out
+    assert "monastery.testimony is preserved." in map4_out
+
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "focus",
+                str(book4),
+                "--book",
+                "4",
+                "--input",
+                str(seed_path),
+            ]
+        )
+        == 0
+    )
+    focus4_out = capsys.readouterr().out
+    assert "Series Focus: Book 4" in focus4_out
+    assert "This is a planning choice, not Book 4 canon." in focus4_out
+
+    assert service4.load_accepted_book_direction(4) is None
+    assert service4.load_canonical_state() == state4_before
+    assert accepted_authority_snapshot(service4) == authority4_before
+
+
+def test_revise_accepted_book_one_source_invalidates_old_selection_token(
+    tmp_path: Path,
+) -> None:
+    """A token bound to one accepted snapshot must not survive a changed source.
+
+    Ledger L1 captures a valid token for the canonical Book-1 monastery fact.
+    Ledger L2 accepts the same-named fact under a different accepted realization
+    artifact id, so the exact revisioned AcceptedFactRef differs. Resolving L1's
+    token against L2 must fail (0 matches) rather than silently resolving to the
+    new fact, and nothing is written.
+    """
+    l1 = tmp_path / "l1"
+    build_repeated_ledger(l1)
+    token = repeated_map_focus.selection_token_for(
+        accepted_monastery_fact_ref()
+    )
+
+    l2 = tmp_path / "l2"
+    service2 = _accept_ledger_with_custom_book_one(
+        l2, candidate_id="book-1-realization-revised"
+    )
+
+    with pytest.raises(ValueError, match="no longer identifies"):
+        service2.resolve_accepted_fact_selection_token(4, token)
+
+    assert service2.store.load_book_planning_intent(4) is None
+    assert service2.load_accepted_book_direction(4) is None
+
+
+def test_selection_token_collision_fails_closed(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A token that would map to more than one accepted fact is an error."""
+    service = build_repeated_ledger(tmp_path)
+
+    # Force every accepted fact to produce the same selection token so the
+    # ambiguity branch is exercised through the exact seam the service calls.
+    monkeypatch.setattr(
+        vertical_slice_service_module,
+        "selection_token_for",
+        lambda ref: "B1-01~AAAAAA",
+    )
+
+    with pytest.raises(ValueError, match="ambiguous"):
+        service.resolve_accepted_fact_selection_token(
+            4, "B1-01~AAAAAA"
+        )
+
+
+def test_selection_token_resolves_to_exact_revisioned_ref(tmp_path: Path) -> None:
+    service = build_repeated_ledger(tmp_path)
+
+    token = repeated_map_focus.selection_token_for(
+        accepted_monastery_fact_ref()
+    )
+    resolved = service.resolve_accepted_fact_selection_token(4, token)
+
+    assert resolved == accepted_monastery_fact_ref()
+    assert resolved.revision == 1
+    assert resolved.fact_id == "monastery-testimony"
+
+
+def test_list_accepted_facts_is_deterministic_and_excludes_unaccepted(
+    tmp_path: Path,
+) -> None:
+    service = build_repeated_ledger(tmp_path)
+
+    facts = service.list_accepted_facts(4)
+    fact_ids = {ref.fact_id for ref in facts}
+
+    assert "monastery-testimony" in fact_ids
+    assert "burn-archive" not in fact_ids
+    assert "ally-militia" not in fact_ids
+    # Deterministic ordering (accepted bundle order, then transition order).
+    assert service.list_accepted_facts(4) == facts
+    book_numbers = {
+        ref.artifact_id: int(ref.artifact_id.split("-")[-2])
+        for ref in facts
+    }
+    ordered_books = [book_numbers[ref.artifact_id] for ref in facts]
+    assert ordered_books == sorted(ordered_books)
+
+
+def test_format_accepted_facts_default_shows_token_summary_book(
+    tmp_path: Path,
+) -> None:
+    service = build_repeated_ledger(tmp_path)
+    snapshot = service.load_repeated_history_for_book(4)
+
+    text = vertical_slice_formatters.format_accepted_facts(snapshot)
+
+    assert "[B1-02~" in text
+    assert "monastery.testimony is preserved." in text
+    assert "Accepted in Book 1" in text
+    # Internal provenance is hidden by default.
+    assert "realization-bundle-book-1-realization" not in text
+    assert "revision" not in text
+    assert "fact monastery-testimony" not in text
+
+
+def test_format_accepted_facts_detail_reveals_exact_provenance(
+    tmp_path: Path,
+) -> None:
+    service = build_repeated_ledger(tmp_path)
+    snapshot = service.load_repeated_history_for_book(4)
+
+    text = vertical_slice_formatters.format_accepted_facts(snapshot, detail=True)
+
+    assert "artifact realization-bundle-book-1-realization" in text
+    assert "revision 1" in text
+    assert "fact monastery-testimony" in text
+    assert "monastery.testimony is preserved." in text
+    assert "burn-archive" not in text
+    assert "ally-militia" not in text
+
+
+def test_cli_accepted_facts_lists_books_1_3_without_detail(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    service = build_repeated_ledger(tmp_path)
+    authority_before = repeated_authority_snapshot(service)
+    state_before = service.load_canonical_state()
+
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "accepted-facts",
+                str(tmp_path),
+                "--book",
+                "4",
+            ]
+        )
+        == 0
+    )
+    out = capsys.readouterr().out
+    assert "[B1-" in out
+    assert "monastery.testimony is preserved." in out
+    assert "Accepted in Book 1" in out
+    # Internal provenance hidden by default.
+    assert "realization-bundle-book-1-realization" not in out
+    assert "revision" not in out
+    assert "fact monastery-testimony" not in out
+    # Unaccepted and past-state material is never selectable.
+    assert "burn-archive" not in out
+    assert "ally-militia" not in out
+    # Read-only: no authority or Canonical State mutation.
+    assert service.load_canonical_state() == state_before
+    assert repeated_authority_snapshot(service) == authority_before
+
+
+def test_cli_accepted_facts_detail_reveals_provenance(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    build_repeated_ledger(tmp_path)
+
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "accepted-facts",
+                str(tmp_path),
+                "--book",
+                "4",
+                "--detail",
+            ]
+        )
+        == 0
+    )
+    out = capsys.readouterr().out
+    assert "artifact realization-bundle-book-1-realization" in out
+    assert "revision 1" in out
+    assert "fact monastery-testimony" in out
+
+
+def test_cli_plan_next_book_accepts_intent_and_full_selection_token(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    service = build_repeated_ledger(tmp_path)
+    snapshot = service.load_repeated_history_for_book(4)
+    token = vertical_slice_formatters.format_accepted_facts(snapshot).splitlines()
+    monastery_token = next(
+        line.split("]")[0].lstrip("[")
+        for line in token
+        if "monastery.testimony is preserved." in line
+    )
+    authority_before = accepted_authority_snapshot(service)
+    state_before = service.load_canonical_state()
+
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "plan-next-book",
+                str(tmp_path),
+                "--book",
+                "4",
+                "--intent",
+                "Return to the monastery testimony as a route back to "
+                "lived memory.",
+                "--relevance",
+                monastery_token,
+            ]
+        )
+        == 0
+    )
+    assert "Entered planning intent for Book 4." in capsys.readouterr().out
+
+    intent = service.store.load_book_planning_intent(4)
+    assert intent is not None
+    assert intent.intent == (
+        "Return to the monastery testimony as a route back to lived memory."
+    )
+    assert intent.relevance_refs == [accepted_monastery_fact_ref()]
+    assert service.load_accepted_book_direction(4) is None
+    assert service.load_canonical_state() == state_before
+    assert accepted_authority_snapshot(service) == authority_before
+
+
+def test_cli_plan_next_book_relevance_without_intent_fails_closed(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    service = build_repeated_ledger(tmp_path)
+
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "plan-next-book",
+                str(tmp_path),
+                "--book",
+                "4",
+                "--relevance",
+                "B1-02~K7M4Q9",
+            ]
+        )
+        == 1
+    )
+    assert "requires --intent" in capsys.readouterr().out
+    assert service.store.load_book_planning_intent(4) is None
+    assert service.store.load_planning_entry(4) is None
+
+
+def test_cli_plan_next_book_no_args_preserves_legacy_behavior(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    service = build_repeated_ledger(tmp_path)
+
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "plan-next-book",
+                str(tmp_path),
+                "--book",
+                "4",
+            ]
+        )
+        == 0
+    )
+    assert "Entered exploratory planning for Book 4." in capsys.readouterr().out
+    assert service.store.load_planning_entry(4) is not None
+    assert service.store.load_book_planning_intent(4) is None
+
+
+def test_cli_map_book_2_keeps_legacy_v1_route_unrelated_to_repeated(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    """``journey map --book 2`` remains the pre-existing V1 route.
+
+    Boundary 2 fixes accepted-fact discovery and Book-N intent entry; it does
+    not re-route Book-2 Map. A V1-shaped Book-2 journey (the same ledger the
+    qualified V1 Book-2 Map uses) must still render the legacy established
+    context, proving the CLI routing is unchanged.
+    """
+    fixture_root = Path(__file__).parent / "fixtures" / "archive_of_lies_vertical_slice"
+
+    def _load_model(name: str, model_type):
+        return model_type.model_validate(
+            yaml.safe_load((fixture_root / name).read_text(encoding="utf-8"))
+        )
+
+    service = SeriesVerticalSliceService(tmp_path)
+    series_proposal = service.propose_series_direction(
+        _load_model("series_direction.yaml", SeriesDirection)
+    )
+    service.accept_series_direction(
+        series_proposal.proposal_id, accepted_by="archive-author"
+    )
+    book_proposal = service.propose_book_direction(
+        _load_model("book_1_direction.yaml", BookDirection)
+    )
+    service.accept_book_direction(
+        book_proposal.proposal_id, accepted_by="archive-author"
+    )
+    candidate = service.propose_realization(
+        _load_model("book_1_outcome.yaml", RealizationCandidate)
+    )
+    service.accept_realization(
+        candidate.candidate_id, accepted_by="archive-author"
+    )
+    service.enter_book_planning(2, entered_by="archive-author")
+
+    assert (
+        main(
+            ["series", "journey", "map", str(tmp_path), "--book", "2"]
+        )
+        == 0
+    )
+    out = capsys.readouterr().out
+    assert "Established context" in out
+    assert "Next available decision" in out
+    # No repeated-map language leaks into the V1 route.
+    assert "Active continuity" not in out
+
+
+def _corrupt_accepted_realization_revision(service: SeriesVerticalSliceService) -> None:
+    """Bump an accepted realization bundle sidecar revision to simulate drift.
+
+    Accepted realization bundles are always revision 1 and immutable, so a
+    changed revision represents a source that no longer matches the previously
+    qualified accepted history. Reused by the stale-token CLI barrier test.
+    """
+    bundles = service.store.load_accepted_realization_bundles()
+    assert bundles
+    bundle, metadata = bundles[0]
+    sidecar = service.store.artifact_store.sidecar_path(metadata.artifact_id)
+    payload = yaml.safe_load(sidecar.read_text(encoding="utf-8"))
+    payload["revision"] = 999
+    sidecar.write_text(
+        yaml.safe_dump(payload, sort_keys=False), encoding="utf-8"
+    )
+
+
+def test_cli_stale_selection_token_after_accepted_source_revision_fails_closed(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    """A token captured before a source revision change must stop resolving.
+
+    1. list accepted facts and capture a valid token;
+    2. change the accepted source (bump an accepted realization revision);
+    3. attempt to use the old token;
+    4. require a clear stale/invalid error and prove nothing is written.
+    """
+    service = build_repeated_ledger(tmp_path)
+    snapshot = service.load_repeated_history_for_book(4)
+    facts_text = vertical_slice_formatters.format_accepted_facts(snapshot)
+    monastery_token = next(
+        line.split("]")[0].lstrip("[")
+        for line in facts_text.splitlines()
+        if "monastery.testimony is preserved." in line
+    )
+
+    _corrupt_accepted_realization_revision(service)
+
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "plan-next-book",
+                str(tmp_path),
+                "--book",
+                "4",
+                "--intent",
+                "Return to the monastery testimony.",
+                "--relevance",
+                monastery_token,
+            ]
+        )
+        == 1
+    )
+    assert "accepted" in capsys.readouterr().out.lower()
+    assert service.store.load_book_planning_intent(4) is None
+    assert service.store.load_planning_entry(4) is None
+    assert service.load_accepted_book_direction(4) is None
+
+
+def test_cli_unknown_and_unaccepted_selection_tokens_fail_closed(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    """Unknown and unaccepted selectors fail clearly with no partial write."""
+    service = build_repeated_ledger(tmp_path)
+
+    for bad_token in ("B1-99~ZZZZZZ", "burn-archive"):
+        assert (
+            main(
+                [
+                    "series",
+                    "journey",
+                    "plan-next-book",
+                    str(tmp_path),
+                    "--book",
+                    "4",
+                    "--intent",
+                    "Return to the monastery testimony.",
+                    "--relevance",
+                    bad_token,
+                ]
+            )
+            == 1
+        )
+        assert "accepted" in capsys.readouterr().out.lower()
+        assert service.store.load_book_planning_intent(4) is None
+        assert service.store.load_planning_entry(4) is None
