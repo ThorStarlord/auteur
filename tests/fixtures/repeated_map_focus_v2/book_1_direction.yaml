@@ -1,0 +1,31 @@
+book_number: 1
+identity:
+  title: The Missing Ledger
+  core_answer: Telling the truth requires protecting the people erased by the official record.
+  target_experience:
+    primary: suspicion
+    progression: curiosity -> distrust -> costly clarity
+    avoid:
+      - effortless certainty
+  story_type:
+    medium: novel
+    mode: procedural
+    genre: mystery
+    target_audience: adult
+  central_engine:
+    want: Recover a ledger that proves the city falsified the archive.
+    resistance: The archive's custodians erase witnesses and replace records faster than they can be verified.
+    conflict: The investigator must authenticate the ledger while deciding which witnesses can survive public exposure.
+    stakes: Publishing too soon will destroy the witnesses; waiting will let the custodians erase the truth.
+    change: The investigator learns that preserving truth requires responsibility for the people bound to it.
+  not_this:
+    - A complete account of every future Book.
+  open_questions:
+    - Who falsified the founding record?
+  confidence: 0.82
+  alternatives: []
+  why_this_is_best: It tests the Series promise through one bounded archival conflict.
+  rejected_directions: []
+  author_overrides: []
+series_commitment_ids:
+  - contested-history

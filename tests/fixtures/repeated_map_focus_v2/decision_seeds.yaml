@@ -1,0 +1,43 @@
+book_three:
+  question: How should Book 3 respond to the council's retraction while preserving the witness's authority?
+  recommended_option_id: publish-witness-account
+  options:
+    - option_id: publish-witness-account
+      label: Publish the witness account
+      summary: Give the witness an independent public record that the council cannot retract.
+      tradeoff: This protects the witness's authority but exposes the witness to direct institutional retaliation.
+    - option_id: force-council-hearing
+      label: Force another council hearing
+      summary: Use the named falsifier to compel the council to answer the witness in public.
+      tradeoff: This keeps institutional accountability central but lets the council control the forum and timing.
+  rationale: The accepted retraction makes the council unreliable, while the resolved falsifier question gives the witness a concrete basis for an independent account.
+book_four:
+  question: How should Book 4 bring the monastery testimony back into public memory without destroying the archive's evidentiary chain?
+  recommended_option_id: publish-verified-testimony
+  options:
+    - option_id: publish-verified-testimony
+      label: Publish verified testimony
+      summary: Authenticate and publish the testimony while the protected archive keeps the original evidence secure.
+      tradeoff: This preserves the evidentiary chain but delays public release until verification is complete.
+    - option_id: stage-protected-hearing
+      label: Stage a protected hearing
+      summary: Present the testimony beside selected archive evidence under the treaty's protections.
+      tradeoff: This creates immediate public pressure but reveals which archive records carry the strongest evidence.
+  rationale: The monastery testimony matters again because Book 4 planning references it, while the accepted treaty requires the archive's evidentiary chain to remain intact.
+book_four_burn_archive:
+  question: How should Book 4 bring the monastery testimony back into public memory without losing the archive's evidentiary chain?
+  recommended_option_id: burn-archive
+  options:
+    - option_id: burn-archive
+      label: Burn the archive
+      summary: Destroy the archive so the monastery testimony becomes the only surviving public account.
+      tradeoff: This makes the testimony unavoidable but destroys the accepted evidentiary chain that can authenticate it.
+      incompatible_with_state_refs:
+        - artifact_id: realization-bundle-book-3-realization
+          revision: 1
+      incompatibility_reason: Burning the archive contradicts the current accepted archive.protection state of treaty protected.
+    - option_id: publish-verified-testimony
+      label: Publish verified testimony
+      summary: Authenticate and publish the testimony while preserving the protected archive.
+      tradeoff: This preserves the evidentiary chain but delays public release until verification is complete.
+  rationale: The monastery testimony matters again, but this recommendation conflicts with the accepted treaty protection.

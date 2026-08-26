@@ -21,6 +21,25 @@ class ArtifactRef(BaseModel):
     revision: int
 
 
+class AcceptedFactRef(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_id: str
+    revision: int
+    fact_id: str
+
+
+AcceptedContinuitySourceRef = ArtifactRef | AcceptedFactRef
+ContinuityDisposition = Literal[
+    "active",
+    "resolved",
+    "dormant",
+    "reactivated",
+    "superseded",
+    "irrelevant",
+]
+
+
 class DirectionCommitment(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -119,6 +138,7 @@ class RealizationCandidate(BaseModel):
     summary: str
     transitions: list[StateTransition] = Field(min_length=1)
     source_refs: list[ArtifactRef] = Field(min_length=1)
+    resolved_commitment_ids: list[str] = Field(default_factory=list)
 
     @field_validator("transitions")
     @classmethod
@@ -136,6 +156,7 @@ class AcceptedRealizationBundle(BaseModel):
     candidate_id: str
     book_number: int = Field(ge=1)
     transitions: list[StateTransition] = Field(min_length=1)
+    resolved_commitment_ids: list[str] = Field(default_factory=list)
 
     @field_validator("transitions")
     @classmethod
@@ -159,6 +180,152 @@ class PlanningEntry(BaseModel):
     book_number: int = Field(gt=1)
     entered_by: str
     entered_at: datetime
+
+
+class BookPlanningIntent(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    book_number: int = Field(gt=1)
+    intent: str
+    relevance_refs: list[AcceptedFactRef] = Field(default_factory=list)
+
+
+class ContinuityEntry(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    entry_id: str
+    kind: Literal["commitment", "fact"]
+    summary: str
+    why_matters_now: str
+    source_refs: tuple[AcceptedContinuitySourceRef, ...] = Field(min_length=1)
+    disposition: ContinuityDisposition
+    group_id: str | None = None
+    is_current_constraint: bool
+
+    @property
+    def item_id(self) -> str:
+        """Keep the Task 5 item identifier available to existing callers."""
+        return self.fact_id or self.entry_id
+
+    @property
+    def fact_id(self) -> str | None:
+        if self.kind != "fact":
+            return None
+        return next(
+            (
+                ref.fact_id
+                for ref in self.source_refs
+                if isinstance(ref, AcceptedFactRef)
+            ),
+            None,
+        )
+
+
+class ContinuityGroup(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    group_id: str
+    summary: str
+    why_matters_now: str
+    source_refs: list[AcceptedContinuitySourceRef] = Field(min_length=1)
+    entry_ids: list[str] = Field(min_length=1)
+
+
+class RepeatedBookPlanningContext(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    book_number: int = Field(gt=1)
+    generated_from: list[ArtifactRef] = Field(min_length=1)
+    groups: list[ContinuityGroup] = Field(default_factory=list)
+    entries: list[ContinuityEntry] = Field(default_factory=list)
+    history_entries: list[ContinuityEntry] = Field(default_factory=list)
+    trigger_refs: list[AcceptedFactRef] = Field(default_factory=list)
+    derivation_version: str
+
+    @property
+    def items(self) -> tuple[ContinuityEntry, ...]:
+        """Expose all derived items for Task 5 compatibility."""
+        return tuple((*self.entries, *self.history_entries))
+
+    @property
+    def active_ids(self) -> tuple[str, ...]:
+        return tuple(
+            entry.entry_id
+            for entry in self.entries
+            if entry.kind == "commitment"
+            and entry.disposition in {"active", "reactivated"}
+        )
+
+    @property
+    def active_fact_ids(self) -> tuple[str, ...]:
+        return tuple(
+            entry.fact_id
+            for entry in self.entries
+            if entry.kind == "fact"
+            and entry.disposition in {"active", "reactivated"}
+            and entry.fact_id is not None
+        )
+
+    @property
+    def resolved_history_ids(self) -> tuple[str, ...]:
+        return tuple(
+            entry.entry_id
+            for entry in self.items
+            if entry.disposition == "resolved"
+        )
+
+    @property
+    def dispositions(self) -> dict[str, ContinuityDisposition]:
+        dispositions = {
+            entry.entry_id: entry.disposition for entry in self.items
+        }
+        fact_id_counts: dict[str, int] = {}
+        for entry in self.items:
+            if entry.fact_id is not None:
+                fact_id_counts[entry.fact_id] = (
+                    fact_id_counts.get(entry.fact_id, 0) + 1
+                )
+        dispositions.update(
+            {
+                entry.fact_id: entry.disposition
+                for entry in self.items
+                if entry.fact_id is not None
+                and fact_id_counts[entry.fact_id] == 1
+            }
+        )
+        return dispositions
+
+    @property
+    def group_ids(self) -> tuple[str, ...]:
+        return tuple(group.group_id for group in self.groups)
+
+    def item(self, entry_id: str) -> ContinuityEntry:
+        exact_matches = [
+            entry for entry in self.items if entry.entry_id == entry_id
+        ]
+        if exact_matches:
+            return exact_matches[0]
+        fact_matches = [
+            entry for entry in self.items if entry.fact_id == entry_id
+        ]
+        if len(fact_matches) == 1:
+            return fact_matches[0]
+        if len(fact_matches) > 1:
+            raise ValueError(
+                f"Continuity fact ID {entry_id!r} is ambiguous; use its "
+                "composite entry ID"
+            )
+        raise KeyError(entry_id)
+
+    def group(self, group_id: str) -> ContinuityGroup:
+        return next(group for group in self.groups if group.group_id == group_id)
+
+    def group_source_fact_ids(self, group_id: str) -> set[str]:
+        return {
+            entry.fact_id
+            for entry_id in self.group(group_id).entry_ids
+            if (entry := self.item(entry_id)).fact_id is not None
+        }
 
 
 class CarryForwardItem(BaseModel):
@@ -187,6 +354,10 @@ class DecisionOption(BaseModel):
     label: str
     summary: str
     tradeoff: str
+    incompatible_with_state_refs: list[ArtifactRef] = Field(
+        default_factory=list
+    )
+    incompatibility_reason: str | None = None
 
 
 class NextDecisionProposal(BaseModel):

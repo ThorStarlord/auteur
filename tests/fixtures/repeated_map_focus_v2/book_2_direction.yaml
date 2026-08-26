@@ -1,0 +1,31 @@
+book_number: 2
+identity:
+  title: The Council's Retraction
+  core_answer: Public truth survives only when witnesses retain authority after institutions retreat.
+  target_experience:
+    primary: suspicion
+    progression: exposure -> recognition -> renewed doubt
+    avoid:
+      - effortless certainty
+  story_type:
+    medium: novel
+    mode: procedural
+    genre: mystery
+    target_audience: adult
+  central_engine:
+    want: Identify the falsifier and force the council to answer the recovered record.
+    resistance: The council can acknowledge the fraud and retract its admission once attention moves on.
+    conflict: The investigator must name the falsifier without letting the council discredit the witnesses.
+    stakes: A failed accusation will restore the official lie and expose the remaining witnesses.
+    change: The investigator learns that an admission is not durable without protected evidence.
+  not_this:
+    - A final resolution of every Series pressure.
+  open_questions:
+    - Will the council's admission survive scrutiny?
+  confidence: 0.82
+  alternatives: []
+  why_this_is_best: It continues the accepted pressure through a bounded institutional response.
+  rejected_directions: []
+  author_overrides: []
+series_commitment_ids:
+  - contested-history
