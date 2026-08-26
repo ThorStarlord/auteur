@@ -19,6 +19,7 @@ from auteur.series.handlers import (
     handle_series_validate,
 )
 from auteur.series.models import SeriesIdentity
+from auteur.series.repeated_map_focus import RepeatedDecisionSeed
 from auteur.series.serializers import (
     serialize_series_bible,
     serialize_series_compile,
@@ -26,11 +27,14 @@ from auteur.series.serializers import (
     serialize_series_graph,
 )
 from auteur.series.vertical_slice_formatters import (
+    format_repeated_series_focus,
+    format_repeated_series_map,
     format_series_journey_focus,
     format_series_journey_map,
 )
 from auteur.series.vertical_slice_models import (
     BookDirection,
+    DecisionOption,
     RealizationCandidate,
     SeriesDirection,
 )
@@ -122,7 +126,6 @@ def register_series_subcommands(sub) -> None:
         action="store_true",
         help="Show artifact and revision IDs hidden by default.",
     )
-
     p = journey_commands.add_parser(
         "focus", help="Show one recommendation and the author choices."
     )
@@ -132,6 +135,12 @@ def register_series_subcommands(sub) -> None:
         "--detail",
         action="store_true",
         help="Show artifact and revision IDs hidden by default.",
+    )
+    p.add_argument(
+        "--input",
+        type=Path,
+        default=None,
+        help="Load a caller-supplied bounded repeated Focus seed.",
     )
 
     p = journey_commands.add_parser(
@@ -156,6 +165,19 @@ def load_series(path: Path) -> SeriesIdentity:
 def _load_journey_input(path: Path, model_type):
     payload = yaml.safe_load(path.read_text(encoding="utf-8"))
     return model_type.model_validate(payload)
+
+
+def _load_repeated_decision_seed(path: Path) -> RepeatedDecisionSeed:
+    payload = yaml.safe_load(path.read_text(encoding="utf-8"))
+    return RepeatedDecisionSeed(
+        question=payload["question"],
+        recommended_option_id=payload["recommended_option_id"],
+        options=tuple(
+            DecisionOption.model_validate(option)
+            for option in payload["options"]
+        ),
+        rationale=payload["rationale"],
+    )
 
 
 def handle_series_journey_command(args) -> int:
@@ -220,20 +242,42 @@ def handle_series_journey_command(args) -> int:
             return 0
 
         if args.journey_command == "map":
-            context = service.derive_book_context(args.book)
-            decision = service.propose_next_decision(args.book)
-            print(
-                format_series_journey_map(
-                    context, decision, detail=args.detail
+            if args.book > 2:
+                context = service.derive_repeated_book_context(args.book)
+                print(format_repeated_series_map(context, detail=args.detail))
+            else:
+                context = service.derive_book_context(args.book)
+                decision = service.propose_next_decision(args.book)
+                print(
+                    format_series_journey_map(
+                        context, decision, detail=args.detail
+                    )
                 )
-            )
             return 0
 
         if args.journey_command == "focus":
-            decision = service.propose_next_decision(args.book)
-            print(
-                format_series_journey_focus(decision, detail=args.detail)
-            )
+            if args.book > 2:
+                if args.input is None:
+                    raise ValueError(
+                        f"Book {args.book} Focus requires --input with a "
+                        "bounded decision seed"
+                    )
+                decision = service.propose_repeated_next_decision(
+                    args.book,
+                    decision_seed=_load_repeated_decision_seed(args.input),
+                )
+                print(
+                    format_repeated_series_focus(
+                        decision, detail=args.detail
+                    )
+                )
+            else:
+                decision = service.propose_next_decision(args.book)
+                print(
+                    format_series_journey_focus(
+                        decision, detail=args.detail
+                    )
+                )
             return 0
 
         if args.journey_command == "decide":

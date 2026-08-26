@@ -2,11 +2,20 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Literal
+from typing import Iterable, Literal
 from uuid import uuid4
 
 from auteur.provenance import ArtifactMetadata
+from auteur.series.repeated_map_focus import (
+    AcceptedHistorySnapshot,
+    CurrentStateEvidence,
+    RepeatedBookPlanningContext,
+    RepeatedDecisionSeed,
+    select_repeated_continuity,
+    validate_repeated_decision_proposal as validate_repeated_proposal,
+)
 from auteur.series.vertical_slice_models import (
+    AcceptedFactRef,
     AcceptedBookDirection,
     AcceptedRealizationBundle,
     AcceptedSeriesDirection,
@@ -14,6 +23,7 @@ from auteur.series.vertical_slice_models import (
     BookDirection,
     BookDirectionProposal,
     BookPlanningContext,
+    BookPlanningIntent,
     CanonicalState,
     CarryForwardItem,
     DecisionAction,
@@ -230,6 +240,19 @@ class SeriesVerticalSliceService:
         rationale: str | None = None,
     ) -> AcceptedRealizationBundle:
         candidate = self.store.load_realization_candidate(candidate_id)
+        accepted_series, _series_metadata = self._accepted_series_source()
+        known_commitment_ids = {
+            commitment.commitment_id
+            for commitment in accepted_series.direction.commitments
+        }
+        unknown_resolved_ids = sorted(
+            set(candidate.resolved_commitment_ids) - known_commitment_ids
+        )
+        if unknown_resolved_ids:
+            raise ValueError(
+                "Unknown accepted Series commitment resolution(s): "
+                + ", ".join(unknown_resolved_ids)
+            )
         current_source = self._current_book_source_ref(candidate.book_number)
         if candidate.source_refs != [current_source]:
             raise ValueError(
@@ -242,6 +265,7 @@ class SeriesVerticalSliceService:
             candidate_id=candidate.candidate_id,
             book_number=candidate.book_number,
             transitions=candidate.transitions,
+            resolved_commitment_ids=candidate.resolved_commitment_ids,
         )
         previous_state = self.store.snapshot_canonical_state()
         metadata = self.store.save_accepted_realization_bundle(
@@ -261,10 +285,24 @@ class SeriesVerticalSliceService:
         return accepted
 
     def rebuild_canonical_state(self) -> CanonicalState:
+        bundles = [
+            bundle
+            for bundle, _metadata in (
+                self.store.load_accepted_realization_bundles()
+            )
+        ]
+        state = self._canonical_state_from_bundles(bundles)
+        self.store.save_canonical_state(state)
+        return state
+
+    @staticmethod
+    def _canonical_state_from_bundles(
+        bundles: Iterable[AcceptedRealizationBundle],
+    ) -> CanonicalState:
         values: dict[str, str] = {}
         applied_bundle_ids: list[str] = []
         state_version = 0
-        for bundle, _metadata in self.store.load_accepted_realization_bundles():
+        for bundle in bundles:
             for transition in bundle.transitions:
                 key = f"{transition.subject}.{transition.attribute}"
                 # A null before value means the attribute must not exist yet.
@@ -287,11 +325,171 @@ class SeriesVerticalSliceService:
             values=values,
             applied_bundle_ids=applied_bundle_ids,
         )
-        self.store.save_canonical_state(state)
         return state
 
     def load_canonical_state(self) -> CanonicalState:
         return self.store.load_canonical_state()
+
+    def load_repeated_history_for_book(
+        self, book_number: int
+    ) -> AcceptedHistorySnapshot:
+        """Load accepted authority through book_number - 1 only."""
+        if book_number <= 1:
+            raise ValueError(
+                "Repeated history requires a planning Book number greater than 1"
+            )
+
+        accepted_series, series_metadata = self._accepted_series_source()
+        self.store.validate_book_context_source(
+            series_metadata,
+            artifact_id=accepted_series.artifact_id,
+            artifact_type="series_direction",
+            path=self.store.accepted_series_direction_path,
+        )
+        series_ref = ArtifactRef(
+            artifact_id=accepted_series.artifact_id,
+            revision=series_metadata.revision,
+        )
+
+        books: list[AcceptedBookDirection] = []
+        book_refs: list[ArtifactRef] = []
+        for accepted_book_number in range(1, book_number):
+            accepted_book, book_metadata = self._accepted_book_source(
+                accepted_book_number
+            )
+            self.store.validate_book_context_source(
+                book_metadata,
+                artifact_id=accepted_book.artifact_id,
+                artifact_type="book_direction",
+                path=self.store.accepted_book_direction_path(
+                    accepted_book_number
+                ),
+            )
+            books.append(accepted_book)
+            book_refs.append(
+                ArtifactRef(
+                    artifact_id=accepted_book.artifact_id,
+                    revision=book_metadata.revision,
+                )
+            )
+
+        realizations: list[AcceptedRealizationBundle] = []
+        realization_refs: list[ArtifactRef] = []
+        for bundle, metadata in self.store.load_accepted_realization_bundles():
+            if bundle.book_number >= book_number:
+                continue
+            self.store.validate_book_context_source(
+                metadata,
+                artifact_id=bundle.artifact_id,
+                artifact_type="accepted_realization_bundle",
+                path=self.store.accepted_realization_bundle_path(
+                    bundle.bundle_id
+                ),
+            )
+            realizations.append(bundle)
+            realization_refs.append(
+                ArtifactRef(
+                    artifact_id=bundle.artifact_id,
+                    revision=metadata.revision,
+                )
+            )
+
+        explicitly_resolved_commitment_ids = tuple(
+            dict.fromkeys(
+                commitment_id
+                for bundle in realizations
+                for commitment_id in bundle.resolved_commitment_ids
+            )
+        )
+        accepted_fact_refs = tuple(
+            AcceptedFactRef(
+                artifact_id=bundle.artifact_id,
+                revision=realization_ref.revision,
+                fact_id=transition.transition_id,
+            )
+            for bundle, realization_ref in zip(
+                realizations, realization_refs, strict=True
+            )
+            for transition in bundle.transitions
+        )
+
+        return AcceptedHistorySnapshot(
+            planning_book_number=book_number,
+            series=accepted_series,
+            series_ref=series_ref,
+            books=tuple(books),
+            book_refs=tuple(book_refs),
+            realizations=tuple(realizations),
+            realization_refs=tuple(realization_refs),
+            explicitly_resolved_commitment_ids=(
+                explicitly_resolved_commitment_ids
+            ),
+            accepted_fact_refs=accepted_fact_refs,
+            canonical_state=self._canonical_state_from_bundles(realizations),
+        )
+
+    def derive_current_state_evidence(
+        self, book_number: int
+    ) -> dict[str, CurrentStateEvidence]:
+        history = self.load_repeated_history_for_book(book_number)
+        evidence: dict[str, CurrentStateEvidence] = {}
+        for bundle, realization_ref in zip(
+            history.realizations, history.realization_refs, strict=True
+        ):
+            for transition in bundle.transitions:
+                key = f"{transition.subject}.{transition.attribute}"
+                previous = evidence.get(key)
+                superseded_fact_ids = (
+                    ()
+                    if previous is None
+                    else (
+                        *previous.superseded_fact_ids,
+                        previous.current_fact_id,
+                    )
+                )
+                evidence[key] = CurrentStateEvidence(
+                    key=key,
+                    current_value=transition.after,
+                    current_fact_id=transition.transition_id,
+                    current_source_ref=AcceptedFactRef(
+                        artifact_id=bundle.artifact_id,
+                        revision=realization_ref.revision,
+                        fact_id=transition.transition_id,
+                    ),
+                    superseded_fact_ids=superseded_fact_ids,
+                )
+        return evidence
+
+    def derive_repeated_book_context(
+        self, book_number: int
+    ) -> RepeatedBookPlanningContext:
+        """Derive opening Book-N continuity from accepted history through N-1."""
+        planning_entry = self.store.load_planning_entry(book_number)
+        planning_intent = self.store.load_book_planning_intent(book_number)
+        if planning_entry is None or planning_intent is None:
+            raise ValueError(
+                f"An explicit Book {book_number} planning intent is required "
+                "before repeated continuity can be derived"
+            )
+
+        history = self.load_repeated_history_for_book(book_number)
+        unknown_refs = [
+            ref
+            for ref in planning_intent.relevance_refs
+            if ref not in history.accepted_fact_refs
+        ]
+        if unknown_refs:
+            raise ValueError(
+                "Planning intent relevance reference(s) are not in accepted "
+                "history"
+            )
+        context = select_repeated_continuity(
+            history,
+            planning_intent,
+            self.derive_current_state_evidence(book_number),
+        )
+        self.store.save_repeated_book_context(context)
+        return context
 
     def enter_book_planning(
         self, book_number: int, *, entered_by: str
@@ -311,6 +509,38 @@ class SeriesVerticalSliceService:
         )
         self.store.save_planning_entry(entry)
         return entry
+
+    def enter_repeated_book_planning(
+        self,
+        book_number: int,
+        *,
+        entered_by: str,
+        intent: str,
+        relevance_refs: list[AcceptedFactRef],
+    ) -> BookPlanningIntent:
+        planning_intent = BookPlanningIntent(
+            book_number=book_number,
+            intent=intent,
+            relevance_refs=relevance_refs,
+        )
+        accepted_history = self.load_repeated_history_for_book(book_number)
+        unknown_refs = [
+            ref
+            for ref in planning_intent.relevance_refs
+            if ref not in accepted_history.accepted_fact_refs
+        ]
+        if unknown_refs:
+            rendered_refs = ", ".join(
+                f"{ref.artifact_id}@{ref.revision}/{ref.fact_id}"
+                for ref in unknown_refs
+            )
+            raise ValueError(
+                "Planning intent relevance reference(s) are not in accepted "
+                f"history: {rendered_refs}"
+            )
+        self.enter_book_planning(book_number, entered_by=entered_by)
+        self.store.save_book_planning_intent(planning_intent)
+        return planning_intent
 
     def derive_book_context(self, book_number: int) -> BookPlanningContext:
         if self.store.load_planning_entry(book_number) is None:
@@ -492,6 +722,42 @@ class SeriesVerticalSliceService:
         self.store.save_next_decision_proposal(proposal)
         return proposal
 
+    def propose_repeated_next_decision(
+        self,
+        book_number: int,
+        *,
+        decision_seed: RepeatedDecisionSeed,
+    ) -> NextDecisionProposal:
+        """Build a bounded proposal from the current repeated context."""
+        if book_number <= 2:
+            raise ValueError(
+                "Repeated Next Decision proposals require Book 3 or later"
+            )
+        context = self.derive_repeated_book_context(book_number)
+        proposal = NextDecisionProposal(
+            proposal_id=(
+                f"book-{book_number}-next-decision-{uuid4().hex}"
+            ),
+            book_number=book_number,
+            question=decision_seed.question,
+            recommended_option_id=decision_seed.recommended_option_id,
+            options=tuple(
+                option.model_copy(deep=True)
+                for option in decision_seed.options
+            ),
+            rationale=decision_seed.rationale,
+            accepted_input_refs=context.generated_from,
+        )
+        self.store.save_next_decision_proposal(proposal)
+        return proposal
+
+    def validate_repeated_decision_proposal(
+        self,
+        proposal: NextDecisionProposal,
+    ) -> None:
+        context = self.derive_repeated_book_context(proposal.book_number)
+        validate_repeated_proposal(proposal, context)
+
     @staticmethod
     def _validate_next_decision_context(context: BookPlanningContext) -> None:
         context_item_ids = tuple(item.item_id for item in context.items)
@@ -553,12 +819,13 @@ class SeriesVerticalSliceService:
                 "Next Decision proposal already has a conflicting action"
             )
 
-        current_context = self.derive_book_context(proposal.book_number)
-        self._validate_next_decision_context(current_context)
-        if proposal.accepted_input_refs != current_context.generated_from:
-            raise ValueError(
-                "Next Decision proposal accepted inputs are stale"
-            )
+        if proposal.book_number == 2:
+            current_context = self.derive_book_context(proposal.book_number)
+            self._validate_next_decision_context(current_context)
+            if proposal.accepted_input_refs != current_context.generated_from:
+                raise ValueError(
+                    "Next Decision proposal accepted inputs are stale"
+                )
 
         recorded = DecisionAction(
             proposal_id=proposal_id,
@@ -567,6 +834,8 @@ class SeriesVerticalSliceService:
             recorded_at=datetime.now(timezone.utc),
         )
         self.store.validate_decision_action(proposal, recorded)
+        if proposal.book_number > 2:
+            self.validate_repeated_decision_proposal(proposal)
         self.store.save_decision_action_with_status(
             recorded,
             proposal.model_copy(update={"status": status}),

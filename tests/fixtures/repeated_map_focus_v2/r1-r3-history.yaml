@@ -1,0 +1,68 @@
+series_direction_fixture: series_direction.yaml
+
+accepted_books:
+  - book_number: 1
+    direction_fixture: book_1_direction.yaml
+    realization_fixture: book_1_realization.yaml
+    series_commitment_ids:
+      - contested-history
+      - commitment-falsifier
+
+  - book_number: 2
+    direction_fixture: book_2_direction.yaml
+    realization_fixture: book_2_realization.yaml
+    resolved_commitment_ids:
+      - commitment-falsifier
+    series_commitment_ids:
+      - contested-history
+      - commitment-falsifier
+
+  - book_number: 3
+    direction_fixture: book_3_direction.yaml
+    realization_fixture: book_3_realization.yaml
+    series_commitment_ids:
+      - contested-history
+
+unaccepted_realizations:
+  - candidate_id: book-2-burn-archive
+    book_number: 2
+    summary: A rejected alternative would burn the archive.
+    transitions:
+      - transition_id: burn-archive
+        subject: archive
+        attribute: condition
+        before: null
+        after: burned
+        explanation: The proposed alternative destroys the archive.
+    source_refs:
+      - artifact_id: book-2-direction
+        revision: 1
+
+  - candidate_id: book-3-ally-militia
+    book_number: 3
+    summary: A rejected alternative would recruit an allied militia.
+    transitions:
+      - transition_id: ally-militia
+        subject: archive_allies
+        attribute: response
+        before: null
+        after: militia raised
+        explanation: The proposed alternative raises an allied militia.
+    source_refs:
+      - artifact_id: book-3-direction
+        revision: 1
+
+planning_intents:
+  - book_number: 2
+    intent: Make the forged founding record matter to lived memory.
+    relevance_refs:
+      - artifact_id: realization-bundle-book-1-realization
+        revision: 1
+        fact_id: founding-record
+
+  - book_number: 3
+    intent: Respond to the council's accepted retraction.
+    relevance_refs:
+      - artifact_id: realization-bundle-book-2-realization
+        revision: 1
+        fact_id: admission-retracted

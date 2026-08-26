@@ -20,12 +20,14 @@ from auteur.series.vertical_slice_models import (
     AcceptedSeriesDirection,
     ArtifactRef,
     BookDirectionProposal,
+    BookPlanningIntent,
     BookPlanningContext,
     CanonicalState,
     DecisionAction,
     NextDecisionProposal,
     PlanningEntry,
     RealizationCandidate,
+    RepeatedBookPlanningContext,
     SeriesDirectionProposal,
 )
 
@@ -33,7 +35,7 @@ from auteur.series.vertical_slice_models import (
 _PATH_SAFE_IDENTIFIER = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*\Z")
 _REALIZATION_ARTIFACT_PREFIX = "realization-bundle-"
 _NEXT_DECISION_PROPOSAL_ID = re.compile(
-    r"book-2-next-decision-[0-9a-f]{32}\Z"
+    r"book-(?P<book_number>[1-9][0-9]*)-next-decision-[0-9a-f]{32}\Z"
 )
 
 
@@ -75,10 +77,33 @@ class VerticalSliceStore:
             raise ValueError("Planning entry requires a Book number greater than 1")
         return self.root / "workflow" / f"book-{book_number}-planning.yaml"
 
+    def book_planning_intent_path(self, book_number: int) -> Path:
+        if book_number <= 1:
+            raise ValueError(
+                "Planning intent requires a Book number greater than 1"
+            )
+        return (
+            self.root
+            / "workflow"
+            / "book-planning-intent"
+            / f"book-{book_number}.yaml"
+        )
+
     def book_planning_context_path(self, book_number: int) -> Path:
         if book_number <= 1:
             raise ValueError("Planning context requires a Book number greater than 1")
         return self.root / "derived" / f"book-{book_number}-context.yaml"
+
+    def repeated_book_context_path(self, book_number: int) -> Path:
+        if book_number <= 1:
+            raise ValueError(
+                "Repeated planning context requires a Book number greater than 1"
+            )
+        return (
+            self.root
+            / "derived"
+            / f"repeated-book-{book_number}-context.yaml"
+        )
 
     def next_decision_proposal_path(self, proposal_id: str) -> Path:
         if _PATH_SAFE_IDENTIFIER.fullmatch(proposal_id) is None:
@@ -301,11 +326,21 @@ class VerticalSliceStore:
                 f"Next Decision proposal {proposal.proposal_id} does not match "
                 f"requested proposal {requested_id}"
             )
-        if proposal.book_number != 2:
-            raise ValueError("Next Decision proposal must be for Book 2")
-        if _NEXT_DECISION_PROPOSAL_ID.fullmatch(proposal.proposal_id) is None:
+        identity_match = _NEXT_DECISION_PROPOSAL_ID.fullmatch(
+            proposal.proposal_id
+        )
+        if identity_match is None:
             raise ValueError(
-                "Next Decision proposal ID does not match Book 2 convention"
+                "Next Decision proposal ID does not match Book "
+                f"{proposal.book_number} convention"
+            )
+        identity_book_number = int(identity_match.group("book_number"))
+        if identity_book_number != proposal.book_number:
+            if identity_book_number == 2:
+                raise ValueError("Next Decision proposal must be for Book 2")
+            raise ValueError(
+                "Next Decision proposal ID Book number does not match its "
+                "proposal Book number"
             )
 
     def save_decision_action(self, action: DecisionAction) -> None:
@@ -1086,6 +1121,27 @@ class VerticalSliceStore:
             )
         return entry
 
+    def save_book_planning_intent(self, intent: BookPlanningIntent) -> None:
+        self._write_model(
+            self.book_planning_intent_path(intent.book_number), intent
+        )
+
+    def load_book_planning_intent(
+        self, book_number: int
+    ) -> BookPlanningIntent | None:
+        path = self.book_planning_intent_path(book_number)
+        if not path.is_file():
+            return None
+        intent = BookPlanningIntent.model_validate(
+            yaml.safe_load(path.read_text(encoding="utf-8"))
+        )
+        if intent.book_number != book_number:
+            raise ValueError(
+                f"Planning intent Book {intent.book_number} does not match "
+                f"requested Book {book_number}"
+            )
+        return intent
+
     def save_book_planning_context(self, context: BookPlanningContext) -> None:
         self._write_model(
             self.book_planning_context_path(context.book_number), context
@@ -1093,6 +1149,34 @@ class VerticalSliceStore:
 
     def delete_book_planning_context(self, book_number: int) -> None:
         path = self.book_planning_context_path(book_number)
+        path.with_suffix(".tmp").unlink(missing_ok=True)
+        path.unlink(missing_ok=True)
+
+    def save_repeated_book_context(
+        self, context: RepeatedBookPlanningContext
+    ) -> None:
+        self._write_model(
+            self.repeated_book_context_path(context.book_number), context
+        )
+
+    def load_repeated_book_context(
+        self, book_number: int
+    ) -> RepeatedBookPlanningContext | None:
+        path = self.repeated_book_context_path(book_number)
+        if not path.is_file():
+            return None
+        context = RepeatedBookPlanningContext.model_validate(
+            yaml.safe_load(path.read_text(encoding="utf-8"))
+        )
+        if context.book_number != book_number:
+            raise ValueError(
+                f"Repeated planning context Book {context.book_number} does "
+                f"not match requested Book {book_number}"
+            )
+        return context
+
+    def delete_repeated_book_context(self, book_number: int) -> None:
+        path = self.repeated_book_context_path(book_number)
         path.with_suffix(".tmp").unlink(missing_ok=True)
         path.unlink(missing_ok=True)
 

@@ -1,0 +1,13 @@
+candidate_id: book-2-unrelated-history
+book_number: 2
+summary: The monastery names a new caretaker for its sealed records.
+transitions:
+  - transition_id: named-monastery-caretaker
+    subject: monastery
+    attribute: caretaker
+    before: null
+    after: Sister Amara
+    explanation: The monastery names Sister Amara as caretaker of its sealed records.
+source_refs:
+  - artifact_id: book-2-direction
+    revision: 1

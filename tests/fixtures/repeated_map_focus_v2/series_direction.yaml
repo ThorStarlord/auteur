@@ -1,0 +1,13 @@
+series_id: archive-of-lies
+title: Archive of Lies
+series_type: ongoing
+promise: Each recovered account reveals who profits when history is controlled.
+pressure: Every public correction gives the hidden archivists a reason to erase another witness.
+open_question: Can the truth survive without becoming another instrument of power?
+commitments:
+  - commitment_id: contested-history
+    statement: Every Book must expose a consequential conflict between official history and lived memory.
+    scope: series
+  - commitment_id: commitment-falsifier
+    statement: The person who falsified the founding record must be identified.
+    scope: series

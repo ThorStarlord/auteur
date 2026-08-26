@@ -254,6 +254,13 @@ def test_next_decision_cites_context_inputs_and_tradeoff(
     }
     assert proposal.rationale.strip()
     assert all(option.tradeoff.strip() for option in proposal.options)
+    assert all(
+        option.incompatible_with_state_refs == []
+        for option in proposal.options
+    )
+    assert all(
+        option.incompatibility_reason is None for option in proposal.options
+    )
 
 
 def test_choose_recommended_does_not_accept_book_2_direction(
