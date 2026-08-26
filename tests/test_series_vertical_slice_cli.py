@@ -122,6 +122,10 @@ def test_focus_shows_recommendation_rationale_tradeoff_and_choices(
     assert "accepted Series commitment" in output
     assert "Principal tradeoff" in output
     assert "testimony and personal credibility central" in output
+    assert "This is a planning choice, not Book 2 canon." in output
+    assert (
+        "before accepting a Book 2 direction" in output
+    )
     assert "Choose recommended" in output
     assert "Choose another option" in output
     assert "Defer" in output

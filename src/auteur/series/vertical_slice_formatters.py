@@ -79,6 +79,10 @@ def format_series_journey_focus(
         "Principal tradeoff",
         recommended.tradeoff,
         "",
+        "This is a planning choice, not Book 2 canon.",
+        "Choosing an option records what you want to explore next. You can "
+        "change or develop it before accepting a Book 2 direction.",
+        "",
         "Your choices",
         f"- Choose recommended: {recommended.label}",
         "- Choose another option:",
