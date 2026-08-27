@@ -1,0 +1,36 @@
+{
+  "provider": "deepseek",
+  "model": "deepseek-chat",
+  "base_url": "https://api.deepseek.com/v1",
+  "request_messages": [
+    {
+      "role": "user",
+      "content": "Canary test: explain what a lantern symbolizes in one sentence. Reply exactly starting with CANARY_OK then your sentence."
+    }
+  ],
+  "response": {
+    "raw_text": "CANARY_OK A lantern symbolizes hope and guidance, illuminating the path through darkness and uncertainty.",
+    "finish_reason": "stop",
+    "usage": {
+      "prompt_tokens": 28,
+      "completion_tokens": 18,
+      "total_tokens": 46,
+      "reasoning_tokens": null,
+      "cached_tokens": 0
+    },
+    "request_id": "4c40cf8d-0b77-4fea-98b7-d40c40ce8e7f",
+    "model": "deepseek-v4-flash",
+    "created": 1787867581,
+    "elapsed_ms": 2225,
+    "attempt": 0,
+    "error": null
+  },
+  "timestamp": "2026-08-27T21:53:02.774993Z",
+  "provenance_classification": {
+    "request_id": "PROVIDER-REPORTED",
+    "model": "PROVIDER-REPORTED",
+    "usage": "PROVIDER-REPORTED",
+    "elapsed_ms": "TRANSPORT-MEASURED",
+    "timestamp": "LOCALLY CALCULATED"
+  }
+}

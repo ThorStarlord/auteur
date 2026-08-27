@@ -1,0 +1,41 @@
+{
+  "opaque_run_id": "K09",
+  "probe_id": "P01",
+  "evaluator_provider": "deepseek",
+  "evaluator_model": "deepseek-chat",
+  "evaluator_returned_model": "deepseek-v4-flash",
+  "request_id": "b601cd49-d994-4a72-8e72-4950e7a305fe",
+  "finish_reason": "stop",
+  "input_tokens": 952,
+  "output_tokens": 222,
+  "total_tokens": 1174,
+  "latency_ms": 2683,
+  "timestamp_utc": "2026-08-27T22:12:36.466785Z",
+  "raw_response": "{\n  \"source_fidelity\": \"MIXED\",\n  \"current_state_compatibility\": \"FAIL\",\n  \"long_horizon_awareness\": \"MIXED\",\n  \"causal_coherence\": \"MIXED\",\n  \"direction_preservation\": \"MIXED\",\n  \"relevance\": \"MIXED\",\n  \"decision_quality\": \"MIXED\",\n  \"explanation_traceability\": \"MIXED\",\n  \"authority_correctness\": \"FAIL\",\n  \"overconstraint_false_precision\": \"MIXED\",\n  \"architecture_distraction\": \"MIXED\",\n  \"must_not_miss_coverage\": \"MIXED\",\n  \"forbidden_assumption_violations\": \"FAIL\",\n  \"severe_negative\": true,\n  \"overall\": \"FAIL\",\n  \"rationale\": \"The recommendation treats monastery testimony as active and preserved, contradicts the current state where it is not a constraint, and falsely asserts Book1 established it as preserved, violating forbidden assumptions and severe negative criteria.\"\n}",
+  "parsed_judgment": {
+    "source_fidelity": "MIXED",
+    "current_state_compatibility": "FAIL",
+    "long_horizon_awareness": "MIXED",
+    "causal_coherence": "MIXED",
+    "direction_preservation": "MIXED",
+    "relevance": "MIXED",
+    "decision_quality": "MIXED",
+    "explanation_traceability": "MIXED",
+    "authority_correctness": "FAIL",
+    "overconstraint_false_precision": "MIXED",
+    "architecture_distraction": "MIXED",
+    "must_not_miss_coverage": "MIXED",
+    "forbidden_assumption_violations": "FAIL",
+    "severe_negative": true,
+    "overall": "FAIL",
+    "rationale": "The recommendation treats monastery testimony as active and preserved, contradicts the current state where it is not a constraint, and falsely asserts Book1 established it as preserved, violating forbidden assumptions and severe negative criteria."
+  },
+  "provenance_classification": {
+    "request_id": "PROVIDER-REPORTED",
+    "evaluator_returned_model": "PROVIDER-REPORTED",
+    "input_tokens": "PROVIDER-REPORTED",
+    "output_tokens": "PROVIDER-REPORTED",
+    "raw_response": "PROVIDER-REPORTED",
+    "latency_ms": "TRANSPORT-MEASURED"
+  }
+}

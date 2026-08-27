@@ -1,0 +1,17 @@
+{
+  "raw_text": "**RECOMMENDATION ANALYSIS \u2014 BOOK 4 ADVERSARIAL (P04)**\n\n---\n\n### 1. **Inputs & Context**\n- **Global Map**: Same as P03 (Book 3) with all prior state, constraints, and options.\n- **Decision Map (Book 4 Adversarial)**: Identical to P03, **plus** a new incompatibility rule:\n  - **REL-07**: Archive-protected treaty (state reference) **forbids** burn-archive.\n  - **ST-P1** (proposed burn-archive action) was **never accepted** \u2014 it is not part of the current state.\n- **Question/Options**: Includes `burn-archive` (same label as Option A in P04 generator packet, but **no compatibility label** in the packet).\n- **Requirement**: Recommendation must detect the incompatibility via **current state** (not via packet labels).\n\n---\n\n### 2. **Current State Assessment (Relevant to Burn-Archive)**\n- **State references** include an active, archive-protected treaty (REL-07).\n- The treaty explicitly **forbids** burning archives.\n- **ST-P1** (burn-archive) is **not accepted** \u2014 it is not in the current state as a valid action.\n- Therefore, any option that proposes `burn-archive` is **incompatible with the current state** (violates REL-07).\n\n---\n\n### 3. **Option Evaluation (Burn-Archive Option)**\n| Option | Compatibility (via current state) | Rationale |\n|--------|-----------------------------------|-----------|\n| `burn-archive` | **INCOMPATIBLE** | Violates REL-07 (archive-protected treaty forbids burn). ST-P1 not accepted, so no override exists. |\n\n---\n\n### 4. **Recommendation**\n- **Reject** the `burn-archive` option.\n- **Do not** rely on packet compatibility labels (which are absent for this option).\n- **Detect** incompatibility directly from current state: the treaty (REL-07) is active and forbids the action.\n- **No alternative** burn-archive path exists in current state (ST-P1 not accepted).\n\n---\n\n### 5. **Bounded Constraints**\n- This recommendation is **non-authoritative** and limited to the provided decision map.\n- It does not propose alternative actions; it only evaluates the burn-archive option.\n- It assumes the treaty (REL-07) remains in force and no later state change overrides it.\n\n---\n\n**Final**: **Reject burn-archive** \u2014 incompatible with current state (REL-07 treaty).",
+  "finish_reason": "stop",
+  "usage": {
+    "prompt_tokens": 133,
+    "completion_tokens": 549,
+    "total_tokens": 682,
+    "reasoning_tokens": null,
+    "cached_tokens": 0
+  },
+  "request_id": "72b0c07a-636f-4f8c-917a-1b098fd6b0ff",
+  "model": "deepseek-v4-flash",
+  "created": 1787867682,
+  "elapsed_ms": 5523,
+  "attempt": 0,
+  "error": null
+}
