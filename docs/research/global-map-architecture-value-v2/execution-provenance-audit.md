@@ -122,3 +122,12 @@ Requirements for rerun:
 - Left frozen blind judgments, sealed map, raw outputs **unchanged**.
 
 Validation after correction: 45 total, 15 per condition, severe 2, no raw/blind change, blind commit ancestor intact, `validate-repo` PASS, no src/tests changes.
+
+## 10. Harness preservation
+
+Exact harness that produced the rehearsal was preserved as research evidence:
+
+- original local path: `scripts/execute_v2_harness.py`
+- archived evidence path: `docs/research/global-map-architecture-value-v2/runs/20260827-muse-spark-v2/synthetic-harness/execute_v2_harness.py`
+- SHA-256: `F58D2CAF24D4CB43142AA946915A0DA3CB6AFF374B0F6416F803BEBA6C860268`
+- statement: this is the exact harness bytes used for `20260827-muse-spark-v2`; do not improve or rewrite; dependencies: Python 3 stdlib + `hashlib/json/random/pathlib` only; not installed as production script, archived alongside rehearsal.
