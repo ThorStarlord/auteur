@@ -1,9 +1,11 @@
 # Repeated Map/Focus V2 — Human Validation Contract (Books 2/3/4 Archive of Lies)
 
-Status: contract designed and persisted; the human study cannot run until the
-probe-enabling surface exists (see
-[docs/design/repeated-map-focus-v2-probe-enabling-surface-boundary.md](../design/repeated-map-focus-v2-probe-enabling-surface-boundary.md)).
-No participant evidence has been collected.
+Status: contract designed and persisted. The probe-enabling surface previously
+described as a prerequisite (see
+[docs/design/repeated-map-focus-v2-probe-enabling-surface-boundary.md](../design/repeated-map-focus-v2-probe-enabling-surface-boundary.md))
+has been implemented, qualified, published, and integrated into `main`. That
+prerequisite is now historical; the study is no longer blocked on surface
+availability. No participant evidence has been collected.
 
 This contract defines the human-validation protocol for the qualified Repeated
 Map/Focus V2 capability. It is grounded in the Books 2/3/4 *Archive of Lies*
@@ -12,9 +14,28 @@ Contract](../acceptance/series-repeated-map-focus-capability-contract-v1.md).
 It closes the human-evidence boundary from the V2 workstream: it converts the
 still-open usability questions into an observable, preregistered protocol.
 
-The Human Validation Contract may be designed and persisted before the probe
-surface exists, but the actual human study must not run until that surface has
-been implemented and qualified.
+The Human Validation Contract was designed and persisted before the probe
+surface existed, but the actual human study was correctly gated until that
+surface had been implemented and qualified. That gate is now satisfied; the
+contract itself is unchanged as a preregistered protocol awaiting participants.
+
+## Scope clarification
+
+This contract remains valid for testing Map/Focus comprehension, why-now
+comprehension, current vs superseded understanding, dormant-fact reactivation,
+bounded Focus decisions, recommendation vs canon, workflow choice vs narrative
+authority, and authority inversions. It does not answer the newer comparative
+architecture-value question introduced in
+[Product Design Research — Architecture value and Global Map](../research/product-design-research.md):
+
+Does a richer explicit narrative architecture materially improve long-horizon
+reasoning relative to prompt/context-only and current Map/Focus?
+
+That question belongs to the separate Architecture Value Experiment. This human
+validation contract is therefore retained as a later or complementary study,
+not deleted or rewritten into the new Architecture Value Experiment. Its
+preregistered participant-count and authority-inversion rules remain in force
+unless a direct factual contradiction requires correction.
 
 ## Study question
 
@@ -106,8 +127,11 @@ shipped product. The surface must provide:
 - a supported way to enter the current planning-intent statement and present
   accepted-fact relevance triggers.
 
-Until both probe-enabling surface repairs are qualified, the human study cannot
-start, because the study depends on those exact behaviors.
+The human study was gated on both probe-enabling surface repairs being
+qualified because it depends on those exact behaviors. That gate is now
+satisfied: the surface has been implemented, qualified, and integrated into
+`main`. The protocol remains to be run against that qualified surface; no
+participant evidence has been collected.
 
 ## Non-goals
 
