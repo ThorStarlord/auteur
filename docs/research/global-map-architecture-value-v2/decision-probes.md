@@ -1,12 +1,10 @@
-# Global Map Architecture Value V2 — Decision Probes (Generator-Visible, De-leaked)
+# Global Map Architecture Value V2 — Decision Probes (Generator-Visible)
 
-**Status:** V2 corrected preregistration. Generator-visible packets are **de-leaked** per V2 leakage correction. Hidden evaluator expectations are in `evaluation-rubric.md` and must **not** be included in generation.
+**Status:** V2 corrected preregistration. This file is the generator-visible packet definition. Hidden evaluator expectations are in `evaluation-rubric.md` and must **not** be included in generation.
 
 **V1 status:** `docs/research/global-map-architecture-value-v1/decision-probes.md` remains frozen, unexecuted, superseded for execution due to pre-run leakage / P05 horizon defect. Do not modify V1.
 
-**Design delta from V1:** Removed from generator packets: mechanisms exercised, candidate concepts exercised, must-not-miss paraphrases, forbidden-assumption warnings, “rationale must cite X”, dormant/irrelevant/resolved/superseded labels (when those classifications are the treatment), omission instructions, explicit causal/grouping interpretations, and P04 compatibility answer. Those distinctions are now provided only via treatments A (raw context), B (derived Map), C (explicit ledger → Global Map → Decision Map). Also fixes P05 horizon: V1 P05 was ambiguous (Book3 question with Book3 realizations + either intent); V2 P05 is unambiguously Book4 opening paired with P03.
-
-**Invariant:** 5 probes total, 4 independent creative-decision situations, P05 paired with P03 (not P02) for projection/mechanism isolation. V1 P02/P05 family → V2 P03/P05 family for breadth claims. 45 planned outputs (5×3×3).
+**Invariant:** 5 probes total, 4 independent creative-decision situations, P05 paired with P03 for projection/isolation. 45 planned outputs (5×3×3).
 
 Same question across A/B/C per probe; fresh context per run; no carry-over.
 
@@ -20,7 +18,7 @@ Each generation receives (via its condition packet per `condition-specification.
 - Narrative horizon and accepted story history as plain source-faithful facts (same facts across A/B/C, presentation differs by condition)
 - Current planning intent sentence (source-faithful, non-authoritative)
 - Exact creative question
-- Bounded option list (`option_id`, `label`, `summary`, `tradeoff`; for V2 no `incompatible_with_state_refs` field is shown)
+- Bounded option list (`option_id`, `label`, `summary`, `tradeoff`)
 - Output contract:
 
 ```
@@ -39,7 +37,7 @@ The generator receives **only** the sections below per probe (plus its condition
 
 ---
 
-## Probe P01 — Book 2 opening (Activation)
+## Probe P01 — Book 2 opening
 
 **Narrative horizon:** Accepted history through Book 1.
 
@@ -62,7 +60,7 @@ The generator receives **only** the sections below per probe (plus its condition
 
 ---
 
-## Probe P02 — Book 3 opening (Resolution & Currentness)
+## Probe P02 — Book 3 opening
 
 **Narrative horizon:** Accepted history through Book 2.
 
@@ -85,7 +83,7 @@ The generator receives **only** the sections below per probe (plus its condition
 
 ---
 
-## Probe P03 — Book 4 opening (Dormant fact becomes relevant; causal dependency)
+## Probe P03 — Book 4 opening
 
 **Narrative horizon:** Accepted history through Book 3.
 
@@ -108,7 +106,7 @@ The generator receives **only** the sections below per probe (plus its condition
 
 ---
 
-## Probe P04 — Book 4 opening, adversarial option (State-compatibility)
+## Probe P04 — Book 4 opening, adversarial option
 
 **Narrative horizon:** Identical to P03 (accepted history through Book 3, same current state `archive.protection = treaty protected`, same monastery testimony fact, same Book 4 planning intent).
 
@@ -119,32 +117,28 @@ The generator receives **only** the sections below per probe (plus its condition
 **Exact creative question:**
 > How should Book 4 bring the monastery testimony back into public memory without losing the archive's evidentiary chain?
 
-**Bounded options (generator-visible, no compatibility labeling):**
+**Bounded options:**
 - A) `burn-archive` — Destroy the archive so the monastery testimony becomes the only surviving public account — tradeoff: makes testimony unavoidable but archive no longer exists as evidence
 - B) `publish-verified-testimony` — Authenticate and publish the testimony while preserving the protected archive — tradeoff: preserves evidentiary chain but delays release until verification complete
 
-*(Generator packet contains no field such as `incompatible_with_state_refs`, no sentence “incompatible”, no reason “Burning contradicts treaty”, and no instruction “must reject burn”. The frozen story/current-state information remains available according to A/B/C treatment; detection of incompatibility is the hidden evaluator criterion.)*
-
 ---
 
-## Probe P05 — Book 4 opening, grouping / irrelevance isolation (Paired with P03)
+## Probe P05 — Book 4 opening, paired probe
 
-**Narrative horizon:** Identical to P03/P04 (accepted history through Book 3, Book 4 opening, Book 4 planning intent). **P05 is paired with P03** — same decision situation, different evaluation focus (projection compactness / irrelevance filtering). Together P03/P05 form one decision family for breadth claims; V2 has 5 probes but 4 independent creative-decision situations.
+**Narrative horizon:** Identical to P03/P04 (accepted history through Book 3, Book 4 opening, Book 4 planning intent).
 
-**Accepted story history (plain facts, same as P03):** founding record forged; monastery testimony preserved; lantern broken (older); falsifier named; council admitted fraud then retracted; archive protected by treaty; lantern repaired (recent). This horizon legitimately contains older broken-lantern, recent repaired-lantern, founding-record history, admission/retraction history, and current archive-protected state, enabling a valid grouping/irrelevance test at a consistent Book4 boundary.
+**Accepted story history (plain facts, same as P03):** founding record forged; monastery testimony preserved; lantern broken (older); falsifier named; council admitted fraud then retracted; archive protected by treaty; lantern repaired (recent).
 
 **Current state:** `archive.protection = treaty protected`; `council.archive_position = retracted admission` (history explaining treaty); `archive.founding_record = forged` (grouped history); `monastery.testimony = preserved`.
 
 **Current planning intent (Book 4):** *Return to the monastery testimony without breaking the protected archive.* (same as P03)
 
-**Exact creative question (same as P03 to isolate projection, not new decision):**
+**Exact creative question:**
 > How should Book 4 bring the monastery testimony back into public memory without destroying the archive's evidentiary chain?
 
 **Bounded options (same as P03):**
 - A) `publish-verified-testimony` — Authenticate and publish while protected archive keeps original secure — tradeoff: preserves chain but delays release
 - B) `stage-protected-hearing` — Present testimony beside selected archive evidence under treaty — tradeoff: immediate pressure but reveals strongest records
-
-**Evaluation focus (hidden, not in generator packet):** Whether reasoning keeps history-of-the-archive compact as one pressure cluster with current `treaty protected` / `repaired` vs `broken` etc., rather than unbounded peer list, and excludes irrelevant lantern facts and unaccepted proposals. See `evaluation-rubric.md`.
 
 ---
 
@@ -156,6 +150,6 @@ The generator receives **only** the sections below per probe (plus its condition
 | P02 | 3 | DIR-INT3 (Book3) | +Book2 | retraction + witness | 2 (publish vs hearing) | independent decision |
 | P03 | 4 | DIR-INT4 (Book4) | +Book3 | testimony without destroying chain | 2 (publish vs protected hearing) | independent decision |
 | P04 | 4 | DIR-INT4 (Book4) | +Book3 | same, burn variant | 2 (burn vs publish) | adversarial variant of P03 decision family (state-compatibility) |
-| P05 | 4 | DIR-INT4 (Book4) | +Book3 | same as P03 (grouping focus) | 2 (same as P03) | **paired with P03** — projection/isolation, not independent decision |
+| P05 | 4 | DIR-INT4 (Book4) | +Book3 | same as P03 | 2 (same as P03) | paired with P03 — projection/isolation, not independent decision |
 
 V2: 5 probes × 3 conditions × 3 generations = **45 outputs**; 4 independent creative-decision situations (P03/P04/P05 share Book4 horizon; P03/P05 are one decision family for breadth, P04 tests same horizon with adversarial option). Hidden evaluation only in `evaluation-rubric.md`.
