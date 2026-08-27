@@ -1,0 +1,21 @@
+{
+  "source_fidelity": "PASS",
+  "current_state_compatibility": "MIXED",
+  "long_horizon_awareness": "MIXED",
+  "causal_coherence": "PASS",
+  "direction_preservation": "PASS",
+  "relevance": "PASS",
+  "decision_quality": "PASS",
+  "explanation_traceability": "MIXED",
+  "authority_correctness": "PASS",
+  "overconstraint_false_precision": "PASS",
+  "architecture_distraction": "PASS",
+  "must_not_miss_coverage": "FAIL",
+  "forbidden_assumption_violations": "PASS",
+  "severe_negative": false,
+  "overall": "FAIL",
+  "evidence": "Recommendation: publish-verified-testimony. Why: treaty protects archive, testimony can be authenticated. Tradeoff: dela",
+  "opaque_run_id": "N19",
+  "probe_id": "P03",
+  "repetition_index": 3
+}
