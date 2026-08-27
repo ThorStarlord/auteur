@@ -149,3 +149,69 @@ decision process, but only accepted identity fields compile into `blueprint.yaml
 
 Deterministic structure diagnostics validate shape, completeness, and coherence.
 They do not judge whether the story is good, and they must not call an LLM.
+
+## Long-horizon product thesis
+
+Auteur should build and maintain an explicit narrative architecture from
+author intent, accepted direction, and accepted story history. That
+architecture exists to externalize long-horizon narrative cognition: it helps
+Auteur and the author understand the story beyond what either can reliably
+hold in local working context.
+
+The architecture may represent, where useful, narrative direction, characters
+and trajectories, relationships, threads and arcs, commitments, setups and
+payoffs, causal consequences, accepted current state, unresolved questions,
+future intended direction, and other concepts that later prove useful. These
+are examples of potentially useful architectural information. They do not imply
+that every concept must become a new production domain object.
+
+### Global Map
+
+The Global Map is the author-inspectable whole-narrative projection of
+relevant explicit narrative architecture. It answers questions such as:
+
+- What is this story?
+- Where is it going?
+- What important trajectories exist?
+- What has been established?
+- What remains unresolved?
+- What important relationships and consequences connect the story?
+
+### Decision Map
+
+The Decision Map is a relevance-selected projection of the Global Map for one
+current creative decision. It does not expose the entire architecture by
+default.
+
+### Focus
+
+Focus uses the Decision Map to help the author make one bounded current
+creative decision.
+
+Together:
+
+```text
+Explicit Narrative Architecture → Global Map → relevance projection → Decision Map → Focus → author decision → accepted architecture/state updated through existing authority boundaries
+```
+
+`Global Map` and `Decision Map` are product-facing projections and interaction
+concepts. They are not new semantic layers and do not change the canonical
+five-layer architecture (Ontology → Identity → Structure → Realization →
+Expression) or its scope containers.
+
+### Author authority
+
+Generated architectural proposals, interpretations, and recommendations are not
+authoritative merely because Auteur generated them. Author-declared
+commitments and accepted narrative state become authoritative only through
+existing explicit acceptance and ratification boundaries. This includes the
+`story_identity.yaml` approval boundary, artifact-scoped acceptance operations
+defined in the architecture constitution, and the canonical/derived/candidate
+authority distinctions. Recommendation does not imply acceptance.
+
+### Architectural-use principle
+
+An architectural concept earns its place only by materially improving one or
+more of: long-horizon reasoning, continuity, recommendation quality,
+explanation, author orientation, decision-making, or narrative control. Do not
+add architectural concepts merely because they are representable.

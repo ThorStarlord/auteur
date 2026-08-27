@@ -88,6 +88,14 @@ completion, and requests to bypass or skip sections.
 Stop condition: retain only the minimum concepts needed for the current author
 decision; defer concepts that do not change that decision.
 
+Reconciliation: progressive disclosure constrains what the author must operate
+during a local decision. It does not imply that Auteur's persistent
+whole-story representation must itself remain minimal. The whole-story
+representation (explicit narrative architecture / Global Map) may be richer than
+the current UI projection (Decision Map / Focus). Showing the minimum for the
+current decision is a presentation principle, not a cap on maintained
+architecture.
+
 ### 4. Author-facing vocabulary
 
 Question: Which plain-language explanations let authors understand canonical
@@ -150,6 +158,91 @@ at the end of the task, and whether the author continues independently.
 
 Stop condition: do not claim product value from artifact creation alone; the
 author must understand what was accepted and what to do next.
+
+### 8. Architecture value and Global Map
+
+Central question: What explicit narrative architecture does Auteur need in order
+to make materially better long-horizon creative decisions than a
+prompt/context-only system, while remaining understandable and maintainable for
+the author?
+
+Working hypothesis: Auteur may benefit from maintaining richer narrative
+structure than must be shown during an individual local decision. A persistent
+whole-story projection (Global Map) exposes that structure when useful, while a
+relevance-selected projection (Decision Map) and bounded Focus progressively
+disclose only the subset relevant to the current decision.
+
+This track distinguishes internal representational value from author-facing
+usability:
+
+- **Internal representational value** — Does explicit architecture materially
+  improve Auteur's reasoning?
+- **Author-facing usability** — Can the author understand, inspect, correct, and
+  benefit from the architecture?
+
+Intended comparative experiment (same narrative state and same creative
+decision wherever possible):
+
+- **A. Prompt/context-only baseline** — a capable model receives ordinary
+  story and context material and the current creative question without Auteur's
+  explicit architectural substrate.
+- **B. Current Auteur** — current accepted-history plus Repeated Map/Focus
+  behavior.
+- **C. Architecture-rich Auteur** — a richer experimental narrative architecture
+  is available, from which Auteur derives Global Map → Decision Map → Focus.
+
+Evidence dimensions to compare include: long-range setup/payoff awareness,
+character-trajectory consistency, relationship continuity, causal consequences,
+preservation of accepted direction, detection of obsolete or contradictory
+conditions, relevance selection, recommendation quality, explanation quality,
+useful novel connections, author orientation, maintenance burden, stale
+architectural information, duplicate information, false precision, and
+cognitive overload.
+
+Complexity rule: do not optimize for minimal architecture or maximal
+architecture. Seek the smallest architecture that produces materially better
+long-horizon reasoning and author control.
+
+For each candidate architectural concept, ask:
+
+VALUE
+
+- Did it change a recommendation?
+- Did it detect a consequential problem?
+- Did it improve an explanation?
+- Did it help the author orient?
+- Did it preserve an important long-range relationship?
+
+COST
+
+- Did the author or system have to maintain it?
+- Did it become stale?
+- Did it duplicate another representation?
+- Did it create false precision?
+- Did it make reasoning or presentation harder?
+
+Suggested disposition:
+
+- high value / low cost → strong production candidate
+- high value / high cost → redesign or automate
+- low value / low cost → probably unnecessary
+- low value / high cost → remove or defer
+
+Global Map and Decision Map in this track are product-facing projections and
+interaction concepts, not new semantic layers, unless later evidence proves a
+canonical architecture change is necessary. Experiment before
+productionization: do not promote concepts to production architecture or UI
+until the comparative experiment shows they earn their complexity. The
+experiment must be rich enough for architectural information to actually affect
+reasoning; a purely visual mockup test is insufficient.
+
+Intended sequence after this thesis clarification: clarify product thesis →
+define Architecture Value Experiment → create one experimental rich narrative
+representation → create a disposable but functionally meaningful Global Map
+prototype → compare A/B/C → identify which concepts earn their complexity →
+promote only supported concepts into production architecture → implement
+production Global Map → run author-facing comprehension and usability
+validation.
 
 ## Shared experiment protocol
 
