@@ -48,7 +48,7 @@ Top-level `docs/research/global-map-architecture-value-experiment-v1.md` is the 
 5. **What does C receive?** Same sources **plus** golden ledger → Global Map → Decision Map (relevance-selected) + same question.
 6. **Does C have unfair facts?** No — information-parity rule: every ledger entry traces to frozen source; C gains *organization*, not new facts. Violation invalidates.
 7. **Which statements are accepted vs derived?** Source-manifest + ledger `authority` column: `ACCEPTED` vs `DETERMINISTIC_DERIVATION` vs `INTERPRETIVE` vs `NON-AUTHORITATIVE` trigger.
-8. **What exact questions?** 5 frozen questions in `decision-probes.md` (P01 fraud→memory, P02 retraction+ witness, P03 testimony without destroying chain, P04 burn variant, P05 grouping focus).
+8. **What exact questions?** 5 frozen probes (4 independent decisions + P05 paired with P02) in `decision-probes.md` (P01 fraud→memory, P02 retraction+ witness, P03 testimony without destroying chain, P04 burn variant, P05 same as P02 to isolate grouping — paired, not independent).
 9. **How blinded?** Opaque IDs `X17/Q04`, sealed `hidden_condition_id`, evaluator never sees condition mapping or expected winner.
 10. **How evaluated without arbitrary taste?** Must-not-miss / forbidden signals per probe; either option defensible if constraints respected; judge awareness of consequential relationships, not option choice (except P04 burn must be rejected).
 11. **What counts as material value?** C uses source-backed relationship to produce better decision/explanation or prevent error that A/B miss (see rubric).

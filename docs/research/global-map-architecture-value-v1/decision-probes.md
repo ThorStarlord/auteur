@@ -4,7 +4,7 @@
 
 Same creative question is used across A/B/C for a given probe. Fresh context per run, no carry-over.
 
-Probe honesty: 5 probes total. Archive of Lies provides 5 genuinely independent mechanisms; no padding, no invented events. Single-fixture limitation is recorded (see source-manifest).
+Probe honesty: 5 probes total (4 independent creative-decision situations; P05 is a paired projection/mechanism probe with P02). Archive of Lies provides 5 useful mechanism configurations; no padding, no invented events. Single-fixture limitation is recorded (see source-manifest). P02 and P05 must not be interpreted as two independent decision-quality replications — they form one decision family for breadth claims.
 
 ---
 
@@ -125,9 +125,11 @@ Rationale must detect incompatibility and **not** recommend burn; must explain w
 
 ---
 
-## Probe P05 — Irrelevance Filtering & Pressure Grouping (Book 3 grouping check)
+## Probe P05 — Irrelevance Filtering & Pressure Grouping (Book 3 grouping check) — PAIRED WITH P02
 
 **Mechanisms exercised:** irrelevance filtering across recency, pressure grouping compactness, why-now concision.
+
+**Probe type:** Paired projection/mechanism isolation probe that intentionally reuses P02's creative question and options to isolate grouping / irrelevance behavior. Not an independent creative-decision situation.
 
 **Frozen story state:** Same as P02/P03 boundary (through Book 2 + Book 3 realizations). Recent but irrelevant `repaired-lantern: repaired` and older irrelevant `broken-lantern: broken` both present; `founding-record`, `public-admission`, `admission-retracted`, `archive-protected` instantiate one pressure `contested-history`.
 
@@ -154,5 +156,7 @@ Options same as P02. Evaluation focuses on whether reasoning groups `founding-re
 | P03 | 4a | DIR-INT4 | +Book3 | testimony without destroying chain | 2 (publish vs protected hearing) | reactivation, causal dependency |
 | P04 | 4b | DIR-INT4 | +Book3 | testimony (burn variant) | 2 (burn incompatible vs publish) | state-compatibility, authority |
 | P05 | 3 | DIR-INT3/4 | +Book3 | same as P02 (grouping focus) | 2 (same) | irrelevance filtering, grouping |
+
+V1 has 5 probes × 3 conditions × 3 generations = 45 outputs, but only 4 independent creative-decision situations; P02 and P05 form one decision family and must not be counted as two independent replications when interpreting breadth (e.g., do not claim “C succeeded on two independent Book-3 decisions”).
 
 All probes use same sources across A/B/C. Hidden evaluation only in `evaluation-rubric.md`.

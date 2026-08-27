@@ -28,10 +28,10 @@ All derive from **same frozen sources** (`source-manifest.md`). C may expose der
 
 ## 3. Fixture selection (honest limitation)
 
-- **Archive of Lies** via `tests/fixtures/repeated_map_focus_v2/` supplies qualified R1–R3 ledger (Series pressure, founding-record forged, falsifier resolved, admission→retraction supersession, treaty-protected archive, dormant monastery testimony, plus irrelevant/burn/militia negatives). Sufficient for 5 independent mechanism probes.
+- **Archive of Lies** via `tests/fixtures/repeated_map_focus_v2/` supplies qualified R1–R3 ledger (Series pressure, founding-record forged, falsifier resolved, admission→retraction supersession, treaty-protected archive, dormant monastery testimony, plus irrelevant/burn/militia negatives). Sufficient for 5 useful mechanism configurations across 4 independent creative-decision situations (P05 is paired with P02 to isolate grouping/irrelevance; see `decision-probes.md`).
 - **No second tracked long-form fixture** with comparable depth exists in `tests/fixtures/`; V1 is therefore **directional single-fixture**, not generality claim. Limitation is explicitly recorded rather than inventing fake breadth.
 
-## 4. Probes (5, frozen)
+## 4. Probes (5, frozen — 4 independent decisions + 1 paired mechanism probe)
 
 | id | book | mechanisms | question | options |
 |---|---|---|---|---|
@@ -39,7 +39,9 @@ All derive from **same frozen sources** (`source-manifest.md`). C may expose der
 | P02 Resolution/Supersession | 3 | resolved omission, superseded currentness | How respond to retraction while preserving witness? | publish-witness vs hearing |
 | P03 Reactivation | 4a | dormant→reactivated, causal treaty | How bring testimony back without destroying chain? | publish-verified vs protected-hearing |
 | P04 Incompatibility | 4b | state-compatibility, authority | Same, with burn-archive incompatible option | burn (incompatible) vs publish |
-| P05 Grouping | 3 | pressure grouping, recency filtering | Same as P02 (grouping focus) | same as P02 |
+| P05 Grouping — paired with P02 | 3 | pressure grouping, recency filtering | Same as P02 (grouping focus) — paired isolation probe | same as P02 |
+
+5 probes total, 4 independent creative-decision situations; P05 intentionally reuses P02's question/options to isolate pressure-grouping and irrelevance-filtering behavior and must not be interpreted as a second independent decision replication (P02/P05 = one decision family for breadth claims).
 
 Generator-visible specs in `decision-probes.md`; hidden must-not-miss/forbidden in `evaluation-rubric.md` (not sent to generator). Same question across A/B/C per probe; fresh context each; 3 reps per condition per probe = **45 outputs** (or 15 if deterministic).
 

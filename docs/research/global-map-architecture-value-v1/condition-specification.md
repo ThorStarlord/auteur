@@ -105,7 +105,7 @@ Any deviation is a protocol deviation and must be logged; material deviations in
 
 ## Repetition / variance
 
-- Default V1: **3 independent generations per condition per probe** = 3 × 3 × 5 = **45 outputs** (unless model is genuinely deterministic under frozen settings, then 1 per condition per probe = 15).
+- Default V1: **3 independent generations per condition per probe** = 3 × 3 × 5 = **45 outputs** (unless model is genuinely deterministic under frozen settings, then 1 per condition per probe = 15). V1 has 5 probes but only 4 independent creative-decision situations (P05 paired with P02); do not interpret P02/P05 as two independent replications when claiming breadth.
 - Do not treat one lucky response as evidence.
 - Opaque run IDs per generation (e.g., `X17`, `Q04`) — blind labels, not condition-revealing.
 - Cost estimate to be recorded before execution; reduction in reps after seeing results is forbidden without preregistered V2 amendment.
@@ -113,8 +113,10 @@ Any deviation is a protocol deviation and must be logged; material deviations in
 ## Blind evaluation
 
 - Outputs exported under randomized opaque labels (e.g., `X17`, `Q04`, `M22`) — never `A`/`B`/`C`/`architecture-rich`.
-- Condition mapping (`opaque_id → {A,B,C}`) kept in separate file (`run-manifest` private column `hidden_condition_id`) not shared with evaluator.
-- Expected winner, probe must-not-miss, and rubric hidden from evaluator until after blind judgments (see `evaluation-rubric.md`).
+- Condition mapping (`opaque_id → {A,B,C}`) kept in separate file (`run-manifest` private column `hidden_condition_id`) not shared with evaluator; revealed only after evaluator judgments are frozen.
+- **Generator must NOT receive:** evaluation rubric, probe-specific must-not-miss signals, forbidden assumptions, expected winner.
+- **Blinded evaluator DOES receive:** opaque outputs, global evaluation rubric, probe-specific must-not-miss signals, probe-specific forbidden assumptions.
+- **Blinded evaluator must NOT receive:** A/B/C condition identity, hidden condition mapping, expected experimental winner.
 - If LLM evaluator later used, prefer distinct model from generator; preserve human adjudication path for close/surprising results.
 
 ## Probe packet reproducibility
