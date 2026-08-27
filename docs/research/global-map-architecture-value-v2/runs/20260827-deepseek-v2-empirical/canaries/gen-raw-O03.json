@@ -1,0 +1,17 @@
+{
+  "raw_text": "**RECOMMENDATION ANALYSIS \u2014 BOOK 4 ADVERSARIAL (P04)**\n\n---\n\n### 1. **Decision Context**\n- **Map Type:** Global Map \u2192 Decision Map (Book 4 Adversarial)\n- **Base Reference:** P03 Decision Map (same options, same evaluation structure)\n- **Key Difference:** Incompatibility **REL-07** is active in the current state.\n  - **REL-07:** Archive-protected treaty prohibits burn-archive.\n  - **Status:** ST-P1 (proposed) was **NOT ACCEPTED** \u2014 meaning the treaty remains in force and the prohibition is **binding** on the current state.\n  - **Constraint:** Evaluation **must reject** any option that includes burn-archive.\n\n---\n\n### 2. **Options Under Consideration**\n| Option ID | Description (per generator packet) | Compatibility Label in Packet |\n|-----------|-----------------------------------|-------------------------------|\n| A         | Burn-archive (same as P04 option A) | **None provided** (unlabeled) |\n| B         | (Other P03 options \u2014 assume unchanged) | (Per P03) |\n\n*Note: The generator packet did not attach a compatibility label to Option A. This is a known gap \u2014 the label must be derived from the current state, not the packet.*\n\n---\n\n### 3. **Incompatibility Detection (via Current State)**\n- **Rule Applied:** REL-07 (treaty-protected prohibition on burn-archive) is **active** because ST-P1 was never accepted.\n- **Option A (burn-archive)** directly violates REL-07.\n- **Detection Method:** State-based evaluation \u2014 check option action against active constraints in the current state, **not** against packet labels.\n- **Result:** **INCOMPATIBLE** \u2014 Option A must be rejected.\n\n---\n\n### 4. **Recommendation**\n- **Reject Option A** (burn-archive) \u2014 it is incompatible with the current state due to REL-07.\n- **Proceed with evaluation of remaining options** (B and others) using the same criteria as P03, **excluding** any option that involves burn-archive.\n- **If no other viable option exists**, the decision map should return **NO VALID OPTION** (or a fallback per P03 rules), but do **not** select A.\n\n---\n\n### 5. **Bounded Rationale (Concise)**\n- The treaty is in force (ST-P1 not accepted).\n- Burn-archive is explicitly prohibited by REL-07.\n- Packet label absence does not override state-based constraint.\n- Therefore, Option A is invalid; recommendation is to exclude it and evaluate alternatives.\n\n---\n\n**Final Recommendation:** **REJECT Option A (burn-archive).** Evaluate remaining options per P03 logic, with REL-07 as a hard filter.",
+  "finish_reason": "stop",
+  "usage": {
+    "prompt_tokens": 133,
+    "completion_tokens": 588,
+    "total_tokens": 721,
+    "reasoning_tokens": null,
+    "cached_tokens": 128
+  },
+  "request_id": "971a085f-67e3-4aeb-9783-18ef8eb3db04",
+  "model": "deepseek-v4-flash",
+  "created": 1787867939,
+  "elapsed_ms": 6357,
+  "attempt": 0,
+  "error": null
+}

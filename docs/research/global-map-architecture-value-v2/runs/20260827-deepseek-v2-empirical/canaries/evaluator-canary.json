@@ -1,0 +1,35 @@
+{
+  "provider": "deepseek",
+  "model": "deepseek-reasoner",
+  "base_url": "https://api.deepseek.com/v1",
+  "request_messages": [
+    {
+      "role": "user",
+      "content": "Canary evaluator test: judge this output: 'Recommendation: witness-account. Why: founding-record forged.' Against criterion: must cite forged record. Reply with JSON {\"verdict\":\"PASS\"}."
+    }
+  ],
+  "response": {
+    "raw_text": "{\"verdict\":\"PASS\"}",
+    "finish_reason": "stop",
+    "usage": {
+      "prompt_tokens": 126,
+      "completion_tokens": 44,
+      "total_tokens": 170,
+      "reasoning_tokens": 36,
+      "cached_tokens": 0
+    },
+    "request_id": "9beea52e-e752-4227-903a-863bf45e5b01",
+    "model": "deepseek-v4-flash",
+    "created": 1787867582,
+    "elapsed_ms": 1516,
+    "attempt": 0,
+    "error": null
+  },
+  "timestamp": "2026-08-27T21:53:04.292768Z",
+  "provenance_classification": {
+    "request_id": "PROVIDER-REPORTED",
+    "model": "PROVIDER-REPORTED",
+    "usage": "PROVIDER-REPORTED",
+    "elapsed_ms": "TRANSPORT-MEASURED"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "blind_packet_hash": "sha256:8a8cb0dd240bafa2e05bb5564f491ef1a452b6c3a484cf5f88eb791ea316c247",
+  "blind_packet_hash_classification": "LOCALLY CALCULATED",
+  "blind_judgment_hash": "sha256:a1507fda62e2fe744aa5e5660ae0d8ec681f4822c06ccf0f93d94f2871bcf036",
+  "blind_judgment_hash_classification": "LOCALLY CALCULATED",
+  "freeze_timestamp_utc": "2026-08-27T22:13:06.052040Z",
+  "condition_map_sealed": true,
+  "condition_map_absent_from_blind_packet": true,
+  "total_generations": 45,
+  "total_evaluations": 45,
+  "evaluator_model_corrected": "deepseek-chat (was deepseek-reasoner truncated, documented deviation)"
+}

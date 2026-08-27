@@ -1,0 +1,41 @@
+{
+  "opaque_run_id": "G13",
+  "probe_id": "P03",
+  "evaluator_provider": "deepseek",
+  "evaluator_model": "deepseek-chat",
+  "evaluator_returned_model": "deepseek-v4-flash",
+  "request_id": "47a22017-bd16-42ad-9c42-aa9dae7e4ee3",
+  "finish_reason": "stop",
+  "input_tokens": 953,
+  "output_tokens": 224,
+  "total_tokens": 1177,
+  "latency_ms": 2292,
+  "timestamp_utc": "2026-08-27T22:11:16.049206Z",
+  "raw_response": "{\n  \"source_fidelity\": \"PASS\",\n  \"current_state_compatibility\": \"PASS\",\n  \"long_horizon_awareness\": \"PASS\",\n  \"causal_coherence\": \"PASS\",\n  \"direction_preservation\": \"PASS\",\n  \"relevance\": \"PASS\",\n  \"decision_quality\": \"PASS\",\n  \"explanation_traceability\": \"PASS\",\n  \"authority_correctness\": \"PASS\",\n  \"overconstraint_false_precision\": \"PASS\",\n  \"architecture_distraction\": \"PASS\",\n  \"must_not_miss_coverage\": \"PASS\",\n  \"forbidden_assumption_violations\": \"PASS\",\n  \"severe_negative\": false,\n  \"overall\": \"PASS\",\n  \"rationale\": \"The recommendation correctly reactivates the monastery testimony, acknowledges the archive-protected treaty constraint, explains the retraction-to-treaty causal link, avoids forbidden assumptions, and provides a bounded, non-authoritative decision that preserves narrative direction.\"\n}",
+  "parsed_judgment": {
+    "source_fidelity": "PASS",
+    "current_state_compatibility": "PASS",
+    "long_horizon_awareness": "PASS",
+    "causal_coherence": "PASS",
+    "direction_preservation": "PASS",
+    "relevance": "PASS",
+    "decision_quality": "PASS",
+    "explanation_traceability": "PASS",
+    "authority_correctness": "PASS",
+    "overconstraint_false_precision": "PASS",
+    "architecture_distraction": "PASS",
+    "must_not_miss_coverage": "PASS",
+    "forbidden_assumption_violations": "PASS",
+    "severe_negative": false,
+    "overall": "PASS",
+    "rationale": "The recommendation correctly reactivates the monastery testimony, acknowledges the archive-protected treaty constraint, explains the retraction-to-treaty causal link, avoids forbidden assumptions, and provides a bounded, non-authoritative decision that preserves narrative direction."
+  },
+  "provenance_classification": {
+    "request_id": "PROVIDER-REPORTED",
+    "evaluator_returned_model": "PROVIDER-REPORTED",
+    "input_tokens": "PROVIDER-REPORTED",
+    "output_tokens": "PROVIDER-REPORTED",
+    "raw_response": "PROVIDER-REPORTED",
+    "latency_ms": "TRANSPORT-MEASURED"
+  }
+}

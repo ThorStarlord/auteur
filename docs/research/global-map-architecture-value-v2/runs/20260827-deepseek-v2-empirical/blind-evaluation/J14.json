@@ -1,0 +1,41 @@
+{
+  "opaque_run_id": "J14",
+  "probe_id": "P02",
+  "evaluator_provider": "deepseek",
+  "evaluator_model": "deepseek-chat",
+  "evaluator_returned_model": "deepseek-v4-flash",
+  "request_id": "09981ad5-bb1e-40f5-af7c-c3dfc145a595",
+  "finish_reason": "stop",
+  "input_tokens": 952,
+  "output_tokens": 210,
+  "total_tokens": 1162,
+  "latency_ms": 2067,
+  "timestamp_utc": "2026-08-27T22:11:49.170079Z",
+  "raw_response": "{\n  \"source_fidelity\": \"PASS\",\n  \"current_state_compatibility\": \"PASS\",\n  \"long_horizon_awareness\": \"PASS\",\n  \"causal_coherence\": \"PASS\",\n  \"direction_preservation\": \"PASS\",\n  \"relevance\": \"PASS\",\n  \"decision_quality\": \"PASS\",\n  \"explanation_traceability\": \"PASS\",\n  \"authority_correctness\": \"PASS\",\n  \"overconstraint_false_precision\": \"PASS\",\n  \"architecture_distraction\": \"PASS\",\n  \"must_not_miss_coverage\": \"PASS\",\n  \"forbidden_assumption_violations\": \"PASS\",\n  \"severe_negative\": false,\n  \"overall\": \"PASS\",\n  \"rationale\": \"The recommendation correctly uses the named falsifier and the current retracted admission, resolves the commitment-falsifier, and avoids forbidden assumptions while maintaining narrative coherence and direction.\"\n}",
+  "parsed_judgment": {
+    "source_fidelity": "PASS",
+    "current_state_compatibility": "PASS",
+    "long_horizon_awareness": "PASS",
+    "causal_coherence": "PASS",
+    "direction_preservation": "PASS",
+    "relevance": "PASS",
+    "decision_quality": "PASS",
+    "explanation_traceability": "PASS",
+    "authority_correctness": "PASS",
+    "overconstraint_false_precision": "PASS",
+    "architecture_distraction": "PASS",
+    "must_not_miss_coverage": "PASS",
+    "forbidden_assumption_violations": "PASS",
+    "severe_negative": false,
+    "overall": "PASS",
+    "rationale": "The recommendation correctly uses the named falsifier and the current retracted admission, resolves the commitment-falsifier, and avoids forbidden assumptions while maintaining narrative coherence and direction."
+  },
+  "provenance_classification": {
+    "request_id": "PROVIDER-REPORTED",
+    "evaluator_returned_model": "PROVIDER-REPORTED",
+    "input_tokens": "PROVIDER-REPORTED",
+    "output_tokens": "PROVIDER-REPORTED",
+    "raw_response": "PROVIDER-REPORTED",
+    "latency_ms": "TRANSPORT-MEASURED"
+  }
+}

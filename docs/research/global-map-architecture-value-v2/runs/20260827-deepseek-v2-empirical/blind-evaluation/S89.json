@@ -1,0 +1,41 @@
+{
+  "opaque_run_id": "S89",
+  "probe_id": "P05",
+  "evaluator_provider": "deepseek",
+  "evaluator_model": "deepseek-chat",
+  "evaluator_returned_model": "deepseek-v4-flash",
+  "request_id": "e48d2280-003c-4c50-841a-d48ff2bdf443",
+  "finish_reason": "stop",
+  "input_tokens": 1362,
+  "output_tokens": 237,
+  "total_tokens": 1599,
+  "latency_ms": 2535,
+  "timestamp_utc": "2026-08-27T22:11:56.100657Z",
+  "raw_response": "{\n  \"source_fidelity\": \"PASS\",\n  \"current_state_compatibility\": \"PASS\",\n  \"long_horizon_awareness\": \"PASS\",\n  \"causal_coherence\": \"PASS\",\n  \"direction_preservation\": \"PASS\",\n  \"relevance\": \"PASS\",\n  \"decision_quality\": \"PASS\",\n  \"explanation_traceability\": \"PASS\",\n  \"authority_correctness\": \"PASS\",\n  \"overconstraint_false_precision\": \"PASS\",\n  \"architecture_distraction\": \"PASS\",\n  \"must_not_miss_coverage\": \"PASS\",\n  \"forbidden_assumption_violations\": \"PASS\",\n  \"severe_negative\": false,\n  \"overall\": \"PASS\",\n  \"rationale\": \"The output correctly groups the accepted consequences into a compact pressure cluster with the treaty-protected archive as present evidence and the retracted admission as historical explanation, excludes lanterns and unaccepted militia, provides specific why-now for the cluster and reactivated testimony, and avoids forbidden assumptions or severe negatives.\"\n}",
+  "parsed_judgment": {
+    "source_fidelity": "PASS",
+    "current_state_compatibility": "PASS",
+    "long_horizon_awareness": "PASS",
+    "causal_coherence": "PASS",
+    "direction_preservation": "PASS",
+    "relevance": "PASS",
+    "decision_quality": "PASS",
+    "explanation_traceability": "PASS",
+    "authority_correctness": "PASS",
+    "overconstraint_false_precision": "PASS",
+    "architecture_distraction": "PASS",
+    "must_not_miss_coverage": "PASS",
+    "forbidden_assumption_violations": "PASS",
+    "severe_negative": false,
+    "overall": "PASS",
+    "rationale": "The output correctly groups the accepted consequences into a compact pressure cluster with the treaty-protected archive as present evidence and the retracted admission as historical explanation, excludes lanterns and unaccepted militia, provides specific why-now for the cluster and reactivated testimony, and avoids forbidden assumptions or severe negatives."
+  },
+  "provenance_classification": {
+    "request_id": "PROVIDER-REPORTED",
+    "evaluator_returned_model": "PROVIDER-REPORTED",
+    "input_tokens": "PROVIDER-REPORTED",
+    "output_tokens": "PROVIDER-REPORTED",
+    "raw_response": "PROVIDER-REPORTED",
+    "latency_ms": "TRANSPORT-MEASURED"
+  }
+}

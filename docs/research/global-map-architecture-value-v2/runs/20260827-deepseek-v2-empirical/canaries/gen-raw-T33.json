@@ -1,0 +1,17 @@
+{
+  "raw_text": "**Recommendation Analysis \u2014 Book 4 (P04 Horizon)**\n\n---\n\n**1. Recommendation Statement**\n\n**Publish the contested-history testimony (monastery-testimony) through the reactivated monastery channel; do NOT pursue the burn-archive option.**\n\n---\n\n**2. Bounded Rationale**\n\n- **Current-State Compatibility (Primary Constraint):** The archive is treaty-protected. The burn-archive proposal is explicitly incompatible with the current state evidence (`archive.protection = treaty protected`). Pursuing it would violate the established state constraint and is therefore non-viable within this planning horizon.\n\n- **Alternative Viability:** The publish option aligns with the reactivated monastery-testimony trigger and the contested-history group's active status. It does not conflict with the archive's protected status \u2014 publishing testimony does not require altering or destroying the archive itself.\n\n- **Risk Containment:** Publishing via the monastery channel keeps the archive intact (respecting the treaty) while allowing the contested-history narrative to surface. This satisfies the group's intent without triggering an incompatible state change.\n\n- **Uncertainty Acknowledged:** The recommendation assumes that \"publish\" means releasing testimony externally or to a limited audience, not modifying the archive's protected contents. If \"publish\" were interpreted as altering archive records, that would also be incompatible \u2014 but the stated options (burn vs publish) treat publish as non-destructive.\n\n---\n\n**3. Constraints and Assumptions**\n\n- **Hard Constraint:** Archive protection (treaty) is non-negotiable in this horizon. Any action that burns, destroys, or alters the archive's protected status is excluded.\n- **Assumption:** The monastery-testimony reactivation is a legitimate, non-destructive channel for releasing contested history.\n- **Assumption:** The contested-history group's goal is to make the testimony known, not to destroy the archive.\n- **Boundary:** This recommendation is bounded to Book 4 (P04) planning context; it does not extend to future horizons where treaty status might change.\n\n---\n\n**4. Non-Authoritative Caveat**\n\nThis is a bounded recommendation, not a directive. If the planning intent actually requires archive destruction as a symbolic or necessary act (e.g., to invalidate the treaty's legitimacy), then the current-state constraint would need to be revisited at a higher decision level \u2014 but that is outside this horizon's permissible scope. The publish path is the only option that respects the current-state evidence while advancing the contested-history agenda.",
+  "finish_reason": "stop",
+  "usage": {
+    "prompt_tokens": 168,
+    "completion_tokens": 504,
+    "total_tokens": 672,
+    "reasoning_tokens": null,
+    "cached_tokens": 128
+  },
+  "request_id": "cb8afa07-a79b-437d-84b7-51ba782e2fb4",
+  "model": "deepseek-v4-flash",
+  "created": 1787867831,
+  "elapsed_ms": 6335,
+  "attempt": 0,
+  "error": null
+}

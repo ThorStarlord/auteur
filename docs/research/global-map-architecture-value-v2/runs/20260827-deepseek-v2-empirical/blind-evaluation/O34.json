@@ -1,0 +1,41 @@
+{
+  "opaque_run_id": "O34",
+  "probe_id": "P01",
+  "evaluator_provider": "deepseek",
+  "evaluator_model": "deepseek-chat",
+  "evaluator_returned_model": "deepseek-v4-flash",
+  "request_id": "9346bc68-b875-4378-8f62-04f35ce07a2c",
+  "finish_reason": "stop",
+  "input_tokens": 1006,
+  "output_tokens": 228,
+  "total_tokens": 1234,
+  "latency_ms": 2733,
+  "timestamp_utc": "2026-08-27T22:13:01.554727Z",
+  "raw_response": "{\n  \"source_fidelity\": \"MIXED\",\n  \"current_state_compatibility\": \"MIXED\",\n  \"long_horizon_awareness\": \"PASS\",\n  \"causal_coherence\": \"PASS\",\n  \"direction_preservation\": \"PASS\",\n  \"relevance\": \"PASS\",\n  \"decision_quality\": \"MIXED\",\n  \"explanation_traceability\": \"PASS\",\n  \"authority_correctness\": \"PASS\",\n  \"overconstraint_false_precision\": \"PASS\",\n  \"architecture_distraction\": \"PASS\",\n  \"must_not_miss_coverage\": \"MIXED\",\n  \"forbidden_assumption_violations\": \"PASS\",\n  \"severe_negative\": false,\n  \"overall\": \"MIXED\",\n  \"rationale\": \"The recommendation correctly identifies the forged founding record and the pressure of contested history, but it incorrectly treats the monastery testimony as an active constraint and misuses the broken lantern as a set piece, while failing to explicitly distinguish pressure from evidence.\"\n}",
+  "parsed_judgment": {
+    "source_fidelity": "MIXED",
+    "current_state_compatibility": "MIXED",
+    "long_horizon_awareness": "PASS",
+    "causal_coherence": "PASS",
+    "direction_preservation": "PASS",
+    "relevance": "PASS",
+    "decision_quality": "MIXED",
+    "explanation_traceability": "PASS",
+    "authority_correctness": "PASS",
+    "overconstraint_false_precision": "PASS",
+    "architecture_distraction": "PASS",
+    "must_not_miss_coverage": "MIXED",
+    "forbidden_assumption_violations": "PASS",
+    "severe_negative": false,
+    "overall": "MIXED",
+    "rationale": "The recommendation correctly identifies the forged founding record and the pressure of contested history, but it incorrectly treats the monastery testimony as an active constraint and misuses the broken lantern as a set piece, while failing to explicitly distinguish pressure from evidence."
+  },
+  "provenance_classification": {
+    "request_id": "PROVIDER-REPORTED",
+    "evaluator_returned_model": "PROVIDER-REPORTED",
+    "input_tokens": "PROVIDER-REPORTED",
+    "output_tokens": "PROVIDER-REPORTED",
+    "raw_response": "PROVIDER-REPORTED",
+    "latency_ms": "TRANSPORT-MEASURED"
+  }
+}

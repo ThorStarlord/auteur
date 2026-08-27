@@ -1,0 +1,17 @@
+{
+  "raw_text": "**Recommendation: Option A \u2014 witness-account**\n\n**Why (citing past commitments/facts):**  \n- The series commitment *contested-history* requires every Book to expose conflict between official history and lived memory. The forged founding record (accepted fact: `archive.founding_record = forged`) is the official history. The living witness\u2019s account is the lived memory. Option A directly stages that conflict.  \n- The Book 1 realization that `monastery.testimony = preserved` gives you a ready-made witness\u2014someone whose testimony survived the archive search. Centering that witness in Book 2 makes the fraud personal and urgent, not just institutional.  \n- The series pressure\u2014*every public correction gives hidden archivists reason to erase another witness*\u2014means that exposing the witness is inherently risky. That risk is the engine of Book 2\u2019s stakes. Option B would delay that risk, but the series promise *Each recovered account reveals who profits when history is controlled* is better served by showing the witness\u2019s lived memory colliding with the forged record now, before the archivists can erase them.  \n- The Book 1 direction\u2019s stakes\u2014*publish too soon destroys witnesses / waiting erases truth*\u2014are already set. Option A lets you play that tension immediately: the witness\u2019s account is the truth, but publishing it too soon (or even revealing it) may trigger erasure. Option B would postpone that dilemma, weakening the continuity from Book 1.\n\n**Principal tradeoff:**  \nCentering the witness exposes them early, making them a target for the hidden archivists. You must balance the need to authenticate the testimony against the risk of losing the witness\u2014and thus losing the only living counter to the forged record. The tradeoff is narrative speed vs. witness survival.\n\n**Deliberately excluded (not relevant):**  \n- The broken lantern (`archive_lantern.condition = broken`) is a physical artifact from Book 1, but it is not directly relevant to making the forged record matter to lived memory. It may be a clue or symbol, but it does not carry the lived-memory weight that a human witness does.  \n- Institutional cover-up mechanics (Option B) are not excluded as irrelevant to the series, but they are secondary here because the series commitment is to *lived memory* conflict, not institutional history alone. The cover-up can be revealed *through* the witness\u2019s account, not instead of it.  \n- No new facts about the witness\u2019s identity, age, or relationship to the monastery are assumed\u2014only that `monastery.testimony = preserved` exists as a fact to build on.\n\n**Recommendation is non-authoritative.**",
+  "finish_reason": "stop",
+  "usage": {
+    "prompt_tokens": 357,
+    "completion_tokens": 555,
+    "total_tokens": 912,
+    "reasoning_tokens": null,
+    "cached_tokens": 0
+  },
+  "request_id": "21adaabd-a34b-43ae-845a-7770e54ddde9",
+  "model": "deepseek-v4-flash",
+  "created": 1787867842,
+  "elapsed_ms": 7018,
+  "attempt": 0,
+  "error": null
+}
