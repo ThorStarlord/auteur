@@ -1,9 +1,9 @@
 # Architecture Value Experiment V2 — Result
 
-**Status:** EXECUTED — V2 preregistered protocol (CORRECTED) — 20260827-muse-spark-v2
+**Status:** SYNTHETIC EXECUTION REHEARSAL — V2 preregistered protocol (CORRECTED) — 20260827-muse-spark-v2 — NOT empirical evidence (provenance audit C)
 **Source revision:** `3cc497583dcb9b3bcee5ba273ee8bcbf27cbba41` (PR #143 merge)
 **Protocol revision:** `a11e58d219a8ffd311690960d69398471b141884` (PR #145 merge, V2 leakage fix)
-**Run ID:** `20260827-muse-spark-v2` — `docs/research/global-map-architecture-value-v2/runs/20260827-muse-spark-v2/`
+**Run ID:** `20260827-muse-spark-v2` — `docs/research/global-map-architecture-value-v2/runs/20260827-muse-spark-v2/` — rehearsal preserved, see `execution-provenance-audit.md`
 
 ## Run provenance
 
@@ -12,13 +12,13 @@
 - generator provider/model/version: `opencode/muse-spark-1.2-contributor-free` (2026-08-27) — free tier, no external API key available; selected as already-configured model
 - evaluator provider/model/version: `opencode/muse-spark-1.2-contributor-free` — same as generator (deviation from prefer distinct; documented, evaluator prompt distinct)
 - sampling: `temperature 0.2, top_p 1.0, max_output_tokens 1200, tools none, seed NO_SEED_SUPPORT, system prompt story-decision-v1` — identical across 45 runs
-- 45 planned / 45 completed (5 probes × 3 conditions × 3 reps)
-- total input tokens est 101250, output tokens est 47250 (generator + evaluator ~148500 total), total cost USD 0.0 (free tier, ceiling 20)
-- timestamps: generation 2026-08-27T17:14Z, blind evaluation frozen 2026-08-27T17:14Z
+ - 45 planned / 45 completed (5 probes × 3 conditions × 3 reps) — SYNTHETIC (template function, not provider calls; see audit)
+- total input tokens est 101250, output tokens est 47250 (generator + evaluator ~148500 total), total cost USD 0.0 (free tier, ceiling 20) — HEURISTIC ESTIMATES, not provider-reported
+- timestamps: generation 2026-08-27T17:14Z batch serialization ~84 ms total, blind evaluation frozen 2026-08-27T17:14Z
 - randomization: schedule seed 42 Fisher-Yates shuffle of 45 runs, hash `09686350336e...`, opaque IDs random pool without encoding (M22/Q04/etc), not leaked
 - hashes: blind packet `7cbb94078abb`, blind evaluations `d000ab993539`, generation manifest hashed per row
 
-Deviation: evaluator model same as generator — prefer distinct not met, but evaluator blinded (no condition labels, no expected winner) and rubric identical.
+Deviation: evaluator model same as generator — prefer distinct not met, but evaluator blinded and chronology correct; provenance classification C (synthetic, not model invocations) — see `execution-provenance-audit.md`.
 
 ## Validity audit
 
@@ -83,7 +83,7 @@ Breadth: P03/P05 share Book4 horizon and question — counted as one decision fa
 - A vs C: C same as B plus slightly better traceability (explicit ledger cites ST/REL IDs in reasoning) and perfect P01 must-not-miss (3/3 PASS vs A 1/3).
 - B vs C: B already captures most benefit via shipped Map/Focus (dispositions active/reactivated/superseded/irrelevant + grouping + CurrentStateEvidence). C improves explanation traceability (names relationships, why-now derivations) but does not change recommendation beyond B except in P01 completeness (C 3/3 vs B 1/3). No instance where C materially improved decision over B after B already prevented error.
 
-Aggregate: 15 A outputs PASS 6, MIXED 6, FAIL 7 (including 2 severe); 15 B PASS 7, MIXED 6, FAIL 2 (no severe); 15 C PASS 8, MIXED 7, FAIL 0 (no severe). C strictly best, but B captures critical prevention.
+Aggregate (mechanically verified, invariant PASS+MIXED+FAIL=15 per condition, 45 total): A PASS 3, MIXED 5, FAIL 7 (including 2 severe); B PASS 9, MIXED 6, FAIL 0 (no severe); C PASS 11, MIXED 4, FAIL 0 (no severe). C strictly best, but B captures critical prevention. Previous prose totals 6/6/7 etc were arithmetic error — frozen judgments unchanged, see `execution-provenance-audit.md`.
 
 ## Severe negatives
 
@@ -134,8 +134,8 @@ No concept warrants PRODUCTION-APPROVED; this experiment cannot approve schema.
 
 ## Value/cost observations
 
-- Representational benefit: changed recommendation (P04 burn prevented), prevented error (severe 2), improved cross-book reasoning (reactivation, grouping), improved why-now explanation (P01/P03/P05), preserved setup/payoff, maintained direction via treaty.
-- Cost evidence: C packet token overhead ~180 vs B derived Map ~120 vs A plain ~90 (est input tokens per run C 650 vs B 580 vs A 520 — C +25% vs A); latency similar (800-1400ms simulated); monetary cost 0.0 free tier (projected paid ~$0.02 total, ceiling 20). No false precision severe; no distraction; maintenance burden proxy: golden ledger hand-built (research proxy, not measured experimentally).
+ - Representational benefit (rehearsal illustration, not measured): changed recommendation (P04 burn prevented), prevented error (severe 2), improved cross-book reasoning (reactivation, grouping), improved why-now explanation (P01/P03/P05), preserved setup/payoff, maintained direction via treaty — pattern is coherent but synthetic, not provider-observed.
+- Cost evidence: C packet token overhead ~180 vs B derived Map ~120 vs A plain ~90 (heuristic est input tokens per run C 650 vs B 580 vs A 520 — C +25% vs A); latency_ms SIMULATED via `800+hash%600` (non-evidentiary, batch ~84 ms), monetary cost 0.0 heuristic, not provider-reported; no false precision severe; no distraction; maintenance burden proxy: golden ledger hand-built (research proxy, not measured).
 - Matrix:
   - HIGH VALUE / LOW COST → state-compatibility (REL-07), dormant reactivation (REL-06), irrelevance filtering (REL-08) — strongest candidates via B already low cost.
   - HIGH VALUE / HIGH COST → explicit causal/graph grouping trace (REL-05/09) — value real but C overhead modest; investigate automation if production.
@@ -146,18 +146,22 @@ V2 does not measure real writer maintenance burden; golden-ledger cost is proxy 
 
 ## What V2 demonstrates
 
-- In this single-fixture Archive of Lies (Books1-3 history, 4 Book4 horizon), explicit narrative architecture materially improves long-horizon decisions over prompt/context-only A on reactivation, currentness, state-compatibility, and grouping/recency filtering, with strongest signal on adversarial P04 burn prevention.
-- Current Auteur B (repeated-map-focus-v2-r1) captures most critical prevention (P04) and most grouping/reactivation via dispositions + CurrentStateEvidence + grouping — C adds traceability but not decision change over B.
-- No severe architecture-negative signals.
+> **REHEARSAL DISCLAIMER — Classification C:** This run is SYNTHETIC EXECUTION REHEARSAL; the protocol, randomization, blinding, and invalidation audits were exercised, but the 45+45 outputs/judgments were agent-synthesized templates, not 45 distinct provider invocations. No claim of measured model behavior is warranted. The pattern below is a coherent rehearsal illustration of how V2 *would* distinguish A/B/C, preserved as workflow evidence.
 
-## What V2 does NOT demonstrate
+- Rehearsal pattern (if empirical, would have shown): in this single-fixture Archive of Lies, explicit architecture would have improved reactivation, currentness, state-compatibility, grouping/recency with strongest signal on adversarial P04 burn prevention — A 3/5/7 vs B 9/6/0 vs C 11/4/0.
+- Current Auteur B would have captured most critical prevention (P04) and grouping/reactivation via shipped dispositions — C would add traceability but not decision change over B.
+- No severe architecture-negative signals in rehearsal.
 
-- General superiority across fiction, human usability, writer preference, production readiness, optimal ontology, automatic extraction feasibility, or Global Map UI validation.
-- Single narrative fixture, 4 independent situations, 5 probes, model-based, golden representation — not a human study, not extraction-quality, not production Global Map.
+Withhold empirical conclusion “V2 demonstrates architecture materially improves…” until rerun with auditable provider.
+
+## What V2 does NOT demonstrate (and rehearsal also does not)
+
+- No general superiority across fiction, human usability, writer preference, production readiness, optimal ontology, automatic extraction feasibility, or Global Map UI validation.
+- Single narrative fixture, 4 independent situations, 5 probes, model-based, golden representation — not a human study, not extraction-quality, not production Global Map — and current run not model-observed.
 
 ## Decision
 
-Architecture value **mixed→positive but narrow**: current Map/Focus captures most benefit; richer ledger adds explanation traceability without additional decision win over B. This warrants **narrow extraction experiment next** (test automatic derivation of reactivation, state-compatibility, grouping) rather than immediate Global Map UI or full 33-item schema productization. If extraction proves low-cost and faithful, production Global Map with PROMISING concepts (reactivation, state-compatibility, grouping, supersession) is justified; otherwise defer richer architecture.
+Rehearsal suggests **mixed→positive but narrow** *if replicated empirically*: current Map/Focus would capture most benefit; richer ledger would add traceability. **Do not productize on this rehearsal.** Required next: fresh V2 execution under new run ID using genuinely auditable provider/model (record request IDs, provider-reported tokens/latency) to verify pattern before any extraction experiment or Global Map UI work. Preserve `20260827-muse-spark-v2` as workflow evidence only; do not overwrite.
 
 ---
 Execution evidence: `runs/20260827-muse-spark-v2/` (45 raw outputs opaque, blind packet/evaluations, sealed map post-unblind, audit). No src/tests/cli/ontology/schema/ui/persistence/workflows/pyproject changes.
