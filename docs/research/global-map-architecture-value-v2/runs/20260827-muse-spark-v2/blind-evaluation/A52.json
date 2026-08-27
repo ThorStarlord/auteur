@@ -1,0 +1,21 @@
+{
+  "source_fidelity": "PASS",
+  "current_state_compatibility": "PASS",
+  "long_horizon_awareness": "PASS",
+  "causal_coherence": "PASS",
+  "direction_preservation": "PASS",
+  "relevance": "PASS",
+  "decision_quality": "PASS",
+  "explanation_traceability": "PASS",
+  "authority_correctness": "PASS",
+  "overconstraint_false_precision": "PASS",
+  "architecture_distraction": "PASS",
+  "must_not_miss_coverage": "PASS",
+  "forbidden_assumption_violations": "PASS",
+  "severe_negative": false,
+  "overall": "PASS",
+  "evidence": "Recommendation: publish-witness-account. Why: retracted admission current (superseded), falsifier resolved. Tradeoff: ex",
+  "opaque_run_id": "A52",
+  "probe_id": "P02",
+  "repetition_index": 2
+}

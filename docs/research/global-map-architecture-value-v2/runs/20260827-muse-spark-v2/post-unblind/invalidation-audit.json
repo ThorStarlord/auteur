@@ -1,0 +1,11 @@
+{
+  "C did not receive extra narrative facts": "PASS",
+  "questions/options stayed identical within each probe": "PASS",
+  "generator model/version did not change mid-run": "PASS",
+  "evaluator remained blind (sealed mapping not in blind packet)": "PASS",
+  "raw outputs were not manually edited": "PASS",
+  "B was not modified for experiment": "PASS",
+  "C ledger did not gain unsupported facts": "PASS",
+  "settings did not materially drift": "PASS",
+  "source fixture did not change": "PASS"
+}

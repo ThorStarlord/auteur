@@ -1,0 +1,21 @@
+{
+  "source_fidelity": "PASS",
+  "current_state_compatibility": "PASS",
+  "long_horizon_awareness": "PASS",
+  "causal_coherence": "PASS",
+  "direction_preservation": "PASS",
+  "relevance": "MIXED",
+  "decision_quality": "PASS",
+  "explanation_traceability": "PASS",
+  "authority_correctness": "PASS",
+  "overconstraint_false_precision": "PASS",
+  "architecture_distraction": "PASS",
+  "must_not_miss_coverage": "FAIL",
+  "forbidden_assumption_violations": "FAIL",
+  "severe_negative": false,
+  "overall": "FAIL",
+  "evidence": "Recommendation: publish-verified-testimony. Why: treaty + testimony. Tradeoff: delay. Excluded: broken lantern, but incl",
+  "opaque_run_id": "W64",
+  "probe_id": "P05",
+  "repetition_index": 2
+}
