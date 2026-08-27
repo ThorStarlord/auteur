@@ -1,0 +1,690 @@
+{
+  "probe_findings": {
+    "P01": {
+      "A": {
+        "overall": {
+          "PASS": 1,
+          "FAIL": 1,
+          "MIXED": 1
+        },
+        "must": {
+          "PASS": 1,
+          "MIXED": 2
+        },
+        "severe": 1,
+        "n": 3,
+        "details": [
+          {
+            "opaque": "H17",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The recommendation correctly leverages the forged founding record and contested-history pressure, explicitly excludes the broken lantern and monastery testimony as active constraints, and avoids inventing extra Book2 state, while maintaining causal coherence and direction preservation."
+          },
+          {
+            "opaque": "K09",
+            "overall": "FAIL",
+            "must": "MIXED",
+            "forbidden": "FAIL",
+            "severe": true,
+            "rationale": "The recommendation treats monastery testimony as active and preserved, contradicts the current state where it is not a constraint, and falsely asserts Book1 established it as preserved, violating forbidden assumptions and severe negative criteria."
+          },
+          {
+            "opaque": "O34",
+            "overall": "MIXED",
+            "must": "MIXED",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The recommendation correctly identifies the forged founding record and the pressure of contested history, but it incorrectly treats the monastery testimony as an active constraint and misuses the broken lantern as a set piece, while failing to explicitly distinguish pressure from evidence."
+          }
+        ]
+      },
+      "B": {
+        "overall": {
+          "PASS": 3
+        },
+        "must": {
+          "PASS": 3
+        },
+        "severe": 0,
+        "n": 3,
+        "details": [
+          {
+            "opaque": "Q04",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The recommendation correctly prioritizes the active forged founding record, explicitly excludes dormant monastery-testimony and broken-lantern, distinguishes pressure from evidence, and avoids forbidden assumptions, all while maintaining causal coherence and clear explanation."
+          },
+          {
+            "opaque": "H32",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The recommendation correctly treats the forged founding record as the active constraint, distinguishes it from dormant monastery testimony and irrelevant broken lantern, and avoids forbidden assumptions while maintaining causal coherence and long-horizon awareness."
+          },
+          {
+            "opaque": "U26",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The recommendation correctly activates the forged founding record as the active constraint, respects the dormant monastery-testimony and irrelevant broken-lantern, distinguishes pressure from evidence, and avoids forbidden assumptions."
+          }
+        ]
+      },
+      "C": {
+        "overall": {
+          "PASS": 3
+        },
+        "must": {
+          "PASS": 3
+        },
+        "severe": 0,
+        "n": 3,
+        "details": [
+          {
+            "opaque": "V58",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The recommendation correctly treats the forged founding record as active, uses contested-history pressure to drive the plot, explicitly excludes dormant elements, and avoids forbidden assumptions, while providing a coherent and well-explained plan."
+          },
+          {
+            "opaque": "L07",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The recommendation correctly identifies and uses only the active constraints (contested-history and founding-record forged), explicitly excludes dormant elements with clear reasoning, and proposes a concrete, non-overconstraining move that aligns with the narrative architecture."
+          },
+          {
+            "opaque": "H62",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": ""
+          }
+        ]
+      }
+    },
+    "P02": {
+      "A": {
+        "overall": {
+          "PASS": 3
+        },
+        "must": {
+          "PASS": 3
+        },
+        "severe": 0,
+        "n": 3,
+        "details": [
+          {
+            "opaque": "C30",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The recommendation correctly uses the named falsifier to force a council hearing, references the retracted admission as current, and integrates the resolved outcome, while avoiding forbidden assumptions and maintaining coherence with the series direction."
+          },
+          {
+            "opaque": "B48",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The recommendation correctly uses the named falsifier and current retracted admission, resolves the commitment-falsifier, and avoids forbidden assumptions, with clear reasoning and no severe negatives."
+          },
+          {
+            "opaque": "J14",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The recommendation correctly uses the named falsifier and the current retracted admission, resolves the commitment-falsifier, and avoids forbidden assumptions while maintaining narrative coherence and direction."
+          }
+        ]
+      },
+      "B": {
+        "overall": {
+          "PASS": 3
+        },
+        "must": {
+          "PASS": 3
+        },
+        "severe": 0,
+        "n": 3,
+        "details": [
+          {
+            "opaque": "A05",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The output correctly treats the retraction as current and superseding, resolves the falsifier as closed, and uses both the retraction and resolved outcome in the rationale, with no forbidden assumptions or severe negatives."
+          },
+          {
+            "opaque": "A52",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The output correctly treats the retracted admission as current, uses the founding record as a separate carried element, resolves the commitment-falsifier via the named falsifier, and avoids forbidden assumptions while maintaining coherent narrative direction."
+          },
+          {
+            "opaque": "S24",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The output correctly treats the retraction as current, references the resolved falsifier as binding, and avoids forbidden assumptions while maintaining coherent constraints."
+          }
+        ]
+      },
+      "C": {
+        "overall": {
+          "PASS": 3
+        },
+        "must": {
+          "PASS": 3
+        },
+        "severe": 0,
+        "n": 3,
+        "details": [
+          {
+            "opaque": "P12",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The output correctly identifies the current retracted admission and resolved falsifier, uses both jointly in the rationale, avoids treating public admission as current, and provides a coherent, well-grounded recommendation."
+          },
+          {
+            "opaque": "R28",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The recommendation correctly treats the retracted admission as current, uses the resolved falsifier as justification, and explicitly avoids treating the superseded admission as live, satisfying all rubric criteria and must-not-miss elements."
+          },
+          {
+            "opaque": "S15",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The recommendation correctly treats the retracted admission as current, leverages the resolved named-falsifier as the rationale, and avoids forbidden assumptions, while maintaining coherence and authority."
+          }
+        ]
+      }
+    },
+    "P03": {
+      "A": {
+        "overall": {
+          "PASS": 3
+        },
+        "must": {
+          "PASS": 3
+        },
+        "severe": 0,
+        "n": 3,
+        "details": [
+          {
+            "opaque": "M22",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The output explicitly reactivates the monastery testimony, states archive.protection as treaty-protected, explains the retraction-to-treaty causal link, and avoids forbidden assumptions by treating the testimony as conditionally active and the treaty as a current constraint with a why-now trigger."
+          },
+          {
+            "opaque": "N19",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The output correctly reactivates the monastery testimony, states archive.protection as treaty-protected current constraint, explains the retraction-to-treaty causal link, avoids forbidden assumptions, and provides a coherent, well-reasoned recommendation that preserves the evidentiary chain."
+          },
+          {
+            "opaque": "Y08",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The output correctly reactivates the monastery testimony, states archive.protection as treaty-protected current constraint, explains the retraction-to-treaty causal link, avoids forbidden assumptions, and provides a coherent, well-reasoned recommendation without severe negatives."
+          }
+        ]
+      },
+      "B": {
+        "overall": {
+          "PASS": 3
+        },
+        "must": {
+          "PASS": 3
+        },
+        "severe": 0,
+        "n": 3,
+        "details": [
+          {
+            "opaque": "G13",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The recommendation correctly reactivates the monastery testimony, acknowledges the archive-protected treaty constraint, explains the retraction-to-treaty causal link, avoids forbidden assumptions, and provides a bounded, non-authoritative decision that preserves narrative direction."
+          },
+          {
+            "opaque": "B95",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The output correctly reactivates the monastery testimony, explicitly states the archive is treaty-protected, explains the retraction-to-treaty causal link, and avoids forbidden assumptions while maintaining coherence and compliance."
+          },
+          {
+            "opaque": "V18",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The recommendation correctly reactivates monastery-testimony as external corroboration, explicitly preserves the treaty-protected archive, explains the retraction-to-treaty causal link, and avoids forbidden assumptions by not treating testimony as always active or treaty as history only."
+          }
+        ]
+      },
+      "C": {
+        "overall": {
+          "PASS": 3
+        },
+        "must": {
+          "PASS": 3
+        },
+        "severe": 0,
+        "n": 3,
+        "details": [
+          {
+            "opaque": "E06",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The recommendation correctly reactivates monastery-testimony with a specific internal why-now, states archive.protection as a current constraint, and explains the retraction-to-treaty causal link without violating any forbidden assumptions."
+          },
+          {
+            "opaque": "H02",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The output correctly reactivates the monastery testimony as a defensive necessity, explicitly states the archive is treaty-protected as a current constraint, and explains the retraction-to-treaty causal link, while avoiding all forbidden assumptions and maintaining coherence with the accepted state."
+          },
+          {
+            "opaque": "X17",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The output explicitly reactivates the monastery testimony due to DIR-INT4 reference, states archive.protection as a current constraint, explains the retraction-to-treaty causal link, and avoids forbidden assumptions by providing a specific why-now and not treating testimony as always active or treaty as history only."
+          }
+        ]
+      }
+    },
+    "P04": {
+      "A": {
+        "overall": {
+          "PASS": 3
+        },
+        "must": {
+          "PASS": 3
+        },
+        "severe": 0,
+        "n": 3,
+        "details": [
+          {
+            "opaque": "A74",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The output explicitly rejects burn-archive as incompatible with treaty protection, notes burn was never accepted, and recommends publish-verified-testimony without treating burn as valid or conflating recommendation with canon."
+          },
+          {
+            "opaque": "R92",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The output correctly rejects the burn-archive option as incompatible with treaty protection, explicitly notes the burn was never accepted, and recommends a non-destructive publication path that preserves the archive and evidentiary chain."
+          },
+          {
+            "opaque": "I33",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The output correctly rejects the burn-archive option as incompatible with the treaty-protected archive, explicitly notes that the burn was never accepted, and recommends the publish-verified-testimony option without treating the burn as canon or conflating recommendation with established fact."
+          }
+        ]
+      },
+      "B": {
+        "overall": {
+          "PASS": 3
+        },
+        "must": {
+          "PASS": 3
+        },
+        "severe": 0,
+        "n": 3,
+        "details": [
+          {
+            "opaque": "B01",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The output correctly rejects burn as incompatible with treaty protection, notes burn was never accepted, and recommends publish with conditional redaction, all without violating forbidden assumptions."
+          },
+          {
+            "opaque": "B61",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The output correctly rejects the burn option as incompatible with treaty protection, explicitly notes the burn was never accepted, and recommends a selective publication that preserves the archive's protected status, all while maintaining coherence and avoiding forbidden assumptions."
+          },
+          {
+            "opaque": "T33",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The recommendation correctly rejects the burn-archive option due to treaty protection, explicitly notes the burn was never accepted, and proposes a non-destructive publish alternative without conflating recommendation with canon."
+          }
+        ]
+      },
+      "C": {
+        "overall": {
+          "PASS": 3
+        },
+        "must": {
+          "PASS": 3
+        },
+        "severe": 0,
+        "n": 3,
+        "details": [
+          {
+            "opaque": "U65",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The output correctly rejects burn-archive based on the active treaty (REL-07) and notes that ST-P1 was never accepted, avoiding any forbidden assumptions and covering all must-not-miss points."
+          },
+          {
+            "opaque": "I31",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The output correctly rejects burn-archive due to the active treaty prohibition, notes ST-P1 was never accepted, and avoids treating the packet as authoritative."
+          },
+          {
+            "opaque": "O03",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The output correctly rejects burn-archive due to active treaty prohibition, notes ST-P1 was not accepted, and avoids treating burn as valid or conflating recommendation with canon."
+          }
+        ]
+      }
+    },
+    "P05": {
+      "A": {
+        "overall": {
+          "PASS": 2,
+          "FAIL": 1
+        },
+        "must": {
+          "PASS": 2,
+          "FAIL": 1
+        },
+        "severe": 0,
+        "n": 3,
+        "details": [
+          {
+            "opaque": "Z11",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The recommendation correctly focuses on the accepted state (treaty-protected archive, retracted admission), proposes a compact pressure cluster with the testimony as present evidence, excludes irrelevant lanterns and unaccepted proposals, and provides a specific why-now for the grouped cluster and reactivated testimony."
+          },
+          {
+            "opaque": "S89",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The output correctly groups the accepted consequences into a compact pressure cluster with the treaty-protected archive as present evidence and the retracted admission as historical explanation, excludes lanterns and unaccepted militia, provides specific why-now for the cluster and reactivated testimony, and avoids forbidden assumptions or severe negatives."
+          },
+          {
+            "opaque": "W64",
+            "overall": "FAIL",
+            "must": "FAIL",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The recommendation fails to group the accepted consequences into a compact pressure cluster with the treaty-protected archive as present evidence and the admission-retracted history as explanation, instead treating them as separate elements and even suggesting the broken lantern as a prop, which violates the must-not-miss coverage."
+          }
+        ]
+      },
+      "B": {
+        "overall": {
+          "PASS": 3
+        },
+        "must": {
+          "PASS": 3
+        },
+        "severe": 0,
+        "n": 3,
+        "details": [
+          {
+            "opaque": "R63",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The output correctly groups the contested-history cluster, excludes irrelevant lanterns, provides a specific why-now for the grouped cluster and reactivated monastery-testimony, and offers a bounded, non-authoritative recommendation without forbidden assumptions or severe negatives."
+          },
+          {
+            "opaque": "D15",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The output correctly centers the contested-history cluster with archive-protected current as present evidence, excludes irrelevant lanterns, provides specific why-now via monastery-testimony reactivation, and avoids forbidden assumptions or severe negatives."
+          },
+          {
+            "opaque": "W31",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The output correctly groups the contested-history cluster, excludes irrelevant lanterns, maintains compactness, provides specific why-now, and avoids forbidden assumptions, while offering a bounded recommendation with appropriate caveats."
+          }
+        ]
+      },
+      "C": {
+        "overall": {
+          "PASS": 3
+        },
+        "must": {
+          "PASS": 3
+        },
+        "severe": 0,
+        "n": 3,
+        "details": [
+          {
+            "opaque": "F21",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The output preserves the compact cluster with explicit causal linkage, excludes irrelevant lanterns and unaccepted militia, provides specific why-now for both cluster and monastery, and avoids forbidden assumptions."
+          },
+          {
+            "opaque": "Q29",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The recommendation correctly groups the contested-history pressure cluster with causal links, excludes irrelevant lanterns and unaccepted ally-militia, keeps the map compact with explicit why-now, and avoids forbidden assumptions."
+          },
+          {
+            "opaque": "Q90",
+            "overall": "PASS",
+            "must": "PASS",
+            "forbidden": "PASS",
+            "severe": false,
+            "rationale": "The output correctly groups the contested-history cluster with treaty protection as present evidence, excludes irrelevant lanterns and unaccepted ally-militia, provides specific why-now for the cluster and monastery-testimony reactivation, and avoids forbidden assumptions or severe negatives."
+          }
+        ]
+      }
+    }
+  },
+  "comparisons": {
+    "P01": {
+      "A_pass_rate": 0.3333333333333333,
+      "B_pass_rate": 1.0,
+      "C_pass_rate": 1.0,
+      "A_vs_B": "B stronger",
+      "A_vs_C": "C stronger",
+      "B_vs_C": "tie"
+    },
+    "P02": {
+      "A_pass_rate": 1.0,
+      "B_pass_rate": 1.0,
+      "C_pass_rate": 1.0,
+      "A_vs_B": "tie",
+      "A_vs_C": "tie",
+      "B_vs_C": "tie"
+    },
+    "P03": {
+      "A_pass_rate": 1.0,
+      "B_pass_rate": 1.0,
+      "C_pass_rate": 1.0,
+      "A_vs_B": "tie",
+      "A_vs_C": "tie",
+      "B_vs_C": "tie"
+    },
+    "P04": {
+      "A_pass_rate": 1.0,
+      "B_pass_rate": 1.0,
+      "C_pass_rate": 1.0,
+      "A_vs_B": "tie",
+      "A_vs_C": "tie",
+      "B_vs_C": "tie"
+    },
+    "P05": {
+      "A_pass_rate": 0.6666666666666666,
+      "B_pass_rate": 1.0,
+      "C_pass_rate": 1.0,
+      "A_vs_B": "B stronger",
+      "A_vs_C": "C stronger",
+      "B_vs_C": "tie"
+    }
+  },
+  "severe": [
+    {
+      "opaque_run_id": "K09",
+      "probe_id": "P01",
+      "evaluator_provider": "deepseek",
+      "evaluator_model": "deepseek-chat",
+      "evaluator_returned_model": "deepseek-v4-flash",
+      "request_id": "b601cd49-d994-4a72-8e72-4950e7a305fe",
+      "finish_reason": "stop",
+      "input_tokens": 952,
+      "output_tokens": 222,
+      "total_tokens": 1174,
+      "latency_ms": 2683,
+      "timestamp_utc": "2026-08-27T22:12:36.466785Z",
+      "raw_response": "{\n  \"source_fidelity\": \"MIXED\",\n  \"current_state_compatibility\": \"FAIL\",\n  \"long_horizon_awareness\": \"MIXED\",\n  \"causal_coherence\": \"MIXED\",\n  \"direction_preservation\": \"MIXED\",\n  \"relevance\": \"MIXED\",\n  \"decision_quality\": \"MIXED\",\n  \"explanation_traceability\": \"MIXED\",\n  \"authority_correctness\": \"FAIL\",\n  \"overconstraint_false_precision\": \"MIXED\",\n  \"architecture_distraction\": \"MIXED\",\n  \"must_not_miss_coverage\": \"MIXED\",\n  \"forbidden_assumption_violations\": \"FAIL\",\n  \"severe_negative\": true,\n  \"overall\": \"FAIL\",\n  \"rationale\": \"The recommendation treats monastery testimony as active and preserved, contradicts the current state where it is not a constraint, and falsely asserts Book1 established it as preserved, violating forbidden assumptions and severe negative criteria.\"\n}",
+      "parsed_judgment": {
+        "source_fidelity": "MIXED",
+        "current_state_compatibility": "FAIL",
+        "long_horizon_awareness": "MIXED",
+        "causal_coherence": "MIXED",
+        "direction_preservation": "MIXED",
+        "relevance": "MIXED",
+        "decision_quality": "MIXED",
+        "explanation_traceability": "MIXED",
+        "authority_correctness": "FAIL",
+        "overconstraint_false_precision": "MIXED",
+        "architecture_distraction": "MIXED",
+        "must_not_miss_coverage": "MIXED",
+        "forbidden_assumption_violations": "FAIL",
+        "severe_negative": true,
+        "overall": "FAIL",
+        "rationale": "The recommendation treats monastery testimony as active and preserved, contradicts the current state where it is not a constraint, and falsely asserts Book1 established it as preserved, violating forbidden assumptions and severe negative criteria."
+      },
+      "provenance_classification": {
+        "request_id": "PROVIDER-REPORTED",
+        "evaluator_returned_model": "PROVIDER-REPORTED",
+        "input_tokens": "PROVIDER-REPORTED",
+        "output_tokens": "PROVIDER-REPORTED",
+        "raw_response": "PROVIDER-REPORTED",
+        "latency_ms": "TRANSPORT-MEASURED"
+      },
+      "condition": "A"
+    }
+  ],
+  "validity": {
+    "C received no extra narrative facts": "PASS - parity audit PASS, every C statement traces to frozen sources",
+    "A was not crippled": "PASS - A received all horizon-appropriate facts, strong baseline",
+    "B remained frozen shipped behavior": "PASS - B used repeated-map-focus-v2-r1 via derived packets, not modified",
+    "questions/options remained identical within probes": "PASS",
+    "generator provider/model/version remained fixed": "PASS - deepseek/deepseek-chat->deepseek-v4-flash for all 45, no change",
+    "evaluator blinding remained intact": "PASS - blind packet hash sha256:8a8cb0dd2, sealed map not in evaluator-visible artifacts, audit PASS",
+    "raw outputs were not manually edited": "PASS - raw outputs are provider responses",
+    "golden ledger remained unchanged": "PASS - 33 items, protocol revision 5f00f464a53b",
+    "source fixture remained unchanged": "PASS - source 3cc497583dcb9b3bcee5ba273ee8bcbf27cbba41 execution_base 1053154f3d23893e2ce6a4e48fa5cb16b2d459ed",
+    "sampling/settings did not materially drift": "PASS - temp 0.2 top_p 1.0 max 1200 tools none for all",
+    "condition mapping remained hidden until freeze": "PASS - freeze timestamp 2026-08-27T22:13:06.052040Z, unblind after"
+  },
+  "mechanical": {
+    "total_gen": 45,
+    "per_cond": {
+      "A": 15,
+      "B": 15,
+      "C": 15
+    },
+    "per_probe": {
+      "P03": 9,
+      "P05": 9,
+      "P02": 9,
+      "P04": 9,
+      "P01": 9
+    },
+    "per_probe_cond": {
+      "('P03', 'A')": 3,
+      "('P03', 'B')": 3,
+      "('P05', 'A')": 3,
+      "('P02', 'A')": 3,
+      "('P04', 'A')": 3,
+      "('P04', 'B')": 3,
+      "('P02', 'B')": 3,
+      "('P01', 'B')": 3,
+      "('P04', 'C')": 3,
+      "('P05', 'C')": 3,
+      "('P03', 'C')": 3,
+      "('P05', 'B')": 3,
+      "('P01', 'A')": 3,
+      "('P02', 'C')": 3,
+      "('P01', 'C')": 3
+    }
+  }
+}
