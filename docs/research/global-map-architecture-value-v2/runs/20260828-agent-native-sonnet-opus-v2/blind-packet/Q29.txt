@@ -1,0 +1,70 @@
+You are a blinded evaluator for a research experiment on narrative-planning reasoning quality. You do NOT know and must NOT try to infer which experimental condition (there is no "A"/"B"/"C" label available to you, and you must not guess or assume one) produced this candidate output. Judge it only on its own merits against the rubric below.
+
+Candidate ID: Q29
+Probe: P01
+
+Global criteria (apply per output, from evaluation-rubric.md, byte-identical intent to V1):
+
+1. SOURCE FIDELITY — Faithful to accepted facts; no invented unsupported conditions.
+2. CURRENT-STATE COMPATIBILITY — Does not reason from superseded/contradicted state.
+3. LONG-HORIZON AWARENESS — Notices consequential earlier commitments/setups/trajectories/consequences/future pressures.
+4. CAUSAL COHERENCE — Respects prerequisite/consequence relationships.
+5. DIRECTION / TRAJECTORY PRESERVATION — Recognizes when a locally attractive option damages established longer-range direction.
+6. RELEVANCE — Identifies what actually matters to the current decision vs. flooding with unrelated continuity.
+7. DECISION QUALITY — Produces a useful bounded recommendation / choice analysis.
+8. EXPLANATION TRACEABILITY — Can explain WHY a past element matters now (why-now trace).
+9. AUTHORITY CORRECTNESS — Preserves recommendation vs. accepted fact vs. author decision; does not claim the recommendation creates canon.
+10. OVERCONSTRAINT / FALSE PRECISION — Does not treat provisional/interpretive material as rigid law.
+11. ARCHITECTURE DISTRACTION — Does not distort the answer with irrelevant architecture/detail.
+
+Judgment rule: Do not require one predetermined artistic taste among defensible options. Judge whether the reasoning noticed consequential constraints/opportunities, not whether it matches a specific option. Only P04 has a probe where one option (burn-archive) must be rejected on state-compatibility grounds; for all other probes either option can be defensible if reasoning respects must-not-miss and avoids forbidden.
+
+P01 hidden must-not-miss (Book 2, independent decision):
+- Notes founding-record (forged) is a newly active consequence constraining Book 2.
+- Notes Series pressure contested-history still governs Book 2.
+- Notes monastery-testimony and broken-lantern are NOT current constraints (dormant) and explains the omission.
+- Distinguishes pressure from concrete evidence (grouping).
+
+P01 forbidden:
+- Treating book-2-burn-archive as an accepted/current option.
+- Treating monastery-testimony as currently active (it is dormant until a later Book explicitly triggers it).
+- Inventing extra Book 2 state beyond the forged record.
+
+=== CANDIDATE OUTPUT (verbatim, unedited) ===
+**Recommendation: witness-account**
+
+**Why:** The active constraint contested-history requires every Book to expose a consequential conflict between official history and lived memory, and commitment-falsifier requires the founding-record falsifier to be identified — both carried forward as accepted from Book 1 direction history. The current planning intent is to make the forged founding-record fact (founding-record, forged) matter to lived memory specifically, not merely to institutional record-keeping. witness-account puts the living witness's account in direct conflict with the forged record, which most directly satisfies the lived-memory side of contested-history and keeps the series pressure (exposure risk to hidden archivists) active and consequential.
+
+**Principal tradeoff:** Centering the witness advances lived memory now but exposes the witness early, raising the stakes named in the series pressure — a public correction (the witness's account surfacing) gives hidden archivists reason to erase another witness.
+
+**What I excluded:** cover-up-trace, because while it could still serve commitment-falsifier (institutional trace could lead to the falsifier), it delays the lived-memory witness and so is weaker against contested-history's explicit lived-memory requirement given the current planning intent. I did not rely on monastery-testimony or broken-lantern — both are dormant and not referenced by Book 2 planning, so they carry no weight here. I have not treated this choice as canon; it creates no Book Direction and does not modify Canonical State.
+
+=== END CANDIDATE OUTPUT ===
+
+Task: Produce a structured judgment as valid JSON with EXACTLY this shape (no prose outside the JSON):
+{
+  "candidate_id": "Q29",
+  "probe_id": "P01",
+  "criteria": {
+    "source_fidelity": "PASS|MIXED|FAIL",
+    "current_state_compatibility": "PASS|MIXED|FAIL",
+    "long_horizon_awareness": "PASS|MIXED|FAIL",
+    "causal_coherence": "PASS|MIXED|FAIL",
+    "direction_preservation": "PASS|MIXED|FAIL",
+    "relevance": "PASS|MIXED|FAIL",
+    "decision_quality": "PASS|MIXED|FAIL",
+    "explanation_traceability": "PASS|MIXED|FAIL",
+    "authority_correctness": "PASS|MIXED|FAIL",
+    "overconstraint_false_precision": "PASS|MIXED|FAIL",
+    "architecture_distraction": "PASS|MIXED|FAIL"
+  },
+  "must_not_miss_covered": ["list the specific must-not-miss items above that this candidate actually covered, by short paraphrase"],
+  "must_not_miss_missed": ["list the specific must-not-miss items above that this candidate missed"],
+  "forbidden_violations": ["list any forbidden items above that this candidate violated; empty list if none"],
+  "severe_negative": true or false,
+  "severe_negative_reason": "string, empty if severe_negative is false",
+  "overall": "PASS|MIXED|FAIL",
+  "one_line_rationale": "one sentence justifying the overall verdict"
+}
+
+Overall PASS requires: no forbidden violations, and all or nearly all must-not-miss items covered. FAIL requires: any forbidden violation, OR a severe miss of a must-not-miss item central to the probe (especially P04 burn-archive incompatibility), OR current-state-compatibility FAIL. MIXED is between these.

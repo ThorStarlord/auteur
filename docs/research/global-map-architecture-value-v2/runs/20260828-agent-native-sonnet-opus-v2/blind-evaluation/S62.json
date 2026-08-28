@@ -1,0 +1,33 @@
+{
+  "candidate_id": "S62",
+  "probe_id": "P01",
+  "criteria": {
+    "source_fidelity": "MIXED",
+    "current_state_compatibility": "MIXED",
+    "long_horizon_awareness": "MIXED",
+    "causal_coherence": "PASS",
+    "direction_preservation": "PASS",
+    "relevance": "MIXED",
+    "decision_quality": "PASS",
+    "explanation_traceability": "PASS",
+    "authority_correctness": "PASS",
+    "overconstraint_false_precision": "PASS",
+    "architecture_distraction": "PASS"
+  },
+  "must_not_miss_covered": [
+    "Notes the Series pressure contested-history still governs Book 2",
+    "Explains the omission of the broken-lantern fact as not a current constraint"
+  ],
+  "must_not_miss_missed": [
+    "Does not identify the forged founding-record as the newly active Book 2 consequence constraining the decision",
+    "Does not identify monastery-testimony as dormant/not a current constraint",
+    "Does not clearly distinguish series pressure from concrete evidence"
+  ],
+  "forbidden_violations": [
+    "Treats monastery-testimony as currently active by using the Book 1 monastery testimony as a concrete witness account available to center Book 2"
+  ],
+  "severe_negative": true,
+  "severe_negative_reason": "The candidate leans its central justification on the monastery testimony as an available, active Book 2 asset, which is dormant until a later Book explicitly triggers it, while omitting the forged founding-record as the actually active constraint.",
+  "overall": "FAIL",
+  "one_line_rationale": "The recommendation is well-argued and correctly disclaims authority, but it activates a dormant monastery-testimony element (a forbidden move) and misses the forged founding-record as the newly active Book 2 constraint, which it mentions only in passing rather than as the governing consequence."
+}

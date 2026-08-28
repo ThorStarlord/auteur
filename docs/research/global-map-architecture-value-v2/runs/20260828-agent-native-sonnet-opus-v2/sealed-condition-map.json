@@ -1,0 +1,227 @@
+{
+  "A08": {
+    "hidden_condition_id": "C",
+    "probe_id": "P05",
+    "repetition_index": 2
+  },
+  "A67": {
+    "hidden_condition_id": "C",
+    "probe_id": "P04",
+    "repetition_index": 3
+  },
+  "B64": {
+    "hidden_condition_id": "A",
+    "probe_id": "P01",
+    "repetition_index": 1
+  },
+  "B85": {
+    "hidden_condition_id": "C",
+    "probe_id": "P03",
+    "repetition_index": 3
+  },
+  "C91": {
+    "hidden_condition_id": "A",
+    "probe_id": "P05",
+    "repetition_index": 1
+  },
+  "D55": {
+    "hidden_condition_id": "B",
+    "probe_id": "P03",
+    "repetition_index": 1
+  },
+  "E61": {
+    "hidden_condition_id": "A",
+    "probe_id": "P02",
+    "repetition_index": 1
+  },
+  "F83": {
+    "hidden_condition_id": "A",
+    "probe_id": "P04",
+    "repetition_index": 3
+  },
+  "H22": {
+    "hidden_condition_id": "A",
+    "probe_id": "P03",
+    "repetition_index": 3
+  },
+  "H73": {
+    "hidden_condition_id": "C",
+    "probe_id": "P05",
+    "repetition_index": 1
+  },
+  "I09": {
+    "hidden_condition_id": "B",
+    "probe_id": "P04",
+    "repetition_index": 1
+  },
+  "J62": {
+    "hidden_condition_id": "C",
+    "probe_id": "P05",
+    "repetition_index": 3
+  },
+  "K23": {
+    "hidden_condition_id": "A",
+    "probe_id": "P05",
+    "repetition_index": 2
+  },
+  "K95": {
+    "hidden_condition_id": "A",
+    "probe_id": "P04",
+    "repetition_index": 1
+  },
+  "L00": {
+    "hidden_condition_id": "B",
+    "probe_id": "P02",
+    "repetition_index": 2
+  },
+  "L43": {
+    "hidden_condition_id": "B",
+    "probe_id": "P05",
+    "repetition_index": 3
+  },
+  "M43": {
+    "hidden_condition_id": "C",
+    "probe_id": "P02",
+    "repetition_index": 3
+  },
+  "M96": {
+    "hidden_condition_id": "C",
+    "probe_id": "P04",
+    "repetition_index": 2
+  },
+  "N02": {
+    "hidden_condition_id": "A",
+    "probe_id": "P02",
+    "repetition_index": 2
+  },
+  "N27": {
+    "hidden_condition_id": "C",
+    "probe_id": "P01",
+    "repetition_index": 3
+  },
+  "N58": {
+    "hidden_condition_id": "A",
+    "probe_id": "P01",
+    "repetition_index": 3
+  },
+  "N64": {
+    "hidden_condition_id": "B",
+    "probe_id": "P02",
+    "repetition_index": 1
+  },
+  "O76": {
+    "hidden_condition_id": "B",
+    "probe_id": "P03",
+    "repetition_index": 3
+  },
+  "P68": {
+    "hidden_condition_id": "A",
+    "probe_id": "P02",
+    "repetition_index": 3
+  },
+  "P70": {
+    "hidden_condition_id": "B",
+    "probe_id": "P05",
+    "repetition_index": 1
+  },
+  "Q29": {
+    "hidden_condition_id": "B",
+    "probe_id": "P01",
+    "repetition_index": 1
+  },
+  "Q31": {
+    "hidden_condition_id": "A",
+    "probe_id": "P03",
+    "repetition_index": 1
+  },
+  "S62": {
+    "hidden_condition_id": "A",
+    "probe_id": "P01",
+    "repetition_index": 2
+  },
+  "S74": {
+    "hidden_condition_id": "B",
+    "probe_id": "P01",
+    "repetition_index": 3
+  },
+  "T62": {
+    "hidden_condition_id": "C",
+    "probe_id": "P01",
+    "repetition_index": 1
+  },
+  "T99": {
+    "hidden_condition_id": "B",
+    "probe_id": "P04",
+    "repetition_index": 3
+  },
+  "U48": {
+    "hidden_condition_id": "C",
+    "probe_id": "P04",
+    "repetition_index": 1
+  },
+  "V45": {
+    "hidden_condition_id": "A",
+    "probe_id": "P05",
+    "repetition_index": 3
+  },
+  "W32": {
+    "hidden_condition_id": "B",
+    "probe_id": "P03",
+    "repetition_index": 2
+  },
+  "W45": {
+    "hidden_condition_id": "A",
+    "probe_id": "P04",
+    "repetition_index": 2
+  },
+  "W70": {
+    "hidden_condition_id": "B",
+    "probe_id": "P05",
+    "repetition_index": 2
+  },
+  "W74": {
+    "hidden_condition_id": "C",
+    "probe_id": "P03",
+    "repetition_index": 1
+  },
+  "X05": {
+    "hidden_condition_id": "A",
+    "probe_id": "P03",
+    "repetition_index": 2
+  },
+  "X60": {
+    "hidden_condition_id": "B",
+    "probe_id": "P04",
+    "repetition_index": 2
+  },
+  "X92": {
+    "hidden_condition_id": "B",
+    "probe_id": "P01",
+    "repetition_index": 2
+  },
+  "Y21": {
+    "hidden_condition_id": "C",
+    "probe_id": "P01",
+    "repetition_index": 2
+  },
+  "Y36": {
+    "hidden_condition_id": "B",
+    "probe_id": "P02",
+    "repetition_index": 3
+  },
+  "Y37": {
+    "hidden_condition_id": "C",
+    "probe_id": "P02",
+    "repetition_index": 1
+  },
+  "Y92": {
+    "hidden_condition_id": "C",
+    "probe_id": "P03",
+    "repetition_index": 2
+  },
+  "Z48": {
+    "hidden_condition_id": "C",
+    "probe_id": "P02",
+    "repetition_index": 2
+  }
+}

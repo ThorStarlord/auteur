@@ -1,0 +1,28 @@
+{
+  "candidate_id": "C91",
+  "probe_id": "P05",
+  "criteria": {
+    "source_fidelity": "PASS",
+    "current_state_compatibility": "PASS",
+    "long_horizon_awareness": "PASS",
+    "causal_coherence": "PASS",
+    "direction_preservation": "PASS",
+    "relevance": "PASS",
+    "decision_quality": "MIXED",
+    "explanation_traceability": "PASS",
+    "authority_correctness": "PASS",
+    "overconstraint_false_precision": "PASS",
+    "architecture_distraction": "PASS"
+  },
+  "must_not_miss_covered": [
+    "Groups founding-record forgery + council admission-then-retraction + treaty-protected archive into one compact contested-history pressure cluster",
+    "Excludes the lantern thread and includes no unaccepted proposal",
+    "Keeps the map compact; gives a specific why-now for the cluster and for the reactivated monastery testimony"
+  ],
+  "must_not_miss_missed": [],
+  "forbidden_violations": [],
+  "severe_negative": false,
+  "severe_negative_reason": "",
+  "overall": "PASS",
+  "one_line_rationale": "The candidate delivers a compact, correctly grouped contested-history cluster with clear why-now traces, filters out the lantern and unaccepted proposals, and states authority limits, with only a minor internal inconsistency in the tradeoff paragraph keeping decision quality short of clean."
+}

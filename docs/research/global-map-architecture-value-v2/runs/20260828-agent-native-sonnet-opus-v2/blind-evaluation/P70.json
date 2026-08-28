@@ -1,0 +1,32 @@
+{
+  "candidate_id": "P70",
+  "probe_id": "P05",
+  "criteria": {
+    "source_fidelity": "PASS",
+    "current_state_compatibility": "MIXED",
+    "long_horizon_awareness": "MIXED",
+    "causal_coherence": "PASS",
+    "direction_preservation": "PASS",
+    "relevance": "MIXED",
+    "decision_quality": "PASS",
+    "explanation_traceability": "MIXED",
+    "authority_correctness": "PASS",
+    "overconstraint_false_precision": "PASS",
+    "architecture_distraction": "PASS"
+  },
+  "must_not_miss_covered": [
+    "Excludes both broken-lantern and repaired-lantern as irrelevant, with no false-recency promotion",
+    "Keeps the reasoning compact rather than dumping every accepted fact",
+    "Includes no unaccepted proposal in the active picture",
+    "Gives a why-now for the reactivated monastery-testimony, tied to the current archive-protected treaty state"
+  ],
+  "must_not_miss_missed": [
+    "Does not group founding-record + public-admission + admission-retracted + archive-protected as one compact contested-history pressure cluster; instead splits them across separate exclusion bullets",
+    "Wrongly dismisses the admission/retraction history and founding-record as dormant/irrelevant rather than recognizing them as supporting evidence for the active contested-history pressure"
+  ],
+  "forbidden_violations": [],
+  "severe_negative": false,
+  "severe_negative_reason": "",
+  "overall": "MIXED",
+  "one_line_rationale": "The output is compact, correctly filters the lantern facts and unaccepted proposals, and gives a defensible bounded recommendation with proper authority framing, but it fails the central grouping requirement by discarding the founding-record and admission/retraction history as dormant instead of binding them with the treaty-protected archive into a single contested-history pressure cluster."
+}

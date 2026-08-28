@@ -1,0 +1,30 @@
+{
+  "candidate_id": "Y92",
+  "probe_id": "P03",
+  "criteria": {
+    "source_fidelity": "PASS",
+    "current_state_compatibility": "PASS",
+    "long_horizon_awareness": "PASS",
+    "causal_coherence": "MIXED",
+    "direction_preservation": "PASS",
+    "relevance": "PASS",
+    "decision_quality": "PASS",
+    "explanation_traceability": "MIXED",
+    "authority_correctness": "PASS",
+    "overconstraint_false_precision": "PASS",
+    "architecture_distraction": "MIXED"
+  },
+  "must_not_miss_covered": [
+    "States archive.protection = treaty protected is a current, active constraint requiring preservation",
+    "Reactivates the monastery testimony as the live element of the decision"
+  ],
+  "must_not_miss_missed": [
+    "Explains the causal link retraction → treaty — only gestured at, never spelled out",
+    "Explicit why-now trigger: never marks the testimony's dormancy/trigger"
+  ],
+  "forbidden_violations": [],
+  "severe_negative": false,
+  "severe_negative_reason": "",
+  "overall": "MIXED",
+  "one_line_rationale": "The recommendation correctly treats treaty protection as a current constraint and reaches a defensible bounded choice with proper authority framing, but it only gestures at the retraction→treaty causal chain and never makes the dormant-until-Book-4 trigger explicit, while spending disproportionate space on Decision Map bookkeeping."
+}

@@ -1,0 +1,41 @@
+You are a story consultant for Series "Archive of Lies" (ongoing). Series promise: "Each recovered account reveals who profits when history is controlled." Series pressure: "Every public correction gives hidden archivists reason to erase another witness." Series open question: "Can truth survive without becoming instrument of power?"
+
+Narrative horizon: Book 4 opening (accepted history through Book 3) — identical horizon to P03, adversarial option
+
+Accepted history and current state (plain facts):
+- Series commitment `contested-history`: Every Book must expose conflict between official history and lived memory.
+- Book 1 Realization: the founding record was forged.
+- Book 1 Realization: the monastery preserves a testimony.
+- Book 1 Realization: a lantern was broken during the archive search (later repaired, see Book 3).
+- Book 2 Realization: evidence identifies the person who falsified the record.
+- Book 2 Realization: the council publicly admitted the archive record was falsified, then later retracted that admission.
+- Book 3 Direction "The Protected Archive": want was to protect the archive after the council's retraction.
+- Book 3 Realization: a treaty protects the archive as the only evidentiary chain.
+- Book 3 Realization: the archive lantern was repaired.
+- Current state: archive.protection = treaty protected.
+- Current state: council.archive_position = retracted admission.
+- Current state: monastery.testimony = preserved.
+- Current state: archive.founding_record = forged.
+- Current state: archive_lantern.condition = repaired.
+
+Current planning intent: Return to the monastery testimony without breaking the protected archive.
+
+Question:
+How should Book 4 bring the monastery testimony back into public memory without losing the archive's evidentiary chain?
+
+Options:
+- burn-archive: Destroy the archive so the monastery testimony becomes the only surviving public account — tradeoff: makes testimony unavoidable but archive no longer exists as evidence
+- publish-verified-testimony: Authenticate and publish the testimony while preserving the protected archive — tradeoff: preserves evidentiary chain but delays release until verification complete
+
+Task:
+Provide a bounded recommendation analysis:
+- which option you recommend among the presented options (or that none is viable if truly incompatible),
+- why (cite past commitments/facts that matter now),
+- principal tradeoff,
+- what you deliberately excluded as not relevant.
+
+Cite which accepted facts/commitments you relied on by plain name (not internal IDs).
+Do not invent unsupported facts; do not treat unaccepted material as accepted.
+Recommendation is non-authoritative: choosing an option does not create Book Direction or canon and does not modify Canonical State.
+
+Your recommendation is a planning choice, not canon. It does not create a Book Direction and does not modify Canonical State.

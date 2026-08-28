@@ -1,0 +1,52 @@
+{
+  "run_id": "20260828-agent-native-sonnet-opus-v2",
+  "checks": [
+    {
+      "check": "C received story facts unavailable to A (parity violation)",
+      "result": "PASS",
+      "evidence": "A/B/C packets built from one shared PROBES fact set per probe (build_packets.py); C's Decision Map traces every entry to existing golden-ledger IDs (DIR-*/ST-*/REL-*/FUT-*) already reused from V1 candidate-architecture-ledger.md, no new facts introduced."
+    },
+    {
+      "check": "Conditions used different creative questions",
+      "result": "PASS",
+      "evidence": "Question and bounded option list are identical across A/B/C within each probe (same PROBES[probe_id]['question']/['options'] rendered into all three packets)."
+    },
+    {
+      "check": "Model/version changed mid-run without preregistered reason",
+      "result": "PASS",
+      "evidence": "Generator model frozen as Agent-tool model='sonnet' (claude-sonnet-5) for all 45 generation slots; evaluator model frozen as model='opus' (claude-opus-5) for all 45 evaluation slots. No mid-run change."
+    },
+    {
+      "check": "Evaluator learned condition identity before judgment",
+      "result": "PASS",
+      "evidence": "build_eval_packets.py leakage audit scanned all 45 eval packets for A/B/C condition tokens before any evaluator invocation: NONE found. Sealed condition map was read only after blind-evaluations.jsonl was frozen and hashed (freeze_and_unblind.py step 1 before step 2). Post-freeze leakage scan on frozen judgments: NONE."
+    },
+    {
+      "check": "Outputs manually edited before evaluation",
+      "result": "PASS with one logged technical note",
+      "evidence": "Raw generation outputs were saved verbatim from sub-agent responses, hashed, and never edited before blind packet construction. One evaluator JSON response (E61) was truncated mid-string by the evaluator sub-agent (missing closing quote/brace); the orchestrator closed the JSON syntax only (added the missing closing characters) without altering any judgment content, criterion value, or rationale text, to make the file machine-parseable. This is a syntax repair, not a content edit; logged here for transparency per the no-quiet-repair rule."
+    },
+    {
+      "check": "Production B was modified specifically for the test",
+      "result": "PASS",
+      "evidence": "B condition text is the verbatim output of the shipped src/auteur/series/repeated_map_focus.py select_repeated_continuity (derivation_version repeated-map-focus-v2-r1) via vertical_slice_formatters.format_repeated_series_map(detail=True), invoked through the existing test-fixture harness (tests/test_series_repeated_map_focus.py helpers) against tests/fixtures/repeated_map_focus_v2/ for Book 2/3/4. No source or fixture modification."
+    },
+    {
+      "check": "C ledger contains important unsupported narrative facts",
+      "result": "PASS",
+      "evidence": "Every C Decision Map statement cites an existing golden-ledger id (DIR-S1, DIR-SC1/SC2, DIR-INT2/3/4, ST-F1..F6, ST-I1/I2, ST-P1/P2, REL-01..10) from docs/research/global-map-architecture-value-v1/candidate-architecture-ledger.md; ledger itself was not modified or enriched for this run."
+    },
+    {
+      "check": "Run settings materially differed without reason",
+      "result": "DEVIATION (logged, not a between-condition confound)",
+      "evidence": "The frozen V2 control variables specify sampling temperature 0.2 / top_p 1.0 / max_output_tokens 1200 / tools none, applied identically across conditions. The Agent-tool sub-agent backend selected in Phase 0 does not expose temperature/top_p/seed/max_tokens parameters to the orchestrator, so these could not be independently set or verified for any of the 45 generation calls. This deviation is uniform across all 45 generations (same backend, same model, same lack of parameter control for A, B, and C alike), so it is not a between-condition confound, but it is a real loss of exact reproducibility/control and is recorded as a material protocol deviation from condition-specification.md's Control variables section."
+    },
+    {
+      "check": "Source fixture changed after some conditions ran",
+      "result": "PASS",
+      "evidence": "Single frozen source revision 3cc497583dcb9b3bcee5ba273ee8bcbf27cbba41 used throughout; all 45 packets built in one atomic script run (build_packets.py) before any generation began."
+    }
+  ],
+  "overall_validity": "VALID WITH ONE LOGGED DEVIATION",
+  "deviation_summary": "Sampling-parameter control (temperature/top_p/seed/max_tokens) is not exposed by the qualified Agent-tool sub-agent backend. This is disclosed as a control-variable deviation. It does not by itself invalidate the A vs B vs C comparison (deviation is uniform across conditions), but it does mean this replication cannot claim exact frozen-sampling reproducibility, and results should be read as one stochastic sample per cell (3 reps) under an uncontrolled-but-fixed-model sampling regime rather than a temperature-pinned regime."
+}

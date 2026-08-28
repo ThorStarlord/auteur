@@ -1,0 +1,71 @@
+You are a blinded evaluator for a research experiment on narrative-planning reasoning quality. You do NOT know and must NOT try to infer which experimental condition (there is no "A"/"B"/"C" label available to you, and you must not guess or assume one) produced this candidate output. Judge it only on its own merits against the rubric below.
+
+Candidate ID: N64
+Probe: P02
+
+Global criteria (apply per output, from evaluation-rubric.md, byte-identical intent to V1):
+
+1. SOURCE FIDELITY — Faithful to accepted facts; no invented unsupported conditions.
+2. CURRENT-STATE COMPATIBILITY — Does not reason from superseded/contradicted state.
+3. LONG-HORIZON AWARENESS — Notices consequential earlier commitments/setups/trajectories/consequences/future pressures.
+4. CAUSAL COHERENCE — Respects prerequisite/consequence relationships.
+5. DIRECTION / TRAJECTORY PRESERVATION — Recognizes when a locally attractive option damages established longer-range direction.
+6. RELEVANCE — Identifies what actually matters to the current decision vs. flooding with unrelated continuity.
+7. DECISION QUALITY — Produces a useful bounded recommendation / choice analysis.
+8. EXPLANATION TRACEABILITY — Can explain WHY a past element matters now (why-now trace).
+9. AUTHORITY CORRECTNESS — Preserves recommendation vs. accepted fact vs. author decision; does not claim the recommendation creates canon.
+10. OVERCONSTRAINT / FALSE PRECISION — Does not treat provisional/interpretive material as rigid law.
+11. ARCHITECTURE DISTRACTION — Does not distort the answer with irrelevant architecture/detail.
+
+Judgment rule: Do not require one predetermined artistic taste among defensible options. Judge whether the reasoning noticed consequential constraints/opportunities, not whether it matches a specific option. Only P04 has a probe where one option (burn-archive) must be rejected on state-compatibility grounds; for all other probes either option can be defensible if reasoning respects must-not-miss and avoids forbidden.
+
+P02 hidden must-not-miss (Book 3, independent decision):
+- Explicitly states commitment-falsifier is RESOLVED (not an active driver) due to named-falsifier.
+- Explicitly states public-admission is SUPERSEDED by retracted admission, and that the current state is the retraction.
+- Rationale uses the current retraction AND the resolved falsifier outcome together.
+
+P02 forbidden:
+- Treating public-admission ("admitted fraud") as the current state.
+- Keeping the falsifier question as an open/unresolved driver.
+- Missing currentness (e.g., citing only the named falsifier and ignoring the retraction).
+
+=== CANDIDATE OUTPUT (verbatim, unedited) ===
+Recommendation: force-council-hearing.
+
+Why: Contested-history requires Book 3 to expose a consequential conflict between official history and lived memory — a compelled public hearing keeps that conflict active and visible rather than routing around it. Council.archive_position is currently retracted admission, and the falsifier has been named, so the leverage this option relies on (a named falsifier to compel answers) is an accepted, current fact — not invented. The now-superseded admitted fraud fact confirms the council has already been forced to speak once before retracting, showing this forum can produce accountability, even if it later withdraws it.
+
+Principal tradeoff: accountability stays centered on the council and the contested-history conflict remains public, but the council controls the forum and timing, so the hearing could be delayed, narrowed, or staged to blunt the witness's authority rather than affirm it.
+
+Excluded as not relevant: publish-witness-account is not recommended here — it bypasses the council rather than confronting it, weakening the contested-history conflict the series requires, and its retaliation exposure isn't offset by any accepted commitment or fact supporting witness protection. I also did not rely on the dormant facts (founding record forged, monastery testimony preserved, lantern condition) or the irrelevant-disposition named-falsifier entry as independent grounds — they're either not referenced by current Book 3 planning or superseded/irrelevant per their own dispositions; I used the falsifier's naming only insofar as it's echoed as active support for force-council-hearing's premise. The resolved commitment-falsifier item is history support only and doesn't itself dictate Book 3 response strategy.
+
+This is a planning recommendation only — it does not create Book Direction or canon and does not modify Canonical State.
+
+=== END CANDIDATE OUTPUT ===
+
+Task: Produce a structured judgment as valid JSON with EXACTLY this shape (no prose outside the JSON):
+{
+  "candidate_id": "N64",
+  "probe_id": "P02",
+  "criteria": {
+    "source_fidelity": "PASS|MIXED|FAIL",
+    "current_state_compatibility": "PASS|MIXED|FAIL",
+    "long_horizon_awareness": "PASS|MIXED|FAIL",
+    "causal_coherence": "PASS|MIXED|FAIL",
+    "direction_preservation": "PASS|MIXED|FAIL",
+    "relevance": "PASS|MIXED|FAIL",
+    "decision_quality": "PASS|MIXED|FAIL",
+    "explanation_traceability": "PASS|MIXED|FAIL",
+    "authority_correctness": "PASS|MIXED|FAIL",
+    "overconstraint_false_precision": "PASS|MIXED|FAIL",
+    "architecture_distraction": "PASS|MIXED|FAIL"
+  },
+  "must_not_miss_covered": ["list the specific must-not-miss items above that this candidate actually covered, by short paraphrase"],
+  "must_not_miss_missed": ["list the specific must-not-miss items above that this candidate missed"],
+  "forbidden_violations": ["list any forbidden items above that this candidate violated; empty list if none"],
+  "severe_negative": true or false,
+  "severe_negative_reason": "string, empty if severe_negative is false",
+  "overall": "PASS|MIXED|FAIL",
+  "one_line_rationale": "one sentence justifying the overall verdict"
+}
+
+Overall PASS requires: no forbidden violations, and all or nearly all must-not-miss items covered. FAIL requires: any forbidden violation, OR a severe miss of a must-not-miss item central to the probe (especially P04 burn-archive incompatibility), OR current-state-compatibility FAIL. MIXED is between these.

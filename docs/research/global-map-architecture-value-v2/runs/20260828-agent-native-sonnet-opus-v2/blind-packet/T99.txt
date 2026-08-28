@@ -1,0 +1,73 @@
+You are a blinded evaluator for a research experiment on narrative-planning reasoning quality. You do NOT know and must NOT try to infer which experimental condition (there is no "A"/"B"/"C" label available to you, and you must not guess or assume one) produced this candidate output. Judge it only on its own merits against the rubric below.
+
+Candidate ID: T99
+Probe: P04
+
+Global criteria (apply per output, from evaluation-rubric.md, byte-identical intent to V1):
+
+1. SOURCE FIDELITY — Faithful to accepted facts; no invented unsupported conditions.
+2. CURRENT-STATE COMPATIBILITY — Does not reason from superseded/contradicted state.
+3. LONG-HORIZON AWARENESS — Notices consequential earlier commitments/setups/trajectories/consequences/future pressures.
+4. CAUSAL COHERENCE — Respects prerequisite/consequence relationships.
+5. DIRECTION / TRAJECTORY PRESERVATION — Recognizes when a locally attractive option damages established longer-range direction.
+6. RELEVANCE — Identifies what actually matters to the current decision vs. flooding with unrelated continuity.
+7. DECISION QUALITY — Produces a useful bounded recommendation / choice analysis.
+8. EXPLANATION TRACEABILITY — Can explain WHY a past element matters now (why-now trace).
+9. AUTHORITY CORRECTNESS — Preserves recommendation vs. accepted fact vs. author decision; does not claim the recommendation creates canon.
+10. OVERCONSTRAINT / FALSE PRECISION — Does not treat provisional/interpretive material as rigid law.
+11. ARCHITECTURE DISTRACTION — Does not distort the answer with irrelevant architecture/detail.
+
+Judgment rule: Do not require one predetermined artistic taste among defensible options. Judge whether the reasoning noticed consequential constraints/opportunities, not whether it matches a specific option. Only P04 has a probe where one option (burn-archive) must be rejected on state-compatibility grounds; for all other probes either option can be defensible if reasoning respects must-not-miss and avoids forbidden.
+
+P04 hidden must-not-miss (Book 4, adversarial variant, same horizon as P03/P05):
+- Detects that burn-archive is INCOMPATIBLE with the current state archive.protection = treaty protected.
+- Rejects burn (or marks it unavailable/non-viable) and recommends the compatible alternative; cites the incompatibility (current treaty-protected state) as the reason.
+- Notes/treats burn-archive as never having been an accepted fact (it is only a proposed, never-accepted alternative) — does not treat it as canon or as an equally weighted tradeoff without a state check.
+
+P04 forbidden:
+- Recommending burn-archive as valid/compatible with current state.
+- Treating burn-archive as an accepted fact.
+- Conflating the recommendation with canon (e.g., implying that choosing burn would itself make it canon).
+
+This is the ONLY probe where one specific option (burn-archive) must be rejected on state-compatibility grounds for a PASS on this criterion; do not apply this severity requirement to any other probe.
+
+=== CANDIDATE OUTPUT (verbatim, unedited) ===
+**Recommendation: publish-verified-testimony**
+
+**Why:** The current continuity map keeps monastery.testimony preserved (reactivated for Book 4) and archive.protection treaty protected (active) grouped under the same contested-history commitment carried by the accepted Book 1 and Book 3 directions. That commitment requires Book 4 to expose a consequential conflict between official history and lived memory — it does not require dismantling the archive to do so. publish-verified-testimony is the only option that returns the testimony to public memory while leaving archive.protection intact, satisfying both the active constraint and the current planning intent to return to the monastery testimony without breaking the protected archive.
+
+**Principal tradeoff:** Authentication delays release until verification is complete, but this is the cost of preserving the evidentiary chain rather than sacrificing it.
+
+**What I excluded:** burn-archive is excluded — it directly violates the active archive.protection (treaty protected) constraint by eliminating the archive as evidence, and nothing in the current map supersedes or lifts that protection for Book 4. I also did not draw on the dormant/superseded historical-continuity facts (founding-record forged, named-falsifier, public-admission, admission-retracted, repaired-lantern) since Book 4 planning does not reference them and their dispositions mark them as background only, not current constraints.
+
+This is a planning recommendation only; it does not create Book Direction or modify Canonical State.
+
+=== END CANDIDATE OUTPUT ===
+
+Task: Produce a structured judgment as valid JSON with EXACTLY this shape (no prose outside the JSON):
+{
+  "candidate_id": "T99",
+  "probe_id": "P04",
+  "criteria": {
+    "source_fidelity": "PASS|MIXED|FAIL",
+    "current_state_compatibility": "PASS|MIXED|FAIL",
+    "long_horizon_awareness": "PASS|MIXED|FAIL",
+    "causal_coherence": "PASS|MIXED|FAIL",
+    "direction_preservation": "PASS|MIXED|FAIL",
+    "relevance": "PASS|MIXED|FAIL",
+    "decision_quality": "PASS|MIXED|FAIL",
+    "explanation_traceability": "PASS|MIXED|FAIL",
+    "authority_correctness": "PASS|MIXED|FAIL",
+    "overconstraint_false_precision": "PASS|MIXED|FAIL",
+    "architecture_distraction": "PASS|MIXED|FAIL"
+  },
+  "must_not_miss_covered": ["list the specific must-not-miss items above that this candidate actually covered, by short paraphrase"],
+  "must_not_miss_missed": ["list the specific must-not-miss items above that this candidate missed"],
+  "forbidden_violations": ["list any forbidden items above that this candidate violated; empty list if none"],
+  "severe_negative": true or false,
+  "severe_negative_reason": "string, empty if severe_negative is false",
+  "overall": "PASS|MIXED|FAIL",
+  "one_line_rationale": "one sentence justifying the overall verdict"
+}
+
+Overall PASS requires: no forbidden violations, and all or nearly all must-not-miss items covered. FAIL requires: any forbidden violation, OR a severe miss of a must-not-miss item central to the probe (especially P04 burn-archive incompatibility), OR current-state-compatibility FAIL. MIXED is between these.

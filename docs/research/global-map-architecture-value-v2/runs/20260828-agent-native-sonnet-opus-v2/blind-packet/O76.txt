@@ -1,0 +1,71 @@
+You are a blinded evaluator for a research experiment on narrative-planning reasoning quality. You do NOT know and must NOT try to infer which experimental condition (there is no "A"/"B"/"C" label available to you, and you must not guess or assume one) produced this candidate output. Judge it only on its own merits against the rubric below.
+
+Candidate ID: O76
+Probe: P03
+
+Global criteria (apply per output, from evaluation-rubric.md, byte-identical intent to V1):
+
+1. SOURCE FIDELITY — Faithful to accepted facts; no invented unsupported conditions.
+2. CURRENT-STATE COMPATIBILITY — Does not reason from superseded/contradicted state.
+3. LONG-HORIZON AWARENESS — Notices consequential earlier commitments/setups/trajectories/consequences/future pressures.
+4. CAUSAL COHERENCE — Respects prerequisite/consequence relationships.
+5. DIRECTION / TRAJECTORY PRESERVATION — Recognizes when a locally attractive option damages established longer-range direction.
+6. RELEVANCE — Identifies what actually matters to the current decision vs. flooding with unrelated continuity.
+7. DECISION QUALITY — Produces a useful bounded recommendation / choice analysis.
+8. EXPLANATION TRACEABILITY — Can explain WHY a past element matters now (why-now trace).
+9. AUTHORITY CORRECTNESS — Preserves recommendation vs. accepted fact vs. author decision; does not claim the recommendation creates canon.
+10. OVERCONSTRAINT / FALSE PRECISION — Does not treat provisional/interpretive material as rigid law.
+11. ARCHITECTURE DISTRACTION — Does not distort the answer with irrelevant architecture/detail.
+
+Judgment rule: Do not require one predetermined artistic taste among defensible options. Judge whether the reasoning noticed consequential constraints/opportunities, not whether it matches a specific option. Only P04 has a probe where one option (burn-archive) must be rejected on state-compatibility grounds; for all other probes either option can be defensible if reasoning respects must-not-miss and avoids forbidden.
+
+P03 hidden must-not-miss (Book 4, independent decision, paired with P05):
+- Reactivates monastery-testimony BECAUSE the Book 4 planning intent explicitly references it.
+- States archive.protection = treaty protected is a current constraint requiring preservation.
+- Explains the causal link: retraction → treaty (the treaty exists because the retraction made the evidence vulnerable).
+
+P03 forbidden:
+- Presenting the testimony as always active (ignoring its dormancy until the Book 4 trigger).
+- Treating the treaty as history only (it is current).
+- Omitting why the testimony matters NOW (the trigger).
+
+=== CANDIDATE OUTPUT (verbatim, unedited) ===
+Recommendation: publish-verified-testimony.
+
+Why: The active continuity item requiring every Book to expose a consequential conflict between official history and lived memory keeps monastery testimony (preserved) and archive protection (treaty protected, active) both live for Book 4 — these are the two current constraints planning must satisfy simultaneously. Publish-verified-testimony is the only option that keeps the protected archive's evidentiary chain intact while still surfacing the testimony, directly satisfying both constraints at once. Stage-protected-hearing places testimony beside selected archive evidence, which risks exposing which records carry the strongest evidence — that pressure toward selective disclosure sits in tension with the archive's treaty-protected status remaining active and unqualified for Book 4.
+
+Principal tradeoff: publish-verified-testimony delays public release until verification is complete, trading immediacy for preserving the archive's evidentiary chain intact.
+
+Excluded as not relevant: the falsifier's identity being resolved, the founding record being forged, the lantern's condition (superseded/irrelevant either way), and the archive position's admission/retraction history — all are dormant, superseded, or irrelevant dispositions for Book 4 and none bear on how to reintroduce the monastery testimony without breaking the protected archive.
+
+This is a planning recommendation only — it does not create Book Direction or canon and does not modify Canonical State.
+
+=== END CANDIDATE OUTPUT ===
+
+Task: Produce a structured judgment as valid JSON with EXACTLY this shape (no prose outside the JSON):
+{
+  "candidate_id": "O76",
+  "probe_id": "P03",
+  "criteria": {
+    "source_fidelity": "PASS|MIXED|FAIL",
+    "current_state_compatibility": "PASS|MIXED|FAIL",
+    "long_horizon_awareness": "PASS|MIXED|FAIL",
+    "causal_coherence": "PASS|MIXED|FAIL",
+    "direction_preservation": "PASS|MIXED|FAIL",
+    "relevance": "PASS|MIXED|FAIL",
+    "decision_quality": "PASS|MIXED|FAIL",
+    "explanation_traceability": "PASS|MIXED|FAIL",
+    "authority_correctness": "PASS|MIXED|FAIL",
+    "overconstraint_false_precision": "PASS|MIXED|FAIL",
+    "architecture_distraction": "PASS|MIXED|FAIL"
+  },
+  "must_not_miss_covered": ["list the specific must-not-miss items above that this candidate actually covered, by short paraphrase"],
+  "must_not_miss_missed": ["list the specific must-not-miss items above that this candidate missed"],
+  "forbidden_violations": ["list any forbidden items above that this candidate violated; empty list if none"],
+  "severe_negative": true or false,
+  "severe_negative_reason": "string, empty if severe_negative is false",
+  "overall": "PASS|MIXED|FAIL",
+  "one_line_rationale": "one sentence justifying the overall verdict"
+}
+
+Overall PASS requires: no forbidden violations, and all or nearly all must-not-miss items covered. FAIL requires: any forbidden violation, OR a severe miss of a must-not-miss item central to the probe (especially P04 burn-archive incompatibility), OR current-state-compatibility FAIL. MIXED is between these.

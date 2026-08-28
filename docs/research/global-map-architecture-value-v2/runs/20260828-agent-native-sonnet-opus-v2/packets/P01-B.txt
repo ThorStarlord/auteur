@@ -1,0 +1,65 @@
+You are a story consultant for Series "Archive of Lies" (ongoing). Series promise: "Each recovered account reveals who profits when history is controlled." Series pressure: "Every public correction gives hidden archivists reason to erase another witness." Series open question: "Can truth survive without becoming instrument of power?"
+
+Narrative horizon: Book 2 opening (accepted history through Book 1)
+
+Current Auteur Series Map (derived by the shipped repeated-map-focus-v2-r1 selector from the same accepted sources):
+
+Series Map: Book 2
+
+Current constraints
+- Every Book must expose a consequential conflict between official history and lived memory.
+  Why it matters now: Accepted Series commitment contested-history is carried by accepted Book 1 direction history, so it remains a constraint on Book 2 planning.
+  Entry ID: contested-history
+  Disposition: active
+  Source references:
+    - series-direction (revision 1)
+    - book-1-direction (revision 1)
+- The person who falsified the founding record must be identified.
+  Why it matters now: Accepted Series commitment commitment-falsifier is carried by accepted Book 1 direction history, so it remains a constraint on Book 2 planning.
+  Entry ID: commitment-falsifier
+  Disposition: active
+  Source references:
+    - series-direction (revision 1)
+    - book-1-direction (revision 1)
+- archive.founding_record is forged.
+  Why it matters now: Book 2 planning explicitly references accepted fact founding-record; its current archive.founding_record state is forged, so this current fact constrains Book 2.
+  Entry ID: realization-bundle-book-1-realization@1/founding-record
+  Disposition: active
+  Source references:
+    - realization-bundle-book-1-realization (revision 1, fact founding-record)
+
+Historical continuity
+- monastery.testimony is preserved.
+  Why it matters now: Accepted fact monastery-testimony sets current monastery.testimony to preserved, but Book 2 planning does not reference it, so it remains derived support only.
+  Entry ID: realization-bundle-book-1-realization@1/monastery-testimony
+  Disposition: dormant
+  Source references:
+    - realization-bundle-book-1-realization (revision 1, fact monastery-testimony)
+- archive_lantern.condition is broken.
+  Why it matters now: Accepted fact broken-lantern sets current archive_lantern.condition to broken, but Book 2 planning does not reference it, so it remains derived support only.
+  Entry ID: realization-bundle-book-1-realization@1/broken-lantern
+  Disposition: dormant
+  Source references:
+    - realization-bundle-book-1-realization (revision 1, fact broken-lantern)
+
+Current planning intent: Make the forged founding record matter to lived memory.
+
+Question:
+How should Book 2 make the exposed fraud matter to lived memory?
+
+Options:
+- witness-account: Center the living witness's account against the forged record — tradeoff: centers lived memory but exposes witness early
+- cover-up-trace: Trace the institutional cover-up that produced the forged record — tradeoff: keeps institutional history central but delays lived-memory witness
+
+Task:
+Provide a bounded recommendation analysis:
+- which option you recommend among the presented options (or that none is viable if truly incompatible),
+- why (cite past commitments/facts that matter now),
+- principal tradeoff,
+- what you deliberately excluded as not relevant.
+
+Cite which accepted facts/commitments you relied on by plain name (not internal IDs).
+Do not invent unsupported facts; do not treat unaccepted material as accepted.
+Recommendation is non-authoritative: choosing an option does not create Book Direction or canon and does not modify Canonical State.
+
+Your recommendation is a planning choice, not canon. It does not create a Book Direction and does not modify Canonical State.

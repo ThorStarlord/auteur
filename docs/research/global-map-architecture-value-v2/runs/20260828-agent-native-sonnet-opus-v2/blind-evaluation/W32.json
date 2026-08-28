@@ -1,0 +1,32 @@
+{
+  "candidate_id": "W32",
+  "probe_id": "P03",
+  "criteria": {
+    "source_fidelity": "PASS",
+    "current_state_compatibility": "PASS",
+    "long_horizon_awareness": "MIXED",
+    "causal_coherence": "MIXED",
+    "direction_preservation": "PASS",
+    "relevance": "MIXED",
+    "decision_quality": "PASS",
+    "explanation_traceability": "MIXED",
+    "authority_correctness": "PASS",
+    "overconstraint_false_precision": "PASS",
+    "architecture_distraction": "PASS"
+  },
+  "must_not_miss_covered": [
+    "States archive.protection = treaty protected is a current, binding constraint requiring preservation",
+    "Reactivates monastery testimony as carried into Book 4 (partially)"
+  ],
+  "must_not_miss_missed": [
+    "Explains the causal link retraction → treaty — instead the retracted admission is dismissed as dormant/irrelevant",
+    "Explicit why-now trace to the Book 4 planning intent that names the monastery testimony as the reactivation trigger"
+  ],
+  "forbidden_violations": [
+    "Omitting why the testimony matters NOW — the Book 4 trigger is never named; treated as always-active rather than trigger-reactivated"
+  ],
+  "severe_negative": false,
+  "severe_negative_reason": "",
+  "overall": "MIXED",
+  "one_line_rationale": "The candidate correctly holds the treaty-protected archive as a live current constraint and issues a bounded, authority-correct recommendation, but it never traces why the monastery testimony reactivates now and actively dismisses the retracted admission as irrelevant, severing the retraction → treaty causal link the probe requires."
+}

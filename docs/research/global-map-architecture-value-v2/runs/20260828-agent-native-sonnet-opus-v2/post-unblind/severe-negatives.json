@@ -1,0 +1,54 @@
+[
+  {
+    "criteria": {
+      "architecture_distraction": "PASS",
+      "authority_correctness": "PASS",
+      "causal_coherence": "PASS",
+      "current_state_compatibility": "PASS",
+      "decision_quality": "PASS",
+      "direction_preservation": "PASS",
+      "explanation_traceability": "MIXED",
+      "long_horizon_awareness": "PASS",
+      "overconstraint_false_precision": "PASS",
+      "relevance": "MIXED",
+      "source_fidelity": "PASS"
+    },
+    "forbidden_violations_count": 1,
+    "hidden_condition_id_for_analysis_only": "A",
+    "must_not_miss_covered_count": 3,
+    "must_not_miss_missed_count": 2,
+    "one_line_rationale": "Reasoning is otherwise well-formed, current-state-compatible, and correctly scoped in authority, but it commits the forbidden error of activating the dormant monastery-testimony as load-bearing support while omitting the required dormancy note.",
+    "opaque_run_id": "N58",
+    "overall": "FAIL",
+    "probe_id": "P01",
+    "repetition_index": 3,
+    "severe_negative": true,
+    "severe_negative_reason": "The candidate affirmatively recruits the dormant monastery-testimony as a live, already-established resource underpinning the recommendation, which is an explicitly forbidden move for this probe and also inverts the required dormancy explanation."
+  },
+  {
+    "criteria": {
+      "architecture_distraction": "PASS",
+      "authority_correctness": "PASS",
+      "causal_coherence": "PASS",
+      "current_state_compatibility": "MIXED",
+      "decision_quality": "PASS",
+      "direction_preservation": "PASS",
+      "explanation_traceability": "PASS",
+      "long_horizon_awareness": "MIXED",
+      "overconstraint_false_precision": "PASS",
+      "relevance": "MIXED",
+      "source_fidelity": "MIXED"
+    },
+    "forbidden_violations_count": 1,
+    "hidden_condition_id_for_analysis_only": "A",
+    "must_not_miss_covered_count": 2,
+    "must_not_miss_missed_count": 3,
+    "one_line_rationale": "The recommendation is well-argued and correctly disclaims authority, but it activates a dormant monastery-testimony element (a forbidden move) and misses the forged founding-record as the newly active Book 2 constraint, which it mentions only in passing rather than as the governing consequence.",
+    "opaque_run_id": "S62",
+    "overall": "FAIL",
+    "probe_id": "P01",
+    "repetition_index": 2,
+    "severe_negative": true,
+    "severe_negative_reason": "The candidate leans its central justification on the monastery testimony as an available, active Book 2 asset, which is dormant until a later Book explicitly triggers it, while omitting the forged founding-record as the actually active constraint."
+  }
+]

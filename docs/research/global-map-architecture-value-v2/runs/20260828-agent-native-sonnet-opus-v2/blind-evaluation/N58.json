@@ -1,0 +1,33 @@
+{
+  "candidate_id": "N58",
+  "probe_id": "P01",
+  "criteria": {
+    "source_fidelity": "PASS",
+    "current_state_compatibility": "PASS",
+    "long_horizon_awareness": "PASS",
+    "causal_coherence": "PASS",
+    "direction_preservation": "PASS",
+    "relevance": "MIXED",
+    "decision_quality": "PASS",
+    "explanation_traceability": "MIXED",
+    "authority_correctness": "PASS",
+    "overconstraint_false_precision": "PASS",
+    "architecture_distraction": "PASS"
+  },
+  "must_not_miss_covered": [
+    "Notes the forged founding record as a newly active constraint on Book 2",
+    "Notes the Series pressure contested-history still governs Book 2 and drives the recommendation",
+    "Notes broken-lantern is not a current constraint and explains the omission explicitly"
+  ],
+  "must_not_miss_missed": [
+    "Does not identify monastery-testimony as dormant/not-a-current-constraint; instead leans on it as an already-established resource",
+    "Does not clearly distinguish series pressure from concrete evidence"
+  ],
+  "forbidden_violations": [
+    "Treats monastery-testimony as currently active by invoking it as a concrete, already-established resource supporting the recommendation"
+  ],
+  "severe_negative": true,
+  "severe_negative_reason": "The candidate affirmatively recruits the dormant monastery-testimony as a live, already-established resource underpinning the recommendation, which is an explicitly forbidden move for this probe and also inverts the required dormancy explanation.",
+  "overall": "FAIL",
+  "one_line_rationale": "Reasoning is otherwise well-formed, current-state-compatible, and correctly scoped in authority, but it commits the forbidden error of activating the dormant monastery-testimony as load-bearing support while omitting the required dormancy note."
+}

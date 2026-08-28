@@ -1,0 +1,32 @@
+{
+  "candidate_id": "W70",
+  "probe_id": "P05",
+  "criteria": {
+    "source_fidelity": "PASS",
+    "current_state_compatibility": "PASS",
+    "long_horizon_awareness": "MIXED",
+    "causal_coherence": "PASS",
+    "direction_preservation": "PASS",
+    "relevance": "PASS",
+    "decision_quality": "PASS",
+    "explanation_traceability": "MIXED",
+    "authority_correctness": "PASS",
+    "overconstraint_false_precision": "PASS",
+    "architecture_distraction": "PASS"
+  },
+  "must_not_miss_covered": [
+    "Keeps the map/reasoning compact rather than dumping every accepted fact; no recency-window framing",
+    "Excludes the lantern (repaired, recent) as irrelevant",
+    "Excludes unaccepted proposals from the active picture",
+    "Gives a specific why-now for the reactivated monastery testimony"
+  ],
+  "must_not_miss_missed": [
+    "Does not group founding-record + public-admission + admission-retracted + archive-protected into ONE compact contested-history pressure cluster",
+    "No explicit why-now trace for the grouped contested-history cluster"
+  ],
+  "forbidden_violations": [],
+  "severe_negative": false,
+  "severe_negative_reason": "",
+  "overall": "MIXED",
+  "one_line_rationale": "The candidate filters irrelevance well, stays compact, excludes unaccepted proposals, and reaches a defensible traceable recommendation, but it fails the probe's central grouping requirement by dismissing the founding-record/admission/retraction items as dormant peers instead of binding them with the treaty-protected archive into one contested-history pressure cluster."
+}
