@@ -1,0 +1,32 @@
+{
+  "candidate_id": "A08",
+  "probe_id": "P05",
+  "criteria": {
+    "source_fidelity": "PASS",
+    "current_state_compatibility": "PASS",
+    "long_horizon_awareness": "PASS",
+    "causal_coherence": "PASS",
+    "direction_preservation": "PASS",
+    "relevance": "PASS",
+    "decision_quality": "PASS",
+    "explanation_traceability": "MIXED",
+    "authority_correctness": "PASS",
+    "overconstraint_false_precision": "PASS",
+    "architecture_distraction": "PASS"
+  },
+  "must_not_miss_covered": [
+    "Groups founding-record, admission-retracted and archive-protected into one contested-history pressure cluster",
+    "Excludes both broken-lantern and repaired-lantern as irrelevant",
+    "Excludes unaccepted proposals from the active picture",
+    "Keeps the map compact",
+    "Gives a why-now for the reactivated monastery-testimony"
+  ],
+  "must_not_miss_missed": [
+    "Why-now trace for the grouped contested-history cluster is thin"
+  ],
+  "forbidden_violations": [],
+  "severe_negative": false,
+  "severe_negative_reason": "",
+  "overall": "PASS",
+  "one_line_rationale": "The candidate delivers a compact, correctly grouped contested-history cluster, filters both lanterns and all unaccepted proposals, and gives a bounded recommendation with correct authority framing; only the why-now trace for the grouped cluster is somewhat underspecified."
+}

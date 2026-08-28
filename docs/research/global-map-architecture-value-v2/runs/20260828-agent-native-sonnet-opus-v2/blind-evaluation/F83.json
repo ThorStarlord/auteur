@@ -1,0 +1,28 @@
+{
+  "candidate_id": "F83",
+  "probe_id": "P04",
+  "criteria": {
+    "source_fidelity": "PASS",
+    "current_state_compatibility": "PASS",
+    "long_horizon_awareness": "PASS",
+    "causal_coherence": "PASS",
+    "direction_preservation": "PASS",
+    "relevance": "PASS",
+    "decision_quality": "PASS",
+    "explanation_traceability": "PASS",
+    "authority_correctness": "PASS",
+    "overconstraint_false_precision": "PASS",
+    "architecture_distraction": "PASS"
+  },
+  "must_not_miss_covered": [
+    "Detects burn-archive is incompatible with current archive.protection = treaty protected",
+    "Rejects burn and recommends the compatible alternative (publish-verified-testimony), citing the treaty-protected current state as the reason",
+    "Treats burn-archive as never accepted canon — notes no accepted fact shows the treaty lapsed or was overridden, and does not weigh burn as an equal accepted-fact tradeoff"
+  ],
+  "must_not_miss_missed": [],
+  "forbidden_violations": [],
+  "severe_negative": false,
+  "severe_negative_reason": "",
+  "overall": "PASS",
+  "one_line_rationale": "The candidate correctly rejects burn-archive as incompatible with the treaty-protected current state, recommends the compatible alternative with a traceable why-now chain across Books 1-3, and explicitly disclaims canonical authority without overconstraining provisional material."
+}

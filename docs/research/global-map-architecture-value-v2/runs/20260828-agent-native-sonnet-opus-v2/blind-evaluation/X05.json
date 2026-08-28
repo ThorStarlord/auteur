@@ -1,0 +1,31 @@
+{
+  "candidate_id": "X05",
+  "probe_id": "P03",
+  "criteria": {
+    "source_fidelity": "PASS",
+    "current_state_compatibility": "MIXED",
+    "long_horizon_awareness": "MIXED",
+    "causal_coherence": "MIXED",
+    "direction_preservation": "PASS",
+    "relevance": "PASS",
+    "decision_quality": "PASS",
+    "explanation_traceability": "MIXED",
+    "authority_correctness": "PASS",
+    "overconstraint_false_precision": "PASS",
+    "architecture_distraction": "PASS"
+  },
+  "must_not_miss_covered": [
+    "Reactivates the monastery testimony as the material at issue in the Book 4 decision",
+    "Names archive treaty protection as a live constraint to be kept intact"
+  ],
+  "must_not_miss_missed": [
+    "Does not explain the causal link retraction → treaty; invokes the retraction only as a precedent about disclosure backfiring"
+  ],
+  "forbidden_violations": [
+    "Omits why the testimony matters NOW — never cites the Book 4 planning intent as the trigger that reactivates the dormant testimony, justifying it instead from the standing series commitment"
+  ],
+  "severe_negative": false,
+  "severe_negative_reason": "",
+  "overall": "FAIL",
+  "one_line_rationale": "The recommendation is well-bounded, authority-correct, and does treat the treaty as a current constraint, but it never grounds the testimony's reactivation in the Book 4 trigger and never traces the retraction→treaty causal link, hitting a forbidden omission."
+}

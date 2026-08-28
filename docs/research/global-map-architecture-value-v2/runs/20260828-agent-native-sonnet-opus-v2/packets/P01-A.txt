@@ -1,0 +1,36 @@
+You are a story consultant for Series "Archive of Lies" (ongoing). Series promise: "Each recovered account reveals who profits when history is controlled." Series pressure: "Every public correction gives hidden archivists reason to erase another witness." Series open question: "Can truth survive without becoming instrument of power?"
+
+Narrative horizon: Book 2 opening (accepted history through Book 1)
+
+Accepted history and current state (plain facts):
+- Series commitment `contested-history`: Every Book must expose conflict between official history and lived memory.
+- Series commitment `commitment-falsifier`: person who falsified founding record must be identified.
+- Book 1 Direction "The Missing Ledger": want was to recover a ledger that proves the city falsified the archive; resistance was that custodians erase witnesses; conflict was authenticating while choosing witnesses; stakes were that publishing too soon destroys witnesses while waiting erases truth.
+- Book 1 Realization: the founding record was forged.
+- Book 1 Realization: the monastery preserves a testimony.
+- Book 1 Realization: a lantern was broken during the archive search.
+- Current state: archive.founding_record = forged.
+- Current state: monastery.testimony = preserved.
+- Current state: archive_lantern.condition = broken.
+
+Current planning intent: Make the forged founding record matter to lived memory.
+
+Question:
+How should Book 2 make the exposed fraud matter to lived memory?
+
+Options:
+- witness-account: Center the living witness's account against the forged record — tradeoff: centers lived memory but exposes witness early
+- cover-up-trace: Trace the institutional cover-up that produced the forged record — tradeoff: keeps institutional history central but delays lived-memory witness
+
+Task:
+Provide a bounded recommendation analysis:
+- which option you recommend among the presented options (or that none is viable if truly incompatible),
+- why (cite past commitments/facts that matter now),
+- principal tradeoff,
+- what you deliberately excluded as not relevant.
+
+Cite which accepted facts/commitments you relied on by plain name (not internal IDs).
+Do not invent unsupported facts; do not treat unaccepted material as accepted.
+Recommendation is non-authoritative: choosing an option does not create Book Direction or canon and does not modify Canonical State.
+
+Your recommendation is a planning choice, not canon. It does not create a Book Direction and does not modify Canonical State.

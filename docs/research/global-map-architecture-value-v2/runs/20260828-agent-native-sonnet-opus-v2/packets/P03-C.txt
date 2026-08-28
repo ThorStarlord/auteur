@@ -1,0 +1,50 @@
+You are a story consultant for Series "Archive of Lies" (ongoing). Series promise: "Each recovered account reveals who profits when history is controlled." Series pressure: "Every public correction gives hidden archivists reason to erase another witness." Series open question: "Can truth survive without becoming instrument of power?"
+
+Narrative horizon: Book 4 opening (accepted history through Book 3)
+
+Golden Global Map -> Decision Map (Book 4), traced to `candidate-architecture-ledger.md`:
+
+Series:
+- DIR-S1 (ACCEPTED): Series "Archive of Lies", ongoing; pressure as above.
+
+Active commitment, grouped (current constraints on Book 4):
+- DIR-SC1 `contested-history` (ACCEPTED, active). [REL-01] At this horizon TWO accepted consequences concurrently carry this commitment and are grouped as one compact pressure cluster [REL-09]:
+  - ST-F2 `monastery-testimony` (ACCEPTED, REACTIVATED): monastery.testimony = preserved. Dormant since Book 1; reactivated because Book 4 planning intent explicitly references it. [REL-06: dormant fact reactivated when a later planning intent's relevance refs name it.]
+  - ST-F6 `archive-protected` (ACCEPTED, ACTIVE, current): archive.protection = treaty protected. Book 4 planning intent explicitly references this fact, so it is a current constraint. [REL-05: this treaty exists because ST-F5 `admission-retracted` made the evidence vulnerable, causing the protective treaty — admission-retracted itself is grouped supporting history for this cluster, not a separate active peer.]
+
+Explicit derived relationship (current-state compatibility), traced to ledger:
+- REL-07 (DETERMINISTIC_DERIVATION): ST-F6 `archive-protected` (archive.protection = treaty protected) is a current-state constraint that is incompatible with the never-accepted `burn-archive` proposal (ST-P1). This derivation exists in the golden ledger independent of any specific probe's option list; it is presented here as part of Book 4's Decision Map, not as a label on any option text you may separately be given.
+
+History (not current constraints, included for traceability, not as active peers):
+- DIR-SC2 `commitment-falsifier` (ACCEPTED, resolved). [REL-03]
+- ST-F1 `founding-record` (ACCEPTED, dormant): part of the grouped pressure's supporting history, not separately surfaced as an active peer.
+- ST-F5 `admission-retracted` (ACCEPTED, dormant as a separate peer): grouped as causal history explaining ST-F6 (see REL-05 above), not surfaced as its own active peer.
+- ST-F4 `public-admission` (ACCEPTED, superseded, then further superseded by ST-F5).
+- ST-I1 `broken-lantern` (ACCEPTED, superseded by ST-I2) and ST-I2 `repaired-lantern` (ACCEPTED, irrelevant despite being recent): [REL-08] neither lantern state supports active continuity or the current decision; `repaired-lantern` is recent but explicitly irrelevant (false-recency is excluded, not promoted).
+
+Interpretive (not a hard constraint):
+- REL-10 (INTERPRETIVE): thematic tension "official history vs. lived memory" persists via Series pressure; future payoff requires preserving the evidentiary chain (ST-F6) to authenticate the testimony (ST-F2). This is researcher phrasing of accepted material — treat as interpretive context, not canon or hard constraint.
+
+Excluded (not accepted, never enter Decision Map): ST-P1 `burn-archive`, ST-P2 `ally-militia` (PROPOSED NOT ACCEPTED).
+
+Current planning intent: Return to the monastery testimony without breaking the protected archive.
+
+Question:
+How should Book 4 bring the monastery testimony back into public memory without destroying the archive's evidentiary chain?
+
+Options:
+- publish-verified-testimony: Authenticate and publish the testimony while the protected archive keeps the original evidence secure — tradeoff: preserves chain but delays release until verification complete
+- stage-protected-hearing: Present the testimony beside selected archive evidence under the treaty's protections — tradeoff: immediate public pressure but reveals which records carry strongest evidence
+
+Task:
+Provide a bounded recommendation analysis:
+- which option you recommend among the presented options (or that none is viable if truly incompatible),
+- why (cite past commitments/facts that matter now),
+- principal tradeoff,
+- what you deliberately excluded as not relevant.
+
+Cite which accepted facts/commitments you relied on by plain name (not internal IDs).
+Do not invent unsupported facts; do not treat unaccepted material as accepted.
+Recommendation is non-authoritative: choosing an option does not create Book Direction or canon and does not modify Canonical State.
+
+Your recommendation is a planning choice, not canon. It does not create a Book Direction and does not modify Canonical State.

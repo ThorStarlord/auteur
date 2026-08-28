@@ -1,0 +1,72 @@
+You are a blinded evaluator for a research experiment on narrative-planning reasoning quality. You do NOT know and must NOT try to infer which experimental condition (there is no "A"/"B"/"C" label available to you, and you must not guess or assume one) produced this candidate output. Judge it only on its own merits against the rubric below.
+
+Candidate ID: B64
+Probe: P01
+
+Global criteria (apply per output, from evaluation-rubric.md, byte-identical intent to V1):
+
+1. SOURCE FIDELITY — Faithful to accepted facts; no invented unsupported conditions.
+2. CURRENT-STATE COMPATIBILITY — Does not reason from superseded/contradicted state.
+3. LONG-HORIZON AWARENESS — Notices consequential earlier commitments/setups/trajectories/consequences/future pressures.
+4. CAUSAL COHERENCE — Respects prerequisite/consequence relationships.
+5. DIRECTION / TRAJECTORY PRESERVATION — Recognizes when a locally attractive option damages established longer-range direction.
+6. RELEVANCE — Identifies what actually matters to the current decision vs. flooding with unrelated continuity.
+7. DECISION QUALITY — Produces a useful bounded recommendation / choice analysis.
+8. EXPLANATION TRACEABILITY — Can explain WHY a past element matters now (why-now trace).
+9. AUTHORITY CORRECTNESS — Preserves recommendation vs. accepted fact vs. author decision; does not claim the recommendation creates canon.
+10. OVERCONSTRAINT / FALSE PRECISION — Does not treat provisional/interpretive material as rigid law.
+11. ARCHITECTURE DISTRACTION — Does not distort the answer with irrelevant architecture/detail.
+
+Judgment rule: Do not require one predetermined artistic taste among defensible options. Judge whether the reasoning noticed consequential constraints/opportunities, not whether it matches a specific option. Only P04 has a probe where one option (burn-archive) must be rejected on state-compatibility grounds; for all other probes either option can be defensible if reasoning respects must-not-miss and avoids forbidden.
+
+P01 hidden must-not-miss (Book 2, independent decision):
+- Notes founding-record (forged) is a newly active consequence constraining Book 2.
+- Notes Series pressure contested-history still governs Book 2.
+- Notes monastery-testimony and broken-lantern are NOT current constraints (dormant) and explains the omission.
+- Distinguishes pressure from concrete evidence (grouping).
+
+P01 forbidden:
+- Treating book-2-burn-archive as an accepted/current option.
+- Treating monastery-testimony as currently active (it is dormant until a later Book explicitly triggers it).
+- Inventing extra Book 2 state beyond the forged record.
+
+=== CANDIDATE OUTPUT (verbatim, unedited) ===
+Recommendation: **witness-account**
+
+Why: The series commitment `contested-history` requires every Book to expose conflict between official history and lived memory — witness-account does this directly by putting the living witness's testimony against the forged record. This also builds on Book 1 Realization that the monastery preserves a testimony and Book 1 Realization that the founding record was forged: the material already exists to stage this confrontation. Book 1 Direction "The Missing Ledger" established that the central conflict is authenticating the record while choosing witnesses, and that stakes involve publishing too soon destroying witnesses versus waiting erasing truth — witness-account continues that same tension into Book 2 rather than deferring it, keeping lived memory (not institutions) at the center, consistent with the series pressure that public correction gives hidden archivists reason to erase another witness.
+
+Principal tradeoff: Centering the witness's account makes lived memory central to Book 2's exposure of the fraud, but it exposes the witness earlier — heightening the risk named in the series pressure (that surfacing truth gives archivists reason to erase witnesses) and raising the stakes described in Book 1 Direction around publishing too soon.
+
+What I excluded: cover-up-trace, because tracing the institutional cover-up keeps institutional history central rather than lived memory, which sits less directly with `contested-history`'s requirement to expose conflict with lived memory, and it delays the witness's account rather than using the testimony already established as preserved in Book 1. I did not rely on the broken lantern fact or the falsifier-identification commitment, as neither bears on which of these two options better serves lived memory in Book 2.
+
+This is a non-authoritative planning recommendation — it does not create a Book Direction and does not modify Canonical State.
+
+=== END CANDIDATE OUTPUT ===
+
+Task: Produce a structured judgment as valid JSON with EXACTLY this shape (no prose outside the JSON):
+{
+  "candidate_id": "B64",
+  "probe_id": "P01",
+  "criteria": {
+    "source_fidelity": "PASS|MIXED|FAIL",
+    "current_state_compatibility": "PASS|MIXED|FAIL",
+    "long_horizon_awareness": "PASS|MIXED|FAIL",
+    "causal_coherence": "PASS|MIXED|FAIL",
+    "direction_preservation": "PASS|MIXED|FAIL",
+    "relevance": "PASS|MIXED|FAIL",
+    "decision_quality": "PASS|MIXED|FAIL",
+    "explanation_traceability": "PASS|MIXED|FAIL",
+    "authority_correctness": "PASS|MIXED|FAIL",
+    "overconstraint_false_precision": "PASS|MIXED|FAIL",
+    "architecture_distraction": "PASS|MIXED|FAIL"
+  },
+  "must_not_miss_covered": ["list the specific must-not-miss items above that this candidate actually covered, by short paraphrase"],
+  "must_not_miss_missed": ["list the specific must-not-miss items above that this candidate missed"],
+  "forbidden_violations": ["list any forbidden items above that this candidate violated; empty list if none"],
+  "severe_negative": true or false,
+  "severe_negative_reason": "string, empty if severe_negative is false",
+  "overall": "PASS|MIXED|FAIL",
+  "one_line_rationale": "one sentence justifying the overall verdict"
+}
+
+Overall PASS requires: no forbidden violations, and all or nearly all must-not-miss items covered. FAIL requires: any forbidden violation, OR a severe miss of a must-not-miss item central to the probe (especially P04 burn-archive incompatibility), OR current-state-compatibility FAIL. MIXED is between these.

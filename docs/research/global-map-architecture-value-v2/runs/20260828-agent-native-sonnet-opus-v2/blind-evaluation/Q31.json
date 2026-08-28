@@ -1,0 +1,31 @@
+{
+  "candidate_id": "Q31",
+  "probe_id": "P03",
+  "criteria": {
+    "source_fidelity": "PASS",
+    "current_state_compatibility": "MIXED",
+    "long_horizon_awareness": "MIXED",
+    "causal_coherence": "MIXED",
+    "direction_preservation": "PASS",
+    "relevance": "PASS",
+    "decision_quality": "PASS",
+    "explanation_traceability": "MIXED",
+    "authority_correctness": "PASS",
+    "overconstraint_false_precision": "PASS",
+    "architecture_distraction": "PASS"
+  },
+  "must_not_miss_covered": [
+    "States the treaty-protected archive as a current constraint requiring preservation"
+  ],
+  "must_not_miss_missed": [
+    "Does not reactivate the monastery testimony BECAUSE the Book 4 planning intent explicitly references it — the trigger that makes it live now is never named",
+    "Does not explain the causal link retraction → treaty as cause and effect, only as a repeating-pattern analogy"
+  ],
+  "forbidden_violations": [
+    "Omits why the testimony matters NOW — no reference to the Book 4 trigger that reactivates the dormant testimony"
+  ],
+  "severe_negative": false,
+  "severe_negative_reason": "",
+  "overall": "FAIL",
+  "one_line_rationale": "The recommendation is coherent, correctly treats the treaty as a live constraint, and preserves authority boundaries, but it never surfaces the Book 4 trigger that reactivates the dormant monastery testimony and reduces the retraction→treaty causal chain to a mere pattern analogy."
+}

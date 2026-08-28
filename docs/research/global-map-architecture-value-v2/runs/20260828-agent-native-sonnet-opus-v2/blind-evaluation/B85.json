@@ -1,0 +1,28 @@
+{
+  "candidate_id": "B85",
+  "probe_id": "P03",
+  "criteria": {
+    "source_fidelity": "PASS",
+    "current_state_compatibility": "PASS",
+    "long_horizon_awareness": "PASS",
+    "causal_coherence": "PASS",
+    "direction_preservation": "PASS",
+    "relevance": "PASS",
+    "decision_quality": "PASS",
+    "explanation_traceability": "MIXED",
+    "authority_correctness": "PASS",
+    "overconstraint_false_precision": "PASS",
+    "architecture_distraction": "PASS"
+  },
+  "must_not_miss_covered": [
+    "Reactivates monastery-testimony because the Book 4 planning intent references it (cites the intent's two halves: reactivate the testimony and not break the protected archive)",
+    "States archive protection is a current treaty-backed constraint requiring preservation, not history",
+    "Explains the causal link retraction → treaty (protection exists because admission-retracted left the evidence vulnerable)"
+  ],
+  "must_not_miss_missed": [],
+  "forbidden_violations": [],
+  "severe_negative": false,
+  "severe_negative_reason": "",
+  "overall": "PASS",
+  "one_line_rationale": "The candidate covers all three must-not-miss items — trigger-driven reactivation of the testimony, the treaty protection as a live constraint, and the retraction→treaty causal chain — with no forbidden violations, though it only implies rather than explicitly names the testimony's prior dormancy."
+}

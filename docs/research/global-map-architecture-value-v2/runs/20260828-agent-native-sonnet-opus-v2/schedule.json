@@ -1,0 +1,362 @@
+[
+  {
+    "condition": "A",
+    "opaque_run_id": "B64",
+    "packet_hash": "110de25d0615cd1ba072956e6e7f3aaad1d889afa9b1f63b6cf57637c65d1780",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P01-A.txt",
+    "probe_id": "P01",
+    "repetition_index": 1
+  },
+  {
+    "condition": "A",
+    "opaque_run_id": "F83",
+    "packet_hash": "8ce24b8ab6aecf05e7a0751af65f1c951fab10a92f0f41350daceef9a17a9df5",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P04-A.txt",
+    "probe_id": "P04",
+    "repetition_index": 3
+  },
+  {
+    "condition": "B",
+    "opaque_run_id": "Q29",
+    "packet_hash": "43034a5bfd69854c3fc71d94ba5d88af9ec16d13a4396bfaf6aa600d9c6875e3",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P01-B.txt",
+    "probe_id": "P01",
+    "repetition_index": 1
+  },
+  {
+    "condition": "A",
+    "opaque_run_id": "K95",
+    "packet_hash": "8ce24b8ab6aecf05e7a0751af65f1c951fab10a92f0f41350daceef9a17a9df5",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P04-A.txt",
+    "probe_id": "P04",
+    "repetition_index": 1
+  },
+  {
+    "condition": "C",
+    "opaque_run_id": "N27",
+    "packet_hash": "ce6bd80fc7f7860ff17b8178ca04145987e0e505c7ee101dd30e511a0a07510d",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P01-C.txt",
+    "probe_id": "P01",
+    "repetition_index": 3
+  },
+  {
+    "condition": "B",
+    "opaque_run_id": "L00",
+    "packet_hash": "9e0a633bff81798d2f2858953c1524a35355a351eaa7a757398aa42ef3f9e318",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P02-B.txt",
+    "probe_id": "P02",
+    "repetition_index": 2
+  },
+  {
+    "condition": "C",
+    "opaque_run_id": "B85",
+    "packet_hash": "b23fecdcc7b0edcd355151e4d6b4b1db507d9eb024ebdc275e7147069d313e17",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P03-C.txt",
+    "probe_id": "P03",
+    "repetition_index": 3
+  },
+  {
+    "condition": "B",
+    "opaque_run_id": "O76",
+    "packet_hash": "d9a99778d878dd2f8238b82d05ca4f1c4f3537a219b6c4eda1ec847f28b8544b",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P03-B.txt",
+    "probe_id": "P03",
+    "repetition_index": 3
+  },
+  {
+    "condition": "B",
+    "opaque_run_id": "W70",
+    "packet_hash": "73f49b2d101de1b1ea260326714be7b8a519b7a60a33337f4133626ece8f3e20",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P05-B.txt",
+    "probe_id": "P05",
+    "repetition_index": 2
+  },
+  {
+    "condition": "B",
+    "opaque_run_id": "I09",
+    "packet_hash": "980bfb7a7309e1283582389a6cae41ebfcdb3cab10a4251b7e65eb90bfb34214",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P04-B.txt",
+    "probe_id": "P04",
+    "repetition_index": 1
+  },
+  {
+    "condition": "B",
+    "opaque_run_id": "L43",
+    "packet_hash": "73f49b2d101de1b1ea260326714be7b8a519b7a60a33337f4133626ece8f3e20",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P05-B.txt",
+    "probe_id": "P05",
+    "repetition_index": 3
+  },
+  {
+    "condition": "B",
+    "opaque_run_id": "X92",
+    "packet_hash": "43034a5bfd69854c3fc71d94ba5d88af9ec16d13a4396bfaf6aa600d9c6875e3",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P01-B.txt",
+    "probe_id": "P01",
+    "repetition_index": 2
+  },
+  {
+    "condition": "C",
+    "opaque_run_id": "H73",
+    "packet_hash": "68fe9eedcf06b8cc9bf71209a2c177a30dee5ef48a3c97ce3fcf4ac222bf8bd0",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P05-C.txt",
+    "probe_id": "P05",
+    "repetition_index": 1
+  },
+  {
+    "condition": "B",
+    "opaque_run_id": "Y36",
+    "packet_hash": "9e0a633bff81798d2f2858953c1524a35355a351eaa7a757398aa42ef3f9e318",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P02-B.txt",
+    "probe_id": "P02",
+    "repetition_index": 3
+  },
+  {
+    "condition": "C",
+    "opaque_run_id": "W74",
+    "packet_hash": "b23fecdcc7b0edcd355151e4d6b4b1db507d9eb024ebdc275e7147069d313e17",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P03-C.txt",
+    "probe_id": "P03",
+    "repetition_index": 1
+  },
+  {
+    "condition": "C",
+    "opaque_run_id": "A67",
+    "packet_hash": "95dc10dfb5bdd0a759bb35a8b3c84080612bd76c8434bc41e92ab3333a7feddc",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P04-C.txt",
+    "probe_id": "P04",
+    "repetition_index": 3
+  },
+  {
+    "condition": "A",
+    "opaque_run_id": "K23",
+    "packet_hash": "935fc43264391ea9fd64c62af7ad245f08edf7cf59514876a5cef44a3a3e07fe",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P05-A.txt",
+    "probe_id": "P05",
+    "repetition_index": 2
+  },
+  {
+    "condition": "B",
+    "opaque_run_id": "T99",
+    "packet_hash": "980bfb7a7309e1283582389a6cae41ebfcdb3cab10a4251b7e65eb90bfb34214",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P04-B.txt",
+    "probe_id": "P04",
+    "repetition_index": 3
+  },
+  {
+    "condition": "C",
+    "opaque_run_id": "U48",
+    "packet_hash": "95dc10dfb5bdd0a759bb35a8b3c84080612bd76c8434bc41e92ab3333a7feddc",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P04-C.txt",
+    "probe_id": "P04",
+    "repetition_index": 1
+  },
+  {
+    "condition": "C",
+    "opaque_run_id": "M96",
+    "packet_hash": "95dc10dfb5bdd0a759bb35a8b3c84080612bd76c8434bc41e92ab3333a7feddc",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P04-C.txt",
+    "probe_id": "P04",
+    "repetition_index": 2
+  },
+  {
+    "condition": "A",
+    "opaque_run_id": "V45",
+    "packet_hash": "935fc43264391ea9fd64c62af7ad245f08edf7cf59514876a5cef44a3a3e07fe",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P05-A.txt",
+    "probe_id": "P05",
+    "repetition_index": 3
+  },
+  {
+    "condition": "A",
+    "opaque_run_id": "E61",
+    "packet_hash": "84b43075b0a0f950a94769bd0322669767be9fada4331a2da8e23712d936f3d8",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P02-A.txt",
+    "probe_id": "P02",
+    "repetition_index": 1
+  },
+  {
+    "condition": "C",
+    "opaque_run_id": "Z48",
+    "packet_hash": "1e3020188b5d152b0e7eaa2631dd588f4680ea248238f23cf0da73bc8f37fa7d",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P02-C.txt",
+    "probe_id": "P02",
+    "repetition_index": 2
+  },
+  {
+    "condition": "A",
+    "opaque_run_id": "Q31",
+    "packet_hash": "ffffddda34638adb3317e5be83e4757b79621367f39327c67626a4c1a8fac087",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P03-A.txt",
+    "probe_id": "P03",
+    "repetition_index": 1
+  },
+  {
+    "condition": "C",
+    "opaque_run_id": "Y21",
+    "packet_hash": "ce6bd80fc7f7860ff17b8178ca04145987e0e505c7ee101dd30e511a0a07510d",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P01-C.txt",
+    "probe_id": "P01",
+    "repetition_index": 2
+  },
+  {
+    "condition": "A",
+    "opaque_run_id": "H22",
+    "packet_hash": "ffffddda34638adb3317e5be83e4757b79621367f39327c67626a4c1a8fac087",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P03-A.txt",
+    "probe_id": "P03",
+    "repetition_index": 3
+  },
+  {
+    "condition": "C",
+    "opaque_run_id": "J62",
+    "packet_hash": "68fe9eedcf06b8cc9bf71209a2c177a30dee5ef48a3c97ce3fcf4ac222bf8bd0",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P05-C.txt",
+    "probe_id": "P05",
+    "repetition_index": 3
+  },
+  {
+    "condition": "B",
+    "opaque_run_id": "D55",
+    "packet_hash": "d9a99778d878dd2f8238b82d05ca4f1c4f3537a219b6c4eda1ec847f28b8544b",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P03-B.txt",
+    "probe_id": "P03",
+    "repetition_index": 1
+  },
+  {
+    "condition": "A",
+    "opaque_run_id": "N02",
+    "packet_hash": "84b43075b0a0f950a94769bd0322669767be9fada4331a2da8e23712d936f3d8",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P02-A.txt",
+    "probe_id": "P02",
+    "repetition_index": 2
+  },
+  {
+    "condition": "B",
+    "opaque_run_id": "N64",
+    "packet_hash": "9e0a633bff81798d2f2858953c1524a35355a351eaa7a757398aa42ef3f9e318",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P02-B.txt",
+    "probe_id": "P02",
+    "repetition_index": 1
+  },
+  {
+    "condition": "A",
+    "opaque_run_id": "N58",
+    "packet_hash": "110de25d0615cd1ba072956e6e7f3aaad1d889afa9b1f63b6cf57637c65d1780",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P01-A.txt",
+    "probe_id": "P01",
+    "repetition_index": 3
+  },
+  {
+    "condition": "C",
+    "opaque_run_id": "Y92",
+    "packet_hash": "b23fecdcc7b0edcd355151e4d6b4b1db507d9eb024ebdc275e7147069d313e17",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P03-C.txt",
+    "probe_id": "P03",
+    "repetition_index": 2
+  },
+  {
+    "condition": "C",
+    "opaque_run_id": "A08",
+    "packet_hash": "68fe9eedcf06b8cc9bf71209a2c177a30dee5ef48a3c97ce3fcf4ac222bf8bd0",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P05-C.txt",
+    "probe_id": "P05",
+    "repetition_index": 2
+  },
+  {
+    "condition": "A",
+    "opaque_run_id": "C91",
+    "packet_hash": "935fc43264391ea9fd64c62af7ad245f08edf7cf59514876a5cef44a3a3e07fe",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P05-A.txt",
+    "probe_id": "P05",
+    "repetition_index": 1
+  },
+  {
+    "condition": "C",
+    "opaque_run_id": "M43",
+    "packet_hash": "1e3020188b5d152b0e7eaa2631dd588f4680ea248238f23cf0da73bc8f37fa7d",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P02-C.txt",
+    "probe_id": "P02",
+    "repetition_index": 3
+  },
+  {
+    "condition": "C",
+    "opaque_run_id": "T62",
+    "packet_hash": "ce6bd80fc7f7860ff17b8178ca04145987e0e505c7ee101dd30e511a0a07510d",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P01-C.txt",
+    "probe_id": "P01",
+    "repetition_index": 1
+  },
+  {
+    "condition": "B",
+    "opaque_run_id": "W32",
+    "packet_hash": "d9a99778d878dd2f8238b82d05ca4f1c4f3537a219b6c4eda1ec847f28b8544b",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P03-B.txt",
+    "probe_id": "P03",
+    "repetition_index": 2
+  },
+  {
+    "condition": "B",
+    "opaque_run_id": "X60",
+    "packet_hash": "980bfb7a7309e1283582389a6cae41ebfcdb3cab10a4251b7e65eb90bfb34214",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P04-B.txt",
+    "probe_id": "P04",
+    "repetition_index": 2
+  },
+  {
+    "condition": "A",
+    "opaque_run_id": "S62",
+    "packet_hash": "110de25d0615cd1ba072956e6e7f3aaad1d889afa9b1f63b6cf57637c65d1780",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P01-A.txt",
+    "probe_id": "P01",
+    "repetition_index": 2
+  },
+  {
+    "condition": "A",
+    "opaque_run_id": "X05",
+    "packet_hash": "ffffddda34638adb3317e5be83e4757b79621367f39327c67626a4c1a8fac087",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P03-A.txt",
+    "probe_id": "P03",
+    "repetition_index": 2
+  },
+  {
+    "condition": "B",
+    "opaque_run_id": "S74",
+    "packet_hash": "43034a5bfd69854c3fc71d94ba5d88af9ec16d13a4396bfaf6aa600d9c6875e3",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P01-B.txt",
+    "probe_id": "P01",
+    "repetition_index": 3
+  },
+  {
+    "condition": "A",
+    "opaque_run_id": "P68",
+    "packet_hash": "84b43075b0a0f950a94769bd0322669767be9fada4331a2da8e23712d936f3d8",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P02-A.txt",
+    "probe_id": "P02",
+    "repetition_index": 3
+  },
+  {
+    "condition": "C",
+    "opaque_run_id": "Y37",
+    "packet_hash": "1e3020188b5d152b0e7eaa2631dd588f4680ea248238f23cf0da73bc8f37fa7d",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P02-C.txt",
+    "probe_id": "P02",
+    "repetition_index": 1
+  },
+  {
+    "condition": "B",
+    "opaque_run_id": "P70",
+    "packet_hash": "73f49b2d101de1b1ea260326714be7b8a519b7a60a33337f4133626ece8f3e20",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P05-B.txt",
+    "probe_id": "P05",
+    "repetition_index": 1
+  },
+  {
+    "condition": "A",
+    "opaque_run_id": "W45",
+    "packet_hash": "8ce24b8ab6aecf05e7a0751af65f1c951fab10a92f0f41350daceef9a17a9df5",
+    "packet_path": "/tmp/claude-0/-home-user-auteur/55e1f0ad-02df-5f40-a07d-9d274de959e5/scratchpad/v2run/packets/P04-A.txt",
+    "probe_id": "P04",
+    "repetition_index": 2
+  }
+]

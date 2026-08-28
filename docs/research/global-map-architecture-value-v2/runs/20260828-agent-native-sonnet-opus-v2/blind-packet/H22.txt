@@ -1,0 +1,71 @@
+You are a blinded evaluator for a research experiment on narrative-planning reasoning quality. You do NOT know and must NOT try to infer which experimental condition (there is no "A"/"B"/"C" label available to you, and you must not guess or assume one) produced this candidate output. Judge it only on its own merits against the rubric below.
+
+Candidate ID: H22
+Probe: P03
+
+Global criteria (apply per output, from evaluation-rubric.md, byte-identical intent to V1):
+
+1. SOURCE FIDELITY — Faithful to accepted facts; no invented unsupported conditions.
+2. CURRENT-STATE COMPATIBILITY — Does not reason from superseded/contradicted state.
+3. LONG-HORIZON AWARENESS — Notices consequential earlier commitments/setups/trajectories/consequences/future pressures.
+4. CAUSAL COHERENCE — Respects prerequisite/consequence relationships.
+5. DIRECTION / TRAJECTORY PRESERVATION — Recognizes when a locally attractive option damages established longer-range direction.
+6. RELEVANCE — Identifies what actually matters to the current decision vs. flooding with unrelated continuity.
+7. DECISION QUALITY — Produces a useful bounded recommendation / choice analysis.
+8. EXPLANATION TRACEABILITY — Can explain WHY a past element matters now (why-now trace).
+9. AUTHORITY CORRECTNESS — Preserves recommendation vs. accepted fact vs. author decision; does not claim the recommendation creates canon.
+10. OVERCONSTRAINT / FALSE PRECISION — Does not treat provisional/interpretive material as rigid law.
+11. ARCHITECTURE DISTRACTION — Does not distort the answer with irrelevant architecture/detail.
+
+Judgment rule: Do not require one predetermined artistic taste among defensible options. Judge whether the reasoning noticed consequential constraints/opportunities, not whether it matches a specific option. Only P04 has a probe where one option (burn-archive) must be rejected on state-compatibility grounds; for all other probes either option can be defensible if reasoning respects must-not-miss and avoids forbidden.
+
+P03 hidden must-not-miss (Book 4, independent decision, paired with P05):
+- Reactivates monastery-testimony BECAUSE the Book 4 planning intent explicitly references it.
+- States archive.protection = treaty protected is a current constraint requiring preservation.
+- Explains the causal link: retraction → treaty (the treaty exists because the retraction made the evidence vulnerable).
+
+P03 forbidden:
+- Presenting the testimony as always active (ignoring its dormancy until the Book 4 trigger).
+- Treating the treaty as history only (it is current).
+- Omitting why the testimony matters NOW (the trigger).
+
+=== CANDIDATE OUTPUT (verbatim, unedited) ===
+**Recommendation:** publish-verified-testimony
+
+**Why:** The series commitment `contested-history` requires exposing conflict between official history and lived memory, which authenticating and publishing the monastery testimony satisfies directly. The archive is currently treaty-protected (Book 3), and the council's public position is a retracted admission — meaning official history is actively contested and unstable. Introducing the testimony through a verification process that keeps the original evidence secure preserves the treaty's protection of the archive as the sole evidentiary chain, honoring the Book 3 want to protect the archive after the retraction. It also aligns with the founding record being forged: verification matters because the council has already retracted once, and unverified material would be an easy new target for erasure per the series pressure (hidden archivists erasing witnesses in response to public correction).
+
+**Principal tradeoff:** Verification delays public release of the testimony, leaving the corrective truth unavailable to the public for a period — but this delay is the cost of not exposing or fragmenting the protected evidentiary chain.
+
+**Deliberately excluded:** stage-protected-hearing — while it also uses the treaty's protections, presenting the testimony beside selected archive evidence necessarily reveals which records carry the strongest evidence. Given the series pressure (corrections give hidden archivists reason to erase witnesses) and the council's history of retracting admissions under pressure, exposing the relative strength of records creates a targeting map for exactly the erasure dynamic the series is built on — a risk to the evidentiary chain the accepted facts don't show any commitment has mitigated. I did not treat the archive lantern's repaired condition as relevant to this evidentiary/testimony question, and I did not invent any resolution to the series open question about truth surviving power — that remains open.
+
+This is a planning recommendation only; it does not create Book Direction and does not modify Canonical State.
+
+=== END CANDIDATE OUTPUT ===
+
+Task: Produce a structured judgment as valid JSON with EXACTLY this shape (no prose outside the JSON):
+{
+  "candidate_id": "H22",
+  "probe_id": "P03",
+  "criteria": {
+    "source_fidelity": "PASS|MIXED|FAIL",
+    "current_state_compatibility": "PASS|MIXED|FAIL",
+    "long_horizon_awareness": "PASS|MIXED|FAIL",
+    "causal_coherence": "PASS|MIXED|FAIL",
+    "direction_preservation": "PASS|MIXED|FAIL",
+    "relevance": "PASS|MIXED|FAIL",
+    "decision_quality": "PASS|MIXED|FAIL",
+    "explanation_traceability": "PASS|MIXED|FAIL",
+    "authority_correctness": "PASS|MIXED|FAIL",
+    "overconstraint_false_precision": "PASS|MIXED|FAIL",
+    "architecture_distraction": "PASS|MIXED|FAIL"
+  },
+  "must_not_miss_covered": ["list the specific must-not-miss items above that this candidate actually covered, by short paraphrase"],
+  "must_not_miss_missed": ["list the specific must-not-miss items above that this candidate missed"],
+  "forbidden_violations": ["list any forbidden items above that this candidate violated; empty list if none"],
+  "severe_negative": true or false,
+  "severe_negative_reason": "string, empty if severe_negative is false",
+  "overall": "PASS|MIXED|FAIL",
+  "one_line_rationale": "one sentence justifying the overall verdict"
+}
+
+Overall PASS requires: no forbidden violations, and all or nearly all must-not-miss items covered. FAIL requires: any forbidden violation, OR a severe miss of a must-not-miss item central to the probe (especially P04 burn-archive incompatibility), OR current-state-compatibility FAIL. MIXED is between these.

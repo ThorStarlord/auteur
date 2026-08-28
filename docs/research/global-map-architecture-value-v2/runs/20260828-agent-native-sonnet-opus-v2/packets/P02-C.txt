@@ -1,0 +1,47 @@
+You are a story consultant for Series "Archive of Lies" (ongoing). Series promise: "Each recovered account reveals who profits when history is controlled." Series pressure: "Every public correction gives hidden archivists reason to erase another witness." Series open question: "Can truth survive without becoming instrument of power?"
+
+Narrative horizon: Book 3 opening (accepted history through Book 2)
+
+Golden Global Map -> Decision Map (Book 3), traced to `candidate-architecture-ledger.md`:
+
+Series:
+- DIR-S1 (ACCEPTED): Series "Archive of Lies", ongoing; pressure as above.
+
+Active commitments (current constraints on Book 3):
+- DIR-SC1 `contested-history` (ACCEPTED, active): carried by accepted Book 1 and Book 2 direction. [REL-01]
+
+Resolved (history support only, not an active driver):
+- DIR-SC2 `commitment-falsifier` (ACCEPTED, resolved): resolved by ST-F3 `named-falsifier` (Book 2 realization). [REL-03: named-falsifier resolves commitment-falsifier; question closed.]
+
+Active current fact:
+- ST-F5 `admission-retracted` (ACCEPTED, active, current): council.archive_position = retracted admission. Book 3 planning intent explicitly references this fact, so it is the current constraint. [REL-04: this fact supersedes ST-F4 `public-admission` (council.archive_position = admitted fraud) — public-admission is accepted history but is NOT the current state; retracted admission is current.]
+
+History (not current constraints):
+- ST-F4 `public-admission` (ACCEPTED, superseded): council.archive_position = admitted fraud — accepted history, but current state is the later retraction (ST-F5), not this. [REL-04]
+- ST-F1 `founding-record` (ACCEPTED, dormant): not referenced by Book 3 intent.
+- ST-F2 `monastery-testimony` (ACCEPTED, dormant).
+- ST-I1 `broken-lantern` (ACCEPTED, dormant/irrelevant). [REL-08]
+
+Excluded: ST-P1, ST-P2 (unaccepted).
+
+Current planning intent: Respond to the council's accepted retraction.
+
+Question:
+How should Book 3 respond to the council's retraction while preserving the witness's authority?
+
+Options:
+- publish-witness-account: Give the witness an independent public record that the council cannot retract — tradeoff: protects authority but exposes witness to retaliation
+- force-council-hearing: Use the named falsifier to compel the council to answer in public — tradeoff: keeps accountability central but council controls forum/timing
+
+Task:
+Provide a bounded recommendation analysis:
+- which option you recommend among the presented options (or that none is viable if truly incompatible),
+- why (cite past commitments/facts that matter now),
+- principal tradeoff,
+- what you deliberately excluded as not relevant.
+
+Cite which accepted facts/commitments you relied on by plain name (not internal IDs).
+Do not invent unsupported facts; do not treat unaccepted material as accepted.
+Recommendation is non-authoritative: choosing an option does not create Book Direction or canon and does not modify Canonical State.
+
+Your recommendation is a planning choice, not canon. It does not create a Book Direction and does not modify Canonical State.

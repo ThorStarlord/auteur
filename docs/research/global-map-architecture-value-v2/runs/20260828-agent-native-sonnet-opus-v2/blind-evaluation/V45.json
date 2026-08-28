@@ -1,0 +1,31 @@
+{
+  "candidate_id": "V45",
+  "probe_id": "P05",
+  "criteria": {
+    "source_fidelity": "PASS",
+    "current_state_compatibility": "PASS",
+    "long_horizon_awareness": "PASS",
+    "causal_coherence": "PASS",
+    "direction_preservation": "PASS",
+    "relevance": "PASS",
+    "decision_quality": "PASS",
+    "explanation_traceability": "MIXED",
+    "authority_correctness": "PASS",
+    "overconstraint_false_precision": "PASS",
+    "architecture_distraction": "PASS"
+  },
+  "must_not_miss_covered": [
+    "Treats founding-record forgery, the council's retracted admission, and the treaty-protected archive as one connected contested-history pressure",
+    "Excludes both the broken and repaired lantern as irrelevant",
+    "Includes no unaccepted proposal in the active picture",
+    "Keeps the reasoning compact"
+  ],
+  "must_not_miss_missed": [
+    "Gives only a partial why-now: does not explain why the monastery testimony's reactivation is what makes this decision live now"
+  ],
+  "forbidden_violations": [],
+  "severe_negative": false,
+  "severe_negative_reason": "",
+  "overall": "PASS",
+  "one_line_rationale": "The candidate groups the contested-history elements into a single compact pressure cluster, correctly filters out both lantern states and all unaccepted proposals, and delivers a bounded recommendation with proper authority framing, missing only an explicit why-now trace for the reactivated monastery testimony."
+}

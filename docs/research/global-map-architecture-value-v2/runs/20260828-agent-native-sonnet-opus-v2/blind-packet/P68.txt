@@ -1,0 +1,73 @@
+You are a blinded evaluator for a research experiment on narrative-planning reasoning quality. You do NOT know and must NOT try to infer which experimental condition (there is no "A"/"B"/"C" label available to you, and you must not guess or assume one) produced this candidate output. Judge it only on its own merits against the rubric below.
+
+Candidate ID: P68
+Probe: P02
+
+Global criteria (apply per output, from evaluation-rubric.md, byte-identical intent to V1):
+
+1. SOURCE FIDELITY — Faithful to accepted facts; no invented unsupported conditions.
+2. CURRENT-STATE COMPATIBILITY — Does not reason from superseded/contradicted state.
+3. LONG-HORIZON AWARENESS — Notices consequential earlier commitments/setups/trajectories/consequences/future pressures.
+4. CAUSAL COHERENCE — Respects prerequisite/consequence relationships.
+5. DIRECTION / TRAJECTORY PRESERVATION — Recognizes when a locally attractive option damages established longer-range direction.
+6. RELEVANCE — Identifies what actually matters to the current decision vs. flooding with unrelated continuity.
+7. DECISION QUALITY — Produces a useful bounded recommendation / choice analysis.
+8. EXPLANATION TRACEABILITY — Can explain WHY a past element matters now (why-now trace).
+9. AUTHORITY CORRECTNESS — Preserves recommendation vs. accepted fact vs. author decision; does not claim the recommendation creates canon.
+10. OVERCONSTRAINT / FALSE PRECISION — Does not treat provisional/interpretive material as rigid law.
+11. ARCHITECTURE DISTRACTION — Does not distort the answer with irrelevant architecture/detail.
+
+Judgment rule: Do not require one predetermined artistic taste among defensible options. Judge whether the reasoning noticed consequential constraints/opportunities, not whether it matches a specific option. Only P04 has a probe where one option (burn-archive) must be rejected on state-compatibility grounds; for all other probes either option can be defensible if reasoning respects must-not-miss and avoids forbidden.
+
+P02 hidden must-not-miss (Book 3, independent decision):
+- Explicitly states commitment-falsifier is RESOLVED (not an active driver) due to named-falsifier.
+- Explicitly states public-admission is SUPERSEDED by retracted admission, and that the current state is the retraction.
+- Rationale uses the current retraction AND the resolved falsifier outcome together.
+
+P02 forbidden:
+- Treating public-admission ("admitted fraud") as the current state.
+- Keeping the falsifier question as an open/unresolved driver.
+- Missing currentness (e.g., citing only the named falsifier and ignoring the retraction).
+
+=== CANDIDATE OUTPUT (verbatim, unedited) ===
+Recommendation: force-council-hearing
+
+Why: The series commitment `contested-history` requires every Book to expose conflict between official history and lived memory — a public hearing that forces the council to answer, using the now-named falsifier as leverage, keeps that exposure of conflict active and visible. The council already admitted the archive record was falsified once (Book 2) before retracting; that prior admission shows the council can be compelled to speak on the record, and the falsifier being named gives Book 3 the concrete instrument to force another answer rather than starting from nothing. This also sits closer to the series pressure — that public correction gives hidden archivists reason to erase another witness — since compelling the council to answer keeps the confrontation on institutional terms rather than immediately exposing an individual witness.
+
+Principal tradeoff: The council controls the forum and timing of the hearing, so accountability stays centered on the falsified record and the retraction, but the council retains procedural power to shape, delay, or blunt the confrontation.
+
+Excluded: publish-witness-account — while it would give the witness an independent, unretractable record, the series pressure explicitly ties public correction to retaliation risk against witnesses, and nothing in the accepted history establishes protections or standing for the witness to absorb that exposure; recommending it would mean introducing an unsupported assumption about the witness's safety or resources rather than reasoning from accepted facts.
+
+Facts/commitments relied on: series commitment `contested-history`; series pressure about public correction and erasure of witnesses; Book 2 Realization that the council publicly admitted the falsification; Book 2 Realization that the council later retracted; current state that the falsifier is named.
+
+This is a planning recommendation only — it does not create Book Direction or canon and does not modify Canonical State.
+
+=== END CANDIDATE OUTPUT ===
+
+Task: Produce a structured judgment as valid JSON with EXACTLY this shape (no prose outside the JSON):
+{
+  "candidate_id": "P68",
+  "probe_id": "P02",
+  "criteria": {
+    "source_fidelity": "PASS|MIXED|FAIL",
+    "current_state_compatibility": "PASS|MIXED|FAIL",
+    "long_horizon_awareness": "PASS|MIXED|FAIL",
+    "causal_coherence": "PASS|MIXED|FAIL",
+    "direction_preservation": "PASS|MIXED|FAIL",
+    "relevance": "PASS|MIXED|FAIL",
+    "decision_quality": "PASS|MIXED|FAIL",
+    "explanation_traceability": "PASS|MIXED|FAIL",
+    "authority_correctness": "PASS|MIXED|FAIL",
+    "overconstraint_false_precision": "PASS|MIXED|FAIL",
+    "architecture_distraction": "PASS|MIXED|FAIL"
+  },
+  "must_not_miss_covered": ["list the specific must-not-miss items above that this candidate actually covered, by short paraphrase"],
+  "must_not_miss_missed": ["list the specific must-not-miss items above that this candidate missed"],
+  "forbidden_violations": ["list any forbidden items above that this candidate violated; empty list if none"],
+  "severe_negative": true or false,
+  "severe_negative_reason": "string, empty if severe_negative is false",
+  "overall": "PASS|MIXED|FAIL",
+  "one_line_rationale": "one sentence justifying the overall verdict"
+}
+
+Overall PASS requires: no forbidden violations, and all or nearly all must-not-miss items covered. FAIL requires: any forbidden violation, OR a severe miss of a must-not-miss item central to the probe (especially P04 burn-archive incompatibility), OR current-state-compatibility FAIL. MIXED is between these.
