@@ -22,7 +22,7 @@ PR #147 (`docs/research/global-map-architecture-value-v2/runs/20260828-agent-nat
 - **E61** — one evaluator response was returned truncated; the orchestrator's normalized artifact both closed the JSON syntax and (undisclosed at first) paraphrased the free-text rationale, rather than preserving the raw response as the primary artifact and treating normalization as a separate, disclosed derivation.
 - **Blinding chronology** — freeze-before-unblind ordering was session-supported/self-audited only; no independently Git-anchored pre-unblind commit existed to prove the ordering outside the orchestrator's own transcript.
 
-None of these are defects in the *substantive* V2 experiment (research question, hypotheses, A/B/C conditions, fixture, ledger, probes, rubric). V3 exists solely to replace the execution-contract language that assumed a provider-API backend with an explicit, backend-agnostic inference contract that any qualified backend — API-backed, local, hosted, or agent-native — can satisfy, be measured against, and be audited against. See `PR #147 defect closure matrix` below for how each item is resolved.
+None of these are defects in the *substantive* V2 experiment (research question, hypotheses, A/B/C conditions, fixture, ledger, probes, rubric). V3 exists solely to replace the execution-contract language that assumed a provider-API backend with an explicit, backend-agnostic inference contract that any qualified backend — API-backed, local, hosted, or agent-native — can satisfy, be measured against, and be audited against. See `global-map-architecture-value-v3/execution-contract.md` §11. PR #147 defect closure disposition (RESOLVED vs. HONESTLY UNOBSERVABLE) for exactly how each item is addressed — not every item is claimed fully "resolved"; §11 distinguishes structural fixes from backend-dependent, honestly-disclosed limitations.
 
 ---
 
@@ -40,7 +40,7 @@ None of these are defects in the *substantive* V2 experiment (research question,
 
 > Does the observed C-over-B advantage in causal trace, pressure grouping, and explanation within the paired P03/P05 Book-4 decision family reproduce when the execution-contract defects identified in PR #147 are removed?
 
-This is a question, not a predicted answer. It is stated here, in the human-facing summary document, for interpretation purposes only — it must never appear in any generator or evaluator packet (see `execution-contract.md` §Generator packet contract and §Evaluator packet contract).
+This is a question, not a predicted answer. It is stated here, in the human-facing summary document, for interpretation purposes only — it must never appear in any generator packet (which contains only the substantive content described in `../global-map-architecture-value-v2/condition-specification.md` §Conditions plus the opaque observation ID scheme in `execution-contract.md` §5) or evaluator packet (which contains only the global rubric and per-probe hidden signals from `../global-map-architecture-value-v2/evaluation-rubric.md`, per the blind-evaluation procedure reused from V2). Neither packet type may contain this uncertainty statement, an expected winner, or any of the decision-gate cases in §6 below.
 
 ## 2. Conditions (unchanged, reused by reference)
 
@@ -64,11 +64,11 @@ This is a question, not a predicted answer. It is stated here, in the human-faci
 
 ## 5. What V3 changes (execution contract only)
 
-See `global-map-architecture-value-v3/execution-contract.md` for the full backend-agnostic inference configuration contract, covering: per-role (generator/evaluator) fixed inference configuration; the model-identity contract (requested vs. resolved identifiers); the fresh-context/startup-context contract; generator condition-identity hygiene (opaque filenames, fixing E5); the packet-delivery/tool-capability contract (fixing E2); raw-output immutability (fixing E61); the true pre-unblind Git freeze (fixing the chronology gap); the backend-qualification canary requirement; and the backend-agnostic empirical invariant with its provenance-category vocabulary (fixing E3/E4).
+See `global-map-architecture-value-v3/execution-contract.md` for the full backend-agnostic inference configuration contract: §1 per-role (generator/evaluator) fixed inference configuration (addresses E1); §2 the model-identity contract, requested vs. resolved identifiers (addresses E3); §3 the fresh-context/startup-context contract, with a strict qualification rule (addresses E4); §4 the packet-delivery/tool-capability contract (addresses E2); §5 opaque generator condition-identity (addresses E5); §6 raw-output immutability (addresses E61); §7 the true pre-unblind Git freeze plus precise unblinding semantics (addresses the blinding-chronology gap); §8 the backend-qualification canary, split into runtime/backend-contract evidence and empirical canary evidence; §9 the planned first execution; §10 protocol/source worktree topology; §11 the honest RESOLVED-vs-HONESTLY-UNOBSERVABLE disposition for every defect. See `execution-contract.md` §11 for which defects this contract resolves structurally (E2, E5, E61, blinding chronology) versus which remain backend-dependent even though the contract fixes how they are handled (E1, E3, E4).
 
 ## 6. Decision gate (preregistered, human, post-evidence)
 
-See `global-map-architecture-value-v3/README.md` §Decision gate for the three preregistered interpretation cases (CASE 1/2/3). The evaluator must never receive these cases or any expected comparative outcome.
+See `global-map-architecture-value-v3/README.md` "## Decision gate (preregistered, human, post-evidence — reused verbatim from the V3 preregistration task, not invented here)" for the three preregistered interpretation cases (CASE 1/2/3). The evaluator must never receive these cases or any expected comparative outcome.
 
 ## 7. Scope exclusions (unchanged from V2, restated)
 
