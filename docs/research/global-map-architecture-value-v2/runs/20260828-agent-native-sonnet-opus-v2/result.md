@@ -1,23 +1,25 @@
 # Architecture Value Experiment V2 — Agent-Native Replication — Result
 
-**Status:** EMPIRICAL — genuine isolated model invocations (Agent-tool sub-agents), provenance class A/B (see `execution-provenance-audit.md`; not class C/synthetic)
-**Source revision:** `3cc497583dcb9b3bcee5ba273ee8bcbf27cbba41` (PR #143 merge)
-**Protocol revision:** `a11e58d219a8ffd311690960d69398471b141884` (PR #145 merge, V2 leakage fix)
+**Status:** AGENT-NATIVE EMPIRICAL EXECUTION WITH DISCLOSED FROZEN-V2 EXECUTION DEVIATIONS — genuine isolated model invocations (Agent-tool sub-agents), not synthesized/templated — directionally interpretable for within-run A/B/C comparison, not a strict temperature/tools-pinned V2 replication. See `evidence-reconciliation.md` for the full itemized deviation list and corrected claims; this document has been updated to match it.
+**Execution base:** `1053154f3d23893e2ce6a4e48fa5cb16b2d459ed` (the `main` commit this replication branched from)
+**Frozen narrative/source revision:** `3cc497583dcb9b3bcee5ba273ee8bcbf27cbba41` (PR #143 merge — all three conditions derive from this fixture snapshot)
+**Frozen V2 protocol revision:** `a11e58d219a8ffd311690960d69398471b141884` (PR #145 merge, V2 leakage fix)
 **Run ID:** `20260828-agent-native-sonnet-opus-v2`
 
 This is an **independent replication** of the frozen V2 protocol. It does not use, target, or compare itself against the synthetic rehearsal `20260827-muse-spark-v2` (illustrative only, provenance class C) or any other prior run during blind execution. Per the task's explicit instruction, cross-run comparison is left to the human as a separate decision after this run's own result is frozen — this document does not perform that comparison.
 
 ## Run provenance
 
-- Generator: Agent tool, `subagent_type: general-purpose`, `model: sonnet` (claude-sonnet-5), frozen across all 45 generation invocations.
-- Evaluator: Agent tool, `subagent_type: general-purpose`, `model: opus` (claude-opus-5), frozen across all 45 evaluation invocations, distinct from generator.
-- Isolation: fresh sub-agent per invocation; each read exactly one frozen packet file (verified `tool_uses: 1` on all 90 invocations); no `to:`/resume used anywhere.
+- Generator: Agent tool, `subagent_type: general-purpose`, requested runtime model alias `sonnet`, frozen (identical alias) across all 45 generation invocations. Exact resolved provider model-version is not independently observable through this backend (documentation context: this alias currently maps to claude-sonnet-5, but that is not an execution-observed fact — see `evidence-reconciliation.md` §D).
+- Evaluator: Agent tool, `subagent_type: general-purpose`, requested runtime model alias `opus`, frozen across all 45 evaluation invocations, distinct alias from the generator's. Same exact-version-observability caveat applies (documentation context: currently maps to claude-opus-5).
+- Isolation: fresh sub-agent per invocation, no `to:`/resume used anywhere; each was instructed to read exactly one frozen packet file and use no other tool, verified post hoc via `tool_uses: 1` on all 90 invocations. This proves no inheritance of the orchestrator's or another worker's conversation, and exact/hashable control of the experimental task input; it does **not** prove the packet file was the worker's entire runtime context (ordinary sub-agent startup context was not independently ruled out — see `evidence-reconciliation.md` §B) and the tool restriction itself was instruction-enforced, not sandboxed (§E2).
+- **Condition-correlated generator packet filenames (disclosed):** generator packet files are named `{probe}-{condition}.txt` (e.g. `packets/P01-A.txt`), and each generator's delegation prompt named that exact path — so the condition letter was present, as a filename token, in the string given to every generator sub-agent, even though the packet body itself carries no condition label. Frozen V2 does not require generator-side A/B/C blinding (only evaluator-side); this replication's own execution-contract intent to keep generators condition-blind was not fully honored on this point. See `evidence-reconciliation.md` §C.
 - 45 planned / 45 completed generations; 45/45 blinded evaluations. No missing or duplicate slots (mechanically verified, see `post-unblind/full-evaluations-with-conditions.jsonl`).
-- Randomization: schedule seed derived from `sha256(run_id) mod 2^32 = 1693323480`, Fisher–Yates shuffle, opaque IDs (`B64`, `F83`, …) not encoding probe/condition/repetition. Schedule hash: see `schedule_hash.txt`.
-- Blind packet hash: see `blind-packet/blind_packet_hash.txt`. Judgment hash (frozen before unblinding): see `blind-evaluation/judgment_hash.txt`.
+- Randomization: schedule seed derived from `sha256(run_id) mod 2^32 = 1693323480`, Fisher–Yates shuffle, opaque IDs (`B64`, `F83`, …) not encoding probe/condition/repetition — evaluator-facing blind-packet filenames use only these opaque IDs (no condition-correlation issue on the evaluator side). Schedule hash: see `schedule_hash.txt`.
+- Blind packet hash: see `blind-packet/blind_packet_hash.txt`. Judgment hash: see `blind-evaluation/judgment_hash.txt` — this hash and the script's step ordering are **session-supported/self-audited** evidence of freeze-before-unblind chronology; there is no separate, independently Git-anchored pre-unblind commit (all artifacts landed in one commit, `11feb7a`). See `evidence-reconciliation.md` §F.
 - Condition B: verbatim output of shipped `select_repeated_continuity` / `format_repeated_series_map(detail=True)` (`derivation_version=repeated-map-focus-v2-r1`) run against `tests/fixtures/repeated_map_focus_v2/` for Book 2/3/4 — no modification.
 - Condition C: hand-built Decision Map per horizon, every statement traced to an id in the existing 33-item golden ledger (`../../global-map-architecture-value-v1/candidate-architecture-ledger.md`), not enriched.
-- **Deviation (disclosed):** the Agent-tool backend does not expose temperature/top_p/seed/max_output_tokens to the orchestrator. This control-variable deviation is uniform across A/B/C (not a between-condition confound) but is a real loss of exact reproducibility control. See `post-unblind/invalidation-audit.json`.
+- **Deviations (disclosed, itemized E1–E5 in `evidence-reconciliation.md` §E, superseding the earlier single-deviation framing):** no temperature/top_p/seed/max_output_tokens control; instruction- rather than sandbox-enforced tool restriction; unobservable exact model version; unverified sub-agent startup context; condition-correlated generator filenames. All are uniform across A/B/C (not a between-condition confound) but represent a real loss of exact reproducibility control and of some execution-contract precautions. See `post-unblind/invalidation-audit.json`.
 
 ## Validity audit
 
@@ -25,15 +27,17 @@ This is an **independent replication** of the frozen V2 protocol. It does not us
 |---|---|
 | C did not receive extra narrative facts | PASS |
 | questions/options stayed identical within each probe across A/B/C | PASS |
-| generator model/version did not change mid-run | PASS (sonnet frozen) |
-| evaluator remained blind until judgments frozen | PASS (leakage audit: 0 hits pre- and post-freeze; sealed map read only after judgment hash computed) |
-| raw outputs were not manually edited | PASS, with one disclosed syntax-only repair (truncated JSON closed on one evaluator response, content unchanged) |
+| requested generator model alias did not change mid-run | PASS (`sonnet` alias frozen; exact resolved provider version not independently observable — see §D of `evidence-reconciliation.md`) |
+| evaluator remained blind to condition identity until judgments frozen | PASS on the evaluator side (leakage audit: 0 condition-identity hits pre- and post-freeze in evaluator-visible blind packets and in the frozen judgments); chronology proof is session-supported/self-audited, not independently Git-anchored (§F) |
+| generator remained blind to hidden rubric/must-not-miss/forbidden/expected-winner | PASS (frozen V2 requirement; packets contain none of this) |
+| generator packet filenames did not carry condition-identity tokens | DEVIATION — filenames were condition-correlated (`P01-A.txt` etc.); an agent-native execution-contract deviation, not a frozen-V2 requirement violation (§C) |
+| raw outputs were not manually edited | PASS for all 44 non-truncated evaluations; one disclosed exception (E61) where the normalized `E61.json` closed truncated JSON syntax **and** paraphrased the free-text rationale (structured fields unchanged); original raw text preserved separately in `E61.raw.txt` (§G) |
 | B was not modified for the experiment | PASS (shipped code, unmodified) |
 | C ledger did not gain unsupported facts | PASS |
-| sampling/tooling settings did not materially drift | DEVIATION — not controllable via this backend; disclosed, uniform across conditions |
+| sampling/tooling/model-version-observability/startup-context settings did not materially drift or were verifiable | DEVIATION/LIMITATION (E1–E4 in §E) — not controllable or not independently verifiable via this backend; disclosed, uniform across conditions |
 | source fixture did not change mid-run | PASS |
 
-**Empirical validity: VALID WITH ONE DISCLOSED DEVIATION** (sampling-parameter control). The A vs B vs C comparison itself is not confounded by this deviation, since it applies identically to all three conditions.
+**Empirical validity: AGENT-NATIVE EMPIRICAL EXECUTION WITH DISCLOSED FROZEN-V2 EXECUTION DEVIATIONS.** None of the itemized deviations (E1–E5, `evidence-reconciliation.md` §E) differentially advantages any one condition — each applies uniformly across A/B/C — so the A vs B vs C comparison is not confounded by them. They do mean this run cannot claim strict temperature/tools-pinned frozen-V2 conformance, and the chronology/context/filename limitations should be weighed by any reader assessing how much confidence to place in the magnitude (not just the direction) of the observed gaps.
 
 ## Mechanical reconciliation (from `post-unblind/full-evaluations-with-conditions.jsonl`)
 
@@ -67,17 +71,22 @@ Severe negatives: **2**, both in Condition A, both at probe P01 (opaque IDs `N58
 
 ### A vs B vs C (this run's own preregistered comparisons)
 
-- **A vs B:** B PASS 9/MIXED 6/FAIL 0 vs A PASS 6/MIXED 4/FAIL 5. B strictly dominates A in this run, driven almost entirely by P01 (A fails uniformly there, including both severe negatives) and, to a lesser extent, P02/P03 explanation-traceability gaps in A.
-- **A vs C:** C PASS 14/MIXED 1/FAIL 0 vs A PASS 6/MIXED 4/FAIL 5. C strictly dominates A across every probe except P04 (tied) and is the largest gap observed in this run.
-- **B vs C (most consequential comparison):** C PASS 14/MIXED 1/FAIL 0 vs B PASS 9/MIXED 6/FAIL 0. Neither had a FAIL or a severe negative. C's advantage over B is concentrated in P03 (2 PASS vs 0 PASS) and P05 (3 PASS vs 0 PASS) — both Book-4-horizon probes where the explicit golden-ledger relationships (REL-05 causal chain, REL-06 reactivation trigger, REL-09 grouping) appear to help the generator state an explicit why-now/causal trace that B's derived Map supports computationally but does not always surface in prose strongly enough for the blinded evaluator to credit as PASS on `explanation_traceability`/`causal_coherence`. P01, P02, and P04 show no B vs C gap (both clean).
+Frozen V2 explicitly does not reduce this experiment to one weighted aggregate score; the ordinal PASS/MIXED/FAIL counts below describe *this run's* observed pattern per probe/condition and should not be read as a general dominance claim.
+
+- **A vs B:** B PASS 9/MIXED 6/FAIL 0 vs A PASS 6/MIXED 4/FAIL 5. B outperforms A on this run's PASS/MIXED/FAIL ordinal count, concentrated almost entirely at P01 (A fails uniformly there, including both severe negatives) and, to a lesser extent, at P02/P03 explanation-traceability gaps in A.
+- **A vs C:** C PASS 14/MIXED 1/FAIL 0 vs A PASS 6/MIXED 4/FAIL 5. C outperforms A on this run's ordinal count at every probe except P04 (tied) and shows the largest gap observed in this run.
+- **B vs C (most consequential comparison):** C PASS 14/MIXED 1/FAIL 0 vs B PASS 9/MIXED 6/FAIL 0. Neither had a FAIL or a severe negative. C's observed advantage over B is concentrated in P03 (2 PASS vs 0 PASS) and P05 (3 PASS vs 0 PASS) — **P03 and P05 are one paired decision family, not two independent replications**, per frozen V2's own breadth-interpretation rule — both Book-4-horizon probes where the explicit golden-ledger relationships (REL-05 causal chain, REL-06 reactivation trigger, REL-09 grouping) appear to help the generator state an explicit why-now/causal trace that B's derived Map supports computationally but does not always surface in prose strongly enough for the blinded evaluator to credit as PASS on `explanation_traceability`/`causal_coherence`. P01, P02, and P04 show no independent B vs C gap in this run (both clean at P01/P02; all three conditions clean at P04).
+
+**Bounded headline synthesis:** this agent-native run provides directional empirical evidence that structured relevance/context improves some long-horizon decisions over plain facts, and that richer explicit causal/grouping representation may add value beyond the shipped Map/Focus representation in the single P03/P05 Book-4 decision family tested here. It does not prove richer architecture is better in general, and it does not validate Global Map as a production feature.
 
 ## Limitations (frozen, preserved)
 
 - Single fixture (*Archive of Lies*).
 - Four independent decision situations (P03/P05 are one decision family; P04 is an adversarial variant of the same Book-4 horizon), not five.
 - Golden hand-built C architecture — this run does not test extraction quality.
-- Model/runtime-specific: generator = claude-sonnet-5, evaluator = claude-opus-5, both via the Claude Code Agent-tool sub-agent backend. Results are scoped to this model/runtime pairing and this fixture; they are not a universal claim about "architecture" in the abstract.
-- Sampling-parameter control deviation (disclosed above) means the 3 repetitions per cell are not temperature-pinned in the way the frozen protocol specifies.
+- Model/runtime-specific: generator requested alias `sonnet`, evaluator requested alias `opus`, both via the Claude Code Agent-tool sub-agent backend; exact resolved provider versions are not independently observable from this execution record (documentation context only: these aliases currently map to claude-sonnet-5/claude-opus-5). Results are scoped to this model/runtime pairing and this fixture; they are not a universal claim about "architecture" in the abstract.
+- Sampling-parameter control deviation means the 3 repetitions per cell are not temperature-pinned in the way the frozen protocol specifies; see `evidence-reconciliation.md` §E for this and four further itemized execution deviations (tool-restriction enforcement, model-version observability, sub-agent startup context, condition-correlated generator filenames).
+- Blinding chronology is session-supported/self-audited, not independently Git-anchored (`evidence-reconciliation.md` §F).
 - No human-usability claim, no production Global Map implementation claim, no extraction-quality claim.
 
 ## Human boundary

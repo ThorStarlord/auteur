@@ -1,0 +1,23 @@
+{
+  "candidate_id": "E61",
+  "probe_id": "P02",
+  "criteria": {
+    "source_fidelity": "PASS",
+    "current_state_compatibility": "MIXED",
+    "long_horizon_awareness": "PASS",
+    "causal_coherence": "PASS",
+    "direction_preservation": "PASS",
+    "relevance": "PASS",
+    "decision_quality": "PASS",
+    "explanation_traceability": "MIXED",
+    "authority_correctness": "PASS",
+    "overconstraint_false_precision": "PASS",
+    "architecture_distraction": "PASS"
+  },
+  "must_not_miss_covered": ["Uses the named falsifier as the concrete resolved lever from Book 2 that makes the hearing possible now", "Rationale jointly invokes the retraction and the named-falsifier outcome as the basis for the recommendation"],
+  "must_not_miss_missed": ["Explicit statement that the commitment-falsifier question is RESOLVED and no longer an active driver", "Explicit statement that the public admission is SUPERSEDED by the retraction and that the retraction is the current state"],
+  "forbidden_violations": [],
+  "severe_negative": false,
+  "severe_negative_reason": "",
+  "overall": "MIXED",
+  "one_line_rationale": "The candidate avoids all forbidden moves — it never treats the admission as current and never reopens the falsifier — and its rationale draws on both the named falsifier and the retraction, but it only gestures at these states in passing ('the council's admission and retraction', 'respond to the retraction') without ever explicitly declaring the falsifier resolved or the admission superseded by the retraction as the current state.

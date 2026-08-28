@@ -1,5 +1,6 @@
 {
   "run_id": "20260828-agent-native-sonnet-opus-v2",
+  "note": "This file was revised by an evidence-reconciliation pass after original authorship. See ../evidence-reconciliation.md for full reasoning behind each correction. No PASS/MIXED/FAIL judgment, no raw output, and no blind packet was altered by this revision.",
   "checks": [
     {
       "check": "C received story facts unavailable to A (parity violation)",
@@ -12,19 +13,29 @@
       "evidence": "Question and bounded option list are identical across A/B/C within each probe (same PROBES[probe_id]['question']/['options'] rendered into all three packets)."
     },
     {
-      "check": "Model/version changed mid-run without preregistered reason",
-      "result": "PASS",
-      "evidence": "Generator model frozen as Agent-tool model='sonnet' (claude-sonnet-5) for all 45 generation slots; evaluator model frozen as model='opus' (claude-opus-5) for all 45 evaluation slots. No mid-run change."
+      "check": "Requested model alias changed mid-run without preregistered reason",
+      "result": "PASS, with a narrower supported claim than originally stated",
+      "evidence": "Generator requested runtime model alias 'sonnet' fixed for all 45 generation slots; evaluator requested runtime model alias 'opus' fixed for all 45 evaluation slots. The Agent tool does not return a response-side resolved model-version identifier, so exact provider model-version stability is NOT independently observable from this execution record; only alias-level stability is confirmed. 'claude-sonnet-5'/'claude-opus-5' used elsewhere are documentation-derived context (what these aliases currently resolve to), not execution-observed provenance."
     },
     {
       "check": "Evaluator learned condition identity before judgment",
-      "result": "PASS",
-      "evidence": "build_eval_packets.py leakage audit scanned all 45 eval packets for A/B/C condition tokens before any evaluator invocation: NONE found. Sealed condition map was read only after blind-evaluations.jsonl was frozen and hashed (freeze_and_unblind.py step 1 before step 2). Post-freeze leakage scan on frozen judgments: NONE."
+      "result": "PASS on the evaluator side; chronology proof is session-supported, not independently Git-anchored",
+      "evidence": "build_eval_packets.py leakage audit scanned all 45 eval packets for A/B/C condition tokens before any evaluator invocation: NONE found (evaluator-facing blind-packet filenames use only opaque IDs, unlike the generator packet filenames -- see the new 'generator packet filenames condition-correlated' check below). Sealed condition map was read only after blind-evaluations.jsonl was frozen and hashed (freeze_and_unblind.py step 1 before step 2, verifiable from the script's control flow and the session transcript's output ordering). Post-freeze leakage scan on frozen judgments: NONE. However, PR #147 contains a single commit with the blind evaluations, sealed map, and post-unblind join together; there is no separate, independently Git-anchored pre-unblind commit proving this ordering outside of the script/session record."
+    },
+    {
+      "check": "Generator learned condition identity, rubric, must-not-miss, forbidden signals, or expected winner before generating",
+      "result": "PASS on rubric/must-not-miss/forbidden/expected-winner; DEVIATION on condition-identity filename exposure",
+      "evidence": "Generator packet bodies contain none of the hidden evaluator material (verified). However, the 15 generator packet files are named '{probe}-{condition}.txt' (e.g. P01-A.txt), and every generator delegation prompt named that exact file path, so the condition letter A/B/C was present as a plain-text filename token given to each generator sub-agent, even though it was never in the packet body and the worker was never asked to interpret it. Frozen V2 itself requires only evaluator-side A/B/C blinding, not generator-side, so this is not a frozen-V2 invalidation; it is a deviation from this replication's own additional execution-contract precaution (its own instructions requested generator workers not receive the A/B/C condition name). Classified as an agent-native execution-contract deviation / leakage risk, disclosed rather than assumed away."
+    },
+    {
+      "check": "Sub-agent runtime/startup context beyond the packet file",
+      "result": "NOT INDEPENDENTLY VERIFIED (new check added on reconciliation)",
+      "evidence": "Whether a fresh general-purpose sub-agent additionally received ordinary runtime context (its own system prompt, tool definitions, repository CLAUDE.md/agent instructions, workspace metadata) beyond the single instructed packet-file Read was not inspected in this execution. If present, it would have been uniform across all 90 invocations, not a between-condition confound, but the earlier claim that the packet file was the worker's 'exact'/'entire' input is narrowed accordingly."
     },
     {
       "check": "Outputs manually edited before evaluation",
-      "result": "PASS with one logged technical note",
-      "evidence": "Raw generation outputs were saved verbatim from sub-agent responses, hashed, and never edited before blind packet construction. One evaluator JSON response (E61) was truncated mid-string by the evaluator sub-agent (missing closing quote/brace); the orchestrator closed the JSON syntax only (added the missing closing characters) without altering any judgment content, criterion value, or rationale text, to make the file machine-parseable. This is a syntax repair, not a content edit; logged here for transparency per the no-quiet-repair rule."
+      "result": "PASS for 44/45 evaluations and all 45 generations; one disclosed exception (E61) that is a partial content edit, not purely syntax",
+      "evidence": "Raw generation outputs were saved verbatim from sub-agent responses, hashed, and never edited before blind packet construction. One evaluator JSON response (E61) was truncated mid-string by the evaluator sub-agent (missing closing quote/brace). On reconciliation, direct comparison against the now-separately-preserved raw response (blind-evaluation/E61.raw.txt) shows the orchestrator's normalized blind-evaluation/E61.json closed the JSON syntax AND shortened/paraphrased the free-text one_line_rationale field (dropped an em-dash clause and a parenthetical quoted example); all structured fields (criteria, must_not_miss_covered/missed, forbidden_violations, severe_negative, overall=MIXED) are unchanged and match the raw response. E61.json itself was left as-is per the instruction not to rewrite existing evaluator judgments; the discrepancy is disclosed here and the verbatim original is preserved in E61.raw.txt for anyone who needs the exact original wording."
     },
     {
       "check": "Production B was modified specifically for the test",
@@ -38,8 +49,8 @@
     },
     {
       "check": "Run settings materially differed without reason",
-      "result": "DEVIATION (logged, not a between-condition confound)",
-      "evidence": "The frozen V2 control variables specify sampling temperature 0.2 / top_p 1.0 / max_output_tokens 1200 / tools none, applied identically across conditions. The Agent-tool sub-agent backend selected in Phase 0 does not expose temperature/top_p/seed/max_tokens parameters to the orchestrator, so these could not be independently set or verified for any of the 45 generation calls. This deviation is uniform across all 45 generations (same backend, same model, same lack of parameter control for A, B, and C alike), so it is not a between-condition confound, but it is a real loss of exact reproducibility/control and is recorded as a material protocol deviation from condition-specification.md's Control variables section."
+      "result": "DEVIATION (logged, itemized E1-E2 below, not a between-condition confound)",
+      "evidence": "The frozen V2 control variables specify sampling temperature 0.2 / top_p 1.0 / max_output_tokens 1200 / tools none, applied identically across conditions. The Agent-tool sub-agent backend selected in Phase 0 does not expose temperature/top_p/seed/max_tokens parameters to the orchestrator (E1), and 'tools: none' was enforced only by instruction, not sandboxed (E2). Both are uniform across all 45 generations (same backend, same alias, same lack of control for A, B, and C alike), so neither is a between-condition confound, but both are real losses of exact reproducibility/control and are recorded as material protocol deviations from condition-specification.md's Control variables section."
     },
     {
       "check": "Source fixture changed after some conditions ran",
@@ -47,6 +58,33 @@
       "evidence": "Single frozen source revision 3cc497583dcb9b3bcee5ba273ee8bcbf27cbba41 used throughout; all 45 packets built in one atomic script run (build_packets.py) before any generation began."
     }
   ],
-  "overall_validity": "VALID WITH ONE LOGGED DEVIATION",
-  "deviation_summary": "Sampling-parameter control (temperature/top_p/seed/max_tokens) is not exposed by the qualified Agent-tool sub-agent backend. This is disclosed as a control-variable deviation. It does not by itself invalidate the A vs B vs C comparison (deviation is uniform across conditions), but it does mean this replication cannot claim exact frozen-sampling reproducibility, and results should be read as one stochastic sample per cell (3 reps) under an uncontrolled-but-fixed-model sampling regime rather than a temperature-pinned regime."
+  "itemized_deviations": [
+    {
+      "id": "E1",
+      "deviation": "No temperature/top_p/seed/max_output_tokens exposed to the orchestrator by the Agent-tool backend; could not be set or verified for any of the 90 invocations.",
+      "classification": "Loss of reproducibility/control. Uniform across A/B/C -- not a between-condition confound. Frozen-V2 protocol deviation."
+    },
+    {
+      "id": "E2",
+      "deviation": "Frozen V2 specifies tools:none. general-purpose sub-agents have full tool access by definition; the restriction was enforced only by instruction, verified post hoc via tool_uses=1 on all 90 results, not guaranteed in advance by a sandbox.",
+      "classification": "Instruction-enforced, not sandbox-enforced, tool restriction. Agent-native execution-contract limitation. Uniform across A/B/C."
+    },
+    {
+      "id": "E3",
+      "deviation": "Exact resolved provider model-version is not observable through this backend; only the request-side alias (sonnet/opus) is confirmed stable.",
+      "classification": "Provenance/observability limitation, not a between-condition confound."
+    },
+    {
+      "id": "E4",
+      "deviation": "Sub-agent startup context beyond the packet file was not independently verified.",
+      "classification": "Provenance limitation. Uniform across all 90 invocations if present at all."
+    },
+    {
+      "id": "E5",
+      "deviation": "Generator packet filenames were condition-correlated (e.g. P01-A.txt), exposing the condition letter as a filename token to every generator sub-agent.",
+      "classification": "Agent-native execution-contract deviation / leakage risk, not a frozen-V2 invalidation (frozen V2 requires only evaluator-side blinding). Low practical materiality (no condition label or hidden signal in the packet body), disclosed rather than assumed away."
+    }
+  ],
+  "overall_validity": "AGENT-NATIVE EMPIRICAL EXECUTION WITH DISCLOSED FROZEN-V2 EXECUTION DEVIATIONS -- DIRECTIONALLY INTERPRETABLE FOR WITHIN-RUN A/B/C COMPARISON -- NOT A STRICT TEMPERATURE/TOOLS-PINNED V2 REPLICATION",
+  "deviation_summary": "Five itemized deviations (E1-E5 above) are disclosed: no sampling-parameter control, instruction-only tool restriction, unobservable exact model version, unverified sub-agent startup context, and condition-correlated generator packet filenames. None differentially advantages any one condition -- each applies uniformly across A/B/C -- so the A vs B vs C comparison is not confounded by them outright. They do mean this replication cannot claim exact frozen-sampling reproducibility, strict tools:none sandboxing, independently Git-anchored blind-freeze chronology, or fully generator-blind execution-contract conformance. Results should be read as directionally interpretable evidence under an agent-native, alias-pinned-but-not-version-pinned, uniformly-imperfect-control regime, not as a strict control-conformant V2 replication."
 }
