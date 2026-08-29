@@ -36,6 +36,30 @@ are needed for fidelity scoring, provenance, downstream display, or leakage
 control. `support` records the extractor's assessment but never changes
 authority.
 
+### Canonical downstream treatment projection
+
+The rich extraction record is retained for extraction evaluation only. Before
+any downstream packet is built, both R-GOLD and R-DERIVED are rendered into
+the same canonical structural overlay containing only:
+
+```json
+{
+  "relation_type": "CAUSAL_SUPPORT | PRESSURE_GROUP",
+  "source_fact_refs": ["B0-visible-fact-identity"],
+  "target_ref": "B0-visible-fact-or-commitment-identity",
+  "member_roles": [{"fact_ref": "B0-visible-fact-identity", "role": "..."}],
+  "authority_class": "DETERMINISTIC_DERIVATION | INTERPRETIVE"
+}
+```
+
+The renderer sorts relation entries by `relation_type`, target identity, and
+source/member identities; group members are sorted by fact identity. It emits
+no `evidence_refs`, `rationale`, `support`, confidence, or other free-form
+explanation. Provenance stays in the evaluation manifest unless its source
+identity is already visible in B0. The downstream generator therefore receives
+structure over B0-visible identities, not researcher- or extractor-written
+explanatory prose.
+
 The extractor must not output accepted facts as if they were derived relations.
 It must not create a relation solely from confidence or from the question.
 Malformed or unsupported output is retained as raw evidence and scored as a
@@ -76,10 +100,18 @@ For each probe, downstream packets contain the same B0 context. The only
 condition difference is:
 
 - B0: no overlay;
-- R-GOLD: projected frozen gold overlay;
-- R-DERIVED: projected extractor overlay using the same schema, maximum entry
-  count (two relation entries, with at most three group members), role budget,
-  and formatting adapter.
+- R-GOLD: the canonical rendering of the frozen gold overlay;
+- R-DERIVED: the canonical rendering of the corresponding extractor output,
+  using the same schema, maximum entry count (two relation entries, with at
+  most three group members), role budget, and formatting adapter.
+
+For the shared Book-4 history horizon, the same frozen R-GOLD overlay is
+presented unchanged to P03, P04, and P05. The same corresponding R-DERIVED
+observation is presented unchanged to P03, P04, and P05. There is no second
+model-based or discretionary relevance-selection step. B0 Map/Focus and the
+current planning intent remain responsible for decision-time relevance. P02
+receives the preregistered empty overlay because its horizon predates the
+Book-4 target relation.
 
 Each observation receives an opaque randomized ID unrelated to condition,
 probe, relation count, or worker. The condition mapping is sealed and is not

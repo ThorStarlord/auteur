@@ -75,8 +75,10 @@ persistent trajectory; they are not new canon.
 Current planning intent is deliberately downstream of extraction. It is used
 by the ordinary B0 Map/Focus context and decision prompt to select or reactivate
 what matters now. It is not supplied to the extractor and does not create the
-persistent relation. This prevents V1 from measuring a relevance/retrieval
-effect while claiming to measure relationship extraction.
+persistent relation. The Book-4 overlay itself is never relevance-filtered
+after extraction: the same overlay is presented unchanged to P03, P04, and
+P05. This prevents V1 from measuring a relevance/retrieval effect while
+claiming to measure relationship extraction.
 
 ## 4. Existing architecture fit
 
@@ -118,6 +120,12 @@ direction to instance relations while keeping all source ownership unchanged.
 V1 therefore uses a research-local overlay vocabulary. It does not add a
 production `NarrativeRelation`, `NarrativePressure`, lifecycle field, graph
 store, or ontology primitive.
+
+The claim ceiling is closed-world and bounded: V1 can test whether Auteur
+recovers relevant relations within the preregistered `CAUSAL_SUPPORT` and
+`PRESSURE_GROUP` families and this target fixture. It does not test arbitrary
+open-world narrative-relation discovery, completeness of a universal
+relationship ontology, or general Global Map extraction.
 
 ## 5. Hypotheses
 
@@ -172,6 +180,28 @@ history. It uses the same relation vocabulary, fields, source-reference rules,
 member-role budget, and maximum entry count as `R-GOLD`. The extractor never
 sees the gold reference, expected relation IDs, evaluator rubric, condition
 names, or downstream target answers.
+
+The extractor retains a rich record for extraction evaluation, but the
+downstream treatment is a separate canonical structural projection. For both
+R-GOLD and R-DERIVED, the generator sees only:
+
+```json
+{
+  "relation_type": "CAUSAL_SUPPORT | PRESSURE_GROUP",
+  "source_fact_refs": ["B0-visible-fact-identity"],
+  "target_ref": "B0-visible-fact-or-commitment-identity",
+  "member_roles": [{"fact_ref": "B0-visible-fact-identity", "role": "..."}],
+  "authority_class": "DETERMINISTIC_DERIVATION | INTERPRETIVE"
+}
+```
+
+The canonical rendering is deterministic: relation entries are ordered by
+`relation_type`, then target identity, then sorted source/member identities;
+group members are sorted by fact identity. It contains no extractor rationale,
+support/confidence field, or free-form explanatory prose. A provenance
+reference may appear only when the same source identity is already present in
+B0; otherwise provenance remains in the evaluation record and is not shown to
+the downstream generator.
 
 The downstream packet uses an opaque condition label. `B0`, `R-GOLD`, and
 `R-DERIVED` are never disclosed to the generator or evaluator.
@@ -236,9 +266,9 @@ from the historical record.
 
 At downstream time, the B0 projection and current planning intent determine
 what is surfaced for the decision. The overlay is not a second relevance
-engine. If a relation has no source-supported relevance to the probe, it is
-omitted by the fixed overlay projection rule rather than invented for the
-question.
+engine. The shared Book-4 overlay is presented unchanged to P03, P04, and P05;
+the model's use of it is the downstream behavior under test. P02 receives the
+preregistered empty overlay because its horizon predates `archive-protected`.
 
 ## 10. Gold-reference boundary
 
