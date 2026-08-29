@@ -88,13 +88,15 @@ Generator and evaluator may intentionally use different fixed models — this is
 
 ## 3. Fresh-context / startup-context contract
 
-**Do not claim** "the worker saw only the packet" unless genuinely demonstrated by a qualification canary (§8. Backend qualification canary). Instead, require and separately record:
+**Do not claim** "the worker saw only the packet" unless genuinely demonstrated by the full backend-qualification evidence (§8. Backend qualification canary). Instead, require and separately record:
 
-**Required (hard requirement, verified by canary before any experimental observation):**
+**Required (hard requirement, established by the complete backend-qualification evidence defined in §8, before any experimental observation):**
 - a fresh inference context for every observation;
 - no continuation/resume from another observation;
 - no inheritance of another worker's conversation;
 - no inheritance of orchestrator hidden reasoning.
+
+These hard requirements must be established by the complete backend-qualification evidence defined in §8. Empirical canaries (§8.B) establish only observable properties of the sampled invocations — e.g. that a canary run showed no cross-nonce leakage, or that a worker's response showed no evidence of resumed context. Properties such as the absence of hidden orchestrator/runtime context are not directly observable from a canary sample alone; where they are not independently confirmed by runtime/backend contract evidence (§8.A), they remain unproven, not proven-by-canary, and this is treated per the strict startup-context qualification rule below (`UNAVAILABLE` classification, requiring either an independent runtime guarantee or qualification failure).
 
 **Explicitly permitted, if documented (this is the fix for PR #147's E4):** standardized backend/runtime startup context, such as:
 - system prompt;

@@ -26,7 +26,12 @@ Extends V1's `../global-map-architecture-value-v1/run-manifest-template.md` (reu
 | `startup_context_classification` | `KNOWN` / `PARTIALLY OBSERVABLE` / `UNAVAILABLE` | see execution-contract.md §3 |
 | `startup_context_detail` | free text or file ref + hash | required if `KNOWN`; best-effort if `PARTIALLY OBSERVABLE` |
 | `fresh_context_mechanism` | e.g. "no `to:`/resume parameter used; each invocation a new spawn" | |
-| `canary_qualification_result` | `PASS` / `FAIL` + evidence ref | must be `PASS` before any experimental invocation of this role |
+| `runtime_contract_evidence_refs` | e.g. "provider docs §X: requests are stateless" or `UNAVAILABLE` | category-A evidence citations backing any runtime/backend contract claim, see execution-contract.md §8.A |
+| `runtime_contract_qualification` | `PASS` / `FAIL` / `PARTIAL` / `UNAVAILABLE` | must not claim more than the cited `runtime_contract_evidence_refs` actually prove |
+| `empirical_canary_evidence_refs` | e.g. canary run artifact paths/hashes, distinct-nonce test IDs | category-B evidence, see execution-contract.md §8.B |
+| `empirical_canary_result` | `PASS` / `FAIL` | means only that the preregistered *observable* canary checks (nonce leakage, fresh-worker behavior, raw-output capture, packet/tool mechanics) passed — not that hidden context is absent |
+| `backend_qualification_result` | `PASS` / `FAIL` | `PASS` only if every hard requirement in execution-contract.md §3 has sufficient evidence under §3 + §8 (runtime-contract evidence, or observable-canary evidence, or both, as required per the §3 strict rule). **`empirical_canary_result: PASS` alone MUST NOT imply `backend_qualification_result: PASS`.** |
+| `strict_v3_conformance_status` | `ELIGIBLE` / `NOT_ELIGIBLE` | experimental invocation of this role may begin only when `ELIGIBLE`; `NOT_ELIGIBLE` means proceed only as an explicitly non-strict-conformant run (or stop), per execution-contract.md §3/§8/§11 |
 
 ## PRE-UNBLIND observation manifest (one row per generation or evaluation; committed in the pre-unblind Git commit, execution-contract.md §7)
 
