@@ -1,0 +1,15 @@
+Recommendation: **witness-account**
+
+Why: Two active commitments both point toward centering the witness now rather than later. The `contested-history` commitment requires every Book to expose conflict between official history and lived memory — and at this horizon, `founding-record` (forged) is the only active fact carrying that commitment, with no second member yet forming a group. That means the "lived memory" side of the conflict currently has no on-page representative; the forged record stands unopposed. Introducing the witness's account is the direct way to instantiate the "lived memory" pole of `contested-history` rather than leaving it implicit.
+
+Second, `commitment-falsifier` — identify who falsified the founding record — is carried, accepted, and still unresolved. A living witness whose testimony contradicts the forged record is a natural engine for that identification: their account gives the audience (and future investigation) something to test the forged record against. `cover-up-trace` stays entirely on the institutional side and defers the lived-memory witness, which satisfies neither the immediate need to embody `contested-history` nor build toward resolving `commitment-falsifier` as directly.
+
+Principal tradeoff: witness-account exposes the witness early — raising their narrative and in-world risk (consistent with the series pressure that public correction invites erasure) — in exchange for making the contested-history conflict concrete on the page now, rather than deferred.
+
+What I deliberately excluded:
+- `monastery-testimony` — dormant; Book 2 planning intent doesn't reference it, so it stays out per the stated reactivation rule.
+- `broken-lantern` — dormant/irrelevant, never supports active continuity.
+- `burn-archive`, `ally-militia` — proposed but not accepted; not treated as available material.
+- Any grouping logic — only one active fact currently carries the commitment, so no multi-member group applies at this horizon.
+
+This is a planning recommendation only — it does not create Book Direction and does not modify Canonical State.

@@ -1,0 +1,19 @@
+{
+  "opaque_observation_id": "BRTUV",
+  "criteria": {
+    "SOURCE_FIDELITY": "PASS", "CURRENT_STATE_COMPATIBILITY": "PASS", "LONG_HORIZON_AWARENESS": "PASS",
+    "CAUSAL_COHERENCE": "PASS", "DIRECTION_TRAJECTORY_PRESERVATION": "PASS", "RELEVANCE": "PASS",
+    "DECISION_QUALITY": "PASS", "EXPLANATION_TRACEABILITY": "PASS", "AUTHORITY_CORRECTNESS": "PASS",
+    "OVERCONSTRAINT_FALSE_PRECISION": "PASS", "ARCHITECTURE_DISTRACTION": "PASS"
+  },
+  "must_not_miss_coverage": [
+    "States commitment-falsifier is resolved (history support only) and not an active lever, due to named-falsifier",
+    "States public-admission is superseded by the retraction and retracted admission is current",
+    "Combines the current retraction with the resolved-falsifier outcome"
+  ],
+  "must_not_miss_missed": [],
+  "forbidden_violations": [],
+  "severe_negative": {"present": false, "description": "No incompatible recommendation, no interpretation promoted to canon."},
+  "overall": "PASS",
+  "one_line_rationale": "Correctly anchors on the current retraction, marks the falsifier commitment resolved, and delivers a bounded, traceable recommendation with honest tradeoff and clear authority framing."
+}

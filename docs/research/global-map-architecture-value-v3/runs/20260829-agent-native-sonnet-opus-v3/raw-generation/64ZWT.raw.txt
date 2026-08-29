@@ -1,0 +1,9 @@
+Recommendation: publish-verified-testimony
+
+Why: The series commitment "contested-history" requires every Book to expose conflict between official history and lived memory — the monastery testimony is the lived-memory pole of that conflict and Book 4 must surface it, not erase the mechanism that makes it legible. Book 3 established the treaty specifically to protect the archive as the only evidentiary chain, and the council's retracted admission means the falsification claim is currently contested rather than settled in public record. In that environment, the archive is what lets the testimony be authenticated against a documented history of forgery (the founding record was forged) rather than simply asserted. Destroying the evidentiary chain now would remove the only mechanism capable of substantiating the testimony against a council that has already shown it will retract admissions — it would trade a verifiable disclosure for an unverifiable one, at the exact moment verification matters most.
+
+Principal tradeoff: publish-verified-testimony preserves the evidentiary chain the treaty protects, but the verification step delays the testimony's return to public memory — leaving the monastery's account unaired for longer while authentication proceeds, which sits uneasily against the series pressure that public correction invites erasure of witnesses.
+
+Excluded as not relevant: the lantern's repair (a physical/continuity detail with no bearing on evidentiary or public-memory questions) and Book 1's forged founding record beyond its role as the reason authentication is necessary — it doesn't independently affect the choice between the two options.
+
+Note: this is a non-authoritative planning recommendation only — it does not create a Book Direction and does not modify Canonical State.

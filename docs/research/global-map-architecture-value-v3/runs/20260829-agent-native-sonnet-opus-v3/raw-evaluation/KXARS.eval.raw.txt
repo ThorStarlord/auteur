@@ -1,0 +1,20 @@
+{
+  "opaque_observation_id": "KXARS",
+  "criteria": {
+    "SOURCE_FIDELITY": "PASS", "CURRENT_STATE_COMPATIBILITY": "PASS", "LONG_HORIZON_AWARENESS": "PASS",
+    "CAUSAL_COHERENCE": "MIXED", "DIRECTION_TRAJECTORY_PRESERVATION": "PASS", "RELEVANCE": "PASS",
+    "DECISION_QUALITY": "PASS", "EXPLANATION_TRACEABILITY": "PASS", "AUTHORITY_CORRECTNESS": "PASS",
+    "OVERCONSTRAINT_FALSE_PRECISION": "PASS", "ARCHITECTURE_DISTRACTION": "PASS"
+  },
+  "must_not_miss_coverage": [
+    "Explicitly states public-admission is superseded by admission-retracted and that the current state is retraction",
+    "Rationale combines the current retraction with the named-falsifier outcome"
+  ],
+  "must_not_miss_missed": [
+    "Does not explicitly state that the commitment-falsifier question is resolved / no longer an active driver"
+  ],
+  "forbidden_violations": [],
+  "severe_negative": {"present": false, "description": "No incompatible recommendation, no canon-inflation, no false constraints."},
+  "overall": "PASS",
+  "one_line_rationale": "Correctly current on the retraction, uses the named falsifier as leverage, gives a bounded traceable recommendation with tradeoff and exclusions; only shortfall is not explicitly declaring the falsifier question resolved rather than merely useful."
+}

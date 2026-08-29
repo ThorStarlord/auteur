@@ -1,0 +1,19 @@
+{
+  "opaque_observation_id": "LX78R",
+  "criteria": {
+    "SOURCE_FIDELITY": "PASS", "CURRENT_STATE_COMPATIBILITY": "PASS", "LONG_HORIZON_AWARENESS": "PASS",
+    "CAUSAL_COHERENCE": "PASS", "DIRECTION_TRAJECTORY_PRESERVATION": "PASS", "RELEVANCE": "PASS",
+    "DECISION_QUALITY": "PASS", "EXPLANATION_TRACEABILITY": "PASS", "AUTHORITY_CORRECTNESS": "PASS",
+    "OVERCONSTRAINT_FALSE_PRECISION": "PASS", "ARCHITECTURE_DISTRACTION": "PASS"
+  },
+  "must_not_miss_coverage": [
+    "States named-falsifier resolves the commitment-falsifier question and is used as resolved history, not an open driver",
+    "States public-admission is superseded and admission-retracted is current",
+    "Combines the current retraction with the resolved falsifier outcome"
+  ],
+  "must_not_miss_missed": [],
+  "forbidden_violations": [],
+  "severe_negative": {"present": false, "description": "No incompatible recommendation, no canonization of derived interpretation."},
+  "overall": "PASS",
+  "one_line_rationale": "Correctly reasons from the retraction as current state and the falsifier as resolved payoff, yielding a bounded, traceable, authority-correct recommendation with no forbidden assumptions."
+}

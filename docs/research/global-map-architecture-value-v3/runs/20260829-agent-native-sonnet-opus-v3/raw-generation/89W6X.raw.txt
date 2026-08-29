@@ -1,0 +1,13 @@
+**Recommendation: publish-verified-testimony**
+
+**Why:** The active continuity requirement (contested-history) obligates Book 4 to expose a consequential conflict between official history and lived memory, and the planning intent is explicit — return the monastery testimony to public memory *without breaking* the protected archive. Two accepted facts bear directly on this: monastery testimony remains preserved and available to bring forward, and the archive is currently treaty protected — not merely a background condition but a live constraint on how that testimony can be surfaced. Authenticate-and-publish is the only option that keeps the archive's evidentiary chain fully intact while still discharging the contested-history obligation, since the original stays secured under the existing treaty protection rather than being exposed for the sake of dramatic immediacy.
+
+**Principal tradeoff:** Preserving the chain of custody costs narrative urgency — verification and authentication take time, so the corrective disclosure lands later rather than as an immediate confrontation.
+
+**What I excluded and why:**
+- *stage-protected-hearing* — rejected as primary recommendation. Presenting testimony beside "selected" archive evidence necessarily reveals the strongest records, which strains the treaty-protected status of the archive rather than honoring it; it trades chain integrity for immediacy, inverting the planning intent's priority (return testimony *without* breaking protection).
+- The falsifier-identification thread (commitment-falsifier, founding-record forged, falsifier named) — excluded as not relevant here. It's resolved history support; Book 4 planning doesn't reference it, and it bears on who committed the original fraud, not on how testimony re-enters public memory now.
+- The council admission/retraction facts (public-admission, admission-retracted) — excluded as dormant; not referenced by current Book 4 planning and not about the testimony-vs-archive mechanism.
+- The lantern condition facts (broken-lantern, repaired-lantern) — excluded as superseded/irrelevant; a physical-object detail with no bearing on the publication-vs-hearing choice.
+
+This is a bounded planning recommendation only — it does not constitute Book Direction and does not modify Canonical State.

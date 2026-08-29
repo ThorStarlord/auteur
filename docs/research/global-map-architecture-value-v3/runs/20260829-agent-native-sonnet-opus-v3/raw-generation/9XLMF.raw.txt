@@ -1,0 +1,9 @@
+Recommendation: publish-verified-testimony
+
+Why: The series commitment "contested-history" requires every Book to expose conflict between official history and lived memory — the monastery testimony is exactly that lived-memory counterweight to the forged founding record, so bringing it forward serves the series promise directly. But Book 3 established the treaty that protects the archive as the only evidentiary chain, and destroying that archive (burn-archive) would directly violate a standing Book 3 commitment rather than build on it. The council's retracted admission also matters here: public trust in any correction is already fragile — the series pressure states that public corrections give hidden archivists reason to erase witnesses. Releasing the testimony unverified, or via the archive's destruction, would hand critics grounds to dismiss it the way the council's admission was walked back. Authentication before release directly answers that pressure by making the testimony harder to retract or discredit.
+
+Principal tradeoff: publish-verified-testimony delays public release until verification is complete, holding the testimony back at the exact moment the open question ("can truth survive without becoming instrument of power?") is most alive — but it preserves the evidentiary chain the treaty protects and avoids repeating the council's pattern of an assertion that can later be retracted.
+
+Deliberately excluded: burn-archive, as not viable here — it would erase the protected archive.protection established in Book 3, contradicting standing state rather than extending it; I did not treat it as a live option to weigh tradeoffs against, only as the excluded alternative. I also did not draw on the repaired lantern detail — it's accepted history but has no bearing on the testimony/archive question at hand.
+
+Note: this is a non-authoritative planning recommendation. It does not create a Book Direction and does not modify Canonical State.

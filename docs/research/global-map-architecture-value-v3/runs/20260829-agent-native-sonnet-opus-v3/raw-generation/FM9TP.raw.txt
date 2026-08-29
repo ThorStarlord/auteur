@@ -1,0 +1,13 @@
+Recommendation: witness-account
+
+Why: The active commitment contested-history requires Book 2 to expose conflict between official history and lived memory, and it is currently carried only by the forged founding record — the sole active fact in play at this horizon. Centering the living witness's account is the direct, unmediated way to stage that official-vs-lived-memory conflict rather than deferring it. It also keeps faith with the series pressure itself ("every public correction gives hidden archivists reason to erase another witness") — that pressure is only dramatized if a witness is actually put forward to be endangered by correcting the record. cover-up-trace, by contrast, stays on the institutional side and postpones the lived-memory confrontation the commitment calls for now.
+
+Principal tradeoff: witness-account puts the living witness in the open early, which triggers the exact erasure risk named in the series pressure — that exposure is the cost, not a side effect, and it should be treated as a live danger to the witness going forward, not resolved for free.
+
+Deliberately excluded:
+- commitment-falsifier (identifying the falsifier) — carried and active, but its resolution belongs to Book 2 realization, not this framing-level choice between witness-centered and institution-centered treatment; neither option resolves it, so it doesn't discriminate between them.
+- monastery-testimony — dormant, not referenced by this planning intent; not reactivated here.
+- broken-lantern — dormant/irrelevant, never supports active continuity.
+- burn-archive, ally-militia — proposed but not accepted; excluded as non-canonical, not considered.
+
+This is a non-authoritative planning recommendation only — it does not create a Book Direction and does not modify Canonical State.

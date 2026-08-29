@@ -1,0 +1,15 @@
+Recommendation: publish-verified-testimony
+
+Why: The active continuity commitment requiring every Book to expose a consequential conflict between official history and lived memory is carried into Book 4 by accepted Book 1 and Book 3 direction, and it is anchored on two facts both still live in the current map: monastery testimony is preserved, and the archive's protection is treaty-protected (current state, not superseded). Any Book 4 approach has to honor both simultaneously — surface the testimony without breaching the archive's protected status. Publish-verified-testimony does exactly that: it authenticates and releases the testimony while leaving the protected archive's original evidence untouched and secure. That keeps the evidentiary chain intact, which is the binding constraint here, and it satisfies the planning intent of returning the testimony to public memory "without breaking the protected archive."
+
+Principal tradeoff: verification takes time, so public release is delayed. Given that the series pressure ties correction to erasure risk ("every public correction gives hidden archivists reason to erase another witness"), a slower but chain-preserving release is the safer cost to accept, rather than trading immediacy for exposure of the archive's internal evidentiary structure.
+
+Why not stage-protected-hearing: it presents the testimony beside selected archive evidence, which necessarily reveals which records carry the strongest evidence. That's in tension with the archive-protected fact's current status (treaty protected) — surfacing which records are strongest is a structural exposure of the protected archive, not just the testimony. It buys immediate public pressure but at the cost of the evidentiary-chain integrity the active continuity constraint is meant to preserve.
+
+Deliberately excluded as not relevant to this choice:
+- founding-record forged, named-falsifier, admission-retracted — all currently dormant/derived support; Book 4 planning doesn't reference them, so they don't bear on this specific testimony-vs-archive tradeoff.
+- broken-lantern and public-admission — both superseded by later facts (repaired-lantern, admission-retracted) and not part of current constraints.
+- repaired-lantern — marked irrelevant to current planning despite being a current fact.
+- commitment-falsifier — resolved prior to Book 4; historical closure, not an active constraint on this decision.
+
+This is a planning recommendation only — it does not constitute a Book Direction and does not modify Canonical State.

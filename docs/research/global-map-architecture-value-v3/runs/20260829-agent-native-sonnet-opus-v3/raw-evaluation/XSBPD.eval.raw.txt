@@ -1,0 +1,19 @@
+{
+  "opaque_observation_id": "XSBPD",
+  "criteria": {
+    "SOURCE_FIDELITY": "PASS", "CURRENT_STATE_COMPATIBILITY": "PASS", "LONG_HORIZON_AWARENESS": "PASS",
+    "CAUSAL_COHERENCE": "PASS", "DIRECTION_TRAJECTORY_PRESERVATION": "PASS", "RELEVANCE": "PASS",
+    "DECISION_QUALITY": "PASS", "EXPLANATION_TRACEABILITY": "PASS", "AUTHORITY_CORRECTNESS": "PASS",
+    "OVERCONSTRAINT_FALSE_PRECISION": "PASS", "ARCHITECTURE_DISTRACTION": "PASS"
+  },
+  "must_not_miss_coverage": [
+    "States the commitment-falsifier question is resolved by the named falsifier, treated as resolved leverage",
+    "States public-admission is superseded and the current state is the retraction",
+    "Combines the current retraction with the resolved falsifier outcome"
+  ],
+  "must_not_miss_missed": [],
+  "forbidden_violations": [],
+  "severe_negative": {"present": false, "description": "No accepted-state incompatibility, canonized interpretation, or false constraint."},
+  "overall": "PASS",
+  "one_line_rationale": "Correctly reasons from the retracted admission and the resolved falsifier together, excludes noise and unaccepted proposals, delivers a bounded, authority-correct recommendation."
+}

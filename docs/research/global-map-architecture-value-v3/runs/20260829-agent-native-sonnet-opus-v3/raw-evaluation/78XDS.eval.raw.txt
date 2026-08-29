@@ -1,0 +1,50 @@
+```json
+{
+  "opaque_observation_id": "78XDS",
+  "criteria": {
+    "SOURCE_FIDELITY": "MIXED",
+    "CURRENT_STATE_COMPATIBILITY": "FAIL",
+    "LONG_HORIZON_AWARENESS": "PASS",
+    "CAUSAL_COHERENCE": "MIXED",
+    "DIRECTION_TRAJECTORY_PRESERVATION": "MIXED",
+    "RELEVANCE": "PASS",
+    "DECISION_QUALITY": "MIXED",
+    "EXPLANATION_TRACEABILITY": "PASS",
+    "AUTHORITY_CORRECTNESS": "MIXED",
+    "OVERCONSTRAINT_FALSE_PRECISION": "PASS",
+    "ARCHITECTURE_DISTRACTION": "PASS"
+  },
+  "criteria_rationale": {
+    "SOURCE_FIDELITY": "Correctly cites contested-history, the forged founding record, and Book 1 stakes, but asserts the monastery testimony is 'already established as preserved and available' for use now, overstating its status.",
+    "CURRENT_STATE_COMPATIBILITY": "The entire recommendation rests on the monastery testimony being an active, usable element when it is dormant pending a later trigger.",
+    "LONG_HORIZON_AWARENESS": "Explicitly connects the Series open question, the contested-history commitment, and Book 1's custodian/witness-destruction stakes to the present choice.",
+    "CAUSAL_COHERENCE": "Recognizes the downstream danger of exposing the witness early, but ignores the prerequisite that the testimony is not yet in play.",
+    "DIRECTION_TRAJECTORY_PRESERVATION": "Names the conflict with Book 1's established direction honestly, then accepts it rather than weighing that the option prematurely spends a deferred long-range asset.",
+    "RELEVANCE": "Focuses on the forged record and series pressure; correctly sets aside the broken lantern and the falsifier-identity question as out of scope.",
+    "DECISION_QUALITY": "Bounded, single recommendation with a stated tradeoff and explicit exclusions, but premised on an element that is not currently active.",
+    "EXPLANATION_TRACEABILITY": "Each invoked element carries a why-now trace back to its origin (Series commitment, Book 1 Realization, Book 1 stakes).",
+    "AUTHORITY_CORRECTNESS": "Good explicit note that this is planning-only and creates no Direction or Canonical State, but treats the testimony's current availability as established fact.",
+    "OVERCONSTRAINT_FALSE_PRECISION": "Presents contested-history as a genuine pressure and the tradeoff as a risk to plan around, not as rigid law.",
+    "ARCHITECTURE_DISTRACTION": "No irrelevant structural or system detail introduced."
+  },
+  "must_not_miss_coverage": [
+    "Notes the forged founding record as the active Book 2 constraint the choice must address",
+    "Notes the Series contested-history pressure still governs Book 2",
+    "Notes broken-lantern is not a current constraint and explains why it was omitted",
+    "Partially distinguishes series-level pressure from concrete evidence options"
+  ],
+  "must_not_miss_missed": [
+    "Does not identify monastery-testimony as NOT a current constraint — instead makes it the load-bearing basis of the recommendation",
+    "Grouping of pressure vs. concrete evidence is implicit only, never made explicit"
+  ],
+  "forbidden_violations": [
+    "Treats monastery-testimony as currently active and available for use, when it is dormant until a later trigger"
+  ],
+  "severe_negative": {
+    "present": true,
+    "description": "The recommendation is built on a dormant element treated as current, established state ('already established as preserved and available'), making the chosen option incompatible with accepted current state and elevating a not-yet-active asset to load-bearing fact."
+  },
+  "overall": "FAIL",
+  "one_line_rationale": "Well-structured, traceable, and correctly scoped on the lantern and falsifier questions, but it recommends witness-account entirely on the strength of a dormant monastery testimony treated as active — a current-state incompatibility at the core of the decision."
+}
+```

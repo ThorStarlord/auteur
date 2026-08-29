@@ -1,0 +1,14 @@
+Recommendation: publish-verified-testimony.
+
+Why: The active constraint cluster at this horizon is monastery testimony (preserved) coupled with archive protection (treaty protected) — the two facts Book 4 planning intent explicitly reactivates and references. The derived relationship in the ledger is explicit and deterministic: archive-protected is incompatible with destroying the archive. That derivation isn't attached to any option's label — it's a standing constraint on the Decision Map itself, and burn-archive falls on the wrong side of it regardless of how the option text frames its tradeoff. publish-verified-testimony is the only presented option that satisfies both halves of the grouped commitment at once: it surfaces the testimony (answering "return to the monastery testimony") while keeping the archive intact as evidence (answering "without breaking the protected archive"). The interpretive note about official history vs. lived memory reinforces this but isn't load-bearing — the hard constraint is the accepted fact pairing itself, not the theme.
+
+Principal tradeoff: publishing carries a delay — release waits until verification/authentication is complete — trading immediacy of public impact for preserving the evidentiary chain intact. That's the cost the series pressure (public correction invites erasure of witnesses) makes worth paying: a rushed, unauthenticated release would itself be a form of exposure without protection.
+
+Deliberately excluded:
+- burn-archive: not merely undesirable but structurally incompatible with an active accepted constraint (archive-protected); it also runs directly against the series pressure, since destroying the archive is the kind of irreversible erasure the pressure warns about.
+- founding-record, public-admission, admission-retracted: grouped supporting history explaining why the archive is now protected, not independent peers to weigh against the current options.
+- broken-lantern / repaired-lantern: explicitly flagged irrelevant to this decision despite repaired-lantern's recency — false-recency excluded, not promoted.
+- ally-militia and burn-archive as a class: never accepted, so they don't enter the Decision Map as legitimate alternatives regardless of narrative appeal.
+- commitment-falsifier: resolved history, no longer an active constraint on Book 4.
+
+This is a planning recommendation only — it does not create Book Direction and does not modify Canonical State.

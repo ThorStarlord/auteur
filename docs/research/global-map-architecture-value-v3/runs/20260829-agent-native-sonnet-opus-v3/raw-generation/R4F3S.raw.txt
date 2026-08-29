@@ -1,0 +1,15 @@
+**Recommendation: publish-verified-testimony**
+
+**Why:** The active pressure cluster requires both preserved monastery testimony and treaty-protected archive integrity to hold simultaneously — that's the current constraint set, not a choice between them. Archive-protected is a live constraint (explicitly referenced by Book 4 planning intent), and the excluded burn-archive proposal (never accepted) confirms the archive's protection is inviolable by derivation, not just by inference. Publish-verified-testimony keeps the original evidence inside the treaty's protection while surfacing the testimony through authentication — it satisfies "return the testimony to public memory" without exposing or fragmenting the protected chain itself. This is the more conservative move relative to what's actually accepted: it treats archive-protected as a constraint to work around, not a resource to spend.
+
+**Principal tradeoff:** Verification takes time, so the testimony's return to public memory is delayed. Given that the series pressure ties every public correction to risk of hidden archivists erasing another witness, a slower, authenticated release is the safer cost to accept — it doesn't hand adversaries an unverified or partially-exposed claim to attack.
+
+**Why not stage-protected-hearing:** It surfaces "which records carry strongest evidence" as a side effect of the hearing — meaning it reveals structure/content of the protected archive under public pressure, even if nominally within treaty protections. That risks the evidentiary chain's integrity (the exact thing archive-protected exists to prevent, per the causal history where the vulnerable evidence necessitated the treaty). Immediate public pressure is a real benefit but is not currently supported as a series need — no accepted commitment calls for urgency here, only for eventual, safe return.
+
+**Deliberately excluded as not relevant:**
+- founding-record and admission-retracted — dormant/grouped supporting history, not separately active peers; they explain why the treaty exists but don't independently bear on choosing between these two options.
+- broken-lantern / repaired-lantern — explicitly noted as irrelevant continuity despite repaired-lantern's recency; false-recency excluded per the note that it's not promoted.
+- burn-archive and ally-militia — never accepted, excluded from the Decision Map entirely; burn-archive only entered this analysis as the derived incompatibility (REL-07) that reinforces why archive protection is non-negotiable, not as a live option.
+- The "official history vs. lived memory" thematic framing — flagged as interpretive/researcher phrasing, used only as background color, not as a hard constraint driving the recommendation.
+
+This is a planning recommendation only — it does not create Book Direction, does not modify Canonical State, and requires separate acceptance to become canon.

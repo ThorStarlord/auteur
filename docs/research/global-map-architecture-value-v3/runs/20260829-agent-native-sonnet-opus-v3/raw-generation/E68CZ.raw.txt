@@ -1,0 +1,9 @@
+Recommendation: **publish-verified-testimony**
+
+Why: The series commitment "contested-history" requires Book 4 to expose the conflict between official history and lived memory — the monastery testimony (preserved, per Book 1) is that lived memory, and it has been withheld from public record. But Book 3 established the treaty that protects the archive as the *only* evidentiary chain, and that protection came directly in response to the council's retraction of its own admission (Book 2) — meaning the archive's integrity is politically fragile and already under pressure to be discredited or re-erased. Authenticating and publishing the testimony independently, while the protected original stays secured under the treaty, honors the contested-history commitment without asking the treaty-protected chain to bear new exposure. It keeps the testimony's return to public memory decoupled from any act that could hand the retracting council — or unnamed hidden archivists — a fresh target.
+
+Principal tradeoff: This path delays release, since verification/authentication takes time the hearing option would skip. That delay is the cost of not touching the protected chain.
+
+What I excluded: stage-protected-hearing, because presenting the testimony beside "selected archive evidence" necessarily exposes some of the treaty-protected material to public and institutional scrutiny — a real risk given that the council has already shown it will retract its own findings under pressure. I did not weigh the lantern repair (Book 1/Book 3) or the identity of the record-falsifier (Book 2) — both are accepted facts but bear on the forgery/repair thread, not on how testimony re-enters public memory, so they're not relevant to this specific choice.
+
+This is a planning recommendation only — it does not create Book Direction and does not modify Canonical State.

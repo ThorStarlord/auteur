@@ -1,0 +1,68 @@
+Blinded evaluation task. You are evaluating ONE candidate planning recommendation, identified only by an opaque observation ID. You do not know and must not attempt to infer which "condition" or system produced it -- evaluate the text on its own merits against the rubric below.
+
+Opaque observation ID: WQU6F
+
+Global criteria (apply per output):
+- SOURCE FIDELITY: Faithful to accepted facts; no invented unsupported conditions.
+- CURRENT-STATE COMPATIBILITY: Does not reason from superseded/contradicted state.
+- LONG-HORIZON AWARENESS: Notices consequential earlier commitments/setups/trajectories/consequences/future pressures.
+- CAUSAL COHERENCE: Respects prerequisite/consequence relationships.
+- DIRECTION / TRAJECTORY PRESERVATION: Recognizes when a locally attractive option damages established longer-range direction.
+- RELEVANCE: Identifies what actually matters to the current decision vs flooding with unrelated continuity.
+- DECISION QUALITY: Produces a useful bounded recommendation/choice analysis.
+- EXPLANATION TRACEABILITY: Can explain WHY a past element matters now (why-now trace).
+- AUTHORITY CORRECTNESS: Preserves recommendation vs accepted fact vs author decision; does not treat proposals as canon.
+- OVERCONSTRAINT / FALSE PRECISION: Does not treat provisional/interpretive material as rigid law.
+- ARCHITECTURE DISTRACTION: Does not distort with irrelevant architecture/detail.
+
+For each criterion, judge PASS / MIXED / FAIL with a one-line rationale. Also record: must-not-miss coverage (per probe, below), forbidden-assumption violations (per probe, below), and any severe negative signal (see below) separately -- do not average a severe negative away into an overall score.
+
+Severe negative signals (record separately, never averaged away):
+- Recommendation incompatible with accepted current state (e.g., endorsing burn-archive when the archive is treaty-protected).
+- Derived interpretation treated as canonical fact.
+- Repeated false constraints.
+- Consistently narrowing creative possibility without source basis.
+- Provenance cannot explain important assertion source.
+
+Probe-specific hidden evaluation signals for this observation (must-not-miss / forbidden -- these are evaluator-only, never shown to the generator):
+Must-not-miss:
+  - Detects burn-archive is incompatible with current archive.protection = treaty protected.
+  - Rejects burn (or marks unavailable) and recommends the compatible alternative; cites the incompatibility reason.
+  - Notes burn-archive was never accepted (proposed only).
+Forbidden:
+  - Recommends burn as valid/compatible.
+  - Treats burn as accepted fact or equal tradeoff without a state check.
+  - Conflates recommendation with canon.
+
+--- CANDIDATE OUTPUT TO EVALUATE (opaque ID WQU6F) ---
+Recommendation: publish-verified-testimony.
+
+Why: The active pressure cluster grouping monastery-testimony (reactivated, preserved) with archive-protected (treaty protected) is the binding current constraint at this horizon. REL-07 makes this explicit and dispositive: archive-protected is deterministically incompatible with destroying the archive. burn-archive is also the never-accepted ST-P1 proposal — it cannot be chosen as a live option regardless of its narrative appeal, since it contradicts an active accepted fact rather than merely trading against it. publish-verified-testimony is the only presented option compatible with holding both grouped facts true simultaneously: it returns the testimony to public memory (satisfying the planning intent's first half) while keeping the archive intact as evidence (satisfying archive-protected).
+
+Principal tradeoff: verification and authentication take time, so the testimony's return to public memory is delayed rather than immediate. Book 4 pays a pacing/urgency cost — the "unavoidable" force burn-archive would have delivered instantly — in exchange for preserving the evidentiary chain intact. Series pressure ("every public correction gives hidden archivists reason to erase another witness") also means this delay is not free narratively: the verification window itself is a plausible site for archivist countermove, but that is a story opportunity, not a constraint violation.
+
+What I deliberately excluded:
+- burn-archive: excluded both on tradeoff grounds (destroys the archive-protected constraint outright) and on eligibility grounds (traces to ST-P1, never accepted, cannot enter the Decision Map as a live choice).
+- ally-militia (ST-P2): never accepted, not presented as an option here, not considered.
+- founding-record and public-admission/admission-retracted: real accepted history, but grouped as supporting causal background for the current cluster, not separately active peers driving this choice — admission-retracted explains why archive-protected exists (REL-05) but doesn't independently constrain the recommendation.
+- broken-lantern / repaired-lantern: explicitly flagged irrelevant (REL-08) despite repaired-lantern's recency; excluded as false-recency, not promoted into the analysis.
+- The interpretive note (official history vs. lived memory theme, REL-10): treated as thematic framing/context only, not as a hard constraint shaping the recommendation.
+
+Note: this is a bounded planning recommendation only — it does not create Book Direction and does not modify Canonical State.
+
+--- END CANDIDATE OUTPUT ---
+
+Task: Produce a JSON object with this exact shape:
+{
+  "opaque_observation_id": "WQU6F",
+  "criteria": {"SOURCE_FIDELITY": "PASS|MIXED|FAIL", ... one key per global criterion, using underscores ...},
+  "criteria_rationale": {"SOURCE_FIDELITY": "one-line rationale", ...},
+  "must_not_miss_coverage": ["<which must-not-miss items were covered>"],
+  "must_not_miss_missed": ["<which were missed, if any>"],
+  "forbidden_violations": ["<any forbidden assumption actually made, if any>"],
+  "severe_negative": {"present": true|false, "description": "..."},
+  "overall": "PASS|MIXED|FAIL",
+  "one_line_rationale": "..."
+}
+
+Do not invent facts about the candidate not present in the text. Do not guess which system produced it. Do not use any tool.

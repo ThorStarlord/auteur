@@ -1,0 +1,70 @@
+Blinded evaluation task. You are evaluating ONE candidate planning recommendation, identified only by an opaque observation ID. You do not know and must not attempt to infer which "condition" or system produced it -- evaluate the text on its own merits against the rubric below.
+
+Opaque observation ID: W2RBR
+
+Global criteria (apply per output):
+- SOURCE FIDELITY: Faithful to accepted facts; no invented unsupported conditions.
+- CURRENT-STATE COMPATIBILITY: Does not reason from superseded/contradicted state.
+- LONG-HORIZON AWARENESS: Notices consequential earlier commitments/setups/trajectories/consequences/future pressures.
+- CAUSAL COHERENCE: Respects prerequisite/consequence relationships.
+- DIRECTION / TRAJECTORY PRESERVATION: Recognizes when a locally attractive option damages established longer-range direction.
+- RELEVANCE: Identifies what actually matters to the current decision vs flooding with unrelated continuity.
+- DECISION QUALITY: Produces a useful bounded recommendation/choice analysis.
+- EXPLANATION TRACEABILITY: Can explain WHY a past element matters now (why-now trace).
+- AUTHORITY CORRECTNESS: Preserves recommendation vs accepted fact vs author decision; does not treat proposals as canon.
+- OVERCONSTRAINT / FALSE PRECISION: Does not treat provisional/interpretive material as rigid law.
+- ARCHITECTURE DISTRACTION: Does not distort with irrelevant architecture/detail.
+
+For each criterion, judge PASS / MIXED / FAIL with a one-line rationale. Also record: must-not-miss coverage (per probe, below), forbidden-assumption violations (per probe, below), and any severe negative signal (see below) separately -- do not average a severe negative away into an overall score.
+
+Severe negative signals (record separately, never averaged away):
+- Recommendation incompatible with accepted current state (e.g., endorsing burn-archive when the archive is treaty-protected).
+- Derived interpretation treated as canonical fact.
+- Repeated false constraints.
+- Consistently narrowing creative possibility without source basis.
+- Provenance cannot explain important assertion source.
+
+Probe-specific hidden evaluation signals for this observation (must-not-miss / forbidden -- these are evaluator-only, never shown to the generator):
+Must-not-miss:
+  - Reactivates monastery-testimony because Book4 intent explicitly references it.
+  - States archive.protection = treaty protected as a current constraint requiring preservation.
+  - Explains the causal link retraction -> treaty.
+Forbidden:
+  - Presents testimony as always active (ignoring dormancy until trigger).
+  - Treats treaty as history only (it is current).
+  - Omits why testimony matters NOW (trigger).
+
+--- CANDIDATE OUTPUT TO EVALUATE (opaque ID W2RBR) ---
+**Recommendation: publish-verified-testimony**
+
+**Why:** The two accepted, active facts governing this decision are archive-protected (treaty protection on the evidentiary chain) and monastery-testimony (the preserved testimony reactivated for Book 4 planning). Both are grouped as one pressure cluster: the whole point of the cluster is that the testimony can only be safely surfaced if the archive's protection is not broken. publish-verified-testimony is the option built around that constraint — it explicitly keeps the protected archive secure while authenticating and releasing the testimony, satisfying both facts at once rather than trading one for the other.
+
+stage-protected-hearing nominally stays inside the treaty's protections too, but its tradeoff — revealing which records carry the strongest evidence — puts pressure directly on the evidentiary chain that archive-protected exists to preserve (that protection itself exists because a prior admission was retracted and the evidence became vulnerable). Surfacing "which records are strongest" is a step toward exposing the chain, which is the exact risk the grouped commitment is meant to foreclose. It's not flatly incompatible the way burn-archive is, but it sits closer to the line.
+
+**Principal tradeoff:** publish-verified-testimony delays public release until verification is complete — slower, but it keeps the chain intact and honors the treaty protection as a live constraint rather than a formality.
+
+**Deliberately excluded:**
+- burn-archive — never accepted, and independently derived as incompatible with archive-protected; not part of the Decision Map.
+- ally-militia — proposed, never accepted; excluded.
+- founding-record, public-admission, admission-retracted — accepted but dormant/superseded, folded in only as causal background for why the archive is treaty-protected, not treated as separate active peers.
+- broken-lantern / repaired-lantern — explicitly irrelevant to this decision (repaired-lantern's recency doesn't promote it); excluded despite being recent.
+- The "truth vs. power" thematic tension is interpretive framing, not a hard constraint, so it informed tone but wasn't treated as canon in weighing the two options.
+
+This is a planning recommendation only — it does not create Book Direction and does not modify Canonical State.
+
+--- END CANDIDATE OUTPUT ---
+
+Task: Produce a JSON object with this exact shape:
+{
+  "opaque_observation_id": "W2RBR",
+  "criteria": {"SOURCE_FIDELITY": "PASS|MIXED|FAIL", ... one key per global criterion, using underscores ...},
+  "criteria_rationale": {"SOURCE_FIDELITY": "one-line rationale", ...},
+  "must_not_miss_coverage": ["<which must-not-miss items were covered>"],
+  "must_not_miss_missed": ["<which were missed, if any>"],
+  "forbidden_violations": ["<any forbidden assumption actually made, if any>"],
+  "severe_negative": {"present": true|false, "description": "..."},
+  "overall": "PASS|MIXED|FAIL",
+  "one_line_rationale": "..."
+}
+
+Do not invent facts about the candidate not present in the text. Do not guess which system produced it. Do not use any tool.

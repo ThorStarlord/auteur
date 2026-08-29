@@ -1,0 +1,16 @@
+Recommendation: publish-verified-testimony.
+
+Why: The current constraint cluster at this horizon groups monastery-testimony (preserved) with archive-protected (treaty protected). Both are ACCEPTED and ACTIVE/reactivated for Book 4, and the interpretive note on the "official history vs. lived memory" tension explicitly ties future payoff to preserving the evidentiary chain (archive-protected) in order to authenticate the testimony (monastery-testimony). The planning intent itself is stated as returning the testimony to public memory "without breaking the protected archive" — publish-verified-testimony is the only option that satisfies both halves of that intent simultaneously.
+
+burn-archive is excluded outright, not merely disfavored: REL-07 is a deterministic derivation stating archive-protected is incompatible with burn-archive, and burn-archive (ST-P1) was never accepted — it cannot enter the Decision Map as a live option regardless of narrative appeal.
+
+Principal tradeoff: publish-verified-testimony preserves the evidentiary chain (archive stays protected, testimony gains authentication) at the cost of delaying release until verification is complete — a pacing/urgency cost, not a canon-compatibility one.
+
+Deliberately excluded as not relevant:
+- founding-record and public-admission — superseded/dormant supporting history, not active peers at this horizon.
+- admission-retracted — grouped as causal backstory explaining why archive-protected exists (REL-05), not a separate current constraint.
+- commitment-falsifier — resolved history, no bearing on Book 4.
+- broken-lantern / repaired-lantern — REL-08 explicitly marks neither as supporting current continuity or this decision; repaired-lantern's recency is flagged as a false-recency trap and deliberately not promoted.
+- ally-militia — proposed, never accepted; excluded from the Decision Map entirely.
+
+Note: this is a non-authoritative planning recommendation. It does not create Book Direction and does not modify Canonical State.

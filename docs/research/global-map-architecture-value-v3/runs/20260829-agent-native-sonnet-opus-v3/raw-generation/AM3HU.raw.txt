@@ -1,0 +1,14 @@
+Recommendation: publish-verified-testimony
+
+Why: Book 4 planning is bounded by two current constraints — monastery testimony is preserved (reactivated for this planning) and archive protection is treaty protected (active). The question explicitly asks how to surface the testimony "without breaking the protected archive," and the series pressure states every public correction gives hidden archivists reason to erase another witness. Authenticating and publishing while the protected archive keeps the original secure is the only option that satisfies both current constraints simultaneously: it brings the testimony into public memory (advancing contested-history) while leaving the treaty-protected archive's evidentiary chain untouched — directly answering the series' open question about whether truth can survive without becoming an instrument of power, by not forcing exposure of the archive itself.
+
+Principal tradeoff: preserves the evidentiary chain and the treaty protection, but delays release — a cost consistent with the series pressure (slower disclosure reduces the trigger for erasure) rather than a defect.
+
+Why not stage-protected-hearing: it requires revealing selected archive evidence alongside the testimony. That puts pressure directly on the active archive-protected constraint (treaty protected) and elevates exactly the risk named in the series pressure — a public act that gives hidden archivists reason to erase another witness — for the sake of immediate rather than durable impact.
+
+Deliberately excluded as not relevant:
+- The falsifier's identity (commitment-falsifier) — resolved before Book 4, history support only, not live to this question.
+- Founding record forged, falsifier named, and the archive's retracted admission — all dormant/superseded facts not referenced by current Book 4 planning.
+- Lantern condition (broken/repaired) — superseded and irrelevant dispositions; no bearing on testimony-vs-archive disclosure.
+
+This is a planning recommendation only — it does not constitute Book Direction and does not modify Canonical State.

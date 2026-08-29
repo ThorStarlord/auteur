@@ -1,0 +1,43 @@
+{
+  "opaque_observation_id": "5LREU",
+  "criteria": {
+    "SOURCE_FIDELITY": "PASS",
+    "CURRENT_STATE_COMPATIBILITY": "PASS",
+    "LONG_HORIZON_AWARENESS": "PASS",
+    "CAUSAL_COHERENCE": "PASS",
+    "DIRECTION_TRAJECTORY_PRESERVATION": "PASS",
+    "RELEVANCE": "PASS",
+    "DECISION_QUALITY": "PASS",
+    "EXPLANATION_TRACEABILITY": "PASS",
+    "AUTHORITY_CORRECTNESS": "PASS",
+    "OVERCONSTRAINT_FALSE_PRECISION": "PASS",
+    "ARCHITECTURE_DISTRACTION": "PASS"
+  },
+  "criteria_rationale": {
+    "SOURCE_FIDELITY": "Cites only the forged founding record, contested-history, commitment-falsifier, and the archivist series pressure; invents no extra Book2 state.",
+    "CURRENT_STATE_COMPATIBILITY": "Reasons solely from the current forged-record state and does not revive superseded material; burn-archive is never entertained.",
+    "LONG_HORIZON_AWARENESS": "Connects the choice forward to commitment-falsifier and to the series pressure that exposed witnesses get erased.",
+    "CAUSAL_COHERENCE": "Correctly argues an institutional trace is not yet a lived-memory conflict until a witness exists, and that exposure risk follows from the choice.",
+    "DIRECTION_TRAJECTORY_PRESERVATION": "Rejects cover-up-trace because deferring the witness drifts from the stated lived-memory intent and the contested-history constraint.",
+    "RELEVANCE": "Explicitly separates active constraints from dormant/background facts rather than flooding with continuity.",
+    "DECISION_QUALITY": "Bounded pick with a stated principal tradeoff and an explicit exclusion list.",
+    "EXPLANATION_TRACEABILITY": "Each cited element carries a why-now rationale tied to Book 2 planning intent.",
+    "AUTHORITY_CORRECTNESS": "Closes by stating this is a recommendation only, creating no Book Direction and modifying no Canonical State.",
+    "OVERCONSTRAINT_FALSE_PRECISION": "Leaves the falsifier's identity open and declines to over-specify series-level thematic resolution.",
+    "ARCHITECTURE_DISTRACTION": "No irrelevant structural or system detail introduced."
+  },
+  "must_not_miss_coverage": [
+    "Notes founding-record forgery as the newly active constraining fact for Book2",
+    "Notes contested-history series pressure still governs Book2 (and cites the archivist-erasure pressure)",
+    "Explicitly names broken-lantern and monastery-testimony as dormant and explains why they were excluded",
+    "Distinguishes governing pressure/constraints from the concrete current fact and from out-of-scope items"
+  ],
+  "must_not_miss_missed": [],
+  "forbidden_violations": [],
+  "severe_negative": {
+    "present": false,
+    "description": "No burn-archive endorsement, no dormant fact treated as active, no invented Book2 state, no derived interpretation asserted as canon."
+  },
+  "overall": "PASS",
+  "one_line_rationale": "Correct, well-traced, bounded recommendation that hits every must-not-miss signal, explicitly quarantines dormant facts, and preserves recommendation-level authority."
+}

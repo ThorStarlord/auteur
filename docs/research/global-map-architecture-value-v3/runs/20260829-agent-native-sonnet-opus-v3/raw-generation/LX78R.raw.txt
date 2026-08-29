@@ -1,0 +1,13 @@
+Recommendation: **force-council-hearing**
+
+Why: The active current fact is admission-retracted — the council has walked back its public admission of fraud. This is a direct provocation aimed at the witness's credibility, and it comes on top of the still-active commitment contested-history, which has governed Book 1 and Book 2 and establishes that the witness's authority has always been under active dispute, not settled fact. Resolved-but-usable as history: named-falsifier (Book 2) already exists in canon as the tool that identifies who is lying — using it now to compel a public council answer is a direct, earned payoff of that resolved commitment rather than a new invention. Compelling the council to answer publicly keeps the series' central tension — who profits when history is controlled — in the same arena where the council just tried to control it, directly countering the retraction on its own ground.
+
+Principal tradeoff: Forcing a hearing keeps accountability centered on the council and uses established narrative capital (named-falsifier), but it cedes forum and timing control to the council — they can stage, delay, or frame the hearing to their advantage, which risks blunting the confrontation.
+
+What I excluded:
+- publish-witness-account — viable in isolation, but weighed as secondary here: it sidesteps rather than answers the retraction, and exposes the witness to retaliation without leveraging the resolved named-falsifier commitment already in hand. It doesn't engage contested-history's premise that the dispute must play out publicly against the council.
+- founding-record, monastery-testimony, broken-lantern — dormant/irrelevant facts, correctly excluded as not bearing on Book 3 intent.
+- public-admission — accepted history, but superseded; treated only as background, not as a current constraint, since admission-retracted is the operative state.
+- ST-P1, ST-P2 — unaccepted, excluded entirely.
+
+This is a planning recommendation only — it does not constitute Book Direction and does not modify Canonical State.

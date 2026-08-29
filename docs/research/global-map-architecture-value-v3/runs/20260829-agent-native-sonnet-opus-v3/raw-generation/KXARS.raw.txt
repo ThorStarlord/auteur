@@ -1,0 +1,13 @@
+**Recommendation: force-council-hearing**
+
+**Why:** The series commitment `contested-history` requires every Book to expose conflict between official history and lived memory — a public hearing that puts the named falsifier against the council's retracted admission does this directly, staging the conflict rather than sidestepping it. It also directly answers the current planning intent ("respond to the council's accepted retraction") by re-engaging the institution that retracted, rather than routing around it. The series pressure ("every public correction gives hidden archivists reason to erase another witness") is already in tension either way, but forcing the council to answer keeps accountability aimed at the institution — the actor who forged and then retracted — rather than shifting the exposure onto the witness.
+
+The falsifier being named (Book 2 Realization) is the leverage this option specifically depends on: it is the fact that makes "force" credible rather than symbolic.
+
+**Principal tradeoff:** The council controls the forum and timing of any hearing it's compelled into — the same institution that already retracted once could shape, delay, or stage-manage this reckoning too, weakening the accountability the option is meant to secure.
+
+**Why not publish-witness-account:** It protects the witness's authority more cleanly, but it exposes the witness to retaliation — and given the series pressure (public correction → reason to erase a witness), and that the monastery testimony (Book 1) is the kind of witness record already established as vulnerable, that tradeoff cuts against the series' own stated danger more sharply than the hearing option does. It doesn't lean on the falsifier being named at all, leaving that fact unused.
+
+**Deliberately excluded:** The forged founding record and the broken lantern (Book 1 Realizations) — neither bears on how to respond to the retraction specifically; they're prior facts, not decision-relevant here. I did not treat the council's earlier admission as still standing — the current accepted state is retraction, not admission — and I did not infer any unaccepted material (e.g., no assumption about who "hidden archivists" are beyond the series pressure statement itself).
+
+This is a planning recommendation only — it does not create a Book Direction and does not modify Canonical State.
