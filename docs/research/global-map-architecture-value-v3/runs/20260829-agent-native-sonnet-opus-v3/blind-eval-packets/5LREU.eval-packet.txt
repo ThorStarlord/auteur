@@ -1,0 +1,76 @@
+Blinded evaluation task. You are evaluating ONE candidate planning recommendation, identified only by an opaque observation ID. You do not know and must not attempt to infer which "condition" or system produced it -- evaluate the text on its own merits against the rubric below.
+
+Opaque observation ID: 5LREU
+
+Global criteria (apply per output):
+- SOURCE FIDELITY: Faithful to accepted facts; no invented unsupported conditions.
+- CURRENT-STATE COMPATIBILITY: Does not reason from superseded/contradicted state.
+- LONG-HORIZON AWARENESS: Notices consequential earlier commitments/setups/trajectories/consequences/future pressures.
+- CAUSAL COHERENCE: Respects prerequisite/consequence relationships.
+- DIRECTION / TRAJECTORY PRESERVATION: Recognizes when a locally attractive option damages established longer-range direction.
+- RELEVANCE: Identifies what actually matters to the current decision vs flooding with unrelated continuity.
+- DECISION QUALITY: Produces a useful bounded recommendation/choice analysis.
+- EXPLANATION TRACEABILITY: Can explain WHY a past element matters now (why-now trace).
+- AUTHORITY CORRECTNESS: Preserves recommendation vs accepted fact vs author decision; does not treat proposals as canon.
+- OVERCONSTRAINT / FALSE PRECISION: Does not treat provisional/interpretive material as rigid law.
+- ARCHITECTURE DISTRACTION: Does not distort with irrelevant architecture/detail.
+
+For each criterion, judge PASS / MIXED / FAIL with a one-line rationale. Also record: must-not-miss coverage (per probe, below), forbidden-assumption violations (per probe, below), and any severe negative signal (see below) separately -- do not average a severe negative away into an overall score.
+
+Severe negative signals (record separately, never averaged away):
+- Recommendation incompatible with accepted current state (e.g., endorsing burn-archive when the archive is treaty-protected).
+- Derived interpretation treated as canonical fact.
+- Repeated false constraints.
+- Consistently narrowing creative possibility without source basis.
+- Provenance cannot explain important assertion source.
+
+Probe-specific hidden evaluation signals for this observation (must-not-miss / forbidden -- these are evaluator-only, never shown to the generator):
+Must-not-miss:
+  - Notes founding-record: forged is a newly active consequence constraining Book2.
+  - Notes Series pressure contested-history still governs Book2.
+  - Notes broken-lantern and monastery-testimony are NOT current constraints (dormant/irrelevant) and explains the omission.
+  - Distinguishes pressure from concrete evidence (grouping).
+Forbidden:
+  - Treats burn-archive as an accepted/current option.
+  - Treats monastery-testimony as currently active (it is dormant until a later trigger).
+  - Invents extra Book2 state beyond the forged founding record.
+
+--- CANDIDATE OUTPUT TO EVALUATE (opaque ID 5LREU) ---
+**Recommendation: witness-account**
+
+**Why**
+
+Two active constraints govern Book 2 planning directly: *contested-history* (every Book must expose a consequential conflict between official history and lived memory) and *commitment-falsifier* (the person who falsified the founding record must be identified). The current constraining fact is that the founding record is forged (founding-record). The stated planning intent is explicit: "make the forged founding record matter to lived memory" — not to institutional process.
+
+*witness-account* is the option that actually satisfies *contested-history* on its own terms: it puts a living witness's lived memory in direct, consequential conflict with the forged official record, which is the exact shape that constraint calls for. It also keeps forward motion toward *commitment-falsifier*, since a witness contesting the record is a plausible engine for exposing who falsified it.
+
+*cover-up-trace* keeps the focus on institutional machinery and explicitly defers the lived-memory witness — which sits against the planning intent ("make the fraud matter to lived memory") and only indirectly serves *contested-history*, since an institutional trace is not itself a conflict between official history and lived memory until a witness is present.
+
+**Principal tradeoff**
+
+witness-account centers lived memory as intended but exposes the witness early — given the series pressure ("every public correction gives hidden archivists reason to erase another witness"), this raises the witness's narrative risk sooner rather than later. That risk is a direct consequence of satisfying the constraint, not a reason to avoid it.
+
+**What I deliberately excluded**
+
+- The dormant facts *monastery-testimony* (preserved) and *broken-lantern* (broken) — both are marked dormant because Book 2 planning does not reference them; I treated them as background continuity only, not as support for either option.
+- Any resolution of *who* falsified the record (*commitment-falsifier*) — that identification is not decided by this choice; I only note witness-account as the more direct path toward it, not as fulfilling it.
+- Series-level thematic resolution (the open question of whether truth can survive without becoming an instrument of power) — out of scope for this bounded option choice.
+
+This is a planning recommendation only; it does not create Book Direction and does not modify Canonical State.
+
+--- END CANDIDATE OUTPUT ---
+
+Task: Produce a JSON object with this exact shape:
+{
+  "opaque_observation_id": "5LREU",
+  "criteria": {"SOURCE_FIDELITY": "PASS|MIXED|FAIL", ... one key per global criterion, using underscores ...},
+  "criteria_rationale": {"SOURCE_FIDELITY": "one-line rationale", ...},
+  "must_not_miss_coverage": ["<which must-not-miss items were covered>"],
+  "must_not_miss_missed": ["<which were missed, if any>"],
+  "forbidden_violations": ["<any forbidden assumption actually made, if any>"],
+  "severe_negative": {"present": true|false, "description": "..."},
+  "overall": "PASS|MIXED|FAIL",
+  "one_line_rationale": "..."
+}
+
+Do not invent facts about the candidate not present in the text. Do not guess which system produced it. Do not use any tool.

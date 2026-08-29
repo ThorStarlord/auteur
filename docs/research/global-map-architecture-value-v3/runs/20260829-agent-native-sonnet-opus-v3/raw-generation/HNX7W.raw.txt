@@ -1,0 +1,14 @@
+**Recommendation: publish-verified-testimony**
+
+**Why:** The series commitment `contested-history` requires every Book to expose the conflict between official history and lived memory — the monastery testimony returning to public memory is that requirement being met, not optional color. But Book 3's Direction ("The Protected Archive") established the treaty specifically to protect the archive as the *only* evidentiary chain, in direct response to the council's retracted admission — a retraction that shows public exposure of archive material is precisely what triggers erasure pressure under the series pressure ("every public correction gives hidden archivists reason to erase another witness"). Publishing the testimony only after authentication, while the treaty-protected archive keeps the original evidence secured and untouched, satisfies the contested-history commitment without putting the evidentiary chain itself into the public/adversarial space where the council's retraction already proved things get walked back or targeted.
+
+**Principal tradeoff:** Verification takes time, so the testimony's return to public memory is delayed — a real cost given the series pressure rewards speed to hidden archivists, not delay. But that delay buys chain integrity, which stage-protected-hearing spends.
+
+**Why not stage-protected-hearing:** it would surface the testimony alongside archive evidence, which necessarily reveals which specific records carry the strongest evidentiary weight. Given the founding record was already forged once and the council's admission was already retracted once, showing hidden archivists exactly which records are load-bearing is a direct exposure risk to the treaty-protected chain — it inverts the very protection Book 3 established.
+
+**Deliberately excluded:**
+- The lantern repair (Book 1 break, Book 3 repair) — a physical/continuity detail with no bearing on evidentiary or public-memory questions.
+- Identity of the person who falsified the record (Book 2) — relevant to blame/culpability threads, not to how testimony re-enters public memory.
+- Monastery testimony's *content* — not specified in accepted history, so no claims about what it says are made here.
+
+This is a planning recommendation only — it does not create Book Direction and does not modify Canonical State.

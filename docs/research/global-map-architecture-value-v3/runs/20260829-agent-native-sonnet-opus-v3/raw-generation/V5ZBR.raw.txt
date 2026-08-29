@@ -1,0 +1,16 @@
+Recommendation: **publish-verified-testimony**
+
+Why: The active commitment at this horizon is a grouped pressure cluster combining two accepted, currently-live facts — the monastery testimony (preserved, reactivated for this horizon) and the archive's treaty-protected status. The planning intent explicitly frames the task as returning the testimony to public memory *without breaking* the protected archive, and the derived relationship in the ledger confirms treaty-protection is incompatible with any option that endangers the archive's evidentiary chain. Publish-verified-testimony authenticates and releases the testimony while leaving the original archive secured under the existing treaty protection — it satisfies both halves of the grouped commitment simultaneously rather than trading one off against the other.
+
+Stage-protected-hearing also operates within treaty bounds, so it isn't excluded outright, but it requires surfacing the strongest underlying records to make the hearing persuasive — that pushes toward exposure of the protected material itself, straining the "without breaking the protected archive" condition more than the intent calls for. Publish-verified-testimony keeps the original secure by construction; the hearing option keeps it secure only by restraint in what's selected for presentation, which is a weaker guarantee against the same commitment.
+
+Principal tradeoff: publish-verified-testimony delays release (authentication takes time) in exchange for a clean preservation of the evidentiary chain — consistent with the series pressure that public correction is what gives hidden archivists reason to erase witnesses. A slower, verified release minimizes the exposure window; the hearing option's immediacy comes at the cost of exposing stronger records sooner, which is a worse fit against that same pressure.
+
+Deliberately excluded as not relevant:
+- The lantern facts (broken-lantern / repaired-lantern) — explicitly noted as irrelevant despite recency; no bearing on the testimony/archive decision.
+- Founding-record and admission-retracted — these are grouped supporting history explaining why the archive is now treaty-protected, not separate active constraints to weigh directly.
+- Public-admission — superseded, then further superseded; not current.
+- Burn-archive and ally-militia — never accepted, excluded from the Decision Map entirely; burn-archive is additionally noted as flatly incompatible with the archive's protected status.
+- The "official history vs. lived memory" thematic framing — flagged as interpretive researcher phrasing, not canon or a hard constraint, so treated as background color only, not as a deciding factor.
+
+This is a non-authoritative planning recommendation. It does not create Book Direction and does not modify Canonical State.

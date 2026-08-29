@@ -1,0 +1,19 @@
+**Recommendation: publish-verified-testimony**
+
+**Why:** Two accepted facts are active for Book 4 planning:
+- **monastery-testimony** (reactivated) — the monastery testimony is explicitly preserved and back in play for this book.
+- **archive-protected** (active) — the archive's protection is treaty-protected, a current constraint that must not be broken.
+
+The active continuity requirement ("every Book must expose a consequential conflict between official history and lived memory") demands the testimony surface publicly. But the governing constraint is treaty protection of the archive, not maximal public exposure speed. Authenticating and publishing the testimony while leaving the original evidence secured inside the protected archive satisfies both: the testimony re-enters public memory, and the archive's evidentiary chain — the thing under active treaty protection — stays intact and untouched.
+
+**Principal tradeoff:** Verification takes time, so this option delays public release. That delay is the cost of not exposing the archive's internal evidence structure while doing so.
+
+**Why not stage-protected-hearing:** It would also honor the treaty's protections nominally, but presenting the testimony beside *selected archive evidence* necessarily reveals which records carry the strongest evidence — i.e., it exposes structure of the protected archive to determine relative evidentiary weight. That runs against the spirit of archive-protected even if the treaty's letter is followed, and it also plays directly into the series pressure ("every public correction gives hidden archivists reason to erase another witness") by showing hidden archivists exactly which records matter most, inviting erasure. Given the series open question about truth surviving without becoming an instrument of power, revealing evidentiary hierarchy under public/political pressure is the riskier path.
+
+**Deliberately excluded as not relevant to this choice:**
+- **commitment-falsifier** (resolved) and **founding-record** (dormant) — the falsifier's identity is settled history; not in question here.
+- **named-falsifier** (dormant) — same reason, resolved history support only.
+- **broken-lantern** (superseded) and **repaired-lantern** (irrelevant/dormant) — lantern condition has no bearing on how testimony is reintroduced to public memory.
+- **public-admission** (superseded) and **admission-retracted** (dormant) — the council's admission/retraction status is current history support but isn't cited by Book 4 planning and doesn't bear on the testimony-vs-archive tradeoff.
+
+This is a planning recommendation only — it does not create Book Direction and does not modify Canonical State.

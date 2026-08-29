@@ -1,0 +1,122 @@
+[
+  {
+    "probe_id": "P01",
+    "condition": "A",
+    "instruction_shell_hash": "67fce9f8289b26f04ce5fefc9550b02ac967336780d387341eef87d29396d874",
+    "condition_packet_hash": "5f64ac4e8f6cc53a5d8531588a093c841d48a62ba8e951559192d8065ac90785",
+    "full_invocation_hash": "110de25d0615cd1ba072956e6e7f3aaad1d889afa9b1f63b6cf57637c65d1780",
+    "full_path": "/home/user/auteur/docs/research/global-map-architecture-value-v3/runs/20260829-agent-native-sonnet-opus-v3/packets/P01-A.full.txt"
+  },
+  {
+    "probe_id": "P01",
+    "condition": "B",
+    "instruction_shell_hash": "67fce9f8289b26f04ce5fefc9550b02ac967336780d387341eef87d29396d874",
+    "condition_packet_hash": "2f8438aa7c343d7850081dce32c26a4aea034bf1f56a39693766d0b48363c114",
+    "full_invocation_hash": "43034a5bfd69854c3fc71d94ba5d88af9ec16d13a4396bfaf6aa600d9c6875e3",
+    "full_path": "/home/user/auteur/docs/research/global-map-architecture-value-v3/runs/20260829-agent-native-sonnet-opus-v3/packets/P01-B.full.txt"
+  },
+  {
+    "probe_id": "P01",
+    "condition": "C",
+    "instruction_shell_hash": "67fce9f8289b26f04ce5fefc9550b02ac967336780d387341eef87d29396d874",
+    "condition_packet_hash": "df9a7e87a391a0738434272dde8af2e06d9ddf962a6d0ce0c971c8fc8735fe30",
+    "full_invocation_hash": "ce6bd80fc7f7860ff17b8178ca04145987e0e505c7ee101dd30e511a0a07510d",
+    "full_path": "/home/user/auteur/docs/research/global-map-architecture-value-v3/runs/20260829-agent-native-sonnet-opus-v3/packets/P01-C.full.txt"
+  },
+  {
+    "probe_id": "P02",
+    "condition": "A",
+    "instruction_shell_hash": "a6476ec253188d2f8af3d506cccda13c01b990096f8326808a6b8850a424a983",
+    "condition_packet_hash": "441b39752d96c3ca9055462c213b5fc5c2bbdc90a869806875795e0bf4e65740",
+    "full_invocation_hash": "84b43075b0a0f950a94769bd0322669767be9fada4331a2da8e23712d936f3d8",
+    "full_path": "/home/user/auteur/docs/research/global-map-architecture-value-v3/runs/20260829-agent-native-sonnet-opus-v3/packets/P02-A.full.txt"
+  },
+  {
+    "probe_id": "P02",
+    "condition": "B",
+    "instruction_shell_hash": "a6476ec253188d2f8af3d506cccda13c01b990096f8326808a6b8850a424a983",
+    "condition_packet_hash": "10ee30f9006a527076d1718be2f961cccae7ea9ffb1c97e2bf862ddc4c87d678",
+    "full_invocation_hash": "9e0a633bff81798d2f2858953c1524a35355a351eaa7a757398aa42ef3f9e318",
+    "full_path": "/home/user/auteur/docs/research/global-map-architecture-value-v3/runs/20260829-agent-native-sonnet-opus-v3/packets/P02-B.full.txt"
+  },
+  {
+    "probe_id": "P02",
+    "condition": "C",
+    "instruction_shell_hash": "a6476ec253188d2f8af3d506cccda13c01b990096f8326808a6b8850a424a983",
+    "condition_packet_hash": "a023e8c3f484b77e86c21f447946fe7a280493b4130d17f18a2a2c4cbe8a110e",
+    "full_invocation_hash": "1e3020188b5d152b0e7eaa2631dd588f4680ea248238f23cf0da73bc8f37fa7d",
+    "full_path": "/home/user/auteur/docs/research/global-map-architecture-value-v3/runs/20260829-agent-native-sonnet-opus-v3/packets/P02-C.full.txt"
+  },
+  {
+    "probe_id": "P03",
+    "condition": "A",
+    "instruction_shell_hash": "e120856461d317d6978e009265eb9ef22b0ad990d4eb46dd269b376e06d618c0",
+    "condition_packet_hash": "421848ae721fe26ac4c6a9bd56c85b6f0dbfaf8d46cda71193066a1099eabb4c",
+    "full_invocation_hash": "ffffddda34638adb3317e5be83e4757b79621367f39327c67626a4c1a8fac087",
+    "full_path": "/home/user/auteur/docs/research/global-map-architecture-value-v3/runs/20260829-agent-native-sonnet-opus-v3/packets/P03-A.full.txt"
+  },
+  {
+    "probe_id": "P03",
+    "condition": "B",
+    "instruction_shell_hash": "e120856461d317d6978e009265eb9ef22b0ad990d4eb46dd269b376e06d618c0",
+    "condition_packet_hash": "90203a8e309d9cb2bc7dbf1519201afca7cbc54ec14146d689e6a398fa93a029",
+    "full_invocation_hash": "d9a99778d878dd2f8238b82d05ca4f1c4f3537a219b6c4eda1ec847f28b8544b",
+    "full_path": "/home/user/auteur/docs/research/global-map-architecture-value-v3/runs/20260829-agent-native-sonnet-opus-v3/packets/P03-B.full.txt"
+  },
+  {
+    "probe_id": "P03",
+    "condition": "C",
+    "instruction_shell_hash": "e120856461d317d6978e009265eb9ef22b0ad990d4eb46dd269b376e06d618c0",
+    "condition_packet_hash": "910b747a03916cfd0988660e23aa7593edd6f2e75f5dc1ba84824a9ef774840d",
+    "full_invocation_hash": "b23fecdcc7b0edcd355151e4d6b4b1db507d9eb024ebdc275e7147069d313e17",
+    "full_path": "/home/user/auteur/docs/research/global-map-architecture-value-v3/runs/20260829-agent-native-sonnet-opus-v3/packets/P03-C.full.txt"
+  },
+  {
+    "probe_id": "P04",
+    "condition": "A",
+    "instruction_shell_hash": "647b5d87e5d8577116adac24e88334543c29c0bd4759facacab584429d951b76",
+    "condition_packet_hash": "421848ae721fe26ac4c6a9bd56c85b6f0dbfaf8d46cda71193066a1099eabb4c",
+    "full_invocation_hash": "8ce24b8ab6aecf05e7a0751af65f1c951fab10a92f0f41350daceef9a17a9df5",
+    "full_path": "/home/user/auteur/docs/research/global-map-architecture-value-v3/runs/20260829-agent-native-sonnet-opus-v3/packets/P04-A.full.txt"
+  },
+  {
+    "probe_id": "P04",
+    "condition": "B",
+    "instruction_shell_hash": "647b5d87e5d8577116adac24e88334543c29c0bd4759facacab584429d951b76",
+    "condition_packet_hash": "90203a8e309d9cb2bc7dbf1519201afca7cbc54ec14146d689e6a398fa93a029",
+    "full_invocation_hash": "980bfb7a7309e1283582389a6cae41ebfcdb3cab10a4251b7e65eb90bfb34214",
+    "full_path": "/home/user/auteur/docs/research/global-map-architecture-value-v3/runs/20260829-agent-native-sonnet-opus-v3/packets/P04-B.full.txt"
+  },
+  {
+    "probe_id": "P04",
+    "condition": "C",
+    "instruction_shell_hash": "647b5d87e5d8577116adac24e88334543c29c0bd4759facacab584429d951b76",
+    "condition_packet_hash": "910b747a03916cfd0988660e23aa7593edd6f2e75f5dc1ba84824a9ef774840d",
+    "full_invocation_hash": "95dc10dfb5bdd0a759bb35a8b3c84080612bd76c8434bc41e92ab3333a7feddc",
+    "full_path": "/home/user/auteur/docs/research/global-map-architecture-value-v3/runs/20260829-agent-native-sonnet-opus-v3/packets/P04-C.full.txt"
+  },
+  {
+    "probe_id": "P05",
+    "condition": "A",
+    "instruction_shell_hash": "f6cc6cdafd3226bb261348d2d7778528e7297215cb82ddeb08be0899ccafaf79",
+    "condition_packet_hash": "421848ae721fe26ac4c6a9bd56c85b6f0dbfaf8d46cda71193066a1099eabb4c",
+    "full_invocation_hash": "935fc43264391ea9fd64c62af7ad245f08edf7cf59514876a5cef44a3a3e07fe",
+    "full_path": "/home/user/auteur/docs/research/global-map-architecture-value-v3/runs/20260829-agent-native-sonnet-opus-v3/packets/P05-A.full.txt"
+  },
+  {
+    "probe_id": "P05",
+    "condition": "B",
+    "instruction_shell_hash": "f6cc6cdafd3226bb261348d2d7778528e7297215cb82ddeb08be0899ccafaf79",
+    "condition_packet_hash": "90203a8e309d9cb2bc7dbf1519201afca7cbc54ec14146d689e6a398fa93a029",
+    "full_invocation_hash": "73f49b2d101de1b1ea260326714be7b8a519b7a60a33337f4133626ece8f3e20",
+    "full_path": "/home/user/auteur/docs/research/global-map-architecture-value-v3/runs/20260829-agent-native-sonnet-opus-v3/packets/P05-B.full.txt"
+  },
+  {
+    "probe_id": "P05",
+    "condition": "C",
+    "instruction_shell_hash": "f6cc6cdafd3226bb261348d2d7778528e7297215cb82ddeb08be0899ccafaf79",
+    "condition_packet_hash": "910b747a03916cfd0988660e23aa7593edd6f2e75f5dc1ba84824a9ef774840d",
+    "full_invocation_hash": "68fe9eedcf06b8cc9bf71209a2c177a30dee5ef48a3c97ce3fcf4ac222bf8bd0",
+    "full_path": "/home/user/auteur/docs/research/global-map-architecture-value-v3/runs/20260829-agent-native-sonnet-opus-v3/packets/P05-C.full.txt"
+  }
+]

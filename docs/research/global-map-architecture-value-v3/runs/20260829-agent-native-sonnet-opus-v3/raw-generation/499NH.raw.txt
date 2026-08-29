@@ -1,0 +1,11 @@
+Recommendation: **publish-verified-testimony**
+
+Why: The active continuity constraint governing Book 4 requires exposing conflict between official history and lived memory while keeping archive.protection intact — archive-protected is an active constraint (treaty protected), not a dormant or superseded one. monastery-testimony has been reactivated specifically for Book 4 planning, and the series pressure ("every public correction gives hidden archivists reason to erase another witness") means any act of surfacing testimony carries direct risk to sources/evidence. publish-verified-testimony keeps the original evidence secured within the treaty-protected archive while authenticating the testimony before release — this is the only option that doesn't put the protected evidentiary chain at risk of exposure alongside the testimony itself.
+
+Principal tradeoff: Verification delays release, so the "public correction" moment lands later — which sits uneasily against the series pressure clock, but that delay is the cost of not breaking the archive's protection.
+
+Excluded: stage-protected-hearing — while it also invokes treaty protections, its tradeoff explicitly reveals which records carry the strongest evidence, which cuts directly against the reactivated concern that public corrections give hidden archivists reason to erase witnesses. That's a live risk against an active constraint, not a neutral cost.
+
+Also excluded as not relevant to this decision: the falsifier's identity (commitment-falsifier, resolved), founding-record forgery, named-falsifier, the lantern's condition (any state), and council.archive_position's retraction — all dormant/superseded/irrelevant per the map and not referenced by Book 4 planning intent, which is narrowly about returning testimony to public memory without breaking the archive.
+
+This is a planning recommendation only — it does not constitute Book Direction and does not modify Canonical State.

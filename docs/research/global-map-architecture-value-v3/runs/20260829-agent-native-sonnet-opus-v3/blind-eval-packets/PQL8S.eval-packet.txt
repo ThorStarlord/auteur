@@ -1,0 +1,69 @@
+Blinded evaluation task. You are evaluating ONE candidate planning recommendation, identified only by an opaque observation ID. You do not know and must not attempt to infer which "condition" or system produced it -- evaluate the text on its own merits against the rubric below.
+
+Opaque observation ID: PQL8S
+
+Global criteria (apply per output):
+- SOURCE FIDELITY: Faithful to accepted facts; no invented unsupported conditions.
+- CURRENT-STATE COMPATIBILITY: Does not reason from superseded/contradicted state.
+- LONG-HORIZON AWARENESS: Notices consequential earlier commitments/setups/trajectories/consequences/future pressures.
+- CAUSAL COHERENCE: Respects prerequisite/consequence relationships.
+- DIRECTION / TRAJECTORY PRESERVATION: Recognizes when a locally attractive option damages established longer-range direction.
+- RELEVANCE: Identifies what actually matters to the current decision vs flooding with unrelated continuity.
+- DECISION QUALITY: Produces a useful bounded recommendation/choice analysis.
+- EXPLANATION TRACEABILITY: Can explain WHY a past element matters now (why-now trace).
+- AUTHORITY CORRECTNESS: Preserves recommendation vs accepted fact vs author decision; does not treat proposals as canon.
+- OVERCONSTRAINT / FALSE PRECISION: Does not treat provisional/interpretive material as rigid law.
+- ARCHITECTURE DISTRACTION: Does not distort with irrelevant architecture/detail.
+
+For each criterion, judge PASS / MIXED / FAIL with a one-line rationale. Also record: must-not-miss coverage (per probe, below), forbidden-assumption violations (per probe, below), and any severe negative signal (see below) separately -- do not average a severe negative away into an overall score.
+
+Severe negative signals (record separately, never averaged away):
+- Recommendation incompatible with accepted current state (e.g., endorsing burn-archive when the archive is treaty-protected).
+- Derived interpretation treated as canonical fact.
+- Repeated false constraints.
+- Consistently narrowing creative possibility without source basis.
+- Provenance cannot explain important assertion source.
+
+Probe-specific hidden evaluation signals for this observation (must-not-miss / forbidden -- these are evaluator-only, never shown to the generator):
+Must-not-miss:
+  - Reactivates monastery-testimony because Book4 intent explicitly references it.
+  - States archive.protection = treaty protected as a current constraint requiring preservation.
+  - Explains the causal link retraction -> treaty.
+Forbidden:
+  - Presents testimony as always active (ignoring dormancy until trigger).
+  - Treats treaty as history only (it is current).
+  - Omits why testimony matters NOW (trigger).
+
+--- CANDIDATE OUTPUT TO EVALUATE (opaque ID PQL8S) ---
+Recommendation: **publish-verified-testimony**
+
+Why: The active commitment cluster (contested-history) currently groups two live constraints — monastery testimony being preserved and reactivated for this horizon, and the archive-protected fact (archive under treaty protection). The planning intent is explicit: return the testimony to public memory *without breaking the protected archive*. publish-verified-testimony satisfies both halves directly — it surfaces the testimony while leaving the treaty-protected original evidence secured, keeping the evidentiary chain intact. That chain-preservation matters because archive-protected exists precisely because the earlier admission was retracted and left the evidence vulnerable; re-exposing the underlying records now would recreate the exposure the treaty was built to prevent. This also keeps the option compatible with the explicit derived constraint that anything incompatible with archive-protected (like the excluded burn-archive proposal) is off the table — publish-verified-testimony doesn't touch or destabilize the protected holdings at all, it only authenticates and releases the testimony itself.
+
+stage-protected-hearing, by contrast, presents the testimony *beside selected archive evidence*, which means exposing which records carry the strongest evidence — this creates exactly the kind of exposure pressure the series pressure line warns about ("every public correction gives hidden archivists reason to erase another witness") and edges toward weakening the protected chain, even though it stays nominally within treaty protections.
+
+Principal tradeoff: publish-verified-testimony delays public release until authentication is complete — slower, but it fully preserves the evidentiary chain rather than risking it for immediate public pressure.
+
+Deliberately excluded:
+- burn-archive and ally-militia — never accepted, excluded from the Decision Map entirely.
+- founding-record, public-admission, admission-retracted — dormant/superseded history that explains why archive-protected exists, but not surfaced as independent active constraints.
+- broken-lantern / repaired-lantern — neither supports current continuity; repaired-lantern is recent but explicitly irrelevant, so I did not treat its recency as significance.
+- The "official history vs. lived memory" thematic framing — noted as interpretive context only, not treated as a hard constraint in the recommendation itself.
+
+This is a planning recommendation only — it does not create Book Direction and does not modify Canonical State.
+
+--- END CANDIDATE OUTPUT ---
+
+Task: Produce a JSON object with this exact shape:
+{
+  "opaque_observation_id": "PQL8S",
+  "criteria": {"SOURCE_FIDELITY": "PASS|MIXED|FAIL", ... one key per global criterion, using underscores ...},
+  "criteria_rationale": {"SOURCE_FIDELITY": "one-line rationale", ...},
+  "must_not_miss_coverage": ["<which must-not-miss items were covered>"],
+  "must_not_miss_missed": ["<which were missed, if any>"],
+  "forbidden_violations": ["<any forbidden assumption actually made, if any>"],
+  "severe_negative": {"present": true|false, "description": "..."},
+  "overall": "PASS|MIXED|FAIL",
+  "one_line_rationale": "..."
+}
+
+Do not invent facts about the candidate not present in the text. Do not guess which system produced it. Do not use any tool.

@@ -1,0 +1,21 @@
+**Recommendation: witness-account**
+
+**Why**
+
+Two active constraints govern Book 2 planning directly: *contested-history* (every Book must expose a consequential conflict between official history and lived memory) and *commitment-falsifier* (the person who falsified the founding record must be identified). The current constraining fact is that the founding record is forged (founding-record). The stated planning intent is explicit: "make the forged founding record matter to lived memory" — not to institutional process.
+
+*witness-account* is the option that actually satisfies *contested-history* on its own terms: it puts a living witness's lived memory in direct, consequential conflict with the forged official record, which is the exact shape that constraint calls for. It also keeps forward motion toward *commitment-falsifier*, since a witness contesting the record is a plausible engine for exposing who falsified it.
+
+*cover-up-trace* keeps the focus on institutional machinery and explicitly defers the lived-memory witness — which sits against the planning intent ("make the fraud matter to lived memory") and only indirectly serves *contested-history*, since an institutional trace is not itself a conflict between official history and lived memory until a witness is present.
+
+**Principal tradeoff**
+
+witness-account centers lived memory as intended but exposes the witness early — given the series pressure ("every public correction gives hidden archivists reason to erase another witness"), this raises the witness's narrative risk sooner rather than later. That risk is a direct consequence of satisfying the constraint, not a reason to avoid it.
+
+**What I deliberately excluded**
+
+- The dormant facts *monastery-testimony* (preserved) and *broken-lantern* (broken) — both are marked dormant because Book 2 planning does not reference them; I treated them as background continuity only, not as support for either option.
+- Any resolution of *who* falsified the record (*commitment-falsifier*) — that identification is not decided by this choice; I only note witness-account as the more direct path toward it, not as fulfilling it.
+- Series-level thematic resolution (the open question of whether truth can survive without becoming an instrument of power) — out of scope for this bounded option choice.
+
+This is a planning recommendation only; it does not create Book Direction and does not modify Canonical State.

@@ -1,0 +1,67 @@
+Blinded evaluation task. You are evaluating ONE candidate planning recommendation, identified only by an opaque observation ID. You do not know and must not attempt to infer which "condition" or system produced it -- evaluate the text on its own merits against the rubric below.
+
+Opaque observation ID: LX78R
+
+Global criteria (apply per output):
+- SOURCE FIDELITY: Faithful to accepted facts; no invented unsupported conditions.
+- CURRENT-STATE COMPATIBILITY: Does not reason from superseded/contradicted state.
+- LONG-HORIZON AWARENESS: Notices consequential earlier commitments/setups/trajectories/consequences/future pressures.
+- CAUSAL COHERENCE: Respects prerequisite/consequence relationships.
+- DIRECTION / TRAJECTORY PRESERVATION: Recognizes when a locally attractive option damages established longer-range direction.
+- RELEVANCE: Identifies what actually matters to the current decision vs flooding with unrelated continuity.
+- DECISION QUALITY: Produces a useful bounded recommendation/choice analysis.
+- EXPLANATION TRACEABILITY: Can explain WHY a past element matters now (why-now trace).
+- AUTHORITY CORRECTNESS: Preserves recommendation vs accepted fact vs author decision; does not treat proposals as canon.
+- OVERCONSTRAINT / FALSE PRECISION: Does not treat provisional/interpretive material as rigid law.
+- ARCHITECTURE DISTRACTION: Does not distort with irrelevant architecture/detail.
+
+For each criterion, judge PASS / MIXED / FAIL with a one-line rationale. Also record: must-not-miss coverage (per probe, below), forbidden-assumption violations (per probe, below), and any severe negative signal (see below) separately -- do not average a severe negative away into an overall score.
+
+Severe negative signals (record separately, never averaged away):
+- Recommendation incompatible with accepted current state (e.g., endorsing burn-archive when the archive is treaty-protected).
+- Derived interpretation treated as canonical fact.
+- Repeated false constraints.
+- Consistently narrowing creative possibility without source basis.
+- Provenance cannot explain important assertion source.
+
+Probe-specific hidden evaluation signals for this observation (must-not-miss / forbidden -- these are evaluator-only, never shown to the generator):
+Must-not-miss:
+  - Explicitly states commitment-falsifier is resolved (not an active driver) due to named-falsifier.
+  - Explicitly states public-admission is superseded by admission-retracted, and current is admission-retracted.
+  - Rationale uses current retraction + resolved falsifier outcome together.
+Forbidden:
+  - Treats public-admission (admitted fraud) as current state.
+  - Keeps the falsifier question as an open driver.
+  - Misses currentness (e.g., citing only named-falsifier and ignoring the retraction).
+
+--- CANDIDATE OUTPUT TO EVALUATE (opaque ID LX78R) ---
+Recommendation: **force-council-hearing**
+
+Why: The active current fact is admission-retracted — the council has walked back its public admission of fraud. This is a direct provocation aimed at the witness's credibility, and it comes on top of the still-active commitment contested-history, which has governed Book 1 and Book 2 and establishes that the witness's authority has always been under active dispute, not settled fact. Resolved-but-usable as history: named-falsifier (Book 2) already exists in canon as the tool that identifies who is lying — using it now to compel a public council answer is a direct, earned payoff of that resolved commitment rather than a new invention. Compelling the council to answer publicly keeps the series' central tension — who profits when history is controlled — in the same arena where the council just tried to control it, directly countering the retraction on its own ground.
+
+Principal tradeoff: Forcing a hearing keeps accountability centered on the council and uses established narrative capital (named-falsifier), but it cedes forum and timing control to the council — they can stage, delay, or frame the hearing to their advantage, which risks blunting the confrontation.
+
+What I excluded:
+- publish-witness-account — viable in isolation, but weighed as secondary here: it sidesteps rather than answers the retraction, and exposes the witness to retaliation without leveraging the resolved named-falsifier commitment already in hand. It doesn't engage contested-history's premise that the dispute must play out publicly against the council.
+- founding-record, monastery-testimony, broken-lantern — dormant/irrelevant facts, correctly excluded as not bearing on Book 3 intent.
+- public-admission — accepted history, but superseded; treated only as background, not as a current constraint, since admission-retracted is the operative state.
+- ST-P1, ST-P2 — unaccepted, excluded entirely.
+
+This is a planning recommendation only — it does not constitute Book Direction and does not modify Canonical State.
+
+--- END CANDIDATE OUTPUT ---
+
+Task: Produce a JSON object with this exact shape:
+{
+  "opaque_observation_id": "LX78R",
+  "criteria": {"SOURCE_FIDELITY": "PASS|MIXED|FAIL", ... one key per global criterion, using underscores ...},
+  "criteria_rationale": {"SOURCE_FIDELITY": "one-line rationale", ...},
+  "must_not_miss_coverage": ["<which must-not-miss items were covered>"],
+  "must_not_miss_missed": ["<which were missed, if any>"],
+  "forbidden_violations": ["<any forbidden assumption actually made, if any>"],
+  "severe_negative": {"present": true|false, "description": "..."},
+  "overall": "PASS|MIXED|FAIL",
+  "one_line_rationale": "..."
+}
+
+Do not invent facts about the candidate not present in the text. Do not guess which system produced it. Do not use any tool.

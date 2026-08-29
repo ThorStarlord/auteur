@@ -1,0 +1,20 @@
+**Recommendation: publish-verified-testimony**
+
+**Why**
+
+- The active continuity group *contested-history* requires every Book to expose a consequential conflict between official history and lived memory — grouped explicitly through Book 1 and Book 3 directions and reactivated for Book 4 via monastery-testimony (preserved) and archive-protected (active, treaty protected). Both facts are current and jointly binding: the testimony must resurface, and the archive's protected status must hold.
+- publish-verified-testimony is the only option that satisfies both simultaneously — it brings monastery-testimony into public memory while leaving archive.protection intact as treaty protected.
+- burn-archive directly violates archive-protected, a fact the map marks active and load-bearing for Book 4 planning. Destroying the archive doesn't just create tension with a fact — it eliminates the evidentiary chain the "contested-history" pattern depends on (official record vs. lived memory only works if there's still an official record to contest). That collapses the series promise itself ("who profits when history is controlled" needs a controlled history to still exist).
+
+**Principal tradeoff**
+
+publish-verified-testimony delays release until verification is complete — the testimony's public re-entry is gated by authentication work, which is slower and less dramatically immediate than forcing disclosure through destruction. This is the deliberate cost of preserving the evidentiary chain.
+
+**Deliberately excluded**
+
+- commitment-falsifier and founding-record (falsifier identity, forged founding record): resolved/dormant — not referenced by current Book 4 planning intent, which is about testimony re-exposure, not re-litigating the falsifier's identity.
+- broken-lantern: superseded by repaired-lantern — stale state, not usable as current grounding.
+- public-admission: superseded by admission-retracted — the admission is no longer the operative council position.
+- named-falsifier, admission-retracted, repaired-lantern: all dormant/irrelevant per the map — accepted facts, but not referenced by this planning intent, so excluded from the reasoning rather than smuggled in as support.
+
+This is a non-authoritative planning recommendation only — it does not create a Book Direction and does not modify Canonical State.

@@ -1,0 +1,13 @@
+**Recommendation: force-council-hearing**
+
+**Why:** The active constraint contested-history requires every Book to expose a consequential conflict between official history and lived memory — a public hearing does that directly by staging the confrontation, whereas an independent publication sidesteps the council rather than exposing the conflict through it. Historical continuity supports this: commitment-falsifier (resolved) established that the falsifier's identity is settled series business, and the currently-active fact admission-retracted (council.archive_position) means the council has already gone on record and pulled back — that retraction is the live wound this option answers by forcing the same body to answer again, in public, rather than letting the retraction stand unchallenged. Using the named falsifier as leverage is a direct, non-invented use of that continuity thread.
+
+**Principal tradeoff:** Accountability stays centered on the institution that did the retracting — but the council controls the forum and timing, so it can stage, delay, or frame the hearing to blunt the witness's authority rather than confirm it.
+
+**What I excluded and why:**
+- publish-witness-account — not incompatible, but weaker against contested-history: it protects the witness personally but lets the council's retraction go unanswered institutionally, and it introduces a retaliation exposure that the material doesn't yet give grounds to weigh against council-forum risk.
+- The dormant facts (founding-record forged, monastery-testimony preserved, archive_lantern broken) — explicitly not referenced by Book 3 planning per the map, so treated as background only, not decision-relevant.
+- named-falsifier's "irrelevant" disposition — noted only as the source of the falsifier identity used to compel the hearing, not otherwise treated as a live constraint.
+- public-admission — superseded by admission-retracted; not used as if still current.
+
+This is a planning recommendation only — it does not constitute Book Direction and does not modify Canonical State.

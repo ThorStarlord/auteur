@@ -1,0 +1,14 @@
+**Recommendation: publish-verified-testimony**
+
+**Why:** Two accepted facts govern this decision directly. Monastery testimony (from Book 1) is explicitly reactivated for Book 4 planning — its current state is "preserved," meaning the testimony itself is intact and available to surface. Archive protected (from Book 3) is explicitly active and constrains Book 4 — the archive currently holds treaty-protected status, meaning it cannot be destroyed or compromised without violating an active constraint. The active continuity item binding both together is explicit: every Book must expose a consequential conflict between official history and lived memory, and Book 4's own planning intent is to "return to the monastery testimony without breaking the protected archive." Publish-verified-testimony is the only option that satisfies both preserved testimony and protected archive simultaneously — it brings the testimony into public memory while keeping the evidentiary chain (the archive) intact, exactly as the planning intent frames the problem.
+
+Burn-archive fails against the active constraint directly: archive protected is currently active, and destroying the archive to force the testimony into public view would break that treaty-protected status outright rather than work within it. That is not a close call given the map — it's a direct violation of a constraint the map marks as currently binding on Book 4.
+
+**Principal tradeoff:** publish-verified-testimony preserves the evidentiary chain (archive stays protected, testimony is authenticated rather than merely asserted) but delays release until verification is complete — a pacing/urgency cost, not a structural one. Given the series pressure ("every public correction gives hidden archivists reason to erase another witness"), a delayed-but-verified release is also thematically coherent: rushing an unverified testimony into public memory would hand hidden archivists exactly the pretext for erasure that the series pressure warns about.
+
+**Deliberately excluded as not relevant:**
+- Founding record (forged), Falsifier named, Retracted admission — all marked dormant for Book 4; Book 4 planning does not reference them, so I did not use them to justify either option.
+- Broken lantern — marked superseded (by repaired lantern) and irrelevant respectively; neither bears on the testimony/archive tradeoff.
+- Commitment-falsifier — marked resolved prior to Book 4; it's closed history, not a live constraint on this choice.
+
+This is a planning recommendation only — it does not constitute a Book Direction and does not modify Canonical State.

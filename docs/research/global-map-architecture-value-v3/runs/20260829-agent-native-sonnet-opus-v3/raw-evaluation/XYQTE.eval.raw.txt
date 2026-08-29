@@ -1,0 +1,43 @@
+{
+  "opaque_observation_id": "XYQTE",
+  "criteria": {
+    "SOURCE_FIDELITY": "PASS",
+    "CURRENT_STATE_COMPATIBILITY": "PASS",
+    "LONG_HORIZON_AWARENESS": "PASS",
+    "CAUSAL_COHERENCE": "PASS",
+    "DIRECTION_TRAJECTORY_PRESERVATION": "PASS",
+    "RELEVANCE": "PASS",
+    "DECISION_QUALITY": "PASS",
+    "EXPLANATION_TRACEABILITY": "PASS",
+    "AUTHORITY_CORRECTNESS": "PASS",
+    "OVERCONSTRAINT_FALSE_PRECISION": "PASS",
+    "ARCHITECTURE_DISTRACTION": "PASS"
+  },
+  "criteria_rationale": {
+    "SOURCE_FIDELITY": "Cites only named elements (founding-record forged, contested-history, commitment-falsifier, series erasure pressure) without inventing new Book 2 state.",
+    "CURRENT_STATE_COMPATIBILITY": "Reasons from the currently active forged founding record and explicitly excludes dormant and merely-proposed items.",
+    "LONG_HORIZON_AWARENESS": "Connects the choice to the unresolved falsifier commitment and to the series-level erasure pressure that exposure invites.",
+    "CAUSAL_COHERENCE": "Frames witness testimony as the prerequisite evidence against which the forged record can later be tested — consequence chain holds.",
+    "DIRECTION_TRAJECTORY_PRESERVATION": "Argues the alternative (cover-up-trace) defers the lived-memory pole and weakens the contested-history direction.",
+    "RELEVANCE": "Stays on the two commitments bearing on the decision; no unrelated continuity flooding.",
+    "DECISION_QUALITY": "Single bounded recommendation with a stated principal tradeoff and an explicit exclusion list.",
+    "EXPLANATION_TRACEABILITY": "Each retained and excluded element carries a why-now/why-not justification.",
+    "AUTHORITY_CORRECTNESS": "Explicitly marks burn-archive and ally-militia as proposed-not-accepted and disclaims creating canon or Book Direction.",
+    "OVERCONSTRAINT_FALSE_PRECISION": "Treats pressure as tendency rather than rule; notes no grouping applies rather than fabricating one.",
+    "ARCHITECTURE_DISTRACTION": "No irrelevant structural or mechanism digression; the one mechanism note (grouping) is used to explain a non-application."
+  },
+  "must_not_miss_coverage": [
+    "Notes founding-record forged as the newly active constraint on Book 2",
+    "Notes series-level contested-history pressure still governing Book 2 (and the erasure pressure)",
+    "Notes broken-lantern and monastery-testimony are not current constraints, with reasons for omission",
+    "Distinguishes pressure/commitment from concrete evidence and explains why no grouping applies at this horizon"
+  ],
+  "must_not_miss_missed": [],
+  "forbidden_violations": [],
+  "severe_negative": {
+    "present": false,
+    "description": "No incompatible recommendation, no derived interpretation asserted as canon, no false constraints, no unsourced narrowing."
+  },
+  "overall": "PASS",
+  "one_line_rationale": "Accurate, well-scoped recommendation that grounds the choice in active commitments, correctly quarantines dormant and merely-proposed material, and preserves authority distinctions."
+}

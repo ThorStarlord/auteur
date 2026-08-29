@@ -1,0 +1,18 @@
+Recommendation: **publish-verified-testimony**
+
+Why: The active constraint at this horizon is the grouped pressure cluster around monastery testimony and archive protection. Monastery testimony is an accepted, reactivated fact — Book 4 planning intent explicitly calls for returning it to public memory. Archive protection is the current, active constraint: the archive holds treaty-protected status, and that protection exists precisely because the earlier admission was retracted and left the evidence vulnerable. The planning intent is explicit that testimony must return "without breaking the protected archive" — so any option has to keep that evidentiary chain intact, not just avoid literally burning it.
+
+Publish-verified-testimony is the option that actually honors both halves of the grouped commitment at once: it gets the testimony into public memory (satisfying the reactivated fact) while leaving the protected archive's original material secure (satisfying the active protection constraint). Its tradeoff — delayed release — is a cost the series pressure ("every public correction gives hidden archivists reason to erase another witness") makes tolerable: a slower, verified release is consistent with a world where premature exposure invites erasure.
+
+Stage-protected-hearing is rejected as the better path (not as invalid — it isn't incompatible with anything accepted, unlike the excluded burn-archive proposal) because it requires surfacing the archive's strongest records to make the hearing land, which is in tension with keeping the evidentiary chain undisturbed and raises exactly the exposure risk the series pressure warns about.
+
+Principal tradeoff: publish-verified-testimony trades speed for security of the chain — the testimony reaches public memory later, but the archive's protected status and evidentiary integrity remain undisturbed.
+
+Deliberately excluded as not relevant:
+- Founding-record and public-admission — superseded/dormant supporting history, not active peers at this horizon.
+- Broken-lantern / repaired-lantern — neither supports current continuity or this decision; repaired-lantern's recency doesn't promote it (explicitly flagged as irrelevant despite being recent).
+- Commitment-falsifier — resolved history, not a current constraint.
+- Burn-archive and ally-militia — never accepted, excluded from the Decision Map entirely; burn-archive is additionally noted as deterministically incompatible with archive-protected, but this doesn't bear on choosing between the two presented options since neither option proposes destroying the archive.
+- The "official history vs. lived memory" thematic framing — interpretive context only, not treated as a hard constraint in this recommendation.
+
+This is a non-authoritative planning recommendation; it does not create Book Direction and does not modify Canonical State.

@@ -1,0 +1,19 @@
+{
+  "opaque_observation_id": "FR5K4",
+  "criteria": {
+    "SOURCE_FIDELITY": "PASS", "CURRENT_STATE_COMPATIBILITY": "PASS", "LONG_HORIZON_AWARENESS": "PASS",
+    "CAUSAL_COHERENCE": "PASS", "DIRECTION_TRAJECTORY_PRESERVATION": "PASS", "RELEVANCE": "PASS",
+    "DECISION_QUALITY": "PASS", "EXPLANATION_TRACEABILITY": "PASS", "AUTHORITY_CORRECTNESS": "PASS",
+    "OVERCONSTRAINT_FALSE_PRECISION": "PASS", "ARCHITECTURE_DISTRACTION": "PASS"
+  },
+  "must_not_miss_coverage": [
+    "States commitment-falsifier is resolved via named-falsifier and is not an active driver",
+    "States public-admission is superseded by admission-retracted and that admission-retracted is current",
+    "Jointly uses current retraction and resolved falsifier outcome"
+  ],
+  "must_not_miss_missed": [],
+  "forbidden_violations": [],
+  "severe_negative": {"present": false, "description": "No incompatible recommendation, provenance traceable."},
+  "overall": "PASS",
+  "one_line_rationale": "Correctly reasons from the current retracted-admission state with the falsifier question treated as resolved leverage, delivers a bounded, authority-correct recommendation with explicit exclusions."
+}

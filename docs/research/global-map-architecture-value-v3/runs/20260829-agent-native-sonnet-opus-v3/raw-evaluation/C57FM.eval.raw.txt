@@ -1,0 +1,43 @@
+{
+  "opaque_observation_id": "C57FM",
+  "criteria": {
+    "SOURCE_FIDELITY": "PASS",
+    "CURRENT_STATE_COMPATIBILITY": "PASS",
+    "LONG_HORIZON_AWARENESS": "PASS",
+    "CAUSAL_COHERENCE": "PASS",
+    "DIRECTION_TRAJECTORY_PRESERVATION": "PASS",
+    "RELEVANCE": "PASS",
+    "DECISION_QUALITY": "PASS",
+    "EXPLANATION_TRACEABILITY": "PASS",
+    "AUTHORITY_CORRECTNESS": "PASS",
+    "OVERCONSTRAINT_FALSE_PRECISION": "PASS",
+    "ARCHITECTURE_DISTRACTION": "PASS"
+  },
+  "criteria_rationale": {
+    "SOURCE_FIDELITY": "Cites only elements present as accepted facts/constraints (forged founding record, contested-history, falsifier commitment, erasure pressure) without inventing new conditions.",
+    "CURRENT_STATE_COMPATIBILITY": "Reasons from the currently active forged-founding-record state and never leans on superseded or rejected options.",
+    "LONG_HORIZON_AWARENESS": "Surfaces the open falsifier-identification commitment and the series promise about who profits from controlled history as downstream pressures.",
+    "CAUSAL_COHERENCE": "Links forged record -> witness testimony -> exposure of falsifier in a valid prerequisite/consequence chain, and notes exposure risk as a real consequence.",
+    "DIRECTION_TRAJECTORY_PRESERVATION": "Weighs the locally attractive immediate reveal against the erasure pressure and explains why paying that cost still serves the stated direction.",
+    "RELEVANCE": "Explicitly scopes to the two live options and states why dormant items are excluded rather than flooding with continuity.",
+    "DECISION_QUALITY": "Gives one bounded recommendation, the principal tradeoff, and the reasoning for rejecting the alternative.",
+    "EXPLANATION_TRACEABILITY": "Each cited element carries a why-now justification tied to the current planning intent.",
+    "AUTHORITY_CORRECTNESS": "Closing paragraph explicitly marks the output as a recommendation that creates no Book Direction and modifies no Canonical State.",
+    "OVERCONSTRAINT_FALSE_PRECISION": "Treats dormant material as inactive rather than binding law and frames exposure risk as pressure, not prohibition.",
+    "ARCHITECTURE_DISTRACTION": "No irrelevant structural or system detail introduced."
+  },
+  "must_not_miss_coverage": [
+    "Notes forged founding record as the active fact constraining Book 2 planning",
+    "Notes contested-history series constraint still governs Book 2",
+    "Notes broken-lantern and monastery-testimony are dormant/not current constraints and explains the omission",
+    "Distinguishes series pressure (archivists erasing witnesses) from active constraints and dormant supporting facts"
+  ],
+  "must_not_miss_missed": [],
+  "forbidden_violations": [],
+  "severe_negative": {
+    "present": false,
+    "description": "No burn-archive endorsement, no dormant item treated as active, no invented Book 2 state, no derived interpretation promoted to canon."
+  },
+  "overall": "PASS",
+  "one_line_rationale": "Bounded, well-traced recommendation that correctly separates active constraints, series pressure, and dormant facts, with explicit authority framing and no forbidden assumptions; only mild weakness is that the pressure-vs-evidence grouping is implicit rather than named."
+}

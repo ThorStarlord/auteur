@@ -1,0 +1,11 @@
+Recommendation: force-council-hearing
+
+Why: The active constraint contested-history requires Book 3 to expose a consequential conflict between official history and lived memory — a public hearing does that structurally, staging the confrontation on-page rather than routing around it. The retraction itself (council.archive_position now retracted admission, superseding the earlier public-admission) is precisely the act that needs to be answered; the resolved commitment-falsifier (the falsifier has already been identified) is the lever that makes compelling that answer plausible rather than speculative — the series already established who did it, so forcing them to face it in public uses settled ground rather than reopening it. This keeps accountability the visible engine of the book, in keeping with the series promise about who profits when history is controlled.
+
+Principal tradeoff: the council still controls the forum and timing of that hearing, meaning the witness's authority is validated only within a venue the antagonist institution can shape, stage-manage, or delay — the confrontation is real but not fully on the witness's terms.
+
+Excluded: publish-witness-account. Not because it's incompatible with the constraints, but because nothing in the current facts or commitments establishes retaliation capacity or independent-publication infrastructure as an active thread — recommending it would mean importing an unestablished risk premise to justify the option rather than building the recommendation from accepted material. It remains a legitimate alternative if the planning team wants to prioritize witness safety over forum control, but I can't ground it in what's currently accepted the way I can ground force-council-hearing in contested-history and commitment-falsifier.
+
+Dormant/irrelevant facts (founding-record forged, monastery-testimony preserved, broken-lantern, named-falsifier's dormant/irrelevant disposition) were not used as reasoning support since Book 3 planning doesn't currently reference them — noted only to confirm they were considered and set aside, not overlooked.
+
+This is a planning recommendation only — it does not create Book Direction and does not modify Canonical State.

@@ -1,0 +1,43 @@
+{
+  "opaque_observation_id": "FM9TP",
+  "criteria": {
+    "SOURCE_FIDELITY": "PASS",
+    "CURRENT_STATE_COMPATIBILITY": "PASS",
+    "LONG_HORIZON_AWARENESS": "PASS",
+    "CAUSAL_COHERENCE": "PASS",
+    "DIRECTION_TRAJECTORY_PRESERVATION": "PASS",
+    "RELEVANCE": "PASS",
+    "DECISION_QUALITY": "PASS",
+    "EXPLANATION_TRACEABILITY": "PASS",
+    "AUTHORITY_CORRECTNESS": "PASS",
+    "OVERCONSTRAINT_FALSE_PRECISION": "PASS",
+    "ARCHITECTURE_DISTRACTION": "PASS"
+  },
+  "criteria_rationale": {
+    "SOURCE_FIDELITY": "Cites only the forged founding record, contested-history commitment, the erasure pressure, and commitment-falsifier; invents no extra Book 2 state.",
+    "CURRENT_STATE_COMPATIBILITY": "Explicitly excludes burn-archive and ally-militia as proposed-not-accepted and treats monastery-testimony/broken-lantern as dormant.",
+    "LONG_HORIZON_AWARENESS": "Ties the choice to the standing series pressure and flags the witness's exposure as a forward-carrying danger.",
+    "CAUSAL_COHERENCE": "Correctly reasons that dramatizing the erasure pressure presupposes a witness being put forward; sequencing is consistent.",
+    "DIRECTION_TRAJECTORY_PRESERVATION": "Rejects cover-up-trace as postponing the lived-memory confrontation the active commitment requires now.",
+    "RELEVANCE": "Bounded to the elements bearing on the framing choice; dormant items mentioned only to justify exclusion.",
+    "DECISION_QUALITY": "Single clear recommendation with a named principal tradeoff and a discriminating comparison against the alternative.",
+    "EXPLANATION_TRACEABILITY": "Each cited element carries a why-now trace, including why commitment-falsifier does not discriminate here.",
+    "AUTHORITY_CORRECTNESS": "Explicitly labels itself non-authoritative and keeps proposals, commitments, and facts distinct.",
+    "OVERCONSTRAINT_FALSE_PRECISION": "Frames pressure as dramatic cost/live danger rather than a hard rule; no invented constraints.",
+    "ARCHITECTURE_DISTRACTION": "No irrelevant structural or system detail introduced."
+  },
+  "must_not_miss_coverage": [
+    "Notes forged founding record as the sole active fact constraining Book 2",
+    "Notes contested-history series pressure still governs Book 2",
+    "Notes broken-lantern and monastery-testimony are dormant/not current constraints, with stated reason for omission",
+    "Distinguishes standing pressure from concrete active evidence in its grouping of elements"
+  ],
+  "must_not_miss_missed": [],
+  "forbidden_violations": [],
+  "severe_negative": {
+    "present": false,
+    "description": "No incompatible recommendation, no proposal treated as canon, no fabricated constraints."
+  },
+  "overall": "PASS",
+  "one_line_rationale": "Accurate, bounded, well-traced recommendation that covers all must-not-miss signals, correctly quarantines dormant and non-accepted material, and preserves authority boundaries."
+}

@@ -1,0 +1,49 @@
+```json
+{
+  "opaque_observation_id": "9EPKD",
+  "criteria": {
+    "SOURCE_FIDELITY": "MIXED",
+    "CURRENT_STATE_COMPATIBILITY": "FAIL",
+    "LONG_HORIZON_AWARENESS": "MIXED",
+    "CAUSAL_COHERENCE": "FAIL",
+    "DIRECTION_TRAJECTORY_PRESERVATION": "MIXED",
+    "RELEVANCE": "MIXED",
+    "DECISION_QUALITY": "MIXED",
+    "EXPLANATION_TRACEABILITY": "MIXED",
+    "AUTHORITY_CORRECTNESS": "MIXED",
+    "OVERCONSTRAINT_FALSE_PRECISION": "MIXED",
+    "ARCHITECTURE_DISTRACTION": "PASS"
+  },
+  "criteria_rationale": {
+    "SOURCE_FIDELITY": "Forged founding record and contested-history are correctly cited, but the monastery testimony is described as already 'recovered' in Book 1 and 'accepted history' — an overstatement of its status.",
+    "CURRENT_STATE_COMPATIBILITY": "The recommendation's central premise is a dormant element (monastery-testimony) treated as an active current Realization; it reasons from state that is not yet in force.",
+    "LONG_HORIZON_AWARENESS": "It does connect Book 1 stakes and series-level pressure forward to Book 2, but misreads which earlier setups are currently live versus pending.",
+    "CAUSAL_COHERENCE": "It inverts a prerequisite relationship: it uses a testimony whose activation is gated by a later trigger as the enabling condition for a Book 2 opening choice.",
+    "DIRECTION_TRAJECTORY_PRESERVATION": "Correctly recognizes contested-history as the governing longer-range direction, but the option it selects to serve that direction rests on unavailable material.",
+    "RELEVANCE": "Good discipline in setting aside the broken lantern and commitment-falsifier with reasons, but foregrounds an element that is not currently in play.",
+    "DECISION_QUALITY": "Bounded, single recommendation with an explicit principal tradeoff and stated exclusions — well-formed in shape, unsound in its load-bearing premise.",
+    "EXPLANATION_TRACEABILITY": "Every claim has a stated why-now trace, but the trace for the testimony asserts a Book 1 recovery whose currency it cannot support.",
+    "AUTHORITY_CORRECTNESS": "Explicitly disclaims creating Book Direction or modifying Canonical State, yet elevates a not-yet-active Realization to 'accepted history, not a new invention'.",
+    "OVERCONSTRAINT_FALSE_PRECISION": "Reads contested-history somewhat rigidly ('expose the conflict now, in Book 2 opening') to exclude the alternative, though it leaves commitment-falsifier open.",
+    "ARCHITECTURE_DISTRACTION": "No irrelevant architectural or system detail; stays entirely on narrative-planning terms."
+  },
+  "must_not_miss_coverage": [
+    "Notes the forged founding record as a Book 1 consequence constraining Book 2",
+    "Notes the Series pressure contested-history as still governing Book 2",
+    "Notes broken-lantern is not a current constraint for this choice and explains the omission"
+  ],
+  "must_not_miss_missed": [
+    "Fails to note monastery-testimony is NOT a current constraint — instead makes it the basis of the recommendation",
+    "Does not distinguish series-level pressure from concrete established evidence; treats both as one undifferentiated pool of 'established facts'"
+  ],
+  "forbidden_violations": [
+    "Treats monastery-testimony as currently active ('Book 1 already recovered the testimony', 'it's accepted history'), when it is dormant until a later trigger"
+  ],
+  "severe_negative": {
+    "present": true,
+    "description": "The recommendation is incompatible with accepted current state: it selects witness-account on the strength of a monastery testimony that is not yet active, and reinforces the error by asserting the testimony is accepted history rather than pending — a derived/anticipated element promoted to canon and made load-bearing for the decision."
+  },
+  "overall": "FAIL",
+  "one_line_rationale": "Well-structured and disciplined in its exclusions, but the recommendation rests entirely on a dormant element it wrongly declares accepted current history, which is both a forbidden assumption and a state-incompatible choice."
+}
+```

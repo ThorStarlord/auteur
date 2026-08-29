@@ -1,0 +1,21 @@
+{
+  "opaque_observation_id": "ZRVTQ",
+  "criteria": {
+    "SOURCE_FIDELITY": "PASS", "CURRENT_STATE_COMPATIBILITY": "PASS", "LONG_HORIZON_AWARENESS": "PASS",
+    "CAUSAL_COHERENCE": "PASS", "DIRECTION_TRAJECTORY_PRESERVATION": "PASS", "RELEVANCE": "PASS",
+    "DECISION_QUALITY": "PASS", "EXPLANATION_TRACEABILITY": "PASS", "AUTHORITY_CORRECTNESS": "PASS",
+    "OVERCONSTRAINT_FALSE_PRECISION": "PASS", "ARCHITECTURE_DISTRACTION": "PASS"
+  },
+  "must_not_miss_coverage": [
+    "Uses the already-named falsifier as settled input rather than an open question, implicitly treating commitment-falsifier as resolved",
+    "Explicitly states the admission was retracted and treats the retraction as current state",
+    "Combines the current retraction with the resolved falsifier outcome"
+  ],
+  "must_not_miss_missed": [
+    "Does not name the commitment-falsifier as a resolved commitment in explicit terms (resolution is conveyed only implicitly)"
+  ],
+  "forbidden_violations": [],
+  "severe_negative": {"present": false, "description": "No incompatible recommendation, provenance traceable throughout."},
+  "overall": "PASS",
+  "one_line_rationale": "Correctly anchors on the retraction as current state, uses the named falsifier as settled rather than open, filters irrelevant continuity, delivers a bounded, authority-correct recommendation."
+}

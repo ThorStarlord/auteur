@@ -1,0 +1,14 @@
+Recommendation: force-council-hearing
+
+Why: The active constraint carried into Book 3 is contested-history — the council's position is a live site of dispute, not a settled matter. On top of that, the current fact is admission-retracted: the council already admitted fraud once (public-admission) and then withdrew it. That retraction is the specific act Book 3 must respond to. Using the named falsifier (the resolved commitment-falsifier thread, now available as a tool rather than an open question) to compel a public answer keeps the confrontation aimed at the institution that did the retracting — the council — rather than routing around it. That matches the series pressure directly: it is public correction that provokes the archivists, and a forced hearing is itself a public correction, so choosing it is a deliberate re-entry into that pressure, not an evasion of it. It also keeps the series' open question (can truth survive without becoming an instrument of power) live and contested rather than resolved by fiat.
+
+Principal tradeoff: forcing a hearing keeps accountability centered on the council, but the council still controls the forum and timing — they can slow-walk, stage, or reframe the hearing, limiting how much authority the witness actually gains from it.
+
+What I excluded and why:
+- publish-witness-account, as primary recommendation — it gives the witness a record the council can't retract, which is real protection for authority, but it sidesteps the council entirely. Given contested-history is the active commitment (the dispute is precisely about who controls the record), taking the fight outside the contested forum resolves the tension by exit rather than confrontation, and doesn't use the named-falsifier resolution that Book 2 specifically earned. It also raises retaliation exposure for the witness with no corresponding institutional accountability gained.
+- founding-record and monastery-testimony — dormant, not referenced by Book 3 intent, so not used.
+- broken-lantern — dormant/irrelevant, excluded.
+- public-admission — treated as accepted history only; it is superseded by the retraction and is not the current state, so it informed context (there was a prior admission worth reasserting) but was not used as the live fact driving the choice.
+- ST-P1, ST-P2 — unaccepted, excluded entirely, not treated as canon or support.
+
+This is a planning recommendation only — it does not create Book Direction and does not modify Canonical State.

@@ -1,0 +1,14 @@
+Recommendation: publish-verified-testimony.
+
+Why: The active pressure cluster grouping monastery-testimony (reactivated, preserved) with archive-protected (treaty protected) is the binding current constraint at this horizon. REL-07 makes this explicit and dispositive: archive-protected is deterministically incompatible with destroying the archive. burn-archive is also the never-accepted ST-P1 proposal — it cannot be chosen as a live option regardless of its narrative appeal, since it contradicts an active accepted fact rather than merely trading against it. publish-verified-testimony is the only presented option compatible with holding both grouped facts true simultaneously: it returns the testimony to public memory (satisfying the planning intent's first half) while keeping the archive intact as evidence (satisfying archive-protected).
+
+Principal tradeoff: verification and authentication take time, so the testimony's return to public memory is delayed rather than immediate. Book 4 pays a pacing/urgency cost — the "unavoidable" force burn-archive would have delivered instantly — in exchange for preserving the evidentiary chain intact. Series pressure ("every public correction gives hidden archivists reason to erase another witness") also means this delay is not free narratively: the verification window itself is a plausible site for archivist countermove, but that is a story opportunity, not a constraint violation.
+
+What I deliberately excluded:
+- burn-archive: excluded both on tradeoff grounds (destroys the archive-protected constraint outright) and on eligibility grounds (traces to ST-P1, never accepted, cannot enter the Decision Map as a live choice).
+- ally-militia (ST-P2): never accepted, not presented as an option here, not considered.
+- founding-record and public-admission/admission-retracted: real accepted history, but grouped as supporting causal background for the current cluster, not separately active peers driving this choice — admission-retracted explains why archive-protected exists (REL-05) but doesn't independently constrain the recommendation.
+- broken-lantern / repaired-lantern: explicitly flagged irrelevant (REL-08) despite repaired-lantern's recency; excluded as false-recency, not promoted into the analysis.
+- The interpretive note (official history vs. lived memory theme, REL-10): treated as thematic framing/context only, not as a hard constraint shaping the recommendation.
+
+Note: this is a bounded planning recommendation only — it does not create Book Direction and does not modify Canonical State.

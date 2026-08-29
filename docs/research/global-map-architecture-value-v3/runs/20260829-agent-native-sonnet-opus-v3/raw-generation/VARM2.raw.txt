@@ -1,0 +1,9 @@
+Recommendation: **publish-verified-testimony**
+
+**Why:** The series commitment "every Book must expose conflict between official history and lived memory" requires the testimony to surface, but Book 3 already established the treaty protecting the archive as the sole evidentiary chain — a structure the current planning intent explicitly says not to break. The monastery testimony has been sitting preserved since Book 1, never delivered to public memory, which is exactly the gap Book 4 needs to close. Given the council's retracted admission, the archive is now the only remaining institutional record standing between "falsified" and "unknown" — destroying it would not just release the testimony, it would erase the evidentiary basis that let anyone verify or challenge the falsification in the first place. Publishing a verified testimony adds a second, corroborating channel of memory without dismantling the first.
+
+**Principal tradeoff:** Verification takes time — the testimony's return to public memory is delayed until authentication is complete, which sits in tension with the series pressure ("every public correction gives hidden archivists reason to erase another witness"). A delay is a window; Book 4 will need to reckon with what that window costs, but it does not force the story to give up the archive to pay it.
+
+**Excluded:** burn-archive. It satisfies "testimony becomes unavoidable" but at the cost of the evidentiary chain the series has spent three books building and just finished protecting by treaty — a direct reversal of the accepted Book 3 Realization, not a complication of it. I also did not treat the repaired lantern as bearing on this choice; it's a physical/continuity fact from Book 1/Book 3 with no established connection to testimony authentication or archive custody, so it's not relevant to this decision.
+
+This is a planning recommendation only — it does not create a Book Direction and does not modify Canonical State.

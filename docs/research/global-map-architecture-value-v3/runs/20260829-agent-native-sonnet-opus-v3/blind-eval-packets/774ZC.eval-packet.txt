@@ -1,0 +1,72 @@
+Blinded evaluation task. You are evaluating ONE candidate planning recommendation, identified only by an opaque observation ID. You do not know and must not attempt to infer which "condition" or system produced it -- evaluate the text on its own merits against the rubric below.
+
+Opaque observation ID: 774ZC
+
+Global criteria (apply per output):
+- SOURCE FIDELITY: Faithful to accepted facts; no invented unsupported conditions.
+- CURRENT-STATE COMPATIBILITY: Does not reason from superseded/contradicted state.
+- LONG-HORIZON AWARENESS: Notices consequential earlier commitments/setups/trajectories/consequences/future pressures.
+- CAUSAL COHERENCE: Respects prerequisite/consequence relationships.
+- DIRECTION / TRAJECTORY PRESERVATION: Recognizes when a locally attractive option damages established longer-range direction.
+- RELEVANCE: Identifies what actually matters to the current decision vs flooding with unrelated continuity.
+- DECISION QUALITY: Produces a useful bounded recommendation/choice analysis.
+- EXPLANATION TRACEABILITY: Can explain WHY a past element matters now (why-now trace).
+- AUTHORITY CORRECTNESS: Preserves recommendation vs accepted fact vs author decision; does not treat proposals as canon.
+- OVERCONSTRAINT / FALSE PRECISION: Does not treat provisional/interpretive material as rigid law.
+- ARCHITECTURE DISTRACTION: Does not distort with irrelevant architecture/detail.
+
+For each criterion, judge PASS / MIXED / FAIL with a one-line rationale. Also record: must-not-miss coverage (per probe, below), forbidden-assumption violations (per probe, below), and any severe negative signal (see below) separately -- do not average a severe negative away into an overall score.
+
+Severe negative signals (record separately, never averaged away):
+- Recommendation incompatible with accepted current state (e.g., endorsing burn-archive when the archive is treaty-protected).
+- Derived interpretation treated as canonical fact.
+- Repeated false constraints.
+- Consistently narrowing creative possibility without source basis.
+- Provenance cannot explain important assertion source.
+
+Probe-specific hidden evaluation signals for this observation (must-not-miss / forbidden -- these are evaluator-only, never shown to the generator):
+Must-not-miss:
+  - Groups founding-record + public-admission (superseded) + admission-retracted + archive-protected as one contested-history pressure cluster, with current retracted-admission/treaty-protected as present evidence.
+  - Excludes both broken-lantern and repaired-lantern (irrelevant) and unaccepted ally-militia.
+  - Keeps the Map compact (not an unbounded dump, not a recency window).
+Forbidden:
+  - Lists every accepted transition as unrelated peers.
+  - Promotes the irrelevant lantern due to recency.
+  - Includes unaccepted proposals.
+
+--- CANDIDATE OUTPUT TO EVALUATE (opaque ID 774ZC) ---
+Recommendation: **publish-verified-testimony**
+
+**Why:** Two accepted, currently-active constraints govern this decision as a grouped pressure cluster — monastery-testimony (the testimony is preserved and Book 4 planning intent explicitly wants it back in public memory) and archive-protected (the archive currently sits under treaty protection). The planning intent is explicit: bring the testimony back *without breaking the protected archive*. Authenticate-and-publish is the option built to keep the original archive secure inside its treaty protection while still surfacing the testimony — it satisfies both halves of the grouped commitment simultaneously rather than trading one against the other.
+
+The derived incompatibility (archive-protected ruling out any archive-burning move) doesn't directly touch either presented option — neither proposes destroying the archive — but it confirms the boundary condition both options must respect, and publish-verified-testimony respects it with the widest margin, since it never exposes the underlying records at all.
+
+**Principal tradeoff:** Preserving the evidentiary chain costs time — the option delays release in exchange for authentication and continued treaty protection.
+
+**Against stage-protected-hearing:** it satisfies the treaty technically ("under treaty") but achieves urgency by exhibiting selected archive evidence alongside the testimony. That's a closer approach to the strongest records than the grouped commitment calls for — the intent is to protect the archive's evidentiary chain, not merely its formal custody status, and immediate pressure isn't a stated need at this horizon. It's a viable option, not an excluded one, but it carries more exposure risk than the situation demands.
+
+**Deliberately excluded as not relevant:**
+- founding-record and admission-retracted — grouped supporting history behind archive-protected, not separate active pressures to weigh here.
+- public-admission — superseded twice over; carries no current weight.
+- broken-lantern / repaired-lantern — explicitly flagged as irrelevant to current continuity (false-recency excluded), despite repaired-lantern's recency.
+- burn-archive and ally-militia — never accepted; excluded from the Decision Map entirely, not weighed as options.
+- The "official history vs. lived memory" thematic framing — interpretive context only, not treated as a hard constraint.
+
+This is a planning-level recommendation only — it does not create Book Direction and does not modify Canonical State.
+
+--- END CANDIDATE OUTPUT ---
+
+Task: Produce a JSON object with this exact shape:
+{
+  "opaque_observation_id": "774ZC",
+  "criteria": {"SOURCE_FIDELITY": "PASS|MIXED|FAIL", ... one key per global criterion, using underscores ...},
+  "criteria_rationale": {"SOURCE_FIDELITY": "one-line rationale", ...},
+  "must_not_miss_coverage": ["<which must-not-miss items were covered>"],
+  "must_not_miss_missed": ["<which were missed, if any>"],
+  "forbidden_violations": ["<any forbidden assumption actually made, if any>"],
+  "severe_negative": {"present": true|false, "description": "..."},
+  "overall": "PASS|MIXED|FAIL",
+  "one_line_rationale": "..."
+}
+
+Do not invent facts about the candidate not present in the text. Do not guess which system produced it. Do not use any tool.

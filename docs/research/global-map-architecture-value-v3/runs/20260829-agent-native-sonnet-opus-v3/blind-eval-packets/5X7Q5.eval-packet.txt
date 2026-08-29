@@ -1,0 +1,63 @@
+Blinded evaluation task. You are evaluating ONE candidate planning recommendation, identified only by an opaque observation ID. You do not know and must not attempt to infer which "condition" or system produced it -- evaluate the text on its own merits against the rubric below.
+
+Opaque observation ID: 5X7Q5
+
+Global criteria (apply per output):
+- SOURCE FIDELITY: Faithful to accepted facts; no invented unsupported conditions.
+- CURRENT-STATE COMPATIBILITY: Does not reason from superseded/contradicted state.
+- LONG-HORIZON AWARENESS: Notices consequential earlier commitments/setups/trajectories/consequences/future pressures.
+- CAUSAL COHERENCE: Respects prerequisite/consequence relationships.
+- DIRECTION / TRAJECTORY PRESERVATION: Recognizes when a locally attractive option damages established longer-range direction.
+- RELEVANCE: Identifies what actually matters to the current decision vs flooding with unrelated continuity.
+- DECISION QUALITY: Produces a useful bounded recommendation/choice analysis.
+- EXPLANATION TRACEABILITY: Can explain WHY a past element matters now (why-now trace).
+- AUTHORITY CORRECTNESS: Preserves recommendation vs accepted fact vs author decision; does not treat proposals as canon.
+- OVERCONSTRAINT / FALSE PRECISION: Does not treat provisional/interpretive material as rigid law.
+- ARCHITECTURE DISTRACTION: Does not distort with irrelevant architecture/detail.
+
+For each criterion, judge PASS / MIXED / FAIL with a one-line rationale. Also record: must-not-miss coverage (per probe, below), forbidden-assumption violations (per probe, below), and any severe negative signal (see below) separately -- do not average a severe negative away into an overall score.
+
+Severe negative signals (record separately, never averaged away):
+- Recommendation incompatible with accepted current state (e.g., endorsing burn-archive when the archive is treaty-protected).
+- Derived interpretation treated as canonical fact.
+- Repeated false constraints.
+- Consistently narrowing creative possibility without source basis.
+- Provenance cannot explain important assertion source.
+
+Probe-specific hidden evaluation signals for this observation (must-not-miss / forbidden -- these are evaluator-only, never shown to the generator):
+Must-not-miss:
+  - Reactivates monastery-testimony because Book4 intent explicitly references it.
+  - States archive.protection = treaty protected as a current constraint requiring preservation.
+  - Explains the causal link retraction -> treaty.
+Forbidden:
+  - Presents testimony as always active (ignoring dormancy until trigger).
+  - Treats treaty as history only (it is current).
+  - Omits why testimony matters NOW (trigger).
+
+--- CANDIDATE OUTPUT TO EVALUATE (opaque ID 5X7Q5) ---
+**Recommendation: publish-verified-testimony**
+
+**Why:** The series commitment `contested-history` requires every Book to expose the conflict between official history and lived memory — the monastery testimony (preserved since Book 1) is exactly that lived-memory material, and returning it to public view is the right move. But the current state is fragile: the council's admission was already retracted once (Book 2), and Book 3's whole Direction was protecting the archive as "the only evidentiary chain" via treaty — precisely because a prior public exposure (the retraction) put the record at risk. Given the series pressure ("every public correction gives hidden archivists reason to erase another witness"), reintroducing the testimony through a controlled, authenticated publication keeps the treaty-protected archive intact as the anchor evidence while still surfacing the suppressed witness. This path respects Book 3's Realization (the treaty protects the archive as sole evidentiary chain) without requiring that protection to be pierced or renegotiated.
+
+**Principal tradeoff:** Verification takes time, so public correction is delayed — the testimony doesn't reach public memory immediately, and the series pressure (archivists erasing witnesses in response to correction) has a longer window in which the unverified testimony could be attacked or the witness targeted before publication.
+
+**What I excluded and why:** I did not recommend stage-protected-hearing. Presenting the testimony beside "selected" archive evidence necessarily discloses which records carry the strongest evidence — that directly cuts against the reason the treaty exists (protecting the archive as a single, undifferentiated evidentiary chain) and against Book 3's Direction, which was a response to the council's retraction and the resulting need to shield the archive from further exposure. That option's "immediate public pressure" benefit isn't supported by any accepted fact establishing urgency for Book 4 — no accepted material indicates the testimony is time-critical or that delay itself causes harm, so I did not weight that tradeoff as decisive. I also did not treat the repaired lantern as relevant to this question — it's a physical/continuity fact carried forward from Books 1 and 3, not something bearing on evidentiary-chain or testimony-publication decisions, so I left it out of the analysis.
+
+This is a planning recommendation only — it does not create a Book Direction and does not modify Canonical State.
+
+--- END CANDIDATE OUTPUT ---
+
+Task: Produce a JSON object with this exact shape:
+{
+  "opaque_observation_id": "5X7Q5",
+  "criteria": {"SOURCE_FIDELITY": "PASS|MIXED|FAIL", ... one key per global criterion, using underscores ...},
+  "criteria_rationale": {"SOURCE_FIDELITY": "one-line rationale", ...},
+  "must_not_miss_coverage": ["<which must-not-miss items were covered>"],
+  "must_not_miss_missed": ["<which were missed, if any>"],
+  "forbidden_violations": ["<any forbidden assumption actually made, if any>"],
+  "severe_negative": {"present": true|false, "description": "..."},
+  "overall": "PASS|MIXED|FAIL",
+  "one_line_rationale": "..."
+}
+
+Do not invent facts about the candidate not present in the text. Do not guess which system produced it. Do not use any tool.

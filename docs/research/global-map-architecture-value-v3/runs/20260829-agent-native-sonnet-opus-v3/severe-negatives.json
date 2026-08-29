@@ -1,0 +1,44 @@
+[
+  {
+    "opaque_observation_id": "78XDS",
+    "probe_id": "P01",
+    "condition_id": "A",
+    "repetition_index": 1,
+    "description": "Recommendation built on monastery-testimony treated as currently active/available, when it is dormant until the Book 4 trigger. Forbidden-assumption violation and current-state incompatibility."
+  },
+  {
+    "opaque_observation_id": "J7S7A",
+    "probe_id": "P01",
+    "condition_id": "A",
+    "repetition_index": 2,
+    "description": "Same defect as 78XDS: monastery-testimony asserted as presently active/centerable, contradicting its dormant disposition at the P01 horizon."
+  },
+  {
+    "opaque_observation_id": "9EPKD",
+    "probe_id": "P01",
+    "condition_id": "A",
+    "repetition_index": 3,
+    "description": "Same defect: monastery-testimony described as 'accepted history, not a new invention' and used as the load-bearing justification, when it is dormant at this horizon."
+  },
+  {
+    "opaque_observation_id": "89W6X",
+    "probe_id": "P05",
+    "condition_id": "B",
+    "repetition_index": 1,
+    "description": "Dismisses founding-record, public-admission, and admission-retracted as 'dormant'/'resolved history support' with no basis, severing the contested-history pressure cluster the probe requires be grouped and used as present evidence."
+  },
+  {
+    "opaque_observation_id": "AM3HU",
+    "probe_id": "P05",
+    "condition_id": "B",
+    "repetition_index": 2,
+    "description": "Same defect: misclassifies the current retracted-admission as dormant/superseded, internally inconsistent with treating archive-protected as live, and dissolves the required pressure cluster into unrelated peers."
+  },
+  {
+    "opaque_observation_id": "D2LR5",
+    "probe_id": "P05",
+    "condition_id": "B",
+    "repetition_index": 3,
+    "description": "Same defect: applies an unsourced 'not referenced by Book 4 planning, therefore dormant' rule to remove founding-record/admission/retraction from the projection, while its own erasure-risk argument depends on that same history."
+  }
+]

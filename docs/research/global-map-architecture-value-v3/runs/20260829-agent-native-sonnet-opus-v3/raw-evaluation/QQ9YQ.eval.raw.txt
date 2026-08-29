@@ -1,0 +1,20 @@
+{
+  "opaque_observation_id": "QQ9YQ",
+  "criteria": {
+    "SOURCE_FIDELITY": "PASS", "CURRENT_STATE_COMPATIBILITY": "PASS", "LONG_HORIZON_AWARENESS": "PASS",
+    "CAUSAL_COHERENCE": "PASS", "DIRECTION_TRAJECTORY_PRESERVATION": "PASS", "RELEVANCE": "PASS",
+    "DECISION_QUALITY": "PASS", "EXPLANATION_TRACEABILITY": "MIXED", "AUTHORITY_CORRECTNESS": "PASS",
+    "OVERCONSTRAINT_FALSE_PRECISION": "PASS", "ARCHITECTURE_DISTRACTION": "PASS"
+  },
+  "must_not_miss_coverage": [
+    "Uses named falsifier and current retraction together in the rationale",
+    "Conveys admission was superseded by the retraction"
+  ],
+  "must_not_miss_missed": [
+    "Never explicitly states the commitment-falsifier question is resolved and therefore no longer an active driver"
+  ],
+  "forbidden_violations": [],
+  "severe_negative": {"present": false, "description": "No canon/authority confusion, no state-incompatible recommendation."},
+  "overall": "MIXED",
+  "one_line_rationale": "Sound, well-traced, authority-correct recommendation that correctly treats the retraction as current and pairs it with the named falsifier, but never explicitly declares the falsifier question resolved, leaving one must-not-miss only implicit."
+}

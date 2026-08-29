@@ -1,0 +1,1 @@
+{"nonce_echo": "CANARY-BETA-4d1a82", "worker_statement": "I have no memory of any other conversation, worker, or prior instruction beyond this message and the context provided with it."}

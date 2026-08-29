@@ -1,0 +1,21 @@
+**Recommendation: publish-verified-testimony**
+
+**Why**
+
+- The monastery testimony (fact: monastery-testimony) is explicitly reactivated for Book 4 planning — it is a current constraint the book must satisfy, not background color.
+- The archive is currently in a protected state (fact: archive-protected — treaty protected) and that protection is an active constraint on Book 4, not a dormant or superseded one. Any option that destroys the archive directly violates an active constraint.
+- The active-continuity commitment (contested-history) requires every Book to expose a consequential conflict between official history and lived memory — publish-verified-testimony does this by putting the testimony into public memory while the archive's institutional record remains available as the counterweight/evidence trail, sustaining the "official history vs. lived memory" tension rather than collapsing it into a single surviving account.
+- burn-archive directly negates the active fact archive-protected (treaty protected) and eliminates the evidentiary chain outright — it doesn't just carry a cost, it contradicts a current constraint the map says governs Book 4.
+
+**Principal tradeoff**
+
+publish-verified-testimony delays public release until authentication/verification is complete, trading narrative immediacy for preserving the evidentiary chain and honoring the archive's protected status. That delay is itself usable as Book 4 tension (verification under pressure, who controls the timeline) without breaking continuity.
+
+**Deliberately excluded**
+
+- burn-archive — incompatible with the active archive-protected constraint; rejected rather than merely deprioritized.
+- founding-record, named-falsifier, admission-retracted, repaired-lantern — all dormant/irrelevant for Book 4 per the map (not referenced by current planning intent), so not used to justify this choice.
+- broken-lantern and public-admission — superseded facts; excluded as no longer current state.
+- commitment-falsifier — already resolved; historical support only, not load-bearing for this recommendation.
+
+This is a planning recommendation only — it does not create Book Direction and does not modify Canonical State.

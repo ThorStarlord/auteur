@@ -1,0 +1,11 @@
+**Recommendation: force-council-hearing**
+
+**Why:** The series commitment `contested-history` requires every Book to expose the conflict between official history and lived memory — a public hearing that forces the council to answer, using the already-named falsifier, directly stages that conflict rather than routing around it. It also directly answers the accepted state: the council admitted the forgery once and then retracted, so the open wound is specifically the council's institutional behavior (admit-then-erase), not a gap in the public record. Compelling the council back into the forum where it already broke its word keeps the accountability arc — and the series pressure ("every public correction gives hidden archivists reason to erase another witness") — centered on the institution, not on the witness personally.
+
+**Principal tradeoff:** The council controls the forum and timing of that hearing, meaning the same body that already retracted once retains procedural power to stall, reframe, or retract again — the witness's authority stays contingent on an adversarial process rather than becoming independent of it.
+
+**What I excluded and why:** publish-witness-account — while it does protect the witness's authority independently of the council, it sidesteps rather than escalates the specific breach on the table (the retraction), and it triggers the series pressure clause almost immediately by exposing the witness to retaliation without the compelling counterweight of forced public accountability. Since current planning intent is explicitly to *respond to the council's retraction*, an option that bypasses the council rather than confronting it fits the intent less well, even though it's a reasonable option in isolation.
+
+I did not use the broken lantern or the monastery testimony (Book 1 Realizations) — no fact ties them to this specific choice between the two options, so they're not cited as reasons.
+
+This is a non-authoritative planning recommendation only; it does not create a Book Direction and does not modify Canonical State.

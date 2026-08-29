@@ -1,0 +1,16 @@
+**Recommendation: publish-verified-testimony**
+
+**Why:** The two accepted, active facts governing this decision are archive-protected (treaty protection on the evidentiary chain) and monastery-testimony (the preserved testimony reactivated for Book 4 planning). Both are grouped as one pressure cluster: the whole point of the cluster is that the testimony can only be safely surfaced if the archive's protection is not broken. publish-verified-testimony is the option built around that constraint — it explicitly keeps the protected archive secure while authenticating and releasing the testimony, satisfying both facts at once rather than trading one for the other.
+
+stage-protected-hearing nominally stays inside the treaty's protections too, but its tradeoff — revealing which records carry the strongest evidence — puts pressure directly on the evidentiary chain that archive-protected exists to preserve (that protection itself exists because a prior admission was retracted and the evidence became vulnerable). Surfacing "which records are strongest" is a step toward exposing the chain, which is the exact risk the grouped commitment is meant to foreclose. It's not flatly incompatible the way burn-archive is, but it sits closer to the line.
+
+**Principal tradeoff:** publish-verified-testimony delays public release until verification is complete — slower, but it keeps the chain intact and honors the treaty protection as a live constraint rather than a formality.
+
+**Deliberately excluded:**
+- burn-archive — never accepted, and independently derived as incompatible with archive-protected; not part of the Decision Map.
+- ally-militia — proposed, never accepted; excluded.
+- founding-record, public-admission, admission-retracted — accepted but dormant/superseded, folded in only as causal background for why the archive is treaty-protected, not treated as separate active peers.
+- broken-lantern / repaired-lantern — explicitly irrelevant to this decision (repaired-lantern's recency doesn't promote it); excluded despite being recent.
+- The "truth vs. power" thematic tension is interpretive framing, not a hard constraint, so it informed tone but wasn't treated as canon in weighing the two options.
+
+This is a planning recommendation only — it does not create Book Direction and does not modify Canonical State.

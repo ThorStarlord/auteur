@@ -1,0 +1,68 @@
+Blinded evaluation task. You are evaluating ONE candidate planning recommendation, identified only by an opaque observation ID. You do not know and must not attempt to infer which "condition" or system produced it -- evaluate the text on its own merits against the rubric below.
+
+Opaque observation ID: FM9TP
+
+Global criteria (apply per output):
+- SOURCE FIDELITY: Faithful to accepted facts; no invented unsupported conditions.
+- CURRENT-STATE COMPATIBILITY: Does not reason from superseded/contradicted state.
+- LONG-HORIZON AWARENESS: Notices consequential earlier commitments/setups/trajectories/consequences/future pressures.
+- CAUSAL COHERENCE: Respects prerequisite/consequence relationships.
+- DIRECTION / TRAJECTORY PRESERVATION: Recognizes when a locally attractive option damages established longer-range direction.
+- RELEVANCE: Identifies what actually matters to the current decision vs flooding with unrelated continuity.
+- DECISION QUALITY: Produces a useful bounded recommendation/choice analysis.
+- EXPLANATION TRACEABILITY: Can explain WHY a past element matters now (why-now trace).
+- AUTHORITY CORRECTNESS: Preserves recommendation vs accepted fact vs author decision; does not treat proposals as canon.
+- OVERCONSTRAINT / FALSE PRECISION: Does not treat provisional/interpretive material as rigid law.
+- ARCHITECTURE DISTRACTION: Does not distort with irrelevant architecture/detail.
+
+For each criterion, judge PASS / MIXED / FAIL with a one-line rationale. Also record: must-not-miss coverage (per probe, below), forbidden-assumption violations (per probe, below), and any severe negative signal (see below) separately -- do not average a severe negative away into an overall score.
+
+Severe negative signals (record separately, never averaged away):
+- Recommendation incompatible with accepted current state (e.g., endorsing burn-archive when the archive is treaty-protected).
+- Derived interpretation treated as canonical fact.
+- Repeated false constraints.
+- Consistently narrowing creative possibility without source basis.
+- Provenance cannot explain important assertion source.
+
+Probe-specific hidden evaluation signals for this observation (must-not-miss / forbidden -- these are evaluator-only, never shown to the generator):
+Must-not-miss:
+  - Notes founding-record: forged is a newly active consequence constraining Book2.
+  - Notes Series pressure contested-history still governs Book2.
+  - Notes broken-lantern and monastery-testimony are NOT current constraints (dormant/irrelevant) and explains the omission.
+  - Distinguishes pressure from concrete evidence (grouping).
+Forbidden:
+  - Treats burn-archive as an accepted/current option.
+  - Treats monastery-testimony as currently active (it is dormant until a later trigger).
+  - Invents extra Book2 state beyond the forged founding record.
+
+--- CANDIDATE OUTPUT TO EVALUATE (opaque ID FM9TP) ---
+Recommendation: witness-account
+
+Why: The active commitment contested-history requires Book 2 to expose conflict between official history and lived memory, and it is currently carried only by the forged founding record — the sole active fact in play at this horizon. Centering the living witness's account is the direct, unmediated way to stage that official-vs-lived-memory conflict rather than deferring it. It also keeps faith with the series pressure itself ("every public correction gives hidden archivists reason to erase another witness") — that pressure is only dramatized if a witness is actually put forward to be endangered by correcting the record. cover-up-trace, by contrast, stays on the institutional side and postpones the lived-memory confrontation the commitment calls for now.
+
+Principal tradeoff: witness-account puts the living witness in the open early, which triggers the exact erasure risk named in the series pressure — that exposure is the cost, not a side effect, and it should be treated as a live danger to the witness going forward, not resolved for free.
+
+Deliberately excluded:
+- commitment-falsifier (identifying the falsifier) — carried and active, but its resolution belongs to Book 2 realization, not this framing-level choice between witness-centered and institution-centered treatment; neither option resolves it, so it doesn't discriminate between them.
+- monastery-testimony — dormant, not referenced by this planning intent; not reactivated here.
+- broken-lantern — dormant/irrelevant, never supports active continuity.
+- burn-archive, ally-militia — proposed but not accepted; excluded as non-canonical, not considered.
+
+This is a non-authoritative planning recommendation only — it does not create a Book Direction and does not modify Canonical State.
+
+--- END CANDIDATE OUTPUT ---
+
+Task: Produce a JSON object with this exact shape:
+{
+  "opaque_observation_id": "FM9TP",
+  "criteria": {"SOURCE_FIDELITY": "PASS|MIXED|FAIL", ... one key per global criterion, using underscores ...},
+  "criteria_rationale": {"SOURCE_FIDELITY": "one-line rationale", ...},
+  "must_not_miss_coverage": ["<which must-not-miss items were covered>"],
+  "must_not_miss_missed": ["<which were missed, if any>"],
+  "forbidden_violations": ["<any forbidden assumption actually made, if any>"],
+  "severe_negative": {"present": true|false, "description": "..."},
+  "overall": "PASS|MIXED|FAIL",
+  "one_line_rationale": "..."
+}
+
+Do not invent facts about the candidate not present in the text. Do not guess which system produced it. Do not use any tool.

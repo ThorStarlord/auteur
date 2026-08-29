@@ -1,0 +1,9 @@
+Recommendation: **witness-account**
+
+Why: Series commitment "contested-history" requires every Book to expose conflict between official history and lived memory — Book 2 needs a lived-memory element on stage, not just institutional material. The monastery testimony (Book 1 Realization) is already established as preserved and available; witness-account is the option that puts it to use now rather than leaving it inert. It also serves the series open question — "Can truth survive without becoming instrument of power?" — most directly, since setting the living witness's account against the forged founding record dramatizes truth as something a person carries, not just a document institutions produced or hid.
+
+Principal tradeoff: exposes the witness early. That cuts against the Book 1 Direction's established resistance (custodians erase witnesses) and stakes (publishing too soon destroys witnesses) — surfacing the witness account raises the danger established in Book 1 rather than deferring it. That risk is real and should be planned with eyes open, but it is the cost of satisfying contested-history now rather than deferring lived memory again.
+
+What I excluded: cover-up-trace, as not chosen — it keeps the story institution-centered and postpones the lived-memory witness, which sits against contested-history's requirement rather than fulfilling it in this Book. I did not treat the falsifier's identity (commitment-falsifier) as decided or relevant to this choice — that commitment concerns who forged the record, not how the fraud registers in lived memory, and no accepted fact yet names the falsifier, so it's out of scope for this specific question. The broken lantern was also not load-bearing here — it's a physical detail from the search, with no established connection to how fraud lands on lived memory.
+
+Note: this is a planning recommendation only — it does not create a Book Direction and does not modify Canonical State.

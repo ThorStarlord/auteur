@@ -1,0 +1,9 @@
+Recommendation: witness-account.
+
+Why: Two active constraints govern Book 2 planning — contested-history (every Book must expose a consequential conflict between official history and lived memory) and commitment-falsifier (the person who falsified the founding record must be identified). The current planning intent is explicitly "make the forged founding record matter to lived memory" — not merely to institutional record. The accepted fact founding-record (forged) is the object both options work from, but only witness-account puts a living-memory account in direct conflict with the forged record, which is what contested-history requires as a Book-level structural element, not just background texture. cover-up-trace stays inside institutional history and defers the lived-memory confrontation, which risks satisfying commitment-falsifier (identifying who falsified it) while leaving contested-history and the stated planning intent under-served for a full Book.
+
+Principal tradeoff: witness-account exposes the witness early — which sits directly against the Series pressure ("every public correction gives hidden archivists reason to erase another witness"). That is a real cost the recommendation accepts rather than dissolves: centering lived memory now raises the witness's exposure risk precisely when the Series's open question ("can truth survive without becoming instrument of power?") is most live.
+
+What I deliberately excluded as not relevant: the dormant facts monastery-testimony (preserved) and broken-lantern (broken). Both are accepted facts from Book 1 realization, but the map marks them dormant — Book 2 planning does not currently reference them — so I did not treat them as support for either option; introducing them here would be inventing relevance the map doesn't establish.
+
+This is a planning recommendation only — it does not create Book Direction and does not modify Canonical State.

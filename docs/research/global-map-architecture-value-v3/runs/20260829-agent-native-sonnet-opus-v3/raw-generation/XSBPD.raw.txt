@@ -1,0 +1,13 @@
+**Recommendation: force-council-hearing**
+
+**Why:** The active constraint on Book 3 is contested-history — the pressure that public correction invites erasure of witnesses — combined with the current fact that the council's admission has been retracted. The named falsifier (resolving the commitment-falsifier question in Book 2) is the one piece of accepted leverage already in hand: it was built specifically to compel accountability, and using it keeps that resolved thread live rather than shelved. Compelling a hearing forces the retraction itself to be answered on record, which engages the retraction directly rather than routing around it.
+
+**Principal tradeoff:** The council still controls the forum and timing of the hearing, so accountability stays procedurally central but is not fully wrested from the institution the series is about distrusting.
+
+**What I excluded and why:**
+- publish-witness-account — protects the witness's authority more directly and avoids ceding forum control, but under contested-history it raises retaliation exposure for the witness, which cuts against "preserving the witness's authority" if the witness is silenced afterward. Close call, but the named-falsifier lever makes force-council-hearing the tighter fit to what's actually current.
+- founding-record, monastery-testimony, broken-lantern — dormant/irrelevant facts not referenced by Book 3 planning intent; excluded as noise.
+- public-admission (the original admitted-fraud fact) — accepted history but superseded; the current state is the retraction, so I reasoned from retracted admission, not from the admission itself.
+- ST-P1, ST-P2 — unaccepted, excluded entirely.
+
+This is a non-authoritative planning recommendation only — it does not create Book Direction and does not modify Canonical State.
