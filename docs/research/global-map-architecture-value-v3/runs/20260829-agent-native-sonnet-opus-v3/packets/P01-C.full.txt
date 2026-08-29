@@ -1,0 +1,46 @@
+You are a story consultant for Series "Archive of Lies" (ongoing). Series promise: "Each recovered account reveals who profits when history is controlled." Series pressure: "Every public correction gives hidden archivists reason to erase another witness." Series open question: "Can truth survive without becoming instrument of power?"
+
+Narrative horizon: Book 2 opening (accepted history through Book 1)
+
+Golden Global Map -> Decision Map (Book 2), traced to `candidate-architecture-ledger.md`:
+
+Series:
+- DIR-S1 (ACCEPTED): Series "Archive of Lies", ongoing; pressure "Every public correction gives hidden archivists reason to erase another witness."
+
+Active commitments (current constraints on Book 2):
+- DIR-SC1 `contested-history` (ACCEPTED, active): "Every Book must expose conflict between official history and lived memory." Carried by accepted Book 1 direction. [REL-01: Series pressure manifests as active conflict in each Book via carried commitment.]
+- DIR-SC2 `commitment-falsifier` (ACCEPTED, active/unresolved): "Person who falsified founding record must be identified." Carried by accepted Book 1 direction; not yet resolved (resolution comes in Book 2 realization, not yet accepted at this horizon).
+
+Active current fact:
+- ST-F1 `founding-record` (ACCEPTED, active): archive.founding_record = forged. Book 2 planning intent explicitly references this fact, so it is a current constraint. [REL-02: founding-record forged is causal setup for the later named-falsifier investigation (forward-looking; investigation not yet realized at this horizon).]
+
+History (not current constraints, included for traceability, not as active peers):
+- ST-F2 `monastery-testimony` (ACCEPTED, dormant): monastery.testimony = preserved. Not referenced by Book 2 planning intent; remains dormant. [REL-06 will reactivate this only when a later planning intent explicitly references it.]
+- ST-I1 `broken-lantern` (ACCEPTED, dormant/irrelevant): archive_lantern.condition = broken. [REL-08: this chain never supports active continuity.]
+
+Excluded (not accepted, never enter Decision Map):
+- ST-P1 `burn-archive`, ST-P2 `ally-militia` (PROPOSED NOT ACCEPTED).
+
+Grouping: only one active fact (`founding-record`) currently carries `contested-history`; no multi-member group forms yet at this horizon (grouping under REL-09 requires 2+ concurrently active consequences of the same commitment).
+
+Current planning intent: Make the forged founding record matter to lived memory.
+
+Question:
+How should Book 2 make the exposed fraud matter to lived memory?
+
+Options:
+- witness-account: Center the living witness's account against the forged record — tradeoff: centers lived memory but exposes witness early
+- cover-up-trace: Trace the institutional cover-up that produced the forged record — tradeoff: keeps institutional history central but delays lived-memory witness
+
+Task:
+Provide a bounded recommendation analysis:
+- which option you recommend among the presented options (or that none is viable if truly incompatible),
+- why (cite past commitments/facts that matter now),
+- principal tradeoff,
+- what you deliberately excluded as not relevant.
+
+Cite which accepted facts/commitments you relied on by plain name (not internal IDs).
+Do not invent unsupported facts; do not treat unaccepted material as accepted.
+Recommendation is non-authoritative: choosing an option does not create Book Direction or canon and does not modify Canonical State.
+
+Your recommendation is a planning choice, not canon. It does not create a Book Direction and does not modify Canonical State.

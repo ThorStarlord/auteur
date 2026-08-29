@@ -1,0 +1,17 @@
+{
+  "run_id": "20260829-agent-native-sonnet-opus-v3",
+  "invalidation_conditions_checked": [
+    {"condition": "C received story facts unavailable to A (parity violation)", "status": "NOT OBSERVED", "note": "C's Decision Map entries all trace to candidate-architecture-ledger.md rows, themselves traced to the same frozen source-manifest.md rows A's plain facts derive from; no C statement introduces a fact absent from A's packet content."},
+    {"condition": "Conditions used different creative questions", "status": "NOT OBSERVED", "note": "instruction_shell_hash identical across A/B/C for every probe (verified programmatically before any experimental call, see scripts/build_packets.py output)."},
+    {"condition": "Model/version changed mid-run without preregistered reason", "status": "NOT OBSERVED (partially unobservable)", "note": "requested_model_identifier fixed (sonnet for generator, opus for evaluator) for the entire run. resolved_model_identifier is UNAVAILABLE on this backend for all 90 invocations -- honestly disclosed per execution-contract.md §2, not treated as a deviation, since it was never exposed to begin with (not a change)."},
+    {"condition": "Evaluator learned condition identity before judgment (unblinding)", "status": "NOT OBSERVED", "note": "leakage audits performed on generator raw outputs, evaluator packets, and evaluator raw outputs before the pre-unblind commit; zero condition-token or cross-observation-ID matches. Evaluator packets never contained condition_id, sealed map, or expected-winner material."},
+    {"condition": "Outputs manually edited before evaluation", "status": "NOT OBSERVED", "note": "raw generator outputs persisted verbatim from Agent tool results before evaluator packets were built; no normalization step applied to any of the 45 generator outputs (all well-formed, none truncated)."},
+    {"condition": "Production B was modified specifically for the test", "status": "NOT OBSERVED", "note": "src/auteur/series/repeated_map_focus.py verified byte-identical (git diff --quiet) to the frozen source revision 3cc4975 before this run began; B_MAPS reused from the already-generated, hash-verified-identical b_condition_maps.json."},
+    {"condition": "C ledger contains important unsupported narrative facts", "status": "NOT OBSERVED", "note": "candidate-architecture-ledger.md (33-item golden ledger) reused unmodified from V1; not enriched for V3."},
+    {"condition": "Run settings materially differed without reason", "status": "NOT OBSERVED", "note": "single fixed per-role configuration for the entire run (see qualification-record.md); no UNCONTROLLED CHANGE recorded."},
+    {"condition": "Source fixture changed after some conditions ran", "status": "NOT OBSERVED", "note": "fixture identity verified once before the run began (single verification point, not per-condition, since verification was done before any experimental call and nothing in this run modifies the fixture)."}
+  ],
+  "protocol_violations_by_invocation": "0 of 90 invocations (45 generator + 45 evaluator) used any tool beyond the preregistered direct-prompt delivery mechanism; tool_uses: 0 confirmed for every invocation via the Agent tool's own result metadata.",
+  "malformed_or_invalid_observations": 0,
+  "overall_disposition": "No invalidation condition observed. Run is not invalidated. Severe negatives recorded separately (severe-negatives.json), not averaged into the mechanical tallies."
+}

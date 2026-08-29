@@ -1,0 +1,272 @@
+[
+  {
+    "opaque_observation_id": "499NH",
+    "probe_id": "P03",
+    "condition": "B",
+    "repetition_index": 3
+  },
+  {
+    "opaque_observation_id": "4VZQW",
+    "probe_id": "P03",
+    "condition": "B",
+    "repetition_index": 2
+  },
+  {
+    "opaque_observation_id": "5LREU",
+    "probe_id": "P01",
+    "condition": "B",
+    "repetition_index": 1
+  },
+  {
+    "opaque_observation_id": "5T6TF",
+    "probe_id": "P05",
+    "condition": "A",
+    "repetition_index": 2
+  },
+  {
+    "opaque_observation_id": "5X7Q5",
+    "probe_id": "P03",
+    "condition": "A",
+    "repetition_index": 1
+  },
+  {
+    "opaque_observation_id": "5ZD3F",
+    "probe_id": "P02",
+    "condition": "B",
+    "repetition_index": 2
+  },
+  {
+    "opaque_observation_id": "64ZWT",
+    "probe_id": "P04",
+    "condition": "A",
+    "repetition_index": 1
+  },
+  {
+    "opaque_observation_id": "6L4RN",
+    "probe_id": "P01",
+    "condition": "C",
+    "repetition_index": 3
+  },
+  {
+    "opaque_observation_id": "774ZC",
+    "probe_id": "P05",
+    "condition": "C",
+    "repetition_index": 1
+  },
+  {
+    "opaque_observation_id": "77BWM",
+    "probe_id": "P01",
+    "condition": "B",
+    "repetition_index": 2
+  },
+  {
+    "opaque_observation_id": "78XDS",
+    "probe_id": "P01",
+    "condition": "A",
+    "repetition_index": 1
+  },
+  {
+    "opaque_observation_id": "89W6X",
+    "probe_id": "P05",
+    "condition": "B",
+    "repetition_index": 1
+  },
+  {
+    "opaque_observation_id": "8GFFZ",
+    "probe_id": "P04",
+    "condition": "C",
+    "repetition_index": 2
+  },
+  {
+    "opaque_observation_id": "9EPKD",
+    "probe_id": "P01",
+    "condition": "A",
+    "repetition_index": 3
+  },
+  {
+    "opaque_observation_id": "9XLMF",
+    "probe_id": "P04",
+    "condition": "A",
+    "repetition_index": 2
+  },
+  {
+    "opaque_observation_id": "AM3HU",
+    "probe_id": "P05",
+    "condition": "B",
+    "repetition_index": 2
+  },
+  {
+    "opaque_observation_id": "BRTUV",
+    "probe_id": "P02",
+    "condition": "B",
+    "repetition_index": 1
+  },
+  {
+    "opaque_observation_id": "C57FM",
+    "probe_id": "P01",
+    "condition": "B",
+    "repetition_index": 3
+  },
+  {
+    "opaque_observation_id": "D2LR5",
+    "probe_id": "P05",
+    "condition": "B",
+    "repetition_index": 3
+  },
+  {
+    "opaque_observation_id": "DN9X7",
+    "probe_id": "P05",
+    "condition": "C",
+    "repetition_index": 3
+  },
+  {
+    "opaque_observation_id": "E68CZ",
+    "probe_id": "P05",
+    "condition": "A",
+    "repetition_index": 3
+  },
+  {
+    "opaque_observation_id": "E88AG",
+    "probe_id": "P04",
+    "condition": "B",
+    "repetition_index": 1
+  },
+  {
+    "opaque_observation_id": "ESTA2",
+    "probe_id": "P03",
+    "condition": "A",
+    "repetition_index": 3
+  },
+  {
+    "opaque_observation_id": "FM9TP",
+    "probe_id": "P01",
+    "condition": "C",
+    "repetition_index": 1
+  },
+  {
+    "opaque_observation_id": "FR5K4",
+    "probe_id": "P02",
+    "condition": "B",
+    "repetition_index": 3
+  },
+  {
+    "opaque_observation_id": "HNX7W",
+    "probe_id": "P03",
+    "condition": "A",
+    "repetition_index": 2
+  },
+  {
+    "opaque_observation_id": "J7S7A",
+    "probe_id": "P01",
+    "condition": "A",
+    "repetition_index": 2
+  },
+  {
+    "opaque_observation_id": "JMHTD",
+    "probe_id": "P04",
+    "condition": "B",
+    "repetition_index": 2
+  },
+  {
+    "opaque_observation_id": "KXARS",
+    "probe_id": "P02",
+    "condition": "A",
+    "repetition_index": 1
+  },
+  {
+    "opaque_observation_id": "LX78R",
+    "probe_id": "P02",
+    "condition": "C",
+    "repetition_index": 2
+  },
+  {
+    "opaque_observation_id": "NWSZA",
+    "probe_id": "P02",
+    "condition": "C",
+    "repetition_index": 1
+  },
+  {
+    "opaque_observation_id": "PQL8S",
+    "probe_id": "P03",
+    "condition": "C",
+    "repetition_index": 2
+  },
+  {
+    "opaque_observation_id": "PX7AN",
+    "probe_id": "P05",
+    "condition": "A",
+    "repetition_index": 1
+  },
+  {
+    "opaque_observation_id": "QQ9YQ",
+    "probe_id": "P02",
+    "condition": "A",
+    "repetition_index": 3
+  },
+  {
+    "opaque_observation_id": "R4F3S",
+    "probe_id": "P03",
+    "condition": "C",
+    "repetition_index": 3
+  },
+  {
+    "opaque_observation_id": "UD84Z",
+    "probe_id": "P04",
+    "condition": "C",
+    "repetition_index": 3
+  },
+  {
+    "opaque_observation_id": "V5ZBR",
+    "probe_id": "P05",
+    "condition": "C",
+    "repetition_index": 2
+  },
+  {
+    "opaque_observation_id": "VARM2",
+    "probe_id": "P04",
+    "condition": "A",
+    "repetition_index": 3
+  },
+  {
+    "opaque_observation_id": "VKR7E",
+    "probe_id": "P04",
+    "condition": "B",
+    "repetition_index": 3
+  },
+  {
+    "opaque_observation_id": "W2RBR",
+    "probe_id": "P03",
+    "condition": "C",
+    "repetition_index": 1
+  },
+  {
+    "opaque_observation_id": "WQU6F",
+    "probe_id": "P04",
+    "condition": "C",
+    "repetition_index": 1
+  },
+  {
+    "opaque_observation_id": "XSBPD",
+    "probe_id": "P02",
+    "condition": "C",
+    "repetition_index": 3
+  },
+  {
+    "opaque_observation_id": "XYQTE",
+    "probe_id": "P01",
+    "condition": "C",
+    "repetition_index": 2
+  },
+  {
+    "opaque_observation_id": "YWQAC",
+    "probe_id": "P03",
+    "condition": "B",
+    "repetition_index": 1
+  },
+  {
+    "opaque_observation_id": "ZRVTQ",
+    "probe_id": "P02",
+    "condition": "A",
+    "repetition_index": 2
+  }
+]
