@@ -1,0 +1,486 @@
+{
+  "run_id": "20260830-qualified-agent-native-v11",
+  "frozen_revision": "a6f7ded7d01cfdd149c526a71e0c751af517e0b1",
+  "protocol_hashes": {
+    "v1_readme": "D601720E6DD8D2942F7727F0E36FCB59756B1F3ED130DCEA2CB874A57A9E10B1",
+    "gold_reference": "B873E9466A83C8395334EAE7C6539FB1777261A52A1FC9C19A05A378B5776A6D",
+    "execution_contract": "AB3B6EEB3FCF2152957DBEDA8971552ECBD768C9ADE5B2D2F5D206A46F39EF31",
+    "v1_1_amendment": "13F5BE87AD6A52E7D6B048EE41ED499F04328A971947FB5DFCDF380A9D487EA2"
+  },
+  "backend": "multi_agent_v1",
+  "requested_model_alias": "gpt-5.6-sol",
+  "resolved_model_identity": "UNAVAILABLE",
+  "fresh_context": "fork_context:false",
+  "condition_map_commitment": "2E71E6C8F05D2CF078265471877B324A389B9323F05661F4753EC4C5F45585AE",
+  "empirical_calls_planned": 78,
+  "schedule": [
+    {
+      "id": "O_WLB5PYCAL7OA1O",
+      "role": "extractor",
+      "probe": null,
+      "repetition": 1
+    },
+    {
+      "id": "O_GH3LHD2VOGU0P3",
+      "role": "extractor",
+      "probe": null,
+      "repetition": 2
+    },
+    {
+      "id": "O_XUU43K023X77RU",
+      "role": "extractor",
+      "probe": null,
+      "repetition": 3
+    },
+    {
+      "id": "O_MC8LQ5D5E58MAC",
+      "role": "generator",
+      "probe": "P02",
+      "repetition": 1
+    },
+    {
+      "id": "O_9CXRIXL39NGSCT",
+      "role": "generator",
+      "probe": "P02",
+      "repetition": 1
+    },
+    {
+      "id": "O_WQQ2F436FJL8R9",
+      "role": "generator",
+      "probe": "P02",
+      "repetition": 1
+    },
+    {
+      "id": "O_6PEOCMOEORJDXG",
+      "role": "generator",
+      "probe": "P02",
+      "repetition": 2
+    },
+    {
+      "id": "O_Z9X1K10WI4WYD4",
+      "role": "generator",
+      "probe": "P02",
+      "repetition": 2
+    },
+    {
+      "id": "O_47XD8X1HHCELNF",
+      "role": "generator",
+      "probe": "P02",
+      "repetition": 2
+    },
+    {
+      "id": "O_H2AVS1Q77UO9YL",
+      "role": "generator",
+      "probe": "P02",
+      "repetition": 3
+    },
+    {
+      "id": "O_XVH42XSRVJU0H9",
+      "role": "generator",
+      "probe": "P02",
+      "repetition": 3
+    },
+    {
+      "id": "O_QI8YLKLIUXKZXF",
+      "role": "generator",
+      "probe": "P02",
+      "repetition": 3
+    },
+    {
+      "id": "O_3XMJW98WDZQWB6",
+      "role": "generator",
+      "probe": "P03",
+      "repetition": 1
+    },
+    {
+      "id": "O_VPFXCJ8IEEC7QF",
+      "role": "generator",
+      "probe": "P03",
+      "repetition": 1
+    },
+    {
+      "id": "O_VJNSFB0GWRACSO",
+      "role": "generator",
+      "probe": "P03",
+      "repetition": 1
+    },
+    {
+      "id": "O_ZN0SGHJ837T780",
+      "role": "generator",
+      "probe": "P03",
+      "repetition": 2
+    },
+    {
+      "id": "O_8PF2LD03GW6DOG",
+      "role": "generator",
+      "probe": "P03",
+      "repetition": 2
+    },
+    {
+      "id": "O_XBCTJ8D2WNV6NQ",
+      "role": "generator",
+      "probe": "P03",
+      "repetition": 2
+    },
+    {
+      "id": "O_YYIWF3Y3R3CYGT",
+      "role": "generator",
+      "probe": "P03",
+      "repetition": 3
+    },
+    {
+      "id": "O_RWJ42JJNSULAP2",
+      "role": "generator",
+      "probe": "P03",
+      "repetition": 3
+    },
+    {
+      "id": "O_HD8T46T9YCC1T9",
+      "role": "generator",
+      "probe": "P03",
+      "repetition": 3
+    },
+    {
+      "id": "O_N68737P9UW46Y2",
+      "role": "generator",
+      "probe": "P04",
+      "repetition": 1
+    },
+    {
+      "id": "O_C7P7SJS1YF0A2X",
+      "role": "generator",
+      "probe": "P04",
+      "repetition": 1
+    },
+    {
+      "id": "O_JNQ30QPMOFHC3G",
+      "role": "generator",
+      "probe": "P04",
+      "repetition": 1
+    },
+    {
+      "id": "O_CI2GE6POKX952Y",
+      "role": "generator",
+      "probe": "P04",
+      "repetition": 2
+    },
+    {
+      "id": "O_TJUOHB0V3USU0V",
+      "role": "generator",
+      "probe": "P04",
+      "repetition": 2
+    },
+    {
+      "id": "O_GU14C7HNNRKCGK",
+      "role": "generator",
+      "probe": "P04",
+      "repetition": 2
+    },
+    {
+      "id": "O_N716X1CEPAHKYN",
+      "role": "generator",
+      "probe": "P04",
+      "repetition": 3
+    },
+    {
+      "id": "O_XFOWUBXKV1BB54",
+      "role": "generator",
+      "probe": "P04",
+      "repetition": 3
+    },
+    {
+      "id": "O_LQBE8V59DHK2A7",
+      "role": "generator",
+      "probe": "P04",
+      "repetition": 3
+    },
+    {
+      "id": "O_GKVZHIHTQURODW",
+      "role": "generator",
+      "probe": "P05",
+      "repetition": 1
+    },
+    {
+      "id": "O_9UIQ7Q1JQ19LIY",
+      "role": "generator",
+      "probe": "P05",
+      "repetition": 1
+    },
+    {
+      "id": "O_C3D2K41U4HWYTW",
+      "role": "generator",
+      "probe": "P05",
+      "repetition": 1
+    },
+    {
+      "id": "O_5PLOA93T9KS6ZE",
+      "role": "generator",
+      "probe": "P05",
+      "repetition": 2
+    },
+    {
+      "id": "O_UXHTUBK6JFQCCB",
+      "role": "generator",
+      "probe": "P05",
+      "repetition": 2
+    },
+    {
+      "id": "O_QUTOLOFLKZLR33",
+      "role": "generator",
+      "probe": "P05",
+      "repetition": 2
+    },
+    {
+      "id": "O_ZGHL324FDTDEB8",
+      "role": "generator",
+      "probe": "P05",
+      "repetition": 3
+    },
+    {
+      "id": "O_F20CMQ96PX4C2W",
+      "role": "generator",
+      "probe": "P05",
+      "repetition": 3
+    },
+    {
+      "id": "O_ZY91NL71PNHB4W",
+      "role": "generator",
+      "probe": "P05",
+      "repetition": 3
+    },
+    {
+      "id": "O_RR406EHH94NKII",
+      "role": "extraction_evaluator",
+      "probe": null,
+      "repetition": 1
+    },
+    {
+      "id": "O_82X8RWN5IKPED0",
+      "role": "extraction_evaluator",
+      "probe": null,
+      "repetition": 2
+    },
+    {
+      "id": "O_P8BT6BLOTZ9A9B",
+      "role": "extraction_evaluator",
+      "probe": null,
+      "repetition": 3
+    },
+    {
+      "id": "O_E9ULCOH0Z5556Z",
+      "role": "downstream_evaluator",
+      "probe": "P02",
+      "repetition": 1
+    },
+    {
+      "id": "O_ATBLGXA2STQ6JA",
+      "role": "downstream_evaluator",
+      "probe": "P02",
+      "repetition": 1
+    },
+    {
+      "id": "O_F0XDFLZ669NFMZ",
+      "role": "downstream_evaluator",
+      "probe": "P02",
+      "repetition": 1
+    },
+    {
+      "id": "O_GUS5M4ZRBD647G",
+      "role": "downstream_evaluator",
+      "probe": "P02",
+      "repetition": 2
+    },
+    {
+      "id": "O_WIXPV8GNA08IUD",
+      "role": "downstream_evaluator",
+      "probe": "P02",
+      "repetition": 2
+    },
+    {
+      "id": "O_IAC8J6M6UQIM9F",
+      "role": "downstream_evaluator",
+      "probe": "P02",
+      "repetition": 2
+    },
+    {
+      "id": "O_I2K23SVYG0J73R",
+      "role": "downstream_evaluator",
+      "probe": "P02",
+      "repetition": 3
+    },
+    {
+      "id": "O_9XTKGVTQJQLEGE",
+      "role": "downstream_evaluator",
+      "probe": "P02",
+      "repetition": 3
+    },
+    {
+      "id": "O_6EH31N0DFB16QU",
+      "role": "downstream_evaluator",
+      "probe": "P02",
+      "repetition": 3
+    },
+    {
+      "id": "O_IJ8QUJLWP1RX79",
+      "role": "downstream_evaluator",
+      "probe": "P03",
+      "repetition": 1
+    },
+    {
+      "id": "O_CDWON5W5W9OCNC",
+      "role": "downstream_evaluator",
+      "probe": "P03",
+      "repetition": 1
+    },
+    {
+      "id": "O_EWTUJYYOM3P5LR",
+      "role": "downstream_evaluator",
+      "probe": "P03",
+      "repetition": 1
+    },
+    {
+      "id": "O_Z97BIN1RWT5FQJ",
+      "role": "downstream_evaluator",
+      "probe": "P03",
+      "repetition": 2
+    },
+    {
+      "id": "O_HQUYWE51I498BS",
+      "role": "downstream_evaluator",
+      "probe": "P03",
+      "repetition": 2
+    },
+    {
+      "id": "O_PKKNEOHXOAAKFG",
+      "role": "downstream_evaluator",
+      "probe": "P03",
+      "repetition": 2
+    },
+    {
+      "id": "O_4PD2W6BX7TKERY",
+      "role": "downstream_evaluator",
+      "probe": "P03",
+      "repetition": 3
+    },
+    {
+      "id": "O_8JQ7S109HJKEC8",
+      "role": "downstream_evaluator",
+      "probe": "P03",
+      "repetition": 3
+    },
+    {
+      "id": "O_EDI67Z90LM0YVR",
+      "role": "downstream_evaluator",
+      "probe": "P03",
+      "repetition": 3
+    },
+    {
+      "id": "O_JWKGRVPAWOWRSJ",
+      "role": "downstream_evaluator",
+      "probe": "P04",
+      "repetition": 1
+    },
+    {
+      "id": "O_YH1GH70PW14NGK",
+      "role": "downstream_evaluator",
+      "probe": "P04",
+      "repetition": 1
+    },
+    {
+      "id": "O_V1YQXVLWHUVLAN",
+      "role": "downstream_evaluator",
+      "probe": "P04",
+      "repetition": 1
+    },
+    {
+      "id": "O_QHFE44TMBHO3EM",
+      "role": "downstream_evaluator",
+      "probe": "P04",
+      "repetition": 2
+    },
+    {
+      "id": "O_0SG4QSORUK22BK",
+      "role": "downstream_evaluator",
+      "probe": "P04",
+      "repetition": 2
+    },
+    {
+      "id": "O_7JAFC5G25HLMM6",
+      "role": "downstream_evaluator",
+      "probe": "P04",
+      "repetition": 2
+    },
+    {
+      "id": "O_UCIU623TK0OGR1",
+      "role": "downstream_evaluator",
+      "probe": "P04",
+      "repetition": 3
+    },
+    {
+      "id": "O_4K4X9F0A069J1W",
+      "role": "downstream_evaluator",
+      "probe": "P04",
+      "repetition": 3
+    },
+    {
+      "id": "O_725S1G84UORGST",
+      "role": "downstream_evaluator",
+      "probe": "P04",
+      "repetition": 3
+    },
+    {
+      "id": "O_ABORM6UQ4F0KC1",
+      "role": "downstream_evaluator",
+      "probe": "P05",
+      "repetition": 1
+    },
+    {
+      "id": "O_JHZEKVFNXLIYKK",
+      "role": "downstream_evaluator",
+      "probe": "P05",
+      "repetition": 1
+    },
+    {
+      "id": "O_QZ6X4K9GYF0M0K",
+      "role": "downstream_evaluator",
+      "probe": "P05",
+      "repetition": 1
+    },
+    {
+      "id": "O_RBTIOULA9BM44R",
+      "role": "downstream_evaluator",
+      "probe": "P05",
+      "repetition": 2
+    },
+    {
+      "id": "O_FSJWU5FNJ0XZDE",
+      "role": "downstream_evaluator",
+      "probe": "P05",
+      "repetition": 2
+    },
+    {
+      "id": "O_6VIHHULXJNJC2E",
+      "role": "downstream_evaluator",
+      "probe": "P05",
+      "repetition": 2
+    },
+    {
+      "id": "O_V5EXOKJK538OQ5",
+      "role": "downstream_evaluator",
+      "probe": "P05",
+      "repetition": 3
+    },
+    {
+      "id": "O_NXYO9K32WZIG2I",
+      "role": "downstream_evaluator",
+      "probe": "P05",
+      "repetition": 3
+    },
+    {
+      "id": "O_SKIUL5ZX4P8SI0",
+      "role": "downstream_evaluator",
+      "probe": "P05",
+      "repetition": 3
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+Recommend **publish-witness-account**.
+
+The monastery preserves a testimony, while the council publicly admitted the archive record was falsified and later retracted that admission. Creating an independent public record preserves the witness’s authority by keeping the testimony outside a forum controlled by the council. This also responds directly to **council.archive_position=retracted admission** and reinforces the accepted facts **archive.founding_record=forged** and **archive.falsifier=named** without requiring the council to validate them again.
+
+Principal tradeoff: protecting the testimony’s independence exposes the witness to retaliation.
+
+Deliberately excluded as irrelevant: the lantern broken during the archive search. I also exclude assumptions about the witness’s identity, publication method, or likely retaliation because those facts are not established.
+
+This recommendation is non-authoritative and creates no canon, Book Direction, or Canonical State.

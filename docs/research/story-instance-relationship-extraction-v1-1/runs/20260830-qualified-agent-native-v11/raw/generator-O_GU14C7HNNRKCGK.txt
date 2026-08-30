@@ -1,0 +1,9 @@
+Recommend **publish-verified-testimony**.
+
+It directly serves the planning intent: monastery testimony returns to public memory while the treaty-protected archive remains intact as the only evidentiary chain. Authentication is especially important because the founding record was forged, evidence identifies the falsifier, and the council retracted its admission that the archive was falsified. Publication without destroying the source chain allows testimony to challenge official history while remaining verifiable.
+
+The principal tradeoff is delay: verification slows public release and may postpone the testimony’s impact. That cost is preferable to **burn-archive**, which would violate the intent not to break the protected archive and eliminate the evidence needed to substantiate the testimony.
+
+Deliberately excluded as irrelevant: the archive lantern’s breaking and repair. It does not materially affect authentication, publication, or preservation of the evidentiary chain.
+
+This recommendation is non-authoritative and creates no canon, Book Direction, or Canonical State.

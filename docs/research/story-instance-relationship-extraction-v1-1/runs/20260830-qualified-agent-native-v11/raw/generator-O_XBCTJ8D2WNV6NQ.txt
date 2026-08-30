@@ -1,0 +1,9 @@
+Recommend **publish-verified-testimony**.
+
+The **monastery testimony is preserved**, so it can be authenticated before publication. Keeping the originals secure respects **archive.protection=treaty protected** and protects the archive as the **only evidentiary chain**. Publication also answers **council.archive_position=retracted admission** by returning testimony to public memory without depending on another reversible council proceeding.
+
+The principal tradeoff is delay. Authentication postpones public pressure, but avoids exposing the strongest archive records through a protected hearing.
+
+I excluded **archive_lantern.condition=repaired** because it does not affect testimony authentication or the evidentiary chain. I also excluded new witnesses, political actors, and publication mechanisms because none are accepted facts.
+
+This recommendation is non-authoritative. It creates no canon, Book Direction, or Canonical State.
