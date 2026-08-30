@@ -1,0 +1,24 @@
+{
+  "schema_version": "v1.1-transport-canaries",
+  "max_concurrency": 1,
+  "records": [
+    {
+      "canary_id": "CANARY-1",
+      "state": "COMPLETE",
+      "prompt": "Synthetic transport canary only. Return the word CANARY and nothing else.",
+      "agent_id": "01a054cd-7e4f-7ff3-aa0b-50d47a668a0c",
+      "launch_timestamp": "2026-08-30T22:32:28.991Z",
+      "completion_timestamp": "2026-08-30T22:32:32.744Z",
+      "response": "CANARY"
+    },
+    {
+      "canary_id": "CANARY-2",
+      "state": "COMPLETE",
+      "prompt": "Synthetic transport canary only. Return the word CANARY and nothing else.",
+      "agent_id": "01a054cd-8f66-7331-aed6-7b2521af732f",
+      "launch_timestamp": "2026-08-30T22:32:33.586Z",
+      "completion_timestamp": "2026-08-30T22:32:36.767Z",
+      "response": "CANARY"
+    }
+  ]
+}
