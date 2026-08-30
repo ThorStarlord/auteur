@@ -1,0 +1,99 @@
+{
+  "schema_version": "v1.1-routing-manifest",
+  "run_id": "20260830-qualified-agent-native-v11-r3",
+  "frozen_protocol_sha256": "a6f7ded7d01cfdd149c526a71e0c751af517e0b1",
+  "harness_sha256": "11c6f32ccca7dd9911b4646edfdcb3f2428cdce9",
+  "entries": [
+    {
+      "generator_id": "O_3HJDM4Z32JTUV",
+      "probe": "P03",
+      "repetition": 1,
+      "extractor_id": "O_KA89HN63QNN4G",
+      "validator_status": "FORMAT_INVALID",
+      "expected_projection_sha256": "EMPTY",
+      "actual_projection_sha256": "EMPTY",
+      "exact_match": true
+    },
+    {
+      "generator_id": "O_58ZVANNK6VPSZ",
+      "probe": "P04",
+      "repetition": 1,
+      "extractor_id": "O_KA89HN63QNN4G",
+      "validator_status": "FORMAT_INVALID",
+      "expected_projection_sha256": "EMPTY",
+      "actual_projection_sha256": "EMPTY",
+      "exact_match": true
+    },
+    {
+      "generator_id": "O_94XS22YUJT8XG",
+      "probe": "P04",
+      "repetition": 2,
+      "extractor_id": "O_5PHZA58W9HP48",
+      "validator_status": "FORMAT_INVALID",
+      "expected_projection_sha256": "EMPTY",
+      "actual_projection_sha256": "EMPTY",
+      "exact_match": true
+    },
+    {
+      "generator_id": "O_9VC7A4RKRQ5VM",
+      "probe": "P03",
+      "repetition": 2,
+      "extractor_id": "O_5PHZA58W9HP48",
+      "validator_status": "FORMAT_INVALID",
+      "expected_projection_sha256": "EMPTY",
+      "actual_projection_sha256": "EMPTY",
+      "exact_match": true
+    },
+    {
+      "generator_id": "O_AZD77V92323BY",
+      "probe": "P05",
+      "repetition": 3,
+      "extractor_id": "O_2K6QBKV78KDCT",
+      "validator_status": "FORMAT_INVALID",
+      "expected_projection_sha256": "EMPTY",
+      "actual_projection_sha256": "EMPTY",
+      "exact_match": true
+    },
+    {
+      "generator_id": "O_GP2DQ629WT5DQ",
+      "probe": "P05",
+      "repetition": 1,
+      "extractor_id": "O_KA89HN63QNN4G",
+      "validator_status": "FORMAT_INVALID",
+      "expected_projection_sha256": "EMPTY",
+      "actual_projection_sha256": "EMPTY",
+      "exact_match": true
+    },
+    {
+      "generator_id": "O_GU4C27CTUE88N",
+      "probe": "P05",
+      "repetition": 2,
+      "extractor_id": "O_5PHZA58W9HP48",
+      "validator_status": "FORMAT_INVALID",
+      "expected_projection_sha256": "EMPTY",
+      "actual_projection_sha256": "EMPTY",
+      "exact_match": true
+    },
+    {
+      "generator_id": "O_MKAVHBUPHYDBE",
+      "probe": "P03",
+      "repetition": 3,
+      "extractor_id": "O_2K6QBKV78KDCT",
+      "validator_status": "FORMAT_INVALID",
+      "expected_projection_sha256": "EMPTY",
+      "actual_projection_sha256": "EMPTY",
+      "exact_match": true
+    },
+    {
+      "generator_id": "O_SSBZ4LLSP9LUC",
+      "probe": "P04",
+      "repetition": 3,
+      "extractor_id": "O_2K6QBKV78KDCT",
+      "validator_status": "FORMAT_INVALID",
+      "expected_projection_sha256": "EMPTY",
+      "actual_projection_sha256": "EMPTY",
+      "exact_match": true
+    }
+  ],
+  "preflight": true
+}

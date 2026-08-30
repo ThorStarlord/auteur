@@ -1,0 +1,12 @@
+{
+  "extractor_id": "O_KA89HN63QNN4G",
+  "repetition": 1,
+  "parse_status": "PASS",
+  "validator_status": "FORMAT_INVALID",
+  "violations": [
+    "relation 0 required fields: ['member_roles']",
+    "relation 0 members type"
+  ],
+  "projection": null,
+  "projection_sha256": "EMPTY"
+}
