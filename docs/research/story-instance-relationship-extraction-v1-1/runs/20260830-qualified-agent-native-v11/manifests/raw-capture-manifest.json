@@ -4,7 +4,8 @@
   "raw_capture_complete": true,
   "extractor_count": 3,
   "generator_count": 36,
-  "evaluation_count": 0,
+  "evaluation_count": 39,
+  "evaluation_input_integrity": "INVALID_EXTRACTION_EVALUATOR_INPUTS",
   "unblinded": false,
   "raw_files": {
     "extractors": 3,

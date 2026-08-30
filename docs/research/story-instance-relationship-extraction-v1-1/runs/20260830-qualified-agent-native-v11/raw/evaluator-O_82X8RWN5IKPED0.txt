@@ -1,0 +1,1 @@
+{"schema_format_adherence":"PASS","projection_usability":"FAIL","supported_relations":[],"unsupported_invention":[],"abstentions":["Incorrectly abstains from extracting both supported relations."],"notes":"The response is structurally valid but omits the supported causal relation and grouped pressure relation present in the source and gold."}
