@@ -11,7 +11,8 @@
     "v11_readme": "13F5BE87AD6A52E7D6B048EE41ED499F04328A971947FB5DFCDF380A9D487EA2"
   },
   "empirical_calls_planned": 78,
-  "condition_commitment_pending": true,
+  "condition_commitment": "C8491F195777F4A63DEF4C959990E9236724426A4777D8C81E9E05B9492D8B26",
+  "condition_map_unblinded": false,
   "schedule": [
     {
       "id": "O_6NVBE28QXULEB",

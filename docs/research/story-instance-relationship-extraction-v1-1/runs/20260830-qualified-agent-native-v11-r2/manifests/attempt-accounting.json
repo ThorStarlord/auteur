@@ -1,0 +1,9 @@
+{
+  "run_id": "20260830-qualified-agent-native-v11-r2",
+  "frozen_revision": "a6f7ded7d01cfdd149c526a71e0c751af517e0b1",
+  "calls": {"extractor": 3, "generator": 36, "extraction_evaluator": 3, "downstream_evaluator": 36, "total": 78},
+  "packet_integrity": {"extraction_evaluator_exact": "3/3", "downstream_evaluator_exact": "36/36"},
+  "unblinded": false,
+  "decision_gate_applied": false,
+  "status": "INVALIDATED"
+}
