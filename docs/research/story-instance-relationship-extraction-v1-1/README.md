@@ -57,8 +57,8 @@ The extractor packet must state these mechanical output requirements:
 2. Do not use Markdown fences or prose before or after the object.
 3. Use only the frozen fields:
    `relations`, `abstentions`, `relation_type`, `source_fact_refs`,
-   `target_ref`, `member_roles`, `authority_class`, `evidence_refs`,
-   `rationale`, `support`, `candidate_area`, and `reason`.
+   `target_ref`, `member_roles`, `fact_ref`, `role`, `authority_class`,
+   `evidence_refs`, `rationale`, `support`, `candidate_area`, and `reason`.
 4. `relation_type` must be `CAUSAL_SUPPORT` or `PRESSURE_GROUP`.
 5. Emit at most two relation entries.
 6. Emit at most three members in any `PRESSURE_GROUP` entry.
@@ -125,11 +125,12 @@ For `FORMAT_INVALID`:
   call another model; and
 - set the downstream `R-DERIVED` overlay to `EMPTY` for that repetition.
 
-The empty overlay is rendered through the neutral downstream adapter. The
-generator receives no format-failure marker, warning, explanation, status,
-condition label, or extraction metadata. It is not told why the overlay is
-empty. The resulting treatment is informationally equivalent to `B0` for that
-repetition. This is intentional: operational format failure becomes part of
+For a `FORMAT_INVALID` repetition, the model-visible downstream packet must
+contain no relationship-overlay block, placeholder, empty object or list,
+header, status, or metadata. Apart from opaque bookkeeping that is not shown
+to the model, it must be byte-identical to the paired `B0` packet for the same
+probe and repetition. The generator is not told why the overlay is empty.
+This is intentional: operational format failure becomes part of
 extraction-fidelity evidence instead of making the experiment unexecutable.
 
 No invalid response may be converted into a valid relation by interpretation
