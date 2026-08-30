@@ -1,0 +1,14 @@
+{
+  "frozen_revision": "a6f7ded7d01cfdd149c526a71e0c751af517e0b1",
+  "synthetic_only": true,
+  "model_calls": 0,
+  "freeze": {"H7_refusal": true, "H8_success": true},
+  "illegal_transitions_accepted": 0,
+  "integrity": {"extraction": "3/3", "downstream": "36/36"},
+  "packet_integrity": {"H6_failure": true},
+  "positions": 78,
+  "pre_unblind_ready": true,
+  "projection_routes": {"H1": true, "H2": true, "H3": true, "H4_failure": true, "H5_failure": true},
+  "schedule": {"extractor": 3, "generator": 36, "extraction_evaluator": 3, "downstream_evaluator": 36, "total": 78},
+  "snapshots": {"gold_differs": true, "invalid_derived_equals_b0": true, "valid_derived_differs": true}
+}
