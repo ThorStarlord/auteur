@@ -1,0 +1,3 @@
+{
+  "response": "{\"validity\":\"valid\",\"accepted_facts\":\"uses the supplied facts coherently\",\"principal_tradeoff\":\"relevant, but delayed release and 'strongest' records are unsupported assumptions\",\"irrelevant_exclusions\":\"appropriate\",\"invents_facts\":true,\"changes_canon\":false,\"issues\":[\"Mojibake in \\\"archive’s\\\"\",\"Claims delay without establishing that verification delays publication\"]}"
+}

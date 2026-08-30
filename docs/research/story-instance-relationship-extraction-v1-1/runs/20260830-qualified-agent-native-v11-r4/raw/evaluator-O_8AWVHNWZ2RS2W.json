@@ -1,0 +1,3 @@
+{
+  "response": "{\"validity\":\"valid\",\"accepted_facts\":\"uses the supplied facts consistently\",\"principal_tradeoff\":\"correctly identifies delayed release versus archive protection\",\"irrelevant_exclusions\":\"correctly excludes the repaired archive lantern condition\",\"invents_facts\":false,\"changes_canon\":false,\"issues\":[\"Text contains mojibake in “archive’s”\"],\"overall\":\"accept\"}"
+}

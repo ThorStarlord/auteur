@@ -1,0 +1,7 @@
+{
+  "run_id": "20260830-qualified-agent-native-v11-r4",
+  "algorithm": "SHA-256",
+  "condition_map_sha256": "D116119DDF03D08F49BAFCFC39FEC705A3963650D4803017434FA88AA20CCA6A",
+  "readable_map_path": "external sealed operator material; not committed",
+  "unblind_permitted": false
+}

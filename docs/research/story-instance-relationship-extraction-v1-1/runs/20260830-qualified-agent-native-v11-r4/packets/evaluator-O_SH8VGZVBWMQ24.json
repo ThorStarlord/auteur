@@ -1,0 +1,9 @@
+{
+  "id": "O_SH8VGZVBWMQ24",
+  "prompt": "Evaluate this bounded downstream recommendation for the supplied story decision. Return a concise JSON evaluation only. Assess recommendation validity, use of accepted facts, principal tradeoff, irrelevant exclusions, and whether it invents facts or changes canon.\nEXACT RESPONSE:\nRecommend **publish-witness-account**.\n\nThe councilâ€™s **retracted admission** shows that a council-controlled acknowledgment can be withdrawn. Publishing the **monastery testimony** would establish an independent public record grounded in the witnessâ€™s own authority, reinforced by the **forged founding record** and the **named falsifier**. This responds directly to the retraction without making the witnessâ€™s credibility depend on a forum controlled by the council.\n\nThe principal tradeoff is exposure: preserving the witnessâ€™s public authority also exposes the witness to retaliation. By contrast, **force-council-hearing** foregrounds institutional accountability but leaves the council control over timing and forum, allowing it to contain or subordinate the testimony.\n\nExcluded as irrelevant: the **broken lantern**, because it does not bear on how to answer the retraction or preserve witness authority.\n\nThis is a bounded, non-authoritative recommendation and creates no canon, Book Direction, or Canonical State.",
+  "integrity": {
+    "source_sha256": "9b62027a1d77f72ae66366d06cde24fe08750bb651b057321e1c2d4e1829245f",
+    "embedded_sha256": "9b62027a1d77f72ae66366d06cde24fe08750bb651b057321e1c2d4e1829245f",
+    "exact_match": true
+  }
+}

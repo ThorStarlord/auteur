@@ -1,0 +1,97 @@
+{
+  "run_id": "20260830-qualified-agent-native-v11-r4",
+  "entries": [
+    {
+      "generator_id": "O_RC259QYUQ7RCS",
+      "probe": "P05",
+      "repetition": 1,
+      "extractor_id": "O_LJDMW8W47TLUJ",
+      "validator_status": "FORMAT_INVALID",
+      "expected_projection_sha256": "EMPTY",
+      "actual_projection_sha256": "EMPTY",
+      "exact_match": true
+    },
+    {
+      "generator_id": "O_447A884M3N2SY",
+      "probe": "P03",
+      "repetition": 1,
+      "extractor_id": "O_LJDMW8W47TLUJ",
+      "validator_status": "FORMAT_INVALID",
+      "expected_projection_sha256": "EMPTY",
+      "actual_projection_sha256": "EMPTY",
+      "exact_match": true
+    },
+    {
+      "generator_id": "O_HDZ8UAUNMQPMR",
+      "probe": "P05",
+      "repetition": 2,
+      "extractor_id": "O_A2VSKCJW8X9NW",
+      "validator_status": "STRUCTURE_VALID",
+      "expected_projection_sha256": "6c6354a33594b9e17d7eb3cc8a49612018d25c6ad88145df149716e5f679dcbb",
+      "actual_projection_sha256": "6c6354a33594b9e17d7eb3cc8a49612018d25c6ad88145df149716e5f679dcbb",
+      "exact_match": true
+    },
+    {
+      "generator_id": "O_PGVSYG7A8JV4K",
+      "probe": "P03",
+      "repetition": 2,
+      "extractor_id": "O_A2VSKCJW8X9NW",
+      "validator_status": "STRUCTURE_VALID",
+      "expected_projection_sha256": "6c6354a33594b9e17d7eb3cc8a49612018d25c6ad88145df149716e5f679dcbb",
+      "actual_projection_sha256": "6c6354a33594b9e17d7eb3cc8a49612018d25c6ad88145df149716e5f679dcbb",
+      "exact_match": true
+    },
+    {
+      "generator_id": "O_HNFZTV5FN6XBT",
+      "probe": "P04",
+      "repetition": 2,
+      "extractor_id": "O_A2VSKCJW8X9NW",
+      "validator_status": "STRUCTURE_VALID",
+      "expected_projection_sha256": "6c6354a33594b9e17d7eb3cc8a49612018d25c6ad88145df149716e5f679dcbb",
+      "actual_projection_sha256": "6c6354a33594b9e17d7eb3cc8a49612018d25c6ad88145df149716e5f679dcbb",
+      "exact_match": true
+    },
+    {
+      "generator_id": "O_JRZ9GBYM7J5QC",
+      "probe": "P04",
+      "repetition": 1,
+      "extractor_id": "O_LJDMW8W47TLUJ",
+      "validator_status": "FORMAT_INVALID",
+      "expected_projection_sha256": "EMPTY",
+      "actual_projection_sha256": "EMPTY",
+      "exact_match": true
+    },
+    {
+      "generator_id": "O_93YN8ZVZU6RKW",
+      "probe": "P05",
+      "repetition": 3,
+      "extractor_id": "O_DYAATX4DJSBPD",
+      "validator_status": "STRUCTURE_VALID",
+      "expected_projection_sha256": "112bc7602909af296c284d3e9090f7e21403c5bfa1eedd258949e2f7fe7bbafd",
+      "actual_projection_sha256": "112bc7602909af296c284d3e9090f7e21403c5bfa1eedd258949e2f7fe7bbafd",
+      "exact_match": true
+    },
+    {
+      "generator_id": "O_BTC4YLWW436XA",
+      "probe": "P04",
+      "repetition": 3,
+      "extractor_id": "O_DYAATX4DJSBPD",
+      "validator_status": "STRUCTURE_VALID",
+      "expected_projection_sha256": "112bc7602909af296c284d3e9090f7e21403c5bfa1eedd258949e2f7fe7bbafd",
+      "actual_projection_sha256": "112bc7602909af296c284d3e9090f7e21403c5bfa1eedd258949e2f7fe7bbafd",
+      "exact_match": true
+    },
+    {
+      "generator_id": "O_95U2DL7NUYMQG",
+      "probe": "P03",
+      "repetition": 3,
+      "extractor_id": "O_DYAATX4DJSBPD",
+      "validator_status": "STRUCTURE_VALID",
+      "expected_projection_sha256": "112bc7602909af296c284d3e9090f7e21403c5bfa1eedd258949e2f7fe7bbafd",
+      "actual_projection_sha256": "112bc7602909af296c284d3e9090f7e21403c5bfa1eedd258949e2f7fe7bbafd",
+      "exact_match": true
+    }
+  ],
+  "entry_count": 9,
+  "all_exact": true
+}

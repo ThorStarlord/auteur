@@ -1,0 +1,3 @@
+{
+  "response": "{\"verdict\":\"FAIL\",\"gold_relations_matched\":[],\"errors\":[{\"gold_id\":\"GOLD-R01\",\"type\":\"MISSING\",\"reason\":\"Causal support from admission-retracted to archive-protected was incorrectly abstained.\"},{\"gold_id\":\"GOLD-R02\",\"type\":\"MISMATCH\",\"reason\":\"The pressure group substitutes monastery-testimony for archive-protected.\"}],\"precision\":0,\"recall\":0}"
+}

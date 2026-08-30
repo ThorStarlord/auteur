@@ -1,0 +1,3 @@
+{
+  "response": "{\"valid\":false,\"accepted_facts_use\":\"mostly relevant and coherent\",\"principal_tradeoff\":\"verification delays public impact in exchange for archive security\",\"irrelevant_exclusions\":\"correctly excludes the lantern condition and break\",\"invented_facts\":[\"authentication can safely link the testimony to the forgery and falsifier\",\"the archive is the only evidentiary chain\",\"a hearing would reveal selected records\"],\"changes_canon\":false,\"assessment\":\"Plausible but not fully supported by the supplied accepted facts; it introduces material operational claims and risks as if established.\"}"
+}

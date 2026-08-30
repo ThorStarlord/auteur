@@ -1,0 +1,3 @@
+{
+  "response": "{\"validity\":\"valid\",\"accepted_facts\":\"Uses the supplied facts coherently and connects them to contested-history.\",\"principal_tradeoff\":\"Relevant and plausible: authentication delays publication and prolongs the council’s influence over public memory.\",\"irrelevant_exclusions\":\"Correctly excludes archive lantern repaired as unrelated.\",\"invents_facts\":false,\"changes_canon\":false,\"issues\":[\"Mojibake appears in two possessives: archive’s and council’s.\"]}"
+}

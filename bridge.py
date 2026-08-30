@@ -2,7 +2,7 @@
 import json,sys
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).parent/"docs/research/story-instance-relationship-extraction-v1-1/harness"))
-from execution_harness import build_model_packet,canonical_projection,route_derived,sha256_text,validate_extractor
+from execution_harness import build_model_packet,build_evaluator_packet,canonical_projection,route_derived,sha256_text,validate_extractor
 REFS={"series_direction.yaml#contested-history","book_1_realization.yaml#founding-record","book_1_realization.yaml#monastery-testimony","book_2_realization.yaml#public-admission","book_2_realization.yaml#admission-retracted","book_3_direction.yaml#protect-archive-after-retraction","book_3_realization.yaml#archive-protected","book_3_realization.yaml#lantern-repaired","deterministic-current-state"}
 GOLD=json.dumps([{"relation_type":"CAUSAL_SUPPORT","source_fact_refs":["book_2_realization.yaml#admission-retracted"],"target_ref":"book_3_realization.yaml#archive-protected","member_roles":[],"authority_class":"INTERPRETIVE"},{"relation_type":"PRESSURE_GROUP","source_fact_refs":["book_1_realization.yaml#founding-record","book_2_realization.yaml#admission-retracted","book_3_realization.yaml#archive-protected"],"target_ref":"series_direction.yaml#contested-history","member_roles":[{"fact_ref":"book_1_realization.yaml#founding-record","role":"originating_history"},{"fact_ref":"book_2_realization.yaml#admission-retracted","role":"causal_pivot"},{"fact_ref":"book_3_realization.yaml#archive-protected","role":"current_constraint"}],"authority_class":"DETERMINISTIC_DERIVATION"}],separators=(",",":"))
 def main(root):
@@ -27,5 +27,10 @@ def main(root):
  mode=sys.argv[2] if len(sys.argv)>2 else "all"
  if mode=="summary": result.pop("generators",None)
  elif mode.startswith("generator:"): result={"generator":next(x for x in out if x["id"]==mode.split(":",1)[1])}
+ elif mode.startswith("evaluator:"):
+  eid=mode.split(":",1)[1]; row=next(x for x in schedule if x["id"]==eid)
+  if row["role"]=="extraction_evaluator": source=json.loads((root/f"raw/extractor-{next(x for x in schedule if x['role']=='extractor' and x['repetition']==row['repetition'])['id']}.json").read_text())["response"]; prefix="Evaluate this extractor response against the frozen semantic gold reference. Use semantic equivalence, not exact wording. Return a concise JSON evaluation only. Gold reference: GOLD-R01 is causal support from admission-retracted to archive-protected; GOLD-R02 is a pressure group of founding-record, admission-retracted, and archive-protected targeting contested-history.\nEXACT RESPONSE:\n"
+  else: source=json.loads((root/f"raw/generator-{row['pair_generator_id']}.json").read_text())["response"]; prefix="Evaluate this bounded downstream recommendation for the supplied story decision. Return a concise JSON evaluation only. Assess recommendation validity, use of accepted facts, principal tradeoff, irrelevant exclusions, and whether it invents facts or changes canon.\nEXACT RESPONSE:\n"
+  packet,integrity=build_evaluator_packet(source,prefix); result={"id":eid,"prompt":packet,"integrity":integrity}
  print(json.dumps(result,separators=(",",":")))
 if __name__=="__main__": main(sys.argv[1])

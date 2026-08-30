@@ -1,0 +1,3 @@
+{
+  "response": "{\"verdict\":\"FAIL\",\"gold_relations\":{\"GOLD-R01\":{\"status\":\"missing\",\"reason\":\"Extractor abstained from the required causal-support relation from admission-retracted to archive-protected.\"},\"GOLD-R02\":{\"status\":\"incorrect\",\"reason\":\"Pressure group targets contested-history, but monastery-testimony incorrectly replaces archive-protected.\"}},\"summary\":{\"matched\":0,\"partial\":1,\"missing\":1,\"spurious_members\":[\"book_1_realization.yaml#monastery-testimony\"],\"missing_members\":[\"archive-protected\"]}}"
+}

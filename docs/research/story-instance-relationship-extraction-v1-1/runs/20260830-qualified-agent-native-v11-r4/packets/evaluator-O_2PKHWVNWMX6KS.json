@@ -1,0 +1,9 @@
+{
+  "id": "O_2PKHWVNWMX6KS",
+  "prompt": "Evaluate this extractor response against the frozen semantic gold reference. Use semantic equivalence, not exact wording. Return a concise JSON evaluation only. Gold reference: GOLD-R01 is causal support from admission-retracted to archive-protected; GOLD-R02 is a pressure group of founding-record, admission-retracted, and archive-protected targeting contested-history.\nEXACT RESPONSE:\n{\"relations\":[{\"relation_type\":\"CAUSAL_SUPPORT\",\"source_fact_refs\":[\"book_2_realization.yaml#admission-retracted\",\"book_3_direction.yaml#protect-archive-after-retraction\"],\"target_ref\":\"book_3_realization.yaml#archive-protected\",\"member_roles\":[],\"authority_class\":\"ACCEPTED\",\"evidence_refs\":[\"book_2_realization.yaml#admission-retracted\",\"book_3_direction.yaml#protect-archive-after-retraction\",\"book_3_realization.yaml#archive-protected\"],\"rationale\":\"Archive protection followed the retracted admission and fulfilled the accepted direction to protect the archive after that retraction.\",\"support\":\"strong\"}],\"abstentions\":[{\"candidate_area\":\"PRESSURE_GROUP\",\"reason\":\"The supplied facts establish contested evidence and archive protection, but do not explicitly assign persistent pressure-group roles among the founding record, monastery testimony, admissions, and treaty.\"},{\"candidate_area\":\"lantern repair causation\",\"reason\":\"The lantern's breakage and repair are accepted, but the supplied boundary does not identify a persistent causal relationship beyond their sequence.\"}]}",
+  "integrity": {
+    "source_sha256": "6b868f429993386ff18e80d6c98bbf291a5b435d83c221bfe53622bb0a45a791",
+    "embedded_sha256": "6b868f429993386ff18e80d6c98bbf291a5b435d83c221bfe53622bb0a45a791",
+    "exact_match": true
+  }
+}

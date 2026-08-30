@@ -1,0 +1,3 @@
+{
+  "response": "{\"verdict\":\"PARTIAL\",\"matched\":[\"GOLD-R01\"],\"missing\":[\"GOLD-R02\"],\"spurious\":[],\"notes\":\"The causal-support relation is semantically present despite an additional source reference. The required pressure group is incorrectly abstained.\"}"
+}

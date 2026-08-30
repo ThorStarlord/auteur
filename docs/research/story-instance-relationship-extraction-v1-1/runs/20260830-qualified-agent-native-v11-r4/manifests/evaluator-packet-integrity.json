@@ -1,0 +1,241 @@
+{
+  "run_id": "20260830-qualified-agent-native-v11-r4",
+  "count": 39,
+  "entries": [
+    {
+      "id": "O_M37JYAUJ9WKHU",
+      "source_sha256": "ed0ab88029ad57baf43fdce5a1c3161624922b492224dd57b106f38d8f47b8c7",
+      "embedded_sha256": "ed0ab88029ad57baf43fdce5a1c3161624922b492224dd57b106f38d8f47b8c7",
+      "exact_match": true
+    },
+    {
+      "id": "O_2PKHWVNWMX6KS",
+      "source_sha256": "6b868f429993386ff18e80d6c98bbf291a5b435d83c221bfe53622bb0a45a791",
+      "embedded_sha256": "6b868f429993386ff18e80d6c98bbf291a5b435d83c221bfe53622bb0a45a791",
+      "exact_match": true
+    },
+    {
+      "id": "O_6D6TUE34RNMJ5",
+      "source_sha256": "f88c5fecf253873e99b76ec9f912c9ca65f152a5b8fa09670d542039d2789f9a",
+      "embedded_sha256": "f88c5fecf253873e99b76ec9f912c9ca65f152a5b8fa09670d542039d2789f9a",
+      "exact_match": true
+    },
+    {
+      "id": "O_PSQ67ZZRA5Z9C",
+      "source_sha256": "21ee02b656a57cecd2d4c074efba6c54a6e34e4ab8167c04f03e41f308db67bb",
+      "embedded_sha256": "21ee02b656a57cecd2d4c074efba6c54a6e34e4ab8167c04f03e41f308db67bb",
+      "exact_match": true
+    },
+    {
+      "id": "O_XVXTFJCANWM9W",
+      "source_sha256": "25da62e6d33319c9a2a9df13a6f7c2a4e4d20c2bf60249692d97fb19692ab80b",
+      "embedded_sha256": "25da62e6d33319c9a2a9df13a6f7c2a4e4d20c2bf60249692d97fb19692ab80b",
+      "exact_match": true
+    },
+    {
+      "id": "O_T7ZV3ZQCDFE35",
+      "source_sha256": "4616c124a5440b3dfda256ca589da98d8e3a3bee827523881b3f0970f1530d04",
+      "embedded_sha256": "4616c124a5440b3dfda256ca589da98d8e3a3bee827523881b3f0970f1530d04",
+      "exact_match": true
+    },
+    {
+      "id": "O_AZ42GU5T26463",
+      "source_sha256": "f4289a6e00cd6f4fce07b5e7df0014b821eb7d20ba38ee063917be785d2ed953",
+      "embedded_sha256": "f4289a6e00cd6f4fce07b5e7df0014b821eb7d20ba38ee063917be785d2ed953",
+      "exact_match": true
+    },
+    {
+      "id": "O_V8BQEZPTVN4HP",
+      "source_sha256": "5110bcdf501dfac0a8a1716de73e865d534aaf489053631c9c198b5379d539ad",
+      "embedded_sha256": "5110bcdf501dfac0a8a1716de73e865d534aaf489053631c9c198b5379d539ad",
+      "exact_match": true
+    },
+    {
+      "id": "O_9TT4S2CR55U2F",
+      "source_sha256": "d0c201cdd4474464e924ffbde073e5659077d13f073eeae71476936bf43b78eb",
+      "embedded_sha256": "d0c201cdd4474464e924ffbde073e5659077d13f073eeae71476936bf43b78eb",
+      "exact_match": true
+    },
+    {
+      "id": "O_2KGUGR4QF82MM",
+      "source_sha256": "85da2eb880c0b2029c60651ed143fa7013256a23ddeeb06a72db54ef05552c08",
+      "embedded_sha256": "85da2eb880c0b2029c60651ed143fa7013256a23ddeeb06a72db54ef05552c08",
+      "exact_match": true
+    },
+    {
+      "id": "O_L53KKPJAPRHM2",
+      "source_sha256": "97372277b8fa9a236b0f16b7809eece12a69567279ee72f9b075be8b561da757",
+      "embedded_sha256": "97372277b8fa9a236b0f16b7809eece12a69567279ee72f9b075be8b561da757",
+      "exact_match": true
+    },
+    {
+      "id": "O_3PBS97CSQ94PD",
+      "source_sha256": "368cade29228480fe18b69e00a51a18bbd90e5f207183afe6b476542b67d3357",
+      "embedded_sha256": "368cade29228480fe18b69e00a51a18bbd90e5f207183afe6b476542b67d3357",
+      "exact_match": true
+    },
+    {
+      "id": "O_6AJHF8JTHXCP4",
+      "source_sha256": "4a7a922d7b09a83407a3f8f4ea83d04c147fc0b1d76cc4836b700d669ec86cbd",
+      "embedded_sha256": "4a7a922d7b09a83407a3f8f4ea83d04c147fc0b1d76cc4836b700d669ec86cbd",
+      "exact_match": true
+    },
+    {
+      "id": "O_BKZQCC43P6598",
+      "source_sha256": "2b20c48887d2e0664d2bd8f0cb46aa082d36b58bfe70758574067f165507e442",
+      "embedded_sha256": "2b20c48887d2e0664d2bd8f0cb46aa082d36b58bfe70758574067f165507e442",
+      "exact_match": true
+    },
+    {
+      "id": "O_54HWZ2F58L8RV",
+      "source_sha256": "1309f59d443e3d5ade57044d81fecc57f21f23928b55d14a547b4f7c2da18faf",
+      "embedded_sha256": "1309f59d443e3d5ade57044d81fecc57f21f23928b55d14a547b4f7c2da18faf",
+      "exact_match": true
+    },
+    {
+      "id": "O_CTZA2RVCTT9PB",
+      "source_sha256": "fce02d8ec6c77932d42ffa50346053466464db85b6240be7c32d8fa05c62fafb",
+      "embedded_sha256": "fce02d8ec6c77932d42ffa50346053466464db85b6240be7c32d8fa05c62fafb",
+      "exact_match": true
+    },
+    {
+      "id": "O_MY97AFXFBLDQW",
+      "source_sha256": "387da50f898c4f24e4fc5019093296e77c846f15e166d19b4fa180ec8ac0b77f",
+      "embedded_sha256": "387da50f898c4f24e4fc5019093296e77c846f15e166d19b4fa180ec8ac0b77f",
+      "exact_match": true
+    },
+    {
+      "id": "O_8AWVHNWZ2RS2W",
+      "source_sha256": "f66775b392fde8f3ba444a4bcaa6260a7ccb681e89914b530dec2d2e12dd2ea1",
+      "embedded_sha256": "f66775b392fde8f3ba444a4bcaa6260a7ccb681e89914b530dec2d2e12dd2ea1",
+      "exact_match": true
+    },
+    {
+      "id": "O_H4RJCXKWRAQFA",
+      "source_sha256": "e69103d5730dba8303f17f3e4f811d8034accfbdbd7d680684f17b83d10f98ad",
+      "embedded_sha256": "e69103d5730dba8303f17f3e4f811d8034accfbdbd7d680684f17b83d10f98ad",
+      "exact_match": true
+    },
+    {
+      "id": "O_9TJ2U39CEN4SH",
+      "source_sha256": "677b3ac103cd702a8d1afc04457f91bb90e6108a307ae16e8df4563632ffd5a7",
+      "embedded_sha256": "677b3ac103cd702a8d1afc04457f91bb90e6108a307ae16e8df4563632ffd5a7",
+      "exact_match": true
+    },
+    {
+      "id": "O_9MP9E5SNNLUH5",
+      "source_sha256": "2cecffe0fc81049a5adc3e65fa49e46b558c71f6833dd784208bcb17eb80f82e",
+      "embedded_sha256": "2cecffe0fc81049a5adc3e65fa49e46b558c71f6833dd784208bcb17eb80f82e",
+      "exact_match": true
+    },
+    {
+      "id": "O_KK659E22KRQPU",
+      "source_sha256": "75ef023c1b6ce77663ad87182b09384b99197e8d7cc9ccc14e1335d354924c66",
+      "embedded_sha256": "75ef023c1b6ce77663ad87182b09384b99197e8d7cc9ccc14e1335d354924c66",
+      "exact_match": true
+    },
+    {
+      "id": "O_SH8VGZVBWMQ24",
+      "source_sha256": "9b62027a1d77f72ae66366d06cde24fe08750bb651b057321e1c2d4e1829245f",
+      "embedded_sha256": "9b62027a1d77f72ae66366d06cde24fe08750bb651b057321e1c2d4e1829245f",
+      "exact_match": true
+    },
+    {
+      "id": "O_PH82T6P7C826J",
+      "source_sha256": "9811fc3ff161e9c4fb21016eb87113c261b031cd8d37eb96b3e302cf451d9ebc",
+      "embedded_sha256": "9811fc3ff161e9c4fb21016eb87113c261b031cd8d37eb96b3e302cf451d9ebc",
+      "exact_match": true
+    },
+    {
+      "id": "O_FB3Q64P25VPA3",
+      "source_sha256": "e4501b5b51306c2c82e59460862a8f0b94057a90c9fdf938345c60e3e74e4be5",
+      "embedded_sha256": "e4501b5b51306c2c82e59460862a8f0b94057a90c9fdf938345c60e3e74e4be5",
+      "exact_match": true
+    },
+    {
+      "id": "O_GEQRUT9CLADBU",
+      "source_sha256": "64a2be2f1331b4c8c81d8aed80e84da897160ecb042b66330754539f9eb8f8ed",
+      "embedded_sha256": "64a2be2f1331b4c8c81d8aed80e84da897160ecb042b66330754539f9eb8f8ed",
+      "exact_match": true
+    },
+    {
+      "id": "O_6TQCWD3KHK83R",
+      "source_sha256": "aea7e071cb9f186b98ce2499f9553a9661ad01fdcf3b794b98ea255253b7242f",
+      "embedded_sha256": "aea7e071cb9f186b98ce2499f9553a9661ad01fdcf3b794b98ea255253b7242f",
+      "exact_match": true
+    },
+    {
+      "id": "O_RRY9QH4JAJCDQ",
+      "source_sha256": "dfa78638fffcde19c0f1ce988da124ebad2151eb397cee1ce392301de65328d5",
+      "embedded_sha256": "dfa78638fffcde19c0f1ce988da124ebad2151eb397cee1ce392301de65328d5",
+      "exact_match": true
+    },
+    {
+      "id": "O_A9AGP9E9SZJMH",
+      "source_sha256": "b276f604ed29bc0b1e80c18514f07d86f0c7978cd22f5c991b2bab9dce9ce0a6",
+      "embedded_sha256": "b276f604ed29bc0b1e80c18514f07d86f0c7978cd22f5c991b2bab9dce9ce0a6",
+      "exact_match": true
+    },
+    {
+      "id": "O_8PDQYKM9K6EW6",
+      "source_sha256": "c00cf4ed47fff3f4c044f8d6ec886677b50d387527357754090a853388f796f5",
+      "embedded_sha256": "c00cf4ed47fff3f4c044f8d6ec886677b50d387527357754090a853388f796f5",
+      "exact_match": true
+    },
+    {
+      "id": "O_YLZ66H7CAST3J",
+      "source_sha256": "fa10c20c27680e6a94ca4c052884d24ac21a6abc2a5e0dc350991a9e1fdc48f3",
+      "embedded_sha256": "fa10c20c27680e6a94ca4c052884d24ac21a6abc2a5e0dc350991a9e1fdc48f3",
+      "exact_match": true
+    },
+    {
+      "id": "O_NNG4DCQTNLA9P",
+      "source_sha256": "47a0fb750f628d06f15c90d39d1f56e607fd2ec48b13975b1a1284d481495be5",
+      "embedded_sha256": "47a0fb750f628d06f15c90d39d1f56e607fd2ec48b13975b1a1284d481495be5",
+      "exact_match": true
+    },
+    {
+      "id": "O_782WB7A9RD8UT",
+      "source_sha256": "e9a073d3c91d6541542e63823457a8260e4eb80156175a461066eba20b561454",
+      "embedded_sha256": "e9a073d3c91d6541542e63823457a8260e4eb80156175a461066eba20b561454",
+      "exact_match": true
+    },
+    {
+      "id": "O_H4CF9YAYRUV6G",
+      "source_sha256": "f3d11552e5252ce068cff13eb7ecbb15ce1c1ff792355c0247d321e091b13e83",
+      "embedded_sha256": "f3d11552e5252ce068cff13eb7ecbb15ce1c1ff792355c0247d321e091b13e83",
+      "exact_match": true
+    },
+    {
+      "id": "O_QHKWMFJHNPYJ5",
+      "source_sha256": "84b94239e9f2155b3a16b8c24373129acb9121a3c5c516de43ac8dd1452491e2",
+      "embedded_sha256": "84b94239e9f2155b3a16b8c24373129acb9121a3c5c516de43ac8dd1452491e2",
+      "exact_match": true
+    },
+    {
+      "id": "O_EUEQJ2GZ52K79",
+      "source_sha256": "786caf21cb403e44fa046e9dd8539ca159b88bf8cfd7f2c1866a3af20618b56d",
+      "embedded_sha256": "786caf21cb403e44fa046e9dd8539ca159b88bf8cfd7f2c1866a3af20618b56d",
+      "exact_match": true
+    },
+    {
+      "id": "O_SKKU2DSEVFDSM",
+      "source_sha256": "cb1e36eb7b51be6efd85b4d6806ede2151eca98f2cacb82d0cfc13f19dfefbb2",
+      "embedded_sha256": "cb1e36eb7b51be6efd85b4d6806ede2151eca98f2cacb82d0cfc13f19dfefbb2",
+      "exact_match": true
+    },
+    {
+      "id": "O_NYEKS9S8S6548",
+      "source_sha256": "e76fc1cfe0c12d04128757940f695db02de9a5ef13e2701e7286709e388341ae",
+      "embedded_sha256": "e76fc1cfe0c12d04128757940f695db02de9a5ef13e2701e7286709e388341ae",
+      "exact_match": true
+    },
+    {
+      "id": "O_TCQENWDFEZS3G",
+      "source_sha256": "68ebc55b7028abcf34e6f588b915db2645ebe9a39bf8c3a995b8b1628d5911ae",
+      "embedded_sha256": "68ebc55b7028abcf34e6f588b915db2645ebe9a39bf8c3a995b8b1628d5911ae",
+      "exact_match": true
+    }
+  ],
+  "all_exact": true
+}

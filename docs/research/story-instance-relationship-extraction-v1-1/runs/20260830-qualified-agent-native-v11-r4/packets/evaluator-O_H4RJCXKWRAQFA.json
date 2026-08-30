@@ -1,0 +1,9 @@
+{
+  "id": "O_H4RJCXKWRAQFA",
+  "prompt": "Evaluate this bounded downstream recommendation for the supplied story decision. Return a concise JSON evaluation only. Assess recommendation validity, use of accepted facts, principal tradeoff, irrelevant exclusions, and whether it invents facts or changes canon.\nEXACT RESPONSE:\nRecommend **publish-verified-testimony**.\n\nIt best fulfills the planning intent: **monastery testimony preserved** can return to public memory while **archive protection treaty protected** keeps the originals secure and preserves the archive as the **only evidentiary chain**. Authentication also directly supports the series commitment to contested history, placing lived memory against the **founding record forged** and **council archive position retracted admission** without exposing the strongest archive records.\n\nPrincipal tradeoff: release is delayed, so public pressure builds more slowly than with **stage-protected-hearing**. The benefit is avoiding premature disclosure that could weaken or endanger the evidentiary chain.\n\nExclude as irrelevant: **archive lantern condition repaired**. It does not determine how testimony should be authenticated, published, or protected.\n\nThis is a bounded, non-authoritative recommendation and creates no canon, Book Direction, or Canonical State.",
+  "integrity": {
+    "source_sha256": "e69103d5730dba8303f17f3e4f811d8034accfbdbd7d680684f17b83d10f98ad",
+    "embedded_sha256": "e69103d5730dba8303f17f3e4f811d8034accfbdbd7d680684f17b83d10f98ad",
+    "exact_match": true
+  }
+}

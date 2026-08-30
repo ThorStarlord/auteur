@@ -1,0 +1,1 @@
+{"state": "PRE_UNBLIND_FROZEN", "reconciliation": {"unique_positions": 78, "routing_all_exact": true, "integrity_all_exact": true, "sealed_condition_map": true}, "unblind_transition_not_called": true}

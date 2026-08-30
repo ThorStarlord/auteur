@@ -1,0 +1,16 @@
+{
+  "run_id": "20260830-qualified-agent-native-v11-r4",
+  "empirical_calls": 78,
+  "complete_records": 78,
+  "unique_opaque_ids": 78,
+  "unique_agent_bindings": 78,
+  "unmapped_responses": 0,
+  "multiply_mapped_responses": 0,
+  "raw_hashes": 78,
+  "raw_files": 78,
+  "tool_audits": 78,
+  "evaluator_packet_integrity": true,
+  "maximum_concurrency": 1,
+  "condition_map_sealed": true,
+  "pre_unblind_ready": true
+}
