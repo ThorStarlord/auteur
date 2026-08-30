@@ -2,13 +2,129 @@
   "frozen_revision": "a6f7ded7d01cfdd149c526a71e0c751af517e0b1",
   "synthetic_only": true,
   "model_calls": 0,
-  "freeze": {"H7_refusal": true, "H8_success": true},
-  "illegal_transitions_accepted": 0,
-  "integrity": {"extraction": "3/3", "downstream": "36/36"},
-  "packet_integrity": {"H6_failure": true},
   "positions": 78,
-  "pre_unblind_ready": true,
-  "projection_routes": {"H1": true, "H2": true, "H3": true, "H4_failure": true, "H5_failure": true},
-  "schedule": {"extractor": 3, "generator": 36, "extraction_evaluator": 3, "downstream_evaluator": 36, "total": 78},
-  "snapshots": {"gold_differs": true, "invalid_derived_equals_b0": true, "valid_derived_differs": true}
+  "unique_positions": 78,
+  "schedule": {
+    "downstream_evaluator": 36,
+    "extraction_evaluator": 3,
+    "extractor": 3,
+    "generator": 36,
+    "total": 78
+  },
+  "projection_routes": {
+    "H1": true,
+    "H2": true,
+    "H3": true,
+    "H4_failure": true,
+    "H5_failure": true
+  },
+  "packet_integrity": {
+    "H6_failure": true,
+    "downstream": "36/36",
+    "extraction": "3/3"
+  },
+  "freeze": {
+    "H7_77_refusal": true,
+    "H7_bad_integrity_refusal": true,
+    "H7_direct_jump_refusal": true,
+    "H7_good_success": true,
+    "H8_success": true
+  },
+  "reconciliation": {
+    "integrity_all_exact": true,
+    "routing_all_exact": true,
+    "sealed_condition_map": true,
+    "unique_positions": 78
+  },
+  "routing_manifest": [
+    {
+      "actual_projection_sha256": "1e4a487f83fef35c5428c8f13916fd08b8d935d2212f69249127a5e74cc785f0",
+      "exact_match": true,
+      "expected_projection_sha256": "1e4a487f83fef35c5428c8f13916fd08b8d935d2212f69249127a5e74cc785f0",
+      "extractor_id": "E1",
+      "probe": "P03",
+      "repetition": 1,
+      "validator_status": "STRUCTURE_VALID"
+    },
+    {
+      "actual_projection_sha256": "9dc64803408e75c18d2fa11d9cb4c3e8c2f88467f4a1093c47be873ddbb440f8",
+      "exact_match": true,
+      "expected_projection_sha256": "9dc64803408e75c18d2fa11d9cb4c3e8c2f88467f4a1093c47be873ddbb440f8",
+      "extractor_id": "E2",
+      "probe": "P03",
+      "repetition": 2,
+      "validator_status": "STRUCTURE_VALID"
+    },
+    {
+      "actual_projection_sha256": "EMPTY",
+      "exact_match": true,
+      "expected_projection_sha256": "EMPTY",
+      "extractor_id": "E3",
+      "probe": "P03",
+      "repetition": 3,
+      "validator_status": "FORMAT_INVALID"
+    },
+    {
+      "actual_projection_sha256": "1e4a487f83fef35c5428c8f13916fd08b8d935d2212f69249127a5e74cc785f0",
+      "exact_match": true,
+      "expected_projection_sha256": "1e4a487f83fef35c5428c8f13916fd08b8d935d2212f69249127a5e74cc785f0",
+      "extractor_id": "E1",
+      "probe": "P04",
+      "repetition": 1,
+      "validator_status": "STRUCTURE_VALID"
+    },
+    {
+      "actual_projection_sha256": "9dc64803408e75c18d2fa11d9cb4c3e8c2f88467f4a1093c47be873ddbb440f8",
+      "exact_match": true,
+      "expected_projection_sha256": "9dc64803408e75c18d2fa11d9cb4c3e8c2f88467f4a1093c47be873ddbb440f8",
+      "extractor_id": "E2",
+      "probe": "P04",
+      "repetition": 2,
+      "validator_status": "STRUCTURE_VALID"
+    },
+    {
+      "actual_projection_sha256": "EMPTY",
+      "exact_match": true,
+      "expected_projection_sha256": "EMPTY",
+      "extractor_id": "E3",
+      "probe": "P04",
+      "repetition": 3,
+      "validator_status": "FORMAT_INVALID"
+    },
+    {
+      "actual_projection_sha256": "1e4a487f83fef35c5428c8f13916fd08b8d935d2212f69249127a5e74cc785f0",
+      "exact_match": true,
+      "expected_projection_sha256": "1e4a487f83fef35c5428c8f13916fd08b8d935d2212f69249127a5e74cc785f0",
+      "extractor_id": "E1",
+      "probe": "P05",
+      "repetition": 1,
+      "validator_status": "STRUCTURE_VALID"
+    },
+    {
+      "actual_projection_sha256": "9dc64803408e75c18d2fa11d9cb4c3e8c2f88467f4a1093c47be873ddbb440f8",
+      "exact_match": true,
+      "expected_projection_sha256": "9dc64803408e75c18d2fa11d9cb4c3e8c2f88467f4a1093c47be873ddbb440f8",
+      "extractor_id": "E2",
+      "probe": "P05",
+      "repetition": 2,
+      "validator_status": "STRUCTURE_VALID"
+    },
+    {
+      "actual_projection_sha256": "EMPTY",
+      "exact_match": true,
+      "expected_projection_sha256": "EMPTY",
+      "extractor_id": "E3",
+      "probe": "P05",
+      "repetition": 3,
+      "validator_status": "FORMAT_INVALID"
+    }
+  ],
+  "snapshots": {
+    "b0": "B0",
+    "gold_differs": true,
+    "invalid_derived_equals_b0": true,
+    "valid_derived_differs": true
+  },
+  "illegal_transitions_accepted": 0,
+  "pre_unblind_ready": true
 }

@@ -21,6 +21,9 @@ def valid_relation(name="FACT-A"):
         "target_ref": "FACT-B",
         "member_roles": [],
         "authority_class": "DETERMINISTIC_DERIVATION",
+        "evidence_refs": [name, "FACT-B"],
+        "rationale": "synthetic rationale",
+        "support": "strong",
     }
 
 
@@ -81,8 +84,8 @@ class HarnessTests(unittest.TestCase):
         self.assertEqual(report["positions"], 78)
         self.assertEqual(report["illegal_transitions_accepted"], 0)
         self.assertTrue(report["pre_unblind_ready"])
-        self.assertEqual(report["integrity"]["extraction"], "3/3")
-        self.assertEqual(report["integrity"]["downstream"], "36/36")
+        self.assertEqual(report["packet_integrity"]["extraction"], "3/3")
+        self.assertEqual(report["packet_integrity"]["downstream"], "36/36")
 
     def test_snapshot_rules(self):
         b0 = "B0"
@@ -99,6 +102,61 @@ class HarnessTests(unittest.TestCase):
         self.assertEqual(report["schedule"]["downstream_evaluator"], 36)
         self.assertEqual(report["schedule"]["total"], 78)
         self.assertEqual(report["snapshots"]["invalid_derived_equals_b0"], True)
+
+    def test_validator_requires_rich_record_fields_and_types(self):
+        payload = {"relations": [valid_relation()], "abstentions": []}
+        del payload["relations"][0]["rationale"]
+        status, violations = validate_extractor(payload, {"FACT-A", "FACT-B"})
+        self.assertEqual(status, "FORMAT_INVALID")
+        self.assertTrue(any("required" in item for item in violations))
+
+    def test_pressure_members_match_distinct_sources(self):
+        relation = {
+            "relation_type": "PRESSURE_GROUP",
+            "source_fact_refs": ["FACT-A", "FACT-B"],
+            "target_ref": "FACT-C",
+            "member_roles": [
+                {"fact_ref": "FACT-A", "role": "first"},
+                {"fact_ref": "FACT-A", "role": "duplicate"},
+            ],
+            "authority_class": "INTERPRETIVE",
+            "evidence_refs": ["FACT-A", "FACT-B", "FACT-C"],
+            "rationale": "synthetic rationale",
+            "support": "moderate",
+        }
+        status, violations = validate_extractor(
+            {"relations": [relation], "abstentions": []},
+            {"FACT-A", "FACT-B", "FACT-C"},
+        )
+        self.assertEqual(status, "FORMAT_INVALID")
+        self.assertTrue(any("member" in item for item in violations))
+
+    def test_canonical_sort_handles_differing_member_roles(self):
+        left = valid_relation()
+        right = valid_relation("FACT-C")
+        left["member_roles"] = [{"fact_ref": "FACT-A", "role": "alpha"}]
+        right["member_roles"] = [{"fact_ref": "FACT-C", "role": "beta"}]
+        payload = {"relations": [right, left], "abstentions": []}
+        self.assertEqual(canonical_projection(payload), canonical_projection(
+            {"relations": [left, right], "abstentions": []}))
+
+    def test_h7_distinguishes_call_count_and_integrity_failures(self):
+        machine = RunStateMachine(expected_calls=78)
+        ready = {"unique_positions": 78, "routing_all_exact": True,
+                 "integrity_all_exact": True, "sealed_condition_map": True}
+        for state in list(RunState)[1:-1]:
+            if state == RunState.PRE_UNBLIND_READY:
+                machine.transition(state, reconciliation=ready)
+            elif state == RunState.PRE_UNBLIND_FROZEN:
+                machine.transition(state, reconciliation=ready)
+            else:
+                machine.transition(state)
+        with self.assertRaisesRegex(ValueError, "call accounting"):
+            machine.transition(RunState.UNBLIND_ALLOWED, completed_calls=77,
+                               integrity_ok=True)
+        with self.assertRaisesRegex(ValueError, "integrity"):
+            machine.transition(RunState.UNBLIND_ALLOWED, completed_calls=78,
+                               integrity_ok=False)
 
 
 if __name__ == "__main__":
