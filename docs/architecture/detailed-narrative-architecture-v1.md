@@ -1,6 +1,6 @@
 # Detailed Narrative Architecture V1
 
-Status: proposed for human architecture review. Documentation only. No model
+Status: human-reviewed for V1 vertical-slice implementation. Documentation only. No model
 calls, extraction experiments, schema implementation, or Global Map
 implementation are part of this document.
 
@@ -607,8 +607,8 @@ fixture/code crosswalk; unrelated baseline failures were not repaired.
 ## Git / PR
 
 Branch: `architecture/detailed-narrative-architecture-v1-reconciled`, from
-`origin/main` at `a6f7ded7d01cfdd149c526a71e0c751af517e0b1`. No publication or PR
-was performed yet.
+`origin/main` at `a6f7ded7d01cfdd149c526a71e0c751af517e0b1`.
+Draft PR: #152 (target: `main`). Implementation: not started.
 Pre-existing dirty experiment files remain untouched.
 
 ## Recommendation
