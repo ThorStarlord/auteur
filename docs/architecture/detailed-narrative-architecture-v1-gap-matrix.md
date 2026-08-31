@@ -13,7 +13,7 @@
 | incompatibility | State-based candidate filtering | Yes, narrow | Generalize only after proof | P1 | Prevents unsafe suggestions |
 | revision impact | Direct/transitive reports | Yes, slice | Broader reconciliation workflow remains | P0 | Protects downstream work |
 | Global Map | Rebuildable full internal projection | Yes, slice | Minimal deterministic snapshot implemented; broader composition remains | P0 | Central gap |
-| Focus selection | Relevance over Map and intent | Yes, slice | Broader history/dependency inputs remain | P0 | Planning seam |
+| Focus selection | Relevance over Map and intent | Yes, slice | Pure Map→Focus selector is bounded to the vertical slice; broader inputs remain | P0 | Planning seam |
 | provenance | Refs, revisions, hashes, derivation version | Yes, slice | Realization payload revision history and stale impact are implemented | P0 | Audit and rebuild |
 | interpretive correction | Versioned candidate and author rejection | Partial | No unified correction record | P1 | Wrong inference safety |
 | scalable context | Progressive disclosure and bounded traversal | Conceptual | No budgeted selector | P2 | 50/100+ entries |

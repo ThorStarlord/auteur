@@ -846,6 +846,7 @@ class VerticalSliceStore:
         previous_sidecar = sidecar.read_bytes() if sidecar.is_file() else None
         previous_payload = path.read_bytes() if path.is_file() else None
         accepted_revision: int | None = None
+        created_payload_history: list[Path] = []
         previous_revisions = set(
             self.artifact_store.list_revisions(artifact_id)
         )
@@ -903,6 +904,7 @@ class VerticalSliceStore:
                 )
                 if not history_path.exists():
                     self._write_model(history_path, AcceptedRealizationBundle.model_validate(yaml.safe_load(previous_payload.decode("utf-8"))))
+                    created_payload_history.append(history_path)
             self._write_model(staged_path, accepted)
             metadata = self.artifact_store.accept(
                 staged_path,
@@ -933,11 +935,13 @@ class VerticalSliceStore:
                 path.unlink(missing_ok=True)
             else:
                 path.write_bytes(previous_payload)
-            payload_history = self.root / "accepted" / "realization-revisions" / artifact_id
-            if current is None:
-                for candidate_path in payload_history.glob("*.yaml"):
-                    candidate_path.unlink(missing_ok=True)
-            elif accepted_revision is not None:
+            for history_path in created_payload_history:
+                history_path.unlink(missing_ok=True)
+                try:
+                    history_path.parent.rmdir()
+                except OSError:
+                    pass
+            if accepted_revision is not None:
                 self.accepted_realization_revision_path(
                     artifact_id, accepted_revision
                 ).unlink(missing_ok=True)
@@ -1073,11 +1077,12 @@ class VerticalSliceStore:
                 self.root / "accepted" / "realization-revisions" / artifact_id
             )
             payload_revision_files = list(payload_revision_dir.glob("*.yaml"))
-            if len(payload_revision_files) != current.revision or {
+            legacy_revision_one = current.revision == 1 and not payload_revision_files
+            if not legacy_revision_one and (len(payload_revision_files) != current.revision or {
                 int(path.stem)
                 for path in payload_revision_files
                 if path.stem.isdigit()
-            } != set(range(1, current.revision + 1)):
+            } != set(range(1, current.revision + 1))):
                 raise ValueError(
                     "Invalid accepted Realization payload history"
                 )

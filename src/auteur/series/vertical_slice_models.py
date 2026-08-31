@@ -182,6 +182,31 @@ class PressureGroupMember(BaseModel):
     role: PressureMemberRole
 
 
+class CommitmentRef(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_id: str
+    revision: int
+    commitment_id: str
+
+
+class GlobalMapEntry(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    entry_id: str
+    kind: Literal["commitment", "fact"]
+    summary: str
+    source_refs: list[AcceptedContinuitySourceRef] = Field(min_length=1)
+    disposition: ContinuityDisposition
+    is_current_constraint: bool = False
+    fact_ref: AcceptedFactRef | None = None
+    subject: str | None = None
+    attribute: str | None = None
+    before: str | None = None
+    after: str | None = None
+    book_number: int | None = Field(default=None, ge=1)
+
+
 class CausalSupportRelation(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -202,7 +227,7 @@ class PressureGroupRelation(BaseModel):
     kind: Literal["pressure_group"] = "pressure_group"
     relation_id: str
     origin: RelationOrigin
-    target_commitment_or_pressure_ref: ArtifactRef | AcceptedFactRef
+    target_commitment_or_pressure_ref: CommitmentRef | AcceptedFactRef
     members: list[PressureGroupMember] = Field(min_length=2)
     evidence_refs: list[AcceptedContinuitySourceRef] = Field(default_factory=list)
     source_revision_refs: list[ArtifactRef] = Field(default_factory=list)
@@ -234,6 +259,7 @@ class GlobalMapSnapshot(BaseModel):
     current_state_evidence: dict[str, MapCurrentStateEvidence] = Field(
         default_factory=dict
     )
+    entries: list[GlobalMapEntry] = Field(default_factory=list)
     historical_fact_refs: list[AcceptedFactRef] = Field(default_factory=list)
     relations: list[StoryInstanceRelation] = Field(default_factory=list)
     pressure_groups: list[PressureGroupRelation] = Field(default_factory=list)

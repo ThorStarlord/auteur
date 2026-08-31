@@ -13,6 +13,7 @@ from auteur.series.repeated_map_focus import (
     CurrentStateEvidence,
     RepeatedBookPlanningContext,
     RepeatedDecisionSeed,
+    select_focus_from_global_map,
     select_repeated_continuity,
     selection_token_display,
     selection_token_for,
@@ -30,7 +31,8 @@ from auteur.series.vertical_slice_models import (
     BookPlanningIntent,
     CanonicalState,
     CausalSupportRelation,
-    ContinuityGroup,
+    CommitmentRef,
+    GlobalMapEntry,
     GlobalMapSnapshot,
     MapCurrentStateEvidence,
     PressureGroupMember,
@@ -316,6 +318,19 @@ class SeriesVerticalSliceService:
         candidate = self.store.load_realization_candidate(candidate_id)
         if candidate.book_number != current.book_number:
             raise ValueError("Realization revision cannot change books")
+        accepted_series, _series_metadata = self._accepted_series_source()
+        known_commitment_ids = {
+            commitment.commitment_id
+            for commitment in accepted_series.direction.commitments
+        }
+        unknown_resolved_ids = sorted(
+            set(candidate.resolved_commitment_ids) - known_commitment_ids
+        )
+        if unknown_resolved_ids:
+            raise ValueError(
+                "Unknown accepted Series commitment resolution(s): "
+                + ", ".join(unknown_resolved_ids)
+            )
         current_source = self._current_book_source_ref(candidate.book_number)
         if candidate.source_refs != [current_source]:
             raise ValueError(
@@ -558,33 +573,115 @@ class SeriesVerticalSliceService:
         ]
         by_id = {ref.fact_id: ref for ref in fact_refs}
         relations: list[CausalSupportRelation | PressureGroupRelation] = []
-        admission = next(
-            (ref for ref in fact_refs if "admission" in ref.fact_id), None
-        )
-        protection = next(
-            (ref for ref in fact_refs if "protected" in ref.fact_id), None
-        )
-        if admission is not None and protection is not None:
-            relations.append(
-                CausalSupportRelation(
-                    relation_id="admission-supports-protection",
-                    origin="DETERMINISTIC_DERIVATION",
-                    source_fact_ref=admission,
-                    target_fact_ref=protection,
-                    evidence_refs=[admission, protection],
-                    source_revision_refs=[
-                        ArtifactRef(
-                            artifact_id=admission.artifact_id,
-                            revision=admission.revision,
-                        ),
-                        ArtifactRef(
-                            artifact_id=protection.artifact_id,
-                            revision=protection.revision,
-                        ),
+        causal_pairs: list[tuple[AcceptedFactRef, AcceptedFactRef]] = []
+        for earlier_index, (earlier_bundle, earlier_ref, earlier) in enumerate(
+            fact_rows
+        ):
+            for later_bundle, later_ref, later in fact_rows[earlier_index + 1 :]:
+                if (
+                    earlier_bundle.book_number < later_bundle.book_number
+                    and earlier.subject == later.subject
+                    and earlier.attribute == later.attribute
+                    and earlier.after == later.before
+                ):
+                    source = AcceptedFactRef(
+                        artifact_id=earlier_bundle.artifact_id,
+                        revision=earlier_ref.revision,
+                        fact_id=earlier.transition_id,
+                    )
+                    target = AcceptedFactRef(
+                        artifact_id=later_bundle.artifact_id,
+                        revision=later_ref.revision,
+                        fact_id=later.transition_id,
+                    )
+                    causal_pairs.append((source, target))
+                    relations.append(
+                        CausalSupportRelation(
+                            relation_id=(
+                                f"causal-support-{source.fact_id}-"
+                                f"{target.fact_id}"
+                            ),
+                            origin="DETERMINISTIC_DERIVATION",
+                            source_fact_ref=source,
+                            target_fact_ref=target,
+                            evidence_refs=[source, target],
+                            source_revision_refs=[
+                                ArtifactRef(
+                                    artifact_id=source.artifact_id,
+                                    revision=source.revision,
+                                ),
+                                ArtifactRef(
+                                    artifact_id=target.artifact_id,
+                                    revision=target.revision,
+                                ),
+                            ],
+                            rule_version="accepted-state-support-v1",
+                        )
+                    )
+        map_entries = [
+            GlobalMapEntry(
+                entry_id=commitment.commitment_id,
+                kind="commitment",
+                summary=commitment.statement,
+                source_refs=[
+                    history.series_ref,
+                    *[
+                        book_ref
+                        for book, book_ref in zip(
+                            history.books, history.book_refs, strict=True
+                        )
+                        if commitment.commitment_id
+                        in book.direction.series_commitment_ids
                     ],
-                    rule_version="archive-of-lies-v1",
-                )
+                ],
+                disposition=(
+                    "resolved"
+                    if commitment.commitment_id
+                    in history.explicitly_resolved_commitment_ids
+                    else "active"
+                ),
             )
+            for commitment in history.series.direction.commitments
+            if any(
+                commitment.commitment_id in book.direction.series_commitment_ids
+                for book in history.books
+            )
+        ]
+        map_entries.extend(
+            GlobalMapEntry(
+                entry_id=(
+                    f"{ref.artifact_id}@{ref.revision}/"
+                    f"{transition.transition_id}"
+                ),
+                kind="fact",
+                summary=(
+                    f"{transition.subject}.{transition.attribute} is "
+                    f"{transition.after}."
+                ),
+                source_refs=[ref],
+                disposition=(
+                    "active"
+                    if any(
+                        evidence.current_source_ref == ref
+                        for evidence in current_evidence.values()
+                    )
+                    else "superseded"
+                ),
+                is_current_constraint=any(
+                    evidence.current_source_ref == ref
+                    for evidence in current_evidence.values()
+                ),
+                fact_ref=ref,
+                subject=transition.subject,
+                attribute=transition.attribute,
+                before=transition.before,
+                after=transition.after,
+                book_number=bundle.book_number,
+            )
+            for (bundle, ref, transition), ref in zip(
+                fact_rows, fact_refs, strict=True
+            )
+        )
         for commitment in history.series.direction.commitments:
             fact_refs_for_commitment = [
                 by_id[transition.transition_id]
@@ -595,25 +692,42 @@ class SeriesVerticalSliceService:
                     if book.direction.book_number == bundle.book_number
                 )
             ]
-            members = [
-                PressureGroupMember(
-                    fact_ref=ref,
-                    role=(
-                        "originating_history"
-                        if index == 0
-                        else "current_constraint"
-                        if index == len(fact_refs_for_commitment) - 1
-                        else "causal_pivot"
-                    ),
+            causal_sources = {
+                (source.artifact_id, source.revision, source.fact_id)
+                for source, _target in causal_pairs
+            }
+            causal_targets = {
+                (target.artifact_id, target.revision, target.fact_id)
+                for _source, target in causal_pairs
+            }
+            members = []
+            for ref in fact_refs_for_commitment:
+                role = (
+                    "current_constraint"
+                    if any(
+                        evidence.current_source_ref == ref
+                        for evidence in current_evidence.values()
+                    )
+                    else "causal_pivot"
+                    if (ref.artifact_id, ref.revision, ref.fact_id)
+                    in causal_targets
+                    else "originating_history"
+                    if (ref.artifact_id, ref.revision, ref.fact_id)
+                    in causal_sources
+                    else None
                 )
-                for index, ref in enumerate(fact_refs_for_commitment)
-            ]
+                if role is not None:
+                    members.append(PressureGroupMember(fact_ref=ref, role=role))
             if len(members) >= 2:
                 relations.append(
                     PressureGroupRelation(
                         relation_id=f"pressure-group-{commitment.commitment_id}",
                         origin="DETERMINISTIC_DERIVATION",
-                        target_commitment_or_pressure_ref=history.series_ref,
+                        target_commitment_or_pressure_ref=CommitmentRef(
+                            artifact_id=history.series_ref.artifact_id,
+                            revision=history.series_ref.revision,
+                            commitment_id=commitment.commitment_id,
+                        ),
                         members=members,
                         evidence_refs=[member.fact_ref for member in members],
                         source_revision_refs=source_revisions,
@@ -658,6 +772,7 @@ class SeriesVerticalSliceService:
             planning_book_number=book_number,
             source_revisions=source_revisions,
             current_state_evidence=state_evidence,
+            entries=map_entries,
             historical_fact_refs=fact_refs,
             relations=relations,
             pressure_groups=pressure_groups,
@@ -692,74 +807,60 @@ class SeriesVerticalSliceService:
             raise ValueError("A Global Map must be built before Focus")
         if snapshot.freshness == "stale":
             raise ValueError("Global Map is stale; rebuild it before Focus")
-        context = self.derive_repeated_book_context(book_number)
-        relation_by_ref = {
-            (member.fact_ref.artifact_id, member.fact_ref.revision, member.fact_ref.fact_id): member
-            for group in snapshot.pressure_groups
-            for member in group.members
-        }
-        updated_entries = []
-        for entry in context.items:
-            member = next(
-                (
-                    relation_by_ref[(ref.artifact_id, ref.revision, ref.fact_id)]
-                    for ref in entry.source_refs
-                    if isinstance(ref, AcceptedFactRef)
-                    and (ref.artifact_id, ref.revision, ref.fact_id) in relation_by_ref
-                ),
-                None,
-            )
-            updated_entries.append(
-                entry.model_copy(
-                    update={
-                        "group_id": (
-                            next(
-                                group.relation_id
-                                for group in snapshot.pressure_groups
-                                if any(
-                                    group_member.fact_ref == member.fact_ref
-                                    for group_member in group.members
-                                )
-                            )
-                            if member is not None
-                            else entry.group_id
-                        )
-                    }
-                )
-            )
-        groups = [
-            ContinuityGroup(
-                group_id=group.relation_id,
-                summary=group.relation_id,
-                why_matters_now="This pressure group remains relevant through its accepted history.",
-                source_refs=group.evidence_refs,
-                entry_ids=[
-                    entry.entry_id
-                    for entry in updated_entries
-                    if any(member.fact_ref in entry.source_refs for member in group.members)
-                ],
-                relation_id=group.relation_id,
-                member_roles={member.fact_ref.fact_id: member.role for member in group.members},
-            )
-            for group in snapshot.pressure_groups
-        ]
-        return context.model_copy(
-            update={
-                "groups": groups,
-                "entries": [entry for entry in updated_entries if entry.disposition in {"active", "reactivated"}],
-                "history_entries": [entry for entry in updated_entries if entry.disposition not in {"active", "reactivated"}],
-            }
-        )
+        planning_intent = self.store.load_book_planning_intent(book_number)
+        if planning_intent is None:
+            raise ValueError("A Book planning intent is required before Focus")
+        context = select_focus_from_global_map(snapshot, planning_intent)
+        self.store.save_repeated_book_context(context)
+        return context
 
     def realization_impact(self, artifact_id: str) -> dict[str, object]:
         path = self.store.accepted_realization_bundle_path(artifact_id)
         status = self.store.artifact_store.status(path, "accepted_realization_bundle")
+        state = self.load_canonical_state()
+        conflict_transition_ids = {
+            conflict.split(":", 1)[0] for conflict in state.conflicts
+        }
+        loaded = self.store.load_accepted_realization_bundles()
+        metadata_by_id = {bundle.artifact_id: metadata for bundle, metadata in loaded}
+        affected_ids: set[str] = set()
+        changed_ids = {
+            dependency.artifact_id
+            for metadata in metadata_by_id.values()
+            for dependency in metadata.dependencies
+            if dependency.revision is not None
+            and (
+                current := self.store.artifact_store.current(dependency.artifact_id)
+            ) is not None
+            and current.revision > dependency.revision
+        }
+        pending = list(changed_ids)
+        while pending:
+            changed = pending.pop()
+            for dependent_id, metadata in metadata_by_id.items():
+                if any(
+                    dependency.artifact_id == changed
+                    for dependency in metadata.dependencies
+                ) and dependent_id not in affected_ids:
+                    affected_ids.add(dependent_id)
+                    pending.append(dependent_id)
+        target_bundle = next(
+            (bundle for bundle, _metadata in loaded if bundle.artifact_id == artifact_id),
+            None,
+        )
+        affected = artifact_id in affected_ids or (
+            target_bundle is not None
+            and any(
+                transition.transition_id in conflict_transition_ids
+                for transition in target_bundle.transitions
+            )
+        )
         return {
             "artifact_id": artifact_id,
             "health": status.health,
-            "freshness": status.freshness,
+            "freshness": "stale" if artifact_id in affected_ids else status.freshness,
             "semantic_impact": "contradictory"
-            if self.load_canonical_state().conflicts
+            if affected
             else "clear",
             "reconciliation_required": status.freshness == "stale",
         }
