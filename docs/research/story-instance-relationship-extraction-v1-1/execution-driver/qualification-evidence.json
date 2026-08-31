@@ -8,6 +8,19 @@
   "packets": {"generator_preflight": "36/36", "p02_parity": true, "book4_routing": "9/9", "evaluator_integrity": "39/39"},
   "pre_unblind_ready": true,
   "calls": {"model": 0, "agent": 0, "provider": 0},
+  "live_canaries": {
+    "count": 2,
+    "real_close_calls": 2,
+    "exact_acknowledgments_persisted": 2,
+    "lifecycle_ready": 2,
+    "synthetic_close_records": 0,
+    "unclosed_workers": 0,
+    "maximum_concurrency": 1,
+    "records": [
+      {"opaque_id": "CANARY-1", "agent_id": "01a0569c-68d5-73d2-b554-4d7e0d35db49", "response": "CANARY_ONE_ACK", "close_operation": "multi_agent_v1__close_agent", "close_result": {"previous_status": {"completed": "CANARY_ONE_ACK"}}},
+      {"opaque_id": "CANARY-2", "agent_id": "01a0569c-e798-7610-8faa-ba1e27ba4c2b", "response": "CANARY_TWO_ACK", "close_operation": "multi_agent_v1__close_agent", "close_result": {"previous_status": {"completed": "CANARY_TWO_ACK"}}}
+    ]
+  },
   "attempt_9": {"status": "NOT STARTED", "completed": 0, "total": 78},
   "baseline_comparison": {
     "command": "python -m pytest -q tests/test_author_decisions_cli.py tests/test_story_discovery_recommendation_basis.py tests/test_story_discovery_review.py",
@@ -17,5 +30,5 @@
     "same_failures": true,
     "new_failures": false
   },
-  "status": "EXECUTION DRIVER: DETERMINISTIC PATH QUALIFIED — LIVE CLOSE CANARIES PENDING"
+  "status": "EXECUTION DRIVER: FULLY QUALIFIED FOR LIVE EXECUTION — ATTEMPT 9 MAY BEGIN"
 }

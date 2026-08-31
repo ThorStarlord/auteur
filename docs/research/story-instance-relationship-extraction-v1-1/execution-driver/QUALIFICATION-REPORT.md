@@ -76,14 +76,37 @@ outside the touched research boundary and were not modified.
 - Provider calls: `0`
 - Attempt 9: `NOT STARTED`, `0/78`
 
-## Live-close status
+## Live-close qualification
 
-The deterministic live-close boundary is implemented and covered by C1–C8.
-Two real runtime-close canaries are required before live-execution
-qualification is complete.
+The strict live API requires the exact operation
+`multi_agent_v1__close_agent` and the exact non-null acknowledgment supplied by
+the runtime. Synthetic closure remains private to the deterministic dry run.
+
+### Canary 1
+
+- Opaque ID: `CANARY-1`
+- Agent ID: `01a0569c-68d5-73d2-b554-4d7e0d35db49`
+- Response: `CANARY_ONE_ACK`
+- Reconciliation: `1/1`
+- Runtime close: `multi_agent_v1__close_agent`
+- Persisted acknowledgment: `{ "previous_status": { "completed": "CANARY_ONE_ACK" } }`
+- Lifecycle: `READY`
+
+### Canary 2
+
+- Opaque ID: `CANARY-2`
+- Agent ID: `01a0569c-e798-7610-8faa-ba1e27ba4c2b`
+- Response: `CANARY_TWO_ACK`
+- Reconciliation: `1/1`
+- Runtime close: `multi_agent_v1__close_agent`
+- Persisted acknowledgment: `{ "previous_status": { "completed": "CANARY_TWO_ACK" } }`
+- Lifecycle: `READY`
+
+Both canaries were sequential, with maximum concurrency 1. Closure audit:
+2/2 real close records, 0 synthetic close records, 0 unclosed workers.
 
 ## Status
 
-`EXECUTION DRIVER: DETERMINISTIC PATH QUALIFIED — LIVE CLOSE CANARIES PENDING`
+`EXECUTION DRIVER: FULLY QUALIFIED FOR LIVE EXECUTION — ATTEMPT 9 MAY BEGIN`
 
 This status authorizes the next boundary only; it does not execute it.
