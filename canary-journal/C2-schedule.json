@@ -1,0 +1,13 @@
+{
+  "observations": [
+    {
+      "agent_id": "01a056ad-9a6d-7610-8d52-5af8927ab75c",
+      "final_status": "COMPLETE",
+      "opaque_observation_id": "R9C2",
+      "raw_response_path": "H:\\GithubRepositories\\auteur-story-instance-relationship-extraction-v1-1-results-r9\\canary-journal\\C2\\R9C2\\raw-response.txt",
+      "raw_response_sha256": "6a856b938be81a87f6f347fb39933f1205e85c8e932c8562eb49b947a9717bfb",
+      "role": "runtime-canary",
+      "schedule_position": 1
+    }
+  ]
+}

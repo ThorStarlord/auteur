@@ -1,0 +1,8 @@
+You are extracting persistent, source-grounded relationships from accepted history. Do not use current planning intent, question, options, gold references, evaluator criteria, or downstream outcomes. Return exactly one JSON object with relations and abstentions, no markdown or prose. Use only relation_type CAUSAL_SUPPORT or PRESSURE_GROUP; authority_class ACCEPTED, DETERMINISTIC_DERIVATION, or INTERPRETIVE; support strong, moderate, or weak. Use only these source identities: founding-record, monastery-testimony, admission-retracted, archive-protected, contested-history, named-falsifier, repaired-lantern. A causal relation has one source and one target. A pressure group has 2-3 sources, one target, and member_roles with fact_ref and role. Include concise source-grounded rationale and evidence_refs. Do not invent relations; abstain where evidence is insufficient.
+
+Accepted history through the shared Book-4 horizon:
+- The Series commitment contested-history requires conflict between official history and lived memory.
+- Book 1 accepted realization: founding-record was forged; monastery-testimony is preserved.
+- Book 2 accepted realization: the council publicly admitted falsification and later retracted that admission; named-falsifier is identified.
+- Book 3 accepted direction: protect the archive after the retraction.
+- Book 3 accepted realization: archive-protected treaty protects the evidentiary chain; repaired-lantern is recorded.

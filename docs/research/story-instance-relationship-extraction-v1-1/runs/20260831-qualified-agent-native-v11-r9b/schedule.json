@@ -1,0 +1,708 @@
+{
+  "run_id": "20260831-qualified-agent-native-v11-r9b",
+  "observations": [
+    {
+      "opaque_observation_id": "d7d2cc518392f45c",
+      "schedule_position": 1,
+      "role": "generator",
+      "probe": "P03",
+      "repetition": 3,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "2261ecb127504122",
+      "schedule_position": 2,
+      "role": "extractor",
+      "probe": null,
+      "repetition": 3,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "3a11e67ab0f9ba74",
+      "schedule_position": 3,
+      "role": "generator",
+      "probe": "P03",
+      "repetition": 2,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "88fb71e2f4307d04",
+      "schedule_position": 4,
+      "role": "downstream_evaluator",
+      "probe": "P05",
+      "repetition": 3,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "12f46d73e495dc90",
+      "schedule_position": 5,
+      "role": "downstream_evaluator",
+      "probe": "P03",
+      "repetition": 3,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "d98ee07ea83b7524",
+      "schedule_position": 6,
+      "role": "downstream_evaluator",
+      "probe": "P05",
+      "repetition": 2,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "bfb57676fd3aef6e",
+      "schedule_position": 7,
+      "role": "generator",
+      "probe": "P03",
+      "repetition": 3,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "80658f6de5622595",
+      "schedule_position": 8,
+      "role": "generator",
+      "probe": "P05",
+      "repetition": 1,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "a857d999dbc15dc0",
+      "schedule_position": 9,
+      "role": "generator",
+      "probe": "P05",
+      "repetition": 1,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "3211d5406958433d",
+      "schedule_position": 10,
+      "role": "generator",
+      "probe": "P04",
+      "repetition": 3,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "63d7368589050e9b",
+      "schedule_position": 11,
+      "role": "generator",
+      "probe": "P04",
+      "repetition": 3,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "1ba8fffdad7cd553",
+      "schedule_position": 12,
+      "role": "downstream_evaluator",
+      "probe": "P02",
+      "repetition": 1,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "e4945b4ad009956c",
+      "schedule_position": 13,
+      "role": "downstream_evaluator",
+      "probe": "P03",
+      "repetition": 1,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "4d5e0e84f1d73baa",
+      "schedule_position": 14,
+      "role": "generator",
+      "probe": "P05",
+      "repetition": 2,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "48f24c90e0e9a982",
+      "schedule_position": 15,
+      "role": "downstream_evaluator",
+      "probe": "P05",
+      "repetition": 2,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "1b5b33cc24b8fdf4",
+      "schedule_position": 16,
+      "role": "downstream_evaluator",
+      "probe": "P05",
+      "repetition": 1,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "a5477696a30799d6",
+      "schedule_position": 17,
+      "role": "downstream_evaluator",
+      "probe": "P05",
+      "repetition": 3,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "75fcb2b9d6a5e7a6",
+      "schedule_position": 18,
+      "role": "downstream_evaluator",
+      "probe": "P02",
+      "repetition": 2,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "008a501ae1b71ac9",
+      "schedule_position": 19,
+      "role": "generator",
+      "probe": "P02",
+      "repetition": 1,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "a3bb8cd66e591be4",
+      "schedule_position": 20,
+      "role": "generator",
+      "probe": "P05",
+      "repetition": 2,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "ee967bf857930e06",
+      "schedule_position": 21,
+      "role": "downstream_evaluator",
+      "probe": "P02",
+      "repetition": 1,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "6bfa082326613c5d",
+      "schedule_position": 22,
+      "role": "generator",
+      "probe": "P03",
+      "repetition": 1,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "dc4ee3d24d895cf7",
+      "schedule_position": 23,
+      "role": "downstream_evaluator",
+      "probe": "P04",
+      "repetition": 1,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "a795497fad3c8a15",
+      "schedule_position": 24,
+      "role": "downstream_evaluator",
+      "probe": "P03",
+      "repetition": 2,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "c5b7296eb67f9cf7",
+      "schedule_position": 25,
+      "role": "downstream_evaluator",
+      "probe": "P05",
+      "repetition": 1,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "d74dd77f58d85764",
+      "schedule_position": 26,
+      "role": "downstream_evaluator",
+      "probe": "P05",
+      "repetition": 1,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "53a57fb9385cd589",
+      "schedule_position": 27,
+      "role": "downstream_evaluator",
+      "probe": "P05",
+      "repetition": 2,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "5816d5574bc6e89c",
+      "schedule_position": 28,
+      "role": "downstream_evaluator",
+      "probe": "P02",
+      "repetition": 3,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "76374bbcc87de1e0",
+      "schedule_position": 29,
+      "role": "downstream_evaluator",
+      "probe": "P03",
+      "repetition": 1,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "828abcafda358b19",
+      "schedule_position": 30,
+      "role": "generator",
+      "probe": "P03",
+      "repetition": 1,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "a51f147e6364199a",
+      "schedule_position": 31,
+      "role": "downstream_evaluator",
+      "probe": "P03",
+      "repetition": 2,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "3dbc25b9336c555f",
+      "schedule_position": 32,
+      "role": "downstream_evaluator",
+      "probe": "P03",
+      "repetition": 3,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "eca6c1a9f27ded6a",
+      "schedule_position": 33,
+      "role": "generator",
+      "probe": "P02",
+      "repetition": 1,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "543bc21d80818085",
+      "schedule_position": 34,
+      "role": "generator",
+      "probe": "P04",
+      "repetition": 1,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "7fb01bb099f7d1a6",
+      "schedule_position": 35,
+      "role": "generator",
+      "probe": "P05",
+      "repetition": 1,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "b3cb584ce10ee65d",
+      "schedule_position": 36,
+      "role": "downstream_evaluator",
+      "probe": "P05",
+      "repetition": 3,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "47a89e6d4216a11f",
+      "schedule_position": 37,
+      "role": "generator",
+      "probe": "P02",
+      "repetition": 3,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "8cb2eef9c968212e",
+      "schedule_position": 38,
+      "role": "generator",
+      "probe": "P04",
+      "repetition": 3,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "8b0004e5a7359eda",
+      "schedule_position": 39,
+      "role": "downstream_evaluator",
+      "probe": "P03",
+      "repetition": 3,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "fc38cc02edbdfe3f",
+      "schedule_position": 40,
+      "role": "generator",
+      "probe": "P04",
+      "repetition": 2,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "664dbd143f967375",
+      "schedule_position": 41,
+      "role": "generator",
+      "probe": "P02",
+      "repetition": 2,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "9deed5872020d404",
+      "schedule_position": 42,
+      "role": "downstream_evaluator",
+      "probe": "P04",
+      "repetition": 3,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "ef33d697bd8feb57",
+      "schedule_position": 43,
+      "role": "extraction_evaluator",
+      "probe": null,
+      "repetition": 1,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "01abe4d6c0544dd1",
+      "schedule_position": 44,
+      "role": "downstream_evaluator",
+      "probe": "P04",
+      "repetition": 1,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "847e3f6da462846b",
+      "schedule_position": 45,
+      "role": "downstream_evaluator",
+      "probe": "P03",
+      "repetition": 2,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "fbb064fd63de2baf",
+      "schedule_position": 46,
+      "role": "generator",
+      "probe": "P02",
+      "repetition": 2,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "5860d78e3f210631",
+      "schedule_position": 47,
+      "role": "generator",
+      "probe": "P05",
+      "repetition": 3,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "6cc2ea1d33b18700",
+      "schedule_position": 48,
+      "role": "generator",
+      "probe": "P04",
+      "repetition": 1,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "3d8f17b7c2b38802",
+      "schedule_position": 49,
+      "role": "generator",
+      "probe": "P02",
+      "repetition": 3,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "b2db2e97f00abe9d",
+      "schedule_position": 50,
+      "role": "downstream_evaluator",
+      "probe": "P02",
+      "repetition": 1,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "31948c31e381c96f",
+      "schedule_position": 51,
+      "role": "generator",
+      "probe": "P04",
+      "repetition": 2,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "c13d267ac4045a61",
+      "schedule_position": 52,
+      "role": "generator",
+      "probe": "P04",
+      "repetition": 1,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "5c5b7538f2d0d09c",
+      "schedule_position": 53,
+      "role": "downstream_evaluator",
+      "probe": "P04",
+      "repetition": 3,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "3593ba4936c22945",
+      "schedule_position": 54,
+      "role": "extraction_evaluator",
+      "probe": null,
+      "repetition": 3,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "8b64dc4a2b0e72f8",
+      "schedule_position": 55,
+      "role": "downstream_evaluator",
+      "probe": "P04",
+      "repetition": 2,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "f0d62a8ad1a36fe2",
+      "schedule_position": 56,
+      "role": "downstream_evaluator",
+      "probe": "P03",
+      "repetition": 1,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "af4424c1e1e1fce0",
+      "schedule_position": 57,
+      "role": "generator",
+      "probe": "P05",
+      "repetition": 3,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "13125ca98ffbfb8c",
+      "schedule_position": 58,
+      "role": "generator",
+      "probe": "P03",
+      "repetition": 2,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "a3c20d500e194376",
+      "schedule_position": 59,
+      "role": "generator",
+      "probe": "P03",
+      "repetition": 2,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "c77b482150d9bd07",
+      "schedule_position": 60,
+      "role": "extractor",
+      "probe": null,
+      "repetition": 1,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "48bd2698ad1207e5",
+      "schedule_position": 61,
+      "role": "extractor",
+      "probe": null,
+      "repetition": 2,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "2f9f2aa49b1b122d",
+      "schedule_position": 62,
+      "role": "generator",
+      "probe": "P03",
+      "repetition": 3,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "dbe885eb05fd40a4",
+      "schedule_position": 63,
+      "role": "generator",
+      "probe": "P05",
+      "repetition": 2,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "905c719e6103b4cc",
+      "schedule_position": 64,
+      "role": "downstream_evaluator",
+      "probe": "P04",
+      "repetition": 2,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "eab8072ec5506c84",
+      "schedule_position": 65,
+      "role": "downstream_evaluator",
+      "probe": "P02",
+      "repetition": 3,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "130f1b023731f11a",
+      "schedule_position": 66,
+      "role": "downstream_evaluator",
+      "probe": "P04",
+      "repetition": 3,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "8e979b863a2dafdf",
+      "schedule_position": 67,
+      "role": "downstream_evaluator",
+      "probe": "P04",
+      "repetition": 2,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "71a9af1a5fc7ca70",
+      "schedule_position": 68,
+      "role": "generator",
+      "probe": "P02",
+      "repetition": 2,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "6a158f1e4f832049",
+      "schedule_position": 69,
+      "role": "downstream_evaluator",
+      "probe": "P02",
+      "repetition": 3,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "38981fc61203f5cb",
+      "schedule_position": 70,
+      "role": "downstream_evaluator",
+      "probe": "P02",
+      "repetition": 2,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "e3587404113fa7e1",
+      "schedule_position": 71,
+      "role": "downstream_evaluator",
+      "probe": "P02",
+      "repetition": 2,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "64171b1f7353ada8",
+      "schedule_position": 72,
+      "role": "generator",
+      "probe": "P02",
+      "repetition": 1,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "f950732652cfdecb",
+      "schedule_position": 73,
+      "role": "generator",
+      "probe": "P03",
+      "repetition": 1,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "cd9d16d488baaa51",
+      "schedule_position": 74,
+      "role": "extraction_evaluator",
+      "probe": null,
+      "repetition": 2,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "2eabbee6eb061174",
+      "schedule_position": 75,
+      "role": "generator",
+      "probe": "P05",
+      "repetition": 3,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "8b34898963f1549b",
+      "schedule_position": 76,
+      "role": "downstream_evaluator",
+      "probe": "P04",
+      "repetition": 1,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "b9d818eba6644267",
+      "schedule_position": 77,
+      "role": "generator",
+      "probe": "P04",
+      "repetition": 2,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    },
+    {
+      "opaque_observation_id": "2f362e3596773c76",
+      "schedule_position": 78,
+      "role": "generator",
+      "probe": "P02",
+      "repetition": 3,
+      "status": "ALLOCATED",
+      "final_status": "ALLOCATED"
+    }
+  ],
+  "condition_map_commitment": "8fba39301a39c8f1a4c94022f86eb997c071cee36ab8cb8c77fbaf904991adaf"
+}

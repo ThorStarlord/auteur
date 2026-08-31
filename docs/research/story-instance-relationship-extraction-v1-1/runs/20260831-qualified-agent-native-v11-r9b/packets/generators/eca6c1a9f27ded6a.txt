@@ -1,0 +1,76 @@
+You are a story consultant for Series "Archive of Lies". Series promise: "Each recovered account reveals who profits when history is controlled." Series pressure: "Every public correction gives hidden archivists reason to erase another witness." Series open question: "Can truth survive without becoming instrument of power?"
+
+Provide a bounded recommendation analysis: which option you recommend (or none if incompatible), why citing past commitments/facts, principal tradeoff, and what you excluded. Cite accepted facts by plain name. Do not invent unsupported facts or treat unaccepted material as accepted. This recommendation is non-authoritative and does not modify Canonical State.
+
+Do not call or use tools. Answer only from the material contained in this prompt.
+
+Narrative horizon: Book 3 opening (accepted history through Book 2)
+
+Current planning intent: Respond to the council retraction.
+
+Question:
+How should Book 3 respond to the council's retraction while preserving the witness's authority?
+
+Options:
+- publish-witness-account: Give the witness an independent public record that the council cannot retract
+- force-council-hearing: Use the named falsifier to compel the council to answer in public
+
+Current Auteur Map/Focus:
+Series Map: Book 3
+
+Current constraints
+- Every Book must expose a consequential conflict between official history and lived memory.
+  Why it matters now: Accepted Series commitment contested-history is carried by accepted Book 1, Book 2 direction history, so it remains a constraint on Book 3 planning.
+  Entry ID: contested-history
+  Disposition: active
+  Source references:
+    - series-direction (revision 1)
+    - book-1-direction (revision 1)
+    - book-2-direction (revision 1)
+- council.archive_position is retracted admission.
+  Why it matters now: Book 3 planning explicitly references accepted fact admission-retracted; its current council.archive_position state is retracted admission, so this current fact constrains Book 3.
+  Entry ID: realization-bundle-book-2-realization@1/admission-retracted
+  Disposition: active
+  Source references:
+    - realization-bundle-book-2-realization (revision 1, fact admission-retracted)
+
+Historical continuity
+- The person who falsified the founding record must be identified.
+  Why it matters now: Accepted Series commitment commitment-falsifier was explicitly resolved before Book 3, so it remains history support only.
+  Entry ID: commitment-falsifier
+  Disposition: resolved
+  Source references:
+    - series-direction (revision 1)
+    - book-1-direction (revision 1)
+    - book-2-direction (revision 1)
+    - realization-bundle-book-2-realization (revision 1)
+- archive.founding_record is forged.
+  Why it matters now: Accepted fact founding-record sets current archive.founding_record to forged, but Book 3 planning does not reference it, so it remains derived support only.
+  Entry ID: realization-bundle-book-1-realization@1/founding-record
+  Disposition: dormant
+  Source references:
+    - realization-bundle-book-1-realization (revision 1, fact founding-record)
+- monastery.testimony is preserved.
+  Why it matters now: Accepted fact monastery-testimony sets current monastery.testimony to preserved, but Book 3 planning does not reference it, so it remains derived support only.
+  Entry ID: realization-bundle-book-1-realization@1/monastery-testimony
+  Disposition: dormant
+  Source references:
+    - realization-bundle-book-1-realization (revision 1, fact monastery-testimony)
+- archive_lantern.condition is broken.
+  Why it matters now: Accepted fact broken-lantern sets current archive_lantern.condition to broken, but Book 3 planning does not reference it, so it remains derived support only.
+  Entry ID: realization-bundle-book-1-realization@1/broken-lantern
+  Disposition: dormant
+  Source references:
+    - realization-bundle-book-1-realization (revision 1, fact broken-lantern)
+- archive.falsifier is named.
+  Why it matters now: Accepted fact named-falsifier sets current archive.falsifier to named, but Book 3 planning does not reference it, so it remains derived support only.
+  Entry ID: realization-bundle-book-2-realization@1/named-falsifier
+  Disposition: irrelevant
+  Source references:
+    - realization-bundle-book-2-realization (revision 1, fact named-falsifier)
+- council.archive_position is admitted fraud.
+  Why it matters now: Accepted fact public-admission is superseded for Book 3 by current fact admission-retracted, which sets council.archive_position to retracted admission.
+  Entry ID: realization-bundle-book-2-realization@1/public-admission
+  Disposition: superseded
+  Source references:
+    - realization-bundle-book-2-realization (revision 1, fact public-admission)

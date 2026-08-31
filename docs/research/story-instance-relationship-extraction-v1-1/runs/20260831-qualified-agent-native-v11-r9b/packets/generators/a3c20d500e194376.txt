@@ -1,0 +1,90 @@
+You are a story consultant for Series "Archive of Lies". Series promise: "Each recovered account reveals who profits when history is controlled." Series pressure: "Every public correction gives hidden archivists reason to erase another witness." Series open question: "Can truth survive without becoming instrument of power?"
+
+Provide a bounded recommendation analysis: which option you recommend (or none if incompatible), why citing past commitments/facts, principal tradeoff, and what you excluded. Cite accepted facts by plain name. Do not invent unsupported facts or treat unaccepted material as accepted. This recommendation is non-authoritative and does not modify Canonical State.
+
+Do not call or use tools. Answer only from the material contained in this prompt.
+
+Narrative horizon: Book 4 opening (accepted history through Book 3)
+
+Current planning intent: Return to the monastery testimony without breaking the protected archive.
+
+Question:
+How should Book 4 bring the monastery testimony back into public memory without destroying the archive's evidentiary chain?
+
+Options:
+- publish-verified-testimony: Authenticate and publish the testimony while the protected archive keeps the original evidence secure
+- stage-protected-hearing: Present testimony beside selected archive evidence under treaty protections
+
+Current Auteur Map/Focus:
+Series Map: Book 4
+
+Active continuity
+- Every Book must expose a consequential conflict between official history and lived memory.
+  Why it matters now: Accepted Series commitment contested-history is carried by accepted Book 1 and Book 3 directions, so these consequences stay grouped for Book 4 planning.
+  Group ID: contested-history
+  Source references:
+    - series-direction (revision 1)
+    - book-1-direction (revision 1)
+    - book-3-direction (revision 1)
+    - realization-bundle-book-1-realization (revision 1, fact monastery-testimony)
+    - realization-bundle-book-3-realization (revision 1, fact archive-protected)
+  Current constraints
+    - monastery.testimony is preserved.
+      Why it matters now: Book 4 planning explicitly references accepted fact monastery-testimony; its current monastery.testimony state is preserved, so this older fact is relevant again now.
+      Entry ID: realization-bundle-book-1-realization@1/monastery-testimony
+      Disposition: reactivated
+      Source references:
+        - realization-bundle-book-1-realization (revision 1, fact monastery-testimony)
+    - archive.protection is treaty protected.
+      Why it matters now: Book 4 planning explicitly references accepted fact archive-protected; its current archive.protection state is treaty protected, so this current fact constrains Book 4.
+      Entry ID: realization-bundle-book-3-realization@1/archive-protected
+      Disposition: active
+      Source references:
+        - realization-bundle-book-3-realization (revision 1, fact archive-protected)
+
+Historical continuity
+- The person who falsified the founding record must be identified.
+  Why it matters now: Accepted Series commitment commitment-falsifier was explicitly resolved before Book 4, so it remains history support only.
+  Entry ID: commitment-falsifier
+  Disposition: resolved
+  Source references:
+    - series-direction (revision 1)
+    - book-1-direction (revision 1)
+    - book-2-direction (revision 1)
+    - realization-bundle-book-2-realization (revision 1)
+- archive.founding_record is forged.
+  Why it matters now: Accepted fact founding-record sets current archive.founding_record to forged, but Book 4 planning does not reference it, so it remains derived support only.
+  Entry ID: realization-bundle-book-1-realization@1/founding-record
+  Disposition: dormant
+  Source references:
+    - realization-bundle-book-1-realization (revision 1, fact founding-record)
+- archive_lantern.condition is broken.
+  Why it matters now: Accepted fact broken-lantern is superseded for Book 4 by current fact repaired-lantern, which sets archive_lantern.condition to repaired.
+  Entry ID: realization-bundle-book-1-realization@1/broken-lantern
+  Disposition: superseded
+  Source references:
+    - realization-bundle-book-1-realization (revision 1, fact broken-lantern)
+- archive.falsifier is named.
+  Why it matters now: Accepted fact named-falsifier sets current archive.falsifier to named, but Book 4 planning does not reference it, so it remains derived support only.
+  Entry ID: realization-bundle-book-2-realization@1/named-falsifier
+  Disposition: dormant
+  Source references:
+    - realization-bundle-book-2-realization (revision 1, fact named-falsifier)
+- council.archive_position is admitted fraud.
+  Why it matters now: Accepted fact public-admission is superseded for Book 4 by current fact admission-retracted, which sets council.archive_position to retracted admission.
+  Entry ID: realization-bundle-book-2-realization@1/public-admission
+  Disposition: superseded
+  Source references:
+    - realization-bundle-book-2-realization (revision 1, fact public-admission)
+- council.archive_position is retracted admission.
+  Why it matters now: Accepted fact admission-retracted sets current council.archive_position to retracted admission, but Book 4 planning does not reference it, so it remains derived support only.
+  Entry ID: realization-bundle-book-2-realization@1/admission-retracted
+  Disposition: dormant
+  Source references:
+    - realization-bundle-book-2-realization (revision 1, fact admission-retracted)
+- archive_lantern.condition is repaired.
+  Why it matters now: Accepted fact repaired-lantern sets current archive_lantern.condition to repaired, but Book 4 planning does not reference it, so it remains derived support only.
+  Entry ID: realization-bundle-book-3-realization@1/repaired-lantern
+  Disposition: irrelevant
+  Source references:
+    - realization-bundle-book-3-realization (revision 1, fact repaired-lantern)
