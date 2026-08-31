@@ -1150,6 +1150,10 @@ class VerticalSliceStore:
                 or dependency.revision not in self.artifact_store.list_revisions(
                     predecessor_bundle.artifact_id
                 )
+                or dependency.full_content_hash
+                != self.artifact_store.get_revision(
+                    predecessor_bundle.artifact_id, dependency.revision
+                ).content_hash
                 or dependency.projected_hash
                 != dependency.full_content_hash
                 or dependency.fields != []

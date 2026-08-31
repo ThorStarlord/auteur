@@ -571,7 +571,6 @@ class SeriesVerticalSliceService:
             )
             for bundle, ref, transition in fact_rows
         ]
-        by_id = {ref.fact_id: ref for ref in fact_refs}
         relations: list[CausalSupportRelation | PressureGroupRelation] = []
         causal_pairs: list[tuple[AcceptedFactRef, AcceptedFactRef]] = []
         for earlier_index, (earlier_bundle, earlier_ref, earlier) in enumerate(
@@ -598,7 +597,10 @@ class SeriesVerticalSliceService:
                     relations.append(
                         CausalSupportRelation(
                             relation_id=(
-                                f"causal-support-{source.fact_id}-"
+                                "causal-support-"
+                                f"{source.artifact_id}-{source.revision}-"
+                                f"{source.fact_id}-"
+                                f"{target.artifact_id}-{target.revision}-"
                                 f"{target.fact_id}"
                             ),
                             origin="DETERMINISTIC_DERIVATION",
@@ -667,6 +669,14 @@ class SeriesVerticalSliceService:
                     )
                     else "superseded"
                 ),
+                currentness=(
+                    "current"
+                    if any(
+                        evidence.current_source_ref == ref
+                        for evidence in current_evidence.values()
+                    )
+                    else "historical"
+                ),
                 is_current_constraint=any(
                     evidence.current_source_ref == ref
                     for evidence in current_evidence.values()
@@ -677,6 +687,15 @@ class SeriesVerticalSliceService:
                 before=transition.before,
                 after=transition.after,
                 book_number=bundle.book_number,
+                commitment_ids=[
+                    commitment.commitment_id
+                    for commitment in history.series.direction.commitments
+                    if any(
+                        commitment.commitment_id in book.direction.series_commitment_ids
+                        for book in history.books
+                        if book.direction.book_number == bundle.book_number
+                    )
+                ],
             )
             for (bundle, ref, transition), ref in zip(
                 fact_rows, fact_refs, strict=True
@@ -684,8 +703,10 @@ class SeriesVerticalSliceService:
         )
         for commitment in history.series.direction.commitments:
             fact_refs_for_commitment = [
-                by_id[transition.transition_id]
-                for bundle, _bundle_ref, transition in fact_rows
+                ref
+                for (bundle, _bundle_ref, transition), ref in zip(
+                    fact_rows, fact_refs, strict=True
+                )
                 if any(
                     commitment.commitment_id in book.direction.series_commitment_ids
                     for book in history.books
@@ -855,14 +876,19 @@ class SeriesVerticalSliceService:
                 for transition in target_bundle.transitions
             )
         )
+        effective_freshness = (
+            "stale" if artifact_id in affected_ids else status.freshness
+        )
+        semantic_impact = "contradictory" if affected else "clear"
         return {
             "artifact_id": artifact_id,
             "health": status.health,
-            "freshness": "stale" if artifact_id in affected_ids else status.freshness,
-            "semantic_impact": "contradictory"
-            if affected
-            else "clear",
-            "reconciliation_required": status.freshness == "stale",
+            "freshness": effective_freshness,
+            "semantic_impact": semantic_impact,
+            "reconciliation_required": (
+                effective_freshness == "stale"
+                or semantic_impact in {"suspect", "contradictory"}
+            ),
         }
 
     def series_impact(self) -> list[dict[str, object]]:

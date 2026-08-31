@@ -198,7 +198,9 @@ class GlobalMapEntry(BaseModel):
     summary: str
     source_refs: list[AcceptedContinuitySourceRef] = Field(min_length=1)
     disposition: ContinuityDisposition
+    currentness: Literal["current", "historical"] = "historical"
     is_current_constraint: bool = False
+    commitment_ids: list[str] = Field(default_factory=list)
     fact_ref: AcceptedFactRef | None = None
     subject: str | None = None
     attribute: str | None = None

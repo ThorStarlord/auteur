@@ -202,6 +202,7 @@ def test_focus_selector_is_driven_by_supplied_global_map() -> None:
                 source_refs=[fact_ref],
                 fact_ref=fact_ref,
                 disposition="active",
+                currentness="current",
                 is_current_constraint=True,
                 subject="archive",
                 attribute="status",
@@ -222,10 +223,164 @@ def test_focus_selector_is_driven_by_supplied_global_map() -> None:
     )
     context = select_focus_from_global_map(
         snapshot,
-        BookPlanningIntent(book_number=4, intent="Use the mapped fact."),
+            BookPlanningIntent(
+                book_number=4,
+                intent="Use the mapped fact.",
+                relevance_refs=[fact_ref],
+            ),
     )
     assert context.active_fact_ids == ("mapped-fact",)
     assert context.item("mapped-fact").summary == "Mapped fact is current."
+
+
+def test_d6_map_focus_omits_current_but_irrelevant_fact(tmp_path: Path) -> None:
+    service = _prepare_three_books(tmp_path)
+    snapshot = service.build_global_map(4)
+    current_ref = snapshot.current_state_evidence["archive.custodian_admission"].current_fact_ref
+    intent = BookPlanningIntent(book_number=4, intent="Plan an unrelated thread.")
+    context = select_focus_from_global_map(snapshot, intent)
+    assert current_ref.fact_id not in context.active_fact_ids
+    assert context.item(current_ref.fact_id).disposition == "irrelevant"
+
+
+def test_d7_map_focus_reactivates_explicit_old_fact(tmp_path: Path) -> None:
+    service = _prepare_three_books(tmp_path)
+    snapshot = service.build_global_map(4)
+    old_ref = AcceptedFactRef(
+        artifact_id="realization-bundle-book-2-realization",
+        revision=1,
+        fact_id="admission-recorded",
+    )
+    context = select_focus_from_global_map(
+        snapshot,
+        BookPlanningIntent(
+            book_number=4,
+            intent="Return to the old admission.",
+            relevance_refs=[old_ref],
+        ),
+    )
+    assert context.item(old_ref.fact_id).disposition == "reactivated"
+    assert "explicitly references accepted fact admission-recorded" in context.item(old_ref.fact_id).why_matters_now
+
+
+def test_global_map_focus_distinguishes_duplicate_fact_ids() -> None:
+    first = AcceptedFactRef(artifact_id="realization-one", revision=1, fact_id="same-local-id")
+    second = AcceptedFactRef(artifact_id="realization-two", revision=1, fact_id="same-local-id")
+    snapshot = GlobalMapSnapshot(
+        snapshot_id="duplicate-map",
+        planning_book_number=4,
+        source_revisions=[ArtifactRef(artifact_id="series-direction", revision=1)],
+        entries=[
+            GlobalMapEntry(
+                entry_id="realization-one@1/same-local-id",
+                kind="fact",
+                summary="First fact",
+                source_refs=[first],
+                fact_ref=first,
+                disposition="superseded",
+                currentness="historical",
+            ),
+            GlobalMapEntry(
+                entry_id="realization-two@1/same-local-id",
+                kind="fact",
+                summary="Second fact",
+                source_refs=[second],
+                fact_ref=second,
+                disposition="active",
+                currentness="current",
+            ),
+        ],
+        currentness={
+            "realization-one@1/same-local-id": "superseded",
+            "realization-two@1/same-local-id": "active",
+        },
+        derivation_version="global-map-v1",
+        source_fingerprint="duplicate-fingerprint",
+    )
+    context = select_focus_from_global_map(
+        snapshot,
+        BookPlanningIntent(book_number=4, intent="Choose the first fact.", relevance_refs=[first]),
+    )
+    assert context.item("realization-one@1/same-local-id").disposition == "reactivated"
+    assert context.item("realization-two@1/same-local-id").disposition == "irrelevant"
+
+
+def test_built_global_map_preserves_duplicate_fact_ids_by_full_ref(
+    tmp_path: Path,
+) -> None:
+    service = _prepare_three_books(tmp_path)
+    revision = RealizationCandidate(
+        candidate_id="book-1-duplicate-fact-id",
+        book_number=1,
+        summary="Book 1 duplicate local fact ID",
+        transitions=[
+            StateTransition(
+                transition_id="admission-recorded",
+                subject="archive",
+                attribute="custodian_admission",
+                after="admitted",
+                explanation="The first book establishes the admission.",
+            )
+        ],
+        source_refs=[ArtifactRef(artifact_id="book-1-direction", revision=1)],
+    )
+    service.propose_realization(revision)
+    service.accept_realization_revision(
+        "realization-bundle-book-1-realization",
+        revision.candidate_id,
+        accepted_by="author",
+    )
+    snapshot = service.build_global_map(4)
+    duplicate_refs = [
+        entry.fact_ref
+        for entry in snapshot.entries
+        if entry.fact_ref is not None and entry.fact_ref.fact_id == "admission-recorded"
+    ]
+    assert {(ref.artifact_id, ref.revision) for ref in duplicate_refs} == {
+        ("realization-bundle-book-1-realization", 2),
+        ("realization-bundle-book-2-realization", 1),
+    }
+    causal = [
+        relation
+        for relation in snapshot.relations
+        if isinstance(relation, CausalSupportRelation)
+    ]
+    assert len({relation.relation_id for relation in causal}) == len(causal)
+
+
+def test_historical_state_order_hash_tampering_is_rejected(tmp_path: Path) -> None:
+    service = _prepare_three_books(tmp_path)
+    original = service.store.load_accepted_realization_bundles()[1][0]
+    revision = RealizationCandidate(
+        candidate_id="book-2-history-hash-revision",
+        book_number=2,
+        summary="Book 2 historical hash revision",
+        transitions=[
+            StateTransition(
+                transition_id="admission-recorded",
+                subject="archive",
+                attribute="custodian_admission",
+                after="retracted",
+                explanation="The admission changes.",
+            )
+        ],
+        source_refs=[ArtifactRef(artifact_id="book-2-direction", revision=1)],
+    )
+    service.propose_realization(revision)
+    service.accept_realization_revision(
+        original.artifact_id, revision.candidate_id, accepted_by="author"
+    )
+    book_three_metadata_path = service.store.artifact_store.sidecar_path(
+        "realization-bundle-book-3-realization"
+    )
+    metadata = yaml.safe_load(book_three_metadata_path.read_text(encoding="utf-8"))
+    for dependency in metadata["dependencies"]:
+        if dependency["kind"] == "state_order":
+            dependency["full_content_hash"] = "sha256:tampered"
+            dependency["projected_hash"] = "sha256:tampered"
+    book_three_metadata_path.write_text(yaml.safe_dump(metadata), encoding="utf-8")
+    with pytest.raises(ValueError, match="Invalid accepted Realization metadata history"):
+        service.store.load_accepted_realization_bundles()
 
 
 def test_legacy_revision_one_payload_remains_loadable_without_migration(
@@ -319,13 +474,22 @@ def test_d2_book_two_support_reaches_non_adjacent_book_six_payoff(
         for relation in snapshot.relations
         if isinstance(relation, CausalSupportRelation)
     ]
-    assert path[0].source_fact_ref.fact_id == "lineage-state-1"
-    assert path[-1].target_fact_ref.fact_id == "lineage-state-6"
-    assert any(
-        relation.source_fact_ref.fact_id == "lineage-state-2"
-        and relation.target_fact_ref.fact_id == "lineage-state-3"
-        for relation in path
-    )
+    assert [relation.source_fact_ref.fact_id for relation in path] == [
+        "lineage-state-1",
+        "lineage-state-2",
+        "lineage-state-3",
+        "lineage-state-4",
+        "lineage-state-5",
+    ]
+    assert [relation.target_fact_ref.fact_id for relation in path] == [
+        "lineage-state-2",
+        "lineage-state-3",
+        "lineage-state-4",
+        "lineage-state-5",
+        "lineage-state-6",
+    ]
+    assert path[1].source_fact_ref.artifact_id == "realization-bundle-lineage-book-2"
+    assert path[-1].target_fact_ref.artifact_id == "realization-bundle-lineage-book-6"
     assert snapshot.currentness[
         "realization-bundle-lineage-book-6@1/lineage-state-6"
     ] == "active"
@@ -363,7 +527,9 @@ def test_d3_book_two_revision_stales_book_six_without_rewriting_it(
     assert service.store.load_realization_revision(book_two_artifact, 1).transitions[0].after == "bridge-2"
     assert service.realization_impact("realization-bundle-lineage-book-6")["freshness"] == "stale"
     assert service.realization_impact("realization-bundle-lineage-book-6")["semantic_impact"] == "contradictory"
+    assert service.realization_impact("realization-bundle-lineage-book-6")["reconciliation_required"] is True
     assert service.realization_impact("realization-bundle-lineage-book-1")["semantic_impact"] == "clear"
+    assert service.realization_impact("realization-bundle-lineage-book-1")["reconciliation_required"] is False
     rebuilt = service.build_global_map(7)
     assert any(
         ref.artifact_id == book_two_artifact and ref.revision == 2

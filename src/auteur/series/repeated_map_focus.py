@@ -543,12 +543,17 @@ def select_focus_from_global_map(
                 (None, ""),
             )[0]
         disposition = mapped.disposition
-        if (
-            fact_ref is not None
-            and fact_ref in planning_intent.relevance_refs
-            and disposition not in {"active", "superseded"}
-        ):
-            disposition = "reactivated"
+        if fact_ref is not None:
+            if fact_ref in planning_intent.relevance_refs:
+                disposition = (
+                    "active"
+                    if mapped.currentness == "current"
+                    else "reactivated"
+                )
+            elif mapped.currentness == "current":
+                disposition = "irrelevant"
+            elif disposition == "active":
+                disposition = "dormant"
         entries.append(
             ContinuityEntry(
                 entry_id=mapped.entry_id,
