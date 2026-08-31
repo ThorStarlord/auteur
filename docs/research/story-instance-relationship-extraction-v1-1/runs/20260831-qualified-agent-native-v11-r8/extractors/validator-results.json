@@ -1,0 +1,39 @@
+[
+  {
+    "id": "O_FPY0FYXKBRWLGW",
+    "repetition": 1,
+    "parse_status": "PASS",
+    "status": "FORMAT_INVALID",
+    "violations": [
+      "relation 0 member shape",
+      "relation 1 member/source mismatch",
+      "relation 1 member shape",
+      "relation 1 member shape",
+      "relation 1 member shape"
+    ],
+    "projection": null,
+    "projection_sha256": "EMPTY"
+  },
+  {
+    "id": "O_LKBRQTEJBMLGZQ",
+    "repetition": 2,
+    "parse_status": "PASS",
+    "status": "FORMAT_INVALID",
+    "violations": [
+      "relation 0 members type",
+      "relation 0 member/source mismatch",
+      "relation 1 members type"
+    ],
+    "projection": null,
+    "projection_sha256": "EMPTY"
+  },
+  {
+    "id": "O_CFUJMEKPQKGJMQ",
+    "repetition": 3,
+    "parse_status": "PASS",
+    "status": "STRUCTURE_VALID",
+    "violations": [],
+    "projection": "[{\"relation_type\":\"CAUSAL_SUPPORT\",\"source_fact_refs\":[\"book_2_realization.yaml#admission-retracted\"],\"target_ref\":\"deterministic-current-state\",\"member_roles\":[],\"authority_class\":\"DETERMINISTIC_DERIVATION\"},{\"relation_type\":\"CAUSAL_SUPPORT\",\"source_fact_refs\":[\"book_3_realization.yaml#archive-protected\"],\"target_ref\":\"deterministic-current-state\",\"member_roles\":[],\"authority_class\":\"DETERMINISTIC_DERIVATION\"}]",
+    "projection_sha256": "c73ff2325e4694737dea850ed62a810f071950d104388e047958115a93b30d49"
+  }
+]

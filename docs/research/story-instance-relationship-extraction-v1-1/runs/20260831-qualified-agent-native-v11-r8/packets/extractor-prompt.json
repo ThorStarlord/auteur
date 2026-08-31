@@ -1,0 +1,14 @@
+{
+  "prompt": "You are extracting persistent, source-backed relationships from an accepted story history. Do not use current planning intent, questions, options, evaluator criteria, condition names, or any gold reference. Return exactly one JSON object, with no Markdown or prose outside it. Use only the fields and shapes specified below. You may abstain where evidence is insufficient or outside the supplied history.\n\nAccepted source history through the shared Book-4 horizon:\n- series_direction.yaml#contested-history: every Book exposes conflict between official history and lived memory.\n- book_1_realization.yaml#founding-record: the founding record was forged.\n- book_1_realization.yaml#monastery-testimony: the monastery preserves a testimony.\n- book_2_realization.yaml#public-admission: the council publicly admitted the archive record was falsified.\n- book_2_realization.yaml#admission-retracted: the council later retracted that admission.\n- book_3_direction.yaml#protect-archive-after-retraction: Book 3 direction wants to protect the archive after the retraction.\n- book_3_realization.yaml#archive-protected: treaty protection preserves the archive as the evidentiary chain.\n- book_3_realization.yaml#lantern-repaired: the lantern was later repaired.\n- deterministic-current-state: archive protection is treaty protected and the council position is retracted admission.\n\nOutput contract: top-level fields are relations and abstentions. Each relation has relation_type, source_fact_refs, target_ref, member_roles, authority_class, evidence_refs, rationale, and support. relation_type is CAUSAL_SUPPORT or PRESSURE_GROUP. CAUSAL_SUPPORT has one source and one target. PRESSURE_GROUP has two or three distinct source/member facts and one target, with one member role for each member. authority_class is ACCEPTED, DETERMINISTIC_DERIVATION, or INTERPRETIVE. support is strong, moderate, or weak. Each abstention has candidate_area and reason. Use only the source references supplied above. Emit at most two relations and at most three pressure-group members. Relationships are persistent structure, not today's relevance selection.",
+  "source_refs": [
+    "book_1_realization.yaml#founding-record",
+    "book_1_realization.yaml#monastery-testimony",
+    "book_2_realization.yaml#admission-retracted",
+    "book_2_realization.yaml#public-admission",
+    "book_3_direction.yaml#protect-archive-after-retraction",
+    "book_3_realization.yaml#archive-protected",
+    "book_3_realization.yaml#lantern-repaired",
+    "deterministic-current-state",
+    "series_direction.yaml#contested-history"
+  ]
+}

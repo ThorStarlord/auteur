@@ -1,0 +1,18 @@
+{
+  "start_commit": "a6a3b77018d877ac0f8e93b658adf1d117b6a334",
+  "sha256": {
+    "protocol": "13f5be87ad6a52e7d6b048ee41ed499f04328a971947fb5dfcdf380a9d487ea2",
+    "harness": "3d3a64dc0a1062be8fee5388f1358be65af22bd370fc69a19573f5c95496102b",
+    "journal": "3391272b75d7df7195b7d38ce3339ee5b846ec8ed837a0940a03dceaeaa1c98c",
+    "adapter": "85e85d435288417b999f09c8d86874e7caa5b8eb360d715bd85efe1a28d40a11",
+    "progress_gate": "f601610854172592d8b0da37dc2b798c8f0a0b8aa72331d570f48c29f0876444",
+    "worker_lifecycle": "f0e47d41cb527ce6711fac35c01b15eed7922604bf4eecaa85ab649669b28ed6"
+  },
+  "backend": "multi_agent_v1",
+  "model_alias": "gpt-5.6-sol",
+  "fork_context": false,
+  "resolved_provider_identity": "UNAVAILABLE",
+  "max_concurrency": 1,
+  "empirical_count": "0/78",
+  "prior_observations_reused": 0
+}
