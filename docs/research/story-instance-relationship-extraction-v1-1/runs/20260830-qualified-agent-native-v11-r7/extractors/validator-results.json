@@ -1,0 +1,46 @@
+[
+  {
+    "id": "O_YPMBRWY1CEQIJA",
+    "repetition": 1,
+    "parse_status": "PASS",
+    "status": "FORMAT_INVALID",
+    "violations": [
+      "relation 0 member/source mismatch",
+      "relation 0 member shape",
+      "relation 0 member shape",
+      "relation 1 member/source mismatch",
+      "relation 1 member shape",
+      "relation 1 member shape",
+      "relation 1 member shape"
+    ],
+    "projection": null,
+    "projection_sha256": "EMPTY"
+  },
+  {
+    "id": "O_JKMHBAASQQOY1A",
+    "repetition": 2,
+    "parse_status": "PASS",
+    "status": "FORMAT_INVALID",
+    "violations": [
+      "relation 0 members type",
+      "relation 0 member/source mismatch",
+      "relation 1 members type"
+    ],
+    "projection": null,
+    "projection_sha256": "EMPTY"
+  },
+  {
+    "id": "O_PWBWKYBMOIFLUA",
+    "repetition": 3,
+    "parse_status": "PASS",
+    "status": "FORMAT_INVALID",
+    "violations": [
+      "relation 0 member/source mismatch",
+      "relation 0 member shape",
+      "relation 0 member shape",
+      "relation 0 member shape"
+    ],
+    "projection": null,
+    "projection_sha256": "EMPTY"
+  }
+]

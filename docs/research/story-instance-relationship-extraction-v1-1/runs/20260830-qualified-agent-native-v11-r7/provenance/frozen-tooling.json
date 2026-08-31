@@ -1,0 +1,27 @@
+{
+  "start_commit": "2ab1c83e8b8e3ac41749a56f0caf14d773932e1e",
+  "qualified_gate_commit": "2ab1c83e8b8e3ac41749a56f0caf14d773932e1e",
+  "anchors": {
+    "protocol": "a6f7ded7d01cfdd149c526a71e0c751af517e0b1",
+    "harness": "11c6f32ccca7dd9911b4646edfdcb3f2428cdce9",
+    "journal": "1093409554ddfe45771e9a19acd148b1978a3ea1",
+    "journal_qualification": "177f0a8886dd24babd0e22d1e9c13ddb53633620",
+    "adapter": "d36989aa8a4e7d5ccd15bfdc6acf0b0a0b68e7f2",
+    "live_integration": "1c945713bf4241e2588437aefe3c0f919275a4f4",
+    "progress_gate": "2ab1c83e8b8e3ac41749a56f0caf14d773932e1e"
+  },
+  "sha256": {
+    "protocol": "13f5be87ad6a52e7d6b048ee41ed499f04328a971947fb5dfcdf380a9d487ea2",
+    "harness": "3d3a64dc0a1062be8fee5388f1358be65af22bd370fc69a19573f5c95496102b",
+    "journal": "3391272b75d7df7195b7d38ce3339ee5b846ec8ed837a0940a03dceaeaa1c98c",
+    "adapter": "85e85d435288417b999f09c8d86874e7caa5b8eb360d715bd85efe1a28d40a11",
+    "progress_gate": "f601610854172592d8b0da37dc2b798c8f0a0b8aa72331d570f48c29f0876444"
+  },
+  "backend": "multi_agent_v1",
+  "model_alias": "gpt-5.6-sol",
+  "fork_context": false,
+  "resolved_provider_identity": "UNAVAILABLE",
+  "max_concurrency": 1,
+  "canaries": "2/2 complete",
+  "empirical_count": "0/78"
+}
