@@ -14,10 +14,14 @@ from execution_harness import canonical_projection
 from v11_empirical_driver import (
     RepresentabilityError,
     build_evaluator_packet_from_path,
+    begin_observation,
+    bind_observation,
     compile_generator_packet,
     extractor_result_from_raw,
+    finish_observation,
     persist_observation_completion,
     qualify_full_synthetic_dry_run,
+    record_close_and_release,
 )
 
 
@@ -123,3 +127,29 @@ def test_full_synthetic_dry_run_uses_all_78_positions(tmp_path):
     assert report["model_calls"] == 0
     assert report["agent_calls"] == 0
     assert report["provider_calls"] == 0
+    assert len(report["incremental_reconciliation"]) == 78
+    assert all(gate["ready"] and gate["expected_count"] == gate["n"]
+               for gate in report["incremental_reconciliation"])
+    assert report["schedule_persistence"] == {"passed": 78, "total": 78}
+    assert report["phase_order"] == ["extractor"] * 3 + ["generator"] * 36 + [
+        "extraction_evaluator"] * 3 + ["downstream_evaluator"] * 36
+
+
+def test_observation_transaction_owns_cumulative_gate_and_close(tmp_path):
+    from runtime_adapter import RuntimeAdapter
+    from transport_journal import Journal
+
+    root = tmp_path / "journal"
+    schedule = tmp_path / "schedule.json"
+    schedule.write_text(json.dumps({"observations": [{
+        "schedule_position": 1, "opaque_observation_id": "O1",
+        "role": "extractor", "final_status": "ALLOCATED",
+    }]}))
+    adapter = RuntimeAdapter(Journal(root))
+    item = {"schedule_position": 1, "opaque_observation_id": "O1",
+            "role": "extractor"}
+    context = begin_observation(adapter, root, schedule, item, "run")
+    bind_observation(context, "agent-1", "now")
+    finished = finish_observation(context, "response")
+    assert finished["reconciliation"]["n"] == 1
+    record_close_and_release(context, "agent-1")

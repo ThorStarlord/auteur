@@ -1,0 +1,21 @@
+{
+  "source_qualification_sha": "d25dc7584abafab64d64f0d910ae4e22760f82d0",
+  "research_tests": {"passed": 24, "failed": 0},
+  "phase_counts": {"extractor": 3, "generator": 36, "extraction_evaluator": 3, "downstream_evaluator": 36, "total": 78},
+  "incremental_reconciliation": {"passed": 78, "total": 78},
+  "transport": {"complete_chains": 78, "unique_opaque_ids": 78, "unique_agent_ids": 78, "matching_hashes": 78, "closures": 78},
+  "schedule_persistence": {"passed": 78, "total": 78},
+  "packets": {"generator_preflight": "36/36", "p02_parity": true, "book4_routing": "9/9", "evaluator_integrity": "39/39"},
+  "pre_unblind_ready": true,
+  "calls": {"model": 0, "agent": 0, "provider": 0},
+  "attempt_9": {"status": "NOT STARTED", "completed": 0, "total": 78},
+  "baseline_comparison": {
+    "command": "python -m pytest -q tests/test_author_decisions_cli.py tests/test_story_discovery_recommendation_basis.py tests/test_story_discovery_review.py",
+    "parent_sha": "a6a3b77018d877ac0f8e93b658adf1d117b6a334",
+    "parent_result": "4 failed, 39 passed",
+    "candidate_result": "4 failed, 39 passed",
+    "same_failures": true,
+    "new_failures": false
+  },
+  "status": "EXECUTION DRIVER: FULLY QUALIFIED — ATTEMPT 9 MAY BEGIN"
+}

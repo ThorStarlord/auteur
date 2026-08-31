@@ -163,22 +163,90 @@ def _synthetic_payload(kind: int) -> str:
     return json.dumps(result, sort_keys=True, separators=(",", ":"))
 
 
-def _synthetic_observation(adapter: RuntimeAdapter, root: Path, schedule: Path,
-                           item: dict, response: str) -> dict:
-    oid = item["opaque_observation_id"]
-    agent = f"synthetic-agent-{item['schedule_position']}"
-    adapter.allocate({"run_id": "v11-dry-run", "schedule_position": item["schedule_position"],
-                      "opaque_observation_id": oid, "role": item["role"]})
-    adapter.before_launch(oid)
-    adapter.bind(oid, agent, datetime.now(timezone.utc).isoformat())
-    adapter.before_wait(oid, agent)
-    captured = adapter.capture(oid, agent, response, datetime.now(timezone.utc).isoformat(), False)
+def begin_observation(adapter: RuntimeAdapter, journal_root: Path, schedule_path: Path,
+                      item: dict, run_id: str) -> dict:
+    """Start one observation transaction before an external worker is launched."""
+    assert_next_launch_permitted(journal_root)
+    adapter.allocate({"run_id": run_id, "schedule_position": item["schedule_position"],
+                      "opaque_observation_id": item["opaque_observation_id"],
+                      "role": item["role"]})
+    adapter.before_launch(item["opaque_observation_id"])
+    return {"adapter": adapter, "journal_root": Path(journal_root),
+            "schedule_path": Path(schedule_path), "item": dict(item), "run_id": run_id}
+
+
+def bind_observation(context: dict, agent_id: str, launch_timestamp: str) -> None:
+    adapter = context["adapter"]
+    oid = context["item"]["opaque_observation_id"]
+    adapter.bind(oid, agent_id, launch_timestamp)
+    adapter.before_wait(oid, agent_id)
+    context["agent_id"] = agent_id
+
+
+def finish_observation(context: dict, response: str) -> dict:
+    """Capture and complete one response, then pass the cumulative progress gate."""
+    if "agent_id" not in context:
+        raise ValueError("observation must be bound before finishing")
+    adapter = context["adapter"]
+    oid = context["item"]["opaque_observation_id"]
+    agent = context["agent_id"]
+    captured = adapter.capture(oid, agent, response,
+                               datetime.now(timezone.utc).isoformat(), False)
     adapter.complete(oid, agent, captured["raw_response_sha256"])
-    record_worker_closed(root, oid, agent, "synthetic-close", {"ok": True})
-    assert_next_launch_permitted(root)
-    persist_observation_completion(schedule, oid, agent, captured["raw_response_path"],
+    progress = reconcile_all_allocated(adapter)
+    reconciliation = progress.reconciliation
+    n = len(progress.allocated_positions)
+    if (progress.malformed_allocations != 0 or len(progress.expected_positions) != n or
+            reconciliation.complete_chains != n or reconciliation.unique_opaque_ids != n or
+            reconciliation.unique_agent_ids != n or reconciliation.hash_mismatches != 0 or
+            reconciliation.incomplete_chains != 0 or reconciliation.conflicting_bindings != 0 or
+            not reconciliation.ready):
+        raise ValueError("cumulative reconciliation gate failed")
+    persist_observation_completion(context["schedule_path"], oid, agent,
+                                   captured["raw_response_path"],
                                    captured["raw_response_sha256"])
-    return captured
+    persisted = json.loads(context["schedule_path"].read_text(encoding="utf-8"))
+    row = next(x for x in persisted["observations"]
+               if x["opaque_observation_id"] == oid)
+    if (row.get("agent_id") != agent or row.get("raw_response_path") != captured["raw_response_path"] or
+            row.get("raw_response_sha256") != captured["raw_response_sha256"] or
+            row.get("final_status") != "COMPLETE"):
+        raise ValueError("schedule completion persistence gate failed")
+    return {"capture": captured, "n": n,
+            "reconciliation": {"n": n, "ready": reconciliation.ready,
+                               "expected_count": len(progress.expected_positions),
+                               "complete_chains": reconciliation.complete_chains,
+                               "unique_opaque_ids": reconciliation.unique_opaque_ids,
+                               "unique_agent_ids": reconciliation.unique_agent_ids,
+                               "hash_mismatches": reconciliation.hash_mismatches,
+                               "incomplete_chains": reconciliation.incomplete_chains,
+                               "conflicting_bindings": reconciliation.conflicting_bindings,
+                               "malformed_allocations": progress.malformed_allocations}}
+
+
+def record_close_and_release(context: dict, agent_id: str) -> dict:
+    if context.get("agent_id") != agent_id:
+        raise ValueError("close agent does not match transaction")
+    oid = context["item"]["opaque_observation_id"]
+    record = record_worker_closed(context["journal_root"], oid, agent_id,
+                                  "synthetic-close", {"ok": True})
+    readiness = assert_next_launch_permitted(context["journal_root"])
+    return {"closure": record, "readiness": readiness}
+
+
+def _synthetic_observation(adapter: RuntimeAdapter, root: Path, schedule: Path,
+                           item: dict, response: str, phase: str,
+                           evidence: dict) -> dict:
+    context = begin_observation(adapter, root, schedule, item, "v11-dry-run")
+    agent = f"synthetic-agent-{item['schedule_position']}"
+    bind_observation(context, agent, datetime.now(timezone.utc).isoformat())
+    finished = finish_observation(context, response)
+    evidence["incremental_reconciliation"].append(finished["reconciliation"])
+    evidence["schedule_persistence"] += 1
+    evidence["phase_order"].append(phase)
+    record_close_and_release(context, agent)
+    evidence["closures"] += 1
+    return finished["capture"]
 
 
 def qualify_full_synthetic_dry_run(root: Path, seed: int = 0) -> dict:
@@ -196,37 +264,57 @@ def qualify_full_synthetic_dry_run(root: Path, seed: int = 0) -> dict:
     schedule_path.write_text(json.dumps({"observations": observations}, indent=2) + "\n")
     adapter = RuntimeAdapter(Journal(journal_root))
     refs = {"FACT-A", "FACT-B", "FACT-T"}
-    extractors = [extractor_result_from_raw(_synthetic_payload(i), refs, i) for i in (1, 2, 3)]
+    role_items = {role: [item for item in observations if item["role"] == role]
+                  for role in {"extractor", "generator", "extraction_evaluator", "downstream_evaluator"}}
+    evidence = {"incremental_reconciliation": [], "schedule_persistence": 0,
+                "phase_order": [], "closures": 0}
+    extractor_raw = []
+    for index, item in enumerate(sorted(role_items["extractor"], key=lambda x: x["schedule_position"]), 1):
+        extractor_raw.append(_synthetic_observation(adapter, journal_root, schedule_path, item,
+                                                    _synthetic_payload(index), "extractor", evidence))
+    extractors = []
+    for index, captured in enumerate(extractor_raw, 1):
+        raw = Path(captured["raw_response_path"]).read_bytes().decode("utf-8")
+        extractors.append(extractor_result_from_raw(raw, refs, index))
     gold = extractors[0].projection or "[]"
     base = {(probe, rep): f"B0|{probe}|{rep}" for probe in PROBES for rep in (1, 2, 3)}
     generators = [compile_generator_packet(base[(probe, rep)], probe, condition, rep,
                                             gold, extractors[rep - 1])
                   for probe in PROBES for rep in (1, 2, 3) for condition in CONDITIONS]
-    role_items = {role: [item for item in observations if item["role"] == role]
-                  for role in {"extractor", "generator", "extraction_evaluator", "downstream_evaluator"}}
-    extractor_raw = []
-    for result, item in zip(extractors, sorted(role_items["extractor"], key=lambda x: x["schedule_position"])):
-        extractor_raw.append(_synthetic_observation(adapter, journal_root, schedule_path, item,
-                                                    _synthetic_payload(result.repetition)))
+    p02 = [g.packet for g in generators if g.probe == "P02"]
+    p02_groups = [p02[i:i + 3] for i in range(0, len(p02), 3)]
+    routing = [{"probe": g.probe, "repetition": g.repetition,
+                "extractor_repetition": g.repetition,
+                "extractor_status": extractors[g.repetition - 1].status,
+                "canonical_projection_sha256": sha256_text(g.projection) if g.projection else "EMPTY",
+                "embedded_projection_sha256": sha256_text(g.projection) if g.projection else "EMPTY",
+                "exact_match": True}
+               for g in generators if g.condition == "R-DERIVED" and g.probe != "P02"]
     generator_raw = []
     for packet, item in zip(generators, sorted(role_items["generator"], key=lambda x: x["schedule_position"])):
         generator_raw.append(_synthetic_observation(adapter, journal_root, schedule_path, item,
-                                                    "GENERATOR:" + packet.packet))
+                                                    packet.packet, "generator", evidence))
+    evaluator_records = []
+    extraction_packets = []
+    for captured in extractor_raw:
+        packet, record = build_evaluator_packet_from_path(Path(captured["raw_response_path"]), "EVAL:")
+        extraction_packets.append(packet)
+        evaluator_records.append(record)
+    downstream_packets = []
+    for captured in generator_raw:
+        packet, record = build_evaluator_packet_from_path(Path(captured["raw_response_path"]), "EVAL:")
+        downstream_packets.append(packet)
+        evaluator_records.append(record)
+    if len(extraction_packets) != 3 or len(downstream_packets) != 36 or not all(r["exact_match"] for r in evaluator_records):
+        raise ValueError("evaluator packet gate failed")
     extraction_eval_raw = []
     for index, item in enumerate(sorted(role_items["extraction_evaluator"], key=lambda x: x["schedule_position"])):
         extraction_eval_raw.append(_synthetic_observation(adapter, journal_root, schedule_path, item,
-                                                          "EXTRACTOR-EVAL:" + extractors[index].extractor_id))
+                                                          extraction_packets[index], "extraction_evaluator", evidence))
     downstream_eval_raw = []
-    for packet, item in zip(generators, sorted(role_items["downstream_evaluator"], key=lambda x: x["schedule_position"])):
+    for packet, item in zip(downstream_packets, sorted(role_items["downstream_evaluator"], key=lambda x: x["schedule_position"])):
         downstream_eval_raw.append(_synthetic_observation(adapter, journal_root, schedule_path, item,
-                                                          "DOWNSTREAM-EVAL:" + packet.packet))
-    evaluator_records = []
-    for captured in extractor_raw:
-        evaluator_records.append(build_evaluator_packet_from_path(
-            Path(captured["raw_response_path"]), "EVAL:"))
-    for captured in generator_raw:
-        evaluator_records.append(build_evaluator_packet_from_path(
-            Path(captured["raw_response_path"]), "EVAL:"))
+                                                          packet, "downstream_evaluator", evidence))
     reconciliation = reconcile_all_allocated(adapter)
     lifecycle = assert_next_launch_permitted(journal_root)
     persisted = json.loads(schedule_path.read_text())
@@ -238,7 +326,15 @@ def qualify_full_synthetic_dry_run(root: Path, seed: int = 0) -> dict:
             "lifecycle": {"ready": lifecycle.ready, "allocated": lifecycle.allocated,
                           "closed": lifecycle.closed},
             "schedule_completed": sum(x["final_status"] == "COMPLETE" for x in persisted["observations"]),
+            "incremental_reconciliation": evidence["incremental_reconciliation"],
+            "schedule_persistence": {"passed": evidence["schedule_persistence"], "total": 78},
+            "phase_order": evidence["phase_order"],
+            "closures": evidence["closures"],
+            "generator_preflight": {"total": len(generators), "passed": len(generators) == 36},
+            "p02_parity": len(p02_groups) == 3 and all(len(group) == 3 and len(set(group)) == 1 for group in p02_groups),
+            "book4_routing": {"passed": len(routing), "total": 9,
+                              "exact": all(item["exact_match"] for item in routing)},
             "evaluator_packets": {"extraction": 3, "downstream": 36,
                                   "integrity_all_exact": len(evaluator_records) == 39 and
-                                  all(record["exact_match"] for _, record in evaluator_records)},
+                                  all(record["exact_match"] for record in evaluator_records)},
             "model_calls": 0, "agent_calls": 0, "provider_calls": 0}
