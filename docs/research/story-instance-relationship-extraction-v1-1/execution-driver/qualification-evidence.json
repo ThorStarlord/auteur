@@ -1,6 +1,6 @@
 {
   "source_qualification_sha": "d25dc7584abafab64d64f0d910ae4e22760f82d0",
-  "research_tests": {"passed": 24, "failed": 0},
+  "research_tests": {"passed": 32, "failed": 0},
   "phase_counts": {"extractor": 3, "generator": 36, "extraction_evaluator": 3, "downstream_evaluator": 36, "total": 78},
   "incremental_reconciliation": {"passed": 78, "total": 78},
   "transport": {"complete_chains": 78, "unique_opaque_ids": 78, "unique_agent_ids": 78, "matching_hashes": 78, "closures": 78},
@@ -17,5 +17,5 @@
     "same_failures": true,
     "new_failures": false
   },
-  "status": "EXECUTION DRIVER: FULLY QUALIFIED — ATTEMPT 9 MAY BEGIN"
+  "status": "EXECUTION DRIVER: DETERMINISTIC PATH QUALIFIED — LIVE CLOSE CANARIES PENDING"
 }

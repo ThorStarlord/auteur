@@ -224,7 +224,28 @@ def finish_observation(context: dict, response: str) -> dict:
                                "malformed_allocations": progress.malformed_allocations}}
 
 
-def record_close_and_release(context: dict, agent_id: str) -> dict:
+def record_verified_runtime_close(context: dict, agent_id: str,
+                                  close_operation: str,
+                                  close_result) -> dict:
+    """Record an acknowledgement returned by the real runtime close call."""
+    if context.get("agent_id") != agent_id:
+        raise ValueError("close agent does not match transaction")
+    if close_operation != "multi_agent_v1__close_agent":
+        raise ValueError("live closure requires the qualified close operation")
+    if close_result is None:
+        raise ValueError("live closure acknowledgement is required")
+    oid = context["item"]["opaque_observation_id"]
+    complete = context["journal_root"] / oid / "04-complete.json"
+    if not complete.is_file():
+        raise ValueError("live closure requires journal completion")
+    record = record_worker_closed(context["journal_root"], oid, agent_id,
+                                  close_operation, close_result)
+    readiness = assert_next_launch_permitted(context["journal_root"])
+    return {"closure": record, "readiness": readiness}
+
+
+def _record_synthetic_close_for_qualification(context: dict, agent_id: str) -> dict:
+    """Private close evidence used only by the deterministic dry run."""
     if context.get("agent_id") != agent_id:
         raise ValueError("close agent does not match transaction")
     oid = context["item"]["opaque_observation_id"]
@@ -244,7 +265,7 @@ def _synthetic_observation(adapter: RuntimeAdapter, root: Path, schedule: Path,
     evidence["incremental_reconciliation"].append(finished["reconciliation"])
     evidence["schedule_persistence"] += 1
     evidence["phase_order"].append(phase)
-    record_close_and_release(context, agent)
+    _record_synthetic_close_for_qualification(context, agent)
     evidence["closures"] += 1
     return finished["capture"]
 

@@ -44,9 +44,9 @@ Command:
 python -m pytest run_tools/test_v11_empirical_driver.py docs/research/story-instance-relationship-extraction-v1-1/harness/test_execution_harness.py -q
 ```
 
-Result: `24 passed`.
+Result: `32 passed`.
 
-## Full-suite baseline comparison
+## Known-failure baseline comparison
 
 Command used for the relevant previously failing test areas:
 
@@ -76,8 +76,14 @@ outside the touched research boundary and were not modified.
 - Provider calls: `0`
 - Attempt 9: `NOT STARTED`, `0/78`
 
+## Live-close status
+
+The deterministic live-close boundary is implemented and covered by C1–C8.
+Two real runtime-close canaries are required before live-execution
+qualification is complete.
+
 ## Status
 
-`EXECUTION DRIVER: FULLY QUALIFIED — ATTEMPT 9 MAY BEGIN`
+`EXECUTION DRIVER: DETERMINISTIC PATH QUALIFIED — LIVE CLOSE CANARIES PENDING`
 
 This status authorizes the next boundary only; it does not execute it.

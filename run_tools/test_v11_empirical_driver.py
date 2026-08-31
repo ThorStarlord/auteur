@@ -21,7 +21,7 @@ from v11_empirical_driver import (
     finish_observation,
     persist_observation_completion,
     qualify_full_synthetic_dry_run,
-    record_close_and_release,
+    record_verified_runtime_close,
 )
 
 
@@ -152,4 +152,74 @@ def test_observation_transaction_owns_cumulative_gate_and_close(tmp_path):
     bind_observation(context, "agent-1", "now")
     finished = finish_observation(context, "response")
     assert finished["reconciliation"]["n"] == 1
-    record_close_and_release(context, "agent-1")
+    closed = record_verified_runtime_close(
+        context, "agent-1", "multi_agent_v1__close_agent",
+        {"status": "closed", "worker_id": "agent-1"},
+    )
+    assert closed["readiness"].ready is True
+    persisted = json.loads((root / "O1" / "05-worker-closed.json").read_text())
+    assert persisted["close_operation"] == "multi_agent_v1__close_agent"
+    assert persisted["close_result"] == {"status": "closed", "worker_id": "agent-1"}
+
+
+def test_live_close_rejects_missing_acknowledgement(tmp_path):
+    context = _completed_context(tmp_path)
+    with pytest.raises(ValueError):
+        record_verified_runtime_close(context, "agent-1", "multi_agent_v1__close_agent", None)
+
+
+def test_live_close_rejects_synthetic_operation(tmp_path):
+    context = _completed_context(tmp_path)
+    with pytest.raises(ValueError):
+        record_verified_runtime_close(context, "agent-1", "synthetic-close", {"ok": True})
+
+
+def test_live_close_rejects_wrong_agent(tmp_path):
+    context = _completed_context(tmp_path)
+    with pytest.raises(ValueError):
+        record_verified_runtime_close(context, "wrong-agent", "multi_agent_v1__close_agent", {"ok": True})
+
+
+def test_live_close_rejects_before_completion(tmp_path):
+    context = _started_context(tmp_path)
+    with pytest.raises(ValueError):
+        record_verified_runtime_close(context, "agent-1", "multi_agent_v1__close_agent", {"ok": True})
+
+
+def test_live_close_rejects_duplicate_evidence(tmp_path):
+    context = _completed_context(tmp_path)
+    record_verified_runtime_close(context, "agent-1", "multi_agent_v1__close_agent", {"ok": True})
+    with pytest.raises(Exception):
+        record_verified_runtime_close(context, "agent-1", "multi_agent_v1__close_agent", {"ok": True})
+
+
+def test_next_launch_remains_blocked_until_verified_live_close(tmp_path):
+    from worker_lifecycle import LifecycleError, assert_next_launch_permitted
+
+    context = _completed_context(tmp_path)
+    with pytest.raises(LifecycleError):
+        assert_next_launch_permitted(context["journal_root"])
+    record_verified_runtime_close(context, "agent-1", "multi_agent_v1__close_agent", {"ok": True})
+    assert assert_next_launch_permitted(context["journal_root"]).ready
+
+
+def _started_context(tmp_path):
+    from runtime_adapter import RuntimeAdapter
+    from transport_journal import Journal
+    root = tmp_path / "journal"
+    schedule = tmp_path / "schedule.json"
+    schedule.write_text(json.dumps({"observations": [{
+        "schedule_position": 1, "opaque_observation_id": "O1",
+        "role": "extractor", "final_status": "ALLOCATED",
+    }]}))
+    adapter = RuntimeAdapter(Journal(root))
+    item = {"schedule_position": 1, "opaque_observation_id": "O1", "role": "extractor"}
+    context = begin_observation(adapter, root, schedule, item, "run")
+    bind_observation(context, "agent-1", "now")
+    return context
+
+
+def _completed_context(tmp_path):
+    context = _started_context(tmp_path)
+    finish_observation(context, "response")
+    return context
