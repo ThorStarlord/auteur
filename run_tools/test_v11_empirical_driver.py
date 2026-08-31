@@ -22,6 +22,7 @@ from v11_empirical_driver import (
     persist_observation_completion,
     qualify_full_synthetic_dry_run,
     record_verified_runtime_close,
+    compile_extractor_packet,
 )
 
 
@@ -124,6 +125,9 @@ def test_full_synthetic_dry_run_uses_all_78_positions(tmp_path):
     assert report["evaluator_packets"] == {
         "extraction": 3, "downstream": 36, "integrity_all_exact": True,
     }
+    assert report["extractor_packet_preflight"] == {
+        "passed": True, "exact_fields": True,
+    }
     assert report["model_calls"] == 0
     assert report["agent_calls"] == 0
     assert report["provider_calls"] == 0
@@ -141,7 +145,7 @@ def test_observation_transaction_owns_cumulative_gate_and_close(tmp_path):
 
     root = tmp_path / "journal"
     schedule = tmp_path / "schedule.json"
-    schedule.write_text(json.dumps({"observations": [{
+    schedule.write_text(json.dumps({"run_id": "run", "observations": [{
         "schedule_position": 1, "opaque_observation_id": "O1",
         "role": "extractor", "final_status": "ALLOCATED",
     }]}))
@@ -166,6 +170,35 @@ def test_live_close_rejects_missing_acknowledgement(tmp_path):
     context = _completed_context(tmp_path)
     with pytest.raises(ValueError):
         record_verified_runtime_close(context, "agent-1", "multi_agent_v1__close_agent", None)
+
+
+def test_extractor_packet_has_exact_frozen_envelope_and_is_deterministic():
+    packet = compile_extractor_packet("FACT-A: accepted fact", {"FACT-A"})
+    assert packet == compile_extractor_packet("FACT-A: accepted fact", {"FACT-A"})
+    for field in ("relations", "abstentions", "relation_type", "source_fact_refs",
+                  "target_ref", "member_roles", "fact_ref", "role",
+                  "authority_class", "evidence_refs", "rationale", "support",
+                  "candidate_area", "reason"):
+        assert field in packet
+    assert "source\"" not in packet
+    assert "sources\"" not in packet
+    assert "candidate\"" not in packet
+    assert "gold" not in packet.lower()
+    assert "intent" not in packet.lower()
+
+
+def test_begin_rejects_declared_run_id_mismatch_before_allocation(tmp_path):
+    from runtime_adapter import RuntimeAdapter
+    from transport_journal import Journal
+
+    root = tmp_path / "journal"
+    schedule = tmp_path / "schedule.json"
+    schedule.write_text(json.dumps({"run_id": "run-a", "observations": []}))
+    item = {"schedule_position": 1, "opaque_observation_id": "O1",
+            "role": "extractor", "final_status": "ALLOCATED"}
+    with pytest.raises(ValueError):
+        begin_observation(RuntimeAdapter(Journal(root)), root, schedule, item, "run-b")
+    assert not root.exists() or not list(root.iterdir())
 
 
 def test_live_close_rejects_synthetic_operation(tmp_path):
@@ -208,7 +241,7 @@ def _started_context(tmp_path):
     from transport_journal import Journal
     root = tmp_path / "journal"
     schedule = tmp_path / "schedule.json"
-    schedule.write_text(json.dumps({"observations": [{
+    schedule.write_text(json.dumps({"run_id": "run", "observations": [{
         "schedule_position": 1, "opaque_observation_id": "O1",
         "role": "extractor", "final_status": "ALLOCATED",
     }]}))

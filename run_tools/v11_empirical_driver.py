@@ -59,6 +59,29 @@ class GeneratorPacket:
     projection: str | None
 
 
+def compile_extractor_packet(accepted_history: str, source_refs: set[str]) -> str:
+    """Compile the extractor envelope without leaking treatment or gold data."""
+    refs = ", ".join(sorted(source_refs))
+    return f"""Extract persistent, source-grounded relationships from the accepted history below.
+
+Return exactly one JSON object, with no Markdown fences or prose before or after it.
+The only allowed field names are exactly:
+relations, abstentions, relation_type, source_fact_refs, target_ref,
+member_roles, fact_ref, role, authority_class, evidence_refs, rationale,
+support, candidate_area, reason.
+
+relation_type must be CAUSAL_SUPPORT or PRESSURE_GROUP. Use at most 2 relations.
+A PRESSURE_GROUP has at most 3 members. authority_class must be ACCEPTED,
+DETERMINISTIC_DERIVATION, or INTERPRETIVE. support must be strong, moderate,
+or weak. Use only supplied source references: {refs}.
+Each abstention must contain exactly candidate_area and reason.
+Do not invent unsupported relations; abstain when evidence is insufficient.
+
+Accepted history:
+{accepted_history}
+"""
+
+
 def _assert_representable(payload: dict) -> None:
     try:
         ensure_downstream_representable(payload)
@@ -166,6 +189,11 @@ def _synthetic_payload(kind: int) -> str:
 def begin_observation(adapter: RuntimeAdapter, journal_root: Path, schedule_path: Path,
                       item: dict, run_id: str) -> dict:
     """Start one observation transaction before an external worker is launched."""
+    schedule = json.loads(Path(schedule_path).read_text(encoding="utf-8"))
+    if schedule.get("run_id") != run_id:
+        raise ValueError("declared run ID does not match schedule run ID")
+    if item.get("run_id") not in (None, run_id):
+        raise ValueError("observation run ID does not match declared run ID")
     assert_next_launch_permitted(journal_root)
     adapter.allocate({"run_id": run_id, "schedule_position": item["schedule_position"],
                       "opaque_observation_id": item["opaque_observation_id"],
@@ -282,9 +310,13 @@ def qualify_full_synthetic_dry_run(root: Path, seed: int = 0) -> dict:
     observations = [{"schedule_position": pos, "opaque_observation_id": f"O{index + 1:03d}",
                      "role": role, "final_status": "ALLOCATED"}
                     for index, (pos, role) in enumerate(zip(positions, roles))]
-    schedule_path.write_text(json.dumps({"observations": observations}, indent=2) + "\n")
+    schedule_path.write_text(json.dumps({"run_id": "v11-dry-run", "observations": observations}, indent=2) + "\n")
     adapter = RuntimeAdapter(Journal(journal_root))
     refs = {"FACT-A", "FACT-B", "FACT-T"}
+    extractor_packet = compile_extractor_packet(
+        "FACT-A: synthetic accepted history\nFACT-B: synthetic accepted history",
+        refs,
+    )
     role_items = {role: [item for item in observations if item["role"] == role]
                   for role in {"extractor", "generator", "extraction_evaluator", "downstream_evaluator"}}
     evidence = {"incremental_reconciliation": [], "schedule_persistence": 0,
@@ -352,6 +384,11 @@ def qualify_full_synthetic_dry_run(root: Path, seed: int = 0) -> dict:
             "phase_order": evidence["phase_order"],
             "closures": evidence["closures"],
             "generator_preflight": {"total": len(generators), "passed": len(generators) == 36},
+            "extractor_packet_preflight": {"passed": bool(extractor_packet), "exact_fields": all(
+                field in extractor_packet for field in ("relations", "abstentions", "relation_type",
+                "source_fact_refs", "target_ref", "member_roles", "fact_ref", "role",
+                "authority_class", "evidence_refs", "rationale", "support",
+                "candidate_area", "reason"))},
             "p02_parity": len(p02_groups) == 3 and all(len(group) == 3 and len(set(group)) == 1 for group in p02_groups),
             "book4_routing": {"passed": len(routing), "total": 9,
                               "exact": all(item["exact_match"] for item in routing)},
