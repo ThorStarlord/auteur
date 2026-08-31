@@ -1,0 +1,56 @@
+{
+  "schema_version": "v1.1-transport-journal-clean-recheck",
+  "protocol_sha": "a6f7ded7d01cfdd149c526a71e0c751af517e0b1",
+  "harness_sha": "11c6f32ccca7dd9911b4646edfdcb3f2428cdce9",
+  "implementation_commit": "1093409554ddfe45771e9a19acd148b1978a3ea1",
+  "prior_nonqualifying_commit": "5d019217388ef0776955647702b3c6afa23d7449",
+  "model_calls": 0,
+  "implementation_immutable": [
+    {
+      "file": "docs/research/story-instance-relationship-extraction-v1-1/transport_journal/transport_journal.py",
+      "current_sha256": "1f62b2eb6e2e6d155339ad4542e27771e975b2dc31f79f6b985d23013e0920e1",
+      "commit_sha256": "1f62b2eb6e2e6d155339ad4542e27771e975b2dc31f79f6b985d23013e0920e1",
+      "byte_equal": true
+    },
+    {
+      "file": "docs/research/story-instance-relationship-extraction-v1-1/transport_journal/test_transport_journal.py",
+      "current_sha256": "0f921db398cdf55335625eb2da6bd6d4a598e7c6bfcf63156a56a57943b6dbb6",
+      "commit_sha256": "0f921db398cdf55335625eb2da6bd6d4a598e7c6bfcf63156a56a57943b6dbb6",
+      "byte_equal": true
+    }
+  ],
+  "tests": {
+    "transport_tests": 10,
+    "combined_tests": 24,
+    "failures": 0,
+    "coverage_percent": 92
+  },
+  "qualification": {
+    "J1": "PASS",
+    "J2": "PASS",
+    "J3": "PASS",
+    "J4": "PASS",
+    "J5": "PASS",
+    "J6": "PASS",
+    "J7": "PASS",
+    "J8": "PASS",
+    "J9": "PASS",
+    "J10": "PASS",
+    "crash_recovery": "PASS",
+    "derived_ledger_failure_safety": "PASS"
+  },
+  "reconciliation": {
+    "model_calls": 0,
+    "synthetic_observations": 78,
+    "complete_event_chains": 78,
+    "unique_opaque_ids": 78,
+    "unique_agent_ids": 78,
+    "hash_mismatches": 0,
+    "incomplete_chains": 0,
+    "conflicting_bindings": 0,
+    "missing_events": 0,
+    "authoritative_overwrites_accepted": 0,
+    "ledger_derived": "REBUILDABLE_NON_AUTHORITATIVE",
+    "ready": true
+  }
+}
