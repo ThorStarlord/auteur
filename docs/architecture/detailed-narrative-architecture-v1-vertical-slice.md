@@ -1,0 +1,87 @@
+# Detailed Narrative Architecture V1 — Vertical Slice Proof
+
+Status: plan only. Do not implement as part of architecture synthesis.
+
+## Slice
+
+Use `tests/fixtures/repeated_map_focus_v2/` to prove:
+
+```text
+accepted Series Direction
+→ accepted Book 1–3 Direction and realization history
+→ current-state projection
+→ declared/deterministic relationship index
+→ Global Map
+→ Book 4 planning intent
+→ Focus / Decision Map
+→ non-authoritative recommendation
+→ revise one earlier accepted fact
+→ impact propagation, rebuild, changed Focus
+```
+
+No open-world relationship extraction is required. Any interpretive edge is an
+explicit fixture candidate only.
+
+## Exact implementation boundary
+
+After approval, inspect and touch only these seams as needed:
+
+- `series/vertical_slice_models.py`: source refs, transition lineage, Map and
+  Focus output types;
+- `series/vertical_slice_store.py`: accepted history and disposable snapshots;
+- `series/repeated_map_focus.py`: accepted-history selection, currentness,
+  grouping, reactivation;
+- `series/vertical_slice_service.py`: orchestration, freshness, rebuild;
+- `provenance/` or `impact/`: only where existing revision/impact seams cannot
+  represent the slice; and
+- focused tests.
+
+Do not alter semantic layer names, add a graph database, or change expression
+or prose behavior.
+
+## Minimum new entities
+
+- `StateEvidence`: current value, transition, superseded IDs, accepted ref;
+- `RelationshipRecord`: source, target, type, origin, evidence, rule version,
+  disposition;
+- `GlobalMapSnapshot`: source revisions, state evidence, commitments, groups,
+  relationships, freshness;
+- `ImpactStatus`, only if current health cannot distinguish stale, suspect, and
+  contradictory;
+- `InterpretationRecord`, only if the slice includes a rejected interpretation.
+
+No universal lifecycle or entity-per-ledger-row model is justified.
+
+## Migration, surface, and tests
+
+Existing canonical artifacts must remain loadable without rewriting. New
+metadata uses ArtifactStore revision conventions; derived snapshots are
+disposable. Prefer service/test seams. If CLI is needed, keep it read-side:
+
+```text
+auteur series map --book 4
+auteur series focus --book 4 --intent <file>
+auteur series impact <artifact>
+```
+
+Author actions record workflow history only. Deterministic tests must prove
+accepted-only horizons, ordered current-state lineage, exact-ref freshness,
+Book 4 reactivation, false-recency filtering, pressure grouping,
+burn-archive incompatibility, equivalent rebuild, Book 2 revision impact, and
+no mutation before explicit acceptance.
+
+Exercise D1–D8 and D10–D12 from the companion death tests. D9 may remain a
+model-level correction contract if no interpretive producer is included.
+
+## Explicit non-goals
+
+No model calls, automatic extraction, Global Map UI, 100+ entry performance
+infrastructure, automatic semantic rewriting, universal commitment lifecycle,
+thematic/psychological inference, or chapter/prose expansion.
+
+## Proof standard
+
+An engineer must be able to implement the slice without deciding where truth
+lives, when revisions become stale, or whether a recommendation is
+authoritative. Those choices must already be visible in the architecture and
+tests.

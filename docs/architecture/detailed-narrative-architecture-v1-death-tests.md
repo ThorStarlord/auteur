@@ -1,0 +1,19 @@
+# Detailed Narrative Architecture V1 — Death Tests
+
+These are architectural acceptance cases, not claims that current code already
+passes them.
+
+| ID | Setup | Expected behavior | Authority/provenance | Stale/impact | Pass condition | Failure signature |
+|---|---|---|---|---|---|---|
+| D1 | Book 1 fact is superseded later but caused Book 2 | Current projection uses later fact; history retains both | No deletion; both refs/order retained | Dependents use current value; causal history remains | Now and happened answer differently | Old fact disappears or is current |
+| D2 | Book 6 payoff depends on Book 2 setup | Cross-book dependency path remains queryable | Derived edge cites accepted revisions | Revision reaches Book 6 | Map explains Book 2→Book 6 | Only adjacent Book visible |
+| D3 | Book 2 fact changes after Book 6 planning | New accepted revision; no downstream edit | Old/new revisions and author decision preserved | Direct/transitive dependents stale/suspect/contradictory | Reconciliation report produced | Book 6 silently rewritten or stale proposal runs |
+| D4 | Commitment is partly then fully satisfied | Assessment evolves with accepted evidence | Direction stays separate from realization | Upstream change recomputes assessment | Intermediate/final history inspectable | Commitment becomes a realized fact |
+| D5 | Commitment retired without fulfillment | Explicit retirement remains visible | Author rationale and owner revision recorded | Removed from active Map; history retained | Retired/unfulfilled shown | Retirement presented as payoff |
+| D6 | Recent fact is irrelevant to question | Selector omits it from active Focus | Accepted source remains intact | Omission has no destructive effect | Recency alone cannot surface it | Newest fact dominates |
+| D7 | Old dormant fact explicitly referenced by intent | Fact reactivates with why-now | Intent is trigger, not acceptance | Proposal depends on trigger and source | Old fact relevant without new canon | Fact lost or always active |
+| D8 | Three ordinary facts share one pressure | Map groups them and retains members | Group is derived with all refs | Member revision invalidates group | Compact group plus exact evidence | Flat dump or invented canon group |
+| D9 | Interpretive A-causes-B rejected by author | Edge is rejected/versioned; analyses rebuild | Correction and prior inference preserved | Causal traversal removed; dependents suspect/stale | Events unchanged; error suppressed | Events rewritten or edge remains active |
+| D10 | Unaccepted proposal conflicts with current state | Excluded or marked incompatible | Candidate and state refs retained | Focus cannot recommend as valid | No candidate acceptance through Focus | Proposal becomes canon |
+| D11 | Global Map and relation projections deleted | Views rebuild from accepted sources | No authority loss; refs reproduced | Caches disposable | Semantically equivalent rebuild | Hidden cache required |
+| D12 | Series change affects multiple Books | Impact spans Books; author reconciles each | Series revision and paths retained | No silent Book mutation | Each Book remains inspectable/actionable | Global change rewrites Books |
