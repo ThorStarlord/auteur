@@ -137,8 +137,36 @@ history in narrative order. It is not a replacement for history.
 Relationships and dependencies are an index of links among sources and facts.
 Declared relationships inherit authority from their accepted owner.
 Deterministic relationships are derived. Interpretive relationships are
-candidate/derived reasoning evidence and require explicit author ratification
-if they are ever to represent authorial intent.
+candidate/derived reasoning evidence; they never gain authority through
+confidence or a derived-index operation. If an author wants such a relation to
+represent intent, the equivalent declaration must be accepted in its owning
+Direction, Structure, or Realization artifact.
+
+Three relationship domains remain distinct:
+
+1. Ontology relation types: concept vocabulary owned by `narrative_ontology`.
+2. Canonical character relationship state: the existing `relations.yaml`,
+   `relation_changes.yaml`, and `src/auteur/relations/` mechanism for state
+   such as trust, resentment, dependency, attraction, fear, and obligation.
+3. Story-instance narrative relations: assertions among accepted story facts,
+   owned by the declaring narrative artifact or represented in a derived,
+   rebuildable reasoning index. The character-state package is not the owner
+   of this causal or pressure reasoning domain.
+
+The first cross-book realization-lineage contract is the existing
+`AcceptedRealizationBundle` together with `ArtifactStore` revision metadata.
+Narrative order and revision order are independent: `STATE_ORDER` between
+stable realization artifact identities and transition order inside each bundle
+define narrative order; ArtifactStore revisions define revision order. Revising
+Book 2 in place therefore yields Book 1 -> Book 2@rev2 -> Book 3. Book 2@rev1
+remains inspectable history, not a second event and not a later event.
+
+The current one-shot revision-1 realization behavior is an implementation gap.
+An accepted upstream revision becomes authoritative for that stable artifact,
+leaves its prior revision inspectable, computes downstream impact, and leaves
+downstream accepted work accepted even when it becomes stale or semantically
+contradictory. Reconciliation is requested; downstream work is never silently
+rewritten or rolled back.
 
 The minimum pipeline is:
 
@@ -171,7 +199,7 @@ No step writes a derived result into a canonical source.
 | planning intent | cross-cutting/Book | planning session | stored workflow input | relevance trigger only |
 | dependencies | cross-cutting | declared owner/manifest | declared plus derived traversal | source/target refs and edge origin |
 | relationship vocabulary/types | Ontology | accepted ontology vocabulary | stored concept definitions | ontology authority only |
-| story-instance relationships | owning narrative scope or derived cross-cutting index | accepted owner only for declared relations | declared, deterministic, or interpretive | source/target facts, origin, evidence, revision, disposition |
+| story-instance relationships | owning narrative scope or derived cross-cutting index | accepted owner only for declared relations | declared, deterministic, or interpretive | typed relation payload, origin, evidence, owner/source revision, disposition |
 | Global Map | cross-cutting/Series/horizon | none | derived, rebuildable | source revisions and derivation version |
 | Focus / Decision Map | cross-cutting/Book | none | derived proposal | Map, intent, question, horizon refs |
 | recommendations | decision session | none | Candidate/derived | exact inputs and producer provenance |
@@ -232,7 +260,10 @@ The system or author may propose that A motivates B, facts form a pressure, or
 a motif reinforces a theme. The record contains interpreter, evidence refs,
 procedure/model metadata, confidence, and status. Confidence changes ranking,
 not authority. Rejection is durable negative evidence; it does not rewrite
-events or state.
+events or state. There is no generic `ratify_relationship()` operation: an
+author declaration must be accepted through the normal boundary of its owning
+canonical artifact. `relation_changes.yaml` remains authoritative only for
+the canonical character-relationship-state domain described by ADR 015.
 
 ## Minimum relationship vocabulary
 
@@ -258,6 +289,26 @@ commitment may be a narrow deterministic derivation. Arbitrary semantic
 grouping remains interpretive/candidate work and is never promoted by
 confidence. V3 demonstrates the value of preserving the grouping relation, not
 the universality of deterministic pressure inference.
+
+For the first slice, story-instance relations are a narrow typed union, not a
+universal binary graph edge:
+
+```text
+StoryInstanceRelation = CausalSupportRelation | PressureGroupRelation
+
+CausalSupportRelation:
+  source_fact_ref, target_fact_ref
+
+PressureGroupRelation:
+  target_commitment_or_pressure_ref
+  members: [{fact_ref, role}, ...]  # at least two
+```
+
+Both carry relation ID, origin, evidence refs, owning/source revision refs,
+derivation/rule version where applicable, and disposition/correction state.
+Pressure member roles are narrow slice vocabulary: `originating_history`,
+`causal_pivot`, and `current_constraint`. No graph database or universal role
+ontology is implied.
 
 The 33-item ledger is research evidence, not a production schema. Its
 currentness, grouping, reactivation, incompatibility, and provenance jobs are
@@ -301,6 +352,13 @@ MapSnapshot
   impact/freshness metadata + derivation version
 ```
 
+The derivation order is accepted history -> current-state projection ->
+story-instance relationship/group index -> Global Map -> Focus. In particular,
+pressure grouping is derived over accepted history before Focus selection. A
+group may retain current, historical, or superseded supporting members when its
+evidence contract justifies them; this never makes a historical member current.
+Focus may project a relevant group while preserving each member's status.
+
 The map contains compact summaries and refs, not duplicated canonical payloads.
 Every source artifact/revision and derivation version is recorded. A source
 revision, rule version, relationship correction, or scope/horizon change makes
@@ -318,7 +376,7 @@ explicit accepted refs, question/options, horizon, active commitments,
 dependencies, bounded causal ancestors/descendants when available, state
 constraints, and reactivated trajectories.
 
-The selector enforces accepted authority and horizon; includes explicit refs,
+The selector consumes the Global Map and enforces accepted authority and horizon; includes explicit refs,
 active commitments, current constraints, and bounded dependencies; reactivates
 dormant facts only through explicit triggers; groups shared-pressure facts;
 prioritizes constraints and direct triggers; and preserves exact refs behind
@@ -336,6 +394,17 @@ An accepted earlier fact changes through a new accepted source revision. No
 downstream accepted artifact is edited. Declared and deterministic dependency
 edges are traversed; dependents are checked against recorded revisions and
 projection hashes.
+
+- `health`: `valid` or `invalid` describes structural/provenance validity.
+- `freshness`: `fresh` or `stale` describes whether recorded dependencies still
+  match.
+- `semantic_impact`: `clear`, `suspect`, or `contradictory` describes derived
+  compatibility/reconciliation impact.
+
+These dimensions are independent. Stale does not mean invalid, suspect does
+not mean invalid, and contradictory does not erase acceptance. An artifact may
+therefore be `health=valid`, `freshness=stale`, and
+`semantic_impact=contradictory`.
 
 - `VALID`: dependencies and required projections match.
 - `STALE`: a dependency changed; the artifact remains structurally valid but
@@ -427,8 +496,8 @@ Using `tests/fixtures/repeated_map_focus_v2/`:
 9. A recommendation may prefer verified testimony over burning the archive,
    with rationale and tradeoff, but remains non-authoritative.
 
-If the Book 2 retraction changes, the new revision invalidates the old Map and
-Focus source set. Current state changes; downstream plans become stale and
+If the Book 2 retraction changes, the new revision makes the old Map and Focus
+source set stale. Current state changes; downstream plans remain accepted and
 interpretations relying on the old retraction become suspect. A Book 4 proposal
 using old inputs cannot execute. Rebuild produces a new Map and Focus; accepted
 downstream artifacts remain accepted but may be contradictory. Reconciliation
@@ -439,10 +508,9 @@ divergence.
 
 | Entity | Layer/scope | Authority | Reasoning job |
 |---|---|---|---|
-| AcceptedArtifactRevision | owning layer/scope | canonical | stable accepted source history |
 | AcceptedRealizationBundle | Realization/Book+ | canonical | ordered event/state history |
-| StateEvidence | Realization/requested scope | derived | current value plus lineage |
-| RelationshipRecord | owning narrative scope or derived cross-cutting index | declared/derived/candidate | origin/evidence-aware story-instance links |
+| CurrentStateEvidence | Realization/requested scope | derived | current value plus lineage |
+| CausalSupportRelation / PressureGroupRelation | owning narrative scope or derived cross-cutting index | declared/derived/candidate | typed story-instance links |
 | CommitmentAssessment | Identity/Series or Book | derived plus explicit resolution | trajectory fulfillment |
 | MapSnapshot | cross-cutting/Series/horizon | derived | full continuity view |
 | PlanningIntent | cross-cutting/Book | non-canonical input | current relevance trigger |
@@ -464,7 +532,7 @@ justified.
 | `bible.py`, canonical-state paths | EXTEND selectively | expose cross-book lineage without replacing sources |
 | `series/repeated_map_focus.py` | EXTEND | correct seam for generalized deterministic selection |
 | `series/vertical_slice_*` | REUSE/EXTEND | acceptance, refs, fixtures, and Focus boundary exist |
-| `relations` | EXTEND | preserve explicit changes; align origin/provenance |
+| `relations` | REUSE AS-IS / NOT OWNER OF STORY-INSTANCE REASONING RELATIONS | Preserve ADR 015 character-state semantics; do not repurpose it as the causal/pressure index |
 | `impact` | REUSE/EXTEND | traversal/report machinery exists |
 | `provenance` | REUSE AS-IS first | revisions, hashes, projections, atomic writes exist |
 | `commitment` | REUSE AS-IS as workflow | distinct from narrative commitment semantics |
@@ -523,24 +591,11 @@ semantic rewriting, thematic/psychological inference as a required dependency,
 and a full Map serialized into every prompt. Defer these until a concrete
 implementation failure proves the narrower architecture insufficient.
 
-## Candidate ADRs
+## Architecture decision record
 
-No ADR is created in this task. Existing ADRs 012, 013, 015, and 018 cover the
-durable foundations, and this architecture is still proposed for human review.
-After review, create at most one ADR if implementation depends on freezing the
-decision that Global Map/Focus and relationship indexes are rebuildable views
-over accepted source revisions, with interpretive edges non-authoritative and
-corrigible. Its alternatives are a second canonical graph or fully ephemeral
-analysis; neither is suitable for the stated authority/rebuild requirements.
-
-## Open questions
-
-- Which exact accepted-realization artifact is the first cross-book transition
-  lineage contract?
-- Should `SUSPECT` and `CONTRADICTORY` extend provenance health, or remain
-  impact/Map classifications?
-- What explicit author action ratifies a declared relationship beyond current
-  `relation_changes.yaml`?
+ADR 019 freezes the durable authority boundary for the derived Global Map,
+Focus, and story-instance relation indexes. See
+[`019-derived-global-map-and-story-instance-relation-authority.md`](../adr/019-derived-global-map-and-story-instance-relation-authority.md).
 
 ## Validation
 
@@ -558,9 +613,9 @@ Pre-existing dirty experiment files remain untouched.
 
 ## Recommendation
 
-Approve this as a review candidate, resolve the open questions, then implement
-only the companion vertical slice with explicit pressure grouping and
+The human review is closed. Implement only the companion vertical slice with
+explicit pressure grouping and
 causal/supporting-history inputs, without requiring automatic extraction.
 
 DETAILED NARRATIVE ARCHITECTURE V1:
-RECONCILED - READY FOR HUMAN ARCHITECTURE REVIEW
+HUMAN-REVIEWED FOR V1 VERTICAL-SLICE IMPLEMENTATION

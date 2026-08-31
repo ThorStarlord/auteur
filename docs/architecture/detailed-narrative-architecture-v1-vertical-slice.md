@@ -10,7 +10,7 @@ Use `tests/fixtures/repeated_map_focus_v2/` to prove:
 accepted Series Direction
 → accepted Book 1–3 Direction and realization history
 → current-state projection
-→ declared/deterministic pressure grouping and causal/supporting-history index
+→ typed causal-support and persistent pressure-group index over accepted history
 → Global Map
 → Book 4 planning intent
 → Focus / Decision Map
@@ -43,12 +43,12 @@ or prose behavior.
 ## Minimum new entities
 
 - `StateEvidence`: current value, transition, superseded IDs, accepted ref;
-- `RelationshipRecord`: source, target, type, origin, evidence, rule version,
-  disposition;
+- `CausalSupportRelation | PressureGroupRelation`: typed relation payload,
+  origin, evidence, owner/source revisions, rule version, disposition;
 - `GlobalMapSnapshot`: source revisions, state evidence, commitments, groups,
   relationships, freshness;
-- `ImpactStatus`, only if current health cannot distinguish stale, suspect, and
-  contradictory;
+- semantic impact reporting alongside existing provenance `health` and
+  `freshness`; do not extend `ArtifactMetadata.health`;
 - `InterpretationRecord`, only if the slice includes a rejected interpretation.
 
 No universal lifecycle or entity-per-ledger-row model is justified.
@@ -74,8 +74,20 @@ no mutation before explicit acceptance.
 Exercise D1–D8 and D10–D12 from the companion death tests. D9 may remain a
 model-level correction contract if no interpretive producer is included.
 
-Also exercise D13: explicit pressure grouping must survive projection into
-Focus without becoming canonical.
+Also exercise D13: explicit pressure grouping must survive Global Map -> Focus
+projection without becoming canonical, while a historical/superseded member
+remains relation-relevant without becoming current.
+
+D4 and D5 remain valid architecture death tests, but do not force generalized
+commitment lifecycle implementation into this P0 slice. D9 remains a contract
+test unless an interpretive correction producer is included.
+
+The implementation must preserve two independent orders: STATE_ORDER and
+transition order define narrative position; ArtifactStore revisions update one
+stable realization identity in place. Revising Book 2 must not append a new
+Book 2 event after Book 3, and must not silently rewrite accepted downstream
+artifacts. Downstream freshness and semantic impact are recomputed for
+reconciliation.
 
 ## Explicit non-goals
 

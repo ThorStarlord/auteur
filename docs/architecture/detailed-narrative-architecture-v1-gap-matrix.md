@@ -7,11 +7,11 @@
 | commitment lifecycle | Direction owner plus fulfillment assessment | Partial | Portfolio commitment states are different | P1 | Preserves author intent |
 | dependency edges | Source affects target, refs, traversal | Partial | Series and ArtifactStore graphs are separate | P0 | Enables impact |
 | relationship vocabulary/types | Ontology-owned conceptual definitions | Yes, partial | Need clean boundary from instance assertions | P1 | Prevents layer conflation |
-| story-instance relationships | Scoped/indexed assertions with declared/deterministic/interpretive origins | Partial | Relations lack unified origin semantics | P1 | Controls trust |
+| story-instance relationships | Typed scoped/indexed assertions with declared/deterministic/interpretive origins | Partial | Cross-cutting index and typed payloads are not implemented | P1 | Controls trust |
 | causal history | Historical transitions remain traversable | Partial | No cross-book causal index | P1 | Supports long horizon |
 | pressure groups | Declared/deterministic/interpretive grouping | Partial | Persistent richer grouping is the V3 gap | P0 | Preserves demonstrated reasoning value |
 | incompatibility | State-based candidate filtering | Yes, narrow | Generalize only after proof | P1 | Prevents unsafe suggestions |
-| revision impact | Direct/transitive reports | Yes, partial | Semantic suspect/contradictory boundary | P0 | Protects downstream work |
+| revision impact | Direct/transitive reports | Yes, partial | Semantic impact must remain separate from provenance health/freshness | P0 | Protects downstream work |
 | Global Map | Rebuildable full internal projection | No | Only narrow Map exists | P0 | Central gap |
 | Focus selection | Relevance over Map and intent | Yes, narrow | Generalized history/dependency inputs | P0 | Planning seam |
 | provenance | Refs, revisions, hashes, derivation version | Yes, pilot | Series/relations alignment | P0 | Audit and rebuild |
@@ -29,7 +29,7 @@
 | `bible.py`, canonical state | EXTEND selectively | Expose cross-book evidence |
 | `series/repeated_map_focus.py` | EXTEND | Correct deterministic selection seam |
 | `series/vertical_slice_*` | REUSE/EXTEND | Acceptance, refs, and Focus boundary exist |
-| `relations` | EXTEND | Preserve explicit changes; align origin and instance scope |
+| `relations` | REUSE AS-IS / NOT OWNER OF STORY-INSTANCE REASONING RELATIONS | ADR 015 character-state semantics only; causal/pressure relations use a separate typed derived/index boundary |
 | `impact` | REUSE/EXTEND | Traversal/report machinery exists |
 | `provenance` | REUSE AS-IS first | Revision, hash, freshness, atomic writes |
 | `commitment` | REUSE AS-IS as workflow | Distinct from narrative commitments |
