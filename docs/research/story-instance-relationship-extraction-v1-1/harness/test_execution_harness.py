@@ -103,6 +103,19 @@ class HarnessTests(unittest.TestCase):
         self.assertEqual(report["schedule"]["total"], 78)
         self.assertEqual(report["snapshots"]["invalid_derived_equals_b0"], True)
 
+    def test_p02_is_identical_across_all_conditions(self):
+        report = qualify_synthetic()
+        self.assertTrue(report["snapshots"]["p02_all_conditions_equal"])
+        self.assertTrue(report["snapshots"]["p02_r_gold_has_no_overlay"])
+
+    def test_downstream_projection_rejects_accepted_authority(self):
+        from execution_harness import ensure_downstream_representable
+
+        payload = {"relations": [valid_relation()], "abstentions": []}
+        payload["relations"][0]["authority_class"] = "ACCEPTED"
+        with self.assertRaises(ValueError):
+            ensure_downstream_representable(payload)
+
     def test_validator_requires_rich_record_fields_and_types(self):
         payload = {"relations": [valid_relation()], "abstentions": []}
         del payload["relations"][0]["rationale"]

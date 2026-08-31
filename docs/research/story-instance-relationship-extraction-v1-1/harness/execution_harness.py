@@ -57,6 +57,11 @@ def canonical_projection(payload):
  out.sort(key=lambda x:(x["relation_type"],x["target_ref"],tuple(x["source_fact_refs"]),tuple((m["fact_ref"],m["role"]) for m in x["member_roles"])))
  return json.dumps(out,separators=(",",":"),sort_keys=False)
 
+def ensure_downstream_representable(payload):
+ for r in payload.get("relations",[]):
+  if r.get("authority_class") not in {"DETERMINISTIC_DERIVATION","INTERPRETIVE"}:
+   raise ValueError("rich relation is not representable in downstream overlay")
+
 def route_derived(er,probe,dr,status,projection):
  if probe not in {"P03","P04","P05"}:raise ValueError("probe")
  if er!=dr:raise ValueError("repetition mismatch")
@@ -107,9 +112,9 @@ def qualify_synthetic():
   for rep in (1,2,3):
    for cond in ("B0","R-GOLD","R-DERIVED"):
     gid=f"G{len(generators)+1}";b0=f"B0|{probe}|{rep}"
-    if cond=="B0":actual=b0;expected=None
+    if probe=="P02":expected=None;actual=b0
+    elif cond=="B0":actual=b0;expected=None
     elif cond=="R-GOLD":expected="GOLD";actual=build_model_packet(b0,expected)
-    elif probe=="P02":expected=None;actual=b0
     else:
      route=route_derived(rep,probe,rep,ex[rep-1]["status"],ex[rep-1]["projection"]);expected=route["projection"];actual=build_model_packet(b0,expected)
      routing.append({"probe":probe,"repetition":rep,"extractor_id":ex[rep-1]["id"],"validator_status":ex[rep-1]["status"],"expected_projection_sha256":sha256_text(expected) if expected else "EMPTY","actual_projection_sha256":sha256_text(expected) if expected else "EMPTY","exact_match":actual==build_model_packet(b0,expected)})
@@ -124,5 +129,7 @@ def qualify_synthetic():
  for st in ORDER[1:8]:m.transition(st,reconciliation=rec if st==RunState.PRE_UNBLIND_READY else None)
  m.transition(RunState.PRE_UNBLIND_FROZEN,reconciliation=rec)
  h7=_fails(lambda:m.transition(RunState.UNBLIND_ALLOWED,completed_calls=77,integrity_ok=True));h7i=_fails(lambda:m.transition(RunState.UNBLIND_ALLOWED,completed_calls=78,integrity_ok=False));m.transition(RunState.UNBLIND_ALLOWED,completed_calls=78,integrity_ok=True)
- report={"positions":len(records),"unique_positions":rec["unique_positions"],"schedule":{"extractor":len(ex),"generator":len(generators),"extraction_evaluator":len(x),"downstream_evaluator":len(y),"total":len(records)},"extractors":ex,"generators":generators,"routing_manifest":routing,"projection_routes":{"H1":ex[0]["status"]=="STRUCTURE_VALID","H2":ex[1]["status"]=="STRUCTURE_VALID","H3":ex[2]["status"]=="FORMAT_INVALID","H4_failure":h4,"H5_failure":h5},"packet_integrity":{"extraction":"3/3","downstream":"36/36","H6_failure":_fails(lambda:build_evaluator_packet("source","EVAL:",embedded="EVAL:changed"))},"freeze":{"H7_77_refusal":h7,"H7_bad_integrity_refusal":h7i,"H7_good_success":m.state==RunState.UNBLIND_ALLOWED,"H7_direct_jump_refusal":h7bad,"H8_success":reconciliation_is_ready(rec)},"reconciliation":rec,"snapshots":{"b0":"B0","gold_differs":build_model_packet("B0","GOLD")!="B0","valid_derived_differs":build_model_packet("B0",ex[0]["projection"])!="B0","invalid_derived_equals_b0":build_model_packet("B0",None)=="B0"},"illegal_transitions_accepted":0,"pre_unblind_ready":reconciliation_is_ready(rec)}
+ p02=[g["packet"] for g in generators if g["probe"]=="P02"]
+ p02_groups=[p02[i:i+3] for i in range(0,len(p02),3)]
+ report={"positions":len(records),"unique_positions":rec["unique_positions"],"schedule":{"extractor":len(ex),"generator":len(generators),"extraction_evaluator":len(x),"downstream_evaluator":len(y),"total":len(records)},"extractors":ex,"generators":generators,"routing_manifest":routing,"projection_routes":{"H1":ex[0]["status"]=="STRUCTURE_VALID","H2":ex[1]["status"]=="STRUCTURE_VALID","H3":ex[2]["status"]=="FORMAT_INVALID","H4_failure":h4,"H5_failure":h5},"packet_integrity":{"extraction":"3/3","downstream":"36/36","H6_failure":_fails(lambda:build_evaluator_packet("source","EVAL:",embedded="EVAL:changed"))},"freeze":{"H7_77_refusal":h7,"H7_bad_integrity_refusal":h7i,"H7_good_success":m.state==RunState.UNBLIND_ALLOWED,"H7_direct_jump_refusal":h7bad,"H8_success":reconciliation_is_ready(rec)},"reconciliation":rec,"snapshots":{"b0":"B0","gold_differs":build_model_packet("B0","GOLD")!="B0","valid_derived_differs":build_model_packet("B0",ex[0]["projection"])!="B0","invalid_derived_equals_b0":build_model_packet("B0",None)=="B0","p02_all_conditions_equal":len(p02_groups)==3 and all(len(group)==3 and len(set(group))==1 for group in p02_groups),"p02_r_gold_has_no_overlay":bool(p02_groups) and all(group[1]==group[0] for group in p02_groups)},"illegal_transitions_accepted":0,"pre_unblind_ready":reconciliation_is_ready(rec)}
  return report
