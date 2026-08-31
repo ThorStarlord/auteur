@@ -6,9 +6,10 @@
 | current state projection | Deterministic values with transition lineage | Partial | Current values lack uniform lineage | P0 | Separates now from happened |
 | commitment lifecycle | Direction owner plus fulfillment assessment | Partial | Portfolio commitment states are different | P1 | Preserves author intent |
 | dependency edges | Source affects target, refs, traversal | Partial | Series and ArtifactStore graphs are separate | P0 | Enables impact |
-| story-instance relationships | Declared/deterministic/interpretive origins | Partial | Relations lack unified origin semantics | P1 | Controls trust |
+| relationship vocabulary/types | Ontology-owned conceptual definitions | Yes, partial | Need clean boundary from instance assertions | P1 | Prevents layer conflation |
+| story-instance relationships | Scoped/indexed assertions with declared/deterministic/interpretive origins | Partial | Relations lack unified origin semantics | P1 | Controls trust |
 | causal history | Historical transitions remain traversable | Partial | No cross-book causal index | P1 | Supports long horizon |
-| pressure groups | Derived grouping by shared commitment | Partial | Narrow Map grouping only | P1 | Compact reasoning |
+| pressure groups | Declared/deterministic/interpretive grouping | Partial | Persistent richer grouping is the V3 gap | P0 | Preserves demonstrated reasoning value |
 | incompatibility | State-based candidate filtering | Yes, narrow | Generalize only after proof | P1 | Prevents unsafe suggestions |
 | revision impact | Direct/transitive reports | Yes, partial | Semantic suspect/contradictory boundary | P0 | Protects downstream work |
 | Global Map | Rebuildable full internal projection | No | Only narrow Map exists | P0 | Central gap |
@@ -28,7 +29,7 @@
 | `bible.py`, canonical state | EXTEND selectively | Expose cross-book evidence |
 | `series/repeated_map_focus.py` | EXTEND | Correct deterministic selection seam |
 | `series/vertical_slice_*` | REUSE/EXTEND | Acceptance, refs, and Focus boundary exist |
-| `relations` | EXTEND | Preserve explicit changes; align origin |
+| `relations` | EXTEND | Preserve explicit changes; align origin and instance scope |
 | `impact` | REUSE/EXTEND | Traversal/report machinery exists |
 | `provenance` | REUSE AS-IS first | Revision, hash, freshness, atomic writes |
 | `commitment` | REUSE AS-IS as workflow | Distinct from narrative commitments |

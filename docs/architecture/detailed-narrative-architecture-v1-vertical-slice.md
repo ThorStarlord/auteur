@@ -10,7 +10,7 @@ Use `tests/fixtures/repeated_map_focus_v2/` to prove:
 accepted Series Direction
 → accepted Book 1–3 Direction and realization history
 → current-state projection
-→ declared/deterministic relationship index
+→ declared/deterministic pressure grouping and causal/supporting-history index
 → Global Map
 → Book 4 planning intent
 → Focus / Decision Map
@@ -19,8 +19,9 @@ accepted Series Direction
 → impact propagation, rebuild, changed Focus
 ```
 
-No open-world relationship extraction is required. Any interpretive edge is an
-explicit fixture candidate only.
+No open-world relationship extraction is required. Grouping and causal inputs
+may be declared, narrowly deterministically derived from the fixture, or
+supplied as explicit candidates; their origin remains visible.
 
 ## Exact implementation boundary
 
@@ -72,6 +73,9 @@ no mutation before explicit acceptance.
 
 Exercise D1–D8 and D10–D12 from the companion death tests. D9 may remain a
 model-level correction contract if no interpretive producer is included.
+
+Also exercise D13: explicit pressure grouping must survive projection into
+Focus without becoming canonical.
 
 ## Explicit non-goals
 

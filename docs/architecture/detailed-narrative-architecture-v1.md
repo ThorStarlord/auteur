@@ -11,19 +11,19 @@ state and rebuildable reasoning views:
 
 ```text
 accepted direction and realization artifacts
-        ↓
+        â†“
 accepted history + provenance
-        ↓
+        â†“
 deterministic current-state projection
-        ↓
+        â†“
 declared and deterministic relationship/dependency index
-        ↓
+        â†“
 rebuildable Global Map
-        ↓
+        â†“
 planning intent + question + horizon
-        ↓
+        â†“
 rebuildable Focus / Decision Map
-        ↓
+        â†“
 non-authoritative recommendation
 ```
 
@@ -32,12 +32,18 @@ Focus is a relevance projection over that view, never an authority boundary.
 Interpretive relationships may enrich reasoning, but confidence cannot promote
 them to canon.
 
+## Current-main provenance
+
+This reconciliation branch starts from `origin/main` at
+`a6f7ded7d01cfdd149c526a71e0c751af517e0b1`. The previous candidate was
+`b735b90e557bdf4f1475a29b0ae1f58a00958044`, based on
+`7544b5c6ff4ef6d9520b544cd92de4807aacc84e`. Current main contains later V3,
+V1, and V1.1 research commits absent from the candidate. The prior documents
+were ported as content; divergent research ancestry was not merged.
+
 ## Repository evidence reviewed
 
-The synthesis was grounded in current `main` at
-`7544b5c6ff4ef6d9520b544cd92de4807aacc84e` before this architecture branch was
-created. The workspace had unrelated uncommitted experiment files; none were
-changed.
+The workspace had unrelated uncommitted experiment files; none were changed.
 
 Reviewed evidence includes:
 
@@ -52,15 +58,17 @@ Reviewed evidence includes:
 - Archive of Lies fixtures under
   `tests/fixtures/archive_of_lies_vertical_slice/` and
   `tests/fixtures/repeated_map_focus_v2/`; and
-- the V1 candidate ledger and V2 research result under
-  `docs/research/global-map-architecture-value-v1/` and
-  `docs/research/global-map-architecture-value-v2/`.
+- the V1 candidate ledger, V2 result, and qualifying V3 result under
+  `docs/research/global-map-architecture-value-v1/`,
+  `docs/research/global-map-architecture-value-v2/`, and
+  `docs/research/global-map-architecture-value-v3/`;
+- `docs/research/story-instance-relationship-extraction-v1/` and
+  `docs/research/story-instance-relationship-extraction-v1-1/`.
 
-The requested V3 result and Story-Instance Relationship Extraction V1/V1.1
-artifacts were not present in this checkout. That absence is recorded rather
-than filled from memory. The available V2 report is narrow, single-fixture
-evidence and explicitly does not establish automatic extraction or production
-Global Map design.
+The qualifying V3 run is
+`docs/research/global-map-architecture-value-v3/runs/20260829-agent-native-sonnet-opus-v3/result.md`.
+It is representation-value evidence, not authorization for extraction or
+production Global Map implementation.
 
 ## Existing architecture that remains authoritative
 
@@ -90,19 +98,25 @@ semantic owner of Series Direction commitments.
 - Grouping consequences under a carried Series pressure can be more useful than
   a flat list.
 - State compatibility is a deterministic safety filter.
-- The existing derived Map/Focus representation captured the useful narrow
-  mechanisms in Archive of Lies; the richer 33-item ledger added no demonstrated
-  value over it.
+- V3 demonstrated incremental value beyond shipped Map/Focus for a narrow richer
+  representation: A and B were each 6/6/3, while C was 13/2/0; in paired
+  P03/P05, C was 4/2/0 and B was 0/3/3.
+- Explicit pressure grouping is PROMISING and causal/supporting-history trace
+  is the strongest demonstrated C-over-B mechanism. Dormancy/reactivation is
+  useful but does not explain C-over-B by itself. Explicit incompatibility is
+  promising but not decisive; REL-10 remains UNCLEAR.
+- The full 33-item ledger is not justified wholesale.
 - No evidence establishes a universal relationship ontology, reliable
   open-world extraction, cross-story generalization, or human usability.
 
 ## Research work suspended
 
 Further Story-Instance Relationship Extraction experiments are suspended until
-an implementation failure creates a concrete empirical question. Do not start
-Attempt 10, V1.2, V2, another harness, or production extraction from this
-architecture review. The limited experiments delimit what is established; they
-are not negative evidence against the product thesis.
+an implementation failure creates a concrete empirical question. V3 supplies
+enough representation-value evidence to design the architecture; automatic
+extraction is a separate reliability question. V1/V1.1 define that narrower
+question, while invalidated attempts do not contribute product evidence. Do not
+start another attempt, harness, or production extraction from this review.
 
 ## Core architectural model
 
@@ -151,7 +165,8 @@ No step writes a derived result into a canonical source.
 | commitment fulfillment | Identity/Series or Book | commitment owner plus realization evidence | derived; explicit resolution may be stored | recompute after upstream change |
 | planning intent | cross-cutting/Book | planning session | stored workflow input | relevance trigger only |
 | dependencies | cross-cutting | declared owner/manifest | declared plus derived traversal | source/target refs and edge origin |
-| relationships | Ontology/appropriate scope | declared owner if accepted | declared, deterministic, or interpretive | origin, evidence, revision, disposition |
+| relationship vocabulary/types | Ontology | accepted ontology vocabulary | stored concept definitions | ontology authority only |
+| story-instance relationships | owning narrative scope or derived cross-cutting index | accepted owner only for declared relations | declared, deterministic, or interpretive | source/target facts, origin, evidence, revision, disposition |
 | Global Map | cross-cutting/Series/horizon | none | derived, rebuildable | source revisions and derivation version |
 | Focus / Decision Map | cross-cutting/Book | none | derived proposal | Map, intent, question, horizon refs |
 | recommendations | decision session | none | Candidate/derived | exact inputs and producer provenance |
@@ -189,12 +204,14 @@ provenance yields a diagnostic, not silent selection.
 ## Relationship origin model
 
 The three-origin model is sufficient for V1 if origin is mandatory and
-consumers treat origins differently.
+consumers treat origins differently. Ontology owns relation type definitions;
+an assertion between actual accepted story facts does not become Ontology just
+because it uses an ontology-defined type.
 
 ### Declared
 
 An author writes a relationship in an accepted owner: a commitment governs
-Books 1–4, Book 1 sets up a mystery, or Arc A depends on event B. The edge is
+Books 1â€“4, Book 1 sets up a mystery, or Arc A depends on event B. The edge is
 canonical only to the extent its owner is canonical, and carries owner revision
 and rationale.
 
@@ -222,13 +239,20 @@ events or state.
 | `setup -> payoff` | DECLARE/DERIVE | only with explicit IDs or narrow rules |
 | `carries` / `governed_by` | DECLARE/DERIVE | existing commitment refs |
 | `incompatible_with` | DERIVE | state/options safety filter |
-| pressure/group membership | DECLARE first; DERIVE grouping | compact Map grouping |
+| pressure/group membership | DECLARE, DERIVE, or INTERPRET | explicit grouping is valuable; origin remains visible |
 | dormant -> reactivated | DERIVE | local relevance disposition |
 | unresolved -> resolved | DERIVE + resolution evidence | question history |
 | source/provenance | BUILD | mandatory metadata relation |
 | `causes` | INTERPRET unless explicitly declared | no automatic causal truth |
 | `supports` | INTERPRET/DECLARE | only with clear owner/consumer |
 | motif/theme reinforcement | DEFER/INTERPRET | not needed in first slice |
+
+Pressure groups have the same three possible origins as other story-instance
+relationships. For Archive of Lies, grouping by a shared carried accepted
+commitment may be a narrow deterministic derivation. Arbitrary semantic
+grouping remains interpretive/candidate work and is never promoted by
+confidence. V3 demonstrates the value of preserving the grouping relation, not
+the universality of deterministic pressure inference.
 
 The 33-item ledger is research evidence, not a production schema. Its
 currentness, grouping, reactivation, incompatibility, and provenance jobs are
@@ -354,7 +378,7 @@ recommendation claims.
 
 ## Interpretive-relation failure
 
-“A causes B” lives in a versioned derived/candidate record, never canon unless
+â€œA causes Bâ€ lives in a versioned derived/candidate record, never canon unless
 the author explicitly declares an equivalent relationship in an accepted
 artifact. If the author says the events are merely correlated, preserve the
 rejected interpretation and correction, mark dependent analyses suspect/stale,
@@ -368,12 +392,14 @@ edges or alter event history.
 Identity/Direction rows are already represented by Series and Book Direction.
 State rows are represented by accepted transitions and current-state
 projection. Explicit resolution, supersession, source refs, and unaccepted
-proposals should remain production behavior. Pressure grouping, dormant
-reactivation, incompatibility, and why-now are derived projection jobs proven
-by the current contract. Causal chains, psychological motivation, thematic
-reinforcement, and the full 33-item ledger remain interpretive/research-only
-until an author-owned contract requires them. Lantern irrelevance is a fixture
-test of filtering, not a universal concept.
+proposals should remain production behavior. V3 demonstrates incremental value
+from preserving explicit pressure grouping and causal/supporting-history trace,
+but their origins must remain visible. Dormant reactivation and incompatibility
+remain useful projection jobs; they are not evidence for universal inference.
+Causal chains, psychological motivation, thematic reinforcement, and the full
+33-item ledger remain interpretive/research-only until an author-owned contract
+requires them. Lantern irrelevance is a fixture test of filtering, not a
+universal concept.
 
 ## Worked Archive of Lies trace
 
@@ -411,7 +437,7 @@ divergence.
 | AcceptedArtifactRevision | owning layer/scope | canonical | stable accepted source history |
 | AcceptedRealizationBundle | Realization/Book+ | canonical | ordered event/state history |
 | StateEvidence | Realization/requested scope | derived | current value plus lineage |
-| RelationshipRecord | cross-cutting/scoped | declared/derived/candidate | origin/evidence-aware links |
+| RelationshipRecord | owning narrative scope or derived cross-cutting index | declared/derived/candidate | origin/evidence-aware story-instance links |
 | CommitmentAssessment | Identity/Series or Book | derived plus explicit resolution | trajectory fulfillment |
 | MapSnapshot | cross-cutting/Series/horizon | derived | full continuity view |
 | PlanningIntent | cross-cutting/Book | non-canonical input | current relevance trigger |
@@ -446,11 +472,30 @@ justified.
 See [`detailed-narrative-architecture-v1-gap-matrix.md`](detailed-narrative-architecture-v1-gap-matrix.md).
 The principal gap is composition of accepted multi-Book history,
 current-state lineage, dependency impact, and revision-aware Map/Focus beyond
-the current narrow slice—not a missing universal graph.
+the current narrow sliceâ€”not a missing universal graph.
+
+## Architecture-section reconciliation
+
+| Section | Status | Evidence |
+|---|---|---|
+| authority and source of truth | UNCHANGED | Constitution and accepted artifact boundaries remain current |
+| canonical history/current state | UNCHANGED | Current realization and provenance contracts preserve revision and projection |
+| relationship origins | TIGHTENED | V3 gold separates ontology types from instance assertions and preserves origin |
+| minimum vocabulary | TIGHTENED | V3 prioritizes causal support and pressure grouping without adopting all 33 items |
+| commitments/trajectories | UNCHANGED | Direction and fulfillment ownership remain separate |
+| Global Map | UNCHANGED | V3 strengthens derived representation value, not Map authority |
+| Focus / Decision Map | TIGHTENED | V3 shows persistent grouping must survive projection |
+| revision/impact | UNCHANGED | Existing provenance and reconciliation boundaries still apply |
+| rebuildability | UNCHANGED | No evidence requires hidden derived authority |
+| scaling/context | UNCHANGED | No new evidence changes progressive disclosure |
+| interpretive correction | TIGHTENED | Causal/supporting-history edges may be interpretive and corrigible |
 
 ## Death-test results
 
-D1–D12 are defined in
+The reconciled suite contains D1-D13; D13 is the additional pressure-group
+projection invariant.
+
+D1â€“D12 are defined in
 [`detailed-narrative-architecture-v1-death-tests.md`](detailed-narrative-architecture-v1-death-tests.md).
 The proposed model passes each test by preserving accepted history, separating
 current projection from lineage, treating derived views as rebuildable, and
@@ -461,7 +506,7 @@ architecture acceptance criteria, not current implementation evidence.
 
 The exact implementation-proof plan is in
 [`detailed-narrative-architecture-v1-vertical-slice.md`](detailed-narrative-architecture-v1-vertical-slice.md):
-Archive of Lies, accepted Series plus Books 1–3, current state, declared and
+Archive of Lies, accepted Series plus Books 1â€“3, current state, declared and
 deterministic relationships, Global Map, Book 4 Focus, one non-authoritative
 recommendation, one upstream revision, impact propagation, and rebuild.
 
@@ -501,14 +546,16 @@ fixture/code crosswalk; unrelated baseline failures were not repaired.
 
 ## Git / PR
 
-Branch: `architecture/detailed-narrative-architecture-v1`, from
-`7544b5c6ff4ef6d9520b544cd92de4807aacc84e`. No publication or PR was performed.
+Branch: `architecture/detailed-narrative-architecture-v1-reconciled`, from
+`origin/main` at `a6f7ded7d01cfdd149c526a71e0c751af517e0b1`. No publication or PR
+was performed yet.
 Pre-existing dirty experiment files remain untouched.
 
 ## Recommendation
 
 Approve this as a review candidate, resolve the open questions, then implement
-only the companion vertical slice.
+only the companion vertical slice with explicit pressure grouping and
+causal/supporting-history inputs, without requiring automatic extraction.
 
 DETAILED NARRATIVE ARCHITECTURE V1:
-COHERENT — READY FOR HUMAN ARCHITECTURE REVIEW
+RECONCILED - READY FOR HUMAN ARCHITECTURE REVIEW
