@@ -1,10 +1,9 @@
 # Detailed Narrative Architecture V1 — Vertical Slice Proof
 
-Status: deterministic vertical-slice core implemented; conformance closure is
-complete on the feature branch. Focus now consumes a pure Global Map selection
-seam, legacy revision-1 payloads remain readable, and exact D1/D2/D3 tests are
-covered. Full repository qualification retains three known baseline Story
-Discovery failures.
+Status: deterministic V1 vertical slice implemented and merge-qualified. The
+P0 death-test set passes; full repository qualification retains the three
+known baseline Story Discovery failures. Focus consumes a pure Global Map
+selection seam, and legacy revision-1 payloads remain readable.
 
 ## Slice
 
