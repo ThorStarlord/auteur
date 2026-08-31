@@ -41,6 +41,11 @@ This reconciliation branch starts from `origin/main` at
 V1, and V1.1 research commits absent from the candidate. The prior documents
 were ported as content; divergent research ancestry was not merged.
 
+Verified merge base: `1053154f3d23893e2ce6a4e48fa5cb16b2d459ed`.
+Representative current-main commits absent from the candidate are V3 result
+recording (`d33394e`, with result commits `b6a2d6c` and `5a86e32`), Story-Instance
+Relationship Extraction V1 (`dfa5191`), and V1.1 (`a6f7ded`).
+
 ## Repository evidence reviewed
 
 The workspace had unrelated uncommitted experiment files; none were changed.
