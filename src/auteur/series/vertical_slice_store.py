@@ -23,6 +23,7 @@ from auteur.series.vertical_slice_models import (
     BookPlanningIntent,
     BookPlanningContext,
     CanonicalState,
+    GlobalMapSnapshot,
     DecisionAction,
     NextDecisionProposal,
     PlanningEntry,
@@ -143,6 +144,26 @@ class VerticalSliceStore:
         if _PATH_SAFE_IDENTIFIER.fullmatch(bundle_id) is None:
             raise ValueError("Realization bundle ID must be path-safe")
         return self.root / "accepted" / "realization" / f"{bundle_id}.yaml"
+
+    def accepted_realization_revision_path(
+        self, artifact_id: str, revision: int
+    ) -> Path:
+        if revision < 1:
+            raise ValueError("Realization revision must be at least 1")
+        if _PATH_SAFE_IDENTIFIER.fullmatch(artifact_id) is None:
+            raise ValueError("Realization artifact ID must be path-safe")
+        return (
+            self.root
+            / "accepted"
+            / "realization-revisions"
+            / artifact_id
+            / f"{revision:06d}.yaml"
+        )
+
+    def global_map_path(self, book_number: int) -> Path:
+        if book_number <= 1:
+            raise ValueError("Global Map requires a Book number greater than 1")
+        return self.root / "derived" / f"global-map-book-{book_number}.yaml"
 
     def book_direction_proposal_path(
         self, book_number: int, proposal_id: str
@@ -807,12 +828,25 @@ class VerticalSliceStore:
         artifact_id = accepted.artifact_id
         sidecar = self.artifact_store.sidecar_path(artifact_id)
         revision_dir = self.artifact_store.root / "revisions" / artifact_id
-        if path.exists() or sidecar.exists() or revision_dir.exists():
+        current = next(
+            (
+                bundle_metadata
+                for bundle_metadata in existing
+                if bundle_metadata[0].artifact_id == artifact_id
+            ),
+            None,
+        )
+        if current is not None and current[0].book_number != accepted.book_number:
+            raise ValueError("Realization artifact identity cannot change books")
+        if current is None and (path.exists() or sidecar.exists() or revision_dir.exists()):
             raise ValueError(
                 f"Realization candidate is already accepted: {accepted.candidate_id}"
             )
         staged_path = path.parent / ".staging" / path.name
         previous_sidecar = sidecar.read_bytes() if sidecar.is_file() else None
+        previous_payload = path.read_bytes() if path.is_file() else None
+        accepted_revision: int | None = None
+        created_payload_history: list[Path] = []
         previous_revisions = set(
             self.artifact_store.list_revisions(artifact_id)
         )
@@ -825,12 +859,8 @@ class VerticalSliceStore:
                 source=DependencySource.DECLARED,
             )
         ]
-        if existing:
+        if current is None and existing:
             previous_bundle, previous_metadata = existing[-1]
-            if previous_metadata.revision != 1:
-                raise ValueError(
-                    "Invalid accepted Realization metadata history"
-                )
             dependencies.append(
                 DependencySpec(
                     artifact_id=previous_bundle.artifact_id,
@@ -842,7 +872,39 @@ class VerticalSliceStore:
                     source=DependencySource.DECLARED,
                 )
             )
+        elif current is not None:
+            existing_metadata = current[1]
+            state_dependency = next(
+                (
+                    dependency
+                    for dependency in existing_metadata.dependencies
+                    if dependency.kind is DependencyKind.STATE_ORDER
+                ),
+                None,
+            )
+            if state_dependency is not None:
+                dependencies.append(
+                    DependencySpec(
+                        artifact_id=state_dependency.artifact_id,
+                        artifact_type=state_dependency.artifact_type,
+                        path=self.accepted_realization_bundle_path(
+                            state_dependency.artifact_id
+                        ),
+                        kind=DependencyKind.STATE_ORDER,
+                        source=DependencySource.DECLARED,
+                    )
+                )
         try:
+            if previous_payload is not None:
+                previous_revision = self.artifact_store.current(artifact_id)
+                if previous_revision is None:
+                    raise ValueError("Invalid accepted Realization metadata history")
+                history_path = self.accepted_realization_revision_path(
+                    artifact_id, previous_revision.revision
+                )
+                if not history_path.exists():
+                    self._write_model(history_path, AcceptedRealizationBundle.model_validate(yaml.safe_load(previous_payload.decode("utf-8"))))
+                    created_payload_history.append(history_path)
             self._write_model(staged_path, accepted)
             metadata = self.artifact_store.accept(
                 staged_path,
@@ -854,7 +916,14 @@ class VerticalSliceStore:
             )
             if metadata is None:
                 raise RuntimeError("Accepted Realization metadata is archived")
+            accepted_revision = metadata.revision
             staged_path.replace(path)
+            self._write_model(
+                self.accepted_realization_revision_path(
+                    artifact_id, metadata.revision
+                ),
+                accepted,
+            )
             return metadata
         except Exception:
             self._restore_artifact_metadata(
@@ -862,6 +931,20 @@ class VerticalSliceStore:
                 previous_sidecar,
                 previous_revisions,
             )
+            if previous_payload is None:
+                path.unlink(missing_ok=True)
+            else:
+                path.write_bytes(previous_payload)
+            for history_path in created_payload_history:
+                history_path.unlink(missing_ok=True)
+                try:
+                    history_path.parent.rmdir()
+                except OSError:
+                    pass
+            if accepted_revision is not None:
+                self.accepted_realization_revision_path(
+                    artifact_id, accepted_revision
+                ).unlink(missing_ok=True)
             raise
         finally:
             staged_path.unlink(missing_ok=True)
@@ -974,8 +1057,8 @@ class VerticalSliceStore:
                 or current.artifact_id != artifact_id
                 or current.artifact_type != "accepted_realization_bundle"
                 or current.lifecycle is not Lifecycle.ACCEPTED
-                or current.revision != 1
-                or revisions != [1]
+                or current.revision < 1
+                or revisions != list(range(1, current.revision + 1))
             ):
                 raise ValueError(
                     "Invalid accepted Realization metadata history"
@@ -984,13 +1067,28 @@ class VerticalSliceStore:
                 self.artifact_store.root / "revisions" / artifact_id
             )
             revision_files = list(revision_dir.glob("*.yaml"))
-            if len(revision_files) != 1 or revision_files[0].stem != "000001":
+            if len(revision_files) != current.revision or {
+                int(path.stem) for path in revision_files if path.stem.isdigit()
+            } != set(range(1, current.revision + 1)):
                 raise ValueError(
                     "Invalid accepted Realization metadata history"
                 )
+            payload_revision_dir = (
+                self.root / "accepted" / "realization-revisions" / artifact_id
+            )
+            payload_revision_files = list(payload_revision_dir.glob("*.yaml"))
+            legacy_revision_one = current.revision == 1 and not payload_revision_files
+            if not legacy_revision_one and (len(payload_revision_files) != current.revision or {
+                int(path.stem)
+                for path in payload_revision_files
+                if path.stem.isdigit()
+            } != set(range(1, current.revision + 1))):
+                raise ValueError(
+                    "Invalid accepted Realization payload history"
+                )
             try:
                 revision_metadata = self.artifact_store.get_revision(
-                    artifact_id, 1
+                    artifact_id, current.revision
                 )
             except (OSError, UnicodeError, yaml.YAMLError, ValidationError) as error:
                 raise ValueError(
@@ -1049,9 +1147,13 @@ class VerticalSliceStore:
                 dependency.artifact_type != "accepted_realization_bundle"
                 or dependency.source is not DependencySource.DECLARED
                 or dependency.path != expected_path
-                or dependency.revision != predecessor_metadata.revision
+                or dependency.revision not in self.artifact_store.list_revisions(
+                    predecessor_bundle.artifact_id
+                )
                 or dependency.full_content_hash
-                != predecessor_metadata.content_hash
+                != self.artifact_store.get_revision(
+                    predecessor_bundle.artifact_id, dependency.revision
+                ).content_hash
                 or dependency.projected_hash
                 != dependency.full_content_hash
                 or dependency.fields != []
@@ -1103,6 +1205,34 @@ class VerticalSliceStore:
                 self.canonical_state_path.read_text(encoding="utf-8")
             )
         )
+
+    def load_realization_revision(
+        self, artifact_id: str, revision: int
+    ) -> AcceptedRealizationBundle:
+        metadata = self.artifact_store.get_revision(artifact_id, revision)
+        path = self.accepted_realization_revision_path(artifact_id, revision)
+        if revision == metadata.revision and metadata == self.artifact_store.current(artifact_id):
+            path = self.accepted_realization_bundle_path(artifact_id)
+        if not path.is_file():
+            raise FileNotFoundError(path)
+        return AcceptedRealizationBundle.model_validate(
+            yaml.safe_load(path.read_text(encoding="utf-8"))
+        )
+
+    def save_global_map(self, snapshot: GlobalMapSnapshot) -> None:
+        self._write_model(self.global_map_path(snapshot.planning_book_number), snapshot)
+
+    def load_global_map(self, book_number: int) -> GlobalMapSnapshot | None:
+        path = self.global_map_path(book_number)
+        if not path.is_file():
+            return None
+        return GlobalMapSnapshot.model_validate(
+            yaml.safe_load(path.read_text(encoding="utf-8"))
+        )
+
+    def delete_global_map(self, book_number: int) -> None:
+        path = self.global_map_path(book_number)
+        path.unlink(missing_ok=True)
 
     def save_planning_entry(self, entry: PlanningEntry) -> None:
         self._write_model(self.planning_entry_path(entry.book_number), entry)

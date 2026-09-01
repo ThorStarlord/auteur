@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal, Self
+from typing import Annotated, Literal, Self
 
 from pydantic import (
     BaseModel,
@@ -166,12 +166,119 @@ class AcceptedRealizationBundle(BaseModel):
         return _require_unique_transition_ids(transitions)
 
 
+RelationOrigin = Literal[
+    "DECLARED", "DETERMINISTIC_DERIVATION", "INTERPRETIVE"
+]
+RelationDisposition = Literal["active", "stale", "rejected"]
+PressureMemberRole = Literal[
+    "originating_history", "causal_pivot", "current_constraint"
+]
+
+
+class PressureGroupMember(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    fact_ref: AcceptedFactRef
+    role: PressureMemberRole
+
+
+class CommitmentRef(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_id: str
+    revision: int
+    commitment_id: str
+
+
+class GlobalMapEntry(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    entry_id: str
+    kind: Literal["commitment", "fact"]
+    summary: str
+    source_refs: list[AcceptedContinuitySourceRef] = Field(min_length=1)
+    disposition: ContinuityDisposition
+    currentness: Literal["current", "historical"] = "historical"
+    is_current_constraint: bool = False
+    commitment_ids: list[str] = Field(default_factory=list)
+    fact_ref: AcceptedFactRef | None = None
+    subject: str | None = None
+    attribute: str | None = None
+    before: str | None = None
+    after: str | None = None
+    book_number: int | None = Field(default=None, ge=1)
+
+
+class CausalSupportRelation(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    kind: Literal["causal_support"] = "causal_support"
+    relation_id: str
+    origin: RelationOrigin
+    source_fact_ref: AcceptedFactRef
+    target_fact_ref: AcceptedFactRef
+    evidence_refs: list[AcceptedContinuitySourceRef] = Field(default_factory=list)
+    source_revision_refs: list[ArtifactRef] = Field(default_factory=list)
+    rule_version: str | None = None
+    disposition: RelationDisposition = "active"
+
+
+class PressureGroupRelation(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    kind: Literal["pressure_group"] = "pressure_group"
+    relation_id: str
+    origin: RelationOrigin
+    target_commitment_or_pressure_ref: CommitmentRef | AcceptedFactRef
+    members: list[PressureGroupMember] = Field(min_length=2)
+    evidence_refs: list[AcceptedContinuitySourceRef] = Field(default_factory=list)
+    source_revision_refs: list[ArtifactRef] = Field(default_factory=list)
+    rule_version: str | None = None
+    disposition: RelationDisposition = "active"
+
+
+StoryInstanceRelation = Annotated[
+    CausalSupportRelation | PressureGroupRelation,
+    Field(discriminator="kind"),
+]
+
+
+class MapCurrentStateEvidence(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    key: str
+    current_value: str
+    current_fact_ref: AcceptedFactRef
+    superseded_fact_ids: tuple[str, ...] = ()
+
+
+class GlobalMapSnapshot(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    snapshot_id: str
+    planning_book_number: int = Field(gt=1)
+    source_revisions: list[ArtifactRef] = Field(min_length=1)
+    current_state_evidence: dict[str, MapCurrentStateEvidence] = Field(
+        default_factory=dict
+    )
+    entries: list[GlobalMapEntry] = Field(default_factory=list)
+    historical_fact_refs: list[AcceptedFactRef] = Field(default_factory=list)
+    relations: list[StoryInstanceRelation] = Field(default_factory=list)
+    pressure_groups: list[PressureGroupRelation] = Field(default_factory=list)
+    currentness: dict[str, ContinuityDisposition] = Field(default_factory=dict)
+    derivation_version: str
+    source_fingerprint: str
+    freshness: Literal["fresh", "stale"] = "fresh"
+    semantic_impact: Literal["clear", "suspect", "contradictory"] = "clear"
+
+
 class CanonicalState(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     state_version: int = Field(ge=0)
     values: dict[str, str] = Field(default_factory=dict)
     applied_bundle_ids: list[str] = Field(default_factory=list)
+    conflicts: list[str] = Field(default_factory=list)
 
 
 class PlanningEntry(BaseModel):
@@ -229,6 +336,8 @@ class ContinuityGroup(BaseModel):
     why_matters_now: str
     source_refs: list[AcceptedContinuitySourceRef] = Field(min_length=1)
     entry_ids: list[str] = Field(min_length=1)
+    relation_id: str | None = None
+    member_roles: dict[str, PressureMemberRole] = Field(default_factory=dict)
 
 
 class RepeatedBookPlanningContext(BaseModel):

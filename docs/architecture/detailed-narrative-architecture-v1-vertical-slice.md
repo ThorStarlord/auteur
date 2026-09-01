@@ -1,6 +1,9 @@
 # Detailed Narrative Architecture V1 — Vertical Slice Proof
 
-Status: plan only. Do not implement as part of architecture synthesis.
+Status: deterministic V1 vertical slice implemented and merge-qualified. The
+P0 death-test set passes; full repository qualification retains the three
+known baseline Story Discovery failures. Focus consumes a pure Global Map
+selection seam, and legacy revision-1 payloads remain readable.
 
 ## Slice
 

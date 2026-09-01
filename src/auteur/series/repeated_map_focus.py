@@ -12,6 +12,7 @@ from auteur.series.vertical_slice_models import (
     ArtifactRef,
     BookPlanningIntent,
     CanonicalState,
+    GlobalMapSnapshot,
     ContinuityDisposition,
     ContinuityEntry,
     ContinuityGroup,
@@ -474,4 +475,112 @@ def select_repeated_continuity(
         ],
         trigger_refs=list(planning_intent.relevance_refs),
         derivation_version=_DERIVATION_VERSION,
+    )
+
+
+def select_focus_from_global_map(
+    snapshot: GlobalMapSnapshot,
+    planning_intent: BookPlanningIntent,
+) -> RepeatedBookPlanningContext:
+    """Select Focus solely from a neutral Global Map projection."""
+    if snapshot.freshness != "fresh":
+        raise ValueError("Global Map is stale; rebuild it before Focus")
+    if snapshot.planning_book_number != planning_intent.book_number:
+        raise ValueError("Global Map and planning intent book numbers differ")
+
+    group_by_fact_ref: dict[tuple[str, int, str], tuple[str, str]] = {}
+    groups: list[ContinuityGroup] = []
+    for relation in snapshot.pressure_groups:
+        member_keys = {
+            (
+                member.fact_ref.artifact_id,
+                member.fact_ref.revision,
+                member.fact_ref.fact_id,
+            )
+            for member in relation.members
+        }
+        for member in relation.members:
+            key = (
+                member.fact_ref.artifact_id,
+                member.fact_ref.revision,
+                member.fact_ref.fact_id,
+            )
+            group_by_fact_ref[key] = (relation.relation_id, member.role)
+        groups.append(
+            ContinuityGroup(
+                group_id=relation.relation_id,
+                summary=relation.relation_id,
+                why_matters_now=(
+                    "This accepted pressure group remains relevant through "
+                    "its derived evidence."
+                ),
+                source_refs=relation.evidence_refs,
+                entry_ids=[
+                    entry.entry_id
+                    for entry in snapshot.entries
+                    if entry.fact_ref is not None
+                    and (
+                        entry.fact_ref.artifact_id,
+                        entry.fact_ref.revision,
+                        entry.fact_ref.fact_id,
+                    ) in member_keys
+                ],
+                relation_id=relation.relation_id,
+                member_roles={
+                    member.fact_ref.fact_id: member.role
+                    for member in relation.members
+                },
+            )
+        )
+
+    entries: list[ContinuityEntry] = []
+    for mapped in snapshot.entries:
+        fact_ref = mapped.fact_ref
+        group_id = None
+        if fact_ref is not None:
+            group_id = group_by_fact_ref.get(
+                (fact_ref.artifact_id, fact_ref.revision, fact_ref.fact_id),
+                (None, ""),
+            )[0]
+        disposition = mapped.disposition
+        if fact_ref is not None:
+            if fact_ref in planning_intent.relevance_refs:
+                disposition = (
+                    "active"
+                    if mapped.currentness == "current"
+                    else "reactivated"
+                )
+            elif mapped.currentness == "current":
+                disposition = "irrelevant"
+            elif disposition == "active":
+                disposition = "dormant"
+        entries.append(
+            ContinuityEntry(
+                entry_id=mapped.entry_id,
+                kind=mapped.kind,
+                summary=mapped.summary,
+                why_matters_now=(
+                    f"Book {planning_intent.book_number} planning explicitly "
+                    f"references accepted fact {fact_ref.fact_id}; it matters "
+                    "now."
+                    if fact_ref is not None
+                    and fact_ref in planning_intent.relevance_refs
+                    else mapped.summary
+                ),
+                source_refs=tuple(mapped.source_refs),
+                disposition=disposition,
+                group_id=group_id,
+                is_current_constraint=mapped.is_current_constraint,
+            )
+        )
+
+    active = [entry for entry in entries if entry.disposition in _ACTIVE_DISPOSITIONS]
+    return RepeatedBookPlanningContext(
+        book_number=planning_intent.book_number,
+        generated_from=list(snapshot.source_revisions),
+        groups=groups,
+        entries=active,
+        history_entries=[entry for entry in entries if entry not in active],
+        trigger_refs=list(planning_intent.relevance_refs),
+        derivation_version=f"{_DERIVATION_VERSION}+global-map",
     )

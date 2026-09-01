@@ -2,19 +2,19 @@
 
 | Capability | Needed architecture | Exists now? | Gap | Priority | Why |
 |---|---|---|---|---|---|
-| authoritative history | Revisioned accepted artifacts and decisions | Partial | Cross-book history is split across seams | P0 | Prevents silent loss |
-| current state projection | Deterministic values with transition lineage | Partial | Current values lack uniform lineage | P0 | Separates now from happened |
+| authoritative history | Revisioned accepted artifacts and decisions | Partial | Cross-book history is split across seams; vertical slice now preserves realization payload revisions | P0 | Prevents silent loss |
+| current state projection | Deterministic values with transition lineage | Yes, slice | Broader cross-scope lineage remains | P0 | Separates now from happened |
 | commitment lifecycle | Direction owner plus fulfillment assessment | Partial | Portfolio commitment states are different | P1 | Preserves author intent |
-| dependency edges | Source affects target, refs, traversal | Partial | Series and ArtifactStore graphs are separate | P0 | Enables impact |
+| dependency edges | Source affects target, refs, traversal | Yes, slice | Broader Series/ArtifactStore composition remains | P0 | Enables impact |
 | relationship vocabulary/types | Ontology-owned conceptual definitions | Yes, partial | Need clean boundary from instance assertions | P1 | Prevents layer conflation |
-| story-instance relationships | Typed scoped/indexed assertions with declared/deterministic/interpretive origins | Partial | Cross-cutting index and typed payloads are not implemented | P1 | Controls trust |
+| story-instance relationships | Typed scoped/indexed assertions with declared/deterministic/interpretive origins | Yes, slice | First deterministic causal/pressure index exists; interpretive correction remains deferred | P1 | Controls trust |
 | causal history | Historical transitions remain traversable | Partial | No cross-book causal index | P1 | Supports long horizon |
-| pressure groups | Declared/deterministic/interpretive grouping | Partial | Persistent richer grouping is the V3 gap | P0 | Preserves demonstrated reasoning value |
+| pressure groups | Declared/deterministic/interpretive grouping | Yes, slice | Persistent deterministic grouping is implemented for the bounded fixture | P0 | Preserves demonstrated reasoning value |
 | incompatibility | State-based candidate filtering | Yes, narrow | Generalize only after proof | P1 | Prevents unsafe suggestions |
-| revision impact | Direct/transitive reports | Yes, partial | Semantic impact must remain separate from provenance health/freshness | P0 | Protects downstream work |
-| Global Map | Rebuildable full internal projection | No | Only narrow Map exists | P0 | Central gap |
-| Focus selection | Relevance over Map and intent | Yes, narrow | Generalized history/dependency inputs | P0 | Planning seam |
-| provenance | Refs, revisions, hashes, derivation version | Yes, pilot | Series/relations alignment | P0 | Audit and rebuild |
+| revision impact | Direct/transitive reports | Yes, slice | Broader reconciliation workflow remains | P0 | Protects downstream work |
+| Global Map | Rebuildable full internal projection | Yes, slice | Minimal deterministic snapshot implemented; broader composition remains | P0 | Central gap |
+| Focus selection | Relevance over Map and intent | Yes, slice | Pure Map→Focus selector is bounded to the vertical slice; broader inputs remain | P0 | Planning seam |
+| provenance | Refs, revisions, hashes, derivation version | Yes, slice | Realization payload revision history and stale impact are implemented | P0 | Audit and rebuild |
 | interpretive correction | Versioned candidate and author rejection | Partial | No unified correction record | P1 | Wrong inference safety |
 | scalable context | Progressive disclosure and bounded traversal | Conceptual | No budgeted selector | P2 | 50/100+ entries |
 
