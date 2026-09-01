@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from auteur.series.repeated_map_focus import AcceptedHistorySnapshot, selection_token_display
+from auteur.series.productization import AuthorFocusReport, RevisionImpactReport
 from auteur.series.vertical_slice_models import (
     AcceptedContinuitySourceRef,
     AcceptedFactRef,
@@ -315,4 +316,64 @@ def format_series_journey_focus(
             for option in decision.options
         )
 
+    return "\n".join(lines)
+
+
+def format_author_focus(report: AuthorFocusReport, *, detail: bool = False) -> str:
+    """Render the productized Focus with progressive provenance disclosure."""
+    lines = [f"Series Focus: Book {report.book_number}", "", "DECISION", report.decision]
+    lines.extend(["", "ACTIVE CONSTRAINTS"])
+    if report.active_constraints:
+        for entry in report.active_constraints:
+            _append_repeated_entry(lines, entry, indent=0, detail=detail)
+    else:
+        lines.append("- None surfaced.")
+    lines.extend(["", "RELEVANT HISTORY"])
+    if report.relevant_history:
+        for entry in report.relevant_history:
+            _append_repeated_entry(lines, entry, indent=0, detail=detail)
+    else:
+        lines.append("- None surfaced.")
+    lines.extend(["", "PERSISTENT PRESSURES"])
+    if report.persistent_pressures:
+        for group in report.persistent_pressures:
+            lines.extend([f"- {group.summary}", f"  Why it matters now: {group.why_matters_now}"])
+    else:
+        lines.append("- None surfaced.")
+    lines.extend(["", "LONG-RANGE CONNECTIONS"])
+    if report.long_range_connections:
+        for connection in report.long_range_connections:
+            lines.append(f"- {connection.summary}")
+            if detail:
+                lines.append(f"  Relation: {connection.relation_id}")
+    else:
+        lines.append("- None surfaced.")
+    lines.extend(["", "RISKS / CONFLICTS"])
+    lines.extend(f"- {risk}" for risk in report.risks_or_conflicts or ["None detected."])
+    lines.extend(["", "PROVENANCE"])
+    lines.extend(
+        f"- {_format_source_ref(source_ref)}" for source_ref in report.provenance
+    )
+    if detail:
+        lines.extend(
+            [
+                "",
+                f"Map snapshot: {report.map_snapshot_id}",
+                f"Map freshness: {report.map_freshness}",
+                f"Semantic impact: {report.semantic_impact}",
+            ]
+        )
+    return "\n".join(lines)
+
+
+def format_revision_impact(report: RevisionImpactReport) -> str:
+    lines = ["Revision impact", "", report.reconciliation_boundary, "", "REVIEW ORDER"]
+    lines.extend(f"- {artifact_id}" for artifact_id in report.review_order or ["None required."])
+    lines.extend(["", "AFFECTED ACCEPTED ARTIFACTS"])
+    lines.extend(
+        f"- Book {item.book_number}: {item.artifact_id} ({item.freshness}, {item.semantic_impact})"
+        for item in report.affected_artifacts
+    )
+    if not report.affected_artifacts:
+        lines.append("- None detected.")
     return "\n".join(lines)
