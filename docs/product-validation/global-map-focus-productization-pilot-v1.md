@@ -1,6 +1,14 @@
 # Global Map / Focus Productization Pilot V1
 
-Status: implementation complete; author run pending.
+Status: frozen for author dogfood; author run pending.
+
+## Pilot implementation baseline
+
+- Branch: `feature/global-map-focus-productization-v1`
+- Commit: `c60958a61c434cf0c747b39994444a4463f0835b`
+- Status: **FROZEN FOR AUTHOR DOGFOOD**
+- Permitted changes during dogfood: none, except execution-blocking defects.
+- Evidence rule: every observation identifies this implementation SHA.
 
 This is a bounded dogfood protocol, not a benchmark and not evidence that an author has already found the workflow useful. Run it once on one non-special project before choosing the next capability.
 
