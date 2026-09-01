@@ -1,6 +1,6 @@
 # Global Map / Focus Productization Pilot V1
 
-Status: frozen for author dogfood; author run pending.
+Status: author review complete; Productization Pilot V1 partially validated.
 
 ## Pilot implementation baseline
 
@@ -10,7 +10,7 @@ Status: frozen for author dogfood; author run pending.
 - Permitted changes during dogfood: none, except execution-blocking defects.
 - Evidence rule: every observation identifies this implementation SHA.
 
-This is a bounded dogfood protocol, not a benchmark and not evidence that an author has already found the workflow useful. Run it once on one non-special project before choosing the next capability.
+This was a bounded dogfood protocol, not a benchmark. The implementation remains frozen at the recorded SHA.
 
 ## Product hypotheses
 
@@ -53,12 +53,32 @@ Accept that one revision through the existing author acceptance boundary. Then r
 
 | Measure | Author observation | Evidence / artifact IDs |
 | --- | --- | --- |
-| Orientation | **PENDING AUTHOR RUN** | |
-| Provenance without YAML | **PENDING AUTHOR RUN** | |
-| Relevance / information load | **PENDING AUTHOR RUN** | |
-| Long-range value | **PENDING AUTHOR RUN** | |
-| Revision safety | **PENDING AUTHOR RUN** | |
-| Authority comprehension | **PENDING AUTHOR RUN** | |
+| Orientation | Reviewed; Focus decision support was insufficient. | `focus-before.txt`, `focus-after.txt` |
+| Provenance without YAML | Reviewed; contextual provenance remained insufficient. | `focus-before.txt`, `focus-after.txt` |
+| Relevance / information load | Reviewed; relevant facts were surfaced but not narratively contextualized. | `pilot-observations.md` |
+| Long-range value | Mixed; the dependency chain was mechanically useful, but its story meaning was not explained. | `impact-after.txt` |
+| Revision safety | Positive; downstream impact propagated without silent rewriting. | `impact-after.txt` |
+| Authority comprehension | Reviewed; accepted versus derived state remained technically distinguishable. | `focus-after.txt`, `impact-after.txt` |
+
+## Author disposition
+
+- Author dogfood: **COMPLETE**
+- Author value review: **MIXED**
+- Focus decision-support value: **NEGATIVE / INSUFFICIENT**
+- Revision-safety value: **POSITIVE**
+- Strongest demonstrated value: Auteur detected downstream consequences of the
+  D19/Wren revision without rewriting accepted later story material.
+- Primary author friction: Focus identified relevant facts and relationships,
+  but did not explain the narrative context that makes them relevant to the
+  current creative decision.
+- Highest-leverage next capability: **Contextual, author-readable relevance
+  explanations for Focus and revision impact.**
+- Extraction reopening gate: **NO**
+- Productization Pilot V1: **PARTIALLY VALIDATED**
+
+Required explanation shape for the future capability:
+
+`story fact → narrative meaning → connection to the current decision → consequence if ignored or changed`
 
 ## Friction log
 
@@ -66,7 +86,8 @@ Record each point where the author hesitates, asks “why is this here?”, cann
 
 | Step | Friction | Classification | Smallest useful next capability |
 | --- | --- | --- | --- |
-| **PENDING AUTHOR RUN** | | | |
+| Planning / Focus | Relevant facts and relationships were surfaced without sufficient narrative context. | explanation / author-facing presentation | Contextual relevance explanations |
+| Revision impact | Downstream impact and preservation were useful, but review leverage was not explained. | reconciliation workflow / explanation | Contextual impact explanations |
 
 Classifications are intentionally narrow: Focus selection, relation representation, explanation/provenance, reconciliation workflow, commitment lifecycle, or scale/budget.
 
@@ -74,7 +95,7 @@ Classifications are intentionally narrow: Focus selection, relation representati
 
 Stop after one project has produced a valid Map, one author-readable Focus, one genuinely long-range decision, one earlier accepted revision, correct downstream impact without silent rewriting, a successful rebuild, and a completed friction log naming the single highest-value next capability.
 
-Do not begin Productization V2 automatically. The friction log chooses the next implementation.
+Do not begin Productization V2 automatically. The author-selected next capability is contextual relevance explanation. Do not reopen automatic extraction, generalized ontology, scaling, or another architecture cycle.
 
 ## Authority boundary
 
