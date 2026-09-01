@@ -244,6 +244,51 @@ promote only supported concepts into production architecture → implement
 production Global Map → run author-facing comprehension and usability
 validation.
 
+#### Architecture Value track status — 2026-08-31
+
+The architecture-value phase is complete enough to proceed beyond the original
+comparative-experiment sequence.
+
+The qualifying V3 result demonstrated incremental value from preserving
+explicit persistent relationship/group structure beyond the shipped repeated
+Map/Focus representation. The strongest demonstrated mechanisms were pressure
+grouping and causal/supporting-history trace. That evidence did not justify the
+entire richer research ledger or a universal relationship ontology.
+
+Subsequent [Detailed Narrative Architecture V1](../architecture/detailed-narrative-architecture-v1.md)
+and its merged [deterministic vertical slice](../architecture/detailed-narrative-architecture-v1-vertical-slice.md)
+established a bounded production path for:
+
+- revisioned accepted realization history and deterministic current-state
+  projection;
+- typed story-instance causal-support and pressure-group relations with explicit
+  origin/authority boundaries;
+- a derived, rebuildable Global Map;
+- pure Global Map → Focus selection;
+- explicit separation of canonical currentness from decision relevance;
+- retroactive upstream revision impact without silent downstream canonical
+  rewriting; and
+- deletion/rebuild of derived Map/Focus state from authoritative sources.
+
+This closes the question “can a coherent derived Global Map architecture exist
+and survive the first difficult revision/rebuild cases?” at the bounded P0
+vertical-slice level. It does not establish that the architecture is complete
+for all long-form stories.
+
+Automatic/open-world story-instance relationship extraction remains a separate
+reliability question and is suspended. The deterministic P0 slice did not need
+it. See [Story-Instance Relationship Extraction — Research Disposition](story-instance-relationship-extraction-disposition.md).
+
+The next product uncertainty is therefore implementation expansion and
+author-facing value, not whether the core derived Global Map/Focus seam can be
+represented coherently. Open questions include interpretive relationship
+correction, broader commitment lifecycle, scalable 50/100+ entry projection,
+cross-story generalization, automatic extraction when genuinely necessary, and
+human comprehension/usability of the architecture.
+
+See [Global Map Architecture and Extraction — Research Retrospective](global-map-architecture-and-extraction-retrospective.md)
+for the cross-campaign stopping and method-selection lessons.
+
 ## Shared experiment protocol
 
 Use the same task sequence for each candidate experience:
