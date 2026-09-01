@@ -127,6 +127,46 @@ def test_malformed_profiler_output_fails_closed():
         parse_causal_profile(json.dumps({"primary_strategy": "only one field"}))
 
 
+def test_profiler_prompt_bounds_reversal_specificity():
+    request, _ = build_causal_profile_request(_candidate(), "Museum heist premise")
+
+    assert "mechanically implied classes of reversal" in request.system
+    assert "particular witness, object, room, discovery, timing beat" in request.system
+    assert "prefix that reversal\n  item exactly `hypothetical:`" in request.system
+    assert "`hypothetical reversal:`" in request.system
+    assert "never phrase an unsupported illustrative event as an established reversal mechanic" in request.system
+
+
+def test_hypothetical_reversal_requires_explicit_evidence_gap():
+    payload = _profile_payload(
+        reversal_mechanics=[
+            "hypothetical: a second witness appears and contradicts the remembered command"
+        ],
+        evidence_gaps=[],
+    )
+
+    with pytest.raises(ValueError, match="hypothetical reversal mechanics require"):
+        parse_causal_profile(json.dumps(payload))
+
+
+def test_hypothetical_reversal_is_preserved_when_gap_is_explicit():
+    payload = _profile_payload(
+        reversal_mechanics=[
+            "hypothetical: truthful confrontation changes the disappearance pattern"
+        ],
+        evidence_gaps=[
+            "hypothetical reversal: bounded evidence does not establish how confrontation changes the supernatural rule"
+        ],
+    )
+
+    profile = parse_causal_profile(json.dumps(payload))
+
+    assert profile.reversal_mechanics == [
+        "hypothetical: truthful confrontation changes the disappearance pattern"
+    ]
+    assert profile.evidence_gaps[0].startswith("hypothetical reversal:")
+
+
 def test_self_advocacy_mutation_does_not_change_profiler_input_or_key():
     first = _candidate(advocacy="BASELINE")
     second = _candidate(advocacy="MUTATED SHOULD NEVER LEAK")

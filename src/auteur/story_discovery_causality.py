@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 import yaml
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from auteur.llm import LLMRequest
 
@@ -34,6 +34,17 @@ Focus on what would materially change the major scenes the author writes:
 - reversal mechanics;
 - climax mechanic;
 - representative scene families.
+
+Reversal specificity is bounded:
+- describe mechanically implied classes of reversal, not invented illustrative beats;
+- do not introduce a particular witness, object, room, discovery, timing beat,
+  reveal, or other candidate-specific event unless that event is explicitly
+  present in BOUNDED STORY EVIDENCE;
+- if a specific event is useful only as an illustration, prefix that reversal
+  item exactly `hypothetical:` and add an evidence_gaps entry beginning
+  `hypothetical reversal:` that states what support is missing; alternatively,
+  omit the event and record only the gap;
+- never phrase an unsupported illustrative event as an established reversal mechanic.
 
 If the evidence does not support a field, use null for a scalar, an empty list
 for a list, and record the gap in evidence_gaps. Do not invent missing mechanics.
@@ -149,6 +160,23 @@ class CausalProfile(BaseModel):
             if text:
                 normalized.append(text)
         return normalized
+
+    @model_validator(mode="after")
+    def _require_hypothetical_reversal_gap(self) -> "CausalProfile":
+        hypothetical_reversals = [
+            item
+            for item in self.reversal_mechanics
+            if item.casefold().startswith("hypothetical:")
+        ]
+        if hypothetical_reversals and not any(
+            gap.casefold().startswith("hypothetical reversal:")
+            for gap in self.evidence_gaps
+        ):
+            raise ValueError(
+                "hypothetical reversal mechanics require an evidence_gaps entry "
+                "beginning 'hypothetical reversal:'"
+            )
+        return self
 
 
 class CausalProfileRecord(CausalProfile):
