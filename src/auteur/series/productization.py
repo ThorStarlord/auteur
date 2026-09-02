@@ -11,6 +11,7 @@ from auteur.series.vertical_slice_models import (
     ArtifactRef,
     ContinuityEntry,
     ContinuityGroup,
+    GlobalMapEntry,
 )
 from auteur.series.vertical_slice_service import SeriesVerticalSliceService
 
@@ -79,16 +80,25 @@ class SeriesProductizationService:
         """Rebuild and render a Focus without creating or changing story authority."""
         snapshot = self.build_global_map(horizon)
         context = self.service.derive_focus_from_global_map(horizon)
+        entry_by_fact: dict[str, GlobalMapEntry] = {
+            entry.fact_ref.fact_id: entry
+            for entry in snapshot.entries
+            if entry.fact_ref is not None
+        }
         connections = []
         for relation in snapshot.relations:
             if relation.kind != "causal_support":
                 continue
+            source_entry = entry_by_fact.get(relation.source_fact_ref.fact_id)
+            target_entry = entry_by_fact.get(relation.target_fact_ref.fact_id)
+            source_meaning = source_entry.explanation if source_entry and source_entry.explanation else source_entry.summary if source_entry else relation.source_fact_ref.fact_id
+            target_meaning = target_entry.explanation if target_entry and target_entry.explanation else target_entry.summary if target_entry else relation.target_fact_ref.fact_id
             connections.append(
                 FocusConnection(
                     relation_id=relation.relation_id,
                     summary=(
-                        f"{relation.source_fact_ref.fact_id} supports "
-                        f"{relation.target_fact_ref.fact_id} across accepted history."
+                        f"{relation.source_fact_ref.fact_id} ({source_meaning}) supports "
+                        f"{relation.target_fact_ref.fact_id} ({target_meaning}) — earlier narrative history enables the later consequence."
                     ),
                     source_refs=[relation.source_fact_ref],
                     target_refs=[relation.target_fact_ref],

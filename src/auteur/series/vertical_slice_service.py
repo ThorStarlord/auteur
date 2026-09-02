@@ -686,6 +686,7 @@ class SeriesVerticalSliceService:
                 attribute=transition.attribute,
                 before=transition.before,
                 after=transition.after,
+                explanation=transition.explanation,
                 book_number=bundle.book_number,
                 commitment_ids=[
                     commitment.commitment_id

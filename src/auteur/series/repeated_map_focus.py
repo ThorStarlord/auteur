@@ -175,6 +175,7 @@ def _fact_why_now(
     superseding_evidence: CurrentStateEvidence | None,
 ) -> str:
     planning_book_number = planning_intent.book_number
+    narrative = transition.explanation.strip().rstrip(".")
     if (
         disposition in _ACTIVE_DISPOSITIONS
         and source_ref in planning_intent.relevance_refs
@@ -186,34 +187,38 @@ def _fact_why_now(
                 relevance = f"this current fact constrains Book {planning_book_number}"
             return (
                 f"Book {planning_book_number} planning explicitly references "
-                f"accepted fact {transition.transition_id}; its current "
+                f"accepted fact {transition.transition_id} — {narrative} — its current "
                 f"{current_evidence.key} state is "
-                f"{current_evidence.current_value}, so {relevance}."
+                f"{current_evidence.current_value}, so {relevance}. "
+                f"If ignored, Book {planning_book_number} would lose the historical grounding for this decision."
             )
         return (
             f"Book {planning_book_number} planning explicitly references "
             f"accepted fact {transition.transition_id} from Book "
-            f"{source_book_number}, so it matters now."
+            f"{source_book_number} — {narrative} — so it matters now. "
+            f"Ignoring it would disconnect the current decision from its narrative origin."
         )
     if disposition == "superseded" and superseding_evidence is not None:
         return (
-            f"Accepted fact {transition.transition_id} is superseded for Book "
+            f"Accepted fact {transition.transition_id} — {narrative} — is superseded for Book "
             f"{planning_book_number} by current fact "
             f"{superseding_evidence.current_fact_id}, which sets "
             f"{superseding_evidence.key} to "
-            f"{superseding_evidence.current_value}."
+            f"{superseding_evidence.current_value}. "
+            f"The older narrative meaning remains as history but no longer constrains the current decision."
         )
     if current_evidence is not None:
         return (
-            f"Accepted fact {transition.transition_id} sets current "
+            f"Accepted fact {transition.transition_id} — {narrative} — sets current "
             f"{current_evidence.key} to {current_evidence.current_value}, but "
             f"Book {planning_book_number} planning does not reference it, so "
-            "it remains derived support only."
+            "it remains derived support only. Its narrative significance is preserved if the decision later re-engages this thread."
         )
     return (
-        f"Accepted fact {transition.transition_id} remains Book "
+        f"Accepted fact {transition.transition_id} — {narrative} — remains Book "
         f"{source_book_number} history for Book {planning_book_number}, but it "
-        "is not a current constraint or explicit planning reference."
+        "is not a current constraint or explicit planning reference. "
+        "Its narrative meaning stays available for future reactivation."
     )
 
 
@@ -511,8 +516,8 @@ def select_focus_from_global_map(
                 group_id=relation.relation_id,
                 summary=relation.relation_id,
                 why_matters_now=(
-                    "This accepted pressure group remains relevant through "
-                    "its derived evidence."
+                    f"This accepted pressure group ({relation.relation_id}) carries {len(relation.members)} supporting facts through Book {snapshot.planning_book_number}; "
+                    "its combined narrative weight constrains the current decision, and ignoring it would dissolve the accumulated pressure."
                 ),
                 source_refs=relation.evidence_refs,
                 entry_ids=[
@@ -561,10 +566,12 @@ def select_focus_from_global_map(
                 summary=mapped.summary,
                 why_matters_now=(
                     f"Book {planning_intent.book_number} planning explicitly "
-                    f"references accepted fact {fact_ref.fact_id}; it matters "
-                    "now."
+                    f"references accepted fact {fact_ref.fact_id} — {mapped.explanation or mapped.summary} — it matters "
+                    "now because its narrative meaning directly informs this decision; if ignored, the decision loses its historical grounding."
                     if fact_ref is not None
                     and fact_ref in planning_intent.relevance_refs
+                    else f"{mapped.summary} — {mapped.explanation} — its narrative meaning is preserved for this decision context; revisiting this thread would reactivate its relevance."
+                    if mapped.explanation
                     else mapped.summary
                 ),
                 source_refs=tuple(mapped.source_refs),

@@ -206,6 +206,7 @@ class GlobalMapEntry(BaseModel):
     attribute: str | None = None
     before: str | None = None
     after: str | None = None
+    explanation: str | None = None
     book_number: int | None = Field(default=None, ge=1)
 
 
