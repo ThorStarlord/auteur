@@ -8,7 +8,7 @@
 
 - **Architecture doc:** `docs/architecture/detailed-narrative-architecture-v1.md` — ACCEPTED for V1 vertical-slice implementation (human-reviewed). 5 semantic layers + scope axis unchanged. Global Map = derived rebuildable projection; Focus = derived relevance projection; derived != canon (ADR 019).
 - **Vertical slice + Productization Pilot V1:** MERGED to `auteur/main @ 1a686f5`. Proves: accepted revisioned history, current-state projection, typed CausalSupportRelation|PressureGroupRelation, Global Map snapshot, Focus via pure Map selector, revision impact propagation without silent rewrite, rebuild equivalence. P0 death tests pass; full suite retains 3 known baseline Story Discovery failures. Pilot disposition remains PARTIALLY VALIDATED (revision safety POSITIVE; original Focus decision support NEGATIVE/INSUFFICIENT).
-- **Contextual Relevance Explanation V1:** IMPLEMENTED on `feature/contextual-relevance-explanation-v1` (7492362, cherry-picked from a42be9f), with campaign-state update 98ab936 and specification c59aabd. Mechanically exercised (`why_matters_now` fact→meaning→connection→consequence, `GlobalMapEntry.explanation`, enriched `FocusConnection` summaries) but NOT YET AUTHOR-VALIDATED.
+- **Contextual Relevance Explanation V1:** IMPLEMENTED on `feature/contextual-relevance-explanation-v1` (7492362, cherry-picked from a42be9f), with campaign-state update 98ab936 and specification c59aabd. Comparative author re-dogfood is COMPLETE with MIXED / PARTIALLY VALIDATED author value: narrative meaning POSITIVE, decision-specific relevance MIXED / INSUFFICIENT, pressure explanation MIXED / INSUFFICIENT, long-range connection explanation MIXED, revision safety POSITIVE unchanged, and impact explanation NOT ADDRESSED.
 - **Remote durability:** `feature/contextual-relevance-explanation-v1` is published at frozen evidence candidate `52912a38df5cb1a1bfae30ba8f22d0ea2a285dd3` on GitHub.
 - **Empirical evidence:** Architecture Value V3 (`20260829-agent-native-sonnet-opus-v3`) — C (rich ledger) 13/2/0 vs B (shipped Map/Focus) 6/6/3 vs A (baseline) 6/6/3. C dominates paired P03/P05 Book-4 family; pressure grouping + causal/supporting-history trace is strongest C-over-B mechanism.
 - **Productization Pilot V1 (frozen baseline):** `docs/product-validation/global-map-focus-productization-pilot-v1.md` — FROZEN SHA c60958a, author dogfood COMPLETE, disposition PARTIALLY VALIDATED. Revision safety POSITIVE; Focus decision support NEGATIVE/INSUFFICIENT.
@@ -29,13 +29,13 @@ Example insufficient: `operative_network.integration_state = peer_ambivalence_in
 
 Required shape (pilot): `story fact → narrative meaning → connection to current decision → consequence`
 
-## Highest-Leverage Capability Boundary
+## Previously Selected Capability Boundary (historical)
 
-**Horizon A — Contextual, author-readable relevance explanation for Focus and revision impact.**
+**Historical Horizon A (superseded) — Contextual, author-readable relevance explanation for Focus and revision impact.**
 
 - Affects: `why_matters_now` generation in `repeated_map_focus.py`, `vertical_slice_models.py` entry fields, and `vertical_slice_formatters.py` author-facing rendering.
 - Current limitation: `why_matters_now` templates are mechanical ("Accepted fact X sets current Y to Z but planning does not reference it") and provenance is ID-centric. No narrative-meaning field exists.
-- Why it matters: blocks Focus from providing value even when selection is correct; pilot chose this as single next capability; extraction gate remains NO.
+- Historical rationale: this boundary blocked Focus from providing value even when selection was correct; the pilot selected it as the single next capability at that time. The resulting evidence and current position are recorded below; extraction gate remains NO.
 
 ## Open Representation Questions (Horizon B deferred unless needed for explanation)
 
@@ -68,7 +68,7 @@ Bounded contextual-relevance explanation research → prototype → minimal impl
 ## Ratified Decisions
 
 - ADR 019: Global Map / Focus / relation index are derived, rebuildable, non-canonical.
-- Pilot disposition: extraction gate NO; next capability is contextual explanation (not extraction/ontology/scaling).
+- Pilot disposition (historical): extraction gate NO; contextual explanation was the selected next capability at that stage (not extraction/ontology/scaling). Subsequent V1 re-dogfood and Decision-Specific Relevance Bridge V0 conclusions supersede that next-capability statement.
 - Architecture V1 human-reviewed for slice implementation; implementation frozen at c60958a for pilot evidence.
 
 ## Deferred / Not Warranted Now
@@ -96,7 +96,7 @@ selected here.
 
 ## Fresh-Context Reconstruction Test
 
-Next agent should read this file + `docs/product-validation/global-map-focus-productization-pilot-v1.md` + `docs/architecture/detailed-narrative-architecture-v1.md` to reconstruct mission, demonstrated vs hypothesized, and why contextual explanation is next.
+Next agent should read this file + `docs/product-validation/global-map-focus-productization-pilot-v1.md` + `docs/architecture/detailed-narrative-architecture-v1.md` to reconstruct the completed evidence, demonstrated capabilities, unresolved uncertainties, and current campaign-level reassessment.
 
 ## Reconciliation: Contextual Relevance Explanation V1 Owner Re-Dogfood
 
@@ -116,10 +116,10 @@ Next agent should read this file + `docs/product-validation/global-map-focus-pro
 - Representation consequence: do not add generic narrative-gloss storage from this evidence. Existing accepted explanation fields appear capable of supplying much of narrative meaning; investigate instead the decision-specific relationship between narrative history and the current author decision.
 - Extraction reopening gate: NOT CROSSED.
 
-## Selected Responsibility: Decision-Specific Relevance Bridge V0
+## Completed Responsibility: Decision-Specific Relevance Bridge V0
 
-- Campaign status: ACTIVE.
-- Responsibility status: SELECTED.
+- Campaign status: COMPLETE / EVIDENCE COMPLETE.
+- Responsibility status: COMPLETE.
 - Type: Research + Architecture + Owner Evaluation.
 - Implementation authorization: NO.
 - Decision supported: determine the smallest semantic/reasoning capability Auteur requires to explain why accumulated narrative history matters to one particular current author decision.
