@@ -58,12 +58,12 @@ Each loop iteration selects **one bounded responsibility** with:
 ## 5. Product Validation Method
 
 - **Pilot V1** (`docs/product-validation/global-map-focus-productization-pilot-v1.md`): frozen SHA `c60958a`, bounded dogfood on one real project (6–10 Books), author observes Focus before/after + revision impact. Disposition: PARTIALLY VALIDATED (revision safety POSITIVE, Focus decision support NEGATIVE).
-- **Next validation:** bounded re-dogfood of enriched Focus on same pilot project/protocol; extraction gate remains NO.
+- **Validation method:** each bounded responsibility uses a real, provenance-preserving evidence case and explicit owner evaluation; after completion, control returns to campaign-level reassessment before another responsibility is selected.
 - **Empirical support:** Architecture Value V3 (`20260829-agent-native-sonnet-opus-v3`) — C 13/2/0 vs B 6/6/3 vs A 6/6/3; pressure grouping + causal trace is strongest C-over-B mechanism.
 
 ## 6. Current Horizons
 
-- **Horizon A (now):** Contextual, author-readable relevance explanation for Focus and revision impact. Shape: `story fact → narrative meaning → connection to current decision → consequence if ignored/changed`. Affects `why_matters_now` in `repeated_map_focus.py`, `vertical_slice_models.py:GlobalMapEntry.explanation`, `vertical_slice_formatters.py`.
+- **Previously explored boundary:** contextual, author-readable relevance explanation for Focus and revision impact. Its evidence and current disposition belong in campaign state; this specification does not designate a current horizon or next responsibility.
 - **Horizon B (deferred):** Minimal ontology enrichment (STORE vs DERIVE vs INTERPRET), richer pressure-group member roles, scale to 20+ Books if information-load remains.
 
 Deferred unconditionally: automatic extraction, universal graph ontology/graph DB, 50+/100+ budgeting, generalized commitment lifecycle, LLM-assisted interpretation.
@@ -97,20 +97,19 @@ auteur/main
 
 ## 8. Fresh-Context Reconstruction
 
-Next agent reads this file + `auteur-long-horizon-campaign-state.md` + `global-map-focus-productization-pilot-v1.md` + `detailed-narrative-architecture-v1.md` to reconstruct mission, demonstrated vs hypothesized, and why contextual explanation is next.
+Next agent reads this file + `auteur-long-horizon-campaign-state.md` + `global-map-focus-productization-pilot-v1.md` + `detailed-narrative-architecture-v1.md` to reconstruct the mission, demonstrated capabilities, unresolved uncertainties, and the current campaign-level reassessment.
 
 ## 9. Acceptance Conditions (abridged)
 
-NOT COMPLETE. Mechanical history/revision safety partially satisfied; Productization Pilot V1 = PARTIALLY VALIDATED (revision safety POSITIVE, original Focus NEGATIVE); contextual explanation (conditions 9,10,13) is mechanically implemented but not yet author-validated — re-dogfood will determine new disposition (POSITIVE / MIXED / NEGATIVE) relative to original negative baseline. Real-author long-horizon value = PARTIALLY VALIDATED until re-dogfood.
+Acceptance conditions are evaluated per bounded responsibility and recorded in campaign state. Completion of one responsibility does not imply general author validation or select the next responsibility; campaign-level reassessment is required.
 
 Full 18 conditions tracked in campaign state.
 
 ## 10. Owner Checkpoints
 
-- After re-dogfood, review whether the explanation candidate warrants merge to `main`. Do not precommit to merge; POSITIVE, MIXED, and NEGATIVE are all legitimate outcomes.
+- After each bounded responsibility, review its evidence and return control to campaign-level reassessment before selecting further work. Do not precommit to merge, scale, ontology expansion, or continuation within the same feature family.
 - Preserve author authority: any Layer 1 mutation requires explicit author action, atomic persistence, auditable provenance.
-- Do not run another development loop before re-dogfood; the next step is author evaluation only.
+- Do not begin another responsibility without an explicit bounded selection and evidence protocol.
 
 ---
 *Created 2026-09-02 from campaign diagnosis + productization pilot + detailed architecture V1. Update only via explicit grilling decision.*
-

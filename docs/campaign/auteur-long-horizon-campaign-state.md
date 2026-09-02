@@ -9,7 +9,7 @@
 - **Architecture doc:** `docs/architecture/detailed-narrative-architecture-v1.md` — ACCEPTED for V1 vertical-slice implementation (human-reviewed). 5 semantic layers + scope axis unchanged. Global Map = derived rebuildable projection; Focus = derived relevance projection; derived != canon (ADR 019).
 - **Vertical slice + Productization Pilot V1:** MERGED to `auteur/main @ 1a686f5`. Proves: accepted revisioned history, current-state projection, typed CausalSupportRelation|PressureGroupRelation, Global Map snapshot, Focus via pure Map selector, revision impact propagation without silent rewrite, rebuild equivalence. P0 death tests pass; full suite retains 3 known baseline Story Discovery failures. Pilot disposition remains PARTIALLY VALIDATED (revision safety POSITIVE; original Focus decision support NEGATIVE/INSUFFICIENT).
 - **Contextual Relevance Explanation V1:** IMPLEMENTED on `feature/contextual-relevance-explanation-v1` (7492362, cherry-picked from a42be9f), with campaign-state update 98ab936 and specification c59aabd. Mechanically exercised (`why_matters_now` fact→meaning→connection→consequence, `GlobalMapEntry.explanation`, enriched `FocusConnection` summaries) but NOT YET AUTHOR-VALIDATED.
-- **Remote durability:** `feature/contextual-relevance-explanation-v1` is published at `c59aabd` on GitHub; this state will be reconciled to the new frozen candidate SHA after docs-only correction.
+- **Remote durability:** `feature/contextual-relevance-explanation-v1` is published at frozen evidence candidate `52912a38df5cb1a1bfae30ba8f22d0ea2a285dd3` on GitHub.
 - **Empirical evidence:** Architecture Value V3 (`20260829-agent-native-sonnet-opus-v3`) — C (rich ledger) 13/2/0 vs B (shipped Map/Focus) 6/6/3 vs A (baseline) 6/6/3. C dominates paired P03/P05 Book-4 family; pressure grouping + causal/supporting-history trace is strongest C-over-B mechanism.
 - **Productization Pilot V1 (frozen baseline):** `docs/product-validation/global-map-focus-productization-pilot-v1.md` — FROZEN SHA c60958a, author dogfood COMPLETE, disposition PARTIALLY VALIDATED. Revision safety POSITIVE; Focus decision support NEGATIVE/INSUFFICIENT.
 - **Mechanical capabilities DEMONSTRATED:** accepted-history reconstruction, stable identity (ArtifactStore revisions), narrative vs revision order separation, long-range causal support, pressure grouping, Global Map rebuild, Focus derivation, semantic-impact propagation (valid/stale/suspect/contradictory), downstream preservation.
@@ -19,7 +19,7 @@
 - **Mechanically validated:** history, currentness, grouping, Map/Focus mechanics, revision impact (via V3 + slice qualification).
 - **Author-validated POSITIVE:** downstream impact without silent rewrite (pilot).
 - **Author-validated NEGATIVE:** Focus surfaces facts but fails to explain narrative context that makes them relevant to current decision. Provenance without YAML also insufficient.
-- **Not yet author-validated:** contextual explanation value; scale beyond ~10 entries.
+- **Author-validated MIXED:** contextual explanation materially improved narrative-meaning intelligibility, while decision-specific relevance and pressure explanation remained mixed/insufficient; scale beyond ~10 entries remains unvalidated.
 
 ## Primary Product Failure (Pilot Friction)
 
@@ -42,20 +42,12 @@ Required shape (pilot): `story fact → narrative meaning → connection to curr
 - Minimal ontology enrichment needed to support narrative meaning without new author bookkeeping burden (STORE vs DERIVE vs INTERPRET).
 - Whether pressure-group explanation needs richer member roles/narrative gloss vs reusing existing commitment statements.
 
-## Current / Next Warranted Responsibility
+## Completed Responsibility Boundary
 
-**JUST COMPLETED:** Bounded contextual-explanation enrichment (see above). Next warranted responsibility:
-
-**Bounded comparative re-dogfood of Contextual Relevance Explanation V1.**
-
-- Use: same Superhero source snapshot; same D16-D23 horizon; same Book 9 planning question; same D19/Wren revision scenario; original Pilot V1 outputs preserved as baseline; new exact candidate SHA frozen before run.
-- Question: Does the enriched Focus materially improve author decision support, especially whether the author understands the SPECIFIC narrative connection between a surfaced item and the current decision?
-- Legitimate dispositions: POSITIVE / MIXED / NEGATIVE — determine the new author-value disposition relative to the original negative baseline. Do not precommit to a flip to POSITIVE.
-- After re-dogfood, review whether the explanation candidate warrants merge to `main`. Do not precommit to merge; POSITIVE, MIXED, and NEGATIVE are all legitimate outcomes.
-- Scale stress case to 20+ Books only if re-dogfood shows residual information-load issues (deferred).
-
-- Decision-changing uncertainty: Does propagating existing accepted narrative meaning (transition.explanation + commitment statements) solve the author's "why is this here?" complaint, or does it merely make opaque Focus output more verbose — indicating the missing abstraction is the decision-specific semantic relationship itself?
-- Recommended next: freeze exact SHA of `feature/contextual-relevance-explanation-v1` after this reconciliation commit and run the comparative re-dogfood on that frozen candidate.
+The contextual-explanation implementation and comparative author re-dogfood
+are completed and recorded above. This state does not preselect a successor.
+After each completed responsibility, control returns to campaign-level
+reassessment before another bounded responsibility is selected.
 
 ## Previously Selected Responsibility (completed)
 
@@ -89,11 +81,18 @@ Bounded contextual-relevance explanation research → prototype → minimal impl
 
 ## Owner Decisions Required
 
-- None at this state. Next owner checkpoint after explanation prototype qualification.
+- Campaign-level reassessment is now warranted. No successor responsibility is selected by this closure state.
 
 ## Campaign Acceptance Status
 
-NOT COMPLETE. See 18 acceptance conditions in campaign mission — mechanical history/revision safety partially satisfied; Productization Pilot V1 remains PARTIALLY VALIDATED (revision safety POSITIVE, original Focus explanation NEGATIVE); contextual explanation (conditions 9,10,13) is now mechanically implemented but NOT YET AUTHOR-VALIDATED — re-dogfood will determine new disposition (POSITIVE / MIXED / NEGATIVE) relative to original baseline. Ontology remains minimal-by-design; do not precommit to merge.
+NOT COMPLETE. See 18 acceptance conditions in campaign mission — mechanical
+history/revision safety partially satisfied; Productization Pilot V1 remains
+PARTIALLY VALIDATED; Contextual Relevance Explanation V1 is materially improved
+but only PARTIALLY VALIDATED; Decision-Specific Relevance Bridge V0 is EVIDENCE
+COMPLETE with H3 primary and H4 guardrail. Ontology admission is NO, extraction
+gate is NOT CROSSED, and production implementation is NOT AUTHORIZED.
+Campaign-level reassessment is now warranted; no next responsibility is
+selected here.
 
 ## Fresh-Context Reconstruction Test
 
@@ -145,3 +144,29 @@ Next agent should read this file + `docs/product-validation/global-map-focus-pro
   authorized.
 - Next action: campaign-level reassessment of the next bounded responsibility;
   do not automatically continue this responsibility to V1.
+
+## Campaign Closure: Decision-Specific Relevance Bridge V0
+
+- Responsibility: Decision-Specific Relevance Bridge V0.
+- Status: COMPLETE / EVIDENCE COMPLETE for the bounded Superhero case.
+- Primary result: H3 — decision relevance remains substantially interpretive.
+- Architectural guardrail: H4 — do not universalize or persist
+  DecisionRelevanceBridge.
+- Ontology admission: NO.
+- Extraction: gate NOT CROSSED.
+- Scale: NOT WARRANTED.
+- Focus explanation: materially improved but PARTIALLY VALIDATED.
+- Revision safety: strongest currently demonstrated product value.
+- Impact explanation: separate unresolved product gap.
+- Current next action: campaign-level reassessment.
+- No successor responsibility is selected in this closure state.
+
+Candidates for campaign reassessment only:
+
+- Revision Impact Explanation.
+- Decision-specific interpretive reasoning workflow.
+- Persistent-pressure explanation under contradictory history.
+- Broader ontology research if newly warranted.
+- Trajectory/arc reasoning.
+- Epistemic-state reasoning.
+- Long-horizon scale and information-load behavior.
