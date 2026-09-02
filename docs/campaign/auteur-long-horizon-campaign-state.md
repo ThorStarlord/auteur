@@ -42,17 +42,26 @@ Required shape (pilot): `story fact → narrative meaning → connection to curr
 
 ## Current / Next Warranted Responsibility
 
-**SELECTED:** Bounded contextual-relevance explanation research → prototype → minimal implementation for Focus.
+**JUST COMPLETED:** Bounded contextual-explanation enrichment (see above). Next warranted responsibility to select at next loop iteration:
 
-- **Decision to support:** What minimal explanation enrichment makes Focus decision-useful without speculative ontology or manual database administration?
-- **Uncertainty:** Can narrative meaning be derived from existing Direction commitment statements, transition after-values, and relation member roles, or does it require new stored narrative gloss fields?
-- **Evidence type:** ARCHITECTURE + PRODUCT-VALUE (repo evidence + fixture probe + author-readable demo).
-- **Alternatives considered:** (1) Merge slice to main first (engineering, not product-blocking), (2) scale to 50/100 entries (premature), (3) universal ontology expansion (violates ontology admission rule).
-- **Expected evidence:** Prototype `why_matters_now` / explanation fields demonstrating fact→meaning→connection→consequence on Archive of Lies fixture; formatter output before/after; death-test compatible; no new canonical store unless warranted.
+- Candidate next boundaries: (a) author re-dogfood of enriched Focus on same pilot project to validate decision-support improvement; (b) merge vertical slice + explanation to main after re-dogfood positive; (c) scale stress case to 20+ Books if re-dogfood shows residual information-load issues.
+- Decision-changing uncertainty for next: Does enriched explanation actually change author decision-support judgment from NEGATIVE to POSITIVE, or does deeper narrative ontology still required?
+- Recommended next: bounded re-dogfood evaluation on `feature/global-map-focus-productization-v1 @ a42be9f` with same pilot protocol (single project, author observes Focus before/after).
+
+## Previously Selected Responsibility (completed)
+
+Bounded contextual-relevance explanation research → prototype → minimal implementation for Focus.
+
+- **Decision supported:** What minimal explanation enrichment makes Focus decision-useful without speculative ontology or manual database administration?
+- **Resolution:** Narrative meaning derivable from existing `transition.explanation` + commitment statements without new author bookkeeping. Added derived `explanation` propagation through `GlobalMapEntry` (not new canonical store) and enriched `why_matters_now` / connection summaries.
+- **Evidence type:** ARCHITECTURE + PRODUCT-VALUE (repo evidence + fixture probe + formatter demo).
+- **Alternatives considered:** (1) Merge slice to main first, (2) scale, (3) universal ontology — deferred.
+- **Evidence produced:** Commit a42be9f; formatter demo shows `archive-protected — The treaty protects the admitting custodian — it matters now because its narrative meaning directly informs this decision; if ignored, the decision loses its historical grounding.`
 
 ## Completed Campaign Responsibilities
 
 1. 2026-09-02 — Campaign diagnosis + state establishment (this file).
+2. 2026-09-02 — Bounded contextual-explanation enrichment for Focus (commit a42be9f): enriched `why_matters_now` with narrative meaning from `transition.explanation` (fact→meaning→connection→consequence), added `GlobalMapEntry.explanation`, enriched `FocusConnection` causal summaries, enriched pressure-group explanations; all vertical-slice tests pass (127), `scripts/check.py --skip-pytest` passes.
 
 ## Ratified Decisions
 
