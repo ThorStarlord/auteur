@@ -87,8 +87,10 @@ Required history:
 auteur/main
 └── Productization Pilot V1 merged (1a686f5)
     └── feature/contextual-relevance-explanation-v1 (from origin/main + cherry-picked explanation)
-        ├── explanation implementation (7492362)
-        └── campaign-state update (98ab936)
+        ├── explanation implementation (7492362 / a42be9f)
+        ├── campaign-state update (98ab936)
+        ├── campaign specification (c59aabd)
+        └── <this reconciliation commit> → FROZEN RE-DOGFOOD CANDIDATE
 ```
 
 `auteur/docs/campaign/` holds `auteur-long-horizon-narrative-intelligence-campaign.md` (governance) + `auteur-long-horizon-campaign-state.md` (position). `sensemaking-skills` holds no campaign artifacts.
@@ -99,14 +101,15 @@ Next agent reads this file + `auteur-long-horizon-campaign-state.md` + `global-m
 
 ## 9. Acceptance Conditions (abridged)
 
-NOT COMPLETE. Mechanical history/revision safety partially satisfied; contextual explanation (conditions 9,10,13) remains NEGATIVE until re-dogfood flips to POSITIVE. Real-author long-horizon value = PARTIALLY VALIDATED.
+NOT COMPLETE. Mechanical history/revision safety partially satisfied; Productization Pilot V1 = PARTIALLY VALIDATED (revision safety POSITIVE, original Focus NEGATIVE); contextual explanation (conditions 9,10,13) is mechanically implemented but not yet author-validated — re-dogfood will determine new disposition (POSITIVE / MIXED / NEGATIVE) relative to original negative baseline. Real-author long-horizon value = PARTIALLY VALIDATED until re-dogfood.
 
 Full 18 conditions tracked in campaign state.
 
 ## 10. Owner Checkpoints
 
-- Merge vertical slice + explanation to `main` only after re-dogfood POSITIVE.
+- After re-dogfood, review whether the explanation candidate warrants merge to `main`. Do not precommit to merge; POSITIVE, MIXED, and NEGATIVE are all legitimate outcomes.
 - Preserve author authority: any Layer 1 mutation requires explicit author action, atomic persistence, auditable provenance.
+- Do not run another development loop before re-dogfood; the next step is author evaluation only.
 
 ---
 *Created 2026-09-02 from campaign diagnosis + productization pilot + detailed architecture V1. Update only via explicit grilling decision.*
