@@ -1,6 +1,6 @@
 # Decision-Specific Relevance Bridge V0
 
-**Status:** PHASE_B_PACKET_COMPLETE_AWAITING_OWNER_GATE_B
+**Status:** V0_EVIDENCE_COMPLETE
 **Type:** Research + Architecture + Owner Evaluation  
 **Implementation authorization:** NO  
 **Research branch base:** origin/main @ 1a686f5971047173b69496fa296fa8d0a3d05c50  
@@ -655,3 +655,289 @@ Specific owner attention:
 
 No H1/H2/H3/H4 synthesis or ontology-admission decision has been made. Those
 follow only after the owner evaluates these bridges.
+
+## 17. Owner Gate B result
+
+Owner evaluation is complete for all six cases. These judgments are owner
+evidence for this V0; they do not become canonical story-world facts.
+
+| Case | Semantic accuracy | Decision value | Interpretive overreach | No bridge |
+| --- | --- | --- | --- | --- |
+| D18 Calista | PARTIALLY_ACCURATE | LIMITED | ACCEPTABLE | NO |
+| D19 Wren | ACCURATE | USEFUL | NONE | NO |
+| D20 Elena | PARTIALLY_ACCURATE | USEFUL | ACCEPTABLE | NO |
+| D23 Iris | PARTIALLY_ACCURATE | LIMITED | TOO_STRONG (corrected) | NO |
+| Persistent pressure | PARTIALLY_ACCURATE | USEFUL | ACCEPTABLE | NO |
+| D18→D19 | PARTIALLY_ACCURATE | LIMITED | TOO_STRONG (corrected) | YES |
+
+### 17.1 Owner corrections
+
+- **D18:** It is an unresolved-pressure and anti-false-inference case. Internal
+  disagreement does not answer the governance question and is not evidence of
+  operational refusal, custody, exit, or an exercisable authority boundary.
+- **D19:** It is one concrete authored configuration for Wren's
+  protection/support function. Shared intelligence, logistics, backup, and
+  interoperability coexist with retained jurisdiction. This is direct evidence
+  that shared support and centralized authority are not identical in this
+  function, not proof of a preferred or scalable model.
+- **D20:** The useful bridge is access/dependence. It does not establish record
+  ownership, custody, authority transfer, voluntariness, portability, or
+  exercisable refusal/exit. The Book 9 question is what boundaries keep useful
+  infrastructural access from becoming dependence.
+- **D23:** It establishes integrated computation, explicit access/dependence,
+  greater system knowledge/connectivity, and active cage-question stakes. It
+  does not establish a refusal-versus-access choice or coercive leverage.
+  Its value is trajectory and stakes clarification.
+- **Persistent pressure:** The Series-level pressure remains meaningful, but
+  the revised realization chain is contradictory at D19→D20 and must not be
+  described as uninterrupted. D19 is a qualification/counter-pattern within
+  the accumulated pressure. “Harder to imagine” must not be strengthened to
+  “harder to exercise.”
+- **D18→D19:** No semantic-causal bridge is currently demonstrated. Preserve
+  ordered state adjacency and, at most, the possibility that D19 is another
+  configuration under the unresolved problem D18 leaves open. Omit that
+  interpretation if it cannot be supported or owner-confirmed.
+
+### 17.2 Owner-confirmed bridge dispositions
+
+The owner accepts bounded bridges for D18, D19, D20, D23, and the Series
+pressure, subject to the corrections and evidence ceilings above. The owner
+rejects an asserted semantic-causal D18→D19 bridge and requests NO BRIDGE
+unless additional evidence or confirmation supports it.
+
+## 18. Information already present
+
+The tested inputs already contain:
+
+- accepted state transitions and their narrative order;
+- transition explanations and realization summaries;
+- Direction commitments and Series pressure;
+- function-specific authored meanings for Calista, Wren, Elena, and Iris;
+- D19's retained-jurisdiction configuration;
+- revision history and the D19/Wren revised state;
+- relation/state adjacency and provenance;
+- the Book 9 planning intent and its named alternatives.
+
+The evidence does not contain a complete inventory of custody objects,
+authority holders, refusal objects, exit boundaries, portability, or practical
+exercisability. Those absences are not proof that new canonical fields are
+required; they define questions that may need owner clarification for a
+particular decision.
+
+## 19. Reasoning operations required
+
+The owner evidence identifies reasoning operations that are not supplied by a
+flat fact-to-meaning explanation:
+
+1. Parse the current decision into function-specific dimensions without
+   equating coordination with authority.
+2. Align accepted narrative meaning with the relevant decision dimensions.
+3. Classify a source's role as configuration instance, pressure contribution,
+   access/dependence risk, trajectory/stakes signal, qualification, or no
+   bridge.
+4. State the semantic mechanism separately from the source meaning.
+5. Name transfer conditions: which function, authority holder, custody object,
+   refusal/exit object, and exercisability condition are in scope.
+6. Use counterfactuals as diagnostics while preserving cumulative,
+   redundant, path-dependent, and symbolic relevance.
+7. Preserve alternative interpretations and allow NO DEFENSIBLE BRIDGE.
+8. Require owner confirmation when a useful interpretation exceeds
+   deterministic source order or accepted meaning.
+
+These are reasoning/workflow requirements, not a proposed production schema.
+
+## 20. Cross-case semantic patterns
+
+The six cases show recurring patterns, but they do not establish a universal
+ontology:
+
+- Shared capability can coexist with retained jurisdiction in one function
+  (D19), so coordination and authority must remain separate.
+- Access concentration and transactional integration can make dependence a live
+  question (D20, D23) without establishing custody or control.
+- Internal doubt can preserve an unresolved governance pressure (D18) without
+  becoming operational refusal.
+- Accumulated integration can restructure the decision tradeoff at Series
+  level, but the revised realization chain is contradictory and D19 qualifies
+  rather than simply extending an absorption trajectory.
+- Ordered state adjacency is deterministic history, while semantic causation
+  and “support” remain interpretive unless separately declared or confirmed.
+- The same source can hold several roles, and one source can have no bridge for
+  a function outside its authored scope.
+
+Recurring vocabulary such as jurisdiction, dependency, custody, refusal, exit,
+precedent, and pressure is driven by this Book 9 decision. It is not yet shown
+to be generally necessary narrative semantics across the campaign.
+
+## 21. STORE vs DERIVE vs INTERPRET
+
+| Concern | Current evidence | V0 disposition |
+| --- | --- | --- |
+| Narrative meaning | Already present in accepted explanations, summaries, commitments, and directions. | Prefer existing stored meaning; no generic gloss field. |
+| State/order adjacency | Present and deterministically rebuildable from accepted transitions. | Derive; do not call it semantic causation. |
+| Decision Frame | Owner-validated decomposition for this Book 9 question. | Interpretive planning context; do not persist as canon. |
+| Decision-specific relation | Useful in several cases but owner-corrected, function-specific, and absent in D18→D19. | Interpret and show provenance/uncertainty; owner confirmation required for reuse. |
+| Custody/refusal/exit details | Not specified by the tested inputs. | Ask or derive only when the current decision names the object/function; no universal fields admitted. |
+| Impact explanation | Not addressed by Contextual Relevance Explanation V1 or this V0. | Remains a separate unresolved product gap. |
+
+## 22. Ontology-admission assessment
+
+No new canonical narrative concept is admitted. The evidence does not warrant
+generic narrative-gloss storage or a persisted DecisionRelevanceBridge or
+DecisionFrame model.
+
+The smallest supported architectural description is an interpretive
+decision-relevance analysis workflow:
+
+~~~
+accepted narrative meaning + current owner decision
+        ↓
+candidate function-specific frame and bridge
+        ↓
+provenance, evidence ceiling, alternatives, counterfactual diagnostic
+        ↓
+owner confirmation or correction
+        ↓
+reusable planning context only when explicitly confirmed
+~~~
+
+This workflow description is a research conclusion, not implementation
+authorization. It must not create a hidden authority category or mutate Layer 1
+canon.
+
+## 23. H1/H2/H3/H4 comparison
+
+### H1 — current representation appears sufficient for tested meaning
+
+**Supported in a bounded sense:** accepted explanations, commitments,
+transitions, and provenance supplied enough narrative meaning for useful
+owner-confirmed bridges in D19, D20, and the persistent pressure, with limited
+value in D18 and D23.
+
+**Not generally established:** the representation alone did not deterministically
+derive decision relevance, and D18→D19 had no defensible semantic-causal bridge.
+H1 cannot claim general sufficiency or automatic author value.
+
+### H2 — a small recurring representation gap exists
+
+**Not admitted by this evidence:** missing custody objects, authority holders,
+refusal objects, and exercisability details are decision-specific unanswered
+questions, not demonstrated universal narrative primitives. The revised-chain
+contradiction is a source/reconciliation issue, not proof of a new ontology
+concept.
+
+H2 remains reopenable only if multiple owner decisions show the same distinction
+cannot be recovered or elicited without canonical representation.
+
+### H3 — decision relevance remains substantially interpretive
+
+**Best-supported disposition:** useful bridges require a validated Decision
+Frame, explicit relation/mechanism reasoning, evidence ceilings, alternatives,
+and owner confirmation. D19 is useful with a narrow scope; D18 and D23 are
+limited; D20 and the pressure are useful after correction; D18→D19 is no
+bridge. This unevenness is evidence for an interpretive workflow, not a
+deterministic universal relation.
+
+### H4 — DecisionRelevanceBridge is the wrong durable abstraction
+
+**Partially supported as an architectural guardrail:** a persisted bridge object
+would overstate the evidence and encourage universal relation types. The
+research vocabulary remains useful for discussing candidate interpretations, but
+the evidence favors a proposed-and-owner-confirmed analysis workflow over a
+canonical or automatically reusable bridge entity.
+
+## 24. Architectural implications
+
+1. Preserve accepted narrative meaning and deterministic history as the source
+   of truth.
+2. Keep decision decomposition and relevance interpretation outside canonical
+   story storage.
+3. Make function, authority holder, custody object, refusal/exit object, and
+   exercisability explicit inputs when a future analysis claims an operational
+   bridge.
+4. Treat D19's hybrid as a bounded authored configuration, not a universal
+   federation primitive.
+5. Treat source-order adjacency and semantic causation as separate outputs.
+6. Preserve NO BRIDGE as a first-class research outcome.
+7. Keep impact explanation separate; it was negative/not addressed in the
+   re-dogfood and was not tested here.
+8. Do not implement production Focus logic, a persisted bridge, automatic
+   extraction, or ontology changes from this V0.
+
+## 25. Remaining uncertainty
+
+- Whether the owner can name concrete Book 9 functions, authority holders,
+  custody objects, refusal/exit objects, and exercisability tests beyond the
+  current bounded interpretations.
+- Whether the same interpretive workflow remains useful for a different
+  decision, genre, or longer horizon.
+- Whether pressure synthesis can be safely explained when accepted revisions
+  leave contradictory transition handoffs.
+- Whether impact explanation needs the same reasoning workflow or a distinct
+  reconciliation explanation.
+- Whether a recurring representation gap will emerge across independent owner
+  decisions. No extraction reopening or scale claim follows now.
+
+## 26. Research disposition
+
+V0_EVIDENCE_COMPLETE for the bounded Superhero case.
+
+Primary conclusion: H3, with an H4 guardrail. Decision-specific relevance is
+substantially interpretive and can be useful when proposed transparently and
+owner-confirmed. A persisted or universal DecisionRelevanceBridge is not
+warranted by this evidence.
+
+No production implementation is authorized. The research responsibility does
+not automatically continue to V1.
+
+## 27. Campaign-level implications
+
+The campaign North Star remains unchanged:
+
+~~~
+representation → memory/history → reasoning → explanation → author decision support
+~~~
+
+The completed sequence now demonstrates:
+
+- accepted narrative meaning can be propagated into author-readable Focus;
+- a validated decision frame helps separate coordination, capability,
+  authority, custody, dependency, refusal, exit, and exercisability;
+- owner-confirmed interpretive bridges can materially improve decision support
+  for some cases;
+- fluent explanation is not enough when the semantic mechanism is unspecified;
+- no new generic narrative-gloss storage or extraction is warranted;
+- revision safety remains positive, while impact explanation remains unresolved.
+
+The campaign should reassess its next bounded responsibility at campaign level.
+Candidates include decision-specific reasoning workflow, impact explanation,
+persistent-pressure explanation under contradiction, or another
+evidence-backed gap. Do not assume the next responsibility belongs to the same
+feature family.
+
+## 28. Reopening conditions
+
+Reopen ontology admission only if independent owner decisions repeatedly show
+that the required function/authority/custody/refusal distinctions cannot be
+represented or elicited from existing accepted narrative material.
+
+Reopen extraction only under the separately ratified extraction gate; this V0
+does not cross it.
+
+Reopen impact explanation as a separate bounded responsibility with its own
+evidence and owner gate; it was not addressed here.
+
+Reopen scale testing only after a new owner-valued question demonstrates
+information-load risk at a longer horizon.
+
+## 29. Qualification record
+
+- Exact command: python scripts/check.py --skip-pytest
+- Result: exit code 0; validator suite 24/24 passed, repository validation
+  passed with existing non-critical workflow warnings, vendored contract passed,
+  and Ruff passed.
+- Pytest: not run in this docs/research gate; no pytest pass claim is made.
+- Research commit: recorded on the research branch after this reconciliation.
+- Diff summary: documentation and research artifact only; no production code,
+  schema, ontology, test, or generated artifact changes.
+- Known baseline failure: none observed in the executed docs/source check.

@@ -126,4 +126,22 @@ Next agent should read this file + `docs/product-validation/global-map-focus-pro
 - Decision supported: determine the smallest semantic/reasoning capability Auteur requires to explain why accumulated narrative history matters to one particular current author decision.
 - Central research question: Can Auteur derive useful, author-readable explanations of why accepted narrative history bears on a current creative decision by combining existing accepted narrative meaning with an interpretively derived and owner-validated Decision Frame, without adding new canonical narrative storage?
 - Impact explanation: known unresolved product gap; out of scope for this responsibility.
-- Current phase: PHASE_B_PACKET_COMPLETE_AWAITING_OWNER_GATE_B. Owner Gate A validated Frame B as the working frame (PARTIALLY_ACCURATE), retained Frame C as a downstream narrative-test lens, and six bounded cases are now analyzed. Semantic Bridge Critic and Evidence Auditor completed independent review. Owner Gate B is now required before H1/H2/H3/H4 synthesis.
+- Current phase: V0_EVIDENCE_COMPLETE. Owner Gate A validated Frame B as the working frame (PARTIALLY_ACCURATE), Frame C remains a downstream narrative-test lens, six bounded cases were analyzed, and Semantic Bridge Critic, Evidence Auditor, and Owner Gate B are complete. H3 is the primary disposition with an H4 guardrail; no implementation is authorized.
+
+## Decision-Specific Relevance Bridge V0 Reconciliation
+
+- V0 status: EVIDENCE COMPLETE for the bounded Superhero case.
+- Owner Gate B: complete. D18, D19, D20, D23, and persistent pressure retain
+  bounded owner-confirmed bridges; D18→D19 is NO BRIDGE for semantic causation,
+  preserving only ordered adjacency.
+- Primary synthesis: H3 — decision relevance remains substantially
+  interpretive. H4 is an architectural guardrail against a persisted or
+  universal DecisionRelevanceBridge.
+- H1 is supported only in the bounded sense that accepted meaning and
+  provenance supply useful material; H2 is not admitted because no recurring
+  universal representation gap was demonstrated.
+- No generic narrative-gloss storage, persisted DecisionFrame, production
+  bridge, extraction, scale test, or impact-explanation implementation is
+  authorized.
+- Next action: campaign-level reassessment of the next bounded responsibility;
+  do not automatically continue this responsibility to V1.
