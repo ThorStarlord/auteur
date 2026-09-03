@@ -59,11 +59,11 @@ source lives outside this repository and was read without modification.
 
 | Evidence | Role and boundary |
 | --- | --- |
-| H:\GithubRepositories\auteur-dogfood-superhero-netorare-pilot-v1-r3\impact-after.txt | Preserved pre-explanation impact baseline. SHA-256: **2F78FE7CA31C1E5CEC6056B48013C56FEEEB6CC6B92B9EEED141397B4D3DEAFD**. It is hashable external evidence, not a repository-contained or filesystem-read-only artifact. |
-| H:\GithubRepositories\auteur-redogfood-superhero-explanation-20260902\baseline\impact-after.txt | Preserved comparison copy with the same SHA-256. |
-| H:\GithubRepositories\auteur-redogfood-superhero-explanation-20260902\results\impact-enriched-after.txt | Same SHA-256 as the baseline. The earlier contextual explanation work did not change this impact surface. |
-| H:\GithubRepositories\auteur-dogfood-superhero-netorare-pilot-v1-r3\.auteur\series\vertical-slice\accepted\realization-revisions\... | Accepted realization-revision history for D19 and revision-one records for D20–D23. |
-| H:\GithubRepositories\auteur-dogfood-superhero-netorare-pilot-v1-r3\.auteur\series\vertical-slice\derived\canonical-state.yaml | Derived current-state projection that records the D20 expected/found state conflict after D19 revision 2. |
+| `H:\GithubRepositories\auteur-dogfood-superhero-netorare-pilot-v1-r3\impact-after.txt` | Preserved pre-explanation impact baseline. SHA-256: **2F78FE7CA31C1E5CEC6056B48013C56FEEEB6CC6B92B9EEED141397B4D3DEAFD**. It is hashable external evidence, not a repository-contained or filesystem-read-only artifact. |
+| `H:\GithubRepositories\auteur-redogfood-superhero-explanation-20260902\baseline\impact-after.txt` | Preserved comparison copy with the same SHA-256. |
+| `H:\GithubRepositories\auteur-redogfood-superhero-explanation-20260902\results\impact-enriched-after.txt` | Same SHA-256 as the baseline. The earlier contextual explanation work did not change this impact surface. |
+| `H:\GithubRepositories\auteur-dogfood-superhero-netorare-pilot-v1-r3\.auteur\series\vertical-slice\accepted\realization-revisions\...` | Accepted realization-revision history for D19 and revision-one records for D20–D23. |
+| `H:\GithubRepositories\auteur-dogfood-superhero-netorare-pilot-v1-r3\.auteur\series\vertical-slice\derived\canonical-state.yaml` | Derived current-state projection that records the D20 expected/found state conflict after D19 revision 2. |
 | docs/product-validation/global-map-focus-productization-pilot-v1.md | Repository account of the original pilot and its unexplained review-leverage gap. |
 | src/auteur/series/productization.py, src/auteur/series/vertical_slice_service.py, and src/auteur/series/vertical_slice_formatters.py | Current Series report behavior. Inspected only; not modified. |
 | src/auteur/impact/ | Older generic impact capability. Inspected only; not assumed to be integrated with the Series path. |

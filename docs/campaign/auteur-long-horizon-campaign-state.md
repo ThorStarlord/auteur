@@ -176,7 +176,7 @@ Candidates for campaign reassessment only:
 - Owner authorization: APPROVED.
 - Type: Research + Product-Value + Mechanical-Boundary Clarification.
 - Implementation authorization: NO.
-- Current phase: OWNER_GATE.
+- Current phase: EVIDENCE_COMPLETE / OWNER_GATE_CLOSED.
 - Status: COMPLETE / EVIDENCE COMPLETE.
 - Semantic/mechanical result: POSITIVE.
 - Product-value result: INCONCLUSIVE for this case; H4 primary because prior
