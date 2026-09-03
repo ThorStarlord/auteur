@@ -4,6 +4,16 @@
 
 **North Star:** Preserve and reconstruct narrative meaning across story too large for working context.
 
+## Current Responsibility (2026-09-03)
+
+- **Selected Responsibility:** Independent Long-Horizon Decision Reconstruction V0.
+- **Type:** Evidence-Admission + Product-Value + Memory/Reasoning/Explanation Research.
+- **Implementation / ontology / extraction / scale:** NO / NO / gate not crossed / not authorized.
+- **Phase:** CASE_ADMISSION.
+- **Status:** `NO_CASE_ADMITTED`. The proposed external Markdown corpus cannot exercise current Auteur accepted-history reconstruction without an unsupported import/conversion or manual artifact creation.
+- **Next owner action:** Campaign-level reassessment. Do not continue this V0 case, implement an intake path, or infer an ontology result from the failed admission.
+- **Record:** `docs/research/independent-long-horizon-decision-reconstruction-v0-no-case-admitted.md`.
+
 ## Current Product State (2026-09-02, auteur/main @ 1a686f5 + feature/contextual-relevance-explanation-v1)
 
 - **Architecture doc:** `docs/architecture/detailed-narrative-architecture-v1.md` — ACCEPTED for V1 vertical-slice implementation (human-reviewed). 5 semantic layers + scope axis unchanged. Global Map = derived rebuildable projection; Focus = derived relevance projection; derived != canon (ADR 019).
