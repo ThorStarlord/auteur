@@ -1,6 +1,6 @@
 # D19 Revision Review-Value Explanation V0
 
-**Status:** OWNER_GATE_PENDING
+**Status:** EVIDENCE_COMPLETE / OWNER_GATE_CLOSED
 **Type:** Research + Product-Value + Mechanical-Boundary Clarification
 **Implementation authorization:** NO
 **Research base:** origin/main @ f2f5bc51a7611ea4d110b3bbb20a4e2edef2c7db
@@ -357,10 +357,10 @@ production capability is needed before an owner tests the gap.
 
 | Hypothesis | Current status | What Owner Gate must test |
 | --- | --- | --- |
-| H1 — bounded deterministic explanation is sufficient | Plausible for the D20 handoff; not established. | Whether the source delta, status, and dependency path produce a clearer bounded decision. |
-| H2 — deterministic impact is insufficient | Plausible; no new interpretive workflow is authorized. | Whether the owner still needs decision-specific creative reasoning after seeing the bounded explanation. |
-| H3 — existing impact reporting is already sufficient | Live alternative. | Whether the owner would make the same review/reconciliation decision from the preserved baseline alone. |
-| H4 — this case cannot honestly test product value | Guardrail, not ruled out. | Whether prior knowledge/priming prevents a credible baseline-to-explanation comparison. |
+| H1 — bounded deterministic explanation is sufficient | Mechanically promising / partially supported; author-value delta not demonstrated. | Whether the source delta, status, and dependency path produce a clearer bounded decision in an unprimed comparison. |
+| H2 — deterministic impact is insufficient | Not established. | Whether the owner still needs decision-specific creative reasoning after seeing the bounded explanation. |
+| H3 — existing impact reporting is already sufficient | Not supported as an informational claim, but superiority cannot be cleanly measured here. | Whether a clean comparison would show the existing report is enough. |
+| H4 — this case cannot honestly test product value | **Primary owner disposition.** Prior knowledge/priming prevents a clean baseline-to-explanation decision delta. | Preserve this guardrail rather than manufacture a positive result. |
 
 No result is optimized toward H1. A positive product-value claim requires an
 owner-observed decision delta, not readability alone.
@@ -407,13 +407,34 @@ bounded action or less unnecessary review. A conclusion that the existing
 report was enough, no explanation was warranted, or this replay is not honest
 is equally valuable evidence.
 
+### Recorded Owner Gate result
+
+**Overall semantic / mechanical disposition:** POSITIVE
+**Product-value disposition:** INCONCLUSIVE FOR THIS CASE
+**Primary hypothesis:** H4 — the owner was already primed by the D19→D20
+mismatch and earlier review-order discussion, so a clean causal before/after
+author-decision delta cannot be measured.
+
+| Artifact | Impact accuracy | Deterministic basis | Overreach | Review warrant | Decision enabled | Order value | Preservation | Existing report enough? | Owner correction |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| D20 | ACCURATE | SUFFICIENT | NONE | REVIEW | Reconcile the direct D19→D20 handoff; this does not require rewriting D20. | USEFUL | POSITIVE | PARTIALLY | Distinguish reconciliation attention from payload revision. |
+| D21 | ACCURATE | PARTIAL | NONE | NO_REVIEW — FOR NOW | None independently before D20 reconciliation; revisit only if that decision reaches D21. | USEFUL | POSITIVE | PARTIALLY | Treat as conditional downstream attention. |
+| D22 | ACCURATE | PARTIAL | NONE | NO_REVIEW — FOR NOW | No independent decision until a D20 reconciliation is shown to reach D22 materially. | USEFUL | POSITIVE | PARTIALLY | Book order is not semantic priority. |
+| D23 | ACCURATE | PARTIAL | NONE | NO_REVIEW — FOR NOW | No independent reconciliation decision; revisit only if D20's resolution reaches D23. | USEFUL | POSITIVE | PARTIALLY | Affected status does not establish current narrative review value. |
+
+The owner therefore finds the explanation semantically and mechanically useful:
+D20 is the only currently warranted reconciliation review, while D21–D23 should
+remain accepted and untouched for now. This is not product-validation evidence
+of a changed decision because the owner already knew the relevant case facts.
+
 ## 22. Provisional disposition
 
-The entry gate passed and the evidence reconstruction is complete. The research
-identifies a source-grounded D20 explanation candidate: exact direct mismatch,
-unresolved reconciliation choice, and explicit preservation boundary. It also
-finds that D21–D23 should be presented as transitive downstream consequences,
-not independent direct contradictions or automatic rewrite candidates.
+The entry gate passed, the evidence reconstruction is complete, and the owner
+gate is closed. The research identifies a source-grounded D20 explanation:
+exact direct mismatch, unresolved reconciliation choice, and explicit
+preservation boundary. It also finds that D21–D23 should be presented as
+transitive downstream consequences, not independent direct contradictions or
+automatic rewrite candidates.
 
 **Independent-audit reconciliation:** A separate evidence auditor performed a
 preliminary independent review. It found no critical issue, but did identify
@@ -425,17 +446,23 @@ this document. The planned follow-on source-boundary audit could not complete
 because workspace agent credits were exhausted. This is a stated limitation,
 not a clean independent sign-off.
 
-No product-value result, review warrant, reconciliation, implementation,
-ontology admission, extraction change, or scale conclusion is made here. The
-only correct status is **OWNER_GATE_PENDING**.
+The semantic/mechanical result is **POSITIVE**. The product-value result is
+**INCONCLUSIVE** with **H4** primary because owner priming prevents a clean
+before/after decision delta. D20 has an owner-confirmed **REVIEW** warrant for
+reconciliation attention; D21–D23 have **NO_REVIEW — FOR NOW**. No payload was
+rewritten, and no rewrite is authorized.
 
-## 23. Campaign implications — owner pending
+Implementation, ontology admission, extraction change, and scale conclusion
+remain closed. The V0 is **EVIDENCE_COMPLETE / OWNER_GATE_CLOSED**.
 
-The campaign may later learn either that current revision-impact reporting needs
-a bounded source-grounded explanation, that a decision-specific interpretive
-workflow is needed, that the existing report is sufficient, or that this case
-cannot test the question honestly. None is selected before the owner completes
-the packet.
+## 23. Campaign implications — reassessment required
+
+The campaign should return to campaign-level reassessment. The owner did not
+select a successor responsibility. Future reassessment may consider whether
+current revision-impact reporting needs a bounded source-grounded explanation,
+whether a decision-specific interpretive workflow is needed, or whether a
+future unprimed case can test product value. This V0 does not authorize any of
+those paths.
 
 Do not advance this responsibility to implementation or use it to reopen
 extraction, ontology, or scale work without a separate owner decision.
