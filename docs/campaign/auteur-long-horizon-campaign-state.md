@@ -170,3 +170,13 @@ Candidates for campaign reassessment only:
 - Trajectory/arc reasoning.
 - Epistemic-state reasoning.
 - Long-horizon scale and information-load behavior.
+
+## Selected Responsibility: D19 Revision Review-Value Explanation V0
+
+- Owner authorization: APPROVED.
+- Type: Research + Product-Value + Mechanical-Boundary Clarification.
+- Implementation authorization: NO.
+- Current phase: OWNER_GATE.
+- Next checkpoint: OWNER EVALUATION.
+- Scope boundary: this responsibility does not authorize ontology, extraction,
+  scale, automatic reconciliation, automatic rewriting, or production changes.
