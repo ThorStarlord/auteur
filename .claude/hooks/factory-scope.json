@@ -1,0 +1,33 @@
+{
+  "forbidden": [
+    ".env*",
+    ".venv/**",
+    "venv/**",
+    "env/**",
+    "dist/**",
+    "build/**",
+    "**/*.egg-info/**",
+    "**/secrets.*",
+    "**/*.key",
+    "**/*.pem",
+    "story_identity.yaml",
+    "blueprint.yaml",
+    ".auteur/**"
+  ],
+  "agents": {
+    "backend-builder": [
+      "src/auteur/**"
+    ],
+    "test-verifier": [
+      "tests/**"
+    ],
+    "devops-builder": [
+      ".github/workflows/**"
+    ],
+    "doc-writer": [
+      "docs/**",
+      "CHANGELOG.md",
+      "README.md"
+    ]
+  }
+}

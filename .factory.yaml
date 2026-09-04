@@ -1,0 +1,34 @@
+name: auteur-ai-factory
+layer: backend
+profile: python-library
+commands:
+  typecheck: python -m compileall -q src
+  lint: ruff check . && ruff format --check .
+  test: python -m pytest -q --tb=short
+paths:
+  backend:
+    - src/auteur/**
+  tests:
+    - tests/**
+  forbidden:
+    - .env*
+    - .venv/**
+    - venv/**
+    - env/**
+    - dist/**
+    - build/**
+    - "**/*.egg-info/**"
+    - "**/secrets.*"
+    - "**/*.key"
+    - "**/*.pem"
+    - story_identity.yaml
+    - blueprint.yaml
+    - .auteur/**
+  infra:
+    - .github/workflows/**
+  docs:
+    - docs/**
+    - CHANGELOG.md
+    - README.md
+platforms:
+  - claude-code
