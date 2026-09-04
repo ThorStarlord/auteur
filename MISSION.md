@@ -29,17 +29,17 @@ provider support.
 
 ## Out of scope, forever
 
-1. **No auto-accept.** A recommendation never becomes canonical state without an
-   explicit author action. No request may add an auto-accept mode.
-2. **No cloud, multi-author, or real-time collaboration service.** Auteur is
-   single-author and local-first.
-3. **No auto-publishing** to external platforms (Kindle, WebNovel, RoyalRoad,
-   or any other).
-4. **No native GUI app.** The browser phase visualization stays; a desktop app
-   does not appear.
-5. **No payments or subscription billing.** *[owner-confirmed 2026-09-04]*
-6. **No scraping or importing third-party story content.** *[owner-confirmed
-   2026-09-04]*
+- **No auto-accept.** A recommendation never becomes canonical state without an
+  explicit author action. No request may add an auto-accept mode.
+- **No cloud, multi-author, or real-time collaboration service.** Auteur is
+  single-author and local-first.
+- **No auto-publishing** to external platforms (Kindle, WebNovel, RoyalRoad,
+  or any other).
+- **No native GUI app.** The browser phase visualization stays; a desktop app
+  does not appear.
+- **No payments or subscription billing.** *[owner-confirmed 2026-09-04]*
+- **No scraping or importing third-party story content.** *[owner-confirmed
+  2026-09-04]*
 
 ## Hard invariants - no request may argue these away
 
