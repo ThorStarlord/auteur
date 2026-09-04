@@ -36,11 +36,17 @@ def test_cli_init_creates_project(tmp_path):
     assert (target / "chapters").is_dir()
 
 
-def test_cli_init_refuses_existing(tmp_path):
+def test_cli_init_refuses_existing(tmp_path, capsys):
     target = tmp_path / "novel"
     main(["init", str(target), "--from", str(SAMPLE_YAML)])
     rc = main(["init", str(target), "--from", str(SAMPLE_YAML)])
     assert rc == 1
+    err = capsys.readouterr().err.lower()
+    assert "project path already exists" in err
+    assert str(target).lower() in err
+    assert "different path" in err
+    assert "--force" in err
+    assert "re-initialize an existing auteur project" in err
 
 
 def test_cli_plan_render_still_works(tmp_path, capsys):

@@ -501,7 +501,10 @@ def dispatch(args: argparse.Namespace) -> int:
     if args.command == "init":
         path = args.path
         if path.exists() and not args.force:
-            _err(f"project path already exists: {path}")
+            _err(
+                f"project path already exists: {path}; use a different path, "
+                "or use --force to re-initialize an existing auteur project"
+            )
             return 1
         if args.force and path.exists():
             if not (path / "blueprint.yaml").is_file() or not (path / "bible.json").is_file():
