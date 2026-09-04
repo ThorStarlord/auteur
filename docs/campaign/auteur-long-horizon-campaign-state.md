@@ -4,34 +4,100 @@
 
 **North Star:** Preserve and reconstruct narrative meaning across story too large for working context.
 
-## Current Responsibility (2026-09-04)
+## Current Campaign Posture (2026-09-04)
 
-- **Selected Responsibility:** Guided Series Continuity Review V1.
-- **Type:** Productization + Bounded Implementation.
-- **Campaign Layer:** Author Decision supported by Memory / Reasoning / Explanation.
-- **Implementation / ontology / extraction / scale:** COMPLETE / NO / gate not crossed / NO.
-- **Author-value claim:** PRODUCTIZATION_VALUE_POSITIVE for the bounded owner usability case.
-- **Prospective native case:** NO.
-- **Phase:** EVIDENCE_COMPLETE / OWNER_GATE_CLOSED.
-- **Status:** COMPLETE / PRODUCTIZATION VALUE POSITIVE.
-- **Final disposition:** PRODUCTIZATION_VALUE_POSITIVE.
-- **Primary finding:** The composed review materially reduces manual reconstruction and coherently presents accepted Series continuity around a normal Book planning decision.
-- **Primary seam:** Default long-range explanation remains generic; non-blocking.
-- **Deterministic implementation defect:** NOT DEMONSTRATED.
-- **Interpretive necessity:** NOT CLAIMED.
-- **Group-level eligibility contract follow-up:** NOT SELECTED.
-- **Next checkpoint:** Campaign-level reassessment.
+- **Active responsibility:** NONE.
+- **Campaign posture:** `PROSPECTIVE_NATIVE_EVIDENCE_INCUBATION`.
+- **Posture status:** ARMED / TRIGGER-BASED.
+- **Why:** Guided Series Continuity Review V1 has positive bounded usability, but no specific new capability has produced sufficient real-world failure evidence to justify implementation or another bounded study.
+- **Productization:** NO LONGER A DEMONSTRATED PRIMARY CAPABILITY BLOCKER.
+- **Prospective evidence route:** A real Auteur-native project reaches a naturally occurring later-Book planning decision with previously accumulated accepted history.
+- **Next campaign reassessment:** When a material prospective evidence event occurs.
 - **Successor responsibility:** NONE SELECTED.
-- **Next owner action:** Return to campaign-level reassessment. Do not implement, add ontology, add a pressure lifecycle, reopen extraction, scale, or start a prospective case automatically.
-- **Record:** `docs/product-validation/guided-series-continuity-review-v1.md`.
+- **Implementation / ontology / extraction / scale:** NONE AUTHORIZED / NO / gate not crossed / NO.
+- **Guided Review V2:** NOT AUTHORIZED.
+- **Record:** `docs/product-validation/guided-series-continuity-review-v1.md` and this campaign state.
 
-## Selected Responsibility: Guided Series Continuity Review V1
+The distinction is explicit: an active responsibility is bounded work executable
+now; evidence incubation is ordinary prospective product use until a naturally
+occurring evidence opportunity appears.
+
+## Armed Prospective Evidence Incubation
+
+An eligible evidence opportunity is a real Auteur-native project reaching a
+naturally occurring later-Book planning decision with accepted history already
+accumulated. The campaign must not prompt or remind the author to invoke the
+continuity review before the encounter when observing natural reachability.
+
+Research-only encounter labels are:
+
+- `NATURAL_ENCOUNTER`
+- `NOT_ENCOUNTERED`
+- `RESEARCH_PROMPTED_ENCOUNTER`
+
+These labels are not product ontology and must not be persisted in product
+schemas. A prompted encounter may still provide bounded usability evidence, but
+it is not evidence of natural reachability.
+
+The existing `BookPlanningIntent` and accepted project state provide the
+pre-review decision context. No priming interview or prospective fixture should
+be created solely for validation. Post-event evidence may record whether the
+review was encountered naturally, whether manual reconstruction was reduced,
+whether orientation or decision framing changed, whether accepted/derived/
+interpretive boundaries remained clear, whether omission, irrelevance,
+overload, or actionability friction occurred, and whether existing author-action
+paths were sufficient.
+
+The methodological distinction is:
+
+```text
+NO ENCOUNTER BECAUSE NO ELIGIBLE PROSPECTIVE USE OCCURRED
+!=
+WORKFLOW REACHABILITY FAILURE
+```
+
+```text
+ELIGIBLE PROSPECTIVE DECISION OCCURRED
++ AUTHOR DID NOT NATURALLY ENCOUNTER REVIEW
++ AUTHOR NEEDED MANUAL RECONSTRUCTION
+= VALID WORKFLOW-REACHABILITY EVIDENCE
+```
+
+Reassessment triggers are material natural-reachability failure, repeated
+post-review action failure, repeated semantic/evolution/obligation failure,
+concrete information-load failure, repeated positive use showing no current
+capability gap, or another material prospective signal. If no eligible
+prospective use occurs: **NO CONCLUSION. Do not manufacture a case.**
+
+## Post-Productization Candidate Dispositions
+
+- **Trajectory:** DEFER pending recurring evolution failure.
+- **Workflow integration:** DEFER pending natural reachability evidence.
+- **Review-to-action bridge:** DEFER pending actual post-review actionability failure.
+- **Obligation / setup / payoff:** DEFER pending recurring semantic failure.
+- **Epistemic state:** DEFER pending an admissible real case.
+- **Relationship evolution:** DEFER pending demonstrated generic-state failure.
+- **Scale:** DEFER pending concrete information-load pressure.
+- **Guided Review V2:** NO CURRENT RESPONSIBILITY; NOT AUTHORIZED.
+- **Automatic extraction:** GATE CLOSED / NOT CROSSED.
+
+No implementation, research experiment, prospective fixture, mandatory review
+prompt, telemetry, ontology change, extraction run, or scale test is authorized
+or started by this posture. In particular:
+
+```text
+NO ENCOUNTER BECAUSE NO ELIGIBLE PROSPECTIVE USE OCCURRED
+!=
+WORKFLOW REACHABILITY FAILURE
+```
+
+## Completed Responsibility: Guided Series Continuity Review V1
 
 - **Type:** Productization + Bounded Implementation.
 - **Campaign layer:** Author Decision supported by Memory / Reasoning / Explanation.
 - **Phase:** EVIDENCE_COMPLETE / OWNER_GATE_CLOSED.
 - **Implementation:** AUTHORIZED — bounded responsibility only.
-- **Review surface:** Read-only derived composition; no canonical mutation.
+- **Review surface:** Read-only with respect to accepted/canonical narrative authority; derived projections may be rebuilt or persisted.
 - **Series open question:** Reuse `SeriesDirection.open_question` directly.
 - **Series commitments:** Reuse `DirectionCommitment` and explicit `resolved_commitment_ids` semantics.
 - **Generic `AuthorDecision.UnresolvedChoice` integration:** Not required for V1.
@@ -123,7 +189,8 @@ Bounded contextual-relevance explanation research → prototype → minimal impl
 
 ## Owner Decisions Required
 
-- Campaign-level reassessment is now warranted. No successor responsibility is selected by this closure state.
+- Campaign-level reassessment is complete. No active responsibility is selected.
+- The campaign is armed for prospective native evidence incubation and returns to reassessment only after a material prospective evidence event.
 
 ## Campaign Acceptance Status
 
@@ -133,8 +200,11 @@ PARTIALLY VALIDATED; Contextual Relevance Explanation V1 is materially improved
 but only PARTIALLY VALIDATED; Decision-Specific Relevance Bridge V0 is EVIDENCE
 COMPLETE with H3 primary and H4 guardrail. Ontology admission is NO, extraction
 gate is NOT CROSSED, and production implementation is NOT AUTHORIZED.
-Campaign-level reassessment is now warranted; no next responsibility is
-selected here.
+The bounded Guided Series Continuity Review V1 owner gate is closed with
+PRODUCTIZATION_VALUE_POSITIVE. No immediate active successor is selected;
+prospective native evidence incubation is armed and trigger-based. If no
+eligible prospective use occurs, the result is NO CONCLUSION and no case should
+be manufactured.
 
 ## Fresh-Context Reconstruction Test
 
