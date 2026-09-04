@@ -34,6 +34,7 @@ from auteur.series.vertical_slice_formatters import (
     format_series_journey_map,
     format_author_focus,
     format_revision_impact,
+    format_series_continuity_review,
 )
 from auteur.series.productization import SeriesProductizationService
 from auteur.series.vertical_slice_models import (
@@ -80,6 +81,13 @@ def register_series_subcommands(sub) -> None:
         "impact", help="Show accepted-artifact impact and reconciliation review order."
     )
     p.add_argument("project", type=Path)
+
+    p = commands.add_parser(
+        "review", help="Show a read-only Series continuity review for a Book."
+    )
+    p.add_argument("project", type=Path)
+    p.add_argument("--book", type=int, required=True)
+    p.add_argument("--detail", action="store_true", help="Show source and Map identifiers.")
 
     journey = commands.add_parser(
         "journey", help="Guide the sparse Series vertical-slice journey."
@@ -386,6 +394,17 @@ def handle_series_command(args) -> int:
         try:
             report = SeriesProductizationService(args.project).revision_impact()
             print(format_revision_impact(report))
+            return 0
+        except Exception as exc:
+            print(f"Error: {exc}")
+            return 1
+
+    if args.series_command == "review":
+        try:
+            report = SeriesProductizationService(args.project).build_continuity_review(
+                args.book
+            )
+            print(format_series_continuity_review(report, detail=args.detail))
             return 0
         except Exception as exc:
             print(f"Error: {exc}")

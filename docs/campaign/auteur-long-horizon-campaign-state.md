@@ -6,24 +6,45 @@
 
 ## Current Responsibility (2026-09-04)
 
-- **Selected Responsibility:** Pressure-Group Map→Focus Eligibility Conformance Audit V0.
-- **Type:** Research + Architecture Conformance Audit.
-- **Campaign Layer:** Reasoning / Derived Projection.
-- **Implementation / ontology / extraction / scale:** NO / NO / gate not crossed / NO.
-- **Author-value claim:** NO.
+- **Selected Responsibility:** Guided Series Continuity Review V1.
+- **Type:** Productization + Bounded Implementation.
+- **Campaign Layer:** Author Decision supported by Memory / Reasoning / Explanation.
+- **Implementation / ontology / extraction / scale:** COMPLETE / NO / gate not crossed / NO.
+- **Author-value claim:** PRODUCTIZATION_VALUE_POSITIVE for the bounded owner usability case.
 - **Prospective native case:** NO.
 - **Phase:** EVIDENCE_COMPLETE / OWNER_GATE_CLOSED.
-- **Status:** COMPLETE / EVIDENCE COMPLETE.
-- **Final disposition:** INCONCLUSIVE.
-- **Primary finding:** Global Map preservation and fact-level Focus semantics conform, but group-level Focus eligibility is not specified by the accepted architecture and cannot be settled by the existing cases.
-- **Primary seam:** FOCUS_SELECTION contract boundary.
+- **Status:** COMPLETE / PRODUCTIZATION VALUE POSITIVE.
+- **Final disposition:** PRODUCTIZATION_VALUE_POSITIVE.
+- **Primary finding:** The composed review materially reduces manual reconstruction and coherently presents accepted Series continuity around a normal Book planning decision.
+- **Primary seam:** Default long-range explanation remains generic; non-blocking.
 - **Deterministic implementation defect:** NOT DEMONSTRATED.
-- **Interpretive necessity:** NOT DEMONSTRATED at the group-eligibility level.
+- **Interpretive necessity:** NOT CLAIMED.
 - **Group-level eligibility contract follow-up:** NOT SELECTED.
 - **Next checkpoint:** Campaign-level reassessment.
 - **Successor responsibility:** NONE SELECTED.
 - **Next owner action:** Return to campaign-level reassessment. Do not implement, add ontology, add a pressure lifecycle, reopen extraction, scale, or start a prospective case automatically.
-- **Record:** `docs/research/pressure-group-focus-eligibility-conformance-v0.md`.
+- **Record:** `docs/product-validation/guided-series-continuity-review-v1.md`.
+
+## Selected Responsibility: Guided Series Continuity Review V1
+
+- **Type:** Productization + Bounded Implementation.
+- **Campaign layer:** Author Decision supported by Memory / Reasoning / Explanation.
+- **Phase:** EVIDENCE_COMPLETE / OWNER_GATE_CLOSED.
+- **Implementation:** AUTHORIZED — bounded responsibility only.
+- **Review surface:** Read-only derived composition; no canonical mutation.
+- **Series open question:** Reuse `SeriesDirection.open_question` directly.
+- **Series commitments:** Reuse `DirectionCommitment` and explicit `resolved_commitment_ids` semantics.
+- **Generic `AuthorDecision.UnresolvedChoice` integration:** Not required for V1.
+- **Focus / pressure groups:** Supporting inputs/evidence only; no eligibility redesign.
+- **Ontology:** NO.
+- **Extraction:** Gate not crossed.
+- **Scale:** NO.
+- **Independent validation:** Not required for bounded implementation; owner usability review follows qualification.
+- **Owner usability:** POSITIVE.
+- **Final productization disposition:** `PRODUCTIZATION_VALUE_POSITIVE`.
+- **Claim ceiling:** Bounded usability/workflow coherence only; broad independent product value, generalized decision quality, and scale are not established.
+- **Successor:** NONE SELECTED.
+- **Record:** `docs/product-validation/guided-series-continuity-review-v1.md`.
 
 ## Current Product State (2026-09-02, auteur/main @ 1a686f5 + feature/contextual-relevance-explanation-v1)
 

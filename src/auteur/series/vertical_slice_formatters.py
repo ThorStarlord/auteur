@@ -1,7 +1,11 @@
 from __future__ import annotations
 
 from auteur.series.repeated_map_focus import AcceptedHistorySnapshot, selection_token_display
-from auteur.series.productization import AuthorFocusReport, RevisionImpactReport
+from auteur.series.productization import (
+    AuthorFocusReport,
+    RevisionImpactReport,
+    SeriesContinuityReviewReport,
+)
 from auteur.series.vertical_slice_models import (
     AcceptedContinuitySourceRef,
     AcceptedFactRef,
@@ -376,4 +380,134 @@ def format_revision_impact(report: RevisionImpactReport) -> str:
     )
     if not report.affected_artifacts:
         lines.append("- None detected.")
+    return "\n".join(lines)
+
+
+def format_series_continuity_review(
+    report: SeriesContinuityReviewReport, *, detail: bool = False
+) -> str:
+    lines = [
+        f"Series Continuity Review: Book {report.book_number}",
+        "",
+        "CURRENT PLANNING DECISION",
+        report.planning_intent,
+        "",
+        "SERIES DIRECTION",
+        f"Promise: {report.promise}",
+        f"Pressure: {report.pressure}",
+        f"Series open question: {report.open_question}",
+        "",
+        "ACTIVE COMMITMENTS",
+    ]
+    if report.active_commitments:
+        for item in report.active_commitments:
+            lines.append(f"- {item.statement}")
+            if detail:
+                lines.append(f"  Commitment ID: {item.commitment_id} ({item.scope})")
+    else:
+        lines.append("- None recorded.")
+    lines.extend(["", "RESOLVED COMMITMENTS (HISTORY)"])
+    if report.resolved_commitments:
+        for item in report.resolved_commitments:
+            lines.append(f"- {item.statement}")
+            if detail:
+                lines.append(f"  Commitment ID: {item.commitment_id} ({item.scope})")
+    else:
+        lines.append("- None recorded.")
+    lines.extend(["", "WHAT THE ACCEPTED STORY CURRENTLY SAYS"])
+    if report.current_context:
+        for entry in report.current_context:
+            lines.append(f"- {entry.summary}")
+            if detail:
+                lines.append(f"  Entry ID: {entry.entry_id}; disposition: {entry.disposition}")
+    else:
+        lines.append("- No current context surfaced.")
+    lines.extend(["", "RELEVANT ACCEPTED HISTORY"])
+    if report.relevant_history:
+        for entry in report.relevant_history:
+            lines.append(f"- {entry.summary}")
+            if detail:
+                lines.append(f"  Entry ID: {entry.entry_id}; disposition: {entry.disposition}")
+    else:
+        lines.append("- None surfaced.")
+    lines.extend(["", "REVISION / CONTINUITY WARNINGS"])
+    lines.extend(f"- {warning}" for warning in report.warnings or ["None detected."])
+    lines.extend(["", "LONG-RANGE SUPPORTING CONTEXT"])
+    if report.supporting_connections:
+        for connection in report.supporting_connections:
+            lines.append(f"- {connection.summary}")
+            if detail:
+                lines.append(f"  Relation: {connection.relation_id}")
+                lines.append("  Source evidence:")
+                lines.extend(
+                    f"    - {_format_continuity_source_ref(ref)}"
+                    for ref in connection.source_refs
+                )
+                lines.append("  Target evidence:")
+                lines.extend(
+                    f"    - {_format_continuity_source_ref(ref)}"
+                    for ref in connection.target_refs
+                )
+                lines.append(f"  Origin: {connection.origin}; disposition: {connection.disposition}")
+                lines.append(f"  Rule version: {connection.rule_version or 'none'}")
+                lines.append("  Relation evidence:")
+                lines.extend(
+                    f"    - {_format_continuity_source_ref(ref)}"
+                    for ref in connection.evidence_refs
+                )
+                lines.append("  Source revisions:")
+                lines.extend(
+                    f"    - {_format_source_ref(ref)}"
+                    for ref in connection.source_revision_refs
+                )
+    else:
+        lines.append("- None surfaced.")
+    lines.extend(
+        [
+            "",
+            "REVISION IMPACT",
+            report.revision_impact.reconciliation_boundary,
+            "Affected accepted artifacts are not automatically rewrite instructions.",
+            "AFFECTED ACCEPTED ARTIFACTS",
+            *(
+                (
+                    f"- Book {item.book_number}: {item.artifact_id} "
+                    f"({item.freshness}, {item.semantic_impact})"
+                    if detail
+                    else f"- Book {item.book_number} ({item.freshness}, {item.semantic_impact})"
+                )
+                for item in report.revision_impact.affected_artifacts
+            ),
+            *(["- None detected."] if not report.revision_impact.affected_artifacts else []),
+            "SERIES DIRECTION IMPACT",
+            *(
+                (
+                    f"- Book {item['book_number']}: {item['artifact_id']} "
+                    f"({item['freshness']}, {item['lifecycle']})"
+                    if detail
+                    else f"- Book {item['book_number']} ({item['freshness']}, {item['lifecycle']})"
+                )
+                for item in report.revision_impact.series_direction_impact
+            ),
+            *(
+                ["- None detected."]
+                if not report.revision_impact.series_direction_impact
+                else []
+            ),
+            "",
+            "WHAT REMAINS UNCHANGED",
+            "Accepted downstream material remains accepted. This review does not rewrite it.",
+            "No narrative authority has changed.",
+        ]
+    )
+    if detail:
+        lines.extend(["", "DETAIL", f"Freshness: {report.freshness}", f"Semantic impact: {report.semantic_impact}"])
+        lines.append("Provenance:")
+        lines.extend(f"- {_format_source_ref(ref)}" for ref in report.provenance)
+        lines.append("Current state evidence:")
+        lines.extend(
+            f"- {key}: {value.current_value} ({_format_continuity_source_ref(value.current_fact_ref)})"
+            for key, value in report.current_state_evidence.items()
+        )
+        lines.append(f"Map snapshot: {report.map_snapshot_id}")
     return "\n".join(lines)
