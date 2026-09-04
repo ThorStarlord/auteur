@@ -4,10 +4,12 @@ profile: python-library
 commands:
   typecheck: python -m compileall -q src
   lint: ruff check . && ruff format --check .
-  test: python -m pytest -q --tb=short
+  test: PYTHONPATH=src python -m pytest -q --tb=short
+  acceptance: PYTHONPATH=src python -m pytest -q --tb=short tests/test_series_episode_one_direction.py tests/test_series_vertical_slice_e2e.py
 paths:
   backend:
     - src/auteur/**
+    - tests/**
   tests:
     - tests/**
   forbidden:

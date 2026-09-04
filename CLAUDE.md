@@ -13,12 +13,14 @@ Do not hand-edit — edit `.factory.yaml` or the profile, then re-run `factory i
 
 - Typecheck: `python -m compileall -q src`
 - Lint: `ruff check . && ruff format --check .`
-- Test: `python -m pytest -q --tb=short`
+- Test: `PYTHONPATH=src python -m pytest -q --tb=short`
+- Acceptance: `PYTHONPATH=src python -m pytest -q --tb=short tests/test_series_episode_one_direction.py tests/test_series_vertical_slice_e2e.py`
 
 ## Path scoping for agents
 
 **Backend Builder may edit:**
 - `src/auteur/**`
+- `tests/**`
 
 **DevOps Builder may edit:**
 - `.github/workflows/**`

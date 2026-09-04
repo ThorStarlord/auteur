@@ -16,7 +16,8 @@
   ],
   "agents": {
     "backend-builder": [
-      "src/auteur/**"
+      "src/auteur/**",
+      "tests/**"
     ],
     "test-verifier": [
       "tests/**"
