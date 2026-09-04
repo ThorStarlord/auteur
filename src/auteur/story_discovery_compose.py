@@ -654,6 +654,6 @@ def dispatch_story_discovery_compose(args: Any) -> int:
         print(f"- {borrow.candidate_id}: {borrow.mechanism}")
     print("\nNothing has been accepted yet.")
     print("\nAccept this composed candidate explicitly:")
-    print(f"  auteur story-discovery accept {output} --output story_identity.yaml")
-    print(f"\nComposition report: {report_path}")
+    print(f"  auteur story-discovery accept {output.as_posix()} --output story_identity.yaml")
+    print(f"\nComposition report: {report_path.as_posix()}")
     return 0

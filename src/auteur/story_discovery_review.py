@@ -162,7 +162,7 @@ def _render_recommendation_actions(root: Path, state: StoryDiscoveryProjectState
         except ValueError:
             display_path = state.recommended_candidate_path
         print("- Accept this direction explicitly:")
-        print(f"    auteur story-discovery accept {display_path} --output story_identity.yaml")
+        print(f"    auteur story-discovery accept {display_path.as_posix()} --output story_identity.yaml")
     if state.can_compose:
         alternatives = ", ".join(state.compatible_secondary_candidate_ids)
         print(f"- Explore a compatible composition from: {alternatives}")
@@ -267,7 +267,7 @@ def _render_comparative_non_adjudicable(root: Path, discovery_set: dict[str, Any
         except ValueError:
             display_path = path
         print(f"- Choose {_title(path, candidate_id)} explicitly:")
-        print(f"    auteur story-discovery accept {display_path} --output story_identity.yaml")
+        print(f"    auteur story-discovery accept {display_path.as_posix()} --output story_identity.yaml")
     print("- Refine or change what you want:")
     print("    auteur story-discovery start --project . --edit")
     print("- Generate a different search space:")
@@ -380,14 +380,14 @@ def _render_composed(root: Path, state: StoryDiscoveryProjectState) -> None:
     except ValueError:
         composed_display = state.composed_candidate_path
     print("- Accept the composed candidate explicitly:")
-    print(f"    auteur story-discovery accept {composed_display} --output story_identity.yaml")
+    print(f"    auteur story-discovery accept {composed_display.as_posix()} --output story_identity.yaml")
     if primary_path.is_file():
         try:
             primary_display = primary_path.relative_to(root)
         except ValueError:
             primary_display = primary_path
         print("- Or accept the uncomposed primary:")
-        print(f"    auteur story-discovery accept {primary_display} --output story_identity.yaml")
+        print(f"    auteur story-discovery accept {primary_display.as_posix()} --output story_identity.yaml")
     print("- Change your declared intent:")
     print("    auteur story-discovery start --project . --edit")
 
