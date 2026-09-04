@@ -3,9 +3,10 @@ from __future__ import annotations
 from pathlib import Path
 
 import yaml
+import pytest
 
 from auteur.cli import main
-from auteur.series.productization import SeriesProductizationService
+from auteur.series.productization import FocusConnection, SeriesProductizationService
 from auteur.series.vertical_slice_models import (
     AcceptedFactRef,
     ArtifactRef,
@@ -19,6 +20,18 @@ from auteur.series.vertical_slice_service import SeriesVerticalSliceService
 
 
 FIXTURE_ROOT = Path(__file__).parent / "fixtures" / "archive_of_lies_vertical_slice"
+
+
+def test_focus_connection_rejects_invalid_relation_types() -> None:
+    with pytest.raises(ValueError):
+        FocusConnection(
+            relation_id="relation-1",
+            summary="summary",
+            source_refs=[AcceptedFactRef(artifact_id="a", revision=1, fact_id="f")],
+            target_refs=[AcceptedFactRef(artifact_id="b", revision=1, fact_id="g")],
+            origin="INVALID",
+            disposition="invalid",
+        )
 
 
 def _load(name: str, model_type):

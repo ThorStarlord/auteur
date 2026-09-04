@@ -13,6 +13,8 @@ from auteur.series.vertical_slice_models import (
     ContinuityGroup,
     DirectionCommitment,
     MapCurrentStateEvidence,
+    RelationDisposition,
+    RelationOrigin,
 )
 from auteur.series.vertical_slice_service import SeriesVerticalSliceService
 
@@ -24,8 +26,8 @@ class FocusConnection(BaseModel):
     summary: str
     source_refs: list[AcceptedContinuitySourceRef] = Field(min_length=1)
     target_refs: list[AcceptedContinuitySourceRef] = Field(min_length=1)
-    origin: str
-    disposition: str
+    origin: RelationOrigin
+    disposition: RelationDisposition
     rule_version: str | None = None
     evidence_refs: list[AcceptedContinuitySourceRef] = Field(default_factory=list)
     source_revision_refs: list[ArtifactRef] = Field(default_factory=list)

@@ -478,7 +478,7 @@ def format_series_continuity_review(
                 )
                 for item in report.revision_impact.affected_artifacts
             ),
-            *( ["- None detected."] if not report.revision_impact.affected_artifacts else [] ),
+            *(["- None detected."] if not report.revision_impact.affected_artifacts else []),
             "SERIES DIRECTION IMPACT",
             *(
                 (
