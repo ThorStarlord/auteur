@@ -11,9 +11,15 @@
 - **Plane:** Research Substrate.
 - **Implementation / ontology / extraction / scale:** NO / NO / gate not crossed / NO.
 - **Corpus conversion / live decision test:** NO / NO.
-- **Phase:** PROTOCOL_FEASIBILITY.
-- **Status:** Protocol feasibility is the selected responsibility. This state record intentionally does not pre-record a terminal outcome.
-- **Next owner action:** Review the protocol-feasibility record when presented. Do not begin conversion, fixture creation, a live decision test, ontology work, extraction, scale work, or intake implementation.
+- **Phase:** EVIDENCE_COMPLETE / OWNER_GATE_CLOSED.
+- **Status:** COMPLETE / EVIDENCE COMPLETE.
+- **Final disposition:** RETROSPECTIVE_FIXTURE_NOT_ADMISSIBLE.
+- **Primary finding:** Retrospective author ratification fatally primes the intended same-author long-horizon reconstruction-value test.
+- **Retrospective system-only study:** Different question; not authorized.
+- **Prospective native case:** Possible future evidence route; not automatically selected.
+- **Next checkpoint:** Campaign-level reassessment.
+- **Successor responsibility:** NONE SELECTED.
+- **Next owner action:** Do not begin conversion, fixture creation, a live decision test, ontology work, extraction, scale work, intake implementation, or a prospective case. Return to campaign-level reassessment.
 - **Record:** `docs/research/decision-blind-retrospective-accepted-history-protocol-feasibility-v0.md`.
 
 ## Current Product State (2026-09-02, auteur/main @ 1a686f5 + feature/contextual-relevance-explanation-v1)

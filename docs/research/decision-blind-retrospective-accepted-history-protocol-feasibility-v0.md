@@ -1,6 +1,8 @@
 # Decision-Blind Retrospective Accepted-History Protocol Feasibility V0
 
-**Status:** `RETROSPECTIVE_FIXTURE_NOT_ADMISSIBLE` pending owner review
+**Status:** `EVIDENCE_COMPLETE / OWNER_GATE_CLOSED`
+
+**Final disposition:** `RETROSPECTIVE_FIXTURE_NOT_ADMISSIBLE`
 
 **Type:** Research Method + Evidence Admission
 
@@ -455,6 +457,9 @@ This record does not authorize or begin that work.
 
 ## Owner gate
 
+**Owner review:** APPROVED. The research is complete and this negative
+disposition is closed at the owner gate.
+
 | Owner review field | Result |
 | --- | --- |
 | Disposition | `RETROSPECTIVE_FIXTURE_NOT_ADMISSIBLE` |
@@ -469,17 +474,103 @@ This record does not authorize or begin that work.
 | Retrospective-vs-native differences | Material and non-removable for timing, working context, lifecycle, revision lineage, and native burden. |
 | Critic result | `REQUIRES_REVISION`; every material objection is reconciled above. The fatal priming objection remains. |
 | Unresolved risks | Author priming is fatal. Converter and coverage bias remain material even for a different system-only question. |
-| What this authorizes | Owner review of this negative protocol disposition only. |
+| What this authorizes | Owner-approved closure of this negative protocol disposition only. |
 | What this does not authorize | Implementation, conversion, fixture creation, live test, importer, ontology, extraction, scale, or a prospective case. |
+
+The owner-approved closure is recorded exactly as follows:
+
+```text
+OWNER GATE
+
+RESPONSIBILITY:
+Decision-Blind Retrospective Accepted-History Protocol Feasibility V0
+
+RESEARCH:
+COMPLETE
+
+FINAL DISPOSITION:
+RETROSPECTIVE_FIXTURE_NOT_ADMISSIBLE
+
+STRONGEST REASON:
+Honest retrospective ratification refreshes the author's
+long-horizon narrative context before the intended same-author
+reconstruction-value test.
+
+DECISION-SHAPED CONVERSION:
+Conditionally controllable through decision blindness,
+frozen rules, provenance, coverage accounting, and role separation.
+
+BUT:
+Those controls do not solve author-ratification priming.
+
+AUTHOR-RATIFICATION PRIMING:
+FATAL for the intended same-author product-value claim.
+
+SOURCE PROVENANCE:
+A research ledger could make retrospective mappings auditable,
+but cannot erase interpretation or priming.
+
+COVERAGE:
+A mechanically enumerable frozen census could support a
+different system-only study, but does not rescue this one.
+
+AUTHORITY:
+Present-time author acceptance may create honest current canon,
+but cannot recreate contemporaneous native acceptance or native
+revision history.
+
+RETROSPECTIVE HISTORY:
+NOT EQUIVALENT to prospectively accumulated Auteur-native history.
+
+SYSTEM-ONLY RETROSPECTIVE STUDY:
+A DIFFERENT QUESTION.
+NOT AUTHORIZED.
+
+PROSPECTIVE AUTEUR-NATIVE CASE:
+Methodologically cleaner future route if independent product-value
+validation remains strategically important.
+
+AUTOMATIC PROSPECTIVE CASE:
+NO.
+
+IMPLEMENTATION:
+NOT AUTHORIZED
+
+CORPUS CONVERSION:
+NOT AUTHORIZED
+
+FIXTURE CREATION:
+NOT AUTHORIZED
+
+LIVE DECISION TEST:
+NOT AUTHORIZED
+
+ONTOLOGY:
+NOT AUTHORIZED
+
+EXTRACTION:
+GATE NOT CROSSED
+
+SCALE:
+NOT AUTHORIZED
+
+NEXT CHECKPOINT:
+CAMPAIGN-LEVEL REASSESSMENT
+
+SUCCESSOR RESPONSIBILITY:
+NONE SELECTED
+```
 
 ## Qualification evidence
 
 This is a documentation and research-record change only. No executable source,
-tests, package metadata, or packaged resource changed.
+tests, package metadata, or packaged resource changed. The closure
+requalification was run after the Owner Gate edits and before the closure
+commit.
 
 | Command | Exit code | Evidence |
 | --- | ---: | --- |
-| `git diff --check` | 0 | No whitespace error. Git emitted a line-ending advisory for `docs/campaign/auteur-long-horizon-campaign-state.md`: LF will be replaced by CRLF the next time Git touches it. |
+| `git diff --check` | 0 | No whitespace error. Git emitted line-ending advisories for the two changed documentation files: LF will be replaced by CRLF the next time Git touches them. |
 | `python scripts/check.py --skip-pytest` | 0 | Completed the repository's validator suite, repository validation, vendored-contract verification, and Ruff check. |
 
 `scripts/test-validators.py` reported 24 total cases, 24 passed, 0 failed, 0
@@ -498,7 +589,6 @@ passed. `scripts/verify_vendored_contract.py` reported `VENDORED CONTRACT: OK`.
 
 Pytest was intentionally not run because the required command used
 `--skip-pytest`. Therefore collected, skipped, xfailed, xpassed, failed, and
-error counts are **not run**, not zero or passing. No CI was run, no pull
-request was created, and no CI result is represented as a pass. The two
-commands were repeated after this evidence record was written and before the
-documentation-only commit.
+error counts are **not run**, not zero or passing. No CI was run and no CI
+result is represented as a pass. The two commands were repeated after this
+evidence record was written and before the documentation-only closure commit.
