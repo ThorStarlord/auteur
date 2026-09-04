@@ -2,7 +2,7 @@
 
 ## Status
 
-**Evidence status:** EVIDENCE COMPLETE / OWNER GATE REQUIRED
+**Evidence status:** EVIDENCE COMPLETE / OWNER GATE CLOSED
 **Responsibility type:** Research + Architecture Conformance Audit
 **Campaign layer:** Reasoning / Derived Projection
 **Implementation:** NOT AUTHORIZED
@@ -38,7 +38,7 @@ documentation only.
 | Scale | NO |
 | Author-value claim | NO |
 | Prospective native case | NO |
-| Next step | OWNER GATE; no automatic implementation |
+| Next step | CAMPAIGN-LEVEL REASSESSMENT; no automatic implementation |
 
 ## Baseline and isolation
 
@@ -250,24 +250,43 @@ both memberships.
 
 ## Final disposition
 
-**PRIMARY DISPOSITION: `INTERPRETIVE_BOUNDARY`**
+**PRIMARY DISPOSITION: `INCONCLUSIVE`**
 
-**PRIMARY SEAM: `FOCUS_SELECTION`**, as an unresolved contract boundary and not
-as an admitted code defect.
+**PRIMARY SEAM: `FOCUS_SELECTION` contract boundary.**
 
-The current Map preserves the accepted history, target commitment disposition,
-member currentness, relation provenance, and revision freshness. The current
-Focus selector preserves fact-level currentness, explicit triggers, and D13
-member evidence, but it has no stated group-level predicate. Whether a group
-should be lifted from member-level evidence into the author-facing
-`persistent_pressures` collection requires a decision about the meaning of that
-collection. The existing cases do not justify choosing that rule
-deterministically.
+The audit found no deterministic Map→Focus conformance defect. Global Map
+preservation conforms, and fact-level Focus behavior preserves currentness,
+explicit reactivation, and historical-member status.
+
+Current Focus exposes pressure groups unconditionally, but the accepted
+architecture does not define the group-level eligibility predicate needed to
+judge that behavior as correct or incorrect. The existing cases also do not
+establish that group-level eligibility is necessarily interpretive.
+
+The result is an underspecified group-level Focus contract, not a demonstrated
+implementation defect and not proof that no deterministic rule could exist.
+Decision-specific pressure meaning may remain interpretive, consistent with
+prior campaign evidence, but this audit does not prove that group-level
+eligibility itself must be interpretive.
+
+The claim boundary is explicit:
+
+```text
+CURRENT CODE HAS NO GROUP-LEVEL ELIGIBILITY FILTER
+!=
+CURRENT CODE VIOLATES A SPECIFIED ELIGIBILITY RULE
+
+NO SPECIFIED DETERMINISTIC RULE
+!=
+NO DETERMINISTIC RULE COULD EVER EXIST
+```
 
 This is not a recommendation to delete resolved groups, drop historical
-members, add a pressure lifecycle, or persist Decision Relevance. It is a
-boundary finding: group existence and group eligibility are distinct, and the
-accepted architecture leaves their exact composition rule open.
+members, add a pressure lifecycle, or persist Decision Relevance. The current
+code having no group-level eligibility filter is not equivalent to violating a
+specified filter. Group existence in the Global Map remains distinct from
+being warranted as current author-facing pressure, and a resolved target does
+not make all associated history irrelevant.
 
 ## Implementation boundary
 
@@ -279,23 +298,36 @@ decision that first specifies whether `focus.groups` is an eligibility result
 or a structural projection and how explicit member triggers, current member
 roles, target commitment disposition, and relation disposition combine.
 
-## Owner Gate packet
+## Owner Gate closure
+
+**OWNER GATE: CLOSED.**
+
+The owner accepts the Global Map conformance result, the fact-level Focus
+conformance result, the critic's rejection of the deterministic-gap hypothesis,
+and the absence of a valid counterfactual. The owner revises the primary
+disposition from `INTERPRETIVE_BOUNDARY` to `INCONCLUSIVE` because the evidence
+establishes contract underspecification, not the impossibility of a
+deterministic composition rule.
+
+The group-level eligibility contract follow-up is **NOT SELECTED**. The
+successor responsibility is **NONE SELECTED**. The next checkpoint is
+**CAMPAIGN-LEVEL REASSESSMENT**.
 
 | Field | Result |
 | --- | --- |
-| Primary disposition | `INTERPRETIVE_BOUNDARY` |
+| Primary disposition | `INCONCLUSIVE` |
 | Primary seam | `FOCUS_SELECTION` contract boundary |
-| Normative contract | Global Map may preserve derived pressure history and historical members; Focus must preserve currentness and explicit triggers, but group-level eligibility is not specified. |
-| Active-pressure result | `contested-history` is an active derived group with current constraints and explicit Book 4 refs; preservation conforms, formal group predicate remains unspecified. |
-| Resolved-commitment result | `commitment-falsifier` remains a resolved Map entry and a derived group; Book 4's member trigger and current member roles prevent an omit conclusion. Group-level eligibility is unknown. |
+| Normative contract | Global Map may preserve derived pressure history and historical members; fact-level Focus preserves currentness and explicit triggers; group-level eligibility is not specified. |
+| Active-pressure result | `contested-history` is an active derived group with current constraints and explicit Book 4 refs; preservation conforms, but the exact group predicate is not established. |
+| Resolved-commitment result | `commitment-falsifier` remains a resolved Map entry and a derived group; its explicitly referenced current member prevents an omit conclusion. |
 | Historical-member result | D13 conforms: `broken-lantern` remains a superseded historical member without becoming current. |
-| Trigger-absent result | Both groups remain in the structural group collection; active current-constraint and resolved-target cases cannot be classified without a group-level predicate. |
+| Trigger-absent result | Both groups remain in the structural group collection; existing cases do not settle whether that collection is strict eligibility or structural projection. |
 | Current Map behavior | Preservation and provenance conform; no Map deletion is warranted. |
-| Current Focus behavior | Fact-level filtering is explicit, but group inclusion is unconditional and its semantic role is unresolved. |
+| Current Focus behavior | Fact-level filtering conforms with current/relevant semantics; pressure-group inclusion is unconditional and contractually underspecified. |
 | Smallest counterfactual | NONE. The active→resolved toggle leaves explicit member-trigger and current-member bases intact. |
-| Independent critic | REPLACE; validly rejected the deterministic-gap counterfactual and required the contract-boundary downgrade. |
-| Architecture change required | UNKNOWN |
-| Ontology change required | NO |
+| Independent critic | `REPLACE`; validly rejected the deterministic-gap counterfactual. |
+| Architecture change required | NOT ESTABLISHED |
+| Interpretive necessity | NOT DEMONSTRATED at the group-eligibility level |
 | Implementation candidate | NO |
 | Implementation authorized | NO |
 
@@ -318,11 +350,10 @@ lacked the closure-era relation model. The pinned rerun above passed and is the
 branch evidence. This is an environment-resolution issue, not a source
 regression in the clean worktree.
 
-## Owner decision required
+## Next checkpoint
 
-Does the current Map→Focus path truthfully preserve the distinction between
-pressure history and current pressure relevance using the semantics Auteur
-already has? If the owner wants a stricter group-level eligibility contract,
-that must be selected as a new bounded responsibility before implementation.
+Return to campaign-level reassessment. Do not select a separate group-level
+eligibility contract responsibility, implementation, ontology work, extraction,
+scale work, author-value study, or prospective case from this audit.
 
-OWNER_GATE_REQUIRED
+OWNER_GATE_CLOSED

@@ -12,13 +12,17 @@
 - **Implementation / ontology / extraction / scale:** NO / NO / gate not crossed / NO.
 - **Author-value claim:** NO.
 - **Prospective native case:** NO.
-- **Phase:** CONFORMANCE_AUDIT / EVIDENCE_COMPLETE.
-- **Status:** COMPLETE / OWNER_GATE_REQUIRED.
-- **Final disposition:** INTERPRETIVE_BOUNDARY.
-- **Primary seam:** FOCUS_SELECTION contract boundary; no deterministic defect admitted.
-- **Next checkpoint:** Owner gate.
+- **Phase:** EVIDENCE_COMPLETE / OWNER_GATE_CLOSED.
+- **Status:** COMPLETE / EVIDENCE COMPLETE.
+- **Final disposition:** INCONCLUSIVE.
+- **Primary finding:** Global Map preservation and fact-level Focus semantics conform, but group-level Focus eligibility is not specified by the accepted architecture and cannot be settled by the existing cases.
+- **Primary seam:** FOCUS_SELECTION contract boundary.
+- **Deterministic implementation defect:** NOT DEMONSTRATED.
+- **Interpretive necessity:** NOT DEMONSTRATED at the group-eligibility level.
+- **Group-level eligibility contract follow-up:** NOT SELECTED.
+- **Next checkpoint:** Campaign-level reassessment.
 - **Successor responsibility:** NONE SELECTED.
-- **Next owner action:** Decide whether to authorize a separate group-level eligibility contract responsibility. Do not implement, add ontology, add a pressure lifecycle, reopen extraction, scale, or start a prospective case automatically.
+- **Next owner action:** Return to campaign-level reassessment. Do not implement, add ontology, add a pressure lifecycle, reopen extraction, scale, or start a prospective case automatically.
 - **Record:** `docs/research/pressure-group-focus-eligibility-conformance-v0.md`.
 
 ## Current Product State (2026-09-02, auteur/main @ 1a686f5 + feature/contextual-relevance-explanation-v1)
