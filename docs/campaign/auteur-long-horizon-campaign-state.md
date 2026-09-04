@@ -6,13 +6,15 @@
 
 ## Current Responsibility (2026-09-03)
 
-- **Selected Responsibility:** Independent Long-Horizon Decision Reconstruction V0.
-- **Type:** Evidence-Admission + Product-Value + Memory/Reasoning/Explanation Research.
-- **Implementation / ontology / extraction / scale:** NO / NO / gate not crossed / not authorized.
-- **Phase:** CASE_ADMISSION.
-- **Status:** `NO_CASE_ADMITTED`. The proposed external Markdown corpus cannot exercise current Auteur accepted-history reconstruction without an unsupported import/conversion or manual artifact creation.
-- **Next owner action:** Campaign-level reassessment. Do not continue this V0 case, implement an intake path, or infer an ontology result from the failed admission.
-- **Record:** `docs/research/independent-long-horizon-decision-reconstruction-v0-no-case-admitted.md`.
+- **Selected Responsibility:** Decision-Blind Retrospective Accepted-History Protocol Feasibility V0.
+- **Type:** Research Method + Evidence Admission.
+- **Plane:** Research Substrate.
+- **Implementation / ontology / extraction / scale:** NO / NO / gate not crossed / NO.
+- **Corpus conversion / live decision test:** NO / NO.
+- **Phase:** PROTOCOL_FEASIBILITY.
+- **Status:** Protocol feasibility is the selected responsibility. This state record intentionally does not pre-record a terminal outcome.
+- **Next owner action:** Review the protocol-feasibility record when presented. Do not begin conversion, fixture creation, a live decision test, ontology work, extraction, scale work, or intake implementation.
+- **Record:** `docs/research/decision-blind-retrospective-accepted-history-protocol-feasibility-v0.md`.
 
 ## Current Product State (2026-09-02, auteur/main @ 1a686f5 + feature/contextual-relevance-explanation-v1)
 
