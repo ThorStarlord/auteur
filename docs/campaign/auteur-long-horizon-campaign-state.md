@@ -4,23 +4,26 @@
 
 **North Star:** Preserve and reconstruct narrative meaning across story too large for working context.
 
-## Current Responsibility (2026-09-03)
+## Current Responsibility (2026-09-04)
 
-- **Selected Responsibility:** Decision-Blind Retrospective Accepted-History Protocol Feasibility V0.
-- **Type:** Research Method + Evidence Admission.
-- **Plane:** Research Substrate.
+- **Selected Responsibility:** Pressure-Group Map→Focus Eligibility Conformance Audit V0.
+- **Type:** Research + Architecture Conformance Audit.
+- **Campaign Layer:** Reasoning / Derived Projection.
 - **Implementation / ontology / extraction / scale:** NO / NO / gate not crossed / NO.
-- **Corpus conversion / live decision test:** NO / NO.
+- **Author-value claim:** NO.
+- **Prospective native case:** NO.
 - **Phase:** EVIDENCE_COMPLETE / OWNER_GATE_CLOSED.
 - **Status:** COMPLETE / EVIDENCE COMPLETE.
-- **Final disposition:** RETROSPECTIVE_FIXTURE_NOT_ADMISSIBLE.
-- **Primary finding:** Retrospective author ratification fatally primes the intended same-author long-horizon reconstruction-value test.
-- **Retrospective system-only study:** Different question; not authorized.
-- **Prospective native case:** Possible future evidence route; not automatically selected.
+- **Final disposition:** INCONCLUSIVE.
+- **Primary finding:** Global Map preservation and fact-level Focus semantics conform, but group-level Focus eligibility is not specified by the accepted architecture and cannot be settled by the existing cases.
+- **Primary seam:** FOCUS_SELECTION contract boundary.
+- **Deterministic implementation defect:** NOT DEMONSTRATED.
+- **Interpretive necessity:** NOT DEMONSTRATED at the group-eligibility level.
+- **Group-level eligibility contract follow-up:** NOT SELECTED.
 - **Next checkpoint:** Campaign-level reassessment.
 - **Successor responsibility:** NONE SELECTED.
-- **Next owner action:** Do not begin conversion, fixture creation, a live decision test, ontology work, extraction, scale work, intake implementation, or a prospective case. Return to campaign-level reassessment.
-- **Record:** `docs/research/decision-blind-retrospective-accepted-history-protocol-feasibility-v0.md`.
+- **Next owner action:** Return to campaign-level reassessment. Do not implement, add ontology, add a pressure lifecycle, reopen extraction, scale, or start a prospective case automatically.
+- **Record:** `docs/research/pressure-group-focus-eligibility-conformance-v0.md`.
 
 ## Current Product State (2026-09-02, auteur/main @ 1a686f5 + feature/contextual-relevance-explanation-v1)
 
