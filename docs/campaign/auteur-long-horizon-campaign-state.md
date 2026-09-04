@@ -25,6 +25,24 @@
 - **Next owner action:** Return to campaign-level reassessment. Do not implement, add ontology, add a pressure lifecycle, reopen extraction, scale, or start a prospective case automatically.
 - **Record:** `docs/research/pressure-group-focus-eligibility-conformance-v0.md`.
 
+## Selected Responsibility: Guided Series Continuity Review V1
+
+- **Type:** Productization + Bounded Implementation.
+- **Campaign layer:** Author Decision supported by Memory / Reasoning / Explanation.
+- **Phase:** IMPLEMENTATION.
+- **Implementation:** AUTHORIZED — bounded responsibility only.
+- **Review surface:** Read-only derived composition; no canonical mutation.
+- **Series open question:** Reuse `SeriesDirection.open_question` directly.
+- **Series commitments:** Reuse `DirectionCommitment` and explicit `resolved_commitment_ids` semantics.
+- **Generic `AuthorDecision.UnresolvedChoice` integration:** Not required for V1.
+- **Focus / pressure groups:** Supporting inputs/evidence only; no eligibility redesign.
+- **Ontology:** NO.
+- **Extraction:** Gate not crossed.
+- **Scale:** NO.
+- **Independent validation:** Not required for bounded implementation; owner usability review follows qualification.
+- **Successor:** NONE SELECTED.
+- **Record:** `docs/product-validation/guided-series-continuity-review-v1.md`.
+
 ## Current Product State (2026-09-02, auteur/main @ 1a686f5 + feature/contextual-relevance-explanation-v1)
 
 - **Architecture doc:** `docs/architecture/detailed-narrative-architecture-v1.md` — ACCEPTED for V1 vertical-slice implementation (human-reviewed). 5 semantic layers + scope axis unchanged. Global Map = derived rebuildable projection; Focus = derived relevance projection; derived != canon (ADR 019).

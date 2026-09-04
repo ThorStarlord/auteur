@@ -11,6 +11,8 @@ from auteur.series.vertical_slice_models import (
     ArtifactRef,
     ContinuityEntry,
     ContinuityGroup,
+    DirectionCommitment,
+    MapCurrentStateEvidence,
 )
 from auteur.series.vertical_slice_service import SeriesVerticalSliceService
 
@@ -22,6 +24,11 @@ class FocusConnection(BaseModel):
     summary: str
     source_refs: list[AcceptedContinuitySourceRef] = Field(min_length=1)
     target_refs: list[AcceptedContinuitySourceRef] = Field(min_length=1)
+    origin: str
+    disposition: str
+    rule_version: str | None = None
+    evidence_refs: list[AcceptedContinuitySourceRef] = Field(default_factory=list)
+    source_revision_refs: list[ArtifactRef] = Field(default_factory=list)
 
 
 class ImpactItem(BaseModel):
@@ -61,8 +68,46 @@ class RevisionImpactReport(BaseModel):
     review_order: list[str] = Field(default_factory=list)
     series_direction_impact: list[dict[str, object]] = Field(default_factory=list)
     reconciliation_boundary: str = (
-        "Review affected accepted artifacts; no downstream artifact was rewritten."
+        "Affected accepted artifacts remain accepted; no downstream artifact was rewritten."
     )
+
+
+class ContinuityImpactReport(BaseModel):
+    """Impact evidence composed for continuity review, without review priority."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    affected_artifacts: list[ImpactItem] = Field(default_factory=list)
+    series_direction_impact: list[dict[str, object]] = Field(default_factory=list)
+    reconciliation_boundary: str = (
+        "Affected accepted artifacts remain accepted; no downstream artifact was rewritten."
+    )
+
+
+class SeriesContinuityReviewReport(BaseModel):
+    """Read-only composition of accepted Series continuity for one Book."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    book_number: int = Field(gt=1)
+    planning_intent: str
+    promise: str
+    pressure: str
+    open_question: str
+    active_commitments: list[DirectionCommitment] = Field(default_factory=list)
+    resolved_commitments: list[DirectionCommitment] = Field(default_factory=list)
+    current_context: list[ContinuityEntry] = Field(default_factory=list)
+    relevant_history: list[ContinuityEntry] = Field(default_factory=list)
+    current_state_evidence: dict[str, MapCurrentStateEvidence] = Field(
+        default_factory=dict
+    )
+    revision_impact: ContinuityImpactReport
+    supporting_connections: list[FocusConnection] = Field(default_factory=list)
+    provenance: list[ArtifactRef] = Field(min_length=1)
+    map_snapshot_id: str
+    freshness: str
+    semantic_impact: str
+    warnings: list[str] = Field(default_factory=list)
 
 
 class SeriesProductizationService:
@@ -87,11 +132,16 @@ class SeriesProductizationService:
                 FocusConnection(
                     relation_id=relation.relation_id,
                     summary=(
-                        f"{relation.source_fact_ref.fact_id} supports "
-                        f"{relation.target_fact_ref.fact_id} across accepted history."
+                        "Accepted history connects an earlier state to a later "
+                        "state across the Series."
                     ),
                     source_refs=[relation.source_fact_ref],
                     target_refs=[relation.target_fact_ref],
+                    origin=relation.origin,
+                    disposition=relation.disposition,
+                    rule_version=relation.rule_version,
+                    evidence_refs=relation.evidence_refs,
+                    source_revision_refs=relation.source_revision_refs,
                 )
             )
         risks = []
@@ -133,4 +183,54 @@ class SeriesProductizationService:
             affected_artifacts=affected,
             review_order=[item.artifact_id for item in affected],
             series_direction_impact=self.service.series_impact(),
+        )
+
+    def build_continuity_review(self, book_number: int) -> SeriesContinuityReviewReport:
+        """Compose existing Series intelligence without recording review state."""
+        planning_intent = self.service.store.load_book_planning_intent(book_number)
+        if planning_intent is None:
+            raise ValueError(
+                f"An explicit Book {book_number} planning intent is required "
+                "before continuity review"
+            )
+        accepted_series = self.service.load_accepted_series_direction()
+        if accepted_series is None:
+            raise ValueError(
+                "An accepted Series Direction is required before continuity review"
+            )
+        history = self.service.load_repeated_history_for_book(book_number)
+        focus = self.build_focus(book_number)
+        snapshot = self.service.load_global_map(book_number)
+        if snapshot is None:
+            raise ValueError("A Global Map is required before continuity review")
+        resolved_ids = set(history.explicitly_resolved_commitment_ids)
+        commitments = accepted_series.direction.commitments
+        impact = self.revision_impact()
+        continuity_impact = ContinuityImpactReport(
+            affected_artifacts=impact.affected_artifacts,
+            series_direction_impact=impact.series_direction_impact,
+            reconciliation_boundary=impact.reconciliation_boundary,
+        )
+        return SeriesContinuityReviewReport(
+            book_number=book_number,
+            planning_intent=planning_intent.intent,
+            promise=accepted_series.direction.promise,
+            pressure=accepted_series.direction.pressure,
+            open_question=accepted_series.direction.open_question,
+            active_commitments=[
+                item for item in commitments if item.commitment_id not in resolved_ids
+            ],
+            resolved_commitments=[
+                item for item in commitments if item.commitment_id in resolved_ids
+            ],
+            current_context=focus.active_constraints,
+            relevant_history=focus.relevant_history,
+            current_state_evidence=snapshot.current_state_evidence,
+            revision_impact=continuity_impact,
+            supporting_connections=focus.long_range_connections,
+            provenance=snapshot.source_revisions,
+            map_snapshot_id=snapshot.snapshot_id,
+            freshness=snapshot.freshness,
+            semantic_impact=snapshot.semantic_impact,
+            warnings=focus.risks_or_conflicts,
         )

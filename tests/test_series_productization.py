@@ -27,7 +27,9 @@ def _load(name: str, model_type):
     )
 
 
-def _prepare_project(tmp_path: Path) -> None:
+def _prepare_project(
+    tmp_path: Path, *, resolved_commitment_ids: list[str] | None = None
+) -> None:
     service = SeriesVerticalSliceService(tmp_path)
     series_proposal = service.propose_series_direction(
         _load("series_direction.yaml", SeriesDirection)
@@ -58,6 +60,10 @@ def _prepare_project(tmp_path: Path) -> None:
                 )
             ],
             source_refs=[ArtifactRef(artifact_id=f"book-{book_number}-direction", revision=1)],
+            resolved_commitment_ids=(
+                resolved_commitment_ids if book_number == 2 else []
+            )
+            or [],
         )
         service.propose_realization(candidate)
         service.accept_realization(candidate.candidate_id, accepted_by="author")
@@ -132,7 +138,7 @@ def test_productization_revision_report_preserves_accepted_state_and_review_orde
         "realization-bundle-productization-book-3"
     ).lifecycle.value == "accepted"
     assert report.reconciliation_boundary == (
-        "Review affected accepted artifacts; no downstream artifact was rewritten."
+        "Affected accepted artifacts remain accepted; no downstream artifact was rewritten."
     )
 
 
@@ -163,3 +169,131 @@ def test_series_impact_cli_explains_review_boundary(tmp_path: Path, capsys) -> N
     assert "Revision impact" in output
     assert "REVIEW ORDER" in output
     assert "no downstream artifact was rewritten" in output
+
+
+def test_continuity_review_composes_series_direction_and_existing_reports(
+    tmp_path: Path,
+) -> None:
+    _prepare_project(tmp_path)
+    product = SeriesProductizationService(tmp_path)
+
+    report = product.build_continuity_review(4)
+
+    assert report.book_number == 4
+    assert report.planning_intent == "Decide whether to expose the archive."
+    assert report.promise.startswith("Each recovered account")
+    assert report.open_question.startswith("Can the truth survive")
+    assert [item.commitment_id for item in report.active_commitments] == [
+        "contested-history"
+    ]
+    assert report.current_state_evidence["archive.status"].current_value == (
+        "protected"
+    )
+    assert report.relevant_history
+    assert report.revision_impact.affected_artifacts == []
+    assert report.provenance
+
+
+def test_continuity_review_cli_is_read_only_and_progressively_discloses_detail(
+    tmp_path: Path, capsys
+) -> None:
+    _prepare_project(tmp_path)
+
+    assert main(["series", "review", str(tmp_path), "--book", "4"]) == 0
+    default_output = capsys.readouterr().out
+
+    assert "Series Continuity Review: Book 4" in default_output
+    assert "Series open question" in default_output
+    assert "ACTIVE COMMITMENTS" in default_output
+    assert "No narrative authority has changed." in default_output
+    assert "global-map-book-4" not in default_output
+    assert "archive-admitted" not in default_output
+
+    assert (
+        main(["series", "review", str(tmp_path), "--book", "4", "--detail"])
+        == 0
+    )
+    detail_output = capsys.readouterr().out
+    assert "global-map-book-4" in detail_output
+    assert "realization-bundle-productization-book-3" in detail_output
+    assert "Relation:" in detail_output
+
+
+def test_continuity_review_renders_impact_without_promoting_it_to_priority(
+    tmp_path: Path, capsys
+) -> None:
+    _prepare_project(tmp_path)
+    product = SeriesProductizationService(tmp_path)
+    revision = RealizationCandidate(
+        candidate_id="productization-review-revision",
+        book_number=2,
+        summary="Book 2 revised realization",
+        transitions=[
+            StateTransition(
+                transition_id="archive-admitted-revised",
+                subject="archive",
+                attribute="status",
+                before="forged",
+                after="contested",
+                explanation="Book 2 changes the archive admission.",
+            )
+        ],
+        source_refs=[ArtifactRef(artifact_id="book-2-direction", revision=1)],
+    )
+    product.service.propose_realization(revision)
+    product.service.accept_realization_revision(
+        "realization-bundle-productization-book-2",
+        revision.candidate_id,
+        accepted_by="author",
+    )
+
+    assert main(["series", "review", str(tmp_path), "--book", "4"]) == 0
+    output = capsys.readouterr().out
+
+    assert "REVISION IMPACT" in output
+    assert "AFFECTED ACCEPTED ARTIFACTS" in output
+    assert "SERIES DIRECTION IMPACT" in output
+    assert "not automatically rewrite instructions" in output
+    assert "must review now" not in output.lower()
+    assert "realization-bundle-productization-book-3" not in output
+
+    assert main(["series", "review", str(tmp_path), "--book", "4", "--detail"]) == 0
+    detail_output = capsys.readouterr().out
+    assert "realization-bundle-productization-book-3" in detail_output
+    assert "Commitment ID: contested-history" in detail_output
+
+
+def test_continuity_review_requires_explicit_planning_intent(tmp_path: Path, capsys) -> None:
+    _prepare_project(tmp_path)
+    SeriesVerticalSliceService(tmp_path).store.book_planning_intent_path(4).unlink()
+
+    assert main(["series", "review", str(tmp_path), "--book", "4"]) == 1
+    assert "planning intent is required" in capsys.readouterr().out
+
+
+def test_continuity_review_keeps_resolved_commitments_in_history(tmp_path: Path) -> None:
+    _prepare_project(tmp_path, resolved_commitment_ids=["contested-history"])
+
+    report = SeriesProductizationService(tmp_path).build_continuity_review(4)
+
+    assert report.active_commitments == []
+    assert [item.commitment_id for item in report.resolved_commitments] == [
+        "contested-history"
+    ]
+
+
+def test_continuity_review_does_not_mutate_accepted_artifacts(tmp_path: Path) -> None:
+    _prepare_project(tmp_path)
+    service = SeriesVerticalSliceService(tmp_path)
+    before = {
+        bundle.artifact_id: bundle.model_dump(mode="json")
+        for bundle, _metadata in service.store.load_accepted_realization_bundles()
+    }
+
+    SeriesProductizationService(tmp_path).build_continuity_review(4)
+
+    after = {
+        bundle.artifact_id: bundle.model_dump(mode="json")
+        for bundle, _metadata in service.store.load_accepted_realization_bundles()
+    }
+    assert after == before
