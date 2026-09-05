@@ -30,6 +30,13 @@ import sys
 import tempfile
 from pathlib import Path
 
+# Same belt-and-suspenders as harness/e2e.py: evidence must survive any stdio
+# encoding (see that file's comment).
+try:
+    sys.stdout.reconfigure(errors="backslashreplace")
+except Exception:                                              # noqa: BLE001
+    pass
+
 _HARNESS = Path(__file__).resolve().parent.parent.parent / "harness"
 sys.path.insert(0, str(_HARNESS))
 from appproc import make_driver                                # noqa: E402

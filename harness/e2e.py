@@ -28,9 +28,19 @@ floor the gate ratchets); RETURN None ON FAILURE, having printed why.
 from __future__ import annotations
 
 import shutil
+import sys
 import tempfile
 import yaml
 from pathlib import Path
+
+# Belt and suspenders for Windows consoles: the dispatch environment is supposed
+# to run with PYTHONIOENCODING=utf-8 (see factory/config.sh), but a check must
+# never die printing its own evidence. Reconfigure stdout to survive any stdio
+# encoding instead of crashing on the first non-ASCII detail string.
+try:
+    sys.stdout.reconfigure(errors="backslashreplace")
+except Exception:                                              # noqa: BLE001
+    pass
 
 HERE = Path(__file__).resolve().parent
 FIX = HERE / "fixtures"
