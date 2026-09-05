@@ -2,110 +2,96 @@
 
 ## Status
 
-**SPECIFICATION CANDIDATE — EXECUTION NOT AUTHORIZED.**
+**FROZEN V1 — OWNER AUTHORIZED FOR SYNTHETIC EXECUTION.**
 
-This document defines a bounded synthetic experiment for owner review. It does
-not start the experiment, create a story fixture, authorize implementation,
-change ontology, reopen extraction, authorize scale work, or alter the current
-`PROSPECTIVE_NATIVE_EVIDENCE_INCUBATION` campaign posture.
+This document defines a bounded architecture-only synthetic experiment. It is
+separate from the dormant natural-use campaign posture
+`PROSPECTIVE_NATIVE_EVIDENCE_INCUBATION` and must never be cited as natural
+reachability, human-author, or reader evidence.
 
-If approved and later frozen, execution must use this protocol without changing
-its central research question, complexity contract, context-isolation rules,
-evidence taxonomy, or claim ceiling mid-run. Any material protocol change
-requires a new specification revision.
+Execution is authorized only within the scope frozen here. The run must not
+change production code, add ontology, reopen extraction, authorize scale work,
+create chapter outlines, or generate prose. Any material protocol change requires
+a new specification revision and a new owner decision.
+
+The exact commit containing this frozen revision is the protocol identity for the
+run. Every execution session must record that commit before doing story work.
 
 ## 1. Purpose
 
-The experiment asks whether Auteur can represent, preserve, reconstruct, and
-reason over a **dense trilogy-scale narrative architecture** with many interacting
-characters, relationships, subplots, factions, locations, secrets, commitments,
-and cross-Book consequences **without relying on the coding agent's conversational
-memory of the whole story**.
+The experiment asks whether Auteur can carry a **dense trilogy-scale narrative
+architecture** across fresh worker contexts without relying on one coding agent's
+conversation memory of the whole story.
 
-The experiment is intentionally architecture-first. It does not create chapter
-outlines or final prose. Its purpose is to test the long-horizon narrative
-intelligence substrate at the abstraction level where the current architecture
-makes claims.
+The target is an original trilogy with:
 
-The central product motivation is Auteur's long-horizon mission:
+- one protagonist;
+- five other main characters;
+- ten recurring supporting characters;
+- multiple factions/institutions;
+- multiple important locations;
+- multiple persistent subplots;
+- changing relationships;
+- secrets or asymmetric knowledge;
+- delayed consequences;
+- at least some setup/payoff pressure;
+- enough accumulated history that Book 3 materially depends on Books 1 and 2.
 
-> Preserve and reconstruct narrative meaning across fiction too large for the
-> author or model to hold in working context at once.
-
-The experiment therefore pressures the chain:
+The experiment tests the long-horizon chain:
 
 ```text
 Representation
-→ Memory / accepted history
+→ Accepted / canonical memory
 → Current-state reconstruction
-→ Relevance / selection
+→ Projection / integration
+→ Relevance selection
 → Reasoning
 → Explanation
 ```
 
-It does **not** attempt to validate final reader experience or prose quality.
+It deliberately stops before chapter planning and prose.
 
-## 2. Relationship to the current campaign posture
-
-Current campaign posture remains:
-
-```text
-ACTIVE RESPONSIBILITY: NONE
-CAMPAIGN POSTURE: PROSPECTIVE_NATIVE_EVIDENCE_INCUBATION
-STATUS: ARMED / TRIGGER-BASED
-```
-
-This specification is a **separate synthetic capability-test candidate**. It must
-not be cited as natural prospective product evidence.
-
-Creating or reviewing this specification does not itself reopen the campaign.
-Executing it requires an explicit owner authorization that distinguishes:
-
-1. **synthetic architecture/reasoning stress evidence**, from
-2. **natural prospective author evidence**.
-
-The natural-reachability contamination rules in the campaign state remain
-unchanged.
-
-## 3. Primary research question
+## 2. Primary research question
 
 > Can Auteur support the construction and later reconstruction of a dense
-> trilogy-scale narrative architecture with one protagonist, five other main
-> characters, ten recurring supporting characters, multiple factions,
-> locations, subplots, relationships, secrets, and cross-Book consequences,
-> while preserving authority boundaries and avoiding manual whole-history
-> reconstruction?
+> trilogy-scale narrative architecture with sixteen recurring characters and
+> interacting narrative threads, while preserving authority boundaries and
+> avoiding broad manual reconstruction of earlier Books?
 
-Supporting questions:
+Secondary questions:
 
-1. Can existing narrative concepts express the important architecture without
-   inventing new ontology during the run?
-2. Does accepted history remain coherent as Book 1 changes the conditions inherited
-   by Book 2, and Book 2 changes the conditions inherited by Book 3?
-3. Can fresh-context workers reconstruct the right historical context for later
-   decisions using normal Auteur surfaces?
-4. Can low-salience earlier information become high-salience later without being
-   permanently lost by relevance selection?
-5. Are character relationship evolution, setup/payoff pressure, asymmetric
-   knowledge, and dormant/reactivated subplots adequately expressible with
-   current primitives?
-6. Can a meaningful upstream revision propagate without silently rewriting
-   accepted downstream history?
-7. Does information load become a demonstrated problem at this density?
+1. Are the important narrative meanings representable somewhere in current
+   Auteur architecture?
+2. When representation already exists, do later long-horizon surfaces actually
+   consume and project it?
+3. Does accepted history remain coherent as Book 1 changes the conditions
+   inherited by Book 2 and Book 2 changes the conditions inherited by Book 3?
+4. Can fresh-context workers recover the right earlier history for later
+   decisions without hidden summaries?
+5. Can information that was low-salience when introduced become relevant again
+   later?
+6. Can at least one relationship whose *path* matters be reconstructed rather
+   than reduced to a current-state label?
+7. Can at least one consequential knowledge asymmetry or delayed obligation be
+   carried into later planning?
+8. After the clean trilogy result is frozen, can one semantically important
+   Book-1 revision propagate across accepted Books 2 and 3 without silent rewrite?
+9. Does this density produce a concrete information-load problem?
 
-## 4. Claim ceiling
+## 3. Claim ceiling
 
 The strongest permitted closure claim is:
 
 > In one synthetic, architecture-only trilogy stress case, fresh-context coding
-> agents using the tested Auteur surfaces could (or could not) preserve and
-> reconstruct the important accepted narrative architecture across three Books
-> under the specified density, long-range dependency, and revision pressures.
+> agents using the tested Auteur surfaces could (or could not) preserve,
+> reconstruct, and reason over important accepted narrative architecture across
+> three Books under the specified density and long-range dependency pressures.
 
 The experiment may support bounded findings about:
 
-- representational sufficiency in the tested trilogy;
-- accepted-history persistence;
+- representational sufficiency;
+- persistence of accepted/canonical information;
+- integration between existing Auteur representation planes;
 - current-state reconstruction;
 - identity continuity;
 - relevance selection;
@@ -115,14 +101,14 @@ The experiment may support bounded findings about:
 - authority preservation;
 - information-load pressure.
 
-The experiment **does not establish**:
+It does **not** establish:
 
 - human author value;
 - natural workflow reachability;
 - beginner usability;
 - reader emotional response;
 - prose quality;
-- chapter- or scene-level pacing quality;
+- chapter/scene pacing quality;
 - marketability;
 - independent artistic quality;
 - generalized 50/100/300-Book scale;
@@ -130,7 +116,7 @@ The experiment **does not establish**:
 - necessity of any new ontology;
 - production authorization for a discovered gap.
 
-Evidence classification at closure:
+Closure classification:
 
 ```text
 SYNTHETIC SYSTEM EVIDENCE: YES
@@ -143,517 +129,370 @@ EXTRACTION AUTHORIZATION: NO
 SCALE AUTHORIZATION: NO
 ```
 
-## 5. Experimental unit and target density
+## 4. Baseline representation-plane audit
 
-The experiment creates one original trilogy architecture.
+This audit is part of the frozen protocol because Auteur already has multiple
+Series-related representation paths. A failure must not be called a missing
+concept when the concept already exists in another authoritative plane.
 
-### Core cast
+At repository baseline `588fb1ef88184be9246d406fd1c90737b7c09cf6`, the
+important observed planes are:
 
-| Role | Target |
+| Plane | Primary artifacts/models | Observed role |
+| --- | --- | --- |
+| Universe | `UniverseIdentity` | setting profile, locations, mythology, timeline, cross-story constraints |
+| Canonical Series architecture | `SeriesIdentity` | trilogy shape, Book plans, character/relationship/faction arcs, mysteries, dependencies, thematic arcs, character states, relationship states, lore, timeline, setups/payoffs |
+| Book identity | `StoryIdentity` / `BookPlan` compilation | Book-level genre, target experience, central engine and identity contract |
+| Accepted-history Series direction | `SeriesDirection`, `DirectionCommitment`, accepted Book Directions | sparse accepted Series promise/pressure/open question and explicit commitments |
+| Accepted lived outcomes | `AcceptedRealizationBundle`, `StateTransition` | revisioned accepted Book outcomes and state changes |
+| Derived long-horizon projection | `CanonicalState`, Global Map, repeated planning context, Focus | rebuildable current-state/history/relevance projection |
+| Author continuity review | `SeriesProductizationService.build_continuity_review()` | planning intent + Series Direction + commitments + projected current/history evidence + impact + supporting connections |
+
+The current code inspection shows an important seam: the canonical
+`SeriesIdentity` path and the newer accepted-history/continuity-review path are
+both real, but the inspected `SeriesProductizationService` composes its review
+through `SeriesVerticalSliceService`; it does not directly consume the rich
+`SeriesIdentity` model.
+
+That observation does **not** pre-judge the experiment as a failure. It creates a
+required distinction:
+
+```text
+CONCEPT EXISTS IN AUTEUR
+!=
+CONCEPT IS AVAILABLE TO THIS LONG-HORIZON REVIEW PATH
+```
+
+### Representation-plane rule
+
+Before classifying any narrative miss, the worker/evaluator must ask:
+
+1. Was the meaning representable in an existing authoritative Auteur artifact?
+2. Was it actually stored there?
+3. Was that artifact part of the intended long-horizon input path?
+4. If not, is the problem integration/projection rather than representation?
+5. Did the worker store the information in an inappropriate plane?
+
+Misusing an existing artifact is an experiment/workflow issue, not evidence that
+Auteur lacks the concept.
+
+## 5. Experimental unit
+
+One original trilogy.
+
+### Hard bounds
+
+These are actual experiment requirements:
+
+| Dimension | Required |
 | --- | ---: |
+| Books | 3 |
 | Protagonist | 1 |
 | Other main characters | 5 |
 | Recurring supporting characters | 10 |
 | Total recurring characters | 16 |
 
-Not all character pairs need a significant relationship. The purpose is
-selective narrative density, not maximal graph density.
+The trilogy must also have:
 
-### Minimum complexity contract
+- more than one meaningful faction/institution;
+- more than one important location;
+- multiple persistent subplots;
+- multiple significant character relationships;
+- material cross-Book consequences;
+- at least three Book-3 planning questions whose meaning depends on older
+  accepted history, not only immediate Book-2 state.
 
-The final trilogy architecture should contain approximately:
+### Coverage targets, not creative quotas
 
-| Dimension | Minimum / target |
-| --- | --- |
-| Significant character relationships | 12–20 |
-| Factions / institutions | 3–5 |
-| Important locations | 6–8 |
-| Persistent subplots | 6–8 |
-| Cross-Book character arcs | at least 4 |
-| Cross-Book relationship arcs | at least 4 |
-| Secrets / asymmetric-knowledge situations | 4–6 |
-| Long-range setups introduced | at least 6 |
-| Payoffs delayed by at least one Book | at least 4 |
-| Dormant then reactivated threads | at least 2 |
-| Cross-Book causal chains | at least 4 |
-| Material faction/location changes | at least 3 |
-| Supporting characters whose importance materially changes | at least 3 |
-| Book-3 decisions requiring Book-1 history | at least 3 |
-| Bounded semantically meaningful upstream revision | exactly 1 |
+The story should naturally pressure several of the following:
 
-These counts are **experiment pressure targets**, not proposed product-schema
-requirements. A target that cannot be represented is evidence to classify, not
-permission to add a field.
+- relationship evolution;
+- character evolution;
+- faction/institution change;
+- location meaning/state change;
+- delayed setup/payoff;
+- asymmetric knowledge or belief;
+- dormant then reactivated thread;
+- low-salience supporting-character information becoming important later;
+- cross-Book causal chain;
+- unresolved obligation/commitment;
+- old event acquiring a new interpretation because later history changed its
+  significance.
+
+Creative coherence outranks hitting arbitrary counts. Do **not** add another
+secret, subplot, faction, or setup merely to satisfy a benchmark number.
+
+The final evidence report records actual achieved density.
 
 ## 6. Narrative-architecture boundary
 
-V1 creates enough architecture to know what materially happens and changes, but
-stops before chapter planning or prose.
-
 ### In scope
 
-- Series premise / Story Identity / Series Direction as supported by the product;
-- Book-level direction;
+- Series premise and intended experience;
+- Series Direction / Series Identity where current product architecture requires
+  them;
+- directional Book scaffolding;
 - major conflicts and pressures;
-- major event chains;
+- major events sufficient to establish state/causal changes;
 - character goals and state changes;
-- significant relationship changes;
-- faction and institution changes;
+- meaningful relationship changes;
+- faction/institution changes;
 - important location-state changes;
-- persistent subplot progression;
-- mysteries and secrets;
-- relevant knowledge/belief asymmetry where the story requires it;
-- setups and payoffs;
+- persistent subplot evolution;
+- mysteries/secrets;
+- relevant knowledge/belief asymmetry;
+- delayed setups/payoffs or obligations where the story naturally creates them;
 - unresolved questions;
 - commitments;
-- causal consequences across Books;
-- Book end-states;
-- accepted/revisioned history and derived projections.
+- accepted Book outcomes;
+- cross-Book consequences;
+- derived current-state/relevance views.
 
 ### Out of scope
 
-- chapter-by-chapter outline;
-- scene list;
+- chapter-by-chapter outlines;
+- scene lists;
 - scene choreography;
 - prose;
 - dialogue;
-- literary style evaluation;
-- reader emotional-response evaluation;
+- literary-style evaluation;
+- reader emotional-response validation;
 - market evaluation;
-- automatic generation of a complete trilogy manuscript.
+- complete trilogy manuscript generation.
 
-Major events may be described at architecture level when necessary to establish
-state transitions and causal support. They must not be expanded into chapter or
-scene sequences merely to make the artifact feel more complete.
+Major events may be stated at architecture level when necessary to establish
+transitions. They must not be expanded into chapters or scenes merely to make the
+fixture feel complete.
 
-## 7. Lived-history requirement
+## 7. Future direction is allowed; future detailed realization is not
+
+Auteur's canonical `SeriesIdentity` for a trilogy requires three `BookPlan`
+entries. Therefore the experiment must not pretend that Books 2 and 3 can be
+completely blank.
+
+The allowed distinction is:
+
+```text
+FUTURE DIRECTIONAL SCAFFOLDING:
+ALLOWED / EXPECTED
+
+FUTURE DETAILED CAUSAL SOLUTION:
+NOT PRE-AUTHORED
+```
+
+A future Book may already have a Series function, target experience, central
+pressure/engine, broad core answer, or intended scope because the current schema
+requires or benefits from that direction.
+
+It must **not** pre-author every later:
+
+- event chain;
+- revelation;
+- relationship outcome;
+- supporting-character role;
+- secret disclosure;
+- subplot resolution;
+- setup/payoff mechanism;
+- causal bridge.
+
+If current schema forces more future commitment than the worker believes is
+creatively appropriate, record that as product evidence rather than bypassing the
+schema.
+
+## 8. Lived-history requirement
 
 The three Books must not be three isolated plots sharing a cast.
 
-The architecture must accumulate history:
-
 ```text
-Book 1 changes characters / relationships / institutions / places
+Book 1 changes the world
 → Book 2 inherits those changed conditions
-→ Book 2 creates additional consequences
+→ Book 2 changes the world again
 → Book 3 inherits both layers of history
 ```
 
-At least half of Book 3's major narrative pressures must materially depend on
-accepted consequences originating in Books 1 or 2.
-
-The design should include examples of:
-
-- relationships accumulating trust, resentment, obligation, dependency,
-  intimacy, rivalry, or fracture;
-- institutions changing policy, leadership, legitimacy, alliances, or resources;
-- locations acquiring changed political, social, symbolic, or practical meaning;
-- supporting characters changing importance over time;
-- unresolved threads remaining dormant before later reactivation;
-- old actions producing delayed consequences not obvious at the time.
-
-## 8. Anti-cheating rule: do not pre-solve the trilogy
-
-The experiment must begin with enough Series-level direction to create coherent
-long-horizon pressure, but it must **not** create a complete omniscient trilogy
-solution before Book 1 begins.
-
-The initial seed may establish:
-
-- premise;
-- genre / intended reader experience;
-- Series promise;
-- Series pressure;
-- Series open question;
-- major cast;
-- initial factions and locations;
-- important initial relationships;
-- initial commitments;
-- some long-range possibilities or constraints.
-
-It must not freeze every Book-2 and Book-3 answer, payoff, relationship outcome,
-or revelation in advance.
-
-The intended experimental pattern is prospective accumulation:
-
-```text
-Series seed
-→ Book 1 architecture and acceptance
-→ fresh context
-→ Book 2 planning from accepted history
-→ Book 2 architecture and acceptance
-→ bounded Book-1 revision pressure
-→ fresh context
-→ Book 3 planning from accepted/revisioned history
-```
-
-If the worker simply retrieves a fully prewritten master trilogy plan, the run
-is invalid for the central reconstruction question.
-
-## 9. Context-isolation protocol
-
-Fresh-context separation is a hard invariant.
-
-Recommended execution sessions:
-
-```text
-SESSION A
-Protocol + Series seed + Book 1 architecture
-→ accept permitted artifacts
-→ freeze evidence
-→ END CONTEXT
-
-SESSION B
-Fresh worker
-→ read only protocol + normal repository/product state needed to operate Auteur
-→ reconstruct from Auteur surfaces
-→ Book 2 architecture
-→ accept permitted artifacts
-→ freeze evidence
-→ END CONTEXT
-
-SESSION C
-Fresh worker
-→ reconstruct from accepted/revisioned Auteur state
-→ Book 3 architecture and long-range probes
-→ freeze evidence
-→ END CONTEXT
-
-SESSION D
-Fresh evaluator / adversarial audit
-→ inspect frozen artifacts and evidence
-→ challenge attribution and claim ceiling
-```
-
-The Book-2 and Book-3 workers must not receive hidden summaries of earlier Books
-that are unavailable through the declared Auteur/product evidence path.
-
-Every manual source lookup outside the intended product surfaces must be logged
-as **manual reconstruction evidence**, including what was opened and why.
-
-A worker may inspect authoritative artifacts when normal product operation
-requires it, but the evidence report must distinguish:
-
-- context surfaced automatically or through intended review commands;
-- targeted source inspection;
-- broad manual whole-history reconstruction.
-
-## 10. Phase 0 — protocol freeze and qualification
-
-Before story generation:
+At least half of Book 3's major pressures should materially depend on accepted
+consequences originating in Books 1 or 2.
 
-1. freeze this specification revision;
-2. record exact repository baseline;
-3. record product commands/surfaces available to the workers;
-4. verify no production code is changed for the experiment;
-5. verify no story fixture exists yet;
-6. verify chapter outlines and prose are out of scope;
-7. freeze evidence templates and failure taxonomy;
-8. freeze the context-isolation procedure;
-9. record the owner authorization scope.
+Useful signs of lived history include:
 
-If the product cannot execute a required step, record the limitation instead of
-patching Auteur mid-run.
+- trust, resentment, obligation, dependency, intimacy, rivalry, or fracture
+  accumulating rather than resetting;
+- institutions changing legitimacy, leadership, policy, resources, or alliances;
+- locations acquiring political/social/symbolic history;
+- supporting characters changing importance;
+- dormant threads re-entering later decisions;
+- old actions producing delayed consequences;
+- later events changing how an earlier event is interpreted.
 
-## 11. Phase 1 — Series seed
+## 9. Fresh-context isolation
 
-Create the smallest Series seed capable of supporting the density contract.
+Fresh worker contexts are a hard invariant for the primary trilogy result.
 
-Required outputs:
+### Session A — Series seed + Book 1
 
-- premise and intended experience;
-- Series Direction / equivalent accepted contract;
-- cast roster with 1 protagonist, 5 other main characters, and 10 supporting
-  characters;
-- 3–5 factions/institutions;
-- 6–8 important locations;
-- initial significant relationships;
-- initial secrets/knowledge asymmetries where needed;
-- Series promise, pressure, and open question where supported;
-- initial commitments / unresolved pressures;
-- enough Book-1 direction to begin.
+The first worker:
 
-Do not author the full Book-2/Book-3 solution.
+1. performs the runtime/workspace gate;
+2. verifies the frozen protocol and exact baseline;
+3. refreshes the representation-plane audit against the exact checkout;
+4. creates the Series seed and required directional scaffolding;
+5. creates Book-1 architecture only;
+6. stores/accepts information only through legitimate Auteur surfaces;
+7. captures evidence;
+8. freezes Session-A output;
+9. stops.
 
-Evidence to capture:
+The chat/context ends.
 
-- what was expressible through current Auteur concepts;
-- what required free-form notes or could not be represented;
-- what became canonical/accepted;
-- what remained derived or interpretive;
-- any pressure to introduce new schema.
+### Session B — Fresh Book 2 worker
 
-## 12. Phase 2 — Book 1 architecture
+A genuinely fresh worker receives the frozen protocol and repository state, not a
+handwritten Book-1 summary from Session A.
 
-Develop Book 1 at architecture level only.
+Before designing Book 2, it records what normal Auteur surfaces provide and what
+additional source inspection is required. It then develops and accepts Book-2
+architecture, captures evidence, freezes output, and stops.
 
-The Book-1 architecture should establish:
+The chat/context ends.
 
-- major conflicts;
-- major event/causal chain;
-- meaningful character changes;
-- meaningful relationship changes;
-- subplot introductions/progressions;
-- faction/location changes;
-- secrets introduced/revealed/left unresolved;
-- at least several long-range setups;
-- end-state and unresolved consequences inherited by Book 2.
+### Session C — Fresh Book 3 worker
 
-At least one supporting character should receive a low-salience fact, event, or
-piece of knowledge intended to become important only in Book 3.
+Another fresh worker reconstructs the accumulated Series through Auteur and
+creates Book-3 architecture.
 
-Accept permitted artifacts through ordinary authority boundaries, freeze the
-state, and end the context.
+It must exercise at least three later-Book decisions that depend on older
+accepted history. The exact creative content is not pre-scripted, but the set
+should naturally include pressure from multiple categories such as relationship
+history, an old obligation/setup, asymmetric knowledge, a revived subplot, or a
+supporting character whose relevance increased.
 
-## 13. Phase 3 — Fresh-context Book 2 reconstruction and architecture
+After Book 3 is accepted, freeze the **primary normal-accumulation evidence**.
+Only after that freeze may revision stress begin.
 
-Start a fresh worker without conversational access to Session A.
+### Revision pass — after the clean trilogy baseline
 
-Before creating Book 2, capture what Auteur surfaces for the current planning
-situation.
+Change exactly one semantically important Book-1 fact/transition.
 
-Evaluate whether the worker can recover:
+The revision must change meaning, not merely wording. Inspect impact across the
+already accepted Books 2 and 3.
 
-- relevant Book-1 current state;
-- significant unresolved relationships;
-- active commitments;
-- unresolved secrets / mysteries;
-- persistent subplots;
-- causal consequences that should carry forward;
-- relevant faction/location changes;
-- Series-level direction.
+The revision pass may occur after Session C's primary evidence is frozen. It must
+not alter the already-recorded normal-accumulation result.
 
-Then create Book 2 architecture.
+### Session D — Fresh independent adversarial evaluator
 
-Book 2 must materially alter some inherited conditions and should:
+A fresh evaluator inspects the frozen protocol and evidence. It does not create
+story content. Its job is to challenge attribution, contamination, and claim
+ceiling before Owner Gate.
 
-- advance several Book-1 subplots;
-- resolve at least one earlier setup;
-- deepen or complicate at least two significant relationships;
-- introduce at least one new consequential subplot or pressure;
-- leave some earlier material dormant;
-- create additional consequences inherited by Book 3.
+## 10. Manual reconstruction accounting
 
-Record every case where the worker needed manual broad reconstruction of Book 1.
+Every later worker must distinguish three access modes:
 
-## 14. Controlled low-salience → high-salience probe
+### A. Intended surfaced context
 
-A Book-1 supporting-character fact or thread that was intentionally minor must
-become important in Book 3.
+Information supplied through the normal author-facing/review/planning surface
+being tested.
 
-Required evaluation:
+### B. Targeted authoritative lookup
 
-> Can Auteur preserve enough accepted history for information that was low
-> salience when created to become high salience when the later decision changes
-> its relevance?
+A narrow inspection of a known authoritative artifact to resolve a specific
+question.
 
-Failure must first be classified as one of:
+### C. Broad manual reconstruction
 
-- information never represented;
-- information represented but not persisted;
-- information persisted but not selected;
-- information selected but not reasoned over correctly;
-- information available but explanation inadequate;
-- experiment contamination.
+Reading substantial earlier Book/Series artifacts because the intended Auteur
+surface did not provide enough context to continue.
 
-Do not infer a new memory or relevance ontology merely from the observed miss.
+Broad reconstruction is not forbidden; hiding it is forbidden.
 
-## 15. Controlled epistemic-state probe
+The primary product question is whether later workers can continue without
+category C becoming necessary for the important decisions.
 
-Include at least one situation where relevant truth and character beliefs differ.
-For example:
+## 11. Naturalistic pressure families
 
-```text
-WORLD / ACCEPTED EVENT:
-A caused X.
+The experiment must include enough narrative density to exercise the following
+questions, but it must not script their exact creative answers in advance.
 
-PROTAGONIST BELIEVES:
-B caused X.
+### Low-salience → high-salience
 
-CHARACTER C KNOWS:
-A caused X.
+At least one supporting-character fact, relationship, or thread that is minor in
+Book 1 should become materially relevant in Book 3.
 
-CHARACTER D BELIEVES:
-X was accidental.
-```
+Evaluate whether the information was:
 
-The exact creative content may differ, but the architecture must contain a later
-Book decision whose meaning depends on distinguishing at least two incompatible
-knowledge/belief states.
+- never represented;
+- represented but not persisted;
+- persisted but not projected/integrated;
+- projected but not selected;
+- selected but reasoned over incorrectly;
+- available but explained poorly.
 
-The experiment does **not** presuppose a dedicated epistemic ontology.
+### Knowledge asymmetry
 
-If current primitives handle the case adequately, record that result. If they
-do not, classify the failure location before proposing representation work.
+At least one consequential later decision should depend on characters possessing
+incompatible knowledge/beliefs or on a meaningful difference between accepted
+world-state truth and a character's belief.
 
-## 16. Controlled relationship-evolution probe
+Do not create an epistemic ontology in advance. Test current representations
+first.
 
-At least one relationship must evolve materially across all three Books, for
-example:
+### Relationship path dependence
 
-```text
-Book 1: suspicion → reluctant cooperation
-Book 2: trust → dependency/intimacy → concealed disagreement
-Book 3: betrayal/revelation → rupture → constrained alliance or separation
-```
+At least one Book-3 decision should depend on *how* a major relationship arrived
+at its current state, not only the final label.
 
-The exact relationship type is creative, but Book 3 must contain a decision that
-cannot be understood from current relationship state alone if the historical
-path materially matters.
+A generic explanation is not evidence by itself that a new `Trajectory` entity
+is required.
 
-Evaluate whether accepted transitions plus current Auteur projections are
-sufficient to reconstruct the meaningful evolution.
+### Delayed setup / obligation
 
-A weak or generic explanation is not by itself evidence that a new `Trajectory`
-entity is required.
+At least one meaningful earlier setup, promise, mystery, commitment, or obligation
+must remain relevant beyond the Book where it was introduced. At least one
+important thread should still be open when a later planning decision encounters
+it.
 
-## 17. Controlled setup/payoff probe
+Again, test current Series setup/payoff, commitment, open-question, dependency,
+and history representations before proposing new ontology.
 
-Create at least six long-range setups across Books 1 and 2.
+## 12. Revision stress
 
-By trilogy closure, include at least:
-
-- four delayed payoffs;
-- one intentionally still-open setup;
-- one setup whose apparent meaning changes because later history reframes it.
-
-Evaluate whether Auteur can distinguish the practical planning significance of:
-
-- resolved material;
-- still-open material;
-- superseded/reframed material;
-- merely old but no-longer-relevant material;
-- accidentally forgotten material.
-
-The experiment must first test existing commitments, open questions, history,
-and relation evidence before suggesting a new obligation/setup/payoff ontology.
-
-## 18. Phase 4 — bounded upstream revision pressure
-
-After Book 2 is accepted, revise exactly one semantically important Book-1 fact
-or transition.
-
-The revision should change meaning, not merely wording. Example pattern:
-
-```text
-ORIGINAL:
-Character voluntarily transferred the archive.
-
-REVISED:
-Character transferred the archive under coercion.
-```
-
-The actual content may differ.
+The revision occurs **after** Book 3 and the normal-accumulation result are frozen.
 
 Evaluate:
 
 1. accepted/revisioned lineage preservation;
 2. current-state reconstruction;
-3. downstream stale/suspect/contradictory impact as applicable;
-4. preservation of accepted Book-2 artifacts without silent rewrite;
-5. whether unrelated material is incorrectly marked;
-6. whether Book-3 planning surfaces the revision consequence appropriately;
-7. whether the explanation distinguishes affected material from material that
-   actually requires review.
+3. stale/suspect/contradictory impact where applicable;
+4. preservation of already accepted Books 2 and 3 without silent rewrite;
+5. false-positive impact on unrelated material;
+6. whether later planning/review surfaces the revision consequence;
+7. whether the system distinguishes affected-by-revision from requires-review-now.
 
-Do not revise multiple upstream facts merely to increase drama.
+The revision result is a separate evidence layer from the clean trilogy result.
 
-## 19. Phase 5 — fresh-context Book 3 reconstruction and architecture
+## 13. Failure taxonomy
 
-Start another fresh worker after the revision is frozen.
+Every consequential failure receives one primary class before any architecture
+response is proposed.
 
-Before creating Book 3, capture the normal Auteur review/context available to the
-worker.
-
-Book 3 must contain at least three important planning decisions whose meaning
-requires history older than the immediately preceding state, including:
-
-1. one relationship-history-dependent decision;
-2. one secret/knowledge or setup/payoff-dependent decision;
-3. one low-salience Book-1 element that has become high-salience.
-
-At least half of Book 3's major pressures must depend on accepted consequences
-from Books 1 or 2.
-
-Book 3 should complete enough architecture to test whether the trilogy's major
-threads can remain coherent, but it need not resolve every open question.
-
-## 20. Long-range reconstruction probes
-
-At Book 3, ask bounded questions such as:
-
-- Which earlier promise or commitment would this decision endanger?
-- Which accepted Book-1 event most strongly constrains the current choice?
-- Who currently has reason to distrust the protagonist, and what accepted
-  history supports that?
-- Which character knows enough to expose the relevant secret?
-- Which faction relationship is a delayed consequence of earlier history?
-- Which dormant subplot has become relevant again?
-- Which setup is still open and now materially affects the current decision?
-- Which relationship's path matters beyond its current state label?
-- Which changed Book-1 fact caused the most important downstream review pressure?
-
-The evaluator must inspect whether the answer is supported by authoritative or
-properly derived evidence, not merely whether the prose sounds plausible.
-
-## 21. Evidence capture
-
-For every major phase, record separately:
-
-### System facts
-
-- exact repository revision;
-- commands/surfaces used;
-- accepted artifacts produced;
-- derived artifacts/reviews produced;
-- provenance and rebuild results;
-- errors and validation failures.
-
-### Narrative evidence
-
-- relevant accepted facts/transitions;
-- significant relationships;
-- commitments/open questions;
-- causal/supporting links;
-- subplot/setup/payoff status as represented;
-- revision lineage.
-
-### Worker behavior
-
-- what was surfaced without broad history inspection;
-- targeted source lookups;
-- broad manual reconstruction;
-- mistaken identities;
-- unsupported assumptions;
-- omitted relevant history;
-- irrelevant history surfaced.
-
-### Researcher interpretation
-
-Interpretation must be clearly separated from system facts. A proposed capability
-must never be written as though it were already an observed representation gap.
-
-## 22. Failure taxonomy
-
-Every consequential failure must first be classified into one primary class.
-Secondary classes may be recorded when necessary.
-
-| Failure class | Definition |
+| Class | Definition |
 | --- | --- |
-| `REPRESENTATION` | Important narrative meaning cannot be expressed with existing concepts. |
-| `PERSISTENCE` | Meaning can be expressed but is lost or corrupted over time. |
+| `REPRESENTATION` | Important meaning cannot be expressed adequately in existing authoritative Auteur concepts. |
+| `PERSISTENCE` | Meaning can be represented but is lost/corrupted over time. |
+| `INTEGRATION_PROJECTION` | Meaning exists in an authoritative/accepted Auteur plane, but the relevant downstream long-horizon surface does not consume/project/connect it. |
 | `CURRENT_STATE` | History exists but current state is reconstructed incorrectly. |
 | `IDENTITY` | Characters, factions, locations, threads, or artifacts are confused/duplicated. |
-| `SELECTION` | Relevant history exists but is not surfaced for the decision. |
-| `OVERLOAD` | Too much irrelevant history is surfaced, materially harming orientation. |
-| `REASONING` | Correct evidence is surfaced but the derived conclusion/connection is wrong. |
-| `EXPLANATION` | Evidence/reasoning may be sound but author-facing explanation is materially inadequate. |
-| `REVISION` | Upstream revision propagation or downstream preservation is incorrect. |
-| `AUTHORITY` | Derived/interpretive output crosses accepted/canonical authority boundaries. |
-| `WORKFLOW` | Capability exists but normal operation makes it materially hard/impossible to use. |
-| `EXPERIMENT` | The apparent failure comes from protocol, context leakage, fixture design, or evaluator contamination. |
+| `SELECTION` | Relevant projected history exists but is not surfaced for the decision. |
+| `OVERLOAD` | Too much irrelevant history is surfaced and materially harms orientation. |
+| `REASONING` | Correct evidence is surfaced but the derived connection/conclusion is wrong. |
+| `EXPLANATION` | Evidence/reasoning may be sound but the author-facing explanation is materially inadequate. |
+| `REVISION` | Upstream revision propagation/downstream preservation is incorrect. |
+| `AUTHORITY` | Derived/interpretive output crosses accepted/canonical boundaries. |
+| `WORKFLOW` | Capability exists but normal product operation makes it materially hard/impossible to use. |
+| `EXPERIMENT` | Apparent failure comes from protocol, fixture misuse, context leakage, or evaluator contamination. |
 
-The following inference is prohibited:
+Prohibited inference:
 
 ```text
 OBSERVED MISS
@@ -665,269 +504,287 @@ Required sequence:
 ```text
 OBSERVED MISS
 → LOCATE FAILURE CLASS
-→ CHECK EXISTING REPRESENTATION / PERSISTENCE / SELECTION / REASONING
-→ DETERMINE WHETHER FAILURE RECURS
+→ CHECK EXISTING REPRESENTATION
+→ CHECK WHETHER IT WAS STORED IN THE CORRECT PLANE
+→ CHECK INTEGRATION / PROJECTION
+→ CHECK SELECTION / REASONING / EXPLANATION
+→ CHECK RECURRENCE / MATERIALITY
 → OWNER GATE
 → ONLY THEN CONSIDER NEW WORK
 ```
 
-## 23. Quantitative observations
+## 14. Evidence capture
 
-Collect descriptive counts without combining them into a weighted score.
+For every major phase record separately:
 
-Useful observations include:
+### System facts
+
+- exact repository revision;
+- frozen protocol revision;
+- branch/worktree identity;
+- commands/surfaces used;
+- accepted/canonical artifacts produced;
+- derived artifacts/reviews produced;
+- validation/diagnostic results;
+- provenance/rebuild results where applicable;
+- runtime errors.
+
+### Narrative facts
+
+- achieved cast/faction/location/thread density;
+- important accepted state transitions;
+- significant relationships;
+- unresolved commitments/questions;
+- delayed setups/payoffs/obligations actually used;
+- knowledge asymmetries actually used;
+- cross-Book dependencies;
+- revision lineage.
+
+### Worker behavior
+
+- intended surfaced context used;
+- targeted authoritative lookups;
+- broad manual reconstruction;
+- mistaken identities;
+- unsupported assumptions;
+- omitted relevant history;
+- irrelevant history surfaced.
+
+### Interpretation
+
+Keep researcher interpretation separate from observed system facts. A proposed
+capability must never be written as though it were already a demonstrated
+representation gap.
+
+## 15. Descriptive measurements
+
+Collect useful counts without producing a synthetic aggregate score.
+
+Examples:
 
 - accepted narrative elements by Book;
-- significant relationships represented;
+- significant relationships actually used;
 - cross-Book dependencies;
 - Book-3 probes supported correctly;
 - relevant historical items surfaced;
 - irrelevant items surfaced;
-- broad manual history reconstructions required;
-- targeted source lookups required;
+- targeted lookups;
+- broad reconstruction events;
 - identity confusions;
-- representation gaps;
+- representation failures;
+- integration/projection failures;
 - authority-boundary violations;
 - review/context size by Book;
-- rebuild equivalence results;
-- revision impact breadth.
+- rebuild-equivalence outcomes;
+- revision-impact breadth.
 
-No aggregate `Auteur Score` or weighted leaderboard is permitted.
+No weighted `Auteur Score` or leaderboard is permitted.
 
-## 24. Core evaluation dimensions
+## 16. Success criteria
 
-### A. Representational sufficiency
+A strong positive result in this one tested trilogy requires:
 
-Can the current architecture express the trilogy's important narrative
-relationships and changes without inventing unsupported product concepts?
-
-### B. Historical integrity
-
-Can Auteur preserve what happened, what changed, what was superseded, and what
-remains accepted across the trilogy?
-
-### C. Reconstruction quality
-
-Can a fresh-context worker recover the relevant past without broad manual
-whole-history reconstruction?
-
-### D. Relevance selection
-
-Does Auteur surface what matters now without simply dumping the entire stored
-world?
-
-### E. Reasoning / explanation
-
-Does the system connect the right evidence to later decisions with an honest
-claim ceiling, and are explanations useful enough to audit the connection?
-
-### F. Revision resilience
-
-Can one upstream semantic revision update derived understanding without silently
-rewriting accepted downstream history?
-
-### G. Authority clarity
-
-Do accepted narrative truth, derived state, provenance, interpretation, and
-recommendation remain distinguishable?
-
-### H. Information-load pressure
-
-Does this trilogy density expose a concrete selection or presentation burden
-that warrants later scale work?
-
-## 25. Success criteria
-
-A strong positive result would require all of the following in the tested case:
-
-1. the trilogy reaches Book 3 with material accumulated complexity;
-2. core characters, factions, locations, subplots, and accepted history remain
-   identifiable and coherent;
-3. fresh-context workers can reconstruct important later-Book context through
-   Auteur without broad manual whole-history reconstruction;
-4. at least three Book-3 decisions correctly recover required older history;
-5. the low-salience → high-salience probe survives;
-6. the relationship-evolution probe is reconstructable at a useful level;
-7. the epistemic/setup-payoff probes either work with existing primitives or
-   expose clearly classified bounded gaps;
-8. revision lineage and downstream preservation remain coherent;
+1. Book 3 is reached with materially accumulated narrative complexity;
+2. the sixteen-character cast remains identifiable without systemic identity
+   confusion;
+3. important factions, locations, relationships, subplots, and accepted outcomes
+   remain coherent;
+4. fresh Book-2 and Book-3 workers can continue using Auteur without broad manual
+   reconstruction becoming necessary for the important decisions;
+5. at least three Book-3 decisions correctly recover older relevant history;
+6. low-salience earlier information can become relevant again;
+7. at least one path-dependent relationship is reconstructed usefully;
+8. at least one knowledge asymmetry or delayed obligation/setup is handled or
+   yields a clearly classifiable bounded failure;
 9. no derived output silently becomes canonical;
-10. no information-load failure materially prevents orientation.
+10. no material information-load failure prevents orientation;
+11. after the clean trilogy result is frozen, revision lineage/downstream
+    preservation remain coherent or yield a clearly attributable revision
+    failure.
 
-A positive result does **not** imply that all long-horizon architecture is
-complete or that larger-scale fiction is validated.
+A positive result does not establish larger-scale validation.
 
-## 26. Valuable negative outcomes
+## 17. Valuable negative outcomes
 
-The experiment is successful as research even if the product fails, provided the
-failure is attributable and bounded.
+Examples of useful failures:
 
-Examples:
-
-- repeated inability to distinguish relevant character knowledge → possible
-  epistemic representation/reasoning candidate;
-- relationship history exists but later decisions receive only current state →
-  trajectory/relevance candidate;
-- open setups repeatedly disappear despite accepted evidence → obligation or
-  selection candidate;
-- review/context grows until relevant history is buried → scale/selection
+- `SeriesIdentity` holds relationship evolution but continuity review cannot see
+  it → `INTEGRATION_PROJECTION` candidate, not automatically `REPRESENTATION`;
+- accepted history exists but an old relevant fact never reaches Book-3 review →
+  `SELECTION` or projection candidate;
+- current primitives genuinely cannot represent consequential belief asymmetry →
+  possible `REPRESENTATION` candidate after ruling out misuse/integration;
+- review grows until useful context is buried → `OVERLOAD` / scale-pressure
   candidate;
-- revision impact marks unrelated material or silently rewrites accepted history
-  → revision defect candidate;
-- worker can answer only after broad manual history reconstruction → product
-  reconstruction failure in the tested path.
+- later worker can proceed only after broad manual reading of Books 1–2 → tested
+  reconstruction path failure;
+- revision rewrites accepted downstream history or produces incoherent current
+  state → `REVISION` defect candidate.
 
-Each remains a **candidate** until owner adjudication.
+Every candidate waits for Owner Gate.
 
-## 27. Invalidating conditions
+## 18. Invalidating conditions
 
-Mark the run `INVALID / CONTAMINATED` if any of the following materially affects
-results:
+Mark the affected claim `INVALID / CONTAMINATED` if materially influenced by:
 
-- a Book-2 or Book-3 worker receives hidden earlier-story summaries outside the
-  declared product path;
-- the same conversational context carries unrevealed story memory across Books;
-- production code is changed during the run to repair an observed failure;
-- the trilogy is fully solved in advance, making later work retrieval rather
-  than reconstruction;
-- evaluator expected answers leak to the producer;
-- a story fixture is retrospectively rewritten to make the product look better;
-- chapter/prose quality is treated as architecture evidence;
-- synthetic findings are reported as human author evidence.
+- hidden Book-1/Book-2 summaries supplied outside the declared product path;
+- continuation in the same conversational context across fresh-worker phases;
+- production code/schema changes during the run;
+- a fully pre-solved trilogy whose later phases merely retrieve a master plan;
+- evaluator expected answers leaked to story workers;
+- retrospective rewriting of the fixture to make the product look better;
+- chapter/prose quality treated as architecture evidence;
+- synthetic evidence reported as human/natural-use evidence;
+- important information deliberately stored in the wrong Auteur plane and then
+  cited as a product representation failure.
 
-Minor protocol deviations may be recorded without invalidation if they cannot
-plausibly affect the central claim; the evaluator must justify that decision.
+Minor deviations that cannot plausibly affect the central claim may be retained
+if explicitly logged and justified.
 
-## 28. Hard invariants
+## 19. Hard invariants
 
-1. No chapter outline or prose generation in V1.
-2. No production code change during execution.
-3. No new ontology/schema merely to satisfy the fixture.
-4. No automatic extraction reopening.
-5. No automatic scale work.
-6. No hidden whole-story summary supplied to later fresh workers.
+1. No chapter outlines or prose in V1.
+2. No production code or schema changes during execution.
+3. No new ontology merely to satisfy the fixture.
+4. No extraction reopening.
+5. No pre-authorized scale implementation.
+6. No hidden whole-story summary for later fresh workers.
 7. No silent acceptance outside existing authority boundaries.
-8. Derived/rebuildable artifacts remain non-canonical.
-9. Affected material is not automatically classified as requiring review.
-10. Currentness is not treated as equivalent to relevance.
-11. Relevance is not treated as equivalent to causal support.
-12. Unknown/unvalidated capability is not classified as failed without an
-    observed failure.
+8. Derived/rebuildable views remain non-canonical.
+9. Affected-by-revision is not automatically requires-review-now.
+10. Currentness is not relevance.
+11. Relevance is not causal support.
+12. Unknown/unvalidated is not failed without observed failure.
 13. Synthetic success is not human usability evidence.
 14. No automatic V2 or implementation follows from closure.
+15. Existing canonical Series architecture and accepted-history architecture must
+    be distinguished rather than conflated.
 
-## 29. Independent adversarial review
+## 20. Independent adversarial review
 
-After the experimental evidence is frozen, use one fresh independent reviewer.
+Use **one fresh independent reviewer after all primary and revision evidence is
+frozen**.
+
 Its purpose is epistemic challenge, not parallel story construction.
 
 The reviewer should assume the provisional conclusion may be wrong and inspect:
 
-- hidden conversation/context leakage;
-- manual reconstruction that was mislabeled as product support;
-- fixture assumptions that made a capability look necessary;
-- failures attributed to representation when selection/reasoning was the actual
-  problem;
-- generic but plausible answers unsupported by accepted evidence;
+- hidden context leakage;
+- manual reconstruction mislabeled as product support;
+- information stored in the wrong plane;
+- representation failures that are actually integration/projection failures;
+- projection failures that are actually selection/reasoning failures;
+- fixture constraints that manufactured the apparent need for a capability;
+- plausible but unsupported narrative answers;
 - overclaiming from one synthetic trilogy;
 - authority leakage;
-- counting density that exists only on paper but never affects decisions;
-- researcher interpretation reported as system fact.
+- density that exists on paper but never actually affects later decisions;
+- researcher interpretation presented as system fact.
 
-Sub-agents should **not** independently design different pieces of the trilogy in
-parallel. The narrative architecture is tightly coupled and should remain under
-one coherent story-construction thread per phase.
+Do not use parallel sub-agents to design pieces of the trilogy. The story
+architecture is tightly coupled and each Book phase should have one coherent
+worker.
 
-## 30. Owner Gate
+## 21. Owner Gate
 
-The experiment ends at an explicit Owner Gate. No result automatically selects
-implementation.
+No result automatically authorizes implementation.
 
-Allowed dispositions:
+Allowed primary dispositions:
 
 ### A. `ARCHITECTURE_SUFFICIENT_AT_TESTED_TRILOGY_DENSITY`
 
-Current representation/reconstruction is adequate for the tested case. No new
-architecture work is warranted from this evidence.
+Current representations and reconstruction path are adequate for the tested
+case. No architecture work is warranted from this evidence.
 
 ### B. `PARTIALLY_SUFFICIENT / BOUNDED_GAPS_IDENTIFIED`
 
-The system works broadly but one or more specific recurring gaps are supported.
-Owner decides whether any gap deserves a new bounded responsibility.
+The tested path works broadly but one or more material bounded gaps recur.
 
 ### C. `REPRESENTATION_GAP_DEMONSTRATED`
 
-A recurring important meaning cannot be expressed adequately with current
-primitives after ruling out persistence, selection, reasoning, and workflow
-failures. This authorizes **reassessment**, not automatic schema implementation.
+A material recurring meaning cannot be expressed adequately after ruling out
+wrong-plane storage, integration/projection, selection, reasoning, and workflow
+failure. This authorizes reassessment, not automatic schema work.
 
-### D. `REASONING_OR_SELECTION_GAP_DEMONSTRATED`
+### D. `INTEGRATION_OR_PROJECTION_GAP_DEMONSTRATED`
 
-Representation is adequate but relevant history is not selected or reasoned over
-correctly.
+Auteur already represents the meaning, but the tested long-horizon path does not
+consume/project/connect it adequately.
 
-### E. `INFORMATION_LOAD_PRESSURE_DEMONSTRATED`
+### E. `REASONING_OR_SELECTION_GAP_DEMONSTRATED`
 
-The architecture remains coherent but density materially overwhelms selection or
-presentation. This may reopen bounded scale/relevance investigation.
+Representation and projection are adequate, but later relevance/reasoning is not.
 
-### F. `INVALID_OR_INCONCLUSIVE`
+### F. `INFORMATION_LOAD_PRESSURE_DEMONSTRATED`
 
-Contamination, insufficient pressure, fixture weakness, or mixed evidence blocks
+Architecture remains coherent but density materially overwhelms selection or
+presentation.
+
+### G. `REVISION_GAP_DEMONSTRATED`
+
+The clean trilogy path is separately classified, but the post-freeze upstream
+revision exposes a material revision/impact defect.
+
+### H. `INVALID_OR_INCONCLUSIVE`
+
+Contamination, fixture weakness, insufficient pressure, or mixed evidence blocks
 product conclusions.
 
-## 31. Stopping rule
+Multiple bounded secondary findings may accompany one primary disposition.
 
-Stop immediately and return to the Owner Gate when:
+## 22. Stopping rule
 
-- an invalidating contamination occurs;
-- a hard product boundary makes later phases impossible without code/schema
-  modification;
-- the experiment's density contract cannot be satisfied without inventing a
-  parallel research database that bypasses Auteur;
-- the central reconstruction question has already been answered with sufficient
-  bounded evidence and continuing would only add story volume;
-- Book-3 architecture and required probes are complete.
+Stop and return to Owner Gate when:
+
+- an invalidating contamination makes the remaining claim uninterpretable;
+- a hard product boundary prevents continuation without code/schema change;
+- the fixture can continue only by maintaining a parallel research database that
+  bypasses Auteur;
+- the primary Book-3 evidence and required naturalistic pressures are complete;
+- the post-freeze revision evidence is complete;
+- continuing would only add story volume rather than new architectural pressure.
 
 Do not continue to chapter outlines or prose from momentum alone.
 
-## 32. Relationship to later experiments
+## 23. Relationship to later experiments
 
-A successful V1 may justify a separate owner decision about **Narrative
-Realization Pressure V2**:
+A successful architecture V1 may justify a separate owner decision about a
+**Narrative Realization Pressure** experiment:
 
 ```text
 accepted trilogy architecture
-→ Book outlines
-→ chapter outlines
+→ Book outline
+→ chapter outline
 → selected scene beats
 ```
 
-That later experiment would test whether abstract relationships and transitions
-can be realized into plausible narrative sequence, pacing, and event placement.
+That would test whether the abstract architecture can become a plausible event
+sequence.
 
 Only after realization pressure is understood should a separate **Selective
-Expression / Reader-Experience Probe** generate prose for high-value scenes such
-as a betrayal, revelation, relationship payoff, mystery payoff, or climax.
+Expression / Reader-Experience** experiment generate prose for high-value scenes.
 
-No later stage is authorized by this V1 specification.
+Neither later experiment is authorized here.
 
-## 33. Required execution record if later authorized
+## 24. Session-A entry contract
 
-A future execution must begin by recording:
+Session A may start only when it records:
 
 ```text
-SPECIFICATION REVISION:
-<exact commit>
+FROZEN SPECIFICATION:
+<exact commit containing this revision>
 
 AUTEUR BASELINE:
-<exact commit>
+588fb1ef88184be9246d406fd1c90737b7c09cf6
 
-EXPERIMENT STATUS:
-AUTHORIZED / STARTED
+EXPERIMENT:
+DENSE TRILOGY NARRATIVE ARCHITECTURE STRESS TEST V1
 
-STORY FIXTURE:
-NONE BEFORE START
+EXECUTION AUTHORIZATION:
+OWNER APPROVED
+
+STORY FIXTURE BEFORE START:
+NONE
 
 CHAPTER OUTLINES:
 NOT AUTHORIZED
@@ -935,60 +792,138 @@ NOT AUTHORIZED
 PROSE:
 NOT AUTHORIZED
 
-PRODUCTION CODE CHANGES:
+PRODUCTION CODE / SCHEMA CHANGES:
 NOT AUTHORIZED
 
-ONTOLOGY:
+PARALLEL STORY SUB-AGENTS:
 NO
 
-EXTRACTION:
-GATE NOT CROSSED
-
-SCALE:
-NOT PRE-AUTHORIZED
+FRESH-CONTEXT BOOK 2 / BOOK 3:
+REQUIRED
 ```
 
-Closure must record:
+If the exact main baseline has moved before the local run starts, do not silently
+substitute the new revision. Report the drift and ask the owner/controller to
+re-freeze the runtime baseline or explicitly approve the newer baseline.
+
+## 25. Session-A required exit packet
+
+Session A must stop after Series seed + Book 1 and report:
+
+```text
+RUNTIME / WORKSPACE GATE:
+PASS / FAIL
+
+FROZEN SPEC REVISION:
+<sha>
+
+AUTEUR BASELINE USED:
+<sha>
+
+REPRESENTATION-PLANE AUDIT:
+CONFIRMED / REVISED WITH EVIDENCE
+
+SERIES SEED:
+CREATED / FAILED
+
+BOOK 1 ARCHITECTURE:
+CREATED / FAILED
+
+CAST:
+1 protagonist + 5 other main + 10 supporting
+<actual>
+
+FUTURE BOOKS:
+DIRECTIONAL SCAFFOLDING ONLY / VIOLATION
+
+CHAPTER OUTLINES:
+NONE
+
+PROSE:
+NONE
+
+ACCEPTED / CANONICAL ARTIFACTS CREATED:
+<list>
+
+DERIVED ARTIFACTS CREATED:
+<list>
+
+MANUAL BROAD RECONSTRUCTION:
+NOT APPLICABLE FOR SESSION A / <explain>
+
+PRODUCTION CODE CHANGES:
+NONE
+
+ONTOLOGY / EXTRACTION / SCALE CHANGES:
+NONE
+
+SESSION-A EVIDENCE:
+FROZEN AT <commit/path>
+
+NEXT STEP:
+END THIS CODING-AGENT CHAT; START FRESH SESSION B
+```
+
+Session A must not continue into Book 2.
+
+## 26. Final execution record
+
+Closure records:
 
 ```text
 TRILOGY DENSITY ACHIEVED:
-<yes/no + actual counts>
+<actual>
 
-CONTEXT ISOLATION:
+FRESH-CONTEXT ISOLATION:
 PASS / FAIL
 
-MANUAL WHOLE-HISTORY RECONSTRUCTION:
+BROAD MANUAL WHOLE-HISTORY RECONSTRUCTION:
 <count + cases>
 
-PRIMARY FAILURE CLASS:
-<taxonomy or NONE>
+PRIMARY NORMAL-ACCUMULATION FAILURE CLASS:
+<class or NONE>
 
-OWNER GATE DISPOSITION:
-<A–F>
+PRIMARY NORMAL-ACCUMULATION DISPOSITION:
+<A-F/H as applicable>
+
+REVISION RESULT:
+<PASS / bounded failure + class>
+
+ADVERSARIAL REVIEW:
+<APPROVE / REVISE / INVALIDATE + reasons>
+
+OWNER GATE:
+<A-H>
 
 IMPLEMENTATION AUTHORIZATION:
 NONE UNLESS SEPARATELY GRANTED
 ```
 
-## 34. Current disposition
+## 27. Frozen disposition
 
 ```text
 SPECIFICATION:
-READY FOR OWNER REVIEW
+FROZEN V1
 
-EXPERIMENT:
+OWNER REVIEW:
+COMPLETE
+
+SYNTHETIC EXECUTION:
+AUTHORIZED
+
+SESSION A:
 NOT STARTED
 
 STORY:
 NOT CREATED
 
 CHAPTER OUTLINES:
-NOT CREATED
+NOT AUTHORIZED
 
 PROSE:
-NOT CREATED
+NOT AUTHORIZED
 
-IMPLEMENTATION:
+PRODUCTION IMPLEMENTATION:
 NOT AUTHORIZED
 
 ONTOLOGY:
@@ -997,9 +932,9 @@ NO ADMISSION
 EXTRACTION:
 GATE NOT CROSSED
 
-SCALE:
+SCALE IMPLEMENTATION:
 NOT AUTHORIZED
 
-CURRENT CAMPAIGN POSTURE:
-UNCHANGED
+NATURAL-EVIDENCE CAMPAIGN POSTURE:
+UNCHANGED / SEPARATE
 ```
