@@ -48,9 +48,23 @@ from auteur.project import Project
 # This file lives in <repo>/stress/; the repo root is one directory up.
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SAMPLE_BLUEPRINT = REPO_ROOT / "examples" / "sample_blueprint.yaml"
-LAUNCHER = REPO_ROOT / ".venv" / "Scripts" / "auteur.exe"
 
-# Fallback invocation used only when the editable-install launcher is absent.
+# Installed-CLI launcher candidates: Windows venvs expose Scripts/auteur.exe,
+# POSIX venvs expose bin/auteur. The first candidate that exists wins (the
+# Windows path keeps working exactly as before); when none exists, LAUNCHER
+# stays on the first candidate and cli_command() falls back to the shim below.
+_LAUNCHER_CANDIDATES = (
+    REPO_ROOT / ".venv" / "Scripts" / "auteur.exe",
+    REPO_ROOT / ".venv" / "bin" / "auteur",
+)
+LAUNCHER = next(
+    (path for path in _LAUNCHER_CANDIDATES if path.exists()),
+    _LAUNCHER_CANDIDATES[0],
+)
+
+# Fallback invocation used only when no installed launcher exists. Its
+# subprocess environment (see _shim_env) prepends <repo>/src to PYTHONPATH so
+# the shim can import the in-tree package from an uninstalled checkout.
 _CLI_SHIM = "import sys; from auteur.cli import main; sys.exit(main())"
 
 SCALES = ("smoke", "full")
@@ -160,8 +174,22 @@ def run_cli_inprocess(
     return rc, buf.getvalue()
 
 
+def _shim_env() -> dict[str, str]:
+    """Subprocess environment for the shim fallback: PYTHONPATH += <repo>/src.
+
+    Copies os.environ (keeping Windows passthrough entries such as SYSTEMROOT
+    intact) and modifies only PYTHONPATH, prepending the in-tree src/ path so
+    an uninstalled checkout can import ``auteur``.
+    """
+    env = dict(os.environ)
+    src = str(REPO_ROOT / "src")
+    existing = env.get("PYTHONPATH")
+    env["PYTHONPATH"] = f"{src}{os.pathsep}{existing}" if existing else src
+    return env
+
+
 def cli_command(args: list[str]) -> list[str]:
-    """Build a subprocess command for the real CLI launcher."""
+    """Build a subprocess command for the real CLI launcher (shim fallback if absent)."""
     if LAUNCHER.exists():
         return [str(LAUNCHER), *args]
     return [sys.executable, "-c", _CLI_SHIM, *args]
@@ -172,6 +200,9 @@ def run_cli_subprocess(
 ) -> dict[str, Any]:
     """Run the real CLI as a subprocess; return rc/stdout/stderr/wall time."""
     cmd = cli_command(args)
+    # Only the shim fallback needs the injected PYTHONPATH; the installed
+    # launcher resolves the package itself, so it inherits the environment.
+    env = _shim_env() if cmd[1:3] == ["-c", _CLI_SHIM] else None
     t0 = time.perf_counter()
     try:
         proc = subprocess.run(
@@ -181,6 +212,7 @@ def run_cli_subprocess(
             encoding="utf-8",
             errors="replace",
             timeout=timeout_s,
+            env=env,
         )
         rc, out, err, timed_out = proc.returncode, proc.stdout, proc.stderr, False
     except subprocess.TimeoutExpired:

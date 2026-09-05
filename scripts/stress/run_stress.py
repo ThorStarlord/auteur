@@ -23,7 +23,7 @@ from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 STRESS_DIR = REPO_ROOT / "stress"
-for _path in (str(REPO_ROOT), str(STRESS_DIR)):
+for _path in (str(REPO_ROOT / "src"), str(REPO_ROOT), str(STRESS_DIR)):
     if _path not in sys.path:
         sys.path.insert(0, _path)
 
