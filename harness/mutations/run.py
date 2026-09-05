@@ -42,8 +42,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent.parent
 DEFECTS = Path(__file__).resolve().parent / "defects.json"
 
-# What to copy into each throwaway build. Keep it small; this runs once per defect.
-COPY = ["app", "tests", "harness", ".factory"]
+# What to copy into each throwaway build. Everything the inner gate reads must
+# come along: the product, its tests, the harness, the CI scripts the static
+# rung invokes, pyproject (pytest/ruff config), docs (repo-check scripts read
+# them), examples (the conftest bootstrap reads examples/canonical_story
+# relative to the repo root). Missing pieces make the inner gate fail for
+# environment reasons, which misattributes the catching rung. Keep .git and
+# caches out via SKIP_DIRS; venvs are never copied.
+COPY = ["src", "tests", "scripts", "docs", "examples", "skills", "artifacts",
+        "data", ".github", "harness", ".factory", "pyproject.toml", "README.md",
+        "CONTEXT.md", "LICENSE", "CONTRIBUTING.md", "AGENTS.md", "CLAUDE.md"]
 SKIP_DIRS = {"__pycache__", ".git", "runs", "locks-runtime", "builds", ".worktrees"}
 
 
@@ -57,6 +65,10 @@ def build_copy(dest: Path) -> None:
                             ignore=shutil.ignore_patterns(*SKIP_DIRS))
         else:
             shutil.copy(src, dest / item)
+    # The static rung shells out to `git ls-files`, which fails outside a repo.
+    # An empty repo is honest here: no defect targets git state, and the throwaway
+    # must not inherit the real history (a mutation build is not a commit).
+    subprocess.run(["git", "init", "-q"], cwd=dest, capture_output=True)
 
 
 def apply(dest: Path, d: dict) -> bool:
@@ -98,6 +110,14 @@ def main() -> int:
 
             # Tell the inner gate not to recurse into its own mutation suite.
             env = dict(os.environ, FACTORY_IN_MUTATION="1")
+            # The inner gate must import the MUTATED tree. Without this, an
+            # editable install (pip install -e .) resolves the product to the
+            # clean source tree and every defect escapes while the gate stays
+            # green about the wrong code. Prepending the throwaway's src shadows
+            # site-packages for every child process of the inner gate.
+            shadow = str(dest / "src")
+            env["PYTHONPATH"] = (shadow + os.pathsep + env["PYTHONPATH"]
+                                 if env.get("PYTHONPATH") else shadow)
             r = subprocess.run([sys.executable, "harness/ci.py"], cwd=dest, env=env,
                                capture_output=True, text=True, timeout=600)
             if r.returncode != 0:

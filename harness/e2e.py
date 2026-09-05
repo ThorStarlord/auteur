@@ -1,28 +1,69 @@
-"""The end-to-end path: ONE journey, the most valuable one, as the real user does it.
+"""The end-to-end path: the discovery journey as a real author takes it.
 
-Not a suite. The answer to interview R1.1 - "the single most valuable thing a user does
-with this app, as a sequence of actions ending in something you can see on a screen."
+R1.1: premise in -> guided brief -> frozen search output in place ->
+recommended direction reviewed -> explicit accept -> canonical
+story_identity.yaml exists, and is absent at every step before acceptance.
 
-THIS IS WHERE THE ASSERTIONS LIVE, and they are the part of the harness nobody can write
-for you. Everything else in `harness/` is plumbing that is the same in every factory;
-these lines are the only place your product appears.
+ARCHITECTURE OF THIS JOURNEY, stated honestly because the gate depends on it:
 
-Three rules that decide whether any of it is worth anything:
+The journey has two halves. The first half (start, refine) is fully live: the
+real interactive brief Q&A, answered as a user answers it. The second half
+begins where the LLM-backed `run` subcommand would search - and that half is
+FROZEN: harness/fixtures/ carries candidate_1.yaml, candidate_2.yaml and
+discovery_set.yaml, generated once via the product's own constructors from a
+brief built with these exact answers, then verified through this same journey
+(review renders RECOMMENDED, accept lands byte-identical content).
 
-  1. ASSERT WHAT A USER WOULD NOTICE, not a status code. `200 OK` is not evidence that
-     the page said the right thing. A test that only checks the status passes on an app
-     that returns an empty body forever.
-  2. COUNT THE STEPS. `run_e2e` returns how many ASSERTIONS ran, and the gate compares
-     that to a protected floor. A skipped assertion and a passed assertion are
-     indistinguishable without a count.
-  3. RETURN None ON FAILURE, having printed why. The caller turns that into a named
-     GATE_FAILED so the log says which rung broke.
+Why frozen is legitimate here rather than a cheat: the multi-engine search
+needs provider keys and is nondeterministic, so it cannot prove anything
+unattended; everything DOWNSTREAM of its persisted output - recommendation
+rendering, winner selection, validation, atomic promotion - runs live on every
+lap. The fixture is "what was asked"; the gate asserts "what the code does
+now". The LLM surface itself is covered by the project's live-eval tests and
+by human review, never by this gate.
+
+Three rules: assert what a user would notice; COUNT THE STEPS (STEPS is the
+floor the gate ratchets); RETURN None ON FAILURE, having printed why.
 """
 from __future__ import annotations
 
-import json
+import shutil
+import tempfile
+import yaml
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+FIX = HERE / "fixtures"
 
 STEPS = 0
+
+PREMISE = ("A woman rebuilds a city after a disaster "
+           "without learning her brother caused it.")
+TITLE_1 = "The Closed Circle, With Blood Debts"
+
+START_ANSWERS = "\n".join([
+    PREMISE,
+    "science fiction",
+    "adult",
+    "painful dramatic irony with fragile hope",
+]) + "\n"
+
+REFINE_ANSWERS = "\n".join([
+    "tenderness, hope",
+    "nihilism",
+    "yes",
+    "rising pressure",
+    "unease",
+    "dread",
+    "bittersweet agency",
+    "richly interconnected",
+    "several interacting causes",
+    "one main engine with substantial supporting layers",
+    "not sure",
+    "not sure",
+    "the protagonist never learns the brother caused the disaster",
+    "",
+]) + "\n"
 
 
 def check(name: str, ok: bool, detail: str = "") -> bool:
@@ -36,82 +77,89 @@ def check(name: str, ok: bool, detail: str = "") -> bool:
 
 
 def run_e2e(app) -> int | None:
-    """Drive the app as a person does. Returns the assertion count, or None on failure."""
+    """Drive the journey. Returns the assertion count, or None on failure."""
     global STEPS
     STEPS = 0
-
-    # SCAFFOLD_EXAMPLE_DELETE_THIS_LINE_WHEN_YOU_WRITE_YOUR_OWN
-    # ===================================================================
-    # TODO: REPLACE EVERYTHING BELOW WITH YOUR OWN JOURNEY.
-    # Delete the marker line above once these are YOUR assertions. factory_doctor
-    # blocks on it, because a gate asserting things about somebody else's product
-    # is worse than no gate: it is green.
-    #
-    # What is here is a worked example against the shape of a small HTTP service, kept
-    # because the SHAPE is worth stealing: act, then assert something observable about
-    # what came back. Delete it and write yours.
-    # ===================================================================
-
-    # --- the user arrives ------------------------------------------------
-    status, body, _ = app.get("/")
-    if not check("the landing page renders", status == 200 and "<" in body,
-                 f"status={status}"):
-        return None
-
-    # --- the user does the main thing ------------------------------------
-    target = "https://example.com/a/long/path?with=params&more=1"
-    status, body, _ = app.post("/api/shorten", json.dumps({"url": target}))
-    if not check("the primary action succeeds", status == 200, f"status={status}"):
-        return None
-
+    journey = Path(tempfile.mkdtemp(prefix="harness-journey-"))
     try:
-        code = json.loads(body)["code"]
-    except (ValueError, KeyError):
-        return None if not check("the response is the documented shape", False,
-                                 f"body={body[:120]!r}") else None
+        return _journey(app, journey)
+    except Exception as e:                              # noqa: BLE001
+        print(f"  FAIL  journey raised {type(e).__name__}: {e}", flush=True)
+        return None
+    finally:
+        shutil.rmtree(journey, ignore_errors=True)
 
-    # --- the user sees the result ----------------------------------------
-    # The assertion that matters. Not "did it 302" - WHERE to, byte for byte. A redirect
-    # that silently rewrites its destination passes every status-code check ever written.
-    status, _, headers = app.get(f"/{code}")
-    location = headers.get("Location", "")
-    if not check("the result is byte-identical to what was asked for",
-                 status == 302 and location == target,
-                 f"status={status} location={location!r} wanted={target!r}"):
+
+def _journey(app, journey: Path) -> int | None:
+    ident = journey / "story_identity.yaml"
+    disc = journey / "story_discovery"
+
+    # --- the author starts a discovery ----------------------------------
+    rc, out, err = app.run(f'story-discovery start --project "{journey}"',
+                           stdin=START_ANSWERS)
+    if not check("the brief is created", rc == 0,
+                 f"rc={rc} tail={(out + err)[-300:]!r}"):
+        return None
+    brief = disc / "brief.yaml"
+    if not check("brief.yaml exists", brief.exists()):
+        return None
+    # YAML folding may wrap the premise across lines; compare normalized.
+    flat = " ".join(brief.read_text(encoding="utf-8").split())
+    if not check("the premise is preserved in the brief", PREMISE in flat):
+        return None
+    if not check("no canonical state before acceptance (start)",
+                 not ident.exists()):
         return None
 
-    # --- the unhappy path a user will actually hit ------------------------
-    status, body, _ = app.get("/does-not-exist-000")
-    if not check("an unknown input fails cleanly rather than crashing",
-                 status == 404, f"status={status}"):
+    # --- the author refines -----------------------------------------------
+    rc, out, err = app.run(f'story-discovery start --project "{journey}" --refine',
+                           stdin=REFINE_ANSWERS)
+    if not check("the brief is refined", rc == 0,
+                 f"rc={rc} tail={(out + err)[-300:]!r}"):
         return None
 
-    # --- idempotence / the product's own promise --------------------------
-    _, body2, _ = app.post("/api/shorten", json.dumps({"url": target}))
-    try:
-        again = json.loads(body2)["code"]
-    except (ValueError, KeyError):
-        again = None
-    if not check("the documented guarantee holds on a second run", again == code,
-                 f"first={code} second={again}"):
+    # --- the frozen search output lands where `run` would have put it ------
+    # (see module docstring for why frozen is legitimate here)
+    for name in ("discovery_set.yaml", "candidate_1.yaml", "candidate_2.yaml"):
+        shutil.copy(FIX / name, disc / name)
+    staged = all((disc / n).exists()
+                 for n in ("discovery_set.yaml", "candidate_1.yaml",
+                           "candidate_2.yaml"))
+    if not check("the search output is staged", staged):
         return None
 
-    # --- the operational readout reflects reality -------------------------
-    # ADDED BECAUSE A MUTATION ESCAPED. `health-always-reports-zero` replaced the link
-    # count with a literal 0 and every check above still passed: the endpoint answered,
-    # the shape was right, and the number was a lie. Nothing asserted the count MOVED.
-    #
-    # This is the whole argument for mutation testing in one example. No amount of
-    # reading these assertions would have found it; breaking the software on purpose
-    # found it in one run.
-    status, body, _ = app.get("/health")
-    try:
-        links = json.loads(body).get("links")
-    except ValueError:
-        links = None
-    if not check("the health readout counts the links that exist",
-                 isinstance(links, int) and links >= 1,
-                 f"status={status} links={links!r} (at least one link was just created)"):
+    # --- the author reviews the recommendation ------------------------------
+    rc, out, err = app.run(f'story-discovery review --project "{journey}"')
+    if not check("review renders", rc == 0, f"rc={rc}"):
+        return None
+    if not check("review recommends the winning direction",
+                 "Recommended story direction" in out,
+                 f"tail={out[-300:]!r}"):
+        return None
+    if not check("review's accept path names candidate_1",
+                 "story_discovery/candidate_1.yaml" in out,
+                 f"tail={out[-300:]!r}"):
+        return None
+    if not check("no canonical state before acceptance (review)",
+                 not ident.exists()):
+        return None
+
+    # --- the author accepts ---------------------------------------------------
+    rc, out, err = app.run(
+        f'story-discovery accept "{disc / "candidate_1.yaml"}" '
+        f'--output "{ident}"')
+    if not check("accept succeeds", rc == 0,
+                 f"rc={rc} tail={(out + err)[-300:]!r}"):
+        return None
+    if not check("story_identity.yaml exists after accept", ident.exists()):
+        return None
+    want = yaml.safe_load((FIX / "candidate_1.yaml").read_text(encoding="utf-8"))
+    got = yaml.safe_load(ident.read_text(encoding="utf-8"))
+    if not check("the accepted identity is the candidate, field for field",
+                 want == got):
+        return None
+    if not check("the title a user would look for is present",
+                 TITLE_1 in ident.read_text(encoding="utf-8")):
         return None
 
     return STEPS

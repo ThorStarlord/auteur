@@ -261,7 +261,8 @@ def main() -> int:
     if os.environ.get("FACTORY_IN_MUTATION") == "1":
         print("MUTATIONS_SKIPPED running inside a mutation build", flush=True)
     elif mutate.exists():
-        rc, out = run("mutations", [sys.executable, str(mutate)], timeout=900)
+        rc, out = run("mutations", [sys.executable, str(mutate)],
+                      timeout=int(CONFIG.get("mutations_timeout_s", 900)))
         print(out.strip(), flush=True)
         if rc != 0:
             return fail("mutations")

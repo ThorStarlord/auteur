@@ -1,53 +1,108 @@
 #!/usr/bin/env python3
-"""HOLDOUT SCENARIOS. Copy to `.factory/holdout/run.py`, NOT into `harness/`.
+"""HOLDOUT SCENARIOS for the auteur factory. Lives in `.factory/holdout/` -
+the builder cannot read this directory (tool deny + diff guard), which is the
+only property that makes any of this evidence.
 
-    .factory/holdout/run.py      <- here. The builder cannot read this directory.
-    harness/                     <- NOT here. The builder reads everything in harness/.
+Rules followed here: written BEFORE the work they will ever judge; duplicated,
+never imported, from harness/ (only process management is shared); composed,
+not isolated; inputs that appear nowhere else in this repository.
 
-WHY THE PATH IS THE POINT
+The three scenarios, and what each is for:
+  1. environment-tripwire - the stale-install class, live: the gate must import
+     the tree it is validating, never a leftover install from another checkout
+     or worktree. This exact failure killed a real gate run (a unit run
+     graded against last month's code from a dead worktree). It must stay failed.
+  2. invalid-accept-rejected - the authority invariant from the other side: a
+     candidate that fails validation must never become canonical state, and the
+     prior absence must survive the attempt.
+  3. fresh-premise-integrity - the fail-closed state machine: on a project with
+     a brief and no run output, review must refuse with its documented error
+     rather than rendering a recommendation. Values unique to this file.
 
-Everything in `harness/` sits inside the agent's optimisation loop: it can read those
-checks, run them, and iterate until they are green. Given enough attempts it will satisfy
-them - which is exactly what you asked for, and exactly why passing them proves less than
-it feels like it does.
-
-These assertions are different only because the builder never sees them. The runner
-passes `--disallowedTools Read/Glob/Grep(.factory/holdout/**)` to every node, and
-`guard.py` treats this directory as protected so no PR can edit it. That is the whole
-independence argument, and it is the only honest reason to merge code nobody read.
-
-THE RULES, and they are short:
-
-  1. **Write these BEFORE the work.** A scenario written after seeing the implementation
-     is a description of the implementation.
-  2. **Duplicate, do not import.** Importing a helper from `harness/` re-couples you to
-     code the builder can edit, and the wall is gone with one refactor nobody noticed.
-  3. **Compose.** The dominant real failure is not cheating, it is FEATURE ISOLATION -
-     components individually correct that never work together. Unit tests test features
-     in isolation by definition, so the thing they measure is precisely the thing that is
-     not broken. Test features TOGETHER, in sequences a user would actually perform.
-  4. **Use inputs that appear nowhere else in the repo.** If the value is grep-able from
-     the builder's side it is a value it can special-case.
-
-Emits `HOLDOUT_PASSED scenarios=N assertions=M`. The count is the point: a skipped
-scenario and a passed scenario are indistinguishable without one.
+Emits `HOLDOUT_PASSED scenarios=N assertions=M`. The count is the point.
 """
 from __future__ import annotations
 
 import json
+import shutil
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
-# The DRIVER is shared (starting a process is not an assertion); the SCENARIOS are not.
-# Rule 2 is about assertion helpers - duplicate those - not about process management.
 _HARNESS = Path(__file__).resolve().parent.parent.parent / "harness"
 sys.path.insert(0, str(_HARNESS))
 from appproc import make_driver                                # noqa: E402
 
 CONFIG = json.loads((_HARNESS / "harness.config.json").read_text(encoding="utf-8"))
+ROOT = Path(__file__).resolve().parent.parent.parent
 
 ASSERTIONS = 0
 FAILURES: list[str] = []
+
+# The invalid candidate. Embedded here rather than read from harness/fixtures/
+# so its exact bytes appear NOWHERE the builder can read: the same valid
+# identity with the `title` field removed, which the promote validation must
+# reject. Verified against the real accept path (exit 1, no file written).
+INVALID_CANDIDATE = """\
+core_answer: 'The Closed Circle, With Blood Debts: a controlled fixture candidate.'
+target_experience:
+  primary: painful dramatic irony with fragile hope
+  progression: unease -> dread -> bittersweet agency
+  secondary:
+  - tenderness
+  - hope
+  avoid: []
+  primary_emotional_promise: painful dramatic irony with fragile hope
+  secondary_palette:
+  - tenderness
+  - hope
+  avoided_experiences: []
+  emotional_trajectory: null
+  genre_emotion_stack: null
+  pov_experience_contracts: null
+story_type:
+  medium: novel
+  mode: other
+  genre: sci_fi
+  subgenres: []
+  target_audience: adult
+  length_class: null
+central_engine:
+  want: Rebuild the city and protect the surviving community.
+  resistance: Incomplete knowledge and hidden interventions complicate recovery.
+  conflict: A woman rebuilds a city after a disaster without learning her brother
+    caused it.
+  stakes: Failure exposes the city to another collapse.
+  change: She earns practical agency without learning the forbidden truth.
+architecture_preferences:
+  complexity: maximalist
+  causal_distribution: mixed
+  engine_hierarchy: primary_with_layers
+hard_constraints:
+- the protagonist never learns the brother caused the disaster
+not_this: []
+open_questions: []
+confidence: null
+alternatives: []
+recommendation_mode: opinionated
+best_basis: genre_aligned
+why_this_is_best: null
+rejected_directions: []
+author_overrides: []
+characters: []
+"""
+
+# A premise that appears nowhere else in this repository (checked at write
+# time). If the machinery below ever depends onfixture values, this scenario
+# is the one that notices.
+FRESH_PREMISE = "A lighthouse keeper discovers that the tide is a debt collector."
+FRESH_ANSWERS = "\n".join([
+    FRESH_PREMISE,
+    "mystery",
+    "adult",
+    "dread with a dry wit",
+]) + "\n"
 
 
 def expect(name: str, ok: bool, detail: str = "") -> None:
@@ -57,64 +112,74 @@ def expect(name: str, ok: bool, detail: str = "") -> None:
         FAILURES.append(f"{name}: {detail}")
 
 
-# SCAFFOLD_EXAMPLE_DELETE_THIS_LINE_WHEN_YOU_WRITE_YOUR_OWN
-# ===========================================================================
-# TODO: DELETE EVERY SCENARIO BELOW AND WRITE YOURS.
-# Delete the marker line above when they are yours. The doctor blocks on it.
-#
-# What is here is a worked example against a small HTTP service. The SHAPE is what to
-# steal: each scenario is several features used together, with values that exist nowhere
-# else in the repository.
-# ===========================================================================
+def scenario_environment_tripwire(app) -> None:
+    """The interpreter must resolve the product from THIS tree.
 
-def scenario_round_trip_survives_a_restart(app) -> None:
-    """Shorten -> resolve -> restart -> resolve again.
-
-    Three features composed. Each one passes its own unit test in isolation; what this
-    asks is whether persistence, code generation and resolution agree with each other
-    across a process boundary.
+    Kills the stale-install class: an editable install from another checkout
+    or a long-dead worktree silently redirecting every check at old code.
     """
-    url = "https://holdout.invalid/qz7t/never-appears-in-the-repo?x=1"
-    status, body, _ = app.post("/api/shorten", json.dumps({"url": url}))
-    expect("shorten accepted", status == 200, f"status={status}")
-    code = json.loads(body).get("code") if status == 200 else None
-    expect("a code came back", bool(code), f"body={body[:100]!r}")
+    p = subprocess.run([sys.executable, "-c",
+                        "import auteur; print(auteur.__file__)"],
+                       capture_output=True, text=True, timeout=60)
+    got = (p.stdout or "").strip()
+    expect("auteur resolves inside this repo",
+           p.returncode == 0 and got.startswith(str(ROOT)),
+           f"rc={p.returncode} auteur.__file__={got!r} root={ROOT}")
+    rc, out, err = app.run("ontology list")
+    expect("the CLI answers from this tree",
+           rc == 0 and "Character" in out,
+           f"rc={rc} tail={(out + err)[-200:]!r}")
 
-    if not code:
-        return
-    status, _, headers = app.get(f"/{code}")
-    expect("resolves to the exact url", status == 302 and headers.get("Location") == url,
-           f"status={status} location={headers.get('Location')!r}")
+
+def scenario_invalid_accept_rejected(app) -> None:
+    """A candidate that fails validation must never become canonical state."""
+    journey = Path(tempfile.mkdtemp(prefix="holdout-reject-"))
+    try:
+        bad = journey / "bad-candidate.yaml"
+        bad.write_text(INVALID_CANDIDATE, encoding="utf-8")
+        ident = journey / "story_identity.yaml"
+        rc, out, err = app.run(
+            f'story-discovery accept "{bad}" --output "{ident}"')
+        expect("accepting an invalid candidate fails",
+               rc != 0, f"rc={rc} - an invalid candidate was ACCEPTED")
+        expect("no canonical state after a refused accept",
+               not ident.exists(),
+               "story_identity.yaml exists despite the refusal")
+    finally:
+        shutil.rmtree(journey, ignore_errors=True)
 
 
-def scenario_idempotence_holds_under_interleaving(app) -> None:
-    """The product's own guarantee, exercised with other work in between.
+def scenario_fresh_premise_integrity(app) -> None:
+    """The state gate fires honestly on a project with no run output.
 
-    A guarantee that only holds when nothing else happened is not a guarantee.
+    A fresh project has a brief and nothing else. `review` must REFUSE with
+    the documented state error - not render a recommendation, not crash, and
+    above all not touch canonical state. This is the fail-closed state machine
+    doing its job, and it is asserted here rather than assumed.
     """
-    a = "https://holdout.invalid/interleave-aaa"
-    b = "https://holdout.invalid/interleave-bbb"
-    codes = []
-    for u in (a, b, a, b, a):
-        status, body, _ = app.post("/api/shorten", json.dumps({"url": u}))
-        codes.append(json.loads(body).get("code") if status == 200 else None)
-    expect("same url always gives the same code", codes[0] == codes[2] == codes[4],
-           f"got {codes[0]}, {codes[2]}, {codes[4]}")
-    expect("different urls give different codes", codes[0] != codes[1],
-           f"both were {codes[0]}")
-
-
-def scenario_bad_input_never_becomes_a_redirect(app) -> None:
-    """The invariant, probed from several directions at once."""
-    for bad in ("ftp://holdout.invalid/x", "javascript:alert(1)", "/relative", ""):
-        status, _, _ = app.post("/api/shorten", json.dumps({"url": bad}))
-        expect(f"rejects {bad[:24]!r}", status >= 400, f"status={status}")
+    journey = Path(tempfile.mkdtemp(prefix="holdout-fresh-"))
+    try:
+        rc, out, err = app.run(f'story-discovery start --project "{journey}"',
+                               stdin=FRESH_ANSWERS)
+        expect("fresh start succeeds", rc == 0, f"rc={rc}")
+        brief = journey / "story_discovery" / "brief.yaml"
+        expect("fresh brief exists", brief.exists())
+        expect("the fresh premise is preserved",
+               FRESH_PREMISE in " ".join(brief.read_text(encoding="utf-8").split()))
+        rc, out, err = app.run(f'story-discovery review --project "{journey}"')
+        expect("review refuses without run output",
+               rc != 0 and "needs a fresh Story Discovery run" in (out + err),
+               f"rc={rc} tail={(out + err)[-300:]!r}")
+        expect("no canonical state on the fresh journey",
+               not (journey / "story_identity.yaml").exists())
+    finally:
+        shutil.rmtree(journey, ignore_errors=True)
 
 
 SCENARIOS = [
-    scenario_round_trip_survives_a_restart,
-    scenario_idempotence_holds_under_interleaving,
-    scenario_bad_input_never_becomes_a_redirect,
+    scenario_environment_tripwire,
+    scenario_invalid_accept_rejected,
+    scenario_fresh_premise_integrity,
 ]
 
 
@@ -133,7 +198,8 @@ def main() -> int:
               f"failures={len(FAILURES)}", flush=True)
         return 1
 
-    print(f"HOLDOUT_PASSED scenarios={len(SCENARIOS)} assertions={ASSERTIONS}", flush=True)
+    print(f"HOLDOUT_PASSED scenarios={len(SCENARIOS)} assertions={ASSERTIONS}",
+          flush=True)
     return 0
 
 

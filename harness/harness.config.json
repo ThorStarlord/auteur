@@ -18,6 +18,7 @@
   "_driver": "cli - the whole product surface is the auteur command.",
   "driver": "cli",
   "e2e_timeout_s": 300,
+  "mutations_timeout_s": 5400,
   "cli": {
     "_note": "invoke is python -m auteur.cli (main guard at cli.py). The venv's editable install resolves auteur from THIS worktree's src/.",
     "invoke": "python -m auteur.cli {args}",

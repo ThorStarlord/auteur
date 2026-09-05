@@ -52,14 +52,23 @@ def _argv(cmd: str) -> list[str]:
     """Split, then resolve argv[0] through PATHEXT.
 
     Without the resolve, a Windows `.cmd` shim (npm, npx, yarn, pnpm) fails as
-    "the system cannot find the file specified" - which reads as "not installed"
+    "The system cannot find the file specified" - which reads as "not installed"
     for a tool that is on PATH and works in any terminal.
+
+    `python` means THE PYTHON RUNNING THE GATE, never whatever comes first on
+    PATH - same reasoning and same live incident as ci.py's resolve(): a system
+    interpreter with a stale editable install of the product graded this tree's
+    tests against last month's code. The driver must reach the same software
+    the gate is validating.
     """
     parts = shlex.split(cmd, posix=False)
     if parts:
-        found = shutil.which(parts[0])
-        if found:
-            parts[0] = found
+        if parts[0] in ("python", "python3"):
+            parts[0] = sys.executable
+        else:
+            found = shutil.which(parts[0])
+            if found:
+                parts[0] = found
     return parts
 
 
@@ -172,7 +181,14 @@ class CliApp:
 
     def run(self, args: str = "", stdin: str = "", timeout: int = 60):
         cmd = self.cfg.get("invoke", "").replace("{args}", args)
-        p = subprocess.run(_argv(cmd), cwd=ROOT, input=stdin or None,
+        # shlex.split(posix=False) keeps backslashes in Windows paths alone - and
+        # keeps the QUOTE characters attached to the token, so a legitimately
+        # quoted path ("C:\a dir\x") arrives with quotes welded on and fails as
+        # a path that does not exist. Strip one surrounding pair per token - the
+        # same fix class as resolve() in ci.py and this file's _argv.
+        argv = [t[1:-1] if len(t) > 1 and t[0] == t[-1] and t[0] in "\"'" else t
+                for t in _argv(cmd)]
+        p = subprocess.run(argv, cwd=ROOT, input=stdin or None,
                            capture_output=True, text=True, encoding="utf-8",
                            errors="replace", timeout=timeout)
         return p.returncode, p.stdout or "", p.stderr or ""
