@@ -1,0 +1,28 @@
+artifact_id: book-3-direction
+artifact_type: book_direction
+schema_version: 1
+revision: 1
+authority: canonical
+lifecycle: accepted
+review_state: none
+content_hash: sha256:7ad341aca94dca4aa9e3461e504fe6932856d87d7642b249299266037771ebb7
+dependencies:
+- artifact_id: series-direction
+  artifact_type: series_direction
+  path: .auteur\series\vertical-slice\accepted\series-direction.yaml
+  kind: semantic
+  source: declared
+  projection:
+    id: full
+    version: 1
+    fields: []
+  projected_hash: sha256:1cee9b6d3c0edcaf34f1d80173d26d05b6b69c8178e30176dd696fbb46494eb2
+  full_content_hash: sha256:1cee9b6d3c0edcaf34f1d80173d26d05b6b69c8178e30176dd696fbb46494eb2
+  fields: []
+  revision: 1
+stale_reasons: []
+invalid_reasons: []
+provenance_state: tracked
+accepted_at: '2026-09-05T22:06:28.690151+00:00'
+accepted_by: author
+rationale: null

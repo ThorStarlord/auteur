@@ -1,0 +1,16 @@
+question: How should Book 3 protect Nera Quill's public claim while handling the reef-signal evidence and the founding map's danger?
+recommended_option_id: protect-and-test
+options:
+  - option_id: protect-and-test
+    label: Protect and test
+    summary: Keep Nera protected while publicly testing the evidence against the official map.
+    tradeoff: The evidence enters public scrutiny more slowly but honors the protection commitment.
+  - option_id: disclose-and-risk
+    label: Disclose and risk
+    summary: Release the evidence immediately even if protection and testimony are compromised.
+    tradeoff: The map may change quickly at the cost of exposing the witness before the account is heard.
+  - option_id: defer
+    label: Defer the obligation choice
+    summary: Preserve the witness-protection commitment without resolving the evidence question yet.
+    tradeoff: Protection remains intact but the official map and reef-signal question stay unsettled.
+rationale: Nera's active protection became a protected witness with a public claim, while Brann's anomaly became corroborating reef-signal evidence; the older obligation must constrain how knowledge is made public.

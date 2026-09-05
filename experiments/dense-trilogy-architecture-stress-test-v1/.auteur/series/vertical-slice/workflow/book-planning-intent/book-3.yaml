@@ -1,0 +1,15 @@
+book_number: 3
+intent: Book 3 must make the republic answerable to erased-coast testimony by deciding
+  whether the reef signal and endangered witness evidence can reopen the official
+  map, while Mara and Ion's costly mutual reliance is tested by the food-route and
+  legal-identity consequences of shared authority.
+relevance_refs:
+- artifact_id: realization-bundle-book-2-returning-coast-outcome
+  revision: 1
+  fact_id: mara-ion-trust
+- artifact_id: realization-bundle-book-2-returning-coast-outcome
+  revision: 1
+  fact_id: nera-testimony-risk
+- artifact_id: realization-bundle-book-2-returning-coast-outcome
+  revision: 1
+  fact_id: brann-anomaly-corrobation

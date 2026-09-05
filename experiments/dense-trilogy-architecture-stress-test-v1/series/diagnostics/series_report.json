@@ -1,0 +1,44 @@
+{
+  "diagnostics": [
+    {
+      "severity": "warning",
+      "layer": "threads",
+      "rule": "series.mystery.missing_payoff",
+      "message": "Mystery 'erased-coast' has no actual payoff book.",
+      "evidence": [
+        "expected_payoff_book = 3"
+      ],
+      "repair_options": {
+        "preserve_intent": [],
+        "challenge_intent": []
+      },
+      "genre_recommendation_flow": null
+    },
+    {
+      "severity": "warning",
+      "layer": "threads",
+      "rule": "series.mystery.missing_payoff",
+      "message": "Mystery 'bell-reef' has no actual payoff book.",
+      "evidence": [
+        "expected_payoff_book = 3"
+      ],
+      "repair_options": {
+        "preserve_intent": [],
+        "challenge_intent": []
+      },
+      "genre_recommendation_flow": null
+    },
+    {
+      "severity": "warning",
+      "layer": "constraints",
+      "rule": "SETUP_UNRESOLVED_WARNING",
+      "message": "Setup 'copied-anomaly' was supposed to be resolved by Book 2 but is still unresolved in a 3-book series. Consider: (1) Adding a payoff entry, (2) Marking as abandoned with a reason, (3) Extending the deadline.",
+      "evidence": [],
+      "repair_options": {
+        "preserve_intent": [],
+        "challenge_intent": []
+      },
+      "genre_recommendation_flow": null
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+question: How should Book 3 use Mara Venn and Ion Vale's costly mutual reliance when shared authority threatens food routes and legal identities?
+recommended_option_id: bind-testimony
+options:
+  - option_id: bind-testimony
+    label: Bind their testimony
+    summary: Make Mara and Ion jointly answerable for a public map correction.
+    tradeoff: Their path-dependent trust becomes public institutional exposure.
+  - option_id: separate-authority
+    label: Separate authority
+    summary: Preserve the relationship but divide their institutional exposure.
+    tradeoff: The relationship path remains private and may not alter the civic settlement.
+  - option_id: defer
+    label: Defer the relationship choice
+    summary: Leave the relationship pressure unresolved while Book 3 tests the civic map.
+    tradeoff: The map decision gains room but the accumulated relationship pressure is deferred.
+rationale: The current costly mutual-reliance state only becomes consequential if Book 3 makes the path from conditional alliance to shared risk affect civic authority.

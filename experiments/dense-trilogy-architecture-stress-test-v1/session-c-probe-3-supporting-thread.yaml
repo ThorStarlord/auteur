@@ -1,0 +1,16 @@
+question: Should Book 3 renew the low-salience anomaly thread through Brann Ede and Lio Marr, and what role should it play in the map dispute?
+recommended_option_id: elevate-custodians
+options:
+  - option_id: elevate-custodians
+    label: Elevate custodians
+    summary: Make Brann and Lio's evidence custody materially shape the public map decision.
+    tradeoff: Supporting-character continuity becomes central and increases the public dispute's evidence burden.
+  - option_id: retain-background
+    label: Retain background
+    summary: Keep the anomaly as corroborating texture without making the supporting characters decision-critical.
+    tradeoff: The main civic conflict stays narrower but the low-salience thread may lose its delayed payoff.
+  - option_id: defer
+    label: Defer the old thread
+    summary: Leave the anomaly unresolved for a later continuation.
+    tradeoff: Book 3 remains focused but the older evidence thread does not renew now.
+rationale: Brann's Book-1 preserved low-salience anomaly became Book-2 corroborating reef-signal witness, and Lio progressed from copied-anomaly holder to endangered evidence custodian.

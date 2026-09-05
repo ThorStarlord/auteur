@@ -1,0 +1,41 @@
+book_number: 3
+identity:
+  title: The Common Horizon
+  core_answer: A plural map can become accountable civic practice only when its disagreements remain visible and its witnesses remain protected.
+  target_experience:
+    primary: catharsis
+    progression: exposure -> sacrifice -> provisional trust
+    avoid:
+      - total closure
+  story_type:
+    medium: novel
+    mode: procedural
+    genre: mystery
+    target_audience: adult
+  central_engine:
+    want: Mara, Ion, and the witness coalition want a governing map that can hold erased-coast testimony without restoring a single sanctioned history.
+    resistance: The republic's food routes, legal identities, and institutions still depend on the old map and its authority.
+    conflict: Publicly testing the reef signal and witness evidence risks exposing protected people and fracturing the fragile civic settlement.
+    stakes: The republic may either preserve contested communities through shared authority or return to central control that makes their histories legally disappear.
+    change: Mara must turn accountable testimony into a durable but visibly contested civic practice, while Ion accepts shared authority over command certainty.
+  hard_constraints:
+    - No chapter outline
+    - No scene outline
+    - Preserve visible disagreement
+    - Protect the endangered witness until their account can be heard
+  not_this:
+    - A tidy total closure
+    - A restored single official map
+  open_questions:
+    - Can Mara and Ion make their costly mutual reliance publicly accountable without turning it into a new hierarchy?
+    - Can Nera's public claim and the reef-signal evidence be tested without exposing the protected person?
+    - What authority should Brann and Lio's evidence custody have in the common map?
+  confidence: 0.9
+  recommendation_mode: opinionated
+  best_basis: structurally_coherent
+  why_this_is_best: It resolves the trilogy's map and authority pressure through provisional shared governance while carrying the relationship path, witness obligation, and delayed reef evidence into Book 3.
+  characters: []
+series_commitment_ids:
+  - contested-map
+  - visible-disagreement
+  - witness-protection

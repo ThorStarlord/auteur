@@ -1,0 +1,41 @@
+artifact_id: realization-bundle-book-3-common-horizon-outcome
+artifact_type: accepted_realization_bundle
+schema_version: 1
+revision: 1
+authority: canonical
+lifecycle: accepted
+review_state: none
+content_hash: sha256:ef4c4b04c83be3bb3e521f568cafffcb9c3ad5438d04637d00d342d932f251b4
+dependencies:
+- artifact_id: book-3-direction
+  artifact_type: book_direction
+  path: .auteur\series\vertical-slice\accepted\book-3-direction.yaml
+  kind: semantic
+  source: declared
+  projection:
+    id: full
+    version: 1
+    fields: []
+  projected_hash: sha256:7ad341aca94dca4aa9e3461e504fe6932856d87d7642b249299266037771ebb7
+  full_content_hash: sha256:7ad341aca94dca4aa9e3461e504fe6932856d87d7642b249299266037771ebb7
+  fields: []
+  revision: 1
+- artifact_id: realization-bundle-book-2-returning-coast-outcome
+  artifact_type: accepted_realization_bundle
+  path: .auteur\series\vertical-slice\accepted\realization\realization-bundle-book-2-returning-coast-outcome.yaml
+  kind: state_order
+  source: declared
+  projection:
+    id: full
+    version: 1
+    fields: []
+  projected_hash: sha256:0044248bb388e1fe14ae0c66b4327ffcbc4aaea112ede1242694e95ce8b1f0ab
+  full_content_hash: sha256:0044248bb388e1fe14ae0c66b4327ffcbc4aaea112ede1242694e95ce8b1f0ab
+  fields: []
+  revision: 1
+stale_reasons: []
+invalid_reasons: []
+provenance_state: tracked
+accepted_at: '2026-09-05T22:08:23.777576+00:00'
+accepted_by: author
+rationale: null

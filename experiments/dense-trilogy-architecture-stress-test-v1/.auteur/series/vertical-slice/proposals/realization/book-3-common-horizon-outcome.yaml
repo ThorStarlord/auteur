@@ -1,0 +1,97 @@
+candidate_id: book-3-common-horizon-outcome
+book_number: 3
+summary: Mara and Ion convene a protected, plural map tribunal around Nera's public
+  claim and the reef-signal evidence. Brann and Lio authenticate the copied deletion
+  pattern, while the Admiralty, House of Names, Ferrymen's Union, and erased-coast
+  communities accept a provisional common map whose disagreements and revocation rules
+  remain visible.
+transitions:
+- transition_id: mara-common-map-authority
+  subject: Mara Venn
+  attribute: authority
+  before: contested civic witness
+  after: accountable co-steward of a provisional map
+  explanation: Mara gives up sole interpretive authority and submits the correction
+    to a plural tribunal with public evidence and revocation rules.
+- transition_id: ion-shared-governance
+  subject: Ion Vale
+  attribute: institutional_position
+  before: suspended intermediary
+  after: accountable liaison without command protection
+  explanation: Ion uses his remaining access to expose route records while accepting
+    that neither Admiralty faction can control the tribunal.
+- transition_id: mara-ion-public-reliance
+  subject: Mara Venn and Ion Vale
+  attribute: relationship
+  before: costly mutual reliance
+  after: public interdependence with protected dissent
+  explanation: 'Their Book-1 alliance and Book-2 mutual reliance become a deliberate
+    public constraint: each must disclose the other''s evidence and preserve the other''s
+    right to dissent.'
+- transition_id: nera-account-heard
+  subject: Nera Quill
+  attribute: obligation
+  before: protected witness with public claim
+  after: protected living account incorporated into the civic record
+  explanation: Nera's claim is heard through a protected channel and can challenge
+    the founding bargain without exposing the endangered person prematurely.
+- transition_id: brann-signal-confirmed
+  subject: Brann Ede
+  attribute: knowledge
+  before: corroborating witness to reef signal
+  after: accountable witness to the signal's map-alteration implication
+  explanation: Brann's low-salience Book-1 anomaly and Book-2 corroboration become
+    a sworn evidentiary basis for reopening the official map.
+- transition_id: lio-custody-shared
+  subject: Lio Marr
+  attribute: knowledge
+  before: endangered evidence custodian
+  after: protected co-custodian with public chain of custody
+  explanation: Lio's copied deletion mark is authenticated jointly rather than surrendered
+    to a single institution, preserving both safety and contestability.
+- transition_id: admiralty-conditional-charter
+  subject: Tidebound Admiralty
+  attribute: legitimacy
+  before: publicly conditional
+  after: subordinate to revocable testimony-based charter
+  explanation: The Admiralty retains route expertise only under a charter that makes
+    its map authority answerable to local evidence.
+- transition_id: house-visible-plurality
+  subject: House of Names
+  attribute: internal_alignment
+  before: plural custodianship
+  after: federated public and protected ledgers
+  explanation: The House preserves its disagreement by joining ledgers through provenance
+    rather than naming one definitive civic history.
+- transition_id: ferry-route-stewardship
+  subject: Ferrymen's Union
+  attribute: leverage
+  before: recognized negotiating bloc
+  after: accountable route steward
+  explanation: The Union converts its recognized leverage into a revocable role auditing
+    access while refusing to let food movement decide whose history counts.
+- transition_id: erased-coast-provisional-citizenship
+  subject: erased-coast
+  attribute: public_status
+  before: provisionally recognized communities
+  after: provisional civic membership under contested map law
+  explanation: The communities gain standing in the new map process without pretending
+    the founding dispute or all property claims are settled.
+- transition_id: winter-convoy-revocable-audit
+  subject: winter convoy
+  attribute: route_safety
+  before: jointly audited
+  after: publicly revocable shared-route protocol
+  explanation: The Book-2 joint audit becomes a durable but revisable route protocol
+    whose safety claims can be challenged by testimony.
+- transition_id: bell-reef-civic-mystery
+  subject: bell reef
+  attribute: significance
+  before: null
+  after: contested evidence of deliberate map alteration
+  explanation: The delayed bell-reef setup pays forward through the authenticated
+    signal while leaving its full historical meaning open to further disagreement.
+source_refs:
+- artifact_id: book-3-direction
+  revision: 1
+resolved_commitment_ids: []

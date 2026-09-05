@@ -1,0 +1,18 @@
+SESSION C INITIAL SURFACES — BEFORE BOOK-3 INTENT
+PROJECT: H:\GithubRepositories\auteur-dense-trilogy-architecture-stress-test-v1\experiments\dense-trilogy-architecture-stress-test-v1
+
+series journey accepted-facts --book 3:
+Accepted facts through Book 2
+24 accepted facts: 12 accepted in Book 1 and 12 accepted in Book 2.
+The exact fact list is frozen in session-c-pre-source-reconstruction-snapshot.md.
+
+series journey map --book 3:
+Error: An explicit Book 3 planning intent is required before repeated continuity can be derived
+
+series focus --book 3:
+Error: A Book planning intent is required before Focus
+
+series review --book 3:
+Error: An explicit Book 3 planning intent is required before continuity review
+
+No raw story artifact was inspected before the pre-source snapshot was frozen.

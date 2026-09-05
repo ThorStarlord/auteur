@@ -1,19 +1,21 @@
-state_version: 2
+state_version: 3
 values:
-  Mara Venn.authority: contested civic witness
-  erased-coast.public_status: provisionally recognized communities
-  Tidebound Admiralty.legitimacy: publicly conditional
-  Mara Venn and Ion Vale.relationship: costly mutual reliance
+  Mara Venn.authority: accountable co-steward of a provisional map
+  erased-coast.public_status: provisional civic membership under contested map law
+  Tidebound Admiralty.legitimacy: subordinate to revocable testimony-based charter
+  Mara Venn and Ion Vale.relationship: public interdependence with protected dissent
   Sela Orun.duty: publish contested names
   Tamsin Rusk.loyalty: earned ally
-  Nera Quill.obligation: protected witness with public claim
-  Brann Ede.knowledge: corroborating witness to reef signal
-  Lio Marr.knowledge: endangered evidence custodian
-  Ferrymen's Union.leverage: recognized negotiating bloc
-  winter convoy.route_safety: jointly audited
-  House of Names.internal_alignment: plural custodianship
-  Ion Vale.institutional_position: suspended intermediary
+  Nera Quill.obligation: protected living account incorporated into the civic record
+  Brann Ede.knowledge: accountable witness to the signal's map-alteration implication
+  Lio Marr.knowledge: protected co-custodian with public chain of custody
+  Ferrymen's Union.leverage: accountable route steward
+  winter convoy.route_safety: publicly revocable shared-route protocol
+  House of Names.internal_alignment: federated public and protected ledgers
+  Ion Vale.institutional_position: accountable liaison without command protection
+  bell reef.significance: contested evidence of deliberate map alteration
 applied_bundle_ids:
 - realization-bundle-book-1-sounding-line-outcome
 - realization-bundle-book-2-returning-coast-outcome
+- realization-bundle-book-3-common-horizon-outcome
 conflicts: []
