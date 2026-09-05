@@ -241,7 +241,7 @@ def _recommendation_surface_lines(
     target_experience = identity.target_experience.model_dump(mode="json")
     central_engine = identity.central_engine.model_dump(mode="json")
     accept_command = (
-        f"auteur story-discovery accept {output_dir / (winner + '.yaml')} "
+        f"auteur story-discovery accept {(output_dir / (winner + '.yaml')).as_posix()} "
         "--output story_identity.yaml"
     )
 
@@ -324,13 +324,13 @@ def _recommendation_surface_lines(
         if co.candidate_id != winner:
             lines.append(
                 "    auteur story-discovery accept "
-                f"{output_dir / (co.candidate_id + '.yaml')} --output story_identity.yaml"
+                f"{(output_dir / (co.candidate_id + '.yaml')).as_posix()} --output story_identity.yaml"
             )
     lines.extend(
         [
             "",
             "  Review the full comparison:",
-            f"    {output_dir / 'comparison.md'}",
+            f"    {(output_dir / 'comparison.md').as_posix()}",
         ]
     )
     return lines
@@ -364,7 +364,7 @@ def _judgment_non_adjudicable_surface_lines(
     for co in candidate_outputs:
         lines.append(
             "- Choose this direction explicitly: "
-            f"auteur story-discovery accept {output_dir / (co.candidate_id + '.yaml')} "
+            f"auteur story-discovery accept {(output_dir / (co.candidate_id + '.yaml')).as_posix()} "
             "--output story_identity.yaml"
         )
     lines.extend(

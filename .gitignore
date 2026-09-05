@@ -114,3 +114,6 @@ factory-*.log
 #   .factory/locks/    the thresholds a human set - protected and tracked on purpose.
 #   .factory/holdout/  tracked while it lives in-repo; the guard protects it on the diff.
 #   .factory/prs/      the PR record on the file backend IS state, so it is tracked.
+
+# --- factory: deploy snapshots (rebuildable from any sha)
+builds/

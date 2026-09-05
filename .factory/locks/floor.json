@@ -1,0 +1,7 @@
+{
+  "_what_this_is": "THE RATCHET. Only a human commit moves these numbers: the gate asserts observed >= floor, and a second check asserts floor(head) >= floor(base), so 'delete the assertion and lower the number in the same commit' is not available.",
+  "_slack_rule": "If observed ever exceeds a floor, raise the floor in the same human commit that added the assertions - slack is deletable coverage. See references/validation-harness.md.",
+  "e2e_steps_asserted": 14,
+  "holdout_assertions": 9,
+  "unit_tests": 4669
+}
