@@ -1,0 +1,84 @@
+candidate_id: book-1-sounding-line-outcome
+book_number: 1
+summary: Mara rejects the sanctioned chart, protects the fever witness, and makes
+  the erased coast publicly undeniable.
+transitions:
+- transition_id: mara-chart-authority
+  subject: Mara Venn
+  attribute: authority
+  before: null
+  after: accountable dissident
+  explanation: She signs a witness-backed chart instead of the Admiralty version.
+- transition_id: coast-status
+  subject: erased-coast
+  attribute: public_status
+  before: null
+  after: publicly contested
+  explanation: The counter-chart proves three settlements were inhabited before the
+    Republic's founding.
+- transition_id: admiralty-legitimacy
+  subject: Tidebound Admiralty
+  attribute: legitimacy
+  before: null
+  after: divided
+  explanation: Ion's escort report contradicts the official chart and splits the chart
+    office.
+- transition_id: mara-ion-trust
+  subject: Mara Venn and Ion Vale
+  attribute: relationship
+  before: null
+  after: conditional alliance
+  explanation: Ion conceals seizure orders before choosing to deliver Mara's evidence.
+- transition_id: sela-archive-duty
+  subject: Sela Orun
+  attribute: duty
+  before: null
+  after: preserve erased names
+  explanation: Sela opens the counter-ledger to the Marsh Commons.
+- transition_id: tamsin-route-choice
+  subject: Tamsin Rusk
+  attribute: loyalty
+  before: null
+  after: earned ally
+  explanation: Tamsin refuses to pilot the false chart's convoy route.
+- transition_id: nera-protected-witness
+  subject: Nera Quill
+  attribute: obligation
+  before: null
+  after: active protection
+  explanation: Nera hides a fever survivor whose testimony links the coast to the
+    founding bargain.
+- transition_id: brann-bell-report
+  subject: Brann Ede
+  attribute: knowledge
+  before: null
+  after: preserved low-salience anomaly
+  explanation: Brann records the bell-like signal beneath the reef for later verification.
+- transition_id: lio-deletion-copy
+  subject: Lio Marr
+  attribute: knowledge
+  before: null
+  after: holder of copied anomaly
+  explanation: Lio secretly copies the deletion mark before the archive is resealed.
+- transition_id: ferry-union-pressure
+  subject: Ferrymen's Union
+  attribute: leverage
+  before: null
+  after: winter strike threat
+  explanation: Cal makes passage conditional on recognition of marsh families.
+- transition_id: winter-convoy-risk
+  subject: winter convoy
+  attribute: route_safety
+  before: null
+  after: disputed
+  explanation: The official channel remains dangerous after Mara withdraws certification.
+- transition_id: house-of-names
+  subject: House of Names
+  attribute: internal_alignment
+  before: null
+  after: divided custodians
+  explanation: Ysolde and Sela disagree over whether truth must be public immediately.
+source_refs:
+- artifact_id: book-1-direction
+  revision: 1
+resolved_commitment_ids: []

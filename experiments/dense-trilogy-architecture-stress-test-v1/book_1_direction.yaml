@@ -1,0 +1,17 @@
+book_number: 1
+identity:
+  title: The Sounding Line
+  core_answer: A mapmaker must choose living testimony over the state map that made her career.
+  target_experience: {primary: suspicion, progression: wonder -> unease -> irreversible doubt, avoid: [clean certainty]}
+  story_type: {medium: novel, mode: procedural, genre: mystery, target_audience: adult}
+  central_engine:
+    want: Mara wants to certify a new safe channel through the salt marsh.
+    resistance: The Admiralty's official charts erase settlements that complicate its borders.
+    conflict: Mara must decide whether accurate surveying can be separated from the people the chart will displace.
+    stakes: A false chart will drown a winter convoy and expose the marsh settlements to seizure.
+    change: Mara changes from trusted instrument of the Admiralty into a mapmaker answerable to witnesses.
+  not_this: [A complete account of the future trilogy]
+  open_questions: ["Why were the pre-Republic coast settlements removed from every sanctioned chart?"]
+  confidence: 0.9
+  why_this_is_best: It tests the series promise through one bounded survey, institutional conflict, and witness obligation.
+series_commitment_ids: [contested-map, visible-disagreement, witness-protection]

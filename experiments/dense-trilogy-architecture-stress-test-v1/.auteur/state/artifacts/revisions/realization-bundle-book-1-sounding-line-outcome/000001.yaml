@@ -1,0 +1,28 @@
+artifact_id: realization-bundle-book-1-sounding-line-outcome
+artifact_type: accepted_realization_bundle
+schema_version: 1
+revision: 1
+authority: canonical
+lifecycle: accepted
+review_state: none
+content_hash: sha256:e2ad8f9ab8cd97799ac338ea3e544740609b2fdff51c5a97e3eb9caceb437256
+dependencies:
+- artifact_id: book-1-direction
+  artifact_type: book_direction
+  path: .auteur\series\vertical-slice\accepted\book-1-direction.yaml
+  kind: semantic
+  source: declared
+  projection:
+    id: full
+    version: 1
+    fields: []
+  projected_hash: sha256:615e5ee9099ad04e10418678a4357396abe461db9abd57f3601e1d40e0438ced
+  full_content_hash: sha256:615e5ee9099ad04e10418678a4357396abe461db9abd57f3601e1d40e0438ced
+  fields: []
+  revision: 1
+stale_reasons: []
+invalid_reasons: []
+provenance_state: tracked
+accepted_at: '2026-09-05T10:23:17.006307+00:00'
+accepted_by: author
+rationale: null

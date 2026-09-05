@@ -1,0 +1,1179 @@
+snapshot_id: global-map-book-2
+planning_book_number: 2
+source_revisions:
+- artifact_id: series-direction
+  revision: 1
+- artifact_id: book-1-direction
+  revision: 1
+- artifact_id: realization-bundle-book-1-sounding-line-outcome
+  revision: 1
+current_state_evidence:
+  Mara Venn.authority:
+    key: Mara Venn.authority
+    current_value: accountable dissident
+    current_fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: mara-chart-authority
+    superseded_fact_ids: []
+  erased-coast.public_status:
+    key: erased-coast.public_status
+    current_value: publicly contested
+    current_fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: coast-status
+    superseded_fact_ids: []
+  Tidebound Admiralty.legitimacy:
+    key: Tidebound Admiralty.legitimacy
+    current_value: divided
+    current_fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: admiralty-legitimacy
+    superseded_fact_ids: []
+  Mara Venn and Ion Vale.relationship:
+    key: Mara Venn and Ion Vale.relationship
+    current_value: conditional alliance
+    current_fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: mara-ion-trust
+    superseded_fact_ids: []
+  Sela Orun.duty:
+    key: Sela Orun.duty
+    current_value: preserve erased names
+    current_fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: sela-archive-duty
+    superseded_fact_ids: []
+  Tamsin Rusk.loyalty:
+    key: Tamsin Rusk.loyalty
+    current_value: earned ally
+    current_fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: tamsin-route-choice
+    superseded_fact_ids: []
+  Nera Quill.obligation:
+    key: Nera Quill.obligation
+    current_value: active protection
+    current_fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: nera-protected-witness
+    superseded_fact_ids: []
+  Brann Ede.knowledge:
+    key: Brann Ede.knowledge
+    current_value: preserved low-salience anomaly
+    current_fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: brann-bell-report
+    superseded_fact_ids: []
+  Lio Marr.knowledge:
+    key: Lio Marr.knowledge
+    current_value: holder of copied anomaly
+    current_fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: lio-deletion-copy
+    superseded_fact_ids: []
+  Ferrymen's Union.leverage:
+    key: Ferrymen's Union.leverage
+    current_value: winter strike threat
+    current_fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: ferry-union-pressure
+    superseded_fact_ids: []
+  winter convoy.route_safety:
+    key: winter convoy.route_safety
+    current_value: disputed
+    current_fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: winter-convoy-risk
+    superseded_fact_ids: []
+  House of Names.internal_alignment:
+    key: House of Names.internal_alignment
+    current_value: divided custodians
+    current_fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: house-of-names
+    superseded_fact_ids: []
+entries:
+- entry_id: contested-map
+  kind: commitment
+  summary: Every Book must make official geography answerable to lived testimony.
+  source_refs:
+  - artifact_id: series-direction
+    revision: 1
+  - artifact_id: book-1-direction
+    revision: 1
+  disposition: active
+  currentness: historical
+  is_current_constraint: false
+  commitment_ids: []
+  fact_ref: null
+  subject: null
+  attribute: null
+  before: null
+  after: null
+  book_number: null
+- entry_id: visible-disagreement
+  kind: commitment
+  summary: The final civic settlement must preserve disagreement rather than erase
+    it.
+  source_refs:
+  - artifact_id: series-direction
+    revision: 1
+  - artifact_id: book-1-direction
+    revision: 1
+  disposition: active
+  currentness: historical
+  is_current_constraint: false
+  commitment_ids: []
+  fact_ref: null
+  subject: null
+  attribute: null
+  before: null
+  after: null
+  book_number: null
+- entry_id: witness-protection
+  kind: commitment
+  summary: A person endangered by the founding map must remain protected until their
+    account can be heard.
+  source_refs:
+  - artifact_id: series-direction
+    revision: 1
+  - artifact_id: book-1-direction
+    revision: 1
+  disposition: active
+  currentness: historical
+  is_current_constraint: false
+  commitment_ids: []
+  fact_ref: null
+  subject: null
+  attribute: null
+  before: null
+  after: null
+  book_number: null
+- entry_id: realization-bundle-book-1-sounding-line-outcome@1/mara-chart-authority
+  kind: fact
+  summary: Mara Venn.authority is accountable dissident.
+  source_refs:
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: mara-chart-authority
+  disposition: active
+  currentness: current
+  is_current_constraint: true
+  commitment_ids:
+  - contested-map
+  - visible-disagreement
+  - witness-protection
+  fact_ref:
+    artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: mara-chart-authority
+  subject: Mara Venn
+  attribute: authority
+  before: null
+  after: accountable dissident
+  book_number: 1
+- entry_id: realization-bundle-book-1-sounding-line-outcome@1/coast-status
+  kind: fact
+  summary: erased-coast.public_status is publicly contested.
+  source_refs:
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: coast-status
+  disposition: active
+  currentness: current
+  is_current_constraint: true
+  commitment_ids:
+  - contested-map
+  - visible-disagreement
+  - witness-protection
+  fact_ref:
+    artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: coast-status
+  subject: erased-coast
+  attribute: public_status
+  before: null
+  after: publicly contested
+  book_number: 1
+- entry_id: realization-bundle-book-1-sounding-line-outcome@1/admiralty-legitimacy
+  kind: fact
+  summary: Tidebound Admiralty.legitimacy is divided.
+  source_refs:
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: admiralty-legitimacy
+  disposition: active
+  currentness: current
+  is_current_constraint: true
+  commitment_ids:
+  - contested-map
+  - visible-disagreement
+  - witness-protection
+  fact_ref:
+    artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: admiralty-legitimacy
+  subject: Tidebound Admiralty
+  attribute: legitimacy
+  before: null
+  after: divided
+  book_number: 1
+- entry_id: realization-bundle-book-1-sounding-line-outcome@1/mara-ion-trust
+  kind: fact
+  summary: Mara Venn and Ion Vale.relationship is conditional alliance.
+  source_refs:
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: mara-ion-trust
+  disposition: active
+  currentness: current
+  is_current_constraint: true
+  commitment_ids:
+  - contested-map
+  - visible-disagreement
+  - witness-protection
+  fact_ref:
+    artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: mara-ion-trust
+  subject: Mara Venn and Ion Vale
+  attribute: relationship
+  before: null
+  after: conditional alliance
+  book_number: 1
+- entry_id: realization-bundle-book-1-sounding-line-outcome@1/sela-archive-duty
+  kind: fact
+  summary: Sela Orun.duty is preserve erased names.
+  source_refs:
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: sela-archive-duty
+  disposition: active
+  currentness: current
+  is_current_constraint: true
+  commitment_ids:
+  - contested-map
+  - visible-disagreement
+  - witness-protection
+  fact_ref:
+    artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: sela-archive-duty
+  subject: Sela Orun
+  attribute: duty
+  before: null
+  after: preserve erased names
+  book_number: 1
+- entry_id: realization-bundle-book-1-sounding-line-outcome@1/tamsin-route-choice
+  kind: fact
+  summary: Tamsin Rusk.loyalty is earned ally.
+  source_refs:
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: tamsin-route-choice
+  disposition: active
+  currentness: current
+  is_current_constraint: true
+  commitment_ids:
+  - contested-map
+  - visible-disagreement
+  - witness-protection
+  fact_ref:
+    artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: tamsin-route-choice
+  subject: Tamsin Rusk
+  attribute: loyalty
+  before: null
+  after: earned ally
+  book_number: 1
+- entry_id: realization-bundle-book-1-sounding-line-outcome@1/nera-protected-witness
+  kind: fact
+  summary: Nera Quill.obligation is active protection.
+  source_refs:
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: nera-protected-witness
+  disposition: active
+  currentness: current
+  is_current_constraint: true
+  commitment_ids:
+  - contested-map
+  - visible-disagreement
+  - witness-protection
+  fact_ref:
+    artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: nera-protected-witness
+  subject: Nera Quill
+  attribute: obligation
+  before: null
+  after: active protection
+  book_number: 1
+- entry_id: realization-bundle-book-1-sounding-line-outcome@1/brann-bell-report
+  kind: fact
+  summary: Brann Ede.knowledge is preserved low-salience anomaly.
+  source_refs:
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: brann-bell-report
+  disposition: active
+  currentness: current
+  is_current_constraint: true
+  commitment_ids:
+  - contested-map
+  - visible-disagreement
+  - witness-protection
+  fact_ref:
+    artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: brann-bell-report
+  subject: Brann Ede
+  attribute: knowledge
+  before: null
+  after: preserved low-salience anomaly
+  book_number: 1
+- entry_id: realization-bundle-book-1-sounding-line-outcome@1/lio-deletion-copy
+  kind: fact
+  summary: Lio Marr.knowledge is holder of copied anomaly.
+  source_refs:
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: lio-deletion-copy
+  disposition: active
+  currentness: current
+  is_current_constraint: true
+  commitment_ids:
+  - contested-map
+  - visible-disagreement
+  - witness-protection
+  fact_ref:
+    artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: lio-deletion-copy
+  subject: Lio Marr
+  attribute: knowledge
+  before: null
+  after: holder of copied anomaly
+  book_number: 1
+- entry_id: realization-bundle-book-1-sounding-line-outcome@1/ferry-union-pressure
+  kind: fact
+  summary: Ferrymen's Union.leverage is winter strike threat.
+  source_refs:
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: ferry-union-pressure
+  disposition: active
+  currentness: current
+  is_current_constraint: true
+  commitment_ids:
+  - contested-map
+  - visible-disagreement
+  - witness-protection
+  fact_ref:
+    artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: ferry-union-pressure
+  subject: Ferrymen's Union
+  attribute: leverage
+  before: null
+  after: winter strike threat
+  book_number: 1
+- entry_id: realization-bundle-book-1-sounding-line-outcome@1/winter-convoy-risk
+  kind: fact
+  summary: winter convoy.route_safety is disputed.
+  source_refs:
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: winter-convoy-risk
+  disposition: active
+  currentness: current
+  is_current_constraint: true
+  commitment_ids:
+  - contested-map
+  - visible-disagreement
+  - witness-protection
+  fact_ref:
+    artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: winter-convoy-risk
+  subject: winter convoy
+  attribute: route_safety
+  before: null
+  after: disputed
+  book_number: 1
+- entry_id: realization-bundle-book-1-sounding-line-outcome@1/house-of-names
+  kind: fact
+  summary: House of Names.internal_alignment is divided custodians.
+  source_refs:
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: house-of-names
+  disposition: active
+  currentness: current
+  is_current_constraint: true
+  commitment_ids:
+  - contested-map
+  - visible-disagreement
+  - witness-protection
+  fact_ref:
+    artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: house-of-names
+  subject: House of Names
+  attribute: internal_alignment
+  before: null
+  after: divided custodians
+  book_number: 1
+historical_fact_refs:
+- artifact_id: realization-bundle-book-1-sounding-line-outcome
+  revision: 1
+  fact_id: mara-chart-authority
+- artifact_id: realization-bundle-book-1-sounding-line-outcome
+  revision: 1
+  fact_id: coast-status
+- artifact_id: realization-bundle-book-1-sounding-line-outcome
+  revision: 1
+  fact_id: admiralty-legitimacy
+- artifact_id: realization-bundle-book-1-sounding-line-outcome
+  revision: 1
+  fact_id: mara-ion-trust
+- artifact_id: realization-bundle-book-1-sounding-line-outcome
+  revision: 1
+  fact_id: sela-archive-duty
+- artifact_id: realization-bundle-book-1-sounding-line-outcome
+  revision: 1
+  fact_id: tamsin-route-choice
+- artifact_id: realization-bundle-book-1-sounding-line-outcome
+  revision: 1
+  fact_id: nera-protected-witness
+- artifact_id: realization-bundle-book-1-sounding-line-outcome
+  revision: 1
+  fact_id: brann-bell-report
+- artifact_id: realization-bundle-book-1-sounding-line-outcome
+  revision: 1
+  fact_id: lio-deletion-copy
+- artifact_id: realization-bundle-book-1-sounding-line-outcome
+  revision: 1
+  fact_id: ferry-union-pressure
+- artifact_id: realization-bundle-book-1-sounding-line-outcome
+  revision: 1
+  fact_id: winter-convoy-risk
+- artifact_id: realization-bundle-book-1-sounding-line-outcome
+  revision: 1
+  fact_id: house-of-names
+relations:
+- kind: pressure_group
+  relation_id: pressure-group-contested-map
+  origin: DETERMINISTIC_DERIVATION
+  target_commitment_or_pressure_ref:
+    artifact_id: series-direction
+    revision: 1
+    commitment_id: contested-map
+  members:
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: mara-chart-authority
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: coast-status
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: admiralty-legitimacy
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: mara-ion-trust
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: sela-archive-duty
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: tamsin-route-choice
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: nera-protected-witness
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: brann-bell-report
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: lio-deletion-copy
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: ferry-union-pressure
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: winter-convoy-risk
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: house-of-names
+    role: current_constraint
+  evidence_refs:
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: mara-chart-authority
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: coast-status
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: admiralty-legitimacy
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: mara-ion-trust
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: sela-archive-duty
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: tamsin-route-choice
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: nera-protected-witness
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: brann-bell-report
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: lio-deletion-copy
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: ferry-union-pressure
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: winter-convoy-risk
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: house-of-names
+  source_revision_refs:
+  - artifact_id: series-direction
+    revision: 1
+  - artifact_id: book-1-direction
+    revision: 1
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+  rule_version: archive-of-lies-v1
+  disposition: active
+- kind: pressure_group
+  relation_id: pressure-group-visible-disagreement
+  origin: DETERMINISTIC_DERIVATION
+  target_commitment_or_pressure_ref:
+    artifact_id: series-direction
+    revision: 1
+    commitment_id: visible-disagreement
+  members:
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: mara-chart-authority
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: coast-status
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: admiralty-legitimacy
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: mara-ion-trust
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: sela-archive-duty
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: tamsin-route-choice
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: nera-protected-witness
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: brann-bell-report
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: lio-deletion-copy
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: ferry-union-pressure
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: winter-convoy-risk
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: house-of-names
+    role: current_constraint
+  evidence_refs:
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: mara-chart-authority
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: coast-status
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: admiralty-legitimacy
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: mara-ion-trust
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: sela-archive-duty
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: tamsin-route-choice
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: nera-protected-witness
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: brann-bell-report
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: lio-deletion-copy
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: ferry-union-pressure
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: winter-convoy-risk
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: house-of-names
+  source_revision_refs:
+  - artifact_id: series-direction
+    revision: 1
+  - artifact_id: book-1-direction
+    revision: 1
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+  rule_version: archive-of-lies-v1
+  disposition: active
+- kind: pressure_group
+  relation_id: pressure-group-witness-protection
+  origin: DETERMINISTIC_DERIVATION
+  target_commitment_or_pressure_ref:
+    artifact_id: series-direction
+    revision: 1
+    commitment_id: witness-protection
+  members:
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: mara-chart-authority
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: coast-status
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: admiralty-legitimacy
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: mara-ion-trust
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: sela-archive-duty
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: tamsin-route-choice
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: nera-protected-witness
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: brann-bell-report
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: lio-deletion-copy
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: ferry-union-pressure
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: winter-convoy-risk
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: house-of-names
+    role: current_constraint
+  evidence_refs:
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: mara-chart-authority
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: coast-status
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: admiralty-legitimacy
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: mara-ion-trust
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: sela-archive-duty
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: tamsin-route-choice
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: nera-protected-witness
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: brann-bell-report
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: lio-deletion-copy
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: ferry-union-pressure
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: winter-convoy-risk
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: house-of-names
+  source_revision_refs:
+  - artifact_id: series-direction
+    revision: 1
+  - artifact_id: book-1-direction
+    revision: 1
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+  rule_version: archive-of-lies-v1
+  disposition: active
+pressure_groups:
+- kind: pressure_group
+  relation_id: pressure-group-contested-map
+  origin: DETERMINISTIC_DERIVATION
+  target_commitment_or_pressure_ref:
+    artifact_id: series-direction
+    revision: 1
+    commitment_id: contested-map
+  members:
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: mara-chart-authority
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: coast-status
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: admiralty-legitimacy
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: mara-ion-trust
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: sela-archive-duty
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: tamsin-route-choice
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: nera-protected-witness
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: brann-bell-report
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: lio-deletion-copy
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: ferry-union-pressure
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: winter-convoy-risk
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: house-of-names
+    role: current_constraint
+  evidence_refs:
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: mara-chart-authority
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: coast-status
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: admiralty-legitimacy
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: mara-ion-trust
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: sela-archive-duty
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: tamsin-route-choice
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: nera-protected-witness
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: brann-bell-report
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: lio-deletion-copy
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: ferry-union-pressure
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: winter-convoy-risk
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: house-of-names
+  source_revision_refs:
+  - artifact_id: series-direction
+    revision: 1
+  - artifact_id: book-1-direction
+    revision: 1
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+  rule_version: archive-of-lies-v1
+  disposition: active
+- kind: pressure_group
+  relation_id: pressure-group-visible-disagreement
+  origin: DETERMINISTIC_DERIVATION
+  target_commitment_or_pressure_ref:
+    artifact_id: series-direction
+    revision: 1
+    commitment_id: visible-disagreement
+  members:
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: mara-chart-authority
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: coast-status
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: admiralty-legitimacy
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: mara-ion-trust
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: sela-archive-duty
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: tamsin-route-choice
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: nera-protected-witness
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: brann-bell-report
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: lio-deletion-copy
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: ferry-union-pressure
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: winter-convoy-risk
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: house-of-names
+    role: current_constraint
+  evidence_refs:
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: mara-chart-authority
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: coast-status
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: admiralty-legitimacy
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: mara-ion-trust
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: sela-archive-duty
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: tamsin-route-choice
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: nera-protected-witness
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: brann-bell-report
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: lio-deletion-copy
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: ferry-union-pressure
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: winter-convoy-risk
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: house-of-names
+  source_revision_refs:
+  - artifact_id: series-direction
+    revision: 1
+  - artifact_id: book-1-direction
+    revision: 1
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+  rule_version: archive-of-lies-v1
+  disposition: active
+- kind: pressure_group
+  relation_id: pressure-group-witness-protection
+  origin: DETERMINISTIC_DERIVATION
+  target_commitment_or_pressure_ref:
+    artifact_id: series-direction
+    revision: 1
+    commitment_id: witness-protection
+  members:
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: mara-chart-authority
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: coast-status
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: admiralty-legitimacy
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: mara-ion-trust
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: sela-archive-duty
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: tamsin-route-choice
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: nera-protected-witness
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: brann-bell-report
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: lio-deletion-copy
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: ferry-union-pressure
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: winter-convoy-risk
+    role: current_constraint
+  - fact_ref:
+      artifact_id: realization-bundle-book-1-sounding-line-outcome
+      revision: 1
+      fact_id: house-of-names
+    role: current_constraint
+  evidence_refs:
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: mara-chart-authority
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: coast-status
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: admiralty-legitimacy
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: mara-ion-trust
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: sela-archive-duty
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: tamsin-route-choice
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: nera-protected-witness
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: brann-bell-report
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: lio-deletion-copy
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: ferry-union-pressure
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: winter-convoy-risk
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+    fact_id: house-of-names
+  source_revision_refs:
+  - artifact_id: series-direction
+    revision: 1
+  - artifact_id: book-1-direction
+    revision: 1
+  - artifact_id: realization-bundle-book-1-sounding-line-outcome
+    revision: 1
+  rule_version: archive-of-lies-v1
+  disposition: active
+currentness:
+  realization-bundle-book-1-sounding-line-outcome@1/mara-chart-authority: active
+  realization-bundle-book-1-sounding-line-outcome@1/coast-status: active
+  realization-bundle-book-1-sounding-line-outcome@1/admiralty-legitimacy: active
+  realization-bundle-book-1-sounding-line-outcome@1/mara-ion-trust: active
+  realization-bundle-book-1-sounding-line-outcome@1/sela-archive-duty: active
+  realization-bundle-book-1-sounding-line-outcome@1/tamsin-route-choice: active
+  realization-bundle-book-1-sounding-line-outcome@1/nera-protected-witness: active
+  realization-bundle-book-1-sounding-line-outcome@1/brann-bell-report: active
+  realization-bundle-book-1-sounding-line-outcome@1/lio-deletion-copy: active
+  realization-bundle-book-1-sounding-line-outcome@1/ferry-union-pressure: active
+  realization-bundle-book-1-sounding-line-outcome@1/winter-convoy-risk: active
+  realization-bundle-book-1-sounding-line-outcome@1/house-of-names: active
+derivation_version: global-map-v1
+source_fingerprint: 907ec84222cd055b8cfb1069ae8bfa122b7fab871e9a0dea75398d2368ec7350
+freshness: fresh
+semantic_impact: clear

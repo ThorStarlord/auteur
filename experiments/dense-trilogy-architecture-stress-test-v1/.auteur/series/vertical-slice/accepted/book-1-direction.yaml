@@ -1,0 +1,136 @@
+artifact_id: book-1-direction
+proposal_id: book-direction-deeced9347ef42fbbcda352d1db4e073
+direction:
+  book_number: 1
+  identity:
+    title: The Sounding Line
+    core_answer: A mapmaker must choose living testimony over the state map that made
+      her career.
+    target_experience:
+      primary: suspicion
+      progression: wonder -> unease -> irreversible doubt
+      secondary: []
+      avoid:
+      - clean certainty
+      primary_emotional_promise: suspicion
+      secondary_palette: []
+      avoided_experiences:
+      - clean certainty
+      emotional_trajectory: null
+      genre_emotion_stack: null
+      pov_experience_contracts: null
+    story_type:
+      medium: novel
+      mode: procedural
+      genre: mystery
+      subgenres: []
+      target_audience: adult
+      length_class: null
+    central_engine:
+      want: Mara wants to certify a new safe channel through the salt marsh.
+      resistance: The Admiralty's official charts erase settlements that complicate
+        its borders.
+      conflict: Mara must decide whether accurate surveying can be separated from
+        the people the chart will displace.
+      stakes: A false chart will drown a winter convoy and expose the marsh settlements
+        to seizure.
+      change: Mara changes from trusted instrument of the Admiralty into a mapmaker
+        answerable to witnesses.
+    architecture_preferences: null
+    hard_constraints: []
+    not_this:
+    - A complete account of the future trilogy
+    open_questions:
+    - Why were the pre-Republic coast settlements removed from every sanctioned chart?
+    confidence: 0.9
+    alternatives: []
+    recommendation_mode: opinionated
+    best_basis: genre_aligned
+    why_this_is_best: It tests the series promise through one bounded survey, institutional
+      conflict, and witness obligation.
+    rejected_directions: []
+    author_overrides: []
+    characters: []
+    genre_contract_snapshot:
+      genre_id: mystery
+      display_name: Mystery
+      core_truth: The truth exists, can be discovered through logic, and has a cost.
+      audience_product: Intellectual satisfaction, epistemic certainty, revelation.
+      primary_excitement_beats:
+      - the crime or puzzle presented
+      - red herring or false lead
+      - key clue discovered
+      - the detective endangered or high stakes
+      - the final revelation or confrontation
+      required_tropes:
+      - clue logic
+      - clever deduction
+      - suspect pool
+      optional_tropes:
+      - noir detective
+      - locked room puzzle
+      - unreliable witness
+      forbidden_mismatches:
+      - no logical explanation
+      - unsolvable puzzle
+      - the real mystery is forgiving oneself
+      - random culprit introduced at the last minute without clues
+      common_failure_modes:
+      - The detective spends more time in therapy than investigating clues
+      - The puzzle is resolved by a magic coincidence rather than deduction
+      psychology_budget:
+        level: functional
+        reason: Mystery runs on clue logic, deduction, and final revelation. The detective
+          needs motivation clarity and sharp texture, but too much therapeutic wound
+          weakens the puzzle.
+        motivation_clarity: required
+        psychological_depth: optional
+        character_texture: encouraged
+      scope_profile:
+        natural_lengths:
+        - short_story
+        - novella
+        - novel
+        minimum_viable_length: short_story
+        default_length: novel
+        narrative_runway: medium
+        recommended_complexity: standard
+        mechanical_load: medium
+        worldbuilding_load: low
+        cast_load: medium
+        compression_strategies:
+        - Use a compact suspect pool.
+        - Limit clue logic to one central chain.
+        - Avoid parallel timelines unless length expands.
+        expansion_strategies:
+        - Add suspects, red herrings, procedural detail, or institutional coverup
+          only with more runway.
+        scope_failure_modes:
+        - Too many suspects for the chosen length.
+        - Layered clue logic has no room for fair setup and payoff.
+      setup_contract:
+        emotional_runway: medium
+        relationship_establishment: optional
+        baseline_world_establishment: required
+        minimum_setup_beats:
+        - Establish the detective's context or state of the world
+        - Introduce the victim or situation before the crime is discovered (or right
+          at the crime scene)
+        - Establish the legitimacy of the investigation
+        forbidden_shortcuts:
+        - Stating the crime's significance without showing why the community/victim
+          mattered
+        compression_strategies:
+        - Begin immediately at the crime scene and backfill the victim's ordinary
+          bond via physical clues
+      default_engine_biases:
+      - Deductive logic and plot progression are primary; interiority serves clue
+        logic
+      recommended_subversions:
+      - The detective solves the mystery perfectly but the social/legal outcome is
+        compromised
+    genre_profile: null
+  series_commitment_ids:
+  - contested-map
+  - visible-disagreement
+  - witness-protection

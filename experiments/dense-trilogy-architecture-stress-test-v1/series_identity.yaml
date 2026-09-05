@@ -1,0 +1,122 @@
+title: The Cartographers of Salt
+series_type: trilogy
+core_question: Can a society share a future when its map is built from deliberate forgetting?
+target_experience:
+  primary: haunted discovery
+  progression: belonging -> fracture -> hard-won interdependence
+  avoid:
+    - effortless revelation
+global_arc:
+  beginning: The Tidebound Republic survives by redrawing its drowned past.
+  midpoint: The old coast returns and makes every institution contest its own legitimacy.
+  ending: The republic learns to govern with a contested memory rather than a single official map.
+book_plans:
+  - book_number: 1
+    title: The Sounding Line
+    series_function: question
+    core_answer: A mapmaker must choose living testimony over the state map that made her career.
+    target_experience:
+      primary: suspicion
+      progression: wonder -> unease -> irreversible doubt
+      avoid: [clean certainty]
+    story_type: {medium: novel, mode: procedural, genre: mystery, target_audience: adult}
+    central_engine:
+      want: Mara wants to certify a new safe channel through the salt marsh.
+      resistance: The Admiralty's official charts erase settlements that complicate its borders.
+      conflict: Mara must decide whether accurate surveying can be separated from the people the chart will displace.
+      stakes: A false chart will drown a winter convoy and expose the marsh settlements to seizure.
+      change: Mara changes from trusted instrument of the Admiralty into a mapmaker answerable to witnesses.
+    series_threads_carried: [mara_arc, erased-coast, republic-legitimacy]
+    required_setups: [brass-compass, nera-oath, bell-reef]
+    required_payoffs: []
+    scope: city
+    climax_intensity: 7
+  - book_number: 2
+    title: The Returning Coast
+    series_function: complication
+    core_answer: "Directional scaffolding only: the returning coast turns testimony into a struggle over citizenship and repair."
+    target_experience:
+      primary: pressure
+      progression: mobilization -> divided loyalty -> costly redefinition
+      avoid: [predetermined betrayals]
+    story_type: {medium: novel, mode: procedural, genre: mystery, target_audience: adult}
+    central_engine:
+      want: The group wants a public reckoning over the coast's vanished communities.
+      resistance: Factions depend on the old map for food routes, property, and legal identity.
+      conflict: Repairing the map threatens the fragile peace it enabled.
+      stakes: Recognition may trigger civil violence or leave the erased communities permanently stateless.
+      change: Directional only; the series must discover who can share authority after the Book 1 rupture.
+    series_threads_carried: [mara_arc, erased-coast, nera-oath, republic-legitimacy]
+    required_setups: []
+    required_payoffs: []
+    scope: national
+    climax_intensity: 8
+  - book_number: 3
+    title: The Common Horizon
+    series_function: resolution
+    core_answer: "Directional scaffolding only: a plural map must survive the return of the power that authored the forgetting."
+    target_experience:
+      primary: catharsis
+      progression: exposure -> sacrifice -> provisional trust
+      avoid: [total closure]
+    story_type: {medium: novel, mode: procedural, genre: mystery, target_audience: adult}
+    central_engine:
+      want: "Directional only: establish a governing map whose disagreements remain visible."
+      resistance: "Directional only: the republic's survival systems were designed around one sanctioned history."
+      conflict: "Directional only: shared authority may be slower and more dangerous than restored central control."
+      stakes: "Directional only: the coast's future depends on whether memory can become a public practice."
+      change: Directional only; no detailed realization is pre-authored.
+    series_threads_carried: [mara_arc, erased-coast, republic-legitimacy]
+    required_setups: []
+    required_payoffs: [bell-reef]
+    scope: civilizational
+    climax_intensity: 9
+character_arcs:
+  - {id: mara_arc, character: Mara Venn, start_state: loyal surveyor, end_state: accountable witness-mapmaker, planned_completion_book: 3, book_states: {'1': chart dissenter}}
+  - {id: ion_arc, character: Ion Vale, start_state: ambitious naval officer, end_state: unknown, planned_completion_book: 3, book_states: {'1': compromised escort}}
+  - {id: sela_arc, character: Sela Orun, start_state: displaced archivist, end_state: unknown, planned_completion_book: 3, book_states: {'1': keeper of forbidden names}}
+  - {id: tamsin_arc, character: Tamsin Rusk, start_state: pragmatic marsh pilot, end_state: unknown, planned_completion_book: 3, book_states: {'1': reluctant guide}}
+  - {id: osric_arc, character: Osric Pell, start_state: reformist minister, end_state: unknown, planned_completion_book: 3, book_states: {'1': isolated reformer}}
+  - {id: vey_arc, character: Vey Nhal, start_state: civic investigator, end_state: unknown, planned_completion_book: 3, book_states: {'1': keeper of the counter-ledger}}
+  - {id: rhea_arc, character: Rhea Sorn, start_state: lighthouse custodian, end_state: unknown, planned_completion_book: 3, book_states: {'1': silent signaler}}
+  - {id: cal_arc, character: Cal Dorr, start_state: ferry union steward, end_state: unknown, planned_completion_book: 3, book_states: {'1': strike organizer}}
+  - {id: jori_arc, character: Jori Pell, start_state: minister's courier, end_state: unknown, planned_completion_book: 3, book_states: {'1': bearer of sealed orders}}
+  - {id: nera_arc, character: Nera Quill, start_state: oath-bound physician, end_state: unknown, planned_completion_book: 3, book_states: {'1': witness to the winter fever}}
+  - {id: brann_arc, character: Brann Ede, start_state: salvage diver, end_state: unknown, planned_completion_book: 3, book_states: {'1': finder of the bell reef}}
+  - {id: lio_arc, character: Lio Marr, start_state: junior chart clerk, end_state: unknown, planned_completion_book: 3, book_states: {'1': copied anomaly}}
+  - {id: fen_arc, character: Fen Aster, start_state: dockside broker, end_state: unknown, planned_completion_book: 3, book_states: {'1': broker under pressure}}
+  - {id: ysolde_arc, character: Ysolde Kett, start_state: shrine keeper, end_state: unknown, planned_completion_book: 3, book_states: {'1': guardian of tide names}}
+  - {id: pavel_arc, character: Pavel Ro, start_state: coastguard veteran, end_state: unknown, planned_completion_book: 3, book_states: {'1': disgraced watchman}}
+  - {id: uma_arc, character: Uma Sen, start_state: schoolteacher in the marsh, end_state: unknown, planned_completion_book: 3, book_states: {'1': keeper of children's maps}}
+relationship_arcs:
+  - {id: mara-ion, participants: [Mara Venn, Ion Vale], start_state: professional trust, end_state: conditional alliance, book_states: {'1': trust strained by concealed orders}}
+  - {id: mara-sela, participants: [Mara Venn, Sela Orun], start_state: skepticism, end_state: reciprocal reliance, book_states: {'1': testimony becomes evidence}}
+  - {id: mara-tamsin, participants: [Mara Venn, Tamsin Rusk], start_state: transactional cooperation, end_state: earned loyalty, book_states: {'1': guide refuses a false chart}}
+  - {id: sela-nera, participants: [Sela Orun, Nera Quill], start_state: old obligation, end_state: renewed oath, book_states: {'1': Nera protects a witness}}
+faction_arcs:
+  - {id: admiralty, faction: Tidebound Admiralty, start_state: unquestioned authority, end_state: publicly contested authority, book_states: {'1': chart office divided}}
+  - {id: marsh-commons, faction: Marsh Commons, start_state: legally invisible settlements, end_state: coordinated resistance, book_states: {'1': settlements exchange signals}}
+  - {id: namekeepers, faction: House of Names, start_state: suppressed archive custodians, end_state: divided custodians, book_states: {'1': counter-ledger emerges}}
+  - {id: ferry-union, faction: Ferrymen's Union, start_state: tolerated service guild, end_state: indispensable political bloc, book_states: {'1': winter strike threat}}
+mysteries:
+  - {id: erased-coast, question: "Why were the pre-Republic coast settlements removed from every sanctioned chart?", introduced_book: 1, expected_payoff_book: 3}
+  - {id: bell-reef, question: "What is ringing beneath the drowned bell reef when no tide reaches it?", introduced_book: 1, expected_payoff_book: 3}
+dependency_edges:
+  - {source: book_1, target: erased-coast, type: sets_up, description: Book 1 finds proof that the erased settlements were inhabited.}
+  - {source: book_1, target: bell-reef, type: sets_up, description: A low-salience diver's report points to a submerged signal.}
+  - {source: book_1, target: nera-oath, type: sets_up, description: Nera's renewed oath creates a delayed obligation to protect a named witness.}
+  - {source: erased-coast, target: book_2, type: pressures, description: Recognition of the erased coast destabilizes citizenship and property law.}
+  - {source: nera-oath, target: book_3, type: pressures, description: The protected witness may hold the only living account of the founding bargain.}
+  - {source: bell-reef, target: book_3, type: pays_off, description: The reef's signal is reserved for later realization.}
+  - {source: mara-ion, target: book_3, type: pressures, description: Their path matters more than the final state of their alliance.}
+thematic_arcs:
+  - id: public-memory
+    theme: A public future requires visible disagreement about the past.
+    books: [1, 2, 3]
+    progression: {1: Private testimony challenges official charts., 2: Institutions compete to define repair., 3: Shared governance preserves disagreement as a civic tool.}
+recurring_symbols: [sounding line, salt glass, bell reef]
+narrative_setups:
+  - {id: brass-compass, book_introduced: 1, description: Mara's brass compass points toward a coast absent from the chart., expected_payoff_by_book: 3}
+  - {id: nera-oath, book_introduced: 1, description: Nera swears to keep a fever survivor's name out of Admiralty custody., expected_payoff_by_book: 3}
+  - {id: bell-reef, book_introduced: 1, description: Brann reports a bell-like signal below the drowned reef., expected_payoff_by_book: 3}
+  - {id: copied-anomaly, book_introduced: 1, description: Lio quietly copies a deletion mark before the chart archive is resealed., expected_payoff_by_book: 2}

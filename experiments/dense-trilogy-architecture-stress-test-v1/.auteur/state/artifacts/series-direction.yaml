@@ -1,0 +1,15 @@
+artifact_id: series-direction
+artifact_type: series_direction
+schema_version: 1
+revision: 1
+authority: canonical
+lifecycle: accepted
+review_state: none
+content_hash: sha256:1cee9b6d3c0edcaf34f1d80173d26d05b6b69c8178e30176dd696fbb46494eb2
+dependencies: []
+stale_reasons: []
+invalid_reasons: []
+provenance_state: tracked
+accepted_at: '2026-09-05T10:21:58.159749+00:00'
+accepted_by: author
+rationale: null

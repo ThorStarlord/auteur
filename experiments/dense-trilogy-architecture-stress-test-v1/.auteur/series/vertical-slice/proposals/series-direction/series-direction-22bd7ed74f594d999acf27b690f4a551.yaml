@@ -1,0 +1,24 @@
+proposal_id: series-direction-22bd7ed74f594d999acf27b690f4a551
+revision: 1
+direction:
+  series_id: cartographers-of-salt
+  title: The Cartographers of Salt
+  series_type: ongoing
+  promise: Each recovered coastline forces the republic to choose between usable myths
+    and accountable memory.
+  pressure: Correcting the official map threatens the food routes and legal identities
+    built on it.
+  open_question: Can a society share authority when its history remains contested?
+  commitments:
+  - commitment_id: contested-map
+    statement: Every Book must make official geography answerable to lived testimony.
+    scope: series
+  - commitment_id: visible-disagreement
+    statement: The final civic settlement must preserve disagreement rather than erase
+      it.
+    scope: series
+  - commitment_id: witness-protection
+    statement: A person endangered by the founding map must remain protected until
+      their account can be heard.
+    scope: series
+source_refs: []

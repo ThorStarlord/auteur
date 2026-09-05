@@ -1,0 +1,422 @@
+edge_semantics: source_affects_target
+nodes:
+- id: series
+  type: series
+  label: The Cartographers of Salt
+- id: book_1
+  type: book
+  label: The Sounding Line
+- id: book_2
+  type: book
+  label: The Returning Coast
+- id: book_3
+  type: book
+  label: The Common Horizon
+- id: mara_arc
+  type: character_arc
+  label: Mara Venn
+- id: ion_arc
+  type: character_arc
+  label: Ion Vale
+- id: sela_arc
+  type: character_arc
+  label: Sela Orun
+- id: tamsin_arc
+  type: character_arc
+  label: Tamsin Rusk
+- id: osric_arc
+  type: character_arc
+  label: Osric Pell
+- id: vey_arc
+  type: character_arc
+  label: Vey Nhal
+- id: rhea_arc
+  type: character_arc
+  label: Rhea Sorn
+- id: cal_arc
+  type: character_arc
+  label: Cal Dorr
+- id: jori_arc
+  type: character_arc
+  label: Jori Pell
+- id: nera_arc
+  type: character_arc
+  label: Nera Quill
+- id: brann_arc
+  type: character_arc
+  label: Brann Ede
+- id: lio_arc
+  type: character_arc
+  label: Lio Marr
+- id: fen_arc
+  type: character_arc
+  label: Fen Aster
+- id: ysolde_arc
+  type: character_arc
+  label: Ysolde Kett
+- id: pavel_arc
+  type: character_arc
+  label: Pavel Ro
+- id: uma_arc
+  type: character_arc
+  label: Uma Sen
+- id: mara-ion
+  type: relationship_arc
+  label: Mara Venn / Ion Vale
+- id: mara-sela
+  type: relationship_arc
+  label: Mara Venn / Sela Orun
+- id: mara-tamsin
+  type: relationship_arc
+  label: Mara Venn / Tamsin Rusk
+- id: sela-nera
+  type: relationship_arc
+  label: Sela Orun / Nera Quill
+- id: admiralty
+  type: faction_arc
+  label: Tidebound Admiralty
+- id: marsh-commons
+  type: faction_arc
+  label: Marsh Commons
+- id: namekeepers
+  type: faction_arc
+  label: House of Names
+- id: ferry-union
+  type: faction_arc
+  label: Ferrymen's Union
+- id: erased-coast
+  type: mystery
+  label: Why were the pre-Republic coast settlements removed from every sanctioned
+    chart?
+- id: bell-reef
+  type: mystery
+  label: What is ringing beneath the drowned bell reef when no tide reaches it?
+- id: public-memory
+  type: thematic_arc
+  label: A public future requires visible disagreement about the past.
+- id: brass-compass
+  type: narrative_dependency
+  label: brass-compass
+- id: nera-oath
+  type: narrative_dependency
+  label: nera-oath
+- id: republic-legitimacy
+  type: narrative_dependency
+  label: republic-legitimacy
+edges:
+- source: book_1
+  target: erased-coast
+  type: sets_up
+  description: Book 1 finds proof that the erased settlements were inhabited.
+- source: book_1
+  target: bell-reef
+  type: sets_up
+  description: A low-salience diver's report points to a submerged signal.
+- source: book_1
+  target: nera-oath
+  type: sets_up
+  description: Nera's renewed oath creates a delayed obligation to protect a named
+    witness.
+- source: erased-coast
+  target: book_2
+  type: pressures
+  description: Recognition of the erased coast destabilizes citizenship and property
+    law.
+- source: nera-oath
+  target: book_3
+  type: pressures
+  description: The protected witness may hold the only living account of the founding
+    bargain.
+- source: bell-reef
+  target: book_3
+  type: pays_off
+  description: The reef's signal is reserved for later realization.
+- source: mara-ion
+  target: book_3
+  type: pressures
+  description: Their path matters more than the final state of their alliance.
+- source: book_1
+  target: mara_arc
+  type: transforms
+  description: ''
+- source: book_1
+  target: ion_arc
+  type: transforms
+  description: ''
+- source: book_1
+  target: sela_arc
+  type: transforms
+  description: ''
+- source: book_1
+  target: tamsin_arc
+  type: transforms
+  description: ''
+- source: book_1
+  target: osric_arc
+  type: transforms
+  description: ''
+- source: book_1
+  target: vey_arc
+  type: transforms
+  description: ''
+- source: book_1
+  target: rhea_arc
+  type: transforms
+  description: ''
+- source: book_1
+  target: cal_arc
+  type: transforms
+  description: ''
+- source: book_1
+  target: jori_arc
+  type: transforms
+  description: ''
+- source: book_1
+  target: nera_arc
+  type: transforms
+  description: ''
+- source: book_1
+  target: brann_arc
+  type: transforms
+  description: ''
+- source: book_1
+  target: lio_arc
+  type: transforms
+  description: ''
+- source: book_1
+  target: fen_arc
+  type: transforms
+  description: ''
+- source: book_1
+  target: ysolde_arc
+  type: transforms
+  description: ''
+- source: book_1
+  target: pavel_arc
+  type: transforms
+  description: ''
+- source: book_1
+  target: uma_arc
+  type: transforms
+  description: ''
+- source: book_1
+  target: mara-ion
+  type: transforms
+  description: ''
+- source: book_1
+  target: mara-sela
+  type: transforms
+  description: ''
+- source: book_1
+  target: mara-tamsin
+  type: transforms
+  description: ''
+- source: book_1
+  target: sela-nera
+  type: transforms
+  description: ''
+- source: book_1
+  target: admiralty
+  type: transforms
+  description: ''
+- source: book_1
+  target: marsh-commons
+  type: transforms
+  description: ''
+- source: book_1
+  target: namekeepers
+  type: transforms
+  description: ''
+- source: book_1
+  target: ferry-union
+  type: transforms
+  description: ''
+- source: book_1
+  target: public-memory
+  type: sets_up
+  description: ''
+- source: book_2
+  target: public-memory
+  type: transforms
+  description: ''
+- source: book_3
+  target: public-memory
+  type: transforms
+  description: ''
+- source: book_1
+  target: brass-compass
+  type: sets_up
+  description: ''
+impact_metadata:
+  series:
+    dependents: []
+    dependencies: []
+  book_1:
+    dependents:
+    - admiralty
+    - bell-reef
+    - brann_arc
+    - brass-compass
+    - cal_arc
+    - erased-coast
+    - fen_arc
+    - ferry-union
+    - ion_arc
+    - jori_arc
+    - lio_arc
+    - mara-ion
+    - mara-sela
+    - mara-tamsin
+    - mara_arc
+    - marsh-commons
+    - namekeepers
+    - nera-oath
+    - nera_arc
+    - osric_arc
+    - pavel_arc
+    - public-memory
+    - rhea_arc
+    - sela-nera
+    - sela_arc
+    - tamsin_arc
+    - uma_arc
+    - vey_arc
+    - ysolde_arc
+    dependencies: []
+  book_2:
+    dependents:
+    - public-memory
+    dependencies:
+    - erased-coast
+  book_3:
+    dependents:
+    - public-memory
+    dependencies:
+    - bell-reef
+    - mara-ion
+    - nera-oath
+  mara_arc:
+    dependents: []
+    dependencies:
+    - book_1
+  ion_arc:
+    dependents: []
+    dependencies:
+    - book_1
+  sela_arc:
+    dependents: []
+    dependencies:
+    - book_1
+  tamsin_arc:
+    dependents: []
+    dependencies:
+    - book_1
+  osric_arc:
+    dependents: []
+    dependencies:
+    - book_1
+  vey_arc:
+    dependents: []
+    dependencies:
+    - book_1
+  rhea_arc:
+    dependents: []
+    dependencies:
+    - book_1
+  cal_arc:
+    dependents: []
+    dependencies:
+    - book_1
+  jori_arc:
+    dependents: []
+    dependencies:
+    - book_1
+  nera_arc:
+    dependents: []
+    dependencies:
+    - book_1
+  brann_arc:
+    dependents: []
+    dependencies:
+    - book_1
+  lio_arc:
+    dependents: []
+    dependencies:
+    - book_1
+  fen_arc:
+    dependents: []
+    dependencies:
+    - book_1
+  ysolde_arc:
+    dependents: []
+    dependencies:
+    - book_1
+  pavel_arc:
+    dependents: []
+    dependencies:
+    - book_1
+  uma_arc:
+    dependents: []
+    dependencies:
+    - book_1
+  mara-ion:
+    dependents:
+    - book_3
+    dependencies:
+    - book_1
+  mara-sela:
+    dependents: []
+    dependencies:
+    - book_1
+  mara-tamsin:
+    dependents: []
+    dependencies:
+    - book_1
+  sela-nera:
+    dependents: []
+    dependencies:
+    - book_1
+  admiralty:
+    dependents: []
+    dependencies:
+    - book_1
+  marsh-commons:
+    dependents: []
+    dependencies:
+    - book_1
+  namekeepers:
+    dependents: []
+    dependencies:
+    - book_1
+  ferry-union:
+    dependents: []
+    dependencies:
+    - book_1
+  erased-coast:
+    dependents:
+    - book_2
+    dependencies:
+    - book_1
+  bell-reef:
+    dependents:
+    - book_3
+    dependencies:
+    - book_1
+  public-memory:
+    dependents: []
+    dependencies:
+    - book_1
+    - book_2
+    - book_3
+  brass-compass:
+    dependents: []
+    dependencies:
+    - book_1
+  nera-oath:
+    dependents:
+    - book_3
+    dependencies:
+    - book_1
+  republic-legitimacy:
+    dependents: []
+    dependencies: []
