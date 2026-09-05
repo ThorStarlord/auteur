@@ -148,12 +148,25 @@ FACTORY_SIZE_CAP="${FACTORY_SIZE_CAP:-500}"
 FACTORY_FILE_CAP="${FACTORY_FILE_CAP:-12}"
 
 # --- deployment (component 3) ------------------------------------------------
-# THE LOOP IS NOT CLOSED UNTIL A STRANGER CAN SEE THE CHANGE. If merging does not put
-# code in front of a user, you built a PR generator with extra steps.
+# AUTEUR IS A LIBRARY + CLI, RELEASED BY HAND. There is no running service to
+# poll, swap, or roll back, and no publish automation exists (only
+# .github/workflows/validation.yml: test + wheel smoke). The factory's loop
+# therefore ends at merge-to-main; PyPI releases stay explicit human actions
+# under docs/engineering/release-qualification.md, because publishing is
+# irreversible (FACTORY_RULES.md §5) and the release gate demands evidence a
+# machine cannot produce.
 #
-# `deploy.sh` REFUSES to move the pointer when FACTORY_HEALTH_CMD is empty, on purpose:
-# a deploy with no health check is a deploy that cannot fail, and a step that cannot fail
-# is a comment. Set both of these before you expect a deploy to do anything.
+# HEALTH_CMD stays EMPTY on purpose, so deploy.sh REFUSES loudly instead of
+# performing a deploy-shaped no-op. A step that cannot fail is a comment; a
+# refusal is a decision. Revisit only if a push-button release pipeline with
+# a live health surface ever exists.
+#
+# Two traps from references/deployment.md, recorded so a future reader does
+# not rediscover them: (1) GitHub does not fire workflows on commits made
+# with the default GITHUB_TOKEN - if a push-triggered workflow is ever added,
+# factory merges will silently not trigger it; poll or use an App token.
+# (2) Scheduled workflows run only from the default branch and die after 60
+# quiet days on public repos - a quiet factory looks identical to a dead one.
 
 # What a built snapshot contains. Everything the app needs to run, and nothing else.
 FACTORY_BUILD_INCLUDE="${FACTORY_BUILD_INCLUDE:-src app README.md}"
@@ -170,6 +183,18 @@ FACTORY_HEALTH_MARKERS="${FACTORY_HEALTH_MARKERS:-}"
 # --- the trigger (component 2) -----------------------------------------------
 # Read by factory/install-trigger.sh. Slower than feels right: a fast loop multiplies
 # the cost of a mistake before you have noticed the mistake.
+#
+# WINDOWS DISPATCH ENV (this machine): the generated factory/tick.cmd runs
+# `bash -lc`, which does NOT inherit a venv-first PATH or PYTHONIOENCODING.
+# Before arming (Phase 7), the launcher must gain two lines:
+#   set PYTHONIOENCODING=utf-8
+#   set PATH=H:\GithubRepositories\auteur-factory\.venv\Scripts;%PATH%
+# (every bare `python factory/state.py` in the runner otherwise resolves to
+# whatever python the login shell finds first - on this machine a system
+# interpreter with a STALE editable install, which graded real tests against
+# dead code once already). Also add factory/tick.cmd to .gitignore - it is
+# generated per machine, never committed. And reconfigure the task to run
+# whether or not the user is logged on, or the factory stops overnight.
 FACTORY_INTERVAL_MINUTES="${FACTORY_INTERVAL_MINUTES:-30}"
 FACTORY_TASK_NAME="${FACTORY_TASK_NAME:-dark-factory-$(basename "$(git rev-parse --show-toplevel 2>/dev/null || echo factory)")}"
 
@@ -188,6 +213,13 @@ FACTORY_RUNNER="${FACTORY_RUNNER:-factory/run-workflow.sh}"
 #
 # Keep it QUIET. If everything notifies you will mute it, and then nothing notifies.
 # `needs-human` should be rare enough to be worth reading.
+#
+# AUTEUR (interim, hand-driven laps only): append to a file the operator tails.
+# The escalation itself always lands in .factory/needs-human.md regardless;
+# this command is only the nudge. DO NOT raise the dial past 2 on a file-only
+# channel - on an unattended system "waits to be found" means unmonitored.
+# Replace with a push channel (ntfy.sh topic) before level 3.
+FACTORY_NOTIFY_CMD="${FACTORY_NOTIFY_CMD:-tee -a \"\$HOME/factory-escalations.log\"}"
 FACTORY_NOTIFY_CMD="${FACTORY_NOTIFY_CMD:-}"
 
 # Defined here, ONCE, because more than one script escalates - the runner, the gate, and
