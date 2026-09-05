@@ -20,8 +20,8 @@
     {
       "id": "persistence-write-dropped",
       "file": "src/auteur/cli_serializers.py",
-      "find": "    identity.to_yaml(output_path)",
-      "replace": "    pass",
+      "find": "        identity.to_yaml(tmp)",
+      "replace": "        pass",
       "why": "accept reports success while story_identity.yaml never lands; everything renders, nothing persists. Must be caught by the e2e (file absent) and unit."
     },
     {
@@ -41,8 +41,8 @@
     {
       "id": "promote-writes-wrong-content",
       "file": "src/auteur/cli_serializers.py",
-      "find": "    identity.to_yaml(output_path)",
-      "replace": "    output_path.write_text(\"title: broken\\n\")",
+      "find": "        os.replace(tmp, output_path)",
+      "replace": "        output_path.write_text(\"title: broken\\n\")",
       "why": "accept lands a file with the wrong content - the acceptance-shaped lie: the artifact exists, the content is destroyed. Must be caught by the e2e content assertion."
     },
     {
