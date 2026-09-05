@@ -615,7 +615,9 @@ case "$WORKFLOW" in
     git show "$BASE:FACTORY_RULES.md" > "$RUNDIR/FACTORY_RULES.base.md"
     git show "$BASE:CLAUDE.md"        > "$RUNDIR/CLAUDE.base.md"
 
-    python factory/tripwire.py "$WT" \
+    # Scoped to the branch diff: plan-like files committed long ago (this repo's
+    # normal process writes design docs) are not this lap's builder output.
+    python factory/tripwire.py "$WT" --base "$BASE" --ref "$CHECKOUT" \
       || { git worktree remove "$WT" --force >/dev/null 2>&1 || true
            escalate "TRIPWIRE: a builder artifact is in the validator's tree; its verdict is not independent"; }
 
