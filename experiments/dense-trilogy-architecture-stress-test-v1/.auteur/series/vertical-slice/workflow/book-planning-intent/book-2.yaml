@@ -1,0 +1,11 @@
+book_number: 2
+intent: "Force Mara\u2019s witness-backed chart into a national legitimacy crisis\
+  \ while protecting Nera\u2019s testimony and testing whether Ion\u2019s conditional\
+  \ alliance can survive the Admiralty\u2019s split."
+relevance_refs:
+- artifact_id: realization-bundle-book-1-sounding-line-outcome
+  revision: 1
+  fact_id: mara-chart-authority
+- artifact_id: realization-bundle-book-1-sounding-line-outcome
+  revision: 1
+  fact_id: nera-protected-witness

@@ -1,0 +1,736 @@
+{
+  "title": "The Cartographers of Salt",
+  "core_question": "Can a society share a future when its map is built from deliberate forgetting?",
+  "characters": [
+    {
+      "name": "Mara Venn",
+      "arc_id": "mara_arc",
+      "start_state": "loyal surveyor",
+      "end_state": "accountable witness-mapmaker",
+      "book_states": {
+        "1": "chart dissenter"
+      }
+    },
+    {
+      "name": "Ion Vale",
+      "arc_id": "ion_arc",
+      "start_state": "ambitious naval officer",
+      "end_state": "unknown",
+      "book_states": {
+        "1": "compromised escort"
+      }
+    },
+    {
+      "name": "Sela Orun",
+      "arc_id": "sela_arc",
+      "start_state": "displaced archivist",
+      "end_state": "unknown",
+      "book_states": {
+        "1": "keeper of forbidden names"
+      }
+    },
+    {
+      "name": "Tamsin Rusk",
+      "arc_id": "tamsin_arc",
+      "start_state": "pragmatic marsh pilot",
+      "end_state": "unknown",
+      "book_states": {
+        "1": "reluctant guide"
+      }
+    },
+    {
+      "name": "Osric Pell",
+      "arc_id": "osric_arc",
+      "start_state": "reformist minister",
+      "end_state": "unknown",
+      "book_states": {
+        "1": "isolated reformer"
+      }
+    },
+    {
+      "name": "Vey Nhal",
+      "arc_id": "vey_arc",
+      "start_state": "civic investigator",
+      "end_state": "unknown",
+      "book_states": {
+        "1": "keeper of the counter-ledger"
+      }
+    },
+    {
+      "name": "Rhea Sorn",
+      "arc_id": "rhea_arc",
+      "start_state": "lighthouse custodian",
+      "end_state": "unknown",
+      "book_states": {
+        "1": "silent signaler"
+      }
+    },
+    {
+      "name": "Cal Dorr",
+      "arc_id": "cal_arc",
+      "start_state": "ferry union steward",
+      "end_state": "unknown",
+      "book_states": {
+        "1": "strike organizer"
+      }
+    },
+    {
+      "name": "Jori Pell",
+      "arc_id": "jori_arc",
+      "start_state": "minister's courier",
+      "end_state": "unknown",
+      "book_states": {
+        "1": "bearer of sealed orders"
+      }
+    },
+    {
+      "name": "Nera Quill",
+      "arc_id": "nera_arc",
+      "start_state": "oath-bound physician",
+      "end_state": "unknown",
+      "book_states": {
+        "1": "witness to the winter fever"
+      }
+    },
+    {
+      "name": "Brann Ede",
+      "arc_id": "brann_arc",
+      "start_state": "salvage diver",
+      "end_state": "unknown",
+      "book_states": {
+        "1": "finder of the bell reef"
+      }
+    },
+    {
+      "name": "Lio Marr",
+      "arc_id": "lio_arc",
+      "start_state": "junior chart clerk",
+      "end_state": "unknown",
+      "book_states": {
+        "1": "copied anomaly"
+      }
+    },
+    {
+      "name": "Fen Aster",
+      "arc_id": "fen_arc",
+      "start_state": "dockside broker",
+      "end_state": "unknown",
+      "book_states": {
+        "1": "broker under pressure"
+      }
+    },
+    {
+      "name": "Ysolde Kett",
+      "arc_id": "ysolde_arc",
+      "start_state": "shrine keeper",
+      "end_state": "unknown",
+      "book_states": {
+        "1": "guardian of tide names"
+      }
+    },
+    {
+      "name": "Pavel Ro",
+      "arc_id": "pavel_arc",
+      "start_state": "coastguard veteran",
+      "end_state": "unknown",
+      "book_states": {
+        "1": "disgraced watchman"
+      }
+    },
+    {
+      "name": "Uma Sen",
+      "arc_id": "uma_arc",
+      "start_state": "schoolteacher in the marsh",
+      "end_state": "unknown",
+      "book_states": {
+        "1": "keeper of children's maps"
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "id": "mara-ion",
+      "participants": [
+        "Mara Venn",
+        "Ion Vale"
+      ],
+      "start_state": "professional trust",
+      "end_state": "conditional alliance",
+      "book_states": {
+        "1": "trust strained by concealed orders"
+      }
+    },
+    {
+      "id": "mara-sela",
+      "participants": [
+        "Mara Venn",
+        "Sela Orun"
+      ],
+      "start_state": "skepticism",
+      "end_state": "reciprocal reliance",
+      "book_states": {
+        "1": "testimony becomes evidence"
+      }
+    },
+    {
+      "id": "mara-tamsin",
+      "participants": [
+        "Mara Venn",
+        "Tamsin Rusk"
+      ],
+      "start_state": "transactional cooperation",
+      "end_state": "earned loyalty",
+      "book_states": {
+        "1": "guide refuses a false chart"
+      }
+    },
+    {
+      "id": "sela-nera",
+      "participants": [
+        "Sela Orun",
+        "Nera Quill"
+      ],
+      "start_state": "old obligation",
+      "end_state": "renewed oath",
+      "book_states": {
+        "1": "Nera protects a witness"
+      }
+    }
+  ],
+  "factions": [
+    {
+      "name": "Tidebound Admiralty",
+      "arc_id": "admiralty",
+      "start_state": "unquestioned authority",
+      "end_state": "publicly contested authority",
+      "book_states": {
+        "1": "chart office divided"
+      }
+    },
+    {
+      "name": "Marsh Commons",
+      "arc_id": "marsh-commons",
+      "start_state": "legally invisible settlements",
+      "end_state": "coordinated resistance",
+      "book_states": {
+        "1": "settlements exchange signals"
+      }
+    },
+    {
+      "name": "House of Names",
+      "arc_id": "namekeepers",
+      "start_state": "suppressed archive custodians",
+      "end_state": "divided custodians",
+      "book_states": {
+        "1": "counter-ledger emerges"
+      }
+    },
+    {
+      "name": "Ferrymen's Union",
+      "arc_id": "ferry-union",
+      "start_state": "tolerated service guild",
+      "end_state": "indispensable political bloc",
+      "book_states": {
+        "1": "winter strike threat"
+      }
+    }
+  ],
+  "mysteries": [
+    {
+      "id": "erased-coast",
+      "question": "Why were the pre-Republic coast settlements removed from every sanctioned chart?",
+      "introduced_book": 1,
+      "expected_payoff_book": 3,
+      "actual_payoff_book": null
+    },
+    {
+      "id": "bell-reef",
+      "question": "What is ringing beneath the drowned bell reef when no tide reaches it?",
+      "introduced_book": 1,
+      "expected_payoff_book": 3,
+      "actual_payoff_book": null
+    }
+  ],
+  "timeline": [
+    {
+      "book": 1,
+      "title": "The Sounding Line",
+      "series_function": "question",
+      "scope": "city",
+      "setups": [
+        "brass-compass",
+        "nera-oath",
+        "bell-reef"
+      ],
+      "payoffs": []
+    },
+    {
+      "book": 2,
+      "title": "The Returning Coast",
+      "series_function": "complication",
+      "scope": "national",
+      "setups": [],
+      "payoffs": []
+    },
+    {
+      "book": 3,
+      "title": "The Common Horizon",
+      "series_function": "resolution",
+      "scope": "civilizational",
+      "setups": [],
+      "payoffs": [
+        "bell-reef"
+      ]
+    }
+  ],
+  "recurring_symbols": [
+    "sounding line",
+    "salt glass",
+    "bell reef"
+  ],
+  "continuity_facts": [
+    "The Sounding Line: A mapmaker must choose living testimony over the state map that made her career.",
+    "The Returning Coast: Directional scaffolding only: the returning coast turns testimony into a struggle over citizenship and repair.",
+    "The Common Horizon: Directional scaffolding only: a plural map must survive the return of the power that authored the forgetting."
+  ],
+  "dependency_index": {
+    "series": {
+      "dependents": [],
+      "dependencies": []
+    },
+    "book_1": {
+      "dependents": [
+        "admiralty",
+        "bell-reef",
+        "brann_arc",
+        "brass-compass",
+        "cal_arc",
+        "erased-coast",
+        "fen_arc",
+        "ferry-union",
+        "ion_arc",
+        "jori_arc",
+        "lio_arc",
+        "mara-ion",
+        "mara-sela",
+        "mara-tamsin",
+        "mara_arc",
+        "marsh-commons",
+        "namekeepers",
+        "nera-oath",
+        "nera_arc",
+        "osric_arc",
+        "pavel_arc",
+        "public-memory",
+        "rhea_arc",
+        "sela-nera",
+        "sela_arc",
+        "tamsin_arc",
+        "uma_arc",
+        "vey_arc",
+        "ysolde_arc"
+      ],
+      "dependencies": []
+    },
+    "book_2": {
+      "dependents": [
+        "public-memory"
+      ],
+      "dependencies": [
+        "erased-coast"
+      ]
+    },
+    "book_3": {
+      "dependents": [
+        "public-memory"
+      ],
+      "dependencies": [
+        "bell-reef",
+        "mara-ion",
+        "nera-oath"
+      ]
+    },
+    "mara_arc": {
+      "dependents": [],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "ion_arc": {
+      "dependents": [],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "sela_arc": {
+      "dependents": [],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "tamsin_arc": {
+      "dependents": [],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "osric_arc": {
+      "dependents": [],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "vey_arc": {
+      "dependents": [],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "rhea_arc": {
+      "dependents": [],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "cal_arc": {
+      "dependents": [],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "jori_arc": {
+      "dependents": [],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "nera_arc": {
+      "dependents": [],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "brann_arc": {
+      "dependents": [],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "lio_arc": {
+      "dependents": [],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "fen_arc": {
+      "dependents": [],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "ysolde_arc": {
+      "dependents": [],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "pavel_arc": {
+      "dependents": [],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "uma_arc": {
+      "dependents": [],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "mara-ion": {
+      "dependents": [
+        "book_3"
+      ],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "mara-sela": {
+      "dependents": [],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "mara-tamsin": {
+      "dependents": [],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "sela-nera": {
+      "dependents": [],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "admiralty": {
+      "dependents": [],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "marsh-commons": {
+      "dependents": [],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "namekeepers": {
+      "dependents": [],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "ferry-union": {
+      "dependents": [],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "erased-coast": {
+      "dependents": [
+        "book_2"
+      ],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "bell-reef": {
+      "dependents": [
+        "book_3"
+      ],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "public-memory": {
+      "dependents": [],
+      "dependencies": [
+        "book_1",
+        "book_2",
+        "book_3"
+      ]
+    },
+    "brass-compass": {
+      "dependents": [],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "nera-oath": {
+      "dependents": [
+        "book_3"
+      ],
+      "dependencies": [
+        "book_1"
+      ]
+    },
+    "republic-legitimacy": {
+      "dependents": [],
+      "dependencies": []
+    }
+  },
+  "character_state_matrix": {
+    "Mara Venn": {
+      "1": "chart dissenter"
+    },
+    "Ion Vale": {
+      "1": "compromised escort"
+    },
+    "Sela Orun": {
+      "1": "keeper of forbidden names"
+    },
+    "Tamsin Rusk": {
+      "1": "reluctant guide"
+    },
+    "Osric Pell": {
+      "1": "isolated reformer"
+    },
+    "Vey Nhal": {
+      "1": "keeper of the counter-ledger"
+    },
+    "Rhea Sorn": {
+      "1": "silent signaler"
+    },
+    "Cal Dorr": {
+      "1": "strike organizer"
+    },
+    "Jori Pell": {
+      "1": "bearer of sealed orders"
+    },
+    "Nera Quill": {
+      "1": "witness to the winter fever"
+    },
+    "Brann Ede": {
+      "1": "finder of the bell reef"
+    },
+    "Lio Marr": {
+      "1": "copied anomaly"
+    },
+    "Fen Aster": {
+      "1": "broker under pressure"
+    },
+    "Ysolde Kett": {
+      "1": "guardian of tide names"
+    },
+    "Pavel Ro": {
+      "1": "disgraced watchman"
+    },
+    "Uma Sen": {
+      "1": "keeper of children's maps"
+    }
+  },
+  "relationship_state_matrix": {
+    "mara-ion": {
+      "1": "trust strained by concealed orders"
+    },
+    "mara-sela": {
+      "1": "testimony becomes evidence"
+    },
+    "mara-tamsin": {
+      "1": "guide refuses a false chart"
+    },
+    "sela-nera": {
+      "1": "Nera protects a witness"
+    }
+  },
+  "faction_state_matrix": {
+    "Tidebound Admiralty": {
+      "1": "chart office divided"
+    },
+    "Marsh Commons": {
+      "1": "settlements exchange signals"
+    },
+    "House of Names": {
+      "1": "counter-ledger emerges"
+    },
+    "Ferrymen's Union": {
+      "1": "winter strike threat"
+    }
+  },
+  "mystery_status_by_book": {
+    "1": [
+      {
+        "id": "erased-coast",
+        "status": "active"
+      },
+      {
+        "id": "bell-reef",
+        "status": "active"
+      }
+    ],
+    "2": [
+      {
+        "id": "erased-coast",
+        "status": "active"
+      },
+      {
+        "id": "bell-reef",
+        "status": "active"
+      }
+    ],
+    "3": [
+      {
+        "id": "erased-coast",
+        "status": "active"
+      },
+      {
+        "id": "bell-reef",
+        "status": "active"
+      }
+    ]
+  },
+  "payoff_schedule": {
+    "1": [],
+    "2": [],
+    "3": [
+      "bell-reef"
+    ]
+  },
+  "unresolved_threads": [
+    "erased-coast",
+    "bell-reef"
+  ],
+  "book_context_packets": {
+    "1": {
+      "title": "The Sounding Line",
+      "series_function": "question",
+      "scope": "city",
+      "threads_carried": [
+        "mara_arc",
+        "erased-coast",
+        "republic-legitimacy"
+      ],
+      "setups": [
+        "brass-compass",
+        "nera-oath",
+        "bell-reef"
+      ],
+      "payoffs": [],
+      "core_answer": "A mapmaker must choose living testimony over the state map that made her career."
+    },
+    "2": {
+      "title": "The Returning Coast",
+      "series_function": "complication",
+      "scope": "national",
+      "threads_carried": [
+        "mara_arc",
+        "erased-coast",
+        "nera-oath",
+        "republic-legitimacy"
+      ],
+      "setups": [],
+      "payoffs": [],
+      "core_answer": "Directional scaffolding only: the returning coast turns testimony into a struggle over citizenship and repair."
+    },
+    "3": {
+      "title": "The Common Horizon",
+      "series_function": "resolution",
+      "scope": "civilizational",
+      "threads_carried": [
+        "mara_arc",
+        "erased-coast",
+        "republic-legitimacy"
+      ],
+      "setups": [],
+      "payoffs": [
+        "bell-reef"
+      ],
+      "core_answer": "Directional scaffolding only: a plural map must survive the return of the power that authored the forgetting."
+    }
+  },
+  "continuity_diagnostics": [
+    {
+      "id": "SETUP_UNRESOLVED_WARNING",
+      "severity": "WARNING",
+      "constraint": "Setup copied-anomaly should be resolved by Book 2",
+      "source": "narrative_setups[copied-anomaly]",
+      "conflict": "Status is 'unresolved' but deadline was Book 2; series has 3 books",
+      "conflict_source": "series_identity.yaml",
+      "explanation": "Setup 'copied-anomaly' was supposed to be resolved by Book 2 but is still unresolved in a 3-book series. Consider: (1) Adding a payoff entry, (2) Marking as abandoned with a reason, (3) Extending the deadline."
+    }
+  ],
+  "diagnostics": [
+    {
+      "severity": "warning",
+      "layer": "constraints",
+      "rule": "SETUP_UNRESOLVED_WARNING",
+      "message": "Setup 'copied-anomaly' was supposed to be resolved by Book 2 but is still unresolved in a 3-book series. Consider: (1) Adding a payoff entry, (2) Marking as abandoned with a reason, (3) Extending the deadline.",
+      "evidence": [],
+      "repair_options": {
+        "preserve_intent": [],
+        "challenge_intent": []
+      },
+      "genre_recommendation_flow": null
+    }
+  ]
+}

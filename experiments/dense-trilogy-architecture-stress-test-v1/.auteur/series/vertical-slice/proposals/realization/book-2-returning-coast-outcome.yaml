@@ -1,0 +1,95 @@
+candidate_id: book-2-returning-coast-outcome
+book_number: 2
+summary: Mara brings the witness-backed chart inland, and the resulting citizenship
+  crisis fractures the Admiralty's authority, forces the House of Names to expose
+  its counter-ledger, and turns the protected witness and the reef anomaly into contested
+  evidence rather than private leverage.
+transitions:
+- transition_id: mara-public-authority
+  subject: Mara Venn
+  attribute: authority
+  before: accountable dissident
+  after: contested civic witness
+  explanation: Mara refuses to let the chart become a replacement decree and submits
+    its jurisdiction to a public hearing.
+- transition_id: ion-command-fracture
+  subject: Ion Vale
+  attribute: institutional_position
+  before: null
+  after: suspended intermediary
+  explanation: Ion delivers seizure evidence to the hearing and loses command protection
+    from both Admiralty factions.
+- transition_id: mara-ion-trust
+  subject: Mara Venn and Ion Vale
+  attribute: relationship
+  before: conditional alliance
+  after: costly mutual reliance
+  explanation: Their alliance survives only after each accepts the other's testimony
+    can publicly damage them.
+- transition_id: nera-testimony-risk
+  subject: Nera Quill
+  attribute: obligation
+  before: active protection
+  after: protected witness with public claim
+  explanation: Nera's account is anonymized into the civic record while the person
+    endangered by the founding map remains hidden.
+- transition_id: sela-ledger-release
+  subject: Sela Orun
+  attribute: duty
+  before: preserve erased names
+  after: publish contested names
+  explanation: Sela releases the counter-ledger with provenance and refuses the House's
+    demand for a single authorized list.
+- transition_id: house-of-names-charter
+  subject: House of Names
+  attribute: internal_alignment
+  before: divided custodians
+  after: plural custodianship
+  explanation: The House creates competing public and protected ledgers instead of
+    resolving its disagreement by decree.
+- transition_id: admiralty-legitimacy
+  subject: Tidebound Admiralty
+  attribute: legitimacy
+  before: divided
+  after: publicly conditional
+  explanation: Food-route authority becomes conditional on accepting local testimony
+    and audit of the founding map.
+- transition_id: ferrymen-civic-leverage
+  subject: Ferrymen's Union
+  attribute: leverage
+  before: winter strike threat
+  after: recognized negotiating bloc
+  explanation: The Union ends its strike threat only after marsh families receive
+    provisional passage and identity protections.
+- transition_id: erased-coast-citizenship
+  subject: erased-coast
+  attribute: public_status
+  before: publicly contested
+  after: provisionally recognized communities
+  explanation: The hearing recognizes the settlements for civic purposes without pretending
+    the founding dispute is settled.
+- transition_id: brann-anomaly-corrobation
+  subject: Brann Ede
+  attribute: knowledge
+  before: preserved low-salience anomaly
+  after: corroborating witness to reef signal
+  explanation: Brann's bell report matches the copied deletion mark and reactivates
+    the anomaly as evidence of deliberate chart alteration.
+- transition_id: lio-anomaly-exposure
+  subject: Lio Marr
+  attribute: knowledge
+  before: holder of copied anomaly
+  after: endangered evidence custodian
+  explanation: Lio's copy becomes necessary to authenticate the deletion pattern and
+    puts him under the same protection pressure as Nera.
+- transition_id: winter-convoy-governance
+  subject: winter convoy
+  attribute: route_safety
+  before: disputed
+  after: jointly audited
+  explanation: Convoy routes are reopened under a temporary joint survey whose authority
+    remains revocable by testimony.
+source_refs:
+- artifact_id: book-2-direction
+  revision: 1
+resolved_commitment_ids: []

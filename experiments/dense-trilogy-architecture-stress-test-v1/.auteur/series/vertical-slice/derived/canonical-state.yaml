@@ -1,17 +1,19 @@
-state_version: 1
+state_version: 2
 values:
-  Mara Venn.authority: accountable dissident
-  erased-coast.public_status: publicly contested
-  Tidebound Admiralty.legitimacy: divided
-  Mara Venn and Ion Vale.relationship: conditional alliance
-  Sela Orun.duty: preserve erased names
+  Mara Venn.authority: contested civic witness
+  erased-coast.public_status: provisionally recognized communities
+  Tidebound Admiralty.legitimacy: publicly conditional
+  Mara Venn and Ion Vale.relationship: costly mutual reliance
+  Sela Orun.duty: publish contested names
   Tamsin Rusk.loyalty: earned ally
-  Nera Quill.obligation: active protection
-  Brann Ede.knowledge: preserved low-salience anomaly
-  Lio Marr.knowledge: holder of copied anomaly
-  Ferrymen's Union.leverage: winter strike threat
-  winter convoy.route_safety: disputed
-  House of Names.internal_alignment: divided custodians
+  Nera Quill.obligation: protected witness with public claim
+  Brann Ede.knowledge: corroborating witness to reef signal
+  Lio Marr.knowledge: endangered evidence custodian
+  Ferrymen's Union.leverage: recognized negotiating bloc
+  winter convoy.route_safety: jointly audited
+  House of Names.internal_alignment: plural custodianship
+  Ion Vale.institutional_position: suspended intermediary
 applied_bundle_ids:
 - realization-bundle-book-1-sounding-line-outcome
+- realization-bundle-book-2-returning-coast-outcome
 conflicts: []

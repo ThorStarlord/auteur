@@ -1,0 +1,34 @@
+SESSION B PRE-SOURCE NORMAL SURFACE OUTPUT
+
+Runtime: PYTHONPATH=src; python -c "from auteur.cli import main; ..."
+Warnings repeated on each invocation:
+  src/auteur/universe/constraints.py:27 UserWarning: Field name "schema" in
+  "StructuredConstraint" shadows an attribute in parent "BaseModel"
+
+Book 2, before planning intent:
+
+series journey accepted-facts <project> --book 2
+Error: An accepted Series Direction is required for a Book Direction
+
+series journey map <project> --book 2
+Error: The author must explicitly enter Book 2 planning before context can be derived
+
+series journey focus <project> --book 2
+Error: The author must explicitly enter Book 2 planning before context can be derived
+
+series review <project> --book 2
+Error: The author must explicitly enter Book 2 planning before context can be derived
+
+Book 1, attempted through the same repeated-history/planning surfaces:
+
+series journey accepted-facts <project> --book 1
+Error: Repeated history requires a planning Book number greater than 1
+
+series journey map <project> --book 1
+Error: Planning entry requires a Book number greater than 1
+
+series journey focus <project> --book 1
+Error: Planning entry requires a Book number greater than 1
+
+series review <project> --book 1
+Error: Planning intent requires a Book number greater than 1

@@ -1,0 +1,19 @@
+book_number: 2
+identity:
+  title: The Returning Coast
+  core_answer: Recognition of the erased coast must become shared civic authority rather than a new official myth.
+  target_experience: {primary: pressure, progression: mobilization -> divided loyalty -> costly redefinition, avoid: [predetermined betrayals]}
+  story_type: {medium: novel, mode: procedural, genre: mystery, target_audience: adult}
+  central_engine:
+    want: Mara and the witness coalition want a public reckoning over the coast's vanished communities.
+    resistance: Factions depend on the old map for food routes, property, and legal identity.
+    conflict: Repairing the map threatens the fragile peace it enabled.
+    stakes: Recognition may trigger civil violence or leave the erased communities permanently stateless.
+    change: Mara must learn whether testimony can govern without becoming another coercive map.
+  not_this: [A chapter outline, a scene outline, or a pre-solved Book 3]
+  open_questions:
+    - Who can share authority when the Admiralty, House of Names, Ferrymen's Union, and marsh communities claim incompatible rights?
+    - Can Nera's testimony be heard without exposing the person she protects?
+  confidence: 0.85
+  why_this_is_best: It carries the accepted Book-1 rupture into a national civic and institutional crisis while preserving unresolved witness and anomaly pressure.
+series_commitment_ids: [contested-map, visible-disagreement, witness-protection]

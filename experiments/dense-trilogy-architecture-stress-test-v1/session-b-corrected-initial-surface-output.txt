@@ -1,0 +1,42 @@
+SESSION B CORRECTED PRE-SOURCE NORMAL SURFACE OUTPUT
+
+Project path: H:/GithubRepositories/auteur-dense-trilogy-architecture-stress-test-v1/experiments/dense-trilogy-architecture-stress-test-v1
+Runtime: PYTHONPATH=src; python -c "from auteur.cli import main; ..."
+Warning repeated: Field name "schema" in StructuredConstraint shadows an
+attribute in parent BaseModel.
+
+series journey accepted-facts <project> --book 2
+Accepted facts through Book 1
+[B1-01~902166] Mara Venn.authority is accountable dissident.
+  Accepted in Book 1
+[B1-02~CA8F2C] erased-coast.public_status is publicly contested.
+  Accepted in Book 1
+[B1-03~FC94F6] Tidebound Admiralty.legitimacy is divided.
+  Accepted in Book 1
+[B1-04~7C59A0] Mara Venn and Ion Vale.relationship is conditional alliance.
+  Accepted in Book 1
+[B1-05~20399C] Sela Orun.duty is preserve erased names.
+  Accepted in Book 1
+[B1-06~ED9A46] Tamsin Rusk.loyalty is earned ally.
+  Accepted in Book 1
+[B1-07~8AEB3D] Nera Quill.obligation is active protection.
+  Accepted in Book 1
+[B1-08~26B362] Brann Ede.knowledge is preserved low-salience anomaly.
+  Accepted in Book 1
+[B1-09~B7E213] Lio Marr.knowledge is holder of copied anomaly.
+  Accepted in Book 1
+[B1-10~C06DBA] Ferrymen's Union.leverage is winter strike threat.
+  Accepted in Book 1
+[B1-11~65F4F8] winter convoy.route_safety is disputed.
+  Accepted in Book 1
+[B1-12~ECA81D] House of Names.internal_alignment is divided custodians.
+  Accepted in Book 1
+
+series journey map <project> --book 2
+Error: The author must explicitly enter Book 2 planning before context can be derived
+
+series journey focus <project> --book 2
+Error: The author must explicitly enter Book 2 planning before context can be derived
+
+series review <project> --book 2
+Error: An explicit Book 2 planning intent is required before continuity review
