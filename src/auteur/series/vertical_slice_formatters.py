@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from auteur.series.episode_direction import EpisodeDirectionInspection
 from auteur.series.repeated_map_focus import AcceptedHistorySnapshot, selection_token_display
 from auteur.series.vertical_slice_models import (
     AcceptedContinuitySourceRef,
@@ -314,5 +315,52 @@ def format_series_journey_focus(
             f"- {option.label}: {option.option_id}"
             for option in decision.options
         )
+
+    return "\n".join(lines)
+
+
+def format_episode_direction_inspection(
+    inspection: EpisodeDirectionInspection,
+    *,
+    detail: bool = False,
+) -> str:
+    """Render a read-only, progressive-disclosure Episode 1 inspection.
+
+    Default view (no ``detail``) shows semantic content only and exposes no
+    artifact ids, revision numbers, or accepted proposal id. ``detail``
+    additionally discloses provenance identifiers. Never labels the Episode
+    as "Book".
+    """
+    series = inspection.series
+    lines = ["Current Series Direction", series.title, series.promise]
+    if detail and inspection.series_ref is not None:
+        lines.append(_format_source_ref(inspection.series_ref))
+    if detail and inspection.entry_form_ref is not None:
+        lines.append(_format_source_ref(inspection.entry_form_ref))
+
+    lines.extend(["", "Accepted Episode 1 Direction"])
+    if inspection.episode is None:
+        lines.append("No accepted Episode 1 Direction yet.")
+    else:
+        identity = inspection.episode.direction.identity
+        lines.extend([identity.title, identity.core_answer])
+        if detail:
+            if inspection.episode_ref is not None:
+                lines.append(_format_source_ref(inspection.episode_ref))
+            lines.append(f"Proposal ID: {inspection.episode.proposal_id}")
+            if inspection.episode_series_source_ref is not None:
+                lines.append(
+                    "Accepted against Series Direction revision: "
+                    f"{inspection.episode_series_source_ref.revision}"
+                )
+
+    lines.extend(["", "Series commitment references recorded by Episode 1"])
+    if inspection.referenced_commitment_ids:
+        lines.extend(
+            f"- {commitment_id}"
+            for commitment_id in inspection.referenced_commitment_ids
+        )
+    else:
+        lines.append("(none)")
 
     return "\n".join(lines)

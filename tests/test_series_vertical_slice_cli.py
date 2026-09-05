@@ -8,6 +8,7 @@ import yaml
 from auteur.cli import main
 from auteur.series.vertical_slice_models import (
     BookDirection,
+    EpisodeDirection,
     RealizationCandidate,
     SeriesDirection,
 )
@@ -26,6 +27,34 @@ def _load_model(path: Path, model_type):
     return model_type.model_validate(
         yaml.safe_load(path.read_text(encoding="utf-8"))
     )
+
+
+def _write_episode_input(tmp_path: Path) -> Path:
+    raw = yaml.safe_load(BOOK_INPUT.read_text(encoding="utf-8"))
+    payload = {
+        "identity": raw["identity"],
+        "series_commitment_ids": raw["series_commitment_ids"],
+    }
+    # Validate round-trip shape before writing so the fixture is guaranteed
+    # to load as a real EpisodeDirection.
+    EpisodeDirection.model_validate(payload)
+    episode_input = tmp_path / "episode_1_direction.yaml"
+    episode_input.write_text(
+        yaml.safe_dump(payload, sort_keys=False), encoding="utf-8"
+    )
+    return episode_input
+
+
+def _prepare_declared_episodic(project: Path) -> SeriesVerticalSliceService:
+    service = SeriesVerticalSliceService(project)
+    series_proposal = service.propose_series_direction(
+        _load_model(SERIES_INPUT, SeriesDirection)
+    )
+    service.accept_series_direction(
+        series_proposal.proposal_id, accepted_by="archive-author"
+    )
+    service.declare_series_episodic(declared_by="author")
+    return service
 
 
 def _prepare_book_2(project: Path) -> SeriesVerticalSliceService:
@@ -232,6 +261,27 @@ def test_cli_proposal_commands_do_not_accept_on_generation(
     tmp_path: Path,
     capsys,
 ) -> None:
+    episode_project = tmp_path / "episode-project"
+    episode_project.mkdir()
+    episode_service = _prepare_declared_episodic(episode_project)
+    episode_input = _write_episode_input(episode_project)
+
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "propose-episode",
+                str(episode_project),
+                "--input",
+                str(episode_input),
+            ]
+        )
+        == 0
+    )
+    capsys.readouterr()
+    assert episode_service.load_accepted_episode_direction() is None
+
     service = SeriesVerticalSliceService(tmp_path)
 
     assert (
@@ -480,3 +530,229 @@ def test_decide_records_only_the_workflow_action(
         service.load_accepted_book_direction(2),
         service.load_canonical_state(),
     ) == accepted_before
+
+
+# ---------------------------------------------------------------------------
+# Episode 1 Direction CLI subcommands
+# ---------------------------------------------------------------------------
+
+
+def test_all_series_journey_subcommands_still_parse(capsys) -> None:
+    for command in [
+        "propose-series",
+        "accept-series",
+        "propose-book",
+        "accept-book",
+        "declare-episodic",
+        "propose-episode",
+        "accept-episode",
+        "inspect-episode",
+        "propose-outcome",
+        "accept-outcome",
+        "plan-next-book",
+        "map",
+        "accepted-facts",
+        "focus",
+        "decide",
+    ]:
+        with pytest.raises(SystemExit) as exc_info:
+            main(["series", "journey", command, "--help"])
+        assert exc_info.value.code == 0
+
+
+def test_declare_episodic_new_then_idempotent_rerun(
+    tmp_path: Path, capsys
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    series_proposal = service.propose_series_direction(
+        _load_model(SERIES_INPUT, SeriesDirection)
+    )
+    service.accept_series_direction(
+        series_proposal.proposal_id, accepted_by="archive-author"
+    )
+
+    assert (
+        main(["series", "journey", "declare-episodic", str(tmp_path)]) == 0
+    )
+    assert "Series entry form declared: episodic." in (
+        capsys.readouterr().out
+    )
+
+    assert (
+        main(["series", "journey", "declare-episodic", str(tmp_path)]) == 0
+    )
+    assert "Series entry form already episodic; no change." in (
+        capsys.readouterr().out
+    )
+
+
+def test_propose_episode_before_declare_episodic_errors(
+    tmp_path: Path, capsys
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    series_proposal = service.propose_series_direction(
+        _load_model(SERIES_INPUT, SeriesDirection)
+    )
+    service.accept_series_direction(
+        series_proposal.proposal_id, accepted_by="archive-author"
+    )
+    episode_input = _write_episode_input(tmp_path)
+
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "propose-episode",
+                str(tmp_path),
+                "--input",
+                str(episode_input),
+            ]
+        )
+        == 1
+    )
+    assert "Error:" in capsys.readouterr().out
+
+
+def test_accept_episode_new_then_idempotent_rerun(
+    tmp_path: Path, capsys
+) -> None:
+    _prepare_declared_episodic(tmp_path)
+    episode_input = _write_episode_input(tmp_path)
+
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "propose-episode",
+                str(tmp_path),
+                "--input",
+                str(episode_input),
+            ]
+        )
+        == 0
+    )
+    proposal_id = _proposal_id(capsys.readouterr().out)
+
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "accept-episode",
+                str(tmp_path),
+                proposal_id,
+            ]
+        )
+        == 0
+    )
+    assert "Accepted Episode 1 Direction: The Missing Ledger" in (
+        capsys.readouterr().out
+    )
+
+    assert (
+        main(
+            [
+                "series",
+                "journey",
+                "accept-episode",
+                str(tmp_path),
+                proposal_id,
+            ]
+        )
+        == 0
+    )
+    assert "Episode 1 Direction already accepted; no change." in (
+        capsys.readouterr().out
+    )
+
+
+def _accept_episode(tmp_path: Path, capsys) -> str:
+    _prepare_declared_episodic(tmp_path)
+    episode_input = _write_episode_input(tmp_path)
+    main(
+        [
+            "series",
+            "journey",
+            "propose-episode",
+            str(tmp_path),
+            "--input",
+            str(episode_input),
+        ]
+    )
+    proposal_id = _proposal_id(capsys.readouterr().out)
+    main(["series", "journey", "accept-episode", str(tmp_path), proposal_id])
+    capsys.readouterr()
+    return proposal_id
+
+
+def test_inspect_episode_default_hides_provenance_and_never_says_book(
+    tmp_path: Path, capsys
+) -> None:
+    _accept_episode(tmp_path, capsys)
+
+    assert (
+        main(["series", "journey", "inspect-episode", str(tmp_path)]) == 0
+    )
+    output = capsys.readouterr().out
+
+    assert "revision " not in output
+    assert "episode-1-direction" not in output
+    assert "series-entry-form" not in output
+    assert "Book" not in output
+
+
+def test_inspect_episode_detail_discloses_provenance(
+    tmp_path: Path, capsys
+) -> None:
+    _accept_episode(tmp_path, capsys)
+
+    assert (
+        main(
+            ["series", "journey", "inspect-episode", str(tmp_path), "--detail"]
+        )
+        == 0
+    )
+    output = capsys.readouterr().out
+
+    assert "episode-1-direction (revision 1)" in output
+    assert "series-entry-form (revision 1)" in output
+    assert "Proposal ID:" in output
+
+
+def test_inspect_episode_after_series_advances_still_succeeds(
+    tmp_path: Path, capsys
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    _accept_episode(tmp_path, capsys)
+
+    revised = _load_model(SERIES_INPUT, SeriesDirection).model_copy(
+        update={
+            "promise": "Every recovered account changes who controls history."
+        }
+    )
+    series_proposal = service.propose_series_direction(revised)
+    service.accept_series_direction(
+        series_proposal.proposal_id, accepted_by="archive-author"
+    )
+
+    assert (
+        main(["series", "journey", "inspect-episode", str(tmp_path)]) == 0
+    )
+    default_output = capsys.readouterr().out
+    assert "revision " not in default_output
+    assert "episode-1-direction" not in default_output
+    assert "Book" not in default_output
+    assert "The Missing Ledger" in default_output
+    assert "contested-history" in default_output
+
+    assert (
+        main(
+            ["series", "journey", "inspect-episode", str(tmp_path), "--detail"]
+        )
+        == 0
+    )
+    detail_output = capsys.readouterr().out
+    assert "series-direction (revision 2)" in detail_output
+    assert "Accepted against Series Direction revision: 1" in detail_output

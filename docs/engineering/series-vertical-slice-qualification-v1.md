@@ -129,7 +129,17 @@ were included in the complete regression suite.
 The following remain intentionally outside this qualification:
 
 - free-form author-authored Book 2 Direction;
-- episode support or Book/Episode unification;
+- generalized episode support or Book/Episode unification (a narrow,
+  bounded exception has since been proposed and evaluated separately: a
+  first-class Episode 1 Direction workflow for an explicitly episodic Series,
+  scoped to Episode 1 only, with no Episode realization or canonical state and
+  no change to `SeriesDirection`; see
+  [Bounded Episode 1 Direction Qualification](series-episode-one-direction-qualification-v1.md),
+  which as of this writing states that qualification evidence for that
+  bounded capability is complete, while explicitly not asserting anything
+  about this repository's separate, downstream Feature Factory Validator
+  rerun or CHECKPOINT 3 gate — it does not reopen or supersede this
+  document's original deferral of the general case);
 - universal Direction inheritance and generalized revision propagation;
 - universal dependency inference or a generalized Author Decision system;
 - replacement of the existing StoryBible/full-Series workflow;

@@ -28,6 +28,7 @@ from auteur.series.serializers import (
 )
 from auteur.series.vertical_slice_formatters import (
     format_accepted_facts,
+    format_episode_direction_inspection,
     format_repeated_series_focus,
     format_repeated_series_map,
     format_series_journey_focus,
@@ -36,6 +37,7 @@ from auteur.series.vertical_slice_formatters import (
 from auteur.series.vertical_slice_models import (
     BookDirection,
     DecisionOption,
+    EpisodeDirection,
     RealizationCandidate,
     SeriesDirection,
 )
@@ -98,6 +100,34 @@ def register_series_subcommands(sub) -> None:
     )
     p.add_argument("project", type=Path)
     p.add_argument("proposal_id")
+
+    p = journey_commands.add_parser(
+        "declare-episodic",
+        help="Declare this Series episodic (Episode 1 Direction, not Book).",
+    )
+    p.add_argument("project", type=Path)
+
+    p = journey_commands.add_parser(
+        "propose-episode", help="Create an Episode 1 Direction proposal."
+    )
+    p.add_argument("project", type=Path)
+    p.add_argument("--input", type=Path, required=True)
+
+    p = journey_commands.add_parser(
+        "accept-episode", help="Accept an Episode 1 Direction proposal."
+    )
+    p.add_argument("project", type=Path)
+    p.add_argument("proposal_id")
+
+    p = journey_commands.add_parser(
+        "inspect-episode", help="Read-only Series/Episode inspection view."
+    )
+    p.add_argument("project", type=Path)
+    p.add_argument(
+        "--detail",
+        action="store_true",
+        help="Show artifact and revision IDs hidden by default.",
+    )
 
     p = journey_commands.add_parser(
         "propose-outcome", help="Create a bounded outcome candidate."
@@ -242,6 +272,46 @@ def handle_series_journey_command(args) -> int:
             print(
                 f"Accepted Book {accepted.direction.book_number} Direction: "
                 f"{accepted.direction.identity.title}"
+            )
+            return 0
+
+        if args.journey_command == "declare-episodic":
+            declaration = service.declare_series_episodic(
+                declared_by=_CLI_AUTHOR
+            )
+            if declaration.already_declared:
+                print("Series entry form already episodic; no change.")
+            else:
+                print("Series entry form declared: episodic.")
+            return 0
+
+        if args.journey_command == "propose-episode":
+            proposal = service.propose_episode_direction(
+                _load_journey_input(args.input, EpisodeDirection)
+            )
+            print("Episode 1 Direction proposal saved.")
+            print(f"Proposal ID: {proposal.proposal_id}")
+            return 0
+
+        if args.journey_command == "accept-episode":
+            acceptance = service.accept_episode_direction(
+                args.proposal_id, accepted_by=_CLI_AUTHOR
+            )
+            if acceptance.already_accepted:
+                print("Episode 1 Direction already accepted; no change.")
+            else:
+                print(
+                    "Accepted Episode 1 Direction: "
+                    f"{acceptance.direction.direction.identity.title}"
+                )
+            return 0
+
+        if args.journey_command == "inspect-episode":
+            inspection = service.inspect_episode_direction()
+            print(
+                format_episode_direction_inspection(
+                    inspection, detail=args.detail
+                )
             )
             return 0
 

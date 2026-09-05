@@ -4,17 +4,20 @@ import shutil
 from pathlib import Path
 from typing import Any
 
+import pytest
 import yaml
 from pydantic import BaseModel
 
 from auteur.provenance import Lifecycle
 from auteur.series.vertical_slice_formatters import (
+    format_episode_direction_inspection,
     format_series_journey_focus,
     format_series_journey_map,
 )
 from auteur.series.vertical_slice_models import (
     BookDirection,
     BookPlanningContext,
+    EpisodeDirection,
     NextDecisionProposal,
     RealizationCandidate,
     SeriesDirection,
@@ -23,10 +26,15 @@ from auteur.series.vertical_slice_service import SeriesVerticalSliceService
 
 
 FIXTURE_ROOT = Path(__file__).parent / "fixtures" / "archive_of_lies_vertical_slice"
+EPISODE_ONE_FIXTURE_ROOT = (
+    Path(__file__).parent / "fixtures" / "archive_of_lies_episode_one"
+)
 
 
-def _load_fixture(name: str, model_type: type[BaseModel]) -> Any:
-    payload = yaml.safe_load((FIXTURE_ROOT / name).read_text(encoding="utf-8"))
+def _load_fixture(
+    name: str, model_type: type[BaseModel], *, root: Path = FIXTURE_ROOT
+) -> Any:
+    payload = yaml.safe_load((root / name).read_text(encoding="utf-8"))
     return model_type.model_validate(payload)
 
 
@@ -250,3 +258,102 @@ def test_archive_of_lies_series_vertical_slice_end_to_end(tmp_path: Path) -> Non
     assert f"Proposal ID: {decision.proposal_id}" in detailed_focus
     assert "Option IDs" in detailed_focus
     assert all(option.option_id in detailed_focus for option in decision.options)
+
+
+def test_archive_of_lies_episode_one_direction_end_to_end(tmp_path: Path) -> None:
+    project = tmp_path / "archive-of-lies-episodic"
+    service = SeriesVerticalSliceService(project)
+
+    series_direction = _load_fixture(
+        "series_direction.yaml",
+        SeriesDirection,
+        root=EPISODE_ONE_FIXTURE_ROOT,
+    )
+    episode_direction = _load_fixture(
+        "episode_1_direction.yaml",
+        EpisodeDirection,
+        root=EPISODE_ONE_FIXTURE_ROOT,
+    )
+
+    # Declare (before an accepted Series Direction exists -> must fail).
+    with pytest.raises(ValueError):
+        service.declare_series_episodic(declared_by="archive-author")
+
+    series_proposal = service.propose_series_direction(series_direction)
+    accepted_series = service.accept_series_direction(
+        series_proposal.proposal_id, accepted_by="archive-author"
+    )
+    assert accepted_series.direction == series_direction
+    assert service.load_entry_form() == "book"
+
+    # Declare episodic.
+    declaration = service.declare_series_episodic(declared_by="archive-author")
+    assert declaration.already_declared is False
+    assert service.load_entry_form() == "episodic"
+
+    redeclared = service.declare_series_episodic(declared_by="someone-else")
+    assert redeclared.already_declared is True
+    assert redeclared.record.declared_by == "archive-author"
+
+    # An episodic Series must reject Book Direction work outright.
+    with pytest.raises(ValueError):
+        service.propose_book_direction(
+            _load_fixture(
+                "book_1_direction.yaml",
+                BookDirection,
+                root=FIXTURE_ROOT,
+            )
+        )
+    assert service.load_accepted_book_direction(1) is None
+
+    # Propose (non-authoritative).
+    assert service.load_accepted_episode_direction() is None
+    episode_proposal = service.propose_episode_direction(episode_direction)
+    assert (
+        service.load_episode_direction_proposal(episode_proposal.proposal_id)
+        == episode_proposal
+    )
+    assert service.load_accepted_episode_direction() is None
+
+    # Accept (authority transition).
+    acceptance = service.accept_episode_direction(
+        episode_proposal.proposal_id, accepted_by="archive-author"
+    )
+    assert acceptance.already_accepted is False
+    assert acceptance.direction.direction == episode_direction
+
+    # Re-accepting the same proposal is an idempotent no-op.
+    reacceptance = service.accept_episode_direction(
+        episode_proposal.proposal_id, accepted_by="archive-author"
+    )
+    assert reacceptance.already_accepted is True
+    assert reacceptance.direction == acceptance.direction
+
+    # Reload with a fresh service instance -> identical content.
+    reloaded_service = SeriesVerticalSliceService(project)
+    reloaded_episode = reloaded_service.load_accepted_episode_direction()
+    assert reloaded_episode == acceptance.direction
+    assert reloaded_episode.direction == episode_direction
+    assert reloaded_service.load_accepted_series_direction() == accepted_series
+
+    # Inspect: distinguishes Series-level from Episode-level authority, never
+    # surfaces Episode 1 as "Book 1", and discloses provenance only under
+    # --detail.
+    inspection = reloaded_service.inspect_episode_direction()
+    assert inspection.series == accepted_series.direction
+    assert inspection.episode == reloaded_episode
+    assert inspection.referenced_commitment_ids == (
+        "contested-history",
+    )
+
+    default_output = format_episode_direction_inspection(inspection)
+    detail_output = format_episode_direction_inspection(inspection, detail=True)
+    assert "Book" not in default_output
+    assert "Book" not in detail_output
+    assert "revision" not in default_output
+    assert episode_direction.identity.title in default_output
+    assert series_direction.title in default_output
+    assert "episode-1-direction (revision 1)" in detail_output
+    assert "series-entry-form (revision 1)" in detail_output
+    assert f"Proposal ID: {episode_proposal.proposal_id}" in detail_output
+    assert "Accepted against Series Direction revision: 1" in detail_output
