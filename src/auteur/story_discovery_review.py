@@ -158,9 +158,9 @@ def _render_recommendation_actions(root: Path, state: StoryDiscoveryProjectState
     print("\nYou can:")
     if state.recommended_candidate_path is not None:
         try:
-            display_path = state.recommended_candidate_path.relative_to(root)
+            display_path = state.recommended_candidate_path.relative_to(root).as_posix()
         except ValueError:
-            display_path = state.recommended_candidate_path
+            display_path = state.recommended_candidate_path.as_posix()
         print("- Accept this direction explicitly:")
         print(f"    auteur story-discovery accept {display_path} --output story_identity.yaml")
     if state.can_compose:
@@ -263,9 +263,9 @@ def _render_comparative_non_adjudicable(root: Path, discovery_set: dict[str, Any
         if not path.is_file():
             continue
         try:
-            display_path = path.relative_to(root)
+            display_path = path.relative_to(root).as_posix()
         except ValueError:
-            display_path = path
+            display_path = path.as_posix()
         print(f"- Choose {_title(path, candidate_id)} explicitly:")
         print(f"    auteur story-discovery accept {display_path} --output story_identity.yaml")
     print("- Refine or change what you want:")
@@ -376,16 +376,16 @@ def _render_composed(root: Path, state: StoryDiscoveryProjectState) -> None:
     print("\nNothing canonical has changed.")
     print("\nYou can:")
     try:
-        composed_display = state.composed_candidate_path.relative_to(root)
+        composed_display = state.composed_candidate_path.relative_to(root).as_posix()
     except ValueError:
-        composed_display = state.composed_candidate_path
+        composed_display = state.composed_candidate_path.as_posix()
     print("- Accept the composed candidate explicitly:")
     print(f"    auteur story-discovery accept {composed_display} --output story_identity.yaml")
     if primary_path.is_file():
         try:
-            primary_display = primary_path.relative_to(root)
+            primary_display = primary_path.relative_to(root).as_posix()
         except ValueError:
-            primary_display = primary_path
+            primary_display = primary_path.as_posix()
         print("- Or accept the uncomposed primary:")
         print(f"    auteur story-discovery accept {primary_display} --output story_identity.yaml")
     print("- Change your declared intent:")
