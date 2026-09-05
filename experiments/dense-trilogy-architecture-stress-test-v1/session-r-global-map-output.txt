@@ -1,0 +1,175 @@
+H:\GithubRepositories\auteur-dense-trilogy-architecture-stress-test-v1\src\auteur\universe\constraints.py:27: UserWarning: Field name "schema" in "StructuredConstraint" shadows an attribute in parent "BaseModel"
+  class StructuredConstraint(BaseModel):
+Series Map: Book 3
+
+Current constraints
+- Every Book must make official geography answerable to lived testimony.
+  Why it matters now: Accepted Series commitment contested-map is carried by accepted Book 1, Book 2 direction history, so it remains a constraint on Book 3 planning.
+  Entry ID: contested-map
+  Disposition: active
+  Source references:
+    - series-direction (revision 1)
+    - book-1-direction (revision 1)
+    - book-2-direction (revision 1)
+- The final civic settlement must preserve disagreement rather than erase it.
+  Why it matters now: Accepted Series commitment visible-disagreement is carried by accepted Book 1, Book 2 direction history, so it remains a constraint on Book 3 planning.
+  Entry ID: visible-disagreement
+  Disposition: active
+  Source references:
+    - series-direction (revision 1)
+    - book-1-direction (revision 1)
+    - book-2-direction (revision 1)
+- A person endangered by the founding map must remain protected until their account can be heard.
+  Why it matters now: Accepted Series commitment witness-protection is carried by accepted Book 1, Book 2 direction history, so it remains a constraint on Book 3 planning.
+  Entry ID: witness-protection
+  Disposition: active
+  Source references:
+    - series-direction (revision 1)
+    - book-1-direction (revision 1)
+    - book-2-direction (revision 1)
+- Mara Venn and Ion Vale.relationship is costly mutual reliance.
+  Why it matters now: Book 3 planning explicitly references accepted fact mara-ion-trust; its current Mara Venn and Ion Vale.relationship state is costly mutual reliance, so this current fact constrains Book 3.
+  Entry ID: realization-bundle-book-2-returning-coast-outcome@1/mara-ion-trust
+  Disposition: active
+  Source references:
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact mara-ion-trust)
+- Nera Quill.obligation is protected witness with public claim.
+  Why it matters now: Book 3 planning explicitly references accepted fact nera-testimony-risk; its current Nera Quill.obligation state is protected witness with public claim, so this current fact constrains Book 3.
+  Entry ID: realization-bundle-book-2-returning-coast-outcome@1/nera-testimony-risk
+  Disposition: active
+  Source references:
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact nera-testimony-risk)
+- Brann Ede.knowledge is corroborating witness to reef signal.
+  Why it matters now: Book 3 planning explicitly references accepted fact brann-anomaly-corrobation; its current Brann Ede.knowledge state is corroborating witness to reef signal, so this current fact constrains Book 3.
+  Entry ID: realization-bundle-book-2-returning-coast-outcome@1/brann-anomaly-corrobation
+  Disposition: active
+  Source references:
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact brann-anomaly-corrobation)
+
+Historical continuity
+- Mara Venn.authority is accountable dissident.
+  Why it matters now: Accepted fact mara-chart-authority is superseded for Book 3 by current fact mara-public-authority, which sets Mara Venn.authority to contested civic witness.
+  Entry ID: realization-bundle-book-1-sounding-line-outcome@2/mara-chart-authority
+  Disposition: superseded
+  Source references:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact mara-chart-authority)
+- erased-coast.public_status is publicly contested.
+  Why it matters now: Accepted fact coast-status is superseded for Book 3 by current fact erased-coast-citizenship, which sets erased-coast.public_status to provisionally recognized communities.
+  Entry ID: realization-bundle-book-1-sounding-line-outcome@2/coast-status
+  Disposition: superseded
+  Source references:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact coast-status)
+- Tidebound Admiralty.legitimacy is divided.
+  Why it matters now: Accepted fact admiralty-legitimacy is superseded for Book 3 by current fact admiralty-legitimacy, which sets Tidebound Admiralty.legitimacy to publicly conditional.
+  Entry ID: realization-bundle-book-1-sounding-line-outcome@2/admiralty-legitimacy
+  Disposition: superseded
+  Source references:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact admiralty-legitimacy)
+- Mara Venn and Ion Vale.relationship is strained cooperation under unresolved distrust.
+  Why it matters now: Accepted fact mara-ion-trust is superseded for Book 3 by current fact mara-ion-trust, which sets Mara Venn and Ion Vale.relationship to costly mutual reliance.
+  Entry ID: realization-bundle-book-1-sounding-line-outcome@2/mara-ion-trust
+  Disposition: superseded
+  Source references:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact mara-ion-trust)
+- Sela Orun.duty is preserve erased names.
+  Why it matters now: Accepted fact sela-archive-duty is superseded for Book 3 by current fact sela-ledger-release, which sets Sela Orun.duty to publish contested names.
+  Entry ID: realization-bundle-book-1-sounding-line-outcome@2/sela-archive-duty
+  Disposition: superseded
+  Source references:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact sela-archive-duty)
+- Tamsin Rusk.loyalty is earned ally.
+  Why it matters now: Accepted fact tamsin-route-choice sets current Tamsin Rusk.loyalty to earned ally, but Book 3 planning does not reference it, so it remains derived support only.
+  Entry ID: realization-bundle-book-1-sounding-line-outcome@2/tamsin-route-choice
+  Disposition: dormant
+  Source references:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact tamsin-route-choice)
+- Nera Quill.obligation is active protection.
+  Why it matters now: Accepted fact nera-protected-witness is superseded for Book 3 by current fact nera-testimony-risk, which sets Nera Quill.obligation to protected witness with public claim.
+  Entry ID: realization-bundle-book-1-sounding-line-outcome@2/nera-protected-witness
+  Disposition: superseded
+  Source references:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact nera-protected-witness)
+- Brann Ede.knowledge is preserved low-salience anomaly.
+  Why it matters now: Accepted fact brann-bell-report is superseded for Book 3 by current fact brann-anomaly-corrobation, which sets Brann Ede.knowledge to corroborating witness to reef signal.
+  Entry ID: realization-bundle-book-1-sounding-line-outcome@2/brann-bell-report
+  Disposition: superseded
+  Source references:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact brann-bell-report)
+- Lio Marr.knowledge is holder of copied anomaly.
+  Why it matters now: Accepted fact lio-deletion-copy is superseded for Book 3 by current fact lio-anomaly-exposure, which sets Lio Marr.knowledge to endangered evidence custodian.
+  Entry ID: realization-bundle-book-1-sounding-line-outcome@2/lio-deletion-copy
+  Disposition: superseded
+  Source references:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact lio-deletion-copy)
+- Ferrymen's Union.leverage is winter strike threat.
+  Why it matters now: Accepted fact ferry-union-pressure is superseded for Book 3 by current fact ferrymen-civic-leverage, which sets Ferrymen's Union.leverage to recognized negotiating bloc.
+  Entry ID: realization-bundle-book-1-sounding-line-outcome@2/ferry-union-pressure
+  Disposition: superseded
+  Source references:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact ferry-union-pressure)
+- winter convoy.route_safety is disputed.
+  Why it matters now: Accepted fact winter-convoy-risk is superseded for Book 3 by current fact winter-convoy-governance, which sets winter convoy.route_safety to jointly audited.
+  Entry ID: realization-bundle-book-1-sounding-line-outcome@2/winter-convoy-risk
+  Disposition: superseded
+  Source references:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact winter-convoy-risk)
+- House of Names.internal_alignment is divided custodians.
+  Why it matters now: Accepted fact house-of-names is superseded for Book 3 by current fact house-of-names-charter, which sets House of Names.internal_alignment to plural custodianship.
+  Entry ID: realization-bundle-book-1-sounding-line-outcome@2/house-of-names
+  Disposition: superseded
+  Source references:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact house-of-names)
+- Mara Venn.authority is contested civic witness.
+  Why it matters now: Accepted fact mara-public-authority sets current Mara Venn.authority to contested civic witness, but Book 3 planning does not reference it, so it remains derived support only.
+  Entry ID: realization-bundle-book-2-returning-coast-outcome@1/mara-public-authority
+  Disposition: irrelevant
+  Source references:
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact mara-public-authority)
+- Ion Vale.institutional_position is suspended intermediary.
+  Why it matters now: Accepted fact ion-command-fracture sets current Ion Vale.institutional_position to suspended intermediary, but Book 3 planning does not reference it, so it remains derived support only.
+  Entry ID: realization-bundle-book-2-returning-coast-outcome@1/ion-command-fracture
+  Disposition: irrelevant
+  Source references:
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact ion-command-fracture)
+- Sela Orun.duty is publish contested names.
+  Why it matters now: Accepted fact sela-ledger-release sets current Sela Orun.duty to publish contested names, but Book 3 planning does not reference it, so it remains derived support only.
+  Entry ID: realization-bundle-book-2-returning-coast-outcome@1/sela-ledger-release
+  Disposition: irrelevant
+  Source references:
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact sela-ledger-release)
+- House of Names.internal_alignment is plural custodianship.
+  Why it matters now: Accepted fact house-of-names-charter sets current House of Names.internal_alignment to plural custodianship, but Book 3 planning does not reference it, so it remains derived support only.
+  Entry ID: realization-bundle-book-2-returning-coast-outcome@1/house-of-names-charter
+  Disposition: irrelevant
+  Source references:
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact house-of-names-charter)
+- Tidebound Admiralty.legitimacy is publicly conditional.
+  Why it matters now: Accepted fact admiralty-legitimacy sets current Tidebound Admiralty.legitimacy to publicly conditional, but Book 3 planning does not reference it, so it remains derived support only.
+  Entry ID: realization-bundle-book-2-returning-coast-outcome@1/admiralty-legitimacy
+  Disposition: irrelevant
+  Source references:
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact admiralty-legitimacy)
+- Ferrymen's Union.leverage is recognized negotiating bloc.
+  Why it matters now: Accepted fact ferrymen-civic-leverage sets current Ferrymen's Union.leverage to recognized negotiating bloc, but Book 3 planning does not reference it, so it remains derived support only.
+  Entry ID: realization-bundle-book-2-returning-coast-outcome@1/ferrymen-civic-leverage
+  Disposition: irrelevant
+  Source references:
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact ferrymen-civic-leverage)
+- erased-coast.public_status is provisionally recognized communities.
+  Why it matters now: Accepted fact erased-coast-citizenship sets current erased-coast.public_status to provisionally recognized communities, but Book 3 planning does not reference it, so it remains derived support only.
+  Entry ID: realization-bundle-book-2-returning-coast-outcome@1/erased-coast-citizenship
+  Disposition: irrelevant
+  Source references:
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact erased-coast-citizenship)
+- Lio Marr.knowledge is endangered evidence custodian.
+  Why it matters now: Accepted fact lio-anomaly-exposure sets current Lio Marr.knowledge to endangered evidence custodian, but Book 3 planning does not reference it, so it remains derived support only.
+  Entry ID: realization-bundle-book-2-returning-coast-outcome@1/lio-anomaly-exposure
+  Disposition: irrelevant
+  Source references:
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact lio-anomaly-exposure)
+- winter convoy.route_safety is jointly audited.
+  Why it matters now: Accepted fact winter-convoy-governance sets current winter convoy.route_safety to jointly audited, but Book 3 planning does not reference it, so it remains derived support only.
+  Entry ID: realization-bundle-book-2-returning-coast-outcome@1/winter-convoy-governance
+  Disposition: irrelevant
+  Source references:
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact winter-convoy-governance)

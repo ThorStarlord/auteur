@@ -1,6 +1,6 @@
 artifact_id: realization-bundle-book-1-sounding-line-outcome
 bundle_id: realization-bundle-book-1-sounding-line-outcome
-candidate_id: book-1-sounding-line-outcome
+candidate_id: book-1-sounding-line-outcome-revision-2
 book_number: 1
 transitions:
 - transition_id: mara-chart-authority
@@ -27,8 +27,10 @@ transitions:
   subject: Mara Venn and Ion Vale
   attribute: relationship
   before: null
-  after: conditional alliance
-  explanation: Ion conceals seizure orders before choosing to deliver Mara's evidence.
+  after: strained cooperation under unresolved distrust
+  explanation: Ion still delivers Mara's evidence, but Mara learns that he concealed
+    the seizure orders until after she publicly committed herself. They cooperate
+    on the immediate crisis without establishing conditional trust.
 - transition_id: sela-archive-duty
   subject: Sela Orun
   attribute: duty

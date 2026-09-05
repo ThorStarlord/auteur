@@ -1,0 +1,3 @@
+H:\GithubRepositories\auteur-dense-trilogy-architecture-stress-test-v1\src\auteur\universe\constraints.py:27: UserWarning: Field name "schema" in "StructuredConstraint" shadows an attribute in parent "BaseModel"
+  class StructuredConstraint(BaseModel):
+Series diagnostics written to C:\Users\Admin\AppData\Local\Temp\auteur-session-r-series\series-diagnostics.json

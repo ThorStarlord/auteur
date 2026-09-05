@@ -18,4 +18,6 @@ applied_bundle_ids:
 - realization-bundle-book-1-sounding-line-outcome
 - realization-bundle-book-2-returning-coast-outcome
 - realization-bundle-book-3-common-horizon-outcome
-conflicts: []
+conflicts:
+- 'mara-ion-trust: expected Mara Venn and Ion Vale.relationship=''conditional alliance'',
+  found ''strained cooperation under unresolved distrust'''

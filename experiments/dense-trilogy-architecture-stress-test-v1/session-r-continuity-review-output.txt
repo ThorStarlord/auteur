@@ -1,0 +1,266 @@
+H:\GithubRepositories\auteur-dense-trilogy-architecture-stress-test-v1\src\auteur\universe\constraints.py:27: UserWarning: Field name "schema" in "StructuredConstraint" shadows an attribute in parent "BaseModel"
+  class StructuredConstraint(BaseModel):
+Series Continuity Review: Book 3
+
+CURRENT PLANNING DECISION
+Book 3 must make the republic answerable to erased-coast testimony by deciding whether the reef signal and endangered witness evidence can reopen the official map, while Mara and Ion's costly mutual reliance is tested by the food-route and legal-identity consequences of shared authority.
+
+SERIES DIRECTION
+Promise: Each recovered coastline forces the republic to choose between usable myths and accountable memory.
+Pressure: Correcting the official map threatens the food routes and legal identities built on it.
+Series open question: Can a society share authority when its history remains contested?
+
+ACTIVE COMMITMENTS
+- Every Book must make official geography answerable to lived testimony.
+  Commitment ID: contested-map (series)
+- The final civic settlement must preserve disagreement rather than erase it.
+  Commitment ID: visible-disagreement (series)
+- A person endangered by the founding map must remain protected until their account can be heard.
+  Commitment ID: witness-protection (series)
+
+RESOLVED COMMITMENTS (HISTORY)
+- None recorded.
+
+WHAT THE ACCEPTED STORY CURRENTLY SAYS
+- Every Book must make official geography answerable to lived testimony.
+  Entry ID: contested-map; disposition: active
+- The final civic settlement must preserve disagreement rather than erase it.
+  Entry ID: visible-disagreement; disposition: active
+- A person endangered by the founding map must remain protected until their account can be heard.
+  Entry ID: witness-protection; disposition: active
+- Mara Venn and Ion Vale.relationship is costly mutual reliance.
+  Entry ID: realization-bundle-book-2-returning-coast-outcome@1/mara-ion-trust; disposition: active
+- Nera Quill.obligation is protected witness with public claim.
+  Entry ID: realization-bundle-book-2-returning-coast-outcome@1/nera-testimony-risk; disposition: active
+- Brann Ede.knowledge is corroborating witness to reef signal.
+  Entry ID: realization-bundle-book-2-returning-coast-outcome@1/brann-anomaly-corrobation; disposition: active
+
+RELEVANT ACCEPTED HISTORY
+- Mara Venn.authority is accountable dissident.
+  Entry ID: realization-bundle-book-1-sounding-line-outcome@2/mara-chart-authority; disposition: superseded
+- erased-coast.public_status is publicly contested.
+  Entry ID: realization-bundle-book-1-sounding-line-outcome@2/coast-status; disposition: superseded
+- Tidebound Admiralty.legitimacy is divided.
+  Entry ID: realization-bundle-book-1-sounding-line-outcome@2/admiralty-legitimacy; disposition: superseded
+- Mara Venn and Ion Vale.relationship is strained cooperation under unresolved distrust.
+  Entry ID: realization-bundle-book-1-sounding-line-outcome@2/mara-ion-trust; disposition: superseded
+- Sela Orun.duty is preserve erased names.
+  Entry ID: realization-bundle-book-1-sounding-line-outcome@2/sela-archive-duty; disposition: superseded
+- Tamsin Rusk.loyalty is earned ally.
+  Entry ID: realization-bundle-book-1-sounding-line-outcome@2/tamsin-route-choice; disposition: irrelevant
+- Nera Quill.obligation is active protection.
+  Entry ID: realization-bundle-book-1-sounding-line-outcome@2/nera-protected-witness; disposition: superseded
+- Brann Ede.knowledge is preserved low-salience anomaly.
+  Entry ID: realization-bundle-book-1-sounding-line-outcome@2/brann-bell-report; disposition: superseded
+- Lio Marr.knowledge is holder of copied anomaly.
+  Entry ID: realization-bundle-book-1-sounding-line-outcome@2/lio-deletion-copy; disposition: superseded
+- Ferrymen's Union.leverage is winter strike threat.
+  Entry ID: realization-bundle-book-1-sounding-line-outcome@2/ferry-union-pressure; disposition: superseded
+- winter convoy.route_safety is disputed.
+  Entry ID: realization-bundle-book-1-sounding-line-outcome@2/winter-convoy-risk; disposition: superseded
+- House of Names.internal_alignment is divided custodians.
+  Entry ID: realization-bundle-book-1-sounding-line-outcome@2/house-of-names; disposition: superseded
+- Mara Venn.authority is contested civic witness.
+  Entry ID: realization-bundle-book-2-returning-coast-outcome@1/mara-public-authority; disposition: irrelevant
+- Ion Vale.institutional_position is suspended intermediary.
+  Entry ID: realization-bundle-book-2-returning-coast-outcome@1/ion-command-fracture; disposition: irrelevant
+- Sela Orun.duty is publish contested names.
+  Entry ID: realization-bundle-book-2-returning-coast-outcome@1/sela-ledger-release; disposition: irrelevant
+- House of Names.internal_alignment is plural custodianship.
+  Entry ID: realization-bundle-book-2-returning-coast-outcome@1/house-of-names-charter; disposition: irrelevant
+- Tidebound Admiralty.legitimacy is publicly conditional.
+  Entry ID: realization-bundle-book-2-returning-coast-outcome@1/admiralty-legitimacy; disposition: irrelevant
+- Ferrymen's Union.leverage is recognized negotiating bloc.
+  Entry ID: realization-bundle-book-2-returning-coast-outcome@1/ferrymen-civic-leverage; disposition: irrelevant
+- erased-coast.public_status is provisionally recognized communities.
+  Entry ID: realization-bundle-book-2-returning-coast-outcome@1/erased-coast-citizenship; disposition: irrelevant
+- Lio Marr.knowledge is endangered evidence custodian.
+  Entry ID: realization-bundle-book-2-returning-coast-outcome@1/lio-anomaly-exposure; disposition: irrelevant
+- winter convoy.route_safety is jointly audited.
+  Entry ID: realization-bundle-book-2-returning-coast-outcome@1/winter-convoy-governance; disposition: irrelevant
+
+REVISION / CONTINUITY WARNINGS
+- Accepted history has contradictory semantic impact; review before relying on this Focus.
+
+LONG-RANGE SUPPORTING CONTEXT
+- Accepted history connects an earlier state to a later state across the Series.
+  Relation: causal-support-realization-bundle-book-1-sounding-line-outcome-2-mara-chart-authority-realization-bundle-book-2-returning-coast-outcome-1-mara-public-authority
+  Source evidence:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact mara-chart-authority)
+  Target evidence:
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact mara-public-authority)
+  Origin: DETERMINISTIC_DERIVATION; disposition: active
+  Rule version: accepted-state-support-v1
+  Relation evidence:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact mara-chart-authority)
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact mara-public-authority)
+  Source revisions:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2)
+    - realization-bundle-book-2-returning-coast-outcome (revision 1)
+- Accepted history connects an earlier state to a later state across the Series.
+  Relation: causal-support-realization-bundle-book-1-sounding-line-outcome-2-coast-status-realization-bundle-book-2-returning-coast-outcome-1-erased-coast-citizenship
+  Source evidence:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact coast-status)
+  Target evidence:
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact erased-coast-citizenship)
+  Origin: DETERMINISTIC_DERIVATION; disposition: active
+  Rule version: accepted-state-support-v1
+  Relation evidence:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact coast-status)
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact erased-coast-citizenship)
+  Source revisions:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2)
+    - realization-bundle-book-2-returning-coast-outcome (revision 1)
+- Accepted history connects an earlier state to a later state across the Series.
+  Relation: causal-support-realization-bundle-book-1-sounding-line-outcome-2-admiralty-legitimacy-realization-bundle-book-2-returning-coast-outcome-1-admiralty-legitimacy
+  Source evidence:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact admiralty-legitimacy)
+  Target evidence:
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact admiralty-legitimacy)
+  Origin: DETERMINISTIC_DERIVATION; disposition: active
+  Rule version: accepted-state-support-v1
+  Relation evidence:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact admiralty-legitimacy)
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact admiralty-legitimacy)
+  Source revisions:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2)
+    - realization-bundle-book-2-returning-coast-outcome (revision 1)
+- Accepted history connects an earlier state to a later state across the Series.
+  Relation: causal-support-realization-bundle-book-1-sounding-line-outcome-2-sela-archive-duty-realization-bundle-book-2-returning-coast-outcome-1-sela-ledger-release
+  Source evidence:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact sela-archive-duty)
+  Target evidence:
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact sela-ledger-release)
+  Origin: DETERMINISTIC_DERIVATION; disposition: active
+  Rule version: accepted-state-support-v1
+  Relation evidence:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact sela-archive-duty)
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact sela-ledger-release)
+  Source revisions:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2)
+    - realization-bundle-book-2-returning-coast-outcome (revision 1)
+- Accepted history connects an earlier state to a later state across the Series.
+  Relation: causal-support-realization-bundle-book-1-sounding-line-outcome-2-nera-protected-witness-realization-bundle-book-2-returning-coast-outcome-1-nera-testimony-risk
+  Source evidence:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact nera-protected-witness)
+  Target evidence:
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact nera-testimony-risk)
+  Origin: DETERMINISTIC_DERIVATION; disposition: active
+  Rule version: accepted-state-support-v1
+  Relation evidence:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact nera-protected-witness)
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact nera-testimony-risk)
+  Source revisions:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2)
+    - realization-bundle-book-2-returning-coast-outcome (revision 1)
+- Accepted history connects an earlier state to a later state across the Series.
+  Relation: causal-support-realization-bundle-book-1-sounding-line-outcome-2-brann-bell-report-realization-bundle-book-2-returning-coast-outcome-1-brann-anomaly-corrobation
+  Source evidence:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact brann-bell-report)
+  Target evidence:
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact brann-anomaly-corrobation)
+  Origin: DETERMINISTIC_DERIVATION; disposition: active
+  Rule version: accepted-state-support-v1
+  Relation evidence:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact brann-bell-report)
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact brann-anomaly-corrobation)
+  Source revisions:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2)
+    - realization-bundle-book-2-returning-coast-outcome (revision 1)
+- Accepted history connects an earlier state to a later state across the Series.
+  Relation: causal-support-realization-bundle-book-1-sounding-line-outcome-2-lio-deletion-copy-realization-bundle-book-2-returning-coast-outcome-1-lio-anomaly-exposure
+  Source evidence:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact lio-deletion-copy)
+  Target evidence:
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact lio-anomaly-exposure)
+  Origin: DETERMINISTIC_DERIVATION; disposition: active
+  Rule version: accepted-state-support-v1
+  Relation evidence:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact lio-deletion-copy)
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact lio-anomaly-exposure)
+  Source revisions:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2)
+    - realization-bundle-book-2-returning-coast-outcome (revision 1)
+- Accepted history connects an earlier state to a later state across the Series.
+  Relation: causal-support-realization-bundle-book-1-sounding-line-outcome-2-ferry-union-pressure-realization-bundle-book-2-returning-coast-outcome-1-ferrymen-civic-leverage
+  Source evidence:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact ferry-union-pressure)
+  Target evidence:
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact ferrymen-civic-leverage)
+  Origin: DETERMINISTIC_DERIVATION; disposition: active
+  Rule version: accepted-state-support-v1
+  Relation evidence:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact ferry-union-pressure)
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact ferrymen-civic-leverage)
+  Source revisions:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2)
+    - realization-bundle-book-2-returning-coast-outcome (revision 1)
+- Accepted history connects an earlier state to a later state across the Series.
+  Relation: causal-support-realization-bundle-book-1-sounding-line-outcome-2-winter-convoy-risk-realization-bundle-book-2-returning-coast-outcome-1-winter-convoy-governance
+  Source evidence:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact winter-convoy-risk)
+  Target evidence:
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact winter-convoy-governance)
+  Origin: DETERMINISTIC_DERIVATION; disposition: active
+  Rule version: accepted-state-support-v1
+  Relation evidence:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact winter-convoy-risk)
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact winter-convoy-governance)
+  Source revisions:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2)
+    - realization-bundle-book-2-returning-coast-outcome (revision 1)
+- Accepted history connects an earlier state to a later state across the Series.
+  Relation: causal-support-realization-bundle-book-1-sounding-line-outcome-2-house-of-names-realization-bundle-book-2-returning-coast-outcome-1-house-of-names-charter
+  Source evidence:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact house-of-names)
+  Target evidence:
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact house-of-names-charter)
+  Origin: DETERMINISTIC_DERIVATION; disposition: active
+  Rule version: accepted-state-support-v1
+  Relation evidence:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2, fact house-of-names)
+    - realization-bundle-book-2-returning-coast-outcome (revision 1, fact house-of-names-charter)
+  Source revisions:
+    - realization-bundle-book-1-sounding-line-outcome (revision 2)
+    - realization-bundle-book-2-returning-coast-outcome (revision 1)
+
+REVISION IMPACT
+Affected accepted artifacts remain accepted; no downstream artifact was rewritten.
+Affected accepted artifacts are not automatically rewrite instructions.
+AFFECTED ACCEPTED ARTIFACTS
+- Book 1: realization-bundle-book-1-sounding-line-outcome (fresh, contradictory)
+- Book 2: realization-bundle-book-2-returning-coast-outcome (stale, contradictory)
+- Book 3: realization-bundle-book-3-common-horizon-outcome (stale, contradictory)
+SERIES DIRECTION IMPACT
+- Book 1: book-1-direction (fresh, accepted)
+- Book 2: book-2-direction (fresh, accepted)
+- Book 3: book-3-direction (fresh, accepted)
+
+WHAT REMAINS UNCHANGED
+Accepted downstream material remains accepted. This review does not rewrite it.
+No narrative authority has changed.
+
+DETAIL
+Freshness: fresh
+Semantic impact: contradictory
+Provenance:
+- series-direction (revision 1)
+- book-1-direction (revision 1)
+- book-2-direction (revision 1)
+- realization-bundle-book-1-sounding-line-outcome (revision 2)
+- realization-bundle-book-2-returning-coast-outcome (revision 1)
+Current state evidence:
+- Mara Venn.authority: contested civic witness (realization-bundle-book-2-returning-coast-outcome (revision 1, fact mara-public-authority))
+- erased-coast.public_status: provisionally recognized communities (realization-bundle-book-2-returning-coast-outcome (revision 1, fact erased-coast-citizenship))
+- Tidebound Admiralty.legitimacy: publicly conditional (realization-bundle-book-2-returning-coast-outcome (revision 1, fact admiralty-legitimacy))
+- Mara Venn and Ion Vale.relationship: costly mutual reliance (realization-bundle-book-2-returning-coast-outcome (revision 1, fact mara-ion-trust))
+- Sela Orun.duty: publish contested names (realization-bundle-book-2-returning-coast-outcome (revision 1, fact sela-ledger-release))
+- Tamsin Rusk.loyalty: earned ally (realization-bundle-book-1-sounding-line-outcome (revision 2, fact tamsin-route-choice))
+- Nera Quill.obligation: protected witness with public claim (realization-bundle-book-2-returning-coast-outcome (revision 1, fact nera-testimony-risk))
+- Brann Ede.knowledge: corroborating witness to reef signal (realization-bundle-book-2-returning-coast-outcome (revision 1, fact brann-anomaly-corrobation))
+- Lio Marr.knowledge: endangered evidence custodian (realization-bundle-book-2-returning-coast-outcome (revision 1, fact lio-anomaly-exposure))
+- Ferrymen's Union.leverage: recognized negotiating bloc (realization-bundle-book-2-returning-coast-outcome (revision 1, fact ferrymen-civic-leverage))
+- winter convoy.route_safety: jointly audited (realization-bundle-book-2-returning-coast-outcome (revision 1, fact winter-convoy-governance))
+- House of Names.internal_alignment: plural custodianship (realization-bundle-book-2-returning-coast-outcome (revision 1, fact house-of-names-charter))
+- Ion Vale.institutional_position: suspended intermediary (realization-bundle-book-2-returning-coast-outcome (revision 1, fact ion-command-fracture))
+Map snapshot: global-map-book-3

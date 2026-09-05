@@ -1,0 +1,15 @@
+H:\GithubRepositories\auteur-dense-trilogy-architecture-stress-test-v1\src\auteur\universe\constraints.py:27: UserWarning: Field name "schema" in "StructuredConstraint" shadows an attribute in parent "BaseModel"
+  class StructuredConstraint(BaseModel):
+Revision impact
+
+Affected accepted artifacts remain accepted; no downstream artifact was rewritten.
+
+REVIEW ORDER
+- realization-bundle-book-1-sounding-line-outcome
+- realization-bundle-book-2-returning-coast-outcome
+- realization-bundle-book-3-common-horizon-outcome
+
+AFFECTED ACCEPTED ARTIFACTS
+- Book 1: realization-bundle-book-1-sounding-line-outcome (fresh, contradictory)
+- Book 2: realization-bundle-book-2-returning-coast-outcome (stale, contradictory)
+- Book 3: realization-bundle-book-3-common-horizon-outcome (stale, contradictory)

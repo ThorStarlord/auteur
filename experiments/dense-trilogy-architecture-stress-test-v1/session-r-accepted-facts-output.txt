@@ -1,0 +1,75 @@
+H:\GithubRepositories\auteur-dense-trilogy-architecture-stress-test-v1\src\auteur\universe\constraints.py:27: UserWarning: Field name "schema" in "StructuredConstraint" shadows an attribute in parent "BaseModel"
+  class StructuredConstraint(BaseModel):
+Accepted facts through Book 2
+[B1-01~CD88E6] Mara Venn.authority is accountable dissident.
+  Accepted in Book 1
+  Accepted source: artifact realization-bundle-book-1-sounding-line-outcome, revision 2, fact mara-chart-authority
+[B1-02~156992] erased-coast.public_status is publicly contested.
+  Accepted in Book 1
+  Accepted source: artifact realization-bundle-book-1-sounding-line-outcome, revision 2, fact coast-status
+[B1-03~733C8A] Tidebound Admiralty.legitimacy is divided.
+  Accepted in Book 1
+  Accepted source: artifact realization-bundle-book-1-sounding-line-outcome, revision 2, fact admiralty-legitimacy
+[B1-04~A1E12C] Mara Venn and Ion Vale.relationship is strained cooperation under unresolved distrust.
+  Accepted in Book 1
+  Accepted source: artifact realization-bundle-book-1-sounding-line-outcome, revision 2, fact mara-ion-trust
+[B1-05~C8475D] Sela Orun.duty is preserve erased names.
+  Accepted in Book 1
+  Accepted source: artifact realization-bundle-book-1-sounding-line-outcome, revision 2, fact sela-archive-duty
+[B1-06~CAE1F1] Tamsin Rusk.loyalty is earned ally.
+  Accepted in Book 1
+  Accepted source: artifact realization-bundle-book-1-sounding-line-outcome, revision 2, fact tamsin-route-choice
+[B1-07~57A7D3] Nera Quill.obligation is active protection.
+  Accepted in Book 1
+  Accepted source: artifact realization-bundle-book-1-sounding-line-outcome, revision 2, fact nera-protected-witness
+[B1-08~37C7F2] Brann Ede.knowledge is preserved low-salience anomaly.
+  Accepted in Book 1
+  Accepted source: artifact realization-bundle-book-1-sounding-line-outcome, revision 2, fact brann-bell-report
+[B1-09~15826F] Lio Marr.knowledge is holder of copied anomaly.
+  Accepted in Book 1
+  Accepted source: artifact realization-bundle-book-1-sounding-line-outcome, revision 2, fact lio-deletion-copy
+[B1-10~8A5D1B] Ferrymen's Union.leverage is winter strike threat.
+  Accepted in Book 1
+  Accepted source: artifact realization-bundle-book-1-sounding-line-outcome, revision 2, fact ferry-union-pressure
+[B1-11~FF8A8D] winter convoy.route_safety is disputed.
+  Accepted in Book 1
+  Accepted source: artifact realization-bundle-book-1-sounding-line-outcome, revision 2, fact winter-convoy-risk
+[B1-12~A020E2] House of Names.internal_alignment is divided custodians.
+  Accepted in Book 1
+  Accepted source: artifact realization-bundle-book-1-sounding-line-outcome, revision 2, fact house-of-names
+[B2-01~10AA13] Mara Venn.authority is contested civic witness.
+  Accepted in Book 2
+  Accepted source: artifact realization-bundle-book-2-returning-coast-outcome, revision 1, fact mara-public-authority
+[B2-02~31A912] Ion Vale.institutional_position is suspended intermediary.
+  Accepted in Book 2
+  Accepted source: artifact realization-bundle-book-2-returning-coast-outcome, revision 1, fact ion-command-fracture
+[B2-03~FE047F] Mara Venn and Ion Vale.relationship is costly mutual reliance.
+  Accepted in Book 2
+  Accepted source: artifact realization-bundle-book-2-returning-coast-outcome, revision 1, fact mara-ion-trust
+[B2-04~18726E] Nera Quill.obligation is protected witness with public claim.
+  Accepted in Book 2
+  Accepted source: artifact realization-bundle-book-2-returning-coast-outcome, revision 1, fact nera-testimony-risk
+[B2-05~736E90] Sela Orun.duty is publish contested names.
+  Accepted in Book 2
+  Accepted source: artifact realization-bundle-book-2-returning-coast-outcome, revision 1, fact sela-ledger-release
+[B2-06~FBC8CE] House of Names.internal_alignment is plural custodianship.
+  Accepted in Book 2
+  Accepted source: artifact realization-bundle-book-2-returning-coast-outcome, revision 1, fact house-of-names-charter
+[B2-07~8485B2] Tidebound Admiralty.legitimacy is publicly conditional.
+  Accepted in Book 2
+  Accepted source: artifact realization-bundle-book-2-returning-coast-outcome, revision 1, fact admiralty-legitimacy
+[B2-08~DDB318] Ferrymen's Union.leverage is recognized negotiating bloc.
+  Accepted in Book 2
+  Accepted source: artifact realization-bundle-book-2-returning-coast-outcome, revision 1, fact ferrymen-civic-leverage
+[B2-09~C2550E] erased-coast.public_status is provisionally recognized communities.
+  Accepted in Book 2
+  Accepted source: artifact realization-bundle-book-2-returning-coast-outcome, revision 1, fact erased-coast-citizenship
+[B2-10~5ACEFE] Brann Ede.knowledge is corroborating witness to reef signal.
+  Accepted in Book 2
+  Accepted source: artifact realization-bundle-book-2-returning-coast-outcome, revision 1, fact brann-anomaly-corrobation
+[B2-11~5CE784] Lio Marr.knowledge is endangered evidence custodian.
+  Accepted in Book 2
+  Accepted source: artifact realization-bundle-book-2-returning-coast-outcome, revision 1, fact lio-anomaly-exposure
+[B2-12~422B51] winter convoy.route_safety is jointly audited.
+  Accepted in Book 2
+  Accepted source: artifact realization-bundle-book-2-returning-coast-outcome, revision 1, fact winter-convoy-governance
