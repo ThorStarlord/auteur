@@ -1,0 +1,27 @@
+{
+  "_what_this_is": [
+    "THE STACK-SPECIFIC HALF OF THE HARNESS, for auteur.",
+    "",
+    "Commands reused from .github/workflows/validation.yml (per the harness rule:",
+    "whatever CI runs is a tested answer - do not invent a second definition).",
+    "The E2E drives the real CLI offline: story-discovery start -> refine ->",
+    "review -> compose -> accept, with canonical story_identity.yaml asserted",
+    "absent at every step before acceptance. The LLM-dependent `run` subcommand",
+    "is deliberately outside the unattended gate (cost, keys, nondeterminism);",
+    "the deterministic compose path is the journey the harness proves."
+  ],
+  "static": "python scripts/check.py --skip-pytest",
+  "static_timeout_s": 600,
+  "unit": "python -m pytest --tb=short -n auto --basetemp=.pytest-tmp",
+  "unit_timeout_s": 900,
+  "unit_count_pattern": "(\\d+) passed",
+  "_driver": "cli - the whole product surface is the auteur command.",
+  "driver": "cli",
+  "e2e_timeout_s": 300,
+  "cli": {
+    "_note": "invoke is python -m auteur.cli (main guard at cli.py). The venv's editable install resolves auteur from THIS worktree's src/.",
+    "invoke": "python -m auteur.cli {args}",
+    "smoke_args": "ontology list",
+    "smoke_contains": "Character"
+  }
+}
