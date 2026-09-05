@@ -13,9 +13,12 @@ from auteur.provenance import (
     Lifecycle,
 )
 from auteur.series.vertical_slice_models import (
+    AcceptedEpisodeDirection,
     AcceptedSeriesDirection,
+    AcceptedSeriesEntryForm,
     ArtifactRef,
     BookDirection,
+    EpisodeDirection,
     SeriesDirection,
 )
 from auteur.series.vertical_slice_service import SeriesVerticalSliceService
@@ -42,6 +45,16 @@ def load_direction() -> SeriesDirection:
 def load_book_direction() -> BookDirection:
     return BookDirection.model_validate(
         yaml.safe_load(BOOK_FIXTURE.read_text(encoding="utf-8"))
+    )
+
+
+def load_episode_direction() -> EpisodeDirection:
+    raw = yaml.safe_load(BOOK_FIXTURE.read_text(encoding="utf-8"))
+    return EpisodeDirection.model_validate(
+        {
+            "identity": raw["identity"],
+            "series_commitment_ids": raw["series_commitment_ids"],
+        }
     )
 
 
@@ -2251,3 +2264,325 @@ def test_failed_book_metadata_accept_preserves_previous_book_direction(
         revisions_a
     )
     assert not (accepted_path.parent / ".staging" / accepted_path.name).exists()
+
+
+# ---------------------------------------------------------------------------
+# Episode 1 Direction: declare / propose / accept / inspect
+# ---------------------------------------------------------------------------
+
+
+def test_declare_series_episodic_requires_accepted_series_direction(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+
+    with pytest.raises(ValueError, match="accepted Series Direction"):
+        service.declare_series_episodic(declared_by="author")
+
+
+def test_declare_series_episodic_rejected_after_nested_book_proposal(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_series(service)
+    service.propose_book_direction(load_book_direction())
+
+    with pytest.raises(ValueError, match="Book Direction work has already begun"):
+        service.declare_series_episodic(declared_by="author")
+
+
+def test_declare_series_episodic_rejected_after_accepted_book_direction(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_book(service)
+
+    with pytest.raises(ValueError, match="Book Direction work has already begun"):
+        service.declare_series_episodic(declared_by="author")
+
+
+def test_declare_series_episodic_twice_is_idempotent(tmp_path: Path) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_series(service)
+
+    first = service.declare_series_episodic(declared_by="author")
+    metadata_before = service.load_series_entry_form_metadata()
+    second = service.declare_series_episodic(declared_by="a-different-author")
+    metadata_after = service.load_series_entry_form_metadata()
+
+    assert first.already_declared is False
+    assert second.already_declared is True
+    assert second.record.declared_by == "author"
+    assert metadata_before == metadata_after
+
+
+def test_declare_series_episodic_happy_path(tmp_path: Path) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_series(service)
+
+    declaration = service.declare_series_episodic(declared_by="author")
+
+    assert declaration.already_declared is False
+    assert declaration.record.entry_form == "episodic"
+    metadata = service.load_series_entry_form_metadata()
+    assert metadata is not None
+    assert metadata.accepted_by == declaration.record.declared_by
+
+
+def test_propose_episode_direction_requires_episodic_declaration(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_series(service)
+
+    with pytest.raises(ValueError, match="declared episodic"):
+        service.propose_episode_direction(load_episode_direction())
+
+
+def test_propose_book_direction_rejected_when_episodic(tmp_path: Path) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_series(service)
+    service.declare_series_episodic(declared_by="author")
+
+    with pytest.raises(ValueError, match="declared episodic"):
+        service.propose_book_direction(load_book_direction())
+
+
+def test_accept_book_direction_rejected_when_episodic(tmp_path: Path) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_series(service)
+    proposal = service.propose_book_direction(load_book_direction())
+    # Defensive-guard scenario: force the entry form to "episodic" directly
+    # via the store (bypassing declare_series_episodic's own Book-work
+    # guard), matching the "defensive" nature of this accept_book_direction
+    # check per the brief.
+    series_metadata = service.load_series_direction_metadata()
+    assert series_metadata is not None
+    service.store.save_accepted_series_entry_form(
+        AcceptedSeriesEntryForm(entry_form="episodic", declared_by="author"),
+        series_source=ArtifactRef(
+            artifact_id="series-direction", revision=series_metadata.revision
+        ),
+    )
+
+    with pytest.raises(ValueError, match="declared episodic"):
+        service.accept_book_direction(proposal.proposal_id, accepted_by="author")
+
+
+def _declare_and_propose_episode(
+    service: SeriesVerticalSliceService,
+):
+    accept_archive_series(service)
+    service.declare_series_episodic(declared_by="author")
+    return service.propose_episode_direction(load_episode_direction())
+
+
+def test_accept_episode_direction_happy_path(tmp_path: Path) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = _declare_and_propose_episode(service)
+
+    acceptance = service.accept_episode_direction(
+        proposal.proposal_id, accepted_by="author"
+    )
+
+    assert acceptance.already_accepted is False
+    assert isinstance(acceptance.direction, AcceptedEpisodeDirection)
+    metadata = service.load_episode_direction_metadata()
+    assert metadata is not None
+    assert metadata.accepted_by == "author"
+    assert metadata.accepted_at is not None
+    assert (
+        datetime.fromisoformat(metadata.accepted_at).utcoffset()
+        == timezone.utc.utcoffset(None)
+    )
+
+
+def test_accept_episode_direction_rerun_is_idempotent(tmp_path: Path) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = _declare_and_propose_episode(service)
+    service.accept_episode_direction(proposal.proposal_id, accepted_by="author")
+    metadata_before = service.load_episode_direction_metadata()
+
+    acceptance = service.accept_episode_direction(
+        proposal.proposal_id, accepted_by="author"
+    )
+
+    assert acceptance.already_accepted is True
+    assert service.load_episode_direction_metadata() == metadata_before
+
+
+def advance_archive_series_provenance_only(
+    service: SeriesVerticalSliceService,
+) -> None:
+    revised_series = load_direction().model_copy(
+        update={
+            "promise": "Every recovered account changes who controls history."
+        }
+    )
+    series_proposal = service.propose_series_direction(revised_series)
+    service.accept_series_direction(
+        series_proposal.proposal_id,
+        accepted_by="archive-author",
+    )
+
+
+def test_accept_episode_direction_stale_source_refs_raises(tmp_path: Path) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = _declare_and_propose_episode(service)
+    advance_archive_series_provenance_only(service)
+
+    with pytest.raises(ValueError, match="superseded Series Direction"):
+        service.accept_episode_direction(proposal.proposal_id, accepted_by="author")
+
+
+def test_idempotency_ordering_reaccept_after_series_advance_is_still_idempotent(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = _declare_and_propose_episode(service)
+    service.accept_episode_direction(proposal.proposal_id, accepted_by="author")
+    metadata_before = service.load_episode_direction_metadata()
+    accepted_before = service.load_accepted_episode_direction()
+
+    advance_archive_series_provenance_only(service)
+
+    acceptance = service.accept_episode_direction(
+        proposal.proposal_id, accepted_by="author"
+    )
+
+    assert acceptance.already_accepted is True
+    assert service.load_episode_direction_metadata() == metadata_before
+    assert service.load_accepted_episode_direction() == accepted_before
+
+
+def test_idempotency_ordering_does_not_weaken_ac8_for_distinct_proposal(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_series(service)
+    service.declare_series_episodic(declared_by="author")
+    proposal_1 = service.propose_episode_direction(load_episode_direction())
+    service.accept_episode_direction(proposal_1.proposal_id, accepted_by="author")
+
+    other_identity = load_episode_direction().identity.model_copy(
+        update={"title": "A Distinct Episode 1 Title"}
+    )
+    proposal_2 = service.propose_episode_direction(
+        load_episode_direction().model_copy(update={"identity": other_identity})
+    )
+
+    advance_archive_series_provenance_only(service)
+
+    with pytest.raises(ValueError, match="superseded Series Direction"):
+        service.accept_episode_direction(
+            proposal_2.proposal_id, accepted_by="author"
+        )
+
+
+def test_accept_episode_direction_leaves_series_direction_unchanged(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = _declare_and_propose_episode(service)
+    series_metadata_before = service.load_series_direction_metadata()
+    series_before = service.load_accepted_series_direction()
+
+    service.accept_episode_direction(proposal.proposal_id, accepted_by="author")
+
+    assert service.load_series_direction_metadata() == series_metadata_before
+    assert service.load_accepted_series_direction() == series_before
+
+
+def test_episode_direction_rejects_zero_and_unknown_commitment_refs(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_series(service)
+    service.declare_series_episodic(declared_by="author")
+
+    unknown = load_episode_direction().model_copy(
+        update={"series_commitment_ids": ["not-a-real-commitment"]}
+    )
+    with pytest.raises(ValueError, match="Unknown accepted Series commitment"):
+        service.propose_episode_direction(unknown)
+
+
+def test_injected_failure_in_save_accepted_episode_direction_leaves_none(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = _declare_and_propose_episode(service)
+    original_accept = service.store.artifact_store.accept
+
+    def fail_accept(*args: object, **kwargs: object) -> None:
+        original_accept(*args, **kwargs)
+        raise OSError("episode metadata persistence failed")
+
+    monkeypatch.setattr(service.store.artifact_store, "accept", fail_accept)
+
+    with pytest.raises(OSError, match="episode metadata persistence failed"):
+        service.accept_episode_direction(proposal.proposal_id, accepted_by="author")
+
+    assert service.load_accepted_episode_direction() is None
+
+
+def test_load_entry_form_stays_episodic_after_series_advance(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_series(service)
+    service.declare_series_episodic(declared_by="author")
+
+    advance_archive_series_provenance_only(service)
+
+    assert service.load_entry_form() == "episodic"
+
+
+def test_inspect_episode_direction_series_field_is_series_direction_not_wrapper(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_archive_series(service)
+    service.declare_series_episodic(declared_by="author")
+
+    inspection = service.inspect_episode_direction()
+
+    assert isinstance(inspection.series, SeriesDirection)
+    assert not isinstance(inspection.series, AcceptedSeriesDirection)
+
+
+def test_historical_episode_survives_a_later_series_revision(
+    tmp_path: Path,
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = _declare_and_propose_episode(service)
+    service.accept_episode_direction(proposal.proposal_id, accepted_by="author")
+    episode_before = service.load_accepted_episode_direction()
+    episode_metadata_before = service.load_episode_direction_metadata()
+
+    revised_series = load_direction().model_copy(
+        update={
+            "commitments": [
+                commitment.model_copy(
+                    update={
+                        "commitment_id": "replacement-commitment",
+                        "statement": "A new Series commitment replaces C1.",
+                    }
+                )
+                for commitment in load_direction().commitments
+            ]
+        }
+    )
+    series_proposal = service.propose_series_direction(revised_series)
+    service.accept_series_direction(
+        series_proposal.proposal_id, accepted_by="archive-author"
+    )
+
+    inspection = service.inspect_episode_direction()
+
+    assert inspection.series_ref.revision == 2
+    assert inspection.episode_series_source_ref.revision == 1
+    assert inspection.episode == episode_before
+    assert inspection.referenced_commitment_ids == ("contested-history",)
+    assert service.load_accepted_episode_direction() == episode_before
+    assert service.load_episode_direction_metadata() == episode_metadata_before

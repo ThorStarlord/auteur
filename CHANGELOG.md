@@ -2,6 +2,27 @@
 
 
 
+## Unreleased
+
+### Added
+
+- Authors working on an episodic Series can now declare that Series episodic,
+  then propose and explicitly accept a Direction for Episode 1 that builds on
+  the accepted Series Direction and references the specific Series
+  commitments they choose. Proposing a direction never makes it authoritative
+  on its own — only an explicit acceptance does. Re-declaring an
+  already-episodic Series and re-accepting an already-accepted Episode 1
+  Direction are both safe no-ops that clearly report "no change" instead of
+  silently repeating work. A new read-only inspection view shows the Series
+  Direction, the accepted Episode 1 Direction, and the referenced Series
+  commitments as clearly separate, clearly labelled sections, and never shows
+  Episode 1 as if it were "Book 1". Selecting the same Series commitment more
+  than once when proposing an Episode 1 Direction is rejected rather than
+  silently collapsed to a single reference. Existing Book-oriented Series and
+  projects are unaffected and require no changes. This capability is bounded
+  to Episode 1 only; Episode 2 and beyond, Episode realization, and any
+  change to how a Series Direction itself is stored remain out of scope.
+
 ## v0.12.0 (2026-07-22) — Narrative Decision Portfolio
 
 ### New: Portfolio subsystem

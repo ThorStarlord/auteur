@@ -102,6 +102,59 @@ class AcceptedBookDirection(BaseModel):
     direction: BookDirection
 
 
+class AcceptedSeriesEntryForm(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_id: Literal["series-entry-form"] = "series-entry-form"
+    entry_form: Literal["episodic"]
+    declared_by: str = Field(min_length=1)
+
+
+class EpisodeDirection(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    episode_number: Literal[1] = 1
+    identity: StoryIdentity
+    series_commitment_ids: list[str] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_episode_direction(self) -> Self:
+        duplicates = sorted(
+            {
+                commitment_id
+                for commitment_id in self.series_commitment_ids
+                if self.series_commitment_ids.count(commitment_id) > 1
+            }
+        )
+        if duplicates:
+            raise ValueError(
+                "series_commitment_ids must not contain duplicates: "
+                + ", ".join(duplicates)
+            )
+        if not self.identity.title.strip():
+            raise ValueError("identity.title must not be whitespace-only")
+        if not self.identity.core_answer.strip():
+            raise ValueError("identity.core_answer must not be whitespace-only")
+        return self
+
+
+class EpisodeDirectionProposal(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    proposal_id: str
+    revision: int = Field(ge=1)
+    direction: EpisodeDirection
+    source_refs: list[ArtifactRef] = Field(min_length=1)
+
+
+class AcceptedEpisodeDirection(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_id: Literal["episode-1-direction"] = "episode-1-direction"
+    proposal_id: str
+    direction: EpisodeDirection
+
+
 class StateTransition(BaseModel):
     model_config = ConfigDict(extra="forbid")
 

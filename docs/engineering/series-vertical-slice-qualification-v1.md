@@ -129,7 +129,10 @@ were included in the complete regression suite.
 The following remain intentionally outside this qualification:
 
 - free-form author-authored Book 2 Direction;
-- episode support or Book/Episode unification;
+- episode support or Book/Episode unification — the bounded Episode 1
+  Direction entry-unit capability is qualified separately, by the dedicated
+  [Bounded Episode 1 Direction Qualification](series-episode-one-direction-qualification-v1.md)
+  record;
 - universal Direction inheritance and generalized revision propagation;
 - universal dependency inference or a generalized Author Decision system;
 - replacement of the existing StoryBible/full-Series workflow;
