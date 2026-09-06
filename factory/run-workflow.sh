@@ -322,6 +322,21 @@ prepare_worktree_path() {   # prepare_worktree_path <path>
   return 0
 }
 
+# The operator's endpoint override travels into every worktree we create.
+# Agent nodes resolve .claude/settings.json by cwd: a fresh checkout carries
+# the repo's tracked API routing but never the machine-local bypass that
+# fixes it, so nodes running inside validation/fix worktrees fail ECONNREFUSED
+# while root runs succeed. Found live: the judge died this way after a green
+# review, on a tree whose only difference was the missing local file.
+plant_claude_bypass() {   # plant_claude_bypass <worktree-path>
+  local wt="$1"
+  if [ -f "$ROOT/.claude/settings.local.json" ]; then
+    mkdir -p "$wt/.claude"
+    cp "$ROOT/.claude/settings.local.json" "$wt/.claude/settings.local.json"
+  fi
+  return 0
+}
+
 # --- the per-target lock, for runs started BY HAND ---------------------------
 #
 # THE HOLE THIS CLOSES. The lock lived entirely in orchestrator.sh, so it protected two
@@ -393,6 +408,7 @@ case "$WORKFLOW" in
     prepare_worktree_path "$WT"
     git rev-parse --verify --quiet "$BRANCH" >/dev/null && git branch -D "$BRANCH" >/dev/null 2>&1 || true
     git worktree add "$WT" -b "$BRANCH" "$BASE" >/dev/null 2>&1 || escalate "could not create worktree $WT"
+    plant_claude_bypass "$WT"
     python factory/state.py set "$TARGET" state=in-progress || escalate "illegal state transition"
 
     (
@@ -606,6 +622,7 @@ case "$WORKFLOW" in
 
     prepare_worktree_path "$WT"
     git worktree add --detach "$WT" "$CHECKOUT" >/dev/null 2>&1 || escalate "could not check out $CHECKOUT"
+    plant_claude_bypass "$WT"
 
     # Governance from the BASE branch, before the branch under review is read. On GitHub
     # that is origin/main and not the local main -- reading the local copy would judge the
@@ -693,6 +710,7 @@ case "$WORKFLOW" in
     WT=".worktrees/f$ISSUE_NUM"
     prepare_worktree_path "$WT"
     git worktree add "$WT" "$BRANCH" >/dev/null 2>&1 || escalate "could not check out $BRANCH"
+    plant_claude_bypass "$WT"
 
     ( cd "$WT" && node fix "$MODEL_CHEAP" "$ROOT/factory/prompts/fix.md" \
         "Read,Glob,Grep,Edit,Write,Bash($FACTORY_VALIDATE_QUICK)" ) \

@@ -175,6 +175,16 @@ def optional_step(name: str, marker: str) -> bool:
 
 
 def main() -> int:
+    # The tree under test shadows any installed copy, for EVERY child process
+    # this gate spawns. Without this, an editable install (pip install -e .)
+    # resolves the product to the tree it was installed from - not the
+    # worktree under validation - and the whole gate grades PR tests against
+    # base source: green on broken code, or red on correct code. Found live
+    # both ways on the first real lap (a 2-test red herring, then its mirror).
+    _sr = str(ROOT / "src")
+    if os.path.isdir(_sr):
+        _prev = os.environ.get("PYTHONPATH", "")
+        os.environ["PYTHONPATH"] = _sr + (os.pathsep + _prev if _prev else "")
     print(f"HARNESS_START mode={'quick' if QUICK else 'full'} driver={CONFIG.get('driver')}",
           flush=True)
 
