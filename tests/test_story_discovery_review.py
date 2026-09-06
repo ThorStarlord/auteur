@@ -171,6 +171,19 @@ def test_recommendation_review_reconstructs_writer_facing_evidence(
     assert "story-discovery accept story_discovery/candidate_1.yaml" in rendered
 
 
+def test_recommendation_review_renders_relative_candidate_path(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    _run(tmp_path)
+
+    result = main(["story-discovery", "review", "--project", str(tmp_path)])
+    rendered = capsys.readouterr().out
+
+    assert result == 0
+    assert "auteur story-discovery accept story_discovery/candidate_1.yaml" in rendered
+
+
 def test_non_adjudicable_review_refuses_to_invent_a_winner(tmp_path: Path, capsys) -> None:
     _run(tmp_path, status="not_adjudicable_near_duplicate", winner="candidate_1")
 
