@@ -24,6 +24,8 @@ def test_v1_golden_path_uses_existing_acceptance_and_structure(tmp_path: Path):
     assert identity_path.exists()
     assert structure_path.exists()
     assert len(result.composition["selected_packs"]) == 4
+    assert result.discovery_candidate_id == "candidate_1"
+    assert result.design_context_reached_generation is True
     assert result.composition["productive_tensions"]
     assert result.tutor_guidance["authority_status"] == "DERIVED / NOT CANON"
     assert result.diagnostic_tutor_guidance["authority_status"] == "DERIVED / NOT CANON"

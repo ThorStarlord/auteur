@@ -8,9 +8,11 @@ import yaml
 
 from auteur.blueprint import Genre, StoryMedium, StoryMode, TargetExperience
 from auteur.cli_handlers import handle_identity_promote
+from auteur.cli_handlers import RecommendOpenEndedData, handle_identity_recommend
 from auteur.cli_serializers import serialize_identity_promote
 from auteur.identity import HighLevelCentralEngine, StoryIdentity
 from auteur.identity import compile_to_blueprint
+from auteur.llm import LLMRequest, LLMResponse
 from auteur.story_design_packs.composition import compose_packs
 from auteur.story_design_packs.tutor import tutor_recommend, tutorize_diagnostic
 from auteur.structure.analyzer import analyze_structure
@@ -26,6 +28,8 @@ class GoldenPathResult:
     tutor_guidance: dict
     diagnostic: dict
     diagnostic_tutor_guidance: dict
+    discovery_candidate_id: str
+    design_context_reached_generation: bool
 
 
 def build_story_identity_candidate(premise: str) -> StoryIdentity:
@@ -58,6 +62,25 @@ def build_story_identity_candidate(premise: str) -> StoryIdentity:
     )
 
 
+class _DeterministicDiscoveryClient:
+    """Offline client that exercises the real recommendation handler."""
+
+    def __init__(self, candidate: StoryIdentity) -> None:
+        self.candidate = candidate
+        self.requests: list[LLMRequest] = []
+
+    def complete(self, request: LLMRequest) -> LLMResponse:
+        self.requests.append(request)
+        if "Optional Story Design Pack context" in request.system:
+            payload = yaml.safe_dump(self.candidate.model_dump(mode="json"), sort_keys=False)
+            return LLMResponse(text=f"```yaml\n{payload}```", input_tokens=1, output_tokens=1)
+        return LLMResponse(
+            text='{"summary":"The candidate makes responsibility concrete.","tradeoffs":[],"risks":[],"best_for":[]}',
+            input_tokens=1,
+            output_tokens=1,
+        )
+
+
 def run_golden_path(project_root: Path, premise: str, pack_ids: list[str]) -> GoldenPathResult:
     """Run packs → tutor → candidate → existing acceptance → Structure → tutor."""
     project_root.mkdir(parents=True, exist_ok=True)
@@ -65,7 +88,25 @@ def run_golden_path(project_root: Path, premise: str, pack_ids: list[str]) -> Go
     discovery.mkdir(exist_ok=True)
     composition = compose_packs(pack_ids)
     guidance = tutor_recommend(pack_ids, decision="protagonist moral boundary", premise=premise)
-    candidate = build_story_identity_candidate(premise)
+    candidate_fixture = build_story_identity_candidate(premise)
+    design_context = composition.model_dump(mode="json")
+    discovery_client = _DeterministicDiscoveryClient(candidate_fixture)
+    discovery_result = handle_identity_recommend(
+        client=discovery_client,
+        premise_text=premise,
+        recommend_mode="open_ended",
+        candidates_count=1,
+        discovery_lenses=["thematic_coherence"],
+        design_context=design_context,
+    )
+    if not discovery_result.is_success or not isinstance(discovery_result.data, RecommendOpenEndedData):
+        raise ValueError(discovery_result.error or "real Story Discovery candidate generation failed")
+    if not discovery_client.requests or "Optional Story Design Pack context" not in discovery_client.requests[0].system:
+        raise AssertionError("Story Design Pack context did not reach candidate generation")
+    candidate_outputs = discovery_result.data.candidates
+    if not candidate_outputs:
+        raise ValueError("real Story Discovery returned no candidate")
+    candidate = candidate_outputs[0].identity
     candidate_path = discovery / "candidate.yaml"
     candidate.to_yaml(candidate_path)
     identity_path = project_root / "story_identity.yaml"
@@ -96,4 +137,6 @@ def run_golden_path(project_root: Path, premise: str, pack_ids: list[str]) -> Go
         tutor_guidance=guidance.model_dump(mode="json"),
         diagnostic=diagnostic.model_dump(mode="json"),
         diagnostic_tutor_guidance=tutorize_diagnostic(diagnostic, story_context=candidate.title).model_dump(mode="json"),
+        discovery_candidate_id=candidate_outputs[0].candidate_id,
+        design_context_reached_generation=True,
     )
