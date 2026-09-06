@@ -20,6 +20,8 @@ def tutor_recommend(
     )
     alternatives = [o.name for o in composition.applicable_design_priors if o.option_id != option.option_id][:3]
     tradeoffs = list(option.tradeoffs)
+    tradeoffs.extend(composition.productive_tensions[:2])
+    tradeoffs.extend(composition.actual_conflicts[:2])
     when_stronger = [f"{name} would be stronger if it better serves a different pressure in {premise}." for name in alternatives]
     concept = composition.selected_packs[0].pack_id.replace("_", " ").title()
     return TutorGuidance(
@@ -27,7 +29,8 @@ def tutor_recommend(
         orientation=f"We're deciding {decision} in {premise}.",
         craft_concept=concept,
         plain_language_explanation=option.what_it_is,
-        story_application=f"In {premise}, this choice would create the following pressure: {option.craft_function}",
+        story_application=f"In {premise}, this choice would create the following pressure: {option.craft_function}"
+        + (f" The selected packs also create this interaction: {composition.reinforcing_patterns[0]}" if composition.reinforcing_patterns else ""),
         recommendation=option.name,
         why_recommended=f"Auteur recommends it because {option.works_well_when}",
         alternatives=alternatives,
