@@ -24,8 +24,14 @@ def content_hash(pack: StoryDesignPack | dict[str, Any] | str) -> str:
 
 
 def load_story_design_pack(path_or_text: str | Path) -> tuple[StoryDesignPack, str]:
-    path = Path(path_or_text)
-    text = path.read_text(encoding="utf-8") if path.is_file() else str(path_or_text)
+    if isinstance(path_or_text, Path):
+        text = path_or_text.read_text(encoding="utf-8")
+    else:
+        try:
+            path = Path(path_or_text)
+            text = path.read_text(encoding="utf-8") if path.is_file() else path_or_text
+        except (OSError, ValueError):
+            text = path_or_text
     raw = yaml.safe_load(text)
     if not isinstance(raw, dict):
         raise ValueError("Story Design Pack YAML root must be a mapping")
