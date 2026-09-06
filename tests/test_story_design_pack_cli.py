@@ -14,3 +14,11 @@ def test_tutor_command_is_derived_and_does_not_require_identity(capsys):
     output = capsys.readouterr().out
     assert "DERIVED / NOT CANON" in output
     assert "Recommended:" in output
+
+
+def test_story_discovery_accepts_optional_design_pack_priors():
+    args = parse_args([
+        "story-discovery", "run", "a premise", "--design-pack", "superhero",
+        "--design-pack", "hard_determinism",
+    ])
+    assert args.design_packs == ["superhero", "hard_determinism"]
