@@ -1,0 +1,57 @@
+pack_id: anti_hero
+pack_kind: character
+version: 0.1.0
+schema_version: 1
+display_name: Anti-Hero
+description: A character pack about compromised methods, constrained altruism, and contested sympathy.
+applicability:
+  signals: [anti-hero, morally gray, vigilante, ruthless, compromised, redemption]
+  description: Applies when the protagonist pursues a worthwhile or understandable aim through troubling means.
+design_options:
+  - option_id: constrained_altruism
+    name: Constrained altruism
+    what_it_is: The protagonist helps others but only within a narrow personal rule.
+    craft_function: Creates sympathy through action while preserving moral friction.
+    works_well_when: The rule creates costly choices instead of excusing everything.
+    tradeoffs: [A narrow rule can become repetitive if it never evolves.]
+    common_beginner_failure: Treating cruelty as complexity.
+    compatible_patterns: [public responsibility, institutional causation]
+    tensions: [unconditional heroism]
+    questions: ["Who will the protagonist refuse to save?", "What would break the rule?"]
+    architecture_targets: [Want, Resistance, Moral Boundary, Arc trajectory]
+    strength: STRONG_DEFAULT
+  - option_id: deterioration_arc
+    name: Deterioration arc
+    what_it_is: Repeated compromises make the protagonist less able to return to their former self.
+    craft_function: Gives consequences and direction to morally compromised choices.
+    works_well_when: Each compromise solves a short-term problem while narrowing future options.
+    tradeoffs: [The ending must acknowledge the loss rather than romanticize it.]
+    common_beginner_failure: Calling the character dark without showing causal change.
+    compatible_patterns: [inevitability, escalating collateral damage]
+    tensions: [redemption arc]
+    questions: ["What boundary is crossed only once?", "Who pays for the protagonist's method?"]
+    architecture_targets: [Change, Ending transformation, Relationships]
+    strength: COMMON_PATTERN
+teaching_notes:
+  - note_id: sympathy_mechanism
+    concept: Sympathy comes from meaningful cost
+    explanation: Readers need not approve of a method, but they need evidence that the protagonist understands and pays for its cost.
+    question: What does the protagonist lose when they choose the efficient wrong?
+compatibility_rules:
+  - rule_id: antihero_determinism
+    other_pack_id: hard_determinism
+    relation: tension
+    statement: Causal explanation can challenge blame without erasing the protagonist's lived responsibility.
+    strength: STRONG_DEFAULT
+    suggested_question: Can understanding the causes change what accountability means?
+  - rule_id: antihero_superhero
+    other_pack_id: superhero
+    relation: tension
+    statement: Conventional heroic legitimacy and compromised methods demand a deliberate moral frame.
+    strength: COMMON_PATTERN
+    suggested_question: Who calls this person a hero, and what do they ignore?
+decision_hooks:
+  - hook_id: moral_boundary
+    decision: protagonist moral boundary
+    question: What will the protagonist never do, and what pressure could make that rule costly?
+    recommended_option_id: constrained_altruism

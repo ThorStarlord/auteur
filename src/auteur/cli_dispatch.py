@@ -436,6 +436,9 @@ def _write_scene_markdown(scenes: list[Path], project_root: Path, path: Path) ->
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 def dispatch(args: argparse.Namespace) -> int:
+    if args.command == "design":
+        from auteur.story_design_packs.cli import dispatch_story_design_commands
+        return dispatch_story_design_commands(args)
     if args.command == "reasoning":
         if args.reasoning_command == "book":
             return _handle_reasoning_book(args.project, args.json)

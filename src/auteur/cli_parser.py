@@ -460,4 +460,7 @@ def build_parser() -> argparse.ArgumentParser:
     from auteur.genre_packs.cli import register_genre_pack_subcommands
     register_genre_pack_subcommands(sub)
 
+    from auteur.story_design_packs.cli import register_story_design_subcommands
+    register_story_design_subcommands(sub)
+
     return parser

@@ -1,0 +1,57 @@
+pack_id: superhero
+pack_kind: genre
+version: 0.1.0
+schema_version: 1
+display_name: Superhero
+description: A genre pack about extraordinary abilities, public responsibility, and escalating threats.
+applicability:
+  signals: [superhero, superpower, hero, villain, cape, vigilante]
+  description: Applies when extraordinary personal power meets public consequences.
+design_options:
+  - option_id: experimental_accident
+    name: Experimental accident
+    what_it_is: Powers arise from an unintended scientific or industrial event.
+    craft_function: Makes responsibility, secrecy, and institutional causation immediate.
+    works_well_when: The origin should intensify an existing fear or obligation.
+    tradeoffs: [Can make the origin feel familiar without a personal consequence.]
+    common_beginner_failure: Treating the origin as trivia instead of ongoing pressure.
+    compatible_patterns: [corporate ownership, collateral consequences]
+    tensions: [inherited legitimacy]
+    questions: ["Who benefits from the accident?", "Who is held responsible?"]
+    architecture_targets: [Conflict, Stakes, Institutions, Setup/payoff]
+    strength: STRONG_DEFAULT
+  - option_id: public_protector
+    name: Public protector
+    what_it_is: The protagonist's heroic identity is visible and socially accountable.
+    craft_function: Turns every power choice into a legitimacy and reputation decision.
+    works_well_when: Public trust is a meaningful source of stakes.
+    tradeoffs: [Private mystery and concealment become less central.]
+    common_beginner_failure: Assuming public approval is automatically dramatic.
+    compatible_patterns: [media pressure, hero licensing]
+    tensions: [secret identity]
+    questions: ["Who gets to define heroism?", "What happens when trust is withdrawn?"]
+    architecture_targets: [Target Experience, Conflict, Resolution]
+    strength: COMMON_PATTERN
+teaching_notes:
+  - note_id: origin_pressure
+    concept: A power origin is a pressure source
+    explanation: Origin matters when it creates obligations or consequences that continue after the origin scene.
+    question: What responsibility does the origin make impossible to avoid?
+compatibility_rules:
+  - rule_id: superhero_corporate
+    other_pack_id: corporate_superhuman_metropolis
+    relation: reinforces
+    statement: Corporate institutions can make superhuman power visibly economic and political.
+    strength: STRONG_DEFAULT
+    suggested_question: Who owns, licenses, or insures the power?
+  - rule_id: superhero_antihero
+    other_pack_id: anti_hero
+    relation: tension
+    statement: Public heroism places moral compromise under scrutiny rather than making it private.
+    strength: COMMON_PATTERN
+    suggested_question: What public good can justify the protagonist's compromise?
+decision_hooks:
+  - hook_id: power_origin
+    decision: power origin
+    question: Should the origin intensify the protagonist's existing problem or create a new obligation?
+    recommended_option_id: experimental_accident

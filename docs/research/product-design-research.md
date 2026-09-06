@@ -20,6 +20,11 @@ surfaces. The default experience should progressively disclose the system and
 translate canonical terms into plain-language explanations without renaming the
 canonical model.
 
+The product purpose is explicitly dual: improve the story artifact and improve
+the writer's understanding of narrative craft. Story Design Packs and derived
+Tutor Guidance are the initial implementation surface for testing that thesis;
+they do not change canonical semantic layers or author authority.
+
 See [Opinionated Narrative Engine](../opinionated-narrative-engine.md) for the
 current product-definition contract and [Narrative Architecture](../narrative-architecture.md)
 for the canonical semantic model.

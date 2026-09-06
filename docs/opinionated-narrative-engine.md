@@ -1,7 +1,7 @@
 # Opinionated Narrative Engine
 
-Auteur is an automated AI story architect for creative beginners who need
-decisive narrative direction. It transforms raw creative input into a
+Auteur is a guided, opinionated creative writing tutor for beginners who need
+decisive narrative direction while learning narrative craft. It transforms raw creative input into a
 recommended, validated story engine before any chapter outline or prose draft
 is treated as the product.
 

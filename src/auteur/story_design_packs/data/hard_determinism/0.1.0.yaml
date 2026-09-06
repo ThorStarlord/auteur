@@ -1,0 +1,57 @@
+pack_id: hard_determinism
+pack_kind: theme
+version: 0.1.0
+schema_version: 1
+display_name: Hard Determinism
+description: A theme pack about causation, predictability, agency, and moral responsibility.
+applicability:
+  signals: [determinism, free will, inevitable, causation, predetermined, choice]
+  description: Applies when the story asks whether choices are genuinely free or caused.
+design_options:
+  - option_id: causal_institutions
+    name: Institutional causation
+    what_it_is: Social systems and histories visibly shape what characters can choose.
+    craft_function: Makes the theme concrete through pressures beyond personal philosophy.
+    works_well_when: The story can show causes rather than only having characters state them.
+    tradeoffs: [Structural causes require multiple connected pressures to remain legible.]
+    common_beginner_failure: Letting characters merely state the philosophy.
+    compatible_patterns: [corporate ownership, surveillance, class stratification]
+    tensions: [isolated self-making]
+    questions: ["Which institution made this choice appear inevitable?", "What alternative was materially unavailable?"]
+    architecture_targets: [Theme, Causal structure, Conflict framing, Ending meaning]
+    strength: STRONG_DEFAULT
+  - option_id: experienced_agency
+    name: Agency as lived experience
+    what_it_is: The story can deny metaphysical freedom while preserving meaningful deliberation and change.
+    craft_function: Creates a counterpressure that keeps characters active rather than puppets.
+    works_well_when: Decisions have consequences even when their causes are explainable.
+    tradeoffs: [The thematic claim must distinguish predictability from passivity.]
+    common_beginner_failure: Confusing determinism with characters having no motives.
+    compatible_patterns: [moral accountability, transformation]
+    tensions: [total inevitability]
+    questions: ["What changes because the character understood their causes?", "Is responsibility social, emotional, or metaphysical?"]
+    architecture_targets: [Character worldview, Want, Change, Resolution]
+    strength: COMMON_PATTERN
+teaching_notes:
+  - note_id: causation_responsibility
+    concept: Causation and responsibility are different questions
+    explanation: Showing why an action happened does not by itself settle whether the community should respond to it.
+    question: What kind of responsibility survives if every action has a cause?
+compatibility_rules:
+  - rule_id: determinism_corporate
+    other_pack_id: corporate_superhuman_metropolis
+    relation: reinforces
+    statement: Institutions provide visible structural causes beyond individual choice.
+    strength: STRONG_DEFAULT
+    suggested_question: Which incentives make the harmful outcome predictable?
+  - rule_id: determinism_antihero
+    other_pack_id: anti_hero
+    relation: tension
+    statement: Explaining the anti-hero's causes must not automatically absolve their effects.
+    strength: STRONG_DEFAULT
+    suggested_question: What response is justified even after the causes are understood?
+decision_hooks:
+  - hook_id: responsibility_frame
+    decision: responsibility frame
+    question: Do you want the theme to challenge blame, redefine it, or intensify it?
+    recommended_option_id: causal_institutions
