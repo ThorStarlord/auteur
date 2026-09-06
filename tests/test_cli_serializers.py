@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 import pytest
@@ -397,6 +398,42 @@ def test_identity_promote_creates_parent_dirs(tmp_path: Path) -> None:
     result = serialize_identity_promote(identity, nested)
     assert result == nested
     assert nested.exists()
+
+
+def test_identity_promote_survives_interrupted_replace(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    out = tmp_path / "story_identity.yaml"
+    out.write_text("title: Prior\n", encoding="utf-8")
+    before = out.read_text(encoding="utf-8")
+
+    def _boom(src: str, dst: str) -> None:
+        raise OSError("simulated interruption during commit")
+
+    monkeypatch.setattr(os, "replace", _boom)
+    identity = _MockIdentity("Promoted")
+
+    with pytest.raises(OSError):
+        serialize_identity_promote(identity, out)
+
+    assert out.read_text(encoding="utf-8") == before
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["story_identity.yaml"]
+
+
+def test_identity_promote_cleans_temp_on_serialization_failure(tmp_path: Path) -> None:
+    out = tmp_path / "story_identity.yaml"
+    out.write_text("title: Prior\n", encoding="utf-8")
+    before = out.read_text(encoding="utf-8")
+
+    class _RaisingIdentity(_MockIdentity):
+        def to_yaml(self, path: str | Path) -> None:
+            raise OSError("simulated interruption during serialization")
+
+    with pytest.raises(OSError):
+        serialize_identity_promote(_RaisingIdentity("Promoted"), out)
+
+    assert out.read_text(encoding="utf-8") == before
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["story_identity.yaml"]
 
 
 # ---------------------------------------------------------------------------
