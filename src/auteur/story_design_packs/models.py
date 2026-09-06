@@ -137,6 +137,17 @@ class TutorGuidance(BaseModel):
     authority_status: Literal["DERIVED / NOT CANON"] = "DERIVED / NOT CANON"
 
 
+class TutorDiagnosticGuidance(BaseModel):
+    diagnostic_rule: str
+    what_seems_wrong: str
+    craft_principle: str
+    why_it_matters_in_this_story: str
+    repair_options: list[str] = Field(default_factory=list)
+    tradeoffs: list[str] = Field(default_factory=list)
+    next_author_decision: str
+    authority_status: Literal["DERIVED / NOT CANON"] = "DERIVED / NOT CANON"
+
+
 PackPayload = Union[DesignPackPayload]
 
 # Public vocabulary aliases keep the implementation name concrete while

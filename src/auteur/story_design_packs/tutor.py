@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from .composition import compose_packs
-from .models import TutorGuidance
+from .models import TutorDiagnosticGuidance, TutorGuidance
 
 
 def tutor_recommend(
@@ -39,4 +39,22 @@ def tutor_recommend(
         consequence=f"Choosing this should make {option.craft_function.lower()}",
         question_for_author=hook.question if hook else (option.questions[0] if option.questions else "What consequence should this choice create?"),
         comprehension_check=f"In your own words, what pressure does {option.name} create?",
+    )
+
+
+def tutorize_diagnostic(diagnostic: object, *, story_context: str = "this story") -> TutorDiagnosticGuidance:
+    """Translate one deterministic diagnostic without changing or applying it."""
+    rule = getattr(diagnostic, "rule", "unknown")
+    message = getattr(diagnostic, "message", "A structural issue was detected.")
+    repair = getattr(getattr(diagnostic, "repair_options", None), "preserve_intent", [])
+    challenge = getattr(getattr(diagnostic, "repair_options", None), "challenge_intent", [])
+    options = [*repair, *challenge]
+    return TutorDiagnosticGuidance(
+        diagnostic_rule=rule,
+        what_seems_wrong=message,
+        craft_principle="A prominent setup creates an audience expectation that should be resolved, transformed, or deliberately carried forward.",
+        why_it_matters_in_this_story=f"The finding affects the promises and consequences the author has established in {story_context}.",
+        repair_options=options,
+        tradeoffs=["Resolving the issue may require changing a later commitment.", "Keeping it unresolved preserves ambiguity but should be intentional."],
+        next_author_decision="Choose a repair, preserve the tension deliberately, or explicitly challenge the finding.",
     )

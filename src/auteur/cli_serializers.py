@@ -216,6 +216,8 @@ def _discovery_report(data: RecommendOpenEndedData, premise: str) -> dict[str, A
         "comparison": comparison,
         "chosen_candidate": None,
         "timestamp": data.rec_set.generated_at if hasattr(data.rec_set, "generated_at") else "",
+        "design_context": data.design_context,
+        "tutor_guidance": data.tutor_guidance,
     }
 
 

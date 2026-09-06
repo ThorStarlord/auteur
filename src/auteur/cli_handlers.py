@@ -187,6 +187,8 @@ class RecommendOpenEndedData:
     candidates: list[CandidateOutput]
     rec_set: StoryIdentityRecommendationSet
     comparison_lines: list[str]
+    design_context: dict[str, Any] | None = None
+    tutor_guidance: dict[str, Any] | None = None
 
 
 DEFAULT_DISCOVERY_LENSES = ["emotional_payoff", "commercial_clarity", "thematic_coherence"]
@@ -558,6 +560,7 @@ def handle_identity_recommend(
     debug: bool = False,
     timestamp: str | None = None,
     project_path: Path | None = None,
+    design_context: dict[str, Any] | None = None,
 ) -> HandlerResult:
     """Generate story identity recommendations from a premise text.
 
@@ -630,6 +633,13 @@ Primary Genre Contract Details ({contract.display_name}):
             )
             basis_guideline += f"\n\nStory Discovery Lens ('{lens}'):\n{lens_guidance}\nGenerate a candidate that is architecturally distinct because of this lens."
 
+        design_context_text = ""
+        if design_context:
+            design_context_text = (
+                "\n\nOptional Story Design Pack context (priors and questions, not canon):\n"
+                + json.dumps(design_context, indent=2, ensure_ascii=False)
+                + "\nUse this context to make reasoning more specific. Do not copy pack options into accepted identity fields unless the story-specific choice supports them."
+            )
         system_prompt = f"""You are an expert, opinionated narrative compiler. Your job is to take a raw creative premise/idea and translate it into a single, cohesive, structurally sound recommended story identity.
 
 You must recommend exactly one direction (choose the best-suited genre, medium, and mode) for this story to maximize its narrative potential. Do not be vague or generic.
@@ -648,6 +658,7 @@ Modes:
 {", ".join(modes_list)}
 
 {genre_guidance}
+{design_context_text}
 
 Note on Genre Runway constraints:
 Each genre has a minimum viable length requirement. For instance, epic fantasy, mystery, or thrillers typically require a longer medium (e.g. novel, novella) rather than a short story. If you specify a genre, ensure the medium matches or exceeds its runway requirements, unless you specify runway_compression in author_overrides.
@@ -1014,6 +1025,7 @@ Make sure the output is valid YAML, contains no conversational preamble/postambl
                 candidates=candidate_outputs,
                 rec_set=rec_set,
                 comparison_lines=comparison_lines,
+                design_context=design_context,
             )
         )
 
