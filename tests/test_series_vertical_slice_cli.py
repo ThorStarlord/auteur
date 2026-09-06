@@ -687,7 +687,7 @@ def _accept_episode(tmp_path: Path, capsys) -> str:
     return proposal_id
 
 
-def test_inspect_episode_default_hides_provenance_and_never_says_book(
+def test_inspect_episode_default_hides_provenance_and_never_labels_episode_as_book(
     tmp_path: Path, capsys
 ) -> None:
     _accept_episode(tmp_path, capsys)
@@ -700,7 +700,11 @@ def test_inspect_episode_default_hides_provenance_and_never_says_book(
     assert "revision " not in output
     assert "episode-1-direction" not in output
     assert "series-entry-form" not in output
-    assert "Book" not in output
+    # Contract: the Episode is never labelled as "Book 1" / "Book Direction";
+    # it is labelled as an Episode 1 Direction.
+    assert "Accepted Episode 1 Direction" in output
+    assert "Book 1" not in output
+    assert "Book Direction" not in output
 
 
 def test_inspect_episode_detail_discloses_provenance(
@@ -743,7 +747,9 @@ def test_inspect_episode_after_series_advances_still_succeeds(
     default_output = capsys.readouterr().out
     assert "revision " not in default_output
     assert "episode-1-direction" not in default_output
-    assert "Book" not in default_output
+    assert "Accepted Episode 1 Direction" in default_output
+    assert "Book 1" not in default_output
+    assert "Book Direction" not in default_output
     assert "The Missing Ledger" in default_output
     assert "contested-history" in default_output
 

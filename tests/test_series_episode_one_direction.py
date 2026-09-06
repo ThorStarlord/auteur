@@ -383,9 +383,68 @@ def test_ac12_episode_one_never_stored_or_surfaced_as_book(
 
     default_output = format_episode_direction_inspection(inspection)
     detail_output = format_episode_direction_inspection(inspection, detail=True)
-    assert "Book" not in default_output
-    assert "Book" not in detail_output
+    # Contract: the Episode is never labelled as "Book 1" / "Book Direction".
+    # It is not a requirement that the substring "Book" can never appear in
+    # author-supplied content rendered into the view.
+    assert "Book 1" not in default_output
+    assert "Book 1" not in detail_output
+    assert "Book Direction" not in default_output
+    assert "Book Direction" not in detail_output
+    assert "Accepted Episode 1 Direction" in default_output
+    assert "Accepted Episode 1 Direction" in detail_output
     assert "Episode 1" in default_output
+
+
+def test_legitimate_author_text_may_contain_word_book_without_mislabelling(
+    tmp_path: Path,
+) -> None:
+    # The contract forbids labelling Episode 1 as "Book 1" / "Book Direction".
+    # It does NOT forbid the substring "Book" from appearing in legitimate
+    # author-supplied Series or Episode content. Here both the Series promise
+    # and the Episode title deliberately contain the word "Book"; that text
+    # must survive inspection while the Episode label stays correct.
+    service = SeriesVerticalSliceService(tmp_path)
+
+    series_payload = yaml.safe_load(SERIES_INPUT.read_text(encoding="utf-8"))
+    series_payload["promise"] = (
+        "Each recovered Book of the city archive reveals who profits from "
+        "controlling history."
+    )
+    series = SeriesDirection.model_validate(series_payload)
+    series_proposal = service.propose_series_direction(series)
+    service.accept_series_direction(
+        series_proposal.proposal_id, accepted_by="author"
+    )
+    service.declare_series_episodic(declared_by="author")
+
+    episode_payload = _episode_payload()
+    episode_payload["identity"]["title"] = "The Blackwood Account Book"
+    episode = EpisodeDirection.model_validate(episode_payload)
+    episode_proposal = service.propose_episode_direction(episode)
+    service.accept_episode_direction(
+        episode_proposal.proposal_id, accepted_by="author"
+    )
+
+    from auteur.series.vertical_slice_formatters import (
+        format_episode_direction_inspection,
+    )
+
+    inspection = service.inspect_episode_direction()
+    default_output = format_episode_direction_inspection(inspection)
+    detail_output = format_episode_direction_inspection(inspection, detail=True)
+
+    # Author text containing "Book" survives verbatim in both views.
+    assert "The Blackwood Account Book" in default_output
+    assert "Each recovered Book of the city archive" in default_output
+    assert "The Blackwood Account Book" in detail_output
+
+    # The Episode label is correct and it is never labelled as a Book.
+    assert "Accepted Episode 1 Direction" in default_output
+    assert "Accepted Episode 1 Direction" in detail_output
+    assert "Book 1" not in default_output
+    assert "Book 1" not in detail_output
+    assert "Book Direction" not in default_output
+    assert "Book Direction" not in detail_output
 
 
 def test_ac13_episode_direction_unavailable_without_explicit_episodic_declaration(
@@ -755,6 +814,26 @@ def test_edge_book_oriented_series_rejects_propose_episode(
         service.propose_episode_direction(_load_episode_direction())
 
 
+def test_edge_book_oriented_series_rejects_accept_episode_before_proposal_lookup(
+    tmp_path: Path,
+) -> None:
+    # Symmetrical to the accept_book_direction guard-order test: on a
+    # Book-oriented / undeclared Series, accept_episode_direction must surface
+    # the domain eligibility ValueError, not a FileNotFoundError from the
+    # missing proposal file. The eligibility guard runs before proposal lookup.
+    service = SeriesVerticalSliceService(tmp_path)
+    proposal = service.propose_series_direction(
+        _load_model(BOOK_SERIES_INPUT, SeriesDirection)
+    )
+    service.accept_series_direction(proposal.proposal_id, accepted_by="author")
+
+    with pytest.raises(ValueError, match="explicitly declared episodic"):
+        service.accept_episode_direction(
+            "episode-direction-does-not-exist",
+            accepted_by="author",
+        )
+
+
 def test_edge_episodic_series_rejects_propose_book_and_accept_book(
     tmp_path: Path,
 ) -> None:
@@ -913,7 +992,9 @@ def test_cli_declare_propose_accept_inspect_end_to_end(
         ["series", "journey", "inspect-episode", str(tmp_path)]
     ) == 0
     inspect_output = capsys.readouterr().out
-    assert "Book" not in inspect_output
+    assert "Book 1" not in inspect_output
+    assert "Book Direction" not in inspect_output
+    assert "Accepted Episode 1 Direction" in inspect_output
     assert "revision " not in inspect_output
 
     assert main(
@@ -923,4 +1004,6 @@ def test_cli_declare_propose_accept_inspect_end_to_end(
     assert "episode-1-direction (revision 1)" in detail_output
     assert "series-entry-form (revision 1)" in detail_output
     assert f"Proposal ID: {episode_proposal_id}" in detail_output
-    assert "Book" not in detail_output
+    assert "Book 1" not in detail_output
+    assert "Book Direction" not in detail_output
+    assert "Accepted Episode 1 Direction" in detail_output

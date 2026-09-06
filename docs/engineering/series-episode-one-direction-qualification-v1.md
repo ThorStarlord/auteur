@@ -216,6 +216,183 @@ This record does not assert:
 - that any capability beyond the exact 19-path implementation/test/normative
   candidate described here has been qualified.
 
+## PR #167 review remediation and requalification
+
+Everything above this section records the qualification of the pre-commit
+21-path candidate, which was then committed unchanged as
+`1d9b09626e9c4a6fb0e9d4fa7827684f2a7f7b11` and published as pull request
+[#167](https://github.com/ThorStarlord/auteur/pull/167). That evidence stands
+as written; this section adds — it does not replace — the record of a bounded
+review-remediation pass performed afterwards in response to the PR review.
+
+### Provenance
+
+An automated PR review (GitHub Copilot) on #167 raised six threads. Two were
+accepted as low-severity, deliberately-unfixed findings (see "the two
+deliberately unresolved accepted Minors" below). The other four were accepted
+as correct and remediated. Commit `1d9b096` was treated as immutable; the
+remediation was applied as working-tree changes on top of it, to be captured
+in a single follow-up commit after this record and a final Validator pass.
+
+### Exact revised candidate state
+
+Base: `1d9b09626e9c4a6fb0e9d4fa7827684f2a7f7b11` (unchanged; HEAD is still this
+commit — no new commit was created during remediation).
+
+Working-tree modifications relative to `1d9b096`, exactly six substantive
+paths plus this record:
+
+```text
+src/auteur/series/vertical_slice_service.py                         (guard-order fix)
+docs/narrative-architecture.md                                      (terminology)
+docs/design/series-episode-one-direction-implementation-boundary-v1.md  (terminology)
+tests/test_series_episode_one_direction.py                          (assertions + 2 regression tests)
+tests/test_series_vertical_slice_cli.py                             (assertions)
+tests/test_series_vertical_slice_e2e.py                             (assertions)
+docs/engineering/series-episode-one-direction-qualification-v1.md    (this record)
+```
+
+No other tracked file differs from `1d9b096`; in particular
+`vertical_slice_models.py`, `vertical_slice_store.py`,
+`vertical_slice_formatters.py`, `cli.py`, `episode_direction.py`,
+`CHANGELOG.md`, the capability contract, and the Series Vertical Slice
+qualification record are byte-unchanged. No untracked files were created.
+
+### Guard-order issue — resolved
+
+`SeriesVerticalSliceService.accept_episode_direction` previously loaded the
+proposal file before checking Series eligibility, so a caller on a
+Book-oriented or undeclared Series received a `FileNotFoundError` (and a weak
+proposal-id existence/format oracle) instead of the domain eligibility
+`ValueError`, and the ordering was inconsistent with `accept_book_direction`.
+The explicit-episodic eligibility guard is now evaluated before the proposal
+lookup, matching `accept_book_direction`. The valid episodic acceptance path
+is unchanged, and AC10 ordering is preserved: the exact-match idempotency
+check still runs before commitment validation and before the stale-source
+check. A symmetrical regression test
+(`test_edge_book_oriented_series_rejects_accept_episode_before_proposal_lookup`)
+locks the new ordering.
+
+### Narrative-architecture terminology — corrected
+
+`docs/narrative-architecture.md` previously said an episodic Series uses an
+Episode entry-unit Direction "in place of a Book Identity", which read as if
+episodic Series lose the Book Identity concept. It now says the Episode
+entry-unit Direction is used in place of the Book 1 Direction entry-unit
+path, and states explicitly that the canonical Book Identity concept and the
+five canonical scopes are unchanged. The five-scope and five-layer models are
+untouched.
+
+### Over-broad inspection contract and tests — corrected
+
+The implementation-boundary document previously required the formatter/tests
+to "never emit the token 'Book'". This overstated the product requirement,
+which is that Episode 1 must never be labelled or surfaced as "Book 1" /
+"Book Direction" — not that legitimate author-supplied text can never contain
+the word "Book". The two over-broad phrases in the boundary document are
+narrowed to the label requirement. The high-level capability contract was
+already correctly label-focused and is unchanged. The corresponding broad
+`assert "Book" not in <output>` assertions in
+`tests/test_series_episode_one_direction.py`,
+`tests/test_series_vertical_slice_cli.py`, and
+`tests/test_series_vertical_slice_e2e.py` are replaced with assertions that
+the Episode label ("Accepted Episode 1 Direction") is present and that
+"Book 1" / "Book Direction" are absent. A new focused regression test
+(`test_legitimate_author_text_may_contain_word_book_without_mislabelling`)
+sets both the Series promise and the Episode title to legitimately contain
+the word "Book" and demonstrates that the author text survives inspection
+verbatim while the Episode label stays correct and no Episode-as-Book-1
+mislabelling occurs.
+
+### Fresh execution evidence (revised candidate)
+
+Run with `PYTHONPATH=src`; counts are freshly measured against the revised
+candidate, not carried over from the pre-commit evidence above.
+
+- compile (`python -m compileall -q src`): **PASS**
+- touched-unit group
+  (`test_series_episode_one_direction`, `test_series_episode_direction`,
+  `test_series_vertical_slice_service`, `test_series_vertical_slice_models`,
+  `test_series_vertical_slice_store`, `test_series_vertical_slice_cli`):
+  **217 passed, 0 failed**
+- Episode acceptance suite (`tests/test_series_episode_one_direction.py`):
+  **34 passed, 0 failed** — 32 tests as committed at `1d9b096` (verified by
+  `git show 1d9b096:tests/test_series_episode_one_direction.py` collecting 32
+  tests) plus the 2 new regression tests added by this remediation. Note: the
+  pre-commit "Acceptance evidence" section above records "34 passed" for this
+  file run in isolation; that figure was a stale carry-over from the earlier
+  frozen pre-current-main candidate (whose copy of the file held 34 tests).
+  The accurate isolated count for `1d9b096` is 32; the revised candidate is
+  34 (32 + 2). No pre-existing test was removed by this remediation.
+- Episode acceptance + vertical-slice e2e: **36 passed, 0 failed**
+- contemporary-main coexistence group
+  (`test_series_vertical_slice_global_map`, `test_series_repeated_map_focus`,
+  `test_series_cli_continuity_integration`, `test_author_decisions_outcome`,
+  `test_author_decisions_outcome_acceptance`): **103 passed, 0 failed**
+- full normal repository suite (`python -m pytest -q`):
+  **4,774 passed, 1 skipped, 27 xfailed, 0 failed**
+- `ruff check` on the six candidate production files: **PASS**
+- `ruff format --check`: unchanged from the pre-commit candidate — the same
+  five pre-existing modified modules remain non-compliant (this debt exists
+  at `1d9b096` and at the I1 baseline; the reorder and test edits follow each
+  file's existing style and introduce no new non-compliance), and
+  `episode_direction.py` remains compliant
+- `git diff --check`: clean
+
+These groups are reported as distinct counts and are not summed.
+
+### Fresh independent review (revised candidate)
+
+Each reviewer inspected the revised working-tree content and was instructed
+not to anchor to the pre-commit reviews.
+
+- Security: **0 Critical, 0 Important, 1 Minor**. The one Minor is the
+  previously known, accepted, unconstrained-identifier-string
+  defense-in-depth observation, unchanged by this remediation. The reviewer
+  independently assessed the guard-order change as a net security
+  improvement (it removes a proposal-id existence/format oracle on
+  ineligible Series) with no downside.
+- Performance: **0 Critical, 0 Important, 1 Minor**. The one Minor is the
+  previously known, accepted O(n^2) duplicate-commitment check, unchanged by
+  this remediation. The statement reorder adds no filesystem work on the
+  common path and removes one read on the ineligible-Series error path.
+- Pre-commit-follow-up Validator: **0 Critical, 0 Important, 0 Minor**, with
+  one methodological "could not verify" item — the read-only Validator
+  session had no shell/git access to confirm the exact file-scope boundary.
+  The coordinator closed this directly with Git: exactly the six substantive
+  paths above (plus this record) differ from `1d9b096`;
+  `vertical_slice_models.py`, `vertical_slice_store.py`,
+  `vertical_slice_formatters.py`, `cli.py`, `episode_direction.py`,
+  `CHANGELOG.md`, the capability contract, and the Series qualification
+  record are byte-unchanged; there are no untracked files; `git diff
+  --check` is clean.
+
+### The two deliberately unresolved accepted Minors
+
+Both Minors from the pre-commit reviews remain open and were **not** fixed in
+this remediation, by explicit decision:
+
+1. Episode identifier-like model fields (`candidate_id`, `proposal_id`,
+   `bundle_id`-derived) are unconstrained `str` at the Pydantic layer. Path
+   safety is enforced downstream in every `vertical_slice_store.py`
+   path-builder at all traced call sites, so there is no exploit path;
+   model-level validation would be defense-in-depth only.
+2. Duplicate commitment-reference detection in
+   `EpisodeDirection._validate_episode_direction` is O(n^2) via `.count()` in
+   a comprehension. The input is a small, human-authored list; assessed
+   non-blocking.
+
+Neither has been promoted to Important or Critical. Both were re-confirmed
+present and unchanged by the fresh reviewers.
+
+### Non-claims for this remediation
+
+This section does not assert that a final post-documentation Validator has
+reviewed the complete revised candidate (that pass is run after this record
+is written), nor human approval, nor that the remediation has been committed,
+pushed, merged, released, or shipped. The follow-up commit and push are
+withheld pending the final Validator and an explicit human decision.
+
 ## Relationship to the historical frozen qualification record
 
 An earlier, now-frozen qualification effort for this same Bounded Episode 1
@@ -223,4 +400,5 @@ Direction capability was performed on a different (pre-current-main)
 baseline and is preserved as its own historical evidence. That record is not
 reused, extended, or re-asserted by this document. This record's every claim
 is grounded exclusively in evidence produced against the exact I1 candidate
-identified above.
+identified above and, in the section immediately above, its bounded
+review-remediation revision.

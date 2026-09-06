@@ -304,12 +304,12 @@ class SeriesVerticalSliceService:
         accepted_by: str,
         rationale: str | None = None,
     ) -> EpisodeDirectionAcceptance:
-        proposal = self.load_episode_direction_proposal(proposal_id)
         if self.load_entry_form() != "episodic":
             raise ValueError(
                 "Episode Direction is available only for a Series explicitly "
                 "declared episodic."
             )
+        proposal = self.load_episode_direction_proposal(proposal_id)
         accepted_series, series_metadata = self._accepted_series_source()
         existing = self.load_accepted_episode_direction()
         if (

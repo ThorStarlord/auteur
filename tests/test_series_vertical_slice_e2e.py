@@ -348,8 +348,14 @@ def test_archive_of_lies_episode_one_direction_end_to_end(tmp_path: Path) -> Non
 
     default_output = format_episode_direction_inspection(inspection)
     detail_output = format_episode_direction_inspection(inspection, detail=True)
-    assert "Book" not in default_output
-    assert "Book" not in detail_output
+    # Contract: the Episode is never labelled "Book 1" / "Book Direction"; it
+    # carries the Episode 1 Direction label.
+    assert "Accepted Episode 1 Direction" in default_output
+    assert "Accepted Episode 1 Direction" in detail_output
+    assert "Book 1" not in default_output
+    assert "Book 1" not in detail_output
+    assert "Book Direction" not in default_output
+    assert "Book Direction" not in detail_output
     assert "revision" not in default_output
     assert episode_direction.identity.title in default_output
     assert series_direction.title in default_output

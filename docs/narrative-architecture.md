@@ -73,9 +73,10 @@ remain optional.
 Series Identity and Book Identities are required. Universe Identity is optional.
 Continuity plans, compiled bibles, and detailed realization state can be added
 progressively. A Series whose entry form is episodic uses an Episode entry-unit
-Direction in place of a Book Identity for its opening entry unit; for that
-bounded capability Episode is a Series-scope entry-unit concept, not an
-additional canonical scope.
+Direction in place of the Book 1 Direction entry-unit path for its opening entry
+unit; the canonical Book Identity concept and the five canonical scopes are
+unchanged, and for that bounded capability Episode is a Series-scope entry-unit
+concept, not an additional canonical scope.
 
 ## Unresolved specifications
 

@@ -74,7 +74,7 @@ should build on and the Episode-specific responsibility that must be added. The
 | Explicit acceptance is the only authority transition; atomic; UTC timestamp; declared dependency | The Book Direction acceptance path: re-validate the proposal against the current accepted Series Direction, reject a stale source reference, stage, accept through the provenance store with an opt-in timestamp, roll back on any exception | An Episode 1 Direction acceptance path that mirrors this exactly, with its own artifact identity and type |
 | Idempotent re-acceptance with an explicit no-change result | The provenance store always increments the accepted revision | An explicit pre-acceptance guard: if an accepted Episode 1 Direction already exists for the same proposal with equal content, return it as an explicit no-change result without calling the provenance acceptance path |
 | Two-way Book/Episode exclusivity | The Book Direction propose and accept service methods | A leading guard on both that rejects the operation when the Series is explicitly episodic; a no-op for an undeclared or Book-oriented Series |
-| Inspect Series Direction, Episode 1 Direction, and referenced commitments distinctly; never "Book 1" | The progressive-disclosure formatter pattern used by the Series journey map, with a default view and a detail view | A dedicated read-only inspection view and formatter that labels Series-level and Episode-level content separately, lists the referenced commitments, and never emits the token "Book"; a clear absence report when no Episode 1 Direction is accepted |
+| Inspect Series Direction, Episode 1 Direction, and referenced commitments distinctly; never "Book 1" | The progressive-disclosure formatter pattern used by the Series journey map, with a default view and a detail view | A dedicated read-only inspection view and formatter that labels Series-level and Episode-level content separately, lists the referenced commitments, and never labels the Episode as "Book 1" or "Book Direction"; a clear absence report when no Episode 1 Direction is accepted |
 | Keep new derivation and view logic out of the oversized store and service | The dedicated-pure-module precedent | A new pure module holding the inspection result shape and pure helpers, with the store and service holding only thin persistence and orchestration hooks |
 
 ## What can be reused safely
@@ -187,7 +187,8 @@ service-level unit tests. The minimum capability-test groups are:
    path yields both an accepted Book 1 Direction and an accepted Episode 1
    Direction for one Series;
 8. inspection distinguishes Series-level and Episode-level content, lists
-   referenced commitments, never emits "Book", and reports a clean absence;
+   referenced commitments, never labels the Episode as "Book 1" or "Book
+   Direction", and reports a clean absence;
 9. an existing Book-oriented project loads with no migration and its accepted
    artifacts remain byte-stable.
 
