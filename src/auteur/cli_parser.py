@@ -294,6 +294,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--candidates", type=int, default=3)
     p.add_argument("--lens", action="append", default=None,
         help="Design lens to explore. Repeat to provide multiple lenses.")
+    p.add_argument("--design-pack", action="append", default=None, dest="design_packs",
+        help="Optional Story Design Pack ID. Repeat to compose pack priors.")
     p.add_argument("--genre", type=str, default=None)
     p.add_argument("--project", type=Path, default=None,
         help="Project path for resolving project-local custom genre contracts.")
@@ -459,5 +461,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     from auteur.genre_packs.cli import register_genre_pack_subcommands
     register_genre_pack_subcommands(sub)
+
+    from auteur.story_design_packs.cli import register_story_design_subcommands
+    register_story_design_subcommands(sub)
 
     return parser

@@ -241,7 +241,7 @@ def _recommendation_surface_lines(
     target_experience = identity.target_experience.model_dump(mode="json")
     central_engine = identity.central_engine.model_dump(mode="json")
     accept_command = (
-        f"auteur story-discovery accept {output_dir / (winner + '.yaml')} "
+        f"auteur story-discovery accept {(output_dir / (winner + '.yaml')).as_posix()} "
         "--output story_identity.yaml"
     )
 
@@ -324,13 +324,13 @@ def _recommendation_surface_lines(
         if co.candidate_id != winner:
             lines.append(
                 "    auteur story-discovery accept "
-                f"{output_dir / (co.candidate_id + '.yaml')} --output story_identity.yaml"
+                f"{(output_dir / (co.candidate_id + '.yaml')).as_posix()} --output story_identity.yaml"
             )
     lines.extend(
         [
             "",
             "  Review the full comparison:",
-            f"    {output_dir / 'comparison.md'}",
+            f"    {(output_dir / 'comparison.md').as_posix()}",
         ]
     )
     return lines
@@ -364,7 +364,7 @@ def _judgment_non_adjudicable_surface_lines(
     for co in candidate_outputs:
         lines.append(
             "- Choose this direction explicitly: "
-            f"auteur story-discovery accept {output_dir / (co.candidate_id + '.yaml')} "
+            f"auteur story-discovery accept {(output_dir / (co.candidate_id + '.yaml')).as_posix()} "
             "--output story_identity.yaml"
         )
     lines.extend(
@@ -471,6 +471,8 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
     )
 
     premise_text = _resolve_premise(args.brain_dump)
+    from auteur.story_design_packs.integration import build_discovery_tutor_guidance, build_story_design_context
+    design_context = build_story_design_context(getattr(args, "design_packs", None))
     base_client = build_client(args.provider, args.model, agent_type="identity")
     result = handle_identity_recommend(
         client=CausalGuidanceClient(base_client),
@@ -484,6 +486,7 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
         strict_candidate_count=args.strict_candidate_count,
         debug=args.debug,
         project_path=args.project,
+        design_context=design_context,
     )
     if not result.is_success:
         if result.error and result.error.strip().startswith("0 valid candidates survived"):
@@ -500,6 +503,10 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
     if not isinstance(data, RecommendOpenEndedData):
         _err("story discovery did not return candidate data")
         return 1
+    data.design_context = design_context
+    data.tutor_guidance = build_discovery_tutor_guidance(
+        getattr(args, "design_packs", None), premise=premise_text
+    )
 
     candidate_outputs = data.candidates
     if not candidate_outputs:

@@ -1,0 +1,41 @@
+{
+  "opaque_run_id": "F21",
+  "probe_id": "P05",
+  "evaluator_provider": "deepseek",
+  "evaluator_model": "deepseek-chat",
+  "evaluator_returned_model": "deepseek-v4-flash",
+  "request_id": "72a455b0-0ae6-4d01-bb77-716bc0c6e8cd",
+  "finish_reason": "stop",
+  "input_tokens": 1717,
+  "output_tokens": 214,
+  "total_tokens": 1931,
+  "latency_ms": 2159,
+  "timestamp_utc": "2026-08-27T22:11:44.491787Z",
+  "raw_response": "{\n  \"source_fidelity\": \"PASS\",\n  \"current_state_compatibility\": \"PASS\",\n  \"long_horizon_awareness\": \"PASS\",\n  \"causal_coherence\": \"PASS\",\n  \"direction_preservation\": \"PASS\",\n  \"relevance\": \"PASS\",\n  \"decision_quality\": \"PASS\",\n  \"explanation_traceability\": \"PASS\",\n  \"authority_correctness\": \"PASS\",\n  \"overconstraint_false_precision\": \"PASS\",\n  \"architecture_distraction\": \"PASS\",\n  \"must_not_miss_coverage\": \"PASS\",\n  \"forbidden_assumption_violations\": \"PASS\",\n  \"severe_negative\": false,\n  \"overall\": \"PASS\",\n  \"rationale\": \"The output preserves the compact cluster with explicit causal linkage, excludes irrelevant lanterns and unaccepted militia, provides specific why-now for both cluster and monastery, and avoids forbidden assumptions.\"\n}",
+  "parsed_judgment": {
+    "source_fidelity": "PASS",
+    "current_state_compatibility": "PASS",
+    "long_horizon_awareness": "PASS",
+    "causal_coherence": "PASS",
+    "direction_preservation": "PASS",
+    "relevance": "PASS",
+    "decision_quality": "PASS",
+    "explanation_traceability": "PASS",
+    "authority_correctness": "PASS",
+    "overconstraint_false_precision": "PASS",
+    "architecture_distraction": "PASS",
+    "must_not_miss_coverage": "PASS",
+    "forbidden_assumption_violations": "PASS",
+    "severe_negative": false,
+    "overall": "PASS",
+    "rationale": "The output preserves the compact cluster with explicit causal linkage, excludes irrelevant lanterns and unaccepted militia, provides specific why-now for both cluster and monastery, and avoids forbidden assumptions."
+  },
+  "provenance_classification": {
+    "request_id": "PROVIDER-REPORTED",
+    "evaluator_returned_model": "PROVIDER-REPORTED",
+    "input_tokens": "PROVIDER-REPORTED",
+    "output_tokens": "PROVIDER-REPORTED",
+    "raw_response": "PROVIDER-REPORTED",
+    "latency_ms": "TRANSPORT-MEASURED"
+  }
+}

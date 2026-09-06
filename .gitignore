@@ -84,3 +84,36 @@ reports/
 /.local/evaluations/cartographer/
 /.local/evaluations/cartographer-agent-pilot/
 /.worktrees/
+
+# --- factory: credentials. The runner pre-flight asserts these; a git add -A
+# must never be able to publish a credential-shaped file that appears later.
+.env
+.env.*
+secrets.json
+credentials.json
+*.local
+*credential*
+*secret*
+*.pem
+*.key
+id_rsa
+id_ed25519
+service-account.json
+.archon/config.yaml
+.archon/.env
+config/secrets.yml
+
+# --- factory runtime state: per-machine, regenerated, never meaningful in history
+.factory/runs/
+.factory/locks-runtime/
+.factory/findings/
+.factory/STOP
+factory-*.log
+
+# NOT ignored, deliberately:
+#   .factory/locks/    the thresholds a human set - protected and tracked on purpose.
+#   .factory/holdout/  tracked while it lives in-repo; the guard protects it on the diff.
+#   .factory/prs/      the PR record on the file backend IS state, so it is tracked.
+
+# --- factory: deploy snapshots (rebuildable from any sha)
+builds/

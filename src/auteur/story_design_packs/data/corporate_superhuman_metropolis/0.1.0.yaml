@@ -1,0 +1,57 @@
+pack_id: corporate_superhuman_metropolis
+pack_kind: setting
+version: 0.1.0
+schema_version: 1
+display_name: Corporate Superhuman Metropolis
+description: A setting pack where superhuman power is licensed, insured, surveilled, and monetized.
+applicability:
+  signals: [corporate, metropolis, licensing, sponsorship, insurance, surveillance, superhuman]
+  description: Applies when institutions organize extraordinary ability at city scale.
+design_options:
+  - option_id: licensed_heroism
+    name: Licensed heroism
+    what_it_is: Legal authority to use powers is controlled by an institution.
+    craft_function: Turns public safety into a conflict over ownership and legitimacy.
+    works_well_when: The institution's incentives create consequences in ordinary scenes.
+    tradeoffs: [Institutional detail must remain tied to character pressure.]
+    common_beginner_failure: Listing worldbuilding facts without making anyone choose.
+    compatible_patterns: [public protector, insurance liability]
+    tensions: [unregulated vigilante]
+    questions: ["Who can afford protection?", "What does a license forbid?"]
+    architecture_targets: [Institutions, Social hierarchy, Conflict affordances, Stakes]
+    strength: STRONG_DEFAULT
+  - option_id: corporate_ownership
+    name: Corporate ownership of powers
+    what_it_is: A company claims economic rights over training, deployment, or data about powers.
+    craft_function: Makes superhuman identity an employment and autonomy conflict.
+    works_well_when: Ownership changes the protagonist's available choices.
+    tradeoffs: [The corporation must have human agents and specific incentives, not be abstract evil.]
+    common_beginner_failure: Making the setting's institutions interchangeable villains.
+    compatible_patterns: [experimental accident, surveillance]
+    tensions: [public good]
+    questions: ["What contract binds the protagonist?", "Who profits when a rescue succeeds?"]
+    architecture_targets: [Resistance, Relationships, Economic incentives, Causal structure]
+    strength: COMMON_PATTERN
+teaching_notes:
+  - note_id: institutions_as_pressure
+    concept: Institutions become dramatic when they distribute choices
+    explanation: A setting is not just a backdrop; rules, incentives, and access determine what characters can risk.
+    question: Which institution makes the protagonist's preferred action costly?
+compatibility_rules:
+  - rule_id: setting_superhero
+    other_pack_id: superhero
+    relation: reinforces
+    statement: Licensing and media make public heroism a visible social contract.
+    strength: STRONG_DEFAULT
+    suggested_question: Who is the hero accountable to during a crisis?
+  - rule_id: setting_determinism
+    other_pack_id: hard_determinism
+    relation: reinforces
+    statement: Economic incentives and surveillance make structural causes visible.
+    strength: COMMON_PATTERN
+    suggested_question: Which incentive predicts the institution's next harmful decision?
+decision_hooks:
+  - hook_id: institutional_pressure
+    decision: institutional pressure
+    question: Which rule, contract, or incentive makes the protagonist's desired action expensive?
+    recommended_option_id: licensed_heroism

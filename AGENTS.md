@@ -3,6 +3,10 @@
 Auteur is becoming a whole-story structure engine first and a chapter drafting
 engine second. Agent work should preserve that distinction.
 
+For unsupervised/factory runs, `MISSION.md` (scope, out-of-scope-forever, hard
+invariants) and `FACTORY_RULES.md` (unsupervised behavior rules) are the
+governing documents and sit on the protected list.
+
 ## Core rules
 
 1. **Ask, don't assume.** If something is unclear, ask before writing a single

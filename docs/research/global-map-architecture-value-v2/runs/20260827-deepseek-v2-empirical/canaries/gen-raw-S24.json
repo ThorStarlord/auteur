@@ -1,0 +1,17 @@
+{
+  "raw_text": "{\n  \"recommendation\": {\n    \"action\": \"accept_retraction_and_reopen_internal_review\",\n    \"rationale\": \"The council's accepted retraction supersedes the prior admission, but the resolved falsifier commitment remains historically binding. The archive must not relitigate the falsifier's guilt, but must correct the public record and initiate an internal review of the evidence chain that led to the retraction, without reopening the resolved commitment.\",\n    \"risk_assessment\": {\n      \"level\": \"medium\",\n      \"key_risks\": [\n        \"Perceived as flip-flopping if not framed as evidence-driven correction\",\n        \"Internal review may uncover additional inconsistencies, prolonging instability\",\n        \"Monastery testimony remains dormant and could resurface if review expands scope\"\n      ],\n      \"mitigations\": [\n        \"Frame retraction acceptance as a direct response to superseding evidence, not political pressure\",\n        \"Limit internal review to the evidence chain for this admission only; explicitly exclude the resolved falsifier commitment and dormant monastery testimony\",\n        \"Publish a clear, dated correction notice that references the superseding evidence and maintains the falsifier's resolved status\"\n      ]\n    },\n    \"next_steps\": [\n      \"Issue formal acceptance of the council's retraction, updating the archive's official position to 'retracted admission' with a citation to the superseding evidence\",\n      \"Initiate a bounded internal review of the evidence handling that led to the original admission, with a 30-day deadline and a defined scope\",\n      \"Prepare a public correction statement that distinguishes between the retracted admission and the resolved falsifier commitment, to prevent conflation\",\n      \"Log the retraction in the archive's history as 'superseded public-admission' and 'admission-retracted' current, preserving the chain of custody for future audits\"\n    ],\n    \"non_negotiable_constraints\": [\n      \"Do not reopen the resolved commitment-falsifier finding\",\n      \"Do not activate or reference the dormant monastery-testimony\",\n      \"Do not treat the retraction as an admission of archival error without evidence; frame as superseding evidence\"\n    ]\n  }\n}",
+  "finish_reason": "stop",
+  "usage": {
+    "prompt_tokens": 184,
+    "completion_tokens": 444,
+    "total_tokens": 628,
+    "reasoning_tokens": null,
+    "cached_tokens": 128
+  },
+  "request_id": "0e728738-5c32-40f1-a277-581789ea9392",
+  "model": "deepseek-v4-flash",
+  "created": 1787867969,
+  "elapsed_ms": 5587,
+  "attempt": 0,
+  "error": null
+}

@@ -1,0 +1,41 @@
+{
+  "opaque_run_id": "V58",
+  "probe_id": "P01",
+  "evaluator_provider": "deepseek",
+  "evaluator_model": "deepseek-chat",
+  "evaluator_returned_model": "deepseek-v4-flash",
+  "request_id": "028d8c77-a9c6-40cb-befe-c3e9ada0ee54",
+  "finish_reason": "stop",
+  "input_tokens": 1515,
+  "output_tokens": 217,
+  "total_tokens": 1732,
+  "latency_ms": 3126,
+  "timestamp_utc": "2026-08-27T22:12:47.424729Z",
+  "raw_response": "{\n  \"source_fidelity\": \"PASS\",\n  \"current_state_compatibility\": \"PASS\",\n  \"long_horizon_awareness\": \"PASS\",\n  \"causal_coherence\": \"PASS\",\n  \"direction_preservation\": \"PASS\",\n  \"relevance\": \"PASS\",\n  \"decision_quality\": \"PASS\",\n  \"explanation_traceability\": \"PASS\",\n  \"authority_correctness\": \"PASS\",\n  \"overconstraint_false_precision\": \"PASS\",\n  \"architecture_distraction\": \"PASS\",\n  \"must_not_miss_coverage\": \"PASS\",\n  \"forbidden_assumption_violations\": \"PASS\",\n  \"severe_negative\": false,\n  \"overall\": \"PASS\",\n  \"rationale\": \"The recommendation correctly treats the forged founding record as active, uses contested-history pressure to drive the plot, explicitly excludes dormant elements, and avoids forbidden assumptions, while providing a coherent and well-explained plan.\"\n}",
+  "parsed_judgment": {
+    "source_fidelity": "PASS",
+    "current_state_compatibility": "PASS",
+    "long_horizon_awareness": "PASS",
+    "causal_coherence": "PASS",
+    "direction_preservation": "PASS",
+    "relevance": "PASS",
+    "decision_quality": "PASS",
+    "explanation_traceability": "PASS",
+    "authority_correctness": "PASS",
+    "overconstraint_false_precision": "PASS",
+    "architecture_distraction": "PASS",
+    "must_not_miss_coverage": "PASS",
+    "forbidden_assumption_violations": "PASS",
+    "severe_negative": false,
+    "overall": "PASS",
+    "rationale": "The recommendation correctly treats the forged founding record as active, uses contested-history pressure to drive the plot, explicitly excludes dormant elements, and avoids forbidden assumptions, while providing a coherent and well-explained plan."
+  },
+  "provenance_classification": {
+    "request_id": "PROVIDER-REPORTED",
+    "evaluator_returned_model": "PROVIDER-REPORTED",
+    "input_tokens": "PROVIDER-REPORTED",
+    "output_tokens": "PROVIDER-REPORTED",
+    "raw_response": "PROVIDER-REPORTED",
+    "latency_ms": "TRANSPORT-MEASURED"
+  }
+}

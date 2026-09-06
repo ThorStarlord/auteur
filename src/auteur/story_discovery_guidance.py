@@ -308,9 +308,9 @@ def print_inadequate_brief_recovery(adequacy: IntentAdequacy) -> None:
 
 def _display_brief_path(project_root: Path, path: Path) -> str:
     try:
-        return str(path.relative_to(project_root))
+        return path.relative_to(project_root).as_posix()
     except ValueError:
-        return str(path)
+        return path.as_posix()
 
 
 def _render_ready_summary(project_root: Path, path: Path, brief: DiscoveryBrief) -> None:

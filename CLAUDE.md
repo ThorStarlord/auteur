@@ -19,6 +19,19 @@ Before making architectural or release claims, consult:
 Do not treat historical implementation plans, release reviews, or this
 summary as more authoritative than those documents.
 
+## Factory governance
+
+Three files, three jobs (this file holds conventions; the other two hold what
+only exists because work may run unsupervised):
+
+- `CLAUDE.md` / `AGENTS.md` (this file) — conventions any contributor follows, human or agent
+- `MISSION.md` — what the product is, what is out of scope forever, hard invariants
+- `FACTORY_RULES.md` — how the agent behaves when nobody is watching; protected
+
+Placement test for any new rule: would you write it with a human doing the
+work? → here. Does it only exist because nobody is watching? → `FACTORY_RULES.md`.
+Is it about what the product is and is not? → `MISSION.md`.
+
 ## Architecture Patterns & Reusability
 
 ### Semantic architecture

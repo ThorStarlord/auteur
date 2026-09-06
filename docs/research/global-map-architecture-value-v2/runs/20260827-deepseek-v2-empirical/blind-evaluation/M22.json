@@ -1,0 +1,41 @@
+{
+  "opaque_run_id": "M22",
+  "probe_id": "P03",
+  "evaluator_provider": "deepseek",
+  "evaluator_model": "deepseek-chat",
+  "evaluator_returned_model": "deepseek-v4-flash",
+  "request_id": "3a4c24ab-3df3-459c-98b4-393a85ae30c7",
+  "finish_reason": "stop",
+  "input_tokens": 1521,
+  "output_tokens": 233,
+  "total_tokens": 1754,
+  "latency_ms": 3513,
+  "timestamp_utc": "2026-08-27T22:11:13.555393Z",
+  "raw_response": "{\n  \"source_fidelity\": \"PASS\",\n  \"current_state_compatibility\": \"PASS\",\n  \"long_horizon_awareness\": \"PASS\",\n  \"causal_coherence\": \"PASS\",\n  \"direction_preservation\": \"PASS\",\n  \"relevance\": \"PASS\",\n  \"decision_quality\": \"PASS\",\n  \"explanation_traceability\": \"PASS\",\n  \"authority_correctness\": \"PASS\",\n  \"overconstraint_false_precision\": \"PASS\",\n  \"architecture_distraction\": \"PASS\",\n  \"must_not_miss_coverage\": \"PASS\",\n  \"forbidden_assumption_violations\": \"PASS\",\n  \"severe_negative\": false,\n  \"overall\": \"PASS\",\n  \"rationale\": \"The output explicitly reactivates the monastery testimony, states archive.protection as treaty-protected, explains the retraction-to-treaty causal link, and avoids forbidden assumptions by treating the testimony as conditionally active and the treaty as a current constraint with a why-now trigger.\"\n}",
+  "parsed_judgment": {
+    "source_fidelity": "PASS",
+    "current_state_compatibility": "PASS",
+    "long_horizon_awareness": "PASS",
+    "causal_coherence": "PASS",
+    "direction_preservation": "PASS",
+    "relevance": "PASS",
+    "decision_quality": "PASS",
+    "explanation_traceability": "PASS",
+    "authority_correctness": "PASS",
+    "overconstraint_false_precision": "PASS",
+    "architecture_distraction": "PASS",
+    "must_not_miss_coverage": "PASS",
+    "forbidden_assumption_violations": "PASS",
+    "severe_negative": false,
+    "overall": "PASS",
+    "rationale": "The output explicitly reactivates the monastery testimony, states archive.protection as treaty-protected, explains the retraction-to-treaty causal link, and avoids forbidden assumptions by treating the testimony as conditionally active and the treaty as a current constraint with a why-now trigger."
+  },
+  "provenance_classification": {
+    "request_id": "PROVIDER-REPORTED",
+    "evaluator_returned_model": "PROVIDER-REPORTED",
+    "input_tokens": "PROVIDER-REPORTED",
+    "output_tokens": "PROVIDER-REPORTED",
+    "raw_response": "PROVIDER-REPORTED",
+    "latency_ms": "TRANSPORT-MEASURED"
+  }
+}
