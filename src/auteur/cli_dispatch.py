@@ -436,9 +436,6 @@ def _write_scene_markdown(scenes: list[Path], project_root: Path, path: Path) ->
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 def dispatch(args: argparse.Namespace) -> int:
-    if args.command == "tutor":
-        from auteur.story_design_packs.cli import dispatch_tutor_commands
-        return dispatch_tutor_commands(args)
     if args.command == "design":
         from auteur.story_design_packs.cli import dispatch_story_design_commands
         return dispatch_story_design_commands(args)
@@ -1781,3 +1778,4 @@ def _bp_dirs(bp_path: Path) -> tuple[StoryBlueprint, Path, Path]:
     dd.mkdir(parents=True, exist_ok=True)
     pd.mkdir(parents=True, exist_ok=True)
     return bp, dd, pd
+

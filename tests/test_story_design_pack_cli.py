@@ -22,20 +22,3 @@ def test_story_discovery_accepts_optional_design_pack_priors():
         "--design-pack", "hard_determinism",
     ])
     assert args.design_packs == ["superhero", "hard_determinism"]
-
-
-def test_root_tutor_next_can_persist_and_choose_a_derived_session(tmp_path, capsys):
-    assert main([
-        "tutor", "next", "--pack", "superhero", "--decision", "moral boundary",
-        "--project", str(tmp_path), "--source", "story_identity=abc", "--json",
-    ]) == 0
-    session_id = __import__("json").loads(capsys.readouterr().out)["session_id"]
-
-    assert main([
-        "tutor", "choose", session_id, "choose", "--value", "refuse harm",
-        "--project", str(tmp_path), "--json",
-    ]) == 0
-    result = __import__("json").loads(capsys.readouterr().out)
-    assert result["status"] == "resolved"
-    assert result["card"]["authority_status"] == "DERIVED / NOT CANON"
-    assert not (tmp_path / "story_identity.yaml").exists()

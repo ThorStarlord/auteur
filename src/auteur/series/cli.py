@@ -37,7 +37,6 @@ from auteur.series.vertical_slice_formatters import (
     format_series_continuity_review,
 )
 from auteur.series.productization import SeriesProductizationService
-from auteur.series.context_reconstruction import reconstruct_series_context
 from auteur.series.vertical_slice_models import (
     BookDirection,
     DecisionOption,
@@ -77,12 +76,6 @@ def register_series_subcommands(sub) -> None:
     p.add_argument("project", type=Path)
     p.add_argument("--book", type=int, required=True)
     p.add_argument("--detail", action="store_true", help="Show source and Map identifiers.")
-
-    p = commands.add_parser("context", help="Reconstruct bounded context before a later Book.")
-    p.add_argument("project", type=Path)
-    p.add_argument("--book", type=int, required=True)
-    p.add_argument("--records", type=Path, required=True, help="JSON or YAML derived context records.")
-    p.add_argument("--json", action="store_true")
 
     p = commands.add_parser(
         "impact", help="Show accepted-artifact impact and reconciliation review order."
@@ -412,24 +405,6 @@ def handle_series_command(args) -> int:
                 args.book
             )
             print(format_series_continuity_review(report, detail=args.detail))
-            return 0
-        except Exception as exc:
-            print(f"Error: {exc}")
-            return 1
-
-    if args.series_command == "context":
-        try:
-            payload = yaml.safe_load(args.records.read_text(encoding="utf-8")) or []
-            report = reconstruct_series_context(payload, target_book=args.book)
-            if args.json:
-                print(report.model_dump_json(indent=2))
-            else:
-                print(f"Context before Book {args.book}")
-                for item in report.items:
-                    print(f"- {item.item_id}: {item.summary} ({item.relevance}; {item.why_included})")
-                for warning in report.warnings:
-                    print(f"Warning: {warning}")
-                print("Authority: DERIVED / NOT CANON")
             return 0
         except Exception as exc:
             print(f"Error: {exc}")
