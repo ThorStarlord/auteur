@@ -5,7 +5,8 @@ def test_all_v1_packs_load_with_stable_provenance():
     registry = get_design_pack_registry()
     rows = registry.list()
     assert {row["pack_id"] for row in rows} == {
-        "superhero", "anti_hero", "hard_determinism", "corporate_superhuman_metropolis"
+        "superhero", "anti_hero", "hard_determinism", "corporate_superhuman_metropolis",
+        "rivals_allies", "investigation",
     }
     for row in rows:
         pack, digest = registry.get(row["pack_id"])

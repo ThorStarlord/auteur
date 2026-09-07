@@ -1,10 +1,12 @@
 """Typed, reusable story-design knowledge and derived guidance models."""
 from __future__ import annotations
 
+import hashlib
+import json
 from enum import Enum
 from typing import Literal, Union
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class PackKind(str, Enum):
@@ -12,6 +14,18 @@ class PackKind(str, Enum):
     CHARACTER = "character"
     THEME = "theme"
     SETTING = "setting"
+    RELATIONSHIP = "relationship"
+    STRUCTURE = "structure"
+
+
+class TutorDepth(str, Enum):
+    """Presentation depth for derived Tutor guidance."""
+
+    RECOMMEND = "recommend"
+    EXPLAIN = "explain"
+    TEACH = "teach"
+    CHALLENGE = "challenge"
+    QUIZ = "quiz"
 
 
 class RuleStrength(str, Enum):
@@ -146,6 +160,78 @@ class TutorDiagnosticGuidance(BaseModel):
     tradeoffs: list[str] = Field(default_factory=list)
     next_author_decision: str
     authority_status: Literal["DERIVED / NOT CANON"] = "DERIVED / NOT CANON"
+
+
+class DecisionCard(BaseModel):
+    """One author-decidable, derived creative decision."""
+
+    schema_version: int = Field(default=1, ge=1)
+    card_id: str = ""
+    decision: str = Field(min_length=1)
+    orientation: str = Field(min_length=1)
+    why_it_matters: str = Field(min_length=1)
+    craft_concept: str = Field(min_length=1)
+    recommendation: str = Field(min_length=1)
+    alternatives: list[str] = Field(default_factory=list)
+    tradeoffs: list[str] = Field(default_factory=list)
+    beginner_trap: str = Field(min_length=1)
+    downstream_consequences: list[str] = Field(default_factory=list)
+    evidence: list[str] = Field(default_factory=list)
+    pack_sources: list[PackProvenance] = Field(default_factory=list)
+    depth: TutorDepth = TutorDepth.RECOMMEND
+    source_rule: str | None = None
+    author_actions: list[str] = Field(
+        default_factory=lambda: ["choose", "keep_unresolved", "request_alternatives"]
+    )
+    authority_status: Literal["DERIVED / NOT CANON"] = "DERIVED / NOT CANON"
+
+    @model_validator(mode="after")
+    def ensure_card_id(self) -> "DecisionCard":
+        if not self.card_id:
+            object.__setattr__(self, "card_id", stable_card_id(self.model_dump(exclude={"card_id"})))
+        return self
+
+    @classmethod
+    def from_diagnostic(
+        cls,
+        *,
+        rule: str,
+        message: str,
+        story_context: str,
+        repair_options: list[str],
+        evidence: list[str] | None = None,
+    ) -> "DecisionCard":
+        payload = {
+            "rule": rule,
+            "message": message,
+            "story_context": story_context,
+            "repair_options": repair_options,
+            "evidence": evidence or [],
+        }
+        return cls(
+            card_id=stable_card_id(payload),
+            decision="Resolve or intentionally preserve the finding",
+            orientation=f"A finding needs an author decision in {story_context}.",
+            why_it_matters=message,
+            craft_concept="Narrative consequence",
+            recommendation=repair_options[0] if repair_options else "Inspect the finding before changing the story.",
+            alternatives=repair_options,
+            tradeoffs=[
+                "Repairing the finding may require changing a later commitment.",
+                "Keeping it preserves ambiguity but should be intentional.",
+            ],
+            beginner_trap="Treating a diagnostic as an automatic rewrite instruction.",
+            downstream_consequences=["Any selected repair remains a proposal until explicitly accepted."],
+            evidence=evidence or [rule, message],
+            source_rule=rule,
+            author_actions=["choose", "keep_unresolved", "reject_finding", "request_alternatives"],
+        )
+
+
+def stable_card_id(payload: object) -> str:
+    """Return a stable identifier for a derived Decision Card."""
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()[:16]
 
 
 PackPayload = Union[DesignPackPayload]

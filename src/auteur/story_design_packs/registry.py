@@ -8,7 +8,14 @@ from .models import StoryDesignPack
 class StoryDesignPackRegistry:
     def __init__(self) -> None:
         self._packs: dict[tuple[str, str], tuple[StoryDesignPack, str]] = {}
-        for pack_id in ("superhero", "anti_hero", "hard_determinism", "corporate_superhuman_metropolis"):
+        for pack_id in (
+            "superhero",
+            "anti_hero",
+            "hard_determinism",
+            "corporate_superhuman_metropolis",
+            "rivals_allies",
+            "investigation",
+        ):
             pack, digest = load_builtin_pack(pack_id)
             self._packs[(pack.pack_id, pack.version)] = (pack, digest)
 
