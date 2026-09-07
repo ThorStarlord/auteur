@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from .composition import compose_packs
-from .models import DecisionCard, TutorDiagnosticGuidance, TutorGuidance, stable_card_id
+from .models import TutorDiagnosticGuidance, TutorGuidance
 
 
 def tutor_recommend(
@@ -60,87 +60,4 @@ def tutorize_diagnostic(diagnostic: object, *, story_context: str = "this story"
         repair_options=options,
         tradeoffs=["Resolving the issue may require changing a later commitment.", "Keeping it unresolved preserves ambiguity but should be intentional."],
         next_author_decision="Choose a repair, preserve the tension deliberately, or explicitly challenge the finding.",
-    )
-
-
-def decision_card_from_guidance(
-    guidance: TutorGuidance,
-    *,
-    source_subject: str = "story_design_context",
-) -> DecisionCard:
-    """Convert existing Tutor guidance into a derived author-facing card."""
-    payload = {
-        "source_subject": source_subject,
-        "decision": guidance.decision,
-        "recommendation": guidance.recommendation,
-        "alternatives": guidance.alternatives,
-        "pack_sources": [source.model_dump(mode="json") for source in guidance.pack_sources],
-    }
-    return DecisionCard(
-        card_id=stable_card_id(payload),
-        decision=guidance.decision,
-        orientation=guidance.orientation,
-        why_it_matters=guidance.why_recommended,
-        craft_concept=guidance.craft_concept,
-        recommendation=guidance.recommendation,
-        alternatives=guidance.alternatives,
-        tradeoffs=guidance.tradeoffs,
-        beginner_trap=guidance.common_beginner_mistake,
-        downstream_consequences=[guidance.consequence],
-        evidence=list(guidance.architecture_evidence),
-        pack_sources=guidance.pack_sources,
-    )
-
-
-def decision_card_from_diagnostic(
-    diagnostic: object,
-    *,
-    story_context: str = "this story",
-    evidence: list[str] | None = None,
-) -> DecisionCard:
-    """Convert one deterministic diagnostic into a non-canonical card."""
-    if isinstance(diagnostic, dict):
-        rule = diagnostic.get("rule", "unknown")
-        message = diagnostic.get("message", "A structural issue was detected.")
-        repair = diagnostic.get("recommendations", [])
-        challenge = diagnostic.get("hypotheses", [])
-        diagnostic_evidence = diagnostic.get("evidence", {})
-        structured_evidence = [
-            f"{key}={value}" for key, value in sorted(diagnostic_evidence.items())
-        ] if isinstance(diagnostic_evidence, dict) else [str(diagnostic_evidence)]
-    else:
-        rule = getattr(diagnostic, "rule", "unknown")
-        message = getattr(diagnostic, "message", "A structural issue was detected.")
-        repair = getattr(getattr(diagnostic, "repair_options", None), "preserve_intent", [])
-        challenge = getattr(getattr(diagnostic, "repair_options", None), "challenge_intent", [])
-        structured_evidence = []
-    return DecisionCard.from_diagnostic(
-        rule=str(rule),
-        message=str(message),
-        story_context=story_context,
-        repair_options=[*repair, *challenge],
-        evidence=evidence or structured_evidence,
-    )
-
-
-def decision_card_from_reasoning_report(report: object) -> DecisionCard:
-    """Render a reasoning report as a card without crossing authority boundaries."""
-    if isinstance(report, dict):
-        subject = str(report.get("subject", "this story"))
-        claim = str(report.get("claim", "A narrative finding requires review."))
-        recommendations = [str(item) for item in report.get("recommendations", [])]
-        evidence = [str(item.get("source_artifact", item)) if isinstance(item, dict) else str(item) for item in report.get("evidence", [])]
-        rule = str(report.get("reasoning_id", "reasoning"))
-    else:
-        subject = str(getattr(report, "subject", "this story"))
-        claim = str(getattr(report, "claim", "A narrative finding requires review."))
-        recommendations = [str(item) for item in getattr(report, "recommendations", [])]
-        evidence = [str(item.source_artifact) for item in getattr(report, "evidence", [])]
-        rule = str(getattr(report, "reasoning_id", "reasoning"))
-    return DecisionCard.from_diagnostic(
-        rule=rule,
-        message=claim,
-        story_context=subject,
-        repair_options=recommendations or ["Inspect the evidence and decide whether to intervene."],
-        evidence=evidence,
     )
