@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from .composition import compose_packs
-from .models import DecisionCard, TutorDiagnosticGuidance, TutorGuidance
+from .models import AuthorAction, DecisionCard, TutorDiagnosticGuidance, TutorGuidance
 
 
 def tutor_recommend(
@@ -81,6 +81,11 @@ def decision_card_from_guidance(
         downstream_consequences=[guidance.consequence],
         evidence=list(guidance.architecture_evidence),
         pack_sources=guidance.pack_sources,
+        author_actions=(
+            AuthorAction.CHOOSE,
+            AuthorAction.KEEP_UNRESOLVED,
+            AuthorAction.REQUEST_ALTERNATIVES,
+        ),
     )
 
 

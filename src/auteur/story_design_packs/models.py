@@ -191,11 +191,7 @@ class DecisionCard(BaseModel):
     depth: TutorDepth = TutorDepth.RECOMMEND
     source_rule: str | None = None
     author_actions: tuple[AuthorAction, ...] = Field(
-        default_factory=lambda: (
-            AuthorAction.CHOOSE,
-            AuthorAction.KEEP_UNRESOLVED,
-            AuthorAction.REQUEST_ALTERNATIVES,
-        )
+        default_factory=lambda: tuple(AuthorAction)
     )
     authority_status: Literal["DERIVED / NOT CANON"] = "DERIVED / NOT CANON"
 
