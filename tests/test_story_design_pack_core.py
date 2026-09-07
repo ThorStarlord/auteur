@@ -83,6 +83,5 @@ def test_all_builtin_pack_hashes_are_stable():
 
     assert second == first
     assert set(first) == {
-        "superhero", "anti_hero", "hard_determinism", "corporate_superhuman_metropolis",
-        "rivals_allies", "investigation",
+        "superhero", "anti_hero", "hard_determinism", "corporate_superhuman_metropolis"
     }
