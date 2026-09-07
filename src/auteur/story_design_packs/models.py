@@ -1,10 +1,12 @@
 """Typed, reusable story-design knowledge and derived guidance models."""
 from __future__ import annotations
 
+import hashlib
+import json
 from enum import Enum
-from typing import Literal, Union
+from typing import Annotated, Literal, Union
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
 
 class PackKind(str, Enum):
@@ -12,6 +14,26 @@ class PackKind(str, Enum):
     CHARACTER = "character"
     THEME = "theme"
     SETTING = "setting"
+
+
+class TutorDepth(str, Enum):
+    """Presentation depth for derived Tutor guidance."""
+
+    RECOMMEND = "recommend"
+    EXPLAIN = "explain"
+    TEACH = "teach"
+    CHALLENGE = "challenge"
+    QUIZ = "quiz"
+
+
+class AuthorAction(str, Enum):
+    CHOOSE = "choose"
+    KEEP_UNRESOLVED = "keep_unresolved"
+    REQUEST_ALTERNATIVES = "request_alternatives"
+    REJECT_FINDING = "reject_finding"
+
+
+SourceFingerprint = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
 
 
 class RuleStrength(str, Enum):
@@ -146,6 +168,124 @@ class TutorDiagnosticGuidance(BaseModel):
     tradeoffs: list[str] = Field(default_factory=list)
     next_author_decision: str
     authority_status: Literal["DERIVED / NOT CANON"] = "DERIVED / NOT CANON"
+
+
+class DecisionCard(BaseModel):
+    """One author-decidable, derived creative decision."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    schema_version: int = Field(default=1, ge=1)
+    card_id: str = ""
+    decision: str = Field(min_length=1)
+    orientation: str = Field(min_length=1)
+    why_it_matters: str = Field(min_length=1)
+    craft_concept: str = Field(min_length=1)
+    recommendation: str = Field(min_length=1)
+    alternatives: tuple[str, ...] = Field(default_factory=tuple)
+    tradeoffs: tuple[str, ...] = Field(default_factory=tuple)
+    beginner_trap: str = Field(min_length=1)
+    downstream_consequences: tuple[str, ...] = Field(default_factory=tuple)
+    evidence: tuple[str, ...] = Field(default_factory=tuple)
+    pack_sources: tuple[PackProvenance, ...] = Field(default_factory=tuple)
+    depth: TutorDepth = TutorDepth.RECOMMEND
+    source_rule: str | None = None
+    author_actions: tuple[AuthorAction, ...] = Field(
+        default_factory=lambda: (
+            AuthorAction.CHOOSE,
+            AuthorAction.KEEP_UNRESOLVED,
+            AuthorAction.REQUEST_ALTERNATIVES,
+        )
+    )
+    authority_status: Literal["DERIVED / NOT CANON"] = "DERIVED / NOT CANON"
+
+    @model_validator(mode="after")
+    def ensure_card_id(self) -> "DecisionCard":
+        expected = stable_card_id(self.semantic_identity_payload())
+        if self.card_id and self.card_id != expected:
+            raise ValueError("card_id does not match semantic identity")
+        if not self.card_id:
+            object.__setattr__(self, "card_id", expected)
+        return self
+
+    def semantic_identity_payload(self) -> dict[str, object]:
+        return {
+            "schema_version": self.schema_version,
+            "decision": self.decision,
+            "orientation": self.orientation,
+            "why_it_matters": self.why_it_matters,
+            "craft_concept": self.craft_concept,
+            "recommendation": self.recommendation,
+            "alternatives": self.alternatives,
+            "tradeoffs": self.tradeoffs,
+            "beginner_trap": self.beginner_trap,
+            "downstream_consequences": self.downstream_consequences,
+            "evidence": self.evidence,
+            "pack_sources": self.pack_sources,
+            "source_rule": self.source_rule,
+        }
+
+    def with_depth(self, depth: TutorDepth) -> "DecisionCard":
+        values = self.model_dump()
+        values["depth"] = depth
+        return type(self).model_validate(values)
+
+    @classmethod
+    def from_diagnostic(
+        cls,
+        *,
+        rule: str,
+        message: str,
+        story_context: str,
+        repair_options: list[str],
+        evidence: list[str] | None = None,
+    ) -> "DecisionCard":
+        return cls(
+            decision="Resolve or intentionally preserve the finding",
+            orientation=f"A finding needs an author decision in {story_context}.",
+            why_it_matters=message,
+            craft_concept="Narrative consequence",
+            recommendation=repair_options[0] if repair_options else "Inspect the finding before changing the story.",
+            alternatives=tuple(repair_options),
+            tradeoffs=[
+                "Repairing the finding may require changing a later commitment.",
+                "Keeping it preserves ambiguity but should be intentional.",
+            ],
+            beginner_trap="Treating a diagnostic as an automatic rewrite instruction.",
+            downstream_consequences=["Any selected repair remains a proposal until explicitly accepted."],
+            evidence=tuple(evidence or [rule, message]),
+            source_rule=rule,
+            author_actions=(
+                AuthorAction.CHOOSE,
+                AuthorAction.KEEP_UNRESOLVED,
+                AuthorAction.REJECT_FINDING,
+                AuthorAction.REQUEST_ALTERNATIVES,
+            ),
+        )
+
+
+def stable_card_id(payload: object) -> str:
+    """Return a stable identifier for a derived Decision Card."""
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"), default=_json_default).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()[:16]
+
+
+def _json_default(value: object) -> object:
+    if isinstance(value, Enum):
+        return value.value
+    if isinstance(value, BaseModel):
+        return value.model_dump(mode="json")
+    raise TypeError(f"Object of type {type(value).__name__} is not JSON serializable")
+
+
+def source_fingerprint(source: object) -> SourceFingerprint:
+    if isinstance(source, bytes):
+        encoded = source
+    elif isinstance(source, str):
+        encoded = source.encode("utf-8")
+    else:
+        encoded = json.dumps(source, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
 
 
 PackPayload = Union[DesignPackPayload]
