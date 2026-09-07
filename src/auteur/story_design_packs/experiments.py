@@ -9,7 +9,6 @@ from statistics import mean
 
 from pydantic import BaseModel, Field
 
-from .composition import compose_packs
 from .tutor import tutor_recommend
 
 

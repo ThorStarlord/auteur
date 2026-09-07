@@ -1,7 +1,7 @@
 """Small narrative overlay projections layered on existing simulation artifacts."""
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Literal
 
 
