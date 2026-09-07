@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "contract_id": "story-design-pack-effect-v1-generation-v1",
+  "provider": "operator-selected-approved-provider",
+  "model": "operator-selected-approved-model",
+  "system_prompt_sha256": "3fcca8f77d578eb4292e206db959c8b4582a6f14973957de925d05b5c2841c3d",
+  "pipeline": "V1 story-design workflow; one decision prompt; one serialized artifact and guidance response",
+  "premise_source": "cases.json",
+  "sampling": {"temperature": 0.7, "top_p": 1.0, "max_tokens": 1200},
+  "candidate_count": 1,
+  "postprocessing": "UTF-8 JSONL envelope only; no semantic rewriting",
+  "seed_policy": "record provider seed when meaningful; otherwise two replicates per condition-case",
+  "runtime_gate": "real approved model runtime required; synthetic clients are plumbing-only",
+  "status": "FROZEN_CONTRACT_RUNTIME_IDENTITY_PENDING"
+}
