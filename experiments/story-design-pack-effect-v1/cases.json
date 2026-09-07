@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "corpus_id": "story-design-pack-effect-v1-superhero-cases",
+  "cases": [
+    {"case_id": "power_origin_responsibility", "premise": "A transit worker develops a power after an undocumented industrial anomaly and must decide what responsibility follows from using it.", "decision": "Choose the protagonist's next responsibility-bearing action."},
+    {"case_id": "public_trust_after_failure", "premise": "A rescuer prevents a city disaster but causes visible collateral damage, and public confidence fractures overnight.", "decision": "Choose how the protagonist responds to the loss of public trust."},
+    {"case_id": "institution_licenses_power", "premise": "A public institution offers resources and protection in exchange for controlling how a protagonist's unusual ability is used.", "decision": "Choose the protagonist's response to institutional control."},
+    {"case_id": "moral_compromise_rescue", "premise": "Stopping a cascading emergency appears to require overriding one person's expressed wishes before time runs out.", "decision": "Choose the protagonist's boundary for intervention."},
+    {"case_id": "identity_reputation_double_life", "premise": "An anonymous rescuer is identified by the community they protected, forcing private obligations and public reputation into conflict.", "decision": "Choose what the protagonist does with the exposed identity."},
+    {"case_id": "escalation_civic_threat", "premise": "A rival's escalating campaign shifts from personal attacks to threats against shared infrastructure, splitting the protagonist's attention.", "decision": "Choose the protagonist's immediate priority under escalation."}
+  ]
+}
