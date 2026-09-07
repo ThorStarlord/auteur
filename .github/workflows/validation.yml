@@ -17,6 +17,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
@@ -25,8 +27,44 @@ jobs:
       - name: Install dependencies
         run: python -m pip install -e ".[dev]"
 
-      - name: Run test suite
+      - name: Select validation scope
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -euo pipefail
+          mapfile -t changed < <(git diff --name-only "$BASE_SHA" "$GITHUB_SHA")
+          full_suite=false
+          for path in "${changed[@]}"; do
+            case "$path" in
+              .github/*|factory/*|MISSION.md|FACTORY_RULES.md|AGENTS.md|CLAUDE.md|docs/adr/*|docs/engineering/release-qualification.md|pyproject.toml|uv.lock|scripts/check.py|*/models.py|*/serializers.py|*/cli.py|*/cli_*.py|*/data/*)
+                full_suite=true
+                ;;
+            esac
+          done
+
+          focused=()
+          for path in "${changed[@]}"; do
+            if [[ "$path" == tests/*.py && -f "$path" ]]; then
+              focused+=("$path")
+            fi
+          done
+          if ((${#focused[@]} == 0)); then
+            focused=(tests/test_cli_smoke.py tests/test_engine_v1_smoke.py)
+          fi
+
+          echo "VALIDATION_MODE=$([[ "$full_suite" == true ]] && echo full || echo focused)"
+          echo "FULL_SUITE=$full_suite" >> "$GITHUB_ENV"
+          printf 'FOCUSED_TESTS=%q ' "${focused[@]}" >> "$GITHUB_ENV"
+          printf '\n' >> "$GITHUB_ENV"
+
+      - name: Run full test suite
+        if: env.FULL_SUITE == 'true'
         run: python -m pytest -q --tb=short
+
+      - name: Run focused test suite
+        if: env.FULL_SUITE != 'true'
+        run: python -m pytest -q $FOCUSED_TESTS --tb=short
 
       - name: Run verification stack (validators, repo checks, ruff)
         run: python scripts/check.py --skip-pytest
@@ -36,6 +74,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
