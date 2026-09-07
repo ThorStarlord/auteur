@@ -55,8 +55,7 @@ jobs:
 
           echo "VALIDATION_MODE=$([[ "$full_suite" == true ]] && echo full || echo focused)"
           echo "FULL_SUITE=$full_suite" >> "$GITHUB_ENV"
-          printf 'FOCUSED_TESTS=%q ' "${focused[@]}" >> "$GITHUB_ENV"
-          printf '\n' >> "$GITHUB_ENV"
+          printf 'FOCUSED_TESTS=%s\n' "${focused[*]}" >> "$GITHUB_ENV"
 
       - name: Run full test suite
         if: env.FULL_SUITE == 'true'
