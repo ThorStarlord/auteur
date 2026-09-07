@@ -8,6 +8,8 @@ Parent directories are created automatically.
 from __future__ import annotations
 
 import json
+import os
+import tempfile
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -267,10 +269,23 @@ def serialize_story_discovery(
 def serialize_identity_promote(identity: StoryIdentity, output_path: Path) -> Path:
     """Write a promoted identity YAML at *output_path*.
 
+    The write is atomic (temp file + ``os.replace``): an interrupted accept
+    leaves any prior ``story_identity.yaml`` byte-identical (MISSION invariant 2).
+
     Returns the written *Path*.
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    identity.to_yaml(output_path)
+    fd, tmp = tempfile.mkstemp(dir=str(output_path.parent), suffix=".tmp")
+    os.close(fd)  # Windows: os.replace fails on an open handle; to_yaml reopens by path
+    try:
+        identity.to_yaml(tmp)
+        os.replace(tmp, output_path)
+    except BaseException:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
     return output_path
 
 

@@ -1,0 +1,39 @@
+pack_id: rivals_allies
+pack_kind: relationship
+version: 0.1.0
+schema_version: 1
+display_name: Rivals to Allies
+description: A relationship pattern where cooperation must be earned through changed incentives.
+applicability:
+  signals: [rivals, enemies, alliance, cooperation]
+  description: Applies when two capable opponents must work together.
+design_options:
+  - option_id: shared_external_pressure
+    name: Shared external pressure
+    what_it_is: The rivals cooperate because an outside threat makes isolation more costly.
+    craft_function: Preserves ideological friction while creating practical dependence.
+    works_well_when: The alliance should remain conditional and tense.
+    tradeoffs: [The external threat can overshadow the personal rivalry.]
+    common_beginner_failure: Treating cooperation as proof that the rivalry disappeared.
+    compatible_patterns: [uneasy alliance, ideological conflict]
+    tensions: [trust]
+    questions: ["What cost of isolation do both rivals recognize?"]
+    architecture_targets: [Relationship, Conflict, Stakes]
+    strength: STRONG_DEFAULT
+teaching_notes:
+  - note_id: alliance_cost
+    concept: Cooperation needs a changed cost structure
+    explanation: Rivals become believable allies when the story shows why cooperation is now worth its cost.
+    question: What changed the cost of refusing to cooperate?
+compatibility_rules:
+  - rule_id: rivals_antihero
+    other_pack_id: anti_hero
+    relation: tension
+    statement: An anti-hero's methods can make cooperation tactically useful but morally unstable.
+    strength: COMMON_PATTERN
+    suggested_question: Which line does the rival refuse to cross?
+decision_hooks:
+  - hook_id: alliance_basis
+    decision: alliance basis
+    question: What makes cooperation more costly to refuse than to accept?
+    recommended_option_id: shared_external_pressure
