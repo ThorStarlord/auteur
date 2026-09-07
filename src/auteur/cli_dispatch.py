@@ -1778,4 +1778,3 @@ def _bp_dirs(bp_path: Path) -> tuple[StoryBlueprint, Path, Path]:
     dd.mkdir(parents=True, exist_ok=True)
     pd.mkdir(parents=True, exist_ok=True)
     return bp, dd, pd
-
