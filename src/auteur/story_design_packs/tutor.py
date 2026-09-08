@@ -61,3 +61,5 @@ def tutorize_diagnostic(diagnostic: object, *, story_context: str = "this story"
         tradeoffs=["Resolving the issue may require changing a later commitment.", "Keeping it unresolved preserves ambiguity but should be intentional."],
         next_author_decision="Choose a repair, preserve the tension deliberately, or explicitly challenge the finding.",
     )
+
+
