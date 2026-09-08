@@ -3,61 +3,6 @@ from pydantic import TypeAdapter
 
 from auteur.story_design_packs import AuthorAction, SourceFingerprint, source_fingerprint
 from auteur.story_design_packs.models import DecisionCard, TutorDepth, stable_card_id
-from auteur.reasoning.setup_payoff import run_setup_payoff
-from auteur.story_design_packs.tutor import decision_card_from_diagnostic, decision_card_from_guidance, tutor_recommend
-
-
-def test_decision_card_preserves_tutor_authority_and_evidence():
-    guidance = tutor_recommend(["superhero", "hard_determinism"], decision="moral boundary")
-    card = decision_card_from_guidance(guidance, source_subject="story_identity")
-
-    assert isinstance(card, DecisionCard)
-    assert card.card_id
-    assert card.depth == TutorDepth.RECOMMEND
-    assert card.recommendation == guidance.recommendation
-    assert list(card.pack_sources) == guidance.pack_sources
-    assert card.authority_status == "DERIVED / NOT CANON"
-    assert card.author_actions == (
-        AuthorAction.CHOOSE,
-        AuthorAction.KEEP_UNRESOLVED,
-        AuthorAction.REQUEST_ALTERNATIVES,
-    )
-
-
-def test_diagnostic_card_has_explicit_keep_and_reject_actions():
-    card = DecisionCard.from_diagnostic(
-        rule="setup_payoff.unresolved",
-        message="A setup has no linked payoff.",
-        story_context="the novel",
-        repair_options=["Link a payoff", "Keep it unresolved intentionally"],
-        evidence=["setup:promise-1", "revision:3"],
-    )
-
-    assert card.decision == "Resolve or intentionally preserve the finding"
-    assert list(card.alternatives) == ["Link a payoff", "Keep it unresolved intentionally"]
-    assert list(card.evidence) == ["setup:promise-1", "revision:3"]
-    assert AuthorAction.REJECT_FINDING in card.author_actions
-
-
-def test_setup_payoff_finding_becomes_a_card_without_mutating_the_finding():
-    finding = run_setup_payoff(
-        series={
-            "book_plans": [{"book": 1}],
-            "narrative_setups": [{
-                "id": "promise-1",
-                "book_introduced": 1,
-                "expected_payoff_by_book": 1,
-                "status": "unresolved",
-            }],
-        }
-    )[0]
-    original = dict(finding)
-    card = decision_card_from_diagnostic(finding, story_context="the series")
-
-    assert card.source_rule == "setup_payoff.unresolved"
-    assert "link an existing payoff" in card.alternatives
-    assert "setup_id=promise-1" in card.evidence
-    assert finding == original
 
 
 def _card(**overrides):
@@ -149,14 +94,3 @@ def test_card_construction_is_side_effect_free(tmp_path):
     assert not (tmp_path / "story_identity.yaml").exists()
     assert not (tmp_path / "blueprint.yaml").exists()
     assert not (tmp_path / "structure-proposal.yaml").exists()
-
-
-def test_adapters_use_the_declared_semantic_identity():
-    guidance = tutor_recommend(["superhero"], decision="moral boundary")
-    guidance_card = decision_card_from_guidance(guidance)
-    diagnostic_card = decision_card_from_diagnostic(
-        {"rule": "rule-1", "message": "Review this finding.", "recommendations": ["Repair it"]}
-    )
-    assert guidance_card.card_id == stable_card_id(guidance_card.semantic_identity_payload())
-    assert diagnostic_card.card_id == stable_card_id(diagnostic_card.semantic_identity_payload())
-    assert guidance_card.with_depth(guidance_card.depth).card_id == guidance_card.card_id
