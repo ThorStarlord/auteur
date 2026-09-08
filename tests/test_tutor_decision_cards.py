@@ -3,6 +3,12 @@ from pydantic import TypeAdapter
 
 from auteur.story_design_packs import AuthorAction, SourceFingerprint, source_fingerprint
 from auteur.story_design_packs.models import DecisionCard, TutorDepth, stable_card_id
+from auteur.story_design_packs.tutor import (
+    decision_card_from_diagnostic,
+    decision_card_from_guidance,
+    tutor_recommend,
+)
+from auteur.structure.diagnostics import DiagnosticLayer, DiagnosticSeverity, RepairOptions, StructureDiagnostic
 
 
 def _card(**overrides):
@@ -94,3 +100,45 @@ def test_card_construction_is_side_effect_free(tmp_path):
     assert not (tmp_path / "story_identity.yaml").exists()
     assert not (tmp_path / "blueprint.yaml").exists()
     assert not (tmp_path / "structure-proposal.yaml").exists()
+
+
+def test_guidance_adapter_preserves_content_and_binds_current_source():
+    guidance = tutor_recommend(["superhero", "hard_determinism"], decision="moral boundary")
+    before = guidance.model_dump(mode="json")
+
+    card = decision_card_from_guidance(guidance, source_subject="story_identity")
+
+    assert card.recommendation == guidance.recommendation
+    assert card.alternatives == tuple(guidance.alternatives)
+    assert card.tradeoffs == tuple(guidance.tradeoffs)
+    assert card.evidence == tuple(guidance.architecture_evidence)
+    assert card.pack_sources == tuple(guidance.pack_sources)
+    assert card.authority_status == "DERIVED / NOT CANON"
+    assert card.source_binding.source_artifact == "story_design_context"
+    assert card.source_binding.source_subject == "story_identity"
+    assert len(card.source_binding.source_fingerprint) == 64
+    assert guidance.model_dump(mode="json") == before
+
+
+def test_diagnostic_adapter_preserves_rule_evidence_and_is_advisory():
+    diagnostic = StructureDiagnostic(
+        severity=DiagnosticSeverity.WARNING,
+        layer=DiagnosticLayer.STRUCTURAL_FORCES,
+        rule="structure.setup_without_payoff",
+        message="A prominent setup has no visible payoff.",
+        evidence=["setup:promise-1"],
+        repair_options=RepairOptions(preserve_intent=["Link a payoff."], challenge_intent=["Remove the setup."]),
+    )
+    before = diagnostic.model_dump(mode="json")
+
+    card = decision_card_from_diagnostic(diagnostic, story_context="the novel")
+
+    assert card.source_rule == diagnostic.rule
+    assert card.recommendation == "Link a payoff."
+    assert card.alternatives == ("Link a payoff.", "Remove the setup.")
+    assert card.evidence == ("setup:promise-1",)
+    assert AuthorAction.REJECT_FINDING in card.author_actions
+    assert card.authority_status == "DERIVED / NOT CANON"
+    assert card.source_binding.source_artifact == "structure_diagnostic"
+    assert card.source_binding.source_subject == "the novel"
+    assert diagnostic.model_dump(mode="json") == before
