@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "produced_by": "scripts/release_evidence.py",
+  "created_at": "2026-08-31T21:07:04.649216+00:00",
+  "candidate": {
+    "sha": "e0ef61903f7f844701415c1d8b022813684d3817",
+    "repository_state": {
+      "clean_for_candidate": true,
+      "permitted_non_candidate_changes": [
+        ".claude/settings.json",
+        ".gitignore",
+        "docs/qualification-evidence/c15ceff45f17acf12930e6e19d6e90e09755959a.json",
+        "reasonix.toml",
+        "scripts/analyze_empirical.py",
+        "scripts/continue_evaluation.py",
+        "scripts/generate_final_report.py",
+        "scripts/redo_eval_chat.py",
+        "scripts/run_v2_empirical.py"
+      ]
+    }
+  },
+  "suite": {
+    "collected": 4678,
+    "outcomes": {
+      "passed": 4647,
+      "skipped": 1,
+      "xfailed": 27,
+      "xpassed": 0,
+      "failed": 3,
+      "errors": 0
+    },
+    "reconciles": true,
+    "failure_nodes": [
+      "tests/test_story_discovery_recommendation_basis.py::test_qualified_comparative_non_adjudicable_is_a_valid_project_state",
+      "tests/test_story_discovery_review.py::test_composed_review_explains_borrows_and_preserved_primary",
+      "tests/test_story_discovery_review.py::test_recommendation_review_reconstructs_writer_facing_evidence"
+    ],
+    "xpassed_nodes": [],
+    "collection_errors": [],
+    "session_errors": []
+  },
+  "baseline": {
+    "reference_candidate": null,
+    "current_failure_nodes": [
+      "tests/test_story_discovery_recommendation_basis.py::test_qualified_comparative_non_adjudicable_is_a_valid_project_state",
+      "tests/test_story_discovery_review.py::test_composed_review_explains_borrows_and_preserved_primary",
+      "tests/test_story_discovery_review.py::test_recommendation_review_reconstructs_writer_facing_evidence"
+    ],
+    "baseline_failure_nodes": [],
+    "added_failures": [],
+    "removed_failures": [],
+    "unchanged_failures": []
+  },
+  "wheel": {
+    "source": "scripts/verify_wheel.py",
+    "status": "PASS",
+    "exit_code": 0,
+    "output_ref": "ALL INSTALLED WHEEL QUALIFICATION MATRIX CHECKS PASSED!",
+    "sha256": "4745ef418bd5c93984ac2eee4448988cafe50e6f237c98b9963c9d12aa0111ed"
+  },
+  "evidence_note": "Documentation-only evidence per docs/engineering/release-qualification.md: docs/ is not packaged (pyproject.toml packages only src/auteur), so the evidence commit does not change the qualified candidate. candidate.sha attests to the revision whose bytes produced this evidence."
+}
