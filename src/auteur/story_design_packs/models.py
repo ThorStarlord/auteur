@@ -145,6 +145,16 @@ class PackComposition(BaseModel):
     pack_provenance: list[PackProvenance] = Field(default_factory=list)
 
 
+class DecisionSourceBinding(BaseModel):
+    """Resolvable identity and content fingerprint for a card's source."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    source_artifact: str = Field(min_length=1)
+    source_subject: str = Field(min_length=1)
+    source_fingerprint: SourceFingerprint
+
+
 class TutorGuidance(BaseModel):
     decision: str
     orientation: str
@@ -194,6 +204,7 @@ class DecisionCard(BaseModel):
     downstream_consequences: tuple[str, ...] = Field(default_factory=tuple)
     evidence: tuple[str, ...] = Field(default_factory=tuple)
     pack_sources: tuple[PackProvenance, ...] = Field(default_factory=tuple)
+    source_binding: DecisionSourceBinding | None = None
     depth: TutorDepth = TutorDepth.RECOMMEND
     source_rule: str | None = None
     author_actions: tuple[AuthorAction, ...] = Field(
@@ -225,6 +236,7 @@ class DecisionCard(BaseModel):
             "evidence": self.evidence,
             "pack_sources": self.pack_sources,
             "source_rule": self.source_rule,
+            "source_binding": self.source_binding,
         }
 
     def with_depth(self, depth: TutorDepth) -> "DecisionCard":
