@@ -86,7 +86,7 @@ def test_decision_card_contract_fields_and_typed_actions():
     assert {depth.value for depth in TutorDepth} == {
         "recommend", "explain", "teach", "challenge", "quiz"
     }
-    assert set(TutorDepth) == set(TutorDepth(card.depth.value) for card in TutorDepth)
+    assert set(TutorDepth) == set(TutorDepth(card.value) for card in TutorDepth)
 
 
 def test_semantic_identity_is_order_independent_and_excludes_presentation_fields():
@@ -115,6 +115,8 @@ def test_wrong_id_and_mutation_are_rejected_and_depth_copy_preserves_identity():
         card.recommendation = "changed"
     with pytest.raises((TypeError, AttributeError)):
         card.alternatives.append("changed")
+    with pytest.raises((TypeError, ValueError)):
+        card.pack_sources[0].pack_id = "changed"
     copy = card.with_depth(TutorDepth.TEACH)
     assert copy is not card
     assert copy.card_id == card.card_id
@@ -138,7 +140,7 @@ def test_json_round_trip_exports_typed_contract():
     assert restored.card_id == card.card_id
     dumped = card.model_dump(mode="json")
     assert isinstance(dumped["alternatives"], list)
-    assert dumped["author_actions"] == ["choose", "keep_unresolved", "request_alternatives"]
+    assert dumped["author_actions"] == ["choose", "keep_unresolved", "request_alternatives", "reject_finding"]
 
 
 def test_card_construction_is_side_effect_free(tmp_path):
