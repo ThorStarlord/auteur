@@ -125,7 +125,7 @@ class StoryDesignPack(BaseModel):
 class PackProvenance(BaseModel):
     """Where one card's evidence came from. Frozen: provenance is semantic
     content covered by card_id, so in-place mutation would silently change
-    what the id claims (judge finding, 0004 attempt-1 validation)."""
+    what the id claims."""
 
     model_config = ConfigDict(frozen=True)
 
