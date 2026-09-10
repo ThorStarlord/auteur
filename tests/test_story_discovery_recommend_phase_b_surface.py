@@ -172,25 +172,90 @@ def test_phase_b_multi_survivor_surface_is_author_facing_and_ordered(tmp_path):
     assert "candidate_3.yaml --output story_identity.yaml" in text
 
 
+def _rendered_surface(lines: list[str], output_dir: Path) -> str:
+    """The surface lines with the caller-supplied output_dir path removed.
+
+    Several lines are `auteur story-discovery accept <output_dir>/...` command
+    hints and a `<output_dir>/comparison.md` pointer. The path is whatever the
+    caller passed - under pytest it is a temp directory whose random digits
+    (pid / clock / suffix) are irrelevant to what the surface RENDERS. Blank it
+    out so a "the contract-fit score is not shown" assertion tests the rendered
+    content, not the test's own filesystem layout.
+    """
+    p_posix, p_str = output_dir.as_posix(), str(output_dir)
+    return "\n".join(
+        line.replace(p_posix, "<output_dir>").replace(p_str, "<output_dir>")
+        for line in lines
+    )
+
+
 def test_phase_b_primary_surface_does_not_expose_contract_fit(tmp_path):
     high_fit = _candidate("candidate_1", "high-fit", fit=100)
     lower_fit = _candidate("candidate_2", "premise-specific", fit=60)
+    output_dir = tmp_path / "story_discovery"
 
-    text = "\n".join(
-        _recommendation_surface_lines(
+    lines = _recommendation_surface_lines(
+        winner="candidate_2",
+        rationale="The lower-fit candidate uses the premise more causally.",
+        rejected={"candidate_1": "Higher compliance does not make it the stronger story."},
+        candidate_outputs=[high_fit, lower_fit],
+        output_dir=output_dir,
+        requested_candidates=2,
+    )
+    surface = _rendered_surface(lines, output_dir)
+
+    assert "RECOMMENDED — Story premise-specific (`candidate_2`)" in surface
+    # The qualitative recommendation must not render the numeric contract-fit
+    # scores (60, 100) or the internal field name.
+    assert "contract_fit" not in surface
+    assert "100" not in surface
+    assert "60" not in surface
+
+
+def test_phase_b_surface_contract_fit_check_ignores_digits_in_the_output_path(tmp_path):
+    """Adversarial: an output_dir whose own path contains "60" / "100" must not
+    create a false "the score is exposed" failure - the score check is about
+    what is rendered, not where the caller put the run."""
+    high_fit = _candidate("candidate_1", "high-fit", fit=100)
+    lower_fit = _candidate("candidate_2", "premise-specific", fit=60)
+    for name in ("run-60", "run-100", "pytest-16012-x", "c1000", "id-60-and-100"):
+        output_dir = tmp_path / name / "story_discovery"
+        lines = _recommendation_surface_lines(
             winner="candidate_2",
             rationale="The lower-fit candidate uses the premise more causally.",
-            rejected={"candidate_1": "Higher compliance does not make it the stronger story."},
+            rejected={"candidate_1": "Higher compliance does not make it stronger."},
             candidate_outputs=[high_fit, lower_fit],
-            output_dir=tmp_path / "story_discovery",
+            output_dir=output_dir,
             requested_candidates=2,
         )
-    )
+        # the raw join still contains "60"/"100" via the path...
+        raw = "\n".join(lines)
+        assert "60" in raw or "100" in raw
+        # ...but the rendered surface does not.
+        surface = _rendered_surface(lines, output_dir)
+        assert "60" not in surface, name
+        assert "100" not in surface, name
 
-    assert "RECOMMENDED — Story premise-specific (`candidate_2`)" in text
-    assert "contract_fit" not in text
-    assert "100" not in text
-    assert "60" not in text
+
+def test_phase_b_surface_contract_fit_check_still_catches_a_real_render(tmp_path):
+    """Positive control: if a fit score were actually rendered on the surface
+    (a real contract violation), the check must fail. Proven by appending a
+    synthetic render line that does NOT carry the output_dir path."""
+    high_fit = _candidate("candidate_1", "high-fit", fit=100)
+    lower_fit = _candidate("candidate_2", "premise-specific", fit=60)
+    output_dir = tmp_path / "story_discovery"
+    lines = _recommendation_surface_lines(
+        winner="candidate_2",
+        rationale="rationale",
+        rejected={"candidate_1": "reason"},
+        candidate_outputs=[high_fit, lower_fit],
+        output_dir=output_dir,
+        requested_candidates=2,
+    )
+    leaked = [*lines, "- Contract fit: 60% (strong)"]
+    surface = _rendered_surface(leaked, output_dir)
+    assert "60" in surface        # the path strip does not hide rendered content
+    assert "Contract fit: 60%" in surface
 
 
 def test_phase_b_single_survivor_is_viability_not_comparative_recommendation(tmp_path):
