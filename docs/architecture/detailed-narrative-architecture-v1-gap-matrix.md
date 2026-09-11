@@ -6,7 +6,7 @@
 | current state projection | Deterministic values with transition lineage | Yes, slice | Broader cross-scope lineage remains | P0 | Separates now from happened |
 | commitment lifecycle | Direction owner plus fulfillment assessment | Partial | Portfolio commitment states are different | P1 | Preserves author intent |
 | dependency edges | Source affects target, refs, traversal | Yes, slice | Broader Series/ArtifactStore composition remains | P0 | Enables impact |
-| relationship vocabulary/types | Ontology-owned conceptual definitions | Yes, partial | Need clean boundary from instance assertions | P1 | Prevents layer conflation |
+| relationship vocabulary/types | Ontology-owned conceptual definitions | Yes, reconciled core | V2 now separates relation vocabulary from story-instance assertions; broaden only from evidence | P1 | Prevents layer conflation |
 | story-instance relationships | Typed scoped/indexed assertions with declared/deterministic/interpretive origins | Yes, slice | First deterministic causal/pressure index exists; interpretive correction remains deferred | P1 | Controls trust |
 | causal history | Historical transitions remain traversable | Partial | No cross-book causal index | P1 | Supports long horizon |
 | pressure groups | Declared/deterministic/interpretive grouping | Yes, slice | Persistent deterministic grouping is implemented for the bounded fixture | P0 | Preserves demonstrated reasoning value |
@@ -22,7 +22,7 @@
 
 | Component | Classification | Reason |
 |---|---|---|
-| `narrative_ontology` | REUSE AS-IS | Concept vocabulary boundary |
+| `narrative_ontology` | PRESERVE CONTRACT + RECONCILE / EXTEND / CONSOLIDATE | Preserve Layer-0 ownership while consolidating duplicate sources, typed validation semantics, modern vocabulary, and relation boundaries |
 | `identity`, `book`, `series` | EXTEND carefully | Existing Direction/Series owners are correct |
 | `narrative_blueprint`, `structure` | REUSE AS-IS | Structure diagnostics stay separate |
 | `narrative_realization` | EXTEND | Add lineage only as proven |
@@ -36,3 +36,7 @@
 | `reconciliation` | EXTEND | Author review of downstream change |
 | `roundtrip` | REUSE AS-IS | Controlled import/export boundary |
 | LLM orchestration | DEFER | Deterministic proof needs no model |
+
+## Ontology reconciliation note
+
+Narrative Ontology V2 is a deterministic reconciliation of the existing Layer-0 contract, not a new long-horizon experiment. The canonical source is the packaged ontology data consumed by `OntologyRegistry`; compatibility Python surfaces remain adapters while story-instance authority continues to live in the existing Identity/Structure/Realization/provenance lifecycles.
