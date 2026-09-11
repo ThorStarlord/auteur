@@ -1,5 +1,3 @@
-import os
-
 import pytest
 
 from auteur.story_design_packs import (
