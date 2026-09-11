@@ -218,12 +218,18 @@ auteur portfolio combine --project .
 # 5. Commit to a direction
 auteur commit create --project .
 
-# 6. Accept the commitment with explicit confirmation
+# 6. Ask Review to attempt each committed assignment with explicit confirmation.
+#    This command fails closed unless an owning authority workflow actually accepts.
 auteur commit accept <id> --confirm --project .
 
-# 7. Verify lifecycle advanced
+# 7. Only after a successful acceptance, verify lifecycle advancement.
 auteur workflow next --project .
 ```
+
+`commit accept` is an authority-routing boundary, not a generic authority owner.
+If Review cannot identify an owning acceptance workflow, the command reports the
+refusal and exits nonzero. Do not treat the commitment as accepted; use the
+artifact-specific owning acceptance workflow instead.
 
 ## Journey C — Improve and publish a scene
 
@@ -270,4 +276,4 @@ auteur scene publish --project .
 | `auteur reasoning book` | Book-level reasoning analysis |
 | `auteur scene publish` | Publish current scene state |
 | `auteur commit create` | Commit to a decision portfolio |
-| `auteur commit accept` | Accept with explicit confirmation |
+| `auteur commit accept` | Attempt confirmed acceptance through Review; exits nonzero on refusal/no owning route |

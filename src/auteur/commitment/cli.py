@@ -44,7 +44,10 @@ def register_commit_subcommands(sub) -> None:
     p_check.add_argument("--project", type=Path, default=Path("."))
     p_check.add_argument("--json", action="store_true")
 
-    p_accept = ps.add_parser("accept", help="Accept committed decision(s) through review.")
+    p_accept = ps.add_parser(
+        "accept",
+        help="Attempt committed decision acceptance through Review; fails closed without an owning authority route.",
+    )
     p_accept.add_argument("commitment_id", type=str)
     p_accept.add_argument("--assignment", default=None, help="Accept only this decision ID.")
     p_accept.add_argument("--confirm", action="store_true", required=True)
@@ -75,12 +78,12 @@ def _handle_accept(args) -> int:
             assignment_filter=args.assignment,
             confirm=args.confirm,
         )
+        failed = sum(1 for r in results if r["status"] == "failed")
         if args.json:
             print(json.dumps(results, indent=2, default=str))
         else:
             accepted = sum(1 for r in results if r["status"] == "accepted")
             skipped = sum(1 for r in results if r["status"] == "skipped")
-            failed = sum(1 for r in results if r["status"] == "failed")
             print(f"Batch acceptance for {args.commitment_id[:16]}...")
             print(f"  Accepted: {accepted}")
             print(f"  Skipped:  {skipped}")
@@ -88,7 +91,7 @@ def _handle_accept(args) -> int:
             for r in results:
                 icon = {"accepted": "✓", "skipped": "·", "failed": "✗"}.get(r["status"], "?")
                 print(f"    {icon} {r['decision_id'][:24]}... → {r['message'][:60]}")
-        return 0
+        return 1 if failed else 0
     except ValueError as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
