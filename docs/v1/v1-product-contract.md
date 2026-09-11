@@ -41,7 +41,7 @@ Not every author must execute every optional stage, but every advertised stage m
 | Chapter | `SUPPORTED` | Planning, drafting, reconciliation, and accepted Expression are supported. |
 | Book | `SUPPORTED` | Primary complete long-form unit; assembly/reconciliation/publishing are supported. |
 | Series | `BOUNDED` | Accepted-history/current-state reconstruction and continuity guidance are supported within qualified bounded use. |
-| Universe | `BOUNDED` | Optional supporting identity/structure/diagnostic context; not required for the primary journey. |
+| Universe | `EXPERIMENTAL / OPTIONAL CONTEXT` | Existing Universe tooling may provide supporting context, but V1 does not claim a provenance-normalized Universe authoring vertical and the primary journey does not require it. |
 | Episode 1 Direction | `EXPERIMENTAL / NOT REQUIRED` | Issue #218 preserves a future bounded contract; it is not a V1 blocker. |
 | Episode 2+ / generalized serial entry abstraction | `OUT OF V1` | No sixth canonical scope and no automatic generalization from Episode 1. |
 | 50/100+ Book scale | `OUT OF CLAIM` | Long-horizon architecture exists in bounded form; very-large-scale performance/relevance is not a V1 guarantee. |
@@ -108,7 +108,7 @@ Provider support means adapter execution, error normalization, retry/recovery be
 
 ## V1 non-goals
 
-The following do not block 1.0 unless this contract is explicitly revised: generalized Episode progression, universal relationship/trajectory ontology, automatic story-instance extraction, generic graph database, adaptive writer skill model, collaboration/cloud service, automatic external publishing, broad emotional-trajectory state machine, speculative Story Design Pack breadth, and 50/100+ entry scale optimization.
+The following do not block 1.0 unless this contract is explicitly revised: generalized Episode progression, universal relationship/trajectory ontology, automatic story-instance extraction, generic graph database, adaptive writer skill model, collaboration/cloud service, automatic external publishing, broad emotional-trajectory state machine, speculative Story Design Pack breadth, a provenance-normalized Universe vertical, and 50/100+ entry scale optimization.
 
 ## Definition of Done
 
