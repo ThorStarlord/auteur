@@ -10,6 +10,7 @@ from typing import Any, Iterable
 from .composition import compose_packs
 from .handoff import DecisionAuthorityHandoff, derive_decision_handoff
 from .models import AuthorAction, TutorDepth, source_fingerprint
+from .proposal_bridge import generate_structure_proposal_from_tutor
 from .registry import get_design_pack_registry
 from .session import TutorSession, TutorSessionStore, create_session
 from .tutor import decision_card_from_guidance, tutor_recommend
@@ -91,6 +92,16 @@ def register_story_design_subcommands(subparsers: _SubParsersAction) -> None:
     )
     p.add_argument("session_id")
     p.add_argument("--project", type=Path, default=Path("."))
+    p.add_argument("--json", action="store_true")
+
+    p = root_sub.add_parser(
+        "propose",
+        help="Generate a validated noncanonical StructureProposal from a routed Tutor choice.",
+    )
+    p.add_argument("session_id")
+    p.add_argument("--project", type=Path, default=Path("."))
+    p.add_argument("--provider", choices=["anthropic", "openai"], default="anthropic")
+    p.add_argument("--model", default=None)
     p.add_argument("--json", action="store_true")
 
 
@@ -222,6 +233,18 @@ def _print_handoff(handoff: DecisionAuthorityHandoff) -> None:
     print("Story mutation: no")
 
 
+def _print_proposal_result(result) -> None:
+    print("Tutor-to-Structure Proposal")
+    print(f"Proposal: {result.proposal_id}")
+    print(f"Artifact: {result.proposal_path}")
+    print(f"Selected Tutor intent: {result.selected_tutor_value}")
+    print("Proposal selection: required before revision planning")
+    print(f"Inspect: {result.inspect_command}")
+    print(f"After selection: {result.next_command_after_selection}")
+    print(f"Authority: {result.authority_status}")
+    print("Story mutation: no")
+
+
 def dispatch_tutor_commands(args: Any) -> int:
     """Dispatch the root Tutor workflow without mutating narrative authority."""
     try:
@@ -279,6 +302,23 @@ def dispatch_tutor_commands(args: Any) -> int:
                 print(json.dumps(data, indent=2))
             else:
                 _print_handoff(handoff)
+            return 0
+        elif args.tutor_command == "propose":
+            current = _current_fingerprints_for_session(store, session, inspect_only=True)
+            if session.source_fingerprints:
+                session = store.refresh_status(session.session_id, current)
+            handoff = derive_decision_handoff(session)
+            if handoff.status != "route_identified" or handoff.workflow != "structure_revision":
+                raise ValueError("Tutor session does not have a current supported Structure authority route")
+            from auteur.llm.factory import build_client
+
+            client = build_client(args.provider, args.model)
+            result = generate_structure_proposal_from_tutor(args.project, session, client)
+            data = result.model_dump(mode="json")
+            if args.json:
+                print(json.dumps(data, indent=2))
+            else:
+                _print_proposal_result(result)
             return 0
         else:
             current = _current_fingerprints_for_session(store, session, inspect_only=False)
