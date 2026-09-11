@@ -17,12 +17,14 @@ from auteur.llm import (  # noqa: E402
     LLMRequest,
     RetriableError,
     RetryExhaustedError,
+    StructuredOutputError,
     normalize_provider_exception,
 )
 from auteur.llm.anthropic import AnthropicClient  # noqa: E402
 from auteur.llm.fake import FakeClient  # noqa: E402
 from auteur.llm.openai import OpenAIClient  # noqa: E402
 from auteur.llm.retrying import RetryingClient  # noqa: E402
+from auteur.story_design_packs.proposal_bridge import _parse_json_object  # noqa: E402
 
 
 @pytest.mark.parametrize(
@@ -60,6 +62,15 @@ def test_retry_exhaustion_has_stable_code_and_preserves_compatibility():
     assert captured.value.code is LLMErrorCode.RETRY_EXHAUSTED
     assert captured.value.attempts == 2
     assert captured.value.cause.code is LLMErrorCode.RATE_LIMITED
+
+
+def test_structured_output_failure_has_stable_code_and_valueerror_compatibility():
+    with pytest.raises(StructuredOutputError) as captured:
+        _parse_json_object("not json")
+    assert isinstance(captured.value, ValueError)
+    assert isinstance(captured.value, LLMProviderError)
+    assert captured.value.code is LLMErrorCode.STRUCTURED_OUTPUT_INVALID
+    assert captured.value.retriable is False
 
 
 def test_anthropic_missing_credentials_fail_before_sdk_call(monkeypatch):
