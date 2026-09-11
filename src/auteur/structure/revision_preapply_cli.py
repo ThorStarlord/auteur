@@ -1,4 +1,4 @@
-"""Safe pre-application CLI for Structure revision planning and validation."""
+"""Safe pre-application CLI for Structure revision planning, validation, and preview."""
 from __future__ import annotations
 
 import argparse
@@ -21,6 +21,11 @@ def parse_revision_preapply_args(argv: list[str]) -> argparse.Namespace:
     validate.add_argument("plan_id")
     validate.add_argument("--project", type=Path, default=Path("."))
     validate.add_argument("--json", action="store_true")
+
+    preview = sub.add_parser("preview", help="Preview intended and downstream revision consequences without applying.")
+    preview.add_argument("plan_id")
+    preview.add_argument("--project", type=Path, default=Path("."))
+    preview.add_argument("--json", action="store_true")
     return parser.parse_args(argv)
 
 
@@ -40,28 +45,33 @@ def _plan_payload(plan) -> dict[str, object]:
 def dispatch_revision_preapply_argv(argv: list[str]) -> int:
     args = parse_revision_preapply_args(argv)
     try:
-        service = RevisionService(args.project)
-        if args.revision_command == "plan":
-            proposal = args.proposal.resolve() if args.proposal.is_absolute() else (args.project.resolve() / args.proposal).resolve()
-            if not proposal.is_relative_to(args.project.resolve()):
-                raise ValueError("Revision proposal path must stay inside the selected project")
-            plan = service.plan(proposal_path=proposal)
-            payload = _plan_payload(plan)
+        if args.revision_command == "preview":
+            from auteur.structure.revision_preview import build_revision_preview
+
+            payload = build_revision_preview(args.project, args.plan_id)
         else:
-            state, preconditions = service.validate(args.plan_id)
-            payload = {
-                "plan_id": args.plan_id,
-                "state": state,
-                "preconditions": preconditions,
-                "authority_status": "REVISION PLAN / NOT APPLIED",
-                "mutates_story": False,
-                "ready_for_application": state == "ready",
-                "apply_command": (
-                    f"auteur structure revision apply {args.plan_id} --project . --confirm"
-                    if state == "ready"
-                    else None
-                ),
-            }
+            service = RevisionService(args.project)
+            if args.revision_command == "plan":
+                proposal = args.proposal.resolve() if args.proposal.is_absolute() else (args.project.resolve() / args.proposal).resolve()
+                if not proposal.is_relative_to(args.project.resolve()):
+                    raise ValueError("Revision proposal path must stay inside the selected project")
+                plan = service.plan(proposal_path=proposal)
+                payload = _plan_payload(plan)
+            else:
+                state, preconditions = service.validate(args.plan_id)
+                payload = {
+                    "plan_id": args.plan_id,
+                    "state": state,
+                    "preconditions": preconditions,
+                    "authority_status": "REVISION PLAN / NOT APPLIED",
+                    "mutates_story": False,
+                    "ready_for_application": state == "ready",
+                    "apply_command": (
+                        f"auteur structure revision apply {args.plan_id} --project . --confirm"
+                        if state == "ready"
+                        else None
+                    ),
+                }
     except (ValueError, KeyError, FileNotFoundError, OSError) as exc:
         print(f"Error: {exc}", file=__import__("sys").stderr)
         return 1
@@ -74,7 +84,7 @@ def dispatch_revision_preapply_argv(argv: list[str]) -> int:
         print(f"Operations: {payload['operation_count']}")
         print("Status: REVISION PLAN / NOT APPLIED")
         print(f"Validate: {payload['validate_command']}")
-    else:
+    elif args.revision_command == "validate":
         print(f"Validation state: {payload['state']}")
         for precondition in payload["preconditions"]:  # type: ignore[union-attr]
             mark = "✓" if precondition.get("met") else "✗"
@@ -82,4 +92,18 @@ def dispatch_revision_preapply_argv(argv: list[str]) -> int:
         print("No story artifact was changed by validation.")
         if payload["apply_command"]:
             print(f"Authority-bearing next step: {payload['apply_command']}")
-    return 0 if payload.get("state") in {"draft", "ready"} else 1
+    else:
+        print(f"Narrative Change Preview: {payload['plan_id']}")
+        print(f"Status: {payload['authority_status']}")
+        print(f"Currentness: {payload['currentness']}")
+        print(f"Direct targets: {', '.join(payload['direct_targets'])}")  # type: ignore[arg-type]
+        print(f"Changed fields: {', '.join(payload['changed_fields']) or '(not field-addressable)'}")  # type: ignore[arg-type]
+        print("Downstream workflow artifacts:")
+        for impact in payload["definite_downstream_impacts"]:  # type: ignore[union-attr]
+            print(f"  - {impact['artifact_id']}: {impact['impact_reason']}")
+        print("Preview is derived; no story or revision state was changed.")
+        if payload["next_command"]:
+            print(f"Next step: {payload['next_command']}")
+    if args.revision_command == "validate":
+        return 0 if payload.get("state") == "ready" else 1
+    return 0
