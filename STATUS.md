@@ -135,6 +135,7 @@ See [docs/campaign/auteur-long-horizon-campaign-state.md](docs/campaign/auteur-l
 
 - Full-suite Windows Python 3.13 validation is now part of the current CI workflow; historical PR #166 is closed/superseded.
 - Historical Episode 1 PR #167 is closed/superseded by contemporary reconstruction issue #218.
+- Draft PR #131 is still open from an older Story Discovery composition baseline; it was **not assessed by this milestone** and must not be treated as shipped or current selected work without separate reconciliation.
 - `pyproject.toml` still reports `0.37.1`; `main` contains post-release development, so package metadata alone is not the complete current-state indicator.
 
 ## Documentation Map
