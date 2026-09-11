@@ -101,12 +101,12 @@ def _discovery_client() -> FakeClient:
     )
 
 
-def test_beginner_decision_golden_path_reaches_safe_choice_but_no_authority_handoff(
+def test_beginner_decision_golden_path_reaches_safe_authority_handoff(
     tmp_path: Path,
     monkeypatch,
     capsys,
 ):
-    """Exercise the post-M1 beginner path and make the observed product gap executable."""
+    """Exercise the beginner path through choice and derived authority routing."""
     client = _discovery_client()
     monkeypatch.setattr(
         "auteur.llm.factory.build_client",
@@ -203,19 +203,23 @@ def test_beginner_decision_golden_path_reaches_safe_choice_but_no_authority_hand
         ]
     ) == 0
     resolved = json.loads(capsys.readouterr().out)
-
     assert resolved["status"] == "resolved"
-    assert resolved["response_action"] == "choose"
-    assert resolved["response_value"] == "Experimental accident"
     assert resolved["authority_status"] == "LOCAL / NONCANONICAL"
-    assert resolved["card"]["authority_status"] == "DERIVED / NOT CANON"
 
-    # M1 correctly stops before authority. The integration gap is that the
-    # resolved response contains no structured route to the existing workflow
-    # that would enact the chosen design direction.
-    assert "handoff" not in resolved
-    assert "authority_handoff" not in resolved
-    assert "next_authority_action" not in resolved
+    assert main(
+        ["tutor", "handoff", session_id, "--project", str(tmp_path), "--json"]
+    ) == 0
+    handoff = json.loads(capsys.readouterr().out)
+    assert handoff["status"] == "route_identified"
+    assert handoff["target_layer"] == "structure"
+    assert handoff["workflow"] == "structure_revision"
+    assert handoff["affected_artifacts"] == ["blueprint.yaml"]
+    assert handoff["steps"][-1]["command"] == (
+        "auteur structure revision apply <plan_id> --confirm --project ."
+    )
+    assert handoff["steps"][-1]["executable_by_handoff"] is False
+    assert handoff["authority_status"] == "DERIVED / NOT CANON"
+    assert handoff["mutates_story"] is False
 
     assert identity.read_bytes() == accepted_before["identity"]
     assert blueprint.read_bytes() == accepted_before["blueprint"]
