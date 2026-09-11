@@ -1,7 +1,7 @@
 # Auteur — Repository Status
 
 **Last reconciled:** 2026-09-11  
-**Reconciled baseline:** `main @ 783c592f85dcd1b2f96ee8e058087c9c8589150e`  
+**Reconciled baseline:** `main @ 40add1a2726911bdf474e42cf9e6526491f244fd`  
 **Package metadata:** `0.37.1`  
 **Role of this file:** living operational status and handoff; not a release record or idea backlog.
 
@@ -38,31 +38,30 @@ Auteur retains five semantic layers: **Ontology → Identity → Structure → R
 The central invariant remains explicit author authority.
 
 - Accepted/revisioned narrative artifacts are authoritative only through their documented acceptance paths.
-- Diagnostics, projections, recommendations, comparisons, maps, and Decision Cards are derived/advisory.
+- Diagnostics, projections, recommendations, comparisons, maps, Decision Cards, and future Decision Handoffs are derived/advisory.
 - Decision Cards are `DERIVED / NOT CANON`.
 - Persisted Tutor sessions are `LOCAL / NONCANONICAL`.
 - Story Design Packs and Genre Packs are reusable knowledge/context, not story-instance canon.
-- Interactive genre sessions remain noncanonical until their documented compile/accept boundary.
 - No Tutor response may silently accept StoryIdentity, rewrite a blueprint, repair Structure, or otherwise mutate accepted story state.
 - Failure at an authority-bearing boundary must leave prior authoritative state intact.
 
 ## Stable Capability Families on `main`
 
-The production baseline now includes:
+The production baseline includes:
 
-- **Story Discovery and StoryIdentity** — multiple plausible story engines, recommendation, explicit author acceptance, and validation.
+- **Story Discovery and StoryIdentity** — multiple plausible story engines, recommendation/search support, explicit author acceptance, and validation.
 - **Genre knowledge and authoring** — Genre Packs, overrides, diagnostics, and interactive genre-pipeline infrastructure.
-- **Structure engine** — generation, diagnosis, deterministic findings, and explicit diagnose → propose → select → apply repair lifecycle.
+- **Structure engine** — generation, diagnosis, deterministic findings, and explicit diagnose → propose → select → apply/revision lifecycle.
 - **Story Design Packs** — reusable craft/design priors with deterministic composition.
 - **Creative Writing Tutor V1** — legacy `auteur design tutor ...` guidance remains available.
-- **Decision-Oriented Tutor M1** — deterministic Decision Cards, adapters from guidance/diagnostics, local atomic source-aware sessions, root `auteur tutor next/explain/show/choose`, stale-source blocking, and cross-system authority death tests.
+- **Decision-Oriented Tutor M1** — deterministic Decision Cards, guidance/diagnostic adapters, local atomic source-aware sessions, root `auteur tutor next/explain/show/choose`, stale-source blocking, and cross-system authority death tests.
 - **Realization/state/provenance** — state coordination plus impact, convergence, decision, review, planning, simulation, and portfolio support.
 - **Series / long-horizon infrastructure** — accepted-history/current-state reconstruction, derived Global Map/Focus, continuity support, and Guided Series Continuity Review V1.
 - **Outline and drafting** — Cartographer outline compilation, chapter contracts, Bard/Critics drafting, retry, and explicit acceptance.
 
 ## Decision-Oriented Tutor M1 — Complete
 
-All bounded M1 packages are implemented and qualified:
+All bounded M1 packages are merged and qualified:
 
 | Work item | Status | Result |
 | --- | --- | --- |
@@ -71,48 +70,71 @@ All bounded M1 packages are implemented and qualified:
 | #177 / 0006 — Safe Tutor advisory sessions | ✅ PR #187 | Atomic local persistence, source fingerprints, stale detection, advisory response lifecycle. |
 | #178 / 0007 — Root Tutor workflow | ✅ PR #191 | `auteur tutor next/explain/show/choose`, human/JSON output, real project-source currentness checks. |
 | #179 / 0008 — Authority-boundary death tests | ✅ PR #192 | Cross-system noncanon, staleness, no-repair, and canonical-file immutability proofs. |
-| #180 / 0009 — Production Tutor documentation | ✅ current reconciliation | [docs/design/decision-oriented-tutor.md](docs/design/decision-oriented-tutor.md) documents the shipped workflow and exact authority boundary. |
+| #180 / 0009 — Production Tutor documentation | ✅ PR #193 | [docs/design/decision-oriented-tutor.md](docs/design/decision-oriented-tutor.md) documents the shipped workflow and authority boundary. |
 
-The root workflow is intentionally advisory:
+## Beginner Decision Golden Path — Evidence Complete
 
-```text
-Decision Card — DERIVED / NOT CANON
-→ optional Tutor session — LOCAL / NONCANONICAL
-→ author response
-→ existing authority-bearing workflow if the story should change
-```
+The post-M1 product-integration verification is now implemented by `tests/test_beginner_decision_golden_path.py` and documented in [docs/reviews/beginner-decision-golden-path.md](docs/reviews/beginner-decision-golden-path.md).
 
-`tutor choose` does not accept StoryIdentity, update `blueprint.yaml`, rewrite canon, or apply Structure repair.
-
-## Current Selected Next Work — Beginner Decision Golden Path
-
-With M1 complete, the next authorized activity is a bounded product-integration check rather than another foundational subsystem.
-
-Exercise one beginner-style project through:
+The exercised path is:
 
 ```text
 raw premise
-→ Story Discovery
+→ Story Discovery candidates
 → explicit StoryIdentity acceptance
-→ lightweight Structure
-→ diagnostic / craft decision
-→ Tutor Decision Card
-→ explain / alternatives
-→ author response
-→ identify the existing authority-bearing next action
+→ blueprint seed
+→ root Tutor Decision Card
+→ explanation
+→ author `choose`
+→ resolved local Tutor session
 ```
 
-The purpose is to observe concrete product friction. Do not manufacture a favorable result and do not silently cross the authority boundary merely to complete the diagram.
+The path succeeds through a safe recorded choice while preserving accepted StoryIdentity and `blueprint.yaml` byte-for-byte.
 
-Expected questions include:
+### Observed product friction
 
-- After `tutor choose`, can the author tell how to enact the choice safely?
-- Is the surfaced decision relevant enough to current author intent?
-- Do multiple subsystems compete for attention?
-- Does the user understand advice versus canon?
-- Does the workflow require reconstructing information Auteur already stores?
+After `tutor choose`, the session is correctly `resolved`, `LOCAL / NONCANONICAL`, and still carries a `DERIVED / NOT CANON` Decision Card. However, the resolved response does not tell a beginner which existing authoritative workflow should enact the selected design direction.
 
-Select the next capability from observed evidence. The leading hypothesis is **Decision-to-Authority Handoff**, but it is not considered validated until the Golden Path produces that friction.
+The missing bridge is therefore:
+
+```text
+resolved advisory choice
+→ ???
+→ existing authority-bearing story workflow
+```
+
+This is classified as a **workflow/product-integration gap**, not a missing semantic layer or ontology.
+
+## Current Selected Work — Decision-to-Authority Handoff
+
+**Implement a bounded derived Decision Handoff that routes a resolved Tutor choice to an existing authority-bearing workflow without performing that authoritative action.**
+
+Minimum contract:
+
+```text
+resolved Tutor choice
+→ derived Decision Handoff
+→ affected layer/artifact candidates
+→ recommended existing authority workflow
+→ why this route
+→ explicit noncanonical/no-mutation status
+```
+
+Required guardrails:
+
+1. Handoff generation and inspection are derived/read-only with respect to narrative authority.
+2. The handoff must not create a second acceptance/revision system.
+3. It may point to Identity, Structure, Realization, or another existing authority path only when evidence supports that route.
+4. Insufficient evidence must produce an explicit unresolved/inspection result rather than a guessed mutation path.
+5. Stale Tutor sessions cannot yield an actionable handoff.
+6. `tutor choose` remains local advisory state; canonical mutation still occurs only through the owning workflow.
+7. Tests must keep authoritative sentinel artifacts byte-identical during handoff generation/inspection.
+
+## Subsequent Candidates — Not Yet Authorized
+
+The current strongest hypothesis after a successful handoff is **Narrative Change Preview**, followed by **Decision Reassessment** and then **Unified Project Orientation**. These remain candidates until the handoff is exercised and produces the corresponding friction.
+
+Do not pre-authorize them merely because the roadmap contains them.
 
 ## Long-Horizon Campaign Posture
 
@@ -127,34 +149,26 @@ See [docs/campaign/auteur-long-horizon-campaign-state.md](docs/campaign/auteur-l
 - PR #167 — bounded Episode 1 Direction support: **OPEN / NOT MERGED**.
 - PR #166 — full-suite Windows CI leg: **OPEN / NOT MERGED**.
 - PR #184 — older M1 0006 candidate: **CLOSED / SUPERSEDED** by #187.
-- PR #189 — first M1 0007 candidate: **CLOSED / SUPERSEDED** after its full-suite run exposed an unrelated README contract regression; #190 repaired that baseline and #191 was requalified cleanly.
+- PR #189 — first M1 0007 candidate: **CLOSED / SUPERSEDED**; #190 repaired the unrelated README contract regression and #191 was requalified cleanly.
 
-Do not describe any open/unmerged PR as shipped behavior.
+Do not describe open/unmerged PRs as shipped behavior.
 
 ## Documentation Map
 
 - [MISSION.md](MISSION.md) — durable mission, scope, invariants, human/automation boundary.
 - [docs/PRD.md](docs/PRD.md) — product contract and primary-user requirements.
 - [docs/narrative-architecture.md](docs/narrative-architecture.md) — canonical five-layer × scope architecture.
-- [docs/design/decision-oriented-tutor.md](docs/design/decision-oriented-tutor.md) — shipped root Tutor workflow and authority/staleness model.
-- [docs/opinionated-narrative-engine.md](docs/opinionated-narrative-engine.md) — product-design framing and guided authoring.
-- [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md) — candidate directions and evidence gates; advisory, not implementation authority.
+- [docs/design/decision-oriented-tutor.md](docs/design/decision-oriented-tutor.md) — shipped Tutor workflow and authority/staleness model.
+- [docs/reviews/beginner-decision-golden-path.md](docs/reviews/beginner-decision-golden-path.md) — current product-integration evidence selecting the handoff gap.
+- [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md) — candidate directions/evidence gates; advisory except where current selection is mirrored here.
 - [docs/architecture-roadmap.md](docs/architecture-roadmap.md) — architecture integrity/history, not the current product queue.
-- [CONTEXT.md](CONTEXT.md) — runtime/domain terminology and compatibility context.
 - [CHANGELOG.md](CHANGELOG.md) / [docs/releases/](docs/releases/README.md) — release history/evidence.
-
-Historical ADRs, campaign records, qualification reports, experiments, and product-validation documents remain evidence and should not be rewritten into present-tense status reports.
 
 ## Release / Qualification Notes
 
 `pyproject.toml` still reports `0.37.1`; `main` contains post-release development, so package metadata is not the complete current-state indicator.
 
-- #187 exact candidate passed Validation before merge.
-- #191 exact candidate passed the full Python 3.11/3.12/3.13 suites, repository verification, and installed-wheel smoke before merge.
-- #192 is tests-only and passed focused boundary tests plus repository verification across the Python matrix; the production head it protects was already full-suite qualified by #191.
-- #190 repaired the pre-existing README/CI contract surfaced by the first #178 qualification attempt.
-
-Use `STATUS.md` for present development state and release records for release claims.
+The Golden Path package is a hermetic integration verification over existing capabilities. It makes no external-provider or subjective production-quality claim.
 
 ## Reconciliation Rule
 
