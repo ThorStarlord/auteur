@@ -22,7 +22,7 @@ target_experience:
   avoid: []
 story_type:
   medium: "novel"
-  mode: "dramatic"
+  mode: "adventure"
   genre: "other"
   subgenres: []
   target_audience: "adult"
@@ -52,7 +52,7 @@ target_experience:
   avoid: []
 story_type:
   medium: "novel"
-  mode: "dramatic"
+  mode: "adventure"
   genre: "other"
   subgenres: []
   target_audience: "adult"
