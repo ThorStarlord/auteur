@@ -41,6 +41,32 @@ class TestService:
         assert len(results) == 1
         assert results[0]["status"] == "skipped"
 
+    def test_batch_accept_uses_current_review_confirmation_contract(self, project_root, monkeypatch):
+        from auteur.commitment.service import CommitmentService
+        import auteur.review.service as review_service_module
+
+        svc = CommitmentService(project_root)
+        commitment = svc.create_commitment({"decision-1": "candidate-1"}, confirm=True)
+
+        class FakeReviewService:
+            def __init__(self, _project_root):
+                pass
+
+            def list_sessions(self):
+                return [{"decision_id": "decision-1", "session_id": "review-1"}]
+
+            def prepare_acceptance(self, _session_id, _candidate_id):
+                return None
+
+            def accept(self, _session_id, _candidate_id, confirm=False):
+                assert confirm is True
+                return None
+
+        monkeypatch.setattr(review_service_module, "ReviewService", FakeReviewService)
+        results = svc.batch_accept(commitment.commitment_id, confirm=True)
+
+        assert results[0]["status"] == "accepted"
+
 
 class TestCLI:
 
@@ -56,6 +82,7 @@ class TestCLI:
         rc2 = main(["commit", "accept", cid, "--project", str(project_root),
                      "--confirm"])
         assert rc2 == 0  # will skip, not fail
+
     def test_accept_no_confirm(self, project_root):
         from auteur.cli import main
         with pytest.raises(SystemExit):
