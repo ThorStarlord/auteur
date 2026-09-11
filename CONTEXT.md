@@ -276,3 +276,16 @@ Missing or invalid referenced contracts are errors, not silently skipped.
 **Warning Persistence:** Validation warnings are now persisted in session.json and survive browser reload via GET /session.
 
 **409 Conflict for Completed Sessions:** Mutations of completed sessions return HTTP 409 (not 422) to distinguish state conflicts from data validity.
+
+**Occupied-Port Preflight:** Port availability is checked before session creation, preventing orphaned sessions from failed server startup.
+
+**Regression Tests:** Horror end-to-end flow and actual three-CLI subprocess invocations are regression-tested.
+
+**Operational Extensions:** `/health` reports session readiness; warning acknowledgments
+are stored with session state; terminal sessions are immutable; archived sessions live
+under `genre_sessions/<genre>/history/` with lock-protected transitions.
+`auteur universe build` canonicalizes a UniverseIdentity, and `auteur book build`
+compiles one BookPlan into a StoryIdentity. Series graph output includes a Mermaid
+companion beside the YAML graph.
+
+Last reconciled: 2026-09-11.
