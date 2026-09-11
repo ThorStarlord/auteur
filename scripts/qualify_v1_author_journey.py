@@ -18,6 +18,7 @@ from auteur import __version__
 _TESTS = [
     "tests/test_beginner_decision_golden_path.py",
     "tests/test_guided_author_workspace.py",
+    "tests/test_tutor_structure_proposal_bridge.py",
     "tests/test_v1_expression_boundary.py",
     "tests/test_revision_recovery_v1.py",
     "tests/test_llm_failure_contract.py",
