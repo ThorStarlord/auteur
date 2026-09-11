@@ -1,11 +1,11 @@
 # Auteur — Repository Status
 
 **Last reconciled:** 2026-09-11  
-**Baseline:** `main @ 1746f79c4532de241538ca615b9cb3ea71d99a16`  
+**Baseline:** `main @ c3fd5bf4e2efd3e76975dd3c27f7efd597fa5034`  
 **Package metadata:** `0.37.1`  
-**Role of this file:** living operational status and handoff; not a release record.
+**Role of this file:** living operational status and handoff; not a release record or idea backlog.
 
-For product intent, read [MISSION.md](MISSION.md) and [docs/PRD.md](docs/PRD.md). For the canonical domain model, read [docs/narrative-architecture.md](docs/narrative-architecture.md). Release evidence lives under [docs/releases/](docs/releases/README.md).
+For product intent, read [MISSION.md](MISSION.md) and [docs/PRD.md](docs/PRD.md). For the canonical domain model, read [docs/narrative-architecture.md](docs/narrative-architecture.md). For forward-looking product/repository candidates, read [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md). Release evidence lives under [docs/releases/](docs/releases/README.md).
 
 ## Current Product Direction
 
@@ -129,7 +129,7 @@ Why this is first:
 3. Authority death tests are most useful after the complete bounded root flow exists.
 4. User-facing Tutor documentation should describe the real parser and merged behavior, not a planned interface.
 
-After 0006–0009 are complete and qualified, run one end-to-end beginner decision loop as a product integration check before selecting another major capability family.
+After 0006–0009 are complete and qualified, run one end-to-end beginner decision loop as a product integration check before selecting another major capability family. Candidate directions beyond that point live in [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md) and do not become authorized merely by being listed there.
 
 ## Documentation Map
 
@@ -139,6 +139,8 @@ Use these documents for distinct purposes:
 - [docs/PRD.md](docs/PRD.md) — product contract and primary-user requirements.
 - [docs/narrative-architecture.md](docs/narrative-architecture.md) — canonical five-layer × scope architecture.
 - [docs/opinionated-narrative-engine.md](docs/opinionated-narrative-engine.md) — product-design framing, first value, guided authoring, Global Map/Decision Map/Focus model.
+- [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md) — forward-looking candidate directions, evidence gates, and the product/repository evolution loop; advisory, not implementation authority.
+- [docs/architecture-roadmap.md](docs/architecture-roadmap.md) — architecture integrity and architecture-specific extension history; not the current product queue.
 - [CONTEXT.md](CONTEXT.md) — runtime/domain terminology and compatibility context.
 - [STATUS.md](STATUS.md) — **current operational development state**.
 - [CHANGELOG.md](CHANGELOG.md) — concise release index and post-release ledger.
@@ -171,6 +173,7 @@ When repository behavior changes materially, update the living surfaces in this 
 2. `README.md` — only if user-facing capability, product framing, or entry path changed.
 3. `CHANGELOG.md` / `docs/releases/` — when release or post-release history changed.
 4. `CONTEXT.md` — only when runtime/domain terminology or compatibility context changed.
-5. Mission, PRD, canonical architecture, ADRs, and historical evidence — only when their own authority/change process explicitly requires it.
+5. `docs/product-evolution-roadmap.md` — only when candidate direction, selection state, evidence gate, or product-evolution policy changes.
+6. Mission, PRD, canonical architecture, ADRs, and historical evidence — only when their own authority/change process explicitly requires it.
 
-This keeps current state legible without rewriting the repository's decision history.
+This keeps current state legible without rewriting the repository's decision history or turning future ideas into accidental production scope.
