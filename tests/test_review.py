@@ -213,6 +213,22 @@ class TestReviewService:
         with pytest.raises(ValueError, match="Session not found"):
             review_service.abort("nonexistent")
 
+    def test_start_session_compatibility_validates_candidate(self, review_project: Path, monkeypatch):
+        service = ReviewService(review_project)
+        expected = ReviewSession.create(str(review_project), "decision-1")
+        monkeypatch.setattr(service, "start", lambda decision_id=None: expected)
+        monkeypatch.setattr(
+            service.decision_service,
+            "inspect",
+            lambda _decision_id: SimpleNamespace(candidates=[SimpleNamespace(candidate_id="candidate-1")]),
+        )
+
+        assert service.start_session("decision-1", "candidate-1") is expected
+        with pytest.raises(ValueError, match="Candidate not found"):
+            service.start_session("decision-1", "missing")
+        with pytest.raises(ValueError, match="requires decision_id"):
+            service.start_session(candidate_id="candidate-1")
+
     def test_accept_fails_closed_without_owning_executor(self, review_project: Path):
         service = ReviewService(review_project)
         session = ReviewSession(
@@ -236,3 +252,18 @@ class TestReviewService:
         event_types = {event.event_type for event in service.store.load_events(session.session_id)}
         assert ReviewEventType.ACCEPTANCE_REQUESTED not in event_types
         assert ReviewEventType.ACCEPTANCE_COMPLETED not in event_types
+
+    def test_accept_rejects_candidate_other_than_prepared(self, review_project: Path):
+        service = ReviewService(review_project)
+        session = ReviewSession(
+            session_id="review-2",
+            project=str(review_project),
+            state=ReviewSessionState.AWAITING_ACCEPTANCE,
+            target=ReviewTarget(decision_id="decision-1", target_artifact_id="scene-1", chapter_index=1),
+            preparation=AcceptancePreparation(prepared=True, candidate_id="candidate-1"),
+        )
+        service.store.save_session(session)
+        service.store.save_latest_pointer(session.session_id)
+
+        with pytest.raises(ValueError, match="prepared candidate"):
+            service.accept(session.session_id, "candidate-2", confirm=True)
