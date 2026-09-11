@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from .composition import compose_packs
+from .handoff import DecisionAuthorityHandoff, derive_decision_handoff
 from .models import AuthorAction, TutorDepth, source_fingerprint
 from .registry import get_design_pack_registry
 from .session import TutorSession, TutorSessionStore, create_session
@@ -81,6 +82,14 @@ def register_story_design_subcommands(subparsers: _SubParsersAction) -> None:
     p.add_argument("session_id")
     p.add_argument("action", choices=[action.value for action in AuthorAction])
     p.add_argument("--value", default=None)
+    p.add_argument("--project", type=Path, default=Path("."))
+    p.add_argument("--json", action="store_true")
+
+    p = root_sub.add_parser(
+        "handoff",
+        help="Derive the existing story-authority workflow that owns a resolved choice.",
+    )
+    p.add_argument("session_id")
     p.add_argument("--project", type=Path, default=Path("."))
     p.add_argument("--json", action="store_true")
 
@@ -197,6 +206,22 @@ def _print_card(card, session_id: str | None = None) -> None:
         print(f"Session: {session_id} (LOCAL / NONCANONICAL)")
 
 
+def _print_handoff(handoff: DecisionAuthorityHandoff) -> None:
+    print("Decision-to-Authority Handoff")
+    print(f"Status: {handoff.status}")
+    if handoff.target_layer is not None:
+        print(f"Owning layer: {handoff.target_layer}")
+    if handoff.workflow is not None:
+        print(f"Existing workflow: {handoff.workflow}")
+    print(f"Why: {handoff.rationale}")
+    for step in handoff.steps:
+        print(f"{step.kind.title()}: {step.command} [{step.authority.value}]")
+    if handoff.prerequisites:
+        print("Prerequisites: " + "; ".join(handoff.prerequisites))
+    print(f"Authority: {handoff.authority_status}")
+    print("Story mutation: no")
+
+
 def dispatch_tutor_commands(args: Any) -> int:
     """Dispatch the root Tutor workflow without mutating narrative authority."""
     try:
@@ -244,6 +269,17 @@ def dispatch_tutor_commands(args: Any) -> int:
             current = _current_fingerprints_for_session(store, session, inspect_only=True)
             if session.source_fingerprints:
                 session = store.refresh_status(session.session_id, current)
+        elif args.tutor_command == "handoff":
+            current = _current_fingerprints_for_session(store, session, inspect_only=True)
+            if session.source_fingerprints:
+                session = store.refresh_status(session.session_id, current)
+            handoff = derive_decision_handoff(session)
+            data = handoff.model_dump(mode="json")
+            if args.json:
+                print(json.dumps(data, indent=2))
+            else:
+                _print_handoff(handoff)
+            return 0
         else:
             current = _current_fingerprints_for_session(store, session, inspect_only=False)
             session = store.record_response(
@@ -262,6 +298,11 @@ def dispatch_tutor_commands(args: Any) -> int:
                 print(f"Response: {session.response_action.value}")
             if session.stale_reason:
                 print(f"Stale reason: {session.stale_reason}")
+            if args.tutor_command == "choose" and session.status == "resolved":
+                print(
+                    "Next: derive the owning authority route with "
+                    f"`auteur tutor handoff {session.session_id} --project {args.project}`."
+                )
             print(f"Session authority: {session.authority_status}")
             print(f"Decision authority: {session.card.authority_status}")
         return 0
