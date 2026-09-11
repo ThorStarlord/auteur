@@ -497,7 +497,7 @@ class CliRealizationCommands:
             cluster_id += 1
             chapter_scenes = sorted(
                 by_chapter[chapter_id],
-                key=lambda s: s.narrative_position
+                key=lambda s: s.narrative_position or 0
             )
 
             lines.append(f'  subgraph cluster_{cluster_id} {{')
@@ -512,8 +512,8 @@ class CliRealizationCommands:
 
         # Add edges for temporal relations
         for scene in scenes.values():
-            if scene.temporal_relations and scene.temporal_relations.follows_scene:
-                source = scene.temporal_relations.follows_scene.replace("-", "_")
+            if scene.temporal_relation and scene.temporal_relation.follows_scene:
+                source = scene.temporal_relation.follows_scene.replace("-", "_")
                 target = scene.id.replace("-", "_")
                 lines.append(f'  {source} -> {target};')
 
