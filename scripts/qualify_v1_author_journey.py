@@ -24,6 +24,7 @@ _TESTS = [
     "tests/test_v1_book_scale_topology.py",
     "tests/test_v1_platform_invariants.py",
     "tests/test_v1_realistic_book_journey.py",
+    "tests/test_v1_corruption_recovery.py",
     "tests/test_publish_release.py",
 ]
 
