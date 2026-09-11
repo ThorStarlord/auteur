@@ -36,6 +36,8 @@ def _ready_scene(
     pov: str = "clara",
     entry_knowledge: list[KnowledgeFact] | None = None,
     exit_knowledge: list[KnowledgeFact] | None = None,
+    knowledge_added: list[str] | None = None,
+    knowledge_questioned: list[str] | None = None,
 ) -> SceneOutline:
     return SceneOutline(
         id=scene_id,
@@ -49,7 +51,11 @@ def _ready_scene(
         opposition=Opposition(source_id="external", pressure="resist the goal"),
         turn=Turn(type="discovery", event="new evidence appears", impact="changes the situation"),
         decision=Decision(actor_id=pov, choice="act on the evidence"),
-        outcome=Outcome(result="partial"),
+        outcome=Outcome(
+            result="partial",
+            knowledge_added=knowledge_added or [],
+            knowledge_questioned=knowledge_questioned or [],
+        ),
         entry_state=EntryState(knowledge=entry_knowledge or []),
         exit_state=ExitState(knowledge=exit_knowledge or []),
     )
@@ -109,6 +115,47 @@ class TestKnowledgeConsistency:
             and violation.fact_what == secret.what
             for violation in result.violations
         )
+
+    def test_questioned_entry_fact_may_leave_exit_knowledge(self):
+        secret = _fact("The victim was poisoned")
+        validator = KnowledgeValidator()
+        scene = _ready_scene(
+            "scene_01_01",
+            position=1,
+            entry_knowledge=[secret],
+            exit_knowledge=[],
+            knowledge_questioned=[secret.what],
+        )
+        assert validator.validate_scene(scene).is_valid is True
+
+    def test_outcome_knowledge_added_must_appear_in_exit(self):
+        learned = _fact("The ledger exists", source="document")
+        validator = KnowledgeValidator()
+        scene = _ready_scene(
+            "scene_01_01",
+            position=1,
+            knowledge_added=[learned.what],
+            exit_knowledge=[],
+        )
+
+        result = validator.validate_scene(scene)
+        assert result.is_valid is False
+        assert any(
+            violation.violation_type == KnowledgeViolationType.KNOWLEDGE_GAP
+            and violation.fact_what == learned.what
+            for violation in result.violations
+        )
+
+    def test_outcome_knowledge_added_present_in_exit_is_valid(self):
+        learned = _fact("The ledger exists", source="document")
+        validator = KnowledgeValidator()
+        scene = _ready_scene(
+            "scene_01_01",
+            position=1,
+            knowledge_added=[learned.what],
+            exit_knowledge=[learned],
+        )
+        assert validator.validate_scene(scene).is_valid is True
 
 
 class TestCrossSceneKnowledge:
@@ -199,28 +246,28 @@ class TestCrossSceneKnowledge:
 
 
 class TestSupportedKnowledgeSources:
-    def test_message_like_external_source_is_preserved(self):
+    def test_message_like_external_source_is_recordable(self):
         message_fact = _fact("The train is delayed", source="character_id")
         scene = _ready_scene(
             "scene_01_01",
             position=1,
-            entry_knowledge=[message_fact],
+            knowledge_added=[message_fact.what],
             exit_knowledge=[message_fact],
         )
-        assert scene.entry_state is not None
-        assert scene.entry_state.knowledge[0].source == "character_id"
+        assert scene.exit_state is not None
+        assert scene.exit_state.knowledge[0].source == "character_id"
         assert KnowledgeValidator().validate_scene(scene).is_valid is True
 
-    def test_document_source_is_preserved(self):
+    def test_document_source_is_recordable(self):
         document_fact = _fact("The will names a second heir", source="document")
         scene = _ready_scene(
             "scene_01_01",
             position=1,
-            entry_knowledge=[document_fact],
+            knowledge_added=[document_fact.what],
             exit_knowledge=[document_fact],
         )
-        assert scene.entry_state is not None
-        assert scene.entry_state.knowledge[0].source == "document"
+        assert scene.exit_state is not None
+        assert scene.exit_state.knowledge[0].source == "document"
         assert KnowledgeValidator().validate_scene(scene).is_valid is True
 
 
