@@ -343,12 +343,6 @@ concepts:
         cardinality: many-to-many
         description: Revelation may occur through one or more narrative moments
         required: false
-      - source_concept: Revelation
-        target_concept: Information
-        relation_type: affects
-        cardinality: many-to-many
-        description: Revelation changes access to or interpretation of information
-        required: false
     validation_rules:
       - rule_id: revelation_discloses_hidden_info
         kind: interpretive_criterion
