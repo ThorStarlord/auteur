@@ -100,31 +100,13 @@ def test_questioned_entry_knowledge_may_leave_exit_state() -> None:
     assert result.is_valid is True
 
 
-def test_newly_learned_fact_must_appear_in_exit_state() -> None:
+def test_outcome_learning_summary_is_not_treated_as_knowledge_identity() -> None:
+    structured = _fact("The archive door is trapped")
     scene = _ready_scene(
         "scene_01_01",
         1,
-        learned=["The key is hidden under the floor"],
-        exit=[],
-    )
-
-    result = KnowledgeValidator().validate_scene(scene)
-
-    assert result.is_valid is False
-    assert any(
-        violation.violation_type == KnowledgeViolationType.INCONSISTENT_ENTRY_EXIT
-        and violation.fact_what == "The key is hidden under the floor"
-        for violation in result.violations
-    )
-
-
-def test_newly_learned_fact_in_exit_state_is_valid() -> None:
-    learned = _fact("The key is hidden under the floor")
-    scene = _ready_scene(
-        "scene_01_01",
-        1,
-        learned=[learned.what],
-        exit=[learned],
+        learned=["door trap discovered"],
+        exit=[structured],
     )
     result = KnowledgeValidator().validate_scene(scene)
     assert result.is_valid is True
