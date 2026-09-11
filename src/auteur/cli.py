@@ -127,6 +127,10 @@ def main(argv: list[str] | None = None) -> int:
         from auteur.story_discovery_recommend import dispatch_story_discovery_recommend
 
         return dispatch_story_discovery_recommend(args)
+    if args.command == "tutor":
+        from auteur.story_design_packs.cli import dispatch_tutor_commands
+
+        return dispatch_tutor_commands(args)
     return dispatch(args)
 
 
