@@ -1,10 +1,11 @@
-# Genre Pipeline Architecture Context
+# Runtime and Domain Context
 
-> Canonical architecture: [Narrative Architecture](docs/narrative-architecture.md).
+> Current repository status: [STATUS.md](STATUS.md).  
+> Canonical architecture: [Narrative Architecture](docs/narrative-architecture.md).  
+> Durable mission: [MISSION.md](MISSION.md).  
 > Release policy: [Release Qualification](docs/engineering/release-qualification.md).
 
-This document defines the domain language and runtime ownership for Auteur's
-built-in interactive genre pipelines and versioned Genre Packs.
+This document defines runtime/domain terminology and compatibility context for Auteur's built-in interactive genre pipelines, versioned Genre Packs, and selected cross-scope behavior. It is **not** the repository roadmap or current milestone handoff; use `STATUS.md` for present-tense development state.
 
 ## Interactive Genre Pipelines vs Genre Packs
 
@@ -211,7 +212,7 @@ Missing or invalid referenced contracts are errors, not silently skipped.
 - `SeriesIdentity` (series_identity.yaml) is the canonical author-edited contract
 - `SeriesBible` (series_bible.json) is a compiled operational artifact derived from identity, book plans, and continuity state
 
-## Genre Pipeline: Group 1 Fixes
+## Genre Pipeline Compatibility Notes
 
 **Warning Persistence:** Validation warnings are now persisted in session.json and survive browser reload via GET /session.
 
@@ -228,4 +229,4 @@ under `genre_sessions/<genre>/history/` with lock-protected transitions.
 compiles one BookPlan into a StoryIdentity. Series graph output includes a Mermaid
 companion beside the YAML graph.
 
-Last updated: 2026-07-27.
+Last reconciled: 2026-09-11.
