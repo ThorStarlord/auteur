@@ -21,6 +21,26 @@ def test_registry_integrity_passes_for_packaged_specs() -> None:
     registry.assert_valid()
 
 
+def test_all_packaged_validation_rules_have_explicit_kind() -> None:
+    registry = OntologyRegistry()
+    documents = [
+        registry.loader.load_base_ontology(),
+        registry.loader.load_semantic_vocabulary(),
+    ]
+    documents.extend(
+        registry.loader.load_genre_ontology(genre)
+        for genre in registry.available_genre_extensions
+    )
+    documents.extend(
+        registry.compatibility.get("compatibility_concepts", {}).values()
+    )
+
+    for concepts in documents:
+        for concept in concepts.values():
+            for rule in concept.get("validation_rules", []):
+                assert "kind" in rule, rule.get("rule_id")
+
+
 def test_historical_core_facade_remains_exactly_twelve_concepts() -> None:
     assert len(ALL_CONCEPTS) == 12
     assert "Character" in ALL_CONCEPTS
