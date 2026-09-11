@@ -288,7 +288,7 @@ def generate_structure_proposal_from_tutor(
         proposal_id=proposal.proposal_id,
         proposal_path=relative,
         proposal=proposal,
-        inspect_command="auteur structure propose --list --project .",
+        inspect_command=f"auteur structure proposal inspect {relative} --project .",
         next_command_after_selection=(
             f"auteur structure revision plan --proposal {relative} --project ."
         ),
