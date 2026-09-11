@@ -255,6 +255,8 @@ auteur blueprint seed <story_identity.yaml> --output <blueprint.yaml>
 ```text
 auteur structure diagnose <blueprint.yaml>
 auteur structure propose-repairs <blueprint.yaml>
+auteur structure apply <proposal.yaml> <blueprint.yaml> [--in-place]
+auteur structure generate <blueprint.yaml> [--symptom "text"]
 auteur structure proposal inspect <proposal.yaml> --project .
 auteur structure proposal select <proposal.yaml> --option <option_id> --project .
 auteur structure revision plan --proposal <proposal.yaml> --project .
@@ -409,7 +411,7 @@ Run the repository verification stack:
 python scripts/check.py
 ```
 
-CI runs Linux Python 3.11/3.12/3.13 validation, a full Windows Python 3.13 test leg, repository verification, and installed-wheel smoke according to `.github/workflows/validation.yml`. Real-provider smoke checks remain separate because they spend external API tokens.
+CI runs the same verification entrypoint with `python scripts/check.py --skip-pytest`, alongside Linux Python 3.11/3.12/3.13 validation, a full Windows Python 3.13 test leg, and installed-wheel smoke according to `.github/workflows/validation.yml`. Real-provider smoke checks remain separate because they spend external API tokens.
 
 ## Versioning
 
