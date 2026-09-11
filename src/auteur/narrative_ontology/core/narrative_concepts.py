@@ -7,15 +7,13 @@ second Python copy of ontology semantics.
 
 from __future__ import annotations
 
-from typing import Optional
-
 from auteur.narrative_ontology.loader.ontology_loader import OntologyLoader
 from auteur.narrative_ontology.schema.ontology_types import Concept
 
 
 _loader = OntologyLoader()
 
-# Intentionally limited to the historical compatibility core.  Modern V2
+# Intentionally limited to the historical compatibility core. Modern V2
 # vocabulary is available through OntologyRegistry / OntologyLoader's core view;
 # keeping this mapping at twelve entries preserves the established public API.
 ALL_CONCEPTS: dict[str, Concept] = {
@@ -36,7 +34,7 @@ SETUP = ALL_CONCEPTS["Setup"]
 REVELATION = ALL_CONCEPTS["Revelation"]
 REVERSAL = ALL_CONCEPTS["Reversal"]
 
-# Compatibility constants historically available from this module.  They are
+# Compatibility constants historically available from this module. They are
 # derived views over the canonical Concept objects rather than definitions.
 CHARACTER_RULES = CHARACTER.validation_rules
 ARC_RULES = ARC.validation_rules
@@ -65,7 +63,15 @@ REVELATION_RELATIONSHIPS = REVELATION.relationships
 REVERSAL_RELATIONSHIPS = REVERSAL.relationships
 
 
-def get_concept(name: str) -> Optional[Concept]:
-    """Return one historical base concept by its case-sensitive canonical name."""
+def get_concept(name: str) -> Concept:
+    """Return one historical base concept by case-sensitive canonical name.
 
-    return ALL_CONCEPTS.get(name)
+    The legacy API raises ``ValueError`` for unknown names; preserving that
+    behavior prevents the source-of-truth refactor from becoming an unrelated
+    public API break.
+    """
+
+    try:
+        return ALL_CONCEPTS[name]
+    except KeyError as exc:
+        raise ValueError(f"Unknown narrative concept: {name}") from exc
