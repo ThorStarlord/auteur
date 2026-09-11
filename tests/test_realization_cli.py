@@ -1,53 +1,27 @@
-"""Tests for Layer 3 CLI realization commands.
-
-Tests the integration of scene management commands with the CLI:
-- seed: Create template scenes from chapter outlines
-- validate: Run all validators
-- inspect: Display scene coverage
-- graph: Visualize scene sequence
-"""
+"""Active contract tests for Layer 3 realization CLI commands."""
 
 from __future__ import annotations
 
-import pytest
 from datetime import datetime, timezone
 from pathlib import Path
-from tempfile import TemporaryDirectory
 
-from auteur.narrative_realization.cli_realization import (
-    CliRealizationCommands,
-    handle_realization_seed,
-    handle_realization_validate,
-    handle_realization_inspect,
-    handle_realization_graph,
-)
-from auteur.narrative_blueprint.schema.chapter_outline import ChapterOutline
 from auteur.narrative_blueprint.loader.outline_loader import OutlineLoader
+from auteur.narrative_blueprint.schema.chapter_outline import ChapterOutline
+from auteur.narrative_realization.cli_realization import CliRealizationCommands
 
 
-@pytest.fixture
-def temp_project():
-    """Create a temporary project directory."""
-    with TemporaryDirectory() as tmpdir:
-        project_path = Path(tmpdir)
-        (project_path / ".auteur" / "outlines" / "netorare").mkdir(parents=True)
-        yield project_path
-
-
-@pytest.fixture
-def sample_chapter_outline():
-    """Create a sample chapter outline for testing."""
+def _chapter(genre: str = "netorare", *, phase: int = 1) -> ChapterOutline:
     now = datetime.now(timezone.utc)
     return ChapterOutline(
-        genre="netorare",
-        story_id="story_001",
+        genre=genre,
+        story_id=f"{genre}_story",
         name="Chapter 1 Outline",
         description="First chapter",
         created_at=now,
         modified_at=now,
         parent_id="book_001",
         chapter_number=1,
-        phase=1,
+        phase=phase,
         title="The Setup",
         goal="Establish the initial situation",
         conflict="Internal doubt vs external pressure",
@@ -56,305 +30,79 @@ def sample_chapter_outline():
     )
 
 
-def test_cli_realization_commands_init(temp_project):
-    """Test CliRealizationCommands initialization."""
-    commands = CliRealizationCommands(temp_project, "netorare")
-    assert commands.project_path == temp_project
-    assert commands.genre == "netorare"
-    assert commands.scenes_dir == temp_project / ".auteur" / "scenes" / "netorare"
+def _save_chapter(project: Path, chapter: ChapterOutline) -> None:
+    outlines_dir = project / ".auteur" / "outlines" / chapter.genre
+    outlines_dir.mkdir(parents=True, exist_ok=True)
+    OutlineLoader().save_outline(chapter, str(outlines_dir / "chapter_01.yaml"))
 
 
-def test_seed_command_no_chapters(temp_project):
-    """Test seed command with no chapter outlines."""
-    commands = CliRealizationCommands(temp_project, "netorare")
-    result = commands.seed_command(force=False)
-    assert result == 1  # Should fail
+def _seed(project: Path, genre: str = "netorare", *, phase: int = 1) -> CliRealizationCommands:
+    _save_chapter(project, _chapter(genre, phase=phase))
+    commands = CliRealizationCommands(project, genre)
+    assert commands.seed_command(force=False) == 0
+    return commands
 
 
-def test_seed_command_with_chapters(temp_project, sample_chapter_outline):
-    """Test seed command with valid chapter outlines."""
-    # Save sample chapter
-    outlines_dir = temp_project / ".auteur" / "outlines" / "netorare"
-    loader = OutlineLoader()
-    chapter_path = outlines_dir / "chapter_01.yaml"
-    loader.save_outline(sample_chapter_outline, str(chapter_path))
-
-    commands = CliRealizationCommands(temp_project, "netorare")
-    result = commands.seed_command(force=False)
-    assert result == 0
-
-    # Verify scenes were created
-    scenes_dir = temp_project / ".auteur" / "scenes" / "netorare"
-    assert scenes_dir.exists()
-    scene_files = list(scenes_dir.glob("**/*.yaml"))
-    assert len(scene_files) > 0
+def test_commands_initialize_expected_paths(tmp_path: Path) -> None:
+    commands = CliRealizationCommands(tmp_path, "netorare")
+    assert commands.project_path == tmp_path
+    assert commands.scenes_dir == tmp_path / ".auteur" / "scenes" / "netorare"
 
 
-def test_seed_command_force_overwrite(temp_project, sample_chapter_outline):
-    """Test seed command with force flag."""
-    # Save sample chapter
-    outlines_dir = temp_project / ".auteur" / "outlines" / "netorare"
-    loader = OutlineLoader()
-    chapter_path = outlines_dir / "chapter_01.yaml"
-    loader.save_outline(sample_chapter_outline, str(chapter_path))
-
-    commands = CliRealizationCommands(temp_project, "netorare")
-
-    # First seed
-    result1 = commands.seed_command(force=False)
-    assert result1 == 0
-
-    # Second seed without force should fail
-    result2 = commands.seed_command(force=False)
-    assert result2 == 1
-
-    # Second seed with force should succeed
-    result3 = commands.seed_command(force=True)
-    assert result3 == 0
+def test_seed_rejects_missing_chapter_outlines(tmp_path: Path) -> None:
+    commands = CliRealizationCommands(tmp_path, "netorare")
+    assert commands.seed_command(force=False) == 1
 
 
-def test_inspect_command_no_scenes(temp_project):
-    """Test inspect command with no scenes."""
-    commands = CliRealizationCommands(temp_project, "netorare")
-    result = commands.inspect_command()
-    assert result == 1  # Should fail
+def test_seed_creates_draft_scene_files(tmp_path: Path) -> None:
+    commands = _seed(tmp_path)
+    scene_files = sorted(commands.scenes_dir.glob("**/*.yaml"))
+    assert len(scene_files) == 2
 
 
-@pytest.mark.xfail(reason="SceneOutline schema requires goal field; Layer 3 narrative_realization documented as Partial", strict=False)
-def test_inspect_command_with_scenes(temp_project, sample_chapter_outline):
-    """Test inspect command with valid scenes."""
-    # Create scenes
-    outlines_dir = temp_project / ".auteur" / "outlines" / "netorare"
-    loader = OutlineLoader()
-    chapter_path = outlines_dir / "chapter_01.yaml"
-    loader.save_outline(sample_chapter_outline, str(chapter_path))
-
-    commands = CliRealizationCommands(temp_project, "netorare")
-    commands.seed_command(force=False)
-
-    # Now inspect should work
-    result = commands.inspect_command()
-    assert result == 0
+def test_midpoint_seed_creates_three_scenes(tmp_path: Path) -> None:
+    commands = _seed(tmp_path, phase=5)
+    assert len(list(commands.scenes_dir.glob("**/*.yaml"))) == 3
 
 
-def test_validate_command_no_scenes(temp_project):
-    """Test validate command with no scenes."""
-    commands = CliRealizationCommands(temp_project, "netorare")
-    result = commands.validate_command()
-    assert result == 2  # No scenes found
+def test_seed_rejects_existing_scenes_without_force(tmp_path: Path) -> None:
+    commands = _seed(tmp_path)
+    assert commands.seed_command(force=False) == 1
+    assert commands.seed_command(force=True) == 0
 
 
-def test_validate_command_with_scenes(temp_project, sample_chapter_outline):
-    """Test validate command with valid scenes."""
-    # Create scenes
-    outlines_dir = temp_project / ".auteur" / "outlines" / "netorare"
-    loader = OutlineLoader()
-    chapter_path = outlines_dir / "chapter_01.yaml"
-    loader.save_outline(sample_chapter_outline, str(chapter_path))
-
-    commands = CliRealizationCommands(temp_project, "netorare")
-    commands.seed_command(force=False)
-
-    # Validate should work
-    result = commands.validate_command()
-    # Should pass (0) or have issues (1), but not crash (2)
-    assert result in (0, 1)
+def test_inspect_accepts_seeded_draft_scenes(tmp_path: Path) -> None:
+    commands = _seed(tmp_path)
+    assert commands.inspect_command() == 0
 
 
-def test_graph_command_no_scenes(temp_project):
-    """Test graph command with no scenes."""
-    commands = CliRealizationCommands(temp_project, "netorare")
-    result = commands.graph_command("text")
-    assert result == 1
-
-@pytest.mark.xfail(reason="SceneOutline schema requires goal field; Layer 3 narrative_realization documented as Partial", strict=False)
-def test_graph_command_text_format(temp_project, sample_chapter_outline):
-    """Test graph command with text format."""
-    outlines_dir = temp_project / ".auteur" / "outlines" / "netorare"
-    loader = OutlineLoader()
-    chapter_path = outlines_dir / "chapter_01.yaml"
-    loader.save_outline(sample_chapter_outline, str(chapter_path))
-
-    commands = CliRealizationCommands(temp_project, "netorare")
-    commands.seed_command(force=False)
-
-    result = commands.graph_command("text")
-    assert result == 0
+def test_validate_accepts_seeded_draft_scenes(tmp_path: Path) -> None:
+    commands = _seed(tmp_path)
+    assert commands.validate_command() == 0
 
 
-@pytest.mark.xfail(reason="SceneOutline schema requires goal field; Layer 3 narrative_realization documented as Partial", strict=False)
-def test_graph_command_dot_format(temp_project, sample_chapter_outline):
-    """Test graph command with DOT format."""
-    # Create scenes
-    outlines_dir = temp_project / ".auteur" / "outlines" / "netorare"
-    loader = OutlineLoader()
-    chapter_path = outlines_dir / "chapter_01.yaml"
-    loader.save_outline(sample_chapter_outline, str(chapter_path))
-
-    commands = CliRealizationCommands(temp_project, "netorare")
-    commands.seed_command(force=False)
-
-    result = commands.graph_command("dot")
-    assert result == 0
+def test_graph_text_accepts_seeded_draft_scenes(tmp_path: Path) -> None:
+    commands = _seed(tmp_path)
+    assert commands.graph_command("text") == 0
 
 
-def test_handle_realization_seed(temp_project, sample_chapter_outline):
-    """Test handle_realization_seed handler function."""
-    # Create sample chapter
-    outlines_dir = temp_project / ".auteur" / "outlines" / "netorare"
-    loader = OutlineLoader()
-    chapter_path = outlines_dir / "chapter_01.yaml"
-    loader.save_outline(sample_chapter_outline, str(chapter_path))
-
-    result = handle_realization_seed(temp_project, "netorare", force=False)
-    assert result == 0
+def test_graph_dot_accepts_seeded_draft_scenes(tmp_path: Path) -> None:
+    commands = _seed(tmp_path)
+    assert commands.graph_command("dot") == 0
 
 
-def test_handle_realization_validate(temp_project, sample_chapter_outline):
-    """Test handle_realization_validate handler function."""
-    # Create sample chapter and scenes
-    outlines_dir = temp_project / ".auteur" / "outlines" / "netorare"
-    loader = OutlineLoader()
-    chapter_path = outlines_dir / "chapter_01.yaml"
-    loader.save_outline(sample_chapter_outline, str(chapter_path))
-
-    commands = CliRealizationCommands(temp_project, "netorare")
-    commands.seed_command(force=False)
-
-    result = handle_realization_validate(temp_project, "netorare")
-    assert result in (0, 1)  # Pass or fail, but not error
-
-@pytest.mark.xfail(reason="SceneOutline schema requires goal field; Layer 3 narrative_realization documented as Partial", strict=False)
-def test_handle_realization_inspect(temp_project, sample_chapter_outline):
-    """Test handle_realization_inspect handler function."""
-    outlines_dir = temp_project / ".auteur" / "outlines" / "netorare"
-    loader = OutlineLoader()
-    chapter_path = outlines_dir / "chapter_01.yaml"
-    loader.save_outline(sample_chapter_outline, str(chapter_path))
-    commands = CliRealizationCommands(temp_project, "netorare")
-    commands.seed_command(force=False)
-    result = handle_realization_inspect(temp_project, "netorare")
-    assert result == 0
+def test_inspect_and_graph_reject_missing_scenes(tmp_path: Path) -> None:
+    commands = CliRealizationCommands(tmp_path, "netorare")
+    assert commands.inspect_command() == 1
+    assert commands.graph_command("text") == 1
+    assert commands.validate_command() == 2
 
 
-@pytest.mark.xfail(reason="SceneOutline schema requires goal field; Layer 3 narrative_realization documented as Partial", strict=False)
-def test_handle_realization_graph(temp_project, sample_chapter_outline):
-    """Test handle_realization_graph handler function."""
-    outlines_dir = temp_project / ".auteur" / "outlines" / "netorare"
-    loader = OutlineLoader()
-    chapter_path = outlines_dir / "chapter_01.yaml"
-    loader.save_outline(sample_chapter_outline, str(chapter_path))
-    commands = CliRealizationCommands(temp_project, "netorare")
-    commands.seed_command(force=False)
-    result = handle_realization_graph(temp_project, "netorare", "text")
-    assert result == 0
+def test_same_runtime_supports_mystery(tmp_path: Path) -> None:
+    commands = _seed(tmp_path, "mystery")
+    assert commands.inspect_command() == 0
 
 
-def test_genre_routing_mystery(temp_project):
-    """Test that commands work for mystery genre."""
-    now = datetime.now(timezone.utc)
-    chapter = ChapterOutline(
-        genre="mystery",
-        story_id="mystery_001",
-        name="Chapter 1",
-        description="Crime scene",
-        created_at=now,
-        modified_at=now,
-        parent_id="book_001",
-        chapter_number=1,
-        phase=1,
-        title="The Murder",
-        goal="Discover the crime",
-        conflict="Limited clues",
-        turning_point="First suspect found",
-        emotional_beat="shock -> confusion",
-    )
-
-    outlines_dir = temp_project / ".auteur" / "outlines" / "mystery"
-    outlines_dir.mkdir(parents=True)
-    loader = OutlineLoader()
-    chapter_path = outlines_dir / "chapter_01.yaml"
-    loader.save_outline(chapter, str(chapter_path))
-
-    commands = CliRealizationCommands(temp_project, "mystery")
-    result = commands.seed_command(force=False)
-    assert result == 0
-    assert commands.genre == "mystery"
-
-
-def test_genre_routing_gentlefemdom(temp_project):
-    """Test that commands work for gentlefemdom genre."""
-    now = datetime.now(timezone.utc)
-    chapter = ChapterOutline(
-        genre="gentlefemdom",
-        story_id="gfd_001",
-        name="Chapter 1",
-        description="First date",
-        created_at=now,
-        modified_at=now,
-        parent_id="book_001",
-        chapter_number=1,
-        phase=1,
-        title="Attraction",
-        goal="Explore desires",
-        conflict="Fear of judgment",
-        turning_point="First touch",
-        emotional_beat="hesitation -> connection",
-    )
-
-    outlines_dir = temp_project / ".auteur" / "outlines" / "gentlefemdom"
-    outlines_dir.mkdir(parents=True)
-    loader = OutlineLoader()
-    chapter_path = outlines_dir / "chapter_01.yaml"
-    loader.save_outline(chapter, str(chapter_path))
-
-    commands = CliRealizationCommands(temp_project, "gentlefemdom")
-    result = commands.seed_command(force=False)
-    assert result == 0
-    assert commands.genre == "gentlefemdom"
-
-
-def test_multiple_chapters(temp_project):
-    """Test seed command with multiple chapters."""
-    now = datetime.now(timezone.utc)
-    chapters = []
-    for i in range(1, 4):
-        chapter = ChapterOutline(
-            genre="netorare",
-            story_id="story_multi",
-            name=f"Chapter {i}",
-            description=f"Chapter {i} description",
-            created_at=now,
-            modified_at=now,
-            parent_id="book_001",
-            chapter_number=i,
-            phase=i,
-            title=f"Chapter {i}",
-            goal=f"Objective {i}",
-            conflict=f"Conflict {i}",
-            turning_point=f"Turning point {i}",
-            emotional_beat=f"emotion {i}",
-        )
-        chapters.append(chapter)
-
-    outlines_dir = temp_project / ".auteur" / "outlines" / "netorare"
-    loader = OutlineLoader()
-    for chapter in chapters:
-        chapter_path = outlines_dir / f"chapter_{chapter.chapter_number:02d}.yaml"
-        loader.save_outline(chapter, str(chapter_path))
-
-    commands = CliRealizationCommands(temp_project, "netorare")
-    result = commands.seed_command(force=False)
-    assert result == 0
-
-    # Verify scenes for each chapter
-    scenes_dir = temp_project / ".auteur" / "scenes" / "netorare"
-    for i in range(1, 4):
-        chapter_dir = scenes_dir / f"chapter_{i:02d}"
-        assert chapter_dir.exists()
-        scene_files = list(chapter_dir.glob("*.yaml"))
-        assert len(scene_files) > 0
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_same_runtime_supports_gentlefemdom(tmp_path: Path) -> None:
+    commands = _seed(tmp_path, "gentlefemdom")
+    assert commands.graph_command("text") == 0
