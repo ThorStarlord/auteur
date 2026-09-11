@@ -2,9 +2,9 @@
 
 The canonical definitions live in ``src/auteur/data/ontology/base_ontology.yaml``.
 This module preserves the original public constants without maintaining a
-second Python copy of ontology definitions. A narrow projection preserves two
-legacy API observations (three historical genre tags and Setup's one-to-one
-cardinality) while the V2 registry exposes the reconciled canonical semantics.
+second Python copy of ontology definitions. A narrow projection preserves
+historical API observations while the V2 registry exposes the reconciled
+canonical semantics.
 """
 
 from __future__ import annotations
@@ -15,6 +15,8 @@ from auteur.narrative_ontology.schema.ontology_types import Concept
 
 _loader = OntologyLoader()
 _LEGACY_GENRES = ["netorare", "mystery", "gentlefemdom"]
+_LEGACY_RAW = _loader.load_base_ontology()
+_LEGACY_CONCEPT_NAMES = frozenset(_LEGACY_RAW)
 
 
 def _legacy_projection(name: str, declaration: dict) -> Concept:
@@ -32,7 +34,16 @@ def _legacy_projection(name: str, declaration: dict) -> Concept:
         else rule
         for rule in concept.validation_rules
     ]
-    relationships = concept.relationships
+
+    # The historical facade promised a closed twelve-concept graph. Canonical
+    # V2 concepts may legitimately refer to supplemental vocabulary (for
+    # example Revelation -> Information), but exposing those edges here would
+    # break the legacy contract that every target exists in ALL_CONCEPTS.
+    relationships = [
+        relation
+        for relation in concept.relationships
+        if relation.target_concept in _LEGACY_CONCEPT_NAMES
+    ]
     if name == "Setup":
         relationships = [
             relation.model_copy(update={"cardinality": "one-to-one"})
@@ -49,7 +60,7 @@ def _legacy_projection(name: str, declaration: dict) -> Concept:
 # vocabulary is available through OntologyRegistry / OntologyLoader's core view.
 ALL_CONCEPTS: dict[str, Concept] = {
     name: _legacy_projection(name, declaration)
-    for name, declaration in _loader.load_base_ontology().items()
+    for name, declaration in _LEGACY_RAW.items()
 }
 
 CHARACTER = ALL_CONCEPTS["Character"]
