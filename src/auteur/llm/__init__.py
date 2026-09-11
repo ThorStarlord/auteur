@@ -57,6 +57,19 @@ class LLMProviderError(Exception):
         self.status_code = status_code
 
 
+class StructuredOutputError(LLMProviderError, ValueError):
+    """Model output reached the client but violated a consuming workflow contract."""
+
+    def __init__(self, message: str, *, provider: str | None = None) -> None:
+        LLMProviderError.__init__(
+            self,
+            message,
+            code=LLMErrorCode.STRUCTURED_OUTPUT_INVALID,
+            provider=provider,
+            retriable=False,
+        )
+
+
 class RetriableError(LLMProviderError):
     """Normalized transient provider error caught by :class:`RetryingClient`."""
 
@@ -161,5 +174,6 @@ __all__ = [
     "LLMResponse",
     "RetriableError",
     "RetryExhaustedError",
+    "StructuredOutputError",
     "normalize_provider_exception",
 ]
