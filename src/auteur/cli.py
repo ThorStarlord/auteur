@@ -38,7 +38,7 @@ def _is_structure_revision_preapply(raw: list[str]) -> bool:
         len(raw) >= 3
         and raw[0] == "structure"
         and raw[1] == "revision"
-        and raw[2] in {"plan", "validate", "preview"}
+        and raw[2] in {"plan", "validate", "preview", "reassess"}
     )
 
 
