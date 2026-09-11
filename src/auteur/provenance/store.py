@@ -145,7 +145,7 @@ def canonical_content_hash(path: Path, fields: list[str] | None = None) -> str:
         payload = json.dumps(_normalize(data), ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     else:
         text = path.read_text(encoding="utf-8-sig").replace("\r\n", "\n").replace("\r", "\n")
-        text = "\n".join(line.rstrip(" ") for line in text).rstrip("\n") + "\n"
+        text = "\n".join(line.rstrip(" ") for line in text.split("\n")).rstrip("\n") + "\n"
         payload = unicodedata.normalize("NFC", text)
     return "sha256:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
