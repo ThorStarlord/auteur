@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
 from auteur.review.models import (
+    AcceptancePreparation,
     ReviewChoice,
     ReviewEvent,
     ReviewEventType,
@@ -19,7 +21,7 @@ from auteur.review.models import (
 from auteur.review.persistence import ReviewStore
 from auteur.review.selection import select_highest_priority
 from auteur.review.service import ReviewService
-from auteur.decision.models import AuthorDecision, DecisionReadiness
+from auteur.decision.models import AuthorDecision, DecisionReadiness, EvidenceFreshness
 
 
 @pytest.fixture
@@ -210,3 +212,27 @@ class TestReviewService:
     def test_abort_nonexistent(self, review_service: ReviewService):
         with pytest.raises(ValueError, match="Session not found"):
             review_service.abort("nonexistent")
+
+    def test_accept_fails_closed_without_owning_executor(self, review_project: Path):
+        service = ReviewService(review_project)
+        session = ReviewSession(
+            session_id="review-1",
+            project=str(review_project),
+            state=ReviewSessionState.AWAITING_ACCEPTANCE,
+            target=ReviewTarget(decision_id="decision-1", target_artifact_id="scene-1", chapter_index=1),
+            preparation=AcceptancePreparation(prepared=True, candidate_id="candidate-1"),
+        )
+        service.store.save_session(session)
+        service.store.save_latest_pointer(session.session_id)
+        service.decision_service.inspect = lambda _decision_id: SimpleNamespace(freshness=EvidenceFreshness.CURRENT)
+
+        with pytest.raises(ValueError, match="owning acceptance workflow"):
+            service.accept(session.session_id, "candidate-1", confirm=True)
+
+        reloaded = service.store.load_session(session.session_id)
+        assert reloaded is not None
+        assert reloaded.state == ReviewSessionState.AWAITING_ACCEPTANCE
+        assert reloaded.acceptance is None
+        event_types = {event.event_type for event in service.store.load_events(session.session_id)}
+        assert ReviewEventType.ACCEPTANCE_REQUESTED not in event_types
+        assert ReviewEventType.ACCEPTANCE_COMPLETED not in event_types
