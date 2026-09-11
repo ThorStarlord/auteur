@@ -28,7 +28,7 @@ _TESTS = [
 
 
 def _candidate_sha() -> str:
-    value = os.environ.get("GITHUB_SHA")
+    value = os.environ.get("AUTEUR_CANDIDATE_SHA") or os.environ.get("GITHUB_SHA")
     if value:
         return value
     try:
