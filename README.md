@@ -5,6 +5,7 @@ Auteur is a **local-first literary compiler and guided narrative-decision system
 The intended beginner experience is guided authoring with progressive disclosure. The Python CLI and YAML/JSON/Markdown artifacts remain the transparent engineering and advanced-author surface.
 
 > **Current repository state:** see [STATUS.md](STATUS.md).  
+> **Future product/repository directions:** see [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md).  
 > **Mission and invariants:** see [MISSION.md](MISSION.md).  
 > **Canonical architecture:** see [docs/narrative-architecture.md](docs/narrative-architecture.md).
 
@@ -331,6 +332,8 @@ Additional subsystems persist their own derived, local, candidate, or authoritat
 ## Documentation Map
 
 - [Current repository status](STATUS.md) — living operational state, open milestone work, next recommended action.
+- [Product Evolution Roadmap](docs/product-evolution-roadmap.md) — forward-looking product/repository candidates and evidence gates; advisory, not implementation authority.
+- [Architecture Roadmap](docs/architecture-roadmap.md) — architecture integrity and architecture-specific extension history.
 - [Mission](MISSION.md) — durable scope and invariants.
 - [Product requirements](docs/PRD.md) — product contract and primary user.
 - [Canonical narrative architecture](docs/narrative-architecture.md) — five semantic layers × scope axis.
