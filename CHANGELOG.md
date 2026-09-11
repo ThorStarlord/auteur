@@ -11,13 +11,15 @@ This file is the concise release index and post-release ledger for Auteur.
 
 `pyproject.toml` still reports package version `0.37.1`. The items in this section describe development present on `main` after that release line; they are **not** a new release claim or version bump.
 
-### Decision-Oriented Tutor M1 foundation
+### Guided author decision loop
 
-- Added the deterministic `DecisionCard` contract for one bounded author-decidable creative decision.
-- Decision Cards explicitly carry `DERIVED / NOT CANON` authority status.
-- Added stable semantic card identity/source-fingerprint support.
-- Added adapters from existing Story Design Pack Tutor guidance and deterministic structure diagnostics into Decision Cards without applying repairs or mutating story authority.
-- Remaining M1 work is intentionally separate and still open: safe local Tutor sessions (#177), root `auteur tutor` workflow (#178), authority/staleness death tests (#179), and final root-workflow documentation (#180).
+- Decision-Oriented Tutor M1 is complete: deterministic Decision Cards, safe source-bound local sessions, root Tutor commands, stale-source blocking, and executable authority boundaries.
+- Added Decision Handoff and a bounded Tutor-to-Structure proposal bridge while preserving the existing Structure ownership boundary.
+- Added explicit Structure proposal inspect/select, fail-closed revision planning/validation, and fail-closed blueprint replacement validation.
+- Added derived Narrative Change Preview and deterministic/read-only Decision Reassessment.
+- Added dashboard Author Attention and the full hermetic Beginner Decision Loop.
+- Added Guided Author Workspace V1 as a loopback-only, GET-only browser presentation with no mutation endpoints.
+- Added a permanent full-suite Windows Python 3.13 CI leg alongside Linux validation and wheel smoke.
 
 ### Series / long-horizon productization posture
 
@@ -28,12 +30,10 @@ This file is the concise release index and post-release ledger for Auteur.
 
 - PR #183 stabilized the Mode-B campaign baseline tests and promoted the qualified S15 tests-only baseline used by the current `main` head.
 
-### Not shipped from open PRs
+### Not shipped / superseded work
 
-The following are intentionally **not** listed as current production capability:
-
-- PR #167 — bounded Episode 1 Direction support — open / not merged.
-- PR #166 — full-suite Windows CI leg — open / not merged.
+- PR #167 — historical bounded Episode 1 Direction implementation — closed / not merged / superseded; contemporary bounded reconstruction is tracked in #218.
+- PR #166 — historical Windows CI candidate — closed / superseded; current CI now contains the later qualified Windows leg.
 
 ## Released
 
