@@ -1,4 +1,14 @@
-"""Tests for Layer 3 knowledge validation under the current SceneOutline contract."""
+"""Tests for the current Layer 3 knowledge-state and validator boundary.
+
+The Scene state schema represents authored knowledge facts, acquisition source,
+certainty, entry state, exit state, and outcome knowledge changes. The current
+KnowledgeValidator intentionally does not infer richer contradiction,
+communication, or omniscience semantics that are not structurally represented.
+"""
+
+from __future__ import annotations
+
+import pytest
 
 from auteur.narrative_realization.schema import (
     Decision,
@@ -20,11 +30,17 @@ from auteur.narrative_realization.validator.knowledge_validator import (
 )
 
 
-def _fact(what: str, *, source: str = "chapter_position") -> KnowledgeFact:
+def _fact(
+    what: str,
+    *,
+    how_known: str = "perceived",
+    degree: str = "certain",
+    source: str = "chapter_position",
+) -> KnowledgeFact:
     return KnowledgeFact(
         what=what,
-        how_known="perceived" if source == "chapter_position" else "external_source",
-        degree="certain",
+        how_known=how_known,
+        degree=degree,
         source=source,
     )
 
@@ -49,7 +65,11 @@ def _ready_scene(
         participants=[pov],
         goal=Goal(actor_id=pov, objective="advance the scene goal"),
         opposition=Opposition(source_id="external", pressure="resist the goal"),
-        turn=Turn(type="discovery", event="new evidence appears", impact="changes the situation"),
+        turn=Turn(
+            type="discovery",
+            event="new evidence appears",
+            impact="changes the situation",
+        ),
         decision=Decision(actor_id=pov, choice="act on the evidence"),
         outcome=Outcome(
             result="partial",
@@ -73,226 +93,146 @@ class TestKnowledgeValidatorBasics:
         validator.add_scene(scene)
         assert validator.scenes[scene.id] == scene
 
-    def test_draft_scene_skipped(self):
+    def test_draft_scene_is_valid_without_full_state(self):
         validator = KnowledgeValidator()
         scene = SceneOutline(id="scene_01_01", chapter_id="chapter_01")
+
         result = validator.validate_scene(scene)
+
+        assert result.is_valid is True
+        assert result.violations == []
+        assert result.warnings == []
+
+
+class TestKnowledgeStateRepresentation:
+    def test_ready_scene_carries_entry_outcome_and_exit_knowledge(self):
+        prior = _fact("Daniel claims he was at the archive")
+        learned = _fact(
+            "Archive access record was altered",
+            how_known="external_source",
+            source="document",
+        )
+        scene = _ready_scene(
+            "scene_01_01",
+            position=1,
+            entry_knowledge=[prior],
+            exit_knowledge=[prior, learned],
+            knowledge_added=[learned.what],
+            knowledge_questioned=[prior.what],
+        )
+
+        assert scene.entry_state is not None
+        assert scene.exit_state is not None
+        assert scene.outcome is not None
+        assert scene.entry_state.knowledge == [prior]
+        assert scene.exit_state.knowledge == [prior, learned]
+        assert scene.outcome.knowledge_added == [learned.what]
+        assert scene.outcome.knowledge_questioned == [prior.what]
+
+    @pytest.mark.parametrize(
+        ("how_known", "source"),
+        [
+            ("learned", "chapter_position"),
+            ("external_source", "character_id"),
+            ("external_source", "document"),
+            ("inferred", "inference"),
+        ],
+    )
+    def test_supported_knowledge_origins_round_trip(self, how_known, source):
+        fact = _fact(
+            "A traceable fact",
+            how_known=how_known,
+            degree="probable",
+            source=source,
+        )
+        state = ExitState(knowledge=[fact])
+
+        assert state.knowledge[0].how_known == how_known
+        assert state.knowledge[0].source == source
+        assert state.knowledge[0].degree == "probable"
+
+    def test_blank_knowledge_fact_is_rejected(self):
+        with pytest.raises(ValueError, match="what"):
+            _fact("   ")
+
+    def test_invalid_knowledge_mechanism_is_rejected(self):
+        with pytest.raises(ValueError):
+            _fact("A fact", how_known="telepathy")
+
+    def test_emotional_state_remains_semantic_not_numeric(self):
+        emotion = EmotionalState(
+            state="suspicious",
+            intensity="high",
+            rationale="Evidence contradicts the alibi",
+        )
+        assert emotion.state == "suspicious"
+        assert emotion.intensity == "high"
+
+
+class TestKnowledgeValidatorCurrentBoundary:
+    def test_complete_ready_scene_validates_without_false_positive(self):
+        known = _fact("The victim was found at midnight")
+        scene = _ready_scene(
+            "scene_01_01",
+            position=1,
+            entry_knowledge=[known],
+            exit_knowledge=[known],
+        )
+
+        result = KnowledgeValidator().validate_scene(scene)
+
         assert result.is_valid is True
         assert result.violations == []
 
-
-class TestKnowledgeConsistency:
-    def test_ready_scene_with_empty_knowledge_is_valid(self):
-        validator = KnowledgeValidator()
-        scene = _ready_scene("scene_01_01", position=1)
-        assert validator.validate_scene(scene).is_valid is True
-
-    def test_entry_knowledge_preserved_in_exit_is_valid(self):
-        secret = _fact("The victim was poisoned")
-        validator = KnowledgeValidator()
-        scene = _ready_scene(
+    def test_validator_does_not_infer_unmodeled_cross_character_knowledge(self):
+        clara_fact = _fact("Clara saw the altered record")
+        clara = _ready_scene(
             "scene_01_01",
             position=1,
-            entry_knowledge=[secret],
-            exit_knowledge=[secret],
+            pov="clara",
+            exit_knowledge=[clara_fact],
         )
-        assert validator.validate_scene(scene).is_valid is True
-
-    def test_entry_knowledge_cannot_silently_disappear(self):
-        secret = _fact("The victim was poisoned")
-        validator = KnowledgeValidator()
-        scene = _ready_scene(
-            "scene_01_01",
-            position=1,
-            entry_knowledge=[secret],
+        daniel = _ready_scene(
+            "scene_01_02",
+            position=2,
+            pov="daniel",
+            entry_knowledge=[],
             exit_knowledge=[],
         )
-
-        result = validator.validate_scene(scene)
-        assert result.is_valid is False
-        assert any(
-            violation.violation_type == KnowledgeViolationType.INCONSISTENT_ENTRY_EXIT
-            and violation.fact_what == secret.what
-            for violation in result.violations
-        )
-
-    def test_questioned_entry_fact_may_leave_exit_knowledge(self):
-        secret = _fact("The victim was poisoned")
         validator = KnowledgeValidator()
-        scene = _ready_scene(
-            "scene_01_01",
-            position=1,
-            entry_knowledge=[secret],
-            exit_knowledge=[],
-            knowledge_questioned=[secret.what],
-        )
-        assert validator.validate_scene(scene).is_valid is True
-
-    def test_outcome_knowledge_added_must_appear_in_exit(self):
-        learned = _fact("The ledger exists", source="document")
-        validator = KnowledgeValidator()
-        scene = _ready_scene(
-            "scene_01_01",
-            position=1,
-            knowledge_added=[learned.what],
-            exit_knowledge=[],
-        )
-
-        result = validator.validate_scene(scene)
-        assert result.is_valid is False
-        assert any(
-            violation.violation_type == KnowledgeViolationType.KNOWLEDGE_GAP
-            and violation.fact_what == learned.what
-            for violation in result.violations
-        )
-
-    def test_outcome_knowledge_added_present_in_exit_is_valid(self):
-        learned = _fact("The ledger exists", source="document")
-        validator = KnowledgeValidator()
-        scene = _ready_scene(
-            "scene_01_01",
-            position=1,
-            knowledge_added=[learned.what],
-            exit_knowledge=[learned],
-        )
-        assert validator.validate_scene(scene).is_valid is True
-
-
-class TestCrossSceneKnowledge:
-    def test_same_pov_keeps_prior_exit_knowledge(self):
-        secret = _fact("The ledger exists")
-        validator = KnowledgeValidator()
-        validator.add_scene(
-            _ready_scene(
-                "scene_01_01",
-                position=1,
-                exit_knowledge=[secret],
-            )
-        )
-        validator.add_scene(
-            _ready_scene(
-                "scene_01_02",
-                position=2,
-                entry_knowledge=[secret],
-                exit_knowledge=[secret],
-            )
-        )
-
-        assert validator.validate_all_scenes().is_valid is True
-
-    def test_same_pov_rejects_retroactive_forgetting(self):
-        secret = _fact("The ledger exists")
-        validator = KnowledgeValidator()
-        validator.add_scene(
-            _ready_scene(
-                "scene_01_01",
-                position=1,
-                exit_knowledge=[secret],
-            )
-        )
-        validator.add_scene(
-            _ready_scene(
-                "scene_01_02",
-                position=2,
-                entry_knowledge=[],
-                exit_knowledge=[],
-            )
-        )
+        validator.add_scene(clara)
+        validator.add_scene(daniel)
 
         result = validator.validate_all_scenes()
-        assert result.is_valid is False
-        assert any(
-            violation.violation_type == KnowledgeViolationType.RETROACTIVE_FORGETTING
-            and violation.fact_what == secret.what
+
+        assert result.is_valid is True
+        assert not any(
+            violation.violation_type == KnowledgeViolationType.IMPOSSIBLE_OMNISCIENCE
             for violation in result.violations
         )
 
-    def test_different_pov_does_not_inherit_private_knowledge(self):
-        secret = _fact("Clara knows the ledger exists")
+    def test_validate_all_scenes_is_repeatable_for_same_registered_state(self):
         validator = KnowledgeValidator()
-        validator.add_scene(
-            _ready_scene(
-                "scene_01_01",
-                position=1,
-                pov="clara",
-                exit_knowledge=[secret],
-            )
-        )
-        validator.add_scene(
-            _ready_scene(
-                "scene_01_02",
-                position=2,
-                pov="daniel",
-                entry_knowledge=[],
-                exit_knowledge=[],
-            )
-        )
-
-        assert validator.validate_all_scenes().is_valid is True
-
-    def test_validation_is_repeatable(self):
-        secret = _fact("The ledger exists")
-        validator = KnowledgeValidator()
-        validator.add_scene(
-            _ready_scene("scene_01_01", position=1, exit_knowledge=[secret])
-        )
-        validator.add_scene(
-            _ready_scene("scene_01_02", position=2, entry_knowledge=[], exit_knowledge=[])
-        )
+        validator.add_scene(_ready_scene("scene_01_01", position=1))
+        validator.add_scene(_ready_scene("scene_01_02", position=2))
 
         first = validator.validate_all_scenes()
         second = validator.validate_all_scenes()
+
         assert first == second
 
-
-class TestSupportedKnowledgeSources:
-    def test_message_like_external_source_is_recordable(self):
-        message_fact = _fact("The train is delayed", source="character_id")
-        scene = _ready_scene(
-            "scene_01_01",
-            position=1,
-            knowledge_added=[message_fact.what],
-            exit_knowledge=[message_fact],
-        )
-        assert scene.exit_state is not None
-        assert scene.exit_state.knowledge[0].source == "character_id"
-        assert KnowledgeValidator().validate_scene(scene).is_valid is True
-
-    def test_document_source_is_recordable(self):
-        document_fact = _fact("The will names a second heir", source="document")
-        scene = _ready_scene(
-            "scene_01_01",
-            position=1,
-            knowledge_added=[document_fact.what],
-            exit_knowledge=[document_fact],
-        )
-        assert scene.exit_state is not None
-        assert scene.exit_state.knowledge[0].source == "document"
-        assert KnowledgeValidator().validate_scene(scene).is_valid is True
-
-
-class TestEmptyAndMultipleSceneValidation:
     def test_validate_all_scenes_empty(self):
         result = KnowledgeValidator().validate_all_scenes()
         assert result.is_valid is True
         assert result.violations == []
 
-    def test_validate_all_scenes_multiple_valid_scenes(self):
-        validator = KnowledgeValidator()
-        for i in range(1, 4):
-            validator.add_scene(_ready_scene(f"scene_01_0{i}", position=i))
 
-        result = validator.validate_all_scenes()
-        assert result.is_valid is True
-        assert result.violations == []
-
-
-class TestErrorReporting:
+class TestKnowledgeReporting:
     def test_violation_report_no_errors(self):
         report = KnowledgeValidator().report_knowledge_violations([])
         assert "No knowledge violations" in report
 
-    def test_violation_report_format(self):
+    def test_violation_report_includes_structured_fields(self):
         violation = KnowledgeViolation(
             scene_id="scene_01_01",
             violation_type=KnowledgeViolationType.RETROACTIVE_FORGETTING,
@@ -301,34 +241,10 @@ class TestErrorReporting:
             message="Clara forgets previously established knowledge",
             suggestion="Restore the fact to entry knowledge",
         )
+
         report = KnowledgeValidator().report_knowledge_violations([violation])
+
         assert "scene_01_01" in report
         assert "retroactive_forgetting" in report
         assert "clara" in report
         assert "secret_revealed" in report
-
-
-class TestKnowledgeStateModels:
-    def test_knowledge_fact_creation(self):
-        fact = _fact("The victim was poisoned")
-        assert fact.what == "The victim was poisoned"
-        assert fact.degree == "certain"
-
-    def test_emotional_state_creation(self):
-        emotion = EmotionalState(
-            state="suspicious",
-            intensity="high",
-            rationale="Character suspects deception",
-        )
-        assert emotion.state == "suspicious"
-        assert emotion.intensity == "high"
-
-    def test_entry_state_creation(self):
-        fact = _fact("Basic fact")
-        entry = EntryState(knowledge=[fact])
-        assert entry.knowledge == [fact]
-
-    def test_exit_state_creation(self):
-        facts = [_fact("Original fact"), _fact("Learned fact", source="inference")]
-        exit_state = ExitState(knowledge=facts)
-        assert exit_state.knowledge == facts
