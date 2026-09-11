@@ -2,6 +2,21 @@
 
 Expression answers how canonical realized events are rendered as language.
 
+## V1 status
+
+The Realization ↔ Expression ownership boundary is **specified and operational for the bounded V1 Scene path**. `ExpressionStore` persists versioned prose candidates tied to accepted Scene revisions/hashes, and `ExpressionBoundaryService` can persist structured Realization evidence against an unaccepted candidate. Blocking structured contradictions make the prose candidate invalid/review-required; they never rewrite Scene Realization.
+
+```text
+accepted Scene Realization
+→ prose candidate
+→ bounded Expression/Realization evidence
+→ valid candidate OR review required
+→ optional noncanonical upstream proposal
+→ explicit owning Realization action if the author wants the upstream fact changed
+```
+
+No prose parser, model output, validation result, or upstream proposal may silently modify Realization authority.
+
 ## Pilot transformation
 
 ```yaml
@@ -82,9 +97,11 @@ JSON retains hashes and executor details.
 Deterministic contract checks cover source acceptance, source availability,
 POV constraint validity, reviewed dependency snapshots, and lifecycle rules.
 Semantic prose validation is separate and confidence-bearing: structured
-contradictions may block, high-confidence inferred contradictions require
-review, and ambiguous knowledge or unreliable narration remains advisory.
-Style, voice, tone, pacing, dialogue naturalness, and imagery remain advisory.
+contradictions block candidate acceptance, high-confidence heuristic
+contradictions remain review/advisory evidence unless a deterministic source
+establishes the contradiction, and ambiguous knowledge or unreliable narration
+remains advisory. Style, voice, tone, pacing, dialogue naturalness, and imagery
+remain advisory.
 
 Derived realization evidence may be recorded without requiring paragraph-by-
 paragraph author annotation:
@@ -140,7 +157,7 @@ Marked manuscript inspection is read-only; malformed or markerless external
 prose becomes actionable Chapter divergence and never silently rewrites Scene
 Expression.
 
-This pilot does not provide a generic transformation runtime, chapter-wide
-drafting overhaul, complete Expression system, automatic Bible mutation,
-automatic repair, publishing, collaboration, or repository-wide provenance
-normalization.
+This contract does not provide a universal NLP fact extractor, automatic Bible
+mutation, automatic upstream repair, collaboration, or repository-wide
+normalization. Those capabilities are not required to preserve the V1 ownership
+boundary.

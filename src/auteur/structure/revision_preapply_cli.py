@@ -1,4 +1,4 @@
-"""Specialized CLI for Structure revision planning, preview, and reassessment."""
+"""Specialized CLI for Structure revision planning, preview, recovery, and reassessment."""
 from __future__ import annotations
 
 import argparse
@@ -26,6 +26,10 @@ def parse_revision_preapply_args(argv: list[str]) -> argparse.Namespace:
     preview.add_argument("plan_id")
     preview.add_argument("--project", type=Path, default=Path("."))
     preview.add_argument("--json", action="store_true")
+
+    recover = sub.add_parser("recover", help="Fail closed on revision plans stranded during application.")
+    recover.add_argument("--project", type=Path, default=Path("."))
+    recover.add_argument("--json", action="store_true")
 
     reassess = sub.add_parser("reassess", help="Re-run exact diagnostic evidence after a fully applied revision.")
     reassess.add_argument("application_id")
@@ -58,6 +62,16 @@ def dispatch_revision_preapply_argv(argv: list[str]) -> int:
             from auteur.structure.revision_reassessment import build_revision_reassessment
 
             payload = build_revision_reassessment(args.project, args.application_id)
+        elif args.revision_command == "recover":
+            from auteur.structure.revision_recovery import recover_interrupted_revisions
+
+            recovered = recover_interrupted_revisions(args.project)
+            payload = {
+                "authority_status": "RECOVERY / FAIL CLOSED",
+                "mutates_story": False,
+                "recovered": recovered,
+                "recovered_count": len(recovered),
+            }
         else:
             service = RevisionService(args.project)
             if args.revision_command == "plan":
@@ -113,6 +127,14 @@ def dispatch_revision_preapply_argv(argv: list[str]) -> int:
         print("Preview is derived; no story or revision state was changed.")
         if payload["next_command"]:
             print(f"Next step: {payload['next_command']}")
+    elif args.revision_command == "recover":
+        print("Structure revision recovery")
+        print("Status: RECOVERY / FAIL CLOSED")
+        if not payload["recovered"]:
+            print("No interrupted applying plans were found.")
+        for item in payload["recovered"]:  # type: ignore[union-attr]
+            print(f"  {item['plan_id']}: {item['recovered_state']} — {item['reason']}")
+        print("Recovery never automatically replays an authority-bearing revision.")
     else:
         print(f"Decision Reassessment: {payload['application_id']}")
         print(f"Status: {payload['assessment_status']}")

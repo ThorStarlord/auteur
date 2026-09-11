@@ -10,7 +10,7 @@ import yaml
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from auteur.blueprint import StoryBlueprint
-from auteur.llm import LLMClient, LLMRequest
+from auteur.llm import LLMClient, LLMRequest, StructuredOutputError
 from auteur.structure.proposal_models import ProposalOption, ProposalType, StructureProposal
 
 from .handoff import derive_decision_handoff
@@ -101,9 +101,13 @@ def _parse_json_object(text: str) -> dict[str, object]:
     try:
         parsed = json.loads(candidate)
     except json.JSONDecodeError as exc:
-        raise ValueError(f"Tutor Structure proposal response is not valid JSON: {exc}") from exc
+        raise StructuredOutputError(
+            f"Tutor Structure proposal response is not valid JSON: {exc}"
+        ) from exc
     if not isinstance(parsed, dict):
-        raise ValueError("Tutor Structure proposal response must be a JSON object")
+        raise StructuredOutputError(
+            "Tutor Structure proposal response must be a JSON object"
+        )
     return parsed
 
 
@@ -147,13 +151,19 @@ def _snapshot_digest(source_fingerprints: dict[str, str]) -> str:
 def _validate_patch(blueprint: StoryBlueprint, data: dict[str, object]) -> None:
     fields = set(data)
     if not fields:
-        raise ValueError("Generated Structure proposal option must change at least one field")
+        raise StructuredOutputError(
+            "Generated Structure proposal option must change at least one field"
+        )
     unsupported = fields - _ALLOWED_PATCH_FIELDS
     if unsupported:
         joined = ", ".join(sorted(unsupported))
-        raise ValueError(f"Generated Structure proposal contains unsupported field(s): {joined}")
+        raise StructuredOutputError(
+            f"Generated Structure proposal contains unsupported field(s): {joined}"
+        )
     if len(fields) > 2:
-        raise ValueError("Generated Structure proposal may change at most two top-level fields")
+        raise StructuredOutputError(
+            "Generated Structure proposal may change at most two top-level fields"
+        )
 
     current = blueprint.model_dump(mode="json")
     changed = False
@@ -163,12 +173,14 @@ def _validate_patch(blueprint: StoryBlueprint, data: dict[str, object]) -> None:
             changed = True
         candidate[key] = value
     if not changed:
-        raise ValueError("Generated Structure proposal is a no-op against the current blueprint")
+        raise StructuredOutputError(
+            "Generated Structure proposal is a no-op against the current blueprint"
+        )
 
     try:
         StoryBlueprint.model_validate(candidate)
     except ValidationError as exc:
-        raise ValueError(
+        raise StructuredOutputError(
             "Generated Structure proposal does not contain valid complete replacement values"
         ) from exc
 
@@ -275,7 +287,9 @@ def generate_structure_proposal_from_tutor(
     try:
         content = GeneratedProposalContent.model_validate(_parse_json_object(response.text))
     except ValidationError as exc:
-        raise ValueError("Tutor Structure proposal response does not match the required schema") from exc
+        raise StructuredOutputError(
+            "Tutor Structure proposal response does not match the required schema"
+        ) from exc
     _validate_patch(blueprint, content.option.data)
 
     proposal = _proposal_from_content(session, content, current)

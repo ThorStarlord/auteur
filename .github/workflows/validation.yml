@@ -112,3 +112,27 @@ jobs:
 
       - name: Test installed wheel (ontology list)
         run: /tmp/wheel-test/bin/auteur ontology list
+
+  v1-closure-evidence:
+    name: "v1 closure evidence"
+    runs-on: ubuntu-latest
+    env:
+      AUTEUR_CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Run hermetic V1 author journey
+        run: python scripts/qualify_v1_author_journey.py --output .auteur/qualification/v1-author-journey.json
+      - name: Upload V1 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v1-author-journey-${{ github.event.pull_request.head.sha || github.sha }}
+          path: .auteur/qualification/v1-author-journey.json
+          if-no-files-found: warn

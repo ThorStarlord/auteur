@@ -38,7 +38,7 @@ def _is_structure_revision_preapply(raw: list[str]) -> bool:
         len(raw) >= 3
         and raw[0] == "structure"
         and raw[1] == "revision"
-        and raw[2] in {"plan", "validate", "preview", "reassess"}
+        and raw[2] in {"plan", "validate", "preview", "recover", "reassess"}
     )
 
 
@@ -69,8 +69,6 @@ def _prepare_story_discovery_argv(
             raise ValueError("story-discovery --brief requires a YAML file path")
         brief_path = Path(raw[index + 1])
         del raw[index:index + 2]
-        # The legacy parser still requires the raw brain_dump positional. F2 keeps
-        # that parser contract intact and uses this sentinel only inside the adapter.
         raw.append(_BRIEF_SENTINEL)
 
     if recommend:
@@ -86,8 +84,6 @@ def _prepare_argv(argv: list[str] | None) -> tuple[list[str], bool]:
 
 def _attach_story_discovery_brief(args: argparse.Namespace, brief_path: Path | None) -> None:
     if args.command == "story-discovery" and args.story_discovery_command == "run":
-        # ``brief`` is scoped only to Story Discovery so it cannot clobber the
-        # unrelated genre-builder positional argument with the same attribute name.
         setattr(args, "brief", brief_path)
         setattr(args, "discovery_brief", brief_path)
 
@@ -131,9 +127,6 @@ def main(argv: list[str] | None = None) -> int:
 
     if recommend:
         if discovery_brief is not None:
-            # G1a keeps the F2 engine unchanged but replaces its schema-first recovery
-            # at the real CLI boundary. This preflight is deterministic and happens
-            # before any provider can be constructed.
             from auteur.story_discovery_brief import DiscoveryBrief, assess_intent_adequacy
             from auteur.story_discovery_guidance import print_inadequate_brief_recovery
 
@@ -151,8 +144,6 @@ def main(argv: list[str] | None = None) -> int:
 
             return dispatch_story_discovery_recommend(args)
 
-        # Raw-premise recommendation stays on the already-qualified Phase A/B
-        # adapter. F2 adds intent-aware ranking without changing legacy raw behavior.
         from auteur.story_discovery_recommend import dispatch_story_discovery_recommend
 
         return dispatch_story_discovery_recommend(args)

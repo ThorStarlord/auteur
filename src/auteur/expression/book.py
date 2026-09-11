@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import difflib
 import hashlib
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 import yaml
-import re
 
 from auteur.expression.composition import ChapterExpressionStore
 from auteur.provenance import Lifecycle
@@ -122,6 +122,7 @@ class BookExpressionStore:
         manifest = self._load(expression_id)
         current_order = yaml.safe_load(self.structure_path.read_text(encoding="utf-8")).get("chapters", []) if self.structure_path.exists() else [item["chapter_id"] for item in manifest["chapters"]]
         stale_sources = []
+        chapter_store = ChapterExpressionStore(self.project)
         for item in manifest["chapters"]:
             try:
                 current = self._accepted_chapter(item["chapter_id"])
@@ -130,6 +131,21 @@ class BookExpressionStore:
                 continue
             if current["revision"] != item["accepted_revision"] or current["content_hash"] != item["content_hash"]:
                 stale_sources.append({"chapter_id": item["chapter_id"], "expected_revision": item["accepted_revision"], "current_revision": current["revision"], "reason": "accepted Chapter Expression changed"})
+                continue
+            try:
+                chapter_status = chapter_store.status(current["artifact_id"])
+            except (FileNotFoundError, ValueError) as exc:
+                stale_sources.append({"chapter_id": item["chapter_id"], "reason": f"accepted Chapter status unavailable: {exc}"})
+                continue
+            if chapter_status["health"] != "valid" or chapter_status["freshness"] != "fresh":
+                stale_sources.append({
+                    "chapter_id": item["chapter_id"],
+                    "chapter_expression_id": current["artifact_id"],
+                    "chapter_health": chapter_status["health"],
+                    "chapter_freshness": chapter_status["freshness"],
+                    "reason": "accepted Chapter Expression has stale or invalid upstream dependencies",
+                    "stale_reasons": chapter_status.get("stale_reasons", []),
+                })
         if current_order != [item["chapter_id"] for item in manifest["chapters"]]:
             stale_sources.append({"reason": "Chapter order changed", "expected_order": [item["chapter_id"] for item in manifest["chapters"]], "current_order": current_order})
         manifest["freshness"] = "stale" if stale_sources else "fresh"

@@ -1,13 +1,21 @@
 # Auteur
 
-Auteur is a **local-first literary compiler and guided narrative-decision system for long-form fiction**. It helps an author turn raw creative input into a coherent story direction, preserve accepted narrative state over long horizons, diagnose structural problems, and make bounded creative decisions without silently surrendering story authority to the model.
+Auteur is a **local-first literary compiler and guided narrative-decision system for long-form fiction**. It helps an author turn raw creative input into a coherent story direction, preserve accepted narrative state over long horizons, diagnose structural problems, and make bounded creative decisions without silently surrendering story authority to a model.
 
-The intended beginner experience is guided authoring with progressive disclosure. The Python CLI and YAML/JSON/Markdown artifacts remain the transparent engineering and advanced-author surface.
+The intended beginner experience is guided authoring with progressive disclosure. The CLI and transparent YAML/JSON/Markdown artifacts remain the advanced-author and engineering surface.
 
-> **Current repository state:** see [STATUS.md](STATUS.md).  
-> **Future product/repository directions:** see [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md).  
-> **Mission and invariants:** see [MISSION.md](MISSION.md).  
-> **Canonical architecture:** see [docs/narrative-architecture.md](docs/narrative-architecture.md).
+> **Current repository state:** [STATUS.md](STATUS.md)  
+> **V1.0 support contract:** [docs/v1/v1-product-contract.md](docs/v1/v1-product-contract.md)  
+> **V1.0 closure/qualification plan:** [docs/v1/v1-closure-plan.md](docs/v1/v1-closure-plan.md)  
+> **Future product directions:** [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md)  
+> **Mission/invariants:** [MISSION.md](MISSION.md)  
+> **Canonical architecture:** [docs/narrative-architecture.md](docs/narrative-architecture.md)
+
+## Current Development Posture
+
+The repository is in a **V1.0 closure program**, not an architecture-expansion program. The five-layer narrative architecture and the guided author decision loop already exist; current work closes their support, authority, recovery, beginner-control, provider, and release-evidence seams.
+
+Package metadata remains `0.37.1`. The presence of V1 closure code does **not** mean `1.0.0` has been released. The final version/tag is blocked on the exact-candidate qualification gates in `docs/v1/v1-qualification-matrix.md`.
 
 ## What Auteur Optimizes For
 
@@ -22,28 +30,27 @@ advisory recommendation + trade-offs
   ↓
 explicit author choice
   ↓
-story_identity.yaml (accepted story engine)
+accepted StoryIdentity
   ↓
-blueprint / structure planning
+Blueprint / Structure planning
   ↓
-deterministic diagnostics + derived decision support
+deterministic diagnostics + bounded decision support
   ↓
 explicit author decisions
   ↓
-optional outline / drafting / critique / publication workflows
+optional Realization / drafting / reconciliation / publication
 ```
 
-For long-running projects, Auteur also externalizes accepted history and current narrative state so future decisions can be made without reconstructing the entire story from scratch.
+For long-running work, Auteur externalizes accepted history and current narrative state so later decisions do not require reconstructing the entire story from scratch.
 
 ## Product Model
-
-Auteur increasingly separates the author-facing product from the underlying compiler machinery:
 
 ```text
 AUTHOR-FACING PRODUCT
   guided authoring
   bounded creative decisions
   explanations / trade-offs / Tutor guidance
+  local Guided Author Workspace
 
 NARRATIVE COMPILER
   Ontology → Identity → Structure → Realization → Expression
@@ -54,17 +61,17 @@ SUPPORTING INTELLIGENCE
   simulation / portfolio comparison / craft knowledge
 ```
 
-The supporting systems remain subordinate to author authority. A deterministic result can be useful, reproducible, and well-evidenced without becoming canon.
+The supporting systems remain subordinate to author authority. A result can be deterministic, reproducible, persisted, and selected without becoming canon.
 
 ## Canonical Architecture
 
 Auteur uses five semantic layers:
 
-1. **Ontology** — concepts, relationships, vocabulary, and domain rules.
-2. **Identity** — commitments such as genre, medium, target experience, theme, and core story engine.
+1. **Ontology** — concepts, relationships, vocabulary, domain rules.
+2. **Identity** — commitments such as genre, medium, target experience, theme, and core engine.
 3. **Structure** — plans: arcs, beats, threads, chapter plans, setup/payoff intentions, thematic progression.
-4. **Realization** — events and state changes: scenes, chronology, knowledge, location, inventory, relationships, and character deltas.
-5. **Expression** — language: prose, dialogue, voice, diction, imagery, pacing, and revision.
+4. **Realization** — events and state changes: scenes, chronology, knowledge, location, inventory, relationships, character deltas.
+5. **Expression** — language: prose, dialogue, voice, diction, imagery, pacing, revision.
 
 The independent scope axis is:
 
@@ -72,191 +79,55 @@ The independent scope axis is:
 Universe → Series → Book → Chapter → Scene
 ```
 
-Scopes are containers across semantic layers, not semantic layers themselves. Validation, orchestration, diagnostics, versioning, editing, maps, Tutor guidance, and other workflow systems are cross-cutting capabilities.
+Scopes are containers across semantic layers, not extra semantic layers. Validation, orchestration, provenance, diagnostics, editing, versioning, maps, Tutor guidance, and Workspace presentation/actions are cross-cutting systems.
 
-See [docs/narrative-architecture.md](docs/narrative-architecture.md) for the canonical model.
+### Realization ↔ Expression
+
+For the bounded V1 Scene path, Expression may render or elaborate accepted Realization but may not silently redefine participants, event/state facts, knowledge, location, outcome, or other upstream authority. Structured contradictions can block prose acceptance and may create a **noncanonical upstream proposal**; the accepted Scene changes only through its own explicit authority workflow.
+
+See [docs/expression-boundary.md](docs/expression-boundary.md).
 
 ## Author Authority
 
-Auteur's central safety and product rule is simple:
+Auteur's central product rule is simple:
 
 **Advice is not authority.**
 
-- Story Discovery candidates do not become `StoryIdentity` until explicit acceptance.
+- Story Discovery candidates are advisory until explicit StoryIdentity acceptance.
 - Diagnostics do not apply their own repairs.
 - Maps and projections are derived/rebuildable views, not second canon.
 - Story Design Packs and Genre Packs are reusable knowledge, not story-instance canon.
-- Decision Cards are `DERIVED / NOT CANON`.
-- Persisted Tutor sessions are `LOCAL / NONCANONICAL` and record advisory interaction only.
-- Existing explicit story-authority/acceptance/revision workflows remain the routes that can change accepted narrative state.
-
-## Current Capability Families on `main`
-
-The current production baseline includes:
-
-- **Story Discovery & StoryIdentity** — explore multiple plausible engines, compare them, receive a bounded recommendation, and explicitly accept the chosen direction.
-- **Genre Packs & overrides** — versioned genre knowledge, applicability/recommendation support, subgenre validation, and explicit authority-bearing acceptance/override paths.
-- **Interactive genre pipelines** — neutral session/runtime infrastructure for built-in genre-specific StoryIdentity authoring.
-- **Story Design Packs** — reusable craft/design knowledge with deterministic composition.
-- **Creative Writing Tutor V1** — existing `auteur design tutor ...` guidance over Story Design Packs.
-- **Decision-Oriented Tutor** — root `auteur tutor next/explain/show/choose/handoff/propose`, deterministic Decision Cards, source-bound local advisory sessions, stale-source blocking, and explicit routing into existing authority workflows.
-- **Structure revision continuation** — explicit proposal inspect/select, fail-closed revision planning/validation, derived Narrative Change Preview, explicit confirmed application, and deterministic/read-only reassessment.
-- **Project orientation** — dashboard Author Attention plus a loopback-only, read-only Guided Author Workspace V1.
-- **Realization/state/provenance** — state coordination plus accumulated impact, convergence, decision, review, planning, simulation, and portfolio support.
-- **Series / long-horizon support** — bounded accepted-history/current-state reconstruction, continuity machinery, derived Global Map/Focus support, and Guided Series Continuity Review V1.
-- **Outline & drafting** — Cartographer outlines, chapter contracts, Bard/Critics drafting, retry, and explicit acceptance.
-
-For exact current/pending boundaries, including open work, use [STATUS.md](STATUS.md).
+- Decision Cards and Decision Handoffs are derived/noncanonical.
+- Persisted Tutor sessions are local/noncanonical and source-currentness-bound.
+- Structure proposal selection and revision planning are not acceptance.
+- Narrative Change Preview and reassessment are derived/read-only.
+- The supported Structure path changes accepted Structure only through explicit confirmed application.
+- Workspace actions call the same application services as CLI adapters; the browser is not a second acceptance system.
+- Failed authority-bearing operations must fail closed or explicitly record durable partial application; they never pretend success.
 
 ## Guided Author Decision Loop
 
-The Tutor now has a bounded continuation path from advice to the existing Structure authority workflow:
-
 ```text
-Decision Card — DERIVED / NOT CANON
-        ↓
-Tutor session — LOCAL / NONCANONICAL
-        ↓
-author choice
-        ↓
-derived authority handoff
-        ↓
-noncanonical Structure proposal
-        ↓
-explicit proposal selection
-        ↓
-revision plan + validation
-        ↓
-derived Narrative Change Preview
-        ↓
-explicit revision apply --confirm
-        ↓
-read-only Decision Reassessment
-        ↓
-dashboard / Guided Author Workspace orientation
+accepted story direction
+→ bounded Tutor decision
+→ advisory choice
+→ derived authority handoff
+→ concrete noncanonical proposal
+→ explicit proposal selection
+→ revision plan + validation
+→ derived change preview
+→ explicit confirmed Structure application
+→ bounded reassessment
+→ dashboard / Guided Author Workspace orientation
 ```
 
-Important boundary: `tutor choose`, `tutor handoff`, `tutor propose`, proposal selection, revision planning, preview, and reassessment do **not** themselves modify accepted story state. For the supported Structure route, `auteur structure revision apply <plan_id> --project . --confirm` is the explicit authority-bearing step.
-
-Core commands:
+Core CLI route:
 
 ```powershell
-auteur tutor next --pack superhero --decision "power origin"
-auteur tutor explain --pack superhero --decision "power origin"
-auteur tutor show <session_id> --project .
-auteur tutor choose <session_id> choose --value "Keep the origin costly" --project .
+auteur tutor next --pack <pack_id> --decision "next creative decision" --premise "your story" --project . --source identity=story_identity.yaml --source blueprint=blueprint.yaml
+auteur tutor choose <session_id> choose --value "<choice>" --project .
 auteur tutor handoff <session_id> --project .
 auteur tutor propose <session_id> --project .
-```
-
-Persisted sessions require project-local source binding when they are created, for example `--project . --source identity=story_identity.yaml --source blueprint=blueprint.yaml`. Auteur fingerprints the actual file bytes and later blocks substantive responses or actionable continuation when the source no longer matches.
-
-See [docs/guides/guided-author-decision-loop.md](docs/guides/guided-author-decision-loop.md) for the complete beginner-facing walkthrough and [docs/design/decision-oriented-tutor.md](docs/design/decision-oriented-tutor.md) for the Tutor authority/staleness model.
-
-## Install
-
-Use Python 3.11 or newer.
-
-```powershell
-python -m pip install -e ".[dev]"
-```
-
-For Anthropic support:
-
-```powershell
-python -m pip install -e ".[dev,anthropic]"
-$env:ANTHROPIC_API_KEY = "sk-ant-..."
-```
-
-For OpenAI support:
-
-```powershell
-python -m pip install -e ".[dev,openai]"
-$env:OPENAI_API_KEY = "sk-..."
-```
-
-Install both production adapters with:
-
-```powershell
-python -m pip install -e ".[dev,all]"
-```
-
-## Quick Start — Story Direction First
-
-For a fresh project, the default Identity-stage path is Story Discovery: explore multiple narrative engines, review the advisory recommendation, and explicitly accept the direction you choose.
-
-```powershell
-# 1. Create a fresh working directory and ask Auteur for the next step
-New-Item -ItemType Directory -Force .\tmp\shattered_crown | Out-Null
-Push-Location .\tmp\shattered_crown
-auteur workflow next .
-
-# 2. Explore multiple story engines and receive an advisory recommendation
-auteur story-discovery run "A detective investigates a locked manor murder" --recommend --output story_discovery --project .
-
-# 3. Ask again: Auteur points to the recommended candidate
-auteur workflow next .
-
-# 4. Review the comparison, then explicitly accept the candidate you choose
-# Replace candidate_X with the candidate you want to make authoritative.
-auteur story-discovery accept story_discovery\candidate_X.yaml --output story_identity.yaml
-
-# 5. Seed structural design from the accepted identity
-auteur blueprint seed story_identity.yaml --output blueprint.yaml
-
-# 6. Run whole-story structure diagnostics
-auteur structure diagnose blueprint.yaml
-Pop-Location
-```
-
-Story Discovery is advisory: search/recommendation writes candidate/comparison artifacts, not canonical `story_identity.yaml`. `auteur workflow next . --execute` will not auto-accept a Story Discovery candidate.
-
-## Story Design Packs and Tutor Surfaces
-
-List or inspect reusable Story Design Packs:
-
-```powershell
-auteur design pack list
-auteur design pack list --json
-auteur design pack inspect <pack_id>
-```
-
-Use the root decision-oriented Tutor for one bounded author decision:
-
-```powershell
-auteur tutor next --pack <pack_id> --decision "next creative decision" --premise "your story"
-auteur tutor explain --pack <pack_id> --decision "next creative decision" --premise "your story"
-```
-
-The earlier V1 Tutor surface remains available for backward compatibility:
-
-```powershell
-auteur design tutor recommend --pack <pack_id> --decision "next creative decision" --premise "your story"
-auteur design tutor explain --pack <pack_id> --decision "next creative decision" --premise "your story"
-auteur design tutor alternatives --pack <pack_id> --decision "next creative decision" --premise "your story"
-```
-
-All of this guidance is advisory. It does not silently accept StoryIdentity or mutate the story.
-
-## Major CLI Surfaces
-
-### Story Discovery & Identity
-
-```text
-auteur story-discovery run <premise> --recommend --output <directory> [--project <path>]
-auteur story-discovery accept <candidate.yaml> --output <story_identity.yaml>
-auteur identity recommend <premise> --output <path>
-auteur identity validate <story_identity.yaml>
-auteur blueprint seed <story_identity.yaml> --output <blueprint.yaml>
-```
-
-### Structure
-
-```text
-auteur structure diagnose <blueprint.yaml>
-auteur structure propose-repairs <blueprint.yaml>
-auteur structure apply <proposal.yaml> <blueprint.yaml> [--in-place]
-auteur structure generate <blueprint.yaml> [--symptom "text"]
 auteur structure proposal inspect <proposal.yaml> --project .
 auteur structure proposal select <proposal.yaml> --option <option_id> --project .
 auteur structure revision plan --proposal <proposal.yaml> --project .
@@ -266,155 +137,176 @@ auteur structure revision apply <plan_id> --project . --confirm
 auteur structure revision reassess <application_id> --project .
 ```
 
-### Project Orientation
+If a process was interrupted while a Structure plan was in `applying`:
 
-```text
-auteur dashboard --project .
+```powershell
+auteur structure revision recover --project .
+```
+
+Recovery never replays an authority-bearing revision automatically. It returns a stranded plan to `ready` only when current target hashes prove the authority targets are unchanged; otherwise it fails closed for inspection.
+
+## Guided Author Workspace
+
+Start the local browser surface:
+
+```powershell
 auteur workspace --project . --port 8765
 ```
 
-`dashboard` and Guided Author Workspace V1 are derived/read-only. The workspace binds only to `127.0.0.1` and exposes no mutation POST endpoints; it presents Author Attention and the exact existing safe next command.
+Open `http://127.0.0.1:8765` locally.
 
-### Project Planning and Counterfactual Support
+The V1 closure implementation upgrades the Workspace from read-only V1 orientation to a bounded **Workspace V2** control plane over the existing decision-loop services. It can record supported Tutor choices, review/select Structure proposals, create/validate/preview plans, and explicitly confirm the supported Structure authority action. It then reloads the same Author Attention projection.
 
-```text
-auteur plan status
-auteur plan graph
-auteur plan next
-auteur plan critical-path
-auteur plan milestones
-auteur plan refresh
-auteur plan explain <id>
-auteur plan history
+Security/authority boundaries:
 
-auteur simulate create --decision <id> --candidate <id>
-auteur simulate compare <scenario-a> <scenario-b>
-auteur simulate inspect <id> --evidence --uncertainty
-auteur simulate promote <id> --confirm
-```
+- binds only to `127.0.0.1`;
+- validates Host and same-origin POST Origin;
+- uses a session-specific CSRF token;
+- mutation is POST-only;
+- action payloads are bounded;
+- project paths are confined to the selected project;
+- canonical Structure application has its own explicit confirmation;
+- no endpoint creates an alternate story-state database.
 
-Planning and simulation are noncanonical decision-support surfaces. Promotion routes a scenario into review; it is not automatic narrative acceptance.
-
-### Interactive Genre Pipelines
-
-```text
-auteur netorare init <project>
-auteur mystery init <project>
-auteur gentlefemdom init <project>
-auteur gentlefemdom resume <project>
-```
-
-Interactive genre working state lives under `.auteur/genre_sessions/<genre>/session.json` and remains noncanonical until the documented completion/compilation/acceptance boundary is crossed.
-
-### Outline & Drafting
+## Story Discovery Quick Start
 
 ```powershell
-auteur init .\tmp\shattered_crown_project --from .\tmp\shattered_crown\blueprint.yaml
-auteur cartographer compile .\tmp\shattered_crown\blueprint.yaml --output .\tmp\shattered_crown\cartographer_outline.yaml
-auteur draft .\tmp\shattered_crown_project 1 --provider anthropic --max-iterations 3
+New-Item -ItemType Directory -Force .\tmp\shattered_crown | Out-Null
+Push-Location .\tmp\shattered_crown
+
+auteur workflow next .
+auteur story-discovery run "A detective investigates a locked manor murder" --recommend --output story_discovery --project .
+auteur story-discovery accept story_discovery\candidate_X.yaml --output story_identity.yaml
+auteur blueprint seed story_identity.yaml --output blueprint.yaml
+auteur structure diagnose blueprint.yaml
+
+Pop-Location
+```
+
+Story Discovery recommendation remains advisory. `auteur workflow next . --execute` does not auto-accept a Story Discovery candidate.
+
+## Story Design Packs and Tutor
+
+```powershell
+auteur design pack list
+auteur design pack inspect <pack_id>
+auteur tutor next --pack <pack_id> --decision "next creative decision" --premise "your story"
+auteur tutor explain --pack <pack_id> --decision "next creative decision" --premise "your story"
+```
+
+The earlier `auteur design tutor ...` surface remains available for compatibility. Tutor guidance never silently accepts narrative authority.
+
+## Outline, Drafting, and Publishing
+
+```powershell
+auteur init .\tmp\project --from .\tmp\story\blueprint.yaml
+auteur cartographer compile .\tmp\story\blueprint.yaml --output .\tmp\story\cartographer_outline.yaml
+auteur draft .\tmp\project 1 --provider anthropic --max-iterations 3
 ```
 
 If drafting exhausts its iteration cap:
 
 ```powershell
-auteur accept .\tmp\shattered_crown_project 1
-auteur retry .\tmp\shattered_crown_project 1 --max-iterations 2
+auteur accept .\tmp\project 1
+auteur retry .\tmp\project 1 --max-iterations 2
 ```
 
-Drafting is a downstream consumer of accepted/planned narrative state; it is not Auteur's primary first-value surface.
+Accepted Book output can be published as HTML or EPUB through the documented `auteur publish` workflow. External-platform auto-publishing remains out of scope.
 
-## Series and Long-Horizon Narrative Intelligence
+## Providers
 
-Auteur has a bounded long-horizon architecture for preserving accepted history, rebuilding current narrative state, and projecting decision-relevant context through derived Global Map/Focus machinery. The architecture deliberately separates:
+Install Anthropic support:
 
-```text
-accepted Direction / Realization
-        ↓
-accepted history + provenance
-        ↓
-deterministic current-state projection
-        ↓
-relationship/dependency index
-        ↓
-derived Global Map
-        ↓
-planning intent / question / horizon
-        ↓
-derived Focus / Decision Map
-        ↓
-advisory recommendation
-        ↓
-explicit author action
+```powershell
+python -m pip install -e ".[dev,anthropic]"
+$env:ANTHROPIC_API_KEY = "..."
 ```
 
-The current campaign is **not** authorizing speculative expansion. It is in `PROSPECTIVE_NATIVE_EVIDENCE_INCUBATION`: new ontology, extraction, V2 review, and scale work wait for a natural Auteur-native planning case that produces a concrete failure or opportunity.
+Install OpenAI support:
 
-See [docs/campaign/auteur-long-horizon-campaign-state.md](docs/campaign/auteur-long-horizon-campaign-state.md) and [docs/architecture/detailed-narrative-architecture-v1.md](docs/architecture/detailed-narrative-architecture-v1.md).
-
-## Work That Is Not Shipped
-
-Historical PR #167 for bounded Episode 1 Direction support is **closed / not merged / superseded**. Its ratified contract is preserved, and contemporary reconstruction is tracked separately; Episode 1 support must not be described as current production behavior.
-
-Broader multi-episode/season expansion remains evidence-gated under the long-horizon campaign posture.
-
-See [STATUS.md](STATUS.md) for current reconciliation details.
-
-## Project Artifacts
-
-A basic drafting project still uses transparent file artifacts such as:
-
-```text
-project/
-  blueprint.yaml
-  bible.json
-  chapters/
-    01/
-      outline.yaml
-      draft_v1.md
-      validation_v1.json
-      final.md
+```powershell
+python -m pip install -e ".[dev,openai]"
+$env:OPENAI_API_KEY = "..."
 ```
 
-Additional subsystems persist their own derived, local, candidate, or authoritative artifacts under the documented project-local paths. See [docs/project-format.md](docs/project-format.md).
+Both:
 
-## Documentation Map
+```powershell
+python -m pip install -e ".[dev,all]"
+```
 
-- [Current repository status](STATUS.md) — living operational state, open milestone work, next recommended action.
-- [Guided Author Decision Loop](docs/guides/guided-author-decision-loop.md) — beginner-facing advice → proposal → revision → reassessment → orientation walkthrough.
-- [Decision-Oriented Tutor](docs/design/decision-oriented-tutor.md) — root Tutor workflow, Decision Cards, session lifecycle, staleness, and authority boundaries.
-- [Product Evolution Roadmap](docs/product-evolution-roadmap.md) — forward-looking product/repository candidates and evidence gates; advisory, not implementation authority.
-- [Architecture Roadmap](docs/architecture-roadmap.md) — architecture integrity and architecture-specific extension history.
-- [Mission](MISSION.md) — durable scope and invariants.
-- [Product requirements](docs/PRD.md) — product contract and primary user.
-- [Canonical narrative architecture](docs/narrative-architecture.md) — five semantic layers × scope axis.
-- [Opinionated Narrative Engine](docs/opinionated-narrative-engine.md) — product design, first value, guided authoring, Map/Focus framing.
-- [Detailed long-horizon architecture](docs/architecture/detailed-narrative-architecture-v1.md) — accepted-history/current-state/relevance architecture.
-- [Long-horizon campaign state](docs/campaign/auteur-long-horizon-campaign-state.md) — evidence posture and authorization boundary.
-- [Runtime/domain context](CONTEXT.md) — genre pipeline and compatibility terminology.
-- [Project format](docs/project-format.md) — artifact contract.
-- [Release qualification](docs/engineering/release-qualification.md) — candidate/release evidence rules.
-- [Changelog](CHANGELOG.md) and [release records](docs/releases/README.md) — release history.
+V1 defines stable provider-independent operational error categories for missing/invalid credentials, rate limiting, timeout, connection failures, provider 5xx responses, malformed responses, retry exhaustion, and related structured-output/user-interruption boundaries. These categories are operational guarantees, not literary-quality judgments.
 
-ADRs, qualification reports, research records, experiments, and product-validation documents are historical evidence. Do not rewrite them merely to make current status cleaner.
+The opt-in live release smoke is deliberately separate from ordinary CI because it uses external credentials/tokens:
 
-## Tests and Local Verification
+```powershell
+python scripts/qualify_v1_provider.py --provider anthropic --output .auteur/qualification/anthropic.json
+python scripts/qualify_v1_provider.py --provider openai --output .auteur/qualification/openai.json
+```
 
-Run the full test suite:
+## Series and Long-Horizon Support
+
+Auteur has bounded accepted-history/current-state reconstruction and derived Global Map/Focus/continuity support. This is a bounded V1 capability—not a claim that 50/100+ Book scale is qualified.
+
+The long-horizon campaign remains prospective and evidence-gated. No generalized Episode 2+, universal extraction/relationship ontology, generic graph database, or very-large-scale program follows automatically from V1 closure.
+
+Historical Episode 1 PR #167 remains closed/not merged/superseded. Contemporary reconstruction is preserved separately in issue #218 and is not a V1 blocker.
+
+## V1 Support Boundary
+
+The exact support contract is [docs/v1/v1-product-contract.md](docs/v1/v1-product-contract.md).
+
+In short:
+
+- Scene/Chapter/Book: supported.
+- Series: bounded continuity/history support.
+- Universe: experimental/optional supporting tooling, not a provenance-normalized V1 authoring vertical.
+- Linux Python 3.11/3.12/3.13 and Windows Python 3.13: release-qualified only after the exact final candidate passes.
+- macOS: best effort unless explicitly added to the final qualification matrix.
+- HTML/EPUB: V1 publication outputs.
+- PDF, cloud collaboration, external auto-publishing, generalized serial progression, and 50/100+ Book scale: not required for 1.0.
+
+## Tests and Qualification
+
+Full suite:
 
 ```powershell
 python -m pytest
 ```
 
-Run the repository verification stack:
+Repository verification:
 
 ```powershell
 python scripts/check.py
 ```
 
-CI runs the same verification entrypoint with `python scripts/check.py --skip-pytest`, alongside Linux Python 3.11/3.12/3.13 validation, a full Windows Python 3.13 test leg, and installed-wheel smoke according to `.github/workflows/validation.yml`. Real-provider smoke checks remain separate because they spend external API tokens.
+Hermetic V1 closure bundle:
+
+```powershell
+python scripts/qualify_v1_author_journey.py
+```
+
+CI runs Linux Python 3.11/3.12/3.13, a full Windows Python 3.13 leg, installed-wheel smoke, repository verification, and the dedicated V1 closure evidence bundle. The V1 platform tests exercise semantic hashing across line endings/key order/Unicode normalization, Unicode artifact paths, project relocation, restart, and downstream staleness.
+
+## Documentation Map
+
+- [Repository status](STATUS.md) — current selected work and exact next gate.
+- [V1 Product Contract](docs/v1/v1-product-contract.md) — exact support surface and claim ceiling.
+- [V1 Closure Plan](docs/v1/v1-closure-plan.md) — implementation/qualification work packages.
+- [V1 Authority Artifact Matrix](docs/v1/v1-authority-artifact-matrix.md) — authority/provenance classification.
+- [V1 Qualification Matrix](docs/v1/v1-qualification-matrix.md) — evidence required before `1.0.0`.
+- [V1 Completeness Audit](docs/v1/v1-completeness-audit.md) — implemented versus still-unqualified surfaces.
+- [Guided Author Decision Loop](docs/guides/guided-author-decision-loop.md) — advice → proposal → explicit change → reassessment.
+- [Product Evolution Roadmap](docs/product-evolution-roadmap.md) — post-closure candidates and evidence gates.
+- [Mission](MISSION.md) — durable invariants/non-goals.
+- [Product requirements](docs/PRD.md) — product requirements and primary user.
+- [Canonical narrative architecture](docs/narrative-architecture.md) — five semantic layers × scope axis.
+- [Expression boundary](docs/expression-boundary.md) — Realization/Expression ownership contract.
+- [Long-horizon campaign](docs/campaign/auteur-long-horizon-campaign-state.md) — evidence posture.
+- [Project format](docs/project-format.md) — artifact layout/compatibility.
+- [Release qualification](docs/engineering/release-qualification.md) — exact candidate/release evidence rules.
+- [Changelog](CHANGELOG.md) and [release records](docs/releases/README.md) — release history.
 
 ## Versioning
 
-`pyproject.toml` currently reports `0.37.1`. Current `main` also contains post-release development, so package metadata alone is not a complete development-status indicator.
-
-Use [STATUS.md](STATUS.md) for the present-tense repository map and [docs/releases/](docs/releases/README.md) for release-specific claims.
+`pyproject.toml` currently reports `0.37.1`. The V1 closure program deliberately leaves that version unchanged until the final release candidate satisfies the exact release invariant. Use [STATUS.md](STATUS.md) for development state and [docs/releases/](docs/releases/README.md) for release claims.
