@@ -1,12 +1,13 @@
 """Package-resource loader for Narrative Ontology specifications.
 
-`src/auteur/data/ontology/` is the canonical specification source.  The loader
-keeps the historical base/genre dictionary API while exposing the additional V2
-vocabulary documents consumed by :class:`OntologyRegistry`.
+`src/auteur/data/ontology/` is the canonical specification source. The loader
+preserves its historical dictionary API as an explicit compatibility projection
+while exposing raw V2 specification methods consumed by :class:`OntologyRegistry`.
 """
 
 from __future__ import annotations
 
+from copy import deepcopy
 import importlib.resources
 from threading import RLock
 from typing import Any, Dict, List, Optional
@@ -15,6 +16,7 @@ import yaml
 
 
 _ONTOLOGY_PACKAGE = "auteur.data.ontology"
+_LEGACY_GENRES = ["netorare", "mystery", "gentlefemdom"]
 
 
 def _resource_root():
@@ -85,19 +87,56 @@ class OntologyLoader:
     def load_base_document(self) -> Dict[str, Any]:
         return self.load_document("base_ontology.yaml")
 
-    def load_base_ontology(self) -> Dict[str, Any]:
-        """Return the historical compatibility core (currently 12 concepts)."""
+    def load_base_spec(self) -> Dict[str, Any]:
+        """Return the canonical raw historical-core specification.
+
+        New V2 runtime code should use this method (usually indirectly through
+        :class:`OntologyRegistry`) when exact canonical YAML semantics matter.
+        """
 
         return self.load_base_document().get("concepts", {})
+
+    def _legacy_base_projection(self) -> Dict[str, Any]:
+        """Project raw base YAML into the pre-V2 loader observation contract."""
+
+        projected = deepcopy(self.load_base_spec())
+        for concept in projected.values():
+            for rule in concept.get("validation_rules", []):
+                if not rule.get("applies_to"):
+                    rule["applies_to"] = list(_LEGACY_GENRES)
+        setup = projected.get("Setup", {})
+        for relation in setup.get("relationships", []):
+            if relation.get("target_concept") == "Payoff":
+                relation["cardinality"] = "one-to-one"
+        return projected
+
+    def load_base_ontology(self) -> Dict[str, Any]:
+        """Return the historical 12-concept loader compatibility projection.
+
+        This public method intentionally preserves pre-V2 observations such as
+        explicit applicability to the three historical genre extensions and
+        Setup->Payoff's former one-to-one cardinality. Canonical V2 semantics
+        live in :meth:`load_base_spec` / :meth:`load_core_ontology`.
+        """
+
+        cache_key = "legacy-base"
+        with self._cache_lock:
+            cached = self._merged_cache.get(cache_key)
+            if cached is not None:
+                return cached
+        projected = self._legacy_base_projection()
+        with self._cache_lock:
+            self._merged_cache[cache_key] = projected
+        return projected
 
     def load_semantic_vocabulary(self) -> Dict[str, Any]:
         return self.load_document("semantic_vocabulary.yaml").get("concepts", {})
 
     def load_core_ontology(self) -> Dict[str, Any]:
-        """Return compatibility core plus V2 semantic vocabulary."""
+        """Return canonical raw base semantics plus V2 semantic vocabulary."""
 
         return self.merge_ontologies(
-            self.load_base_ontology(), self.load_semantic_vocabulary()
+            self.load_base_spec(), self.load_semantic_vocabulary()
         )
 
     def load_relation_types(self) -> Dict[str, Any]:
@@ -124,16 +163,18 @@ class OntologyLoader:
         return merged
 
     def get_concept(self, name: str, genre: Optional[str] = None) -> Dict[str, Any]:
-        """Retrieve a raw concept declaration.
+        """Retrieve a concept through the historical dictionary compatibility API.
 
-        This legacy API remains case-sensitive. V2 alias resolution lives in
-        `OntologyRegistry` so compatibility names do not alter the raw spec.
+        V2 runtime lookup should use ``OntologyRegistry.get_concept``. This API
+        remains case-sensitive and preserves historical base-field observations.
         """
 
-        merged = self.load_core_ontology()
+        merged = self.merge_ontologies(
+            self.load_base_ontology(), self.load_semantic_vocabulary()
+        )
         if genre:
             genre_key = genre.strip().lower()
-            cache_key = f"core+{genre_key}"
+            cache_key = f"legacy-core+{genre_key}"
             with self._cache_lock:
                 cached = self._merged_cache.get(cache_key)
             if cached is None:
