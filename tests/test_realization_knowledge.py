@@ -1,278 +1,273 @@
-"""Tests for KnowledgeValidator.
+"""Tests for Layer 3 knowledge validation under the current SceneOutline contract."""
 
-Tests validate:
-- No retroactive forgetting (knowledge persists across scenes)
-- Knowledge consistency (entry + learned = exit)
-- POV vs non-POV knowledge separation
-- Off-stage learning (message, document)
-- Contradiction detection
-"""
-
-import pytest
-
-
-# ALL TESTS IN THIS FILE ARE KNOWN TO FAIL
-# Reason: SceneOutline schema requires a goal field that test fixtures
-# do not provide. Pre-existing condition in narrative_realization (Layer 3),
-# documented as "Partial" in the v1 architecture completion report.
-from auteur.narrative_realization.schema.scene_outline import (
-    SceneOutline,
-    SceneStatus,
-)
-from auteur.narrative_realization.schema.scene_state import (
-    KnowledgeFact,
+from auteur.narrative_realization.schema import (
+    Decision,
     EmotionalState,
     EntryState,
     ExitState,
+    Goal,
+    KnowledgeFact,
+    Opposition,
+    Outcome,
+    SceneOutline,
+    SceneStatus,
+    Turn,
 )
 from auteur.narrative_realization.validator.knowledge_validator import (
     KnowledgeValidator,
+    KnowledgeViolation,
     KnowledgeViolationType,
 )
 
 
-class TestKnowledgeValidatorBasics:
-    """Test basic knowledge validator functionality."""
+def _fact(what: str, *, source: str = "chapter_position") -> KnowledgeFact:
+    return KnowledgeFact(
+        what=what,
+        how_known="perceived" if source == "chapter_position" else "external_source",
+        degree="certain",
+        source=source,
+    )
 
+
+def _ready_scene(
+    scene_id: str,
+    *,
+    position: int,
+    pov: str = "clara",
+    entry_knowledge: list[KnowledgeFact] | None = None,
+    exit_knowledge: list[KnowledgeFact] | None = None,
+) -> SceneOutline:
+    return SceneOutline(
+        id=scene_id,
+        chapter_id="chapter_01",
+        status=SceneStatus.READY,
+        narrative_position=position,
+        story_time=f"day_1_segment_{position}",
+        pov_character_id=pov,
+        participants=[pov],
+        goal=Goal(actor_id=pov, objective="advance the scene goal"),
+        opposition=Opposition(source_id="external", pressure="resist the goal"),
+        turn=Turn(type="discovery", event="new evidence appears", impact="changes the situation"),
+        decision=Decision(actor_id=pov, choice="act on the evidence"),
+        outcome=Outcome(result="partial"),
+        entry_state=EntryState(knowledge=entry_knowledge or []),
+        exit_state=ExitState(knowledge=exit_knowledge or []),
+    )
+
+
+class TestKnowledgeValidatorBasics:
     def test_validator_initialization(self):
-        """Test validator initializes empty."""
         validator = KnowledgeValidator()
         assert validator.scenes == {}
-        assert len(validator.violations) == 0
+        assert validator.violations == []
 
     def test_add_scene(self):
-        """Test adding scenes to validator."""
         validator = KnowledgeValidator()
-        scene = SceneOutline(
-            id="scene_01_01",
-            chapter_id="chapter_01",
-            status=SceneStatus.DRAFT,
-        )
+        scene = SceneOutline(id="scene_01_01", chapter_id="chapter_01")
         validator.add_scene(scene)
-        assert scene.id in validator.scenes
         assert validator.scenes[scene.id] == scene
 
     def test_draft_scene_skipped(self):
-        """Test that draft scenes are skipped in validation."""
         validator = KnowledgeValidator()
-        scene = SceneOutline(
-            id="scene_01_01",
-            chapter_id="chapter_01",
-            status=SceneStatus.DRAFT,
-        )
+        scene = SceneOutline(id="scene_01_01", chapter_id="chapter_01")
         result = validator.validate_scene(scene)
         assert result.is_valid is True
-        assert len(result.violations) == 0
+        assert result.violations == []
 
 
 class TestKnowledgeConsistency:
-    pytestmark = pytest.mark.xfail(reason="SceneOutline schema requires goal field; Layer 3 narrative_realization documented as Partial", strict=False)
-    """Test knowledge consistency validation."""
-
-    def test_empty_knowledge_valid(self):
-        """Test scene with no knowledge is valid."""
+    def test_ready_scene_with_empty_knowledge_is_valid(self):
         validator = KnowledgeValidator()
-        scene = SceneOutline(
-            id="scene_01_01",
-            chapter_id="chapter_01",
-            narrative_position=1,
-            pov_character_id="clara",
-            participants=["clara"],
-            status=SceneStatus.INCOMPLETE,
+        scene = _ready_scene("scene_01_01", position=1)
+        assert validator.validate_scene(scene).is_valid is True
+
+    def test_entry_knowledge_preserved_in_exit_is_valid(self):
+        secret = _fact("The victim was poisoned")
+        validator = KnowledgeValidator()
+        scene = _ready_scene(
+            "scene_01_01",
+            position=1,
+            entry_knowledge=[secret],
+            exit_knowledge=[secret],
         )
+        assert validator.validate_scene(scene).is_valid is True
+
+    def test_entry_knowledge_cannot_silently_disappear(self):
+        secret = _fact("The victim was poisoned")
+        validator = KnowledgeValidator()
+        scene = _ready_scene(
+            "scene_01_01",
+            position=1,
+            entry_knowledge=[secret],
+            exit_knowledge=[],
+        )
+
         result = validator.validate_scene(scene)
-        assert result.is_valid is True
-
-    def test_ready_scene_validation(self):
-        """Test ready scene can be validated."""
-        validator = KnowledgeValidator()
-        scene = SceneOutline(
-            id="scene_01_01",
-            chapter_id="chapter_01",
-            narrative_position=1,
-            story_time="day_1_morning",
-            pov_character_id="clara",
-            participants=["clara"],
-            status=SceneStatus.READY,
-        )
-        result = validator.validate_scene(scene)
-        # Should validate without critical errors for empty knowledge
-        assert isinstance(result.is_valid, bool)
-
-
-class TestRetractiveForgetting:
-    """Test detection of retroactive forgetting violations."""
-
-    @pytest.mark.xfail(reason="SceneOutline schema requires goal field; Layer 3 narrative_realization documented as Partial", strict=False)
-    def test_no_forgetting_in_single_scene(self):
-        """Test single scene with knowledge doesn't trigger forgetting error."""
-        validator = KnowledgeValidator()
-        scene = SceneOutline(
-            id="scene_01_01",
-            chapter_id="chapter_01",
-            narrative_position=1,
-            story_time="day_1_morning",
-            pov_character_id="clara",
-            participants=["clara"],
-            status=SceneStatus.READY,
-        )
-        validator.add_scene(scene)
-        result = validator.validate_scene(scene)
-        assert result.is_valid is True
-
-    def test_forgetting_detected_across_scenes(self):
-        """Test retroactive forgetting is detected across sequential scenes."""
-        KnowledgeValidator()
-
-        # Note: Full test would require loading complete scene data with entry/exit knowledge
-        # This test structure demonstrates the expected behavior
-
-
-class TestPOVKnowledge:
-    pytestmark = pytest.mark.xfail(reason="SceneOutline schema requires goal field; Layer 3 narrative_realization documented as Partial", strict=False)
-    """Test POV character knowledge validation."""
-
-    def test_pov_character_identified(self):
-        """Test POV character is correctly identified."""
-        scene = SceneOutline(
-            id="scene_01_01",
-            chapter_id="chapter_01",
-            narrative_position=1,
-            story_time="day_1_morning",
-            pov_character_id="clara",
-            participants=["clara", "daniel"],
-            status=SceneStatus.READY,
-        )
-        assert scene.pov_character_id == "clara"
-        assert "clara" in scene.participants
-
-    def test_non_pov_knowledge_separate(self):
-        """Test non-POV character knowledge is separate."""
-        validator = KnowledgeValidator()
-
-        scene1 = SceneOutline(
-            id="scene_01_01",
-            chapter_id="chapter_01",
-            narrative_position=1,
-            story_time="day_1_morning",
-            pov_character_id="clara",
-            participants=["clara", "daniel"],
-            status=SceneStatus.READY,
+        assert result.is_valid is False
+        assert any(
+            violation.violation_type == KnowledgeViolationType.INCONSISTENT_ENTRY_EXIT
+            and violation.fact_what == secret.what
+            for violation in result.violations
         )
 
-        scene2 = SceneOutline(
-            id="scene_01_02",
-            chapter_id="chapter_01",
-            narrative_position=2,
-            story_time="day_1_afternoon",
-            pov_character_id="daniel",
-            participants=["daniel", "clara"],
-            status=SceneStatus.READY,
-        )
 
-        validator.add_scene(scene1)
-        validator.add_scene(scene2)
-
-        # Different POV characters should have separate knowledge
-        assert scene1.pov_character_id != scene2.pov_character_id
-
-
-class TestOffStageLearning:
-    """Test off-stage learning validation (message, document)."""
-
-    def test_pov_can_learn_via_message(self):
-        """Test POV character can learn through non-presence (message)."""
-        # This test demonstrates the structure for validating
-        # that POV characters can learn facts through messages/documents
-        # without being directly present
-        pass
-
-    def test_pov_can_learn_via_document(self):
-        """Test POV character can learn through document discovery."""
-        # This test structure validates that documents provide learning mechanism
-        pass
-
-
-class TestCrossSceneValidation:
-    """Test validation across multiple scenes."""
-
-    def test_validate_all_scenes_empty(self):
-        """Test validating empty scene collection."""
+class TestCrossSceneKnowledge:
+    def test_same_pov_keeps_prior_exit_knowledge(self):
+        secret = _fact("The ledger exists")
         validator = KnowledgeValidator()
-        result = validator.validate_all_scenes()
-        assert result.is_valid is True
-        assert len(result.violations) == 0
-
-    @pytest.mark.xfail(reason="SceneOutline schema requires goal field; Layer 3 narrative_realization documented as Partial", strict=False)
-    def test_validate_all_scenes_multiple(self):
-        """Test validating multiple scenes."""
-        validator = KnowledgeValidator()
-
-        for i in range(1, 4):
-            scene = SceneOutline(
-                id=f"scene_01_0{i}",
-                chapter_id="chapter_01",
-                narrative_position=i,
-                story_time=f"day_1_hour_{i*3}",
-                pov_character_id="clara",
-                participants=["clara"],
-                status=SceneStatus.READY,
+        validator.add_scene(
+            _ready_scene(
+                "scene_01_01",
+                position=1,
+                exit_knowledge=[secret],
             )
-            validator.add_scene(scene)
+        )
+        validator.add_scene(
+            _ready_scene(
+                "scene_01_02",
+                position=2,
+                entry_knowledge=[secret],
+                exit_knowledge=[secret],
+            )
+        )
+
+        assert validator.validate_all_scenes().is_valid is True
+
+    def test_same_pov_rejects_retroactive_forgetting(self):
+        secret = _fact("The ledger exists")
+        validator = KnowledgeValidator()
+        validator.add_scene(
+            _ready_scene(
+                "scene_01_01",
+                position=1,
+                exit_knowledge=[secret],
+            )
+        )
+        validator.add_scene(
+            _ready_scene(
+                "scene_01_02",
+                position=2,
+                entry_knowledge=[],
+                exit_knowledge=[],
+            )
+        )
 
         result = validator.validate_all_scenes()
-        assert isinstance(result.is_valid, bool)
-        assert isinstance(result.violations, list)
+        assert result.is_valid is False
+        assert any(
+            violation.violation_type == KnowledgeViolationType.RETROACTIVE_FORGETTING
+            and violation.fact_what == secret.what
+            for violation in result.violations
+        )
+
+    def test_different_pov_does_not_inherit_private_knowledge(self):
+        secret = _fact("Clara knows the ledger exists")
+        validator = KnowledgeValidator()
+        validator.add_scene(
+            _ready_scene(
+                "scene_01_01",
+                position=1,
+                pov="clara",
+                exit_knowledge=[secret],
+            )
+        )
+        validator.add_scene(
+            _ready_scene(
+                "scene_01_02",
+                position=2,
+                pov="daniel",
+                entry_knowledge=[],
+                exit_knowledge=[],
+            )
+        )
+
+        assert validator.validate_all_scenes().is_valid is True
+
+    def test_validation_is_repeatable(self):
+        secret = _fact("The ledger exists")
+        validator = KnowledgeValidator()
+        validator.add_scene(
+            _ready_scene("scene_01_01", position=1, exit_knowledge=[secret])
+        )
+        validator.add_scene(
+            _ready_scene("scene_01_02", position=2, entry_knowledge=[], exit_knowledge=[])
+        )
+
+        first = validator.validate_all_scenes()
+        second = validator.validate_all_scenes()
+        assert first == second
+
+
+class TestSupportedKnowledgeSources:
+    def test_message_like_external_source_is_preserved(self):
+        message_fact = _fact("The train is delayed", source="character_id")
+        scene = _ready_scene(
+            "scene_01_01",
+            position=1,
+            entry_knowledge=[message_fact],
+            exit_knowledge=[message_fact],
+        )
+        assert scene.entry_state is not None
+        assert scene.entry_state.knowledge[0].source == "character_id"
+        assert KnowledgeValidator().validate_scene(scene).is_valid is True
+
+    def test_document_source_is_preserved(self):
+        document_fact = _fact("The will names a second heir", source="document")
+        scene = _ready_scene(
+            "scene_01_01",
+            position=1,
+            entry_knowledge=[document_fact],
+            exit_knowledge=[document_fact],
+        )
+        assert scene.entry_state is not None
+        assert scene.entry_state.knowledge[0].source == "document"
+        assert KnowledgeValidator().validate_scene(scene).is_valid is True
+
+
+class TestEmptyAndMultipleSceneValidation:
+    def test_validate_all_scenes_empty(self):
+        result = KnowledgeValidator().validate_all_scenes()
+        assert result.is_valid is True
+        assert result.violations == []
+
+    def test_validate_all_scenes_multiple_valid_scenes(self):
+        validator = KnowledgeValidator()
+        for i in range(1, 4):
+            validator.add_scene(_ready_scene(f"scene_01_0{i}", position=i))
+
+        result = validator.validate_all_scenes()
+        assert result.is_valid is True
+        assert result.violations == []
 
 
 class TestErrorReporting:
-    """Test error message generation."""
-
     def test_violation_report_no_errors(self):
-        """Test report generation with no violations."""
-        validator = KnowledgeValidator()
-        report = validator.report_knowledge_violations([])
+        report = KnowledgeValidator().report_knowledge_violations([])
         assert "No knowledge violations" in report
 
     def test_violation_report_format(self):
-        """Test report formatting includes all required fields."""
-        from auteur.narrative_realization.validator.knowledge_validator import (
-            KnowledgeViolation,
-        )
-
-        validator = KnowledgeValidator()
         violation = KnowledgeViolation(
             scene_id="scene_01_01",
             violation_type=KnowledgeViolationType.RETROACTIVE_FORGETTING,
             character_id="clara",
             fact_what="secret_revealed",
-            message="Clara forgets knowledge learned in scene_01_02",
-            suggestion="Add fact to exit_knowledge of scene_01_02",
+            message="Clara forgets previously established knowledge",
+            suggestion="Restore the fact to entry knowledge",
         )
-
-        report = validator.report_knowledge_violations([violation])
+        report = KnowledgeValidator().report_knowledge_violations([violation])
         assert "scene_01_01" in report
         assert "retroactive_forgetting" in report
         assert "clara" in report
+        assert "secret_revealed" in report
 
 
-class TestKnowledgeStructure:
-    """Test knowledge fact structure."""
-
+class TestKnowledgeStateModels:
     def test_knowledge_fact_creation(self):
-        """Test creating knowledge facts."""
-        fact = KnowledgeFact(
-            what="The victim was poisoned",
-            how_known="learned",
-            degree="certain",
-            source="character_id",
-        )
+        fact = _fact("The victim was poisoned")
         assert fact.what == "The victim was poisoned"
-        assert fact.how_known == "learned"
         assert fact.degree == "certain"
 
     def test_emotional_state_creation(self):
-        """Test creating emotional states."""
         emotion = EmotionalState(
             state="suspicious",
             intensity="high",
@@ -282,84 +277,11 @@ class TestKnowledgeStructure:
         assert emotion.intensity == "high"
 
     def test_entry_state_creation(self):
-        """Test creating entry states."""
-        fact = KnowledgeFact(
-            what="Basic fact",
-            how_known="perceived",
-            degree="certain",
-            source="chapter_position",
-        )
+        fact = _fact("Basic fact")
         entry = EntryState(knowledge=[fact])
-        assert len(entry.knowledge) == 1
-        assert entry.knowledge[0].what == "Basic fact"
+        assert entry.knowledge == [fact]
 
     def test_exit_state_creation(self):
-        """Test creating exit states."""
-        fact1 = KnowledgeFact(
-            what="Original fact",
-            how_known="perceived",
-            degree="certain",
-            source="chapter_position",
-        )
-        fact2 = KnowledgeFact(
-            what="Learned fact",
-            how_known="inferred",
-            degree="probable",
-            source="inference",
-        )
-        exit_state = ExitState(knowledge=[fact1, fact2])
-        assert len(exit_state.knowledge) == 2
-
-
-class TestKnowledgeProgression:
-    pytestmark = pytest.mark.xfail(reason="SceneOutline schema requires goal field; Layer 3 narrative_realization documented as Partial", strict=False)
-    """Test knowledge progression validation."""
-
-    def test_knowledge_should_accumulate(self):
-        """Test that knowledge accumulates across scenes."""
-        validator = KnowledgeValidator()
-
-        scene1 = SceneOutline(
-            id="scene_01_01",
-            chapter_id="chapter_01",
-            narrative_position=1,
-            story_time="day_1_morning",
-            pov_character_id="clara",
-            participants=["clara"],
-            status=SceneStatus.READY,
-        )
-
-        scene2 = SceneOutline(
-            id="scene_01_02",
-            chapter_id="chapter_01",
-            narrative_position=2,
-            story_time="day_1_afternoon",
-            pov_character_id="clara",
-            participants=["clara"],
-            status=SceneStatus.READY,
-        )
-
-        validator.add_scene(scene1)
-        validator.add_scene(scene2)
-
-        result = validator.validate_all_scenes()
-        assert isinstance(result.is_valid, bool)
-
-
-class TestKnowledgeConsistencyDetailed:
-    """Test detailed knowledge consistency rules."""
-
-    def test_knowledge_cannot_disappear(self):
-        """Test that learned facts don't disappear."""
-        # Structure for testing that entry_knowledge + learned = exit_knowledge
-        pass
-
-    def test_contradictory_beliefs_detected(self):
-        """Test that contradictory beliefs are detected."""
-        # Structure for testing contradictory knowledge
-        pass
-
-    def test_logical_progressions_validated(self):
-        """Test that knowledge progressions are logical."""
-        # Structure for testing logical knowledge chains
-        pass
+        facts = [_fact("Original fact"), _fact("Learned fact", source="inference")]
+        exit_state = ExitState(knowledge=facts)
+        assert exit_state.knowledge == facts
