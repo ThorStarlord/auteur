@@ -82,6 +82,22 @@ def _read_accepted_book_manifest(project: Path) -> dict[str, Any]:
     data = yaml.safe_load(accepted.read_text(encoding="utf-8")) or {}
     if data.get("lifecycle") != "accepted":
         raise PublishError("Book Expression exists but is not accepted")
+
+    # Publishing is a promotion boundary. A Book can remain byte-identical while
+    # one of its accepted Chapter Expressions has become stale because a Scene
+    # Realization changed. Publication must therefore inspect current transitive
+    # source freshness rather than relying only on the Book manuscript hash.
+    try:
+        from auteur.expression.book import BookExpressionStore
+
+        status = BookExpressionStore(project).inspect(str(data["book_expression_id"]))
+    except (FileNotFoundError, KeyError, ValueError) as exc:
+        raise PublishError(f"Cannot verify accepted Book freshness: {exc}") from exc
+    if status["freshness"] != "fresh":
+        raise PublishError(
+            "Accepted Book is stale because an accepted Chapter dependency "
+            "requires review. Recompose and accept the Book again before publishing."
+        )
     return data
 
 
