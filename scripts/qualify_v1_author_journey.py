@@ -22,6 +22,7 @@ _TESTS = [
     "tests/test_revision_recovery_v1.py",
     "tests/test_llm_failure_contract.py",
     "tests/test_v1_book_scale_topology.py",
+    "tests/test_v1_platform_invariants.py",
     "tests/test_publish_release.py",
 ]
 
@@ -48,8 +49,8 @@ def main() -> int:
     args = parser.parse_args()
     command = [sys.executable, "-m", "pytest", "-q", *_TESTS]
     started = datetime.now(timezone.utc).isoformat()
-    print("V1 hermetic author-journey qualification")
-    print("Command: " + " ".join(command))
+    print("V1 hermetic author-journey qualification", flush=True)
+    print("Command: " + " ".join(command), flush=True)
     completed = subprocess.run(command, check=False)
     evidence: dict[str, Any] = {
         "schema_version": "auteur-v1-hermetic-author-journey-v1",
@@ -69,7 +70,7 @@ def main() -> int:
     args.output.write_text(
         json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
-    print(json.dumps(evidence, indent=2, sort_keys=True))
+    print(json.dumps(evidence, indent=2, sort_keys=True), flush=True)
     return completed.returncode
 
 
