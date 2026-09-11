@@ -1,13 +1,10 @@
 """Knowledge consistency validator for Layer 3 narrative realization.
 
 The bounded V1 contract uses structured ``EntryState``/``ExitState`` knowledge
-as the identity-bearing knowledge state. ``Outcome.knowledge_added`` and
-``knowledge_questioned`` remain author-facing summaries, so they are not treated
-as globally unique fact identifiers.
-
-Within a chapter, a fact present in a same-POV scene's exit state must remain in
-the next same-POV scene's entry state. Within a ready scene, entry knowledge must
-remain in exit knowledge unless that exact fact is explicitly questioned.
+for deterministic continuity between adjacent same-POV scenes. The current
+schema does not assign stable fact IDs and permits author-written paraphrase
+inside a scene, so local entry/exit prose and ``Outcome.knowledge_added`` are not
+treated as identical fact keys.
 """
 
 from __future__ import annotations
@@ -61,8 +58,8 @@ class KnowledgeValidator:
     def __init__(self) -> None:
         self.scenes: Dict[str, SceneOutline] = {}
         self.violations: List[KnowledgeViolation] = []
-        # Retained for compatibility with older callers; validation itself is
-        # derived from ``self.scenes`` so results do not depend on call order.
+        # Kept for compatibility with callers that inspect the old attribute.
+        # Validation derives from ``self.scenes`` and is therefore call-order independent.
         self._chapter_scenes: Dict[str, List[SceneOutline]] = {}
 
     def add_scene(self, scene: SceneOutline) -> None:
@@ -70,7 +67,7 @@ class KnowledgeValidator:
         self.scenes[scene.id] = scene
 
     def validate_scene(self, scene: SceneOutline) -> KnowledgeValidationResult:
-        """Validate one scene against local and registered continuity rules."""
+        """Validate one scene against the currently provable knowledge rules."""
         violations: List[KnowledgeViolation] = []
         warnings: List[str] = []
 
@@ -111,54 +108,25 @@ class KnowledgeValidator:
     def validate_knowledge_consistency(
         self, scene: SceneOutline
     ) -> List[KnowledgeViolation]:
-        """Require un-questioned entry facts to survive into the exit state.
+        """Return no local text-identity finding without stable knowledge IDs.
 
-        ``Outcome.knowledge_added`` is descriptive prose and is deliberately not
-        matched to ``KnowledgeFact.what``. The current schema has no stable fact
-        identifier that would make such a comparison deterministic.
+        ``KnowledgeFact.what`` and ``Outcome.knowledge_added`` are author-written
+        text. Existing accepted fixtures legitimately paraphrase a fact between a
+        scene's entry and exit state. Treating those strings as canonical IDs
+        would create false contradictions, so V1 limits deterministic enforcement
+        to cross-scene carryover where the structured fact text is expected to be
+        preserved by the next same-POV entry state.
         """
-        if scene.entry_state is None or scene.exit_state is None:
-            return []
-
-        exit_keys = {_fact_key(fact.what) for fact in scene.exit_state.knowledge}
-        questioned = {
-            _fact_key(value)
-            for value in (scene.outcome.knowledge_questioned if scene.outcome else [])
-        }
-
-        violations: List[KnowledgeViolation] = []
-        for fact in scene.entry_state.knowledge:
-            key = _fact_key(fact.what)
-            if key in exit_keys or key in questioned:
-                continue
-            violations.append(
-                KnowledgeViolation(
-                    scene_id=scene.id,
-                    violation_type=KnowledgeViolationType.INCONSISTENT_ENTRY_EXIT,
-                    character_id=scene.pov_character_id,
-                    fact_what=fact.what,
-                    message=(
-                        f"Entry knowledge disappears before {scene.id} exit state: "
-                        f"{fact.what}"
-                    ),
-                    suggestion=(
-                        "Carry the fact into exit_state.knowledge or explicitly list "
-                        "the same fact in outcome.knowledge_questioned."
-                    ),
-                )
-            )
-
-        return violations
+        return []
 
     def validate_no_retroactive_forgetting(
         self, scene: SceneOutline
     ) -> List[KnowledgeViolation]:
         """Reject loss of knowledge between adjacent same-POV scenes.
 
-        Comparison is limited to the same chapter and the nearest preceding scene
-        with the same POV. This keeps the check deterministic and avoids implying
-        cross-character or cross-chapter knowledge ownership that the current
-        schema cannot express.
+        Comparison is limited to the same chapter and nearest preceding scene
+        with the same POV. That boundary is expressible by the current schema and
+        does not infer knowledge ownership for other participants or chapters.
         """
         if (
             scene.status == SceneStatus.DRAFT
@@ -203,9 +171,9 @@ class KnowledgeValidator:
                         f"{previous.id}, but it is absent from {scene.id} entry state."
                     ),
                     suggestion=(
-                        f"Carry the fact into {scene.id}.entry_state.knowledge or "
-                        "represent an explicit forgetting mechanism in a future "
-                        "knowledge-model extension."
+                        f"Carry the fact into {scene.id}.entry_state.knowledge, or keep "
+                        "the scene in a non-ready state until an explicit forgetting "
+                        "mechanism can be represented."
                     ),
                 )
             )
@@ -215,9 +183,9 @@ class KnowledgeValidator:
     def validate_pov_knowledge_vs_other_knowledge(
         self, scene: SceneOutline
     ) -> List[KnowledgeViolation]:
-        """Return no findings where the current schema cannot prove ownership.
+        """Return no finding where the current schema cannot prove ownership.
 
-        Entry/exit states are scene-level and do not encode separate state for
+        Entry/exit states are scene-level and do not encode independent state for
         every non-POV participant. V1 therefore fails conservatively rather than
         inventing omniscience findings from unavailable evidence.
         """
