@@ -53,7 +53,7 @@ Realization, Structure, or Identity.
 
 `Story Identity → lightweight Structure → Scenes → Prose`
 
-Book Identity and enough Structure to preserve the author’s commitments are
+Book Identity and enough Structure to preserve the author's commitments are
 required. Universe, Series, detailed chapter artifacts, and full state tracking
 are optional and may be added later.
 
@@ -74,20 +74,11 @@ Series Identity and Book Identities are required. Universe Identity is optional.
 Continuity plans, compiled bibles, and detailed realization state can be added
 progressively.
 
-## Unresolved specifications
+## Boundary status and intentionally open specifications
 
-The following boundaries are intentionally not implemented by this document:
-
-1. **Emotional trajectory contract:** define story emotional core, chapter
-   function, scene experiential effect, and character emotional state without a
-   rigid state machine. Support milestones, variation, masking, contradiction,
-   regression, sudden transition, and intentional divergence.
-2. **Revision and staleness semantics:** define which downstream plans,
-   realizations, expressions, and reports become stale or require review after
-   each class of upstream change. The Minimal V1 pilot is specified in
-   [Revision and Staleness Semantics](revision-and-staleness-semantics.md).
-3. **Expression boundary:** define which language-level choices belong to
-   Expression and which realized event facts remain canonical upstream.
+1. **Emotional trajectory contract — OPEN / POST-V1 BY DEFAULT:** define story emotional core, chapter function, scene experiential effect, and character emotional state without a rigid state machine. Support milestones, variation, masking, contradiction, regression, sudden transition, and intentional divergence. This remains evidence-gated rather than a V1 release blocker.
+2. **Revision and staleness coverage — V1 CLOSURE AUDIT:** the base semantics are defined in [Revision and Staleness Semantics](revision-and-staleness-semantics.md). V1 release work reconciles those semantics across the authority-bearing artifact families promised by the V1 Product Contract; it does not require repository-wide normalization of every derived artifact.
+3. **Realization ↔ Expression boundary — SPECIFIED FOR V1:** [Expression Boundary](expression-boundary.md) defines the ownership rule. Expression may render and elaborate accepted Realization but may not silently redefine authority-bearing event/state facts. Deterministic structured contradictions can block candidate acceptance; inferred/ambiguous craft evidence remains review/advisory evidence. Upstream changes require a separate explicit owning-workflow action.
 
 ## Current implementation mapping
 
