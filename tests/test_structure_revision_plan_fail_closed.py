@@ -93,5 +93,8 @@ def test_revision_plan_still_accepts_selected_proposal_with_concrete_operation(t
 
     assert plan.operations
     assert plan.operations[0].target_id == "blueprint"
-    assert plan.operations[0].requested_change["value"]["estimated_chapters"] == 48
+    assert plan.operations[0].requested_change == {
+        "field": "structure.estimated_chapters",
+        "value": 48,
+    }
     assert (project / ".auteur" / "structure" / "revision-plans" / f"{plan.plan_id}.yaml").is_file()
