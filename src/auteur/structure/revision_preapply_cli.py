@@ -1,4 +1,4 @@
-"""Safe pre-application CLI for Structure revision planning, validation, and preview."""
+"""Specialized CLI for Structure revision planning, preview, and reassessment."""
 from __future__ import annotations
 
 import argparse
@@ -26,6 +26,11 @@ def parse_revision_preapply_args(argv: list[str]) -> argparse.Namespace:
     preview.add_argument("plan_id")
     preview.add_argument("--project", type=Path, default=Path("."))
     preview.add_argument("--json", action="store_true")
+
+    reassess = sub.add_parser("reassess", help="Re-run exact diagnostic evidence after a fully applied revision.")
+    reassess.add_argument("application_id")
+    reassess.add_argument("--project", type=Path, default=Path("."))
+    reassess.add_argument("--json", action="store_true")
     return parser.parse_args(argv)
 
 
@@ -49,6 +54,10 @@ def dispatch_revision_preapply_argv(argv: list[str]) -> int:
             from auteur.structure.revision_preview import build_revision_preview
 
             payload = build_revision_preview(args.project, args.plan_id)
+        elif args.revision_command == "reassess":
+            from auteur.structure.revision_reassessment import build_revision_reassessment
+
+            payload = build_revision_reassessment(args.project, args.application_id)
         else:
             service = RevisionService(args.project)
             if args.revision_command == "plan":
@@ -92,7 +101,7 @@ def dispatch_revision_preapply_argv(argv: list[str]) -> int:
         print("No story artifact was changed by validation.")
         if payload["apply_command"]:
             print(f"Authority-bearing next step: {payload['apply_command']}")
-    else:
+    elif args.revision_command == "preview":
         print(f"Narrative Change Preview: {payload['plan_id']}")
         print(f"Status: {payload['authority_status']}")
         print(f"Currentness: {payload['currentness']}")
@@ -104,6 +113,14 @@ def dispatch_revision_preapply_argv(argv: list[str]) -> int:
         print("Preview is derived; no story or revision state was changed.")
         if payload["next_command"]:
             print(f"Next step: {payload['next_command']}")
+    else:
+        print(f"Decision Reassessment: {payload['application_id']}")
+        print(f"Status: {payload['assessment_status']}")
+        if payload["source_rule"]:
+            print(f"Diagnostic rule: {payload['source_rule']}")
+        print(str(payload["reason"]))
+        print(str(payload["claim_scope"]))
+        print("Reassessment is derived/read-only; no story or revision history was changed.")
     if args.revision_command == "validate":
         return 0 if payload.get("state") == "ready" else 1
     return 0
