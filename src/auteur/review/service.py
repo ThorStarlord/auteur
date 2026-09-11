@@ -13,7 +13,6 @@ from auteur.decision.models import (
 from auteur.decision.service import DecisionWorkspaceService
 from auteur.review.models import (
     AcceptancePreparation,
-    AcceptanceResult,
     ImpactRefreshResult,
     ReviewChoice,
     ReviewEvent,
@@ -35,7 +34,8 @@ class ReviewService:
     """Application service for Author Review Sessions.
 
     Orchestrates existing Decision Workspace, impact, and acceptance
-    capabilities. Never duplicates subsystem logic.
+    preparation capabilities. Canonical acceptance remains owned by the
+    artifact-specific authority workflow.
     """
 
     def __init__(self, project_root: Path):
@@ -115,6 +115,25 @@ class ReviewService:
         self.store.save_session(session)
         self.store.save_latest_pointer(session.session_id)
         return session
+
+    def start_session(
+        self,
+        decision_id: str | None = None,
+        candidate_id: str | None = None,
+    ) -> ReviewSession:
+        """Compatibility entry point for callers created before ``start``.
+
+        A supplied candidate is validated against the named decision before any
+        session mutation occurs. Candidate selection remains advisory; this
+        method never grants acceptance authority.
+        """
+        if candidate_id is not None:
+            if decision_id is None:
+                raise ValueError("candidate_id requires decision_id")
+            decision = self.decision_service.inspect(decision_id)
+            if not any(candidate.candidate_id == candidate_id for candidate in decision.candidates):
+                raise ValueError(f"Candidate not found in decision {decision_id}: {candidate_id}")
+        return self.start(decision_id)
 
     def resume(self, session_id: str) -> ReviewSession:
         """Resume an existing session from persisted state."""
@@ -361,7 +380,7 @@ class ReviewService:
         return session
 
     # ------------------------------------------------------------------
-    # Acceptance execution (authority-bearing)
+    # Acceptance boundary (authority remains artifact-owned)
     # ------------------------------------------------------------------
 
     def accept(
@@ -370,10 +389,12 @@ class ReviewService:
         candidate_id: str,
         confirm: bool = False,
     ) -> ReviewSession:
-        """Perform authority-bearing acceptance.
+        """Validate the review boundary and refuse unowned canonical mutation.
 
-        Requires explicit confirmation. Delegates to the existing
-        acceptance subsystem. Never writes canonical pointers directly.
+        Review can establish readiness, but it cannot claim an authority
+        transition without a deterministically identified artifact-specific
+        acceptance executor. Until that ownership is encoded, callers must use
+        the owning acceptance workflow directly.
         """
         if not confirm:
             raise ValueError("Acceptance requires --confirm")
@@ -382,9 +403,15 @@ class ReviewService:
         if not session.target:
             raise ValueError("Session has no target decision")
 
-        # Revalidate preparation
+        if session.preparation and session.preparation.candidate_id != candidate_id:
+            raise ValueError(
+                f"Acceptance candidate {candidate_id} does not match prepared candidate "
+                f"{session.preparation.candidate_id}"
+            )
+
+        # Revalidate preparation. A blocked preparation may record its ordinary
+        # derived preparation evidence, but no acceptance event is ever emitted.
         if not session.preparation or not session.preparation.prepared:
-            # Try preparing first
             session_temp = self.prepare_acceptance(session_id, candidate_id)
             if not session_temp.preparation or not session_temp.preparation.prepared:
                 raise ValueError(
@@ -393,66 +420,15 @@ class ReviewService:
                 )
             session = session_temp
 
-        # Check stale preparation
         decision = self.decision_service.inspect(session.target.decision_id)
         if decision.freshness == EvidenceFreshness.STALE:
             raise ValueError("Cannot accept: decision evidence is stale. Resume the session first.")
 
-        # Record acceptance request
-        session_state = ReviewSessionState.ACCEPTING
-        session = ReviewSession(
-            session_id=session.session_id,
-            project=session.project,
-            state=session_state,
-            target=session.target,
-            evidence_snapshot=session.evidence_snapshot,
-            choices=session.choices,
-            preparation=session.preparation,
-            acceptance=session.acceptance,
-            impact_refresh=session.impact_refresh,
-            event_count=session.event_count,
-            last_event_hash=session.last_event_hash,
-            created_at=session.created_at,
-            updated_at=datetime.now(timezone.utc).isoformat(),
+        raise ValueError(
+            "Review cannot execute authority-bearing acceptance because the owning acceptance workflow "
+            "is not encoded for this decision. Use the artifact-specific owning acceptance workflow; "
+            "the review session remains awaiting acceptance."
         )
-
-        self._record_event(session, ReviewEventType.ACCEPTANCE_REQUESTED, {
-            "candidate_id": candidate_id,
-        })
-
-        # TODO: Call the actual acceptance subsystem
-        # For now, record acceptance success (the acceptance subsystem
-        # call will be integrated when the full acceptance API is confirmed)
-        result = AcceptanceResult(
-            accepted=True,
-            acceptance_id=_stable_id("acceptance", session.session_id, candidate_id),
-            candidate_id=candidate_id,
-        )
-
-        session = ReviewSession(
-            session_id=session.session_id,
-            project=session.project,
-            state=ReviewSessionState.ACCEPTED,
-            target=session.target,
-            evidence_snapshot=session.evidence_snapshot,
-            choices=session.choices,
-            preparation=session.preparation,
-            acceptance=result,
-            impact_refresh=session.impact_refresh,
-            event_count=session.event_count,
-            last_event_hash=session.last_event_hash,
-            created_at=session.created_at,
-            updated_at=datetime.now(timezone.utc).isoformat(),
-        )
-
-        self._record_event(session, ReviewEventType.ACCEPTANCE_COMPLETED, {
-            "candidate_id": candidate_id,
-            "acceptance_id": result.acceptance_id,
-        })
-
-        self.store.save_session(session)
-        self.store.save_latest_pointer(session.session_id)
-        return session
 
     # ------------------------------------------------------------------
     # Impact refresh
@@ -639,6 +615,7 @@ class ReviewService:
             session.evidence_snapshot = snapshot
         except Exception:
             pass
+
     def _derive_state(self, session: ReviewSession) -> ReviewSessionState:
         """Derive current state from session data."""
         if session.state in (ReviewSessionState.COMPLETED, ReviewSessionState.ABORTED, ReviewSessionState.STALE):
