@@ -307,7 +307,7 @@ See [docs/campaign/auteur-long-horizon-campaign-state.md](docs/campaign/auteur-l
 Two notable open PRs must not be confused with current `main` behavior:
 
 - [PR #167](https://github.com/ThorStarlord/auteur/pull/167) — bounded Episode 1 Direction support: **open / not merged**.
-- [PR #166](https://github.com/ThorStarlord/auteur/pull/166) — full-suite Windows CI leg: **open / not merged**.
+- [PR #166](https://github.com/ThorStarlord/auteur/pull/166) — full-suite Windows CI leg: **open / not merged**. Current production CI should not be described as having this additional Windows leg until merged.
 
 See [STATUS.md](STATUS.md) for current reconciliation details.
 
@@ -361,7 +361,7 @@ Run the repository verification stack:
 python scripts/check.py
 ```
 
-CI uses `python scripts/check.py --skip-pytest` plus the pytest matrix and installed-wheel smoke according to the current validation workflow. Real-provider smoke checks remain separate because they spend external API tokens.
+CI runs the same verification entrypoint with `python scripts/check.py --skip-pytest` plus the pytest matrix and installed-wheel smoke according to the current validation workflow. Real-provider smoke checks remain separate because they spend external API tokens.
 
 ## Versioning
 
