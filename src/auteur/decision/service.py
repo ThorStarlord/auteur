@@ -910,24 +910,11 @@ class DecisionWorkspaceService:
             except Exception as e:
                 logger.debug(f"Could not load reasoning evidence for {candidate.candidate_id}: {e}")
 
-        # Add evidence from reconciliation proposals if available
-        try:
-            proposals = self.convergence_store.list_proposals(decision.target_artifact_id)
-            for proposal in proposals:
-                if proposal.get("conflicts"):
-                    for conflict in proposal["conflicts"]:
-                        evidence.append(
-                            DecisionEvidence.create(
-                                source_subsystem=EvidenceSource.RECONCILIATION,
-                                source_artifact_id=proposal.get("proposal_id", "unknown"),
-                                claim=conflict.get("description", ""),
-                                evidence_type=EvidenceType.RECONCILIATION_CONFLICT,
-                                classification=EvidenceClassification.DERIVED_INFERENCE,
-                                freshness=EvidenceFreshness.CURRENT,
-                            )
-                        )
-        except Exception as e:
-            logger.warning(f"Could not load reconciliation proposals: {e}")
+        # Read durable Expression reconciliation evidence through the dedicated
+        # adapter. Parse/storage errors intentionally propagate so malformed
+        # evidence cannot be misclassified as "no reconciliation conflicts".
+        conflicts = self.reconciliation_adapter.get_conflicts(decision.target_artifact_id)
+        evidence.extend(self.reconciliation_adapter.conflicts_to_evidence(conflicts))
 
         # Return enriched decision
         return AuthorDecision(
