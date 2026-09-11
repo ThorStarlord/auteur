@@ -26,6 +26,33 @@ def test_markdown_hash_normalizes_line_endings_trailing_spaces_and_unicode(tmp_p
     assert canonical_content_hash(left) == canonical_content_hash(right)
 
 
+def test_semantic_hash_is_independent_of_locale_and_timezone_environment(
+    tmp_path: Path, monkeypatch
+):
+    artifact = tmp_path / "story.yaml"
+    artifact.write_text(
+        yaml.safe_dump(
+            {
+                "title": "Cora\u00e7\u00e3o da Esta\u00e7\u00e3o",
+                "accepted_at": "2026-09-11T17:00:00-03:00",
+                "count": 42,
+            },
+            allow_unicode=True,
+            sort_keys=False,
+        ),
+        encoding="utf-8",
+    )
+    baseline = canonical_content_hash(artifact)
+    monkeypatch.setenv("TZ", "Pacific/Kiritimati")
+    monkeypatch.setenv("LC_ALL", "C")
+    monkeypatch.setenv("LANG", "C")
+    assert canonical_content_hash(artifact) == baseline
+    monkeypatch.setenv("TZ", "America/Sao_Paulo")
+    monkeypatch.setenv("LC_ALL", "pt_BR.UTF-8")
+    monkeypatch.setenv("LANG", "pt_BR.UTF-8")
+    assert canonical_content_hash(artifact) == baseline
+
+
 def test_unicode_artifact_filename_and_metadata_roundtrip(tmp_path: Path):
     project = tmp_path / "Projeto \u00c9pico"
     scene = project / "chapters" / "01" / "scenes" / "cena_\u00e1rvore.yaml"
