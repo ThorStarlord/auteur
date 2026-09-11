@@ -129,6 +129,82 @@ Tutor response
 
 Guardrails: the handoff is derived/noncanonical; it is not a second acceptance system; it may recommend an Identity/Structure/Realization revision path but must not silently execute it. If existing authority workflows cannot express the change, record that as product evidence before inventing a new one.
 
+## CANDIDATE — Narrative Change Preview
+**State:** `CANDIDATE`; promote only after real handoff use shows authors need impact visibility before changing authority-bearing state.
+
+Before an author performs an authoritative revision, Auteur could produce a derived preview of likely consequences using existing provenance, dependency, impact, continuity, and planning machinery.
+
+```text
+proposed authoritative change
+→ derived change preview
+→ affected commitments / plans / realized state
+→ downstream artifacts that may become stale, suspect, or contradictory
+→ continuity / setup-payoff / planning consequences already evidenced by current systems
+→ author decides whether to proceed through the existing authority workflow
+```
+
+This is conceptually a narrative `git diff --dry-run`.
+
+Guardrails:
+- preview ≠ modification;
+- preview output is derived/noncanonical;
+- do not create a second mutation path;
+- do not claim causal downstream effects where only dependency/impact evidence exists;
+- reuse existing impact/provenance contracts before inventing new graph or ontology foundations;
+- if existing dependency information is insufficient, record the specific blind spot as evidence rather than silently inferring certainty.
+
+## CANDIDATE — Decision Reassessment / Closed Decision Loop
+**State:** `CANDIDATE`; promote only after Decision-to-Authority Handoff exists or equivalent real product evidence appears.
+
+A resolved Tutor interaction should eventually be traceable through the authoritative story change that followed it and then be reassessed against the original decision context:
+
+```text
+problem / question
+→ Decision Card
+→ author response
+→ Decision Handoff
+→ explicit authoritative revision
+→ deterministic / bounded reassessment
+→ resolved / still relevant / transformed / new downstream decision
+```
+
+The goal is to answer **“Did the story change that followed this decision actually address the reason the decision was surfaced?”** without inventing an opaque creative-quality score.
+
+Guardrails:
+- reassessment is not automatic artistic approval;
+- a Tutor response does not itself prove the issue was resolved;
+- canonical revision history remains owned by existing authority-bearing workflows;
+- preserve links from the original card/session to the later accepted revision without turning Tutor sessions into canonical story history;
+- represent unresolved or ambiguous outcomes explicitly.
+
+## CANDIDATE — Unified Project Orientation
+**State:** `CANDIDATE`; likely after the root Tutor loop and before a broader workspace UI.
+
+Auteur already knows substantial accepted and derived project state. A bounded orientation projection could compose that information into one answer to **“Where am I, what matters now, and what should I decide next?”**
+
+```text
+PROJECT NOW
+
+accepted StoryIdentity / Direction
++ current Series / Book / Chapter / Scene scope where known
++ current structural horizon
++ Current Author Intent when present
++ active diagnostics / continuity concerns
++ stale or unresolved decisions
++ planning blockers / impact evidence
++ active Tutor session
+→ one prioritized Decision Card or one explicit no-action-needed result
+```
+
+Start as a CLI/API projection before designing a broad dashboard. Reuse Global Map/Focus, planning, diagnostics, Decision Cards, and provenance rather than creating a parallel project-state database.
+
+Guardrails:
+- orientation is derived/rebuildable, not second canon;
+- no opaque global “story health” score;
+- show `why this?`, `why now?`, source evidence, currentness, and authority;
+- allow “no warranted decision” rather than forcing perpetual intervention;
+- expose underlying artifacts progressively for advanced users.
+
 ## CANDIDATE — Unified Decision Inbox
 **State:** `CANDIDATE`
 
@@ -146,6 +222,8 @@ Simulation / portfolio ──┘
 
 The underlying systems keep their semantics and authority. The inbox answers **“what important decision needs my attention now?”** Required qualities: stable ordering where possible, no opaque creative-quality score, clear blocker/advisory distinctions, visible `why this?`, `why now?`, evidence, consequences, and authority.
 
+Unified Project Orientation may consume this inbox or select from it, but neither concept should become a new canonical narrative layer.
+
 ## CANDIDATE — Current Author Intent
 **State:** `CANDIDATE`; promote only if real Tutor use reveals relevance friction.
 
@@ -161,7 +239,7 @@ Current Author Intent
 Guardrails: local/noncanonical by default; never silently promoted into accepted Direction; prefer plain-language author input; do not build a universal intent ontology without recurring evidence.
 
 ## CANDIDATE — Guided Author Workspace
-**State:** `CANDIDATE`; consider after root Tutor semantics stabilize.
+**State:** `CANDIDATE`; consider after root Tutor semantics and the core decision loop stabilize.
 
 The beginner experience should progressively hide CLI/YAML/Pydantic machinery. A small local browser surface is plausible because Auteur already has browser/session infrastructure.
 
@@ -177,6 +255,8 @@ recommendation
 alternatives / trade-offs
 [Explain] [Teach me] [Choose]
 ```
+
+If Decision-to-Authority Handoff and Change Preview are later qualified, the workspace should project those existing semantics rather than create UI-only mutation behavior.
 
 Advanced disclosure can reveal evidence, provenance, artifacts, diagnostics, and CLI equivalents. Do not start with a broad desktop app, cloud collaboration platform, or new GUI architecture; prove the bounded decision interaction first.
 
@@ -221,6 +301,35 @@ Core rule: **extraction ≠ canon**. Inferred information remains derived/candid
 **State:** `CANDIDATE`
 
 Book reconciliation exists, but richer Book-scale reasoning/editing remains plausible. Prefer bounded Book-level decisions over automatic manuscript rewrites. Useful questions include duplicate chapter function, stalled character trajectory, mistimed setup/payoff, thematic drift, and consequences of late revision. Reuse existing reasoning/Decision Card contracts where possible instead of creating a parallel advisory system.
+
+## Candidate Evolution Sequence — Not an Approved Queue
+This sequence captures the current strongest product-evolution hypothesis if evidence continues to support the guided-decision thesis. It is **not** a dependency guarantee, milestone authorization, or instruction to skip observed evidence.
+
+```text
+Decision-Oriented Tutor M1
+        ↓
+Beginner Decision Golden Path
+        ↓
+Decision-to-Authority Handoff
+        ↓
+Narrative Change Preview
+        ↓
+Decision Reassessment
+        ↓
+Unified Project Orientation
+        ↓
+Guided Author Workspace
+        ↓
+Serial / Episode expansion
+```
+
+Interpretation rules:
+- each transition still requires real selection/authorization;
+- Golden Path evidence may reorder, combine, defer, or reject later candidates;
+- Unified Decision Inbox and Current Author Intent are supporting candidates that may be pulled earlier if real relevance/orientation friction warrants them;
+- Story Design Pack growth remains demand-driven and can happen opportunistically when a real Decision Card lacks needed craft knowledge;
+- engineering hardening runs independently when risk justifies it;
+- long-horizon expansion remains subject to its separate campaign evidence gate regardless of this sequence.
 
 ## EVIDENCE-GATED — Long-Horizon Expansion
 **State:** `EVIDENCE-GATED`
