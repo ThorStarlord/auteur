@@ -1,14 +1,17 @@
 """Knowledge consistency validation for Layer 3 narrative realization.
 
-The current SceneOutline schema can prove two deterministic continuity facts:
+The current SceneOutline schema can prove deterministic continuity from
+EntryState, ExitState, and Outcome:
 
-* facts present on scene entry may not silently disappear from scene exit; and
+* entry facts may not silently disappear from scene exit;
+* facts declared in ``outcome.knowledge_added`` must appear in scene exit; and
 * facts present at the prior same-POV scene exit must be present on the next
   same-POV scene entry.
 
-Richer semantics such as explicit learning mechanisms, intentional forgetting,
-or contradiction resolution require schema that does not yet exist and are not
-inferred here.
+``outcome.knowledge_questioned`` is an explicit representable exception for a
+fact whose prior certainty is deliberately withdrawn. Richer contradiction,
+omniscience, or communication inference requires data the schema does not yet
+encode and is not invented here.
 """
 
 from __future__ import annotations
@@ -46,7 +49,7 @@ class KnowledgeValidationResult:
 
 
 class KnowledgeValidator:
-    """Validate the deterministic knowledge continuity represented by scenes."""
+    """Validate deterministic knowledge continuity represented by scenes."""
 
     def __init__(self) -> None:
         self.scenes: dict[str, SceneOutline] = {}
@@ -93,33 +96,53 @@ class KnowledgeValidator:
     def validate_knowledge_consistency(
         self, scene: SceneOutline
     ) -> list[KnowledgeViolation]:
-        """Ensure entry facts do not silently disappear from scene exit.
-
-        The current schema does not encode an explicit forgetting mechanism, so
-        disappearance is objectively inconsistent. Newly learned facts are not
-        inferred because their acquisition mechanism is not represented yet.
-        """
-        if scene.entry_state is None or scene.exit_state is None:
+        """Validate continuity that EntryState/Outcome/ExitState can express."""
+        if scene.exit_state is None:
             return []
 
         exit_facts = self._fact_names(scene.exit_state)
+        questioned = set(scene.outcome.knowledge_questioned) if scene.outcome else set()
         violations: list[KnowledgeViolation] = []
-        for fact in scene.entry_state.knowledge:
-            if fact.what in exit_facts:
-                continue
-            violations.append(
-                KnowledgeViolation(
-                    scene_id=scene.id,
-                    violation_type=KnowledgeViolationType.INCONSISTENT_ENTRY_EXIT,
-                    character_id=scene.pov_character_id,
-                    fact_what=fact.what,
-                    message=(
-                        f"Knowledge present on entry disappears from {scene.id}'s "
-                        "exit state without a representable forgetting mechanism"
-                    ),
-                    suggestion="Preserve the fact in exit_state or revise the scene state",
+
+        if scene.entry_state is not None:
+            for fact in scene.entry_state.knowledge:
+                if fact.what in exit_facts or fact.what in questioned:
+                    continue
+                violations.append(
+                    KnowledgeViolation(
+                        scene_id=scene.id,
+                        violation_type=KnowledgeViolationType.INCONSISTENT_ENTRY_EXIT,
+                        character_id=scene.pov_character_id,
+                        fact_what=fact.what,
+                        message=(
+                            f"Knowledge present on entry disappears from {scene.id}'s "
+                            "exit state without being explicitly questioned"
+                        ),
+                        suggestion=(
+                            "Preserve the fact in exit_state or declare it in "
+                            "outcome.knowledge_questioned"
+                        ),
+                    )
                 )
-            )
+
+        if scene.outcome:
+            for fact_what in scene.outcome.knowledge_added:
+                if fact_what in exit_facts or fact_what in questioned:
+                    continue
+                violations.append(
+                    KnowledgeViolation(
+                        scene_id=scene.id,
+                        violation_type=KnowledgeViolationType.KNOWLEDGE_GAP,
+                        character_id=scene.pov_character_id,
+                        fact_what=fact_what,
+                        message=(
+                            f"{scene.id} declares newly acquired knowledge in its outcome "
+                            "but the fact is absent from exit_state"
+                        ),
+                        suggestion="Add the learned fact to exit_state knowledge",
+                    )
+                )
+
         return violations
 
     def _previous_same_pov_scene(self, scene: SceneOutline) -> SceneOutline | None:
