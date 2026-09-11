@@ -30,7 +30,6 @@ def _ready_scene(
     entry: list[KnowledgeFact] | None = None,
     exit: list[KnowledgeFact] | None = None,
     learned: list[str] | None = None,
-    questioned: list[str] | None = None,
 ) -> SceneOutline:
     return SceneOutline(
         id=scene_id,
@@ -44,11 +43,7 @@ def _ready_scene(
         opposition=Opposition(source_id="external", pressure="Meaningful resistance"),
         turn=Turn(type="discovery", event="New information arrives", impact="The situation changes"),
         decision=Decision(actor_id=pov, choice="Continue"),
-        outcome=Outcome(
-            result="success",
-            knowledge_added=list(learned or []),
-            knowledge_questioned=list(questioned or []),
-        ),
+        outcome=Outcome(result="success", knowledge_added=list(learned or [])),
         entry_state=EntryState(knowledge=list(entry or [])),
         exit_state=ExitState(knowledge=list(exit or [])),
     )
@@ -73,28 +68,12 @@ def test_ready_scene_with_empty_states_is_valid() -> None:
     assert result.is_valid is True
 
 
-def test_entry_knowledge_must_survive_to_exit() -> None:
-    known = _fact("The archive door is trapped")
-    scene = _ready_scene("scene_01_01", 1, entry=[known], exit=[])
-
-    result = KnowledgeValidator().validate_scene(scene)
-
-    assert result.is_valid is False
-    assert any(
-        violation.violation_type == KnowledgeViolationType.INCONSISTENT_ENTRY_EXIT
-        and violation.fact_what == known.what
-        for violation in result.violations
-    )
-
-
-def test_questioned_entry_knowledge_may_leave_exit_state() -> None:
-    known = _fact("The archive door is trapped")
+def test_local_entry_exit_paraphrase_is_not_rejected_without_fact_ids() -> None:
     scene = _ready_scene(
         "scene_01_01",
         1,
-        entry=[known],
-        exit=[],
-        questioned=[known.what],
+        entry=[_fact("Daniel is aware she is investigating the archive")],
+        exit=[_fact("Daniel is aware she is investigating")],
     )
     result = KnowledgeValidator().validate_scene(scene)
     assert result.is_valid is True
@@ -135,6 +114,16 @@ def test_same_pov_preserving_prior_exit_knowledge_is_valid() -> None:
     known = _fact("The archive door is trapped")
     first = _ready_scene("scene_01_01", 1, exit=[known])
     second = _ready_scene("scene_01_02", 2, entry=[known], exit=[known])
+    validator = KnowledgeValidator()
+    validator.add_scene(first)
+    validator.add_scene(second)
+    result = validator.validate_all_scenes()
+    assert result.is_valid is True
+
+
+def test_fact_comparison_normalizes_case_and_whitespace() -> None:
+    first = _ready_scene("scene_01_01", 1, exit=[_fact("The archive door is trapped")])
+    second = _ready_scene("scene_01_02", 2, entry=[_fact("  the ARCHIVE door is trapped  ")])
     validator = KnowledgeValidator()
     validator.add_scene(first)
     validator.add_scene(second)
