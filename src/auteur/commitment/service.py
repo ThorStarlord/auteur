@@ -179,8 +179,9 @@ class CommitmentService:
             try:
                 # Prepare acceptance
                 rv.prepare_acceptance(session_id, cand_id)
-                # Accept as committed
-                rv.accept(session_id, cand_id, as_committed=True)
+                # Review never gains authority from a portfolio commitment;
+                # explicit confirmation only authorizes the Review boundary.
+                rv.accept(session_id, cand_id, confirm=True)
                 results.append({
                     "decision_id": dec_id,
                     "candidate_id": cand_id,
