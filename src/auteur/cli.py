@@ -33,6 +33,15 @@ def _is_structure_proposal(raw: list[str]) -> bool:
     return len(raw) >= 2 and raw[0] == "structure" and raw[1] == "proposal"
 
 
+def _is_structure_revision_preapply(raw: list[str]) -> bool:
+    return (
+        len(raw) >= 3
+        and raw[0] == "structure"
+        and raw[1] == "revision"
+        and raw[2] in {"plan", "validate"}
+    )
+
+
 def _prepare_story_discovery_argv(
     argv: list[str] | None,
 ) -> tuple[list[str], bool, Path | None]:
@@ -97,6 +106,10 @@ def main(argv: list[str] | None = None) -> int:
         from auteur.structure.proposal_cli import dispatch_proposal_argv
 
         return dispatch_proposal_argv(raw_input[2:])
+    if _is_structure_revision_preapply(raw_input):
+        from auteur.structure.revision_preapply_cli import dispatch_revision_preapply_argv
+
+        return dispatch_revision_preapply_argv(raw_input[2:])
 
     try:
         raw, recommend, discovery_brief = _prepare_story_discovery_argv(raw_input)
@@ -160,6 +173,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         from auteur.structure.proposal_cli import parse_proposal_args
 
         return parse_proposal_args(raw_input[2:])
+    if _is_structure_revision_preapply(raw_input):
+        from auteur.structure.revision_preapply_cli import parse_revision_preapply_args
+
+        return parse_revision_preapply_args(raw_input[2:])
 
     raw, recommend, discovery_brief = _prepare_story_discovery_argv(raw_input)
     args = build_parser().parse_args(raw)
