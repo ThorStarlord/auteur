@@ -116,6 +116,8 @@ jobs:
   v1-closure-evidence:
     name: "v1 closure evidence"
     runs-on: ubuntu-latest
+    env:
+      AUTEUR_CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -131,6 +133,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: v1-author-journey-${{ github.sha }}
+          name: v1-author-journey-${{ github.event.pull_request.head.sha || github.sha }}
           path: .auteur/qualification/v1-author-journey.json
           if-no-files-found: warn
