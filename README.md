@@ -1,62 +1,130 @@
 # Auteur
 
-Auteur is an opinionated narrative-engine toolkit for long-form fiction. It helps creative beginners turn raw creative input into multiple plausible story engines, recommends the strongest direction with explicit tradeoffs, and keeps canonical story state under author control.
+Auteur is a **local-first literary compiler and guided narrative-decision system for long-form fiction**. It helps an author turn raw creative input into a coherent story direction, preserve accepted narrative state over long horizons, diagnose structural problems, and make bounded creative decisions without silently surrendering story authority to the model.
 
-Auteur coordinates high-level narrative-engine recommendation with deterministic execution rails under a unified narrative compilation lifecycle:
+The intended beginner experience is guided authoring with progressive disclosure. The Python CLI and YAML/JSON/Markdown artifacts remain the transparent engineering and advanced-author surface.
+
+> **Current repository state:** see [STATUS.md](STATUS.md).  
+> **Mission and invariants:** see [MISSION.md](MISSION.md).  
+> **Canonical architecture:** see [docs/narrative-architecture.md](docs/narrative-architecture.md).
+
+## What Auteur Optimizes For
+
+Auteur's first valuable outcome is not maximum prose volume. It is a story direction the author can understand, inspect, and explicitly accept.
 
 ```text
 raw idea
   ↓
 narrative search (multiple plausible story engines)
   ↓
-advisory recommendation + tradeoffs
+advisory recommendation + trade-offs
   ↓
 explicit author choice
   ↓
 story_identity.yaml (accepted story engine)
   ↓
-blueprint.yaml (structural design canvas)
+blueprint / structure planning
   ↓
-structure diagnostics (deterministic audit)
+deterministic diagnostics + derived decision support
   ↓
-optional cartographer outline (chapter coordination)
+explicit author decisions
   ↓
-optional chapter contracts (TDD specifications)
-  ↓
-optional draft / critique / accept (Bard & Critics)
+optional outline / drafting / critique / publication workflows
 ```
 
-The current Engine v1 is a hybrid system:
+For long-running projects, Auteur also externalizes accepted history and current narrative state so future decisions can be made without reconstructing the entire story from scratch.
 
-- Deterministic code owns schemas, project files, validation models, artifact writing, and retry flow.
-- LLM calls provide creative planning, prose generation, and critic judgment.
-- The pipeline keeps LLM output inside a repeatable plan -> draft -> critique -> iterate loop.
+## Product Model
 
-The current repository's primary implementation surface is a Python CLI with
-YAML, JSON, and Markdown artifacts. This remains a transparent advanced-author
-and engineering surface. The intended default experience for creative beginners
-is guided authoring with progressive disclosure, so users do not need to edit
-YAML, understand Pydantic, or operate the CLI directly to reach the first
-valuable outcome.
+Auteur increasingly separates the author-facing product from the underlying compiler machinery:
 
-## Status
+```text
+AUTHOR-FACING PRODUCT
+  guided authoring
+  bounded creative decisions
+  explanations / trade-offs / Tutor guidance
 
-This repository contains a working Engine v1 CLI and Python library covering the full narrative compilation lifecycle:
+NARRATIVE COMPILER
+  Ontology → Identity → Structure → Realization → Expression
 
-- **Story Discovery**: Generates multiple plausible `StoryIdentity` interpretations, compares them with a bounded advisory judge, recommends one direction with tradeoffs, and leaves canonical state unchanged until explicit author acceptance.
-- **Opinionated Story Identity**: Recommended story-engine validation and seeding via Pydantic model contracts, including rationale, rejected directions, and author overrides. The direct `identity recommend` command remains available as an advanced single-engine shortcut.
-- **Genre Packs**: Versioned, reusable genre knowledge packages (`erotic_fiction` v0.1.0 MVP) supplying audience promises, emotional targets, narrative engines, scene functions, subgenre profiles (`erotic_romance`, `erotic_psychological_drama`, `erotic_horror`), opinionated recommendations, explicit author acceptance/overrides, and genre-aware diagnostics.
-- **Genre Overrides**: Declared author bypasses for genre contract expectations, classified into four consequence types (`safe_variation`, `compression`, `subversion`, `reclassification`).
-- **Subgenre Modifier Validation**: Registered subgenre modifiers (`locked_room`, `hardboiled`, `cozy`) with scope, setup, and misuse diagnostics.
-- **Structure Generation (top-down)**: Synthesizes a complete story engine from target experience, genre, and scope constraints.
-- **Structure Diagnosis (bottom-up)**: Maps author-described symptoms (e.g. "midpoint feels flat") to likely structural root causes with recommendations.
-- **Deterministic Diagnostics**: 20+ deterministic rules across Identity, Structure, and Realization concerns, with repair proposals and full proposal lifecycle (diagnose → propose → select → apply).
-- **State Management**: Multi-layer coordination across the relevant semantic layers and scopes via `auteur state` commands (check, update, prepare, canon, confirm).
-- **Outline Compiling**: Cartographer outline compilation from blueprint with deterministic validation.
-- **TDD Drafting**: Multi-critic verification loops (contract, arc, tension, slop, theme) against structured chapter contracts, with automatic rewrite attempts and manual accept/retry flows.
-- **Dual LLM Provider Support**: Anthropic Claude and OpenAI GPT adapters with per-agent model routing and exponential-backoff retry.
+SUPPORTING INTELLIGENCE
+  diagnostics / provenance / impact / planning
+  Series continuity / Global Map / Focus
+  simulation / portfolio comparison / craft knowledge
+```
 
-Transient API errors are handled by `RetryingClient` with exponential backoff. Per-agent model routing is configurable via blueprint-level `cartographer_model`, `bard_model`, and `critic_model` fields.
+The supporting systems remain subordinate to author authority. A deterministic result can be useful, reproducible, and well-evidenced without becoming canon.
+
+## Canonical Architecture
+
+Auteur uses five semantic layers:
+
+1. **Ontology** — concepts, relationships, vocabulary, and domain rules.
+2. **Identity** — commitments such as genre, medium, target experience, theme, and core story engine.
+3. **Structure** — plans: arcs, beats, threads, chapter plans, setup/payoff intentions, thematic progression.
+4. **Realization** — events and state changes: scenes, chronology, knowledge, location, inventory, relationships, and character deltas.
+5. **Expression** — language: prose, dialogue, voice, diction, imagery, pacing, and revision.
+
+The independent scope axis is:
+
+```text
+Universe → Series → Book → Chapter → Scene
+```
+
+Scopes are containers across semantic layers, not semantic layers themselves. Validation, orchestration, diagnostics, versioning, editing, maps, Tutor guidance, and other workflow systems are cross-cutting capabilities.
+
+See [docs/narrative-architecture.md](docs/narrative-architecture.md) for the canonical model.
+
+## Author Authority
+
+Auteur's central safety and product rule is simple:
+
+**Advice is not authority.**
+
+- Story Discovery candidates do not become `StoryIdentity` until explicit acceptance.
+- Diagnostics do not apply their own repairs.
+- Maps and projections are derived/rebuildable views, not second canon.
+- Story Design Packs and Genre Packs are reusable knowledge, not story-instance canon.
+- Decision Cards are `DERIVED / NOT CANON`.
+- Tutor sessions planned for the Decision-Oriented Tutor milestone are `LOCAL / NONCANONICAL`.
+- Existing explicit story-authority/acceptance/revision workflows remain the routes that can change accepted narrative state.
+
+## Current Capability Families on `main`
+
+The current production baseline includes:
+
+- **Story Discovery & StoryIdentity** — explore multiple plausible engines, compare them, receive a bounded recommendation, and explicitly accept the chosen direction.
+- **Genre Packs & overrides** — versioned genre knowledge, applicability/recommendation support, subgenre validation, and explicit authority-bearing acceptance/override paths.
+- **Interactive genre pipelines** — neutral session/runtime infrastructure for built-in genre-specific StoryIdentity authoring.
+- **Story Design Packs** — reusable craft/design knowledge with deterministic composition.
+- **Creative Writing Tutor V1** — existing `auteur design tutor ...` guidance over Story Design Packs.
+- **Decision Card foundation** — deterministic card contract plus adapters from existing Tutor guidance and structure diagnostics.
+- **Structure engine** — generation, diagnosis, deterministic findings, and an explicit diagnose → propose → select → apply repair lifecycle.
+- **Realization/state/provenance** — state coordination plus accumulated impact, convergence, decision, review, planning, simulation, and portfolio support.
+- **Series / long-horizon support** — bounded accepted-history/current-state reconstruction, continuity machinery, derived Global Map/Focus support, and Guided Series Continuity Review V1.
+- **Outline & drafting** — Cartographer outlines, chapter contracts, Bard/Critics drafting, retry, and explicit acceptance.
+
+For exact current/pending boundaries, including open PRs, use [STATUS.md](STATUS.md).
+
+## Decision-Oriented Tutor M1
+
+Auteur is currently partway through a bounded product milestone that turns existing guidance and diagnostics into one-decision-at-a-time Tutor interactions.
+
+**Already on `main`:**
+
+- deterministic `DecisionCard` contract;
+- stable semantic card identity and source-fingerprint support;
+- adapters from existing Tutor guidance and deterministic diagnostics;
+- explicit `DERIVED / NOT CANON` authority status.
+
+**Not yet complete on `main`:**
+
+- safe persisted Tutor advisory sessions ([#177](https://github.com/ThorStarlord/auteur/issues/177));
+- root `auteur tutor next/show/explain/choose` workflow ([#178](https://github.com/ThorStarlord/auteur/issues/178));
+- M1 authority/staleness death-test lap ([#179](https://github.com/ThorStarlord/auteur/issues/179));
+- final production documentation for that root workflow ([#180](https://github.com/ThorStarlord/auteur/issues/180)).
+
+Therefore **do not assume a root `auteur tutor` command exists yet**. The currently shipped Tutor CLI remains under `auteur design tutor ...`.
 
 ## Install
 
@@ -86,9 +154,9 @@ Install both production adapters with:
 python -m pip install -e ".[dev,all]"
 ```
 
-## Quick Start
+## Quick Start — Story Direction First
 
-For a fresh project, Auteur's default Identity-stage path is Story Discovery: explore multiple narrative engines, receive an advisory recommendation, then explicitly accept the direction you choose.
+For a fresh project, the default Identity-stage path is Story Discovery: explore multiple narrative engines, review the advisory recommendation, and explicitly accept the direction you choose.
 
 ```powershell
 # 1. Create a fresh working directory and ask Auteur for the next step
@@ -99,14 +167,14 @@ auteur workflow next .
 # 2. Explore multiple story engines and receive an advisory recommendation
 auteur story-discovery run "A detective investigates a locked manor murder" --recommend --output story_discovery --project .
 
-# 3. Ask again: Auteur now points to the recommended candidate
+# 3. Ask again: Auteur points to the recommended candidate
 auteur workflow next .
 
-# 4. Review story_discovery\comparison.md, then explicitly accept the direction you choose
-# Replace candidate_X with the candidate you want to make canonical.
+# 4. Review the comparison, then explicitly accept the candidate you choose
+# Replace candidate_X with the candidate you want to make authoritative.
 auteur story-discovery accept story_discovery\candidate_X.yaml --output story_identity.yaml
 
-# 5. Compile the accepted identity into a blueprint skeleton
+# 5. Seed structural design from the accepted identity
 auteur blueprint seed story_identity.yaml --output blueprint.yaml
 
 # 6. Run whole-story structure diagnostics
@@ -114,209 +182,137 @@ auteur structure diagnose blueprint.yaml
 Pop-Location
 ```
 
-Story Discovery is advisory: it writes candidate/comparison artifacts, not canonical `story_identity.yaml`. The author chooses what becomes true. `auteur workflow next . --execute` will not auto-accept a Story Discovery candidate.
+Story Discovery is advisory: search/recommendation writes candidate/comparison artifacts, not canonical `story_identity.yaml`. `auteur workflow next . --execute` will not auto-accept a Story Discovery candidate.
 
-The direct single-engine path remains available for advanced or scripted use:
+## Story Design Packs and the Current Tutor Surface
+
+List or inspect reusable Story Design Packs:
 
 ```powershell
-auteur identity recommend "A detective investigates a locked manor murder" --output .\tmp\story_identity.yaml
+auteur design pack list
+auteur design pack list --json
+auteur design pack inspect <pack_id>
 ```
 
-Initialize a project from a seeded blueprint:
+Generate current V1 Tutor guidance:
+
+```powershell
+auteur design tutor recommend --pack <pack_id> --decision "next creative decision" --premise "your story"
+auteur design tutor explain --pack <pack_id> --decision "next creative decision" --premise "your story"
+auteur design tutor alternatives --pack <pack_id> --decision "next creative decision" --premise "your story"
+```
+
+This guidance is advisory. It does not silently accept StoryIdentity or mutate the story.
+
+## Major CLI Surfaces
+
+### Story Discovery & Identity
+
+```text
+auteur story-discovery run <premise> --recommend --output <directory> [--project <path>]
+auteur story-discovery accept <candidate.yaml> --output <story_identity.yaml>
+auteur identity recommend <premise> --output <path>
+auteur identity validate <story_identity.yaml>
+auteur blueprint seed <story_identity.yaml> --output <blueprint.yaml>
+```
+
+### Structure
+
+```text
+auteur structure diagnose <blueprint.yaml>
+auteur structure propose-repairs <blueprint.yaml>
+auteur structure apply <proposal.yaml> <blueprint.yaml> [--in-place]
+auteur structure generate <blueprint.yaml> [--symptom "text"]
+```
+
+### Project Planning and Counterfactual Support
+
+```text
+auteur plan status
+auteur plan graph
+auteur plan next
+auteur plan critical-path
+auteur plan milestones
+auteur plan refresh
+auteur plan explain <id>
+auteur plan history
+
+auteur simulate create --decision <id> --candidate <id>
+auteur simulate compare <scenario-a> <scenario-b>
+auteur simulate inspect <id> --evidence --uncertainty
+auteur simulate promote <id> --confirm
+```
+
+Planning and simulation are noncanonical decision-support surfaces. Promotion routes a scenario into review; it is not automatic narrative acceptance.
+
+### Interactive Genre Pipelines
+
+```text
+auteur netorare init <project>
+auteur mystery init <project>
+auteur gentlefemdom init <project>
+auteur gentlefemdom resume <project>
+```
+
+Interactive genre working state lives under `.auteur/genre_sessions/<genre>/session.json` and remains noncanonical until the documented completion/compilation/acceptance boundary is crossed.
+
+### Outline & Drafting
 
 ```powershell
 auteur init .\tmp\shattered_crown_project --from .\tmp\shattered_crown\blueprint.yaml
+auteur cartographer compile .\tmp\shattered_crown\blueprint.yaml --output .\tmp\shattered_crown\cartographer_outline.yaml
+auteur draft .\tmp\shattered_crown_project 1 --provider anthropic --max-iterations 3
 ```
 
-### Plan a chapter's cartographer prompt (no LLM call)
+If drafting exhausts its iteration cap:
 
 ```powershell
-auteur plan render .\examples\sample_blueprint.yaml 1
+auteur accept .\tmp\shattered_crown_project 1
+auteur retry .\tmp\shattered_crown_project 1 --max-iterations 2
 ```
 
-### Project-level narrative planning (v0.10.0+)
+Drafting is a downstream consumer of accepted/planned narrative state; it is not Auteur's primary first-value surface.
 
-Coordinate decisions, review sessions, milestones, and critical paths across the manuscript:
+## Series and Long-Horizon Narrative Intelligence
 
-```powershell
-auteur plan status           # Show project plan summary
-auteur plan graph            # Show dependency graph
-auteur plan next             # Show recommended next action
-auteur plan critical-path    # Show blocking critical path
-auteur plan milestones       # Show milestone state
-auteur plan refresh          # Create fresh plan snapshot
-auteur plan explain <id>     # Explain a node or action
-auteur plan history          # Show plan history
+Auteur has a bounded long-horizon architecture for preserving accepted history, rebuilding current narrative state, and projecting decision-relevant context through derived Global Map/Focus machinery. The architecture deliberately separates:
+
+```text
+accepted Direction / Realization
+        ↓
+accepted history + provenance
+        ↓
+deterministic current-state projection
+        ↓
+relationship/dependency index
+        ↓
+derived Global Map
+        ↓
+planning intent / question / horizon
+        ↓
+derived Focus / Decision Map
+        ↓
+advisory recommendation
+        ↓
+explicit author action
 ```
 
-### Compare counterfactual scenarios (v0.11.0+)
+The current campaign is **not** authorizing speculative expansion. It is in `PROSPECTIVE_NATIVE_EVIDENCE_INCUBATION`: new ontology, extraction, V2 review, and scale work wait for a natural Auteur-native planning case that produces a concrete failure or opportunity.
 
-Project downstream consequences of multiple decision candidates without mutating project state:
+See [docs/campaign/auteur-long-horizon-campaign-state.md](docs/campaign/auteur-long-horizon-campaign-state.md) and [docs/architecture/detailed-narrative-architecture-v1.md](docs/architecture/detailed-narrative-architecture-v1.md).
 
-```powershell
-auteur simulate create --decision <id> --candidate <id>   # Create scenario
-auteur simulate compare <scenario-a> <scenario-b>          # Compare projections
-auteur simulate promote <id> --confirm                     # Promote into review
-auteur simulate inspect <id> --evidence --uncertainty      # Inspect details
-```
+## Work That Is Not Shipped
 
-Draft chapter 1 with Anthropic:
+Two notable open PRs must not be confused with current `main` behavior:
 
-```powershell
-auteur draft .\tmp\shattered_crown 1 --provider anthropic --max-iterations 3
-```
+- [PR #167](https://github.com/ThorStarlord/auteur/pull/167) — bounded Episode 1 Direction support: **open / not merged**.
+- [PR #166](https://github.com/ThorStarlord/auteur/pull/166) — full-suite Windows CI leg: **open / not merged**.
 
-Draft with OpenAI:
-
-```powershell
-auteur draft .\tmp\shattered_crown 1 --provider openai --model gpt-4o
-```
-
-If drafting exhausts the iteration cap, edit the latest draft and accept it manually:
-
-```powershell
-auteur accept .\tmp\shattered_crown 1
-```
-
-Or continue from the latest failed draft and validation:
-
-```powershell
-auteur retry .\tmp\shattered_crown 1 --max-iterations 2
-```
-
-## CLI Commands
-
-### 1. Story Discovery & Identity
-
-`auteur story-discovery run <premise> --recommend --output <directory> [--project <path>]`
-
-Explores multiple plausible `StoryIdentity` interpretations, writes candidate and comparison artifacts, and produces an advisory recommendation. Search and recommendation do not promote canonical state.
-
-`auteur story-discovery accept <candidate.yaml> --output <story_identity.yaml>`
-
-Validates and explicitly promotes the selected Story Discovery candidate to canonical `story_identity.yaml`. This is the author-authority boundary: recommendation alone never performs this step.
-
-`auteur identity recommend <premise> --output <path>`
-
-Advanced direct path that translates a raw premise (text or path to a file) into one validated `StoryIdentity` YAML document. Auteur recommends exactly one story engine optimized for the genre contract promise, explains its reasoning in `why_this_is_best`, and records `rejected_directions`. Accepts optional `--genre`, `--medium`, and `--mode` constraints.
-
-`auteur identity validate <story_identity.yaml>`
-
-Validates an accepted story identity against the Pydantic schema constraints and deterministic narrative validation rules (want-change coherence, genre ending tone, target experience avoidance, runway length class).
-
-`auteur blueprint seed <story_identity.yaml> --output <blueprint.yaml>`
-
-Compiles accepted identity fields into a standard `StoryBlueprint` skeleton. Recommendation rationale is preserved in `story_identity.yaml` and does not silently mutate blueprint structure.
-
-`auteur identity compile <story_identity.yaml> --output <blueprint.yaml>`
-
-Alias for `blueprint seed`.
-
-`auteur identity validate` also checks subgenre modifiers (known vs. unknown, primary genre compatibility, scope biases, setup requirements, and common misuses) when subgenres are declared.
-
-### 2. Whole-Story Structure Audits & Generation
-
-`auteur structure diagnose <blueprint.yaml>`
-
-Runs deterministic coherence diagnostics (e.g., matching wants/change, verifying subplot budgets, genre contract constraints, subgenre modifier validation) and outputs finding logs.
-
-`auteur structure propose-repairs <blueprint.yaml>`
-
-Generates actionable repair proposals in `structure/proposals/` for any diagnostic errors or warnings found.
-
-`auteur structure apply <proposal.yaml> <blueprint.yaml> [--in-place]`
-
-Applies a selected proposal option cleanly to the target blueprint file.
-
-`auteur structure generate <blueprint.yaml> [--symptom "text"]`
-
-Two modes:
-
-- **Top-down generation** (default): Synthesizes a full story engine from the blueprint's target experience, genre, and scope downward through structural forces and threads. Requires `target_experience` and at least one character. Outputs a `GenerationProposal` JSON.
-
-- **Bottom-up symptom diagnosis** (`--symptom`): Maps an author-described symptom (e.g. "midpoint feels flat", "the ending doesn't land", "subplots go nowhere") to likely structural root causes with actionable recommendations. Returns one or more `SymptomDiagnosis` results ranked by relevance, each identifying the affected layer, root cause hypothesis, recommendation, and alternative hypotheses.
-
-### 3. Project Initialization & TDD Chapter Drafting
-
-`auteur init <path> --from <blueprint.yaml>`
-
-Creates a project directory with `blueprint.yaml`, `bible.json`, and `chapters/`.
-
-`auteur plan render <blueprint.yaml> <chapter>`
-
-Renders the Cartographer system prompt and user message. This is useful for prompt debugging and does not call an LLM.
-
-`auteur draft <project> <chapter> [--max-iterations N] [--provider anthropic|openai] [--model NAME]`
-
-Runs Cartographer -> Bard -> Critics. On pass, writes `final.md` and updates `bible.json`. On failure, keeps drafts and validation reports on disk.
-
-`auteur accept <project> <chapter>`
-
-Promotes the latest `draft_v*.md` to `final.md` and records the chapter event/tension in the Bible.
-
-`auteur retry <project> <chapter> [--max-iterations N] [--provider anthropic|openai] [--model NAME]`
-
-Loads the existing `outline.yaml`, latest draft, and latest validation report, then continues with the next draft version.
-
-### 4. Cartographer Outlines
-
-`auteur cartographer compile <blueprint.yaml> --output <cartographer_outline.yaml>`
-
-Compiles a blueprint into a unified Cartographer outline and can split chapter outlines into a project chapter tree.
-
-`auteur cartographer validate <cartographer_outline.yaml> [--blueprint <blueprint.yaml>]`
-
-Runs deterministic local validation for compiled Cartographer outlines using the CartographerOutline Pydantic model.
-
-### 5. Interactive Genre-Specific Pipelines
-
-Auteur offers deterministic browser-based StoryIdentity authoring for three built-in genre pipelines. All three use the same versioned session, server, browser, validation, and identity compiler runtime; genre packages provide only templates and deterministic rules.
-
-Sessions are non-canonical working state under `.auteur/genre_sessions/<genre>/session.json`. Completing the browser workflow ratifies the choices, after which Auteur validates and writes `story_identity.yaml`. Existing identities and legacy `netorare/session.json` files are never overwritten or migrated automatically.
-
-#### Netorare (NTR) Genre
-
-`auteur netorare init <path> [--core classic_humiliation|horror|mystery] [--mode MODE] [--port 8765]`
-
-Launches an interactive browser-based netorare story identity authoring session with three distinct emotional cores:
-
-- **classic_humiliation**: Focus on emotional contrast and humiliation dynamics
-- **horror**: Dread, body horror, and psychological terror elements
-- **mystery**: Puzzle-like revelation and hidden truth discovery
-
-```powershell
-auteur netorare init ./my_netorare_story --core classic_humiliation
-auteur netorare init ./my_netorare_story --core horror --mode tragic
-auteur netorare init ./my_netorare_story --core mystery --port 8765
-```
-
-#### Mystery (Detective) Genre
-
-`auteur mystery init <path> [--core howdunit|paranoia|cozy] [--mode MODE] [--port 8766]`
-
-Launches an interactive browser-based mystery story identity authoring session with three distinct emotional cores:
-
-- **howdunit**: Puzzle-solving focus with intricate clue mechanics and red herrings
-- **paranoia**: Dread and distrust, where reality itself becomes questionable
-- **cozy**: Comfort-centered mystery with amateur detective charm and community focus
-
-```powershell
-auteur mystery init ./my_mystery_story --core howdunit
-auteur mystery init ./my_mystery_story --core paranoia --mode noir
-auteur mystery init ./my_mystery_story --core cozy --port 8766
-```
-
-#### Gentle Femdom Genre
-
-`auteur gentlefemdom init <path> [--core sensual_dominance|tender_surrender|romantic_authority] [--mode MODE] [--port 8767]`
-
-The gentlefemdom pipeline provides three intimate emotional cores: **sensual_dominance**, **tender_surrender**, and **romantic_authority**. Each defaults to `intimate` mode and remains author-overridable in the CLI or browser.
-
-`--provider anthropic|openai` remains accepted temporarily for command compatibility, but is deprecated because these workflows make no LLM call.
+See [STATUS.md](STATUS.md) for current reconciliation details.
 
 ## Project Artifacts
 
-Generated project directories use this shape:
+A basic drafting project still uses transparent file artifacts such as:
 
 ```text
 project/
@@ -327,63 +323,45 @@ project/
       outline.yaml
       draft_v1.md
       validation_v1.json
-      draft_v2.md
-      validation_v2.json
       final.md
 ```
 
-See [docs/project-format.md](docs/project-format.md) for the full artifact contract.
+Additional subsystems persist their own derived, local, candidate, or authoritative artifacts under the documented project-local paths. See [docs/project-format.md](docs/project-format.md).
 
-## Structure Engine
+## Documentation Map
 
-The canonical architecture is [Ontology → Identity → Structure → Realization → Expression](docs/narrative-architecture.md). The nine-step genre pipeline is a genre-specific authoring workflow, not a semantic layer model.
+- [Current repository status](STATUS.md) — living operational state, open milestone work, next recommended action.
+- [Mission](MISSION.md) — durable scope and invariants.
+- [Product requirements](docs/PRD.md) — product contract and primary user.
+- [Canonical narrative architecture](docs/narrative-architecture.md) — five semantic layers × scope axis.
+- [Opinionated Narrative Engine](docs/opinionated-narrative-engine.md) — product design, first value, guided authoring, Map/Focus framing.
+- [Detailed long-horizon architecture](docs/architecture/detailed-narrative-architecture-v1.md) — accepted-history/current-state/relevance architecture.
+- [Long-horizon campaign state](docs/campaign/auteur-long-horizon-campaign-state.md) — evidence posture and authorization boundary.
+- [Runtime/domain context](CONTEXT.md) — genre pipeline and compatibility terminology.
+- [Project format](docs/project-format.md) — artifact contract.
+- [Release qualification](docs/engineering/release-qualification.md) — candidate/release evidence rules.
+- [Changelog](CHANGELOG.md) and [release records](docs/releases/README.md) — release history.
 
-Auteur is a whole-story structure engine first. The structure layer owns:
+ADRs, qualification reports, research records, experiments, and product-validation documents are historical evidence. Do not rewrite them merely to make current status cleaner.
 
-- **Five semantic layers**: Ontology (concepts) → Identity (commitments) → Structure (plans) → Realization (events and state changes) → Expression (language). Genre phases are not semantic layers.
-- **Deterministic diagnostics**: 20+ rules across Identity, Structure, and Realization concerns for within-blueprint coherence, genre contract validation, and subgenre modifier validation.
-- **Proposal lifecycle**: Full diagnose → propose → select → apply cycle with `auteur structure` commands.
-- **Top-down generation**: Synthesizes story engines from target experience downward via `auteur structure generate`.
-- **Bottom-up symptom diagnosis**: Maps author-described symptoms to structural root causes via `auteur structure generate --symptom`.
-- **Genre overrides**: Four-class override system (`safe_variation`, `compression`, `subversion`, `reclassification`) that downgrades contract violations to warnings with consequence guidance.
-- **State management**: `auteur state` commands coordinate multi-layer check, update, prepare, canon, and confirm operations.
+## Tests and Local Verification
 
-Chapter drafting is an optional downstream consumer of the structure engine. See [docs/structure-engine-v1.md](docs/structure-engine-v1.md) for the full design.
-
-## Documentation
-
-- [Architecture](docs/architecture.md)
-- [Canonical narrative architecture](docs/narrative-architecture.md)
-- [Engine v1 Workflow](docs/engine-v1-workflow.md)
-- [Project Format](docs/project-format.md)
-- [Next Step Discovery](docs/next-step-discovery.md)
-- [LLM Adapters](docs/llm-adapters.md)
-- [Structure Engine v1](docs/structure-engine-v1.md)
-- [Opinionated Narrative Engine](docs/opinionated-narrative-engine.md)
-- [Product Design Research](docs/research/product-design-research.md)
-- [Genre Overrides](docs/genre-overrides.md)
-
-The files under `docs/archived/superpowers/` are historical planning notes, not current user-facing documentation. The user-facing docs above describe the current repository behavior.
-
-## Tests
-
-Run the full test suite with:
+Run the full test suite:
 
 ```powershell
 python -m pytest
 ```
 
-### Local verification
+Run the repository verification stack:
 
 ```powershell
 python scripts/check.py
 ```
 
-CI runs the same verification entrypoint — `python scripts/check.py --skip-pytest` —
-plus the pytest matrix and a wheel smoke, in `.github/workflows/validation.yml`.
+CI uses `python scripts/check.py --skip-pytest` plus the pytest matrix and installed-wheel smoke according to the current validation workflow. Real-provider smoke checks remain separate because they spend external API tokens.
 
-The manual real-LLM smoke script is not part of pytest because it spends real tokens:
+## Versioning
 
-```powershell
-python .\scripts\smoke_real_llm.py
-```
+`pyproject.toml` currently reports `0.37.1`. Current `main` also contains post-release development, so package metadata alone is not a complete development-status indicator.
+
+Use [STATUS.md](STATUS.md) for the present-tense repository map and [docs/releases/](docs/releases/README.md) for release-specific claims.
