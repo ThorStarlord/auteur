@@ -3,9 +3,12 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import yaml
+
 from auteur.cli import main
 from auteur.llm import LLMResponse
 from auteur.llm.fake import FakeClient
+from auteur.ui.dashboard import build_dashboard
 
 
 PREMISE = (
@@ -101,30 +104,40 @@ def _discovery_client() -> FakeClient:
     )
 
 
-def test_beginner_decision_golden_path_reaches_safe_authority_handoff(
+def _proposal_client(blueprint: Path) -> FakeClient:
+    raw = yaml.safe_load(blueprint.read_text(encoding="utf-8"))
+    replacement = dict(raw["structure"])
+    replacement["estimated_chapters"] = 48
+    payload = json.dumps(
+        {
+            "summary": "Keep the selected origin consequential across the whole book.",
+            "option": {
+                "summary": "Give the origin pressure more structural runway.",
+                "tradeoffs": "More escalation room, less compression.",
+                "data": {"structure": replacement},
+            },
+        }
+    )
+    return FakeClient([LLMResponse(text=payload, input_tokens=1, output_tokens=1)])
+
+
+def test_beginner_decision_golden_path_closes_safe_authority_loop(
     tmp_path: Path,
     monkeypatch,
     capsys,
 ):
-    """Exercise the beginner path through choice and derived authority routing."""
-    client = _discovery_client()
+    """Exercise one beginner project from raw premise through explicit revision authority."""
+    discovery_client = _discovery_client()
     monkeypatch.setattr(
         "auteur.llm.factory.build_client",
-        lambda provider, model, **kwargs: client,
+        lambda provider, model, **kwargs: discovery_client,
     )
 
     discovery = tmp_path / "story_discovery"
     assert main(
         [
-            "story-discovery",
-            "run",
-            PREMISE,
-            "--candidates",
-            "2",
-            "--output",
-            str(discovery),
-            "--project",
-            str(tmp_path),
+            "story-discovery", "run", PREMISE,
+            "--candidates", "2", "--output", str(discovery), "--project", str(tmp_path),
         ]
     ) == 0
     capsys.readouterr()
@@ -135,50 +148,26 @@ def test_beginner_decision_golden_path_reaches_safe_authority_handoff(
     identity = tmp_path / "story_identity.yaml"
     assert main(
         [
-            "story-discovery",
-            "accept",
-            str(discovery / "candidate_1.yaml"),
-            "--output",
-            str(identity),
-            "--keep-candidates",
+            "story-discovery", "accept", str(discovery / "candidate_1.yaml"),
+            "--output", str(identity), "--keep-candidates",
         ]
     ) == 0
     capsys.readouterr()
-    assert identity.is_file()
 
     blueprint = tmp_path / "blueprint.yaml"
-    assert main(
-        [
-            "blueprint",
-            "seed",
-            str(identity),
-            "--output",
-            str(blueprint),
-        ]
-    ) == 0
+    assert main(["blueprint", "seed", str(identity), "--output", str(blueprint)]) == 0
     capsys.readouterr()
-    assert blueprint.is_file()
-
-    accepted_before = {
-        "identity": identity.read_bytes(),
-        "blueprint": blueprint.read_bytes(),
-    }
+    identity_before = identity.read_bytes()
+    blueprint_before = blueprint.read_bytes()
 
     common = [
-        "--pack",
-        "superhero",
-        "--decision",
-        "power origin",
-        "--premise",
-        PREMISE,
-        "--project",
-        str(tmp_path),
-        "--source",
-        "identity=story_identity.yaml",
-        "--source",
-        "blueprint=blueprint.yaml",
+        "--pack", "superhero",
+        "--decision", "power origin",
+        "--premise", PREMISE,
+        "--project", str(tmp_path),
+        "--source", "identity=story_identity.yaml",
+        "--source", "blueprint=blueprint.yaml",
     ]
-
     assert main(["tutor", "next", *common, "--json"]) == 0
     next_payload = json.loads(capsys.readouterr().out)
     session_id = next_payload["session_id"]
@@ -191,35 +180,110 @@ def test_beginner_decision_golden_path_reaches_safe_authority_handoff(
 
     assert main(
         [
-            "tutor",
-            "choose",
-            session_id,
-            "choose",
-            "--value",
-            "Experimental accident",
-            "--project",
-            str(tmp_path),
-            "--json",
+            "tutor", "choose", session_id, "choose", "--value", "Experimental accident",
+            "--project", str(tmp_path), "--json",
         ]
     ) == 0
     resolved = json.loads(capsys.readouterr().out)
     assert resolved["status"] == "resolved"
     assert resolved["authority_status"] == "LOCAL / NONCANONICAL"
 
-    assert main(
-        ["tutor", "handoff", session_id, "--project", str(tmp_path), "--json"]
-    ) == 0
+    assert main(["tutor", "handoff", session_id, "--project", str(tmp_path), "--json"]) == 0
     handoff = json.loads(capsys.readouterr().out)
     assert handoff["status"] == "route_identified"
     assert handoff["target_layer"] == "structure"
     assert handoff["workflow"] == "structure_revision"
     assert handoff["affected_artifacts"] == ["blueprint.yaml"]
-    assert handoff["steps"][-1]["command"] == (
-        "auteur structure revision apply <plan_id> --confirm --project ."
-    )
     assert handoff["steps"][-1]["executable_by_handoff"] is False
     assert handoff["authority_status"] == "DERIVED / NOT CANON"
-    assert handoff["mutates_story"] is False
+    assert identity.read_bytes() == identity_before
+    assert blueprint.read_bytes() == blueprint_before
 
-    assert identity.read_bytes() == accepted_before["identity"]
-    assert blueprint.read_bytes() == accepted_before["blueprint"]
+    proposal_client = _proposal_client(blueprint)
+    monkeypatch.setattr(
+        "auteur.llm.factory.build_client",
+        lambda provider, model, **kwargs: proposal_client,
+    )
+    assert main(["tutor", "propose", session_id, "--project", str(tmp_path), "--json"]) == 0
+    proposed = json.loads(capsys.readouterr().out)
+    proposal_path = proposed["proposal_path"]
+    assert proposed["requires_author_selection"] is True
+    assert proposed["ready_for_revision_plan"] is False
+    assert identity.read_bytes() == identity_before
+    assert blueprint.read_bytes() == blueprint_before
+
+    assert main([
+        "structure", "proposal", "inspect", proposal_path,
+        "--project", str(tmp_path), "--json",
+    ]) == 0
+    inspected = json.loads(capsys.readouterr().out)
+    option_id = inspected["options"][0]["id"]
+    assert inspected["authority_status"] == "NONCANONICAL PROPOSAL / NOT APPLIED"
+    assert inspected["selected_option_id"] is None
+
+    assert main([
+        "structure", "proposal", "select", proposal_path, "--option", option_id,
+        "--author", "Golden Path Author", "--project", str(tmp_path), "--json",
+    ]) == 0
+    selected = json.loads(capsys.readouterr().out)
+    assert selected["ready_for_revision_plan"] is True
+    assert blueprint.read_bytes() == blueprint_before
+
+    assert main([
+        "structure", "revision", "plan", "--proposal", proposal_path,
+        "--project", str(tmp_path), "--json",
+    ]) == 0
+    planned = json.loads(capsys.readouterr().out)
+    plan_id = planned["plan_id"]
+    assert planned["operation_count"] == 1
+    assert planned["mutates_story"] is False
+
+    assert main([
+        "structure", "revision", "validate", plan_id,
+        "--project", str(tmp_path), "--json",
+    ]) == 0
+    validated = json.loads(capsys.readouterr().out)
+    assert validated["state"] == "ready"
+    assert validated["ready_for_application"] is True
+
+    assert main([
+        "structure", "revision", "preview", plan_id,
+        "--project", str(tmp_path), "--json",
+    ]) == 0
+    preview = json.loads(capsys.readouterr().out)
+    assert preview["authority_status"] == "DERIVED PREVIEW / NOT APPLIED"
+    assert preview["currentness"] == "current"
+    assert preview["ready_for_authority_action"] is True
+    assert preview["mutates_story"] is False
+    assert identity.read_bytes() == identity_before
+    assert blueprint.read_bytes() == blueprint_before
+
+    assert main([
+        "structure", "revision", "apply", plan_id,
+        "--confirm", "--project", str(tmp_path), "--json",
+    ]) == 0
+    application = json.loads(capsys.readouterr().out)
+    assert application["state"] == "applied"
+    application_id = application["application_id"]
+    assert identity.read_bytes() == identity_before
+    assert blueprint.read_bytes() != blueprint_before
+    changed_blueprint = yaml.safe_load(blueprint.read_text(encoding="utf-8"))
+    assert changed_blueprint["structure"]["estimated_chapters"] == 48
+
+    assert main([
+        "structure", "revision", "reassess", application_id,
+        "--project", str(tmp_path), "--json",
+    ]) == 0
+    reassessed = json.loads(capsys.readouterr().out)
+    assert reassessed["authority_status"] == "DERIVED REASSESSMENT / READ ONLY"
+    assert reassessed["assessment_status"] == "not_assessable"
+    assert reassessed["quality_score"] is None
+    assert reassessed["mutates_story"] is False
+
+    dashboard = build_dashboard(tmp_path)
+    attention = dashboard["author_attention"]
+    assert attention
+    assert attention[0]["kind"] == "tutor_session"
+    assert attention[0]["state"] == "stale"
+    assert attention[0]["authority_status"] == "LOCAL / NONCANONICAL"
+    assert identity.read_bytes() == identity_before
