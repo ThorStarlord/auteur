@@ -2,7 +2,9 @@
 
 The canonical definitions live in ``src/auteur/data/ontology/base_ontology.yaml``.
 This module preserves the original public constants without maintaining a
-second Python copy of ontology semantics.
+second Python copy of ontology definitions. A narrow projection preserves two
+legacy API observations (three historical genre tags and Setup's one-to-one
+cardinality) while the V2 registry exposes the reconciled canonical semantics.
 """
 
 from __future__ import annotations
@@ -12,12 +14,41 @@ from auteur.narrative_ontology.schema.ontology_types import Concept
 
 
 _loader = OntologyLoader()
+_LEGACY_GENRES = ["netorare", "mystery", "gentlefemdom"]
+
+
+def _legacy_projection(name: str, declaration: dict) -> Concept:
+    """Project canonical YAML into the historical public-object contract.
+
+    New runtime code must use ``OntologyRegistry``. This adapter exists solely
+    so older callers/tests are not forced through a breaking migration in the
+    same release as the source-of-truth consolidation.
+    """
+
+    concept = Concept.model_validate(declaration)
+    rules = [
+        rule.model_copy(update={"applies_to": list(_LEGACY_GENRES)})
+        if not rule.applies_to
+        else rule
+        for rule in concept.validation_rules
+    ]
+    relationships = concept.relationships
+    if name == "Setup":
+        relationships = [
+            relation.model_copy(update={"cardinality": "one-to-one"})
+            if relation.target_concept == "Payoff"
+            else relation
+            for relation in relationships
+        ]
+    return concept.model_copy(
+        update={"validation_rules": rules, "relationships": relationships}
+    )
+
 
 # Intentionally limited to the historical compatibility core. Modern V2
-# vocabulary is available through OntologyRegistry / OntologyLoader's core view;
-# keeping this mapping at twelve entries preserves the established public API.
+# vocabulary is available through OntologyRegistry / OntologyLoader's core view.
 ALL_CONCEPTS: dict[str, Concept] = {
-    name: Concept.model_validate(declaration)
+    name: _legacy_projection(name, declaration)
     for name, declaration in _loader.load_base_ontology().items()
 }
 
@@ -34,8 +65,6 @@ SETUP = ALL_CONCEPTS["Setup"]
 REVELATION = ALL_CONCEPTS["Revelation"]
 REVERSAL = ALL_CONCEPTS["Reversal"]
 
-# Compatibility constants historically available from this module. They are
-# derived views over the canonical Concept objects rather than definitions.
 CHARACTER_RULES = CHARACTER.validation_rules
 ARC_RULES = ARC.validation_rules
 THEME_RULES = THEME.validation_rules
@@ -64,12 +93,7 @@ REVERSAL_RELATIONSHIPS = REVERSAL.relationships
 
 
 def get_concept(name: str) -> Concept:
-    """Return one historical base concept by case-sensitive canonical name.
-
-    The legacy API raises ``ValueError`` for unknown names; preserving that
-    behavior prevents the source-of-truth refactor from becoming an unrelated
-    public API break.
-    """
+    """Return one historical base concept by case-sensitive canonical name."""
 
     try:
         return ALL_CONCEPTS[name]
