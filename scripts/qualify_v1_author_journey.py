@@ -23,6 +23,7 @@ _TESTS = [
     "tests/test_llm_failure_contract.py",
     "tests/test_v1_book_scale_topology.py",
     "tests/test_v1_platform_invariants.py",
+    "tests/test_v1_realistic_book_journey.py",
     "tests/test_publish_release.py",
 ]
 
