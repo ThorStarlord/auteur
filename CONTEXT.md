@@ -2,10 +2,67 @@
 
 > Current repository status: [STATUS.md](STATUS.md).  
 > Canonical architecture: [Narrative Architecture](docs/narrative-architecture.md).  
+> Layer-0 contract: [Narrative Ontology V2](docs/architecture/narrative-ontology-v2.md).  
 > Durable mission: [MISSION.md](MISSION.md).  
 > Release policy: [Release Qualification](docs/engineering/release-qualification.md).
 
-This document defines runtime/domain terminology and compatibility context for Auteur's built-in interactive genre pipelines, versioned Genre Packs, and selected cross-scope behavior. It is **not** the repository roadmap or current milestone handoff; use `STATUS.md` for present-tense development state.
+This document defines runtime/domain terminology and compatibility context for Auteur's built-in interactive genre pipelines, versioned Genre Packs, Narrative Ontology, and selected cross-scope behavior. It is **not** the repository roadmap or current milestone handoff; use `STATUS.md` for present-tense development state.
+
+## Narrative Ontology V2 runtime boundary
+
+Narrative Ontology is the semantic substrate of the existing Narrative Architecture. It defines reusable concepts, relation types, value vocabularies, and deterministic semantic invariants; it does not own project-specific authorial commitments, plans, accepted facts, prose, workflow state, or derived map assertions.
+
+The runtime path is:
+
+```text
+src/auteur/data/ontology/*.yaml
+        -> OntologyLoader
+        -> OntologyRegistry
+        -> OntologyValidator
+```
+
+`src/auteur/data/ontology/` is the single canonical ontology specification location. The historical `narrative_ontology.core.narrative_concepts` module and genre-specific Python classes are compatibility surfaces, not independent semantic sources for production validation.
+
+Ontology validation uses four rule categories:
+
+- `schema_constraint` — deterministic structural/reference validity;
+- `semantic_invariant` — deterministic semantic validity implemented by a named executor;
+- `craft_heuristic` — advisory guidance only;
+- `interpretive_criterion` — human/model judgment only.
+
+Free-text rule conditions are documentation and are never evaluated as executable code. Craft or interpretive guidance cannot silently acquire canonical authority.
+
+Product genres do not require a genre ontology extension. If a genre exists in the product genre enum but has no `<genre>_ontology.yaml`, it inherits the core ontology. Packaged genre extensions add semantic vocabulary only.
+
+### Relationship domains
+
+Keep these meanings separate:
+
+1. `RelationType` — reusable ontology vocabulary, such as `depends_on` or `affects`;
+2. `CharacterRelationship` / relationship state — narrative concept and realized character/entity relationship state;
+3. story-instance relations — declared, deterministically derived, or interpretive assertions between actual narrative facts/artifacts.
+
+A relation type is not a story assertion. A derived story-instance relation index cannot promote itself into canon.
+
+### Structure and Realization terms
+
+Prefer:
+
+- `StructuralBeat` for a planned structural moment/function;
+- `Event` for an occurrence represented as having happened;
+- `StateTransition` for a realized state change.
+
+A planned StructuralBeat does not itself prove an Event or StateTransition occurred.
+
+### Medium-neutral scope vocabulary
+
+ADR 020 introduces a semantic vocabulary of:
+
+```text
+Universe -> Series/Collection -> Entry -> Segment -> Scene
+```
+
+Existing Book/Chapter runtime and serialized contracts remain compatible. Entry may be presented as Book, Episode, Film, Story, Route, or Mission; Segment may be presented as Chapter, Act, Sequence, Section, or another medium-appropriate subdivision. This is a semantic compatibility layer, not a mass persistence migration.
 
 ## Interactive Genre Pipelines vs Genre Packs
 
@@ -165,6 +222,8 @@ they are not valid canonical `StoryIdentity.story_type.genre` values.
 Adding a built-in genre requires templates, deterministic validation, core
 identity profiles, a genre contract, one registry entry, and tests. It must not
 require edits to session, server, browser, or identity compilation logic.
+
+Adding a **genre ontology extension** is a separate concern. It requires one packaged `<genre>_ontology.yaml` specification and integrity tests; it must not require a parallel Python registry edit.
 
 ## Series Continuity & Universe Propagation (ADR 018)
 

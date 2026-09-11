@@ -1,0 +1,154 @@
+# Narrative Ontology V2 semantic vocabulary
+# These concepts supplement the historical 12-concept compatibility core.
+
+concepts:
+  Information:
+    name: Information
+    definition: Narrative content that may be known, unknown, discovered, concealed, or communicated.
+    category: semantic
+    parent_concepts: []
+    relationships: []
+    validation_rules: []
+
+  Misdirection:
+    name: Misdirection
+    definition: Information or presentation arranged to support an interpretation that may later prove incomplete or false.
+    category: semantic
+    parent_concepts: [Information]
+    relationships: []
+    validation_rules: []
+
+  Checkpoint:
+    name: Checkpoint
+    definition: A structurally identified point at which a narrative condition, commitment, or state may be inspected or reassessed.
+    category: semantic
+    parent_concepts: []
+    relationships: []
+    validation_rules: []
+
+  StructuralBeat:
+    name: StructuralBeat
+    definition: An intended structural narrative moment or function in a plan; it is not evidence that an occurrence happened.
+    category: structure-vocabulary
+    parent_concepts: [Beat]
+    aliases: []
+    relationships:
+      - source_concept: StructuralBeat
+        target_concept: Event
+        relation_type: may_be_realized_as
+        cardinality: one-to-many
+        description: A planned structural beat may be realized through one or more events.
+        required: false
+    validation_rules: []
+
+  NarrativeThread:
+    name: NarrativeThread
+    definition: A planned continuity of narrative concern across structural units.
+    category: structure-vocabulary
+    parent_concepts: []
+    relationships:
+      - source_concept: NarrativeThread
+        target_concept: StructuralBeat
+        relation_type: participates_in
+        cardinality: one-to-many
+        description: A narrative thread may be expressed through multiple structural beats.
+        required: false
+    validation_rules: []
+
+  SetupIntent:
+    name: SetupIntent
+    definition: A structural intention to establish material for later narrative use or resolution.
+    category: structure-vocabulary
+    parent_concepts: [Setup]
+    relationships:
+      - source_concept: SetupIntent
+        target_concept: PayoffIntent
+        relation_type: sets_up
+        cardinality: many-to-many
+        description: A setup intention may establish one or more payoff intentions.
+        required: false
+    validation_rules: []
+
+  PayoffIntent:
+    name: PayoffIntent
+    definition: A structural intention to deliver, transform, or resolve material established earlier.
+    category: structure-vocabulary
+    parent_concepts: [Payoff]
+    relationships:
+      - source_concept: PayoffIntent
+        target_concept: SetupIntent
+        relation_type: pays_off
+        cardinality: many-to-many
+        description: A payoff intention may answer one or more setup intentions.
+        required: false
+    validation_rules: []
+
+  Event:
+    name: Event
+    definition: An occurrence represented as having happened in the story world or narrative presentation.
+    category: realization-vocabulary
+    parent_concepts: []
+    relationships:
+      - source_concept: Event
+        target_concept: StateTransition
+        relation_type: may_produce
+        cardinality: one-to-many
+        description: An event may produce one or more state transitions.
+        required: false
+    validation_rules: []
+
+  Fact:
+    name: Fact
+    definition: A proposition about narrative history or state whose authority is determined by the owning artifact lifecycle.
+    category: realization-vocabulary
+    parent_concepts: [Information]
+    relationships: []
+    validation_rules: []
+
+  State:
+    name: State
+    definition: A value or snapshot of a narrative entity or relationship at a narrative position.
+    category: realization-vocabulary
+    parent_concepts: []
+    relationships: []
+    validation_rules: []
+
+  StateTransition:
+    name: StateTransition
+    definition: A change from one narrative state to another; story-instance transitions remain owned by Realization.
+    category: realization-vocabulary
+    parent_concepts: []
+    relationships:
+      - source_concept: StateTransition
+        target_concept: State
+        relation_type: affects
+        cardinality: many-to-many
+        description: A state transition connects or changes narrative state.
+        required: true
+    validation_rules:
+      - rule_id: state_transition_requires_endpoints
+        kind: semantic_invariant
+        executor: required_fields
+        parameters:
+          fields: [from_state, to_state]
+        condition: A state transition requires explicit from_state and to_state values.
+        error_message: State transition requires from_state and to_state.
+        applies_to: []
+
+  CharacterRelationship:
+    name: CharacterRelationship
+    definition: A relationship between narrative characters or entities; realized relationship state is owned by Realization.
+    category: semantic
+    parent_concepts: [Relationship]
+    relationships:
+      - source_concept: CharacterRelationship
+        target_concept: Character
+        relation_type: participates_in
+        cardinality: many-to-many
+        description: A character relationship connects participating characters.
+        required: true
+    validation_rules: []
+
+metadata:
+  version: "2.0"
+  description: Modern structure and realization vocabulary supplementing the compatibility core.

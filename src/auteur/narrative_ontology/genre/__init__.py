@@ -1,7 +1,10 @@
-"""Genre-specific narrative ontologies for netorare, mystery, and gentle femdom.
+"""Legacy Python genre-ontology compatibility surfaces.
 
-This package contains genre-specific extensions to the base narrative ontology,
-defining concepts, relationships, and validation rules unique to each genre.
+Production Narrative Ontology V2 discovery and validation is data-driven through
+packaged ``src/auteur/data/ontology/*_ontology.yaml`` resources and
+``OntologyRegistry``.  The classes exported here remain for historical callers
+and tests; they are not independent semantic authorities and new genre ontology
+work must not add a parallel Python registry.
 """
 
 from auteur.narrative_ontology.genre.netorare_ontology import (

@@ -1,299 +1,199 @@
-"""CLI commands for inspecting and validating narrative ontology.
+"""CLI commands for inspecting and validating Narrative Ontology V2."""
 
-Layer 0 Task 7: Implements CLI commands to expose ontology inspection and validation:
-- auteur ontology inspect <concept> [--genre GENRE] [--json]
-- auteur ontology list [--genre GENRE] [--json]
-- auteur ontology validate [GENRE]
-- auteur ontology themes <genre> [--json]
-"""
+from __future__ import annotations
 
 import json
 import sys
 
-from auteur.narrative_ontology.loader.ontology_loader import OntologyLoader
+from auteur.narrative_ontology.registry import OntologyRegistry
 
 
 def register_ontology_subcommands(sub) -> None:
-    """Register ontology subcommands with the CLI parser.
+    """Register ontology subcommands with the root CLI parser."""
 
-    Args:
-        sub: The subparsers object from argparse
-    """
     parser = sub.add_parser("ontology", help="Inspect and validate narrative ontology.")
     commands = parser.add_subparsers(dest="ontology_command", required=True)
 
-    # inspect command
     inspect_cmd = commands.add_parser(
-        "inspect",
-        help="Show concept definition, relationships, and validation rules."
+        "inspect", help="Show concept definition, relationships, and validation rules."
     )
     inspect_cmd.add_argument("concept", type=str, help="Concept name to inspect")
     inspect_cmd.add_argument(
         "--genre",
         type=str,
         default=None,
-        help="Optional genre filter (netorare, mystery, gentlefemdom)"
+        help="Optional product-genre context; genres without extensions inherit core ontology",
     )
-    inspect_cmd.add_argument(
-        "--json",
-        action="store_true",
-        help="Output as JSON"
-    )
+    inspect_cmd.add_argument("--json", action="store_true", help="Output as JSON")
 
-    # list command
-    list_cmd = commands.add_parser(
-        "list",
-        help="List all concepts in ontology"
-    )
+    list_cmd = commands.add_parser("list", help="List all ontology concepts")
     list_cmd.add_argument(
         "--genre",
         type=str,
         default=None,
-        help="Optional genre filter (netorare, mystery, gentlefemdom)"
+        help="Optional product-genre context",
     )
-    list_cmd.add_argument(
-        "--json",
-        action="store_true",
-        help="Output as JSON"
-    )
+    list_cmd.add_argument("--json", action="store_true", help="Output as JSON")
 
-    # validate command
     validate_cmd = commands.add_parser(
-        "validate",
-        help="Validate ontology structure and relationships"
+        "validate", help="Validate canonical ontology specification integrity"
     )
     validate_cmd.add_argument(
         "genre",
         nargs="?",
         default=None,
-        help="Optional genre to validate (netorare, mystery, gentlefemdom)"
+        help="Optional product genre / packaged extension to validate",
     )
 
-    # themes command
     themes_cmd = commands.add_parser(
-        "themes",
-        help="Show theme set for a genre"
+        "themes", help="Show ontology theme metadata for a product genre"
     )
-    themes_cmd.add_argument(
-        "genre",
-        type=str,
-        help="Genre to show themes for"
+    themes_cmd.add_argument("genre", type=str, help="Genre to show themes for")
+    themes_cmd.add_argument("--json", action="store_true", help="Output as JSON")
+
+
+def _valid_genre_or_error(registry: OntologyRegistry, genre: str | None) -> bool:
+    if genre is None:
+        return True
+    if registry.is_supported_genre(genre):
+        return True
+    known = sorted(
+        set(registry.available_genre_extensions)
+        | _known_product_genres()
     )
-    themes_cmd.add_argument(
-        "--json",
-        action="store_true",
-        help="Output as JSON"
-    )
+    suffix = f" Known genres: {', '.join(known)}" if known else ""
+    print(f"Error: Invalid genre '{genre}'.{suffix}", file=sys.stderr)
+    return False
+
+
+def _known_product_genres() -> set[str]:
+    try:
+        from auteur.blueprint import Genre
+
+        return {genre.value for genre in Genre}
+    except (ImportError, AttributeError):
+        return set()
 
 
 def handle_ontology_inspect(args) -> int:
-    """Handle 'ontology inspect' command.
+    """Handle ``auteur ontology inspect``."""
 
-    Args:
-        args: Parsed command arguments
-
-    Returns:
-        Exit code (0 for success, 1 for error)
-    """
     try:
-        loader = OntologyLoader()
-        concept_data = loader.get_concept(args.concept, genre=args.genre)
-
+        registry = OntologyRegistry()
+        if not _valid_genre_or_error(registry, args.genre):
+            return 1
+        concept = registry.get_concept(args.concept, args.genre)
+        if concept is None:
+            print(f"Error: Unknown concept '{args.concept}'", file=sys.stderr)
+            return 1
+        concept_data = concept.model_dump(mode="json")
         if args.json:
             print(json.dumps(concept_data, indent=2))
         else:
             _print_concept_formatted(concept_data)
-
         return 0
-    except ValueError as exc:
-        print(f"Error: {exc}", file=sys.stderr)
-        return 1
     except Exception as exc:
         print(f"Error: Failed to inspect concept: {exc}", file=sys.stderr)
         return 1
 
 
 def handle_ontology_list(args) -> int:
-    """Handle 'ontology list' command.
+    """Handle ``auteur ontology list``."""
 
-    Args:
-        args: Parsed command arguments
-
-    Returns:
-        Exit code (0 for success, 1 for error)
-    """
     try:
-        loader = OntologyLoader()
-        concept_names = loader.get_concept_names(genre=args.genre)
-
+        registry = OntologyRegistry()
+        if not _valid_genre_or_error(registry, args.genre):
+            return 1
+        concept_names = sorted(registry.get_all_concepts(args.genre))
         if args.json:
             print(json.dumps(concept_names, indent=2))
         else:
             for name in concept_names:
                 print(name)
-
         return 0
-    except ValueError as exc:
-        print(f"Error: {exc}", file=sys.stderr)
-        return 1
     except Exception as exc:
         print(f"Error: Failed to list concepts: {exc}", file=sys.stderr)
         return 1
 
 
 def handle_ontology_validate(args) -> int:
-    """Handle 'ontology validate' command.
+    """Handle ``auteur ontology validate`` using canonical V2 integrity rules."""
 
-    Args:
-        args: Parsed command arguments
-
-    Returns:
-        Exit code (0 for success, 1 for error)
-    """
     try:
-        loader = OntologyLoader()
+        registry = OntologyRegistry()
+        if not _valid_genre_or_error(registry, args.genre):
+            return 1
 
-        if args.genre is None:
-            # Validate base ontology
-            base = loader.load_base_ontology()
-            errors = loader.validate_ontology_structure(base)
+        errors = registry.validate_integrity(args.genre)
+        label = "Core ontology" if args.genre is None else f"{args.genre} ontology"
+        if errors:
+            print(f"{label} validation FAILED:", file=sys.stderr)
+            for error in errors:
+                print(f"  - {error}", file=sys.stderr)
+            return 1
 
-            if errors:
-                print("Base ontology validation FAILED:", file=sys.stderr)
-                for error in errors:
-                    print(f"  - {error}", file=sys.stderr)
-                return 1
-            else:
-                print("Base ontology is valid")
-                return 0
-        else:
-            # Validate specific genre
-            valid_genres = {"netorare", "mystery", "gentlefemdom"}
-            if args.genre not in valid_genres:
-                print(
-                    f"Error: Invalid genre '{args.genre}'. "
-                    f"Must be one of: {', '.join(sorted(valid_genres))}",
-                    file=sys.stderr
-                )
-                return 1
-
-            base = loader.load_base_ontology()
-            genre_ont = loader.load_genre_ontology(args.genre)
-            merged = loader.merge_ontologies(base, genre_ont)
-            errors = loader.validate_ontology_structure(merged)
-
-            if errors:
-                print(
-                    f"{args.genre.capitalize()} ontology validation FAILED:",
-                    file=sys.stderr
-                )
-                for error in errors:
-                    print(f"  - {error}", file=sys.stderr)
-                return 1
-            else:
-                print(f"{args.genre.capitalize()} ontology is valid")
-                return 0
-
-    except ValueError as exc:
-        print(f"Error: {exc}", file=sys.stderr)
-        return 1
-    except FileNotFoundError as exc:
-        print(f"Error: {exc}", file=sys.stderr)
-        return 1
+        print(f"{label} is valid")
+        return 0
     except Exception as exc:
         print(f"Error: Failed to validate ontology: {exc}", file=sys.stderr)
         return 1
 
 
 def handle_ontology_themes(args) -> int:
-    """Handle 'ontology themes' command.
+    """Handle ``auteur ontology themes``.
 
-    Args:
-        args: Parsed command arguments
-
-    Returns:
-        Exit code (0 for success, 1 for error)
+    Theme metadata is descriptive/advisory. It is not a hard validity contract.
     """
+
     try:
-        valid_genres = {"netorare", "mystery", "gentlefemdom"}
-        if args.genre not in valid_genres:
-            print(
-                f"Error: Invalid genre '{args.genre}'. "
-                f"Must be one of: {', '.join(sorted(valid_genres))}",
-                file=sys.stderr
-            )
+        registry = OntologyRegistry()
+        if not _valid_genre_or_error(registry, args.genre):
             return 1
 
-        loader = OntologyLoader()
+        normalized = args.genre.strip().lower()
+        concepts = registry.get_genre_extension(normalized)
+        concept_themes: dict[str, object] = {}
+        for concept_name, concept in concepts.items():
+            themes = concept.metadata.get("themes")
+            if themes:
+                concept_themes[concept_name] = themes
 
-        # Load genre ontology to extract themes from metadata
-        genre_ont = loader.load_genre_ontology(args.genre)
-
-        # Collect themes from all concepts' metadata
         themes_data = {
-            "genre": args.genre,
-            "themes": {},
-            "concept_themes": {}
+            "genre": normalized,
+            "themes": sorted(registry.get_genre_themes(normalized)),
+            "concept_themes": concept_themes,
+            "has_ontology_extension": normalized in registry.available_genre_extensions,
         }
-
-        for concept_name, concept in genre_ont.items():
-            metadata = concept.get("metadata", {})
-            if "themes" in metadata:
-                themes_data["concept_themes"][concept_name] = metadata["themes"]
-
-        # Also check base ontology for genre-agnostic themes
-        base = loader.load_base_ontology()
-        for concept_name, concept in base.items():
-            metadata = concept.get("metadata", {})
-            if "themes" in metadata:
-                if concept_name not in themes_data["concept_themes"]:
-                    themes_data["concept_themes"][concept_name] = metadata["themes"]
 
         if args.json:
             print(json.dumps(themes_data, indent=2))
+            return 0
+
+        print(f"Theme set for {normalized.upper()}")
+        print("=" * 50)
+        if themes_data["themes"]:
+            for theme in themes_data["themes"]:
+                print(f"  - {theme}")
+        elif themes_data["has_ontology_extension"]:
+            print("No explicit shared theme metadata is registered for this extension.")
         else:
-            print(f"Theme set for {args.genre.upper()}")
-            print("=" * 50)
+            print("No ontology extension is required; this genre inherits core ontology.")
 
-            if themes_data["concept_themes"]:
-                print("\nThemes by concept:")
-                for concept_name, themes_list in sorted(
-                    themes_data["concept_themes"].items()
-                ):
-                    print(f"  {concept_name}:")
-                    for theme in themes_list:
-                        print(f"    - {theme}")
-            else:
-                print(
-                    f"\nNo explicit themes defined in {args.genre} ontology metadata."
-                )
-                print("However, the following concepts are available:")
-                concept_names = sorted(genre_ont.keys())
-                for name in concept_names:
-                    print(f"  - {name}")
-
+        if concept_themes:
+            print("\nThemes by concept:")
+            for concept_name, themes in sorted(concept_themes.items()):
+                print(f"  {concept_name}: {themes}")
         return 0
-
-    except ValueError as exc:
-        print(f"Error: {exc}", file=sys.stderr)
-        return 1
-    except FileNotFoundError as exc:
-        print(f"Error: {exc}", file=sys.stderr)
-        return 1
     except Exception as exc:
         print(f"Error: Failed to get themes: {exc}", file=sys.stderr)
         return 1
 
 
 def _print_concept_formatted(concept_data: dict) -> None:
-    """Pretty-print a concept definition.
+    """Pretty-print a typed concept dump."""
 
-    Args:
-        concept_data: Dictionary representation of the concept
-    """
     print(f"\nConcept: {concept_data['name']}")
     print("=" * 60)
-
     print("\nDefinition:")
     print(f"  {concept_data['definition']}")
 
@@ -305,15 +205,22 @@ def _print_concept_formatted(concept_data: dict) -> None:
         for parent in concept_data["parent_concepts"]:
             print(f"  - {parent}")
 
+    if concept_data.get("aliases"):
+        print("\nAliases:")
+        for alias in concept_data["aliases"]:
+            print(f"  - {alias}")
+
     if concept_data.get("relationships"):
         print("\nRelationships:")
-        for rel in concept_data["relationships"]:
-            source = rel.get("source_concept", rel.get("source", ""))
-            target = rel.get("target_concept", rel.get("target", ""))
-            cardinality = rel.get("cardinality", "")
-            description = rel.get("description", "")
-
+        for relation in concept_data["relationships"]:
+            source = relation.get("source_concept", "")
+            target = relation.get("target_concept", "")
+            relation_type = relation.get("relation_type")
+            cardinality = relation.get("cardinality", "")
+            description = relation.get("description", "")
             print(f"  - {source} -> {target}")
+            if relation_type:
+                print(f"    Relation type: {relation_type}")
             if cardinality:
                 print(f"    Cardinality: {cardinality}")
             if description:
@@ -322,15 +229,15 @@ def _print_concept_formatted(concept_data: dict) -> None:
     if concept_data.get("validation_rules"):
         print("\nValidation Rules:")
         for rule in concept_data["validation_rules"]:
-            rule_id = rule.get("rule_id", "")
-            condition = rule.get("condition", "")
-            error_msg = rule.get("error_message", "")
-
-            print(f"  - {rule_id}")
-            if condition:
-                print(f"    Condition: {condition}")
-            if error_msg:
-                print(f"    Error: {error_msg}")
+            print(f"  - {rule.get('rule_id', '')}")
+            if rule.get("kind"):
+                print(f"    Kind: {rule['kind']}")
+            if rule.get("executor"):
+                print(f"    Executor: {rule['executor']}")
+            if rule.get("condition"):
+                print(f"    Condition (documentation): {rule['condition']}")
+            if rule.get("error_message"):
+                print(f"    Diagnostic: {rule['error_message']}")
 
     if concept_data.get("metadata"):
         print("\nMetadata:")

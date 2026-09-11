@@ -1,6 +1,6 @@
 # Mystery Genre Ontology Extensions
-# Genre-specific concepts for mystery narratives
-# Extends base ontology with mystery-specific concepts
+# Genre-specific semantic concepts for mystery narratives.
+# Craft/interpretive rules are advisory and never hard ontology validity.
 
 extends: base
 
@@ -24,12 +24,14 @@ concepts:
         required: true
     validation_rules:
       - rule_id: mystery_problem_is_solvable
-        condition: Mystery problem must have a solution that can be revealed
-        error_message: Mystery problem is unsolvable or incoherent
+        kind: craft_heuristic
+        condition: Mystery problem should have a solution or intentionally qualified unresolved status.
+        error_message: Mystery problem may be unsolvable or incoherent.
         applies_to: [mystery]
       - rule_id: mystery_problem_affects_protagonist
-        condition: Mystery problem must directly affect the protagonist's goals
-        error_message: Mystery problem is disconnected from protagonist concerns
+        kind: craft_heuristic
+        condition: Mystery problem should materially connect to protagonist concerns.
+        error_message: Mystery problem may be disconnected from protagonist concerns.
         applies_to: [mystery]
 
   Clue:
@@ -51,12 +53,14 @@ concepts:
         required: true
     validation_rules:
       - rule_id: clue_relates_to_mystery
-        condition: Clue must meaningfully relate to solving the mystery
-        error_message: Clue is unrelated to central mystery
+        kind: interpretive_criterion
+        condition: A clue should meaningfully relate to the mystery under the intended reading.
+        error_message: Clue may be unrelated to the central mystery.
         applies_to: [mystery]
       - rule_id: clue_is_discoverable
-        condition: Clue must be available to protagonist to discover
-        error_message: Clue is inaccessible to protagonist
+        kind: craft_heuristic
+        condition: Fair-play mystery design normally makes relevant clue evidence available through the narrative.
+        error_message: Clue may be inaccessible to the intended investigator or audience.
         applies_to: [mystery]
 
   RedHerring:
@@ -74,16 +78,18 @@ concepts:
       - source_concept: RedHerring
         target_concept: Revelation
         cardinality: one-to-one
-        description: Red herring is revealed as false
+        description: Red herring may be exposed or recontextualized by revelation
         required: false
     validation_rules:
       - rule_id: red_herring_is_initially_convincing
-        condition: Red herring must appear plausible initially
-        error_message: Red herring is obviously false from the start
+        kind: interpretive_criterion
+        condition: Plausibility of a red herring is an audience-facing craft judgment.
+        error_message: Red herring may be obviously false from the start.
         applies_to: [mystery]
       - rule_id: red_herring_is_revealed
-        condition: Red herring must eventually be exposed as misdirection
-        error_message: Red herring is never resolved
+        kind: craft_heuristic
+        condition: A red herring normally receives later exposure or recontextualization.
+        error_message: Red herring may remain unintentionally unresolved.
         applies_to: [mystery]
 
   InvestigativeArc:
@@ -110,18 +116,20 @@ concepts:
         required: true
     validation_rules:
       - rule_id: investigative_arc_shows_progress
-        condition: Investigation must show measurable progress toward understanding
-        error_message: Investigation shows no progress
+        kind: craft_heuristic
+        condition: An investigative arc normally develops or changes understanding over time.
+        error_message: Investigation may show insufficient progress.
         applies_to: [mystery]
       - rule_id: investigative_arc_reaches_resolution
-        condition: Investigative arc should conclude with solution or major revelation
-        error_message: Investigation ends without resolution
+        kind: craft_heuristic
+        condition: An investigative arc normally reaches a solution, major revelation, or intentional unresolved state.
+        error_message: Investigation may end without an intentional resolution state.
         applies_to: [mystery]
 
 metadata:
-  version: "1.0"
-  last_updated: "2026-07-12"
-  description: "Genre-specific concepts for mystery narratives"
+  version: "2.0"
+  last_updated: "2026-09-11"
+  description: "Genre-specific semantic concepts for mystery narratives"
   genre: mystery
   extends: base
   new_concepts_count: 4

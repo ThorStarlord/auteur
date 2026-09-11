@@ -1,23 +1,23 @@
-"""Base concept classes for the narrative ontology.
+"""Legacy dataclass compatibility model for narrative ontology concepts.
 
-This module defines the foundational building blocks for representing narrative
-concepts, their relationships, and validation rules.
+Narrative Ontology V2 uses the Pydantic models in ``schema.ontology_types`` and
+the YAML-backed ``OntologyRegistry`` as the production semantic path.  These
+dataclasses remain only so historical genre modules and external callers can
+continue to construct the older object shape during the compatibility window.
+They are not an independent ontology source and must not be used to introduce
+new canonical concept definitions.
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Any
+from typing import Any, Dict, List
 
 
 @dataclass
 class Relationship:
-    """Represents a relationship between two narrative concepts.
+    """Legacy relationship object retained for compatibility.
 
-    Attributes:
-        source: The source concept name
-        target: The target concept name
-        cardinality: Relationship cardinality (one-to-one, one-to-many, many-to-many)
-        description: Human-readable description of the relationship
-        direction: "has" or "participates_in" or custom relationship type
+    New ontology vocabulary should use ``schema.ontology_types.Relationship``
+and, when applicable, a registered ``RelationType`` id.
     """
 
     source: str
@@ -29,13 +29,10 @@ class Relationship:
 
 @dataclass
 class ValidationRule:
-    """Represents a validation rule for a narrative concept.
+    """Legacy free-text validation-rule object retained for compatibility.
 
-    Attributes:
-        rule_id: Unique identifier for the rule
-        condition: Description of the condition being validated
-        error_message: Message to show when validation fails
-        applies_to: Which concepts this rule applies to
+    Conditions stored here are descriptive only. Production deterministic rule
+    execution is owned by ``OntologyValidator`` and named V2 executors.
     """
 
     rule_id: str
@@ -46,20 +43,11 @@ class ValidationRule:
 
 @dataclass
 class BaseConcept:
-    """Base class for all narrative concepts in the ontology.
+    """Legacy concept shape retained for historical callers/tests.
 
-    A concept represents a kind of thing that exists in narrative (Character, Arc,
-    Theme, etc.). Each concept has a definition, relationships to other concepts,
-    and validation rules that constrain how it can be used.
-
-    Attributes:
-        name: The concept name (e.g., "Character", "Arc")
-        definition: Human-readable definition of the concept
-        category: The category this concept belongs to (base, genre-specific)
-        parent_concepts: List of concepts this one inherits from or extends
-        relationships: List of Relationship objects defining connections to other concepts
-        validation_rules: List of ValidationRule objects that constrain this concept
-        metadata: Additional metadata for the concept (e.g., theme sets for genres)
+    The canonical semantic definition of shipped concepts lives under
+    ``src/auteur/data/ontology/``. Mutating one of these objects does not alter
+    the V2 registry or any accepted narrative authority.
     """
 
     name: str
@@ -71,57 +59,21 @@ class BaseConcept:
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def add_relationship(self, relationship: Relationship) -> None:
-        """Add a relationship to another concept.
-
-        Args:
-            relationship: The Relationship object to add
-        """
         self.relationships.append(relationship)
 
     def add_validation_rule(self, rule: ValidationRule) -> None:
-        """Add a validation rule to this concept.
-
-        Args:
-            rule: The ValidationRule object to add
-        """
         self.validation_rules.append(rule)
 
     def get_related_concepts(self) -> List[str]:
-        """Get list of concepts this one relates to.
-
-        Returns:
-            List of related concept names
-        """
         return [rel.target for rel in self.relationships]
 
     def get_validation_rules_for_concept(self, concept_name: str) -> List[ValidationRule]:
-        """Get validation rules that apply to a specific concept.
-
-        Args:
-            concept_name: The name of the concept to check
-
-        Returns:
-            List of ValidationRule objects that apply to the concept
-        """
         return [rule for rule in self.validation_rules if concept_name in rule.applies_to]
 
     def is_subtype_of(self, parent_name: str) -> bool:
-        """Check if this concept is a subtype of another.
-
-        Args:
-            parent_name: The name of the potential parent concept
-
-        Returns:
-            True if this concept inherits from the parent
-        """
         return parent_name in self.parent_concepts
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the concept to a dictionary representation.
-
-        Returns:
-            Dictionary representation of the concept
-        """
         return {
             "name": self.name,
             "definition": self.definition,

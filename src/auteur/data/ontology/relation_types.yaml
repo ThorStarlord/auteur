@@ -1,0 +1,47 @@
+# Reusable Layer-0 relation vocabulary.
+# A relation type describes possible semantics; it is not a story-instance assertion.
+
+relation_types:
+  pursues:
+    id: pursues
+    description: A narrative entity actively seeks a goal or outcome.
+  participates_in:
+    id: participates_in
+    description: A narrative entity or concept participates in another narrative structure or relation.
+  explores:
+    id: explores
+    description: A structure or artifact develops a theme or narrative concern.
+  sets_up:
+    id: sets_up
+    description: A structural element establishes material intended for later use or resolution.
+  pays_off:
+    id: pays_off
+    description: A structural or realized element delivers, transforms, or resolves prior setup.
+  depends_on:
+    id: depends_on
+    description: One artifact, fact, or decision requires another for its validity or intended effect.
+  affects:
+    id: affects
+    description: One narrative element changes or constrains another.
+  fulfills:
+    id: fulfills
+    description: Realization evidence satisfies an authorial or structural commitment.
+  supersedes:
+    id: supersedes
+    description: A later accepted revision replaces an earlier revision on the current canonical line while preserving history.
+  governed_by:
+    id: governed_by
+    description: An element is constrained by an accepted commitment, rule, or scope contract.
+  incompatible_with:
+    id: incompatible_with
+    description: Two assertions or commitments cannot simultaneously hold under the applicable authority contract.
+  may_be_realized_as:
+    id: may_be_realized_as
+    description: A structural intention may correspond to one or more realized occurrences without implying acceptance.
+  may_produce:
+    id: may_produce
+    description: An occurrence may result in a state transition without making causality authoritative by inference alone.
+
+metadata:
+  version: "2.0"
+  authority: vocabulary-only
