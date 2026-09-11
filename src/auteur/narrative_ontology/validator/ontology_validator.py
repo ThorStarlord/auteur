@@ -176,7 +176,37 @@ class OntologyValidator:
     def get_concept(self, concept_name: str, genre: str) -> Optional[Concept]:
         if not self.is_valid_genre(genre):
             return None
-        return self.registry.get_concept(concept_name, genre)
+        concept = self.registry.get_concept(concept_name, genre)
+        if concept is None:
+            return None
+
+        # Preserve the historical OntologyValidator observation that base rules
+        # explicitly list the three legacy genre extensions. The canonical V2
+        # registry still stores an empty applies_to list to mean "global"; this
+        # projection is limited to the legacy validator API and does not alter
+        # registry semantics, rule execution, relationships, or persistence.
+        legacy = self.base_concepts.get(concept.name)
+        if legacy is not None:
+            legacy_rules = {rule.rule_id: rule for rule in legacy.validation_rules}
+            projected_rules = []
+            changed = False
+            for rule in concept.validation_rules:
+                legacy_rule = legacy_rules.get(rule.rule_id)
+                if (
+                    not rule.applies_to
+                    and legacy_rule is not None
+                    and genre in legacy_rule.applies_to
+                ):
+                    projected_rules.append(
+                        rule.model_copy(update={"applies_to": list(legacy_rule.applies_to)})
+                    )
+                    changed = True
+                else:
+                    projected_rules.append(rule)
+            if changed:
+                concept = concept.model_copy(update={"validation_rules": projected_rules})
+
+        return concept
 
     def get_related_concepts(self, concept_name: str, genre: str) -> List[str]:
         concept = self.get_concept(concept_name, genre)
