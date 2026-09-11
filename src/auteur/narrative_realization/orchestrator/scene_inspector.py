@@ -168,10 +168,10 @@ class SceneInspector:
         scenes_with_arcs = 0
 
         for scene in self.scenes.values():
-            if scene.arc_beat_realizations:
+            if scene.realizes_arc_beats:
                 scenes_with_arcs += 1
-                for arc_beat in scene.arc_beat_realizations:
-                    beat_id = arc_beat.arc_beat_id if hasattr(arc_beat, 'arc_beat_id') else str(arc_beat)
+                for arc_beat in scene.realizes_arc_beats:
+                    beat_id = arc_beat.beat_id
                     arc_beats[beat_id] = arc_beats.get(beat_id, 0) + 1
 
         if not arc_beats:
