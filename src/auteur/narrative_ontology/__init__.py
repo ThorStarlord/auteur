@@ -1,10 +1,21 @@
-"""Narrative ontology module for defining narrative concepts and their relationships.
+"""Auteur Narrative Ontology.
 
-This module provides the foundational semantic layer that defines what narrative
-concepts exist, their relationships, and validation rules. It answers: "What kinds
-of things exist in narrative?" Not "how do we build stories?" but "what vocabulary
-does story-building use?"
-
-Layer 0 defines the foundational type system for all narrative concepts.
-Genre-specific extensions will be added in subsequent layers.
+Layer 0 is the shared semantic foundation used by Identity, Structure,
+Realization, and Expression. It defines reusable concepts, relation vocabulary,
+and deterministic invariants; it does not own accepted story state.
 """
+
+from auteur.narrative_ontology.registry import OntologyIntegrityError, OntologyRegistry
+from auteur.narrative_ontology.scope_vocabulary import (
+    EntryKind,
+    SegmentKind,
+    semantic_scope_name,
+)
+
+__all__ = [
+    "OntologyIntegrityError",
+    "OntologyRegistry",
+    "EntryKind",
+    "SegmentKind",
+    "semantic_scope_name",
+]
