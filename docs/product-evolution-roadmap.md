@@ -72,10 +72,10 @@ implemented ≠ qualified
 qualified ≠ released
 ```
 
-## NOW — Decision-Oriented Tutor M1
-**State:** `NOW`
+## SHIPPED — Decision-Oriented Tutor M1
+**State:** `SHIPPED`
 
-The current selected frontier is the bounded Decision-Oriented Tutor M1. Exact issue state belongs in `STATUS.md`.
+The bounded Decision-Oriented Tutor M1 is complete on `main` through PRs #187, #191, #192, and #193.
 
 ```text
 0006 safe advisory sessions
@@ -84,40 +84,38 @@ The current selected frontier is the bounded Decision-Oriented Tutor M1. Exact i
 → 0009 production Tutor documentation
 ```
 
-Non-negotiable M1 contract:
+Non-negotiable M1 contract remains:
 - Decision Cards are `DERIVED / NOT CANON`.
 - Tutor sessions are `LOCAL / NONCANONICAL`.
 - Tutor responses do not themselves accept StoryIdentity, rewrite canon, update a blueprint, or apply Structure repair.
 - Canonical changes continue through existing explicit author-authority paths.
 
-Do not expand M1 with speculative learning models, Series reasoning, causal ontology, or automatic repair.
+## SHIPPED — Beginner Decision Golden Path
+**State:** `SHIPPED` as a product-integration verification package.
 
-## NEXT — Beginner Decision Golden Path
-**State:** `NEXT`
-
-After M1 is complete and qualified, run one real beginner-style project through:
+The bounded Golden Path now exercises one beginner-style project through:
 
 ```text
 raw premise
 → Story Discovery
 → explicit StoryIdentity acceptance
 → lightweight Structure
-→ diagnostic / craft question
 → Tutor Decision Card
-→ explanation / alternatives
+→ explanation
 → author response
-→ explicit authority-bearing story change where appropriate
-→ next useful decision
+→ safe stop before authority
 ```
 
-Capture friction such as: unclear action after `tutor choose`; irrelevant next decision; excessive internal terminology; competing subsystem priorities; confusion between advice and authority; or manual reconstruction of information Auteur already stores. Select the next bounded change from observed friction, not from roadmap order alone.
+Evidence is recorded in [reviews/beginner-decision-golden-path.md](reviews/beginner-decision-golden-path.md).
 
-## NEXT — Decision-to-Authority Handoff
-**State:** `NEXT` after Golden Path evidence.
+The dominant observed friction is concrete: after `tutor choose`, Auteur records the local noncanonical choice correctly but does not provide a structured route to the existing authoritative workflow that would enact the selected design direction. This is a **workflow/product-integration gap**, not evidence for new ontology or a new semantic layer.
 
-Likely question: **“I chose the Tutor recommendation. What do I do to actually change the story?”**
+## NOW — Decision-to-Authority Handoff
+**State:** `NOW`, promoted from Golden Path evidence.
 
-A bounded handoff could explain which authoritative artifacts are affected and which **existing** workflow owns the change:
+Observed question: **“I chose the Tutor recommendation. What do I do to actually change the story?”**
+
+The bounded handoff should explain which authoritative artifacts/layers are plausibly affected and which **existing** workflow owns the next change:
 
 ```text
 Tutor response
@@ -127,7 +125,13 @@ Tutor response
 → explicit author confirmation there
 ```
 
-Guardrails: the handoff is derived/noncanonical; it is not a second acceptance system; it may recommend an Identity/Structure/Realization revision path but must not silently execute it. If existing authority workflows cannot express the change, record that as product evidence before inventing a new one.
+Required guardrails:
+- the handoff is derived/noncanonical;
+- it is not a second acceptance system;
+- it may recommend an Identity/Structure/Realization revision path but must not silently execute it;
+- stale Tutor sessions cannot yield an actionable handoff;
+- when evidence is insufficient, the handoff must remain unresolved/inspection-only rather than guess;
+- existing explicit authority-bearing commands remain the only route that can change accepted story state.
 
 ## CANDIDATE — Narrative Change Preview
 **State:** `CANDIDATE`; promote only after real handoff use shows authors need impact visibility before changing authority-bearing state.
@@ -325,7 +329,7 @@ Serial / Episode expansion
 
 Interpretation rules:
 - each transition still requires real selection/authorization;
-- Golden Path evidence may reorder, combine, defer, or reject later candidates;
+- subsequent evidence may reorder, combine, defer, or reject later candidates;
 - Unified Decision Inbox and Current Author Intent are supporting candidates that may be pulled earlier if real relevance/orientation friction warrants them;
 - Story Design Pack growth remains demand-driven and can happen opportunistically when a real Decision Card lacks needed craft knowledge;
 - engineering hardening runs independently when risk justifies it;
