@@ -13,6 +13,7 @@ Key Features:
 from __future__ import annotations
 
 from typing import Dict, List, Optional
+
 from auteur.narrative_realization.schema.scene_outline import (
     SceneOutline,
     SceneStatus,
@@ -43,7 +44,6 @@ class SceneInspector:
         """
         self.scenes[scene.id] = scene
 
-        # Index by chapter
         if scene.chapter_id not in self.chapters:
             self.chapters[scene.chapter_id] = []
         self.chapters[scene.chapter_id].append(scene)
@@ -61,7 +61,7 @@ class SceneInspector:
         """Display complete scene tree organized by chapter.
 
         Returns:
-            Formatted string showing chapter → scenes hierarchy
+            Formatted string showing chapter -> scenes hierarchy
         """
         if not self.chapters:
             return "No scenes found"
@@ -77,22 +77,17 @@ class SceneInspector:
 
             for scene in sorted(chapter_scenes, key=lambda s: s.narrative_position or 0):
                 status_marker = self._status_marker(scene.status)
-                lines.append(
-                    f"  {status_marker} {scene.id}"
-                )
+                lines.append(f"  {status_marker} {scene.id}")
 
-                # Show POV character if set
                 if scene.pov_character_id:
                     lines.append(f"     POV: {scene.pov_character_id}")
 
-                # Show participants
                 if scene.participants:
                     participants_str = ", ".join(scene.participants[:3])
                     if len(scene.participants) > 3:
                         participants_str += f" (+{len(scene.participants) - 3} more)"
                     lines.append(f"     With: {participants_str}")
 
-                # Show temporal relations if present
                 if scene.temporal_relation:
                     if scene.temporal_relation.follows_scene:
                         lines.append(
@@ -149,12 +144,16 @@ class SceneInspector:
         lines.append("Character Participation")
         lines.append("=" * 70)
 
-        for char in sorted(participant_count.keys(), key=lambda c: participant_count[c], reverse=True):
+        for char in sorted(
+            participant_count.keys(), key=lambda c: participant_count[c], reverse=True
+        ):
             count = participant_count[char]
             lines.append(f"  {char}: {count} appearance{'s' if count != 1 else ''}")
 
         lines.append("")
-        lines.append(f"Total: {len(participant_count)} characters across {len(self.scenes)} scenes")
+        lines.append(
+            f"Total: {len(participant_count)} characters across {len(self.scenes)} scenes"
+        )
 
         return "\n".join(lines)
 
@@ -168,10 +167,10 @@ class SceneInspector:
         scenes_with_arcs = 0
 
         for scene in self.scenes.values():
-            if scene.arc_beat_realizations:
+            if scene.realizes_arc_beats:
                 scenes_with_arcs += 1
-                for arc_beat in scene.arc_beat_realizations:
-                    beat_id = arc_beat.arc_beat_id if hasattr(arc_beat, 'arc_beat_id') else str(arc_beat)
+                for realization in scene.realizes_arc_beats:
+                    beat_id = realization.beat_id
                     arc_beats[beat_id] = arc_beats.get(beat_id, 0) + 1
 
         if not arc_beats:
@@ -219,7 +218,6 @@ class SceneInspector:
         lines.append("")
         lines.append(f"Total: {len(self.scenes)} scenes")
 
-        # Calculate readiness percentage
         ready_count = status_counts[SceneStatus.READY]
         if len(self.scenes) > 0:
             readiness = (ready_count / len(self.scenes)) * 100
@@ -259,7 +257,6 @@ class SceneInspector:
             if scene.exit_state:
                 completeness_metrics["has_exit_state"] += 1
 
-            # Count fully complete if all core fields are set
             if (
                 scene.pov_character_id
                 and scene.participants
@@ -291,9 +288,7 @@ class SceneInspector:
         lines.append("")
         fully_complete = completeness_metrics["fully_complete"]
         fully_pct = (fully_complete / total * 100) if total > 0 else 0
-        lines.append(
-            f"Fully Complete: {fully_complete}/{total} ({fully_pct:.1f}%)"
-        )
+        lines.append(f"Fully Complete: {fully_complete}/{total} ({fully_pct:.1f}%)")
 
         return "\n".join(lines)
 
