@@ -24,7 +24,7 @@ def test_registry_integrity_passes_for_packaged_specs() -> None:
 def test_all_packaged_validation_rules_have_explicit_kind() -> None:
     registry = OntologyRegistry()
     documents = [
-        registry.loader.load_base_ontology(),
+        registry.loader.load_base_spec(),
         registry.loader.load_semantic_vocabulary(),
     ]
     documents.extend(
@@ -122,15 +122,16 @@ def test_deterministic_semantic_rule_executes_by_named_executor() -> None:
     assert errors == []
 
 
-def test_legacy_free_text_rules_are_non_executable_by_default() -> None:
+def test_legacy_free_text_rules_are_advisory_and_non_executable() -> None:
     validator = OntologyValidator()
     character = validator.get_concept("Character", "literary")
     assert character is not None
     assert character.validation_rules
-    assert all(
-        rule.kind == ValidationRuleKind.INTERPRETIVE_CRITERION
-        for rule in character.validation_rules
-    )
+    advisory_kinds = {
+        ValidationRuleKind.CRAFT_HEURISTIC,
+        ValidationRuleKind.INTERPRETIVE_CRITERION,
+    }
+    assert all(rule.kind in advisory_kinds for rule in character.validation_rules)
     ok, errors = validator.enforce_validation_rules("Character", {}, "literary")
     assert ok is True
     assert errors == []
