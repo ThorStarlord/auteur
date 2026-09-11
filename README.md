@@ -99,44 +99,59 @@ The current production baseline includes:
 - **Interactive genre pipelines** — neutral session/runtime infrastructure for built-in genre-specific StoryIdentity authoring.
 - **Story Design Packs** — reusable craft/design knowledge with deterministic composition.
 - **Creative Writing Tutor V1** — existing `auteur design tutor ...` guidance over Story Design Packs.
-- **Decision-Oriented Tutor M1** — root `auteur tutor next/explain/show/choose`, deterministic Decision Cards, source-bound local advisory sessions, stale-source blocking, and executable noncanon authority boundaries.
-- **Structure engine** — generation, diagnosis, deterministic findings, and an explicit diagnose → propose → select → apply repair lifecycle.
+- **Decision-Oriented Tutor** — root `auteur tutor next/explain/show/choose/handoff/propose`, deterministic Decision Cards, source-bound local advisory sessions, stale-source blocking, and explicit routing into existing authority workflows.
+- **Structure revision continuation** — explicit proposal inspect/select, fail-closed revision planning/validation, derived Narrative Change Preview, explicit confirmed application, and deterministic/read-only reassessment.
+- **Project orientation** — dashboard Author Attention plus a loopback-only, read-only Guided Author Workspace V1.
 - **Realization/state/provenance** — state coordination plus accumulated impact, convergence, decision, review, planning, simulation, and portfolio support.
 - **Series / long-horizon support** — bounded accepted-history/current-state reconstruction, continuity machinery, derived Global Map/Focus support, and Guided Series Continuity Review V1.
 - **Outline & drafting** — Cartographer outlines, chapter contracts, Bard/Critics drafting, retry, and explicit acceptance.
 
-For exact current/pending boundaries, including open PRs, use [STATUS.md](STATUS.md).
+For exact current/pending boundaries, including open work, use [STATUS.md](STATUS.md).
 
-## Decision-Oriented Tutor M1
+## Guided Author Decision Loop
 
-The bounded M1 workflow is implemented and protected by authority/staleness regression tests.
+The Tutor now has a bounded continuation path from advice to the existing Structure authority workflow:
 
 ```text
-existing guidance / deterministic diagnostic
-        ↓
 Decision Card — DERIVED / NOT CANON
         ↓
-optional source-bound local session — LOCAL / NONCANONICAL
+Tutor session — LOCAL / NONCANONICAL
         ↓
-next / explain / show / choose
+author choice
         ↓
-advisory response only
+derived authority handoff
         ↓
-existing explicit story-authority workflow if canon should change
+noncanonical Structure proposal
+        ↓
+explicit proposal selection
+        ↓
+revision plan + validation
+        ↓
+derived Narrative Change Preview
+        ↓
+explicit revision apply --confirm
+        ↓
+read-only Decision Reassessment
+        ↓
+dashboard / Guided Author Workspace orientation
 ```
 
-Root commands:
+Important boundary: `tutor choose`, `tutor handoff`, `tutor propose`, proposal selection, revision planning, preview, and reassessment do **not** themselves modify accepted story state. For the supported Structure route, `auteur structure revision apply <plan_id> --project . --confirm` is the explicit authority-bearing step.
+
+Core commands:
 
 ```powershell
 auteur tutor next --pack superhero --decision "power origin"
 auteur tutor explain --pack superhero --decision "power origin"
 auteur tutor show <session_id> --project .
 auteur tutor choose <session_id> choose --value "Keep the origin costly" --project .
+auteur tutor handoff <session_id> --project .
+auteur tutor propose <session_id> --project .
 ```
 
-Persisted sessions require project-local source binding when they are created, for example `--project . --source identity=story_identity.yaml`. Auteur fingerprints the actual file bytes and later blocks substantive responses if the source no longer matches.
+Persisted sessions require project-local source binding when they are created, for example `--project . --source identity=story_identity.yaml --source blueprint=blueprint.yaml`. Auteur fingerprints the actual file bytes and later blocks substantive responses or actionable continuation when the source no longer matches.
 
-`tutor choose` does **not** accept StoryIdentity, update a blueprint, rewrite canon, or repair Structure. See [docs/design/decision-oriented-tutor.md](docs/design/decision-oriented-tutor.md) for the complete workflow and authority model.
+See [docs/guides/guided-author-decision-loop.md](docs/guides/guided-author-decision-loop.md) for the complete beginner-facing walkthrough and [docs/design/decision-oriented-tutor.md](docs/design/decision-oriented-tutor.md) for the Tutor authority/staleness model.
 
 ## Install
 
@@ -240,9 +255,23 @@ auteur blueprint seed <story_identity.yaml> --output <blueprint.yaml>
 ```text
 auteur structure diagnose <blueprint.yaml>
 auteur structure propose-repairs <blueprint.yaml>
-auteur structure apply <proposal.yaml> <blueprint.yaml> [--in-place]
-auteur structure generate <blueprint.yaml> [--symptom "text"]
+auteur structure proposal inspect <proposal.yaml> --project .
+auteur structure proposal select <proposal.yaml> --option <option_id> --project .
+auteur structure revision plan --proposal <proposal.yaml> --project .
+auteur structure revision validate <plan_id> --project .
+auteur structure revision preview <plan_id> --project .
+auteur structure revision apply <plan_id> --project . --confirm
+auteur structure revision reassess <application_id> --project .
 ```
+
+### Project Orientation
+
+```text
+auteur dashboard --project .
+auteur workspace --project . --port 8765
+```
+
+`dashboard` and Guided Author Workspace V1 are derived/read-only. The workspace binds only to `127.0.0.1` and exposes no mutation POST endpoints; it presents Author Attention and the exact existing safe next command.
 
 ### Project Planning and Counterfactual Support
 
@@ -322,10 +351,9 @@ See [docs/campaign/auteur-long-horizon-campaign-state.md](docs/campaign/auteur-l
 
 ## Work That Is Not Shipped
 
-Two notable open PRs must not be confused with current `main` behavior:
+Historical PR #167 for bounded Episode 1 Direction support is **closed / not merged / superseded**. Its ratified contract is preserved, and contemporary reconstruction is tracked separately; Episode 1 support must not be described as current production behavior.
 
-- [PR #167](https://github.com/ThorStarlord/auteur/pull/167) — bounded Episode 1 Direction support: **open / not merged**.
-- [PR #166](https://github.com/ThorStarlord/auteur/pull/166) — full-suite Windows CI leg: **open / not merged**. Current production CI should not be described as having this additional Windows leg until merged.
+Broader multi-episode/season expansion remains evidence-gated under the long-horizon campaign posture.
 
 See [STATUS.md](STATUS.md) for current reconciliation details.
 
@@ -350,7 +378,8 @@ Additional subsystems persist their own derived, local, candidate, or authoritat
 ## Documentation Map
 
 - [Current repository status](STATUS.md) — living operational state, open milestone work, next recommended action.
-- [Decision-Oriented Tutor M1](docs/design/decision-oriented-tutor.md) — root Tutor workflow, Decision Cards, session lifecycle, staleness, and authority boundaries.
+- [Guided Author Decision Loop](docs/guides/guided-author-decision-loop.md) — beginner-facing advice → proposal → revision → reassessment → orientation walkthrough.
+- [Decision-Oriented Tutor](docs/design/decision-oriented-tutor.md) — root Tutor workflow, Decision Cards, session lifecycle, staleness, and authority boundaries.
 - [Product Evolution Roadmap](docs/product-evolution-roadmap.md) — forward-looking product/repository candidates and evidence gates; advisory, not implementation authority.
 - [Architecture Roadmap](docs/architecture-roadmap.md) — architecture integrity and architecture-specific extension history.
 - [Mission](MISSION.md) — durable scope and invariants.
@@ -380,7 +409,7 @@ Run the repository verification stack:
 python scripts/check.py
 ```
 
-CI runs the same verification entrypoint with `python scripts/check.py --skip-pytest` plus the pytest matrix and installed-wheel smoke according to the current validation workflow. Real-provider smoke checks remain separate because they spend external API tokens.
+CI runs Linux Python 3.11/3.12/3.13 validation, a full Windows Python 3.13 test leg, repository verification, and installed-wheel smoke according to `.github/workflows/validation.yml`. Real-provider smoke checks remain separate because they spend external API tokens.
 
 ## Versioning
 
