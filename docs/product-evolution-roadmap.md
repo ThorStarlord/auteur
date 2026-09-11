@@ -8,14 +8,14 @@
 **Architecture roadmap:** [architecture-roadmap.md](architecture-roadmap.md).
 
 ## Purpose
-This document keeps promising directions for evolving Auteur in one place without turning brainstorming into implementation authority. Auteur now has substantial narrative architecture and many capability families; the largest remaining opportunity is increasingly product integration: help an author move from uncertainty to one useful creative decision, understand the recommendation, make a choice, and cross an explicit authority boundary when the story should actually change.
+This document keeps promising directions for evolving Auteur in one place without turning brainstorming into implementation authority. Auteur now has substantial narrative architecture and an integrated guided decision loop; future work should be selected from observed author friction rather than continuing the previous sequence automatically.
 
 This file answers **“what directions are worth considering?”** `STATUS.md`, approved issues, bounded plans, and qualification records answer **“what are we actually building now?”**
 
 ## Strategic Thesis
-Default to **product integration before foundational architecture expansion**. The five semantic layers, authority/provenance, transformations, diagnostics/reasoning, StoryIdentity, Structure, Realization/state, Expression workflows, Series continuity, and long-horizon projections already exist in bounded forms.
+Default to **product integration before foundational architecture expansion**. The five semantic layers, authority/provenance, transformations, diagnostics/reasoning, StoryIdentity, Structure, Realization/state, Expression workflows, Series continuity, long-horizon projections, and a bounded guided decision loop already exist in operational forms.
 
-The next maturation step is to make those capabilities feel like one product:
+The integrated product loop is now:
 
 ```text
 accepted narrative authority
@@ -23,8 +23,11 @@ accepted narrative authority
 → one bounded author decision
 → recommendation + explanation + trade-offs
 → author response
-→ explicit existing story-authority workflow when canon should change
-→ accepted narrative authority
+→ derived authority handoff
+→ concrete noncanonical proposal when supported
+→ explicit selection + revision planning + preview
+→ explicit existing story-authority workflow
+→ bounded reassessment + project orientation
 ```
 
 Admit a new architectural concept only when observed product friction cannot be solved cleanly by existing concepts, workflow, presentation, or reusable craft knowledge.
@@ -78,10 +81,10 @@ qualified ≠ released
 The bounded Decision-Oriented Tutor M1 is complete on `main` through PRs #187, #191, #192, and #193.
 
 ```text
-0006 safe advisory sessions
-→ 0007 root Tutor workflow
-→ 0008 authority/staleness boundary tests
-→ 0009 production Tutor documentation
+safe advisory sessions
+→ root Tutor workflow
+→ authority/staleness boundary tests
+→ production Tutor documentation
 ```
 
 Non-negotiable M1 contract remains:
@@ -90,146 +93,70 @@ Non-negotiable M1 contract remains:
 - Tutor responses do not themselves accept StoryIdentity, rewrite canon, update a blueprint, or apply Structure repair.
 - Canonical changes continue through existing explicit author-authority paths.
 
-## SHIPPED — Beginner Decision Golden Path
-**State:** `SHIPPED` as a product-integration verification package.
+## SHIPPED — Guided Author Decision Loop
+**State:** `SHIPPED`
 
-The bounded Golden Path now exercises one beginner-style project through:
+The post-M1 evidence sequence is now integrated and qualified. It began with the Beginner Decision Golden Path, which exposed the missing post-choice authority route, then closed that gap without creating a second acceptance system.
 
 ```text
 raw premise
 → Story Discovery
 → explicit StoryIdentity acceptance
-→ lightweight Structure
+→ blueprint / Structure
 → Tutor Decision Card
-→ explanation
-→ author response
-→ safe stop before authority
-```
-
-Evidence is recorded in [reviews/beginner-decision-golden-path.md](reviews/beginner-decision-golden-path.md).
-
-The dominant observed friction is concrete: after `tutor choose`, Auteur records the local noncanonical choice correctly but does not provide a structured route to the existing authoritative workflow that would enact the selected design direction. This is a **workflow/product-integration gap**, not evidence for new ontology or a new semantic layer.
-
-## NOW — Decision-to-Authority Handoff
-**State:** `NOW`, promoted from Golden Path evidence.
-
-Observed question: **“I chose the Tutor recommendation. What do I do to actually change the story?”**
-
-The bounded handoff should explain which authoritative artifacts/layers are plausibly affected and which **existing** workflow owns the next change:
-
-```text
-Tutor response
+→ explanation + advisory choice
 → derived Decision Handoff
-→ affected accepted commitments/plans
-→ existing authority workflow
-→ explicit author confirmation there
+→ Tutor-generated noncanonical Structure proposal
+→ explicit proposal inspection / selection
+→ revision plan + validation
+→ derived Narrative Change Preview
+→ explicit Structure revision apply --confirm
+→ deterministic / bounded Decision Reassessment
+→ dashboard Author Attention
+→ Guided Author Workspace V1
 ```
 
-Required guardrails:
-- the handoff is derived/noncanonical;
-- it is not a second acceptance system;
-- it may recommend an Identity/Structure/Realization revision path but must not silently execute it;
-- stale Tutor sessions cannot yield an actionable handoff;
-- when evidence is insufficient, the handoff must remain unresolved/inspection-only rather than guess;
-- existing explicit authority-bearing commands remain the only route that can change accepted story state.
+Delivered capabilities include:
+- **Decision-to-Authority Handoff** — routes supported resolved Tutor choices to an existing authority workflow without executing it.
+- **Tutor → Structure Proposal Bridge** — creates one schema-valid, unselected, noncanonical concrete proposal while deterministic code owns currentness, IDs, paths, allowed fields, and persistence.
+- **Proposal review / selection** — records explicit proposal choice without changing the blueprint.
+- **Revision correctness hardening** — proposal-backed planning fails closed on unselected/empty proposals and invalid blueprint replacement cannot fall back to destructive direct YAML write.
+- **Narrative Change Preview** — read-only projection over an existing revision plan and existing dependency evidence; no second impact engine.
+- **Decision Reassessment** — exact native Structure diagnostic rules can be re-run; Tutor/craft changes return `not_assessable` rather than an invented quality verdict.
+- **Unified Project Orientation** — the existing dashboard gains deterministic Author Attention over Tutor sessions, proposals, and revision plans.
+- **Full Beginner Decision Loop** — hermetic proof that StoryIdentity remains byte-identical and the blueprint changes only at explicit confirmed Structure application.
+- **Guided Author Workspace V1** — local `127.0.0.1`, GET-only browser presentation over dashboard/attention state with no mutation endpoints.
 
-## CANDIDATE — Narrative Change Preview
-**State:** `CANDIDATE`; promote only after real handoff use shows authors need impact visibility before changing authority-bearing state.
+The beginner-facing walkthrough is [guides/guided-author-decision-loop.md](guides/guided-author-decision-loop.md).
 
-Before an author performs an authoritative revision, Auteur could produce a derived preview of likely consequences using existing provenance, dependency, impact, continuity, and planning machinery.
+### Post-milestone selection rule
 
-```text
-proposed authoritative change
-→ derived change preview
-→ affected commitments / plans / realized state
-→ downstream artifacts that may become stale, suspect, or contradictory
-→ continuity / setup-payoff / planning consequences already evidenced by current systems
-→ author decides whether to proceed through the existing authority workflow
-```
+Completing this sequence does **not** authorize another package automatically. Run/use the integrated loop and select the next bounded change from concrete friction. If the next problem is discoverability, solve discoverability; if relevance is weak, consider intent/decision-source coverage; if craft guidance is thin, admit a demand-driven Story Design Pack. Do not invent a new semantic layer because the roadmap needs another item.
 
-This is conceptually a narrative `git diff --dry-run`.
-
-Guardrails:
-- preview ≠ modification;
-- preview output is derived/noncanonical;
-- do not create a second mutation path;
-- do not claim causal downstream effects where only dependency/impact evidence exists;
-- reuse existing impact/provenance contracts before inventing new graph or ontology foundations;
-- if existing dependency information is insufficient, record the specific blind spot as evidence rather than silently inferring certainty.
-
-## CANDIDATE — Decision Reassessment / Closed Decision Loop
-**State:** `CANDIDATE`; promote only after Decision-to-Authority Handoff exists or equivalent real product evidence appears.
-
-A resolved Tutor interaction should eventually be traceable through the authoritative story change that followed it and then be reassessed against the original decision context:
-
-```text
-problem / question
-→ Decision Card
-→ author response
-→ Decision Handoff
-→ explicit authoritative revision
-→ deterministic / bounded reassessment
-→ resolved / still relevant / transformed / new downstream decision
-```
-
-The goal is to answer **“Did the story change that followed this decision actually address the reason the decision was surfaced?”** without inventing an opaque creative-quality score.
-
-Guardrails:
-- reassessment is not automatic artistic approval;
-- a Tutor response does not itself prove the issue was resolved;
-- canonical revision history remains owned by existing authority-bearing workflows;
-- preserve links from the original card/session to the later accepted revision without turning Tutor sessions into canonical story history;
-- represent unresolved or ambiguous outcomes explicitly.
-
-## CANDIDATE — Unified Project Orientation
-**State:** `CANDIDATE`; likely after the root Tutor loop and before a broader workspace UI.
-
-Auteur already knows substantial accepted and derived project state. A bounded orientation projection could compose that information into one answer to **“Where am I, what matters now, and what should I decide next?”**
-
-```text
-PROJECT NOW
-
-accepted StoryIdentity / Direction
-+ current Series / Book / Chapter / Scene scope where known
-+ current structural horizon
-+ Current Author Intent when present
-+ active diagnostics / continuity concerns
-+ stale or unresolved decisions
-+ planning blockers / impact evidence
-+ active Tutor session
-→ one prioritized Decision Card or one explicit no-action-needed result
-```
-
-Start as a CLI/API projection before designing a broad dashboard. Reuse Global Map/Focus, planning, diagnostics, Decision Cards, and provenance rather than creating a parallel project-state database.
-
-Guardrails:
-- orientation is derived/rebuildable, not second canon;
-- no opaque global “story health” score;
-- show `why this?`, `why now?`, source evidence, currentness, and authority;
-- allow “no warranted decision” rather than forcing perpetual intervention;
-- expose underlying artifacts progressively for advanced users.
-
-## CANDIDATE — Unified Decision Inbox
+## CANDIDATE — Unified Decision Inbox / Broader Attention Sources
 **State:** `CANDIDATE`
 
-Use Decision Cards as a common **author-facing integration protocol**, not a new canonical domain model:
+Author Attention currently composes a bounded set of decision artifacts. A broader inbox may be useful if real use shows important decisions from other existing systems are being missed.
+
+Potential sources include:
 
 ```text
-Story Discovery ────────┐
-Structure diagnostics ──┤
-Story Design Packs ──────┤
-Series continuity ───────┤
-Impact / reconciliation ─┼→ Decision Cards → Tutor
-Planning ────────────────┤
-Simulation / portfolio ──┘
+Story Discovery
+Structure diagnostics
+Story Design Packs / Tutor
+Series continuity
+Impact / reconciliation
+Planning
+Simulation / portfolio
+→ Decision Cards / attention projection
 ```
 
-The underlying systems keep their semantics and authority. The inbox answers **“what important decision needs my attention now?”** Required qualities: stable ordering where possible, no opaque creative-quality score, clear blocker/advisory distinctions, visible `why this?`, `why now?`, evidence, consequences, and authority.
+The underlying systems keep their semantics and authority. The inbox should answer **“what important decision needs my attention now?”** with stable ordering where possible, clear blocker/advisory distinctions, visible evidence/currentness, and no opaque creative-quality score.
 
-Unified Project Orientation may consume this inbox or select from it, but neither concept should become a new canonical narrative layer.
+Do not create a parallel project-state database; extend the existing projection only when omitted sources produce concrete product friction.
 
 ## CANDIDATE — Current Author Intent
-**State:** `CANDIDATE`; promote only if real Tutor use reveals relevance friction.
+**State:** `CANDIDATE`; promote only if real Tutor/orientation use reveals relevance friction.
 
 Add a small local/noncanonical statement of what the author is trying to decide now, e.g. “Should the revelation happen in Book 2 or Book 3?”
 
@@ -237,46 +164,29 @@ Add a small local/noncanonical statement of what the author is trying to decide 
 Current Author Intent
 + accepted narrative state
 + diagnostics / craft knowledge
-→ more relevant Decision Card
+→ more relevant Decision Card / attention item
 ```
 
 Guardrails: local/noncanonical by default; never silently promoted into accepted Direction; prefer plain-language author input; do not build a universal intent ontology without recurring evidence.
 
-## CANDIDATE — Guided Author Workspace
-**State:** `CANDIDATE`; consider after root Tutor semantics and the core decision loop stabilize.
-
-The beginner experience should progressively hide CLI/YAML/Pydantic machinery. A small local browser surface is plausible because Auteur already has browser/session infrastructure.
-
-Minimal shape:
-
-```text
-YOUR STORY
-current accepted direction
-
-NEXT DECISION
-why it matters
-recommendation
-alternatives / trade-offs
-[Explain] [Teach me] [Choose]
-```
-
-If Decision-to-Authority Handoff and Change Preview are later qualified, the workspace should project those existing semantics rather than create UI-only mutation behavior.
-
-Advanced disclosure can reveal evidence, provenance, artifacts, diagnostics, and CLI equivalents. Do not start with a broad desktop app, cloud collaboration platform, or new GUI architecture; prove the bounded decision interaction first.
-
 ## CANDIDATE — Episode / Serial Entry Progression
-**State:** `CANDIDATE`
+**State:** `CANDIDATE`, bounded and deliberately separate from general long-horizon expansion.
 
-Bounded Episode 1 Direction work already exists in an open PR. After the Tutor milestone, reconcile it against contemporary `main`, requalify it, and decide whether it remains the smallest useful serial-fiction step.
+Historical PR #167 is closed/superseded and must not be transplanted into current `main`. Fresh issue #218 preserves the ratified Episode 1 capability contract for contemporary reconstruction when the serial lane is deliberately selected.
 
 ```text
-bounded Episode 1 support
+reconcile Episode 1 contract with current Series architecture
+→ smallest bounded Episode 1 Direction package
+→ qualify on contemporary main
 → real serial use
-→ observe need for Episode 2+
-→ generalize only from recurring evidence
+→ observe whether Episode 2+ is actually needed
 ```
 
-Avoid prematurely inventing a universal `Entry<T>`, Season graph, or sixth semantic scope. Episode remains an entry form inside the existing architecture unless evidence proves otherwise.
+Non-negotiable boundary:
+- Episode 1 is not a sixth canonical scope.
+- Canonical scope remains Universe → Series → Book → Chapter → Scene.
+- Episode 1 Direction remains a Series-scope, Identity-layer entry-unit Direction artifact for explicitly episodic Series.
+- No general Episode 2+, season roadmap, Episode realization, or generalized Book/Episode abstraction follows automatically.
 
 ## CANDIDATE — Story Design Pack Growth
 **State:** `CANDIDATE`, evidence-driven admission.
@@ -286,7 +196,7 @@ Story Design Packs are a preferred home for reusable craft knowledge that does n
 **Admission rule:** add a pack when repeated real Decision Cards lack the craft knowledge needed to help the author—not merely because a concept can be represented. Prefer one small pack with observed demand over a broad speculative taxonomy.
 
 ## CANDIDATE — Existing-Manuscript Reverse Engineering
-**State:** `CANDIDATE`; strategically important, but after the guided Decision loop is coherent.
+**State:** `CANDIDATE`; strategically important now that the guided decision loop is coherent.
 
 Potential second entry path:
 
@@ -307,33 +217,26 @@ Core rule: **extraction ≠ canon**. Inferred information remains derived/candid
 Book reconciliation exists, but richer Book-scale reasoning/editing remains plausible. Prefer bounded Book-level decisions over automatic manuscript rewrites. Useful questions include duplicate chapter function, stalled character trajectory, mistimed setup/payoff, thematic drift, and consequences of late revision. Reuse existing reasoning/Decision Card contracts where possible instead of creating a parallel advisory system.
 
 ## Candidate Evolution Sequence — Not an Approved Queue
-This sequence captures the current strongest product-evolution hypothesis if evidence continues to support the guided-decision thesis. It is **not** a dependency guarantee, milestone authorization, or instruction to skip observed evidence.
+The previously hypothesized guided-decision sequence through Workspace V1 is now complete. The next shape is intentionally branching rather than linear:
 
 ```text
-Decision-Oriented Tutor M1
+SHIPPED GUIDED DECISION LOOP
         ↓
-Beginner Decision Golden Path
-        ↓
-Decision-to-Authority Handoff
-        ↓
-Narrative Change Preview
-        ↓
-Decision Reassessment
-        ↓
-Unified Project Orientation
-        ↓
-Guided Author Workspace
-        ↓
-Serial / Episode expansion
+observe real author friction
+        ├─ discoverability / orientation UX
+        ├─ broader decision-source coverage
+        ├─ Current Author Intent
+        ├─ demand-driven Story Design Packs
+        ├─ Existing-Manuscript Reverse Engineering
+        ├─ Book-Level Reasoning / Editing
+        └─ bounded Episode 1 reconstruction when deliberately selected
 ```
 
 Interpretation rules:
-- each transition still requires real selection/authorization;
-- subsequent evidence may reorder, combine, defer, or reject later candidates;
-- Unified Decision Inbox and Current Author Intent are supporting candidates that may be pulled earlier if real relevance/orientation friction warrants them;
-- Story Design Pack growth remains demand-driven and can happen opportunistically when a real Decision Card lacks needed craft knowledge;
+- evidence may reorder, combine, defer, or reject candidates;
+- no branch becomes `NOW` merely because it appears here;
 - engineering hardening runs independently when risk justifies it;
-- long-horizon expansion remains subject to its separate campaign evidence gate regardless of this sequence.
+- broader long-horizon expansion remains subject to its separate campaign evidence gate regardless of this map.
 
 ## EVIDENCE-GATED — Long-Horizon Expansion
 **State:** `EVIDENCE-GATED`
@@ -358,7 +261,7 @@ Tutor depth can teach, explain, challenge, or quiz without persistent writer-ski
 ## Engineering Hardening Lane
 **State:** `CANDIDATE` maintenance lane; schedule independently when risk/cost justify it.
 
-Promising work: reconcile the open Windows full-suite CI leg; cross-platform deterministic qualification; path/line-ending/locale/timezone isolation; stronger freeze/completeness integrity; sandboxing where external reviewer execution justifies the cost. Hardening should protect product work without opening unrelated infrastructure programs during a bounded milestone.
+The full Windows Python 3.13 test leg is now integrated alongside Linux 3.11/3.12/3.13 validation and wheel smoke. Remaining hardening candidates include path/line-ending/locale/timezone isolation, stronger freeze/completeness integrity, and sandboxing where external reviewer execution justifies the cost. Hardening should protect product work without opening unrelated infrastructure programs during a bounded milestone.
 
 ## Product Evolution Loop
 ### Level 1 — Author Decision Loop
