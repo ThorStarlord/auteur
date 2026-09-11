@@ -87,7 +87,7 @@ Auteur's central safety and product rule is simple:
 - Maps and projections are derived/rebuildable views, not second canon.
 - Story Design Packs and Genre Packs are reusable knowledge, not story-instance canon.
 - Decision Cards are `DERIVED / NOT CANON`.
-- Tutor sessions planned for the Decision-Oriented Tutor milestone are `LOCAL / NONCANONICAL`.
+- Persisted Tutor sessions are `LOCAL / NONCANONICAL` and record advisory interaction only.
 - Existing explicit story-authority/acceptance/revision workflows remain the routes that can change accepted narrative state.
 
 ## Current Capability Families on `main`
@@ -99,7 +99,7 @@ The current production baseline includes:
 - **Interactive genre pipelines** — neutral session/runtime infrastructure for built-in genre-specific StoryIdentity authoring.
 - **Story Design Packs** — reusable craft/design knowledge with deterministic composition.
 - **Creative Writing Tutor V1** — existing `auteur design tutor ...` guidance over Story Design Packs.
-- **Decision Card foundation** — deterministic card contract plus adapters from existing Tutor guidance and structure diagnostics.
+- **Decision-Oriented Tutor M1** — root `auteur tutor next/explain/show/choose`, deterministic Decision Cards, source-bound local advisory sessions, stale-source blocking, and executable noncanon authority boundaries.
 - **Structure engine** — generation, diagnosis, deterministic findings, and an explicit diagnose → propose → select → apply repair lifecycle.
 - **Realization/state/provenance** — state coordination plus accumulated impact, convergence, decision, review, planning, simulation, and portfolio support.
 - **Series / long-horizon support** — bounded accepted-history/current-state reconstruction, continuity machinery, derived Global Map/Focus support, and Guided Series Continuity Review V1.
@@ -109,23 +109,34 @@ For exact current/pending boundaries, including open PRs, use [STATUS.md](STATUS
 
 ## Decision-Oriented Tutor M1
 
-Auteur is currently partway through a bounded product milestone that turns existing guidance and diagnostics into one-decision-at-a-time Tutor interactions.
+The bounded M1 workflow is implemented and protected by authority/staleness regression tests.
 
-**Already on `main`:**
+```text
+existing guidance / deterministic diagnostic
+        ↓
+Decision Card — DERIVED / NOT CANON
+        ↓
+optional source-bound local session — LOCAL / NONCANONICAL
+        ↓
+next / explain / show / choose
+        ↓
+advisory response only
+        ↓
+existing explicit story-authority workflow if canon should change
+```
 
-- deterministic `DecisionCard` contract;
-- stable semantic card identity and source-fingerprint support;
-- adapters from existing Tutor guidance and deterministic diagnostics;
-- explicit `DERIVED / NOT CANON` authority status.
+Root commands:
 
-**Not yet complete on `main`:**
+```powershell
+auteur tutor next --pack superhero --decision "power origin"
+auteur tutor explain --pack superhero --decision "power origin"
+auteur tutor show <session_id> --project .
+auteur tutor choose <session_id> choose --value "Keep the origin costly" --project .
+```
 
-- safe persisted Tutor advisory sessions ([#177](https://github.com/ThorStarlord/auteur/issues/177));
-- root `auteur tutor next/show/explain/choose` workflow ([#178](https://github.com/ThorStarlord/auteur/issues/178));
-- M1 authority/staleness death-test lap ([#179](https://github.com/ThorStarlord/auteur/issues/179));
-- final production documentation for that root workflow ([#180](https://github.com/ThorStarlord/auteur/issues/180)).
+Persisted sessions require project-local source binding when they are created, for example `--project . --source identity=story_identity.yaml`. Auteur fingerprints the actual file bytes and later blocks substantive responses if the source no longer matches.
 
-Therefore **do not assume a root `auteur tutor` command exists yet**. The currently shipped Tutor CLI remains under `auteur design tutor ...`.
+`tutor choose` does **not** accept StoryIdentity, update a blueprint, rewrite canon, or repair Structure. See [docs/design/decision-oriented-tutor.md](docs/design/decision-oriented-tutor.md) for the complete workflow and authority model.
 
 ## Install
 
@@ -185,7 +196,7 @@ Pop-Location
 
 Story Discovery is advisory: search/recommendation writes candidate/comparison artifacts, not canonical `story_identity.yaml`. `auteur workflow next . --execute` will not auto-accept a Story Discovery candidate.
 
-## Story Design Packs and the Current Tutor Surface
+## Story Design Packs and Tutor Surfaces
 
 List or inspect reusable Story Design Packs:
 
@@ -195,7 +206,14 @@ auteur design pack list --json
 auteur design pack inspect <pack_id>
 ```
 
-Generate current V1 Tutor guidance:
+Use the root decision-oriented Tutor for one bounded author decision:
+
+```powershell
+auteur tutor next --pack <pack_id> --decision "next creative decision" --premise "your story"
+auteur tutor explain --pack <pack_id> --decision "next creative decision" --premise "your story"
+```
+
+The earlier V1 Tutor surface remains available for backward compatibility:
 
 ```powershell
 auteur design tutor recommend --pack <pack_id> --decision "next creative decision" --premise "your story"
@@ -203,7 +221,7 @@ auteur design tutor explain --pack <pack_id> --decision "next creative decision"
 auteur design tutor alternatives --pack <pack_id> --decision "next creative decision" --premise "your story"
 ```
 
-This guidance is advisory. It does not silently accept StoryIdentity or mutate the story.
+All of this guidance is advisory. It does not silently accept StoryIdentity or mutate the story.
 
 ## Major CLI Surfaces
 
@@ -332,6 +350,7 @@ Additional subsystems persist their own derived, local, candidate, or authoritat
 ## Documentation Map
 
 - [Current repository status](STATUS.md) — living operational state, open milestone work, next recommended action.
+- [Decision-Oriented Tutor M1](docs/design/decision-oriented-tutor.md) — root Tutor workflow, Decision Cards, session lifecycle, staleness, and authority boundaries.
 - [Product Evolution Roadmap](docs/product-evolution-roadmap.md) — forward-looking product/repository candidates and evidence gates; advisory, not implementation authority.
 - [Architecture Roadmap](docs/architecture-roadmap.md) — architecture integrity and architecture-specific extension history.
 - [Mission](MISSION.md) — durable scope and invariants.
