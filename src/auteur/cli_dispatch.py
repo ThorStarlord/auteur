@@ -60,10 +60,10 @@ def _err(m):
 
 def _handle_reasoning_book(project: Path, json_output: bool = False) -> int:
     """Run Book Manuscript reasoning and display findings."""
-    from auteur.reasoning.runtime import CriticRegistry, ReasoningRuntime, RuntimeRequest
+    from auteur.reasoning.runtime import CriticRegistry, ReasoningRuntime, RuntimeRequest, resolve_report_dir
     from auteur.reasoning.registrar import register_all_builtins
 
-    report_dir = project / ".auteur" / "reasoning"
+    report_dir = resolve_report_dir(project)
     registry = CriticRegistry()
     register_all_builtins(registry)
     runtime = ReasoningRuntime(registry, report_dir)

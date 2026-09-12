@@ -4,6 +4,11 @@ This inventory separates architectural completeness from product completeness.
 It is a planning artifact, not a claim that every artifact scope has equal
 implementation depth.
 
+The release interpretation for this matrix is defined in
+[1.0 Support Scope](1.0-scope.md). Partial capability cells are not silently
+treated as full 1.0 support; they require either bounded qualification evidence
+or an explicit experimental/deferred classification.
+
 The canonical reference now provides evidence for the bounded single-Chapter
 path. The matrix below reflects that evidence; it does not imply Book-level or
 long-form completeness.
@@ -210,7 +215,8 @@ accepted Book, Chapter, or upstream artifact is mutated. See
 Book candidate acceptance (Phase C3), Book recomposition from accepted sources,
 Book comparison, and Book reconciliation completion (Phase C4) are now
 implemented: the full Book workflow from inspection through completion has been
-committed with 300+ passing tests. Book-level reasoning/editing remains deferred.
+committed with 300+ passing tests. Book-level reasoning/editing remains
+experimental and bounded for 1.0; it is not part of the core release guarantee.
 **HTML and EPUB3 publishing formats are now implemented** (`auteur publish` with
 52 tests — see `docs/v1-architecture-completion-report.md` section Priority 2).
 Structural revision propagation remains deferred because the canonical pilot

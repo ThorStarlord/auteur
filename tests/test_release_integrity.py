@@ -350,6 +350,12 @@ class TestDeterministicAcrossInvocations:
 class TestVersionMetadata:
     """Auteur version metadata consistency."""
 
+    def test_release_version_is_1_0_0(self) -> None:
+        """The 1.0 release candidate must advertise the finalized version."""
+        from auteur import __version__
+
+        assert __version__ == "1.0.0"
+
     def test_package_version_matches_publishing(self) -> None:
         """AUTEUR_VERSION in publish module matches importlib.metadata."""
         try:

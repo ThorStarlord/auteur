@@ -1,5 +1,10 @@
 # Auteur Architecture and Product Completion Review
 
+> Historical review. The current 1.0 support authority is
+> [docs/1.0-scope.md](1.0-scope.md); this review predates the bounded Book
+> reasoning classification and should not be read as the current release
+> contract.
+
 Date: 2026-07-15
 
 The durable principles for extending this platform are recorded in

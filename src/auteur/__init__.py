@@ -51,7 +51,7 @@ from auteur.structure import (
 )
 from auteur.identity import BestBasis, RecommendationMode, StoryIdentity, compile_to_blueprint
 
-__version__ = "0.37.1"
+__version__ = "1.0.0"
 
 __all__ = [
     "ActStructure",

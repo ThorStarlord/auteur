@@ -210,3 +210,8 @@ class TestReviewService:
     def test_abort_nonexistent(self, review_service: ReviewService):
         with pytest.raises(ValueError, match="Session not found"):
             review_service.abort("nonexistent")
+
+    def test_accept_does_not_fake_canonical_acceptance(self, review_service: ReviewService):
+        """Review must fail closed until it can call the owning acceptance seam."""
+        with pytest.raises(ValueError, match="acceptance integration is unavailable"):
+            review_service.accept("missing", "candidate", confirm=True)

@@ -28,6 +28,21 @@ from pydantic import BaseModel, ConfigDict, Field
 _DEFAULT_MAX_WORKERS = 5
 
 
+def resolve_report_dir(project_root: str | Path, report_dir: str | Path | None = None) -> Path:
+    """Resolve a derived-report directory without allowing root pollution.
+
+    Relative destinations are project-relative.  Absolute destinations remain
+    valid for isolated callers such as tests, but the repository root itself
+    is never a valid report directory.
+    """
+    root = Path(project_root).resolve()
+    destination = (root / ".auteur" / "reasoning") if report_dir is None else Path(report_dir)
+    resolved = destination.resolve() if destination.is_absolute() else (root / destination).resolve()
+    if resolved == root:
+        raise ValueError("repository root cannot be used as a reasoning report directory")
+    return resolved
+
+
 # ---------------------------------------------------------------------------
 # Types
 # ---------------------------------------------------------------------------
@@ -252,10 +267,11 @@ def _dependency_layers(
 
 class ReasoningRuntime:
     def __init__(self, registry: CriticRegistry, report_dir: Path, *,
+                 project_root: str | Path | None = None,
                  max_workers: int = _DEFAULT_MAX_WORKERS,
                  critic_timeout: float | None = None):
         self.registry = registry
-        self.report_dir = Path(report_dir)
+        self.report_dir = resolve_report_dir(project_root, report_dir) if project_root is not None else Path(report_dir)
         self.max_workers = max_workers
         self.critic_timeout = critic_timeout
 

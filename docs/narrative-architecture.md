@@ -85,7 +85,7 @@ The following boundaries are intentionally not implemented by this document:
 2. **Revision and staleness semantics:** define which downstream plans,
    realizations, expressions, and reports become stale or require review after
    each class of upstream change. The Minimal V1 pilot is specified in
-   [Revision and Staleness Semantics](revision-and-staleness-semantics.md).
+   [Revision and Staleness Contract](revision-staleness-contract.md).
 3. **Expression boundary:** define which language-level choices belong to
    Expression and which realized event facts remain canonical upstream.
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import tomllib
 from pathlib import Path
+import importlib.util
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -30,3 +31,13 @@ def test_repo_has_pytest_config() -> None:
     addopts = ini_opts.get("addopts", "")
     assert "-q" in addopts, "ini_options.addopts should include quiet mode (-q)"
     assert "--tb=short" in addopts, "ini_options.addopts should use --tb=short"
+
+
+def test_release_scope_is_machine_checkable() -> None:
+    """The 1.0 support boundary must be present and structurally complete."""
+    path = ROOT / "scripts" / "validate-release-scope.py"
+    spec = importlib.util.spec_from_file_location("validate_release_scope", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    assert module.validate_scope() == []

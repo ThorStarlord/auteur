@@ -353,6 +353,7 @@ Chapter drafting is an optional downstream consumer of the structure engine. See
 ## Documentation
 
 - [Architecture](docs/architecture.md)
+- [Version 1.0 support scope](docs/1.0-scope.md)
 - [Canonical narrative architecture](docs/narrative-architecture.md)
 - [Engine v1 Workflow](docs/engine-v1-workflow.md)
 - [Project Format](docs/project-format.md)

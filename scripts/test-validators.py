@@ -28,7 +28,7 @@ def detect_validator_signature(validator_path):
     # arbitrary field names appearing in validator implementation text.
     if validator_name in {"validate-artifact.py", "validate-output.py"}:
         return "two_arg"
-    if validator_name in {"validate-repo.py", "validate-mode-coverage.py"}:
+    if validator_name in {"validate-repo.py", "validate-mode-coverage.py", "validate-release-scope.py"}:
         return "no_arg"
     if validator_name in {
         "validate-plan.py",
@@ -178,6 +178,7 @@ def main():
     VALID_ONLY_VALIDATORS = {
         "validate-repo",
         "validate-mode-coverage",
+        "validate-release-scope",
     }
     
     results = []

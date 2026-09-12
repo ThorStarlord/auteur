@@ -11,6 +11,7 @@ from auteur.reasoning.runtime import (
     RuntimeRequest,
     RuntimeStatus,
     register_structure_critic,
+    resolve_report_dir,
 )
 
 
@@ -76,6 +77,14 @@ def test_runtime_rejects_stale_input_before_execution(tmp_path):
 
     assert result.outcomes[0].status is RuntimeStatus.STALE
     assert calls == []
+
+
+def test_report_directory_rejects_project_root_but_allows_isolated_directory(tmp_path):
+    assert resolve_report_dir(tmp_path) == (tmp_path / ".auteur" / "reasoning").resolve()
+    assert resolve_report_dir(tmp_path, "reports") == (tmp_path / "reports").resolve()
+    assert resolve_report_dir(tmp_path, tmp_path / "isolated") == (tmp_path / "isolated").resolve()
+    with pytest.raises(ValueError, match="repository root"):
+        resolve_report_dir(tmp_path, tmp_path)
 
 
 def test_persisted_report_becomes_stale_after_source_revision_changes(tmp_path):

@@ -56,5 +56,13 @@ jobs:
       - name: Test installed wheel (help)
         run: /tmp/wheel-test/bin/auteur --help
 
+      - name: Test installed import path
+        run: /tmp/wheel-test/bin/python -c "import auteur, pathlib; path = pathlib.Path(auteur.__file__).resolve(); assert 'site-packages' in str(path), path; print(path)"
+
       - name: Test installed wheel (ontology list)
         run: /tmp/wheel-test/bin/auteur ontology list
+
+      - name: Test installed wheel (golden-path command help)
+        run: |
+          /tmp/wheel-test/bin/auteur workflow next --help
+          /tmp/wheel-test/bin/auteur reasoning book --help

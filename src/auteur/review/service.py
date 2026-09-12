@@ -13,7 +13,6 @@ from auteur.decision.models import (
 from auteur.decision.service import DecisionWorkspaceService
 from auteur.review.models import (
     AcceptancePreparation,
-    AcceptanceResult,
     ImpactRefreshResult,
     ReviewChoice,
     ReviewEvent,
@@ -378,81 +377,14 @@ class ReviewService:
         if not confirm:
             raise ValueError("Acceptance requires --confirm")
 
-        session = self._load_active(session_id)
-        if not session.target:
-            raise ValueError("Session has no target decision")
-
-        # Revalidate preparation
-        if not session.preparation or not session.preparation.prepared:
-            # Try preparing first
-            session_temp = self.prepare_acceptance(session_id, candidate_id)
-            if not session_temp.preparation or not session_temp.preparation.prepared:
-                raise ValueError(
-                    f"Acceptance not ready for {candidate_id}. "
-                    f"Blockers: {session_temp.preparation.blockers if session_temp.preparation else 'unknown'}"
-                )
-            session = session_temp
-
-        # Check stale preparation
-        decision = self.decision_service.inspect(session.target.decision_id)
-        if decision.freshness == EvidenceFreshness.STALE:
-            raise ValueError("Cannot accept: decision evidence is stale. Resume the session first.")
-
-        # Record acceptance request
-        session_state = ReviewSessionState.ACCEPTING
-        session = ReviewSession(
-            session_id=session.session_id,
-            project=session.project,
-            state=session_state,
-            target=session.target,
-            evidence_snapshot=session.evidence_snapshot,
-            choices=session.choices,
-            preparation=session.preparation,
-            acceptance=session.acceptance,
-            impact_refresh=session.impact_refresh,
-            event_count=session.event_count,
-            last_event_hash=session.last_event_hash,
-            created_at=session.created_at,
-            updated_at=datetime.now(timezone.utc).isoformat(),
+        # This service does not own canonical acceptance. Until the target
+        # artifact-specific acceptance adapter is wired here, fail closed
+        # rather than recording a successful acceptance that changed no
+        # canonical pointer or source revision.
+        raise ValueError(
+            "Review acceptance integration is unavailable for this artifact; "
+            "use the owning artifact acceptance command."
         )
-
-        self._record_event(session, ReviewEventType.ACCEPTANCE_REQUESTED, {
-            "candidate_id": candidate_id,
-        })
-
-        # TODO: Call the actual acceptance subsystem
-        # For now, record acceptance success (the acceptance subsystem
-        # call will be integrated when the full acceptance API is confirmed)
-        result = AcceptanceResult(
-            accepted=True,
-            acceptance_id=_stable_id("acceptance", session.session_id, candidate_id),
-            candidate_id=candidate_id,
-        )
-
-        session = ReviewSession(
-            session_id=session.session_id,
-            project=session.project,
-            state=ReviewSessionState.ACCEPTED,
-            target=session.target,
-            evidence_snapshot=session.evidence_snapshot,
-            choices=session.choices,
-            preparation=session.preparation,
-            acceptance=result,
-            impact_refresh=session.impact_refresh,
-            event_count=session.event_count,
-            last_event_hash=session.last_event_hash,
-            created_at=session.created_at,
-            updated_at=datetime.now(timezone.utc).isoformat(),
-        )
-
-        self._record_event(session, ReviewEventType.ACCEPTANCE_COMPLETED, {
-            "candidate_id": candidate_id,
-            "acceptance_id": result.acceptance_id,
-        })
-
-        self.store.save_session(session)
-        self.store.save_latest_pointer(session.session_id)
-        return session
 
     # ------------------------------------------------------------------
     # Impact refresh

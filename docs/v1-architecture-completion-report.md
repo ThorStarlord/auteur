@@ -1,7 +1,13 @@
 # Auteur v1 Architecture Completion Report
 
 **Date:** 2026-07-18
-**Status:** Final
+**Status:** Historical snapshot — not the current 1.0 release authority
+
+> For the current support promise and release interpretation, see
+> [docs/1.0-scope.md](1.0-scope.md) and
+> [docs/narrative-architecture.md](narrative-architecture.md). Statements in
+> this report describe the repository as of 2026-07-18 and are retained for
+> historical evidence, not current capability classification.
 
 This report marks the transition from **building the foundation** to **building on top of it**. The Book reconciliation subsystem is architecturally mature. The remaining gaps are breadth, UX, and cross-cutting infrastructure — not missing architectural layers.
 
