@@ -10,6 +10,8 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+
+from auteur.artifact_schema import require_supported_schema
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 
 
@@ -217,7 +219,9 @@ class ArtifactStore:
         sidecar = self.sidecar_path(artifact_id)
         if not sidecar.exists():
             return None
-        return ArtifactMetadata.model_validate(yaml.safe_load(sidecar.read_text(encoding="utf-8")))
+        raw = yaml.safe_load(sidecar.read_text(encoding="utf-8")) or {}
+        require_supported_schema(raw)
+        return ArtifactMetadata.model_validate(raw)
 
     def current(self, artifact_id: str) -> ArtifactMetadata | None:
         return self._load(artifact_id)
@@ -231,7 +235,9 @@ class ArtifactStore:
 
     def get_revision(self, artifact_id: str, revision: int) -> ArtifactMetadata:
         path = self._revision_dir(artifact_id) / f"{revision:06d}.yaml"
-        return ArtifactMetadata.model_validate(yaml.safe_load(path.read_text(encoding="utf-8")))
+        raw = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        require_supported_schema(raw)
+        return ArtifactMetadata.model_validate(raw)
 
     def _write(self, metadata: ArtifactMetadata, *, snapshot: bool = True) -> ArtifactMetadata:
         self.root.mkdir(parents=True, exist_ok=True)

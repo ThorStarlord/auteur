@@ -7,12 +7,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from auteur.acceptance import AcceptanceRegistry
 from auteur.decision.models import (
     EvidenceFreshness,
 )
 from auteur.decision.service import DecisionWorkspaceService
 from auteur.review.models import (
     AcceptancePreparation,
+    AcceptanceResult,
     ImpactRefreshResult,
     ReviewChoice,
     ReviewEvent,
@@ -37,11 +39,12 @@ class ReviewService:
     capabilities. Never duplicates subsystem logic.
     """
 
-    def __init__(self, project_root: Path):
+    def __init__(self, project_root: Path, *, acceptance_registry: AcceptanceRegistry | None = None):
         self.project_root = Path(project_root).resolve()
         self._validate_project()
         self.decision_service = DecisionWorkspaceService(self.project_root)
         self.store = ReviewStore(self.project_root)
+        self.acceptance_registry = acceptance_registry
 
     def _validate_project(self) -> None:
         auteur_marker = self.project_root / ".auteur"
@@ -377,14 +380,37 @@ class ReviewService:
         if not confirm:
             raise ValueError("Acceptance requires --confirm")
 
-        # This service does not own canonical acceptance. Until the target
-        # artifact-specific acceptance adapter is wired here, fail closed
-        # rather than recording a successful acceptance that changed no
-        # canonical pointer or source revision.
-        raise ValueError(
-            "Review acceptance integration is unavailable for this artifact; "
-            "use the owning artifact acceptance command."
+        if self.acceptance_registry is None:
+            raise ValueError(
+                "Review acceptance integration is unavailable for this artifact; "
+                "use the owning artifact acceptance command."
+            )
+        session = self._load_active(session_id)
+        if session.target is None:
+            raise ValueError("Review session has no target artifact")
+        self.acceptance_registry.accept(session.target.target_artifact_id, candidate_id, confirm=True)
+        session = ReviewSession(
+            session_id=session.session_id,
+            project=session.project,
+            state=ReviewSessionState.ACCEPTED,
+            target=session.target,
+            evidence_snapshot=session.evidence_snapshot,
+            choices=session.choices,
+            preparation=session.preparation,
+            acceptance=AcceptanceResult(
+                accepted=True,
+                candidate_id=candidate_id,
+            ),
+            impact_refresh=session.impact_refresh,
+            event_count=session.event_count,
+            last_event_hash=session.last_event_hash,
+            created_at=session.created_at,
+            updated_at=datetime.now(timezone.utc).isoformat(),
         )
+        self._record_event(session, ReviewEventType.ACCEPTANCE_COMPLETED, {"candidate_id": candidate_id})
+        self.store.save_session(session)
+        self.store.save_latest_pointer(session.session_id)
+        return session
 
     # ------------------------------------------------------------------
     # Impact refresh

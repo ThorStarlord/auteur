@@ -48,3 +48,37 @@ def test_adapter_exposes_blocking_conflicts_and_proposal_lineage(tmp_path: Path)
         "proposal_one",
         "proposal_two",
     ]
+
+
+def test_detect_staleness_compares_live_source_hash_to_recorded_assembly(tmp_path: Path) -> None:
+    path = tmp_path / "chapters" / "1" / "expression" / "reconciliation" / "proposals" / "proposal_one.yaml"
+    path.parent.mkdir(parents=True)
+    path.write_text(
+        yaml.safe_dump(
+            {
+                "proposal_id": "proposal_one",
+                "target_artifact_id": "scene_01",
+                "source_assembly": {"artifact_id": "chapter_01", "content_hash": "hash-a"},
+            },
+            sort_keys=False,
+        ),
+        encoding="utf-8",
+    )
+
+    adapter = ReconciliationAdapter(tmp_path)
+
+    assert adapter.detect_staleness("chapter_01", "hash-a").value == "current"
+    assert adapter.detect_staleness("chapter_01", "hash-b").value == "stale"
+    assert adapter.detect_staleness("chapter_01").value == "unknown"
+
+
+def test_malformed_reconciliation_data_is_observable_and_not_treated_as_absent(tmp_path: Path) -> None:
+    path = tmp_path / "chapters" / "1" / "expression" / "reconciliation" / "proposals" / "broken.yaml"
+    path.parent.mkdir(parents=True)
+    path.write_text("not: [valid", encoding="utf-8")
+
+    adapter = ReconciliationAdapter(tmp_path)
+
+    assert adapter.load_proposals("chapter_01") == []
+    assert adapter.read_errors
+    assert adapter.detect_staleness("chapter_01", "hash-a").value == "unknown"

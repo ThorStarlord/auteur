@@ -20,6 +20,7 @@ from auteur.review.persistence import ReviewStore
 from auteur.review.selection import select_highest_priority
 from auteur.review.service import ReviewService
 from auteur.decision.models import AuthorDecision, DecisionReadiness
+from auteur.acceptance import AcceptanceRegistry
 
 
 @pytest.fixture
@@ -215,3 +216,27 @@ class TestReviewService:
         """Review must fail closed until it can call the owning acceptance seam."""
         with pytest.raises(ValueError, match="acceptance integration is unavailable"):
             review_service.accept("missing", "candidate", confirm=True)
+
+    def test_registered_acceptance_owner_completes_review_state(self, review_project: Path):
+        calls: list[str] = []
+
+        class Owner:
+            def can_accept(self, target_artifact_id: str) -> bool:
+                return target_artifact_id == "scene_01"
+
+            def accept(self, target_artifact_id: str, candidate_id: str, *, confirm: bool) -> object:
+                calls.append(candidate_id)
+                return {"accepted": True}
+
+        service = ReviewService(review_project, acceptance_registry=AcceptanceRegistry())
+        service.acceptance_registry.register(Owner())
+        session = ReviewSession.create(str(review_project), "decision-1")
+        session.target = ReviewTarget(decision_id="decision-1", target_artifact_id="scene_01")
+        service.store.save_session(session)
+        service._load_active = lambda session_id: session  # type: ignore[method-assign]
+
+        accepted = service.accept(session.session_id, "candidate-1", confirm=True)
+
+        assert accepted.state is ReviewSessionState.ACCEPTED
+        assert accepted.acceptance is not None and accepted.acceptance.accepted
+        assert calls == ["candidate-1"]

@@ -31,6 +31,7 @@ class ReconciliationAdapter:
 
     def __init__(self, project_root: Path):
         self.project_root = Path(project_root).resolve()
+        self.read_errors: list[str] = []
 
     # ------------------------------------------------------------------
     # Proposal queries
@@ -54,6 +55,7 @@ class ReconciliationAdapter:
             try:
                 proposal = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
             except (OSError, yaml.YAMLError):
+                self.read_errors.append(str(path))
                 continue
             if not isinstance(proposal, dict):
                 continue
@@ -78,6 +80,7 @@ class ReconciliationAdapter:
             try:
                 candidate = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
             except (OSError, yaml.YAMLError):
+                self.read_errors.append(str(path))
                 continue
             if isinstance(candidate, dict) and candidate.get("source_inspection") == source_inspection:
                 lineage.append(candidate)
@@ -120,6 +123,7 @@ class ReconciliationAdapter:
             try:
                 proposal = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
             except (OSError, yaml.YAMLError):
+                self.read_errors.append(str(path))
                 return None
             return proposal if isinstance(proposal, dict) else None
         return None
@@ -196,8 +200,31 @@ class ReconciliationAdapter:
 
     def detect_staleness(self, target_artifact: str, source_hash: str | None = None) -> EvidenceFreshness:
         """Detect if reconciliation data for an artifact is stale."""
-        # Would compare recorded hashes from reconciliation runs
-        return EvidenceFreshness.CURRENT
+        proposals = self.load_proposals(target_artifact)
+        if self.read_errors:
+            return EvidenceFreshness.UNKNOWN
+        if not proposals:
+            return EvidenceFreshness.UNKNOWN
+
+        recorded_hashes = {
+            str(proposal.get("source_assembly", {}).get("content_hash", "")) for proposal in proposals
+        }
+        if not recorded_hashes or "" in recorded_hashes:
+            return EvidenceFreshness.UNKNOWN
+        if source_hash is None:
+            live_hashes = {
+                live_hash
+                for proposal in proposals
+                if (live_hash := self._current_source_hash(proposal.get("source_assembly", {}).get("artifact_id")))
+            }
+            if not live_hashes or len(live_hashes) != 1:
+                return EvidenceFreshness.UNKNOWN
+            source_hash = next(iter(live_hashes))
+        return (
+            EvidenceFreshness.CURRENT
+            if recorded_hashes == {source_hash}
+            else EvidenceFreshness.STALE
+        )
 
     # ------------------------------------------------------------------
     # Private
@@ -225,3 +252,14 @@ class ReconciliationAdapter:
         if conflict.get("options") and len(conflict["options"]) > 1:
             return "creative"
         return "technical"
+
+    def _current_source_hash(self, artifact_id: Any) -> str | None:
+        """Read the owning expression artifact's current hash without mutation."""
+        if not artifact_id:
+            return None
+        try:
+            from auteur.expression.composition import ChapterExpressionStore
+
+            return ChapterExpressionStore(self.project_root).inspect(str(artifact_id)).content_hash
+        except (FileNotFoundError, ValueError, KeyError, OSError):
+            return None

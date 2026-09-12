@@ -260,7 +260,8 @@ class DecisionWorkspaceService:
             satisfied: list[str] = []
             unsatisfied: list[str] = []
             blockers: list[str] = []
-            verification_results: dict[str, bool] = {}
+            verification_results: dict[str, Any] = {}
+            diagnostics: list[str] = []
 
             # 1. Candidate freshness
             is_fresh = candidate.freshness == EvidenceFreshness.CURRENT
@@ -277,8 +278,8 @@ class DecisionWorkspaceService:
                 reasoning_reports = self.reasoning_adapter.get_candidate_reports(
                     candidate_id, decision.chapter_index,
                 )
-            except Exception:
-                pass
+            except Exception as exc:
+                diagnostics.append(f"reasoning evidence probe failed: {exc}")
             has_reasoning = len(reasoning_reports) > 0 or len(candidate.reasoning_evidence) > 0
             verification_results["reasoning_evidence_present"] = has_reasoning
             if has_reasoning:
@@ -325,8 +326,8 @@ class DecisionWorkspaceService:
             try:
                 impact_preview = self.impact_preview(decision_id, candidate_id)
                 stale_after = [imp.artifact_id for imp in impact_preview.definite_impacts]
-            except Exception:
-                pass
+            except Exception as exc:
+                diagnostics.append(f"impact probe failed: {exc}")
 
             # Build candidate tradeoffs summary
             tradeoffs: list[str] = []
@@ -365,6 +366,7 @@ class DecisionWorkspaceService:
                 }
 
             is_ready = len(blockers) == 0
+            verification_results["diagnostics"] = diagnostics
             return AcceptancePreparation(
                 decision_id=decision_id,
                 candidate_id=candidate_id,
@@ -912,7 +914,10 @@ class DecisionWorkspaceService:
 
         # Add evidence from reconciliation proposals if available
         try:
-            proposals = self.convergence_store.list_proposals(decision.target_artifact_id)
+            proposals = self.reconciliation_adapter.load_proposals(decision.target_artifact_id)
+            reconciliation_freshness = self.reconciliation_adapter.detect_staleness(
+                decision.target_artifact_id
+            )
             for proposal in proposals:
                 if proposal.get("conflicts"):
                     for conflict in proposal["conflicts"]:
@@ -923,7 +928,7 @@ class DecisionWorkspaceService:
                                 claim=conflict.get("description", ""),
                                 evidence_type=EvidenceType.RECONCILIATION_CONFLICT,
                                 classification=EvidenceClassification.DERIVED_INFERENCE,
-                                freshness=EvidenceFreshness.CURRENT,
+                                 freshness=reconciliation_freshness,
                             )
                         )
         except Exception as e:

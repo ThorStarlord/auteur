@@ -836,6 +836,28 @@ class TestDecisionWorkspaceService:
         assert result.is_ready is True
         assert len(result.blockers) == 0
 
+    def test_service_prepare_acceptance_exposes_probe_failures(self, tmp_path):
+        from auteur.decision.service import DecisionWorkspaceService
+
+        (tmp_path / ".auteur").mkdir(parents=True, exist_ok=True)
+        service = DecisionWorkspaceService(tmp_path)
+        candidate = CandidateSummary(
+            candidate_id="cand-1", status="evaluated", freshness=EvidenceFreshness.CURRENT,
+            reasoning_evidence=["ev-1"], obligations_satisfied=[], obligations_unsatisfied=[],
+        )
+        decision = AuthorDecision(
+            decision_id="test-dec", project="test", chapter_index=1, target_artifact_id="target-1",
+            candidates=[candidate],
+        )
+        service.list_decisions = lambda *args, **kwargs: [decision]
+        service.reasoning_adapter.get_candidate_reports = lambda *args, **kwargs: (_ for _ in ()).throw(
+            RuntimeError("reasoning store unavailable")
+        )
+
+        result = service.prepare_acceptance("test-dec", "cand-1")
+
+        assert "reasoning evidence probe failed" in result.verification_results["diagnostics"][0]
+
     def test_service_refresh_succeeds(self, tmp_path):
         """Refresh operation completes without error."""
         from auteur.decision.service import DecisionWorkspaceService
