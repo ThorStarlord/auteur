@@ -168,6 +168,10 @@ class ArtifactStore:
             return f"chapter_{path.parent.name}"
         return path.stem
 
+    def artifact_id_for(self, path: Path) -> str:
+        """Return the stable artifact identifier for a project path."""
+        return self._artifact_id(path)
+
     def _stored_path(self, path: Path) -> str:
         try:
             return str(Path(path).resolve().relative_to(self.project.resolve()))
@@ -424,12 +428,20 @@ class ArtifactStore:
                 reasons.append(StaleReason(code="UPSTREAM_DEPENDENCY_CHANGED" if not projection_changed else "PROJECTION_VERSION_CHANGED", dependency_id=dependency.artifact_id, current_revision=current_revision, previous_revision=dependency.revision, affected_fields=projection_fields, summary=f"{dependency.artifact_id} changed in fields: {', '.join(projection_fields) or 'content'}"))
         invalid.extend(self._knowledge_invalid(path, metadata))
         metadata.health = "invalid" if invalid else "valid"
-        metadata.freshness = "stale" if reasons or (metadata.review_state is ReviewState.ACKNOWLEDGED_DIVERGENCE and metadata.stale_reasons) else "fresh"
+        metadata.freshness = (
+            "unknown"
+            if metadata.provenance_state == "unknown"
+            else "stale"
+            if reasons or (metadata.review_state is ReviewState.ACKNOWLEDGED_DIVERGENCE and metadata.stale_reasons)
+            else "fresh"
+        )
         metadata.summary = (
             f"{artifact_id} is invalid and needs correction."
             if invalid else
             f"{artifact_id} is stale because an upstream dependency changed."
             if metadata.freshness == "stale" else
+            f"{artifact_id} is not yet tracked by provenance."
+            if metadata.freshness == "unknown" else
             f"{artifact_id} is aligned with its recorded dependencies."
         )
         metadata.recommended_action = "Correct the source or dependency, then revalidate." if invalid else "Review and accept, or acknowledge the divergence." if metadata.freshness == "stale" else "No action required."

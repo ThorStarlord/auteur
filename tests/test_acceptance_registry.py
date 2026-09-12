@@ -28,3 +28,38 @@ def test_registry_fails_closed_for_unowned_or_ambiguous_targets() -> None:
 
     with pytest.raises(ValueError, match="No acceptance owner"):
         registry.accept("unknown", "candidate", confirm=True)
+
+
+def test_registry_journals_started_and_completed_acceptance(tmp_path: Path) -> None:
+    class Owner:
+        def can_accept(self, target_artifact_id: str) -> bool:
+            return True
+
+        def accept(self, target_artifact_id: str, candidate_id: str, *, confirm: bool) -> object:
+            return {"accepted": True}
+
+    registry = AcceptanceRegistry(tmp_path)
+    registry.register(Owner())
+
+    registry.accept("scene_01", "candidate_1", confirm=True)
+
+    records = registry.journal.recoverable()
+    assert len(records) == 0
+    assert registry.journal.history()[-1]["status"] == "completed"
+
+
+def test_registry_journals_failed_acceptance_for_recovery(tmp_path: Path) -> None:
+    class Owner:
+        def can_accept(self, target_artifact_id: str) -> bool:
+            return True
+
+        def accept(self, target_artifact_id: str, candidate_id: str, *, confirm: bool) -> object:
+            raise RuntimeError("write interrupted")
+
+    registry = AcceptanceRegistry(tmp_path)
+    registry.register(Owner())
+
+    with pytest.raises(RuntimeError, match="write interrupted"):
+        registry.accept("scene_01", "candidate_1", confirm=True)
+
+    assert registry.journal.recoverable()[0]["status"] == "failed"

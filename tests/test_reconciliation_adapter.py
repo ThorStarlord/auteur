@@ -82,3 +82,14 @@ def test_malformed_reconciliation_data_is_observable_and_not_treated_as_absent(t
     assert adapter.load_proposals("chapter_01") == []
     assert adapter.read_errors
     assert adapter.detect_staleness("chapter_01", "hash-a").value == "unknown"
+
+
+def test_probe_validity_reports_malformed_reconciliation_state(tmp_path: Path) -> None:
+    path = tmp_path / "chapters" / "1" / "expression" / "reconciliation" / "proposals" / "broken.yaml"
+    path.parent.mkdir(parents=True)
+    path.write_text("not: [valid", encoding="utf-8")
+
+    result = ReconciliationAdapter(tmp_path).probe_validity("chapter_01", "hash-a")
+
+    assert result.status.value == "malformed"
+    assert result.blocking is True

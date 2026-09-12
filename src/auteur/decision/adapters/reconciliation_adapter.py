@@ -20,6 +20,7 @@ from auteur.decision.models import (
     EvidenceType,
     UnresolvedChoice,
 )
+from auteur.state_validity import StateValidity
 
 
 class ReconciliationAdapter:
@@ -200,17 +201,22 @@ class ReconciliationAdapter:
 
     def detect_staleness(self, target_artifact: str, source_hash: str | None = None) -> EvidenceFreshness:
         """Detect if reconciliation data for an artifact is stale."""
+        return self.probe_validity(target_artifact, source_hash).evidence_freshness
+
+    def probe_validity(self, target_artifact: str, source_hash: str | None = None) -> StateValidity:
+        """Return the complete validity state for reconciliation evidence."""
+        self.read_errors.clear()
         proposals = self.load_proposals(target_artifact)
         if self.read_errors:
-            return EvidenceFreshness.UNKNOWN
+            return StateValidity.malformed(target_artifact, "unable to read reconciliation proposal: " + self.read_errors[0])
         if not proposals:
-            return EvidenceFreshness.UNKNOWN
+            return StateValidity.missing(target_artifact, "no reconciliation proposals found")
 
         recorded_hashes = {
             str(proposal.get("source_assembly", {}).get("content_hash", "")) for proposal in proposals
         }
         if not recorded_hashes or "" in recorded_hashes:
-            return EvidenceFreshness.UNKNOWN
+            return StateValidity.unknown(target_artifact, "reconciliation proposal has no source content hash")
         if source_hash is None:
             live_hashes = {
                 live_hash
@@ -218,13 +224,11 @@ class ReconciliationAdapter:
                 if (live_hash := self._current_source_hash(proposal.get("source_assembly", {}).get("artifact_id")))
             }
             if not live_hashes or len(live_hashes) != 1:
-                return EvidenceFreshness.UNKNOWN
+                return StateValidity.unknown(target_artifact, "live reconciliation source hash is unavailable")
             source_hash = next(iter(live_hashes))
-        return (
-            EvidenceFreshness.CURRENT
-            if recorded_hashes == {source_hash}
-            else EvidenceFreshness.STALE
-        )
+        if recorded_hashes != {source_hash}:
+            return StateValidity.stale(target_artifact, "reconciliation source hash changed")
+        return StateValidity.fresh(target_artifact)
 
     # ------------------------------------------------------------------
     # Private

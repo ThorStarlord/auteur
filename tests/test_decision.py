@@ -858,6 +858,46 @@ class TestDecisionWorkspaceService:
 
         assert "reasoning evidence probe failed" in result.verification_results["diagnostics"][0]
 
+    def test_decision_enrichment_blocks_malformed_reconciliation_state(self, tmp_path):
+        from auteur.decision.service import DecisionWorkspaceService
+
+        (tmp_path / ".auteur").mkdir(parents=True, exist_ok=True)
+        broken = tmp_path / "chapters" / "1" / "expression" / "reconciliation" / "proposals" / "broken.yaml"
+        broken.parent.mkdir(parents=True)
+        broken.write_text("not: [valid", encoding="utf-8")
+        service = DecisionWorkspaceService(tmp_path)
+        decision = AuthorDecision(
+            decision_id="test-dec", project="test", chapter_index=1, target_artifact_id="chapter_01",
+            candidates=[],
+        )
+
+        enriched = service._enrich_decision(decision)
+
+        assert any(e.freshness is EvidenceFreshness.UNKNOWN for e in enriched.evidence)
+
+    def test_existing_decision_is_detected_for_impact_finding(self, tmp_path):
+        from auteur.decision.service import DecisionWorkspaceService
+        from auteur.impact.models import ImpactFinding
+
+        (tmp_path / ".auteur").mkdir(parents=True, exist_ok=True)
+        service = DecisionWorkspaceService(tmp_path)
+        service.decision_store.list_snapshots = lambda: ["decision-1"]
+        service.decision_store.load_snapshot_raw = lambda decision_id: {
+            "trigger_ids": ["finding-1"],
+        }
+        finding = ImpactFinding(finding_id="finding-1", reason="changed")
+
+        assert service._finding_has_decision(finding) is True
+
+    def test_downstream_prediction_includes_candidate_target(self, tmp_path):
+        from auteur.decision.service import DecisionWorkspaceService
+
+        (tmp_path / ".auteur").mkdir(parents=True, exist_ok=True)
+        service = DecisionWorkspaceService(tmp_path)
+        service.convergence_store.get_candidate = lambda candidate_id: {"target_id": "scene_01"}
+
+        assert service._predict_downstream_impact("candidate-1") == ["scene_01"]
+
     def test_service_refresh_succeeds(self, tmp_path):
         """Refresh operation completes without error."""
         from auteur.decision.service import DecisionWorkspaceService

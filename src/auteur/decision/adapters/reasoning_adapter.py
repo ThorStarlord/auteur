@@ -24,6 +24,7 @@ from auteur.reasoning.draft_review import (
     review_source_freshness,
 )
 from auteur.workflow.models import AuthorityLevel
+from auteur.state_validity import StateValidity
 
 
 def _reasoning_root(project_root: Path, chapter_index: int) -> Path:
@@ -250,6 +251,23 @@ class ReasoningAdapter:
         if not freshness.get("fresh", True):
             return EvidenceFreshness.STALE
         return EvidenceFreshness.CURRENT
+
+    def probe_validity(
+        self,
+        chapter_index: int,
+        source_hashes: dict[str, str] | None = None,
+    ) -> StateValidity:
+        """Return reasoning-run validity using the shared state contract."""
+        latest = load_latest_run(self.project_root, chapter_index)
+        artifact_id = f"chapter_{chapter_index:02d}:reasoning"
+        if latest is None or not latest.get("run_id"):
+            return StateValidity.missing(artifact_id, f"No reasoning run for chapter {chapter_index}")
+        freshness = self.detect_staleness(chapter_index, source_hashes)
+        if freshness is EvidenceFreshness.STALE:
+            return StateValidity.stale(artifact_id, "reasoning source revision changed")
+        if freshness is EvidenceFreshness.UNKNOWN:
+            return StateValidity.unknown(artifact_id)
+        return StateValidity.fresh(artifact_id)
 
     def get_missing_evidence(self, chapter_index: int, candidate_id: str) -> list[str]:
         """Identify what reasoning evidence is missing for a candidate.

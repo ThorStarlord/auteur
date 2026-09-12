@@ -27,6 +27,8 @@ from auteur.decision.persistence import DecisionStore
 from auteur.impact.models import ImpactFinding, ImpactPreview
 from auteur.impact.persistence import ImpactStore
 from auteur.provenance.store import ArtifactStore
+from auteur.state_validity import ArtifactValidity
+from auteur.decision.adapters.reconciliation_adapter import ReconciliationAdapter
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +50,6 @@ class DecisionWorkspaceService:
         # Initialize adapters for direct subsystem integration
         from auteur.decision.adapters.reasoning_adapter import ReasoningAdapter
         self.reasoning_adapter = ReasoningAdapter(self.project_root)
-        from auteur.decision.adapters.reconciliation_adapter import ReconciliationAdapter
         self.reconciliation_adapter = ReconciliationAdapter(self.project_root)
 
     def _validate_project(self) -> None:
@@ -310,7 +311,6 @@ class DecisionWorkspaceService:
             # 5. Reconciliation conflicts resolved
             has_conflicts = any(
                 e.evidence_type == EvidenceType.RECONCILIATION_CONFLICT
-                and e.freshness == EvidenceFreshness.CURRENT
                 for e in decision.evidence
             )
             verification_results["reconciliation_resolved"] = not has_conflicts
@@ -915,9 +915,21 @@ class DecisionWorkspaceService:
         # Add evidence from reconciliation proposals if available
         try:
             proposals = self.reconciliation_adapter.load_proposals(decision.target_artifact_id)
-            reconciliation_freshness = self.reconciliation_adapter.detect_staleness(
+            reconciliation_validity = self.reconciliation_adapter.probe_validity(
                 decision.target_artifact_id
             )
+            reconciliation_freshness = reconciliation_validity.evidence_freshness
+            if reconciliation_validity.status in (ArtifactValidity.STALE, ArtifactValidity.MALFORMED, ArtifactValidity.UNKNOWN):
+                evidence.append(
+                    DecisionEvidence.create(
+                        source_subsystem=EvidenceSource.RECONCILIATION,
+                        source_artifact_id=decision.target_artifact_id,
+                        claim=reconciliation_validity.reason,
+                        evidence_type=EvidenceType.RECONCILIATION_CONFLICT,
+                        classification=EvidenceClassification.DERIVED_INFERENCE,
+                        freshness=reconciliation_freshness,
+                    )
+                )
             for proposal in proposals:
                 if proposal.get("conflicts"):
                     for conflict in proposal["conflicts"]:
@@ -928,7 +940,7 @@ class DecisionWorkspaceService:
                                 claim=conflict.get("description", ""),
                                 evidence_type=EvidenceType.RECONCILIATION_CONFLICT,
                                 classification=EvidenceClassification.DERIVED_INFERENCE,
-                                 freshness=reconciliation_freshness,
+                                freshness=reconciliation_freshness,
                             )
                         )
         except Exception as e:
@@ -1001,7 +1013,15 @@ class DecisionWorkspaceService:
 
     def _finding_has_decision(self, finding: ImpactFinding) -> bool:
         """Check if an impact finding already has an open decision."""
-        # Would check persisted decisions for this finding
+        for decision_id in self.decision_store.list_snapshots():
+            try:
+                raw = self.decision_store.load_snapshot_raw(decision_id) or {}
+            except (OSError, ValueError, KeyError):
+                continue
+            if finding.finding_id in raw.get("trigger_ids", []):
+                return True
+            if any(evidence.get("source_artifact_id") == finding.finding_id for evidence in raw.get("evidence", [])):
+                return True
         return False
 
     def _map_impact_severity_to_freshness(self, severity: Any) -> EvidenceFreshness:
@@ -1019,8 +1039,20 @@ class DecisionWorkspaceService:
 
     def _predict_downstream_impact(self, candidate_id: str) -> list[str]:
         """Predict downstream artifacts affected by candidate acceptance."""
-        # Would use impact analyzer to predict downstream changes
-        return []
+        candidate = self.convergence_store.get_candidate(candidate_id)
+        if not candidate:
+            return []
+        targets: list[str] = []
+        for key in ("target_id", "affected_artifact"):
+            value = candidate.get(key)
+            if value:
+                targets.append(str(value))
+        for dependency in candidate.get("downstream_artifacts", []):
+            if isinstance(dependency, dict):
+                dependency = dependency.get("artifact_id")
+            if dependency:
+                targets.append(str(dependency))
+        return list(dict.fromkeys(targets))
 
     def _get_highest_priority_readiness(self, decisions: list[AuthorDecision]) -> str:
         """Determine highest priority readiness across decisions."""

@@ -15,3 +15,9 @@ The stable v1 boundary includes artifact identity, revision, lifecycle,
 authority, content hash, dependencies, and provenance. Changes to these fields,
 serialized enum values, or canonical paths require a migration entry and a
 release note. Package version `1.0.0` does not itself migrate project data.
+
+Cross-domain readers use the shared validity states `fresh`, `stale`, `unknown`,
+`missing`, `malformed`, and `unavailable`. Every state other than `fresh` is
+blocking for canonical promotion. Authority-bearing acceptance is wrapped by
+the `.auteur/acceptance/journal.json` intent/completion journal; incomplete
+operations remain recoverable and are never inferred to have succeeded.
