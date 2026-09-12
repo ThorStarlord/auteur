@@ -101,6 +101,10 @@ class TestReconciliation:
 
 
 class TestCandidateProvenance:
+    def test_evidence_runner_anchors_imports_to_this_checkout(self):
+        assert str(re.ROOT) in re.sys.path
+        assert str(re.ROOT / "src") in re.sys.path
+
     def test_clean_candidate(self, monkeypatch):
         monkeypatch.setattr(
             re, "_git",

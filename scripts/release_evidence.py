@@ -49,6 +49,11 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
+# Running this script directly puts ``scripts/`` on sys.path, and an editable
+# installation elsewhere can otherwise win import resolution.  Qualification
+# must exercise this checkout's source and test helpers.
+sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "src"))
 EVIDENCE_DIR = ROOT / "docs" / "qualification-evidence"
 WHEEL_SCRIPT = ROOT / "scripts" / "verify_wheel.py"
 WHEEL_PASS_BANNER = "ALL INSTALLED WHEEL QUALIFICATION MATRIX CHECKS PASSED!"
