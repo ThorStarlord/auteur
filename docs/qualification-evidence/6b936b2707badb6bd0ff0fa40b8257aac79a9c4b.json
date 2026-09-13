@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "produced_by": "scripts/release_evidence.py",
+  "created_at": "2026-09-13T08:25:26.616385+00:00",
+  "candidate": {
+    "sha": "6b936b2707badb6bd0ff0fa40b8257aac79a9c4b",
+    "repository_state": {
+      "clean_for_candidate": true,
+      "permitted_non_candidate_changes": []
+    }
+  },
+  "suite": {
+    "collected": 4762,
+    "outcomes": {
+      "passed": 4734,
+      "skipped": 1,
+      "xfailed": 27,
+      "xpassed": 0,
+      "failed": 0,
+      "errors": 0
+    },
+    "reconciles": true,
+    "failure_nodes": [],
+    "xpassed_nodes": [],
+    "collection_errors": [],
+    "session_errors": []
+  },
+  "baseline": {
+    "reference_candidate": null,
+    "current_failure_nodes": [],
+    "baseline_failure_nodes": [],
+    "added_failures": [],
+    "removed_failures": [],
+    "unchanged_failures": []
+  },
+  "wheel": {
+    "source": "scripts/verify_wheel.py",
+    "status": "PASS",
+    "exit_code": 0,
+    "output_ref": "ALL INSTALLED WHEEL QUALIFICATION MATRIX CHECKS PASSED!",
+    "sha256": "0f2f5e9baf593a4ac09ce3ecd2d2acb887745ed558b99c7a57e104bc721c98ed"
+  },
+  "evidence_note": "Documentation-only evidence per docs/engineering/release-qualification.md: docs/ is not packaged (pyproject.toml packages only src/auteur), so the evidence commit does not change the qualified candidate. candidate.sha attests to the revision whose bytes produced this evidence."
+}
