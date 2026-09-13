@@ -1,355 +1,147 @@
-# How to Add a New Concept to the Narrative Ontology
+# How to Add a Narrative Ontology Concept
 
-This guide walks through the process of adding a new concept to Layer 0. As an example, we'll add a "Political Intrigue" concept to the base ontology.
+> Current for Narrative Ontology V2. The canonical specification source is `src/auteur/data/ontology/`; do not duplicate a concept definition in Python.
 
----
+## 1. Decide whether the idea belongs in Ontology
 
-## Step 1: Define the Concept in YAML
+Add a Layer-0 concept only when the term is reusable semantic vocabulary needed across narrative artifacts. Do **not** add project-specific facts, authorial commitments, workflow state, Global Map entries, or subjective craft judgments as concepts.
 
-Edit `data/ontology/base_ontology.yaml` and add your concept to the `concepts` section. Here's the complete example:
+Use these owners instead when appropriate:
+
+- Identity: authorial commitments;
+- Structure: concrete plans;
+- Realization: accepted story-instance events/facts/state transitions;
+- Expression: prose/language;
+- Reasoning/Critics: interpretive craft judgment;
+- Provenance/workflow: revision, source, acceptance, and orchestration metadata.
+
+See `docs/architecture/narrative-ontology-v2.md` and `docs/architecture/narrative-ontology-reconciliation-v2.md`.
+
+## 2. Add the declaration to the packaged specification
+
+For a generally reusable concept, edit either the historical compatibility core only when that contract genuinely needs amendment, or preferably the V2 supplemental vocabulary:
+
+```text
+src/auteur/data/ontology/semantic_vocabulary.yaml
+```
+
+Example:
 
 ```yaml
 concepts:
-  # ... existing concepts ...
-  
   PoliticalIntrigue:
     name: PoliticalIntrigue
-    definition: "A scheme or machination involving multiple characters competing for power, influence, or advantage through hidden agendas and strategic maneuvering. Political intrigues involve power dynamics, information control, and the manipulation of social or political systems."
-    category: base
+    definition: A reusable narrative pattern of competing power interests, hidden agendas, and strategic information control.
+    category: semantic
     parent_concepts: []
     relationships:
       - source_concept: PoliticalIntrigue
         target_concept: Character
+        relation_type: participates_in
         cardinality: many-to-many
-        description: "Political intrigue involves multiple characters with different goals"
+        description: Political intrigue may involve multiple characters.
         required: true
-      - source_concept: PoliticalIntrigue
-        target_concept: Conflict
-        cardinality: one-to-many
-        description: "Political intrigue generates conflict through competing interests"
-        required: false
-      - source_concept: PoliticalIntrigue
-        target_concept: Revelation
-        cardinality: many-to-many
-        description: "Political intrigues are often revealed through exposure of hidden agendas"
-        required: false
-      - source_concept: PoliticalIntrigue
-        target_concept: Relationship
-        cardinality: one-to-many
-        description: "Political intrigue affects character relationships"
-        required: false
     validation_rules:
-      - rule_id: intrigue_involves_multiple_agents
-        condition: "Political intrigue must involve at least two characters with conflicting interests"
-        error_message: "Political intrigue requires multiple characters with incompatible goals"
-        applies_to: [netorare, mystery, gentlefemdom]
-      - rule_id: intrigue_has_hidden_agenda
-        condition: "At least one character must have a hidden goal or agenda"
-        error_message: "Political intrigue must involve concealed motivations"
-        applies_to: [netorare, mystery, gentlefemdom]
-      - rule_id: intrigue_affects_narrative_progression
-        condition: "Political intrigue must influence the story's direction"
-        error_message: "Political intrigue has no impact on narrative"
-        applies_to: [netorare, mystery, gentlefemdom]
+      - rule_id: political_intrigue_effectiveness
+        kind: interpretive_criterion
+        condition: The intrigue should materially affect narrative understanding or pressure.
+        error_message: Political intrigue may be narratively inert.
+        applies_to: []
 ```
 
-### Key Elements Explained
+Relationship targets and parent concepts must resolve. If `relation_type` is supplied, the id must exist in `src/auteur/data/ontology/relation_types.yaml`.
 
-**name** (required): The concept identifier, used programmatically and in CLI.
+Supported cardinalities are:
 
-**definition** (required): Clear, comprehensive description of what this concept means in narrative context. Should be 1-3 sentences.
+- `one-to-one`
+- `one-to-many`
+- `many-to-one`
+- `many-to-many`
 
-**category**: Typically "base" for core ontology, "genre-specific" for genre extensions.
+## 3. Classify rules correctly
 
-**parent_concepts**: List of concepts this extends (leave empty for new base concepts).
+Every rule belongs to one of four categories:
 
-**relationships**: Array of how this concept connects to others.
-- **source_concept**: Your new concept name
-- **target_concept**: Name of related concept (must exist in ontology)
-- **cardinality**: One-to-one, one-to-many, or many-to-many
-- **description**: How the relationship works
-- **required**: Whether this relationship is mandatory
+- `schema_constraint` — objective data-shape/reference requirement;
+- `semantic_invariant` — deterministic semantic requirement;
+- `craft_heuristic` — advisory craft guidance;
+- `interpretive_criterion` — subjective or model/human judgment.
 
-**validation_rules**: Array of constraints that must hold for valid instances.
-- **rule_id**: Unique identifier (kebab-case, descriptive)
-- **condition**: Plain English statement of the constraint
-- **error_message**: What to show if violated
-- **applies_to**: List of genres where rule applies (empty or omit = all genres)
+Only schema constraints and semantic invariants execute inside `OntologyValidator`, and they must reference a **named executor** plus structured parameters. Free-text `condition` is documentation only and is never evaluated as code.
 
----
+Example deterministic rule:
 
-## Step 2: Add Pydantic Model Definition
+```yaml
+- rule_id: example_requires_owner
+  kind: semantic_invariant
+  executor: required_fields
+  parameters:
+    fields: [owner_id]
+  condition: The instance requires an owner.
+  error_message: Missing owner.
+  applies_to: []
+```
 
-Edit `src/auteur/narrative_ontology/core/narrative_concepts.py` and add validation rules and concept definition:
+Do not add arbitrary Python expressions to YAML.
+
+## 4. Add a genre extension only for real semantic vocabulary
+
+Genre extension files use:
+
+```text
+src/auteur/data/ontology/<genre>_ontology.yaml
+```
+
+A genre that has no ontology extension still inherits the core ontology. Do not create an extension merely to store pacing advice, reader expectations, or other craft recommendations; those belong in genre craft/guide systems.
+
+Compatibility aliases for historical public names belong in:
+
+```text
+src/auteur/data/ontology/compatibility.yaml
+```
+
+## 5. No parallel Python registry edit
+
+Do **not** add the concept to `src/auteur/narrative_ontology/core/narrative_concepts.py`.
+
+That module is a legacy compatibility facade for the historical twelve concepts. `OntologyRegistry` discovers current semantics from packaged YAML.
+
+Use:
 
 ```python
-# Add validation rules for Political Intrigue
-POLITICAL_INTRIGUE_RULES = [
-    ValidationRule(
-        rule_id="intrigue_involves_multiple_agents",
-        condition="Political intrigue must involve at least two characters with conflicting interests",
-        error_message="Political intrigue requires multiple characters with incompatible goals",
-        applies_to=["netorare", "mystery", "gentlefemdom"],
-    ),
-    ValidationRule(
-        rule_id="intrigue_has_hidden_agenda",
-        condition="At least one character must have a hidden goal or agenda",
-        error_message="Political intrigue must involve concealed motivations",
-        applies_to=["netorare", "mystery", "gentlefemdom"],
-    ),
-    ValidationRule(
-        rule_id="intrigue_affects_narrative_progression",
-        condition="Political intrigue must influence the story's direction",
-        error_message="Political intrigue has no impact on narrative",
-        applies_to=["netorare", "mystery", "gentlefemdom"],
-    ),
-]
+from auteur.narrative_ontology import OntologyRegistry
 
-# Create the Concept instance
-POLITICAL_INTRIGUE = Concept(
-    name="PoliticalIntrigue",
-    definition="A scheme or machination involving multiple characters competing for power, influence, or advantage through hidden agendas and strategic maneuvering. Political intrigues involve power dynamics, information control, and the manipulation of social or political systems.",
-    relationships=[
-        Relationship(
-            source_concept="PoliticalIntrigue",
-            target_concept="Character",
-            cardinality="many-to-many",
-            description="Political intrigue involves multiple characters with different goals",
-            required=True,
-        ),
-        Relationship(
-            source_concept="PoliticalIntrigue",
-            target_concept="Conflict",
-            cardinality="one-to-many",
-            description="Political intrigue generates conflict through competing interests",
-            required=False,
-        ),
-        Relationship(
-            source_concept="PoliticalIntrigue",
-            target_concept="Revelation",
-            cardinality="many-to-many",
-            description="Political intrigues are often revealed through exposure of hidden agendas",
-            required=False,
-        ),
-        Relationship(
-            source_concept="PoliticalIntrigue",
-            target_concept="Relationship",
-            cardinality="one-to-many",
-            description="Political intrigue affects character relationships",
-            required=False,
-        ),
-    ],
-    validation_rules=POLITICAL_INTRIGUE_RULES,
-)
-
-# Add to registry (at end of file where ALL_CONCEPTS is built)
-ALL_CONCEPTS = {
-    "Character": CHARACTER,
-    "Arc": ARC,
-    # ... existing ...
-    "PoliticalIntrigue": POLITICAL_INTRIGUE,  # Add this
-}
+registry = OntologyRegistry()
+concept = registry.get_concept("PoliticalIntrigue", "literary")
+assert concept is not None
+registry.assert_valid()
 ```
 
----
+## 6. Add deterministic qualification
 
-## Step 3: Update the Ontology Registry
+At minimum test:
 
-Edit `src/auteur/narrative_ontology/core/__init__.py` to export the new concept:
+1. the concept loads through `OntologyRegistry`;
+2. all parent and relationship references resolve;
+3. all referenced relation-type ids resolve;
+4. executable rules have known executors;
+5. the concept works for a core-only product genre when it is general vocabulary;
+6. invalid declarations fail closed;
+7. no ontology API acquires or mutates canonical story authority.
 
-```python
-from auteur.narrative_ontology.core.narrative_concepts import (
-    CHARACTER,
-    ARC,
-    # ... existing exports ...
-    POLITICAL_INTRIGUE,  # Add this
-    ALL_CONCEPTS,
-    get_concept,
-)
+Run the narrative-ontology suite and then the repository's normal qualification commands.
 
-__all__ = [
-    "CHARACTER",
-    "ARC",
-    # ... existing ...
-    "POLITICAL_INTRIGUE",  # Add this
-    "ALL_CONCEPTS",
-    "get_concept",
-]
-```
+## Checklist
 
----
+- [ ] Confirmed the term belongs in Layer 0.
+- [ ] Added exactly one canonical YAML definition under `src/auteur/data/ontology/`.
+- [ ] Used a registered relation type where appropriate.
+- [ ] Classified each rule as schema, semantic invariant, craft heuristic, or interpretive criterion.
+- [ ] Used a named executor for every executable rule.
+- [ ] Added no executable free-text expressions.
+- [ ] Added/updated compatibility alias only when needed.
+- [ ] Added positive and rejection tests.
+- [ ] `OntologyRegistry.assert_valid()` passes.
+- [ ] No duplicate Python ontology definition was added.
 
-## Step 4: Test the New Concept
-
-Create a test file to verify the concept works correctly. Add tests to `tests/auteur/narrative_ontology/test_base_ontology.py`:
-
-```python
-class TestPoliticalIntrigueConcept:
-    """Test the PoliticalIntrigue concept definition."""
-
-    def test_political_intrigue_exists(self):
-        """Test that PoliticalIntrigue concept is defined."""
-        from auteur.narrative_ontology.core import POLITICAL_INTRIGUE
-        assert POLITICAL_INTRIGUE is not None
-        assert isinstance(POLITICAL_INTRIGUE, Concept)
-
-    def test_political_intrigue_name(self):
-        """Test PoliticalIntrigue concept has correct name."""
-        from auteur.narrative_ontology.core import POLITICAL_INTRIGUE
-        assert POLITICAL_INTRIGUE.name == "PoliticalIntrigue"
-
-    def test_political_intrigue_definition(self):
-        """Test PoliticalIntrigue concept has non-empty definition."""
-        from auteur.narrative_ontology.core import POLITICAL_INTRIGUE
-        assert POLITICAL_INTRIGUE.definition
-        assert len(POLITICAL_INTRIGUE.definition) > 0
-        assert "power" in POLITICAL_INTRIGUE.definition.lower() or "hidden" in POLITICAL_INTRIGUE.definition.lower()
-
-    def test_political_intrigue_has_relationships(self):
-        """Test PoliticalIntrigue has relationships defined."""
-        from auteur.narrative_ontology.core import POLITICAL_INTRIGUE
-        assert len(POLITICAL_INTRIGUE.relationships) > 0
-        # Should have relationships to Character, Conflict, Revelation, Relationship
-        target_names = [r.target_concept for r in POLITICAL_INTRIGUE.relationships]
-        assert "Character" in target_names
-        assert "Conflict" in target_names
-
-    def test_political_intrigue_character_relationship_required(self):
-        """Test PoliticalIntrigue requires Character relationship."""
-        from auteur.narrative_ontology.core import POLITICAL_INTRIGUE
-        char_rels = [r for r in POLITICAL_INTRIGUE.relationships if r.target_concept == "Character"]
-        assert len(char_rels) > 0
-        assert char_rels[0].required is True
-
-    def test_political_intrigue_has_validation_rules(self):
-        """Test PoliticalIntrigue has validation rules."""
-        from auteur.narrative_ontology.core import POLITICAL_INTRIGUE
-        assert len(POLITICAL_INTRIGUE.validation_rules) > 0
-        rule_ids = [r.rule_id for r in POLITICAL_INTRIGUE.validation_rules]
-        assert "intrigue_involves_multiple_agents" in rule_ids
-        assert "intrigue_has_hidden_agenda" in rule_ids
-
-    def test_political_intrigue_in_registry(self):
-        """Test PoliticalIntrigue is registered in ALL_CONCEPTS."""
-        from auteur.narrative_ontology.core import ALL_CONCEPTS
-        assert "PoliticalIntrigue" in ALL_CONCEPTS
-        assert ALL_CONCEPTS["PoliticalIntrigue"].name == "PoliticalIntrigue"
-
-    def test_get_concept_retrieves_political_intrigue(self):
-        """Test get_concept function retrieves PoliticalIntrigue."""
-        from auteur.narrative_ontology.core import get_concept
-        intrigue = get_concept("PoliticalIntrigue")
-        assert intrigue.name == "PoliticalIntrigue"
-
-    def test_political_intrigue_validation_rules_apply_to_genres(self):
-        """Test PoliticalIntrigue validation rules specify genre applicability."""
-        from auteur.narrative_ontology.core import POLITICAL_INTRIGUE
-        for rule in POLITICAL_INTRIGUE.validation_rules:
-            assert len(rule.applies_to) > 0
-            for genre in rule.applies_to:
-                assert genre in ["netorare", "mystery", "gentlefemdom"]
-```
-
-Run tests to verify:
-
-```bash
-pytest tests/auteur/narrative_ontology/test_base_ontology.py::TestPoliticalIntrigueConcept -v
-```
-
----
-
-## Step 5: Verify Integration with OntologyLoader
-
-The OntologyLoader automatically picks up your new concept:
-
-```python
-from auteur.narrative_ontology.loader import OntologyLoader
-
-loader = OntologyLoader()
-
-# Your new concept is automatically available
-intrigue = loader.get_concept("PoliticalIntrigue")
-print(intrigue["definition"])
-
-# Works with CLI inspection
-# auteur ontology inspect PoliticalIntrigue
-```
-
----
-
-## Step 6: Update Validators (if applicable)
-
-If you want validators to enforce your concept's rules, update the relevant validator:
-
-```python
-# In src/auteur/narrative_ontology/validator/ontology_validator.py
-def validate_political_intrigue(self, intrigue: Dict, genre: str = None) -> List[str]:
-    """Validate a political intrigue structure against ontology rules."""
-    errors = []
-    
-    # Check required relationships
-    if "characters" not in intrigue or len(intrigue["characters"]) < 2:
-        errors.append("Political intrigue must involve at least 2 characters")
-    
-    if not any(char.get("hidden_agenda") for char in intrigue.get("characters", [])):
-        errors.append("Political intrigue must have at least one hidden agenda")
-    
-    return errors
-```
-
----
-
-## Step 7: Commit Your Changes
-
-```bash
-git add data/ontology/base_ontology.yaml
-git add src/auteur/narrative_ontology/core/narrative_concepts.py
-git add src/auteur/narrative_ontology/core/__init__.py
-git add tests/auteur/narrative_ontology/test_base_ontology.py
-
-git commit -m "feat: add PoliticalIntrigue concept to base ontology
-
-- Defines political intrigue as scheme involving multiple characters
-- Includes relationships to Character, Conflict, Revelation, Relationship
-- Adds 3 validation rules for narrative coherence
-- Tests verify concept structure and registry integration"
-```
-
----
-
-## Checklist for Adding New Concepts
-
-- [ ] Added concept to `base_ontology.yaml` with complete YAML structure
-- [ ] Added validation rules list in `narrative_concepts.py`
-- [ ] Added Concept instance in `narrative_concepts.py`
-- [ ] Updated ALL_CONCEPTS registry in `narrative_concepts.py`
-- [ ] Updated `__init__.py` exports
-- [ ] Created comprehensive tests covering:
-  - Concept exists and is accessible
-  - Definition is non-empty
-  - All relationships are present and correct
-  - All validation rules are present
-  - Genre applicability is specified
-  - Registry includes the concept
-  - get_concept() function works
-- [ ] Ran tests: `pytest tests/auteur/narrative_ontology/ -v`
-- [ ] Verified with OntologyLoader manually
-- [ ] Committed with descriptive message
-
----
-
-## Common Pitfalls
-
-**Circular Relationships:** Avoid A→B and B→A unless semantically necessary. Use symmetric relationships instead.
-
-**Too Many Rules:** Start with 2-3 essential rules. Add more only if they prevent genuine errors.
-
-**Vague Definitions:** Definitions should be specific enough to distinguish from similar concepts. "A narrative element" is too vague; "A scheme involving hidden agendas and power competition" is better.
-
-**Missing Genre Applicability:** Always specify `applies_to` in validation rules. If rule applies to all genres, list all three: `["netorare", "mystery", "gentlefemdom"]`.
-
-**Forgetting the Registry:** New concepts must be added to ALL_CONCEPTS dict or they won't be discoverable via get_concept() or CLI.
-
----
-
-**Last Updated:** 2026-07-12
+**Last updated:** 2026-09-11

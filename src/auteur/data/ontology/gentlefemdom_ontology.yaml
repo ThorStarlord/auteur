@@ -1,6 +1,6 @@
 # Gentle Femdom Genre Ontology Extensions
-# Genre-specific concepts for gentle femdom narratives
-# Extends base ontology with gentle dominance/submission concepts
+# Genre-specific semantic concepts for gentle dominance/submission narratives.
+# Craft/interpretive rules are advisory and never hard ontology validity.
 
 extends: base
 
@@ -24,12 +24,14 @@ concepts:
         required: true
     validation_rules:
       - rule_id: dominance_expression_is_consensual
-        condition: Dominance expression must respect consent boundaries
-        error_message: Dominance expression violates established consent
+        kind: interpretive_criterion
+        condition: Whether an expression respects established consent boundaries requires story-context judgment.
+        error_message: Dominance expression may conflict with established consent.
         applies_to: [gentlefemdom]
       - rule_id: dominance_expression_shows_care
-        condition: Even authoritative expressions should demonstrate care for the submissive
-        error_message: Dominance expression lacks empathetic foundation
+        kind: craft_heuristic
+        condition: Gentle-dominance presentation commonly signals care alongside authority.
+        error_message: Dominance expression may lack the intended caring register.
         applies_to: [gentlefemdom]
 
   SubmissionResponse:
@@ -47,16 +49,18 @@ concepts:
       - source_concept: SubmissionResponse
         target_concept: DominanceExpression
         cardinality: many-to-one
-        description: Response is often directed toward dominant character
+        description: Response is often directed toward a dominance expression
         required: false
     validation_rules:
       - rule_id: submission_response_is_voluntary
-        condition: Submission must represent a choice by the character
-        error_message: Submission appears coerced rather than chosen
+        kind: interpretive_criterion
+        condition: Voluntariness depends on accepted context, boundaries, and character state.
+        error_message: Submission may read as coerced rather than chosen.
         applies_to: [gentlefemdom]
       - rule_id: submission_response_shows_emotion
-        condition: Submission should convey the character's emotional experience
-        error_message: Submission response lacks emotional authenticity
+        kind: craft_heuristic
+        condition: Submission response commonly benefits from legible emotional experience.
+        error_message: Submission response may lack emotional specificity.
         applies_to: [gentlefemdom]
 
   PowerDynamicArc:
@@ -83,12 +87,14 @@ concepts:
         required: false
     validation_rules:
       - rule_id: power_dynamic_arc_shows_evolution
-        condition: Power dynamic should evolve or deepen over the arc
-        error_message: Power dynamic remains static
+        kind: craft_heuristic
+        condition: A power-dynamic arc normally changes, deepens, or deliberately stabilizes over time.
+        error_message: Power dynamic may remain unintentionally static.
         applies_to: [gentlefemdom]
       - rule_id: power_dynamic_arc_respects_boundaries
-        condition: Evolution of power dynamic must respect character boundaries
-        error_message: Power dynamic evolution violates consent framework
+        kind: interpretive_criterion
+        condition: Boundary consistency requires interpretation against accepted character and relationship context.
+        error_message: Power dynamic evolution may conflict with established boundaries.
         applies_to: [gentlefemdom]
 
   IntimacyProgression:
@@ -110,18 +116,20 @@ concepts:
         required: true
     validation_rules:
       - rule_id: intimacy_progression_is_gradual
-        condition: Intimacy should build gradually with narrative justification
-        error_message: Intimacy appears suddenly without development
+        kind: craft_heuristic
+        condition: Intimacy progression commonly benefits from legible narrative development, though deliberate sudden change remains possible.
+        error_message: Intimacy may appear insufficiently developed for the intended effect.
         applies_to: [gentlefemdom]
       - rule_id: intimacy_progression_shows_vulnerability
-        condition: Intimacy progression should expose character vulnerability
-        error_message: Intimacy lacks emotional depth
+        kind: craft_heuristic
+        condition: Vulnerability is a common but not universal craft signal of deepening intimacy.
+        error_message: Intimacy progression may lack emotional depth for the intended mode.
         applies_to: [gentlefemdom]
 
 metadata:
-  version: "1.0"
-  last_updated: "2026-07-12"
-  description: "Genre-specific concepts for gentle femdom narratives"
+  version: "2.0"
+  last_updated: "2026-09-11"
+  description: "Genre-specific semantic concepts for gentle femdom narratives"
   genre: gentlefemdom
   extends: base
   new_concepts_count: 4

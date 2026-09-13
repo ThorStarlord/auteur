@@ -1,13 +1,13 @@
 # Netorare Genre Ontology Extensions
-# Genre-specific concepts for netorare narratives
-# Extends base ontology with cuckoldry-specific concepts
+# Genre-specific semantic concepts for netorare narratives.
+# Craft/interpretive rules are advisory and never hard ontology validity.
 
 extends: base
 
 concepts:
   CuckoldryArc:
     name: CuckoldryArc
-    definition: A narrative arc progression specific to netorare that tracks the emotional and psychological journey through stages of revelation, humiliation, and acceptance or resolution.
+    definition: A narrative arc progression specific to netorare that tracks an emotional and psychological journey through relationship change, revelation, humiliation, and acceptance or resolution.
     category: genre-specific
     parent_concepts:
       - Arc
@@ -15,26 +15,28 @@ concepts:
       - source_concept: CuckoldryArc
         target_concept: Character
         cardinality: many-to-many
-        description: Cuckoldry arc involves characters in the dynamic (primary, secondary, tertiary partners)
+        description: Cuckoldry arc involves characters participating in the relationship dynamic
         required: true
       - source_concept: CuckoldryArc
         target_concept: Setup
         cardinality: one-to-one
-        description: Cuckoldry arc setup initiates the reveal
+        description: Cuckoldry arc may use setup to initiate or prepare a reveal
         required: false
     validation_rules:
       - rule_id: cuckoldry_arc_has_stages
-        condition: Cuckoldry arc must progress through identifiable emotional stages
-        error_message: Cuckoldry arc lacks clear stage progression
+        kind: craft_heuristic
+        condition: The arc commonly benefits from identifiable emotional or relational stages.
+        error_message: Cuckoldry arc may lack legible stage progression.
         applies_to: [netorare]
       - rule_id: cuckoldry_arc_tracks_emotional_journey
-        condition: Each stage should show measurable emotional change
-        error_message: Cuckoldry arc stages do not show emotional progression
+        kind: interpretive_criterion
+        condition: Whether stages show meaningful emotional change requires story-context judgment.
+        error_message: Cuckoldry arc stages may not show meaningful emotional progression.
         applies_to: [netorare]
 
   HumiliationProgression:
     name: HumiliationProgression
-    definition: The escalation or modulation of humiliation elements within a netorare narrative, tracking intensity, frequency, and consent boundaries.
+    definition: The escalation or modulation of humiliation elements within a netorare narrative, tracking intensity, frequency, and established boundaries.
     category: genre-specific
     parent_concepts:
       - Conflict
@@ -42,33 +44,35 @@ concepts:
       - source_concept: HumiliationProgression
         target_concept: Arc
         cardinality: many-to-many
-        description: Humiliation progression occurs within arcs
+        description: Humiliation progression may occur within arcs
         required: false
       - source_concept: HumiliationProgression
         target_concept: Setup
         cardinality: one-to-many
-        description: Humiliation setups drive progression moments
+        description: Setups may contribute to humiliation progression moments
         required: false
     validation_rules:
       - rule_id: humiliation_respects_consent
-        condition: Humiliation must not violate established consent boundaries
-        error_message: Humiliation violates character consent framework
+        kind: interpretive_criterion
+        condition: Boundary and consent consistency must be judged against accepted story context.
+        error_message: Humiliation may conflict with the established consent framework.
         applies_to: [netorare]
       - rule_id: humiliation_has_emotional_impact
-        condition: Each humiliation element must affect character emotional state
-        error_message: Humiliation element has no emotional consequence
+        kind: interpretive_criterion
+        condition: Emotional consequence is an audience- and character-context judgment.
+        error_message: Humiliation element may have insufficient emotional consequence for the intended design.
         applies_to: [netorare]
 
   ConsentBoundary:
     name: ConsentBoundary
-    definition: A defined limit or agreement about what kinds of interactions, humiliation, or physical contact are permitted within the narrative between characters.
+    definition: A defined limit or agreement about what kinds of interactions or relationship behavior are permitted between characters within the narrative.
     category: genre-specific
     parent_concepts: []
     relationships:
       - source_concept: ConsentBoundary
         target_concept: Character
         cardinality: many-to-many
-        description: Consent boundary applies to characters involved
+        description: Consent boundary applies to participating characters
         required: true
       - source_concept: ConsentBoundary
         target_concept: Relationship
@@ -77,17 +81,19 @@ concepts:
         required: true
     validation_rules:
       - rule_id: consent_boundary_explicitly_defined
-        condition: Consent boundaries must be explicitly established or implied clearly
-        error_message: Consent boundary is ambiguous or undefined
+        kind: interpretive_criterion
+        condition: Clarity of a consent boundary depends on the accepted narrative context and presentation.
+        error_message: Consent boundary may be ambiguous or undefined.
         applies_to: [netorare]
       - rule_id: consent_boundary_consistent
-        condition: Violations of consent boundary must be narratively justified
-        error_message: Consent boundary violated without narrative justification
+        kind: interpretive_criterion
+        condition: Apparent boundary violations require interpretation against accepted facts and authorial intent.
+        error_message: Consent boundary may be inconsistent with accepted narrative context.
         applies_to: [netorare]
 
   DesireManipulation:
     name: DesireManipulation
-    definition: Psychological or emotional manipulation of character desires, often involving deception about the nature of interactions or relationships.
+    definition: Psychological or emotional manipulation of character desires or their understanding of interactions and relationships.
     category: genre-specific
     parent_concepts:
       - Conflict
@@ -100,22 +106,24 @@ concepts:
       - source_concept: DesireManipulation
         target_concept: Revelation
         cardinality: one-to-many
-        description: Manipulations are often revealed later in narrative
+        description: Manipulations may be revealed or recontextualized later in the narrative
         required: false
     validation_rules:
       - rule_id: desire_manipulation_has_origin
-        condition: Desire manipulation must originate from some narrative cause
-        error_message: Desire manipulation appears unmotivated
+        kind: craft_heuristic
+        condition: Manipulation commonly benefits from a legible narrative cause or origin.
+        error_message: Desire manipulation may appear unmotivated.
         applies_to: [netorare]
       - rule_id: desire_manipulation_affects_choices
-        condition: Manipulation must influence character decisions
-        error_message: Desire manipulation has no effect on narrative
+        kind: interpretive_criterion
+        condition: Whether manipulation materially influences choices requires contextual judgment.
+        error_message: Desire manipulation may have insufficient narrative consequence.
         applies_to: [netorare]
 
 metadata:
-  version: "1.0"
-  last_updated: "2026-07-12"
-  description: "Genre-specific concepts for netorare narratives"
+  version: "2.0"
+  last_updated: "2026-09-11"
+  description: "Genre-specific semantic concepts for netorare narratives"
   genre: netorare
   extends: base
   new_concepts_count: 4

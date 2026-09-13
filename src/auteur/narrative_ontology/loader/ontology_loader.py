@@ -1,282 +1,263 @@
-"""OntologyLoader: Load, merge, and validate narrative ontologies from YAML files.
+"""Package-resource loader for Narrative Ontology specifications.
 
-Layer 0 Task 4: Implements the OntologyLoader class that:
-- Loads base ontology from base_ontology.yaml
-- Loads genre-specific ontologies from genre YAML files
-- Merges base and genre ontologies
-- Retrieves concepts with caching
-- Validates ontology structure
-- Provides thread-safe access to cached ontologies
-
-Ontology resources are loaded from the installed package via importlib.resources,
-making them independent of the working directory or source checkout.
+`src/auteur/data/ontology/` is the canonical specification source. The loader
+preserves its historical dictionary API as an explicit compatibility projection
+while exposing raw V2 specification methods consumed by :class:`OntologyRegistry`.
 """
 
 from __future__ import annotations
 
+from copy import deepcopy
 import importlib.resources
-import yaml
-from typing import Dict, List, Optional, Any
 from threading import RLock
+from typing import Any, Dict, List, Optional
+
+import yaml
 
 
 _ONTOLOGY_PACKAGE = "auteur.data.ontology"
+_LEGACY_GENRES = ["netorare", "mystery", "gentlefemdom"]
+
+
+def _resource_root():
+    try:
+        return importlib.resources.files(_ONTOLOGY_PACKAGE)
+    except (ModuleNotFoundError, TypeError) as exc:
+        raise FileNotFoundError(
+            f"Ontology package '{_ONTOLOGY_PACKAGE}' is unavailable: {exc}"
+        ) from exc
 
 
 def _read_ontology_yaml(filename: str) -> dict[str, Any]:
-    """Read ontology YAML from package resources.
+    """Read one UTF-8 YAML document from packaged ontology resources."""
 
-    Args:
-        filename: YAML filename (e.g. "base_ontology.yaml")
-
-    Returns:
-        Parsed YAML content as a dict.
-
-    Raises:
-        FileNotFoundError: If the resource is not found in the installed package.
-    """
     try:
-        ref = importlib.resources.files(_ONTOLOGY_PACKAGE).joinpath(filename)
-        with ref.open("r", encoding="utf-8") as f:
-            return yaml.safe_load(f)
-    except (ModuleNotFoundError, FileNotFoundError, TypeError) as exc:
+        ref = _resource_root().joinpath(filename)
+        with ref.open("r", encoding="utf-8") as handle:
+            return yaml.safe_load(handle) or {}
+    except FileNotFoundError as exc:
         raise FileNotFoundError(
-            f"Ontology resource '{filename}' not found in package '{_ONTOLOGY_PACKAGE}'. "
-            f"Ensure auteur is installed correctly (pip install auteur). "
-            f"Error: {exc}"
+            f"Ontology resource '{filename}' not found in package '{_ONTOLOGY_PACKAGE}'"
         ) from exc
 
 
 class OntologyLoader:
-    """Loads and manages narrative ontologies from YAML files.
+    """Load, merge, cache, and structurally inspect ontology documents."""
 
-    This loader handles:
-    - Loading base ontology (12 core concepts)
-    - Loading genre-specific extensions (netorare, mystery, gentlefemdom)
-    - Merging base and genre ontologies
-    - Validating relationship integrity
-    - Caching loaded ontologies for performance
-    - Thread-safe access to cached data
-
-    Ontology resources are loaded via importlib.resources and work from
-    any working directory or from an installed wheel.
-    """
-
-    # Class-level lock for thread-safe caching
     _cache_lock = RLock()
 
-    def __init__(self):
-        """Initialize the OntologyLoader with empty cache.
+    def __init__(self) -> None:
+        self._document_cache: Dict[str, Dict[str, Any]] = {}
+        self._merged_cache: Dict[str, Dict[str, Any]] = {}
 
-        No project root or working directory is consulted — all ontology
-        resources are resolved from the installed package.
+    def load_document(self, filename: str) -> Dict[str, Any]:
+        """Load an arbitrary packaged ontology YAML document with caching."""
+
+        with self._cache_lock:
+            cached = self._document_cache.get(filename)
+            if cached is not None:
+                return cached
+        data = _read_ontology_yaml(filename)
+        with self._cache_lock:
+            self._document_cache[filename] = data
+        return data
+
+    def resource_names(self) -> List[str]:
+        """Return packaged ontology YAML filenames."""
+
+        return sorted(
+            item.name
+            for item in _resource_root().iterdir()
+            if item.name.endswith(".yaml")
+        )
+
+    def available_genre_extensions(self) -> List[str]:
+        """Discover genre extensions from packaged `*_ontology.yaml` files."""
+
+        suffix = "_ontology.yaml"
+        return sorted(
+            name[: -len(suffix)]
+            for name in self.resource_names()
+            if name.endswith(suffix) and name != "base_ontology.yaml"
+        )
+
+    def has_genre_extension(self, genre: str) -> bool:
+        return genre.strip().lower() in set(self.available_genre_extensions())
+
+    def load_base_document(self) -> Dict[str, Any]:
+        return self.load_document("base_ontology.yaml")
+
+    def load_base_spec(self) -> Dict[str, Any]:
+        """Return the canonical raw historical-core specification.
+
+        New V2 runtime code should use this method (usually indirectly through
+        :class:`OntologyRegistry`) when exact canonical YAML semantics matter.
         """
-        self._base_ontology_cache: Optional[Dict] = None
-        self._genre_ontology_cache: Dict[str, Dict] = {}
-        self._merged_cache: Dict[str, Dict] = {}
+
+        return self.load_base_document().get("concepts", {})
+
+    def _legacy_base_projection(self) -> Dict[str, Any]:
+        """Project raw base YAML into the pre-V2 loader observation contract."""
+
+        projected = deepcopy(self.load_base_spec())
+        for concept in projected.values():
+            for rule in concept.get("validation_rules", []):
+                if not rule.get("applies_to"):
+                    rule["applies_to"] = list(_LEGACY_GENRES)
+        setup = projected.get("Setup", {})
+        for relation in setup.get("relationships", []):
+            if relation.get("target_concept") == "Payoff":
+                relation["cardinality"] = "one-to-one"
+        return projected
 
     def load_base_ontology(self) -> Dict[str, Any]:
-        """Load base ontology from YAML file.
+        """Return the historical 12-concept loader compatibility projection.
 
-        The base ontology contains 12 core narrative concepts:
-        Character, Arc, Theme, Goal, Conflict, Payoff, Symbol,
-        Relationship, Beat, Setup, Revelation, Reversal.
-
-        Returns:
-            Dictionary mapping concept names to concept definitions.
-            Each concept has: name, definition, relationships, validation_rules.
-
-        Raises:
-            FileNotFoundError: If base_ontology.yaml cannot be found.
-            yaml.YAMLError: If YAML is malformed.
+        This public method intentionally preserves pre-V2 observations such as
+        explicit applicability to the three historical genre extensions and
+        Setup->Payoff's former one-to-one cardinality. Canonical V2 semantics
+        live in :meth:`load_base_spec` / :meth:`load_core_ontology`.
         """
+
+        cache_key = "legacy-base"
         with self._cache_lock:
-            if self._base_ontology_cache is not None:
-                return self._base_ontology_cache
-
-        data = _read_ontology_yaml("base_ontology.yaml")
-        concepts = data.get("concepts", {})
-
+            cached = self._merged_cache.get(cache_key)
+            if cached is not None:
+                return cached
+        projected = self._legacy_base_projection()
         with self._cache_lock:
-            self._base_ontology_cache = concepts
+            self._merged_cache[cache_key] = projected
+        return projected
 
-        return concepts
+    def load_semantic_vocabulary(self) -> Dict[str, Any]:
+        return self.load_document("semantic_vocabulary.yaml").get("concepts", {})
+
+    def load_core_ontology(self) -> Dict[str, Any]:
+        """Return canonical raw base semantics plus V2 semantic vocabulary."""
+
+        return self.merge_ontologies(
+            self.load_base_spec(), self.load_semantic_vocabulary()
+        )
+
+    def load_relation_types(self) -> Dict[str, Any]:
+        return self.load_document("relation_types.yaml").get("relation_types", {})
+
+    def load_compatibility(self) -> Dict[str, Any]:
+        return self.load_document("compatibility.yaml")
+
+    def load_genre_document(self, genre: str) -> Dict[str, Any]:
+        genre = genre.strip().lower()
+        filename = f"{genre}_ontology.yaml"
+        if not self.has_genre_extension(genre):
+            raise FileNotFoundError(f"Genre ontology file not found for '{genre}': {filename}")
+        return self.load_document(filename)
 
     def load_genre_ontology(self, genre: str) -> Dict[str, Any]:
-        """Load genre-specific ontology from YAML file.
+        """Return concept declarations for a packaged genre extension."""
 
-        Loads genre extensions for netorare, mystery, or gentlefemdom.
-        Each genre file contains genre-specific concepts that extend the base ontology.
-
-        Args:
-            genre: Genre identifier (netorare, mystery, gentlefemdom)
-
-        Returns:
-            Dictionary mapping concept names to concept definitions.
-
-        Raises:
-            FileNotFoundError: If genre YAML file cannot be found.
-            ValueError: If genre is not recognized.
-            yaml.YAMLError: If YAML is malformed.
-        """
-        genre = genre.lower()
-
-        with self._cache_lock:
-            if genre in self._genre_ontology_cache:
-                return self._genre_ontology_cache[genre]
-
-        filename = f"{genre}_ontology.yaml"
-        try:
-            data = _read_ontology_yaml(filename)
-        except FileNotFoundError:
-            raise FileNotFoundError(
-                f"Genre ontology file not found for '{genre}': {filename}. "
-                f"Valid genres: netorare, mystery, gentlefemdom"
-            )
-
-        concepts = data.get("concepts", {})
-
-        with self._cache_lock:
-            self._genre_ontology_cache[genre] = concepts
-
-        return concepts
+        return self.load_genre_document(genre).get("concepts", {})
 
     def merge_ontologies(self, base: Dict, genre: Dict) -> Dict[str, Any]:
-        """Merge base and genre ontologies.
-
-        Genre-specific concepts override base concepts when both define
-        the same concept name. The merge is shallow at the concept level:
-        genre concept entries replace base entries entirely.
-
-        Args:
-            base: Base ontology concepts dict.
-            genre: Genre-specific ontology concepts dict.
-
-        Returns:
-            Merged ontology dictionary.
-        """
         merged = dict(base)
         merged.update(genre)
         return merged
 
     def get_concept(self, name: str, genre: Optional[str] = None) -> Dict[str, Any]:
-        """Retrieve a concept by name, optionally with genre context.
+        """Retrieve a concept through the historical dictionary compatibility API.
 
-        Args:
-            name: Concept name to retrieve.
-            genre: Optional genre to load genre-specific ontology.
-
-        Returns:
-            Concept definition dictionary, or empty dict if not found.
+        V2 runtime lookup should use ``OntologyRegistry.get_concept``. This API
+        remains case-sensitive and preserves historical base-field observations.
         """
-        base = self.load_base_ontology()
-        merged = dict(base)
 
+        merged = self.merge_ontologies(
+            self.load_base_ontology(), self.load_semantic_vocabulary()
+        )
         if genre:
-            genre = genre.lower()
+            genre_key = genre.strip().lower()
+            cache_key = f"legacy-core+{genre_key}"
             with self._cache_lock:
-                if genre not in self._merged_cache:
-                    genre_data = self.load_genre_ontology(genre)
-                    self._merged_cache[genre] = self.merge_ontologies(base, genre_data)
-            merged = self._merged_cache.get(genre, merged)
-
+                cached = self._merged_cache.get(cache_key)
+            if cached is None:
+                genre_data = self.load_genre_ontology(genre_key)
+                cached = self.merge_ontologies(merged, genre_data)
+                with self._cache_lock:
+                    self._merged_cache[cache_key] = cached
+            merged = cached
         return merged.get(name, {})
 
-    def validate_ontology_structure(self, ontology: Dict[str, Any]) -> List[str]:
-        """Validate ontology structure and relationship integrity.
+    def validate_ontology_structure(
+        self,
+        ontology: Dict[str, Any],
+        *,
+        known_concepts: Optional[set[str]] = None,
+    ) -> List[str]:
+        """Validate objective structure/reference integrity.
 
-        Validates:
-        - All concepts have required fields (name, definition)
-        - Relationship references are valid (point to existing concepts)
-        - Validation rules are present for each concept
-        - No cycles in relationship references
-
-        Args:
-            ontology: Dictionary mapping concept names to concept definitions.
-
-        Returns:
-            List of validation error messages. Empty list means valid.
+        `known_concepts` may include parent/core concepts when checking an
+        extension in isolation. Craft quality is intentionally not evaluated.
         """
+
         errors: List[str] = []
-        concept_names = set(ontology.keys())
+        concept_names = set(ontology) | set(known_concepts or set())
 
-        for name, concept in ontology.items():
-            # Check required fields
+        for key, concept in ontology.items():
+            if not isinstance(concept, dict):
+                errors.append(f"Concept '{key}' must be a mapping")
+                continue
+            if "name" not in concept:
+                errors.append(f"Concept '{key}' missing 'name' field")
+            elif concept["name"] != key:
+                errors.append(
+                    f"Concept key '{key}' does not match declared name '{concept['name']}'"
+                )
             if "definition" not in concept:
-                errors.append(f"Concept '{name}' missing 'definition' field")
+                errors.append(f"Concept '{key}' missing 'definition' field")
 
-            # Check relationship references (list of {source_concept, target_concept, cardinality})
-            rels = concept.get("relationships", [])
-            if isinstance(rels, list):
-                for rel in rels:
-                    if isinstance(rel, dict):
-                        target = rel.get("target_concept")
-                        source = rel.get("source_concept")
-                        if target and target not in concept_names:
-                            errors.append(
-                                f"Concept '{name}' has relationship to undefined "
-                                f"concept '{target}'"
-                            )
-                        if source and source not in concept_names:
-                            errors.append(
-                                f"Concept '{name}' has relationship from undefined "
-                                f"concept '{source}'"
-                            )
-            elif isinstance(rels, dict):
-                # Support both list-of-dicts and dict-of-targets schemas
-                for rel_type, targets in rels.items():
-                    if isinstance(targets, str):
-                        targets = [targets]
-                    for target in targets:
-                        if target not in concept_names and target != name:
-                            errors.append(
-                                f"Concept '{name}' has relationship '{rel_type}' "
-                                f"to undefined concept '{target}'"
-                            )
+            for parent in concept.get("parent_concepts", []):
+                if parent not in concept_names:
+                    errors.append(
+                        f"Concept '{key}' has undefined parent concept '{parent}'"
+                    )
 
-            # Check validation rules
-            if "validation_rules" not in concept:
-                errors.append(f"Concept '{name}' missing 'validation_rules' field")
+            relationships = concept.get("relationships", [])
+            if not isinstance(relationships, list):
+                errors.append(f"Concept '{key}' relationships must be a list")
+                relationships = []
+            for relation in relationships:
+                if not isinstance(relation, dict):
+                    errors.append(f"Concept '{key}' contains a non-mapping relationship")
+                    continue
+                source = relation.get("source_concept")
+                target = relation.get("target_concept")
+                if source and source not in concept_names:
+                    errors.append(
+                        f"Concept '{key}' has relationship from undefined concept '{source}'"
+                    )
+                if target and target not in concept_names:
+                    errors.append(
+                        f"Concept '{key}' has relationship to undefined concept '{target}'"
+                    )
+
+            rules = concept.get("validation_rules")
+            if rules is None:
+                errors.append(f"Concept '{key}' missing 'validation_rules' field")
+            elif not isinstance(rules, list):
+                errors.append(f"Concept '{key}' validation_rules must be a list")
+
         return errors
 
     def clear_cache(self) -> None:
-        """Clear all cached ontologies.
-
-        Forces a fresh load from YAML files on the next access.
-        Thread-safe.
-        """
         with self._cache_lock:
-            self._base_ontology_cache = None
-            self._genre_ontology_cache.clear()
+            self._document_cache.clear()
             self._merged_cache.clear()
 
     def get_concept_names(self, genre: Optional[str] = None) -> List[str]:
-        """Get list of all concept names in ontology.
-
-        Args:
-            genre: Optional genre to include genre-specific concepts.
-
-        Returns:
-            Sorted list of concept names.
-        """
-        merged = self.load_base_ontology()
+        merged = self.load_core_ontology()
         if genre:
-            genre = genre.lower()
-            if genre not in self._merged_cache:
-                genre_data = self.load_genre_ontology(genre)
-                self._merged_cache[genre] = self.merge_ontologies(merged, genre_data)
-            merged = self._merged_cache[genre]
-        return sorted(merged.keys())
+            merged = self.merge_ontologies(merged, self.load_genre_ontology(genre))
+        return sorted(merged)
 
     def get_genre_extensions(self, genre: str) -> List[str]:
-        """Get list of genre-specific concepts (non-base concepts).
-
-        Args:
-            genre: Genre identifier to check.
-
-        Returns:
-            Sorted list of concept names unique to the genre.
-        """
-        base_names = set(self.load_base_ontology().keys())
-        genre_names = set(self.load_genre_ontology(genre).keys())
+        base_names = set(self.load_core_ontology())
+        genre_names = set(self.load_genre_ontology(genre))
         return sorted(genre_names - base_names)
