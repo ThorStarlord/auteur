@@ -7,7 +7,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from auteur.acceptance import AcceptanceRegistry
 from auteur.decision.models import (
     EvidenceFreshness,
 )
@@ -39,12 +38,11 @@ class ReviewService:
     capabilities. Never duplicates subsystem logic.
     """
 
-    def __init__(self, project_root: Path, *, acceptance_registry: AcceptanceRegistry | None = None):
+    def __init__(self, project_root: Path):
         self.project_root = Path(project_root).resolve()
         self._validate_project()
         self.decision_service = DecisionWorkspaceService(self.project_root)
         self.store = ReviewStore(self.project_root)
-        self.acceptance_registry = acceptance_registry
 
     def _validate_project(self) -> None:
         auteur_marker = self.project_root / ".auteur"
@@ -372,42 +370,76 @@ class ReviewService:
         candidate_id: str,
         confirm: bool = False,
     ) -> ReviewSession:
-        """Perform authority-bearing acceptance.
+        """Attempt authority-bearing acceptance through a registered owning route.
 
-        Requires explicit confirmation. Delegates to the existing
-        acceptance subsystem. Never writes canonical pointers directly.
+        Review sessions may prepare acceptance, but they do not own narrative
+        authority. Until a candidate-specific owning acceptance route is wired,
+        this method fails closed and records a noncanonical refusal rather than
+        fabricating acceptance.
         """
         if not confirm:
             raise ValueError("Acceptance requires --confirm")
 
-        if self.acceptance_registry is None:
-            raise ValueError(
-                "Review acceptance integration is unavailable for this artifact; "
-                "use the owning artifact acceptance command."
-            )
         session = self._load_active(session_id)
-        if session.target is None:
-            raise ValueError("Review session has no target artifact")
-        self.acceptance_registry.accept(session.target.target_artifact_id, candidate_id, confirm=True)
+        if not session.target:
+            raise ValueError("Session has no target decision")
+
+        # Revalidate preparation. Preparation is noncanonical and safe to persist.
+        if not session.preparation or not session.preparation.prepared:
+            session_temp = self.prepare_acceptance(session_id, candidate_id)
+            if not session_temp.preparation or not session_temp.preparation.prepared:
+                raise ValueError(
+                    f"Acceptance not ready for {candidate_id}. "
+                    f"Blockers: {session_temp.preparation.blockers if session_temp.preparation else 'unknown'}"
+                )
+            session = session_temp
+
+        # A prepared decision is candidate-specific. Never permit confirmation to
+        # switch candidates after the preparation evidence was computed.
+        prepared_candidate = session.preparation.candidate_id if session.preparation else ""
+        if prepared_candidate and prepared_candidate != candidate_id:
+            raise ValueError(
+                f"Prepared candidate {prepared_candidate} does not match requested candidate {candidate_id}. "
+                "Prepare acceptance for the requested candidate first."
+            )
+
+        # Check stale preparation before any acceptance attempt.
+        decision = self.decision_service.inspect(session.target.decision_id)
+        if decision.freshness == EvidenceFreshness.STALE:
+            raise ValueError("Cannot accept: decision evidence is stale. Resume the session first.")
+
+        # Review is an orchestration layer, not an authority owner. There is no
+        # generic acceptance API that can safely accept every Decision Workspace
+        # candidate. Until the owning subsystem route is explicit, fail closed.
+        error = (
+            "Review acceptance is not wired to an owning authority workflow for this candidate. "
+            "Use the owning subsystem's explicit acceptance command; this review session remains unaccepted."
+        )
+        result = AcceptanceResult(
+            accepted=False,
+            candidate_id=candidate_id,
+            error=error,
+        )
         session = ReviewSession(
             session_id=session.session_id,
             project=session.project,
-            state=ReviewSessionState.ACCEPTED,
+            state=ReviewSessionState.AWAITING_ACCEPTANCE,
             target=session.target,
             evidence_snapshot=session.evidence_snapshot,
             choices=session.choices,
             preparation=session.preparation,
-            acceptance=AcceptanceResult(
-                accepted=True,
-                candidate_id=candidate_id,
-            ),
+            acceptance=result,
             impact_refresh=session.impact_refresh,
             event_count=session.event_count,
             last_event_hash=session.last_event_hash,
             created_at=session.created_at,
             updated_at=datetime.now(timezone.utc).isoformat(),
+            error_info=error,
         )
-        self._record_event(session, ReviewEventType.ACCEPTANCE_COMPLETED, {"candidate_id": candidate_id})
+        self._record_event(session, ReviewEventType.ACCEPTANCE_REFUSED, {
+            "candidate_id": candidate_id,
+            "reason": "owning_acceptance_route_unavailable",
+        })
         self.store.save_session(session)
         self.store.save_latest_pointer(session.session_id)
         return session

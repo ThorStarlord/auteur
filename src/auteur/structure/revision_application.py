@@ -686,18 +686,18 @@ def _handle_apply_existing_impact_proposal(
 
 
 def _apply_blueprint_change(target_path: Path, data: dict[str, Any]) -> None:
-    """Apply a content change to a blueprint file, round-tripping through
-    :class:`StoryBlueprint` for schema validation when possible."""
+    """Apply a schema-validated content change to a blueprint file."""
     try:
         blueprint = StoryBlueprint.from_yaml(str(target_path))
         merged = blueprint.model_dump()
         merged.update(data)
         new_bp = StoryBlueprint.model_validate(merged)
-        _atomic_write(target_path, yaml.safe_dump(new_bp.model_dump(mode="json"), sort_keys=False))
-    except Exception:
-        # Fallback: direct YAML write
-        content = yaml.safe_dump(data, sort_keys=False)
-        _atomic_write(target_path, content)
+    except Exception as exc:
+        raise ValueError(f"Blueprint revision failed validation: {exc}") from exc
+    _atomic_write(
+        target_path,
+        yaml.safe_dump(new_bp.model_dump(mode="json"), sort_keys=False),
+    )
 
 
 # ---------------------------------------------------------------------------

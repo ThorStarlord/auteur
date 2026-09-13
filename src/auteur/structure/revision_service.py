@@ -95,15 +95,13 @@ def _hash_one_artifact(project_root: Path, target_id: str) -> str | None:
     path = _resolve_target_path(target_id, project_root)
     if path and path.exists():
         return canonical_content_hash(path)
-    # Fallback: try raw SHA of common paths
-    import hashlib
     candidates = [
         project_root / ".auteur" / "state" / "artifacts" / f"{target_id}.yaml",
         project_root / ".auteur" / "state" / "artifacts" / f"{target_id}.json",
     ]
     for c in candidates:
         if c.exists():
-            return hashlib.sha256(c.read_bytes()).hexdigest()
+            return canonical_content_hash(c)
     return None
 
 class _RevisionPlanner:
@@ -155,6 +153,7 @@ class _RevisionPlanner:
             else ""
         )
         is_structure_proposal = "options" in data or "selection" in data
+        is_tutor_proposal = str(data.get("source_domain", "")).startswith("tutor_card:")
 
         # If no raw operations, try extracting from StructureProposal options.
         if not raw_ops:
@@ -166,6 +165,16 @@ class _RevisionPlanner:
                 for opt in options:
                     if isinstance(opt, dict) and opt.get("id") == selected_id:
                         opt_data = opt.get("data", {})
+                        if is_tutor_proposal:
+                            raw_ops.append({
+                                "operation_id": f"op_{proposal_id}_blueprint_replace",
+                                "target_id": "blueprint",
+                                "target_type": "blueprint",
+                                "operation_type": "replace",
+                                "requested_change": {"data": opt_data},
+                                "order": 0,
+                            })
+                            break
                         for key, value in opt_data.items():
                             if isinstance(value, dict):
                                 ops = _dict_to_operations(key, value, len(raw_ops))
@@ -350,7 +359,9 @@ class _RevisionApplicationExecutor:
         return resolved
 
     def _resolve_artifact_hash(self, target_id: str) -> str | None:
-        """Read the on-disk artifact file and return its SHA-256 hex digest."""
+        """Read the on-disk artifact file using the canonical hash contract."""
+        from auteur.provenance.store import canonical_content_hash
+
         candidates = [
             self.project_root / ".auteur" / "state" / "artifacts" / f"{target_id}.yaml",
             self.project_root / ".auteur" / "state" / "artifacts" / f"{target_id}.json",
@@ -359,8 +370,7 @@ class _RevisionApplicationExecutor:
         ]
         for path in candidates:
             if path.exists():
-                import hashlib
-                return hashlib.sha256(path.read_bytes()).hexdigest()
+                return canonical_content_hash(path)
         return None
 
     def execute(
@@ -902,7 +912,7 @@ class RevisionService:
 
         Args:
             plan_id: The plan to abort.
-            confirmed: **Must be ``True``** to proceed.
+            confirmed: **Must be ``True`` to proceed.
 
         Returns:
             ``True`` if the plan was aborted.
