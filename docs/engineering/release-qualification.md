@@ -119,8 +119,21 @@ introduced by the change.
 ### Code-bearing changes
 
 Changes to source code, tests, version metadata, packaged resources, or build
-configuration normally require successful CI on the exact pull-request head
-before merge.
+configuration require successful CI on the exact pull-request head before
+merge. The CI scope is risk-tiered:
+
+- **Focused validation** is the default for ordinary implementation changes.
+  It runs changed test files when present, or the repository smoke tests when a
+  source-only change has no directly changed test file. Repository validators,
+  Ruff, and the installed-wheel smoke test still run.
+- **Full validation** is required for changes to CI, factory/governance rules,
+  architecture or qualification policy, dependency/build metadata, models,
+  serializers, CLI entry points, or packaged data. It runs the complete test
+  suite across the supported Python matrix.
+
+The stable CI job names remain required in both modes; focused validation must
+not be implemented by skipping a required job. A maintainer may explicitly
+request full validation for any change.
 
 An explicitly recorded equivalent complete qualification may substitute for
 remote CI when:

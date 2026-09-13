@@ -144,11 +144,24 @@ class _RevisionPlanner:
         operations: list[RevisionOperation] = []
         raw_ops = data.get("operations", [])
 
-        # If no raw operations, try extracting from StructureProposal options
+        # StructureProposal artifacts require an explicit selected option before
+        # they can become authority-bearing revision plans. Generic legacy
+        # proposal payloads with explicit operations retain their existing path.
+        options = data.get("options", [])
+        selection = data.get("selection", {})
+        selected_id = (
+            selection.get("selected_option_id", "")
+            if isinstance(selection, dict)
+            else ""
+        )
+        is_structure_proposal = "options" in data or "selection" in data
+
+        # If no raw operations, try extracting from StructureProposal options.
         if not raw_ops:
-            options = data.get("options", [])
-            selection = data.get("selection", {})
-            selected_id = selection.get("selected_option_id", "") if isinstance(selection, dict) else ""
+            if is_structure_proposal and not selected_id:
+                raise ValueError(
+                    "Structure proposal must have a selected option before revision planning"
+                )
             if selected_id:
                 for opt in options:
                     if isinstance(opt, dict) and opt.get("id") == selected_id:
@@ -182,6 +195,12 @@ class _RevisionPlanner:
                     order=op.get("order", i),
                 )
             )
+
+        if not operations:
+            raise ValueError(
+                "Selected proposal yields no executable revision operations"
+            )
+
         # Compute target hashes from actual artifacts
         _hashes: dict[str, str] = {}
         for op in operations:

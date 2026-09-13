@@ -32,20 +32,35 @@ def _make_registry() -> CriticRegistry:
 
 class TestConcurrentExecution:
     def test_concurrent_is_faster_than_sequential(self, tmp_path: Path) -> None:
-        """5 critics with total sequential time ~1.25s should complete well under 1s."""
+        """The same 5 critics must run clearly faster with 5 workers than with 1.
+
+        Comparing two measured runs of identical work - rather than one run
+        against a fixed wall-clock budget - keeps the test meaningful when the
+        host is under load: a slow box inflates both the sequential and the
+        concurrent timing together, so the ratio holds. (The fixed-budget form
+        flaked when three full test suites ran at once - S11 Finding 1.)
+        """
         reg = _make_registry()
-        rt = ReasoningRuntime(reg, tmp_path / "reports", max_workers=5)
         req = RuntimeRequest(critic_ids=["draft.a", "draft.b", "draft.c", "draft.d", "draft.e"], inputs={})
+
+        seq_rt = ReasoningRuntime(reg, tmp_path / "seq", max_workers=1)
         t0 = time.monotonic()
-        result = rt.run(req)
-        elapsed = time.monotonic() - t0
-        sequential_total = sum(0.15 + i * 0.05 for i in range(5))  # 0.15+0.20+0.25+0.30+0.35 = 1.25
-        # Concurrent with max_workers=5 must be faster than sequential execution
-        assert elapsed < sequential_total, (
-            f"Concurrent ({elapsed:.3f}s) should be faster than "
-            f"sequential ({sequential_total:.2f}s)"
+        seq = seq_rt.run(req)
+        seq_elapsed = time.monotonic() - t0
+
+        con_rt = ReasoningRuntime(reg, tmp_path / "con", max_workers=5)
+        t0 = time.monotonic()
+        con = con_rt.run(req)
+        con_elapsed = time.monotonic() - t0
+
+        # Ideal ratio is ~0.35/1.25 ≈ 0.28; 0.8 is a wide margin that still
+        # fails if concurrency is not actually happening.
+        assert con_elapsed < seq_elapsed * 0.8, (
+            f"Concurrent ({con_elapsed:.3f}s) should be clearly faster than "
+            f"sequential ({seq_elapsed:.3f}s) for the same 5 critics"
         )
-        assert len(result.outcomes) == 5
+        assert len(con.outcomes) == 5
+        assert len(seq.outcomes) == 5
 
     def test_each_critic_executed_once(self, tmp_path: Path) -> None:
         reg = _make_registry()

@@ -1,52 +1,144 @@
-from auteur.story_design_packs.models import DecisionCard, TutorDepth
-from auteur.reasoning.setup_payoff import run_setup_payoff
-from auteur.story_design_packs.tutor import decision_card_from_diagnostic, decision_card_from_guidance, tutor_recommend
+import pytest
+from pydantic import TypeAdapter
+
+from auteur.story_design_packs import AuthorAction, SourceFingerprint, source_fingerprint
+from auteur.story_design_packs.models import DecisionCard, TutorDepth, stable_card_id
+from auteur.story_design_packs.tutor import (
+    decision_card_from_diagnostic,
+    decision_card_from_guidance,
+    tutor_recommend,
+)
+from auteur.structure.diagnostics import DiagnosticLayer, DiagnosticSeverity, RepairOptions, StructureDiagnostic
 
 
-def test_decision_card_preserves_tutor_authority_and_evidence():
+def _card(**overrides):
+    values = {
+        "decision": "Choose the protagonist's boundary",
+        "orientation": "A moral choice shapes the story's pressure.",
+        "why_it_matters": "It determines what the audience expects next.",
+        "craft_concept": "Moral boundary",
+        "recommendation": "Make the boundary costly to cross.",
+        "alternatives": ["Keep it implicit"],
+        "tradeoffs": ["Less immediate clarity"],
+        "beginner_trap": "Treating the boundary as decoration.",
+        "downstream_consequences": ["Later choices inherit the cost."],
+        "evidence": ["setup:boundary"],
+        "pack_sources": [{"pack_id": "superhero", "version": "1", "content_hash": "abc"}],
+        "source_rule": "boundary.rule",
+    }
+    values.update(overrides)
+    return DecisionCard(**values)
+
+
+def test_decision_card_contract_fields_and_typed_actions():
+    card = _card()
+    assert card.authority_status == "DERIVED / NOT CANON"
+    assert card.author_actions == tuple(AuthorAction)
+    assert {depth.value for depth in TutorDepth} == {
+        "recommend", "explain", "teach", "challenge", "quiz"
+    }
+    assert set(TutorDepth) == set(TutorDepth(card.value) for card in TutorDepth)
+
+
+def test_semantic_identity_is_order_independent_and_excludes_presentation_fields():
+    first = _card(pack_sources=[{"pack_id": "a", "version": "1", "content_hash": "x"}, {"pack_id": "b", "version": "1", "content_hash": "y"}])
+    second = _card(pack_sources=[{"pack_id": "a", "version": "1", "content_hash": "x"}, {"pack_id": "b", "version": "1", "content_hash": "y"}], depth=TutorDepth.TEACH, author_actions=[AuthorAction.REJECT_FINDING])
+    assert first.card_id == second.card_id
+    assert first.card_id == stable_card_id(first.semantic_identity_payload())
+    assert "depth" not in first.semantic_identity_payload()
+    assert "author_actions" not in first.semantic_identity_payload()
+
+
+@pytest.mark.parametrize("field", ["decision", "recommendation", "evidence", "pack_sources", "source_rule"])
+def test_each_semantic_representative_changes_id(field):
+    original = _card()
+    changed = {"evidence": ["different"]}.get(field, "different")
+    if field == "pack_sources":
+        changed = [{"pack_id": "other", "version": "1", "content_hash": "x"}]
+    assert _card(**{field: changed}).card_id != original.card_id
+
+
+def test_wrong_id_and_mutation_are_rejected_and_depth_copy_preserves_identity():
+    with pytest.raises(ValueError):
+        _card(card_id="0" * 16)
+    card = _card()
+    with pytest.raises((TypeError, ValueError)):
+        card.recommendation = "changed"
+    with pytest.raises((TypeError, AttributeError)):
+        card.alternatives.append("changed")
+    with pytest.raises((TypeError, ValueError)):
+        card.pack_sources[0].pack_id = "changed"
+    copy = card.with_depth(TutorDepth.TEACH)
+    assert copy is not card
+    assert copy.card_id == card.card_id
+    assert copy.depth == TutorDepth.TEACH
+
+
+def test_source_fingerprint_is_typed_stable_and_key_order_independent():
+    text_hash = source_fingerprint("hello")
+    assert isinstance(text_hash, str)
+    assert len(text_hash) == 64
+    assert TypeAdapter(SourceFingerprint).validate_python(text_hash) == text_hash
+    assert source_fingerprint(b"hello") == text_hash
+    assert source_fingerprint({"b": 2, "a": 1}) == source_fingerprint({"a": 1, "b": 2})
+    assert source_fingerprint("hello") != source_fingerprint("goodbye")
+
+
+def test_json_round_trip_exports_typed_contract():
+    card = _card()
+    restored = DecisionCard.model_validate_json(card.model_dump_json())
+    assert restored == card
+    assert restored.card_id == card.card_id
+    dumped = card.model_dump(mode="json")
+    assert isinstance(dumped["alternatives"], list)
+    assert dumped["author_actions"] == ["choose", "keep_unresolved", "request_alternatives", "reject_finding"]
+
+
+def test_card_construction_is_side_effect_free(tmp_path):
+    card = _card()
+    card.model_dump_json()
+    assert not (tmp_path / "story_identity.yaml").exists()
+    assert not (tmp_path / "blueprint.yaml").exists()
+    assert not (tmp_path / "structure-proposal.yaml").exists()
+
+
+def test_guidance_adapter_preserves_content_and_binds_current_source():
     guidance = tutor_recommend(["superhero", "hard_determinism"], decision="moral boundary")
+    before = guidance.model_dump(mode="json")
+
     card = decision_card_from_guidance(guidance, source_subject="story_identity")
 
-    assert isinstance(card, DecisionCard)
-    assert card.card_id
-    assert card.depth == TutorDepth.RECOMMEND
     assert card.recommendation == guidance.recommendation
-    assert card.pack_sources == guidance.pack_sources
+    assert card.alternatives == tuple(guidance.alternatives)
+    assert card.tradeoffs == tuple(guidance.tradeoffs)
+    assert card.evidence == tuple(guidance.architecture_evidence)
+    assert card.pack_sources == tuple(guidance.pack_sources)
     assert card.authority_status == "DERIVED / NOT CANON"
-    assert card.author_actions == ["choose", "keep_unresolved", "request_alternatives"]
+    assert card.source_binding.source_artifact == "story_design_context"
+    assert card.source_binding.source_subject == "story_identity"
+    assert len(card.source_binding.source_fingerprint) == 64
+    assert guidance.model_dump(mode="json") == before
 
 
-def test_diagnostic_card_has_explicit_keep_and_reject_actions():
-    card = DecisionCard.from_diagnostic(
-        rule="setup_payoff.unresolved",
-        message="A setup has no linked payoff.",
-        story_context="the novel",
-        repair_options=["Link a payoff", "Keep it unresolved intentionally"],
-        evidence=["setup:promise-1", "revision:3"],
+def test_diagnostic_adapter_preserves_rule_evidence_and_is_advisory():
+    diagnostic = StructureDiagnostic(
+        severity=DiagnosticSeverity.WARNING,
+        layer=DiagnosticLayer.STRUCTURAL_FORCES,
+        rule="structure.setup_without_payoff",
+        message="A prominent setup has no visible payoff.",
+        evidence=["setup:promise-1"],
+        repair_options=RepairOptions(preserve_intent=["Link a payoff."], challenge_intent=["Remove the setup."]),
     )
+    before = diagnostic.model_dump(mode="json")
 
-    assert card.decision == "Resolve or intentionally preserve the finding"
-    assert card.alternatives == ["Link a payoff", "Keep it unresolved intentionally"]
-    assert card.evidence == ["setup:promise-1", "revision:3"]
-    assert "reject_finding" in card.author_actions
+    card = decision_card_from_diagnostic(diagnostic, story_context="the novel")
 
-
-def test_setup_payoff_finding_becomes_a_card_without_mutating_the_finding():
-    finding = run_setup_payoff(
-        series={
-            "book_plans": [{"book": 1}],
-            "narrative_setups": [{
-                "id": "promise-1",
-                "book_introduced": 1,
-                "expected_payoff_by_book": 1,
-                "status": "unresolved",
-            }],
-        }
-    )[0]
-    original = dict(finding)
-    card = decision_card_from_diagnostic(finding, story_context="the series")
-
-    assert card.source_rule == "setup_payoff.unresolved"
-    assert "link an existing payoff" in card.alternatives
-    assert "setup_id=promise-1" in card.evidence
-    assert finding == original
+    assert card.source_rule == diagnostic.rule
+    assert card.recommendation == "Link a payoff."
+    assert card.alternatives == ("Link a payoff.", "Remove the setup.")
+    assert card.evidence == ("setup:promise-1",)
+    assert AuthorAction.REJECT_FINDING in card.author_actions
+    assert card.authority_status == "DERIVED / NOT CANON"
+    assert card.source_binding.source_artifact == "structure_diagnostic"
+    assert card.source_binding.source_subject == "the novel"
+    assert diagnostic.model_dump(mode="json") == before

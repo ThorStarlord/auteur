@@ -1,11 +1,33 @@
 # Auteur Architecture Roadmap
 
 This document connects the project’s foundational architecture documents and
-records the next architectural domain. It is a navigation and integrity review,
-not a generic workflow design.
+records architecture-specific extension history and integrity rules. It is a
+navigation and integrity review, not the current generic product roadmap.
+
+For current product/repository evolution candidates, use
+[Product Evolution Roadmap](product-evolution-roadmap.md). For currently selected
+work and exact repository state, use [Repository Status](../STATUS.md).
 
 The stable principles governing all future extensions are recorded in
 [Architecture Constitution](architecture-constitution.md).
+
+## Current Role
+
+The foundational architecture sequence described below is substantially
+established. The historical Reasoning Architecture → Critic Integration →
+Registry → Runtime sequence records how the current platform reached that state;
+it should not be interpreted as the present implementation queue.
+
+The current architectural conclusion remains:
+
+> Auteur does not need another foundational architecture by default. New domain
+> concepts should be admitted only when real author/product friction cannot be
+> solved cleanly through existing architecture, workflow, presentation, or
+> reusable craft knowledge.
+
+Selection among product directions belongs in
+[product-evolution-roadmap.md](product-evolution-roadmap.md). Exact active work
+belongs in `STATUS.md` and bounded issues/plans.
 
 ## Meta-architecture: rules and artifacts
 
@@ -166,8 +188,9 @@ recommendation:
 candidate_transformations:
 ```
 
-This should begin as a deterministic contract around existing critic and
-analyzer findings, not as a generic AI workflow engine.
+This began as a deterministic contract around existing critic and analyzer
+findings rather than as a generic AI workflow engine. That architectural choice
+remains valid even though the implementation sequence below is now historical.
 
 ## Intentionally deferred capabilities
 
@@ -179,9 +202,15 @@ analyzer findings, not as a generic AI workflow engine.
 - broad normalization of every cross-domain transformation;
 - collaboration, voting, merge queues, and generic workflow engines.
 
-These are extension points, not violations of the V1 foundations.
+These are extension points, not violations of the V1 foundations. Their current
+product priority, if any, belongs in the Product Evolution Roadmap rather than
+being inferred from this list.
 
-## Recommended sequence
+## Historical implementation sequence — largely completed
+
+The sequence below records the architecture program that established the current
+Reasoning/critic/runtime foundation. It is retained for historical orientation,
+not as the present work queue.
 
 1. Define the Reasoning Architecture vocabulary, evidence contract, and
    evaluation/acyclicity rules. See `docs/reasoning-architecture.md`.
@@ -198,19 +227,34 @@ These are extension points, not violations of the V1 foundations.
 9. Connect reasoning recommendations to existing proposal generation.
 10. Revisit grouped decisions only when explicit dependencies recur in real use.
 
+Future work should not restart these steps merely because they remain listed
+here. Inspect current implementation, `STATUS.md`, and contemporary product
+evidence first.
+
 ## Review conclusion
 
 Auteur has four stable foundational architectures: Narrative, Provenance,
 Transformation, and Reasoning. The Critic Integration Contract, Critic Registry,
 and Reasoning Runtime operationalize those foundations. The remaining work is
-vertical author workflow and capability refinement, not another foundational
-architecture.
+primarily vertical author workflow and capability refinement, not another
+foundational architecture.
 
-## Product coverage and pilot
+## Product coverage and evidence-driven selection
 
-The architecture suite is mostly complete for V1, but product completeness is
-uneven across artifact scopes. The detailed coverage matrix and bounded pilot
-protocol are in `docs/capability-coverage.md`. Use that inventory and a real
-five-to-ten-chapter project to select the next implementation from author
-friction, with structural revision propagation as the leading candidate only
-if the pilot confirms it.
+Architecture completeness and product completeness are different questions.
+When a real author workflow exposes a gap, classify it before expanding the
+architecture:
+
+```text
+run real workflow
+→ observe friction
+→ classify UX / workflow / craft knowledge / domain / infrastructure
+→ choose the smallest correct intervention
+→ implement
+→ verify
+```
+
+Use [product-evolution-roadmap.md](product-evolution-roadmap.md) to preserve and
+compare candidate directions, and [../STATUS.md](../STATUS.md) for the currently
+selected implementation frontier. Historical coverage matrices, pilots, and
+product-validation records remain evidence rather than a perpetual work queue.
