@@ -386,24 +386,19 @@ class ReviewService:
         if not confirm:
             raise ValueError("Acceptance requires --confirm")
 
-        if self.acceptance_registry is None:
-            raise ValueError("Review acceptance integration is unavailable")
-
-        session = self._load_active(session_id)
+        try:
+            session = self._load_active(session_id)
+        except ValueError:
+            if self.acceptance_registry is None:
+                raise ValueError("Review acceptance integration is unavailable")
+            raise
         if not session.target:
             raise ValueError("Session has no target decision")
 
-        # The registered owner is the authority boundary. It performs the
-        # canonical acceptance and its own domain validation.
-        owner_result = self.acceptance_registry.accept(
-            session.target.target_artifact_id,
-            candidate_id,
-            confirm=confirm,
-        )
-        acceptance_id = owner_result.get("acceptance_id", "") if isinstance(owner_result, dict) else ""
-
         # Revalidate preparation. Preparation is noncanonical and safe to persist.
-        if session.preparation and not session.preparation.prepared:
+        if self.acceptance_registry is not None and session.preparation is None:
+            pass
+        elif not session.preparation or not session.preparation.prepared:
             session_temp = self.prepare_acceptance(session_id, candidate_id)
             if not session_temp.preparation or not session_temp.preparation.prepared:
                 raise ValueError(
@@ -427,15 +422,48 @@ class ReviewService:
             if decision.freshness == EvidenceFreshness.STALE:
                 raise ValueError("Cannot accept: decision evidence is stale. Resume the session first.")
 
-        result = AcceptanceResult(
-            accepted=True,
-            acceptance_id=acceptance_id,
-            candidate_id=candidate_id,
-        )
+        if self.acceptance_registry is not None:
+            # The registered owner is the authority boundary. It performs the
+            # canonical acceptance and its own domain validation.
+            owner_result = self.acceptance_registry.accept(
+                session.target.target_artifact_id,
+                candidate_id,
+                confirm=confirm,
+            )
+            acceptance_id = owner_result.get("acceptance_id", "") if isinstance(owner_result, dict) else ""
+            result = AcceptanceResult(
+                accepted=True,
+                acceptance_id=acceptance_id,
+                candidate_id=candidate_id,
+            )
+            next_state = ReviewSessionState.ACCEPTED
+            event_type = ReviewEventType.ACCEPTANCE_COMPLETED
+            event_payload = {
+                "candidate_id": candidate_id,
+                "acceptance_id": acceptance_id,
+            }
+        else:
+            error = (
+                "Review acceptance is not wired to an owning authority workflow for this candidate. "
+                "Use the owning subsystem's explicit acceptance command; this review session remains unaccepted."
+            )
+            acceptance_id = ""
+            result = AcceptanceResult(
+                accepted=False,
+                candidate_id=candidate_id,
+                error=error,
+            )
+            next_state = ReviewSessionState.AWAITING_ACCEPTANCE
+            event_type = ReviewEventType.ACCEPTANCE_REFUSED
+            event_payload = {
+                "candidate_id": candidate_id,
+                "reason": "owning_acceptance_route_unavailable",
+            }
+
         session = ReviewSession(
             session_id=session.session_id,
             project=session.project,
-            state=ReviewSessionState.ACCEPTED,
+            state=next_state,
             target=session.target,
             evidence_snapshot=session.evidence_snapshot,
             choices=session.choices,
@@ -446,12 +474,9 @@ class ReviewService:
             last_event_hash=session.last_event_hash,
             created_at=session.created_at,
             updated_at=datetime.now(timezone.utc).isoformat(),
-            error_info="",
+            error_info=result.error,
         )
-        self._record_event(session, ReviewEventType.ACCEPTANCE_COMPLETED, {
-            "candidate_id": candidate_id,
-            "acceptance_id": acceptance_id,
-        })
+        self._record_event(session, event_type, event_payload)
         self.store.save_session(session)
         self.store.save_latest_pointer(session.session_id)
         return session
