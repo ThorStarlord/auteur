@@ -62,7 +62,10 @@ WHEEL_TIMEOUT_SECONDS = 1800
 # Candidate-invalidating paths per release-qualification.md candidate
 # invalidation rule (source code, tests, version metadata, package
 # resources, build configuration).
-CANDIDATE_PREFIXES = ("src/", "tests/")
+# Qualification and packaging scripts determine which bytes are exercised and
+# therefore belong to the candidate identity even though they are not shipped
+# in the runtime package.
+CANDIDATE_PREFIXES = ("src/", "tests/", "scripts/")
 CANDIDATE_FILES = ("pyproject.toml",)
 
 TERMINAL_OUTCOMES = ("passed", "skipped", "xfailed", "xpassed", "failed", "errors")

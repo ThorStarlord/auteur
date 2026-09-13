@@ -136,6 +136,22 @@ class TestCandidateProvenance:
         assert invalidating == ["pyproject.toml", "src/auteur/cli.py", "tests/test_x.py"]
         assert permitted == []
 
+    def test_release_tool_changes_are_candidate_invalidating(self, monkeypatch):
+        monkeypatch.setattr(
+            re,
+            "_git",
+            lambda *args: SimpleNamespace(
+                returncode=0,
+                stdout="30529b99ea5198ec91eeaf76bb4073d9d89c77f8\n"
+                if args[0] == "rev-parse"
+                else " M scripts/release_evidence.py\n M scripts/verify_wheel.py\n",
+                stderr="",
+            ),
+        )
+        _, invalidating, permitted = re.candidate_provenance()
+        assert invalidating == ["scripts/release_evidence.py", "scripts/verify_wheel.py"]
+        assert permitted == []
+
 
 class TestBaseline:
     def test_no_reference_first_run(self):
