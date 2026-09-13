@@ -15,7 +15,6 @@ from auteur.decision.models import (
     DecisionConflict,
     DecisionEvidence,
     DecisionReadiness,
-    DecisionTrigger,
     EvidenceClassification,
     EvidenceFreshness,
     EvidenceSource,
@@ -813,7 +812,7 @@ class DecisionWorkspaceService:
             claim=finding.reason,
             evidence_type=EvidenceType.IMPACT_FINDING,
             classification=EvidenceClassification.FACT,
-            freshness=self._map_impact_severity_to_freshness(finding.severity),
+            freshness=EvidenceFreshness.CURRENT,
             supporting_reference=finding.affected_artifact.artifact_id,
         )
         decision = self._update_decision_evidence(decision, [evidence])
@@ -888,14 +887,6 @@ class DecisionWorkspaceService:
         """Enrich decision with full details from subsystems."""
         # Load full evidence details
         evidence: list[DecisionEvidence] = list(decision.evidence)
-
-        # Add evidence from impact findings if this is impact-triggered
-        if decision.trigger_type == DecisionTrigger.IMPACT_FINDING:
-            for finding_id in decision.trigger_ids:
-                try:
-                    pass
-                except Exception as e:
-                    logger.warning(f"Could not load impact finding {finding_id}: {e}")
 
         # Add reasoning evidence for each candidate
         for candidate in decision.candidates:
@@ -1023,13 +1014,6 @@ class DecisionWorkspaceService:
             if any(evidence.get("source_artifact_id") == finding.finding_id for evidence in raw.get("evidence", [])):
                 return True
         return False
-
-    def _map_impact_severity_to_freshness(self, severity: Any) -> EvidenceFreshness:
-        """Map impact severity to evidence freshness."""
-        severity_str = severity.value if hasattr(severity, "value") else str(severity)
-        if severity_str in ("blocked", "reconcile"):
-            return EvidenceFreshness.CURRENT
-        return EvidenceFreshness.CURRENT
 
     def _map_candidate_freshness(self, freshness_str: str) -> EvidenceFreshness:
         """Map candidate freshness string to enum."""

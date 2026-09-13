@@ -50,6 +50,21 @@ class AcceptanceJournal:
             latest[record["operation_id"]] = record
         return [record for record in latest.values() if record["status"] in {"started", "failed"}]
 
+    def recovery_report(self) -> dict[str, Any]:
+        """Return explicit, non-mutating recovery state for interrupted work.
+
+        Recovery is intentionally report-only. Replaying an acceptance without
+        an owner-specific idempotency contract could duplicate a canonical
+        mutation, so callers must inspect the operation and resolve it through
+        the owning artifact workflow.
+        """
+        pending = self.recoverable()
+        return {
+            "status": "recovery_required" if pending else "clean",
+            "operations": pending,
+            "replay_allowed": False,
+        }
+
 
 class AcceptanceRegistry:
     """Resolve exactly one canonical acceptance owner for a target."""

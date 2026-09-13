@@ -48,6 +48,17 @@ def basic_project(tmp_path: Path) -> Path:
 
 
 class TestWorkflowEngine:
+    def test_probe_failure_is_visible_and_blocks_workflow(self, basic_project: Path) -> None:
+        class BrokenLifecycle:
+            def summary(self):
+                raise RuntimeError("lifecycle unavailable")
+
+        state = WorkflowEngine(basic_project, lifecycle_service=BrokenLifecycle()).analyze()
+
+        assert state.errors == ["lifecycle probe failed: lifecycle unavailable"]
+        assert any("lifecycle probe failed" in blocker.message for blocker in state.blockers)
+        assert state.to_dict()["errors"] == state.errors
+
     def test_analyze_empty(self, empty_project: Path) -> None:
         engine = WorkflowEngine(empty_project)
         state = engine.analyze()

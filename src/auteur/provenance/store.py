@@ -197,6 +197,16 @@ class ArtifactStore:
                     for item in raw["entry_knowledge"]
                     if isinstance(item, dict) and item.get("source") == "chapter_position" and item.get("what") not in known
                 ]
+            # Older realization artifacts contain only scene intent fields and
+            # have no Layer 3 knowledge contract to validate.
+            has_structured_knowledge = isinstance(raw, dict) and (
+                isinstance(raw.get("entry_state"), dict)
+                or isinstance(raw.get("exit_state"), dict)
+                or isinstance(raw.get("entry_knowledge"), list)
+                or isinstance(raw.get("exit_knowledge"), list)
+            )
+            if isinstance(raw, dict) and not has_structured_knowledge:
+                return []
             from auteur.narrative_realization.loader.scene_loader import SceneLoader
             from auteur.narrative_realization.validator.knowledge_validator import KnowledgeValidator
             scene = SceneLoader().load_scene(str(path))
@@ -211,10 +221,14 @@ class ArtifactStore:
                     if fact.source == "chapter_position" and fact.what not in known:
                         reasons.append(f"knowledge:impossible_knowledge:{fact.what}")
             return reasons
-        except Exception:
-            # Legacy/minimal scene YAML remains compatible; schema errors are
-            # handled by the existing malformed-source check.
-            return []
+        except (OSError, yaml.YAMLError):
+            # Parsing failures are represented by the existing malformed-source
+            # check; do not allow them to masquerade as valid knowledge state.
+            return ["knowledge:validation_unavailable"]
+        except (TypeError, ValueError, AttributeError, KeyError):
+            # A structurally unexpected scene is unsafe to promote until the
+            # owning Layer 3 validator can inspect it deterministically.
+            return ["knowledge:validation_unavailable"]
 
     def content_hash(self, path: Path, fields: list[str] | None = None) -> str:
         return canonical_content_hash(Path(path), fields)

@@ -120,6 +120,7 @@ class WorkflowState:
     status_summary: str = ""
     lifecycle: dict[str, Any] = field(default_factory=dict)
     commitment: dict[str, Any] = field(default_factory=dict)
+    errors: list[str] = field(default_factory=list)
     def stage_by_name(self, name: str) -> StageProgress | None:
         for s in self.stages:
             if s.stage.value == name:
@@ -172,4 +173,5 @@ class WorkflowState:
             ],
             "lifecycle": self.lifecycle,
             "commitment": self.commitment,
+            "errors": self.errors,
         }

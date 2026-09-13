@@ -9,6 +9,8 @@ from typing import Any
 
 from auteur.status import gather_status
 from auteur.workflow.models import (
+    BlockerCategory,
+    BlockerSeverity,
     EXECUTABLE_AUTHORITIES,
     WorkflowAction,
     WorkflowBlocker,
@@ -100,6 +102,7 @@ class WorkflowEngine:
     def analyze(self) -> WorkflowState:
         """Analyze project state and return a complete WorkflowState."""
         stages = detect_stages(self.root)
+        errors: list[str] = []
 
         # Probe lifecycle data if a lifecycle service is configured
         lifecycle_data: dict[str, Any] = {}
@@ -107,8 +110,9 @@ class WorkflowEngine:
             try:
                 lc = self._lifecycle_service.summary()
                 lifecycle_data = lc.to_dict() if hasattr(lc, "to_dict") else {}
-            except Exception:
-                lifecycle_data = {"total_decisions": 0}
+            except Exception as exc:
+                errors.append(f"lifecycle probe failed: {exc}")
+                lifecycle_data = {"probe_status": "unavailable"}
 
         # Probe commitment data if a commitment service is configured
         commitment_data: dict[str, Any] = {}
@@ -134,10 +138,12 @@ class WorkflowEngine:
                             commitment_data["failed_steps"] = sum(
                                 1 for s in steps if getattr(s, "state", "").value == "failed"
                             )
-                        except Exception:
-                            pass
-            except Exception:
-                commitment_data = {"has_commitments": False}
+                        except Exception as exc:
+                            errors.append(f"commitment plan probe failed: {exc}")
+                            commitment_data["plan_probe_status"] = "unavailable"
+            except Exception as exc:
+                errors.append(f"commitment probe failed: {exc}")
+                commitment_data = {"probe_status": "unavailable"}
 
         cs = current_stage(stages)
         blockers = collect_blockers(stages)
@@ -147,8 +153,17 @@ class WorkflowEngine:
         if self._decision_service is not None:
             try:
                 decisions = self._decision_service.list_decisions()
-            except Exception:
+            except Exception as exc:
+                errors.append(f"decision probe failed: {exc}")
                 decisions = None
+
+        for error in errors:
+            blockers.append(WorkflowBlocker(
+                category=BlockerCategory.UNSUPPORTED_STATE,
+                severity=BlockerSeverity.BLOCKING,
+                message=error,
+                details={"source": "workflow_probe"},
+            ))
 
         actions = recommend_actions(stages, decisions=decisions, lifecycle=lifecycle_data,
                                     commitment=commitment_data, project_root=self.root)
@@ -170,6 +185,7 @@ class WorkflowEngine:
             status_summary=summary,
             lifecycle=lifecycle_data,
             commitment=commitment_data,
+            errors=errors,
         )
 
 

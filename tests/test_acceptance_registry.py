@@ -63,3 +63,19 @@ def test_registry_journals_failed_acceptance_for_recovery(tmp_path: Path) -> Non
         registry.accept("scene_01", "candidate_1", confirm=True)
 
     assert registry.journal.recoverable()[0]["status"] == "failed"
+
+
+def test_recovery_report_is_explicit_and_does_not_replay_mutation(tmp_path: Path) -> None:
+    journal = AcceptanceRegistry(tmp_path).journal
+    journal.record(
+        operation_id="op-1",
+        target_artifact_id="scene_01",
+        candidate_id="candidate-1",
+        status="started",
+    )
+
+    report = journal.recovery_report()
+
+    assert report["status"] == "recovery_required"
+    assert report["replay_allowed"] is False
+    assert report["operations"][0]["operation_id"] == "op-1"
