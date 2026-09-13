@@ -153,13 +153,39 @@ central_engine:
     assert "pack_content_hash" in prof_data
     print("  [PASS] Pack version and hash persist")
 
-    # Qualification Check 9: Genre validation
+    # Qualification Check 9: Whole-story identity -> blueprint -> diagnosis
+    # This deliberately runs through the installed console script from an
+    # unrelated directory, exercising the supported structure-engine path.
+    structure_work_dir = Path(work_dir) / "structure-qualification"
+    structure_work_dir.mkdir()
+    run_cmd([
+        auteur_bin, "identity", "init", "--project", str(structure_work_dir),
+        "--title", "Wheel Qualification Story", "--genre", "romance",
+    ], cwd=str(structure_work_dir))
+    identity_path = structure_work_dir / "story_identity.yaml"
+    blueprint_path = structure_work_dir / "blueprint.yaml"
+    assert identity_path.exists()
+    run_cmd([
+        auteur_bin, "identity", "validate", str(identity_path),
+        "--project", str(structure_work_dir),
+    ], cwd=str(structure_work_dir))
+    run_cmd([
+        auteur_bin, "identity", "compile", str(identity_path),
+        "--output", str(blueprint_path),
+    ], cwd=str(structure_work_dir))
+    assert blueprint_path.exists()
+    run_cmd([
+        auteur_bin, "structure", "diagnose", str(blueprint_path),
+    ], cwd=str(structure_work_dir))
+    print("  [PASS] Whole-story identity to blueprint diagnosis")
+
+    # Qualification Check 10: Genre validation
     res_val = run_cmd([auteur_bin, "genre", "validate", "--project", work_dir, "--json"], cwd=work_dir)
     diags = json.loads(res_val.stdout)
     assert isinstance(diags, list)
     print("  [PASS] Genre validation")
 
-    # Qualification Check 10: Genre diagnosis
+    # Qualification Check 11: Genre diagnosis
     res_diag = run_cmd([auteur_bin, "genre", "diagnose", "--project", work_dir, "--json"], cwd=work_dir)
     diags2 = json.loads(res_diag.stdout)
     assert isinstance(diags2, list)

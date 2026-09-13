@@ -111,13 +111,15 @@ retained_legacy_deviations:
       disposition: RETAIN_PENDING_RECONCILIATION
     - path: scripts/workflow-execution-engine.py
       disposition: RETAIN_PENDING_RECONCILIATION
+    - path: scripts/probe-repo.py
+      disposition: AUTEUR_RELEASE_QUALIFICATION_TOOL
+      note: "Added by Auteur for deterministic repository qualification metrics; it is intentionally tracked as current release machinery, not treated as an upstream Sensemaking component."
 
 # Current-era Sensemaking components NOT part of Auteur's curated subset. If
 # one of these appears, the drift check fails: adding current-era machinery is
 # an intentional contract change and must be recorded here first.
 excluded:
   - skills/workflow-planner
-  - scripts/probe-repo.py
   - scripts/repo_probes.py
   - scripts/validate-probe-report.py
   - scripts/brief_skeleton.py

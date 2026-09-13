@@ -1,5 +1,40 @@
 # Changelog
 
+## v1.0.0 (unreleased) — Stable Narrative Engineering Core
+
+### Release boundary
+
+- The stable release surface is the explicitly documented Python export set,
+  the stable CLI command groups, versioned project/artifact schemas, and the
+  whole-story identity → blueprint → diagnosis workflow.
+- Genre recommendation/acceptance and workflow status are qualified as
+  supported integrations. Unlisted CLI groups, legacy workflow aliases, and
+  experimental design-pack surfaces remain outside the v1.0 guarantee.
+
+### Contract and reliability hardening
+
+- Workflow probe failures are now explicit blocking state rather than silently
+  falling back to empty data.
+- Acceptance recovery is report-only until an author explicitly performs the
+  owning recovery operation; interrupted operations are never replayed
+  automatically.
+- Public Python and CLI contracts are recorded in
+  `docs/engineering/public-api-contract.md` and
+  `docs/engineering/cli-contract.md`.
+- Runtime dependency ranges are bounded at their supported major versions.
+- Installed-wheel qualification exercises fresh-environment identity,
+  structure, genre, and diagnosis journeys.
+
+### Compatibility and limitations
+
+- No database migration is required by this release; persisted artifacts use
+  the existing versioned loaders and must be validated before mutation.
+- The release does not promise automatic migration of unsupported legacy
+  artifacts, arbitrary third-party plugins, or external LLM availability.
+- Publication remains separately authorized from source and artifact
+  qualification; the final release record must be completed from the exact
+  frozen candidate SHA.
+
 
 
 ## v0.12.0 (2026-07-22) — Narrative Decision Portfolio
