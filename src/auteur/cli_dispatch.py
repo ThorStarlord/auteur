@@ -436,6 +436,14 @@ def _write_scene_markdown(scenes: list[Path], project_root: Path, path: Path) ->
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 def dispatch(args: argparse.Namespace) -> int:
+    if args.command == "campaign":
+        from auteur.campaign.cli import dispatch_campaign
+
+        try:
+            return dispatch_campaign(args)
+        except Exception as exc:
+            _err(str(exc))
+            return 1
     if args.command == "design":
         from auteur.story_design_packs.cli import dispatch_story_design_commands
         return dispatch_story_design_commands(args)

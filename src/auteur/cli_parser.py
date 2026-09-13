@@ -43,6 +43,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--json", action="store_true", help="Output raw JSON instead of formatted text.")
     p.add_argument("--verbose", action="store_true", help="Show detailed artifact IDs.")
 
+    from auteur.campaign.cli import register_campaign_subcommands
+    register_campaign_subcommands(sub)
+
     p = sub.add_parser("publish", help="Render accepted Book to HTML, EPUB, or other formats.")
     p.add_argument("--project", type=Path, default=Path("."), help="Project root directory (default: current directory).")
     p.add_argument("--format", default="html", help="Output format(s): html, epub, or comma-separated (default: html).")
