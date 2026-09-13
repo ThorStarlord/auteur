@@ -54,8 +54,8 @@ from auteur.structure.freshness import propagate_acceptance
 from auteur.project import Project
 from auteur.structure.proposals import StructureProposal
 
-def _err(m):
-    print(format_error(m), file=sys.stderr)
+def _err(m, suggestion: str | None = None):
+    print(format_error(m, suggestion=suggestion), file=sys.stderr)
 
 
 def _handle_reasoning_book(project: Path, json_output: bool = False) -> int:
@@ -512,20 +512,20 @@ def dispatch(args: argparse.Namespace) -> int:
     if args.command == "init":
         path = args.path
         if path.exists() and not args.force:
-            _err(f"project path already exists: {path}")
+            _err(f"project path already exists: {path}", "Use --force to overwrite or choose a different path")
             return 1
         if args.force and path.exists():
             if not (path / "blueprint.yaml").is_file() or not (path / "bible.json").is_file():
-                _err("--force requires an existing auteur project directory (blueprint.yaml + bible.json).")
+                _err("--force requires an existing auteur project directory (blueprint.yaml + bible.json).", "Initialize with 'auteur init <path> --blueprint <file>' first")
                 return 1
             shutil.rmtree(path)
         try:
             bp = StoryBlueprint.from_yaml(args.blueprint_path)
         except FileNotFoundError:
-            _err(f"blueprint not found: {args.blueprint_path}")
+            _err(f"blueprint not found: {args.blueprint_path}", "Check the path or run 'auteur identity recommend' to create one")
             return 1
         except Exception as exc:
-            _err(f"invalid blueprint \u2014 {exc}")
+            _err(f"invalid blueprint — {exc}", "Run 'auteur structure diagnose' to validate the blueprint")
             return 1
         result = handle_init(bp, path)
         if not result.is_success:
@@ -576,10 +576,10 @@ def dispatch(args: argparse.Namespace) -> int:
     if args.command == "audit":
         bp_path = args.project / "blueprint.yaml"
         if not bp_path.exists():
-            _err(f"No blueprint.yaml found in {args.project}")
+            _err(f"No blueprint.yaml found in {args.project}", "Run 'auteur identity recommend' to create an identity, then 'auteur identity compile' to generate blueprint")
             return 1
         if not (args.project / "bible.json").exists():
-            _err(f"No bible.json found in {args.project}")
+            _err(f"No bible.json found in {args.project}", "Run 'auteur identity compile' to generate the bible from your blueprint")
             return 1
         if args.accept is not None:
             if args.option is None:

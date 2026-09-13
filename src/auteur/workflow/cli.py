@@ -71,7 +71,10 @@ def handle_workflow_status(project_path: Path) -> HandlerResult:
     try:
         state = engine.analyze()
     except Exception as exc:
-        return HandlerResult.failure(f"Failed to analyze workflow: {exc}")
+        return HandlerResult.failure(
+            f"Failed to analyze workflow: {exc}",
+            suggestion="Run 'auteur init <path>' to create a new project or check that the path is correct."
+        )
 
     return HandlerResult.success(data=WorkflowStatusData(state=state))
 
@@ -93,7 +96,10 @@ def handle_workflow_next(
     try:
         state = engine.analyze()
     except Exception as exc:
-        return HandlerResult.failure(f"Failed to analyze workflow: {exc}")
+        return HandlerResult.failure(
+            f"Failed to analyze workflow: {exc}",
+            suggestion="Run 'auteur init <path>' to create a new project or check that the path is correct."
+        )
     if not state.actions:
         return HandlerResult.success(
             data=WorkflowStatusData(state=state),
@@ -115,6 +121,7 @@ def handle_workflow_next(
             return HandlerResult.failure(
                 result.get("error", f"Execution failed (exit {result.get('exit_code')})"),
                 exit_code=result.get("exit_code", 4),
+                suggestion="Check the command syntax or run 'auteur workflow explain' for more context."
             )
         return HandlerResult.success(data={
             **result,
@@ -146,7 +153,10 @@ def handle_workflow_explain(
     try:
         state = engine.analyze()
     except Exception as exc:
-        return HandlerResult.failure(f"Failed to analyze workflow: {exc}")
+        return HandlerResult.failure(
+            f"Failed to analyze workflow: {exc}",
+            suggestion="Run 'auteur init <path>' to create a new project or check that the path is correct."
+        )
 
     data = {
         "summary": state.status_summary,
@@ -163,7 +173,11 @@ def handle_workflow_explain(
             return HandlerResult.success(data=data)
         match = state.stage_by_name(stage_name)
         if not match:
-            return HandlerResult.failure(f"Unknown stage: {stage_name}")
+            available = ", ".join(s.stage.value for s in state.stages)
+            return HandlerResult.failure(
+                f"Unknown stage: {stage_name}",
+                suggestion=f"Available stages: {available}. Use 'auteur workflow status' to see current progress."
+            )
         data.update({
             "stage": match.stage.value,
             "is_complete": match.is_complete,

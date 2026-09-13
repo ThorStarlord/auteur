@@ -1641,15 +1641,24 @@ def handle_state_check(
     bible_path = project_path / "bible.json"
 
     if not blueprint_path.exists():
-        return HandlerResult.failure(f"blueprint.yaml not found at {blueprint_path}")
+        return HandlerResult.failure(
+            f"blueprint.yaml not found at {blueprint_path.relative_to(project_path)}",
+            suggestion="Run 'auteur identity recommend' to create an identity, then 'auteur identity compile' to generate blueprint"
+        )
     if not bible_path.exists():
-        return HandlerResult.failure(f"bible.json not found at {bible_path}")
+        return HandlerResult.failure(
+            f"bible.json not found at {bible_path.relative_to(project_path)}",
+            suggestion="Run 'auteur identity compile' to generate the bible from your blueprint"
+        )
 
     try:
         blueprint = StoryBlueprint.from_yaml(blueprint_path)
         bible = StoryBible(bible_path)
     except Exception as exc:
-        return HandlerResult.failure(f"Error loading project: {exc}")
+        return HandlerResult.failure(
+            f"Error loading project: {exc}",
+            suggestion="Run 'auteur structure diagnose' to validate your blueprint and bible files"
+        )
 
     from auteur.structure.proposal_resolution import load_resolved_rules
     resolved_rules = load_resolved_rules(project_path)
@@ -1708,7 +1717,10 @@ def handle_state_update(
     if not file_path.exists():
         resolved_path = project_path / file_path
         if not resolved_path.exists():
-            return HandlerResult.failure(f"Target file not found: {file_path}")
+            return HandlerResult.failure(
+                f"Target file not found: {file_path.relative_to(project_path) if file_path.is_relative_to(project_path) else file_path}",
+                suggestion="Check the file path or run 'auteur structure diagnose' to see available files"
+            )
         file_path = resolved_path
 
     from auteur.structure.state import parse_value
@@ -1786,13 +1798,19 @@ def handle_state_prepare(
     bible_path = project_path / "bible.json"
 
     if not blueprint_path.exists() or not bible_path.exists():
-        return HandlerResult.failure("Missing blueprint.yaml or bible.json in project.")
+        return HandlerResult.failure(
+            "Missing blueprint.yaml or bible.json in project.",
+            suggestion="Run 'auteur identity recommend' to create identity, then 'auteur identity compile' for blueprint and bible"
+        )
 
     try:
         blueprint = StoryBlueprint.from_yaml(blueprint_path)
         bible = StoryBible(bible_path)
     except Exception as exc:
-        return HandlerResult.failure(f"Error loading project: {exc}")
+        return HandlerResult.failure(
+            f"Error loading project: {exc}",
+            suggestion="Run 'auteur structure diagnose' to validate your blueprint and bible files"
+        )
 
     chapter_str = f"Chapter {chapter_idx}" if chapter_idx else "Chapter [Index]"
     pov_char = "[Name]"
@@ -1986,12 +2004,18 @@ def handle_state_canon(project_path: Path, format: str) -> HandlerResult:
     """
     bible_path = project_path / "bible.json"
     if not bible_path.exists():
-        return HandlerResult.failure(f"bible.json not found at {bible_path}")
+        return HandlerResult.failure(
+            f"bible.json not found at {bible_path.relative_to(project_path)}",
+            suggestion="Run 'auteur identity compile' to generate the bible from your blueprint"
+        )
 
     try:
         bible = StoryBible(bible_path)
     except Exception as exc:
-        return HandlerResult.failure(f"Error loading bible: {exc}")
+        return HandlerResult.failure(
+            f"Error loading bible: {exc}",
+            suggestion="Run 'auteur structure diagnose' to validate your bible file"
+        )
 
     if format == "json":
         output = json.dumps(bible.data, indent=2, ensure_ascii=False)
@@ -2071,19 +2095,28 @@ def handle_state_confirm(
     try:
         recovery_payload = yaml.safe_load(recovery_run_path.read_text(encoding="utf-8"))
     except Exception as exc:
-        return HandlerResult.failure(f"Error loading recovery run file: {exc}")
+        return HandlerResult.failure(
+            f"Error loading recovery run file: {exc}",
+            suggestion="The file may be corrupted. Try regenerating with 'auteur state recover'"
+        )
 
     blueprint_path = project_path / "blueprint.yaml"
     bible_path = project_path / "bible.json"
 
     if not blueprint_path.exists() or not bible_path.exists():
-        return HandlerResult.failure("Missing blueprint.yaml or bible.json in project.")
+        return HandlerResult.failure(
+            "Missing blueprint.yaml or bible.json in project.",
+            suggestion="Run 'auteur identity recommend' to create identity, then 'auteur identity compile' for blueprint and bible"
+        )
 
     try:
         blueprint = StoryBlueprint.from_yaml(blueprint_path)
         bible = StoryBible(bible_path)
     except Exception as exc:
-        return HandlerResult.failure(f"Error loading project: {exc}")
+        return HandlerResult.failure(
+            f"Error loading project: {exc}",
+            suggestion="Run 'auteur structure diagnose' to validate your blueprint and bible files"
+        )
 
     locked = recovery_payload.get("candidate_locked_layers") or recovery_payload.get("candidate_locked_state")
     if not locked:

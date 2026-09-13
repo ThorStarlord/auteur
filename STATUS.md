@@ -9,6 +9,10 @@ The reconciled baseline includes the completed decision-loop product stack plus 
 
 For product intent, read [MISSION.md](MISSION.md) and [docs/PRD.md](docs/PRD.md). For the canonical domain model, read [docs/narrative-architecture.md](docs/narrative-architecture.md). For forward-looking candidates, read [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md). Release evidence lives under [docs/releases/](docs/releases/README.md).
 
+## Current Selected Work
+
+**v0.38.0 UX Polish & Consistency** — Authorized and in progress. See `docs/plans/ux-polish-plan-v0.38.md` for detailed tasks and validation criteria. Focus: reducing friction across CLI, Dashboard, and Guided Author Workspace without adding new capabilities.
+
 ## Current Product Direction
 
 Auteur is a local-first literary compiler and guided narrative-decision system for long-form fiction. The current product loop is now executable end to end:
