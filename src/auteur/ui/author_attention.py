@@ -19,6 +19,34 @@ def _relative(root: Path, path: Path) -> str:
         return path.as_posix()
 
 
+def _format_timestamp(age_seconds: float) -> str:
+    """Format age in human-readable form (e.g., '2h ago', '3d ago')."""
+    if age_seconds < 60:
+        return "just now"
+    elif age_seconds < 3600:
+        mins = int(age_seconds / 60)
+        return f"{mins}m ago"
+    elif age_seconds < 86400:
+        hours = int(age_seconds / 3600)
+        return f"{hours}h ago"
+    else:
+        days = int(age_seconds / 86400)
+        return f"{days}d ago"
+
+
+def _get_file_age(path: Path) -> str | None:
+    """Get human-readable age of a file if it exists."""
+    try:
+        if path.exists():
+            import time
+            mtime = path.stat().st_mtime
+            age = time.time() - mtime
+            return _format_timestamp(age)
+    except Exception:
+        pass
+    return None
+
+
 def _session_is_current(root: Path, session: TutorSession) -> bool:
     if session.status == "stale":
         return False
@@ -43,8 +71,9 @@ def _item(
     reason: str,
     authority: str,
     next_command: str | None,
+    source_age: str | None = None,
 ) -> dict[str, Any]:
-    return {
+    result = {
         "priority": priority,
         "kind": kind,
         "artifact_id": artifact_id,
@@ -53,6 +82,9 @@ def _item(
         "authority_status": authority,
         "next_command": next_command,
     }
+    if source_age:
+        result["source_age"] = source_age
+    return result
 
 
 def _load_plans(root: Path) -> tuple[list[tuple[Path, StructuralRevisionPlan]], set[Path]]:
@@ -90,6 +122,7 @@ def build_author_attention(project_root: Path) -> list[dict[str, Any]]:
             except Exception:
                 continue
             current = _session_is_current(root, session)
+            source_age = _get_file_age(path)
             if not current:
                 attention.append(
                     _item(
@@ -100,6 +133,7 @@ def build_author_attention(project_root: Path) -> list[dict[str, Any]]:
                         reason="Tutor advice is bound to a source snapshot that is no longer current.",
                         authority="LOCAL / NONCANONICAL",
                         next_command=f"auteur tutor show {session.session_id} --project .",
+                        source_age=source_age,
                     )
                 )
             elif session.status == "active":
@@ -112,6 +146,7 @@ def build_author_attention(project_root: Path) -> list[dict[str, Any]]:
                         reason="An advisory author decision is still unresolved.",
                         authority="LOCAL / NONCANONICAL",
                         next_command=f"auteur tutor show {session.session_id} --project .",
+                        source_age=source_age,
                     )
                 )
 
@@ -126,6 +161,7 @@ def build_author_attention(project_root: Path) -> list[dict[str, Any]]:
             except Exception:
                 continue
             relative = _relative(root, path)
+            source_age = _get_file_age(path)
             selected = proposal.selection.selected_option_id
             if not selected:
                 attention.append(
@@ -137,6 +173,7 @@ def build_author_attention(project_root: Path) -> list[dict[str, Any]]:
                         reason="A concrete noncanonical proposal needs author review and explicit selection.",
                         authority="NONCANONICAL PROPOSAL / NOT APPLIED",
                         next_command=f"auteur structure proposal inspect {relative} --project .",
+                        source_age=source_age,
                     )
                 )
             elif path.resolve() not in planned_proposals:
@@ -149,11 +186,13 @@ def build_author_attention(project_root: Path) -> list[dict[str, Any]]:
                         reason="The proposal is selected but has not entered the Structure revision plan lifecycle.",
                         authority="NONCANONICAL PROPOSAL / NOT APPLIED",
                         next_command=f"auteur structure revision plan --proposal {relative} --project .",
+                        source_age=source_age,
                     )
                 )
 
-    for _path, plan in plans:
+    for plan_path, plan in plans:
         state = plan.state.value
+        source_age = _get_file_age(plan_path)
         if state == "blocked":
             attention.append(
                 _item(
@@ -164,6 +203,7 @@ def build_author_attention(project_root: Path) -> list[dict[str, Any]]:
                     reason="Revision preconditions are blocked; inspect the derived preview before replanning.",
                     authority="REVISION PLAN / NOT APPLIED",
                     next_command=f"auteur structure revision preview {plan.plan_id} --project .",
+                    source_age=source_age,
                 )
             )
         elif state == "draft":
@@ -176,6 +216,7 @@ def build_author_attention(project_root: Path) -> list[dict[str, Any]]:
                     reason="A concrete revision plan exists but its currentness has not yet been validated.",
                     authority="REVISION PLAN / NOT APPLIED",
                     next_command=f"auteur structure revision validate {plan.plan_id} --project .",
+                    source_age=source_age,
                 )
             )
         elif state == "ready":
@@ -188,6 +229,7 @@ def build_author_attention(project_root: Path) -> list[dict[str, Any]]:
                     reason="The plan is current and ready for consequence preview before explicit authority action.",
                     authority="REVISION PLAN / NOT APPLIED",
                     next_command=f"auteur structure revision preview {plan.plan_id} --project .",
+                    source_age=source_age,
                 )
             )
 

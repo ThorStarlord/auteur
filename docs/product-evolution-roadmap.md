@@ -258,6 +258,29 @@ Re-enter only when the campaign's documented natural evidence trigger is met, th
 
 Tutor depth can teach, explain, challenge, or quiz without persistent writer-skill state. Do not infer proficiency, learning progression, or adaptive curriculum until the basic Tutor proves repeated educational value and a specific need requires persistence. Educational scaffolding and story authority remain separate.
 
+## NOW — v0.38.0 UX Polish & Consistency
+**State:** `NOW` (authorized through detailed plan in `docs/plans/ux-polish-plan-v0.38.md`)
+
+After completing the guided decision loop (Tutor M1 + evidence sequence + Workspace V1), the next priority is **product polish over capability expansion**. The architecture is sound; the friction is in presentation, consistency, and workflow smoothness.
+
+**Scope:** 7-week focused polish cycle targeting:
+- CLI output consistency across all commands
+- Dashboard clarity and prioritization
+- Guided Author Workspace visual refinement
+- Error message quality and corrective guidance
+- Workflow coherence and session continuity
+- Beginner onboarding and in-context help
+
+**Constraint:** No new canonical authority, no new semantic layers, no LLM routing. Improvements must be selected from observed friction, not speculative enhancements.
+
+**Success metrics:**
+- Time to complete first decision loop reduced by 30%
+- Support questions/errors reduced by 50%
+- User confidence rating > 4/5 after first loop
+- Zero "What do I do now?" hesitation moments
+
+See `docs/plans/ux-polish-plan-v0.38.md` for detailed implementation tasks, file changes, and validation criteria.
+
 ## Engineering Hardening Lane
 **State:** `CANDIDATE` maintenance lane; schedule independently when risk/cost justify it.
 

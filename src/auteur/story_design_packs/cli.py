@@ -256,6 +256,7 @@ def dispatch_tutor_commands(args: Any) -> int:
                     print(json.dumps(data, indent=2))
                 else:
                     print("No eligible Tutor decision is available from the supplied source.")
+                    print("Next: Provide source material or run 'auteur design pack list' to explore available packs.")
                     print("Authority: DERIVED / NOT CANON")
                 return 0
 
@@ -284,6 +285,8 @@ def dispatch_tutor_commands(args: Any) -> int:
                 print(json.dumps(data, indent=2))
             else:
                 _print_card(card, session_id)
+                if session_id is None:
+                    print(f"Next: auteur tutor next --pack {' --pack '.join(args.pack_ids)} --project <path> --source name=path")
             return 0
 
         store = TutorSessionStore(args.project)
@@ -302,6 +305,7 @@ def dispatch_tutor_commands(args: Any) -> int:
                 print(json.dumps(data, indent=2))
             else:
                 _print_handoff(handoff)
+                print(f"Next: {handoff.steps[0].command if handoff.steps else 'No steps available'}")
             return 0
         elif args.tutor_command == "propose":
             current = _current_fingerprints_for_session(store, session, inspect_only=True)
@@ -319,6 +323,7 @@ def dispatch_tutor_commands(args: Any) -> int:
                 print(json.dumps(data, indent=2))
             else:
                 _print_proposal_result(result)
+                print(f"Next: {result.inspect_command}")
             return 0
         else:
             current = _current_fingerprints_for_session(store, session, inspect_only=False)
@@ -347,5 +352,29 @@ def dispatch_tutor_commands(args: Any) -> int:
             print(f"Decision authority: {session.card.authority_status}")
         return 0
     except (FileNotFoundError, ValueError) as exc:
-        print(f"Error: {exc}", file=sys.stderr)
+        suggestion = _get_tutor_error_suggestion(exc, args)
+        print(f"Error: {exc}")
+        if suggestion:
+            print(f"Next: {suggestion}")
         return 2
+
+
+def _get_tutor_error_suggestion(exc: Exception, args: Any) -> str | None:
+    """Provide contextual next-step suggestions for tutor command errors."""
+    error_msg = str(exc)
+    if "Persisted Tutor sessions require" in error_msg:
+        return "Add --source NAME=PATH to specify source artifacts for freshness tracking."
+    if "Tutor source must be inside" in error_msg:
+        return "Ensure the --source path is within the project directory."
+    if "does not exist or is not a file" in error_msg:
+        return "Check that the --source path exists and is a file."
+    if "Duplicate Tutor source" in error_msg:
+        return "Remove duplicate --source entries."
+    if "must use NAME=PATH" in error_msg:
+        return "Use format: --source name=path (e.g., --source story=story_identity.yaml)"
+    if "does not have a current supported Structure authority route" in error_msg:
+        session_id = getattr(args, "session_id", "<id>")
+        return f"Run 'auteur tutor handoff {session_id}' to see available routes."
+    if "session" in error_msg.lower() and "not found" in error_msg.lower():
+        return "Use 'auteur tutor list' to see available sessions."
+    return None

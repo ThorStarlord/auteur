@@ -39,6 +39,7 @@ h1{font-size:clamp(2rem,5vw,3.6rem);line-height:1.02;margin:.35rem 0 1rem}.lead{
 .command{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#171b18;color:#f7f6f2;border-radius:12px;padding:14px;overflow-wrap:anywhere;margin-top:12px}
 button{border:0;border-radius:10px;padding:9px 12px;font:inherit;font-weight:650;cursor:pointer}.refresh{background:#1f2420;color:#fff}.copy{margin-top:10px}
 .rail{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;list-style:none;padding:0;margin:18px 0 0}.rail li{font-size:.78rem;padding:10px;border-top:3px solid #a9aea8;color:#4e5750}
+.rail li.current{border-top-color:#1f2420;background:#e8ece6;font-weight:700}.rail li.complete{border-top-color:#4a7c3f;color:#3d5a3a}
 .list{display:grid;gap:10px}.item{border-top:1px solid #e2e2dd;padding-top:12px}.error{color:#8a3029}@media(max-width:700px){.rail{grid-template-columns:repeat(2,1fr)}.row{grid-template-columns:1fr}}
 </style>
 </head>
@@ -58,6 +59,7 @@ function attentionHTML(item){
   const title=document.createElement('strong'); escText(title,`${item.kind} · ${item.state}`); box.appendChild(title);
   const reason=document.createElement('p'); reason.className='reason'; escText(reason,item.reason); box.appendChild(reason);
   const authority=document.createElement('div'); authority.className='badge'; escText(authority,item.authority_status); box.appendChild(authority);
+  if(item.source_age){const age=document.createElement('span');age.className='muted';age.style.marginLeft='10px';escText(age,`Source changed ${item.source_age}`);box.appendChild(age)}
   if(item.next_command){const cmd=document.createElement('div');cmd.className='command';escText(cmd,item.next_command);box.appendChild(cmd);const copy=document.createElement('button');copy.className='copy';copy.textContent='Copy next command';copy.onclick=()=>navigator.clipboard?.writeText(item.next_command);box.appendChild(copy)}
   return box;
 }
@@ -65,7 +67,7 @@ async function loadWorkspace(){
  try{const response=await fetch('/api/workspace',{cache:'no-store'}); if(!response.ok)throw new Error(`HTTP ${response.status}`); const data=await response.json();
   escText(document.getElementById('authority'),data.authority_status);escText(document.getElementById('project'),data.dashboard.project);
   const primary=document.getElementById('primary');primary.replaceChildren(); if(data.primary_attention)primary.appendChild(attentionHTML(data.primary_attention));else{const p=document.createElement('p');p.className='muted';p.textContent='No pending Tutor/proposal/revision item requires attention.';primary.appendChild(p)}
-  const rail=document.getElementById('rail');rail.replaceChildren(...data.workflow_stages.map(stage=>{const li=document.createElement('li');li.textContent=stage;return li}));
+  const rail=document.getElementById('rail');rail.replaceChildren(...data.workflow_stages.map((stage,idx)=>{const li=document.createElement('li');li.textContent=stage;const progress=data.stage_progress[idx];if(progress){if(progress.is_complete)li.classList.add('complete');if(progress.is_current)li.classList.add('current')}return li}));
   const items=document.getElementById('items');items.replaceChildren();const rest=data.dashboard.author_attention.slice(data.primary_attention?1:0);if(rest.length)rest.forEach(item=>items.appendChild(attentionHTML(item)));else{const p=document.createElement('p');p.className='muted';p.textContent='Nothing else is queued.';items.appendChild(p)}
  }catch(error){const primary=document.getElementById('primary');primary.replaceChildren();const p=document.createElement('p');p.className='error';p.textContent=`Workspace unavailable: ${error}`;primary.appendChild(p)}
 }
@@ -77,12 +79,34 @@ def build_workspace_payload(project_root: Path) -> dict[str, Any]:
     """Compose beginner-facing workspace state without changing project artifacts."""
     dashboard = build_dashboard(project_root)
     attention = dashboard.get("author_attention", [])
+    
+    # Get current workflow stage for highlighting
+    from auteur.workflow.engine import WorkflowEngine
+    try:
+        engine = WorkflowEngine(project_root)
+        state = engine.analyze()
+        current_stage = state.current_stage.value if state.current_stage else None
+        stage_progress = [
+            {
+                "name": sp.stage.value,
+                "is_complete": sp.is_complete,
+                "is_current": sp.stage.value == current_stage,
+                "artifact": sp.current_artifact,
+            }
+            for sp in state.stages
+        ]
+    except Exception:
+        current_stage = None
+        stage_progress = []
+    
     return {
         "authority_status": _AUTHORITY,
         "mutates_story": False,
         "dashboard": dashboard,
         "primary_attention": attention[0] if attention else None,
         "workflow_stages": list(_WORKFLOW_STAGES),
+        "current_stage": current_stage,
+        "stage_progress": stage_progress,
     }
 
 

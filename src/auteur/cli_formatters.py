@@ -30,9 +30,21 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 
 
-def format_error(message: str, exit_code: int = 1) -> str:
-    """Format an error message for stderr output."""
-    return f"Error: {message}"
+def format_error(message: str, exit_code: int = 1, suggestion: str | None = None) -> str:
+    """Format an error message for stderr output.
+    
+    Args:
+        message: The error message to display.
+        exit_code: The exit code (unused in formatting, kept for API compatibility).
+        suggestion: Optional next-step suggestion to help the user recover.
+    
+    Returns:
+        Formatted error string with optional suggestion.
+    """
+    lines = [f"Error: {message}"]
+    if suggestion:
+        lines.append(f"Hint: {suggestion}")
+    return "\n".join(lines)
 
 
 def format_diagnostics(diagnostics: list[dict], artifact_path: str = "") -> str:
