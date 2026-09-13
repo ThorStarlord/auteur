@@ -44,6 +44,13 @@ Acceptance journaling is a write-ahead operational record, not a replay log.
 sets `replay_allowed` to false until the owning artifact workflow has performed
 an explicit, owner-specific recovery action.
 
+The `auteur.campaign` package is the supported Python seam for local Campaign
+coordination. `CampaignStore` owns atomic persistence; `validate_campaign` and
+`inspect_campaign` are read-only checks; `HandoffStore` owns resumable handoff
+records; and bundle export/import is isolated staging. These operations do not
+change canonical narrative pointers. Root-package exports remain governed by
+`auteur.__all__`; the Campaign package is not implicitly re-exported there.
+
 ## Release rule
 
 `1.0.0` is not evidence that this contract has been qualified. A release may be

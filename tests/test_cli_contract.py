@@ -9,6 +9,7 @@ STABLE_ROOT_COMMANDS = {
     "identity",
     "structure",
     "workflow",
+    "campaign",
     "decision",
     "review",
     "publish",
