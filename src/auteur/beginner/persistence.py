@@ -65,16 +65,31 @@ class BeginnerSessionStore:
         return self.session_path.parent / "revisions" / revision_id / "session.json"
 
     def load(self) -> SessionEnvelope:
+        return self._load_session(self.session_path)
+
+    @staticmethod
+    def _load_session(path: Path) -> SessionEnvelope:
         try:
-            payload = self.session_path.read_text(encoding="utf-8")
+            payload = path.read_text(encoding="utf-8")
             return SessionEnvelope.model_validate_json(payload)
         except (OSError, ValueError, ValidationError) as exc:
-            raise BeginnerPersistenceError(f"could not load session from {self.session_path}: {exc}") from exc
+            raise BeginnerPersistenceError(f"could not load session from {path}: {exc}") from exc
 
     def save(self, session: SessionEnvelope) -> SessionEnvelope:
         saved = session.model_copy(update={"session_version": session.session_version + 1})
         _atomic_write(self.session_path, saved.model_dump_json())
         return saved
+
+    def create_revision(self, revision_id: str, session: SessionEnvelope) -> SessionEnvelope:
+        return self.save_revision(revision_id, session)
+
+    def save_revision(self, revision_id: str, session: SessionEnvelope) -> SessionEnvelope:
+        path = self.revision_session_path(revision_id)
+        _atomic_write(path, session.model_dump_json())
+        return session
+
+    def load_revision(self, revision_id: str) -> SessionEnvelope:
+        return self._load_session(self.revision_session_path(revision_id))
 
     def update(self, expected_session_version: int, mutator: Callable[[SessionEnvelope], SessionEnvelope]) -> SessionEnvelope:
         current = self.load()
@@ -83,7 +98,12 @@ class BeginnerSessionStore:
                 f"session version mismatch: expected {expected_session_version}, found {current.session_version}"
             )
         updated = mutator(current)
-        return self.save(updated)
+        next_version = current.session_version + 1
+        persisted = SessionEnvelope.model_validate(
+            {**updated.model_dump(mode="python"), "session_version": next_version}
+        )
+        _atomic_write(self.session_path, persisted.model_dump_json())
+        return persisted
 
 
 class CommandReceiptStore:

@@ -68,6 +68,57 @@ def test_revision_path_is_separate_from_parent_session_path(tmp_path: Path) -> N
     assert revision_path != store.session_path
 
 
+def test_revision_session_can_be_created_saved_and_reloaded_without_parent_collision(tmp_path: Path) -> None:
+    store = BeginnerSessionStore(tmp_path, "workspace-1")
+    parent = store.save(make_session())
+
+    saved_revision = store.create_revision("revision-1", parent)
+
+    assert saved_revision == parent
+    assert store.load_revision("revision-1") == parent
+    assert store.revision_session_path("revision-1").exists()
+    assert store.load() == parent
+
+
+def test_revision_session_save_replaces_only_that_revision(tmp_path: Path) -> None:
+    store = BeginnerSessionStore(tmp_path, "workspace-1")
+    parent = store.save(make_session())
+    revision = parent.model_copy(update={"premise": "A different premise."})
+
+    store.save_revision("revision-1", revision)
+
+    assert store.load_revision("revision-1") == revision
+    assert store.load() == parent
+
+
+def test_update_owns_version_progression_even_when_mutator_tampers_with_version(tmp_path: Path) -> None:
+    store = BeginnerSessionStore(tmp_path, "workspace-1")
+    original = store.save(make_session())
+
+    updated = store.update(
+        original.session_version,
+        lambda session: session.model_copy(update={"session_version": 999, "premise": "Changed."}),
+    )
+
+    assert updated.session_version == original.session_version + 1
+    assert store.load().session_version == original.session_version + 1
+    assert store.load().premise == "Changed."
+
+
+def test_failed_mutation_leaves_prior_session_unchanged(tmp_path: Path) -> None:
+    store = BeginnerSessionStore(tmp_path, "workspace-1")
+    original = store.save(make_session())
+
+    def fail(session: SessionEnvelope) -> SessionEnvelope:
+        session.premise = "Transient mutation."
+        raise RuntimeError("mutation failed")
+
+    with pytest.raises(RuntimeError, match="mutation failed"):
+        store.update(original.session_version, fail)
+
+    assert store.load() == original
+
+
 def test_receipt_replay_returns_recorded_result_and_does_not_duplicate(tmp_path: Path) -> None:
     store = CommandReceiptStore(tmp_path, "workspace-1")
 
