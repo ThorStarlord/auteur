@@ -151,6 +151,17 @@ def test_malformed_persisted_json_raises_clear_persistence_error(tmp_path: Path)
         store.load()
 
 
+def test_wrong_typed_persisted_session_json_raises_clear_persistence_error(tmp_path: Path) -> None:
+    store = BeginnerSessionStore(tmp_path, "workspace-1")
+    payload = make_session().model_dump(mode="json")
+    payload["session_version"] = "7"
+    store.session_path.parent.mkdir(parents=True)
+    store.session_path.write_text(json.dumps(payload), encoding="utf-8")
+
+    with pytest.raises(BeginnerPersistenceError, match="session"):
+        store.load()
+
+
 def test_receipt_json_is_valid_json(tmp_path: Path) -> None:
     store = CommandReceiptStore(tmp_path, "workspace-1")
     receipt = store.begin("command-1")

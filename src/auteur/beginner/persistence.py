@@ -71,7 +71,7 @@ class BeginnerSessionStore:
     def _load_session(path: Path) -> SessionEnvelope:
         try:
             payload = path.read_text(encoding="utf-8")
-            return SessionEnvelope.model_validate_json(payload)
+            return SessionEnvelope.model_validate_json(payload, strict=True)
         except (OSError, ValueError, ValidationError) as exc:
             raise BeginnerPersistenceError(f"could not load session from {path}: {exc}") from exc
 
