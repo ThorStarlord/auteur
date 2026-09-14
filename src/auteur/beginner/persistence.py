@@ -156,11 +156,15 @@ def _safe_segment(value: str, label: str) -> str:
 
 
 def _contained_path(root: Path, *parts: str, containment_root: Path | None = None) -> Path:
-    candidate = (root / Path(*parts)).resolve()
+    resolved_root = root.resolve()
+    resolved_containment_root = containment_root.resolve() if containment_root is not None else None
     try:
-        candidate.relative_to(root.resolve())
-        if containment_root is not None:
-            candidate.relative_to(containment_root.resolve())
+        if resolved_containment_root is not None:
+            resolved_root.relative_to(resolved_containment_root)
+        candidate = (resolved_root / Path(*parts)).resolve()
+        candidate.relative_to(resolved_root)
+        if resolved_containment_root is not None:
+            candidate.relative_to(resolved_containment_root)
     except ValueError as exc:
         raise ValueError(f"resolved path escapes intended root {root}") from exc
     return candidate
@@ -310,7 +314,7 @@ class BeginnerSessionStore:
     def revision_session_path(self, revision_id: str) -> Path:
         revision = _safe_segment(revision_id, "revision_id")
         return _contained_path(
-            self._workspace_path / "revisions", revision, "session.json", containment_root=self.workspace_root
+            self._workspace_path / "revisions", revision, "session.json", containment_root=self._workspace_path
         )
 
     def load(self) -> SessionEnvelope:

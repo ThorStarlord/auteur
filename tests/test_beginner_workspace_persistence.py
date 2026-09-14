@@ -1,4 +1,6 @@
 import json
+import os
+import subprocess
 import threading
 from pathlib import Path
 from typing import Any, cast
@@ -603,6 +605,34 @@ def test_symlinked_workspace_escape_is_rejected_before_write(tmp_path: Path) -> 
 
     with pytest.raises(ValueError, match="escapes intended root"):
         BeginnerSessionStore(tmp_path, "workspace-1")
+
+
+def test_revision_directory_escape_is_rejected_before_write(tmp_path: Path) -> None:
+    store = BeginnerSessionStore(tmp_path, "workspace-1")
+    revisions = store._workspace_path / "revisions"
+    sibling = tmp_path / "revision-sibling"
+    sibling.mkdir()
+    revisions.parent.mkdir(parents=True, exist_ok=True)
+
+    if os.name == "nt":
+        result = subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(revisions), str(sibling)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode != 0:
+            pytest.skip("junction creation unavailable")
+    else:
+        try:
+            revisions.symlink_to(sibling, target_is_directory=True)
+        except OSError as exc:
+            pytest.skip(f"symlink creation unavailable: {exc}")
+
+    with pytest.raises(ValueError, match="escapes intended root"):
+        store.revision_session_path("revision-1")
+    with pytest.raises(ValueError, match="escapes intended root"):
+        store.save_revision("revision-1", make_session())
 
 
 @pytest.mark.parametrize(
