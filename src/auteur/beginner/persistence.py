@@ -77,6 +77,39 @@ class CommandReceipt(BaseModel):
         return self.model_dump() == other.model_dump()
 
 
+class ReceiptAcquisition(BaseModel):
+    """Validated result of attempting to claim a command receipt."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    command_id: str = Field(min_length=1)
+    status: Literal["in_progress", "complete"]
+    outcome: Literal["owner_claim", "existing_in_progress", "completed_replay"]
+    owner_token: str | None = Field(default=None, min_length=1)
+    result: Any = None
+
+    @model_validator(mode="after")
+    def validate_acquisition(self) -> ReceiptAcquisition:
+        if self.outcome == "owner_claim" and self.owner_token is None:
+            raise ValueError("owner_claim must have an owner_token")
+        if self.outcome == "existing_in_progress" and (self.owner_token is not None or self.result is not None):
+            raise ValueError("existing_in_progress must not expose an owner or result")
+        if self.outcome == "completed_replay" and self.status != "complete":
+            raise ValueError("completed_replay must have complete status")
+        return self
+
+    @property
+    def acquired(self) -> bool:
+        return self.outcome == "owner_claim"
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, CommandReceipt):
+            return (self.command_id, self.status, self.result) == (other.command_id, other.status, other.result)
+        if isinstance(other, ReceiptAcquisition):
+            return self.model_dump() == other.model_dump()
+        return NotImplemented
+
+
 _SAFE_SEGMENT = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]*\Z")
 _WINDOWS_DEVICE_NAMES = {"CON", "PRN", "AUX", "NUL", *(f"COM{index}" for index in range(1, 10)), *(f"LPT{index}" for index in range(1, 10))}
 
@@ -251,6 +284,8 @@ class BeginnerSessionStore:
                 )
             if self.session_path.exists():
                 raise BeginnerPersistenceError(f"session already exists at {self.session_path}")
+            if session.session_version != 0:
+                raise BeginnerPersistenceError("initial session version must be 0")
             saved = session.model_copy(update={"session_version": session.session_version + 1})
             if not _atomic_create(self.session_path, saved.model_dump_json()):
                 raise BeginnerPersistenceError(f"session already exists at {self.session_path}")
@@ -270,6 +305,8 @@ class BeginnerSessionStore:
                     raise BeginnerConcurrencyError(
                         f"cannot create session with expected version {expected_session_version}; initial version is 0"
                     )
+                if session.session_version != 0:
+                    raise BeginnerPersistenceError("initial session version must be 0")
                 next_version = session.session_version + 1
             saved = SessionEnvelope.model_validate({**session.model_dump(mode="python"), "session_version": next_version})
             if self.session_path.exists():
@@ -335,22 +372,43 @@ class CommandReceiptStore:
     def load(self, command_id: str) -> CommandReceipt:
         path = self.receipt_path(command_id)
         try:
-            return CommandReceipt.model_validate_json(path.read_text(encoding="utf-8"), strict=True)
+            receipt = CommandReceipt.model_validate_json(path.read_text(encoding="utf-8"), strict=True)
+            if receipt.command_id != command_id:
+                raise BeginnerPersistenceError(
+                    f"receipt command_id {receipt.command_id!r} does not match requested command_id {command_id!r}"
+                )
+            return receipt
         except (OSError, ValueError, ValidationError) as exc:
             raise BeginnerPersistenceError(f"could not load command receipt from {path}: {exc}") from exc
 
-    def begin(self, command_id: str) -> CommandReceipt:
+    def begin(self, command_id: str) -> ReceiptAcquisition:
         path = self.receipt_path(command_id)
         receipt = CommandReceipt(command_id=command_id, status="in_progress", owner_token=secrets.token_urlsafe(32))
         if _atomic_create(path, _serialize_receipt(receipt)):
-            return receipt
+            return ReceiptAcquisition(
+                command_id=command_id,
+                status="in_progress",
+                outcome="owner_claim",
+                owner_token=receipt.owner_token,
+            )
         existing = self.load(command_id)
-        outcome = "existing_completed" if existing.status == "complete" else "existing_in_progress"
-        token = existing.owner_token if existing.status == "complete" else None
-        return existing.model_copy(update={"acquisition_outcome": outcome, "owner_token": token})
+        if existing.status == "complete":
+            return ReceiptAcquisition(
+                command_id=command_id,
+                status="complete",
+                outcome="completed_replay",
+                result=existing.result,
+            )
+        return ReceiptAcquisition(command_id=command_id, status="in_progress", outcome="existing_in_progress")
 
-    def complete(self, receipt: CommandReceipt, result: Any) -> CommandReceipt:
-        if not isinstance(receipt, CommandReceipt) or receipt.owner_token is None:
+    def complete(self, receipt: CommandReceipt | ReceiptAcquisition, result: Any) -> CommandReceipt:
+        if isinstance(receipt, ReceiptAcquisition):
+            if receipt.outcome != "owner_claim":
+                raise BeginnerReceiptOwnershipError("only an owner claim can complete an in-progress receipt")
+            owner_token = receipt.owner_token
+        else:
+            owner_token = receipt.owner_token
+        if owner_token is None:
             raise BeginnerReceiptOwnershipError("receipt owner token is required")
         command_id = receipt.command_id
         path = self.receipt_path(command_id)
@@ -360,7 +418,7 @@ class CommandReceiptStore:
             existing = self.load(command_id)
             if existing.status == "complete":
                 return existing
-            if existing.owner_token != receipt.owner_token:
+            if existing.owner_token != owner_token:
                 raise BeginnerReceiptOwnershipError("receipt owner token does not match")
             completed = CommandReceipt(
                 command_id=command_id,

@@ -11,6 +11,7 @@ from auteur.beginner.persistence import (
     BeginnerSessionStore,
     CommandReceipt,
     CommandReceiptStore,
+    ReceiptAcquisition,
     _FilesystemLock,
 )
 import auteur.beginner.persistence as persistence
@@ -261,6 +262,16 @@ def test_save_requires_current_version_and_never_regresses_persisted_version(tmp
     assert store.load().session_version == original.session_version + 1
 
 
+def test_initial_creation_rejects_nonzero_envelope_version(tmp_path: Path) -> None:
+    store = BeginnerSessionStore(tmp_path, "workspace-1")
+    supplied = make_session().model_copy(update={"session_version": 41})
+
+    with pytest.raises(BeginnerPersistenceError, match="initial session version"):
+        store.save(supplied)
+
+    assert not store.session_path.exists()
+
+
 def test_initial_save_and_create_reject_unexpected_expected_version_without_creating(tmp_path: Path) -> None:
     save_store = BeginnerSessionStore(tmp_path, "save-workspace")
     create_store = BeginnerSessionStore(tmp_path, "create-workspace")
@@ -398,6 +409,33 @@ def test_receipt_replay_returns_recorded_result_and_does_not_duplicate(tmp_path:
     assert replay == {"workspace_id": "workspace-1"}
     assert len(list(store.receipts_path.glob("*.json"))) == 1
     assert store.begin("command-1") == completed
+
+
+def test_receipt_load_rejects_command_id_mismatch_and_replay_cannot_cross_commands(tmp_path: Path) -> None:
+    store = CommandReceiptStore(tmp_path, "workspace-1")
+    receipt = store.begin("command-1")
+    store.complete(receipt, {"command": "one"})
+    path = store.receipt_path("command-1")
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["command_id"] = "command-2"
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+    with pytest.raises(BeginnerPersistenceError, match="command_id"):
+        store.load("command-1")
+    with pytest.raises(BeginnerPersistenceError, match="command_id"):
+        store.replay("command-1")
+
+
+def test_existing_in_progress_begin_returns_valid_acquisition_result(tmp_path: Path) -> None:
+    store = CommandReceiptStore(tmp_path, "workspace-1")
+    owner = store.begin("command-1")
+    contender = store.begin("command-1")
+
+    assert isinstance(contender, ReceiptAcquisition)
+    assert contender.outcome == "existing_in_progress"
+    assert contender.owner_token is None
+    assert owner.outcome == "owner_claim"
+    assert ReceiptAcquisition.model_validate_json(contender.model_dump_json(), strict=True) == contender
 
 
 def test_receipt_completion_requires_owner_token(tmp_path: Path) -> None:
