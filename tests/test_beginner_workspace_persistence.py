@@ -1,4 +1,5 @@
 import json
+import threading
 from pathlib import Path
 
 import pytest
@@ -80,14 +81,16 @@ def test_revision_session_can_be_created_saved_and_reloaded_without_parent_colli
     assert store.load() == parent
 
 
-def test_revision_session_save_replaces_only_that_revision(tmp_path: Path) -> None:
+def test_revision_session_is_immutable_and_does_not_replace_existing_revision(tmp_path: Path) -> None:
     store = BeginnerSessionStore(tmp_path, "workspace-1")
     parent = store.save(make_session())
+    store.create_revision("revision-1", parent)
     revision = parent.model_copy(update={"premise": "A different premise."})
 
-    store.save_revision("revision-1", revision)
+    with pytest.raises(BeginnerPersistenceError, match="already exists"):
+        store.save_revision("revision-1", revision)
 
-    assert store.load_revision("revision-1") == revision
+    assert store.load_revision("revision-1") == parent
     assert store.load() == parent
 
 
@@ -117,6 +120,123 @@ def test_failed_mutation_leaves_prior_session_unchanged(tmp_path: Path) -> None:
         store.update(original.session_version, fail)
 
     assert store.load() == original
+
+
+def test_session_update_serializes_same_version_updates(tmp_path: Path) -> None:
+    store = BeginnerSessionStore(tmp_path, "workspace-1")
+    original = store.save(make_session())
+    successes: list[SessionEnvelope] = []
+    failures: list[Exception] = []
+
+    def update(premise: str) -> None:
+        try:
+            successes.append(
+                store.update(
+                    original.session_version,
+                    lambda session: session.model_copy(update={"premise": premise}),
+                )
+            )
+        except Exception as exc:  # pragma: no cover - assertion below identifies the expected exception
+            failures.append(exc)
+
+    threads = [threading.Thread(target=update, args=(f"Premise {index}",)) for index in range(2)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+
+    assert len(successes) == 1
+    assert len(failures) == 1
+    assert isinstance(failures[0], BeginnerConcurrencyError)
+    assert store.load().session_version == original.session_version + 1
+    assert store.load().premise == successes[0].premise
+
+
+def test_save_requires_current_version_and_never_regresses_persisted_version(tmp_path: Path) -> None:
+    store = BeginnerSessionStore(tmp_path, "workspace-1")
+    original = store.save(make_session())
+    stale = original.model_copy(update={"session_version": 0})
+
+    with pytest.raises(BeginnerConcurrencyError):
+        store.save(stale, expected_session_version=0)
+
+    saved = store.save(stale, expected_session_version=original.session_version)
+
+    assert saved.session_version == original.session_version + 1
+    assert store.load().session_version == original.session_version + 1
+
+
+def test_create_is_create_only(tmp_path: Path) -> None:
+    store = BeginnerSessionStore(tmp_path, "workspace-1")
+    store.create(make_session())
+
+    with pytest.raises(BeginnerPersistenceError, match="already exists"):
+        store.create(make_session())
+
+
+@pytest.mark.parametrize("value", ["../outside", "nested/value", r"nested\\value", ".", "..", ""])
+def test_workspace_and_artifact_ids_reject_path_traversal(tmp_path: Path, value: str) -> None:
+    if value == "":
+        with pytest.raises(ValueError):
+            BeginnerSessionStore(tmp_path, value)
+        return
+
+    if value in {"../outside", "nested/value", r"nested\value", ".", ".."}:
+        with pytest.raises(ValueError):
+            BeginnerSessionStore(tmp_path, value)
+
+    store = BeginnerSessionStore(tmp_path, "workspace-1")
+    with pytest.raises(ValueError):
+        store.revision_session_path(value)
+    receipt_store = CommandReceiptStore(tmp_path, "workspace-1")
+    with pytest.raises(ValueError):
+        receipt_store.receipt_path(value)
+    assert not (tmp_path / "outside").exists()
+
+
+def test_competing_receipt_claims_have_one_new_owner(tmp_path: Path) -> None:
+    store = CommandReceiptStore(tmp_path, "workspace-1")
+    claims = []
+
+    def claim() -> None:
+        claims.append(store.begin("command-1"))
+
+    threads = [threading.Thread(target=claim) for _ in range(2)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+
+    assert sum(claim.acquired for claim in claims) == 1
+    assert {claim.status for claim in claims} == {"in_progress"}
+
+
+def test_receipt_non_json_result_raises_persistence_error(tmp_path: Path) -> None:
+    store = CommandReceiptStore(tmp_path, "workspace-1")
+    receipt = store.begin("command-1")
+
+    with pytest.raises(BeginnerPersistenceError, match="receipt"):
+        store.complete(receipt, object())
+
+
+def test_receipt_directory_failure_raises_persistence_error(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    store = CommandReceiptStore(tmp_path, "workspace-1")
+
+    def fail_mkdir(*args: object, **kwargs: object) -> None:
+        raise OSError("mkdir failed")
+
+    monkeypatch.setattr("auteur.beginner.persistence.Path.mkdir", fail_mkdir)
+    with pytest.raises(BeginnerPersistenceError, match="mkdir failed"):
+        store.begin("command-1")
+
+
+def test_receipt_write_failure_raises_persistence_error(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    store = CommandReceiptStore(tmp_path, "workspace-1")
+    receipt = store.begin("command-1")
+
+    monkeypatch.setattr("auteur.beginner.persistence.os.replace", lambda source, destination: (_ for _ in ()).throw(OSError("write failed")))
+    with pytest.raises(BeginnerPersistenceError, match="write failed"):
+        store.complete(receipt, {"ok": True})
 
 
 def test_receipt_replay_returns_recorded_result_and_does_not_duplicate(tmp_path: Path) -> None:

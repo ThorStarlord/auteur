@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import os
+import re
 import tempfile
+import threading
 from pathlib import Path
 from typing import Any, Callable, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic_core import PydanticSerializationError
 
 from .contracts import SessionEnvelope
 
@@ -28,12 +31,53 @@ class CommandReceipt(BaseModel):
     command_id: str = Field(min_length=1)
     status: Literal["in_progress", "complete"]
     result: Any = None
+    acquisition_outcome: Literal["new_owner", "existing_in_progress", "existing_completed"] = Field(
+        default="new_owner", exclude=True
+    )
+
+    @property
+    def acquired(self) -> bool:
+        return self.acquisition_outcome == "new_owner"
+
+    @property
+    def outcome(self) -> str:
+        return self.acquisition_outcome
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, CommandReceipt):
+            return NotImplemented
+        return self.model_dump() == other.model_dump()
+
+
+_SAFE_SEGMENT = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]*\Z")
+
+
+def _safe_segment(value: str, label: str) -> str:
+    if not isinstance(value, str) or _SAFE_SEGMENT.fullmatch(value) is None:
+        raise ValueError(f"{label} must be a safe single path segment")
+    return value
+
+
+def _contained_path(root: Path, *parts: str) -> Path:
+    candidate = (root / Path(*parts)).resolve()
+    try:
+        candidate.relative_to(root.resolve())
+    except ValueError as exc:
+        raise ValueError(f"resolved path escapes intended root {root}") from exc
+    return candidate
+
+
+def _serialize_receipt(receipt: CommandReceipt) -> str:
+    try:
+        return receipt.model_dump_json()
+    except (TypeError, ValueError, PydanticSerializationError) as exc:
+        raise BeginnerPersistenceError(f"could not serialize command receipt: {exc}") from exc
 
 
 def _atomic_write(path: Path, payload: str) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
     temporary_path: Path | None = None
     try:
+        path.parent.mkdir(parents=True, exist_ok=True)
         with tempfile.NamedTemporaryFile(
             mode="w", encoding="utf-8", dir=path.parent, prefix=f".{path.name}.", delete=False
         ) as temporary:
@@ -53,16 +97,46 @@ def _atomic_write(path: Path, payload: str) -> None:
                 pass
 
 
+def _atomic_create(path: Path, payload: str) -> bool:
+    temporary_path: Path | None = None
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with tempfile.NamedTemporaryFile(
+            mode="w", encoding="utf-8", dir=path.parent, prefix=f".{path.name}.", delete=False
+        ) as temporary:
+            temporary_path = Path(temporary.name)
+            temporary.write(payload)
+            temporary.flush()
+            os.fsync(temporary.fileno())
+        try:
+            os.link(temporary_path, path)
+        except FileExistsError:
+            return False
+        return True
+    except OSError as exc:
+        raise BeginnerPersistenceError(f"atomic create failed for {path}: {exc}") from exc
+    finally:
+        if temporary_path is not None:
+            try:
+                temporary_path.unlink()
+            except FileNotFoundError:
+                pass
+
+
 class BeginnerSessionStore:
     """Store the mutable session and immutable revision-session snapshots."""
 
     def __init__(self, project_root: Path, workspace_id: str) -> None:
         self.workspace_root = Path(project_root)
-        self.workspace_id = workspace_id
-        self.session_path = self.workspace_root / ".auteur" / "beginner" / "workspaces" / workspace_id / "session.json"
+        self.workspace_id = _safe_segment(workspace_id, "workspace_id")
+        workspace_root = _contained_path(self.workspace_root / ".auteur" / "beginner" / "workspaces", self.workspace_id)
+        self._workspace_path = workspace_root
+        self.session_path = _contained_path(workspace_root, "session.json")
+        self._lock = threading.RLock()
 
     def revision_session_path(self, revision_id: str) -> Path:
-        return self.session_path.parent / "revisions" / revision_id / "session.json"
+        revision = _safe_segment(revision_id, "revision_id")
+        return _contained_path(self._workspace_path / "revisions", revision, "session.json")
 
     def load(self) -> SessionEnvelope:
         return self._load_session(self.session_path)
@@ -75,35 +149,61 @@ class BeginnerSessionStore:
         except (OSError, ValueError, ValidationError) as exc:
             raise BeginnerPersistenceError(f"could not load session from {path}: {exc}") from exc
 
-    def save(self, session: SessionEnvelope) -> SessionEnvelope:
-        saved = session.model_copy(update={"session_version": session.session_version + 1})
-        _atomic_write(self.session_path, saved.model_dump_json())
-        return saved
+    def create(self, session: SessionEnvelope) -> SessionEnvelope:
+        with self._lock:
+            if self.session_path.exists():
+                raise BeginnerPersistenceError(f"session already exists at {self.session_path}")
+            saved = session.model_copy(update={"session_version": session.session_version + 1})
+            if not _atomic_create(self.session_path, saved.model_dump_json()):
+                raise BeginnerPersistenceError(f"session already exists at {self.session_path}")
+            return saved
+
+    def save(self, session: SessionEnvelope, expected_session_version: int | None = None) -> SessionEnvelope:
+        with self._lock:
+            if self.session_path.exists():
+                current = self.load()
+                if expected_session_version is None or current.session_version != expected_session_version:
+                    raise BeginnerConcurrencyError(
+                        f"session version mismatch: expected {expected_session_version}, found {current.session_version}"
+                    )
+                next_version = current.session_version + 1
+            else:
+                next_version = session.session_version + 1
+            saved = SessionEnvelope.model_validate({**session.model_dump(mode="python"), "session_version": next_version})
+            if self.session_path.exists():
+                _atomic_write(self.session_path, saved.model_dump_json())
+            elif not _atomic_create(self.session_path, saved.model_dump_json()):
+                raise BeginnerPersistenceError(f"session already exists at {self.session_path}")
+            return saved
 
     def create_revision(self, revision_id: str, session: SessionEnvelope) -> SessionEnvelope:
         return self.save_revision(revision_id, session)
 
     def save_revision(self, revision_id: str, session: SessionEnvelope) -> SessionEnvelope:
         path = self.revision_session_path(revision_id)
-        _atomic_write(path, session.model_dump_json())
+        if path.exists():
+            raise BeginnerPersistenceError(f"revision already exists at {path}")
+        if not _atomic_create(path, session.model_dump_json()):
+            raise BeginnerPersistenceError(f"revision already exists at {path}")
         return session
 
     def load_revision(self, revision_id: str) -> SessionEnvelope:
         return self._load_session(self.revision_session_path(revision_id))
 
     def update(self, expected_session_version: int, mutator: Callable[[SessionEnvelope], SessionEnvelope]) -> SessionEnvelope:
-        current = self.load()
-        if current.session_version != expected_session_version:
-            raise BeginnerConcurrencyError(
-                f"session version mismatch: expected {expected_session_version}, found {current.session_version}"
+        with self._lock:
+            current = self.load()
+            if current.session_version != expected_session_version:
+                raise BeginnerConcurrencyError(
+                    f"session version mismatch: expected {expected_session_version}, found {current.session_version}"
+                )
+            updated = mutator(current)
+            next_version = current.session_version + 1
+            persisted = SessionEnvelope.model_validate(
+                {**updated.model_dump(mode="python"), "session_version": next_version}
             )
-        updated = mutator(current)
-        next_version = current.session_version + 1
-        persisted = SessionEnvelope.model_validate(
-            {**updated.model_dump(mode="python"), "session_version": next_version}
-        )
-        _atomic_write(self.session_path, persisted.model_dump_json())
-        return persisted
+            _atomic_write(self.session_path, persisted.model_dump_json())
+            return persisted
 
 
 class CommandReceiptStore:
@@ -111,13 +211,13 @@ class CommandReceiptStore:
 
     def __init__(self, project_root: Path, workspace_id: str) -> None:
         self.workspace_root = Path(project_root)
-        self.workspace_id = workspace_id
-        self.receipts_path = (
-            self.workspace_root / ".auteur" / "beginner" / "workspaces" / workspace_id / "commands"
-        )
+        self.workspace_id = _safe_segment(workspace_id, "workspace_id")
+        workspace_root = _contained_path(self.workspace_root / ".auteur" / "beginner" / "workspaces", self.workspace_id)
+        self.receipts_path = _contained_path(workspace_root, "commands")
 
     def receipt_path(self, command_id: str) -> Path:
-        return self.receipts_path / f"{command_id}.json"
+        command = _safe_segment(command_id, "command_id")
+        return _contained_path(self.receipts_path, f"{command}.json")
 
     def load(self, command_id: str) -> CommandReceipt:
         path = self.receipt_path(command_id)
@@ -128,11 +228,12 @@ class CommandReceiptStore:
 
     def begin(self, command_id: str) -> CommandReceipt:
         path = self.receipt_path(command_id)
-        if path.exists():
-            return self.load(command_id)
         receipt = CommandReceipt(command_id=command_id, status="in_progress")
-        _atomic_write(path, receipt.model_dump_json())
-        return receipt
+        if _atomic_create(path, _serialize_receipt(receipt)):
+            return receipt
+        existing = self.load(command_id)
+        outcome = "existing_completed" if existing.status == "complete" else "existing_in_progress"
+        return existing.model_copy(update={"acquisition_outcome": outcome})
 
     def complete(self, receipt_or_command_id: CommandReceipt | str, result: Any) -> CommandReceipt:
         command_id = receipt_or_command_id.command_id if isinstance(receipt_or_command_id, CommandReceipt) else receipt_or_command_id
@@ -142,7 +243,7 @@ class CommandReceiptStore:
             if existing.status == "complete":
                 return existing
         completed = CommandReceipt(command_id=command_id, status="complete", result=result)
-        _atomic_write(path, completed.model_dump_json())
+        _atomic_write(path, _serialize_receipt(completed))
         return completed
 
     def replay(self, command_id: str) -> Any | None:
