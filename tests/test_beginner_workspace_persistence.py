@@ -23,6 +23,10 @@ def make_session() -> SessionEnvelope:
     return SessionEnvelope.new("project-1", "mystery", "A missing heir returns home.")
 
 
+def build_receipt_acquisition(payload: dict[str, Any]) -> ReceiptAcquisition:
+    return ReceiptAcquisition.model_validate({"command_id": "command-1", **payload})
+
+
 def test_session_store_writes_and_reloads_a_versioned_envelope(tmp_path: Path) -> None:
     store = BeginnerSessionStore(tmp_path, "workspace-1")
 
@@ -484,10 +488,10 @@ def test_complete_persists_authoritative_domain_result_reference(tmp_path: Path)
     ],
 )
 def test_receipt_acquisition_rejects_inconsistent_status_outcome_combinations(
-    payload: dict[str, object],
+    payload: dict[str, Any],
 ) -> None:
     with pytest.raises(ValidationError):
-        ReceiptAcquisition(command_id="command-1", **payload)
+        build_receipt_acquisition(payload)
 
 
 def test_replay_returns_receipt_like_completed_acquisition(tmp_path: Path) -> None:
