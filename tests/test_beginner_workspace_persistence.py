@@ -1,6 +1,7 @@
 import json
 import threading
 from pathlib import Path
+from typing import Any
 
 from pydantic import ValidationError
 import pytest
@@ -429,6 +430,48 @@ def test_receipt_persists_command_and_promotion_intent_metadata(tmp_path: Path) 
     assert loaded.target_milestone == "identity-accepted"
     assert loaded.promotion_intent == {"source": "beginner"}
     assert loaded.domain_result_reference == {"artifact_id": "identity-1", "revision": 2}
+
+
+@pytest.mark.parametrize(
+    "changed_intent",
+    [
+        {"command_type": "other_command"},
+        {"target_milestone": "different-milestone"},
+        {"promotion_intent": {"source": "different"}},
+        {"domain_result_reference": {"artifact_id": "different", "revision": 9}},
+    ],
+)
+def test_reusing_command_id_with_different_intent_rejects(
+    tmp_path: Path, changed_intent: dict[str, Any]
+) -> None:
+    store = CommandReceiptStore(tmp_path, "workspace-1")
+    store.begin(
+        "command-1",
+        command_type="promote_milestone",
+        target_milestone="identity-accepted",
+        promotion_intent={"source": "beginner"},
+        domain_result_reference={"artifact_id": "identity-1", "revision": 2},
+    )
+
+    with pytest.raises(BeginnerPersistenceError, match="intent conflict"):
+        store.begin("command-1", **changed_intent)
+
+
+def test_complete_persists_authoritative_domain_result_reference(tmp_path: Path) -> None:
+    store = CommandReceiptStore(tmp_path, "workspace-1")
+    owner = store.begin("command-1", command_type="promote_milestone")
+
+    completed = store.complete(
+        owner,
+        {"accepted": True},
+        domain_result_reference={"artifact_id": "identity-1", "revision": 3},
+    )
+
+    assert completed.domain_result_reference == {"artifact_id": "identity-1", "revision": 3}
+    assert store.load("command-1").domain_result_reference == completed.domain_result_reference
+    replay = store.replay("command-1")
+    assert replay is not None
+    assert replay.result == {"accepted": True}
 
 
 @pytest.mark.parametrize(

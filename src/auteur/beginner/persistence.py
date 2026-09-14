@@ -385,7 +385,7 @@ class CommandReceiptStore:
     def begin(
         self,
         command_id: str,
-        command_type: str = "unknown",
+        command_type: str | None = None,
         target_milestone: str | None = None,
         promotion_intent: dict[str, Any] | None = None,
         domain_result_reference: dict[str, Any] | None = None,
@@ -395,7 +395,7 @@ class CommandReceiptStore:
             command_id=command_id,
             status="in_progress",
             owner_token=secrets.token_urlsafe(32),
-            command_type=command_type,
+            command_type=command_type or "unknown",
             target_milestone=target_milestone,
             promotion_intent=promotion_intent,
             domain_result_reference=domain_result_reference,
@@ -412,6 +412,13 @@ class CommandReceiptStore:
                 domain_result_reference=receipt.domain_result_reference,
             )
         existing = self.load(command_id)
+        if (
+            (command_type is not None and existing.command_type != command_type)
+            or (target_milestone is not None and existing.target_milestone != target_milestone)
+            or (promotion_intent is not None and existing.promotion_intent != promotion_intent)
+            or (domain_result_reference is not None and existing.domain_result_reference != domain_result_reference)
+        ):
+            raise BeginnerPersistenceError(f"command intent conflict for existing command_id {command_id}")
         if existing.status == "complete":
             return ReceiptAcquisition(
                 command_id=command_id,
@@ -433,7 +440,12 @@ class CommandReceiptStore:
             domain_result_reference=existing.domain_result_reference,
         )
 
-    def complete(self, receipt: CommandReceipt | ReceiptAcquisition, result: Any) -> CommandReceipt:
+    def complete(
+        self,
+        receipt: CommandReceipt | ReceiptAcquisition,
+        result: Any,
+        domain_result_reference: dict[str, Any] | None = None,
+    ) -> CommandReceipt:
         if isinstance(receipt, ReceiptAcquisition):
             if receipt.outcome == "completed_replay":
                 owner_token = None
@@ -465,12 +477,16 @@ class CommandReceiptStore:
                 command_type=existing.command_type,
                 target_milestone=existing.target_milestone,
                 promotion_intent=existing.promotion_intent,
-                domain_result_reference=existing.domain_result_reference,
+                domain_result_reference=(
+                    domain_result_reference
+                    if domain_result_reference is not None
+                    else existing.domain_result_reference
+                ),
             )
             _atomic_write(path, _serialize_receipt(completed))
             return completed
 
-    def replay(self, command_id: str) -> Any | None:
+    def replay(self, command_id: str) -> ReceiptAcquisition | None:
         receipt = self.load(command_id)
         if receipt.status != "complete":
             return None
