@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+import errno
+import json
 import os
 import re
 import secrets
 import tempfile
 import threading
 import time
-import errno
 from pathlib import Path
 from typing import Any, BinaryIO, Callable, Literal
 
@@ -39,6 +40,13 @@ class BeginnerReceiptOwnershipError(BeginnerConcurrencyError):
     """Raised when a command receipt is completed by a non-owner."""
 
 
+def _normalize_json_value(value: Any, label: str) -> Any:
+    try:
+        return json.loads(json.dumps(value, allow_nan=False, sort_keys=True, separators=(",", ":")))
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise ValueError(f"{label} must be JSON-compatible") from exc
+
+
 class CommandReceipt(BaseModel):
     """A durable record of a command's in-progress or completed execution."""
 
@@ -55,6 +63,17 @@ class CommandReceipt(BaseModel):
 
     @model_validator(mode="after")
     def validate_durable_state(self) -> CommandReceipt:
+        self.result = _normalize_json_value(self.result, "receipt result") if self.result is not None else None
+        self.promotion_intent = (
+            _normalize_json_value(self.promotion_intent, "promotion intent")
+            if self.promotion_intent is not None
+            else None
+        )
+        self.domain_result_reference = (
+            _normalize_json_value(self.domain_result_reference, "domain result reference")
+            if self.domain_result_reference is not None
+            else None
+        )
         if self.status == "in_progress":
             if self.owner_token is None:
                 raise ValueError("in_progress receipt must have an owner_token")
@@ -87,6 +106,17 @@ class ReceiptAcquisition(BaseModel):
 
     @model_validator(mode="after")
     def validate_acquisition(self) -> ReceiptAcquisition:
+        self.result = _normalize_json_value(self.result, "acquisition result") if self.result is not None else None
+        self.promotion_intent = (
+            _normalize_json_value(self.promotion_intent, "promotion intent")
+            if self.promotion_intent is not None
+            else None
+        )
+        self.domain_result_reference = (
+            _normalize_json_value(self.domain_result_reference, "domain result reference")
+            if self.domain_result_reference is not None
+            else None
+        )
         if self.outcome == "owner_claim":
             if self.status != "in_progress" or self.owner_token is None or self.result is not None:
                 raise ValueError("owner_claim must be an in-progress claim with a token and no result")
@@ -395,7 +425,7 @@ class CommandReceiptStore:
             command_id=command_id,
             status="in_progress",
             owner_token=secrets.token_urlsafe(32),
-            command_type=command_type or "unknown",
+            command_type=command_type if command_type is not None else "unknown",
             target_milestone=target_milestone,
             promotion_intent=promotion_intent,
             domain_result_reference=domain_result_reference,
@@ -416,7 +446,6 @@ class CommandReceiptStore:
             existing.command_type != receipt.command_type
             or existing.target_milestone != receipt.target_milestone
             or existing.promotion_intent != receipt.promotion_intent
-            or existing.domain_result_reference != receipt.domain_result_reference
         ):
             raise BeginnerPersistenceError(f"command intent conflict for existing command_id {command_id}")
         if existing.status == "complete":
@@ -469,20 +498,23 @@ class CommandReceiptStore:
                 return existing
             if existing.owner_token != owner_token:
                 raise BeginnerReceiptOwnershipError("receipt owner token does not match")
-            completed = CommandReceipt(
-                command_id=command_id,
-                status="complete",
-                result=result,
-                owner_token=existing.owner_token,
-                command_type=existing.command_type,
-                target_milestone=existing.target_milestone,
-                promotion_intent=existing.promotion_intent,
-                domain_result_reference=(
-                    domain_result_reference
-                    if domain_result_reference is not None
-                    else existing.domain_result_reference
-                ),
-            )
+            try:
+                completed = CommandReceipt(
+                    command_id=command_id,
+                    status="complete",
+                    result=result,
+                    owner_token=existing.owner_token,
+                    command_type=existing.command_type,
+                    target_milestone=existing.target_milestone,
+                    promotion_intent=existing.promotion_intent,
+                    domain_result_reference=(
+                        domain_result_reference
+                        if domain_result_reference is not None
+                        else existing.domain_result_reference
+                    ),
+                )
+            except ValidationError as exc:
+                raise BeginnerPersistenceError(f"could not normalize receipt completion: {exc}") from exc
             _atomic_write(path, _serialize_receipt(completed))
             return completed
 

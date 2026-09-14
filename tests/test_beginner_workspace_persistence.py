@@ -487,7 +487,6 @@ def test_receipt_persists_command_and_promotion_intent_metadata(tmp_path: Path) 
         {"command_type": "other_command"},
         {"target_milestone": "different-milestone"},
         {"promotion_intent": {"source": "different"}},
-        {"domain_result_reference": {"artifact_id": "different", "revision": 9}},
     ],
 )
 def test_reusing_command_id_with_different_intent_rejects(
@@ -529,6 +528,44 @@ def test_complete_persists_authoritative_domain_result_reference(tmp_path: Path)
     replay = store.replay("command-1")
     assert replay is not None
     assert replay.result == {"accepted": True}
+
+    retried = store.begin("command-1", command_type="promote_milestone")
+    assert retried.outcome == "completed_replay"
+    assert retried.result == {"accepted": True}
+
+
+def test_receipt_json_values_are_normalized_for_retry_and_persistence(tmp_path: Path) -> None:
+    store = CommandReceiptStore(tmp_path, "workspace-1")
+    owner = store.begin(
+        "command-1",
+        command_type="promote_milestone",
+        promotion_intent={"choices": ("identity", "structure")},
+    )
+
+    store.complete(
+        owner,
+        ("accepted", True),
+        domain_result_reference={"revision": (1, 2)},
+    )
+
+    loaded = store.load("command-1")
+    retry = store.begin(
+        "command-1",
+        command_type="promote_milestone",
+        promotion_intent={"choices": ("identity", "structure")},
+    )
+    assert loaded.result == ["accepted", True]
+    assert loaded.domain_result_reference == {"revision": [1, 2]}
+    assert loaded.promotion_intent == {"choices": ["identity", "structure"]}
+    assert retry.outcome == "completed_replay"
+    assert retry.result == ["accepted", True]
+
+
+def test_empty_command_type_is_not_defaulted(tmp_path: Path) -> None:
+    store = CommandReceiptStore(tmp_path, "workspace-1")
+
+    with pytest.raises(ValidationError):
+        store.begin("command-1", command_type="")
 
 
 @pytest.mark.parametrize(
