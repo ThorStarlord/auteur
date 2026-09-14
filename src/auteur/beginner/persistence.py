@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import re
+import secrets
 import tempfile
 import threading
 import time
@@ -34,6 +35,10 @@ class _BeginnerLockTimeout(BeginnerPersistenceError):
     """Internal signal for a bounded advisory-lock wait."""
 
 
+class BeginnerReceiptOwnershipError(BeginnerConcurrencyError):
+    """Raised when a command receipt is completed by a non-owner."""
+
+
 class CommandReceipt(BaseModel):
     """A durable record of a command's in-progress or completed execution."""
 
@@ -42,6 +47,7 @@ class CommandReceipt(BaseModel):
     command_id: str = Field(min_length=1)
     status: Literal["in_progress", "complete"]
     result: Any = None
+    owner_token: str | None = Field(default=None, min_length=1)
     acquisition_outcome: Literal["new_owner", "existing_in_progress", "existing_completed"] = Field(
         default="new_owner", exclude=True
     )
@@ -167,8 +173,10 @@ class _FilesystemLock:
                         raise _BeginnerLockTimeout(f"timed out acquiring session lock {self.path}")
                     time.sleep(0.005)
         except (_BeginnerLockTimeout, BeginnerPersistenceError):
+            self._close_file()
             raise
         except OSError as exc:
+            self._close_file()
             raise BeginnerPersistenceError(f"could not acquire session lock {self.path}: {exc}") from exc
 
     def __exit__(self, exc_type: object, exc_value: object, traceback: object) -> None:
@@ -181,8 +189,12 @@ class _FilesystemLock:
                 else:
                     fcntl.flock(file.fileno(), fcntl.LOCK_UN)  # type: ignore[attr-defined]
             finally:
-                file.close()
-                self._file = None
+                self._close_file()
+
+    def _close_file(self) -> None:
+        if self._file is not None:
+            self._file.close()
+            self._file = None
 
 
 class BeginnerSessionStore:
@@ -296,29 +308,41 @@ class CommandReceiptStore:
     def load(self, command_id: str) -> CommandReceipt:
         path = self.receipt_path(command_id)
         try:
-            return CommandReceipt.model_validate_json(path.read_text(encoding="utf-8"))
+            return CommandReceipt.model_validate_json(path.read_text(encoding="utf-8"), strict=True)
         except (OSError, ValueError, ValidationError) as exc:
             raise BeginnerPersistenceError(f"could not load command receipt from {path}: {exc}") from exc
 
     def begin(self, command_id: str) -> CommandReceipt:
         path = self.receipt_path(command_id)
-        receipt = CommandReceipt(command_id=command_id, status="in_progress")
+        receipt = CommandReceipt(command_id=command_id, status="in_progress", owner_token=secrets.token_urlsafe(32))
         if _atomic_create(path, _serialize_receipt(receipt)):
             return receipt
         existing = self.load(command_id)
         outcome = "existing_completed" if existing.status == "complete" else "existing_in_progress"
-        return existing.model_copy(update={"acquisition_outcome": outcome})
+        token = existing.owner_token if existing.status == "complete" else None
+        return existing.model_copy(update={"acquisition_outcome": outcome, "owner_token": token})
 
-    def complete(self, receipt_or_command_id: CommandReceipt | str, result: Any) -> CommandReceipt:
-        command_id = receipt_or_command_id.command_id if isinstance(receipt_or_command_id, CommandReceipt) else receipt_or_command_id
+    def complete(self, receipt: CommandReceipt, result: Any) -> CommandReceipt:
+        if not isinstance(receipt, CommandReceipt) or receipt.owner_token is None:
+            raise BeginnerReceiptOwnershipError("receipt owner token is required")
+        command_id = receipt.command_id
         path = self.receipt_path(command_id)
-        if path.exists():
+        with _FilesystemLock(path.with_name(f".{path.name}.lock")):
+            if not path.exists():
+                raise BeginnerPersistenceError(f"command was never begun: {command_id}")
             existing = self.load(command_id)
             if existing.status == "complete":
                 return existing
-        completed = CommandReceipt(command_id=command_id, status="complete", result=result)
-        _atomic_write(path, _serialize_receipt(completed))
-        return completed
+            if existing.owner_token != receipt.owner_token:
+                raise BeginnerReceiptOwnershipError("receipt owner token does not match")
+            completed = CommandReceipt(
+                command_id=command_id,
+                status="complete",
+                result=result,
+                owner_token=existing.owner_token,
+            )
+            _atomic_write(path, _serialize_receipt(completed))
+            return completed
 
     def replay(self, command_id: str) -> Any | None:
         receipt = self.load(command_id)

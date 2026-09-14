@@ -9,6 +9,7 @@ from auteur.beginner.persistence import (
     BeginnerConcurrencyError,
     BeginnerPersistenceError,
     BeginnerSessionStore,
+    CommandReceipt,
     CommandReceiptStore,
     _FilesystemLock,
 )
@@ -344,6 +345,61 @@ def test_receipt_replay_returns_recorded_result_and_does_not_duplicate(tmp_path:
     assert replay == {"workspace_id": "workspace-1"}
     assert len(list(store.receipts_path.glob("*.json"))) == 1
     assert store.begin("command-1") == completed
+
+
+def test_receipt_completion_requires_owner_token(tmp_path: Path) -> None:
+    store = CommandReceiptStore(tmp_path, "workspace-1")
+    owner = store.begin("command-1")
+    contender = store.begin("command-1")
+
+    with pytest.raises(BeginnerConcurrencyError, match="owner"):
+        store.complete(contender, {"ok": True})
+
+    assert store.replay("command-1") is None
+    assert owner.acquired is True
+    assert contender.acquired is False
+
+
+def test_receipt_completion_rejects_never_begun_command(tmp_path: Path) -> None:
+    store = CommandReceiptStore(tmp_path, "workspace-1")
+    never_begun = CommandReceipt(command_id="command-1", status="in_progress", owner_token="token")
+
+    with pytest.raises(BeginnerPersistenceError, match="never begun"):
+        store.complete(never_begun, {"ok": True})
+
+
+def test_concurrent_completion_is_serialized_and_idempotent(tmp_path: Path) -> None:
+    store = CommandReceiptStore(tmp_path, "workspace-1")
+    owner = store.begin("command-1")
+    results: list[CommandReceipt] = []
+    failures: list[Exception] = []
+
+    def complete(value: str) -> None:
+        try:
+            results.append(store.complete(owner, {"value": value}))
+        except Exception as exc:  # pragma: no cover - assertion below identifies unexpected failures
+            failures.append(exc)
+
+    threads = [threading.Thread(target=complete, args=(value,)) for value in ("first", "second")]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join(2)
+
+    persisted = store.load("command-1")
+    assert failures == []
+    assert len(results) == 2
+    assert all(result == persisted for result in results)
+    assert persisted.status == "complete"
+
+
+def test_failed_lock_enter_closes_contender_handle(tmp_path: Path) -> None:
+    store = BeginnerSessionStore(tmp_path, "workspace-1")
+    with _FilesystemLock(store._session_lock):
+        with pytest.raises(BeginnerPersistenceError, match="timed out"):
+            _FilesystemLock(store._session_lock, timeout=0.01).__enter__()
+
+    store._session_lock.unlink()
 
 
 def test_incomplete_receipt_can_be_loaded_for_recovery(tmp_path: Path) -> None:
