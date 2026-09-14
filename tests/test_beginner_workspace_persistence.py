@@ -1,7 +1,7 @@
 import json
 import threading
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from pydantic import ValidationError
 import pytest
@@ -14,6 +14,7 @@ from auteur.beginner.persistence import (
     BeginnerSessionStore,
     CommandReceipt,
     CommandReceiptStore,
+    JsonValue,
     ReceiptAcquisition,
     _FilesystemLock,
 )
@@ -423,7 +424,7 @@ def test_receipt_non_json_result_raises_persistence_error(tmp_path: Path) -> Non
     receipt = store.begin("command-1")
 
     with pytest.raises(BeginnerPersistenceError, match="receipt"):
-        store.complete(receipt, object())
+        store.complete(receipt, cast(JsonValue, object()))
 
 
 def test_receipt_directory_failure_raises_persistence_error(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -539,20 +540,20 @@ def test_receipt_json_values_are_normalized_for_retry_and_persistence(tmp_path: 
     owner = store.begin(
         "command-1",
         command_type="promote_milestone",
-        promotion_intent={"choices": ("identity", "structure")},
+        promotion_intent={"choices": ["identity", "structure"]},
     )
 
     store.complete(
         owner,
-        ("accepted", True),
-        domain_result_reference={"revision": (1, 2)},
+        ["accepted", True],
+        domain_result_reference={"revision": [1, 2]},
     )
 
     loaded = store.load("command-1")
     retry = store.begin(
         "command-1",
         command_type="promote_milestone",
-        promotion_intent={"choices": ("identity", "structure")},
+        promotion_intent={"choices": ["identity", "structure"]},
     )
     assert loaded.result == ["accepted", True]
     assert loaded.domain_result_reference == {"revision": [1, 2]}
@@ -566,6 +567,42 @@ def test_empty_command_type_is_not_defaulted(tmp_path: Path) -> None:
 
     with pytest.raises(ValidationError):
         store.begin("command-1", command_type="")
+
+
+def test_in_progress_reference_is_part_of_retry_intent(tmp_path: Path) -> None:
+    store = CommandReceiptStore(tmp_path, "workspace-1")
+    store.begin("command-1", domain_result_reference={"artifact_id": "first"})
+
+    with pytest.raises(BeginnerPersistenceError, match="intent conflict"):
+        store.begin("command-1", domain_result_reference={"artifact_id": "second"})
+
+
+@pytest.mark.parametrize("value", ["Workspace-1", "Revision-1", "Command-1"])
+def test_uppercase_ids_are_rejected_as_noncanonical(tmp_path: Path, value: str) -> None:
+    with pytest.raises(BeginnerPersistenceError, match="lowercase"):
+        BeginnerSessionStore(tmp_path, value)
+
+    store = BeginnerSessionStore(tmp_path, "workspace-1")
+    with pytest.raises(BeginnerPersistenceError, match="lowercase"):
+        store.revision_session_path(value)
+    receipt_store = CommandReceiptStore(tmp_path, "workspace-1")
+    with pytest.raises(BeginnerPersistenceError, match="lowercase"):
+        receipt_store.receipt_path(value)
+
+
+def test_symlinked_workspace_escape_is_rejected_before_write(tmp_path: Path) -> None:
+    workspaces = tmp_path / ".auteur" / "beginner" / "workspaces"
+    workspaces.mkdir(parents=True)
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    escaped = workspaces / "workspace-1"
+    try:
+        escaped.symlink_to(outside, target_is_directory=True)
+    except OSError as exc:
+        pytest.skip(f"symlink creation unavailable: {exc}")
+
+    with pytest.raises(ValueError, match="escapes intended root"):
+        BeginnerSessionStore(tmp_path, "workspace-1")
 
 
 @pytest.mark.parametrize(

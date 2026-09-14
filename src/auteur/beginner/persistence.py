@@ -11,10 +11,11 @@ import tempfile
 import threading
 import time
 from pathlib import Path
-from typing import Any, BinaryIO, Callable, Literal
+from typing import TYPE_CHECKING, BinaryIO, Callable, Literal, TypeAlias, cast
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 from pydantic_core import PydanticSerializationError
+from typing_extensions import TypeAliasType
 
 from .contracts import SessionEnvelope
 
@@ -40,9 +41,18 @@ class BeginnerReceiptOwnershipError(BeginnerConcurrencyError):
     """Raised when a command receipt is completed by a non-owner."""
 
 
-def _normalize_json_value(value: Any, label: str) -> Any:
+if TYPE_CHECKING:
+    JsonValue: TypeAlias = None | bool | int | float | str | list["JsonValue"] | dict[str, "JsonValue"]
+else:
+    JsonValue = TypeAliasType(
+        "JsonValue", None | bool | int | float | str | list["JsonValue"] | dict[str, "JsonValue"]
+    )
+JsonObject: TypeAlias = dict[str, JsonValue]
+
+
+def _normalize_json_value(value: JsonValue, label: str) -> JsonValue:
     try:
-        return json.loads(json.dumps(value, allow_nan=False, sort_keys=True, separators=(",", ":")))
+        return cast(JsonValue, json.loads(json.dumps(value, allow_nan=False, sort_keys=True, separators=(",", ":"))))
     except (TypeError, ValueError, OverflowError) as exc:
         raise ValueError(f"{label} must be JSON-compatible") from exc
 
@@ -54,23 +64,23 @@ class CommandReceipt(BaseModel):
 
     command_id: str = Field(min_length=1)
     status: Literal["in_progress", "complete"]
-    result: Any = None
+    result: JsonValue = None
     owner_token: str | None = Field(default=None, min_length=1)
     command_type: str = Field(default="unknown", min_length=1)
     target_milestone: str | None = Field(default=None, min_length=1)
-    promotion_intent: dict[str, Any] | None = None
-    domain_result_reference: dict[str, Any] | None = None
+    promotion_intent: JsonObject | None = None
+    domain_result_reference: JsonObject | None = None
 
     @model_validator(mode="after")
     def validate_durable_state(self) -> CommandReceipt:
         self.result = _normalize_json_value(self.result, "receipt result") if self.result is not None else None
         self.promotion_intent = (
-            _normalize_json_value(self.promotion_intent, "promotion intent")
+            cast(JsonObject, _normalize_json_value(self.promotion_intent, "promotion intent"))
             if self.promotion_intent is not None
             else None
         )
         self.domain_result_reference = (
-            _normalize_json_value(self.domain_result_reference, "domain result reference")
+            cast(JsonObject, _normalize_json_value(self.domain_result_reference, "domain result reference"))
             if self.domain_result_reference is not None
             else None
         )
@@ -98,22 +108,22 @@ class ReceiptAcquisition(BaseModel):
     status: Literal["in_progress", "complete"]
     outcome: Literal["owner_claim", "existing_in_progress", "completed_replay"]
     owner_token: str | None = Field(default=None, min_length=1)
-    result: Any = None
+    result: JsonValue = None
     command_type: str = Field(default="unknown", min_length=1)
     target_milestone: str | None = Field(default=None, min_length=1)
-    promotion_intent: dict[str, Any] | None = None
-    domain_result_reference: dict[str, Any] | None = None
+    promotion_intent: JsonObject | None = None
+    domain_result_reference: JsonObject | None = None
 
     @model_validator(mode="after")
     def validate_acquisition(self) -> ReceiptAcquisition:
         self.result = _normalize_json_value(self.result, "acquisition result") if self.result is not None else None
         self.promotion_intent = (
-            _normalize_json_value(self.promotion_intent, "promotion intent")
+            cast(JsonObject, _normalize_json_value(self.promotion_intent, "promotion intent"))
             if self.promotion_intent is not None
             else None
         )
         self.domain_result_reference = (
-            _normalize_json_value(self.domain_result_reference, "domain result reference")
+            cast(JsonObject, _normalize_json_value(self.domain_result_reference, "domain result reference"))
             if self.domain_result_reference is not None
             else None
         )
@@ -140,13 +150,17 @@ def _safe_segment(value: str, label: str) -> str:
         raise ValueError(f"{label} must be a safe single path segment")
     if value.split(".", 1)[0].upper() in _WINDOWS_DEVICE_NAMES:
         raise ValueError(f"{label} must not be a Windows reserved device name")
+    if value != value.lower():
+        raise BeginnerPersistenceError(f"{label} must use canonical lowercase form")
     return value
 
 
-def _contained_path(root: Path, *parts: str) -> Path:
+def _contained_path(root: Path, *parts: str, containment_root: Path | None = None) -> Path:
     candidate = (root / Path(*parts)).resolve()
     try:
         candidate.relative_to(root.resolve())
+        if containment_root is not None:
+            candidate.relative_to(containment_root.resolve())
     except ValueError as exc:
         raise ValueError(f"resolved path escapes intended root {root}") from exc
     return candidate
@@ -281,17 +295,23 @@ class BeginnerSessionStore:
     """Store the mutable session and immutable revision-session snapshots."""
 
     def __init__(self, project_root: Path, workspace_id: str) -> None:
-        self.workspace_root = Path(project_root)
+        self.workspace_root = Path(project_root).resolve()
         self.workspace_id = _safe_segment(workspace_id, "workspace_id")
-        workspace_root = _contained_path(self.workspace_root / ".auteur" / "beginner" / "workspaces", self.workspace_id)
+        workspace_root = _contained_path(
+            self.workspace_root / ".auteur" / "beginner" / "workspaces",
+            self.workspace_id,
+            containment_root=self.workspace_root,
+        )
         self._workspace_path = workspace_root
-        self.session_path = _contained_path(workspace_root, "session.json")
-        self._session_lock = _contained_path(workspace_root, ".session.lock")
+        self.session_path = _contained_path(workspace_root, "session.json", containment_root=self.workspace_root)
+        self._session_lock = _contained_path(workspace_root, ".session.lock", containment_root=self.workspace_root)
         self._instance_lock = threading.RLock()
 
     def revision_session_path(self, revision_id: str) -> Path:
         revision = _safe_segment(revision_id, "revision_id")
-        return _contained_path(self._workspace_path / "revisions", revision, "session.json")
+        return _contained_path(
+            self._workspace_path / "revisions", revision, "session.json", containment_root=self.workspace_root
+        )
 
     def load(self) -> SessionEnvelope:
         return self._load_session(self.session_path)
@@ -391,14 +411,18 @@ class CommandReceiptStore:
     """Persist command execution receipts for replay and crash recovery."""
 
     def __init__(self, project_root: Path, workspace_id: str) -> None:
-        self.workspace_root = Path(project_root)
+        self.workspace_root = Path(project_root).resolve()
         self.workspace_id = _safe_segment(workspace_id, "workspace_id")
-        workspace_root = _contained_path(self.workspace_root / ".auteur" / "beginner" / "workspaces", self.workspace_id)
-        self.receipts_path = _contained_path(workspace_root, "commands")
+        workspace_root = _contained_path(
+            self.workspace_root / ".auteur" / "beginner" / "workspaces",
+            self.workspace_id,
+            containment_root=self.workspace_root,
+        )
+        self.receipts_path = _contained_path(workspace_root, "commands", containment_root=self.workspace_root)
 
     def receipt_path(self, command_id: str) -> Path:
         command = _safe_segment(command_id, "command_id")
-        return _contained_path(self.receipts_path, f"{command}.json")
+        return _contained_path(self.receipts_path, f"{command}.json", containment_root=self.workspace_root)
 
     def load(self, command_id: str) -> CommandReceipt:
         path = self.receipt_path(command_id)
@@ -417,8 +441,8 @@ class CommandReceiptStore:
         command_id: str,
         command_type: str | None = None,
         target_milestone: str | None = None,
-        promotion_intent: dict[str, Any] | None = None,
-        domain_result_reference: dict[str, Any] | None = None,
+        promotion_intent: JsonObject | None = None,
+        domain_result_reference: JsonObject | None = None,
     ) -> ReceiptAcquisition:
         path = self.receipt_path(command_id)
         receipt = CommandReceipt(
@@ -446,6 +470,10 @@ class CommandReceiptStore:
             existing.command_type != receipt.command_type
             or existing.target_milestone != receipt.target_milestone
             or existing.promotion_intent != receipt.promotion_intent
+            or (
+                existing.status == "in_progress"
+                and existing.domain_result_reference != receipt.domain_result_reference
+            )
         ):
             raise BeginnerPersistenceError(f"command intent conflict for existing command_id {command_id}")
         if existing.status == "complete":
@@ -472,8 +500,8 @@ class CommandReceiptStore:
     def complete(
         self,
         receipt: CommandReceipt | ReceiptAcquisition,
-        result: Any,
-        domain_result_reference: dict[str, Any] | None = None,
+        result: JsonValue,
+        domain_result_reference: JsonObject | None = None,
     ) -> CommandReceipt:
         if isinstance(receipt, ReceiptAcquisition):
             if receipt.outcome == "completed_replay":
