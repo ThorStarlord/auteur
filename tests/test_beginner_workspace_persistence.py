@@ -10,7 +10,9 @@ from auteur.beginner.persistence import (
     BeginnerPersistenceError,
     BeginnerSessionStore,
     CommandReceiptStore,
+    _FilesystemLock,
 )
+import auteur.beginner.persistence as persistence
 
 
 def make_session() -> SessionEnvelope:
@@ -202,6 +204,46 @@ def test_separate_session_stores_serialize_same_version_updates(tmp_path: Path) 
     assert isinstance(failures[0], BeginnerConcurrencyError)
     assert first_store.load().session_version == original.session_version + 1
     assert first_store.load().premise == successes[0].premise
+
+
+def test_lock_timeout_after_commit_is_classified_as_concurrency_error(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    store = BeginnerSessionStore(tmp_path, "workspace-1")
+    original = store.save(make_session())
+    committed = original.model_copy(update={"session_version": original.session_version + 1, "premise": "Committed."})
+    monkeypatch.setattr(persistence, "_SESSION_LOCK_TIMEOUT", 0.01)
+    outcome: list[Exception] = []
+
+    with _FilesystemLock(store._session_lock):
+        store.session_path.write_text(committed.model_dump_json(), encoding="utf-8")
+
+        def contend() -> None:
+            try:
+                store.update(original.session_version, lambda session: session)
+            except Exception as exc:  # pragma: no cover - assertion below identifies the expected exception
+                outcome.append(exc)
+
+        thread = threading.Thread(target=contend)
+        thread.start()
+        thread.join(2)
+
+    assert len(outcome) == 1
+    assert isinstance(outcome[0], BeginnerConcurrencyError)
+    assert store.load() == committed
+
+
+def test_abandoned_lock_file_does_not_block_new_store(tmp_path: Path) -> None:
+    first_store = BeginnerSessionStore(tmp_path, "workspace-1")
+    second_store = BeginnerSessionStore(tmp_path, "workspace-1")
+    original = first_store.save(make_session())
+    first_store._session_lock.write_text("abandoned owner", encoding="utf-8")
+
+    updated = second_store.update(
+        original.session_version,
+        lambda session: session.model_copy(update={"premise": "Recovered."}),
+    )
+
+    assert updated.session_version == original.session_version + 1
+    assert second_store.load().premise == "Recovered."
 
 
 def test_save_requires_current_version_and_never_regresses_persisted_version(tmp_path: Path) -> None:

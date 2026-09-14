@@ -7,13 +7,19 @@ import re
 import tempfile
 import threading
 import time
+import errno
 from pathlib import Path
-from typing import Any, Callable, Literal
+from typing import Any, BinaryIO, Callable, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from pydantic_core import PydanticSerializationError
 
 from .contracts import SessionEnvelope
+
+if os.name == "nt":
+    import msvcrt
+else:
+    import fcntl  # type: ignore[import-not-found]
 
 
 class BeginnerPersistenceError(RuntimeError):
@@ -22,6 +28,10 @@ class BeginnerPersistenceError(RuntimeError):
 
 class BeginnerConcurrencyError(BeginnerPersistenceError):
     """Raised when a mutation was based on an obsolete session version."""
+
+
+class _BeginnerLockTimeout(BeginnerPersistenceError):
+    """Internal signal for a bounded advisory-lock wait."""
 
 
 class CommandReceipt(BaseModel):
@@ -124,42 +134,55 @@ def _atomic_create(path: Path, payload: str) -> bool:
                 pass
 
 
+_SESSION_LOCK_TIMEOUT = 10.0
+
+
 class _FilesystemLock:
-    def __init__(self, path: Path, timeout: float = 10.0) -> None:
+    def __init__(self, path: Path, timeout: float | None = None) -> None:
         self.path = path
-        self.timeout = timeout
-        self._file_descriptor: int | None = None
+        self.timeout = _SESSION_LOCK_TIMEOUT if timeout is None else timeout
+        self._file: BinaryIO | None = None
 
     def __enter__(self) -> _FilesystemLock:
         deadline = time.monotonic() + self.timeout
         try:
             self.path.parent.mkdir(parents=True, exist_ok=True)
+            self._file = self.path.open("a+b")
+            file = self._file
+            if file.tell() == 0:
+                file.write(b"\0")
+                file.flush()
             while True:
                 try:
-                    self._file_descriptor = os.open(
-                        self.path,
-                        os.O_CREAT | os.O_EXCL | os.O_WRONLY,
-                    )
+                    file.seek(0)
+                    if os.name == "nt":
+                        msvcrt.locking(file.fileno(), msvcrt.LK_NBLCK, 1)
+                    else:
+                        fcntl.flock(file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)  # type: ignore[attr-defined]
                     return self
-                except FileExistsError:
+                except OSError as exc:
+                    if exc.errno not in {errno.EACCES, errno.EAGAIN, errno.EDEADLK}:
+                        raise
                     if time.monotonic() >= deadline:
-                        raise BeginnerPersistenceError(f"timed out acquiring session lock {self.path}")
+                        raise _BeginnerLockTimeout(f"timed out acquiring session lock {self.path}")
                     time.sleep(0.005)
-        except BeginnerPersistenceError:
+        except (_BeginnerLockTimeout, BeginnerPersistenceError):
             raise
         except OSError as exc:
             raise BeginnerPersistenceError(f"could not acquire session lock {self.path}: {exc}") from exc
 
     def __exit__(self, exc_type: object, exc_value: object, traceback: object) -> None:
-        if self._file_descriptor is not None:
-            os.close(self._file_descriptor)
-            self._file_descriptor = None
-        try:
-            self.path.unlink()
-        except FileNotFoundError:
-            pass
-        except OSError as exc:
-            raise BeginnerPersistenceError(f"could not release session lock {self.path}: {exc}") from exc
+        if self._file is not None:
+            file = self._file
+            try:
+                file.seek(0)
+                if os.name == "nt":
+                    msvcrt.locking(file.fileno(), msvcrt.LK_UNLCK, 1)
+                else:
+                    fcntl.flock(file.fileno(), fcntl.LOCK_UN)  # type: ignore[attr-defined]
+            finally:
+                file.close()
+                self._file = None
 
 
 class BeginnerSessionStore:
@@ -231,19 +254,30 @@ class BeginnerSessionStore:
         return self._load_session(self.revision_session_path(revision_id))
 
     def update(self, expected_session_version: int, mutator: Callable[[SessionEnvelope], SessionEnvelope]) -> SessionEnvelope:
-        with self._instance_lock, _FilesystemLock(self._session_lock):
-            current = self.load()
+        try:
+            with self._instance_lock, _FilesystemLock(self._session_lock):
+                current = self.load()
+                if current.session_version != expected_session_version:
+                    raise BeginnerConcurrencyError(
+                        f"session version mismatch: expected {expected_session_version}, found {current.session_version}"
+                    )
+                updated = mutator(current)
+                next_version = current.session_version + 1
+                persisted = SessionEnvelope.model_validate(
+                    {**updated.model_dump(mode="python"), "session_version": next_version}
+                )
+                _atomic_write(self.session_path, persisted.model_dump_json())
+                return persisted
+        except _BeginnerLockTimeout as exc:
+            try:
+                current = self.load()
+            except BeginnerPersistenceError:
+                raise exc
             if current.session_version != expected_session_version:
                 raise BeginnerConcurrencyError(
                     f"session version mismatch: expected {expected_session_version}, found {current.session_version}"
-                )
-            updated = mutator(current)
-            next_version = current.session_version + 1
-            persisted = SessionEnvelope.model_validate(
-                {**updated.model_dump(mode="python"), "session_version": next_version}
-            )
-            _atomic_write(self.session_path, persisted.model_dump_json())
-            return persisted
+                ) from exc
+            raise exc
 
 
 class CommandReceiptStore:
