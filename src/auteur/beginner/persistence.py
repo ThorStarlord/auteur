@@ -153,12 +153,16 @@ class _FilesystemLock:
         deadline = time.monotonic() + self.timeout
         try:
             self.path.parent.mkdir(parents=True, exist_ok=True)
-            self._file = self.path.open("a+b")
-            file = self._file
-            if file.tell() == 0:
-                file.write(b"\0")
-                file.flush()
-            while True:
+        except OSError as exc:
+            raise BeginnerPersistenceError(f"could not acquire session lock {self.path}: {exc}") from exc
+
+        while True:
+            try:
+                self._file = self.path.open("a+b")
+                file = self._file
+                if file.tell() == 0:
+                    file.write(b"\0")
+                    file.flush()
                 try:
                     file.seek(0)
                     if os.name == "nt":
@@ -167,17 +171,14 @@ class _FilesystemLock:
                         fcntl.flock(file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)  # type: ignore[attr-defined]
                     return self
                 except OSError as exc:
-                    if exc.errno not in {errno.EACCES, errno.EAGAIN, errno.EDEADLK}:
-                        raise
-                    if time.monotonic() >= deadline:
-                        raise _BeginnerLockTimeout(f"timed out acquiring session lock {self.path}")
-                    time.sleep(0.005)
-        except (_BeginnerLockTimeout, BeginnerPersistenceError):
-            self._close_file()
-            raise
-        except OSError as exc:
-            self._close_file()
-            raise BeginnerPersistenceError(f"could not acquire session lock {self.path}: {exc}") from exc
+                    raise exc
+            except OSError as exc:
+                self._close_file()
+                if not _is_lock_contention(exc):
+                    raise BeginnerPersistenceError(f"could not acquire session lock {self.path}: {exc}") from exc
+                if time.monotonic() >= deadline:
+                    raise _BeginnerLockTimeout(f"timed out acquiring session lock {self.path}")
+                time.sleep(0.005)
 
     def __exit__(self, exc_type: object, exc_value: object, traceback: object) -> None:
         if self._file is not None:
@@ -195,6 +196,10 @@ class _FilesystemLock:
         if self._file is not None:
             self._file.close()
             self._file = None
+
+
+def _is_lock_contention(exc: OSError) -> bool:
+    return exc.errno in {errno.EACCES, errno.EAGAIN, errno.EDEADLK}
 
 
 class BeginnerSessionStore:

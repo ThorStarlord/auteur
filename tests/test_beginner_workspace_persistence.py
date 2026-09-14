@@ -393,6 +393,36 @@ def test_concurrent_completion_is_serialized_and_idempotent(tmp_path: Path) -> N
     assert persisted.status == "complete"
 
 
+def test_repeated_independent_receipt_completions_have_no_lock_open_race(tmp_path: Path) -> None:
+    first_store = CommandReceiptStore(tmp_path, "workspace-1")
+    second_store = CommandReceiptStore(tmp_path, "workspace-1")
+
+    for iteration in range(50):
+        command_id = f"command-{iteration}"
+        owner = first_store.begin(command_id)
+        completions: list[CommandReceipt] = []
+        failures: list[Exception] = []
+
+        def complete(store: CommandReceiptStore, value: str) -> None:
+            try:
+                completions.append(store.complete(owner, {"value": value}))
+            except Exception as exc:  # pragma: no cover - assertion below identifies unexpected failures
+                failures.append(exc)
+
+        threads = [
+            threading.Thread(target=complete, args=(first_store, "first")),
+            threading.Thread(target=complete, args=(second_store, "second")),
+        ]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join(2)
+
+        assert failures == []
+        assert len(completions) == 2
+        assert all(completion == first_store.load(command_id) for completion in completions)
+
+
 def test_failed_lock_enter_closes_contender_handle(tmp_path: Path) -> None:
     store = BeginnerSessionStore(tmp_path, "workspace-1")
     with _FilesystemLock(store._session_lock):
