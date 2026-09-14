@@ -57,10 +57,12 @@ def test_mutation_commands_have_distinct_existing_and_create_shapes() -> None:
         "payload": {"project_id": "project-1"},
     }
     with pytest.raises(ValidationError):
-        CreateWorkspaceCommand(
-            command_id="command-3",
-            payload={},
-            workspace_id="not-allowed",
+        CreateWorkspaceCommand.model_validate(
+            {
+                "command_id": "command-3",
+                "payload": {},
+                "workspace_id": "not-allowed",
+            }
         )
 
 
@@ -82,3 +84,57 @@ def test_supporting_contracts_are_typed_pydantic_models() -> None:
     assert decision.stage is DecisionStage.DISCOVER
     assert status.lifecycle is LifecycleStatus.WORKING
     assert milestone.revision.revision == 2
+
+
+@pytest.mark.parametrize(
+    "stages",
+    [
+        {},
+        {"discover": SessionEnvelope.new("p", "mystery", "premise").stages[DecisionStage.DISCOVER].model_dump()},
+        {
+            **SessionEnvelope.new("p", "mystery", "premise").model_dump(mode="json")["stages"],
+            "extra": {
+                "stage": "extra",
+                "lifecycle": "not_started",
+                "availability": "locked",
+            },
+        },
+    ],
+)
+def test_session_rejects_empty_missing_or_extra_stage_mappings(stages: dict) -> None:
+    payload = SessionEnvelope.new("p", "mystery", "premise").model_dump(mode="json")
+    payload["stages"] = stages
+
+    with pytest.raises(ValidationError):
+        SessionEnvelope.model_validate(payload)
+
+
+def test_session_rejects_nested_stage_mismatches() -> None:
+    payload = SessionEnvelope.new("p", "mystery", "premise").model_dump(mode="json")
+    payload["stages"]["discover"]["stage"] = "story_identity"
+
+    with pytest.raises(ValidationError, match="must match its stage mapping key"):
+        SessionEnvelope.model_validate(payload)
+
+
+def test_stage_status_rejects_working_decision_for_another_stage() -> None:
+    status = {
+        "stage": "discover",
+        "lifecycle": "working",
+        "availability": "available",
+        "working_decision": {
+            "stage": "story_identity",
+            "question": "Who is the protagonist?",
+        },
+    }
+
+    with pytest.raises(ValidationError, match="working_decision.stage must match stage"):
+        StageStatus.model_validate(status)
+
+
+def test_session_json_round_trip_preserves_stage_contract() -> None:
+    session = SessionEnvelope.new("p", "mystery", "premise")
+
+    restored = SessionEnvelope.model_validate_json(session.model_dump_json())
+
+    assert restored == session

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Literal
+from typing import Any, Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class DecisionStage(str, Enum):
@@ -54,6 +54,12 @@ class StageStatus(BaseModel):
     availability: StageAvailability
     working_decision: WorkingDecision | None = None
 
+    @model_validator(mode="after")
+    def require_consistent_working_decision(self) -> Self:
+        if self.working_decision is not None and self.working_decision.stage != self.stage:
+            raise ValueError("working_decision.stage must match stage")
+        return self
+
 
 class SessionEnvelope(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -65,6 +71,17 @@ class SessionEnvelope(BaseModel):
     premise: str = Field(min_length=1)
     stages: dict[DecisionStage, StageStatus]
     accepted_milestones: list[AcceptedMilestoneReference] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def require_consistent_stage_graph(self) -> Self:
+        expected_stages = set(DecisionStage)
+        actual_stages = set(self.stages)
+        if actual_stages != expected_stages or len(self.stages) != len(expected_stages):
+            raise ValueError("stages must contain exactly one status for every decision stage")
+        for stage, status in self.stages.items():
+            if status.stage != stage:
+                raise ValueError("StageStatus.stage must match its stage mapping key")
+        return self
 
     @classmethod
     def new(cls, project_id: str, guidance_genre: str, premise: str) -> SessionEnvelope:
