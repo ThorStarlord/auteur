@@ -6,6 +6,7 @@ import os
 import re
 import tempfile
 import threading
+import time
 from pathlib import Path
 from typing import Any, Callable, Literal
 
@@ -123,6 +124,44 @@ def _atomic_create(path: Path, payload: str) -> bool:
                 pass
 
 
+class _FilesystemLock:
+    def __init__(self, path: Path, timeout: float = 10.0) -> None:
+        self.path = path
+        self.timeout = timeout
+        self._file_descriptor: int | None = None
+
+    def __enter__(self) -> _FilesystemLock:
+        deadline = time.monotonic() + self.timeout
+        try:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            while True:
+                try:
+                    self._file_descriptor = os.open(
+                        self.path,
+                        os.O_CREAT | os.O_EXCL | os.O_WRONLY,
+                    )
+                    return self
+                except FileExistsError:
+                    if time.monotonic() >= deadline:
+                        raise BeginnerPersistenceError(f"timed out acquiring session lock {self.path}")
+                    time.sleep(0.005)
+        except BeginnerPersistenceError:
+            raise
+        except OSError as exc:
+            raise BeginnerPersistenceError(f"could not acquire session lock {self.path}: {exc}") from exc
+
+    def __exit__(self, exc_type: object, exc_value: object, traceback: object) -> None:
+        if self._file_descriptor is not None:
+            os.close(self._file_descriptor)
+            self._file_descriptor = None
+        try:
+            self.path.unlink()
+        except FileNotFoundError:
+            pass
+        except OSError as exc:
+            raise BeginnerPersistenceError(f"could not release session lock {self.path}: {exc}") from exc
+
+
 class BeginnerSessionStore:
     """Store the mutable session and immutable revision-session snapshots."""
 
@@ -132,7 +171,8 @@ class BeginnerSessionStore:
         workspace_root = _contained_path(self.workspace_root / ".auteur" / "beginner" / "workspaces", self.workspace_id)
         self._workspace_path = workspace_root
         self.session_path = _contained_path(workspace_root, "session.json")
-        self._lock = threading.RLock()
+        self._session_lock = _contained_path(workspace_root, ".session.lock")
+        self._instance_lock = threading.RLock()
 
     def revision_session_path(self, revision_id: str) -> Path:
         revision = _safe_segment(revision_id, "revision_id")
@@ -150,7 +190,7 @@ class BeginnerSessionStore:
             raise BeginnerPersistenceError(f"could not load session from {path}: {exc}") from exc
 
     def create(self, session: SessionEnvelope) -> SessionEnvelope:
-        with self._lock:
+        with self._instance_lock, _FilesystemLock(self._session_lock):
             if self.session_path.exists():
                 raise BeginnerPersistenceError(f"session already exists at {self.session_path}")
             saved = session.model_copy(update={"session_version": session.session_version + 1})
@@ -159,7 +199,7 @@ class BeginnerSessionStore:
             return saved
 
     def save(self, session: SessionEnvelope, expected_session_version: int | None = None) -> SessionEnvelope:
-        with self._lock:
+        with self._instance_lock, _FilesystemLock(self._session_lock):
             if self.session_path.exists():
                 current = self.load()
                 if expected_session_version is None or current.session_version != expected_session_version:
@@ -191,7 +231,7 @@ class BeginnerSessionStore:
         return self._load_session(self.revision_session_path(revision_id))
 
     def update(self, expected_session_version: int, mutator: Callable[[SessionEnvelope], SessionEnvelope]) -> SessionEnvelope:
-        with self._lock:
+        with self._instance_lock, _FilesystemLock(self._session_lock):
             current = self.load()
             if current.session_version != expected_session_version:
                 raise BeginnerConcurrencyError(

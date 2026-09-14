@@ -152,6 +152,58 @@ def test_session_update_serializes_same_version_updates(tmp_path: Path) -> None:
     assert store.load().premise == successes[0].premise
 
 
+def test_separate_session_stores_serialize_same_version_updates(tmp_path: Path) -> None:
+    first_store = BeginnerSessionStore(tmp_path, "workspace-1")
+    second_store = BeginnerSessionStore(tmp_path, "workspace-1")
+    original = first_store.save(make_session())
+    first_started = threading.Event()
+    release_first = threading.Event()
+    second_entered = threading.Event()
+    successes: list[SessionEnvelope] = []
+    failures: list[Exception] = []
+
+    def first_mutator(session: SessionEnvelope) -> SessionEnvelope:
+        first_started.set()
+        release_first.wait(2)
+        return session.model_copy(update={"premise": "First."})
+
+    def second_mutator(session: SessionEnvelope) -> SessionEnvelope:
+        second_entered.set()
+        return session.model_copy(update={"premise": "Second."})
+
+    def first_update() -> None:
+        try:
+            successes.append(
+                first_store.update(original.session_version, first_mutator)
+            )
+        except Exception as exc:  # pragma: no cover - assertion below identifies the expected exception
+            failures.append(exc)
+
+    def second_update() -> None:
+        try:
+            successes.append(
+                second_store.update(original.session_version, second_mutator)
+            )
+        except Exception as exc:  # pragma: no cover - assertion below identifies the expected exception
+            failures.append(exc)
+
+    first_thread = threading.Thread(target=first_update)
+    second_thread = threading.Thread(target=second_update)
+    first_thread.start()
+    assert first_started.wait(2)
+    second_thread.start()
+    assert not second_entered.wait(0.1)
+    release_first.set()
+    first_thread.join(2)
+    second_thread.join(2)
+
+    assert len(successes) == 1
+    assert len(failures) == 1
+    assert isinstance(failures[0], BeginnerConcurrencyError)
+    assert first_store.load().session_version == original.session_version + 1
+    assert first_store.load().premise == successes[0].premise
+
+
 def test_save_requires_current_version_and_never_regresses_persisted_version(tmp_path: Path) -> None:
     store = BeginnerSessionStore(tmp_path, "workspace-1")
     original = store.save(make_session())
