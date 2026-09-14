@@ -48,9 +48,10 @@ class CommandReceipt(BaseModel):
     status: Literal["in_progress", "complete"]
     result: Any = None
     owner_token: str | None = Field(default=None, min_length=1)
-    acquisition_outcome: Literal["new_owner", "existing_in_progress", "existing_completed"] = Field(
-        default="new_owner", exclude=True
-    )
+    command_type: str = Field(default="unknown", min_length=1)
+    target_milestone: str | None = Field(default=None, min_length=1)
+    promotion_intent: dict[str, Any] | None = None
+    domain_result_reference: dict[str, Any] | None = None
 
     @model_validator(mode="after")
     def validate_durable_state(self) -> CommandReceipt:
@@ -62,14 +63,6 @@ class CommandReceipt(BaseModel):
         elif self.owner_token is None:
             raise ValueError("complete receipt must have an owner_token")
         return self
-
-    @property
-    def acquired(self) -> bool:
-        return self.acquisition_outcome == "new_owner"
-
-    @property
-    def outcome(self) -> str:
-        return self.acquisition_outcome
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, CommandReceipt):
@@ -87,15 +80,21 @@ class ReceiptAcquisition(BaseModel):
     outcome: Literal["owner_claim", "existing_in_progress", "completed_replay"]
     owner_token: str | None = Field(default=None, min_length=1)
     result: Any = None
+    command_type: str = Field(default="unknown", min_length=1)
+    target_milestone: str | None = Field(default=None, min_length=1)
+    promotion_intent: dict[str, Any] | None = None
+    domain_result_reference: dict[str, Any] | None = None
 
     @model_validator(mode="after")
     def validate_acquisition(self) -> ReceiptAcquisition:
-        if self.outcome == "owner_claim" and self.owner_token is None:
-            raise ValueError("owner_claim must have an owner_token")
-        if self.outcome == "existing_in_progress" and (self.owner_token is not None or self.result is not None):
-            raise ValueError("existing_in_progress must not expose an owner or result")
-        if self.outcome == "completed_replay" and self.status != "complete":
-            raise ValueError("completed_replay must have complete status")
+        if self.outcome == "owner_claim":
+            if self.status != "in_progress" or self.owner_token is None or self.result is not None:
+                raise ValueError("owner_claim must be an in-progress claim with a token and no result")
+        elif self.outcome == "existing_in_progress":
+            if self.status != "in_progress" or self.owner_token is not None or self.result is not None:
+                raise ValueError("existing_in_progress must have no token or result")
+        elif self.status != "complete" or self.owner_token is not None:
+            raise ValueError("completed_replay must be complete and expose no owner token")
         return self
 
     @property
@@ -107,6 +106,8 @@ class ReceiptAcquisition(BaseModel):
             return (self.command_id, self.status, self.result) == (other.command_id, other.status, other.result)
         if isinstance(other, ReceiptAcquisition):
             return self.model_dump() == other.model_dump()
+        if isinstance(other, dict) and self.outcome == "completed_replay":
+            return self.result == other
         return NotImplemented
 
 
@@ -381,15 +382,34 @@ class CommandReceiptStore:
         except (OSError, ValueError, ValidationError) as exc:
             raise BeginnerPersistenceError(f"could not load command receipt from {path}: {exc}") from exc
 
-    def begin(self, command_id: str) -> ReceiptAcquisition:
+    def begin(
+        self,
+        command_id: str,
+        command_type: str = "unknown",
+        target_milestone: str | None = None,
+        promotion_intent: dict[str, Any] | None = None,
+        domain_result_reference: dict[str, Any] | None = None,
+    ) -> ReceiptAcquisition:
         path = self.receipt_path(command_id)
-        receipt = CommandReceipt(command_id=command_id, status="in_progress", owner_token=secrets.token_urlsafe(32))
+        receipt = CommandReceipt(
+            command_id=command_id,
+            status="in_progress",
+            owner_token=secrets.token_urlsafe(32),
+            command_type=command_type,
+            target_milestone=target_milestone,
+            promotion_intent=promotion_intent,
+            domain_result_reference=domain_result_reference,
+        )
         if _atomic_create(path, _serialize_receipt(receipt)):
             return ReceiptAcquisition(
                 command_id=command_id,
                 status="in_progress",
                 outcome="owner_claim",
                 owner_token=receipt.owner_token,
+                command_type=receipt.command_type,
+                target_milestone=receipt.target_milestone,
+                promotion_intent=receipt.promotion_intent,
+                domain_result_reference=receipt.domain_result_reference,
             )
         existing = self.load(command_id)
         if existing.status == "complete":
@@ -398,17 +418,34 @@ class CommandReceiptStore:
                 status="complete",
                 outcome="completed_replay",
                 result=existing.result,
+                command_type=existing.command_type,
+                target_milestone=existing.target_milestone,
+                promotion_intent=existing.promotion_intent,
+                domain_result_reference=existing.domain_result_reference,
             )
-        return ReceiptAcquisition(command_id=command_id, status="in_progress", outcome="existing_in_progress")
+        return ReceiptAcquisition(
+            command_id=command_id,
+            status="in_progress",
+            outcome="existing_in_progress",
+            command_type=existing.command_type,
+            target_milestone=existing.target_milestone,
+            promotion_intent=existing.promotion_intent,
+            domain_result_reference=existing.domain_result_reference,
+        )
 
     def complete(self, receipt: CommandReceipt | ReceiptAcquisition, result: Any) -> CommandReceipt:
         if isinstance(receipt, ReceiptAcquisition):
-            if receipt.outcome != "owner_claim":
+            if receipt.outcome == "completed_replay":
+                owner_token = None
+            elif receipt.outcome == "owner_claim":
+                owner_token = receipt.owner_token
+            else:
                 raise BeginnerReceiptOwnershipError("only an owner claim can complete an in-progress receipt")
-            owner_token = receipt.owner_token
         else:
             owner_token = receipt.owner_token
-        if owner_token is None:
+        if owner_token is None and not (
+            isinstance(receipt, ReceiptAcquisition) and receipt.outcome == "completed_replay"
+        ):
             raise BeginnerReceiptOwnershipError("receipt owner token is required")
         command_id = receipt.command_id
         path = self.receipt_path(command_id)
@@ -425,10 +462,25 @@ class CommandReceiptStore:
                 status="complete",
                 result=result,
                 owner_token=existing.owner_token,
+                command_type=existing.command_type,
+                target_milestone=existing.target_milestone,
+                promotion_intent=existing.promotion_intent,
+                domain_result_reference=existing.domain_result_reference,
             )
             _atomic_write(path, _serialize_receipt(completed))
             return completed
 
     def replay(self, command_id: str) -> Any | None:
         receipt = self.load(command_id)
-        return receipt.result if receipt.status == "complete" else None
+        if receipt.status != "complete":
+            return None
+        return ReceiptAcquisition(
+            command_id=command_id,
+            status="complete",
+            outcome="completed_replay",
+            result=receipt.result,
+            command_type=receipt.command_type,
+            target_milestone=receipt.target_milestone,
+            promotion_intent=receipt.promotion_intent,
+            domain_result_reference=receipt.domain_result_reference,
+        )

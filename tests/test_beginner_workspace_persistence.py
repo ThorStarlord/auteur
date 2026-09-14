@@ -2,6 +2,7 @@ import json
 import threading
 from pathlib import Path
 
+from pydantic import ValidationError
 import pytest
 
 from auteur.beginner.contracts import SessionEnvelope
@@ -409,6 +410,53 @@ def test_receipt_replay_returns_recorded_result_and_does_not_duplicate(tmp_path:
     assert replay == {"workspace_id": "workspace-1"}
     assert len(list(store.receipts_path.glob("*.json"))) == 1
     assert store.begin("command-1") == completed
+
+
+def test_receipt_persists_command_and_promotion_intent_metadata(tmp_path: Path) -> None:
+    store = CommandReceiptStore(tmp_path, "workspace-1")
+
+    claim = store.begin(
+        "command-1",
+        command_type="promote_milestone",
+        target_milestone="identity-accepted",
+        promotion_intent={"source": "beginner"},
+        domain_result_reference={"artifact_id": "identity-1", "revision": 2},
+    )
+
+    loaded = store.load("command-1")
+    assert claim.command_type == "promote_milestone"
+    assert loaded.command_type == "promote_milestone"
+    assert loaded.target_milestone == "identity-accepted"
+    assert loaded.promotion_intent == {"source": "beginner"}
+    assert loaded.domain_result_reference == {"artifact_id": "identity-1", "revision": 2}
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {"status": "complete", "outcome": "owner_claim", "owner_token": "token", "result": None},
+        {"status": "complete", "outcome": "existing_in_progress", "owner_token": None, "result": None},
+        {"status": "in_progress", "outcome": "owner_claim", "owner_token": "token", "result": {"done": True}},
+        {"status": "complete", "outcome": "completed_replay", "owner_token": "token", "result": {"done": True}},
+    ],
+)
+def test_receipt_acquisition_rejects_inconsistent_status_outcome_combinations(
+    payload: dict[str, object],
+) -> None:
+    with pytest.raises(ValidationError):
+        ReceiptAcquisition(command_id="command-1", **payload)
+
+
+def test_replay_returns_receipt_like_completed_acquisition(tmp_path: Path) -> None:
+    store = CommandReceiptStore(tmp_path, "workspace-1")
+    owner = store.begin("command-1")
+    store.complete(owner, {"accepted": True})
+
+    replay = store.replay("command-1")
+
+    assert replay is not None
+    assert replay.outcome == "completed_replay"
+    assert replay.result == {"accepted": True}
 
 
 def test_receipt_load_rejects_command_id_mismatch_and_replay_cannot_cross_commands(tmp_path: Path) -> None:
