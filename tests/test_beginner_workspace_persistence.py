@@ -261,6 +261,19 @@ def test_save_requires_current_version_and_never_regresses_persisted_version(tmp
     assert store.load().session_version == original.session_version + 1
 
 
+def test_initial_save_and_create_reject_unexpected_expected_version_without_creating(tmp_path: Path) -> None:
+    save_store = BeginnerSessionStore(tmp_path, "save-workspace")
+    create_store = BeginnerSessionStore(tmp_path, "create-workspace")
+
+    with pytest.raises(BeginnerConcurrencyError):
+        save_store.save(make_session(), expected_session_version=7)
+    with pytest.raises(BeginnerConcurrencyError):
+        create_store.create(make_session(), expected_session_version=7)
+
+    assert not save_store.session_path.exists()
+    assert not create_store.session_path.exists()
+
+
 def test_create_is_create_only(tmp_path: Path) -> None:
     store = BeginnerSessionStore(tmp_path, "workspace-1")
     store.create(make_session())
@@ -304,6 +317,46 @@ def test_competing_receipt_claims_have_one_new_owner(tmp_path: Path) -> None:
 
     assert sum(claim.acquired for claim in claims) == 1
     assert {claim.status for claim in claims} == {"in_progress"}
+
+
+@pytest.mark.parametrize("result", [None, {"unexpected": True}])
+def test_in_progress_receipt_with_missing_owner_or_result_is_rejected(tmp_path: Path, result: object) -> None:
+    store = CommandReceiptStore(tmp_path, "workspace-1")
+    path = store.receipt_path("command-1")
+    path.parent.mkdir(parents=True)
+    path.write_text(
+        json.dumps({"command_id": "command-1", "status": "in_progress", "owner_token": None, "result": result}),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(BeginnerPersistenceError, match="receipt"):
+        store.load("command-1")
+
+
+def test_in_progress_receipt_with_result_is_rejected_even_with_owner(tmp_path: Path) -> None:
+    store = CommandReceiptStore(tmp_path, "workspace-1")
+    path = store.receipt_path("command-1")
+    path.parent.mkdir(parents=True)
+    path.write_text(
+        json.dumps({"command_id": "command-1", "status": "in_progress", "owner_token": "owner", "result": {"x": 1}}),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(BeginnerPersistenceError, match="receipt"):
+        store.load("command-1")
+
+
+@pytest.mark.parametrize("value", ["CON", "con", "PrN", "aux", "NUL", "COM1", "com9", "LPT1", "lpt9"])
+def test_windows_reserved_device_names_are_rejected_before_io(tmp_path: Path, value: str) -> None:
+    with pytest.raises(ValueError):
+        BeginnerSessionStore(tmp_path, value)
+
+    store = BeginnerSessionStore(tmp_path, "workspace-1")
+    with pytest.raises(ValueError):
+        store.revision_session_path(value)
+    receipt_store = CommandReceiptStore(tmp_path, "workspace-1")
+    with pytest.raises(ValueError):
+        receipt_store.receipt_path(value)
 
 
 def test_receipt_non_json_result_raises_persistence_error(tmp_path: Path) -> None:

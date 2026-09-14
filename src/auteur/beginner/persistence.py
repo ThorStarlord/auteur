@@ -12,7 +12,7 @@ import errno
 from pathlib import Path
 from typing import Any, BinaryIO, Callable, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 from pydantic_core import PydanticSerializationError
 
 from .contracts import SessionEnvelope
@@ -52,6 +52,17 @@ class CommandReceipt(BaseModel):
         default="new_owner", exclude=True
     )
 
+    @model_validator(mode="after")
+    def validate_durable_state(self) -> CommandReceipt:
+        if self.status == "in_progress":
+            if self.owner_token is None:
+                raise ValueError("in_progress receipt must have an owner_token")
+            if self.result is not None:
+                raise ValueError("in_progress receipt must not have a result")
+        elif self.owner_token is None:
+            raise ValueError("complete receipt must have an owner_token")
+        return self
+
     @property
     def acquired(self) -> bool:
         return self.acquisition_outcome == "new_owner"
@@ -67,11 +78,14 @@ class CommandReceipt(BaseModel):
 
 
 _SAFE_SEGMENT = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]*\Z")
+_WINDOWS_DEVICE_NAMES = {"CON", "PRN", "AUX", "NUL", *(f"COM{index}" for index in range(1, 10)), *(f"LPT{index}" for index in range(1, 10))}
 
 
 def _safe_segment(value: str, label: str) -> str:
     if not isinstance(value, str) or _SAFE_SEGMENT.fullmatch(value) is None:
         raise ValueError(f"{label} must be a safe single path segment")
+    if value.split(".", 1)[0].upper() in _WINDOWS_DEVICE_NAMES:
+        raise ValueError(f"{label} must not be a Windows reserved device name")
     return value
 
 
@@ -229,8 +243,12 @@ class BeginnerSessionStore:
         except (OSError, ValueError, ValidationError) as exc:
             raise BeginnerPersistenceError(f"could not load session from {path}: {exc}") from exc
 
-    def create(self, session: SessionEnvelope) -> SessionEnvelope:
+    def create(self, session: SessionEnvelope, expected_session_version: int | None = None) -> SessionEnvelope:
         with self._instance_lock, _FilesystemLock(self._session_lock):
+            if expected_session_version not in (None, 0):
+                raise BeginnerConcurrencyError(
+                    f"cannot create session with expected version {expected_session_version}; initial version is 0"
+                )
             if self.session_path.exists():
                 raise BeginnerPersistenceError(f"session already exists at {self.session_path}")
             saved = session.model_copy(update={"session_version": session.session_version + 1})
@@ -248,6 +266,10 @@ class BeginnerSessionStore:
                     )
                 next_version = current.session_version + 1
             else:
+                if expected_session_version not in (None, 0):
+                    raise BeginnerConcurrencyError(
+                        f"cannot create session with expected version {expected_session_version}; initial version is 0"
+                    )
                 next_version = session.session_version + 1
             saved = SessionEnvelope.model_validate({**session.model_dump(mode="python"), "session_version": next_version})
             if self.session_path.exists():
