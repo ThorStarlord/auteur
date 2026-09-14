@@ -339,10 +339,10 @@ class BeginnerSessionStore:
                         f"session version mismatch: expected {expected_session_version}, found {current.session_version}"
                     )
                 updated = mutator(current)
+                normalized = updated.model_copy(update={"session_version": current.session_version})
+                validated = _validate_session(normalized)
                 next_version = current.session_version + 1
-                persisted = SessionEnvelope.model_validate(
-                    {**updated.model_dump(mode="python"), "session_version": next_version}
-                )
+                persisted = validated.model_copy(update={"session_version": next_version})
                 _atomic_write(self.session_path, persisted.model_dump_json())
                 return persisted
         except _BeginnerLockTimeout as exc:

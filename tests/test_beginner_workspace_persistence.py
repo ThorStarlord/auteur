@@ -7,6 +7,7 @@ from pydantic import ValidationError
 import pytest
 
 from auteur.beginner.contracts import SessionEnvelope
+from auteur.beginner.contracts import AcceptedMilestoneReference, RevisionRef
 from auteur.beginner.persistence import (
     BeginnerConcurrencyError,
     BeginnerPersistenceError,
@@ -46,6 +47,25 @@ def test_corrupted_session_envelope_is_rejected_before_write(tmp_path: Path, fie
     with pytest.raises(BeginnerPersistenceError):
         store.save(corrupted, expected_session_version=original.session_version)
 
+    assert store.load() == original
+
+
+def test_update_rejects_nested_wrong_type_before_mutating_persisted_session(tmp_path: Path) -> None:
+    store = BeginnerSessionStore(tmp_path, "workspace-1")
+    milestone = AcceptedMilestoneReference(
+        milestone_id="milestone-1", revision=RevisionRef(artifact_id="artifact-1", revision=2)
+    )
+    original = store.save(make_session().model_copy(update={"accepted_milestones": [milestone]}))
+    corrupted_revision = milestone.revision.model_copy(update={"revision": "2"})
+    corrupted = original.model_copy(
+        update={"accepted_milestones": [milestone.model_copy(update={"revision": corrupted_revision})]}
+    )
+    before = store.session_path.read_bytes()
+
+    with pytest.raises(BeginnerPersistenceError):
+        store.update(original.session_version, lambda session: corrupted)
+
+    assert store.session_path.read_bytes() == before
     assert store.load() == original
 
 
