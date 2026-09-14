@@ -101,16 +101,6 @@ class ReceiptAcquisition(BaseModel):
     def acquired(self) -> bool:
         return self.outcome == "owner_claim"
 
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, CommandReceipt):
-            return (self.command_id, self.status, self.result) == (other.command_id, other.status, other.result)
-        if isinstance(other, ReceiptAcquisition):
-            return self.model_dump() == other.model_dump()
-        if isinstance(other, dict) and self.outcome == "completed_replay":
-            return self.result == other
-        return NotImplemented
-
-
 _SAFE_SEGMENT = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]*\Z")
 _WINDOWS_DEVICE_NAMES = {"CON", "PRN", "AUX", "NUL", *(f"COM{index}" for index in range(1, 10)), *(f"LPT{index}" for index in range(1, 10))}
 
@@ -137,6 +127,13 @@ def _serialize_receipt(receipt: CommandReceipt) -> str:
         return receipt.model_dump_json()
     except (TypeError, ValueError, PydanticSerializationError) as exc:
         raise BeginnerPersistenceError(f"could not serialize command receipt: {exc}") from exc
+
+
+def _validate_session(session: SessionEnvelope) -> SessionEnvelope:
+    try:
+        return SessionEnvelope.model_validate(session.model_dump(mode="python"), strict=True)
+    except ValidationError as exc:
+        raise BeginnerPersistenceError(f"invalid session envelope: {exc}") from exc
 
 
 def _atomic_write(path: Path, payload: str) -> None:
@@ -278,6 +275,7 @@ class BeginnerSessionStore:
             raise BeginnerPersistenceError(f"could not load session from {path}: {exc}") from exc
 
     def create(self, session: SessionEnvelope, expected_session_version: int | None = None) -> SessionEnvelope:
+        validated = _validate_session(session)
         with self._instance_lock, _FilesystemLock(self._session_lock):
             if expected_session_version not in (None, 0):
                 raise BeginnerConcurrencyError(
@@ -285,14 +283,15 @@ class BeginnerSessionStore:
                 )
             if self.session_path.exists():
                 raise BeginnerPersistenceError(f"session already exists at {self.session_path}")
-            if session.session_version != 0:
+            if validated.session_version != 0:
                 raise BeginnerPersistenceError("initial session version must be 0")
-            saved = session.model_copy(update={"session_version": session.session_version + 1})
+            saved = validated.model_copy(update={"session_version": validated.session_version + 1})
             if not _atomic_create(self.session_path, saved.model_dump_json()):
                 raise BeginnerPersistenceError(f"session already exists at {self.session_path}")
             return saved
 
     def save(self, session: SessionEnvelope, expected_session_version: int | None = None) -> SessionEnvelope:
+        validated = _validate_session(session)
         with self._instance_lock, _FilesystemLock(self._session_lock):
             if self.session_path.exists():
                 current = self.load()
@@ -308,8 +307,8 @@ class BeginnerSessionStore:
                     )
                 if session.session_version != 0:
                     raise BeginnerPersistenceError("initial session version must be 0")
-                next_version = session.session_version + 1
-            saved = SessionEnvelope.model_validate({**session.model_dump(mode="python"), "session_version": next_version})
+                next_version = validated.session_version + 1
+            saved = SessionEnvelope.model_validate({**validated.model_dump(mode="python"), "session_version": next_version}, strict=True)
             if self.session_path.exists():
                 _atomic_write(self.session_path, saved.model_dump_json())
             elif not _atomic_create(self.session_path, saved.model_dump_json()):
@@ -320,12 +319,13 @@ class BeginnerSessionStore:
         return self.save_revision(revision_id, session)
 
     def save_revision(self, revision_id: str, session: SessionEnvelope) -> SessionEnvelope:
+        validated = _validate_session(session)
         path = self.revision_session_path(revision_id)
         if path.exists():
             raise BeginnerPersistenceError(f"revision already exists at {path}")
-        if not _atomic_create(path, session.model_dump_json()):
+        if not _atomic_create(path, validated.model_dump_json()):
             raise BeginnerPersistenceError(f"revision already exists at {path}")
-        return session
+        return validated
 
     def load_revision(self, revision_id: str) -> SessionEnvelope:
         return self._load_session(self.revision_session_path(revision_id))
@@ -413,10 +413,10 @@ class CommandReceiptStore:
             )
         existing = self.load(command_id)
         if (
-            (command_type is not None and existing.command_type != command_type)
-            or (target_milestone is not None and existing.target_milestone != target_milestone)
-            or (promotion_intent is not None and existing.promotion_intent != promotion_intent)
-            or (domain_result_reference is not None and existing.domain_result_reference != domain_result_reference)
+            existing.command_type != receipt.command_type
+            or existing.target_milestone != receipt.target_milestone
+            or existing.promotion_intent != receipt.promotion_intent
+            or existing.domain_result_reference != receipt.domain_result_reference
         ):
             raise BeginnerPersistenceError(f"command intent conflict for existing command_id {command_id}")
         if existing.status == "complete":

@@ -37,6 +37,28 @@ def test_session_store_writes_and_reloads_a_versioned_envelope(tmp_path: Path) -
     assert store.load() == saved
 
 
+@pytest.mark.parametrize("field_value", ["not-an-integer", ""])
+def test_corrupted_session_envelope_is_rejected_before_write(tmp_path: Path, field_value: str) -> None:
+    store = BeginnerSessionStore(tmp_path, "workspace-1")
+    original = store.save(make_session())
+    corrupted = original.model_copy(update={"session_version": field_value} if field_value != "" else {"premise": ""})
+
+    with pytest.raises(BeginnerPersistenceError):
+        store.save(corrupted, expected_session_version=original.session_version)
+
+    assert store.load() == original
+
+
+def test_corrupted_revision_envelope_is_rejected_before_write(tmp_path: Path) -> None:
+    store = BeginnerSessionStore(tmp_path, "workspace-1")
+    corrupted = make_session().model_copy(update={"premise": ""})
+
+    with pytest.raises(BeginnerPersistenceError):
+        store.save_revision("revision-1", corrupted)
+
+    assert not store.revision_session_path("revision-1").exists()
+
+
 def test_stale_session_version_rejects_without_writing_or_calling_mutator(tmp_path: Path) -> None:
     store = BeginnerSessionStore(tmp_path, "workspace-1")
     store.save(make_session())
@@ -412,9 +434,12 @@ def test_receipt_replay_returns_recorded_result_and_does_not_duplicate(tmp_path:
     replay = store.replay("command-1")
 
     assert completed.status == "complete"
-    assert replay == {"workspace_id": "workspace-1"}
+    assert replay is not None
+    assert replay.result == {"workspace_id": "workspace-1"}
     assert len(list(store.receipts_path.glob("*.json"))) == 1
-    assert store.begin("command-1") == completed
+    replay_claim = store.begin("command-1")
+    assert replay_claim.outcome == "completed_replay"
+    assert replay_claim.result == completed.result
 
 
 def test_receipt_persists_command_and_promotion_intent_metadata(tmp_path: Path) -> None:
@@ -459,6 +484,14 @@ def test_reusing_command_id_with_different_intent_rejects(
 
     with pytest.raises(BeginnerPersistenceError, match="intent conflict"):
         store.begin("command-1", **changed_intent)
+
+
+def test_reusing_command_id_with_omitted_intent_rejects(tmp_path: Path) -> None:
+    store = CommandReceiptStore(tmp_path, "workspace-1")
+    store.begin("command-1", command_type="promote_milestone", target_milestone="identity-accepted")
+
+    with pytest.raises(BeginnerPersistenceError, match="intent conflict"):
+        store.begin("command-1")
 
 
 def test_complete_persists_authoritative_domain_result_reference(tmp_path: Path) -> None:
@@ -623,7 +656,11 @@ def test_incomplete_receipt_can_be_loaded_for_recovery(tmp_path: Path) -> None:
 
     pending = store.begin("command-1")
 
-    assert store.load("command-1") == pending
+    loaded = store.load("command-1")
+    assert loaded.command_id == pending.command_id
+    assert loaded.status == pending.status
+    assert pending.outcome == "owner_claim"
+    assert pending.owner_token == loaded.owner_token
     assert pending.status == "in_progress"
     assert store.replay("command-1") is None
 
