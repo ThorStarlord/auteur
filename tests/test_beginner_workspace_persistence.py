@@ -830,18 +830,20 @@ def test_receipt_io_revalidates_replaced_commands_container(tmp_path: Path) -> N
 
 
 def test_receipts_reject_coercible_bytes_values() -> None:
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError, match="receipt result"):
         CommandReceipt(
             command_id="command-1",
             status="complete",
             owner_token="owner-1",
+            command_type="create_workspace",
             result=cast(JsonValue, b"result"),
         )
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError, match="acquisition result"):
         ReceiptAcquisition(
             command_id="command-1",
             status="complete",
             outcome="completed_replay",
+            command_type="create_workspace",
             result=cast(JsonValue, b"result"),
         )
 
