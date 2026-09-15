@@ -1,10 +1,10 @@
 # Tiered Validation and Agent Autonomy Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task.
 
 **Goal:** Make ordinary Auteur development use cheap focused validation, reserve targeted integration for named boundaries, move full regression to explicit stabilization checkpoints, keep exact-SHA qualification release-only, and grant coding agents bounded low-level implementation authority after initial authorization.
 
-**Architecture:** Keep three lifecycle surfaces separate. `.github/workflows/validation.yml` is the cheap development gate; `.github/workflows/stabilization.yml` is the explicit L3 full-regression checkpoint; `.github/workflows/release-qualification.yml` qualifies an explicitly supplied frozen candidate by running the existing canonical `scripts/release_evidence.py`. Governance documents define the same L1/L2/L3/qualification vocabulary and the delegation envelope. UI/CLI product implementation is explicitly out of scope for this branch until the parallel UI-polish task lands.
+**Architecture:** `.github/workflows/validation.yml` is the cheap development gate. `.github/workflows/stabilization.yml` is the explicit L3 full-regression checkpoint. `.github/workflows/release-qualification.yml` is an explicit frozen-candidate gate: Python 3.11/3.13 Linux and Python 3.13 Windows provide compatibility evidence, while the canonical `scripts/release_evidence.py` owns Python 3.12 full-suite accounting plus installed-wheel qualification and durable exact-SHA evidence. Governance documents define the same L1/L2/L3/qualification vocabulary and delegation envelope.
 
 **Tech Stack:** GitHub Actions YAML, Python/pytest policy tests, Markdown governance docs.
 
@@ -14,8 +14,8 @@
 
 - Normal implementation iteration uses L1 focused validation only.
 - L2 requires a named integration boundary or risk justification.
-- L3 is prohibited unless a stabilization/high-risk/release trigger exists.
-- Exact-SHA release qualification is prohibited unless a candidate is explicitly being qualified.
+- L3 requires a named stabilization/recovery/cross-cutting/release trigger.
+- Exact-SHA release qualification requires an explicitly selected frozen candidate.
 - `main` is the latest stable development state, not continuously release-qualified.
 - Author authority over canonical narrative commitments remains unchanged.
 - Product intent, semantic architecture, destructive changes, security/privacy, external publication, and material scope expansion remain owner-reserved.
@@ -31,53 +31,22 @@
 
 **Interfaces:**
 - Consumes: the three workflow YAML files under `.github/workflows/`.
-- Produces: focused pytest assertions that fail if ordinary validation regains unconditional full-suite/Windows/release behavior or if explicit stabilization/release workflows disappear.
+- Produces: focused assertions that prevent ordinary validation from regaining unconditional full-suite/Windows/release behavior and prove that explicit stabilization/release workflows remain separate.
 
-- [ ] **Step 1: Write the failing policy tests**
+- [x] **Step 1: Write the failing policy test**
 
-Create tests that load workflow YAML with `yaml.BaseLoader` and assert:
+The test loads workflows with `yaml.BaseLoader` and asserts:
 
 ```python
-from pathlib import Path
-import yaml
-
-ROOT = Path(__file__).resolve().parents[1]
-WORKFLOWS = ROOT / ".github" / "workflows"
-
-
-def _load(name: str) -> dict:
-    return yaml.load((WORKFLOWS / name).read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
-
-
-def test_development_validation_is_focused_and_not_release_qualification():
-    workflow = _load("validation.yml")
-    jobs = workflow["jobs"]
-    assert "test-windows" not in jobs
-    assert "release-qualification" not in jobs
-    rendered = (WORKFLOWS / "validation.yml").read_text(encoding="utf-8")
-    assert "python -m pytest -q --tb=short" not in rendered
-    assert "scripts/release_evidence.py" not in rendered
-
-
-def test_stabilization_is_explicit_and_runs_full_regression():
-    workflow = _load("stabilization.yml")
-    assert set(workflow["on"]) == {"workflow_dispatch"}
-    rendered = (WORKFLOWS / "stabilization.yml").read_text(encoding="utf-8")
-    assert "python -m pytest -q --tb=short" in rendered
-    assert "scripts/release_evidence.py" not in rendered
-
-
-def test_release_qualification_is_explicit_exact_candidate_evidence():
-    workflow = _load("release-qualification.yml")
-    assert set(workflow["on"]) == {"workflow_dispatch"}
-    candidate = workflow["on"]["workflow_dispatch"]["inputs"]["candidate_sha"]
-    assert candidate["required"] == "true"
-    rendered = (WORKFLOWS / "release-qualification.yml").read_text(encoding="utf-8")
-    assert "scripts/release_evidence.py" in rendered
-    assert "ref: ${{ inputs.candidate_sha }}" in rendered
+assert set(validation["jobs"]) == {"focused-validation"}
+assert set(stabilization["on"]) == {"workflow_dispatch"}
+assert set(release["on"]) == {"workflow_dispatch"}
+assert release["on"]["workflow_dispatch"]["inputs"]["candidate_sha"]["required"] == "true"
 ```
 
-- [ ] **Step 2: Run the focused test and verify RED**
+It also guards against `windows-latest` and `scripts/release_evidence.py` returning to ordinary development validation, and verifies the release matrix remains present only in the explicit release workflow.
+
+- [x] **Step 2: Verify RED**
 
 Run:
 
@@ -85,14 +54,11 @@ Run:
 python -m pytest -q tests/test_validation_workflow_policy.py --tb=short
 ```
 
-Expected: FAIL because `validation.yml` still contains unconditional Windows/full/release behavior and the two explicit workflows do not yet exist.
+Observed before implementation: 3 failures. The old workflow still contained the Windows/full/release jobs and the two explicit workflows were absent.
 
-- [ ] **Step 3: Commit the RED test separately if useful for review**
+- [x] **Step 3: Commit RED test**
 
-```bash
-git add tests/test_validation_workflow_policy.py
-git commit -m "test: define tiered validation workflow policy"
-```
+Commit: `test: define tiered validation workflow policy`.
 
 ---
 
@@ -108,61 +74,58 @@ git commit -m "test: define tiered validation workflow policy"
 - Consumes: changed test files, smoke tests, `scripts/check.py --skip-pytest`, `scripts/release_evidence.py`.
 - Produces: cheap PR/main development validation, explicit L3 full-regression checkpoint, explicit exact-candidate release qualification.
 
-- [ ] **Step 1: Make `validation.yml` the cheap development gate**
+- [x] **Step 1: Make `validation.yml` the cheap development gate**
 
-Keep triggers on pull requests and pushes to `main`. Use one supported development Python version (`3.12`). Select changed `tests/*.py` files when present; otherwise run `tests/test_cli_smoke.py tests/test_engine_v1_smoke.py`. Run repository validators with `python scripts/check.py --skip-pytest`. Do not run an unconditional Windows suite, supported-version matrix, or `scripts/release_evidence.py` here.
+Rules:
 
-The focused pytest command must be structurally different from the full-suite signature guarded by the policy test, for example:
-
-```yaml
-- name: Run L1 focused validation
-  run: python -m pytest -q $FOCUSED_TESTS --tb=short
+```text
+trigger: pull_request + push(main)
+Python: 3.12 only
+pytest: changed tests/*.py when present, otherwise CLI + engine smoke tests
+repository verification: scripts/check.py --skip-pytest
+no Windows suite
+no supported-version matrix
+no full-suite fallback
+no wheel/release qualification
 ```
 
-- [ ] **Step 2: Add explicit L3 stabilization workflow**
+- [x] **Step 2: Add explicit L3 stabilization workflow**
 
-Create `.github/workflows/stabilization.yml` with `workflow_dispatch` only, one Linux Python 3.12 job, repository validators, and exactly one complete source regression run:
+`stabilization.yml` is `workflow_dispatch` only and runs exactly one Linux Python 3.12 full regression suite plus the repository verification stack.
 
-```yaml
-- name: Run L3 full regression suite
-  run: python -m pytest -q --tb=short
+It does not run `scripts/release_evidence.py`, does not build a wheel, and does not run Windows.
+
+- [x] **Step 3: Add explicit release-qualification workflow**
+
+`release-qualification.yml` is `workflow_dispatch` only and requires `candidate_sha`.
+
+The workflow checks out and verifies that exact SHA in every job. It preserves release compatibility without duplicating canonical evidence work:
+
+```text
+Linux Python 3.11 -> complete source suite
+Linux Python 3.13 -> complete source suite
+Windows Python 3.13 -> complete source suite
+Linux Python 3.12 -> scripts/release_evidence.py
+                         ↳ complete source suite
+                         ↳ installed-wheel qualification
+                         ↳ durable exact-SHA evidence
 ```
 
-Do not call `scripts/release_evidence.py` and do not build release artifacts in this workflow.
+The evidence artifact is uploaded with `if: always()` so recorded non-green evidence remains inspectable when the producer writes an artifact before failing the gate.
 
-- [ ] **Step 3: Add explicit release-qualification workflow**
+- [x] **Step 4: Verify GREEN**
 
-Create `.github/workflows/release-qualification.yml` with `workflow_dispatch` only and required string input `candidate_sha`. Checkout exactly `${{ inputs.candidate_sha }}`, install release dependencies, verify `git rev-parse HEAD` equals the requested candidate, then run:
-
-```yaml
-- name: Produce exact-SHA qualification evidence
-  run: python scripts/release_evidence.py
-```
-
-Upload `docs/qualification-evidence/*.json` as the evidence artifact. Do not duplicate the full pytest or wheel run outside the canonical evidence producer because `release_evidence.py` already owns both.
-
-- [ ] **Step 4: Run the focused workflow-policy test and verify GREEN**
+Run against the exact committed workflow contents:
 
 ```bash
 python -m pytest -q tests/test_validation_workflow_policy.py --tb=short
 ```
 
-Expected: PASS.
+Observed: `3 passed`.
 
-- [ ] **Step 5: Run cheap repository verification**
+- [ ] **Step 5: Repository verification on exact PR head**
 
-```bash
-python scripts/check.py --skip-pytest
-```
-
-Expected: repository validators/ruff complete without a new regression attributable to these workflow files.
-
-- [ ] **Step 6: Commit**
-
-```bash
-git add .github/workflows/validation.yml .github/workflows/stabilization.yml .github/workflows/release-qualification.yml tests/test_validation_workflow_policy.py
-git commit -m "ci: separate development stabilization and release validation"
-```
+The local sandbox cannot clone GitHub, so `python scripts/check.py --skip-pytest` cannot be run against the whole repository there. The draft PR's new focused CI is the authoritative exact-head execution of this cheap repository verification.
 
 ---
 
@@ -171,46 +134,13 @@ git commit -m "ci: separate development stabilization and release validation"
 **Files:**
 - Modify: `docs/engineering/release-qualification.md`
 
-**Interfaces:**
-- Consumes: the approved design vocabulary and existing candidate-invalidation/exact-release invariants.
-- Produces: one authoritative policy distinguishing L1, L2, L3, and release qualification without weakening exact-SHA evidence rules.
-
-- [ ] **Step 1: Replace the old broad full-validation PR rule**
-
-Document:
-
-```text
-L1 Focused Validation — default implementation feedback and ordinary development gate.
-L2 Targeted Integration Validation — only when a named changed boundary/risk justifies it.
-L3 Full Regression Validation — explicit milestone/stabilization/recovery checkpoint.
-Release Qualification — exact frozen-candidate evidence; separate from L3.
-```
-
-Preserve baseline failure classification, candidate invalidation, exact release invariant, test accounting, publication boundary, and evidence-bounded completion language.
-
-- [ ] **Step 2: State `main` lifecycle semantics explicitly**
-
-Add that a push to `main` is a development integration event and does not implicitly create a release candidate or require exact-SHA release qualification.
-
-- [ ] **Step 3: State escalation rules for validation cost**
-
-Record that L2 must name a boundary/risk, L3 must name a checkpoint trigger, and release qualification requires explicit candidate selection.
-
-- [ ] **Step 4: Verify documentation references**
-
-Run:
-
-```bash
-git diff --check
-python scripts/check.py --skip-pytest
-```
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add docs/engineering/release-qualification.md
-git commit -m "docs: separate development validation from release qualification"
-```
+- [x] Define L1 Focused Validation as the default development feedback/gate.
+- [x] Define L2 Targeted Integration as evidence-triggered by a named boundary/risk.
+- [x] Define L3 Full Regression as an explicit stabilization/recovery/checkpoint activity.
+- [x] Define Release Qualification as a separate exact-frozen-candidate lifecycle event.
+- [x] Preserve candidate invalidation, exact release invariant, test accounting, baseline classification, and publication boundaries.
+- [x] State that `main` is the latest stable development state, not a continuously release-qualified artifact.
+- [x] State that a passing development gate does not imply L3 or release qualification.
 
 ---
 
@@ -220,64 +150,23 @@ git commit -m "docs: separate development validation from release qualification"
 - Modify: `AGENTS.md`
 - Modify: `CLAUDE.md`
 
-**Interfaces:**
-- Consumes: initial human prompt/spec, repository hard invariants, qualification policy.
-- Produces: explicit delegation envelope and owner-reserved stop conditions for coding agents.
-
-- [ ] **Step 1: Replace blanket approval-per-detail language in `AGENTS.md`**
-
-Replace the blanket `Ask, don't assume` implementation rule with:
+- [x] Replace blanket `Ask, don't assume` implementation behavior with:
 
 ```text
 Infer within the delegation envelope; escalate material ambiguity.
 ```
 
-Define agent-delegated decisions: local naming, helper extraction, behaviorally equivalent algorithms, local refactoring required by scope, focused test selection, justified targeted integration selection, test-fixture organization, internal data flow, commit decomposition, minor descriptive docs.
-
-Define owner-reserved decisions: product intent/user-visible semantics not implied by the prompt, semantic architecture, canonical narrative/Layer-1 commitments, public compatibility, destructive migration, security/privacy/credentials/new external transmission, deployment/publication, permanent scope constraints, material scope expansion, hard-invariant changes, irreconcilable requirements.
-
-Preserve explicit author authority and qualification claim language.
-
-- [ ] **Step 2: Align `CLAUDE.md` development velocity guidance**
-
-Add the L1/L2/L3 test-budget rule and state that an approved work package executes continuously without human pauses for low-level implementation choices until a stop condition is reached.
-
-Do not change narrative architecture or genre-specific behavior.
-
-- [ ] **Step 3: Verify docs only**
-
-```bash
-git diff --check
-python scripts/check.py --skip-pytest
-```
-
-- [ ] **Step 4: Commit**
-
-```bash
-git add AGENTS.md CLAUDE.md
-git commit -m "docs: grant bounded coding-agent implementation authority"
-```
+- [x] Delegate routine decisions including naming, helper extraction, local refactoring, behaviorally equivalent algorithms, test organization, L1 selection, justified L2 selection, internal data flow, commit decomposition, and minor descriptive docs.
+- [x] Reserve product intent, semantic architecture, canonical narrative authority, compatibility, destructive migration, security/privacy, external actions, publication/release authorization, hard-invariant changes, and material scope expansion to the owner.
+- [x] Preserve explicit author authority for Layer 1/canonical narrative commitments.
+- [x] Add the same L1/L2/L3/qualification test budget to the contributor guide.
+- [x] Remove test-count targets as a default optimization; prefer a small number of high-signal tests where they prove behavior more cheaply.
 
 ---
 
-### Task 5: Reconcile branch scope and open a draft PR without touching UI-polish implementation
+### Task 5: Reconcile branch scope and open a draft PR
 
-**Files:**
-- Review only: branch diff against `main`.
-
-**Interfaces:**
-- Consumes: Tasks 1-4.
-- Produces: a reviewable governance/CI PR isolated from the parallel UI-polish implementation.
-
-- [ ] **Step 1: Confirm no UI/CLI product files changed**
-
-Run:
-
-```bash
-git diff --name-only main...HEAD
-```
-
-Allowed implementation-package paths are limited to:
+**Allowed changed paths:**
 
 ```text
 .github/workflows/validation.yml
@@ -291,30 +180,30 @@ docs/superpowers/plans/2026-09-15-tiered-validation-and-agent-autonomy-implement
 tests/test_validation_workflow_policy.py
 ```
 
-No `src/auteur/**` or UI/CLI product test files may be changed in this package.
+- [x] **Confirm branch scope**
 
-- [ ] **Step 2: Run only L1 policy verification**
+`main...codex/testing-qualification-autonomy` changes exactly the nine allowed files above. No `src/auteur/**`, UI implementation file, CLI implementation file, or UI/CLI product test is touched.
 
-```bash
-python -m pytest -q tests/test_validation_workflow_policy.py --tb=short
-python scripts/check.py --skip-pytest
-git diff --check
-```
+- [x] **Run L1 workflow-policy verification**
 
-Do not run L3. The governance/CI package itself is not a stabilization checkpoint.
+Exact committed workflow contents: `3 passed`.
 
-- [ ] **Step 3: Open a draft pull request**
+- [x] **Defer L2 deliberately**
 
-PR body must explicitly state:
+No product integration boundary changed in this package, so L2 is not justified.
 
-- this is human-authorized governance/CI work;
-- L1 was run;
-- L2 was not required because no product integration boundary changed;
-- L3 was intentionally deferred;
-- release qualification was intentionally not run;
-- UI/CLI implementation is excluded until the parallel UI-polish task lands;
-- merging should wait for review of the workflow-policy change and any required exact-head lightweight CI.
+- [x] **Defer L3 deliberately**
 
-- [ ] **Step 4: Do not merge automatically**
+This governance/CI package is not itself a product stabilization checkpoint. The explicit L3 workflow is the mechanism to use when the UI-polish/recovery work reaches that checkpoint.
 
-The branch changes CI/governance policy and therefore remains a review boundary even under the new delegated implementation model.
+- [x] **Do not run release qualification**
+
+No release candidate has been frozen.
+
+- [ ] **Open a draft PR and let exact-head focused CI verify repository checks**
+
+The PR body must state that this is human-authorized governance/CI work, UI/CLI implementation is excluded, L1 policy tests passed, L2/L3/release qualification were intentionally not run, and merge is not automatic.
+
+- [ ] **Do not merge automatically**
+
+The branch changes CI/governance policy and remains a human review boundary even under the new delegated implementation model.
