@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 from enum import Enum
 from typing import Literal, Protocol
 
@@ -235,9 +236,14 @@ class BeginnerGuidance(BaseModel):
         """Create the established TutorSession using this guidance's provenance."""
         from auteur.story_design_packs.session import create_session
 
+        context_fingerprint = hashlib.sha256(self.context_summary.encode("utf-8")).hexdigest()
+        fingerprints = {
+            **self.tutor_session_fingerprints,
+            "beginner.guidance.context": context_fingerprint,
+        }
         return create_session(
             self.to_decision_card(),
-            self.tutor_session_fingerprints,
+            fingerprints,
         )
 
     create_tutor_session = to_tutor_session

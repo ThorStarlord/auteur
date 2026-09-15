@@ -551,8 +551,54 @@ def test_beginner_guidance_projects_to_existing_tutor_decision_card() -> None:
     assert card.authority_status == "DERIVED / NOT CANON"
     assert card.depth is TutorDepth.RECOMMEND
     assert tutor_session.card == card
-    assert tutor_session.source_fingerprints == guidance.tutor_session_fingerprints
+    assert tutor_session.source_fingerprints.items() >= guidance.tutor_session_fingerprints.items()
+    assert "beginner.guidance.context" in tutor_session.source_fingerprints
     assert {source.pack_id for source in guidance.pack_sources} == {"howdunit", "howdunit-rules"}
+
+
+def test_tutor_session_identity_includes_full_beginner_context(tmp_path) -> None:
+    from auteur.story_design_packs.session import TutorSessionStore
+
+    base = SessionEnvelope.new("project-1", "mystery", "A missing heir returns home.")
+    selected = base.model_copy(
+        update={
+            "stages": {
+                **base.stages,
+                DecisionStage.DISCOVER: StageStatus(
+                    stage=DecisionStage.DISCOVER,
+                    lifecycle=LifecycleStatus.WORKING,
+                    availability=StageAvailability.AVAILABLE,
+                    working_decision=WorkingDecision(
+                        stage=DecisionStage.DISCOVER,
+                        question="Which lens?",
+                        options=["Detective procedural", "Locked-room puzzle"],
+                        selected_option="Locked-room puzzle",
+                    ),
+                ),
+            }
+        }
+    )
+    other_project = selected.model_copy(update={"project_id": "project-2"})
+
+    first = guidance_for("discover.story-experience", base).to_tutor_session()
+    same = guidance_for("discover.story-experience", base).to_tutor_session()
+    changed = guidance_for("discover.story-experience", selected).to_tutor_session()
+    other = guidance_for("discover.story-experience", other_project).to_tutor_session()
+
+    assert first.session_id == same.session_id
+    assert first.source_fingerprints == same.source_fingerprints
+    assert changed.session_id != first.session_id
+    assert changed.source_fingerprints != first.source_fingerprints
+    assert other.session_id != changed.session_id
+    assert other.source_fingerprints != changed.source_fingerprints
+
+    store = TutorSessionStore(tmp_path)
+    store.save(first)
+    store.save(changed)
+    store.save(other)
+    assert store.load(first.session_id).card_id == first.card_id
+    assert store.load(changed.session_id).card_id == changed.card_id
+    assert store.load(other.session_id).card_id == other.card_id
 
 
 @pytest.mark.parametrize("consequences", [(), [], ("   ",)])
