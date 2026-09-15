@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from enum import Enum
-from typing import ClassVar, Literal, Protocol
+from typing import Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -24,8 +24,14 @@ class EvidenceSource(Protocol):
 _EVIDENCE_SOURCES: dict[str, EvidenceSource] = {}
 
 
-def register_evidence_source(name: str, source: EvidenceSource) -> None:
+def register_evidence_source(name: str, source: EvidenceSource, *, replace: bool = False) -> None:
+    if name in _EVIDENCE_SOURCES and not replace:
+        raise ValueError(f"evidence source already registered: {name}")
     _EVIDENCE_SOURCES[name] = source
+
+
+def unregister_evidence_source(name: str) -> None:
+    _EVIDENCE_SOURCES.pop(name, None)
 
 
 class EvidenceReference(BaseModel):
@@ -48,17 +54,10 @@ class EvidenceReference(BaseModel):
 
     @model_validator(mode="after")
     def validate_reference(self) -> EvidenceReference:
-        if self.source == "HowdunitTemplate":
-            if self.phase is None or self.field is None or self.rule_id is not None or not self.option_labels:
-                raise ValueError("invalid HowdunitTemplate evidence metadata")
-        elif self.source == "RuleSet":
-            if self.rule_id is None or self.phase is not None or self.field is not None or self.option_labels:
-                raise ValueError("invalid RuleSet evidence metadata")
-        else:
-            raise ValueError(f"unknown evidence source: {self.source}")
         source = _EVIDENCE_SOURCES.get(self.source)
-        if source is not None:
-            source.validate(self)
+        if source is None:
+            raise ValueError(f"unknown evidence source: {self.source}")
+        source.validate(self)
         return self
 
 
@@ -73,7 +72,7 @@ class QualificationCard(BaseModel):
     recommendation: str = Field(min_length=1)
     narrative_principle: str = Field(min_length=1)
     warnings_or_tensions: tuple[str, ...] = Field(min_length=1)
-    downstream_consequences: tuple[str, ...] = Field(default_factory=tuple)
+    downstream_consequences: tuple[str, ...] = Field(min_length=1)
     evidence_references: tuple[EvidenceReference, ...] = Field(min_length=1)
 
     @model_validator(mode="before")
@@ -91,17 +90,14 @@ class QualificationCard(BaseModel):
     def recommendation_is_an_option(self) -> QualificationCard:
         if self.recommendation not in self.options:
             raise ValueError("recommendation must be one of the card options")
+        if any(not consequence.strip() for consequence in self.downstream_consequences):
+            raise ValueError("downstream_consequences must not contain blank strings")
         return self
 
 
 class QualificationInventory(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
     cards: tuple[QualificationCard, ...]
-    _expected_counts: ClassVar[dict[QualificationStage, int]] = {
-        QualificationStage.DISCOVER: 3,
-        QualificationStage.STORY_IDENTITY: 4,
-        QualificationStage.STRUCTURE: 3,
-    }
 
     @model_validator(mode="before")
     @classmethod
@@ -115,14 +111,11 @@ class QualificationInventory(BaseModel):
         ids = [card.card_id for card in self.cards]
         if len(ids) != len(set(ids)):
             raise ValueError("qualification card IDs must be unique")
-        counts = {stage: sum(card.stage is stage for card in self.cards) for stage in self._expected_counts}
-        if counts != self._expected_counts:
-            raise ValueError("qualification inventory has the wrong stage counts")
         return self
 
     @property
     def stage_counts(self) -> dict[QualificationStage, int]:
-        return {stage: sum(card.stage is stage for card in self.cards) for stage in self._expected_counts}
+        return {stage: sum(card.stage is stage for card in self.cards) for stage in QualificationStage}
 
     def card(self, card_id: str) -> QualificationCard:
         for card in self.cards:
@@ -136,11 +129,15 @@ class GuidanceAdapter(Protocol):
 
     def inventory(self) -> QualificationInventory: ...
 
+    def validate_inventory(self, inventory: QualificationInventory) -> None: ...
+
 
 _GUIDANCE_ADAPTERS: dict[str, GuidanceAdapter] = {}
 
 
-def register_guidance_adapter(adapter: GuidanceAdapter) -> None:
+def register_guidance_adapter(adapter: GuidanceAdapter, *, replace: bool = False) -> None:
+    if adapter.genre in _GUIDANCE_ADAPTERS and not replace:
+        raise ValueError(f"guidance adapter already registered: {adapter.genre}")
     _GUIDANCE_ADAPTERS[adapter.genre] = adapter
 
 
@@ -187,6 +184,34 @@ class BeginnerGuidance(BaseModel):
                 if name in data and type(data[name]) is not tuple:
                     raise ValueError(f"{name} must be a tuple")
         return data
+
+    def to_decision_card(self):
+        """Project this coordinator view into the established Tutor DecisionCard contract."""
+        from auteur.story_design_packs.loader import content_hash, load_builtin_pack
+        from auteur.story_design_packs.models import DecisionCard, PackProvenance, TutorDepth
+
+        pack, digest = load_builtin_pack("investigation")
+        evidence = [
+            f"{reference.source}:{reference.field or reference.rule_id}"
+            for reference in self.evidence_references
+        ]
+        return DecisionCard(
+            card_id=self.card_id,
+            decision=self.question,
+            orientation=f"Choose how {self.question.rstrip('?').lower()} in the current story.",
+            why_it_matters=self.why_this_matters,
+            craft_concept=self.narrative_principle,
+            recommendation=self.recommendation,
+            alternatives=list(self.alternatives),
+            tradeoffs=list(self.tradeoffs),
+            beginner_trap="Treating derived guidance as a canonical decision.",
+            downstream_consequences=list(self.downstream_consequences),
+            evidence=evidence,
+            pack_sources=[PackProvenance(pack_id=pack.pack_id, version=pack.version, content_hash=digest or content_hash(pack))],
+            depth=TutorDepth.RECOMMEND,
+            author_actions=["choose", "keep_unresolved", "request_alternatives"],
+            authority_status="DERIVED / NOT CANON",
+        )
 
 
 def _json_context(session: SessionEnvelope) -> str:
@@ -243,10 +268,14 @@ def _commitment_summary(card: QualificationCard, session: SessionEnvelope) -> st
     }[card.stage]
     current_index = stage_order.index(card_stage)
     commitments = []
-    for stage in stage_order[:current_index]:
+    statuses = []
+    for stage in stage_order[: current_index + 1]:
         status = session.stages[stage]
+        statuses.append(f"{stage.value} is {status.lifecycle.value}/{status.availability.value}")
         decision = status.working_decision
         if (
+            stage is not card_stage
+            and
             status.availability is StageAvailability.AVAILABLE
             and status.lifecycle in (LifecycleStatus.WORKING, LifecycleStatus.COMPLETE)
             and decision is not None
@@ -260,8 +289,10 @@ def _commitment_summary(card: QualificationCard, session: SessionEnvelope) -> st
             for milestone in accepted
         )
     if not commitments:
-        return "This is the curated default for the cited Howdunit domain option; no upstream commitment is present yet."
-    return "It reinforces the current premise and commitments: " + "; ".join(commitments) + "."
+        commitment_text = "This is the curated default for the cited Howdunit domain option; no explicit commitment is present yet."
+    else:
+        commitment_text = "It reinforces the current premise and commitments: " + "; ".join(commitments) + "."
+    return commitment_text + " Sanitized stage status: " + "; ".join(statuses) + "."
 
 
 def _latest_accepted_milestones(session: SessionEnvelope) -> tuple[AcceptedMilestoneReference, ...]:
@@ -303,7 +334,10 @@ def _select_recommendation(card: QualificationCard, session: SessionEnvelope) ->
 
 def guidance_for(card_id: str, session: SessionEnvelope) -> BeginnerGuidance:
     """Compose one deterministic guidance card from a current session snapshot."""
-    card = _adapter_for(session.guidance_genre).inventory().card(card_id)
+    adapter = _adapter_for(session.guidance_genre)
+    inventory = adapter.inventory()
+    adapter.validate_inventory(inventory)
+    card = inventory.card(card_id)
     owning_stage = {
         QualificationStage.DISCOVER: DecisionStage.DISCOVER,
         QualificationStage.STORY_IDENTITY: DecisionStage.STORY_IDENTITY,
@@ -317,7 +351,7 @@ def guidance_for(card_id: str, session: SessionEnvelope) -> BeginnerGuidance:
     rationale = (
         f"This deterministic recommendation starts with {recommendation.lower()} "
         f"for the current premise, {session.premise!r}. {recommendation_reason} "
-        f"{commitment_summary} {context_summary} "
+        f"{commitment_summary} "
         "Apply it as a teaching projection, not as a canonical selection."
     )
     return BeginnerGuidance(

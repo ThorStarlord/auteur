@@ -22,14 +22,19 @@ class _HowdunitEvidenceSource:
 
     def validate(self, reference: EvidenceReference) -> None:
         if reference.source == "HowdunitTemplate":
+            if reference.rule_id is not None:
+                raise ValueError("HowdunitTemplate evidence cannot cite a RuleSet rule")
             assert reference.phase is not None
             if reference.field != self._template.phases[reference.phase]:
                 raise ValueError("evidence field does not match HowdunitTemplate phase")
             labels = {option.label for option in self._template.options[reference.phase]}
             if not set(reference.option_labels) <= labels:
                 raise ValueError("evidence contains an unsupported Howdunit option")
-        elif reference.rule_id not in self._rule_ids:
-            raise ValueError("evidence contains an unknown Howdunit rule")
+        else:
+            if reference.phase is not None or reference.field is not None or reference.option_labels:
+                raise ValueError("RuleSet evidence cannot cite HowdunitTemplate metadata")
+            if reference.rule_id not in self._rule_ids:
+                raise ValueError("evidence contains an unknown RuleSet rule")
 
 
 register_evidence_source("HowdunitTemplate", _HowdunitEvidenceSource())
@@ -41,9 +46,19 @@ class MysteryGuidanceAdapter:
 
     @staticmethod
     def inventory() -> QualificationInventory:
+        return QualificationInventory(cards=_MYSTERY_CARDS)
+
+    @staticmethod
+    def validate_inventory(inventory: QualificationInventory) -> None:
+        if inventory.stage_counts != {
+            QualificationStage.DISCOVER: 3,
+            QualificationStage.STORY_IDENTITY: 4,
+            QualificationStage.STRUCTURE: 3,
+        }:
+            raise ValueError("Mystery qualification inventory has the wrong stage counts")
         template = HowdunitTemplate()
         rule_ids = {rule.rule_id for rule in RuleSet("howdunit").rules}
-        for card in _MYSTERY_CARDS:
+        for card in inventory.cards:
             validate_mystery_card_evidence(card)
             for reference in card.evidence_references:
                 if reference.source == "HowdunitTemplate":
@@ -55,7 +70,6 @@ class MysteryGuidanceAdapter:
                         raise ValueError("evidence contains an unsupported Howdunit option")
                 elif reference.rule_id not in rule_ids:
                     raise ValueError("evidence contains an unknown Howdunit rule")
-        return QualificationInventory(cards=_MYSTERY_CARDS)
 
 
 def _evidence(phase: int, options: tuple[str, ...], recommendation: str, rule_id: str | None = None) -> tuple[EvidenceReference, ...]:
@@ -225,7 +239,9 @@ def validate_mystery_card_evidence(card: QualificationCard) -> None:
 
 def mystery_qualification_inventory() -> QualificationInventory:
     """Return the stable Mystery beginner inventory."""
-    return MYSTERY_GUIDANCE_ADAPTER.inventory()
+    inventory = MYSTERY_GUIDANCE_ADAPTER.inventory()
+    MYSTERY_GUIDANCE_ADAPTER.validate_inventory(inventory)
+    return inventory
 
 
 MYSTERY_GUIDANCE_ADAPTER = MysteryGuidanceAdapter()

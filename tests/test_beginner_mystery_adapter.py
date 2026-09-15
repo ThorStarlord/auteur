@@ -26,6 +26,8 @@ from auteur.beginner.mystery_adapter import (
 )
 from auteur.beginner.guidance import (
     BeginnerGuidance,
+    register_evidence_source,
+    unregister_evidence_source,
     guidance_for,
     register_guidance_adapter,
     unregister_guidance_adapter,
@@ -431,6 +433,18 @@ def test_tradeoffs_match_each_card_source_field() -> None:
         )
 
 
+@pytest.mark.parametrize("consequences", [(), ("",), ("   ",)])
+def test_qualification_card_rejects_empty_or_blank_consequences(
+    consequences: tuple[str, ...],
+) -> None:
+    card = mystery_qualification_inventory().card("discover.story-experience")
+    payload = card.model_dump()
+    payload["downstream_consequences"] = consequences
+
+    with pytest.raises(ValidationError, match="downstream_consequences"):
+        QualificationCard.model_validate(payload)
+
+
 def test_guidance_routing_uses_an_extensible_adapter_registry() -> None:
     class StubAdapter:
         genre = "stub"
@@ -439,13 +453,54 @@ def test_guidance_routing_uses_an_extensible_adapter_registry() -> None:
         def inventory() -> QualificationInventory:
             return mystery_qualification_inventory()
 
-    register_guidance_adapter(StubAdapter())
+        @staticmethod
+        def validate_inventory(inventory: QualificationInventory) -> None:
+            assert inventory.cards
+
+    adapter = StubAdapter()
+    register_guidance_adapter(adapter)
     try:
+        with pytest.raises(ValueError, match="already registered"):
+            register_guidance_adapter(adapter)
         session = SessionEnvelope.new("project-1", "stub", "A test premise.")
         guidance = guidance_for("discover.story-experience", session)
         assert guidance.card_id == "discover.story-experience"
     finally:
         unregister_guidance_adapter("stub")
+
+
+def test_evidence_provider_registration_rejects_collisions() -> None:
+    class Source:
+        @staticmethod
+        def validate(reference: EvidenceReference) -> None:
+            return None
+
+    source = Source()
+    register_evidence_source("test-source", source)
+    try:
+        with pytest.raises(ValueError, match="already registered"):
+            register_evidence_source("test-source", source)
+    finally:
+        unregister_evidence_source("test-source")
+
+
+def test_beginner_guidance_projects_to_existing_tutor_decision_card() -> None:
+    from auteur.story_design_packs.session import create_session
+    from auteur.story_design_packs.models import DecisionCard, TutorDepth
+
+    guidance = guidance_for(
+        "discover.story-experience",
+        SessionEnvelope.new("project-1", "mystery", "A missing heir returns home."),
+    )
+    card = guidance.to_decision_card()
+    tutor_session = create_session(card, {"investigation": "stable"})
+
+    assert isinstance(card, DecisionCard)
+    assert card.decision == guidance.question
+    assert card.recommendation == guidance.recommendation
+    assert card.authority_status == "DERIVED / NOT CANON"
+    assert card.depth is TutorDepth.RECOMMEND
+    assert tutor_session.card == card
 
 
 def test_guidance_for_mystery_registers_in_a_fresh_process() -> None:
