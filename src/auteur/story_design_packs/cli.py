@@ -353,9 +353,9 @@ def dispatch_tutor_commands(args: Any) -> int:
         return 0
     except (FileNotFoundError, ValueError) as exc:
         suggestion = _get_tutor_error_suggestion(exc, args)
-        print(f"Error: {exc}")
+        print(f"Error: {exc}", file=sys.stderr)
         if suggestion:
-            print(f"Next: {suggestion}")
+            print(f"Next: {suggestion}", file=sys.stderr)
         return 2
 
 

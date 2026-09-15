@@ -714,6 +714,16 @@ class TestHandleAudit:
 
 
 class TestHandleStateCheck:
+    def test_failure_preserves_recovery_suggestion(self):
+        result = HandlerResult.failure(
+            "state check failed",
+            exit_code=4,
+            suggestion="Run the state check again after initializing the project.",
+        )
+
+        assert result.error == "state check failed"
+        assert result.suggestion == "Run the state check again after initializing the project."
+
     def test_returns_handlerresult(self):
         result = handle_state_check(Path("/nonexistent"))
         assert isinstance(result, HandlerResult)
