@@ -8,7 +8,7 @@ files or `v1.0-qualification-record`.
 
 ## Scope
 
-- Candidate SHA: `ffd3732969e7ac204e2019669389348b11efd27e`
+- Candidate SHA: `749e5a2ec9adbf778a493c0987697e449df2ef88`
 - Worktree: `H:\GithubRepositories\auteur\.worktrees\beginner-workspace-vslice`
   (linked worktree; git common dir `H:/GithubRepositories/auteur/.git`,
   branch `codex/beginner-workspace-vslice`)
@@ -41,7 +41,7 @@ Focused qualification file `tests/test_beginner_workspace_qualification.py`:
 
 Result: `8 passed in 30.27s`. Focused tests pass (only the named file).
 
-Reconciliation evidence — current `origin/main` baseline `bf634fae8e7945d6c821c2c3bca27d560edb81ad`:
+Reconciliation evidence — current `origin/main` baseline `3001b3543bd7bf31483cd2609b788121e5270a82`:
 
 - Historical #228 CLI failures were reproduced from the archived CI run but
   did not reproduce on current main; no baseline repair was committed.
