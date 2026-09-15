@@ -1,7 +1,7 @@
 # Auteur — Repository Status
 
 **Last reconciled:** 2026-09-15  
-**Current main integration baseline:** `main @ 8b53efdd99e0a67d375df0e828b32edc77643221`  
+**Validation-policy activation baseline:** `main @ 8b53efdd99e0a67d375df0e828b32edc77643221`  
 **Post-#228 known-good stabilization baseline:** not yet re-established  
 **Package metadata:** `0.37.1`  
 **Role of this file:** living operational status and handoff; not a release record or idea backlog.
