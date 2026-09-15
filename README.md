@@ -395,14 +395,27 @@ Additional subsystems persist their own derived, local, candidate, or authoritat
 - [Version 1.0 support scope](docs/1.0-scope.md) — bounded RC1/final-release promise.
 - [Public Python contract](docs/engineering/public-api-contract.md) — stable exports and compatibility rules.
 - [CLI contract](docs/engineering/cli-contract.md) — stable commands, output, and failure semantics.
-- [Release qualification](docs/engineering/release-qualification.md) — candidate/release evidence rules.
+- [Release qualification](docs/engineering/release-qualification.md) — development validation, stabilization, candidate, and release-evidence rules.
 - [Changelog](CHANGELOG.md) and [release records](docs/releases/README.md) — release history.
 
 ADRs, qualification reports, research records, experiments, and product-validation documents are historical evidence. Do not rewrite them merely to make current status cleaner.
 
+## Development Validation
+
+Auteur uses risk-tiered validation:
+
+- **L1 Focused Validation** — default development and PR gate.
+- **L2 Targeted Integration** — used only when a changed integration boundary or named risk justifies it.
+- **L3 Full Regression** — reserved for explicit stabilization, recovery, and milestone checkpoints.
+- **Release Qualification** — separate exact-SHA qualification for an explicitly frozen release candidate.
+
+`main` represents the latest stable development state; it is not continuously release-qualified.
+
+See [docs/engineering/release-qualification.md](docs/engineering/release-qualification.md) for the canonical policy.
+
 ## Tests and Local Verification
 
-Run the full test suite:
+For broad local verification, run the full test suite:
 
 ```powershell
 python -m pytest
@@ -414,7 +427,7 @@ Run the repository verification stack:
 python scripts/check.py
 ```
 
-CI runs the same verification entrypoint with `python scripts/check.py --skip-pytest`, alongside Linux Python 3.11/3.12/3.13 validation, a full Windows Python 3.13 test leg, and installed-wheel smoke according to `.github/workflows/validation.yml`. Real-provider smoke checks remain separate because they spend external API tokens.
+Ordinary PR/main CI uses the L1 focused gate in `.github/workflows/validation.yml`. L3 full regression and exact-SHA release qualification are separate explicit workflows and are not normal inner-loop PR costs. Real-provider smoke checks remain separate because they spend external API tokens.
 
 ## Versioning
 
