@@ -1,0 +1,289 @@
+/* Beginner Workspace browser styles (Task 7).
+ *
+ * Persistent left Story Navigator + primary Decision Card. Tutor
+ * teaching/rationale/impact/evidence render as collapsed <details>.
+ * Blocking/stale warnings are strong inline notes; non-blocking authorial
+ * tension (.tension-authorial) is visually softer. Narrow screens collapse
+ * the navigator into an off-canvas drawer toggled by #nav-toggle.
+ */
+
+:root {
+  --nav-width: 280px;
+  --ink: #1d1a16;
+  --muted: #6b6259;
+  --accent: #2f5d3a;
+  --danger: #8c2f1b;
+  --soft-tension: #7a746c;
+  --card-border: #ddd5c7;
+  --bg: #faf7f1;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+.app-header {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--card-border);
+  background: #fff;
+}
+
+.app-title h1 {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.app-title p {
+  margin: 0.15rem 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.workspace-form {
+  margin-left: auto;
+  display: flex;
+  gap: 0.5rem;
+  align-items: end;
+  font-size: 0.85rem;
+}
+
+.workspace-form input {
+  display: block;
+  padding: 0.3rem 0.5rem;
+}
+
+#nav-toggle {
+  display: none;
+  font-size: 1.25rem;
+  background: none;
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+}
+
+.app-shell {
+  display: grid;
+  grid-template-columns: var(--nav-width) 1fr;
+  min-height: calc(100vh - 65px);
+}
+
+.navigator {
+  border-right: 1px solid var(--card-border);
+  background: #fff;
+  padding: 1rem;
+}
+
+.navigator h2 {
+  font-size: 1rem;
+  margin-top: 0;
+}
+
+.navigator-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+
+.navigator-entry {
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.navigator-entry.is-current {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.navigator-entry.is-stale {
+  border-style: dashed;
+}
+
+.nav-stage {
+  font-weight: bold;
+}
+
+.nav-progress,
+.nav-lifecycle,
+.nav-locked,
+.nav-review {
+  margin-left: 0.4rem;
+  color: var(--muted);
+}
+
+.nav-stale {
+  margin-left: 0.4rem;
+  color: var(--danger);
+  font-weight: bold;
+}
+
+.story-map {
+  border-top: 1px solid var(--card-border);
+  padding-top: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.hint,
+.muted {
+  color: var(--muted);
+}
+
+.workspace-main {
+  padding: 1rem 1.25rem 3rem;
+  max-width: 760px;
+}
+
+.status-line:empty {
+  display: none;
+}
+
+.status-line {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.decision-card {
+  background: #fff;
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.card-options {
+  display: grid;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.option-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  cursor: pointer;
+}
+
+.save-feedback {
+  min-height: 1.2em;
+  color: var(--accent);
+  font-size: 0.9rem;
+}
+
+.warning-inline,
+.blocking-inline,
+.stale-inline {
+  border-left: 4px solid var(--danger);
+  background: #fdf0ec;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0 8px 8px 0;
+}
+
+.tension-authorial {
+  border-left: 4px solid #cfc8bb;
+  color: var(--soft-tension);
+  background: #f4f1ec;
+  font-style: italic;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0 8px 8px 0;
+}
+
+.exploratory-note {
+  color: var(--muted);
+  font-style: italic;
+}
+
+details {
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  margin: 0.5rem 0;
+  background: #fff;
+}
+
+details summary {
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
+  font-weight: bold;
+}
+
+.details-body {
+  padding: 0 0.75rem 0.75rem;
+}
+
+.continue-button {
+  margin-top: 1rem;
+  padding: 0.6rem 1.4rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+.continue-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.review-panel {
+  margin-top: 1.5rem;
+}
+
+.review-stage {
+  background: #fff;
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.synthesis {
+  font-style: italic;
+}
+
+/* Narrow screens: navigator becomes an off-canvas drawer. */
+@media (max-width: 800px) {
+  #nav-toggle {
+    display: inline-block;
+  }
+
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .navigator {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(84vw, 320px);
+    z-index: 20;
+    overflow-y: auto;
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.18);
+    transform: translateX(-105%);
+    transition: transform 0.2s ease;
+  }
+
+  body.nav-open .navigator {
+    transform: translateX(0);
+  }
+
+  .workspace-form {
+    display: none;
+  }
+}
