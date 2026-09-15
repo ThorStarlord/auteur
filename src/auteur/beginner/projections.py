@@ -19,6 +19,7 @@ from typing import Mapping
 from .contracts import (
     AcceptedMilestoneReference,
     DecisionStage,
+    LifecycleStatus,
     SessionEnvelope,
     StageStatus,
 )
@@ -157,6 +158,37 @@ def evidence_label(card: QualificationCard) -> tuple[str, ...]:
     return tuple(f"{reference.source}:{reference.field or reference.rule_id}" for reference in card.evidence_references)
 
 
+def resolve_stage_lifecycle(
+    *,
+    stage: DecisionStage,
+    stage_cards: tuple[QualificationCard, ...],
+    answers: Mapping[str, str],
+    tensions: tuple[TensionView, ...] = (),
+    stale: bool = False,
+) -> LifecycleStatus:
+    """Derive the persistable per-stage lifecycle for the session envelope.
+
+    Mapping (persisted by the application via ``BeginnerSessionStore.update`` so
+    session.json consumers such as Task 5/6 see readiness without reading the
+    journey sidecar):
+
+    - ``WORKING``: at least one card unanswered; the stage is still in progress.
+    - ``BLOCKED``: every card answered but milestone acceptance is gated
+      (unresolved blocking contradiction or materially stale assumptions).
+    - ``COMPLETE``: review available and ready to accept.
+
+    Availability is never touched here; locked stages keep whatever lifecycle
+    they hold (``NOT_STARTED``) until Task 5 canonical work unlocks them.
+    """
+    answered = sum(1 for card in stage_cards if card.card_id in answers)
+    if not stage_cards or answered < len(stage_cards):
+        return LifecycleStatus.WORKING
+    blockers = _blockers_for_stage(stage, stage_cards, answers, tensions, stale, True)
+    if blockers:
+        return LifecycleStatus.BLOCKED
+    return LifecycleStatus.COMPLETE
+
+
 def build_workspace_projection(
     *,
     session: SessionEnvelope,
@@ -184,7 +216,10 @@ def build_workspace_projection(
 
     cursor = _resolve_cursor(ordered, available, answers, cursor_override)
 
-    revised_stage = _earliest_touched_stage(ordered, answers, exploratory)
+    # At-risk marks actual exploratory divergence only: the earliest stage touched
+    # by the revision overlay. Merely opening a revision (empty overlay) marks
+    # nothing at risk; parent answers never count as divergence.
+    revised_stage = _earliest_touched_stage(ordered, {}, exploratory)
     at_risk = (
         tuple(stage for stage in STAGE_ORDER if STAGE_ORDER.index(stage) > STAGE_ORDER.index(revised_stage))
         if active_revision_id is not None and revised_stage is not None
