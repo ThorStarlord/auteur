@@ -36,7 +36,9 @@ def begin_workspace_command(store: CommandReceiptStore, command_id: str = "comma
 
 
 def build_receipt_acquisition(payload: dict[str, Any]) -> ReceiptAcquisition:
-    return ReceiptAcquisition.model_validate({"command_id": "command-1", **payload})
+    return ReceiptAcquisition.model_validate(
+        {"command_id": "command-1", "command_type": "create_workspace", **payload}
+    )
 
 
 def test_session_store_writes_and_reloads_a_versioned_envelope(tmp_path: Path) -> None:
@@ -863,40 +865,57 @@ def test_receipts_reject_coercible_bytes_values() -> None:
         )
 
 
-@pytest.mark.parametrize("field_name", ["command_type", "target_milestone"])
-def test_receipts_reject_coercible_identity_intent_strings(field_name: str) -> None:
+@pytest.mark.parametrize(
+    ("field_name", "error_message"),
+    [("command_type", "approved authority action"), ("target_milestone", "approved milestone")],
+)
+def test_receipts_reject_coercible_identity_intent_strings(field_name: str, error_message: str) -> None:
     receipt_values: dict[str, Any] = {
         "command_id": "command-1",
         "status": "complete",
         "owner_token": "owner-1",
+        "command_type": "create_workspace",
         field_name: b"not-a-string",
     }
     acquisition_values: dict[str, Any] = {
         "command_id": "command-1",
         "status": "complete",
         "outcome": "completed_replay",
+        "command_type": "create_workspace",
         field_name: b"not-a-string",
     }
 
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError, match=error_message):
         CommandReceipt.model_validate(receipt_values)
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError, match=error_message):
         ReceiptAcquisition.model_validate(acquisition_values)
 
 
 @pytest.mark.parametrize(
-    "payload",
+    ("payload", "error_message"),
     [
-        {"status": "complete", "outcome": "owner_claim", "owner_token": "token", "result": None},
-        {"status": "complete", "outcome": "existing_in_progress", "owner_token": None, "result": None},
-        {"status": "in_progress", "outcome": "owner_claim", "owner_token": "token", "result": {"done": True}},
-        {"status": "complete", "outcome": "completed_replay", "owner_token": "token", "result": {"done": True}},
+        (
+            {"status": "complete", "outcome": "owner_claim", "owner_token": "token", "result": None},
+            "owner_claim must be an in-progress claim",
+        ),
+        (
+            {"status": "complete", "outcome": "existing_in_progress", "owner_token": None, "result": None},
+            "existing_in_progress must have no token or result",
+        ),
+        (
+            {"status": "in_progress", "outcome": "owner_claim", "owner_token": "token", "result": {"done": True}},
+            "owner_claim must be an in-progress claim",
+        ),
+        (
+            {"status": "complete", "outcome": "completed_replay", "owner_token": "token", "result": {"done": True}},
+            "completed_replay must be complete and expose no owner token",
+        ),
     ],
 )
 def test_receipt_acquisition_rejects_inconsistent_status_outcome_combinations(
-    payload: dict[str, Any],
+    payload: dict[str, Any], error_message: str,
 ) -> None:
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError, match=error_message):
         build_receipt_acquisition(payload)
 
 
