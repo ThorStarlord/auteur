@@ -635,6 +635,38 @@ def test_completed_receipt_rejects_conflicting_domain_result_reference(tmp_path:
         )
 
 
+@pytest.mark.parametrize(
+    ("field_name", "first_value", "retry_value"),
+    [("promotion_intent", True, 1), ("domain_result_reference", 1, 1.0)],
+)
+def test_receipt_intent_comparison_uses_canonical_json_identity(
+    tmp_path: Path, field_name: str, first_value: JsonValue, retry_value: JsonValue
+) -> None:
+    store = CommandReceiptStore(tmp_path, "workspace-1")
+    first: JsonObject = {"value": first_value}
+    retry: JsonObject = {"value": retry_value}
+    if field_name == "promotion_intent":
+        store.begin("command-1", command_type="create_workspace", promotion_intent=first)
+    else:
+        store.begin("command-1", command_type="create_workspace", domain_result_reference=first)
+
+    with pytest.raises(BeginnerPersistenceError, match="intent conflict"):
+        if field_name == "promotion_intent":
+            store.begin("command-1", command_type="create_workspace", promotion_intent=retry)
+        else:
+            store.begin("command-1", command_type="create_workspace", domain_result_reference=retry)
+
+
+def test_complete_completed_receipt_revalidates_acquisition_metadata(tmp_path: Path) -> None:
+    store = CommandReceiptStore(tmp_path, "workspace-1")
+    owner = store.begin("command-1", command_type="create_workspace")
+    store.complete(owner, {"accepted": True})
+    forged = owner.model_copy(update={"command_type": "promote_milestone", "target_milestone": "identity-accepted"})
+
+    with pytest.raises(BeginnerPersistenceError, match="intent conflict"):
+        store.complete(forged, {"accepted": True})
+
+
 def test_atomic_create_and_replace_sync_containing_directory(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

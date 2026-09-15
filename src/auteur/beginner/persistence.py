@@ -63,6 +63,11 @@ def _normalize_json_value(value: JsonValue, label: str) -> JsonValue:
         raise ValueError(f"{label} must be JSON-compatible") from exc
 
 
+def _json_identity(value: JsonValue | None) -> str:
+    """Return canonical JSON identity, preserving JSON scalar types."""
+    return json.dumps(value, allow_nan=False, sort_keys=True, separators=(",", ":"))
+
+
 def _validate_json_value(value: object, label: str) -> None:
     if value is None or type(value) in {bool, int, float, str}:
         return
@@ -608,8 +613,9 @@ class CommandReceiptStore:
         if (
             existing.command_type != receipt.command_type
             or existing.target_milestone != receipt.target_milestone
-            or existing.promotion_intent != receipt.promotion_intent
-            or existing.requested_domain_result_reference != receipt.requested_domain_result_reference
+            or _json_identity(existing.promotion_intent) != _json_identity(receipt.promotion_intent)
+            or _json_identity(existing.requested_domain_result_reference)
+            != _json_identity(receipt.requested_domain_result_reference)
         ):
             raise BeginnerPersistenceError(f"command intent conflict for existing command_id {command_id}")
         if existing.status == "complete":
@@ -661,6 +667,14 @@ class CommandReceiptStore:
                 raise BeginnerPersistenceError(f"command was never begun: {command_id}")
             existing = self.load(command_id)
             if existing.status == "complete":
+                if (
+                    existing.command_type != receipt.command_type
+                    or existing.target_milestone != receipt.target_milestone
+                    or _json_identity(existing.promotion_intent) != _json_identity(receipt.promotion_intent)
+                    or _json_identity(existing.requested_domain_result_reference)
+                    != _json_identity(receipt.requested_domain_result_reference)
+                ):
+                    raise BeginnerPersistenceError(f"command intent conflict for existing command_id {command_id}")
                 return existing
             if existing.owner_token != owner_token:
                 raise BeginnerReceiptOwnershipError("receipt owner token does not match")
