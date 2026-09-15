@@ -165,8 +165,8 @@ def _json_context(session: SessionEnvelope) -> str:
 
 def _context_summary(session: SessionEnvelope) -> str:
     completed = tuple(
-        stage.value for stage, status in session.stages.items()
-        if status.lifecycle is LifecycleStatus.COMPLETE
+        stage.value for stage in DecisionStage
+        if session.stages[stage].lifecycle is LifecycleStatus.COMPLETE
     )
     progress = (
         "No qualification stage is marked complete yet."
@@ -179,17 +179,17 @@ def _context_summary(session: SessionEnvelope) -> str:
 def _consequences(stage: QualificationStage) -> tuple[str, ...]:
     if stage is QualificationStage.DISCOVER:
         return (
-            "The chosen question controls which clues and suspects deserve attention.",
-            "The investigation's scope sets the amount of evidence the story must support.",
+            "The genre contract selects the investigation mode the reader will recognize.",
+            "The scope selection sets whether the inquiry is contained, wider-cast, or city-scale.",
         )
     if stage is QualificationStage.STORY_IDENTITY:
         return (
-            "The investigator's want and stakes shape which leads become meaningful.",
-            "Resistance and change determine how discovery affects the person pursuing it.",
+            "The structural-forces fields connect want, resistance, stakes, and change.",
+            "The selected want and change define the investigator's character movement.",
         )
     return (
-        "The reveal must pay off the evidence trail rather than arrive as an unrelated answer.",
-        "The selected structure changes how much reasoning and reinterpretation the reader performs.",
+        "Clue distribution determines when the reader receives information for reasoning.",
+        "Solution density determines how directly the answer follows from the clues.",
     )
 
 

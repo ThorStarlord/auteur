@@ -78,6 +78,7 @@ def test_inventory_cards_reference_existing_mystery_subjects() -> None:
     }
     for card in inventory.cards:
         phase_names: set[str] = set()
+        supported_labels: set[str] = set()
         for reference in card.evidence_references:
             if reference.startswith("auteur.mystery.core_templates:HowdunitTemplate.phases["):
                 phase = int(
@@ -85,17 +86,21 @@ def test_inventory_cards_reference_existing_mystery_subjects() -> None:
                 )
                 assert phase in template.phases
                 phase_names.add(template.phases[phase])
+                supported_labels.update(option.label for option in template.options.get(phase, []))
             elif reference.startswith("auteur.mystery.core_templates:HowdunitTemplate.options["):
                 phase = int(
                     reference.removeprefix("auteur.mystery.core_templates:HowdunitTemplate.options[").rstrip("]")
                 )
                 assert phase in template.options
                 phase_names.add(template.phases[phase])
+                supported_labels.update(option.label for option in template.options[phase])
             elif reference.startswith("auteur.mystery.validation:RuleSet:"):
                 assert reference.removeprefix("auteur.mystery.validation:RuleSet:") in rule_ids
             else:
                 pytest.fail(f"invented evidence reference: {reference}")
         assert phase_names == expected_phase_names[card.card_id]
+        assert set(card.options) <= supported_labels
+        assert card.recommendation in supported_labels
 
 
 def test_guidance_includes_all_working_decisions_and_accepted_snapshot_details() -> None:
@@ -242,6 +247,16 @@ def test_guidance_is_deterministic_contextual_and_non_mutating() -> None:
     progressed.stages[next(iter(progressed.stages))].lifecycle = LifecycleStatus.COMPLETE
     progressed_guidance = guidance_for("structure.clue-distribution", progressed)
     assert progressed_guidance.rationale != first.rationale
+
+
+def test_guidance_is_independent_of_stage_mapping_insertion_order() -> None:
+    session = SessionEnvelope.new("project-1", "mystery", "A missing heir returns home.")
+    reversed_stages = dict(reversed(tuple(session.stages.items())))
+    reordered = session.model_copy(update={"stages": reversed_stages})
+
+    assert guidance_for("structure.clue-distribution", reordered) == guidance_for(
+        "structure.clue-distribution", session
+    )
 
 
 def test_guidance_projects_working_decision_and_accepted_milestone_state() -> None:
