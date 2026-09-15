@@ -16,6 +16,7 @@ from auteur.beginner.persistence import (
     BeginnerSessionStore,
     CommandReceipt,
     CommandReceiptStore,
+    JsonObject,
     JsonValue,
     ReceiptAcquisition,
     _FilesystemLock,
@@ -25,6 +26,10 @@ import auteur.beginner.persistence as persistence
 
 def make_session() -> SessionEnvelope:
     return SessionEnvelope.new("project-1", "mystery", "A missing heir returns home.")
+
+
+def begin_workspace_command(store: CommandReceiptStore, command_id: str = "command-1") -> ReceiptAcquisition:
+    return store.begin(command_id, command_type="create_workspace")
 
 
 def build_receipt_acquisition(payload: dict[str, Any]) -> ReceiptAcquisition:
@@ -369,7 +374,7 @@ def test_competing_receipt_claims_have_one_new_owner(tmp_path: Path) -> None:
     claims = []
 
     def claim() -> None:
-        claims.append(store.begin("command-1"))
+        claims.append(begin_workspace_command(store))
 
     threads = [threading.Thread(target=claim) for _ in range(2)]
     for thread in threads:
@@ -423,7 +428,7 @@ def test_windows_reserved_device_names_are_rejected_before_io(tmp_path: Path, va
 
 def test_receipt_non_json_result_raises_persistence_error(tmp_path: Path) -> None:
     store = CommandReceiptStore(tmp_path, "workspace-1")
-    receipt = store.begin("command-1")
+    receipt = begin_workspace_command(store)
 
     with pytest.raises(BeginnerPersistenceError, match="receipt"):
         store.complete(receipt, cast(JsonValue, object()))
@@ -437,12 +442,12 @@ def test_receipt_directory_failure_raises_persistence_error(tmp_path: Path, monk
 
     monkeypatch.setattr("auteur.beginner.persistence.Path.mkdir", fail_mkdir)
     with pytest.raises(BeginnerPersistenceError, match="mkdir failed"):
-        store.begin("command-1")
+        begin_workspace_command(store)
 
 
 def test_receipt_write_failure_raises_persistence_error(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     store = CommandReceiptStore(tmp_path, "workspace-1")
-    receipt = store.begin("command-1")
+    receipt = begin_workspace_command(store)
 
     monkeypatch.setattr("auteur.beginner.persistence.os.replace", lambda source, destination: (_ for _ in ()).throw(OSError("write failed")))
     with pytest.raises(BeginnerPersistenceError, match="write failed"):
@@ -452,7 +457,7 @@ def test_receipt_write_failure_raises_persistence_error(tmp_path: Path, monkeypa
 def test_receipt_replay_returns_recorded_result_and_does_not_duplicate(tmp_path: Path) -> None:
     store = CommandReceiptStore(tmp_path, "workspace-1")
 
-    first = store.begin("command-1")
+    first = begin_workspace_command(store)
     completed = store.complete(first, {"workspace_id": "workspace-1"})
     replay = store.replay("command-1")
 
@@ -460,7 +465,7 @@ def test_receipt_replay_returns_recorded_result_and_does_not_duplicate(tmp_path:
     assert replay is not None
     assert replay.result == {"workspace_id": "workspace-1"}
     assert len(list(store.receipts_path.glob("*.json"))) == 1
-    replay_claim = store.begin("command-1")
+    replay_claim = begin_workspace_command(store)
     assert replay_claim.outcome == "completed_replay"
     assert replay_claim.result == completed.result
 
@@ -504,21 +509,26 @@ def test_reusing_command_id_with_different_intent_rejects(
         domain_result_reference={"artifact_id": "identity-1", "revision": 2},
     )
 
-    with pytest.raises(BeginnerPersistenceError, match="intent conflict"):
-        store.begin("command-1", **changed_intent)
+    with pytest.raises((BeginnerPersistenceError, ValidationError)):
+        store.begin(
+            "command-1",
+            command_type=cast(str, changed_intent.get("command_type", "promote_milestone")),
+            target_milestone=cast(str, changed_intent.get("target_milestone", "identity-accepted")),
+            promotion_intent=cast(JsonObject, changed_intent.get("promotion_intent", {"source": "beginner"})),
+        )
 
 
 def test_reusing_command_id_with_omitted_intent_rejects(tmp_path: Path) -> None:
     store = CommandReceiptStore(tmp_path, "workspace-1")
     store.begin("command-1", command_type="promote_milestone", target_milestone="identity-accepted")
 
-    with pytest.raises(BeginnerPersistenceError, match="intent conflict"):
+    with pytest.raises(ValidationError):
         store.begin("command-1")
 
 
 def test_complete_persists_authoritative_domain_result_reference(tmp_path: Path) -> None:
     store = CommandReceiptStore(tmp_path, "workspace-1")
-    owner = store.begin("command-1", command_type="promote_milestone")
+    owner = store.begin("command-1", command_type="promote_milestone", target_milestone="identity-accepted")
 
     completed = store.complete(
         owner,
@@ -532,7 +542,7 @@ def test_complete_persists_authoritative_domain_result_reference(tmp_path: Path)
     assert replay is not None
     assert replay.result == {"accepted": True}
 
-    retried = store.begin("command-1", command_type="promote_milestone")
+    retried = store.begin("command-1", command_type="promote_milestone", target_milestone="identity-accepted")
     assert retried.outcome == "completed_replay"
     assert retried.result == {"accepted": True}
 
@@ -542,6 +552,7 @@ def test_receipt_json_values_are_normalized_for_retry_and_persistence(tmp_path: 
     owner = store.begin(
         "command-1",
         command_type="promote_milestone",
+        target_milestone="identity-accepted",
         promotion_intent={"choices": ["identity", "structure"]},
     )
 
@@ -555,6 +566,7 @@ def test_receipt_json_values_are_normalized_for_retry_and_persistence(tmp_path: 
     retry = store.begin(
         "command-1",
         command_type="promote_milestone",
+        target_milestone="identity-accepted",
         promotion_intent={"choices": ["identity", "structure"]},
     )
     assert loaded.result == ["accepted", True]
@@ -571,12 +583,71 @@ def test_empty_command_type_is_not_defaulted(tmp_path: Path) -> None:
         store.begin("command-1", command_type="")
 
 
-def test_in_progress_reference_is_part_of_retry_intent(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    ("command_type", "target_milestone"),
+    [
+        (None, None),
+        ("unknown", None),
+        ("promote_milestone", None),
+        ("promote_milestone", "not-an-approved-milestone"),
+        ("create_workspace", "identity-accepted"),
+    ],
+)
+def test_receipt_intent_requires_approved_command_and_milestone(
+    tmp_path: Path, command_type: str | None, target_milestone: str | None
+) -> None:
     store = CommandReceiptStore(tmp_path, "workspace-1")
-    store.begin("command-1", domain_result_reference={"artifact_id": "first"})
+
+    with pytest.raises(ValidationError):
+        store.begin("command-1", command_type=command_type, target_milestone=target_milestone)
+
+
+def test_completed_receipt_rejects_conflicting_domain_result_reference(tmp_path: Path) -> None:
+    store = CommandReceiptStore(tmp_path, "workspace-1")
+    owner = store.begin(
+        "command-1",
+        command_type="promote_milestone",
+        target_milestone="identity-accepted",
+        domain_result_reference={"artifact_id": "identity-1", "revision": 2},
+    )
+    store.complete(owner, {"accepted": True}, domain_result_reference={"artifact_id": "identity-1", "revision": 3})
+
+    replay = store.begin(
+        "command-1",
+        command_type="promote_milestone",
+        target_milestone="identity-accepted",
+        domain_result_reference={"artifact_id": "identity-1", "revision": 2},
+    )
+    assert replay.outcome == "completed_replay"
 
     with pytest.raises(BeginnerPersistenceError, match="intent conflict"):
-        store.begin("command-1", domain_result_reference={"artifact_id": "second"})
+        store.begin(
+            "command-1",
+            command_type="promote_milestone",
+            target_milestone="identity-accepted",
+            domain_result_reference={"artifact_id": "identity-2", "revision": 3},
+        )
+
+
+def test_atomic_create_and_replace_sync_containing_directory(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    synced: list[Path] = []
+    monkeypatch.setattr(persistence, "_sync_directory", lambda path: synced.append(path))
+
+    store = BeginnerSessionStore(tmp_path, "workspace-1")
+    store.save(make_session())
+    store.save(store.load(), expected_session_version=1)
+
+    assert len(synced) >= 2
+
+
+def test_in_progress_reference_is_part_of_retry_intent(tmp_path: Path) -> None:
+    store = CommandReceiptStore(tmp_path, "workspace-1")
+    store.begin("command-1", command_type="create_workspace", domain_result_reference={"artifact_id": "first"})
+
+    with pytest.raises(BeginnerPersistenceError, match="intent conflict"):
+        store.begin("command-1", command_type="create_workspace", domain_result_reference={"artifact_id": "second"})
 
 
 @pytest.mark.parametrize("value", ["Workspace-1", "Revision-1", "Command-1"])
@@ -685,7 +756,7 @@ def test_receipt_io_revalidates_replaced_commands_container(tmp_path: Path) -> N
     _redirect_directory(store.receipts_path, sibling)
 
     with pytest.raises(ValueError, match="escapes intended root"):
-        store.begin("command-1")
+        store.begin("command-1", command_type="create_workspace")
     assert not (sibling / "command-1.json").exists()
 
 
@@ -745,7 +816,7 @@ def test_receipt_acquisition_rejects_inconsistent_status_outcome_combinations(
 
 def test_replay_returns_receipt_like_completed_acquisition(tmp_path: Path) -> None:
     store = CommandReceiptStore(tmp_path, "workspace-1")
-    owner = store.begin("command-1")
+    owner = begin_workspace_command(store)
     store.complete(owner, {"accepted": True})
 
     replay = store.replay("command-1")
@@ -757,7 +828,7 @@ def test_replay_returns_receipt_like_completed_acquisition(tmp_path: Path) -> No
 
 def test_receipt_load_rejects_command_id_mismatch_and_replay_cannot_cross_commands(tmp_path: Path) -> None:
     store = CommandReceiptStore(tmp_path, "workspace-1")
-    receipt = store.begin("command-1")
+    receipt = begin_workspace_command(store)
     store.complete(receipt, {"command": "one"})
     path = store.receipt_path("command-1")
     payload = json.loads(path.read_text(encoding="utf-8"))
@@ -772,8 +843,8 @@ def test_receipt_load_rejects_command_id_mismatch_and_replay_cannot_cross_comman
 
 def test_existing_in_progress_begin_returns_valid_acquisition_result(tmp_path: Path) -> None:
     store = CommandReceiptStore(tmp_path, "workspace-1")
-    owner = store.begin("command-1")
-    contender = store.begin("command-1")
+    owner = begin_workspace_command(store)
+    contender = begin_workspace_command(store)
 
     assert isinstance(contender, ReceiptAcquisition)
     assert contender.outcome == "existing_in_progress"
@@ -784,8 +855,8 @@ def test_existing_in_progress_begin_returns_valid_acquisition_result(tmp_path: P
 
 def test_receipt_completion_requires_owner_token(tmp_path: Path) -> None:
     store = CommandReceiptStore(tmp_path, "workspace-1")
-    owner = store.begin("command-1")
-    contender = store.begin("command-1")
+    owner = begin_workspace_command(store)
+    contender = begin_workspace_command(store)
 
     with pytest.raises(BeginnerConcurrencyError, match="owner"):
         store.complete(contender, {"ok": True})
@@ -797,7 +868,9 @@ def test_receipt_completion_requires_owner_token(tmp_path: Path) -> None:
 
 def test_receipt_completion_rejects_never_begun_command(tmp_path: Path) -> None:
     store = CommandReceiptStore(tmp_path, "workspace-1")
-    never_begun = CommandReceipt(command_id="command-1", status="in_progress", owner_token="token")
+    never_begun = CommandReceipt(
+        command_id="command-1", status="in_progress", owner_token="token", command_type="create_workspace"
+    )
 
     with pytest.raises(BeginnerPersistenceError, match="never begun"):
         store.complete(never_begun, {"ok": True})
@@ -805,7 +878,7 @@ def test_receipt_completion_rejects_never_begun_command(tmp_path: Path) -> None:
 
 def test_concurrent_completion_is_serialized_and_idempotent(tmp_path: Path) -> None:
     store = CommandReceiptStore(tmp_path, "workspace-1")
-    owner = store.begin("command-1")
+    owner = begin_workspace_command(store)
     results: list[CommandReceipt] = []
     failures: list[Exception] = []
 
@@ -834,7 +907,7 @@ def test_repeated_independent_receipt_completions_have_no_lock_open_race(tmp_pat
 
     for iteration in range(50):
         command_id = f"command-{iteration}"
-        owner = first_store.begin(command_id)
+        owner = begin_workspace_command(first_store, command_id)
         completions: list[CommandReceipt] = []
         failures: list[Exception] = []
 
@@ -870,7 +943,7 @@ def test_failed_lock_enter_closes_contender_handle(tmp_path: Path) -> None:
 def test_incomplete_receipt_can_be_loaded_for_recovery(tmp_path: Path) -> None:
     store = CommandReceiptStore(tmp_path, "workspace-1")
 
-    pending = store.begin("command-1")
+    pending = begin_workspace_command(store)
 
     loaded = store.load("command-1")
     assert loaded.command_id == pending.command_id
@@ -903,6 +976,6 @@ def test_wrong_typed_persisted_session_json_raises_clear_persistence_error(tmp_p
 
 def test_receipt_json_is_valid_json(tmp_path: Path) -> None:
     store = CommandReceiptStore(tmp_path, "workspace-1")
-    receipt = store.begin("command-1")
+    receipt = begin_workspace_command(store)
 
     assert json.loads(store.receipt_path(receipt.command_id).read_text(encoding="utf-8"))["command_id"] == "command-1"

@@ -49,6 +49,9 @@ else:
     )
 JsonObject: TypeAlias = dict[str, JsonValue]
 
+_BEGINNER_COMMAND_TYPES = {"create_workspace", "promote_milestone"}
+_BEGINNER_MILESTONES = {"identity-accepted", "structure-accepted"}
+
 
 def _normalize_json_value(value: JsonValue, label: str) -> JsonValue:
     _validate_json_value(value, label)
@@ -74,6 +77,19 @@ def _validate_json_value(value: object, label: str) -> None:
     raise ValueError(f"{label} must be JSON-compatible")
 
 
+def _validate_command_intent(command_type: object, target_milestone: object, label: str) -> None:
+    if type(command_type) is not str or command_type not in _BEGINNER_COMMAND_TYPES:
+        raise ValueError(f"{label} command_type must be an approved authority action")
+    if target_milestone is not None and (
+        type(target_milestone) is not str or target_milestone not in _BEGINNER_MILESTONES
+    ):
+        raise ValueError(f"{label} target_milestone must be an approved milestone")
+    if command_type == "promote_milestone" and target_milestone is None:
+        raise ValueError(f"{label} target_milestone is required for promotion")
+    if command_type == "create_workspace" and target_milestone is not None:
+        raise ValueError(f"{label} create_workspace cannot target a milestone")
+
+
 class CommandReceipt(BaseModel):
     """A durable record of a command's in-progress or completed execution."""
 
@@ -83,15 +99,17 @@ class CommandReceipt(BaseModel):
     status: Literal["in_progress", "complete"]
     result: JsonValue = None
     owner_token: str | None = Field(default=None, min_length=1)
-    command_type: str = Field(default="unknown", min_length=1)
+    command_type: str = Field(min_length=1)
     target_milestone: str | None = Field(default=None, min_length=1)
     promotion_intent: JsonObject | None = None
     domain_result_reference: JsonObject | None = None
+    requested_domain_result_reference: JsonObject | None = None
 
     @model_validator(mode="before")
     @classmethod
     def validate_raw_json_fields(cls, data: object) -> object:
         if isinstance(data, dict):
+            _validate_command_intent(data.get("command_type"), data.get("target_milestone"), "receipt")
             for field_name, label in (
                 ("command_type", "receipt command_type"),
                 ("target_milestone", "receipt target_milestone"),
@@ -102,6 +120,7 @@ class CommandReceipt(BaseModel):
                 ("result", "receipt result"),
                 ("promotion_intent", "promotion intent"),
                 ("domain_result_reference", "domain result reference"),
+                ("requested_domain_result_reference", "requested domain result reference"),
             ):
                 if field_name in data and data[field_name] is not None:
                     _validate_json_value(data[field_name], label)
@@ -118,6 +137,11 @@ class CommandReceipt(BaseModel):
         self.domain_result_reference = (
             cast(JsonObject, _normalize_json_value(self.domain_result_reference, "domain result reference"))
             if self.domain_result_reference is not None
+            else None
+        )
+        self.requested_domain_result_reference = (
+            cast(JsonObject, _normalize_json_value(self.requested_domain_result_reference, "requested domain result reference"))
+            if self.requested_domain_result_reference is not None
             else None
         )
         if self.status == "in_progress":
@@ -145,15 +169,17 @@ class ReceiptAcquisition(BaseModel):
     outcome: Literal["owner_claim", "existing_in_progress", "completed_replay"]
     owner_token: str | None = Field(default=None, min_length=1)
     result: JsonValue = None
-    command_type: str = Field(default="unknown", min_length=1)
+    command_type: str = Field(min_length=1)
     target_milestone: str | None = Field(default=None, min_length=1)
     promotion_intent: JsonObject | None = None
     domain_result_reference: JsonObject | None = None
+    requested_domain_result_reference: JsonObject | None = None
 
     @model_validator(mode="before")
     @classmethod
     def validate_raw_json_fields(cls, data: object) -> object:
         if isinstance(data, dict):
+            _validate_command_intent(data.get("command_type"), data.get("target_milestone"), "acquisition")
             for field_name, label in (
                 ("command_type", "acquisition command_type"),
                 ("target_milestone", "acquisition target_milestone"),
@@ -164,6 +190,7 @@ class ReceiptAcquisition(BaseModel):
                 ("result", "acquisition result"),
                 ("promotion_intent", "promotion intent"),
                 ("domain_result_reference", "domain result reference"),
+                ("requested_domain_result_reference", "requested domain result reference"),
             ):
                 if field_name in data and data[field_name] is not None:
                     _validate_json_value(data[field_name], label)
@@ -180,6 +207,11 @@ class ReceiptAcquisition(BaseModel):
         self.domain_result_reference = (
             cast(JsonObject, _normalize_json_value(self.domain_result_reference, "domain result reference"))
             if self.domain_result_reference is not None
+            else None
+        )
+        self.requested_domain_result_reference = (
+            cast(JsonObject, _normalize_json_value(self.requested_domain_result_reference, "requested domain result reference"))
+            if self.requested_domain_result_reference is not None
             else None
         )
         if self.outcome == "owner_claim":
@@ -253,6 +285,7 @@ def _atomic_write(path: Path, payload: str) -> None:
             temporary.flush()
             os.fsync(temporary.fileno())
         os.replace(temporary_path, path)
+        _sync_directory(path.parent)
         temporary_path = None
     except OSError as exc:
         raise BeginnerPersistenceError(f"atomic write failed for {path}: {exc}") from exc
@@ -279,6 +312,7 @@ def _atomic_create(path: Path, payload: str) -> bool:
             os.link(temporary_path, path)
         except FileExistsError:
             return False
+        _sync_directory(path.parent)
         return True
     except OSError as exc:
         raise BeginnerPersistenceError(f"atomic create failed for {path}: {exc}") from exc
@@ -288,6 +322,24 @@ def _atomic_create(path: Path, payload: str) -> bool:
                 temporary_path.unlink()
             except FileNotFoundError:
                 pass
+
+
+def _sync_directory(directory: Path) -> None:
+    flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
+    try:
+        descriptor = os.open(directory, flags)
+    except OSError:
+        if os.name == "nt":
+            return
+        raise
+    try:
+        try:
+            os.fsync(descriptor)
+        except OSError:
+            if os.name != "nt":
+                raise
+    finally:
+        os.close(descriptor)
 
 
 _SESSION_LOCK_TIMEOUT = 10.0
@@ -518,10 +570,11 @@ class CommandReceiptStore:
             command_id=command_id,
             status="in_progress",
             owner_token=secrets.token_urlsafe(32),
-            command_type=command_type if command_type is not None else "unknown",
+            command_type=command_type,
             target_milestone=target_milestone,
             promotion_intent=promotion_intent,
             domain_result_reference=domain_result_reference,
+            requested_domain_result_reference=domain_result_reference,
         )
         if _atomic_create(path, _serialize_receipt(receipt)):
             return ReceiptAcquisition(
@@ -533,16 +586,14 @@ class CommandReceiptStore:
                 target_milestone=receipt.target_milestone,
                 promotion_intent=receipt.promotion_intent,
                 domain_result_reference=receipt.domain_result_reference,
+                requested_domain_result_reference=receipt.requested_domain_result_reference,
             )
         existing = self.load(command_id)
         if (
             existing.command_type != receipt.command_type
             or existing.target_milestone != receipt.target_milestone
             or existing.promotion_intent != receipt.promotion_intent
-            or (
-                existing.status == "in_progress"
-                and existing.domain_result_reference != receipt.domain_result_reference
-            )
+            or existing.requested_domain_result_reference != receipt.requested_domain_result_reference
         ):
             raise BeginnerPersistenceError(f"command intent conflict for existing command_id {command_id}")
         if existing.status == "complete":
@@ -555,6 +606,7 @@ class CommandReceiptStore:
                 target_milestone=existing.target_milestone,
                 promotion_intent=existing.promotion_intent,
                 domain_result_reference=existing.domain_result_reference,
+                requested_domain_result_reference=existing.requested_domain_result_reference,
             )
         return ReceiptAcquisition(
             command_id=command_id,
@@ -564,6 +616,7 @@ class CommandReceiptStore:
             target_milestone=existing.target_milestone,
             promotion_intent=existing.promotion_intent,
             domain_result_reference=existing.domain_result_reference,
+            requested_domain_result_reference=existing.requested_domain_result_reference,
         )
 
     def complete(
@@ -609,6 +662,7 @@ class CommandReceiptStore:
                         if domain_result_reference is not None
                         else existing.domain_result_reference
                     ),
+                    requested_domain_result_reference=existing.requested_domain_result_reference,
                 )
             except ValidationError as exc:
                 raise BeginnerPersistenceError(f"could not normalize receipt completion: {exc}") from exc
@@ -628,4 +682,5 @@ class CommandReceiptStore:
             target_milestone=receipt.target_milestone,
             promotion_intent=receipt.promotion_intent,
             domain_result_reference=receipt.domain_result_reference,
+            requested_domain_result_reference=receipt.requested_domain_result_reference,
         )
