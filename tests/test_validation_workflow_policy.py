@@ -21,6 +21,7 @@ def test_development_validation_is_focused_and_not_release_qualification():
     assert "python -m pytest -q --tb=short" not in rendered
     assert "windows-latest" not in rendered
     assert "scripts/release_evidence.py" not in rendered
+    assert "python scripts/check.py --skip-pytest --ruff-paths $RUFF_PATHS" in rendered
 
 
 def test_stabilization_is_explicit_and_runs_full_regression():
