@@ -9,6 +9,8 @@ from auteur.beginner.guidance import (
     QualificationStage,
     register_guidance_adapter,
 )
+from auteur.mystery.core_templates import HowdunitTemplate
+from auteur.mystery.validation import RuleSet
 
 
 class MysteryGuidanceAdapter:
@@ -16,18 +18,36 @@ class MysteryGuidanceAdapter:
 
     @staticmethod
     def inventory() -> QualificationInventory:
+        template = HowdunitTemplate()
+        rule_ids = {rule.rule_id for rule in RuleSet("howdunit").rules}
+        for card in _MYSTERY_CARDS:
+            for reference in card.evidence_references:
+                if reference.source == "HowdunitTemplate":
+                    assert reference.phase is not None
+                    if reference.field != template.phases[reference.phase]:
+                        raise ValueError("evidence field does not match HowdunitTemplate phase")
+                    labels = {option.label for option in template.options[reference.phase]}
+                    if not set(reference.option_labels) <= labels:
+                        raise ValueError("evidence contains an unsupported Howdunit option")
+                elif reference.rule_id not in rule_ids:
+                    raise ValueError("evidence contains an unknown Howdunit rule")
         return QualificationInventory(cards=_MYSTERY_CARDS)
 
 
 def _evidence(phase: int, options: tuple[str, ...], recommendation: str, rule_id: str | None = None) -> tuple[EvidenceReference, ...]:
+    field = {
+        2: "genre_contract", 3: "scope", 4: "structural_forces",
+        5: "investigation_style", 6: "pacing_rhythm", 7: "clue_distribution",
+        8: "solution_density", 9: "fairness_confidence",
+    }[phase]
     references = (
-        EvidenceReference(claim="decision", source="HowdunitTemplate", phase=phase, option_labels=options),
-        EvidenceReference(claim="recommendation", source="HowdunitTemplate", phase=phase, option_labels=(recommendation,)),
-        EvidenceReference(claim="option", source="HowdunitTemplate", phase=phase, option_labels=options),
-        EvidenceReference(claim="consequence", source="HowdunitTemplate", phase=phase, option_labels=options),
+        EvidenceReference(claim="decision", source="HowdunitTemplate", phase=phase, field=field, option_labels=options),
+        EvidenceReference(claim="recommendation", source="HowdunitTemplate", phase=phase, field=field, option_labels=(recommendation,)),
+        EvidenceReference(claim="option", source="HowdunitTemplate", phase=phase, field=field, option_labels=options),
+        EvidenceReference(claim="consequence", source="HowdunitTemplate", phase=phase, field=field, option_labels=options),
     )
     if rule_id is not None:
-        return references + (EvidenceReference(claim="consequence", source="RuleSet", rule_id=rule_id),)
+        return references + (EvidenceReference(claim="consequence", source="RuleSet", field="rules", rule_id=rule_id),)
     return references
 
 
@@ -35,47 +55,47 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
     QualificationCard(
         card_id="discover.mystery-question",
         stage=QualificationStage.DISCOVER,
-        title="The investigation mode",
-        question="Which investigation mode should the story use?",
+        title="The mystery experience",
+        question="Which mystery experience or lens should the story promise?",
         source_subject="Howdunit genre_contract",
-        options=("Detective procedural", "Police/investigation procedural", "Locked-room puzzle"),
+        options=("Detective procedural", "Police/investigation procedural", "Locked-room puzzle", "Intricate puzzle structure"),
         recommendation="Detective procedural",
         narrative_principle="The genre contract tells the reader what kind of investigation to expect.",
         warnings_or_tensions=("A vague question makes clues feel decorative.", "A question that is too narrow can flatten the human stakes."),
         downstream_consequences=("The selected genre contract determines the investigation mode presented to the reader.",),
-        evidence_references=_evidence(2, ("Detective procedural", "Police/investigation procedural", "Locked-room puzzle"), "Detective procedural"),
+        evidence_references=_evidence(2, ("Detective procedural", "Police/investigation procedural", "Locked-room puzzle", "Intricate puzzle structure"), "Detective procedural"),
     ),
     QualificationCard(
         card_id="discover.investigation-motivation",
         stage=QualificationStage.DISCOVER,
-        title="The investigation's driving want",
-        question="Which want drives the investigator beyond the case mechanics?",
+        title="The personal consequence",
+        question="Which personal consequence should the investigation carry?",
         source_subject="Howdunit structural_forces",
-        options=("Want: Solve the puzzle", "Want: Identify the culprit", "Want: Restore order"),
-        recommendation="Want: Solve the puzzle",
-        narrative_principle="Structural forces give the investigation a character-driven want.",
+        options=("Stakes: Justice served", "Stakes: Order restored"),
+        recommendation="Stakes: Justice served",
+        narrative_principle="Structural forces define what the investigation must restore.",
         warnings_or_tensions=("Curiosity alone may not sustain pressure.", "Strong obligation can narrow alternative choices."),
-        downstream_consequences=("The selected want determines what the investigator pursues beyond the case mechanics.",),
-        evidence_references=_evidence(4, ("Want: Solve the puzzle", "Want: Identify the culprit", "Want: Restore order"), "Want: Solve the puzzle"),
+        downstream_consequences=("The selected stakes determine what remains unresolved until the solution.",),
+        evidence_references=_evidence(4, ("Stakes: Justice served", "Stakes: Order restored"), "Stakes: Justice served"),
     ),
     QualificationCard(
         card_id="discover.inquiry-scope",
         stage=QualificationStage.DISCOVER,
-        title="The inquiry's scope",
-        question="How contained or expansive should the inquiry be?",
-        source_subject="Howdunit scope",
-        options=("Single crime, contained", "Multi-faceted crime, wider cast", "Serial crimes, city-scale investigation"),
-        recommendation="Single crime, contained",
-        narrative_principle="The template's scope controls how contained or expansive the investigation is.",
+        title="The investigation approach",
+        question="Which investigation approach should guide the inquiry?",
+        source_subject="Howdunit investigation_style",
+        options=("Logical deduction", "Intuitive investigation", "By-the-book procedure"),
+        recommendation="Logical deduction",
+        narrative_principle="The investigation-style phase defines how the inquiry proceeds.",
         warnings_or_tensions=("Expansion increases discovery opportunities and continuity load.", "A contained scope needs depth rather than just fewer locations."),
-        downstream_consequences=("The selected scope determines whether the investigation is contained, wider-cast, or city-scale.",),
-        evidence_references=_evidence(3, ("Single crime, contained", "Multi-faceted crime, wider cast", "Serial crimes, city-scale investigation"), "Single crime, contained"),
+        downstream_consequences=("The selected approach determines whether deductions, intuition, or procedure leads the inquiry.",),
+        evidence_references=_evidence(5, ("Logical deduction", "Intuitive investigation", "By-the-book procedure"), "Logical deduction"),
     ),
     QualificationCard(
         card_id="story-identity.protagonist-want",
         stage=QualificationStage.STORY_IDENTITY,
         title="The protagonist's want",
-        question="Which want drives the protagonist beyond merely solving the case?",
+        question="Which practical investigation want should drive the protagonist?",
         source_subject="Howdunit structural_forces want options",
         options=("Want: Solve the puzzle", "Want: Identify the culprit", "Want: Restore order"),
         recommendation="Want: Solve the puzzle",
@@ -100,67 +120,67 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
     QualificationCard(
         card_id="story-identity.stakes",
         stage=QualificationStage.STORY_IDENTITY,
-        title="What the answer changes",
-        question="What is at stake if the answer stays hidden?",
-        source_subject="Howdunit structural_forces stakes options",
-        options=("Stakes: Justice served", "Stakes: Order restored"),
-        recommendation="Stakes: Justice served",
-        narrative_principle="The structural-forces phase defines what the solution must restore.",
+        title="The reader's knowledge contract",
+        question="How confident should the reader be that the mystery can be solved fairly?",
+        source_subject="Howdunit fairness_confidence",
+        options=("High confidence reader could solve it", "Medium confidence (possible on rereads)", "Challenging but fair puzzle"),
+        recommendation="Challenging but fair puzzle",
+        narrative_principle="Fairness confidence sets the knowledge contract between reader and mystery.",
         warnings_or_tensions=("External stakes alone may feel impersonal.", "Escalating stakes should remain credible for the chosen scope."),
-        downstream_consequences=("The selected stakes determine what remains unresolved until the solution.",),
-        evidence_references=_evidence(4, ("Stakes: Justice served", "Stakes: Order restored"), "Stakes: Justice served"),
+        downstream_consequences=("The selected fairness confidence determines how solvable the mystery is for the reader.",),
+        evidence_references=_evidence(9, ("High confidence reader could solve it", "Medium confidence (possible on rereads)", "Challenging but fair puzzle"), "Challenging but fair puzzle"),
     ),
     QualificationCard(
         card_id="story-identity.change",
         stage=QualificationStage.STORY_IDENTITY,
-        title="The meaning of discovery",
-        question="How does understanding the truth change the protagonist?",
-        source_subject="Howdunit structural_forces change options",
-        options=("Change: From confusion to clarity", "Change: From suspicion to certainty"),
-        recommendation="Change: From confusion to clarity",
-        narrative_principle="The structural-forces phase defines how discovery changes the protagonist.",
+        title="Opposition protecting the truth",
+        question="Which conflict should protect the hidden truth?",
+        source_subject="Howdunit structural_forces conflict options",
+        options=("Conflict: Deduction vs. misdirection", "Conflict: Logic vs. chaos"),
+        recommendation="Conflict: Deduction vs. misdirection",
+        narrative_principle="The structural-forces conflict field defines the opposition protecting the truth.",
         warnings_or_tensions=("Clarity is not the same as comfort.", "A static investigator can make a clever solution feel emotionally empty."),
-        downstream_consequences=("The selected change determines the protagonist's movement after understanding the truth.",),
-        evidence_references=_evidence(4, ("Change: From confusion to clarity", "Change: From suspicion to certainty"), "Change: From confusion to clarity"),
+        downstream_consequences=("The selected conflict determines whether deduction is opposed by misdirection or chaos.",),
+        evidence_references=_evidence(4, ("Conflict: Deduction vs. misdirection", "Conflict: Logic vs. chaos"), "Conflict: Deduction vs. misdirection"),
     ),
     QualificationCard(
         card_id="structure.clue-distribution",
         stage=QualificationStage.STRUCTURE,
-        title="Clue distribution",
-        question="When should the reader receive the information needed to reason?",
-        source_subject="Howdunit clue_distribution and solution_derivable",
-        options=("Heavy clues early, light late", "Even clue distribution", "Light clues early, heavy late"),
-        recommendation="Even clue distribution",
-        narrative_principle="The clue-distribution phase sets when evidence reaches the reader.",
-        warnings_or_tensions=("Late clues can create surprise but threaten fair play.", "Early clues require stronger misdirection and interpretation."),
-        downstream_consequences=("The selected distribution determines when the reader can reason from the evidence.",),
-        evidence_references=_evidence(7, ("Heavy clues early, light late", "Even clue distribution", "Light clues early, heavy late"), "Even clue distribution", "howdunit.structure.solution_derivable"),
+        title="Disruption pacing",
+        question="What pacing rhythm should govern the investigation's disruption?",
+        source_subject="Howdunit pacing_rhythm",
+        options=("Clues accelerate toward solution", "Steady rhythm of discovery", "Forward progress with setbacks"),
+        recommendation="Steady rhythm of discovery",
+        narrative_principle="The pacing-rhythm phase defines how discovery changes the investigation's momentum.",
+        warnings_or_tensions=("A tight solution needs early evidence.", "A generous solution can reduce the reader's participation."),
+        downstream_consequences=("The selected rhythm determines whether discovery accelerates, stays steady, or meets setbacks.",),
+        evidence_references=_evidence(6, ("Clues accelerate toward solution", "Steady rhythm of discovery", "Forward progress with setbacks"), "Steady rhythm of discovery"),
     ),
     QualificationCard(
         card_id="structure.solution-density",
         stage=QualificationStage.STRUCTURE,
-        title="Solution density",
-        question="How tightly should the solution follow from the clues?",
-        source_subject="Howdunit solution_density and solution_derivable",
-        options=("Solution barely derivable from clues", "Solution is one of several reasonable readings", "Solution obvious once clues are gathered"),
-        recommendation="Solution is one of several reasonable readings",
-        narrative_principle="The solution-density phase sets how directly the answer follows from clues.",
-        warnings_or_tensions=("A tight solution needs early evidence.", "A generous solution can reduce the reader's participation."),
-        downstream_consequences=("The selected density determines how directly the solution follows from the clues.",),
-        evidence_references=_evidence(8, ("Solution barely derivable from clues", "Solution is one of several reasonable readings", "Solution obvious once clues are gathered"), "Solution is one of several reasonable readings", "howdunit.structure.solution_derivable"),
+        title="Clue and reversal distribution",
+        question="How should major clues and reversals be distributed?",
+        source_subject="Howdunit clue_distribution",
+        options=("Heavy clues early, light late", "Even clue distribution", "Light clues early, heavy late"),
+        recommendation="Even clue distribution",
+        narrative_principle="The clue-distribution phase sets when evidence reaches the reader.",
+        warnings_or_tensions=("A consequence-free reveal can make the investigation feel ornamental.", "A costly reveal may resist a fully comforting resolution."),
+        downstream_consequences=("The selected distribution determines when the reader can reason from the evidence.",),
+        evidence_references=_evidence(7, ("Heavy clues early, light late", "Even clue distribution", "Light clues early, heavy late"), "Even clue distribution", "howdunit.structure.solution_derivable"),
     ),
     QualificationCard(
         card_id="structure.reveal-consequences",
         stage=QualificationStage.STRUCTURE,
-        title="Reveal consequences",
-        question="How directly should the reveal follow from the clues?",
+        title="Solution and revelation density",
+        question="How directly should the final revelation follow from the clues?",
         source_subject="Howdunit solution_density",
         options=("Solution barely derivable from clues", "Solution is one of several reasonable readings", "Solution obvious once clues are gathered"),
         recommendation="Solution is one of several reasonable readings",
-        narrative_principle="Solution density determines how directly the reveal follows from the clues.",
-        warnings_or_tensions=("A consequence-free reveal can make the investigation feel ornamental.", "A costly reveal may resist a fully comforting resolution."),
-        downstream_consequences=("The selected density determines how much reasoning the reveal asks of the reader.",),
-        evidence_references=_evidence(8, ("Solution barely derivable from clues", "Solution is one of several reasonable readings", "Solution obvious once clues are gathered"), "Solution is one of several reasonable readings"),
+        narrative_principle="Solution density defines how directly the final revelation follows from evidence.",
+        warnings_or_tensions=("A tight solution needs early evidence.", "A generous solution can reduce the reader's participation."),
+        downstream_consequences=("The selected density determines how much reasoning the final revelation asks of the reader.",),
+        evidence_references=_evidence(8, ("Solution barely derivable from clues", "Solution is one of several reasonable readings", "Solution obvious once clues are gathered"), "Solution is one of several reasonable readings", "howdunit.structure.solution_derivable"),
     ),
 )
 

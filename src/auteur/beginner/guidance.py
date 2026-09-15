@@ -23,7 +23,8 @@ class EvidenceReference(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
     claim: Literal["decision", "recommendation", "option", "consequence"]
     source: Literal["HowdunitTemplate", "RuleSet"]
-    phase: int | None = Field(default=None, ge=1)
+    phase: int | None = Field(default=None, ge=1, le=9)
+    field: str | None = None
     option_labels: tuple[str, ...] = Field(default_factory=tuple)
     rule_id: str | None = None
 
@@ -36,8 +37,8 @@ class EvidenceReference(BaseModel):
 
     @model_validator(mode="after")
     def validate_reference(self) -> EvidenceReference:
-        if self.source == "HowdunitTemplate" and self.phase is None:
-            raise ValueError("HowdunitTemplate evidence requires a phase")
+        if self.source == "HowdunitTemplate" and (self.phase is None or self.field is None):
+            raise ValueError("HowdunitTemplate evidence requires a phase and field")
         if self.source == "RuleSet" and self.rule_id is None:
             raise ValueError("RuleSet evidence requires a rule_id")
         if not self.option_labels and self.rule_id is None:
@@ -239,14 +240,38 @@ def _commitment_summary(card: QualificationCard, session: SessionEnvelope) -> st
     return "It reinforces the current premise and commitments: " + "; ".join(commitments) + "."
 
 
+def _select_recommendation(card: QualificationCard, session: SessionEnvelope) -> tuple[str, str]:
+    stage_order = tuple(DecisionStage)
+    card_stage = {
+        QualificationStage.DISCOVER: DecisionStage.DISCOVER,
+        QualificationStage.STORY_IDENTITY: DecisionStage.STORY_IDENTITY,
+        QualificationStage.STRUCTURE: DecisionStage.STORY_STRUCTURE,
+    }[card.stage]
+    relevant_stages = stage_order[: stage_order.index(card_stage) + 1]
+    for stage in relevant_stages:
+        decision = session.stages[stage].working_decision
+        if decision is not None:
+            for option in decision.options:
+                if option in card.options:
+                    return option, f"It reinforces the current {stage.value} working choice."
+    for milestone in session.accepted_milestones:
+        if milestone.accepted_content is not None:
+            for option in card.options:
+                if option in milestone.accepted_content:
+                    return option, f"It reinforces accepted milestone {milestone.milestone_id}."
+    return card.recommendation, "It is the curated default for the cited Howdunit domain option."
+
+
 def guidance_for(card_id: str, session: SessionEnvelope) -> BeginnerGuidance:
     """Compose one deterministic guidance card from a current session snapshot."""
     card = _adapter_for(session.guidance_genre).inventory().card(card_id)
     context_summary = _context_summary(session)
+    recommendation, recommendation_reason = _select_recommendation(card, session)
     commitment_summary = _commitment_summary(card, session)
     rationale = (
-        f"This curated craft recommendation starts with {card.recommendation.lower()} "
-        f"for the current premise, {session.premise!r}. {commitment_summary} {context_summary} "
+        f"This deterministic recommendation starts with {recommendation.lower()} "
+        f"for the current premise, {session.premise!r}. {recommendation_reason} "
+        f"{commitment_summary} {context_summary} "
         "Apply it as a teaching projection, not as a canonical selection."
     )
     return BeginnerGuidance(
@@ -258,14 +283,18 @@ def guidance_for(card_id: str, session: SessionEnvelope) -> BeginnerGuidance:
             f"{session.premise!r}."
         ),
         narrative_principle=card.narrative_principle,
-        recommendation=card.recommendation,
+        recommendation=recommendation,
         rationale=rationale,
         context_summary=context_summary,
-        alternatives=tuple(option for option in card.options if option != card.recommendation),
+        alternatives=tuple(option for option in card.options if option != recommendation),
         tradeoffs=card.warnings_or_tensions,
         downstream_consequences=card.downstream_consequences,
         warnings_or_tensions=card.warnings_or_tensions,
-        evidence_references=card.evidence_references,
+        evidence_references=tuple(
+            reference.model_copy(update={"option_labels": (recommendation,)})
+            if reference.claim == "recommendation" else reference
+            for reference in card.evidence_references
+        ),
     )
 
 

@@ -68,13 +68,13 @@ def test_inventory_cards_reference_existing_mystery_subjects() -> None:
     expected_phase_names = {
         "discover.mystery-question": {"genre_contract"},
         "discover.investigation-motivation": {"structural_forces"},
-        "discover.inquiry-scope": {"scope"},
+        "discover.inquiry-scope": {"investigation_style"},
         "story-identity.protagonist-want": {"structural_forces"},
         "story-identity.resistance": {"structural_forces"},
-        "story-identity.stakes": {"structural_forces"},
+        "story-identity.stakes": {"fairness_confidence"},
         "story-identity.change": {"structural_forces"},
-        "structure.clue-distribution": {"clue_distribution"},
-        "structure.solution-density": {"solution_density"},
+        "structure.clue-distribution": {"pacing_rhythm"},
+        "structure.solution-density": {"clue_distribution"},
         "structure.reveal-consequences": {"solution_density"},
     }
     for card in inventory.cards:
@@ -88,6 +88,7 @@ def test_inventory_cards_reference_existing_mystery_subjects() -> None:
                 assert reference.phase in template.phases
                 assert reference.phase is not None
                 phase_names.add(template.phases[reference.phase])
+                assert reference.field == template.phases[reference.phase]
                 supported_labels.update(option.label for option in template.options[reference.phase])
                 assert set(reference.option_labels) <= supported_labels
             else:
@@ -171,6 +172,40 @@ def test_guidance_includes_all_working_decisions_and_accepted_snapshot_details()
     assert "fingerprint-v7" in projected.context_summary
     assert guidance_for("structure.clue-distribution", changed_upstream) != projected
     assert guidance_for("structure.clue-distribution", changed_accepted) != projected
+
+
+def test_relevant_working_choice_selects_supported_recommendation() -> None:
+    session = SessionEnvelope.new("project-1", "mystery", "A missing heir returns home.")
+    baseline = guidance_for("story-identity.protagonist-want", session)
+    identity = session.stages[DecisionStage.STORY_IDENTITY].model_copy(
+        update={
+            "working_decision": WorkingDecision(
+                stage=DecisionStage.STORY_IDENTITY,
+                question="Which want is active?",
+                options=["Want: Identify the culprit"],
+            )
+        }
+    )
+    committed = session.model_copy(
+        update={"stages": {**session.stages, DecisionStage.STORY_IDENTITY: identity}}
+    )
+    changed = guidance_for("story-identity.protagonist-want", committed)
+
+    assert baseline.recommendation == "Want: Solve the puzzle"
+    assert changed.recommendation == "Want: Identify the culprit"
+    assert "current story_identity working choice" in changed.rationale
+    assert changed.rationale != baseline.rationale
+
+
+def test_evidence_rejects_impossible_phase() -> None:
+    with pytest.raises(ValidationError):
+        EvidenceReference(
+            claim="decision",
+            source="HowdunitTemplate",
+            phase=999,
+            field="invented",
+            option_labels=("invented",),
+        )
 
 
 def test_guidance_routing_uses_an_extensible_adapter_registry() -> None:
@@ -290,9 +325,9 @@ def test_card_questions_options_and_consequences_are_card_specific() -> None:
     question_card = inventory.card("discover.mystery-question")
     want_card = inventory.card("story-identity.protagonist-want")
 
-    assert question_card.question == "Which investigation mode should the story use?"
+    assert question_card.question == "Which mystery experience or lens should the story promise?"
     assert "Solve the puzzle" not in want_card.options
-    assert want_card.question == "Which want drives the protagonist beyond merely solving the case?"
+    assert want_card.question == "Which practical investigation want should drive the protagonist?"
     assert question_card.downstream_consequences != want_card.downstream_consequences
     session = SessionEnvelope.new("project-1", "mystery", "A premise.")
     assert guidance_for(question_card.card_id, session).downstream_consequences == question_card.downstream_consequences
