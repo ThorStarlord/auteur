@@ -214,8 +214,9 @@ def test_recommendation_ignores_locked_or_unselected_prose() -> None:
             selected_option="Police/investigation procedural",
         ),
     )
-    locked = selected.model_copy(
-        update={"lifecycle": LifecycleStatus.NOT_STARTED, "availability": StageAvailability.LOCKED}
+    locked_working = selected.model_copy(update={"availability": StageAvailability.LOCKED})
+    locked_complete = selected.model_copy(
+        update={"lifecycle": LifecycleStatus.COMPLETE, "availability": StageAvailability.LOCKED}
     )
     rejected = selected.model_copy(
         update={
@@ -226,10 +227,16 @@ def test_recommendation_ignores_locked_or_unselected_prose() -> None:
             )
         }
     )
-    locked_session = session.model_copy(update={"stages": {**session.stages, DecisionStage.DISCOVER: locked}})
+    locked_working_session = session.model_copy(
+        update={"stages": {**session.stages, DecisionStage.DISCOVER: locked_working}}
+    )
+    locked_complete_session = session.model_copy(
+        update={"stages": {**session.stages, DecisionStage.DISCOVER: locked_complete}}
+    )
     rejected_session = session.model_copy(update={"stages": {**session.stages, DecisionStage.DISCOVER: rejected}})
 
-    assert guidance_for("discover.story-experience", locked_session).recommendation == baseline.recommendation
+    assert guidance_for("discover.story-experience", locked_working_session).recommendation == baseline.recommendation
+    assert guidance_for("discover.story-experience", locked_complete_session).recommendation == baseline.recommendation
     assert guidance_for("discover.story-experience", rejected_session).recommendation == baseline.recommendation
 
 

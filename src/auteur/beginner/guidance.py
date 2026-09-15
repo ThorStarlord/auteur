@@ -8,7 +8,7 @@ from typing import ClassVar, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from .contracts import DecisionStage, LifecycleStatus, SessionEnvelope
+from .contracts import DecisionStage, LifecycleStatus, SessionEnvelope, StageAvailability
 
 
 class QualificationStage(str, Enum):
@@ -267,7 +267,10 @@ def _select_recommendation(card: QualificationCard, session: SessionEnvelope) ->
     relevant_stages = stage_order[: stage_order.index(card_stage) + 1]
     for stage in relevant_stages:
         status = session.stages[stage]
-        if status.lifecycle not in (LifecycleStatus.WORKING, LifecycleStatus.COMPLETE):
+        if (
+            status.availability is not StageAvailability.AVAILABLE
+            or status.lifecycle not in (LifecycleStatus.WORKING, LifecycleStatus.COMPLETE)
+        ):
             continue
         decision = status.working_decision
         if decision is not None and decision.selected_option in card.options:
