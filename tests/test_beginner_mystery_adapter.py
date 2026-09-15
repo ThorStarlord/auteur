@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import subprocess
+import sys
+
 import pytest
 from pydantic import ValidationError
 
@@ -128,11 +131,8 @@ def test_guidance_includes_all_working_decisions_and_accepted_snapshot_details()
                 AcceptedMilestoneReference(
                     milestone_id="identity-accepted",
                     revision=RevisionRef(artifact_id="identity-42", revision=7),
-                ).model_copy(
-                    update={
-                        "accepted_content": "accepted narrative identity",
-                        "fingerprint": "fingerprint-v7",
-                    }
+                    accepted_content="accepted narrative identity",
+                    fingerprint="fingerprint-v7",
                 )
             ],
         }
@@ -189,6 +189,23 @@ def test_guidance_routing_uses_an_extensible_adapter_registry() -> None:
         assert guidance.card_id == "discover.mystery-question"
     finally:
         unregister_guidance_adapter("stub")
+
+
+def test_guidance_for_mystery_registers_in_a_fresh_process() -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "from auteur.beginner.contracts import SessionEnvelope; "
+            "from auteur.beginner.guidance import guidance_for; "
+            "print(guidance_for('discover.mystery-question', "
+            "SessionEnvelope.new('p', 'mystery', 'premise')).card_id)",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert result.stdout.strip() == "discover.mystery-question"
 
 
 def test_guidance_contains_teaching_decision_and_evidence_contract() -> None:

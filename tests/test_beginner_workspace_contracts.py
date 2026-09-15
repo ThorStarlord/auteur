@@ -79,11 +79,15 @@ def test_supporting_contracts_are_typed_pydantic_models() -> None:
     milestone = AcceptedMilestoneReference(
         milestone_id="milestone-1",
         revision=RevisionRef(artifact_id="artifact-1", revision=2),
+        accepted_content="accepted content",
+        fingerprint="fingerprint-2",
     )
 
     assert decision.stage is DecisionStage.DISCOVER
     assert status.lifecycle is LifecycleStatus.WORKING
     assert milestone.revision.revision == 2
+    restored = AcceptedMilestoneReference.model_validate_json(milestone.model_dump_json())
+    assert restored == milestone
 
 
 @pytest.mark.parametrize(

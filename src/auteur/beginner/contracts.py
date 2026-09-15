@@ -36,6 +36,17 @@ class AcceptedMilestoneReference(BaseModel):
 
     milestone_id: str = Field(min_length=1)
     revision: RevisionRef
+    accepted_content: str | None = None
+    fingerprint: str | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def reject_coercible_snapshot_fields(cls, data: object) -> object:
+        if isinstance(data, dict):
+            for name in ("accepted_content", "fingerprint"):
+                if name in data and data[name] is not None and type(data[name]) is not str:
+                    raise ValueError(f"{name} must be a string or None")
+        return data
 
 
 class WorkingDecision(BaseModel):

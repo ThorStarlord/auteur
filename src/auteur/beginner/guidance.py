@@ -155,18 +155,7 @@ def _json_context(session: SessionEnvelope) -> str:
             })
     accepted: list[object] = []
     for milestone in session.accepted_milestones:
-        payload = milestone.model_dump(mode="json")
-        raw = getattr(milestone, "__dict__", {})
-        for name in ("accepted_content", "content", "fingerprint", "content_fingerprint"):
-            if name in raw:
-                payload[name] = raw[name]
-        revision = payload.get("revision")
-        raw_revision = getattr(milestone.revision, "__dict__", {})
-        if isinstance(revision, dict):
-            for name in ("accepted_content", "content", "fingerprint", "content_fingerprint"):
-                if name in raw_revision:
-                    revision[name] = raw_revision[name]
-        accepted.append(payload)
+        accepted.append(milestone.model_dump(mode="json"))
     return json.dumps(
         {"working_decisions": stages, "accepted_milestones": accepted},
         sort_keys=True,
