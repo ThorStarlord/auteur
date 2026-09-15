@@ -17,6 +17,34 @@ class QualificationStage(str, Enum):
     STRUCTURE = "structure"
 
 
+class EvidenceReference(BaseModel):
+    """Typed evidence connecting one teaching claim to a domain definition."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+    claim: Literal["decision", "recommendation", "option", "consequence"]
+    source: Literal["HowdunitTemplate", "RuleSet"]
+    phase: int | None = Field(default=None, ge=1)
+    option_labels: tuple[str, ...] = Field(default_factory=tuple)
+    rule_id: str | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def reject_coercible_fields(cls, data: object) -> object:
+        if isinstance(data, dict) and "option_labels" in data and type(data["option_labels"]) is not tuple:
+            raise ValueError("option_labels must be a tuple")
+        return data
+
+    @model_validator(mode="after")
+    def validate_reference(self) -> EvidenceReference:
+        if self.source == "HowdunitTemplate" and self.phase is None:
+            raise ValueError("HowdunitTemplate evidence requires a phase")
+        if self.source == "RuleSet" and self.rule_id is None:
+            raise ValueError("RuleSet evidence requires a rule_id")
+        if not self.option_labels and self.rule_id is None:
+            raise ValueError("evidence must identify an option or rule")
+        return self
+
+
 class QualificationCard(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
     card_id: str = Field(min_length=1)
@@ -29,7 +57,7 @@ class QualificationCard(BaseModel):
     narrative_principle: str = Field(min_length=1)
     warnings_or_tensions: tuple[str, ...] = Field(min_length=1)
     downstream_consequences: tuple[str, ...] = Field(default_factory=tuple)
-    evidence_references: tuple[str, ...] = Field(min_length=1)
+    evidence_references: tuple[EvidenceReference, ...] = Field(min_length=1)
 
     @model_validator(mode="before")
     @classmethod
@@ -126,7 +154,7 @@ class BeginnerGuidance(BaseModel):
     tradeoffs: tuple[str, ...] = Field(min_length=1)
     downstream_consequences: tuple[str, ...] = Field(min_length=1)
     warnings_or_tensions: tuple[str, ...] = Field(min_length=1)
-    evidence_references: tuple[str, ...] = Field(min_length=1)
+    evidence_references: tuple[EvidenceReference, ...] = Field(min_length=1)
     authority_status: Literal["DERIVED / NOT CANON"] = "DERIVED / NOT CANON"
 
     @model_validator(mode="before")
@@ -188,13 +216,37 @@ def _context_summary(session: SessionEnvelope) -> str:
     return f"{progress} Full session state: {_json_context(session)}"
 
 
+def _commitment_summary(card: QualificationCard, session: SessionEnvelope) -> str:
+    stage_order = tuple(DecisionStage)
+    card_stage = {
+        QualificationStage.DISCOVER: DecisionStage.DISCOVER,
+        QualificationStage.STORY_IDENTITY: DecisionStage.STORY_IDENTITY,
+        QualificationStage.STRUCTURE: DecisionStage.STORY_STRUCTURE,
+    }[card.stage]
+    current_index = stage_order.index(card_stage)
+    commitments = []
+    for stage in stage_order[:current_index]:
+        decision = session.stages[stage].working_decision
+        if decision is not None:
+            commitments.append(f"{stage.value}: {decision.question}")
+    if session.accepted_milestones:
+        commitments.extend(
+            f"accepted {milestone.milestone_id} ({milestone.revision.artifact_id}@{milestone.revision.revision})"
+            for milestone in session.accepted_milestones
+        )
+    if not commitments:
+        return "This is the curated default for the cited Howdunit domain option; no upstream commitment is present yet."
+    return "It reinforces the current premise and commitments: " + "; ".join(commitments) + "."
+
+
 def guidance_for(card_id: str, session: SessionEnvelope) -> BeginnerGuidance:
     """Compose one deterministic guidance card from a current session snapshot."""
     card = _adapter_for(session.guidance_genre).inventory().card(card_id)
     context_summary = _context_summary(session)
+    commitment_summary = _commitment_summary(card, session)
     rationale = (
         f"This curated craft recommendation starts with {card.recommendation.lower()} "
-        f"for the current premise, {session.premise!r}. {context_summary} "
+        f"for the current premise, {session.premise!r}. {commitment_summary} {context_summary} "
         "Apply it as a teaching projection, not as a canonical selection."
     )
     return BeginnerGuidance(

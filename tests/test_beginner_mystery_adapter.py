@@ -17,6 +17,7 @@ from auteur.beginner.contracts import (
     WorkingDecision,
 )
 from auteur.beginner.mystery_adapter import (
+    EvidenceReference,
     QualificationCard,
     QualificationInventory,
     QualificationStage,
@@ -65,7 +66,7 @@ def test_inventory_cards_reference_existing_mystery_subjects() -> None:
     assert any("solution" in card.source_subject.casefold() for card in inventory.cards)
     assert all(card.options for card in inventory.cards)
     expected_phase_names = {
-        "discover.mystery-question": {"genre_contract", "structural_forces"},
+        "discover.mystery-question": {"genre_contract"},
         "discover.investigation-motivation": {"structural_forces"},
         "discover.inquiry-scope": {"scope"},
         "story-identity.protagonist-want": {"structural_forces"},
@@ -74,30 +75,23 @@ def test_inventory_cards_reference_existing_mystery_subjects() -> None:
         "story-identity.change": {"structural_forces"},
         "structure.clue-distribution": {"clue_distribution"},
         "structure.solution-density": {"solution_density"},
-        "structure.reveal-consequences": {"structural_forces"},
+        "structure.reveal-consequences": {"solution_density"},
     }
     for card in inventory.cards:
         phase_names: set[str] = set()
         supported_labels: set[str] = set()
+        claims = {reference.claim for reference in card.evidence_references}
+        assert claims >= {"decision", "recommendation", "option", "consequence"}
         for reference in card.evidence_references:
-            if reference.startswith("auteur.mystery.core_templates:HowdunitTemplate.phases["):
-                phase = int(
-                    reference.removeprefix("auteur.mystery.core_templates:HowdunitTemplate.phases[").rstrip("]")
-                )
-                assert phase in template.phases
-                phase_names.add(template.phases[phase])
-                supported_labels.update(option.label for option in template.options.get(phase, []))
-            elif reference.startswith("auteur.mystery.core_templates:HowdunitTemplate.options["):
-                phase = int(
-                    reference.removeprefix("auteur.mystery.core_templates:HowdunitTemplate.options[").rstrip("]")
-                )
-                assert phase in template.options
-                phase_names.add(template.phases[phase])
-                supported_labels.update(option.label for option in template.options[phase])
-            elif reference.startswith("auteur.mystery.validation:RuleSet:"):
-                assert reference.removeprefix("auteur.mystery.validation:RuleSet:") in rule_ids
+            assert isinstance(reference, EvidenceReference)
+            if reference.source == "HowdunitTemplate":
+                assert reference.phase in template.phases
+                assert reference.phase is not None
+                phase_names.add(template.phases[reference.phase])
+                supported_labels.update(option.label for option in template.options[reference.phase])
+                assert set(reference.option_labels) <= supported_labels
             else:
-                pytest.fail(f"invented evidence reference: {reference}")
+                assert reference.rule_id in rule_ids
         assert phase_names == expected_phase_names[card.card_id]
         assert set(card.options) <= supported_labels
         assert card.recommendation in supported_labels
