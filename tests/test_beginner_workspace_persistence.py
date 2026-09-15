@@ -635,6 +635,77 @@ def test_revision_directory_escape_is_rejected_before_write(tmp_path: Path) -> N
         store.save_revision("revision-1", make_session())
 
 
+def _redirect_directory(path: Path, target: Path) -> None:
+    if os.name == "nt":
+        result = subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(path), str(target)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode != 0:
+            pytest.skip("junction creation unavailable")
+    else:
+        try:
+            path.symlink_to(target, target_is_directory=True)
+        except OSError as exc:
+            pytest.skip(f"symlink creation unavailable: {exc}")
+
+
+def test_session_io_revalidates_replaced_workspace_container(tmp_path: Path) -> None:
+    store = BeginnerSessionStore(tmp_path, "workspace-1")
+    sibling = tmp_path / "workspace-sibling"
+    sibling.mkdir()
+    store._workspace_path.parent.mkdir(parents=True, exist_ok=True)
+    _redirect_directory(store._workspace_path, sibling)
+
+    with pytest.raises(ValueError, match="escapes intended root"):
+        store.save(make_session())
+    assert not (sibling / "session.json").exists()
+
+
+def test_revision_io_revalidates_replaced_revisions_container(tmp_path: Path) -> None:
+    store = BeginnerSessionStore(tmp_path, "workspace-1")
+    revisions = store._workspace_path / "revisions"
+    sibling = tmp_path / "revisions-sibling"
+    sibling.mkdir()
+    revisions.parent.mkdir(parents=True, exist_ok=True)
+    _redirect_directory(revisions, sibling)
+
+    with pytest.raises(ValueError, match="escapes intended root"):
+        store.save_revision("revision-1", make_session())
+    assert not (sibling / "revision-1" / "session.json").exists()
+
+
+def test_receipt_io_revalidates_replaced_commands_container(tmp_path: Path) -> None:
+    store = CommandReceiptStore(tmp_path, "workspace-1")
+    sibling = tmp_path / "commands-sibling"
+    sibling.mkdir()
+    store.receipts_path.parent.mkdir(parents=True, exist_ok=True)
+    _redirect_directory(store.receipts_path, sibling)
+
+    with pytest.raises(ValueError, match="escapes intended root"):
+        store.begin("command-1")
+    assert not (sibling / "command-1.json").exists()
+
+
+def test_receipts_reject_coercible_bytes_values() -> None:
+    with pytest.raises(ValidationError):
+        CommandReceipt(
+            command_id="command-1",
+            status="complete",
+            owner_token="owner-1",
+            result=cast(JsonValue, b"result"),
+        )
+    with pytest.raises(ValidationError):
+        ReceiptAcquisition(
+            command_id="command-1",
+            status="complete",
+            outcome="completed_replay",
+            result=cast(JsonValue, b"result"),
+        )
+
+
 @pytest.mark.parametrize(
     "payload",
     [

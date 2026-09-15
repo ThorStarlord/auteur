@@ -51,10 +51,27 @@ JsonObject: TypeAlias = dict[str, JsonValue]
 
 
 def _normalize_json_value(value: JsonValue, label: str) -> JsonValue:
+    _validate_json_value(value, label)
     try:
         return cast(JsonValue, json.loads(json.dumps(value, allow_nan=False, sort_keys=True, separators=(",", ":"))))
     except (TypeError, ValueError, OverflowError) as exc:
         raise ValueError(f"{label} must be JSON-compatible") from exc
+
+
+def _validate_json_value(value: object, label: str) -> None:
+    if value is None or type(value) in {bool, int, float, str}:
+        return
+    if type(value) is list:
+        for item in cast(list[object], value):
+            _validate_json_value(item, label)
+        return
+    if type(value) is dict:
+        for key, item in cast(dict[object, object], value).items():
+            if type(key) is not str:
+                raise ValueError(f"{label} must be JSON-compatible")
+            _validate_json_value(item, label)
+        return
+    raise ValueError(f"{label} must be JSON-compatible")
 
 
 class CommandReceipt(BaseModel):
@@ -70,6 +87,19 @@ class CommandReceipt(BaseModel):
     target_milestone: str | None = Field(default=None, min_length=1)
     promotion_intent: JsonObject | None = None
     domain_result_reference: JsonObject | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def validate_raw_json_fields(cls, data: object) -> object:
+        if isinstance(data, dict):
+            for field_name, label in (
+                ("result", "receipt result"),
+                ("promotion_intent", "promotion intent"),
+                ("domain_result_reference", "domain result reference"),
+            ):
+                if field_name in data and data[field_name] is not None:
+                    _validate_json_value(data[field_name], label)
+        return data
 
     @model_validator(mode="after")
     def validate_durable_state(self) -> CommandReceipt:
@@ -113,6 +143,19 @@ class ReceiptAcquisition(BaseModel):
     target_milestone: str | None = Field(default=None, min_length=1)
     promotion_intent: JsonObject | None = None
     domain_result_reference: JsonObject | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def validate_raw_json_fields(cls, data: object) -> object:
+        if isinstance(data, dict):
+            for field_name, label in (
+                ("result", "acquisition result"),
+                ("promotion_intent", "promotion intent"),
+                ("domain_result_reference", "domain result reference"),
+            ):
+                if field_name in data and data[field_name] is not None:
+                    _validate_json_value(data[field_name], label)
+        return data
 
     @model_validator(mode="after")
     def validate_acquisition(self) -> ReceiptAcquisition:
@@ -159,6 +202,8 @@ def _contained_path(root: Path, *parts: str, containment_root: Path | None = Non
     resolved_root = root.resolve()
     resolved_containment_root = containment_root.resolve() if containment_root is not None else None
     try:
+        if resolved_root != root.absolute():
+            raise ValueError("root is redirected")
         if resolved_containment_root is not None:
             resolved_root.relative_to(resolved_containment_root)
         candidate = (resolved_root / Path(*parts)).resolve()
@@ -307,9 +352,15 @@ class BeginnerSessionStore:
             containment_root=self.workspace_root,
         )
         self._workspace_path = workspace_root
-        self.session_path = _contained_path(workspace_root, "session.json", containment_root=self.workspace_root)
-        self._session_lock = _contained_path(workspace_root, ".session.lock", containment_root=self.workspace_root)
+        self.session_path = _contained_path(workspace_root, "session.json", containment_root=workspace_root)
+        self._session_lock = _contained_path(workspace_root, ".session.lock", containment_root=workspace_root)
         self._instance_lock = threading.RLock()
+
+    def _session_path_for_io(self) -> Path:
+        return _contained_path(self._workspace_path, "session.json", containment_root=self._workspace_path)
+
+    def _session_lock_for_io(self) -> Path:
+        return _contained_path(self._workspace_path, ".session.lock", containment_root=self._workspace_path)
 
     def revision_session_path(self, revision_id: str) -> Path:
         revision = _safe_segment(revision_id, "revision_id")
@@ -318,7 +369,7 @@ class BeginnerSessionStore:
         )
 
     def load(self) -> SessionEnvelope:
-        return self._load_session(self.session_path)
+        return self._load_session(self._session_path_for_io())
 
     @staticmethod
     def _load_session(path: Path) -> SessionEnvelope:
@@ -330,24 +381,26 @@ class BeginnerSessionStore:
 
     def create(self, session: SessionEnvelope, expected_session_version: int | None = None) -> SessionEnvelope:
         validated = _validate_session(session)
-        with self._instance_lock, _FilesystemLock(self._session_lock):
+        with self._instance_lock, _FilesystemLock(self._session_lock_for_io()):
+            session_path = self._session_path_for_io()
             if expected_session_version not in (None, 0):
                 raise BeginnerConcurrencyError(
                     f"cannot create session with expected version {expected_session_version}; initial version is 0"
                 )
-            if self.session_path.exists():
-                raise BeginnerPersistenceError(f"session already exists at {self.session_path}")
+            if session_path.exists():
+                raise BeginnerPersistenceError(f"session already exists at {session_path}")
             if validated.session_version != 0:
                 raise BeginnerPersistenceError("initial session version must be 0")
             saved = validated.model_copy(update={"session_version": validated.session_version + 1})
-            if not _atomic_create(self.session_path, saved.model_dump_json()):
-                raise BeginnerPersistenceError(f"session already exists at {self.session_path}")
+            if not _atomic_create(session_path, saved.model_dump_json()):
+                raise BeginnerPersistenceError(f"session already exists at {session_path}")
             return saved
 
     def save(self, session: SessionEnvelope, expected_session_version: int | None = None) -> SessionEnvelope:
         validated = _validate_session(session)
-        with self._instance_lock, _FilesystemLock(self._session_lock):
-            if self.session_path.exists():
+        with self._instance_lock, _FilesystemLock(self._session_lock_for_io()):
+            session_path = self._session_path_for_io()
+            if session_path.exists():
                 current = self.load()
                 if expected_session_version is None or current.session_version != expected_session_version:
                     raise BeginnerConcurrencyError(
@@ -363,10 +416,10 @@ class BeginnerSessionStore:
                     raise BeginnerPersistenceError("initial session version must be 0")
                 next_version = validated.session_version + 1
             saved = SessionEnvelope.model_validate({**validated.model_dump(mode="python"), "session_version": next_version}, strict=True)
-            if self.session_path.exists():
-                _atomic_write(self.session_path, saved.model_dump_json())
-            elif not _atomic_create(self.session_path, saved.model_dump_json()):
-                raise BeginnerPersistenceError(f"session already exists at {self.session_path}")
+            if session_path.exists():
+                _atomic_write(session_path, saved.model_dump_json())
+            elif not _atomic_create(session_path, saved.model_dump_json()):
+                raise BeginnerPersistenceError(f"session already exists at {session_path}")
             return saved
 
     def create_revision(self, revision_id: str, session: SessionEnvelope) -> SessionEnvelope:
@@ -386,7 +439,7 @@ class BeginnerSessionStore:
 
     def update(self, expected_session_version: int, mutator: Callable[[SessionEnvelope], SessionEnvelope]) -> SessionEnvelope:
         try:
-            with self._instance_lock, _FilesystemLock(self._session_lock):
+            with self._instance_lock, _FilesystemLock(self._session_lock_for_io()):
                 current = self.load()
                 if current.session_version != expected_session_version:
                     raise BeginnerConcurrencyError(
@@ -397,7 +450,7 @@ class BeginnerSessionStore:
                 validated = _validate_session(normalized)
                 next_version = current.session_version + 1
                 persisted = validated.model_copy(update={"session_version": next_version})
-                _atomic_write(self.session_path, persisted.model_dump_json())
+                _atomic_write(self._session_path_for_io(), persisted.model_dump_json())
                 return persisted
         except _BeginnerLockTimeout as exc:
             try:
@@ -422,11 +475,11 @@ class CommandReceiptStore:
             self.workspace_id,
             containment_root=self.workspace_root,
         )
-        self.receipts_path = _contained_path(workspace_root, "commands", containment_root=self.workspace_root)
+        self.receipts_path = _contained_path(workspace_root, "commands", containment_root=workspace_root)
 
     def receipt_path(self, command_id: str) -> Path:
         command = _safe_segment(command_id, "command_id")
-        return _contained_path(self.receipts_path, f"{command}.json", containment_root=self.workspace_root)
+        return _contained_path(self.receipts_path, f"{command}.json", containment_root=self.receipts_path.parent)
 
     def load(self, command_id: str) -> CommandReceipt:
         path = self.receipt_path(command_id)
