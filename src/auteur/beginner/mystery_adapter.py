@@ -17,7 +17,7 @@ class QualificationStage(str, Enum):
 class QualificationCard(BaseModel):
     """One beginner-facing decision projected from existing Mystery concepts."""
 
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
     card_id: str = Field(min_length=1)
     stage: QualificationStage
@@ -30,6 +30,17 @@ class QualificationCard(BaseModel):
     warnings_or_tensions: tuple[str, ...] = Field(min_length=1)
     evidence_references: tuple[str, ...] = Field(min_length=1)
 
+    @model_validator(mode="before")
+    @classmethod
+    def reject_coercible_fields(cls, data: object) -> object:
+        if isinstance(data, dict):
+            if "stage" in data and type(data["stage"]) is not QualificationStage:
+                raise ValueError("stage must be a QualificationStage")
+            for field_name in ("options", "warnings_or_tensions", "evidence_references"):
+                if field_name in data and type(data[field_name]) is not tuple:
+                    raise ValueError(f"{field_name} must be a tuple")
+        return data
+
     @model_validator(mode="after")
     def recommendation_is_an_option(self) -> QualificationCard:
         if self.recommendation not in self.options:
@@ -40,7 +51,7 @@ class QualificationCard(BaseModel):
 class QualificationInventory(BaseModel):
     """Immutable, sealed inventory for the Beginner Mystery slice."""
 
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
     cards: tuple[QualificationCard, ...]
     _expected_counts: ClassVar[dict[QualificationStage, int]] = {
@@ -48,6 +59,13 @@ class QualificationInventory(BaseModel):
         QualificationStage.STORY_IDENTITY: 4,
         QualificationStage.STRUCTURE: 3,
     }
+
+    @model_validator(mode="before")
+    @classmethod
+    def reject_coercible_cards(cls, data: object) -> object:
+        if isinstance(data, dict) and "cards" in data and type(data["cards"]) is not tuple:
+            raise ValueError("cards must be a tuple")
+        return data
 
     @model_validator(mode="after")
     def validate_inventory(self) -> QualificationInventory:
@@ -81,7 +99,7 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
         recommendation="What hidden truth explains it?",
         narrative_principle="A mystery gives every discovery meaning by orienting it toward a question.",
         warnings_or_tensions=("A vague question makes clues feel decorative.", "A question that is too narrow can flatten the human stakes."),
-        evidence_references=("auteur.mystery.core_templates:HowdunitTemplate", "auteur.genres.data:mystery.core_question"),
+        evidence_references=("auteur.mystery.core_templates:HowdunitTemplate.phases[2]", "auteur.mystery.core_templates:HowdunitTemplate.phases[4]"),
     ),
     QualificationCard(
         card_id="discover.investigation-motivation",
@@ -93,7 +111,7 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
         recommendation="Personal obligation",
         narrative_principle="Investigation becomes story when finding the truth costs the investigator something.",
         warnings_or_tensions=("Curiosity alone may not sustain pressure.", "Strong obligation can narrow alternative choices."),
-        evidence_references=("auteur.identity:StoryThread.want", "auteur.mystery.core_templates:structural_forces"),
+        evidence_references=("auteur.mystery.core_templates:HowdunitTemplate.phases[4]", "auteur.mystery.core_templates:HowdunitTemplate.options[4]"),
     ),
     QualificationCard(
         card_id="discover.inquiry-scope",
@@ -105,7 +123,7 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
         recommendation="A single contained crime",
         narrative_principle="Scope sets the reader's map of suspects, clues, and available attention.",
         warnings_or_tensions=("Expansion increases discovery opportunities and continuity load.", "A contained scope needs depth rather than just fewer locations."),
-        evidence_references=("auteur.mystery.core_templates:HowdunitTemplate.options[3]", "auteur.genres.data:mystery.runway"),
+        evidence_references=("auteur.mystery.core_templates:HowdunitTemplate.phases[3]", "auteur.mystery.core_templates:HowdunitTemplate.options[3]"),
     ),
     QualificationCard(
         card_id="story-identity.protagonist-want",
@@ -117,7 +135,7 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
         recommendation="Solve the puzzle",
         narrative_principle="A concrete want turns deduction into a character-driven line of action.",
         warnings_or_tensions=("A purely procedural want can underplay personal change.", "A personal want must not erase the mystery's logic."),
-        evidence_references=("auteur.mystery.core_templates:structural_forces.want", "auteur.identity:StoryThread.want"),
+        evidence_references=("auteur.mystery.core_templates:HowdunitTemplate.options[4]", "auteur.mystery.core_templates:HowdunitTemplate.phases[4]"),
     ),
     QualificationCard(
         card_id="story-identity.resistance",
@@ -129,7 +147,7 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
         recommendation="Misleading clues",
         narrative_principle="Resistance should obstruct the next inference, not merely delay the plot.",
         warnings_or_tensions=("Misdirection without fair signals feels arbitrary.", "Too many false leads can dilute the central question."),
-        evidence_references=("auteur.mystery.core_templates:structural_forces.resistance", "auteur.genres.data:mystery.forbidden"),
+        evidence_references=("auteur.mystery.core_templates:HowdunitTemplate.options[4]", "auteur.mystery.validation:RuleSet:howdunit.structure.red_herring_coherence"),
     ),
     QualificationCard(
         card_id="story-identity.stakes",
@@ -141,7 +159,7 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
         recommendation="Justice remains unresolved",
         narrative_principle="Stakes make the solution matter after the final clue is understood.",
         warnings_or_tensions=("External stakes alone may feel impersonal.", "Escalating stakes should remain credible for the chosen scope."),
-        evidence_references=("auteur.mystery.core_templates:structural_forces.stakes", "auteur.identity:StoryThread.stakes"),
+        evidence_references=("auteur.mystery.core_templates:HowdunitTemplate.options[4]", "auteur.mystery.core_templates:HowdunitTemplate.phases[4]"),
     ),
     QualificationCard(
         card_id="story-identity.change",
@@ -153,7 +171,7 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
         recommendation="Confusion to clarity",
         narrative_principle="The answer should change what the protagonist can see, choose, or accept.",
         warnings_or_tensions=("Clarity is not the same as comfort.", "A static investigator can make a clever solution feel emotionally empty."),
-        evidence_references=("auteur.mystery.core_templates:structural_forces.change", "auteur.identity:StoryThread.change"),
+        evidence_references=("auteur.mystery.core_templates:HowdunitTemplate.options[4]", "auteur.mystery.core_templates:HowdunitTemplate.phases[4]"),
     ),
     QualificationCard(
         card_id="structure.clue-distribution",
@@ -165,7 +183,7 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
         recommendation="Even clue distribution",
         narrative_principle="Fairness comes from giving the reader a usable trail before the reveal.",
         warnings_or_tensions=("Late clues can create surprise but threaten fair play.", "Early clues require stronger misdirection and interpretation."),
-        evidence_references=("auteur.mystery.core_templates:clue_distribution", "auteur.mystery.validation:howdunit.structure.solution_derivable"),
+        evidence_references=("auteur.mystery.core_templates:HowdunitTemplate.phases[7]", "auteur.mystery.validation:RuleSet:howdunit.structure.solution_derivable"),
     ),
     QualificationCard(
         card_id="structure.solution-density",
@@ -177,7 +195,7 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
         recommendation="Several reasonable readings",
         narrative_principle="A satisfying solution is surprising in hindsight without being unsupported.",
         warnings_or_tensions=("A tight solution needs early evidence.", "A generous solution can reduce the reader's participation."),
-        evidence_references=("auteur.mystery.core_templates:solution_density", "auteur.mystery.validation:howdunit.structure.solution_derivable"),
+        evidence_references=("auteur.mystery.core_templates:HowdunitTemplate.phases[8]", "auteur.mystery.validation:RuleSet:howdunit.structure.solution_derivable"),
     ),
     QualificationCard(
         card_id="structure.reveal-consequences",
@@ -189,7 +207,7 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
         recommendation="Relationships are reinterpreted",
         narrative_principle="A reveal is an event in the story world, not only an answer for the audience.",
         warnings_or_tensions=("A consequence-free reveal can make the investigation feel ornamental.", "A costly reveal may resist a fully comforting resolution."),
-        evidence_references=("auteur.mystery.core_templates:stakes_and_change", "auteur.identity:Genre.MYSTERY"),
+        evidence_references=("auteur.mystery.core_templates:HowdunitTemplate.phases[4]", "auteur.mystery.validation:RuleSet:howdunit.structure.red_herring_coherence"),
     ),
 )
 
@@ -197,4 +215,3 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
 def mystery_qualification_inventory() -> QualificationInventory:
     """Return the stable Mystery beginner inventory."""
     return QualificationInventory(cards=_MYSTERY_CARDS)
-
