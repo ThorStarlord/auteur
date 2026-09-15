@@ -34,6 +34,7 @@ from auteur.beginner.guidance import (
 )
 from auteur.mystery.core_templates import HowdunitTemplate
 from auteur.mystery.validation import RuleSet
+from auteur.story_design_packs.models import PackProvenance
 
 
 def test_mystery_inventory_is_small_sealed_and_stable() -> None:
@@ -209,7 +210,7 @@ def test_relevant_working_choice_selects_supported_recommendation() -> None:
 
     assert baseline.recommendation == "Want: Solve the puzzle"
     assert changed.recommendation == "Want: Identify the culprit"
-    assert "current story_identity selected choice" in changed.rationale
+    assert "current story identity choice" in changed.rationale
     assert changed.rationale != baseline.rationale
 
 
@@ -376,8 +377,50 @@ def test_commitment_summary_only_uses_available_selected_working_decisions() -> 
     committed = guidance_for("story_identity.protagonist-want", state)
     ignored = guidance_for("story_identity.protagonist-want", blocked_state)
 
-    assert "discover: Detective procedural" in committed.rationale
-    assert "discover: Detective procedural" not in ignored.rationale
+    assert "Discovery: Detective procedural" in committed.rationale
+    assert "Discovery: Detective procedural" not in ignored.rationale
+
+
+def test_rationale_uses_sanitized_commitments_not_persisted_session_details() -> None:
+    session = SessionEnvelope.new("project-1", "mystery", "A missing heir returns home.")
+    blocked = StageStatus(
+        stage=DecisionStage.DISCOVER,
+        lifecycle=LifecycleStatus.BLOCKED,
+        availability=StageAvailability.AVAILABLE,
+        working_decision=WorkingDecision(
+            stage=DecisionStage.DISCOVER,
+            question="Do not expose this blocked question",
+            options=["Detective procedural", "Locked-room puzzle"],
+            selected_option=None,
+        ),
+    )
+    state = session.model_copy(
+        update={
+            "stages": {
+                **session.stages,
+                DecisionStage.DISCOVER: blocked,
+                DecisionStage.STORY_IDENTITY: StageStatus(
+                    stage=DecisionStage.STORY_IDENTITY,
+                    lifecycle=LifecycleStatus.WORKING,
+                    availability=StageAvailability.AVAILABLE,
+                ),
+            }
+        }
+    )
+    accepted = AcceptedMilestoneReference(
+        milestone_id="internal-milestone",
+        revision=RevisionRef(artifact_id="artifact-secret", revision=17),
+        selected_option="Detective procedural",
+    )
+    state = state.model_copy(update={"accepted_milestones": [accepted]})
+
+    rationale = guidance_for("story_identity.protagonist-want", state).rationale
+
+    assert "Do not expose this blocked question" not in rationale
+    assert "artifact-secret" not in rationale
+    assert "17" not in rationale
+    assert "BLOCKED" not in rationale
+    assert "session_version" not in rationale
 
 
 def test_equal_revision_accepted_commitment_uses_latest_list_occurrence() -> None:
@@ -457,6 +500,14 @@ def test_guidance_routing_uses_an_extensible_adapter_registry() -> None:
         def validate_inventory(inventory: QualificationInventory) -> None:
             assert inventory.cards
 
+        @staticmethod
+        def pack_sources() -> tuple[PackProvenance, ...]:
+            return (PackProvenance(pack_id="stub", version="1", content_hash="stable"),)
+
+        @staticmethod
+        def tutor_session_fingerprints() -> dict[str, str]:
+            return {"stub": "stable"}
+
     adapter = StubAdapter()
     register_guidance_adapter(adapter)
     try:
@@ -485,7 +536,6 @@ def test_evidence_provider_registration_rejects_collisions() -> None:
 
 
 def test_beginner_guidance_projects_to_existing_tutor_decision_card() -> None:
-    from auteur.story_design_packs.session import create_session
     from auteur.story_design_packs.models import DecisionCard, TutorDepth
 
     guidance = guidance_for(
@@ -493,7 +543,7 @@ def test_beginner_guidance_projects_to_existing_tutor_decision_card() -> None:
         SessionEnvelope.new("project-1", "mystery", "A missing heir returns home."),
     )
     card = guidance.to_decision_card()
-    tutor_session = create_session(card, {"investigation": "stable"})
+    tutor_session = guidance.to_tutor_session()
 
     assert isinstance(card, DecisionCard)
     assert card.decision == guidance.question
@@ -501,6 +551,19 @@ def test_beginner_guidance_projects_to_existing_tutor_decision_card() -> None:
     assert card.authority_status == "DERIVED / NOT CANON"
     assert card.depth is TutorDepth.RECOMMEND
     assert tutor_session.card == card
+    assert tutor_session.source_fingerprints == guidance.tutor_session_fingerprints
+    assert {source.pack_id for source in guidance.pack_sources} == {"howdunit", "howdunit-rules"}
+
+
+def test_projection_rejects_blank_downstream_consequence_end_to_end() -> None:
+    guidance = guidance_for(
+        "discover.story-experience",
+        SessionEnvelope.new("project-1", "mystery", "A missing heir returns home."),
+    )
+    invalid = guidance.model_copy(update={"downstream_consequences": ("   ",)})
+
+    with pytest.raises(ValueError, match="downstream_consequences"):
+        invalid.to_decision_card()
 
 
 def test_guidance_for_mystery_registers_in_a_fresh_process() -> None:

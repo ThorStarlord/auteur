@@ -237,7 +237,53 @@ class DecisionCard(BaseModel):
             "pack_sources": self.pack_sources,
             "source_rule": self.source_rule,
             "source_binding": self.source_binding,
+
+    @model_validator(mode="after")
+    def ensure_renderable_consequences(self) -> "DecisionCard":
+        if any(not consequence.strip() for consequence in self.downstream_consequences):
+            raise ValueError("downstream_consequences must not contain blank strings")
+        return self
+
+    @classmethod
+    def from_diagnostic(
+        cls,
+        *,
+        rule: str,
+        message: str,
+        story_context: str,
+        repair_options: list[str],
+        evidence: list[str] | None = None,
+    ) -> "DecisionCard":
+        payload = {
+            "rule": rule,
+            "message": message,
+            "story_context": story_context,
+            "repair_options": repair_options,
+            "evidence": evidence or [],
         }
+        return cls(
+            card_id=stable_card_id(payload),
+            decision="Resolve or intentionally preserve the finding",
+            orientation=f"A finding needs an author decision in {story_context}.",
+            why_it_matters=message,
+            craft_concept="Narrative consequence",
+            recommendation=repair_options[0] if repair_options else "Inspect the finding before changing the story.",
+            alternatives=tuple(repair_options),
+            tradeoffs=(
+                "Repairing the finding may require changing a later commitment.",
+                "Keeping it preserves ambiguity but should be intentional.",
+            ),
+            beginner_trap="Treating a diagnostic as an automatic rewrite instruction.",
+            downstream_consequences=("Any selected repair remains a proposal until explicitly accepted.",),
+            evidence=tuple(evidence or (rule, message)),
+            source_rule=rule,
+            author_actions=(
+                AuthorAction.CHOOSE,
+                AuthorAction.KEEP_UNRESOLVED,
+                AuthorAction.REJECT_FINDING,
+                AuthorAction.REQUEST_ALTERNATIVES,
+            ),
+        )
 
     def with_depth(self, depth: TutorDepth) -> "DecisionCard":
         values = self.model_dump()

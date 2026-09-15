@@ -9,6 +9,8 @@ from typing import Literal, Protocol
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .contracts import AcceptedMilestoneReference, DecisionStage, LifecycleStatus, SessionEnvelope, StageAvailability
+from auteur.story_design_packs.models import DecisionCard, PackProvenance
+from auteur.story_design_packs.session import TutorSession
 
 
 class QualificationStage(str, Enum):
@@ -131,6 +133,10 @@ class GuidanceAdapter(Protocol):
 
     def validate_inventory(self, inventory: QualificationInventory) -> None: ...
 
+    def pack_sources(self) -> tuple[PackProvenance, ...]: ...
+
+    def tutor_session_fingerprints(self) -> dict[str, str]: ...
+
 
 _GUIDANCE_ADAPTERS: dict[str, GuidanceAdapter] = {}
 
@@ -169,6 +175,8 @@ class BeginnerGuidance(BaseModel):
     downstream_consequences: tuple[str, ...] = Field(min_length=1)
     warnings_or_tensions: tuple[str, ...] = Field(min_length=1)
     evidence_references: tuple[EvidenceReference, ...] = Field(min_length=1)
+    pack_sources: tuple[PackProvenance, ...] = Field(min_length=1)
+    tutor_session_fingerprints: dict[str, str] = Field(min_length=1)
     authority_status: Literal["DERIVED / NOT CANON"] = "DERIVED / NOT CANON"
 
     @model_validator(mode="before")
@@ -179,18 +187,24 @@ class BeginnerGuidance(BaseModel):
                 raise ValueError("stage must be a QualificationStage")
             for name in (
                 "alternatives", "tradeoffs", "downstream_consequences",
-                "warnings_or_tensions", "evidence_references",
+                "warnings_or_tensions", "evidence_references", "pack_sources",
             ):
                 if name in data and type(data[name]) is not tuple:
                     raise ValueError(f"{name} must be a tuple")
         return data
 
-    def to_decision_card(self):
-        """Project this coordinator view into the established Tutor DecisionCard contract."""
-        from auteur.story_design_packs.loader import content_hash, load_builtin_pack
-        from auteur.story_design_packs.models import DecisionCard, PackProvenance, TutorDepth
+    @model_validator(mode="after")
+    def validate_renderable_consequences(self) -> BeginnerGuidance:
+        if any(not consequence.strip() for consequence in self.downstream_consequences):
+            raise ValueError("downstream_consequences must not contain blank strings")
+        return self
 
-        pack, digest = load_builtin_pack("investigation")
+    def to_decision_card(self) -> DecisionCard:
+        """Project this coordinator view into the established Tutor DecisionCard contract."""
+        from auteur.story_design_packs.models import TutorDepth
+
+        if any(not consequence.strip() for consequence in self.downstream_consequences):
+            raise ValueError("downstream_consequences must not contain blank strings")
         evidence = [
             f"{reference.source}:{reference.field or reference.rule_id}"
             for reference in self.evidence_references
@@ -207,11 +221,22 @@ class BeginnerGuidance(BaseModel):
             beginner_trap="Treating derived guidance as a canonical decision.",
             downstream_consequences=list(self.downstream_consequences),
             evidence=evidence,
-            pack_sources=[PackProvenance(pack_id=pack.pack_id, version=pack.version, content_hash=digest or content_hash(pack))],
+            pack_sources=list(self.pack_sources),
             depth=TutorDepth.RECOMMEND,
             author_actions=["choose", "keep_unresolved", "request_alternatives"],
             authority_status="DERIVED / NOT CANON",
         )
+
+    def to_tutor_session(self) -> TutorSession:
+        """Create the established TutorSession using this guidance's provenance."""
+        from auteur.story_design_packs.session import create_session
+
+        return create_session(
+            self.to_decision_card(),
+            self.tutor_session_fingerprints,
+        )
+
+    create_tutor_session = to_tutor_session
 
 
 def _json_context(session: SessionEnvelope) -> str:
@@ -268,24 +293,40 @@ def _commitment_summary(card: QualificationCard, session: SessionEnvelope) -> st
     }[card.stage]
     current_index = stage_order.index(card_stage)
     commitments = []
+    stage_labels = {
+        DecisionStage.DISCOVER: "Discovery",
+        DecisionStage.STORY_IDENTITY: "Story identity",
+        DecisionStage.STORY_STRUCTURE: "Story structure",
+    }
+    lifecycle_labels = {
+        LifecycleStatus.NOT_STARTED: "not started",
+        LifecycleStatus.WORKING: "in progress",
+        LifecycleStatus.COMPLETE: "complete",
+        LifecycleStatus.BLOCKED: "blocked",
+    }
+    availability_labels = {
+        StageAvailability.AVAILABLE: "available",
+        StageAvailability.LOCKED: "locked",
+    }
     statuses = []
     for stage in stage_order[: current_index + 1]:
         status = session.stages[stage]
-        statuses.append(f"{stage.value} is {status.lifecycle.value}/{status.availability.value}")
+        statuses.append(
+            f"{stage_labels[stage]} is {availability_labels[status.availability]} and "
+            f"{lifecycle_labels[status.lifecycle]}"
+        )
         decision = status.working_decision
         if (
-            stage is not card_stage
-            and
             status.availability is StageAvailability.AVAILABLE
             and status.lifecycle in (LifecycleStatus.WORKING, LifecycleStatus.COMPLETE)
             and decision is not None
             and decision.selected_option is not None
         ):
-            commitments.append(f"{stage.value}: {decision.selected_option}")
+            commitments.append(f"{stage_labels[stage]}: {decision.selected_option}")
     accepted = [milestone for milestone in _latest_accepted_milestones(session) if milestone.selected_option is not None]
     if accepted:
         commitments.extend(
-            f"accepted {milestone.milestone_id} ({milestone.revision.artifact_id}@{milestone.revision.revision}): {milestone.selected_option}"
+            f"an accepted commitment: {milestone.selected_option}"
             for milestone in accepted
         )
     if not commitments:
@@ -325,10 +366,11 @@ def _select_recommendation(card: QualificationCard, session: SessionEnvelope) ->
             continue
         decision = status.working_decision
         if decision is not None and decision.selected_option in card.options:
-            return decision.selected_option, f"It reinforces the current {stage.value} selected choice."
+            stage_label = {DecisionStage.DISCOVER: "Discovery", DecisionStage.STORY_IDENTITY: "story identity", DecisionStage.STORY_STRUCTURE: "story structure"}[stage]
+            return decision.selected_option, f"It reinforces the current {stage_label} choice."
     for milestone in _latest_accepted_milestones(session):
         if milestone.selected_option in card.options:
-            return milestone.selected_option, f"It reinforces accepted milestone {milestone.milestone_id}."
+            return milestone.selected_option, "It reinforces an accepted commitment."
     return card.recommendation, "It is the curated default for the cited Howdunit domain option."
 
 
@@ -375,6 +417,8 @@ def guidance_for(card_id: str, session: SessionEnvelope) -> BeginnerGuidance:
             if reference.claim == "recommendation" else reference
             for reference in card.evidence_references
         ),
+        pack_sources=adapter.pack_sources(),
+        tutor_session_fingerprints=adapter.tutor_session_fingerprints(),
     )
 
 

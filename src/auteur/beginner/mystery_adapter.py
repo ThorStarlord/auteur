@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 
 from auteur.beginner.guidance import (
     EvidenceReference,
@@ -12,6 +13,7 @@ from auteur.beginner.guidance import (
     register_evidence_source,
     register_guidance_adapter,
 )
+from auteur.story_design_packs.models import PackProvenance
 from auteur.mystery.core_templates import HowdunitTemplate
 from auteur.mystery.validation import RuleSet
 
@@ -70,6 +72,34 @@ class MysteryGuidanceAdapter:
                         raise ValueError("evidence contains an unsupported Howdunit option")
                 elif reference.rule_id not in rule_ids:
                     raise ValueError("evidence contains an unknown Howdunit rule")
+
+    @staticmethod
+    def _source_digest() -> str:
+        template = HowdunitTemplate()
+        payload = {
+            "phases": template.phases,
+            "options": {
+                phase: [option.to_dict() for option in options]
+                for phase, options in template.options.items()
+            },
+            "rules": [rule.rule_id for rule in RuleSet("howdunit").rules],
+        }
+        return hashlib.sha256(
+            json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        ).hexdigest()
+
+    @classmethod
+    def pack_sources(cls) -> tuple[PackProvenance, ...]:
+        digest = cls._source_digest()
+        return (
+            PackProvenance(pack_id="howdunit", version="domain", content_hash=digest),
+            PackProvenance(pack_id="howdunit-rules", version="domain", content_hash=digest),
+        )
+
+    @classmethod
+    def tutor_session_fingerprints(cls) -> dict[str, str]:
+        digest = cls._source_digest()
+        return {"HowdunitTemplate": digest, "RuleSet:howdunit": digest}
 
 
 def _evidence(phase: int, options: tuple[str, ...], recommendation: str, rule_id: str | None = None) -> tuple[EvidenceReference, ...]:
