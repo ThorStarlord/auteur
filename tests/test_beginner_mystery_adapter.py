@@ -42,16 +42,16 @@ def test_mystery_inventory_is_small_sealed_and_stable() -> None:
         QualificationStage.STRUCTURE: 3,
     }
     assert [card.card_id for card in inventory.cards] == [
-        "discover.mystery-question",
-        "discover.investigation-motivation",
-        "discover.inquiry-scope",
-        "story-identity.protagonist-want",
-        "story-identity.resistance",
-        "story-identity.stakes",
-        "story-identity.change",
-        "structure.clue-distribution",
-        "structure.solution-density",
-        "structure.reveal-consequences",
+        "discover.story-experience",
+        "discover.personal-stakes",
+        "discover.investigation-approach",
+        "story_identity.protagonist-want",
+        "story_identity.relationship-pressure",
+        "story_identity.information-contract",
+        "story_identity.truth-opposition",
+        "structure.investigation-disruption",
+        "structure.clue-reversal",
+        "structure.final-revelation",
     ]
     assert isinstance(inventory.cards, tuple)
 
@@ -66,16 +66,16 @@ def test_inventory_cards_reference_existing_mystery_subjects() -> None:
     assert any("solution" in card.source_subject.casefold() for card in inventory.cards)
     assert all(card.options for card in inventory.cards)
     expected_phase_names = {
-        "discover.mystery-question": {"genre_contract"},
-        "discover.investigation-motivation": {"structural_forces"},
-        "discover.inquiry-scope": {"investigation_style"},
-        "story-identity.protagonist-want": {"structural_forces"},
-        "story-identity.resistance": {"structural_forces"},
-        "story-identity.stakes": {"fairness_confidence"},
-        "story-identity.change": {"structural_forces"},
-        "structure.clue-distribution": {"pacing_rhythm"},
-        "structure.solution-density": {"clue_distribution"},
-        "structure.reveal-consequences": {"solution_density"},
+        "discover.story-experience": {"genre_contract"},
+        "discover.personal-stakes": {"structural_forces"},
+        "discover.investigation-approach": {"investigation_style"},
+        "story_identity.protagonist-want": {"structural_forces"},
+        "story_identity.relationship-pressure": {"structural_forces"},
+        "story_identity.information-contract": {"fairness_confidence"},
+        "story_identity.truth-opposition": {"structural_forces"},
+        "structure.investigation-disruption": {"pacing_rhythm"},
+        "structure.clue-reversal": {"clue_distribution"},
+        "structure.final-revelation": {"solution_density"},
     }
     for card in inventory.cards:
         phase_names: set[str] = set()
@@ -162,7 +162,7 @@ def test_guidance_includes_all_working_decisions_and_accepted_snapshot_details()
         }
     )
 
-    projected = guidance_for("structure.clue-distribution", full_state)
+    projected = guidance_for("structure.investigation-disruption", full_state)
 
     assert "Which truth is being hidden?" in projected.context_summary
     assert "What does the investigator risk?" in projected.context_summary
@@ -170,31 +170,67 @@ def test_guidance_includes_all_working_decisions_and_accepted_snapshot_details()
     assert '"revision":7' in projected.context_summary
     assert "accepted narrative identity" in projected.context_summary
     assert "fingerprint-v7" in projected.context_summary
-    assert guidance_for("structure.clue-distribution", changed_upstream) != projected
-    assert guidance_for("structure.clue-distribution", changed_accepted) != projected
+    assert guidance_for("structure.investigation-disruption", changed_upstream) != projected
+    assert guidance_for("structure.investigation-disruption", changed_accepted) != projected
 
 
 def test_relevant_working_choice_selects_supported_recommendation() -> None:
     session = SessionEnvelope.new("project-1", "mystery", "A missing heir returns home.")
-    baseline = guidance_for("story-identity.protagonist-want", session)
+    baseline = guidance_for("story_identity.protagonist-want", session)
     identity = session.stages[DecisionStage.STORY_IDENTITY].model_copy(
         update={
+            "lifecycle": LifecycleStatus.WORKING,
+            "availability": StageAvailability.AVAILABLE,
             "working_decision": WorkingDecision(
                 stage=DecisionStage.STORY_IDENTITY,
                 question="Which want is active?",
                 options=["Want: Identify the culprit"],
+                selected_option="Want: Identify the culprit",
             )
         }
     )
     committed = session.model_copy(
         update={"stages": {**session.stages, DecisionStage.STORY_IDENTITY: identity}}
     )
-    changed = guidance_for("story-identity.protagonist-want", committed)
+    changed = guidance_for("story_identity.protagonist-want", committed)
 
     assert baseline.recommendation == "Want: Solve the puzzle"
     assert changed.recommendation == "Want: Identify the culprit"
-    assert "current story_identity working choice" in changed.rationale
+    assert "current story_identity selected choice" in changed.rationale
     assert changed.rationale != baseline.rationale
+
+
+def test_recommendation_ignores_locked_or_unselected_prose() -> None:
+    session = SessionEnvelope.new("project-1", "mystery", "A premise.")
+    baseline = guidance_for("discover.story-experience", session)
+    selected = StageStatus(
+        stage=DecisionStage.DISCOVER,
+        lifecycle=LifecycleStatus.WORKING,
+        availability=StageAvailability.AVAILABLE,
+        working_decision=WorkingDecision(
+            stage=DecisionStage.DISCOVER,
+            question="A rejected prose suggestion",
+            options=["Police/investigation procedural"],
+            selected_option="Police/investigation procedural",
+        ),
+    )
+    locked = selected.model_copy(
+        update={"lifecycle": LifecycleStatus.NOT_STARTED, "availability": StageAvailability.LOCKED}
+    )
+    rejected = selected.model_copy(
+        update={
+            "working_decision": WorkingDecision(
+                stage=DecisionStage.DISCOVER,
+                question="Rejected prose should not select a mode",
+                options=["Police/investigation procedural"],
+            )
+        }
+    )
+    locked_session = session.model_copy(update={"stages": {**session.stages, DecisionStage.DISCOVER: locked}})
+    rejected_session = session.model_copy(update={"stages": {**session.stages, DecisionStage.DISCOVER: rejected}})
+
+    assert guidance_for("discover.story-experience", locked_session).recommendation == baseline.recommendation
+    assert guidance_for("discover.story-experience", rejected_session).recommendation == baseline.recommendation
 
 
 def test_evidence_rejects_impossible_phase() -> None:
@@ -205,6 +241,24 @@ def test_evidence_rejects_impossible_phase() -> None:
             phase=999,
             field="invented",
             option_labels=("invented",),
+        )
+
+    with pytest.raises(ValidationError):
+        EvidenceReference(
+            claim="option",
+            source="HowdunitTemplate",
+            phase=2,
+            field="genre_contract",
+            option_labels=("invented option",),
+        )
+    with pytest.raises(ValidationError):
+        EvidenceReference(
+            claim="consequence",
+            source="HowdunitTemplate",
+            phase=2,
+            field="genre_contract",
+            option_labels=("Detective procedural",),
+            rule_id="howdunit.unknown.rule",
         )
 
 
@@ -219,8 +273,8 @@ def test_guidance_routing_uses_an_extensible_adapter_registry() -> None:
     register_guidance_adapter(StubAdapter())
     try:
         session = SessionEnvelope.new("project-1", "stub", "A test premise.")
-        guidance = guidance_for("discover.mystery-question", session)
-        assert guidance.card_id == "discover.mystery-question"
+        guidance = guidance_for("discover.story-experience", session)
+        assert guidance.card_id == "discover.story-experience"
     finally:
         unregister_guidance_adapter("stub")
 
@@ -232,22 +286,22 @@ def test_guidance_for_mystery_registers_in_a_fresh_process() -> None:
             "-c",
             "from auteur.beginner.contracts import SessionEnvelope; "
             "from auteur.beginner.guidance import guidance_for; "
-            "print(guidance_for('discover.mystery-question', "
+            "print(guidance_for('discover.story-experience', "
             "SessionEnvelope.new('p', 'mystery', 'premise')).card_id)",
         ],
         check=True,
         capture_output=True,
         text=True,
     )
-    assert result.stdout.strip() == "discover.mystery-question"
+    assert result.stdout.strip() == "discover.story-experience"
 
 
 def test_guidance_contains_teaching_decision_and_evidence_contract() -> None:
     session = SessionEnvelope.new("project-1", "mystery", "A missing heir returns home.")
 
-    guidance = guidance_for("discover.mystery-question", session)
+    guidance = guidance_for("discover.story-experience", session)
 
-    assert guidance.card_id == "discover.mystery-question"
+    assert guidance.card_id == "discover.story-experience"
     assert guidance.stage is QualificationStage.DISCOVER
     assert guidance.why_this_matters
     assert guidance.narrative_principle
@@ -265,8 +319,8 @@ def test_guidance_is_deterministic_contextual_and_non_mutating() -> None:
     session = SessionEnvelope.new("project-1", "mystery", "A missing heir returns home.")
     before = session.model_dump(mode="json")
 
-    first = guidance_for("structure.clue-distribution", session)
-    second = guidance_for("structure.clue-distribution", session)
+    first = guidance_for("structure.investigation-disruption", session)
+    second = guidance_for("structure.investigation-disruption", session)
 
     assert first == second
     assert "A missing heir returns home." in first.rationale
@@ -274,7 +328,7 @@ def test_guidance_is_deterministic_contextual_and_non_mutating() -> None:
 
     progressed = session.model_copy(deep=True)
     progressed.stages[next(iter(progressed.stages))].lifecycle = LifecycleStatus.COMPLETE
-    progressed_guidance = guidance_for("structure.clue-distribution", progressed)
+    progressed_guidance = guidance_for("structure.investigation-disruption", progressed)
     assert progressed_guidance.rationale != first.rationale
 
 
@@ -283,14 +337,14 @@ def test_guidance_is_independent_of_stage_mapping_insertion_order() -> None:
     reversed_stages = dict(reversed(tuple(session.stages.items())))
     reordered = session.model_copy(update={"stages": reversed_stages})
 
-    assert guidance_for("structure.clue-distribution", reordered) == guidance_for(
-        "structure.clue-distribution", session
+    assert guidance_for("structure.investigation-disruption", reordered) == guidance_for(
+        "structure.investigation-disruption", session
     )
 
 
 def test_context_contains_complete_canonical_session_projection() -> None:
     session = SessionEnvelope.new("project-1", "mystery", "A missing heir returns home.")
-    guidance = guidance_for("discover.mystery-question", session)
+    guidance = guidance_for("discover.story-experience", session)
     changed = session.model_copy(
         update={
             "session_version": 4,
@@ -306,7 +360,7 @@ def test_context_contains_complete_canonical_session_projection() -> None:
             },
         }
     )
-    changed_guidance = guidance_for("discover.mystery-question", changed)
+    changed_guidance = guidance_for("discover.story-experience", changed)
 
     assert '"schema_version":1' in guidance.context_summary
     assert '"session_version":0' in guidance.context_summary
@@ -322,8 +376,8 @@ def test_context_contains_complete_canonical_session_projection() -> None:
 
 def test_card_questions_options_and_consequences_are_card_specific() -> None:
     inventory = mystery_qualification_inventory()
-    question_card = inventory.card("discover.mystery-question")
-    want_card = inventory.card("story-identity.protagonist-want")
+    question_card = inventory.card("discover.story-experience")
+    want_card = inventory.card("story_identity.protagonist-want")
 
     assert question_card.question == "Which mystery experience or lens should the story promise?"
     assert "Solve the puzzle" not in want_card.options
@@ -359,9 +413,9 @@ def test_guidance_projects_working_decision_and_accepted_milestone_state() -> No
         }
     )
 
-    base = guidance_for("discover.mystery-question", session)
-    working_guidance = guidance_for("discover.mystery-question", working_state)
-    accepted_guidance = guidance_for("discover.mystery-question", accepted_state)
+    base = guidance_for("discover.story-experience", session)
+    working_guidance = guidance_for("discover.story-experience", working_state)
+    accepted_guidance = guidance_for("discover.story-experience", accepted_state)
 
     assert working_guidance != base
     assert accepted_guidance != working_guidance
@@ -373,12 +427,12 @@ def test_guidance_routes_by_genre_and_rejects_unsupported_genres() -> None:
     romance = SessionEnvelope.new("project-1", "romance", "Two rivals share a secret.")
 
     with pytest.raises(ValueError, match="unsupported guidance genre"):
-        guidance_for("discover.mystery-question", romance)
+        guidance_for("discover.story-experience", romance)
 
 
 def test_guidance_contract_is_strict_and_never_canonical() -> None:
     session = SessionEnvelope.new("project-1", "mystery", "A missing heir returns home.")
-    guidance = guidance_for("discover.mystery-question", session)
+    guidance = guidance_for("discover.story-experience", session)
     payload = guidance.model_dump(mode="python")
 
     with pytest.raises(ValidationError):

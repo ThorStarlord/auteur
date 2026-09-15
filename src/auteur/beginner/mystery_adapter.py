@@ -7,10 +7,31 @@ from auteur.beginner.guidance import (
     QualificationCard,
     QualificationInventory,
     QualificationStage,
+    register_evidence_source,
     register_guidance_adapter,
 )
 from auteur.mystery.core_templates import HowdunitTemplate
 from auteur.mystery.validation import RuleSet
+
+
+class _HowdunitEvidenceSource:
+    _template = HowdunitTemplate()
+    _rule_ids = {rule.rule_id for rule in RuleSet("howdunit").rules}
+
+    def validate(self, reference: EvidenceReference) -> None:
+        if reference.source == "HowdunitTemplate":
+            assert reference.phase is not None
+            if reference.field != self._template.phases[reference.phase]:
+                raise ValueError("evidence field does not match HowdunitTemplate phase")
+            labels = {option.label for option in self._template.options[reference.phase]}
+            if not set(reference.option_labels) <= labels:
+                raise ValueError("evidence contains an unsupported Howdunit option")
+        elif reference.rule_id not in self._rule_ids:
+            raise ValueError("evidence contains an unknown Howdunit rule")
+
+
+register_evidence_source("HowdunitTemplate", _HowdunitEvidenceSource())
+register_evidence_source("RuleSet", _HowdunitEvidenceSource())
 
 
 class MysteryGuidanceAdapter:
@@ -47,13 +68,13 @@ def _evidence(phase: int, options: tuple[str, ...], recommendation: str, rule_id
         EvidenceReference(claim="consequence", source="HowdunitTemplate", phase=phase, field=field, option_labels=options),
     )
     if rule_id is not None:
-        return references + (EvidenceReference(claim="consequence", source="RuleSet", field="rules", rule_id=rule_id),)
+        return references + (EvidenceReference(claim="consequence", source="RuleSet", rule_id=rule_id),)
     return references
 
 
 _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
     QualificationCard(
-        card_id="discover.mystery-question",
+        card_id="discover.story-experience",
         stage=QualificationStage.DISCOVER,
         title="The mystery experience",
         question="Which mystery experience or lens should the story promise?",
@@ -66,7 +87,7 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
         evidence_references=_evidence(2, ("Detective procedural", "Police/investigation procedural", "Locked-room puzzle", "Intricate puzzle structure"), "Detective procedural"),
     ),
     QualificationCard(
-        card_id="discover.investigation-motivation",
+        card_id="discover.personal-stakes",
         stage=QualificationStage.DISCOVER,
         title="The personal consequence",
         question="Which personal consequence should the investigation carry?",
@@ -79,7 +100,7 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
         evidence_references=_evidence(4, ("Stakes: Justice served", "Stakes: Order restored"), "Stakes: Justice served"),
     ),
     QualificationCard(
-        card_id="discover.inquiry-scope",
+        card_id="discover.investigation-approach",
         stage=QualificationStage.DISCOVER,
         title="The investigation approach",
         question="Which investigation approach should guide the inquiry?",
@@ -92,7 +113,7 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
         evidence_references=_evidence(5, ("Logical deduction", "Intuitive investigation", "By-the-book procedure"), "Logical deduction"),
     ),
     QualificationCard(
-        card_id="story-identity.protagonist-want",
+        card_id="story_identity.protagonist-want",
         stage=QualificationStage.STORY_IDENTITY,
         title="The protagonist's want",
         question="Which practical investigation want should drive the protagonist?",
@@ -105,7 +126,7 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
         evidence_references=_evidence(4, ("Want: Solve the puzzle", "Want: Identify the culprit", "Want: Restore order"), "Want: Solve the puzzle"),
     ),
     QualificationCard(
-        card_id="story-identity.resistance",
+        card_id="story_identity.relationship-pressure",
         stage=QualificationStage.STORY_IDENTITY,
         title="The resistance to truth",
         question="What makes the truth difficult to reach?",
@@ -115,10 +136,10 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
         narrative_principle="The structural-forces phase defines what obstructs the route to truth.",
         warnings_or_tensions=("Misdirection without fair signals feels arbitrary.", "Too many false leads can dilute the central question."),
         downstream_consequences=("The selected resistance determines what obstructs the next inference.",),
-        evidence_references=_evidence(4, ("Resistance: Misleading clues", "Resistance: False suspects", "Resistance: Hidden motives"), "Resistance: Misleading clues", "howdunit.structure.red_herring_coherence"),
+        evidence_references=_evidence(4, ("Resistance: Misleading clues", "Resistance: False suspects", "Resistance: Hidden motives"), "Resistance: Misleading clues"),
     ),
     QualificationCard(
-        card_id="story-identity.stakes",
+        card_id="story_identity.information-contract",
         stage=QualificationStage.STORY_IDENTITY,
         title="The reader's knowledge contract",
         question="How confident should the reader be that the mystery can be solved fairly?",
@@ -131,7 +152,7 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
         evidence_references=_evidence(9, ("High confidence reader could solve it", "Medium confidence (possible on rereads)", "Challenging but fair puzzle"), "Challenging but fair puzzle"),
     ),
     QualificationCard(
-        card_id="story-identity.change",
+        card_id="story_identity.truth-opposition",
         stage=QualificationStage.STORY_IDENTITY,
         title="Opposition protecting the truth",
         question="Which conflict should protect the hidden truth?",
@@ -144,7 +165,7 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
         evidence_references=_evidence(4, ("Conflict: Deduction vs. misdirection", "Conflict: Logic vs. chaos"), "Conflict: Deduction vs. misdirection"),
     ),
     QualificationCard(
-        card_id="structure.clue-distribution",
+        card_id="structure.investigation-disruption",
         stage=QualificationStage.STRUCTURE,
         title="Disruption pacing",
         question="What pacing rhythm should govern the investigation's disruption?",
@@ -157,7 +178,7 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
         evidence_references=_evidence(6, ("Clues accelerate toward solution", "Steady rhythm of discovery", "Forward progress with setbacks"), "Steady rhythm of discovery"),
     ),
     QualificationCard(
-        card_id="structure.solution-density",
+        card_id="structure.clue-reversal",
         stage=QualificationStage.STRUCTURE,
         title="Clue and reversal distribution",
         question="How should major clues and reversals be distributed?",
@@ -170,7 +191,7 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
         evidence_references=_evidence(7, ("Heavy clues early, light late", "Even clue distribution", "Light clues early, heavy late"), "Even clue distribution", "howdunit.structure.solution_derivable"),
     ),
     QualificationCard(
-        card_id="structure.reveal-consequences",
+        card_id="structure.final-revelation",
         stage=QualificationStage.STRUCTURE,
         title="Solution and revelation density",
         question="How directly should the final revelation follow from the clues?",

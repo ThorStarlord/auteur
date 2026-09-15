@@ -38,12 +38,13 @@ class AcceptedMilestoneReference(BaseModel):
     revision: RevisionRef
     accepted_content: str | None = None
     fingerprint: str | None = None
+    selected_option: str | None = None
 
     @model_validator(mode="before")
     @classmethod
     def reject_coercible_snapshot_fields(cls, data: object) -> object:
         if isinstance(data, dict):
-            for name in ("accepted_content", "fingerprint"):
+            for name in ("accepted_content", "fingerprint", "selected_option"):
                 if name in data and data[name] is not None and type(data[name]) is not str:
                     raise ValueError(f"{name} must be a string or None")
         return data
@@ -55,6 +56,13 @@ class WorkingDecision(BaseModel):
     stage: DecisionStage
     question: str = Field(min_length=1)
     options: list[str] = Field(default_factory=list)
+    selected_option: str | None = None
+
+    @model_validator(mode="after")
+    def selected_option_is_declared(self) -> Self:
+        if self.selected_option is not None and self.selected_option not in self.options:
+            raise ValueError("selected_option must be one of options")
+        return self
 
 
 class StageStatus(BaseModel):

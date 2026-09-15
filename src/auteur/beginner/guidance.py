@@ -17,12 +17,23 @@ class QualificationStage(str, Enum):
     STRUCTURE = "structure"
 
 
+class EvidenceSource(Protocol):
+    def validate(self, reference: EvidenceReference) -> None: ...
+
+
+_EVIDENCE_SOURCES: dict[str, EvidenceSource] = {}
+
+
+def register_evidence_source(name: str, source: EvidenceSource) -> None:
+    _EVIDENCE_SOURCES[name] = source
+
+
 class EvidenceReference(BaseModel):
     """Typed evidence connecting one teaching claim to a domain definition."""
 
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
     claim: Literal["decision", "recommendation", "option", "consequence"]
-    source: Literal["HowdunitTemplate", "RuleSet"]
+    source: str = Field(min_length=1)
     phase: int | None = Field(default=None, ge=1, le=9)
     field: str | None = None
     option_labels: tuple[str, ...] = Field(default_factory=tuple)
@@ -37,12 +48,17 @@ class EvidenceReference(BaseModel):
 
     @model_validator(mode="after")
     def validate_reference(self) -> EvidenceReference:
-        if self.source == "HowdunitTemplate" and (self.phase is None or self.field is None):
-            raise ValueError("HowdunitTemplate evidence requires a phase and field")
-        if self.source == "RuleSet" and self.rule_id is None:
-            raise ValueError("RuleSet evidence requires a rule_id")
-        if not self.option_labels and self.rule_id is None:
-            raise ValueError("evidence must identify an option or rule")
+        if self.source == "HowdunitTemplate":
+            if self.phase is None or self.field is None or self.rule_id is not None or not self.option_labels:
+                raise ValueError("invalid HowdunitTemplate evidence metadata")
+        elif self.source == "RuleSet":
+            if self.rule_id is None or self.phase is not None or self.field is not None or self.option_labels:
+                raise ValueError("invalid RuleSet evidence metadata")
+        else:
+            raise ValueError(f"unknown evidence source: {self.source}")
+        source = _EVIDENCE_SOURCES.get(self.source)
+        if source is not None:
+            source.validate(self)
         return self
 
 
@@ -186,6 +202,7 @@ def _json_context(session: SessionEnvelope) -> str:
                 "stage": decision.stage.value,
                 "question": decision.question,
                 "options": list(decision.options),
+                "selected_option": decision.selected_option,
             },
         })
     accepted = [milestone.model_dump(mode="json") for milestone in session.accepted_milestones]
@@ -249,16 +266,15 @@ def _select_recommendation(card: QualificationCard, session: SessionEnvelope) ->
     }[card.stage]
     relevant_stages = stage_order[: stage_order.index(card_stage) + 1]
     for stage in relevant_stages:
-        decision = session.stages[stage].working_decision
-        if decision is not None:
-            for option in decision.options:
-                if option in card.options:
-                    return option, f"It reinforces the current {stage.value} working choice."
+        status = session.stages[stage]
+        if status.lifecycle not in (LifecycleStatus.WORKING, LifecycleStatus.COMPLETE):
+            continue
+        decision = status.working_decision
+        if decision is not None and decision.selected_option in card.options:
+            return decision.selected_option, f"It reinforces the current {stage.value} selected choice."
     for milestone in session.accepted_milestones:
-        if milestone.accepted_content is not None:
-            for option in card.options:
-                if option in milestone.accepted_content:
-                    return option, f"It reinforces accepted milestone {milestone.milestone_id}."
+        if milestone.selected_option in card.options:
+            return milestone.selected_option, f"It reinforces accepted milestone {milestone.milestone_id}."
     return card.recommendation, "It is the curated default for the cited Howdunit domain option."
 
 
