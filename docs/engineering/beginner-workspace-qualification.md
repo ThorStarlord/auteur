@@ -46,11 +46,12 @@ Reconciliation evidence — current `origin/main` baseline `3001b3543bd7bf31483c
 - Historical #228 CLI failures were reproduced from the archived CI run but
   did not reproduce on current main; no baseline repair was committed.
 - Current-main L1 CLI/tutor boundary slice: 99 passed.
-- Current-main repository checks: 25 validator cases passed, repo/release-scope/
-  vendored-contract checks passed, and Ruff passed.
-- Current-main full-suite L3 checkpoint completed without failures or errors;
-  one documented schema-incompatible test was skipped and the documented
-  realization tests remained xfailed.
+- Current-main repository checks: 25 validator cases passed and
+  repo/release-scope/vendored-contract checks passed. Full-repository Ruff
+  reports four known baseline findings in untouched `cli_formatters.py` and
+  `ui/workspace.py`; changed-path Ruff passed for the recovery fix.
+- Post-recovery full-suite L3 checkpoint: 4,857 collected, 4,829 passed,
+  1 skipped, 27 documented xfailed, 0 xpassed, 0 failed, and 0 errors.
 
 Reconciled feature regression set — beginner (`test_beginner_workspace_server`,
 `test_beginner_workspace_qualification`,
