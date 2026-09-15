@@ -8,7 +8,7 @@ files or `v1.0-qualification-record`.
 
 ## Scope
 
-- Candidate SHA: `6d023e3e779a4d2c664b65f5af2cd1dc637617e0`
+- Candidate SHA: `ee4ffcfc8cdc7dfe14dec25e7d3ecf8b4bfb83f3`
 - Worktree: `H:\GithubRepositories\auteur\.worktrees\beginner-workspace-vslice`
   (linked worktree; git common dir `H:/GithubRepositories/auteur/.git`,
   branch `codex/beginner-workspace-vslice`)
@@ -41,7 +41,18 @@ Focused qualification file `tests/test_beginner_workspace_qualification.py`:
 
 Result: `8 passed in 30.27s`. Focused tests pass (only the named file).
 
-Task 8 regression set — beginner (`test_beginner_workspace_server`,
+Reconciliation evidence — current `origin/main` baseline `1d8b0b459b808e149aeab91c88a877f4f7807beb`:
+
+- Historical #228 CLI failures were reproduced from the archived CI run but
+  did not reproduce on current main; no baseline repair was committed.
+- Current-main L1 CLI/tutor boundary slice: 99 passed.
+- Current-main repository checks: 25 validator cases passed, repo/release-scope/
+  vendored-contract checks passed, and Ruff passed.
+- Current-main full-suite L3 checkpoint completed without failures or errors;
+  one documented schema-incompatible test was skipped and the documented
+  realization tests remained xfailed.
+
+Reconciled feature regression set — beginner (`test_beginner_workspace_server`,
 `test_beginner_workspace_qualification`,
 `test_beginner_workspace_persistence`,
 `test_beginner_workspace_contracts`,
@@ -54,20 +65,21 @@ registry, runtime, server, session, templates, validation) +
 
 | Category | Count |
 |---|---:|
-| collected | 271 |
-| passed | 270 |
+| collected | 196 |
+| passed | 195 |
 | skipped | 1 |
 | xfailed | 0 |
 | xpassed | 0 |
 | failed | 0 |
 | errors | 0 |
 
-Result: `270 passed, 1 skipped`. The single skip is
+Result: `195 passed, 1 skipped`. The single skip is
 `tests\test_beginner_workspace_persistence.py:761` (symlinked-workspace
 escape test): symlink creation unavailable on this Windows host
 (`WinError 1314`, missing privilege) — environment limitation, not a
 product failure. No full-suite run was attempted, so no timeout applies;
-evidence is bounded to the listed files.
+evidence is bounded to the listed files and was rerun after reconciliation
+with current main.
 
 Ruff on the created file: not applicable (markdown, no Python changed) —
 skipped.
