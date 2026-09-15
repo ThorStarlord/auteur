@@ -215,7 +215,6 @@ class BeginnerGuidance(BaseModel):
             for reference in self.evidence_references
         ]
         return DecisionCard(
-            card_id=self.card_id,
             decision=self.question,
             orientation=f"Choose how {self.question.rstrip('?').lower()} in the current story.",
             why_it_matters=self.why_this_matters,
