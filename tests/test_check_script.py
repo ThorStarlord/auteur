@@ -32,22 +32,58 @@ def test_check_script_runs_validator_suite_before_repo_validator_and_pytest() ->
     )
 
 
+def test_focused_check_scopes_ruff_to_changed_python_paths() -> None:
+    module = _load_check_module()
+
+    commands = module.commands_for(
+        skip_pytest=True,
+        ruff_paths=("tests/test_check_script.py",),
+    )
+
+    assert (
+        sys.executable,
+        "-m",
+        "ruff",
+        "check",
+        "tests/test_check_script.py",
+    ) in commands
+    assert (sys.executable, "-m", "ruff", "check", "src", "tests") not in commands
+    assert not any(
+        len(command) > 2 and command[1:3] == ("-m", "pytest")
+        for command in commands
+    )
+
+
+def test_focused_check_can_skip_ruff_when_no_python_files_changed() -> None:
+    module = _load_check_module()
+
+    commands = module.commands_for(skip_pytest=True, ruff_paths=())
+
+    assert not any(
+        len(command) >= 4 and command[1:4] == ("-m", "ruff", "check")
+        for command in commands
+    )
+
+
 def test_readme_uses_single_standard_check_command() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
 
     assert "python scripts/check.py" in readme
 
 
-def test_github_actions_runs_standard_check_command() -> None:
+def test_github_actions_uses_focused_standard_check_command() -> None:
     workflow_path = ROOT / ".github" / "workflows" / "validation.yml"
     assert workflow_path.exists(), ".github/workflows/validation.yml must exist"
 
     workflow = workflow_path.read_text(encoding="utf-8")
 
-    # CI uses a Python version matrix and wheel smoke test
-    assert 'matrix.python-version' in workflow
+    assert 'python-version: "3.12"' in workflow
+    assert "matrix.python-version" not in workflow
     assert 'python -m pip install -e ".[dev]"' in workflow
-    assert "python -m pytest" in workflow
+    assert "python -m pytest -q $FOCUSED_TESTS --tb=short" in workflow
+    assert "python scripts/check.py --skip-pytest --ruff-paths $RUFF_PATHS" in workflow
+    assert "windows-latest" not in workflow
+    assert "scripts/release_evidence.py" not in workflow
     assert "validate-artifact.py" not in workflow
 
 
@@ -64,6 +100,7 @@ def test_regressions_yaml_exists() -> None:
     assert regressions_path.exists(), "REGRESSIONS.yaml must exist for validator regression tracking"
 
     import yaml
+
     data = yaml.safe_load(regressions_path.read_bytes())
     assert isinstance(data, dict), "REGRESSIONS.yaml must contain a mapping"
     assert "excluded_validators" in data, "REGRESSIONS.yaml must have excluded_validators key"
