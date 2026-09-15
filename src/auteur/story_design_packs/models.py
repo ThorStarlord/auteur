@@ -237,6 +237,7 @@ class DecisionCard(BaseModel):
             "pack_sources": self.pack_sources,
             "source_rule": self.source_rule,
             "source_binding": self.source_binding,
+        }
 
     @model_validator(mode="after")
     def ensure_renderable_consequences(self) -> "DecisionCard":

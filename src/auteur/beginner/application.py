@@ -1,9 +1,9 @@
-"""Beginner journey orchestration for the vertical slice (Task 4).
+"""Beginner journey orchestration for the vertical slice (Task 5).
 
 BeginnerWorkspaceApplication coordinates the Task 1-3 building blocks: the
 SessionEnvelope contract, the BeginnerSessionStore/CommandReceiptStore
 durability layer, and the deterministic Mystery adapter behind the guidance
-registry. It owns explicit journey commands only:
+registry. It owns explicit journey commands plus milestone acceptance:
 
 - select_working_option: autosave a selection without advancing the card.
   Selecting an already-answered card in an available stage renavigates to it
@@ -18,9 +18,27 @@ registry. It owns explicit journey commands only:
   snapshot; cancelling leaves the parent session unchanged and removes the
   orphaned revision snapshot.
 - request_acceptance: stage-specific readiness validation that DEFERS the
-  actual canonical mutation to Task 5 (never touches canonical artifacts).
-  Task 5 owns the ``accept_milestone`` naming; this entry point intentionally
-  keeps the ``request_acceptance``/``AcceptanceResult`` names.
+  actual canonical mutation (kept for Task 4 compatibility; prefer accept_*).
+- accept_story_direction: create the authoritative accepted direction record;
+  never creates canonical StoryIdentity and never unlocks more than the next
+  stage.
+- accept_story_identity / accept_whole_story_structure: delegate the canonical
+  promotion to the acceptance authority with same-command_id idempotency.
+- accept_revised_*: accept an exploratory revision overlay as the new canonical
+  milestone revision, preserving the previous version in provenance and
+  staling downstream through the existing digest freshness propagation.
+
+Authority-crossing flow (identity/structure/direction alike): the command
+requires a caller-supplied ``command_id``; the receipt is begun BEFORE the
+authority boundary is crossed; the domain promotion runs through
+``AcceptanceRegistry.accept(..., command_id=...)`` so a completed command
+replays its recorded result without re-invoking the owner; the session is
+reconciled (acceptance reference appended, downstream unlocked, lifecycle to
+COMPLETE); then the receipt completes with the domain result reference. A
+failed promotion completes the receipt with a failure record and leaves the
+previous canon untouched, so no partial write is possible. A retry that finds
+an in-progress receipt but a completed authority record reconciles the session
+without promoting twice (crash recovery).
 
 Command envelope and idempotency: every existing-workspace journey command
 accepts the common ``MutationCommand`` envelope (``workspace_id``,
@@ -33,13 +51,16 @@ without double-apply, and a command already in progress is rejected. NOTE: the
 persistence layer only whitelists ``create_workspace``/``promote_milestone``
 receipt types and lives outside this task's edit scope, so journey commands
 reuse the generic (durable, crash-safe) receipt mechanism with the
-``create_workspace`` type label; widening ``BeginnerCommandType`` with
-per-command types is the intended follow-up, not a behavior change here.
+``create_workspace`` type label; direction acceptance (a session record, not a
+canonical promotion) reuses the same label, while identity/structure
+promotions use the whitelisted ``promote_milestone`` type with the matching
+target milestone.
 
 Lifecycle per stage is Working -> Review available -> Ready to accept, with
-Canonical reserved for Task 5. The persisted session lifecycle mapping is
-``WORKING`` (still answering), ``BLOCKED`` (all answered but acceptance
-gated), ``COMPLETE`` (review available and ready to accept); locked stages
+Canonical represented as COMPLETE plus a recorded acceptance reference for the
+stage. The persisted session lifecycle mapping is ``WORKING`` (still
+answering), ``BLOCKED`` (all answered but acceptance gated), ``COMPLETE``
+(review available and ready to accept, or canonically accepted); locked stages
 keep ``NOT_STARTED``. Availability (``AVAILABLE``/``LOCKED``) is never derived
 from or mixed into lifecycle. Future stages stay availability-locked until
 canonical work lands; ordinary navigation never blocks on tensions or stale
@@ -49,19 +70,21 @@ blocking contradictions or materially stale assumptions.
 Tension kinds: a non-recommended selection records a *blocking contradiction*
 against guidance (must be acknowledged before acceptance); exploratory
 divergence inside a revision records a *nonblocking authorial tension* (never
-gates readiness, discarded with the revision on cancel).
+gates readiness, discarded with the revision on accept or cancel).
 
 Application-owned journey state (answers, tensions, open reviews, the active
-revision overlay, per-card digests, cursor) lives in memory and is mirrored to
-a ``journey.json`` sidecar next to ``session.json`` for best-effort
-durability. The session envelope stays authoritative for concurrency: every
-mutating command validates ``expected_session_version`` and persists through
-``BeginnerSessionStore.update``, so journey-sidecar writes also advance
-``session_version`` atomically and concurrent actors cannot lost-update.
+revision overlay, per-card digests, the acceptance log, cursor) lives in memory
+and is mirrored to a ``journey.json`` sidecar next to ``session.json`` for
+best-effort durability. The session envelope stays authoritative for
+concurrency: every mutating command validates ``expected_session_version`` and
+persists through ``BeginnerSessionStore.update``, so journey-sidecar writes
+also advance ``session_version`` atomically and concurrent actors cannot
+lost-update.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import tempfile
@@ -69,10 +92,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping, cast
 
+from ..acceptance import AcceptanceRegistry
 from .contracts import (
+    AcceptedMilestoneReference,
     DecisionStage,
     LifecycleStatus,
     MutationCommand,
+    RevisionRef,
     SessionEnvelope,
     StageAvailability,
     WorkingDecision,
@@ -82,7 +108,9 @@ from .persistence import (
     BeginnerConcurrencyError,
     BeginnerPersistenceError,
     BeginnerSessionStore,
+    CommandReceipt,
     CommandReceiptStore,
+    JsonObject,
     JsonValue,
     ReceiptAcquisition,
 )
@@ -139,6 +167,98 @@ class AcceptanceResult:
     deferred_to_task_5: bool = True
     review_available: bool = False
     blockers: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class AcceptResult:
+    """Outcome of an authority-crossing milestone acceptance.
+
+    ``accepted`` is True only after the authority promotion succeeded AND the
+    session was reconciled (acceptance reference persisted, downstream
+    unlocked, receipt completed). A recorded failure carries ``accepted=False``
+    with the domain error text; replaying it returns the same record without
+    re-invoking the authority owner.
+    """
+
+    stage: DecisionStage
+    accepted: bool
+    revision: int = 0
+    result_reference: dict[str, Any] | None = None
+    session_version: int = 0
+    error: str | None = None
+
+
+# -- milestone authority mapping ------------------------------------------------
+#
+# Direction acceptance is a session record (never a canonical promotion), so it
+# carries no receipt target milestone. Identity/structure acceptance delegates
+# to the acceptance authority as a whitelisted ``promote_milestone`` receipt.
+
+_MILESTONE_BY_STAGE: dict[DecisionStage, tuple[str, str | None]] = {
+    DecisionStage.DISCOVER: ("story_direction", None),
+    DecisionStage.STORY_IDENTITY: ("story_identity", "identity-accepted"),
+    DecisionStage.STORY_STRUCTURE: ("whole_story_structure", "structure-accepted"),
+}
+
+_NEXT_STAGE: dict[DecisionStage, DecisionStage | None] = {
+    DecisionStage.DISCOVER: DecisionStage.STORY_IDENTITY,
+    DecisionStage.STORY_IDENTITY: DecisionStage.STORY_STRUCTURE,
+    DecisionStage.STORY_STRUCTURE: None,
+}
+
+_ACCEPTABLE_MILESTONES = {"story_direction", "story_identity", "whole_story_structure"}
+
+
+def _milestone_target(workspace_id: str, milestone_id: str) -> str:
+    return f"beginner:{workspace_id}:{milestone_id}"
+
+
+def _milestone_fingerprint(stage_answers: Mapping[str, str]) -> str:
+    canonical = json.dumps(dict(sorted(stage_answers.items())), sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def _milestone_candidate(workspace_id: str, milestone_id: str, revision: int, fingerprint: str) -> str:
+    return f"{workspace_id}:{milestone_id}:rev{revision}:{fingerprint[:16]}"
+
+
+def _revision_from_candidate(candidate_id: str) -> int:
+    for part in candidate_id.split(":"):
+        if part.startswith("rev"):
+            try:
+                return max(1, int(part[3:]))
+            except ValueError:
+                continue
+    return 1
+
+
+class _BeginnerMilestoneOwner:
+    """Pure in-slice acceptance owner for beginner milestone targets.
+
+    Computes the acceptance result reference deterministically from the
+    target/candidate pair without side effects, so a retried promotion that
+    races a crash can never duplicate canonical state: the durable writes
+    happen exactly once in the session reconcile and receipt completion steps.
+    """
+
+    def can_accept(self, target_artifact_id: str) -> bool:
+        return target_artifact_id.startswith("beginner:") and target_artifact_id.rsplit(":", 1)[-1] in (
+            _ACCEPTABLE_MILESTONES
+        )
+
+    def accept(self, target_artifact_id: str, candidate_id: str, *, confirm: bool) -> dict[str, Any]:
+        if not confirm:
+            raise ValueError("beginner milestone acceptance requires explicit confirm")
+        milestone = target_artifact_id.rsplit(":", 1)[-1]
+        parts = candidate_id.split(":")
+        fingerprint = parts[-1] if parts else ""
+        return {
+            "artifact_id": target_artifact_id,
+            "milestone": milestone,
+            "revision": _revision_from_candidate(candidate_id),
+            "fingerprint": fingerprint,
+            "accepted": True,
+        }
 
 
 _JOURNEY_FILENAME = "journey.json"
@@ -357,13 +477,54 @@ def _thaw_acceptance(data: Mapping[str, Any]) -> AcceptanceResult:
     )
 
 
+def _freeze_accept(result: AcceptResult) -> dict[str, Any]:
+    return {
+        "kind": "accept",
+        "data": {
+            "stage": result.stage.value,
+            "accepted": result.accepted,
+            "revision": result.revision,
+            "result_reference": result.result_reference,
+            "session_version": result.session_version,
+            "error": result.error,
+        },
+    }
+
+
+def _thaw_accept(data: Mapping[str, Any]) -> AcceptResult:
+    raw_reference = data.get("result_reference")
+    if raw_reference is not None and not isinstance(raw_reference, dict):
+        raise BeginnerWorkspaceError("command receipt mismatch for accept")
+    raw_error = data.get("error")
+    if raw_error is not None and not isinstance(raw_error, str):
+        raise BeginnerWorkspaceError("command receipt mismatch for accept")
+    return AcceptResult(
+        stage=DecisionStage(str(data["stage"])),
+        accepted=bool(data["accepted"]),
+        revision=int(data["revision"]),
+        result_reference=dict(raw_reference) if isinstance(raw_reference, dict) else None,
+        session_version=int(data["session_version"]),
+        error=raw_error,
+    )
+
+
 class BeginnerWorkspaceApplication:
     """Explicit journey commands over the beginner session and its stores."""
 
-    def __init__(self, project_root: Path | str, workspace_id: str) -> None:
+    def __init__(
+        self,
+        project_root: Path | str,
+        workspace_id: str,
+        *,
+        authority_registry: AcceptanceRegistry | None = None,
+    ) -> None:
         self.session_store = BeginnerSessionStore(Path(project_root), workspace_id)
         self.receipt_store = CommandReceiptStore(Path(project_root), workspace_id)
         self.workspace_id = workspace_id
+        if authority_registry is None:
+            authority_registry = AcceptanceRegistry(Path(project_root))
+            authority_registry.register(_BeginnerMilestoneOwner())
+        self.authority = authority_registry
         self._journey_path = self.session_store.session_path.parent / _JOURNEY_FILENAME
         self._journey: dict[str, Any] = self._load_journey()
 
@@ -985,6 +1146,687 @@ class BeginnerWorkspaceApplication:
         self._complete_command(resolved_command_id, "request_acceptance", _freeze_acceptance(result))
         return result
 
+    # -- milestone acceptance (authority-crossing) ---------------------------------
+
+    def accept_story_direction(
+        self,
+        *,
+        expected_session_version: int | None = None,
+        command_id: str | None = None,
+        workspace_id: str | None = None,
+        command: MutationCommand | None = None,
+    ) -> AcceptResult:
+        """Create the authoritative accepted direction record.
+
+        Never creates canonical StoryIdentity and never unlocks more than the
+        next stage. Requires an explicit ``command_id`` for idempotency.
+        """
+        expected, resolved_command_id, _payload = self._envelope_args(
+            command=command,
+            workspace_id=workspace_id,
+            expected_session_version=expected_session_version,
+            command_id=command_id,
+        )
+        return self._accept_milestone(
+            DecisionStage.DISCOVER,
+            revision_id=None,
+            expected_session_version=expected,
+            command_id=resolved_command_id,
+        )
+
+    def accept_story_identity(
+        self,
+        *,
+        expected_session_version: int | None = None,
+        command_id: str | None = None,
+        workspace_id: str | None = None,
+        command: MutationCommand | None = None,
+    ) -> AcceptResult:
+        """Promote canonical StoryIdentity through the acceptance authority."""
+        expected, resolved_command_id, _payload = self._envelope_args(
+            command=command,
+            workspace_id=workspace_id,
+            expected_session_version=expected_session_version,
+            command_id=command_id,
+        )
+        return self._accept_milestone(
+            DecisionStage.STORY_IDENTITY,
+            revision_id=None,
+            expected_session_version=expected,
+            command_id=resolved_command_id,
+        )
+
+    def accept_whole_story_structure(
+        self,
+        *,
+        expected_session_version: int | None = None,
+        command_id: str | None = None,
+        workspace_id: str | None = None,
+        command: MutationCommand | None = None,
+    ) -> AcceptResult:
+        """Promote canonical whole-story Structure through the authority."""
+        expected, resolved_command_id, _payload = self._envelope_args(
+            command=command,
+            workspace_id=workspace_id,
+            expected_session_version=expected_session_version,
+            command_id=command_id,
+        )
+        return self._accept_milestone(
+            DecisionStage.STORY_STRUCTURE,
+            revision_id=None,
+            expected_session_version=expected,
+            command_id=resolved_command_id,
+        )
+
+    def accept_revised_story_direction(
+        self,
+        *,
+        revision_id: str | None = None,
+        expected_session_version: int | None = None,
+        command_id: str | None = None,
+        workspace_id: str | None = None,
+        command: MutationCommand | None = None,
+    ) -> AcceptResult:
+        """Accept the exploratory direction revision as the new canonical record."""
+        expected, resolved_command_id, payload = self._envelope_args(
+            command=command,
+            workspace_id=workspace_id,
+            expected_session_version=expected_session_version,
+            command_id=command_id,
+        )
+        return self._accept_milestone(
+            DecisionStage.DISCOVER,
+            revision_id=self._required_revision_id(revision_id, payload),
+            expected_session_version=expected,
+            command_id=resolved_command_id,
+        )
+
+    def accept_revised_story_identity(
+        self,
+        *,
+        revision_id: str | None = None,
+        expected_session_version: int | None = None,
+        command_id: str | None = None,
+        workspace_id: str | None = None,
+        command: MutationCommand | None = None,
+    ) -> AcceptResult:
+        """Accept the exploratory identity revision as the new canonical revision."""
+        expected, resolved_command_id, payload = self._envelope_args(
+            command=command,
+            workspace_id=workspace_id,
+            expected_session_version=expected_session_version,
+            command_id=command_id,
+        )
+        return self._accept_milestone(
+            DecisionStage.STORY_IDENTITY,
+            revision_id=self._required_revision_id(revision_id, payload),
+            expected_session_version=expected,
+            command_id=resolved_command_id,
+        )
+
+    def accept_revised_whole_story_structure(
+        self,
+        *,
+        revision_id: str | None = None,
+        expected_session_version: int | None = None,
+        command_id: str | None = None,
+        workspace_id: str | None = None,
+        command: MutationCommand | None = None,
+    ) -> AcceptResult:
+        """Accept the exploratory structure revision as the new canonical revision."""
+        expected, resolved_command_id, payload = self._envelope_args(
+            command=command,
+            workspace_id=workspace_id,
+            expected_session_version=expected_session_version,
+            command_id=command_id,
+        )
+        return self._accept_milestone(
+            DecisionStage.STORY_STRUCTURE,
+            revision_id=self._required_revision_id(revision_id, payload),
+            expected_session_version=expected,
+            command_id=resolved_command_id,
+        )
+
+    @staticmethod
+    def _required_revision_id(revision_id: str | None, payload: dict[str, Any]) -> str:
+        resolved = revision_id if revision_id is not None else payload.get("revision_id")
+        if not isinstance(resolved, str) or not resolved:
+            raise BeginnerWorkspaceError("revision_id is required")
+        return resolved
+
+    def _accept_milestone(
+        self,
+        stage: DecisionStage,
+        *,
+        revision_id: str | None,
+        expected_session_version: int,
+        command_id: str | None,
+    ) -> AcceptResult:
+        """Run the receipt-guarded authority flow for one milestone acceptance."""
+        milestone_id, receipt_target = _MILESTONE_BY_STAGE[stage]
+        if command_id is None or not command_id:
+            raise BeginnerWorkspaceError("command_id is required for milestone acceptance")
+        replayed = self._replay_accept(command_id)
+        if replayed is not None:
+            return replayed
+
+        session = self.session_store.load()
+        self._check_version(session, expected_session_version)
+        self._require_available(session, stage)
+        inventory = self._inventory_for(session)
+        stage_cards = cards_for_stage(inventory, stage)
+        stage_card_ids = [card.card_id for card in stage_cards]
+        answers = dict(self._journey.get("answers") or {})
+        tensions = dict(self._journey.get("tensions") or {})
+        is_revision = revision_id is not None
+
+        merged = self._acceptance_answers(
+            session=session,
+            milestone_id=milestone_id,
+            revision_id=revision_id,
+            answers=answers,
+        )
+        revision = sum(1 for ref in session.accepted_milestones if ref.milestone_id == milestone_id) + 1
+        if not is_revision and revision > 1:
+            raise BeginnerWorkspaceError(
+                f"{milestone_id} is already accepted; open a revision to revise it"
+            )
+        if is_revision and revision == 1:
+            raise BeginnerWorkspaceError(f"no accepted {milestone_id} to revise; accept it first")
+
+        fingerprint = _milestone_fingerprint({card_id: merged[card_id] for card_id in stage_card_ids})
+        target = _milestone_target(self.workspace_id, milestone_id)
+        candidate = _milestone_candidate(self.workspace_id, milestone_id, revision, fingerprint)
+        promotion_intent: JsonObject | None = None
+        if receipt_target is not None:
+            promotion_intent = {
+                "workspace_id": self.workspace_id,
+                "milestone": milestone_id,
+                "content_fingerprint": fingerprint,
+            }
+
+        # Crash-recovery probe BEFORE gating: a retry that finds an in-progress
+        # receipt plus a completed authority record must reconcile without
+        # re-promoting, and must not be gated by post-crash staleness.
+        try:
+            existing = self.receipt_store.load(command_id)
+        except BeginnerPersistenceError:
+            existing = None
+        if existing is not None:
+            if existing.status == "complete":
+                thawed = self._thaw_accept_record(existing.result)
+                if thawed is not None:
+                    return thawed
+                raise BeginnerWorkspaceError(f"command receipt mismatch for accept: {command_id}")
+            recovered = self._try_recover(
+                existing,
+                command_id=command_id,
+                stage=stage,
+                milestone_id=milestone_id,
+                revision=revision,
+                fingerprint=fingerprint,
+                target=target,
+                candidate=candidate,
+                merged=merged,
+                is_revision=is_revision,
+                revision_id=revision_id,
+                promotion_intent=promotion_intent,
+            )
+            if recovered is not None:
+                return recovered
+            raise BeginnerWorkspaceError(f"command already in progress: {command_id}")
+
+        if not is_revision:
+            self._require_ready_for_accept(stage)
+        else:
+            self._require_ready_for_revised_accept(
+                session=session, stage=stage, merged=merged, tensions=tensions
+            )
+
+        if receipt_target is None:
+            acquisition = self.receipt_store.begin(command_id, command_type="create_workspace")
+        else:
+            acquisition = self.receipt_store.begin(
+                command_id,
+                command_type="promote_milestone",
+                target_milestone=cast(Any, receipt_target),
+                promotion_intent=promotion_intent,
+            )
+        if acquisition.outcome == "completed_replay":
+            thawed = self._thaw_accept_record(acquisition.result)
+            if thawed is not None:
+                return thawed
+            raise BeginnerWorkspaceError(f"command receipt mismatch for accept: {command_id}")
+        if acquisition.outcome == "existing_in_progress":
+            # A concurrent actor claimed between our probe and begin.
+            raced = self.receipt_store.load(command_id)
+            recovered = self._try_recover(
+                raced,
+                command_id=command_id,
+                stage=stage,
+                milestone_id=milestone_id,
+                revision=revision,
+                fingerprint=fingerprint,
+                target=target,
+                candidate=candidate,
+                merged=merged,
+                is_revision=is_revision,
+                revision_id=revision_id,
+                promotion_intent=promotion_intent,
+            )
+            if recovered is not None:
+                return recovered
+            raise BeginnerWorkspaceError(f"command already in progress: {command_id}")
+
+        try:
+            domain_result = self.authority.accept(target, candidate, confirm=True, command_id=command_id)
+        except Exception as exc:
+            failure = AcceptResult(
+                stage=stage,
+                accepted=False,
+                revision=revision,
+                result_reference=None,
+                session_version=session.session_version,
+                error=f"{type(exc).__name__}: {exc}",
+            )
+            self.receipt_store.complete(acquisition, cast(JsonValue, _freeze_accept(failure)))
+            raise
+        reference = self._domain_reference(
+            domain_result, target=target, milestone_id=milestone_id, revision=revision, fingerprint=fingerprint
+        )
+        saved = self._reconcile_accepted_session(
+            stage=stage,
+            milestone_id=milestone_id,
+            revision=revision,
+            fingerprint=fingerprint,
+            target=target,
+            merged=merged,
+            is_revision=is_revision,
+            revision_id=revision_id,
+            command_id=command_id,
+            expected_session_version=expected_session_version,
+        )
+        result = AcceptResult(
+            stage=stage,
+            accepted=True,
+            revision=revision,
+            result_reference=reference,
+            session_version=saved.session_version,
+            error=None,
+        )
+        self.receipt_store.complete(
+            acquisition,
+            cast(JsonValue, _freeze_accept(result)),
+            domain_result_reference=cast(JsonObject, dict(reference)),
+        )
+        return result
+
+    def _acceptance_answers(
+        self,
+        *,
+        session: SessionEnvelope,
+        milestone_id: str,
+        revision_id: str | None,
+        answers: dict[str, str],
+    ) -> dict[str, str]:
+        """Resolve the answer view under acceptance: parent or revision overlay."""
+        active = self._journey.get("active_revision")
+        already = any(ref.milestone_id == milestone_id for ref in session.accepted_milestones)
+        if revision_id is None:
+            if not already and active is not None:
+                raise BeginnerWorkspaceError(
+                    "close the active revision before accepting the parent milestone"
+                )
+            return dict(answers)
+        if already:
+            overlay = dict(active.get("overlay") or {}) if isinstance(active, dict) else {}
+            if active is None or active.get("revision_id") != revision_id:
+                # The overlay was already merged by an earlier attempt (crash
+                # after journey persistence); the parent answers hold the merge.
+                return dict(answers)
+            if not overlay:
+                raise BeginnerWorkspaceError(f"revision {revision_id} has no exploratory divergence to accept")
+            return {**answers, **overlay}
+        if active is None or not isinstance(active, dict) or active.get("revision_id") != revision_id:
+            raise BeginnerWorkspaceError(f"no active revision to accept: {revision_id}")
+        overlay = dict(active.get("overlay") or {})
+        if not overlay:
+            raise BeginnerWorkspaceError(f"revision {revision_id} has no exploratory divergence to accept")
+        return {**answers, **overlay}
+
+    def _require_ready_for_accept(self, stage: DecisionStage) -> None:
+        """Gate first-time acceptance on an opened, blocker-free review."""
+        review = self.projection().reviews[stage]
+        if not review.opened:
+            raise BeginnerWorkspaceError(
+                f"open a milestone review for {stage.value} before accepting it"
+            )
+        if not review.ready_to_accept:
+            raise BeginnerWorkspaceError(
+                f"{stage.value} is not ready to accept: {'; '.join(review.blockers) or 'unknown blocker'}"
+            )
+
+    def _require_ready_for_revised_accept(
+        self,
+        *,
+        session: SessionEnvelope,
+        stage: DecisionStage,
+        merged: Mapping[str, str],
+        tensions: Mapping[str, Any],
+    ) -> None:
+        """Gate revised acceptance on the merged overlay view being blocker-free."""
+        from .projections import _blockers_for_stage
+
+        if stage.value not in (self._journey.get("reviews_open") or []):
+            raise BeginnerWorkspaceError(
+                f"open a milestone review for {stage.value} before accepting its revision"
+            )
+        inventory = self._inventory_for(session)
+        stage_cards = cards_for_stage(inventory, stage)
+        views = tuple(self._tension_view(raw) for raw in tensions.values() if isinstance(raw, dict))
+        merged_answers = dict(merged)
+        basis = self._journey.get("basis_digest")
+        stale = bool(merged_answers) and basis is not None and basis != self._current_digest(session)
+        review_available = bool(stage_cards) and all(card.card_id in merged_answers for card in stage_cards)
+        blockers = _blockers_for_stage(stage, stage_cards, merged_answers, views, stale, review_available)
+        if blockers:
+            raise BeginnerWorkspaceError(
+                f"revised {stage.value} is not ready to accept: {'; '.join(blockers)}"
+            )
+
+    def _domain_reference(
+        self,
+        domain_result: Any,
+        *,
+        target: str,
+        milestone_id: str,
+        revision: int,
+        fingerprint: str,
+    ) -> dict[str, Any]:
+        """Normalize the authority result to a JSON-safe canonical reference."""
+        if not isinstance(domain_result, Mapping):
+            raise BeginnerWorkspaceError(
+                f"authority result for {milestone_id} must be a mapping, got {type(domain_result).__name__}"
+            )
+        try:
+            normalized = cast(
+                dict[str, Any],
+                json.loads(json.dumps(dict(domain_result), allow_nan=False, sort_keys=True, separators=(",", ":"))),
+            )
+        except (TypeError, ValueError) as exc:
+            raise BeginnerWorkspaceError(f"authority result for {milestone_id} must be JSON-compatible") from exc
+        normalized["artifact_id"] = target
+        normalized["milestone"] = milestone_id
+        normalized["revision"] = revision
+        normalized["fingerprint"] = fingerprint
+        return normalized
+
+    def _reconcile_accepted_session(
+        self,
+        *,
+        stage: DecisionStage,
+        milestone_id: str,
+        revision: int,
+        fingerprint: str,
+        target: str,
+        merged: Mapping[str, str],
+        is_revision: bool,
+        revision_id: str | None,
+        command_id: str,
+        expected_session_version: int,
+    ) -> SessionEnvelope:
+        """Persist the acceptance reference, unlock downstream, sync the sidecar."""
+        inventory = self._inventory_for(self.session_store.load())
+        stage_cards = cards_for_stage(inventory, stage)
+        stage_card_ids = [card.card_id for card in stage_cards]
+        merged_answers = dict(merged)
+        content = json.dumps(
+            {card_id: merged_answers[card_id] for card_id in stage_card_ids},
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        previous = [ref for ref in self.session_store.load().accepted_milestones if ref.milestone_id == milestone_id]
+        previous_fingerprint = previous[-1].fingerprint if previous else None
+        new_ref = AcceptedMilestoneReference(
+            milestone_id=milestone_id,
+            revision=RevisionRef(artifact_id=target, revision=revision),
+            accepted_content=content,
+            fingerprint=fingerprint,
+            selected_option=None,
+        )
+        pruned_tensions = self._tensions_without_exploratory() if is_revision else None
+        basis = self._acceptance_basis(is_revision=is_revision, milestone_id=milestone_id, revision=revision)
+
+        def mutate(current: SessionEnvelope) -> SessionEnvelope:
+            refs = list(current.accepted_milestones)
+            if not any(
+                ref.milestone_id == milestone_id
+                and ref.revision.revision == revision
+                and ref.fingerprint == fingerprint
+                for ref in refs
+            ):
+                refs.append(new_ref)
+            targets = self._lifecycle_targets(
+                current,
+                inventory,
+                answers=merged_answers,
+                tensions=pruned_tensions if pruned_tensions is not None else dict(self._journey.get("tensions") or {}),
+                basis_digest=basis if is_revision else self._journey.get("basis_digest"),
+            )
+            stages = dict(current.stages)
+            for locked_stage, lifecycle in targets.items():
+                if locked_stage is stage:
+                    continue
+                stages[locked_stage] = stages[locked_stage].model_copy(update={"lifecycle": lifecycle})
+            stages[stage] = stages[stage].model_copy(update={"lifecycle": LifecycleStatus.COMPLETE})
+            next_stage = _NEXT_STAGE[stage]
+            if next_stage is not None and stages[next_stage].availability is StageAvailability.LOCKED:
+                stages[next_stage] = stages[next_stage].model_copy(
+                    update={"availability": StageAvailability.AVAILABLE, "lifecycle": LifecycleStatus.WORKING}
+                )
+            return current.model_copy(update={"stages": stages, "accepted_milestones": refs})
+
+        saved = self.session_store.update(expected_session_version, mutate)
+        self._sync_journey_after_accept(
+            merged=merged_answers,
+            is_revision=is_revision,
+            revision_id=revision_id,
+            milestone_id=milestone_id,
+            revision=revision,
+            fingerprint=fingerprint,
+            previous_fingerprint=previous_fingerprint,
+            command_id=command_id,
+        )
+        return saved
+
+    def _tensions_without_exploratory(self) -> dict[str, Any]:
+        return {
+            tension_id: raw
+            for tension_id, raw in (dict(self._journey.get("tensions") or {}).items())
+            if not (isinstance(raw, dict) and raw.get("source") == "exploratory")
+        }
+
+    def _acceptance_basis(self, *, is_revision: bool, milestone_id: str, revision: int) -> str | None:
+        """Return the post-accept assumption basis.
+
+        First-time accepts keep the recorded basis (nothing downstream is
+        answered yet, so nothing can go stale). Revised accepts invalidate the
+        basis through the existing digest comparison, which marks answered
+        downstream stages stale in the combined projection; a later
+        reassessment re-baselines.
+        """
+        if not is_revision:
+            basis = self._journey.get("basis_digest")
+            return None if basis is None else str(basis)
+        previous_basis = self._journey.get("basis_digest") or "none"
+        return f"accepted-revision:{milestone_id}:rev{revision}:{previous_basis}"
+
+    def _sync_journey_after_accept(
+        self,
+        *,
+        merged: dict[str, str],
+        is_revision: bool,
+        revision_id: str | None,
+        milestone_id: str,
+        revision: int,
+        fingerprint: str,
+        previous_fingerprint: str | None,
+        command_id: str,
+    ) -> None:
+        """Mirror acceptance into the journey sidecar (idempotent on retry)."""
+        changed = False
+        if self._journey.get("cursor_override") is not None:
+            # Release the autosave pin so the Decision Card advances to the
+            # next stage frontier ("Begin next stage"); the pin is an
+            # exploration affordance, not canonical state.
+            self._journey["cursor_override"] = None
+            changed = True
+        if is_revision:
+            if self._journey.get("answers") != merged:
+                self._journey["answers"] = dict(merged)
+                changed = True
+            pruned = self._tensions_without_exploratory()
+            if pruned != dict(self._journey.get("tensions") or {}):
+                self._journey["tensions"] = pruned
+                changed = True
+            if self._journey.get("active_revision") is not None:
+                self._journey["active_revision"] = None
+                changed = True
+                self._remove_revision_snapshot(revision_id)
+            prefix = f"accepted-revision:{milestone_id}:rev{revision}:"
+            if not str(self._journey.get("basis_digest") or "").startswith(prefix):
+                self._journey["basis_digest"] = prefix + str(self._journey.get("basis_digest") or "none")
+                changed = True
+        log = list(self._journey.get("acceptance_log") or [])
+        if not any(isinstance(entry, dict) and entry.get("command_id") == command_id for entry in log):
+            log.append(
+                {
+                    "milestone": milestone_id,
+                    "revision": revision,
+                    "fingerprint": fingerprint,
+                    "supersedes": previous_fingerprint,
+                    "command_id": command_id,
+                    "stage": milestone_id,
+                }
+            )
+            self._journey["acceptance_log"] = log
+            changed = True
+        if changed:
+            self._save_journey()
+
+    def _remove_revision_snapshot(self, revision_id: str | None) -> None:
+        """Best-effort orphan cleanup for an accepted revision snapshot."""
+        if not isinstance(revision_id, str) or not revision_id:
+            return
+        try:
+            snapshot_path = self.session_store.revision_session_path(revision_id)
+        except ValueError:
+            return
+        try:
+            snapshot_path.unlink(missing_ok=True)
+            try:
+                snapshot_path.parent.rmdir()
+            except OSError:
+                pass
+        except OSError:
+            pass
+
+    def _try_recover(
+        self,
+        existing: CommandReceipt,
+        *,
+        command_id: str,
+        stage: DecisionStage,
+        milestone_id: str,
+        revision: int,
+        fingerprint: str,
+        target: str,
+        candidate: str,
+        merged: Mapping[str, str],
+        is_revision: bool,
+        revision_id: str | None,
+        promotion_intent: JsonObject | None,
+    ) -> AcceptResult | None:
+        """Reconcile after a crash between promotion and receipt completion.
+
+        Returns None when the authority holds no completed record for this
+        command (a genuine in-progress collision the caller must reject), so a
+        duplicate promotion is impossible: the owner is never invoked here.
+        """
+        if existing.status != "in_progress":
+            return None
+        if promotion_intent is not None and existing.promotion_intent != promotion_intent:
+            raise BeginnerPersistenceError(f"command intent conflict for existing command_id {command_id}")
+        completed = self.authority.journal.find_completed(command_id)
+        if (
+            completed is None
+            or completed.get("target_artifact_id") != target
+            or completed.get("candidate_id") != candidate
+        ):
+            return None
+        journal_result = completed.get("result")
+        reference = self._domain_reference(
+            journal_result if isinstance(journal_result, Mapping) else {},
+            target=target,
+            milestone_id=milestone_id,
+            revision=revision,
+            fingerprint=fingerprint,
+        )
+        fresh = self.session_store.load()
+        if any(
+            ref.milestone_id == milestone_id
+            and ref.revision.revision == revision
+            and ref.fingerprint == fingerprint
+            for ref in fresh.accepted_milestones
+        ):
+            version = fresh.session_version
+        else:
+            saved = self._reconcile_accepted_session(
+                stage=stage,
+                milestone_id=milestone_id,
+                revision=revision,
+                fingerprint=fingerprint,
+                target=target,
+                merged=merged,
+                is_revision=is_revision,
+                revision_id=revision_id,
+                command_id=command_id,
+                expected_session_version=fresh.session_version,
+            )
+            version = saved.session_version
+        result = AcceptResult(
+            stage=stage,
+            accepted=True,
+            revision=revision,
+            result_reference=reference,
+            session_version=version,
+            error=None,
+        )
+        self.receipt_store.complete(
+            existing,
+            cast(JsonValue, _freeze_accept(result)),
+            domain_result_reference=cast(JsonObject, dict(reference)),
+        )
+        return result
+
+    def _replay_accept(self, command_id: str) -> AcceptResult | None:
+        """Return the recorded accept result for a completed command_id, if any."""
+        try:
+            replayed = self.receipt_store.replay(command_id)
+        except BeginnerPersistenceError:
+            return None
+        if replayed is None:
+            return None
+        return self._thaw_accept_record(replayed.result)
+
+    def _thaw_accept_record(self, result: JsonValue) -> AcceptResult | None:
+        if not isinstance(result, dict) or result.get("kind") != "accept":
+            return None
+        data = result.get("data")
+        if not isinstance(data, dict):
+            return None
+        return _thaw_accept(cast(dict[str, Any], data))
+
     # -- command envelope + receipt plumbing -------------------------------------
 
     def _envelope_args(
@@ -1058,6 +1900,8 @@ class BeginnerWorkspaceApplication:
             return _thaw_revision(payload)
         if kind == "request_acceptance":
             return _thaw_acceptance(payload)
+        if kind == "accept":
+            return _thaw_accept(payload)
         raise BeginnerWorkspaceError(f"unknown command receipt kind: {kind}")
 
     # -- read-only projection --------------------------------------------------
@@ -1213,6 +2057,7 @@ class BeginnerWorkspaceApplication:
             "active_revision": None,
             "basis_digest": None,
             "cursor_override": None,
+            "acceptance_log": [],
         }
 
     def _load_journey(self) -> dict[str, Any]:
