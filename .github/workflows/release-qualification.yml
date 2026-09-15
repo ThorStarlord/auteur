@@ -1,0 +1,95 @@
+name: Release Qualification
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: "Exact frozen candidate commit SHA to qualify"
+        required: true
+        type: string
+
+jobs:
+  linux-compatibility:
+    name: "release source compatibility (Linux Python ${{ matrix.python-version }})"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.candidate_sha }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Verify exact candidate
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "${{ inputs.candidate_sha }}"
+
+      - name: Run complete source suite
+        run: python -m pytest -q --tb=short
+
+  windows-compatibility:
+    name: "release source compatibility (Windows Python 3.13)"
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.candidate_sha }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Verify exact candidate
+        shell: pwsh
+        run: |
+          if ((git rev-parse HEAD) -ne "${{ inputs.candidate_sha }}") { exit 1 }
+
+      - name: Run complete source suite
+        run: python -m pytest -q --tb=short
+
+  exact-sha-evidence:
+    name: "exact-SHA release evidence (Linux Python 3.12)"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.candidate_sha }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install release dependencies
+        run: python -m pip install -e ".[dev]" build
+
+      - name: Verify exact candidate
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "${{ inputs.candidate_sha }}"
+
+      - name: Produce exact-SHA qualification evidence
+        run: python scripts/release_evidence.py
+
+      - name: Upload qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-qualification-evidence-${{ inputs.candidate_sha }}
+          path: docs/qualification-evidence/*.json
+          if-no-files-found: ignore

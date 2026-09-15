@@ -1,0 +1,27 @@
+name: Stabilization
+
+on:
+  workflow_dispatch:
+
+jobs:
+  full-regression:
+    name: "L3 full regression (Python 3.12)"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Run L3 full regression suite
+        run: python -m pytest -q --tb=short
+
+      - name: Run verification stack
+        run: python scripts/check.py --skip-pytest
