@@ -1,4 +1,5 @@
 import json
+import inspect
 import os
 import subprocess
 import threading
@@ -12,6 +13,8 @@ from auteur.beginner.contracts import SessionEnvelope
 from auteur.beginner.contracts import AcceptedMilestoneReference, RevisionRef
 from auteur.beginner.persistence import (
     BeginnerConcurrencyError,
+    BeginnerCommandType,
+    BeginnerMilestone,
     BeginnerPersistenceError,
     BeginnerSessionStore,
     CommandReceipt,
@@ -512,8 +515,8 @@ def test_reusing_command_id_with_different_intent_rejects(
     with pytest.raises((BeginnerPersistenceError, ValidationError)):
         store.begin(
             "command-1",
-            command_type=cast(str, changed_intent.get("command_type", "promote_milestone")),
-            target_milestone=cast(str, changed_intent.get("target_milestone", "identity-accepted")),
+            command_type=cast(BeginnerCommandType, changed_intent.get("command_type", "promote_milestone")),
+            target_milestone=cast(BeginnerMilestone, changed_intent.get("target_milestone", "identity-accepted")),
             promotion_intent=cast(JsonObject, changed_intent.get("promotion_intent", {"source": "beginner"})),
         )
 
@@ -522,8 +525,7 @@ def test_reusing_command_id_with_omitted_intent_rejects(tmp_path: Path) -> None:
     store = CommandReceiptStore(tmp_path, "workspace-1")
     store.begin("command-1", command_type="promote_milestone", target_milestone="identity-accepted")
 
-    with pytest.raises(ValidationError):
-        store.begin("command-1")
+    assert inspect.signature(store.begin).parameters["command_type"].default is inspect.Parameter.empty
 
 
 def test_complete_persists_authoritative_domain_result_reference(tmp_path: Path) -> None:
@@ -580,7 +582,7 @@ def test_empty_command_type_is_not_defaulted(tmp_path: Path) -> None:
     store = CommandReceiptStore(tmp_path, "workspace-1")
 
     with pytest.raises(ValidationError):
-        store.begin("command-1", command_type="")
+        store.begin("command-1", command_type=cast(BeginnerCommandType, ""))
 
 
 @pytest.mark.parametrize(
@@ -594,12 +596,16 @@ def test_empty_command_type_is_not_defaulted(tmp_path: Path) -> None:
     ],
 )
 def test_receipt_intent_requires_approved_command_and_milestone(
-    tmp_path: Path, command_type: str | None, target_milestone: str | None
+    tmp_path: Path, command_type: object, target_milestone: object
 ) -> None:
     store = CommandReceiptStore(tmp_path, "workspace-1")
 
     with pytest.raises(ValidationError):
-        store.begin("command-1", command_type=command_type, target_milestone=target_milestone)
+        store.begin(
+            "command-1",
+            command_type=cast(BeginnerCommandType, command_type),
+            target_milestone=cast(BeginnerMilestone | None, target_milestone),
+        )
 
 
 def test_completed_receipt_rejects_conflicting_domain_result_reference(tmp_path: Path) -> None:
@@ -640,6 +646,37 @@ def test_atomic_create_and_replace_sync_containing_directory(
     store.save(store.load(), expected_session_version=1)
 
     assert len(synced) >= 2
+
+
+def test_post_commit_directory_sync_failure_keeps_session_successful(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def fail_sync(path: Path) -> None:
+        raise OSError("directory sync failed")
+
+    monkeypatch.setattr(persistence, "_sync_directory", fail_sync)
+    store = BeginnerSessionStore(tmp_path, "workspace-1")
+
+    saved = store.save(make_session())
+
+    assert store.load() == saved
+
+
+def test_post_commit_receipt_sync_failure_keeps_owner_claim_recoverable(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def fail_sync(path: Path) -> None:
+        raise OSError("directory sync failed")
+
+    monkeypatch.setattr(persistence, "_sync_directory", fail_sync)
+    store = CommandReceiptStore(tmp_path, "workspace-1")
+
+    owner = store.begin("command-1", command_type="create_workspace")
+    retry = store.begin("command-1", command_type="create_workspace")
+
+    assert owner.outcome == "owner_claim"
+    assert retry.outcome == "existing_in_progress"
+    assert store.load("command-1").owner_token == owner.owner_token
 
 
 def test_in_progress_reference_is_part_of_retry_intent(tmp_path: Path) -> None:

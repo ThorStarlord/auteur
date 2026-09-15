@@ -49,8 +49,10 @@ else:
     )
 JsonObject: TypeAlias = dict[str, JsonValue]
 
-_BEGINNER_COMMAND_TYPES = {"create_workspace", "promote_milestone"}
-_BEGINNER_MILESTONES = {"identity-accepted", "structure-accepted"}
+BeginnerCommandType: TypeAlias = Literal["create_workspace", "promote_milestone"]
+BeginnerMilestone: TypeAlias = Literal["identity-accepted", "structure-accepted"]
+_BEGINNER_COMMAND_TYPES: set[BeginnerCommandType] = {"create_workspace", "promote_milestone"}
+_BEGINNER_MILESTONES: set[BeginnerMilestone] = {"identity-accepted", "structure-accepted"}
 
 
 def _normalize_json_value(value: JsonValue, label: str) -> JsonValue:
@@ -99,8 +101,8 @@ class CommandReceipt(BaseModel):
     status: Literal["in_progress", "complete"]
     result: JsonValue = None
     owner_token: str | None = Field(default=None, min_length=1)
-    command_type: str = Field(min_length=1)
-    target_milestone: str | None = Field(default=None, min_length=1)
+    command_type: BeginnerCommandType
+    target_milestone: BeginnerMilestone | None = None
     promotion_intent: JsonObject | None = None
     domain_result_reference: JsonObject | None = None
     requested_domain_result_reference: JsonObject | None = None
@@ -169,8 +171,8 @@ class ReceiptAcquisition(BaseModel):
     outcome: Literal["owner_claim", "existing_in_progress", "completed_replay"]
     owner_token: str | None = Field(default=None, min_length=1)
     result: JsonValue = None
-    command_type: str = Field(min_length=1)
-    target_milestone: str | None = Field(default=None, min_length=1)
+    command_type: BeginnerCommandType
+    target_milestone: BeginnerMilestone | None = None
     promotion_intent: JsonObject | None = None
     domain_result_reference: JsonObject | None = None
     requested_domain_result_reference: JsonObject | None = None
@@ -285,7 +287,7 @@ def _atomic_write(path: Path, payload: str) -> None:
             temporary.flush()
             os.fsync(temporary.fileno())
         os.replace(temporary_path, path)
-        _sync_directory(path.parent)
+        _sync_directory_after_commit(path.parent)
         temporary_path = None
     except OSError as exc:
         raise BeginnerPersistenceError(f"atomic write failed for {path}: {exc}") from exc
@@ -312,7 +314,7 @@ def _atomic_create(path: Path, payload: str) -> bool:
             os.link(temporary_path, path)
         except FileExistsError:
             return False
-        _sync_directory(path.parent)
+        _sync_directory_after_commit(path.parent)
         return True
     except OSError as exc:
         raise BeginnerPersistenceError(f"atomic create failed for {path}: {exc}") from exc
@@ -340,6 +342,20 @@ def _sync_directory(directory: Path) -> None:
                 raise
     finally:
         os.close(descriptor)
+
+
+def _sync_directory_after_commit(directory: Path) -> None:
+    """Best-effort directory durability after the filesystem commit.
+
+    The rename/link is already durable as an atomic state transition from the
+    caller's perspective. A directory-sync failure therefore must not turn a
+    successful mutation into an apparent failure with committed state; the
+    next load/retry remains the recovery path.
+    """
+    try:
+        _sync_directory(directory)
+    except OSError:
+        pass
 
 
 _SESSION_LOCK_TIMEOUT = 10.0
@@ -560,8 +576,8 @@ class CommandReceiptStore:
     def begin(
         self,
         command_id: str,
-        command_type: str | None = None,
-        target_milestone: str | None = None,
+        command_type: BeginnerCommandType,
+        target_milestone: BeginnerMilestone | None = None,
         promotion_intent: JsonObject | None = None,
         domain_result_reference: JsonObject | None = None,
     ) -> ReceiptAcquisition:
