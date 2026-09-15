@@ -67,6 +67,7 @@ class HandlerResult:
     exit_code: int = 0
     data: Any = None
     error: str | None = None
+    suggestion: str | None = None
 
     def __post_init__(self) -> None:
         if self.error is None and self.exit_code != 0:
@@ -82,9 +83,14 @@ class HandlerResult:
         return cls(exit_code=0, data=data)
 
     @classmethod
-    def failure(cls, message: str, exit_code: int = 1) -> HandlerResult:
+    def failure(
+        cls,
+        message: str,
+        exit_code: int = 1,
+        suggestion: str | None = None,
+    ) -> HandlerResult:
         """Create a failure result with a message and non-zero exit code."""
-        return cls(exit_code=exit_code, error=message)
+        return cls(exit_code=exit_code, error=message, suggestion=suggestion)
 
 
 # ---------------------------------------------------------------------------

@@ -427,7 +427,7 @@ Run the repository verification stack:
 python scripts/check.py
 ```
 
-Ordinary PR/main CI uses the L1 focused gate in `.github/workflows/validation.yml`. L3 full regression and exact-SHA release qualification are separate explicit workflows and are not normal inner-loop PR costs. Real-provider smoke checks remain separate because they spend external API tokens.
+CI runs the same verification entrypoint with `python scripts/check.py --skip-pytest` in the focused development gate. Ordinary PR/main CI uses the L1 focused gate in `.github/workflows/validation.yml`. L3 full regression and exact-SHA release qualification are separate explicit workflows and are not normal inner-loop PR costs. Real-provider smoke checks remain separate because they spend external API tokens.
 
 ## Versioning
 
