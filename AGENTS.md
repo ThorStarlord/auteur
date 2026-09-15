@@ -9,23 +9,30 @@ governing documents and sit on the protected list.
 
 ## Core rules
 
-1. **Ask, don't assume.** If something is unclear, ask before writing a single
-   line. Never make silent assumptions about intent, architecture, or
-   requirements.
+1. **Infer within the delegation envelope; escalate material ambiguity.** Once a
+   human has authorized a goal, accepted design/specification, and constraints,
+   proceed autonomously on low-level implementation choices that preserve that
+   envelope. Do not ask for approval on routine naming, helper placement, local
+   refactoring, test organization, or behaviorally equivalent algorithms.
 2. **Simplest solution first.** Always implement the simplest thing that could
    work. Do not add abstractions or flexibility that were not explicitly
-   requested.
+   requested or required by the authorized behavior.
 3. **Don't touch unrelated code.** If a file or function is not directly part
    of the current task, do not modify it, even if you think it could be
    improved.
-4. **Flag uncertainty explicitly.** If you are not confident about an approach
-   or technical detail, say so before proceeding. Confidence without certainty
-   causes more damage than admitting a gap.
+4. **Flag material uncertainty explicitly.** Investigate routine technical
+   uncertainty yourself. Stop only when the unresolved uncertainty would change
+   product intent, architecture, authority, security, compatibility, external
+   effects, or authorized scope.
 
 ## Process
 
 - For conceptual design, use a grilling workflow: ask one question at a time,
-  give a recommended answer, and wait for approval before locking decisions.
+  give a recommended answer, and wait for approval before locking owner-reserved
+  decisions.
+- After the work package/design is approved, execute continuously without
+  human-in-loop pauses for low-level implementation choices unless a stop
+  condition below is reached.
 - Blame process, not people. If work drifts, add a clearer checkpoint,
   document the decision earlier, or improve the verification path.
 - Capture approved conceptual decisions in `docs/` before implementing schema,
@@ -34,6 +41,49 @@ governing documents and sit on the protected list.
   story spine.
 - Treat workspace identity as a preflight condition, not something the
   executor should discover or repair after work begins.
+
+### Delegation envelope
+
+The initial human prompt, accepted design/specification, repository hard
+invariants, and explicit constraints define the delegation envelope.
+
+Inside that envelope, the coding agent owns decisions such as:
+
+- internal function and variable naming;
+- helper extraction and local refactoring needed to implement the goal cleanly;
+- behaviorally equivalent implementation algorithms;
+- test fixture and focused regression-test organization;
+- L1 focused-test selection;
+- whether a named changed boundary justifies targeted L2 validation;
+- local error-handling mechanics consistent with existing public semantics;
+- internal data flow and commit decomposition;
+- minor documentation updates that describe the implemented behavior;
+- removal of dead ends introduced by the current work package.
+
+These decisions do not require repeated human approval.
+
+### Owner-reserved decisions and stop conditions
+
+Stop and escalate only when continuing requires a material decision about:
+
+- product intent or user-visible semantics not implied by the authorized goal;
+- canonical narrative meaning or Layer 1 author commitments;
+- semantic architecture or ownership boundaries;
+- public compatibility contracts;
+- destructive or irreversible data migration;
+- security, credentials, privacy, or new external data transmission;
+- deployment, publication, or release authorization;
+- permanent product-scope constraints;
+- material scope expansion beyond the authorized work package;
+- changing a hard invariant in `MISSION.md`;
+- contradictory requirements that cannot be resolved from current sources of truth.
+
+Also stop when repeated focused attempts indicate the approved design is wrong
+rather than merely incomplete, or when cheap validation cannot establish
+reasonable confidence in the changed behavior.
+
+Routine uncertainty about naming, helper placement, fixture structure, or
+other equivalent implementation mechanics is not a stop condition.
 
 ### Code Review & Verification
 
@@ -49,7 +99,7 @@ When reviewing code changes or investigating test failures:
    - Don't cite line numbers without inspecting them
    - Don't claim missing components without checking current git HEAD
    - Distinguish between "tests pass" (exercises live code) and "implementation exists in git" (requires committed files)
-   - If uncertain, ask or investigate further rather than escalating
+   - Investigate ordinary uncertainty before escalating it
 
 3. **Investigate environment issues before rewriting:**
    - Multiple Python installations can coexist; verify `which python` and `python -m module`
@@ -92,10 +142,27 @@ execution session. Do not start in one repository and repair the workspace
 mid-session.
 
 When terminology such as "workspace", "repo", "branch", or "worktree" is
-ambiguous, inspect first and ask rather than choosing an interpretation.
+ambiguous, inspect first; escalate only if the ambiguity is material after
+inspection.
 
 See `docs/agents/workspace-isolation.md` for the detailed procedure and
 `scripts/verify-agent-workspace.ps1` for a machine-checkable preflight.
+
+## Validation budget
+
+Follow `docs/engineering/release-qualification.md`.
+
+- **L1 focused validation is the default.** Run it freely during implementation.
+- **L2 targeted integration requires a named changed boundary or risk.** Select
+  the smallest useful integration slice and record the reason.
+- **L3 full regression requires an explicit milestone, stabilization, recovery,
+  cross-cutting-risk, or release-candidate trigger.** Do not use the full suite
+  as an inner debugging loop.
+- **Release qualification requires an explicitly selected frozen candidate.**
+  Do not run exact-SHA release qualification for ordinary development commits.
+
+More testing is not automatically safer when it does not change a decision.
+Do not spend expensive validation merely because it exists.
 
 ## Qualification and release evidence
 
@@ -108,10 +175,10 @@ Mandatory rules:
    "release-ready" before the corresponding evidence gate is complete.
 2. Record the exact candidate SHA before qualification.
 3. Any source, test, version, packaging, or packaged-resource change
-   invalidates downstream evidence and requires qualification from the new
-   SHA.
+   invalidates downstream release evidence and requires qualification from the
+   new SHA.
 4. Report pytest categories separately: collected, passed, skipped,
-   xfailed, xpassed, failed, and errors.
+   xfailed, xpassed, failed, and errors when making full-suite/qualification claims.
 5. A timed-out or terminated command is incomplete evidence.
 6. Compare required-check failures against the baseline before calling them
    pre-existing.
@@ -138,13 +205,17 @@ a baseline-identical failure unless its shape changed.
 Use evidence-bounded language:
 
 - "implemented" means the code exists
-- "focused tests pass" means only the named tests passed
-- "source-qualified" means the complete source gate passed
+- "focused tests pass" means only the named L1 tests passed
+- "targeted integration passes" means only the named L2 boundary tests passed
+- "regression checkpoint passes" means an explicitly triggered L3 suite passed
+  at the recorded SHA/environment
+- "source-qualified" means the complete release source gate passed
 - "artifact-qualified" means the exact built artifact passed installed testing
 - "release-ready" means publication prerequisites are complete
 - "published" means remote state has been verified
 
-Do not use these terms interchangeably.
+Do not use these terms interchangeably or promote a lower-level claim because
+higher-level validation would be inconvenient.
 
 ## Semantic architecture
 
@@ -156,8 +227,8 @@ The canonical model defines five semantic layers (0: Ontology, 1: Identity,
 (Universe, Series, Book, Chapter, Scene). Scopes are not layers.
 
 Root agent files may summarize but must not define competing layer models.
-When a summary conflicts with the canonical document, the canonical
-document wins.
+When a summary conflicts with the canonical document, the canonical document
+wins.
 
 Do not conflate gaps across layers. A narrative engine gap (e.g., missing
 subgenre validation) is not fixed by improving the drafting pipeline.
