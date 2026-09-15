@@ -389,17 +389,24 @@ def test_competing_receipt_claims_have_one_new_owner(tmp_path: Path) -> None:
     assert {claim.status for claim in claims} == {"in_progress"}
 
 
-@pytest.mark.parametrize("result", [None, {"unexpected": True}])
-def test_in_progress_receipt_with_missing_owner_or_result_is_rejected(tmp_path: Path, result: object) -> None:
+def test_in_progress_receipt_with_missing_owner_is_rejected(tmp_path: Path) -> None:
     store = CommandReceiptStore(tmp_path, "workspace-1")
     path = store.receipt_path("command-1")
     path.parent.mkdir(parents=True)
     path.write_text(
-        json.dumps({"command_id": "command-1", "status": "in_progress", "owner_token": None, "result": result}),
+        json.dumps(
+            {
+                "command_id": "command-1",
+                "status": "in_progress",
+                "owner_token": None,
+                "command_type": "create_workspace",
+                "result": None,
+            }
+        ),
         encoding="utf-8",
     )
 
-    with pytest.raises(BeginnerPersistenceError, match="receipt"):
+    with pytest.raises(BeginnerPersistenceError, match="in_progress receipt must have an owner_token"):
         store.load("command-1")
 
 
@@ -408,11 +415,19 @@ def test_in_progress_receipt_with_result_is_rejected_even_with_owner(tmp_path: P
     path = store.receipt_path("command-1")
     path.parent.mkdir(parents=True)
     path.write_text(
-        json.dumps({"command_id": "command-1", "status": "in_progress", "owner_token": "owner", "result": {"x": 1}}),
+        json.dumps(
+            {
+                "command_id": "command-1",
+                "status": "in_progress",
+                "owner_token": "owner",
+                "command_type": "create_workspace",
+                "result": {"x": 1},
+            }
+        ),
         encoding="utf-8",
     )
 
-    with pytest.raises(BeginnerPersistenceError, match="receipt"):
+    with pytest.raises(BeginnerPersistenceError, match="in_progress receipt must not have a result"):
         store.load("command-1")
 
 
