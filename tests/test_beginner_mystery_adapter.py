@@ -555,15 +555,33 @@ def test_beginner_guidance_projects_to_existing_tutor_decision_card() -> None:
     assert {source.pack_id for source in guidance.pack_sources} == {"howdunit", "howdunit-rules"}
 
 
-def test_projection_rejects_blank_downstream_consequence_end_to_end() -> None:
+@pytest.mark.parametrize("consequences", [(), [], ("   ",)])
+def test_projection_rejects_empty_or_blank_downstream_consequence(
+    consequences: tuple[str, ...] | list[str],
+) -> None:
     guidance = guidance_for(
         "discover.story-experience",
         SessionEnvelope.new("project-1", "mystery", "A missing heir returns home."),
     )
-    invalid = guidance.model_copy(update={"downstream_consequences": ("   ",)})
+    invalid = guidance.model_copy(update={"downstream_consequences": consequences})
 
     with pytest.raises(ValueError, match="downstream_consequences"):
         invalid.to_decision_card()
+
+
+@pytest.mark.parametrize("consequences", [(), ("",), ("   ",)])
+def test_beginner_guidance_rejects_empty_or_blank_consequences(
+    consequences: tuple[str, ...],
+) -> None:
+    guidance = guidance_for(
+        "discover.story-experience",
+        SessionEnvelope.new("project-1", "mystery", "A missing heir returns home."),
+    )
+    payload = guidance.model_dump()
+    payload["downstream_consequences"] = consequences
+
+    with pytest.raises(ValidationError, match="downstream_consequences"):
+        BeginnerGuidance.model_validate(payload)
 
 
 def test_guidance_for_mystery_registers_in_a_fresh_process() -> None:

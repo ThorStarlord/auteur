@@ -195,16 +195,20 @@ class BeginnerGuidance(BaseModel):
 
     @model_validator(mode="after")
     def validate_renderable_consequences(self) -> BeginnerGuidance:
-        if any(not consequence.strip() for consequence in self.downstream_consequences):
-            raise ValueError("downstream_consequences must not contain blank strings")
+        if not self.downstream_consequences or any(
+            not consequence.strip() for consequence in self.downstream_consequences
+        ):
+            raise ValueError("downstream_consequences must contain nonblank entries")
         return self
 
     def to_decision_card(self) -> DecisionCard:
         """Project this coordinator view into the established Tutor DecisionCard contract."""
         from auteur.story_design_packs.models import TutorDepth
 
-        if any(not consequence.strip() for consequence in self.downstream_consequences):
-            raise ValueError("downstream_consequences must not contain blank strings")
+        if not self.downstream_consequences or any(
+            not consequence.strip() for consequence in self.downstream_consequences
+        ):
+            raise ValueError("downstream_consequences must contain nonblank entries")
         evidence = [
             f"{reference.source}:{reference.field or reference.rule_id}"
             for reference in self.evidence_references

@@ -240,8 +240,10 @@ class DecisionCard(BaseModel):
 
     @model_validator(mode="after")
     def ensure_renderable_consequences(self) -> "DecisionCard":
-        if any(not consequence.strip() for consequence in self.downstream_consequences):
-            raise ValueError("downstream_consequences must not contain blank strings")
+        if not self.downstream_consequences or any(
+            not consequence.strip() for consequence in self.downstream_consequences
+        ):
+            raise ValueError("downstream_consequences must contain nonblank entries")
         return self
 
     @classmethod
