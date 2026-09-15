@@ -8,7 +8,7 @@ from typing import ClassVar, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from .contracts import DecisionStage, LifecycleStatus, SessionEnvelope, StageAvailability
+from .contracts import AcceptedMilestoneReference, DecisionStage, LifecycleStatus, SessionEnvelope, StageAvailability
 
 
 class QualificationStage(str, Enum):
@@ -275,7 +275,16 @@ def _select_recommendation(card: QualificationCard, session: SessionEnvelope) ->
         decision = status.working_decision
         if decision is not None and decision.selected_option in card.options:
             return decision.selected_option, f"It reinforces the current {stage.value} selected choice."
+    latest_by_milestone: dict[tuple[str, str], AcceptedMilestoneReference] = {}
     for milestone in session.accepted_milestones:
+        key = (milestone.milestone_id, milestone.revision.artifact_id)
+        current = latest_by_milestone.get(key)
+        if current is None or milestone.revision.revision > current.revision.revision:
+            latest_by_milestone[key] = milestone
+    for milestone in sorted(
+        latest_by_milestone.values(),
+        key=lambda item: (item.milestone_id, item.revision.artifact_id, item.revision.revision),
+    ):
         if milestone.selected_option in card.options:
             return milestone.selected_option, f"It reinforces accepted milestone {milestone.milestone_id}."
     return card.recommendation, "It is the curated default for the cited Howdunit domain option."

@@ -42,6 +42,7 @@ class MysteryGuidanceAdapter:
         template = HowdunitTemplate()
         rule_ids = {rule.rule_id for rule in RuleSet("howdunit").rules}
         for card in _MYSTERY_CARDS:
+            validate_mystery_card_evidence(card)
             for reference in card.evidence_references:
                 if reference.source == "HowdunitTemplate":
                     assert reference.phase is not None
@@ -129,14 +130,14 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
         card_id="story_identity.relationship-pressure",
         stage=QualificationStage.STORY_IDENTITY,
         title="The resistance to truth",
-        question="What makes the truth difficult to reach?",
-        source_subject="Howdunit structural_forces resistance options",
-        options=("Resistance: Misleading clues", "Resistance: False suspects", "Resistance: Hidden motives"),
-        recommendation="Resistance: Misleading clues",
-        narrative_principle="The structural-forces phase defines what obstructs the route to truth.",
+        question="Which relationship or conflict pressure should shape the investigation?",
+        source_subject="Howdunit structural_forces conflict options",
+        options=("Conflict: Deduction vs. misdirection", "Conflict: Logic vs. chaos"),
+        recommendation="Conflict: Deduction vs. misdirection",
+        narrative_principle="The structural-forces conflict field defines the pressure shaping the investigation.",
         warnings_or_tensions=("Misdirection without fair signals feels arbitrary.", "Too many false leads can dilute the central question."),
-        downstream_consequences=("The selected resistance determines what obstructs the next inference.",),
-        evidence_references=_evidence(4, ("Resistance: Misleading clues", "Resistance: False suspects", "Resistance: Hidden motives"), "Resistance: Misleading clues"),
+        downstream_consequences=("The selected conflict determines whether misdirection or chaos opposes deduction.",),
+        evidence_references=_evidence(4, ("Conflict: Deduction vs. misdirection", "Conflict: Logic vs. chaos"), "Conflict: Deduction vs. misdirection"),
     ),
     QualificationCard(
         card_id="story_identity.information-contract",
@@ -154,15 +155,15 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
     QualificationCard(
         card_id="story_identity.truth-opposition",
         stage=QualificationStage.STORY_IDENTITY,
-        title="Opposition protecting the truth",
-        question="Which conflict should protect the hidden truth?",
-        source_subject="Howdunit structural_forces conflict options",
-        options=("Conflict: Deduction vs. misdirection", "Conflict: Logic vs. chaos"),
-        recommendation="Conflict: Deduction vs. misdirection",
-        narrative_principle="The structural-forces conflict field defines the opposition protecting the truth.",
+        title="The truth's opposition",
+        question="Which resistance should protect the hidden truth?",
+        source_subject="Howdunit structural_forces resistance options",
+        options=("Resistance: Misleading clues", "Resistance: False suspects", "Resistance: Hidden motives"),
+        recommendation="Resistance: Misleading clues",
+        narrative_principle="The structural-forces resistance field defines what protects the truth.",
         warnings_or_tensions=("Clarity is not the same as comfort.", "A static investigator can make a clever solution feel emotionally empty."),
-        downstream_consequences=("The selected conflict determines whether deduction is opposed by misdirection or chaos.",),
-        evidence_references=_evidence(4, ("Conflict: Deduction vs. misdirection", "Conflict: Logic vs. chaos"), "Conflict: Deduction vs. misdirection"),
+        downstream_consequences=("The selected resistance determines what obstructs the next inference.",),
+        evidence_references=_evidence(4, ("Resistance: Misleading clues", "Resistance: False suspects", "Resistance: Hidden motives"), "Resistance: Misleading clues"),
     ),
     QualificationCard(
         card_id="structure.investigation-disruption",
@@ -178,7 +179,7 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
         evidence_references=_evidence(6, ("Clues accelerate toward solution", "Steady rhythm of discovery", "Forward progress with setbacks"), "Steady rhythm of discovery"),
     ),
     QualificationCard(
-        card_id="structure.clue-reversal",
+        card_id="structure.clue-distribution",
         stage=QualificationStage.STRUCTURE,
         title="Clue and reversal distribution",
         question="How should major clues and reversals be distributed?",
@@ -204,6 +205,27 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
         evidence_references=_evidence(8, ("Solution barely derivable from clues", "Solution is one of several reasonable readings", "Solution obvious once clues are gathered"), "Solution is one of several reasonable readings", "howdunit.structure.solution_derivable"),
     ),
 )
+
+
+_EXPECTED_EVIDENCE: dict[str, tuple[EvidenceReference, ...]] = {
+    "discover.story-experience": _evidence(2, ("Detective procedural", "Police/investigation procedural", "Locked-room puzzle", "Intricate puzzle structure"), "Detective procedural"),
+    "discover.personal-stakes": _evidence(4, ("Stakes: Justice served", "Stakes: Order restored"), "Stakes: Justice served"),
+    "discover.investigation-approach": _evidence(5, ("Logical deduction", "Intuitive investigation", "By-the-book procedure"), "Logical deduction"),
+    "story_identity.protagonist-want": _evidence(4, ("Want: Solve the puzzle", "Want: Identify the culprit", "Want: Restore order"), "Want: Solve the puzzle"),
+    "story_identity.relationship-pressure": _evidence(4, ("Conflict: Deduction vs. misdirection", "Conflict: Logic vs. chaos"), "Conflict: Deduction vs. misdirection"),
+    "story_identity.information-contract": _evidence(9, ("High confidence reader could solve it", "Medium confidence (possible on rereads)", "Challenging but fair puzzle"), "Challenging but fair puzzle"),
+    "story_identity.truth-opposition": _evidence(4, ("Resistance: Misleading clues", "Resistance: False suspects", "Resistance: Hidden motives"), "Resistance: Misleading clues"),
+    "structure.investigation-disruption": _evidence(6, ("Clues accelerate toward solution", "Steady rhythm of discovery", "Forward progress with setbacks"), "Steady rhythm of discovery"),
+    "structure.clue-distribution": _evidence(7, ("Heavy clues early, light late", "Even clue distribution", "Light clues early, heavy late"), "Even clue distribution", "howdunit.structure.solution_derivable"),
+    "structure.final-revelation": _evidence(8, ("Solution barely derivable from clues", "Solution is one of several reasonable readings", "Solution obvious once clues are gathered"), "Solution is one of several reasonable readings", "howdunit.structure.solution_derivable"),
+}
+
+
+def validate_mystery_card_evidence(card: QualificationCard) -> None:
+    """Reject evidence that does not match the card's approved domain mapping."""
+    expected = _EXPECTED_EVIDENCE.get(card.card_id)
+    if expected is None or card.evidence_references != expected:
+        raise ValueError(f"evidence mapping does not match card {card.card_id}")
 
 
 def mystery_qualification_inventory() -> QualificationInventory:

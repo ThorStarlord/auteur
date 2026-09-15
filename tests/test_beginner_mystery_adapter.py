@@ -22,6 +22,7 @@ from auteur.beginner.mystery_adapter import (
     QualificationInventory,
     QualificationStage,
     mystery_qualification_inventory,
+    validate_mystery_card_evidence,
 )
 from auteur.beginner.guidance import (
     BeginnerGuidance,
@@ -50,7 +51,7 @@ def test_mystery_inventory_is_small_sealed_and_stable() -> None:
         "story_identity.information-contract",
         "story_identity.truth-opposition",
         "structure.investigation-disruption",
-        "structure.clue-reversal",
+        "structure.clue-distribution",
         "structure.final-revelation",
     ]
     assert isinstance(inventory.cards, tuple)
@@ -74,7 +75,7 @@ def test_inventory_cards_reference_existing_mystery_subjects() -> None:
         "story_identity.information-contract": {"fairness_confidence"},
         "story_identity.truth-opposition": {"structural_forces"},
         "structure.investigation-disruption": {"pacing_rhythm"},
-        "structure.clue-reversal": {"clue_distribution"},
+        "structure.clue-distribution": {"clue_distribution"},
         "structure.final-revelation": {"solution_density"},
     }
     for card in inventory.cards:
@@ -249,6 +250,41 @@ def test_evidence_rejects_impossible_phase() -> None:
             field="invented",
             option_labels=("invented",),
         )
+
+
+def test_card_evidence_rejects_unrelated_phase_mapping() -> None:
+    card = mystery_qualification_inventory().card("story_identity.relationship-pressure")
+    altered = card.model_copy(
+        update={
+            "evidence_references": tuple(
+                reference.model_copy(update={"field": "solution_density"})
+                if reference.claim == "decision" else reference
+                for reference in card.evidence_references
+            )
+        }
+    )
+
+    with pytest.raises(ValueError, match="evidence mapping"):
+        validate_mystery_card_evidence(altered)
+
+
+def test_latest_accepted_revision_controls_recommendation() -> None:
+    session = SessionEnvelope.new("project-1", "mystery", "A premise.")
+    latest = AcceptedMilestoneReference(
+        milestone_id="stakes",
+        revision=RevisionRef(artifact_id="stakes-artifact", revision=2),
+        selected_option="Stakes: Order restored",
+    )
+    older = AcceptedMilestoneReference(
+        milestone_id="stakes",
+        revision=RevisionRef(artifact_id="stakes-artifact", revision=1),
+        selected_option="Stakes: Justice served",
+    )
+    state = session.model_copy(update={"accepted_milestones": [latest, older]})
+
+    guidance = guidance_for("discover.personal-stakes", state)
+
+    assert guidance.recommendation == "Stakes: Order restored"
 
     with pytest.raises(ValidationError):
         EvidenceReference(
