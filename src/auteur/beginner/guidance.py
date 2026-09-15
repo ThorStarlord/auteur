@@ -276,20 +276,18 @@ def _select_recommendation(card: QualificationCard, session: SessionEnvelope) ->
         if decision is not None and decision.selected_option in card.options:
             return decision.selected_option, f"It reinforces the current {stage.value} selected choice."
     latest_by_milestone: dict[str, AcceptedMilestoneReference] = {}
+    accepted_order: list[str] = []
     for milestone in session.accepted_milestones:
         current = latest_by_milestone.get(milestone.milestone_id)
         if current is None or (
-            milestone.revision.revision,
-            milestone.revision.artifact_id,
-        ) > (
-            current.revision.revision,
-            current.revision.artifact_id,
+            milestone.revision.revision >= current.revision.revision
         ):
             latest_by_milestone[milestone.milestone_id] = milestone
-    for milestone in sorted(
-        latest_by_milestone.values(),
-        key=lambda item: item.milestone_id,
-    ):
+            if milestone.milestone_id in accepted_order:
+                accepted_order.remove(milestone.milestone_id)
+            accepted_order.append(milestone.milestone_id)
+    for milestone_id in reversed(accepted_order):
+        milestone = latest_by_milestone[milestone_id]
         if milestone.selected_option in card.options:
             return milestone.selected_option, f"It reinforces accepted milestone {milestone.milestone_id}."
     return card.recommendation, "It is the curated default for the cited Howdunit domain option."

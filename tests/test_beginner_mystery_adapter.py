@@ -319,6 +319,63 @@ def test_latest_accepted_revision_controls_recommendation() -> None:
 
     assert guidance.recommendation == "Stakes: Order restored"
 
+
+def test_latest_accepted_commitment_uses_persisted_order_not_alphabetic_sort() -> None:
+    session = SessionEnvelope.new("project-1", "mystery", "A premise.")
+    state = session.model_copy(
+        update={
+            "accepted_milestones": [
+                AcceptedMilestoneReference(
+                    milestone_id="alpha",
+                    revision=RevisionRef(artifact_id="artifact-z", revision=2),
+                    selected_option="Stakes: Justice served",
+                ),
+                AcceptedMilestoneReference(
+                    milestone_id="zeta",
+                    revision=RevisionRef(artifact_id="artifact-a", revision=2),
+                    selected_option="Stakes: Order restored",
+                ),
+            ]
+        }
+    )
+
+    assert guidance_for("discover.personal-stakes", state).recommendation == "Stakes: Order restored"
+
+
+def test_equal_revision_accepted_commitment_uses_latest_list_occurrence() -> None:
+    session = SessionEnvelope.new("project-1", "mystery", "A premise.")
+    state = session.model_copy(
+        update={
+            "accepted_milestones": [
+                AcceptedMilestoneReference(
+                    milestone_id="same",
+                    revision=RevisionRef(artifact_id="artifact-z", revision=2),
+                    selected_option="Stakes: Justice served",
+                ),
+                AcceptedMilestoneReference(
+                    milestone_id="same",
+                    revision=RevisionRef(artifact_id="artifact-a", revision=2),
+                    selected_option="Stakes: Order restored",
+                ),
+            ]
+        }
+    )
+
+    assert guidance_for("discover.personal-stakes", state).recommendation == "Stakes: Order restored"
+
+
+def test_tradeoffs_match_each_card_source_field() -> None:
+    inventory = mystery_qualification_inventory()
+    expected_terms = {
+        "discover.investigation-approach": ("deduction", "intuitive", "procedure"),
+        "story_identity.information-contract": ("confidence", "solv", "reread"),
+        "structure.investigation-disruption": ("tempo", "rhythm", "pace"),
+        "structure.clue-distribution": ("timing", "inference", "distribution"),
+    }
+    for card_id, terms in expected_terms.items():
+        text = " ".join(inventory.card(card_id).warnings_or_tensions).casefold()
+        assert all(term in text for term in terms)
+
     with pytest.raises(ValidationError):
         EvidenceReference(
             claim="option",
