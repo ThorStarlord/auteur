@@ -706,6 +706,27 @@ def test_receipts_reject_coercible_bytes_values() -> None:
         )
 
 
+@pytest.mark.parametrize("field_name", ["command_type", "target_milestone"])
+def test_receipts_reject_coercible_identity_intent_strings(field_name: str) -> None:
+    receipt_values: dict[str, Any] = {
+        "command_id": "command-1",
+        "status": "complete",
+        "owner_token": "owner-1",
+        field_name: b"not-a-string",
+    }
+    acquisition_values: dict[str, Any] = {
+        "command_id": "command-1",
+        "status": "complete",
+        "outcome": "completed_replay",
+        field_name: b"not-a-string",
+    }
+
+    with pytest.raises(ValidationError):
+        CommandReceipt.model_validate(receipt_values)
+    with pytest.raises(ValidationError):
+        ReceiptAcquisition.model_validate(acquisition_values)
+
+
 @pytest.mark.parametrize(
     "payload",
     [

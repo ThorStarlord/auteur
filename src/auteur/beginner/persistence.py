@@ -93,6 +93,12 @@ class CommandReceipt(BaseModel):
     def validate_raw_json_fields(cls, data: object) -> object:
         if isinstance(data, dict):
             for field_name, label in (
+                ("command_type", "receipt command_type"),
+                ("target_milestone", "receipt target_milestone"),
+            ):
+                if field_name in data and data[field_name] is not None and type(data[field_name]) is not str:
+                    raise ValueError(f"{label} must be a string")
+            for field_name, label in (
                 ("result", "receipt result"),
                 ("promotion_intent", "promotion intent"),
                 ("domain_result_reference", "domain result reference"),
@@ -148,6 +154,12 @@ class ReceiptAcquisition(BaseModel):
     @classmethod
     def validate_raw_json_fields(cls, data: object) -> object:
         if isinstance(data, dict):
+            for field_name, label in (
+                ("command_type", "acquisition command_type"),
+                ("target_milestone", "acquisition target_milestone"),
+            ):
+                if field_name in data and data[field_name] is not None and type(data[field_name]) is not str:
+                    raise ValueError(f"{label} must be a string")
             for field_name, label in (
                 ("result", "acquisition result"),
                 ("promotion_intent", "promotion intent"),
