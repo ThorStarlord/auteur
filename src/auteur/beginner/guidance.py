@@ -28,6 +28,7 @@ class QualificationCard(BaseModel):
     recommendation: str = Field(min_length=1)
     narrative_principle: str = Field(min_length=1)
     warnings_or_tensions: tuple[str, ...] = Field(min_length=1)
+    downstream_consequences: tuple[str, ...] = Field(default_factory=tuple)
     evidence_references: tuple[str, ...] = Field(min_length=1)
 
     @model_validator(mode="before")
@@ -36,7 +37,7 @@ class QualificationCard(BaseModel):
         if isinstance(data, dict):
             if "stage" in data and type(data["stage"]) is not QualificationStage:
                 raise ValueError("stage must be a QualificationStage")
-            for name in ("options", "warnings_or_tensions", "evidence_references"):
+            for name in ("options", "warnings_or_tensions", "downstream_consequences", "evidence_references"):
                 if name in data and type(data[name]) is not tuple:
                     raise ValueError(f"{name} must be a tuple")
         return data
@@ -146,18 +147,29 @@ class BeginnerGuidance(BaseModel):
 def _json_context(session: SessionEnvelope) -> str:
     stages: list[object] = []
     for stage in DecisionStage:
-        decision = session.stages[stage].working_decision
-        if decision is not None:
-            stages.append({
-                "stage": stage.value,
+        status = session.stages[stage]
+        decision = status.working_decision
+        stages.append({
+            "stage": stage.value,
+            "lifecycle": status.lifecycle.value,
+            "availability": status.availability.value,
+            "working_decision": None if decision is None else {
+                "stage": decision.stage.value,
                 "question": decision.question,
                 "options": list(decision.options),
-            })
-    accepted: list[object] = []
-    for milestone in session.accepted_milestones:
-        accepted.append(milestone.model_dump(mode="json"))
+            },
+        })
+    accepted = [milestone.model_dump(mode="json") for milestone in session.accepted_milestones]
     return json.dumps(
-        {"working_decisions": stages, "accepted_milestones": accepted},
+        {
+            "schema_version": session.schema_version,
+            "session_version": session.session_version,
+            "project_id": session.project_id,
+            "guidance_genre": session.guidance_genre,
+            "premise": session.premise,
+            "stages": stages,
+            "accepted_milestones": accepted,
+        },
         sort_keys=True,
         separators=(",", ":"),
     )
@@ -176,31 +188,14 @@ def _context_summary(session: SessionEnvelope) -> str:
     return f"{progress} Full session state: {_json_context(session)}"
 
 
-def _consequences(stage: QualificationStage) -> tuple[str, ...]:
-    if stage is QualificationStage.DISCOVER:
-        return (
-            "The genre contract selects the investigation mode the reader will recognize.",
-            "The scope selection sets whether the inquiry is contained, wider-cast, or city-scale.",
-        )
-    if stage is QualificationStage.STORY_IDENTITY:
-        return (
-            "The structural-forces fields connect want, resistance, stakes, and change.",
-            "The selected want and change define the investigator's character movement.",
-        )
-    return (
-        "Clue distribution determines when the reader receives information for reasoning.",
-        "Solution density determines how directly the answer follows from the clues.",
-    )
-
-
 def guidance_for(card_id: str, session: SessionEnvelope) -> BeginnerGuidance:
     """Compose one deterministic guidance card from a current session snapshot."""
     card = _adapter_for(session.guidance_genre).inventory().card(card_id)
     context_summary = _context_summary(session)
     rationale = (
-        f"For the current premise, {session.premise!r}, start with "
-        f"{card.recommendation.lower()}. {context_summary} "
-        "This keeps the decision connected to the existing story state."
+        f"This curated craft recommendation starts with {card.recommendation.lower()} "
+        f"for the current premise, {session.premise!r}. {context_summary} "
+        "Apply it as a teaching projection, not as a canonical selection."
     )
     return BeginnerGuidance(
         card_id=card.card_id,
@@ -216,7 +211,7 @@ def guidance_for(card_id: str, session: SessionEnvelope) -> BeginnerGuidance:
         context_summary=context_summary,
         alternatives=tuple(option for option in card.options if option != card.recommendation),
         tradeoffs=card.warnings_or_tensions,
-        downstream_consequences=_consequences(card.stage),
+        downstream_consequences=card.downstream_consequences,
         warnings_or_tensions=card.warnings_or_tensions,
         evidence_references=card.evidence_references,
     )

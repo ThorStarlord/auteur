@@ -259,6 +259,51 @@ def test_guidance_is_independent_of_stage_mapping_insertion_order() -> None:
     )
 
 
+def test_context_contains_complete_canonical_session_projection() -> None:
+    session = SessionEnvelope.new("project-1", "mystery", "A missing heir returns home.")
+    guidance = guidance_for("discover.mystery-question", session)
+    changed = session.model_copy(
+        update={
+            "session_version": 4,
+            "project_id": "project-2",
+            "stages": {
+                **session.stages,
+                DecisionStage.STORY_IDENTITY: session.stages[DecisionStage.STORY_IDENTITY].model_copy(
+                    update={
+                        "lifecycle": LifecycleStatus.COMPLETE,
+                        "availability": StageAvailability.AVAILABLE,
+                    }
+                ),
+            },
+        }
+    )
+    changed_guidance = guidance_for("discover.mystery-question", changed)
+
+    assert '"schema_version":1' in guidance.context_summary
+    assert '"session_version":0' in guidance.context_summary
+    assert '"project_id":"project-1"' in guidance.context_summary
+    for stage in DecisionStage:
+        assert f'"stage":"{stage.value}"' in guidance.context_summary
+    assert guidance != changed_guidance
+    assert '"session_version":4' in changed_guidance.context_summary
+    assert '"project_id":"project-2"' in changed_guidance.context_summary
+    assert '"lifecycle":"complete"' in changed_guidance.context_summary
+    assert '"availability":"available"' in changed_guidance.context_summary
+
+
+def test_card_questions_options_and_consequences_are_card_specific() -> None:
+    inventory = mystery_qualification_inventory()
+    question_card = inventory.card("discover.mystery-question")
+    want_card = inventory.card("story-identity.protagonist-want")
+
+    assert question_card.question == "Which investigation mode should the story use?"
+    assert "Solve the puzzle" not in want_card.options
+    assert want_card.question == "Which want drives the protagonist beyond merely solving the case?"
+    assert question_card.downstream_consequences != want_card.downstream_consequences
+    session = SessionEnvelope.new("project-1", "mystery", "A premise.")
+    assert guidance_for(question_card.card_id, session).downstream_consequences == question_card.downstream_consequences
+
+
 def test_guidance_projects_working_decision_and_accepted_milestone_state() -> None:
     session = SessionEnvelope.new("project-1", "mystery", "A missing heir returns home.")
     working = StageStatus(
