@@ -13,8 +13,8 @@ Before making architectural or release claims, consult:
 - `docs/narrative-architecture.md` — canonical semantic architecture (5 layers, 5 scopes)
 - `CONTEXT.md` — current repository domain and runtime context
 - `docs/adr/` — accepted architectural decisions
-- `docs/engineering/release-qualification.md` — qualification and release evidence policy
-- `AGENTS.md` — repository-wide agent behavior
+- `docs/engineering/release-qualification.md` — validation, qualification, and release evidence policy
+- `AGENTS.md` — repository-wide agent behavior and delegation envelope
 
 Do not treat historical implementation plans, release reviews, or this
 summary as more authoritative than those documents.
@@ -79,10 +79,18 @@ When building opinionated pipelines (genre templates, validation engines, identi
 
 - Blame processes, not people.
 - Do not repair during an observation-only review.
-- Separate observation, scope approval, implementation, qualification, and
-  publication.
+- Separate observation, scope approval, implementation, stabilization,
+  qualification, and publication.
+- After a work package/design is approved, proceed autonomously on low-level
+  implementation choices inside the delegation envelope defined by `AGENTS.md`.
+- Escalate material product/architecture/authority/security/scope decisions,
+  not routine engineering choices.
 - Do not declare completion from focused tests alone.
-- Treat every source or packaging change as a new candidate.
+- Do not run broader validation simply because it exists; use the validation
+  budget below.
+- Treat every source or packaging change as a new release candidate only after
+  a release candidate is explicitly frozen; ordinary development commits are
+  not implicitly release candidates.
 - Prefer machine-generated evidence manifests over manually reconstructed
   summaries.
 - Never hide inherited check failures; classify them against the baseline.
@@ -115,24 +123,32 @@ See `AGENTS.md` and `docs/agents/workspace-isolation.md`.
 
 ### Continuous Execution Mode
 
+Once the human has approved the work package/design and constraints, execute
+through the package without repeated approval for low-level implementation
+choices. `AGENTS.md` defines the owner-reserved stop conditions.
+
 When implementing multi-task work with subagent-driven-development:
 
 1. **Dispatch Task 1** implementer → review → mark complete
-2. **Immediately dispatch Task 2** (don't wait for summary or recap)
-3. **Proceed through all tasks** without human-in-loop pauses
+2. **Immediately dispatch Task 2** when Task 1 is sound
+3. **Proceed through all authorized tasks** without human-in-loop pauses for
+   routine engineering choices
+4. **Stop** only when an owner-reserved decision, material scope expansion,
+   protected invariant, destructive/external action, or design-level blocker is reached
 
 This approach:
-- Avoids context waste on recapping
+- Avoids context waste on unnecessary recapping and permission requests
 - Maintains flow state and momentum
 - Scales to 3+ tasks efficiently
-- Use only when tasks are genuinely independent
+- Preserves review between tasks without turning review into approval-per-detail
+- Use only when tasks are genuinely independent where parallelism is intended
 
 ### Design Documents Are Force Multipliers
 
 Clear design specs and implementation plans allow subagents to execute in isolation without round-trip questions:
 
-- **Design Spec** (500+ words): Architecture, emotional cores, validation constraints, rationale
-- **Implementation Plan** (1500+ words): Exact code to write, test structure, integration points
+- **Design Spec**: architecture, behavior, constraints, rationale, and owner-reserved decisions
+- **Implementation Plan**: exact code/test structure, integration points, and verification budget
 
 These documents let implementers work independently and enable high-velocity parallel task execution.
 
@@ -141,6 +157,46 @@ These documents let implementers work independently and enable high-velocity par
 - Review between tasks (not after all tasks)
 - If Task 1 review finds issues, fix before Task 2 starts
 - Rework on early tasks is cheaper than discovering the pattern is wrong in Task 3
+- Review does not imply a human approval pause unless the issue crosses the delegation envelope
+
+## Validation Budget
+
+The authoritative policy is `docs/engineering/release-qualification.md`.
+
+### L1 — Focused validation
+
+Default for normal implementation iterations and ordinary development CI.
+Run the smallest tests that can falsify the changed behavior: new/changed unit
+or regression tests, nearby deterministic contracts, and cheap validators.
+L1 can run frequently.
+
+### L2 — Targeted integration validation
+
+Run only when a named changed boundary or multi-component acceptance risk
+justifies it. State the reason in one sentence and select the smallest useful
+integration slice. If no concrete boundary can be named, defer L2.
+
+### L3 — Full regression validation
+
+Run only for an explicit milestone/stabilization checkpoint, repository-wide
+recovery, genuinely cross-cutting change, release-candidate freeze, or explicit
+maintainer request. Do not use the full suite as the inner debugging loop.
+
+### Release qualification
+
+Release qualification is not L3. It is a separate exact-SHA lifecycle event
+for a frozen candidate and may include the supported platform/Python matrix,
+installed-wheel checks, durable evidence, and publication invariants.
+Ordinary `main` development merges do not automatically trigger it.
+
+The cost rule is deliberate:
+
+```text
+Normal implementation iteration: L1 only.
+L2: requires a named boundary/risk.
+L3: requires a named checkpoint trigger.
+Release qualification: requires an explicitly selected frozen candidate.
+```
 
 ## Debugging & Verification
 
@@ -190,7 +246,8 @@ The lesson: **blame the process (PATH management, package installation), not the
 - Implement minimal code to pass
 - Self-review for completeness
 - Task review validates spec compliance and code quality
-- Target: 40-50 tests per 3-task genre pipeline
+- Prefer a small number of high-signal tests over test-count targets when the
+  behavior can be proven more cheaply
 
 ### Template API Consistency
 
