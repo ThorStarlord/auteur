@@ -19,7 +19,12 @@ from auteur.beginner.mystery_adapter import (
     QualificationStage,
     mystery_qualification_inventory,
 )
-from auteur.beginner.guidance import BeginnerGuidance, guidance_for
+from auteur.beginner.guidance import (
+    BeginnerGuidance,
+    guidance_for,
+    register_guidance_adapter,
+    unregister_guidance_adapter,
+)
 from auteur.mystery.core_templates import HowdunitTemplate
 from auteur.mystery.validation import RuleSet
 
@@ -56,21 +61,134 @@ def test_inventory_cards_reference_existing_mystery_subjects() -> None:
     assert any("clue" in card.source_subject.casefold() for card in inventory.cards)
     assert any("solution" in card.source_subject.casefold() for card in inventory.cards)
     assert all(card.options for card in inventory.cards)
-    for reference in (ref for card in inventory.cards for ref in card.evidence_references):
-        if reference.startswith("auteur.mystery.core_templates:HowdunitTemplate.phases["):
-            phase = int(
-                reference.removeprefix("auteur.mystery.core_templates:HowdunitTemplate.phases[").rstrip("]")
-            )
-            assert phase in template.phases
-        elif reference.startswith("auteur.mystery.core_templates:HowdunitTemplate.options["):
-            phase = int(
-                reference.removeprefix("auteur.mystery.core_templates:HowdunitTemplate.options[").rstrip("]")
-            )
-            assert phase in template.options
-        elif reference.startswith("auteur.mystery.validation:RuleSet:"):
-            assert reference.removeprefix("auteur.mystery.validation:RuleSet:") in rule_ids
-        else:
-            pytest.fail(f"invented evidence reference: {reference}")
+    expected_phase_names = {
+        "discover.mystery-question": {"genre_contract", "structural_forces"},
+        "discover.investigation-motivation": {"structural_forces"},
+        "discover.inquiry-scope": {"scope"},
+        "story-identity.protagonist-want": {"structural_forces"},
+        "story-identity.resistance": {"structural_forces"},
+        "story-identity.stakes": {"structural_forces"},
+        "story-identity.change": {"structural_forces"},
+        "structure.clue-distribution": {"clue_distribution"},
+        "structure.solution-density": {"solution_density"},
+        "structure.reveal-consequences": {"structural_forces"},
+    }
+    for card in inventory.cards:
+        phase_names: set[str] = set()
+        for reference in card.evidence_references:
+            if reference.startswith("auteur.mystery.core_templates:HowdunitTemplate.phases["):
+                phase = int(
+                    reference.removeprefix("auteur.mystery.core_templates:HowdunitTemplate.phases[").rstrip("]")
+                )
+                assert phase in template.phases
+                phase_names.add(template.phases[phase])
+            elif reference.startswith("auteur.mystery.core_templates:HowdunitTemplate.options["):
+                phase = int(
+                    reference.removeprefix("auteur.mystery.core_templates:HowdunitTemplate.options[").rstrip("]")
+                )
+                assert phase in template.options
+                phase_names.add(template.phases[phase])
+            elif reference.startswith("auteur.mystery.validation:RuleSet:"):
+                assert reference.removeprefix("auteur.mystery.validation:RuleSet:") in rule_ids
+            else:
+                pytest.fail(f"invented evidence reference: {reference}")
+        assert phase_names == expected_phase_names[card.card_id]
+
+
+def test_guidance_includes_all_working_decisions_and_accepted_snapshot_details() -> None:
+    session = SessionEnvelope.new("project-1", "mystery", "A missing heir returns home.")
+    discover = StageStatus(
+        stage=DecisionStage.DISCOVER,
+        lifecycle=LifecycleStatus.WORKING,
+        availability=StageAvailability.AVAILABLE,
+        working_decision=WorkingDecision(
+            stage=DecisionStage.DISCOVER,
+            question="Which truth is being hidden?",
+            options=["the inheritance", "the disappearance"],
+        ),
+    )
+    identity = StageStatus(
+        stage=DecisionStage.STORY_IDENTITY,
+        lifecycle=LifecycleStatus.WORKING,
+        availability=StageAvailability.AVAILABLE,
+        working_decision=WorkingDecision(
+            stage=DecisionStage.STORY_IDENTITY,
+            question="What does the investigator risk?",
+            options=["reputation", "belonging"],
+        ),
+    )
+    full_state = session.model_copy(
+        update={
+            "stages": {
+                **session.stages,
+                DecisionStage.DISCOVER: discover,
+                DecisionStage.STORY_IDENTITY: identity,
+            },
+            "accepted_milestones": [
+                AcceptedMilestoneReference(
+                    milestone_id="identity-accepted",
+                    revision=RevisionRef(artifact_id="identity-42", revision=7),
+                ).model_copy(
+                    update={
+                        "accepted_content": "accepted narrative identity",
+                        "fingerprint": "fingerprint-v7",
+                    }
+                )
+            ],
+        }
+    )
+    assert discover.working_decision is not None
+    changed_upstream = full_state.model_copy(
+        update={
+            "stages": {
+                **full_state.stages,
+                DecisionStage.DISCOVER: discover.model_copy(
+                    update={
+                        "working_decision": discover.working_decision.model_copy(
+                            update={"question": "Which promise must be kept?"}
+                        )
+                    }
+                ),
+            }
+        }
+    )
+    changed_accepted = full_state.model_copy(
+        update={
+            "accepted_milestones": [
+                full_state.accepted_milestones[0].model_copy(
+                    update={"revision": RevisionRef(artifact_id="identity-43", revision=8)}
+                )
+            ]
+        }
+    )
+
+    projected = guidance_for("structure.clue-distribution", full_state)
+
+    assert "Which truth is being hidden?" in projected.context_summary
+    assert "What does the investigator risk?" in projected.context_summary
+    assert "identity-42" in projected.context_summary
+    assert '"revision":7' in projected.context_summary
+    assert "accepted narrative identity" in projected.context_summary
+    assert "fingerprint-v7" in projected.context_summary
+    assert guidance_for("structure.clue-distribution", changed_upstream) != projected
+    assert guidance_for("structure.clue-distribution", changed_accepted) != projected
+
+
+def test_guidance_routing_uses_an_extensible_adapter_registry() -> None:
+    class StubAdapter:
+        genre = "stub"
+
+        @staticmethod
+        def inventory() -> QualificationInventory:
+            return mystery_qualification_inventory()
+
+    register_guidance_adapter(StubAdapter())
+    try:
+        session = SessionEnvelope.new("project-1", "stub", "A test premise.")
+        guidance = guidance_for("discover.mystery-question", session)
+        assert guidance.card_id == "discover.mystery-question"
+    finally:
+        unregister_guidance_adapter("stub")
 
 
 def test_guidance_contains_teaching_decision_and_evidence_contract() -> None:

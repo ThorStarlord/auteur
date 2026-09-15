@@ -2,90 +2,20 @@
 
 from __future__ import annotations
 
-from enum import Enum
-from typing import ClassVar
-
-from pydantic import BaseModel, ConfigDict, Field, model_validator
-
-
-class QualificationStage(str, Enum):
-    DISCOVER = "discover"
-    STORY_IDENTITY = "story_identity"
-    STRUCTURE = "structure"
+from auteur.beginner.guidance import (
+    QualificationCard,
+    QualificationInventory,
+    QualificationStage,
+    register_guidance_adapter,
+)
 
 
-class QualificationCard(BaseModel):
-    """One beginner-facing decision projected from existing Mystery concepts."""
+class MysteryGuidanceAdapter:
+    genre = "mystery"
 
-    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
-
-    card_id: str = Field(min_length=1)
-    stage: QualificationStage
-    title: str = Field(min_length=1)
-    question: str = Field(min_length=1)
-    source_subject: str = Field(min_length=1)
-    options: tuple[str, ...] = Field(min_length=2)
-    recommendation: str = Field(min_length=1)
-    narrative_principle: str = Field(min_length=1)
-    warnings_or_tensions: tuple[str, ...] = Field(min_length=1)
-    evidence_references: tuple[str, ...] = Field(min_length=1)
-
-    @model_validator(mode="before")
-    @classmethod
-    def reject_coercible_fields(cls, data: object) -> object:
-        if isinstance(data, dict):
-            if "stage" in data and type(data["stage"]) is not QualificationStage:
-                raise ValueError("stage must be a QualificationStage")
-            for field_name in ("options", "warnings_or_tensions", "evidence_references"):
-                if field_name in data and type(data[field_name]) is not tuple:
-                    raise ValueError(f"{field_name} must be a tuple")
-        return data
-
-    @model_validator(mode="after")
-    def recommendation_is_an_option(self) -> QualificationCard:
-        if self.recommendation not in self.options:
-            raise ValueError("recommendation must be one of the card options")
-        return self
-
-
-class QualificationInventory(BaseModel):
-    """Immutable, sealed inventory for the Beginner Mystery slice."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
-
-    cards: tuple[QualificationCard, ...]
-    _expected_counts: ClassVar[dict[QualificationStage, int]] = {
-        QualificationStage.DISCOVER: 3,
-        QualificationStage.STORY_IDENTITY: 4,
-        QualificationStage.STRUCTURE: 3,
-    }
-
-    @model_validator(mode="before")
-    @classmethod
-    def reject_coercible_cards(cls, data: object) -> object:
-        if isinstance(data, dict) and "cards" in data and type(data["cards"]) is not tuple:
-            raise ValueError("cards must be a tuple")
-        return data
-
-    @model_validator(mode="after")
-    def validate_inventory(self) -> QualificationInventory:
-        ids = [card.card_id for card in self.cards]
-        if len(ids) != len(set(ids)):
-            raise ValueError("qualification card IDs must be unique")
-        counts = {stage: sum(card.stage is stage for card in self.cards) for stage in self._expected_counts}
-        if counts != self._expected_counts:
-            raise ValueError("qualification inventory has the wrong stage counts")
-        return self
-
-    @property
-    def stage_counts(self) -> dict[QualificationStage, int]:
-        return {stage: sum(card.stage is stage for card in self.cards) for stage in self._expected_counts}
-
-    def card(self, card_id: str) -> QualificationCard:
-        for card in self.cards:
-            if card.card_id == card_id:
-                return card
-        raise KeyError(card_id)
+    @staticmethod
+    def inventory() -> QualificationInventory:
+        return QualificationInventory(cards=_MYSTERY_CARDS)
 
 
 _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
@@ -214,4 +144,8 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
 
 def mystery_qualification_inventory() -> QualificationInventory:
     """Return the stable Mystery beginner inventory."""
-    return QualificationInventory(cards=_MYSTERY_CARDS)
+    return MYSTERY_GUIDANCE_ADAPTER.inventory()
+
+
+MYSTERY_GUIDANCE_ADAPTER = MysteryGuidanceAdapter()
+register_guidance_adapter(MYSTERY_GUIDANCE_ADAPTER)
