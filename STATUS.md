@@ -1,13 +1,26 @@
 # Auteur — Repository Status
 
-**Last reconciled:** 2026-09-11  
-**Reconciled implementation baseline:** `main @ 99e6c1d05760cce5cb721f7b585e4f85e481bdcc`  
+**Last reconciled:** 2026-09-15  
+**Current main integration baseline:** `main @ 8b53efdd99e0a67d375df0e828b32edc77643221`  
+**Post-#228 known-good stabilization baseline:** not yet re-established  
 **Package metadata:** `0.37.1`  
 **Role of this file:** living operational status and handoff; not a release record or idea backlog.
 
-The reconciled baseline includes the completed decision-loop product stack plus its beginner guide. Subsequent documentation-only reconciliation commits do not change the capability evidence summarized here.
+The current `main` includes the tiered validation and bounded-agent-autonomy policy merged through PR #229. The post-#228 product baseline still requires recovery and one explicit L3 stabilization checkpoint before it should be described as a new known-good regression baseline.
 
 For product intent, read [MISSION.md](MISSION.md) and [docs/PRD.md](docs/PRD.md). For the canonical domain model, read [docs/narrative-architecture.md](docs/narrative-architecture.md). For forward-looking candidates, read [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md). Release evidence lives under [docs/releases/](docs/releases/README.md).
+
+## Development Validation Posture
+
+- **L1 Focused Validation** is the normal development and PR gate.
+- **L2 Targeted Integration** requires a named changed boundary or concrete risk.
+- **L3 Full Regression** is reserved for explicit stabilization, recovery, milestone, or release-candidate checkpoints.
+- **Release Qualification** is separate from L3 and requires an explicitly frozen candidate SHA.
+- Normal integration into `main` does not imply release qualification; `main` represents the latest stable development state.
+
+Canonical policy: [docs/engineering/release-qualification.md](docs/engineering/release-qualification.md).
+
+The next stabilization package is intentionally narrow: reconcile the completed UI-polish work, repair any remaining #228 regressions with L1, run the justified CLI boundary L2 slice, merge the recovery, then run one L3 checkpoint and record that SHA as the new known-good development baseline. After that checkpoint, return to Auteur product development rather than continuing qualification work as the primary activity.
 
 ## Current Selected Work
 
@@ -137,7 +150,7 @@ See [docs/campaign/auteur-long-horizon-campaign-state.md](docs/campaign/auteur-l
 
 ## Repository / CI Notes
 
-- Full-suite Windows Python 3.13 validation is now part of the current CI workflow; historical PR #166 is closed/superseded.
+- Ordinary PR/main validation now uses the L1 focused gate from PR #229; full regression is an explicit stabilization action, and release qualification is an explicit frozen-candidate action.
 - Historical Episode 1 PR #167 is closed/superseded by contemporary reconstruction issue #218.
 - Draft PR #131 is still open from an older Story Discovery composition baseline; it was **not assessed by this milestone** and must not be treated as shipped or current selected work without separate reconciliation.
 - `pyproject.toml` still reports `0.37.1`; `main` contains post-release development, so package metadata alone is not the complete current-state indicator.
