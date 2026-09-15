@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 from auteur.beginner.guidance import (
     EvidenceReference,
     QualificationCard,
@@ -207,25 +209,18 @@ _MYSTERY_CARDS: tuple[QualificationCard, ...] = (
 )
 
 
-_EXPECTED_EVIDENCE: dict[str, tuple[EvidenceReference, ...]] = {
-    "discover.story-experience": _evidence(2, ("Detective procedural", "Police/investigation procedural", "Locked-room puzzle", "Intricate puzzle structure"), "Detective procedural"),
-    "discover.personal-stakes": _evidence(4, ("Stakes: Justice served", "Stakes: Order restored"), "Stakes: Justice served"),
-    "discover.investigation-approach": _evidence(5, ("Logical deduction", "Intuitive investigation", "By-the-book procedure"), "Logical deduction"),
-    "story_identity.protagonist-want": _evidence(4, ("Want: Solve the puzzle", "Want: Identify the culprit", "Want: Restore order"), "Want: Solve the puzzle"),
-    "story_identity.relationship-pressure": _evidence(4, ("Conflict: Deduction vs. misdirection", "Conflict: Logic vs. chaos"), "Conflict: Deduction vs. misdirection"),
-    "story_identity.information-contract": _evidence(9, ("High confidence reader could solve it", "Medium confidence (possible on rereads)", "Challenging but fair puzzle"), "Challenging but fair puzzle"),
-    "story_identity.truth-opposition": _evidence(4, ("Resistance: Misleading clues", "Resistance: False suspects", "Resistance: Hidden motives"), "Resistance: Misleading clues"),
-    "structure.investigation-disruption": _evidence(6, ("Clues accelerate toward solution", "Steady rhythm of discovery", "Forward progress with setbacks"), "Steady rhythm of discovery"),
-    "structure.clue-distribution": _evidence(7, ("Heavy clues early, light late", "Even clue distribution", "Light clues early, heavy late"), "Even clue distribution", "howdunit.structure.solution_derivable"),
-    "structure.final-revelation": _evidence(8, ("Solution barely derivable from clues", "Solution is one of several reasonable readings", "Solution obvious once clues are gathered"), "Solution is one of several reasonable readings", "howdunit.structure.solution_derivable"),
+_CANONICAL_CARD_DEFINITIONS = {
+    card.card_id: json.dumps(card.model_dump(mode="json"), sort_keys=True, separators=(",", ":"))
+    for card in _MYSTERY_CARDS
 }
 
 
 def validate_mystery_card_evidence(card: QualificationCard) -> None:
-    """Reject evidence that does not match the card's approved domain mapping."""
-    expected = _EXPECTED_EVIDENCE.get(card.card_id)
-    if expected is None or card.evidence_references != expected:
-        raise ValueError(f"evidence mapping does not match card {card.card_id}")
+    """Reject any mutation of a canonical card definition, including evidence."""
+    expected = _CANONICAL_CARD_DEFINITIONS.get(card.card_id)
+    actual = json.dumps(card.model_dump(mode="json"), sort_keys=True, separators=(",", ":"))
+    if expected is None or actual != expected:
+        raise ValueError(f"canonical card definition does not match card {card.card_id}")
 
 
 def mystery_qualification_inventory() -> QualificationInventory:

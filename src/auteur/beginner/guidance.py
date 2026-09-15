@@ -275,15 +275,20 @@ def _select_recommendation(card: QualificationCard, session: SessionEnvelope) ->
         decision = status.working_decision
         if decision is not None and decision.selected_option in card.options:
             return decision.selected_option, f"It reinforces the current {stage.value} selected choice."
-    latest_by_milestone: dict[tuple[str, str], AcceptedMilestoneReference] = {}
+    latest_by_milestone: dict[str, AcceptedMilestoneReference] = {}
     for milestone in session.accepted_milestones:
-        key = (milestone.milestone_id, milestone.revision.artifact_id)
-        current = latest_by_milestone.get(key)
-        if current is None or milestone.revision.revision > current.revision.revision:
-            latest_by_milestone[key] = milestone
+        current = latest_by_milestone.get(milestone.milestone_id)
+        if current is None or (
+            milestone.revision.revision,
+            milestone.revision.artifact_id,
+        ) > (
+            current.revision.revision,
+            current.revision.artifact_id,
+        ):
+            latest_by_milestone[milestone.milestone_id] = milestone
     for milestone in sorted(
         latest_by_milestone.values(),
-        key=lambda item: (item.milestone_id, item.revision.artifact_id, item.revision.revision),
+        key=lambda item: item.milestone_id,
     ):
         if milestone.selected_option in card.options:
             return milestone.selected_option, f"It reinforces accepted milestone {milestone.milestone_id}."
@@ -293,6 +298,13 @@ def _select_recommendation(card: QualificationCard, session: SessionEnvelope) ->
 def guidance_for(card_id: str, session: SessionEnvelope) -> BeginnerGuidance:
     """Compose one deterministic guidance card from a current session snapshot."""
     card = _adapter_for(session.guidance_genre).inventory().card(card_id)
+    owning_stage = {
+        QualificationStage.DISCOVER: DecisionStage.DISCOVER,
+        QualificationStage.STORY_IDENTITY: DecisionStage.STORY_IDENTITY,
+        QualificationStage.STRUCTURE: DecisionStage.STORY_STRUCTURE,
+    }[card.stage]
+    if session.stages[owning_stage].availability is not StageAvailability.AVAILABLE:
+        raise ValueError(f"guidance card stage is locked: {card.stage.value}")
     context_summary = _context_summary(session)
     recommendation, recommendation_reason = _select_recommendation(card, session)
     commitment_summary = _commitment_summary(card, session)

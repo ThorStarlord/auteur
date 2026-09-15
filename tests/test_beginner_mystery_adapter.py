@@ -163,7 +163,7 @@ def test_guidance_includes_all_working_decisions_and_accepted_snapshot_details()
         }
     )
 
-    projected = guidance_for("structure.investigation-disruption", full_state)
+    projected = guidance_for("discover.story-experience", full_state)
 
     assert "Which truth is being hidden?" in projected.context_summary
     assert "What does the investigator risk?" in projected.context_summary
@@ -171,12 +171,22 @@ def test_guidance_includes_all_working_decisions_and_accepted_snapshot_details()
     assert '"revision":7' in projected.context_summary
     assert "accepted narrative identity" in projected.context_summary
     assert "fingerprint-v7" in projected.context_summary
-    assert guidance_for("structure.investigation-disruption", changed_upstream) != projected
-    assert guidance_for("structure.investigation-disruption", changed_accepted) != projected
+    assert guidance_for("discover.story-experience", changed_upstream) != projected
+    assert guidance_for("discover.story-experience", changed_accepted) != projected
 
 
 def test_relevant_working_choice_selects_supported_recommendation() -> None:
     session = SessionEnvelope.new("project-1", "mystery", "A missing heir returns home.")
+    session = session.model_copy(
+        update={
+            "stages": {
+                **session.stages,
+                DecisionStage.STORY_IDENTITY: session.stages[DecisionStage.STORY_IDENTITY].model_copy(
+                    update={"lifecycle": LifecycleStatus.WORKING, "availability": StageAvailability.AVAILABLE}
+                ),
+            }
+        }
+    )
     baseline = guidance_for("story_identity.protagonist-want", session)
     identity = session.stages[DecisionStage.STORY_IDENTITY].model_copy(
         update={
@@ -236,9 +246,18 @@ def test_recommendation_ignores_locked_or_unselected_prose() -> None:
     )
     rejected_session = session.model_copy(update={"stages": {**session.stages, DecisionStage.DISCOVER: rejected}})
 
-    assert guidance_for("discover.story-experience", locked_working_session).recommendation == baseline.recommendation
-    assert guidance_for("discover.story-experience", locked_complete_session).recommendation == baseline.recommendation
+    with pytest.raises(ValueError, match="guidance card stage is locked"):
+        guidance_for("discover.story-experience", locked_working_session)
+    with pytest.raises(ValueError, match="guidance card stage is locked"):
+        guidance_for("discover.story-experience", locked_complete_session)
     assert guidance_for("discover.story-experience", rejected_session).recommendation == baseline.recommendation
+
+
+def test_fresh_session_denies_future_locked_card() -> None:
+    session = SessionEnvelope.new("project-1", "mystery", "A premise.")
+
+    with pytest.raises(ValueError, match="guidance card stage is locked"):
+        guidance_for("structure.investigation-disruption", session)
 
 
 def test_evidence_rejects_impossible_phase() -> None:
@@ -264,7 +283,19 @@ def test_card_evidence_rejects_unrelated_phase_mapping() -> None:
         }
     )
 
-    with pytest.raises(ValueError, match="evidence mapping"):
+    with pytest.raises(ValueError, match="canonical card definition"):
+        validate_mystery_card_evidence(altered)
+
+
+@pytest.mark.parametrize(
+    "field, value",
+    [("title", "Altered title"), ("question", "Altered question"), ("source_subject", "Altered source")],
+)
+def test_canonical_card_definition_rejects_same_id_mutation(field: str, value: str) -> None:
+    card = mystery_qualification_inventory().card("discover.story-experience")
+    altered = card.model_copy(update={field: value})
+
+    with pytest.raises(ValueError, match="canonical card definition"):
         validate_mystery_card_evidence(altered)
 
 
@@ -272,12 +303,14 @@ def test_latest_accepted_revision_controls_recommendation() -> None:
     session = SessionEnvelope.new("project-1", "mystery", "A premise.")
     latest = AcceptedMilestoneReference(
         milestone_id="stakes",
-        revision=RevisionRef(artifact_id="stakes-artifact", revision=2),
+        revision=RevisionRef(artifact_id="artifact-a", revision=2),
+        accepted_content="newer content",
         selected_option="Stakes: Order restored",
     )
     older = AcceptedMilestoneReference(
         milestone_id="stakes",
-        revision=RevisionRef(artifact_id="stakes-artifact", revision=1),
+        revision=RevisionRef(artifact_id="artifact-z", revision=1),
+        accepted_content="older content",
         selected_option="Stakes: Justice served",
     )
     state = session.model_copy(update={"accepted_milestones": [latest, older]})
@@ -362,8 +395,8 @@ def test_guidance_is_deterministic_contextual_and_non_mutating() -> None:
     session = SessionEnvelope.new("project-1", "mystery", "A missing heir returns home.")
     before = session.model_dump(mode="json")
 
-    first = guidance_for("structure.investigation-disruption", session)
-    second = guidance_for("structure.investigation-disruption", session)
+    first = guidance_for("discover.story-experience", session)
+    second = guidance_for("discover.story-experience", session)
 
     assert first == second
     assert "A missing heir returns home." in first.rationale
@@ -371,7 +404,7 @@ def test_guidance_is_deterministic_contextual_and_non_mutating() -> None:
 
     progressed = session.model_copy(deep=True)
     progressed.stages[next(iter(progressed.stages))].lifecycle = LifecycleStatus.COMPLETE
-    progressed_guidance = guidance_for("structure.investigation-disruption", progressed)
+    progressed_guidance = guidance_for("discover.story-experience", progressed)
     assert progressed_guidance.rationale != first.rationale
 
 
@@ -380,8 +413,8 @@ def test_guidance_is_independent_of_stage_mapping_insertion_order() -> None:
     reversed_stages = dict(reversed(tuple(session.stages.items())))
     reordered = session.model_copy(update={"stages": reversed_stages})
 
-    assert guidance_for("structure.investigation-disruption", reordered) == guidance_for(
-        "structure.investigation-disruption", session
+    assert guidance_for("discover.story-experience", reordered) == guidance_for(
+        "discover.story-experience", session
     )
 
 
