@@ -342,6 +342,42 @@ def test_latest_accepted_commitment_uses_persisted_order_not_alphabetic_sort() -
     assert guidance_for("discover.personal-stakes", state).recommendation == "Stakes: Order restored"
 
 
+def test_commitment_summary_only_uses_available_selected_working_decisions() -> None:
+    session = SessionEnvelope.new("project-1", "mystery", "A premise.")
+    selected = StageStatus(
+        stage=DecisionStage.DISCOVER,
+        lifecycle=LifecycleStatus.WORKING,
+        availability=StageAvailability.AVAILABLE,
+        working_decision=WorkingDecision(
+            stage=DecisionStage.DISCOVER,
+            question="Untrusted prose question",
+            options=["Detective procedural"],
+            selected_option="Detective procedural",
+        ),
+    )
+    blocked = selected.model_copy(update={"lifecycle": LifecycleStatus.BLOCKED})
+    state = session.model_copy(
+        update={
+            "stages": {
+                **session.stages,
+                DecisionStage.DISCOVER: selected,
+                DecisionStage.STORY_IDENTITY: StageStatus(
+                    stage=DecisionStage.STORY_IDENTITY,
+                    lifecycle=LifecycleStatus.WORKING,
+                    availability=StageAvailability.AVAILABLE,
+                ),
+            }
+        }
+    )
+    blocked_state = state.model_copy(update={"stages": {**state.stages, DecisionStage.DISCOVER: blocked}})
+
+    committed = guidance_for("story_identity.protagonist-want", state)
+    ignored = guidance_for("story_identity.protagonist-want", blocked_state)
+
+    assert "discover: Detective procedural" in committed.rationale
+    assert "discover: Detective procedural" not in ignored.rationale
+
+
 def test_equal_revision_accepted_commitment_uses_latest_list_occurrence() -> None:
     session = SessionEnvelope.new("project-1", "mystery", "A premise.")
     state = session.model_copy(

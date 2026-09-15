@@ -244,17 +244,37 @@ def _commitment_summary(card: QualificationCard, session: SessionEnvelope) -> st
     current_index = stage_order.index(card_stage)
     commitments = []
     for stage in stage_order[:current_index]:
-        decision = session.stages[stage].working_decision
-        if decision is not None:
-            commitments.append(f"{stage.value}: {decision.question}")
-    if session.accepted_milestones:
+        status = session.stages[stage]
+        decision = status.working_decision
+        if (
+            status.availability is StageAvailability.AVAILABLE
+            and status.lifecycle in (LifecycleStatus.WORKING, LifecycleStatus.COMPLETE)
+            and decision is not None
+            and decision.selected_option is not None
+        ):
+            commitments.append(f"{stage.value}: {decision.selected_option}")
+    accepted = [milestone for milestone in _latest_accepted_milestones(session) if milestone.selected_option is not None]
+    if accepted:
         commitments.extend(
-            f"accepted {milestone.milestone_id} ({milestone.revision.artifact_id}@{milestone.revision.revision})"
-            for milestone in session.accepted_milestones
+            f"accepted {milestone.milestone_id} ({milestone.revision.artifact_id}@{milestone.revision.revision}): {milestone.selected_option}"
+            for milestone in accepted
         )
     if not commitments:
         return "This is the curated default for the cited Howdunit domain option; no upstream commitment is present yet."
     return "It reinforces the current premise and commitments: " + "; ".join(commitments) + "."
+
+
+def _latest_accepted_milestones(session: SessionEnvelope) -> tuple[AcceptedMilestoneReference, ...]:
+    latest_by_milestone: dict[str, AcceptedMilestoneReference] = {}
+    accepted_order: list[str] = []
+    for milestone in session.accepted_milestones:
+        current = latest_by_milestone.get(milestone.milestone_id)
+        if current is None or milestone.revision.revision >= current.revision.revision:
+            latest_by_milestone[milestone.milestone_id] = milestone
+            if milestone.milestone_id in accepted_order:
+                accepted_order.remove(milestone.milestone_id)
+            accepted_order.append(milestone.milestone_id)
+    return tuple(latest_by_milestone[milestone_id] for milestone_id in reversed(accepted_order))
 
 
 def _select_recommendation(card: QualificationCard, session: SessionEnvelope) -> tuple[str, str]:
@@ -275,19 +295,7 @@ def _select_recommendation(card: QualificationCard, session: SessionEnvelope) ->
         decision = status.working_decision
         if decision is not None and decision.selected_option in card.options:
             return decision.selected_option, f"It reinforces the current {stage.value} selected choice."
-    latest_by_milestone: dict[str, AcceptedMilestoneReference] = {}
-    accepted_order: list[str] = []
-    for milestone in session.accepted_milestones:
-        current = latest_by_milestone.get(milestone.milestone_id)
-        if current is None or (
-            milestone.revision.revision >= current.revision.revision
-        ):
-            latest_by_milestone[milestone.milestone_id] = milestone
-            if milestone.milestone_id in accepted_order:
-                accepted_order.remove(milestone.milestone_id)
-            accepted_order.append(milestone.milestone_id)
-    for milestone_id in reversed(accepted_order):
-        milestone = latest_by_milestone[milestone_id]
+    for milestone in _latest_accepted_milestones(session):
         if milestone.selected_option in card.options:
             return milestone.selected_option, f"It reinforces accepted milestone {milestone.milestone_id}."
     return card.recommendation, "It is the curated default for the cited Howdunit domain option."
