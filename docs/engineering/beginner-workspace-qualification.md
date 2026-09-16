@@ -20,9 +20,16 @@ bounded automated evidence only. It is NOT a human walkthrough, NOT a human
 qualification, and NOT release evidence. It does not touch release evidence
 files or `v1.0-qualification-record`.
 
+## Correction candidate
+
+- Candidate SHA: `a375535236d7d8aedec76ee0dd05f722139a618a`
+- Automated correction tests pass for option impacts, readable evidence,
+  recommendation divergence, browser actions, and the HTTP milestone journey.
+- HUMAN USABILITY: **PENDING — a new browser walkthrough is required**.
+
 ## Scope
 
-- Candidate SHA: `749e5a2ec9adbf778a493c0987697e449df2ef88`
+- Previous automated candidate SHA: `eb2969fdcc2c90abdded0380293c90f88fab701a`
 - Worktree: `H:\GithubRepositories\auteur\.worktrees\beginner-workspace-vslice`
   (linked worktree; git common dir `H:/GithubRepositories/auteur/.git`,
   branch `codex/beginner-workspace-vslice`)
