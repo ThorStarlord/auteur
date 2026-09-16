@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import { pathToFileURL } from "node:url";
+
 const DEFAULT_BASE_URL = "http://127.0.0.1:8791";
 const DEFAULT_PREMISE =
   "A murder mystery in one elevator: six strangers, no supernatural explanation, and the killer never leaves the elevator.";
@@ -38,7 +40,7 @@ export async function createWorkspace(argv = process.argv.slice(2), fetchImpl = 
   return { body, url };
 }
 
-if (import.meta.url === `file://${process.argv[1].replaceAll("\\", "/")}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   createWorkspace().then(({ body, url }) => {
     console.log(`Created workspace: ${body.workspace.workspace_id}`);
     console.log(`Open: ${url}`);

@@ -56,3 +56,8 @@ test("workspace command posts the mystery creation payload", async () => {
   assert.equal(payload.guidance_genre, "mystery");
   assert.match(result.url, /workspace=demo-1$/);
 });
+
+test("workspace script has a Windows-safe executable entrypoint", async () => {
+  const result = await import("../scripts/beginner-workspace.mjs");
+  assert.equal(typeof result.createWorkspace, "function");
+});
