@@ -82,6 +82,7 @@ class DecisionCardProjection:
     warnings_or_tensions: tuple[str, ...]
     downstream_consequences: tuple[str, ...]
     evidence: tuple[str, ...]
+    option_impacts: dict[str, object] = field(default_factory=dict)
     is_exploratory: bool = False
 
 
@@ -145,6 +146,7 @@ class WorkspaceProjection:
     reviews: dict[DecisionStage, ReviewProjection] = field(default_factory=dict)
     canonical_refs: tuple[AcceptedMilestoneReference, ...] = ()
     revision: RevisionProjection = field(default_factory=RevisionProjection)
+    available_actions: tuple[str, ...] = ()
 
 
 def cards_for_stage(inventory: QualificationInventory, stage: DecisionStage) -> tuple[QualificationCard, ...]:
@@ -155,7 +157,16 @@ def cards_for_stage(inventory: QualificationInventory, stage: DecisionStage) -> 
 
 def evidence_label(card: QualificationCard) -> tuple[str, ...]:
     """Render expandable evidence labels without replaying card content."""
-    return tuple(f"{reference.source}:{reference.field or reference.rule_id}" for reference in card.evidence_references)
+    labels = {
+        "genre_contract": "Mystery design model · genre contract",
+        "structural_forces": "Mystery design model · structural forces",
+        "investigation_style": "Mystery design model · investigation style",
+        "pacing_rhythm": "Mystery design model · pacing rhythm",
+        "clue_distribution": "Mystery design model · clue distribution",
+        "solution_density": "Mystery design model · solution density",
+    }
+    rendered = [labels.get(reference.field or "", reference.field or reference.rule_id or reference.source) for reference in card.evidence_references]
+    return tuple(dict.fromkeys(rendered))
 
 
 def resolve_stage_lifecycle(
@@ -265,6 +276,23 @@ def build_workspace_projection(
 
     decision_card = _decision_card(cursor, answers, exploratory, guidance, cards_by_id, session)
     warnings = _warnings_for_cursor(cursor)
+    milestone_slugs = {
+        DecisionStage.DISCOVER: "direction",
+        DecisionStage.STORY_IDENTITY: "identity",
+        DecisionStage.STORY_STRUCTURE: "structure",
+    }
+    milestone_ids = {
+        DecisionStage.DISCOVER: "story_direction",
+        DecisionStage.STORY_IDENTITY: "story_identity",
+        DecisionStage.STORY_STRUCTURE: "whole_story_structure",
+    }
+    accepted_ids = {reference.milestone_id for reference in session.accepted_milestones}
+    actions: list[str] = []
+    for stage, review in reviews.items():
+        if stage in available and review.review_available and not review.opened:
+            actions.append(f"open-review:{stage.value}")
+        if review.opened and review.ready_to_accept and milestone_ids[stage] not in accepted_ids:
+            actions.append(f"accept-{milestone_slugs[stage]}")
     return WorkspaceProjection(
         session_version=session.session_version,
         snapshot_session_version=session.session_version,
@@ -281,6 +309,7 @@ def build_workspace_projection(
             at_risk_stages=at_risk,
             base_session_version=revision_base_version,
         ),
+        available_actions=tuple(actions),
     )
 
 
@@ -423,6 +452,7 @@ def _decision_card(
         warnings_or_tensions=tuple(cursor.warnings_or_tensions),
         downstream_consequences=tuple(cursor.downstream_consequences),
         evidence=evidence_label(cursor),
+        option_impacts=(guidance.option_impacts if guidance is not None and guidance.card_id == cursor.card_id else {}),
         is_exploratory=cursor.card_id in exploratory,
     )
 

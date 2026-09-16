@@ -102,6 +102,18 @@ def test_inventory_cards_reference_existing_mystery_subjects() -> None:
         assert card.recommendation in supported_labels
 
 
+def test_story_experience_options_have_distinct_structured_impacts() -> None:
+    session = SessionEnvelope.new("project-1", "mystery", "A sealed elevator mystery.")
+    guidance = guidance_for("discover.story-experience", session)
+
+    assert set(guidance.option_impacts) == set(guidance.alternatives) | {guidance.recommendation}
+    impacts = guidance.option_impacts
+    assert impacts["Detective procedural"].audience_experience != impacts["Locked-room puzzle"].audience_experience
+    assert impacts["Detective procedural"].narrative_structure != impacts["Intricate puzzle structure"].narrative_structure
+    assert impacts["Locked-room puzzle"].expected_tropes
+    assert impacts["Intricate puzzle structure"].tradeoffs
+
+
 def test_guidance_includes_all_working_decisions_and_accepted_snapshot_details() -> None:
     session = SessionEnvelope.new("project-1", "mystery", "A missing heir returns home.")
     discover = StageStatus(

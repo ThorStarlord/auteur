@@ -124,7 +124,7 @@ def test_acknowledged_nonblocking_tension_never_gates_readiness(tmp_path: Path) 
     assert app.projection().reviews[DecisionStage.DISCOVER].ready_to_accept is True
 
 
-def test_blocking_contradiction_gates_review_until_acknowledged(tmp_path: Path) -> None:
+def test_valid_alternative_does_not_gate_review(tmp_path: Path) -> None:
     app = create_app(tmp_path)
     inventory = mystery_qualification_inventory()
     cards = [card for card in inventory.cards if card.card_id.startswith("discover.")]
@@ -149,12 +149,8 @@ def test_blocking_contradiction_gates_review_until_acknowledged(tmp_path: Path) 
         expected_session_version=app.projection().session_version,
     )
     assert review.review_available is True
-    assert review.ready_to_accept is False
-    assert any("tension" in blocker.lower() for blocker in review.blockers)
-
-    tension_id = app.projection().tensions[0].tension_id
-    app.acknowledge_tension(tension_id=tension_id, expected_session_version=app.projection().session_version)
-    assert app.projection().reviews[DecisionStage.DISCOVER].ready_to_accept is True
+    assert review.ready_to_accept is True
+    assert app.projection().tensions[0].blocking is False
 
     result = app.accept_story_direction(
         command_id="sealed-contradiction-accept",

@@ -64,6 +64,26 @@ class EvidenceReference(BaseModel):
         return self
 
 
+class OptionImpact(BaseModel):
+    """Deterministic, derived explanation of what choosing an option changes."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+    audience_experience: str = Field(min_length=1)
+    aesthetic_framing: str = Field(min_length=1)
+    expected_tropes: tuple[str, ...] = Field(min_length=1)
+    narrative_structure: str = Field(min_length=1)
+    tradeoffs: tuple[str, ...] = Field(min_length=1)
+
+    @model_validator(mode="before")
+    @classmethod
+    def reject_coercible_fields(cls, data: object) -> object:
+        if isinstance(data, dict) and "expected_tropes" in data and type(data["expected_tropes"]) is not tuple:
+            raise ValueError("expected_tropes must be a tuple")
+        if isinstance(data, dict) and "tradeoffs" in data and type(data["tradeoffs"]) is not tuple:
+            raise ValueError("tradeoffs must be a tuple")
+        return data
+
+
 class QualificationCard(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
     card_id: str = Field(min_length=1)
@@ -175,6 +195,7 @@ class BeginnerGuidance(BaseModel):
     tradeoffs: tuple[str, ...] = Field(min_length=1)
     downstream_consequences: tuple[str, ...] = Field(min_length=1)
     warnings_or_tensions: tuple[str, ...] = Field(min_length=1)
+    option_impacts: dict[str, OptionImpact] = Field(default_factory=dict)
     evidence_references: tuple[EvidenceReference, ...] = Field(min_length=1)
     pack_sources: tuple[PackProvenance, ...] = Field(min_length=1)
     tutor_session_fingerprints: dict[str, str] = Field(min_length=1)
@@ -210,10 +231,7 @@ class BeginnerGuidance(BaseModel):
             not consequence.strip() for consequence in self.downstream_consequences
         ):
             raise ValueError("downstream_consequences must contain nonblank entries")
-        evidence = [
-            f"{reference.source}:{reference.field or reference.rule_id}"
-            for reference in self.evidence_references
-        ]
+        evidence = [reference.field or reference.rule_id or reference.source for reference in self.evidence_references]
         return DecisionCard(
             decision=self.question,
             orientation=f"Choose how {self.question.rstrip('?').lower()} in the current story.",
@@ -383,6 +401,50 @@ def _select_recommendation(card: QualificationCard, session: SessionEnvelope) ->
     return card.recommendation, "It is the curated default for the cited Howdunit domain option."
 
 
+def _option_impacts(card: QualificationCard) -> dict[str, OptionImpact]:
+    if card.card_id == "discover.story-experience":
+        return {
+            "Detective procedural": OptionImpact(
+                audience_experience="Follow the investigator's reasoning and case progression.",
+                aesthetic_framing="Analytical and investigative.",
+                expected_tropes=("interviews", "clues", "deductions"),
+                narrative_structure="The investigation process organizes the story's progression.",
+                tradeoffs=("Emphasizes process over impossible-mechanism puzzle solving.",),
+            ),
+            "Police/investigation procedural": OptionImpact(
+                audience_experience="Follow an institutional investigation with visible procedures.",
+                aesthetic_framing="Grounded and procedural.",
+                expected_tropes=("teams", "evidence handling", "official process"),
+                narrative_structure="Procedural stages shape how the case advances.",
+                tradeoffs=("Adds institutional realism but can reduce the intimate suspect focus.",),
+            ),
+            "Locked-room puzzle": OptionImpact(
+                audience_experience="Actively solve an apparently impossible contained crime.",
+                aesthetic_framing="Contained, precise, and puzzle-oriented.",
+                expected_tropes=("impossible access", "constrained suspects", "spatial clues"),
+                narrative_structure="Eliminating impossibilities becomes the central progression.",
+                tradeoffs=("Strengthens the puzzle contract but demands precise mechanics and clues.",),
+            ),
+            "Intricate puzzle structure": OptionImpact(
+                audience_experience="Reconstruct a complex designed solution from layered evidence.",
+                aesthetic_framing="Cerebral and engineered.",
+                expected_tropes=("layered clues", "reversals", "hidden patterns"),
+                narrative_structure="Clue architecture and information timing dominate the structure.",
+                tradeoffs=("Offers richer reinterpretation but increases reader processing demands.",),
+            ),
+        }
+    return {
+        option: OptionImpact(
+            audience_experience=f"Experience the story through {option.lower()}.",
+            aesthetic_framing="The selected choice sets the story's emphasis.",
+            expected_tropes=(option,),
+            narrative_structure=f"The {option.lower()} choice shapes the next narrative beats.",
+            tradeoffs=("Different emphasis changes what later decisions need to support.",),
+        )
+        for option in card.options
+    }
+
+
 def guidance_for(card_id: str, session: SessionEnvelope) -> BeginnerGuidance:
     """Compose one deterministic guidance card from a current session snapshot."""
     adapter = _adapter_for(session.guidance_genre)
@@ -399,6 +461,7 @@ def guidance_for(card_id: str, session: SessionEnvelope) -> BeginnerGuidance:
     context_summary = _context_summary(session)
     recommendation, recommendation_reason = _select_recommendation(card, session)
     commitment_summary = _commitment_summary(card, session)
+    impacts = _option_impacts(card)
     rationale = (
         f"This deterministic recommendation starts with {recommendation.lower()} "
         f"for the current premise, {session.premise!r}. {recommendation_reason} "
@@ -421,6 +484,7 @@ def guidance_for(card_id: str, session: SessionEnvelope) -> BeginnerGuidance:
         tradeoffs=card.warnings_or_tensions,
         downstream_consequences=card.downstream_consequences,
         warnings_or_tensions=card.warnings_or_tensions,
+        option_impacts=impacts,
         evidence_references=tuple(
             reference.model_copy(update={"option_labels": (recommendation,)})
             if reference.claim == "recommendation" else reference

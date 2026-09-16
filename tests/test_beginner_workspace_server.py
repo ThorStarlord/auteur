@@ -44,6 +44,17 @@ def get_json(server, path: str):
         return response.status, json.loads(response.read().decode("utf-8"))
 
 
+def command_json(server, workspace_id: str, slug: str, projection: dict, payload: dict):
+    body = {
+        "workspace_id": workspace_id,
+        "expected_session_version": projection["session_version"],
+        "command_id": f"http-{slug}-{projection['session_version']}",
+        "payload": payload,
+    }
+    _, result = post_json(server, f"/api/beginner/workspaces/{workspace_id}/commands/{slug}", body)
+    return result
+
+
 def create_payload(command_id="create-1", workspace_id="workspace-1"):
     return {
         "command_id": command_id,
@@ -68,6 +79,19 @@ def test_create_and_read_beginner_workspace(tmp_path):
         assert read_body["decision_card"]["card_id"] == body["decision_card"]["card_id"]
 
 
+def test_root_serves_beginner_browser_entrypoint(tmp_path):
+    with running_server(tmp_path) as server:
+        with urlopen(f"{base(server)}/") as response:
+            body = response.read().decode("utf-8")
+            assert response.status == 200
+            assert response.headers["Content-Type"].startswith("text/html")
+            assert "Auteur Beginner Workspace" in body
+
+        with urlopen(f"{base(server)}/app.js") as response:
+            assert response.status == 200
+            assert response.headers["Content-Type"].startswith("text/javascript")
+
+
 def test_stale_command_returns_conflict(tmp_path):
     with running_server(tmp_path) as server:
         _, created = post_json(server, "/api/beginner/workspaces", create_payload())
@@ -87,6 +111,28 @@ def test_stale_command_returns_conflict(tmp_path):
                     "payload": {"card_id": card_id, "option": option},
                 },
             )
+
+
+def test_http_surface_completes_beginner_milestones_in_order(tmp_path):
+    with running_server(tmp_path) as server:
+        _, projection = post_json(server, "/api/beginner/workspaces", create_payload())
+        workspace_id = projection["workspace"]["workspace_id"]
+        for stage, accept_slug in (("discover", "accept-direction"), ("story_identity", "accept-identity"), ("story_structure", "accept-structure")):
+            while True:
+                card = projection["decision_card"]
+                if card is None or card["stage"] != stage:
+                    break
+                stage_entry = next(item for item in projection["navigator"] if item["stage"] == stage)
+                if stage_entry["review_available"]:
+                    break
+                projection = command_json(server, workspace_id, "select", projection, {"card_id": card["card_id"], "option": card["options"][0]})
+                projection = command_json(server, workspace_id, "continue", projection, {"card_id": card["card_id"]})
+            projection = command_json(server, workspace_id, "open-review", projection, {"stage": stage})
+            assert f"{accept_slug}" in projection["available_actions"]
+            projection = command_json(server, workspace_id, accept_slug, projection, {})
+        assert {ref["milestone_id"] for ref in projection["canonical_refs"]} == {
+            "story_direction", "story_identity", "whole_story_structure"
+        }
 
 
 def test_select_command_round_trip_autosaves_without_advancing(tmp_path):

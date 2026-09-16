@@ -646,8 +646,8 @@ class BeginnerWorkspaceApplication:
                     "tension_id": tension_id,
                     "card_id": card_id,
                     "detail": detail,
-                    "blocking": True,
-                    "acknowledged": False,
+                    "blocking": False,
+                    "acknowledged": True,
                     "source": "guidance-divergence",
                 }
         basis = self._journey.get("basis_digest")

@@ -162,6 +162,32 @@
       });
   }
 
+  function sendAction(slug, payload, label) {
+    if (!state.workspaceId) return;
+    setStatus(label + "…");
+    fetch(
+      "/api/beginner/workspaces/" + encodeURIComponent(state.workspaceId) + "/commands/" + slug,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          workspace_id: state.workspaceId,
+          expected_session_version: state.sessionVersion,
+          command_id: nextCommandId(slug),
+          payload: payload || {},
+        }),
+      }
+    )
+      .then(readJson)
+      .then(function (projection) {
+        render(projection);
+        setStatus("");
+      })
+      .catch(function (error) {
+        setStatus(label + " failed: " + error.message);
+      });
+  }
+
   function detailsRow(summary, bodyHtml) {
     return (
       "<details><summary>" +
@@ -194,6 +220,17 @@
       detailsRow("Trade-offs and impact", listHtml(card.downstream_consequences))
     );
     parts.push(detailsRow("Evidence", listHtml(card.evidence)));
+    var impact = card.option_impacts && card.selected_option
+      ? card.option_impacts[card.selected_option]
+      : null;
+    if (impact) {
+      parts.push(detailsRow("What this choice changes",
+        "<p><strong>Reader experience:</strong> " + escapeHtml(impact.audience_experience) +
+        "</p><p><strong>Framing:</strong> " + escapeHtml(impact.aesthetic_framing) +
+        "</p><p><strong>Expected conventions:</strong> " + escapeHtml((impact.expected_tropes || []).join(", ")) +
+        "</p><p><strong>Structure:</strong> " + escapeHtml(impact.narrative_structure) +
+        "</p>" + listHtml(impact.tradeoffs || [])));
+    }
     if (card.is_exploratory) {
       parts.push(
         "<p class=\"exploratory-note\">Exploratory answer: lives in the revision overlay until accepted.</p>"
@@ -385,6 +422,18 @@
               "</p>"
           );
         }
+        var actions = projection.available_actions || [];
+        var openAction = "open-review:" + stage;
+        var acceptAction = stage === "discover" ? "accept-direction" :
+          (stage === "story_identity" ? "accept-identity" : "accept-structure");
+        if (actions.indexOf(openAction) >= 0) {
+          inner.push('<button class="review-action" data-command="open-review" data-stage="' + escapeHtml(stage) + '">Review ' + escapeHtml(stage) + " →</button>");
+        }
+        if (actions.indexOf(acceptAction) >= 0) {
+          var acceptLabel = stage === "discover" ? "Accept Story Direction" :
+            (stage === "story_identity" ? "Accept Story Identity" : "Accept Whole-Story Structure");
+          inner.push('<button class="review-action primary-action" data-command="' + acceptAction + '">' + acceptLabel + "</button>");
+        }
         (review.card_summaries || []).forEach(function (summary) {
           inner.push(
             detailsRow(
@@ -402,6 +451,13 @@
         return '<div class="review-stage">' + inner.join("") + "</div>";
       })
       .join("");
+    Array.prototype.forEach.call(body.querySelectorAll("button[data-command]"), function (button) {
+      button.addEventListener("click", function () {
+        var command = button.getAttribute("data-command");
+        var stage = button.getAttribute("data-stage");
+        sendAction(command, stage ? { stage: stage } : {}, button.textContent.trim());
+      });
+    });
   }
 
   function render(projection) {

@@ -102,7 +102,7 @@ def test_last_answer_makes_review_available_but_not_ready_until_validation(tmp_p
     assert projection.reviews[DecisionStage.DISCOVER].ready_to_accept is True
 
 
-def test_non_recommended_answer_blocks_readiness_until_tension_acknowledged(tmp_path: Path) -> None:
+def test_valid_non_recommended_answer_does_not_block_readiness(tmp_path: Path) -> None:
     app = make_app(tmp_path)
     inventory = mystery_qualification_inventory()
     cards = [card for card in inventory.cards if card.card_id.startswith("discover.")]
@@ -126,21 +126,10 @@ def test_non_recommended_answer_blocks_readiness_until_tension_acknowledged(tmp_
     assert final.review_available is True
 
     projection = app.projection()
-    assert projection.reviews[DecisionStage.DISCOVER].ready_to_accept is False
-    blockers = projection.reviews[DecisionStage.DISCOVER].blockers
-    assert any("tension" in blocker.lower() for blocker in blockers)
-    assert len(projection.tensions) == 1
-    assert projection.tensions[0].blocking is True
-    assert projection.tensions[0].acknowledged is False
-    # Ordinary navigation already stayed nonblocking above: both continues
-    # succeeded while the blocking tension was unresolved.
-
-    tension_id = projection.tensions[0].tension_id
-    app.acknowledge_tension(tension_id=tension_id, expected_session_version=app.projection().session_version)
-
-    projection = app.projection()
-    assert projection.tensions[0].acknowledged is True
     assert projection.reviews[DecisionStage.DISCOVER].ready_to_accept is True
+    assert len(projection.tensions) == 1
+    assert projection.tensions[0].blocking is False
+    assert projection.tensions[0].acknowledged is True
 
 
 def test_revision_exploration_marks_downstream_at_risk_not_stale(tmp_path: Path) -> None:
@@ -620,7 +609,7 @@ def test_session_lifecycle_persists_review_ready_transitions(tmp_path: Path) -> 
     assert navigator_entry.lifecycle is LifecycleStatus.COMPLETE
 
 
-def test_session_lifecycle_marks_blocked_until_tension_acknowledged(tmp_path: Path) -> None:
+def test_session_lifecycle_remains_complete_for_valid_alternative(tmp_path: Path) -> None:
     app = make_app(tmp_path)
     inventory = mystery_qualification_inventory()
     cards = [card for card in inventory.cards if card.card_id.startswith("discover.")]
@@ -639,10 +628,6 @@ def test_session_lifecycle_marks_blocked_until_tension_acknowledged(tmp_path: Pa
     version = app.projection().session_version
     app.continue_decision(card_id=current, expected_session_version=version)
 
-    assert app.session_store.load().stages[DecisionStage.DISCOVER].lifecycle is LifecycleStatus.BLOCKED
-
-    tension_id = app.projection().tensions[0].tension_id
-    app.acknowledge_tension(tension_id=tension_id, expected_session_version=app.projection().session_version)
     assert app.session_store.load().stages[DecisionStage.DISCOVER].lifecycle is LifecycleStatus.COMPLETE
 
 

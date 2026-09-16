@@ -88,3 +88,10 @@ def test_browser_render_smoke_via_file_reads():
     assert "navigator" in js
     assert "session_version" in js
     assert "selected_option" in js
+
+
+def test_browser_exposes_review_and_acceptance_commands():
+    js = _read(APP)
+    for token in ("available_actions", "open-review", "accept-direction", "accept-identity", "accept-structure"):
+        assert token in js
+    assert "What this choice changes" in js

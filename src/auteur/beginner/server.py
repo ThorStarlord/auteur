@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import mimetypes
 import secrets
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -84,6 +85,10 @@ def projection_to_dict(projection: WorkspaceProjection, *, workspace_id: str) ->
                 "warnings_or_tensions": list(card.warnings_or_tensions),
                 "downstream_consequences": list(card.downstream_consequences),
                 "evidence": list(card.evidence),
+                "option_impacts": {
+                    option: impact.model_dump(mode="json") if hasattr(impact, "model_dump") else impact
+                    for option, impact in card.option_impacts.items()
+                },
                 "is_exploratory": card.is_exploratory,
             }
         ),
@@ -135,6 +140,7 @@ def projection_to_dict(projection: WorkspaceProjection, *, workspace_id: str) ->
             "at_risk_stages": [_enum_value(stage) for stage in projection.revision.at_risk_stages],
             "base_session_version": projection.revision.base_session_version,
         },
+        "available_actions": list(projection.available_actions),
     }
 
 
@@ -165,6 +171,13 @@ def _is_idempotency_conflict(message: str) -> bool:
 
 class _RequestHandler(BaseHTTPRequestHandler):
     project_root: Path
+
+    _BROWSER_ASSETS = {
+        "/": "index.html",
+        "/index.html": "index.html",
+        "/app.js": "app.js",
+        "/styles.css": "styles.css",
+    }
 
     def log_message(self, format: str, *args: Any) -> None:
         logger.info(format, *args)
@@ -210,9 +223,28 @@ class _RequestHandler(BaseHTTPRequestHandler):
     def _app_for(self, workspace_id: str) -> BeginnerWorkspaceApplication:
         return BeginnerWorkspaceApplication(self.project_root, workspace_id)
 
+    def _serve_browser_asset(self, path: str) -> bool:
+        filename = self._BROWSER_ASSETS.get(path)
+        if filename is None:
+            return False
+        asset = Path(__file__).parent / "browser" / filename
+        if not asset.is_file():
+            self._send_json(404, {"error": "Browser asset not found"})
+            return True
+        body = asset.read_bytes()
+        content_type = mimetypes.guess_type(filename)[0] or "application/octet-stream"
+        self.send_response(200)
+        self.send_header("Content-Type", f"{content_type}; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+        return True
+
     def do_GET(self) -> None:
         path = urlparse(self.path).path.rstrip("/") or "/"
         try:
+            if self._serve_browser_asset(path):
+                return
             parts = [part for part in path.split("/") if part]
             # GET /api/beginner/workspaces/<workspace_id>
             if len(parts) == 3 and parts[:2] == ["api", "beginner"] and parts[2] == "workspaces":

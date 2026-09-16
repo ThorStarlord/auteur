@@ -1,5 +1,19 @@
 # Beginner Workspace Agent-Simulated Qualification
 
+## Human candidate history
+
+The previous human-test candidate `eb2969fdcc2c90abdded0380293c90f88fab701a`
+did not pass human usability qualification. Automated evidence passed, but the
+walkthrough found four correction-required issues:
+
+- option-specific consequences were insufficient;
+- raw internal evidence was visible;
+- valid non-recommended choices incorrectly blocked;
+- the browser could not complete milestone transitions beyond Discover.
+
+This correction package addresses those findings. Human usability remains
+pending until a new browser walkthrough is completed.
+
 Status: **AUTOMATED GATE PASSES, HUMAN GATE PENDING — slice NOT qualified,
 NOT release-ready.** This file records an agent-simulated walkthrough plus
 bounded automated evidence only. It is NOT a human walkthrough, NOT a human
