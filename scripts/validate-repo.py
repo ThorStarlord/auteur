@@ -5,6 +5,19 @@ import sys
 
 import yaml
 
+ALLOWED_ROOT_SOURCE_JSON = frozenset({"package.json"})
+
+
+def root_level_derived_json_files(directory: str = "."):
+    """Return root JSON files that are not intentional source manifests."""
+    return [
+        f
+        for f in sorted(os.listdir(directory))
+        if f.endswith(".json")
+        and f not in ALLOWED_ROOT_SOURCE_JSON
+        and os.path.isfile(os.path.join(directory, f))
+    ]
+
 def validate_repo():
     errors = []
     warnings = []
@@ -424,7 +437,7 @@ def validate_repo():
     # 11. Root-level derived artifacts must not accumulate (report_dir contract):
     #     reasoning reports belong under <project>/.auteur/reasoning, never the repo
     #     root. .gitignore's /*.json rule hides them reactively; this rule rejects them.
-    root_derived = [f for f in sorted(os.listdir(".")) if f.endswith(".json") and os.path.isfile(f)]
+    root_derived = root_level_derived_json_files()
     if root_derived:
         errors.append(
             f"{len(root_derived)} root-level .json artifact(s) present (e.g. {root_derived[0]}) - "

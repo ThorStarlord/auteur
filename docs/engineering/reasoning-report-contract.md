@@ -17,10 +17,12 @@ and the draft pipeline (`src/auteur/pipeline/runner.py`) resolves it from the
 
 ## Rules
 
-1. **The repo root is never a report target.** No `*.json` derived artifacts may be
-   written to the repository root. Root-level JSON files are gitignored by
-   `/*.json` only as a *safety net* — not as an approved location. `scripts/validate-repo.py`
-   errors if any root-level `*.json` exists.
+1. **The repo root is never a report target.** No derived/report `*.json` artifacts
+   may be written to the repository root. Intentional source manifests such as
+   `package.json` are not report artifacts. Root-level JSON files are gitignored
+   by `/*.json` only as a *safety net* — not as an approved report location.
+   `scripts/validate-repo.py` rejects root-level JSON artifacts while allowing
+   the explicit source-manifest allowlist.
 2. **Callers that know their project pass a project-relative `report_dir`.**
    `_get_reasoning_runtime(..., report_dir=<project>/.auteur/reasoning)`.
 3. **Callers without project context default to `.auteur/reasoning` under the

@@ -3,9 +3,18 @@ from __future__ import annotations
 import subprocess
 import sys
 import tempfile
+import importlib.util
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def _load_repo_validator():
+    spec = importlib.util.spec_from_file_location("validate_repo", ROOT / "scripts" / "validate-repo.py")
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 def test_validate_repo_exits_nonzero_on_errors() -> None:
     """validate-repo.py should exit non-zero when critical validation errors exist."""
@@ -33,3 +42,10 @@ def test_validate_repo_warnings_only_exits_zero() -> None:
     assert result.returncode == 0, "should exit 0 when no critical errors exist"
     assert "Validation errors" not in result.stdout
 
+
+def test_root_package_manifest_is_allowed_but_derived_report_is_rejected(tmp_path: Path) -> None:
+    validator = _load_repo_validator()
+    (tmp_path / "package.json").write_text("{}", encoding="utf-8")
+    assert validator.root_level_derived_json_files(str(tmp_path)) == []
+    (tmp_path / "report.json").write_text("{}", encoding="utf-8")
+    assert validator.root_level_derived_json_files(str(tmp_path)) == ["report.json"]
