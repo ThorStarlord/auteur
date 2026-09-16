@@ -139,6 +139,7 @@ def projection_to_dict(projection: WorkspaceProjection, *, workspace_id: str) ->
             "is_exploration": projection.revision.is_exploration,
             "at_risk_stages": [_enum_value(stage) for stage in projection.revision.at_risk_stages],
             "base_session_version": projection.revision.base_session_version,
+            "target_stage": _enum_value(projection.revision.target_stage),
         },
         "available_actions": list(projection.available_actions),
     }

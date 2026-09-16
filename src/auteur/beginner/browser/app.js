@@ -347,8 +347,9 @@
     html.push("<h4>Revision</h4>");
     if (revision.active_revision_id) {
       html.push(
-        "<p>Exploring " +
+        "<p>Exploring revision " +
           escapeHtml(revision.active_revision_id) +
+          (revision.target_stage ? " · target: " + escapeHtml(revision.target_stage) : "") +
           (revision.at_risk_stages && revision.at_risk_stages.length
             ? " — at risk: " + escapeHtml(revision.at_risk_stages.join(", "))
             : "") +

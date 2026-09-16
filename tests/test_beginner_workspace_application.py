@@ -162,6 +162,60 @@ def test_revision_exploration_marks_downstream_at_risk_not_stale(tmp_path: Path)
     assert parent_after.model_dump(exclude={"session_version"}) == parent_before.model_dump(exclude={"session_version"})
 
 
+def test_open_revision_focuses_requested_accepted_stage(tmp_path: Path) -> None:
+    app = make_app(tmp_path)
+    answer_discover_cleanly(app)
+    app.open_milestone_review(
+        stage=DecisionStage.DISCOVER,
+        expected_session_version=app.projection().session_version,
+    )
+    app.accept_story_direction(expected_session_version=app.projection().session_version, command_id="accept-direction-test")
+    version = app.projection().session_version
+
+    app.open_revision(
+        revision_id="revision-focus-discover",
+        stage=DecisionStage.DISCOVER,
+        expected_session_version=version,
+    )
+
+    projection = app.projection()
+    assert projection.revision.target_stage is DecisionStage.DISCOVER
+    assert projection.decision_card is not None
+    assert projection.decision_card.stage is DecisionStage.DISCOVER
+
+
+def test_active_revision_routes_selection_to_overlay_without_exploratory_flag(tmp_path: Path) -> None:
+    app = make_app(tmp_path)
+    answer_discover_cleanly(app)
+    app.open_milestone_review(
+        stage=DecisionStage.DISCOVER,
+        expected_session_version=app.projection().session_version,
+    )
+    app.accept_story_direction(expected_session_version=app.projection().session_version, command_id="accept-direction-test")
+    parent_before = app.session_store.load()
+    version = app.projection().session_version
+    card_id = discover_cards()[0]
+    alternate = mystery_qualification_inventory().card(card_id).options[-1]
+
+    app.open_revision(
+        revision_id="revision-auto-exploratory",
+        stage=DecisionStage.DISCOVER,
+        expected_session_version=version,
+    )
+    result = app.select_working_option(
+        card_id=card_id,
+        option=alternate,
+        expected_session_version=app.projection().session_version,
+    )
+
+    assert result.exploratory is True
+    assert app.projection().decision_card.selected_option == alternate
+    parent_after = app.session_store.load()
+    assert parent_after.model_dump(exclude={"session_version"}) == parent_before.model_dump(
+        exclude={"session_version"}
+    )
+
+
 def test_stale_version_rejects(tmp_path: Path) -> None:
     app = make_app(tmp_path)
     card_id = discover_cards()[0]

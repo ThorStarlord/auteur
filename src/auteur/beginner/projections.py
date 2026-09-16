@@ -130,6 +130,7 @@ class RevisionProjection:
     is_exploration: bool = False
     at_risk_stages: tuple[DecisionStage, ...] = ()
     base_session_version: int | None = None
+    target_stage: DecisionStage | None = None
 
 
 @dataclass(frozen=True)
@@ -210,6 +211,7 @@ def build_workspace_projection(
     reviews_open: frozenset[DecisionStage] | set[DecisionStage] = frozenset(),
     active_revision_id: str | None = None,
     revision_base_version: int | None = None,
+    revision_target_stage: DecisionStage | None = None,
     basis_digest: str | None = None,
     current_digest: str | None = None,
     guidance: BeginnerGuidance | None = None,
@@ -319,6 +321,7 @@ def build_workspace_projection(
             is_exploration=active_revision_id is not None,
             at_risk_stages=at_risk,
             base_session_version=revision_base_version,
+            target_stage=revision_target_stage,
         ),
         available_actions=tuple(actions),
     )

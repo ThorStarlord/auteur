@@ -159,6 +159,39 @@ def test_select_command_round_trip_autosaves_without_advancing(tmp_path):
         assert body["decision_card"]["selected_option"] == option
 
 
+def test_http_revision_select_is_exploratory_and_focuses_target_stage(tmp_path):
+    with running_server(tmp_path) as server:
+        _, projection = post_json(server, "/api/beginner/workspaces", create_payload())
+        workspace_id = projection["workspace"]["workspace_id"]
+        # Complete Discover through the real HTTP boundary.
+        while projection["navigator"][0]["review_available"] is False:
+            card = projection["decision_card"]
+            projection = command_json(
+                server, workspace_id, "select", projection,
+                {"card_id": card["card_id"], "option": card["options"][0]},
+            )
+            projection = command_json(
+                server, workspace_id, "continue", projection, {"card_id": card["card_id"]},
+            )
+        projection = command_json(server, workspace_id, "open-review", projection, {"stage": "discover"})
+        projection = command_json(server, workspace_id, "accept-direction", projection, {})
+        canonical = projection["canonical_refs"]
+        discover_card = projection["decision_card"]
+        projection = command_json(
+            server, workspace_id, "open-revision", projection,
+            {"revision_id": "http-revision-focus", "stage": "discover"},
+        )
+        assert projection["revision"]["target_stage"] == "discover"
+        assert projection["decision_card"]["stage"] == "discover"
+        alternate = next(option for option in discover_card["options"] if option != discover_card["selected_option"])
+        projection = command_json(
+            server, workspace_id, "select", projection,
+            {"card_id": discover_card["card_id"], "option": alternate},
+        )
+        assert projection["decision_card"]["is_exploratory"] is True
+        assert projection["canonical_refs"] == canonical
+
+
 def test_malformed_envelope_returns_400(tmp_path):
     with running_server(tmp_path) as server:
         _, created = post_json(server, "/api/beginner/workspaces", create_payload())

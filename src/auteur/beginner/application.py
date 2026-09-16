@@ -433,6 +433,7 @@ def _freeze_revision(kind: str, revision: RevisionProjection) -> dict[str, Any]:
             "is_exploration": revision.is_exploration,
             "at_risk_stages": [stage.value for stage in revision.at_risk_stages],
             "base_session_version": revision.base_session_version,
+            "target_stage": revision.target_stage.value if revision.target_stage is not None else None,
         },
     }
 
@@ -442,11 +443,13 @@ def _thaw_revision(data: Mapping[str, Any]) -> RevisionProjection:
     assert isinstance(raw_stages, list)
     raw_base = data["base_session_version"]
     raw_active = data["active_revision_id"]
+    raw_target = data.get("target_stage")
     return RevisionProjection(
         active_revision_id=None if raw_active is None else str(raw_active),
         is_exploration=bool(data["is_exploration"]),
         at_risk_stages=tuple(DecisionStage(str(stage)) for stage in raw_stages),
         base_session_version=None if raw_base is None else int(raw_base),
+        target_stage=None if raw_target is None else DecisionStage(str(raw_target)),
     )
 
 
@@ -589,7 +592,11 @@ class BeginnerWorkspaceApplication:
         )
         resolved_card_id = card_id if card_id is not None else payload.get("card_id")
         resolved_option = option if option is not None else payload.get("option")
-        resolved_exploratory = exploratory or bool(payload.get("exploratory", False))
+        resolved_exploratory = (
+            exploratory
+            or bool(payload.get("exploratory", False))
+            or self._journey.get("active_revision") is not None
+        )
         if not isinstance(resolved_card_id, str) or not resolved_card_id:
             raise BeginnerWorkspaceError("card_id is required")
         if not isinstance(resolved_option, str) or not resolved_option:
@@ -734,6 +741,7 @@ class BeginnerWorkspaceApplication:
         )
         active["overlay"] = overlay
         self._journey["active_revision"] = active
+        self._journey["cursor_override"] = card_id
         self._journey["tensions"] = new_tensions
         self._save_journey()
         return SelectResult(
@@ -990,6 +998,7 @@ class BeginnerWorkspaceApplication:
         self,
         *,
         revision_id: str | None = None,
+        stage: DecisionStage | str | None = None,
         expected_session_version: int | None = None,
         command_id: str | None = None,
         workspace_id: str | None = None,
@@ -1013,6 +1022,12 @@ class BeginnerWorkspaceApplication:
 
         session = self.session_store.load()
         inventory = self._inventory_for(session)
+        raw_stage = stage if stage is not None else payload.get("stage")
+        target_stage = None if raw_stage is None else self._coerce_stage(cast(DecisionStage | str, raw_stage))
+        if target_stage is not None:
+            milestone_id = _MILESTONE_BY_STAGE[target_stage][0]
+            if not any(ref.milestone_id == milestone_id for ref in session.accepted_milestones):
+                raise BeginnerWorkspaceError(f"cannot revise unaccepted milestone: {target_stage.value}")
         if self.session_store.revision_session_path(resolved_revision_id).exists():
             raise BeginnerWorkspaceError(f"revision already exists: {resolved_revision_id}")
         targets = self._lifecycle_targets(
@@ -1033,7 +1048,11 @@ class BeginnerWorkspaceApplication:
             "revision_id": resolved_revision_id,
             "base_session_version": saved.session_version,
             "overlay": {},
+            "target_stage": target_stage.value if target_stage is not None else None,
         }
+        if target_stage is not None:
+            target_cards = cards_for_stage(inventory, target_stage)
+            self._journey["cursor_override"] = target_cards[0].card_id if target_cards else None
         self._save_journey()
         result = self.projection().revision
         self._complete_command(resolved_command_id, "open_revision", _freeze_revision("open_revision", result))
@@ -1931,6 +1950,11 @@ class BeginnerWorkspaceApplication:
             reviews_open=reviews_open,
             active_revision_id=active.get("revision_id"),
             revision_base_version=active.get("base_session_version"),
+            revision_target_stage=(
+                self._coerce_stage(active["target_stage"])
+                if active.get("target_stage") is not None
+                else None
+            ),
             basis_digest=self._journey.get("basis_digest"),
             current_digest=self._current_digest(session),
             guidance=guidance,

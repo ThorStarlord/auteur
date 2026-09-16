@@ -117,6 +117,7 @@ def test_browser_exposes_revision_controls_without_domain_rules():
         "accept-revised-identity",
         "accept-revised-structure",
         "at_risk_stages",
+        "target_stage",
     ):
         assert token in js
     assert "revision_id" in js
