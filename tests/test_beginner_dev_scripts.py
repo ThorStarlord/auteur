@@ -11,6 +11,7 @@ def test_package_scripts_expose_beginner_workflow_commands():
     package = json.loads((REPO_ROOT / "package.json").read_text(encoding="utf-8"))
     assert package["scripts"]["start"] == "node scripts/beginner-dev.mjs"
     assert package["scripts"]["workspace:new"] == "node scripts/beginner-workspace.mjs"
+    assert package["scripts"]["qualification:sealed-elevator"] == "node scripts/qualification/sealed-elevator-human.mjs"
     assert package["scripts"]["dev"] == "node scripts/beginner-dev.mjs"
     assert package["private"] is True
 
