@@ -184,7 +184,14 @@ body {
   font-size: 0.9rem;
 }
 
-.warning-inline,
+.guidance-note {
+  border-left: 4px solid #cfc8bb;
+  color: var(--muted);
+  background: #f4f1ec;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0 8px 8px 0;
+}
+
 .blocking-inline,
 .stale-inline {
   border-left: 4px solid var(--danger);

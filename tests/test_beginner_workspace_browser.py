@@ -95,3 +95,28 @@ def test_browser_exposes_review_and_acceptance_commands():
     for token in ("available_actions", "open-review", "accept-direction", "accept-identity", "accept-structure"):
         assert token in js
     assert "What this choice changes" in js
+
+
+def test_browser_uses_tri_state_guidance_alignment_and_clear_review_language():
+    js = _read(APP)
+    assert "guidance_alignment" in js
+    assert "unanswered" in js.lower()
+    assert "differs from guidance" in js
+    assert "ready for review" in js.lower()
+    assert "not yet accepted" in js.lower()
+    assert "Review " in js
+    assert "guidance-note" in js
+
+
+def test_browser_exposes_revision_controls_without_domain_rules():
+    js = _read(APP)
+    for token in (
+        "open-revision",
+        "cancel-revision",
+        "accept-revised-direction",
+        "accept-revised-identity",
+        "accept-revised-structure",
+        "at_risk_stages",
+    ):
+        assert token in js
+    assert "revision_id" in js

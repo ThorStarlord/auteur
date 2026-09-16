@@ -340,7 +340,7 @@ def _freeze_review(review: ReviewProjection) -> dict[str, Any]:
                     "question": summary.question,
                     "selected_option": summary.selected_option,
                     "recommendation": summary.recommendation,
-                    "follows_recommendation": summary.follows_recommendation,
+                    "guidance_alignment": summary.guidance_alignment,
                     "evidence": list(summary.evidence),
                 }
                 for summary in review.card_summaries
@@ -358,7 +358,7 @@ def _thaw_review(data: Mapping[str, Any]) -> ReviewProjection:
             question=str(item["question"]),
             selected_option=None if item["selected_option"] is None else str(item["selected_option"]),
             recommendation=str(item["recommendation"]),
-            follows_recommendation=bool(item["follows_recommendation"]),
+            guidance_alignment=str(item.get("guidance_alignment", "unanswered")),
             evidence=tuple(str(entry) for entry in item["evidence"]),
         )
         for item in raw_summaries

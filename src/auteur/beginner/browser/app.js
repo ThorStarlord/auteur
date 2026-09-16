@@ -114,11 +114,7 @@
           projection &&
           projection.decision_card &&
           projection.decision_card.card_id === cardId;
-        setSaveFeedback(
-          kept
-            ? "Saved (version " + state.sessionVersion + "). Still on this card — press Continue to move on."
-            : "Saved (version " + state.sessionVersion + ")."
-        );
+        setSaveFeedback(kept ? "Saved (version " + state.sessionVersion + ")." : "Saved (version " + state.sessionVersion + ").");
       })
       .catch(function (error) {
         setSaveFeedback("Save failed: " + error.message);
@@ -245,11 +241,10 @@
     if (card && card.warnings_or_tensions) {
       warnings = warnings.concat(card.warnings_or_tensions);
     }
-    if (projection.warnings) {
-      warnings = warnings.concat(projection.warnings);
-    }
+    // Card warnings are the source for card-local guidance. The combined
+    // projection no longer repeats them with a card-id prefix.
     warnings.forEach(function (warning) {
-      html.push('<p class="warning-inline" role="note">' + escapeHtml(warning) + "</p>");
+      html.push('<p class="guidance-note" role="note">' + escapeHtml(warning) + "</p>");
     });
     (projection.tensions || []).forEach(function (tension) {
       if (tension.blocking && !tension.acknowledged) {
@@ -306,15 +301,25 @@
             escapeHtml(String(entry.total_cards)) +
             " answered</span>"
         );
-        bits.push('<span class="nav-lifecycle">' + escapeHtml(entry.lifecycle) + "</span>");
+        var acceptedIds = (projection.canonical_refs || []).map(function (ref) { return ref.milestone_id; });
+        var milestoneId = entry.stage === "discover" ? "story_direction" :
+          (entry.stage === "story_identity" ? "story_identity" : "whole_story_structure");
+        var lifecycleLabel = acceptedIds.indexOf(milestoneId) >= 0 ? "Accepted" :
+          (entry.review_available ? "Ready for review" :
+            (entry.availability !== "available" ? "Later" :
+              (entry.lifecycle === "blocked" ? "Needs attention" : "In progress")));
+        bits.push('<span class="nav-lifecycle">' + escapeHtml(lifecycleLabel) + "</span>");
+        if (entry.review_available && acceptedIds.indexOf(milestoneId) < 0) {
+          bits.push('<span class="nav-canonical-state">Not yet accepted</span>');
+        }
         if (entry.availability && entry.availability !== "available") {
           bits.push('<span class="nav-locked">' + escapeHtml(entry.availability) + "</span>");
         }
         if (entry.stale) {
           bits.push('<span class="nav-stale">stale</span>');
         }
-        if (entry.review_available) {
-          bits.push('<span class="nav-review">review ready</span>');
+        if (entry.review_available && acceptedIds.indexOf(milestoneId) < 0) {
+          bits.push('<span class="nav-review">ready for review</span>');
         }
         return '<li class="' + classes.join(" ") + '">' + bits.join(" ") + "</li>";
       })
@@ -396,13 +401,24 @@
     );
     renderTutor(card);
     renderWarningsInline(projection, card);
+    var currentEntry = (projection.navigator || []).filter(function (entry) {
+      return entry.current_card_id === card.card_id;
+    })[0];
+    var finalCard = currentEntry && currentEntry.review_available;
     $("continue-button").disabled = !selected;
+    $("continue-button").textContent = finalCard
+      ? "Review " + (card.stage === "discover" ? "Discovery" :
+        (card.stage === "story_identity" ? "Story Identity" : "Structure")) + " →"
+      : "Continue →";
+    $("continue-button").dataset.reviewStage = finalCard ? card.stage : "";
   }
 
   function renderReviews(projection) {
     var body = $("review-body");
     var reviews = projection.reviews || {};
-    var stages = Object.keys(reviews);
+    var stages = Object.keys(reviews).filter(function (stage) {
+      return reviews[stage].review_available || reviews[stage].opened;
+    });
     if (stages.length === 0) {
       body.innerHTML = "<p class=\"muted\">Answer every card in a stage to open its review.</p>";
       return;
@@ -434,11 +450,28 @@
             (stage === "story_identity" ? "Accept Story Identity" : "Accept Whole-Story Structure");
           inner.push('<button class="review-action primary-action" data-command="' + acceptAction + '">' + acceptLabel + "</button>");
         }
+        var revisionOpenAction = "open-revision:" + stage;
+        var revisedAcceptAction = stage === "discover" ? "accept-revised-direction" :
+          (stage === "story_identity" ? "accept-revised-identity" : "accept-revised-structure");
+        if (actions.indexOf(revisionOpenAction) >= 0) {
+          inner.push('<button class="review-action" data-command="open-revision" data-stage="' + escapeHtml(stage) + '">Open revision</button>');
+        }
+        if (actions.indexOf("cancel-revision") >= 0) {
+          inner.push('<button class="review-action" data-command="cancel-revision">Cancel revision</button>');
+        }
+        if (actions.indexOf(revisedAcceptAction) >= 0) {
+          var revisedLabel = stage === "discover" ? "Accept Revised Story Direction" :
+            (stage === "story_identity" ? "Accept Revised Story Identity" : "Accept Revised Whole-Story Structure");
+          inner.push('<button class="review-action primary-action" data-command="' + revisedAcceptAction + '">' + revisedLabel + "</button>");
+        }
         (review.card_summaries || []).forEach(function (summary) {
+          var alignment = summary.guidance_alignment ||
+            (summary.selected_option == null ? "unanswered" : "differs_from_guidance");
+          var alignmentLabel = alignment === "unanswered" ? "unanswered" :
+            (alignment === "follows_guidance" ? "follows guidance" : "differs from guidance");
           inner.push(
             detailsRow(
-              (summary.card_id || "card") +
-                (summary.follows_recommendation ? " — follows guidance" : " — differs from guidance"),
+              (summary.card_id || "card") + " — " + alignmentLabel,
               "<p>" +
                 escapeHtml(summary.question || "") +
                 "</p><p>Selected: " +
@@ -455,7 +488,14 @@
       button.addEventListener("click", function () {
         var command = button.getAttribute("data-command");
         var stage = button.getAttribute("data-stage");
-        sendAction(command, stage ? { stage: stage } : {}, button.textContent.trim());
+        var payload = stage ? { stage: stage } : {};
+        if (command === "open-revision") {
+          payload.revision_id = "browser-revision-" + Date.now().toString(36);
+        }
+        if (command.indexOf("accept-revised-") === 0 && projection.revision && projection.revision.active_revision_id) {
+          payload.revision_id = projection.revision.active_revision_id;
+        }
+        sendAction(command, payload, button.textContent.trim());
       });
     });
   }
@@ -525,7 +565,14 @@
       setSaveFeedback("");
       loadProjection();
     });
-    $("continue-button").addEventListener("click", sendContinue);
+    $("continue-button").addEventListener("click", function () {
+      var stage = $("continue-button").dataset.reviewStage;
+      if (stage) {
+        sendAction("open-review", { stage: stage }, $("continue-button").textContent.trim());
+      } else {
+        sendContinue();
+      }
+    });
   }
 
   if (document.readyState === "loading") {

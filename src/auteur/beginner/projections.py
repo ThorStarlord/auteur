@@ -105,7 +105,7 @@ class ReviewCardSummary:
     question: str
     selected_option: str | None
     recommendation: str
-    follows_recommendation: bool
+    guidance_alignment: str
     evidence: tuple[str, ...] = ()
 
 
@@ -293,6 +293,17 @@ def build_workspace_projection(
             actions.append(f"open-review:{stage.value}")
         if review.opened and review.ready_to_accept and milestone_ids[stage] not in accepted_ids:
             actions.append(f"accept-{milestone_slugs[stage]}")
+        if milestone_ids[stage] in accepted_ids:
+            if active_revision_id is None:
+                actions.append(f"open-revision:{stage.value}")
+            elif review.opened and review.ready_to_accept:
+                actions.append(
+                    "accept-revised-"
+                    + ("direction" if stage is DecisionStage.DISCOVER else
+                       "identity" if stage is DecisionStage.STORY_IDENTITY else "structure")
+                )
+    if active_revision_id is not None:
+        actions.append("cancel-revision")
     return WorkspaceProjection(
         session_version=session.session_version,
         snapshot_session_version=session.session_version,
@@ -397,13 +408,21 @@ def _review_for_stage(
             question=card.question,
             selected_option=answers.get(card.card_id),
             recommendation=card.recommendation,
-            follows_recommendation=answers.get(card.card_id) == card.recommendation,
+            guidance_alignment=(
+                "unanswered"
+                if answers.get(card.card_id) is None
+                else (
+                    "follows_guidance"
+                    if answers.get(card.card_id) == card.recommendation
+                    else "differs_from_guidance"
+                )
+            ),
             evidence=evidence_label(card),
         )
         for card in stage_cards
     )
     answered = sum(1 for summary in summaries if summary.selected_option is not None)
-    following = sum(1 for summary in summaries if summary.follows_recommendation)
+    following = sum(1 for summary in summaries if summary.guidance_alignment == "follows_guidance")
     blocking = sum(1 for blocker in blockers if "tension" in blocker.lower())
     assumptions = "stale; reassess guidance" if stale else "current"
     synthesis = (
@@ -460,4 +479,7 @@ def _decision_card(
 def _warnings_for_cursor(cursor: QualificationCard | None) -> tuple[str, ...]:
     if cursor is None:
         return ()
-    return tuple(f"{cursor.card_id}: {warning}" for warning in cursor.warnings_or_tensions)
+    # Card-level guidance is already rendered by the browser from
+    # ``warnings_or_tensions``.  Do not manufacture a second, prefixed copy
+    # of the same messages for the combined projection.
+    return ()

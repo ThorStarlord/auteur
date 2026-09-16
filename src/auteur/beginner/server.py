@@ -125,7 +125,7 @@ def projection_to_dict(projection: WorkspaceProjection, *, workspace_id: str) ->
                         "question": summary.question,
                         "selected_option": summary.selected_option,
                         "recommendation": summary.recommendation,
-                        "follows_recommendation": summary.follows_recommendation,
+                        "guidance_alignment": summary.guidance_alignment,
                         "evidence": list(summary.evidence),
                     }
                     for summary in review.card_summaries
