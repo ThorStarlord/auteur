@@ -1,6 +1,6 @@
-# Beginner Workspace Agent-Simulated Qualification
+# Beginner Workspace Qualification Record
 
-## Human candidate history
+## Historical human candidate history
 
 The previous human-test candidate `eb2969fdcc2c90abdded0380293c90f88fab701a`
 did not pass human usability qualification. Automated evidence passed, but the
@@ -11,21 +11,22 @@ walkthrough found four correction-required issues:
 - valid non-recommended choices incorrectly blocked;
 - the browser could not complete milestone transitions beyond Discover.
 
-This correction package addresses those findings. Human usability remains
-pending until a new browser walkthrough is completed.
+This was the status of the earlier correction phase; it is retained as
+historical evidence.
 
-Status: **AUTOMATED GATE PASSES, HUMAN GATE PENDING — slice NOT qualified,
-NOT release-ready.** This file records an agent-simulated walkthrough plus
-bounded automated evidence only. It is NOT a human walkthrough, NOT a human
-qualification, and NOT release evidence. It does not touch release evidence
-files or `v1.0-qualification-record`.
+Historical status: **AUTOMATED GATE PASSES, HUMAN GATE PENDING — earlier
+candidate not qualified.** The sections below preserve agent-simulated and
+earlier-candidate evidence; the authoritative current status is recorded in
+the final section. This is not release evidence and does not touch release
+evidence files or `v1.0-qualification-record`.
 
-## Correction candidate
+## Historical correction candidate
 
 - Candidate SHA: `a375535236d7d8aedec76ee0dd05f722139a618a`
 - Automated correction tests pass for option impacts, readable evidence,
   recommendation divergence, browser actions, and the HTTP milestone journey.
-- HUMAN USABILITY: **PENDING — a new browser walkthrough is required**.
+- HUMAN USABILITY at that candidate: **PENDING — a new browser walkthrough
+  was required**.
 
 ## Scope
 
@@ -276,14 +277,14 @@ lighthouse keeper vanishes during a storm, leaving the lamp lit.",
    relied on the fixture helper (`choose_required_options` answers in
    inventory order with `continue_decision` between cards).
 
-## Bounded status
+## Historical bounded status
 
 - AUTOMATED GATE: PASSES for the listed files (focused 8/8; regression
   set 270 passed + 1 environment-skipped, 0 failed, 0 errors).
-- HUMAN GATE: PENDING — no human walkthrough or usability judgment was
-  performed or claimed.
-- This slice is NOT qualified and NOT release-ready. The walkthrough
-  above is agent-simulated evidence only, bounded to the Mystery adapter
+- HUMAN GATE at that candidate: PENDING — no human walkthrough or usability
+  judgment was performed or claimed.
+- That candidate was NOT qualified and NOT release-ready. The walkthrough
+  above was agent-simulated evidence only, bounded to the Mystery adapter
   and the two premises exercised.
 
 ## Final UX candidate transfer walkthrough
