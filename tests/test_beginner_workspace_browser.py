@@ -121,3 +121,13 @@ def test_browser_exposes_revision_controls_without_domain_rules():
     ):
         assert token in js
     assert "revision_id" in js
+
+
+def test_browser_uses_beginner_labels_and_completion_state():
+    js = _read(APP)
+    assert "function stageLabel" in js
+    assert "function milestoneLabel" in js
+    assert "Story foundation accepted" in js
+    assert "revision workspace" in js
+    assert "Open thread:" not in js
+    assert 'class="nav-review"' not in js

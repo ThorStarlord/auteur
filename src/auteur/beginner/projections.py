@@ -46,8 +46,8 @@ QUALIFICATION_STAGE_BY_DECISION: dict[DecisionStage, QualificationStage] = {
 
 STAGE_LABELS: dict[DecisionStage, str] = {
     DecisionStage.DISCOVER: "Discovery",
-    DecisionStage.STORY_IDENTITY: "Story identity",
-    DecisionStage.STORY_STRUCTURE: "Story structure",
+    DecisionStage.STORY_IDENTITY: "Story Identity",
+    DecisionStage.STORY_STRUCTURE: "Whole-Story Structure",
 }
 
 
@@ -166,6 +166,7 @@ def evidence_label(card: QualificationCard) -> tuple[str, ...]:
         "pacing_rhythm": "Mystery design model · pacing rhythm",
         "clue_distribution": "Mystery design model · clue distribution",
         "solution_density": "Mystery design model · solution density",
+        "fairness_confidence": "Mystery design model · Reader fairness confidence",
     }
     rendered = [labels.get(reference.field or "", reference.field or reference.rule_id or reference.source) for reference in card.evidence_references]
     return tuple(dict.fromkeys(rendered))

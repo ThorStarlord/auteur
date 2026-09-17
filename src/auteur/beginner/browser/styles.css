@@ -184,6 +184,12 @@ body {
   font-size: 0.9rem;
 }
 
+.completion-state,
+.completion-summary {
+  color: var(--accent);
+  font-size: 1rem;
+}
+
 .guidance-note {
   border-left: 4px solid #cfc8bb;
   color: var(--muted);

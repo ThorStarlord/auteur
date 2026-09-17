@@ -26,6 +26,16 @@
     return document.getElementById(id);
   }
 
+  function stageLabel(stage) {
+    return stage === "discover" ? "Discover" :
+      (stage === "story_identity" ? "Story Identity" : "Structure");
+  }
+
+  function milestoneLabel(milestoneId) {
+    return milestoneId === "story_direction" ? "Story Direction" :
+      (milestoneId === "story_identity" ? "Story Identity" : "Whole-Story Structure");
+  }
+
   function escapeHtml(value) {
     return String(value == null ? "" : value)
       .replace(/&/g, "&amp;")
@@ -229,7 +239,7 @@
     }
     if (card.is_exploratory) {
       parts.push(
-        "<p class=\"exploratory-note\">Exploratory answer: lives in the revision overlay until accepted.</p>"
+        "<p class=\"exploratory-note\">Exploratory answer: saved in this revision workspace until accepted.</p>"
       );
     }
     $("card-tutor").innerHTML = parts.join("");
@@ -246,7 +256,9 @@
     warnings.forEach(function (warning) {
       html.push('<p class="guidance-note" role="note">' + escapeHtml(warning) + "</p>");
     });
-    (projection.tensions || []).forEach(function (tension) {
+    (projection.tensions || []).filter(function (tension) {
+      return !card || tension.card_id === card.card_id;
+    }).forEach(function (tension) {
       if (tension.blocking && !tension.acknowledged) {
         html.push(
           '<p class="blocking-inline" role="alert">Blocking: ' +
@@ -257,7 +269,7 @@
         // Authorial (non-blocking) tension is visually softer: muted aside,
         // never an alert, never gating.
         html.push(
-          '<p class="tension-authorial">Open thread: ' +
+          '<p class="tension-authorial">Authorial tension: ' +
             escapeHtml(tension.detail || tension.tension_id) +
             "</p>"
         );
@@ -265,7 +277,7 @@
     });
     var staleStages = (projection.navigator || [])
       .filter(function (entry) { return entry.stale; })
-      .map(function (entry) { return entry.stage; });
+      .map(function (entry) { return stageLabel(entry.stage); });
     if (staleStages.length > 0) {
       html.push(
         '<p class="stale-inline" role="note">Stale assumptions in: ' +
@@ -293,7 +305,7 @@
           classes.push("is-stale");
         }
         var bits = [];
-        bits.push("<span class=\"nav-stage\">" + escapeHtml(entry.stage) + "</span>");
+        bits.push("<span class=\"nav-stage\">" + escapeHtml(stageLabel(entry.stage)) + "</span>");
         bits.push(
           '<span class="nav-progress">' +
             escapeHtml(String(entry.answered_cards)) +
@@ -318,9 +330,6 @@
         if (entry.stale) {
           bits.push('<span class="nav-stale">stale</span>');
         }
-        if (entry.review_available && acceptedIds.indexOf(milestoneId) < 0) {
-          bits.push('<span class="nav-review">ready for review</span>');
-        }
         return '<li class="' + classes.join(" ") + '">' + bits.join(" ") + "</li>";
       })
       .join("");
@@ -338,7 +347,7 @@
         "<ul>" +
           refs
             .map(function (ref) {
-              return "<li>" + escapeHtml(ref.milestone_id || JSON.stringify(ref)) + "</li>";
+              return "<li>" + escapeHtml(milestoneLabel(ref.milestone_id)) + "</li>";
             })
             .join("") +
           "</ul>"
@@ -347,11 +356,10 @@
     html.push("<h4>Revision</h4>");
     if (revision.active_revision_id) {
       html.push(
-        "<p>Exploring revision " +
-          escapeHtml(revision.active_revision_id) +
-          (revision.target_stage ? " · target: " + escapeHtml(revision.target_stage) : "") +
+        "<p>Exploring a revision workspace" +
+          (revision.target_stage ? " · target: " + escapeHtml(stageLabel(revision.target_stage)) : "") +
           (revision.at_risk_stages && revision.at_risk_stages.length
-            ? " — at risk: " + escapeHtml(revision.at_risk_stages.join(", "))
+            ? " — at risk: " + escapeHtml(revision.at_risk_stages.map(stageLabel).join(", "))
             : "") +
           "</p>"
       );
@@ -366,6 +374,21 @@
     var card = projection.decision_card;
     var question = $("card-question");
     var optionsBox = $("card-options");
+    var acceptedIds = (projection.canonical_refs || []).map(function (ref) { return ref.milestone_id; });
+    var foundationAccepted = !((projection.revision || {}).active_revision_id) &&
+      acceptedIds.indexOf("whole_story_structure") >= 0;
+    if (foundationAccepted) {
+      state.currentCardId = null;
+      question.textContent = "Story foundation accepted";
+      optionsBox.innerHTML = '<p class="completion-state">Discover, Story Identity, and Whole-Story Structure are canonical.</p>';
+      $("card-tutor").innerHTML = "";
+      $("card-warnings").innerHTML = "";
+      $("save-feedback").textContent = "Accepted story foundation.";
+      $("continue-button").disabled = true;
+      $("continue-button").textContent = "Story foundation complete";
+      $("continue-button").dataset.reviewStage = "";
+      return;
+    }
     if (!card) {
       state.currentCardId = null;
       question.textContent = "No decision card available.";
@@ -417,6 +440,11 @@
   function renderReviews(projection) {
     var body = $("review-body");
     var reviews = projection.reviews || {};
+    var acceptedIds = (projection.canonical_refs || []).map(function (ref) { return ref.milestone_id; });
+    if (!((projection.revision || {}).active_revision_id) && acceptedIds.indexOf("whole_story_structure") >= 0) {
+      body.innerHTML = '<p class="completion-summary"><strong>Story foundation complete.</strong> Your accepted direction, identity, and whole-story structure are ready for the next stage of work.</p>';
+      return;
+    }
     var stages = Object.keys(reviews).filter(function (stage) {
       return reviews[stage].review_available || reviews[stage].opened;
     });
@@ -428,7 +456,7 @@
       .map(function (stage) {
         var review = reviews[stage];
         var inner = [];
-        inner.push("<h3>" + escapeHtml(stage) + "</h3>");
+        inner.push("<h3>" + escapeHtml(stageLabel(stage)) + "</h3>");
         if (review.synthesis) {
           inner.push('<p class="synthesis">' + escapeHtml(review.synthesis) + "</p>");
         }
@@ -444,7 +472,7 @@
         var acceptAction = stage === "discover" ? "accept-direction" :
           (stage === "story_identity" ? "accept-identity" : "accept-structure");
         if (actions.indexOf(openAction) >= 0) {
-          inner.push('<button class="review-action" data-command="open-review" data-stage="' + escapeHtml(stage) + '">Review ' + escapeHtml(stage) + " →</button>");
+          inner.push('<button class="review-action" data-command="open-review" data-stage="' + escapeHtml(stage) + '">Review ' + escapeHtml(stageLabel(stage)) + " →</button>");
         }
         if (actions.indexOf(acceptAction) >= 0) {
           var acceptLabel = stage === "discover" ? "Accept Story Direction" :

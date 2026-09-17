@@ -433,13 +433,61 @@ def _option_impacts(card: QualificationCard) -> dict[str, OptionImpact]:
                 tradeoffs=("Offers richer reinterpretation but increases reader processing demands.",),
             ),
         }
+    contexts = {
+        "discover.personal-stakes": {
+            "Stakes: Justice served": ("A case driven by accountability and a satisfying reckoning.", "Moral urgency and consequence.", "Evidence must lead toward a culprit whose actions can be judged.", "Justice makes the ending decisive but narrows the emotional resolution."),
+            "Stakes: Order restored": ("A case driven by repairing the disruption inside the elevator.", "Contained, social, and restorative.", "The investigation must show how the group can regain a workable order.", "Restoration broadens the ending beyond identifying the killer."),
+        },
+        "discover.investigation-approach": {
+            "Logical deduction": ("The reader follows a chain of inferences from physical and behavioral clues.", "Analytical and clue-forward.", "Each discovery should make the next deduction possible without removing uncertainty.", "Deduction rewards close attention but requires fair clue placement."),
+            "Intuitive investigation": ("The investigation follows hunches, impressions, and interpersonal reads.", "Psychological and impressionistic.", "Revelations should test whether intuition notices truths that evidence alone misses.", "Intuition creates character texture but makes the reasoning contract less explicit."),
+            "By-the-book procedure": ("The reader sees the group impose rules and process on a chaotic closed case.", "Grounded and methodical.", "Interviews, evidence handling, and procedure organize the investigation's turns.", "Procedure adds realism but can slow the intimate pressure among suspects."),
+        },
+        "story_identity.protagonist-want": {
+            "Want: Solve the puzzle": ("The protagonist pursues the hidden mechanism and meaning of the crime.", "Cerebral and investigative.", "The plot must keep presenting questions that reward sustained inquiry.", "Solving emphasizes the puzzle over a narrower personal outcome."),
+            "Want: Identify the culprit": ("The protagonist's immediate goal is naming who killed the victim.", "Direct and accusatory.", "Suspect pressure and elimination become the main forward motion.", "A culprit-focused goal is clear but may reduce space for wider reinterpretation."),
+            "Want: Restore order": ("The protagonist tries to make the trapped group safe and functional again.", "Social and stabilizing.", "Investigation beats must change the group's behavior, not only reveal facts.", "Restoration gives the mystery communal stakes but delays a purely deductive payoff."),
+        },
+        "story_identity.relationship-pressure": {
+            "Conflict: Deduction vs. misdirection": ("Trust erodes as every useful clue may also be a deliberate diversion.", "Suspicious and adversarial.", "Each revelation should alter both the case theory and a relationship.", "Misdirection raises tension but must remain distinguishable from arbitrary withholding."),
+            "Conflict: Logic vs. chaos": ("The protagonist must investigate while the trapped group becomes increasingly unpredictable.", "Volatile and pressured.", "Character disruptions interrupt clean deduction and force new investigative choices.", "Chaos intensifies the human drama but can make causality harder to track."),
+        },
+        "story_identity.information-contract": {
+            "High confidence reader could solve it": ("The reader receives enough fair evidence to form and test a solution.", "Transparent and participatory.", "Clues must arrive early enough for the audience to reason alongside the protagonist.", "Fairness invites active solving but exposes any gap in clue logic."),
+            "Medium confidence (possible on rereads)": ("The first read emphasizes suspense while a second read rewards reconstruction.", "Layered and reflective.", "Important evidence can carry a surface meaning before its deeper pattern becomes clear.", "Reread value supports ambiguity but reduces immediate solving confidence."),
+            "Challenging but fair puzzle": ("The reader must work, but the final explanation remains supportable from what was shown.", "Tense and intellectually demanding.", "Reversals should narrow the possibilities without making the answer obvious too soon.", "Challenge sustains suspense but requires disciplined reveal timing."),
+        },
+        "story_identity.truth-opposition": {
+            "Resistance: Misleading clues": ("The truth is protected by evidence that points convincingly in the wrong direction.", "Deceptive and clue-centered.", "Reversals must reframe earlier evidence rather than introduce an unrelated answer.", "Misdirection creates reread value but risks feeling unfair if motives are absent."),
+            "Resistance: False suspects": ("The truth is protected by credible passengers who each appear capable of the murder.", "Suspicious and ensemble-driven.", "Interrogation and shifting suspicion structure the middle of the story.", "False suspects distribute pressure across the cast but require distinct motives."),
+            "Resistance: Hidden motives": ("The truth is protected by private reasons passengers cannot safely disclose.", "Psychological and intimate.", "Revelations should expose motive layers that change how relationships are read.", "Hidden motives deepen character drama but can multiply explanatory threads."),
+        },
+        "structure.investigation-disruption": {
+            "Clues accelerate toward solution": ("Each new clue makes the case move faster toward a confrontation.", "Urgent and escalating.", "The investigation should compress time and options as the elevator remains sealed.", "Acceleration delivers momentum but leaves less room for reflective suspect work."),
+            "Steady rhythm of discovery": ("The reader receives a measured sequence of questions, clues, and revised theories.", "Balanced and methodical.", "Each turn should open one question while answering or reframing another.", "A steady rhythm supports comprehension but needs reversals to avoid feeling flat."),
+            "Forward progress with setbacks": ("Every apparent advance creates a new obstacle or damaged relationship.", "Uneasy and volatile.", "The structure alternates clue gains with reversals that change the investigation's cost.", "Setbacks intensify pressure but must still preserve a visible causal trail."),
+        },
+        "structure.clue-distribution": {
+            "Heavy clues early, light late": ("The audience gets a rich evidence field and spends the ending interpreting it.", "Dense and analytical.", "Early clues must support multiple live theories before the final pattern emerges.", "Early density rewards deduction but can make later discovery feel less surprising."),
+            "Even clue distribution": ("Evidence arrives in a balanced stream that keeps solving possible throughout.", "Fair and controlled.", "Each section adds enough information to revise the current theory.", "Balance supports the reader's agency but requires careful pacing."),
+            "Light clues early, heavy late": ("The story withholds most evidence until pressure and suspicion are high.", "Withheld and suspenseful.", "Late discoveries must pay off earlier questions without becoming an unexplained information dump.", "Late density heightens suspense but risks making the solution feel delivered rather than earned."),
+        },
+        "structure.final-revelation": {
+            "Solution barely derivable from clues": ("The ending asks the reader to make a difficult but possible final inference.", "Oblique and demanding.", "The final reveal must connect scattered details through a precise causal explanation.", "Difficulty creates lingering interpretation but can frustrate without strong setup."),
+            "Solution is one of several reasonable readings": ("The evidence supports a deliberate ambiguity after the central mystery is resolved.", "Ambiguous and resonant.", "The climax must close the major causal questions while leaving meaning open.", "Ambiguity extends discussion but may weaken the promise of a single culprit."),
+            "Solution obvious once clues are gathered": ("The final explanation feels inevitable when the evidence is assembled.", "Crisp and satisfying.", "The climax should reveal the pattern rather than add a last-minute mechanism.", "Clarity rewards the reader but shifts suspense toward how characters react."),
+        },
+    }
+    selected = contexts.get(card.card_id)
+    if selected is None:
+        raise ValueError(f"missing curated Mystery option impacts for {card.card_id}")
     return {
         option: OptionImpact(
-            audience_experience=f"Experience the story through {option.lower()}.",
-            aesthetic_framing="The selected choice sets the story's emphasis.",
-            expected_tropes=(option,),
-            narrative_structure=f"The {option.lower()} choice shapes the next narrative beats.",
-            tradeoffs=("Different emphasis changes what later decisions need to support.",),
+            audience_experience=selected[option][0],
+            aesthetic_framing=selected[option][1],
+            expected_tropes=(card.title, "clues", "suspect pressure"),
+            narrative_structure=selected[option][2],
+            tradeoffs=(selected[option][3],),
         )
         for option in card.options
     }

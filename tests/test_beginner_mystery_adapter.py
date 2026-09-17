@@ -32,6 +32,7 @@ from auteur.beginner.guidance import (
     register_guidance_adapter,
     unregister_guidance_adapter,
 )
+from auteur.beginner.projections import evidence_label
 from auteur.mystery.core_templates import HowdunitTemplate
 from auteur.mystery.validation import RuleSet
 from auteur.story_design_packs.models import PackProvenance
@@ -58,6 +59,33 @@ def test_mystery_inventory_is_small_sealed_and_stable() -> None:
         "structure.final-revelation",
     ]
     assert isinstance(inventory.cards, tuple)
+
+
+def test_mystery_impacts_are_curated_for_each_qualification_card() -> None:
+    session = SessionEnvelope.new(
+        project_id="impact-test",
+        guidance_genre="mystery",
+        premise="A sealed elevator murder mystery.",
+    )
+    session = session.model_copy(update={
+        "stages": {
+            stage: status.model_copy(update={"availability": StageAvailability.AVAILABLE})
+            for stage, status in session.stages.items()
+        }
+    })
+    for card in mystery_qualification_inventory().cards:
+        guidance = guidance_for(card.card_id, session)
+        assert set(guidance.option_impacts) == set(card.options)
+        assert all(
+            "Experience the story through" not in impact.audience_experience
+            for impact in guidance.option_impacts.values()
+        )
+
+
+def test_fairness_confidence_evidence_has_beginner_label() -> None:
+    card = mystery_qualification_inventory().card("story_identity.information-contract")
+    assert "fairness_confidence" not in evidence_label(card)
+    assert "reader fairness confidence" in " ".join(evidence_label(card)).lower()
 
 
 def test_inventory_cards_reference_existing_mystery_subjects() -> None:
