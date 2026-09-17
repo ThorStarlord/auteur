@@ -1,6 +1,6 @@
 # Beginner Workspace desktop information architecture
 
-Status: **draft for human review**
+Status: **amended draft for human review**
 
 ## Purpose
 
@@ -100,10 +100,100 @@ Identity development. It is not a replacement for `StoryIdentity`. Story
 Identity remains the canonical Layer 1 commitment; Structure remains the
 canonical planning layer.
 
+### Authoritative repository sources
+
+These sources have different authority roles and should not be described as
+equivalent.
+
+**Canonical architecture**
+
+- `docs/narrative-architecture.md` — Auteur's canonical architecture
+  specification; defines Layers 0–4 as Ontology, Identity, Structure,
+  Realization, and Expression.
+
+**Authoritative product and design contracts**
+
+- `docs/design/decision-oriented-tutor.md` — Decision Card, Tutor authority,
+  presentation depth, and the advice-is-not-canon boundary.
+- `docs/product/creative-writing-tutor.md` — learning-by-doing Tutor loop and
+  derived-guidance boundary.
+
+**Current implementation authorities and evidence**
+
+- `src/auteur/identity.py` — current `StoryIdentity` commitment model.
+- `src/auteur/story_design_packs/models.py` — current `TutorGuidance`,
+  `DecisionCard`, Tutor-depth, and provenance contracts.
+- `src/auteur/beginner/guidance.py` — current Beginner guidance and flat
+  `OptionImpact` projection.
+- `src/auteur/beginner/projections.py` — current combined workspace projection
+  for Navigator, Decision Card, reviews, canon, and revision state.
+- `src/auteur/beginner/mystery_adapter.py` — current Mystery card/evidence
+  inventory and the concrete source of the present shallow option-impact
+  copy.
+
+Documentation defines semantic meaning; implementation files show the current
+contracts and constraints that the design must adapt.
+
+## Story semantics versus Auteur reasoning
+
+The Inspector must make two different information families visually and
+conceptually distinct.
+
+**Story-facing consequences** describe what the author's choice does to the
+story:
+
+- **Story Identity** — commitments about what kind of narrative this is,
+  including genre, target experience, emotional core, theme, and central
+  engine;
+- **Structure** — plans for sequencing, causality, escalation, setup/payoff,
+  reversals, and whole-story organization;
+- **Realization** — later events and state changes the story must embody,
+  including character knowledge, relationships, locations, and outcomes;
+- **Expression** — how POV, voice, detail, rhythm, dialogue, and other
+  language/rendering choices may carry the commitment.
+
+Only relevant semantic areas appear for a given Decision Card. These are
+predicted consequences, not mutations of the corresponding artifact.
+
+**Auteur reasoning** explains why Auteur is presenting the advice:
+
+- recommendation and recommendation rationale;
+- craft principle and contextual teaching;
+- alternatives and trade-offs;
+- failure modes, risks, and compensating requirements;
+- evidence, source binding, and provenance;
+- freshness and authority status.
+
+Recommendation, evidence, and provenance explain Auteur's reasoning. They must
+not be presented as if they were story facts or canonical commitments.
+
+## Layout alternatives and decision
+
+The redesign considered three primary desktop arrangements:
+
+| Approach | Author focus | Guidance depth | Desktop use | Mobile mapping | Decision |
+| --- | --- | --- | --- | --- | --- |
+| Persistent three-panel Inspector | Good, but risks equal visual weight | Excellent | Excellent on wide screens | Maps to stacked/drawer regions | Rejected as the default because the Inspector can become a second hero |
+| Two-panel workspace with on-demand Inspector | Excellent | Excellent when opened | Good | Maps cleanly to a drawer | **Chosen** |
+| Bottom analysis region | Weaker because analysis competes below the decision | Good | Poor for comparison while deciding | Moderate | Rejected because it separates consequences from the choice and weakens focus |
+
+The chosen behavior is a hybrid two-panel workspace: persistent Navigator on
+the left, dominant Decision Card in the center, and a right-side Inspector
+that is present as a compact **Explore guidance** affordance but closed by
+default. Opening it overlays or docks over the right side without resizing or
+displacing the Decision Card. The author can close it without losing the
+current choice or scroll position.
+
+When open, the Inspector uses collapsed semantic sections and independent
+scrolling. It is not an always-visible three-column wall of content. On narrow
+screens it becomes a drawer; the Decision Card remains in place.
+
 ## Desktop layout
 
-The default desktop composition is a three-zone workspace with a deliberately
-unequal hierarchy:
+The default desktop composition is a two-panel workspace with a deliberately
+unequal hierarchy: the persistent Navigator and dominant Decision Card are
+always present; the Inspector is an on-demand overlay or docked detail
+surface:
 
 ```text
 ┌──────────────────────────────────────────────────────────────────────────┐
@@ -125,10 +215,9 @@ unequal hierarchy:
 ```
 
 The exact CSS grid may vary, but the proportions must communicate that the
-Decision Card is the primary work surface. The Tutor rail is not a second
-equal column of permanent content. It is a closed-by-default detail surface
-that may open inline or as a right-side drawer without moving the author's
-place in the journey.
+Decision Card is the primary work surface. The Tutor Inspector is not a
+second equal column of permanent content. It opens as a right-side overlay or
+docked panel without moving, resizing, or reflowing the Decision Card.
 
 ### Header
 
@@ -171,14 +260,15 @@ The Decision Card owns the desktop visual hierarchy. Its default content is:
 1. stage and decision position;
 2. one plain-language question;
 3. one short **Why this matters now** paragraph;
-4. one recommendation block labelled as advice, not truth;
+4. one compact recommendation line labelled as advice, not truth;
 5. the available choices;
 6. an immediate option-specific consequence preview for the selected choice;
 7. working-state feedback and the next action;
 8. only active blocking or stale warnings that affect this card.
 
-The question should be the largest text in the card. The recommendation
-should support the question, not precede it. Choices should be visually
+The question should be the largest text in the card. The center recommendation
+is intentionally compact: **Auteur suggests: Logical deduction · Why?** The
+full rationale belongs in the Inspector. Choices should be visually
 stronger than the recommendation so disagreement feels normal and supported.
 
 Selecting an option still autosaves immediately and does not advance. The
@@ -191,26 +281,77 @@ The UI must not use a generic Save button or imply that selecting Auteur's
 recommendation is required. A valid alternative is a deliberate authorial
 choice, not an error.
 
-### Guidance detail
+### Guidance detail and semantic consequence contract
 
-The following content belongs in the on-demand Tutor detail surface:
+The following content belongs in the on-demand Tutor Inspector:
 
 - **Teach me** — the relevant craft concept in plain language, followed by
   how it operates in this story;
 - **Why Auteur recommends this** — the recommendation's reasoning and the
   assumptions it uses;
-- **Compare choices** — a compact comparison of audience experience,
-  framing, conventions, structural effect, and trade-offs;
+- **Compare choices** — a compact comparison of relevant dimensions and
+  trade-offs;
 - **Preview impact** — likely downstream changes, clearly labelled as a
   prediction rather than a mutation;
 - **Story evidence** — human-readable source concepts and relevant accepted
   commitments, with technical provenance available only after further
   expansion.
 
+Each meaningful option may expose a relevance-driven subset of these guidance
+dimensions:
+
+- reader experience;
+- aesthetic or experiential framing;
+- narrative promise;
+- genre conventions;
+- Story Identity consequence;
+- Structure consequence;
+- Realization consequence;
+- Expression consequence;
+- what becomes easier;
+- what becomes harder;
+- failure mode or risk;
+- compensating requirement;
+- craft principle;
+- evidence and provenance.
+
+The conceptual derived contract is:
+
+```text
+GuidanceInspectorProjection
+  recommendation
+  recommendation_rationale
+  selected_choice_relationship
+  narrative_consequences[]
+    semantic_area: Identity | Structure | Realization | Expression
+    summary
+    implications[]
+    what_becomes_easier[]
+    what_becomes_harder[]
+    risks[]
+    compensating_requirements[]
+  alternatives[]
+  tradeoffs[]
+  craft_principles[]
+  evidence[]
+  authority_status: DERIVED / NOT CANON
+```
+
+All fields inside a consequence are optional. Irrelevant semantic areas and
+empty sections are omitted. Absence is preferable to boilerplate. The
+implementation must not satisfy the shape with copy such as “this emphasizes
+a different approach”; each populated field must make a concrete, contextual
+claim about the current story and choice.
+
+The current flat `OptionImpact` fields—audience experience, framing,
+expected tropes, narrative structure, and trade-offs—are therefore enriched
+as a derived projection. This does not change their authority, persistence,
+or the canonical Story Identity/Structure artifacts.
+
 Each section should answer a different author question. Do not repeat the
-same paragraph under multiple headings. The selected option's impact may be
-visible as one compact summary below the choices because it answers the
-immediate question, while the complete comparison remains on demand.
+same paragraph under multiple headings. The selected option's most useful
+immediate consequence may appear as one compact summary below the choices;
+the complete semantic comparison remains on demand.
 
 The guidance contract should continue to provide stable fields for decision,
 orientation, craft concept, recommendation, rationale, alternatives,
@@ -287,26 +428,111 @@ An active revision adds an overlay to the same presentation:
 - acceptance delegates to the existing authority boundary and then shows the
   resulting downstream stale state.
 
-## Data and API implications
+## Conceptual projection contract
 
-No new canonical schema is proposed. The existing combined workspace
-projection remains the source for all desktop surfaces so Navigator, Decision
-Card, review, warnings, canonical references, and revision state cannot drift.
+No new canonical schema is proposed. The existing combined `WorkspaceProjection`
+remains the single source for all desktop surfaces so Navigator, Decision Card,
+review, warnings, canonical references, and revision state cannot drift.
 
-The browser may need presentation-only view-model additions, such as:
+The desktop contract is composed into two conceptual projections over that
+same source:
 
-- a compact `current_focus` summary;
-- a structured `guidance_sections` ordering;
-- explicit beginner labels for lifecycle and ontology concepts;
-- an `issue_presentation` severity/category;
-- a selected-option impact summary;
-- and a `next_action` label distinct from command identity.
+```text
+DecisionWorkspaceProjection
+  current_focus
+    stage
+    position
+    question
+    why_this_matters_now
+  options[]
+    label
+    selected
+    recommended
+  immediate_consequence
+  working_state
+  active_issue_summary
+  next_action
+  authority_status
 
-These are projections of existing domain/application data. They must not
+GuidanceInspectorProjection
+  recommendation
+  recommendation_rationale
+  selected_choice_relationship
+  narrative_consequences[]
+    semantic_area
+    summary
+    implications[]
+    what_becomes_easier[]
+    what_becomes_harder[]
+    risks[]
+    compensating_requirements[]
+  alternatives[]
+  tradeoffs[]
+  craft_principles[]
+  evidence[]
+  freshness
+  authority_status
+```
+
+Exact class names and serialization can be chosen during implementation
+planning. The conceptual boundary is not optional: the workspace projection
+answers what the author must decide now, while the Inspector projection
+answers what Auteur knows and explains about that decision.
+
+These remain projections of existing domain/application data. They must not
 duplicate validation rules, determine readiness, infer canon, or decide which
-authority service to call. If a projection field cannot be derived from the
-combined application projection, the application layer—not browser
-JavaScript—must define it.
+authority service to call. If a field cannot be derived from the combined
+projection, the application layer—not browser JavaScript—must define it.
+
+## Testing strategy
+
+The implementation plan must establish these tests without asserting brittle
+exact prose:
+
+- **Projection tests** verify relevant semantic consequence areas, omission of
+  irrelevant areas, distinction between story consequences and Auteur
+  reasoning, option-specific content, freshness, and authority status.
+- **Browser rendering tests** verify the Decision Card hero, closed/open
+  Inspector behavior, disclosure placement, warning severity, recommendation
+  subordination, and absence of internal terminology in the beginner view.
+- **Boundary tests** verify that JavaScript consumes projection fields and
+  sends commands but does not infer semantic state, readiness, canon, or
+  authority routing.
+- **Regression tests** verify that persistence, concurrency, provenance,
+  revision isolation, cancellation, promotion, and staleness semantics remain
+  unchanged.
+- **Human desktop walkthrough** verifies decision prominence, useful
+  ontology-aware guidance, no normal-viewport scroll barrier, understandable
+  state vocabulary, and clear next action across the Mystery journey and a
+  transfer premise.
+
+Tests should assert semantic categories and required distinctions, not exact
+sentences or visual pixel coordinates.
+
+## Migration strategy
+
+Migration is additive and presentation-first:
+
+1. Keep current API commands, persistence, and authority behavior unchanged.
+2. Introduce the richer derived projection fields alongside existing fields
+   while preserving compatibility for current consumers.
+3. Compose the new desktop Decision Workspace and Inspector from the combined
+   projection.
+4. Remove the old center-column guidance accordions only after equivalent
+   Inspector content is present and covered by projection/browser tests.
+5. Do not migrate or rewrite persisted session envelopes or canonical story
+   artifacts. No persistence migration is required.
+
+## Risks and mitigations
+
+| Risk | Mitigation |
+| --- | --- |
+| Richer guidance becomes verbose | Relevance-driven semantic sections, compact summaries, collapsed Inspector, and independent scrolling |
+| UI vocabulary drifts from ontology | Derive semantic-area labels from canonical mappings and review repository sources before implementation |
+| Inspector becomes the new visual hero | Keep it closed by default, subordinate typography, bounded width, and no Decision Card resizing |
+| JavaScript starts composing story semantics | Require structured application projections and boundary tests; browser only renders and sends commands |
+| Semantic categories become boilerplate slots | Make every field optional and omit irrelevant sections; test for concrete option-specific content |
+| Existing guidance consumers break | Additive projection fields and compatibility-preserving API rollout |
 
 ## Accessibility and responsive behavior
 
@@ -356,4 +582,3 @@ implementation plan. Until then:
 - no changes to canonical artifacts;
 - no PR merge or ready-for-review transition;
 - no L3 or release qualification.
-
