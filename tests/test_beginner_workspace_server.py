@@ -174,6 +174,9 @@ def test_http_surface_completes_beginner_milestones_in_order(tmp_path):
                 projection = command_json(server, workspace_id, "select", projection, {"card_id": card["card_id"], "option": card["options"][0]})
                 projection = command_json(server, workspace_id, "continue", projection, {"card_id": card["card_id"]})
             projection = command_json(server, workspace_id, "open-review", projection, {"stage": stage})
+            for summary in projection["reviews"][stage]["card_summaries"]:
+                assert summary["label"]
+                assert summary["label"] != summary["card_id"]
             assert f"{accept_slug}" in projection["available_actions"]
             projection = command_json(server, workspace_id, accept_slug, projection, {})
         assert {ref["milestone_id"] for ref in projection["canonical_refs"]} == {

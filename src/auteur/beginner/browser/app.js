@@ -585,7 +585,7 @@
             (alignment === "follows_guidance" ? "follows guidance" : "differs from guidance");
           inner.push(
             detailsRow(
-              (summary.card_id || "card") + " — " + alignmentLabel,
+              (summary.label || "Card") + " — " + alignmentLabel,
               "<p>" +
                 escapeHtml(summary.question || "") +
                 "</p><p>Selected: " +

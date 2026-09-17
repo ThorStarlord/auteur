@@ -337,6 +337,7 @@ def _freeze_review(review: ReviewProjection) -> dict[str, Any]:
             "card_summaries": [
                 {
                     "card_id": summary.card_id,
+                    "label": summary.label,
                     "question": summary.question,
                     "selected_option": summary.selected_option,
                     "recommendation": summary.recommendation,
@@ -355,6 +356,7 @@ def _thaw_review(data: Mapping[str, Any]) -> ReviewProjection:
     summaries = tuple(
         ReviewCardSummary(
             card_id=str(item["card_id"]),
+            label=str(item["label"]),
             question=str(item["question"]),
             selected_option=None if item["selected_option"] is None else str(item["selected_option"]),
             recommendation=str(item["recommendation"]),

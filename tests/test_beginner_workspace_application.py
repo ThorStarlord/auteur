@@ -21,6 +21,7 @@ from auteur.beginner.application import (
 from auteur.beginner.contracts import DecisionStage, LifecycleStatus, MutationCommand, StageAvailability
 from auteur.beginner.mystery_adapter import mystery_qualification_inventory
 from auteur.beginner.persistence import BeginnerConcurrencyError
+from auteur.beginner.projections import _review_for_stage
 
 
 def make_app(tmp_path: Path, workspace_id: str = "workspace-1") -> BeginnerWorkspaceApplication:
@@ -401,6 +402,29 @@ def test_review_synthesis_is_whole_first_with_expandable_evidence(tmp_path: Path
     for summary in review.card_summaries:
         for item in summary.evidence:
             assert item not in review.synthesis
+
+
+def test_review_card_summaries_use_qualification_titles_for_all_stages() -> None:
+    inventory = mystery_qualification_inventory()
+    answers = {card.card_id: card.recommendation for card in inventory.cards}
+
+    for stage in DecisionStage:
+        card_stage = "structure" if stage is DecisionStage.STORY_STRUCTURE else stage.value
+        stage_cards = tuple(card for card in inventory.cards if card.stage.value == card_stage)
+        review = _review_for_stage(
+            stage=stage,
+            stage_cards=stage_cards,
+            answers=answers,
+            opened=True,
+            review_available=True,
+            ready_to_accept=True,
+            blockers=(),
+            stale=False,
+        )
+        assert review.card_summaries
+        for card, summary in zip(stage_cards, review.card_summaries, strict=True):
+            assert summary.label == card.title
+            assert summary.label != summary.card_id
 
 
 def test_acceptance_entry_point_defers_canonical_mutation(tmp_path: Path) -> None:

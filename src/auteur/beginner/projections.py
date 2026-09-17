@@ -105,6 +105,7 @@ class ReviewCardSummary:
     """Expandable per-card evidence for a milestone review (not a replay)."""
 
     card_id: str
+    label: str
     question: str
     selected_option: str | None
     recommendation: str
@@ -492,6 +493,7 @@ def _review_for_stage(
     summaries = tuple(
         ReviewCardSummary(
             card_id=card.card_id,
+            label=card.title,
             question=card.question,
             selected_option=answers.get(card.card_id),
             recommendation=card.recommendation,

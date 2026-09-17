@@ -195,6 +195,7 @@ def projection_to_dict(projection: WorkspaceProjection, *, workspace_id: str) ->
                 "card_summaries": [
                     {
                         "card_id": summary.card_id,
+                        "label": summary.label,
                         "question": summary.question,
                         "selected_option": summary.selected_option,
                         "recommendation": summary.recommendation,

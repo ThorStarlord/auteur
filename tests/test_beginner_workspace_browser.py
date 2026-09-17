@@ -97,6 +97,12 @@ def test_browser_exposes_review_and_acceptance_commands():
     assert "What this choice changes" in js
 
 
+def test_browser_renders_review_labels_instead_of_internal_card_ids():
+    js = _read(APP)
+    assert "summary.label" in js
+    assert '(summary.card_id || "card") + " — "' not in js
+
+
 def test_browser_uses_tri_state_guidance_alignment_and_clear_review_language():
     js = _read(APP)
     assert "guidance_alignment" in js
