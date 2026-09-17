@@ -25,6 +25,7 @@ from .contracts import (
 )
 from .guidance import (
     BeginnerGuidance,
+    NarrativeConsequence,
     QualificationCard,
     QualificationInventory,
     QualificationStage,
@@ -135,6 +136,54 @@ class RevisionProjection:
 
 
 @dataclass(frozen=True)
+class DecisionFocus:
+    """The minimum context needed to understand the current decision."""
+
+    stage: DecisionStage
+    position: str
+    question: str
+    why_this_matters_now: str
+
+
+@dataclass(frozen=True)
+class DecisionOptionProjection:
+    """One selectable option with presentation-only guidance alignment."""
+
+    label: str
+    selected: bool
+    recommended: bool
+
+
+@dataclass(frozen=True)
+class DecisionWorkspaceProjection:
+    """Focused center-card projection; all fields are derived, never canonical."""
+
+    current_focus: DecisionFocus
+    options: tuple[DecisionOptionProjection, ...]
+    immediate_consequence: str | None
+    working_state: str
+    active_issue_summary: str | None
+    next_action: str
+    authority_status: str = "DERIVED / NOT CANON"
+
+
+@dataclass(frozen=True)
+class GuidanceInspectorProjection:
+    """On-demand Tutor detail, separated from story-facing consequences."""
+
+    recommendation: str
+    recommendation_rationale: str
+    selected_choice_relationship: str
+    narrative_consequences: tuple[NarrativeConsequence, ...]
+    alternatives: tuple[str, ...]
+    tradeoffs: tuple[str, ...]
+    craft_principles: tuple[str, ...]
+    evidence: tuple[str, ...]
+    freshness: str
+    authority_status: str = "DERIVED / NOT CANON"
+
+
+@dataclass(frozen=True)
 class WorkspaceProjection:
     """The full workspace render built from a single snapshot."""
 
@@ -149,6 +198,8 @@ class WorkspaceProjection:
     canonical_refs: tuple[AcceptedMilestoneReference, ...] = ()
     revision: RevisionProjection = field(default_factory=RevisionProjection)
     available_actions: tuple[str, ...] = ()
+    decision_workspace: DecisionWorkspaceProjection | None = None
+    guidance_inspector: GuidanceInspectorProjection | None = None
 
 
 def cards_for_stage(inventory: QualificationInventory, stage: DecisionStage) -> tuple[QualificationCard, ...]:
@@ -308,6 +359,21 @@ def build_workspace_projection(
                 )
     if active_revision_id is not None:
         actions.append("cancel-revision")
+    decision_workspace = _decision_workspace_projection(
+        cursor=cursor,
+        decision_card=decision_card,
+        guidance=guidance,
+        inventory=inventory,
+        navigator=tuple(navigator),
+        tensions=tensions,
+        stale=stale,
+    )
+    guidance_inspector = _guidance_inspector_projection(
+        cursor=cursor,
+        decision_card=decision_card,
+        guidance=guidance,
+        stale=stale,
+    )
     return WorkspaceProjection(
         session_version=session.session_version,
         snapshot_session_version=session.session_version,
@@ -326,6 +392,8 @@ def build_workspace_projection(
             target_stage=revision_target_stage,
         ),
         available_actions=tuple(actions),
+        decision_workspace=decision_workspace,
+        guidance_inspector=guidance_inspector,
     )
 
 
@@ -478,6 +546,106 @@ def _decision_card(
         evidence=evidence_label(cursor),
         option_impacts=(guidance.option_impacts if guidance is not None and guidance.card_id == cursor.card_id else {}),
         is_exploratory=cursor.card_id in exploratory,
+    )
+
+
+def _decision_workspace_projection(
+    *,
+    cursor: QualificationCard | None,
+    decision_card: DecisionCardProjection | None,
+    guidance: BeginnerGuidance | None,
+    inventory: QualificationInventory,
+    navigator: tuple[NavigatorEntry, ...],
+    tensions: tuple[TensionView, ...],
+    stale: bool,
+) -> DecisionWorkspaceProjection | None:
+    if cursor is None or decision_card is None:
+        return None
+    stage = cursor.stage
+    stage_cards = tuple(card for card in inventory.cards if card.stage is stage)
+    position = stage_cards.index(cursor) + 1
+    selected = decision_card.selected_option
+    options = tuple(
+        DecisionOptionProjection(
+            label=option,
+            selected=option == selected,
+            recommended=option == decision_card.recommendation,
+        )
+        for option in decision_card.options
+    )
+    immediate = None
+    if selected is not None:
+        impact = decision_card.option_impacts.get(selected)
+        if impact is not None:
+            consequences = getattr(impact, "narrative_consequences", ())
+            immediate = consequences[0].summary if consequences else impact.narrative_structure
+    current_entry = next(entry for entry in navigator if entry.stage is decision_card.stage)
+    if current_entry.review_available:
+        next_action = f"Review {STAGE_LABELS[decision_card.stage]}"
+    elif selected is None:
+        next_action = "Choose an option"
+    else:
+        next_action = "Continue"
+    issue = next(
+        (
+            tension.detail
+            for tension in tensions
+            if tension.card_id == cursor.card_id and tension.blocking and not tension.acknowledged
+        ),
+        None,
+    )
+    if issue is None and stale:
+        issue = "This guidance depends on a story assumption that needs reassessment."
+    return DecisionWorkspaceProjection(
+        current_focus=DecisionFocus(
+            stage=decision_card.stage,
+            position=f"Decision {position} of {len(stage_cards)}",
+            question=decision_card.question,
+            why_this_matters_now=decision_card.why_this_matters,
+        ),
+        options=options,
+        immediate_consequence=immediate,
+        working_state=(
+            "Exploratory choice saved"
+            if decision_card.is_exploratory
+            else "Working choice saved"
+            if selected is not None
+            else "Awaiting a choice"
+        ),
+        active_issue_summary=issue,
+        next_action=next_action,
+    )
+
+
+def _guidance_inspector_projection(
+    *,
+    cursor: QualificationCard | None,
+    decision_card: DecisionCardProjection | None,
+    guidance: BeginnerGuidance | None,
+    stale: bool,
+) -> GuidanceInspectorProjection | None:
+    if cursor is None or decision_card is None or guidance is None:
+        return None
+    selected = decision_card.selected_option
+    selected_impact = guidance.option_impacts.get(selected) if selected is not None else None
+    consequences = tuple(getattr(selected_impact, "narrative_consequences", ())) if selected_impact else ()
+    relationship = (
+        "No choice selected yet"
+        if selected is None
+        else "Follows Auteur's recommendation"
+        if selected == guidance.recommendation
+        else "Differs from Auteur's recommendation"
+    )
+    return GuidanceInspectorProjection(
+        recommendation=guidance.recommendation,
+        recommendation_rationale=guidance.rationale,
+        selected_choice_relationship=relationship,
+        narrative_consequences=consequences,
+        alternatives=guidance.alternatives,
+        tradeoffs=guidance.tradeoffs,
+        craft_principles=(guidance.narrative_principle,),
+        evidence=evidence_label(cursor),
+        freshness="stale" if stale else "current",
     )
 
 

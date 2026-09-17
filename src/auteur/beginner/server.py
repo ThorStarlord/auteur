@@ -48,6 +48,8 @@ def _enum_value(value: Any) -> Any:
 
 def projection_to_dict(projection: WorkspaceProjection, *, workspace_id: str) -> dict[str, Any]:
     card = projection.decision_card
+    decision_workspace = projection.decision_workspace
+    guidance_inspector = projection.guidance_inspector
     return {
         "workspace": {
             "workspace_id": workspace_id,
@@ -90,6 +92,58 @@ def projection_to_dict(projection: WorkspaceProjection, *, workspace_id: str) ->
                     for option, impact in card.option_impacts.items()
                 },
                 "is_exploratory": card.is_exploratory,
+            }
+        ),
+        "decision_workspace": (
+            None
+            if decision_workspace is None
+            else {
+                "current_focus": {
+                    "stage": _enum_value(decision_workspace.current_focus.stage),
+                    "position": decision_workspace.current_focus.position,
+                    "question": decision_workspace.current_focus.question,
+                    "why_this_matters_now": decision_workspace.current_focus.why_this_matters_now,
+                },
+                "options": [
+                    {
+                        "label": option.label,
+                        "selected": option.selected,
+                        "recommended": option.recommended,
+                    }
+                    for option in decision_workspace.options
+                ],
+                "immediate_consequence": decision_workspace.immediate_consequence,
+                "working_state": decision_workspace.working_state,
+                "active_issue_summary": decision_workspace.active_issue_summary,
+                "next_action": decision_workspace.next_action,
+                "authority_status": decision_workspace.authority_status,
+            }
+        ),
+        "guidance_inspector": (
+            None
+            if guidance_inspector is None
+            else {
+                "recommendation": guidance_inspector.recommendation,
+                "recommendation_rationale": guidance_inspector.recommendation_rationale,
+                "selected_choice_relationship": guidance_inspector.selected_choice_relationship,
+                "narrative_consequences": [
+                    {
+                        "semantic_area": _enum_value(consequence.semantic_area),
+                        "summary": consequence.summary,
+                        "implications": list(consequence.implications),
+                        "what_becomes_easier": list(consequence.what_becomes_easier),
+                        "what_becomes_harder": list(consequence.what_becomes_harder),
+                        "risks": list(consequence.risks),
+                        "compensating_requirements": list(consequence.compensating_requirements),
+                    }
+                    for consequence in guidance_inspector.narrative_consequences
+                ],
+                "alternatives": list(guidance_inspector.alternatives),
+                "tradeoffs": list(guidance_inspector.tradeoffs),
+                "craft_principles": list(guidance_inspector.craft_principles),
+                "evidence": list(guidance_inspector.evidence),
+                "freshness": guidance_inspector.freshness,
+                "authority_status": guidance_inspector.authority_status,
             }
         ),
         "stage_status": {

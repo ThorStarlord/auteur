@@ -103,7 +103,7 @@ from .contracts import (
     StageAvailability,
     WorkingDecision,
 )
-from .guidance import BeginnerGuidance, QualificationStage, _adapter_for, guidance_for
+from .guidance import BeginnerGuidance, QualificationStage, SemanticArea, _adapter_for, guidance_for
 from .persistence import (
     BeginnerConcurrencyError,
     BeginnerPersistenceError,
@@ -386,6 +386,17 @@ def _thaw_guidance(data: Mapping[str, Any]) -> BeginnerGuidance:
     stage = payload["stage"]
     assert isinstance(stage, str)
     payload["stage"] = QualificationStage(stage)
+    option_impacts = payload.get("option_impacts", {})
+    assert isinstance(option_impacts, dict)
+    for impact in option_impacts.values():
+        assert isinstance(impact, dict)
+        consequences = impact.get("narrative_consequences", ())
+        assert isinstance(consequences, tuple)
+        for consequence in consequences:
+            assert isinstance(consequence, dict)
+            semantic_area = consequence.get("semantic_area")
+            assert isinstance(semantic_area, str)
+            consequence["semantic_area"] = SemanticArea(semantic_area)
     return BeginnerGuidance.model_validate(payload)
 
 

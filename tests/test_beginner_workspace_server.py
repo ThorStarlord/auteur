@@ -79,6 +79,32 @@ def test_create_and_read_beginner_workspace(tmp_path):
         assert read_body["decision_card"]["card_id"] == body["decision_card"]["card_id"]
 
 
+def test_http_projection_exposes_composed_decision_and_inspector_views(tmp_path):
+    with running_server(tmp_path) as server:
+        _, created = post_json(server, "/api/beginner/workspaces", create_payload())
+        workspace_id = created["workspace"]["workspace_id"]
+        card = created["decision_card"]
+        status, body = post_json(
+            server,
+            f"/api/beginner/workspaces/{workspace_id}/commands/select",
+            {
+                "workspace_id": workspace_id,
+                "expected_session_version": created["session_version"],
+                "command_id": "select-composed-http-1",
+                "payload": {"card_id": card["card_id"], "option": card["options"][0]},
+            },
+        )
+
+        assert status == 200
+        assert body["decision_workspace"]["current_focus"]["question"] == card["question"]
+        assert body["decision_workspace"]["options"][0]["selected"] is True
+        assert body["guidance_inspector"]["authority_status"] == "DERIVED / NOT CANON"
+        assert body["guidance_inspector"]["narrative_consequences"]
+        assert body["guidance_inspector"]["narrative_consequences"][0]["semantic_area"] in {
+            "Identity", "Structure", "Realization", "Expression"
+        }
+
+
 def test_root_serves_beginner_browser_entrypoint(tmp_path):
     with running_server(tmp_path) as server:
         with urlopen(f"{base(server)}/") as response:

@@ -89,6 +89,39 @@ def test_select_autosaves_without_advancing_current_card(tmp_path: Path) -> None
     assert app.session_store.load().session_version == after.session_version
 
 
+def test_projection_composes_decision_workspace_and_inspector_from_one_snapshot(tmp_path: Path) -> None:
+    app = make_app(tmp_path)
+    initial = app.projection()
+    app.select_working_option(
+        card_id=initial.decision_card.card_id,
+        option=initial.decision_card.options[0],
+        expected_session_version=initial.session_version,
+    )
+    projection = app.projection()
+
+    assert projection.decision_workspace.current_focus.question == projection.decision_card.question
+    assert projection.decision_workspace.next_action
+    assert projection.guidance_inspector.recommendation == projection.decision_card.recommendation
+    assert projection.guidance_inspector.authority_status == "DERIVED / NOT CANON"
+    assert projection.guidance_inspector.narrative_consequences
+
+
+def test_projection_separates_story_consequences_from_auteur_reasoning(tmp_path: Path) -> None:
+    app = make_app(tmp_path)
+    initial = app.projection()
+    app.select_working_option(
+        card_id=initial.decision_card.card_id,
+        option=initial.decision_card.options[0],
+        expected_session_version=initial.session_version,
+    )
+    inspector = app.projection().guidance_inspector
+
+    assert {item.semantic_area for item in inspector.narrative_consequences}
+    assert inspector.recommendation_rationale
+    assert inspector.evidence
+    assert inspector.authority_status == "DERIVED / NOT CANON"
+
+
 def test_last_answer_makes_review_available_but_not_ready_until_validation(tmp_path: Path) -> None:
     app = make_app(tmp_path)
     answer_discover_cleanly(app)
