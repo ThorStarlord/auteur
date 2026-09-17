@@ -131,3 +131,20 @@ def test_browser_uses_beginner_labels_and_completion_state():
     assert "revision workspace" in js
     assert "Open thread:" not in js
     assert 'class="nav-review"' not in js
+
+
+def test_browser_has_decision_workspace_and_on_demand_inspector():
+    html = _read(INDEX)
+    js = _read(APP)
+    css = _read(STYLES)
+    assert 'id="decision-workspace"' in html
+    assert 'id="guidance-inspector"' in html
+    assert "Explore guidance" in html
+    assert "guidance_inspector" in js
+    assert "decision-workspace" in css
+
+
+def test_browser_does_not_build_semantics_or_readiness():
+    js = _read(APP)
+    assert "narrative_consequences" not in js.replace("guidance_inspector", "")
+    assert "ready_to_accept" not in js

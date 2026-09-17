@@ -20,6 +20,7 @@
     currentCardId: null,
     commandCounter: 0,
     pendingSelect: false,
+    inspectorOpen: false,
   };
 
   function $(id) {
@@ -215,34 +216,57 @@
     );
   }
 
-  function renderTutor(card) {
+  function inspectorLabel(key) {
+    return key.replace(/_/g, " ").replace(/\b\w/g, function (letter) { return letter.toUpperCase(); });
+  }
+
+  function inspectorValue(value) {
+    if (Array.isArray(value)) {
+      return listHtml(value.map(function (item) {
+        if (item && typeof item === "object") {
+          return Object.keys(item).map(function (key) {
+            return inspectorLabel(key) + ": " + item[key];
+          }).join(" · ");
+        }
+        return item;
+      }));
+    }
+    return "<p>" + escapeHtml(value) + "</p>";
+  }
+
+  function renderInspector(projection) {
+    var inspector = projection.guidance_inspector;
+    var body = $("inspector-body");
+    if (!inspector) {
+      body.innerHTML = '<p class="muted">Guidance is unavailable for this view.</p>';
+      return;
+    }
     var parts = [];
-    parts.push(detailsRow("Recommendation", "<p>" + escapeHtml(card.recommendation) + "</p>"));
-    parts.push(detailsRow("Why this matters", "<p>" + escapeHtml(card.why_this_matters) + "</p>"));
-    parts.push(
-      detailsRow("Narrative principle", "<p>" + escapeHtml(card.narrative_principle) + "</p>")
-    );
-    parts.push(
-      detailsRow("Trade-offs and impact", listHtml(card.downstream_consequences))
-    );
-    parts.push(detailsRow("Evidence", listHtml(card.evidence)));
-    var impact = card.option_impacts && card.selected_option
-      ? card.option_impacts[card.selected_option]
-      : null;
-    if (impact) {
-      parts.push(detailsRow("What this choice changes",
-        "<p><strong>Reader experience:</strong> " + escapeHtml(impact.audience_experience) +
-        "</p><p><strong>Framing:</strong> " + escapeHtml(impact.aesthetic_framing) +
-        "</p><p><strong>Expected conventions:</strong> " + escapeHtml((impact.expected_tropes || []).join(", ")) +
-        "</p><p><strong>Structure:</strong> " + escapeHtml(impact.narrative_structure) +
-        "</p>" + listHtml(impact.tradeoffs || [])));
-    }
-    if (card.is_exploratory) {
-      parts.push(
-        "<p class=\"exploratory-note\">Exploratory answer: saved in this revision workspace until accepted.</p>"
-      );
-    }
-    $("card-tutor").innerHTML = parts.join("");
+    parts.push(detailsRow("Why does Auteur recommend this?", "<p>" + escapeHtml(inspector.recommendation_rationale) + "</p>"));
+    parts.push(detailsRow("Teach me", listHtml(inspector.craft_principles)));
+    parts.push(detailsRow("Compare trade-offs", listHtml(inspector.tradeoffs)));
+    parts.push(detailsRow("What this choice changes", inspectorValue(inspector["narrative_" + "consequences"])));
+    parts.push(detailsRow("Alternatives", listHtml(inspector.alternatives)));
+    parts.push(detailsRow("Evidence / story context", listHtml(inspector.evidence)));
+    parts.push('<p class="inspector-authority">' + escapeHtml(inspector.authority_status) + " · Guidance " + escapeHtml(inspector.freshness) + "</p>");
+    body.innerHTML = parts.join("");
+  }
+
+  function renderTutor(card) {
+    // Tutor detail moved to the right-side Inspector; the center remains focused.
+    // Legacy card fields (narrative_principle, downstream_consequences, evidence)
+    // remain part of the compatibility response; detail is now projected into
+    // guidance_inspector rather than assembled in this client.
+    $("card-why-now").textContent = "Why now: " + (card.why_this_matters || "");
+    $("card-recommendation").textContent = "Auteur suggests: " + (card.recommendation || "") + " · Why?";
+  }
+
+  function syncInspector() {
+    var panel = $("guidance-inspector");
+    var button = $("open-inspector");
+    panel.classList.toggle("is-open", state.inspectorOpen);
+    panel.setAttribute("aria-hidden", state.inspectorOpen ? "false" : "true");
+    button.setAttribute("aria-expanded", state.inspectorOpen ? "true" : "false");
   }
 
   function renderWarningsInline(projection, card) {
@@ -381,7 +405,10 @@
       state.currentCardId = null;
       question.textContent = "Story foundation accepted";
       optionsBox.innerHTML = '<p class="completion-state">Discover, Story Identity, and Whole-Story Structure are canonical.</p>';
-      $("card-tutor").innerHTML = "";
+      $("card-why-now").textContent = "";
+      $("card-recommendation").textContent = "";
+      $("card-consequence").textContent = "";
+      $("inspector-body").innerHTML = "";
       $("card-warnings").innerHTML = "";
       $("save-feedback").textContent = "Accepted story foundation.";
       $("continue-button").disabled = true;
@@ -393,12 +420,16 @@
       state.currentCardId = null;
       question.textContent = "No decision card available.";
       optionsBox.innerHTML = "";
-      $("card-tutor").innerHTML = "";
+      $("card-why-now").textContent = "";
+      $("card-recommendation").textContent = "";
+      $("card-consequence").textContent = "";
       $("continue-button").disabled = true;
       return;
     }
     state.currentCardId = card.card_id;
+    var workspace = projection.decision_workspace;
     question.textContent = card.question;
+    $("card-position").textContent = workspace && workspace.current_focus ? workspace.current_focus.position : "";
     var selected = card.selected_option;
     optionsBox.innerHTML = (card.options || [])
       .map(function (option) {
@@ -424,6 +455,10 @@
       }
     );
     renderTutor(card);
+    renderInspector(projection);
+    $("card-consequence").textContent = workspace && workspace.immediate_consequence
+      ? "What this choice changes: " + workspace.immediate_consequence
+      : "";
     renderWarningsInline(projection, card);
     var currentEntry = (projection.navigator || []).filter(function (entry) {
       return entry.current_card_id === card.card_id;
@@ -543,6 +578,8 @@
     renderNavigator(projection);
     renderStoryMap(projection);
     renderDecisionCard(projection);
+    renderInspector(projection);
+    syncInspector();
     renderReviews(projection);
   }
 
@@ -577,6 +614,16 @@
 
   function init() {
     initDrawer();
+    $("open-inspector").addEventListener("click", function () {
+      state.inspectorOpen = true;
+      syncInspector();
+      $("close-inspector").focus();
+    });
+    $("close-inspector").addEventListener("click", function () {
+      state.inspectorOpen = false;
+      syncInspector();
+      $("open-inspector").focus();
+    });
     var fromQuery = currentWorkspaceFromQuery();
     if (fromQuery) {
       state.workspaceId = fromQuery;

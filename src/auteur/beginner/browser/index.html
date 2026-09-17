@@ -38,16 +38,35 @@
     <main class="workspace-main">
       <p id="status-line" role="status" aria-live="polite" class="status-line"></p>
 
-      <section data-testid="decision-card" id="decision-card" class="decision-card" aria-label="Decision card">
-        <h2 id="card-question">Loading decision card&hellip;</h2>
-        <div id="card-options" class="card-options"></div>
-        <p id="save-feedback" class="save-feedback" aria-live="polite"></p>
-        <div id="card-warnings" class="card-warnings"></div>
-        <div id="card-tutor" class="card-tutor"></div>
-        <button data-testid="continue" id="continue-button" type="button" class="continue-button">
-          Continue
-        </button>
-      </section>
+      <div class="workspace-columns">
+        <section id="decision-workspace" class="decision-workspace" aria-label="Current decision">
+          <section data-testid="decision-card" id="decision-card" class="decision-card" aria-label="Decision card">
+            <p id="card-position" class="card-position"></p>
+            <h2 id="card-question">Loading decision card&hellip;</h2>
+            <p id="card-why-now" class="why-now"></p>
+            <p id="card-recommendation" class="recommendation"></p>
+            <div id="card-options" class="card-options"></div>
+            <p id="card-consequence" class="immediate-consequence"></p>
+            <p id="save-feedback" class="save-feedback" aria-live="polite"></p>
+            <div id="card-warnings" class="card-warnings"></div>
+            <button data-testid="continue" id="continue-button" type="button" class="continue-button">
+              Continue
+            </button>
+          </section>
+        </section>
+
+        <aside id="guidance-inspector" class="guidance-inspector" aria-label="Guidance Inspector" aria-hidden="true">
+          <div class="inspector-header">
+            <h2>Explore guidance</h2>
+            <button id="close-inspector" type="button" class="inspector-close">Close</button>
+          </div>
+          <div id="inspector-body"></div>
+        </aside>
+      </div>
+
+      <button id="open-inspector" type="button" class="explore-guidance" aria-controls="guidance-inspector" aria-expanded="false">
+        Explore guidance
+      </button>
 
       <section aria-label="Review" class="review-panel">
         <h2>Milestone review</h2>
