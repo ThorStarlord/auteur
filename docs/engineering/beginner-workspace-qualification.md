@@ -285,3 +285,38 @@ lighthouse keeper vanishes during a storm, leaving the lamp lit.",
 - This slice is NOT qualified and NOT release-ready. The walkthrough
   above is agent-simulated evidence only, bounded to the Mystery adapter
   and the two premises exercised.
+
+## Final UX candidate transfer walkthrough
+
+- Candidate SHA: `18ca54fc390bf935ee209ab866116156f3ad80b1`
+- Workspace: `library-prediction-transfer-18ca`
+- Premise: "A small-town librarian finds a book returned overnight even
+  though the library was locked. Its margins contain handwritten clues that
+  accurately predict the disappearance of a local teenager the next morning.
+  The checkout system says the book was never borrowed, and there must be a
+  non-supernatural explanation."
+- Guidance context: Mystery
+
+The final UX candidate was exercised in the browser with the author-supplied
+transfer premise. The complete journey reached accepted Story Direction,
+accepted Story Identity, and accepted Whole-Story Structure. The same
+Decision Card → working choice → explicit review → canonical promotion
+grammar transferred to the new setting and disappearance-based mystery.
+
+Observed transfer checks:
+
+- Mystery guidance remained contextual: premise-specific decision framing was
+  visible while the ten-card inventory and interaction grammar stayed stable.
+- Non-recommended choices were presented as authorial tensions rather than
+  blocking errors.
+- Review became available only after all stage decisions were answered, and
+  promotion remained explicit for each milestone.
+- The final state clearly showed "Story foundation accepted", with Discover,
+  Story Identity, and Whole-Story Structure marked Accepted in the Navigator
+  and each represented once in the current-canon Story Map.
+- No new material usability friction was observed during this bounded
+  transfer run.
+
+This is **agent-observed browser evidence**, not an independent human
+usability study. It supports transfer of the interaction grammar but does not
+by itself convert the human qualification gate to PASS.
