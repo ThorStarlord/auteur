@@ -114,12 +114,21 @@ def test_projection_separates_story_consequences_from_auteur_reasoning(tmp_path:
         option=initial.decision_card.options[0],
         expected_session_version=initial.session_version,
     )
-    inspector = app.projection().guidance_inspector
+    projection = app.projection()
+    inspector = projection.guidance_inspector
 
     assert {item.semantic_area for item in inspector.narrative_consequences}
     assert inspector.recommendation_rationale
     assert inspector.evidence
     assert inspector.authority_status == "DERIVED / NOT CANON"
+    assert inspector.context_guidance.reader_experience
+    assert inspector.context_guidance.genre_conventions
+    assert inspector.context_guidance.emotional_promise is None
+    assert inspector.option_comparisons
+    assert {item.label for item in inspector.option_comparisons} >= {
+        projection.decision_card.recommendation,
+        *projection.decision_card.options,
+    }
 
 
 def test_last_answer_makes_review_available_but_not_ready_until_validation(tmp_path: Path) -> None:

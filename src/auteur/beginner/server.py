@@ -126,6 +126,15 @@ def projection_to_dict(projection: WorkspaceProjection, *, workspace_id: str) ->
                 "recommendation": guidance_inspector.recommendation,
                 "recommendation_rationale": guidance_inspector.recommendation_rationale,
                 "selected_choice_relationship": guidance_inspector.selected_choice_relationship,
+                "context_guidance": {
+                    "reader_experience": guidance_inspector.context_guidance.reader_experience,
+                    "emotional_promise": guidance_inspector.context_guidance.emotional_promise,
+                    "narrative_promise": guidance_inspector.context_guidance.narrative_promise,
+                    "genre_conventions": list(guidance_inspector.context_guidance.genre_conventions),
+                    "patterns": list(guidance_inspector.context_guidance.patterns),
+                    "craft_principle": guidance_inspector.context_guidance.craft_principle,
+                    "common_failure_mode": guidance_inspector.context_guidance.common_failure_mode,
+                },
                 "narrative_consequences": [
                     {
                         "semantic_area": _enum_value(consequence.semantic_area),
@@ -137,6 +146,16 @@ def projection_to_dict(projection: WorkspaceProjection, *, workspace_id: str) ->
                         "compensating_requirements": list(consequence.compensating_requirements),
                     }
                     for consequence in guidance_inspector.narrative_consequences
+                ],
+                "option_comparisons": [
+                    {
+                        "label": comparison.label,
+                        "reader_experience": comparison.reader_experience,
+                        "narrative_promise": comparison.narrative_promise,
+                        "genre_conventions": list(comparison.genre_conventions),
+                        "tradeoffs": list(comparison.tradeoffs),
+                    }
+                    for comparison in guidance_inspector.option_comparisons
                 ],
                 "alternatives": list(guidance_inspector.alternatives),
                 "tradeoffs": list(guidance_inspector.tradeoffs),

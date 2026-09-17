@@ -26,6 +26,7 @@ from auteur.beginner.mystery_adapter import (
 )
 from auteur.beginner.guidance import (
     BeginnerGuidance,
+    GuidanceContext,
     NarrativeConsequence,
     OptionImpact,
     SemanticArea,
@@ -82,6 +83,38 @@ def test_option_impact_remains_compatible_and_projects_derived_guidance() -> Non
     assert isinstance(impact, OptionImpact)
     assert impact.authority_status == "DERIVED / NOT CANON"
     assert impact.narrative_consequences
+
+
+def test_mystery_guidance_exposes_context_without_internal_rationale() -> None:
+    session = SessionEnvelope.new(
+        project_id="context-test",
+        guidance_genre="mystery",
+        premise="A librarian finds predictive clues in a returned book.",
+    )
+    guidance = guidance_for("discover.story-experience", session)
+
+    assert isinstance(guidance.context_guidance, GuidanceContext)
+    assert guidance.context_guidance.reader_experience
+    assert guidance.context_guidance.narrative_promise
+    assert guidance.context_guidance.genre_conventions
+    assert guidance.context_guidance.craft_principle
+    assert guidance.context_guidance.emotional_promise is None
+    assert "Sanitized stage status" not in guidance.recommendation_rationale
+    assert "Apply it as a teaching projection" not in guidance.recommendation_rationale
+    assert session.premise not in guidance.recommendation_rationale
+
+
+def test_mystery_guidance_context_is_deterministic() -> None:
+    session = SessionEnvelope.new(
+        project_id="deterministic-context",
+        guidance_genre="mystery",
+        premise="A librarian finds predictive clues in a returned book.",
+    )
+    first = guidance_for("discover.story-experience", session)
+    second = guidance_for("discover.story-experience", session)
+
+    assert first.context_guidance == second.context_guidance
+    assert first.rationale == second.rationale
 
 
 def test_every_mystery_option_has_relevant_non_generic_consequences() -> None:

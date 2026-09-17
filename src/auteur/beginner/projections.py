@@ -25,6 +25,7 @@ from .contracts import (
 )
 from .guidance import (
     BeginnerGuidance,
+    GuidanceContext,
     NarrativeConsequence,
     QualificationCard,
     QualificationInventory,
@@ -168,13 +169,26 @@ class DecisionWorkspaceProjection:
 
 
 @dataclass(frozen=True)
+class OptionComparisonProjection:
+    """Comparable narrative dimensions for one available option."""
+
+    label: str
+    reader_experience: str
+    narrative_promise: str
+    genre_conventions: tuple[str, ...]
+    tradeoffs: tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class GuidanceInspectorProjection:
     """On-demand Tutor detail, separated from story-facing consequences."""
 
     recommendation: str
     recommendation_rationale: str
     selected_choice_relationship: str
+    context_guidance: GuidanceContext
     narrative_consequences: tuple[NarrativeConsequence, ...]
+    option_comparisons: tuple[OptionComparisonProjection, ...]
     alternatives: tuple[str, ...]
     tradeoffs: tuple[str, ...]
     craft_principles: tuple[str, ...]
@@ -638,9 +652,20 @@ def _guidance_inspector_projection(
     )
     return GuidanceInspectorProjection(
         recommendation=guidance.recommendation,
-        recommendation_rationale=guidance.rationale,
+        recommendation_rationale=guidance.recommendation_rationale,
         selected_choice_relationship=relationship,
+        context_guidance=guidance.context_guidance,
         narrative_consequences=consequences,
+        option_comparisons=tuple(
+            OptionComparisonProjection(
+                label=option,
+                reader_experience=impact.audience_experience,
+                narrative_promise=impact.narrative_structure,
+                genre_conventions=impact.expected_tropes,
+                tradeoffs=impact.tradeoffs,
+            )
+            for option, impact in guidance.option_impacts.items()
+        ),
         alternatives=guidance.alternatives,
         tradeoffs=guidance.tradeoffs,
         craft_principles=(guidance.narrative_principle,),

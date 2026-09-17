@@ -234,6 +234,60 @@
     return "<p>" + escapeHtml(value) + "</p>";
   }
 
+  function contextRows(context) {
+    var labels = [
+      ["reader_experience", "Reader experience"],
+      ["emotional_promise", "Emotional promise"],
+      ["narrative_promise", "Narrative promise"],
+      ["genre_conventions", "Genre conventions"],
+      ["patterns", "Relevant patterns"],
+      ["craft_principle", "Mystery craft principle"],
+      ["common_failure_mode", "Common failure mode"],
+    ];
+    return labels.map(function (entry) {
+      var value = context[entry[0]];
+      if (!value || (Array.isArray(value) && value.length === 0)) return "";
+      return "<p><strong>" + entry[1] + ":</strong> " +
+        (Array.isArray(value) ? escapeHtml(value.join("; ")) : escapeHtml(value)) + "</p>";
+    }).join("");
+  }
+
+  function consequenceGroups(items) {
+    var grouped = {};
+    (items || []).forEach(function (item) {
+      var area = item.semantic_area;
+      if (!grouped[area]) grouped[area] = [];
+      grouped[area].push(item);
+    });
+    return Object.keys(grouped).map(function (area) {
+      var content = grouped[area].map(function (item) {
+        var parts = ["<p>" + escapeHtml(item.summary) + "</p>"];
+        [["implications", "Implications"], ["what_becomes_easier", "This makes easier"],
+          ["what_becomes_harder", "This makes harder"], ["risks", "Watch for"],
+          ["compensating_requirements", "Compensate by"]].forEach(function (entry) {
+            if (item[entry[0]] && item[entry[0]].length) {
+              parts.push("<p><strong>" + entry[1] + ":</strong></p>" + listHtml(item[entry[0]]));
+            }
+          });
+        return parts.join("");
+      }).join("");
+      var labels = { Identity: "Story Identity", Structure: "Structure", Realization: "Realization", Expression: "Expression" };
+      return detailsRow(labels[area] || area, content);
+    }).join("");
+  }
+
+  function comparisonRows(comparisons) {
+    return (comparisons || []).map(function (comparison) {
+      return detailsRow(
+        comparison.label,
+        "<p><strong>Reader experience:</strong> " + escapeHtml(comparison.reader_experience) +
+        "</p><p><strong>Narrative promise:</strong> " + escapeHtml(comparison.narrative_promise) +
+        "</p><p><strong>Genre conventions:</strong> " + escapeHtml((comparison.genre_conventions || []).join("; ")) +
+        "</p>" + listHtml(comparison.tradeoffs || [])
+      );
+    }).join("");
+  }
+
   function renderInspector(projection) {
     var inspector = projection.guidance_inspector;
     var body = $("inspector-body");
@@ -243,11 +297,10 @@
     }
     var parts = [];
     parts.push(detailsRow("Why does Auteur recommend this?", "<p>" + escapeHtml(inspector.recommendation_rationale) + "</p>"));
-    parts.push(detailsRow("Teach me", listHtml(inspector.craft_principles)));
-    parts.push(detailsRow("Compare trade-offs", listHtml(inspector.tradeoffs)));
-    parts.push(detailsRow("What this choice changes", inspectorValue(inspector["narrative_" + "consequences"])));
-    parts.push(detailsRow("Alternatives", listHtml(inspector.alternatives)));
-    parts.push(detailsRow("Evidence / story context", listHtml(inspector.evidence)));
+    parts.push(detailsRow("Mystery & reader contract", contextRows(inspector.context_guidance || {})));
+    parts.push(detailsRow("What this choice changes", consequenceGroups(inspector["narrative_" + "consequences"])));
+    parts.push(detailsRow("Compare options", comparisonRows(inspector.option_comparisons)));
+    parts.push(detailsRow("Evidence & provenance", listHtml(inspector.evidence)));
     parts.push('<p class="inspector-authority">' + escapeHtml(inspector.authority_status) + " · Guidance " + escapeHtml(inspector.freshness) + "</p>");
     body.innerHTML = parts.join("");
   }
@@ -272,11 +325,8 @@
   function renderWarningsInline(projection, card) {
     var html = [];
     var warnings = [];
-    if (card && card.warnings_or_tensions) {
-      warnings = warnings.concat(card.warnings_or_tensions);
-    }
-    // Card warnings are the source for card-local guidance. The combined
-    // projection no longer repeats them with a card-id prefix.
+    // Ordinary option comparison belongs in the Inspector. The center only
+    // receives active issues from the combined projection/tension state.
     warnings.forEach(function (warning) {
       html.push('<p class="guidance-note" role="note">' + escapeHtml(warning) + "</p>");
     });

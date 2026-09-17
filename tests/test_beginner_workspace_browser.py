@@ -161,3 +161,21 @@ def test_browser_inspector_and_navigator_are_accessible_drawers():
     assert "window.innerWidth <= 800" in js
     assert "Escape" in js
     assert "aria-hidden" in js
+
+
+def test_browser_renders_contextual_inspector_without_internal_semantic_labels():
+    js = _read(APP)
+    assert "Mystery & reader contract" in js
+    assert "Reader experience" in js
+    assert "Emotional promise" in js
+    assert "Narrative promise" in js
+    assert "Genre conventions" in js
+    assert "Common failure mode" in js
+    assert "option_comparisons" in js
+    assert "Semantic Area:" not in js
+
+
+def test_browser_keeps_tradeoffs_out_of_center_warnings():
+    js = _read(APP)
+    assert "warnings = warnings.concat" not in js
+    assert "card.warnings_or_tensions" not in js

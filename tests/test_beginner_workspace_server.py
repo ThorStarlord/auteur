@@ -99,6 +99,8 @@ def test_http_projection_exposes_composed_decision_and_inspector_views(tmp_path)
         assert body["decision_workspace"]["current_focus"]["question"] == card["question"]
         assert body["decision_workspace"]["options"][0]["selected"] is True
         assert body["guidance_inspector"]["authority_status"] == "DERIVED / NOT CANON"
+        assert body["guidance_inspector"]["context_guidance"]["reader_experience"]
+        assert body["guidance_inspector"]["option_comparisons"]
         assert body["guidance_inspector"]["narrative_consequences"]
         assert body["guidance_inspector"]["narrative_consequences"][0]["semantic_area"] in {
             "Identity", "Structure", "Realization", "Expression"

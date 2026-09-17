@@ -73,6 +73,43 @@ class SemanticArea(str, Enum):
     EXPRESSION = "Expression"
 
 
+class GuidanceContext(BaseModel):
+    """Relevant domain knowledge used to teach one decision."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+    reader_experience: str | None = None
+    emotional_promise: str | None = None
+    narrative_promise: str | None = None
+    genre_conventions: tuple[str, ...] = Field(default_factory=tuple)
+    patterns: tuple[str, ...] = Field(default_factory=tuple)
+    craft_principle: str | None = None
+    common_failure_mode: str | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def reject_coercible_collections(cls, data: object) -> object:
+        if isinstance(data, dict):
+            for name in ("genre_conventions", "patterns"):
+                if name in data and type(data[name]) is not tuple:
+                    raise ValueError(f"{name} must be a tuple")
+        return data
+
+    @model_validator(mode="after")
+    def reject_blank_context(self) -> GuidanceContext:
+        values = (
+            self.reader_experience,
+            self.emotional_promise,
+            self.narrative_promise,
+            self.craft_principle,
+            self.common_failure_mode,
+            *self.genre_conventions,
+            *self.patterns,
+        )
+        if any(value is not None and not value.strip() for value in values):
+            raise ValueError("GuidanceContext fields must be nonblank")
+        return self
+
+
 class NarrativeConsequence(BaseModel):
     """Relevance-driven, derived effect of choosing one option."""
 
@@ -245,11 +282,13 @@ class BeginnerGuidance(BaseModel):
     narrative_principle: str = Field(min_length=1)
     recommendation: str = Field(min_length=1)
     rationale: str = Field(min_length=1)
+    recommendation_rationale: str = Field(min_length=1)
     context_summary: str = Field(min_length=1)
     alternatives: tuple[str, ...] = Field(min_length=1)
     tradeoffs: tuple[str, ...] = Field(min_length=1)
     downstream_consequences: tuple[str, ...] = Field(min_length=1)
     warnings_or_tensions: tuple[str, ...] = Field(min_length=1)
+    context_guidance: GuidanceContext = Field(default_factory=GuidanceContext)
     option_impacts: dict[str, OptionImpact] = Field(default_factory=dict)
     evidence_references: tuple[EvidenceReference, ...] = Field(min_length=1)
     pack_sources: tuple[PackProvenance, ...] = Field(min_length=1)
@@ -573,6 +612,21 @@ def _option_impacts(card: QualificationCard) -> dict[str, OptionImpact]:
     }
 
 
+def _guidance_context(card: QualificationCard, impact: OptionImpact) -> GuidanceContext:
+    consequences = impact.narrative_consequences
+    failure_mode = next(
+        (risk for consequence in consequences for risk in consequence.risks),
+        None,
+    )
+    return GuidanceContext(
+        reader_experience=impact.audience_experience,
+        narrative_promise=impact.narrative_structure,
+        genre_conventions=impact.expected_tropes,
+        craft_principle=card.narrative_principle,
+        common_failure_mode=failure_mode,
+    )
+
+
 def _narrative_consequences(
     card_id: str,
     option: str,
@@ -656,11 +710,18 @@ def guidance_for(card_id: str, session: SessionEnvelope) -> BeginnerGuidance:
     recommendation, recommendation_reason = _select_recommendation(card, session)
     commitment_summary = _commitment_summary(card, session)
     impacts = _option_impacts(card)
+    recommended_impact = impacts[recommendation]
+    context_guidance = _guidance_context(card, recommended_impact)
     rationale = (
         f"This deterministic recommendation starts with {recommendation.lower()} "
         f"for the current premise, {session.premise!r}. {recommendation_reason} "
         f"{commitment_summary} "
         "Apply it as a teaching projection, not as a canonical selection."
+    )
+    recommendation_rationale = (
+        f"The {recommendation.lower()} choice makes "
+        f"{context_guidance.reader_experience.lower()} central to the reader's experience. "
+        f"{recommendation_reason}"
     )
     return BeginnerGuidance(
         card_id=card.card_id,
@@ -673,11 +734,13 @@ def guidance_for(card_id: str, session: SessionEnvelope) -> BeginnerGuidance:
         narrative_principle=card.narrative_principle,
         recommendation=recommendation,
         rationale=rationale,
+        recommendation_rationale=recommendation_rationale,
         context_summary=context_summary,
         alternatives=tuple(option for option in card.options if option != recommendation),
         tradeoffs=card.warnings_or_tensions,
         downstream_consequences=card.downstream_consequences,
         warnings_or_tensions=card.warnings_or_tensions,
+        context_guidance=context_guidance,
         option_impacts=impacts,
         evidence_references=tuple(
             reference.model_copy(update={"option_labels": (recommendation,)})
