@@ -26,6 +26,9 @@ from auteur.beginner.mystery_adapter import (
 )
 from auteur.beginner.guidance import (
     BeginnerGuidance,
+    NarrativeConsequence,
+    OptionImpact,
+    SemanticArea,
     register_evidence_source,
     unregister_evidence_source,
     guidance_for,
@@ -36,6 +39,79 @@ from auteur.beginner.projections import evidence_label
 from auteur.mystery.core_templates import HowdunitTemplate
 from auteur.mystery.validation import RuleSet
 from auteur.story_design_packs.models import PackProvenance
+
+
+def _all_stages_available_session() -> SessionEnvelope:
+    session = SessionEnvelope.new(
+        project_id="semantic-impact-test",
+        guidance_genre="mystery",
+        premise="A sealed elevator murder mystery.",
+    )
+    return session.model_copy(update={
+        "stages": {
+            stage: status.model_copy(update={"availability": StageAvailability.AVAILABLE})
+            for stage, status in session.stages.items()
+        }
+    })
+
+
+def test_narrative_consequence_supports_relevance_driven_semantic_fields() -> None:
+    consequence = NarrativeConsequence(
+        semantic_area=SemanticArea.STRUCTURE,
+        summary="Even clues keep the reader reasoning throughout the inquiry.",
+        implications=("The reversal must reinterpret evidence.",),
+        what_becomes_easier=("Maintaining a fair inference path",),
+        risks=("The middle may feel less urgent without setbacks",),
+    )
+    assert consequence.semantic_area is SemanticArea.STRUCTURE
+    assert consequence.what_becomes_harder == ()
+    assert consequence.compensating_requirements == ()
+
+
+def test_narrative_consequence_rejects_blank_populated_fields() -> None:
+    with pytest.raises(ValueError, match="nonblank"):
+        NarrativeConsequence(
+            semantic_area=SemanticArea.IDENTITY,
+            summary=" ",
+        )
+
+
+def test_option_impact_remains_compatible_and_projects_derived_guidance() -> None:
+    guidance = guidance_for("discover.story-experience", _all_stages_available_session())
+    impact = guidance.option_impacts[guidance.recommendation]
+    assert isinstance(impact, OptionImpact)
+    assert impact.authority_status == "DERIVED / NOT CANON"
+    assert impact.narrative_consequences
+
+
+def test_every_mystery_option_has_relevant_non_generic_consequences() -> None:
+    session = _all_stages_available_session()
+    inventory = mystery_qualification_inventory()
+    for card in inventory.cards:
+        guidance = guidance_for(card.card_id, session)
+        assert set(guidance.option_impacts) == set(card.options)
+        for option in card.options:
+            impact = guidance.option_impacts[option]
+            assert impact.narrative_consequences
+            assert all(item.summary.strip() for item in impact.narrative_consequences)
+            rendered = " ".join(
+                [impact.audience_experience, impact.aesthetic_framing,
+                 impact.narrative_structure]
+                + list(impact.tradeoffs)
+                + [item.summary for item in impact.narrative_consequences]
+            ).casefold()
+            assert "a different approach" not in rendered
+            assert "emphasizes a different" not in rendered
+
+
+def test_irrelevant_semantic_areas_are_omitted() -> None:
+    guidance = guidance_for("discover.story-experience", _all_stages_available_session())
+    impact = guidance.option_impacts["Detective procedural"]
+    areas = {item.semantic_area for item in impact.narrative_consequences}
+    assert SemanticArea.IDENTITY in areas
+    assert SemanticArea.STRUCTURE in areas
+    assert SemanticArea.REALIZATION not in areas
+    assert SemanticArea.EXPRESSION not in areas
 
 
 def test_mystery_inventory_is_small_sealed_and_stable() -> None:

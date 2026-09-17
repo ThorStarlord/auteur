@@ -64,6 +64,57 @@ class EvidenceReference(BaseModel):
         return self
 
 
+class SemanticArea(str, Enum):
+    """Auteur semantic layer touched by a derived narrative consequence."""
+
+    IDENTITY = "Identity"
+    STRUCTURE = "Structure"
+    REALIZATION = "Realization"
+    EXPRESSION = "Expression"
+
+
+class NarrativeConsequence(BaseModel):
+    """Relevance-driven, derived effect of choosing one option."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+    semantic_area: SemanticArea
+    summary: str = Field(min_length=1)
+    implications: tuple[str, ...] = Field(default_factory=tuple)
+    what_becomes_easier: tuple[str, ...] = Field(default_factory=tuple)
+    what_becomes_harder: tuple[str, ...] = Field(default_factory=tuple)
+    risks: tuple[str, ...] = Field(default_factory=tuple)
+    compensating_requirements: tuple[str, ...] = Field(default_factory=tuple)
+
+    @model_validator(mode="before")
+    @classmethod
+    def reject_coercible_fields(cls, data: object) -> object:
+        if isinstance(data, dict):
+            for name in (
+                "implications",
+                "what_becomes_easier",
+                "what_becomes_harder",
+                "risks",
+                "compensating_requirements",
+            ):
+                if name in data and type(data[name]) is not tuple:
+                    raise ValueError(f"{name} must be a tuple")
+        return data
+
+    @model_validator(mode="after")
+    def reject_blank_fields(self) -> NarrativeConsequence:
+        values = (
+            self.summary,
+            *self.implications,
+            *self.what_becomes_easier,
+            *self.what_becomes_harder,
+            *self.risks,
+            *self.compensating_requirements,
+        )
+        if any(not value.strip() for value in values):
+            raise ValueError("NarrativeConsequence fields must be nonblank")
+        return self
+
+
 class OptionImpact(BaseModel):
     """Deterministic, derived explanation of what choosing an option changes."""
 
@@ -73,6 +124,8 @@ class OptionImpact(BaseModel):
     expected_tropes: tuple[str, ...] = Field(min_length=1)
     narrative_structure: str = Field(min_length=1)
     tradeoffs: tuple[str, ...] = Field(min_length=1)
+    narrative_consequences: tuple[NarrativeConsequence, ...] = Field(default_factory=tuple)
+    authority_status: Literal["DERIVED / NOT CANON"] = "DERIVED / NOT CANON"
 
     @model_validator(mode="before")
     @classmethod
@@ -81,6 +134,8 @@ class OptionImpact(BaseModel):
             raise ValueError("expected_tropes must be a tuple")
         if isinstance(data, dict) and "tradeoffs" in data and type(data["tradeoffs"]) is not tuple:
             raise ValueError("tradeoffs must be a tuple")
+        if isinstance(data, dict) and "narrative_consequences" in data and type(data["narrative_consequences"]) is not tuple:
+            raise ValueError("narrative_consequences must be a tuple")
         return data
 
 
@@ -410,6 +465,11 @@ def _option_impacts(card: QualificationCard) -> dict[str, OptionImpact]:
                 expected_tropes=("interviews", "clues", "deductions"),
                 narrative_structure="The investigation process organizes the story's progression.",
                 tradeoffs=("Emphasizes process over impossible-mechanism puzzle solving.",),
+                narrative_consequences=_narrative_consequences(
+                    card.card_id,
+                    "Detective procedural",
+                    ("Follow the investigator's reasoning and case progression.", "Analytical and investigative.", "The investigation process organizes the story's progression.", "Emphasizes process over impossible-mechanism puzzle solving."),
+                ),
             ),
             "Police/investigation procedural": OptionImpact(
                 audience_experience="Follow an institutional investigation with visible procedures.",
@@ -417,6 +477,11 @@ def _option_impacts(card: QualificationCard) -> dict[str, OptionImpact]:
                 expected_tropes=("teams", "evidence handling", "official process"),
                 narrative_structure="Procedural stages shape how the case advances.",
                 tradeoffs=("Adds institutional realism but can reduce the intimate suspect focus.",),
+                narrative_consequences=_narrative_consequences(
+                    card.card_id,
+                    "Police/investigation procedural",
+                    ("Follow an institutional investigation with visible procedures.", "Grounded and procedural.", "Procedural stages shape how the case advances.", "Adds institutional realism but can reduce the intimate suspect focus."),
+                ),
             ),
             "Locked-room puzzle": OptionImpact(
                 audience_experience="Actively solve an apparently impossible contained crime.",
@@ -424,6 +489,11 @@ def _option_impacts(card: QualificationCard) -> dict[str, OptionImpact]:
                 expected_tropes=("impossible access", "constrained suspects", "spatial clues"),
                 narrative_structure="Eliminating impossibilities becomes the central progression.",
                 tradeoffs=("Strengthens the puzzle contract but demands precise mechanics and clues.",),
+                narrative_consequences=_narrative_consequences(
+                    card.card_id,
+                    "Locked-room puzzle",
+                    ("Actively solve an apparently impossible contained crime.", "Contained, precise, and puzzle-oriented.", "Eliminating impossibilities becomes the central progression.", "Strengthens the puzzle contract but demands precise mechanics and clues."),
+                ),
             ),
             "Intricate puzzle structure": OptionImpact(
                 audience_experience="Reconstruct a complex designed solution from layered evidence.",
@@ -431,6 +501,11 @@ def _option_impacts(card: QualificationCard) -> dict[str, OptionImpact]:
                 expected_tropes=("layered clues", "reversals", "hidden patterns"),
                 narrative_structure="Clue architecture and information timing dominate the structure.",
                 tradeoffs=("Offers richer reinterpretation but increases reader processing demands.",),
+                narrative_consequences=_narrative_consequences(
+                    card.card_id,
+                    "Intricate puzzle structure",
+                    ("Reconstruct a complex designed solution from layered evidence.", "Cerebral and engineered.", "Clue architecture and information timing dominate the structure.", "Offers richer reinterpretation but increases reader processing demands."),
+                ),
             ),
         }
     contexts = {
@@ -488,9 +563,80 @@ def _option_impacts(card: QualificationCard) -> dict[str, OptionImpact]:
             expected_tropes=(card.title, "clues", "suspect pressure"),
             narrative_structure=selected[option][2],
             tradeoffs=(selected[option][3],),
+            narrative_consequences=_narrative_consequences(
+                card.card_id,
+                option,
+                selected[option],
+            ),
         )
         for option in card.options
     }
+
+
+def _narrative_consequences(
+    card_id: str,
+    option: str,
+    impact: tuple[str, str, str, str],
+) -> tuple[NarrativeConsequence, ...]:
+    """Map curated Mystery impact copy onto relevant Auteur semantic layers."""
+    audience, framing, structure, tradeoff = impact
+    focus = {
+        "discover.story-experience": "the reader-facing mystery contract",
+        "discover.personal-stakes": "the story's emotional reason to investigate",
+        "discover.investigation-approach": "the method by which the mystery becomes knowable",
+        "story_identity.protagonist-want": "the protagonist's practical engine",
+        "story_identity.relationship-pressure": "the relationship pressure surrounding the truth",
+        "story_identity.information-contract": "the reader's information contract",
+        "story_identity.truth-opposition": "the force that protects the hidden truth",
+        "structure.investigation-disruption": "the investigation's escalation pattern",
+        "structure.clue-distribution": "the timing of usable evidence",
+        "structure.final-revelation": "the causal shape of the final explanation",
+    }[card_id]
+    identity_cards = {
+        "discover.story-experience",
+        "discover.personal-stakes",
+        "story_identity.protagonist-want",
+        "story_identity.relationship-pressure",
+        "story_identity.information-contract",
+        "story_identity.truth-opposition",
+    }
+    consequences = [
+        NarrativeConsequence(
+            semantic_area=SemanticArea.IDENTITY,
+            summary=f"Choosing {option} commits {focus} to a {framing.lower()} promise.",
+            implications=(f"The story must keep delivering the {audience.lower()}",),
+            what_becomes_easier=(f"Maintaining a consistent {focus}",),
+            risks=(tradeoff,),
+            compensating_requirements=(f"Preserve the {focus} when later decisions add pressure.",),
+        )
+    ] if card_id in identity_cards else []
+    consequences.append(
+        NarrativeConsequence(
+            semantic_area=SemanticArea.STRUCTURE,
+            summary=f"{structure}",
+            implications=(f"Later beats must make {focus} visible through the investigation's causal turns.",),
+            what_becomes_harder=(f"Changing {option} later without reworking dependent beats",),
+            risks=(tradeoff,),
+            compensating_requirements=("Make each reversal or reveal pay off the selected direction.",),
+        )
+    )
+    if card_id in {
+        "story_identity.relationship-pressure",
+        "story_identity.truth-opposition",
+        "structure.investigation-disruption",
+        "structure.clue-distribution",
+        "structure.final-revelation",
+    }:
+        consequences.append(
+            NarrativeConsequence(
+                semantic_area=SemanticArea.REALIZATION,
+                summary=f"Scenes must embody {option.lower()} through observable pressure and changed knowledge.",
+                implications=("Character actions and revealed facts must reflect the selected constraint.",),
+                what_becomes_easier=("Planning concrete investigation beats around the chosen pressure",),
+                risks=("A scene can feel arbitrary if it does not change the investigation or a relationship.",),
+            )
+        )
+    return tuple(consequences)
 
 
 def guidance_for(card_id: str, session: SessionEnvelope) -> BeginnerGuidance:
