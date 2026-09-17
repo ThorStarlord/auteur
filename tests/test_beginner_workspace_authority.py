@@ -262,6 +262,12 @@ def test_accepted_revision_stales_downstream_but_exploration_does_not(tmp_path: 
     assert identity_refs[0].revision.revision == 1
     assert identity_refs[1].revision.revision == 2
 
+    current_identity_refs = [
+        ref for ref in app.projection().canonical_refs if ref.milestone_id == "story_identity"
+    ]
+    assert len(current_identity_refs) == 1
+    assert current_identity_refs[0].revision.revision == 2
+
     staled = app.projection()
     assert staled.revision.active_revision_id is None
     structure_entry = next(entry for entry in staled.navigator if entry.stage is DecisionStage.STORY_STRUCTURE)

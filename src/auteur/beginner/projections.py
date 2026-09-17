@@ -28,6 +28,7 @@ from .guidance import (
     QualificationCard,
     QualificationInventory,
     QualificationStage,
+    _latest_accepted_milestones,
 )
 
 
@@ -315,7 +316,7 @@ def build_workspace_projection(
         warnings=warnings,
         tensions=tensions,
         reviews=reviews,
-        canonical_refs=tuple(session.accepted_milestones),
+        canonical_refs=_latest_accepted_milestones(session),
         revision=RevisionProjection(
             active_revision_id=active_revision_id,
             is_exploration=active_revision_id is not None,
