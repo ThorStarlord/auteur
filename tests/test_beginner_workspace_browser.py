@@ -148,3 +148,16 @@ def test_browser_does_not_build_semantics_or_readiness():
     js = _read(APP)
     assert "narrative_consequences" not in js.replace("guidance_inspector", "")
     assert "ready_to_accept" not in js
+
+
+def test_browser_inspector_and_navigator_are_accessible_drawers():
+    html = _read(INDEX)
+    js = _read(APP)
+    css = _read(STYLES)
+    assert 'aria-controls="guidance-inspector"' in html
+    assert 'aria-expanded="false"' in html
+    assert 'aria-live="polite"' in html
+    assert ".guidance-inspector.is-open" in css
+    assert "window.innerWidth <= 800" in js
+    assert "Escape" in js
+    assert "aria-hidden" in js

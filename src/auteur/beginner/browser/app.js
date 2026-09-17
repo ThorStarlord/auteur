@@ -624,6 +624,13 @@
       syncInspector();
       $("open-inspector").focus();
     });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && state.inspectorOpen) {
+        state.inspectorOpen = false;
+        syncInspector();
+        $("open-inspector").focus();
+      }
+    });
     var fromQuery = currentWorkspaceFromQuery();
     if (fromQuery) {
       state.workspaceId = fromQuery;
