@@ -105,6 +105,24 @@ def test_http_projection_exposes_composed_decision_and_inspector_views(tmp_path)
         }
 
 
+def test_http_projection_reads_and_selection_do_not_promote_canon(tmp_path):
+    with running_server(tmp_path) as server:
+        _, created = post_json(server, "/api/beginner/workspaces", create_payload())
+        workspace_id = created["workspace"]["workspace_id"]
+        _, reread = get_json(server, f"/api/beginner/workspaces/{workspace_id}")
+        assert reread["session_version"] == created["session_version"]
+        assert reread["canonical_refs"] == []
+        assert reread["guidance_inspector"]["authority_status"] == "DERIVED / NOT CANON"
+
+        card = reread["decision_card"]
+        selected = command_json(
+            server, workspace_id, "select", reread,
+            {"card_id": card["card_id"], "option": card["options"][0]},
+        )
+        assert selected["canonical_refs"] == []
+        assert selected["decision_card"]["selected_option"] == card["options"][0]
+
+
 def test_root_serves_beginner_browser_entrypoint(tmp_path):
     with running_server(tmp_path) as server:
         with urlopen(f"{base(server)}/") as response:
