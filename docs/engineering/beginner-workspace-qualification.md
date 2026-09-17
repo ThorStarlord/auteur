@@ -320,3 +320,41 @@ Observed transfer checks:
 This is **agent-observed browser evidence**, not an independent human
 usability study. It supports transfer of the interaction grammar but does not
 by itself convert the human qualification gate to PASS.
+
+## Final independent human transfer walkthrough
+
+- Candidate SHA: `0cbf6cff5f6d5ba04cc4d108f0e6546c2ec3ba30`
+- Workspace: `librarian-human-desktop-review-fix`
+- Premise: the librarian / predictive-marginalia transfer premise above.
+- Runtime: fresh server restarted from the verified feature worktree at the
+  candidate SHA.
+
+Human result:
+
+- Discovery: PASS, including working choices, recommendation divergence,
+  review, and **Accept Story Direction**.
+- Story Identity: PASS; supporting decisions used readable titles rather than
+  raw card IDs, and **Accept Story Identity** succeeded.
+- Whole-Story Structure: PASS; supporting decisions used readable titles, and
+  **Accept Whole-Story Structure** succeeded.
+- Inspector guidance: PASS; reader experience, Mystery conventions, rationale,
+  and consequences were meaningful and available on demand.
+- Advice versus authority: PASS; canon changed only through explicit milestone
+  actions.
+- Final completion: PASS; the workspace showed **Story foundation accepted**,
+  all three stages as Accepted, and each milestone once in the current-canon
+  Story Map.
+- New material friction: none observed.
+
+Current status:
+
+```text
+IMPLEMENTED                  PASS
+TARGETED INTEGRATION         PASS
+EXACT-HEAD L1                PASS
+TRANSFER WALKTHROUGH         PASS — independent human observed
+HUMAN USABILITY              PASS
+PR #233                      DRAFT / UNMERGED
+L3                           NOT RUN
+RELEASE QUALIFIED            NO
+```
