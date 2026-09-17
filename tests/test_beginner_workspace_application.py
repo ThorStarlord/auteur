@@ -104,6 +104,8 @@ def test_projection_composes_decision_workspace_and_inspector_from_one_snapshot(
     assert projection.guidance_inspector.recommendation == projection.decision_card.recommendation
     assert projection.guidance_inspector.authority_status == "DERIVED / NOT CANON"
     assert projection.guidance_inspector.narrative_consequences
+    selected_impact = projection.decision_card.option_impacts[projection.decision_card.selected_option]
+    assert projection.decision_workspace.immediate_consequence == selected_impact.narrative_structure
 
 
 def test_projection_separates_story_consequences_from_auteur_reasoning(tmp_path: Path) -> None:

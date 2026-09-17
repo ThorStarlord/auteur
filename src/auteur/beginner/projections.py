@@ -591,8 +591,7 @@ def _decision_workspace_projection(
     if selected is not None:
         impact = decision_card.option_impacts.get(selected)
         if impact is not None:
-            consequences = getattr(impact, "narrative_consequences", ())
-            immediate = consequences[0].summary if consequences else impact.narrative_structure
+            immediate = impact.narrative_structure
     current_entry = next(entry for entry in navigator if entry.stage is decision_card.stage)
     if current_entry.review_available:
         next_action = f"Review {STAGE_LABELS[decision_card.stage]}"

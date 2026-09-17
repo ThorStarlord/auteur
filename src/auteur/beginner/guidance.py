@@ -627,6 +627,30 @@ def _guidance_context(card: QualificationCard, impact: OptionImpact) -> Guidance
     )
 
 
+def _why_this_matters(card: QualificationCard) -> str:
+    return {
+        "discover.story-experience": "This choice sets the reader contract for how the mystery unfolds.",
+        "discover.personal-stakes": "This choice connects the mystery's solution to a consequence that matters.",
+        "discover.investigation-approach": "This choice determines how the author and reader make progress through the investigation.",
+        "story_identity.protagonist-want": "This choice gives the protagonist a direction beyond solving the case.",
+        "story_identity.relationship-pressure": "This choice turns the investigation into pressure on a relationship.",
+        "story_identity.information-contract": "This choice sets how much the reader can infer before the revelation.",
+        "story_identity.truth-opposition": "This choice determines what keeps the truth from becoming easy.",
+        "structure.investigation-disruption": "This choice sets the rhythm that turns the premise into forward motion.",
+        "structure.clue-distribution": "This choice determines when evidence becomes usable to the reader.",
+        "structure.final-revelation": "This choice sets what the final revelation must explain and satisfy.",
+    }[card.card_id]
+
+
+def article_for(phrase: str) -> str:
+    """Return a readable indefinite-article phrase for curated guidance copy."""
+    normalized = phrase.strip().lower().rstrip(".!?")
+    if normalized.startswith(("a ", "an ", "the ")):
+        return normalized
+    article = "an" if normalized[:1] in "aeiou" else "a"
+    return f"{article} {normalized}"
+
+
 def _narrative_consequences(
     card_id: str,
     option: str,
@@ -635,16 +659,16 @@ def _narrative_consequences(
     """Map curated Mystery impact copy onto relevant Auteur semantic layers."""
     audience, framing, structure, tradeoff = impact
     focus = {
-        "discover.story-experience": "the reader-facing mystery contract",
-        "discover.personal-stakes": "the story's emotional reason to investigate",
-        "discover.investigation-approach": "the method by which the mystery becomes knowable",
-        "story_identity.protagonist-want": "the protagonist's practical engine",
-        "story_identity.relationship-pressure": "the relationship pressure surrounding the truth",
-        "story_identity.information-contract": "the reader's information contract",
-        "story_identity.truth-opposition": "the force that protects the hidden truth",
-        "structure.investigation-disruption": "the investigation's escalation pattern",
-        "structure.clue-distribution": "the timing of usable evidence",
-        "structure.final-revelation": "the causal shape of the final explanation",
+        "discover.story-experience": "reader-facing mystery contract",
+        "discover.personal-stakes": "story's emotional reason to investigate",
+        "discover.investigation-approach": "method by which the mystery becomes knowable",
+        "story_identity.protagonist-want": "protagonist's practical engine",
+        "story_identity.relationship-pressure": "relationship pressure surrounding the truth",
+        "story_identity.information-contract": "reader's information contract",
+        "story_identity.truth-opposition": "force that protects the hidden truth",
+        "structure.investigation-disruption": "investigation's escalation pattern",
+        "structure.clue-distribution": "timing of usable evidence",
+        "structure.final-revelation": "causal shape of the final explanation",
     }[card_id]
     identity_cards = {
         "discover.story-experience",
@@ -657,11 +681,11 @@ def _narrative_consequences(
     consequences = [
         NarrativeConsequence(
             semantic_area=SemanticArea.IDENTITY,
-            summary=f"Choosing {option} commits {focus} to a {framing.lower()} promise.",
-            implications=(f"The story must keep delivering the {audience.lower()}",),
+            summary=f"Choosing {option} commits the {focus} to {article_for(framing)} promise.",
+            implications=(f"The story must deliver this reader experience: {audience.lower()}",),
             what_becomes_easier=(f"Maintaining a consistent {focus}",),
             risks=(tradeoff,),
-            compensating_requirements=(f"Preserve the {focus} when later decisions add pressure.",),
+            compensating_requirements=(f"Preserve this {focus} when later decisions add pressure.",),
         )
     ] if card_id in identity_cards else []
     consequences.append(
@@ -719,8 +743,8 @@ def guidance_for(card_id: str, session: SessionEnvelope) -> BeginnerGuidance:
         "Apply it as a teaching projection, not as a canonical selection."
     )
     recommendation_rationale = (
-        f"The {recommendation.lower()} choice makes "
-        f"{context_guidance.reader_experience.lower()} central to the reader's experience. "
+        f"The {recommendation.lower()} choice is intended to deliver this reader experience: "
+        f"{context_guidance.reader_experience} "
         f"{recommendation_reason}"
     )
     return BeginnerGuidance(
@@ -728,8 +752,7 @@ def guidance_for(card_id: str, session: SessionEnvelope) -> BeginnerGuidance:
         stage=card.stage,
         question=card.question,
         why_this_matters=(
-            f"This decision determines how the story's central question operates for "
-            f"{session.premise!r}."
+            _why_this_matters(card)
         ),
         narrative_principle=card.narrative_principle,
         recommendation=recommendation,

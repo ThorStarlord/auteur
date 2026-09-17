@@ -102,6 +102,33 @@ def test_mystery_guidance_exposes_context_without_internal_rationale() -> None:
     assert "Sanitized stage status" not in guidance.recommendation_rationale
     assert "Apply it as a teaching projection" not in guidance.recommendation_rationale
     assert session.premise not in guidance.recommendation_rationale
+    assert "makes follow" not in guidance.recommendation_rationale
+    assert "investigator's reasoning" in guidance.recommendation_rationale
+
+
+def test_mystery_consequence_copy_uses_readable_articles_and_spacing() -> None:
+    state = SessionEnvelope.new("project-1", "mystery", "A sealed elevator mystery.")
+
+    guidance = guidance_for("discover.story-experience", state)
+    consequences = [
+        consequence
+        for impact in guidance.option_impacts.values()
+        for consequence in impact.narrative_consequences
+    ]
+    summaries = [item.summary for item in consequences]
+    implications = [item for consequence in consequences for item in consequence.implications]
+    supporting = [
+        item for consequence in consequences
+        for item in (*consequence.what_becomes_easier, *consequence.what_becomes_harder,
+                     *consequence.compensating_requirements)
+    ]
+    copy = " ".join((*summaries, *implications, *supporting))
+
+    assert "a analytical" not in copy
+    assert "a an" not in copy
+    assert "the the" not in copy
+    assert "a reader-facing" not in copy
+    assert "delivering follow" not in copy
 
 
 def test_mystery_guidance_context_is_deterministic() -> None:
