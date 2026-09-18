@@ -79,7 +79,7 @@ def build_workspace_payload(project_root: Path) -> dict[str, Any]:
     """Compose beginner-facing workspace state without changing project artifacts."""
     dashboard = build_dashboard(project_root)
     attention = dashboard.get("author_attention", [])
-    
+
     # Get current workflow stage for highlighting
     from auteur.workflow.engine import WorkflowEngine
     try:
@@ -98,7 +98,7 @@ def build_workspace_payload(project_root: Path) -> dict[str, Any]:
     except Exception:
         current_stage = None
         stage_progress = []
-    
+
     return {
         "authority_status": _AUTHORITY,
         "mutates_story": False,
