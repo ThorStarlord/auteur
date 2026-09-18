@@ -22,6 +22,7 @@ from .contracts import (
     LifecycleStatus,
     SessionEnvelope,
     StageStatus,
+    WorkingComposition,
 )
 from .guidance import (
     BeginnerGuidance,
@@ -215,6 +216,8 @@ class WorkspaceProjection:
     available_actions: tuple[str, ...] = ()
     decision_workspace: DecisionWorkspaceProjection | None = None
     guidance_inspector: GuidanceInspectorProjection | None = None
+    working_composition: WorkingComposition | None = None
+    mapping_preview: object | None = None
 
 
 def cards_for_stage(inventory: QualificationInventory, stage: DecisionStage) -> tuple[QualificationCard, ...]:
@@ -409,6 +412,7 @@ def build_workspace_projection(
         available_actions=tuple(actions),
         decision_workspace=decision_workspace,
         guidance_inspector=guidance_inspector,
+        working_composition=session.working_composition,
     )
 
 

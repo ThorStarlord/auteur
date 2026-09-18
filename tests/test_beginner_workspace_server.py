@@ -114,6 +114,8 @@ def test_http_projection_reads_and_selection_do_not_promote_canon(tmp_path):
         _, reread = get_json(server, f"/api/beginner/workspaces/{workspace_id}")
         assert reread["session_version"] == created["session_version"]
         assert reread["canonical_refs"] == []
+        assert "working_composition" in reread
+        assert "mapping_preview" in reread
         assert reread["guidance_inspector"]["authority_status"] == "DERIVED / NOT CANON"
 
         card = reread["decision_card"]

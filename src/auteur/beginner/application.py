@@ -102,6 +102,7 @@ from .contracts import (
     SessionEnvelope,
     StageAvailability,
     WorkingDecision,
+    WorkingComposition,
 )
 from .guidance import BeginnerGuidance, QualificationStage, SemanticArea, _adapter_for, guidance_for
 from .persistence import (
@@ -1000,12 +1001,76 @@ class BeginnerWorkspaceApplication:
             tensions=new_tensions,
             basis_digest=self._journey.get("basis_digest"),
         )
-        self.session_store.update(expected, lambda current: self._with_lifecycles(current, targets))
+        def persist_acknowledgement(current: SessionEnvelope) -> SessionEnvelope:
+            updated = self._with_lifecycles(current, targets)
+            composition = current.working_composition
+            if composition is not None:
+                composition = composition.model_copy(
+                    update={
+                        "tensions": tuple(
+                            tension.model_copy(update={"acknowledged": True})
+                            if tension.tension_id == resolved_tension_id
+                            else tension
+                            for tension in composition.tensions
+                        )
+                    }
+                )
+                updated = updated.model_copy(update={"working_composition": composition})
+            return updated
+
+        self.session_store.update(expected, persist_acknowledgement)
         self._journey["tensions"] = new_tensions
         self._save_journey()
         result = self._tension_view(new_tensions[resolved_tension_id])
         self._complete_command(resolved_command_id, "acknowledge", _freeze_tension(result))
         return result
+
+    def acknowledge_unmapped_remainder(
+        self,
+        *,
+        remainder_id: str | None = None,
+        expected_session_version: int | None = None,
+        command_id: str | None = None,
+        workspace_id: str | None = None,
+        command: MutationCommand | None = None,
+    ) -> WorkingComposition:
+        """Persist acknowledgement of one nonrepresentable composition remainder."""
+        expected, resolved_command_id, payload = self._envelope_args(
+            command=command,
+            workspace_id=workspace_id,
+            expected_session_version=expected_session_version,
+            command_id=command_id,
+        )
+        resolved_id = remainder_id if remainder_id is not None else payload.get("remainder_id")
+        if not isinstance(resolved_id, str) or not resolved_id:
+            raise BeginnerWorkspaceError("remainder_id is required")
+        session = self.session_store.load()
+        composition = session.working_composition
+        if composition is None:
+            raise BeginnerWorkspaceError("no working composition exists")
+        if not any(item.remainder_id == resolved_id for item in composition.unmapped_remainders):
+            raise BeginnerWorkspaceError(f"unknown unmapped remainder: {resolved_id}")
+        updated_composition = composition.model_copy(
+            update={
+                "unmapped_remainders": tuple(
+                    item.model_copy(update={"acknowledged": True})
+                    if item.remainder_id == resolved_id
+                    else item
+                    for item in composition.unmapped_remainders
+                )
+            }
+        )
+        saved = self.session_store.update(
+            expected,
+            lambda current: current.model_copy(update={"working_composition": updated_composition}),
+        )
+        if resolved_command_id is not None:
+            self._complete_command(
+                resolved_command_id,
+                "acknowledge_remainder",
+                {"remainder_id": resolved_id, "session_version": saved.session_version},
+            )
+        return saved.working_composition or updated_composition
 
     def open_revision(
         self,
