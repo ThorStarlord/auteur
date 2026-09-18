@@ -32,6 +32,8 @@ from auteur.beginner.application import BeginnerWorkspaceApplication
 from auteur.beginner.contracts import DecisionStage, LifecycleStatus, StageAvailability
 from auteur.beginner.mystery_adapter import mystery_qualification_inventory
 from auteur.beginner.persistence import BeginnerConcurrencyError
+from auteur.beginner.promotion import PromotionPreview
+from auteur.identity import HighLevelCentralEngine, StoryIdentity
 
 
 def make_app(
@@ -343,3 +345,83 @@ def test_stale_session_version_rejects_before_promotion(tmp_path: Path) -> None:
             expected_session_version=0,
         )
     assert len(owner.calls) == calls_after_identity, "stale commands must not cross the boundary"
+
+
+def test_composed_identity_acceptance_delegates_and_records_mapping_provenance(tmp_path: Path) -> None:
+    owner = CountingOwner()
+    registry = AcceptanceRegistry(tmp_path)
+    registry.register(owner)
+    app = make_app(tmp_path, registry=registry)
+    accept_direction(app)
+    answer_stage_cleanly(app, "story_identity.")
+    app.open_milestone_review(
+        stage=DecisionStage.STORY_IDENTITY,
+        expected_session_version=app.projection().session_version,
+    )
+    identity = StoryIdentity(
+        title="Composition fixture",
+        core_answer="A composed identity fixture.",
+        central_engine=HighLevelCentralEngine(
+            want="Solve the mystery.",
+            resistance="Hidden truth.",
+            conflict="Suspicion versus trust.",
+            stakes="The relationship collapses.",
+            change="The protagonist accepts uncertainty.",
+        ),
+    )
+    preview = PromotionPreview(
+        current_identity=identity,
+        candidate_identity=identity,
+        mapping_records=(),
+        ready_to_accept=True,
+    )
+
+    result = app.accept_composed_identity(
+        preview=preview,
+        command_id="accept-composed-identity",
+        expected_session_version=app.projection().session_version,
+    )
+
+    assert result.accepted is True
+    assert result.result_reference is not None
+    assert result.result_reference["promotion_metadata"]["composition_mapping_provenance"]["mapping_ids"] == []
+    assert sum(call[0].endswith("story_identity") for call in owner.calls) == 1
+
+
+def test_composed_identity_rejects_blocked_preview_before_authority(tmp_path: Path) -> None:
+    owner = CountingOwner()
+    registry = AcceptanceRegistry(tmp_path)
+    registry.register(owner)
+    app = make_app(tmp_path, registry=registry)
+    accept_direction(app)
+    answer_stage_cleanly(app, "story_identity.")
+    app.open_milestone_review(
+        stage=DecisionStage.STORY_IDENTITY,
+        expected_session_version=app.projection().session_version,
+    )
+    identity = StoryIdentity(
+        title="Blocked fixture",
+        core_answer="A blocked composition fixture.",
+        central_engine=HighLevelCentralEngine(
+            want="Solve the mystery.",
+            resistance="Hidden truth.",
+            conflict="Suspicion versus trust.",
+            stakes="The relationship collapses.",
+            change="The protagonist accepts uncertainty.",
+        ),
+    )
+    preview = PromotionPreview(
+        current_identity=identity,
+        candidate_identity=identity,
+        blocking_items=("primary_engine_mapping_required",),
+        ready_to_accept=False,
+    )
+
+    with pytest.raises(RuntimeError, match="not ready to accept"):
+        app.accept_composed_identity(
+            preview=preview,
+            command_id="accept-blocked-composed-identity",
+            expected_session_version=app.projection().session_version,
+        )
+
+    assert not any(call[0].endswith("story_identity") for call in owner.calls)

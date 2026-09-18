@@ -1228,6 +1228,48 @@ class BeginnerWorkspaceApplication:
             command_id=resolved_command_id,
         )
 
+    def accept_composed_identity(
+        self,
+        *,
+        preview: "PromotionPreview",
+        expected_session_version: int | None = None,
+        command_id: str | None = None,
+        workspace_id: str | None = None,
+        command: MutationCommand | None = None,
+    ) -> AcceptResult:
+        """Accept a validated composition through the existing Identity boundary.
+
+        The preview remains noncanonical.  This adapter only gates the
+        authority-crossing command and records the mapping evidence alongside
+        the normal accepted milestone reference.
+        """
+        from .promotion import PromotionPreview
+
+        if not isinstance(preview, PromotionPreview):
+            raise BeginnerWorkspaceError("preview must be a PromotionPreview")
+        if not preview.ready_to_accept:
+            raise BeginnerWorkspaceError(
+                "composed Identity is not ready to accept: "
+                + "; ".join(preview.blocking_items or ("unknown blocker",))
+            )
+        expected, resolved_command_id, _payload = self._envelope_args(
+            command=command,
+            workspace_id=workspace_id,
+            expected_session_version=expected_session_version,
+            command_id=command_id,
+        )
+        provenance = {
+            "mapping_ids": [mapping.mapping_id for mapping in preview.mapping_records],
+            "semantic_changes": [change.model_dump(mode="json") for change in preview.semantic_changes],
+        }
+        return self._accept_milestone(
+            DecisionStage.STORY_IDENTITY,
+            revision_id=None,
+            expected_session_version=expected,
+            command_id=resolved_command_id,
+            promotion_metadata={"composition_mapping_provenance": provenance},
+        )
+
     def accept_whole_story_structure(
         self,
         *,
@@ -1333,6 +1375,7 @@ class BeginnerWorkspaceApplication:
         revision_id: str | None,
         expected_session_version: int,
         command_id: str | None,
+        promotion_metadata: Mapping[str, Any] | None = None,
     ) -> AcceptResult:
         """Run the receipt-guarded authority flow for one milestone acceptance."""
         milestone_id, receipt_target = _MILESTONE_BY_STAGE[stage]
@@ -1466,6 +1509,8 @@ class BeginnerWorkspaceApplication:
         reference = self._domain_reference(
             domain_result, target=target, milestone_id=milestone_id, revision=revision, fingerprint=fingerprint
         )
+        if promotion_metadata:
+            reference["promotion_metadata"] = dict(promotion_metadata)
         saved = self._reconcile_accepted_session(
             stage=stage,
             milestone_id=milestone_id,
