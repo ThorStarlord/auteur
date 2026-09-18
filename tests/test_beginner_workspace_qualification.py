@@ -20,6 +20,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 from auteur.acceptance import AcceptanceRegistry
 from auteur.beginner.application import BeginnerWorkspaceApplication
 from auteur.beginner.contracts import (
@@ -27,9 +29,12 @@ from auteur.beginner.contracts import (
     DimensionCategory,
     DimensionStatus,
     LifecycleStatus,
+    SemanticChange,
     StageAvailability,
 )
 from auteur.beginner.mystery_adapter import mystery_qualification_inventory
+from auteur.beginner.promotion import PromotionPreview
+from auteur.identity import StoryIdentity
 from tests.fixtures.beginner_sealed_elevator import (
     SEALED_ELEVATOR_PREMISE,
     choose_required_options,
@@ -330,7 +335,28 @@ def test_accepted_revision_marks_downstream_stale_with_provenance(tmp_path: Path
         exploratory=True,
     )
 
-    result = app.accept_revised_story_identity(
+    current = StoryIdentity.from_yaml(tmp_path / "story_identity.yaml")
+    candidate = current.model_copy(
+        update={
+            "central_engine": current.central_engine.model_copy(
+                update={"conflict": current.central_engine.conflict + " with reversed trust"}
+            )
+        }
+    )
+    preview = PromotionPreview(
+        current_identity=current,
+        candidate_identity=candidate,
+        semantic_changes=(
+            SemanticChange(
+                destination_field="central_engine.conflict",
+                before=current.central_engine.conflict,
+                after=candidate.central_engine.conflict,
+            ),
+        ),
+        ready_to_accept=True,
+    )
+    result = app.accept_composed_identity(
+        preview=preview,
         revision_id="revision-identity-2",
         command_id="sealed-accept-identity-rev2",
         expected_session_version=app.projection().session_version,
@@ -362,6 +388,26 @@ class _CountingOwner:
     def accept(self, target_artifact_id: str, candidate_id: str, *, confirm: bool) -> dict[str, Any]:
         self.calls.append((target_artifact_id, candidate_id, confirm))
         return {"artifact_id": target_artifact_id, "candidate_id": candidate_id, "accepted": True}
+
+
+class _RecoveringOwner(_CountingOwner):
+    def __init__(self) -> None:
+        super().__init__()
+        self.recoveries = 0
+
+    def recover(self, target_artifact_id: str, candidate_id: str) -> dict[str, Any]:
+        self.recoveries += 1
+        return {"artifact_id": target_artifact_id, "candidate_id": candidate_id, "accepted": True}
+
+
+class _CrashBeforeCompletionOwner(_CountingOwner):
+    def accept(self, target_artifact_id: str, candidate_id: str, *, confirm: bool) -> dict[str, Any]:
+        self.calls.append((target_artifact_id, candidate_id, confirm))
+        raise _ProcessCrash("process terminated after canonical mutation")
+
+
+class _ProcessCrash(BaseException):
+    pass
 
 
 def test_command_retry_after_crash_reconciles_without_repromoting(tmp_path: Path) -> None:
@@ -406,6 +452,7 @@ def test_command_retry_after_crash_reconciles_without_repromoting(tmp_path: Path
         return sum(1 for call in owner.calls if call[0].endswith("story_identity"))
 
     assert identity_promotions() == 1
+
     assert "story_identity" not in [ref.milestone_id for ref in app.session_store.load().accepted_milestones]
 
     recovered = app.accept_story_identity(
@@ -423,3 +470,74 @@ def test_command_retry_after_crash_reconciles_without_repromoting(tmp_path: Path
     assert replayed.accepted is True
     assert replayed.result_reference == recovered.result_reference
     assert identity_promotions() == 1
+
+
+def test_restart_recovery_uses_owner_recovery_without_second_promotion(tmp_path: Path) -> None:
+    crashing_owner = _CrashBeforeCompletionOwner()
+    first_registry = AcceptanceRegistry(tmp_path)
+    first_registry.register(crashing_owner)
+    first_app = create_app(tmp_path)
+    _accept_direction(first_app, "restart")
+    first_app.authority = first_registry
+    with pytest.raises(_ProcessCrash, match="process terminated"):
+        _accept_identity(first_app, "restart")
+
+    recovering_owner = _RecoveringOwner()
+    second_registry = AcceptanceRegistry(tmp_path)
+    second_registry.register(recovering_owner)
+    second_app = BeginnerWorkspaceApplication(
+        tmp_path,
+        first_app.workspace_id,
+        authority_registry=second_registry,
+    )
+    recovered = second_app.accept_story_identity(
+        command_id="restart-accept-identity",
+        expected_session_version=second_app.projection().session_version,
+    )
+
+    assert recovered.accepted is True
+    assert recovering_owner.recoveries == 1
+    assert recovering_owner.calls == []
+    assert len(second_app.session_store.load().accepted_milestones) == 2
+
+
+def test_metadata_only_composed_revision_does_not_stale_structure(tmp_path: Path) -> None:
+    app = create_app(tmp_path)
+    _accept_direction(app, "metadata")
+    _accept_identity(app, "metadata")
+    _accept_structure(app, "metadata")
+    app.open_revision(
+        revision_id="metadata-revision",
+        stage=DecisionStage.STORY_IDENTITY,
+        expected_session_version=app.projection().session_version,
+    )
+    identity_card = next(
+        card.card_id
+        for card in mystery_qualification_inventory().cards
+        if card.card_id.startswith("story_identity.")
+    )
+    app.select_working_option(
+        card_id=identity_card,
+        option=mystery_qualification_inventory().card(identity_card).options[-1],
+        expected_session_version=app.projection().session_version,
+        exploratory=True,
+    )
+    current = StoryIdentity.from_yaml(tmp_path / "story_identity.yaml")
+    preview = PromotionPreview(
+        current_identity=current,
+        candidate_identity=current,
+        ready_to_accept=True,
+    )
+
+    result = app.accept_composed_identity(
+        preview=preview,
+        revision_id="metadata-revision",
+        command_id="accept-metadata-revision",
+        expected_session_version=app.projection().session_version,
+    )
+
+    assert result.accepted is True
+    structure_entry = next(
+        entry for entry in app.projection().navigator if entry.stage is DecisionStage.STORY_STRUCTURE
+    )
+    assert structure_entry.stale is False

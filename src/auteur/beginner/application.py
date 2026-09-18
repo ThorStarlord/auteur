@@ -1657,6 +1657,7 @@ class BeginnerWorkspaceApplication:
             promotion_metadata={"composition_mapping_provenance": provenance},
             candidate_override=f"composed:{candidate_digest}",
             composition_ready=True,
+            semantic_change=bool(preview.semantic_changes),
         )
 
     def accept_whole_story_structure(
@@ -1772,6 +1773,7 @@ class BeginnerWorkspaceApplication:
         promotion_metadata: Mapping[str, Any] | None = None,
         candidate_override: str | None = None,
         composition_ready: bool = False,
+        semantic_change: bool | None = None,
     ) -> AcceptResult:
         """Run the receipt-guarded authority flow for one milestone acceptance."""
         milestone_id, receipt_target = _MILESTONE_BY_STAGE[stage]
@@ -1808,8 +1810,9 @@ class BeginnerWorkspaceApplication:
         fingerprint = _milestone_fingerprint({card_id: merged[card_id] for card_id in stage_card_ids})
         target = _milestone_target(self.workspace_id, milestone_id)
         candidate = candidate_override or _milestone_candidate(self.workspace_id, milestone_id, revision, fingerprint)
-        semantic_change = True
-        if is_revision and milestone_id == "story_identity":
+        if semantic_change is None:
+            semantic_change = True
+        if semantic_change is True and is_revision and milestone_id == "story_identity":
             if promotion_metadata is not None and "semantic_changes" in promotion_metadata:
                 semantic_change = bool(promotion_metadata.get("semantic_changes"))
         promotion_intent: JsonObject | None = None
@@ -1846,6 +1849,7 @@ class BeginnerWorkspaceApplication:
                 is_revision=is_revision,
                 revision_id=revision_id,
                 promotion_intent=promotion_intent,
+                semantic_change=semantic_change,
             )
             if recovered is not None:
                 return recovered
@@ -1888,6 +1892,7 @@ class BeginnerWorkspaceApplication:
                 is_revision=is_revision,
                 revision_id=revision_id,
                 promotion_intent=promotion_intent,
+                semantic_change=semantic_change,
             )
             if recovered is not None:
                 return recovered
@@ -1948,7 +1953,7 @@ class BeginnerWorkspaceApplication:
             revision_id=revision_id,
             command_id=command_id,
             expected_session_version=expected_session_version,
-            semantic_change=semantic_change,
+            semantic_change=bool(semantic_change),
         )
         result = AcceptResult(
             stage=stage,
@@ -2298,6 +2303,7 @@ class BeginnerWorkspaceApplication:
         is_revision: bool,
         revision_id: str | None,
         promotion_intent: JsonObject | None,
+        semantic_change: bool,
     ) -> AcceptResult | None:
         """Reconcile after a crash between promotion and receipt completion.
 
@@ -2310,6 +2316,22 @@ class BeginnerWorkspaceApplication:
         if promotion_intent is not None and existing.promotion_intent != promotion_intent:
             raise BeginnerPersistenceError(f"command intent conflict for existing command_id {command_id}")
         completed = self.authority.journal.find_completed(command_id)
+        if completed is None:
+            can_recover = (
+                callable(getattr(self.authority, "can_recover", None))
+                and self.authority.can_recover(target)
+            )
+            if can_recover:
+                try:
+                    self.authority.accept(
+                        target,
+                        candidate,
+                        confirm=True,
+                        command_id=command_id,
+                    )
+                except RuntimeError:
+                    return None
+                completed = self.authority.journal.find_completed(command_id)
         if (
             completed is None
             or completed.get("target_artifact_id") != target
@@ -2344,6 +2366,7 @@ class BeginnerWorkspaceApplication:
                 revision_id=revision_id,
                 command_id=command_id,
                 expected_session_version=fresh.session_version,
+                semantic_change=semantic_change,
             )
             version = saved.session_version
         result = AcceptResult(

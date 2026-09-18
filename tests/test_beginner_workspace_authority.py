@@ -317,7 +317,28 @@ def test_accepted_revision_stales_downstream_but_exploration_does_not(tmp_path: 
     ]
     assert len(identity_refs_before) == 1
 
-    result = app.accept_revised_story_identity(
+    current = StoryIdentity.from_yaml(tmp_path / "story_identity.yaml")
+    candidate = current.model_copy(
+        update={
+            "central_engine": current.central_engine.model_copy(
+                update={"conflict": current.central_engine.conflict + " with reversed trust"}
+            )
+        }
+    )
+    preview = PromotionPreview(
+        current_identity=current,
+        candidate_identity=candidate,
+        semantic_changes=(
+            SemanticChange(
+                destination_field="central_engine.conflict",
+                before=current.central_engine.conflict,
+                after=candidate.central_engine.conflict,
+            ),
+        ),
+        ready_to_accept=True,
+    )
+    result = app.accept_composed_identity(
+        preview=preview,
         revision_id="revision-identity-2",
         command_id="accept-identity-rev2",
         expected_session_version=app.projection().session_version,
