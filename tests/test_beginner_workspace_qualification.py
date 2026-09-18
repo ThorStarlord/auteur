@@ -22,7 +22,13 @@ from typing import Any
 
 from auteur.acceptance import AcceptanceRegistry
 from auteur.beginner.application import BeginnerWorkspaceApplication
-from auteur.beginner.contracts import DecisionStage, LifecycleStatus, StageAvailability
+from auteur.beginner.contracts import (
+    DecisionStage,
+    DimensionCategory,
+    DimensionStatus,
+    LifecycleStatus,
+    StageAvailability,
+)
 from auteur.beginner.mystery_adapter import mystery_qualification_inventory
 from tests.fixtures.beginner_sealed_elevator import (
     SEALED_ELEVATOR_PREMISE,
@@ -30,6 +36,8 @@ from tests.fixtures.beginner_sealed_elevator import (
     command_for,
     create_app,
 )
+from tests.fixtures.beginner_hybrid_mystery import create_hybrid_app
+from auteur.beginner.guidance import guidance_for
 
 
 def _accept_direction(app: BeginnerWorkspaceApplication, tag: str):
@@ -89,6 +97,47 @@ def test_sealed_elevator_reaches_accepted_whole_story_structure(tmp_path: Path) 
     assert structure_entry.ready_to_accept is True
     assert structure_entry.stale is False
     assert structure_entry.at_risk_if_accepted is False
+
+
+def test_hybrid_composition_changes_guidance_without_becoming_canon(tmp_path: Path) -> None:
+    hybrid_app = create_hybrid_app(tmp_path)
+    baseline_source = hybrid_app.session_store.load()
+    baseline_session = baseline_source.model_copy(update={
+        "working_composition": None,
+        "stages": {
+            stage: status.model_copy(update={"availability": StageAvailability.AVAILABLE})
+            for stage, status in baseline_source.stages.items()
+        },
+    })
+    baseline = guidance_for("story_identity.relationship-pressure", baseline_session)
+    hybrid_source = hybrid_app.session_store.load()
+    hybrid_session = hybrid_source.model_copy(update={
+        "stages": {
+            stage: status.model_copy(update={"availability": StageAvailability.AVAILABLE})
+            for stage, status in hybrid_source.stages.items()
+        },
+    })
+    hybrid = guidance_for("story_identity.relationship-pressure", hybrid_session)
+
+    assert hybrid.recommendation == baseline.recommendation
+    assert hybrid.option_impacts != baseline.option_impacts
+    assert {source.pack_id for source in hybrid.pack_sources} >= {"superhero", "relationship"}
+    assert "Relationship betrayal tension" in hybrid.context_guidance.patterns
+    assert hybrid_app.projection().canonical_refs == ()
+    assert hybrid_app.session_store.load().working_composition is not None
+
+
+def test_hybrid_fixture_keeps_confirmed_dimensions_visible_as_working_state(tmp_path: Path) -> None:
+    app = create_hybrid_app(tmp_path)
+    composition = app.session_store.load().working_composition
+
+    assert composition is not None
+    assert {dimension.status for dimension in composition.dimensions} == {DimensionStatus.CONFIRMED}
+    assert {dimension.category for dimension in composition.dimensions} == {
+        DimensionCategory.SETTING_WORLD,
+        DimensionCategory.RELATIONSHIP_THEMATIC,
+    }
+    assert app.projection().working_composition == composition
 
 
 def test_acknowledged_nonblocking_tension_never_gates_readiness(tmp_path: Path) -> None:

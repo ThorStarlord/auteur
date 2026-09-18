@@ -115,6 +115,7 @@ from .persistence import (
     JsonValue,
     ReceiptAcquisition,
 )
+from .promotion import PromotionPreview
 from .projections import (
     STAGE_ORDER,
     ReviewCardSummary,
