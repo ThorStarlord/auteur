@@ -85,13 +85,16 @@ Expected: repository identity is explicit and the existing focused tests pass be
 Concrete preflight record:
 
 ```text
-repo_root = <git rev-parse --show-toplevel>
-git_common_dir = <git rev-parse --git-common-dir>
-head = <git rev-parse HEAD>
-identity_authority = <verified module/function>
-validation_policy = <verified L1/L2/L3 commands>
+repo_root = record the output of `git rev-parse --show-toplevel`
+git_common_dir = record the output of `git rev-parse --git-common-dir`
+head = record the output of `git rev-parse HEAD`
+identity_authority = record the verified module/function
+validation_policy = record the verified L1/L2/L3 commands
 plan_assumptions_match = true
 ```
+
+Record the exact values discovered during preflight. If any value cannot be
+verified, stop and amend the plan before implementation.
 
 ## Task 1: Working composition contract
 
@@ -179,12 +182,19 @@ class CompositionTension(BaseModel):
     acknowledged: bool = False
     blocks_acceptance: bool = False
 
+class OverrideValidationResult(BaseModel):
+    preflight_result: str
+    final_result: str | None = None
+    valid: bool
+    diagnostic: str | None = None
+    accepted_value: str | None = None
+
 class AuthorOverride(BaseModel):
     original_value: str
     replacement_value: str
     rationale: str
     affected_dimension_ids: tuple[str, ...]
-    validation_result: str
+    validation: OverrideValidationResult
 
 class MappingRecord(BaseModel):
     mapping_id: str
@@ -229,6 +239,7 @@ class MappingCollision(BaseModel):
     requires_author_decision: bool
 
 class UnmappedRemainder(BaseModel):
+    remainder_id: str
     dimension_id: str
     text: str
     acknowledged: bool = False
@@ -256,7 +267,13 @@ Concrete red test:
 def test_rejected_mapping_does_not_reject_source_dimension():
     dimension = confirmed_dimension(category=DimensionCategory.RELATIONSHIP_THEMATIC)
     mapping = mapping_record(review_status=MappingReviewStatus.REJECTED)
-    composition = WorkingComposition(dimensions=(dimension,), mapping_records=(mapping,))
+    composition = WorkingComposition(
+        workspace_id="w1",
+        composition_id="c1",
+        schema_version=1,
+        dimensions=(dimension,),
+        mapping_records=(mapping,),
+    )
 
     assert composition.dimensions[0].status is DimensionStatus.CONFIRMED
 ```
@@ -350,7 +367,7 @@ git commit -m "feat: propose and confirm story dimensions"
 
 - `map_dimension(dimension, canonical_identity, domain_context) -> tuple[MappingRecord, ...]`
 - `validate_author_override(mapping, override, canonical_vocabulary) -> OverrideValidationResult`
-- `OverrideValidationResult.valid` is false with diagnostic `INVALID_FOR_CURRENT_VOCABULARY` for unsupported replacements.
+- `OverrideValidationResult` is the Task 1 contract; unsupported replacements set `valid=False`, `diagnostic="INVALID_FOR_CURRENT_VOCABULARY"`, and preserve separate preflight/final result fields.
 
 Minimal implementation shape:
 
@@ -363,10 +380,6 @@ def map_dimension(
     # Return only destinations present in domain_context.vocabulary.
     raise NotImplementedError
 
-class OverrideValidationResult(BaseModel):
-    valid: bool
-    diagnostic: str | None = None
-    accepted_value: str | None = None
 ```
 
 - [ ] Write failing tests for:
@@ -387,6 +400,8 @@ def test_unsupported_override_is_not_in_candidate_mapping():
 
     assert result.valid is False
     assert result.diagnostic == "INVALID_FOR_CURRENT_VOCABULARY"
+    assert result.preflight_result == "rejected"
+    assert result.final_result is None
 ```
 - [ ] Run:
 
@@ -741,10 +756,12 @@ def test_confirmed_supporting_dimensions_change_provenance_traced_guidance():
     hybrid = guidance_for("story_identity.relationship-pressure", hybrid_session())
 
     assert mystery_only.recommendation != hybrid.recommendation or mystery_only.option_impacts != hybrid.option_impacts
-    assert hybrid.context_guidance.pack_sources
-    assert any("superhero" in source.pack_id or "relationship" in source.pack_id
-               for source in hybrid.context_guidance.pack_sources)
-    assert "mystery" in {source.pack_id for source in hybrid.pack_sources}
+    assert hybrid.pack_sources != mystery_only.pack_sources
+    assert hybrid.pack_sources
+    expected_hybrid_source_ids = {source.pack_id for source in hybrid.pack_sources}
+    mystery_source_ids = {source.pack_id for source in mystery_only.pack_sources}
+    assert {"superhero", "relationship"}.issubset(expected_hybrid_source_ids)
+    assert mystery_source_ids.issubset(expected_hybrid_source_ids)
 ```
 - [ ] Run the adapter/guidance tests and verify failure.
 - [ ] Implement deterministic composition of existing knowledge sources.
@@ -780,6 +797,7 @@ git commit -m "feat: compose beginner narrative guidance"
 - HTTP serialization retains internal IDs for identity/provenance and exposes beginner-readable labels and explanations.
 - Commands use expected session version and idempotency identifiers.
 - `BeginnerWorkspaceApplication.acknowledge_tension(tension_id, *, expected_session_version, command_id) -> WorkspaceProjection` updates only working composition state and returns the refreshed projection.
+- `BeginnerWorkspaceApplication.acknowledge_unmapped_remainder(remainder_id, *, expected_session_version, command_id) -> WorkspaceProjection` updates only the working remainder acknowledgement and returns the refreshed projection.
 
 Required command routes (slugs may follow existing naming conventions):
 
@@ -789,6 +807,7 @@ POST /api/beginner/workspaces/{id}/dimensions/reject
 POST /api/beginner/workspaces/{id}/dimensions/add
 POST /api/beginner/workspaces/{id}/tensions/acknowledge
 POST /api/beginner/workspaces/{id}/mapping/review
+POST /api/beginner/workspaces/{id}/mapping/remainders/{remainder_id}/acknowledge
 POST /api/beginner/workspaces/{id}/mapping/preview
 POST /api/beginner/workspaces/{id}/milestones/accept
 ```
@@ -817,6 +836,25 @@ def test_acknowledge_tension_returns_updated_projection(http_client):
     assert response.status_code == 200
     assert response.json()["tensions"]["t1"]["acknowledged"] is True
     assert response.json()["canonical_refs"] == []
+```
+
+The mapping-review command owns the companion transition for a
+`NOT_REPRESENTABLE_BY_CURRENT_DOMAIN` remainder: it accepts a mapping review
+payload containing `acknowledge_remainder_ids`, persists the acknowledgement,
+and recomputes blocking state. The dedicated remainder route is the explicit
+browser command for the same operation and must produce the same projection.
+
+Concrete remainder acknowledgement test:
+
+```python
+def test_acknowledge_remainder_recomputes_readiness(http_client):
+    response = http_client.post(
+        "/api/beginner/workspaces/w1/mapping/remainders/r1/acknowledge",
+        json={"command_id": "c2", "expected_session_version": 5},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["mapping_preview"]["unresolved_items"] == []
 ```
 - [ ] Run the server tests and verify failure.
 - [ ] Implement thin routing and serialization over application commands.
@@ -889,7 +927,9 @@ def test_browser_renders_composition_dispositions_without_internal_state_labels(
 
     assert "Will remain context / provenance" in combined
     assert "Will become canonical" in combined
-    assert "working_composition" not in combined
+    assert "working_composition" in js
+    assert "dimension.label" in js
+    assert 'textContent = dimension.dimension_id' not in js
     assert "mapping_preview" in js
 ```
 - [ ] Run the browser tests and verify failure.
@@ -941,7 +981,9 @@ pytest tests/test_beginner_workspace_contracts.py tests/test_beginner_workspace_
 - [ ] Apply the validation policy recorded during Task 0: run the required L1/L2 checks for the changed boundaries, and schedule exactly the stabilization gate required by the current authority/persistence policy before human qualification. Do not infer the gate from this plan if the repository policy changed.
 - [ ] Run exact-head L1 only after the implementation candidate is committed and pushed.
 - [ ] Freeze the exact candidate SHA before human qualification.
-- [ ] Create a fresh human workspace using a sanitized hybrid Mystery premise and perform the complete journey.
+- [ ] Prepare a fresh workspace using the sanitized hybrid Mystery premise, print the URL and operating instructions, and stop.
+- [ ] An actual human author must operate Auteur and make the decisions; the executor must not perform this run or count agent-observed automation as human evidence.
+- [ ] Collect the human author's report and screenshots outside the repository, then update qualification evidence only after independent human review.
 - [ ] Human qualification must verify:
   - dimensions are understandable;
   - the author can confirm/reject/add a lens;
@@ -958,11 +1000,11 @@ pytest tests/test_beginner_workspace_contracts.py tests/test_beginner_workspace_
 Concrete final command record:
 
 ```text
-candidate_sha = <exact committed and pushed SHA>
-focused_pytest = <collected/passed/skipped/xfailed/xpassed/failed/errors>
-beginner_integration = <named command and result>
-l1 = <exact-head result>
-stabilization_gate = <policy-selected result>
+candidate_sha = record the exact committed and pushed SHA
+focused_pytest = record collected/passed/skipped/xfailed/xpassed/failed/errors separately
+beginner_integration = record the named command and result
+l1 = record the exact-head result
+stabilization_gate = record the policy-selected result
 human_gate = pending until independently operated
 ```
 
