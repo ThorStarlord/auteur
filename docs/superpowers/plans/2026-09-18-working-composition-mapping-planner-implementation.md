@@ -109,6 +109,8 @@ plan_assumptions_match = true
 Minimal contract shape:
 
 ```python
+from auteur.story_design_packs.models import PackProvenance
+
 class DimensionCategory(str, Enum):
     PRIMARY_ENGINE = "PRIMARY_ENGINE"
     GENRE_SUBGENRE = "GENRE_SUBGENRE"
@@ -158,12 +160,85 @@ class EvidenceClass(str, Enum):
     AUTHOR_CONFIRMED_DECISION = "AUTHOR_CONFIRMED_DECISION"
     EXISTING_CANONICAL_STATE = "EXISTING_CANONICAL_STATE"
 
+class WorkingDimension(BaseModel):
+    dimension_id: str
+    category: DimensionCategory
+    origin: DimensionOrigin
+    status: DimensionStatus
+    label: str
+    author_rationale: str | None = None
+    detection_evidence: tuple[str, ...] = ()
+    source_provenance: tuple[PackProvenance, ...] = ()
+    confirmed_by_author: bool = False
+
+class CompositionTension(BaseModel):
+    tension_id: str
+    dimension_ids: tuple[str, ...]
+    explanation: str
+    affected_decision_or_contract: str
+    acknowledged: bool = False
+    blocks_acceptance: bool = False
+
+class AuthorOverride(BaseModel):
+    original_value: str
+    replacement_value: str
+    rationale: str
+    affected_dimension_ids: tuple[str, ...]
+    validation_result: str
+
+class MappingRecord(BaseModel):
+    mapping_id: str
+    source_dimension_id: str
+    source_category: DimensionCategory
+    source_origin: DimensionOrigin
+    source_provenance: tuple[PackProvenance, ...] = ()
+    destination_field: str | None = None
+    proposed_value: str | None = None
+    contribution: str | None = None
+    mapping_strength: MappingStrength
+    evidence_class: EvidenceClass
+    disposition: MappingDisposition
+    review_status: MappingReviewStatus = MappingReviewStatus.PROPOSED
+    rationale: str
+    unmapped_remainder: tuple[str, ...] = ()
+    author_override: AuthorOverride | None = None
+
 class WorkingComposition(BaseModel):
+    workspace_id: str
     composition_id: str
     schema_version: int
+    revision_id: str | None = None
+    base_canonical_refs: tuple[str, ...] = ()
+    source_provenance: tuple[PackProvenance, ...] = ()
     dimensions: tuple[WorkingDimension, ...]
     tensions: tuple[CompositionTension, ...] = ()
     mapping_records: tuple[MappingRecord, ...] = ()
+
+class DimensionProposalSet(BaseModel):
+    proposals: tuple[WorkingDimension, ...]
+    source_provenance: tuple[PackProvenance, ...] = ()
+
+class MappingDomainContext(BaseModel):
+    vocabulary: dict[str, tuple[str, ...]]
+    source_provenance: tuple[PackProvenance, ...] = ()
+
+class MappingCollision(BaseModel):
+    destination_field: str
+    mapping_ids: tuple[str, ...]
+    explanation: str
+    requires_author_decision: bool
+
+class UnmappedRemainder(BaseModel):
+    dimension_id: str
+    text: str
+    acknowledged: bool = False
+    blocks_acceptance: bool = False
+
+class SemanticChange(BaseModel):
+    destination_field: str
+    before: str | None = None
+    after: str | None = None
+    mapping_ids: tuple[str, ...] = ()
 ```
 
 - [ ] Write failing tests for:
@@ -219,7 +294,6 @@ git commit -m "feat: add beginner working composition contracts"
 - `confirm_dimension(composition, dimension_id, *, label=None, rationale=None) -> WorkingComposition`
 - `reject_dimension(composition, dimension_id, *, rationale=None) -> WorkingComposition`
 - `add_author_dimension(composition, *, category, label, rationale) -> WorkingComposition`
-- `BeginnerWorkspaceApplication.acknowledge_tension(tension_id, *, expected_session_version, command_id) -> WorkspaceProjection`
 - `DimensionProposalSet` preserves detection evidence and source pack/version/hash references.
 
 - [ ] Write failing tests for the sanitized hybrid case:
@@ -232,13 +306,13 @@ def test_proposes_mystery_superhero_and_relationship_dimensions():
         available_sources=qualification_sources(),
     )
 
-    assert [item.category for item in proposals.items] == [
+    assert [item.category for item in proposals.proposals] == [
         DimensionCategory.PRIMARY_ENGINE,
         DimensionCategory.SETTING_WORLD,
         DimensionCategory.RELATIONSHIP_THEMATIC,
     ]
-    assert all(item.status is DimensionStatus.PROPOSED for item in proposals.items)
-    assert all(item.detection_evidence for item in proposals.items)
+    assert all(item.status is DimensionStatus.PROPOSED for item in proposals.proposals)
+    assert all(item.detection_evidence for item in proposals.proposals)
 ```
 
 - [ ] Add tests proving author confirmation changes only dimension lifecycle and rationale, not canonical Identity.
@@ -254,6 +328,8 @@ Expected: FAIL because no deterministic detection or confirmation path exists.
 - [ ] Implement curated, deterministic detection over existing pack applicability/source metadata. Do not infer a canonical genre or silently select a pack.
 - [ ] Implement confirmation, rejection, and author-defined dimension operations as working-state transformations.
 - [ ] Persist pack provenance and detection evidence in the returned composition projection.
+- [ ] Use this detection algorithm: evaluate available sources against the premise; create one proposal per qualifying source/category; force the configured guidance genre into `PRIMARY_ENGINE`; preserve all other candidates as `PROPOSED`; never mark a proposal `CONFIRMED` during detection.
+- [ ] Use this confirmation transition: copy the selected proposal, set `status=CONFIRMED`, set `confirmed_by_author=True`, record the rationale, and leave canonical artifacts untouched. Rejection changes only proposal status and provenance.
 - [ ] Run the focused tests and verify canonical artifacts are byte-equivalent before and after confirmation.
 - [ ] Commit:
 
@@ -323,6 +399,7 @@ Expected: FAIL because the mapping module and contracts are not implemented.
 - [ ] Implement deterministic mapping rules that read existing vocabulary and pack metadata.
 - [ ] Never invent a destination field or canonical value.
 - [ ] Preserve source dimension, pack/version/hash, evidence class, rationale, and unmapped remainder.
+- [ ] For each confirmed dimension, enumerate only the destination fields in `MappingDomainContext.vocabulary`; emit one direct mapping, contribution, contextual mapping, or unresolved record; attach the source dimension ID/category and exact source provenance to every record.
 - [ ] Run the mapping tests and the existing Identity validation tests.
 - [ ] Commit:
 
@@ -386,6 +463,8 @@ def test_unresolved_primary_engine_blocks_identity_acceptance():
 - [ ] Run the focused mapping tests and verify failure.
 - [ ] Implement grouping, contribution merging, collision reporting, and candidate construction.
 - [ ] Keep unsupported information in guidance/provenance rather than arbitrary canonical free-text fields.
+- [ ] Group records by `destination_field`; merge records only when the existing vocabulary accepts their combined contribution; otherwise create a `MappingCollision` and add a blocking item only when the destination is required for Identity coherence.
+- [ ] Build the candidate by applying accepted mappings to a copy of current Identity; never mutate the loaded canonical object.
 - [ ] Run:
 
 ```powershell
@@ -452,6 +531,8 @@ def test_preview_blocks_only_materially_unresolved_identity_mapping():
 - [ ] Run the focused tests and verify failure.
 - [ ] Implement preview composition over existing canonical artifacts; do not mutate canon.
 - [ ] Delegate candidate validation to the existing domain service and retain diagnostics in the preview.
+- [ ] Compute semantic changes by comparing canonical Identity fields before and after the candidate; exclude composition labels, pack hashes, provenance text, and mapping review metadata from that diff.
+- [ ] Set `ready_to_accept` only when domain diagnostics and the explicit blocking rules contain no blocking item.
 - [ ] Run:
 
 ```powershell
@@ -515,6 +596,7 @@ def test_failed_composed_acceptance_keeps_previous_identity(tmp_path):
 - [ ] Run the authority tests and verify failure.
 - [ ] Integrate the proposal with the existing authority boundary without duplicating acceptance logic.
 - [ ] Preserve crash recovery, command receipts, and provenance behavior already tested by the Beginner Workspace.
+- [ ] Execute acceptance in this order: acquire the existing command receipt; reload and version-check the session; validate the preview through the existing authority service; atomically write canonical Identity plus mapping provenance; compute semantic staleness; persist the refreshed session; complete the receipt; replay the stored result on retry.
 - [ ] Run:
 
 ```powershell
@@ -560,25 +642,50 @@ class RevisionSnapshot(BaseModel):
   - autosaved composition reload;
   - atomic session write;
   - revision overlay isolation;
-  - cancellation restoring byte-equivalent canonical session state;
+  - cancellation restoring canonical artifact bytes and base composition while allowing expected session-version/receipt changes;
   - stale command rejection;
   - exact N+1 session version behavior;
   - crash recovery without duplicate canonical promotion.
+  - exact pack ID, version, content hash, source dimension ID, and semantic source category surviving persistence/reload.
 
 Concrete red test:
 
 ```python
-def test_revision_cancel_restores_composition_and_canon_byte_for_byte(tmp_path):
-    original = store.load().model_dump_json()
+def test_revision_cancel_preserves_canon_and_discards_overlay(tmp_path):
+    canonical_before = (tmp_path / "story_identity.yaml").read_bytes()
+    base_composition = store.load().working_composition
+    version_before = store.load().session_version
     app.open_revision(stage="story_identity", revision_id="r1", command_id="open-1")
     app.confirm_dimension(dimension_id="relationship-lens", command_id="confirm-1")
     app.cancel_revision(revision_id="r1", command_id="cancel-1")
 
-    assert store.load().model_dump_json() == original
+    assert (tmp_path / "story_identity.yaml").read_bytes() == canonical_before
+    assert store.load().working_composition == base_composition
+    assert not store.revision_session_path("r1").exists()
+    assert store.load().session_version > version_before
+```
+
+Concrete provenance round-trip test:
+
+```python
+def test_pack_provenance_round_trips_with_dimension_role(tmp_path):
+    provenance = PackProvenance(pack_id="superhero", version="0.1.0", content_hash="sha256:fixture")
+    composition = hybrid_composition(
+        source_provenance=(provenance,),
+        category=DimensionCategory.SETTING_WORLD,
+    )
+    store.save(replace_session(working_composition=composition))
+
+    loaded = store.load().working_composition
+    assert loaded.dimensions[0].source_provenance[0].model_dump() == provenance.model_dump()
+    assert loaded.dimensions[0].category is DimensionCategory.SETTING_WORLD
+    assert loaded.mapping_records[0].source_dimension_id == loaded.dimensions[0].dimension_id
+    assert loaded.mapping_records[0].source_category is DimensionCategory.SETTING_WORLD
 ```
 - [ ] Run the persistence tests and verify failure.
 - [ ] Add only the fields needed to persist working composition and mapping history; do not create a second store.
 - [ ] Preserve existing locking, path containment, receipt ownership, and immutable revision semantics.
+- [ ] Serialize `WorkingComposition` through the existing session envelope writer and revision snapshot writer; load it before projection; on cancel delete only the revision overlay and restore the base working composition while retaining normal version/receipt bookkeeping.
 - [ ] Run:
 
 ```powershell
@@ -642,6 +749,8 @@ def test_confirmed_supporting_dimensions_change_provenance_traced_guidance():
 - [ ] Run the adapter/guidance tests and verify failure.
 - [ ] Implement deterministic composition of existing knowledge sources.
 - [ ] Keep the fixed Mystery card inventory as the first qualification fixture while allowing the composed context to enrich its guidance.
+- [ ] Build guidance context by starting with Mystery card evidence, selecting confirmed supporting dimensions relevant to the card, composing their curated contributions, and attaching source dimension IDs and pack provenance to each derived consequence.
+- [ ] Emit a semantic area only when at least one nonblank relevant consequence exists; never manufacture empty emotional, relationship, or trope sections.
 - [ ] Run:
 
 ```powershell
@@ -670,6 +779,7 @@ git commit -m "feat: compose beginner narrative guidance"
 - The combined workspace projection contains composition state, current Decision Card guidance, mapping preview, review readiness, canonical references, revision state, and available actions.
 - HTTP serialization retains internal IDs for identity/provenance and exposes beginner-readable labels and explanations.
 - Commands use expected session version and idempotency identifiers.
+- `BeginnerWorkspaceApplication.acknowledge_tension(tension_id, *, expected_session_version, command_id) -> WorkspaceProjection` updates only working composition state and returns the refreshed projection.
 
 Required command routes (slugs may follow existing naming conventions):
 
@@ -711,6 +821,7 @@ def test_acknowledge_tension_returns_updated_projection(http_client):
 - [ ] Run the server tests and verify failure.
 - [ ] Implement thin routing and serialization over application commands.
 - [ ] Ensure the server does not duplicate mapping or domain rules.
+- [ ] Route each command to the application with its command ID and expected session version, then serialize the single refreshed projection; `acknowledge_tension` updates the tension record and readiness only, while promotion routes exclusively to the existing acceptance command.
 - [ ] Run:
 
 ```powershell
@@ -768,16 +879,18 @@ The browser may render `state.working_composition`, `state.mapping_preview`, and
   - revision overlay and unchanged canon;
   - no raw internal identifiers as beginner-facing labels.
 
-Concrete red browser assertion:
+Concrete red browser assertion matching the existing Python file-read harness:
 
-```javascript
-test("shows unmapped remainder without presenting it as canonical", async ({ page }) => {
-  await page.goto(workspaceUrl);
-  await page.getByRole("button", { name: "Review promotion" }).click();
-  await expect(page.getByText("Will remain context / provenance")).toBeVisible();
-  await expect(page.getByText("Will become canonical")).toBeVisible();
-  await expect(page.getByText("working_composition")).not.toBeVisible();
-});
+```python
+def test_browser_renders_composition_dispositions_without_internal_state_labels():
+    html = _read(INDEX)
+    js = _read(APP)
+    combined = html + js
+
+    assert "Will remain context / provenance" in combined
+    assert "Will become canonical" in combined
+    assert "working_composition" not in combined
+    assert "mapping_preview" in js
 ```
 - [ ] Run the browser tests and verify failure.
 - [ ] Implement only projection rendering and command dispatch; do not add narrative rules to JavaScript.
