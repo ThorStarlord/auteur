@@ -1,12 +1,13 @@
 # Auteur — Repository Status
 
-**Last reconciled:** 2026-09-15  
+**Last reconciled:** 2026-09-17  
 **Validation-policy activation baseline:** `main @ 8b53efdd99e0a67d375df0e828b32edc77643221`  
-**Post-#228 known-good stabilization baseline:** not yet re-established  
+**Current `main`:** `87971e57d186d1559e20aebce3403b311c8a6f2f` (PR #233 merged)  
+**Post-#228 known-good stabilization baseline:** not re-established; PR #233's L3 verification stack found pre-existing baseline lint findings  
 **Package metadata:** `0.37.1`  
 **Role of this file:** living operational status and handoff; not a release record or idea backlog.
 
-The current `main` includes the tiered validation and bounded-agent-autonomy policy merged through PR #229. The post-#228 product baseline still requires recovery and one explicit L3 stabilization checkpoint before it should be described as a new known-good regression baseline.
+The current `main` includes the tiered validation and bounded-agent-autonomy policy merged through PR #229 and the human-qualified Beginner Workspace vertical slice merged through PR #233. The post-#228 product baseline remains distinct from product qualification because the PR #233 L3 verification stack found unchanged baseline Ruff findings.
 
 For product intent, read [MISSION.md](MISSION.md) and [docs/PRD.md](docs/PRD.md). For the canonical domain model, read [docs/narrative-architecture.md](docs/narrative-architecture.md). For forward-looking candidates, read [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md). Release evidence lives under [docs/releases/](docs/releases/README.md).
 
@@ -20,11 +21,11 @@ For product intent, read [MISSION.md](MISSION.md) and [docs/PRD.md](docs/PRD.md)
 
 Canonical policy: [docs/engineering/release-qualification.md](docs/engineering/release-qualification.md).
 
-The next stabilization package is intentionally narrow: reconcile the completed UI-polish work, repair any remaining #228 regressions with L1, run the justified CLI boundary L2 slice, merge the recovery, then run one L3 checkpoint and record that SHA as the new known-good development baseline. After that checkpoint, return to Auteur product development rather than continuing qualification work as the primary activity.
+The PR #233 stabilization checkpoint is complete. Full regression and validator verification passed, while the verification stack failed only on four pre-existing unchanged Ruff `W293` findings in `src/auteur/cli_formatters.py` and `src/auteur/ui/workspace.py`. No release qualification is implied. Return to Auteur product development and use real-author dogfood evidence to select the next bounded package.
 
 ## Current Selected Work
 
-**v0.38.0 UX Polish & Consistency** — Authorized and in progress. See `docs/plans/ux-polish-plan-v0.38.md` for detailed tasks and validation criteria. Focus: reducing friction across CLI, Dashboard, and Guided Author Workspace without adding new capabilities.
+**v0.38.0 UX Polish & Consistency** — Completed and merged through PR #233. The Beginner Workspace is human-qualified; the next product package is not yet selected and should come from real-author dogfood friction.
 
 ## Current Product Direction
 
@@ -47,6 +48,16 @@ accepted narrative authority
 ```
 
 Derived systems may orient, diagnose, compare, explain, recommend, prepare, preview, and reassess. Determinism, persistence, currentness, or user selection do not grant story authority.
+
+The next evidence task is a real-author dogfood journey on merged `main`:
+
+```text
+Beginner Workspace → accepted foundation → outline/planning → chapter draft
+```
+
+Do not infer the next product package from architecture alone. Record the first
+material workflow friction, classify its owning layer, and select one bounded
+intervention.
 
 ## Canonical Architecture
 

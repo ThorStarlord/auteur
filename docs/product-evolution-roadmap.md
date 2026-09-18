@@ -258,10 +258,10 @@ Re-enter only when the campaign's documented natural evidence trigger is met, th
 
 Tutor depth can teach, explain, challenge, or quiz without persistent writer-skill state. Do not infer proficiency, learning progression, or adaptive curriculum until the basic Tutor proves repeated educational value and a specific need requires persistence. Educational scaffolding and story authority remain separate.
 
-## NOW — v0.38.0 UX Polish & Consistency
-**State:** `NOW` (authorized through detailed plan in `docs/plans/ux-polish-plan-v0.38.md`)
+## SHIPPED — v0.38.0 UX Polish & Consistency
+**State:** `SHIPPED` through PR #233; the Beginner Workspace was human-qualified before merge.
 
-After completing the guided decision loop (Tutor M1 + evidence sequence + Workspace V1), the next priority is **product polish over capability expansion**. The architecture is sound; the friction is in presentation, consistency, and workflow smoothness.
+After completing the guided decision loop (Tutor M1 + evidence sequence + Workspace V1), this bounded product-polish package was completed. The architecture remains sound; the next package must be selected from observed author friction rather than extended automatically.
 
 **Scope:** 7-week focused polish cycle targeting:
 - CLI output consistency across all commands
@@ -279,7 +279,7 @@ After completing the guided decision loop (Tutor M1 + evidence sequence + Worksp
 - User confidence rating > 4/5 after first loop
 - Zero "What do I do now?" hesitation moments
 
-See `docs/plans/ux-polish-plan-v0.38.md` for detailed implementation tasks, file changes, and validation criteria.
+See `docs/plans/ux-polish-plan-v0.38.md` for the completed implementation tasks, file changes, and validation criteria. PR #233 merged the human-qualified Beginner Workspace slice; Release Qualification remains separate.
 
 ## Engineering Hardening Lane
 **State:** `CANDIDATE` maintenance lane; schedule independently when risk/cost justify it.
