@@ -28,12 +28,13 @@ from typing import Any
 import pytest
 
 from auteur.acceptance import AcceptanceRegistry
-from auteur.beginner.application import BeginnerWorkspaceApplication
+from auteur.beginner.application import BeginnerWorkspaceApplication, BeginnerWorkspaceError, _BeginnerMilestoneOwner
 from auteur.beginner.contracts import DecisionStage, LifecycleStatus, SemanticChange, StageAvailability
 from auteur.beginner.mystery_adapter import mystery_qualification_inventory
 from auteur.beginner.persistence import BeginnerConcurrencyError
 from auteur.beginner.promotion import PromotionPreview
 from auteur.identity import HighLevelCentralEngine, StoryIdentity
+from auteur.provenance import ArtifactStore
 
 
 def make_app(
@@ -90,6 +91,15 @@ def accept_direction(app: BeginnerWorkspaceApplication, command_id: str = "accep
 
 
 def accept_identity(app: BeginnerWorkspaceApplication, command_id: str = "accept-identity-1"):
+    composition = app.projection().working_composition
+    assert composition is not None
+    for dimension in composition.dimensions:
+        if dimension.status.value != "CONFIRMED":
+            app.confirm_dimension(
+                dimension_id=dimension.dimension_id,
+                rationale="Confirmed for identity acceptance.",
+                expected_session_version=app.projection().session_version,
+            )
     answer_stage_cleanly(app, "story_identity.")
     app.open_milestone_review(
         stage=DecisionStage.STORY_IDENTITY,
@@ -99,6 +109,18 @@ def accept_identity(app: BeginnerWorkspaceApplication, command_id: str = "accept
         command_id=command_id,
         expected_session_version=app.projection().session_version,
     )
+
+
+def confirm_composition(app: BeginnerWorkspaceApplication) -> None:
+    composition = app.projection().working_composition
+    assert composition is not None
+    for dimension in composition.dimensions:
+        if dimension.status.value != "CONFIRMED":
+            app.confirm_dimension(
+                dimension_id=dimension.dimension_id,
+                rationale="Confirmed for the composed acceptance test.",
+                expected_session_version=app.projection().session_version,
+            )
 
 
 class CountingOwner:
@@ -129,7 +151,6 @@ def test_accept_direction_records_direction_only_never_identity(tmp_path: Path) 
     assert milestone_ids == ["story_direction"]
     assert "story_identity" not in milestone_ids
     assert "whole_story_structure" not in milestone_ids
-    # No canonical StoryIdentity artifact may appear anywhere under .auteur.
     identity_files = [
         path
         for path in (tmp_path / ".auteur").rglob("*")
@@ -137,11 +158,55 @@ def test_accept_direction_records_direction_only_never_identity(tmp_path: Path) 
         and "commands" not in path.parts
     ]
     assert identity_files == []
-    # Reconciliation unlocks the next stage and marks direction Canonical.
     assert session.stages[DecisionStage.DISCOVER].lifecycle is LifecycleStatus.COMPLETE
     assert session.stages[DecisionStage.STORY_IDENTITY].availability is StageAvailability.AVAILABLE
     assert session.stages[DecisionStage.STORY_STRUCTURE].availability is StageAvailability.LOCKED
     assert app.projection().canonical_refs[0].milestone_id == "story_direction"
+
+
+def test_story_identity_acceptance_fails_closed_without_composed_preview(tmp_path: Path) -> None:
+    app = make_app(tmp_path)
+    accept_direction(app)
+    answer_stage_cleanly(app, "story_identity.")
+    app.open_milestone_review(
+        stage=DecisionStage.STORY_IDENTITY,
+        expected_session_version=app.projection().session_version,
+    )
+    with pytest.raises(BeginnerWorkspaceError, match="confirmed composition"):
+        app.accept_story_identity(
+            command_id="fail-closed-identity",
+            expected_session_version=app.projection().session_version,
+        )
+    assert not (tmp_path / "story_identity.yaml").exists()
+
+
+def test_default_composed_owner_restores_canon_when_artifact_acceptance_fails(tmp_path: Path, monkeypatch) -> None:
+    canonical = tmp_path / "story_identity.yaml"
+    original = "title: Original\n"
+    canonical.write_text(original, encoding="utf-8")
+    store = ArtifactStore(tmp_path)
+    store.accept(canonical, "story_identity")
+    sidecar = store.sidecar_path("story_identity")
+    original_sidecar = sidecar.read_bytes()
+    candidate_dir = tmp_path / ".auteur" / "beginner" / "candidates"
+    candidate_dir.mkdir(parents=True)
+    candidate = candidate_dir / "candidate.yaml"
+    StoryIdentity.model_validate(
+        {
+            "title": "Candidate",
+            "core_answer": "A truth.",
+            "story_type": {"genre": "mystery", "subgenres": []},
+            "target_experience": {"primary": "dread", "progression": "rising", "avoid": []},
+            "central_engine": {"want": "Know", "resistance": "Doubt", "conflict": "Truth", "stakes": "Trust", "change": "See"},
+        }
+    ).to_yaml(candidate)
+    monkeypatch.setattr(ArtifactStore, "accept", lambda *args, **kwargs: None)
+    with pytest.raises(ValueError, match="archived"):
+        _BeginnerMilestoneOwner(tmp_path).accept(
+            "beginner:story_identity", "composed:candidate", confirm=True
+        )
+    assert canonical.read_text(encoding="utf-8") == original
+    assert sidecar.read_bytes() == original_sidecar
 
 
 def test_failed_promotion_preserves_previous_canon(tmp_path: Path) -> None:
@@ -150,6 +215,7 @@ def test_failed_promotion_preserves_previous_canon(tmp_path: Path) -> None:
     registry.register(owner)
     app = make_app(tmp_path, registry=registry)
     accept_direction(app)
+    confirm_composition(app)
     canon_before = list(app.session_store.load().accepted_milestones)
     refs_before = list(app.projection().canonical_refs)
 
@@ -198,6 +264,7 @@ def test_replayed_promotion_returns_same_result_without_duplicate(tmp_path: Path
     registry.register(owner)
     app = make_app(tmp_path, registry=registry)
     accept_direction(app)
+    confirm_composition(app)
     accept_identity(app, command_id="accept-identity-1")
 
     def identity_promotions() -> int:
@@ -283,6 +350,7 @@ def test_crash_after_promotion_reconciles_without_repromoting(tmp_path: Path) ->
     registry.register(owner)
     app = make_app(tmp_path, registry=registry)
     accept_direction(app)
+    confirm_composition(app)
     answer_stage_cleanly(app, "story_identity.")
     app.open_milestone_review(
         stage=DecisionStage.STORY_IDENTITY,

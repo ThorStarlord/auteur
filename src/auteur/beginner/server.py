@@ -241,6 +241,7 @@ _COMMAND_HANDLERS: dict[str, str] = {
     "confirm-dimension": "confirm_dimension",
     "reject-dimension": "reject_dimension",
     "add-dimension": "add_author_dimension",
+    "override-mapping": "override_mapping",
     "open-revision": "open_revision",
     "cancel-revision": "cancel_revision",
     "request-acceptance": "request_acceptance",

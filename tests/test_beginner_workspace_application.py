@@ -73,6 +73,64 @@ def test_create_workspace_initializes_proposed_composition_and_confirming_all_bu
     assert projected.mapping_preview.mapping_records
 
 
+def test_dimension_command_is_idempotent_and_preserves_payload_fields(tmp_path: Path) -> None:
+    app = BeginnerWorkspaceApplication(tmp_path, "composition-receipt")
+    app.create_workspace(
+        command_id="create-composition-receipt",
+        project_id="project-1",
+        premise="A respected superhero investigates betrayal in his marriage.",
+        guidance_genre="mystery",
+    )
+    projection = app.projection()
+    dimension = projection.working_composition.dimensions[0]
+    command = MutationCommand(
+        workspace_id="composition-receipt",
+        expected_session_version=projection.session_version,
+        command_id="confirm-composition-once",
+        payload={
+            "dimension_id": dimension.dimension_id,
+            "label": "My mystery engine",
+            "rationale": "The investigation remains primary.",
+        },
+    )
+    first = app.confirm_dimension(command=command)
+    replay = app.confirm_dimension(command=command)
+    confirmed = [item for item in first.dimensions if item.dimension_id == dimension.dimension_id][0]
+    assert confirmed.label == "My mystery engine"
+    assert confirmed.author_rationale == "The investigation remains primary."
+    assert replay.model_dump(mode="json") == first.model_dump(mode="json")
+
+
+def test_mapping_override_is_reviewable_and_noncanonical(tmp_path: Path) -> None:
+    app = BeginnerWorkspaceApplication(tmp_path, "mapping-override")
+    app.create_workspace(
+        command_id="create-mapping-override",
+        project_id="project-1",
+        premise="A respected superhero investigates betrayal in his marriage.",
+        guidance_genre="mystery",
+    )
+    for dimension in app.projection().working_composition.dimensions:
+        app.confirm_dimension(
+            dimension_id=dimension.dimension_id,
+            expected_session_version=app.projection().session_version,
+            rationale="Confirmed for review.",
+        )
+    mapping = next(
+        item for item in app.projection().working_composition.mapping_records
+        if item.destination_field == "story_type.subgenres"
+    )
+    updated = app.override_mapping(
+        mapping_id=mapping.mapping_id,
+        replacement_value="superhero",
+        rationale="Keep the public-identity lens explicit.",
+        expected_session_version=app.projection().session_version,
+    )
+    reviewed = next(item for item in updated.mapping_records if item.mapping_id == mapping.mapping_id)
+    assert reviewed.author_override is not None
+    assert reviewed.review_status.value == "OVERRIDDEN"
+    assert not (tmp_path / "story_identity.yaml").exists()
+
+
 def test_planner_tension_can_be_acknowledged_through_application_path(tmp_path: Path) -> None:
     app = BeginnerWorkspaceApplication(tmp_path, "hybrid-tension")
     app.create_workspace(

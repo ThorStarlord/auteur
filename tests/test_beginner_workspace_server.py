@@ -191,6 +191,16 @@ def test_http_surface_completes_beginner_milestones_in_order(tmp_path):
         _, projection = post_json(server, "/api/beginner/workspaces", create_payload())
         workspace_id = projection["workspace"]["workspace_id"]
         for stage, accept_slug in (("discover", "accept-direction"), ("story_identity", "accept-identity"), ("story_structure", "accept-structure")):
+            if stage == "story_identity":
+                for dimension in projection["working_composition"]["dimensions"]:
+                    if dimension["status"] != "CONFIRMED":
+                        projection = command_json(
+                            server,
+                            workspace_id,
+                            "confirm-dimension",
+                            projection,
+                            {"dimension_id": dimension["dimension_id"], "rationale": "Confirmed for the HTTP journey."},
+                        )
             while True:
                 card = projection["decision_card"]
                 if card is None or card["stage"] != stage:

@@ -653,18 +653,32 @@
         return "<li><strong>" + escapeHtml(dimension.label) + "</strong> · " +
           escapeHtml(dimension.category) + " · " + escapeHtml(dimension.status) + controls + "</li>";
       }).join("") + "</ul>");
-      parts.push('<button data-command="add-dimension" data-category="RELATIONSHIP_THEMATIC" data-label="Author-defined relationship lens">Add a relationship lens</button>');
+      parts.push('<label>Lens label <input data-composition-label placeholder="Describe your lens"></label>' +
+        '<label>Why it matters <input data-composition-rationale placeholder="Explain what it should change"></label>' +
+        '<button data-command="add-dimension" data-category="RELATIONSHIP_THEMATIC">Add a relationship lens</button>');
     }
     if (composition.mapping_records && composition.mapping_records.length) {
       parts.push("<h3>How dimensions relate to canon</h3><ul>" + composition.mapping_records.map(function (mapping) {
         return "<li>" + escapeHtml(mapping.rationale) + " · " +
-          escapeHtml(compositionDispositionLabel(mapping.disposition)) + "</li>";
+          escapeHtml(compositionDispositionLabel(mapping.disposition)) +
+          (mapping.destination_field && mapping.proposed_value ?
+            ' <input data-mapping-replacement="' + escapeHtml(mapping.mapping_id) + '" value="' + escapeHtml(mapping.proposed_value) + '">' +
+            '<input data-mapping-rationale="' + escapeHtml(mapping.mapping_id) + '" placeholder="Why override?">' +
+            '<button data-command="override-mapping" data-mapping-id="' + escapeHtml(mapping.mapping_id) + '">Review / override</button>' : "") +
+          "</li>";
       }).join("") + "</ul>");
     }
     if (composition.unmapped_remainders && composition.unmapped_remainders.length) {
-      parts.push("<h3>Preserved context</h3>" + listHtml(composition.unmapped_remainders.map(function (remainder) {
-        return remainder.text + (remainder.acknowledged ? " · acknowledged" : " · needs acknowledgement");
-      })));
+      parts.push("<h3>Preserved context</h3><ul>" + composition.unmapped_remainders.map(function (remainder) {
+        return "<li>" + escapeHtml(remainder.text) + (remainder.acknowledged ? " · acknowledged" :
+          ' · <button data-command="acknowledge-remainder" data-remainder-id="' + escapeHtml(remainder.remainder_id) + '">Acknowledge preserved context</button>') + "</li>";
+      }).join("") + "</ul>");
+    }
+    if (preview && preview.tensions && preview.tensions.length) {
+      parts.push("<h3>Composition tensions</h3><ul>" + preview.tensions.map(function (tension) {
+        return "<li>" + escapeHtml(tension.explanation) + (tension.acknowledged ? " · acknowledged" :
+          ' · <button data-command="acknowledge-tension" data-tension-id="' + escapeHtml(tension.tension_id) + '">Acknowledge tension</button>') + "</li>";
+      }).join("") + "</ul>");
     }
     if (preview) {
       parts.push("<h3>Promotion preview</h3><p>Proposed canonical changes are shown for review only.</p>");
@@ -680,9 +694,15 @@
         var command = button.getAttribute("data-command");
         var payload = {
           dimension_id: button.getAttribute("data-dimension-id"),
+          tension_id: button.getAttribute("data-tension-id"),
+          remainder_id: button.getAttribute("data-remainder-id"),
+          mapping_id: button.getAttribute("data-mapping-id"),
+          replacement_value: (body.querySelector('[data-mapping-replacement="' + button.getAttribute("data-mapping-id") + '"]') || {}).value,
           category: button.getAttribute("data-category"),
-          label: button.getAttribute("data-label"),
-          rationale: button.getAttribute("data-rationale")
+          label: button.getAttribute("data-label") || (body.querySelector("[data-composition-label]") || {}).value,
+          rationale: button.getAttribute("data-rationale") ||
+            (body.querySelector('[data-mapping-rationale="' + button.getAttribute("data-mapping-id") + '"]') || {}).value ||
+            (body.querySelector("[data-composition-rationale]") || {}).value
         };
         sendAction(command, payload, button.textContent.trim());
       });

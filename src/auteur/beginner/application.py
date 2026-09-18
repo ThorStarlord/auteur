@@ -95,6 +95,7 @@ from typing import Any, Mapping, cast
 from ..acceptance import AcceptanceRegistry
 from ..blueprint import Genre
 from ..identity import StoryIdentity
+from ..story_design_packs.registry import get_design_pack_registry
 from .composition import compose_mappings, reconcile_review_state
 from .contracts import (
     AcceptedMilestoneReference,
@@ -106,13 +107,15 @@ from .contracts import (
     StageAvailability,
     WorkingDecision,
     WorkingComposition,
+    AuthorOverride,
+    MappingReviewStatus,
     DimensionCategory,
     DimensionStatus,
     MappingDomainContext,
 )
 from .dimensions import add_author_dimension, confirm_dimension, propose_dimensions, reject_dimension
 from .guidance import BeginnerGuidance, QualificationStage, SemanticArea, _adapter_for, guidance_for
-from .mapping import map_dimension
+from .mapping import map_dimension, validate_author_override
 from .persistence import (
     BeginnerConcurrencyError,
     BeginnerPersistenceError,
@@ -275,18 +278,35 @@ class _BeginnerMilestoneOwner:
             if any(getattr(item, "severity", None).value == "error" for item in diagnostics):
                 raise ValueError("composed StoryIdentity failed domain validation")
             canonical_path = self.project_root / "story_identity.yaml"
+            artifact_store = ArtifactStore(self.project_root)
+            sidecar_path = artifact_store.sidecar_path("story_identity")
+            previous_canon = canonical_path.read_bytes() if canonical_path.exists() else None
+            previous_sidecar = sidecar_path.read_bytes() if sidecar_path.exists() else None
             temporary = canonical_path.with_suffix(".tmp")
-            temporary.write_text(candidate_path.read_text(encoding="utf-8"), encoding="utf-8")
-            temporary.replace(canonical_path)
-            metadata = ArtifactStore(self.project_root).accept(
-                canonical_path,
-                "story_identity",
-                accepted_by="beginner-workspace",
-                rationale="Accepted composed Beginner Workspace StoryIdentity",
-                record_accepted_at=True,
-            )
-            if metadata is None:
-                raise ValueError("canonical StoryIdentity is archived")
+            try:
+                temporary.write_text(candidate_path.read_text(encoding="utf-8"), encoding="utf-8")
+                temporary.replace(canonical_path)
+                metadata = artifact_store.accept(
+                    canonical_path,
+                    "story_identity",
+                    accepted_by="beginner-workspace",
+                    rationale="Accepted composed Beginner Workspace StoryIdentity",
+                    record_accepted_at=True,
+                )
+                if metadata is None:
+                    raise ValueError("canonical StoryIdentity is archived")
+            except Exception:
+                if previous_canon is None:
+                    canonical_path.unlink(missing_ok=True)
+                else:
+                    canonical_path.write_bytes(previous_canon)
+                if previous_sidecar is None:
+                    sidecar_path.unlink(missing_ok=True)
+                else:
+                    sidecar_path.parent.mkdir(parents=True, exist_ok=True)
+                    sidecar_path.write_bytes(previous_sidecar)
+                temporary.unlink(missing_ok=True)
+                raise
             return {
                 "artifact_id": target_artifact_id,
                 "milestone": milestone,
@@ -569,6 +589,14 @@ def _thaw_accept(data: Mapping[str, Any]) -> AcceptResult:
     )
 
 
+def _freeze_composition(composition: WorkingComposition) -> dict[str, Any]:
+    return {"kind": "composition", "data": composition.model_dump(mode="json")}
+
+
+def _thaw_composition(data: Mapping[str, Any]) -> WorkingComposition:
+    return WorkingComposition.model_validate(data)
+
+
 class BeginnerWorkspaceApplication:
     """Explicit journey commands over the beginner session and its stores."""
 
@@ -632,19 +660,27 @@ class BeginnerWorkspaceApplication:
         expected_session_version: int | None = None,
         command: MutationCommand | None = None,
     ) -> WorkingComposition:
-        expected, _command_id, payload = self._envelope_args(
+        expected, resolved_command_id, payload = self._envelope_args(
             command=command, workspace_id=None, expected_session_version=expected_session_version, command_id=None
         )
+        if resolved_command_id is not None:
+            replayed = self._replay_completed(resolved_command_id, "composition")
+            if replayed is not None:
+                return cast(WorkingComposition, replayed)
         resolved = dimension_id if dimension_id is not None else payload.get("dimension_id")
         if not isinstance(resolved, str):
             raise BeginnerWorkspaceError("dimension_id is required")
         session = self.session_store.load()
-        composition = session.working_composition
+        composition = self._active_working_composition(session)
         if composition is None:
             raise BeginnerWorkspaceError("no working composition exists")
-        updated = confirm_dimension(composition, resolved, label=label, rationale=rationale)
-        saved = self.session_store.update(expected, lambda current: current.model_copy(update={"working_composition": self._refresh_composition(updated, current)}))
-        return saved.working_composition or updated
+        updated = confirm_dimension(
+            composition,
+            resolved,
+            label=label if label is not None else payload.get("label"),
+            rationale=rationale if rationale is not None else payload.get("rationale"),
+        )
+        return self._store_working_composition(expected, resolved_command_id, updated, session)
 
     def reject_dimension(
         self,
@@ -654,19 +690,26 @@ class BeginnerWorkspaceApplication:
         expected_session_version: int | None = None,
         command: MutationCommand | None = None,
     ) -> WorkingComposition:
-        expected, _command_id, payload = self._envelope_args(
+        expected, resolved_command_id, payload = self._envelope_args(
             command=command, workspace_id=None, expected_session_version=expected_session_version, command_id=None
         )
+        if resolved_command_id is not None:
+            replayed = self._replay_completed(resolved_command_id, "composition")
+            if replayed is not None:
+                return cast(WorkingComposition, replayed)
         resolved = dimension_id if dimension_id is not None else payload.get("dimension_id")
         if not isinstance(resolved, str):
             raise BeginnerWorkspaceError("dimension_id is required")
         session = self.session_store.load()
-        composition = session.working_composition
+        composition = self._active_working_composition(session)
         if composition is None:
             raise BeginnerWorkspaceError("no working composition exists")
-        updated = reject_dimension(composition, resolved, rationale=rationale)
-        saved = self.session_store.update(expected, lambda current: current.model_copy(update={"working_composition": self._refresh_composition(updated, current)}))
-        return saved.working_composition or updated
+        updated = reject_dimension(
+            composition,
+            resolved,
+            rationale=rationale if rationale is not None else payload.get("rationale"),
+        )
+        return self._store_working_composition(expected, resolved_command_id, updated, session)
 
     def add_author_dimension(
         self,
@@ -677,21 +720,80 @@ class BeginnerWorkspaceApplication:
         expected_session_version: int | None = None,
         command: MutationCommand | None = None,
     ) -> WorkingComposition:
-        expected, _command_id, payload = self._envelope_args(
+        expected, resolved_command_id, payload = self._envelope_args(
             command=command, workspace_id=None, expected_session_version=expected_session_version, command_id=None
         )
+        if resolved_command_id is not None:
+            replayed = self._replay_completed(resolved_command_id, "composition")
+            if replayed is not None:
+                return cast(WorkingComposition, replayed)
         raw_category = category if category is not None else payload.get("category")
         resolved_label = label if label is not None else payload.get("label")
         resolved_rationale = rationale if rationale is not None else payload.get("rationale")
         if not isinstance(raw_category, (str, DimensionCategory)) or not isinstance(resolved_label, str) or not isinstance(resolved_rationale, str):
             raise BeginnerWorkspaceError("category, label, and rationale are required")
         session = self.session_store.load()
-        composition = session.working_composition
+        composition = self._active_working_composition(session)
         if composition is None:
             raise BeginnerWorkspaceError("no working composition exists")
         updated = add_author_dimension(composition, category=DimensionCategory(raw_category), label=resolved_label, rationale=resolved_rationale)
-        saved = self.session_store.update(expected, lambda current: current.model_copy(update={"working_composition": self._refresh_composition(updated, current)}))
-        return saved.working_composition or updated
+        return self._store_working_composition(expected, resolved_command_id, updated, session)
+
+    def override_mapping(
+        self,
+        *,
+        mapping_id: str | None = None,
+        replacement_value: str | None = None,
+        rationale: str | None = None,
+        expected_session_version: int | None = None,
+        command: MutationCommand | None = None,
+    ) -> WorkingComposition:
+        """Record an author-reviewed mapping override without mutating canon."""
+        expected, resolved_command_id, payload = self._envelope_args(
+            command=command, workspace_id=None, expected_session_version=expected_session_version, command_id=None
+        )
+        if resolved_command_id is not None:
+            replayed = self._replay_completed(resolved_command_id, "composition")
+            if replayed is not None:
+                return cast(WorkingComposition, replayed)
+        resolved_id = mapping_id if mapping_id is not None else payload.get("mapping_id")
+        replacement = replacement_value if replacement_value is not None else payload.get("replacement_value")
+        reason = rationale if rationale is not None else payload.get("rationale")
+        if not all(isinstance(value, str) and value for value in (resolved_id, replacement, reason)):
+            raise BeginnerWorkspaceError("mapping_id, replacement_value, and rationale are required")
+        session = self.session_store.load()
+        composition = self._active_working_composition(session)
+        if composition is None:
+            raise BeginnerWorkspaceError("no working composition exists")
+        mapping = next((item for item in composition.mapping_records if item.mapping_id == resolved_id), None)
+        if mapping is None:
+            raise BeginnerWorkspaceError(f"unknown mapping: {resolved_id}")
+        validation = validate_author_override(mapping, replacement, self._mapping_context(session).vocabulary)
+        if not validation.valid:
+            raise BeginnerWorkspaceError(validation.diagnostic or "invalid mapping override")
+        override = AuthorOverride(
+            original_value=mapping.proposed_value or "",
+            replacement_value=replacement,
+            rationale=reason,
+            affected_dimension_ids=(mapping.source_dimension_id,),
+            validation=validation,
+        )
+        updated = composition.model_copy(
+            update={
+                "mapping_records": tuple(
+                    item.model_copy(
+                        update={
+                            "proposed_value": replacement,
+                            "review_status": MappingReviewStatus.OVERRIDDEN,
+                            "author_override": override,
+                        }
+                    )
+                    if item.mapping_id == resolved_id else item
+                    for item in composition.mapping_records
+                )
+            }
+        )
+        return self._store_working_composition(expected, resolved_command_id, updated, session)
 
     # -- journey commands ----------------------------------------------------
 
@@ -1104,8 +1206,9 @@ class BeginnerWorkspaceApplication:
         session = self.session_store.load()
         inventory = self._inventory_for(session)
         tensions = dict(self._journey.get("tensions") or {})
+        active_composition = self._active_working_composition(session)
         composition_tension = next(
-            (item for item in (session.working_composition.tensions if session.working_composition else ())
+            (item for item in (active_composition.tensions if active_composition else ())
              if item.tension_id == resolved_tension_id),
             None,
         )
@@ -1149,7 +1252,26 @@ class BeginnerWorkspaceApplication:
                 updated = updated.model_copy(update={"working_composition": composition})
             return updated
 
-        self.session_store.update(expected, persist_acknowledgement)
+        if composition_only and isinstance(self._journey.get("active_revision"), dict):
+            updated_composition = active_composition
+            if updated_composition is not None:
+                updated_composition = updated_composition.model_copy(
+                    update={
+                        "tensions": tuple(
+                            tension.model_copy(update={"acknowledged": True})
+                            if tension.tension_id == resolved_tension_id
+                            else tension
+                            for tension in updated_composition.tensions
+                        )
+                    }
+                )
+                active = dict(self._journey["active_revision"])
+                active["working_composition"] = updated_composition.model_dump(mode="json")
+                self._journey["active_revision"] = active
+                self._save_journey()
+            self.session_store.update(expected, lambda current: current)
+        else:
+            self.session_store.update(expected, persist_acknowledgement)
         if not composition_only:
             self._journey["tensions"] = new_tensions
             self._save_journey()
@@ -1184,8 +1306,12 @@ class BeginnerWorkspaceApplication:
         resolved_id = remainder_id if remainder_id is not None else payload.get("remainder_id")
         if not isinstance(resolved_id, str) or not resolved_id:
             raise BeginnerWorkspaceError("remainder_id is required")
+        if resolved_command_id is not None:
+            replayed = self._replay_completed(resolved_command_id, "composition")
+            if replayed is not None:
+                return cast(WorkingComposition, replayed)
         session = self.session_store.load()
-        composition = session.working_composition
+        composition = self._active_working_composition(session)
         if composition is None:
             raise BeginnerWorkspaceError("no working composition exists")
         if not any(item.remainder_id == resolved_id for item in composition.unmapped_remainders):
@@ -1200,17 +1326,7 @@ class BeginnerWorkspaceApplication:
                 )
             }
         )
-        saved = self.session_store.update(
-            expected,
-            lambda current: current.model_copy(update={"working_composition": updated_composition}),
-        )
-        if resolved_command_id is not None:
-            self._complete_command(
-                resolved_command_id,
-                "acknowledge_remainder",
-                {"remainder_id": resolved_id, "session_version": saved.session_version},
-            )
-        return saved.working_composition or updated_composition
+        return self._store_working_composition(expected, resolved_command_id, updated_composition, session)
 
     def open_revision(
         self,
@@ -1266,6 +1382,11 @@ class BeginnerWorkspaceApplication:
             "revision_id": resolved_revision_id,
             "base_session_version": saved.session_version,
             "overlay": {},
+            "working_composition": (
+                saved.working_composition.model_dump(mode="json")
+                if saved.working_composition is not None
+                else None
+            ),
             "target_stage": target_stage.value if target_stage is not None else None,
         }
         if target_stage is not None:
@@ -1421,25 +1542,21 @@ class BeginnerWorkspaceApplication:
     ) -> AcceptResult:
         """Promote canonical StoryIdentity through the acceptance authority."""
         composed_preview = self.projection().mapping_preview
-        if isinstance(composed_preview, PromotionPreview) and composed_preview.ready_to_accept:
-            return self.accept_composed_identity(
-                preview=composed_preview,
-                expected_session_version=expected_session_version,
-                command_id=command_id,
-                workspace_id=workspace_id,
-                command=command,
+        if not isinstance(composed_preview, PromotionPreview):
+            raise BeginnerWorkspaceError(
+                "Story Identity cannot be accepted until the confirmed composition has a mapping preview"
             )
-        expected, resolved_command_id, _payload = self._envelope_args(
-            command=command,
-            workspace_id=workspace_id,
+        if not composed_preview.ready_to_accept:
+            raise BeginnerWorkspaceError(
+                "composed Identity is not ready to accept: "
+                + "; ".join(composed_preview.blocking_items or ("unknown blocker",))
+            )
+        return self.accept_composed_identity(
+            preview=composed_preview,
             expected_session_version=expected_session_version,
             command_id=command_id,
-        )
-        return self._accept_milestone(
-            DecisionStage.STORY_IDENTITY,
-            revision_id=None,
-            expected_session_version=expected,
-            command_id=resolved_command_id,
+            workspace_id=workspace_id,
+            command=command,
         )
 
     def accept_composed_identity(
@@ -1450,6 +1567,7 @@ class BeginnerWorkspaceApplication:
         command_id: str | None = None,
         workspace_id: str | None = None,
         command: MutationCommand | None = None,
+        revision_id: str | None = None,
     ) -> AcceptResult:
         """Accept a validated composition through the existing Identity boundary.
 
@@ -1485,7 +1603,7 @@ class BeginnerWorkspaceApplication:
         preview.candidate_identity.to_yaml(candidate_path)
         return self._accept_milestone(
             DecisionStage.STORY_IDENTITY,
-            revision_id=None,
+            revision_id=revision_id,
             expected_session_version=expected,
             command_id=resolved_command_id,
             promotion_metadata={"composition_mapping_provenance": provenance},
@@ -1553,9 +1671,14 @@ class BeginnerWorkspaceApplication:
             expected_session_version=expected_session_version,
             command_id=command_id,
         )
-        return self._accept_milestone(
-            DecisionStage.STORY_IDENTITY,
-            revision_id=self._required_revision_id(revision_id, payload),
+        resolved_revision_id = self._required_revision_id(revision_id, payload)
+        preview = self.projection().mapping_preview
+        if not isinstance(preview, PromotionPreview) or not preview.ready_to_accept:
+            blockers = preview.blocking_items if isinstance(preview, PromotionPreview) else ("missing composition preview",)
+            raise BeginnerWorkspaceError("revised Identity is not ready to accept: " + "; ".join(blockers))
+        return self.accept_composed_identity(
+            preview=preview,
+            revision_id=resolved_revision_id,
             expected_session_version=expected,
             command_id=resolved_command_id,
         )
@@ -1784,14 +1907,36 @@ class BeginnerWorkspaceApplication:
                 # The overlay was already merged by an earlier attempt (crash
                 # after journey persistence); the parent answers hold the merge.
                 return dict(answers)
-            if not overlay:
+            composition_changed = (
+                milestone_id == "story_identity"
+                and active.get("working_composition") is not None
+                and active.get("working_composition") != (
+                    session.working_composition.model_dump(mode="json")
+                    if session.working_composition is not None
+                    else None
+                )
+            )
+            if not overlay and not composition_changed:
                 raise BeginnerWorkspaceError(f"revision {revision_id} has no exploratory divergence to accept")
+            if not overlay:
+                return dict(answers)
             return {**answers, **overlay}
         if active is None or not isinstance(active, dict) or active.get("revision_id") != revision_id:
             raise BeginnerWorkspaceError(f"no active revision to accept: {revision_id}")
         overlay = dict(active.get("overlay") or {})
-        if not overlay:
+        composition_changed = (
+            milestone_id == "story_identity"
+            and active.get("working_composition") is not None
+            and active.get("working_composition") != (
+                session.working_composition.model_dump(mode="json")
+                if session.working_composition is not None
+                else None
+            )
+        )
+        if not overlay and not composition_changed:
             raise BeginnerWorkspaceError(f"revision {revision_id} has no exploratory divergence to accept")
+        if not overlay:
+            return dict(answers)
         return {**answers, **overlay}
 
     def _require_ready_for_accept(self, stage: DecisionStage) -> None:
@@ -2202,6 +2347,8 @@ class BeginnerWorkspaceApplication:
             return _thaw_acceptance(payload)
         if kind == "accept":
             return _thaw_accept(payload)
+        if kind == "composition":
+            return _thaw_composition(payload)
         raise BeginnerWorkspaceError(f"unknown command receipt kind: {kind}")
 
     # -- read-only projection --------------------------------------------------
@@ -2305,9 +2452,8 @@ class BeginnerWorkspaceApplication:
             )
         ]
         if any(token in premise for token in ("superhero", "superhuman", "masked hero", "cape", "heroic")):
-            sources.append(PackProvenance(pack_id="superhero", version="domain", content_hash="sha256:superhero"))
-        if any(token in premise for token in ("betray", "marriage", "wife", "husband", "relationship", "jealous", "romance", "lover")):
-            sources.append(PackProvenance(pack_id="relationship", version="domain", content_hash="sha256:relationship"))
+            pack, digest = get_design_pack_registry().get("superhero", "0.1.0")
+            sources.append(PackProvenance(pack_id=pack.pack_id, version=pack.version, content_hash=digest))
         return tuple(sources)
 
     def _initial_composition(self, session: SessionEnvelope) -> WorkingComposition:
@@ -2361,6 +2507,15 @@ class BeginnerWorkspaceApplication:
             if dimension.status is DimensionStatus.CONFIRMED
             for mapping in map_dimension(dimension, identity, self._mapping_context(session))
         )
+        prior_overrides = {
+            mapping.mapping_id: mapping
+            for mapping in composition.mapping_records
+            if mapping.review_status is MappingReviewStatus.OVERRIDDEN and mapping.author_override is not None
+        }
+        mappings = tuple(
+            prior_overrides.get(mapping.mapping_id, mapping)
+            for mapping in mappings
+        )
         resolution = reconcile_review_state(composition, compose_mappings(mappings, identity))
         return composition.model_copy(
             update={
@@ -2371,7 +2526,7 @@ class BeginnerWorkspaceApplication:
         )
 
     def _composition_preview(self, session: SessionEnvelope) -> tuple[WorkingComposition | None, PromotionPreview | None]:
-        composition = session.working_composition
+        composition = self._active_working_composition(session)
         if composition is None:
             return None, None
         refreshed = self._refresh_composition(composition, session)
@@ -2384,6 +2539,38 @@ class BeginnerWorkspaceApplication:
         return refreshed, build_promotion_preview(
             self._canonical_identity(), resolution, refreshed.mapping_records
         )
+
+    def _active_working_composition(self, session: SessionEnvelope) -> WorkingComposition | None:
+        active = self._journey.get("active_revision")
+        if isinstance(active, dict) and active.get("working_composition") is not None:
+            return WorkingComposition.model_validate(active["working_composition"])
+        return session.working_composition
+
+    def _store_working_composition(
+        self,
+        expected: int,
+        command_id: str | None,
+        composition: WorkingComposition,
+        session: SessionEnvelope,
+    ) -> WorkingComposition:
+        refreshed = self._refresh_composition(composition, session)
+        active = self._journey.get("active_revision")
+        if isinstance(active, dict):
+            active["working_composition"] = refreshed.model_dump(mode="json")
+            self._journey["active_revision"] = active
+            self._save_journey()
+            # Preserve optimistic concurrency semantics without writing the
+            # exploratory composition into the parent session.
+            saved = self.session_store.update(expected, lambda current: current)
+            result = refreshed
+        else:
+            saved = self.session_store.update(
+                expected,
+                lambda current: current.model_copy(update={"working_composition": refreshed}),
+            )
+            result = saved.working_composition or refreshed
+        self._complete_command(command_id, "composition", _freeze_composition(result))
+        return result
 
     def _current_digest(self, session: SessionEnvelope) -> str:
         adapter = _adapter_for(session.guidance_genre)

@@ -366,12 +366,19 @@ def build_workspace_projection(
     for stage, review in reviews.items():
         if stage in available and review.review_available and not review.opened:
             actions.append(f"open-review:{stage.value}")
-        if review.opened and review.ready_to_accept and milestone_ids[stage] not in accepted_ids:
+        composed_identity_ready = (
+            stage is not DecisionStage.STORY_IDENTITY
+            or (
+                mapping_preview is not None
+                and bool(getattr(mapping_preview, "ready_to_accept", False))
+            )
+        )
+        if review.opened and review.ready_to_accept and composed_identity_ready and milestone_ids[stage] not in accepted_ids:
             actions.append(f"accept-{milestone_slugs[stage]}")
         if milestone_ids[stage] in accepted_ids:
             if active_revision_id is None:
                 actions.append(f"open-revision:{stage.value}")
-            elif review.opened and review.ready_to_accept:
+            elif review.opened and review.ready_to_accept and composed_identity_ready:
                 actions.append(
                     "accept-revised-"
                     + ("direction" if stage is DecisionStage.DISCOVER else

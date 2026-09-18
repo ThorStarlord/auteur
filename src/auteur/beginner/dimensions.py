@@ -97,6 +97,18 @@ def propose_dimensions(
             )
         )
 
+    if _premise_supports(premise, DimensionCategory.RELATIONSHIP_THEMATIC) and DimensionCategory.RELATIONSHIP_THEMATIC not in seen_categories:
+        proposals.append(
+            WorkingDimension(
+                dimension_id=f"inferred:{_stable_id(premise, DimensionCategory.RELATIONSHIP_THEMATIC.value)}",
+                category=DimensionCategory.RELATIONSHIP_THEMATIC,
+                origin=DimensionOrigin.INFERRED_FROM_STORY,
+                status=DimensionStatus.PROPOSED,
+                label="Relationship betrayal tension",
+                detection_evidence=("premise evidence mentions relationship or betrayal pressure",),
+            )
+        )
+
     primary = _category_for(guidance_genre, guidance_genre)
     if primary is not None and primary not in seen_categories:
         source = PackProvenance(

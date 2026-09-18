@@ -129,6 +129,13 @@ def test_browser_exposes_revision_controls_without_domain_rules():
     assert "revision_id" in js
 
 
+def test_browser_exposes_composition_review_controls_and_author_inputs():
+    js = _read(APP)
+    for token in ("acknowledge-tension", "acknowledge-remainder", "data-composition-label", "data-composition-rationale"):
+        assert token in js
+    assert "Add a relationship lens" in js
+
+
 def test_browser_uses_beginner_labels_and_completion_state():
     js = _read(APP)
     assert "function stageLabel" in js

@@ -23,7 +23,6 @@ HYBRID_MYSTERY_PREMISE = (
 
 def hybrid_composition() -> WorkingComposition:
     superhero = PackProvenance(pack_id="superhero", version="0.1.0", content_hash="sha256:superhero-fixture")
-    relationship = PackProvenance(pack_id="relationship", version="0.1.0", content_hash="sha256:relationship-fixture")
     return WorkingComposition(
         workspace_id="hybrid-mystery",
         composition_id="hybrid-composition-1",
@@ -45,7 +44,6 @@ def hybrid_composition() -> WorkingComposition:
                 status=DimensionStatus.CONFIRMED,
                 label="Relationship betrayal tension",
                 author_rationale="The mystery should pressure trust inside a relationship.",
-                source_provenance=(relationship,),
                 confirmed_by_author=True,
             ),
         ),

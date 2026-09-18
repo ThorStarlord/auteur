@@ -23,7 +23,6 @@ def qualification_sources() -> tuple[PackProvenance, ...]:
     return (
         PackProvenance(pack_id="mystery", version="domain", content_hash="sha256:mystery"),
         PackProvenance(pack_id="superhero", version="0.1.0", content_hash="sha256:superhero"),
-        PackProvenance(pack_id="relationship-betrayal", version="author", content_hash="sha256:relationship"),
     )
 
 
@@ -50,7 +49,11 @@ def test_proposes_mystery_superhero_and_relationship_dimensions() -> None:
     ]
     assert all(item.status is DimensionStatus.PROPOSED for item in proposals.proposals)
     assert all(item.detection_evidence for item in proposals.proposals)
-    assert all(item.origin is DimensionOrigin.DETECTED_FROM_PACK for item in proposals.proposals)
+    assert [item.origin for item in proposals.proposals] == [
+        DimensionOrigin.DETECTED_FROM_PACK,
+        DimensionOrigin.DETECTED_FROM_PACK,
+        DimensionOrigin.INFERRED_FROM_STORY,
+    ]
 
 
 def test_confirmation_changes_only_working_dimension_state() -> None:
@@ -109,3 +112,23 @@ def test_detection_does_not_propose_unrelated_supporting_dimensions() -> None:
     )
 
     assert [item.category for item in proposals.proposals] == [DimensionCategory.PRIMARY_ENGINE]
+
+
+def test_hybrid_detection_preserves_registered_pack_provenance_and_inferred_origin() -> None:
+    from auteur.story_design_packs.registry import get_design_pack_registry
+
+    _, digest = get_design_pack_registry().get("superhero", "0.1.0")
+    proposals = propose_dimensions(
+        HYBRID_MYSTERY_PREMISE,
+        "mystery",
+        (
+            PackProvenance(pack_id="mystery", version="domain", content_hash="sha256:mystery"),
+            PackProvenance(pack_id="superhero", version="0.1.0", content_hash=digest),
+        ),
+    )
+    superhero = next(item for item in proposals.proposals if item.category is DimensionCategory.SETTING_WORLD)
+    relationship = next(item for item in proposals.proposals if item.category is DimensionCategory.RELATIONSHIP_THEMATIC)
+    assert superhero.source_provenance[0].version == "0.1.0"
+    assert superhero.source_provenance[0].content_hash == digest
+    assert relationship.origin is DimensionOrigin.INFERRED_FROM_STORY
+    assert relationship.source_provenance == ()
