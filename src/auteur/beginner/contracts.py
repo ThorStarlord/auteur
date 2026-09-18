@@ -213,6 +213,13 @@ class WorkingComposition(BaseModel):
     unmapped_remainders: tuple[UnmappedRemainder, ...] = ()
 
 
+class DimensionProposalSet(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    proposals: tuple[WorkingDimension, ...]
+    source_provenance: tuple[PackProvenance, ...] = ()
+
+
 class StageStatus(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
