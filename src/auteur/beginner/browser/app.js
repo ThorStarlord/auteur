@@ -603,6 +603,15 @@
         var command = button.getAttribute("data-command");
         var stage = button.getAttribute("data-stage");
         var payload = stage ? { stage: stage } : {};
+        var dimensionId = button.getAttribute("data-dimension-id");
+        if (dimensionId) {
+          payload.dimension_id = dimensionId;
+        }
+        if (command === "add-dimension") {
+          payload.category = button.getAttribute("data-category") || "RELATIONSHIP_THEMATIC";
+          payload.label = button.getAttribute("data-label") || "Author-defined lens";
+          payload.rationale = button.getAttribute("data-rationale") || "The author wants this lens to shape the story.";
+        }
         if (command === "open-revision") {
           payload.revision_id = "browser-revision-" + Date.now().toString(36);
         }
@@ -638,9 +647,13 @@
     var parts = ["<p class=\"muted\">Working exploration · not canonical</p>"];
     if (composition.dimensions && composition.dimensions.length) {
       parts.push("<h3>Confirmed and proposed dimensions</h3><ul>" + composition.dimensions.map(function (dimension) {
+        var controls = dimension.status === "PROPOSED" ?
+          ' <button data-command="confirm-dimension" data-dimension-id="' + escapeHtml(dimension.dimension_id) + '">Use this lens</button>' +
+          ' <button data-command="reject-dimension" data-dimension-id="' + escapeHtml(dimension.dimension_id) + '">Not relevant</button>' : "";
         return "<li><strong>" + escapeHtml(dimension.label) + "</strong> · " +
-          escapeHtml(dimension.category) + " · " + escapeHtml(dimension.status) + "</li>";
+          escapeHtml(dimension.category) + " · " + escapeHtml(dimension.status) + controls + "</li>";
       }).join("") + "</ul>");
+      parts.push('<button data-command="add-dimension" data-category="RELATIONSHIP_THEMATIC" data-label="Author-defined relationship lens">Add a relationship lens</button>');
     }
     if (composition.mapping_records && composition.mapping_records.length) {
       parts.push("<h3>How dimensions relate to canon</h3><ul>" + composition.mapping_records.map(function (mapping) {
@@ -662,6 +675,18 @@
       }
     }
     body.innerHTML = parts.join("");
+    Array.prototype.forEach.call(body.querySelectorAll("button[data-command]"), function (button) {
+      button.addEventListener("click", function () {
+        var command = button.getAttribute("data-command");
+        var payload = {
+          dimension_id: button.getAttribute("data-dimension-id"),
+          category: button.getAttribute("data-category"),
+          label: button.getAttribute("data-label"),
+          rationale: button.getAttribute("data-rationale")
+        };
+        sendAction(command, payload, button.textContent.trim());
+      });
+    });
   }
 
   function render(projection) {

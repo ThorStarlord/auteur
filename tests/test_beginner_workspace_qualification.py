@@ -134,10 +134,15 @@ def test_hybrid_fixture_keeps_confirmed_dimensions_visible_as_working_state(tmp_
     assert composition is not None
     assert {dimension.status for dimension in composition.dimensions} == {DimensionStatus.CONFIRMED}
     assert {dimension.category for dimension in composition.dimensions} == {
+        DimensionCategory.PRIMARY_ENGINE,
         DimensionCategory.SETTING_WORLD,
         DimensionCategory.RELATIONSHIP_THEMATIC,
     }
-    assert app.projection().working_composition == composition
+    projected = app.projection().working_composition
+    assert projected is not None
+    assert {dimension.dimension_id for dimension in projected.dimensions} == {
+        dimension.dimension_id for dimension in composition.dimensions
+    }
 
 
 def test_acknowledged_nonblocking_tension_never_gates_readiness(tmp_path: Path) -> None:

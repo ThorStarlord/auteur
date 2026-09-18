@@ -107,6 +107,31 @@ def test_http_projection_exposes_composed_decision_and_inspector_views(tmp_path)
         }
 
 
+def test_http_boundary_creates_and_confirms_hybrid_dimensions(tmp_path):
+    premise = "A respected superhero investigates a betrayal in his marriage as small inconsistencies suggest a hidden conspiracy."
+    with running_server(tmp_path) as server:
+        _, projection = post_json(
+            server,
+            "/api/beginner/workspaces",
+            {**create_payload("create-hybrid-http", "hybrid-http"), "premise": premise},
+        )
+        workspace_id = "hybrid-http"
+        dimensions = projection["working_composition"]["dimensions"]
+        assert {item["category"] for item in dimensions} == {
+            "PRIMARY_ENGINE", "SETTING_WORLD", "RELATIONSHIP_THEMATIC"
+        }
+        for dimension in dimensions:
+            projection = command_json(
+                server,
+                workspace_id,
+                "confirm-dimension",
+                projection,
+                {"dimension_id": dimension["dimension_id"], "rationale": "Confirmed for this story."},
+            )
+        assert projection["mapping_preview"] is not None
+        assert projection["mapping_preview"]["mapping_records"]
+
+
 def test_http_projection_reads_and_selection_do_not_promote_canon(tmp_path):
     with running_server(tmp_path) as server:
         _, created = post_json(server, "/api/beginner/workspaces", create_payload())

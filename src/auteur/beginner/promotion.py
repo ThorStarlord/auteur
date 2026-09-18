@@ -12,7 +12,7 @@ from pydantic import BaseModel, ConfigDict
 from auteur.identity import StoryIdentity
 
 from .composition import CompositionResolution
-from .contracts import MappingRecord, SemanticChange
+from .contracts import CompositionTension, MappingRecord, SemanticChange
 
 
 class PromotionPreview(BaseModel):
@@ -22,6 +22,7 @@ class PromotionPreview(BaseModel):
     candidate_identity: StoryIdentity
     semantic_changes: tuple[SemanticChange, ...] = ()
     mapping_records: tuple[MappingRecord, ...] = ()
+    tensions: tuple[CompositionTension, ...] = ()
     unresolved_items: tuple[str, ...] = ()
     blocking_items: tuple[str, ...] = ()
     downstream_impact: tuple[str, ...] = ()
@@ -92,6 +93,7 @@ def build_promotion_preview(
         candidate_identity=resolution.candidate_identity,
         semantic_changes=changes,
         mapping_records=tuple(mapping_records),
+        tensions=resolution.tensions,
         unresolved_items=unresolved,
         blocking_items=resolution.blocking_items,
         downstream_impact=impact,

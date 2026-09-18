@@ -99,3 +99,13 @@ def test_rejection_preserves_provenance_and_author_dimension_keeps_exact_label()
     assert authored.dimensions[0].label == "Erotic betrayal tension"
     assert authored.dimensions[0].origin is DimensionOrigin.AUTHOR_DEFINED
     assert authored.dimensions[0].status is DimensionStatus.CONFIRMED
+
+
+def test_detection_does_not_propose_unrelated_supporting_dimensions() -> None:
+    proposals = propose_dimensions(
+        premise="A detective solves a locked-room murder in a remote hotel.",
+        guidance_genre="mystery",
+        available_sources=qualification_sources(),
+    )
+
+    assert [item.category for item in proposals.proposals] == [DimensionCategory.PRIMARY_ENGINE]

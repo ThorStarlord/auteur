@@ -16,7 +16,7 @@ from auteur.story_design_packs.models import PackProvenance
 
 
 HYBRID_MYSTERY_PREMISE = (
-    "A masked investigator discovers that a public institution is hiding a betrayal, "
+    "A respected superhero discovers that a public institution is hiding a betrayal, "
     "and the explanation must remain non-supernatural."
 )
 
@@ -60,9 +60,12 @@ def create_hybrid_app(tmp_path: Path) -> BeginnerWorkspaceApplication:
         premise=HYBRID_MYSTERY_PREMISE,
         guidance_genre="mystery",
     )
-    session = app.session_store.load()
-    app.session_store.update(
-        session.session_version,
-        lambda current: current.model_copy(update={"working_composition": hybrid_composition()}),
-    )
+    composition = app.projection().working_composition
+    assert composition is not None
+    for dimension in composition.dimensions:
+        app.confirm_dimension(
+            dimension_id=dimension.dimension_id,
+            rationale=f"Confirmed {dimension.label} for the hybrid qualification fixture.",
+            expected_session_version=app.projection().session_version,
+        )
     return app

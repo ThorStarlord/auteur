@@ -287,6 +287,8 @@ def build_workspace_projection(
     current_digest: str | None = None,
     guidance: BeginnerGuidance | None = None,
     cursor_override: str | None = None,
+    working_composition: WorkingComposition | None = None,
+    mapping_preview: object | None = None,
 ) -> WorkspaceProjection:
     """Build every workspace surface from one session/domain snapshot."""
     exploratory = dict(exploratory_answers or {})
@@ -412,7 +414,8 @@ def build_workspace_projection(
         available_actions=tuple(actions),
         decision_workspace=decision_workspace,
         guidance_inspector=guidance_inspector,
-        working_composition=session.working_composition,
+        working_composition=working_composition if working_composition is not None else session.working_composition,
+        mapping_preview=mapping_preview,
     )
 
 

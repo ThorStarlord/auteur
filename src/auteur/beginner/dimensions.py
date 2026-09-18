@@ -42,6 +42,30 @@ def _category_for(pack_id: str, guidance_genre: str) -> DimensionCategory | None
     return None
 
 
+def _premise_supports(premise: str, category: DimensionCategory) -> bool:
+    """Keep supporting proposals tied to evidence in the author's premise."""
+    text = premise.casefold()
+    if category is DimensionCategory.PRIMARY_ENGINE:
+        return True
+    if category is DimensionCategory.SETTING_WORLD:
+        return any(token in text for token in ("superhero", "superhuman", "masked hero", "cape", "heroic"))
+    if category is DimensionCategory.RELATIONSHIP_THEMATIC:
+        return any(
+            token in text
+            for token in (
+                "betray",
+                "marriage",
+                "wife",
+                "husband",
+                "relationship",
+                "jealous",
+                "romance",
+                "lover",
+            )
+        )
+    return False
+
+
 def propose_dimensions(
     premise: str,
     guidance_genre: str,
@@ -58,7 +82,7 @@ def propose_dimensions(
     seen_categories: set[DimensionCategory] = set()
     for source in sources:
         category = _category_for(source.pack_id, guidance_genre)
-        if category is None or category in seen_categories:
+        if category is None or category in seen_categories or not _premise_supports(premise, category):
             continue
         seen_categories.add(category)
         proposals.append(
@@ -68,7 +92,7 @@ def propose_dimensions(
                 origin=DimensionOrigin.DETECTED_FROM_PACK,
                 status=DimensionStatus.PROPOSED,
                 label=_label_for(source.pack_id, category),
-                detection_evidence=(f"source pack matched premise context: {source.pack_id}",),
+                detection_evidence=(f"premise evidence supports {category.value}: {source.pack_id}",),
                 source_provenance=(source,),
             )
         )

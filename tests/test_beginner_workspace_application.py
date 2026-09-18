@@ -18,7 +18,13 @@ from auteur.beginner.application import (
     BeginnerWorkspaceError,
     LockedStageError,
 )
-from auteur.beginner.contracts import DecisionStage, LifecycleStatus, MutationCommand, StageAvailability
+from auteur.beginner.contracts import (
+    DecisionStage,
+    DimensionCategory,
+    LifecycleStatus,
+    MutationCommand,
+    StageAvailability,
+)
 from auteur.beginner.mystery_adapter import mystery_qualification_inventory
 from auteur.beginner.persistence import BeginnerConcurrencyError
 from auteur.beginner.projections import _review_for_stage
@@ -33,6 +39,66 @@ def make_app(tmp_path: Path, workspace_id: str = "workspace-1") -> BeginnerWorks
         guidance_genre="mystery",
     )
     return app
+
+
+def test_create_workspace_initializes_proposed_composition_and_confirming_all_builds_preview(tmp_path: Path) -> None:
+    app = BeginnerWorkspaceApplication(tmp_path, "hybrid-live")
+    app.create_workspace(
+        command_id="create-hybrid-live",
+        project_id="project-1",
+        premise="A respected superhero investigates a betrayal in his marriage as small inconsistencies suggest a hidden conspiracy.",
+        guidance_genre="mystery",
+    )
+
+    initial = app.projection()
+    assert initial.working_composition is not None
+    assert {dimension.category for dimension in initial.working_composition.dimensions} == {
+        DimensionCategory.PRIMARY_ENGINE,
+        DimensionCategory.SETTING_WORLD,
+        DimensionCategory.RELATIONSHIP_THEMATIC,
+    }
+    assert initial.mapping_preview is None
+
+    composition = initial.working_composition
+    for dimension in composition.dimensions:
+        app.confirm_dimension(
+            dimension_id=dimension.dimension_id,
+            expected_session_version=app.projection().session_version,
+            rationale=f"Confirmed {dimension.label}.",
+        )
+
+    projected = app.projection()
+    assert projected.mapping_preview is not None
+    assert projected.mapping_preview.candidate_identity is not None
+    assert projected.mapping_preview.mapping_records
+
+
+def test_planner_tension_can_be_acknowledged_through_application_path(tmp_path: Path) -> None:
+    app = BeginnerWorkspaceApplication(tmp_path, "hybrid-tension")
+    app.create_workspace(
+        command_id="create-hybrid-tension",
+        project_id="project-1",
+        premise="A respected superhero investigates a betrayal in his marriage as small inconsistencies suggest a hidden conspiracy.",
+        guidance_genre="mystery",
+    )
+    for dimension in app.projection().working_composition.dimensions:
+        app.confirm_dimension(
+            dimension_id=dimension.dimension_id,
+            expected_session_version=app.projection().session_version,
+            rationale="Confirmed for the working composition.",
+        )
+    preview = app.projection().mapping_preview
+    tension_id = preview.tensions[0].tension_id
+
+    app.acknowledge_tension(
+        tension_id=tension_id,
+        expected_session_version=app.projection().session_version,
+    )
+
+    refreshed = app.projection().mapping_preview
+    assert refreshed is not None
+    assert refreshed.tensions[0].acknowledged is True
+    assert "tension_requires_acknowledgement" not in refreshed.blocking_items
 
 
 def discover_cards() -> list[str]:

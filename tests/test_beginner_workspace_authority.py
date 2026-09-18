@@ -29,7 +29,7 @@ import pytest
 
 from auteur.acceptance import AcceptanceRegistry
 from auteur.beginner.application import BeginnerWorkspaceApplication
-from auteur.beginner.contracts import DecisionStage, LifecycleStatus, StageAvailability
+from auteur.beginner.contracts import DecisionStage, LifecycleStatus, SemanticChange, StageAvailability
 from auteur.beginner.mystery_adapter import mystery_qualification_inventory
 from auteur.beginner.persistence import BeginnerConcurrencyError
 from auteur.beginner.promotion import PromotionPreview
@@ -388,6 +388,42 @@ def test_composed_identity_acceptance_delegates_and_records_mapping_provenance(t
     assert sum(call[0].endswith("story_identity") for call in owner.calls) == 1
 
 
+def test_composed_identity_acceptance_writes_candidate_identity_to_canon(tmp_path: Path) -> None:
+    app = make_app(tmp_path)
+    accept_direction(app)
+    answer_stage_cleanly(app, "story_identity.")
+    app.open_milestone_review(
+        stage=DecisionStage.STORY_IDENTITY,
+        expected_session_version=app.projection().session_version,
+    )
+    current = StoryIdentity(
+        title="Composition fixture",
+        core_answer="A composed identity fixture.",
+        central_engine=HighLevelCentralEngine(
+            want="Solve the mystery.", resistance="Hidden truth.",
+            conflict="Suspicion versus trust.", stakes="The relationship collapses.",
+            change="The protagonist accepts uncertainty.",
+        ),
+    )
+    candidate = current.model_copy(update={"story_type": current.story_type.model_copy(update={"genre": "mystery"})})
+    preview = PromotionPreview(
+        current_identity=current,
+        candidate_identity=candidate,
+        semantic_changes=(
+            SemanticChange(destination_field="story_type.genre", before=current.story_type.genre.value, after="mystery"),
+        ),
+        ready_to_accept=True,
+    )
+
+    app.accept_composed_identity(
+        preview=preview,
+        command_id="accept-composed-canonical",
+        expected_session_version=app.projection().session_version,
+    )
+
+    assert StoryIdentity.from_yaml(tmp_path / "story_identity.yaml").story_type.genre.value == "mystery"
+
+
 def test_composed_identity_rejects_blocked_preview_before_authority(tmp_path: Path) -> None:
     owner = CountingOwner()
     registry = AcceptanceRegistry(tmp_path)
@@ -425,3 +461,32 @@ def test_composed_identity_rejects_blocked_preview_before_authority(tmp_path: Pa
         )
 
     assert not any(call[0].endswith("story_identity") for call in owner.calls)
+
+
+def test_live_confirmed_composition_acceptance_promotes_candidate_identity(tmp_path: Path) -> None:
+    app = BeginnerWorkspaceApplication(tmp_path, "live-composed")
+    app.create_workspace(
+        command_id="create-live-composed",
+        project_id="project-1",
+        premise="A detective solves a locked-room murder in a remote hotel.",
+        guidance_genre="mystery",
+    )
+    dimension = app.projection().working_composition.dimensions[0]
+    app.confirm_dimension(
+        dimension_id=dimension.dimension_id,
+        rationale="Mystery is the primary narrative engine.",
+        expected_session_version=app.projection().session_version,
+    )
+    accept_direction(app)
+    answer_stage_cleanly(app, "story_identity.")
+    app.open_milestone_review(
+        stage=DecisionStage.STORY_IDENTITY,
+        expected_session_version=app.projection().session_version,
+    )
+
+    app.accept_story_identity(
+        command_id="accept-live-composed",
+        expected_session_version=app.projection().session_version,
+    )
+
+    assert StoryIdentity.from_yaml(tmp_path / "story_identity.yaml").story_type.genre.value == "mystery"
