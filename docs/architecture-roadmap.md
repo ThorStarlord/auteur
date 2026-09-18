@@ -1,6 +1,6 @@
 # Auteur Architecture Roadmap
 
-This document connects the project’s foundational architecture documents and
+This document connects the project's foundational architecture documents and
 records architecture-specific extension history and integrity rules. It is a
 navigation and integrity review, not the current generic product roadmap.
 
@@ -14,8 +14,8 @@ The stable principles governing all future extensions are recorded in
 ## Current Role
 
 The foundational architecture sequence described below is substantially
-established. The historical Reasoning Architecture → Critic Integration →
-Registry → Runtime sequence records how the current platform reached that state;
+established. The historical Reasoning Architecture -> Critic Integration ->
+Registry -> Runtime sequence records how the current platform reached that state;
 it should not be interpreted as the present implementation queue.
 
 The current architectural conclusion remains:
@@ -24,6 +24,10 @@ The current architectural conclusion remains:
 > concepts should be admitted only when real author/product friction cannot be
 > solved cleanly through existing architecture, workflow, presentation, or
 > reusable craft knowledge.
+
+Narrative Ontology V2 follows this rule: it reconciles and consolidates the
+existing Layer-0 contract; it is not a fifth foundational architecture or a new
+research campaign.
 
 Selection among product directions belongs in
 [product-evolution-roadmap.md](product-evolution-roadmap.md). Exact active work
@@ -43,54 +47,69 @@ capabilities is itself part of the narrative.
 ### Architectural capabilities
 
 ```text
-Narrative Ontology
-        ↓
 Narrative Architecture
-        ↓
+  includes Layer-0 Narrative Ontology semantics
+        |
+        v
 Provenance Architecture
-        ↓
+        |
+        v
 Transformation Architecture
-        ↓
+        |
+        v
 Reasoning Architecture
-        ↓
+        |
+        v
 Critic Integration Contract
-        ↓
+        |
+        v
 Critic Registry
-        ↓
+        |
+        v
 Reasoning Runtime
-        ↓
+        |
+        v
 Author Workflow
 ```
+
+Narrative Ontology is the semantic substrate of Narrative Architecture: concepts,
+relation vocabulary, and deterministic semantic invariants. Keeping it inside
+the Narrative Architecture foundation avoids implying that Ontology is a fifth
+foundational architecture beside Narrative/Provenance/Transformation/Reasoning.
 
 ### Narrative artifacts
 
 ```text
-Ontology
-        ↓
 Story Identity
-        ↓
-Blueprint
-        ↓
-Chapter Structure
-        ↓
+        |
+        v
+Blueprint / Structure
+        |
+        v
 Scene Realization
-        ↓
+        |
+        v
 Scene Expression
-        ↓
-Chapter Expression
-        ↓
+        |
+        v
+Chapter/Segment Expression
+        |
+        v
 Manuscript
 ```
 
-Narrative artifacts are not architectural layers. They are concrete instances
-of the Narrative Architecture, just as records are instances of a data model.
-The governing capabilities operate on those artifacts without becoming story
-content.
+Ontology is deliberately absent from this artifact chain. Ontology supplies
+vocabulary to every semantic layer; it is not normally a story-instance artifact
+that is transformed into Story Identity.
+
+Narrative artifacts are concrete instances governed by the Narrative
+Architecture, just as records are instances of a data model. The governing
+capabilities operate on those artifacts without becoming story content.
 
 | Capability | Governs |
 |---|---|
-| Narrative Ontology | Entities, relationships, types, and semantic definitions |
-| Narrative Architecture | Semantic ownership and constraints |
+| Narrative Ontology (inside Narrative Architecture) | Reusable concepts, relation types, semantic vocabulary, deterministic semantic invariants |
+| Narrative Architecture | Semantic ownership, scope independence, and constraints |
 | Provenance Architecture | Revision history and authority |
 | Transformation Architecture | Legal movement between artifacts |
 | Reasoning Architecture | Explainable recommendations about artifacts |
@@ -101,16 +120,24 @@ content.
 
 ## The four completed foundations
 
-### Narrative Architecture — what knowledge exists
+### Narrative Architecture — what narrative knowledge exists and who owns it
 
-The canonical semantic model is:
+The canonical semantic model remains five layers:
 
 ```text
-Ontology → Identity → Structure → Realization → Expression
+Ontology -> Identity -> Structure -> Realization -> Expression
 ```
+
+The arrow from Ontology means "supplies vocabulary" rather than "a project
+ontology artifact is transformed into Identity". Identity, Structure,
+Realization, and Expression own story-instance knowledge of their respective
+kinds.
 
 Canonical narrative facts are owned at their semantic scope. Expression renders
 realized facts but does not silently redefine upstream meaning.
+
+Narrative artifacts are additionally classified by independent scope, authority,
+and revision/temporal coordinates. See `docs/narrative-architecture.md`.
 
 ### Provenance Architecture — how authority evolves
 
@@ -126,40 +153,12 @@ validation, staleness, acceptance, and failure atomicity. The proven Expression
 path is:
 
 ```text
-accepted source → candidate → proposal → plan → publication
-→ independent decision → accepted-source recomposition
-→ comparison → Chapter acceptance → reconciliation completion
+accepted source -> candidate -> proposal -> plan -> publication
+-> independent decision -> accepted-source recomposition
+-> comparison -> Chapter acceptance -> reconciliation completion
 ```
 
 No stage silently changes authority.
-
-## Unified authority constitution
-
-- Canonical means the current accepted revision at the owning scope.
-- Derived means explanatory or assembled output that is not a new source of truth.
-- Candidate means durable proposed work awaiting an explicit decision.
-- Publication is not acceptance.
-- Recomposition is not Chapter acceptance.
-- Chapter acceptance is not reconciliation completion.
-- Canonical Chapter composition uses accepted Chapter Structure, accepted Scene
-  Expressions, and accepted transitions only.
-- Expression workflows do not mutate Realization, Structure, Identity, or Bible/state.
-
-## Conceptual integrity review
-
-The foundations are coherent because each answers a different question:
-
-| Question | Owning architecture |
-|---|---|
-| What exists and what does it mean? | Narrative Architecture |
-| Which revision is authoritative? | Provenance Architecture |
-| How may knowledge move or change form? | Transformation Architecture |
-| Why should a change be recommended? | Reasoning Architecture |
-
-The main terminology risk is using “validation,” “diagnosis,” “proposal,” and
-“acceptance” interchangeably. Validation should report evidence; diagnosis
-should explain a problem; proposals should suggest an author-decidable change;
-acceptance should change authority.
 
 ### Reasoning Architecture — why change is justified
 
@@ -170,7 +169,7 @@ recommended and what evidence supports it.
 Recommended conceptual chain:
 
 ```text
-observation → evidence → claim → confidence → recommendation → proposal
+observation -> evidence -> claim -> confidence -> recommendation -> proposal
 ```
 
 Reasoning outputs remain derived. They must not mutate canonical artifacts or
@@ -192,6 +191,39 @@ This began as a deterministic contract around existing critic and analyzer
 findings rather than as a generic AI workflow engine. That architectural choice
 remains valid even though the implementation sequence below is now historical.
 
+## Unified authority constitution
+
+- Canonical means the current accepted revision at the owning scope.
+- Derived means explanatory or assembled output that is not a new source of truth.
+- Candidate means durable proposed work awaiting an explicit decision.
+- Publication is not acceptance.
+- Recomposition is not Chapter acceptance.
+- Chapter acceptance is not reconciliation completion.
+- Canonical Chapter composition uses accepted Chapter Structure, accepted Scene
+  Expressions, and accepted transitions only.
+- Expression workflows do not mutate Realization, Structure, Identity, or Bible/state.
+- Ontology vocabulary cannot accept, promote, or mutate story-instance authority.
+
+## Conceptual integrity review
+
+The foundations are coherent because each answers a different question:
+
+| Question | Owning architecture |
+|---|---|
+| What narrative knowledge exists, what does it mean, and which semantic layer owns it? | Narrative Architecture (including Narrative Ontology) |
+| Which revision is authoritative? | Provenance Architecture |
+| How may knowledge move or change form? | Transformation Architecture |
+| Why should a change be recommended? | Reasoning Architecture |
+
+The main terminology risk is using "validation," "diagnosis," "proposal," and
+"acceptance" interchangeably. Validation should report evidence; diagnosis
+should explain a problem; proposals should suggest an author-decidable change;
+acceptance should change authority.
+
+Narrative Ontology V2 further divides ontology rules into schema constraints,
+semantic invariants, craft heuristics, and interpretive criteria so subjective
+craft advice cannot masquerade as deterministic validity.
+
 ## Intentionally deferred capabilities
 
 - grouped candidate decisions and dependency transactions;
@@ -200,7 +232,8 @@ remains valid even though the implementation sequence below is now historical.
 - Scene merge and split;
 - advanced round-trip manuscript reconciliation;
 - broad normalization of every cross-domain transformation;
-- collaboration, voting, merge queues, and generic workflow engines.
+- collaboration, voting, merge queues, and generic workflow engines;
+- broad Book/Chapter persistence migration to Entry/Segment terminology.
 
 These are extension points, not violations of the V1 foundations. Their current
 product priority, if any, belongs in the Product Evolution Roadmap rather than
@@ -234,10 +267,11 @@ evidence first.
 ## Review conclusion
 
 Auteur has four stable foundational architectures: Narrative, Provenance,
-Transformation, and Reasoning. The Critic Integration Contract, Critic Registry,
-and Reasoning Runtime operationalize those foundations. The remaining work is
-primarily vertical author workflow and capability refinement, not another
-foundational architecture.
+Transformation, and Reasoning. Narrative Ontology is the Layer-0 semantic
+substrate inside the Narrative Architecture foundation. The Critic Integration
+Contract, Critic Registry, and Reasoning Runtime operationalize those
+foundations. The remaining work is primarily vertical author workflow and
+capability refinement, not another foundational architecture.
 
 ## Product coverage and evidence-driven selection
 
@@ -247,11 +281,11 @@ architecture:
 
 ```text
 run real workflow
-→ observe friction
-→ classify UX / workflow / craft knowledge / domain / infrastructure
-→ choose the smallest correct intervention
-→ implement
-→ verify
+-> observe friction
+-> classify UX / workflow / craft knowledge / domain / infrastructure
+-> choose the smallest correct intervention
+-> implement
+-> verify
 ```
 
 Use [product-evolution-roadmap.md](product-evolution-roadmap.md) to preserve and

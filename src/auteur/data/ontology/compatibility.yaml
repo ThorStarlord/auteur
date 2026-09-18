@@ -1,0 +1,48 @@
+# Compatibility metadata for the YAML-backed OntologyRegistry.
+# Aliases preserve historical public names without making Python modules an
+# independent semantic source of truth.
+
+aliases:
+  netorare:
+    "Cuckoldry Arc": CuckoldryArc
+    "Humiliation Progression": HumiliationProgression
+    "Consent Boundary": ConsentBoundary
+    "Desire Manipulation": DesireManipulation
+  mystery:
+    "Investigation Arc": InvestigativeArc
+    "Red Herring": RedHerring
+  gentlefemdom:
+    "Authority Arc": PowerDynamicArc
+    "Surrender Beat": SubmissionResponse
+    "Trust Checkpoint": TrustCheckpoint
+
+genre_themes:
+  netorare: [humiliation, degradation, cuckoldry, shame, exposure]
+  mystery: [investigation, deception, revelation, conspiracy, doubt]
+  gentlefemdom: [authority, surrender, dominance, trust, control]
+
+compatibility_concepts:
+  gentlefemdom:
+    "TrustCheckpoint":
+      name: TrustCheckpoint
+      definition: A narrative checkpoint where trust, consent, boundaries, or mutual expectations are explicitly tested or reaffirmed.
+      category: genre-specific
+      parent_concepts: [Checkpoint]
+      aliases: ["Trust Checkpoint"]
+      relationships:
+        - source_concept: TrustCheckpoint
+          target_concept: Character
+          cardinality: many-to-many
+          relation_type: participates_in
+          description: Characters participate in the trust checkpoint.
+          required: true
+      validation_rules:
+        - rule_id: femdom_checkpoint_consent_explicit
+          kind: interpretive_criterion
+          condition: Trust checkpoint should explicitly address consent.
+          error_message: Trust checkpoint should include explicit consent discussion.
+          applies_to: [gentlefemdom]
+
+metadata:
+  version: "2.0"
+  note: Compatibility aliases do not change stored authority or provenance.
