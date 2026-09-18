@@ -1808,6 +1808,10 @@ class BeginnerWorkspaceApplication:
         fingerprint = _milestone_fingerprint({card_id: merged[card_id] for card_id in stage_card_ids})
         target = _milestone_target(self.workspace_id, milestone_id)
         candidate = candidate_override or _milestone_candidate(self.workspace_id, milestone_id, revision, fingerprint)
+        semantic_change = True
+        if is_revision and milestone_id == "story_identity":
+            if promotion_metadata is not None and "semantic_changes" in promotion_metadata:
+                semantic_change = bool(promotion_metadata.get("semantic_changes"))
         promotion_intent: JsonObject | None = None
         if receipt_target is not None:
             promotion_intent = {
@@ -1892,16 +1896,42 @@ class BeginnerWorkspaceApplication:
         try:
             domain_result = self.authority.accept(target, candidate, confirm=True, command_id=command_id)
         except Exception as exc:
-            failure = AcceptResult(
-                stage=stage,
-                accepted=False,
-                revision=revision,
-                result_reference=None,
-                session_version=session.session_version,
-                error=f"{type(exc).__name__}: {exc}",
+            started = getattr(self.authority, "journal", None)
+            recoverable = (
+                started.find_started(command_id, target, candidate)
+                if started is not None and hasattr(started, "find_started")
+                else None
             )
-            self.receipt_store.complete(acquisition, cast(JsonValue, _freeze_accept(failure)))
-            raise
+            can_recover = (
+                recoverable is not None
+                and callable(getattr(self.authority, "can_recover", None))
+                and self.authority.can_recover(target)
+            )
+            if can_recover:
+                try:
+                    domain_result = self.authority.accept(target, candidate, confirm=True, command_id=command_id)
+                except Exception:
+                    failure = AcceptResult(
+                        stage=stage,
+                        accepted=False,
+                        revision=revision,
+                        result_reference=None,
+                        session_version=session.session_version,
+                        error=f"{type(exc).__name__}: {exc}",
+                    )
+                    self.receipt_store.complete(acquisition, cast(JsonValue, _freeze_accept(failure)))
+                    raise
+            else:
+                failure = AcceptResult(
+                    stage=stage,
+                    accepted=False,
+                    revision=revision,
+                    result_reference=None,
+                    session_version=session.session_version,
+                    error=f"{type(exc).__name__}: {exc}",
+                )
+                self.receipt_store.complete(acquisition, cast(JsonValue, _freeze_accept(failure)))
+                raise
         reference = self._domain_reference(
             domain_result, target=target, milestone_id=milestone_id, revision=revision, fingerprint=fingerprint
         )
@@ -1918,6 +1948,7 @@ class BeginnerWorkspaceApplication:
             revision_id=revision_id,
             command_id=command_id,
             expected_session_version=expected_session_version,
+            semantic_change=semantic_change,
         )
         result = AcceptResult(
             stage=stage,
@@ -1996,9 +2027,12 @@ class BeginnerWorkspaceApplication:
             raise BeginnerWorkspaceError(
                 f"open a milestone review for {stage.value} before accepting it"
             )
-        if not review.ready_to_accept and not (stage is DecisionStage.STORY_IDENTITY and composition_ready):
+        blockers = tuple(review.blockers)
+        if composition_ready and stage is DecisionStage.STORY_IDENTITY:
+            blockers = tuple(item for item in blockers if item != "composition_mapping_required")
+        if not review.ready_to_accept and blockers:
             raise BeginnerWorkspaceError(
-                f"{stage.value} is not ready to accept: {'; '.join(review.blockers) or 'unknown blocker'}"
+                f"{stage.value} is not ready to accept: {'; '.join(blockers) or 'unknown blocker'}"
             )
 
     def _require_ready_for_revised_accept(
@@ -2069,6 +2103,7 @@ class BeginnerWorkspaceApplication:
         revision_id: str | None,
         command_id: str,
         expected_session_version: int,
+        semantic_change: bool = True,
     ) -> SessionEnvelope:
         """Persist the acceptance reference, unlock downstream, sync the sidecar."""
         inventory = self._inventory_for(self.session_store.load())
@@ -2090,7 +2125,12 @@ class BeginnerWorkspaceApplication:
             selected_option=None,
         )
         pruned_tensions = self._tensions_without_exploratory() if is_revision else None
-        basis = self._acceptance_basis(is_revision=is_revision, milestone_id=milestone_id, revision=revision)
+        basis = self._acceptance_basis(
+            is_revision=is_revision,
+            milestone_id=milestone_id,
+            revision=revision,
+            semantic_change=semantic_change,
+        )
 
         def mutate(current: SessionEnvelope) -> SessionEnvelope:
             refs = list(current.accepted_milestones)
@@ -2138,6 +2178,7 @@ class BeginnerWorkspaceApplication:
             fingerprint=fingerprint,
             previous_fingerprint=previous_fingerprint,
             command_id=command_id,
+            semantic_change=semantic_change,
         )
         return saved
 
@@ -2148,7 +2189,14 @@ class BeginnerWorkspaceApplication:
             if not (isinstance(raw, dict) and raw.get("source") == "exploratory")
         }
 
-    def _acceptance_basis(self, *, is_revision: bool, milestone_id: str, revision: int) -> str | None:
+    def _acceptance_basis(
+        self,
+        *,
+        is_revision: bool,
+        milestone_id: str,
+        revision: int,
+        semantic_change: bool = True,
+    ) -> str | None:
         """Return the post-accept assumption basis.
 
         First-time accepts keep the recorded basis (nothing downstream is
@@ -2157,7 +2205,7 @@ class BeginnerWorkspaceApplication:
         downstream stages stale in the combined projection; a later
         reassessment re-baselines.
         """
-        if not is_revision:
+        if not is_revision or not semantic_change:
             basis = self._journey.get("basis_digest")
             return None if basis is None else str(basis)
         previous_basis = self._journey.get("basis_digest") or "none"
@@ -2174,6 +2222,7 @@ class BeginnerWorkspaceApplication:
         fingerprint: str,
         previous_fingerprint: str | None,
         command_id: str,
+        semantic_change: bool = True,
     ) -> None:
         """Mirror acceptance into the journey sidecar (idempotent on retry)."""
         changed = False
@@ -2195,10 +2244,11 @@ class BeginnerWorkspaceApplication:
                 self._journey["active_revision"] = None
                 changed = True
                 self._remove_revision_snapshot(revision_id)
-            prefix = f"accepted-revision:{milestone_id}:rev{revision}:"
-            if not str(self._journey.get("basis_digest") or "").startswith(prefix):
-                self._journey["basis_digest"] = prefix + str(self._journey.get("basis_digest") or "none")
-                changed = True
+            if semantic_change:
+                prefix = f"accepted-revision:{milestone_id}:rev{revision}:"
+                if not str(self._journey.get("basis_digest") or "").startswith(prefix):
+                    self._journey["basis_digest"] = prefix + str(self._journey.get("basis_digest") or "none")
+                    changed = True
         log = list(self._journey.get("acceptance_log") or [])
         if not any(isinstance(entry, dict) and entry.get("command_id") == command_id for entry in log):
             log.append(

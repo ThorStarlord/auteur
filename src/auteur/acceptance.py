@@ -124,6 +124,11 @@ class AcceptanceRegistry:
     def register(self, owner: AcceptanceOwner) -> None:
         self._owners.append(owner)
 
+    def can_recover(self, target_artifact_id: str) -> bool:
+        """Return whether the unique owner can reconcile an interrupted accept."""
+        matches = [owner for owner in self._owners if owner.can_accept(target_artifact_id)]
+        return len(matches) == 1 and callable(getattr(matches[0], "recover", None))
+
     def accept(
         self,
         target_artifact_id: str,
