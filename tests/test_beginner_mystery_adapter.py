@@ -15,6 +15,11 @@ from auteur.beginner.contracts import (
     StageAvailability,
     StageStatus,
     WorkingDecision,
+    DimensionCategory,
+    DimensionOrigin,
+    DimensionStatus,
+    WorkingComposition,
+    WorkingDimension,
 )
 from auteur.beginner.mystery_adapter import (
     EvidenceReference,
@@ -104,6 +109,44 @@ def test_mystery_guidance_exposes_context_without_internal_rationale() -> None:
     assert session.premise not in guidance.recommendation_rationale
     assert "makes follow" not in guidance.recommendation_rationale
     assert "investigator's reasoning" in guidance.recommendation_rationale
+
+
+def test_confirmed_supporting_dimensions_change_provenance_traced_guidance() -> None:
+    mystery_only = guidance_for("story_identity.relationship-pressure", _all_stages_available_session())
+    provenance = PackProvenance(pack_id="superhero", version="0.1.0", content_hash="sha256:hero")
+    relationship = WorkingDimension(
+        dimension_id="relationship-lens",
+        category=DimensionCategory.RELATIONSHIP_THEMATIC,
+        origin=DimensionOrigin.AUTHOR_DEFINED,
+        status=DimensionStatus.CONFIRMED,
+        label="Erotic betrayal tension",
+        source_provenance=(PackProvenance(pack_id="relationship", version="0.1.0", content_hash="sha256:relationship"),),
+        confirmed_by_author=True,
+    )
+    superhero = WorkingDimension(
+        dimension_id="superhero-world",
+        category=DimensionCategory.SETTING_WORLD,
+        origin=DimensionOrigin.DETECTED_FROM_PACK,
+        status=DimensionStatus.CONFIRMED,
+        label="Superhero public identity",
+        source_provenance=(provenance,),
+        confirmed_by_author=True,
+    )
+    hybrid_session = _all_stages_available_session().model_copy(update={
+        "working_composition": WorkingComposition(
+            workspace_id="hybrid",
+            composition_id="composition-1",
+            schema_version=1,
+            dimensions=(superhero, relationship),
+        )
+    })
+    hybrid = guidance_for("story_identity.relationship-pressure", hybrid_session)
+
+    assert hybrid.option_impacts != mystery_only.option_impacts
+    assert hybrid.pack_sources != mystery_only.pack_sources
+    assert {source.pack_id for source in hybrid.pack_sources} >= {"superhero", "relationship"}
+    assert "Erotic betrayal tension" in hybrid.context_guidance.patterns
+    assert hybrid.context_guidance.emotional_promise
 
 
 def test_mystery_consequence_copy_uses_readable_articles_and_spacing() -> None:
