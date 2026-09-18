@@ -227,6 +227,15 @@ class MappingDomainContext(BaseModel):
     source_provenance: tuple[PackProvenance, ...] = ()
 
 
+class MappingCollision(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    destination_field: str = Field(min_length=1)
+    mapping_ids: tuple[str, ...]
+    explanation: str = Field(min_length=1)
+    requires_author_decision: bool
+
+
 class StageStatus(BaseModel):
     model_config = ConfigDict(extra="forbid")
 

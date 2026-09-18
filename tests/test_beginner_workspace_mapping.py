@@ -1,15 +1,20 @@
 from auteur.blueprint import Genre, StoryMedium, StoryMode, TargetAudience, TargetExperience
+from auteur.beginner import contracts
 from auteur.beginner.contracts import (
     DimensionCategory,
     DimensionOrigin,
     DimensionStatus,
     MappingDisposition,
+    MappingCollision,
+    MappingRecord,
     MappingReviewStatus,
     MappingStrength,
     MappingDomainContext,
     WorkingDimension,
+    WorkingComposition,
 )
 from auteur.beginner.mapping import map_dimension, validate_author_override
+from auteur.beginner.composition import compose_mappings, reconcile_review_state
 from auteur.identity import HighLevelCentralEngine, StoryIdentity, StoryType
 
 
@@ -91,3 +96,77 @@ def test_unsupported_override_is_not_in_candidate_mapping() -> None:
     assert result.diagnostic == "INVALID_FOR_CURRENT_VOCABULARY"
     assert result.preflight_result == "rejected"
     assert result.final_result is None
+
+
+def nonrepresentable_mapping() -> MappingRecord:
+    dimension = WorkingDimension(
+        dimension_id="unsupported-lens",
+        category=DimensionCategory.EMOTIONAL_AESTHETIC,
+        origin=DimensionOrigin.AUTHOR_DEFINED,
+        status=DimensionStatus.CONFIRMED,
+        label="Unrepresented aesthetic",
+        confirmed_by_author=True,
+    )
+    return MappingRecord(
+        mapping_id="mapping:unsupported-lens:context",
+        source_dimension_id=dimension.dimension_id,
+        source_category=dimension.category,
+        source_origin=dimension.origin,
+        mapping_strength=MappingStrength.CONTEXTUAL_INFLUENCE,
+        evidence_class=contracts.EvidenceClass.AUTHOR_CONFIRMED_DECISION,
+        disposition=MappingDisposition.NOT_REPRESENTABLE_BY_CURRENT_DOMAIN,
+        rationale="No current canonical field represents this lens.",
+        unmapped_remainder=(dimension.label,),
+    )
+
+
+def composition_with_remainder(remainder_id: str, acknowledged: bool) -> WorkingComposition:
+    from auteur.beginner.contracts import UnmappedRemainder
+
+    return WorkingComposition(
+        workspace_id="w1",
+        composition_id="c1",
+        schema_version=1,
+        dimensions=(),
+        unmapped_remainders=(
+            UnmappedRemainder(
+                remainder_id=remainder_id,
+                dimension_id="unsupported-lens",
+                text="Unrepresented aesthetic",
+                acknowledged=acknowledged,
+                blocks_acceptance=True,
+            ),
+        ),
+    )
+
+
+def test_acknowledged_nonrepresentable_remainder_does_not_block() -> None:
+    raw = compose_mappings((nonrepresentable_mapping(),), empty_identity())
+    composition = composition_with_remainder(raw.unmapped_remainder[0].remainder_id, acknowledged=True)
+    result = reconcile_review_state(composition, raw)
+
+    assert result.blocking_items == ()
+    assert result.unmapped_remainder[0].acknowledged is True
+
+
+def test_unresolved_primary_engine_blocks_identity_acceptance() -> None:
+    mapping = nonrepresentable_mapping().model_copy(
+        update={
+            "source_dimension_id": "primary-engine",
+            "source_category": DimensionCategory.PRIMARY_ENGINE,
+            "disposition": MappingDisposition.REQUIRES_AUTHOR_DECISION,
+        }
+    )
+    result = compose_mappings((mapping,), empty_identity())
+
+    assert "primary_engine_mapping_required" in result.blocking_items
+
+
+def test_conflicting_values_preserve_all_mappings_and_report_collision() -> None:
+    first = map_dimension(mystery_dimension(), empty_identity(), mystery_context())[0]
+    second = first.model_copy(update={"mapping_id": "mapping:alternative", "proposed_value": "other"})
+    result = compose_mappings((first, second), empty_identity())
+
+    assert result.mappings == (first, second)
+    assert result.collisions[0].mapping_ids == (first.mapping_id, second.mapping_id)
+    assert result.blocking_items
