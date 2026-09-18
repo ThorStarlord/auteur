@@ -12,9 +12,11 @@ from auteur.beginner.contracts import (
     MappingDomainContext,
     WorkingDimension,
     WorkingComposition,
+    EvidenceClass,
 )
 from auteur.beginner.mapping import map_dimension, validate_author_override
 from auteur.beginner.composition import compose_mappings, reconcile_review_state
+from auteur.beginner.promotion import build_promotion_preview
 from auteur.identity import HighLevelCentralEngine, StoryIdentity, StoryType
 
 
@@ -170,3 +172,73 @@ def test_conflicting_values_preserve_all_mappings_and_report_collision() -> None
     assert result.mappings == (first, second)
     assert result.collisions[0].mapping_ids == (first.mapping_id, second.mapping_id)
     assert result.blocking_items
+
+
+def relationship_dimension() -> WorkingDimension:
+    return WorkingDimension(
+        dimension_id="relationship-lens",
+        category=DimensionCategory.RELATIONSHIP_THEMATIC,
+        origin=DimensionOrigin.AUTHOR_DEFINED,
+        status=DimensionStatus.CONFIRMED,
+        label="Relationship betrayal tension",
+        confirmed_by_author=True,
+    )
+
+
+def test_preview_blocks_only_materially_unresolved_identity_mapping() -> None:
+    preview = build_promotion_preview(empty_identity(), compose_mappings((nonrepresentable_mapping(),), empty_identity()), ())
+
+    assert preview.ready_to_accept is False
+    assert "unmapped_remainder_requires_acknowledgement" in preview.blocking_items
+
+
+def test_preview_links_semantic_change_to_mapping_and_reports_impact() -> None:
+    mapping = map_dimension(mystery_dimension(), empty_identity(), mystery_context())[0]
+    resolution = compose_mappings((mapping,), empty_identity())
+
+    preview = build_promotion_preview(empty_identity(), resolution, ())
+
+    assert preview.semantic_changes[0].destination_field == "story_type.genre"
+    assert preview.semantic_changes[0].after == "mystery"
+    assert preview.semantic_changes[0].mapping_ids == (mapping.mapping_id,)
+    assert preview.downstream_impact
+
+
+def test_pack_and_provenance_context_alone_has_no_semantic_diff() -> None:
+    mapping = MappingRecord(
+        mapping_id="mapping:context-only",
+        source_dimension_id="context-lens",
+        source_category=DimensionCategory.EMOTIONAL_AESTHETIC,
+        source_origin=DimensionOrigin.DETECTED_FROM_PACK,
+        mapping_strength=MappingStrength.CONTEXTUAL_INFLUENCE,
+        evidence_class=EvidenceClass.PACK_METADATA,
+        disposition=MappingDisposition.GUIDANCE_CONTEXT,
+        rationale="This pack contributes explanatory context only.",
+    )
+    resolution = compose_mappings((mapping,), empty_identity())
+
+    preview = build_promotion_preview(empty_identity(), resolution, (mapping,))
+
+    assert preview.semantic_changes == ()
+    assert preview.downstream_impact == ()
+    assert preview.ready_to_accept is True
+
+
+def test_acknowledged_tension_is_nonblocking_after_recomputation() -> None:
+    relationship_mapping = map_dimension(relationship_dimension(), empty_identity(), mystery_context())[0]
+    raw = compose_mappings(
+        tuple(map_dimension(mystery_dimension(), empty_identity(), mystery_context())) + (relationship_mapping,),
+        empty_identity(),
+    )
+    composition = WorkingComposition(
+        workspace_id="w1",
+        composition_id="c1",
+        schema_version=1,
+        dimensions=(),
+        tensions=(raw.tensions[0].model_copy(update={"acknowledged": True}),),
+    )
+    reconciled = reconcile_review_state(composition, raw)
+    preview = build_promotion_preview(empty_identity(), reconciled, ())
+
+    assert reconciled.tensions[0].acknowledged is True
+    assert "tension_requires_acknowledgement" not in preview.blocking_items

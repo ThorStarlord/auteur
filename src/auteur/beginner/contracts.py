@@ -236,6 +236,15 @@ class MappingCollision(BaseModel):
     requires_author_decision: bool
 
 
+class SemanticChange(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    destination_field: str = Field(min_length=1)
+    before: str | None = None
+    after: str | None = None
+    mapping_ids: tuple[str, ...] = ()
+
+
 class StageStatus(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
