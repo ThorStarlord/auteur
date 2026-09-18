@@ -433,8 +433,9 @@ git commit -m "feat: add deterministic dimension mappings"
 
 **Interfaces:**
 
-- `compose_mappings(mappings, canonical_identity) -> CompositionResolution`
-- `CompositionResolution` contains compatible contributions, collisions, candidate Identity data, and unmapped remainder.
+- `compose_mappings(mappings, canonical_identity) -> CompositionResolution` is a pure derivation step.
+- `reconcile_review_state(working_composition, resolution) -> CompositionResolution` reapplies durable remainder and tension review state.
+- `CompositionResolution` contains compatible contributions, collisions, candidate Identity data, unmapped remainders, and tensions.
 - Composition order is stable for explanation but never changes semantics unless an explicit curated precedence rule applies.
 
 Minimal implementation shape:
@@ -445,12 +446,20 @@ class CompositionResolution(BaseModel):
     mappings: tuple[MappingRecord, ...]
     collisions: tuple[MappingCollision, ...] = ()
     unmapped_remainder: tuple[UnmappedRemainder, ...] = ()
+    tensions: tuple[CompositionTension, ...] = ()
     blocking_items: tuple[str, ...] = ()
 
 def compose_mappings(
     mappings: tuple[MappingRecord, ...],
     canonical_identity: StoryIdentity,
 ) -> CompositionResolution:
+    raise NotImplementedError
+
+def reconcile_review_state(
+    working_composition: WorkingComposition,
+    resolution: CompositionResolution,
+) -> CompositionResolution:
+    """Return a resolution with durable acknowledgements reapplied by stable IDs."""
     raise NotImplementedError
 ```
 
@@ -466,10 +475,20 @@ Concrete red tests:
 
 ```python
 def test_acknowledged_nonrepresentable_remainder_does_not_block():
-    result = compose_mappings((nonrepresentable_mapping(acknowledged=True),), identity())
+    raw = compose_mappings((nonrepresentable_mapping(),), identity())
+    composition = composition_with_acknowledged_remainder(raw.unmapped_remainder[0].remainder_id)
+    result = reconcile_review_state(composition, raw)
 
     assert result.blocking_items == ()
-    assert result.unmapped_remainder
+    assert result.unmapped_remainder[0].acknowledged is True
+
+def test_recompute_preserves_unacknowledged_remainder_block():
+    raw = compose_mappings((nonrepresentable_mapping(),), identity())
+    composition = composition_with_unacknowledged_remainder(raw.unmapped_remainder[0].remainder_id)
+    result = reconcile_review_state(composition, raw)
+
+    assert result.unmapped_remainder[0].acknowledged is False
+    assert "unmapped_remainder_requires_acknowledgement" in result.blocking_items
 
 def test_unresolved_primary_engine_blocks_identity_acceptance():
     result = compose_mappings((unresolved_primary_engine(),), identity())
@@ -478,6 +497,9 @@ def test_unresolved_primary_engine_blocks_identity_acceptance():
 ```
 - [ ] Run the focused mapping tests and verify failure.
 - [ ] Implement grouping, contribution merging, collision reporting, and candidate construction.
+- [ ] Generate deterministic `remainder_id` and `tension_id` values from the stable source dimension IDs, destination/contract identifiers, and normalized remainder/tension keys; never use incidental tuple position.
+- [ ] Implement `reconcile_review_state` by matching generated IDs against `WorkingComposition.unmapped_remainders` and `WorkingComposition.tensions`, copying acknowledgement state, then recomputing `blocking_items`.
+- [ ] Ensure a remainder or tension that is acknowledged in durable working state remains acknowledged after every recomputation, reload, and revision reconstruction; a newly generated item remains blocking until separately acknowledged.
 - [ ] Keep unsupported information in guidance/provenance rather than arbitrary canonical free-text fields.
 - [ ] Group records by `destination_field`; merge records only when the existing vocabulary accepts their combined contribution; otherwise create a `MappingCollision` and add a blocking item only when the destination is required for Identity coherence.
 - [ ] Build the candidate by applying accepted mappings to a copy of current Identity; never mutate the loaded canonical object.
@@ -508,6 +530,7 @@ git commit -m "feat: resolve composed identity mappings"
 - `build_promotion_preview(current_identity, resolution, existing_mapping_provenance) -> PromotionPreview`
 - `PromotionPreview` exposes current Identity, candidate Identity, semantic diff, mapping explanations, unresolved items, dispositions, and downstream impact.
 - Semantic diff excludes labels, pack references, provenance text, and working metadata.
+- The application must call `compose_mappings(...)`, then `reconcile_review_state(working_composition, resolution)`, before calling `build_promotion_preview(...)`; the preview consumes the reconciled resolution, so durable remainder and tension acknowledgements affect readiness.
 
 Minimal implementation shape:
 
@@ -543,6 +566,15 @@ def test_preview_blocks_only_materially_unresolved_identity_mapping():
 
     assert preview.ready_to_accept is False
     assert "primary_engine_mapping_required" in preview.blocking_items
+
+def test_acknowledged_tension_is_nonblocking_after_recomputation():
+    raw = compose_mappings(mappings(), identity())
+    composition = composition_with_acknowledged_tension(raw.tensions[0].tension_id)
+    reconciled = reconcile_review_state(composition, raw)
+    preview = build_promotion_preview(identity(), reconciled, ())
+
+    assert reconciled.tensions[0].acknowledged is True
+    assert "tension_requires_acknowledgement" not in preview.blocking_items
 ```
 - [ ] Run the focused tests and verify failure.
 - [ ] Implement preview composition over existing canonical artifacts; do not mutate canon.
@@ -830,6 +862,7 @@ git commit -m "feat: compose beginner narrative guidance"
 - Commands use expected session version and idempotency identifiers.
 - `BeginnerWorkspaceApplication.acknowledge_tension(tension_id, *, expected_session_version, command_id) -> WorkspaceProjection` updates only working composition state and returns the refreshed projection.
 - `BeginnerWorkspaceApplication.acknowledge_unmapped_remainder(remainder_id, *, expected_session_version, command_id) -> WorkspaceProjection` updates only the working remainder acknowledgement and returns the refreshed projection.
+- Every command that changes review state must reload the durable `WorkingComposition`, derive a fresh raw `CompositionResolution`, call `reconcile_review_state(...)`, and rebuild the promotion preview before returning the projection. The command must not toggle a readiness flag without recomputing from the reconciled resolution.
 
 Required command routes (slugs may follow existing naming conventions):
 
@@ -867,6 +900,7 @@ def test_acknowledge_tension_returns_updated_projection(http_client):
 
     assert response.status_code == 200
     assert response.json()["tensions"]["t1"]["acknowledged"] is True
+    assert "tension_requires_acknowledgement" not in response.json()["mapping_preview"]["blocking_items"]
     assert response.json()["canonical_refs"] == []
 ```
 
@@ -887,6 +921,7 @@ def test_acknowledge_remainder_recomputes_readiness(http_client):
 
     assert response.status_code == 200
     assert response.json()["mapping_preview"]["unresolved_items"] == []
+    assert response.json()["mapping_preview"]["ready_to_accept"] is True
 ```
 - [ ] Run the server tests and verify failure.
 - [ ] Implement thin routing and serialization over application commands.
