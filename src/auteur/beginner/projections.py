@@ -319,6 +319,11 @@ def build_workspace_projection(
         answered = sum(1 for card in stage_cards if card.card_id in answers)
         review_available = bool(stage_cards) and answered == len(stage_cards)
         blockers = _blockers_for_stage(stage, stage_cards, answers, tensions, stale, review_available)
+        if stage is DecisionStage.STORY_IDENTITY:
+            if mapping_preview is None:
+                blockers = tuple(dict.fromkeys((*blockers, "composition_mapping_required")))
+            else:
+                blockers = tuple(dict.fromkeys((*blockers, *getattr(mapping_preview, "blocking_items", ()))))
         ready = review_available and not blockers
         status = session.stages[stage]
         stage_stale = stale and answered > 0

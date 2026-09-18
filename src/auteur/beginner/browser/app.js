@@ -676,8 +676,8 @@
     }
     if (preview && preview.tensions && preview.tensions.length) {
       parts.push("<h3>Composition tensions</h3><ul>" + preview.tensions.map(function (tension) {
-        return "<li>" + escapeHtml(tension.explanation) + (tension.acknowledged ? " · acknowledged" :
-          ' · <button data-command="acknowledge-tension" data-tension-id="' + escapeHtml(tension.tension_id) + '">Acknowledge tension</button>') + "</li>";
+          return "<li>" + escapeHtml(tension.explanation) + (tension.acknowledged ? " · acknowledged" :
+          ' · <button data-command="acknowledge" data-tension-id="' + escapeHtml(tension.tension_id) + '">Acknowledge tension</button>') + "</li>";
       }).join("") + "</ul>");
     }
     if (preview) {

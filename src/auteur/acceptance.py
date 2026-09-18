@@ -16,6 +16,8 @@ class AcceptanceOwner(Protocol):
 
     def accept(self, target_artifact_id: str, candidate_id: str, *, confirm: bool) -> Any: ...
 
+    def recover(self, target_artifact_id: str, candidate_id: str) -> Any | None: ...
+
 
 class AcceptanceJournal:
     """Durable intent/completion journal for authority-bearing operations."""
@@ -89,6 +91,18 @@ class AcceptanceJournal:
                 match = record
         return dict(match) if match is not None else None
 
+    def find_started(self, command_id: str, target_artifact_id: str, candidate_id: str) -> dict[str, Any] | None:
+        match: dict[str, Any] | None = None
+        for record in self._records:
+            if (
+                record.get("command_id") == command_id
+                and record.get("target_artifact_id") == target_artifact_id
+                and record.get("candidate_id") == candidate_id
+                and record.get("status") == "started"
+            ):
+                match = record
+        return dict(match) if match is not None else None
+
 
 def _journal_result(result: Any, operation_id: str) -> Any:
     """Normalize an idempotency-scoped result to a JSON-safe journal value."""
@@ -131,6 +145,22 @@ class AcceptanceRegistry:
                 and replayed.get("candidate_id") == candidate_id
             ):
                 return replayed.get("result")
+            started = self.journal.find_started(command_id, target_artifact_id, candidate_id)
+            if started is not None:
+                recover = getattr(matches[0], "recover", None)
+                if callable(recover):
+                    recovered = recover(target_artifact_id, candidate_id)
+                    if recovered is not None:
+                        self.journal.record(
+                            operation_id=str(started["operation_id"]),
+                            target_artifact_id=target_artifact_id,
+                            candidate_id=candidate_id,
+                            status="completed",
+                            command_id=command_id,
+                            result=recovered,
+                        )
+                        return recovered
+                raise RuntimeError(f"acceptance command is already in progress: {command_id}")
         operation_id = uuid.uuid4().hex
         self.journal.record(
             operation_id=operation_id,
