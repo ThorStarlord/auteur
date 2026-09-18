@@ -270,6 +270,7 @@ class SessionEnvelope(BaseModel):
     premise: str = Field(min_length=1)
     stages: dict[DecisionStage, StageStatus]
     accepted_milestones: list[AcceptedMilestoneReference] = Field(default_factory=list)
+    working_composition: WorkingComposition | None = None
 
     @model_validator(mode="after")
     def require_consistent_stage_graph(self) -> Self:
