@@ -220,6 +220,13 @@ class DimensionProposalSet(BaseModel):
     source_provenance: tuple[PackProvenance, ...] = ()
 
 
+class MappingDomainContext(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    vocabulary: dict[str, tuple[str, ...]]
+    source_provenance: tuple[PackProvenance, ...] = ()
+
+
 class StageStatus(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
