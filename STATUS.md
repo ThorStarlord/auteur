@@ -3,11 +3,11 @@
 **Last reconciled:** 2026-09-17  
 **Validation-policy activation baseline:** `main @ 8b53efdd99e0a67d375df0e828b32edc77643221`  
 **Current `main`:** `87971e57d186d1559e20aebce3403b311c8a6f2f` (PR #233 merged)  
-**Post-#228 known-good stabilization baseline:** not re-established; PR #233's L3 verification stack found pre-existing baseline lint findings  
+**Known-good stabilization baseline:** `main @ 2aba74b64f2434d11954a8627fc3d95fd83fdb7d` (L3 tested)  
 **Package metadata:** `0.37.1`  
 **Role of this file:** living operational status and handoff; not a release record or idea backlog.
 
-The current `main` includes the tiered validation and bounded-agent-autonomy policy merged through PR #229 and the human-qualified Beginner Workspace vertical slice merged through PR #233. The post-#228 product baseline remains distinct from product qualification because the PR #233 L3 verification stack found unchanged baseline Ruff findings.
+The current `main` includes the tiered validation and bounded-agent-autonomy policy merged through PR #229 and the human-qualified Beginner Workspace vertical slice merged through PR #233. PR #235 then removed the four baseline Ruff findings, and the resulting main SHA above passed the single authorized L3 stabilization checkpoint.
 
 For product intent, read [MISSION.md](MISSION.md) and [docs/PRD.md](docs/PRD.md). For the canonical domain model, read [docs/narrative-architecture.md](docs/narrative-architecture.md). For forward-looking candidates, read [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md). Release evidence lives under [docs/releases/](docs/releases/README.md).
 
@@ -21,7 +21,7 @@ For product intent, read [MISSION.md](MISSION.md) and [docs/PRD.md](docs/PRD.md)
 
 Canonical policy: [docs/engineering/release-qualification.md](docs/engineering/release-qualification.md).
 
-The PR #233 stabilization checkpoint is complete. Full regression and validator verification passed, while the verification stack failed only on four pre-existing unchanged Ruff `W293` findings in `src/auteur/cli_formatters.py` and `src/auteur/ui/workspace.py`. No release qualification is implied. Return to Auteur product development and use real-author dogfood evidence to select the next bounded package.
+The PR #233 stabilization checkpoint recorded the prior baseline lint disposition. After PR #235 removed those four whitespace findings, the clean L3 checkpoint on `main @ 2aba74b64f2434d11954a8627fc3d95fd83fdb7d` passed full regression and the verification stack. No release qualification is implied. Return to Auteur product development and use real-author dogfood evidence to select the next bounded package.
 
 ## Current Selected Work
 
