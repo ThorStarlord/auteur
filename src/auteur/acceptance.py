@@ -26,13 +26,25 @@ class AcceptanceJournal:
         if self.path and self.path.exists():
             self._records = json.loads(self.path.read_text(encoding="utf-8"))
 
-    def record(self, *, operation_id: str, target_artifact_id: str, candidate_id: str, status: str, error: str = "") -> None:
+    def record(
+        self,
+        *,
+        operation_id: str,
+        target_artifact_id: str,
+        candidate_id: str,
+        status: str,
+        error: str = "",
+        command_id: str | None = None,
+        result: Any = None,
+    ) -> None:
         self._records.append({
             "operation_id": operation_id,
             "target_artifact_id": target_artifact_id,
             "candidate_id": candidate_id,
             "status": status,
             "error": error,
+            "command_id": command_id,
+            "result": _journal_result(result, operation_id),
             "recorded_at": datetime.now(timezone.utc).isoformat(),
         })
         if self.path:
@@ -65,6 +77,28 @@ class AcceptanceJournal:
             "replay_allowed": False,
         }
 
+    def find_completed(self, command_id: str) -> dict[str, Any] | None:
+        """Return the latest completed record for an idempotency command, if any.
+
+        Records written before the command_id seam existed carry
+        ``command_id=None`` and never match, so legacy behavior is unchanged.
+        """
+        match: dict[str, Any] | None = None
+        for record in self._records:
+            if record.get("command_id") == command_id and record.get("status") == "completed":
+                match = record
+        return dict(match) if match is not None else None
+
+
+def _journal_result(result: Any, operation_id: str) -> Any:
+    """Normalize an idempotency-scoped result to a JSON-safe journal value."""
+    if result is None:
+        return None
+    try:
+        return json.loads(json.dumps(result, allow_nan=False, sort_keys=True, separators=(",", ":")))
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"command-scoped acceptance result must be JSON-compatible: {operation_id}") from exc
+
 
 class AcceptanceRegistry:
     """Resolve exactly one canonical acceptance owner for a target."""
@@ -76,18 +110,34 @@ class AcceptanceRegistry:
     def register(self, owner: AcceptanceOwner) -> None:
         self._owners.append(owner)
 
-    def accept(self, target_artifact_id: str, candidate_id: str, *, confirm: bool) -> Any:
+    def accept(
+        self,
+        target_artifact_id: str,
+        candidate_id: str,
+        *,
+        confirm: bool,
+        command_id: str | None = None,
+    ) -> Any:
         matches = [owner for owner in self._owners if owner.can_accept(target_artifact_id)]
         if not matches:
             raise ValueError(f"No acceptance owner registered for artifact: {target_artifact_id}")
         if len(matches) > 1:
             raise ValueError(f"Multiple acceptance owners registered for artifact: {target_artifact_id}")
+        if command_id is not None:
+            replayed = self.journal.find_completed(command_id)
+            if (
+                replayed is not None
+                and replayed.get("target_artifact_id") == target_artifact_id
+                and replayed.get("candidate_id") == candidate_id
+            ):
+                return replayed.get("result")
         operation_id = uuid.uuid4().hex
         self.journal.record(
             operation_id=operation_id,
             target_artifact_id=target_artifact_id,
             candidate_id=candidate_id,
             status="started",
+            command_id=command_id,
         )
         try:
             result = matches[0].accept(target_artifact_id, candidate_id, confirm=confirm)
@@ -98,6 +148,7 @@ class AcceptanceRegistry:
                 candidate_id=candidate_id,
                 status="failed",
                 error=str(exc),
+                command_id=command_id,
             )
             raise
         self.journal.record(
@@ -105,5 +156,7 @@ class AcceptanceRegistry:
             target_artifact_id=target_artifact_id,
             candidate_id=candidate_id,
             status="completed",
+            command_id=command_id,
+            result=result,
         )
         return result

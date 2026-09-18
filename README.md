@@ -434,3 +434,23 @@ CI runs the same verification entrypoint with `python scripts/check.py --skip-py
 `pyproject.toml` currently reports `0.37.1`. Current `main` also contains post-release development, so package metadata alone is not a complete development-status indicator.
 
 Use [STATUS.md](STATUS.md) for the present-tense repository map and [docs/releases/](docs/releases/README.md) for release-specific claims.
+# Local Beginner Workspace development
+
+From the Beginner Workspace worktree, start the existing Python application:
+
+    cd H:\GithubRepositories\auteur\.worktrees\beginner-workspace-vslice
+    $env:PYTHONPATH="$(Get-Location);$(Join-Path (Get-Location) 'src')"
+    npm start
+
+Open http://127.0.0.1:8791/ in a browser.
+
+The server stays running while browser tests are performed. In a second
+terminal, create a clean persisted workspace through the public API:
+
+    npm run workspace:new -- --id sealed-elevator-test-1
+
+Open the URL printed by the command. Use a new workspace ID for a fresh story
+state; do not delete persistence manually. Browser-only changes need a browser
+refresh. During active Python development, use `npm run dev` to opt into the
+development supervisor, which restarts the Python child after watched source
+files change. The default `npm start` remains a direct Python server process.

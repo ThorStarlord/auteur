@@ -1,0 +1,10 @@
+{
+  "name": "auteur-local-workspace-tools",
+  "private": true,
+  "scripts": {
+    "start": "node scripts/beginner-dev.mjs",
+    "workspace:new": "node scripts/beginner-workspace.mjs",
+    "qualification:sealed-elevator": "node scripts/qualification/sealed-elevator-human.mjs",
+    "dev": "node scripts/beginner-dev.mjs"
+  }
+}
