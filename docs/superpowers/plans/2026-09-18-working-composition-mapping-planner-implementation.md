@@ -223,6 +223,7 @@ class WorkingComposition(BaseModel):
     dimensions: tuple[WorkingDimension, ...]
     tensions: tuple[CompositionTension, ...] = ()
     mapping_records: tuple[MappingRecord, ...] = ()
+    unmapped_remainders: tuple[UnmappedRemainder, ...] = ()
 
 class DimensionProposalSet(BaseModel):
     proposals: tuple[WorkingDimension, ...]
@@ -697,10 +698,41 @@ def test_pack_provenance_round_trips_with_dimension_role(tmp_path):
     assert loaded.mapping_records[0].source_dimension_id == loaded.dimensions[0].dimension_id
     assert loaded.mapping_records[0].source_category is DimensionCategory.SETTING_WORLD
 ```
+
+Concrete remainder-acknowledgement round-trip test:
+
+```python
+import json
+
+def test_unmapped_remainder_acknowledgement_round_trips_and_survives_revision_reload(tmp_path):
+    remainder = UnmappedRemainder(
+        remainder_id="remainder-1",
+        dimension_id="relationship-lens",
+        text="erotic aesthetic framing",
+        blocks_acceptance=True,
+    )
+    composition = hybrid_composition(unmapped_remainders=(remainder,))
+    store.save(replace_session(working_composition=composition))
+
+    app.acknowledge_unmapped_remainder(
+        "remainder-1",
+        expected_session_version=store.load().session_version,
+        command_id="ack-1",
+    )
+
+    loaded = store.load().working_composition
+    saved_remainder = loaded.unmapped_remainders[0]
+    assert saved_remainder.remainder_id == "remainder-1"
+    assert saved_remainder.acknowledged is True
+
+    app.open_revision(stage="story_identity", revision_id="r1", command_id="open-1")
+    revision_payload = json.loads(store.revision_session_path("r1").read_text())
+    assert revision_payload["working_composition"]["unmapped_remainders"][0]["acknowledged"] is True
+```
 - [ ] Run the persistence tests and verify failure.
 - [ ] Add only the fields needed to persist working composition and mapping history; do not create a second store.
 - [ ] Preserve existing locking, path containment, receipt ownership, and immutable revision semantics.
-- [ ] Serialize `WorkingComposition` through the existing session envelope writer and revision snapshot writer; load it before projection; on cancel delete only the revision overlay and restore the base working composition while retaining normal version/receipt bookkeeping.
+- [ ] Serialize `WorkingComposition`, including `unmapped_remainders`, through the existing session envelope writer and revision snapshot writer; load it before projection; on cancel delete only the revision overlay and restore the base working composition while retaining normal version/receipt bookkeeping.
 - [ ] Run:
 
 ```powershell
