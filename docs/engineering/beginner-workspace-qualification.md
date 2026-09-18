@@ -355,7 +355,32 @@ TARGETED INTEGRATION         PASS
 EXACT-HEAD L1                PASS
 TRANSFER WALKTHROUGH         PASS — independent human observed
 HUMAN USABILITY              PASS
-PR #233                      DRAFT / UNMERGED
-L3                           NOT RUN
+PR #233                      READY FOR REVIEW / UNMERGED
+L3                           FAIL — PRE-EXISTING BASELINE LINT
+RELEASE QUALIFIED            NO
+```
+
+## Final stabilization checkpoint
+
+One L3 stabilization checkpoint was run against candidate
+`690d8ec1f6a7b6fa2e7ecbb1dbb1361de9679cf7` after the Beginner Workspace slice
+was human-qualified. The full regression step completed successfully, and
+validator verification passed 25/25. The verification stack failed only on
+four Ruff `W293` whitespace findings in unchanged, pre-existing files:
+
+- `src/auteur/cli_formatters.py`
+- `src/auteur/ui/workspace.py`
+
+These files are identical at the PR base and head, so this is classified as a
+pre-existing baseline lint failure, not a PR-caused regression. No unrelated
+lint cleanup was included in PR #233. This checkpoint was run once; it is not
+being rerun for this documentation-only reconciliation.
+
+The current qualification boundary is therefore:
+
+```text
+HUMAN USABILITY              PASS
+PR #233                      READY FOR REVIEW / UNMERGED
+L3                           FAIL — PRE-EXISTING BASELINE LINT
 RELEASE QUALIFIED            NO
 ```
