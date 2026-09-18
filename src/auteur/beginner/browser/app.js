@@ -614,6 +614,56 @@
     });
   }
 
+  function compositionDispositionLabel(disposition) {
+    var labels = {
+      MAPS_TO_CANON: "Will become canonical",
+      CONTRIBUTES_TO_CANON: "May contribute to canon",
+      GUIDANCE_CONTEXT: "Will remain context / provenance",
+      PROVENANCE_ONLY: "Will remain provenance",
+      REQUIRES_AUTHOR_DECISION: "Needs author decision",
+      NOT_REPRESENTABLE_BY_CURRENT_DOMAIN: "Not represented by current domain",
+      NOT_RELEVANT_TO_THIS_MILESTONE: "Not relevant to this milestone",
+    };
+    return labels[disposition] || "Working proposal";
+  }
+
+  function renderWorkingComposition(projection) {
+    var body = $("composition-body");
+    var composition = projection.working_composition;
+    var preview = projection.mapping_preview;
+    if (!composition) {
+      body.innerHTML = '<p class="muted">No dimensions have been proposed yet.</p>';
+      return;
+    }
+    var parts = ["<p class=\"muted\">Working exploration · not canonical</p>"];
+    if (composition.dimensions && composition.dimensions.length) {
+      parts.push("<h3>Confirmed and proposed dimensions</h3><ul>" + composition.dimensions.map(function (dimension) {
+        return "<li><strong>" + escapeHtml(dimension.label) + "</strong> · " +
+          escapeHtml(dimension.category) + " · " + escapeHtml(dimension.status) + "</li>";
+      }).join("") + "</ul>");
+    }
+    if (composition.mapping_records && composition.mapping_records.length) {
+      parts.push("<h3>How dimensions relate to canon</h3><ul>" + composition.mapping_records.map(function (mapping) {
+        return "<li>" + escapeHtml(mapping.rationale) + " · " +
+          escapeHtml(compositionDispositionLabel(mapping.disposition)) + "</li>";
+      }).join("") + "</ul>");
+    }
+    if (composition.unmapped_remainders && composition.unmapped_remainders.length) {
+      parts.push("<h3>Preserved context</h3>" + listHtml(composition.unmapped_remainders.map(function (remainder) {
+        return remainder.text + (remainder.acknowledged ? " · acknowledged" : " · needs acknowledgement");
+      })));
+    }
+    if (preview) {
+      parts.push("<h3>Promotion preview</h3><p>Proposed canonical changes are shown for review only.</p>");
+      if (preview.semantic_changes && preview.semantic_changes.length) {
+        parts.push(listHtml(preview.semantic_changes.map(function (change) {
+          return change.destination_field + ": " + change.before + " → " + change.after;
+        })));
+      }
+    }
+    body.innerHTML = parts.join("");
+  }
+
   function render(projection) {
     if (!projection) {
       return;
@@ -631,6 +681,7 @@
     renderInspector(projection);
     syncInspector();
     renderReviews(projection);
+    renderWorkingComposition(projection);
   }
 
   function currentWorkspaceFromQuery() {

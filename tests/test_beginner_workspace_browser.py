@@ -181,6 +181,19 @@ def test_browser_renders_contextual_inspector_without_internal_semantic_labels()
     assert "Semantic Area:" not in js
 
 
+def test_browser_renders_composition_dispositions_without_internal_state_labels():
+    html = _read(INDEX)
+    js = _read(APP)
+    combined = html + js
+
+    assert "Will remain context / provenance" in combined
+    assert "Will become canonical" in combined
+    assert "working_composition" in js
+    assert "dimension.label" in js
+    assert 'textContent = dimension.dimension_id' not in js
+    assert "mapping_preview" in js
+
+
 def test_browser_keeps_tradeoffs_out_of_center_warnings():
     js = _read(APP)
     assert "warnings = warnings.concat" not in js
