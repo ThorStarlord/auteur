@@ -5,6 +5,8 @@ from typing import Any, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from auteur.story_design_packs.models import PackProvenance
+
 
 class DecisionStage(str, Enum):
     DISCOVER = "discover"
@@ -63,6 +65,152 @@ class WorkingDecision(BaseModel):
         if self.selected_option is not None and self.selected_option not in self.options:
             raise ValueError("selected_option must be one of options")
         return self
+
+
+class DimensionCategory(str, Enum):
+    PRIMARY_ENGINE = "PRIMARY_ENGINE"
+    GENRE_SUBGENRE = "GENRE_SUBGENRE"
+    EMOTIONAL_AESTHETIC = "EMOTIONAL_AESTHETIC"
+    RELATIONSHIP_THEMATIC = "RELATIONSHIP_THEMATIC"
+    SETTING_WORLD = "SETTING_WORLD"
+
+
+class DimensionOrigin(str, Enum):
+    DETECTED_FROM_PACK = "DETECTED_FROM_PACK"
+    INFERRED_FROM_STORY = "INFERRED_FROM_STORY"
+    AUTHOR_DEFINED = "AUTHOR_DEFINED"
+    AUTHOR_MODIFIED = "AUTHOR_MODIFIED"
+
+
+class DimensionStatus(str, Enum):
+    DETECTED = "DETECTED"
+    PROPOSED = "PROPOSED"
+    CONFIRMED = "CONFIRMED"
+    REJECTED = "REJECTED"
+    SUPERSEDED = "SUPERSEDED"
+
+
+class MappingDisposition(str, Enum):
+    MAPS_TO_CANON = "MAPS_TO_CANON"
+    CONTRIBUTES_TO_CANON = "CONTRIBUTES_TO_CANON"
+    GUIDANCE_CONTEXT = "GUIDANCE_CONTEXT"
+    PROVENANCE_ONLY = "PROVENANCE_ONLY"
+    REQUIRES_AUTHOR_DECISION = "REQUIRES_AUTHOR_DECISION"
+    NOT_REPRESENTABLE_BY_CURRENT_DOMAIN = "NOT_REPRESENTABLE_BY_CURRENT_DOMAIN"
+    NOT_RELEVANT_TO_THIS_MILESTONE = "NOT_RELEVANT_TO_THIS_MILESTONE"
+
+
+class MappingReviewStatus(str, Enum):
+    PROPOSED = "PROPOSED"
+    ACCEPTED = "ACCEPTED"
+    REJECTED = "REJECTED"
+    DEFERRED = "DEFERRED"
+    OVERRIDDEN = "OVERRIDDEN"
+
+
+class MappingStrength(str, Enum):
+    DIRECT_DOMAIN_MAPPING = "DIRECT_DOMAIN_MAPPING"
+    SUPPORTED_CONTRIBUTION = "SUPPORTED_CONTRIBUTION"
+    CONTEXTUAL_INFLUENCE = "CONTEXTUAL_INFLUENCE"
+    UNRESOLVED_INTERPRETATION = "UNRESOLVED_INTERPRETATION"
+
+
+class EvidenceClass(str, Enum):
+    DOMAIN_CONTRACT = "DOMAIN_CONTRACT"
+    PACK_METADATA = "PACK_METADATA"
+    CURATED_COMPOSITION_RULE = "CURATED_COMPOSITION_RULE"
+    AUTHOR_CONFIRMED_DECISION = "AUTHOR_CONFIRMED_DECISION"
+    EXISTING_CANONICAL_STATE = "EXISTING_CANONICAL_STATE"
+
+
+class WorkingDimension(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    dimension_id: str = Field(min_length=1)
+    category: DimensionCategory
+    origin: DimensionOrigin
+    status: DimensionStatus
+    label: str = Field(min_length=1)
+    author_rationale: str | None = None
+    detection_evidence: tuple[str, ...] = ()
+    source_provenance: tuple[PackProvenance, ...] = ()
+    confirmed_by_author: bool = False
+
+
+class CompositionTension(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    tension_id: str = Field(min_length=1)
+    dimension_ids: tuple[str, ...] = ()
+    explanation: str = Field(min_length=1)
+    affected_decision_or_contract: str = Field(min_length=1)
+    acknowledged: bool = False
+    blocks_acceptance: bool = False
+
+
+class OverrideValidationResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    preflight_result: str = Field(min_length=1)
+    final_result: str | None = None
+    valid: bool
+    diagnostic: str | None = None
+    accepted_value: str | None = None
+
+
+class AuthorOverride(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    original_value: str = Field(min_length=1)
+    replacement_value: str = Field(min_length=1)
+    rationale: str = Field(min_length=1)
+    affected_dimension_ids: tuple[str, ...] = ()
+    validation: OverrideValidationResult
+
+
+class MappingRecord(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    mapping_id: str = Field(min_length=1)
+    source_dimension_id: str = Field(min_length=1)
+    source_category: DimensionCategory
+    source_origin: DimensionOrigin
+    source_provenance: tuple[PackProvenance, ...] = ()
+    destination_field: str | None = None
+    proposed_value: str | None = None
+    contribution: str | None = None
+    mapping_strength: MappingStrength
+    evidence_class: EvidenceClass
+    disposition: MappingDisposition
+    review_status: MappingReviewStatus = MappingReviewStatus.PROPOSED
+    rationale: str = Field(min_length=1)
+    unmapped_remainder: tuple[str, ...] = ()
+    author_override: AuthorOverride | None = None
+
+
+class UnmappedRemainder(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    remainder_id: str = Field(min_length=1)
+    dimension_id: str = Field(min_length=1)
+    text: str = Field(min_length=1)
+    acknowledged: bool = False
+    blocks_acceptance: bool = False
+
+
+class WorkingComposition(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    workspace_id: str = Field(min_length=1)
+    composition_id: str = Field(min_length=1)
+    schema_version: int = Field(ge=1)
+    revision_id: str | None = None
+    base_canonical_refs: tuple[str, ...] = ()
+    source_provenance: tuple[PackProvenance, ...] = ()
+    dimensions: tuple[WorkingDimension, ...]
+    tensions: tuple[CompositionTension, ...] = ()
+    mapping_records: tuple[MappingRecord, ...] = ()
+    unmapped_remainders: tuple[UnmappedRemainder, ...] = ()
 
 
 class StageStatus(BaseModel):
