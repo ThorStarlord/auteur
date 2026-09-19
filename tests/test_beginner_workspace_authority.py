@@ -171,6 +171,15 @@ def test_accept_direction_records_direction_only_never_identity(tmp_path: Path) 
 def test_story_identity_acceptance_fails_closed_without_composed_preview(tmp_path: Path) -> None:
     app = make_app(tmp_path)
     accept_direction(app)
+    composition = app.projection().working_composition
+    assert composition is not None
+    for dimension in composition.dimensions:
+        app.reject_dimension(
+            dimension_id=dimension.dimension_id,
+            rationale="Remove every active mapping for this fail-closed fixture.",
+            expected_session_version=app.projection().session_version,
+        )
+    assert app.projection().mapping_preview is None
     answer_stage_cleanly(app, "story_identity.")
     app.open_milestone_review(
         stage=DecisionStage.STORY_IDENTITY,
@@ -563,6 +572,10 @@ def test_live_confirmed_composition_acceptance_promotes_candidate_identity(tmp_p
         project_id="project-1",
         premise="A detective solves a locked-room murder in a remote hotel.",
         guidance_genre="mystery",
+    )
+    app.continue_from_architecture(
+        expected_session_version=app.projection().session_version,
+        command_id="fallback-live-composed",
     )
     dimension = app.projection().working_composition.dimensions[0]
     app.confirm_dimension(
