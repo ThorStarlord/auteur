@@ -98,6 +98,7 @@ from ..identity import StoryIdentity
 from ..story_design_packs.registry import get_design_pack_registry
 from .architecture_analysis import ArchitectureAnalyzer, DeterministicArchitectureAnalyzer, premise_fingerprint
 from .architecture_models import NarrativeArchitectureAnalysis
+from .architecture_projection import build_story_orientation
 from .composition import compose_mappings, reconcile_review_state
 from .contracts import (
     AcceptedMilestoneReference,
@@ -2570,6 +2571,11 @@ class BeginnerWorkspaceApplication:
                 guidance = guidance_for(cursor.card_id, guidance_session)
             except ValueError:
                 guidance = None
+        story_orientation = build_story_orientation(
+            analysis=self._architecture_analysis(session),
+            analysis_current=self._analysis_is_current(session),
+            accepted_milestones=tuple(session.accepted_milestones),
+        )
         return build_workspace_projection(
             session=session,
             inventory=inventory,
@@ -2590,6 +2596,7 @@ class BeginnerWorkspaceApplication:
             cursor_override=focus_card_id or self._journey.get("cursor_override"),
             working_composition=composition,
             mapping_preview=mapping_preview,
+            story_orientation=story_orientation,
         )
 
     # -- internals ---------------------------------------------------------------

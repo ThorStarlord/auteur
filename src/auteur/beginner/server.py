@@ -228,6 +228,11 @@ def projection_to_dict(projection: WorkspaceProjection, *, workspace_id: str) ->
             if hasattr(projection.mapping_preview, "model_dump")
             else projection.mapping_preview
         ),
+        "story_orientation": (
+            None
+            if projection.story_orientation is None
+            else projection.story_orientation.model_dump(mode="json")
+        ),
     }
 
 

@@ -16,6 +16,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Mapping
 
+from .architecture_projection import StoryOrientationProjection
 from .contracts import (
     AcceptedMilestoneReference,
     DecisionStage,
@@ -218,6 +219,7 @@ class WorkspaceProjection:
     guidance_inspector: GuidanceInspectorProjection | None = None
     working_composition: WorkingComposition | None = None
     mapping_preview: object | None = None
+    story_orientation: StoryOrientationProjection | None = None
 
 
 def cards_for_stage(inventory: QualificationInventory, stage: DecisionStage) -> tuple[QualificationCard, ...]:
@@ -289,6 +291,7 @@ def build_workspace_projection(
     cursor_override: str | None = None,
     working_composition: WorkingComposition | None = None,
     mapping_preview: object | None = None,
+    story_orientation: StoryOrientationProjection | None = None,
 ) -> WorkspaceProjection:
     """Build every workspace surface from one session/domain snapshot."""
     exploratory = dict(exploratory_answers or {})
@@ -428,6 +431,7 @@ def build_workspace_projection(
         guidance_inspector=guidance_inspector,
         working_composition=working_composition if working_composition is not None else session.working_composition,
         mapping_preview=mapping_preview,
+        story_orientation=story_orientation,
     )
 
 
