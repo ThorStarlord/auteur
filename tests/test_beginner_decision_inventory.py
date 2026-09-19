@@ -4,7 +4,6 @@ from auteur.beginner.decision_inventory import structure_inventory_for
 from auteur.beginner.guidance import QualificationInventory, QualificationStage
 from auteur.beginner.mystery_adapter import MysteryGuidanceAdapter
 from tests.fixtures.beginner_hybrid_mystery import (
-    HYBRID_ANALYSIS,
     HYBRID_SELECTED_IDENTITY,
     app_after_direction_acceptance,
 )
