@@ -1,6 +1,6 @@
 # Premise-to-Narrative-Architecture Beginner Flow
 
-Status: **draft for user review**
+Status: **approved 2026-09-19**
 
 Date: 2026-09-19
 
