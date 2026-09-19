@@ -1222,3 +1222,403 @@ Expected: PASS.
 git add src/auteur/beginner/architecture_models.py src/auteur/beginner/architecture_analysis.py src/auteur/beginner/dimensions.py src/auteur/beginner/application.py tests/test_beginner_architecture_analysis.py tests/test_beginner_workspace_application.py
 git commit -m "feat: refine inferred narrative architecture"
 ~~~
+
+---
+
+### Task 10: Replace Fixed 3/4/3 Qualification with Bounded Adaptive Stage Decisions
+
+**Files:**
+- Create: src/auteur/beginner/decision_inventory.py
+- Modify: src/auteur/beginner/mystery_adapter.py
+- Modify: src/auteur/beginner/application.py
+- Modify: src/auteur/beginner/projections.py
+- Create: tests/test_beginner_decision_inventory.py
+- Modify: tests/test_beginner_mystery_adapter.py
+- Modify: tests/test_beginner_workspace_application.py
+
+**Interfaces:**
+- Produces structure_inventory_for(session, analysis, accepted_identity) -> QualificationInventory.
+
+- [ ] **Step 1: Write failing inventory tests**
+
+~~~python
+def test_rich_flow_does_not_require_legacy_discovery_or_identity_cards() -> None:
+    inventory = structure_inventory_for(
+        session=accepted_hybrid_session(),
+        analysis=HYBRID_ANALYSIS,
+        accepted_identity=HYBRID_SELECTED_IDENTITY,
+    )
+    assert all(card.stage is QualificationStage.STRUCTURE for card in inventory.cards)
+    assert "discover.story-experience" not in {card.card_id for card in inventory.cards}
+    assert not any(card.card_id.startswith("story_identity.") for card in inventory.cards)
+
+
+def test_mystery_adapter_no_longer_requires_exact_3_4_3_counts() -> None:
+    inventory = QualificationInventory(
+        cards=tuple(
+            card for card in mystery_qualification_inventory().cards
+            if card.stage is QualificationStage.STRUCTURE
+        )
+    )
+    MysteryGuidanceAdapter.validate_inventory(inventory)
+~~~
+
+- [ ] **Step 2: Run and verify RED**
+
+~~~powershell
+python -m pytest tests/test_beginner_decision_inventory.py tests/test_beginner_mystery_adapter.py tests/test_beginner_workspace_application.py -k "inventory or stage_counts or legacy" -q --tb=short
+~~~
+
+Expected: FAIL because the current adapter requires fixed stage counts and the journey assumes Discovery/Identity cards.
+
+- [ ] **Step 3: Remove exact-count validation**
+
+Keep:
+- unique card IDs;
+- evidence source validity;
+- option/recommendation consistency;
+- stage validity.
+
+Delete only the requirement that every inventory has exactly three Discovery, four Identity, and three Structure cards.
+
+- [ ] **Step 4: Add deterministic Structure-card eligibility**
+
+For the first implementation:
+- active/accepted Mystery engine → include the three existing Mystery Structure cards;
+- no Mystery engine → do not manufacture Mystery-specific Structure questions.
+
+This is bounded selection over curated card families, not LLM-generated questioning.
+
+- [ ] **Step 5: Make stage readiness independent of card quotas**
+
+Use these rules:
+
+~~~text
+Discovery review available:
+  current Discovery recommendation exists
+  AND selected_direction_id exists
+
+Story Identity review available:
+  Story Direction accepted
+  AND current promotion preview exists
+
+Structure review available:
+  every eligible Structure card answered
+~~~
+
+Do not render Story Identity as “0/0 unanswered”.
+
+- [ ] **Step 6: Keep the legacy fallback explicit**
+
+If rich Discovery is unavailable:
+- current curated Mystery Discovery/Identity cards may remain available as degraded fallback;
+- surface the provider-unavailable note;
+- never present that fallback as equivalent to full architecture reasoning.
+
+- [ ] **Step 7: Run and verify GREEN**
+
+~~~powershell
+python -m pytest tests/test_beginner_decision_inventory.py tests/test_beginner_mystery_adapter.py tests/test_beginner_workspace_application.py -k "inventory or stage_counts or readiness or legacy" -q --tb=short
+~~~
+
+Expected: PASS.
+
+- [ ] **Step 8: Commit**
+
+~~~bash
+git add src/auteur/beginner/decision_inventory.py src/auteur/beginner/mystery_adapter.py src/auteur/beginner/application.py src/auteur/beginner/projections.py tests/test_beginner_decision_inventory.py tests/test_beginner_mystery_adapter.py tests/test_beginner_workspace_application.py
+git commit -m "feat: make beginner decisions adaptive by stage"
+~~~
+
+---
+
+### Task 11: Wire Runtime Dependencies, JSON Commands, and the New Browser Journey
+
+**Files:**
+- Modify: src/auteur/beginner/server.py
+- Modify: src/auteur/beginner/browser/index.html
+- Modify: src/auteur/beginner/browser/app.js
+- Modify: src/auteur/beginner/browser/styles.css
+- Modify: tests/test_beginner_workspace_server.py
+- Modify: tests/test_beginner_workspace_browser.py
+
+**Interfaces:**
+- Consumes all prior Beginner services.
+- Produces BeginnerRuntimeDependencies, server CLI provider/model options, new JSON commands, and projection-only browser flow.
+
+- [ ] **Step 1: Write failing HTTP/browser contract tests**
+
+~~~python
+def test_http_fresh_workspace_returns_story_orientation_before_decision_card(running_rich_server) -> None:
+    _, projection = post_json(
+        running_rich_server,
+        "/api/beginner/workspaces",
+        hybrid_create_payload(),
+    )
+    assert projection["primary_surface"] == "architecture"
+    assert projection["story_orientation"]["heading"] == "Here is what Auteur sees"
+    assert projection["decision_card"] is None
+
+
+def test_browser_does_not_render_internal_dimension_vocabulary() -> None:
+    source = browser_asset("app.js")
+    html = browser_asset("index.html")
+    assert "PRIMARY_ENGINE" not in html
+    assert "SETTING_WORLD" not in html
+    assert "RELATIONSHIP_THEMATIC" not in html
+    assert "Use this lens" not in html
+    assert "Refine this interpretation" in source or "Refine this interpretation" in html
+~~~
+
+Also pin HTTP routes:
+- continue-architecture
+- select-direction
+- confirm-architecture-component
+- suppress-architecture-component
+- restore-architecture-component
+- add-architecture-component
+- reanalyze-premise
+
+- [ ] **Step 2: Run and verify RED**
+
+~~~powershell
+python -m pytest tests/test_beginner_workspace_server.py tests/test_beginner_workspace_browser.py -q --tb=short
+~~~
+
+Expected: FAIL.
+
+- [ ] **Step 3: Add runtime dependency construction**
+
+~~~python
+@dataclass(frozen=True)
+class BeginnerRuntimeDependencies:
+    architecture_analyzer: ArchitectureAnalyzer
+    discovery_recommender: DiscoveryRecommender
+~~~
+
+Server behavior:
+- with --provider: build one existing retrying LLMClient, then construct ProviderArchitectureAnalyzer + StoryDiscoveryRecommender;
+- optional --model flows to the existing build_client contract;
+- without --provider: DeterministicArchitectureAnalyzer + UnavailableDiscoveryRecommender;
+- tests inject scripted dependencies and never access network.
+
+- [ ] **Step 4: Serialize the new surfaces**
+
+Projection JSON includes:
+- primary_surface;
+- story_orientation;
+- discovery;
+- identity_candidate;
+- mapping_preview;
+- eligible Structure decision_card;
+- existing canonical/revision state.
+
+Do not serialize Python enum names as beginner copy.
+
+- [ ] **Step 5: Rebuild the Navigator**
+
+Default left rail:
+
+~~~text
+Your story
+  Narrative architecture
+  Discovery
+  Story Identity
+  Structure
+  Realization — Later
+  Expression — Later
+~~~
+
+Stage completion/progress remains secondary metadata.
+
+- [ ] **Step 6: Rebuild the first central surface**
+
+Exact primary actions:
+- Looks right — continue
+- Refine this interpretation
+- Why does Auteur see this?
+
+Label analysis as a working interpretation / not canon.
+
+- [ ] **Step 7: Rebuild Story Map from the same projection**
+
+Expanded read-only sections:
+- genre constellation;
+- narrative machinery;
+- character functions;
+- aesthetic framing;
+- trope families;
+- emotional/relationship dynamics;
+- world/setting logic;
+- themes/motifs;
+- evidence/ambiguity;
+- accepted milestones;
+- revision state.
+
+No mutation controls in Story Map.
+
+- [ ] **Step 8: Replace the old Working Composition panel with optional refinement**
+
+Default collapsed title: **Refine story interpretation**.
+
+Beginner labels:
+- Main story engine
+- Genre / story tradition
+- Emotional & aesthetic framing
+- Relationship & thematic dynamic
+- World & setting logic
+
+Controls:
+- Confirm/keep
+- Reduce/remove
+- Restore
+- Rename
+- Add missing component
+
+Raw mapping IDs/enums move under **Advanced mapping details**.
+
+- [ ] **Step 9: Render Discovery and Identity as dedicated surfaces**
+
+Discovery:
+- recommended direction as primary card;
+- alternatives with tradeoffs;
+- select direction;
+- explicit Story Direction review/acceptance;
+- derived/not-canon label.
+
+Identity:
+- candidate commitments;
+- promotion preview grouped canonical/guidance/provenance/unresolved;
+- explicit Accept Story Identity;
+- no mandatory “0/4 answered”.
+
+Structure:
+- eligible curated Decision Cards.
+
+- [ ] **Step 10: Run tests and verify GREEN**
+
+~~~powershell
+python -m pytest tests/test_beginner_workspace_server.py tests/test_beginner_workspace_browser.py -q --tb=short
+~~~
+
+Expected: PASS.
+
+- [ ] **Step 11: Commit**
+
+~~~bash
+git add src/auteur/beginner/server.py src/auteur/beginner/browser/index.html src/auteur/beginner/browser/app.js src/auteur/beginner/browser/styles.css tests/test_beginner_workspace_server.py tests/test_beginner_workspace_browser.py
+git commit -m "feat: present premise architecture before beginner decisions"
+~~~
+
+---
+
+### Task 12: Harden Currentness, Idempotency, Crash Recovery, and Revision Isolation
+
+**Files:**
+- Modify: src/auteur/beginner/application.py
+- Modify: src/auteur/beginner/persistence.py
+- Modify: src/auteur/beginner/contracts.py
+- Modify: tests/test_beginner_workspace_persistence.py
+- Modify: tests/test_beginner_workspace_authority.py
+- Modify: tests/test_beginner_workspace_qualification.py
+
+**Interfaces:**
+- Consumes CommandReceiptStore, existing acceptance-journal recovery, analysis/discovery basis fingerprints.
+- Produces durable provider-command recovery and revision-safe architecture overlays.
+
+- [ ] **Step 1: Write failing no-double-generation crash test**
+
+~~~python
+def test_retry_after_discovery_persisted_before_receipt_completion_does_not_regenerate(tmp_path: Path) -> None:
+    recommender = CountingDiscoveryRecommender(HYBRID_DISCOVERY)
+    app = app_with_crashing_receipt_completion(tmp_path, recommender=recommender)
+
+    with pytest.raises(ProcessCrash):
+        app.continue_from_architecture(
+            command_id="continue-after-analysis",
+            expected_session_version=app.projection().session_version,
+        )
+
+    assert recommender.calls == 1
+
+    recovered_app = reconstructed_app(tmp_path, recommender)
+    recovered = recovered_app.continue_from_architecture(
+        command_id="continue-after-analysis",
+        expected_session_version=recovered_app.projection().session_version,
+    )
+
+    assert recovered.discovery.recommendation_id == HYBRID_DISCOVERY.recommendation_id
+    assert recommender.calls == 1
+~~~
+
+- [ ] **Step 2: Write stale-basis tests**
+
+~~~python
+def test_stale_analysis_blocks_discovery_acceptance(tmp_path: Path) -> None:
+    app = app_with_stale_analysis(tmp_path)
+    projection = app.projection()
+    assert "architecture analysis is stale" in projection.discovery.blockers
+
+
+def test_stale_discovery_basis_blocks_story_direction_acceptance(tmp_path: Path) -> None:
+    app = app_with_changed_active_composition_after_discovery(tmp_path)
+    with pytest.raises(BeginnerWorkspaceError, match="discovery recommendation is stale"):
+        app.accept_story_direction(
+            command_id="accept-stale-direction",
+            expected_session_version=app.projection().session_version,
+        )
+~~~
+
+- [ ] **Step 3: Write post-Identity revision-isolation tests**
+
+After canonical Story Identity exists:
+- direct reanalyze_premise without an active Identity revision is rejected;
+- in an Identity revision, revised premise + analysis + composition exist only in revision overlay;
+- cancel returns parent premise/analysis bytes exactly;
+- accepting revised Identity promotes only through explicit authority.
+
+- [ ] **Step 4: Persist provider-command recovery intent**
+
+For continue_from_architecture and reanalyze_premise, receipt intent stores:
+- premise fingerprint;
+- source analysis ID;
+- analysis basis fingerprint;
+- expected session version;
+- operation fingerprint.
+
+On retry, if the session already contains the exact operation result, complete/replay the receipt without invoking provider again.
+
+Do not apply canonical artifact revision semantics to noncanonical provider commands.
+
+- [ ] **Step 5: Make Discovery currentness depend on active composition**
+
+DiscoveryRecommendation.source_basis_fingerprint includes:
+- analysis ID/fingerprint;
+- material active/suppressed WorkingComposition dimensions;
+- author adjustments that change guidance.
+
+Persistence-only metadata changes do not invalidate it.
+
+- [ ] **Step 6: Preserve all PR #237 canonical recovery invariants**
+
+Rerun tests for:
+- owner recovery without duplicate promotion;
+- durable semantic-change intent;
+- artifact pre/post revision guard;
+- metadata-only Identity revisions keep downstream fresh;
+- semantic Identity revisions stale Structure.
+
+- [ ] **Step 7: Run focused tests and verify GREEN**
+
+~~~powershell
+python -m pytest tests/test_beginner_workspace_persistence.py tests/test_beginner_workspace_authority.py tests/test_beginner_workspace_qualification.py -k "recovery or crash or stale or revision or idempot" -q --tb=short
+~~~
+
+Expected: PASS, aside from the documented Windows symlink-permission skip when the host lacks symlink privilege.
+
+- [ ] **Step 8: Commit**
+
+~~~bash
+git add src/auteur/beginner/application.py src/auteur/beginner/persistence.py src/auteur/beginner/contracts.py tests/test_beginner_workspace_persistence.py tests/test_beginner_workspace_authority.py tests/test_beginner_workspace_qualification.py
+git commit -m "fix: harden premise analysis recovery and revision isolation"
+~~~
