@@ -4,6 +4,8 @@ Status: **approved 2026-09-19**
 
 Date: 2026-09-19
 
+Amended: **2026-09-19** — epistemic status, ambiguity escalation, activation policy, beginner vocabulary/progressive disclosure, and reanalysis reconciliation hardened after design review.
+
 ## Related authorities
 
 This specification must remain consistent with:
@@ -207,6 +209,47 @@ The product may use the friendly language:
 
 Internally the operation should be treated as **premise interpretation / narrative architecture inference**, not as a claim that every element was literally stated in the premise.
 
+### Derivation / epistemic status
+
+Extraction versus inference is a first-class semantic axis, separate from certainty, author review, activation, and canonical authority.
+
+Each component should preserve how it entered the working interpretation:
+
+- **premise-explicit** — the relevant concept is directly stated in the author's premise/context;
+- **curated-match** — a deterministic vocabulary, Genre Pack, or Story Design Pack match supports the component;
+- **model-inference** — provider reasoning inferred the component from evidence without the author stating it directly;
+- **author-added** — the author introduced a component that was not present in the generated analysis.
+
+These statuses describe **where the interpretation came from**, not whether it is correct.
+
+For example:
+
+```text
+premise-explicit + clear:
+  "The protagonist is a superhero."
+
+model-inference + clear:
+  Investigation appears to be the primary engine.
+
+model-inference + uncertain:
+  The framing may be campy melodrama.
+
+author-added + clear:
+  "Treat this as campy melodrama."
+```
+
+Therefore:
+
+```text
+derivation
+  ≠ certainty
+  ≠ activation
+  ≠ author review
+  ≠ canonical authority
+```
+
+A model-generated component must not label itself authoritative or author-supplied merely by asserting that status. The deterministic application layer owns the normalized derivation status.
+
 ---
 
 ## Analysis facets
@@ -378,6 +421,7 @@ ArchitectureComponent
   component_id
   facet
   author_label
+  derivation / epistemic source
   normalized_concept?
   role / emphasis
   evidence[]
@@ -425,6 +469,22 @@ An alternative is shown when choosing between interpretations would materially c
 
 Do not generate alternatives merely to look sophisticated.
 
+### Ambiguity escalation
+
+Component-scoped alternatives are the beginner default, but they are not an absolute rule.
+
+If several uncertainties are strongly coupled and their combinations imply materially different coherent readings of the whole story, Auteur may surface a **bounded whole-interpretation ambiguity** rather than pretending the components are independent.
+
+Use this only when resolving the ambiguity would materially change one or more of:
+
+- the primary causal engine;
+- target reader experience;
+- major payoff/revelation shape;
+- central character-function relationships;
+- the resulting Story Identity candidate.
+
+This is an escape hatch for genuinely different story readings, not permission to show multiple complete architectures by default.
+
 ---
 
 ## Story Navigator responsibility
@@ -450,36 +510,32 @@ The workflow stages remain useful, but they become one part of a larger story mo
 
 ### Target Navigator shape
 
-Before any accepted milestones:
+Before any accepted milestones, the **default beginner projection** should show only concepts needed for the current decision:
 
 ```text
 STORY NAVIGATOR
 
 Your story
-├── Narrative architecture
-│   ├── Genre constellation
-│   ├── Narrative engines
+├── What Auteur sees
+│   ├── Genre / story traditions
+│   ├── Main story machinery
 │   ├── Character functions
-│   ├── Aesthetic framing
+│   ├── Framing
 │   ├── Tropes
 │   ├── Emotional / relationship dynamics
 │   └── World context
 │
-├── Discovery
-│   └── Direction not chosen yet
+├── Choose a story direction
+│   └── Not chosen yet
 │
 ├── Story Identity
 │   └── Not accepted yet
 │
-├── Structure
-│   └── Not planned yet
-│
-├── Realization
-│   └── Later
-│
-└── Expression
+└── Plan the story
     └── Later
 ```
+
+The expanded Story Map or advanced inspection may expose the exact canonical terms **Structure**, **Realization**, and **Expression** when they become relevant. The first-session Navigator should not teach later layers merely because they exist internally.
 
 The current `Discover 1/3 → Story Identity 0/4 → Structure 0/3` progress sequence may remain as secondary stage progress, but it must no longer define the Navigator's entire meaning.
 
@@ -521,7 +577,7 @@ Common trope families
   Hidden intimacy
   Revelation / confrontation
 
-[Looks right — continue]
+[Continue with this interpretation]
 [Refine this interpretation]
 [Why does Auteur see this?]
 ```
@@ -582,6 +638,26 @@ For example:
 Components inferred by the current validated analysis may participate in working guidance by default.
 
 The author does **not** need to click "Use this lens" for every component before Auteur can reason with the premise.
+
+Default activation should be certainty- and consequence-aware:
+
+```text
+CLEAR
+  → active for working guidance by default
+
+LIKELY
+  → active by default, visibly provisional
+
+UNCERTAIN + low downstream consequence
+  → may remain contextual / inactive until useful
+
+UNCERTAIN + materially changes engine, target experience,
+Identity candidate, or major payoff
+  → do not let it silently steer the story;
+    surface it for resolution or Discovery branching
+```
+
+The implementation may use narrower deterministic eligibility rules, but uncertain interpretation must not gain disproportionate downstream influence merely because it exists.
 
 The interface must make clear:
 
@@ -672,6 +748,12 @@ Discovery answers:
 Discovery does not primarily extract the architecture already present in the premise.
 
 It searches the story-design space opened by that architecture.
+
+A useful ownership rule is:
+
+> If resolving an uncertain interpretation would materially change the primary causal engine, target reader experience, major payoff/revelation, or resulting Story Identity candidate, that resolution belongs in **Discovery**, not silently inside Analysis.
+
+Analysis may identify the ambiguity. Discovery owns the consequential creative branch.
 
 ### Discovery input
 
@@ -1002,6 +1084,10 @@ Before Story Identity acceptance, editing the premise should:
 4. attempt to preserve explicit author refinements only when their target meaning still exists;
 5. surface conflicts rather than silently rebasing incompatible author adjustments.
 
+Reanalysis must reconcile components by stable semantic meaning rather than provider output order or freshly generated labels. Where possible, use facet + normalized concept + source relationship to classify a component as the same meaning, superseded meaning, conflicting meaning, or genuinely new meaning. Provider-generated IDs or wording alone must not decide identity.
+
+If an author-adjusted component cannot be reconciled confidently, preserve the prior adjustment as inspectable history and ask for resolution rather than attaching it to a semantically different component.
+
 After Story Identity acceptance, premise edits should not silently rewrite accepted Identity.
 
 They become revision input.
@@ -1052,6 +1138,8 @@ Examples:
 | `PROPOSED` | Inferred by Auteur |
 | `CONFIRMED` | Adjusted/confirmed for this working interpretation |
 | `REJECTED` | Removed from working interpretation |
+
+"Narrative Architecture Analysis" is an internal/advanced precision term. The default beginner surface should prefer language such as **"What Auteur sees"**, **"How Auteur understands your story"**, and **"your current story shape"** unless the exact domain term helps the current decision.
 
 Advanced inspection may expose exact internal types.
 
@@ -1115,7 +1203,7 @@ Present one coherent best-fit interpretation.
 
 Default actions:
 
-- **Looks right — continue**
+- **Continue with this interpretation**
 - **Refine this interpretation**
 - **Why does Auteur see this?**
 
@@ -1221,6 +1309,7 @@ Human evaluation should answer:
 8. Does Structure feel downstream of accepted Identity?
 9. Does composed guidance materially use the superhero and relationship/erotic-betrayal dimensions?
 10. Can the author explain the resulting story direction and the next useful decision?
+11. Can the author distinguish something explicitly present in the premise from something Auteur inferred, without confusing either with canon?
 
 ---
 
@@ -1329,6 +1418,10 @@ This package does not:
 14. **Unrepresentable architectural meaning remains visible rather than disappearing.**
 15. **Beginner UI uses narrative language before implementation vocabulary.**
 16. **No product concept is added merely because it can be represented.**
+17. **Derivation/source is distinct from certainty, activation, review state, and authority.**
+18. **Uncertain analysis must not silently control consequential downstream decisions.**
+19. **Coupled ambiguities may escalate to a bounded whole-story reading only when component-local alternatives would be misleading.**
+20. **The beginner Navigator progressively discloses later semantic layers rather than displaying them merely because they exist.**
 
 ---
 
@@ -1344,14 +1437,18 @@ The subsequent implementation must prove at minimum:
 - the hybrid fixture surfaces Mystery, superhero, and relationship/erotic-betrayal material without manual activation;
 - character functions, framing, trope families, and relationship/world context can be surfaced where supported;
 - evidence/provenance is inspectable;
+- derivation/source is inspectable separately from certainty;
 - ambiguous component alternatives are bounded;
+- coupled ambiguities can escalate only under the explicit material-change rule;
+- uncertain components cannot silently dominate consequential downstream guidance;
 - analysis remains noncanonical.
 
 ### Navigator
 
 - the first meaningful screen explains "what Auteur sees";
 - stage progress remains visible but subordinate to story orientation;
-- internal enum names are hidden from the beginner default;
+- internal enum names and "Narrative Architecture Analysis" are hidden from the beginner default unless useful;
+- later-layer terms such as Realization and Expression are progressively disclosed;
 - the author can continue without confirming every component;
 - refinement is discoverable but optional.
 
