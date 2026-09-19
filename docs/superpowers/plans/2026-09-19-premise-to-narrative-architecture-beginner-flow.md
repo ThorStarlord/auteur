@@ -351,7 +351,8 @@ class ArchitectureAnalyzer(Protocol):
         *,
         premise: str,
         source_provenance: tuple[PackProvenance, ...],
-    ) -> NarrativeArchitectureAnalysis: ...
+    ) -> NarrativeArchitectureAnalysis:
+        raise NotImplementedError
 ~~~
 
 Provider JSON contains only summary plus component facet, label, role, certainty, rationale, exact premise evidence phrases, and component-local alternatives.
@@ -457,7 +458,9 @@ def __init__(
     architecture_analyzer: ArchitectureAnalyzer | None = None,
     discovery_recommender: DiscoveryRecommender | None = None,
 ) -> None:
-    ...
+    self.session_store = BeginnerSessionStore(Path(project_root), workspace_id)
+    self.receipt_store = CommandReceiptStore(Path(project_root), workspace_id)
+    self.workspace_id = workspace_id
     self.architecture_analyzer = architecture_analyzer or DeterministicArchitectureAnalyzer()
     self.discovery_recommender = discovery_recommender
 ~~~
@@ -819,7 +822,27 @@ def recommend_candidate_outputs(
     causal_profiles: dict[str, Any] | None = None,
     require_recommendation: bool = False,
 ) -> RecommendationJudgment:
-    ...
+    _require_distinct_engines(candidate_outputs)
+    candidate_ids = [item.candidate_id for item in candidate_outputs]
+    if len(candidate_outputs) == 1:
+        return single_survivor_judgment(candidate_ids[0], 1)
+    request = _build_judge_request(
+        premise_text,
+        candidate_outputs,
+        genre=genre,
+        medium=medium,
+        mode=mode,
+        causal_profiles=causal_profiles,
+    )
+    response = client.complete(request)
+    judgment = _parse_judgment(
+        response.text,
+        candidate_ids,
+        allow_explicit_intent_fit=False,
+    )
+    if require_recommendation and judgment.recommendation_status == "not_adjudicable":
+        return judgment
+    return judgment
 ~~~
 
 Refactor current CLI dispatch to use this helper with require_recommendation=False so output remains unchanged.
@@ -1090,7 +1113,7 @@ Trope, character-function, and aesthetic meaning must not silently disappear.
 
 - [ ] **Step 6: Preserve authority/recovery implementation**
 
-Final promotion still crosses AcceptanceRegistry.accept(command_id=...). Retain:
+Final promotion still crosses AcceptanceRegistry.accept() with the same caller-supplied command_id. Retain:
 - durable promotion intent;
 - expected artifact revision guard;
 - owner recovery;
@@ -1170,18 +1193,147 @@ Expected: FAIL.
 - [ ] **Step 3: Implement pure immutable adjustment functions**
 
 ~~~python
-def suppress_component(analysis, component_id, rationale) -> NarrativeArchitectureAnalysis: ...
-def restore_component(analysis, component_id, rationale) -> NarrativeArchitectureAnalysis: ...
-def confirm_component(analysis, component_id, rationale) -> NarrativeArchitectureAnalysis: ...
-def rename_component(analysis, component_id, label, rationale) -> NarrativeArchitectureAnalysis: ...
+def _replace_component(
+    analysis: NarrativeArchitectureAnalysis,
+    updated: ArchitectureComponent,
+    adjustment: ArchitectureAdjustment,
+) -> NarrativeArchitectureAnalysis:
+    components = tuple(
+        updated if item.component_id == updated.component_id else item
+        for item in analysis.components
+    )
+    return analysis.model_copy(
+        update={
+            "components": components,
+            "adjustments": (*analysis.adjustments, adjustment),
+        }
+    )
+
+
+def suppress_component(
+    analysis: NarrativeArchitectureAnalysis,
+    component_id: str,
+    rationale: str,
+) -> NarrativeArchitectureAnalysis:
+    component = analysis.component(component_id)
+    updated = component.model_copy(
+        update={
+            "activation": ArchitectureActivation.SUPPRESSED,
+            "review_state": ArchitectureReviewState.AUTHOR_MODIFIED,
+            "author_rationale": rationale,
+        }
+    )
+    adjustment = ArchitectureAdjustment(
+        action="suppress",
+        component_id=component_id,
+        before_label=component.label,
+        after_label=component.label,
+        rationale=rationale,
+    )
+    return _replace_component(analysis, updated, adjustment)
+
+
+def restore_component(
+    analysis: NarrativeArchitectureAnalysis,
+    component_id: str,
+    rationale: str,
+) -> NarrativeArchitectureAnalysis:
+    component = analysis.component(component_id)
+    updated = component.model_copy(
+        update={
+            "activation": ArchitectureActivation.ACTIVE,
+            "review_state": ArchitectureReviewState.AUTHOR_MODIFIED,
+            "author_rationale": rationale,
+        }
+    )
+    adjustment = ArchitectureAdjustment(
+        action="restore",
+        component_id=component_id,
+        before_label=component.label,
+        after_label=component.label,
+        rationale=rationale,
+    )
+    return _replace_component(analysis, updated, adjustment)
+
+
+def confirm_component(
+    analysis: NarrativeArchitectureAnalysis,
+    component_id: str,
+    rationale: str,
+) -> NarrativeArchitectureAnalysis:
+    component = analysis.component(component_id)
+    updated = component.model_copy(
+        update={
+            "review_state": ArchitectureReviewState.AUTHOR_CONFIRMED,
+            "author_rationale": rationale,
+        }
+    )
+    adjustment = ArchitectureAdjustment(
+        action="confirm",
+        component_id=component_id,
+        before_label=component.label,
+        after_label=component.label,
+        rationale=rationale,
+    )
+    return _replace_component(analysis, updated, adjustment)
+
+
+def rename_component(
+    analysis: NarrativeArchitectureAnalysis,
+    component_id: str,
+    label: str,
+    rationale: str,
+) -> NarrativeArchitectureAnalysis:
+    component = analysis.component(component_id)
+    updated = component.model_copy(
+        update={
+            "label": label,
+            "review_state": ArchitectureReviewState.AUTHOR_MODIFIED,
+            "author_rationale": rationale,
+        }
+    )
+    adjustment = ArchitectureAdjustment(
+        action="rename",
+        component_id=component_id,
+        before_label=component.label,
+        after_label=label,
+        rationale=rationale,
+    )
+    return _replace_component(analysis, updated, adjustment)
+
+
 def add_author_component(
-    analysis,
+    analysis: NarrativeArchitectureAnalysis,
     *,
     facet: ArchitectureFacet,
     label: str,
     role: ArchitectureRole,
     rationale: str,
-) -> NarrativeArchitectureAnalysis: ...
+) -> NarrativeArchitectureAnalysis:
+    component_id = _component_id(facet, label)
+    component = ArchitectureComponent(
+        component_id=component_id,
+        facet=facet,
+        label=label,
+        role=role,
+        certainty=ArchitectureCertainty.CLEAR,
+        activation=ArchitectureActivation.ACTIVE,
+        review_state=ArchitectureReviewState.AUTHOR_MODIFIED,
+        rationale=rationale,
+        author_rationale=rationale,
+    )
+    adjustment = ArchitectureAdjustment(
+        action="add",
+        component_id=component_id,
+        after_label=label,
+        rationale=rationale,
+    )
+    return analysis.model_copy(
+        update={
+            "components": (*analysis.components, component),
+            "adjustments": (*analysis.adjustments, adjustment),
+        }
+    )
 ~~~
 
 Author-added components use CLEAR, AUTHOR_MODIFIED, ACTIVE, and explicit author rationale.
