@@ -383,18 +383,6 @@ def test_deterministic_fallback_does_not_invent_erotic_psychology() -> None:
     assert analysis.availability_note is not None
 ~~~
 
-Add this exact premise variant to tests/fixtures/beginner_hybrid_mystery.py for the reanalysis test:
-
-~~~python
-REVISED_HYBRID_MYSTERY_PREMISE = (
-    "A celebrated masked superhero begins investigating inconsistencies around an intimate partner "
-    "and a powerful rival. Each clue threatens the hero's secret public identity and changes how "
-    "the hero understands trust, jealousy, and possible relationship betrayal. The story should "
-    "remain a fair mystery while treating the private discoveries as campy erotic-betrayal "
-    "melodrama rather than psychological realism."
-)
-~~~
-
 - [ ] **Step 2: Run and verify RED**
 
 ~~~powershell
@@ -1545,6 +1533,20 @@ git commit -m "feat: promote selected discovery identity through authority"
 
 - [ ] **Step 1: Write failing refinement tests**
 
+First add this exact premise variant to tests/fixtures/beginner_hybrid_mystery.py:
+
+~~~python
+REVISED_HYBRID_MYSTERY_PREMISE = (
+    "A celebrated masked superhero begins investigating inconsistencies around an intimate partner "
+    "and a powerful rival. Each clue threatens the hero's secret public identity and changes how "
+    "the hero understands trust, jealousy, and possible relationship betrayal. The story should "
+    "remain a fair mystery while treating the private discoveries as campy erotic-betrayal "
+    "melodrama rather than psychological realism."
+)
+~~~
+
+Then add:
+
 ~~~python
 def test_suppressing_superhero_changes_guidance_without_touching_canon(tmp_path: Path) -> None:
     app = create_hybrid_app(tmp_path)
@@ -2097,19 +2099,41 @@ git commit -m "feat: present premise architecture before beginner decisions"
 - [ ] **Step 1: Write failing no-double-generation crash test**
 
 ~~~python
-def test_retry_after_discovery_persisted_before_receipt_completion_does_not_regenerate(tmp_path: Path) -> None:
-    recommender = CountingDiscoveryRecommender(HYBRID_DISCOVERY)
-    app = app_with_crashing_receipt_completion(tmp_path, recommender=recommender)
+class _ProcessCrash(BaseException):
+    pass
 
-    with pytest.raises(ProcessCrash):
+
+def test_retry_after_discovery_persisted_before_receipt_completion_does_not_regenerate(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    recommender = CountingDiscoveryRecommender(HYBRID_DISCOVERY)
+    app = create_hybrid_app(tmp_path, discovery_recommender=recommender)
+    real_complete = app.receipt_store.complete
+
+    def crash_after_persist(*args: Any, **kwargs: Any) -> Any:
+        receipt = args[0]
+        if receipt.command_id == "continue-after-analysis":
+            raise _ProcessCrash("process terminated after session persistence")
+        return real_complete(*args, **kwargs)
+
+    monkeypatch.setattr(app.receipt_store, "complete", crash_after_persist)
+
+    with pytest.raises(_ProcessCrash, match="session persistence"):
         app.continue_from_architecture(
             command_id="continue-after-analysis",
             expected_session_version=app.projection().session_version,
         )
 
     assert recommender.calls == 1
+    assert app.session_store.load().discovery_recommendation is not None
 
-    recovered_app = reconstructed_app(tmp_path, recommender)
+    recovered_app = BeginnerWorkspaceApplication(
+        tmp_path,
+        app.workspace_id,
+        architecture_analyzer=StaticArchitectureAnalyzer(HYBRID_ANALYSIS),
+        discovery_recommender=recommender,
+    )
     recovered = recovered_app.continue_from_architecture(
         command_id="continue-after-analysis",
         expected_session_version=recovered_app.projection().session_version,
@@ -2122,14 +2146,59 @@ def test_retry_after_discovery_persisted_before_receipt_completion_does_not_rege
 - [ ] **Step 2: Write stale-basis tests**
 
 ~~~python
-def test_stale_analysis_blocks_discovery_acceptance(tmp_path: Path) -> None:
-    app = app_with_stale_analysis(tmp_path)
-    projection = app.projection()
-    assert "architecture analysis is stale" in projection.discovery.blockers
+def test_stale_analysis_blocks_discovery_generation(tmp_path: Path) -> None:
+    app = create_hybrid_app(tmp_path)
+    session = app.session_store.load()
+    assert session.architecture_analysis is not None
+    app.session_store.update(
+        session.session_version,
+        lambda current: current.model_copy(
+            update={
+                "architecture_analysis": current.architecture_analysis.model_copy(
+                    update={"premise_fingerprint": "sha256:stale"}
+                )
+            }
+        ),
+    )
+
+    with pytest.raises(BeginnerWorkspaceError, match="architecture analysis is stale"):
+        app.continue_from_architecture(
+            command_id="continue-stale-analysis",
+            expected_session_version=app.projection().session_version,
+        )
 
 
 def test_stale_discovery_basis_blocks_story_direction_acceptance(tmp_path: Path) -> None:
-    app = app_with_changed_active_composition_after_discovery(tmp_path)
+    app = app_at_discovery(tmp_path)
+    app.select_story_direction(
+        direction_id="direction-investigative-betrayal",
+        command_id="select-before-stale",
+        expected_session_version=app.projection().session_version,
+    )
+    session = app.session_store.load()
+    composition = session.working_composition
+    assert composition is not None
+    target = next(
+        dimension
+        for dimension in composition.dimensions
+        if dimension.category is DimensionCategory.SETTING_WORLD
+    )
+    changed = target.model_copy(update={"activation": GuidanceActivation.SUPPRESSED})
+    changed_composition = composition.model_copy(
+        update={
+            "dimensions": tuple(
+                changed if item.dimension_id == target.dimension_id else item
+                for item in composition.dimensions
+            )
+        }
+    )
+    app.session_store.update(
+        session.session_version,
+        lambda current: current.model_copy(
+            update={"working_composition": changed_composition}
+        ),
+    )
+
     with pytest.raises(BeginnerWorkspaceError, match="discovery recommendation is stale"):
         app.accept_story_direction(
             command_id="accept-stale-direction",
