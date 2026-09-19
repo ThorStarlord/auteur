@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 from pathlib import Path
+import json
+
+import yaml
 
 from auteur.beginner.application import BeginnerWorkspaceApplication
-from auteur.beginner.architecture_analysis import premise_fingerprint
+from auteur.beginner.architecture_analysis import analysis_basis_fingerprint, premise_fingerprint
 from auteur.beginner.architecture_models import (
     ArchitectureActivation,
     ArchitectureAlternative,
@@ -24,6 +27,15 @@ from auteur.beginner.contracts import (
     WorkingComposition,
     WorkingDimension,
 )
+from auteur.beginner.discovery import DiscoveryRecommender
+from auteur.beginner.discovery_models import (
+    DiscoveryDirection,
+    DiscoveryRecommendation,
+    DiscoveryRecommendationStatus,
+)
+from auteur.blueprint import Genre, StoryMode, TargetExperience
+from auteur.identity import HighLevelCentralEngine, StoryIdentity, StoryType
+from auteur.llm import LLMRequest, LLMResponse
 from auteur.story_design_packs.models import PackProvenance
 
 
@@ -225,11 +237,16 @@ def hybrid_composition() -> WorkingComposition:
     )
 
 
-def create_hybrid_app(tmp_path: Path) -> BeginnerWorkspaceApplication:
+def create_hybrid_app(
+    tmp_path: Path,
+    *,
+    discovery_recommender: DiscoveryRecommender | None = None,
+) -> BeginnerWorkspaceApplication:
     app = BeginnerWorkspaceApplication(
         tmp_path,
         "hybrid-mystery",
         architecture_analyzer=StaticArchitectureAnalyzer(HYBRID_ANALYSIS),
+        discovery_recommender=discovery_recommender,
     )
     app.create_workspace(
         command_id="create-hybrid-mystery",
@@ -269,3 +286,201 @@ class CountingArchitectureAnalyzer(StaticArchitectureAnalyzer):
     ) -> NarrativeArchitectureAnalysis:
         self.calls += 1
         return super().analyze(premise=premise, source_provenance=source_provenance)
+
+
+
+HYBRID_SELECTED_IDENTITY = StoryIdentity(
+    title="The Hero Who Needs the Truth",
+    core_answer=(
+        "A masked hero investigates apparent intimate betrayal while every clue "
+        "also threatens the boundary between private trust and public identity."
+    ),
+    target_experience=TargetExperience(
+        primary="jealous uncertainty",
+        progression="suspicion -> evidence -> painful revelation",
+        avoid=[],
+    ),
+    story_type=StoryType(
+        mode=StoryMode.PROCEDURAL,
+        genre=Genre.MYSTERY,
+        subgenres=["superhero"],
+    ),
+    central_engine=HighLevelCentralEngine(
+        want="Discover what is really happening between the partner and rival.",
+        resistance="Secret identities, ambiguous evidence, and fear of what the truth means.",
+        conflict="The need for certainty collides with love, jealousy, and heroic reputation.",
+        stakes="The relationship, the hero's self-image, and public identity may all collapse.",
+        change="The hero must choose how to live with the truth once certainty arrives.",
+    ),
+)
+
+HYBRID_RELATIONSHIP_IDENTITY = HYBRID_SELECTED_IDENTITY.model_copy(
+    update={
+        "title": "Trust Under Siege",
+        "core_answer": (
+            "A relationship-centered psychological drama in which investigation matters "
+            "mainly because suspicion changes intimacy and trust."
+        ),
+        "story_type": HYBRID_SELECTED_IDENTITY.story_type.model_copy(
+            update={"mode": StoryMode.INTIMATE}
+        ),
+        "central_engine": HighLevelCentralEngine(
+            want="Preserve the relationship without remaining willfully blind.",
+            resistance="Longing, self-deception, and contradictory intimate signals.",
+            conflict="The desire for intimacy collides with mounting evidence of betrayal.",
+            stakes="Trust may be destroyed even if the feared betrayal is misunderstood.",
+            change="The protagonist learns that intimacy cannot be preserved by refusing uncertainty.",
+        ),
+    }
+)
+
+HYBRID_CAMPY_IDENTITY = HYBRID_SELECTED_IDENTITY.model_copy(
+    update={
+        "title": "Masks, Rivals, and Scandal",
+        "core_answer": (
+            "A heightened superhero melodrama where escalating suspicious encounters "
+            "turn private jealousy into public spectacle."
+        ),
+        "story_type": HYBRID_SELECTED_IDENTITY.story_type.model_copy(
+            update={"mode": StoryMode.COMIC}
+        ),
+        "central_engine": HighLevelCentralEngine(
+            want="Expose the rival before the scandal consumes the hero's relationship.",
+            resistance="Public spectacle, theatrical misunderstandings, and secret identities.",
+            conflict="The hero's need to control the narrative fuels ever-larger confrontations.",
+            stakes="Romance, reputation, and heroic legitimacy become part of the same scandal.",
+            change="The hero gives up controlling appearances and confronts the relationship directly.",
+        ),
+    }
+)
+
+HYBRID_DISCOVERY = DiscoveryRecommendation(
+    recommendation_id="hybrid-discovery-1",
+    source_analysis_id=HYBRID_ANALYSIS.analysis_id,
+    source_basis_fingerprint=analysis_basis_fingerprint(HYBRID_ANALYSIS),
+    status=DiscoveryRecommendationStatus.READY,
+    recommended_direction_id="direction-investigative-betrayal",
+    rationale=(
+        "Investigation is the strongest causal engine while superhero identity and "
+        "relationship betrayal make each clue carry public and intimate consequences."
+    ),
+    directions=(
+        DiscoveryDirection(
+            direction_id="direction-investigative-betrayal",
+            title=HYBRID_SELECTED_IDENTITY.title,
+            summary=HYBRID_SELECTED_IDENTITY.core_answer,
+            identity_candidate=HYBRID_SELECTED_IDENTITY,
+            architecture_summary="Mystery primary; superhero and relationship-betrayal support.",
+            tradeoffs=("Requires fair clue logic while preserving intimate ambiguity.",),
+            source_analysis_id=HYBRID_ANALYSIS.analysis_id,
+            source_component_ids=tuple(
+                component.component_id for component in HYBRID_ANALYSIS.components
+            ),
+        ),
+        DiscoveryDirection(
+            direction_id="direction-relationship-drama",
+            title=HYBRID_RELATIONSHIP_IDENTITY.title,
+            summary=HYBRID_RELATIONSHIP_IDENTITY.core_answer,
+            identity_candidate=HYBRID_RELATIONSHIP_IDENTITY,
+            architecture_summary="Relationship drama primary; mystery as uncertainty mechanism.",
+            tradeoffs=("Reduces puzzle centrality in exchange for deeper psychological focus.",),
+            source_analysis_id=HYBRID_ANALYSIS.analysis_id,
+            source_component_ids=tuple(
+                component.component_id for component in HYBRID_ANALYSIS.components
+            ),
+        ),
+        DiscoveryDirection(
+            direction_id="direction-campy-melodrama",
+            title=HYBRID_CAMPY_IDENTITY.title,
+            summary=HYBRID_CAMPY_IDENTITY.core_answer,
+            identity_candidate=HYBRID_CAMPY_IDENTITY,
+            architecture_summary="Campy superhero melodrama primary; mystery as suspense support.",
+            tradeoffs=("Heightened spectacle weakens detailed psychological realism.",),
+            source_analysis_id=HYBRID_ANALYSIS.analysis_id,
+            source_component_ids=tuple(
+                component.component_id for component in HYBRID_ANALYSIS.components
+            ),
+        ),
+    ),
+)
+
+
+class CountingDiscoveryRecommender:
+    def __init__(self, result: DiscoveryRecommendation = HYBRID_DISCOVERY) -> None:
+        self.result = result
+        self.calls = 0
+
+    def recommend(
+        self,
+        *,
+        premise: str,
+        analysis: NarrativeArchitectureAnalysis,
+    ) -> DiscoveryRecommendation:
+        del premise
+        self.calls += 1
+        return self.result.model_copy(
+            update={
+                "source_analysis_id": analysis.analysis_id,
+                "source_basis_fingerprint": analysis_basis_fingerprint(analysis),
+                "directions": tuple(
+                    direction.model_copy(update={"source_analysis_id": analysis.analysis_id})
+                    for direction in self.result.directions
+                ),
+            }
+        )
+
+
+class HybridStoryDiscoveryClient:
+    def __init__(self) -> None:
+        self._candidate_index = 0
+        self.calls: list[LLMRequest] = []
+
+    def complete(self, request: LLMRequest) -> LLMResponse:
+        self.calls.append(request)
+
+        if "comparative narrative architect" in request.system:
+            payload = {
+                "recommendation_status": "recommended",
+                "recommendation_basis": "advisory_artistic_preference",
+                "recommended_candidate_id": "candidate_1",
+                "recommendation_rationale": (
+                    "Candidate 1 keeps investigation causal while making superhero identity "
+                    "and intimate betrayal consequential."
+                ),
+                "candidate_tradeoffs": {
+                    "candidate_2": "Candidate 2 makes relationship psychology primary.",
+                    "candidate_3": "Candidate 3 makes spectacle and melodrama primary.",
+                },
+            }
+            return LLMResponse(
+                text=json.dumps(payload),
+                input_tokens=1,
+                output_tokens=1,
+            )
+
+        if "summarizing a story identity" in request.system:
+            return LLMResponse(
+                text=json.dumps(
+                    {
+                        "summary": "A distinct hybrid-story direction.",
+                        "tradeoffs": ["One governing engine must remain legible."],
+                        "risks": ["Supporting dimensions can crowd the primary engine."],
+                        "best_for": ["A hybrid mystery with consequential relationship stakes."],
+                    }
+                ),
+                input_tokens=1,
+                output_tokens=1,
+            )
+
+        identities = (
+            HYBRID_SELECTED_IDENTITY,
+            HYBRID_RELATIONSHIP_IDENTITY,
+            HYBRID_CAMPY_IDENTITY,
+        )
+        identity = identities[self._candidate_index]
+        self._candidate_index += 1
+        return LLMResponse(
+            text=yaml.safe_dump(identity.model_dump(mode="json"), sort_keys=False),
+            input_tokens=1,
+            output_tokens=1,
+        )

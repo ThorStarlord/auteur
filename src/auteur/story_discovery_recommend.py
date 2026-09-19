@@ -14,7 +14,7 @@ from typing import Any
 
 import yaml
 
-from auteur.llm import LLMRequest
+from auteur.llm import LLMClient, LLMRequest
 from auteur.story_discovery_judgment import (
     RecommendationJudgment,
     parse_recommendation_judgment,
@@ -206,6 +206,39 @@ def _parse_judgment(
         text,
         surviving_candidate_ids,
         allow_explicit_intent_fit=allow_explicit_intent_fit,
+    )
+
+
+def recommend_candidate_outputs(
+    *,
+    client: LLMClient,
+    premise_text: str,
+    candidate_outputs: list[Any],
+    requested_candidates: int,
+    genre: str | None,
+    medium: str | None,
+    mode: str | None,
+    causal_profiles: dict[str, Any] | None = None,
+) -> RecommendationJudgment:
+    """Compare already-validated Story Discovery outputs without filesystem effects."""
+    _require_distinct_engines(candidate_outputs)
+    candidate_ids = [item.candidate_id for item in candidate_outputs]
+    if len(candidate_outputs) == 1:
+        return single_survivor_judgment(candidate_ids[0], requested_candidates)
+    response = client.complete(
+        _build_judge_request(
+            premise_text,
+            candidate_outputs,
+            genre=genre,
+            medium=medium,
+            mode=mode,
+            causal_profiles=causal_profiles,
+        )
+    )
+    return _parse_judgment(
+        response.text,
+        candidate_ids,
+        allow_explicit_intent_fit=False,
     )
 
 
@@ -529,20 +562,15 @@ def dispatch_story_discovery_recommend(args: Any) -> int:
             profiles = derive_causal_profiles(base_client, candidate_outputs, premise_text)
             causal_analysis = assess_causal_diversity(base_client, profiles)
             if causal_analysis.status == "qualified":
-                response = base_client.complete(
-                    _build_judge_request(
-                        premise_text,
-                        candidate_outputs,
-                        genre=args.genre,
-                        medium=args.medium,
-                        mode=args.mode,
-                        causal_profiles=profiles,
-                    )
-                )
-                judgment = _parse_judgment(
-                    response.text,
-                    [co.candidate_id for co in candidate_outputs],
-                    allow_explicit_intent_fit=False,
+                judgment = recommend_candidate_outputs(
+                    client=base_client,
+                    premise_text=premise_text,
+                    candidate_outputs=candidate_outputs,
+                    requested_candidates=args.candidates,
+                    genre=args.genre,
+                    medium=args.medium,
+                    mode=args.mode,
+                    causal_profiles=profiles,
                 )
                 if judgment.status == "recommended":
                     assert judgment.recommended_candidate_id is not None

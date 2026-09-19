@@ -115,6 +115,7 @@ from .contracts import (
     DimensionCategory,
     MappingDomainContext,
 )
+from .discovery import DiscoveryRecommender, UnavailableDiscoveryRecommender
 from .dimensions import (
     active_dimensions,
     add_author_dimension,
@@ -641,11 +642,13 @@ class BeginnerWorkspaceApplication:
         *,
         authority_registry: AcceptanceRegistry | None = None,
         architecture_analyzer: ArchitectureAnalyzer | None = None,
+        discovery_recommender: DiscoveryRecommender | None = None,
     ) -> None:
         self.session_store = BeginnerSessionStore(Path(project_root), workspace_id)
         self.receipt_store = CommandReceiptStore(Path(project_root), workspace_id)
         self.workspace_id = workspace_id
         self.architecture_analyzer = architecture_analyzer or DeterministicArchitectureAnalyzer()
+        self.discovery_recommender = discovery_recommender or UnavailableDiscoveryRecommender()
         if authority_registry is None:
             authority_registry = AcceptanceRegistry(Path(project_root))
             authority_registry.register(_BeginnerMilestoneOwner(Path(project_root)))
