@@ -860,3 +860,365 @@ Expected: PASS; existing Story Discovery CLI behavior remains unchanged.
 git add src/auteur/beginner/discovery_models.py src/auteur/beginner/discovery.py src/auteur/story_discovery_recommend.py src/auteur/beginner/contracts.py tests/test_beginner_discovery.py tests/test_story_discovery_recommendation_basis.py
 git commit -m "feat: adapt story discovery for beginner direction search"
 ~~~
+
+---
+
+### Task 7: Orchestrate Analysis → Discovery → Story Direction → Identity Preview
+
+**Files:**
+- Modify: src/auteur/beginner/application.py
+- Modify: src/auteur/beginner/projections.py
+- Modify: src/auteur/beginner/contracts.py
+- Modify: tests/test_beginner_workspace_application.py
+- Modify: tests/test_beginner_workspace_authority.py
+
+**Interfaces:**
+- Consumes Task 6 DiscoveryRecommender and Task 5 story orientation.
+- Produces continue_from_architecture(), select_story_direction(), revised accept_story_direction(), DiscoveryProjection, IdentityCandidateProjection.
+
+- [ ] **Step 1: Write failing journey tests**
+
+~~~python
+def test_fresh_workspace_starts_with_architecture_not_discovery_card(tmp_path: Path) -> None:
+    app = rich_hybrid_app(tmp_path)
+    projection = app.projection()
+    assert projection.story_orientation is not None
+    assert projection.primary_surface == "architecture"
+    assert projection.discovery is None
+    assert projection.decision_card is None
+
+
+def test_continue_from_architecture_generates_discovery_once(tmp_path: Path) -> None:
+    recommender = CountingDiscoveryRecommender(HYBRID_DISCOVERY)
+    app = rich_hybrid_app(tmp_path, discovery_recommender=recommender)
+    result = app.continue_from_architecture(
+        command_id="continue-architecture",
+        expected_session_version=app.projection().session_version,
+    )
+    assert recommender.calls == 1
+    assert result.discovery.recommended_direction_id == "direction-investigative-betrayal"
+
+
+def test_accept_direction_unlocks_identity_without_writing_story_identity(tmp_path: Path) -> None:
+    app = app_at_discovery(tmp_path)
+    app.select_story_direction(
+        direction_id="direction-investigative-betrayal",
+        command_id="select-direction",
+        expected_session_version=app.projection().session_version,
+    )
+    result = app.accept_story_direction(
+        command_id="accept-direction",
+        expected_session_version=app.projection().session_version,
+    )
+    assert result.accepted is True
+    assert not (tmp_path / "story_identity.yaml").exists()
+    assert app.session_store.load().stages[DecisionStage.STORY_IDENTITY].availability is StageAvailability.AVAILABLE
+~~~
+
+- [ ] **Step 2: Run and verify RED**
+
+~~~powershell
+python -m pytest tests/test_beginner_workspace_application.py tests/test_beginner_workspace_authority.py -k "architecture or direction or identity_preview" -q --tb=short
+~~~
+
+Expected: FAIL.
+
+- [ ] **Step 3: Add derived primary-surface state**
+
+Use these values:
+
+~~~python
+PrimaryWorkspaceSurface = Literal[
+    "architecture",
+    "discovery",
+    "story_identity",
+    "structure",
+    "complete",
+]
+~~~
+
+Derive the value from persisted session/canon state; do not create a second persisted workflow state machine.
+
+- [ ] **Step 4: Implement continue_from_architecture()**
+
+Requirements:
+- reject stale analysis;
+- generate Discovery only in this mutating command;
+- persist the Discovery recommendation in SessionEnvelope;
+- record architecture_seen in journey sidecar only as presentation history;
+- never create canonical state;
+- if recommender is unavailable, leave the legacy curated fallback available and expose the reason.
+
+- [ ] **Step 5: Implement direction selection**
+
+select_story_direction():
+- verifies direction belongs to the current recommendation;
+- writes selected_direction_id into the immutable recommendation copy;
+- does not write StoryIdentity;
+- records nonrecommended selection as nonblocking authorial divergence.
+
+- [ ] **Step 6: Rework Story Direction acceptance**
+
+When rich Discovery exists:
+- require selected direction;
+- fingerprint selected candidate Identity + source analysis ID;
+- append accepted story_direction milestone;
+- unlock Story Identity;
+- preserve candidate as derived input;
+- do not create story_identity.yaml.
+
+Keep the legacy card-based acceptance path only when rich Discovery is unavailable.
+
+- [ ] **Step 7: Project Story Identity candidate review**
+
+IdentityCandidateProjection contains:
+- candidate title/core answer;
+- genre/subgenres;
+- target experience;
+- central engine;
+- source Discovery direction;
+- active architecture components;
+- working/not-canon label;
+- mapping preview once Task 8 connects it.
+
+No mandatory Story Identity card is required merely to restate candidate fields.
+
+- [ ] **Step 8: Run and verify GREEN**
+
+~~~powershell
+python -m pytest tests/test_beginner_workspace_application.py tests/test_beginner_workspace_authority.py -k "architecture or direction or identity_preview" -q --tb=short
+~~~
+
+Expected: PASS.
+
+- [ ] **Step 9: Commit**
+
+~~~bash
+git add src/auteur/beginner/application.py src/auteur/beginner/projections.py src/auteur/beginner/contracts.py tests/test_beginner_workspace_application.py tests/test_beginner_workspace_authority.py
+git commit -m "feat: reorder beginner journey around premise analysis"
+~~~
+
+---
+
+### Task 8: Promote the Selected Discovery Candidate Through Existing Identity Authority
+
+**Files:**
+- Modify: src/auteur/beginner/application.py
+- Modify: src/auteur/beginner/promotion.py
+- Modify: src/auteur/beginner/composition.py
+- Modify: tests/test_beginner_workspace_authority.py
+- Modify: tests/test_beginner_workspace_mapping.py
+- Modify: tests/test_beginner_workspace_qualification.py
+
+**Interfaces:**
+- Consumes accepted Story Direction candidate + active mapping records.
+- Produces identity_semantic_projection() and promotion preview from current canonical Identity to selected-direction candidate plus deterministic composition mappings.
+
+- [ ] **Step 1: Write failing candidate/promotion tests**
+
+~~~python
+def test_identity_preview_starts_from_selected_discovery_candidate(tmp_path: Path) -> None:
+    app = app_after_direction_acceptance(tmp_path)
+    preview = app.projection().mapping_preview
+    assert preview.candidate_identity.core_answer == HYBRID_SELECTED_IDENTITY.core_answer
+    assert preview.candidate_identity.central_engine.conflict == HYBRID_SELECTED_IDENTITY.central_engine.conflict
+    assert preview.current_identity != preview.candidate_identity
+
+
+def test_accepting_identity_is_first_canonical_identity_write(tmp_path: Path) -> None:
+    app = app_after_direction_acceptance(tmp_path)
+    before = app.projection()
+    assert not (tmp_path / "story_identity.yaml").exists()
+    result = app.accept_story_identity(
+        command_id="accept-identity",
+        expected_session_version=before.session_version,
+    )
+    assert result.accepted is True
+    canonical = StoryIdentity.from_yaml(tmp_path / "story_identity.yaml")
+    assert canonical.central_engine.conflict == before.mapping_preview.candidate_identity.central_engine.conflict
+~~~
+
+Also add semantic-diff tests for core_answer, story_type, target_experience, central_engine, architecture_preferences, hard_constraints, not_this, open_questions, characters, and genre_profile.
+
+- [ ] **Step 2: Run and verify RED**
+
+~~~powershell
+python -m pytest tests/test_beginner_workspace_authority.py tests/test_beginner_workspace_mapping.py tests/test_beginner_workspace_qualification.py -k "selected_discovery or first_canonical or semantic_projection" -q --tb=short
+~~~
+
+Expected: FAIL because current preview starts from the default/canonical identity and semantic diff covers too few fields.
+
+- [ ] **Step 3: Compose mappings over the selected candidate**
+
+Change composition refresh to accept candidate_identity. Use active dimensions and compose mappings over the selected Discovery candidate rather than _default_identity().
+
+- [ ] **Step 4: Expand semantic Identity diff**
+
+Use:
+
+~~~python
+_SEMANTIC_IDENTITY_FIELDS = (
+    "core_answer",
+    "target_experience",
+    "story_type",
+    "central_engine",
+    "architecture_preferences",
+    "hard_constraints",
+    "not_this",
+    "open_questions",
+    "characters",
+    "genre_profile",
+)
+
+
+def identity_semantic_projection(identity: StoryIdentity) -> dict[str, object]:
+    dumped = identity.model_dump(mode="json")
+    return {field: dumped.get(field) for field in _SEMANTIC_IDENTITY_FIELDS}
+~~~
+
+Do not stale Structure from confidence, recommendation rationale, generated alternatives, or advisory metadata alone.
+
+- [ ] **Step 5: Keep promotion loss visible**
+
+Promotion preview groups:
+- becomes canonical;
+- remains downstream guidance;
+- preserved as provenance;
+- unresolved/not representable.
+
+Trope, character-function, and aesthetic meaning must not silently disappear.
+
+- [ ] **Step 6: Preserve authority/recovery implementation**
+
+Final promotion still crosses AcceptanceRegistry.accept(command_id=...). Retain:
+- durable promotion intent;
+- expected artifact revision guard;
+- owner recovery;
+- atomic canonical write + sidecar;
+- semantic-change-only downstream staleness.
+
+- [ ] **Step 7: Run and verify GREEN**
+
+~~~powershell
+python -m pytest tests/test_beginner_workspace_authority.py tests/test_beginner_workspace_mapping.py tests/test_beginner_workspace_qualification.py -k "selected_discovery or first_canonical or semantic_projection or staleness or recovery" -q --tb=short
+~~~
+
+Expected: PASS.
+
+- [ ] **Step 8: Commit**
+
+~~~bash
+git add src/auteur/beginner/application.py src/auteur/beginner/promotion.py src/auteur/beginner/composition.py tests/test_beginner_workspace_authority.py tests/test_beginner_workspace_mapping.py tests/test_beginner_workspace_qualification.py
+git commit -m "feat: promote selected discovery identity through authority"
+~~~
+
+---
+
+### Task 9: Add Optional Architecture Refinement and Pre-Identity Reanalysis
+
+**Files:**
+- Modify: src/auteur/beginner/architecture_models.py
+- Modify: src/auteur/beginner/architecture_analysis.py
+- Modify: src/auteur/beginner/dimensions.py
+- Modify: src/auteur/beginner/application.py
+- Modify: tests/test_beginner_architecture_analysis.py
+- Modify: tests/test_beginner_workspace_application.py
+
+**Interfaces:**
+- Produces confirm_architecture_component(), suppress_architecture_component(), restore_architecture_component(), rename_architecture_component(), add_architecture_component(), reanalyze_premise().
+
+- [ ] **Step 1: Write failing refinement tests**
+
+~~~python
+def test_suppressing_superhero_changes_guidance_without_touching_canon(tmp_path: Path) -> None:
+    app = rich_hybrid_app(tmp_path)
+    superhero = component_id(app, "Superhero fiction")
+    app.suppress_architecture_component(
+        component_id=superhero,
+        rationale="Keep powers as background only.",
+        command_id="suppress-superhero",
+        expected_session_version=app.projection().session_version,
+    )
+    assert component(app.projection(), superhero).activation == "suppressed"
+    assert "Superhero public identity" not in current_guidance_patterns(app)
+    assert app.projection().canonical_refs == ()
+
+
+def test_pre_identity_premise_reanalysis_invalidates_old_discovery(tmp_path: Path) -> None:
+    app = app_at_discovery(tmp_path)
+    old_id = app.session_store.load().discovery_recommendation.recommendation_id
+    app.reanalyze_premise(
+        premise=REVISED_HYBRID_PREMISE,
+        command_id="reanalyze",
+        expected_session_version=app.projection().session_version,
+    )
+    session = app.session_store.load()
+    assert session.premise == REVISED_HYBRID_PREMISE
+    assert session.discovery_recommendation is None
+    assert session.architecture_analysis.premise_fingerprint == premise_fingerprint(REVISED_HYBRID_PREMISE)
+    assert old_id not in json.dumps(session.model_dump(mode="json"))
+~~~
+
+- [ ] **Step 2: Run and verify RED**
+
+~~~powershell
+python -m pytest tests/test_beginner_architecture_analysis.py tests/test_beginner_workspace_application.py -k "suppress or restore or rename or reanalyze" -q --tb=short
+~~~
+
+Expected: FAIL.
+
+- [ ] **Step 3: Implement pure immutable adjustment functions**
+
+~~~python
+def suppress_component(analysis, component_id, rationale) -> NarrativeArchitectureAnalysis: ...
+def restore_component(analysis, component_id, rationale) -> NarrativeArchitectureAnalysis: ...
+def confirm_component(analysis, component_id, rationale) -> NarrativeArchitectureAnalysis: ...
+def rename_component(analysis, component_id, label, rationale) -> NarrativeArchitectureAnalysis: ...
+def add_author_component(
+    analysis,
+    *,
+    facet: ArchitectureFacet,
+    label: str,
+    role: ArchitectureRole,
+    rationale: str,
+) -> NarrativeArchitectureAnalysis: ...
+~~~
+
+Author-added components use CLEAR, AUTHOR_MODIFIED, ACTIVE, and explicit author rationale.
+
+- [ ] **Step 4: Reproject WorkingComposition after adjustment**
+
+Preserve valid author overrides and acknowledgement state by stable IDs. Remove derived mappings from suppressed components. Invalidate current Discovery recommendation because its basis changed.
+
+- [ ] **Step 5: Implement pre-Identity reanalyze_premise()**
+
+Transaction:
+
+~~~text
+claim receipt
+→ analyze new premise
+→ reconcile prior author adjustments by facet + normalized concept
+→ replace session premise + architecture analysis
+→ reproject WorkingComposition
+→ clear Discovery recommendation/selection
+→ reset noncanonical Discover state
+→ update basis digest
+→ complete receipt
+~~~
+
+Reject direct reanalysis after canonical Story Identity acceptance. Task 12 handles revision-overlay reanalysis.
+
+- [ ] **Step 6: Run and verify GREEN**
+
+~~~powershell
+python -m pytest tests/test_beginner_architecture_analysis.py tests/test_beginner_workspace_application.py -k "suppress or restore or rename or reanalyze" -q --tb=short
+~~~
+
+Expected: PASS.
+
+- [ ] **Step 7: Commit**
+
+~~~bash
+git add src/auteur/beginner/architecture_models.py src/auteur/beginner/architecture_analysis.py src/auteur/beginner/dimensions.py src/auteur/beginner/application.py tests/test_beginner_architecture_analysis.py tests/test_beginner_workspace_application.py
+git commit -m "feat: refine inferred narrative architecture"
+~~~
