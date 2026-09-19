@@ -598,6 +598,7 @@ git commit -m "feat: persist premise architecture analysis"
 - Modify: tests/test_beginner_workspace_mapping.py
 - Modify: tests/test_beginner_workspace_application.py
 - Modify: tests/test_beginner_workspace_qualification.py
+- Modify: tests/fixtures/beginner_hybrid_mystery.py
 
 **Interfaces:**
 - Produces GuidanceActivation, WorkingDimension.activation, composition_from_analysis(), active_dimensions().
@@ -613,10 +614,11 @@ def test_inferred_dimensions_are_active_without_author_confirmation() -> None:
 
 
 def test_active_unconfirmed_dimension_changes_guidance_but_not_canon(tmp_path: Path) -> None:
-    app = create_hybrid_app_without_manual_confirmation(tmp_path)
-    guidance = current_hybrid_guidance(app)
-    assert "Superhero public identity" in guidance.context_guidance.patterns
-    assert app.projection().canonical_refs == ()
+    app = create_hybrid_app(tmp_path)
+    projection = app.projection()
+    assert projection.guidance_inspector is not None
+    assert "Superhero public identity" in projection.guidance_inspector.context_guidance.patterns
+    assert projection.canonical_refs == ()
 ~~~
 
 - [ ] **Step 2: Run and verify RED**
@@ -653,6 +655,26 @@ theme/motif                    → analysis/provenance only unless later mapping
 ~~~
 
 Stable WorkingDimension IDs derive from ArchitectureComponent.component_id. Preserve premise evidence and registered pack provenance.
+
+Update tests/fixtures/beginner_hybrid_mystery.py so create_hybrid_app() no longer confirms every dimension manually:
+
+~~~python
+def create_hybrid_app(tmp_path: Path) -> BeginnerWorkspaceApplication:
+    app = BeginnerWorkspaceApplication(
+        tmp_path,
+        "hybrid-mystery",
+        architecture_analyzer=StaticArchitectureAnalyzer(HYBRID_ANALYSIS),
+    )
+    app.create_workspace(
+        command_id="create-hybrid-mystery",
+        project_id="hybrid-project",
+        premise=HYBRID_MYSTERY_PREMISE,
+        guidance_genre="mystery",
+    )
+    return app
+~~~
+
+Change application._initial_composition() so a current architecture_analysis uses composition_from_analysis(); retain propose_dimensions() only for legacy sessions without analysis.
 
 - [ ] **Step 5: Use active dimensions for guidance**
 
@@ -704,7 +726,7 @@ Expected: PASS.
 - [ ] **Step 9: Commit**
 
 ~~~bash
-git add src/auteur/beginner/contracts.py src/auteur/beginner/dimensions.py src/auteur/beginner/application.py src/auteur/beginner/guidance.py tests/test_beginner_workspace_mapping.py tests/test_beginner_workspace_application.py tests/test_beginner_workspace_qualification.py
+git add src/auteur/beginner/contracts.py src/auteur/beginner/dimensions.py src/auteur/beginner/application.py src/auteur/beginner/guidance.py tests/test_beginner_workspace_mapping.py tests/test_beginner_workspace_application.py tests/test_beginner_workspace_qualification.py tests/fixtures/beginner_hybrid_mystery.py
 git commit -m "feat: activate inferred architecture for working guidance"
 ~~~
 
@@ -716,7 +738,7 @@ git commit -m "feat: activate inferred architecture for working guidance"
 - Create: src/auteur/beginner/architecture_projection.py
 - Modify: src/auteur/beginner/projections.py
 - Modify: src/auteur/beginner/server.py
-- Create/Modify: tests/test_beginner_workspace_projections.py
+- Create: tests/test_beginner_workspace_projections.py
 - Modify: tests/test_beginner_workspace_server.py
 
 **Interfaces:**
@@ -736,7 +758,8 @@ def test_story_orientation_leads_with_architecture_not_stage_counts() -> None:
     assert projection.authority_status == "DERIVED / NOT CANON"
 
 
-def test_story_map_and_navigator_share_component_ids() -> None:
+def test_story_map_and_navigator_share_component_ids(tmp_path: Path) -> None:
+    app = create_hybrid_app(tmp_path)
     projection = app.projection()
     compact = {
         item.component_id
@@ -987,7 +1010,7 @@ git commit -m "feat: adapt story discovery for beginner direction search"
 
 ~~~python
 def test_fresh_workspace_starts_with_architecture_not_discovery_card(tmp_path: Path) -> None:
-    app = rich_hybrid_app(tmp_path)
+    app = create_hybrid_app(tmp_path)
     projection = app.projection()
     assert projection.story_orientation is not None
     assert projection.primary_surface == "architecture"
@@ -997,7 +1020,7 @@ def test_fresh_workspace_starts_with_architecture_not_discovery_card(tmp_path: P
 
 def test_continue_from_architecture_generates_discovery_once(tmp_path: Path) -> None:
     recommender = CountingDiscoveryRecommender(HYBRID_DISCOVERY)
-    app = rich_hybrid_app(tmp_path, discovery_recommender=recommender)
+    app = create_hybrid_app(tmp_path, discovery_recommender=recommender)
     result = app.continue_from_architecture(
         command_id="continue-architecture",
         expected_session_version=app.projection().session_version,
@@ -1238,7 +1261,7 @@ git commit -m "feat: promote selected discovery identity through authority"
 
 ~~~python
 def test_suppressing_superhero_changes_guidance_without_touching_canon(tmp_path: Path) -> None:
-    app = rich_hybrid_app(tmp_path)
+    app = create_hybrid_app(tmp_path)
     superhero = component_id(app, "Superhero fiction")
     app.suppress_architecture_component(
         component_id=superhero,
