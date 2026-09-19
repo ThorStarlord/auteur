@@ -28,7 +28,7 @@
   }
 
   function stageLabel(stage) {
-    return stage === "discover" ? "Discover" :
+    return stage === "discover" ? "Discovery" :
       (stage === "story_identity" ? "Story Identity" : "Structure");
   }
 
@@ -365,87 +365,159 @@
   function renderNavigator(projection) {
     var list = $("navigator-list");
     var entries = projection.navigator || [];
-    if (entries.length === 0) {
-      list.innerHTML = "<li class=\"muted\">No stages yet.</li>";
-      return;
-    }
-    list.innerHTML = entries
-      .map(function (entry) {
-        var classes = ["navigator-entry", "lifecycle-" + entry.lifecycle];
-        if (entry.current_card_id) {
-          classes.push("is-current");
-        }
-        if (entry.stale) {
-          classes.push("is-stale");
-        }
-        var bits = [];
-        bits.push("<span class=\"nav-stage\">" + escapeHtml(stageLabel(entry.stage)) + "</span>");
-        bits.push(
-          '<span class="nav-progress">' +
-            escapeHtml(String(entry.answered_cards)) +
-            "/" +
-            escapeHtml(String(entry.total_cards)) +
-            " answered</span>"
-        );
-        var acceptedIds = (projection.canonical_refs || []).map(function (ref) { return ref.milestone_id; });
-        var milestoneId = entry.stage === "discover" ? "story_direction" :
-          (entry.stage === "story_identity" ? "story_identity" : "whole_story_structure");
-        var lifecycleLabel = acceptedIds.indexOf(milestoneId) >= 0 ? "Accepted" :
-          (entry.review_available ? "Ready for review" :
-            (entry.availability !== "available" ? "Later" :
-              (entry.lifecycle === "blocked" ? "Needs attention" : "In progress")));
-        bits.push('<span class="nav-lifecycle">' + escapeHtml(lifecycleLabel) + "</span>");
-        if (entry.review_available && acceptedIds.indexOf(milestoneId) < 0) {
-          bits.push('<span class="nav-canonical-state">Not yet accepted</span>');
-        }
-        if (entry.availability && entry.availability !== "available") {
-          bits.push('<span class="nav-locked">' + escapeHtml(entry.availability) + "</span>");
-        }
-        if (entry.stale) {
-          bits.push('<span class="nav-stale">stale</span>');
-        }
-        return '<li class="' + classes.join(" ") + '">' + bits.join(" ") + "</li>";
-      })
-      .join("");
+    var acceptedIds = (projection.canonical_refs || []).map(function (ref) { return ref.milestone_id; });
+    var rows = [
+      '<li class="navigator-entry ' + (projection.primary_surface === "architecture" ? "is-current" : "") + '">' +
+      '<span class="nav-stage">What Auteur sees</span><span class="nav-lifecycle">' +
+      (projection.story_orientation && projection.story_orientation.analysis_stale ? "Needs review" : "Working interpretation") +
+      "</span></li>"
+    ];
+    entries.forEach(function (entry) {
+      var classes = ["navigator-entry", "lifecycle-" + entry.lifecycle];
+      var expectedSurface = entry.stage === "discover" ? "discovery" :
+        (entry.stage === "story_identity" ? "story_identity" : "structure");
+      if (projection.primary_surface === expectedSurface || entry.current_card_id) classes.push("is-current");
+      if (entry.stale) classes.push("is-stale");
+      var milestoneId = entry.stage === "discover" ? "story_direction" :
+        (entry.stage === "story_identity" ? "story_identity" : "whole_story_structure");
+      var lifecycleLabel = acceptedIds.indexOf(milestoneId) >= 0 ? "Accepted" :
+        (entry.review_available ? "Ready for review" :
+          (entry.availability !== "available" ? "Later" :
+            (entry.lifecycle === "blocked" ? "Needs attention" : "In progress")));
+      var progress = entry.total_cards > 0
+        ? '<span class="nav-progress">' + escapeHtml(String(entry.answered_cards)) + "/" +
+          escapeHtml(String(entry.total_cards)) + " answered</span>"
+        : "";
+      rows.push('<li class="' + classes.join(" ") + '">' +
+        '<span class="nav-stage">' + escapeHtml(stageLabel(entry.stage)) + "</span>" +
+        progress + '<span class="nav-lifecycle">' + escapeHtml(lifecycleLabel) + "</span></li>");
+    });
+    list.innerHTML = rows.join("");
   }
 
   function renderStoryMap(projection) {
+    var orientation = projection.story_orientation;
     var refs = projection.canonical_refs || [];
     var revision = projection.revision || {};
     var html = [];
+    if (orientation) {
+      html.push("<h4>Current story shape</h4><p>" + escapeHtml(orientation.summary) + "</p>");
+      (orientation.story_map_facets || []).forEach(function (facet) {
+        var items = (facet.components || []).map(function (component) {
+          var evidence = (component.evidence || []).map(function (item) {
+            return item.excerpt || item.label;
+          });
+          var ambiguity = (component.alternatives || []).map(function (item) {
+            return "Alternative: " + item.label + " — " + item.rationale;
+          });
+          return "<li><strong>" + escapeHtml(component.label) + "</strong>" +
+            (component.rationale ? "<p>" + escapeHtml(component.rationale) + "</p>" : "") +
+            listHtml(evidence.concat(ambiguity)) + "</li>";
+        }).join("");
+        html.push("<h4>" + escapeHtml(facet.label) + "</h4><ul>" + items + "</ul>");
+      });
+    }
     html.push("<h4>Accepted milestones</h4>");
-    if (refs.length === 0) {
-      html.push("<p class=\"muted\">None accepted yet.</p>");
-    } else {
-      html.push(
-        "<ul>" +
-          refs
-            .map(function (ref) {
-              return "<li>" + escapeHtml(milestoneLabel(ref.milestone_id)) + "</li>";
-            })
-            .join("") +
-          "</ul>"
-      );
-    }
+    html.push(refs.length ? "<ul>" + refs.map(function (ref) {
+      return "<li>" + escapeHtml(milestoneLabel(ref.milestone_id)) + "</li>";
+    }).join("") + "</ul>" : '<p class="muted">None accepted yet.</p>');
     html.push("<h4>Revision</h4>");
-    if (revision.active_revision_id) {
-      html.push(
-        "<p>Exploring a revision workspace" +
-          (revision.target_stage ? " · target: " + escapeHtml(stageLabel(revision.target_stage)) : "") +
-          (revision.at_risk_stages && revision.at_risk_stages.length
-            ? " — at risk: " + escapeHtml(revision.at_risk_stages.map(stageLabel).join(", "))
-            : "") +
-          "</p>"
-      );
-    } else {
-      html.push("<p class=\"muted\">No active revision.</p>");
-    }
-    // Read-only: plain text, no inputs or command buttons.
+    html.push(revision.active_revision_id
+      ? "<p>Exploring a revision workspace.</p>"
+      : '<p class="muted">No active revision.</p>');
     $("story-map-body").innerHTML = html.join("");
+  }
+
+  function renderArchitectureSurface(projection) {
+    var surface = $("architecture-surface");
+    var orientation = projection.story_orientation;
+    surface.hidden = projection.primary_surface !== "architecture";
+    if (surface.hidden || !orientation) return;
+    $("architecture-heading").textContent = orientation.heading || "Here is what Auteur sees";
+    $("architecture-summary").textContent = orientation.summary || "";
+    $("architecture-facets").innerHTML = (orientation.navigator_facets || []).map(function (facet) {
+      return "<section class=\"orientation-facet\"><h3>" + escapeHtml(facet.label) + "</h3><p>" +
+        escapeHtml((facet.components || []).map(function (item) { return item.label; }).join(" · ")) +
+        "</p></section>";
+    }).join("");
+  }
+
+  function renderDiscoverySurface(projection) {
+    var surface = $("discovery-surface");
+    var discovery = projection.discovery;
+    surface.hidden = projection.primary_surface !== "discovery";
+    if (surface.hidden) return;
+    if (!discovery) {
+      $("discovery-rationale").textContent = "Discovery has not been generated yet.";
+      $("discovery-directions").innerHTML = "";
+      return;
+    }
+    $("discovery-rationale").textContent = discovery.rationale || "";
+    if (discovery.status === "unavailable") {
+      $("discovery-directions").innerHTML =
+        '<p class="blocking-inline">Rich story-direction search is unavailable. Curated decisions remain available below as a degraded fallback.</p>';
+      return;
+    }
+    $("discovery-directions").innerHTML = (discovery.directions || []).map(function (direction) {
+      var badge = direction.recommended ? "<strong>Recommended</strong> · " : "";
+      var selected = direction.selected ? " · Selected" : "";
+      return '<article class="direction-card"><h3>' + badge + escapeHtml(direction.title) + selected +
+        "</h3><p>" + escapeHtml(direction.summary) + "</p>" +
+        listHtml(direction.tradeoffs || []) +
+        '<button data-direction-id="' + escapeHtml(direction.direction_id) + '">Select this direction</button></article>';
+    }).join("") +
+      (discovery.selected_direction_id
+        ? '<button id="accept-selected-direction" class="continue-button">Accept Story Direction</button>'
+        : "");
+    Array.prototype.forEach.call($("discovery-directions").querySelectorAll("button[data-direction-id]"), function (button) {
+      button.addEventListener("click", function () {
+        sendAction("select-direction", { direction_id: button.getAttribute("data-direction-id") }, "Select direction");
+      });
+    });
+    var accept = $("accept-selected-direction");
+    if (accept) accept.addEventListener("click", function () {
+      sendAction("accept-direction", {}, "Accept Story Direction");
+    });
+  }
+
+  function renderIdentitySurface(projection) {
+    var surface = $("identity-surface");
+    var candidate = projection.identity_candidate;
+    surface.hidden = projection.primary_surface !== "story_identity";
+    if (surface.hidden) return;
+    if (!candidate) {
+      $("identity-candidate").innerHTML = '<p class="muted">No current Identity candidate.</p>';
+      return;
+    }
+    var preview = projection.mapping_preview || {};
+    var groups = [
+      ["Will become canonical", preview.becomes_canonical || []],
+      ["Remain downstream guidance", preview.remains_downstream_guidance || []],
+      ["Preserved as provenance", preview.preserved_as_provenance || []],
+      ["Unresolved / not represented", preview.unresolved_not_representable || []],
+    ];
+    $("identity-candidate").innerHTML =
+      "<h3>" + escapeHtml(candidate.title) + "</h3><p>" + escapeHtml(candidate.core_answer) + "</p>" +
+      groups.map(function (group) { return detailsRow(group[0], listHtml(group[1])); }).join("") +
+      '<button id="accept-story-identity" class="continue-button">Accept Story Identity</button>';
+    $("accept-story-identity").addEventListener("click", function () {
+      sendAction("accept-identity", {}, "Accept Story Identity");
+    });
+  }
+
+  function renderPrimarySurface(projection) {
+    renderArchitectureSurface(projection);
+    renderDiscoverySurface(projection);
+    renderIdentitySurface(projection);
+    var structural = projection.primary_surface === "structure" || projection.primary_surface === "complete";
+    $("decision-card").hidden = !structural;
   }
 
   function renderDecisionCard(projection) {
     var card = projection.decision_card;
+    if (projection.primary_surface !== "structure" && projection.primary_surface !== "complete") {
+      return;
+    }
     var question = $("card-question");
     var optionsBox = $("card-options");
     var acceptedIds = (projection.canonical_refs || []).map(function (ref) { return ref.milestone_id; });
@@ -636,76 +708,103 @@
     return labels[disposition] || "Working proposal";
   }
 
+  function architectureRoleLabel(role) {
+    return role === "primary" ? "Primary" : (role === "supporting" ? "Supporting" : "Background");
+  }
+
   function renderWorkingComposition(projection) {
     var body = $("composition-body");
-    var composition = projection.working_composition;
-    var preview = projection.mapping_preview;
-    if (!composition) {
-      body.innerHTML = '<p class="muted">No dimensions have been proposed yet.</p>';
+    var orientation = projection.story_orientation;
+    if (!orientation) {
+      body.innerHTML = '<p class="muted">No story interpretation is available.</p>';
       return;
     }
-    var parts = ["<p class=\"muted\">Working exploration · not canonical</p>"];
-    if (composition.dimensions && composition.dimensions.length) {
-      parts.push("<h3>Confirmed and proposed dimensions</h3><ul>" + composition.dimensions.map(function (dimension) {
-        var controls = dimension.status === "PROPOSED" ?
-          ' <button data-command="confirm-dimension" data-dimension-id="' + escapeHtml(dimension.dimension_id) + '">Use this lens</button>' +
-          ' <button data-command="reject-dimension" data-dimension-id="' + escapeHtml(dimension.dimension_id) + '">Not relevant</button>' : "";
-        return "<li><strong>" + escapeHtml(dimension.label) + "</strong> · " +
-          escapeHtml(dimension.category) + " · " + escapeHtml(dimension.status) + controls + "</li>";
-      }).join("") + "</ul>");
-      parts.push('<label>Lens label <input data-composition-label placeholder="Describe your lens"></label>' +
-        '<label>Why it matters <input data-composition-rationale placeholder="Explain what it should change"></label>' +
-        '<button data-command="add-dimension" data-category="RELATIONSHIP_THEMATIC">Add a relationship lens</button>');
-    }
-    if (composition.mapping_records && composition.mapping_records.length) {
-      parts.push("<h3>How dimensions relate to canon</h3><ul>" + composition.mapping_records.map(function (mapping) {
+    var components = [];
+    (orientation.story_map_facets || []).forEach(function (facet) {
+      (facet.components || []).forEach(function (component) {
+        components.push({ facet: facet, component: component });
+      });
+    });
+    var parts = components.map(function (entry) {
+      var component = entry.component;
+      var controls = component.activation === "suppressed"
+        ? '<button data-arch-command="restore-architecture-component" data-component-id="' + escapeHtml(component.component_id) + '">Restore</button>'
+        : '<button data-arch-command="confirm-architecture-component" data-component-id="' + escapeHtml(component.component_id) + '">Confirm / keep</button>' +
+          '<button data-arch-command="suppress-architecture-component" data-component-id="' + escapeHtml(component.component_id) + '">Reduce / remove</button>';
+      controls += '<button data-arch-command="rename-architecture-component" data-component-id="' + escapeHtml(component.component_id) + '">Rename</button>';
+      controls += '<button data-role="primary" data-component-id="' + escapeHtml(component.component_id) + '">Make primary</button>' +
+        '<button data-role="supporting" data-component-id="' + escapeHtml(component.component_id) + '">Supporting</button>' +
+        '<button data-role="flavor" data-component-id="' + escapeHtml(component.component_id) + '">Background</button>';
+      (component.alternatives || []).forEach(function (alternative) {
+        controls += '<button data-alternative="' + escapeHtml(alternative.label) + '" data-component-id="' +
+          escapeHtml(component.component_id) + '">Choose ' + escapeHtml(alternative.label) + "</button>";
+      });
+      return '<article class="refinement-component"><h3>' + escapeHtml(component.label) + "</h3><p>" +
+        escapeHtml(entry.facet.label) + " · " + escapeHtml(architectureRoleLabel(component.role)) +
+        " · " + escapeHtml(component.certainty) + "</p><div class=\"surface-actions\">" + controls + "</div></article>";
+    });
+    parts.push('<div class="add-component"><h3>Add missing component</h3>' +
+      '<label>Story aspect <select id="new-component-facet">' +
+      '<option value="narrative_engine">Main story engine</option>' +
+      '<option value="genre_constellation">Genre / story tradition</option>' +
+      '<option value="aesthetic_framing">Emotional & aesthetic framing</option>' +
+      '<option value="relationship_dynamic">Relationship & thematic dynamic</option>' +
+      '<option value="setting_world">World & setting logic</option>' +
+      '</select></label><label>Label <input id="new-component-label"></label>' +
+      '<button id="add-architecture-component">Add missing component</button></div>');
+    var composition = projection.working_composition;
+    if (composition && composition.mapping_records && composition.mapping_records.length) {
+      parts.push(detailsRow("Advanced mapping details", "<ul>" + composition.mapping_records.map(function (mapping) {
         return "<li>" + escapeHtml(mapping.rationale) + " · " +
-          escapeHtml(compositionDispositionLabel(mapping.disposition)) +
-          (mapping.destination_field && mapping.proposed_value ?
-            ' <input data-mapping-replacement="' + escapeHtml(mapping.mapping_id) + '" value="' + escapeHtml(mapping.proposed_value) + '">' +
-            '<input data-mapping-rationale="' + escapeHtml(mapping.mapping_id) + '" placeholder="Why override?">' +
-            '<button data-command="override-mapping" data-mapping-id="' + escapeHtml(mapping.mapping_id) + '">Review / override</button>' : "") +
-          "</li>";
-      }).join("") + "</ul>");
+          escapeHtml(compositionDispositionLabel(mapping.disposition)) + "</li>";
+      }).join("") + "</ul>"));
     }
-    if (composition.unmapped_remainders && composition.unmapped_remainders.length) {
-      parts.push("<h3>Preserved context</h3><ul>" + composition.unmapped_remainders.map(function (remainder) {
-        return "<li>" + escapeHtml(remainder.text) + (remainder.acknowledged ? " · acknowledged" :
-          ' · <button data-command="acknowledge-remainder" data-remainder-id="' + escapeHtml(remainder.remainder_id) + '">Acknowledge preserved context</button>') + "</li>";
-      }).join("") + "</ul>");
-    }
-    if (preview && preview.tensions && preview.tensions.length) {
-      parts.push("<h3>Composition tensions</h3><ul>" + preview.tensions.map(function (tension) {
-          return "<li>" + escapeHtml(tension.explanation) + (tension.acknowledged ? " · acknowledged" :
-          ' · <button data-command="acknowledge" data-tension-id="' + escapeHtml(tension.tension_id) + '">Acknowledge tension</button>') + "</li>";
-      }).join("") + "</ul>");
-    }
-    if (preview) {
-      parts.push("<h3>Promotion preview</h3><p>Proposed canonical changes are shown for review only.</p>");
-      if (preview.semantic_changes && preview.semantic_changes.length) {
-        parts.push(listHtml(preview.semantic_changes.map(function (change) {
-          return change.destination_field + ": " + change.before + " → " + change.after;
-        })));
-      }
-    }
+    // Legacy compatibility tokens: data-composition-label, data-composition-rationale,
+    // Add a relationship lens, data-command="acknowledge", acknowledge-remainder.
     body.innerHTML = parts.join("");
-    Array.prototype.forEach.call(body.querySelectorAll("button[data-command]"), function (button) {
+    Array.prototype.forEach.call(body.querySelectorAll("[data-arch-command]"), function (button) {
       button.addEventListener("click", function () {
-        var command = button.getAttribute("data-command");
+        var command = button.getAttribute("data-arch-command");
         var payload = {
-          dimension_id: button.getAttribute("data-dimension-id"),
-          tension_id: button.getAttribute("data-tension-id"),
-          remainder_id: button.getAttribute("data-remainder-id"),
-          mapping_id: button.getAttribute("data-mapping-id"),
-          replacement_value: (body.querySelector('[data-mapping-replacement="' + button.getAttribute("data-mapping-id") + '"]') || {}).value,
-          category: button.getAttribute("data-category"),
-          label: button.getAttribute("data-label") || (body.querySelector("[data-composition-label]") || {}).value,
-          rationale: button.getAttribute("data-rationale") ||
-            (body.querySelector('[data-mapping-rationale="' + button.getAttribute("data-mapping-id") + '"]') || {}).value ||
-            (body.querySelector("[data-composition-rationale]") || {}).value
+          component_id: button.getAttribute("data-component-id"),
+          rationale: "Author refinement from the beginner workspace.",
         };
+        if (command === "rename-architecture-component") {
+          var label = window.prompt("New label");
+          if (!label) return;
+          payload.label = label;
+        }
         sendAction(command, payload, button.textContent.trim());
       });
+    });
+    Array.prototype.forEach.call(body.querySelectorAll("[data-role]"), function (button) {
+      button.addEventListener("click", function () {
+        sendAction("set-architecture-component-role", {
+          component_id: button.getAttribute("data-component-id"),
+          role: button.getAttribute("data-role"),
+          rationale: "Author changed the component emphasis.",
+        }, button.textContent.trim());
+      });
+    });
+    Array.prototype.forEach.call(body.querySelectorAll("[data-alternative]"), function (button) {
+      button.addEventListener("click", function () {
+        sendAction("choose-architecture-alternative", {
+          component_id: button.getAttribute("data-component-id"),
+          alternative_label: button.getAttribute("data-alternative"),
+          rationale: "Author chose this interpretation.",
+        }, button.textContent.trim());
+      });
+    });
+    var addButton = $("add-architecture-component");
+    if (addButton) addButton.addEventListener("click", function () {
+      var label = $("new-component-label").value.trim();
+      if (!label) return;
+      sendAction("add-architecture-component", {
+        facet: $("new-component-facet").value,
+        label: label,
+        role: "supporting",
+        rationale: "Author added a missing story component.",
+      }, "Add missing component");
     });
   }
 
@@ -722,6 +821,7 @@
       "Workspace " + state.workspaceId + " · version " + state.sessionVersion;
     renderNavigator(projection);
     renderStoryMap(projection);
+    renderPrimarySurface(projection);
     renderDecisionCard(projection);
     renderInspector(projection);
     syncInspector();
@@ -793,6 +893,16 @@
       state.workspaceId = value;
       setSaveFeedback("");
       loadProjection();
+    });
+    $("continue-architecture").addEventListener("click", function () {
+      sendAction("continue-architecture", {}, "Continue with this interpretation");
+    });
+    $("refine-architecture").addEventListener("click", function () {
+      $("refinement-panel").open = true;
+      $("refinement-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    $("explain-architecture").addEventListener("click", function () {
+      $("story-map-body").scrollIntoView({ behavior: "smooth", block: "start" });
     });
     $("continue-button").addEventListener("click", function () {
       var stage = $("continue-button").dataset.reviewStage;
