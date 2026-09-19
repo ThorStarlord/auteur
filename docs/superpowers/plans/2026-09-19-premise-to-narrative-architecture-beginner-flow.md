@@ -293,7 +293,7 @@ Investigation and revelation    narrative_engine / primary
 Superhero fiction               genre_constellation / supporting
 Superhero public identity       setting_world / supporting
 Relationship betrayal           relationship_dynamic / supporting
-Erotic betrayal melodrama       aesthetic_framing / supporting
+Erotic betrayal melodrama       aesthetic_framing / supporting / uncertain
 Protagonist / investigator      character_function / supporting
 Intimate partner / uncertainty  character_function / supporting
 Rival / disruptor               character_function / supporting
@@ -302,7 +302,7 @@ Suspicious behavior             trope_family / supporting
 Revelation / confrontation      trope_family / supporting
 ~~~
 
-Use premise excerpts as evidence, provider_id="fixture", model_id="fixture-model", and keep every component noncanonical. End the fixture factory section with:
+For the "Erotic betrayal melodrama" component, set certainty=UNCERTAIN and alternatives=(ArchitectureAlternative(label="Campy erotic melodrama", rationale="The premise supports heightened spectacle but does not fully settle comic-camp treatment."),). Use premise excerpts as evidence, provider_id="fixture", model_id="fixture-model", and keep every component noncanonical. End the fixture factory section with:
 
 ~~~python
 HYBRID_ANALYSIS = hybrid_analysis()
@@ -640,6 +640,11 @@ class GuidanceActivation(str, Enum):
 Add activation: GuidanceActivation = ACTIVE to WorkingDimension. Keep DimensionStatus as lifecycle/review history.
 
 - [ ] **Step 4: Implement composition_from_analysis()**
+
+Projection eligibility:
+- component.activation must be ACTIVE;
+- component.role must be PRIMARY or SUPPORTING;
+- FLAVOR remains visible in the architecture analysis/Story Map but does not enter WorkingComposition by default.
 
 Projection rules:
 
@@ -1580,6 +1585,54 @@ def test_suppressing_superhero_changes_guidance_without_touching_canon(tmp_path:
     assert superhero_after.activation == "suppressed"
     assert "Superhero fiction" not in active_labels
     assert after.canonical_refs == ()
+
+
+def test_choose_ambiguous_alternative_is_working_only(tmp_path: Path) -> None:
+    app = create_hybrid_app(tmp_path)
+    framing = next(
+        item
+        for facet in app.projection().story_orientation.story_map_facets
+        for item in facet.components
+        if item.label == "Erotic betrayal melodrama"
+    )
+    app.choose_architecture_alternative(
+        component_id=framing.component_id,
+        alternative_label="Campy erotic melodrama",
+        rationale="Use the more theatrical framing.",
+        command_id="choose-campy-framing",
+        expected_session_version=app.projection().session_version,
+    )
+    projection = app.projection()
+    updated = next(
+        item
+        for facet in projection.story_orientation.story_map_facets
+        for item in facet.components
+        if item.component_id == framing.component_id
+    )
+    assert updated.label == "Campy erotic melodrama"
+    assert projection.canonical_refs == ()
+
+
+def test_reducing_component_to_flavor_removes_it_from_working_composition(tmp_path: Path) -> None:
+    app = create_hybrid_app(tmp_path)
+    superhero = next(
+        item
+        for facet in app.projection().story_orientation.story_map_facets
+        for item in facet.components
+        if item.label == "Superhero fiction"
+    )
+    app.set_architecture_component_role(
+        component_id=superhero.component_id,
+        role=ArchitectureRole.FLAVOR,
+        rationale="Keep superhero elements as background flavor.",
+        command_id="reduce-superhero",
+        expected_session_version=app.projection().session_version,
+    )
+    projection = app.projection()
+    assert "Superhero fiction" not in {
+        dimension.label for dimension in projection.working_composition.dimensions
+    }
+    assert projection.canonical_refs == ()
 
 
 def test_pre_identity_premise_reanalysis_invalidates_old_discovery(tmp_path: Path) -> None:
