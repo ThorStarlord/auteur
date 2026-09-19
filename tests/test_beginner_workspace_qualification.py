@@ -481,6 +481,10 @@ def test_restart_recovery_uses_owner_recovery_without_second_promotion(tmp_path:
     first_app.authority = first_registry
     with pytest.raises(_ProcessCrash, match="process terminated"):
         _accept_identity(first_app, "restart")
+    receipt = first_app.receipt_store.load("restart-accept-identity")
+    assert receipt.promotion_intent is not None
+    assert receipt.promotion_intent["semantic_change"] is True
+    assert receipt.promotion_intent["expected_artifact_revision"] == 0
 
     recovering_owner = _RecoveringOwner()
     second_registry = AcceptanceRegistry(tmp_path)

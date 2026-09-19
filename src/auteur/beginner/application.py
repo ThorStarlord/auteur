@@ -1821,6 +1821,11 @@ class BeginnerWorkspaceApplication:
                 "workspace_id": self.workspace_id,
                 "milestone": milestone_id,
                 "content_fingerprint": fingerprint,
+                "candidate_id": candidate,
+                "semantic_change": bool(semantic_change),
+                "expected_artifact_revision": self._canonical_artifact_revision(
+                    milestone_id, candidate_id=candidate
+                ),
             }
 
         # Crash-recovery probe BEFORE gating: a retry that finds an in-progress
@@ -2313,10 +2318,35 @@ class BeginnerWorkspaceApplication:
         """
         if existing.status != "in_progress":
             return None
-        if promotion_intent is not None and existing.promotion_intent != promotion_intent:
-            raise BeginnerPersistenceError(f"command intent conflict for existing command_id {command_id}")
+        stored_intent = existing.promotion_intent or {}
+        if promotion_intent is not None:
+            stable_intent_keys = (
+                "workspace_id",
+                "milestone",
+                "content_fingerprint",
+                "candidate_id",
+                "expected_artifact_revision",
+            )
+            if any(
+                stored_intent.get(key) != promotion_intent.get(key)
+                for key in stable_intent_keys
+            ):
+                raise BeginnerPersistenceError(f"command intent conflict for existing command_id {command_id}")
+        recovery_candidate = stored_intent.get("candidate_id", candidate)
+        if not isinstance(recovery_candidate, str):
+            return None
+        candidate = recovery_candidate
+        if "semantic_change" in stored_intent:
+            semantic_change = bool(stored_intent["semantic_change"])
+        expected_artifact_revision = stored_intent.get("expected_artifact_revision")
         completed = self.authority.journal.find_completed(command_id)
         if completed is None:
+            if isinstance(expected_artifact_revision, int):
+                current_artifact_revision = self._canonical_artifact_revision(
+                    milestone_id, candidate_id=candidate
+                )
+                if expected_artifact_revision > 0 and current_artifact_revision != expected_artifact_revision + 1:
+                    return None
             can_recover = (
                 callable(getattr(self.authority, "can_recover", None))
                 and self.authority.can_recover(target)
@@ -2338,6 +2368,15 @@ class BeginnerWorkspaceApplication:
             or completed.get("candidate_id") != candidate
         ):
             return None
+        completed_result = completed.get("result")
+        if isinstance(expected_artifact_revision, int):
+            recovered_revision = (
+                completed_result.get("revision")
+                if isinstance(completed_result, Mapping)
+                else None
+            )
+            if recovered_revision is not None and recovered_revision != expected_artifact_revision + 1:
+                return None
         journal_result = completed.get("result")
         reference = self._domain_reference(
             journal_result if isinstance(journal_result, Mapping) else {},
@@ -2383,6 +2422,17 @@ class BeginnerWorkspaceApplication:
             domain_result_reference=cast(JsonObject, dict(reference)),
         )
         return result
+
+    def _canonical_artifact_revision(self, milestone_id: str, *, candidate_id: str) -> int | None:
+        """Return the durable pre-accept revision for an authority artifact."""
+        if milestone_id != "story_identity" or not candidate_id.startswith("composed:"):
+            return None
+        from ..provenance import ArtifactStore
+
+        path = self.session_store.workspace_root / "story_identity.yaml"
+        if not path.exists():
+            return 0
+        return int(ArtifactStore(self.session_store.workspace_root).status(path, milestone_id).revision)
 
     def _replay_accept(self, command_id: str) -> AcceptResult | None:
         """Return the recorded accept result for a completed command_id, if any."""
