@@ -383,6 +383,18 @@ def test_deterministic_fallback_does_not_invent_erotic_psychology() -> None:
     assert analysis.availability_note is not None
 ~~~
 
+Add this exact premise variant to tests/fixtures/beginner_hybrid_mystery.py for the reanalysis test:
+
+~~~python
+REVISED_HYBRID_MYSTERY_PREMISE = (
+    "A celebrated masked superhero begins investigating inconsistencies around an intimate partner "
+    "and a powerful rival. Each clue threatens the hero's secret public identity and changes how "
+    "the hero understands trust, jealousy, and possible relationship betrayal. The story should "
+    "remain a fair mystery while treating the private discoveries as campy erotic-betrayal "
+    "melodrama rather than psychological realism."
+)
+~~~
+
 - [ ] **Step 2: Run and verify RED**
 
 ~~~powershell
@@ -784,7 +796,7 @@ Expected: FAIL.
 
 - [ ] **Step 3: Build pure projections**
 
-Use one analysis as source. Navigator includes active primary/supporting labels, certainty, review state. Story Map includes all components plus rationale, evidence, alternatives. Neither projection is persisted.
+Use one analysis as source. Navigator includes active primary/supporting labels, certainty, review state, and activation. Story Map includes all components plus activation, rationale, evidence, and alternatives. Neither projection is persisted.
 
 Exact labels:
 
@@ -1526,6 +1538,7 @@ git commit -m "feat: promote selected discovery identity through authority"
 - Modify: src/auteur/beginner/application.py
 - Modify: tests/test_beginner_architecture_analysis.py
 - Modify: tests/test_beginner_workspace_application.py
+- Modify: tests/fixtures/beginner_hybrid_mystery.py
 
 **Interfaces:**
 - Produces confirm_architecture_component(), suppress_architecture_component(), restore_architecture_component(), rename_architecture_component(), add_architecture_component(), reanalyze_premise().
@@ -1535,16 +1548,36 @@ git commit -m "feat: promote selected discovery identity through authority"
 ~~~python
 def test_suppressing_superhero_changes_guidance_without_touching_canon(tmp_path: Path) -> None:
     app = create_hybrid_app(tmp_path)
-    superhero = component_id(app, "Superhero fiction")
+    before = app.projection()
+    superhero = next(
+        item
+        for facet in before.story_orientation.story_map_facets
+        for item in facet.components
+        if item.label == "Superhero fiction"
+    )
+
     app.suppress_architecture_component(
-        component_id=superhero,
+        component_id=superhero.component_id,
         rationale="Keep powers as background only.",
         command_id="suppress-superhero",
-        expected_session_version=app.projection().session_version,
+        expected_session_version=before.session_version,
     )
-    assert component(app.projection(), superhero).activation == "suppressed"
-    assert "Superhero public identity" not in current_guidance_patterns(app)
-    assert app.projection().canonical_refs == ()
+
+    after = app.projection()
+    superhero_after = next(
+        item
+        for facet in after.story_orientation.story_map_facets
+        for item in facet.components
+        if item.component_id == superhero.component_id
+    )
+    active_labels = {
+        dimension.label
+        for dimension in after.working_composition.dimensions
+        if dimension.activation is GuidanceActivation.ACTIVE
+    }
+    assert superhero_after.activation == "suppressed"
+    assert "Superhero fiction" not in active_labels
+    assert after.canonical_refs == ()
 
 
 def test_pre_identity_premise_reanalysis_invalidates_old_discovery(tmp_path: Path) -> None:
@@ -1751,7 +1784,7 @@ Expected: PASS.
 - [ ] **Step 7: Commit**
 
 ~~~bash
-git add src/auteur/beginner/architecture_models.py src/auteur/beginner/architecture_analysis.py src/auteur/beginner/dimensions.py src/auteur/beginner/application.py tests/test_beginner_architecture_analysis.py tests/test_beginner_workspace_application.py
+git add src/auteur/beginner/architecture_models.py src/auteur/beginner/architecture_analysis.py src/auteur/beginner/dimensions.py src/auteur/beginner/application.py tests/test_beginner_architecture_analysis.py tests/test_beginner_workspace_application.py tests/fixtures/beginner_hybrid_mystery.py
 git commit -m "feat: refine inferred narrative architecture"
 ~~~
 
@@ -1774,10 +1807,13 @@ git commit -m "feat: refine inferred narrative architecture"
 - [ ] **Step 1: Write failing inventory tests**
 
 ~~~python
-def test_rich_flow_does_not_require_legacy_discovery_or_identity_cards() -> None:
+def test_rich_flow_does_not_require_legacy_discovery_or_identity_cards(tmp_path: Path) -> None:
+    app = app_after_direction_acceptance(tmp_path)
+    session = app.session_store.load()
+    assert session.architecture_analysis is not None
     inventory = structure_inventory_for(
-        session=accepted_hybrid_session(),
-        analysis=HYBRID_ANALYSIS,
+        session=session,
+        analysis=session.architecture_analysis,
         accepted_identity=HYBRID_SELECTED_IDENTITY,
     )
     assert all(card.stage is QualificationStage.STRUCTURE for card in inventory.cards)
