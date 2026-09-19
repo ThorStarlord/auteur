@@ -99,6 +99,7 @@ from ..story_design_packs.registry import get_design_pack_registry
 from .architecture_analysis import (
     ArchitectureAnalyzer,
     DeterministicArchitectureAnalyzer,
+    analysis_basis_fingerprint,
     add_author_component,
     choose_component_alternative,
     confirm_component,
@@ -131,7 +132,11 @@ from .contracts import (
     DimensionCategory,
     MappingDomainContext,
 )
-from .discovery import DiscoveryRecommender, UnavailableDiscoveryRecommender
+from .discovery import (
+    DiscoveryRecommender,
+    UnavailableDiscoveryRecommender,
+    discovery_basis_fingerprint,
+)
 from .discovery_models import DiscoveryRecommendationStatus
 from .decision_inventory import structure_inventory_for
 from .dimensions import (
@@ -720,10 +725,43 @@ class BeginnerWorkspaceApplication:
         command_id: str,
     ) -> WorkspaceProjection:
         """Generate and persist Discovery from the current derived interpretation."""
-        acquisition = self.receipt_store.begin(command_id, command_type="create_workspace")
-        if acquisition.outcome == "completed_replay":
-            return self.projection()
-        if acquisition.outcome != "owner_claim":
+        try:
+            existing_receipt = self.receipt_store.load(command_id)
+        except BeginnerPersistenceError:
+            existing_receipt = None
+
+        if existing_receipt is not None:
+            if existing_receipt.status == "complete":
+                return self.projection()
+            intent = existing_receipt.operation_intent or {}
+            session = self.session_store.load()
+            recommendation = session.discovery_recommendation
+            if (
+                intent.get("operation") == "continue_from_architecture"
+                and recommendation is not None
+                and recommendation.source_analysis_id == intent.get("source_analysis_id")
+                and recommendation.source_basis_fingerprint == intent.get("discovery_basis_fingerprint")
+            ):
+                result = cast(
+                    JsonValue,
+                    {
+                        "kind": "continue_architecture",
+                        "data": {
+                            "recommendation_id": recommendation.recommendation_id,
+                        },
+                    },
+                )
+                self.receipt_store.recover_complete(
+                    command_id,
+                    command_type="create_workspace",
+                    operation_intent=existing_receipt.operation_intent,
+                    result=result,
+                )
+                self._record_architecture_seen(
+                    analysis_id=str(intent.get("source_analysis_id") or ""),
+                    command_id=command_id,
+                )
+                return self.projection()
             raise BeginnerWorkspaceError(f"command already in progress: {command_id}")
 
         session = self.session_store.load()
@@ -732,7 +770,38 @@ class BeginnerWorkspaceApplication:
         if analysis is None:
             raise BeginnerWorkspaceError("no narrative interpretation exists")
         if analysis.stale or not self._analysis_is_current(session):
-            raise BeginnerWorkspaceError("narrative interpretation is stale; reanalyze the premise before continuing")
+            raise BeginnerWorkspaceError(
+                "architecture analysis is stale; reanalyze the premise before continuing"
+            )
+        basis = discovery_basis_fingerprint(analysis, session.working_composition)
+        operation_payload = {
+            "operation": "continue_from_architecture",
+            "premise_fingerprint": premise_fingerprint(session.premise),
+            "source_analysis_id": analysis.analysis_id,
+            "analysis_basis_fingerprint": analysis_basis_fingerprint(analysis),
+            "discovery_basis_fingerprint": basis,
+            "expected_session_version": expected_session_version,
+        }
+        encoded_operation = json.dumps(
+            operation_payload,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        operation_intent: JsonObject = {
+            **operation_payload,
+            "operation_fingerprint": hashlib.sha256(
+                encoded_operation.encode("utf-8")
+            ).hexdigest(),
+        }
+        acquisition = self.receipt_store.begin(
+            command_id,
+            command_type="create_workspace",
+            operation_intent=operation_intent,
+        )
+        if acquisition.outcome == "completed_replay":
+            return self.projection()
+        if acquisition.outcome != "owner_claim":
+            raise BeginnerWorkspaceError(f"command already in progress: {command_id}")
 
         if session.discovery_recommendation is not None:
             recommendation = session.discovery_recommendation
@@ -740,6 +809,9 @@ class BeginnerWorkspaceApplication:
             recommendation = self.discovery_recommender.recommend(
                 premise=session.premise,
                 analysis=analysis,
+            )
+            recommendation = recommendation.model_copy(
+                update={"source_basis_fingerprint": basis}
             )
             pending_supersedes = self._journey.get("pending_discovery_supersedes")
             if isinstance(pending_supersedes, str) and pending_supersedes:
@@ -752,22 +824,10 @@ class BeginnerWorkspaceApplication:
                     update={"discovery_recommendation": recommendation}
                 ),
             )
-        seen = list(self._journey.get("architecture_seen") or [])
-        if not any(
-            isinstance(entry, dict)
-            and entry.get("analysis_id") == analysis.analysis_id
-            and entry.get("command_id") == command_id
-            for entry in seen
-        ):
-            seen.append(
-                {
-                    "analysis_id": analysis.analysis_id,
-                    "command_id": command_id,
-                }
-            )
-            self._journey["architecture_seen"] = seen
-            self._journey["pending_discovery_supersedes"] = None
-            self._save_journey()
+        self._record_architecture_seen(
+            analysis_id=analysis.analysis_id,
+            command_id=command_id,
+        )
         self.receipt_store.complete(
             acquisition,
             cast(
@@ -781,6 +841,24 @@ class BeginnerWorkspaceApplication:
             ),
         )
         return self.projection()
+
+    def _record_architecture_seen(self, *, analysis_id: str, command_id: str) -> None:
+        seen = list(self._journey.get("architecture_seen") or [])
+        if not any(
+            isinstance(entry, dict)
+            and entry.get("analysis_id") == analysis_id
+            and entry.get("command_id") == command_id
+            for entry in seen
+        ):
+            seen.append(
+                {
+                    "analysis_id": analysis_id,
+                    "command_id": command_id,
+                }
+            )
+            self._journey["architecture_seen"] = seen
+        self._journey["pending_discovery_supersedes"] = None
+        self._save_journey()
 
     def select_story_direction(
         self,
@@ -1038,70 +1116,173 @@ class BeginnerWorkspaceApplication:
         expected_session_version: int,
         command_id: str,
     ) -> WorkspaceProjection:
-        acquisition = self.receipt_store.begin(command_id, command_type="create_workspace")
+        try:
+            existing_receipt = self.receipt_store.load(command_id)
+        except BeginnerPersistenceError:
+            existing_receipt = None
+
+        if existing_receipt is not None:
+            if existing_receipt.status == "complete":
+                return self.projection()
+            intent = existing_receipt.operation_intent or {}
+            target_fingerprint = intent.get("target_premise_fingerprint")
+            session = self.session_store.load()
+            active = self._journey.get("active_revision")
+            if isinstance(active, dict) and active.get("architecture_analysis") is not None:
+                durable_premise = str(active.get("premise") or "")
+                durable_analysis = NarrativeArchitectureAnalysis.model_validate(
+                    active["architecture_analysis"]
+                )
+            else:
+                durable_premise = session.premise
+                durable_analysis = session.architecture_analysis
+            if (
+                intent.get("operation") == "reanalyze_premise"
+                and target_fingerprint == premise_fingerprint(durable_premise)
+                and durable_analysis is not None
+                and durable_analysis.premise_fingerprint == target_fingerprint
+            ):
+                self.receipt_store.recover_complete(
+                    command_id,
+                    command_type="create_workspace",
+                    operation_intent=existing_receipt.operation_intent,
+                    result=cast(
+                        JsonValue,
+                        {
+                            "kind": "reanalyze_premise",
+                            "data": {"analysis_id": durable_analysis.analysis_id},
+                        },
+                    ),
+                )
+                return self.projection()
+            raise BeginnerWorkspaceError(f"command already in progress: {command_id}")
+
+        session = self.session_store.load()
+        self._check_version(session, expected_session_version)
+        active = self._journey.get("active_revision")
+        accepted_identity = any(
+            reference.milestone_id == "story_identity"
+            for reference in session.accepted_milestones
+        )
+        accepted_direction = any(
+            reference.milestone_id == "story_direction"
+            for reference in session.accepted_milestones
+        )
+        revision_identity = (
+            accepted_identity
+            and isinstance(active, dict)
+            and active.get("target_stage") == DecisionStage.STORY_IDENTITY.value
+        )
+        if (accepted_identity or accepted_direction) and not revision_identity:
+            raise BeginnerWorkspaceError(
+                "accepted direction/Identity requires revision-overlay reanalysis"
+            )
+
+        source_premise = self._active_premise(session)
+        old_analysis = self._active_architecture_analysis(session)
+        operation_payload = {
+            "operation": "reanalyze_premise",
+            "premise_fingerprint": premise_fingerprint(source_premise),
+            "source_analysis_id": (
+                old_analysis.analysis_id if old_analysis is not None else None
+            ),
+            "analysis_basis_fingerprint": (
+                analysis_basis_fingerprint(old_analysis)
+                if old_analysis is not None
+                else None
+            ),
+            "target_premise_fingerprint": premise_fingerprint(premise),
+            "expected_session_version": expected_session_version,
+        }
+        encoded_operation = json.dumps(
+            operation_payload,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        operation_intent: JsonObject = {
+            **operation_payload,
+            "operation_fingerprint": hashlib.sha256(
+                encoded_operation.encode("utf-8")
+            ).hexdigest(),
+        }
+        acquisition = self.receipt_store.begin(
+            command_id,
+            command_type="create_workspace",
+            operation_intent=operation_intent,
+        )
         if acquisition.outcome == "completed_replay":
             return self.projection()
         if acquisition.outcome != "owner_claim":
             raise BeginnerWorkspaceError(f"command already in progress: {command_id}")
-        session = self.session_store.load()
-        self._check_version(session, expected_session_version)
-        if any(
-            reference.milestone_id in {"story_direction", "story_identity"}
-            for reference in session.accepted_milestones
-        ):
-            raise BeginnerWorkspaceError(
-                "accepted direction/Identity requires revision-overlay reanalysis"
-            )
-        old_analysis = session.architecture_analysis
+
         invalidated = (
             session.discovery_recommendation.recommendation_id
             if session.discovery_recommendation is not None
             else None
         )
+        source_session = session.model_copy(update={"premise": premise})
         refreshed = self.architecture_analyzer.analyze(
             premise=premise,
-            source_provenance=self._available_dimension_sources(
-                session.model_copy(update={"premise": premise})
-            ),
+            source_provenance=self._available_dimension_sources(source_session),
         )
         if old_analysis is not None:
             refreshed = reconcile_author_adjustments(old_analysis, refreshed)
+        prior_composition = self._active_working_composition(session)
         composition = composition_from_analysis(
             workspace_id=self.workspace_id,
             analysis=refreshed,
-            prior=session.working_composition,
+            prior=prior_composition,
         )
-        stages = dict(session.stages)
-        stages[DecisionStage.DISCOVER] = stages[DecisionStage.DISCOVER].model_copy(
-            update={
-                "availability": StageAvailability.AVAILABLE,
-                "lifecycle": LifecycleStatus.WORKING,
-            }
-        )
-        stages[DecisionStage.STORY_IDENTITY] = stages[DecisionStage.STORY_IDENTITY].model_copy(
-            update={
-                "availability": StageAvailability.LOCKED,
-                "lifecycle": LifecycleStatus.NOT_STARTED,
-            }
-        )
-        stages[DecisionStage.STORY_STRUCTURE] = stages[DecisionStage.STORY_STRUCTURE].model_copy(
-            update={
-                "availability": StageAvailability.LOCKED,
-                "lifecycle": LifecycleStatus.NOT_STARTED,
-            }
-        )
-        self.session_store.update(
-            expected_session_version,
-            lambda current: current.model_copy(
+
+        if revision_identity:
+            # Advance optimistic concurrency while keeping revised story state
+            # entirely inside the revision overlay until authority accepts it.
+            self.session_store.update(
+                expected_session_version,
+                lambda current: current,
+            )
+            assert isinstance(active, dict)
+            active["premise"] = premise
+            active["architecture_analysis"] = refreshed.model_dump(mode="json")
+            active["working_composition"] = composition.model_dump(mode="json")
+            active["discovery_recommendation"] = None
+            self._journey["active_revision"] = active
+        else:
+            stages = dict(session.stages)
+            stages[DecisionStage.DISCOVER] = stages[DecisionStage.DISCOVER].model_copy(
                 update={
-                    "premise": premise,
-                    "architecture_analysis": refreshed,
-                    "working_composition": composition,
-                    "discovery_recommendation": None,
-                    "stages": stages,
+                    "availability": StageAvailability.AVAILABLE,
+                    "lifecycle": LifecycleStatus.WORKING,
                 }
-            ),
-        )
+            )
+            stages[DecisionStage.STORY_IDENTITY] = stages[
+                DecisionStage.STORY_IDENTITY
+            ].model_copy(
+                update={
+                    "availability": StageAvailability.LOCKED,
+                    "lifecycle": LifecycleStatus.NOT_STARTED,
+                }
+            )
+            stages[DecisionStage.STORY_STRUCTURE] = stages[
+                DecisionStage.STORY_STRUCTURE
+            ].model_copy(
+                update={
+                    "availability": StageAvailability.LOCKED,
+                    "lifecycle": LifecycleStatus.NOT_STARTED,
+                }
+            )
+            self.session_store.update(
+                expected_session_version,
+                lambda current: current.model_copy(
+                    update={
+                        "premise": premise,
+                        "architecture_analysis": refreshed,
+                        "working_composition": composition,
+                        "discovery_recommendation": None,
+                        "stages": stages,
+                    }
+                ),
+            )
         if invalidated is not None:
             self._journey["pending_discovery_supersedes"] = invalidated
         self._journey["cursor_override"] = None
@@ -1860,6 +2041,12 @@ class BeginnerWorkspaceApplication:
             "revision_id": resolved_revision_id,
             "base_session_version": saved.session_version,
             "overlay": {},
+            "premise": saved.premise,
+            "architecture_analysis": (
+                saved.architecture_analysis.model_dump(mode="json")
+                if saved.architecture_analysis is not None
+                else None
+            ),
             "working_composition": (
                 saved.working_composition.model_dump(mode="json")
                 if saved.working_composition is not None
@@ -2023,7 +2210,17 @@ class BeginnerWorkspaceApplication:
         if analysis is None or analysis.stale or not self._analysis_is_current(session):
             raise BeginnerWorkspaceError("cannot accept a direction from stale narrative interpretation")
         if recommendation.source_analysis_id != analysis.analysis_id:
-            raise BeginnerWorkspaceError("Discovery recommendation does not match the current interpretation")
+            raise BeginnerWorkspaceError(
+                "Discovery recommendation does not match the current interpretation"
+            )
+        current_discovery_basis = discovery_basis_fingerprint(
+            analysis,
+            session.working_composition,
+        )
+        if recommendation.source_basis_fingerprint != current_discovery_basis:
+            raise BeginnerWorkspaceError(
+                "discovery recommendation is stale; regenerate Discovery before accepting"
+            )
         if recommendation.selected_direction_id is None:
             raise BeginnerWorkspaceError("select a Story Discovery direction before accepting it")
         try:
@@ -2761,10 +2958,20 @@ class BeginnerWorkspaceApplication:
             updates: dict[str, Any] = {"stages": stages, "accepted_milestones": refs}
             if is_revision and milestone_id == "story_identity":
                 active = self._journey.get("active_revision")
-                if isinstance(active, dict) and active.get("working_composition") is not None:
-                    updates["working_composition"] = WorkingComposition.model_validate(
-                        active["working_composition"]
-                    )
+                if isinstance(active, dict):
+                    if active.get("working_composition") is not None:
+                        updates["working_composition"] = WorkingComposition.model_validate(
+                            active["working_composition"]
+                        )
+                    if isinstance(active.get("premise"), str):
+                        updates["premise"] = active["premise"]
+                    if active.get("architecture_analysis") is not None:
+                        updates["architecture_analysis"] = (
+                            NarrativeArchitectureAnalysis.model_validate(
+                                active["architecture_analysis"]
+                            )
+                        )
+                    updates["discovery_recommendation"] = None
             return current.model_copy(update=updates)
 
         saved = self.session_store.update(expected_session_version, mutate)
@@ -3143,9 +3350,15 @@ class BeginnerWorkspaceApplication:
                 guidance = guidance_for(cursor.card_id, guidance_session)
             except ValueError:
                 guidance = None
+        active_analysis = self._active_architecture_analysis(session)
+        active_premise = self._active_premise(session)
         story_orientation = build_story_orientation(
-            analysis=self._architecture_analysis(session),
-            analysis_current=self._analysis_is_current(session),
+            analysis=active_analysis,
+            analysis_current=self._analysis_value_is_current(
+                session,
+                active_analysis,
+                active_premise,
+            ),
             accepted_milestones=tuple(session.accepted_milestones),
         )
         return build_workspace_projection(
@@ -3218,8 +3431,9 @@ class BeginnerWorkspaceApplication:
     def _inventory_for(self, session: SessionEnvelope):  # type: ignore[no-untyped-def]
         adapter = _adapter_for(session.guidance_genre)
         recommendation = session.discovery_recommendation
+        active_analysis = self._active_architecture_analysis(session)
         if (
-            session.architecture_analysis is not None
+            active_analysis is not None
             and (
                 recommendation is None
                 or recommendation.status is not DiscoveryRecommendationStatus.UNAVAILABLE
@@ -3227,7 +3441,7 @@ class BeginnerWorkspaceApplication:
         ):
             inventory = structure_inventory_for(
                 session=session,
-                analysis=session.architecture_analysis,
+                analysis=active_analysis,
                 accepted_identity=(
                     self._canonical_identity()
                     if any(
@@ -3256,19 +3470,31 @@ class BeginnerWorkspaceApplication:
             sources.append(PackProvenance(pack_id=pack.pack_id, version=pack.version, content_hash=digest))
         return tuple(sources)
 
-    def _analysis_is_current(self, session: SessionEnvelope) -> bool:
-        analysis = session.architecture_analysis
+    def _analysis_value_is_current(
+        self,
+        session: SessionEnvelope,
+        analysis: NarrativeArchitectureAnalysis | None,
+        premise: str,
+    ) -> bool:
         if analysis is None:
             return False
-        if analysis.stale or analysis.premise_fingerprint != premise_fingerprint(session.premise):
+        if analysis.stale or analysis.premise_fingerprint != premise_fingerprint(premise):
             return False
+        source_session = session.model_copy(update={"premise": premise})
         current_sources = {
             (source.pack_id, source.version): source.content_hash
-            for source in self._available_dimension_sources(session)
+            for source in self._available_dimension_sources(source_session)
         }
         return all(
             current_sources.get((source.pack_id, source.version)) == source.content_hash
             for source in analysis.source_provenance
+        )
+
+    def _analysis_is_current(self, session: SessionEnvelope) -> bool:
+        return self._analysis_value_is_current(
+            session,
+            session.architecture_analysis,
+            session.premise,
         )
 
     def _architecture_analysis(self, session: SessionEnvelope) -> NarrativeArchitectureAnalysis | None:
@@ -3404,6 +3630,23 @@ class BeginnerWorkspaceApplication:
         return refreshed, build_promotion_preview(
             self._canonical_identity(), resolution, refreshed.mapping_records
         )
+
+    def _active_premise(self, session: SessionEnvelope) -> str:
+        active = self._journey.get("active_revision")
+        if isinstance(active, dict) and isinstance(active.get("premise"), str):
+            return str(active["premise"])
+        return session.premise
+
+    def _active_architecture_analysis(
+        self,
+        session: SessionEnvelope,
+    ) -> NarrativeArchitectureAnalysis | None:
+        active = self._journey.get("active_revision")
+        if isinstance(active, dict) and active.get("architecture_analysis") is not None:
+            return NarrativeArchitectureAnalysis.model_validate(
+                active["architecture_analysis"]
+            )
+        return session.architecture_analysis
 
     def _active_working_composition(self, session: SessionEnvelope) -> WorkingComposition | None:
         active = self._journey.get("active_revision")

@@ -16,11 +16,52 @@ from .architecture_models import (
     ArchitectureCertainty,
     NarrativeArchitectureAnalysis,
 )
+from .contracts import WorkingComposition
 from .discovery_models import (
     DiscoveryDirection,
     DiscoveryRecommendation,
     DiscoveryRecommendationStatus,
 )
+
+
+def discovery_basis_fingerprint(
+    analysis: NarrativeArchitectureAnalysis,
+    composition: WorkingComposition | None,
+) -> str:
+    """Fingerprint only material inputs that may change Discovery guidance."""
+    dimensions = []
+    if composition is not None:
+        dimensions = [
+            {
+                "dimension_id": item.dimension_id,
+                "category": item.category.value,
+                "origin": item.origin.value,
+                "status": item.status.value,
+                "activation": item.activation.value,
+                "label": item.label,
+                "author_rationale": item.author_rationale,
+                "source_provenance": [
+                    source.model_dump(mode="json")
+                    for source in item.source_provenance
+                ],
+            }
+            for item in sorted(
+                composition.dimensions,
+                key=lambda dimension: dimension.dimension_id,
+            )
+        ]
+    payload = {
+        "analysis_id": analysis.analysis_id,
+        "analysis_basis": analysis_basis_fingerprint(analysis),
+        "dimensions": dimensions,
+    }
+    encoded = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    )
+    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 
 class DiscoveryRecommender(Protocol):

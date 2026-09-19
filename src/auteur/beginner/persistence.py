@@ -109,6 +109,7 @@ class CommandReceipt(BaseModel):
     command_type: BeginnerCommandType
     target_milestone: BeginnerMilestone | None = None
     promotion_intent: JsonObject | None = None
+    operation_intent: JsonObject | None = None
     domain_result_reference: JsonObject | None = None
     requested_domain_result_reference: JsonObject | None = None
 
@@ -126,6 +127,7 @@ class CommandReceipt(BaseModel):
             for field_name, label in (
                 ("result", "receipt result"),
                 ("promotion_intent", "promotion intent"),
+                ("operation_intent", "operation intent"),
                 ("domain_result_reference", "domain result reference"),
                 ("requested_domain_result_reference", "requested domain result reference"),
             ):
@@ -139,6 +141,11 @@ class CommandReceipt(BaseModel):
         self.promotion_intent = (
             cast(JsonObject, _normalize_json_value(self.promotion_intent, "promotion intent"))
             if self.promotion_intent is not None
+            else None
+        )
+        self.operation_intent = (
+            cast(JsonObject, _normalize_json_value(self.operation_intent, "operation intent"))
+            if self.operation_intent is not None
             else None
         )
         self.domain_result_reference = (
@@ -179,6 +186,7 @@ class ReceiptAcquisition(BaseModel):
     command_type: BeginnerCommandType
     target_milestone: BeginnerMilestone | None = None
     promotion_intent: JsonObject | None = None
+    operation_intent: JsonObject | None = None
     domain_result_reference: JsonObject | None = None
     requested_domain_result_reference: JsonObject | None = None
 
@@ -584,6 +592,7 @@ class CommandReceiptStore:
         command_type: BeginnerCommandType,
         target_milestone: BeginnerMilestone | None = None,
         promotion_intent: JsonObject | None = None,
+        operation_intent: JsonObject | None = None,
         domain_result_reference: JsonObject | None = None,
     ) -> ReceiptAcquisition:
         path = self.receipt_path(command_id)
@@ -594,6 +603,7 @@ class CommandReceiptStore:
             command_type=command_type,
             target_milestone=target_milestone,
             promotion_intent=promotion_intent,
+            operation_intent=operation_intent,
             domain_result_reference=domain_result_reference,
             requested_domain_result_reference=domain_result_reference,
         )
@@ -606,6 +616,7 @@ class CommandReceiptStore:
                 command_type=receipt.command_type,
                 target_milestone=receipt.target_milestone,
                 promotion_intent=receipt.promotion_intent,
+                operation_intent=receipt.operation_intent,
                 domain_result_reference=receipt.domain_result_reference,
                 requested_domain_result_reference=receipt.requested_domain_result_reference,
             )
@@ -614,6 +625,7 @@ class CommandReceiptStore:
             existing.command_type != receipt.command_type
             or existing.target_milestone != receipt.target_milestone
             or _json_identity(existing.promotion_intent) != _json_identity(receipt.promotion_intent)
+            or _json_identity(existing.operation_intent) != _json_identity(receipt.operation_intent)
             or _json_identity(existing.requested_domain_result_reference)
             != _json_identity(receipt.requested_domain_result_reference)
         ):
@@ -627,6 +639,7 @@ class CommandReceiptStore:
                 command_type=existing.command_type,
                 target_milestone=existing.target_milestone,
                 promotion_intent=existing.promotion_intent,
+                operation_intent=existing.operation_intent,
                 domain_result_reference=existing.domain_result_reference,
                 requested_domain_result_reference=existing.requested_domain_result_reference,
             )
@@ -671,6 +684,7 @@ class CommandReceiptStore:
                     existing.command_type != receipt.command_type
                     or existing.target_milestone != receipt.target_milestone
                     or _json_identity(existing.promotion_intent) != _json_identity(receipt.promotion_intent)
+                    or _json_identity(existing.operation_intent) != _json_identity(receipt.operation_intent)
                     or _json_identity(existing.requested_domain_result_reference)
                     != _json_identity(receipt.requested_domain_result_reference)
                 ):
@@ -687,6 +701,7 @@ class CommandReceiptStore:
                     command_type=existing.command_type,
                     target_milestone=existing.target_milestone,
                     promotion_intent=existing.promotion_intent,
+                    operation_intent=existing.operation_intent,
                     domain_result_reference=(
                         domain_result_reference
                         if domain_result_reference is not None
@@ -696,6 +711,53 @@ class CommandReceiptStore:
                 )
             except ValidationError as exc:
                 raise BeginnerPersistenceError(f"could not normalize receipt completion: {exc}") from exc
+            _atomic_write(path, _serialize_receipt(completed))
+            return completed
+
+    def recover_complete(
+        self,
+        command_id: str,
+        *,
+        command_type: BeginnerCommandType,
+        operation_intent: JsonObject | None,
+        result: JsonValue,
+        domain_result_reference: JsonObject | None = None,
+    ) -> CommandReceipt:
+        """Complete an orphaned noncanonical command after its exact result is durable.
+
+        This is deliberately narrower than stealing receipt ownership: callers
+        must first prove from durable session/overlay state that the intended
+        operation result already exists.
+        """
+        path = self.receipt_path(command_id)
+        with _FilesystemLock(path.with_name(f".{path.name}.lock")):
+            existing = self.load(command_id)
+            if existing.command_type != command_type:
+                raise BeginnerPersistenceError(
+                    f"command intent conflict for existing command_id {command_id}"
+                )
+            if _json_identity(existing.operation_intent) != _json_identity(operation_intent):
+                raise BeginnerPersistenceError(
+                    f"operation intent conflict for existing command_id {command_id}"
+                )
+            if existing.status == "complete":
+                return existing
+            completed = CommandReceipt(
+                command_id=command_id,
+                status="complete",
+                result=result,
+                owner_token=existing.owner_token,
+                command_type=existing.command_type,
+                target_milestone=existing.target_milestone,
+                promotion_intent=existing.promotion_intent,
+                operation_intent=existing.operation_intent,
+                domain_result_reference=(
+                    domain_result_reference
+                    if domain_result_reference is not None
+                    else existing.domain_result_reference
+                ),
+                requested_domain_result_reference=existing.requested_domain_result_reference,
+            )
             _atomic_write(path, _serialize_receipt(completed))
             return completed
 
@@ -711,6 +773,7 @@ class CommandReceiptStore:
             command_type=receipt.command_type,
             target_milestone=receipt.target_milestone,
             promotion_intent=receipt.promotion_intent,
+            operation_intent=receipt.operation_intent,
             domain_result_reference=receipt.domain_result_reference,
             requested_domain_result_reference=receipt.requested_domain_result_reference,
         )
