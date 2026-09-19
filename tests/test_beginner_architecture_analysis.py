@@ -212,3 +212,27 @@ def test_analysis_fingerprints_are_stable_and_semantic() -> None:
     second = premise_fingerprint("A hero investigates.")
     assert first == second
     assert analysis_basis_fingerprint(HYBRID_ANALYSIS) == analysis_basis_fingerprint(HYBRID_ANALYSIS)
+
+
+
+def test_deterministic_fallback_uses_configured_mystery_pack_as_curated_evidence() -> None:
+    from auteur.story_design_packs.models import PackProvenance
+
+    source = PackProvenance(
+        pack_id="mystery",
+        version="domain",
+        content_hash="sha256:configured-mystery",
+    )
+    analysis = DeterministicArchitectureAnalyzer().analyze(
+        premise="A sealed elevator opens on an empty shaft.",
+        source_provenance=(source,),
+    )
+    engine = next(
+        component
+        for component in analysis.components
+        if component.facet is ArchitectureFacet.NARRATIVE_ENGINE
+    )
+    assert engine.label == "Investigation and revelation"
+    assert engine.derivation is ArchitectureDerivation.CURATED_MATCH
+    assert engine.evidence[0].source_kind == "genre_pack"
+    assert engine.evidence[0].excerpt is None

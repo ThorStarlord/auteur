@@ -260,7 +260,45 @@ class DeterministicArchitectureAnalyzer:
         components: list[ArchitectureComponent] = []
 
         mystery_signal = _first_signal(premise, _EXPLICIT_SIGNALS["mystery"])
-        if mystery_signal is not None:
+        mystery_source = next(
+            (
+                source
+                for source in source_provenance
+                if source.pack_id.casefold() == "mystery"
+            ),
+            None,
+        )
+        if mystery_signal is not None or mystery_source is not None:
+            if mystery_signal is not None:
+                mystery_evidence = (
+                    ArchitectureEvidence(
+                        source_kind="premise",
+                        label="explicit mystery signal",
+                        excerpt=mystery_signal,
+                    ),
+                )
+                engine_evidence = (
+                    ArchitectureEvidence(
+                        source_kind="premise",
+                        label="investigation signal",
+                        excerpt=mystery_signal,
+                    ),
+                )
+                mystery_rationale = "A deterministic premise signal matches mystery investigation."
+            else:
+                assert mystery_source is not None
+                mystery_evidence = (
+                    ArchitectureEvidence(
+                        source_kind="genre_pack",
+                        label="configured Mystery guidance",
+                        source_ref=f"{mystery_source.pack_id}@{mystery_source.version}",
+                    ),
+                )
+                engine_evidence = mystery_evidence
+                mystery_rationale = (
+                    "The configured Mystery guidance pack supplies a curated genre prior "
+                    "without claiming that the premise stated it explicitly."
+                )
             components.append(
                 ArchitectureComponent(
                     component_id=_component_id(ArchitectureFacet.GENRE_CONSTELLATION, "Mystery"),
@@ -270,14 +308,8 @@ class DeterministicArchitectureAnalyzer:
                     derivation=ArchitectureDerivation.CURATED_MATCH,
                     role=ArchitectureRole.PRIMARY,
                     certainty=ArchitectureCertainty.CLEAR,
-                    rationale="A deterministic premise signal matches mystery investigation.",
-                    evidence=(
-                        ArchitectureEvidence(
-                            source_kind="premise",
-                            label="explicit mystery signal",
-                            excerpt=mystery_signal,
-                        ),
-                    ),
+                    rationale=mystery_rationale,
+                    evidence=mystery_evidence,
                     source_provenance=source_provenance,
                 )
             )
@@ -290,14 +322,11 @@ class DeterministicArchitectureAnalyzer:
                     derivation=ArchitectureDerivation.CURATED_MATCH,
                     role=ArchitectureRole.PRIMARY,
                     certainty=ArchitectureCertainty.LIKELY,
-                    rationale="Mystery investigation signals support a bounded investigation/revelation engine.",
-                    evidence=(
-                        ArchitectureEvidence(
-                            source_kind="premise",
-                            label="investigation signal",
-                            excerpt=mystery_signal,
-                        ),
+                    rationale=(
+                        "Mystery guidance supports a bounded investigation/revelation engine "
+                        "as working guidance, not canon."
                     ),
+                    evidence=engine_evidence,
                     source_provenance=source_provenance,
                 )
             )

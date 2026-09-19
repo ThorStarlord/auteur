@@ -67,7 +67,8 @@ def test_create_workspace_initializes_proposed_composition_and_confirming_all_bu
         DimensionCategory.SETTING_WORLD,
         DimensionCategory.RELATIONSHIP_THEMATIC,
     }
-    assert initial.mapping_preview is None
+    assert initial.mapping_preview is not None
+    assert initial.mapping_preview.ready_to_accept is False
 
     composition = initial.working_composition
     for dimension in composition.dimensions:

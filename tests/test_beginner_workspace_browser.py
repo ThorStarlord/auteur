@@ -122,10 +122,9 @@ def test_browser_exposes_revision_controls_without_domain_rules():
         "accept-revised-direction",
         "accept-revised-identity",
         "accept-revised-structure",
-        "target_stage",
+        "revision_id",
     ):
         assert token in js
-    assert "revision_id" in js
 
 
 def test_browser_exposes_composition_review_controls_and_author_inputs():
