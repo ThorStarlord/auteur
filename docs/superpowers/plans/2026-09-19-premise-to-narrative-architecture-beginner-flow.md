@@ -850,6 +850,7 @@ git commit -m "feat: project narrative architecture into story orientation"
 
 ~~~python
 def test_beginner_discovery_returns_one_recommended_direction_and_real_alternatives() -> None:
+    scripted_client = HybridStoryDiscoveryClient()
     service = StoryDiscoveryRecommender(client=scripted_client)
     result = service.recommend(premise=HYBRID_MYSTERY_PREMISE, analysis=HYBRID_ANALYSIS)
     assert result.status is DiscoveryRecommendationStatus.READY
@@ -1153,25 +1154,64 @@ def create_hybrid_app(
     return app
 ~~~
 
-For test_beginner_discovery.py, exercise the real StoryDiscoveryRecommender with auteur.llm.fake.FakeClient. Build the first three scripted responses by YAML-dumping the three identities above, the next three responses with the exact summary shape {"summary": "...", "tradeoffs": [], "risks": [], "best_for": []}, and the final response with the v2 judgment shape:
+Add this deterministic provider double to tests/fixtures/beginner_hybrid_mystery.py so the service test exercises the real open-ended Story Discovery path without hiding response ordering:
 
-~~~python
-{
-    "recommendation_status": "recommended",
-    "recommendation_basis": "advisory_artistic_preference",
-    "recommended_candidate_id": "candidate_1",
-    "recommendation_rationale": (
-        "Candidate 1 keeps investigation causal while making superhero identity "
-        "and intimate betrayal consequential."
-    ),
-    "candidate_tradeoffs": {
-        "candidate_2": "Candidate 2 makes relationship psychology primary.",
-        "candidate_3": "Candidate 3 makes spectacle and melodrama primary.",
-    },
-}
-~~~
+    class HybridStoryDiscoveryClient:
+        def __init__(self) -> None:
+            self._candidate_index = 0
+            self.calls: list[LLMRequest] = []
 
-This replaces the undefined scripted_story_discovery_client helper with a fixture whose exact response sequence is visible in the test.
+        def complete(self, request: LLMRequest) -> LLMResponse:
+            self.calls.append(request)
+
+            if "comparative narrative architect" in request.system:
+                payload = {
+                    "recommendation_status": "recommended",
+                    "recommendation_basis": "advisory_artistic_preference",
+                    "recommended_candidate_id": "candidate_1",
+                    "recommendation_rationale": (
+                        "Candidate 1 keeps investigation causal while making superhero identity "
+                        "and intimate betrayal consequential."
+                    ),
+                    "candidate_tradeoffs": {
+                        "candidate_2": "Candidate 2 makes relationship psychology primary.",
+                        "candidate_3": "Candidate 3 makes spectacle and melodrama primary.",
+                    },
+                }
+                return LLMResponse(
+                    text=json.dumps(payload),
+                    input_tokens=1,
+                    output_tokens=1,
+                )
+
+            if "summarizing a story identity" in request.system:
+                return LLMResponse(
+                    text=json.dumps(
+                        {
+                            "summary": "A distinct hybrid-story direction.",
+                            "tradeoffs": ["One governing engine must remain legible."],
+                            "risks": ["Supporting dimensions can crowd the primary engine."],
+                            "best_for": ["A hybrid mystery with consequential relationship stakes."],
+                        }
+                    ),
+                    input_tokens=1,
+                    output_tokens=1,
+                )
+
+            identities = (
+                HYBRID_SELECTED_IDENTITY,
+                HYBRID_RELATIONSHIP_IDENTITY,
+                HYBRID_CAMPY_IDENTITY,
+            )
+            identity = identities[self._candidate_index]
+            self._candidate_index += 1
+            return LLMResponse(
+                text=yaml.safe_dump(identity.model_dump(mode="json"), sort_keys=False),
+                input_tokens=1,
+                output_tokens=1,
+            )
+
+The service test instantiates HybridStoryDiscoveryClient directly. If candidate validation causes this double to receive more than three generation requests, the resulting IndexError is intentional evidence that one fixture identity no longer survives the existing StoryIdentity contract.
 
 - [ ] **Step 7: Add discovery_recommendation to SessionEnvelope**
 
