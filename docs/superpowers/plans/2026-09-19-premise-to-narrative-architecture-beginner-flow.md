@@ -15,15 +15,20 @@
 - Canonical semantic architecture remains exactly Ontology → Identity → Structure → Realization → Expression.
 - Narrative Architecture Analysis is derived and noncanonical.
 - The author can continue without individually confirming every inferred component.
-- Guidance activation, author review/confirmation, and canonical authority are separate axes.
+- Derivation/source, certainty, guidance activation, author review/confirmation, and canonical authority are separate axes.
+- Provider/model output does not self-authoritatively classify itself as explicit author fact.
+- CLEAR and LIKELY components may be active by default; consequential UNCERTAIN components must not silently steer downstream guidance and must be routed to bounded resolution/Discovery.
+- Component-local alternatives remain the default; strongly coupled ambiguities that imply materially different whole-story readings must be represented as distinct bounded Discovery directions rather than independent fake choices.
 - Composition is optional refinement, not an admission gate.
 - Discovery searches coherent story directions; Story Identity owns commitments; Structure owns plans.
 - Do not preserve the current 3/4/3 card quota as a product invariant.
-- Do not expose internal enum tokens in the default beginner UI.
+- Do not expose internal enum tokens or "Narrative Architecture Analysis" as required beginner vocabulary in the default UI.
+- The first-session Navigator progressively discloses later layers; Realization and Expression are not shown merely because they exist internally.
 - Provider failure/absence must degrade explicitly and must not fabricate rich interpretation.
 - PR #237 remains draft and unmerged during implementation and qualification.
 - Reuse its WorkingComposition, Mapping Planner, authority, provenance, revision isolation, crash recovery, and semantic-staleness substrate.
 - No provider calls from GET/projection code.
+- Premise reanalysis reconciles author adjustments by stable semantic meaning, never by provider output order or wording alone.
 - Legacy session JSON that omits new optional fields must continue to parse.
 - Use TDD for every behavior change.
 - Do not modify or commit .superpowers/.
@@ -31,11 +36,13 @@
 
 ## Review Focus
 
-1. Ambiguous component alternatives must remain component-scoped rather than becoming competing whole-premise analyses.
+1. Ambiguous component alternatives remain component-scoped by default; coupled consequential ambiguities route to bounded Discovery directions instead of independent fake choices.
 2. Provider unavailable/malformed must degrade explicitly without unsupported psychological/aesthetic claims.
-3. Active inferred but unconfirmed components must affect guidance while remaining noncanonical.
-4. Stale analysis/discovery must not silently drive acceptance.
-5. Crash retry must not duplicate provider generation or canonical promotion.
+3. Derivation/source must remain independent from certainty, review, activation, and authority.
+4. Active inferred but unconfirmed CLEAR/LIKELY components may affect guidance while remaining noncanonical; consequential UNCERTAIN components do not silently drive it.
+5. Stale analysis/discovery must not silently drive acceptance.
+6. Premise reanalysis preserves author adjustments only across stable semantic matches and surfaces conflicts otherwise.
+7. Crash retry must not duplicate provider generation or canonical promotion.
 
 ---
 
@@ -79,7 +86,7 @@ Do not introduce a generic narrative database or a new semantic layer.
 
 **Interfaces:**
 - Consumes: PackProvenance from auteur.story_design_packs.models.
-- Produces: ArchitectureFacet, ArchitectureCertainty, ArchitectureRole, ArchitectureActivation, ArchitectureReviewState, ArchitectureEvidence, ArchitectureAlternative, ArchitectureAdjustment, ArchitectureComponent, NarrativeArchitectureAnalysis, and additive SessionEnvelope.architecture_analysis.
+- Produces: ArchitectureFacet, ArchitectureCertainty, ArchitectureDerivation, ArchitectureRole, ArchitectureActivation, ArchitectureReviewState, ArchitectureEvidence, ArchitectureAlternative, ArchitectureAdjustment, ArchitectureComponent, NarrativeArchitectureAnalysis, and additive SessionEnvelope.architecture_analysis.
 
 - [ ] **Step 1: Verify the execution base before editing**
 
@@ -104,6 +111,7 @@ Expected:
 from auteur.beginner.architecture_models import (
     ArchitectureActivation,
     ArchitectureCertainty,
+    ArchitectureDerivation,
     ArchitectureComponent,
     ArchitectureEvidence,
     ArchitectureFacet,
@@ -118,6 +126,7 @@ def test_analysis_contract_separates_activation_review_and_authority() -> None:
         component_id="genre:mystery",
         facet=ArchitectureFacet.GENRE_CONSTELLATION,
         label="Mystery",
+        derivation=ArchitectureDerivation.MODEL_INFERENCE,
         role=ArchitectureRole.PRIMARY,
         certainty=ArchitectureCertainty.CLEAR,
         activation=ArchitectureActivation.ACTIVE,
@@ -133,6 +142,24 @@ def test_analysis_contract_separates_activation_review_and_authority() -> None:
     )
     assert component.activation is ArchitectureActivation.ACTIVE
     assert component.review_state is ArchitectureReviewState.UNREVIEWED
+    assert component.authority_status == "DERIVED / NOT CANON"
+
+
+def test_derivation_is_independent_from_certainty_review_and_authority() -> None:
+    component = ArchitectureComponent(
+        component_id="framing:camp",
+        facet=ArchitectureFacet.AESTHETIC_FRAMING,
+        label="Campy melodrama",
+        derivation=ArchitectureDerivation.MODEL_INFERENCE,
+        role=ArchitectureRole.SUPPORTING,
+        certainty=ArchitectureCertainty.CLEAR,
+        activation=ArchitectureActivation.ACTIVE,
+        review_state=ArchitectureReviewState.AUTHOR_CONFIRMED,
+        rationale="The author confirmed a model-inferred framing.",
+    )
+    assert component.derivation is ArchitectureDerivation.MODEL_INFERENCE
+    assert component.certainty is ArchitectureCertainty.CLEAR
+    assert component.review_state is ArchitectureReviewState.AUTHOR_CONFIRMED
     assert component.authority_status == "DERIVED / NOT CANON"
 
 
@@ -181,6 +208,13 @@ class ArchitectureCertainty(str, Enum):
     UNCERTAIN = "uncertain"
 
 
+class ArchitectureDerivation(str, Enum):
+    PREMISE_EXPLICIT = "premise_explicit"
+    CURATED_MATCH = "curated_match"
+    MODEL_INFERENCE = "model_inference"
+    AUTHOR_ADDED = "author_added"
+
+
 class ArchitectureRole(str, Enum):
     PRIMARY = "primary"
     SUPPORTING = "supporting"
@@ -227,6 +261,7 @@ class ArchitectureComponent(BaseModel):
     component_id: str = Field(min_length=1)
     facet: ArchitectureFacet
     label: str = Field(min_length=1)
+    derivation: ArchitectureDerivation
     normalized_concept: str | None = None
     role: ArchitectureRole = ArchitectureRole.SUPPORTING
     certainty: ArchitectureCertainty
@@ -303,7 +338,9 @@ Suspicious behavior             trope_family / supporting
 Revelation / confrontation      trope_family / supporting
 ~~~
 
-For the "Erotic betrayal melodrama" component, set certainty=UNCERTAIN and alternatives=(ArchitectureAlternative(label="Campy erotic melodrama", rationale="The premise supports heightened spectacle but does not fully settle comic-camp treatment."),). Use premise excerpts as evidence, provider_id="fixture", model_id="fixture-model", and keep every component noncanonical. End the fixture factory section with:
+For the "Erotic betrayal melodrama" component, set certainty=UNCERTAIN, activation=SUPPRESSED, derivation=MODEL_INFERENCE, and alternatives=(ArchitectureAlternative(label="Campy erotic melodrama", rationale="The premise supports heightened spectacle but does not fully settle comic-camp treatment."),). It remains visible in orientation and available to Discovery, but it does not silently enter WorkingComposition before resolution.
+
+Use derivation deliberately across the fixture: direct premise wording may be PREMISE_EXPLICIT; normalized deterministic genre/trope matches may be CURATED_MATCH; character functions, revelation machinery, and aesthetic interpretation are MODEL_INFERENCE. Use premise excerpts as evidence, provider_id="fixture", model_id="fixture-model", and keep every component noncanonical. End the fixture factory section with:
 
 ~~~python
 HYBRID_ANALYSIS = hybrid_analysis()
@@ -315,8 +352,10 @@ Later tasks extend this same fixture with analyzer/discovery test doubles; they 
 
 Pin:
 - component IDs unique;
+- derivation is required and independent from certainty/review/authority;
 - at most one PRIMARY per facet except genre constellation may have one primary plus supporting genres;
 - alternatives nonblank and component-scoped;
+- UNCERTAIN consequential components may be suppressed from default guidance while remaining visible to Discovery;
 - stale analyses remain inspectable/deserializable.
 
 - [ ] **Step 7: Run tests and verify GREEN**
@@ -434,7 +473,25 @@ class ArchitectureAnalyzer(Protocol):
 
 Provider JSON contains only summary plus component facet, label, role, certainty, rationale, exact premise evidence phrases, and component-local alternatives.
 
-Provider does not choose IDs, activation, review state, canonical field paths, or authority status. Use temperature 0.2. ProviderArchitectureAnalyzer writes its configured provider_id/model_id into NarrativeArchitectureAnalysis so provenance is inspectable without trusting model output.
+Provider does not choose IDs, derivation status, activation, review state, canonical field paths, or authority status. Use temperature 0.2. ProviderArchitectureAnalyzer writes its configured provider_id/model_id into NarrativeArchitectureAnalysis so provenance is inspectable without trusting model output.
+
+Assign derivation in the deterministic adapter:
+
+~~~text
+normalized component label/concept directly present in the premise
+  → PREMISE_EXPLICIT
+
+component created by deterministic Genre Pack / Story Design Pack / curated vocabulary matching
+  → CURATED_MATCH
+
+provider-proposed component not directly explicit in premise
+  → MODEL_INFERENCE
+
+component introduced through author refinement
+  → AUTHOR_ADDED
+~~~
+
+Be conservative: when unsure whether a provider proposal is literally explicit, classify it as MODEL_INFERENCE. Certainty does not change derivation.
 
 Stable ID:
 
@@ -505,7 +562,9 @@ class ResilientArchitectureAnalyzer:
 
 Do not include provider exception text in beginner-facing fallback copy.
 
-The rich analyzer returns exactly one NarrativeArchitectureAnalysis object for the whole premise. Competing whole-premise analyses are not a beginner result type; only ArchitectureComponent.alternatives may hold ambiguity.
+The rich analyzer returns exactly one NarrativeArchitectureAnalysis object for the whole premise. Component-local alternatives are the default analysis representation.
+
+If two or more consequential uncertainties are coupled such that resolving them independently would be misleading, do not manufacture a cartesian product of analysis choices. Preserve the uncertainties in the analysis and require Story Discovery to generate a small set of causally distinct directions that resolve the coupled readings. This is the first-slice implementation of bounded whole-story ambiguity; it does not add a second analysis object or a new canonical model.
 
 Add reusable test doubles to tests/fixtures/beginner_hybrid_mystery.py:
 
@@ -675,11 +734,16 @@ git commit -m "feat: persist premise architecture analysis"
 - [ ] **Step 1: Write failing activation tests**
 
 ~~~python
-def test_inferred_dimensions_are_active_without_author_confirmation() -> None:
+def test_clear_or_likely_inferred_dimensions_are_active_without_author_confirmation() -> None:
     composition = composition_from_analysis(workspace_id="hybrid", analysis=HYBRID_ANALYSIS, prior=None)
     superhero = next(d for d in composition.dimensions if "Superhero" in d.label)
     assert superhero.activation is GuidanceActivation.ACTIVE
     assert superhero.confirmed_by_author is False
+
+
+def test_uncertain_consequential_component_does_not_silently_enter_working_composition() -> None:
+    composition = composition_from_analysis(workspace_id="hybrid", analysis=HYBRID_ANALYSIS, prior=None)
+    assert "Erotic betrayal melodrama" not in {dimension.label for dimension in composition.dimensions}
 
 
 def test_active_unconfirmed_dimension_changes_guidance_but_not_canon(tmp_path: Path) -> None:
@@ -713,6 +777,8 @@ Add activation: GuidanceActivation = ACTIVE to WorkingDimension. Keep DimensionS
 Projection eligibility:
 - component.activation must be ACTIVE;
 - component.role must be PRIMARY or SUPPORTING;
+- CLEAR and LIKELY components may be ACTIVE by default;
+- consequential UNCERTAIN components are SUPPRESSED by default until the author resolves them or Discovery owns the branch;
 - FLAVOR remains visible in the architecture analysis/Story Map but does not enter WorkingComposition by default.
 
 Projection rules:
@@ -867,6 +933,7 @@ class ArchitectureComponentProjection(BaseModel):
     label: str
     role: str
     certainty: str
+    derivation: str
     activation: str
     review_state: str
     rationale: str | None = None
@@ -894,7 +961,7 @@ class StoryOrientationProjection(BaseModel):
     next_action_label: str
 ~~~
 
-Use one analysis as source. Navigator includes active primary/supporting labels, certainty, review state, and activation. Story Map includes all components plus activation, rationale, evidence, and alternatives. Neither projection is persisted. next_action_label is derived from current workflow state and uses beginner copy such as "Review what Auteur sees", "Choose a story direction", "Review Story Identity", or "Plan Structure"; it is never persisted as authority.
+Use one analysis as source. Navigator includes active primary/supporting labels plus concise certainty/derivation cues only when they help the current decision. Story Map includes all components plus derivation, activation, review state, rationale, evidence, and alternatives. Neither projection is persisted. next_action_label is derived from current workflow state and uses beginner copy such as "Review what Auteur sees", "Choose a story direction", "Review Story Identity", or "Plan the story"; it is never persisted as authority. The default first-session Navigator does not render Realization or Expression stage rows.
 
 Exact labels:
 
@@ -1110,7 +1177,9 @@ analysis
 → return DiscoveryRecommendation
 ~~~
 
-Design context includes analysis summary plus active component labels/facets/roles/evidence. It does not give the model canonical field mutation authority.
+Design context includes analysis summary plus active component labels/facets/roles/evidence and separately identifies consequential unresolved UNCERTAIN components. It does not give the model canonical field mutation authority.
+
+When multiple unresolved uncertainties are coupled and would materially change the engine, target experience, payoff, or Identity candidate, the generated directions must resolve them as distinct coherent story directions rather than treating each component alternative as an independent checkbox.
 
 - [ ] **Step 6: Extend the shared hybrid fixture with exact Identity/Discovery test data**
 
@@ -2051,6 +2120,7 @@ def add_author_component(
         component_id=component_id,
         facet=facet,
         label=label,
+        derivation=ArchitectureDerivation.AUTHOR_ADDED,
         role=role,
         certainty=ArchitectureCertainty.CLEAR,
         activation=ArchitectureActivation.ACTIVE,
@@ -2072,7 +2142,7 @@ def add_author_component(
     )
 ~~~
 
-Author-added components use CLEAR, AUTHOR_MODIFIED, ACTIVE, and explicit author rationale.
+Author-added components use derivation=AUTHOR_ADDED, CLEAR, AUTHOR_MODIFIED, ACTIVE, and explicit author rationale.
 
 - [ ] **Step 4: Reproject WorkingComposition after adjustment**
 
@@ -2085,7 +2155,9 @@ Transaction:
 ~~~text
 claim receipt
 → analyze new premise
-→ reconcile prior author adjustments by facet + normalized concept
+→ reconcile prior author adjustments by stable facet + normalized concept + source relationship
+→ classify each adjusted target as same / superseded / conflicting / genuinely new
+→ preserve unresolved prior adjustments as inspectable history rather than attaching them by label alone
 → replace session premise + architecture analysis
 → reproject WorkingComposition
 → clear Discovery recommendation/selection
@@ -2294,6 +2366,9 @@ def test_browser_does_not_render_internal_dimension_vocabulary() -> None:
     assert "SETTING_WORLD" not in html
     assert "RELATIONSHIP_THEMATIC" not in html
     assert "Use this lens" not in html
+    assert "Narrative Architecture Analysis" not in html
+    assert "Realization" not in html
+    assert "Expression" not in html
     assert "Refine this interpretation" in source or "Refine this interpretation" in html
 ~~~
 
