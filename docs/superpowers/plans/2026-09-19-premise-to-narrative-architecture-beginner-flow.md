@@ -344,7 +344,7 @@ git commit -m "feat: add beginner narrative architecture contracts"
 
 **Interfaces:**
 - Consumes: LLMClient.complete(LLMRequest), Task 1 models.
-- Produces: ArchitectureAnalyzer Protocol, ProviderArchitectureAnalyzer, DeterministicArchitectureAnalyzer, premise_fingerprint(), analysis_basis_fingerprint().
+- Produces: ArchitectureAnalyzer Protocol, ProviderArchitectureAnalyzer, DeterministicArchitectureAnalyzer, ResilientArchitectureAnalyzer, premise_fingerprint(), analysis_basis_fingerprint().
 
 - [ ] **Step 1: Write failing provider/fallback tests**
 
@@ -381,6 +381,29 @@ def test_deterministic_fallback_does_not_invent_erotic_psychology() -> None:
     assert "mystery" in labels
     assert not any("erotic" in label for label in labels)
     assert analysis.availability_note is not None
+
+
+def test_resilient_analyzer_falls_back_after_malformed_rich_analysis() -> None:
+    primary = ProviderArchitectureAnalyzer(
+        FakeClient([LLMResponse(text="{not json", input_tokens=1, output_tokens=1)]),
+        "beginner-architecture",
+        "1",
+        "fixture-model",
+    )
+    analyzer = ResilientArchitectureAnalyzer(
+        primary=primary,
+        fallback=DeterministicArchitectureAnalyzer(),
+    )
+
+    analysis = analyzer.analyze(
+        premise="A superhero investigates a public betrayal.",
+        source_provenance=(),
+    )
+
+    assert analysis.availability_note == (
+        "Rich narrative interpretation was unavailable; showing the bounded explicit-signal fallback."
+    )
+    assert not any("erotic" in component.label.casefold() for component in analysis.components)
 ~~~
 
 - [ ] **Step 2: Run and verify RED**
@@ -435,6 +458,47 @@ _EXPLICIT_SIGNALS = {
 ~~~
 
 Fallback may infer relationship betrayal only when relationship + betrayal signals co-occur. It does not infer erotic psychological drama, campy melodrama, humiliation, or other deep framing unless explicit. availability_note tells the user richer interpretation is unavailable.
+
+Implement the resilience wrapper:
+
+~~~python
+class ResilientArchitectureAnalyzer:
+    def __init__(
+        self,
+        *,
+        primary: ArchitectureAnalyzer,
+        fallback: ArchitectureAnalyzer,
+    ) -> None:
+        self.primary = primary
+        self.fallback = fallback
+
+    def analyze(
+        self,
+        *,
+        premise: str,
+        source_provenance: tuple[PackProvenance, ...],
+    ) -> NarrativeArchitectureAnalysis:
+        try:
+            return self.primary.analyze(
+                premise=premise,
+                source_provenance=source_provenance,
+            )
+        except (ArchitectureAnalysisError, RetriableError):
+            fallback = self.fallback.analyze(
+                premise=premise,
+                source_provenance=source_provenance,
+            )
+            return fallback.model_copy(
+                update={
+                    "availability_note": (
+                        "Rich narrative interpretation was unavailable; "
+                        "showing the bounded explicit-signal fallback."
+                    )
+                }
+            )
+~~~
+
+Do not include provider exception text in beginner-facing fallback copy.
 
 The rich analyzer returns exactly one NarrativeArchitectureAnalysis object for the whole premise. Competing whole-premise analyses are not a beginner result type; only ArchitectureComponent.alternatives may hold ambiguity.
 
@@ -874,6 +938,18 @@ def test_discovery_unavailable_does_not_invent_story_directions() -> None:
     assert result.status is DiscoveryRecommendationStatus.UNAVAILABLE
     assert result.directions == ()
     assert result.recommended_direction_id is None
+
+
+def test_story_discovery_provider_failure_returns_unavailable() -> None:
+    service = StoryDiscoveryRecommender(client=AlwaysRetriableErrorClient())
+    result = service.recommend(
+        premise=HYBRID_MYSTERY_PREMISE,
+        analysis=HYBRID_ANALYSIS,
+    )
+    assert result.status is DiscoveryRecommendationStatus.UNAVAILABLE
+    assert result.recommended_direction_id is None
+    assert result.directions == ()
+    assert "temporarily unavailable" in result.rationale.casefold()
 ~~~
 
 - [ ] **Step 2: Run and verify RED**
@@ -972,6 +1048,8 @@ Beginner mapping rule:
 The normal product posture still asks Story Discovery to search for causally distinct directions and allows a strong advisory preference; it does not manufacture a winner when the calibrated judge says no preference is defensible.
 
 - [ ] **Step 5: Implement StoryDiscoveryRecommender**
+
+If handle_identity_recommend returns HandlerResult.failure, or if the client raises RetriableError after its retry policy is exhausted, return DiscoveryRecommendation(status=UNAVAILABLE, directions=(), recommended_direction_id=None, rationale="Rich story-direction search is temporarily unavailable."). Do not reuse stale directions and do not fabricate deterministic alternatives.
 
 Flow:
 
@@ -2130,7 +2208,7 @@ class BeginnerRuntimeDependencies:
 BeginnerWorkspaceServer gains a dependencies: BeginnerRuntimeDependencies | None constructor argument. _app_for(workspace_id) passes the same dependency objects into every reconstructed BeginnerWorkspaceApplication.
 
 Server behavior:
-- with --provider: build one existing retrying LLMClient, then construct ProviderArchitectureAnalyzer + StoryDiscoveryRecommender;
+- with --provider: build one existing retrying LLMClient, construct ResilientArchitectureAnalyzer(primary=ProviderArchitectureAnalyzer(...), fallback=DeterministicArchitectureAnalyzer()), and construct StoryDiscoveryRecommender;
 - optional --model flows to the existing build_client contract;
 - without --provider: DeterministicArchitectureAnalyzer + UnavailableDiscoveryRecommender;
 - tests inject scripted dependencies and never access network.
