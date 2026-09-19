@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 from pydantic import ValidationError
 import pytest
 
@@ -16,6 +18,17 @@ from auteur.beginner.architecture_models import (
 )
 from auteur.beginner.contracts import SessionEnvelope
 from tests.fixtures.beginner_hybrid_mystery import HYBRID_ANALYSIS
+
+from auteur.beginner.architecture_analysis import (
+    ArchitectureAnalysisError,
+    DeterministicArchitectureAnalyzer,
+    ProviderArchitectureAnalyzer,
+    ResilientArchitectureAnalyzer,
+    analysis_basis_fingerprint,
+    premise_fingerprint,
+)
+from auteur.llm import LLMResponse
+from tests.fixtures.beginner_hybrid_mystery import HYBRID_MYSTERY_PREMISE
 
 
 def test_component_keeps_epistemic_axes_independent() -> None:
@@ -80,20 +93,6 @@ def test_legacy_session_envelope_without_analysis_remains_valid() -> None:
     payload.pop("architecture_analysis", None)
     loaded = SessionEnvelope.model_validate(payload)
     assert loaded.architecture_analysis is None
-
-
-import json
-
-from auteur.beginner.architecture_analysis import (
-    ArchitectureAnalysisError,
-    DeterministicArchitectureAnalyzer,
-    ProviderArchitectureAnalyzer,
-    ResilientArchitectureAnalyzer,
-    analysis_basis_fingerprint,
-    premise_fingerprint,
-)
-from auteur.llm import LLMResponse
-from tests.fixtures.beginner_hybrid_mystery import HYBRID_MYSTERY_PREMISE
 
 
 class FakeClient:

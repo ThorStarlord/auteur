@@ -113,7 +113,6 @@ from .contracts import (
     AuthorOverride,
     MappingReviewStatus,
     DimensionCategory,
-    DimensionStatus,
     MappingDomainContext,
 )
 from .dimensions import (
