@@ -96,6 +96,8 @@ from ..acceptance import AcceptanceRegistry
 from ..blueprint import Genre
 from ..identity import StoryIdentity
 from ..story_design_packs.registry import get_design_pack_registry
+from .architecture_analysis import ArchitectureAnalyzer, DeterministicArchitectureAnalyzer, premise_fingerprint
+from .architecture_models import NarrativeArchitectureAnalysis
 from .composition import compose_mappings, reconcile_review_state
 from .contracts import (
     AcceptedMilestoneReference,
@@ -631,10 +633,12 @@ class BeginnerWorkspaceApplication:
         workspace_id: str,
         *,
         authority_registry: AcceptanceRegistry | None = None,
+        architecture_analyzer: ArchitectureAnalyzer | None = None,
     ) -> None:
         self.session_store = BeginnerSessionStore(Path(project_root), workspace_id)
         self.receipt_store = CommandReceiptStore(Path(project_root), workspace_id)
         self.workspace_id = workspace_id
+        self.architecture_analyzer = architecture_analyzer or DeterministicArchitectureAnalyzer()
         if authority_registry is None:
             authority_registry = AcceptanceRegistry(Path(project_root))
             authority_registry.register(_BeginnerMilestoneOwner(Path(project_root)))
@@ -664,6 +668,11 @@ class BeginnerWorkspaceApplication:
                 guidance_genre=guidance_genre,
                 premise=premise,
             )
+            analysis = self.architecture_analyzer.analyze(
+                premise=premise,
+                source_provenance=self._available_dimension_sources(session),
+            )
+            session = session.model_copy(update={"architecture_analysis": analysis})
             session = session.model_copy(update={"working_composition": self._initial_composition(session)})
             saved = self.session_store.create(session)
         except (BeginnerPersistenceError, ValueError):
@@ -2639,6 +2648,29 @@ class BeginnerWorkspaceApplication:
             pack, digest = get_design_pack_registry().get("superhero", "0.1.0")
             sources.append(PackProvenance(pack_id=pack.pack_id, version=pack.version, content_hash=digest))
         return tuple(sources)
+
+    def _analysis_is_current(self, session: SessionEnvelope) -> bool:
+        analysis = session.architecture_analysis
+        if analysis is None:
+            return False
+        if analysis.stale or analysis.premise_fingerprint != premise_fingerprint(session.premise):
+            return False
+        current_sources = {
+            (source.pack_id, source.version): source.content_hash
+            for source in self._available_dimension_sources(session)
+        }
+        return all(
+            current_sources.get((source.pack_id, source.version)) == source.content_hash
+            for source in analysis.source_provenance
+        )
+
+    def _architecture_analysis(self, session: SessionEnvelope) -> NarrativeArchitectureAnalysis | None:
+        analysis = session.architecture_analysis
+        if analysis is None:
+            return None
+        if self._analysis_is_current(session):
+            return analysis
+        return analysis.model_copy(update={"stale": True})
 
     def _initial_composition(self, session: SessionEnvelope) -> WorkingComposition:
         sources = self._available_dimension_sources(session)
