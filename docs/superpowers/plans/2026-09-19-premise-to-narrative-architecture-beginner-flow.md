@@ -858,7 +858,43 @@ Expected: FAIL.
 
 - [ ] **Step 3: Build pure projections**
 
-Use one analysis as source. Navigator includes active primary/supporting labels, certainty, review state, and activation. Story Map includes all components plus activation, rationale, evidence, and alternatives. Neither projection is persisted.
+Use these exact projection contracts:
+
+~~~python
+class ArchitectureComponentProjection(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    component_id: str
+    label: str
+    role: str
+    certainty: str
+    activation: str
+    review_state: str
+    rationale: str | None = None
+    evidence: tuple[ArchitectureEvidence, ...] = ()
+    alternatives: tuple[ArchitectureAlternative, ...] = ()
+
+
+class ArchitectureFacetProjection(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    facet: str
+    label: str
+    components: tuple[ArchitectureComponentProjection, ...]
+
+
+class StoryOrientationProjection(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    heading: str = "Here is what Auteur sees"
+    summary: str
+    analysis_id: str | None
+    analysis_stale: bool
+    authority_status: str
+    navigator_facets: tuple[ArchitectureFacetProjection, ...]
+    story_map_facets: tuple[ArchitectureFacetProjection, ...]
+    availability_note: str | None = None
+    next_action_label: str
+~~~
+
+Use one analysis as source. Navigator includes active primary/supporting labels, certainty, review state, and activation. Story Map includes all components plus activation, rationale, evidence, and alternatives. Neither projection is persisted. next_action_label is derived from current workflow state and uses beginner copy such as "Review what Auteur sees", "Choose a story direction", "Review Story Identity", or "Plan Structure"; it is never persisted as authority.
 
 Exact labels:
 
@@ -1420,7 +1456,7 @@ python -m pytest tests/test_beginner_workspace_application.py tests/test_beginne
 
 Expected: FAIL.
 
-- [ ] **Step 3: Add derived primary-surface state**
+- [ ] **Step 3: Add derived primary-surface state and typed Discovery/Identity projections**
 
 Use these values:
 
@@ -1435,6 +1471,48 @@ PrimaryWorkspaceSurface = Literal[
 ~~~
 
 Derive the value from persisted session/canon state; do not create a second persisted workflow state machine.
+
+Add:
+
+~~~python
+class DiscoveryDirectionProjection(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    direction_id: str
+    title: str
+    summary: str
+    recommended: bool
+    selected: bool
+    tradeoffs: tuple[str, ...]
+    risks: tuple[str, ...]
+    authority_status: str
+
+
+class DiscoveryProjection(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    recommendation_id: str
+    status: str
+    recommended_direction_id: str | None
+    selected_direction_id: str | None
+    rationale: str
+    directions: tuple[DiscoveryDirectionProjection, ...]
+    blockers: tuple[str, ...] = ()
+    supersedes_recommendation_id: str | None = None
+    authority_status: str = "DERIVED / NOT CANON"
+
+
+class IdentityCandidateProjection(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    direction_id: str
+    title: str
+    core_answer: str
+    story_type: dict[str, object]
+    target_experience: dict[str, object]
+    central_engine: dict[str, object]
+    source_component_ids: tuple[str, ...]
+    authority_status: str = "PROPOSED / NOT CANON"
+~~~
+
+These are pure projections over persisted Discovery/analysis state. Do not persist them separately.
 
 - [ ] **Step 4: Implement continue_from_architecture()**
 
