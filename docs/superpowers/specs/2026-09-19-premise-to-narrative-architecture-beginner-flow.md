@@ -1,6 +1,6 @@
 # Premise-to-Narrative-Architecture Beginner Flow
 
-Status: **approved product-design specification for review**
+Status: **draft for user review**
 
 Date: 2026-09-19
 
@@ -578,6 +578,31 @@ The interface must make clear:
 inferred working interpretation ≠ canonical commitment
 ```
 
+### Activation versus author confirmation
+
+Guidance activation, author confirmation, and canonical authority are separate concepts.
+
+An inferred component may be **active for working guidance by default** even when the author has not explicitly confirmed it. This is what allows Auteur to reason from the premise immediately instead of requiring the author to activate every detected dimension.
+
+The system must preserve at least these distinctions:
+
+```text
+inferred component
+  ├─ active/suppressed for working guidance
+  ├─ unreviewed/author-confirmed/author-modified as working interpretation
+  └─ noncanonical until an existing Story Identity or Structure authority boundary accepts a mapped commitment
+```
+
+Do not overload one lifecycle/status field to mean all three things.
+
+The exact schema may reuse existing fields or introduce a narrow separate activation/review axis, but it must support these invariants:
+
+- inferred does not mean author-confirmed;
+- active for guidance does not mean canonical;
+- author confirmation of an interpretation does not itself promote canon;
+- suppressing a component removes it from working guidance without rewriting accepted canon;
+- canonical acceptance remains a separate later action.
+
 ### Refinement
 
 "Refine this interpretation" may allow the author to:
@@ -745,6 +770,22 @@ Examples:
 The redesign may reduce, replace, or dynamically select cards.
 
 The product must not preserve a ten-card sequence merely because it already exists.
+
+### Adaptive decision inventory
+
+The beginner flow should not treat fixed card counts such as `Discover 3 / Identity 4 / Structure 3` as product requirements.
+
+A Decision Card exists because there is a material unresolved author decision, not because a stage has a predetermined quota.
+
+Therefore:
+
+- if the architecture analysis already establishes a premise trait strongly enough for current guidance, do not ask the author to restate it;
+- if Discovery has one clear recommended direction and only one material ambiguity, ask about that ambiguity rather than filling a three-card quota;
+- if the selected direction already determines most Story Identity fields, present a coherent candidate Identity and ask only about genuinely unresolved commitments;
+- if Structure has no reason to ask a particular planning question yet, defer it rather than manufacturing a choice;
+- dynamic selection must remain bounded, explainable, and testable.
+
+This does not require free-form unbounded questioning. The application may still select from curated Decision Card families and deterministic eligibility rules.
 
 ---
 
@@ -1025,6 +1066,23 @@ Do not create a second canonical map database.
 Reuse existing projection/orientation concepts where possible.
 
 The first implementation does not need to solve the complete long-horizon Global Map problem.
+
+### Story Navigator versus Story Map
+
+The Navigator and Story Map must not become competing representations of the same story.
+
+Use one underlying derived architecture projection with two presentation depths:
+
+```text
+Story Navigator
+  concise orientation + status + next action
+
+Story Map
+  expanded read-only inspection of the same current architecture,
+  evidence, relationships, ambiguity, and accepted milestones
+```
+
+The Story Map may show more detail, but it must not own a second persistence model or silently diverge from the Navigator.
 
 ---
 
