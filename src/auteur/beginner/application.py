@@ -133,6 +133,7 @@ from .contracts import (
 )
 from .discovery import DiscoveryRecommender, UnavailableDiscoveryRecommender
 from .discovery_models import DiscoveryRecommendationStatus
+from .decision_inventory import structure_inventory_for
 from .dimensions import (
     active_dimensions,
     add_author_dimension,
@@ -3216,7 +3217,28 @@ class BeginnerWorkspaceApplication:
 
     def _inventory_for(self, session: SessionEnvelope):  # type: ignore[no-untyped-def]
         adapter = _adapter_for(session.guidance_genre)
-        inventory = adapter.inventory()
+        recommendation = session.discovery_recommendation
+        if (
+            session.architecture_analysis is not None
+            and (
+                recommendation is None
+                or recommendation.status is not DiscoveryRecommendationStatus.UNAVAILABLE
+            )
+        ):
+            inventory = structure_inventory_for(
+                session=session,
+                analysis=session.architecture_analysis,
+                accepted_identity=(
+                    self._canonical_identity()
+                    if any(
+                        reference.milestone_id == "story_identity"
+                        for reference in session.accepted_milestones
+                    )
+                    else self._selected_discovery_identity(session)
+                ),
+            )
+        else:
+            inventory = adapter.inventory()
         adapter.validate_inventory(inventory)
         return inventory
 

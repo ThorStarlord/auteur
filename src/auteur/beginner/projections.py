@@ -466,13 +466,45 @@ def build_workspace_projection(
     for stage in STAGE_ORDER:
         stage_cards = cards_for_stage(inventory, stage)
         answered = sum(1 for card in stage_cards if card.card_id in answers)
-        review_available = bool(stage_cards) and answered == len(stage_cards)
-        blockers = _blockers_for_stage(stage, stage_cards, answers, tensions, stale, review_available)
-        if stage is DecisionStage.STORY_IDENTITY:
-            if mapping_preview is None:
-                blockers = tuple(dict.fromkeys((*blockers, "composition_mapping_required")))
+        rich_recommendation = session.discovery_recommendation
+        rich_flow = (
+            session.architecture_analysis is not None
+            and rich_recommendation is not None
+            and rich_recommendation.status is not DiscoveryRecommendationStatus.UNAVAILABLE
+        )
+        if rich_flow and stage is DecisionStage.DISCOVER:
+            review_available = rich_recommendation.selected_direction_id is not None
+            blockers = (
+                ()
+                if review_available
+                else ("Select a Story Discovery direction before accepting.",)
+            )
+        elif rich_flow and stage is DecisionStage.STORY_IDENTITY:
+            direction_accepted = "story_direction" in _accepted_milestone_ids(session)
+            review_available = direction_accepted and mapping_preview is not None
+            blockers = ()
+            if not direction_accepted:
+                blockers = ("Accept a Story Direction before reviewing Story Identity.",)
+            elif mapping_preview is None:
+                blockers = ("composition_mapping_required",)
             else:
-                blockers = tuple(dict.fromkeys((*blockers, *getattr(mapping_preview, "blocking_items", ()))))
+                blockers = tuple(getattr(mapping_preview, "blocking_items", ()))
+        else:
+            review_available = bool(stage_cards) and answered == len(stage_cards)
+            blockers = _blockers_for_stage(
+                stage, stage_cards, answers, tensions, stale, review_available
+            )
+            if stage is DecisionStage.STORY_IDENTITY:
+                if mapping_preview is None:
+                    blockers = tuple(
+                        dict.fromkeys((*blockers, "composition_mapping_required"))
+                    )
+                else:
+                    blockers = tuple(
+                        dict.fromkeys(
+                            (*blockers, *getattr(mapping_preview, "blocking_items", ()))
+                        )
+                    )
         ready = review_available and not blockers
         status = session.stages[stage]
         stage_stale = stale and answered > 0
@@ -686,12 +718,19 @@ def _review_for_stage(
     following = sum(1 for summary in summaries if summary.guidance_alignment == "follows_guidance")
     blocking = sum(1 for blocker in blockers if "tension" in blocker.lower())
     assumptions = "stale; reassess guidance" if stale else "current"
-    synthesis = (
-        f"{STAGE_LABELS[stage]} review: {answered} of {len(summaries)} decisions recorded. "
-        f"{following} of {answered} follow guidance. "
-        f"{blocking} blocking tension(s). Assumptions {assumptions}. "
-        "Expand a card below for its evidence."
-    )
+    if summaries:
+        synthesis = (
+            f"{STAGE_LABELS[stage]} review: {answered} of {len(summaries)} decisions recorded. "
+            f"{following} of {answered} follow guidance. "
+            f"{blocking} blocking tension(s). Assumptions {assumptions}. "
+            "Expand a card below for its evidence."
+        )
+    elif stage is DecisionStage.DISCOVER:
+        synthesis = "Discovery review is represented by the current Story Discovery direction selection."
+    elif stage is DecisionStage.STORY_IDENTITY:
+        synthesis = "Story Identity review is represented by the selected direction and its promotion preview."
+    else:
+        synthesis = "No material curated decisions are required for this stage."
     return ReviewProjection(
         stage=stage,
         opened=opened,
