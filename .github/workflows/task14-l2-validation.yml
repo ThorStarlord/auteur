@@ -1,0 +1,45 @@
+name: Task 14 L2 Validation
+
+on:
+  pull_request:
+    branches:
+      - "work/premise-narrative-architecture-beginner-flow"
+
+jobs:
+  targeted-l2:
+    name: "Task 14 targeted L2 (Python 3.12)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Assert frozen product tree is unchanged
+        shell: bash
+        env:
+          PRODUCT_SHA: 721506661de8d8d551c5854d909379a14868c17d
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse "$PRODUCT_SHA")" = "$PRODUCT_SHA"
+          git diff --exit-code "$PRODUCT_SHA" "$HEAD_SHA" -- . ':(exclude).github/workflows/task14-l2-validation.yml'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Record environment
+        run: |
+          python --version
+          python -m pytest --version
+      - name: Run Task 14 targeted L2
+        run: >
+          python -m pytest -q
+          tests/test_beginner_architecture_analysis.py
+          tests/test_beginner_discovery.py
+          tests/test_beginner_workspace_application.py
+          tests/test_beginner_workspace_authority.py
+          tests/test_beginner_workspace_persistence.py
+          tests/test_beginner_workspace_server.py
+          tests/test_beginner_workspace_browser.py
+          tests/test_beginner_workspace_qualification.py
+          --tb=short
