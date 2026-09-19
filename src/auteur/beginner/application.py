@@ -96,8 +96,24 @@ from ..acceptance import AcceptanceRegistry
 from ..blueprint import Genre
 from ..identity import StoryIdentity
 from ..story_design_packs.registry import get_design_pack_registry
-from .architecture_analysis import ArchitectureAnalyzer, DeterministicArchitectureAnalyzer, premise_fingerprint
-from .architecture_models import NarrativeArchitectureAnalysis
+from .architecture_analysis import (
+    ArchitectureAnalyzer,
+    DeterministicArchitectureAnalyzer,
+    add_author_component,
+    choose_component_alternative,
+    confirm_component,
+    premise_fingerprint,
+    reconcile_author_adjustments,
+    rename_component,
+    restore_component,
+    set_component_role,
+    suppress_component,
+)
+from .architecture_models import (
+    ArchitectureFacet,
+    ArchitectureRole,
+    NarrativeArchitectureAnalysis,
+)
 from .architecture_projection import build_story_orientation
 from .composition import compose_mappings, reconcile_review_state
 from .contracts import (
@@ -724,6 +740,11 @@ class BeginnerWorkspaceApplication:
                 premise=session.premise,
                 analysis=analysis,
             )
+            pending_supersedes = self._journey.get("pending_discovery_supersedes")
+            if isinstance(pending_supersedes, str) and pending_supersedes:
+                recommendation = recommendation.model_copy(
+                    update={"supersedes_recommendation_id": pending_supersedes}
+                )
             self.session_store.update(
                 expected_session_version,
                 lambda current: current.model_copy(
@@ -744,6 +765,7 @@ class BeginnerWorkspaceApplication:
                 }
             )
             self._journey["architecture_seen"] = seen
+            self._journey["pending_discovery_supersedes"] = None
             self._save_journey()
         self.receipt_store.complete(
             acquisition,
@@ -815,6 +837,281 @@ class BeginnerWorkspaceApplication:
                 {
                     "kind": "select_story_direction",
                     "data": {"direction_id": direction_id},
+                },
+            ),
+        )
+        return self.projection()
+
+    def _refine_architecture(
+        self,
+        *,
+        expected_session_version: int,
+        command_id: str,
+        updater,
+    ) -> WorkspaceProjection:
+        acquisition = self.receipt_store.begin(command_id, command_type="create_workspace")
+        if acquisition.outcome == "completed_replay":
+            return self.projection()
+        if acquisition.outcome != "owner_claim":
+            raise BeginnerWorkspaceError(f"command already in progress: {command_id}")
+        session = self.session_store.load()
+        self._check_version(session, expected_session_version)
+        if any(
+            reference.milestone_id == "story_direction"
+            for reference in session.accepted_milestones
+        ):
+            raise BeginnerWorkspaceError(
+                "accepted Story Direction must be revised through the revision flow"
+            )
+        analysis = self._architecture_analysis(session)
+        if analysis is None or analysis.stale:
+            raise BeginnerWorkspaceError("current narrative interpretation is unavailable")
+        invalidated = (
+            session.discovery_recommendation.recommendation_id
+            if session.discovery_recommendation is not None
+            else None
+        )
+        updated = updater(analysis)
+        if invalidated is not None and updated.adjustments:
+            last = updated.adjustments[-1].model_copy(
+                update={"invalidated_discovery_recommendation_id": invalidated}
+            )
+            updated = updated.model_copy(
+                update={"adjustments": (*updated.adjustments[:-1], last)}
+            )
+        composition = composition_from_analysis(
+            workspace_id=self.workspace_id,
+            analysis=updated,
+            prior=session.working_composition,
+        )
+        self.session_store.update(
+            expected_session_version,
+            lambda current: current.model_copy(
+                update={
+                    "architecture_analysis": updated,
+                    "working_composition": composition,
+                    "discovery_recommendation": None,
+                }
+            ),
+        )
+        if invalidated is not None:
+            self._journey["pending_discovery_supersedes"] = invalidated
+            self._save_journey()
+        self.receipt_store.complete(
+            acquisition,
+            cast(
+                JsonValue,
+                {
+                    "kind": "refine_architecture",
+                    "data": {"analysis_id": updated.analysis_id},
+                },
+            ),
+        )
+        return self.projection()
+
+    def confirm_architecture_component(
+        self,
+        *,
+        component_id: str,
+        rationale: str,
+        expected_session_version: int,
+        command_id: str,
+    ) -> WorkspaceProjection:
+        return self._refine_architecture(
+            expected_session_version=expected_session_version,
+            command_id=command_id,
+            updater=lambda analysis: confirm_component(
+                analysis, component_id, rationale
+            ),
+        )
+
+    def suppress_architecture_component(
+        self,
+        *,
+        component_id: str,
+        rationale: str,
+        expected_session_version: int,
+        command_id: str,
+    ) -> WorkspaceProjection:
+        return self._refine_architecture(
+            expected_session_version=expected_session_version,
+            command_id=command_id,
+            updater=lambda analysis: suppress_component(
+                analysis, component_id, rationale
+            ),
+        )
+
+    def restore_architecture_component(
+        self,
+        *,
+        component_id: str,
+        rationale: str,
+        expected_session_version: int,
+        command_id: str,
+    ) -> WorkspaceProjection:
+        return self._refine_architecture(
+            expected_session_version=expected_session_version,
+            command_id=command_id,
+            updater=lambda analysis: restore_component(
+                analysis, component_id, rationale
+            ),
+        )
+
+    def rename_architecture_component(
+        self,
+        *,
+        component_id: str,
+        label: str,
+        rationale: str,
+        expected_session_version: int,
+        command_id: str,
+    ) -> WorkspaceProjection:
+        return self._refine_architecture(
+            expected_session_version=expected_session_version,
+            command_id=command_id,
+            updater=lambda analysis: rename_component(
+                analysis, component_id, label, rationale
+            ),
+        )
+
+    def choose_architecture_alternative(
+        self,
+        *,
+        component_id: str,
+        alternative_label: str,
+        rationale: str,
+        expected_session_version: int,
+        command_id: str,
+    ) -> WorkspaceProjection:
+        return self._refine_architecture(
+            expected_session_version=expected_session_version,
+            command_id=command_id,
+            updater=lambda analysis: choose_component_alternative(
+                analysis, component_id, alternative_label, rationale
+            ),
+        )
+
+    def set_architecture_component_role(
+        self,
+        *,
+        component_id: str,
+        role: ArchitectureRole,
+        rationale: str,
+        expected_session_version: int,
+        command_id: str,
+    ) -> WorkspaceProjection:
+        return self._refine_architecture(
+            expected_session_version=expected_session_version,
+            command_id=command_id,
+            updater=lambda analysis: set_component_role(
+                analysis, component_id, role, rationale
+            ),
+        )
+
+    def add_architecture_component(
+        self,
+        *,
+        facet: ArchitectureFacet,
+        label: str,
+        role: ArchitectureRole,
+        rationale: str,
+        expected_session_version: int,
+        command_id: str,
+    ) -> WorkspaceProjection:
+        return self._refine_architecture(
+            expected_session_version=expected_session_version,
+            command_id=command_id,
+            updater=lambda analysis: add_author_component(
+                analysis,
+                facet=facet,
+                label=label,
+                role=role,
+                rationale=rationale,
+            ),
+        )
+
+    def reanalyze_premise(
+        self,
+        *,
+        premise: str,
+        expected_session_version: int,
+        command_id: str,
+    ) -> WorkspaceProjection:
+        acquisition = self.receipt_store.begin(command_id, command_type="create_workspace")
+        if acquisition.outcome == "completed_replay":
+            return self.projection()
+        if acquisition.outcome != "owner_claim":
+            raise BeginnerWorkspaceError(f"command already in progress: {command_id}")
+        session = self.session_store.load()
+        self._check_version(session, expected_session_version)
+        if any(
+            reference.milestone_id in {"story_direction", "story_identity"}
+            for reference in session.accepted_milestones
+        ):
+            raise BeginnerWorkspaceError(
+                "accepted direction/Identity requires revision-overlay reanalysis"
+            )
+        old_analysis = session.architecture_analysis
+        invalidated = (
+            session.discovery_recommendation.recommendation_id
+            if session.discovery_recommendation is not None
+            else None
+        )
+        refreshed = self.architecture_analyzer.analyze(
+            premise=premise,
+            source_provenance=self._available_dimension_sources(
+                session.model_copy(update={"premise": premise})
+            ),
+        )
+        if old_analysis is not None:
+            refreshed = reconcile_author_adjustments(old_analysis, refreshed)
+        composition = composition_from_analysis(
+            workspace_id=self.workspace_id,
+            analysis=refreshed,
+            prior=session.working_composition,
+        )
+        stages = dict(session.stages)
+        stages[DecisionStage.DISCOVER] = stages[DecisionStage.DISCOVER].model_copy(
+            update={
+                "availability": StageAvailability.AVAILABLE,
+                "lifecycle": LifecycleStatus.WORKING,
+            }
+        )
+        stages[DecisionStage.STORY_IDENTITY] = stages[DecisionStage.STORY_IDENTITY].model_copy(
+            update={
+                "availability": StageAvailability.LOCKED,
+                "lifecycle": LifecycleStatus.NOT_STARTED,
+            }
+        )
+        stages[DecisionStage.STORY_STRUCTURE] = stages[DecisionStage.STORY_STRUCTURE].model_copy(
+            update={
+                "availability": StageAvailability.LOCKED,
+                "lifecycle": LifecycleStatus.NOT_STARTED,
+            }
+        )
+        self.session_store.update(
+            expected_session_version,
+            lambda current: current.model_copy(
+                update={
+                    "premise": premise,
+                    "architecture_analysis": refreshed,
+                    "working_composition": composition,
+                    "discovery_recommendation": None,
+                    "stages": stages,
+                }
+            ),
+        )
+        if invalidated is not None:
+            self._journey["pending_discovery_supersedes"] = invalidated
+        self._journey["cursor_override"] = None
+        self._save_journey()
+        self.receipt_store.complete(
+            acquisition,
+            cast(
+                JsonValue,
+                {
+                    "kind": "reanalyze_premise",
+                    "data": {"analysis_id": refreshed.analysis_id},
                 },
             ),
         )

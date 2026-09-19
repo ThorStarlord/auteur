@@ -14,12 +14,14 @@ from auteur.story_design_packs.models import PackProvenance
 
 from .architecture_models import (
     ArchitectureActivation,
+    ArchitectureAdjustment,
     ArchitectureAlternative,
     ArchitectureCertainty,
     ArchitectureComponent,
     ArchitectureDerivation,
     ArchitectureEvidence,
     ArchitectureFacet,
+    ArchitectureReviewState,
     ArchitectureRole,
     NarrativeArchitectureAnalysis,
 )
@@ -419,3 +421,294 @@ class ResilientArchitectureAnalyzer:
                     )
                 }
             )
+
+
+
+def _replace_component(
+    analysis: NarrativeArchitectureAnalysis,
+    updated: ArchitectureComponent,
+    adjustment: ArchitectureAdjustment,
+) -> NarrativeArchitectureAnalysis:
+    components = tuple(
+        updated if item.component_id == updated.component_id else item
+        for item in analysis.components
+    )
+    return analysis.model_copy(
+        update={
+            "components": components,
+            "adjustments": (*analysis.adjustments, adjustment),
+        }
+    )
+
+
+def suppress_component(
+    analysis: NarrativeArchitectureAnalysis,
+    component_id: str,
+    rationale: str,
+) -> NarrativeArchitectureAnalysis:
+    component = analysis.component(component_id)
+    updated = component.model_copy(
+        update={
+            "activation": ArchitectureActivation.SUPPRESSED,
+            "review_state": ArchitectureReviewState.AUTHOR_MODIFIED,
+            "author_rationale": rationale,
+        }
+    )
+    return _replace_component(
+        analysis,
+        updated,
+        ArchitectureAdjustment(
+            action="suppress",
+            component_id=component_id,
+            before_label=component.label,
+            after_label=component.label,
+            rationale=rationale,
+        ),
+    )
+
+
+def restore_component(
+    analysis: NarrativeArchitectureAnalysis,
+    component_id: str,
+    rationale: str,
+) -> NarrativeArchitectureAnalysis:
+    component = analysis.component(component_id)
+    updated = component.model_copy(
+        update={
+            "activation": ArchitectureActivation.ACTIVE,
+            "review_state": ArchitectureReviewState.AUTHOR_MODIFIED,
+            "author_rationale": rationale,
+        }
+    )
+    return _replace_component(
+        analysis,
+        updated,
+        ArchitectureAdjustment(
+            action="restore",
+            component_id=component_id,
+            before_label=component.label,
+            after_label=component.label,
+            rationale=rationale,
+        ),
+    )
+
+
+def confirm_component(
+    analysis: NarrativeArchitectureAnalysis,
+    component_id: str,
+    rationale: str,
+) -> NarrativeArchitectureAnalysis:
+    component = analysis.component(component_id)
+    updated = component.model_copy(
+        update={
+            "activation": ArchitectureActivation.ACTIVE,
+            "review_state": ArchitectureReviewState.AUTHOR_CONFIRMED,
+            "author_rationale": rationale,
+        }
+    )
+    return _replace_component(
+        analysis,
+        updated,
+        ArchitectureAdjustment(
+            action="confirm",
+            component_id=component_id,
+            before_label=component.label,
+            after_label=component.label,
+            rationale=rationale,
+        ),
+    )
+
+
+def rename_component(
+    analysis: NarrativeArchitectureAnalysis,
+    component_id: str,
+    label: str,
+    rationale: str,
+) -> NarrativeArchitectureAnalysis:
+    component = analysis.component(component_id)
+    clean_label = label.strip()
+    if not clean_label:
+        raise ValueError("architecture component label must not be blank")
+    updated = component.model_copy(
+        update={
+            "label": clean_label,
+            "review_state": ArchitectureReviewState.AUTHOR_MODIFIED,
+            "author_rationale": rationale,
+        }
+    )
+    return _replace_component(
+        analysis,
+        updated,
+        ArchitectureAdjustment(
+            action="rename",
+            component_id=component_id,
+            before_label=component.label,
+            after_label=clean_label,
+            rationale=rationale,
+        ),
+    )
+
+
+def choose_component_alternative(
+    analysis: NarrativeArchitectureAnalysis,
+    component_id: str,
+    alternative_label: str,
+    rationale: str,
+) -> NarrativeArchitectureAnalysis:
+    component = analysis.component(component_id)
+    alternative = next(
+        (item for item in component.alternatives if item.label == alternative_label),
+        None,
+    )
+    if alternative is None:
+        raise ValueError(f"unknown alternative for {component_id}: {alternative_label}")
+    updated = component.model_copy(
+        update={
+            "label": alternative.label,
+            "certainty": ArchitectureCertainty.CLEAR,
+            "activation": ArchitectureActivation.ACTIVE,
+            "review_state": ArchitectureReviewState.AUTHOR_MODIFIED,
+            "author_rationale": rationale,
+            "alternatives": (),
+        }
+    )
+    return _replace_component(
+        analysis,
+        updated,
+        ArchitectureAdjustment(
+            action="choose_alternative",
+            component_id=component_id,
+            before_label=component.label,
+            after_label=alternative.label,
+            rationale=rationale,
+        ),
+    )
+
+
+def set_component_role(
+    analysis: NarrativeArchitectureAnalysis,
+    component_id: str,
+    role: ArchitectureRole,
+    rationale: str,
+) -> NarrativeArchitectureAnalysis:
+    component = analysis.component(component_id)
+    if role is ArchitectureRole.PRIMARY:
+        for other in analysis.components:
+            if (
+                other.component_id != component_id
+                and other.facet is component.facet
+                and other.role is ArchitectureRole.PRIMARY
+            ):
+                raise ValueError(
+                    f"{component.facet.value} already has primary component {other.component_id}"
+                )
+    updated = component.model_copy(
+        update={
+            "role": role,
+            "review_state": ArchitectureReviewState.AUTHOR_MODIFIED,
+            "author_rationale": rationale,
+        }
+    )
+    return _replace_component(
+        analysis,
+        updated,
+        ArchitectureAdjustment(
+            action="set_role",
+            component_id=component_id,
+            before_label=component.role.value,
+            after_label=role.value,
+            rationale=rationale,
+        ),
+    )
+
+
+def add_author_component(
+    analysis: NarrativeArchitectureAnalysis,
+    *,
+    facet: ArchitectureFacet,
+    label: str,
+    role: ArchitectureRole,
+    rationale: str,
+) -> NarrativeArchitectureAnalysis:
+    clean_label = label.strip()
+    if not clean_label:
+        raise ValueError("architecture component label must not be blank")
+    component_id = _component_id(facet, clean_label)
+    if any(item.component_id == component_id for item in analysis.components):
+        raise ValueError(f"architecture component already exists: {component_id}")
+    if role is ArchitectureRole.PRIMARY and any(
+        item.facet is facet and item.role is ArchitectureRole.PRIMARY
+        for item in analysis.components
+    ):
+        raise ValueError(f"{facet.value} already has a primary component")
+    component = ArchitectureComponent(
+        component_id=component_id,
+        facet=facet,
+        label=clean_label,
+        normalized_concept=_normalized_concept(clean_label),
+        derivation=ArchitectureDerivation.AUTHOR_ADDED,
+        role=role,
+        certainty=ArchitectureCertainty.CLEAR,
+        activation=ArchitectureActivation.ACTIVE,
+        review_state=ArchitectureReviewState.AUTHOR_MODIFIED,
+        rationale=rationale,
+        author_rationale=rationale,
+    )
+    adjustment = ArchitectureAdjustment(
+        action="add",
+        component_id=component_id,
+        after_label=clean_label,
+        rationale=rationale,
+    )
+    return analysis.model_copy(
+        update={
+            "components": (*analysis.components, component),
+            "adjustments": (*analysis.adjustments, adjustment),
+        }
+    )
+
+
+def reconcile_author_adjustments(
+    prior: NarrativeArchitectureAnalysis,
+    refreshed: NarrativeArchitectureAnalysis,
+) -> NarrativeArchitectureAnalysis:
+    """Carry author work only across stable semantic component matches."""
+    by_semantic_key = {
+        (component.facet, component.normalized_concept or _normalized_concept(component.label)): component
+        for component in refreshed.components
+    }
+    components = list(refreshed.components)
+    index_by_id = {component.component_id: index for index, component in enumerate(components)}
+    for previous in prior.components:
+        if (
+            previous.review_state is ArchitectureReviewState.UNREVIEWED
+            and previous.derivation is not ArchitectureDerivation.AUTHOR_ADDED
+        ):
+            continue
+        key = (
+            previous.facet,
+            previous.normalized_concept or _normalized_concept(previous.label),
+        )
+        current = by_semantic_key.get(key)
+        if current is None:
+            if previous.derivation is ArchitectureDerivation.AUTHOR_ADDED:
+                components.append(previous)
+            continue
+        carried = current.model_copy(
+            update={
+                "label": previous.label,
+                "role": previous.role,
+                "activation": previous.activation,
+                "review_state": previous.review_state,
+                "author_rationale": previous.author_rationale,
+            }
+        )
+        current_index = index_by_id.get(current.component_id)
+        if current_index is not None:
+            components[current_index] = carried
+    return refreshed.model_copy(
+        update={
+            "components": tuple(components),
+            "adjustments": prior.adjustments,
+        }
+    )

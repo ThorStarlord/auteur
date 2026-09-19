@@ -48,6 +48,15 @@ HYBRID_MYSTERY_PREMISE = (
 )
 
 
+REVISED_HYBRID_MYSTERY_PREMISE = (
+    "A celebrated masked superhero begins investigating inconsistencies around an intimate partner "
+    "and a powerful rival. Each clue threatens the hero's secret public identity and changes how "
+    "the hero understands trust, jealousy, and possible relationship betrayal. The story should "
+    "remain a fair mystery while treating the private discoveries as campy erotic-betrayal "
+    "melodrama rather than psychological realism."
+)
+
+
 def _premise_evidence(label: str, excerpt: str) -> tuple[ArchitectureEvidence, ...]:
     return (ArchitectureEvidence(source_kind="premise", label=label, excerpt=excerpt),)
 
