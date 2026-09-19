@@ -75,6 +75,7 @@ Do not introduce a generic narrative database or a new semantic layer.
 - Modify: src/auteur/beginner/contracts.py
 - Create: tests/test_beginner_architecture_analysis.py
 - Modify: tests/test_beginner_workspace_persistence.py
+- Modify: tests/fixtures/beginner_hybrid_mystery.py
 
 **Interfaces:**
 - Consumes: PackProvenance from auteur.story_design_packs.models.
@@ -245,6 +246,8 @@ class NarrativeArchitectureAnalysis(BaseModel):
     premise_fingerprint: str = Field(min_length=1)
     analyzer_id: str = Field(min_length=1)
     analyzer_version: str = Field(min_length=1)
+    provider_id: str | None = None
+    model_id: str | None = None
     summary: str = Field(min_length=1)
     components: tuple[ArchitectureComponent, ...]
     source_provenance: tuple[PackProvenance, ...] = ()
@@ -252,6 +255,12 @@ class NarrativeArchitectureAnalysis(BaseModel):
     stale: bool = False
     availability_note: str | None = None
     authority_status: Literal["DERIVED / NOT CANON"] = "DERIVED / NOT CANON"
+
+    def component(self, component_id: str) -> ArchitectureComponent:
+        for component in self.components:
+            if component.component_id == component_id:
+                return component
+        raise KeyError(component_id)
 ~~~
 
 Add to SessionEnvelope:
@@ -262,7 +271,40 @@ architecture_analysis: NarrativeArchitectureAnalysis | None = None
 
 Do not bump the session schema solely for this backward-compatible optional field.
 
-- [ ] **Step 5: Add validation invariants**
+- [ ] **Step 5: Establish the shared sanitized hybrid fixture immediately**
+
+Replace the old shallow premise in tests/fixtures/beginner_hybrid_mystery.py with:
+
+~~~python
+HYBRID_MYSTERY_PREMISE = (
+    "A celebrated masked superhero begins investigating inconsistencies around an intimate partner "
+    "and a powerful rival. Each clue threatens the hero's secret public identity and changes how "
+    "the hero understands trust, jealousy, and possible relationship betrayal. The story should "
+    "remain a fair mystery while treating the private discoveries with erotic-betrayal tension "
+    "and heightened melodramatic pressure."
+)
+~~~
+
+Add a hybrid_analysis() fixture factory whose components include these exact labels/facets:
+
+~~~text
+Mystery                         genre_constellation / primary
+Investigation and revelation    narrative_engine / primary
+Superhero fiction               genre_constellation / supporting
+Superhero public identity       setting_world / supporting
+Relationship betrayal           relationship_dynamic / supporting
+Erotic betrayal melodrama       aesthetic_framing / supporting
+Protagonist / investigator      character_function / supporting
+Intimate partner / uncertainty  character_function / supporting
+Rival / disruptor               character_function / supporting
+Secret identity                 trope_family / supporting
+Suspicious behavior             trope_family / supporting
+Revelation / confrontation      trope_family / supporting
+~~~
+
+Use premise excerpts as evidence, provider_id="fixture", model_id="fixture-model", and keep every component noncanonical. Later tasks extend this same fixture with scripted provider/discovery responses; they must not invent a second hybrid premise.
+
+- [ ] **Step 6: Add validation invariants**
 
 Pin:
 - component IDs unique;
@@ -270,7 +312,7 @@ Pin:
 - alternatives nonblank and component-scoped;
 - stale analyses remain inspectable/deserializable.
 
-- [ ] **Step 6: Run tests and verify GREEN**
+- [ ] **Step 7: Run tests and verify GREEN**
 
 ~~~powershell
 python -m pytest tests/test_beginner_architecture_analysis.py tests/test_beginner_workspace_persistence.py -q --tb=short
@@ -278,10 +320,10 @@ python -m pytest tests/test_beginner_architecture_analysis.py tests/test_beginne
 
 Expected: PASS.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 8: Commit**
 
 ~~~bash
-git add src/auteur/beginner/architecture_models.py src/auteur/beginner/contracts.py tests/test_beginner_architecture_analysis.py tests/test_beginner_workspace_persistence.py
+git add src/auteur/beginner/architecture_models.py src/auteur/beginner/contracts.py tests/test_beginner_architecture_analysis.py tests/test_beginner_workspace_persistence.py tests/fixtures/beginner_hybrid_mystery.py
 git commit -m "feat: add beginner narrative architecture contracts"
 ~~~
 
@@ -357,7 +399,7 @@ class ArchitectureAnalyzer(Protocol):
 
 Provider JSON contains only summary plus component facet, label, role, certainty, rationale, exact premise evidence phrases, and component-local alternatives.
 
-Provider does not choose IDs, activation, review state, canonical field paths, or authority status. Use temperature 0.2.
+Provider does not choose IDs, activation, review state, canonical field paths, or authority status. Use temperature 0.2. ProviderArchitectureAnalyzer writes its configured provider_id/model_id into NarrativeArchitectureAnalysis so provenance is inspectable without trusting model output.
 
 Stable ID:
 
@@ -1788,23 +1830,11 @@ git commit -m "fix: harden premise analysis recovery and revision isolation"
 - Consumes complete Browser → HTTP → Application → analysis/discovery → authority path.
 - Produces deterministic sanitized qualification evidence.
 
-- [ ] **Step 1: Replace the fixture premise with the approved architecture-rich case**
+- [ ] **Step 1: Reuse the single sanitized hybrid fixture established in Task 1**
 
-Use exactly this sanitized premise:
+Assert HYBRID_MYSTERY_PREMISE still exactly matches the approved sanitized premise and contains no private/raw story material. Do not create an alternate fixture premise for qualification.
 
-~~~python
-HYBRID_MYSTERY_PREMISE = (
-    "A celebrated masked superhero begins investigating inconsistencies around an intimate partner "
-    "and a powerful rival. Each clue threatens the hero's secret public identity and changes how "
-    "the hero understands trust, jealousy, and possible relationship betrayal. The story should "
-    "remain a fair mystery while treating the private discoveries with erotic-betrayal tension "
-    "and heightened melodramatic pressure."
-)
-~~~
-
-No private/raw user story material enters the repository.
-
-- [ ] **Step 2: Script deterministic rich-analysis and Story Discovery responses**
+- [ ] **Step 2: Extend the fixture with deterministic rich-analysis and Story Discovery responses**
 
 The fixture provider must produce:
 - Mystery as primary genre/engine;
