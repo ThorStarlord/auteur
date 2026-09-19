@@ -68,3 +68,18 @@ def test_promotion_preview_classifies_visible_loss_and_provenance(tmp_path) -> N
     assert "core_answer" in preview.becomes_canonical
     assert preview.preserved_as_provenance
     assert isinstance(preview.unresolved_not_representable, tuple)
+
+
+
+def test_promotion_preview_preserves_noncomposition_architecture_meaning(tmp_path) -> None:
+    preview = app_after_direction_acceptance(tmp_path).projection().mapping_preview
+    assert preview is not None
+    assert any(
+        item.startswith("architecture:character:")
+        for item in preview.preserved_as_provenance
+    )
+    assert any(
+        item.startswith("architecture:trope:")
+        for item in preview.preserved_as_provenance
+    )
+    assert "Erotic betrayal melodrama" in preview.unresolved_not_representable

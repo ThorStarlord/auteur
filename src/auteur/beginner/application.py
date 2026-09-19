@@ -111,6 +111,8 @@ from .architecture_analysis import (
     suppress_component,
 )
 from .architecture_models import (
+    ArchitectureActivation,
+    ArchitectureCertainty,
     ArchitectureFacet,
     ArchitectureRole,
     NarrativeArchitectureAnalysis,
@@ -3627,9 +3629,46 @@ class BeginnerWorkspaceApplication:
             refreshed,
             compose_mappings(refreshed.mapping_records, candidate_identity),
         )
-        return refreshed, build_promotion_preview(
+        preview = build_promotion_preview(
             self._canonical_identity(), resolution, refreshed.mapping_records
         )
+        analysis = self._active_architecture_analysis(session)
+        if analysis is not None:
+            mapped_component_ids = {
+                mapping.source_dimension_id.removeprefix("architecture:")
+                for mapping in refreshed.mapping_records
+                if mapping.source_dimension_id.startswith("architecture:")
+            }
+            provenance_components = tuple(
+                f"architecture:{component.component_id}"
+                for component in analysis.components
+                if component.component_id not in mapped_component_ids
+                and component.activation is ArchitectureActivation.ACTIVE
+            )
+            unresolved_components = tuple(
+                component.label
+                for component in analysis.components
+                if component.certainty is ArchitectureCertainty.UNCERTAIN
+                and component.activation is ArchitectureActivation.SUPPRESSED
+            )
+            preview = preview.model_copy(
+                update={
+                    "preserved_as_provenance": tuple(
+                        dict.fromkeys(
+                            (*preview.preserved_as_provenance, *provenance_components)
+                        )
+                    ),
+                    "unresolved_not_representable": tuple(
+                        dict.fromkeys(
+                            (
+                                *preview.unresolved_not_representable,
+                                *unresolved_components,
+                            )
+                        )
+                    ),
+                }
+            )
+        return refreshed, preview
 
     def _active_premise(self, session: SessionEnvelope) -> str:
         active = self._journey.get("active_revision")
@@ -3651,7 +3690,9 @@ class BeginnerWorkspaceApplication:
     def _active_working_composition(self, session: SessionEnvelope) -> WorkingComposition | None:
         active = self._journey.get("active_revision")
         if isinstance(active, dict) and active.get("working_composition") is not None:
-            return WorkingComposition.model_validate(active["working_composition"])
+            return WorkingComposition.model_validate_json(
+                json.dumps(active["working_composition"])
+            )
         return session.working_composition
 
     def _store_working_composition(
