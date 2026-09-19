@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from auteur.beginner.application import BeginnerWorkspaceApplication
+from auteur.beginner.architecture_analysis import premise_fingerprint
 from auteur.beginner.architecture_models import (
     ArchitectureActivation,
     ArchitectureAlternative,
@@ -241,3 +242,34 @@ def create_hybrid_app(tmp_path: Path) -> BeginnerWorkspaceApplication:
             expected_session_version=app.projection().session_version,
         )
     return app
+
+
+
+class StaticArchitectureAnalyzer:
+    def __init__(self, analysis: NarrativeArchitectureAnalysis = HYBRID_ANALYSIS) -> None:
+        self.analysis = analysis
+
+    def analyze(
+        self,
+        *,
+        premise: str,
+        source_provenance: tuple[PackProvenance, ...],
+    ) -> NarrativeArchitectureAnalysis:
+        return self.analysis.model_copy(
+            update={"premise_fingerprint": premise_fingerprint(premise)}
+        )
+
+
+class CountingArchitectureAnalyzer(StaticArchitectureAnalyzer):
+    def __init__(self, analysis: NarrativeArchitectureAnalysis = HYBRID_ANALYSIS) -> None:
+        super().__init__(analysis)
+        self.calls = 0
+
+    def analyze(
+        self,
+        *,
+        premise: str,
+        source_provenance: tuple[PackProvenance, ...],
+    ) -> NarrativeArchitectureAnalysis:
+        self.calls += 1
+        return super().analyze(premise=premise, source_provenance=source_provenance)
