@@ -7,7 +7,13 @@ from contextlib import contextmanager
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
-from auteur.beginner.server import BeginnerWorkspaceServer
+from auteur.beginner.server import BeginnerRuntimeDependencies, BeginnerWorkspaceServer
+from tests.fixtures.beginner_hybrid_mystery import (
+    CountingDiscoveryRecommender,
+    HYBRID_ANALYSIS,
+    HYBRID_DISCOVERY,
+    StaticArchitectureAnalyzer,
+)
 
 SEALED_ELEVATOR_PREMISE = "A sealed elevator opens on an empty shaft."
 
@@ -15,6 +21,22 @@ SEALED_ELEVATOR_PREMISE = "A sealed elevator opens on an empty shaft."
 @contextmanager
 def running_server(tmp_path):
     server = BeginnerWorkspaceServer(tmp_path, port=0)
+    thread = server.start_in_thread()
+    try:
+        yield server
+    finally:
+        server.stop()
+        thread.join(timeout=2)
+        assert not thread.is_alive()
+
+
+@contextmanager
+def running_rich_server(tmp_path):
+    dependencies = BeginnerRuntimeDependencies(
+        architecture_analyzer=StaticArchitectureAnalyzer(HYBRID_ANALYSIS),
+        discovery_recommender=CountingDiscoveryRecommender(HYBRID_DISCOVERY),
+    )
+    server = BeginnerWorkspaceServer(tmp_path, port=0, dependencies=dependencies)
     thread = server.start_in_thread()
     try:
         yield server
@@ -65,9 +87,27 @@ def create_payload(command_id="create-1", workspace_id="workspace-1"):
     }
 
 
+def create_degraded_workspace(server, payload=None):
+    status, projection = post_json(
+        server,
+        "/api/beginner/workspaces",
+        payload or create_payload(),
+    )
+    workspace_id = projection["workspace"]["workspace_id"]
+    projection = command_json(
+        server,
+        workspace_id,
+        "continue-architecture",
+        projection,
+        {},
+    )
+    assert projection["discovery"]["status"] == "unavailable"
+    return status, projection
+
+
 def test_create_and_read_beginner_workspace(tmp_path):
     with running_server(tmp_path) as server:
-        status, body = post_json(server, "/api/beginner/workspaces", create_payload())
+        status, body = create_degraded_workspace(server)
         assert status == 201
         assert body["decision_card"]["stage"] == "discover"
         workspace_id = body["workspace"]["workspace_id"]
@@ -81,7 +121,7 @@ def test_create_and_read_beginner_workspace(tmp_path):
 
 def test_http_projection_exposes_composed_decision_and_inspector_views(tmp_path):
     with running_server(tmp_path) as server:
-        _, created = post_json(server, "/api/beginner/workspaces", create_payload())
+        _, created = create_degraded_workspace(server)
         workspace_id = created["workspace"]["workspace_id"]
         card = created["decision_card"]
         status, body = post_json(
@@ -109,7 +149,7 @@ def test_http_projection_exposes_composed_decision_and_inspector_views(tmp_path)
 
 def test_http_boundary_creates_and_confirms_hybrid_dimensions(tmp_path):
     premise = "A respected superhero investigates a betrayal in his marriage as small inconsistencies suggest a hidden conspiracy."
-    with running_server(tmp_path) as server:
+    with running_rich_server(tmp_path) as server:
         _, projection = post_json(
             server,
             "/api/beginner/workspaces",
@@ -118,7 +158,7 @@ def test_http_boundary_creates_and_confirms_hybrid_dimensions(tmp_path):
         workspace_id = "hybrid-http"
         dimensions = projection["working_composition"]["dimensions"]
         assert {item["category"] for item in dimensions} == {
-            "PRIMARY_ENGINE", "SETTING_WORLD", "RELATIONSHIP_THEMATIC"
+            "PRIMARY_ENGINE", "GENRE_SUBGENRE", "SETTING_WORLD", "RELATIONSHIP_THEMATIC"
         }
         for dimension in dimensions:
             projection = command_json(
@@ -134,7 +174,7 @@ def test_http_boundary_creates_and_confirms_hybrid_dimensions(tmp_path):
 
 def test_http_projection_reads_and_selection_do_not_promote_canon(tmp_path):
     with running_server(tmp_path) as server:
-        _, created = post_json(server, "/api/beginner/workspaces", create_payload())
+        _, created = create_degraded_workspace(server)
         workspace_id = created["workspace"]["workspace_id"]
         _, reread = get_json(server, f"/api/beginner/workspaces/{workspace_id}")
         assert reread["session_version"] == created["session_version"]
@@ -167,7 +207,7 @@ def test_root_serves_beginner_browser_entrypoint(tmp_path):
 
 def test_stale_command_returns_conflict(tmp_path):
     with running_server(tmp_path) as server:
-        _, created = post_json(server, "/api/beginner/workspaces", create_payload())
+        _, created = create_degraded_workspace(server)
         workspace_id = created["workspace"]["workspace_id"]
         version = created["workspace"]["session_version"]
         card_id = created["decision_card"]["card_id"]
@@ -188,7 +228,7 @@ def test_stale_command_returns_conflict(tmp_path):
 
 def test_http_surface_completes_beginner_milestones_in_order(tmp_path):
     with running_server(tmp_path) as server:
-        _, projection = post_json(server, "/api/beginner/workspaces", create_payload())
+        _, projection = create_degraded_workspace(server)
         workspace_id = projection["workspace"]["workspace_id"]
         for stage, accept_slug in (("discover", "accept-direction"), ("story_identity", "accept-identity"), ("story_structure", "accept-structure")):
             if stage == "story_identity":
@@ -223,7 +263,7 @@ def test_http_surface_completes_beginner_milestones_in_order(tmp_path):
 
 def test_select_command_round_trip_autosaves_without_advancing(tmp_path):
     with running_server(tmp_path) as server:
-        _, created = post_json(server, "/api/beginner/workspaces", create_payload())
+        _, created = create_degraded_workspace(server)
         workspace_id = created["workspace"]["workspace_id"]
         version = created["workspace"]["session_version"]
         card_id = created["decision_card"]["card_id"]
@@ -247,7 +287,7 @@ def test_select_command_round_trip_autosaves_without_advancing(tmp_path):
 
 def test_http_revision_select_is_exploratory_and_focuses_target_stage(tmp_path):
     with running_server(tmp_path) as server:
-        _, projection = post_json(server, "/api/beginner/workspaces", create_payload())
+        _, projection = create_degraded_workspace(server)
         workspace_id = projection["workspace"]["workspace_id"]
         # Complete Discover through the real HTTP boundary.
         while projection["navigator"][0]["review_available"] is False:
@@ -280,7 +320,7 @@ def test_http_revision_select_is_exploratory_and_focuses_target_stage(tmp_path):
 
 def test_malformed_envelope_returns_400(tmp_path):
     with running_server(tmp_path) as server:
-        _, created = post_json(server, "/api/beginner/workspaces", create_payload())
+        _, created = create_degraded_workspace(server)
         workspace_id = created["workspace"]["workspace_id"]
         with _assert_http_error(400):
             post_json(
@@ -296,7 +336,7 @@ def test_malformed_envelope_returns_400(tmp_path):
 
 def test_domain_rejection_returns_422(tmp_path):
     with running_server(tmp_path) as server:
-        _, created = post_json(server, "/api/beginner/workspaces", create_payload())
+        _, created = create_degraded_workspace(server)
         workspace_id = created["workspace"]["workspace_id"]
         version = created["workspace"]["session_version"]
         # Review cannot open before every card is answered.
@@ -316,7 +356,7 @@ def test_domain_rejection_returns_422(tmp_path):
 
 def test_idempotency_conflict_returns_409(tmp_path):
     with running_server(tmp_path) as server:
-        _, created = post_json(server, "/api/beginner/workspaces", create_payload())
+        _, created = create_degraded_workspace(server)
         workspace_id = created["workspace"]["workspace_id"]
         version = created["workspace"]["session_version"]
         card_id = created["decision_card"]["card_id"]

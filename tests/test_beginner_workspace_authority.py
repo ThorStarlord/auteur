@@ -52,6 +52,10 @@ def make_app(
         premise="A sealed elevator opens on an empty shaft.",
         guidance_genre="mystery",
     )
+    app.continue_from_architecture(
+        expected_session_version=app.projection().session_version,
+        command_id=f"fallback-{workspace_id}",
+    )
     return app
 
 

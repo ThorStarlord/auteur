@@ -137,7 +137,7 @@ def test_hybrid_composition_changes_guidance_without_becoming_canon(tmp_path: Pa
     assert hybrid.recommendation == baseline.recommendation
     assert hybrid.option_impacts != baseline.option_impacts
     assert "superhero" in {source.pack_id for source in hybrid.pack_sources}
-    assert "Relationship betrayal tension" in hybrid.context_guidance.patterns
+    assert "Relationship betrayal" in hybrid.context_guidance.patterns
     assert hybrid_app.projection().canonical_refs == ()
     assert hybrid_app.session_store.load().working_composition is not None
 
@@ -147,9 +147,10 @@ def test_hybrid_fixture_keeps_confirmed_dimensions_visible_as_working_state(tmp_
     composition = app.session_store.load().working_composition
 
     assert composition is not None
-    assert {dimension.status for dimension in composition.dimensions} == {DimensionStatus.CONFIRMED}
+    assert {dimension.status for dimension in composition.dimensions} == {DimensionStatus.PROPOSED}
     assert {dimension.category for dimension in composition.dimensions} == {
         DimensionCategory.PRIMARY_ENGINE,
+        DimensionCategory.GENRE_SUBGENRE,
         DimensionCategory.SETTING_WORLD,
         DimensionCategory.RELATIONSHIP_THEMATIC,
     }

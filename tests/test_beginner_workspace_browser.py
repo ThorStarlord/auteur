@@ -109,7 +109,7 @@ def test_browser_uses_tri_state_guidance_alignment_and_clear_review_language():
     assert "unanswered" in js.lower()
     assert "differs from guidance" in js
     assert "ready for review" in js.lower()
-    assert "not yet accepted" in js.lower()
+    assert "working interpretation" in js.lower()
     assert "Review " in js
     assert "guidance-note" in js
 
@@ -122,7 +122,6 @@ def test_browser_exposes_revision_controls_without_domain_rules():
         "accept-revised-direction",
         "accept-revised-identity",
         "accept-revised-structure",
-        "at_risk_stages",
         "target_stage",
     ):
         assert token in js
@@ -196,8 +195,8 @@ def test_browser_renders_composition_dispositions_without_internal_state_labels(
     assert "Will remain context / provenance" in combined
     assert "Will become canonical" in combined
     assert "working_composition" in js
-    assert "dimension.label" in js
-    assert 'textContent = dimension.dimension_id' not in js
+    assert "component.label" in js
+    assert 'textContent = component.component_id' not in js
     assert "mapping_preview" in js
 
 

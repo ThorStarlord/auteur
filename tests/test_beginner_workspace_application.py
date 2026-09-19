@@ -28,6 +28,7 @@ from auteur.beginner.contracts import (
 from auteur.beginner.mystery_adapter import mystery_qualification_inventory
 from auteur.beginner.persistence import BeginnerConcurrencyError
 from auteur.beginner.projections import _review_for_stage
+from tests.fixtures.beginner_hybrid_mystery import HYBRID_ANALYSIS, StaticArchitectureAnalyzer
 
 
 def make_app(tmp_path: Path, workspace_id: str = "workspace-1") -> BeginnerWorkspaceApplication:
@@ -38,11 +39,19 @@ def make_app(tmp_path: Path, workspace_id: str = "workspace-1") -> BeginnerWorks
         premise="A missing heir returns home.",
         guidance_genre="mystery",
     )
+    app.continue_from_architecture(
+        expected_session_version=app.projection().session_version,
+        command_id=f"fallback-{workspace_id}",
+    )
     return app
 
 
 def test_create_workspace_initializes_proposed_composition_and_confirming_all_builds_preview(tmp_path: Path) -> None:
-    app = BeginnerWorkspaceApplication(tmp_path, "hybrid-live")
+    app = BeginnerWorkspaceApplication(
+        tmp_path,
+        "hybrid-live",
+        architecture_analyzer=StaticArchitectureAnalyzer(HYBRID_ANALYSIS),
+    )
     app.create_workspace(
         command_id="create-hybrid-live",
         project_id="project-1",
@@ -54,6 +63,7 @@ def test_create_workspace_initializes_proposed_composition_and_confirming_all_bu
     assert initial.working_composition is not None
     assert {dimension.category for dimension in initial.working_composition.dimensions} == {
         DimensionCategory.PRIMARY_ENGINE,
+        DimensionCategory.GENRE_SUBGENRE,
         DimensionCategory.SETTING_WORLD,
         DimensionCategory.RELATIONSHIP_THEMATIC,
     }
@@ -74,7 +84,11 @@ def test_create_workspace_initializes_proposed_composition_and_confirming_all_bu
 
 
 def test_dimension_command_is_idempotent_and_preserves_payload_fields(tmp_path: Path) -> None:
-    app = BeginnerWorkspaceApplication(tmp_path, "composition-receipt")
+    app = BeginnerWorkspaceApplication(
+        tmp_path,
+        "composition-receipt",
+        architecture_analyzer=StaticArchitectureAnalyzer(HYBRID_ANALYSIS),
+    )
     app.create_workspace(
         command_id="create-composition-receipt",
         project_id="project-1",
@@ -102,7 +116,11 @@ def test_dimension_command_is_idempotent_and_preserves_payload_fields(tmp_path: 
 
 
 def test_mapping_override_is_reviewable_and_noncanonical(tmp_path: Path) -> None:
-    app = BeginnerWorkspaceApplication(tmp_path, "mapping-override")
+    app = BeginnerWorkspaceApplication(
+        tmp_path,
+        "mapping-override",
+        architecture_analyzer=StaticArchitectureAnalyzer(HYBRID_ANALYSIS),
+    )
     app.create_workspace(
         command_id="create-mapping-override",
         project_id="project-1",
@@ -132,7 +150,11 @@ def test_mapping_override_is_reviewable_and_noncanonical(tmp_path: Path) -> None
 
 
 def test_planner_tension_can_be_acknowledged_through_application_path(tmp_path: Path) -> None:
-    app = BeginnerWorkspaceApplication(tmp_path, "hybrid-tension")
+    app = BeginnerWorkspaceApplication(
+        tmp_path,
+        "hybrid-tension",
+        architecture_analyzer=StaticArchitectureAnalyzer(HYBRID_ANALYSIS),
+    )
     app.create_workspace(
         command_id="create-hybrid-tension",
         project_id="project-1",

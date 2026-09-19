@@ -32,6 +32,13 @@ def create_app(
         premise=SEALED_ELEVATOR_PREMISE,
         guidance_genre=SEALED_GUIDANCE_GENRE,
     )
+    # This fixture intentionally exercises the curated degraded fallback.
+    # The product first presents premise interpretation; continuing records
+    # that rich Discovery is unavailable and re-exposes the legacy cards.
+    app.continue_from_architecture(
+        expected_session_version=app.projection().session_version,
+        command_id=f"fallback-{workspace_id}",
+    )
     return app
 
 

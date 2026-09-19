@@ -279,7 +279,14 @@ class StaticArchitectureAnalyzer:
         source_provenance: tuple[PackProvenance, ...],
     ) -> NarrativeArchitectureAnalysis:
         return self.analysis.model_copy(
-            update={"premise_fingerprint": premise_fingerprint(premise)}
+            update={
+                "premise_fingerprint": premise_fingerprint(premise),
+                "source_provenance": source_provenance,
+                "components": tuple(
+                    component.model_copy(update={"source_provenance": source_provenance})
+                    for component in self.analysis.components
+                ),
+            }
         )
 
 
