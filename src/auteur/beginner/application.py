@@ -2078,7 +2078,12 @@ class BeginnerWorkspaceApplication:
         if is_revision and revision == 1:
             raise BeginnerWorkspaceError(f"no accepted {milestone_id} to revise; accept it first")
 
-        fingerprint = _milestone_fingerprint({card_id: merged[card_id] for card_id in stage_card_ids})
+        if composition_ready and stage is DecisionStage.STORY_IDENTITY and candidate_override is not None:
+            fingerprint = hashlib.sha256(candidate_override.encode("utf-8")).hexdigest()
+        else:
+            fingerprint = _milestone_fingerprint(
+                {card_id: merged[card_id] for card_id in stage_card_ids}
+            )
         target = _milestone_target(self.workspace_id, milestone_id)
         candidate = candidate_override or _milestone_candidate(self.workspace_id, milestone_id, revision, fingerprint)
         if semantic_change is None:
@@ -2302,7 +2307,14 @@ class BeginnerWorkspaceApplication:
         return {**answers, **overlay}
 
     def _require_ready_for_accept(self, stage: DecisionStage, *, composition_ready: bool = False) -> None:
-        """Gate first-time acceptance on an opened, blocker-free review."""
+        """Gate first-time acceptance while allowing rich Identity review to replace legacy cards."""
+        if composition_ready and stage is DecisionStage.STORY_IDENTITY:
+            session = self.session_store.load()
+            if any(
+                reference.milestone_id == "story_direction"
+                for reference in session.accepted_milestones
+            ) and session.discovery_recommendation is not None:
+                return
         review = self.projection().reviews[stage]
         if not review.opened:
             raise BeginnerWorkspaceError(
@@ -2391,8 +2403,16 @@ class BeginnerWorkspaceApplication:
         stage_cards = cards_for_stage(inventory, stage)
         stage_card_ids = [card.card_id for card in stage_cards]
         merged_answers = dict(merged)
+        if stage_card_ids and all(card_id in merged_answers for card_id in stage_card_ids):
+            accepted_payload: dict[str, Any] = {
+                card_id: merged_answers[card_id] for card_id in stage_card_ids
+            }
+        elif milestone_id == "story_identity":
+            accepted_payload = {"source": "selected_discovery_candidate"}
+        else:
+            accepted_payload = {}
         content = json.dumps(
-            {card_id: merged_answers[card_id] for card_id in stage_card_ids},
+            accepted_payload,
             sort_keys=True,
             separators=(",", ":"),
         )
@@ -2990,8 +3010,30 @@ class BeginnerWorkspaceApplication:
             source_provenance=self._available_dimension_sources(session),
         )
 
-    def _refresh_composition(self, composition: WorkingComposition, session: SessionEnvelope) -> WorkingComposition:
-        identity = self._canonical_identity()
+    def _selected_discovery_identity(self, session: SessionEnvelope) -> StoryIdentity | None:
+        if not any(
+            reference.milestone_id == "story_direction"
+            for reference in session.accepted_milestones
+        ):
+            return None
+        recommendation = session.discovery_recommendation
+        if recommendation is None or recommendation.selected_direction_id is None:
+            return None
+        try:
+            return recommendation.direction(
+                recommendation.selected_direction_id
+            ).identity_candidate
+        except KeyError:
+            return None
+
+    def _refresh_composition(
+        self,
+        composition: WorkingComposition,
+        session: SessionEnvelope,
+        *,
+        candidate_identity: StoryIdentity | None = None,
+    ) -> WorkingComposition:
+        identity = candidate_identity or self._selected_discovery_identity(session) or self._canonical_identity()
         mappings = tuple(
             mapping
             for dimension in active_dimensions(composition)
@@ -3019,12 +3061,26 @@ class BeginnerWorkspaceApplication:
         composition = self._active_working_composition(session)
         if composition is None:
             return None, None
-        refreshed = self._refresh_composition(composition, session)
+        selected_identity = self._selected_discovery_identity(session)
+        if (
+            session.architecture_analysis is not None
+            and session.discovery_recommendation is not None
+            and session.discovery_recommendation.status is not DiscoveryRecommendationStatus.UNAVAILABLE
+            and selected_identity is None
+        ):
+            refreshed = self._refresh_composition(composition, session)
+            return refreshed, None
+        candidate_identity = selected_identity or self._canonical_identity()
+        refreshed = self._refresh_composition(
+            composition,
+            session,
+            candidate_identity=candidate_identity,
+        )
         if not refreshed.mapping_records:
             return refreshed, None
         resolution = reconcile_review_state(
             refreshed,
-            compose_mappings(refreshed.mapping_records, self._canonical_identity()),
+            compose_mappings(refreshed.mapping_records, candidate_identity),
         )
         return refreshed, build_promotion_preview(
             self._canonical_identity(), resolution, refreshed.mapping_records

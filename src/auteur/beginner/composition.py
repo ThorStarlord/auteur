@@ -139,7 +139,28 @@ def compose_mappings(
     )
     categories = {mapping.source_category for mapping in active}
     tensions: tuple[CompositionTension, ...] = ()
-    if {DimensionCategory.PRIMARY_ENGINE, DimensionCategory.RELATIONSHIP_THEMATIC} <= categories:
+    relationship_engine_mappings = tuple(
+        mapping
+        for mapping in active
+        if mapping.source_category
+        in {DimensionCategory.PRIMARY_ENGINE, DimensionCategory.RELATIONSHIP_THEMATIC}
+    )
+    already_integrated = bool(relationship_engine_mappings) and all(
+        (
+            mapping.destination_field == "story_type.genre"
+            and mapping.proposed_value == canonical_identity.story_type.genre.value
+        )
+        or (
+            mapping.destination_field == "target_experience.primary"
+            and mapping.proposed_value == canonical_identity.target_experience.primary
+        )
+        for mapping in relationship_engine_mappings
+        if mapping.destination_field is not None and mapping.proposed_value is not None
+    )
+    if (
+        {DimensionCategory.PRIMARY_ENGINE, DimensionCategory.RELATIONSHIP_THEMATIC} <= categories
+        and not already_integrated
+    ):
         tension_dimensions = tuple(
             mapping.source_dimension_id
             for mapping in active
