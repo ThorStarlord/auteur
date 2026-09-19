@@ -1130,8 +1130,8 @@ class BeginnerWorkspaceApplication:
             active = self._journey.get("active_revision")
             if isinstance(active, dict) and active.get("architecture_analysis") is not None:
                 durable_premise = str(active.get("premise") or "")
-                durable_analysis = NarrativeArchitectureAnalysis.model_validate(
-                    active["architecture_analysis"]
+                durable_analysis = NarrativeArchitectureAnalysis.model_validate_json(
+                    json.dumps(active["architecture_analysis"])
                 )
             else:
                 durable_premise = session.premise
@@ -2967,8 +2967,8 @@ class BeginnerWorkspaceApplication:
                         updates["premise"] = active["premise"]
                     if active.get("architecture_analysis") is not None:
                         updates["architecture_analysis"] = (
-                            NarrativeArchitectureAnalysis.model_validate(
-                                active["architecture_analysis"]
+                            NarrativeArchitectureAnalysis.model_validate_json(
+                                json.dumps(active["architecture_analysis"])
                             )
                         )
                     updates["discovery_recommendation"] = None
@@ -3643,8 +3643,8 @@ class BeginnerWorkspaceApplication:
     ) -> NarrativeArchitectureAnalysis | None:
         active = self._journey.get("active_revision")
         if isinstance(active, dict) and active.get("architecture_analysis") is not None:
-            return NarrativeArchitectureAnalysis.model_validate(
-                active["architecture_analysis"]
+            return NarrativeArchitectureAnalysis.model_validate_json(
+                json.dumps(active["architecture_analysis"])
             )
         return session.architecture_analysis
 
