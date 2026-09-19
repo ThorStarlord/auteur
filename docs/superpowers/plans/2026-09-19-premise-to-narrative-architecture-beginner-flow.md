@@ -1622,3 +1622,340 @@ Expected: PASS, aside from the documented Windows symlink-permission skip when t
 git add src/auteur/beginner/application.py src/auteur/beginner/persistence.py src/auteur/beginner/contracts.py tests/test_beginner_workspace_persistence.py tests/test_beginner_workspace_authority.py tests/test_beginner_workspace_qualification.py
 git commit -m "fix: harden premise analysis recovery and revision isolation"
 ~~~
+
+---
+
+### Task 13: Prove the Sanitized Hybrid Journey End-to-End
+
+**Files:**
+- Modify: tests/fixtures/beginner_hybrid_mystery.py
+- Modify: tests/test_beginner_workspace_qualification.py
+- Modify: docs/engineering/beginner-workspace-qualification.md
+
+**Interfaces:**
+- Consumes complete Browser → HTTP → Application → analysis/discovery → authority path.
+- Produces deterministic sanitized qualification evidence.
+
+- [ ] **Step 1: Replace the fixture premise with the approved architecture-rich case**
+
+Use exactly this sanitized premise:
+
+~~~python
+HYBRID_MYSTERY_PREMISE = (
+    "A celebrated masked superhero begins investigating inconsistencies around an intimate partner "
+    "and a powerful rival. Each clue threatens the hero's secret public identity and changes how "
+    "the hero understands trust, jealousy, and possible relationship betrayal. The story should "
+    "remain a fair mystery while treating the private discoveries with erotic-betrayal tension "
+    "and heightened melodramatic pressure."
+)
+~~~
+
+No private/raw user story material enters the repository.
+
+- [ ] **Step 2: Script deterministic rich-analysis and Story Discovery responses**
+
+The fixture provider must produce:
+- Mystery as primary genre/engine;
+- superhero public/private identity as world context;
+- relationship betrayal as relationship dynamic;
+- erotic-betrayal tension + heightened melodrama as aesthetic framing;
+- protagonist/investigator, intimate partner/source of uncertainty, rival/disruptor as character functions;
+- relevant trope families;
+- one bounded aesthetic alternative;
+- at least two genuinely different Story Discovery directions;
+- recommended direction = investigative betrayal mystery.
+
+- [ ] **Step 3: Write real HTTP end-to-end qualification**
+
+The test crosses the real local HTTP handler and asserts:
+
+~~~text
+create workspace
+→ first response primary_surface = architecture
+→ no canonical refs
+→ analysis contains Mystery + superhero + relationship/aesthetic material
+→ continue architecture
+→ Discovery recommendation exists
+→ select recommended direction
+→ accept Story Direction
+→ story_identity.yaml still absent
+→ Identity candidate includes selected Discovery engine
+→ mapping preview exposes canonical + guidance/provenance/unresolved groups
+→ accept Story Identity
+→ canonical story_identity.yaml exists
+→ Structure becomes available
+→ answer eligible Structure decisions
+→ accept Whole-Story Structure
+→ three accepted milestones present
+~~~
+
+- [ ] **Step 4: Add differential-guidance assertions**
+
+Compare Mystery-only and hybrid analysis/composition for the same Mystery Structure decision.
+
+Required:
+- Mystery remains primary in both;
+- hybrid context/consequences/provenance differs;
+- superhero source appears only in hybrid;
+- relationship/aesthetic source appears only in hybrid;
+- hybrid clue consequences include relationship trust/intimacy or public/private identity pressure.
+
+- [ ] **Step 5: Add beginner-language assertions**
+
+Default beginner browser content must not expose:
+- PRIMARY_ENGINE
+- SETTING_WORLD
+- RELATIONSHIP_THEMATIC
+- PROPOSED
+- “Use this lens”
+
+It must expose:
+- “Here is what Auteur sees”
+- “Refine this interpretation”
+- “Story direction”
+- “Story Identity”
+- “Structure”
+- explicit working/noncanonical status.
+
+- [ ] **Step 6: Run the complete focused Beginner suite**
+
+~~~powershell
+python -m pytest -q tests/test_beginner_architecture_analysis.py tests/test_beginner_discovery.py tests/test_beginner_decision_inventory.py tests/test_beginner_mystery_adapter.py tests/test_beginner_workspace_contracts.py tests/test_beginner_workspace_mapping.py tests/test_beginner_workspace_application.py tests/test_beginner_workspace_authority.py tests/test_beginner_workspace_persistence.py tests/test_beginner_workspace_server.py tests/test_beginner_workspace_browser.py tests/test_beginner_workspace_qualification.py --tb=short
+~~~
+
+Record separately:
+- collected;
+- passed;
+- skipped;
+- xfailed;
+- xpassed;
+- failed;
+- errors.
+
+Expected: zero failed/errors. Record the Windows symlink-permission skip separately if the host lacks WinError 1314 privilege.
+
+- [ ] **Step 7: Run Ruff and diff verification**
+
+~~~powershell
+python -m ruff check src/auteur/beginner src/auteur/story_discovery_recommend.py tests/test_beginner_architecture_analysis.py tests/test_beginner_discovery.py tests/test_beginner_decision_inventory.py tests/test_beginner_workspace_application.py tests/test_beginner_workspace_authority.py tests/test_beginner_workspace_persistence.py tests/test_beginner_workspace_server.py tests/test_beginner_workspace_browser.py tests/test_beginner_workspace_qualification.py
+git diff --check
+~~~
+
+Expected: both exit 0.
+
+- [ ] **Step 8: Update automated qualification evidence only**
+
+Record:
+- implementation SHA;
+- exact focused command and result counts;
+- any environment skip;
+- exact L1/L2/L3 status if already available;
+- human gate pending.
+
+Do not mark human usability passed from automated evidence.
+
+- [ ] **Step 9: Commit**
+
+~~~bash
+git add tests/fixtures/beginner_hybrid_mystery.py tests/test_beginner_workspace_qualification.py docs/engineering/beginner-workspace-qualification.md
+git commit -m "test: qualify premise architecture beginner journey"
+~~~
+
+---
+
+### Task 14: Exact-Head Validation, Stabilization, and Human Qualification Handoff
+
+**Files:**
+- Modify only after evidence exists: docs/engineering/beginner-workspace-qualification.md
+- No product source changes after candidate freeze.
+
+**Interfaces:**
+- Produces final candidate evidence packet; does not authorize merge/publication.
+
+- [ ] **Step 1: Verify repository identity and freeze the candidate**
+
+~~~powershell
+git status --short
+git rev-parse HEAD
+git rev-parse --show-toplevel
+git rev-parse --git-common-dir
+~~~
+
+Requirements:
+- tracked working tree clean;
+- .superpowers/ remains excluded;
+- full candidate SHA recorded;
+- branch pushed;
+- no source/test/resource changes after freeze.
+
+- [ ] **Step 2: Obtain exact-head L1**
+
+Open/update a draft PR for the new implementation branch so Validation runs against the exact candidate SHA.
+
+Verify:
+- workflow head SHA equals the frozen candidate;
+- L1 focused validation concludes success;
+- focused verification stack concludes success.
+
+Do not reuse PR #237 L1 because PR #237 is pinned to 019e7c39abe577c9a03c60d2c1d8d5be0eb000d2.
+
+- [ ] **Step 3: Run targeted L2**
+
+Record the boundary reason exactly:
+
+> Premise interpretation and Story Discovery now cross provider reasoning → durable Beginner session state → WorkingComposition → Browser/HTTP/Application → StoryIdentity authority while preserving noncanonical/currentness and crash-recovery boundaries.
+
+Run:
+
+~~~powershell
+python -m pytest -q tests/test_beginner_architecture_analysis.py tests/test_beginner_discovery.py tests/test_beginner_workspace_application.py tests/test_beginner_workspace_authority.py tests/test_beginner_workspace_persistence.py tests/test_beginner_workspace_server.py tests/test_beginner_workspace_browser.py tests/test_beginner_workspace_qualification.py --tb=short
+~~~
+
+Record exact counts and environment skip.
+
+- [ ] **Step 4: Run exactly one L3 Stabilization checkpoint**
+
+This package is an explicit product-architecture stabilization milestone.
+
+Run the repository manual Stabilization workflow once against the frozen SHA.
+
+If it fails:
+- stop;
+- preserve the exact failure evidence;
+- do not rerun;
+- do not change code until the failure is classified.
+
+If it passes:
+- proceed to human qualification.
+
+- [ ] **Step 5: Prepare, but do not operate, a fresh human workspace**
+
+Use:
+- fresh workspace ID;
+- approved sanitized hybrid premise;
+- provider-backed rich analysis;
+- frozen candidate code.
+
+Return:
+- local URL;
+- workspace ID;
+- exact premise;
+- concise operating instructions;
+- observation checklist.
+
+The executor stops before making creative choices.
+
+- [ ] **Step 6: Human qualification checklist**
+
+The actual human author evaluates:
+
+1. Does the first screen answer “what story does Auteur think I have?” without ontology knowledge?
+2. Are Mystery, superhero, relationship/erotic-betrayal, character-function, aesthetic, trope, and world signals understandable?
+3. Is inference clearly distinct from canon?
+4. Is refinement obviously optional?
+5. Does Discovery feel like choosing what the story could become rather than restating the premise?
+6. Does Story Identity feel like explicit commitment?
+7. Does Structure feel downstream of accepted Identity?
+8. Does superhero context materially change consequences/reasoning?
+9. Does relationship/erotic-betrayal framing materially change the emotional meaning of clues/trust?
+10. Are ambiguity and evidence understandable without raw enum/implementation vocabulary?
+11. Is the promotion preview understandable?
+12. Does revision exploration remain visibly noncanonical?
+13. Is there any material friction that prevents independent use?
+
+- [ ] **Step 7: Record human evidence only after the human reports it**
+
+If the human finds a material defect:
+- stop qualification;
+- record the finding;
+- return to brainstorming or systematic debugging according to issue type;
+- do not merge.
+
+If the human passes:
+- update qualification evidence in a documentation-only follow-up;
+- explicitly distinguish frozen product candidate SHA from evidence-only documentation commit if repository policy permits;
+- retain publication/integration as separate authority.
+
+- [ ] **Step 8: Keep integration separate**
+
+After human qualification:
+- perform whole-branch code review;
+- decide whether the new PR supersedes/closes PR #237;
+- mark the new PR ready only when evidence/review are clean;
+- merge only with explicit integration authorization.
+
+PR #237 remains draft/unmerged until that decision.
+
+---
+
+## Implementation Sequence and Review Gates
+
+~~~text
+Task 1  contracts
+  ↓
+Task 2  analysis engine
+  ↓
+Task 3  session persistence/currentness
+  ↓
+Task 4  active WorkingComposition projection
+  ↓
+Task 5  story orientation projection
+  ↓
+Task 6  Story Discovery adapter
+  ↓
+Task 7  journey reorder
+  ↓
+Task 8  Identity promotion
+  ↓
+Task 9  optional refinement/reanalysis
+  ↓
+Task 10 adaptive Structure inventory
+  ↓
+Task 11 HTTP/browser product surface
+  ↓
+Task 12 reliability/revision hardening
+  ↓
+Task 13 deterministic end-to-end qualification
+  ↓
+Task 14 exact-head L1 → L2 → one L3 → human qualification
+~~~
+
+With subagent-driven execution, each task receives a fresh implementation review before the next task.
+
+## Whole-Branch Review Focus
+
+Before candidate freeze, explicitly review for:
+
+1. **Authority leakage:** analysis/discovery/refinement creates or mutates story_identity.yaml before explicit Identity acceptance.
+2. **Duplicate story models:** Story Navigator/Story Map persists a second independent architecture model.
+3. **Provider calls on GET:** browser refresh or projection invokes LLM work.
+4. **False confidence:** fallback/provider result presents unsupported interpretation as clear.
+5. **Stale-basis acceptance:** Discovery/Identity can accept after analysis or active composition changed.
+6. **Lost architecture meaning:** meaningful components vanish during Identity promotion without guidance/provenance/unresolved visibility.
+7. **PR #237 reliability regression:** crash recovery, revision isolation, idempotency, semantic-only staleness, mapping override validation.
+8. **Internal vocabulary leakage:** raw enum/status names appear in beginner UI.
+9. **Fixed-card inertia:** 3/4/3 reappears as a required invariant.
+10. **Fixture overfitting:** product code branches on hybrid fixture literals.
+
+## Definition of Done
+
+~~~text
+raw premise
+→ one coherent derived Narrative Architecture Analysis
+→ Story Navigator shows what Auteur sees
+→ author may continue without confirming every component
+→ optional refinement changes working guidance only
+→ Discovery recommends coherent story direction + meaningful alternatives
+→ author accepts Story Direction without creating canonical StoryIdentity
+→ Story Identity preview shows explicit commitments + visible loss/remainder
+→ explicit Identity acceptance creates canonical StoryIdentity
+→ Structure asks planning questions relevant to accepted story
+→ semantic revisions stale downstream; metadata-only revisions do not
+→ provider/restart recovery is idempotent
+→ exact-head L1 PASS
+→ targeted L2 PASS
+→ one stabilization L3 PASS
+→ independent human qualification PASS
+~~~
+
+Automated evidence is necessary but cannot substitute for the final human usability gate.
