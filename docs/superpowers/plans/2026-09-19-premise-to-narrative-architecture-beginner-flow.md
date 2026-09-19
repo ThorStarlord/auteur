@@ -219,6 +219,7 @@ class ArchitectureAdjustment(BaseModel):
     before_label: str | None = None
     after_label: str | None = None
     rationale: str | None = None
+    invalidated_discovery_recommendation_id: str | None = None
 
 
 class ArchitectureComponent(BaseModel):
@@ -1002,6 +1003,7 @@ class DiscoveryRecommendation(BaseModel):
     rationale: str
     directions: tuple[DiscoveryDirection, ...]
     selected_direction_id: str | None = None
+    supersedes_recommendation_id: str | None = None
     authority_status: Literal["DERIVED / NOT CANON"] = "DERIVED / NOT CANON"
 
     def direction(self, direction_id: str) -> DiscoveryDirection:
@@ -1722,6 +1724,38 @@ def test_reducing_component_to_flavor_removes_it_from_working_composition(tmp_pa
     assert projection.canonical_refs == ()
 
 
+def test_refinement_records_which_discovery_recommendation_it_invalidated(tmp_path: Path) -> None:
+    app = app_at_discovery(tmp_path)
+    before = app.session_store.load()
+    assert before.discovery_recommendation is not None
+    old_id = before.discovery_recommendation.recommendation_id
+    superhero = next(
+        component
+        for component in before.architecture_analysis.components
+        if component.label == "Superhero fiction"
+    )
+
+    app.suppress_architecture_component(
+        component_id=superhero.component_id,
+        rationale="Test a version where superhero context is background only.",
+        command_id="suppress-after-discovery",
+        expected_session_version=app.projection().session_version,
+    )
+
+    changed = app.session_store.load()
+    assert changed.discovery_recommendation is None
+    assert (
+        changed.architecture_analysis.adjustments[-1].invalidated_discovery_recommendation_id
+        == old_id
+    )
+
+    refreshed = app.continue_from_architecture(
+        command_id="regenerate-after-refinement",
+        expected_session_version=app.projection().session_version,
+    )
+    assert refreshed.discovery.supersedes_recommendation_id == old_id
+
+
 def test_pre_identity_premise_reanalysis_invalidates_old_discovery(tmp_path: Path) -> None:
     app = app_at_discovery(tmp_path)
     old_id = app.session_store.load().discovery_recommendation.recommendation_id
@@ -1964,7 +1998,7 @@ Author-added components use CLEAR, AUTHOR_MODIFIED, ACTIVE, and explicit author 
 
 - [ ] **Step 4: Reproject WorkingComposition after adjustment**
 
-Preserve valid author overrides and acknowledgement state by stable IDs. Remove derived mappings from suppressed components. Invalidate current Discovery recommendation because its basis changed.
+Preserve valid author overrides and acknowledgement state by stable IDs. Remove derived mappings from suppressed components. If a current Discovery recommendation exists, copy its recommendation_id into the newly appended ArchitectureAdjustment.invalidated_discovery_recommendation_id before clearing it. The next Discovery recommendation copies that ID into supersedes_recommendation_id. This preserves which downstream recommendation changed because of the author's correction without keeping stale recommendations active.
 
 - [ ] **Step 5: Implement pre-Identity reanalyze_premise()**
 
