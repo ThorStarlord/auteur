@@ -17,6 +17,7 @@ from .contracts import (
     SessionEnvelope,
     StageAvailability,
 )
+from .dimensions import active_dimensions
 from auteur.story_design_packs.models import DecisionCard, PackProvenance
 from auteur.story_design_packs.session import TutorSession
 
@@ -639,22 +640,18 @@ def compose_guidance_context(
     session: SessionEnvelope,
     base_context: GuidanceContext,
 ) -> GuidanceContext:
-    """Add only confirmed, relevant working dimensions to derived guidance."""
+    """Add active, relevant working dimensions to derived guidance."""
     composition = session.working_composition
     if composition is None:
         return base_context
-    confirmed = tuple(
-        dimension
-        for dimension in composition.dimensions
-        if dimension.status.value == "CONFIRMED"
-    )
-    if not confirmed:
+    active = active_dimensions(composition)
+    if not active:
         return base_context
 
     conventions = list(base_context.genre_conventions)
     patterns = list(base_context.patterns)
     emotional_promise = base_context.emotional_promise
-    for dimension in confirmed:
+    for dimension in active:
         if dimension.category is DimensionCategory.SETTING_WORLD:
             conventions.append(f"{dimension.label} shapes the social pressure around the case.")
             patterns.append(dimension.label)
@@ -684,13 +681,9 @@ def _compose_option_impacts(
     composition = session.working_composition
     if composition is None:
         return impacts
-    confirmed = tuple(
-        dimension
-        for dimension in composition.dimensions
-        if dimension.status.value == "CONFIRMED"
-    )
+    active = active_dimensions(composition)
     supporting = tuple(
-        dimension for dimension in confirmed
+        dimension for dimension in active
         if dimension.category in {
             DimensionCategory.SETTING_WORLD,
             DimensionCategory.RELATIONSHIP_THEMATIC,
@@ -699,21 +692,35 @@ def _compose_option_impacts(
     )
     if not supporting:
         return impacts
+    implications: list[str] = []
     labels = tuple(dimension.label for dimension in supporting)
+    for dimension in supporting:
+        if dimension.category is DimensionCategory.SETTING_WORLD:
+            implications.append(
+                f"{dimension.label} changes the cost, evidence, or public/private consequences of the investigation."
+            )
+        elif dimension.category is DimensionCategory.RELATIONSHIP_THEMATIC:
+            implications.append(
+                f"{dimension.label} makes clues change trust, intimacy, or relationship power rather than only case knowledge."
+            )
+        elif dimension.category is DimensionCategory.EMOTIONAL_AESTHETIC:
+            implications.append(
+                f"{dimension.label} changes how discoveries should feel and be framed for the reader."
+            )
     enriched: dict[str, OptionImpact] = {}
     for option, impact in impacts.items():
         enriched[option] = impact.model_copy(
             update={
                 "tradeoffs": impact.tradeoffs + (
-                    "Supporting lenses add pressure from: " + ", ".join(labels) + ".",
+                    "Active supporting dimensions add pressure from: " + ", ".join(labels) + ".",
                 ),
                 "narrative_consequences": impact.narrative_consequences
                 + (
                     NarrativeConsequence(
                         semantic_area=SemanticArea.IDENTITY,
-                        summary="Confirmed supporting dimensions reshape how the investigation affects identity and relationships.",
-                        implications=("Keep the mystery engine primary while honoring the confirmed supporting lens.",),
-                        risks=("A supporting lens can become decorative if later decisions never put it under pressure.",),
+                        summary="Active supporting dimensions reshape how the investigation affects identity and relationships.",
+                        implications=tuple(implications),
+                        risks=("A supporting dimension can become decorative if later decisions never put it under pressure.",),
                     ),
                 ),
             }

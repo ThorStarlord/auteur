@@ -6,11 +6,20 @@ import hashlib
 import re
 from collections.abc import Iterable
 
+from auteur.beginner.architecture_models import (
+    ArchitectureActivation,
+    ArchitectureDerivation,
+    ArchitectureFacet,
+    ArchitectureReviewState,
+    ArchitectureRole,
+    NarrativeArchitectureAnalysis,
+)
 from auteur.beginner.contracts import (
     DimensionCategory,
     DimensionOrigin,
     DimensionProposalSet,
     DimensionStatus,
+    GuidanceActivation,
     WorkingComposition,
     WorkingDimension,
 )
@@ -165,6 +174,7 @@ def confirm_dimension(
                 "label": label or dimension.label,
                 "author_rationale": rationale,
                 "status": DimensionStatus.CONFIRMED,
+                "activation": GuidanceActivation.ACTIVE,
                 "confirmed_by_author": True,
             }
         ),
@@ -184,6 +194,7 @@ def reject_dimension(
             update={
                 "author_rationale": rationale,
                 "status": DimensionStatus.REJECTED,
+                "activation": GuidanceActivation.SUPPRESSED,
                 "confirmed_by_author": False,
             }
         ),
@@ -205,8 +216,123 @@ def add_author_dimension(
         category=category,
         origin=DimensionOrigin.AUTHOR_DEFINED,
         status=DimensionStatus.CONFIRMED,
+        activation=GuidanceActivation.ACTIVE,
         label=label,
         author_rationale=rationale,
         confirmed_by_author=True,
     )
     return composition.model_copy(update={"dimensions": composition.dimensions + (dimension,)})
+
+
+
+def _category_from_component(
+    facet: ArchitectureFacet,
+    role: ArchitectureRole,
+) -> DimensionCategory | None:
+    if facet is ArchitectureFacet.NARRATIVE_ENGINE:
+        return DimensionCategory.PRIMARY_ENGINE if role is ArchitectureRole.PRIMARY else None
+    if facet is ArchitectureFacet.GENRE_CONSTELLATION:
+        return DimensionCategory.GENRE_SUBGENRE
+    if facet is ArchitectureFacet.AESTHETIC_FRAMING:
+        return DimensionCategory.EMOTIONAL_AESTHETIC
+    if facet is ArchitectureFacet.RELATIONSHIP_DYNAMIC:
+        return DimensionCategory.RELATIONSHIP_THEMATIC
+    if facet is ArchitectureFacet.SETTING_WORLD:
+        return DimensionCategory.SETTING_WORLD
+    return None
+
+
+def _origin_from_derivation(derivation: ArchitectureDerivation) -> DimensionOrigin:
+    if derivation is ArchitectureDerivation.CURATED_MATCH:
+        return DimensionOrigin.DETECTED_FROM_PACK
+    if derivation is ArchitectureDerivation.AUTHOR_ADDED:
+        return DimensionOrigin.AUTHOR_DEFINED
+    return DimensionOrigin.INFERRED_FROM_STORY
+
+
+def _activation_from_architecture(activation: ArchitectureActivation) -> GuidanceActivation:
+    return (
+        GuidanceActivation.ACTIVE
+        if activation is ArchitectureActivation.ACTIVE
+        else GuidanceActivation.SUPPRESSED
+    )
+
+
+def composition_from_analysis(
+    *,
+    workspace_id: str,
+    analysis: NarrativeArchitectureAnalysis,
+    prior: WorkingComposition | None,
+) -> WorkingComposition:
+    """Project material active interpretation components into Working Composition."""
+    projected: list[WorkingDimension] = []
+    for component in analysis.components:
+        if component.activation is not ArchitectureActivation.ACTIVE:
+            continue
+        if component.role not in {ArchitectureRole.PRIMARY, ArchitectureRole.SUPPORTING}:
+            continue
+        category = _category_from_component(component.facet, component.role)
+        if category is None:
+            continue
+        reviewed = component.review_state is not ArchitectureReviewState.UNREVIEWED
+        evidence = tuple(
+            item.excerpt or item.label
+            for item in component.evidence
+            if (item.excerpt or item.label).strip()
+        )
+        projected.append(
+            WorkingDimension(
+                dimension_id=f"architecture:{component.component_id}",
+                category=category,
+                origin=_origin_from_derivation(component.derivation),
+                status=DimensionStatus.CONFIRMED if reviewed else DimensionStatus.PROPOSED,
+                activation=_activation_from_architecture(component.activation),
+                label=component.label,
+                author_rationale=component.author_rationale,
+                detection_evidence=evidence or (component.rationale,),
+                source_provenance=component.source_provenance,
+                confirmed_by_author=reviewed,
+            )
+        )
+
+    projected_ids = {item.dimension_id for item in projected}
+    preserved_author_dimensions = ()
+    if prior is not None:
+        preserved_author_dimensions = tuple(
+            item
+            for item in prior.dimensions
+            if item.origin is DimensionOrigin.AUTHOR_DEFINED and item.dimension_id not in projected_ids
+        )
+
+    source_by_key = {
+        (source.pack_id, source.version, source.content_hash): source
+        for source in analysis.source_provenance
+    }
+    for dimension in projected:
+        for source in dimension.source_provenance:
+            source_by_key[(source.pack_id, source.version, source.content_hash)] = source
+
+    return WorkingComposition(
+        workspace_id=workspace_id,
+        composition_id=(
+            prior.composition_id if prior is not None else f"composition:{workspace_id}:1"
+        ),
+        schema_version=1,
+        revision_id=prior.revision_id if prior is not None else None,
+        base_canonical_refs=prior.base_canonical_refs if prior is not None else (),
+        source_provenance=tuple(source_by_key.values()),
+        dimensions=tuple(projected) + preserved_author_dimensions,
+        tensions=prior.tensions if prior is not None else (),
+        mapping_records=prior.mapping_records if prior is not None else (),
+        unmapped_remainders=prior.unmapped_remainders if prior is not None else (),
+    )
+
+
+def active_dimensions(composition: WorkingComposition) -> tuple[WorkingDimension, ...]:
+    """Dimensions eligible to influence guidance/mapping independent of author confirmation."""
+    return tuple(
+        dimension
+        for dimension in composition.dimensions
+        if dimension.activation is GuidanceActivation.ACTIVE
+        and dimension.status not in {DimensionStatus.REJECTED, DimensionStatus.SUPERSEDED}
+    )

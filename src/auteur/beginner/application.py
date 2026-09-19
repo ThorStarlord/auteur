@@ -115,7 +115,14 @@ from .contracts import (
     DimensionStatus,
     MappingDomainContext,
 )
-from .dimensions import add_author_dimension, confirm_dimension, propose_dimensions, reject_dimension
+from .dimensions import (
+    active_dimensions,
+    add_author_dimension,
+    composition_from_analysis,
+    confirm_dimension,
+    propose_dimensions,
+    reject_dimension,
+)
 from .guidance import BeginnerGuidance, QualificationStage, SemanticArea, _adapter_for, guidance_for
 from .mapping import map_dimension, validate_author_override
 from .persistence import (
@@ -2673,6 +2680,13 @@ class BeginnerWorkspaceApplication:
         return analysis.model_copy(update={"stale": True})
 
     def _initial_composition(self, session: SessionEnvelope) -> WorkingComposition:
+        analysis = self._architecture_analysis(session)
+        if analysis is not None and not analysis.stale:
+            return composition_from_analysis(
+                workspace_id=self.workspace_id,
+                analysis=analysis,
+                prior=None,
+            )
         sources = self._available_dimension_sources(session)
         proposals = propose_dimensions(session.premise, session.guidance_genre, sources)
         return WorkingComposition(
@@ -2719,8 +2733,7 @@ class BeginnerWorkspaceApplication:
         identity = self._canonical_identity()
         mappings = tuple(
             mapping
-            for dimension in composition.dimensions
-            if dimension.status is DimensionStatus.CONFIRMED
+            for dimension in active_dimensions(composition)
             for mapping in map_dimension(dimension, identity, self._mapping_context(session))
         )
         prior_overrides = {

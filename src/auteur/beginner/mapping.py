@@ -82,7 +82,7 @@ def map_dimension(
             ),
             disposition=disposition,
             review_status=MappingReviewStatus.PROPOSED,
-            rationale=f"The confirmed dimension contributes {value!r} to {destination}.",
+            rationale=f"The active working dimension contributes {value!r} to {destination}.",
         ),
     )
 

@@ -92,6 +92,11 @@ class DimensionStatus(str, Enum):
     SUPERSEDED = "SUPERSEDED"
 
 
+class GuidanceActivation(str, Enum):
+    ACTIVE = "ACTIVE"
+    SUPPRESSED = "SUPPRESSED"
+
+
 class MappingDisposition(str, Enum):
     MAPS_TO_CANON = "MAPS_TO_CANON"
     CONTRIBUTES_TO_CANON = "CONTRIBUTES_TO_CANON"
@@ -132,6 +137,7 @@ class WorkingDimension(BaseModel):
     category: DimensionCategory
     origin: DimensionOrigin
     status: DimensionStatus
+    activation: GuidanceActivation = GuidanceActivation.ACTIVE
     label: str = Field(min_length=1)
     author_rationale: str | None = None
     detection_evidence: tuple[str, ...] = ()

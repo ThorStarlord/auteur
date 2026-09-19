@@ -226,21 +226,17 @@ def hybrid_composition() -> WorkingComposition:
 
 
 def create_hybrid_app(tmp_path: Path) -> BeginnerWorkspaceApplication:
-    app = BeginnerWorkspaceApplication(tmp_path, "hybrid-mystery")
+    app = BeginnerWorkspaceApplication(
+        tmp_path,
+        "hybrid-mystery",
+        architecture_analyzer=StaticArchitectureAnalyzer(HYBRID_ANALYSIS),
+    )
     app.create_workspace(
         command_id="create-hybrid-mystery",
         project_id="hybrid-project",
         premise=HYBRID_MYSTERY_PREMISE,
         guidance_genre="mystery",
     )
-    composition = app.projection().working_composition
-    assert composition is not None
-    for dimension in composition.dimensions:
-        app.confirm_dimension(
-            dimension_id=dimension.dimension_id,
-            rationale=f"Confirmed {dimension.label} for the hybrid qualification fixture.",
-            expected_session_version=app.projection().session_version,
-        )
     return app
 
 
