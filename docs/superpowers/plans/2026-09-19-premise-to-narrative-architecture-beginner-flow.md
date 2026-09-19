@@ -912,6 +912,12 @@ class DiscoveryRecommendation(BaseModel):
     directions: tuple[DiscoveryDirection, ...]
     selected_direction_id: str | None = None
     authority_status: Literal["DERIVED / NOT CANON"] = "DERIVED / NOT CANON"
+
+    def direction(self, direction_id: str) -> DiscoveryDirection:
+        for direction in self.directions:
+            if direction.direction_id == direction_id:
+                return direction
+        raise KeyError(direction_id)
 ~~~
 
 - [ ] **Step 4: Extract a pure comparative helper from Story Discovery**
@@ -1131,11 +1137,12 @@ def create_hybrid_app(
     *,
     discovery_recommender: DiscoveryRecommender | None = None,
 ) -> BeginnerWorkspaceApplication:
+    resolved_discovery = discovery_recommender or CountingDiscoveryRecommender()
     app = BeginnerWorkspaceApplication(
         tmp_path,
         "hybrid-mystery",
         architecture_analyzer=StaticArchitectureAnalyzer(HYBRID_ANALYSIS),
-        discovery_recommender=discovery_recommender,
+        discovery_recommender=resolved_discovery,
     )
     app.create_workspace(
         command_id="create-hybrid-mystery",
@@ -1195,12 +1202,44 @@ git commit -m "feat: adapt story discovery for beginner direction search"
 - Modify: src/auteur/beginner/contracts.py
 - Modify: tests/test_beginner_workspace_application.py
 - Modify: tests/test_beginner_workspace_authority.py
+- Modify: tests/fixtures/beginner_hybrid_mystery.py
 
 **Interfaces:**
 - Consumes Task 6 DiscoveryRecommender and Task 5 story orientation.
 - Produces continue_from_architecture(), select_story_direction(), revised accept_story_direction(), DiscoveryProjection, IdentityCandidateProjection.
 
-- [ ] **Step 1: Write failing journey tests**
+- [ ] **Step 1: Write failing journey tests and deterministic journey helpers**
+
+Add these helpers to tests/fixtures/beginner_hybrid_mystery.py; they intentionally call Task 7 commands that do not exist yet, so the focused test run is RED for the product behavior rather than for an undefined helper:
+
+~~~python
+def app_at_discovery(tmp_path: Path) -> BeginnerWorkspaceApplication:
+    app = create_hybrid_app(
+        tmp_path,
+        discovery_recommender=CountingDiscoveryRecommender(HYBRID_DISCOVERY),
+    )
+    app.continue_from_architecture(
+        command_id="hybrid-continue-architecture",
+        expected_session_version=app.projection().session_version,
+    )
+    return app
+
+
+def app_after_direction_acceptance(tmp_path: Path) -> BeginnerWorkspaceApplication:
+    app = app_at_discovery(tmp_path)
+    app.select_story_direction(
+        direction_id="direction-investigative-betrayal",
+        command_id="hybrid-select-direction",
+        expected_session_version=app.projection().session_version,
+    )
+    app.accept_story_direction(
+        command_id="hybrid-accept-direction",
+        expected_session_version=app.projection().session_version,
+    )
+    return app
+~~~
+
+Then add:
 
 ~~~python
 def test_fresh_workspace_starts_with_architecture_not_discovery_card(tmp_path: Path) -> None:
@@ -1318,7 +1357,7 @@ Expected: PASS.
 - [ ] **Step 9: Commit**
 
 ~~~bash
-git add src/auteur/beginner/application.py src/auteur/beginner/projections.py src/auteur/beginner/contracts.py tests/test_beginner_workspace_application.py tests/test_beginner_workspace_authority.py
+git add src/auteur/beginner/application.py src/auteur/beginner/projections.py src/auteur/beginner/contracts.py tests/test_beginner_workspace_application.py tests/test_beginner_workspace_authority.py tests/fixtures/beginner_hybrid_mystery.py
 git commit -m "feat: reorder beginner journey around premise analysis"
 ~~~
 
