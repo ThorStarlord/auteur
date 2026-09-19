@@ -1,10 +1,22 @@
-"""Sanitized deterministic hybrid-composition fixture."""
+"""Sanitized deterministic hybrid premise fixture shared by beginner-flow tests."""
 
 from __future__ import annotations
 
 from pathlib import Path
 
 from auteur.beginner.application import BeginnerWorkspaceApplication
+from auteur.beginner.architecture_analysis import premise_fingerprint
+from auteur.beginner.architecture_models import (
+    ArchitectureActivation,
+    ArchitectureAlternative,
+    ArchitectureCertainty,
+    ArchitectureComponent,
+    ArchitectureDerivation,
+    ArchitectureEvidence,
+    ArchitectureFacet,
+    ArchitectureRole,
+    NarrativeArchitectureAnalysis,
+)
 from auteur.beginner.contracts import (
     DimensionCategory,
     DimensionOrigin,
@@ -16,9 +28,172 @@ from auteur.story_design_packs.models import PackProvenance
 
 
 HYBRID_MYSTERY_PREMISE = (
-    "A respected superhero discovers that a public institution is hiding a betrayal, "
-    "and the explanation must remain non-supernatural."
+    "A celebrated masked superhero begins investigating inconsistencies around an intimate partner "
+    "and a powerful rival. Each clue threatens the hero's secret public identity and changes how "
+    "the hero understands trust, jealousy, and possible relationship betrayal. The story should "
+    "remain a fair mystery while treating the private discoveries with erotic-betrayal tension "
+    "and heightened melodramatic pressure."
 )
+
+
+def _premise_evidence(label: str, excerpt: str) -> tuple[ArchitectureEvidence, ...]:
+    return (ArchitectureEvidence(source_kind="premise", label=label, excerpt=excerpt),)
+
+
+def hybrid_analysis() -> NarrativeArchitectureAnalysis:
+    return NarrativeArchitectureAnalysis(
+        analysis_id="analysis:hybrid-mystery:1",
+        premise_fingerprint="fixture-premise-fingerprint",
+        analyzer_id="beginner-architecture",
+        analyzer_version="1",
+        provider_id="fixture",
+        model_id="fixture-model",
+        summary="A superhero relationship-betrayal mystery.",
+        components=(
+            ArchitectureComponent(
+                component_id="genre:mystery",
+                facet=ArchitectureFacet.GENRE_CONSTELLATION,
+                label="Mystery",
+                normalized_concept="mystery",
+                derivation=ArchitectureDerivation.PREMISE_EXPLICIT,
+                role=ArchitectureRole.PRIMARY,
+                certainty=ArchitectureCertainty.CLEAR,
+                rationale="The premise explicitly asks to remain a fair mystery.",
+                evidence=_premise_evidence("genre", "fair mystery"),
+            ),
+            ArchitectureComponent(
+                component_id="engine:investigation-revelation",
+                facet=ArchitectureFacet.NARRATIVE_ENGINE,
+                label="Investigation and revelation",
+                normalized_concept="investigation_revelation",
+                derivation=ArchitectureDerivation.MODEL_INFERENCE,
+                role=ArchitectureRole.PRIMARY,
+                certainty=ArchitectureCertainty.CLEAR,
+                rationale="The protagonist investigates inconsistencies and accumulates clues.",
+                evidence=_premise_evidence("engine", "begins investigating inconsistencies"),
+            ),
+            ArchitectureComponent(
+                component_id="genre:superhero",
+                facet=ArchitectureFacet.GENRE_CONSTELLATION,
+                label="Superhero fiction",
+                normalized_concept="superhero",
+                derivation=ArchitectureDerivation.PREMISE_EXPLICIT,
+                role=ArchitectureRole.SUPPORTING,
+                certainty=ArchitectureCertainty.CLEAR,
+                rationale="The protagonist is explicitly a masked superhero.",
+                evidence=_premise_evidence("genre", "masked superhero"),
+            ),
+            ArchitectureComponent(
+                component_id="world:public-identity",
+                facet=ArchitectureFacet.SETTING_WORLD,
+                label="Superhero public identity",
+                normalized_concept="public_identity",
+                derivation=ArchitectureDerivation.MODEL_INFERENCE,
+                role=ArchitectureRole.SUPPORTING,
+                certainty=ArchitectureCertainty.CLEAR,
+                rationale="Clues threaten the boundary between the hero's private and public selves.",
+                evidence=_premise_evidence("world", "secret public identity"),
+            ),
+            ArchitectureComponent(
+                component_id="relationship:betrayal",
+                facet=ArchitectureFacet.RELATIONSHIP_DYNAMIC,
+                label="Relationship betrayal",
+                normalized_concept="relationship_betrayal",
+                derivation=ArchitectureDerivation.PREMISE_EXPLICIT,
+                role=ArchitectureRole.SUPPORTING,
+                certainty=ArchitectureCertainty.CLEAR,
+                rationale="Possible intimate betrayal is an explicit pressure in the premise.",
+                evidence=_premise_evidence("relationship", "possible relationship betrayal"),
+            ),
+            ArchitectureComponent(
+                component_id="framing:erotic-betrayal-melodrama",
+                facet=ArchitectureFacet.AESTHETIC_FRAMING,
+                label="Erotic betrayal melodrama",
+                normalized_concept="erotic_betrayal_melodrama",
+                derivation=ArchitectureDerivation.MODEL_INFERENCE,
+                role=ArchitectureRole.SUPPORTING,
+                certainty=ArchitectureCertainty.UNCERTAIN,
+                activation=ArchitectureActivation.SUPPRESSED,
+                rationale="The premise supports erotic-betrayal tension and heightened melodrama but not a settled camp treatment.",
+                evidence=_premise_evidence("framing", "erotic-betrayal tension"),
+                alternatives=(
+                    ArchitectureAlternative(
+                        label="Campy erotic melodrama",
+                        rationale="The premise supports heightened spectacle but does not fully settle comic-camp treatment.",
+                    ),
+                ),
+            ),
+            ArchitectureComponent(
+                component_id="character:investigator",
+                facet=ArchitectureFacet.CHARACTER_FUNCTION,
+                label="Protagonist / investigator",
+                normalized_concept="protagonist_investigator",
+                derivation=ArchitectureDerivation.MODEL_INFERENCE,
+                role=ArchitectureRole.SUPPORTING,
+                certainty=ArchitectureCertainty.CLEAR,
+                rationale="The superhero performs the investigation.",
+                evidence=_premise_evidence("character", "superhero begins investigating"),
+            ),
+            ArchitectureComponent(
+                component_id="character:intimate-uncertainty",
+                facet=ArchitectureFacet.CHARACTER_FUNCTION,
+                label="Intimate partner / uncertainty",
+                normalized_concept="intimate_partner_uncertainty",
+                derivation=ArchitectureDerivation.MODEL_INFERENCE,
+                role=ArchitectureRole.SUPPORTING,
+                certainty=ArchitectureCertainty.LIKELY,
+                rationale="The intimate partner is a focal source of uncertainty.",
+                evidence=_premise_evidence("character", "intimate partner"),
+            ),
+            ArchitectureComponent(
+                component_id="character:rival-disruptor",
+                facet=ArchitectureFacet.CHARACTER_FUNCTION,
+                label="Rival / disruptor",
+                normalized_concept="rival_disruptor",
+                derivation=ArchitectureDerivation.MODEL_INFERENCE,
+                role=ArchitectureRole.SUPPORTING,
+                certainty=ArchitectureCertainty.LIKELY,
+                rationale="The powerful rival destabilizes the relationship and investigation.",
+                evidence=_premise_evidence("character", "powerful rival"),
+            ),
+            ArchitectureComponent(
+                component_id="trope:secret-identity",
+                facet=ArchitectureFacet.TROPE_FAMILY,
+                label="Secret identity",
+                normalized_concept="secret_identity",
+                derivation=ArchitectureDerivation.CURATED_MATCH,
+                role=ArchitectureRole.SUPPORTING,
+                certainty=ArchitectureCertainty.CLEAR,
+                rationale="The premise explicitly invokes a threatened secret public identity.",
+                evidence=_premise_evidence("trope", "secret public identity"),
+            ),
+            ArchitectureComponent(
+                component_id="trope:suspicious-behavior",
+                facet=ArchitectureFacet.TROPE_FAMILY,
+                label="Suspicious behavior",
+                normalized_concept="suspicious_behavior",
+                derivation=ArchitectureDerivation.CURATED_MATCH,
+                role=ArchitectureRole.SUPPORTING,
+                certainty=ArchitectureCertainty.LIKELY,
+                rationale="Inconsistencies around the partner and rival create suspicious behavior.",
+                evidence=_premise_evidence("trope", "inconsistencies"),
+            ),
+            ArchitectureComponent(
+                component_id="trope:revelation-confrontation",
+                facet=ArchitectureFacet.TROPE_FAMILY,
+                label="Revelation / confrontation",
+                normalized_concept="revelation_confrontation",
+                derivation=ArchitectureDerivation.MODEL_INFERENCE,
+                role=ArchitectureRole.SUPPORTING,
+                certainty=ArchitectureCertainty.LIKELY,
+                rationale="A fair mystery built on accumulating clues tends toward revelation and confrontation.",
+                evidence=_premise_evidence("trope", "Each clue"),
+            ),
+        ),
+    )
+
+
+HYBRID_ANALYSIS = hybrid_analysis()
 
 
 def hybrid_composition() -> WorkingComposition:
@@ -67,3 +242,34 @@ def create_hybrid_app(tmp_path: Path) -> BeginnerWorkspaceApplication:
             expected_session_version=app.projection().session_version,
         )
     return app
+
+
+
+class StaticArchitectureAnalyzer:
+    def __init__(self, analysis: NarrativeArchitectureAnalysis = HYBRID_ANALYSIS) -> None:
+        self.analysis = analysis
+
+    def analyze(
+        self,
+        *,
+        premise: str,
+        source_provenance: tuple[PackProvenance, ...],
+    ) -> NarrativeArchitectureAnalysis:
+        return self.analysis.model_copy(
+            update={"premise_fingerprint": premise_fingerprint(premise)}
+        )
+
+
+class CountingArchitectureAnalyzer(StaticArchitectureAnalyzer):
+    def __init__(self, analysis: NarrativeArchitectureAnalysis = HYBRID_ANALYSIS) -> None:
+        super().__init__(analysis)
+        self.calls = 0
+
+    def analyze(
+        self,
+        *,
+        premise: str,
+        source_provenance: tuple[PackProvenance, ...],
+    ) -> NarrativeArchitectureAnalysis:
+        self.calls += 1
+        return super().analyze(premise=premise, source_provenance=source_provenance)
