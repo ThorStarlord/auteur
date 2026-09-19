@@ -302,7 +302,13 @@ Suspicious behavior             trope_family / supporting
 Revelation / confrontation      trope_family / supporting
 ~~~
 
-Use premise excerpts as evidence, provider_id="fixture", model_id="fixture-model", and keep every component noncanonical. Later tasks extend this same fixture with scripted provider/discovery responses; they must not invent a second hybrid premise.
+Use premise excerpts as evidence, provider_id="fixture", model_id="fixture-model", and keep every component noncanonical. End the fixture factory section with:
+
+~~~python
+HYBRID_ANALYSIS = hybrid_analysis()
+~~~
+
+Later tasks extend this same fixture with analyzer/discovery test doubles; they must not invent a second hybrid premise.
 
 - [ ] **Step 6: Add validation invariants**
 
@@ -334,6 +340,7 @@ git commit -m "feat: add beginner narrative architecture contracts"
 **Files:**
 - Create: src/auteur/beginner/architecture_analysis.py
 - Modify: tests/test_beginner_architecture_analysis.py
+- Modify: tests/fixtures/beginner_hybrid_mystery.py
 
 **Interfaces:**
 - Consumes: LLMClient.complete(LLMRequest), Task 1 models.
@@ -350,7 +357,7 @@ def test_provider_analysis_returns_one_coherent_interpretation_with_component_al
         analyzer_version="1",
         model_id="fixture-model",
     )
-    analysis = analyzer.analyze(premise=HYBRID_PREMISE, source_provenance=())
+    analysis = analyzer.analyze(premise=HYBRID_MYSTERY_PREMISE, source_provenance=())
     assert analysis.summary == "A superhero relationship-betrayal mystery."
     framing = next(c for c in analysis.components if c.facet is ArchitectureFacet.AESTHETIC_FRAMING)
     assert framing.label == "Erotic betrayal melodrama"
@@ -429,6 +436,41 @@ _EXPLICIT_SIGNALS = {
 
 Fallback may infer relationship betrayal only when relationship + betrayal signals co-occur. It does not infer erotic psychological drama, campy melodrama, humiliation, or other deep framing unless explicit. availability_note tells the user richer interpretation is unavailable.
 
+The rich analyzer returns exactly one NarrativeArchitectureAnalysis object for the whole premise. Competing whole-premise analyses are not a beginner result type; only ArchitectureComponent.alternatives may hold ambiguity.
+
+Add reusable test doubles to tests/fixtures/beginner_hybrid_mystery.py:
+
+~~~python
+class StaticArchitectureAnalyzer:
+    def __init__(self, analysis: NarrativeArchitectureAnalysis = HYBRID_ANALYSIS) -> None:
+        self.analysis = analysis
+
+    def analyze(
+        self,
+        *,
+        premise: str,
+        source_provenance: tuple[PackProvenance, ...],
+    ) -> NarrativeArchitectureAnalysis:
+        return self.analysis.model_copy(
+            update={"premise_fingerprint": premise_fingerprint(premise)}
+        )
+
+
+class CountingArchitectureAnalyzer(StaticArchitectureAnalyzer):
+    def __init__(self, analysis: NarrativeArchitectureAnalysis = HYBRID_ANALYSIS) -> None:
+        super().__init__(analysis)
+        self.calls = 0
+
+    def analyze(
+        self,
+        *,
+        premise: str,
+        source_provenance: tuple[PackProvenance, ...],
+    ) -> NarrativeArchitectureAnalysis:
+        self.calls += 1
+        return super().analyze(premise=premise, source_provenance=source_provenance)
+~~~
+
 - [ ] **Step 6: Run tests and verify GREEN**
 
 ~~~powershell
@@ -440,7 +482,7 @@ Expected: PASS.
 - [ ] **Step 7: Commit**
 
 ~~~bash
-git add src/auteur/beginner/architecture_analysis.py tests/test_beginner_architecture_analysis.py
+git add src/auteur/beginner/architecture_analysis.py tests/test_beginner_architecture_analysis.py tests/fixtures/beginner_hybrid_mystery.py
 git commit -m "feat: analyze beginner premises into narrative architecture"
 ~~~
 
@@ -462,12 +504,12 @@ git commit -m "feat: analyze beginner premises into narrative architecture"
 
 ~~~python
 def test_create_workspace_persists_analysis_and_never_regenerates_on_get(tmp_path: Path) -> None:
-    analyzer = CountingAnalyzer(HYBRID_ANALYSIS)
+    analyzer = CountingArchitectureAnalyzer(HYBRID_ANALYSIS)
     app = BeginnerWorkspaceApplication(tmp_path, "analysis-workspace", architecture_analyzer=analyzer)
     created = app.create_workspace(
         command_id="create-analysis-workspace",
         project_id="project",
-        premise=HYBRID_PREMISE,
+        premise=HYBRID_MYSTERY_PREMISE,
         guidance_genre="mystery",
     )
     assert created.architecture_analysis == HYBRID_ANALYSIS
@@ -785,7 +827,7 @@ git commit -m "feat: project narrative architecture into story orientation"
 ~~~python
 def test_beginner_discovery_returns_one_recommended_direction_and_real_alternatives() -> None:
     service = StoryDiscoveryRecommender(client=scripted_story_discovery_client())
-    result = service.recommend(premise=HYBRID_PREMISE, analysis=HYBRID_ANALYSIS)
+    result = service.recommend(premise=HYBRID_MYSTERY_PREMISE, analysis=HYBRID_ANALYSIS)
     assert result.status is DiscoveryRecommendationStatus.READY
     assert result.recommended_direction_id is not None
     assert len(result.directions) >= 2
@@ -798,7 +840,7 @@ def test_beginner_discovery_returns_one_recommended_direction_and_real_alternati
 def test_discovery_unavailable_does_not_invent_story_directions() -> None:
     result = UnavailableDiscoveryRecommender(
         reason="No reasoning provider configured."
-    ).recommend(premise=HYBRID_PREMISE, analysis=HYBRID_ANALYSIS)
+    ).recommend(premise=HYBRID_MYSTERY_PREMISE, analysis=HYBRID_ANALYSIS)
     assert result.status is DiscoveryRecommendationStatus.UNAVAILABLE
     assert result.directions == ()
     assert result.recommended_direction_id is None
@@ -1213,14 +1255,14 @@ def test_pre_identity_premise_reanalysis_invalidates_old_discovery(tmp_path: Pat
     app = app_at_discovery(tmp_path)
     old_id = app.session_store.load().discovery_recommendation.recommendation_id
     app.reanalyze_premise(
-        premise=REVISED_HYBRID_PREMISE,
+        premise=REVISED_HYBRID_MYSTERY_PREMISE,
         command_id="reanalyze",
         expected_session_version=app.projection().session_version,
     )
     session = app.session_store.load()
-    assert session.premise == REVISED_HYBRID_PREMISE
+    assert session.premise == REVISED_HYBRID_MYSTERY_PREMISE
     assert session.discovery_recommendation is None
-    assert session.architecture_analysis.premise_fingerprint == premise_fingerprint(REVISED_HYBRID_PREMISE)
+    assert session.architecture_analysis.premise_fingerprint == premise_fingerprint(REVISED_HYBRID_MYSTERY_PREMISE)
     assert old_id not in json.dumps(session.model_dump(mode="json"))
 ~~~
 
