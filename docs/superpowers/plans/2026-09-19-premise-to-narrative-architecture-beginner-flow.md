@@ -840,6 +840,7 @@ git commit -m "feat: project narrative architecture into story orientation"
 - Modify: src/auteur/beginner/contracts.py
 - Create: tests/test_beginner_discovery.py
 - Modify: tests/test_story_discovery_recommendation_basis.py
+- Modify: tests/fixtures/beginner_hybrid_mystery.py
 
 **Interfaces:**
 - Consumes handle_identity_recommend(open_ended), Story Discovery comparative judgment, Task 1 analysis.
@@ -849,7 +850,7 @@ git commit -m "feat: project narrative architecture into story orientation"
 
 ~~~python
 def test_beginner_discovery_returns_one_recommended_direction_and_real_alternatives() -> None:
-    service = StoryDiscoveryRecommender(client=scripted_story_discovery_client())
+    service = StoryDiscoveryRecommender(client=scripted_client)
     result = service.recommend(premise=HYBRID_MYSTERY_PREMISE, analysis=HYBRID_ANALYSIS)
     assert result.status is DiscoveryRecommendationStatus.READY
     assert result.recommended_direction_id is not None
@@ -923,38 +924,40 @@ def recommend_candidate_outputs(
     client: LLMClient,
     premise_text: str,
     candidate_outputs: list[Any],
+    requested_candidates: int,
     genre: str | None,
     medium: str | None,
     mode: str | None,
     causal_profiles: dict[str, Any] | None = None,
-    require_recommendation: bool = False,
 ) -> RecommendationJudgment:
     _require_distinct_engines(candidate_outputs)
     candidate_ids = [item.candidate_id for item in candidate_outputs]
     if len(candidate_outputs) == 1:
-        return single_survivor_judgment(candidate_ids[0], 1)
-    request = _build_judge_request(
-        premise_text,
-        candidate_outputs,
-        genre=genre,
-        medium=medium,
-        mode=mode,
-        causal_profiles=causal_profiles,
+        return single_survivor_judgment(candidate_ids[0], requested_candidates)
+    response = client.complete(
+        _build_judge_request(
+            premise_text,
+            candidate_outputs,
+            genre=genre,
+            medium=medium,
+            mode=mode,
+            causal_profiles=causal_profiles,
+        )
     )
-    response = client.complete(request)
-    judgment = _parse_judgment(
+    return _parse_judgment(
         response.text,
         candidate_ids,
         allow_explicit_intent_fit=False,
     )
-    if require_recommendation and judgment.recommendation_status == "not_adjudicable":
-        return judgment
-    return judgment
 ~~~
 
-Refactor current CLI dispatch to use this helper with require_recommendation=False so output remains unchanged.
+Refactor current CLI dispatch to use this helper with requested_candidates=args.candidates. Existing CLI behavior and its honest not_adjudicable state remain unchanged.
 
-For Beginner mode, require_recommendation=True asks for a bounded advisory preference whenever defensible, while still allowing not_adjudicable when no criterion can be justified.
+Beginner mapping rule:
+- judgment.status == "recommended" → DiscoveryRecommendationStatus.READY and recommended_direction_id is the winner;
+- judgment.status == "not_adjudicable" → DiscoveryRecommendationStatus.NEEDS_AUTHOR_CHOICE and recommended_direction_id=None.
+
+The normal product posture still asks Story Discovery to search for causally distinct directions and allows a strong advisory preference; it does not manufacture a winner when the calibrated judge says no preference is defensible.
 
 - [ ] **Step 5: Implement StoryDiscoveryRecommender**
 
@@ -964,7 +967,7 @@ Flow:
 analysis
 → active architecture as design_context
 → handle_identity_recommend(open_ended, 3 candidates)
-→ recommend_candidate_outputs(require_recommendation=True)
+→ recommend_candidate_outputs(requested_candidates=3)
 → map candidates into DiscoveryDirection
 → no filesystem write
 → return DiscoveryRecommendation
@@ -972,11 +975,202 @@ analysis
 
 Design context includes analysis summary plus active component labels/facets/roles/evidence. It does not give the model canonical field mutation authority.
 
-- [ ] **Step 6: Add discovery_recommendation to SessionEnvelope**
+- [ ] **Step 6: Extend the shared hybrid fixture with exact Identity/Discovery test data**
+
+Add these deterministic identities to tests/fixtures/beginner_hybrid_mystery.py:
+
+~~~python
+HYBRID_SELECTED_IDENTITY = StoryIdentity(
+    title="The Hero Who Needs the Truth",
+    core_answer=(
+        "A masked hero investigates apparent intimate betrayal while every clue "
+        "also threatens the boundary between private trust and public identity."
+    ),
+    target_experience=TargetExperience(
+        primary="jealous uncertainty",
+        progression="suspicion -> evidence -> painful revelation",
+        avoid=[],
+    ),
+    story_type=StoryType(
+        mode=StoryMode.PROCEDURAL,
+        genre=Genre.MYSTERY,
+        subgenres=["superhero"],
+    ),
+    central_engine=HighLevelCentralEngine(
+        want="Discover what is really happening between the partner and rival.",
+        resistance="Secret identities, ambiguous evidence, and fear of what the truth means.",
+        conflict="The need for certainty collides with love, jealousy, and heroic reputation.",
+        stakes="The relationship, the hero's self-image, and public identity may all collapse.",
+        change="The hero must choose how to live with the truth once certainty arrives.",
+    ),
+)
+
+HYBRID_RELATIONSHIP_IDENTITY = HYBRID_SELECTED_IDENTITY.model_copy(
+    update={
+        "title": "Trust Under Siege",
+        "core_answer": (
+            "A relationship-centered psychological drama in which investigation matters "
+            "mainly because suspicion changes intimacy and trust."
+        ),
+        "story_type": HYBRID_SELECTED_IDENTITY.story_type.model_copy(
+            update={"mode": StoryMode.INTIMATE}
+        ),
+        "central_engine": HighLevelCentralEngine(
+            want="Preserve the relationship without remaining willfully blind.",
+            resistance="Longing, self-deception, and contradictory intimate signals.",
+            conflict="The desire for intimacy collides with mounting evidence of betrayal.",
+            stakes="Trust may be destroyed even if the feared betrayal is misunderstood.",
+            change="The protagonist learns that intimacy cannot be preserved by refusing uncertainty.",
+        ),
+    }
+)
+
+HYBRID_CAMPY_IDENTITY = HYBRID_SELECTED_IDENTITY.model_copy(
+    update={
+        "title": "Masks, Rivals, and Scandal",
+        "core_answer": (
+            "A heightened superhero melodrama where escalating suspicious encounters "
+            "turn private jealousy into public spectacle."
+        ),
+        "story_type": HYBRID_SELECTED_IDENTITY.story_type.model_copy(
+            update={"mode": StoryMode.COMIC}
+        ),
+        "central_engine": HighLevelCentralEngine(
+            want="Expose the rival before the scandal consumes the hero's relationship.",
+            resistance="Public spectacle, theatrical misunderstandings, and secret identities.",
+            conflict="The hero's need to control the narrative fuels ever-larger confrontations.",
+            stakes="Romance, reputation, and heroic legitimacy become part of the same scandal.",
+            change="The hero gives up controlling appearances and confronts the relationship directly.",
+        ),
+    }
+)
+~~~
+
+After discovery_models.py exists, add:
+
+~~~python
+HYBRID_DISCOVERY = DiscoveryRecommendation(
+    recommendation_id="hybrid-discovery-1",
+    source_analysis_id=HYBRID_ANALYSIS.analysis_id,
+    source_basis_fingerprint=analysis_basis_fingerprint(HYBRID_ANALYSIS),
+    status=DiscoveryRecommendationStatus.READY,
+    recommended_direction_id="direction-investigative-betrayal",
+    rationale=(
+        "Investigation is the strongest causal engine while superhero identity and "
+        "relationship betrayal make each clue carry public and intimate consequences."
+    ),
+    directions=(
+        DiscoveryDirection(
+            direction_id="direction-investigative-betrayal",
+            title=HYBRID_SELECTED_IDENTITY.title,
+            summary=HYBRID_SELECTED_IDENTITY.core_answer,
+            identity_candidate=HYBRID_SELECTED_IDENTITY,
+            architecture_summary="Mystery primary; superhero and relationship-betrayal support.",
+            tradeoffs=("Requires fair clue logic while preserving intimate ambiguity.",),
+            source_analysis_id=HYBRID_ANALYSIS.analysis_id,
+            source_component_ids=tuple(
+                component.component_id for component in HYBRID_ANALYSIS.components
+            ),
+        ),
+        DiscoveryDirection(
+            direction_id="direction-relationship-drama",
+            title=HYBRID_RELATIONSHIP_IDENTITY.title,
+            summary=HYBRID_RELATIONSHIP_IDENTITY.core_answer,
+            identity_candidate=HYBRID_RELATIONSHIP_IDENTITY,
+            architecture_summary="Relationship drama primary; mystery as uncertainty mechanism.",
+            tradeoffs=("Reduces puzzle centrality in exchange for deeper psychological focus.",),
+            source_analysis_id=HYBRID_ANALYSIS.analysis_id,
+            source_component_ids=tuple(
+                component.component_id for component in HYBRID_ANALYSIS.components
+            ),
+        ),
+        DiscoveryDirection(
+            direction_id="direction-campy-melodrama",
+            title=HYBRID_CAMPY_IDENTITY.title,
+            summary=HYBRID_CAMPY_IDENTITY.core_answer,
+            identity_candidate=HYBRID_CAMPY_IDENTITY,
+            architecture_summary="Campy superhero melodrama primary; mystery as suspense support.",
+            tradeoffs=("Heightened spectacle weakens detailed psychological realism.",),
+            source_analysis_id=HYBRID_ANALYSIS.analysis_id,
+            source_component_ids=tuple(
+                component.component_id for component in HYBRID_ANALYSIS.components
+            ),
+        ),
+    ),
+)
+~~~
+
+Add the reusable recommender test double:
+
+~~~python
+class CountingDiscoveryRecommender:
+    def __init__(self, result: DiscoveryRecommendation = HYBRID_DISCOVERY) -> None:
+        self.result = result
+        self.calls = 0
+
+    def recommend(
+        self,
+        *,
+        premise: str,
+        analysis: NarrativeArchitectureAnalysis,
+    ) -> DiscoveryRecommendation:
+        self.calls += 1
+        return self.result.model_copy(
+            update={
+                "source_analysis_id": analysis.analysis_id,
+                "source_basis_fingerprint": analysis_basis_fingerprint(analysis),
+            }
+        )
+~~~
+
+Update create_hybrid_app() to accept an optional discovery_recommender and pass it into BeginnerWorkspaceApplication:
+
+~~~python
+def create_hybrid_app(
+    tmp_path: Path,
+    *,
+    discovery_recommender: DiscoveryRecommender | None = None,
+) -> BeginnerWorkspaceApplication:
+    app = BeginnerWorkspaceApplication(
+        tmp_path,
+        "hybrid-mystery",
+        architecture_analyzer=StaticArchitectureAnalyzer(HYBRID_ANALYSIS),
+        discovery_recommender=discovery_recommender,
+    )
+    app.create_workspace(
+        command_id="create-hybrid-mystery",
+        project_id="hybrid-project",
+        premise=HYBRID_MYSTERY_PREMISE,
+        guidance_genre="mystery",
+    )
+    return app
+~~~
+
+For test_beginner_discovery.py, exercise the real StoryDiscoveryRecommender with auteur.llm.fake.FakeClient. Build the first three scripted responses by YAML-dumping the three identities above, the next three responses with the exact summary shape {"summary": "...", "tradeoffs": [], "risks": [], "best_for": []}, and the final response with the v2 judgment shape:
+
+~~~python
+{
+    "recommendation_status": "recommended",
+    "recommendation_basis": "advisory_artistic_preference",
+    "recommended_candidate_id": "candidate_1",
+    "recommendation_rationale": (
+        "Candidate 1 keeps investigation causal while making superhero identity "
+        "and intimate betrayal consequential."
+    ),
+    "candidate_tradeoffs": {
+        "candidate_2": "Candidate 2 makes relationship psychology primary.",
+        "candidate_3": "Candidate 3 makes spectacle and melodrama primary.",
+    },
+}
+~~~
+
+This replaces the undefined scripted_story_discovery_client helper with a fixture whose exact response sequence is visible in the test.
+
+- [ ] **Step 7: Add discovery_recommendation to SessionEnvelope**
 
 Default None for legacy sessions.
 
-- [ ] **Step 7: Run and verify GREEN**
+- [ ] **Step 8: Run and verify GREEN**
 
 ~~~powershell
 python -m pytest tests/test_beginner_discovery.py tests/test_story_discovery_recommendation_basis.py -q --tb=short
@@ -984,10 +1178,10 @@ python -m pytest tests/test_beginner_discovery.py tests/test_story_discovery_rec
 
 Expected: PASS; existing Story Discovery CLI behavior remains unchanged.
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 9: Commit**
 
 ~~~bash
-git add src/auteur/beginner/discovery_models.py src/auteur/beginner/discovery.py src/auteur/story_discovery_recommend.py src/auteur/beginner/contracts.py tests/test_beginner_discovery.py tests/test_story_discovery_recommendation_basis.py
+git add src/auteur/beginner/discovery_models.py src/auteur/beginner/discovery.py src/auteur/story_discovery_recommend.py src/auteur/beginner/contracts.py tests/test_beginner_discovery.py tests/test_story_discovery_recommendation_basis.py tests/fixtures/beginner_hybrid_mystery.py
 git commit -m "feat: adapt story discovery for beginner direction search"
 ~~~
 
