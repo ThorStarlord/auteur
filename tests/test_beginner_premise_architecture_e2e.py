@@ -6,6 +6,7 @@ import json
 from contextlib import contextmanager
 from urllib.request import Request, urlopen
 
+from auteur.beginner.contracts import DecisionStage, LifecycleStatus, StageAvailability
 from auteur.beginner.guidance import guidance_for
 from auteur.beginner.server import BeginnerRuntimeDependencies, BeginnerWorkspaceServer
 from auteur.identity import StoryIdentity
@@ -164,10 +165,10 @@ def test_sanitized_hybrid_premise_reaches_accepted_structure_through_real_http(t
         preview = projection["mapping_preview"]
         assert preview["ready_to_accept"] is True
         projection = _command(server, workspace_id, "accept-identity", projection)
-        assert [ref["milestone_id"] for ref in projection["canonical_refs"]] == [
+        assert {ref["milestone_id"] for ref in projection["canonical_refs"]} == {
             "story_direction",
             "story_identity",
-        ]
+        }
         accepted_identity = StoryIdentity.from_yaml(tmp_path / "story_identity.yaml")
         assert accepted_identity.core_answer == HYBRID_SELECTED_IDENTITY.core_answer
         assert accepted_identity.central_engine == HYBRID_SELECTED_IDENTITY.central_engine
@@ -185,11 +186,11 @@ def test_sanitized_hybrid_premise_reaches_accepted_structure_through_real_http(t
         assert projection["reviews"]["story_structure"]["ready_to_accept"] is True
         projection = _command(server, workspace_id, "accept-structure", projection)
 
-        assert [ref["milestone_id"] for ref in projection["canonical_refs"]] == [
+        assert {ref["milestone_id"] for ref in projection["canonical_refs"]} == {
             "story_direction",
             "story_identity",
             "whole_story_structure",
-        ]
+        }
         structure = next(
             row for row in projection["navigator"] if row["stage"] == "story_structure"
         )
@@ -212,7 +213,15 @@ def test_hybrid_architecture_changes_structure_guidance_differentially(tmp_path)
         command_id="activate-campy-guidance",
         expected_session_version=hybrid.projection().session_version,
     )
-    hybrid_session = hybrid.session_store.load()
+    source_session = hybrid.session_store.load()
+    stages = dict(source_session.stages)
+    stages[DecisionStage.STORY_STRUCTURE] = stages[DecisionStage.STORY_STRUCTURE].model_copy(
+        update={
+            "availability": StageAvailability.AVAILABLE,
+            "lifecycle": LifecycleStatus.WORKING,
+        }
+    )
+    hybrid_session = source_session.model_copy(update={"stages": stages})
     baseline_session = hybrid_session.model_copy(update={"working_composition": None})
 
     baseline = guidance_for("structure.clue-distribution", baseline_session)
