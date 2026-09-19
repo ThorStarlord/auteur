@@ -603,12 +603,107 @@
         var command = button.getAttribute("data-command");
         var stage = button.getAttribute("data-stage");
         var payload = stage ? { stage: stage } : {};
+        var dimensionId = button.getAttribute("data-dimension-id");
+        if (dimensionId) {
+          payload.dimension_id = dimensionId;
+        }
+        if (command === "add-dimension") {
+          payload.category = button.getAttribute("data-category") || "RELATIONSHIP_THEMATIC";
+          payload.label = button.getAttribute("data-label") || "Author-defined lens";
+          payload.rationale = button.getAttribute("data-rationale") || "The author wants this lens to shape the story.";
+        }
         if (command === "open-revision") {
           payload.revision_id = "browser-revision-" + Date.now().toString(36);
         }
         if (command.indexOf("accept-revised-") === 0 && projection.revision && projection.revision.active_revision_id) {
           payload.revision_id = projection.revision.active_revision_id;
         }
+        sendAction(command, payload, button.textContent.trim());
+      });
+    });
+  }
+
+  function compositionDispositionLabel(disposition) {
+    var labels = {
+      MAPS_TO_CANON: "Will become canonical",
+      CONTRIBUTES_TO_CANON: "May contribute to canon",
+      GUIDANCE_CONTEXT: "Will remain context / provenance",
+      PROVENANCE_ONLY: "Will remain provenance",
+      REQUIRES_AUTHOR_DECISION: "Needs author decision",
+      NOT_REPRESENTABLE_BY_CURRENT_DOMAIN: "Not represented by current domain",
+      NOT_RELEVANT_TO_THIS_MILESTONE: "Not relevant to this milestone",
+    };
+    return labels[disposition] || "Working proposal";
+  }
+
+  function renderWorkingComposition(projection) {
+    var body = $("composition-body");
+    var composition = projection.working_composition;
+    var preview = projection.mapping_preview;
+    if (!composition) {
+      body.innerHTML = '<p class="muted">No dimensions have been proposed yet.</p>';
+      return;
+    }
+    var parts = ["<p class=\"muted\">Working exploration · not canonical</p>"];
+    if (composition.dimensions && composition.dimensions.length) {
+      parts.push("<h3>Confirmed and proposed dimensions</h3><ul>" + composition.dimensions.map(function (dimension) {
+        var controls = dimension.status === "PROPOSED" ?
+          ' <button data-command="confirm-dimension" data-dimension-id="' + escapeHtml(dimension.dimension_id) + '">Use this lens</button>' +
+          ' <button data-command="reject-dimension" data-dimension-id="' + escapeHtml(dimension.dimension_id) + '">Not relevant</button>' : "";
+        return "<li><strong>" + escapeHtml(dimension.label) + "</strong> · " +
+          escapeHtml(dimension.category) + " · " + escapeHtml(dimension.status) + controls + "</li>";
+      }).join("") + "</ul>");
+      parts.push('<label>Lens label <input data-composition-label placeholder="Describe your lens"></label>' +
+        '<label>Why it matters <input data-composition-rationale placeholder="Explain what it should change"></label>' +
+        '<button data-command="add-dimension" data-category="RELATIONSHIP_THEMATIC">Add a relationship lens</button>');
+    }
+    if (composition.mapping_records && composition.mapping_records.length) {
+      parts.push("<h3>How dimensions relate to canon</h3><ul>" + composition.mapping_records.map(function (mapping) {
+        return "<li>" + escapeHtml(mapping.rationale) + " · " +
+          escapeHtml(compositionDispositionLabel(mapping.disposition)) +
+          (mapping.destination_field && mapping.proposed_value ?
+            ' <input data-mapping-replacement="' + escapeHtml(mapping.mapping_id) + '" value="' + escapeHtml(mapping.proposed_value) + '">' +
+            '<input data-mapping-rationale="' + escapeHtml(mapping.mapping_id) + '" placeholder="Why override?">' +
+            '<button data-command="override-mapping" data-mapping-id="' + escapeHtml(mapping.mapping_id) + '">Review / override</button>' : "") +
+          "</li>";
+      }).join("") + "</ul>");
+    }
+    if (composition.unmapped_remainders && composition.unmapped_remainders.length) {
+      parts.push("<h3>Preserved context</h3><ul>" + composition.unmapped_remainders.map(function (remainder) {
+        return "<li>" + escapeHtml(remainder.text) + (remainder.acknowledged ? " · acknowledged" :
+          ' · <button data-command="acknowledge-remainder" data-remainder-id="' + escapeHtml(remainder.remainder_id) + '">Acknowledge preserved context</button>') + "</li>";
+      }).join("") + "</ul>");
+    }
+    if (preview && preview.tensions && preview.tensions.length) {
+      parts.push("<h3>Composition tensions</h3><ul>" + preview.tensions.map(function (tension) {
+          return "<li>" + escapeHtml(tension.explanation) + (tension.acknowledged ? " · acknowledged" :
+          ' · <button data-command="acknowledge" data-tension-id="' + escapeHtml(tension.tension_id) + '">Acknowledge tension</button>') + "</li>";
+      }).join("") + "</ul>");
+    }
+    if (preview) {
+      parts.push("<h3>Promotion preview</h3><p>Proposed canonical changes are shown for review only.</p>");
+      if (preview.semantic_changes && preview.semantic_changes.length) {
+        parts.push(listHtml(preview.semantic_changes.map(function (change) {
+          return change.destination_field + ": " + change.before + " → " + change.after;
+        })));
+      }
+    }
+    body.innerHTML = parts.join("");
+    Array.prototype.forEach.call(body.querySelectorAll("button[data-command]"), function (button) {
+      button.addEventListener("click", function () {
+        var command = button.getAttribute("data-command");
+        var payload = {
+          dimension_id: button.getAttribute("data-dimension-id"),
+          tension_id: button.getAttribute("data-tension-id"),
+          remainder_id: button.getAttribute("data-remainder-id"),
+          mapping_id: button.getAttribute("data-mapping-id"),
+          replacement_value: (body.querySelector('[data-mapping-replacement="' + button.getAttribute("data-mapping-id") + '"]') || {}).value,
+          category: button.getAttribute("data-category"),
+          label: button.getAttribute("data-label") || (body.querySelector("[data-composition-label]") || {}).value,
+          rationale: button.getAttribute("data-rationale") ||
+            (body.querySelector('[data-mapping-rationale="' + button.getAttribute("data-mapping-id") + '"]') || {}).value ||
+            (body.querySelector("[data-composition-rationale]") || {}).value
+        };
         sendAction(command, payload, button.textContent.trim());
       });
     });
@@ -631,6 +726,7 @@
     renderInspector(projection);
     syncInspector();
     renderReviews(projection);
+    renderWorkingComposition(projection);
   }
 
   function currentWorkspaceFromQuery() {

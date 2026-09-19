@@ -216,6 +216,18 @@ def projection_to_dict(projection: WorkspaceProjection, *, workspace_id: str) ->
             "target_stage": _enum_value(projection.revision.target_stage),
         },
         "available_actions": list(projection.available_actions),
+        "working_composition": (
+            None
+            if projection.working_composition is None
+            else projection.working_composition.model_dump(mode="json")
+        ),
+        "mapping_preview": (
+            None
+            if projection.mapping_preview is None
+            else projection.mapping_preview.model_dump(mode="json")
+            if hasattr(projection.mapping_preview, "model_dump")
+            else projection.mapping_preview
+        ),
     }
 
 
@@ -225,6 +237,11 @@ _COMMAND_HANDLERS: dict[str, str] = {
     "open-review": "open_milestone_review",
     "reassess": "reassess_guidance",
     "acknowledge": "acknowledge_tension",
+    "acknowledge-remainder": "acknowledge_unmapped_remainder",
+    "confirm-dimension": "confirm_dimension",
+    "reject-dimension": "reject_dimension",
+    "add-dimension": "add_author_dimension",
+    "override-mapping": "override_mapping",
     "open-revision": "open_revision",
     "cancel-revision": "cancel_revision",
     "request-acceptance": "request_acceptance",

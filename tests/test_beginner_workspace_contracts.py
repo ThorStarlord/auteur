@@ -1,6 +1,7 @@
 from pydantic import ValidationError
 import pytest
 
+from auteur.beginner import contracts
 from auteur.beginner.contracts import (
     AcceptedMilestoneReference,
     CreateWorkspaceCommand,
@@ -13,6 +14,7 @@ from auteur.beginner.contracts import (
     StageStatus,
     WorkingDecision,
 )
+from auteur.story_design_packs.models import PackProvenance
 
 
 def test_new_session_starts_discovery_working_and_later_stages_locked() -> None:
@@ -142,3 +144,116 @@ def test_session_json_round_trip_preserves_stage_contract() -> None:
     restored = SessionEnvelope.model_validate_json(session.model_dump_json())
 
     assert restored == session
+
+
+def test_working_composition_separates_dimension_axes_and_preserves_review_records() -> None:
+    provenance = PackProvenance(pack_id="superhero", version="0.1.0", content_hash="sha256:fixture")
+    dimension = contracts.WorkingDimension(
+        dimension_id="hero-public-identity",
+        category=contracts.DimensionCategory.SETTING_WORLD,
+        origin=contracts.DimensionOrigin.DETECTED_FROM_PACK,
+        status=contracts.DimensionStatus.CONFIRMED,
+        label="Superhero public identity",
+        detection_evidence=("premise:hero",),
+        source_provenance=(provenance,),
+        confirmed_by_author=True,
+    )
+    override = contracts.AuthorOverride(
+        original_value="analytical investigation",
+        replacement_value="subjective uncertainty",
+        rationale="Keep the reader inside the protagonist's doubt.",
+        affected_dimension_ids=(dimension.dimension_id,),
+        validation=contracts.OverrideValidationResult(
+            preflight_result="accepted",
+            final_result=None,
+            valid=True,
+            accepted_value="subjective uncertainty",
+        ),
+    )
+    mapping = contracts.MappingRecord(
+        mapping_id="map-1",
+        source_dimension_id=dimension.dimension_id,
+        source_category=dimension.category,
+        source_origin=dimension.origin,
+        source_provenance=(provenance,),
+        destination_field="story_type.subgenres",
+        proposed_value="superhero",
+        mapping_strength=contracts.MappingStrength.SUPPORTED_CONTRIBUTION,
+        evidence_class=contracts.EvidenceClass.CURATED_COMPOSITION_RULE,
+        disposition=contracts.MappingDisposition.CONTRIBUTES_TO_CANON,
+        rationale="The public identity creates a setting/world contribution.",
+        author_override=override,
+        review_status=contracts.MappingReviewStatus.OVERRIDDEN,
+    )
+    composition = contracts.WorkingComposition(
+        workspace_id="w1",
+        composition_id="c1",
+        schema_version=1,
+        dimensions=(dimension,),
+        tensions=(
+            contracts.CompositionTension(
+                tension_id="tension-1",
+                dimension_ids=(dimension.dimension_id,),
+                explanation="Public identity pressure competes with intimate trust.",
+                affected_decision_or_contract="story_identity.relationship-pressure",
+            ),
+        ),
+        mapping_records=(mapping,),
+        unmapped_remainders=(
+            contracts.UnmappedRemainder(
+                remainder_id="remainder-1",
+                dimension_id=dimension.dimension_id,
+                text="The emotional aesthetic remains contextual.",
+            ),
+        ),
+    )
+
+    assert composition.dimensions[0].origin is contracts.DimensionOrigin.DETECTED_FROM_PACK
+    assert composition.dimensions[0].status is contracts.DimensionStatus.CONFIRMED
+    assert composition.mapping_records[0].review_status is contracts.MappingReviewStatus.OVERRIDDEN
+    assert composition.mapping_records[0].author_override.validation.preflight_result == "accepted"
+    assert composition.unmapped_remainders[0].remainder_id == "remainder-1"
+
+
+def test_rejected_mapping_does_not_reject_source_dimension() -> None:
+    dimension = contracts.WorkingDimension(
+        dimension_id="relationship-lens",
+        category=contracts.DimensionCategory.RELATIONSHIP_THEMATIC,
+        origin=contracts.DimensionOrigin.AUTHOR_DEFINED,
+        status=contracts.DimensionStatus.CONFIRMED,
+        label="Relationship betrayal",
+        confirmed_by_author=True,
+    )
+    mapping = contracts.MappingRecord(
+        mapping_id="map-rejected",
+        source_dimension_id=dimension.dimension_id,
+        source_category=dimension.category,
+        source_origin=dimension.origin,
+        mapping_strength=contracts.MappingStrength.CONTEXTUAL_INFLUENCE,
+        evidence_class=contracts.EvidenceClass.AUTHOR_CONFIRMED_DECISION,
+        disposition=contracts.MappingDisposition.MAPS_TO_CANON,
+        review_status=contracts.MappingReviewStatus.REJECTED,
+        rationale="The author rejected this destination mapping only.",
+    )
+    composition = contracts.WorkingComposition(
+        workspace_id="w1",
+        composition_id="c1",
+        schema_version=1,
+        dimensions=(dimension,),
+        mapping_records=(mapping,),
+    )
+
+    assert composition.dimensions[0].status is contracts.DimensionStatus.CONFIRMED
+
+
+def test_contract_rejects_unknown_dimension_category() -> None:
+    with pytest.raises(ValidationError):
+        contracts.WorkingDimension.model_validate(
+            {
+                "dimension_id": "bad",
+                "category": "NOT_A_CATEGORY",
+                "origin": "AUTHOR_DEFINED",
+                "status": "CONFIRMED",
+                "label": "Bad category",
+            }
+        )

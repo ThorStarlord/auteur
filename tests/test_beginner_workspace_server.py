@@ -107,6 +107,31 @@ def test_http_projection_exposes_composed_decision_and_inspector_views(tmp_path)
         }
 
 
+def test_http_boundary_creates_and_confirms_hybrid_dimensions(tmp_path):
+    premise = "A respected superhero investigates a betrayal in his marriage as small inconsistencies suggest a hidden conspiracy."
+    with running_server(tmp_path) as server:
+        _, projection = post_json(
+            server,
+            "/api/beginner/workspaces",
+            {**create_payload("create-hybrid-http", "hybrid-http"), "premise": premise},
+        )
+        workspace_id = "hybrid-http"
+        dimensions = projection["working_composition"]["dimensions"]
+        assert {item["category"] for item in dimensions} == {
+            "PRIMARY_ENGINE", "SETTING_WORLD", "RELATIONSHIP_THEMATIC"
+        }
+        for dimension in dimensions:
+            projection = command_json(
+                server,
+                workspace_id,
+                "confirm-dimension",
+                projection,
+                {"dimension_id": dimension["dimension_id"], "rationale": "Confirmed for this story."},
+            )
+        assert projection["mapping_preview"] is not None
+        assert projection["mapping_preview"]["mapping_records"]
+
+
 def test_http_projection_reads_and_selection_do_not_promote_canon(tmp_path):
     with running_server(tmp_path) as server:
         _, created = post_json(server, "/api/beginner/workspaces", create_payload())
@@ -114,6 +139,8 @@ def test_http_projection_reads_and_selection_do_not_promote_canon(tmp_path):
         _, reread = get_json(server, f"/api/beginner/workspaces/{workspace_id}")
         assert reread["session_version"] == created["session_version"]
         assert reread["canonical_refs"] == []
+        assert "working_composition" in reread
+        assert "mapping_preview" in reread
         assert reread["guidance_inspector"]["authority_status"] == "DERIVED / NOT CANON"
 
         card = reread["decision_card"]
@@ -164,6 +191,16 @@ def test_http_surface_completes_beginner_milestones_in_order(tmp_path):
         _, projection = post_json(server, "/api/beginner/workspaces", create_payload())
         workspace_id = projection["workspace"]["workspace_id"]
         for stage, accept_slug in (("discover", "accept-direction"), ("story_identity", "accept-identity"), ("story_structure", "accept-structure")):
+            if stage == "story_identity":
+                for dimension in projection["working_composition"]["dimensions"]:
+                    if dimension["status"] != "CONFIRMED":
+                        projection = command_json(
+                            server,
+                            workspace_id,
+                            "confirm-dimension",
+                            projection,
+                            {"dimension_id": dimension["dimension_id"], "rationale": "Confirmed for the HTTP journey."},
+                        )
             while True:
                 card = projection["decision_card"]
                 if card is None or card["stage"] != stage:

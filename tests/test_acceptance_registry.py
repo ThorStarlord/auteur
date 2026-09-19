@@ -79,3 +79,39 @@ def test_recovery_report_is_explicit_and_does_not_replay_mutation(tmp_path: Path
     assert report["status"] == "recovery_required"
     assert report["replay_allowed"] is False
     assert report["operations"][0]["operation_id"] == "op-1"
+
+
+def test_registry_recovers_owner_success_when_completion_journal_write_fails(tmp_path: Path) -> None:
+    calls = {"accept": 0, "recover": 0}
+
+    class Owner:
+        def can_accept(self, target_artifact_id: str) -> bool:
+            return True
+
+        def accept(self, target_artifact_id: str, candidate_id: str, *, confirm: bool) -> object:
+            calls["accept"] += 1
+            return {"accepted": True, "revision": 1}
+
+        def recover(self, target_artifact_id: str, candidate_id: str) -> object:
+            calls["recover"] += 1
+            return {"accepted": True, "revision": 1}
+
+    registry = AcceptanceRegistry(tmp_path)
+    registry.register(Owner())
+    original_record = registry.journal.record
+    failed_once = {"value": False}
+
+    def fail_completion_once(**kwargs):
+        if kwargs["status"] == "completed" and not failed_once["value"]:
+            failed_once["value"] = True
+            raise OSError("completion journal interrupted")
+        return original_record(**kwargs)
+
+    registry.journal.record = fail_completion_once  # type: ignore[method-assign]
+    with pytest.raises(OSError, match="completion journal interrupted"):
+        registry.accept("story_identity", "candidate-1", confirm=True, command_id="recover-1")
+
+    result = registry.accept("story_identity", "candidate-1", confirm=True, command_id="recover-1")
+    assert result == {"accepted": True, "revision": 1}
+    assert calls == {"accept": 1, "recover": 1}
+    assert registry.journal.find_completed("recover-1") is not None

@@ -129,6 +129,13 @@ def test_browser_exposes_revision_controls_without_domain_rules():
     assert "revision_id" in js
 
 
+def test_browser_exposes_composition_review_controls_and_author_inputs():
+    js = _read(APP)
+    for token in ('data-command="acknowledge"', "acknowledge-remainder", "data-composition-label", "data-composition-rationale"):
+        assert token in js
+    assert "Add a relationship lens" in js
+
+
 def test_browser_uses_beginner_labels_and_completion_state():
     js = _read(APP)
     assert "function stageLabel" in js
@@ -179,6 +186,19 @@ def test_browser_renders_contextual_inspector_without_internal_semantic_labels()
     assert "Common failure mode" in js
     assert "option_comparisons" in js
     assert "Semantic Area:" not in js
+
+
+def test_browser_renders_composition_dispositions_without_internal_state_labels():
+    html = _read(INDEX)
+    js = _read(APP)
+    combined = html + js
+
+    assert "Will remain context / provenance" in combined
+    assert "Will become canonical" in combined
+    assert "working_composition" in js
+    assert "dimension.label" in js
+    assert 'textContent = dimension.dimension_id' not in js
+    assert "mapping_preview" in js
 
 
 def test_browser_keeps_tradeoffs_out_of_center_warnings():

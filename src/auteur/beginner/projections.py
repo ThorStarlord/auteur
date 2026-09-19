@@ -22,6 +22,7 @@ from .contracts import (
     LifecycleStatus,
     SessionEnvelope,
     StageStatus,
+    WorkingComposition,
 )
 from .guidance import (
     BeginnerGuidance,
@@ -215,6 +216,8 @@ class WorkspaceProjection:
     available_actions: tuple[str, ...] = ()
     decision_workspace: DecisionWorkspaceProjection | None = None
     guidance_inspector: GuidanceInspectorProjection | None = None
+    working_composition: WorkingComposition | None = None
+    mapping_preview: object | None = None
 
 
 def cards_for_stage(inventory: QualificationInventory, stage: DecisionStage) -> tuple[QualificationCard, ...]:
@@ -284,6 +287,8 @@ def build_workspace_projection(
     current_digest: str | None = None,
     guidance: BeginnerGuidance | None = None,
     cursor_override: str | None = None,
+    working_composition: WorkingComposition | None = None,
+    mapping_preview: object | None = None,
 ) -> WorkspaceProjection:
     """Build every workspace surface from one session/domain snapshot."""
     exploratory = dict(exploratory_answers or {})
@@ -314,6 +319,11 @@ def build_workspace_projection(
         answered = sum(1 for card in stage_cards if card.card_id in answers)
         review_available = bool(stage_cards) and answered == len(stage_cards)
         blockers = _blockers_for_stage(stage, stage_cards, answers, tensions, stale, review_available)
+        if stage is DecisionStage.STORY_IDENTITY:
+            if mapping_preview is None:
+                blockers = tuple(dict.fromkeys((*blockers, "composition_mapping_required")))
+            else:
+                blockers = tuple(dict.fromkeys((*blockers, *getattr(mapping_preview, "blocking_items", ()))))
         ready = review_available and not blockers
         status = session.stages[stage]
         stage_stale = stale and answered > 0
@@ -361,12 +371,19 @@ def build_workspace_projection(
     for stage, review in reviews.items():
         if stage in available and review.review_available and not review.opened:
             actions.append(f"open-review:{stage.value}")
-        if review.opened and review.ready_to_accept and milestone_ids[stage] not in accepted_ids:
+        composed_identity_ready = (
+            stage is not DecisionStage.STORY_IDENTITY
+            or (
+                mapping_preview is not None
+                and bool(getattr(mapping_preview, "ready_to_accept", False))
+            )
+        )
+        if review.opened and review.ready_to_accept and composed_identity_ready and milestone_ids[stage] not in accepted_ids:
             actions.append(f"accept-{milestone_slugs[stage]}")
         if milestone_ids[stage] in accepted_ids:
             if active_revision_id is None:
                 actions.append(f"open-revision:{stage.value}")
-            elif review.opened and review.ready_to_accept:
+            elif review.opened and review.ready_to_accept and composed_identity_ready:
                 actions.append(
                     "accept-revised-"
                     + ("direction" if stage is DecisionStage.DISCOVER else
@@ -409,6 +426,8 @@ def build_workspace_projection(
         available_actions=tuple(actions),
         decision_workspace=decision_workspace,
         guidance_inspector=guidance_inspector,
+        working_composition=working_composition if working_composition is not None else session.working_composition,
+        mapping_preview=mapping_preview,
     )
 
 
