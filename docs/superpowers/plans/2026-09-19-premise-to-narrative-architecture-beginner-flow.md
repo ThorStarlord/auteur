@@ -214,7 +214,7 @@ class ArchitectureAlternative(BaseModel):
 
 class ArchitectureAdjustment(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
-    action: Literal["confirm", "suppress", "restore", "rename", "add"]
+    action: Literal["confirm", "suppress", "restore", "rename", "choose_alternative", "set_role", "add"]
     component_id: str = Field(min_length=1)
     before_label: str | None = None
     after_label: str | None = None
@@ -1529,7 +1529,7 @@ git commit -m "feat: promote selected discovery identity through authority"
 - Modify: tests/fixtures/beginner_hybrid_mystery.py
 
 **Interfaces:**
-- Produces confirm_architecture_component(), suppress_architecture_component(), restore_architecture_component(), rename_architecture_component(), add_architecture_component(), reanalyze_premise().
+- Produces confirm_architecture_component(), suppress_architecture_component(), restore_architecture_component(), rename_architecture_component(), choose_architecture_alternative(), set_architecture_component_role(), add_architecture_component(), reanalyze_premise().
 
 - [ ] **Step 1: Write failing refinement tests**
 
@@ -1712,6 +1712,75 @@ def rename_component(
         component_id=component_id,
         before_label=component.label,
         after_label=label,
+        rationale=rationale,
+    )
+    return _replace_component(analysis, updated, adjustment)
+
+
+def choose_component_alternative(
+    analysis: NarrativeArchitectureAnalysis,
+    component_id: str,
+    alternative_label: str,
+    rationale: str,
+) -> NarrativeArchitectureAnalysis:
+    component = analysis.component(component_id)
+    alternative = next(
+        (
+            item
+            for item in component.alternatives
+            if item.label == alternative_label
+        ),
+        None,
+    )
+    if alternative is None:
+        raise ValueError(f"unknown alternative for {component_id}: {alternative_label}")
+    updated = component.model_copy(
+        update={
+            "label": alternative.label,
+            "certainty": ArchitectureCertainty.CLEAR,
+            "review_state": ArchitectureReviewState.AUTHOR_MODIFIED,
+            "author_rationale": rationale,
+        }
+    )
+    adjustment = ArchitectureAdjustment(
+        action="choose_alternative",
+        component_id=component_id,
+        before_label=component.label,
+        after_label=alternative.label,
+        rationale=rationale,
+    )
+    return _replace_component(analysis, updated, adjustment)
+
+
+def set_component_role(
+    analysis: NarrativeArchitectureAnalysis,
+    component_id: str,
+    role: ArchitectureRole,
+    rationale: str,
+) -> NarrativeArchitectureAnalysis:
+    component = analysis.component(component_id)
+    if role is ArchitectureRole.PRIMARY:
+        for other in analysis.components:
+            if (
+                other.component_id != component_id
+                and other.facet is component.facet
+                and other.role is ArchitectureRole.PRIMARY
+            ):
+                raise ValueError(
+                    f"{component.facet.value} already has primary component {other.component_id}"
+                )
+    updated = component.model_copy(
+        update={
+            "role": role,
+            "review_state": ArchitectureReviewState.AUTHOR_MODIFIED,
+            "author_rationale": rationale,
+        }
+    )
+    adjustment = ArchitectureAdjustment(
+        action="set_role",
+        component_id=component_id,
+        before_label=component.role.value,
+        after_label=role.value,
         rationale=rationale,
     )
     return _replace_component(analysis, updated, adjustment)
@@ -1982,6 +2051,9 @@ Also pin HTTP routes:
 - confirm-architecture-component
 - suppress-architecture-component
 - restore-architecture-component
+- rename-architecture-component
+- choose-architecture-alternative
+- set-architecture-component-role
 - add-architecture-component
 - reanalyze-premise
 
@@ -2081,6 +2153,8 @@ Controls:
 - Reduce/remove
 - Restore
 - Rename
+- Choose an ambiguous alternative
+- Make primary / supporting / background
 - Add missing component
 
 Raw mapping IDs/enums move under **Advanced mapping details**.
