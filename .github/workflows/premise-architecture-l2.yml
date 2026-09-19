@@ -1,0 +1,43 @@
+name: Premise Architecture L2
+
+on:
+  push:
+    branches:
+      - validation/premise-architecture-l2-eebb0e31
+
+permissions:
+  contents: read
+
+jobs:
+  targeted-l2:
+    name: "L2 premise architecture integration (exact candidate)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: eebb0e31bac033d6119bcb5747f2477923a1e3f7
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify frozen candidate
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "eebb0e31bac033d6119bcb5747f2477923a1e3f7"
+
+      - name: Install dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Run targeted L2
+        run: >-
+          python -m pytest -q
+          tests/test_beginner_architecture_analysis.py
+          tests/test_beginner_discovery.py
+          tests/test_beginner_workspace_application.py
+          tests/test_beginner_workspace_authority.py
+          tests/test_beginner_workspace_persistence.py
+          tests/test_beginner_workspace_server.py
+          tests/test_beginner_workspace_browser.py
+          tests/test_beginner_workspace_qualification.py
+          --tb=short
