@@ -2325,7 +2325,6 @@ class BeginnerWorkspaceApplication:
                 "milestone",
                 "content_fingerprint",
                 "candidate_id",
-                "expected_artifact_revision",
             )
             if any(
                 stored_intent.get(key) != promotion_intent.get(key)

@@ -35,7 +35,7 @@ from auteur.beginner.contracts import (
 from auteur.beginner.mystery_adapter import mystery_qualification_inventory
 from auteur.beginner.persistence import CommandReceipt
 from auteur.beginner.promotion import PromotionPreview
-from auteur.identity import StoryIdentity
+from auteur.identity import HighLevelCentralEngine, StoryIdentity
 from tests.fixtures.beginner_sealed_elevator import (
     SEALED_ELEVATOR_PREMISE,
     choose_required_options,
@@ -504,6 +504,120 @@ def test_restart_recovery_uses_owner_recovery_without_second_promotion(tmp_path:
     assert recovering_owner.recoveries == 1
     assert recovering_owner.calls == []
     assert len(second_app.session_store.load().accepted_milestones) == 2
+
+
+def test_real_owner_restart_recovery_preserves_semantic_intent(tmp_path: Path) -> None:
+    app = create_app(tmp_path)
+    _accept_direction(app, "real-restart")
+    choose_required_options(app, "story_identity.")
+    app.open_milestone_review(
+        stage=DecisionStage.STORY_IDENTITY,
+        expected_session_version=app.projection().session_version,
+    )
+    identity = StoryIdentity(
+        title="Real owner recovery fixture",
+        core_answer="A recovery fixture with a semantic identity revision.",
+        central_engine=HighLevelCentralEngine(
+            want="Solve the mystery.",
+            resistance="Hidden truth.",
+            conflict="Suspicion versus trust.",
+            stakes="The relationship collapses.",
+            change="The protagonist accepts uncertainty.",
+        ),
+    )
+    initial_preview = PromotionPreview(
+        current_identity=identity,
+        candidate_identity=identity,
+        ready_to_accept=True,
+    )
+    app.accept_composed_identity(
+        preview=initial_preview,
+        command_id="real-initial-identity",
+        expected_session_version=app.projection().session_version,
+    )
+    _accept_structure(app, "real-restart")
+
+    app.open_revision(
+        revision_id="real-semantic-revision",
+        stage=DecisionStage.STORY_IDENTITY,
+        expected_session_version=app.projection().session_version,
+    )
+    identity_card = next(
+        card.card_id
+        for card in mystery_qualification_inventory().cards
+        if card.card_id.startswith("story_identity.")
+    )
+    app.select_working_option(
+        card_id=identity_card,
+        option=mystery_qualification_inventory().card(identity_card).options[-1],
+        expected_session_version=app.projection().session_version,
+        exploratory=True,
+    )
+    current = StoryIdentity.from_yaml(tmp_path / "story_identity.yaml")
+    candidate = current.model_copy(
+        update={
+            "central_engine": current.central_engine.model_copy(
+                update={"conflict": current.central_engine.conflict + " with semantic recovery"}
+            )
+        }
+    )
+    revision_preview = PromotionPreview(
+        current_identity=current,
+        candidate_identity=candidate,
+        semantic_changes=(
+            SemanticChange(
+                destination_field="central_engine.conflict",
+                before=current.central_engine.conflict,
+                after=candidate.central_engine.conflict,
+            ),
+        ),
+        ready_to_accept=True,
+    )
+    original_record = app.authority.journal.record
+
+    def crash_completion(**kwargs: Any) -> None:
+        if kwargs.get("status") == "completed" and kwargs.get("command_id") == "real-semantic-revision-accept":
+            raise _ProcessCrash("process terminated before acceptance journal completion")
+        original_record(**kwargs)
+
+    app.authority.journal.record = crash_completion  # type: ignore[method-assign]
+    with pytest.raises(_ProcessCrash, match="acceptance journal completion"):
+        app.accept_composed_identity(
+            preview=revision_preview,
+            revision_id="real-semantic-revision",
+            command_id="real-semantic-revision-accept",
+            expected_session_version=app.projection().session_version,
+        )
+
+    receipt = app.receipt_store.load("real-semantic-revision-accept")
+    assert receipt.promotion_intent is not None
+    assert receipt.promotion_intent["expected_artifact_revision"] == 1
+    assert StoryIdentity.from_yaml(tmp_path / "story_identity.yaml").central_engine.conflict.endswith(
+        "with semantic recovery"
+    )
+
+    recovered_app = BeginnerWorkspaceApplication(tmp_path, app.workspace_id)
+    post_crash_identity = StoryIdentity.from_yaml(tmp_path / "story_identity.yaml")
+    post_crash_preview = PromotionPreview(
+        current_identity=post_crash_identity,
+        candidate_identity=post_crash_identity,
+        ready_to_accept=True,
+    )
+    recovered = recovered_app.accept_composed_identity(
+        preview=post_crash_preview,
+        revision_id="real-semantic-revision",
+        command_id="real-semantic-revision-accept",
+        expected_session_version=recovered_app.projection().session_version,
+    )
+
+    assert recovered.accepted is True
+    assert StoryIdentity.from_yaml(tmp_path / "story_identity.yaml").central_engine.conflict.endswith(
+        "with semantic recovery"
+    )
+    structure_entry = next(
+        entry for entry in recovered_app.projection().navigator if entry.stage is DecisionStage.STORY_STRUCTURE
+    )
+    assert structure_entry.stale is True
 
 
 def test_metadata_only_composed_revision_does_not_stale_structure(tmp_path: Path) -> None:
