@@ -3,6 +3,7 @@ from __future__ import annotations
 from auteur.beginner.architecture_models import ArchitectureActivation, ArchitectureFacet
 from auteur.beginner.contracts import GuidanceActivation
 from auteur.beginner.dimensions import active_dimensions, composition_from_analysis
+from auteur.beginner.discovery import UnavailableDiscoveryRecommender
 from tests.fixtures.beginner_hybrid_mystery import HYBRID_ANALYSIS, create_hybrid_app
 
 
@@ -33,8 +34,20 @@ def test_uncertain_consequential_component_does_not_silently_enter_working_compo
 
 
 def test_active_unconfirmed_dimension_changes_guidance_but_not_canon(tmp_path) -> None:
-    app = create_hybrid_app(tmp_path)
-    projection = app.projection()
+    app = create_hybrid_app(
+        tmp_path,
+        discovery_recommender=UnavailableDiscoveryRecommender(
+            reason="No reasoning provider configured."
+        ),
+    )
+    architecture = app.projection()
+    assert architecture.primary_surface == "architecture"
+    assert architecture.guidance_inspector is None
+
+    projection = app.continue_from_architecture(
+        command_id="continue-to-degraded-discovery",
+        expected_session_version=architecture.session_version,
+    )
     assert projection.guidance_inspector is not None
     assert "Superhero public identity" in projection.guidance_inspector.context_guidance.patterns
     assert projection.canonical_refs == ()
