@@ -4,6 +4,17 @@ Status: **draft for user review**
 
 Date: 2026-09-19
 
+## Related authorities
+
+This specification must remain consistent with:
+
+- `docs/narrative-architecture.md` — canonical semantic layers and authority placement;
+- `docs/opinionated-narrative-engine.md` — creative-beginner product promise, opinionated recommendation, and explicit ratification;
+- `docs/research/product-design-research.md` — premise-to-Identity onboarding, progressive disclosure, and architecture-value research;
+- the Working Composition / Mapping Planner contracts implemented in draft PR #237, which remain noncanonical substrate rather than the desired final beginner ordering.
+
+Where this specification changes the current Beginner Workspace journey, it changes **product workflow and projection**, not the canonical five-layer semantic architecture.
+
 ## Purpose
 
 This specification redesigns the Beginner Workspace entry flow around a product finding from direct human use:
@@ -568,7 +579,7 @@ For example:
 
 ### Default activation
 
-Components inferred by the accepted analysis pipeline may participate in working guidance by default.
+Components inferred by the current validated analysis may participate in working guidance by default.
 
 The author does **not** need to click "Use this lens" for every component before Auteur can reason with the premise.
 
@@ -669,7 +680,7 @@ Discovery receives:
 - raw premise;
 - current Narrative Architecture Analysis;
 - author refinements;
-- confirmed working composition;
+- active working composition;
 - relevant genre/design knowledge;
 - accepted upstream state when revising.
 
