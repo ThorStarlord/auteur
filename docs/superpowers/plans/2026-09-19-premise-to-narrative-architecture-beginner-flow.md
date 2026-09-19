@@ -1911,6 +1911,7 @@ git commit -m "feat: make beginner decisions adaptive by stage"
 - Modify: src/auteur/beginner/browser/styles.css
 - Modify: tests/test_beginner_workspace_server.py
 - Modify: tests/test_beginner_workspace_browser.py
+- Modify: tests/fixtures/beginner_hybrid_mystery.py
 
 **Interfaces:**
 - Consumes all prior Beginner services.
@@ -1918,21 +1919,56 @@ git commit -m "feat: make beginner decisions adaptive by stage"
 
 - [ ] **Step 1: Write failing HTTP/browser contract tests**
 
+Add deterministic rich-server helpers to tests/test_beginner_workspace_server.py:
+
 ~~~python
-def test_http_fresh_workspace_returns_story_orientation_before_decision_card(running_rich_server) -> None:
-    _, projection = post_json(
-        running_rich_server,
-        "/api/beginner/workspaces",
-        hybrid_create_payload(),
+@contextmanager
+def running_rich_server(tmp_path: Path):
+    dependencies = BeginnerRuntimeDependencies(
+        architecture_analyzer=StaticArchitectureAnalyzer(HYBRID_ANALYSIS),
+        discovery_recommender=CountingDiscoveryRecommender(HYBRID_DISCOVERY),
     )
-    assert projection["primary_surface"] == "architecture"
-    assert projection["story_orientation"]["heading"] == "Here is what Auteur sees"
-    assert projection["decision_card"] is None
+    server = BeginnerWorkspaceServer(tmp_path, port=0, dependencies=dependencies)
+    thread = server.start_in_thread()
+    try:
+        yield server
+    finally:
+        server.stop()
+        thread.join(timeout=2)
+        assert not thread.is_alive()
+
+
+def hybrid_create_payload(
+    command_id: str = "create-hybrid-rich",
+    workspace_id: str = "hybrid-rich",
+) -> dict[str, object]:
+    return {
+        "command_id": command_id,
+        "workspace_id": workspace_id,
+        "project_id": "hybrid-project",
+        "guidance_genre": "mystery",
+        "premise": HYBRID_MYSTERY_PREMISE,
+    }
+~~~
+
+Then add:
+
+~~~python
+def test_http_fresh_workspace_returns_story_orientation_before_decision_card(tmp_path: Path) -> None:
+    with running_rich_server(tmp_path) as server:
+        _, projection = post_json(
+            server,
+            "/api/beginner/workspaces",
+            hybrid_create_payload(),
+        )
+        assert projection["primary_surface"] == "architecture"
+        assert projection["story_orientation"]["heading"] == "Here is what Auteur sees"
+        assert projection["decision_card"] is None
 
 
 def test_browser_does_not_render_internal_dimension_vocabulary() -> None:
-    source = browser_asset("app.js")
-    html = browser_asset("index.html")
+    source = _read(APP)
+    html = _read(INDEX)
     assert "PRIMARY_ENGINE" not in html
     assert "SETTING_WORLD" not in html
     assert "RELATIONSHIP_THEMATIC" not in html
@@ -1965,6 +2001,8 @@ class BeginnerRuntimeDependencies:
     architecture_analyzer: ArchitectureAnalyzer
     discovery_recommender: DiscoveryRecommender
 ~~~
+
+BeginnerWorkspaceServer gains a dependencies: BeginnerRuntimeDependencies | None constructor argument. _app_for(workspace_id) passes the same dependency objects into every reconstructed BeginnerWorkspaceApplication.
 
 Server behavior:
 - with --provider: build one existing retrying LLMClient, then construct ProviderArchitectureAnalyzer + StoryDiscoveryRecommender;
@@ -2076,7 +2114,7 @@ Expected: PASS.
 - [ ] **Step 11: Commit**
 
 ~~~bash
-git add src/auteur/beginner/server.py src/auteur/beginner/browser/index.html src/auteur/beginner/browser/app.js src/auteur/beginner/browser/styles.css tests/test_beginner_workspace_server.py tests/test_beginner_workspace_browser.py
+git add src/auteur/beginner/server.py src/auteur/beginner/browser/index.html src/auteur/beginner/browser/app.js src/auteur/beginner/browser/styles.css tests/test_beginner_workspace_server.py tests/test_beginner_workspace_browser.py tests/fixtures/beginner_hybrid_mystery.py
 git commit -m "feat: present premise architecture before beginner decisions"
 ~~~
 
