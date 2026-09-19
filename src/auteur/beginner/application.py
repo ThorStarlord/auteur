@@ -116,6 +116,7 @@ from .contracts import (
     MappingDomainContext,
 )
 from .discovery import DiscoveryRecommender, UnavailableDiscoveryRecommender
+from .discovery_models import DiscoveryRecommendationStatus
 from .dimensions import (
     active_dimensions,
     add_author_dimension,
@@ -695,6 +696,130 @@ class BeginnerWorkspaceApplication:
         )
         return saved
 
+    def continue_from_architecture(
+        self,
+        *,
+        expected_session_version: int,
+        command_id: str,
+    ) -> WorkspaceProjection:
+        """Generate and persist Discovery from the current derived interpretation."""
+        acquisition = self.receipt_store.begin(command_id, command_type="create_workspace")
+        if acquisition.outcome == "completed_replay":
+            return self.projection()
+        if acquisition.outcome != "owner_claim":
+            raise BeginnerWorkspaceError(f"command already in progress: {command_id}")
+
+        session = self.session_store.load()
+        self._check_version(session, expected_session_version)
+        analysis = self._architecture_analysis(session)
+        if analysis is None:
+            raise BeginnerWorkspaceError("no narrative interpretation exists")
+        if analysis.stale or not self._analysis_is_current(session):
+            raise BeginnerWorkspaceError("narrative interpretation is stale; reanalyze the premise before continuing")
+
+        if session.discovery_recommendation is not None:
+            recommendation = session.discovery_recommendation
+        else:
+            recommendation = self.discovery_recommender.recommend(
+                premise=session.premise,
+                analysis=analysis,
+            )
+            self.session_store.update(
+                expected_session_version,
+                lambda current: current.model_copy(
+                    update={"discovery_recommendation": recommendation}
+                ),
+            )
+        seen = list(self._journey.get("architecture_seen") or [])
+        if not any(
+            isinstance(entry, dict)
+            and entry.get("analysis_id") == analysis.analysis_id
+            and entry.get("command_id") == command_id
+            for entry in seen
+        ):
+            seen.append(
+                {
+                    "analysis_id": analysis.analysis_id,
+                    "command_id": command_id,
+                }
+            )
+            self._journey["architecture_seen"] = seen
+            self._save_journey()
+        self.receipt_store.complete(
+            acquisition,
+            cast(
+                JsonValue,
+                {
+                    "kind": "continue_architecture",
+                    "data": {
+                        "recommendation_id": recommendation.recommendation_id,
+                    },
+                },
+            ),
+        )
+        return self.projection()
+
+    def select_story_direction(
+        self,
+        *,
+        direction_id: str,
+        expected_session_version: int,
+        command_id: str,
+    ) -> WorkspaceProjection:
+        """Select one current Discovery direction without crossing the Identity boundary."""
+        acquisition = self.receipt_store.begin(command_id, command_type="create_workspace")
+        if acquisition.outcome == "completed_replay":
+            return self.projection()
+        if acquisition.outcome != "owner_claim":
+            raise BeginnerWorkspaceError(f"command already in progress: {command_id}")
+
+        session = self.session_store.load()
+        self._check_version(session, expected_session_version)
+        recommendation = session.discovery_recommendation
+        if recommendation is None or recommendation.status is DiscoveryRecommendationStatus.UNAVAILABLE:
+            raise BeginnerWorkspaceError("no current rich Discovery direction is available")
+        try:
+            recommendation.direction(direction_id)
+        except KeyError as exc:
+            raise BeginnerWorkspaceError(f"unknown Discovery direction: {direction_id}") from exc
+
+        updated = recommendation.model_copy(update={"selected_direction_id": direction_id})
+        self.session_store.update(
+            expected_session_version,
+            lambda current: current.model_copy(
+                update={"discovery_recommendation": updated}
+            ),
+        )
+        if (
+            recommendation.recommended_direction_id is not None
+            and direction_id != recommendation.recommended_direction_id
+        ):
+            tensions = dict(self._journey.get("tensions") or {})
+            tension_id = f"discovery-direction-divergence:{recommendation.recommendation_id}"
+            tensions[tension_id] = {
+                "tension_id": tension_id,
+                "card_id": f"discovery:{recommendation.recommendation_id}",
+                "detail": (
+                    "The author selected a viable Discovery direction other than Auteur's advisory preference."
+                ),
+                "blocking": False,
+                "acknowledged": True,
+                "source": "discovery-selection",
+            }
+            self._journey["tensions"] = tensions
+            self._save_journey()
+        self.receipt_store.complete(
+            acquisition,
+            cast(
+                JsonValue,
+                {
+                    "kind": "select_story_direction",
+                    "data": {"direction_id": direction_id},
+                },
+            ),
+        )
+        return self.projection()
+
     def confirm_dimension(
         self,
         *,
@@ -908,6 +1033,17 @@ class BeginnerWorkspaceApplication:
 
         answers = dict(self._journey.get("answers") or {})
         cursor = self._cursor_card(session, inventory)
+        accepted_ids = {reference.milestone_id for reference in session.accepted_milestones}
+        recommendation = session.discovery_recommendation
+        if (
+            session.architecture_analysis is not None
+            and "story_identity" not in accepted_ids
+            and (
+                recommendation is None
+                or recommendation.status is not DiscoveryRecommendationStatus.UNAVAILABLE
+            )
+        ):
+            cursor = None
         is_current = cursor is not None and cursor.card_id == card_id
         if not (is_current or card_id in answers):
             raise BeginnerWorkspaceError(f"not the current card: {card_id}")
@@ -1558,23 +1694,139 @@ class BeginnerWorkspaceApplication:
         workspace_id: str | None = None,
         command: MutationCommand | None = None,
     ) -> AcceptResult:
-        """Create the authoritative accepted direction record.
-
-        Never creates canonical StoryIdentity and never unlocks more than the
-        next stage. Requires an explicit ``command_id`` for idempotency.
-        """
+        """Accept the selected rich direction as a session milestone, never StoryIdentity canon."""
         expected, resolved_command_id, _payload = self._envelope_args(
             command=command,
             workspace_id=workspace_id,
             expected_session_version=expected_session_version,
             command_id=command_id,
         )
-        return self._accept_milestone(
-            DecisionStage.DISCOVER,
-            revision_id=None,
-            expected_session_version=expected,
-            command_id=resolved_command_id,
+        session = self.session_store.load()
+        recommendation = session.discovery_recommendation
+        if (
+            recommendation is None
+            or recommendation.status is DiscoveryRecommendationStatus.UNAVAILABLE
+        ):
+            return self._accept_milestone(
+                DecisionStage.DISCOVER,
+                revision_id=None,
+                expected_session_version=expected,
+                command_id=resolved_command_id,
+            )
+        if resolved_command_id is None or not resolved_command_id:
+            raise BeginnerWorkspaceError("command_id is required for milestone acceptance")
+        replayed = self._replay_accept(resolved_command_id)
+        if replayed is not None:
+            return replayed
+
+        self._check_version(session, expected)
+        self._require_available(session, DecisionStage.DISCOVER)
+        analysis = self._architecture_analysis(session)
+        if analysis is None or analysis.stale or not self._analysis_is_current(session):
+            raise BeginnerWorkspaceError("cannot accept a direction from stale narrative interpretation")
+        if recommendation.source_analysis_id != analysis.analysis_id:
+            raise BeginnerWorkspaceError("Discovery recommendation does not match the current interpretation")
+        if recommendation.selected_direction_id is None:
+            raise BeginnerWorkspaceError("select a Story Discovery direction before accepting it")
+        try:
+            direction = recommendation.direction(recommendation.selected_direction_id)
+        except KeyError as exc:
+            raise BeginnerWorkspaceError("selected Story Discovery direction is no longer available") from exc
+
+        if any(
+            reference.milestone_id == "story_direction"
+            for reference in session.accepted_milestones
+        ):
+            raise BeginnerWorkspaceError("story_direction is already accepted; open a revision to revise it")
+
+        content = json.dumps(
+            {
+                "direction_id": direction.direction_id,
+                "source_analysis_id": analysis.analysis_id,
+                "identity_candidate": direction.identity_candidate.model_dump(mode="json"),
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
         )
+        fingerprint = hashlib.sha256(content.encode("utf-8")).hexdigest()
+        target = _milestone_target(self.workspace_id, "story_direction")
+        acquisition = self.receipt_store.begin(
+            resolved_command_id,
+            command_type="create_workspace",
+        )
+        if acquisition.outcome == "completed_replay":
+            thawed = self._thaw_accept_record(acquisition.result)
+            if thawed is not None:
+                return thawed
+            raise BeginnerWorkspaceError(
+                f"command receipt mismatch for accept: {resolved_command_id}"
+            )
+        if acquisition.outcome != "owner_claim":
+            raise BeginnerWorkspaceError(f"command already in progress: {resolved_command_id}")
+
+        new_ref = AcceptedMilestoneReference(
+            milestone_id="story_direction",
+            revision=RevisionRef(artifact_id=target, revision=1),
+            accepted_content=content,
+            fingerprint=fingerprint,
+            selected_option=direction.direction_id,
+        )
+
+        def mutate(current: SessionEnvelope) -> SessionEnvelope:
+            stages = dict(current.stages)
+            stages[DecisionStage.DISCOVER] = stages[DecisionStage.DISCOVER].model_copy(
+                update={"lifecycle": LifecycleStatus.COMPLETE}
+            )
+            stages[DecisionStage.STORY_IDENTITY] = stages[DecisionStage.STORY_IDENTITY].model_copy(
+                update={
+                    "availability": StageAvailability.AVAILABLE,
+                    "lifecycle": LifecycleStatus.WORKING,
+                }
+            )
+            return current.model_copy(
+                update={
+                    "accepted_milestones": [*current.accepted_milestones, new_ref],
+                    "stages": stages,
+                }
+            )
+
+        saved = self.session_store.update(expected, mutate)
+        acceptance_log = list(self._journey.get("acceptance_log") or [])
+        acceptance_log.append(
+            {
+                "milestone": "story_direction",
+                "revision": 1,
+                "fingerprint": fingerprint,
+                "command_id": resolved_command_id,
+                "direction_id": direction.direction_id,
+            }
+        )
+        self._journey["acceptance_log"] = acceptance_log
+        self._journey["cursor_override"] = None
+        self._save_journey()
+
+        reference = {
+            "artifact_id": target,
+            "milestone": "story_direction",
+            "revision": 1,
+            "fingerprint": fingerprint,
+            "direction_id": direction.direction_id,
+            "source_analysis_id": analysis.analysis_id,
+        }
+        result = AcceptResult(
+            stage=DecisionStage.DISCOVER,
+            accepted=True,
+            revision=1,
+            result_reference=reference,
+            session_version=saved.session_version,
+        )
+        self.receipt_store.complete(
+            acquisition,
+            cast(JsonValue, _freeze_accept(result)),
+            domain_result_reference=cast(JsonObject, reference),
+        )
+        return result
 
     def accept_story_identity(
         self,

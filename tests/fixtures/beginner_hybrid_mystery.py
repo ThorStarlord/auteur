@@ -242,11 +242,12 @@ def create_hybrid_app(
     *,
     discovery_recommender: DiscoveryRecommender | None = None,
 ) -> BeginnerWorkspaceApplication:
+    resolved_discovery = discovery_recommender or CountingDiscoveryRecommender()
     app = BeginnerWorkspaceApplication(
         tmp_path,
         "hybrid-mystery",
         architecture_analyzer=StaticArchitectureAnalyzer(HYBRID_ANALYSIS),
-        discovery_recommender=discovery_recommender,
+        discovery_recommender=resolved_discovery,
     )
     app.create_workspace(
         command_id="create-hybrid-mystery",
@@ -484,3 +485,30 @@ class HybridStoryDiscoveryClient:
             input_tokens=1,
             output_tokens=1,
         )
+
+
+
+def app_at_discovery(tmp_path: Path) -> BeginnerWorkspaceApplication:
+    app = create_hybrid_app(
+        tmp_path,
+        discovery_recommender=CountingDiscoveryRecommender(HYBRID_DISCOVERY),
+    )
+    app.continue_from_architecture(
+        command_id="hybrid-continue-architecture",
+        expected_session_version=app.projection().session_version,
+    )
+    return app
+
+
+def app_after_direction_acceptance(tmp_path: Path) -> BeginnerWorkspaceApplication:
+    app = app_at_discovery(tmp_path)
+    app.select_story_direction(
+        direction_id="direction-investigative-betrayal",
+        command_id="hybrid-select-direction",
+        expected_session_version=app.projection().session_version,
+    )
+    app.accept_story_direction(
+        command_id="hybrid-accept-direction",
+        expected_session_version=app.projection().session_version,
+    )
+    return app

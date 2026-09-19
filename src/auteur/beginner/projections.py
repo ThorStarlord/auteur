@@ -14,7 +14,9 @@ evidence stays expandable detail instead of replaying every card inline.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Mapping
+from typing import Literal, Mapping
+
+from pydantic import BaseModel, ConfigDict
 
 from .architecture_projection import StoryOrientationProjection
 from .contracts import (
@@ -25,6 +27,7 @@ from .contracts import (
     StageStatus,
     WorkingComposition,
 )
+from .discovery_models import DiscoveryRecommendationStatus
 from .guidance import (
     BeginnerGuidance,
     GuidanceContext,
@@ -200,6 +203,144 @@ class GuidanceInspectorProjection:
     authority_status: str = "DERIVED / NOT CANON"
 
 
+PrimaryWorkspaceSurface = Literal[
+    "architecture",
+    "discovery",
+    "story_identity",
+    "structure",
+    "complete",
+]
+
+
+class DiscoveryDirectionProjection(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    direction_id: str
+    title: str
+    summary: str
+    recommended: bool
+    selected: bool
+    tradeoffs: tuple[str, ...]
+    risks: tuple[str, ...]
+    authority_status: str
+
+
+class DiscoveryProjection(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    recommendation_id: str
+    status: str
+    recommended_direction_id: str | None
+    selected_direction_id: str | None
+    rationale: str
+    directions: tuple[DiscoveryDirectionProjection, ...]
+    blockers: tuple[str, ...] = ()
+    supersedes_recommendation_id: str | None = None
+    authority_status: str = "DERIVED / NOT CANON"
+
+
+class IdentityCandidateProjection(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    direction_id: str
+    title: str
+    core_answer: str
+    story_type: dict[str, object]
+    target_experience: dict[str, object]
+    central_engine: dict[str, object]
+    source_component_ids: tuple[str, ...]
+    authority_status: str = "PROPOSED / NOT CANON"
+
+
+def _accepted_milestone_ids(session: SessionEnvelope) -> set[str]:
+    return {reference.milestone_id for reference in session.accepted_milestones}
+
+
+def _primary_surface(session: SessionEnvelope) -> PrimaryWorkspaceSurface:
+    accepted = _accepted_milestone_ids(session)
+    if "whole_story_structure" in accepted:
+        return "complete"
+    if "story_identity" in accepted:
+        return "structure"
+    if "story_direction" in accepted:
+        return "story_identity"
+    recommendation = session.discovery_recommendation
+    if recommendation is not None:
+        return "discovery"
+    if session.architecture_analysis is not None:
+        return "architecture"
+    return "discovery"
+
+
+def _discovery_projection(session: SessionEnvelope) -> DiscoveryProjection | None:
+    recommendation = session.discovery_recommendation
+    if recommendation is None:
+        return None
+    blockers = (
+        (recommendation.rationale,)
+        if recommendation.status is DiscoveryRecommendationStatus.UNAVAILABLE
+        else ()
+    )
+    return DiscoveryProjection(
+        recommendation_id=recommendation.recommendation_id,
+        status=recommendation.status.value,
+        recommended_direction_id=recommendation.recommended_direction_id,
+        selected_direction_id=recommendation.selected_direction_id,
+        rationale=recommendation.rationale,
+        directions=tuple(
+            DiscoveryDirectionProjection(
+                direction_id=direction.direction_id,
+                title=direction.title,
+                summary=direction.summary,
+                recommended=direction.direction_id == recommendation.recommended_direction_id,
+                selected=direction.direction_id == recommendation.selected_direction_id,
+                tradeoffs=direction.tradeoffs,
+                risks=direction.risks,
+                authority_status=direction.authority_status,
+            )
+            for direction in recommendation.directions
+        ),
+        blockers=blockers,
+        supersedes_recommendation_id=recommendation.supersedes_recommendation_id,
+        authority_status=recommendation.authority_status,
+    )
+
+
+def _identity_candidate_projection(session: SessionEnvelope) -> IdentityCandidateProjection | None:
+    if "story_direction" not in _accepted_milestone_ids(session):
+        return None
+    recommendation = session.discovery_recommendation
+    if recommendation is None or recommendation.selected_direction_id is None:
+        return None
+    try:
+        direction = recommendation.direction(recommendation.selected_direction_id)
+    except KeyError:
+        return None
+    identity = direction.identity_candidate
+    return IdentityCandidateProjection(
+        direction_id=direction.direction_id,
+        title=identity.title,
+        core_answer=identity.core_answer,
+        story_type=identity.story_type.model_dump(mode="json"),
+        target_experience=identity.target_experience.model_dump(mode="json"),
+        central_engine=identity.central_engine.model_dump(mode="json"),
+        source_component_ids=direction.source_component_ids,
+    )
+
+
+def _suppress_legacy_cards(session: SessionEnvelope) -> bool:
+    """Rich interpretation/discovery owns the pre-Identity surface unless unavailable."""
+    if session.architecture_analysis is None:
+        return False
+    if "story_identity" in _accepted_milestone_ids(session):
+        return False
+    recommendation = session.discovery_recommendation
+    return (
+        recommendation is None
+        or recommendation.status is not DiscoveryRecommendationStatus.UNAVAILABLE
+    )
+
+
 @dataclass(frozen=True)
 class WorkspaceProjection:
     """The full workspace render built from a single snapshot."""
@@ -220,6 +361,9 @@ class WorkspaceProjection:
     working_composition: WorkingComposition | None = None
     mapping_preview: object | None = None
     story_orientation: StoryOrientationProjection | None = None
+    primary_surface: PrimaryWorkspaceSurface = "discovery"
+    discovery: DiscoveryProjection | None = None
+    identity_candidate: IdentityCandidateProjection | None = None
 
 
 def cards_for_stage(inventory: QualificationInventory, stage: DecisionStage) -> tuple[QualificationCard, ...]:
@@ -304,6 +448,8 @@ def build_workspace_projection(
     stale = bool(answers) and basis_digest is not None and basis_digest != current_digest
 
     cursor = _resolve_cursor(ordered, available, answers, cursor_override)
+    if _suppress_legacy_cards(session):
+        cursor = None
 
     # At-risk marks actual exploratory divergence only: the earliest stage touched
     # by the revision overlay. Merely opening a revision (empty overlay) marks
@@ -432,6 +578,9 @@ def build_workspace_projection(
         working_composition=working_composition if working_composition is not None else session.working_composition,
         mapping_preview=mapping_preview,
         story_orientation=story_orientation,
+        primary_surface=_primary_surface(session),
+        discovery=_discovery_projection(session),
+        identity_candidate=_identity_candidate_projection(session),
     )
 
 
