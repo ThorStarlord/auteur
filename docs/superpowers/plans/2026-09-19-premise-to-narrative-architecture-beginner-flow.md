@@ -414,9 +414,13 @@ python -m pytest tests/test_beginner_architecture_analysis.py -q --tb=short
 
 Expected: FAIL.
 
-- [ ] **Step 3: Implement analyzer protocol and provider draft**
+- [ ] **Step 3: Implement analyzer protocol, fingerprints, error type, and provider draft**
 
 ~~~python
+class ArchitectureAnalysisError(ValueError):
+    pass
+
+
 class ArchitectureAnalyzer(Protocol):
     def analyze(
         self,
@@ -938,6 +942,11 @@ def test_discovery_unavailable_does_not_invent_story_directions() -> None:
     assert result.status is DiscoveryRecommendationStatus.UNAVAILABLE
     assert result.directions == ()
     assert result.recommended_direction_id is None
+
+
+class AlwaysRetriableErrorClient:
+    def complete(self, request: LLMRequest) -> LLMResponse:
+        raise RetriableError("provider unavailable")
 
 
 def test_story_discovery_provider_failure_returns_unavailable() -> None:
