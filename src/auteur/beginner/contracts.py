@@ -7,6 +7,8 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from auteur.story_design_packs.models import PackProvenance
 
+from .architecture_models import NarrativeArchitectureAnalysis
+
 
 class DecisionStage(str, Enum):
     DISCOVER = "discover"
@@ -271,6 +273,7 @@ class SessionEnvelope(BaseModel):
     stages: dict[DecisionStage, StageStatus]
     accepted_milestones: list[AcceptedMilestoneReference] = Field(default_factory=list)
     working_composition: WorkingComposition | None = None
+    architecture_analysis: NarrativeArchitectureAnalysis | None = None
 
     @model_validator(mode="after")
     def require_consistent_stage_graph(self) -> Self:
