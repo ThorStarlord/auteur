@@ -33,6 +33,7 @@ from auteur.beginner.contracts import (
     StageAvailability,
 )
 from auteur.beginner.mystery_adapter import mystery_qualification_inventory
+from auteur.beginner.persistence import CommandReceipt
 from auteur.beginner.promotion import PromotionPreview
 from auteur.identity import StoryIdentity
 from tests.fixtures.beginner_sealed_elevator import (
@@ -545,3 +546,57 @@ def test_metadata_only_composed_revision_does_not_stale_structure(tmp_path: Path
         entry for entry in app.projection().navigator if entry.stage is DecisionStage.STORY_STRUCTURE
     )
     assert structure_entry.stale is False
+
+
+def test_metadata_recovery_requires_post_accept_artifact_revision(tmp_path: Path, monkeypatch: Any) -> None:
+    owner = _RecoveringOwner()
+    registry = AcceptanceRegistry(tmp_path)
+    registry.register(owner)
+    app = create_app(tmp_path)
+    app.authority = registry
+    target = "beginner:sealed-elevator:story_identity"
+    candidate = "composed:metadata-candidate"
+    command_id = "metadata-recovery-guard"
+    intent = {
+        "workspace_id": "sealed-elevator",
+        "milestone": "story_identity",
+        "content_fingerprint": "fingerprint",
+        "candidate_id": candidate,
+        "semantic_change": False,
+        "expected_artifact_revision": 1,
+    }
+    registry.journal.record(
+        operation_id="metadata-recovery-operation",
+        target_artifact_id=target,
+        candidate_id=candidate,
+        status="started",
+        command_id=command_id,
+    )
+    receipt = CommandReceipt(
+        command_id=command_id,
+        status="in_progress",
+        owner_token="receipt-owner",
+        command_type="promote_milestone",
+        target_milestone="identity-accepted",
+        promotion_intent=intent,
+    )
+    monkeypatch.setattr(app, "_canonical_artifact_revision", lambda *args, **kwargs: 1)
+
+    recovered = app._try_recover(
+        receipt,
+        command_id=command_id,
+        stage=DecisionStage.STORY_IDENTITY,
+        milestone_id="story_identity",
+        revision=2,
+        fingerprint="fingerprint",
+        target=target,
+        candidate=candidate,
+        merged={},
+        is_revision=True,
+        revision_id="metadata-revision",
+        promotion_intent=intent,
+        semantic_change=False,
+    )
+
+    assert recovered is None
+    assert owner.recoveries == 0
