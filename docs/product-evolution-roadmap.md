@@ -142,29 +142,42 @@ The Beginner product path now continues beyond the original guided-decision mile
 premise / narrative architecture
 → explicit accepted foundation
 → whole-story outline
-→ Chapter 1 plan
+→ Chapter N plan
 → scene plan
 → draft handoff
 → post-draft review
 → noncanonical revision handoff or explicit existing-owner acceptance
 → accepted chapter outcome
 → contextual Chapter N+1 plan
+→ read-only whole-book progress
+→ existing Book reconciliation
+→ publication handoff
 ```
 
 PR #244 connected accepted whole-story Structure to first-draft planning. PR #246
 reconstructed the generalized post-draft / Chapter N → N+1 capability on
-contemporary `main`, preserving the richer Beginner Workspace contracts rather
-than merging the stale historical branch.
+contemporary `main`. PR #258 then exposed whole-book progress, Book
+reconciliation state, the next owning command, and publication-readiness
+preflight in the Beginner surface by reusing existing status and publishing
+owners rather than introducing a parallel Book service.
 
-Authority remains unchanged: review and planning are derived; the Beginner layer
-does not directly create `final.md` or mutate `bible.json`; acceptance delegates
-to the existing owning workflow and replay is reconciled rather than re-executed.
+Authority remains unchanged: review, planning, whole-book orientation, and
+publishing readiness are derived/read-only; the Beginner layer does not directly
+create `final.md`, mutate `bible.json`, reconcile a Book, accept a Book, or
+publish on the author's behalf. Authority-bearing operations continue through
+their existing owning workflows.
+
+The repository is therefore in a **product-integration and maintainability
+consolidation** phase more than a missing-foundation phase. Prefer connecting,
+simplifying, exposing, and qualifying existing capability before admitting new
+conceptual architecture.
 
 The next product responsibility is **evidence, not automatic feature expansion**.
 Issue #249 and
 [product-validation/beginner-premise-to-chapter2-real-author-protocol.md](product-validation/beginner-premise-to-chapter2-real-author-protocol.md)
-define the real-author premise-to-Chapter-2 journey. The first material friction
-selects the smallest next intervention.
+preserve the real-author premise-to-Chapter-2 evidence responsibility. Any
+subsequent product package should be selected from concrete friction rather than
+from a need to keep the roadmap expanding.
 
 ## CANDIDATE — Unified Decision Inbox / Broader Attention Sources
 **State:** `CANDIDATE`
@@ -317,7 +330,22 @@ See `docs/plans/ux-polish-plan-v0.38.md` for the completed implementation tasks,
 ## Engineering Hardening Lane
 **State:** `CANDIDATE` maintenance lane; schedule independently when risk/cost justify it.
 
-The full Windows Python 3.13 test leg is now integrated alongside Linux 3.11/3.12/3.13 validation and wheel smoke. Remaining hardening candidates include path/line-ending/locale/timezone isolation, stronger freeze/completeness integrity, and sandboxing where external reviewer execution justifies the cost. Hardening should protect product work without opening unrelated infrastructure programs during a bounded milestone.
+The contemporary release workflow defines Linux Python 3.11/3.13, Windows
+Python 3.13, and Linux Python 3.12 exact-SHA evidence plus installed-wheel
+qualification for an explicitly frozen candidate. Historical synthetic
+qualification issues #49–53 were reconciled and closed because their original
+infrastructure is no longer the current release owner. Issue #54 remains the
+cross-platform candidate-evidence responsibility, while #55 remains
+reproduction-gated on a real Windows qualification run.
+
+Book/full-suite issue #247 was closed after contemporary L3 evidence showed no
+reproduced Book authority regression; the repository now has a focused Book
+acceptance sentinel and better L3 duration/JUnit observability. Legacy
+Realization issue #251 was also closed after obsolete xfails were replaced by
+current-schema coverage.
+
+Hardening should protect product work without reopening superseded qualification
+machinery or starting unrelated infrastructure programs.
 
 ## Product Evolution Loop
 ### Level 1 — Author Decision Loop
