@@ -102,6 +102,17 @@
         <h2>Continue developing the story</h2>
         <p class="hint">These are derived plans. They become part of the drafting handoff only after you accept each step.</p>
         <div id="continuation-body"></div>
+        <section id="post-draft-review" aria-label="Post-draft review" hidden>
+          <h3>Post-draft review</h3>
+          <p id="post-draft-status" class="hint"></p>
+          <p><strong>Recommended next step:</strong> <span id="post-draft-next-action"></span></p>
+          <div id="post-draft-evidence"></div>
+          <div class="surface-actions">
+            <button id="post-draft-revise" type="button" hidden>Prepare revision handoff</button>
+            <button id="post-draft-accept" type="button" class="continue-button" hidden>Accept latest draft</button>
+            <button id="post-draft-plan-next" type="button" class="continue-button" hidden>Plan next chapter</button>
+          </div>
+        </section>
       </section>
 
       <details id="refinement-panel" aria-label="Refine story interpretation" class="composition-panel">
