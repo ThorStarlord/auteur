@@ -1045,7 +1045,7 @@ pytest tests/test_beginner_workspace_contracts.py tests/test_beginner_workspace_
 ```
 
 - [ ] Run the named integration slice and record collected, passed, skipped, xfailed, xpassed, failed, and error counts separately.
-- [ ] Apply the validation policy recorded during Task 0: run the required L1/L2 checks for the changed boundaries, and schedule exactly the stabilization gate required by the current authority/persistence policy before human qualification. Do not infer the gate from this plan if the repository policy changed.
+- [ ] Apply the validation policy recorded during Task 0: run the required L1/L2 checks for the changed boundaries and record them separately from stabilization and human evidence. L3 is required at a named stabilization/release checkpoint, not automatically before unrelated development continues. Do not infer the gate from this plan if the repository policy changes.
 - [ ] Run exact-head L1 only after the implementation candidate is committed and pushed.
 - [ ] Freeze the exact candidate SHA before human qualification.
 - [ ] Prepare a fresh workspace using the sanitized hybrid Mystery premise, print the URL and operating instructions, and stop.

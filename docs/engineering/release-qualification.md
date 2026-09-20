@@ -7,6 +7,48 @@ Blame processes, not people.
 A completion claim is not evidence. A release state is reached only when
 its required artifacts and checks exist.
 
+## Development qualification versus stabilization qualification
+
+Auteur uses qualification evidence at two different decision points:
+
+### Implementation and integration evidence
+
+During active development, a change may continue when the evidence appropriate
+to its risk is complete:
+
+- L1 exact-head validation covers the changed implementation boundary;
+- L2 targeted integration covers meaningful cross-boundary behavior; and
+- the result is recorded with separate test counts and any known limitations.
+
+This evidence supports integration and continued development. It does not
+support a repository-wide stabilization or release claim by itself.
+
+### Stabilization and release evidence
+
+L3 full-repository stabilization is a named checkpoint for a frozen candidate,
+not a mandatory gate after every successful implementation package. It is
+required before claiming that the repository is stabilized at that candidate
+and remains part of the evidence required by any release process that names
+full-repository stabilization.
+
+Human product qualification is likewise a separate gate. It is required before
+claiming UX or product qualification, but its absence does not block unrelated
+continued development.
+
+When L3 or human qualification has not run, record it as `DEFERRED` or
+`PENDING`, including the reason. Never represent missing evidence as a pass.
+
+The normal active-development policy is therefore:
+
+1. Require L1 for ordinary implementation changes.
+2. Require L2 when a change crosses meaningful architectural boundaries.
+3. Run L3 at named stabilization or release checkpoints.
+4. Run human qualification before making a UX or product qualification claim.
+
+Weakening the claim is the correct response to deferred evidence; blocking all
+further development is not required unless a separate repository or release
+policy explicitly names that checkpoint as a prerequisite.
+
 ## Release states
 
 ### Implemented
