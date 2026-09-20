@@ -266,35 +266,25 @@ class TestTemporalRelations:
         )
 
     def test_self_reference_detected(self):
-        """Test scene following itself is detected."""
-        validator = TemporalValidator()
-
-        scene = SceneOutline(
-            id="scene_01_01",
-            chapter_id="chapter_01",
-            narrative_position=1,
-            story_time="day_1",
-            pov_character_id="clara",
-            participants=["clara"],
-            temporal_relation=TemporalRelation(follows_scene="scene_01_01"),  # Self-ref
-            goal=Goal(actor_id="clara", objective="Advance the scene"),
-            opposition=Opposition(source_id="external", pressure="Resistance"),
-            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
-            decision=Decision(actor_id="clara", choice="Continue"),
-            outcome=Outcome(result="partial"),
-            entry_state=EntryState(),
-            exit_state=ExitState(),
-            status=SceneStatus.READY,
-        )
-
-        validator.add_scene(scene)
-
-        result = validator.validate_scene(scene)
-        assert result.is_valid is False
-        assert any(
-            v.violation_type == TemporalViolationType.SELF_REFERENCE
-            for v in result.violations
-        )
+        """SceneOutline itself rejects a follows_scene self-reference."""
+        with pytest.raises(ValueError, match="Scene cannot follow itself"):
+            SceneOutline(
+                id="scene_01_01",
+                chapter_id="chapter_01",
+                narrative_position=1,
+                story_time="day_1",
+                pov_character_id="clara",
+                participants=["clara"],
+                temporal_relation=TemporalRelation(follows_scene="scene_01_01"),
+                goal=Goal(actor_id="clara", objective="Advance the scene"),
+                opposition=Opposition(source_id="external", pressure="Resistance"),
+                turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+                decision=Decision(actor_id="clara", choice="Continue"),
+                outcome=Outcome(result="partial"),
+                entry_state=EntryState(),
+                exit_state=ExitState(),
+                status=SceneStatus.READY,
+            )
 
 
 class TestParallelRelations:
@@ -397,35 +387,25 @@ class TestParallelRelations:
         )
 
     def test_self_parallel_detected(self):
-        """Test scene parallel with itself is detected."""
-        validator = TemporalValidator()
-
-        scene = SceneOutline(
-            id="scene_01_01",
-            chapter_id="chapter_01",
-            narrative_position=1,
-            story_time="day_1",
-            pov_character_id="clara",
-            participants=["clara"],
-            temporal_relation=TemporalRelation(parallel_with=["scene_01_01"]),
-            goal=Goal(actor_id="clara", objective="Advance the scene"),
-            opposition=Opposition(source_id="external", pressure="Resistance"),
-            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
-            decision=Decision(actor_id="clara", choice="Continue"),
-            outcome=Outcome(result="partial"),
-            entry_state=EntryState(),
-            exit_state=ExitState(),
-            status=SceneStatus.READY,
-        )
-
-        validator.add_scene(scene)
-
-        result = validator.validate_scene(scene)
-        assert result.is_valid is False
-        assert any(
-            v.violation_type == TemporalViolationType.SELF_REFERENCE
-            for v in result.violations
-        )
+        """SceneOutline itself rejects a parallel_with self-reference."""
+        with pytest.raises(ValueError, match="Scene cannot be parallel with itself"):
+            SceneOutline(
+                id="scene_01_01",
+                chapter_id="chapter_01",
+                narrative_position=1,
+                story_time="day_1",
+                pov_character_id="clara",
+                participants=["clara"],
+                temporal_relation=TemporalRelation(parallel_with=["scene_01_01"]),
+                goal=Goal(actor_id="clara", objective="Advance the scene"),
+                opposition=Opposition(source_id="external", pressure="Resistance"),
+                turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+                decision=Decision(actor_id="clara", choice="Continue"),
+                outcome=Outcome(result="partial"),
+                entry_state=EntryState(),
+                exit_state=ExitState(),
+                status=SceneStatus.READY,
+            )
 
 
 class TestCircularParallel:
