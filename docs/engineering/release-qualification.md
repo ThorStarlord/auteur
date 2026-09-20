@@ -30,6 +30,13 @@ Typical L1 evidence includes:
 The coding agent may select and run L1 autonomously. L1 should remain small
 enough to run repeatedly while implementing a work package.
 
+When a shared compatibility facade or orchestration boundary changes, focused
+validation should fan out to the regression suites for the behavioral
+responsibilities reachable through that boundary. Test selection should follow
+behavioral ownership, not only directly changed test filenames. Keep that
+fan-out bounded to responsibilities actually reachable through the changed
+boundary.
+
 Passing L1 supports claims such as `implemented` and `focused tests pass`.
 It does not support `source-qualified`, `artifact-qualified`, or
 `release-ready`.
