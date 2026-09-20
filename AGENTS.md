@@ -62,6 +62,41 @@ Inside that envelope, the coding agent owns decisions such as:
 
 These decisions do not require repeated human approval.
 
+### Consuming strategic-analysis artifacts
+
+A strategic analysis describes the decision space; it does not automatically
+authorize every construction path, transition, candidate responsibility, or
+future capability it identifies.
+
+When the governing analysis disposition is `INVESTIGATE`, `DEFER`, `STOP`,
+`NO_CHANGE`, or another evidence/authority-limited state, a later broad
+instruction such as "implement all tasks" applies only to responsibilities that
+are both executable and already authorized within the delegation envelope.
+Candidate paths, future transitions, evidence-gated features, and owner-reserved
+choices remain unselected until the required evidence or explicit authority
+selects them.
+
+If strategic analysis separates independent lanes, preserve that separation.
+For example, already-authorized behavior-preserving maintenance may continue
+while a product-direction lane waits for human or external evidence. Do not
+manufacture the missing evidence merely to keep implementation moving.
+
+For incremental maintainability programs, repository size or file length alone
+is not sufficient admission evidence for another refactor. Continue
+decomposition only when another concrete existing responsibility can be
+extracted behavior-preservingly, behind stable public/authority semantics, with
+focused regression evidence. When no such responsibility is presently
+warranted, stopping the decomposition is a valid outcome.
+
+In shorthand:
+
+```text
+strategic path != implementation authority
+broad execution request != selection of every candidate
+maintenance authorization != product-direction authorization
+large file != automatic refactor responsibility
+```
+
 ### Owner-reserved decisions and stop conditions
 
 Stop and escalate only when continuing requires a material decision about:
