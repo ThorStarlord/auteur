@@ -832,6 +832,15 @@ accepted_book:
 The operation is idempotent and atomically publishes the completion record plus
 its transaction manifest. Duplicate completion creates no second record.
 
+**Implementation boundary.** Completion record/manifests/staging persistence and
+idempotent prior-completion lookup are implemented behind
+`BookCompletionStore`, while `BookReconciliationStore` remains the
+compatibility facade and continues to own completion eligibility, delegated
+Chapter lookup, accepted-source resolution, gate validation, record
+construction, atomic publication ordering, and workflow semantics. This is a
+maintainability seam only; artifact paths, completion semantics, idempotency,
+and public behavior are unchanged.
+
 ```bash
 auteur expression complete-book-reconciliation <acceptance_id> \
   --project PROJECT [--reason "All work verified"] [--json] [--verbose]
