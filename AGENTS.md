@@ -148,6 +148,25 @@ inspection.
 See `docs/agents/workspace-isolation.md` for the detailed procedure and
 `scripts/verify-agent-workspace.ps1` for a machine-checkable preflight.
 
+### Concurrent-main reconciliation
+
+Parallel agent work makes integration currentness a separate concern from local
+correctness. Before opening or merging a PR while other packages may be landing:
+
+1. Re-read contemporary `main`, open PRs, and the exact responsibility being
+   implemented. If another package already owns or completed the same
+   responsibility, reconcile with it instead of duplicating the work.
+2. Treat a green exact head on an obsolete base as valid evidence for that head,
+   **not** as sufficient integration evidence for contemporary `main`.
+3. If `main` advances and the branch is no longer cleanly integrable, reconstruct
+   or reapply the bounded change on contemporary `main` and validate the new
+   exact head. Do not force stale history across independently merged work.
+4. Preserve the smallest current-main implementation. A superseded PR may be
+   closed after its responsibility is preserved on a contemporary branch.
+5. Session completion and repository completion are distinct: a session may
+   close when its owned changes are integrated or explicitly handed off, even
+   while independently tracked repository responsibilities remain open.
+
 ## Validation budget
 
 Follow `docs/engineering/release-qualification.md`.
