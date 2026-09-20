@@ -26,6 +26,7 @@ import yaml
 
 from auteur.expression.book import BookExpressionStore
 from auteur.expression.composition import ChapterExpressionStore
+from auteur.expression.book_acceptance_validation import BookAcceptanceValidator
 from auteur.expression.book_reconciliation import (
     AcceptanceBlockedError,
     BookReconciliationStore,
@@ -135,6 +136,28 @@ def _chapter_accepted_files(project: Path) -> dict[str, str]:
 # ----------------------------------------------------------------------------
 # Core model
 # ----------------------------------------------------------------------------
+
+def test_acceptance_gate_delegates_to_validator(monkeypatch, tmp_path: Path) -> None:
+    project, _book_id = _make_book(tmp_path)
+    store = BookReconciliationStore(project)
+    sentinel = AcceptanceBlockedError(
+        "MISSING_COMPARISON",
+        "MISSING_COMPARISON",
+        {"comparison_id": "comparison_probe"},
+        "create comparison",
+    )
+
+    def fake_validate(validator: BookAcceptanceValidator, comparison_id: str):
+        assert validator._store is store
+        assert comparison_id == "comparison_probe"
+        return False, sentinel
+
+    monkeypatch.setattr(BookAcceptanceValidator, "validate", fake_validate)
+    ok, result = store._validate_acceptance_gate("comparison_probe")
+
+    assert ok is False
+    assert result is sentinel
+
 
 def test_two_readiness_flags_present_in_comparison(tmp_path: Path) -> None:
     project, book_id = _make_book(tmp_path)

@@ -721,12 +721,14 @@ The Book revision is the narrative authority; the acceptance record
 (`authority: decision`) is the evidence explaining the authority crossing.
 
 **Implementation boundary.** Acceptance record/revision/pointer persistence and
-acceptance staging paths are implemented behind `BookAcceptanceStore`, while
-`BookReconciliationStore` remains the compatibility facade and continues to own
-eligibility, freshness/revalidation, accepted-revision construction, atomic
-publication ordering, and all acceptance semantics. This extraction is a
-maintainability seam only; it does not change the authority crossing, artifact
-formats, paths, idempotency rules, or public behavior.
+acceptance staging paths are implemented behind `BookAcceptanceStore`. The
+read-only 20-point Phase C3 eligibility/freshness gate is implemented behind
+`BookAcceptanceValidator`. `BookReconciliationStore` remains the compatibility
+facade and continues to own the acceptance workflow: invoking validation,
+accepted-revision construction, atomic publication ordering, pointer movement,
+rollback, and all authority semantics. These are maintainability seams only; they
+do not change the authority crossing, artifact formats, paths, idempotency rules,
+structured block reasons, or public behavior.
 
 ### 20-Point Acceptance Gate
 
