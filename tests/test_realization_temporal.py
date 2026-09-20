@@ -11,11 +11,8 @@ Tests validate:
 
 import pytest
 
-# ALL TESTS IN THIS FILE ARE KNOWN TO FAIL
-# Reason: SceneOutline schema requires a goal field that test fixtures
-# do not provide. Pre-existing condition in narrative_realization (Layer 3),
-# documented as "Partial" in the v1 architecture completion report.
-
+from auteur.narrative_realization.schema.scene_action import Decision, Goal, Opposition, Outcome, Turn
+from auteur.narrative_realization.schema.scene_state import EntryState, ExitState
 from auteur.narrative_realization.schema.scene_outline import (
     SceneOutline,
     SceneStatus,
@@ -61,7 +58,6 @@ class TestTemporalValidatorBasics:
 
 
 class TestUniquePositions:
-    pytestmark = pytest.mark.xfail(reason="SceneOutline schema requires goal field; Layer 3 narrative_realization documented as Partial", strict=False)
     """Test unique narrative_position validation."""
 
     def test_unique_positions_valid(self):
@@ -76,7 +72,14 @@ class TestUniquePositions:
                 story_time=f"day_1_hour_{i}",
                 pov_character_id="clara",
                 participants=["clara"],
-                status=SceneStatus.READY,
+                goal=Goal(actor_id="clara", objective="Advance the scene"),
+            opposition=Opposition(source_id="external", pressure="Resistance"),
+            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+            decision=Decision(actor_id="clara", choice="Continue"),
+            outcome=Outcome(result="partial"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
+            status=SceneStatus.READY,
             )
             validator.add_scene(scene)
 
@@ -95,6 +98,13 @@ class TestUniquePositions:
             story_time="day_1_morning",
             pov_character_id="clara",
             participants=["clara"],
+            goal=Goal(actor_id="clara", objective="Advance the scene"),
+            opposition=Opposition(source_id="external", pressure="Resistance"),
+            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+            decision=Decision(actor_id="clara", choice="Continue"),
+            outcome=Outcome(result="partial"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
             status=SceneStatus.READY,
         )
 
@@ -105,6 +115,13 @@ class TestUniquePositions:
             story_time="day_1_afternoon",
             pov_character_id="clara",
             participants=["clara"],
+            goal=Goal(actor_id="clara", objective="Advance the scene"),
+            opposition=Opposition(source_id="external", pressure="Resistance"),
+            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+            decision=Decision(actor_id="clara", choice="Continue"),
+            outcome=Outcome(result="partial"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
             status=SceneStatus.READY,
         )
 
@@ -129,6 +146,13 @@ class TestUniquePositions:
             story_time="day_1",
             pov_character_id="clara",
             participants=["clara"],
+            goal=Goal(actor_id="clara", objective="Advance the scene"),
+            opposition=Opposition(source_id="external", pressure="Resistance"),
+            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+            decision=Decision(actor_id="clara", choice="Continue"),
+            outcome=Outcome(result="partial"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
             status=SceneStatus.READY,
         )
 
@@ -139,6 +163,13 @@ class TestUniquePositions:
             story_time="day_2",
             pov_character_id="clara",
             participants=["clara"],
+            goal=Goal(actor_id="clara", objective="Advance the scene"),
+            opposition=Opposition(source_id="external", pressure="Resistance"),
+            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+            decision=Decision(actor_id="clara", choice="Continue"),
+            outcome=Outcome(result="partial"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
             status=SceneStatus.READY,
         )
 
@@ -156,7 +187,6 @@ class TestUniquePositions:
 
 
 class TestTemporalRelations:
-    pytestmark = pytest.mark.xfail(reason="SceneOutline schema requires goal field; Layer 3 narrative_realization documented as Partial", strict=False)
     """Test temporal relation validation."""
 
     def test_valid_follows_scene(self):
@@ -170,6 +200,13 @@ class TestTemporalRelations:
             story_time="day_1_morning",
             pov_character_id="clara",
             participants=["clara"],
+            goal=Goal(actor_id="clara", objective="Advance the scene"),
+            opposition=Opposition(source_id="external", pressure="Resistance"),
+            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+            decision=Decision(actor_id="clara", choice="Continue"),
+            outcome=Outcome(result="partial"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
             status=SceneStatus.READY,
         )
 
@@ -181,6 +218,13 @@ class TestTemporalRelations:
             pov_character_id="clara",
             participants=["clara"],
             temporal_relation=TemporalRelation(follows_scene="scene_01_01"),
+            goal=Goal(actor_id="clara", objective="Advance the scene"),
+            opposition=Opposition(source_id="external", pressure="Resistance"),
+            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+            decision=Decision(actor_id="clara", choice="Continue"),
+            outcome=Outcome(result="partial"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
             status=SceneStatus.READY,
         )
 
@@ -202,6 +246,13 @@ class TestTemporalRelations:
             pov_character_id="clara",
             participants=["clara"],
             temporal_relation=TemporalRelation(follows_scene="scene_01_99"),  # Non-existent
+            goal=Goal(actor_id="clara", objective="Advance the scene"),
+            opposition=Opposition(source_id="external", pressure="Resistance"),
+            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+            decision=Decision(actor_id="clara", choice="Continue"),
+            outcome=Outcome(result="partial"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
             status=SceneStatus.READY,
         )
 
@@ -226,6 +277,13 @@ class TestTemporalRelations:
             pov_character_id="clara",
             participants=["clara"],
             temporal_relation=TemporalRelation(follows_scene="scene_01_01"),  # Self-ref
+            goal=Goal(actor_id="clara", objective="Advance the scene"),
+            opposition=Opposition(source_id="external", pressure="Resistance"),
+            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+            decision=Decision(actor_id="clara", choice="Continue"),
+            outcome=Outcome(result="partial"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
             status=SceneStatus.READY,
         )
 
@@ -240,7 +298,6 @@ class TestTemporalRelations:
 
 
 class TestParallelRelations:
-    pytestmark = pytest.mark.xfail(reason="SceneOutline schema requires goal field; Layer 3 narrative_realization documented as Partial", strict=False)
     """Test parallel_with temporal relations."""
 
     def test_valid_mutual_parallel(self):
@@ -255,6 +312,13 @@ class TestParallelRelations:
             pov_character_id="clara",
             participants=["clara"],
             temporal_relation=TemporalRelation(parallel_with=["scene_01_02"]),
+            goal=Goal(actor_id="clara", objective="Advance the scene"),
+            opposition=Opposition(source_id="external", pressure="Resistance"),
+            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+            decision=Decision(actor_id="clara", choice="Continue"),
+            outcome=Outcome(result="partial"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
             status=SceneStatus.READY,
         )
 
@@ -266,6 +330,13 @@ class TestParallelRelations:
             pov_character_id="daniel",
             participants=["daniel"],
             temporal_relation=TemporalRelation(parallel_with=["scene_01_01"]),
+            goal=Goal(actor_id="clara", objective="Advance the scene"),
+            opposition=Opposition(source_id="external", pressure="Resistance"),
+            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+            decision=Decision(actor_id="clara", choice="Continue"),
+            outcome=Outcome(result="partial"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
             status=SceneStatus.READY,
         )
 
@@ -287,6 +358,13 @@ class TestParallelRelations:
             pov_character_id="clara",
             participants=["clara"],
             temporal_relation=TemporalRelation(parallel_with=["scene_01_02"]),
+            goal=Goal(actor_id="clara", objective="Advance the scene"),
+            opposition=Opposition(source_id="external", pressure="Resistance"),
+            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+            decision=Decision(actor_id="clara", choice="Continue"),
+            outcome=Outcome(result="partial"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
             status=SceneStatus.READY,
         )
 
@@ -298,6 +376,13 @@ class TestParallelRelations:
             pov_character_id="daniel",
             participants=["daniel"],
             # Missing parallel_with back to scene_01_01
+            goal=Goal(actor_id="clara", objective="Advance the scene"),
+            opposition=Opposition(source_id="external", pressure="Resistance"),
+            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+            decision=Decision(actor_id="clara", choice="Continue"),
+            outcome=Outcome(result="partial"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
             status=SceneStatus.READY,
         )
 
@@ -323,6 +408,13 @@ class TestParallelRelations:
             pov_character_id="clara",
             participants=["clara"],
             temporal_relation=TemporalRelation(parallel_with=["scene_01_01"]),
+            goal=Goal(actor_id="clara", objective="Advance the scene"),
+            opposition=Opposition(source_id="external", pressure="Resistance"),
+            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+            decision=Decision(actor_id="clara", choice="Continue"),
+            outcome=Outcome(result="partial"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
             status=SceneStatus.READY,
         )
 
@@ -337,7 +429,6 @@ class TestParallelRelations:
 
 
 class TestCircularParallel:
-    pytestmark = pytest.mark.xfail(reason="SceneOutline schema requires goal field; Layer 3 narrative_realization documented as Partial", strict=False)
     """Test circular parallel_with detection."""
 
     def test_no_circular_in_valid_chain(self):
@@ -355,6 +446,13 @@ class TestCircularParallel:
             pov_character_id="clara",
             participants=["clara"],
             temporal_relation=TemporalRelation(parallel_with=["scene_01_02"]),
+            goal=Goal(actor_id="clara", objective="Advance the scene"),
+            opposition=Opposition(source_id="external", pressure="Resistance"),
+            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+            decision=Decision(actor_id="clara", choice="Continue"),
+            outcome=Outcome(result="partial"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
             status=SceneStatus.READY,
         )
 
@@ -368,6 +466,13 @@ class TestCircularParallel:
             temporal_relation=TemporalRelation(
                 parallel_with=["scene_01_01", "scene_01_03"]
             ),
+            goal=Goal(actor_id="clara", objective="Advance the scene"),
+            opposition=Opposition(source_id="external", pressure="Resistance"),
+            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+            decision=Decision(actor_id="clara", choice="Continue"),
+            outcome=Outcome(result="partial"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
             status=SceneStatus.READY,
         )
 
@@ -379,6 +484,13 @@ class TestCircularParallel:
             pov_character_id="jane",
             participants=["jane"],
             temporal_relation=TemporalRelation(parallel_with=["scene_01_02"]),
+            goal=Goal(actor_id="clara", objective="Advance the scene"),
+            opposition=Opposition(source_id="external", pressure="Resistance"),
+            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+            decision=Decision(actor_id="clara", choice="Continue"),
+            outcome=Outcome(result="partial"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
             status=SceneStatus.READY,
         )
 
@@ -404,6 +516,13 @@ class TestCircularParallel:
             pov_character_id="clara",
             participants=["clara"],
             temporal_relation=TemporalRelation(parallel_with=["scene_01_02"]),
+            goal=Goal(actor_id="clara", objective="Advance the scene"),
+            opposition=Opposition(source_id="external", pressure="Resistance"),
+            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+            decision=Decision(actor_id="clara", choice="Continue"),
+            outcome=Outcome(result="partial"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
             status=SceneStatus.READY,
         )
 
@@ -415,6 +534,13 @@ class TestCircularParallel:
             pov_character_id="daniel",
             participants=["daniel"],
             temporal_relation=TemporalRelation(parallel_with=["scene_01_01"]),
+            goal=Goal(actor_id="clara", objective="Advance the scene"),
+            opposition=Opposition(source_id="external", pressure="Resistance"),
+            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+            decision=Decision(actor_id="clara", choice="Continue"),
+            outcome=Outcome(result="partial"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
             status=SceneStatus.READY,
         )
 
@@ -426,7 +552,6 @@ class TestCircularParallel:
 
 
 class TestPositionVsTime:
-    pytestmark = pytest.mark.xfail(reason="SceneOutline schema requires goal field; Layer 3 narrative_realization documented as Partial", strict=False)
     """Test distinction between narrative_position and story_time."""
 
     def test_position_is_reading_order(self):
@@ -442,7 +567,14 @@ class TestPositionVsTime:
                 story_time=f"day_1_segment_{i}",
                 pov_character_id="clara",
                 participants=["clara"],
-                status=SceneStatus.READY,
+                goal=Goal(actor_id="clara", objective="Advance the scene"),
+            opposition=Opposition(source_id="external", pressure="Resistance"),
+            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+            decision=Decision(actor_id="clara", choice="Continue"),
+            outcome=Outcome(result="partial"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
+            status=SceneStatus.READY,
             )
             validator.add_scene(scene)
             scenes.append(scene)
@@ -468,6 +600,13 @@ class TestPositionVsTime:
             pov_character_id="clara",
             participants=["clara"],
             temporal_relation=TemporalRelation(parallel_with=["scene_01_02"]),
+            goal=Goal(actor_id="clara", objective="Advance the scene"),
+            opposition=Opposition(source_id="external", pressure="Resistance"),
+            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+            decision=Decision(actor_id="clara", choice="Continue"),
+            outcome=Outcome(result="partial"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
             status=SceneStatus.READY,
         )
 
@@ -479,6 +618,13 @@ class TestPositionVsTime:
             pov_character_id="daniel",
             participants=["daniel"],
             temporal_relation=TemporalRelation(parallel_with=["scene_01_01"]),
+            goal=Goal(actor_id="clara", objective="Advance the scene"),
+            opposition=Opposition(source_id="external", pressure="Resistance"),
+            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+            decision=Decision(actor_id="clara", choice="Continue"),
+            outcome=Outcome(result="partial"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
             status=SceneStatus.READY,
         )
 
@@ -490,7 +636,6 @@ class TestPositionVsTime:
 
 
 class TestChronologicalConsistency:
-    pytestmark = pytest.mark.xfail(reason="SceneOutline schema requires goal field; Layer 3 narrative_realization documented as Partial", strict=False)
     """Test chronological consistency validation."""
 
     def test_follows_respects_position_order(self):
@@ -504,6 +649,13 @@ class TestChronologicalConsistency:
             story_time="day_1_morning",
             pov_character_id="clara",
             participants=["clara"],
+            goal=Goal(actor_id="clara", objective="Advance the scene"),
+            opposition=Opposition(source_id="external", pressure="Resistance"),
+            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+            decision=Decision(actor_id="clara", choice="Continue"),
+            outcome=Outcome(result="partial"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
             status=SceneStatus.READY,
         )
 
@@ -515,6 +667,13 @@ class TestChronologicalConsistency:
             pov_character_id="clara",
             participants=["clara"],
             temporal_relation=TemporalRelation(follows_scene="scene_01_01"),
+            goal=Goal(actor_id="clara", objective="Advance the scene"),
+            opposition=Opposition(source_id="external", pressure="Resistance"),
+            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+            decision=Decision(actor_id="clara", choice="Continue"),
+            outcome=Outcome(result="partial"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
             status=SceneStatus.READY,
         )
 
@@ -535,6 +694,13 @@ class TestChronologicalConsistency:
             story_time="day_1_afternoon",
             pov_character_id="clara",
             participants=["clara"],
+            goal=Goal(actor_id="clara", objective="Advance the scene"),
+            opposition=Opposition(source_id="external", pressure="Resistance"),
+            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+            decision=Decision(actor_id="clara", choice="Continue"),
+            outcome=Outcome(result="partial"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
             status=SceneStatus.READY,
         )
 
@@ -546,6 +712,13 @@ class TestChronologicalConsistency:
             pov_character_id="clara",
             participants=["clara"],
             temporal_relation=TemporalRelation(follows_scene="scene_01_01"),
+            goal=Goal(actor_id="clara", objective="Advance the scene"),
+            opposition=Opposition(source_id="external", pressure="Resistance"),
+            turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+            decision=Decision(actor_id="clara", choice="Continue"),
+            outcome=Outcome(result="partial"),
+            entry_state=EntryState(),
+            exit_state=ExitState(),
             status=SceneStatus.READY,
         )
 
@@ -583,3 +756,49 @@ class TestErrorReporting:
         report = validator.report_temporal_violations([violation])
         assert "scene_01_01" in report
         assert "duplicate_position" in report
+
+
+def test_validate_all_invokes_chronological_consistency() -> None:
+    validator = TemporalValidator()
+    first = SceneOutline(
+        id="scene_01_01",
+        chapter_id="chapter_01",
+        narrative_position=2,
+        story_time="day_1_afternoon",
+        pov_character_id="clara",
+        participants=["clara"],
+        goal=Goal(actor_id="clara", objective="Advance the scene"),
+        opposition=Opposition(source_id="external", pressure="Resistance"),
+        turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+        decision=Decision(actor_id="clara", choice="Continue"),
+        outcome=Outcome(result="partial"),
+        entry_state=EntryState(),
+        exit_state=ExitState(),
+        status=SceneStatus.READY,
+    )
+    second = SceneOutline(
+        id="scene_01_02",
+        chapter_id="chapter_01",
+        narrative_position=1,
+        story_time="day_1_morning",
+        pov_character_id="clara",
+        participants=["clara"],
+        temporal_relation=TemporalRelation(follows_scene="scene_01_01"),
+        goal=Goal(actor_id="clara", objective="Advance the scene"),
+        opposition=Opposition(source_id="external", pressure="Resistance"),
+        turn=Turn(type="complication", event="Situation changes", impact="Raises pressure"),
+        decision=Decision(actor_id="clara", choice="Continue"),
+        outcome=Outcome(result="partial"),
+        entry_state=EntryState(),
+        exit_state=ExitState(),
+        status=SceneStatus.READY,
+    )
+    validator.add_scene(first)
+    validator.add_scene(second)
+
+    result = validator.validate_all_scenes()
+
+    assert any(
+        violation.violation_type == TemporalViolationType.POSITION_AFTER_FOLLOWS
+        for violation in result.violations
+    )
