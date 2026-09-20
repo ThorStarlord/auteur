@@ -852,11 +852,14 @@ its transaction manifest. Duplicate completion creates no second record.
 
 **Implementation boundary.** Completion record/manifests/staging persistence and
 idempotent prior-completion lookup are implemented behind
-`BookCompletionStore`, while `BookReconciliationStore` remains the
-compatibility facade and continues to own completion eligibility, delegated
-Chapter lookup, accepted-source resolution, gate validation, record
-construction, atomic publication ordering, and workflow semantics. This is a
-maintainability seam only; artifact paths, completion semantics, idempotency,
+`BookCompletionStore`. The read-only 20-point Phase C4 eligibility gate is
+implemented behind `BookCompletionValidator`. `BookReconciliationStore`
+remains the compatibility facade and continues to own the completion workflow:
+invoking validation, completion-record construction, atomic publication
+ordering, rollback, and workflow semantics. Delegated Chapter lookup and
+accepted-source resolution remain existing reconciliation collaborators used by
+the validator through the facade. These are maintainability seams only;
+artifact paths, completion semantics, idempotency, structured block reasons,
 and public behavior are unchanged.
 
 ```bash
