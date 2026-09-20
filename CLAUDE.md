@@ -111,6 +111,15 @@ When isolation is required, launch the agent from the isolated repository
 rather than asking an already-running session to move into it.
 See `AGENTS.md` and `docs/agents/workspace-isolation.md`.
 
+### Concurrent integration
+
+When other agents or workspaces may advance `main`, re-check contemporary
+`main` and open PRs before opening or merging work. A passing exact head on an
+obsolete base proves that head, not that it is still integration-ready. Reconcile
+the bounded change onto contemporary `main`, validate the new exact head, and
+do not force stale history across independently landed work. The canonical
+procedure and session-completion rule live in `AGENTS.md`.
+
 ### Current Genre Pipelines
 
 | Genre | Emotional Cores | Implemented |
