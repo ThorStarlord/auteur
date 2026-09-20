@@ -20,6 +20,7 @@ import logging
 import mimetypes
 import secrets
 import threading
+from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, Callable
@@ -27,12 +28,39 @@ from urllib.parse import urlparse
 
 from pydantic import ValidationError
 
+from auteur.llm.factory import build_client
+
 from .application import BeginnerWorkspaceApplication, BeginnerWorkspaceError
+from .architecture_analysis import (
+    ArchitectureAnalyzer,
+    DeterministicArchitectureAnalyzer,
+    ProviderArchitectureAnalyzer,
+    ResilientArchitectureAnalyzer,
+)
+from .architecture_models import ArchitectureFacet, ArchitectureRole
+from .discovery import (
+    DiscoveryRecommender,
+    StoryDiscoveryRecommender,
+    UnavailableDiscoveryRecommender,
+)
 from .contracts import MutationCommand
 from .persistence import BeginnerConcurrencyError, BeginnerPersistenceError
 from .projections import WorkspaceProjection
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class BeginnerRuntimeDependencies:
+    architecture_analyzer: ArchitectureAnalyzer
+    discovery_recommender: DiscoveryRecommender
+
+
+def default_runtime_dependencies() -> BeginnerRuntimeDependencies:
+    return BeginnerRuntimeDependencies(
+        architecture_analyzer=DeterministicArchitectureAnalyzer(),
+        discovery_recommender=UnavailableDiscoveryRecommender(),
+    )
 
 
 class BeginnerRequestError(ValueError):
@@ -216,6 +244,32 @@ def projection_to_dict(projection: WorkspaceProjection, *, workspace_id: str) ->
             "target_stage": _enum_value(projection.revision.target_stage),
         },
         "available_actions": list(projection.available_actions),
+        "working_composition": (
+            None
+            if projection.working_composition is None
+            else projection.working_composition.model_dump(mode="json")
+        ),
+        "mapping_preview": (
+            None
+            if projection.mapping_preview is None
+            else projection.mapping_preview.model_dump(mode="json")
+            if hasattr(projection.mapping_preview, "model_dump")
+            else projection.mapping_preview
+        ),
+        "story_orientation": (
+            None
+            if projection.story_orientation is None
+            else projection.story_orientation.model_dump(mode="json")
+        ),
+        "primary_surface": projection.primary_surface,
+        "discovery": (
+            None if projection.discovery is None else projection.discovery.model_dump(mode="json")
+        ),
+        "identity_candidate": (
+            None
+            if projection.identity_candidate is None
+            else projection.identity_candidate.model_dump(mode="json")
+        ),
     }
 
 
@@ -225,6 +279,11 @@ _COMMAND_HANDLERS: dict[str, str] = {
     "open-review": "open_milestone_review",
     "reassess": "reassess_guidance",
     "acknowledge": "acknowledge_tension",
+    "acknowledge-remainder": "acknowledge_unmapped_remainder",
+    "confirm-dimension": "confirm_dimension",
+    "reject-dimension": "reject_dimension",
+    "add-dimension": "add_author_dimension",
+    "override-mapping": "override_mapping",
     "open-revision": "open_revision",
     "cancel-revision": "cancel_revision",
     "request-acceptance": "request_acceptance",
@@ -234,6 +293,16 @@ _COMMAND_HANDLERS: dict[str, str] = {
     "accept-revised-direction": "accept_revised_story_direction",
     "accept-revised-identity": "accept_revised_story_identity",
     "accept-revised-structure": "accept_revised_whole_story_structure",
+    "continue-architecture": "continue_from_architecture",
+    "select-direction": "select_story_direction",
+    "confirm-architecture-component": "confirm_architecture_component",
+    "suppress-architecture-component": "suppress_architecture_component",
+    "restore-architecture-component": "restore_architecture_component",
+    "rename-architecture-component": "rename_architecture_component",
+    "choose-architecture-alternative": "choose_architecture_alternative",
+    "set-architecture-component-role": "set_architecture_component_role",
+    "add-architecture-component": "add_architecture_component",
+    "reanalyze-premise": "reanalyze_premise",
 }
 
 _IDEMPOTENCY_MARKERS = ("already in progress", "receipt mismatch", "intent conflict", "already exists")
@@ -246,6 +315,7 @@ def _is_idempotency_conflict(message: str) -> bool:
 
 class _RequestHandler(BaseHTTPRequestHandler):
     project_root: Path
+    dependencies: BeginnerRuntimeDependencies
 
     _BROWSER_ASSETS = {
         "/": "index.html",
@@ -296,7 +366,12 @@ class _RequestHandler(BaseHTTPRequestHandler):
             self._send_json(500, {"error": "Internal server error"})
 
     def _app_for(self, workspace_id: str) -> BeginnerWorkspaceApplication:
-        return BeginnerWorkspaceApplication(self.project_root, workspace_id)
+        return BeginnerWorkspaceApplication(
+            self.project_root,
+            workspace_id,
+            architecture_analyzer=self.dependencies.architecture_analyzer,
+            discovery_recommender=self.dependencies.discovery_recommender,
+        )
 
     def _serve_browser_asset(self, path: str) -> bool:
         filename = self._BROWSER_ASSETS.get(path)
@@ -407,18 +482,52 @@ class _RequestHandler(BaseHTTPRequestHandler):
         except ValueError as exc:
             raise BeginnerRequestError(400, str(exc)) from exc
         handler: Callable[..., Any] = getattr(app, method_name)
-        handler(command=envelope)
+        rich_commands = {
+            "continue-architecture",
+            "select-direction",
+            "confirm-architecture-component",
+            "suppress-architecture-component",
+            "restore-architecture-component",
+            "rename-architecture-component",
+            "choose-architecture-alternative",
+            "set-architecture-component-role",
+            "add-architecture-component",
+            "reanalyze-premise",
+        }
+        if slug in rich_commands:
+            kwargs: dict[str, Any] = {
+                "expected_session_version": envelope.expected_session_version,
+                "command_id": envelope.command_id,
+                **dict(envelope.payload),
+            }
+            if "role" in kwargs and isinstance(kwargs["role"], str):
+                kwargs["role"] = ArchitectureRole(kwargs["role"])
+            if "facet" in kwargs and isinstance(kwargs["facet"], str):
+                kwargs["facet"] = ArchitectureFacet(kwargs["facet"])
+            handler(**kwargs)
+        else:
+            handler(command=envelope)
         projection = app.projection()
         self._send_json(200, projection_to_dict(projection, workspace_id=workspace_id))
 
 
 class BeginnerWorkspaceServer:
-    def __init__(self, project_root: Path | str, *, port: int):
+    def __init__(
+        self,
+        project_root: Path | str,
+        *,
+        port: int,
+        dependencies: BeginnerRuntimeDependencies | None = None,
+    ):
         self.project_root = Path(project_root)
+        self.dependencies = dependencies or default_runtime_dependencies()
         handler = type(
             "BoundBeginnerWorkspaceRequestHandler",
             (_RequestHandler,),
-            {"project_root": self.project_root},
+            {
+                "project_root": self.project_root,
+                "dependencies": self.dependencies,
+            },
         )
         self._httpd = ThreadingHTTPServer(("127.0.0.1", port), handler)
         self.port = int(self._httpd.server_address[1])
@@ -446,8 +555,34 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Serve an Auteur beginner workspace.")
     parser.add_argument("--project", type=Path, required=True)
     parser.add_argument("--port", type=int, default=0)
+    parser.add_argument("--provider", choices=("openai", "anthropic"))
+    parser.add_argument("--model")
     args = parser.parse_args(argv)
-    server = BeginnerWorkspaceServer(args.project, port=args.port)
+    if args.provider:
+        client = build_client(args.provider, args.model)
+        resolved_model = args.model or (
+            "gpt-4o" if args.provider == "openai" else "claude-sonnet-4-6"
+        )
+        dependencies = BeginnerRuntimeDependencies(
+            architecture_analyzer=ResilientArchitectureAnalyzer(
+                primary=ProviderArchitectureAnalyzer(
+                    client=client,
+                    analyzer_id="beginner-architecture",
+                    analyzer_version="1",
+                    model_id=resolved_model,
+                    provider_id=args.provider,
+                ),
+                fallback=DeterministicArchitectureAnalyzer(),
+            ),
+            discovery_recommender=StoryDiscoveryRecommender(client=client),
+        )
+    else:
+        dependencies = default_runtime_dependencies()
+    server = BeginnerWorkspaceServer(
+        args.project,
+        port=args.port,
+        dependencies=dependencies,
+    )
     print(f"Beginner workspace server on http://127.0.0.1:{server.port}")
     try:
         server.start()

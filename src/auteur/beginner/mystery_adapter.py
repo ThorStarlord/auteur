@@ -52,12 +52,6 @@ class MysteryGuidanceAdapter:
 
     @staticmethod
     def validate_inventory(inventory: QualificationInventory) -> None:
-        if inventory.stage_counts != {
-            QualificationStage.DISCOVER: 3,
-            QualificationStage.STORY_IDENTITY: 4,
-            QualificationStage.STRUCTURE: 3,
-        }:
-            raise ValueError("Mystery qualification inventory has the wrong stage counts")
         template = HowdunitTemplate()
         rule_ids = {rule.rule_id for rule in RuleSet("howdunit").rules}
         for card in inventory.cards:

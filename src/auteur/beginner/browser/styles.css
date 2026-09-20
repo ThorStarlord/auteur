@@ -396,3 +396,46 @@ details summary {
     width: min(92vw, 380px);
   }
 }
+
+
+.primary-surface {
+  background: #fff;
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.orientation-facet,
+.direction-card,
+.refinement-component {
+  border-top: 1px solid var(--card-border);
+  padding: 0.75rem 0;
+}
+
+.direction-card:first-child,
+.orientation-facet:first-child {
+  border-top: 0;
+}
+
+.surface-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.surface-actions button,
+.direction-card button,
+.add-component button {
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--card-border);
+  border-radius: 7px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.composition-panel {
+  margin-top: 1.5rem;
+  padding: 0.75rem;
+}

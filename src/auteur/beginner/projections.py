@@ -14,15 +14,20 @@ evidence stays expandable detail instead of replaying every card inline.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Mapping
+from typing import Literal, Mapping
 
+from pydantic import BaseModel, ConfigDict
+
+from .architecture_projection import StoryOrientationProjection
 from .contracts import (
     AcceptedMilestoneReference,
     DecisionStage,
     LifecycleStatus,
     SessionEnvelope,
     StageStatus,
+    WorkingComposition,
 )
+from .discovery_models import DiscoveryRecommendationStatus
 from .guidance import (
     BeginnerGuidance,
     GuidanceContext,
@@ -198,6 +203,144 @@ class GuidanceInspectorProjection:
     authority_status: str = "DERIVED / NOT CANON"
 
 
+PrimaryWorkspaceSurface = Literal[
+    "architecture",
+    "discovery",
+    "story_identity",
+    "structure",
+    "complete",
+]
+
+
+class DiscoveryDirectionProjection(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    direction_id: str
+    title: str
+    summary: str
+    recommended: bool
+    selected: bool
+    tradeoffs: tuple[str, ...]
+    risks: tuple[str, ...]
+    authority_status: str
+
+
+class DiscoveryProjection(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    recommendation_id: str
+    status: str
+    recommended_direction_id: str | None
+    selected_direction_id: str | None
+    rationale: str
+    directions: tuple[DiscoveryDirectionProjection, ...]
+    blockers: tuple[str, ...] = ()
+    supersedes_recommendation_id: str | None = None
+    authority_status: str = "DERIVED / NOT CANON"
+
+
+class IdentityCandidateProjection(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    direction_id: str
+    title: str
+    core_answer: str
+    story_type: dict[str, object]
+    target_experience: dict[str, object]
+    central_engine: dict[str, object]
+    source_component_ids: tuple[str, ...]
+    authority_status: str = "PROPOSED / NOT CANON"
+
+
+def _accepted_milestone_ids(session: SessionEnvelope) -> set[str]:
+    return {reference.milestone_id for reference in session.accepted_milestones}
+
+
+def _primary_surface(session: SessionEnvelope) -> PrimaryWorkspaceSurface:
+    accepted = _accepted_milestone_ids(session)
+    if "whole_story_structure" in accepted:
+        return "complete"
+    if "story_identity" in accepted:
+        return "structure"
+    if "story_direction" in accepted:
+        return "story_identity"
+    recommendation = session.discovery_recommendation
+    if recommendation is not None:
+        return "discovery"
+    if session.architecture_analysis is not None:
+        return "architecture"
+    return "discovery"
+
+
+def _discovery_projection(session: SessionEnvelope) -> DiscoveryProjection | None:
+    recommendation = session.discovery_recommendation
+    if recommendation is None:
+        return None
+    blockers = (
+        (recommendation.rationale,)
+        if recommendation.status is DiscoveryRecommendationStatus.UNAVAILABLE
+        else ()
+    )
+    return DiscoveryProjection(
+        recommendation_id=recommendation.recommendation_id,
+        status=recommendation.status.value,
+        recommended_direction_id=recommendation.recommended_direction_id,
+        selected_direction_id=recommendation.selected_direction_id,
+        rationale=recommendation.rationale,
+        directions=tuple(
+            DiscoveryDirectionProjection(
+                direction_id=direction.direction_id,
+                title=direction.title,
+                summary=direction.summary,
+                recommended=direction.direction_id == recommendation.recommended_direction_id,
+                selected=direction.direction_id == recommendation.selected_direction_id,
+                tradeoffs=direction.tradeoffs,
+                risks=direction.risks,
+                authority_status=direction.authority_status,
+            )
+            for direction in recommendation.directions
+        ),
+        blockers=blockers,
+        supersedes_recommendation_id=recommendation.supersedes_recommendation_id,
+        authority_status=recommendation.authority_status,
+    )
+
+
+def _identity_candidate_projection(session: SessionEnvelope) -> IdentityCandidateProjection | None:
+    if "story_direction" not in _accepted_milestone_ids(session):
+        return None
+    recommendation = session.discovery_recommendation
+    if recommendation is None or recommendation.selected_direction_id is None:
+        return None
+    try:
+        direction = recommendation.direction(recommendation.selected_direction_id)
+    except KeyError:
+        return None
+    identity = direction.identity_candidate
+    return IdentityCandidateProjection(
+        direction_id=direction.direction_id,
+        title=identity.title,
+        core_answer=identity.core_answer,
+        story_type=identity.story_type.model_dump(mode="json"),
+        target_experience=identity.target_experience.model_dump(mode="json"),
+        central_engine=identity.central_engine.model_dump(mode="json"),
+        source_component_ids=direction.source_component_ids,
+    )
+
+
+def _suppress_legacy_cards(session: SessionEnvelope) -> bool:
+    """Rich interpretation/discovery owns the pre-Identity surface unless unavailable."""
+    if session.architecture_analysis is None:
+        return False
+    if "story_identity" in _accepted_milestone_ids(session):
+        return False
+    recommendation = session.discovery_recommendation
+    return (
+        recommendation is None
+        or recommendation.status is not DiscoveryRecommendationStatus.UNAVAILABLE
+    )
+
+
 @dataclass(frozen=True)
 class WorkspaceProjection:
     """The full workspace render built from a single snapshot."""
@@ -215,6 +358,12 @@ class WorkspaceProjection:
     available_actions: tuple[str, ...] = ()
     decision_workspace: DecisionWorkspaceProjection | None = None
     guidance_inspector: GuidanceInspectorProjection | None = None
+    working_composition: WorkingComposition | None = None
+    mapping_preview: object | None = None
+    story_orientation: StoryOrientationProjection | None = None
+    primary_surface: PrimaryWorkspaceSurface = "discovery"
+    discovery: DiscoveryProjection | None = None
+    identity_candidate: IdentityCandidateProjection | None = None
 
 
 def cards_for_stage(inventory: QualificationInventory, stage: DecisionStage) -> tuple[QualificationCard, ...]:
@@ -284,6 +433,9 @@ def build_workspace_projection(
     current_digest: str | None = None,
     guidance: BeginnerGuidance | None = None,
     cursor_override: str | None = None,
+    working_composition: WorkingComposition | None = None,
+    mapping_preview: object | None = None,
+    story_orientation: StoryOrientationProjection | None = None,
 ) -> WorkspaceProjection:
     """Build every workspace surface from one session/domain snapshot."""
     exploratory = dict(exploratory_answers or {})
@@ -296,6 +448,8 @@ def build_workspace_projection(
     stale = bool(answers) and basis_digest is not None and basis_digest != current_digest
 
     cursor = _resolve_cursor(ordered, available, answers, cursor_override)
+    if _suppress_legacy_cards(session):
+        cursor = None
 
     # At-risk marks actual exploratory divergence only: the earliest stage touched
     # by the revision overlay. Merely opening a revision (empty overlay) marks
@@ -312,8 +466,45 @@ def build_workspace_projection(
     for stage in STAGE_ORDER:
         stage_cards = cards_for_stage(inventory, stage)
         answered = sum(1 for card in stage_cards if card.card_id in answers)
-        review_available = bool(stage_cards) and answered == len(stage_cards)
-        blockers = _blockers_for_stage(stage, stage_cards, answers, tensions, stale, review_available)
+        rich_recommendation = session.discovery_recommendation
+        rich_flow = (
+            session.architecture_analysis is not None
+            and rich_recommendation is not None
+            and rich_recommendation.status is not DiscoveryRecommendationStatus.UNAVAILABLE
+        )
+        if rich_flow and stage is DecisionStage.DISCOVER:
+            review_available = rich_recommendation.selected_direction_id is not None
+            blockers = (
+                ()
+                if review_available
+                else ("Select a Story Discovery direction before accepting.",)
+            )
+        elif rich_flow and stage is DecisionStage.STORY_IDENTITY:
+            direction_accepted = "story_direction" in _accepted_milestone_ids(session)
+            review_available = direction_accepted and mapping_preview is not None
+            blockers = ()
+            if not direction_accepted:
+                blockers = ("Accept a Story Direction before reviewing Story Identity.",)
+            elif mapping_preview is None:
+                blockers = ("composition_mapping_required",)
+            else:
+                blockers = tuple(getattr(mapping_preview, "blocking_items", ()))
+        else:
+            review_available = bool(stage_cards) and answered == len(stage_cards)
+            blockers = _blockers_for_stage(
+                stage, stage_cards, answers, tensions, stale, review_available
+            )
+            if stage is DecisionStage.STORY_IDENTITY:
+                if mapping_preview is None:
+                    blockers = tuple(
+                        dict.fromkeys((*blockers, "composition_mapping_required"))
+                    )
+                else:
+                    blockers = tuple(
+                        dict.fromkeys(
+                            (*blockers, *getattr(mapping_preview, "blocking_items", ()))
+                        )
+                    )
         ready = review_available and not blockers
         status = session.stages[stage]
         stage_stale = stale and answered > 0
@@ -361,12 +552,19 @@ def build_workspace_projection(
     for stage, review in reviews.items():
         if stage in available and review.review_available and not review.opened:
             actions.append(f"open-review:{stage.value}")
-        if review.opened and review.ready_to_accept and milestone_ids[stage] not in accepted_ids:
+        composed_identity_ready = (
+            stage is not DecisionStage.STORY_IDENTITY
+            or (
+                mapping_preview is not None
+                and bool(getattr(mapping_preview, "ready_to_accept", False))
+            )
+        )
+        if review.opened and review.ready_to_accept and composed_identity_ready and milestone_ids[stage] not in accepted_ids:
             actions.append(f"accept-{milestone_slugs[stage]}")
         if milestone_ids[stage] in accepted_ids:
             if active_revision_id is None:
                 actions.append(f"open-revision:{stage.value}")
-            elif review.opened and review.ready_to_accept:
+            elif review.opened and review.ready_to_accept and composed_identity_ready:
                 actions.append(
                     "accept-revised-"
                     + ("direction" if stage is DecisionStage.DISCOVER else
@@ -409,6 +607,12 @@ def build_workspace_projection(
         available_actions=tuple(actions),
         decision_workspace=decision_workspace,
         guidance_inspector=guidance_inspector,
+        working_composition=working_composition if working_composition is not None else session.working_composition,
+        mapping_preview=mapping_preview,
+        story_orientation=story_orientation,
+        primary_surface=_primary_surface(session),
+        discovery=_discovery_projection(session),
+        identity_candidate=_identity_candidate_projection(session),
     )
 
 
@@ -514,12 +718,19 @@ def _review_for_stage(
     following = sum(1 for summary in summaries if summary.guidance_alignment == "follows_guidance")
     blocking = sum(1 for blocker in blockers if "tension" in blocker.lower())
     assumptions = "stale; reassess guidance" if stale else "current"
-    synthesis = (
-        f"{STAGE_LABELS[stage]} review: {answered} of {len(summaries)} decisions recorded. "
-        f"{following} of {answered} follow guidance. "
-        f"{blocking} blocking tension(s). Assumptions {assumptions}. "
-        "Expand a card below for its evidence."
-    )
+    if summaries:
+        synthesis = (
+            f"{STAGE_LABELS[stage]} review: {answered} of {len(summaries)} decisions recorded. "
+            f"{following} of {answered} follow guidance. "
+            f"{blocking} blocking tension(s). Assumptions {assumptions}. "
+            "Expand a card below for its evidence."
+        )
+    elif stage is DecisionStage.DISCOVER:
+        synthesis = "Discovery review is represented by the current Story Discovery direction selection."
+    elif stage is DecisionStage.STORY_IDENTITY:
+        synthesis = "Story Identity review is represented by the selected direction and its promotion preview."
+    else:
+        synthesis = "No material curated decisions are required for this stage."
     return ReviewProjection(
         stage=stage,
         opened=opened,

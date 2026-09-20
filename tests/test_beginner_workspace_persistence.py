@@ -9,7 +9,20 @@ from typing import Any, cast
 from pydantic import ValidationError
 import pytest
 
-from auteur.beginner.contracts import SessionEnvelope
+from auteur.beginner.contracts import (
+    DimensionCategory,
+    DimensionOrigin,
+    DimensionStatus,
+    MappingDisposition,
+    MappingRecord,
+    MappingStrength,
+    EvidenceClass,
+    SessionEnvelope,
+    UnmappedRemainder,
+    WorkingComposition,
+    WorkingDimension,
+)
+from auteur.story_design_packs.models import PackProvenance
 from auteur.beginner.contracts import AcceptedMilestoneReference, RevisionRef
 from auteur.beginner.persistence import (
     BeginnerConcurrencyError,
@@ -144,6 +157,74 @@ def test_revision_session_can_be_created_saved_and_reloaded_without_parent_colli
     assert store.load_revision("revision-1") == parent
     assert store.revision_session_path("revision-1").exists()
     assert store.load() == parent
+
+
+def test_working_composition_pack_provenance_round_trips_with_source_role(tmp_path: Path) -> None:
+    store = BeginnerSessionStore(tmp_path, "workspace-1")
+    provenance = PackProvenance(pack_id="superhero", version="0.1.0", content_hash="sha256:fixture")
+    dimension = WorkingDimension(
+        dimension_id="superhero-world",
+        category=DimensionCategory.SETTING_WORLD,
+        origin=DimensionOrigin.DETECTED_FROM_PACK,
+        status=DimensionStatus.CONFIRMED,
+        label="Superhero public identity",
+        source_provenance=(provenance,),
+    )
+    mapping = MappingRecord(
+        mapping_id="mapping:superhero-world",
+        source_dimension_id=dimension.dimension_id,
+        source_category=dimension.category,
+        source_origin=dimension.origin,
+        source_provenance=(provenance,),
+        mapping_strength=MappingStrength.CONTEXTUAL_INFLUENCE,
+        evidence_class=EvidenceClass.PACK_METADATA,
+        disposition=MappingDisposition.GUIDANCE_CONTEXT,
+        rationale="The pack contributes setting context.",
+    )
+    composition = WorkingComposition(
+        workspace_id="workspace-1",
+        composition_id="composition-1",
+        schema_version=1,
+        dimensions=(dimension,),
+        mapping_records=(mapping,),
+        source_provenance=(provenance,),
+    )
+    saved = store.save(make_session().model_copy(update={"working_composition": composition}))
+
+    loaded = store.load().working_composition
+
+    assert loaded is not None
+    assert loaded.dimensions[0].source_provenance[0].model_dump() == provenance.model_dump()
+    assert loaded.dimensions[0].category is DimensionCategory.SETTING_WORLD
+    assert loaded.mapping_records[0].source_dimension_id == dimension.dimension_id
+    assert loaded.mapping_records[0].source_category is DimensionCategory.SETTING_WORLD
+    assert saved.working_composition == loaded
+
+
+def test_unmapped_remainder_acknowledgement_survives_revision_reload(tmp_path: Path) -> None:
+    store = BeginnerSessionStore(tmp_path, "workspace-1")
+    remainder = UnmappedRemainder(
+        remainder_id="remainder-1",
+        dimension_id="relationship-lens",
+        text="erotic aesthetic framing",
+        acknowledged=True,
+        blocks_acceptance=True,
+    )
+    composition = WorkingComposition(
+        workspace_id="workspace-1",
+        composition_id="composition-1",
+        schema_version=1,
+        dimensions=(),
+        unmapped_remainders=(remainder,),
+    )
+    parent = store.save(make_session().model_copy(update={"working_composition": composition}))
+    store.create_revision("revision-1", parent)
+
+    loaded = store.load_revision("revision-1").working_composition
+
+    assert loaded is not None
+    assert loaded.unmapped_remainders[0].remainder_id == "remainder-1"
+    assert loaded.unmapped_remainders[0].acknowledged is True
 
 
 def test_revision_session_is_immutable_and_does_not_replace_existing_revision(tmp_path: Path) -> None:

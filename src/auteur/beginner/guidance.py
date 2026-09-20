@@ -9,7 +9,15 @@ from typing import Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from .contracts import AcceptedMilestoneReference, DecisionStage, LifecycleStatus, SessionEnvelope, StageAvailability
+from .contracts import (
+    AcceptedMilestoneReference,
+    DecisionStage,
+    DimensionCategory,
+    LifecycleStatus,
+    SessionEnvelope,
+    StageAvailability,
+)
+from .dimensions import active_dimensions
 from auteur.story_design_packs.models import DecisionCard, PackProvenance
 from auteur.story_design_packs.session import TutorSession
 
@@ -627,6 +635,97 @@ def _guidance_context(card: QualificationCard, impact: OptionImpact) -> Guidance
     )
 
 
+def compose_guidance_context(
+    card: QualificationCard,
+    session: SessionEnvelope,
+    base_context: GuidanceContext,
+) -> GuidanceContext:
+    """Add active, relevant working dimensions to derived guidance."""
+    composition = session.working_composition
+    if composition is None:
+        return base_context
+    active = active_dimensions(composition)
+    if not active:
+        return base_context
+
+    conventions = list(base_context.genre_conventions)
+    patterns = list(base_context.patterns)
+    emotional_promise = base_context.emotional_promise
+    for dimension in active:
+        if dimension.category is DimensionCategory.SETTING_WORLD:
+            conventions.append(f"{dimension.label} shapes the social pressure around the case.")
+            patterns.append(dimension.label)
+        elif dimension.category is DimensionCategory.RELATIONSHIP_THEMATIC:
+            emotional_promise = (
+                f"The investigation should intensify {dimension.label.lower()} while the truth emerges."
+            )
+            patterns.append(dimension.label)
+        elif dimension.category is DimensionCategory.EMOTIONAL_AESTHETIC:
+            emotional_promise = dimension.label
+            patterns.append(dimension.label)
+    return base_context.model_copy(
+        update={
+            "emotional_promise": emotional_promise,
+            "genre_conventions": tuple(dict.fromkeys(conventions)),
+            "patterns": tuple(dict.fromkeys(patterns)),
+        }
+    )
+
+
+def _compose_option_impacts(
+    card: QualificationCard,
+    impacts: dict[str, OptionImpact],
+    session: SessionEnvelope,
+) -> dict[str, OptionImpact]:
+    """Make relevant supporting dimensions change derived consequences."""
+    composition = session.working_composition
+    if composition is None:
+        return impacts
+    active = active_dimensions(composition)
+    supporting = tuple(
+        dimension for dimension in active
+        if dimension.category in {
+            DimensionCategory.SETTING_WORLD,
+            DimensionCategory.RELATIONSHIP_THEMATIC,
+            DimensionCategory.EMOTIONAL_AESTHETIC,
+        }
+    )
+    if not supporting:
+        return impacts
+    implications: list[str] = []
+    labels = tuple(dimension.label for dimension in supporting)
+    for dimension in supporting:
+        if dimension.category is DimensionCategory.SETTING_WORLD:
+            implications.append(
+                f"{dimension.label} changes the cost, evidence, or public/private consequences of the investigation."
+            )
+        elif dimension.category is DimensionCategory.RELATIONSHIP_THEMATIC:
+            implications.append(
+                f"{dimension.label} makes clues change trust, intimacy, or relationship power rather than only case knowledge."
+            )
+        elif dimension.category is DimensionCategory.EMOTIONAL_AESTHETIC:
+            implications.append(
+                f"{dimension.label} changes how discoveries should feel and be framed for the reader."
+            )
+    enriched: dict[str, OptionImpact] = {}
+    for option, impact in impacts.items():
+        enriched[option] = impact.model_copy(
+            update={
+                "tradeoffs": impact.tradeoffs + (
+                    "Active supporting dimensions add pressure from: " + ", ".join(labels) + ".",
+                ),
+                "narrative_consequences": impact.narrative_consequences
+                + (
+                    NarrativeConsequence(
+                        semantic_area=SemanticArea.IDENTITY,
+                        summary="Active supporting dimensions reshape how the investigation affects identity and relationships.",
+                        implications=tuple(implications),
+                        risks=("A supporting dimension can become decorative if later decisions never put it under pressure.",),
+                    ),
+                ),
+            }
+        )
+    return enriched
 def _why_this_matters(card: QualificationCard) -> str:
     return {
         "discover.story-experience": "This choice sets the reader contract for how the mystery unfolds.",
@@ -733,9 +832,13 @@ def guidance_for(card_id: str, session: SessionEnvelope) -> BeginnerGuidance:
     context_summary = _context_summary(session)
     recommendation, recommendation_reason = _select_recommendation(card, session)
     commitment_summary = _commitment_summary(card, session)
-    impacts = _option_impacts(card)
+    impacts = _compose_option_impacts(card, _option_impacts(card), session)
     recommended_impact = impacts[recommendation]
-    context_guidance = _guidance_context(card, recommended_impact)
+    context_guidance = compose_guidance_context(
+        card,
+        session,
+        _guidance_context(card, recommended_impact),
+    )
     rationale = (
         f"This deterministic recommendation starts with {recommendation.lower()} "
         f"for the current premise, {session.premise!r}. {recommendation_reason} "
@@ -770,7 +873,15 @@ def guidance_for(card_id: str, session: SessionEnvelope) -> BeginnerGuidance:
             if reference.claim == "recommendation" else reference
             for reference in card.evidence_references
         ),
-        pack_sources=adapter.pack_sources(),
+        pack_sources=tuple(
+            dict.fromkeys(
+                (*adapter.pack_sources(), *(
+                    source
+                    for dimension in (session.working_composition.dimensions if session.working_composition else ())
+                    for source in dimension.source_provenance
+                ))
+            )
+        ),
         tutor_session_fingerprints=adapter.tutor_session_fingerprints(),
     )
 

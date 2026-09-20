@@ -384,3 +384,86 @@ PR #233                      READY FOR REVIEW / UNMERGED
 L3                           FAIL — PRE-EXISTING BASELINE LINT
 RELEASE QUALIFIED            NO
 ```
+
+
+---
+
+## 2026-09-19 premise → interpretation → Discovery qualification candidate
+
+This section records the replacement beginner ordering implemented from
+`docs/superpowers/specs/2026-09-19-premise-to-narrative-architecture-beginner-flow.md`.
+It does **not** rewrite the historical Decision-Card evidence above.
+
+Sanitized qualification premise:
+
+> A celebrated masked superhero begins investigating inconsistencies around an
+> intimate partner and a powerful rival. Each clue threatens the hero's secret
+> public identity and changes how the hero understands trust, jealousy, and
+> possible relationship betrayal. The story should remain a fair mystery while
+> treating the private discoveries with erotic-betrayal tension and heightened
+> melodramatic pressure.
+
+### Automated journey under qualification
+
+The real beginner HTTP boundary is exercised through:
+
+```text
+fresh premise
+  → Here is what Auteur sees
+  → optional interpretation refinement
+  → Story Discovery
+  → select + explicitly accept Story Direction
+  → Story Identity promotion preview
+  → explicitly accept canonical Story Identity
+  → eligible Structure decisions
+  → explicitly accept Whole-Story Structure
+```
+
+The automated qualification pins these authority boundaries:
+
+- the initial architecture interpretation is derived and produces no canonical
+  milestone;
+- resolving an uncertain framing changes working guidance but still produces no
+  canon;
+- Discovery contains a recommended direction plus real alternatives;
+- selecting a direction is noncanonical;
+- accepting Story Direction creates the `story_direction` milestone but does
+  not write `story_identity.yaml`;
+- accepting Story Identity is the first canonical Identity write and preserves
+  the selected candidate's semantic central engine;
+- Structure exposes only its eligible curated decisions;
+- accepting Structure yields exactly the three expected accepted milestones.
+
+A differential guidance check also compares the same Mystery Structure decision
+with and without the hybrid Working Composition. The superhero-world,
+relationship-betrayal, and explicitly activated campy-melodrama dimensions must
+materially change context/consequences rather than appearing as decorative
+labels.
+
+### Human qualification questions
+
+The exact candidate should be walked through by a human without repository
+explanation first:
+
+1. Does the initial interpretation feel materially accurate?
+2. Can the author tell what came from the premise versus what Auteur inferred?
+3. Is it clear that continuing does not make the interpretation canonical?
+4. Is refinement understandable without learning internal enums or mappings?
+5. Are uncertainty and alternatives understandable?
+6. Does Discovery feel like exploring coherent directions rather than extracting
+   more labels?
+7. Is Story Identity clearly the commitment boundary?
+8. Does Structure clearly feel downstream of accepted Identity?
+9. Does the hybrid guidance differ meaningfully from generic Mystery guidance?
+10. Can the author explain the current story direction and the next useful
+    decision?
+11. Can the author distinguish premise-explicit material, Auteur inference, and
+    accepted canon?
+
+Until that independent walkthrough is performed, the honest human gate remains:
+
+```text
+AUTOMATED PREMISE-TO-ARCHITECTURE GATE   PENDING EXACT-HEAD VALIDATION
+HUMAN BEGINNER USABILITY                 PENDING
+MERGE / RELEASE QUALIFICATION            NO
+```

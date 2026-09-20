@@ -26,7 +26,7 @@
 
   <div class="app-shell">
     <aside id="story-navigator" aria-label="Story Navigator" class="navigator">
-      <h2>Story Navigator</h2>
+      <h2>Your story</h2>
       <ol id="navigator-list" class="navigator-list"></ol>
       <section aria-label="Story Map" class="story-map">
         <h3>Story Map</h3>
@@ -39,7 +39,32 @@
       <p id="status-line" role="status" aria-live="polite" class="status-line"></p>
 
       <div class="workspace-columns">
-        <section id="decision-workspace" class="decision-workspace" aria-label="Current decision">
+        <section id="decision-workspace" class="decision-workspace" aria-label="Current story work">
+          <section id="architecture-surface" class="primary-surface" hidden>
+            <p class="card-position">Working interpretation · not canon</p>
+            <h2 id="architecture-heading">Here is what Auteur sees</h2>
+            <p id="architecture-summary"></p>
+            <div id="architecture-facets"></div>
+            <div class="surface-actions">
+              <button id="continue-architecture" type="button" class="continue-button">Continue with this interpretation</button>
+              <button id="refine-architecture" type="button">Refine this interpretation</button>
+              <button id="explain-architecture" type="button">Why does Auteur see this?</button>
+            </div>
+          </section>
+
+          <section id="discovery-surface" class="primary-surface" hidden>
+            <p class="card-position">Story Discovery · derived / not canon</p>
+            <h2>Choose a story direction</h2>
+            <p id="discovery-rationale"></p>
+            <div id="discovery-directions"></div>
+          </section>
+
+          <section id="identity-surface" class="primary-surface" hidden>
+            <p class="card-position">Story Identity candidate · not canon until accepted</p>
+            <h2>Review what this story is committing to</h2>
+            <div id="identity-candidate"></div>
+          </section>
+
           <section data-testid="decision-card" id="decision-card" class="decision-card" aria-label="Decision card">
             <p id="card-position" class="card-position"></p>
             <h2 id="card-question">Loading decision card&hellip;</h2>
@@ -72,6 +97,12 @@
         <h2>Milestone review</h2>
         <div id="review-body"></div>
       </section>
+
+      <details id="refinement-panel" aria-label="Refine story interpretation" class="composition-panel">
+        <summary>Refine story interpretation</summary>
+        <p class="hint">Optional working corrections. These guide Auteur but do not edit canon.</p>
+        <div id="composition-body"></div>
+      </details>
     </main>
   </div>
 
