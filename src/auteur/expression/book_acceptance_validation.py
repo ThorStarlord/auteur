@@ -69,8 +69,8 @@ class BookAcceptanceValidator:
                                 expected="evaluated", current=comparison.get("lifecycle"))
         # 4. Comparison transformation version is supported.
         transformation = comparison.get("transformation", {}) or {}
-        if transformation.get("id") != self._comparison_transformation["id"] or transformation.get("version") not in SUPPORTED_self._comparison_transformation_VERSIONS:
-            return False, block("STALE_COMPARISON", "self._comparison_transformation_UNSUPPORTED",
+        if transformation.get("id") != self._comparison_transformation["id"] or transformation.get("version") not in self._supported_comparison_versions:
+            return False, block("STALE_COMPARISON", "COMPARISON_TRANSFORMATION_UNSUPPORTED",
                                 "re-run the comparison under a supported transformation contract",
                                 expected=self._comparison_transformation, current=transformation)
         # 5. Comparison content hash is valid (matches stored content).
