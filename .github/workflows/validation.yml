@@ -40,6 +40,10 @@ jobs:
                   "$path" == "src/auteur/expression/book_reconciliation.py" ]]; then
               focused+=("tests/test_book_acceptance.py")
             fi
+            if [[ "$path" == "src/auteur/expression/book_completion_validation.py" ||
+                  "$path" == "src/auteur/expression/book_reconciliation.py" ]]; then
+              focused+=("tests/test_book_reconciliation_completion.py")
+            fi
             if [[ ("$path" == src/*.py || "$path" == tests/*.py) && -f "$path" ]]; then
               ruff_paths+=("$path")
             fi
