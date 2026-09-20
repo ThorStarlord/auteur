@@ -24,6 +24,7 @@ import yaml
 
 from auteur.expression.book import BookExpressionStore, BookPreviewNotAcceptableError
 from auteur.expression.composition import ChapterExpressionStore
+from auteur.expression.book_accepted_sources import AcceptedBookSourceStore
 from auteur.expression.book_reconciliation import (
     BookReconciliationStore,
     CandidateNotFoundError,
@@ -902,3 +903,25 @@ def test_preview_uses_pointer_reject_after_approve_stays_applied(tmp_path: Path)
     entry = next(d for d in preview["applied_decisions"] if d["candidate_id"] == candidate_id)
     assert entry["status"] == "rejected" and entry["pointer_current"] is True
     assert any(p["current_accepted_source_id"] for p in preview["current_pointers"])
+
+
+
+def test_extracted_accepted_source_store_matches_facade(tmp_path: Path) -> None:
+    """Compatibility facade and extracted authority store resolve the same pointer."""
+    project, book_id = _make_book(tmp_path)
+    store = BookReconciliationStore(project)
+    _, candidate_id = _publish_separator(store, book_id, project)
+    _, decision = store.decide_candidate(candidate_id, "approved", "use it")
+    element_id, owned_kind = _element_of(store, decision)
+
+    extracted = AcceptedBookSourceStore(project)
+
+    assert extracted.current_pointer(element_id, owned_kind) == (
+        store.current_accepted_source_pointer(element_id, owned_kind)
+    )
+    assert extracted.current_source(element_id, owned_kind) == (
+        store.current_accepted_source(element_id, owned_kind)
+    )
+    assert extracted.pointer_history(element_id, owned_kind) == (
+        store.pointer_history(element_id, owned_kind)
+    )
