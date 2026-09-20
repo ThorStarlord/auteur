@@ -24,6 +24,7 @@ import yaml
 
 from auteur.expression.book import BookExpressionStore
 from auteur.expression.composition import ChapterExpressionStore
+from auteur.expression.book_completion_validation import BookCompletionValidator
 from auteur.expression.book_reconciliation import (
     CompleteBlockedError,
     BookReconciliationStore,
@@ -204,6 +205,28 @@ def _ready_acceptance(store: BookReconciliationStore, book_id: str, project: Pat
 # ----------------------------------------------------------------------------
 # Core model
 # ----------------------------------------------------------------------------
+
+def test_completion_gate_delegates_to_validator(monkeypatch, tmp_path: Path) -> None:
+    project, _book_id = _make_book(tmp_path)
+    store = BookReconciliationStore(project)
+    sentinel = CompleteBlockedError(
+        "MISSING_ACCEPTANCE",
+        "MISSING_ACCEPTANCE",
+        {"acceptance_id": "acceptance_probe"},
+        "accept first",
+    )
+
+    def fake_validate(validator: BookCompletionValidator, acceptance_id: str):
+        assert validator._store is store
+        assert acceptance_id == "acceptance_probe"
+        return False, sentinel
+
+    monkeypatch.setattr(BookCompletionValidator, "validate", fake_validate)
+    ok, result = store._validate_completion_gate("acceptance_probe")
+
+    assert ok is False
+    assert result is sentinel
+
 
 def test_completion_artifact_structure(tmp_path: Path) -> None:
     project, book_id = _make_book(tmp_path)
