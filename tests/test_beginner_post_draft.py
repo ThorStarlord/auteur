@@ -103,3 +103,17 @@ def test_revision_handoff_is_noncanonical_and_routes_only(tmp_path: Path) -> Non
     assert payload["canonical"] is False
     assert payload["source_draft"] == "draft_v1.md"
     assert not (chapter / "final.md").exists()
+
+
+def test_newer_candidate_after_prior_acceptance_is_not_projected_as_accepted(tmp_path: Path) -> None:
+    chapter = _chapter(tmp_path)
+    (chapter / "final.md").write_text("accepted v1", encoding="utf-8")
+    (chapter / "draft_v1.md").write_text("accepted v1", encoding="utf-8")
+    (chapter / "draft_v2.md").write_text("new candidate", encoding="utf-8")
+    (chapter / "validation_v2.json").write_text(json.dumps({"findings": []}), encoding="utf-8")
+
+    review = project_draft_review(tmp_path, 1)
+
+    assert review.accepted is False
+    assert review.production_status is ChapterProductionStatus.CANDIDATE_DRAFT
+    assert review.source_draft == "draft_v2.md"
