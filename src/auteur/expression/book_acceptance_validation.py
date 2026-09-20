@@ -9,7 +9,10 @@ acceptance semantics remain owned by the reconciliation facade.
 
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
+
+import yaml
 from typing import Any, Callable
 
 
