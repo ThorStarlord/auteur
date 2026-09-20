@@ -660,6 +660,14 @@ structured reason, `No comparison report was created.`, and the recommended
 action. Full metadata and per-finding ownership reasoning are shown behind
 `--json` / `--verbose`.
 
+**Implementation boundary.** Derived recomposition/comparison paths, atomic YAML
+writes, and loads are implemented behind `BookRecompositionArtifactStore`.
+`BookReconciliationStore` remains the compatibility facade and continues to own
+pointer/source resolution, recomposition assembly, freshness validation,
+comparison rendering, ownership classification, finding construction,
+readiness, and all authority semantics. This extraction changes no artifact
+paths or bytes and grants no additional authority to either derived artifact.
+
 ## Book Acceptance (Phase C3)
 
 Acceptance is an explicit, atomic authority crossing. It canonically accepts a
