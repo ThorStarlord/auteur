@@ -885,6 +885,138 @@
     renderContinuation(projection);
   }
 
+  function currentChapterFromQuery() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var value = params.get("chapter");
+      if (!value) return null;
+      var parsed = Number(value);
+      return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function renderPostDraftReview(chapter, review) {
+    var panel = $("post-draft-review");
+    if (!panel) return;
+    panel.hidden = false;
+    $("post-draft-status").textContent =
+      "Chapter " + chapter + " · " + String(review.production_status || "unknown").replace(/_/g, " ");
+    $("post-draft-next-action").textContent = review.recommended_next_action || "Review the current chapter state.";
+
+    var evidence = [];
+    if (review.blocking_findings && review.blocking_findings.length) {
+      evidence.push("<h4>Blocking findings</h4>" + listHtml(review.blocking_findings));
+    }
+    if (review.warnings && review.warnings.length) {
+      evidence.push("<h4>Warnings</h4>" + listHtml(review.warnings));
+    }
+    if (review.plan_alignment) {
+      evidence.push(
+        "<h4>Plan alignment</h4><pre>" +
+        escapeHtml(JSON.stringify(review.plan_alignment, null, 2)) +
+        "</pre>"
+      );
+    }
+    $("post-draft-evidence").innerHTML = evidence.join("") || '<p class="muted">No review evidence recorded yet.</p>';
+
+    var accept = $("post-draft-accept");
+    var revise = $("post-draft-revise");
+    var planNext = $("post-draft-plan-next");
+    accept.hidden = review.accepted || !review.source_draft || review.stale || (review.blocking_findings || []).length > 0;
+    revise.hidden = review.accepted || !review.source_draft;
+    planNext.hidden = !review.accepted;
+    planNext.textContent = "Plan Chapter " + (chapter + 1);
+  }
+
+  function loadPostDraftReview() {
+    var chapter = currentChapterFromQuery();
+    if (!chapter) return Promise.resolve(null);
+    return fetch("/api/beginner/chapters/" + chapter + "/review", {
+      headers: { Accept: "application/json" },
+    })
+      .then(readJson)
+      .then(function (review) {
+        renderPostDraftReview(chapter, review);
+        return review;
+      })
+      .catch(function (error) {
+        var panel = $("post-draft-review");
+        if (panel) {
+          panel.hidden = false;
+          $("post-draft-status").textContent = "Unable to load post-draft review: " + error.message;
+        }
+        return null;
+      });
+  }
+
+  function acceptLatestDraft() {
+    var chapter = currentChapterFromQuery();
+    if (!chapter) return;
+    if (!window.confirm("Accept the latest Chapter " + chapter + " draft through Auteur's existing chapter authority?")) {
+      return;
+    }
+    setStatus("Accepting Chapter " + chapter + "…");
+    fetch("/api/beginner/chapters/" + chapter + "/accept-latest-draft", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ command_id: nextCommandId("accept-draft") }),
+    })
+      .then(readJson)
+      .then(function () {
+        setStatus("");
+        return loadPostDraftReview();
+      })
+      .catch(function (error) {
+        setStatus("Chapter acceptance failed: " + error.message);
+      });
+  }
+
+  function preparePostDraftRevision() {
+    var chapter = currentChapterFromQuery();
+    if (!chapter) return;
+    setStatus("Preparing revision handoff…");
+    fetch("/api/beginner/chapters/" + chapter + "/revision-handoff", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        command_id: nextCommandId("revision-handoff"),
+        decision: "revise current candidate from post-draft review",
+        route: "retry",
+      }),
+    })
+      .then(readJson)
+      .then(function () {
+        setStatus("Revision handoff prepared.");
+      })
+      .catch(function (error) {
+        setStatus("Revision handoff failed: " + error.message);
+      });
+  }
+
+  function loadNextChapterPlan() {
+    var chapter = currentChapterFromQuery();
+    if (!chapter) return;
+    var next = chapter + 1;
+    setStatus("Planning Chapter " + next + "…");
+    fetch("/api/beginner/chapters/" + next + "/plan", {
+      headers: { Accept: "application/json" },
+    })
+      .then(readJson)
+      .then(function (payload) {
+        var evidence = $("post-draft-evidence");
+        evidence.innerHTML =
+          "<h4>Chapter " + next + " context</h4><pre>" +
+          escapeHtml(JSON.stringify(payload.plan, null, 2)) +
+          "</pre>";
+        setStatus("");
+      })
+      .catch(function (error) {
+        setStatus("Next-chapter planning failed: " + error.message);
+      });
+  }
+
   function currentWorkspaceFromQuery() {
     try {
       var params = new URLSearchParams(window.location.search);
@@ -933,6 +1065,7 @@
         $("open-inspector").focus();
       }
     });
+    loadPostDraftReview();
     var fromQuery = currentWorkspaceFromQuery();
     if (fromQuery) {
       state.workspaceId = fromQuery;
@@ -968,6 +1101,9 @@
         sendContinue();
       }
     });
+    $("post-draft-accept").addEventListener("click", acceptLatestDraft);
+    $("post-draft-revise").addEventListener("click", preparePostDraftRevision);
+    $("post-draft-plan-next").addEventListener("click", loadNextChapterPlan);
   }
 
   if (document.readyState === "loading") {
