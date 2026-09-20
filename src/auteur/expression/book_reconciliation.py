@@ -24,8 +24,6 @@ from auteur.expression.book import BookExpressionStore
 from auteur.expression.reconciliation import ReconciliationStore
 from auteur.expression.book_accepted_sources import (
     ACCEPTED_SOURCE_KIND,
-    ACCEPTED_SOURCE_TRANSFORMATION,
-    POINTER_TRANSFORMATION,
     AcceptedBookSourceStore,
 )
 
