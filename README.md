@@ -101,10 +101,10 @@ The current production baseline includes:
 - **Creative Writing Tutor V1** — existing `auteur design tutor ...` guidance over Story Design Packs.
 - **Decision-Oriented Tutor** — root `auteur tutor next/explain/show/choose/handoff/propose`, deterministic Decision Cards, source-bound local advisory sessions, stale-source blocking, and explicit routing into existing authority workflows.
 - **Structure revision continuation** — explicit proposal inspect/select, fail-closed revision planning/validation, derived Narrative Change Preview, explicit confirmed application, and deterministic/read-only reassessment.
-- **Project orientation** — dashboard Author Attention plus a loopback-only, read-only Guided Author Workspace V1.
+- **Project orientation** — dashboard Author Attention plus a loopback-only Guided Author Workspace that keeps narrative authority explicit and now exposes read-only whole-book, reconciliation, and publication-readiness orientation.
 - **Realization/state/provenance** — state coordination plus accumulated impact, convergence, decision, review, planning, simulation, and portfolio support.
 - **Series / long-horizon support** — bounded accepted-history/current-state reconstruction, continuity machinery, derived Global Map/Focus support, and Guided Series Continuity Review V1.
-- **Outline & drafting** — Cartographer outlines, chapter contracts, Bard/Critics drafting, retry, and explicit acceptance.
+- **Outline & drafting** — Cartographer outlines, chapter contracts, Bard/Critics drafting, retry, explicit acceptance, post-draft review, and contextual Chapter N+1 continuation.
 
 For exact current/pending boundaries, including open work, use [STATUS.md](STATUS.md).
 
@@ -150,6 +150,28 @@ auteur tutor propose <session_id> --project .
 ```
 
 Persisted sessions require project-local source binding when they are created, for example `--project . --source identity=story_identity.yaml --source blueprint=blueprint.yaml`. Auteur fingerprints the actual file bytes and later blocks substantive responses or actionable continuation when the source no longer matches.
+
+### Beginner story-development continuation
+
+The Beginner path now continues beyond the first accepted decision:
+
+```text
+premise / narrative architecture
+→ explicit accepted foundation
+→ whole-story outline
+→ Chapter N planning and drafting
+→ post-draft review
+→ revise or explicit existing-owner Chapter acceptance
+→ accepted chapter outcome
+→ contextual Chapter N+1 planning
+→ whole-book progress / reconciliation orientation
+→ existing Book and publication handoffs
+```
+
+Whole-book orientation is read-only: it reuses existing status, Book
+reconciliation, and publishing owners instead of creating a Beginner-specific
+Book authority. Canonical Book acceptance, reconciliation completion, and
+publication remain explicit existing-owner operations.
 
 See [docs/guides/guided-author-decision-loop.md](docs/guides/guided-author-decision-loop.md) for the complete beginner-facing walkthrough and [docs/design/decision-oriented-tutor.md](docs/design/decision-oriented-tutor.md) for the Tutor authority/staleness model.
 
