@@ -58,77 +58,6 @@ def _err(m, suggestion: str | None = None):
     print(format_error(m, suggestion=suggestion), file=sys.stderr)
 
 
-def _handle_reasoning_book(project: Path, json_output: bool = False) -> int:
-    """Run Book Manuscript reasoning and display findings."""
-    from auteur.reasoning.runtime import CriticRegistry, ReasoningRuntime, RuntimeRequest, resolve_report_dir
-    from auteur.reasoning.registrar import register_all_builtins
-
-    report_dir = resolve_report_dir(project)
-    registry = CriticRegistry()
-    register_all_builtins(registry)
-    runtime = ReasoningRuntime(registry, report_dir)
-
-    request = RuntimeRequest(
-        request_id="book_reasoning",
-        critic_ids=["book.manuscript"],
-        inputs={"project": project},
-    )
-    result = runtime.run(request)
-    outcomes = result.outcomes
-
-    if json_output:
-        out: list[dict[str, object]] = []
-        for o in outcomes:
-            entry: dict[str, object] = {
-                "critic_id": o.critic_id,
-                "version": o.version,
-                "status": o.status.value,
-            }
-            if o.reason:
-                entry["reason"] = o.reason
-            if o.error:
-                entry["error"] = o.error
-            if o.report_id:
-                report_path = report_dir / f"{o.report_id}.json"
-                if report_path.exists():
-                    import json as _json
-                    entry["report"] = _json.loads(report_path.read_text(encoding="utf-8"))
-            out.append(entry)
-        import json as _json
-        print(_json.dumps(out, indent=2, default=str))
-        return 0
-
-    # Human-readable output
-    for o in outcomes:
-        print(f"Critic: {o.critic_id} ({o.version})")
-        print(f"  Status: {o.status.value}")
-        if o.status.value == "failed":
-            print(f"  Error: {o.error or o.reason or 'unknown'}")
-            continue
-        if o.report_id:
-            report_path = report_dir / f"{o.report_id}.json"
-            if report_path.exists():
-                import json as _json
-                report = _json.loads(report_path.read_text(encoding="utf-8"))
-                findings = report.get("findings", [])
-                if not findings:
-                    print("  No findings.")
-                for fi, f in enumerate(findings, 1):
-                    severity = f.get("severity", "info")
-                    print(f"  {fi}. [{severity}] {f.get('message', '(no message)')}")
-                    evidence = f.get("evidence", {})
-                    if evidence:
-                        for k, v in evidence.items():
-                            if v:
-                                print(f"     {k}: {v}")
-                    recs = f.get("recommendations", [])
-                    if recs:
-                        print("     Recommendations:")
-                        for r in recs:
-                            print(f"       - {r}")
-
-    return 0
-
 def _write_blueprint_markdown(bp: Any, path: Path) -> None:
     """Render a StoryBlueprint to a readable Markdown document."""
     lines: list[str] = []
@@ -448,35 +377,9 @@ def dispatch(args: argparse.Namespace) -> int:
         from auteur.story_design_packs.cli import dispatch_story_design_commands
         return dispatch_story_design_commands(args)
     if args.command == "reasoning":
-        if args.reasoning_command == "book":
-            return _handle_reasoning_book(args.project, args.json)
-        from auteur.reasoning.cli import format_review, load_review
-        try:
-            review = load_review(args.review)
-        except FileNotFoundError:
-            _err(f"reasoning review not found: {args.review}")
-            return 1
-        except (OSError, ValueError, json.JSONDecodeError) as exc:
-            _err(f"invalid reasoning review {args.review}: {exc}")
-            return 1
-        if args.reasoning_command == "review":
-            print(json.dumps(review, indent=2, sort_keys=True) if args.json else format_review(review))
-            return 0
-        # inspect: search groups first, then critic_summaries (with bare-name fallback)
-        group = next((item for item in review.get("groups", []) if item.get("group_id") == args.group), None)
-        if group is None:
-            group = next((cs for cs in review.get("critic_summaries", [])
-                          if cs.get("critic_id") == args.group
-                          or cs.get("critic_id") == f"draft.{args.group}"
-                          or cs.get("critic_id", "").replace("draft.", "") == args.group), None)
-        if group is None:
-            _err(f"reasoning group not found: {args.group}")
-            return 1
-        print(json.dumps(group, indent=2, sort_keys=True) if args.json else
-              f"{group.get('group_id', group.get('critic_id'))}: {group.get('summary', group.get('status', '?'))}\n"
-              f"Basis: {group.get('overlap_basis', '')}\n"
-              f"Claims: {group.get('claim_refs', group.get('finding_count', 0))}")
-        return 0
+        from auteur.reasoning.cli import dispatch_reasoning
+
+        return dispatch_reasoning(args, _err)
     # === status ===
     if args.command == "status":
         from auteur.status import gather_status, format_status
