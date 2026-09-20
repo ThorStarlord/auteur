@@ -120,7 +120,6 @@ def test_inspect_command_no_scenes(temp_project):
     assert result == 1  # Should fail
 
 
-@pytest.mark.xfail(reason="SceneOutline schema requires goal field; Layer 3 narrative_realization documented as Partial", strict=False)
 def test_inspect_command_with_scenes(temp_project, sample_chapter_outline):
     """Test inspect command with valid scenes."""
     # Create scenes
@@ -167,7 +166,6 @@ def test_graph_command_no_scenes(temp_project):
     result = commands.graph_command("text")
     assert result == 1
 
-@pytest.mark.xfail(reason="SceneOutline schema requires goal field; Layer 3 narrative_realization documented as Partial", strict=False)
 def test_graph_command_text_format(temp_project, sample_chapter_outline):
     """Test graph command with text format."""
     outlines_dir = temp_project / ".auteur" / "outlines" / "netorare"
@@ -182,7 +180,6 @@ def test_graph_command_text_format(temp_project, sample_chapter_outline):
     assert result == 0
 
 
-@pytest.mark.xfail(reason="SceneOutline schema requires goal field; Layer 3 narrative_realization documented as Partial", strict=False)
 def test_graph_command_dot_format(temp_project, sample_chapter_outline):
     """Test graph command with DOT format."""
     # Create scenes
@@ -224,7 +221,6 @@ def test_handle_realization_validate(temp_project, sample_chapter_outline):
     result = handle_realization_validate(temp_project, "netorare")
     assert result in (0, 1)  # Pass or fail, but not error
 
-@pytest.mark.xfail(reason="SceneOutline schema requires goal field; Layer 3 narrative_realization documented as Partial", strict=False)
 def test_handle_realization_inspect(temp_project, sample_chapter_outline):
     """Test handle_realization_inspect handler function."""
     outlines_dir = temp_project / ".auteur" / "outlines" / "netorare"
@@ -237,7 +233,6 @@ def test_handle_realization_inspect(temp_project, sample_chapter_outline):
     assert result == 0
 
 
-@pytest.mark.xfail(reason="SceneOutline schema requires goal field; Layer 3 narrative_realization documented as Partial", strict=False)
 def test_handle_realization_graph(temp_project, sample_chapter_outline):
     """Test handle_realization_graph handler function."""
     outlines_dir = temp_project / ".auteur" / "outlines" / "netorare"

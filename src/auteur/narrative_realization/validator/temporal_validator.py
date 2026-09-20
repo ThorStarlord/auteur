@@ -157,6 +157,8 @@ class TemporalValidator:
         all_violations.extend(self.validate_unique_positions())
         all_violations.extend(self.validate_temporal_relations_mutual())
         all_violations.extend(self.validate_no_circular_follows_chains())
+        all_violations.extend(self.validate_position_vs_time_distinction())
+        all_violations.extend(self.validate_chronological_consistency())
 
         is_valid = len(all_violations) == 0
         return TemporalValidationResult(
