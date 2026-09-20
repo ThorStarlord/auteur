@@ -119,7 +119,6 @@ from .architecture_models import (
 )
 from .architecture_projection import build_story_orientation
 from .composition import compose_mappings, reconcile_review_state
-from .continuation import ContinuationState
 from .continuation_workflow import (
     ContinuationTransitionError,
     accept_chapter_plan as accept_chapter_plan_transition,
