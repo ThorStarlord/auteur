@@ -27,6 +27,7 @@ from auteur.expression.book_accepted_sources import (
     AcceptedBookSourceStore,
 )
 from auteur.expression.book_acceptance import BookAcceptanceStore
+from auteur.expression.book_completion import BookCompletionStore
 
 CHAPTER = re.compile(r"^<!-- auteur:chapter id=([^ ]+) expression_revision=(\d+) -->$")
 END_CHAPTER = re.compile(r"^<!-- auteur:end-chapter id=([^ ]+) -->$")
@@ -397,6 +398,7 @@ class BookReconciliationStore:
         self.root = self.project / "book" / "expression" / "reconciliation"
         self._accepted_source_store = AcceptedBookSourceStore(self.project)
         self._acceptance_store = BookAcceptanceStore(self.project)
+        self._completion_store = BookCompletionStore(self.project)
 
     def _inspection_path(self, inspection_id: str) -> Path:
         return self.root / "inspections" / f"{inspection_id}.yaml"
@@ -3184,42 +3186,25 @@ class BookReconciliationStore:
     # ------------------------------------------------------------------
 
     def _completions_dir(self) -> Path:
-        return self.root / "completions"
+        return self._completion_store.completions_dir()
 
     def _completion_path(self, completion_id: str) -> Path:
-        return self._completions_dir() / f"{completion_id}.yaml"
+        return self._completion_store.completion_path(completion_id)
 
     def _completion_manifest_path(self, completion_id: str) -> Path:
-        return self._completions_dir() / "manifests" / f"{completion_id}.yaml"
+        return self._completion_store.completion_manifest_path(completion_id)
 
     def _completion_staging_dir(self, completion_id: str) -> Path:
-        return self.root / "staging" / f"completion_{completion_id}"
+        return self._completion_store.completion_staging_dir(completion_id)
 
     def _routing_path(self, inspection_id: str) -> Path:
         return self.root / "routing" / f"routing_{inspection_id}.yaml"
 
     def load_book_reconciliation_completion(self, completion_id: str) -> dict[str, Any]:
-        """Load an immutable Book reconciliation completion record."""
-        path = self._completion_path(completion_id)
-        if not path.exists():
-            raise FileNotFoundError(f"Book reconciliation completion not found: {completion_id}")
-        return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        return self._completion_store.load_completion(completion_id)
 
     def _find_prior_completion(self, acceptance_id: str) -> dict[str, Any] | None:
-        """Return the completion record already produced for an acceptance, or ``None``.
-
-        A reconciliation acceptance is completed at most once. This scans the
-        completions for one whose ``source_acceptance_id`` matches, guaranteeing
-        completion is idempotent: a second call creates no second record.
-        """
-        directory = self._completions_dir()
-        if not directory.exists():
-            return None
-        for path in sorted(directory.glob("*.yaml")):
-            data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-            if isinstance(data, dict) and data.get("source_acceptance_id") == acceptance_id:
-                return data
-        return None
+        return self._completion_store.find_prior_completion(acceptance_id)
 
     def _find_chapter_inspection(self, chapter_inspection_id: str) -> dict[str, Any] | None:
         """Find and load a chapter-level reconciliation inspection by its id.
