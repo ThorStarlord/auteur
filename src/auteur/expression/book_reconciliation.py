@@ -29,6 +29,7 @@ from auteur.expression.book_accepted_sources import (
 from auteur.expression.book_acceptance import BookAcceptanceStore
 from auteur.expression.book_completion import BookCompletionStore
 from auteur.expression.book_recomposition_artifacts import BookRecompositionArtifactStore
+from auteur.expression.book_application_artifacts import BookApplicationArtifactStore
 
 CHAPTER = re.compile(r"^<!-- auteur:chapter id=([^ ]+) expression_revision=(\d+) -->$")
 END_CHAPTER = re.compile(r"^<!-- auteur:end-chapter id=([^ ]+) -->$")
@@ -401,15 +402,13 @@ class BookReconciliationStore:
         self._acceptance_store = BookAcceptanceStore(self.project)
         self._completion_store = BookCompletionStore(self.project)
         self._recomposition_artifact_store = BookRecompositionArtifactStore(self.project)
+        self._application_artifact_store = BookApplicationArtifactStore(self.project)
 
     def _inspection_path(self, inspection_id: str) -> Path:
-        return self.root / "inspections" / f"{inspection_id}.yaml"
+        return self._application_artifact_store.inspection_path(inspection_id)
 
     def _load_inspection(self, inspection_id: str) -> dict[str, Any]:
-        path = next(self.root.glob(f"inspections/{inspection_id}.yaml"), None)
-        if path is None:
-            raise FileNotFoundError(f"Book inspection not found: {inspection_id}")
-        return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        return self._application_artifact_store.load_inspection(inspection_id)
 
     def inspect(self, manuscript: Path, against: str) -> dict[str, Any]:
         book = BookExpressionStore(self.project)
@@ -552,22 +551,16 @@ class BookReconciliationStore:
     # ------------------------------------------------------------------
 
     def _proposal_path(self, proposal_id: str) -> Path:
-        return self.root / "proposals" / f"{proposal_id}.yaml"
+        return self._application_artifact_store.proposal_path(proposal_id)
 
     def _load_proposal(self, proposal_id: str) -> dict[str, Any] | None:
-        path = self._proposal_path(proposal_id)
-        if not path.exists():
-            return None
-        return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        return self._application_artifact_store.load_proposal(proposal_id)
 
     def _plan_path(self, plan_id: str) -> Path:
-        return self.root / "plans" / f"{plan_id}.yaml"
+        return self._application_artifact_store.plan_path(plan_id)
 
     def _load_plan(self, plan_id: str) -> dict[str, Any]:
-        path = self._plan_path(plan_id)
-        if not path.exists():
-            raise FileNotFoundError(f"Book application plan not found: {plan_id}")
-        return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        return self._application_artifact_store.load_plan(plan_id)
 
     @staticmethod
     def _is_fresh(value: Any) -> bool:
@@ -1022,25 +1015,16 @@ class BookReconciliationStore:
         return {"status": "ready", "message": "publication dependencies are fresh", "reasons": [], "visible_outputs_created": False}
 
     def _publication_path(self, publication_id: str) -> Path:
-        return self.root / "publications" / f"{publication_id}.yaml"
+        return self._application_artifact_store.publication_path(publication_id)
 
     def inspect_book_publication(self, publication_id: str) -> dict[str, Any]:
-        path = self._publication_path(publication_id)
-        if not path.exists():
-            raise FileNotFoundError(f"Book publication not found: {publication_id}")
-        return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        return self._application_artifact_store.load_publication(publication_id)
 
     def load_book_preview(self, publication_id: str) -> dict[str, Any]:
-        path = self.root / "previews" / f"{publication_id}.yaml"
-        if not path.exists():
-            raise FileNotFoundError(f"Book preview not found: {publication_id}")
-        return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        return self._application_artifact_store.load_preview(publication_id)
 
     def load_book_candidate(self, candidate_id: str) -> dict[str, Any]:
-        path = self.root / "candidates" / f"{candidate_id}.yaml"
-        if not path.exists():
-            raise FileNotFoundError(f"Book candidate not found: {candidate_id}")
-        return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        return self._application_artifact_store.load_candidate(candidate_id)
 
     # ------------------------------------------------------------------
     # Candidate Decisions (Decision Lifecycle) -- Model A (append-only).
