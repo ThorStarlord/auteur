@@ -203,6 +203,14 @@ transformation:
 - **Post-publication**: candidates and previews that depend on a changed source
   become stale, while independent candidates remain fresh.
 
+**Implementation boundary.** Phase A/B inspection, proposal, plan, publication,
+preview, and candidate path/loading mechanics are implemented behind
+`BookApplicationArtifactStore`. `BookReconciliationStore` remains the
+compatibility facade and continues to own inspection, ownership routing,
+planning, freshness validation, publication, candidate construction, and all
+authority semantics. This is a storage/access seam only; artifact paths,
+formats, failure behavior, and public workflow behavior are unchanged.
+
 ## Candidate decisions (decision lifecycle) — Model A (append-only)
 
 Once candidates are published, the author decides each one independently:
