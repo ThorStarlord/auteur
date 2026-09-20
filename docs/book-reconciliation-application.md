@@ -373,6 +373,13 @@ returns every revision ever written (Tier 2); `pointer_history(element_id,
 owned_kind)` returns only the authority-boundary crossings (approvals), so it is
 strictly shorter than the decision history whenever defers/rejects occurred.
 
+**Implementation boundary.** Accepted-source revision and pointer persistence is
+implemented behind `AcceptedBookSourceStore`, while
+`BookReconciliationStore` remains the compatibility facade for the wider
+workflow. This is a maintainability seam only: the three-tier authority model,
+public behavior, recomposition inputs, and pointer semantics above are
+unchanged.
+
 ### Live freshness gate at decision time
 
 Before a decision is written, every dependency is revalidated from disk
