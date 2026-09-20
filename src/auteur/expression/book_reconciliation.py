@@ -28,6 +28,7 @@ from auteur.expression.book_accepted_sources import (
 )
 from auteur.expression.book_acceptance import BookAcceptanceStore
 from auteur.expression.book_completion import BookCompletionStore
+from auteur.expression.book_recomposition_artifacts import BookRecompositionArtifactStore
 
 CHAPTER = re.compile(r"^<!-- auteur:chapter id=([^ ]+) expression_revision=(\d+) -->$")
 END_CHAPTER = re.compile(r"^<!-- auteur:end-chapter id=([^ ]+) -->$")
@@ -399,6 +400,7 @@ class BookReconciliationStore:
         self._accepted_source_store = AcceptedBookSourceStore(self.project)
         self._acceptance_store = BookAcceptanceStore(self.project)
         self._completion_store = BookCompletionStore(self.project)
+        self._recomposition_artifact_store = BookRecompositionArtifactStore(self.project)
 
     def _inspection_path(self, inspection_id: str) -> Path:
         return self.root / "inspections" / f"{inspection_id}.yaml"
@@ -1608,10 +1610,10 @@ class BookReconciliationStore:
     # ------------------------------------------------------------------
 
     def _recompositions_dir(self) -> Path:
-        return self.root / "recompositions"
+        return self._recomposition_artifact_store.recompositions_dir()
 
     def _recomposition_path(self, publication_id: str) -> Path:
-        return self._recompositions_dir() / f"{publication_id}_recomposed.yaml"
+        return self._recomposition_artifact_store.recomposition_path(publication_id)
 
     def _load_pointer_by_id(self, pointer_id: str) -> dict[str, Any] | None:
         """Locate a current accepted-source pointer by its ``pointer_id``.
@@ -1917,31 +1919,10 @@ class BookReconciliationStore:
         return True, recomposed
 
     def _store_recomposed_book(self, recomposed: dict[str, Any]) -> Path:
-        """Persist the recomposed Book as a transient derived artifact (atomic write).
-
-        Stored under ``recompositions/`` -- NOT in accepted-sources. This is a
-        noncanonical, proposed artifact; writing it changes no pointer and accepts
-        nothing. The write is atomic (temp + replace) so a reader never observes a
-        partially written recomposition.
-        """
-        path = self._recomposition_path(recomposed["publication_id"])
-        path.parent.mkdir(parents=True, exist_ok=True)
-        tmp = path.with_suffix(".yaml.tmp")
-        try:
-            tmp.write_text(yaml.safe_dump(recomposed, sort_keys=False), encoding="utf-8")
-            tmp.replace(path)
-        except Exception:
-            if tmp.exists():
-                tmp.unlink()
-            raise
-        return path
+        return self._recomposition_artifact_store.store_recomposed_book(recomposed)
 
     def load_recomposed_book(self, publication_id: str) -> dict[str, Any]:
-        """Load the most recent recomposition artifact for a publication."""
-        path = self._recomposition_path(publication_id)
-        if not path.exists():
-            raise FileNotFoundError(f"Book recomposition not found: {publication_id}")
-        return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        return self._recomposition_artifact_store.load_recomposed_book(publication_id)
 
     # ------------------------------------------------------------------
     # Phase C2: read-only, deterministic recomposition-vs-manuscript comparison.
@@ -1962,10 +1943,10 @@ class BookReconciliationStore:
     # ------------------------------------------------------------------
 
     def _comparisons_dir(self) -> Path:
-        return self.root / "comparisons"
+        return self._recomposition_artifact_store.comparisons_dir()
 
     def _comparison_path(self, comparison_id: str) -> Path:
-        return self._comparisons_dir() / f"{comparison_id}.yaml"
+        return self._recomposition_artifact_store.comparison_path(comparison_id)
 
     @staticmethod
     def _publication_id_from_recomposition(recomposition_id: str) -> str:
@@ -2466,31 +2447,10 @@ class BookReconciliationStore:
         return book._chapter_text(book._accepted_chapter(chapter_id))
 
     def _store_comparison_report(self, report: dict[str, Any]) -> Path:
-        """Persist the comparison report atomically (temp + replace).
-
-        Stored under ``comparisons/``. Writing it accepts nothing, moves no pointer,
-        and mutates no source. The write is atomic so a reader never observes a
-        partially written report. The content is fully deterministic (no timestamp),
-        so a repeated comparison over identical state overwrites with identical bytes.
-        """
-        path = self._comparison_path(report["comparison_id"])
-        path.parent.mkdir(parents=True, exist_ok=True)
-        tmp = path.with_suffix(".yaml.tmp")
-        try:
-            tmp.write_text(yaml.safe_dump(report, sort_keys=False), encoding="utf-8")
-            tmp.replace(path)
-        except Exception:
-            if tmp.exists():
-                tmp.unlink()
-            raise
-        return path
+        return self._recomposition_artifact_store.store_comparison_report(report)
 
     def load_book_comparison(self, comparison_id: str) -> dict[str, Any]:
-        """Load a stored Book comparison report."""
-        path = self._comparison_path(comparison_id)
-        if not path.exists():
-            raise FileNotFoundError(f"Book comparison not found: {comparison_id}")
-        return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        return self._recomposition_artifact_store.load_book_comparison(comparison_id)
 
     # ------------------------------------------------------------------
     # Phase C3: explicit, atomic Book acceptance.
