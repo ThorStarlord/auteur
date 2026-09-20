@@ -122,3 +122,35 @@ def test_restart_reload_preserves_continuation_and_replays_receipt(tmp_path) -> 
     assert replay.continuation.outline_proposal.proposal_id == projection.continuation.outline_proposal.proposal_id
     assert len(replay.continuation.outline_proposal.chapters) == 1
     assert restarted.session_store.load().session_version == projection.session_version
+
+
+def test_repeated_scene_plan_command_completes_receipt(tmp_path) -> None:
+    app = _foundation_app(tmp_path)
+    projection = app.propose_outline(
+        expected_session_version=app.projection().session_version,
+        command_id="repeat-outline",
+    )
+    projection = app.accept_outline(
+        expected_session_version=projection.session_version,
+        command_id="repeat-accept-outline",
+    )
+    projection = app.propose_chapter_plan(
+        expected_session_version=projection.session_version,
+        command_id="repeat-chapter",
+    )
+    projection = app.accept_chapter_plan(
+        expected_session_version=projection.session_version,
+        command_id="repeat-accept-chapter",
+    )
+    projection = app.propose_scene_plans(
+        expected_session_version=projection.session_version,
+        command_id="repeat-scenes-first",
+    )
+
+    replayed_shape = app.propose_scene_plans(
+        expected_session_version=projection.session_version,
+        command_id="repeat-scenes-second",
+    )
+
+    assert replayed_shape.continuation.scene_plans == projection.continuation.scene_plans
+    assert app.receipt_store.load("repeat-scenes-second").status == "complete"
