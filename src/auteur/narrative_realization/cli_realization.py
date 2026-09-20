@@ -466,7 +466,7 @@ class CliRealizationCommands:
                         indent = "    " if is_last else "  │ "
                         lines.append(f"{indent} (follows {scene.temporal_relation.follows_scene})")
 
-            lines.append()
+            lines.append("")
 
         return "\n".join(lines)
 
@@ -508,7 +508,7 @@ class CliRealizationCommands:
                 lines.append(f'    {node_id} [label="{scene.id}"];')
 
             lines.append('  }')
-            lines.append()
+            lines.append("")
 
         # Add edges for temporal relations
         for scene in scenes.values():
