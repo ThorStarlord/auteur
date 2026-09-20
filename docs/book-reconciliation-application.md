@@ -704,6 +704,14 @@ The comparison summary now carries two decoupled readiness flags:
 The Book revision is the narrative authority; the acceptance record
 (`authority: decision`) is the evidence explaining the authority crossing.
 
+**Implementation boundary.** Acceptance record/revision/pointer persistence and
+acceptance staging paths are implemented behind `BookAcceptanceStore`, while
+`BookReconciliationStore` remains the compatibility facade and continues to own
+eligibility, freshness/revalidation, accepted-revision construction, atomic
+publication ordering, and all acceptance semantics. This extraction is a
+maintainability seam only; it does not change the authority crossing, artifact
+formats, paths, idempotency rules, or public behavior.
+
 ### 20-Point Acceptance Gate
 
 Immediately before staging, `_validate_acceptance_gate` revalidates **all** of:
