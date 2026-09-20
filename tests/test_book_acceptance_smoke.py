@@ -20,13 +20,19 @@ def test_book_acceptance_minimal_supported_path(tmp_path: Path) -> None:
     accepted_markdown = project / "book" / "expression" / "book_v001.md"
     external = project / "external.md"
     external.write_bytes(accepted_markdown.read_bytes())
+    edited = project / "external_separator_edit.md"
+    edited.write_text(
+        accepted_markdown.read_text(encoding="utf-8").replace("\n---\n", "\n***\n"),
+        encoding="utf-8",
+    )
 
     reconciliation = BookReconciliationStore(project)
-    inspection = reconciliation.inspect(external, book["book_expression_id"])
+    inspection = reconciliation.inspect(edited, book["book_expression_id"])
     routed = reconciliation.route(inspection["inspection_id"])
+    assert routed["book_proposals"]
     plan = reconciliation.plan(
         inspection["inspection_id"],
-        [proposal_id for proposal_id in routed["book_proposals"]],
+        [routed["book_proposals"][0]],
     )
     publication = reconciliation.publish(plan["plan_id"])
     ok, recomposed = reconciliation.recompose_book_from_accepted_sources(publication["publication_id"])
