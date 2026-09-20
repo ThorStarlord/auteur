@@ -26,6 +26,7 @@ from auteur.expression.book_accepted_sources import (
     ACCEPTED_SOURCE_KIND,
     AcceptedBookSourceStore,
 )
+from auteur.expression.book_acceptance import BookAcceptanceStore
 
 CHAPTER = re.compile(r"^<!-- auteur:chapter id=([^ ]+) expression_revision=(\d+) -->$")
 END_CHAPTER = re.compile(r"^<!-- auteur:end-chapter id=([^ ]+) -->$")
@@ -395,6 +396,7 @@ class BookReconciliationStore:
         self.project = Path(project)
         self.root = self.project / "book" / "expression" / "reconciliation"
         self._accepted_source_store = AcceptedBookSourceStore(self.project)
+        self._acceptance_store = BookAcceptanceStore(self.project)
 
     def _inspection_path(self, inspection_id: str) -> Path:
         return self.root / "inspections" / f"{inspection_id}.yaml"
@@ -2509,69 +2511,37 @@ class BookReconciliationStore:
     # ------------------------------------------------------------------
 
     def _acceptances_dir(self) -> Path:
-        return self.root / "acceptances"
+        return self._acceptance_store.acceptances_dir()
 
     def _acceptance_path(self, acceptance_id: str) -> Path:
-        return self._acceptances_dir() / f"{acceptance_id}.yaml"
+        return self._acceptance_store.acceptance_path(acceptance_id)
 
     def _acceptance_manifest_path(self, acceptance_id: str) -> Path:
-        return self._acceptances_dir() / "manifests" / f"{acceptance_id}.yaml"
+        return self._acceptance_store.acceptance_manifest_path(acceptance_id)
 
     def _acceptance_staging_dir(self, acceptance_id: str) -> Path:
-        return self.root / "staging" / f"acceptance_{acceptance_id}"
+        return self._acceptance_store.acceptance_staging_dir(acceptance_id)
 
     def _accepted_book_pointer_path(self) -> Path:
-        return self.project / "book" / "expression" / "accepted-book-pointer.yaml"
+        return self._acceptance_store.accepted_book_pointer_path()
 
     def _accepted_book_revision_path(self, book_id: str, revision: int) -> Path:
-        return self.project / "book" / "expression" / f"book_{book_id}_v{revision:03d}_accepted.yaml"
+        return self._acceptance_store.accepted_book_revision_path(book_id, revision)
 
     def _load_accepted_book_pointer(self) -> dict[str, Any] | None:
-        """The current reconciliation-accepted Book pointer, or ``None`` if never accepted.
-
-        This is the Phase C3 accepted Book pointer (distinct from the compose-time
-        ``accepted.yaml`` baseline). It is the single mutable authority tier for
-        recomposition-driven Book acceptance and is replaced atomically, last, on
-        every acceptance.
-        """
-        path = self._accepted_book_pointer_path()
-        if not path.exists():
-            return None
-        return yaml.safe_load(path.read_text(encoding="utf-8")) or None
+        return self._acceptance_store.load_accepted_book_pointer()
 
     def current_accepted_book_pointer(self) -> dict[str, Any] | None:
-        """Public accessor for the current reconciliation-accepted Book pointer."""
-        return self._load_accepted_book_pointer()
+        return self._acceptance_store.current_accepted_book_pointer()
 
     def load_accepted_book_revision(self, book_id: str, revision: int) -> dict[str, Any]:
-        """Load an immutable accepted Book revision by book id and revision."""
-        path = self._accepted_book_revision_path(book_id, revision)
-        if not path.exists():
-            raise FileNotFoundError(f"Accepted Book revision not found: {book_id} v{revision}")
-        return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        return self._acceptance_store.load_accepted_book_revision(book_id, revision)
 
     def load_book_acceptance(self, acceptance_id: str) -> dict[str, Any]:
-        """Load an immutable acceptance record (decision evidence)."""
-        path = self._acceptance_path(acceptance_id)
-        if not path.exists():
-            raise FileNotFoundError(f"Book acceptance record not found: {acceptance_id}")
-        return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        return self._acceptance_store.load_book_acceptance(acceptance_id)
 
     def _find_prior_acceptance(self, comparison_id: str) -> dict[str, Any] | None:
-        """Return the acceptance record already produced for a comparison, or ``None``.
-
-        A comparison is accepted at most once. This scans the acceptance records for
-        one whose ``source_comparison_id`` matches, guaranteeing acceptance is
-        idempotent: a second call creates no new Book revision or record.
-        """
-        directory = self._acceptances_dir()
-        if not directory.exists():
-            return None
-        for path in sorted(directory.glob("*.yaml")):
-            data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-            if isinstance(data, dict) and data.get("source_comparison_id") == comparison_id:
-                return data
-        return None
+        return self._acceptance_store.find_prior_acceptance(comparison_id)
 
     @staticmethod
     def _recompute_comparison_id(comparison: dict[str, Any]) -> str:
