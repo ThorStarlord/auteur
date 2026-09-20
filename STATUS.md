@@ -26,7 +26,7 @@ The PR #233 stabilization checkpoint recorded the prior baseline lint dispositio
 
 ## Current Selected Responsibility
 
-**REAL-AUTHOR END-TO-END EVIDENCE** — The post-draft / Chapter N → N+1 continuation is now merged through PR #246. No additional product package is implicitly authorized. Issue #249 records the next product-evidence responsibility: run one real-author journey from premise through accepted Chapter 1 and contextual Chapter 2 planning, then select the smallest intervention from the first material friction.
+**REAL-AUTHOR END-TO-END EVIDENCE** — The post-draft / Chapter N → N+1 continuation is now merged through PR #246. No additional product package is implicitly authorized. Issue #249 records the next product-evidence responsibility: run one real-author journey from premise through accepted Chapter 1 and contextual Chapter 2 planning, then select the smallest intervention from the first material friction. The execution/observation template is [docs/product-validation/beginner-premise-to-chapter2-real-author-protocol.md](docs/product-validation/beginner-premise-to-chapter2-real-author-protocol.md).
 
 Parallel bounded maintenance responsibilities are tracked separately: #247 for the recurring Book-acceptance/full-suite path, #251 for legacy Layer-3 realization xfails, and #248 for behavior-preserving orchestration decomposition after the continuation stabilizes.
 
