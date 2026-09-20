@@ -808,6 +808,61 @@
     });
   }
 
+  function renderContinuation(projection) {
+    var body = $("continuation-body");
+    var state = projection.continuation;
+    if (!state) {
+      body.innerHTML = '<p class="muted">Accept the whole-story structure to continue into outlining.</p>';
+      return;
+    }
+    var actionLabels = {
+      "propose-outline": "Create outline proposal",
+      "accept-outline": "Continue with this outline",
+      "propose-chapter-plan": "Plan Chapter 1",
+      "accept-chapter-plan": "Continue with this chapter plan",
+      "propose-scene-plans": "Plan scenes",
+      "accept-scene-plans": "Continue with these scene plans",
+      "prepare-draft-handoff": "Prepare Chapter 1 draft",
+      "review-chapter-1": "Review Chapter 1",
+      "review-stale-continuation": "Review stale continuation"
+    };
+    var action = (projection.available_actions || []).filter(function (item) {
+      return Object.prototype.hasOwnProperty.call(actionLabels, item);
+    })[0];
+    var html = [];
+    if (state.stale) {
+      html.push('<p class="blocking-inline" role="alert">' + escapeHtml(state.stale_reason || "The accepted upstream inputs changed; review these derived plans before drafting.") + "</p>");
+    }
+    if (state.outline_proposal) {
+      html.push("<h3>Whole-story outline</h3><p>" + escapeHtml(state.outline_proposal.title) + " · derived proposal</p>");
+      html.push(listHtml((state.outline_proposal.chapters || []).map(function (chapter) {
+        return "Chapter " + chapter.chapter_index + ": " + chapter.purpose;
+      })));
+    }
+    if (state.chapter_plan) {
+      html.push("<h3>Chapter 1 plan</h3><p>" + escapeHtml(state.chapter_plan.what_changes) + "</p>");
+    }
+    if (state.scene_plans && state.scene_plans.length) {
+      html.push("<h3>Scene plan</h3>" + listHtml(state.scene_plans.map(function (scene) {
+        return scene.scene_id + ": " + scene.purpose;
+      })));
+    }
+    if (state.draft_handoff) {
+      html.push("<h3>Ready to write Chapter 1</h3><p>Use the accepted identity, structure, outline, chapter plan, and scene plan.</p><code>" + escapeHtml(state.draft_handoff.command) + "</code>");
+      if (state.draft_status === "drafted") {
+        html.push("<p><strong>Chapter 1 is drafted.</strong> Review it before planning Chapter 2.</p>");
+      }
+    }
+    if (action) {
+      html.push('<button class="continue-button" data-continuation-action="' + escapeHtml(action) + '">' + escapeHtml(actionLabels[action]) + "</button>");
+    }
+    body.innerHTML = html.join("");
+    var button = body.querySelector("[data-continuation-action]");
+    if (button) button.addEventListener("click", function () {
+      sendAction(button.getAttribute("data-continuation-action"), {}, button.textContent.trim());
+    });
+  }
+
   function render(projection) {
     if (!projection) {
       return;
@@ -827,6 +882,7 @@
     syncInspector();
     renderReviews(projection);
     renderWorkingComposition(projection);
+    renderContinuation(projection);
   }
 
   function currentWorkspaceFromQuery() {

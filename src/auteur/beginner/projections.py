@@ -27,6 +27,7 @@ from .contracts import (
     StageStatus,
     WorkingComposition,
 )
+from .continuation import ContinuationState, accepted_milestone_fingerprint
 from .discovery_models import DiscoveryRecommendationStatus
 from .guidance import (
     BeginnerGuidance,
@@ -364,6 +365,7 @@ class WorkspaceProjection:
     primary_surface: PrimaryWorkspaceSurface = "discovery"
     discovery: DiscoveryProjection | None = None
     identity_candidate: IdentityCandidateProjection | None = None
+    continuation: ContinuationState | None = None
 
 
 def cards_for_stage(inventory: QualificationInventory, stage: DecisionStage) -> tuple[QualificationCard, ...]:
@@ -436,6 +438,7 @@ def build_workspace_projection(
     working_composition: WorkingComposition | None = None,
     mapping_preview: object | None = None,
     story_orientation: StoryOrientationProjection | None = None,
+    continuation: ContinuationState | None = None,
 ) -> WorkspaceProjection:
     """Build every workspace surface from one session/domain snapshot."""
     exploratory = dict(exploratory_answers or {})
@@ -572,6 +575,45 @@ def build_workspace_projection(
                 )
     if active_revision_id is not None:
         actions.append("cancel-revision")
+    if continuation is not None:
+        current_fingerprint = accepted_milestone_fingerprint(session.accepted_milestones)
+        proposal_fingerprint = (
+            continuation.outline_proposal.source_fingerprint
+            if continuation.outline_proposal is not None
+            else ""
+        )
+        if proposal_fingerprint and proposal_fingerprint != current_fingerprint:
+            continuation = continuation.model_copy(
+                update={
+                    "stale": True,
+                    "stale_reason": "Accepted upstream inputs changed after this continuation was proposed.",
+                    "draft_handoff": (
+                        continuation.draft_handoff.model_copy(update={"status": "stale"})
+                        if continuation.draft_handoff is not None
+                        else None
+                    ),
+                    "draft_status": "stale" if continuation.draft_handoff is not None else continuation.draft_status,
+                }
+            )
+            actions.append("review-stale-continuation")
+        elif not continuation.stale:
+            continuation = continuation.model_copy(update={"stale": False, "stale_reason": None})
+        if continuation.outline_proposal is None and "whole_story_structure" in accepted_ids:
+            actions.append("propose-outline")
+        elif continuation.outline_proposal is not None and not continuation.outline_accepted:
+            actions.append("accept-outline")
+        elif continuation.outline_accepted and continuation.chapter_plan is None:
+            actions.append("propose-chapter-plan")
+        elif continuation.chapter_plan is not None and not continuation.chapter_plan_accepted:
+            actions.append("accept-chapter-plan")
+        elif continuation.chapter_plan_accepted and not continuation.scene_plans:
+            actions.append("propose-scene-plans")
+        elif continuation.scene_plans and not continuation.scene_plans_accepted:
+            actions.append("accept-scene-plans")
+        elif continuation.scene_plans_accepted and continuation.draft_handoff is None:
+            actions.append("prepare-draft-handoff")
+        elif continuation.draft_handoff is not None:
+            actions.append("review-chapter-1" if continuation.draft_status == "drafted" else "draft-chapter-1")
     decision_workspace = _decision_workspace_projection(
         cursor=cursor,
         decision_card=decision_card,
@@ -613,6 +655,7 @@ def build_workspace_projection(
         primary_surface=_primary_surface(session),
         discovery=_discovery_projection(session),
         identity_candidate=_identity_candidate_projection(session),
+        continuation=continuation if continuation is not None else session.continuation,
     )
 
 

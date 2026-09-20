@@ -1,8 +1,8 @@
 # Auteur — Repository Status
 
-**Last reconciled:** 2026-09-17  
+**Last reconciled:** 2026-09-19
 **Validation-policy activation baseline:** `main @ 8b53efdd99e0a67d375df0e828b32edc77643221`  
-**Current `main`:** `87971e57d186d1559e20aebce3403b311c8a6f2f` (PR #233 merged)  
+**Current `main`:** `7d5bbe04f6c0208ea601134c3b84bb3d4fe98142` (Beginner Workspace milestone merged)
 **Known-good stabilization baseline:** `main @ 2aba74b64f2434d11954a8627fc3d95fd83fdb7d` (L3 tested)  
 **Package metadata:** `0.37.1`  
 **Role of this file:** living operational status and handoff; not a release record or idea backlog.
@@ -25,7 +25,7 @@ The PR #233 stabilization checkpoint recorded the prior baseline lint dispositio
 
 ## Current Selected Work
 
-**v0.38.0 UX Polish & Consistency** — Completed and merged through PR #233. The Beginner Workspace is human-qualified; the next product package is not yet selected and should come from real-author dogfood friction.
+**BEGINNER STORY DEVELOPMENT CONTINUATION** — The Beginner Workspace is human-qualified through accepted foundation. The next bounded product package carries that foundation through whole-story outline, Chapter 1 planning, lightweight scene planning, first-draft handoff, and post-draft orientation. L3 remains deferred and human qualification remains pending for this new package.
 
 ## Current Product Direction
 
@@ -55,9 +55,9 @@ The next evidence task is a real-author dogfood journey on merged `main`:
 Beginner Workspace → accepted foundation → outline/planning → chapter draft
 ```
 
-Do not infer the next product package from architecture alone. Record the first
-material workflow friction, classify its owning layer, and select one bounded
-intervention.
+This package is explicitly an integration continuation, not a new semantic
+layer. Record the first material workflow friction after the continuation,
+classify its owning layer, and select one bounded intervention.
 
 ## Canonical Architecture
 

@@ -49,9 +49,9 @@ else:
     )
 JsonObject: TypeAlias = dict[str, JsonValue]
 
-BeginnerCommandType: TypeAlias = Literal["create_workspace", "promote_milestone"]
+BeginnerCommandType: TypeAlias = Literal["create_workspace", "promote_milestone", "continuation"]
 BeginnerMilestone: TypeAlias = Literal["identity-accepted", "structure-accepted"]
-_BEGINNER_COMMAND_TYPES: set[BeginnerCommandType] = {"create_workspace", "promote_milestone"}
+_BEGINNER_COMMAND_TYPES: set[BeginnerCommandType] = {"create_workspace", "promote_milestone", "continuation"}
 _BEGINNER_MILESTONES: set[BeginnerMilestone] = {"identity-accepted", "structure-accepted"}
 
 
