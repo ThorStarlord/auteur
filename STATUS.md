@@ -3,12 +3,13 @@
 **Last reconciled:** 2026-09-20  
 **Validation-policy activation baseline:** `main @ 8b53efdd99e0a67d375df0e828b32edc77643221`  
 **Behavior baseline reconciled:** `main @ c633d1b155ff72ef9ba502d4b7c9a294716fe98a` (post-draft continuation, Realization reconciliation, Beginner whole-book orientation, and bounded maintainability extractions merged)  
+**Current maintenance/strategy reconciliation baseline:** `main @ 6ff2f2385bc7009e67a235d82af741ceae1038e4` (Level-3 strategic artifact plus #248 Book reconciliation persistence/access seams through PR #268)  
 **Known-good stabilization baseline:** `main @ 2aba74b64f2434d11954a8627fc3d95fd83fdb7d` (L3 tested)  
 **Package metadata:** `1.0.0` — development metadata; not a publication claim  
 **Latest published GitHub release/tag:** `v0.37.1`  
 **Role of this file:** living operational status and handoff; not a release record or idea backlog.
 
-The current development line includes the tiered validation and bounded-agent-autonomy policy, the human-qualified Beginner Workspace foundation, the premise-to-architecture and first-draft continuation work, PR #246's contemporary post-draft / Chapter N → N+1 loop, PR #250's commitment/Review authority correction, PR #253's Realization-contract reconciliation, PR #258's read-only whole-book Beginner orientation, and the first bounded #248 maintainability extractions through PRs #256, #259, and #260. The exact current HEAD may advance after this living document is merged; the reconciled behavior baseline above identifies the code state this status describes.
+The current development line includes the tiered validation and bounded-agent-autonomy policy, the human-qualified Beginner Workspace foundation, the premise-to-architecture and first-draft continuation work, PR #246's contemporary post-draft / Chapter N → N+1 loop, PR #250's commitment/Review authority correction, PR #253's Realization-contract reconciliation, PR #258's read-only whole-book Beginner orientation, and bounded #248 maintainability extractions through PRs #256, #259, #260, #265, #266, #267, and #268. The latter four keep `BookReconciliationStore` as the compatibility facade while separating acceptance persistence, completion persistence, derived recomposition/comparison evidence persistence, and Phase A/B application-artifact access. The exact current HEAD may advance after this living document is merged; the reconciled behavior baseline above identifies the code state this status describes.
 
 For product intent, read [MISSION.md](MISSION.md) and [docs/PRD.md](docs/PRD.md). For the canonical domain model, read [docs/narrative-architecture.md](docs/narrative-architecture.md). For forward-looking candidates, read [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md). Release evidence lives under [docs/releases/](docs/releases/README.md).
 
@@ -28,7 +29,9 @@ The PR #233 stabilization checkpoint recorded the prior baseline lint dispositio
 
 **CONSOLIDATION / MAINTAINABILITY WITH SEPARATE PRODUCT EVIDENCE** — The post-draft / Chapter N → N+1 continuation is merged, the Beginner surface now exposes read-only whole-book progress and publication handoff readiness, and the first bounded maintainability slices have landed. Issue #248 remains the active engineering maintenance program: decompose already-existing responsibilities incrementally while preserving public facades, authority, persistence, idempotency, and currentness semantics.
 
-Issue #249 remains a separate real-author product-evidence responsibility, not automatic construction authority. Its premise-to-Chapter-2 journey may identify the next product intervention, but this status does not authorize a new semantic layer or feature family merely because the evidence task remains open.
+Issue #249 remains a separate real-author product-evidence responsibility, not automatic construction authority. Its premise-to-Chapter-2 journey may identify the next product intervention, but this status does not authorize a new semantic layer or feature family merely because the evidence task remains open. The repository-side protocol is ready; actual human use remains the evidence gate and must not be replaced by an agent/browser simulation.
+
+The Level-3 strategic decision space is preserved in [artifacts/strategic_repository_analysis.md](artifacts/strategic_repository_analysis.md), merged via PR #264. Its disposition is `INVESTIGATE`: no product construction path is selected; #249 supplies the decision-changing evidence, while #248 may continue independently as behavior-preserving maintenance.
 
 Correctness/evidence debt from this session is reconciled: #247 (Book/full-suite evidence) and #251 (legacy Realization xfails) are closed. Historical qualification issues #49–53 were reconciled against the contemporary release path and closed; #54 remains partially satisfied pending an actual cross-platform candidate run, and #55 remains reproduction-gated on that Windows qualification evidence.
 
@@ -134,7 +137,7 @@ The full Golden Path proves:
 
 This is hermetic repository evidence, not an external-provider or subjective story-quality claim.
 
-The 2026-09-20 consolidation packages (#253, #256, #258, #259, #260) passed their exact-head L1 validation before merge. They do **not** establish a new L3 checkpoint or release qualification. The last explicitly recorded L3 stabilization baseline remains the one named at the top of this file.
+The 2026-09-20 consolidation packages (#253, #256, #258, #259, #260, #265, #266, #267, #268) passed their exact-head L1 validation before merge. They do **not** establish a new L3 checkpoint or release qualification. The last explicitly recorded L3 stabilization baseline remains the one named at the top of this file.
 
 ## Next Product Selection
 
@@ -174,12 +177,13 @@ See [docs/campaign/auteur-long-horizon-campaign-state.md](docs/campaign/auteur-l
 - Historical divergent PRs #131, #221, #222, #225, #227, and #245 have been reconciled and closed rather than bulk-merged. Still-relevant responsibilities were reconstructed on contemporary `main` or preserved as explicit current issues.
 - #247 is closed after classifying the later Book/full-suite reports as incomplete bounded executions rather than a reproduced Book-authority regression; a focused Book acceptance sentinel and better L3 timing/JUnit evidence now exist.
 - #251 is closed after replacing obsolete Layer-3 `xfail` assumptions with current-schema Realization coverage and bounded temporal/knowledge fixes.
-- #248 is an incremental maintainability program, not evidence that the repository is incomplete: merged slices have extracted Beginner continuation transitions, reasoning CLI dispatch, and Book accepted-source/pointer persistence behind compatibility facades.
+- #248 is an incremental maintainability program, not evidence that the repository is incomplete: merged slices have extracted Beginner continuation transitions, reasoning CLI dispatch, Book accepted-source/pointer persistence, Book acceptance persistence, Book completion persistence, derived recomposition/comparison artifact persistence, and Phase A/B application-artifact access behind compatibility facades. The facade still owns workflow semantics; these storage/access seams do not create new authority or a new framework.
 - Historical qualification issues #49–53 are closed as superseded/no-current-change; #54 and #55 remain evidence-gated against a future exact candidate.
 - `pyproject.toml` reports `1.0.0`, but remote release/tag inspection on 2026-09-20 shows the latest published GitHub release remains `v0.37.1`; package metadata alone is not publication evidence.
 
 ## Documentation Map
 
+- [artifacts/strategic_repository_analysis.md](artifacts/strategic_repository_analysis.md) — durable Level-3 decision space; current disposition is `INVESTIGATE`, not product implementation authority.
 - [docs/guides/guided-author-decision-loop.md](docs/guides/guided-author-decision-loop.md) — beginner-facing end-to-end decision loop.
 - [docs/design/decision-oriented-tutor.md](docs/design/decision-oriented-tutor.md) — Tutor/session/handoff authority and staleness model.
 - [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md) — candidate directions/evidence gates.
