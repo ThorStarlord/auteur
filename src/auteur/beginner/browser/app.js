@@ -885,6 +885,43 @@
     renderContinuation(projection);
   }
 
+  function renderBookProgress(progress) {
+    $("book-progress-summary").textContent =
+      progress.accepted_chapters + " accepted chapter(s) · " +
+      progress.planned_chapters + " planned chapter(s).";
+    $("book-expression-status").textContent = progress.book_expression || "missing";
+    $("book-reconciliation-status").textContent = progress.reconciliation_status || "not started";
+    $("book-next-command").textContent = progress.next_command || "No owning command is currently required.";
+    $("book-authority-status").textContent = progress.authority_status || "DERIVED / NOT CANON";
+
+    if (progress.publication_ready) {
+      $("book-publication-status").innerHTML =
+        "<p><strong>Publication handoff ready.</strong> The accepted Book passed the existing publishing preflight.</p>" +
+        listHtml(progress.publish_commands || []);
+    } else {
+      $("book-publication-status").innerHTML =
+        '<p class="muted"><strong>Publication not ready:</strong> ' +
+        escapeHtml(progress.publication_blocker || "An accepted Book is required.") +
+        "</p>";
+    }
+  }
+
+  function loadBookProgress() {
+    return fetch("/api/beginner/book/progress", {
+      headers: { Accept: "application/json" },
+    })
+      .then(readJson)
+      .then(function (progress) {
+        renderBookProgress(progress);
+        return progress;
+      })
+      .catch(function (error) {
+        $("book-progress-summary").textContent =
+          "Unable to load whole-book progress: " + error.message;
+        return null;
+      });
+  }
+
   function currentChapterFromQuery() {
     try {
       var params = new URLSearchParams(window.location.search);
@@ -966,6 +1003,7 @@
       .then(readJson)
       .then(function () {
         setStatus("");
+        loadBookProgress();
         return loadPostDraftReview();
       })
       .catch(function (error) {
@@ -1066,6 +1104,7 @@
       }
     });
     loadPostDraftReview();
+    loadBookProgress();
     var fromQuery = currentWorkspaceFromQuery();
     if (fromQuery) {
       state.workspaceId = fromQuery;
