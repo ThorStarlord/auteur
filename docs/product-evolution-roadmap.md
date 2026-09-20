@@ -165,6 +165,11 @@ The whole-book Beginner surface added later is also read-only: it reuses the
 existing status, Book reconciliation, and publishing owners rather than creating
 a parallel Beginner Book authority.
 
+The repository is therefore in a **product-integration and maintainability
+consolidation** phase more than a missing-foundation phase. Prefer connecting,
+simplifying, exposing, and qualifying existing capability before admitting new
+conceptual architecture.
+
 The next product responsibility is **evidence, not automatic feature expansion**.
 Issue #249 and
 [product-validation/beginner-premise-to-chapter2-real-author-protocol.md](product-validation/beginner-premise-to-chapter2-real-author-protocol.md)
@@ -322,7 +327,11 @@ See `docs/plans/ux-polish-plan-v0.38.md` for the completed implementation tasks,
 ## Engineering Hardening Lane
 **State:** `CANDIDATE` maintenance lane; schedule independently when risk/cost justify it.
 
-The full Windows Python 3.13 test leg is now integrated alongside Linux 3.11/3.12/3.13 validation and wheel smoke. Historical synthetic-review hardening issues #49–53 were reconciled and closed because their old scripts/authority path no longer own contemporary release qualification. #54 remains partially satisfied pending an actual cross-platform candidate run; #55 remains reproduction-gated on that Windows evidence. Further hardening should protect current product/release paths without reopening obsolete infrastructure programs.
+The full Windows Python 3.13 test leg is now integrated alongside Linux 3.11/3.12/3.13 validation and wheel smoke. Historical synthetic-review hardening issues #49–53 were reconciled and closed because their old scripts/authority path no longer own contemporary release qualification. #54 remains partially satisfied pending an actual cross-platform candidate run; #55 remains reproduction-gated on that Windows evidence.
+
+Book/full-suite issue #247 is closed after contemporary L3 evidence showed no reproduced Book authority regression; the repository now carries a focused Book acceptance sentinel plus better L3 duration/JUnit observability. Legacy Realization issue #251 is also closed after obsolete xfails were replaced by current-schema coverage.
+
+Further hardening should protect current product/release paths without reopening obsolete infrastructure programs.
 
 ## Product Evolution Loop
 ### Level 1 — Author Decision Loop
