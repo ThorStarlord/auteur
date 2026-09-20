@@ -174,7 +174,7 @@ class AcceptedChapterOutcome(BaseModel):
 
     chapter_index: int = Field(ge=1)
     summary: str | None = None
-    deltas: dict[str, Any] = {}
+    deltas: dict[str, Any] = Field(default_factory=dict)
     source_ref: str = Field(min_length=1)
 
 
