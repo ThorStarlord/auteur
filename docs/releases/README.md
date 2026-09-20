@@ -2,14 +2,14 @@
 
 This directory contains release-specific records and frozen historical release documentation.
 
-## Current Package Release Line
+## Published Release Line
 
-`pyproject.toml` currently reports **v0.37.1**.
+The latest published GitHub release/tag is **v0.37.1**. Remote release/tag state was reconciled on 2026-09-20.
 
 - [v0.37.1 — Post-Release Reliability and Authority Hardening](v0.37.1.md)
 - [v0.37.0](v0.37.0.md)
 
-These documents are the release-specific evidence surfaces. Development merged after a release can exist on `main` without implying a new package version.
+`pyproject.toml` on current development `main` reports **1.0.0**. That metadata reflects the Version 1.0 candidate/development line; no `v1.0.0` GitHub release/tag is published as of the reconciliation date. Development metadata, qualification evidence, and publication are separate states.
 
 ## Historical Changelog Archive
 
