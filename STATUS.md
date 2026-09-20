@@ -1,13 +1,14 @@
 # Auteur — Repository Status
 
-**Last reconciled:** 2026-09-19
+**Last reconciled:** 2026-09-20  
 **Validation-policy activation baseline:** `main @ 8b53efdd99e0a67d375df0e828b32edc77643221`  
-**Current `main`:** `7d5bbe04f6c0208ea601134c3b84bb3d4fe98142` (Beginner Workspace milestone merged)
+**Behavior baseline reconciled:** `main @ aad21cc235502e87f9c7c8591d0b5fa3103a97f9` (post-draft continuation + commitment/Review authority reconciliation merged)  
 **Known-good stabilization baseline:** `main @ 2aba74b64f2434d11954a8627fc3d95fd83fdb7d` (L3 tested)  
-**Package metadata:** `0.37.1`  
+**Package metadata:** `1.0.0` — development metadata; not a publication claim  
+**Latest published GitHub release/tag:** `v0.37.1`  
 **Role of this file:** living operational status and handoff; not a release record or idea backlog.
 
-The current `main` includes the tiered validation and bounded-agent-autonomy policy merged through PR #229 and the human-qualified Beginner Workspace vertical slice merged through PR #233. PR #235 then removed the four baseline Ruff findings, and the resulting main SHA above passed the single authorized L3 stabilization checkpoint.
+The current development line includes the tiered validation and bounded-agent-autonomy policy, the human-qualified Beginner Workspace foundation, the premise-to-architecture and first-draft continuation work, PR #246's contemporary post-draft / Chapter N → N+1 loop, and PR #250's commitment/Review authority correction. The exact current HEAD may advance after this living document is merged; the reconciled behavior baseline above identifies the code state this status describes.
 
 For product intent, read [MISSION.md](MISSION.md) and [docs/PRD.md](docs/PRD.md). For the canonical domain model, read [docs/narrative-architecture.md](docs/narrative-architecture.md). For forward-looking candidates, read [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md). Release evidence lives under [docs/releases/](docs/releases/README.md).
 
@@ -23,9 +24,11 @@ Canonical policy: [docs/engineering/release-qualification.md](docs/engineering/r
 
 The PR #233 stabilization checkpoint recorded the prior baseline lint disposition. After PR #235 removed those four whitespace findings, the clean L3 checkpoint on `main @ 2aba74b64f2434d11954a8627fc3d95fd83fdb7d` passed full regression and the verification stack. No release qualification is implied. Return to Auteur product development and use real-author dogfood evidence to select the next bounded package.
 
-## Current Selected Work
+## Current Selected Responsibility
 
-**BEGINNER STORY DEVELOPMENT CONTINUATION** — The Beginner Workspace is human-qualified through accepted foundation. The next bounded product package carries that foundation through whole-story outline, Chapter 1 planning, lightweight scene planning, first-draft handoff, and post-draft orientation. L3 remains deferred and human qualification remains pending for this new package.
+**REAL-AUTHOR END-TO-END EVIDENCE** — The post-draft / Chapter N → N+1 continuation is now merged through PR #246. No additional product package is implicitly authorized. Issue #249 records the next product-evidence responsibility: run one real-author journey from premise through accepted Chapter 1 and contextual Chapter 2 planning, then select the smallest intervention from the first material friction. The execution/observation template is [docs/product-validation/beginner-premise-to-chapter2-real-author-protocol.md](docs/product-validation/beginner-premise-to-chapter2-real-author-protocol.md).
+
+Parallel bounded maintenance responsibilities are tracked separately: #247 for the recurring Book-acceptance/full-suite path, #251 for legacy Layer-3 realization xfails, and #248 for behavior-preserving orchestration decomposition after the continuation stabilizes.
 
 ## Current Product Direction
 
@@ -49,15 +52,15 @@ accepted narrative authority
 
 Derived systems may orient, diagnose, compare, explain, recommend, prepare, preview, and reassess. Determinism, persistence, currentness, or user selection do not grant story authority.
 
-The next evidence task is a real-author dogfood journey on merged `main`:
+The next evidence task is issue #249's real-author journey on merged `main`:
 
 ```text
-Beginner Workspace → accepted foundation → outline/planning → chapter draft
+premise → narrative architecture → accepted foundation → outline/planning
+→ Chapter 1 draft → post-draft review → revise/accept → accepted outcome
+→ contextual Chapter 2 plan
 ```
 
-This package is explicitly an integration continuation, not a new semantic
-layer. Record the first material workflow friction after the continuation,
-classify its owning layer, and select one bounded intervention.
+The post-draft package is an integration continuation, not a new semantic layer. Record the first material workflow friction, classify it as UX/presentation, workflow, craft knowledge, domain model, or infrastructure, and select one bounded intervention.
 
 ## Canonical Architecture
 
@@ -128,9 +131,9 @@ The full Golden Path proves:
 
 This is hermetic repository evidence, not an external-provider or subjective story-quality claim.
 
-## Current Selected Work
+## Next Product Selection
 
-**No additional product package is implicitly authorized by the completed roadmap sequence.**
+**No additional product package is implicitly authorized by the completed roadmap sequence or by the post-draft continuation merge.**
 
 The next product package should be selected from observed use of the now-complete loop rather than extending ontology or adding another subsystem by default. Strong preserved candidates include:
 
@@ -163,8 +166,9 @@ See [docs/campaign/auteur-long-horizon-campaign-state.md](docs/campaign/auteur-l
 
 - Ordinary PR/main validation now uses the L1 focused gate from PR #229; full regression is an explicit stabilization action, and release qualification is an explicit frozen-candidate action.
 - Historical Episode 1 PR #167 is closed/superseded by contemporary reconstruction issue #218.
-- Draft PR #131 is still open from an older Story Discovery composition baseline; it was **not assessed by this milestone** and must not be treated as shipped or current selected work without separate reconciliation.
-- `pyproject.toml` still reports `0.37.1`; `main` contains post-release development, so package metadata alone is not the complete current-state indicator.
+- Historical divergent PRs #131, #221, #222, #225, #227, and #245 have been reconciled and closed rather than bulk-merged. Still-relevant responsibilities were either reconstructed on current `main` (#246/#250) or preserved as contemporary work (#251).
+- `pyproject.toml` reports `1.0.0`, but remote release/tag inspection on 2026-09-20 shows the latest published GitHub release remains `v0.37.1`; package metadata alone is not publication evidence.
+- The recurring full-suite Book-acceptance limitation is explicitly tracked in #247 rather than being carried as an undocumented baseline assumption.
 
 ## Documentation Map
 

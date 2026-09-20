@@ -1,11 +1,10 @@
 # Changelog
 
-## v1.0.0-rc.1 candidate
+## Version 1.0 candidate / development line
 
-The candidate branch carries the bounded local-first release hardening for the
-Version 1.0 support scope. Qualification evidence is recorded against the
-exact product candidate SHA in `docs/qualification-evidence/`; this entry does
-not authorize publication or a final release tag.
+Auteur's package metadata on current `main` is `1.0.0`, and the repository contains bounded Version 1.0 support contracts and qualification history. This is **not** a published-release claim: remote GitHub release/tag inspection on 2026-09-20 shows no `v1.0.0` release/tag; the latest published release remains `v0.37.1`.
+
+Qualification evidence is recorded against exact candidate SHAs in `docs/qualification-evidence/`. Publication still requires the explicit frozen-candidate and release steps in `docs/engineering/release-qualification.md`.
 
 See [docs/1.0-scope.md](docs/1.0-scope.md),
 [docs/engineering/public-api-contract.md](docs/engineering/public-api-contract.md),
@@ -21,7 +20,7 @@ This file is the concise release index and post-release ledger for Auteur.
 
 ## Unreleased / `main` after v0.37.1
 
-`pyproject.toml` still reports package version `0.37.1`. The items in this section describe development present on `main` after that release line; they are **not** a new release claim or version bump.
+`pyproject.toml` now reports package version `1.0.0`. The items in this section describe development present on `main` after the last published `v0.37.1` release; the metadata change and candidate history are **not** themselves a published `v1.0.0` release claim.
 
 ### Guided author decision loop
 
@@ -32,6 +31,13 @@ This file is the concise release index and post-release ledger for Auteur.
 - Added dashboard Author Attention and the full hermetic Beginner Decision Loop.
 - Added Guided Author Workspace V1 as a loopback-only, GET-only browser presentation with no mutation endpoints.
 - Added a permanent full-suite Windows Python 3.13 CI leg alongside Linux validation and wheel smoke.
+
+### Beginner story development continuation
+
+- Added the accepted-foundation → outline → Chapter 1 plan → scene plan → draft handoff path.
+- Added contemporary post-draft review and generalized Chapter N → N+1 continuation through PR #246: matching draft/review evidence, noncanonical revision handoff, explicit existing-owner acceptance delegation with replay reconciliation, accepted-outcome context, Structure divergence reporting, contextual next-chapter planning, and browser/API surfaces.
+- Corrected commitment/Review authority routing through PR #250 so `commit accept` fails closed when Review cannot complete an owning authority transition.
+- These are development integrations on `main`; they are not a new package release claim.
 
 ### Series / long-horizon productization posture
 
@@ -46,6 +52,7 @@ This file is the concise release index and post-release ledger for Auteur.
 
 - PR #167 — historical bounded Episode 1 Direction implementation — closed / not merged / superseded; contemporary bounded reconstruction is tracked in #218.
 - PR #166 — historical Windows CI candidate — closed / superseded; current CI now contains the later qualified Windows leg.
+- PRs #131, #221, #222, #225, #227, and #245 — historical/divergent branches reconciled on 2026-09-20; current responsibilities live on contemporary `main` or in issues #247/#248/#249/#251 rather than in those old branches.
 
 ## Released
 
