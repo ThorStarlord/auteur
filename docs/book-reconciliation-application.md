@@ -367,6 +367,13 @@ returns every revision ever written (Tier 2); `pointer_history(element_id,
 owned_kind)` returns only the authority-boundary crossings (approvals), so it is
 strictly shorter than the decision history whenever defers/rejects occurred.
 
+**Implementation boundary.** Accepted-source revision and pointer persistence is
+implemented behind `AcceptedBookSourceStore`, while
+`BookReconciliationStore` remains the compatibility facade for the wider
+workflow. This is a maintainability seam only: the three-tier authority model,
+public behavior, recomposition inputs, and pointer semantics above are
+unchanged.
+
 ### Live freshness gate at decision time
 
 Before a decision is written, every dependency is revalidated from disk
@@ -470,11 +477,22 @@ next action. Decision output names the candidate, the decision, reason, and
 approval), `Preview updated: yes`, and `Book pointer changed: no`. Hashes and full
 metadata are shown only behind `--json` and `--verbose`.
 
-The decision commands record approve/reject/defer only. There are still
-intentionally **no** `apply-book-proposal`, `recompose-book-reconciliation`, or
-`complete-book-reconciliation` commands: candidate *acceptance into canonical
-Book content*, Book recomposition, and reconciliation completion remain out of
-scope.
+The decision commands record approve/reject/defer only; they do **not**
+themselves accept a Book or complete reconciliation. Contemporary Book
+reconciliation continues through explicit existing-owner commands:
+
+```bash
+auteur expression recompose-book-from-accepted <publication_id> --project PROJECT
+auteur expression compare-book-recomposition <recomposition_id> --project PROJECT
+auteur expression accept-recomposed-book <comparison_id> --project PROJECT
+auteur expression complete-book-reconciliation <acceptance_id> --project PROJECT
+```
+
+There is still no direct `apply-book-proposal` shortcut. Candidate decisions
+remain workflow decisions; recomposition and comparison remain derived;
+`accept-recomposed-book` is the explicit Book authority crossing; and
+`complete-book-reconciliation` is administrative closure around an already
+accepted Book.
 
 ## Book Comparison (Phase C2)
 
