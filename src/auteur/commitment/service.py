@@ -132,7 +132,11 @@ class CommitmentService:
         assignment_filter: str | None = None,
         confirm: bool = False,
     ) -> list[dict[str, Any]]:
-        """Accept one or all committed assignments through review service.
+        """Attempt committed assignment acceptance through Review.
+
+        Review may prepare and route authority, but a result is reported as
+        accepted only when Review returns an explicit successful acceptance
+        result from an owning authority workflow.
 
         Args:
             commitment_id: The commitment to accept assignments from.
@@ -177,15 +181,25 @@ class CommitmentService:
                 continue
 
             try:
-                # Prepare acceptance
                 rv.prepare_acceptance(session_id, cand_id)
-                # Accept as committed
-                rv.accept(session_id, cand_id, as_committed=True)
+                review_session = rv.accept(session_id, cand_id, confirm=True)
+                acceptance = getattr(review_session, "acceptance", None)
+                if acceptance is None or not getattr(acceptance, "accepted", False):
+                    error = getattr(acceptance, "error", "") if acceptance is not None else ""
+                    results.append({
+                        "decision_id": dec_id,
+                        "candidate_id": cand_id,
+                        "status": "failed",
+                        "message": error or "Review did not complete an owning authority transition.",
+                        "session_id": session_id,
+                    })
+                    continue
+
                 results.append({
                     "decision_id": dec_id,
                     "candidate_id": cand_id,
                     "status": "accepted",
-                    "message": "Accepted as committed",
+                    "message": "Accepted by owning authority workflow",
                     "session_id": session_id,
                 })
             except Exception as e:
