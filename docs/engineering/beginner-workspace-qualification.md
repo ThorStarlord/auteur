@@ -12,6 +12,14 @@ is:
 69f88d551cdfe9a410b3e188824a5176be060721
 ```
 
+The documentation/evidence publication commit for this status is:
+
+```text
+b734624ac137108f2d551ff411911189b677632f
+```
+
+It changes documentation only and does not invalidate the product candidate.
+
 The candidate evidence reported for that SHA is:
 
 | Evidence gate | Status | Evidence |
