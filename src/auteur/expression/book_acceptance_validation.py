@@ -38,16 +38,17 @@ class BookAcceptanceValidator:
     def validate(
         self, comparison_id: str
     ) -> tuple[bool, dict[str, Any] | Exception]:
-        store = self._store
         """Run the 20-point acceptance gate; block atomically on the first failure.
 
         Revalidates EVERY condition from disk and never trusts the persisted
         ``ready_for_acceptance`` flag. Returns ``(True, context)`` -- a context dict
         carrying every value acceptance needs to stage artifacts -- when ready, or
-        ``(False, self._error_type)`` on the first failed check. No artifact is
-        ever written by this method.
+        a structured block error on the first failed check. No artifact is ever
+        written by this method.
         """
-        def block(status: str, reason: str, recommended_action: str, **details: Any) -> self._error_type:
+        store = self._store
+
+        def block(status: str, reason: str, recommended_action: str, **details: Any) -> Exception:
             return self._error_type(status, reason, {"comparison_id": comparison_id, **details}, recommended_action)
 
         # 1. Comparison exists on disk.
