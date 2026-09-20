@@ -483,7 +483,7 @@ class CliRealizationCommands:
         lines.append("digraph SceneSequence {")
         lines.append('  rankdir=TB;')
         lines.append('  node [shape=box];')
-        lines.append()
+        lines.append("")
 
         # Add chapter clusters
         by_chapter = {}
