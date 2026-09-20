@@ -119,14 +119,16 @@ from .architecture_models import (
 )
 from .architecture_projection import build_story_orientation
 from .composition import compose_mappings, reconcile_review_state
-from .continuation import (
-    ChapterPlan,
-    ContinuationState,
-    DraftHandoff,
-    OutlineProposal,
-    ScenePlan,
-    accepted_milestone_fingerprint,
-    derive_outline_chapters,
+from .continuation import ContinuationState
+from .continuation_workflow import (
+    ContinuationTransitionError,
+    accept_chapter_plan as accept_chapter_plan_transition,
+    accept_outline as accept_outline_transition,
+    accept_scene_plans as accept_scene_plans_transition,
+    prepare_draft_handoff as prepare_draft_handoff_transition,
+    propose_chapter_plan as propose_chapter_plan_transition,
+    propose_outline as propose_outline_transition,
+    propose_scene_plans as propose_scene_plans_transition,
 )
 from .contracts import (
     AcceptedMilestoneReference,
@@ -870,168 +872,93 @@ class BeginnerWorkspaceApplication:
     def _complete_continuation(self, acquisition: ReceiptAcquisition, kind: str) -> None:
         self.receipt_store.complete(acquisition, cast(JsonValue, {"kind": kind, "data": {}}))
 
+    def _run_continuation_transition(
+        self,
+        *,
+        expected_session_version: int,
+        command_id: str,
+        kind: str,
+        transition,
+    ) -> WorkspaceProjection:
+        """Persist one pure continuation transition behind the existing command facade."""
+        acquisition = self._begin_continuation(command_id)
+        if acquisition is None:
+            return self.projection()
+        session = self.session_store.load()
+        self._check_version(session, expected_session_version)
+        try:
+            updated = transition(session)
+        except ContinuationTransitionError as exc:
+            raise BeginnerWorkspaceError(str(exc)) from exc
+        if updated != session.continuation:
+            self.session_store.update(
+                expected_session_version,
+                lambda current: current.model_copy(update={"continuation": updated}),
+            )
+        self._complete_continuation(acquisition, kind)
+        return self.projection()
+
     def propose_outline(self, *, expected_session_version: int, command_id: str) -> WorkspaceProjection:
         """Prepare a derived whole-story outline proposal from accepted Structure."""
-        acquisition = self._begin_continuation(command_id)
-        if acquisition is None:
-            return self.projection()
-        session = self.session_store.load()
-        self._check_version(session, expected_session_version)
-        if "whole_story_structure" not in _accepted_milestone_ids(session):
-            raise BeginnerWorkspaceError("accept whole-story Structure before proposing an outline")
-        current = session.continuation
-        if current is not None and current.outline_proposal is not None:
-            self._complete_continuation(acquisition, "propose_outline")
-            return self.projection()
-        identity = self._canonical_identity()
-        proposal = OutlineProposal(
-            proposal_id=f"outline:{self.workspace_id}:1",
-            title=identity.title,
-            source_refs=("story_identity", "whole_story_structure"),
-            source_fingerprint=accepted_milestone_fingerprint(session.accepted_milestones),
-            chapters=derive_outline_chapters(self.session_store.workspace_root, premise=session.premise),
-        )
-        self.session_store.update(
-            expected_session_version,
-            lambda current: current.model_copy(
-                update={"continuation": ContinuationState(outline_proposal=proposal)}
+        return self._run_continuation_transition(
+            expected_session_version=expected_session_version,
+            command_id=command_id,
+            kind="propose_outline",
+            transition=lambda session: propose_outline_transition(
+                session,
+                workspace_id=self.workspace_id,
+                identity_title=self._canonical_identity().title,
+                project_root=self.session_store.workspace_root,
             ),
         )
-        self._complete_continuation(acquisition, "propose_outline")
-        return self.projection()
 
     def accept_outline(self, *, expected_session_version: int, command_id: str) -> WorkspaceProjection:
-        acquisition = self._begin_continuation(command_id)
-        if acquisition is None:
-            return self.projection()
-        session = self.session_store.load()
-        self._check_version(session, expected_session_version)
-        continuation = session.continuation
-        if continuation is None or continuation.outline_proposal is None:
-            raise BeginnerWorkspaceError("propose an outline before accepting it")
-        if continuation.outline_accepted:
-            self._complete_continuation(acquisition, "accept_outline")
-            return self.projection()
-        self.session_store.update(
-            expected_session_version,
-            lambda current: current.model_copy(
-                update={
-                    "continuation": continuation.model_copy(update={"outline_accepted": True})
-                }
-            ),
+        return self._run_continuation_transition(
+            expected_session_version=expected_session_version,
+            command_id=command_id,
+            kind="accept_outline",
+            transition=lambda session: accept_outline_transition(session.continuation),
         )
-        self._complete_continuation(acquisition, "accept_outline")
-        return self.projection()
 
     def propose_chapter_plan(self, *, expected_session_version: int, command_id: str) -> WorkspaceProjection:
-        acquisition = self._begin_continuation(command_id)
-        if acquisition is None:
-            return self.projection()
-        session = self.session_store.load()
-        self._check_version(session, expected_session_version)
-        continuation = session.continuation
-        if continuation is None or not continuation.outline_accepted:
-            raise BeginnerWorkspaceError("accept the whole-story outline before planning Chapter 1")
-        if continuation.chapter_plan is not None:
-            self._complete_continuation(acquisition, "propose_chapter_plan")
-            return self.projection()
-        source = continuation.outline_proposal.chapters[0]
-        plan = ChapterPlan(
-            chapter_index=source.chapter_index,
-            role=source.role,
-            what_changes=source.purpose,
-            advancing_threads=source.advancing_threads,
-            character_pressure=source.character_pressure,
-            setup=source.setup,
-            payoff=source.payoff,
-            reader_knows=source.reader_after,
-            reader_feels="The story's central pressure is now active.",
-            recommended_shape="Enter from the current state, apply pressure, and end with a changed choice.",
+        return self._run_continuation_transition(
+            expected_session_version=expected_session_version,
+            command_id=command_id,
+            kind="propose_chapter_plan",
+            transition=lambda session: propose_chapter_plan_transition(session.continuation),
         )
-        self.session_store.update(
-            expected_session_version,
-            lambda current: current.model_copy(
-                update={"continuation": continuation.model_copy(update={"chapter_plan": plan})}
-            ),
-        )
-        self._complete_continuation(acquisition, "propose_chapter_plan")
-        return self.projection()
 
     def accept_chapter_plan(self, *, expected_session_version: int, command_id: str) -> WorkspaceProjection:
-        acquisition = self._begin_continuation(command_id)
-        if acquisition is None:
-            return self.projection()
-        session = self.session_store.load()
-        self._check_version(session, expected_session_version)
-        continuation = session.continuation
-        if continuation is None or continuation.chapter_plan is None:
-            raise BeginnerWorkspaceError("propose a Chapter 1 plan before accepting it")
-        updated = continuation.model_copy(update={"chapter_plan_accepted": True})
-        self.session_store.update(expected_session_version, lambda current: current.model_copy(update={"continuation": updated}))
-        self._complete_continuation(acquisition, "accept_chapter_plan")
-        return self.projection()
+        return self._run_continuation_transition(
+            expected_session_version=expected_session_version,
+            command_id=command_id,
+            kind="accept_chapter_plan",
+            transition=lambda session: accept_chapter_plan_transition(session.continuation),
+        )
 
     def propose_scene_plans(self, *, expected_session_version: int, command_id: str) -> WorkspaceProjection:
-        acquisition = self._begin_continuation(command_id)
-        if acquisition is None:
-            return self.projection()
-        session = self.session_store.load()
-        self._check_version(session, expected_session_version)
-        continuation = session.continuation
-        if continuation is None or not continuation.chapter_plan_accepted:
-            raise BeginnerWorkspaceError("accept the Chapter 1 plan before planning scenes")
-        if continuation.scene_plans:
-            return self.projection()
-        plan = continuation.chapter_plan
-        scene = ScenePlan(
-            scene_id="scene-01-01",
-            purpose=plan.what_changes,
-            pov="protagonist",
-            entry_state="The protagonist is still operating under the prior story assumption.",
-            immediate_goal="Respond to the chapter's immediate pressure.",
-            conflict=plan.character_pressure,
-            important_change=plan.what_changes,
-            ending_state="The protagonist leaves the scene with a changed immediate situation.",
-            continuity_constraints=("Preserve accepted StoryIdentity and Structure commitments.",),
+        return self._run_continuation_transition(
+            expected_session_version=expected_session_version,
+            command_id=command_id,
+            kind="propose_scene_plans",
+            transition=lambda session: propose_scene_plans_transition(session.continuation),
         )
-        updated = continuation.model_copy(update={"scene_plans": (scene,)})
-        self.session_store.update(expected_session_version, lambda current: current.model_copy(update={"continuation": updated}))
-        self._complete_continuation(acquisition, "propose_scene_plans")
-        return self.projection()
 
     def accept_scene_plans(self, *, expected_session_version: int, command_id: str) -> WorkspaceProjection:
-        acquisition = self._begin_continuation(command_id)
-        if acquisition is None:
-            return self.projection()
-        session = self.session_store.load()
-        self._check_version(session, expected_session_version)
-        continuation = session.continuation
-        if continuation is None or not continuation.scene_plans:
-            raise BeginnerWorkspaceError("propose scene plans before accepting them")
-        updated = continuation.model_copy(update={"scene_plans_accepted": True})
-        self.session_store.update(expected_session_version, lambda current: current.model_copy(update={"continuation": updated}))
-        self._complete_continuation(acquisition, "accept_scene_plans")
-        return self.projection()
+        return self._run_continuation_transition(
+            expected_session_version=expected_session_version,
+            command_id=command_id,
+            kind="accept_scene_plans",
+            transition=lambda session: accept_scene_plans_transition(session.continuation),
+        )
 
     def prepare_draft_handoff(self, *, expected_session_version: int, command_id: str) -> WorkspaceProjection:
-        acquisition = self._begin_continuation(command_id)
-        if acquisition is None:
-            return self.projection()
-        session = self.session_store.load()
-        self._check_version(session, expected_session_version)
-        continuation = session.continuation
-        if continuation is None or not continuation.scene_plans_accepted:
-            raise BeginnerWorkspaceError("accept the Chapter 1 scene plans before drafting")
-        handoff = DraftHandoff(
-            chapter_index=1,
-            accepted_inputs=("story_identity", "whole_story_structure", "outline", "chapter_plan", "scene_plan"),
-            command="auteur draft <project> 1",
-            source_fingerprint=continuation.outline_proposal.source_fingerprint,
+        return self._run_continuation_transition(
+            expected_session_version=expected_session_version,
+            command_id=command_id,
+            kind="prepare_draft_handoff",
+            transition=lambda session: prepare_draft_handoff_transition(session.continuation),
         )
-        updated = continuation.model_copy(update={"draft_handoff": handoff, "draft_status": "ready"})
-        self.session_store.update(expected_session_version, lambda current: current.model_copy(update={"continuation": updated}))
-        self._complete_continuation(acquisition, "prepare_draft_handoff")
-        return self.projection()
 
     def _record_architecture_seen(self, *, analysis_id: str, command_id: str) -> None:
         seen = list(self._journey.get("architecture_seen") or [])
