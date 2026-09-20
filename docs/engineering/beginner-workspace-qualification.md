@@ -460,10 +460,27 @@ explanation first:
 11. Can the author distinguish premise-explicit material, Auteur inference, and
     accepted canon?
 
-Until that independent walkthrough is performed, the honest human gate remains:
+The current exact candidate and evidence publication boundary are:
 
 ```text
-AUTOMATED PREMISE-TO-ARCHITECTURE GATE   PENDING EXACT-HEAD VALIDATION
+PRODUCT CANDIDATE                    69f88d551cdfe9a410b3e188824a5176be060721
+EVIDENCE/POLICY COMMIT               b734624ac137108f2d551ff411911189b677632f
+IMPLEMENTATION                       PASS
+EXACT-HEAD L1                        PASS
+TARGETED L2                          PASS — 201 passed / 0 skipped
+ARCHITECTURE REVIEW                  PASS — no blocking findings
+L3 STABILIZATION                     DEFERRED
+HUMAN BEGINNER USABILITY             PENDING
+DEVELOPMENT STATUS                   TARGETED_INTEGRATION_VERIFIED
+RELEASE QUALIFICATION                NOT CLAIMED
+```
+
+The documentation/evidence commit is separate from the product candidate and
+does not change packaged product behavior. Until the independent walkthrough
+is performed, the honest human gate remains:
+
+```text
+AUTOMATED PREMISE-TO-ARCHITECTURE GATE   PASS — exact-head L1 and targeted L2
 HUMAN BEGINNER USABILITY                 PENDING
-MERGE / RELEASE QUALIFICATION            NO
+RELEASE QUALIFICATION                    NO
 ```
