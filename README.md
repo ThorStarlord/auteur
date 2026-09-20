@@ -431,7 +431,7 @@ CI runs the same verification entrypoint with `python scripts/check.py --skip-py
 
 ## Versioning
 
-`pyproject.toml` currently reports `0.37.1`. Current `main` also contains post-release development, so package metadata alone is not a complete development-status indicator.
+`pyproject.toml` currently reports `1.0.0`. That is development/package metadata, not proof of publication. Remote GitHub release/tag inspection on 2026-09-20 shows the latest published release remains `v0.37.1`; current `main` contains later 1.0 candidate/hardening and product-development work.
 
 Use [STATUS.md](STATUS.md) for the present-tense repository map and [docs/releases/](docs/releases/README.md) for release-specific claims.
 # Local Beginner Workspace development
