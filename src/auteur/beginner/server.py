@@ -47,6 +47,7 @@ from .contracts import MutationCommand
 from .persistence import BeginnerConcurrencyError, BeginnerPersistenceError
 from .projections import WorkspaceProjection
 from .continuation import build_contextual_chapter_plan, build_contextual_scene_plans
+from .book_progress import project_book_progress
 from .post_draft import (
     accept_latest_chapter,
     prepare_revision_handoff,
@@ -432,6 +433,9 @@ class _RequestHandler(BaseHTTPRequestHandler):
             if self._serve_browser_asset(path):
                 return
             parts = [part for part in path.split("/") if part]
+            if parts == ["api", "beginner", "book", "progress"]:
+                self._send_json(200, project_book_progress(self.project_root))
+                return
             if len(parts) == 5 and parts[:3] == ["api", "beginner", "chapters"]:
                 try:
                     chapter_index = int(parts[3])
