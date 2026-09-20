@@ -113,7 +113,6 @@ class KnowledgeValidator:
         """Initialize empty KnowledgeValidator."""
         self.scenes: Dict[str, SceneOutline] = {}
         self.violations: List[KnowledgeViolation] = []
-        self._chapter_scenes: Dict[str, List[SceneOutline]] = {}
 
     def add_scene(self, scene: SceneOutline) -> None:
         """Add a scene to validate.
@@ -203,17 +202,41 @@ class KnowledgeValidator:
         """
         violations: List[KnowledgeViolation] = []
 
-        # Can only validate if we have complete knowledge state
-        # (This would require additional schema fields for learned_in_scene and contradicted)
-        #
-        # Validation structure when full schema is available:
-        # 1. Extract entry_knowledge facts (if scene has entry_state)
-        # 2. Extract learned_in_scene facts (if available in scene schema)
-        # 3. Extract exit_knowledge facts (if scene has exit_state)
-        # 4. Verify exit_knowledge contains all non-contradicted entry facts
-        # 5. Verify exit_knowledge contains all learned facts
-        # 6. Check for contradictory facts (e.g., learned "X is true" and "X is false")
-        # 7. Report specific violations with affected facts
+        if scene.entry_state is None or scene.exit_state is None:
+            return violations
+
+        entry = {fact.what: fact for fact in scene.entry_state.knowledge}
+        exit_knowledge = {fact.what: fact for fact in scene.exit_state.knowledge}
+        questioned = set(scene.outcome.knowledge_questioned if scene.outcome else ())
+        added = set(scene.outcome.knowledge_added if scene.outcome else ())
+
+        # Current schema can support exact fact continuity only. It cannot infer
+        # paraphrase equivalence, hidden communication, or semantic contradiction.
+        for fact_what in entry:
+            if fact_what not in exit_knowledge and fact_what not in questioned:
+                violations.append(
+                    KnowledgeViolation(
+                        scene_id=scene.id,
+                        violation_type=KnowledgeViolationType.INCONSISTENT_ENTRY_EXIT,
+                        character_id=scene.pov_character_id,
+                        fact_what=fact_what,
+                        message="Entry knowledge disappeared from the scene exit without an explicit questioned outcome.",
+                        suggestion="Carry the exact fact into exit_state or list it in outcome.knowledge_questioned.",
+                    )
+                )
+
+        for fact_what in added:
+            if fact_what not in exit_knowledge:
+                violations.append(
+                    KnowledgeViolation(
+                        scene_id=scene.id,
+                        violation_type=KnowledgeViolationType.KNOWLEDGE_GAP,
+                        character_id=scene.pov_character_id,
+                        fact_what=fact_what,
+                        message="Outcome records knowledge_added but exit_state does not contain the exact fact.",
+                        suggestion="Add the fact to exit_state.knowledge or remove it from outcome.knowledge_added.",
+                    )
+                )
 
         return violations
 
@@ -242,43 +265,36 @@ class KnowledgeValidator:
             List of violations found (retroactive forgetting)
         """
         violations: List[KnowledgeViolation] = []
+        if scene.narrative_position is None or scene.entry_state is None or not scene.pov_character_id:
+            return violations
 
-        # This validation requires cross-scene comparison
-        # We'll validate against previously seen scenes in the same chapter
-        if scene.chapter_id not in self._chapter_scenes:
-            self._chapter_scenes[scene.chapter_id] = []
+        prior = [
+            candidate
+            for candidate in self.scenes.values()
+            if candidate.id != scene.id
+            and candidate.chapter_id == scene.chapter_id
+            and candidate.pov_character_id == scene.pov_character_id
+            and candidate.narrative_position is not None
+            and candidate.narrative_position < scene.narrative_position
+            and candidate.exit_state is not None
+        ]
+        if not prior:
+            return violations
 
-        chapter_scenes = self._chapter_scenes[scene.chapter_id]
-
-        # Find previous scenes in this chapter (by narrative_position)
-        if scene.narrative_position is not None:
-            previous_scenes = [
-                s
-                for s in chapter_scenes
-                if s.narrative_position is not None
-                and s.narrative_position < scene.narrative_position
-            ]
-
-            # Check each previous scene's exit knowledge against this scene's entry
-            for prev_scene in sorted(
-                previous_scenes, key=lambda s: s.narrative_position or 0
-            ):
-                # Only check if same POV character or same scene participant group
-                if (
-                    prev_scene.pov_character_id == scene.pov_character_id
-                    and scene.pov_character_id
-                ):
-                    # In full implementation with complete schema:
-                    # 1. Get exit_knowledge facts from prev_scene
-                    # 2. Get entry_knowledge facts from current scene
-                    # 3. For each fact in prev exit_knowledge:
-                    #    - Check if it's in current entry_knowledge
-                    #    - Report violation if missing and no forgetting mechanism
-                    # 4. Track which facts were "explicitly forgotten"
-                    #    (in contradiction list rather than missing)
-                    pass
-
-        chapter_scenes.append(scene)
+        previous = max(prior, key=lambda candidate: candidate.narrative_position or 0)
+        previous_exit = {fact.what for fact in previous.exit_state.knowledge}
+        current_entry = {fact.what for fact in scene.entry_state.knowledge}
+        for fact_what in sorted(previous_exit - current_entry):
+            violations.append(
+                KnowledgeViolation(
+                    scene_id=scene.id,
+                    violation_type=KnowledgeViolationType.RETROACTIVE_FORGETTING,
+                    character_id=scene.pov_character_id,
+                    fact_what=fact_what,
+                    message=f"Knowledge present at the end of {previous.id} is absent from this scene entry.",
+                    suggestion="Carry the exact fact into entry_state or model an explicit forgetting mechanism before relying on omission.",
+                )
+            )
         return violations
 
     def validate_pov_knowledge_vs_other_knowledge(
@@ -334,46 +350,11 @@ class KnowledgeValidator:
         Returns:
             List of violations (knowledge appears out of nowhere)
         """
-        violations: List[KnowledgeViolation] = []
-
-        # Group scenes by chapter
-        chapters: Dict[str, List[SceneOutline]] = {}
-        for scene in self.scenes.values():
-            if scene.chapter_id not in chapters:
-                chapters[scene.chapter_id] = []
-            chapters[scene.chapter_id].append(scene)
-
-        # For each chapter, validate knowledge continuity
-        for chapter_id, chapter_scenes in chapters.items():
-            # Sort by narrative position
-            sorted_scenes = sorted(
-                [s for s in chapter_scenes if s.narrative_position is not None],
-                key=lambda s: s.narrative_position or 0,
-            )
-
-            for i, scene in enumerate(sorted_scenes):
-                if i == 0:
-                    continue  # Skip first scene in chapter
-
-                prev_scene = sorted_scenes[i - 1]
-
-                # Only check if same POV character (knowledge transfers)
-                if (
-                    prev_scene.pov_character_id == scene.pov_character_id
-                    and scene.pov_character_id
-                ):
-                    # Full implementation will:
-                    # 1. Extract exit_knowledge facts from prev_scene
-                    # 2. Extract entry_knowledge facts from current scene
-                    # 3. For each fact F in prev exit_knowledge:
-                    #    - Check if F is in current entry_knowledge
-                    #    - If F is missing and no explicit forgetting mechanism:
-                    #      Report KnowledgeViolation with KNOWLEDGE_GAP error type
-                    # 4. Check for contradictions (X true in prev, X false now)
-                    #    Report with CONTRADICTORY_KNOWLEDGE error type
-                    pass
-
-        return violations
+        # Cross-scene exact-fact continuity is enforced by
+        # validate_no_retroactive_forgetting for each scene. The current schema
+        # does not encode per-character communication or semantic equivalence, so
+        # this method deliberately performs no additional inference.
+        return []
 
     def report_knowledge_violations(
         self, violations: List[KnowledgeViolation]
