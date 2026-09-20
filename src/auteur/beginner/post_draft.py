@@ -137,7 +137,7 @@ def project_draft_review(project_root: Path, chapter_index: int) -> DraftReviewP
     final = chapter_dir / "final.md"
     latest = drafts[-1] if drafts else None
     version = _draft_version(latest) if latest else None
-    accepted = final.is_file()
+    accepted = final.is_file() and (latest is None or final.read_bytes() == latest.read_bytes())
     stale = False
     if latest is not None:
         meta_path = chapter_dir / f"{latest.stem}.meta.json"
@@ -289,7 +289,7 @@ def accept_latest_chapter(
             project = Project.load(project_root)
             result = handle_accept(project, chapter_index)
             if hasattr(result, "is_success") and not result.is_success:
-                raise RuntimeError(f"acceptance owner refused chapter {chapter_index}: {result.error}")
+                raise RuntimeError(f"acceptance owner refused chapter {chapter_index}: {result.error or result}")
         else:
             result = owner(project_root, chapter_index)
         if not final.is_file() or final.read_bytes() != latest.read_bytes():
