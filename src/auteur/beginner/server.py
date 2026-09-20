@@ -46,6 +46,14 @@ from .discovery import (
 from .contracts import MutationCommand
 from .persistence import BeginnerConcurrencyError, BeginnerPersistenceError
 from .projections import WorkspaceProjection
+from .continuation import build_contextual_chapter_plan, build_contextual_scene_plans
+from .post_draft import (
+    accept_latest_chapter,
+    prepare_revision_handoff,
+    project_chapter_outcome,
+    project_draft_review,
+    project_next_chapter_context,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +80,20 @@ class BeginnerRequestError(ValueError):
 
 def _enum_value(value: Any) -> Any:
     return value.value if hasattr(value, "value") else value
+
+
+def _json_value(value: Any) -> Any:
+    if hasattr(value, "model_dump"):
+        return _json_value(value.model_dump(mode="json"))
+    if isinstance(value, dict):
+        return {str(key): _json_value(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_value(item) for item in value]
+    if isinstance(value, Path):
+        return str(value)
+    if hasattr(value, "value"):
+        return value.value
+    return value
 
 
 def projection_to_dict(projection: WorkspaceProjection, *, workspace_id: str) -> dict[str, Any]:
@@ -339,8 +361,8 @@ class _RequestHandler(BaseHTTPRequestHandler):
     def log_message(self, format: str, *args: Any) -> None:
         logger.info(format, *args)
 
-    def _send_json(self, status: int, payload: dict[str, Any]) -> None:
-        body = json.dumps(payload, ensure_ascii=True).encode("utf-8")
+    def _send_json(self, status: int, payload: Any) -> None:
+        body = json.dumps(_json_value(payload), ensure_ascii=True).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
@@ -408,6 +430,33 @@ class _RequestHandler(BaseHTTPRequestHandler):
             if self._serve_browser_asset(path):
                 return
             parts = [part for part in path.split("/") if part]
+            if len(parts) == 5 and parts[:3] == ["api", "beginner", "chapters"]:
+                try:
+                    chapter_index = int(parts[3])
+                except ValueError as exc:
+                    raise BeginnerRequestError(400, "chapter index must be an integer") from exc
+                action = parts[4]
+                try:
+                    if action == "review":
+                        self._send_json(200, project_draft_review(self.project_root, chapter_index))
+                        return
+                    if action == "outcome":
+                        self._send_json(200, project_chapter_outcome(self.project_root, chapter_index))
+                        return
+                    if action == "next":
+                        self._send_json(200, project_next_chapter_context(self.project_root, chapter_index))
+                        return
+                    if action == "plan":
+                        self._send_json(
+                            200,
+                            {
+                                "plan": build_contextual_chapter_plan(self.project_root, chapter_index),
+                                "scenes": build_contextual_scene_plans(self.project_root, chapter_index),
+                            },
+                        )
+                        return
+                except (FileNotFoundError, OSError, RuntimeError) as exc:
+                    raise BeginnerRequestError(422, str(exc)) from exc
             # GET /api/beginner/workspaces/<workspace_id>
             if len(parts) == 3 and parts[:2] == ["api", "beginner"] and parts[2] == "workspaces":
                 raise BeginnerRequestError(400, "workspace_id is required")
@@ -427,6 +476,52 @@ class _RequestHandler(BaseHTTPRequestHandler):
         path = urlparse(self.path).path.rstrip("/") or "/"
         try:
             parts = [part for part in path.split("/") if part]
+            if len(parts) == 5 and parts[:3] == ["api", "beginner", "chapters"]:
+                try:
+                    chapter_index = int(parts[3])
+                except ValueError as exc:
+                    raise BeginnerRequestError(400, "chapter index must be an integer") from exc
+                action = parts[4]
+                payload = self._read_json()
+                try:
+                    if action == "accept-latest-draft":
+                        command_id = payload.get("command_id")
+                        if not isinstance(command_id, str) or not command_id:
+                            raise BeginnerRequestError(400, "command_id must be a non-empty string")
+                        self._send_json(
+                            200,
+                            accept_latest_chapter(
+                                self.project_root,
+                                chapter_index,
+                                command_id=command_id,
+                            ),
+                        )
+                        return
+                    if action == "revision-handoff":
+                        command_id = payload.get("command_id")
+                        decision = payload.get("decision")
+                        route = payload.get("route")
+                        if not isinstance(command_id, str) or not command_id:
+                            raise BeginnerRequestError(400, "command_id must be a non-empty string")
+                        if not isinstance(decision, str) or not decision:
+                            raise BeginnerRequestError(400, "decision must be a non-empty string")
+                        if not isinstance(route, str) or not route:
+                            raise BeginnerRequestError(400, "route must be a non-empty string")
+                        self._send_json(
+                            200,
+                            prepare_revision_handoff(
+                                self.project_root,
+                                chapter_index,
+                                command_id=command_id,
+                                decision=decision,
+                                route=route,
+                            ),
+                        )
+                        return
+                except BeginnerRequestError:
+                    raise
+                except (FileNotFoundError, OSError, RuntimeError, ValueError) as exc:
+                    raise BeginnerRequestError(422, str(exc)) from exc
             if parts == ["api", "beginner", "workspaces"]:
                 self._handle_create(self._read_json())
                 return
