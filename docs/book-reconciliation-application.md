@@ -305,6 +305,12 @@ transformation:
 
 ### Accepted-source authority: three decoupled tiers
 
+The persistence mechanics for accepted Book-owned revisions and their current
+pointers are implemented behind a dedicated accepted-source store, while
+`BookReconciliationStore` remains the compatibility facade. This extraction is
+an implementation boundary only; it does not change any authority or artifact
+semantics described below.
+
 Decision history, accepted revisions, and the current pointer are three distinct
 things. The earlier model derived all three from "latest decision", which let a
 later defer or reject silently revoke a previously accepted revision. They are now
@@ -470,11 +476,39 @@ next action. Decision output names the candidate, the decision, reason, and
 approval), `Preview updated: yes`, and `Book pointer changed: no`. Hashes and full
 metadata are shown only behind `--json` and `--verbose`.
 
-The decision commands record approve/reject/defer only. There are still
-intentionally **no** `apply-book-proposal`, `recompose-book-reconciliation`, or
-`complete-book-reconciliation` commands: candidate *acceptance into canonical
-Book content*, Book recomposition, and reconciliation completion remain out of
-scope.
+The decision commands record approve/reject/defer only; they do not themselves
+recompose or accept the Book. Contemporary Auteur continues the workflow through
+separate existing-owner commands:
+
+```bash
+auteur expression recompose-book-from-accepted <publication_id> --project PROJECT
+auteur expression compare-book-recomposition <recomposition_id> --project PROJECT
+auteur expression accept-recomposed-book <comparison_id> --project PROJECT
+auteur expression complete-book-reconciliation <acceptance_id> --project PROJECT
+```
+
+There is still intentionally no generic `apply-book-proposal` shortcut. Each
+step preserves its own authority boundary: recomposition/comparison are derived,
+Book acceptance is explicit and authority-bearing, and reconciliation completion
+is administrative/provenance closure.
+
+## Book Recomposition (Phase C1)
+
+Recomposition deterministically assembles a **derived, noncanonical** Book from
+the current accepted Chapter pointers and current accepted Book-owned source
+pointers. It reads accepted sources, not raw candidate decisions, and it moves
+no pointer and crosses no narrative authority boundary.
+
+```bash
+auteur expression recompose-book-from-accepted <publication_id> \
+  --project PROJECT [--json] [--verbose]
+```
+
+A live freshness gate verifies that the publication and every current accepted
+source still describe the contemporary Book. Stale Book/Chapter/source state
+blocks recomposition before any visible output is created. The resulting
+recomposition is the input to Phase C2 comparison; it is never itself accepted
+canon.
 
 ## Book Comparison (Phase C2)
 
@@ -756,17 +790,52 @@ movement all roll back (25–27); a concurrent pointer change aborts safely (28)
 provenance is complete (29); and no reconciliation-completion artifact is created
 (30).
 
+## Reconciliation Completion (Phase C4)
+
+Completion closes an already-accepted Book reconciliation administratively. It
+does **not** create a Book revision, move the accepted Book pointer, modify
+accepted Chapter/Book-owned sources, decide candidates, regenerate a
+recomposition, or repair unresolved work.
+
+`complete_book_reconciliation(acceptance_id)` revalidates the original
+inspection/plan/publication/recomposition/comparison/acceptance chain, delegated
+Chapter reconciliation status, Book-owned candidate resolutions, exact-match
+state, and current accepted Book pointer before writing one immutable completion
+record:
+
+```yaml
+artifact_type: book_reconciliation_completion
+authority: derived
+lifecycle: completed
+canonical: false
+source_acceptance_id: ...
+accepted_book:
+  expression_id: ...
+  revision: ...
+```
+
+The operation is idempotent and atomically publishes the completion record plus
+its transaction manifest. Duplicate completion creates no second record.
+
+```bash
+auteur expression complete-book-reconciliation <acceptance_id> \
+  --project PROJECT [--reason "All work verified"] [--json] [--verbose]
+auteur expression inspect-book-reconciliation-completion <completion_id> \
+  --project PROJECT [--json] [--verbose]
+```
+
 ## Non-goals
 
-This document's earlier slices implement read-only Book comparison; Phase C3 adds
-explicit, atomic Book acceptance. Together they still do **not** implement
-reconciliation completion, Chapter reconciliation closing, or any deletion of
-proposals, candidates, decisions, recompositions, or comparisons — all derived
-evidence is preserved. Comparison evaluates and classifies; it never accepts,
-mutates, or completes anything. Acceptance crosses the accepted-Book authority
-boundary and moves the accepted Book pointer, but it never completes
-reconciliation, never closes Chapter reconciliation, and never mutates any
-Chapter/Structure/Identity/Blueprint/Realization/Scene. Decisions record author
-intent, produce accepted Book-owned sources on approval, and regenerate a derived
-preview; they never mutate any accepted or canonical artifact and never move the
-accepted Book pointer.
+The full deterministic Book reconciliation path now includes pointer-based
+recomposition, comparison, explicit Book acceptance, and administrative
+reconciliation completion. It still does **not** provide a generic
+`apply-book-proposal` shortcut, silently close unresolved Chapter reconciliation,
+delete proposal/candidate/decision/recomposition/comparison evidence, or mutate
+Structure/Identity/Blueprint/Realization/Scene authority as a side effect.
+
+Comparison remains read-only. Acceptance is the explicit accepted-Book authority
+crossing and moves the Book pointer atomically. Completion only records that the
+already-accepted reconciliation is fully resolved; it never creates narrative
+authority or repairs missing work. Candidate decisions record author intent,
+produce accepted Book-owned sources on approval, and regenerate a derived
+preview; they never move the accepted Book pointer themselves.

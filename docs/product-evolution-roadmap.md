@@ -149,6 +149,8 @@ premise / narrative architecture
 → noncanonical revision handoff or explicit existing-owner acceptance
 → accepted chapter outcome
 → contextual Chapter N+1 plan
+→ whole-book progress / reconciliation orientation
+→ existing Book and publication handoffs
 ```
 
 PR #244 connected accepted whole-story Structure to first-draft planning. PR #246
@@ -159,6 +161,9 @@ than merging the stale historical branch.
 Authority remains unchanged: review and planning are derived; the Beginner layer
 does not directly create `final.md` or mutate `bible.json`; acceptance delegates
 to the existing owning workflow and replay is reconciled rather than re-executed.
+The whole-book Beginner surface added later is also read-only: it reuses the
+existing status, Book reconciliation, and publishing owners rather than creating
+a parallel Beginner Book authority.
 
 The next product responsibility is **evidence, not automatic feature expansion**.
 Issue #249 and
@@ -317,7 +322,7 @@ See `docs/plans/ux-polish-plan-v0.38.md` for the completed implementation tasks,
 ## Engineering Hardening Lane
 **State:** `CANDIDATE` maintenance lane; schedule independently when risk/cost justify it.
 
-The full Windows Python 3.13 test leg is now integrated alongside Linux 3.11/3.12/3.13 validation and wheel smoke. Remaining hardening candidates include path/line-ending/locale/timezone isolation, stronger freeze/completeness integrity, and sandboxing where external reviewer execution justifies the cost. Hardening should protect product work without opening unrelated infrastructure programs during a bounded milestone.
+The full Windows Python 3.13 test leg is now integrated alongside Linux 3.11/3.12/3.13 validation and wheel smoke. Historical synthetic-review hardening issues #49–53 were reconciled and closed because their old scripts/authority path no longer own contemporary release qualification. #54 remains partially satisfied pending an actual cross-platform candidate run; #55 remains reproduction-gated on that Windows evidence. Further hardening should protect current product/release paths without reopening obsolete infrastructure programs.
 
 ## Product Evolution Loop
 ### Level 1 — Author Decision Loop

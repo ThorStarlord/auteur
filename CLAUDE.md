@@ -111,6 +111,17 @@ When isolation is required, launch the agent from the isolated repository
 rather than asking an already-running session to move into it.
 See `AGENTS.md` and `docs/agents/workspace-isolation.md`.
 
+### Concurrent-main reconciliation
+
+Parallel agents may advance `main` while a bounded package is being built. A
+green exact head on an older base proves that head, not that the package is
+integration-ready against contemporary `main`. Before merge, re-read current
+`main` and open PRs; if overlapping work already landed, reuse or reconcile it.
+If the bounded branch is no longer cleanly integrable, reconstruct/rebase the
+small change on current `main`, validate the new exact head, and prefer that
+current implementation over force-merging stale history. See `AGENTS.md` for
+the operational checklist.
+
 ### Current Genre Pipelines
 
 | Genre | Emotional Cores | Implemented |
