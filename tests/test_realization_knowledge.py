@@ -8,8 +8,6 @@ Tests validate:
 - Contradiction detection
 """
 
-import pytest
-
 
 from auteur.narrative_realization.schema.scene_action import Decision, Goal, Opposition, Outcome, Turn
 from auteur.narrative_realization.schema.scene_outline import (
