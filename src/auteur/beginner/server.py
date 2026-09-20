@@ -270,6 +270,11 @@ def projection_to_dict(projection: WorkspaceProjection, *, workspace_id: str) ->
             if projection.identity_candidate is None
             else projection.identity_candidate.model_dump(mode="json")
         ),
+        "continuation": (
+            None
+            if projection.continuation is None
+            else projection.continuation.model_dump(mode="json")
+        ),
     }
 
 
@@ -303,6 +308,13 @@ _COMMAND_HANDLERS: dict[str, str] = {
     "set-architecture-component-role": "set_architecture_component_role",
     "add-architecture-component": "add_architecture_component",
     "reanalyze-premise": "reanalyze_premise",
+    "propose-outline": "propose_outline",
+    "accept-outline": "accept_outline",
+    "propose-chapter-plan": "propose_chapter_plan",
+    "accept-chapter-plan": "accept_chapter_plan",
+    "propose-scene-plans": "propose_scene_plans",
+    "accept-scene-plans": "accept_scene_plans",
+    "prepare-draft-handoff": "prepare_draft_handoff",
 }
 
 _IDEMPOTENCY_MARKERS = ("already in progress", "receipt mismatch", "intent conflict", "already exists")
@@ -493,6 +505,13 @@ class _RequestHandler(BaseHTTPRequestHandler):
             "set-architecture-component-role",
             "add-architecture-component",
             "reanalyze-premise",
+            "propose-outline",
+            "accept-outline",
+            "propose-chapter-plan",
+            "accept-chapter-plan",
+            "propose-scene-plans",
+            "accept-scene-plans",
+            "prepare-draft-handoff",
         }
         if slug in rich_commands:
             kwargs: dict[str, Any] = {
