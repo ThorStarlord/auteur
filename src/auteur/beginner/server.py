@@ -20,7 +20,7 @@ import logging
 import mimetypes
 import secrets
 import threading
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass, is_dataclass
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, Callable
@@ -83,6 +83,8 @@ def _enum_value(value: Any) -> Any:
 
 
 def _json_value(value: Any) -> Any:
+    if is_dataclass(value):
+        return _json_value(asdict(value))
     if hasattr(value, "model_dump"):
         return _json_value(value.model_dump(mode="json"))
     if isinstance(value, dict):
