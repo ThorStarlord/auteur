@@ -133,6 +133,39 @@ The beginner-facing walkthrough is [guides/guided-author-decision-loop.md](guide
 
 Completing this sequence does **not** authorize another package automatically. Run/use the integrated loop and select the next bounded change from concrete friction. If the next problem is discoverability, solve discoverability; if relevance is weak, consider intent/decision-source coverage; if craft guidance is thin, admit a demand-driven Story Design Pack. Do not invent a new semantic layer because the roadmap needs another item.
 
+## SHIPPED — Beginner Story Development Continuation
+**State:** `SHIPPED` on development `main`; not a separate package-release claim.
+
+The Beginner product path now continues beyond the original guided-decision milestone:
+
+```text
+premise / narrative architecture
+→ explicit accepted foundation
+→ whole-story outline
+→ Chapter 1 plan
+→ scene plan
+→ draft handoff
+→ post-draft review
+→ noncanonical revision handoff or explicit existing-owner acceptance
+→ accepted chapter outcome
+→ contextual Chapter N+1 plan
+```
+
+PR #244 connected accepted whole-story Structure to first-draft planning. PR #246
+reconstructed the generalized post-draft / Chapter N → N+1 capability on
+contemporary `main`, preserving the richer Beginner Workspace contracts rather
+than merging the stale historical branch.
+
+Authority remains unchanged: review and planning are derived; the Beginner layer
+does not directly create `final.md` or mutate `bible.json`; acceptance delegates
+to the existing owning workflow and replay is reconciled rather than re-executed.
+
+The next product responsibility is **evidence, not automatic feature expansion**.
+Issue #249 and
+[product-validation/beginner-premise-to-chapter2-real-author-protocol.md](product-validation/beginner-premise-to-chapter2-real-author-protocol.md)
+define the real-author premise-to-Chapter-2 journey. The first material friction
+selects the smallest next intervention.
+
 ## CANDIDATE — Unified Decision Inbox / Broader Attention Sources
 **State:** `CANDIDATE`
 
