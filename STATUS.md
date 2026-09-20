@@ -2,13 +2,13 @@
 
 **Last reconciled:** 2026-09-20  
 **Validation-policy activation baseline:** `main @ 8b53efdd99e0a67d375df0e828b32edc77643221`  
-**Behavior baseline reconciled:** `main @ aad21cc235502e87f9c7c8591d0b5fa3103a97f9` (post-draft continuation + commitment/Review authority reconciliation merged)  
+**Behavior baseline reconciled:** `main @ c633d1b155ff72ef9ba502d4b7c9a294716fe98a` (post-draft continuation, Realization reconciliation, Beginner whole-book orientation, and bounded maintainability extractions merged)  
 **Known-good stabilization baseline:** `main @ 2aba74b64f2434d11954a8627fc3d95fd83fdb7d` (L3 tested)  
 **Package metadata:** `1.0.0` — development metadata; not a publication claim  
 **Latest published GitHub release/tag:** `v0.37.1`  
 **Role of this file:** living operational status and handoff; not a release record or idea backlog.
 
-The current development line includes the tiered validation and bounded-agent-autonomy policy, the human-qualified Beginner Workspace foundation, the premise-to-architecture and first-draft continuation work, PR #246's contemporary post-draft / Chapter N → N+1 loop, and PR #250's commitment/Review authority correction. The exact current HEAD may advance after this living document is merged; the reconciled behavior baseline above identifies the code state this status describes.
+The current development line includes the tiered validation and bounded-agent-autonomy policy, the human-qualified Beginner Workspace foundation, the premise-to-architecture and first-draft continuation work, PR #246's contemporary post-draft / Chapter N → N+1 loop, PR #250's commitment/Review authority correction, PR #253's Realization-contract reconciliation, PR #258's read-only whole-book Beginner orientation, and the first bounded #248 maintainability extractions through PRs #256, #259, and #260. The exact current HEAD may advance after this living document is merged; the reconciled behavior baseline above identifies the code state this status describes.
 
 For product intent, read [MISSION.md](MISSION.md) and [docs/PRD.md](docs/PRD.md). For the canonical domain model, read [docs/narrative-architecture.md](docs/narrative-architecture.md). For forward-looking candidates, read [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md). Release evidence lives under [docs/releases/](docs/releases/README.md).
 
@@ -26,9 +26,11 @@ The PR #233 stabilization checkpoint recorded the prior baseline lint dispositio
 
 ## Current Selected Responsibility
 
-**REAL-AUTHOR END-TO-END EVIDENCE** — The post-draft / Chapter N → N+1 continuation is now merged through PR #246. No additional product package is implicitly authorized. Issue #249 records the next product-evidence responsibility: run one real-author journey from premise through accepted Chapter 1 and contextual Chapter 2 planning, then select the smallest intervention from the first material friction. The execution/observation template is [docs/product-validation/beginner-premise-to-chapter2-real-author-protocol.md](docs/product-validation/beginner-premise-to-chapter2-real-author-protocol.md).
+**CONSOLIDATION / MAINTAINABILITY WITH SEPARATE PRODUCT EVIDENCE** — The post-draft / Chapter N → N+1 continuation is merged, the Beginner surface now exposes read-only whole-book progress and publication handoff readiness, and the first bounded maintainability slices have landed. Issue #248 remains the active engineering maintenance program: decompose already-existing responsibilities incrementally while preserving public facades, authority, persistence, idempotency, and currentness semantics.
 
-Parallel bounded maintenance responsibilities are tracked separately: #247 for the recurring Book-acceptance/full-suite path, #251 for legacy Layer-3 realization xfails, and #248 for behavior-preserving orchestration decomposition after the continuation stabilizes.
+Issue #249 remains a separate real-author product-evidence responsibility, not automatic construction authority. Its premise-to-Chapter-2 journey may identify the next product intervention, but this status does not authorize a new semantic layer or feature family merely because the evidence task remains open.
+
+Correctness/evidence debt from this session is reconciled: #247 (Book/full-suite evidence) and #251 (legacy Realization xfails) are closed. Historical qualification issues #49–53 were reconciled against the contemporary release path and closed; #54 remains partially satisfied pending an actual cross-platform candidate run, and #55 remains reproduction-gated on that Windows qualification evidence.
 
 ## Current Product Direction
 
@@ -89,6 +91,7 @@ The production baseline includes:
 - **Story Design Packs / Tutor** — reusable craft priors, Decision Cards, source-aware Tutor sessions, `next/explain/show/choose/handoff/propose`, and stale-source blocking.
 - **Structure engine** — generation/diagnostics plus explicit proposal inspect/select, fail-closed revision planning/validation, derived preview, confirmed application, and read-only reassessment.
 - **Project orientation** — deterministic Author Attention in the existing dashboard and loopback-only Guided Author Workspace V1.
+- **Beginner story-development continuation** — accepted foundation → outline/Chapter planning → post-draft review → explicit existing-owner Chapter acceptance → contextual Chapter N+1 planning, plus read-only whole-book/reconciliation/publication orientation.
 - **Realization/state/provenance** — state coordination plus impact, convergence, decision, review, planning, simulation, and portfolio support.
 - **Series / long-horizon infrastructure** — accepted-history/current-state reconstruction, derived Global Map/Focus, continuity support, and Guided Series Continuity Review V1.
 - **Outline and drafting** — Cartographer outline compilation, chapter contracts, Bard/Critics drafting, retry, and explicit acceptance.
@@ -131,6 +134,8 @@ The full Golden Path proves:
 
 This is hermetic repository evidence, not an external-provider or subjective story-quality claim.
 
+The 2026-09-20 consolidation packages (#253, #256, #258, #259, #260) passed their exact-head L1 validation before merge. They do **not** establish a new L3 checkpoint or release qualification. The last explicitly recorded L3 stabilization baseline remains the one named at the top of this file.
+
 ## Next Product Selection
 
 **No additional product package is implicitly authorized by the completed roadmap sequence or by the post-draft continuation merge.**
@@ -166,9 +171,12 @@ See [docs/campaign/auteur-long-horizon-campaign-state.md](docs/campaign/auteur-l
 
 - Ordinary PR/main validation now uses the L1 focused gate from PR #229; full regression is an explicit stabilization action, and release qualification is an explicit frozen-candidate action.
 - Historical Episode 1 PR #167 is closed/superseded by contemporary reconstruction issue #218.
-- Historical divergent PRs #131, #221, #222, #225, #227, and #245 have been reconciled and closed rather than bulk-merged. Still-relevant responsibilities were either reconstructed on current `main` (#246/#250) or preserved as contemporary work (#251).
+- Historical divergent PRs #131, #221, #222, #225, #227, and #245 have been reconciled and closed rather than bulk-merged. Still-relevant responsibilities were reconstructed on contemporary `main` or preserved as explicit current issues.
+- #247 is closed after classifying the later Book/full-suite reports as incomplete bounded executions rather than a reproduced Book-authority regression; a focused Book acceptance sentinel and better L3 timing/JUnit evidence now exist.
+- #251 is closed after replacing obsolete Layer-3 `xfail` assumptions with current-schema Realization coverage and bounded temporal/knowledge fixes.
+- #248 is an incremental maintainability program, not evidence that the repository is incomplete: merged slices have extracted Beginner continuation transitions, reasoning CLI dispatch, and Book accepted-source/pointer persistence behind compatibility facades.
+- Historical qualification issues #49–53 are closed as superseded/no-current-change; #54 and #55 remain evidence-gated against a future exact candidate.
 - `pyproject.toml` reports `1.0.0`, but remote release/tag inspection on 2026-09-20 shows the latest published GitHub release remains `v0.37.1`; package metadata alone is not publication evidence.
-- The recurring full-suite Book-acceptance limitation is explicitly tracked in #247 rather than being carried as an undocumented baseline assumption.
 
 ## Documentation Map
 
