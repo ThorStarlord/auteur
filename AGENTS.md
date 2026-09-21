@@ -37,6 +37,11 @@ governing documents and sit on the protected list.
   document the decision earlier, or improve the verification path.
 - Capture approved conceptual decisions in `docs/` before implementing schema,
   analyzer, CLI, or pipeline behavior.
+- Prefer updating an existing authoritative document over creating a new durable
+  document. Create a new durable document only when it has a distinct long-lived
+  role that cannot be represented clearly in an existing mission, PRD, status,
+  roadmap, ADR, design, guide, or evidence surface. Do not create session-only
+  meta-documents merely to restate information already preserved elsewhere.
 - Keep user-authorial choices explicit. Do not silently fill or rewrite the
   story spine.
 - Treat workspace identity as a preflight condition, not something the
