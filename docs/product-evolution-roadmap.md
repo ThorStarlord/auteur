@@ -172,14 +172,18 @@ consolidation** phase more than a missing-foundation phase. Prefer connecting,
 simplifying, exposing, and qualifying existing capability before admitting new
 conceptual architecture.
 
-The next product responsibility is **evidence, not automatic feature expansion**.
-Issue #249 and
-[product-validation/beginner-premise-to-chapter2-real-author-protocol.md](product-validation/beginner-premise-to-chapter2-real-author-protocol.md)
-now define a simulation-first premise-to-Chapter-2 evidence journey. A scripted
-run may select a provisional, reversible intervention from concrete
-mechanical/workflow friction without additional human approval. Human use
-remains stronger evidence and is required before making real-author usability,
-relevance, or subjective-quality claims.
+The simulation-first evidence responsibility in issue #249 is now **complete**.
+Its first run found one post-Structure projection seam; PR #280 corrected that
+bounded workflow defect, and the repeated journey reached contextual Chapter 2
+planning with no further simulated material friction. That result does not
+promote another roadmap candidate automatically.
+
+The current product responsibility is therefore **NO_CHANGE until warranted**.
+New claim-appropriate workflow evidence or deliberate product-lane selection
+may select a provisional, reversible intervention when it identifies concrete
+friction or a concrete goal. Human use remains stronger evidence and is
+required before making real-author usability, comprehension, relevance,
+confidence, preference, or subjective-quality claims.
 
 ## CANDIDATE — Unified Decision Inbox / Broader Attention Sources
 **State:** `CANDIDATE`
