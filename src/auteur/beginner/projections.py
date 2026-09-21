@@ -575,6 +575,14 @@ def build_workspace_projection(
                 )
     if active_revision_id is not None:
         actions.append("cancel-revision")
+
+    # Once whole-story Structure is accepted, project the empty continuation
+    # frontier even before the first continuation command persists state. This
+    # keeps the accepted-foundation -> outline transition discoverable without
+    # creating authority or mutating the session during a read.
+    if continuation is None and "whole_story_structure" in accepted_ids:
+        continuation = ContinuationState()
+
     if continuation is not None:
         current_fingerprint = accepted_milestone_fingerprint(session.accepted_milestones)
         proposal_fingerprint = (
