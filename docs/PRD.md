@@ -109,21 +109,29 @@ content.
 - Beginner-facing orientation makes the next safe action understandable without
   requiring knowledge of repository internals.
 
-## Current selection gate
+## Current product-selection rule
 
-Issue #249 now uses a **simulation-first evidence gate** for the
-premise-to-Chapter-2 journey. Run the cheapest scripted novice journey that
-exercises the real application boundaries, preserve the first concrete friction
-separately from any proposed fix, classify it as UX/presentation, workflow,
-craft knowledge, domain model, or infrastructure, and select the smallest
-intervention that the evidence actually supports.
+Issue #249's simulation-first premise-to-Chapter-2 evidence task is complete.
+The first scripted run found one workflow projection seam after explicit
+Whole-Story Structure acceptance; PR #280 corrected it without creating new
+authority or durable state during the read. The repeated journey then reached
+accepted Chapter 1 outcome and contextual Chapter 2 planning with
+`NO_SIMULATED_MATERIAL_FRICTION` beyond that seam.
 
-A simulation may authorize a provisional, reversible intervention without
-additional human approval when the friction is directly exercised and the
-change does not introduce new semantic architecture, authority, irreversible
-migration, permanent product scope, or a claim about subjective story quality.
-Human product evidence is still required before claiming that real authors find
-the workflow useful, understandable, relevant, or creatively better.
+Auteur therefore currently has **no product package selected**. New product
+construction should be admitted only when new claim-appropriate workflow
+evidence or an explicit owner product-lane selection identifies a concrete
+problem or goal. Classify that evidence as UX/presentation, workflow, craft
+knowledge, domain model, or infrastructure, then choose the smallest
+intervention actually supported by it.
 
-If the simulation finds no material mechanical/workflow friction, record that
-result and do not invent a package merely to continue the roadmap.
+Simulation remains admissible for provisional, reversible product work when it
+directly exercises the real workflow and does not introduce new semantic
+architecture, authority, irreversible migration, permanent product scope, or a
+claim about subjective story quality. Human product evidence remains required
+before claiming that real authors find the workflow useful, understandable,
+relevant, confidence-building, or creatively better.
+
+If no material friction or deliberately selected product goal exists,
+`NO_CHANGE` is a valid product disposition; do not invent a package merely to
+continue the roadmap.
