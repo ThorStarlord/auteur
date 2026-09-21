@@ -62,6 +62,31 @@ jobs:
       - name: Run complete source suite
         run: python -m pytest -q --tb=short
 
+
+  macos-compatibility:
+    name: "release source compatibility (macOS Python 3.13)"
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.candidate_sha }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Verify exact candidate
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "${{ inputs.candidate_sha }}"
+
+      - name: Run complete source suite
+        run: python -m pytest -q --tb=short
+
   exact-sha-evidence:
     name: "exact-SHA release evidence (Linux Python 3.12)"
     runs-on: ubuntu-latest
