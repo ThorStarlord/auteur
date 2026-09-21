@@ -129,3 +129,19 @@ Record exactly one of:
 When a provisional intervention is selected, preserve the raw simulation result
 separately from the proposed fix and verify the same scripted journey after the
 change.
+
+## First simulation record — 2026-09-20
+
+- **Fixture/persona:** scripted novice following the current recommended/default Beginner path over the existing hybrid mystery fixture.
+- **Probe:** `tests/test_beginner_premise_to_chapter2_simulation.py`.
+- **Initial candidate:** `91c35e5c22e80a7e3e2d7d94ea2e86e07fde1a52`.
+- **Initial endpoint:** explicit Whole-Story Structure acceptance.
+- **First concrete friction:** `propose-outline` was absent from the projected available actions because the accepted workspace still projected `continuation=None`.
+- **Classification:** `workflow`.
+- **Authority impact:** none; the missing surface was a read-only routing/projection gap.
+- **Selected intervention:** project an empty `ContinuationState` frontier when Whole-Story Structure is already accepted, without persisting it. The existing `propose_outline` command remains the first durable continuation write.
+- **Fix candidate:** `5db564a1a31f074c9e3024b72bf1c1868aa16293`.
+- **Verification:** the same scripted journey reached accepted Chapter 1 outcome and contextual Chapter 2 planning; L1 focused validation and the focused verification stack passed.
+- **Post-fix result:** `NO_SIMULATED_MATERIAL_FRICTION` beyond the corrected projection seam.
+- **Claims not made:** no claim that a real author finds the workflow intuitive, useful, relevant, or creatively better; no PATH-1/2/3/4 feature family is selected by this result.
+
