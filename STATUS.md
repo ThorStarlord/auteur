@@ -3,7 +3,7 @@
 **Last reconciled:** 2026-09-20  
 **Validation-policy activation baseline:** `main @ 8b53efdd99e0a67d375df0e828b32edc77643221`  
 **Behavior baseline reconciled:** `main @ c633d1b155ff72ef9ba502d4b7c9a294716fe98a` (post-draft continuation, Realization reconciliation, Beginner whole-book orientation, and bounded maintainability extractions merged)  
-**Current maintenance/product-contract reconciliation baseline:** `main @ e1ee3957f6761d4f63c77120a2d99568ae26908c` (#248 Book reconciliation seams through the Phase C4 completion-validator extraction in PR #274 plus PRD reconciliation in PR #276)  
+**Current maintenance/product-evidence reconciliation baseline:** `main @ f91a08290619bab9227a4aabf533e1fa2dde1f5b` (#248 paused at reassessment; PR #280 completed the simulation-first premise-to-Chapter-2 probe and corrected its one workflow seam)  
 **Known-good stabilization baseline:** `main @ 2aba74b64f2434d11954a8627fc3d95fd83fdb7d` (L3 tested)  
 **Package metadata:** `1.0.0` — development metadata; not a publication claim  
 **Latest published GitHub release/tag:** `v0.37.1`  
@@ -27,15 +27,15 @@ The PR #233 stabilization checkpoint recorded the prior baseline lint dispositio
 
 ## Current Selected Responsibility
 
-**SIMULATION-FIRST PRODUCT EVIDENCE / MAINTENANCE REASSESSMENT** — The post-draft / Chapter N → N+1 continuation is merged, the Beginner surface exposes read-only whole-book progress and publication handoff readiness, and the currently warranted bounded #248 seams have landed through the Phase C4 completion validator. No additional #248 slice is presently selected. Further decomposition requires a newly identified concrete responsibility that can move behavior-preservingly behind stable public/authority semantics with focused regression evidence; file size alone is not admission evidence.
+**NO PRODUCT PACKAGE SELECTED / MAINTENANCE REASSESSMENT** — Issue #249's simulation-first premise-to-Chapter-2 evidence task is complete and closed. The first scripted run found one concrete workflow gap after explicit Whole-Story Structure acceptance: the read-only Beginner projection did not expose the already-valid `propose-outline` transition because no continuation state had yet been persisted. PR #280 fixed that seam by projecting an empty continuation frontier without creating authority or durable state during the read.
 
-Issue #249 is now a simulation-first product-evidence responsibility, not automatic feature authority. A scripted novice journey may establish mechanical/workflow coherence and may select a provisional, reversible intervention from concrete exercised friction without additional human approval. It may not be relabeled as evidence of real-author usefulness, relevance, comprehension, or subjective story quality. Changes to semantic architecture, story authority, irreversible migration, or permanent product scope still require stronger evidence/authority.
+The same scripted journey then reached accepted Chapter 1 outcome and contextual Chapter 2 planning. Final result: **`NO_SIMULATED_MATERIAL_FRICTION` beyond the corrected projection seam**. This is mechanical/workflow evidence only; no claim is made about real-author usefulness, comprehension, relevance, preference, or subjective story quality. No PATH-1/2/3/4 feature family is selected by this result.
 
-The first scripted premise-to-Chapter-2 probe in PR #280 produced one concrete **workflow** finding: after explicit Whole-Story Structure acceptance, the read-only Beginner projection left `continuation=None`, so the existing `propose-outline` transition was not discoverable even though the transition itself already supported the state. The bounded fix projects an empty continuation frontier after accepted Structure without persisting state or crossing authority; the first continuation command still creates durable continuation state. The same scripted journey then reached contextual Chapter 2 planning and the focused verification stack passed. Post-fix result: **`NO_SIMULATED_MATERIAL_FRICTION` beyond the corrected projection seam**. This does not establish real-author usability or subjective-quality evidence, and it does not select PATH-1/2/3/4 feature expansion.
+Issue #248 remains **PAUSE / REASSESS**. The currently warranted bounded seams have landed through the Phase C4 completion validator. Resume decomposition only when another concrete existing responsibility can move behavior-preservingly behind stable public/authority semantics with focused regression evidence; file size alone is not admission evidence.
 
-The Level-3 strategic decision space remains preserved in [artifacts/strategic_repository_analysis.md](artifacts/strategic_repository_analysis.md), merged via PR #264, but its earlier human-only evidence gate is superseded by the current owner-authorized simulation-first policy. #248 remains paused at reassessment after the C4 extraction and may resume only if another concrete behavior-preserving responsibility boundary is independently warranted.
+The Level-3 strategic decision space remains preserved in [artifacts/strategic_repository_analysis.md](artifacts/strategic_repository_analysis.md), but its earlier human-only #249 evidence gate is superseded by the current simulation-first, claim-bounded product policy. Stronger human evidence is optional when a future question is inherently about human experience or when the consequence exceeds what simulation can support.
 
-Correctness/evidence debt from this session is reconciled: #247 (Book/full-suite evidence) and #251 (legacy Realization xfails) are closed. Historical qualification issues #49–53 were reconciled against the contemporary release path and closed; #54 remains partially satisfied pending an actual cross-platform candidate run, and #55 remains reproduction-gated on that Windows qualification evidence.
+Correctness/evidence debt from this session is reconciled: #247 (Book/full-suite evidence), #249 (simulation-first product evidence), and #251 (legacy Realization xfails) are closed. Historical qualification issues #49–53 were reconciled against the contemporary release path and closed; #54 remains partially satisfied pending an actual cross-platform candidate run, and #55 remains reproduction-gated on that Windows qualification evidence.
 
 ## Current Product Direction
 
@@ -145,7 +145,7 @@ The 2026-09-20 consolidation packages (#253, #256, #258, #259, #260, #265, #266,
 
 **No additional product package is implicitly authorized by the completed roadmap sequence or by the post-draft continuation merge.**
 
-The next product package should be selected from observed use of the now-complete loop rather than extending ontology or adding another subsystem by default. Strong preserved candidates include:
+The next product package should be selected from new claim-appropriate workflow evidence rather than extending ontology or adding another subsystem by default. The completed #249 simulation does not select another package. Strong preserved candidates include:
 
 - Unified Decision Inbox / broader attention-source coverage;
 - Current Author Intent if relevance friction appears;
