@@ -3,7 +3,7 @@
 **Last reconciled:** 2026-09-20  
 **Validation-policy activation baseline:** `main @ 8b53efdd99e0a67d375df0e828b32edc77643221`  
 **Behavior baseline reconciled:** `main @ c633d1b155ff72ef9ba502d4b7c9a294716fe98a` (post-draft continuation, Realization reconciliation, Beginner whole-book orientation, and bounded maintainability extractions merged)  
-**Current maintenance/product-evidence reconciliation baseline:** `main @ f91a08290619bab9227a4aabf533e1fa2dde1f5b` (#248 paused at reassessment; PR #280 completed the simulation-first premise-to-Chapter-2 probe and corrected its one workflow seam)  
+**Current maintenance/product-evidence reconciliation baseline:** `main @ 1aebe090fb44dec82662d742d2d7cc911c428a32` (#248 paused at reassessment; #249 completed under the simulation-first policy; PR #281 reconciled the resulting no-product-package-selected state)  
 **Known-good stabilization baseline:** `main @ 2aba74b64f2434d11954a8627fc3d95fd83fdb7d` (L3 tested)  
 **Package metadata:** `1.0.0` — development metadata; not a publication claim  
 **Latest published GitHub release/tag:** `v0.37.1`  
@@ -23,7 +23,7 @@ For product intent, read [MISSION.md](MISSION.md) and [docs/PRD.md](docs/PRD.md)
 
 Canonical policy: [docs/engineering/release-qualification.md](docs/engineering/release-qualification.md).
 
-The PR #233 stabilization checkpoint recorded the prior baseline lint disposition. After PR #235 removed those four whitespace findings, the clean L3 checkpoint on `main @ 2aba74b64f2434d11954a8627fc3d95fd83fdb7d` passed full regression and the verification stack. No release qualification is implied. Return to Auteur product development and use real-author dogfood evidence to select the next bounded package.
+The PR #233 stabilization checkpoint recorded the prior baseline lint disposition. After PR #235 removed those four whitespace findings, the clean L3 checkpoint on `main @ 2aba74b64f2434d11954a8627fc3d95fd83fdb7d` passed full regression and the verification stack. No release qualification is implied. Remain at **no product package selected** until new claim-appropriate workflow evidence or an explicit product-lane selection warrants a bounded package.
 
 ## Current Selected Responsibility
 
@@ -59,15 +59,20 @@ accepted narrative authority
 
 Derived systems may orient, diagnose, compare, explain, recommend, prepare, preview, and reassess. Determinism, persistence, currentness, or user selection do not grant story authority.
 
-The next evidence task is issue #249's simulation-first journey on merged `main`:
+Issue #249's simulation-first journey is complete. It found one concrete workflow projection seam after explicit Whole-Story Structure acceptance, corrected that seam in PR #280, and then reached accepted Chapter 1 outcome plus contextual Chapter 2 planning. The resulting evidence is `NO_SIMULATED_MATERIAL_FRICTION` beyond the corrected seam.
+
+That result establishes mechanical/workflow coherence only. It does not establish real-author usefulness, comprehension, relevance, preference, confidence, or subjective story quality, and it does not select another product feature family.
+
+Current product-selection rule:
 
 ```text
-premise → narrative architecture → accepted foundation → outline/planning
-→ scripted Chapter 1 draft → post-draft review → explicit simulated acceptance
-→ accepted outcome → contextual Chapter 2 plan
+new claim-appropriate workflow evidence or deliberate product-lane selection
+→ first concrete material friction / goal
+→ classify the owning layer
+→ smallest bounded intervention
 ```
 
-The post-draft package is an integration continuation, not a new semantic layer. Record concrete mechanical/workflow friction separately from any proposed fix. If the scripted journey reaches Chapter 2 without a material dead end, `NO_SIMULATED_MATERIAL_FRICTION` is a valid result and no feature must be invented.
+If no material friction or deliberately selected product goal exists, `NO_CHANGE` remains a valid product disposition.
 
 ## Canonical Architecture
 
@@ -180,7 +185,7 @@ See [docs/campaign/auteur-long-horizon-campaign-state.md](docs/campaign/auteur-l
 - #247 is closed after classifying the later Book/full-suite reports as incomplete bounded executions rather than a reproduced Book-authority regression; a focused Book acceptance sentinel and better L3 timing/JUnit evidence now exist.
 - #251 is closed after replacing obsolete Layer-3 `xfail` assumptions with current-schema Realization coverage and bounded temporal/knowledge fixes.
 - #248 is an incremental maintainability program, not evidence that the repository is incomplete: merged slices have extracted Beginner continuation transitions, reasoning CLI dispatch, Book accepted-source/pointer persistence, Book acceptance persistence, Book completion persistence, derived recomposition/comparison artifact persistence, Phase A/B application-artifact access, the Phase C3 acceptance validation gate, and the Phase C4 completion eligibility gate behind compatibility seams. `BookReconciliationStore` still owns authority-bearing orchestration, publication ordering, pointer movement, rollback, and the remaining workflow semantics. After PR #274 the largest remaining methods are mixed comparison/routing/publication responsibilities rather than another comparably obvious read-only gate, so #248 is paused at reassessment rather than continuing from file size alone.
-- Historical qualification issues #49–53 are closed as superseded/no-current-change; #54 and #55 remain evidence-gated against a future exact candidate.
+- Historical qualification issues #49–53 are closed as superseded/no-current-change. #54 remains open pending an actual frozen-candidate cross-platform run; Release Qualification now exercises the complete source suite on Linux, Windows, and macOS plus dedicated portability invariants. #55 remains reproduction-gated against Windows cleanup evidence.
 - Issue #272 records the remaining GitHub-admin enforcement gap: `main` is still unprotected and the stable `L1 focused validation (Python 3.12)` check is not yet required. PRs #271 and #274 hardened focused-test selection for the Book acceptance/completion seams, but branch-protection/ruleset application remains an external administration action because the connected GitHub integration exposes those settings read-only.
 - `pyproject.toml` reports `1.0.0`, but remote release/tag inspection on 2026-09-20 shows the latest published GitHub release remains `v0.37.1`; package metadata alone is not publication evidence.
 
