@@ -7,7 +7,8 @@ The intended beginner experience is guided authoring with progressive disclosure
 > **Current repository state:** see [STATUS.md](STATUS.md).  
 > **Future product/repository directions:** see [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md).  
 > **Mission and invariants:** see [MISSION.md](MISSION.md).  
-> **Canonical architecture:** see [docs/narrative-architecture.md](docs/narrative-architecture.md).
+> **Canonical architecture:** see [docs/narrative-architecture.md](docs/narrative-architecture.md).  
+> **Version/release boundary:** `pyproject.toml` reports `1.0.0` as development/package metadata; the latest published GitHub release remains `v0.37.1`. Package metadata is not publication evidence.
 
 ## What Auteur Optimizes For
 
