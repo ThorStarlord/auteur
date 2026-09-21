@@ -8,7 +8,7 @@
 **Architecture roadmap:** [architecture-roadmap.md](architecture-roadmap.md).
 
 ## Purpose
-This document keeps promising directions for evolving Auteur in one place without turning brainstorming into implementation authority. Auteur now has substantial narrative architecture and an integrated guided decision loop; future work should be selected from observed author friction rather than continuing the previous sequence automatically.
+This document keeps promising directions for evolving Auteur in one place without turning brainstorming into implementation authority. Auteur now has substantial narrative architecture and an integrated guided decision loop; future work should be selected from concrete workflow friction rather than continuing the previous sequence automatically. Cheap scripted simulation is valid evidence for provisional, reversible work when its claim is kept mechanical/workflow-bounded.
 
 This file answers **“what directions are worth considering?”** `STATUS.md`, approved issues, bounded plans, and qualification records answer **“what are we actually building now?”**
 
@@ -36,12 +36,14 @@ Admit a new architectural concept only when observed product friction cannot be 
 Prefer:
 
 ```text
-real author workflow
-→ observed friction
+real workflow boundary
+→ scripted simulation when sufficient
+→ concrete friction
 → bounded product gap
 → classify the owning layer
 → smallest useful intervention
 → verify in the workflow
+→ human validation when the claim/consequence requires it
 ```
 
 Avoid the default `interesting idea → new ontology/model/subsystem → search for product value later`.
@@ -173,8 +175,11 @@ conceptual architecture.
 The next product responsibility is **evidence, not automatic feature expansion**.
 Issue #249 and
 [product-validation/beginner-premise-to-chapter2-real-author-protocol.md](product-validation/beginner-premise-to-chapter2-real-author-protocol.md)
-define the real-author premise-to-Chapter-2 journey. The first material friction
-selects the smallest next intervention.
+now define a simulation-first premise-to-Chapter-2 evidence journey. A scripted
+run may select a provisional, reversible intervention from concrete
+mechanical/workflow friction without additional human approval. Human use
+remains stronger evidence and is required before making real-author usability,
+relevance, or subjective-quality claims.
 
 ## CANDIDATE — Unified Decision Inbox / Broader Attention Sources
 **State:** `CANDIDATE`
@@ -265,7 +270,7 @@ The previously hypothesized guided-decision sequence through Workspace V1 is now
 ```text
 SHIPPED GUIDED DECISION LOOP
         ↓
-observe real author friction
+observe or simulate concrete workflow friction
         ├─ discoverability / orientation UX
         ├─ broader decision-source coverage
         ├─ Current Author Intent
@@ -342,7 +347,7 @@ story state → important decision → guidance → author choice
 
 ### Level 2 — Product Improvement Loop
 ```text
-run real Author Decision Loop → observe friction
+run or simulate Author Decision Loop → observe concrete friction
 → select one bounded gap → implement → verify
 ```
 
@@ -358,7 +363,7 @@ Periodically ask: **“Is helping authors make better long-horizon creative deci
 
 ## Candidate Selection Criteria
 Prefer candidates that answer yes to most of these questions:
-1. Does it solve friction observed in a real author workflow?
+1. Does it solve friction supported by concrete workflow evidence at a claim-appropriate level?
 2. Does it strengthen the author-decision loop?
 3. Can existing architecture express it without a new foundation?
 4. Is the authority boundary clear?

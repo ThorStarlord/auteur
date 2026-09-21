@@ -27,11 +27,13 @@ The PR #233 stabilization checkpoint recorded the prior baseline lint dispositio
 
 ## Current Selected Responsibility
 
-**MAINTENANCE REASSESSMENT / SEPARATE PRODUCT EVIDENCE** — The post-draft / Chapter N → N+1 continuation is merged, the Beginner surface exposes read-only whole-book progress and publication handoff readiness, and the currently warranted bounded #248 seams have landed through the Phase C4 completion validator. No additional #248 slice is presently selected. Further decomposition requires a newly identified concrete responsibility that can move behavior-preservingly behind stable public/authority semantics with focused regression evidence; file size alone is not admission evidence.
+**SIMULATION-FIRST PRODUCT EVIDENCE / MAINTENANCE REASSESSMENT** — The post-draft / Chapter N → N+1 continuation is merged, the Beginner surface exposes read-only whole-book progress and publication handoff readiness, and the currently warranted bounded #248 seams have landed through the Phase C4 completion validator. No additional #248 slice is presently selected. Further decomposition requires a newly identified concrete responsibility that can move behavior-preservingly behind stable public/authority semantics with focused regression evidence; file size alone is not admission evidence.
 
-Issue #249 remains a separate real-author product-evidence responsibility, not automatic construction authority. Its premise-to-Chapter-2 journey may identify the next product intervention, but this status does not authorize a new semantic layer or feature family merely because the evidence task remains open. The repository-side protocol is ready; actual human use remains the evidence gate and must not be replaced by an agent/browser simulation.
+Issue #249 is now a simulation-first product-evidence responsibility, not automatic feature authority. A scripted novice journey may establish mechanical/workflow coherence and may select a provisional, reversible intervention from concrete exercised friction without additional human approval. It may not be relabeled as evidence of real-author usefulness, relevance, comprehension, or subjective story quality. Changes to semantic architecture, story authority, irreversible migration, or permanent product scope still require stronger evidence/authority.
 
-The Level-3 strategic decision space is preserved in [artifacts/strategic_repository_analysis.md](artifacts/strategic_repository_analysis.md), merged via PR #264. Its disposition is `INVESTIGATE`: no product construction path is selected; #249 supplies the decision-changing evidence. #248 is paused at reassessment after the C4 extraction and may resume only if another concrete behavior-preserving responsibility boundary is independently warranted.
+The first scripted premise-to-Chapter-2 probe in PR #280 produced one concrete **workflow** finding: after explicit Whole-Story Structure acceptance, the read-only Beginner projection left `continuation=None`, so the existing `propose-outline` transition was not discoverable even though the transition itself already supported the state. The bounded fix projects an empty continuation frontier after accepted Structure without persisting state or crossing authority; the first continuation command still creates durable continuation state. The same scripted journey then reached contextual Chapter 2 planning and the focused verification stack passed. Post-fix result: **`NO_SIMULATED_MATERIAL_FRICTION` beyond the corrected projection seam**. This does not establish real-author usability or subjective-quality evidence, and it does not select PATH-1/2/3/4 feature expansion.
+
+The Level-3 strategic decision space remains preserved in [artifacts/strategic_repository_analysis.md](artifacts/strategic_repository_analysis.md), merged via PR #264, but its earlier human-only evidence gate is superseded by the current owner-authorized simulation-first policy. #248 remains paused at reassessment after the C4 extraction and may resume only if another concrete behavior-preserving responsibility boundary is independently warranted.
 
 Correctness/evidence debt from this session is reconciled: #247 (Book/full-suite evidence) and #251 (legacy Realization xfails) are closed. Historical qualification issues #49–53 were reconciled against the contemporary release path and closed; #54 remains partially satisfied pending an actual cross-platform candidate run, and #55 remains reproduction-gated on that Windows qualification evidence.
 
@@ -57,15 +59,15 @@ accepted narrative authority
 
 Derived systems may orient, diagnose, compare, explain, recommend, prepare, preview, and reassess. Determinism, persistence, currentness, or user selection do not grant story authority.
 
-The next evidence task is issue #249's real-author journey on merged `main`:
+The next evidence task is issue #249's simulation-first journey on merged `main`:
 
 ```text
 premise → narrative architecture → accepted foundation → outline/planning
-→ Chapter 1 draft → post-draft review → revise/accept → accepted outcome
-→ contextual Chapter 2 plan
+→ scripted Chapter 1 draft → post-draft review → explicit simulated acceptance
+→ accepted outcome → contextual Chapter 2 plan
 ```
 
-The post-draft package is an integration continuation, not a new semantic layer. Record the first material workflow friction, classify it as UX/presentation, workflow, craft knowledge, domain model, or infrastructure, and select one bounded intervention.
+The post-draft package is an integration continuation, not a new semantic layer. Record concrete mechanical/workflow friction separately from any proposed fix. If the scripted journey reaches Chapter 2 without a material dead end, `NO_SIMULATED_MATERIAL_FRICTION` is a valid result and no feature must be invented.
 
 ## Canonical Architecture
 

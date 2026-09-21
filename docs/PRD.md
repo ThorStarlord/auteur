@@ -70,16 +70,21 @@ semantic concepts.
 For product evolution, prefer:
 
 ```text
-real author workflow
--> first material friction
+bounded workflow evidence
+-> cheap scripted simulation when it can answer the question
+-> first concrete friction
 -> classify the owning layer
 -> smallest useful intervention
 -> verify in the workflow
+-> real-author validation when the claim or consequence requires it
 ```
 
 A roadmap candidate is not implementation authority. New product construction
-should be selected from observed author need rather than from architectural
-novelty alone.
+should be selected from concrete workflow evidence rather than from architectural
+novelty alone. Scripted simulation is admissible for provisional, reversible
+product work when it exercises the real workflow and preserves authority
+boundaries; it is not evidence that real authors find the result useful or
+understandable.
 
 ## Non-goals
 
@@ -106,13 +111,19 @@ content.
 
 ## Current selection gate
 
-The next product package is intentionally evidence-gated by issue #249's
-real-author premise-to-Chapter-2 journey. Preserve the first material friction
+Issue #249 now uses a **simulation-first evidence gate** for the
+premise-to-Chapter-2 journey. Run the cheapest scripted novice journey that
+exercises the real application boundaries, preserve the first concrete friction
 separately from any proposed fix, classify it as UX/presentation, workflow,
 craft knowledge, domain model, or infrastructure, and select the smallest
-intervention that addresses the observed problem.
+intervention that the evidence actually supports.
 
-Until that evidence exists, roadmap candidates such as broader Author Attention,
-Current Author Intent, Existing-Manuscript Reverse Engineering, richer
-Book-level reasoning, and Episode 1 Direction remain candidates rather than
-selected implementation work.
+A simulation may authorize a provisional, reversible intervention without
+additional human approval when the friction is directly exercised and the
+change does not introduce new semantic architecture, authority, irreversible
+migration, permanent product scope, or a claim about subjective story quality.
+Human product evidence is still required before claiming that real authors find
+the workflow useful, understandable, relevant, or creatively better.
+
+If the simulation finds no material mechanical/workflow friction, record that
+result and do not invent a package merely to continue the roadmap.
