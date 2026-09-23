@@ -279,6 +279,12 @@ def test_projection_separates_story_consequences_from_auteur_reasoning(tmp_path:
         projection.decision_card.recommendation,
         *projection.decision_card.options,
     }
+    for comparison in inspector.option_comparisons:
+        impact = projection.decision_card.option_impacts[comparison.label]
+        assert comparison.aesthetic_framing == impact.aesthetic_framing
+        assert comparison.expected_tropes == impact.expected_tropes
+        assert comparison.narrative_structure == impact.narrative_structure
+        assert comparison.relationship_explanation
 
 
 def test_last_answer_makes_review_available_but_not_ready_until_validation(tmp_path: Path) -> None:
