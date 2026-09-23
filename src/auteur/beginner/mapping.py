@@ -20,17 +20,34 @@ from .contracts import (
 )
 
 
+_ENGINE_GENRE: dict[str, str] = {
+    "Investigation and revelation": "mystery",
+    "Mystery investigation": "mystery",
+    "Escalating danger and pursuit": "thriller",
+    "Dread and confrontation with the monstrous": "horror",
+    "Desire, courtship, and commitment": "romance",
+    "Public/private identity pressure": "other",
+    "Wonder, rules of the fantastic, and consequence": "other",
+}
+
+
 def _candidate_for(
     dimension: WorkingDimension,
     vocabulary: Mapping[str, tuple[str, ...]],
 ) -> tuple[str, str, MappingStrength, MappingDisposition] | None:
-    candidates = {
-        DimensionCategory.PRIMARY_ENGINE: ("story_type.genre", "mystery", MappingStrength.DIRECT_DOMAIN_MAPPING, MappingDisposition.MAPS_TO_CANON),
-        DimensionCategory.SETTING_WORLD: ("story_type.subgenres", "superhero", MappingStrength.SUPPORTED_CONTRIBUTION, MappingDisposition.CONTRIBUTES_TO_CANON),
-        DimensionCategory.RELATIONSHIP_THEMATIC: ("target_experience.primary", "jealous uncertainty", MappingStrength.SUPPORTED_CONTRIBUTION, MappingDisposition.CONTRIBUTES_TO_CANON),
-        DimensionCategory.EMOTIONAL_AESTHETIC: ("target_experience.primary", "jealous uncertainty", MappingStrength.SUPPORTED_CONTRIBUTION, MappingDisposition.CONTRIBUTES_TO_CANON),
-    }
-    candidate = candidates.get(dimension.category)
+    if dimension.category is DimensionCategory.PRIMARY_ENGINE:
+        candidate = (
+            "story_type.genre",
+            _ENGINE_GENRE.get(dimension.label, "other"),
+            MappingStrength.DIRECT_DOMAIN_MAPPING,
+            MappingDisposition.MAPS_TO_CANON,
+        )
+    else:
+        candidate = {
+            DimensionCategory.SETTING_WORLD: ("story_type.subgenres", "superhero", MappingStrength.SUPPORTED_CONTRIBUTION, MappingDisposition.CONTRIBUTES_TO_CANON),
+            DimensionCategory.RELATIONSHIP_THEMATIC: ("target_experience.primary", "jealous uncertainty", MappingStrength.SUPPORTED_CONTRIBUTION, MappingDisposition.CONTRIBUTES_TO_CANON),
+            DimensionCategory.EMOTIONAL_AESTHETIC: ("target_experience.primary", "jealous uncertainty", MappingStrength.SUPPORTED_CONTRIBUTION, MappingDisposition.CONTRIBUTES_TO_CANON),
+        }.get(dimension.category)
     if candidate is None:
         return None
     destination, value, strength, disposition = candidate

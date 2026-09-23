@@ -135,31 +135,31 @@ Owner: `structure_inventory_for` (`decision_inventory.py`).
   `NEEDS_AUTHOR_CHOICE`, no manufactured recommendation; wired into
   `default_runtime_dependencies()`. Tests: `tests/test_beginner_discovery.py`
   (6 passed); server default-path test added.
-- Stage 3 — PENDING. Requires a bounded generic Structure inventory plus
-  `guidance.py` routing: `_option_impacts`, `_why_this_matters`, and
-  `guidance_for` all key off Mystery card IDs today, and `_current_digest`
-  (application) vs `guidance_for` tutor-session fingerprints must stay
-  consistent for staleness. This is a deeper routing refactor than the bounded
-  amendment assumed.
-- Stage 4 — PENDING. `mapping.py::_candidate_for` hardcodes
-  `PRIMARY_ENGINE -> story_type.genre = "mystery"`; needs a per-engine genre
-  candidate checked against the mapping vocabulary.
-- Stage 5 — DONE for Mystery-material premises. Verified end-to-end against the
-  running default server (no provider): a superhero/mystery/betrayal premise
-  produced a premise-sensitive interpretation, three distinct deterministic
-  directions, accepted Story Direction and Story Identity, the curated Mystery
-  Structure decisions, and accepted Whole-Story Structure (`primary_surface:
-  complete`). Non-Mystery-only premises still lack a Structure inventory
-  (Stage 3).
+- Stage 3 — DONE. A bounded `GenericStructureAdapter` (escalation pattern,
+  reversal placement, resolution shape) with a registered evidence source, plus
+  `guidance.py` routing (`adapter_owning`, `validate_inventory_for`,
+  `guidance_source_fingerprints`, generic option impacts and
+  `why_this_matters`). `structure_inventory_for` returns the curated Mystery
+  Structure cards when Mystery is material and the generic set otherwise.
+- Stage 4 — DONE. `mapping.py::_candidate_for` maps the primary engine to its
+  genre via `_ENGINE_GENRE` (mystery/thriller/horror/romance/other) instead of
+  always `mystery`, validated against the mapping vocabulary.
+- Stage 5 — DONE. Verified end-to-end against the running default server (no
+  provider) for both a Mystery-material premise and the original non-Mystery
+  friction premise (superhero only): premise-sensitive interpretation, distinct
+  deterministic directions, accepted Story Direction and Story Identity, the
+  applicable Structure decisions, and accepted Whole-Story Structure
+  (`primary_surface: complete`).
 
-### Discovered integration gap (latent, not fixed here)
+### Discovered integration gap (still open)
 
 `_composition_preview` computes a composition tension for the projection, but
 `acknowledge_tension` reads `session.working_composition`, so a tension shown in
 the projection can be unacknowledgeable and block Identity acceptance. Stage 2
 avoids the common case by having the synthesized candidate integrate the
 relationship dimension's emotional promise; the underlying persistence gap
-remains and should be addressed when Stage 3/4 touch this area.
+remains and should be addressed when this area is next touched.
+
 
 
 ### Known baseline failures (not caused by this work)

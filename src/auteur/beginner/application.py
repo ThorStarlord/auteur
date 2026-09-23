@@ -158,7 +158,15 @@ from .dimensions import (
     propose_dimensions,
     reject_dimension,
 )
-from .guidance import BeginnerGuidance, QualificationStage, SemanticArea, _adapter_for, guidance_for
+from .guidance import (
+    BeginnerGuidance,
+    QualificationStage,
+    SemanticArea,
+    _adapter_for,
+    guidance_for,
+    guidance_source_fingerprints,
+    validate_inventory_for,
+)
 from .mapping import map_dimension, validate_author_override
 from .persistence import (
     BeginnerConcurrencyError,
@@ -3650,7 +3658,7 @@ class BeginnerWorkspaceApplication:
             )
         else:
             inventory = adapter.inventory()
-        adapter.validate_inventory(inventory)
+        validate_inventory_for(inventory, session.guidance_genre)
         return inventory
 
     def _available_dimension_sources(self, session: SessionEnvelope) -> tuple[PackProvenance, ...]:
@@ -3917,8 +3925,8 @@ class BeginnerWorkspaceApplication:
         return result
 
     def _current_digest(self, session: SessionEnvelope) -> str:
-        adapter = _adapter_for(session.guidance_genre)
-        return json.dumps(adapter.tutor_session_fingerprints(), sort_keys=True, separators=(",", ":"))
+        del session
+        return json.dumps(guidance_source_fingerprints(), sort_keys=True, separators=(",", ":"))
 
     def _require_card(self, inventory, card_id: str):  # type: ignore[no-untyped-def]
         try:

@@ -11,6 +11,7 @@ from .architecture_models import (
 )
 from .contracts import SessionEnvelope
 from .guidance import QualificationInventory, QualificationStage
+from .generic_structure import GenericStructureAdapter
 from .mystery_adapter import MysteryGuidanceAdapter
 
 
@@ -42,10 +43,10 @@ def structure_inventory_for(
     analysis: NarrativeArchitectureAnalysis,
     accepted_identity: StoryIdentity | None,
 ) -> QualificationInventory:
-    """Return only material unresolved Structure cards for the rich path."""
+    """Return Structure cards: curated Mystery when material, else bounded generic."""
     del session
     if not _mystery_is_material(analysis, accepted_identity):
-        return QualificationInventory(cards=())
+        return GenericStructureAdapter.inventory()
     return QualificationInventory(
         cards=tuple(
             card
