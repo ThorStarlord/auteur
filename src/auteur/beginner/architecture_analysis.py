@@ -270,7 +270,7 @@ _SIGNAL_GROUPS: tuple[_SignalGroup, ...] = (
     ),
     _SignalGroup(
         key="romance",
-        keywords=("romance", "romantic", "fall in love", "courtship", "lovers"),
+        keywords=("romance", "fall in love", "courtship", "lovers"),
         label="Romance",
         engine="Desire, courtship, and commitment",
         priority=60,
@@ -297,7 +297,8 @@ _SIGNAL_GROUPS: tuple[_SignalGroup, ...] = (
 _RELATIONSHIP_KEYWORDS: tuple[str, ...] = ("partner", "lover", "spouse", "relationship")
 _BETRAYAL_KEYWORDS: tuple[str, ...] = ("betrayal", "affair", "betray")
 _SECRET_IDENTITY_KEYWORDS: tuple[str, ...] = (
-    "secret identity", "masked identity", "public identity", "double life",
+    "secret identity", "secret identities", "masked identity", "public identity",
+    "hidden identity", "hidden identities", "dual identity", "double identity", "double life",
 )
 
 

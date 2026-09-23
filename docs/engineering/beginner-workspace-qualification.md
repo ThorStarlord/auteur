@@ -634,4 +634,35 @@ This is **agent-observed browser evidence**, not an independent human usability
 study, and does not convert `HUMAN BEGINNER USABILITY` to PASS. The human
 no-provider walkthrough remains pending.
 
+### 2026-09-23 addendum — agent-as-author walkthrough and classifier refinement
+
+An agent-as-author walkthrough (fresh real premise: a young aspiring superhero
+whose ordinary romantic/social tension becomes a mystery about betrayal and
+hidden identities) surfaced a first material friction at Stage A: the bounded
+classifier promoted the passing adjective "romantic" to a supporting **Romance**
+genre (ranked above Superhero fiction) and missed **"hidden identities"**
+entirely. Both propagated: Discovery offered only investigation-led and
+relationship-led directions, and Structure asked generic Mystery questions.
+
+Smallest fix on the same branch (`DeterministicArchitectureAnalyzer`):
+
+- removed `"romantic"` from the Romance signal group (an adjective is not a genre
+  signal);
+- added plural/variant secret-identity signals including `"hidden identity"` and
+  `"hidden identities"`.
+
+Re-running the same premise after the fix:
+
+- Stage A now reads "Mystery, Superhero fiction, Investigation and revelation,
+  Relationship betrayal, **Secret identity**" with Genre "Mystery · Superhero
+  fiction" (no Romance) and a Trope families entry.
+- Discovery now offers three distinct directions, including the identity-led
+  **"The exposed self"** that the missing trope had suppressed.
+
+Residual (not fixed): the "Here is what Auteur sees" summary is still a flat
+signal list rather than a concise integrated sentence. Classification of the
+friction: **ARCHITECTURE ANALYSIS QUALITY** with downstream propagation to
+Discovery and Structure specificity. This remains agent-observed, not human.
+
+
 

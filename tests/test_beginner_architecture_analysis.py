@@ -277,3 +277,21 @@ def test_deterministic_fallback_no_signal_state_is_honest() -> None:
     )
     assert analysis.components == ()
     assert "No supported architecture signals detected" in analysis.summary
+
+
+def test_deterministic_fallback_does_not_promote_romantic_adjective_to_genre() -> None:
+    analysis = DeterministicArchitectureAnalyzer().analyze(
+        premise="A young hero navigates ordinary romantic and social tension.",
+        source_provenance=(),
+    )
+    labels = {component.label for component in analysis.components}
+    assert "Romance" not in labels
+
+
+def test_deterministic_fallback_detects_hidden_identities_as_secret_identity() -> None:
+    analysis = DeterministicArchitectureAnalyzer().analyze(
+        premise="A mystery about betrayal and hidden identities.",
+        source_provenance=(),
+    )
+    labels = {component.label for component in analysis.components}
+    assert "Secret identity" in labels
