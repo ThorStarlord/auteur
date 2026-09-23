@@ -151,14 +151,16 @@ Owner: `structure_inventory_for` (`decision_inventory.py`).
   applicable Structure decisions, and accepted Whole-Story Structure
   (`primary_surface: complete`).
 
-### Discovered integration gap (still open)
+### Discovered integration gap — fixed
 
-`_composition_preview` computes a composition tension for the projection, but
-`acknowledge_tension` reads `session.working_composition`, so a tension shown in
-the projection can be unacknowledgeable and block Identity acceptance. Stage 2
-avoids the common case by having the synthesized candidate integrate the
-relationship dimension's emotional promise; the underlying persistence gap
-remains and should be addressed when this area is next touched.
+`_composition_preview` computed a composition tension for the projection while
+`acknowledge_tension` read `session.working_composition`, so a tension shown in
+the projection could be unacknowledgeable and block Identity acceptance.
+`acknowledge_tension` now resolves the tension against the same refreshed
+composition basis the projection uses, and persists the acknowledged, refreshed
+composition so the projected blocker has a valid mutation path. Regression test:
+`tests/test_beginner_architecture_composition.py::test_projected_composition_tension_has_a_valid_acknowledgement_path`
+(fails on the pre-fix code with "unknown tension", passes after).
 
 
 

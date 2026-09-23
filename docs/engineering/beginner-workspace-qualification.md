@@ -602,3 +602,36 @@ Still open: a projected composition tension can be unacknowledgeable because
 projected composition. This is agent-observed evidence, not human usability, and
 does not change the `HUMAN BEGINNER USABILITY` gate above.
 
+### 2026-09-23 addendum — tension coherence fixed and browser walkthrough
+
+The projected-tension acknowledgement defect above was fixed on the same branch:
+`acknowledge_tension` now resolves the tension against the refreshed composition
+basis the projection uses and persists the acknowledged composition, so any
+projected blocking tension has a valid mutation path. Regression test
+`tests/test_beginner_architecture_composition.py::test_projected_composition_tension_has_a_valid_acknowledgement_path`
+fails on the pre-fix code ("unknown tension") and passes after.
+
+Agent-observed **browser** walkthrough (headless Chrome via DevTools, default
+server, no provider), workspace `browserwalk2`, hybrid superhero/mystery/betrayal
+premise. Rendered surfaces observed:
+
+- Stage A — "WORKING INTERPRETATION · NOT CANON" / "Here is what Auteur sees" /
+  "Detected premise signals: Mystery, Superhero fiction, Investigation and
+  revelation, Relationship betrayal, Secret identity." with facet groups
+  (Genre/story traditions; Main story machinery; Trope families; Emotional &
+  relationship dynamics) and the three actions.
+- Stage C — "STORY DISCOVERY · DERIVED / NOT CANON" / "Choose a story direction"
+  with three distinct directions (The unraveling case; Trust on trial; The
+  exposed self), each with a one-line engine and trade-off.
+- Stage F — "STORY IDENTITY CANDIDATE · NOT CANON UNTIL ACCEPTED" / "Review what
+  this story is committing to" / candidate "The unraveling case" with the
+  becomes-canonical / guidance / provenance / unresolved distinction.
+- Stage G/H — three curated Structure decisions with "Auteur suggests: …", then
+  "Review Structure →", then accept.
+- Completion — "Story foundation accepted" and "Story foundation complete."
+
+This is **agent-observed browser evidence**, not an independent human usability
+study, and does not convert `HUMAN BEGINNER USABILITY` to PASS. The human
+no-provider walkthrough remains pending.
+
+

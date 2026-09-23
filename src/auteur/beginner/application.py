@@ -2065,9 +2065,20 @@ class BeginnerWorkspaceApplication:
         inventory = self._inventory_for(session)
         tensions = dict(self._journey.get("tensions") or {})
         active_composition = self._active_working_composition(session)
+        # Tensions can exist only in the refreshed projection basis rather than in
+        # the persisted composition. Resolve against that same basis so any
+        # projected blocking tension has a valid acknowledgement path.
+        refreshed_composition = (
+            self._refresh_composition(active_composition, session)
+            if active_composition is not None
+            else None
+        )
         composition_tension = next(
-            (item for item in (active_composition.tensions if active_composition else ())
-             if item.tension_id == resolved_tension_id),
+            (
+                item
+                for item in (refreshed_composition.tensions if refreshed_composition else ())
+                if item.tension_id == resolved_tension_id
+            ),
             None,
         )
         if resolved_tension_id not in tensions and composition_tension is None:
@@ -2083,48 +2094,32 @@ class BeginnerWorkspaceApplication:
             tensions=new_tensions,
             basis_digest=self._journey.get("basis_digest"),
         )
+        def _mark_acknowledged(composition: WorkingComposition) -> WorkingComposition:
+            return composition.model_copy(
+                update={
+                    "tensions": tuple(
+                        tension.model_copy(update={"acknowledged": True})
+                        if tension.tension_id == resolved_tension_id
+                        else tension
+                        for tension in composition.tensions
+                    )
+                }
+            )
+
         def persist_acknowledgement(current: SessionEnvelope) -> SessionEnvelope:
             updated = self._with_lifecycles(current, targets)
-            composition = current.working_composition
+            composition = refreshed_composition or current.working_composition
             if composition is not None:
-                composition = composition.model_copy(
-                    update={
-                        "tensions": tuple(
-                            tension.model_copy(update={"acknowledged": True})
-                            if tension.tension_id == resolved_tension_id
-                            else tension
-                            for tension in composition.tensions
-                        )
-                    }
+                updated = updated.model_copy(
+                    update={"working_composition": _mark_acknowledged(composition)}
                 )
-                composition = self._refresh_composition(composition, current).model_copy(
-                    update={
-                        "tensions": tuple(
-                            tension.model_copy(update={"acknowledged": True})
-                            if tension.tension_id == resolved_tension_id
-                            else tension
-                            for tension in composition.tensions
-                        )
-                    }
-                )
-                updated = updated.model_copy(update={"working_composition": composition})
             return updated
 
         if composition_only and isinstance(self._journey.get("active_revision"), dict):
-            updated_composition = active_composition
+            updated_composition = refreshed_composition or active_composition
             if updated_composition is not None:
-                updated_composition = updated_composition.model_copy(
-                    update={
-                        "tensions": tuple(
-                            tension.model_copy(update={"acknowledged": True})
-                            if tension.tension_id == resolved_tension_id
-                            else tension
-                            for tension in updated_composition.tensions
-                        )
-                    }
-                )
                 active = dict(self._journey["active_revision"])
-                active["working_composition"] = updated_composition.model_dump(mode="json")
+                active["working_composition"] = _mark_acknowledged(updated_composition).model_dump(mode="json")
                 self._journey["active_revision"] = active
                 self._save_journey()
             self.session_store.update(expected, lambda current: current)
