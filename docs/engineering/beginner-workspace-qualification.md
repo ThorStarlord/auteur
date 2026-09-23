@@ -484,3 +484,119 @@ AUTOMATED PREMISE-TO-ARCHITECTURE GATE   PASS — exact-head L1 and targeted L2
 HUMAN BEGINNER USABILITY                 PENDING
 RELEASE QUALIFICATION                    NO
 ```
+
+
+---
+
+## 2026-09-23 deterministic fallback + human architecture walkthrough
+
+This section records the post-#249 evidence episode that followed the
+2026-09-19 architecture-first candidate. It does not rewrite the historical
+qualification records above.
+
+### Source identity and evidence boundary
+
+The deterministic fallback candidate is currently owner-reported from the local,
+unpushed branch `experiment/deterministic-curated-fallback`. Its reported
+commits are:
+
+- `3ff41f7e` — deterministic premise-sensitive Architecture analysis and
+  curated deterministic Discovery;
+- `2f3fd1e0` — genre-neutral fallback Structure plus per-engine mapping;
+- `24e7e16b` — verification record;
+- `52f4928f` — projected-composition tension acknowledgement coherence;
+- `f7c57f8d` — classifier refinement after the first browser walkthrough.
+
+Because those commits are not pushed, remote GitHub cannot independently inspect
+their diffs. The repository-facing transition/explanation follow-up is draft PR
+#283, with stackable commits `f0a9ee0c` and `52a9e38f`, intentionally based
+on contemporary `main` so they can be cherry-picked/rebased onto the local
+candidate.
+
+The local-only implementation spec is
+`docs/superpowers/specs/2026-09-23-deterministic-curated-fallback-journey.md`.
+Do not create a second remote copy merely because the selected branch has not
+been pushed yet.
+
+### Reported repository / agent evidence
+
+The local candidate reports:
+
+- premise-sensitive deterministic analysis rather than an unconditional Mystery
+  assumption;
+- bounded deterministic Discovery with multiple causally distinct directions,
+  `NEEDS_AUTHOR_CHOICE`, and no manufactured recommendation;
+- a minimal genre-neutral Structure fallback for non-Mystery premises;
+- per-engine StoryIdentity mapping rather than hardcoded Mystery mapping;
+- an acknowledgement path for projected blocking composition tensions against
+  the same refreshed semantic basis used by the projection;
+- real-browser no-provider completion from premise through accepted Story
+  Direction, Story Identity, and Whole-Story Structure;
+- classifier refinement after an agent-observed browser run promoted the passing
+  adjective "romantic" to Romance and missed "hidden identities";
+- focused Beginner suite result **347 passed, 1 skipped, 2 known baseline
+  failures**, with both failures reported as reproduced on the unmodified
+  checkout;
+- no L3 and no release qualification.
+
+This section treats those local branch counts and commit contents as
+owner-reported evidence until the branch is pushed and independently
+inspectable.
+
+### Human walkthrough — material friction found
+
+The owner then used the no-provider Browser Workspace as the author and reached
+the accepted story foundation. The walkthrough therefore exercised the actual
+human-facing architecture-first route, but it did **not** produce a usability
+PASS.
+
+Material human-facing friction was reported in two areas:
+
+1. **Phase ending / transition clarity.** Phase-ending and phase-transition
+   actions did not have enough visual hierarchy, and the completed Structure
+   state could still be accompanied by stale continuation wording that told the
+   author to accept Structure again.
+2. **Integrated narrative explanation.** Explanations improved but still did not
+   adequately connect aesthetic framing, common tropes, narrative structure,
+   relationship/thematic dynamics, and the main story machinery. The problem was
+   not merely missing headings; the author needed an integrated account of how
+   the components work together in this particular story.
+
+That human evidence selected construction directly. It did not warrant another
+experiment program.
+
+### Correction candidate — draft PR #283
+
+The remote follow-up implements:
+
+- accepted-stage and phase-completion emphasis;
+- a visually/semantically primary next action with focus-visible treatment;
+- stale post-foundation transition-copy protection;
+- a read-only **How these parts work together** Story Composition explanation;
+- explicit presentation of aesthetic framing, common tropes, narrative
+  structure, relationship/thematic dynamics, engine, and genre/story traditions;
+- honest "not yet established" treatment when aesthetic framing is absent rather
+  than manufacturing one;
+- genre-neutral explanation labels so the no-provider fallback is not presented
+  as Mystery-specific;
+- focused projection/browser regression coverage.
+
+### Current qualification boundary
+
+```text
+DETERMINISTIC / COMPONENT BEHAVIOR          REPORTED PASS ON LOCAL CANDIDATE
+CHANGED-BOUNDARY BEGINNER SUITE             REPORTED 347 PASS / 1 SKIP / 2 BASELINE FAILURES
+REAL RENDERED BROWSER JOURNEY               EXERCISED
+HUMAN BEGINNER WALKTHROUGH                  EXERCISED — MATERIAL FRICTION FOUND
+TRANSITION / EXPLANATION CORRECTION         IMPLEMENTED IN DRAFT PR #283
+SAME-PREMISE HUMAN RE-WALKTHROUGH           PENDING
+L3 STABILIZATION                            NOT REQUESTED
+RELEASE QUALIFICATION                       NOT CLAIMED
+```
+
+The next evidence task is deliberately small: stack PR #283 onto the local
+fallback branch, run focused Beginner validation, and repeat the same human
+premise once. If the observed transition/explanation friction is no longer
+material, record a bounded correction PASS for that walkthrough. Do not infer
+universal beginner usability, provider generality, narrative-quality
+superiority, or release readiness from a single-author/single-premise result.

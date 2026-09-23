@@ -1,11 +1,25 @@
 # Guided Author Decision Loop
 
-This guide describes the current beginner-facing path from advisory guidance to an explicit story change. It is a product workflow, not a new narrative layer.
+This guide describes the current beginner-facing path from a raw premise through
+Narrative Architecture, explicit foundation acceptance, and later advisory
+guidance to an explicit story change. It is a product workflow, not a new
+narrative layer.
+
+For a creative beginner, the Browser Workspace is the preferred orientation
+surface. The CLI route later in this guide remains useful for advanced authors
+and for explicit lower-level workflow inspection.
 
 ## Authority at a glance
 
 | Surface | Authority |
 | --- | --- |
+| Working interpretation / "What Auteur sees" | `DERIVED / NOT CANON` |
+| Story Direction candidate / selected direction | `DERIVED / NOT CANON` until explicit Direction acceptance |
+| Accepted Story Direction | accepted milestone; does not itself write canonical StoryIdentity |
+| Story Identity candidate | `PROPOSED / NOT CANON` |
+| Accepted Story Identity | canonical Identity |
+| Structure working choices / review | working / derived until explicit Structure acceptance |
+| Accepted Whole-Story Structure | canonical foundation milestone |
 | Decision Card | `DERIVED / NOT CANON` |
 | Tutor session | `LOCAL / NONCANONICAL` |
 | Decision Handoff | `DERIVED / NOT CANON` |
@@ -18,7 +32,84 @@ This guide describes the current beginner-facing path from advisory guidance to 
 
 Selection, persistence, deterministic IDs, or source currentness do not turn advice into canon. The story changes only at an owning authority workflow with explicit author confirmation.
 
-## 1. Establish accepted story direction
+## Browser-first Beginner foundation path
+
+Start with a fresh premise in the Beginner Workspace rather than pre-encoding the
+correct architecture. The contemporary beginner route is:
+
+```text
+raw premise
+→ What Auteur sees
+→ How these parts work together
+→ optional interpretation correction
+→ Story Discovery
+→ select a Story Direction
+→ explicitly accept Story Direction
+→ inspect Story Identity candidate
+→ explicitly accept Story Identity
+→ answer / review Structure decisions
+→ explicitly accept Whole-Story Structure
+→ highlighted next phase
+→ whole-story outline
+```
+
+### 1. Read the working interpretation
+
+**What Auteur sees** is a derived working interpretation, not canon. It should
+make clear which story dimensions are present and, when evidence supports it,
+how they compose:
+
+- main story machinery / narrative engine;
+- genre and story traditions;
+- aesthetic framing;
+- common trope families;
+- relationship or thematic dynamics;
+- narrative structure status;
+- intended reader experience.
+
+The important beginner question is not merely "which labels were detected?" but
+"how do these parts work together as this story?" If a material dimension such
+as aesthetic framing is not established, Auteur should say so rather than
+inventing one.
+
+Interpretation refinement changes working guidance. It does not silently edit
+accepted Story Identity or accepted Structure.
+
+### 2. Explore and accept a Story Direction
+
+Discovery should present genuinely different causal story directions rather than
+surface-level paraphrases. Selecting a direction remains noncanonical. Explicit
+Direction acceptance records the accepted direction milestone but still does not
+make the Story Identity candidate canonical.
+
+### 3. Inspect and accept Story Identity
+
+The Story Identity candidate should read as the ratification of the direction
+the author chose. The interface should distinguish what will become canonical,
+what remains downstream guidance/provenance, and what is unresolved. Only the
+explicit Identity acceptance crosses the Identity authority boundary.
+
+### 4. Build and accept Whole-Story Structure
+
+Structure guidance should feel downstream of the accepted Identity and active
+Narrative Architecture rather than reverting to interchangeable generic advice.
+Working Structure choices remain noncanonical until explicit Structure
+acceptance.
+
+After acceptance, the interface should clearly show that the foundation is
+complete and make the **next safe action**—normally outlining—more prominent
+than secondary exploration/help actions. It must not continue telling the author
+to accept a milestone that is already accepted.
+
+### 5. Continue into outlining
+
+Once Story Direction, Story Identity, and Whole-Story Structure are accepted,
+the foundation is canonical and the continuation into outline/planning remains
+derived until each owning acceptance boundary is crossed.
+
+---
+
+## CLI / advanced route: establish accepted story direction
 
 For a new project, explore Story Discovery candidates and explicitly accept the direction you want:
 
