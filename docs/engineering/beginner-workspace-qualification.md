@@ -565,3 +565,40 @@ Candidate construction responsibility: make the provider requirement explicit an
 actionable at launch and/or in the Discovery surface (fail fast with
 instructions), and give the deterministic path an explicit degraded-mode
 contract. Not implemented by this walkthrough.
+
+### 2026-09-23 addendum — deterministic curated fallback implemented
+
+Owner approved amending the fallback policy (`docs/superpowers/specs/2026-09-23-deterministic-curated-fallback-journey.md`)
+and implementing a **Deterministic Curated Mode** so the no-provider path is a
+usable journey rather than a dead end. Implemented on branch
+`experiment/deterministic-curated-fallback` (worktree at `d7966dc3`):
+
+- premise-sensitive deterministic architecture (blind Mystery pin removed;
+  primary genre and engine derived from bounded premise signals);
+- `DeterministicDiscoveryRecommender` producing causally distinct directions
+  with synthesized `StoryIdentity` candidates (`NEEDS_AUTHOR_CHOICE`, no
+  manufactured recommendation), wired into the default runtime;
+- bounded generic Structure inventory (escalation / reversal placement /
+  resolution shape) used when Mystery is not material, with guidance routing;
+- per-engine mapping (`mapping._candidate_for`) instead of always `mystery`.
+
+Agent-observed verification (default server, no provider, HTTP command path):
+
+- Mystery-material premise (superhero/mystery/betrayal): premise-sensitive
+  interpretation, 3 distinct directions, accepted Story Direction and Story
+  Identity, curated Mystery Structure decisions, accepted Whole-Story Structure
+  (`primary_surface: complete`).
+- Original non-Mystery friction premise (superhero only): interpretation
+  "Superhero fiction, Public/private identity pressure" (no Mystery pin), 2
+  distinct directions, accepted Identity, generic Structure decisions, accepted
+  Whole-Story Structure.
+
+Beginner suite at this branch: 344 passed, 1 skipped, 2 known baseline failures
+(the mapping `story_type.genre` assertion and the Windows `mimetypes` JS
+content-type test; both reproduce on the unmodified checkout).
+
+Still open: a projected composition tension can be unacknowledgeable because
+`acknowledge_tension` reads `session.working_composition` rather than the
+projected composition. This is agent-observed evidence, not human usability, and
+does not change the `HUMAN BEGINNER USABILITY` gate above.
+
