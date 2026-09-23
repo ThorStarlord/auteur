@@ -484,3 +484,84 @@ AUTOMATED PREMISE-TO-ARCHITECTURE GATE   PASS — exact-head L1 and targeted L2
 HUMAN BEGINNER USABILITY                 PENDING
 RELEASE QUALIFICATION                    NO
 ```
+
+---
+
+## 2026-09-23 architecture-first walkthrough at main HEAD (agent-observed, fallback mode)
+
+This is a bounded, single-workspace walkthrough whose purpose is to **select
+construction work**, not to qualify the product. It is agent-observed and
+owner-delegated. It is **not** human usability evidence and does not change the
+`HUMAN BEGINNER USABILITY` gate above.
+
+- Source SHA: `d7966dc3250970d0c5f435af162263cea93eeb78` (`origin/main` HEAD)
+- Worktree: `.worktrees/human-e2e-architecture-20260923` (linked worktree,
+  detached at `origin/main`; git common dir `H:/GithubRepositories/auteur/.git`)
+- Runtime: documented default `npm start`
+  (`scripts/beginner-dev.mjs` → `python -m auteur.beginner.server`, **no
+  `--provider`**)
+- Workspace: `agentwalk1` (fresh; no pre-existing accepted Identity or Structure)
+- Premise: "A disgraced superhero who can rewind a conversation by five minutes
+  learns that her old partner, now the city's beloved mayor, may have caused the
+  bridge collapse she was blamed for, and she must decide whether to expose him
+  before the gala where he will be honored."
+- Endpoint exercised: premise → "Here is what Auteur sees" → one working
+  correction → **Continue with this interpretation** → Story Discovery.
+
+Exact-head sentinel: `tests/test_beginner_premise_architecture_e2e.py` →
+`2 passed` at the SHA above (L1 only).
+
+### Observed (fallback mode — no reasoning provider configured)
+
+- `story_orientation.analysis_id` = `analysis:fallback:*`; `availability_note` =
+  "Rich narrative interpretation was unavailable; showing the bounded
+  explicit-signal fallback."
+- "Here is what Auteur sees": Mystery (primary), Superhero fiction (supporting),
+  Investigation and revelation (primary engine). The summary is a detected-signal
+  list, not an integrated interpretation of the story's engine.
+- Authority/epistemic framing is explicit and correct: surface reads "Working
+  interpretation · not canon"; `authority_status` = "DERIVED / NOT CANON";
+  per-component certainty is shown.
+- Stage B correction (add missing `relationship_dynamic` component "Betrayal and
+  divided loyalty") changed only the derived working interpretation
+  (`origin=AUTHOR_DEFINED`, `status=CONFIRMED`, `confirmed_by_author=true`;
+  `session_version` 1→2). `canonical_refs` stayed empty and
+  `identity_candidate` stayed null. The authority boundary held.
+- Continue → Story Discovery: `discovery.status` = `unavailable`,
+  rationale "No reasoning provider configured.", zero directions. UI copy:
+  "Rich story-direction search is unavailable. Curated decisions remain available
+  below as a degraded fallback." The focused decision card is the Mystery
+  inventory ("Which mystery experience or lens should the story promise?").
+
+### First material friction
+
+The journey breaks materially at the **architecture → Discovery seam**: leaving
+"Here is what Auteur sees" lands on a Story Discovery that is unavailable
+("No reasoning provider configured") with no directions and no in-product way to
+enable rich mode. The same missing provider also reduces the initial architecture
+interpretation to a shallow explicit-signal fallback and pins Mystery as primary
+even for a non-Mystery premise (a Lisbon romcom probe returned Mystery; a
+superhero premise returned Mystery + Superhero fiction).
+
+- Classification: **INFRASTRUCTURE** (default launch/provider configuration) with
+  a **UX / PRESENTATION** component (no in-product path to enable rich mode);
+  **ARCHITECTURE ANALYSIS QUALITY** shallow-fallback is a downstream symptom of
+  the same root cause.
+- Authority confusion: none observed.
+- Architecture propagation to Discovery / Identity / Structure: **not testable**
+  in fallback mode (Discovery unavailable).
+
+### Claim boundary
+
+- Agent-observed, owner-delegated; **not** human usability.
+- Rich provider mode was not exercised, so this makes no claim about
+  interpretation quality in the intended configuration.
+- Stages C–H (Discovery, Story Identity, Structure) were not exercised.
+- One premise, one workspace, one correction.
+
+### Disposition
+
+Candidate construction responsibility: make the provider requirement explicit and
+actionable at launch and/or in the Discovery surface (fail fast with
+instructions), and give the deterministic path an explicit degraded-mode
+contract. Not implemented by this walkthrough.

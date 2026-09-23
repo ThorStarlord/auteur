@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from dataclasses import dataclass
 from typing import Protocol
 
 from pydantic import BaseModel, ConfigDict, ValidationError
@@ -230,12 +231,74 @@ class ProviderArchitectureAnalyzer:
             raise ArchitectureAnalysisError("invalid rich architecture analysis") from exc
 
 
-_EXPLICIT_SIGNALS: dict[str, tuple[str, ...]] = {
-    "mystery": ("investigate", "investigation", "clue", "mystery", "discover the truth"),
-    "superhero fiction": ("superhero", "masked hero", "superhuman", "cape"),
-    "relationship betrayal": ("partner", "lover", "spouse", "relationship", "betrayal", "affair"),
-    "secret identity": ("secret identity", "masked identity", "public identity"),
-}
+@dataclass(frozen=True)
+class _SignalGroup:
+    """A bounded deterministic premise-signal group."""
+
+    key: str
+    keywords: tuple[str, ...]
+    label: str
+    engine: str
+    priority: int
+
+
+_SIGNAL_GROUPS: tuple[_SignalGroup, ...] = (
+    _SignalGroup(
+        key="mystery",
+        keywords=(
+            "investigat", "clue", "mystery", "detective", "sealed", "locked room",
+            "empty shaft", "murder", "killer", "vanished", "disappear", "suspect",
+            "alibi", "whodunit",
+        ),
+        label="Mystery",
+        engine="Investigation and revelation",
+        priority=90,
+    ),
+    _SignalGroup(
+        key="thriller",
+        keywords=("thriller", "suspense", "conspiracy", "assassin", "hostage", "on the run", "chase"),
+        label="Thriller",
+        engine="Escalating danger and pursuit",
+        priority=80,
+    ),
+    _SignalGroup(
+        key="horror",
+        keywords=("horror", "haunted", "monster", "nightmare", "possession", "undead", "dread"),
+        label="Horror",
+        engine="Dread and confrontation with the monstrous",
+        priority=70,
+    ),
+    _SignalGroup(
+        key="romance",
+        keywords=("romance", "romantic", "fall in love", "courtship", "lovers"),
+        label="Romance",
+        engine="Desire, courtship, and commitment",
+        priority=60,
+    ),
+    _SignalGroup(
+        key="superhero",
+        keywords=("superhero", "masked hero", "superhuman", "cape", "vigilante"),
+        label="Superhero fiction",
+        engine="Public/private identity pressure",
+        priority=50,
+    ),
+    _SignalGroup(
+        key="speculative",
+        keywords=(
+            "magic", "fantasy", "dragon", "kingdom", "sorcer", "spell",
+            "science fiction", "space", "alien", "robot", "artificial intelligence",
+        ),
+        label="Speculative fiction",
+        engine="Wonder, rules of the fantastic, and consequence",
+        priority=40,
+    ),
+)
+
+_RELATIONSHIP_KEYWORDS: tuple[str, ...] = ("partner", "lover", "spouse", "relationship")
+_BETRAYAL_KEYWORDS: tuple[str, ...] = ("betrayal", "affair", "betray")
+_SECRET_IDENTITY_KEYWORDS: tuple[str, ...] = (
+    "secret identity", "masked identity", "public identity", "double life",
+)
 
 
 def _first_signal(text: str, signals: tuple[str, ...]) -> str | None:
@@ -247,7 +310,7 @@ class DeterministicArchitectureAnalyzer:
     """Bounded explicit-signal fallback used when rich interpretation is unavailable."""
 
     analyzer_id = "beginner-architecture-fallback"
-    analyzer_version = "1"
+    analyzer_version = "2"
 
     def analyze(
         self,
@@ -259,95 +322,55 @@ class DeterministicArchitectureAnalyzer:
             raise ArchitectureAnalysisError("premise must not be blank")
         components: list[ArchitectureComponent] = []
 
-        mystery_signal = _first_signal(premise, _EXPLICIT_SIGNALS["mystery"])
-        mystery_source = next(
-            (
-                source
-                for source in source_provenance
-                if source.pack_id.casefold() == "mystery"
-            ),
-            None,
-        )
-        if mystery_signal is not None or mystery_source is not None:
-            if mystery_signal is not None:
-                mystery_evidence = (
-                    ArchitectureEvidence(
-                        source_kind="premise",
-                        label="explicit mystery signal",
-                        excerpt=mystery_signal,
-                    ),
-                )
-                engine_evidence = (
-                    ArchitectureEvidence(
-                        source_kind="premise",
-                        label="investigation signal",
-                        excerpt=mystery_signal,
-                    ),
-                )
-                mystery_rationale = "A deterministic premise signal matches mystery investigation."
-            else:
-                assert mystery_source is not None
-                mystery_evidence = (
-                    ArchitectureEvidence(
-                        source_kind="genre_pack",
-                        label="configured Mystery guidance",
-                        source_ref=f"{mystery_source.pack_id}@{mystery_source.version}",
-                    ),
-                )
-                engine_evidence = mystery_evidence
-                mystery_rationale = (
-                    "The configured Mystery guidance pack supplies a curated genre prior "
-                    "without claiming that the premise stated it explicitly."
-                )
+        detected: list[tuple[_SignalGroup, str]] = []
+        for group in _SIGNAL_GROUPS:
+            signal = _first_signal(premise, group.keywords)
+            if signal is not None:
+                detected.append((group, signal))
+        detected.sort(key=lambda item: item[0].priority, reverse=True)
+
+        for index, (group, signal) in enumerate(detected):
             components.append(
                 ArchitectureComponent(
-                    component_id=_component_id(ArchitectureFacet.GENRE_CONSTELLATION, "Mystery"),
+                    component_id=_component_id(ArchitectureFacet.GENRE_CONSTELLATION, group.label),
                     facet=ArchitectureFacet.GENRE_CONSTELLATION,
-                    label="Mystery",
-                    normalized_concept="mystery",
+                    label=group.label,
+                    normalized_concept=_normalized_concept(group.label),
                     derivation=ArchitectureDerivation.CURATED_MATCH,
-                    role=ArchitectureRole.PRIMARY,
+                    role=ArchitectureRole.PRIMARY if index == 0 else ArchitectureRole.SUPPORTING,
                     certainty=ArchitectureCertainty.CLEAR,
-                    rationale=mystery_rationale,
-                    evidence=mystery_evidence,
-                    source_provenance=source_provenance,
-                )
-            )
-            components.append(
-                ArchitectureComponent(
-                    component_id=_component_id(ArchitectureFacet.NARRATIVE_ENGINE, "Investigation and revelation"),
-                    facet=ArchitectureFacet.NARRATIVE_ENGINE,
-                    label="Investigation and revelation",
-                    normalized_concept="investigation_revelation",
-                    derivation=ArchitectureDerivation.CURATED_MATCH,
-                    role=ArchitectureRole.PRIMARY,
-                    certainty=ArchitectureCertainty.LIKELY,
-                    rationale=(
-                        "Mystery guidance supports a bounded investigation/revelation engine "
-                        "as working guidance, not canon."
+                    rationale=f"A deterministic premise signal matches {group.label.casefold()}.",
+                    evidence=(
+                        ArchitectureEvidence(
+                            source_kind="premise",
+                            label=f"{group.key} signal",
+                            excerpt=signal,
+                        ),
                     ),
-                    evidence=engine_evidence,
                     source_provenance=source_provenance,
                 )
             )
 
-        superhero_signal = _first_signal(premise, _EXPLICIT_SIGNALS["superhero fiction"])
-        if superhero_signal is not None:
+        if detected:
+            primary_group, primary_signal = detected[0]
             components.append(
                 ArchitectureComponent(
-                    component_id=_component_id(ArchitectureFacet.GENRE_CONSTELLATION, "Superhero fiction"),
-                    facet=ArchitectureFacet.GENRE_CONSTELLATION,
-                    label="Superhero fiction",
-                    normalized_concept="superhero",
+                    component_id=_component_id(ArchitectureFacet.NARRATIVE_ENGINE, primary_group.engine),
+                    facet=ArchitectureFacet.NARRATIVE_ENGINE,
+                    label=primary_group.engine,
+                    normalized_concept=_normalized_concept(primary_group.engine),
                     derivation=ArchitectureDerivation.CURATED_MATCH,
-                    role=ArchitectureRole.SUPPORTING,
-                    certainty=ArchitectureCertainty.CLEAR,
-                    rationale="A deterministic premise signal matches superhero fiction.",
+                    role=ArchitectureRole.PRIMARY,
+                    certainty=ArchitectureCertainty.LIKELY,
+                    rationale=(
+                        f"{primary_group.label} guidance supports a bounded "
+                        f"{primary_group.engine.casefold()} engine as working guidance, not canon."
+                    ),
                     evidence=(
                         ArchitectureEvidence(
                             source_kind="premise",
-                            label="superhero signal",
-                            excerpt=superhero_signal,
+                            label=f"{primary_group.key} signal",
+                            excerpt=primary_signal,
                         ),
                     ),
                     source_provenance=source_provenance,
@@ -355,8 +378,8 @@ class DeterministicArchitectureAnalyzer:
             )
 
         lowered = premise.casefold()
-        relationship_present = any(token in lowered for token in ("partner", "lover", "spouse", "relationship"))
-        betrayal_present = any(token in lowered for token in ("betrayal", "affair", "betray"))
+        relationship_present = any(token in lowered for token in _RELATIONSHIP_KEYWORDS)
+        betrayal_present = any(token in lowered for token in _BETRAYAL_KEYWORDS)
         if relationship_present and betrayal_present:
             excerpt = "relationship" if "relationship" in lowered else next(
                 token for token in ("partner", "lover", "spouse") if token in lowered
@@ -382,7 +405,7 @@ class DeterministicArchitectureAnalyzer:
                 )
             )
 
-        identity_signal = _first_signal(premise, _EXPLICIT_SIGNALS["secret identity"])
+        identity_signal = _first_signal(premise, _SECRET_IDENTITY_KEYWORDS)
         if identity_signal is not None:
             components.append(
                 ArchitectureComponent(

@@ -39,9 +39,9 @@ from .architecture_analysis import (
 )
 from .architecture_models import ArchitectureFacet, ArchitectureRole
 from .discovery import (
+    DeterministicDiscoveryRecommender,
     DiscoveryRecommender,
     StoryDiscoveryRecommender,
-    UnavailableDiscoveryRecommender,
 )
 from .contracts import MutationCommand
 from .persistence import BeginnerConcurrencyError, BeginnerPersistenceError
@@ -59,7 +59,7 @@ class BeginnerRuntimeDependencies:
 def default_runtime_dependencies() -> BeginnerRuntimeDependencies:
     return BeginnerRuntimeDependencies(
         architecture_analyzer=DeterministicArchitectureAnalyzer(),
-        discovery_recommender=UnavailableDiscoveryRecommender(),
+        discovery_recommender=DeterministicDiscoveryRecommender(),
     )
 
 
