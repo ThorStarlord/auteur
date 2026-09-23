@@ -204,6 +204,10 @@ def projection_to_dict(projection: WorkspaceProjection, *, workspace_id: str) ->
                     {
                         "label": comparison.label,
                         "reader_experience": comparison.reader_experience,
+                        "aesthetic_framing": comparison.aesthetic_framing,
+                        "expected_tropes": list(comparison.expected_tropes),
+                        "narrative_structure": comparison.narrative_structure,
+                        "relationship_explanation": comparison.relationship_explanation,
                         "narrative_promise": comparison.narrative_promise,
                         "genre_conventions": list(comparison.genre_conventions),
                         "tradeoffs": list(comparison.tradeoffs),

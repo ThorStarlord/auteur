@@ -203,3 +203,33 @@ def test_browser_keeps_tradeoffs_out_of_center_warnings():
     js = _read(APP)
     assert "warnings = warnings.concat" not in js
     assert "card.warnings_or_tensions" not in js
+
+
+
+def test_browser_makes_phase_transitions_and_primary_actions_explicit():
+    js = _read(APP)
+    css = _read(STYLES)
+
+    assert "Next: outline your story" in js
+    assert "primary-next-action" in js
+    assert 'class="review-action primary-action"' in js
+    assert "phase-complete-banner" in js
+    assert ".review-action.primary-action" in css
+    assert ".navigator-entry.is-accepted" in css
+    assert "focus-visible" in css
+
+
+def test_browser_exposes_integrated_story_composition_and_explicit_craft_dimensions():
+    js = _read(APP)
+
+    for token in (
+        "How these parts work together",
+        "Aesthetic framing",
+        "Common tropes",
+        "Narrative structure",
+        "Relationship / thematic dynamics",
+        "relationship_explanation",
+        "expected_tropes",
+        "narrative_structure",
+    ):
+        assert token in js
