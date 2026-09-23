@@ -176,12 +176,15 @@ def test_browser_inspector_and_navigator_are_accessible_drawers():
 
 def test_browser_renders_contextual_inspector_without_internal_semantic_labels():
     js = _read(APP)
-    assert "Mystery & reader contract" in js
+    assert "Story experience & craft context" in js
     assert "Reader experience" in js
     assert "Emotional promise" in js
     assert "Narrative promise" in js
     assert "Genre conventions" in js
+    assert "Craft principle" in js
     assert "Common failure mode" in js
+    assert "Mystery & reader contract" not in js
+    assert "Mystery craft principle" not in js
     assert "option_comparisons" in js
     assert "Semantic Area:" not in js
 

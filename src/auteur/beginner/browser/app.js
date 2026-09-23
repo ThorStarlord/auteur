@@ -241,7 +241,7 @@
       ["narrative_promise", "Narrative promise"],
       ["genre_conventions", "Genre conventions"],
       ["patterns", "Relevant patterns"],
-      ["craft_principle", "Mystery craft principle"],
+      ["craft_principle", "Craft principle"],
       ["common_failure_mode", "Common failure mode"],
     ];
     return labels.map(function (entry) {
@@ -317,16 +317,17 @@
   function renderInspector(projection) {
     var inspector = projection.guidance_inspector;
     var body = $("inspector-body");
-    if (!inspector) {
-      body.innerHTML = '<p class="muted">Guidance is unavailable for this view.</p>';
-      return;
-    }
     var parts = [];
     if (projection.story_orientation && projection.story_orientation.composition) {
       parts.push(compositionExplanation(projection.story_orientation));
     }
+    if (!inspector) {
+      parts.push('<p class="muted">Decision-specific guidance is unavailable for this view.</p>');
+      body.innerHTML = parts.join("");
+      return;
+    }
     parts.push(detailsRow("Why does Auteur recommend this?", "<p>" + escapeHtml(inspector.recommendation_rationale) + "</p>"));
-    parts.push(detailsRow("Mystery & reader contract", contextRows(inspector.context_guidance || {})));
+    parts.push(detailsRow("Story experience & craft context", contextRows(inspector.context_guidance || {})));
     parts.push(detailsRow("What this choice changes", consequenceGroups(inspector["narrative_" + "consequences"])));
     parts.push(detailsRow("Compare options", comparisonRows(inspector.option_comparisons)));
     parts.push(detailsRow("Evidence & provenance", listHtml(inspector.evidence)));
