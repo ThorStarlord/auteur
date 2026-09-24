@@ -284,3 +284,19 @@ def test_browser_story_lens_refinement_routes_through_existing_architecture_comm
     # Story Lens mutation command or parallel authority.
     assert 'sendAction("move-story-lens"' not in js
     assert 'sendAction("pin-story-lens"' not in js
+
+
+def test_browser_exposes_actionable_interpretation_diagnostics_without_vanity_metrics():
+    js = _read(APP)
+    assert "Interpretation diagnostics" in js
+    for token in (
+        "source_mode",
+        "unestablished_lens_ids",
+        "needs_attention_lens_ids",
+        "author_adjustment_count",
+        "active_component_count",
+        "suppressed_component_count",
+    ):
+        assert token in js
+    for vanity in ("engagement score", "creativity score", "conversion rate"):
+        assert vanity not in js.lower()
