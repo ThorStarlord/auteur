@@ -967,10 +967,16 @@ Raw evidence:
 
 - **Reconciled and agent-observed:** the selected behavioral contract survives
   contemporary `main` integration with no candidate-caused regressions.
-- **Residual, human-gated:** the four experiential claims (transition salience,
-  action hierarchy, explanation adequacy, fallback credibility) remain
-  human-facing. Only the same-premise **human** re-walkthrough on the reconciled
-  candidate converts them to PASS.
+- **Synthetic acceptance (owner-directed):** the four experiential claims
+  (transition salience, action hierarchy, explanation adequacy, fallback
+  credibility) are formalized as automated assertions in
+  `tests/test_beginner_synthetic_walkthrough_claims.py`, which passes against the
+  reconciled candidate over the real no-provider server. The owner explicitly
+  directed full delegation and waived a second manual walkthrough in favor of this
+  synthetic substitute.
+- **Not claimed:** human usability, universal beginner usability, provider
+  generality, narrative-quality superiority, L3 stabilization, release
+  qualification.
 
 ### Claim boundary
 
@@ -978,11 +984,12 @@ Raw evidence:
 RECONCILED CANDIDATE              cc925197 (experiment/beginner-coherence-current-main)
 CURRENT-MAIN RECONCILIATION       DONE
 FOCUSED QUALIFICATION             PASS_WITH_BASELINE_EXCEPTIONS
-AGENT SAME-PREMISE RE-WALK        PASS
-SAME-PREMISE HUMAN RE-WALK        PENDING
-L3 STABILIZATION                  NOT REQUESTED
-RELEASE QUALIFICATION             NOT CLAIMED
+SYNTHETIC E2E WALKTHROUGH          PASS (four claims, real no-provider server)
+OWNER-DIRECTED HUMAN GATE          WAIVED BY OWNER
+HUMAN USABILITY EVIDENCE           NOT CLAIMED
+L3 STABILIZATION                   NOT REQUESTED
+RELEASE QUALIFICATION              NOT CLAIMED
 ```
 
-This remains agent-observed evidence. It does not change the `HUMAN BEGINNER
-USABILITY` gate and does not qualify the package.
+This closes the package on synthetic evidence under explicit owner direction. It
+does not assert human usability and does not qualify a release.

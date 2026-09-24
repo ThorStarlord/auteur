@@ -27,7 +27,7 @@ The PR #233 stabilization checkpoint recorded the prior baseline lint dispositio
 
 ## Current Selected Responsibility
 
-**CURRENT_MAIN_BEGINNER_COHERENCE_RECONCILIATION — ACTIVE CANDIDATE** — the integration continuation of the Beginner Narrative-Architecture Coherence / deterministic fallback package. The earlier #249 scripted journey correctly established mechanical premise-to-Chapter-2 coherence after PR #280, but later claim-appropriate human use reopened product construction at the Beginner architecture-first surface rather than selecting a new roadmap family.
+**CURRENT_MAIN_BEGINNER_COHERENCE_RECONCILIATION — COMPLETED (OWNER-DIRECTED SYNTHETIC ACCEPTANCE)** — the integration continuation of the Beginner Narrative-Architecture Coherence / deterministic fallback package. The earlier #249 scripted journey correctly established mechanical premise-to-Chapter-2 coherence after PR #280, but later claim-appropriate human use reopened product construction at the Beginner architecture-first surface rather than selecting a new roadmap family.
 
 The 2026-09-23 episode selected one bounded package from observed friction:
 
@@ -45,22 +45,30 @@ The implementation evidence now lives on **one combined candidate**, not two sou
 - **Historical combined candidate** `experiment/deterministic-curated-fallback` @ `a63684ec` on base `d7966dc3` — the deterministic-fallback commits (`3ff41f7e`, `2f3fd1e0`, `24e7e16b`, `52f4928f`, `f7c57f8d`) plus cherry-picked PR #283 commits (`64320f17`, `8390ddd8`, `f707b6c8`, `166c1c99`) and a status-doc alignment commit. PR #283's `f0a9ee0c` and `52a9e38f` are patch-id-equivalent to `64320f17` and `8390ddd8`, so the split-source-identity problem is resolved.
 - **Current-main reconciled candidate** `experiment/beginner-coherence-current-main` @ `cc925197` — the same selected behavior reconstructed onto current `main @ 3836c26d`, preserving the later post-draft continuation, whole-book progress, Book acceptance, and authority/projection semantics. This is a merge-based reconciliation of the selected behavior, not a rebase of stale branch history.
 
-Reconciliation and the human re-walkthrough are **two distinct unresolved gates**, not one. A human PASS on the stale-base candidate alone would establish only that the corrections solve the observed experiential friction on that candidate; it would not establish that the corrected capability exists coherently on contemporary Auteur. Current-main reconciliation is therefore part of package completion, not a separate future integration step.
+Reconciliation and acceptance are **two distinct gates**, not one. A PASS on the stale-base candidate alone would establish only that the corrections solve the observed experiential friction on that candidate; it would not establish that the corrected capability exists coherently on contemporary Auteur. Current-main reconciliation was therefore part of package completion, not a separate future integration step. Both gates are now closed on this branch:
 
 ```text
-CANDIDATE-LEVEL PRODUCT GATE
-→ same-premise human re-walkthrough
-
 REPOSITORY-INTEGRATION GATE
-→ reconcile capability onto current main
-→ requalify the reconciled candidate
+→ reconcile capability onto current main              DONE
+→ focused / current-boundary qualification            DONE
+→ synthetic E2E walkthrough of the four claims        PASS
+
+OWNER-DIRECTED ACCEPTANCE
+→ second manual human walkthrough                     WAIVED BY OWNER
+→ synthetic acceptance substitutes                    ACCEPTED
 ```
+
+The owner explicitly directed full delegation for this package and authorized a **synthetic browser E2E walkthrough** in place of a second manual playthrough. The four experiential claims are therefore accepted on synthetic evidence over the real no-provider server (`tests/test_beginner_synthetic_walkthrough_claims.py`). Human usability is **not** claimed; it was consciously waived by the owner rather than satisfied.
 
 Focused validation on the **current-main reconciled candidate** (Python 3.12, Windows developer host) used the same beginner boundary. Validation language is deliberately exact; a suite with real, reproduced baseline failures is reported as `PASS_WITH_BASELINE_EXCEPTIONS`, not simply `PASS`:
 
 ```text
 FOCUSED SUITE (tests/test_beginner_*.py)
-369 passed / 1 skipped / 1 baseline failure
+370 passed / 1 skipped / 1 baseline failure
+
+SYNTHETIC E2E WALKTHROUGH
+tests/test_beginner_synthetic_walkthrough_claims.py PASS
+(four experiential claims asserted over the real no-provider server)
 
 FULL SUITE (developer-machine integration, Python 3.12)
 5246 passed / 2 skipped / 9 baseline failures
@@ -83,26 +91,29 @@ The historical combined candidate (`a63684ec`) was previously recorded as **350 
 
 Agent-observed (**not human**) re-walkthrough on the **historical** combined candidate, same young-superhero premise, default no-provider server, fresh workspace: premise-sensitive interpretation (Mystery + Superhero fiction, no Romance misclassification, Secret identity detected), three distinct deterministic directions with no manufactured recommendation, accepted Story Direction / Story Identity / Whole-Story Structure, an integrated composition synthesis with honest "aesthetic framing is not yet established", and a Structure-acceptance transition to `primary_surface: complete` with outline continuation exposed and the acceptance control removed.
 
-The same agent-observed re-walkthrough was then repeated against the **current-main reconciled candidate** and reproduced the same semantic outcomes (evidence: `docs/qualification-evidence/2026-09-24-current-main-reconciled-agent-rewalk.json`). This remains agent-observed evidence; it does not convert the human-facing experiential claims to PASS.
+The same agent-observed re-walkthrough was then repeated against the **current-main reconciled candidate** and reproduced the same semantic outcomes (evidence: `docs/qualification-evidence/2026-09-24-current-main-reconciled-agent-rewalk.json`). This remains agent-observed evidence.
+
+Owner-directed **synthetic** acceptance then formalized the four experiential claims as an automated E2E assertion (`tests/test_beginner_synthetic_walkthrough_claims.py`), which passes against the reconciled candidate. Human usability remains **not claimed**; the owner waived the second manual walkthrough and accepted the synthetic substitute.
 
 Current claim boundary:
 
 ```text
-BEGINNER COHERENCE PACKAGE                  ACTIVE CANDIDATE
+BEGINNER COHERENCE PACKAGE                  COMPLETED (OWNER-DIRECTED SYNTHETIC ACCEPTANCE)
 COMBINED HISTORICAL-BASE CANDIDATE          IMPLEMENTED
 FOCUSED CANDIDATE VALIDATION                PASS_WITH_BASELINE_EXCEPTIONS
 AGENT SAME-PREMISE RE-WALK                  PASS (HISTORICAL BASE AND RECONCILED)
+SYNTHETIC E2E WALKTHROUGH (4 CLAIMS)        PASS
 CURRENT-MAIN RECONCILIATION                 DONE
 CURRENT-MAIN FOCUSED QUALIFICATION          PASS_WITH_BASELINE_EXCEPTIONS
-SAME-PREMISE HUMAN RE-WALK                  PENDING
+HUMAN USABILITY EVIDENCE                    WAIVED BY OWNER (NOT CLAIMED)
 NEW PRODUCT RESPONSIBILITY                  NONE SELECTED
 L3 STABILIZATION                            NOT REQUESTED
 RELEASE QUALIFICATION                       NOT CLAIMED
 ```
 
-The remaining action is the one decisive same-premise **human** re-walkthrough on the **reconciled** candidate (the experiential claims in this package are human-facing). Until it is performed this package stays an ACTIVE CANDIDATE and cannot be closed as COMPLETED. Do not launch another experiment automatically.
+The package is closed at this branch head. No further action is required for it; do not launch another experiment or extend it automatically. This closure is synthetic and does not assert human usability, universal beginner usability, provider generality, narrative-quality superiority, or release readiness.
 
-Issue #248 remains **PAUSE / REASSESS**. File size alone is not admission evidence. Historical correctness/evidence debt remains reconciled as previously recorded; this active Beginner package is product work selected by newer workflow evidence, not a reopening of the maintainability decomposition lane.
+Issue #248 remains **PAUSE / REASSESS**. File size alone is not admission evidence. Historical correctness/evidence debt remains reconciled as previously recorded; the recently closed Beginner package was product work selected by newer workflow evidence, not a reopening of the maintainability decomposition lane.
 
 ## Current Product Direction
 
@@ -141,7 +152,7 @@ claim-appropriate workflow evidence or deliberate product-lane selection
 → human re-check when the claim is experiential
 ```
 
-The present application of that rule is the active Beginner coherence package above. After that package closes, `NO_CHANGE` again becomes a valid disposition unless new evidence selects another bounded responsibility.
+The most recent application of that rule was the Beginner coherence package above, now closed under owner-directed synthetic acceptance. `NO_CHANGE` again becomes a valid disposition unless new evidence selects another bounded responsibility.
 
 ## Canonical Architecture
 
@@ -217,11 +228,11 @@ The 2026-09-20 consolidation packages (#253, #256, #258, #259, #260, #265, #266,
 
 ## Next Product Selection
 
-**No additional package beyond the active Beginner Narrative-Architecture Coherence / deterministic fallback candidate is implicitly authorized.**
+**No additional package is implicitly authorized by the closed Beginner Narrative-Architecture Coherence / deterministic fallback package.**
 
-Finish the selected package first: current-main reconciliation and focused qualification are complete on the reconciled candidate; the remaining step is the decisive same-premise human re-walkthrough on that reconciled candidate. If the observed friction is corrected, mark the package complete and return to repository-level selection rather than extending it automatically.
+That package is now COMPLETED under owner-directed synthetic acceptance: current-main reconciliation, focused/current-boundary qualification, and the synthetic four-claim E2E walkthrough are all closed on this branch. Return to repository-level selection rather than extending it automatically.
 
-After closure, the next product package should again be selected from new claim-appropriate workflow evidence rather than from ontology completion pressure. Strong preserved candidates include:
+The next product package should again be selected from new claim-appropriate workflow evidence rather than from ontology completion pressure. Strong preserved candidates include:
 
 - Unified Decision Inbox / broader attention-source coverage;
 - Current Author Intent if relevance friction appears;

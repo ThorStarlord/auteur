@@ -154,12 +154,14 @@ Discovery, generic non-Mystery Structure, per-engine Identity mapping,
 projection/mutation coherence, phase-transition clarity, and integrated
 Narrative Architecture explanation. The correction lives on one combined
 candidate that carries both the deterministic-fallback work and the PR #283
-phase-transition and explanation corrections, and that selected behavior has now
-been reconciled onto current `main` so it can coexist with the later post-draft
+phase-transition and explanation corrections, and that selected behavior has been
+reconciled onto current `main` so it can coexist with the later post-draft
 continuation, whole-book progress, Book acceptance, and authority/projection
-semantics. Repository integration and the same-premise human re-walkthrough
-remain the two completion gates; until the human re-walkthrough passes, do not
-claim the observed usability friction is corrected.
+semantics. Under explicit owner direction, this package closed on synthetic
+verification (automated E2E over the real no-provider server) rather than a
+second manual walkthrough. That waiver is a one-time owner decision for this
+package; the durable rule below is unchanged — real-author usability still
+requires human evidence and is not claimed by synthetic acceptance.
 
 The general product-selection rule remains:
 
