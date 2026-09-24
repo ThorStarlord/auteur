@@ -905,8 +905,9 @@ historical candidate record above.
   the selected behavior rather than the historical branch topology. This is not a
   rebase of stale history and it preserves the later post-draft continuation,
   whole-book progress, Book acceptance, and authority/projection semantics.
-- Reconciled candidate SHA: recorded in the accompanying status/evidence commit
-  for this branch (see `STATUS.md`).
+- Reconciled candidate SHA (merge commit, parents `main @ 3836c26d` and
+  `experiment/deterministic-curated-fallback @ d2901944`):
+  `cc925197b8109eabf192b2518aa360fce7ea9693`.
 
 ### Focused validation (Python 3.12, Windows developer host)
 
@@ -974,7 +975,7 @@ Raw evidence:
 ### Claim boundary
 
 ```text
-RECONCILED CANDIDATE              experiment/beginner-coherence-current-main
+RECONCILED CANDIDATE              cc925197 (experiment/beginner-coherence-current-main)
 CURRENT-MAIN RECONCILIATION       DONE
 FOCUSED QUALIFICATION             PASS_WITH_BASELINE_EXCEPTIONS
 AGENT SAME-PREMISE RE-WALK        PASS
