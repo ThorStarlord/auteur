@@ -27,6 +27,44 @@ The PR #233 stabilization checkpoint recorded the prior baseline lint dispositio
 
 ## Current Selected Responsibility
 
+**BEGINNER_STORY_LENS_FIRST_SCREEN — IMPLEMENTED / QUALIFICATION IN PROGRESS** — on
+2026-09-24 the owner explicitly selected the first post-premise UI as the next
+bounded product responsibility. The implementation is stacked on PR #285's
+current head so it can reuse the reconciled Narrative Architecture,
+product-compression, and backend-owned action-hierarchy contracts without
+reopening the already-closed coherence package.
+
+Selected vertical stack:
+
+- typed, read-only `StoryLensProjection` contract over existing
+  `NarrativeArchitectureAnalysis`;
+- five default lenses: Main Story Engine, Emotional & Aesthetic Framing, Common
+  Tropes, Structural Shape, and Reader Experience;
+- detailed Story Lens inspector with existing component-refinement commands;
+- client-local, failure-safe lens ordering that never mutates narrative state;
+- derived operational diagnostics for stale/fallback/unestablished lens state,
+  deliberately without vanity engagement metrics;
+- synthetic HTTP coverage of premise -> Story Lens overview -> Story Discovery
+  -> explicit Story Direction -> accepted Structure -> outline continuation;
+- canonical product specification at
+  `docs/design/2026-09-24-story-lens-first-screen-ux.md`.
+
+Authority boundary:
+
+```text
+Story Lens interpretation / refinement        DERIVED / NOT CANON
+layout reorder                                PRESENTATION ONLY
+continue-architecture                         TRANSITION, NOT ACCEPTANCE
+Story Direction acceptance                    EXPLICIT EXISTING AUTHORITY
+Whole-Story Structure                         SEPARATE LATER AUTHORITY
+```
+
+External human usability trials remain post-construction by explicit owner
+direction. Repository qualification must be reported from the exact stacked
+candidate head; no release qualification is implied.
+
+### Previous closed package
+
 **CURRENT_MAIN_BEGINNER_COHERENCE_RECONCILIATION — COMPLETED (OWNER-DIRECTED SYNTHETIC ACCEPTANCE)** — the integration continuation of the Beginner Narrative-Architecture Coherence / deterministic fallback package. The earlier #249 scripted journey correctly established mechanical premise-to-Chapter-2 coherence after PR #280, but later claim-appropriate human use reopened product construction at the Beginner architecture-first surface rather than selecting a new roadmap family.
 
 The 2026-09-23 episode selected one bounded package from observed friction:
