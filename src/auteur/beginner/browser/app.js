@@ -685,6 +685,31 @@
         }).join("");
         html.push("<h4>" + escapeHtml(facet.label) + "</h4><ul>" + items + "</ul>");
       });
+      if (orientation.lens_diagnostics) {
+        var diagnostics = orientation.lens_diagnostics;
+        var lensTitles = {};
+        (orientation.story_lenses || []).forEach(function (lens) {
+          lensTitles[lens.lens_id] = lens.title;
+        });
+        var unresolved = (diagnostics.unestablished_lens_ids || []).map(function (id) {
+          return lensTitles[id] || id;
+        });
+        var needsAttention = (diagnostics.needs_attention_lens_ids || []).map(function (id) {
+          return lensTitles[id] || id;
+        });
+        html.push(detailsRow(
+          "Interpretation diagnostics",
+          "<p><strong>Analysis source:</strong> " + escapeHtml(diagnostics.source_mode) + "</p>" +
+          "<p><strong>Freshness:</strong> " + escapeHtml(diagnostics.stale ? "needs review" : "current") + "</p>" +
+          "<p><strong>Active / suppressed components:</strong> " +
+            escapeHtml(String(diagnostics.active_component_count)) + " / " +
+            escapeHtml(String(diagnostics.suppressed_component_count)) + "</p>" +
+          "<p><strong>Author adjustments:</strong> " +
+            escapeHtml(String(diagnostics.author_adjustment_count)) + "</p>" +
+          "<p><strong>Unestablished lenses:</strong></p>" + listHtml(unresolved) +
+          "<p><strong>Needs attention:</strong></p>" + listHtml(needsAttention)
+        ));
+      }
     }
     html.push("<h4>Accepted milestones</h4>");
     html.push(refs.length ? "<ul>" + refs.map(function (ref) {
