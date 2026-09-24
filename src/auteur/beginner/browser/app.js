@@ -669,12 +669,18 @@
         var acceptAction = stage === "discover" ? "accept-direction" :
           (stage === "story_identity" ? "accept-identity" : "accept-structure");
         if (actions.indexOf(openAction) >= 0) {
-          inner.push('<button class="review-action" data-command="open-review" data-stage="' + escapeHtml(stage) + '">Review ' + escapeHtml(stageLabel(stage)) + " →</button>");
+          var openClass = projection.primary_action && projection.primary_action.action_id === openAction
+            ? "review-action primary-action"
+            : "review-action";
+          inner.push('<button class="' + openClass + '" data-command="open-review" data-stage="' + escapeHtml(stage) + '">Review ' + escapeHtml(stageLabel(stage)) + " →</button>");
         }
         if (actions.indexOf(acceptAction) >= 0) {
           var acceptLabel = stage === "discover" ? "Accept Story Direction" :
             (stage === "story_identity" ? "Accept Story Identity" : "Accept Whole-Story Structure");
-          inner.push('<button class="review-action primary-action" data-command="' + acceptAction + '">' + acceptLabel + "</button>");
+          var acceptClass = projection.primary_action && projection.primary_action.action_id === acceptAction
+            ? "review-action primary-action"
+            : "review-action";
+          inner.push('<button class="' + acceptClass + '" data-command="' + acceptAction + '">' + acceptLabel + "</button>");
         }
         var revisionOpenAction = "open-revision:" + stage;
         var revisedAcceptAction = stage === "discover" ? "accept-revised-direction" :
@@ -688,7 +694,10 @@
         if (actions.indexOf(revisedAcceptAction) >= 0) {
           var revisedLabel = stage === "discover" ? "Accept Revised Story Direction" :
             (stage === "story_identity" ? "Accept Revised Story Identity" : "Accept Revised Whole-Story Structure");
-          inner.push('<button class="review-action primary-action" data-command="' + revisedAcceptAction + '">' + revisedLabel + "</button>");
+          var revisedClass = projection.primary_action && projection.primary_action.action_id === revisedAcceptAction
+            ? "review-action primary-action"
+            : "review-action";
+          inner.push('<button class="' + revisedClass + '" data-command="' + revisedAcceptAction + '">' + revisedLabel + "</button>");
         }
         (review.card_summaries || []).forEach(function (summary) {
           var alignment = summary.guidance_alignment ||
@@ -865,9 +874,12 @@
       "review-chapter-1": "Review Chapter 1",
       "review-stale-continuation": "Review stale continuation"
     };
-    var action = (projection.available_actions || []).filter(function (item) {
-      return Object.prototype.hasOwnProperty.call(actionLabels, item);
-    })[0];
+    var projectedPrimary = projection.primary_action || null;
+    var action = projectedPrimary && Object.prototype.hasOwnProperty.call(actionLabels, projectedPrimary.action_id)
+      ? projectedPrimary.action_id
+      : (projection.available_actions || []).filter(function (item) {
+        return Object.prototype.hasOwnProperty.call(actionLabels, item);
+      })[0];
     if (!state && !foundationAccepted) {
       body.innerHTML = '<p class="muted">Accept the whole-story structure to continue into outlining.</p>';
       return;
@@ -908,6 +920,9 @@
     if (action) {
       html.push('<p class="next-action-label">Next step</p>');
       html.push('<button type="button" class="continue-button primary-next-action" data-continuation-action="' + escapeHtml(action) + '">' + escapeHtml(actionLabels[action]) + " →</button>");
+      if (projectedPrimary && projectedPrimary.action_id === action && projectedPrimary.reason) {
+        html.push('<p class="muted primary-action-reason">' + escapeHtml(projectedPrimary.reason) + "</p>");
+      }
     } else if (foundationAccepted) {
       html.push('<p class="muted">The foundation is accepted, but no continuation action is currently available.</p>');
     }
