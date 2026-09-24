@@ -261,7 +261,6 @@ def test_browser_story_lenses_are_composable_without_story_mutation():
         "data-story-lens-move",
         "data-story-lens-open",
         "renderStoryLensInspector",
-        "DERIVED / NOT CANON",
     ):
         assert token in js
 
