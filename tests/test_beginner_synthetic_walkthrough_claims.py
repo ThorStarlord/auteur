@@ -147,11 +147,12 @@ def test_synthetic_walkthrough_covers_the_four_experiential_claims(tmp_path: Pat
             "Next: outline your story",
             "How these parts work together",
             "review-action primary-action",
-            "story-lens-grid",
             "renderStoryLensInspector",
             "storyLensLayoutKey",
         ):
             assert marker in app_js, f"served app.js missing action-hierarchy marker: {marker}"
+        assert "story-lens-grid" in index_html
+        assert ".story-lens-grid" in styles_css
         assert ".review-action.primary-action" in styles_css
         assert "focus-visible" in styles_css
 
