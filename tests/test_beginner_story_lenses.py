@@ -140,7 +140,11 @@ def test_story_lens_refinement_reuses_existing_idempotent_noncanonical_authority
     assert first.canonical_refs == ()
     assert first.story_orientation is not None
     trope_lens = _by_id(first.story_orientation.story_lenses)["common_tropes"]
-    assert trope_lens.state is StoryLensState.AUTHOR_CONFIRMED
+    confirmed_item = next(
+        item for item in trope_lens.items if item.component_id == "trope:secret-identity"
+    )
+    assert confirmed_item.review_state == "author_confirmed"
+    assert trope_lens.state is StoryLensState.INFERRED
 
     replay = app.confirm_architecture_component(
         component_id="trope:secret-identity",
