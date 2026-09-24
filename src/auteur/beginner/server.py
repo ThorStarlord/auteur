@@ -273,6 +273,16 @@ def projection_to_dict(projection: WorkspaceProjection, *, workspace_id: str) ->
             "target_stage": _enum_value(projection.revision.target_stage),
         },
         "available_actions": list(projection.available_actions),
+        "primary_action": (
+            None
+            if projection.primary_action is None
+            else {
+                "action_id": projection.primary_action.action_id,
+                "label": projection.primary_action.label,
+                "kind": projection.primary_action.kind,
+                "reason": projection.primary_action.reason,
+            }
+        ),
         "working_composition": (
             None
             if projection.working_composition is None
