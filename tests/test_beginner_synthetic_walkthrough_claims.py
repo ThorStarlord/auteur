@@ -147,6 +147,9 @@ def test_synthetic_walkthrough_covers_the_four_experiential_claims(tmp_path: Pat
             "Next: outline your story",
             "How these parts work together",
             "review-action primary-action",
+            "story-lens-grid",
+            "renderStoryLensInspector",
+            "storyLensLayoutKey",
         ):
             assert marker in app_js, f"served app.js missing action-hierarchy marker: {marker}"
         assert ".review-action.primary-action" in styles_css
@@ -174,6 +177,30 @@ def test_synthetic_walkthrough_covers_the_four_experiential_claims(tmp_path: Pat
         assert "not yet established" in synthesis.lower()
         assert "Relationship betrayal" in synthesis
         assert "Romance" not in synthesis
+
+        # First-screen Story Lens contract: useful interpretation before decisions,
+        # with honest unknowns and no canonical mutation.
+        lenses = {lens["lens_id"]: lens for lens in orientation["story_lenses"]}
+        assert tuple(lens["lens_id"] for lens in orientation["story_lenses"]) == (
+            "story_engine",
+            "aesthetic_framing",
+            "common_tropes",
+            "structural_shape",
+            "reader_experience",
+        )
+        assert lenses["story_engine"]["summary"] == "Investigation and revelation"
+        assert lenses["aesthetic_framing"]["state"] == "unestablished"
+        assert "Secret identity" in {
+            item["label"] for item in lenses["common_tropes"]["items"]
+        }
+        assert lenses["structural_shape"]["summary"] == "Progressive revelation"
+        assert lenses["reader_experience"]["summary"].startswith("Curiosity")
+        assert all(lens["authority_status"] == "DERIVED / NOT CANON" for lens in lenses.values())
+        diagnostics = orientation["lens_diagnostics"]
+        assert diagnostics["source_mode"] == "deterministic_fallback"
+        assert diagnostics["stale"] is False
+        assert "aesthetic_framing" in diagnostics["unestablished_lens_ids"]
+        assert projection["canonical_refs"] == []
 
         projection = _command(server, workspace_id, "continue-architecture", projection)
 
