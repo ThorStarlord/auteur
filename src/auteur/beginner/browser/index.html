@@ -44,7 +44,11 @@
             <p class="card-position">Working interpretation · not canon</p>
             <h2 id="architecture-heading">Here is what Auteur sees</h2>
             <p id="architecture-summary"></p>
-            <div id="architecture-facets"></div>
+            <div class="lens-layout-toolbar" aria-label="Story Lens layout controls">
+              <span class="hint">Story Lenses are working interpretations. Reorder them without changing story state.</span>
+              <button id="reset-lens-layout" type="button">Reset lens layout</button>
+            </div>
+            <div id="architecture-facets" class="story-lens-grid" aria-label="Story Architecture Overview"></div>
             <div class="surface-actions">
               <button id="continue-architecture" type="button" class="continue-button">Continue with this interpretation</button>
               <button id="refine-architecture" type="button">Refine this interpretation</button>
@@ -82,7 +86,7 @@
 
         <aside id="guidance-inspector" class="guidance-inspector" aria-label="Guidance Inspector" aria-hidden="true">
           <div class="inspector-header">
-            <h2>Explore guidance</h2>
+            <h2 id="inspector-title">Explore story details</h2>
             <button id="close-inspector" type="button" class="inspector-close">Close</button>
           </div>
           <div id="inspector-body"></div>
@@ -90,7 +94,7 @@
       </div>
 
       <button id="open-inspector" type="button" class="explore-guidance" aria-controls="guidance-inspector" aria-expanded="false">
-        Explore guidance
+        Explore details
       </button>
 
       <section aria-label="Review" class="review-panel">
