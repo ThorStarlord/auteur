@@ -147,6 +147,45 @@ These requirements do not create a new semantic layer or a universal narrative
 taxonomy. They constrain how existing Narrative Architecture, Discovery,
 Identity, Structure, and authority boundaries are presented and connected.
 
+### Story Lens first-screen contract
+
+After premise submission, the default Beginner surface is a **Story Architecture
+Overview** built from composable, derived Story Lenses rather than a
+questionnaire or a flat list of architecture facets.
+
+The default lens set is:
+
+- **Main story engine** — the recurring machinery generating story pressure;
+- **Emotional & aesthetic framing** — how events are expected to feel;
+- **Common tropes** — recurring situations and expectations;
+- **Structural shape** — a bounded inferred story pattern, explicitly not the
+  later accepted Whole-Story Structure;
+- **Reader experience** — the expected emotional/cognitive progression.
+
+Each lens supports a summary view and a detailed inspector. Direct lenses refine
+the existing Narrative Architecture components through existing versioned,
+idempotent commands; synthesized lenses route refinement back to their source
+lenses rather than creating shadow state.
+
+Card ordering is a presentation preference only. Reordering Story Lenses must
+not mutate `SessionEnvelope`, create a story command, change `session_version`,
+or cross an authority boundary. Missing or uncertain lenses must remain
+explicitly unestablished rather than being filled with invented certainty.
+
+The transition remains:
+
+```text
+premise
+-> derived Story Lens overview
+-> optional interpretation refinement
+-> Story Discovery
+-> explicit Story Direction selection
+-> explicit Story Direction acceptance
+```
+
+The implementation contract and failure/recovery rules live in
+`docs/design/2026-09-24-story-lens-first-screen-ux.md`.
+
 ## Current product-selection rule
 
 Issue #249's simulation-first premise-to-Chapter-2 evidence remains valid
@@ -185,6 +224,12 @@ directly exercises the real workflow and preserves authority boundaries. Human
 product evidence remains required before claiming real-author usefulness,
 comprehension, relevance, confidence, preference, or subjective story quality.
 
-After the active Beginner package closes, do not invent a successor merely to
+The previous Beginner coherence package is closed. On 2026-09-24 the owner
+explicitly selected the next bounded responsibility: the **Story Lens
+first-screen UX**, defining the premise -> interpretation -> Story Direction
+transition through composable Story Lenses. This is deliberate product-lane
+selection rather than an automatically invented roadmap successor.
+
+After this selected package closes, do not invent another successor merely to
 continue the roadmap. `NO_CHANGE` remains valid until new evidence or explicit
 product intent selects another bounded responsibility.
