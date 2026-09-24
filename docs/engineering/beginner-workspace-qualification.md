@@ -911,15 +911,17 @@ historical candidate record above.
 
 ### Focused validation (Python 3.12, Windows developer host)
 
-- Beginner boundary (`tests/test_beginner_*.py`): **369 passed, 1 skipped, 1
+- Beginner boundary (`tests/test_beginner_*.py`): **371 passed, 1 skipped, 0
   failed**.
-- Full developer-machine suite: **5246 passed, 2 skipped, 9 failed**.
-- Failure classification (baseline policy): all 9 failures reproduce identically
-  on clean `main @ 3836c26d` in the same environment, so they are **KNOWN
-  BASELINE FAILURES**, not candidate-caused regressions:
-  - `tests/test_beginner_workspace_mapping.py::test_preview_links_semantic_change_to_mapping_and_reports_impact`
-    (`promotion.py::_semantic_changes` is byte-identical on base, `main`, and
-    candidate);
+- Full developer-machine suite: **5247 passed, 2 skipped, 8 failed**.
+- Latent regression repaired: `test_beginner_workspace_mapping.py::test_preview_links_semantic_change_to_mapping_and_reports_impact`
+  had been red on `main` because `promotion.py::_semantic_changes` coarsened
+  dotted identity changes (`story_type.genre`) to whole fields. Leaf-level
+  changes were restored while keeping the broadened field coverage, so the
+  beginner boundary is now fully green.
+- Failure classification (baseline policy): the remaining 8 failures reproduce
+  identically on clean `main @ 3836c26d` in the same environment, so they are
+  **KNOWN BASELINE FAILURES**, not candidate-caused regressions:
   - eight `tests/auteur/narrative_realization/test_layer3_*.py` scene-knowledge
     tests.
 - Ruff: clean on `src/auteur/beginner` and `tests`.
@@ -934,8 +936,9 @@ historical candidate record above.
 ### Validation disposition
 
 ```text
-FOCUSED SUITE                    369 passed / 1 skipped / 1 baseline failure
-FULL SUITE                       5246 passed / 2 skipped / 9 baseline failures
+FOCUSED SUITE                    371 passed / 1 skipped / 0 failed
+SYNTHETIC E2E WALKTHROUGH        PASS (four claims, real no-provider server)
+FULL SUITE                       5247 passed / 2 skipped / 8 baseline failures
 CANDIDATE-CAUSED REGRESSIONS     NONE OBSERVED
 REPOSITORY VALIDATORS            validate-repo.py PASS
                                  validate-release-scope.py PASS

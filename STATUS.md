@@ -64,17 +64,17 @@ Focused validation on the **current-main reconciled candidate** (Python 3.12, Wi
 
 ```text
 FOCUSED SUITE (tests/test_beginner_*.py)
-370 passed / 1 skipped / 1 baseline failure
+371 passed / 1 skipped / 0 failed
 
 SYNTHETIC E2E WALKTHROUGH
 tests/test_beginner_synthetic_walkthrough_claims.py PASS
 (four experiential claims asserted over the real no-provider server)
 
 FULL SUITE (developer-machine integration, Python 3.12)
-5246 passed / 2 skipped / 9 baseline failures
+5247 passed / 2 skipped / 8 baseline failures
 
 CANDIDATE-CAUSED REGRESSIONS
-NONE OBSERVED — all 9 reproduced identically on clean `main @ 3836c26d`
+NONE OBSERVED — all 8 reproduced identically on clean `main @ 3836c26d`
 
 REPOSITORY VALIDATORS
 validate-repo.py PASS
@@ -85,7 +85,9 @@ VALIDATION DISPOSITION
 PASS_WITH_BASELINE_EXCEPTIONS
 ```
 
-The single beginner baseline failure is `test_beginner_workspace_mapping.py::test_preview_links_semantic_change_to_mapping_and_reports_impact` (targets `promotion.py::_semantic_changes`, which is byte-identical on base, `main`, and candidate). The other eight are `tests/auteur/narrative_realization/test_layer3_*.py` Layer-3 scene-knowledge tests that fail identically on clean `main` in this environment. These are environment/baseline conditions, not candidate-caused regressions. Ruff is clean on the touched paths; no L3 stabilization checkpoint or release qualification was run or claimed.
+The beginner boundary is fully green. The reconciliation also repaired a latent regression in `promotion.py`: `_semantic_changes` had coarsened dotted identity changes (for example `story_type.genre`) to whole fields, so `test_beginner_workspace_mapping.py::test_preview_links_semantic_change_to_mapping_and_reports_impact` had been red on `main`. Leaf-level changes were restored while keeping the broadened field coverage that the same rewrite had added.
+
+The remaining eight full-suite failures are `tests/auteur/narrative_realization/test_layer3_*.py` Layer-3 scene-knowledge tests that fail identically on clean `main` in this environment. These are environment/baseline conditions, not candidate-caused regressions. Ruff is clean on the touched paths; no L3 stabilization checkpoint or release qualification was run or claimed.
 
 The historical combined candidate (`a63684ec`) was previously recorded as **350 passed, 1 skipped, 2 baseline failures** on its own base; the additional baseline failure there (`test_root_serves_beginner_browser_entrypoint`) was a Python 3.14 Windows `mimetypes` artifact that does not occur on Python 3.12.
 

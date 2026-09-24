@@ -54,6 +54,43 @@ def identity_semantic_projection(identity: StoryIdentity) -> dict[str, object]:
     return {field: dumped.get(field) for field in _SEMANTIC_IDENTITY_FIELDS}
 
 
+_STRUCTURED_SEMANTIC_FIELDS = ("central_engine", "story_type", "target_experience")
+
+
+def _leaf_text(value: object) -> str | None:
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return value
+    return json.dumps(value, sort_keys=True, ensure_ascii=False)
+
+
+def _leaf_semantic_changes(
+    field: str,
+    before: dict[str, object],
+    after: dict[str, object],
+    mappings: tuple[MappingRecord, ...],
+) -> list[SemanticChange]:
+    changes: list[SemanticChange] = []
+    for key in dict.fromkeys((*before, *after)):
+        if before.get(key) == after.get(key):
+            continue
+        destination = f"{field}.{key}"
+        changes.append(
+            SemanticChange(
+                destination_field=destination,
+                before=_leaf_text(before.get(key)),
+                after=_leaf_text(after.get(key)),
+                mapping_ids=tuple(
+                    mapping.mapping_id
+                    for mapping in mappings
+                    if mapping.destination_field == destination
+                ),
+            )
+        )
+    return changes
+
+
 def _semantic_changes(
     current: StoryIdentity,
     candidate: StoryIdentity,
@@ -66,6 +103,13 @@ def _semantic_changes(
         before = current_projection[field]
         after = candidate_projection[field]
         if before == after:
+            continue
+        if (
+            field in _STRUCTURED_SEMANTIC_FIELDS
+            and isinstance(before, dict)
+            and isinstance(after, dict)
+        ):
+            changes.extend(_leaf_semantic_changes(field, before, after, mappings))
             continue
         changes.append(
             SemanticChange(
