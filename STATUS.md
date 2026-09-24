@@ -27,7 +27,7 @@ The PR #233 stabilization checkpoint recorded the prior baseline lint dispositio
 
 ## Current Selected Responsibility
 
-**BEGINNER_STORY_LENS_FIRST_SCREEN — IMPLEMENTED / QUALIFICATION IN PROGRESS** — on
+**BEGINNER_STORY_LENS_FIRST_SCREEN — COMPLETED / L1 GREEN** — on
 2026-09-24 the owner explicitly selected the first post-premise UI as the next
 bounded product responsibility. The implementation is stacked on PR #285's
 current head so it can reuse the reconciled Narrative Architecture,
@@ -60,8 +60,27 @@ Whole-Story Structure                         SEPARATE LATER AUTHORITY
 ```
 
 External human usability trials remain post-construction by explicit owner
-direction. Repository qualification must be reported from the exact stacked
-candidate head; no release qualification is implied.
+direction. No release qualification is implied.
+
+Qualification evidence for the code-bearing implementation head
+`1aef1c93a7c0331a54df4a88f2c71e0e5a4e61d1`:
+
+```text
+FULL BEGINNER L1 BOUNDARY                     381 passed / 0 failed
+BROWSER JAVASCRIPT PARSE (node --check)       PASS
+SYNTHETIC PREMISE -> LENSES -> DIRECTION E2E  PASS
+REPOSITORY VALIDATOR                          PASS
+RELEASE-SCOPE VALIDATOR                       PASS
+VENDORED CONTRACT                             PASS
+RUFF (TOUCHED PYTHON/TEST PATHS)              PASS
+```
+
+The L1 workflow was strengthened as part of this package: any changed
+`src/auteur/beginner/*.py` source now selects the complete
+`tests/test_beginner_*.py` boundary rather than only directly modified tests.
+The final documentation-only reconciliation head must still carry its own
+current L1 result; the 381-test claim above belongs to the exact implementation
+head named above.
 
 ### Previous closed package
 
