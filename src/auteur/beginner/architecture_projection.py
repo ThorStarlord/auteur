@@ -11,6 +11,7 @@ from .architecture_models import (
     NarrativeArchitectureAnalysis,
 )
 from .contracts import AcceptedMilestoneReference
+from .story_lenses import StoryLensDiagnostics, StoryLensProjection, build_story_lenses
 
 
 FACET_LABELS = {
@@ -73,6 +74,8 @@ class StoryOrientationProjection(BaseModel):
     navigator_facets: tuple[ArchitectureFacetProjection, ...]
     story_map_facets: tuple[ArchitectureFacetProjection, ...]
     composition: StoryCompositionProjection
+    story_lenses: tuple[StoryLensProjection, ...]
+    lens_diagnostics: StoryLensDiagnostics
     availability_note: str | None = None
     next_action_label: str
 
@@ -244,6 +247,10 @@ def build_story_orientation(
 ) -> StoryOrientationProjection | None:
     if analysis is None:
         return None
+    story_lenses, lens_diagnostics = build_story_lenses(
+        analysis=analysis,
+        analysis_current=analysis_current,
+    )
     return StoryOrientationProjection(
         summary=analysis.summary,
         analysis_id=analysis.analysis_id,
@@ -252,6 +259,8 @@ def build_story_orientation(
         navigator_facets=_facet_projections(analysis, expanded=False),
         story_map_facets=_facet_projections(analysis, expanded=True),
         composition=_composition_projection(analysis, accepted_milestones),
+        story_lenses=story_lenses,
+        lens_diagnostics=lens_diagnostics,
         availability_note=analysis.availability_note,
         next_action_label=_next_action(analysis_current, accepted_milestones),
     )
