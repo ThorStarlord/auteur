@@ -40,25 +40,28 @@ The 2026-09-23 episode selected one bounded package from observed friction:
 - clearer phase-completion / next-action hierarchy and removal of stale post-Structure continuation copy;
 - integrated Narrative Architecture explanation that connects engine, genre/story traditions, aesthetic framing, common tropes, relationship/thematic dynamics, narrative structure, and reader experience rather than presenting only a flat component list.
 
-The implementation evidence is currently split across two source identities:
+The implementation evidence now lives on **one combined candidate**, not two source identities:
 
-1. **Owner-reported local-only candidate** `experiment/deterministic-curated-fallback` — commits `3ff41f7e`, `2f3fd1e0`, `24e7e16b`, `52f4928f`, and `f7c57f8d`. These commits are not pushed, so remote GitHub cannot independently inspect them.
-2. **Remote stackable follow-up** draft PR #283 — phase-transition and integrated-explanation commits `f0a9ee0c` and `52a9e38f`, intentionally based on contemporary `main` so they can be cherry-picked/rebased onto the local candidate rather than reconstructing the fallback work.
+- **Combined candidate** `experiment/deterministic-curated-fallback` @ `a63684ec` — the deterministic-fallback commits (`3ff41f7e`, `2f3fd1e0`, `24e7e16b`, `52f4928f`, `f7c57f8d`) plus cherry-picked PR #283 commits (`64320f17`, `8390ddd8`, `f707b6c8`, `166c1c99`) and a status-doc alignment commit. PR #283's `f0a9ee0c` and `52a9e38f` are patch-id-equivalent to `64320f17` and `8390ddd8`, so the split-source-identity problem is resolved. The candidate is based on `d7966dc3` and predates the later `main` line (post-draft continuation, whole-book progress, Book acceptance); reconciliation with current `main` is a separate integration step and is not part of this package.
 
-Reported focused evidence on the local candidate before PR #283 stacking: Beginner-focused suite **347 passed, 1 skipped, 2 known baseline failures**, with both failures reproduced on the unmodified checkout; no L3 or release qualification was run. Agent-observed real-browser no-provider journeys reached accepted Story Direction, Story Identity, and Whole-Story Structure. The actual owner walkthrough then found material human-facing friction in transition salience and explanation composition.
+Focused validation on the combined candidate (`a63684ec`): Beginner-focused suite **350 passed, 1 skipped, 2 known baseline failures** — `test_beginner_workspace_mapping.py::test_preview_links_semantic_change_to_mapping_and_reports_impact` and `test_beginner_workspace_server.py::test_root_serves_beginner_browser_entrypoint` — both reproduced as pre-existing baseline failures (`promotion.py` is byte-identical to the base; the JS content-type failure is a Windows `mimetypes` artifact). Ruff is clean on the touched paths; `validate-repo.py` and `validate-release-scope.py` pass; no L3 or release qualification was run.
+
+Agent-observed (**not human**) re-walkthrough on the combined candidate, same young-superhero premise, default no-provider server, fresh workspace: premise-sensitive interpretation (Mystery + Superhero fiction, no Romance misclassification, Secret identity detected), three distinct deterministic directions with no manufactured recommendation, accepted Story Direction / Story Identity / Whole-Story Structure, an integrated composition synthesis with honest "aesthetic framing is not yet established", and a Structure-acceptance transition to `primary_surface: complete` with outline continuation exposed and the acceptance control removed.
 
 Current claim boundary:
 
 ```text
 REPOSITORY / AGENT E2E                     EXERCISED
 HUMAN BEGINNER WALKTHROUGH                 EXERCISED — MATERIAL FRICTION FOUND
-CORRECTION CANDIDATE                       IMPLEMENTED / SPLIT ACROSS LOCAL + PR #283
+CORRECTION CANDIDATE                       IMPLEMENTED / ONE COMBINED CANDIDATE
+COMBINED FOCUSED VALIDATION                PASS (2 PRE-EXISTING BASELINE FAILURES)
+AGENT-OBSERVED SAME-PREMISE RE-WALK        PASS
 SAME-PREMISE HUMAN RE-WALKTHROUGH          PENDING
 L3 STABILIZATION                           NOT REQUESTED
 RELEASE QUALIFICATION                      NOT CLAIMED
 ```
 
-The next repository action is to stack PR #283 onto the local fallback branch, run focused Beginner validation, then repeat the same human premise once. If the observed transition/explanation frictions are corrected, close this package and return to repository-level product selection; do not launch another experiment automatically.
+The only remaining action is the same-premise **human** re-walkthrough (the experiential claims in this package are human-facing). Until it is performed this package stays an ACTIVE CANDIDATE and cannot be closed as COMPLETED. Do not launch another experiment automatically.
 
 Issue #248 remains **PAUSE / REASSESS**. File size alone is not admission evidence. Historical correctness/evidence debt remains reconciled as previously recorded; this active Beginner package is product work selected by newer workflow evidence, not a reopening of the maintainability decomposition lane.
 

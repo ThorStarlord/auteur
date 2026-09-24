@@ -778,3 +778,108 @@ premise once. If the observed transition/explanation friction is no longer
 material, record a bounded correction PASS for that walkthrough. Do not infer
 universal beginner usability, provider generality, narrative-quality
 superiority, or release readiness from a single-author/single-premise result.
+
+---
+
+## 2026-09-23 combined candidate — focused validation and agent-observed re-walkthrough
+
+This section records the closure work on the selected Beginner
+Narrative-Architecture Coherence / deterministic fallback package. It does not
+rewrite any earlier record above; it adds the after-intervention observation
+next to the original friction record.
+
+### Combined candidate identity
+
+- Branch: `experiment/deterministic-curated-fallback`
+- Combined candidate SHA: `a63684ec64e20531b9540d2f90b9c1572c404400`
+- Composition: deterministic-fallback commits `3ff41f7e`, `2f3fd1e0`,
+  `24e7e16b`, `52f4928f`, `f7c57f8d` plus cherry-picked PR #283 commits
+  `64320f17`, `8390ddd8`, `f707b6c8`, `166c1c99` and status-doc alignment
+  `a63684ec`. PR #283's `f0a9ee0c` and `52a9e38f` are patch-id-equivalent to
+  `64320f17` and `8390ddd8`, so the earlier "split across two source
+  identities" state no longer applies.
+- Base: `d7966dc3` (`origin/main` at the time the package started). The
+  candidate predates the later `main` line; integration with current `main` is
+  a separate reconciliation step, not part of this package.
+
+### Focused validation (L1 + named changed boundary)
+
+- Beginner-focused suite: **350 passed, 1 skipped, 2 failed**.
+- The two failures are **KNOWN BASELINE FAILURES**, not regressions:
+  - `tests/test_beginner_workspace_mapping.py::test_preview_links_semantic_change_to_mapping_and_reports_impact`
+    — the assertion targets `promotion.py::_semantic_changes`, which is
+    byte-identical between `d7966dc3` and the candidate.
+  - `tests/test_beginner_workspace_server.py::test_root_serves_beginner_browser_entrypoint`
+    — the JS content-type comes from `mimetypes.guess_type`, which returns
+    `application/javascript` on this Windows host; the content-type code is
+    unchanged by the candidate.
+- Ruff: clean on `src/auteur/beginner` and the touched Beginner tests.
+- Repository validators: `validate-repo.py` and `validate-release-scope.py`
+  pass. `test-validators.py` reports 24/25 (one pre-existing
+  `validate-output.py` positive-fixture failure); the candidate touches no
+  `scripts/` file.
+- L3 and release qualification: **not run / not claimed**.
+
+### Agent-observed re-walkthrough (NOT human)
+
+- Runtime: default no-provider launch (`BeginnerWorkspaceServer` with
+  `default_runtime_dependencies()`), fresh workspace, HTTP command contract.
+- Premise: the same young-aspiring-superhero premise used in the owner
+  walkthrough (`authorwalk1` / `authorwalk2`).
+
+Observed sequence:
+
+- Stage A — "Here is what Auteur sees": `summary` "Detected premise signals:
+  Mystery, Superhero fiction, Investigation and revelation, Relationship
+  betrayal, Secret identity."; genre traditions Mystery + Superhero fiction;
+  trope families `Secret identity`; `aesthetic_framing` empty. The composition
+  synthesis connects engine → tropes → relationship dynamics → honest framing
+  absence ("Aesthetic framing is not yet established; Auteur should not invent
+  how the story is meant to feel") → genre expectations → structure status.
+  `canonical_refs` empty.
+- Stage C — Story Discovery: `status: needs_author_choice`,
+  `recommended_direction_id: null`, `authority_status: DERIVED / NOT CANON`,
+  three distinct directions ("The unraveling case", "Trust on trial",
+  "The exposed self").
+- Stage D — accept Story Direction: `canonical_refs` `["story_direction"]`.
+- Stage F — identity preview: `ready_to_accept: true`, no blocking items, no
+  tensions.
+- Stage G — accept Story Identity: `canonical_refs`
+  `["story_identity", "story_direction"]`.
+- Stage H — accept Whole-Story Structure: `canonical_refs`
+  `["whole_story_structure", "story_identity", "story_direction"]`,
+  `primary_surface: complete`; the composition `structure_status` flips to
+  "Whole-Story Structure is accepted; it now governs when these pressures
+  escalate, reverse, and resolve."; `available_actions` no longer contains any
+  accept action (only `open-review:discover` and `open-revision:*`).
+- Outline transition: `propose-outline` returns an outline proposal and
+  `available_actions` includes `accept-outline`.
+
+### Claim classification
+
+- **Corrected (agent-observed + focused tests):** premise-sensitive no-provider
+  interpretation; deterministic Discovery with distinct directions and no
+  manufactured recommendation; genre-neutral Structure fallback; per-engine
+  StoryIdentity mapping; projected composition tension acknowledgement; signal
+  refinement (no adjective→genre promotion, variant secret-identity detection);
+  Structure-acceptance transition to outline with acceptance controls removed;
+  integrated Narrative Architecture composition explanation.
+- **Residual, human-gated:** the four experiential claims (transition salience,
+  action hierarchy, explanation adequacy, fallback credibility) are
+  human-facing. Agent-observed evidence supports them, but only the same-premise
+  **human** re-walkthrough can convert them to PASS.
+- **New evidence:** none recorded.
+
+### Claim boundary
+
+```text
+COMBINED CANDIDATE                        a63684ec
+COMBINED FOCUSED VALIDATION               PASS (2 PRE-EXISTING BASELINE FAILURES)
+AGENT-OBSERVED SAME-PREMISE RE-WALK       PASS
+SAME-PREMISE HUMAN RE-WALKTHROUGH         PENDING
+L3 STABILIZATION                          NOT REQUESTED
+RELEASE QUALIFICATION                     NOT CLAIMED
+```
+
+This remains agent-observed evidence. It does not change the `HUMAN BEGINNER
+USABILITY` gate and does not qualify the package.

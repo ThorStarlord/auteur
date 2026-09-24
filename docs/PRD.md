@@ -152,10 +152,11 @@ rather than a new roadmap feature family.
 The active package addresses concrete friction in no-provider interpretation and
 Discovery, generic non-Mystery Structure, per-engine Identity mapping,
 projection/mutation coherence, phase-transition clarity, and integrated
-Narrative Architecture explanation. The correction candidate is currently split
-between an owner-reported local-only fallback branch and draft PR #283; a
-same-premise human re-walkthrough remains required before claiming the observed
-usability friction is corrected.
+Narrative Architecture explanation. The correction now lives on one combined
+candidate that carries both the deterministic-fallback work and the PR #283
+phase-transition and explanation corrections; a same-premise human
+re-walkthrough remains required before claiming the observed usability friction
+is corrected.
 
 The general product-selection rule remains:
 
