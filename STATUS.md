@@ -38,7 +38,8 @@ The 2026-09-23 episode selected one bounded package from observed friction:
 - projection/mutation coherence so every projected blocking composition tension has a valid acknowledgement path;
 - bounded signal refinement after the first browser run misclassified a passing adjective as Romance and missed variant secret-identity wording;
 - clearer phase-completion / next-action hierarchy and removal of stale post-Structure continuation copy;
-- integrated Narrative Architecture explanation that connects engine, genre/story traditions, aesthetic framing, common tropes, relationship/thematic dynamics, narrative structure, and reader experience rather than presenting only a flat component list.
+- integrated Narrative Architecture explanation that connects engine, genre/story traditions, aesthetic framing, common tropes, relationship/thematic dynamics, narrative structure, and reader experience rather than presenting only a flat component list;
+- backend-owned action hierarchy: the Beginner projection now emits one deterministic `primary_action` over the compatibility `available_actions` set, and the browser consumes that projection rather than inferring priority from action ordering. The ownership/progressive-disclosure rule is documented in `docs/architecture/system-ownership-and-product-compression.md`.
 
 The implementation evidence now lives on **one combined candidate**, not two source identities, and that selected behavior is now **reconciled onto contemporary `main`**:
 
