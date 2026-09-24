@@ -136,6 +136,12 @@ just a classifier. It must preserve these durable requirements:
   guidance. It must preserve explicit author choice and must not pretend that a
   bounded deterministic heuristic has made a creative judgment the author has
   not accepted.
+- **Make action hierarchy a backend product contract.** A workspace may expose
+  many technically valid actions, but beginner presentation should receive one
+  deterministic primary next action from the application projection. Raw
+  `available_actions` remain a compatibility/debug surface; browser code must
+  not infer product priority from list ordering. Projecting an action never
+  executes it or changes its authority.
 
 These requirements do not create a new semantic layer or a universal narrative
 taxonomy. They constrain how existing Narrative Architecture, Discovery,
