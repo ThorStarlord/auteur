@@ -150,7 +150,7 @@ def test_browser_has_decision_workspace_and_on_demand_inspector():
     css = _read(STYLES)
     assert 'id="decision-workspace"' in html
     assert 'id="guidance-inspector"' in html
-    assert "Explore guidance" in html
+    assert "Explore details" in html
     assert "guidance_inspector" in js
     assert "decision-workspace" in css
 
@@ -238,3 +238,50 @@ def test_browser_exposes_integrated_story_composition_and_explicit_craft_dimensi
         "narrative_structure",
     ):
         assert token in js
+
+
+def test_browser_story_lenses_are_composable_without_story_mutation():
+    html = _read(INDEX)
+    js = _read(APP)
+    css = _read(STYLES)
+
+    for token in (
+        "Story Architecture Overview",
+        "reset-lens-layout",
+        "story-lens-grid",
+        "inspector-title",
+    ):
+        assert token in html
+
+    for token in (
+        "story_orientation.story_lenses",
+        "orderedStoryLenses",
+        "storyLensLayoutKey",
+        "window.localStorage",
+        "data-story-lens-move",
+        "data-story-lens-open",
+        "renderStoryLensInspector",
+        "DERIVED / NOT CANON",
+    ):
+        assert token in js
+
+    assert "Layout preference failure is non-punitive" in js
+    assert ".story-lens-card--anchor" in css
+    assert ".story-lens-grid" in css
+
+
+def test_browser_story_lens_refinement_routes_through_existing_architecture_commands():
+    js = _read(APP)
+    for command in (
+        "confirm-architecture-component",
+        "suppress-architecture-component",
+        "restore-architecture-component",
+        "rename-architecture-component",
+        "choose-architecture-alternative",
+    ):
+        assert command in js
+
+    # Layout changes remain client-only; they do not invent a server-side
+    # Story Lens mutation command or parallel authority.
+    assert 'sendAction("move-story-lens"' not in js
+    assert 'sendAction("pin-story-lens"' not in js
