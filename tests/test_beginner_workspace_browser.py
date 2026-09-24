@@ -215,7 +215,9 @@ def test_browser_makes_phase_transitions_and_primary_actions_explicit():
 
     assert "Next: outline your story" in js
     assert "primary-next-action" in js
-    assert 'class="review-action primary-action"' in js
+    assert "projection.primary_action" in js
+    assert "projectedPrimary.action_id" in js
+    assert "primary-action-reason" in js
     assert "phase-complete-banner" in js
     assert ".review-action.primary-action" in css
     assert ".navigator-entry.is-accepted" in css
