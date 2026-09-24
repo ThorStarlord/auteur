@@ -410,6 +410,7 @@ Additional subsystems persist their own derived, local, candidate, or authoritat
 - [Mission](MISSION.md) — durable scope and invariants.
 - [Product requirements](docs/PRD.md) — product contract and primary user.
 - [Canonical narrative architecture](docs/narrative-architecture.md) — five semantic layers × scope axis.
+- [System ownership and product compression](docs/architecture/system-ownership-and-product-compression.md) — which systems own semantics/authority, how Beginner/UI projections compose them, and the one-primary-action progressive-disclosure rule.
 - [Opinionated Narrative Engine](docs/opinionated-narrative-engine.md) — product design, first value, guided authoring, Map/Focus framing.
 - [Detailed long-horizon architecture](docs/architecture/detailed-narrative-architecture-v1.md) — accepted-history/current-state/relevance architecture.
 - [Long-horizon campaign state](docs/campaign/auteur-long-horizon-campaign-state.md) — evidence posture and authorization boundary.
