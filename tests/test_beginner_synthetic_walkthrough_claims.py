@@ -233,8 +233,15 @@ def test_synthetic_walkthrough_covers_the_four_experiential_claims(tmp_path: Pat
         assert "accept-structure" not in available
         continuation_actions = [action for action in available if action in CONTINUATION_ACTIONS]
         assert continuation_actions == ["propose-outline"]
+        assert projection["primary_action"] == {
+            "action_id": "propose-outline",
+            "label": "Create outline proposal",
+            "kind": "continuation",
+            "reason": "Continue the current accepted story state through the next bounded planning step.",
+        }
 
         # Outline transition remains reachable through the same primary surface.
         projection = _command(server, workspace_id, "propose-outline", projection)
         assert "accept-outline" in projection["available_actions"]
+        assert projection["primary_action"]["action_id"] == "accept-outline"
         assert projection["continuation"]["outline_proposal"] is not None
