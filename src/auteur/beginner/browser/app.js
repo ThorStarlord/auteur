@@ -241,7 +241,7 @@
       ["narrative_promise", "Narrative promise"],
       ["genre_conventions", "Genre conventions"],
       ["patterns", "Relevant patterns"],
-      ["craft_principle", "Mystery craft principle"],
+      ["craft_principle", "Craft principle"],
       ["common_failure_mode", "Common failure mode"],
     ];
     return labels.map(function (entry) {
@@ -276,13 +276,39 @@
     }).join("");
   }
 
+  function compositionExplanation(orientation) {
+    var composition = orientation && orientation.composition;
+    if (!composition) return "";
+    function labels(values) {
+      return values && values.length ? escapeHtml(values.join("; ")) : '<span class="muted">Not yet established.</span>';
+    }
+    return (
+      '<section class="composition-explanation" aria-labelledby="composition-explanation-heading">' +
+      '<h3 id="composition-explanation-heading">How these parts work together</h3>' +
+      '<p>' + escapeHtml(composition.synthesis || "") + '</p>' +
+      '<dl class="composition-grid">' +
+      '<div><dt>Main story machinery</dt><dd>' + labels(composition.main_story_machinery) + '</dd></div>' +
+      '<div><dt>Genre / story traditions</dt><dd>' + labels(composition.genre_traditions) + '</dd></div>' +
+      '<div><dt>Aesthetic framing</dt><dd>' + labels(composition.aesthetic_framing) + '</dd></div>' +
+      '<div><dt>Common tropes</dt><dd>' + labels(composition.trope_families) + '</dd></div>' +
+      '<div><dt>Relationship / thematic dynamics</dt><dd>' + labels(composition.relationship_dynamics) + '</dd></div>' +
+      '<div><dt>Narrative structure</dt><dd>' + escapeHtml(composition.structure_status || "Not yet established.") + '</dd></div>' +
+      '</dl></section>'
+    );
+  }
+
   function comparisonRows(comparisons) {
     return (comparisons || []).map(function (comparison) {
+      var expectedTropes = comparison.expected_tropes || comparison.genre_conventions || [];
+      var narrativeStructure = comparison.narrative_structure || comparison.narrative_promise || "";
       return detailsRow(
         comparison.label,
-        "<p><strong>Reader experience:</strong> " + escapeHtml(comparison.reader_experience) +
-        "</p><p><strong>Narrative promise:</strong> " + escapeHtml(comparison.narrative_promise) +
-        "</p><p><strong>Genre conventions:</strong> " + escapeHtml((comparison.genre_conventions || []).join("; ")) +
+        "<p><strong>How these parts work together:</strong> " +
+          escapeHtml(comparison.relationship_explanation || "") +
+        "</p><p><strong>Reader experience:</strong> " + escapeHtml(comparison.reader_experience) +
+        "</p><p><strong>Aesthetic framing:</strong> " + escapeHtml(comparison.aesthetic_framing || "Not yet established.") +
+        "</p><p><strong>Common tropes:</strong> " + escapeHtml(expectedTropes.join("; ")) +
+        "</p><p><strong>Narrative structure:</strong> " + escapeHtml(narrativeStructure) +
         "</p>" + listHtml(comparison.tradeoffs || [])
       );
     }).join("");
@@ -291,13 +317,17 @@
   function renderInspector(projection) {
     var inspector = projection.guidance_inspector;
     var body = $("inspector-body");
+    var parts = [];
+    if (projection.story_orientation && projection.story_orientation.composition) {
+      parts.push(compositionExplanation(projection.story_orientation));
+    }
     if (!inspector) {
-      body.innerHTML = '<p class="muted">Guidance is unavailable for this view.</p>';
+      parts.push('<p class="muted">Decision-specific guidance is unavailable for this view.</p>');
+      body.innerHTML = parts.join("");
       return;
     }
-    var parts = [];
     parts.push(detailsRow("Why does Auteur recommend this?", "<p>" + escapeHtml(inspector.recommendation_rationale) + "</p>"));
-    parts.push(detailsRow("Mystery & reader contract", contextRows(inspector.context_guidance || {})));
+    parts.push(detailsRow("Story experience & craft context", contextRows(inspector.context_guidance || {})));
     parts.push(detailsRow("What this choice changes", consequenceGroups(inspector["narrative_" + "consequences"])));
     parts.push(detailsRow("Compare options", comparisonRows(inspector.option_comparisons)));
     parts.push(detailsRow("Evidence & provenance", listHtml(inspector.evidence)));
@@ -377,6 +407,7 @@
       var expectedSurface = entry.stage === "discover" ? "discovery" :
         (entry.stage === "story_identity" ? "story_identity" : "structure");
       if (projection.primary_surface === expectedSurface || entry.current_card_id) classes.push("is-current");
+      if (acceptedIds.indexOf(milestoneId) >= 0) classes.push("is-accepted");
       if (entry.stale) classes.push("is-stale");
       var milestoneId = entry.stage === "discover" ? "story_direction" :
         (entry.stage === "story_identity" ? "story_identity" : "whole_story_structure");
@@ -435,7 +466,8 @@
     if (surface.hidden || !orientation) return;
     $("architecture-heading").textContent = orientation.heading || "Here is what Auteur sees";
     $("architecture-summary").textContent = orientation.summary || "";
-    $("architecture-facets").innerHTML = (orientation.navigator_facets || []).map(function (facet) {
+    $("architecture-facets").innerHTML = compositionExplanation(orientation) +
+      (orientation.navigator_facets || []).map(function (facet) {
       return "<section class=\"orientation-facet\"><h3>" + escapeHtml(facet.label) + "</h3><p>" +
         escapeHtml((facet.components || []).map(function (item) { return item.label; }).join(" · ")) +
         "</p></section>";
@@ -525,19 +557,24 @@
       acceptedIds.indexOf("whole_story_structure") >= 0;
     if (foundationAccepted) {
       state.currentCardId = null;
-      question.textContent = "Story foundation accepted";
-      optionsBox.innerHTML = '<p class="completion-state">Discover, Story Identity, and Whole-Story Structure are canonical.</p>';
+      $("decision-card").classList.add("is-complete");
+      question.textContent = "✓ Story foundation accepted";
+      optionsBox.innerHTML =
+        '<p class="completion-state">Discover, Story Identity, and Whole-Story Structure are canonical.</p>' +
+        '<p class="phase-complete-next"><strong>Next:</strong> turn this accepted foundation into a whole-story outline.</p>';
       $("card-why-now").textContent = "";
       $("card-recommendation").textContent = "";
       $("card-consequence").textContent = "";
-      $("inspector-body").innerHTML = "";
       $("card-warnings").innerHTML = "";
       $("save-feedback").textContent = "Accepted story foundation.";
       $("continue-button").disabled = true;
+      $("continue-button").hidden = true;
       $("continue-button").textContent = "Story foundation complete";
       $("continue-button").dataset.reviewStage = "";
       return;
     }
+    $("decision-card").classList.remove("is-complete");
+    $("continue-button").hidden = false;
     if (!card) {
       state.currentCardId = null;
       question.textContent = "No decision card available.";
@@ -599,7 +636,10 @@
     var reviews = projection.reviews || {};
     var acceptedIds = (projection.canonical_refs || []).map(function (ref) { return ref.milestone_id; });
     if (!((projection.revision || {}).active_revision_id) && acceptedIds.indexOf("whole_story_structure") >= 0) {
-      body.innerHTML = '<p class="completion-summary"><strong>Story foundation complete.</strong> Your accepted direction, identity, and whole-story structure are ready for the next stage of work.</p>';
+      body.innerHTML =
+        '<div class="completion-summary phase-complete-banner" role="status">' +
+        '<strong>Story foundation complete.</strong> Your accepted direction, identity, and whole-story structure are ready.' +
+        '<span>Next phase: outline the whole story.</span></div>';
       return;
     }
     var stages = Object.keys(reviews).filter(function (stage) {
@@ -811,10 +851,9 @@
   function renderContinuation(projection) {
     var body = $("continuation-body");
     var state = projection.continuation;
-    if (!state) {
-      body.innerHTML = '<p class="muted">Accept the whole-story structure to continue into outlining.</p>';
-      return;
-    }
+    var acceptedIds = (projection.canonical_refs || []).map(function (ref) { return ref.milestone_id; });
+    var foundationAccepted = !((projection.revision || {}).active_revision_id) &&
+      acceptedIds.indexOf("whole_story_structure") >= 0;
     var actionLabels = {
       "propose-outline": "Create outline proposal",
       "accept-outline": "Continue with this outline",
@@ -829,32 +868,48 @@
     var action = (projection.available_actions || []).filter(function (item) {
       return Object.prototype.hasOwnProperty.call(actionLabels, item);
     })[0];
+    if (!state && !foundationAccepted) {
+      body.innerHTML = '<p class="muted">Accept the whole-story structure to continue into outlining.</p>';
+      return;
+    }
     var html = [];
-    if (state.stale) {
+    if (foundationAccepted) {
+      html.push(
+        '<section class="phase-transition" role="status" aria-label="Next story-development phase">' +
+        '<p class="phase-transition-kicker">Foundation complete</p>' +
+        '<h3>Next: outline your story</h3>' +
+        '<p>Turn the accepted foundation into a derived whole-story outline. You can review it before accepting it.</p>' +
+        '</section>'
+      );
+    }
+    if (state && state.stale) {
       html.push('<p class="blocking-inline" role="alert">' + escapeHtml(state.stale_reason || "The accepted upstream inputs changed; review these derived plans before drafting.") + "</p>");
     }
-    if (state.outline_proposal) {
+    if (state && state.outline_proposal) {
       html.push("<h3>Whole-story outline</h3><p>" + escapeHtml(state.outline_proposal.title) + " · derived proposal</p>");
       html.push(listHtml((state.outline_proposal.chapters || []).map(function (chapter) {
         return "Chapter " + chapter.chapter_index + ": " + chapter.purpose;
       })));
     }
-    if (state.chapter_plan) {
+    if (state && state.chapter_plan) {
       html.push("<h3>Chapter 1 plan</h3><p>" + escapeHtml(state.chapter_plan.what_changes) + "</p>");
     }
-    if (state.scene_plans && state.scene_plans.length) {
+    if (state && state.scene_plans && state.scene_plans.length) {
       html.push("<h3>Scene plan</h3>" + listHtml(state.scene_plans.map(function (scene) {
         return scene.scene_id + ": " + scene.purpose;
       })));
     }
-    if (state.draft_handoff) {
+    if (state && state.draft_handoff) {
       html.push("<h3>Ready to write Chapter 1</h3><p>Use the accepted identity, structure, outline, chapter plan, and scene plan.</p><code>" + escapeHtml(state.draft_handoff.command) + "</code>");
       if (state.draft_status === "drafted") {
         html.push("<p><strong>Chapter 1 is drafted.</strong> Review it before planning Chapter 2.</p>");
       }
     }
     if (action) {
-      html.push('<button class="continue-button" data-continuation-action="' + escapeHtml(action) + '">' + escapeHtml(actionLabels[action]) + "</button>");
+      html.push('<p class="next-action-label">Next step</p>');
+      html.push('<button type="button" class="continue-button primary-next-action" data-continuation-action="' + escapeHtml(action) + '">' + escapeHtml(actionLabels[action]) + " →</button>");
+    } else if (foundationAccepted) {
+      html.push('<p class="muted">The foundation is accepted, but no continuation action is currently available.</p>');
     }
     body.innerHTML = html.join("");
     var button = body.querySelector("[data-continuation-action]");

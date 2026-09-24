@@ -1,0 +1,132 @@
+{
+  "stage_a_architecture": {
+    "primary_surface": "architecture",
+    "summary": "Detected premise signals: Mystery, Superhero fiction, Investigation and revelation, Relationship betrayal, Secret identity.",
+    "availability_note": "Rich narrative interpretation was unavailable; showing the bounded explicit-signal fallback.",
+    "genre_traditions": [
+      "Mystery",
+      "Superhero fiction"
+    ],
+    "main_story_machinery": [
+      "Investigation and revelation"
+    ],
+    "trope_families": [
+      "Secret identity"
+    ],
+    "aesthetic_framing": [],
+    "synthesis": "Investigation and revelation provides the main story machinery. Secret identity supplies recurring story situations and pressure that feed that machinery. Relationship betrayal determines where those pressures become emotionally or thematically consequential. Aesthetic framing is not yet established; Auteur should not invent how the story is meant to feel. Mystery and Superhero fiction sets reader expectations around how those elements combine. Narrative structure is not established yet; later Structure decisions will decide when these pressures escalate, reverse, and resolve.",
+    "canonical_refs": []
+  },
+  "stage_c_discovery": {
+    "status": "needs_author_choice",
+    "recommended_direction_id": null,
+    "authority_status": "DERIVED / NOT CANON",
+    "directions": [
+      {
+        "direction_id": "direction:ac82df734831fdbe",
+        "title": "The unraveling case",
+        "engine": null
+      },
+      {
+        "direction_id": "direction:9bcff935b1f45450",
+        "title": "Trust on trial",
+        "engine": null
+      },
+      {
+        "direction_id": "direction:9cb6d97db7db1512",
+        "title": "The exposed self",
+        "engine": null
+      }
+    ]
+  },
+  "stage_d_direction_accepted": {
+    "canonical_refs": [
+      "story_direction"
+    ],
+    "primary_surface": "story_identity"
+  },
+  "stage_f_identity_preview": {
+    "ready_to_accept": true,
+    "blocking_items": [],
+    "tensions": []
+  },
+  "stage_g_identity_accepted": {
+    "canonical_refs": [
+      "story_identity",
+      "story_direction"
+    ],
+    "primary_surface": "structure"
+  },
+  "stage_h_structure_accepted": {
+    "canonical_refs": [
+      "whole_story_structure",
+      "story_identity",
+      "story_direction"
+    ],
+    "primary_surface": "complete",
+    "available_actions": [
+      "open-review:discover",
+      "open-revision:discover",
+      "open-revision:story_identity",
+      "open-revision:story_structure",
+      "propose-outline"
+    ]
+  },
+  "transition_after_structure": {
+    "navigator": {
+      "discover": {
+        "lifecycle": "working",
+        "answered_cards": 0,
+        "total_cards": 0,
+        "review_available": true,
+        "ready_to_accept": true,
+        "at_risk_if_accepted": false
+      },
+      "story_identity": {
+        "lifecycle": "working",
+        "answered_cards": 0,
+        "total_cards": 0,
+        "review_available": true,
+        "ready_to_accept": true,
+        "at_risk_if_accepted": false
+      },
+      "story_structure": {
+        "lifecycle": "complete",
+        "answered_cards": 3,
+        "total_cards": 3,
+        "review_available": true,
+        "ready_to_accept": true,
+        "at_risk_if_accepted": false
+      }
+    },
+    "reviews": {
+      "discover": {
+        "review_available": true,
+        "ready_to_accept": true,
+        "opened": false
+      },
+      "story_identity": {
+        "review_available": true,
+        "ready_to_accept": true,
+        "opened": true
+      },
+      "story_structure": {
+        "review_available": true,
+        "ready_to_accept": true,
+        "opened": true
+      }
+    },
+    "composition_synthesis": "Investigation and revelation provides the main story machinery. Secret identity supplies recurring story situations and pressure that feed that machinery. Relationship betrayal determines where those pressures become emotionally or thematically consequential. Aesthetic framing is not yet established; Auteur should not invent how the story is meant to feel. Mystery and Superhero fiction sets reader expectations around how those elements combine. Whole-Story Structure is accepted; it now governs when these pressures escalate, reverse, and resolve.",
+    "structure_status": "Whole-Story Structure is accepted; it now governs when these pressures escalate, reverse, and resolve."
+  },
+  "outline_continuation": {
+    "outline_proposal_present": true,
+    "available_actions": [
+      "open-review:discover",
+      "open-revision:discover",
+      "open-revision:story_identity",
+      "open-revision:story_structure",
+      "accept-outline"
+    ]
+  }
+}

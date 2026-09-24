@@ -1,6 +1,6 @@
 # Auteur — Repository Status
 
-**Last reconciled:** 2026-09-20  
+**Last reconciled:** 2026-09-24  
 **Validation-policy activation baseline:** `main @ 8b53efdd99e0a67d375df0e828b32edc77643221`  
 **Behavior baseline reconciled:** `main @ c633d1b155ff72ef9ba502d4b7c9a294716fe98a` (post-draft continuation, Realization reconciliation, Beginner whole-book orientation, and bounded maintainability extractions merged)  
 **Current maintenance/product-evidence reconciliation baseline:** `main @ 1aebe090fb44dec82662d742d2d7cc911c428a32` (#248 paused at reassessment; #249 completed under the simulation-first policy; PR #281 reconciled the resulting no-product-package-selected state)  
@@ -23,19 +23,86 @@ For product intent, read [MISSION.md](MISSION.md) and [docs/PRD.md](docs/PRD.md)
 
 Canonical policy: [docs/engineering/release-qualification.md](docs/engineering/release-qualification.md).
 
-The PR #233 stabilization checkpoint recorded the prior baseline lint disposition. After PR #235 removed those four whitespace findings, the clean L3 checkpoint on `main @ 2aba74b64f2434d11954a8627fc3d95fd83fdb7d` passed full regression and the verification stack. No release qualification is implied. Remain at **no product package selected** until new claim-appropriate workflow evidence or an explicit product-lane selection warrants a bounded package.
+The PR #233 stabilization checkpoint recorded the prior baseline lint disposition. After PR #235 removed those four whitespace findings, the clean L3 checkpoint on `main @ 2aba74b64f2434d11954a8627fc3d95fd83fdb7d` passed full regression and the verification stack. No release qualification is implied. A later 2026-09-23 human Beginner walkthrough supplied new claim-appropriate workflow evidence and selected the bounded **Beginner Narrative-Architecture Coherence / deterministic fallback** package described below.
 
 ## Current Selected Responsibility
 
-**NO PRODUCT PACKAGE SELECTED / MAINTENANCE REASSESSMENT** — Issue #249's simulation-first premise-to-Chapter-2 evidence task is complete and closed. The first scripted run found one concrete workflow gap after explicit Whole-Story Structure acceptance: the read-only Beginner projection did not expose the already-valid `propose-outline` transition because no continuation state had yet been persisted. PR #280 fixed that seam by projecting an empty continuation frontier without creating authority or durable state during the read.
+**CURRENT_MAIN_BEGINNER_COHERENCE_RECONCILIATION — ACTIVE CANDIDATE** — the integration continuation of the Beginner Narrative-Architecture Coherence / deterministic fallback package. The earlier #249 scripted journey correctly established mechanical premise-to-Chapter-2 coherence after PR #280, but later claim-appropriate human use reopened product construction at the Beginner architecture-first surface rather than selecting a new roadmap family.
 
-The same scripted journey then reached accepted Chapter 1 outcome and contextual Chapter 2 planning. Final result: **`NO_SIMULATED_MATERIAL_FRICTION` beyond the corrected projection seam**. This is mechanical/workflow evidence only; no claim is made about real-author usefulness, comprehension, relevance, preference, or subjective story quality. No PATH-1/2/3/4 feature family is selected by this result.
+The 2026-09-23 episode selected one bounded package from observed friction:
 
-Issue #248 remains **PAUSE / REASSESS**. The currently warranted bounded seams have landed through the Phase C4 completion validator. Resume decomposition only when another concrete existing responsibility can move behavior-preservingly behind stable public/authority semantics with focused regression evidence; file size alone is not admission evidence.
+- premise-sensitive no-provider interpretation rather than a blind Mystery pin;
+- deterministic Story Discovery with multiple causally distinct directions and explicit author choice rather than a manufactured recommendation;
+- a genre-neutral fallback Structure inventory for non-Mystery stories;
+- per-engine StoryIdentity mapping rather than hardcoded `story_type.genre = "mystery"`;
+- projection/mutation coherence so every projected blocking composition tension has a valid acknowledgement path;
+- bounded signal refinement after the first browser run misclassified a passing adjective as Romance and missed variant secret-identity wording;
+- clearer phase-completion / next-action hierarchy and removal of stale post-Structure continuation copy;
+- integrated Narrative Architecture explanation that connects engine, genre/story traditions, aesthetic framing, common tropes, relationship/thematic dynamics, narrative structure, and reader experience rather than presenting only a flat component list.
 
-The Level-3 strategic decision space remains preserved in [artifacts/strategic_repository_analysis.md](artifacts/strategic_repository_analysis.md), but its earlier human-only #249 evidence gate is superseded by the current simulation-first, claim-bounded product policy. Stronger human evidence is optional when a future question is inherently about human experience or when the consequence exceeds what simulation can support.
+The implementation evidence now lives on **one combined candidate**, not two source identities, and that selected behavior is now **reconciled onto contemporary `main`**:
 
-Correctness/evidence debt from this session is reconciled: #247 (Book/full-suite evidence), #249 (simulation-first product evidence), and #251 (legacy Realization xfails) are closed. Historical qualification issues #49–53 were reconciled against the contemporary release path and closed; #54 remains partially satisfied pending an actual cross-platform candidate run, and #55 remains reproduction-gated on that Windows qualification evidence.
+- **Historical combined candidate** `experiment/deterministic-curated-fallback` @ `a63684ec` on base `d7966dc3` — the deterministic-fallback commits (`3ff41f7e`, `2f3fd1e0`, `24e7e16b`, `52f4928f`, `f7c57f8d`) plus cherry-picked PR #283 commits (`64320f17`, `8390ddd8`, `f707b6c8`, `166c1c99`) and a status-doc alignment commit. PR #283's `f0a9ee0c` and `52a9e38f` are patch-id-equivalent to `64320f17` and `8390ddd8`, so the split-source-identity problem is resolved.
+- **Current-main reconciled candidate** `experiment/beginner-coherence-current-main` — the same selected behavior reconstructed onto current `main @ 3836c26d`, preserving the later post-draft continuation, whole-book progress, Book acceptance, and authority/projection semantics. This is a merge-based reconciliation of the selected behavior, not a rebase of stale branch history.
+
+Reconciliation and the human re-walkthrough are **two distinct unresolved gates**, not one. A human PASS on the stale-base candidate alone would establish only that the corrections solve the observed experiential friction on that candidate; it would not establish that the corrected capability exists coherently on contemporary Auteur. Current-main reconciliation is therefore part of package completion, not a separate future integration step.
+
+```text
+CANDIDATE-LEVEL PRODUCT GATE
+→ same-premise human re-walkthrough
+
+REPOSITORY-INTEGRATION GATE
+→ reconcile capability onto current main
+→ requalify the reconciled candidate
+```
+
+Focused validation on the **current-main reconciled candidate** (Python 3.12, Windows developer host) used the same beginner boundary. Validation language is deliberately exact; a suite with real, reproduced baseline failures is reported as `PASS_WITH_BASELINE_EXCEPTIONS`, not simply `PASS`:
+
+```text
+FOCUSED SUITE (tests/test_beginner_*.py)
+369 passed / 1 skipped / 1 baseline failure
+
+FULL SUITE (developer-machine integration, Python 3.12)
+5246 passed / 2 skipped / 9 baseline failures
+
+CANDIDATE-CAUSED REGRESSIONS
+NONE OBSERVED — all 9 reproduced identically on clean `main @ 3836c26d`
+
+REPOSITORY VALIDATORS
+validate-repo.py PASS
+validate-release-scope.py PASS
+test-validators.py 25/25
+
+VALIDATION DISPOSITION
+PASS_WITH_BASELINE_EXCEPTIONS
+```
+
+The single beginner baseline failure is `test_beginner_workspace_mapping.py::test_preview_links_semantic_change_to_mapping_and_reports_impact` (targets `promotion.py::_semantic_changes`, which is byte-identical on base, `main`, and candidate). The other eight are `tests/auteur/narrative_realization/test_layer3_*.py` Layer-3 scene-knowledge tests that fail identically on clean `main` in this environment. These are environment/baseline conditions, not candidate-caused regressions. Ruff is clean on the touched paths; no L3 stabilization checkpoint or release qualification was run or claimed.
+
+The historical combined candidate (`a63684ec`) was previously recorded as **350 passed, 1 skipped, 2 baseline failures** on its own base; the additional baseline failure there (`test_root_serves_beginner_browser_entrypoint`) was a Python 3.14 Windows `mimetypes` artifact that does not occur on Python 3.12.
+
+Agent-observed (**not human**) re-walkthrough on the **historical** combined candidate, same young-superhero premise, default no-provider server, fresh workspace: premise-sensitive interpretation (Mystery + Superhero fiction, no Romance misclassification, Secret identity detected), three distinct deterministic directions with no manufactured recommendation, accepted Story Direction / Story Identity / Whole-Story Structure, an integrated composition synthesis with honest "aesthetic framing is not yet established", and a Structure-acceptance transition to `primary_surface: complete` with outline continuation exposed and the acceptance control removed.
+
+The same agent-observed re-walkthrough was then repeated against the **current-main reconciled candidate** and reproduced the same semantic outcomes (evidence: `docs/qualification-evidence/2026-09-24-current-main-reconciled-agent-rewalk.json`). This remains agent-observed evidence; it does not convert the human-facing experiential claims to PASS.
+
+Current claim boundary:
+
+```text
+BEGINNER COHERENCE PACKAGE                  ACTIVE CANDIDATE
+COMBINED HISTORICAL-BASE CANDIDATE          IMPLEMENTED
+FOCUSED CANDIDATE VALIDATION                PASS_WITH_BASELINE_EXCEPTIONS
+AGENT SAME-PREMISE RE-WALK                  PASS (HISTORICAL BASE AND RECONCILED)
+CURRENT-MAIN RECONCILIATION                 DONE
+CURRENT-MAIN FOCUSED QUALIFICATION          PASS_WITH_BASELINE_EXCEPTIONS
+SAME-PREMISE HUMAN RE-WALK                  PENDING
+NEW PRODUCT RESPONSIBILITY                  NONE SELECTED
+L3 STABILIZATION                            NOT REQUESTED
+RELEASE QUALIFICATION                       NOT CLAIMED
+```
+
+The remaining action is the one decisive same-premise **human** re-walkthrough on the **reconciled** candidate (the experiential claims in this package are human-facing). Until it is performed this package stays an ACTIVE CANDIDATE and cannot be closed as COMPLETED. Do not launch another experiment automatically.
+
+Issue #248 remains **PAUSE / REASSESS**. File size alone is not admission evidence. Historical correctness/evidence debt remains reconciled as previously recorded; this active Beginner package is product work selected by newer workflow evidence, not a reopening of the maintainability decomposition lane.
 
 ## Current Product Direction
 
@@ -59,20 +126,22 @@ accepted narrative authority
 
 Derived systems may orient, diagnose, compare, explain, recommend, prepare, preview, and reassess. Determinism, persistence, currentness, or user selection do not grant story authority.
 
-Issue #249's simulation-first journey is complete. It found one concrete workflow projection seam after explicit Whole-Story Structure acceptance, corrected that seam in PR #280, and then reached accepted Chapter 1 outcome plus contextual Chapter 2 planning. The resulting evidence is `NO_SIMULATED_MATERIAL_FRICTION` beyond the corrected seam.
+Issue #249's simulation-first journey remains valid historical evidence: after PR #280 it reached accepted Chapter 1 outcome plus contextual Chapter 2 planning with `NO_SIMULATED_MATERIAL_FRICTION` beyond the corrected seam. That result established mechanical/workflow coherence only.
 
-That result establishes mechanical/workflow coherence only. It does not establish real-author usefulness, comprehension, relevance, preference, confidence, or subjective story quality, and it does not select another product feature family.
+The later 2026-09-23 human Beginner walkthrough supplied the stronger evidence that the simulation intentionally could not provide. It selected the current bounded package by exposing human-facing transition and explanatory friction after the no-provider path had already been mechanically exercised.
 
-Current product-selection rule:
+Current product-selection rule remains:
 
 ```text
-new claim-appropriate workflow evidence or deliberate product-lane selection
+claim-appropriate workflow evidence or deliberate product-lane selection
 → first concrete material friction / goal
 → classify the owning layer
 → smallest bounded intervention
+→ focused verification
+→ human re-check when the claim is experiential
 ```
 
-If no material friction or deliberately selected product goal exists, `NO_CHANGE` remains a valid product disposition.
+The present application of that rule is the active Beginner coherence package above. After that package closes, `NO_CHANGE` again becomes a valid disposition unless new evidence selects another bounded responsibility.
 
 ## Canonical Architecture
 
@@ -148,9 +217,11 @@ The 2026-09-20 consolidation packages (#253, #256, #258, #259, #260, #265, #266,
 
 ## Next Product Selection
 
-**No additional product package is implicitly authorized by the completed roadmap sequence or by the post-draft continuation merge.**
+**No additional package beyond the active Beginner Narrative-Architecture Coherence / deterministic fallback candidate is implicitly authorized.**
 
-The next product package should be selected from new claim-appropriate workflow evidence rather than extending ontology or adding another subsystem by default. The completed #249 simulation does not select another package. Strong preserved candidates include:
+Finish the selected package first: current-main reconciliation and focused qualification are complete on the reconciled candidate; the remaining step is the decisive same-premise human re-walkthrough on that reconciled candidate. If the observed friction is corrected, mark the package complete and return to repository-level selection rather than extending it automatically.
+
+After closure, the next product package should again be selected from new claim-appropriate workflow evidence rather than from ontology completion pressure. Strong preserved candidates include:
 
 - Unified Decision Inbox / broader attention-source coverage;
 - Current Author Intent if relevance friction appears;

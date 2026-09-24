@@ -181,6 +181,11 @@ class OptionComparisonProjection:
 
     label: str
     reader_experience: str
+    aesthetic_framing: str
+    expected_tropes: tuple[str, ...]
+    narrative_structure: str
+    relationship_explanation: str
+    # Backward-compatible aliases retained for existing API consumers.
     narrative_promise: str
     genre_conventions: tuple[str, ...]
     tradeoffs: tuple[str, ...]
@@ -923,6 +928,15 @@ def _guidance_inspector_projection(
             OptionComparisonProjection(
                 label=option,
                 reader_experience=impact.audience_experience,
+                aesthetic_framing=impact.aesthetic_framing,
+                expected_tropes=impact.expected_tropes,
+                narrative_structure=impact.narrative_structure,
+                relationship_explanation=(
+                    f"{impact.aesthetic_framing} frames "
+                    f"{', '.join(impact.expected_tropes)} within "
+                    f"{impact.narrative_structure}. Together, those choices aim for "
+                    f"{impact.audience_experience}"
+                ),
                 narrative_promise=impact.narrative_structure,
                 genre_conventions=impact.expected_tropes,
                 tradeoffs=impact.tradeoffs,

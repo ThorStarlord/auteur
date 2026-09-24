@@ -39,9 +39,9 @@ from .architecture_analysis import (
 )
 from .architecture_models import ArchitectureFacet, ArchitectureRole
 from .discovery import (
+    DeterministicDiscoveryRecommender,
     DiscoveryRecommender,
     StoryDiscoveryRecommender,
-    UnavailableDiscoveryRecommender,
 )
 from .contracts import MutationCommand
 from .persistence import BeginnerConcurrencyError, BeginnerPersistenceError
@@ -68,7 +68,7 @@ class BeginnerRuntimeDependencies:
 def default_runtime_dependencies() -> BeginnerRuntimeDependencies:
     return BeginnerRuntimeDependencies(
         architecture_analyzer=DeterministicArchitectureAnalyzer(),
-        discovery_recommender=UnavailableDiscoveryRecommender(),
+        discovery_recommender=DeterministicDiscoveryRecommender(),
     )
 
 
@@ -204,6 +204,10 @@ def projection_to_dict(projection: WorkspaceProjection, *, workspace_id: str) ->
                     {
                         "label": comparison.label,
                         "reader_experience": comparison.reader_experience,
+                        "aesthetic_framing": comparison.aesthetic_framing,
+                        "expected_tropes": list(comparison.expected_tropes),
+                        "narrative_structure": comparison.narrative_structure,
+                        "relationship_explanation": comparison.relationship_explanation,
                         "narrative_promise": comparison.narrative_promise,
                         "genre_conventions": list(comparison.genre_conventions),
                         "tradeoffs": list(comparison.tradeoffs),

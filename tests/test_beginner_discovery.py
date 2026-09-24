@@ -59,3 +59,42 @@ def test_design_context_marks_analysis_as_derived_not_canon() -> None:
     generation_request = client.calls[0]
     assert "derived working guidance, not canon" in generation_request.system.casefold()
     assert "erotic betrayal melodrama" in generation_request.system.casefold()
+
+
+def test_deterministic_discovery_offers_distinct_directions_without_a_recommendation() -> None:
+    from auteur.beginner.architecture_analysis import DeterministicArchitectureAnalyzer
+    from auteur.beginner.discovery import DeterministicDiscoveryRecommender
+
+    premise = (
+        "A disgraced superhero learns her old partner may have caused the disaster "
+        "she was blamed for."
+    )
+    analysis = DeterministicArchitectureAnalyzer().analyze(premise=premise, source_provenance=())
+    result = DeterministicDiscoveryRecommender().recommend(premise=premise, analysis=analysis)
+    assert result.status is DiscoveryRecommendationStatus.NEEDS_AUTHOR_CHOICE
+    assert result.recommended_direction_id is None
+    assert len(result.directions) >= 2
+    conflicts = [direction.identity_candidate.central_engine.conflict for direction in result.directions]
+    assert len(set(conflicts)) == len(conflicts)
+    assert result.authority_status == "DERIVED / NOT CANON"
+
+
+def test_deterministic_discovery_candidate_identity_is_valid() -> None:
+    from auteur.beginner.architecture_analysis import DeterministicArchitectureAnalyzer
+    from auteur.beginner.discovery import DeterministicDiscoveryRecommender
+
+    for premise in (
+        "A detective investigates a locked room murder.",
+        "Two rival pastry chefs fall in love while saving a bakery.",
+        "A quiet afternoon.",
+    ):
+        analysis = DeterministicArchitectureAnalyzer().analyze(premise=premise, source_provenance=())
+        result = DeterministicDiscoveryRecommender().recommend(premise=premise, analysis=analysis)
+        assert len(result.directions) >= 2
+        for direction in result.directions:
+            errors = [
+                diagnostic
+                for diagnostic in direction.identity_candidate.validate_identity()
+                if diagnostic.severity.value == "error"
+            ]
+            assert errors == [], f"{premise}: {[d.message for d in errors]}"
