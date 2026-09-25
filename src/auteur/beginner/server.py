@@ -488,8 +488,6 @@ class _RequestHandler(BaseHTTPRequestHandler):
                 except (FileNotFoundError, OSError, RuntimeError) as exc:
                     raise BeginnerRequestError(422, str(exc)) from exc
             # GET /api/beginner/workspaces/<workspace_id>
-            if len(parts) == 3 and parts[:2] == ["api", "beginner"] and parts[2] == "workspaces":
-                raise BeginnerRequestError(400, "workspace_id is required")
             if len(parts) == 4 and parts[:3] == ["api", "beginner", "workspaces"]:
                 workspace_id = parts[3]
                 try:
