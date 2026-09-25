@@ -300,3 +300,32 @@ def test_browser_exposes_actionable_interpretation_diagnostics_without_vanity_me
         assert token in js
     for vanity in ("engagement score", "creativity score", "conversion rate"):
         assert vanity not in js.lower()
+
+
+def test_browser_home_is_product_first_and_workspace_ids_are_advanced_only():
+    html = _read(INDEX)
+    js = _read(APP)
+    css = _read(STYLES)
+
+    assert "<title>Auteur</title>" in html
+    assert "What story do you want to tell?" in html
+    assert 'id="new-story-form"' in html
+    assert 'id="recent-stories-list"' in html
+    assert "Advanced: open by workspace ID" in html
+    assert 'id="app-shell" class="app-shell" hidden' in html
+
+    for token in (
+        "createStoryFromHome",
+        "loadRecentStories",
+        "renderRecentStories",
+        "showHome",
+        "showWorkspace",
+        "/api/beginner/workspaces",
+        "window.history.pushState",
+        "popstate",
+    ):
+        assert token in js
+
+    assert ".home-surface" in css
+    assert ".recent-story-card" in css
+    assert ".new-story-form" in css
