@@ -21,6 +21,8 @@
     commandCounter: 0,
     pendingSelect: false,
     inspectorOpen: false,
+    activeLensId: null,
+    currentProjection: null,
   };
 
   function $(id) {
@@ -216,6 +218,233 @@
     );
   }
 
+  function storyLensLayoutKey() {
+    return "auteur.beginner.story-lenses.v1:" + (state.workspaceId || "unknown");
+  }
+
+  function defaultStoryLensOrder(lenses) {
+    return (lenses || []).map(function (lens) { return lens.lens_id; });
+  }
+
+  function loadStoryLensOrder(lenses) {
+    var fallback = defaultStoryLensOrder(lenses);
+    try {
+      var raw = window.localStorage.getItem(storyLensLayoutKey());
+      if (!raw) return fallback;
+      var parsed = JSON.parse(raw);
+      if (!parsed || parsed.schema_version !== 1 || !Array.isArray(parsed.order)) {
+        return fallback;
+      }
+      var valid = {};
+      fallback.forEach(function (id) { valid[id] = true; });
+      var seen = {};
+      var order = parsed.order.filter(function (id) {
+        if (!valid[id] || seen[id]) return false;
+        seen[id] = true;
+        return true;
+      });
+      fallback.forEach(function (id) {
+        if (!seen[id]) order.push(id);
+      });
+      return order;
+    } catch (error) {
+      return fallback;
+    }
+  }
+
+  function saveStoryLensOrder(order) {
+    try {
+      window.localStorage.setItem(
+        storyLensLayoutKey(),
+        JSON.stringify({ schema_version: 1, order: order })
+      );
+    } catch (error) {
+      // Layout preference failure is non-punitive and never affects story state.
+    }
+  }
+
+  function orderedStoryLenses(lenses) {
+    var source = lenses || [];
+    var byId = {};
+    source.forEach(function (lens) { byId[lens.lens_id] = lens; });
+    return loadStoryLensOrder(source).map(function (id) { return byId[id]; }).filter(Boolean);
+  }
+
+  function storyLensById(orientation, lensId) {
+    if (!orientation || !lensId) return null;
+    return (orientation.story_lenses || []).filter(function (lens) {
+      return lens.lens_id === lensId;
+    })[0] || null;
+  }
+
+  function storyLensStateLabel(value) {
+    var labels = {
+      inferred: "Inferred",
+      author_confirmed: "Author-confirmed",
+      author_modified: "Author-modified",
+      unestablished: "Not established",
+      stale: "Needs review",
+    };
+    return labels[value] || value || "Working";
+  }
+
+  function setActiveStoryLens(lensId) {
+    state.activeLensId = lensId;
+    state.inspectorOpen = true;
+    if (state.currentProjection) renderInspector(state.currentProjection);
+    syncInspector();
+  }
+
+  function moveStoryLens(lensId, delta) {
+    if (!state.currentProjection || !state.currentProjection.story_orientation) return;
+    var lenses = state.currentProjection.story_orientation.story_lenses || [];
+    var order = loadStoryLensOrder(lenses);
+    var index = order.indexOf(lensId);
+    var target = index + delta;
+    if (index < 0 || target < 0 || target >= order.length) return;
+    var swap = order[target];
+    order[target] = order[index];
+    order[index] = swap;
+    saveStoryLensOrder(order);
+    renderArchitectureSurface(state.currentProjection);
+  }
+
+  function storyLensItemHtml(item) {
+    var evidence = (item.evidence || []).map(function (entry) {
+      return entry.excerpt || entry.label;
+    });
+    var alternatives = (item.alternatives || []).map(function (entry) {
+      return entry.label + " — " + entry.rationale;
+    });
+    var controls = [];
+    if (item.activation === "suppressed") {
+      controls.push('<button data-lens-command="restore-architecture-component" data-component-id="' +
+        escapeHtml(item.component_id) + '">Restore</button>');
+    } else {
+      controls.push('<button data-lens-command="confirm-architecture-component" data-component-id="' +
+        escapeHtml(item.component_id) + '">Keep / confirm</button>');
+      controls.push('<button data-lens-command="suppress-architecture-component" data-component-id="' +
+        escapeHtml(item.component_id) + '">Reduce / remove</button>');
+      controls.push('<button data-lens-command="rename-architecture-component" data-component-id="' +
+        escapeHtml(item.component_id) + '">Rename</button>');
+    }
+    (item.alternatives || []).forEach(function (alternative) {
+      controls.push('<button data-lens-command="choose-architecture-alternative" data-component-id="' +
+        escapeHtml(item.component_id) + '" data-alternative="' + escapeHtml(alternative.label) +
+        '">Use ' + escapeHtml(alternative.label) + "</button>");
+    });
+    return '<article class="story-lens-item"><h3>' + escapeHtml(item.label) + "</h3>" +
+      '<p class="lens-meta">' + escapeHtml(item.role) + " · " + escapeHtml(item.certainty) +
+      " · " + escapeHtml(storyLensStateLabel(item.review_state === "unreviewed" ? "inferred" :
+        (item.review_state === "author_confirmed" ? "author_confirmed" : "author_modified"))) + "</p>" +
+      "<p>" + escapeHtml(item.rationale) + "</p>" +
+      (evidence.length ? detailsRow("Evidence", listHtml(evidence)) : "") +
+      (alternatives.length ? detailsRow("Alternatives", listHtml(alternatives)) : "") +
+      (controls.length ? '<div class="surface-actions">' + controls.join("") + "</div>" : "") +
+      "</article>";
+  }
+
+  function renderStoryLensInspector(projection, lens) {
+    var body = $("inspector-body");
+    $("inspector-title").textContent = lens.title;
+    var parts = [
+      '<p class="lens-eyebrow">' + escapeHtml(lens.eyebrow) + "</p>",
+      '<p><strong>' + escapeHtml(lens.summary) + "</strong></p>",
+      "<p>" + escapeHtml(lens.detail) + "</p>",
+      '<p class="inspector-authority">' + escapeHtml(storyLensStateLabel(lens.state)) +
+        " · " + escapeHtml(lens.authority_status) + "</p>",
+    ];
+    if (lens.items && lens.items.length) {
+      parts.push(lens.items.map(storyLensItemHtml).join(""));
+    } else if (lens.refinement_mode === "through_sources") {
+      parts.push('<p class="muted">This lens is synthesized from other Story Lenses. Refine its source lenses rather than editing a parallel copy.</p>');
+    }
+    var orientation = projection.story_orientation || {};
+    var related = (lens.related_lens_ids || []).map(function (id) {
+      return storyLensById(orientation, id);
+    }).filter(Boolean);
+    if (related.length) {
+      parts.push('<div class="related-lenses"><h3>Related Story Lenses</h3>' +
+        related.map(function (item) {
+          return '<button data-related-lens="' + escapeHtml(item.lens_id) + '">' +
+            escapeHtml(item.title) + "</button>";
+        }).join("") + "</div>");
+    }
+    body.innerHTML = parts.join("");
+
+    Array.prototype.forEach.call(body.querySelectorAll("[data-lens-command]"), function (button) {
+      button.addEventListener("click", function () {
+        var command = button.getAttribute("data-lens-command");
+        var payload = {
+          component_id: button.getAttribute("data-component-id"),
+          rationale: "Author refinement from the Story Lens inspector.",
+        };
+        if (command === "rename-architecture-component") {
+          var label = window.prompt("New label");
+          if (!label) return;
+          payload.label = label;
+        }
+        if (command === "choose-architecture-alternative") {
+          payload.alternative_label = button.getAttribute("data-alternative");
+        }
+        sendAction(command, payload, button.textContent.trim());
+      });
+    });
+    Array.prototype.forEach.call(body.querySelectorAll("[data-related-lens]"), function (button) {
+      button.addEventListener("click", function () {
+        setActiveStoryLens(button.getAttribute("data-related-lens"));
+      });
+    });
+  }
+
+  function renderStoryLensCards(projection) {
+    var orientation = projection.story_orientation;
+    var container = $("architecture-facets");
+    if (!orientation) {
+      container.innerHTML = '<p class="muted">No story interpretation is available.</p>';
+      return;
+    }
+    var lenses = orderedStoryLenses(orientation.story_lenses || []);
+    var ids = lenses.map(function (lens) { return lens.lens_id; });
+    if (state.activeLensId && ids.indexOf(state.activeLensId) < 0) {
+      state.activeLensId = null;
+    }
+    container.innerHTML = lenses.map(function (lens, index) {
+      var heroClass = lens.lens_id === "story_engine" ? " story-lens-card--anchor" : "";
+      var controls =
+        '<button data-story-lens-open="' + escapeHtml(lens.lens_id) + '">Open details</button>' +
+        '<button data-story-lens-move="-1" data-lens-id="' + escapeHtml(lens.lens_id) +
+          '"' + (index === 0 ? " disabled" : "") + ' aria-label="Move ' + escapeHtml(lens.title) + ' left">←</button>' +
+        '<button data-story-lens-move="1" data-lens-id="' + escapeHtml(lens.lens_id) +
+          '"' + (index === lenses.length - 1 ? " disabled" : "") + ' aria-label="Move ' + escapeHtml(lens.title) + ' right">→</button>';
+      return '<article class="story-lens-card' + heroClass + '" data-lens-card="' +
+        escapeHtml(lens.lens_id) + '">' +
+        '<p class="lens-eyebrow">' + escapeHtml(lens.eyebrow) + "</p>" +
+        "<h3>" + escapeHtml(lens.title) + "</h3>" +
+        '<span class="lens-state lens-state--' + escapeHtml(lens.state) + '">' +
+          escapeHtml(storyLensStateLabel(lens.state)) + "</span>" +
+        '<p class="lens-summary">' + escapeHtml(lens.summary) + "</p>" +
+        '<div class="story-lens-card-actions">' + controls + "</div></article>";
+    }).join("");
+    if (orientation.availability_note) {
+      container.innerHTML += '<p class="story-lens-availability hint">' +
+        escapeHtml(orientation.availability_note) + "</p>";
+    }
+    Array.prototype.forEach.call(container.querySelectorAll("[data-story-lens-open]"), function (button) {
+      button.addEventListener("click", function () {
+        setActiveStoryLens(button.getAttribute("data-story-lens-open"));
+      });
+    });
+    Array.prototype.forEach.call(container.querySelectorAll("[data-story-lens-move]"), function (button) {
+      button.addEventListener("click", function () {
+        moveStoryLens(
+          button.getAttribute("data-lens-id"),
+          Number(button.getAttribute("data-story-lens-move"))
+        );
+      });
+    });
+  }
+
   function inspectorLabel(key) {
     return key.replace(/_/g, " ").replace(/\b\w/g, function (letter) { return letter.toUpperCase(); });
   }
@@ -241,7 +470,7 @@
       ["narrative_promise", "Narrative promise"],
       ["genre_conventions", "Genre conventions"],
       ["patterns", "Relevant patterns"],
-      ["craft_principle", "Mystery craft principle"],
+      ["craft_principle", "Craft principle"],
       ["common_failure_mode", "Common failure mode"],
     ];
     return labels.map(function (entry) {
@@ -276,28 +505,67 @@
     }).join("");
   }
 
+  function compositionExplanation(orientation) {
+    var composition = orientation && orientation.composition;
+    if (!composition) return "";
+    function labels(values) {
+      return values && values.length ? escapeHtml(values.join("; ")) : '<span class="muted">Not yet established.</span>';
+    }
+    return (
+      '<section class="composition-explanation" aria-labelledby="composition-explanation-heading">' +
+      '<h3 id="composition-explanation-heading">How these parts work together</h3>' +
+      '<p>' + escapeHtml(composition.synthesis || "") + '</p>' +
+      '<dl class="composition-grid">' +
+      '<div><dt>Main story machinery</dt><dd>' + labels(composition.main_story_machinery) + '</dd></div>' +
+      '<div><dt>Genre / story traditions</dt><dd>' + labels(composition.genre_traditions) + '</dd></div>' +
+      '<div><dt>Aesthetic framing</dt><dd>' + labels(composition.aesthetic_framing) + '</dd></div>' +
+      '<div><dt>Common tropes</dt><dd>' + labels(composition.trope_families) + '</dd></div>' +
+      '<div><dt>Relationship / thematic dynamics</dt><dd>' + labels(composition.relationship_dynamics) + '</dd></div>' +
+      '<div><dt>Narrative structure</dt><dd>' + escapeHtml(composition.structure_status || "Not yet established.") + '</dd></div>' +
+      '</dl></section>'
+    );
+  }
+
   function comparisonRows(comparisons) {
     return (comparisons || []).map(function (comparison) {
+      var expectedTropes = comparison.expected_tropes || comparison.genre_conventions || [];
+      var narrativeStructure = comparison.narrative_structure || comparison.narrative_promise || "";
       return detailsRow(
         comparison.label,
-        "<p><strong>Reader experience:</strong> " + escapeHtml(comparison.reader_experience) +
-        "</p><p><strong>Narrative promise:</strong> " + escapeHtml(comparison.narrative_promise) +
-        "</p><p><strong>Genre conventions:</strong> " + escapeHtml((comparison.genre_conventions || []).join("; ")) +
+        "<p><strong>How these parts work together:</strong> " +
+          escapeHtml(comparison.relationship_explanation || "") +
+        "</p><p><strong>Reader experience:</strong> " + escapeHtml(comparison.reader_experience) +
+        "</p><p><strong>Aesthetic framing:</strong> " + escapeHtml(comparison.aesthetic_framing || "Not yet established.") +
+        "</p><p><strong>Common tropes:</strong> " + escapeHtml(expectedTropes.join("; ")) +
+        "</p><p><strong>Narrative structure:</strong> " + escapeHtml(narrativeStructure) +
         "</p>" + listHtml(comparison.tradeoffs || [])
       );
     }).join("");
   }
 
   function renderInspector(projection) {
-    var inspector = projection.guidance_inspector;
-    var body = $("inspector-body");
-    if (!inspector) {
-      body.innerHTML = '<p class="muted">Guidance is unavailable for this view.</p>';
+    var orientation = projection.story_orientation;
+    var activeLens = storyLensById(orientation, state.activeLensId);
+    if (projection.primary_surface === "architecture" && activeLens) {
+      renderStoryLensInspector(projection, activeLens);
       return;
     }
+    $("inspector-title").textContent = projection.primary_surface === "architecture"
+      ? "Story Architecture Overview"
+      : "Explore guidance";
+    var inspector = projection.guidance_inspector;
+    var body = $("inspector-body");
     var parts = [];
+    if (orientation && orientation.composition) {
+      parts.push(compositionExplanation(orientation));
+    }
+    if (!inspector) {
+      parts.push('<p class="muted">Choose a Story Lens for detailed evidence and refinement.</p>');
+      body.innerHTML = parts.join("");
+      return;
+    }
     parts.push(detailsRow("Why does Auteur recommend this?", "<p>" + escapeHtml(inspector.recommendation_rationale) + "</p>"));
-    parts.push(detailsRow("Mystery & reader contract", contextRows(inspector.context_guidance || {})));
+    parts.push(detailsRow("Story experience & craft context", contextRows(inspector.context_guidance || {})));
     parts.push(detailsRow("What this choice changes", consequenceGroups(inspector["narrative_" + "consequences"])));
     parts.push(detailsRow("Compare options", comparisonRows(inspector.option_comparisons)));
     parts.push(detailsRow("Evidence & provenance", listHtml(inspector.evidence)));
@@ -373,13 +641,14 @@
       "</span></li>"
     ];
     entries.forEach(function (entry) {
+      var milestoneId = entry.stage === "discover" ? "story_direction" :
+        (entry.stage === "story_identity" ? "story_identity" : "whole_story_structure");
       var classes = ["navigator-entry", "lifecycle-" + entry.lifecycle];
       var expectedSurface = entry.stage === "discover" ? "discovery" :
         (entry.stage === "story_identity" ? "story_identity" : "structure");
       if (projection.primary_surface === expectedSurface || entry.current_card_id) classes.push("is-current");
+      if (acceptedIds.indexOf(milestoneId) >= 0) classes.push("is-accepted");
       if (entry.stale) classes.push("is-stale");
-      var milestoneId = entry.stage === "discover" ? "story_direction" :
-        (entry.stage === "story_identity" ? "story_identity" : "whole_story_structure");
       var lifecycleLabel = acceptedIds.indexOf(milestoneId) >= 0 ? "Accepted" :
         (entry.review_available ? "Ready for review" :
           (entry.availability !== "available" ? "Later" :
@@ -416,6 +685,31 @@
         }).join("");
         html.push("<h4>" + escapeHtml(facet.label) + "</h4><ul>" + items + "</ul>");
       });
+      if (orientation.lens_diagnostics) {
+        var diagnostics = orientation.lens_diagnostics;
+        var lensTitles = {};
+        (orientation.story_lenses || []).forEach(function (lens) {
+          lensTitles[lens.lens_id] = lens.title;
+        });
+        var unresolved = (diagnostics.unestablished_lens_ids || []).map(function (id) {
+          return lensTitles[id] || id;
+        });
+        var needsAttention = (diagnostics.needs_attention_lens_ids || []).map(function (id) {
+          return lensTitles[id] || id;
+        });
+        html.push(detailsRow(
+          "Interpretation diagnostics",
+          "<p><strong>Analysis source:</strong> " + escapeHtml(diagnostics.source_mode) + "</p>" +
+          "<p><strong>Freshness:</strong> " + escapeHtml(diagnostics.stale ? "needs review" : "current") + "</p>" +
+          "<p><strong>Active / suppressed components:</strong> " +
+            escapeHtml(String(diagnostics.active_component_count)) + " / " +
+            escapeHtml(String(diagnostics.suppressed_component_count)) + "</p>" +
+          "<p><strong>Author adjustments:</strong> " +
+            escapeHtml(String(diagnostics.author_adjustment_count)) + "</p>" +
+          "<p><strong>Unestablished lenses:</strong></p>" + listHtml(unresolved) +
+          "<p><strong>Needs attention:</strong></p>" + listHtml(needsAttention)
+        ));
+      }
     }
     html.push("<h4>Accepted milestones</h4>");
     html.push(refs.length ? "<ul>" + refs.map(function (ref) {
@@ -435,11 +729,7 @@
     if (surface.hidden || !orientation) return;
     $("architecture-heading").textContent = orientation.heading || "Here is what Auteur sees";
     $("architecture-summary").textContent = orientation.summary || "";
-    $("architecture-facets").innerHTML = (orientation.navigator_facets || []).map(function (facet) {
-      return "<section class=\"orientation-facet\"><h3>" + escapeHtml(facet.label) + "</h3><p>" +
-        escapeHtml((facet.components || []).map(function (item) { return item.label; }).join(" · ")) +
-        "</p></section>";
-    }).join("");
+    renderStoryLensCards(projection);
   }
 
   function renderDiscoverySurface(projection) {
@@ -525,19 +815,24 @@
       acceptedIds.indexOf("whole_story_structure") >= 0;
     if (foundationAccepted) {
       state.currentCardId = null;
-      question.textContent = "Story foundation accepted";
-      optionsBox.innerHTML = '<p class="completion-state">Discover, Story Identity, and Whole-Story Structure are canonical.</p>';
+      $("decision-card").classList.add("is-complete");
+      question.textContent = "✓ Story foundation accepted";
+      optionsBox.innerHTML =
+        '<p class="completion-state">Discover, Story Identity, and Whole-Story Structure are canonical.</p>' +
+        '<p class="phase-complete-next"><strong>Next:</strong> turn this accepted foundation into a whole-story outline.</p>';
       $("card-why-now").textContent = "";
       $("card-recommendation").textContent = "";
       $("card-consequence").textContent = "";
-      $("inspector-body").innerHTML = "";
       $("card-warnings").innerHTML = "";
       $("save-feedback").textContent = "Accepted story foundation.";
       $("continue-button").disabled = true;
+      $("continue-button").hidden = true;
       $("continue-button").textContent = "Story foundation complete";
       $("continue-button").dataset.reviewStage = "";
       return;
     }
+    $("decision-card").classList.remove("is-complete");
+    $("continue-button").hidden = false;
     if (!card) {
       state.currentCardId = null;
       question.textContent = "No decision card available.";
@@ -599,7 +894,10 @@
     var reviews = projection.reviews || {};
     var acceptedIds = (projection.canonical_refs || []).map(function (ref) { return ref.milestone_id; });
     if (!((projection.revision || {}).active_revision_id) && acceptedIds.indexOf("whole_story_structure") >= 0) {
-      body.innerHTML = '<p class="completion-summary"><strong>Story foundation complete.</strong> Your accepted direction, identity, and whole-story structure are ready for the next stage of work.</p>';
+      body.innerHTML =
+        '<div class="completion-summary phase-complete-banner" role="status">' +
+        '<strong>Story foundation complete.</strong> Your accepted direction, identity, and whole-story structure are ready.' +
+        '<span>Next phase: outline the whole story.</span></div>';
       return;
     }
     var stages = Object.keys(reviews).filter(function (stage) {
@@ -629,12 +927,18 @@
         var acceptAction = stage === "discover" ? "accept-direction" :
           (stage === "story_identity" ? "accept-identity" : "accept-structure");
         if (actions.indexOf(openAction) >= 0) {
-          inner.push('<button class="review-action" data-command="open-review" data-stage="' + escapeHtml(stage) + '">Review ' + escapeHtml(stageLabel(stage)) + " →</button>");
+          var openClass = projection.primary_action && projection.primary_action.action_id === openAction
+            ? "review-action primary-action"
+            : "review-action";
+          inner.push('<button class="' + openClass + '" data-command="open-review" data-stage="' + escapeHtml(stage) + '">Review ' + escapeHtml(stageLabel(stage)) + " →</button>");
         }
         if (actions.indexOf(acceptAction) >= 0) {
           var acceptLabel = stage === "discover" ? "Accept Story Direction" :
             (stage === "story_identity" ? "Accept Story Identity" : "Accept Whole-Story Structure");
-          inner.push('<button class="review-action primary-action" data-command="' + acceptAction + '">' + acceptLabel + "</button>");
+          var acceptClass = projection.primary_action && projection.primary_action.action_id === acceptAction
+            ? "review-action primary-action"
+            : "review-action";
+          inner.push('<button class="' + acceptClass + '" data-command="' + acceptAction + '">' + acceptLabel + "</button>");
         }
         var revisionOpenAction = "open-revision:" + stage;
         var revisedAcceptAction = stage === "discover" ? "accept-revised-direction" :
@@ -648,7 +952,10 @@
         if (actions.indexOf(revisedAcceptAction) >= 0) {
           var revisedLabel = stage === "discover" ? "Accept Revised Story Direction" :
             (stage === "story_identity" ? "Accept Revised Story Identity" : "Accept Revised Whole-Story Structure");
-          inner.push('<button class="review-action primary-action" data-command="' + revisedAcceptAction + '">' + revisedLabel + "</button>");
+          var revisedClass = projection.primary_action && projection.primary_action.action_id === revisedAcceptAction
+            ? "review-action primary-action"
+            : "review-action";
+          inner.push('<button class="' + revisedClass + '" data-command="' + revisedAcceptAction + '">' + revisedLabel + "</button>");
         }
         (review.card_summaries || []).forEach(function (summary) {
           var alignment = summary.guidance_alignment ||
@@ -811,10 +1118,9 @@
   function renderContinuation(projection) {
     var body = $("continuation-body");
     var state = projection.continuation;
-    if (!state) {
-      body.innerHTML = '<p class="muted">Accept the whole-story structure to continue into outlining.</p>';
-      return;
-    }
+    var acceptedIds = (projection.canonical_refs || []).map(function (ref) { return ref.milestone_id; });
+    var foundationAccepted = !((projection.revision || {}).active_revision_id) &&
+      acceptedIds.indexOf("whole_story_structure") >= 0;
     var actionLabels = {
       "propose-outline": "Create outline proposal",
       "accept-outline": "Continue with this outline",
@@ -826,35 +1132,57 @@
       "review-chapter-1": "Review Chapter 1",
       "review-stale-continuation": "Review stale continuation"
     };
-    var action = (projection.available_actions || []).filter(function (item) {
-      return Object.prototype.hasOwnProperty.call(actionLabels, item);
-    })[0];
+    var projectedPrimary = projection.primary_action || null;
+    var action = projectedPrimary && Object.prototype.hasOwnProperty.call(actionLabels, projectedPrimary.action_id)
+      ? projectedPrimary.action_id
+      : (projection.available_actions || []).filter(function (item) {
+        return Object.prototype.hasOwnProperty.call(actionLabels, item);
+      })[0];
+    if (!state && !foundationAccepted) {
+      body.innerHTML = '<p class="muted">Accept the whole-story structure to continue into outlining.</p>';
+      return;
+    }
     var html = [];
-    if (state.stale) {
+    if (foundationAccepted) {
+      html.push(
+        '<section class="phase-transition" role="status" aria-label="Next story-development phase">' +
+        '<p class="phase-transition-kicker">Foundation complete</p>' +
+        '<h3>Next: outline your story</h3>' +
+        '<p>Turn the accepted foundation into a derived whole-story outline. You can review it before accepting it.</p>' +
+        '</section>'
+      );
+    }
+    if (state && state.stale) {
       html.push('<p class="blocking-inline" role="alert">' + escapeHtml(state.stale_reason || "The accepted upstream inputs changed; review these derived plans before drafting.") + "</p>");
     }
-    if (state.outline_proposal) {
+    if (state && state.outline_proposal) {
       html.push("<h3>Whole-story outline</h3><p>" + escapeHtml(state.outline_proposal.title) + " · derived proposal</p>");
       html.push(listHtml((state.outline_proposal.chapters || []).map(function (chapter) {
         return "Chapter " + chapter.chapter_index + ": " + chapter.purpose;
       })));
     }
-    if (state.chapter_plan) {
+    if (state && state.chapter_plan) {
       html.push("<h3>Chapter 1 plan</h3><p>" + escapeHtml(state.chapter_plan.what_changes) + "</p>");
     }
-    if (state.scene_plans && state.scene_plans.length) {
+    if (state && state.scene_plans && state.scene_plans.length) {
       html.push("<h3>Scene plan</h3>" + listHtml(state.scene_plans.map(function (scene) {
         return scene.scene_id + ": " + scene.purpose;
       })));
     }
-    if (state.draft_handoff) {
+    if (state && state.draft_handoff) {
       html.push("<h3>Ready to write Chapter 1</h3><p>Use the accepted identity, structure, outline, chapter plan, and scene plan.</p><code>" + escapeHtml(state.draft_handoff.command) + "</code>");
       if (state.draft_status === "drafted") {
         html.push("<p><strong>Chapter 1 is drafted.</strong> Review it before planning Chapter 2.</p>");
       }
     }
     if (action) {
-      html.push('<button class="continue-button" data-continuation-action="' + escapeHtml(action) + '">' + escapeHtml(actionLabels[action]) + "</button>");
+      html.push('<p class="next-action-label">Next step</p>');
+      html.push('<button type="button" class="continue-button primary-next-action" data-continuation-action="' + escapeHtml(action) + '">' + escapeHtml(actionLabels[action]) + " →</button>");
+      if (projectedPrimary && projectedPrimary.action_id === action && projectedPrimary.reason) {
+        html.push('<p class="muted primary-action-reason">' + escapeHtml(projectedPrimary.reason) + "</p>");
+      }
+    } else if (foundationAccepted) {
+      html.push('<p class="muted">The foundation is accepted, but no continuation action is currently available.</p>');
     }
     body.innerHTML = html.join("");
     var button = body.querySelector("[data-continuation-action]");
@@ -867,6 +1195,7 @@
     if (!projection) {
       return;
     }
+    state.currentProjection = projection;
     if (typeof projection.session_version === "number") {
       state.sessionVersion = projection.session_version;
     } else if (projection.workspace && typeof projection.workspace.session_version === "number") {
@@ -1087,6 +1416,17 @@
   function init() {
     initDrawer();
     $("open-inspector").addEventListener("click", function () {
+      if (
+        state.currentProjection &&
+        state.currentProjection.primary_surface === "architecture" &&
+        !state.activeLensId
+      ) {
+        var lenses = orderedStoryLenses(
+          (state.currentProjection.story_orientation || {}).story_lenses || []
+        );
+        if (lenses.length) state.activeLensId = lenses[0].lens_id;
+        renderInspector(state.currentProjection);
+      }
       state.inspectorOpen = true;
       syncInspector();
       $("close-inspector").focus();
@@ -1119,6 +1459,7 @@
         return;
       }
       state.workspaceId = value;
+      state.activeLensId = null;
       setSaveFeedback("");
       loadProjection();
     });
@@ -1130,7 +1471,18 @@
       $("refinement-panel").scrollIntoView({ behavior: "smooth", block: "start" });
     });
     $("explain-architecture").addEventListener("click", function () {
-      $("story-map-body").scrollIntoView({ behavior: "smooth", block: "start" });
+      if (state.currentProjection && state.currentProjection.story_orientation) {
+        var lenses = orderedStoryLenses(state.currentProjection.story_orientation.story_lenses || []);
+        if (lenses.length) setActiveStoryLens(lenses[0].lens_id);
+      }
+    });
+    $("reset-lens-layout").addEventListener("click", function () {
+      try {
+        window.localStorage.removeItem(storyLensLayoutKey());
+      } catch (error) {
+        // Layout storage is optional and never blocks story work.
+      }
+      if (state.currentProjection) renderArchitectureSurface(state.currentProjection);
     });
     $("continue-button").addEventListener("click", function () {
       var stage = $("continue-button").dataset.reviewStage;

@@ -11,6 +11,7 @@ from .architecture_models import (
     NarrativeArchitectureAnalysis,
 )
 from .contracts import AcceptedMilestoneReference
+from .story_lenses import StoryLensDiagnostics, StoryLensProjection, build_story_lenses
 
 
 FACET_LABELS = {
@@ -48,6 +49,20 @@ class ArchitectureFacetProjection(BaseModel):
     components: tuple[ArchitectureComponentProjection, ...]
 
 
+class StoryCompositionProjection(BaseModel):
+    """Beginner-facing explanation of how detected story dimensions compose."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    synthesis: str
+    main_story_machinery: tuple[str, ...]
+    genre_traditions: tuple[str, ...]
+    aesthetic_framing: tuple[str, ...]
+    trope_families: tuple[str, ...]
+    relationship_dynamics: tuple[str, ...]
+    structure_status: str
+
+
 class StoryOrientationProjection(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -58,6 +73,9 @@ class StoryOrientationProjection(BaseModel):
     authority_status: str
     navigator_facets: tuple[ArchitectureFacetProjection, ...]
     story_map_facets: tuple[ArchitectureFacetProjection, ...]
+    composition: StoryCompositionProjection
+    story_lenses: tuple[StoryLensProjection, ...]
+    lens_diagnostics: StoryLensDiagnostics
     availability_note: str | None = None
     next_action_label: str
 
@@ -111,6 +129,102 @@ def _facet_projections(
     return tuple(facets)
 
 
+def _active_labels(
+    analysis: NarrativeArchitectureAnalysis,
+    facet: ArchitectureFacet,
+) -> tuple[str, ...]:
+    return tuple(
+        component.label
+        for component in analysis.components
+        if component.facet is facet
+        and component.activation.value == "active"
+        and component.role.value in {"primary", "supporting"}
+    )
+
+
+def _join_labels(labels: tuple[str, ...]) -> str:
+    if not labels:
+        return ""
+    if len(labels) == 1:
+        return labels[0]
+    if len(labels) == 2:
+        return f"{labels[0]} and {labels[1]}"
+    return ", ".join(labels[:-1]) + f", and {labels[-1]}"
+
+
+def _composition_projection(
+    analysis: NarrativeArchitectureAnalysis,
+    accepted_milestones: tuple[AcceptedMilestoneReference, ...],
+) -> StoryCompositionProjection:
+    engines = _active_labels(analysis, ArchitectureFacet.NARRATIVE_ENGINE)
+    genres = _active_labels(analysis, ArchitectureFacet.GENRE_CONSTELLATION)
+    framing = _active_labels(analysis, ArchitectureFacet.AESTHETIC_FRAMING)
+    tropes = _active_labels(analysis, ArchitectureFacet.TROPE_FAMILY)
+    relationships = _active_labels(analysis, ArchitectureFacet.RELATIONSHIP_DYNAMIC)
+
+    clauses: list[str] = []
+    if engines:
+        clauses.append(f"{_join_labels(engines)} provides the main story machinery.")
+    else:
+        clauses.append("The main story machinery is not yet established.")
+
+    if tropes:
+        suffix = " that feed that machinery" if engines else ""
+        clauses.append(
+            f"{_join_labels(tropes)} supplies recurring story situations and pressure{suffix}."
+        )
+    else:
+        clauses.append("No major trope family is currently established.")
+
+    if relationships:
+        clauses.append(
+            f"{_join_labels(relationships)} determines where those pressures become "
+            "emotionally or thematically consequential."
+        )
+
+    if framing:
+        clauses.append(
+            f"{_join_labels(framing)} determines how those events should feel and be presented."
+        )
+    else:
+        clauses.append(
+            "Aesthetic framing is not yet established; Auteur should not invent how the story is meant to feel."
+        )
+
+    if genres:
+        clauses.append(
+            f"{_join_labels(genres)} sets reader expectations around how those elements combine."
+        )
+
+    accepted = {reference.milestone_id for reference in accepted_milestones}
+    if "whole_story_structure" in accepted:
+        structure_status = (
+            "Whole-Story Structure is accepted; it now governs when these pressures "
+            "escalate, reverse, and resolve."
+        )
+    elif "story_identity" in accepted:
+        structure_status = (
+            "Narrative structure is not accepted yet; Structure is the next step that "
+            "will decide when these pressures escalate, reverse, and resolve."
+        )
+    else:
+        structure_status = (
+            "Narrative structure is not established yet; later Structure decisions will "
+            "decide when these pressures escalate, reverse, and resolve."
+        )
+    clauses.append(structure_status)
+
+    return StoryCompositionProjection(
+        synthesis=" ".join(clauses),
+        main_story_machinery=engines,
+        genre_traditions=genres,
+        aesthetic_framing=framing,
+        trope_families=tropes,
+        relationship_dynamics=relationships,
+        structure_status=structure_status,
+    )
+
+
 def _next_action(
     analysis_current: bool,
     accepted_milestones: tuple[AcceptedMilestoneReference, ...],
@@ -133,6 +247,10 @@ def build_story_orientation(
 ) -> StoryOrientationProjection | None:
     if analysis is None:
         return None
+    story_lenses, lens_diagnostics = build_story_lenses(
+        analysis=analysis,
+        analysis_current=analysis_current,
+    )
     return StoryOrientationProjection(
         summary=analysis.summary,
         analysis_id=analysis.analysis_id,
@@ -140,6 +258,9 @@ def build_story_orientation(
         authority_status=analysis.authority_status,
         navigator_facets=_facet_projections(analysis, expanded=False),
         story_map_facets=_facet_projections(analysis, expanded=True),
+        composition=_composition_projection(analysis, accepted_milestones),
+        story_lenses=story_lenses,
+        lens_diagnostics=lens_diagnostics,
         availability_note=analysis.availability_note,
         next_action_label=_next_action(analysis_current, accepted_milestones),
     )

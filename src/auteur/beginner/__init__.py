@@ -12,6 +12,15 @@ from .contracts import (
     StageStatus,
     WorkingDecision,
 )
+from .generic_structure import register_generic_structure_adapter
+from .story_lenses import (
+    StoryLensDiagnostics,
+    StoryLensItem,
+    StoryLensProjection,
+    StoryLensState,
+    StoryLensType,
+    build_story_lenses,
+)
 from .mystery_adapter import register_mystery_guidance_adapter
 from .post_draft import (
     AcceptanceReconciliation,
@@ -35,6 +44,7 @@ from .continuation import (
 )
 
 register_mystery_guidance_adapter()
+register_generic_structure_adapter()
 
 __all__ = [
     "AcceptedMilestoneReference",
@@ -47,6 +57,12 @@ __all__ = [
     "StageAvailability",
     "StageStatus",
     "WorkingDecision",
+    "StoryLensDiagnostics",
+    "StoryLensItem",
+    "StoryLensProjection",
+    "StoryLensState",
+    "StoryLensType",
+    "build_story_lenses",
     "AcceptanceReconciliation",
     "ChapterProductionStatus",
     "DraftReviewProjection",

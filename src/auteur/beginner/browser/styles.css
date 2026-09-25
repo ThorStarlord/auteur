@@ -439,3 +439,295 @@ details summary {
   margin-top: 1.5rem;
   padding: 0.75rem;
 }
+
+
+/* Human-walkthrough follow-up: make stage completion and the next safe action
+ * visually unmistakable without relying on color alone. */
+.navigator-entry.is-accepted {
+  border-color: #9ab5a0;
+  background: #f0f6f0;
+}
+
+.navigator-entry.is-accepted .nav-lifecycle {
+  color: var(--accent);
+  font-weight: bold;
+}
+
+.decision-card.is-complete {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(47, 93, 58, 0.14);
+  background: #fbfefb;
+}
+
+.phase-complete-next {
+  margin-bottom: 0;
+}
+
+.phase-complete-banner {
+  display: grid;
+  gap: 0.25rem;
+  border-left: 4px solid var(--accent);
+  background: #f0f6f0;
+  padding: 0.75rem 0.9rem;
+  border-radius: 0 8px 8px 0;
+}
+
+.phase-complete-banner span {
+  color: var(--ink);
+}
+
+.review-action {
+  margin: 0.5rem 0.5rem 0 0;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.review-action.primary-action,
+.primary-next-action {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+  font-weight: bold;
+}
+
+.primary-next-action {
+  min-width: 220px;
+  padding: 0.75rem 1.2rem;
+  box-shadow: 0 4px 12px rgba(47, 93, 58, 0.18);
+}
+
+.phase-transition {
+  margin: 0 0 1rem;
+  padding: 1rem;
+  border: 1px solid #9ab5a0;
+  border-radius: 10px;
+  background: #f0f6f0;
+}
+
+.phase-transition h3 {
+  margin: 0.15rem 0 0.4rem;
+}
+
+.phase-transition-kicker,
+.next-action-label {
+  margin: 0;
+  color: var(--accent);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.8rem;
+}
+
+.next-action-label {
+  margin-top: 1rem;
+}
+
+.composition-explanation {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  background: #f7f4ee;
+}
+
+.composition-explanation h3 {
+  margin-top: 0;
+}
+
+.composition-grid {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+}
+
+.composition-grid div {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.45fr) 1fr;
+  gap: 0.75rem;
+}
+
+.composition-grid dt {
+  font-weight: bold;
+}
+
+.composition-grid dd {
+  margin: 0;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+  outline: 3px solid #6f8f77;
+  outline-offset: 2px;
+}
+
+@media (max-width: 600px) {
+  .composition-grid div {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+  }
+}
+
+
+/* Story Lens first-screen system ------------------------------------------------
+ * The layout is product-composable while Story Lens semantics stay server-owned.
+ * Reordering is a local presentation preference and never changes story authority.
+ */
+.lens-layout-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 1rem 0 0.75rem;
+}
+
+.lens-layout-toolbar button,
+.story-lens-card-actions button,
+.related-lenses button {
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--card-border);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.lens-layout-toolbar button:focus-visible,
+.story-lens-card-actions button:focus-visible,
+.related-lenses button:focus-visible {
+  outline: 3px solid rgba(47, 93, 58, 0.28);
+  outline-offset: 2px;
+}
+
+.story-lens-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin: 0 0 1rem;
+}
+
+.story-lens-card {
+  position: relative;
+  min-height: 190px;
+  padding: 1rem;
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.story-lens-card--anchor {
+  grid-column: 1 / -1;
+  min-height: 160px;
+  border-color: #9ab5a0;
+  background: #fbfefb;
+}
+
+.story-lens-card h3,
+.story-lens-item h3,
+.related-lenses h3 {
+  margin: 0.25rem 0 0.45rem;
+}
+
+.lens-eyebrow {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.lens-summary {
+  font-size: 1.02rem;
+  line-height: 1.45;
+}
+
+.lens-state {
+  display: inline-block;
+  margin: 0 0 0.25rem;
+  padding: 0.18rem 0.45rem;
+  border: 1px solid var(--card-border);
+  border-radius: 999px;
+  color: var(--muted);
+  background: #f7f4ef;
+  font-size: 0.76rem;
+}
+
+.lens-state--author_confirmed,
+.lens-state--author_modified {
+  border-color: #9ab5a0;
+  color: var(--accent);
+  background: #f0f6f0;
+}
+
+.lens-state--unestablished,
+.lens-state--stale {
+  border-style: dashed;
+}
+
+.story-lens-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
+
+.story-lens-card-actions button:first-child {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.story-lens-card-actions button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.story-lens-availability {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.story-lens-item {
+  margin: 1rem 0;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--card-border);
+}
+
+.lens-meta {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.related-lenses {
+  margin-top: 1.25rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--card-border);
+}
+
+.related-lenses button {
+  margin: 0 0.4rem 0.4rem 0;
+}
+
+.primary-action-reason {
+  max-width: 680px;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 720px) {
+  .story-lens-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .story-lens-card--anchor {
+    grid-column: auto;
+  }
+
+  .lens-layout-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

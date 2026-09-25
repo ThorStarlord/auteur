@@ -484,3 +484,515 @@ AUTOMATED PREMISE-TO-ARCHITECTURE GATE   PASS — exact-head L1 and targeted L2
 HUMAN BEGINNER USABILITY                 PENDING
 RELEASE QUALIFICATION                    NO
 ```
+
+---
+
+## 2026-09-23 architecture-first walkthrough at main HEAD (agent-observed, fallback mode)
+
+This is a bounded, single-workspace walkthrough whose purpose is to **select
+construction work**, not to qualify the product. It is agent-observed and
+owner-delegated. It is **not** human usability evidence and does not change the
+`HUMAN BEGINNER USABILITY` gate above.
+
+- Source SHA: `d7966dc3250970d0c5f435af162263cea93eeb78` (`origin/main` HEAD)
+- Worktree: `.worktrees/human-e2e-architecture-20260923` (linked worktree,
+  detached at `origin/main`; git common dir `H:/GithubRepositories/auteur/.git`)
+- Runtime: documented default `npm start`
+  (`scripts/beginner-dev.mjs` → `python -m auteur.beginner.server`, **no
+  `--provider`**)
+- Workspace: `agentwalk1` (fresh; no pre-existing accepted Identity or Structure)
+- Premise: "A disgraced superhero who can rewind a conversation by five minutes
+  learns that her old partner, now the city's beloved mayor, may have caused the
+  bridge collapse she was blamed for, and she must decide whether to expose him
+  before the gala where he will be honored."
+- Endpoint exercised: premise → "Here is what Auteur sees" → one working
+  correction → **Continue with this interpretation** → Story Discovery.
+
+Exact-head sentinel: `tests/test_beginner_premise_architecture_e2e.py` →
+`2 passed` at the SHA above (L1 only).
+
+### Observed (fallback mode — no reasoning provider configured)
+
+- `story_orientation.analysis_id` = `analysis:fallback:*`; `availability_note` =
+  "Rich narrative interpretation was unavailable; showing the bounded
+  explicit-signal fallback."
+- "Here is what Auteur sees": Mystery (primary), Superhero fiction (supporting),
+  Investigation and revelation (primary engine). The summary is a detected-signal
+  list, not an integrated interpretation of the story's engine.
+- Authority/epistemic framing is explicit and correct: surface reads "Working
+  interpretation · not canon"; `authority_status` = "DERIVED / NOT CANON";
+  per-component certainty is shown.
+- Stage B correction (add missing `relationship_dynamic` component "Betrayal and
+  divided loyalty") changed only the derived working interpretation
+  (`origin=AUTHOR_DEFINED`, `status=CONFIRMED`, `confirmed_by_author=true`;
+  `session_version` 1→2). `canonical_refs` stayed empty and
+  `identity_candidate` stayed null. The authority boundary held.
+- Continue → Story Discovery: `discovery.status` = `unavailable`,
+  rationale "No reasoning provider configured.", zero directions. UI copy:
+  "Rich story-direction search is unavailable. Curated decisions remain available
+  below as a degraded fallback." The focused decision card is the Mystery
+  inventory ("Which mystery experience or lens should the story promise?").
+
+### First material friction
+
+The journey breaks materially at the **architecture → Discovery seam**: leaving
+"Here is what Auteur sees" lands on a Story Discovery that is unavailable
+("No reasoning provider configured") with no directions and no in-product way to
+enable rich mode. The same missing provider also reduces the initial architecture
+interpretation to a shallow explicit-signal fallback and pins Mystery as primary
+even for a non-Mystery premise (a Lisbon romcom probe returned Mystery; a
+superhero premise returned Mystery + Superhero fiction).
+
+- Classification: **INFRASTRUCTURE** (default launch/provider configuration) with
+  a **UX / PRESENTATION** component (no in-product path to enable rich mode);
+  **ARCHITECTURE ANALYSIS QUALITY** shallow-fallback is a downstream symptom of
+  the same root cause.
+- Authority confusion: none observed.
+- Architecture propagation to Discovery / Identity / Structure: **not testable**
+  in fallback mode (Discovery unavailable).
+
+### Claim boundary
+
+- Agent-observed, owner-delegated; **not** human usability.
+- Rich provider mode was not exercised, so this makes no claim about
+  interpretation quality in the intended configuration.
+- Stages C–H (Discovery, Story Identity, Structure) were not exercised.
+- One premise, one workspace, one correction.
+
+### Disposition
+
+Candidate construction responsibility: make the provider requirement explicit and
+actionable at launch and/or in the Discovery surface (fail fast with
+instructions), and give the deterministic path an explicit degraded-mode
+contract. Not implemented by this walkthrough.
+
+### 2026-09-23 addendum — deterministic curated fallback implemented
+
+Owner approved amending the fallback policy (`docs/superpowers/specs/2026-09-23-deterministic-curated-fallback-journey.md`)
+and implementing a **Deterministic Curated Mode** so the no-provider path is a
+usable journey rather than a dead end. Implemented on branch
+`experiment/deterministic-curated-fallback` (worktree at `d7966dc3`):
+
+- premise-sensitive deterministic architecture (blind Mystery pin removed;
+  primary genre and engine derived from bounded premise signals);
+- `DeterministicDiscoveryRecommender` producing causally distinct directions
+  with synthesized `StoryIdentity` candidates (`NEEDS_AUTHOR_CHOICE`, no
+  manufactured recommendation), wired into the default runtime;
+- bounded generic Structure inventory (escalation / reversal placement /
+  resolution shape) used when Mystery is not material, with guidance routing;
+- per-engine mapping (`mapping._candidate_for`) instead of always `mystery`.
+
+Agent-observed verification (default server, no provider, HTTP command path):
+
+- Mystery-material premise (superhero/mystery/betrayal): premise-sensitive
+  interpretation, 3 distinct directions, accepted Story Direction and Story
+  Identity, curated Mystery Structure decisions, accepted Whole-Story Structure
+  (`primary_surface: complete`).
+- Original non-Mystery friction premise (superhero only): interpretation
+  "Superhero fiction, Public/private identity pressure" (no Mystery pin), 2
+  distinct directions, accepted Identity, generic Structure decisions, accepted
+  Whole-Story Structure.
+
+Beginner suite at this branch: 344 passed, 1 skipped, 2 known baseline failures
+(the mapping `story_type.genre` assertion and the Windows `mimetypes` JS
+content-type test; both reproduce on the unmodified checkout).
+
+Still open: a projected composition tension can be unacknowledgeable because
+`acknowledge_tension` reads `session.working_composition` rather than the
+projected composition. This is agent-observed evidence, not human usability, and
+does not change the `HUMAN BEGINNER USABILITY` gate above.
+
+### 2026-09-23 addendum — tension coherence fixed and browser walkthrough
+
+The projected-tension acknowledgement defect above was fixed on the same branch:
+`acknowledge_tension` now resolves the tension against the refreshed composition
+basis the projection uses and persists the acknowledged composition, so any
+projected blocking tension has a valid mutation path. Regression test
+`tests/test_beginner_architecture_composition.py::test_projected_composition_tension_has_a_valid_acknowledgement_path`
+fails on the pre-fix code ("unknown tension") and passes after.
+
+Agent-observed **browser** walkthrough (headless Chrome via DevTools, default
+server, no provider), workspace `browserwalk2`, hybrid superhero/mystery/betrayal
+premise. Rendered surfaces observed:
+
+- Stage A — "WORKING INTERPRETATION · NOT CANON" / "Here is what Auteur sees" /
+  "Detected premise signals: Mystery, Superhero fiction, Investigation and
+  revelation, Relationship betrayal, Secret identity." with facet groups
+  (Genre/story traditions; Main story machinery; Trope families; Emotional &
+  relationship dynamics) and the three actions.
+- Stage C — "STORY DISCOVERY · DERIVED / NOT CANON" / "Choose a story direction"
+  with three distinct directions (The unraveling case; Trust on trial; The
+  exposed self), each with a one-line engine and trade-off.
+- Stage F — "STORY IDENTITY CANDIDATE · NOT CANON UNTIL ACCEPTED" / "Review what
+  this story is committing to" / candidate "The unraveling case" with the
+  becomes-canonical / guidance / provenance / unresolved distinction.
+- Stage G/H — three curated Structure decisions with "Auteur suggests: …", then
+  "Review Structure →", then accept.
+- Completion — "Story foundation accepted" and "Story foundation complete."
+
+This is **agent-observed browser evidence**, not an independent human usability
+study, and does not convert `HUMAN BEGINNER USABILITY` to PASS. The human
+no-provider walkthrough remains pending.
+
+### 2026-09-23 addendum — agent-as-author walkthrough and classifier refinement
+
+An agent-as-author walkthrough (fresh real premise: a young aspiring superhero
+whose ordinary romantic/social tension becomes a mystery about betrayal and
+hidden identities) surfaced a first material friction at Stage A: the bounded
+classifier promoted the passing adjective "romantic" to a supporting **Romance**
+genre (ranked above Superhero fiction) and missed **"hidden identities"**
+entirely. Both propagated: Discovery offered only investigation-led and
+relationship-led directions, and Structure asked generic Mystery questions.
+
+Smallest fix on the same branch (`DeterministicArchitectureAnalyzer`):
+
+- removed `"romantic"` from the Romance signal group (an adjective is not a genre
+  signal);
+- added plural/variant secret-identity signals including `"hidden identity"` and
+  `"hidden identities"`.
+
+Re-running the same premise after the fix:
+
+- Stage A now reads "Mystery, Superhero fiction, Investigation and revelation,
+  Relationship betrayal, **Secret identity**" with Genre "Mystery · Superhero
+  fiction" (no Romance) and a Trope families entry.
+- Discovery now offers three distinct directions, including the identity-led
+  **"The exposed self"** that the missing trope had suppressed.
+
+Residual (not fixed): the "Here is what Auteur sees" summary is still a flat
+signal list rather than a concise integrated sentence. Classification of the
+friction: **ARCHITECTURE ANALYSIS QUALITY** with downstream propagation to
+Discovery and Structure specificity. This remains agent-observed, not human.
+
+---
+
+## 2026-09-23 deterministic fallback + human architecture walkthrough
+
+This section records the post-#249 evidence episode that followed the
+2026-09-19 architecture-first candidate. It does not rewrite the historical
+qualification records above.
+
+### Source identity and evidence boundary
+
+The deterministic fallback candidate is currently owner-reported from the local,
+unpushed branch `experiment/deterministic-curated-fallback`. Its reported
+commits are:
+
+- `3ff41f7e` — deterministic premise-sensitive Architecture analysis and
+  curated deterministic Discovery;
+- `2f3fd1e0` — genre-neutral fallback Structure plus per-engine mapping;
+- `24e7e16b` — verification record;
+- `52f4928f` — projected-composition tension acknowledgement coherence;
+- `f7c57f8d` — classifier refinement after the first browser walkthrough.
+
+Because those commits are not pushed, remote GitHub cannot independently inspect
+their diffs. The repository-facing transition/explanation follow-up is draft PR
+#283, with stackable commits `f0a9ee0c` and `52a9e38f`, intentionally based
+on contemporary `main` so they can be cherry-picked/rebased onto the local
+candidate.
+
+The local-only implementation spec is
+`docs/superpowers/specs/2026-09-23-deterministic-curated-fallback-journey.md`.
+Do not create a second remote copy merely because the selected branch has not
+been pushed yet.
+
+### Reported repository / agent evidence
+
+The local candidate reports:
+
+- premise-sensitive deterministic analysis rather than an unconditional Mystery
+  assumption;
+- bounded deterministic Discovery with multiple causally distinct directions,
+  `NEEDS_AUTHOR_CHOICE`, and no manufactured recommendation;
+- a minimal genre-neutral Structure fallback for non-Mystery premises;
+- per-engine StoryIdentity mapping rather than hardcoded Mystery mapping;
+- an acknowledgement path for projected blocking composition tensions against
+  the same refreshed semantic basis used by the projection;
+- real-browser no-provider completion from premise through accepted Story
+  Direction, Story Identity, and Whole-Story Structure;
+- classifier refinement after an agent-observed browser run promoted the passing
+  adjective "romantic" to Romance and missed "hidden identities";
+- focused Beginner suite result **347 passed, 1 skipped, 2 known baseline
+  failures**, with both failures reported as reproduced on the unmodified
+  checkout;
+- no L3 and no release qualification.
+
+This section treats those local branch counts and commit contents as
+owner-reported evidence until the branch is pushed and independently
+inspectable.
+
+### Human walkthrough — material friction found
+
+The owner then used the no-provider Browser Workspace as the author and reached
+the accepted story foundation. The walkthrough therefore exercised the actual
+human-facing architecture-first route, but it did **not** produce a usability
+PASS.
+
+Material human-facing friction was reported in two areas:
+
+1. **Phase ending / transition clarity.** Phase-ending and phase-transition
+   actions did not have enough visual hierarchy, and the completed Structure
+   state could still be accompanied by stale continuation wording that told the
+   author to accept Structure again.
+2. **Integrated narrative explanation.** Explanations improved but still did not
+   adequately connect aesthetic framing, common tropes, narrative structure,
+   relationship/thematic dynamics, and the main story machinery. The problem was
+   not merely missing headings; the author needed an integrated account of how
+   the components work together in this particular story.
+
+That human evidence selected construction directly. It did not warrant another
+experiment program.
+
+### Correction candidate — draft PR #283
+
+The remote follow-up implements:
+
+- accepted-stage and phase-completion emphasis;
+- a visually/semantically primary next action with focus-visible treatment;
+- stale post-foundation transition-copy protection;
+- a read-only **How these parts work together** Story Composition explanation;
+- explicit presentation of aesthetic framing, common tropes, narrative
+  structure, relationship/thematic dynamics, engine, and genre/story traditions;
+- honest "not yet established" treatment when aesthetic framing is absent rather
+  than manufacturing one;
+- genre-neutral explanation labels so the no-provider fallback is not presented
+  as Mystery-specific;
+- focused projection/browser regression coverage.
+
+### Current qualification boundary
+
+```text
+DETERMINISTIC / COMPONENT BEHAVIOR          REPORTED PASS ON LOCAL CANDIDATE
+CHANGED-BOUNDARY BEGINNER SUITE             REPORTED 347 PASS / 1 SKIP / 2 BASELINE FAILURES
+REAL RENDERED BROWSER JOURNEY               EXERCISED
+HUMAN BEGINNER WALKTHROUGH                  EXERCISED — MATERIAL FRICTION FOUND
+TRANSITION / EXPLANATION CORRECTION         IMPLEMENTED IN DRAFT PR #283
+SAME-PREMISE HUMAN RE-WALKTHROUGH           PENDING
+L3 STABILIZATION                            NOT REQUESTED
+RELEASE QUALIFICATION                       NOT CLAIMED
+```
+
+The next evidence task is deliberately small: stack PR #283 onto the local
+fallback branch, run focused Beginner validation, and repeat the same human
+premise once. If the observed transition/explanation friction is no longer
+material, record a bounded correction PASS for that walkthrough. Do not infer
+universal beginner usability, provider generality, narrative-quality
+superiority, or release readiness from a single-author/single-premise result.
+
+---
+
+## 2026-09-23 combined candidate — focused validation and agent-observed re-walkthrough
+
+This section records the closure work on the selected Beginner
+Narrative-Architecture Coherence / deterministic fallback package. It does not
+rewrite any earlier record above; it adds the after-intervention observation
+next to the original friction record.
+
+### Combined candidate identity
+
+- Branch: `experiment/deterministic-curated-fallback`
+- Combined candidate SHA: `a63684ec64e20531b9540d2f90b9c1572c404400`
+- Composition: deterministic-fallback commits `3ff41f7e`, `2f3fd1e0`,
+  `24e7e16b`, `52f4928f`, `f7c57f8d` plus cherry-picked PR #283 commits
+  `64320f17`, `8390ddd8`, `f707b6c8`, `166c1c99` and status-doc alignment
+  `a63684ec`. PR #283's `f0a9ee0c` and `52a9e38f` are patch-id-equivalent to
+  `64320f17` and `8390ddd8`, so the earlier "split across two source
+  identities" state no longer applies.
+- Base: `d7966dc3` (`origin/main` at the time the package started). The
+  candidate predates the later `main` line; integration with current `main` is
+  a separate reconciliation step, not part of this package.
+
+### Focused validation (L1 + named changed boundary)
+
+- Beginner-focused suite: **350 passed, 1 skipped, 2 failed**.
+- The two failures are **KNOWN BASELINE FAILURES**, not regressions:
+  - `tests/test_beginner_workspace_mapping.py::test_preview_links_semantic_change_to_mapping_and_reports_impact`
+    — the assertion targets `promotion.py::_semantic_changes`, which is
+    byte-identical between `d7966dc3` and the candidate.
+  - `tests/test_beginner_workspace_server.py::test_root_serves_beginner_browser_entrypoint`
+    — the JS content-type comes from `mimetypes.guess_type`, which returns
+    `application/javascript` on this Windows host; the content-type code is
+    unchanged by the candidate.
+- Ruff: clean on `src/auteur/beginner` and the touched Beginner tests.
+- Repository validators: `validate-repo.py` and `validate-release-scope.py`
+  pass. `test-validators.py` reports 24/25 (one pre-existing
+  `validate-output.py` positive-fixture failure); the candidate touches no
+  `scripts/` file.
+- L3 and release qualification: **not run / not claimed**.
+
+### Agent-observed re-walkthrough (NOT human)
+
+- Runtime: default no-provider launch (`BeginnerWorkspaceServer` with
+  `default_runtime_dependencies()`), fresh workspace, HTTP command contract.
+- Premise: the same young-aspiring-superhero premise used in the owner
+  walkthrough (`authorwalk1` / `authorwalk2`).
+
+Observed sequence:
+
+- Stage A — "Here is what Auteur sees": `summary` "Detected premise signals:
+  Mystery, Superhero fiction, Investigation and revelation, Relationship
+  betrayal, Secret identity."; genre traditions Mystery + Superhero fiction;
+  trope families `Secret identity`; `aesthetic_framing` empty. The composition
+  synthesis connects engine → tropes → relationship dynamics → honest framing
+  absence ("Aesthetic framing is not yet established; Auteur should not invent
+  how the story is meant to feel") → genre expectations → structure status.
+  `canonical_refs` empty.
+- Stage C — Story Discovery: `status: needs_author_choice`,
+  `recommended_direction_id: null`, `authority_status: DERIVED / NOT CANON`,
+  three distinct directions ("The unraveling case", "Trust on trial",
+  "The exposed self").
+- Stage D — accept Story Direction: `canonical_refs` `["story_direction"]`.
+- Stage F — identity preview: `ready_to_accept: true`, no blocking items, no
+  tensions.
+- Stage G — accept Story Identity: `canonical_refs`
+  `["story_identity", "story_direction"]`.
+- Stage H — accept Whole-Story Structure: `canonical_refs`
+  `["whole_story_structure", "story_identity", "story_direction"]`,
+  `primary_surface: complete`; the composition `structure_status` flips to
+  "Whole-Story Structure is accepted; it now governs when these pressures
+  escalate, reverse, and resolve."; `available_actions` no longer contains any
+  accept action (only `open-review:discover` and `open-revision:*`).
+- Outline transition: `propose-outline` returns an outline proposal and
+  `available_actions` includes `accept-outline`.
+
+### Claim classification
+
+- **Corrected (agent-observed + focused tests):** premise-sensitive no-provider
+  interpretation; deterministic Discovery with distinct directions and no
+  manufactured recommendation; genre-neutral Structure fallback; per-engine
+  StoryIdentity mapping; projected composition tension acknowledgement; signal
+  refinement (no adjective→genre promotion, variant secret-identity detection);
+  Structure-acceptance transition to outline with acceptance controls removed;
+  integrated Narrative Architecture composition explanation.
+- **Residual, human-gated:** the four experiential claims (transition salience,
+  action hierarchy, explanation adequacy, fallback credibility) are
+  human-facing. Agent-observed evidence supports them, but only the same-premise
+  **human** re-walkthrough can convert them to PASS.
+- **New evidence:** none recorded.
+
+### Claim boundary
+
+```text
+COMBINED CANDIDATE                        a63684ec
+COMBINED FOCUSED VALIDATION               PASS_WITH_BASELINE_EXCEPTIONS
+                                          (350 passed / 1 skipped / 2 baseline failures)
+AGENT-OBSERVED SAME-PREMISE RE-WALK       PASS
+SAME-PREMISE HUMAN RE-WALKTHROUGH         PENDING
+L3 STABILIZATION                          NOT REQUESTED
+RELEASE QUALIFICATION                     NOT CLAIMED
+```
+
+This remains agent-observed evidence. It does not change the `HUMAN BEGINNER
+USABILITY` gate and does not qualify the package.
+
+---
+
+## 2026-09-24 current-main reconciliation — focused validation and agent re-walkthrough
+
+The selected behavior from `a63684ec` was reconstructed onto contemporary `main`
+as a bounded integration responsibility, not a new product selection. This
+section records the reconciliation evidence and deliberately does not rewrite the
+historical candidate record above.
+
+### Candidate identity
+
+- Branch: `experiment/beginner-coherence-current-main`
+- Base: `main @ 3836c26d1edd1b596ae10547aad09a6ff9fcffd4`
+- Method: a merge-based reconstruction of the selected behavioral contract
+  (deterministic curated fallback, genre-neutral Structure, per-engine Identity
+  mapping, projection/mutation coherence, phase-transition clarity, integrated
+  composition explanation) onto current `main`. Conflicts were resolved toward
+  the selected behavior rather than the historical branch topology. This is not a
+  rebase of stale history and it preserves the later post-draft continuation,
+  whole-book progress, Book acceptance, and authority/projection semantics.
+- Reconciled candidate SHA (merge commit, parents `main @ 3836c26d` and
+  `experiment/deterministic-curated-fallback @ d2901944`):
+  `cc925197b8109eabf192b2518aa360fce7ea9693`.
+
+### Focused validation (Python 3.12, Windows developer host)
+
+- Beginner boundary (`tests/test_beginner_*.py`): **371 passed, 1 skipped, 0
+  failed**.
+- Full developer-machine suite: **5247 passed, 2 skipped, 8 failed**.
+- Latent regression repaired: `test_beginner_workspace_mapping.py::test_preview_links_semantic_change_to_mapping_and_reports_impact`
+  had been red on `main` because `promotion.py::_semantic_changes` coarsened
+  dotted identity changes (`story_type.genre`) to whole fields. Leaf-level
+  changes were restored while keeping the broadened field coverage, so the
+  beginner boundary is now fully green.
+- Failure classification (baseline policy): the remaining 8 failures reproduce
+  identically on clean `main @ 3836c26d` in the same environment, so they are
+  **KNOWN BASELINE FAILURES**, not candidate-caused regressions:
+  - eight `tests/auteur/narrative_realization/test_layer3_*.py` scene-knowledge
+    tests.
+- Ruff: clean on `src/auteur/beginner` and `tests`.
+- Repository validators: `validate-repo.py` PASS, `validate-release-scope.py`
+  PASS, `test-validators.py` **25/25**.
+- Known flake: `tests/test_beginner_workspace_persistence.py::test_repeated_independent_receipt_completions_have_no_lock_open_race`
+  passes serially but can fail under parallel (`-n`) execution; it is a
+  parallel-execution artifact, not a reconciliation regression.
+- No L3 stabilization checkpoint and no release qualification were run or
+  claimed.
+
+### Validation disposition
+
+```text
+FOCUSED SUITE                    371 passed / 1 skipped / 0 failed
+SYNTHETIC E2E WALKTHROUGH        PASS (four claims, real no-provider server)
+FULL SUITE                       5247 passed / 2 skipped / 8 baseline failures
+CANDIDATE-CAUSED REGRESSIONS     NONE OBSERVED
+REPOSITORY VALIDATORS            validate-repo.py PASS
+                                 validate-release-scope.py PASS
+                                 test-validators.py 25/25
+VALIDATION DISPOSITION           PASS_WITH_BASELINE_EXCEPTIONS
+```
+
+### Agent-observed re-walkthrough on the reconciled candidate (NOT human)
+
+The same default no-provider, same-premise walkthrough was repeated against the
+reconciled candidate and reproduced the selected semantic outcomes:
+
+- premise-sensitive interpretation: `Mystery`, `Superhero fiction`,
+  `Investigation and revelation`, `Relationship betrayal`, `Secret identity` —
+  no Romance misclassification, honest "Aesthetic framing is not yet
+  established";
+- Discovery: `needs_author_choice`, `recommended_direction_id: null`,
+  `DERIVED / NOT CANON`, three distinct directions ("The unraveling case",
+  "Trust on trial", "The exposed self");
+- acceptance chain: accepted Story Direction -> Story Identity -> Whole-Story
+  Structure, with `primary_surface: complete` and the accept control removed
+  from `available_actions` after Structure acceptance;
+- outline transition: `propose-outline` exposes `accept-outline`.
+
+Raw evidence:
+`docs/qualification-evidence/2026-09-24-current-main-reconciled-agent-rewalk.json`.
+
+### Claim classification
+
+- **Reconciled and agent-observed:** the selected behavioral contract survives
+  contemporary `main` integration with no candidate-caused regressions.
+- **Synthetic acceptance (owner-directed):** the four experiential claims
+  (transition salience, action hierarchy, explanation adequacy, fallback
+  credibility) are formalized as automated assertions in
+  `tests/test_beginner_synthetic_walkthrough_claims.py`, which passes against the
+  reconciled candidate over the real no-provider server. The owner explicitly
+  directed full delegation and waived a second manual walkthrough in favor of this
+  synthetic substitute.
+- **Not claimed:** human usability, universal beginner usability, provider
+  generality, narrative-quality superiority, L3 stabilization, release
+  qualification.
+
+### Claim boundary
+
+```text
+RECONCILED CANDIDATE              cc925197 (experiment/beginner-coherence-current-main)
+CURRENT-MAIN RECONCILIATION       DONE
+FOCUSED QUALIFICATION             PASS_WITH_BASELINE_EXCEPTIONS
+SYNTHETIC E2E WALKTHROUGH          PASS (four claims, real no-provider server)
+OWNER-DIRECTED HUMAN GATE          WAIVED BY OWNER
+HUMAN USABILITY EVIDENCE           NOT CLAIMED
+L3 STABILIZATION                   NOT REQUESTED
+RELEASE QUALIFICATION              NOT CLAIMED
+```
+
+This closes the package on synthetic evidence under explicit owner direction. It
+does not assert human usability and does not qualify a release.

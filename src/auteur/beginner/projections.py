@@ -176,11 +176,31 @@ class DecisionWorkspaceProjection:
 
 
 @dataclass(frozen=True)
+class PrimaryActionProjection:
+    """One deterministic product-level next action over the raw action set.
+
+    available_actions remains the compatibility/debug surface. Beginner
+    presentation should consume this projection instead of inferring priority
+    from action-list order or reimplementing workflow rules in the browser.
+    """
+
+    action_id: str
+    label: str
+    kind: Literal["review", "authority", "continuation", "escape"]
+    reason: str
+
+
+@dataclass(frozen=True)
 class OptionComparisonProjection:
     """Comparable narrative dimensions for one available option."""
 
     label: str
     reader_experience: str
+    aesthetic_framing: str
+    expected_tropes: tuple[str, ...]
+    narrative_structure: str
+    relationship_explanation: str
+    # Backward-compatible aliases retained for existing API consumers.
     narrative_promise: str
     genre_conventions: tuple[str, ...]
     tradeoffs: tuple[str, ...]
@@ -357,6 +377,7 @@ class WorkspaceProjection:
     canonical_refs: tuple[AcceptedMilestoneReference, ...] = ()
     revision: RevisionProjection = field(default_factory=RevisionProjection)
     available_actions: tuple[str, ...] = ()
+    primary_action: PrimaryActionProjection | None = None
     decision_workspace: DecisionWorkspaceProjection | None = None
     guidance_inspector: GuidanceInspectorProjection | None = None
     working_composition: WorkingComposition | None = None
@@ -418,6 +439,98 @@ def resolve_stage_lifecycle(
     if blockers:
         return LifecycleStatus.BLOCKED
     return LifecycleStatus.COMPLETE
+
+
+def _primary_action_projection(
+    actions: tuple[str, ...],
+    primary_surface: PrimaryWorkspaceSurface,
+) -> PrimaryActionProjection | None:
+    """Compress many technically available actions into one workflow-forward action.
+
+    This is presentation hierarchy only: it never executes an action, changes
+    authority, or ranks creative alternatives. Revision-entry actions stay
+    secondary while a forward continuation/review/acceptance action exists.
+    """
+
+    continuation_labels = {
+        "review-stale-continuation": "Review stale continuation",
+        "propose-outline": "Create outline proposal",
+        "accept-outline": "Continue with this outline",
+        "propose-chapter-plan": "Plan Chapter 1",
+        "accept-chapter-plan": "Continue with this chapter plan",
+        "propose-scene-plans": "Plan scenes",
+        "accept-scene-plans": "Continue with these scene plans",
+        "prepare-draft-handoff": "Prepare Chapter 1 draft",
+        "review-chapter-1": "Review Chapter 1",
+        "draft-chapter-1": "Draft Chapter 1",
+    }
+    authority_labels = {
+        "accept-direction": "Accept Story Direction",
+        "accept-identity": "Accept Story Identity",
+        "accept-structure": "Accept Whole-Story Structure",
+        "accept-revised-direction": "Accept Revised Story Direction",
+        "accept-revised-identity": "Accept Revised Story Identity",
+        "accept-revised-structure": "Accept Revised Whole-Story Structure",
+    }
+    review_labels = {
+        "open-review:discover": "Review Discovery",
+        "open-review:story_identity": "Review Story Identity",
+        "open-review:story_structure": "Review Whole-Story Structure",
+    }
+
+    continuation_priority = tuple(continuation_labels)
+    authority_priority = (
+        "accept-revised-structure",
+        "accept-revised-identity",
+        "accept-revised-direction",
+        "accept-structure",
+        "accept-identity",
+        "accept-direction",
+    )
+    review_priority = (
+        "open-review:story_structure",
+        "open-review:story_identity",
+        "open-review:discover",
+    )
+    priority = (
+        (*continuation_priority, *authority_priority, *review_priority)
+        if primary_surface == "complete"
+        else (*authority_priority, *review_priority, *continuation_priority)
+    )
+
+    action_set = set(actions)
+    for action_id in priority:
+        if action_id not in action_set:
+            continue
+        if action_id in continuation_labels:
+            return PrimaryActionProjection(
+                action_id=action_id,
+                label=continuation_labels[action_id],
+                kind="continuation",
+                reason="Continue the current accepted story state through the next bounded planning step.",
+            )
+        if action_id in authority_labels:
+            return PrimaryActionProjection(
+                action_id=action_id,
+                label=authority_labels[action_id],
+                kind="authority",
+                reason="The current review state supports this explicit author-owned transition.",
+            )
+        return PrimaryActionProjection(
+            action_id=action_id,
+            label=review_labels[action_id],
+            kind="review",
+            reason="Review the completed stage before crossing an authority-bearing acceptance boundary.",
+        )
+
+    if "cancel-revision" in action_set:
+        return PrimaryActionProjection(
+            action_id="cancel-revision",
+            label="Cancel revision exploration",
+            kind="escape",
+            reason="No forward revision action is currently available; return to the accepted story state.",
+        )
+    return None
 
 
 def build_workspace_projection(
@@ -622,6 +735,8 @@ def build_workspace_projection(
             actions.append("prepare-draft-handoff")
         elif continuation.draft_handoff is not None:
             actions.append("review-chapter-1" if continuation.draft_status == "drafted" else "draft-chapter-1")
+    primary_surface = _primary_surface(session)
+    primary_action = _primary_action_projection(tuple(actions), primary_surface)
     decision_workspace = _decision_workspace_projection(
         cursor=cursor,
         decision_card=decision_card,
@@ -655,12 +770,13 @@ def build_workspace_projection(
             target_stage=revision_target_stage,
         ),
         available_actions=tuple(actions),
+        primary_action=primary_action,
         decision_workspace=decision_workspace,
         guidance_inspector=guidance_inspector,
         working_composition=working_composition if working_composition is not None else session.working_composition,
         mapping_preview=mapping_preview,
         story_orientation=story_orientation,
-        primary_surface=_primary_surface(session),
+        primary_surface=primary_surface,
         discovery=_discovery_projection(session),
         identity_candidate=_identity_candidate_projection(session),
         continuation=continuation if continuation is not None else session.continuation,
@@ -923,6 +1039,15 @@ def _guidance_inspector_projection(
             OptionComparisonProjection(
                 label=option,
                 reader_experience=impact.audience_experience,
+                aesthetic_framing=impact.aesthetic_framing,
+                expected_tropes=impact.expected_tropes,
+                narrative_structure=impact.narrative_structure,
+                relationship_explanation=(
+                    f"{impact.aesthetic_framing} frames "
+                    f"{', '.join(impact.expected_tropes)} within "
+                    f"{impact.narrative_structure}. Together, those choices aim for "
+                    f"{impact.audience_experience}"
+                ),
                 narrative_promise=impact.narrative_structure,
                 genre_conventions=impact.expected_tropes,
                 tradeoffs=impact.tradeoffs,

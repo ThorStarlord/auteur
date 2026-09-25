@@ -279,6 +279,57 @@ def _adapter_for(genre: str) -> GuidanceAdapter:
         raise ValueError(f"unsupported guidance genre: {genre}") from exc
 
 
+_GENERIC_STRUCTURE_CARD_IDS = (
+    "structure.escalation-pattern",
+    "structure.reversal-placement",
+    "structure.resolution-shape",
+)
+
+
+def adapter_owning(card_id: str, preferred_genre: str | None = None) -> GuidanceAdapter:
+    """Resolve the adapter that owns a card, preferring the session genre.
+
+    The session genre must be supported. Cards not owned by that adapter fall
+    back to other registered adapters (for example the generic Structure
+    inventory), and an unknown card raises ``KeyError``.
+    """
+    preferred = _adapter_for(preferred_genre) if preferred_genre is not None else None
+    if preferred is not None:
+        try:
+            preferred.inventory().card(card_id)
+            return preferred
+        except KeyError:
+            pass
+    for adapter in _GUIDANCE_ADAPTERS.values():
+        if adapter is preferred:
+            continue
+        try:
+            adapter.inventory().card(card_id)
+            return adapter
+        except KeyError:
+            continue
+    raise KeyError(card_id)
+
+
+def validate_inventory_for(
+    inventory: QualificationInventory,
+    preferred_genre: str | None = None,
+) -> None:
+    """Validate each card with its owning adapter so mixed inventories are legal."""
+    for card in inventory.cards:
+        adapter_owning(card.card_id, preferred_genre).validate_inventory(
+            QualificationInventory(cards=(card,))
+        )
+
+
+def guidance_source_fingerprints() -> dict[str, str]:
+    """Fingerprint the full registered guidance basis for tutor-session staleness."""
+    merged: dict[str, str] = {}
+    for adapter in _GUIDANCE_ADAPTERS.values():
+        merged.update(adapter.tutor_session_fingerprints())
+    return merged
+
+
 class BeginnerGuidance(BaseModel):
     """A contextual teaching projection; it never changes canonical story state."""
 
@@ -503,7 +554,28 @@ def _select_recommendation(card: QualificationCard, session: SessionEnvelope) ->
     return card.recommendation, "It is the curated default for the cited Howdunit domain option."
 
 
+def _generic_option_impact(card: QualificationCard, option: str) -> OptionImpact:
+    audience = f"The reader experiences a story governed by {option.lower()}."
+    framing = card.title
+    structure = f"{option} governs how the story unfolds."
+    tradeoff = card.narrative_principle
+    return OptionImpact(
+        audience_experience=audience,
+        aesthetic_framing=framing,
+        expected_tropes=(card.title, "structural choice"),
+        narrative_structure=structure,
+        tradeoffs=(tradeoff,),
+        narrative_consequences=_narrative_consequences(
+            card.card_id,
+            option,
+            (audience, framing, structure, tradeoff),
+        ),
+    )
+
+
 def _option_impacts(card: QualificationCard) -> dict[str, OptionImpact]:
+    if card.card_id in _GENERIC_STRUCTURE_CARD_IDS:
+        return {option: _generic_option_impact(card, option) for option in card.options}
     if card.card_id == "discover.story-experience":
         return {
             "Detective procedural": OptionImpact(
@@ -738,7 +810,7 @@ def _why_this_matters(card: QualificationCard) -> str:
         "structure.investigation-disruption": "This choice sets the rhythm that turns the premise into forward motion.",
         "structure.clue-distribution": "This choice determines when evidence becomes usable to the reader.",
         "structure.final-revelation": "This choice sets what the final revelation must explain and satisfy.",
-    }[card.card_id]
+    }.get(card.card_id, card.narrative_principle)
 
 
 def article_for(phrase: str) -> str:
@@ -768,7 +840,10 @@ def _narrative_consequences(
         "structure.investigation-disruption": "investigation's escalation pattern",
         "structure.clue-distribution": "timing of usable evidence",
         "structure.final-revelation": "causal shape of the final explanation",
-    }[card_id]
+        "structure.escalation-pattern": "story's escalation pattern",
+        "structure.reversal-placement": "placement of the major reversal",
+        "structure.resolution-shape": "shape of the resolution",
+    }.get(card_id, "story's structural shape")
     identity_cards = {
         "discover.story-experience",
         "discover.personal-stakes",
@@ -818,7 +893,7 @@ def _narrative_consequences(
 
 def guidance_for(card_id: str, session: SessionEnvelope) -> BeginnerGuidance:
     """Compose one deterministic guidance card from a current session snapshot."""
-    adapter = _adapter_for(session.guidance_genre)
+    adapter = adapter_owning(card_id, session.guidance_genre)
     inventory = adapter.inventory()
     adapter.validate_inventory(inventory)
     card = inventory.card(card_id)
@@ -882,7 +957,7 @@ def guidance_for(card_id: str, session: SessionEnvelope) -> BeginnerGuidance:
                 ))
             )
         ),
-        tutor_session_fingerprints=adapter.tutor_session_fingerprints(),
+        tutor_session_fingerprints=guidance_source_fingerprints(),
     )
 
 

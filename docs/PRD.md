@@ -109,29 +109,127 @@ content.
 - Beginner-facing orientation makes the next safe action understandable without
   requiring knowledge of repository internals.
 
+## Beginner Narrative Architecture and transition requirements
+
+The architecture-first Beginner experience is a product explanation surface, not
+just a classifier. It must preserve these durable requirements:
+
+- **Explain composition, not only components.** Beginner orientation should show
+  how the main narrative engine, genre/story traditions, aesthetic framing,
+  major trope families, relationship/thematic dynamics, narrative structure,
+  and intended reader experience affect one another in this particular story.
+  A flat list of detected labels is insufficient when Auteur already has enough
+  evidence to explain their relationship.
+- **Keep uncertainty honest.** If the premise does not establish a dimension
+  such as aesthetic framing, Auteur should say that it is not yet established
+  and may invite author exploration. It must not manufacture framing, genre
+  confidence, recommendations, or canonical commitments merely to fill every
+  section.
+- **Make authority and phase transitions obvious.** Completion state, accepted
+  authority state, and the next safe action must agree. Once a milestone is
+  accepted, the UI must not continue instructing the author to accept it, and
+  the primary next action should be visually and semantically distinct from
+  secondary exploration/help actions without relying on color alone.
+- **Keep no-provider degradation product-coherent.** When rich reasoning is
+  unavailable, deterministic fallback may provide bounded premise-sensitive
+  interpretation, multiple plausible directions, and generic structural
+  guidance. It must preserve explicit author choice and must not pretend that a
+  bounded deterministic heuristic has made a creative judgment the author has
+  not accepted.
+- **Make action hierarchy a backend product contract.** A workspace may expose
+  many technically valid actions, but beginner presentation should receive one
+  deterministic primary next action from the application projection. Raw
+  `available_actions` remain a compatibility/debug surface; browser code must
+  not infer product priority from list ordering. Projecting an action never
+  executes it or changes its authority.
+
+These requirements do not create a new semantic layer or a universal narrative
+taxonomy. They constrain how existing Narrative Architecture, Discovery,
+Identity, Structure, and authority boundaries are presented and connected.
+
+### Story Lens first-screen contract
+
+After premise submission, the default Beginner surface is a **Story Architecture
+Overview** built from composable, derived Story Lenses rather than a
+questionnaire or a flat list of architecture facets.
+
+The default lens set is:
+
+- **Main story engine** — the recurring machinery generating story pressure;
+- **Emotional & aesthetic framing** — how events are expected to feel;
+- **Common tropes** — recurring situations and expectations;
+- **Structural shape** — a bounded inferred story pattern, explicitly not the
+  later accepted Whole-Story Structure;
+- **Reader experience** — the expected emotional/cognitive progression.
+
+Each lens supports a summary view and a detailed inspector. Direct lenses refine
+the existing Narrative Architecture components through existing versioned,
+idempotent commands; synthesized lenses route refinement back to their source
+lenses rather than creating shadow state.
+
+Card ordering is a presentation preference only. Reordering Story Lenses must
+not mutate `SessionEnvelope`, create a story command, change `session_version`,
+or cross an authority boundary. Missing or uncertain lenses must remain
+explicitly unestablished rather than being filled with invented certainty.
+
+The transition remains:
+
+```text
+premise
+-> derived Story Lens overview
+-> optional interpretation refinement
+-> Story Discovery
+-> explicit Story Direction selection
+-> explicit Story Direction acceptance
+```
+
+The implementation contract and failure/recovery rules live in
+`docs/design/2026-09-24-story-lens-first-screen-ux.md`.
+
 ## Current product-selection rule
 
-Issue #249's simulation-first premise-to-Chapter-2 evidence task is complete.
-The first scripted run found one workflow projection seam after explicit
-Whole-Story Structure acceptance; PR #280 corrected it without creating new
-authority or durable state during the read. The repeated journey then reached
-accepted Chapter 1 outcome and contextual Chapter 2 planning with
-`NO_SIMULATED_MATERIAL_FRICTION` beyond that seam.
+Issue #249's simulation-first premise-to-Chapter-2 evidence remains valid
+mechanical/workflow evidence. A later 2026-09-23 human Beginner walkthrough
+provided claim-appropriate experiential evidence and selected a bounded
+**Beginner Narrative-Architecture Coherence / deterministic fallback** package
+rather than a new roadmap feature family.
 
-Auteur therefore currently has **no product package selected**. New product
-construction should be admitted only when new claim-appropriate workflow
-evidence or an explicit owner product-lane selection identifies a concrete
-problem or goal. Classify that evidence as UX/presentation, workflow, craft
-knowledge, domain model, or infrastructure, then choose the smallest
-intervention actually supported by it.
+The active package addresses concrete friction in no-provider interpretation and
+Discovery, generic non-Mystery Structure, per-engine Identity mapping,
+projection/mutation coherence, phase-transition clarity, and integrated
+Narrative Architecture explanation. The correction lives on one combined
+candidate that carries both the deterministic-fallback work and the PR #283
+phase-transition and explanation corrections, and that selected behavior has been
+reconciled onto current `main` so it can coexist with the later post-draft
+continuation, whole-book progress, Book acceptance, and authority/projection
+semantics. Under explicit owner direction, this package closed on synthetic
+verification (automated E2E over the real no-provider server) rather than a
+second manual walkthrough. That waiver is a one-time owner decision for this
+package; the durable rule below is unchanged — real-author usability still
+requires human evidence and is not claimed by synthetic acceptance.
+
+The general product-selection rule remains:
+
+```text
+claim-appropriate workflow evidence or deliberate product-lane selection
+-> first concrete material friction / goal
+-> classify the owning layer
+-> smallest useful intervention
+-> focused verification
+-> human validation when the claim/consequence requires it
+```
 
 Simulation remains admissible for provisional, reversible product work when it
-directly exercises the real workflow and does not introduce new semantic
-architecture, authority, irreversible migration, permanent product scope, or a
-claim about subjective story quality. Human product evidence remains required
-before claiming that real authors find the workflow useful, understandable,
-relevant, confidence-building, or creatively better.
+directly exercises the real workflow and preserves authority boundaries. Human
+product evidence remains required before claiming real-author usefulness,
+comprehension, relevance, confidence, preference, or subjective story quality.
 
-If no material friction or deliberately selected product goal exists,
-`NO_CHANGE` is a valid product disposition; do not invent a package merely to
-continue the roadmap.
+The previous Beginner coherence package is closed. On 2026-09-24 the owner
+explicitly selected the next bounded responsibility: the **Story Lens
+first-screen UX**, defining the premise -> interpretation -> Story Direction
+transition through composable Story Lenses. This is deliberate product-lane
+selection rather than an automatically invented roadmap successor.
+
+After this selected package closes, do not invent another successor merely to
+continue the roadmap. `NO_CHANGE` remains valid until new evidence or explicit
+product intent selects another bounded responsibility.

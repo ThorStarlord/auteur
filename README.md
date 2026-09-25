@@ -15,9 +15,11 @@ The intended beginner experience is guided authoring with progressive disclosure
 Auteur's first valuable outcome is not maximum prose volume. It is a story direction the author can understand, inspect, and explicitly accept.
 
 ```text
-raw idea
+raw idea / premise
   ↓
-narrative search (multiple plausible story engines)
+Story Architecture Overview (composable Story Lenses, derived / not canon)
+  ↓
+narrative search (multiple plausible story directions)
   ↓
 advisory recommendation + trade-offs
   ↓
@@ -76,6 +78,9 @@ Universe → Series → Book → Chapter → Scene
 Scopes are containers across semantic layers, not semantic layers themselves. Validation, orchestration, diagnostics, versioning, editing, maps, Tutor guidance, and other workflow systems are cross-cutting capabilities.
 
 See [docs/narrative-architecture.md](docs/narrative-architecture.md) for the canonical model.
+
+For the premise-first Beginner UI contract, see
+[Story Lens First-Screen UX](docs/design/2026-09-24-story-lens-first-screen-ux.md).
 
 ## Author Authority
 
@@ -410,6 +415,7 @@ Additional subsystems persist their own derived, local, candidate, or authoritat
 - [Mission](MISSION.md) — durable scope and invariants.
 - [Product requirements](docs/PRD.md) — product contract and primary user.
 - [Canonical narrative architecture](docs/narrative-architecture.md) — five semantic layers × scope axis.
+- [System ownership and product compression](docs/architecture/system-ownership-and-product-compression.md) — which systems own semantics/authority, how Beginner/UI projections compose them, and the one-primary-action progressive-disclosure rule.
 - [Opinionated Narrative Engine](docs/opinionated-narrative-engine.md) — product design, first value, guided authoring, Map/Focus framing.
 - [Detailed long-horizon architecture](docs/architecture/detailed-narrative-architecture-v1.md) — accepted-history/current-state/relevance architecture.
 - [Long-horizon campaign state](docs/campaign/auteur-long-horizon-campaign-state.md) — evidence posture and authorization boundary.

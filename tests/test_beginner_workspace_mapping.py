@@ -240,3 +240,28 @@ def test_acknowledged_tension_is_nonblocking_after_recomputation() -> None:
 
     assert reconciled.tensions[0].acknowledged is True
     assert "tension_requires_acknowledgement" not in preview.blocking_items
+
+
+def _engine_dimension(label: str) -> WorkingDimension:
+    return WorkingDimension(
+        dimension_id=f"engine:{label}",
+        category=DimensionCategory.PRIMARY_ENGINE,
+        origin=DimensionOrigin.DETECTED_FROM_PACK,
+        status=DimensionStatus.CONFIRMED,
+        label=label,
+        confirmed_by_author=True,
+    )
+
+
+def test_primary_engine_maps_to_its_genre_not_always_mystery() -> None:
+    context = MappingDomainContext(
+        vocabulary={
+            "story_type.genre": ("mystery", "romance", "thriller", "horror", "other"),
+            "story_type.subgenres": ("superhero",),
+            "target_experience.primary": ("dread", "jealous uncertainty"),
+        }
+    )
+    assert map_dimension(_engine_dimension("Investigation and revelation"), empty_identity(), context)[0].proposed_value == "mystery"
+    assert map_dimension(_engine_dimension("Desire, courtship, and commitment"), empty_identity(), context)[0].proposed_value == "romance"
+    assert map_dimension(_engine_dimension("Escalating danger and pursuit"), empty_identity(), context)[0].proposed_value == "thriller"
+    assert map_dimension(_engine_dimension("Public/private identity pressure"), empty_identity(), context)[0].proposed_value == "other"

@@ -4,7 +4,13 @@ from auteur.beginner.architecture_models import ArchitectureActivation, Architec
 from auteur.beginner.contracts import GuidanceActivation
 from auteur.beginner.dimensions import active_dimensions, composition_from_analysis
 from auteur.beginner.discovery import UnavailableDiscoveryRecommender
-from tests.fixtures.beginner_hybrid_mystery import HYBRID_ANALYSIS, create_hybrid_app
+from auteur.blueprint import TargetExperience
+from tests.fixtures.beginner_hybrid_mystery import (
+    HYBRID_ANALYSIS,
+    HYBRID_DISCOVERY,
+    CountingDiscoveryRecommender,
+    create_hybrid_app,
+)
 
 
 def test_clear_or_likely_inferred_dimensions_are_active_without_author_confirmation() -> None:
@@ -64,3 +70,58 @@ def test_active_dimensions_ignore_review_status_but_respect_activation() -> None
     assert active
     assert all(item.activation is GuidanceActivation.ACTIVE for item in active)
     assert any(item.confirmed_by_author is False for item in active)
+
+
+def test_projected_composition_tension_has_a_valid_acknowledgement_path(tmp_path) -> None:
+    """Regression: a tension that exists only in the refreshed projection must be
+    acknowledgeable, otherwise Identity acceptance is blocked with no mutation path."""
+    base_direction = HYBRID_DISCOVERY.directions[0]
+    tension_direction = base_direction.model_copy(
+        update={
+            "identity_candidate": base_direction.identity_candidate.model_copy(
+                update={
+                    "target_experience": TargetExperience(
+                        primary="dread",
+                        progression="rising",
+                        avoid=[],
+                    )
+                }
+            )
+        }
+    )
+    recommendation = HYBRID_DISCOVERY.model_copy(
+        update={"directions": (tension_direction, *HYBRID_DISCOVERY.directions[1:])}
+    )
+    app = create_hybrid_app(
+        tmp_path,
+        discovery_recommender=CountingDiscoveryRecommender(recommendation),
+    )
+    app.continue_from_architecture(
+        command_id="tension-continue",
+        expected_session_version=app.projection().session_version,
+    )
+    app.select_story_direction(
+        direction_id=tension_direction.direction_id,
+        command_id="tension-select",
+        expected_session_version=app.projection().session_version,
+    )
+    app.accept_story_direction(
+        command_id="tension-accept-direction",
+        expected_session_version=app.projection().session_version,
+    )
+
+    projection = app.projection()
+    assert projection.mapping_preview is not None
+    assert "tension_requires_acknowledgement" in projection.mapping_preview.blocking_items
+    composition_tension = projection.working_composition.tensions[0]
+
+    app.acknowledge_tension(
+        tension_id=composition_tension.tension_id,
+        command_id="tension-acknowledge",
+        expected_session_version=projection.session_version,
+    )
+
+    after = app.projection()
+    assert after.mapping_preview is not None
+    assert "tension_requires_acknowledgement" not in after.mapping_preview.blocking_items
+    assert {ref.milestone_id for ref in after.canonical_refs} == {"story_direction"}

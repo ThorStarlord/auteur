@@ -215,7 +215,24 @@ def test_analysis_fingerprints_are_stable_and_semantic() -> None:
 
 
 
-def test_deterministic_fallback_uses_configured_mystery_pack_as_curated_evidence() -> None:
+def test_deterministic_fallback_does_not_force_mystery_from_configured_pack() -> None:
+    from auteur.story_design_packs.models import PackProvenance
+
+    source = PackProvenance(
+        pack_id="mystery",
+        version="domain",
+        content_hash="sha256:configured-mystery",
+    )
+    analysis = DeterministicArchitectureAnalyzer().analyze(
+        premise="Two rival pastry chefs fall in love while saving a bakery.",
+        source_provenance=(source,),
+    )
+    labels = {component.label for component in analysis.components}
+    assert "Mystery" not in labels
+    assert "Romance" in labels
+
+
+def test_deterministic_fallback_mystery_signal_is_premise_driven() -> None:
     from auteur.story_design_packs.models import PackProvenance
 
     source = PackProvenance(
@@ -227,6 +244,9 @@ def test_deterministic_fallback_uses_configured_mystery_pack_as_curated_evidence
         premise="A sealed elevator opens on an empty shaft.",
         source_provenance=(source,),
     )
+    mystery = next(component for component in analysis.components if component.label == "Mystery")
+    assert mystery.role is ArchitectureRole.PRIMARY
+    assert mystery.evidence[0].source_kind == "premise"
     engine = next(
         component
         for component in analysis.components
@@ -234,5 +254,44 @@ def test_deterministic_fallback_uses_configured_mystery_pack_as_curated_evidence
     )
     assert engine.label == "Investigation and revelation"
     assert engine.derivation is ArchitectureDerivation.CURATED_MATCH
-    assert engine.evidence[0].source_kind == "genre_pack"
-    assert engine.evidence[0].excerpt is None
+
+
+def test_deterministic_fallback_derives_engine_from_dominant_signal() -> None:
+    analysis = DeterministicArchitectureAnalyzer().analyze(
+        premise="Two rival pastry chefs fall in love while saving a bakery.",
+        source_provenance=(),
+    )
+    engine = next(
+        component
+        for component in analysis.components
+        if component.facet is ArchitectureFacet.NARRATIVE_ENGINE
+    )
+    assert "investigation" not in engine.label.casefold()
+    assert engine.role is ArchitectureRole.PRIMARY
+
+
+def test_deterministic_fallback_no_signal_state_is_honest() -> None:
+    analysis = DeterministicArchitectureAnalyzer().analyze(
+        premise="A quiet afternoon.",
+        source_provenance=(),
+    )
+    assert analysis.components == ()
+    assert "No supported architecture signals detected" in analysis.summary
+
+
+def test_deterministic_fallback_does_not_promote_romantic_adjective_to_genre() -> None:
+    analysis = DeterministicArchitectureAnalyzer().analyze(
+        premise="A young hero navigates ordinary romantic and social tension.",
+        source_provenance=(),
+    )
+    labels = {component.label for component in analysis.components}
+    assert "Romance" not in labels
+
+
+def test_deterministic_fallback_detects_hidden_identities_as_secret_identity() -> None:
+    analysis = DeterministicArchitectureAnalyzer().analyze(
+        premise="A mystery about betrayal and hidden identities.",
+        source_provenance=(),
+    )
+    labels = {component.label for component in analysis.components}
+    assert "Secret identity" in labels

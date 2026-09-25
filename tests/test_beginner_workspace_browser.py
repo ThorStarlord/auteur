@@ -150,7 +150,7 @@ def test_browser_has_decision_workspace_and_on_demand_inspector():
     css = _read(STYLES)
     assert 'id="decision-workspace"' in html
     assert 'id="guidance-inspector"' in html
-    assert "Explore guidance" in html
+    assert "Explore details" in html
     assert "guidance_inspector" in js
     assert "decision-workspace" in css
 
@@ -176,12 +176,15 @@ def test_browser_inspector_and_navigator_are_accessible_drawers():
 
 def test_browser_renders_contextual_inspector_without_internal_semantic_labels():
     js = _read(APP)
-    assert "Mystery & reader contract" in js
+    assert "Story experience & craft context" in js
     assert "Reader experience" in js
     assert "Emotional promise" in js
     assert "Narrative promise" in js
     assert "Genre conventions" in js
+    assert "Craft principle" in js
     assert "Common failure mode" in js
+    assert "Mystery & reader contract" not in js
+    assert "Mystery craft principle" not in js
     assert "option_comparisons" in js
     assert "Semantic Area:" not in js
 
@@ -203,3 +206,97 @@ def test_browser_keeps_tradeoffs_out_of_center_warnings():
     js = _read(APP)
     assert "warnings = warnings.concat" not in js
     assert "card.warnings_or_tensions" not in js
+
+
+
+def test_browser_makes_phase_transitions_and_primary_actions_explicit():
+    js = _read(APP)
+    css = _read(STYLES)
+
+    assert "Next: outline your story" in js
+    assert "primary-next-action" in js
+    assert "projection.primary_action" in js
+    assert "projectedPrimary.action_id" in js
+    assert "primary-action-reason" in js
+    assert "phase-complete-banner" in js
+    assert ".review-action.primary-action" in css
+    assert ".navigator-entry.is-accepted" in css
+    assert "focus-visible" in css
+
+
+def test_browser_exposes_integrated_story_composition_and_explicit_craft_dimensions():
+    js = _read(APP)
+
+    for token in (
+        "How these parts work together",
+        "Aesthetic framing",
+        "Common tropes",
+        "Narrative structure",
+        "Relationship / thematic dynamics",
+        "relationship_explanation",
+        "expected_tropes",
+        "narrative_structure",
+    ):
+        assert token in js
+
+
+def test_browser_story_lenses_are_composable_without_story_mutation():
+    html = _read(INDEX)
+    js = _read(APP)
+    css = _read(STYLES)
+
+    for token in (
+        "Story Architecture Overview",
+        "reset-lens-layout",
+        "story-lens-grid",
+        "inspector-title",
+    ):
+        assert token in html
+
+    for token in (
+        "story_orientation.story_lenses",
+        "orderedStoryLenses",
+        "storyLensLayoutKey",
+        "window.localStorage",
+        "data-story-lens-move",
+        "data-story-lens-open",
+        "renderStoryLensInspector",
+    ):
+        assert token in js
+
+    assert "Layout preference failure is non-punitive" in js
+    assert ".story-lens-card--anchor" in css
+    assert ".story-lens-grid" in css
+
+
+def test_browser_story_lens_refinement_routes_through_existing_architecture_commands():
+    js = _read(APP)
+    for command in (
+        "confirm-architecture-component",
+        "suppress-architecture-component",
+        "restore-architecture-component",
+        "rename-architecture-component",
+        "choose-architecture-alternative",
+    ):
+        assert command in js
+
+    # Layout changes remain client-only; they do not invent a server-side
+    # Story Lens mutation command or parallel authority.
+    assert 'sendAction("move-story-lens"' not in js
+    assert 'sendAction("pin-story-lens"' not in js
+
+
+def test_browser_exposes_actionable_interpretation_diagnostics_without_vanity_metrics():
+    js = _read(APP)
+    assert "Interpretation diagnostics" in js
+    for token in (
+        "source_mode",
+        "unestablished_lens_ids",
+        "needs_attention_lens_ids",
+        "author_adjustment_count",
+        "active_component_count",
+        "suppressed_component_count",
+    ):
+        assert token in js
+    for vanity in ("engagement score", "creativity score", "conversion rate"):
+        assert vanity not in js.lower()

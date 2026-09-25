@@ -8,6 +8,8 @@ from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 from auteur.beginner.server import BeginnerRuntimeDependencies, BeginnerWorkspaceServer
+from auteur.beginner.architecture_analysis import DeterministicArchitectureAnalyzer
+from auteur.beginner.discovery import UnavailableDiscoveryRecommender
 from tests.fixtures.beginner_hybrid_mystery import (
     CountingDiscoveryRecommender,
     HYBRID_ANALYSIS,
@@ -20,6 +22,24 @@ SEALED_ELEVATOR_PREMISE = "A sealed elevator opens on an empty shaft."
 
 @contextmanager
 def running_server(tmp_path):
+    # Degraded-path coverage: the default runtime now offers deterministic
+    # curated Discovery, so pin the unavailable recommender here explicitly.
+    dependencies = BeginnerRuntimeDependencies(
+        architecture_analyzer=DeterministicArchitectureAnalyzer(),
+        discovery_recommender=UnavailableDiscoveryRecommender(),
+    )
+    server = BeginnerWorkspaceServer(tmp_path, port=0, dependencies=dependencies)
+    thread = server.start_in_thread()
+    try:
+        yield server
+    finally:
+        server.stop()
+        thread.join(timeout=2)
+        assert not thread.is_alive()
+
+
+@contextmanager
+def running_default_server(tmp_path):
     server = BeginnerWorkspaceServer(tmp_path, port=0)
     thread = server.start_in_thread()
     try:
@@ -117,6 +137,16 @@ def test_create_and_read_beginner_workspace(tmp_path):
         assert read_status == 200
         assert read_body["workspace"]["session_version"] == body["workspace"]["session_version"]
         assert read_body["decision_card"]["card_id"] == body["decision_card"]["card_id"]
+
+
+def test_default_server_offers_deterministic_curated_discovery(tmp_path):
+    with running_default_server(tmp_path) as server:
+        status, projection = post_json(server, "/api/beginner/workspaces", create_payload())
+        assert status == 201
+        workspace_id = projection["workspace"]["workspace_id"]
+        projection = command_json(server, workspace_id, "continue-architecture", projection, {})
+        assert projection["discovery"]["status"] == "needs_author_choice"
+        assert len(projection["discovery"]["directions"]) >= 2
 
 
 def test_http_projection_exposes_composed_decision_and_inspector_views(tmp_path):
