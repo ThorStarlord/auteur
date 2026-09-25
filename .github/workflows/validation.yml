@@ -36,6 +36,13 @@ jobs:
             if [[ "$path" == tests/*.py && -f "$path" ]]; then
               focused+=("$path")
             fi
+            if [[ "$path" == src/auteur/beginner/*.py ]]; then
+              for beginner_test in tests/test_beginner_*.py; do
+                if [[ -f "$beginner_test" ]]; then
+                  focused+=("$beginner_test")
+                fi
+              done
+            fi
             if [[ "$path" == "src/auteur/expression/book_acceptance_validation.py" ||
                   "$path" == "src/auteur/expression/book_reconciliation.py" ]]; then
               focused+=("tests/test_book_acceptance.py")

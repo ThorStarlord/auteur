@@ -27,6 +27,63 @@ The PR #233 stabilization checkpoint recorded the prior baseline lint dispositio
 
 ## Current Selected Responsibility
 
+**BEGINNER_STORY_LENS_FIRST_SCREEN — COMPLETED / L1 GREEN** — on
+2026-09-24 the owner explicitly selected the first post-premise UI as the next
+bounded product responsibility. The implementation is stacked on PR #285's
+current head so it can reuse the reconciled Narrative Architecture,
+product-compression, and backend-owned action-hierarchy contracts without
+reopening the already-closed coherence package.
+
+Selected vertical stack:
+
+- typed, read-only `StoryLensProjection` contract over existing
+  `NarrativeArchitectureAnalysis`;
+- five default lenses: Main Story Engine, Emotional & Aesthetic Framing, Common
+  Tropes, Structural Shape, and Reader Experience;
+- detailed Story Lens inspector with existing component-refinement commands;
+- client-local, failure-safe lens ordering that never mutates narrative state;
+- derived operational diagnostics for stale/fallback/unestablished lens state,
+  deliberately without vanity engagement metrics;
+- synthetic HTTP coverage of premise -> Story Lens overview -> Story Discovery
+  -> explicit Story Direction -> accepted Structure -> outline continuation;
+- canonical product specification at
+  `docs/design/2026-09-24-story-lens-first-screen-ux.md`.
+
+Authority boundary:
+
+```text
+Story Lens interpretation / refinement        DERIVED / NOT CANON
+layout reorder                                PRESENTATION ONLY
+continue-architecture                         TRANSITION, NOT ACCEPTANCE
+Story Direction acceptance                    EXPLICIT EXISTING AUTHORITY
+Whole-Story Structure                         SEPARATE LATER AUTHORITY
+```
+
+External human usability trials remain post-construction by explicit owner
+direction. No release qualification is implied.
+
+Qualification evidence for the code-bearing implementation head
+`1aef1c93a7c0331a54df4a88f2c71e0e5a4e61d1`:
+
+```text
+FULL BEGINNER L1 BOUNDARY                     381 passed / 0 failed
+BROWSER JAVASCRIPT PARSE (node --check)       PASS
+SYNTHETIC PREMISE -> LENSES -> DIRECTION E2E  PASS
+REPOSITORY VALIDATOR                          PASS
+RELEASE-SCOPE VALIDATOR                       PASS
+VENDORED CONTRACT                             PASS
+RUFF (TOUCHED PYTHON/TEST PATHS)              PASS
+```
+
+The L1 workflow was strengthened as part of this package: any changed
+`src/auteur/beginner/*.py` source now selects the complete
+`tests/test_beginner_*.py` boundary rather than only directly modified tests.
+The final documentation-only reconciliation head must still carry its own
+current L1 result; the 381-test claim above belongs to the exact implementation
+head named above.
+
+### Previous closed package
+
 **CURRENT_MAIN_BEGINNER_COHERENCE_RECONCILIATION — COMPLETED (OWNER-DIRECTED SYNTHETIC ACCEPTANCE)** — the integration continuation of the Beginner Narrative-Architecture Coherence / deterministic fallback package. The earlier #249 scripted journey correctly established mechanical premise-to-Chapter-2 coherence after PR #280, but later claim-appropriate human use reopened product construction at the Beginner architecture-first surface rather than selecting a new roadmap family.
 
 The 2026-09-23 episode selected one bounded package from observed friction:
