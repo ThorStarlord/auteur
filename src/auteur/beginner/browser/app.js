@@ -99,12 +99,12 @@
     window.history.pushState({}, "", url.pathname + url.search);
   }
 
-  function openWorkspace(workspaceId) {
+  function openWorkspace(workspaceId, updateUrl) {
     if (!workspaceId) return;
     state.workspaceId = workspaceId;
     state.activeLensId = null;
     $("workspace-id").value = workspaceId;
-    updateWorkspaceUrl(workspaceId);
+    if (updateUrl !== false) updateWorkspaceUrl(workspaceId);
     return loadProjection();
   }
 
@@ -193,7 +193,14 @@
         return projection;
       })
       .catch(function (error) {
-        setStatus("Could not load workspace: " + error.message);
+        var message = "Could not load workspace: " + error.message;
+        setStatus(message);
+        if (!$("home-surface").hidden) {
+          $("home-status").textContent = message;
+        } else {
+          showHome();
+          $("home-status").textContent = message;
+        }
         return null;
       });
   }
@@ -1580,7 +1587,7 @@
     });
     window.addEventListener("popstate", function () {
       var workspace = currentWorkspaceFromQuery();
-      if (workspace) openWorkspace(workspace);
+      if (workspace) openWorkspace(workspace, false);
       else {
         state.workspaceId = null;
         showHome();
