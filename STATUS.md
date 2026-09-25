@@ -27,9 +27,9 @@ The PR #233 stabilization checkpoint recorded the prior baseline lint dispositio
 
 ## Current Selected Responsibility
 
-**AUTEUR_APPLICATION_ENTRY — IMPLEMENTED / QUALIFICATION IN PROGRESS** — the
-author-facing product now begins at Auteur Home rather than requiring a second
-terminal and workspace-ID creation command.
+**AUTEUR_APPLICATION_ENTRY — COMPLETED / L1 GREEN** — the author-facing
+product now begins at Auteur Home rather than requiring a second terminal and
+workspace-ID creation command.
 
 Selected implementation:
 
@@ -48,6 +48,27 @@ Selected implementation:
 
 Canonical contract:
 `docs/design/2026-09-24-auteur-application-entry.md`.
+
+Qualification evidence for the code-bearing implementation head
+`1da7c6ec2a074f991da4a0f60c452264f77975ef`:
+
+```text
+FULL BEGINNER + APPLICATION-ENTRY L1 BOUNDARY  390 passed / 0 failed
+HOME -> NEW STORY -> STORY ARCHITECTURE E2E    PASS
+RECENT-STORY REOPEN / DAMAGED-STATE ISOLATION  PASS
+BARE AUTEUR / AUTEUR OPEN LAUNCHER CONTRACT    PASS
+BROWSER JAVASCRIPT PARSE                       PASS
+VALIDATOR VERIFICATION                         25 / 25 PASS
+REPOSITORY VALIDATOR                           PASS
+RELEASE-SCOPE VALIDATOR                        PASS
+VENDORED CONTRACT                              PASS
+RUFF (TOUCHED PYTHON/TEST PATHS)               PASS
+```
+
+The first candidate run exposed one stale README compatibility expectation
+(the developer section no longer named `127.0.0.1:8791` / fresh workspace-ID
+usage). The correction restored those details under Advanced/developer commands
+without moving infrastructure concepts back into the primary product path.
 
 Authority boundary:
 
