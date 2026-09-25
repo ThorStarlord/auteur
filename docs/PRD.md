@@ -147,6 +147,34 @@ These requirements do not create a new semantic layer or a universal narrative
 taxonomy. They constrain how existing Narrative Architecture, Discovery,
 Identity, Structure, and authority boundaries are presented and connected.
 
+### Auteur application-entry contract
+
+Normal author-facing use begins at **Auteur Home**, not at a workspace-ID field
+or a developer command.
+
+The canonical entry is:
+
+```text
+open Auteur
+-> New Story / Your Stories
+-> premise
+-> Story Architecture Overview
+```
+
+The launcher may use a browser and local Python server internally, but those are
+delivery mechanisms rather than author-facing product concepts. `auteur` and
+`auteur open` are the canonical command-line launch actions; Windows may use a
+thin shortcut over the same launcher.
+
+Home may create a workspace through the existing public creation API and may
+list/reopen persisted workspaces through a read-only index. Creating or listing
+a story does not change narrative authority. Workspace IDs remain an advanced
+compatibility/debug concept rather than the primary author vocabulary.
+
+Native desktop packaging is replaceable delivery architecture and is not a
+prerequisite for the local authoring product. See
+`docs/design/2026-09-24-auteur-application-entry.md`.
+
 ### Story Lens first-screen contract
 
 After premise submission, the default Beginner surface is a **Story Architecture
@@ -224,11 +252,12 @@ directly exercises the real workflow and preserves authority boundaries. Human
 product evidence remains required before claiming real-author usefulness,
 comprehension, relevance, confidence, preference, or subjective story quality.
 
-The previous Beginner coherence package is closed. On 2026-09-24 the owner
-explicitly selected the next bounded responsibility: the **Story Lens
-first-screen UX**, defining the premise -> interpretation -> Story Direction
-transition through composable Story Lenses. This is deliberate product-lane
-selection rather than an automatically invented roadmap successor.
+The Beginner coherence and Story Lens first-screen packages are closed. On
+2026-09-24 the owner explicitly selected the next bounded responsibility:
+**Auteur application entry** — Home, direct premise creation, recent-story
+continuation, a canonical `auteur` launcher, and a Windows shortcut bridge.
+This is deliberate product-lane selection driven by the observed friction of
+needing server/workspace commands merely to open the product.
 
 After this selected package closes, do not invent another successor merely to
 continue the roadmap. `NO_CHANGE` remains valid until new evidence or explicit
