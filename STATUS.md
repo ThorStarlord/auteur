@@ -27,6 +27,40 @@ The PR #233 stabilization checkpoint recorded the prior baseline lint dispositio
 
 ## Current Selected Responsibility
 
+**AUTEUR_APPLICATION_ENTRY — IMPLEMENTED / QUALIFICATION IN PROGRESS** — the
+author-facing product now begins at Auteur Home rather than requiring a second
+terminal and workspace-ID creation command.
+
+Selected implementation:
+
+- bare `auteur` and `auteur open` start/reuse the local app and open Home;
+- `GET /api/beginner/health` identifies the local Auteur process;
+- `GET /api/beginner/workspaces` provides a read-only recent-story index;
+- Home creates a story from premise alone through the existing workspace API;
+- missing workspace/project IDs are generated/defaulted by the server;
+- recent stories reopen directly from persisted sessions;
+- workspace IDs remain available only under an Advanced disclosure;
+- `Auteur.cmd` and `scripts/install-auteur-shortcut.ps1` provide the Windows
+  double-click/Desktop bridge;
+- npm/server commands remain developer surfaces;
+- native .exe/PWA/Electron/Tauri packaging remains deliberately unselected
+  delivery architecture rather than an unfinished product requirement.
+
+Canonical contract:
+`docs/design/2026-09-24-auteur-application-entry.md`.
+
+Authority boundary:
+
+```text
+Home / recent-story index       READ-ONLY ORIENTATION
+New Story creation              EXPLORATION SESSION CREATION
+workspace identifier            INFRASTRUCTURE
+Story Architecture              DERIVED / NOT CANON
+later milestone acceptance      EXISTING EXPLICIT AUTHORITY
+```
+
+### Previous completed responsibility
+
 **BEGINNER_STORY_LENS_FIRST_SCREEN — COMPLETED / L1 GREEN** — on
 2026-09-24 the owner explicitly selected the first post-premise UI as the next
 bounded product responsibility. The implementation is stacked on PR #285's
