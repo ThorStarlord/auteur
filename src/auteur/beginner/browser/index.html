@@ -3,28 +3,55 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Auteur Beginner Workspace</title>
+  <title>Auteur</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <header class="app-header">
-    <button id="nav-toggle" type="button" aria-controls="story-navigator" aria-expanded="false" aria-label="Toggle Story Navigator">
+    <button id="nav-toggle" type="button" hidden aria-controls="story-navigator" aria-expanded="false" aria-label="Toggle Story Navigator">
       &#9776;
     </button>
     <div class="app-title">
-      <h1>Beginner Workspace</h1>
+      <h1>Auteur</h1>
       <p id="workspace-meta" aria-live="polite"></p>
     </div>
-    <form id="workspace-form" class="workspace-form" aria-label="Open workspace">
-      <label>
-        Workspace ID
-        <input id="workspace-id" name="workspace" type="text" autocomplete="off" placeholder="workspace-1" />
-      </label>
-      <button type="submit">Open</button>
-    </form>
+    <button id="home-button" type="button" hidden>Home</button>
   </header>
 
-  <div class="app-shell">
+  <section id="home-surface" class="home-surface" aria-label="Auteur Home">
+    <div class="home-hero">
+      <p class="card-position">Local-first story development</p>
+      <h2>What story do you want to tell?</h2>
+      <p>Start with a premise. Auteur will make the story architecture visible before asking you to commit to a direction.</p>
+      <form id="new-story-form" class="new-story-form">
+        <label for="new-story-premise">Your story idea</label>
+        <textarea id="new-story-premise" rows="7" required placeholder="A young superhero begins noticing strange inconsistencies around the people closest to him..."></textarea>
+        <button type="submit" class="continue-button">Explore this story →</button>
+      </form>
+      <p id="home-status" role="status" aria-live="polite"></p>
+    </div>
+
+    <section class="recent-stories" aria-label="Recent stories">
+      <div class="home-section-heading">
+        <h2>Your stories</h2>
+        <button id="refresh-stories" type="button">Refresh</button>
+      </div>
+      <div id="recent-stories-list"></div>
+    </section>
+
+    <details class="advanced-open">
+      <summary>Advanced: open by workspace ID</summary>
+      <form id="workspace-form" class="workspace-form" aria-label="Open workspace">
+        <label>
+          Workspace ID
+          <input id="workspace-id" name="workspace" type="text" autocomplete="off" placeholder="workspace-1" />
+        </label>
+        <button type="submit">Open</button>
+      </form>
+    </details>
+  </section>
+
+  <div id="app-shell" class="app-shell" hidden>
     <aside id="story-navigator" aria-label="Story Navigator" class="navigator">
       <h2>Your story</h2>
       <ol id="navigator-list" class="navigator-list"></ol>

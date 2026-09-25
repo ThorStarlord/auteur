@@ -228,7 +228,7 @@ def test_root_serves_beginner_browser_entrypoint(tmp_path):
             body = response.read().decode("utf-8")
             assert response.status == 200
             assert response.headers["Content-Type"].startswith("text/html")
-            assert "Auteur Beginner Workspace" in body
+            assert "<title>Auteur</title>" in body
 
         with urlopen(f"{base(server)}/app.js") as response:
             assert response.status == 200

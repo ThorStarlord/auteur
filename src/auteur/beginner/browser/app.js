@@ -75,6 +75,106 @@
     $("save-feedback").textContent = message;
   }
 
+  function showHome() {
+    $("home-surface").hidden = false;
+    $("app-shell").hidden = true;
+    $("nav-toggle").hidden = true;
+    $("home-button").hidden = true;
+    $("workspace-meta").textContent = "";
+    state.currentProjection = null;
+    state.activeLensId = null;
+  }
+
+  function showWorkspace() {
+    $("home-surface").hidden = true;
+    $("app-shell").hidden = false;
+    $("nav-toggle").hidden = false;
+    $("home-button").hidden = false;
+  }
+
+  function updateWorkspaceUrl(workspaceId) {
+    var url = new URL(window.location.href);
+    if (workspaceId) url.searchParams.set("workspace", workspaceId);
+    else url.searchParams.delete("workspace");
+    window.history.pushState({}, "", url.pathname + url.search);
+  }
+
+  function openWorkspace(workspaceId, updateUrl) {
+    if (!workspaceId) return;
+    state.workspaceId = workspaceId;
+    state.activeLensId = null;
+    $("workspace-id").value = workspaceId;
+    if (updateUrl !== false) updateWorkspaceUrl(workspaceId);
+    return loadProjection();
+  }
+
+  function renderRecentStories(payload) {
+    var container = $("recent-stories-list");
+    var workspaces = (payload && payload.workspaces) || [];
+    if (!workspaces.length) {
+      container.innerHTML = '<p class="muted">No stories yet. Start with an idea above.</p>';
+      return;
+    }
+    container.innerHTML = workspaces.map(function (item) {
+      var milestones = (item.accepted_milestones || []).length;
+      return '<article class="recent-story-card">' +
+        '<div><h3>' + escapeHtml(item.title) + '</h3>' +
+        '<p>' + escapeHtml(item.premise_preview) + '</p>' +
+        '<p class="hint">' + escapeHtml(String(milestones)) + ' accepted milestone(s)</p></div>' +
+        '<button type="button" data-open-workspace="' + escapeHtml(item.workspace_id) + '">Continue →</button>' +
+        '</article>';
+    }).join("");
+    Array.prototype.forEach.call(container.querySelectorAll("[data-open-workspace]"), function (button) {
+      button.addEventListener("click", function () {
+        openWorkspace(button.getAttribute("data-open-workspace"));
+      });
+    });
+  }
+
+  function loadRecentStories() {
+    $("home-status").textContent = "Loading your stories…";
+    return fetch("/api/beginner/workspaces", { headers: { Accept: "application/json" } })
+      .then(readJson)
+      .then(function (payload) {
+        renderRecentStories(payload);
+        $("home-status").textContent = "";
+        return payload;
+      })
+      .catch(function (error) {
+        $("home-status").textContent = "Could not load recent stories: " + error.message;
+        return null;
+      });
+  }
+
+  function createStoryFromHome() {
+    var premise = $("new-story-premise").value.trim();
+    if (!premise) return;
+    $("home-status").textContent = "Creating your story…";
+    return fetch("/api/beginner/workspaces", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        command_id: nextCommandId("create"),
+        premise: premise
+      }),
+    })
+      .then(readJson)
+      .then(function (projection) {
+        state.workspaceId = projection.workspace.workspace_id;
+        updateWorkspaceUrl(state.workspaceId);
+        showWorkspace();
+        render(projection);
+        loadPostDraftReview();
+        loadBookProgress();
+        $("home-status").textContent = "";
+        return projection;
+      })
+      .catch(function (error) {
+        $("home-status").textContent = "Could not create story: " + error.message;
+        return null;
+      });
+  }
+
   function loadProjection() {
     if (!state.workspaceId) {
       return Promise.resolve(null);
@@ -85,12 +185,22 @@
     })
       .then(readJson)
       .then(function (projection) {
+        showWorkspace();
         render(projection);
+        loadPostDraftReview();
+        loadBookProgress();
         setStatus("");
         return projection;
       })
       .catch(function (error) {
-        setStatus("Could not load workspace: " + error.message);
+        var message = "Could not load workspace: " + error.message;
+        setStatus(message);
+        if (!$("home-surface").hidden) {
+          $("home-status").textContent = message;
+        } else {
+          showHome();
+          $("home-status").textContent = message;
+        }
         return null;
       });
   }
@@ -1443,25 +1553,46 @@
         $("open-inspector").focus();
       }
     });
-    loadPostDraftReview();
-    loadBookProgress();
     var fromQuery = currentWorkspaceFromQuery();
     if (fromQuery) {
       state.workspaceId = fromQuery;
       $("workspace-id").value = fromQuery;
       loadProjection();
+      loadPostDraftReview();
+      loadBookProgress();
+    } else {
+      showHome();
+      loadRecentStories();
     }
+    $("new-story-form").addEventListener("submit", function (event) {
+      event.preventDefault();
+      createStoryFromHome();
+    });
+    $("refresh-stories").addEventListener("click", loadRecentStories);
+    $("home-button").addEventListener("click", function () {
+      state.workspaceId = null;
+      updateWorkspaceUrl(null);
+      showHome();
+      loadRecentStories();
+    });
     $("workspace-form").addEventListener("submit", function (event) {
       event.preventDefault();
       var value = $("workspace-id").value.trim();
       if (!value) {
-        setStatus("Enter a workspace ID to open.");
+        $("home-status").textContent = "Enter a workspace ID to open.";
         return;
       }
-      state.workspaceId = value;
-      state.activeLensId = null;
       setSaveFeedback("");
-      loadProjection();
+      openWorkspace(value);
+    });
+    window.addEventListener("popstate", function () {
+      var workspace = currentWorkspaceFromQuery();
+      if (workspace) openWorkspace(workspace, false);
+      else {
+        state.workspaceId = null;
+        showHome();
+        loadRecentStories();
+      }
     });
     $("continue-architecture").addEventListener("click", function () {
       sendAction("continue-architecture", {}, "Continue with this interpretation");

@@ -27,6 +27,61 @@ The PR #233 stabilization checkpoint recorded the prior baseline lint dispositio
 
 ## Current Selected Responsibility
 
+**AUTEUR_APPLICATION_ENTRY — COMPLETED / L1 GREEN** — the author-facing
+product now begins at Auteur Home rather than requiring a second terminal and
+workspace-ID creation command.
+
+Selected implementation:
+
+- bare `auteur` and `auteur open` start/reuse the local app and open Home;
+- `GET /api/beginner/health` identifies the local Auteur process;
+- `GET /api/beginner/workspaces` provides a read-only recent-story index;
+- Home creates a story from premise alone through the existing workspace API;
+- missing workspace/project IDs are generated/defaulted by the server;
+- recent stories reopen directly from persisted sessions;
+- workspace IDs remain available only under an Advanced disclosure;
+- `Auteur.cmd` and `scripts/install-auteur-shortcut.ps1` provide the Windows
+  double-click/Desktop bridge;
+- npm/server commands remain developer surfaces;
+- native .exe/PWA/Electron/Tauri packaging remains deliberately unselected
+  delivery architecture rather than an unfinished product requirement.
+
+Canonical contract:
+`docs/design/2026-09-24-auteur-application-entry.md`.
+
+Qualification evidence for the code-bearing implementation head
+`1da7c6ec2a074f991da4a0f60c452264f77975ef`:
+
+```text
+FULL BEGINNER + APPLICATION-ENTRY L1 BOUNDARY  390 passed / 0 failed
+HOME -> NEW STORY -> STORY ARCHITECTURE E2E    PASS
+RECENT-STORY REOPEN / DAMAGED-STATE ISOLATION  PASS
+BARE AUTEUR / AUTEUR OPEN LAUNCHER CONTRACT    PASS
+BROWSER JAVASCRIPT PARSE                       PASS
+VALIDATOR VERIFICATION                         25 / 25 PASS
+REPOSITORY VALIDATOR                           PASS
+RELEASE-SCOPE VALIDATOR                        PASS
+VENDORED CONTRACT                              PASS
+RUFF (TOUCHED PYTHON/TEST PATHS)               PASS
+```
+
+The first candidate run exposed one stale README compatibility expectation
+(the developer section no longer named `127.0.0.1:8791` / fresh workspace-ID
+usage). The correction restored those details under Advanced/developer commands
+without moving infrastructure concepts back into the primary product path.
+
+Authority boundary:
+
+```text
+Home / recent-story index       READ-ONLY ORIENTATION
+New Story creation              EXPLORATION SESSION CREATION
+workspace identifier            INFRASTRUCTURE
+Story Architecture              DERIVED / NOT CANON
+later milestone acceptance      EXISTING EXPLICIT AUTHORITY
+```
+
+### Previous completed responsibility
+
 **BEGINNER_STORY_LENS_FIRST_SCREEN — COMPLETED / L1 GREEN** — on
 2026-09-24 the owner explicitly selected the first post-premise UI as the next
 bounded product responsibility. The implementation is stacked on PR #285's
