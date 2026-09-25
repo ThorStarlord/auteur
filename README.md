@@ -463,23 +463,51 @@ CI runs the same verification entrypoint with `python scripts/check.py --skip-py
 `pyproject.toml` currently reports `1.0.0`. That is development/package metadata, not proof of publication. Remote GitHub release/tag inspection on 2026-09-20 shows the latest published release remains `v0.37.1`; current `main` contains later 1.0 candidate/hardening and product-development work.
 
 Use [STATUS.md](STATUS.md) for the present-tense repository map and [docs/releases/](docs/releases/README.md) for release-specific claims.
-# Local Beginner Workspace development
+# Open Auteur
 
-From the Beginner Workspace worktree, start the existing Python application:
+For normal author-facing use, install the project once and then open Auteur with:
 
-    cd H:\GithubRepositories\auteur\.worktrees\beginner-workspace-vslice
-    $env:PYTHONPATH="$(Get-Location);$(Join-Path (Get-Location) 'src')"
-    npm start
+```powershell
+cd H:\\GithubRepositories\\auteur
+python -m pip install -e ".[dev]"
+auteur
+```
 
-Open http://127.0.0.1:8791/ in a browser.
+`auteur open` is equivalent. Auteur starts its local application server if
+needed, opens the browser, and shows **Auteur Home**. From Home you can enter a
+premise directly or continue a recent story; no workspace ID is required.
 
-The server stays running while browser tests are performed. In a second
-terminal, create a clean persisted workspace through the public API:
+On Windows you can also double-click `Auteur.cmd`. To create a Desktop
+shortcut:
 
-    npm run workspace:new -- --id sealed-elevator-test-1
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/install-auteur-shortcut.ps1
+```
 
-Open the URL printed by the command. Use a new workspace ID for a fresh story
-state; do not delete persistence manually. Browser-only changes need a browser
-refresh. During active Python development, use `npm run dev` to opt into the
-development supervisor, which restarts the Python child after watched source
-files change. The default `npm start` remains a direct Python server process.
+The author-facing path is now:
+
+```text
+Open Auteur
+  -> New Story / Your Stories
+  -> premise
+  -> Story Architecture Overview
+  -> Story Direction
+  -> Story Identity
+  -> Structure
+  -> chapters
+```
+
+Advanced/developer commands remain available:
+
+```powershell
+npm start
+npm run dev
+npm run workspace:new -- --id test-story
+```
+
+Those commands expose implementation concepts intentionally; they are not the
+primary product entry.
+
+See
+[docs/design/2026-09-24-auteur-application-entry.md](docs/design/2026-09-24-auteur-application-entry.md)
+for the launch/Home contract.
