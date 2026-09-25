@@ -5,6 +5,8 @@
     "start": "node scripts/beginner-dev.mjs",
     "workspace:new": "node scripts/beginner-workspace.mjs",
     "qualification:sealed-elevator": "node scripts/qualification/sealed-elevator-human.mjs",
-    "dev": "node scripts/beginner-dev.mjs"
+    "dev": "node scripts/beginner-dev.mjs",
+    "app:open": "auteur open",
+    "shortcut:install": "powershell -ExecutionPolicy Bypass -File scripts/install-auteur-shortcut.ps1"
   }
 }
