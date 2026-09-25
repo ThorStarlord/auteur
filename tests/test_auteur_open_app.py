@@ -21,6 +21,7 @@ class FakeServer:
 
 
 def test_launcher_reuses_running_auteur_and_only_opens_browser(tmp_path: Path) -> None:
+    FakeServer.instances.clear()
     opened = []
 
     result = open_auteur(
