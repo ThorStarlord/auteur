@@ -505,6 +505,10 @@ npm run dev
 npm run workspace:new -- --id test-story
 ```
 
+`npm start` serves the development surface at `http://127.0.0.1:8791/`.
+The legacy `workspace:new` helper is intended for development/qualification;
+use a **new workspace ID** when you need fresh persisted test state.
+
 Those commands expose implementation concepts intentionally; they are not the
 primary product entry.
 
