@@ -8,32 +8,27 @@
 
 The Beginner journey is continuous through accepted Chapter 1 scene plans, but the
 next projected action is not executable in the browser. `prepare-draft-handoff`
-still points at `auteur draft <project> 1`, while the Beginner server exposes no
-`draft-chapter-1` command. The post-draft API is also project-root scoped even
-though Auteur Home now creates and reopens multiple workspace-owned stories.
+still points at `auteur draft <project> 1`, the projection advertises
+`draft-chapter-1`, and the Beginner server exposes no corresponding command.
 
-This creates one bounded product discontinuity across otherwise existing owners:
-
-```text
-accepted scene plans
--> CLI-only drafting handoff
--> project-root post-draft endpoints
--> explicit chapter acceptance
-```
+The existing post-draft review, revision-handoff, and explicit acceptance owners
+are already browser/API reachable once candidate artifacts exist. The missing
+responsibility is therefore the bridge that creates those candidate artifacts
+from the already accepted Beginner planning state.
 
 ## Selected responsibility
 
-Make Chapter 1 production workspace-owned and reachable from the normal Beginner
-browser without changing narrative authority.
+Make Chapter 1 candidate production executable inside the normal Beginner
+browser without changing narrative or persistence ownership.
 
 The normal path becomes:
 
 ```text
 accepted scene plans
 -> prepare draft
--> generate candidate draft in the active workspace
+-> generate candidate draft in app
 -> review candidate
--> retry/revise when warranted
+-> revise/retry in app when warranted
 -> explicitly accept latest candidate
 ```
 
@@ -49,35 +44,16 @@ accepted scene plans
 - Explicit Chapter acceptance continues to delegate to the existing chapter
   acceptance owner.
 - A successful critic pass is evidence, not author acceptance.
-
-## State and persistence
-
-Chapter production artifacts live under the active Beginner workspace root:
-
-```text
-.auteur/beginner/workspaces/<workspace_id>/
-  story_identity.yaml
-  chapters/01/
-    outline.yaml
-    draft_vN.md
-    validation_vN.json
-    final.md                # only after explicit acceptance
-```
-
-The browser and server address post-draft operations through the workspace id.
-No raw workspace id is requested from the author; the browser already owns the
-active workspace identity.
-
-The operational Blueprint and Bible required by the existing chapter owner may
-be materialized inside the workspace from already accepted state. They are
-implementation artifacts, not new author decisions.
+- Existing project-root ownership of story artifacts remains unchanged; the
+  Beginner workspace id continues to scope session state, not a parallel story
+  artifact model.
 
 ## Drafting contract
 
 The Beginner drafting service:
 
 1. requires an accepted foundation and accepted Chapter 1 scene plans;
-2. compiles the accepted `StoryIdentity` through existing
+2. compiles the already accepted `StoryIdentity` through existing
    `compile_to_blueprint`;
 3. derives a Cartographer-compatible Chapter 1 outline from the accepted Chapter
    and Scene plans;
@@ -88,19 +64,38 @@ The Beginner drafting service:
 7. on a later retry, supplies the previous candidate and findings to the Bard;
 8. returns the workspace projection so the next action becomes review.
 
+The draft service may use a noncanonical scratch Bible for critic context before
+Chapter 1 acceptance. The existing chapter acceptance owner remains responsible
+for materializing accepted Bible state.
+
 If no provider-backed LLM client is configured, the browser receives a bounded
 product error rather than a CLI command or silent fallback prose.
 
-## Review, revision, and acceptance
+## Browser continuity
 
-Post-draft review, revision handoff, outcome, and acceptance are resolved against
-the active workspace root. Review remains derived. Revision remains
-noncanonical. Acceptance retains the existing explicit confirmation in the
-browser and delegates to the chapter acceptance owner.
+The visible continuation surface must stop rendering the developer CLI handoff.
+It must expose `Draft Chapter 1` when the projection selects that action and
+must treat `Review Chapter 1` as a browser review transition rather than an
+unimplemented mutation command.
 
-Chapter 2 continuation is not part of this construction goal. Existing
-next-chapter capabilities may remain available internally, but the Chapter 1
-journey is complete once `final.md` exists through explicit acceptance.
+The existing post-draft revision handoff remains noncanonical. After recording
+that handoff, the normal browser path must be able to generate the next
+candidate draft without asking the author to execute a CLI retry.
+
+## Projection and restart behavior
+
+The workspace projection determines draft state from candidate artifacts:
+
+- no candidate + prepared handoff -> `ready`;
+- at least one `draft_vN.md` -> `drafted`;
+- `final.md` created by explicit acceptance -> `accepted`.
+
+An accepted Chapter 1 exposes no further Chapter 1 drafting action. Chapter 2
+construction is outside this bounded goal.
+
+Because draft/review/acceptance artifacts already persist on disk, reopening the
+same Beginner session reconstructs the correct next action without manual
+handoff.
 
 ## Failure handling
 
@@ -108,22 +103,20 @@ Relevant normal-use classifications:
 
 - `CLI_ONLY_DEPENDENCY` — removed by in-app draft execution.
 - `UI_INACCESSIBLE_CAPABILITY` — removed by binding the projected draft action.
-- `PROJECTION_INTEGRATION_GAP` — removed by projecting candidate artifacts as
-  drafted/reviewable state.
-- `PERSISTENCE_OR_RECOVERY_GAP` — removed by workspace-scoping chapter
-  production and post-draft operations.
+- `PROJECTION_INTEGRATION_GAP` — removed by recognizing candidate rather than
+  accepted artifacts as the drafted/reviewable state.
 - `AUTHORITY_BOUNDARY_GAP` — prevented by candidate-only drafting and explicit
   acceptance.
 
 ## Validation
 
 L1 should cover candidate-only drafting, no premature `final.md`, retry from a
-previous candidate, server command routing, workspace-scoped post-draft routes,
-and browser removal of the visible CLI handoff.
+previous candidate, projection state reconstruction, server command routing, and
+browser removal of the visible CLI handoff.
 
-L2 is warranted because this changes the browser -> server -> drafting ->
+L2 is warranted because this changes the browser -> server -> Bard/critics ->
 post-draft -> authority-owner boundary. The smallest useful integration is the
-scripted Beginner journey from accepted foundation through explicit Chapter 1
-acceptance using an injected fake LLM and acceptance owner where necessary.
+scripted Beginner journey from accepted foundation through candidate review and
+explicit Chapter 1 acceptance using an injected fake LLM.
 
 Human prose-quality and usability judgment remain post-construction gates.
