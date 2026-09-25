@@ -1,6 +1,6 @@
 # Auteur — Repository Status
 
-**Last reconciled:** 2026-09-24  
+**Last reconciled:** 2026-09-25  
 **Validation-policy activation baseline:** `main @ 8b53efdd99e0a67d375df0e828b32edc77643221`  
 **Behavior baseline reconciled:** `main @ c633d1b155ff72ef9ba502d4b7c9a294716fe98a` (post-draft continuation, Realization reconciliation, Beginner whole-book orientation, and bounded maintainability extractions merged)  
 **Current maintenance/product-evidence reconciliation baseline:** `main @ 1aebe090fb44dec82662d742d2d7cc911c428a32` (#248 paused at reassessment; #249 completed under the simulation-first policy; PR #281 reconciled the resulting no-product-package-selected state)  
@@ -26,6 +26,12 @@ Canonical policy: [docs/engineering/release-qualification.md](docs/engineering/r
 The PR #233 stabilization checkpoint recorded the prior baseline lint disposition. After PR #235 removed those four whitespace findings, the clean L3 checkpoint on `main @ 2aba74b64f2434d11954a8627fc3d95fd83fdb7d` passed full regression and the verification stack. No release qualification is implied. A later 2026-09-23 human Beginner walkthrough supplied new claim-appropriate workflow evidence and selected the bounded **Beginner Narrative-Architecture Coherence / deterministic fallback** package described below.
 
 ## Current Selected Responsibility
+
+**BEGINNER_CHAPTER1_PRODUCTION_CONTINUITY — IMPLEMENTED / PR #288 VALIDATION GREEN** — the first genuine post-planning gap is closed: candidate drafting, review, and revision are executable in the Beginner browser, while Chapter 1 becomes canonical only through explicit acceptance.
+
+Human prose-quality and real-beginner usability remain post-construction validation gates.
+
+## Previous Completed Responsibility
 
 **AUTEUR_APPLICATION_ENTRY — COMPLETED / L1 GREEN** — the author-facing
 product now begins at Auteur Home rather than requiring a second terminal and
