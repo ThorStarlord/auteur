@@ -120,6 +120,7 @@ from .architecture_models import (
 )
 from .architecture_projection import build_story_orientation
 from .composition import compose_mappings, reconcile_review_state
+from .continuation import accepted_milestone_fingerprint
 from .continuation_workflow import (
     ContinuationTransitionError,
     accept_chapter_plan as accept_chapter_plan_transition,
@@ -979,6 +980,13 @@ class BeginnerWorkspaceApplication:
             raise BeginnerWorkspaceError(
                 "Chapter drafting needs an LLM provider. Restart Auteur with a configured provider."
             )
+        continuation = session.continuation
+        if continuation is not None and continuation.draft_handoff is not None:
+            current_fingerprint = accepted_milestone_fingerprint(session.accepted_milestones)
+            if continuation.draft_handoff.source_fingerprint != current_fingerprint:
+                raise BeginnerWorkspaceError(
+                    "Accepted upstream inputs changed after the drafting handoff; review continuation before drafting."
+                )
         try:
             draft_candidate_chapter(
                 self.session_store.workspace_root,
