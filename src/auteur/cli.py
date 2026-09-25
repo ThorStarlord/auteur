@@ -46,6 +46,10 @@ def _is_workspace(raw: list[str]) -> bool:
     return bool(raw) and raw[0] == "workspace"
 
 
+def _is_open(raw: list[str]) -> bool:
+    return not raw or raw[0] == "open"
+
+
 def _prepare_story_discovery_argv(
     argv: list[str] | None,
 ) -> tuple[list[str], bool, Path | None]:
@@ -94,6 +98,10 @@ def _attach_story_discovery_brief(args: argparse.Namespace, brief_path: Path | N
 
 def main(argv: list[str] | None = None) -> int:
     raw_input = _raw_argv(argv)
+    if _is_open(raw_input):
+        from auteur.open_app import main as open_main
+
+        return open_main(raw_input[1:] if raw_input else [])
     if _is_story_discovery_start(raw_input):
         from auteur.story_discovery_start_cli import dispatch_start_argv
 
