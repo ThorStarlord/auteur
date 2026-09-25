@@ -95,6 +95,7 @@ from typing import Any, Mapping, cast
 from ..acceptance import AcceptanceRegistry
 from ..blueprint import Genre
 from ..identity import StoryIdentity
+from ..llm import LLMClient
 from ..story_design_packs.registry import get_design_pack_registry
 from .architecture_analysis import (
     ArchitectureAnalyzer,
@@ -150,6 +151,7 @@ from .discovery import (
     discovery_basis_fingerprint,
 )
 from .discovery_models import DiscoveryRecommendationStatus
+from .drafting import draft_candidate_chapter
 from .decision_inventory import structure_inventory_for
 from .dimensions import (
     active_dimensions,
@@ -690,12 +692,14 @@ class BeginnerWorkspaceApplication:
         authority_registry: AcceptanceRegistry | None = None,
         architecture_analyzer: ArchitectureAnalyzer | None = None,
         discovery_recommender: DiscoveryRecommender | None = None,
+        drafting_client: LLMClient | None = None,
     ) -> None:
         self.session_store = BeginnerSessionStore(Path(project_root), workspace_id)
         self.receipt_store = CommandReceiptStore(Path(project_root), workspace_id)
         self.workspace_id = workspace_id
         self.architecture_analyzer = architecture_analyzer or DeterministicArchitectureAnalyzer()
         self.discovery_recommender = discovery_recommender or UnavailableDiscoveryRecommender()
+        self.drafting_client = drafting_client
         if authority_registry is None:
             authority_registry = AcceptanceRegistry(Path(project_root))
             authority_registry.register(_BeginnerMilestoneOwner(Path(project_root)))
@@ -966,6 +970,25 @@ class BeginnerWorkspaceApplication:
             kind="prepare_draft_handoff",
             transition=lambda session: prepare_draft_handoff_transition(session.continuation),
         )
+
+    def draft_chapter_one(self, *, expected_session_version: int, command_id: str) -> WorkspaceProjection:
+        """Generate one reviewable Chapter 1 candidate without accepting it."""
+        session = self.session_store.load()
+        self._check_version(session, expected_session_version)
+        if self.drafting_client is None:
+            raise BeginnerWorkspaceError(
+                "Chapter drafting needs an LLM provider. Restart Auteur with a configured provider."
+            )
+        try:
+            draft_candidate_chapter(
+                self.session_store.workspace_root,
+                session.continuation,
+                llm=self.drafting_client,
+                command_id=command_id,
+            )
+        except (FileNotFoundError, OSError, RuntimeError, ValueError) as exc:
+            raise BeginnerWorkspaceError(str(exc)) from exc
+        return self.projection()
 
     def _record_architecture_seen(self, *, analysis_id: str, command_id: str) -> None:
         seen = list(self._journey.get("architecture_seen") or [])
@@ -3483,8 +3506,12 @@ class BeginnerWorkspaceApplication:
         )
         continuation = session.continuation
         if continuation is not None and continuation.draft_handoff is not None:
-            draft_path = self.session_store.workspace_root / "chapters" / "01" / "final.md"
-            if draft_path.is_file() and continuation.draft_status != "drafted":
+            chapter_dir = self.session_store.workspace_root / "chapters" / "01"
+            final_path = chapter_dir / "final.md"
+            candidate_exists = any(chapter_dir.glob("draft_v*.md")) if chapter_dir.is_dir() else False
+            if final_path.is_file() and continuation.draft_status != "accepted":
+                continuation = continuation.model_copy(update={"draft_status": "accepted"})
+            elif candidate_exists and continuation.draft_status != "drafted":
                 continuation = continuation.model_copy(update={"draft_status": "drafted"})
         return build_workspace_projection(
             session=session,
