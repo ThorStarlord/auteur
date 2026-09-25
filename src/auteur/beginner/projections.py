@@ -734,7 +734,10 @@ def build_workspace_projection(
         elif continuation.scene_plans_accepted and continuation.draft_handoff is None:
             actions.append("prepare-draft-handoff")
         elif continuation.draft_handoff is not None:
-            actions.append("review-chapter-1" if continuation.draft_status == "drafted" else "draft-chapter-1")
+            if continuation.draft_status == "drafted":
+                actions.append("review-chapter-1")
+            elif continuation.draft_status != "accepted":
+                actions.append("draft-chapter-1")
     primary_surface = _primary_surface(session)
     primary_action = _primary_action_projection(tuple(actions), primary_surface)
     decision_workspace = _decision_workspace_projection(
