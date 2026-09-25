@@ -6,6 +6,14 @@ from auteur import cli
 from auteur.open_app import open_auteur
 
 
+class FakeThread:
+    def __init__(self):
+        self.joined = False
+
+    def join(self, timeout=None):
+        self.joined = True
+
+
 class FakeServer:
     instances = []
 
@@ -14,10 +22,16 @@ class FakeServer:
         self.port = port
         self.dependencies = dependencies
         self.started = False
+        self.stopped = False
+        self.thread = FakeThread()
         self.__class__.instances.append(self)
 
-    def start(self):
+    def start_in_thread(self):
         self.started = True
+        return self.thread
+
+    def stop(self):
+        self.stopped = True
 
 
 def test_launcher_reuses_running_auteur_and_only_opens_browser(tmp_path: Path) -> None:
@@ -56,6 +70,7 @@ def test_launcher_starts_local_server_and_opens_home(tmp_path: Path) -> None:
     assert server.project == tmp_path.resolve()
     assert server.port == 9123
     assert server.started is True
+    assert server.thread.joined is True
 
 
 def test_bare_auteur_and_auteur_open_route_to_application_launcher(monkeypatch) -> None:
