@@ -164,6 +164,8 @@
         updateWorkspaceUrl(state.workspaceId);
         showWorkspace();
         render(projection);
+        loadPostDraftReview();
+        loadBookProgress();
         $("home-status").textContent = "";
         return projection;
       })
@@ -185,6 +187,8 @@
       .then(function (projection) {
         showWorkspace();
         render(projection);
+        loadPostDraftReview();
+        loadBookProgress();
         setStatus("");
         return projection;
       })
