@@ -45,6 +45,7 @@ from .discovery import (
 )
 from .contracts import MutationCommand
 from .persistence import BeginnerConcurrencyError, BeginnerPersistenceError
+from .workspace_index import list_workspace_summaries
 from .projections import WorkspaceProjection
 from .continuation import build_contextual_chapter_plan, build_contextual_scene_plans
 from .book_progress import project_book_progress
@@ -447,8 +448,17 @@ class _RequestHandler(BaseHTTPRequestHandler):
             if self._serve_browser_asset(path):
                 return
             parts = [part for part in path.split("/") if part]
+            if parts == ["api", "beginner", "health"]:
+                self._send_json(200, {"app": "auteur", "surface": "beginner", "status": "ok"})
+                return
             if parts == ["api", "beginner", "book", "progress"]:
                 self._send_json(200, project_book_progress(self.project_root))
+                return
+            if parts == ["api", "beginner", "workspaces"]:
+                self._send_json(
+                    200,
+                    {"workspaces": [item.model_dump(mode="json") for item in list_workspace_summaries(self.project_root)]},
+                )
                 return
             if len(parts) == 5 and parts[:3] == ["api", "beginner", "chapters"]:
                 try:
@@ -559,10 +569,10 @@ class _RequestHandler(BaseHTTPRequestHandler):
 
     def _handle_create(self, payload: dict[str, Any]) -> None:
         command_id = payload.get("command_id")
-        project_id = payload.get("project_id")
         guidance_genre = payload.get("guidance_genre", "mystery")
         premise = payload.get("premise")
         workspace_id = payload.get("workspace_id") or f"workspace-{secrets.token_hex(4)}"
+        project_id = payload.get("project_id") or workspace_id
         if not isinstance(command_id, str) or not command_id:
             raise BeginnerRequestError(400, "command_id must be a non-empty string")
         if not isinstance(project_id, str) or not project_id:
