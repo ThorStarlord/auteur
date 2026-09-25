@@ -101,11 +101,15 @@ def open_auteur(
     print(f"Auteur: {url}")
     print(f"Project: {project}")
     print("Press Ctrl+C to stop the local Auteur server.")
-    if open_browser:
-        browser_open(url)
+
+    thread = server.start_in_thread()
     try:
-        server.start()
+        if open_browser:
+            browser_open(url)
+        thread.join()
     except KeyboardInterrupt:
+        server.stop()
+        thread.join(timeout=2)
         return 130
     return 0
 
