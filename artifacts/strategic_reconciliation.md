@@ -183,3 +183,36 @@ durable strategy -> bounded construction -> exact-head validation -> merge
 The current owner prompt explicitly authorizes repository-owned integration.
 Chapter 2, release qualification, publication, and subjective prose/usability
 claims remain outside this bounded responsibility.
+
+## 2026-09-26 post-merge continuity reconciliation
+
+A fresh journey scan on `main @ de0551421c7d7d6b657c7534c00a94ecad625cb3`
+found that PR #288's product direction remained correct but one execution claim
+was too strong. `draft-chapter-1` existed in projection/browser wiring and the
+application owner was implemented, yet the HTTP dispatcher omitted that slug
+from the rich-command path. The real browser transition therefore could not
+reach `draft_chapter_one(expected_session_version=..., command_id=...)`.
+
+Selected bounded repair: PR #289. It adds the missing dispatch membership and an
+HTTP-level regression that executes candidate drafting through the same command
+surface used by the browser, while retaining the noncanonical-candidate /
+explicit-acceptance boundary.
+
+Strategic effect: **NO_MODEL_CHANGE / REAFFIRM**.
+
+The product-compression direction is strengthened rather than revised:
+
+```text
+existing specialized owner
++ product projection
++ browser control
++ executable API/application composition
+= beginner-facing continuity
+```
+
+Projection or presentation evidence alone is insufficient for a cross-layer
+continuity claim. This does not warrant a new subsystem, new narrative ontology,
+Chapter 2 expansion, release qualification, or a new experiment. Provider
+credentials remain an external runtime prerequisite; prose quality and real
+beginner usability remain human validation claims.
+
