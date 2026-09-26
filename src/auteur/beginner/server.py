@@ -642,6 +642,7 @@ class _RequestHandler(BaseHTTPRequestHandler):
             "propose-scene-plans",
             "accept-scene-plans",
             "prepare-draft-handoff",
+            "draft-chapter-1",
         }
         if slug in rich_commands:
             kwargs: dict[str, Any] = {
