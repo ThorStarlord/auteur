@@ -216,3 +216,27 @@ Chapter 2 expansion, release qualification, or a new experiment. Provider
 credentials remain an external runtime prerequisite; prose quality and real
 beginner usability remain human validation claims.
 
+## 2026-09-26 closure
+
+PR #289 merged to `main @ e6700044d5813bcb2041714f7c6bed6cdb128aee`.
+Its exact candidate head
+`690bb90a60807b67331959e8c7fd0fc07e3b8be0` passed the repository's
+GitHub Validation run #793 before merge.
+
+A final post-merge scan found no further demonstrated repository-owned
+mechanical discontinuity in the bounded raw-premise -> explicit accepted
+Chapter 1 journey once a provider-enabled runtime is available.
+
+Disposition: **NO_FURTHER_REPOSITORY_WORK_SELECTED** for this responsibility.
+
+Stop boundaries are now genuine rather than missing application composition:
+
+- provider credentials / adapter availability are external runtime
+  prerequisites for prose generation;
+- prose quality and real-beginner usability require human evidence;
+- Chapter 2, publishing, release qualification, and new semantic architecture
+  require separate evidence or owner selection.
+
+Do not reopen this package merely because additional systems or roadmap
+candidates exist.
+

@@ -18,12 +18,20 @@ def test_cli_help_exits_zero() -> None:
     assert exc.value.code == 0
 
 
-def test_cli_no_args_fails() -> None:
-    """No args should exit non-zero (argparse error)."""
-    with pytest.raises(SystemExit) as exc:
-        main([])
-    # argparse exits 2 when required positional args are missing.
-    assert exc.value.code == 2
+def test_cli_no_args_opens_canonical_application(monkeypatch) -> None:
+    """Bare Auteur should route to the canonical local application launcher."""
+    calls: list[list[str]] = []
+
+    def fake_open_main(argv: list[str]) -> int:
+        calls.append(argv)
+        return 0
+
+    import auteur.open_app
+
+    monkeypatch.setattr(auteur.open_app, "main", fake_open_main)
+
+    assert main([]) == 0
+    assert calls == [[]]
 
 
 def test_cli_unknown_command_fails() -> None:
