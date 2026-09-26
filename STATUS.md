@@ -1,6 +1,6 @@
 # Auteur — Repository Status
 
-**Last reconciled:** 2026-09-25  
+**Last reconciled:** 2026-09-26  
 **Validation-policy activation baseline:** `main @ 8b53efdd99e0a67d375df0e828b32edc77643221`  
 **Behavior baseline reconciled:** `main @ c633d1b155ff72ef9ba502d4b7c9a294716fe98a` (post-draft continuation, Realization reconciliation, Beginner whole-book orientation, and bounded maintainability extractions merged)  
 **Current maintenance/product-evidence reconciliation baseline:** `main @ 1aebe090fb44dec82662d742d2d7cc911c428a32` (#248 paused at reassessment; #249 completed under the simulation-first policy; PR #281 reconciled the resulting no-product-package-selected state)  
@@ -27,11 +27,32 @@ The PR #233 stabilization checkpoint recorded the prior baseline lint dispositio
 
 ## Current Selected Responsibility
 
-**BEGINNER_CHAPTER1_PRODUCTION_CONTINUITY — IMPLEMENTED / PR #288 VALIDATION GREEN** — the first genuine post-planning gap is closed: candidate drafting, review, and revision are executable in the Beginner browser, while Chapter 1 becomes canonical only through explicit acceptance.
+**BEGINNER_CHAPTER1_HTTP_CONTINUITY_REPAIR — IMPLEMENTED ON PR #289** — the
+post-merge journey re-check of PR #288 found one real cross-layer defect:
+`draft-chapter-1` was registered and rendered but omitted from the server's rich
+command-dispatch set. The HTTP boundary therefore used the wrong application
+call shape.
 
-Human prose-quality and real-beginner usability remain post-construction validation gates.
+PR #289 repairs that dispatch and adds a server-level regression that executes
+candidate generation through HTTP while proving `final.md` remains absent until
+explicit Chapter acceptance. The accompanying architecture rule now treats
+projected action + rendered control as insufficient evidence for a continuity
+claim; the changed browser/API boundary must execute through the owning workflow.
+
+Provider availability remains an infrastructure prerequisite for prose
+generation. Human prose-quality and real-beginner usability remain
+post-construction validation gates. No release qualification is implied.
 
 ## Previous Completed Responsibility
+
+**BEGINNER_CHAPTER1_PRODUCTION_CONTINUITY — IMPLEMENTED / MERGED AS PR #288** —
+accepted scene plans can now compose the existing Bard, critic, post-draft, and
+Chapter-acceptance owners into the Beginner product path. Candidate drafts remain
+noncanonical; only explicit Chapter acceptance creates `final.md` and accepted
+Bible state. The post-merge re-check above narrowed the remaining defect to HTTP
+dispatch rather than reopening the product architecture.
+
+### Earlier completed responsibility
 
 **AUTEUR_APPLICATION_ENTRY — COMPLETED / L1 GREEN** — the author-facing
 product now begins at Auteur Home rather than requiring a second terminal and
