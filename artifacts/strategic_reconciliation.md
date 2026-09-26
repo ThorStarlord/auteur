@@ -168,18 +168,18 @@ Episode 1, or long-horizon ontology expansion.
 
 ## Final responsibility state
 
-The bounded implementation is complete on the PR branch. Qualification remains
-the existing PR validation responsibility; no L3 stabilization, merge, release,
-or publication authority is implied by this reconciliation.
+2026-09-25 continuation selected the earliest broken Beginner transition:
+accepted scene plans -> Chapter 1 draft. PR #288 now composes the existing Bard,
+critic, post-draft, and chapter-acceptance owners into one in-app path. Candidate
+drafts remain noncanonical; only explicit Chapter acceptance creates `final.md`
+and accepted Bible state.
 
 ## Authority boundary
 
 ```text
-analysis/reconciliation
--> bounded branch implementation
--> PR validation/review
--> STOP before merge/release
+durable strategy -> bounded construction -> exact-head validation -> merge
 ```
 
-The user delegated repository-answerable construction, but this session does not
-convert that delegation into silent merge or release authority.
+The current owner prompt explicitly authorizes repository-owned integration.
+Chapter 2, release qualification, publication, and subjective prose/usability
+claims remain outside this bounded responsibility.

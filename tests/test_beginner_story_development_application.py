@@ -1,9 +1,13 @@
 from auteur.beginner.application import BeginnerWorkspaceApplication
 from auteur.beginner.contracts import AcceptedMilestoneReference, RevisionRef, SessionEnvelope
+from auteur.beginner.drafting import accept_beginner_chapter
+from auteur.beginner.post_draft import accept_latest_chapter
+from auteur.llm import LLMResponse
+from auteur.llm.fake import FakeClient
 
 
-def _foundation_app(tmp_path):
-    app = BeginnerWorkspaceApplication(tmp_path, "continuation-1")
+def _foundation_app(tmp_path, *, drafting_client=None):
+    app = BeginnerWorkspaceApplication(tmp_path, "continuation-1", drafting_client=drafting_client)
     session = SessionEnvelope.new("project", "mystery", "A locked room")
     session = session.model_copy(
         update={
@@ -77,7 +81,7 @@ def test_projection_reorients_to_review_after_chapter_draft_exists(tmp_path) -> 
     app.propose_scene_plans(expected_session_version=app.projection().session_version, command_id="scenes")
     app.accept_scene_plans(expected_session_version=app.projection().session_version, command_id="accept-scenes")
     app.prepare_draft_handoff(expected_session_version=app.projection().session_version, command_id="draft")
-    draft_path = tmp_path / "chapters" / "01" / "final.md"
+    draft_path = tmp_path / "chapters" / "01" / "draft_v1.md"
     draft_path.parent.mkdir(parents=True)
     draft_path.write_text("Chapter 1", encoding="utf-8")
 
@@ -85,6 +89,46 @@ def test_projection_reorients_to_review_after_chapter_draft_exists(tmp_path) -> 
 
     assert projection.continuation.draft_status == "drafted"
     assert "review-chapter-1" in projection.available_actions
+
+
+
+def test_in_app_draft_remains_candidate_until_explicit_acceptance(tmp_path) -> None:
+    client = FakeClient([
+        LLMResponse(text="Chapter 1 candidate prose.", input_tokens=8, output_tokens=6),
+        *[LLMResponse(text="findings: []", input_tokens=2, output_tokens=2) for _ in range(5)],
+    ])
+    app = _foundation_app(tmp_path, drafting_client=client)
+    app._default_identity().to_yaml(tmp_path / "story_identity.yaml")
+    projection = app.projection()
+    for method, command_id in (
+        (app.propose_outline, "candidate-outline"),
+        (app.accept_outline, "candidate-accept-outline"),
+        (app.propose_chapter_plan, "candidate-chapter"),
+        (app.accept_chapter_plan, "candidate-accept-chapter"),
+        (app.propose_scene_plans, "candidate-scenes"),
+        (app.accept_scene_plans, "candidate-accept-scenes"),
+        (app.prepare_draft_handoff, "candidate-handoff"),
+    ):
+        projection = method(expected_session_version=projection.session_version, command_id=command_id)
+
+    projection = app.draft_chapter_one(
+        expected_session_version=projection.session_version,
+        command_id="candidate-draft",
+    )
+
+    assert projection.continuation.draft_status == "drafted"
+    assert (tmp_path / "chapters" / "01" / "draft_v1.md").is_file()
+    assert (tmp_path / "chapters" / "01" / "validation_v1.json").is_file()
+    assert not (tmp_path / "chapters" / "01" / "final.md").exists()
+    assert not (tmp_path / "bible.json").exists()
+
+    accept_latest_chapter(tmp_path, 1, command_id="explicit-accept", owner=accept_beginner_chapter)
+    accepted = app.projection()
+    assert accepted.continuation.draft_status == "accepted"
+    assert "review-chapter-1" not in accepted.available_actions
+    assert "draft-chapter-1" not in accepted.available_actions
+    assert (tmp_path / "chapters" / "01" / "final.md").is_file()
+    assert (tmp_path / "bible.json").is_file()
 
 
 def test_upstream_change_marks_downstream_continuation_stale(tmp_path) -> None:

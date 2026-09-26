@@ -28,6 +28,7 @@ from urllib.parse import urlparse
 
 from pydantic import ValidationError
 
+from auteur.llm import LLMClient
 from auteur.llm.factory import build_client
 
 from .application import BeginnerWorkspaceApplication, BeginnerWorkspaceError
@@ -38,6 +39,7 @@ from .architecture_analysis import (
     ResilientArchitectureAnalyzer,
 )
 from .architecture_models import ArchitectureFacet, ArchitectureRole
+from .drafting import accept_beginner_chapter
 from .discovery import (
     DeterministicDiscoveryRecommender,
     DiscoveryRecommender,
@@ -64,12 +66,14 @@ logger = logging.getLogger(__name__)
 class BeginnerRuntimeDependencies:
     architecture_analyzer: ArchitectureAnalyzer
     discovery_recommender: DiscoveryRecommender
+    drafting_client: LLMClient | None = None
 
 
 def default_runtime_dependencies() -> BeginnerRuntimeDependencies:
     return BeginnerRuntimeDependencies(
         architecture_analyzer=DeterministicArchitectureAnalyzer(),
         discovery_recommender=DeterministicDiscoveryRecommender(),
+        drafting_client=None,
     )
 
 
@@ -355,6 +359,7 @@ _COMMAND_HANDLERS: dict[str, str] = {
     "propose-scene-plans": "propose_scene_plans",
     "accept-scene-plans": "accept_scene_plans",
     "prepare-draft-handoff": "prepare_draft_handoff",
+    "draft-chapter-1": "draft_chapter_one",
 }
 
 _IDEMPOTENCY_MARKERS = ("already in progress", "receipt mismatch", "intent conflict", "already exists")
@@ -423,6 +428,7 @@ class _RequestHandler(BaseHTTPRequestHandler):
             workspace_id,
             architecture_analyzer=self.dependencies.architecture_analyzer,
             discovery_recommender=self.dependencies.discovery_recommender,
+            drafting_client=self.dependencies.drafting_client,
         )
 
     def _serve_browser_asset(self, path: str) -> bool:
@@ -522,6 +528,7 @@ class _RequestHandler(BaseHTTPRequestHandler):
                                 self.project_root,
                                 chapter_index,
                                 command_id=command_id,
+                                owner=accept_beginner_chapter,
                             ),
                         )
                         return
@@ -717,6 +724,7 @@ def main(argv: list[str] | None = None) -> int:
                 fallback=DeterministicArchitectureAnalyzer(),
             ),
             discovery_recommender=StoryDiscoveryRecommender(client=client),
+            drafting_client=client,
         )
     else:
         dependencies = default_runtime_dependencies()

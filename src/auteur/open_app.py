@@ -46,6 +46,7 @@ def _dependencies(provider: str | None, model: str | None) -> BeginnerRuntimeDep
         return BeginnerRuntimeDependencies(
             architecture_analyzer=DeterministicArchitectureAnalyzer(),
             discovery_recommender=DeterministicDiscoveryRecommender(),
+            drafting_client=None,
         )
     client = build_client(provider, model)
     resolved_model = model or ("gpt-4o" if provider == "openai" else "claude-sonnet-4-6")
@@ -61,6 +62,7 @@ def _dependencies(provider: str | None, model: str | None) -> BeginnerRuntimeDep
             fallback=DeterministicArchitectureAnalyzer(),
         ),
         discovery_recommender=StoryDiscoveryRecommender(client=client),
+        drafting_client=client,
     )
 
 

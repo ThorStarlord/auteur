@@ -282,9 +282,9 @@
   }
 
   function sendAction(slug, payload, label) {
-    if (!state.workspaceId) return;
+    if (!state.workspaceId) return Promise.resolve(null);
     setStatus(label + "…");
-    fetch(
+    return fetch(
       "/api/beginner/workspaces/" + encodeURIComponent(state.workspaceId) + "/commands/" + slug,
       {
         method: "POST",
@@ -1239,6 +1239,7 @@
       "propose-scene-plans": "Plan scenes",
       "accept-scene-plans": "Continue with these scene plans",
       "prepare-draft-handoff": "Prepare Chapter 1 draft",
+      "draft-chapter-1": "Draft Chapter 1",
       "review-chapter-1": "Review Chapter 1",
       "review-stale-continuation": "Review stale continuation"
     };
@@ -1280,9 +1281,11 @@
       })));
     }
     if (state && state.draft_handoff) {
-      html.push("<h3>Ready to write Chapter 1</h3><p>Use the accepted identity, structure, outline, chapter plan, and scene plan.</p><code>" + escapeHtml(state.draft_handoff.command) + "</code>");
+      html.push("<h3>Ready to write Chapter 1</h3><p>Use the accepted identity, structure, outline, chapter plan, and scene plan.</p>");
       if (state.draft_status === "drafted") {
-        html.push("<p><strong>Chapter 1 is drafted.</strong> Review it before planning Chapter 2.</p>");
+        html.push("<p><strong>Chapter 1 has a reviewable candidate.</strong> Review it before accepting it.</p>");
+      } else if (state.draft_status === "accepted") {
+        html.push("<p><strong>Chapter 1 is accepted.</strong> The explicit Chapter authority has recorded the accepted expression.</p>");
       }
     }
     if (action) {
@@ -1297,7 +1300,12 @@
     body.innerHTML = html.join("");
     var button = body.querySelector("[data-continuation-action]");
     if (button) button.addEventListener("click", function () {
-      sendAction(button.getAttribute("data-continuation-action"), {}, button.textContent.trim());
+      var continuationAction = button.getAttribute("data-continuation-action");
+      if (continuationAction === "review-chapter-1") {
+        openChapterReview(1);
+        return;
+      }
+      sendAction(continuationAction, {}, button.textContent.trim());
     });
   }
 
@@ -1373,6 +1381,13 @@
     }
   }
 
+  function openChapterReview(chapter) {
+    var url = new URL(window.location.href);
+    url.searchParams.set("chapter", String(chapter));
+    window.history.pushState({}, "", url.pathname + url.search);
+    return loadPostDraftReview();
+  }
+
   function renderPostDraftReview(chapter, review) {
     var panel = $("post-draft-review");
     if (!panel) return;
@@ -1443,7 +1458,9 @@
       .then(function () {
         setStatus("");
         loadBookProgress();
-        return loadPostDraftReview();
+        return loadProjection().then(function () {
+          return loadPostDraftReview();
+        });
       })
       .catch(function (error) {
         setStatus("Chapter acceptance failed: " + error.message);
@@ -1465,10 +1482,13 @@
     })
       .then(readJson)
       .then(function () {
-        setStatus("Revision handoff prepared.");
+        return sendAction("draft-chapter-1", {}, "Revising Chapter " + chapter);
+      })
+      .then(function () {
+        return loadPostDraftReview();
       })
       .catch(function (error) {
-        setStatus("Revision handoff failed: " + error.message);
+        setStatus("Chapter revision failed: " + error.message);
       });
   }
 
