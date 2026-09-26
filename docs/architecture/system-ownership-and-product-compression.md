@@ -132,7 +132,30 @@ Beginner convenience may route to StoryIdentity, Structure, Chapter, Book, or
 other existing acceptance owners. It must not recreate their authority in a
 Beginner-specific database or mutation path.
 
-### 5. Preserve specialized systems internally
+### 5. Continuity requires executable composition
+
+A capability is not beginner-complete merely because the backend owns it, the
+projection advertises an action, or the browser renders a button. A continuity
+claim requires the product path to execute through the real application/API
+boundary into the existing owner.
+
+For a projected transition, verify all of these together:
+
+```text
+projected next action
+-> browser control
+-> HTTP/application dispatch
+-> owning workflow
+-> persisted/recoverable result
+-> unchanged authority boundary
+```
+
+Static string/DOM assertions are useful sentinels, but they are not sufficient
+evidence for a cross-layer transition. At least one focused integration test
+must execute the transition through the same dispatch surface used by the
+browser whenever that boundary changes.
+
+### 6. Preserve specialized systems internally
 
 Decision, Review, Impact, Convergence, Planning, Simulation, Portfolio,
 Commitment, and related systems model genuinely different responsibilities.
@@ -150,7 +173,9 @@ Before adding a new top-level subsystem, answer:
 5. What is derived versus accepted?
 6. How will a beginner encounter the capability without learning its internal
    vocabulary?
-7. Can the capability be added behind an existing product projection instead?
+7. Does the projected action execute through the real product dispatch surface
+   into the existing owner?
+8. Can the capability be added behind an existing product projection instead?
 
 If these questions do not produce clear boundaries, prefer a bounded extension
 of an existing owner.

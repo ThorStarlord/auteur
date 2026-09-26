@@ -7,9 +7,13 @@ from contextlib import contextmanager
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
+from auteur.beginner.application import BeginnerWorkspaceApplication
+from auteur.beginner.contracts import AcceptedMilestoneReference, RevisionRef, SessionEnvelope
 from auteur.beginner.server import BeginnerRuntimeDependencies, BeginnerWorkspaceServer
 from auteur.beginner.architecture_analysis import DeterministicArchitectureAnalyzer
 from auteur.beginner.discovery import UnavailableDiscoveryRecommender
+from auteur.llm import LLMResponse
+from auteur.llm.fake import FakeClient
 from tests.fixtures.beginner_hybrid_mystery import (
     CountingDiscoveryRecommender,
     HYBRID_ANALYSIS,
@@ -289,6 +293,66 @@ def test_http_surface_completes_beginner_milestones_in_order(tmp_path):
         assert {ref["milestone_id"] for ref in projection["canonical_refs"]} == {
             "story_direction", "story_identity", "whole_story_structure"
         }
+
+
+
+def test_http_draft_chapter_one_executes_candidate_generation_without_accepting(tmp_path):
+    client = FakeClient([
+        LLMResponse(text="Chapter 1 candidate prose.", input_tokens=8, output_tokens=6),
+        *[LLMResponse(text="findings: []", input_tokens=2, output_tokens=2) for _ in range(5)],
+    ])
+    workspace_id = "draft-http"
+    app = BeginnerWorkspaceApplication(tmp_path, workspace_id, drafting_client=client)
+    session = SessionEnvelope.new("project", "mystery", "A locked room")
+    session = session.model_copy(
+        update={
+            "accepted_milestones": [
+                AcceptedMilestoneReference(
+                    milestone_id="whole_story_structure",
+                    revision=RevisionRef(artifact_id="blueprint", revision=1),
+                )
+            ]
+        }
+    )
+    app.session_store.create(session)
+    app._default_identity().to_yaml(tmp_path / "story_identity.yaml")
+
+    projection = app.projection()
+    for method, command_id in (
+        (app.propose_outline, "http-draft-outline"),
+        (app.accept_outline, "http-draft-accept-outline"),
+        (app.propose_chapter_plan, "http-draft-chapter"),
+        (app.accept_chapter_plan, "http-draft-accept-chapter"),
+        (app.propose_scene_plans, "http-draft-scenes"),
+        (app.accept_scene_plans, "http-draft-accept-scenes"),
+        (app.prepare_draft_handoff, "http-draft-handoff"),
+    ):
+        projection = method(
+            expected_session_version=projection.session_version,
+            command_id=command_id,
+        )
+
+    dependencies = BeginnerRuntimeDependencies(
+        architecture_analyzer=DeterministicArchitectureAnalyzer(),
+        discovery_recommender=UnavailableDiscoveryRecommender(),
+        drafting_client=client,
+    )
+    server = BeginnerWorkspaceServer(tmp_path, port=0, dependencies=dependencies)
+    thread = server.start_in_thread()
+    try:
+        result = command_json(server, workspace_id, "draft-chapter-1", {
+            "session_version": projection.session_version,
+        }, {})
+    finally:
+        server.stop()
+        thread.join(timeout=2)
+        assert not thread.is_alive()
+
+    assert result["continuation"]["draft_status"] == "drafted"
+    assert (tmp_path / "chapters" / "01" / "draft_v1.md").is_file()
+    assert (tmp_path / "chapters" / "01" / "validation_v1.json").is_file()
+    assert not (tmp_path / "chapters" / "01" / "final.md").exists()
+
 
 
 def test_select_command_round_trip_autosaves_without_advancing(tmp_path):

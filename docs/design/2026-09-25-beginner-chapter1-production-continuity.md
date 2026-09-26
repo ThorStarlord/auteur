@@ -120,3 +120,32 @@ scripted Beginner journey from accepted foundation through candidate review and
 explicit Chapter 1 acceptance using an injected fake LLM.
 
 Human prose-quality and usability judgment remain post-construction gates.
+
+## Post-merge continuity correction
+
+A post-merge journey re-check found that `draft-chapter-1` was present in the
+server command registry and browser, but was omitted from the server's rich
+command-dispatch set. The HTTP layer therefore attempted the legacy
+`handler(command=envelope)` call shape even though
+`draft_chapter_one(...)` requires `expected_session_version` and
+`command_id`.
+
+The repair adds `draft-chapter-1` to the same rich dispatch path as the other
+continuation commands and adds a server-level regression that actually executes
+candidate generation over HTTP and verifies that `draft_v1.md` /
+`validation_v1.json` are created while `final.md` is still absent.
+
+Durable lesson:
+
+```text
+registered action + rendered button
+!= executable beginner continuity
+
+real browser/API dispatch + owning workflow + preserved authority
+= executable beginner continuity
+```
+
+Future cross-layer continuation changes should keep static browser wiring tests
+as cheap sentinels, but they must also carry at least one focused executable
+dispatch test for the changed boundary.
+
