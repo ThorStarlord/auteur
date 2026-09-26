@@ -1,8 +1,9 @@
 # Guided Author Decision Loop
 
 This guide describes the current beginner-facing path from a raw premise through
-Narrative Architecture, explicit foundation acceptance, and later advisory
-guidance to an explicit story change. It is a product workflow, not a new
+Narrative Architecture, explicit foundation acceptance, Chapter 1 planning,
+candidate drafting, review/revision, and explicit Chapter 1 acceptance. It also
+covers the later advisory decision loop. It is a product workflow, not a new
 narrative layer.
 
 For a creative beginner, the Browser Workspace is the preferred orientation
@@ -50,7 +51,12 @@ raw premise
 → answer / review Structure decisions
 → explicitly accept Whole-Story Structure
 → highlighted next phase
-→ whole-story outline
+→ whole-story outline → explicit outline acceptance
+→ Chapter 1 plan → explicit plan acceptance
+→ scene plans → explicit scene-plan acceptance
+→ generate a noncanonical Chapter 1 candidate
+→ review or revise the candidate
+→ explicitly accept Chapter 1
 ```
 
 ### 1. Read the working interpretation
@@ -101,11 +107,41 @@ complete and make the **next safe action**—normally outlining—more prominent
 than secondary exploration/help actions. It must not continue telling the author
 to accept a milestone that is already accepted.
 
-### 5. Continue into outlining
+### 5. Continue through Chapter 1 planning
 
 Once Story Direction, Story Identity, and Whole-Story Structure are accepted,
-the foundation is canonical and the continuation into outline/planning remains
-derived until each owning acceptance boundary is crossed.
+the foundation is canonical. The whole-story outline, Chapter 1 plan, and scene
+plans remain derived working artifacts until their explicit continuation
+acceptance actions are taken.
+
+The Beginner browser should keep one forward action prominent at each boundary:
+create/accept outline, create/accept Chapter 1 plan, create/accept scene plans,
+then prepare and generate the Chapter 1 candidate.
+
+### 6. Draft, review, revise, and explicitly accept Chapter 1
+
+Chapter drafting creates `chapters/01/draft_vN.md` plus validation evidence.
+Those artifacts are candidates, not canon. Review may route to another
+noncanonical candidate or to explicit acceptance. Only the existing Chapter
+acceptance owner may create `chapters/01/final.md` and update accepted Bible
+state.
+
+A prose candidate requires a provider-enabled runtime. No-provider mode can
+still complete premise interpretation, Story Discovery, foundation acceptance,
+and planning, but it must fail clearly at prose generation rather than invent a
+silent fallback. Provider availability is an infrastructure prerequisite; it
+does not weaken or replace the Chapter acceptance boundary.
+
+Current local launch examples:
+
+```powershell
+auteur open --provider anthropic
+auteur open --provider openai
+```
+
+API credentials remain external runtime configuration. The browser should make a
+missing provider understandable; it must not turn provider configuration into a
+second narrative authority or auto-accept generated prose.
 
 ---
 
