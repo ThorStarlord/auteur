@@ -27,23 +27,34 @@ The PR #233 stabilization checkpoint recorded the prior baseline lint dispositio
 
 ## Current Selected Responsibility
 
-**BEGINNER_CHAPTER1_HTTP_CONTINUITY_REPAIR — IMPLEMENTED ON PR #289** — the
-post-merge journey re-check of PR #288 found one real cross-layer defect:
-`draft-chapter-1` was registered and rendered but omitted from the server's rich
-command-dispatch set. The HTTP boundary therefore used the wrong application
-call shape.
+**NO FURTHER REPOSITORY WORK SELECTED — CHAPTER 1 CONTINUITY CLOSED.**
 
-PR #289 repairs that dispatch and adds a server-level regression that executes
-candidate generation through HTTP while proving `final.md` remains absent until
-explicit Chapter acceptance. The accompanying architecture rule now treats
-projected action + rendered control as insufficient evidence for a continuity
-claim; the changed browser/API boundary must execute through the owning workflow.
+PR #289 is merged on `main @ e6700044d5813bcb2041714f7c6bed6cdb128aee`.
+Its exact pre-merge head
+`690bb90a60807b67331959e8c7fd0fc07e3b8be0` passed GitHub Validation
+(run #793). The post-merge journey scan found no additional demonstrated
+repository-owned mechanical discontinuity inside the bounded
+premise -> accepted Chapter 1 responsibility.
 
-Provider availability remains an infrastructure prerequisite for prose
-generation. Human prose-quality and real-beginner usability remain
-post-construction validation gates. No release qualification is implied.
+The claim is intentionally bounded: prose generation requires a configured
+provider runtime, so provider credentials / adapter availability remain an
+external infrastructure prerequisite. Human prose quality and real-beginner
+usability remain human-validation questions and are not claimed. Chapter 2,
+release qualification, publication, and new narrative architecture are not
+implicitly selected by this closure.
+
+The next repository package should therefore require new concrete workflow
+evidence or explicit product-lane selection rather than extending this package
+by momentum.
 
 ## Previous Completed Responsibility
+
+**BEGINNER_CHAPTER1_HTTP_CONTINUITY_REPAIR — COMPLETED / MERGED AS PR #289 /
+EXACT-HEAD L1 GREEN** — the post-merge re-check of PR #288 found that
+`draft-chapter-1` was registered and rendered but omitted from the server's rich
+command-dispatch set. PR #289 repairs that boundary and adds an HTTP-level
+regression proving candidate generation reaches the owning application workflow
+without creating `final.md`.
 
 **BEGINNER_CHAPTER1_PRODUCTION_CONTINUITY — IMPLEMENTED / MERGED AS PR #288** —
 accepted scene plans can now compose the existing Bard, critic, post-draft, and
