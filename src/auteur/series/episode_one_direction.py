@@ -28,6 +28,7 @@ from auteur.identity import StoryIdentity
 from auteur.series.vertical_slice_models import (
     AcceptedSeriesDirection,
     ArtifactRef,
+    DirectionCommitment,
 )
 
 
@@ -119,6 +120,71 @@ class EpisodeDirectionAcceptance(BaseModel):
 
     accepted: AcceptedEpisodeDirection
     changed: bool
+
+
+class EpisodeOneDirectionInspection(BaseModel):
+    """Read-only inspection projection for Episode 1 Direction.
+
+    Carries only derived/view content. Authority lives in the accepted
+    artifacts; this projection must never be treated as authoritative. Series
+    content and Episode content are separate fields, and the Episode is never
+    labelled as a Book.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    series_title: str | None = None
+    entry_form_present: bool = False
+    declaring_author: str | None = None
+    episode_direction_present: bool = False
+    episode_title: str | None = None
+    referenced_commitments: list[DirectionCommitment] = Field(
+        default_factory=list
+    )
+
+
+def describe_episode_one_direction_inspection(
+    accepted_series: AcceptedSeriesDirection | None,
+    entry_form: AcceptedEpisodicEntryForm | None,
+    accepted_episode: AcceptedEpisodeDirection | None,
+) -> EpisodeOneDirectionInspection:
+    """Build the Episode 1 Direction inspection projection.
+
+    Reports the absence clearly when no Episode 1 Direction has been
+    accepted. Referenced commitments are resolved against the accepted
+    Series Direction for display only.
+    """
+    series_title = (
+        accepted_series.direction.title if accepted_series is not None else None
+    )
+    by_id = (
+        {c.commitment_id: c for c in accepted_series.direction.commitments}
+        if accepted_series is not None
+        else {}
+    )
+    referenced: list[DirectionCommitment] = []
+    if accepted_episode is not None:
+        referenced = [
+            by_id[cid]
+            for cid in accepted_episode.direction.series_commitment_ids
+            if cid in by_id
+        ]
+    return EpisodeOneDirectionInspection(
+        series_title=series_title,
+        entry_form_present=entry_form is not None,
+        declaring_author=(
+            entry_form.declaration.declaring_author
+            if entry_form is not None
+            else None
+        ),
+        episode_direction_present=accepted_episode is not None,
+        episode_title=(
+            accepted_episode.direction.identity.title
+            if accepted_episode is not None
+            else None
+        ),
+        referenced_commitments=referenced,
+    )
 
 
 def require_unique_references(direction: EpisodeDirection) -> None:
