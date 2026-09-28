@@ -27,7 +27,7 @@ The PR #233 stabilization checkpoint recorded the prior baseline lint dispositio
 
 ## Current Selected Responsibility
 
-**NO FURTHER REPOSITORY WORK SELECTED — CHAPTER 1 CONTINUITY CLOSED.**
+**CHAPTER 1 CONTINUITY CLOSED; EPISODE 1 DIRECTION IMPLEMENTED (see Serial / Episode Posture). No further repository work selected beyond the open follow-ups below.**
 
 PR #289 is merged on `main @ e6700044d5813bcb2041714f7c6bed6cdb128aee`.
 Its exact pre-merge head
@@ -391,8 +391,9 @@ The next product package should again be selected from new claim-appropriate wor
 - Current Author Intent if relevance friction appears;
 - demand-driven Story Design Pack growth;
 - Existing-Manuscript Reverse Engineering;
-- Book-Level Reasoning and Editing;
-- bounded Episode 1 Direction reconstruction when the serial lane is deliberately selected.
+- Book-Level Reasoning and Editing.
+(Bounded Episode 1 Direction was a candidate here; it is now implemented —
+see Serial / Episode Posture.)
 
 A small discoverability follow-up may also be warranted if beginner use shows the new workspace/decision surfaces are hard to find from root CLI help. That is a UX problem, not a reason for new narrative architecture.
 
@@ -401,6 +402,10 @@ A small discoverability follow-up may also be warranted if beginner use shows th
 Historical PR #167 is **closed / not merged / superseded**. Its bounded Episode 1 Direction contract remains useful, but the old 4k-line implementation is not contemporary production evidence.
 
 Fresh issue #218 preserves the reconstruction contract: Episode 1 remains a Series-scope, Identity-layer entry-unit Direction artifact for explicitly episodic Series and **does not become a sixth canonical scope**. Any future implementation must start from contemporary `main` in bounded packages.
+
+### Episode 1 Direction implementation (2026-09-28)
+
+Bounded Episode 1 Direction is now implemented on `main @ a9cdd62` (stack #291 → #292 → #293, owner-delegated merges; fix `ec972f5` included). Qualification: L1 focused validation per PR plus the full `tests/test_series_*.py` suite (314 passed: 72 + 132 + 110) run on the merged head as the L2 Series gate — **AGENT-RUN, not CI**. Stabilization run `36370311870` on `a9cdd62` is **FAILED** on pre-existing `narrative_realization/test_layer3_integration.py` knowledge-gap failures, proven identical on pre-stack base `489abad` (zero file overlap with the Episode stack). Issue #218 remains OPEN: closing it waits on a green full requalification (Linux + Windows + verification + wheel) and the contract's human-validation boundary (workflow coherence, lock timing, inspection obviousness, duplicate-rejection expectations); neither is claimed here.
 
 Broader Episode 2+/season expansion remains subject to the separate long-horizon evidence gate.
 
