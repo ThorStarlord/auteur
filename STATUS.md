@@ -402,6 +402,10 @@ Historical PR #167 is **closed / not merged / superseded**. Its bounded Episode 
 
 Fresh issue #218 preserves the reconstruction contract: Episode 1 remains a Series-scope, Identity-layer entry-unit Direction artifact for explicitly episodic Series and **does not become a sixth canonical scope**. Any future implementation must start from contemporary `main` in bounded packages.
 
+### Episode 1 Direction implementation (2026-09-28)
+
+Bounded Episode 1 Direction is now implemented on `main @ a9cdd62` (stack #291 → #292 → #293, owner-delegated merges; fix `ec972f5` included). Qualification: L1 focused validation per PR plus the full `tests/test_series_*.py` suite (314 passed) run on the merged head as the L2 Series gate. Issue #218 remains OPEN: closing it waits on the Linux + Windows + verification + wheel requalification and the contract's human-validation boundary (workflow coherence, lock timing, inspection obviousness, duplicate-rejection expectations); neither is claimed here.
+
 Broader Episode 2+/season expansion remains subject to the separate long-horizon evidence gate.
 
 ## Long-Horizon Campaign Posture
