@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from auteur.series.repeated_map_focus import AcceptedHistorySnapshot, selection_token_display
+from auteur.series.episode_one_direction import EpisodeOneDirectionInspection
 from auteur.series.productization import (
     AuthorFocusReport,
     RevisionImpactReport,
@@ -510,4 +511,57 @@ def format_series_continuity_review(
             for key, value in report.current_state_evidence.items()
         )
         lines.append(f"Map snapshot: {report.map_snapshot_id}")
+    return "\n".join(lines)
+
+
+def format_episode_one_direction_inspection(
+    inspection: EpisodeOneDirectionInspection, *, detail: bool = False
+) -> str:
+    """Render the Episode 1 Direction inspection view.
+
+    Series content and Episode content are separate sections, and the Episode
+    is never labelled as a Book. Default output omits identifiers; ``detail``
+    exposes them. Absence is reported clearly when nothing is accepted.
+    """
+    lines = [
+        "SERIES DIRECTION",
+        (
+            f"  {inspection.series_title}"
+            if inspection.series_title is not None
+            else "  (none accepted)"
+        ),
+        "",
+        "ENTRY FORM",
+    ]
+    if not inspection.entry_form_present:
+        lines.append("  Book-oriented (no episodic declaration).")
+        lines.append("")
+        lines.append("EPISODE 1 DIRECTION")
+        lines.append(
+            "  Unavailable: Episode 1 Direction requires an explicitly "
+            "episodic Series."
+        )
+        return "\n".join(lines)
+    lines.append(
+        f"  Episodic (declared by {inspection.declaring_author})."
+    )
+    lines.append("")
+    lines.append("EPISODE 1 DIRECTION")
+    if not inspection.episode_direction_present:
+        lines.append("  (none accepted yet)")
+        if detail:
+            lines.append("  Artifact: episode-1-direction (absent).")
+        return "\n".join(lines)
+    lines.append(f"  {inspection.episode_title}")
+    lines.append("  Referenced Series commitments:")
+    for commitment in inspection.referenced_commitments:
+        lines.append(
+            f"    - {commitment.commitment_id}: {commitment.statement}"
+        )
+    for stale_id in inspection.stale_commitment_ids:
+        lines.append(
+            f"    - {stale_id}: (stale: not in current accepted Series Direction)"
+        )
+    if detail:
+        lines.append("  Artifact: episode-1-direction.")
     return "\n".join(lines)

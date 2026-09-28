@@ -52,7 +52,9 @@ from auteur.series.episode_one_direction import (
     EpisodeDirection,
     EpisodeDirectionAcceptance,
     EpisodeDirectionProposal,
+    EpisodeOneDirectionInspection,
     EpisodicEntryFormDeclaration,
+    describe_episode_one_direction_inspection,
     require_entry_form_eligibility,
     require_episodic_for_episode_direction,
     validate_episode_references,
@@ -379,6 +381,15 @@ class SeriesVerticalSliceService:
         self,
     ) -> ArtifactMetadata | None:
         return self.store.load_episode_direction_metadata()
+
+    def inspect_episode_direction(
+        self,
+    ) -> EpisodeOneDirectionInspection:
+        return describe_episode_one_direction_inspection(
+            self.load_accepted_series_direction(),
+            self.store.load_accepted_episodic_entry_form(),
+            self.store.load_accepted_episode_direction(),
+        )
 
     def propose_realization(
         self, candidate: RealizationCandidate
