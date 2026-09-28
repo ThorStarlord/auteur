@@ -31,6 +31,11 @@ from auteur.series.vertical_slice_models import (
     RepeatedBookPlanningContext,
     SeriesDirectionProposal,
 )
+from auteur.series.episode_one_direction import (
+    AcceptedEpisodeDirection,
+    AcceptedEpisodicEntryForm,
+    EpisodeDirectionProposal,
+)
 
 
 _PATH_SAFE_IDENTIFIER = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*\Z")
@@ -68,6 +73,46 @@ class VerticalSliceStore:
         if book_number < 1:
             raise ValueError("Book number must be at least 1")
         return self.root / "accepted" / f"book-{book_number}-direction.yaml"
+
+    @property
+    def accepted_episodic_entry_form_path(self) -> Path:
+        return self.root / "accepted" / "series-entry-form.yaml"
+
+    @property
+    def accepted_episode_direction_path(self) -> Path:
+        return self.root / "accepted" / "episode-1-direction.yaml"
+
+    def episode_direction_proposal_path(self, proposal_id: str) -> Path:
+        if not proposal_id or Path(proposal_id).name != proposal_id:
+            raise FileNotFoundError(
+                f"Unknown Episode 1 Direction proposal: {proposal_id}"
+            )
+        return (
+            self.root
+            / "proposals"
+            / "episode-direction"
+            / f"{proposal_id}.yaml"
+        )
+
+    def has_book_direction_work(self) -> tuple[bool, bool]:
+        """Report whether any Book Direction work exists.
+
+        Returns ``(has_proposal, has_accepted)``. Used to lock the entry form
+        once entry-level Direction work has begun in either form.
+        """
+        proposal_root = self.root / "proposals" / "book-direction"
+        has_proposal = (
+            any(proposal_root.glob("book-*/*.yaml"))
+            if proposal_root.is_dir()
+            else False
+        )
+        accepted_root = self.root / "accepted"
+        has_accepted = (
+            any(accepted_root.glob("book-*-direction.yaml"))
+            if accepted_root.is_dir()
+            else False
+        )
+        return has_proposal, has_accepted
 
     @property
     def canonical_state_path(self) -> Path:
@@ -199,6 +244,23 @@ class VerticalSliceStore:
             )
         return matches[0]
 
+    def _find_episode_direction_proposal_path(self, proposal_id: str) -> Path:
+        if not proposal_id or Path(proposal_id).name != proposal_id:
+            raise FileNotFoundError(
+                f"Unknown Episode 1 Direction proposal: {proposal_id}"
+            )
+        proposal_root = self.root / "proposals" / "episode-direction"
+        matches = [
+            path
+            for path in proposal_root.glob("*.yaml")
+            if path.stem == proposal_id
+        ]
+        if len(matches) != 1:
+            raise FileNotFoundError(
+                f"Unknown Episode 1 Direction proposal: {proposal_id}"
+            )
+        return matches[0]
+
     def _write_model(self, path: Path, model: BaseModel) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         rendered = yaml.safe_dump(model.model_dump(mode="json"), sort_keys=False)
@@ -282,6 +344,22 @@ class VerticalSliceStore:
     ) -> BookDirectionProposal:
         path = self._find_book_direction_proposal_path(proposal_id)
         return BookDirectionProposal.model_validate(
+            yaml.safe_load(path.read_text(encoding="utf-8"))
+        )
+
+    def save_episode_direction_proposal(
+        self, proposal: EpisodeDirectionProposal
+    ) -> None:
+        self._write_model(
+            self.episode_direction_proposal_path(proposal.proposal_id),
+            proposal,
+        )
+
+    def load_episode_direction_proposal(
+        self, proposal_id: str
+    ) -> EpisodeDirectionProposal:
+        path = self._find_episode_direction_proposal_path(proposal_id)
+        return EpisodeDirectionProposal.model_validate(
             yaml.safe_load(path.read_text(encoding="utf-8"))
         )
 
@@ -633,6 +711,174 @@ class VerticalSliceStore:
             raise ValueError(
                 "Invalid accepted Series Direction dependency revision"
             )
+
+    def _load_series_dependent_raw(
+        self, path: Path, artifact_type: str
+    ) -> dict | None:
+        if not path.is_file():
+            return None
+        metadata = self.artifact_store.current(path.stem)
+        if (
+            metadata is None
+            or metadata.lifecycle is not Lifecycle.ACCEPTED
+            or metadata.artifact_id != path.stem
+            or metadata.artifact_type != artifact_type
+            or self.artifact_store.content_hash(path) != metadata.content_hash
+            or len(metadata.dependencies) != 1
+        ):
+            return None
+        dependency = metadata.dependencies[0]
+        expected_dependency_path = str(
+            self.accepted_series_direction_path.resolve().relative_to(
+                self.project_root.resolve()
+            )
+        )
+        if (
+            dependency.artifact_id != self.accepted_series_direction_path.stem
+            or dependency.artifact_type != "series_direction"
+            or dependency.kind is not DependencyKind.SEMANTIC
+            or dependency.source is not DependencySource.DECLARED
+            or dependency.path != expected_dependency_path
+            or dependency.revision is None
+            or dependency.fields != []
+            or dependency.projection.id != "full"
+            or dependency.projection.fields != []
+        ):
+            return None
+        series_revision = self._load_accepted_series_revision(
+            dependency.artifact_id, dependency.revision
+        )
+        if (
+            series_revision is None
+            or dependency.full_content_hash != series_revision.content_hash
+            or dependency.projected_hash != dependency.full_content_hash
+        ):
+            return None
+        return yaml.safe_load(path.read_text(encoding="utf-8"))
+
+    def _save_accepted_series_dependent(
+        self,
+        path: Path,
+        artifact_type: str,
+        model: BaseModel,
+        *,
+        series_source: ArtifactRef,
+        accepted_by: str,
+        rationale: str | None,
+    ) -> ArtifactMetadata:
+        self._validate_current_series_dependency(series_source)
+        staged_path = path.parent / ".staging" / path.name
+        artifact_id = staged_path.stem
+        sidecar = self.artifact_store.sidecar_path(artifact_id)
+        previous_sidecar = sidecar.read_bytes() if sidecar.is_file() else None
+        previous_revisions = set(self.artifact_store.list_revisions(artifact_id))
+        dependencies = [
+            DependencySpec(
+                artifact_id=self.accepted_series_direction_path.stem,
+                artifact_type="series_direction",
+                path=self.accepted_series_direction_path,
+                kind=DependencyKind.SEMANTIC,
+                source=DependencySource.DECLARED,
+            )
+        ]
+        try:
+            self._write_model(staged_path, model)
+            metadata = self.artifact_store.accept(
+                staged_path,
+                artifact_type,
+                dependencies=dependencies,
+                accepted_by=accepted_by,
+                rationale=rationale,
+                record_accepted_at=True,
+            )
+            if metadata is None:
+                raise RuntimeError(
+                    f"Accepted {artifact_type} metadata is archived"
+                )
+            staged_path.replace(path)
+            return metadata
+        except Exception:
+            self._restore_artifact_metadata(
+                artifact_id, previous_sidecar, previous_revisions
+            )
+            raise
+        finally:
+            staged_path.unlink(missing_ok=True)
+            staged_path.with_suffix(".tmp").unlink(missing_ok=True)
+            try:
+                staged_path.parent.rmdir()
+            except OSError:
+                pass
+
+    def save_accepted_episodic_entry_form(
+        self,
+        accepted: AcceptedEpisodicEntryForm,
+        *,
+        series_source: ArtifactRef,
+        accepted_by: str,
+        rationale: str | None,
+    ) -> ArtifactMetadata:
+        return self._save_accepted_series_dependent(
+            self.accepted_episodic_entry_form_path,
+            "episodic_entry_form",
+            accepted,
+            series_source=series_source,
+            accepted_by=accepted_by,
+            rationale=rationale,
+        )
+
+    def load_accepted_episodic_entry_form(
+        self,
+    ) -> AcceptedEpisodicEntryForm | None:
+        raw = self._load_series_dependent_raw(
+            self.accepted_episodic_entry_form_path, "episodic_entry_form"
+        )
+        if raw is None:
+            return None
+        accepted = AcceptedEpisodicEntryForm.model_validate(raw)
+        if accepted.artifact_id != self.accepted_episodic_entry_form_path.stem:
+            return None
+        return accepted
+
+    def load_episodic_entry_form_metadata(self) -> ArtifactMetadata | None:
+        return self.artifact_store.current(
+            self.accepted_episodic_entry_form_path.stem
+        )
+
+    def save_accepted_episode_direction(
+        self,
+        accepted: AcceptedEpisodeDirection,
+        *,
+        series_source: ArtifactRef,
+        accepted_by: str,
+        rationale: str | None,
+    ) -> ArtifactMetadata:
+        return self._save_accepted_series_dependent(
+            self.accepted_episode_direction_path,
+            "episode_direction",
+            accepted,
+            series_source=series_source,
+            accepted_by=accepted_by,
+            rationale=rationale,
+        )
+
+    def load_accepted_episode_direction(
+        self,
+    ) -> AcceptedEpisodeDirection | None:
+        raw = self._load_series_dependent_raw(
+            self.accepted_episode_direction_path, "episode_direction"
+        )
+        if raw is None:
+            return None
+        accepted = AcceptedEpisodeDirection.model_validate(raw)
+        if accepted.artifact_id != self.accepted_episode_direction_path.stem:
+            return None
+        return accepted
+
+    def load_episode_direction_metadata(self) -> ArtifactMetadata | None:
+        return self.artifact_store.current(
+            self.accepted_episode_direction_path.stem
+        )
 
     def save_accepted_book_direction(
         self,

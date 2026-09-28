@@ -107,6 +107,20 @@ class AcceptedEpisodeDirection(BaseModel):
     direction: EpisodeDirection
 
 
+class EpisodeDirectionAcceptance(BaseModel):
+    """Result of an Episode 1 Direction acceptance action.
+
+    ``changed`` is False when an already-accepted, content-identical Episode 1
+    Direction was found; callers and the CLI present that explicitly as a
+    no-change result, distinct from a first acceptance.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    accepted: AcceptedEpisodeDirection
+    changed: bool
+
+
 def require_unique_references(direction: EpisodeDirection) -> None:
     """Reject duplicate Series commitment references.
 

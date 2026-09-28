@@ -46,6 +46,17 @@ from auteur.series.vertical_slice_models import (
     SeriesDirection,
     SeriesDirectionProposal,
 )
+from auteur.series.episode_one_direction import (
+    AcceptedEpisodeDirection,
+    AcceptedEpisodicEntryForm,
+    EpisodeDirection,
+    EpisodeDirectionAcceptance,
+    EpisodeDirectionProposal,
+    EpisodicEntryFormDeclaration,
+    require_entry_form_eligibility,
+    require_episodic_for_episode_direction,
+    validate_episode_references,
+)
 from auteur.series.vertical_slice_store import VerticalSliceStore
 
 
@@ -148,6 +159,10 @@ class SeriesVerticalSliceService:
     def propose_book_direction(
         self, book_direction: BookDirection
     ) -> BookDirectionProposal:
+        if self.store.load_accepted_episodic_entry_form() is not None:
+            raise ValueError(
+                "Book Direction is unavailable for an explicitly episodic Series"
+            )
         accepted_series, series_metadata = self._accepted_series_source()
         self._validate_series_commitments(book_direction, accepted_series)
         proposal = BookDirectionProposal(
@@ -176,6 +191,10 @@ class SeriesVerticalSliceService:
         accepted_by: str,
         rationale: str | None = None,
     ) -> AcceptedBookDirection:
+        if self.store.load_accepted_episodic_entry_form() is not None:
+            raise ValueError(
+                "Book Direction is unavailable for an explicitly episodic Series"
+            )
         proposal = self.load_book_direction_proposal(proposal_id)
         accepted_series, series_metadata = self._accepted_series_source()
         self._validate_series_commitments(proposal.direction, accepted_series)
@@ -228,6 +247,138 @@ class SeriesVerticalSliceService:
             artifact_id=accepted.artifact_id,
             revision=metadata.revision,
         )
+
+    def _accepted_series_for_entry_form(
+        self,
+    ) -> AcceptedSeriesDirection | None:
+        accepted = self.load_accepted_series_direction()
+        metadata = self.load_series_direction_metadata()
+        if accepted is None or metadata is None:
+            return None
+        return accepted
+
+    def declare_series_episodic(
+        self, *, declaring_author: str, rationale: str | None = None
+    ) -> AcceptedEpisodicEntryForm:
+        accepted_series = self._accepted_series_for_entry_form()
+        has_proposal, has_accepted_book = self.store.has_book_direction_work()
+        require_entry_form_eligibility(
+            accepted_series,
+            has_book_direction_proposal=has_proposal,
+            has_accepted_book_direction=has_accepted_book,
+        )
+        existing = self.store.load_accepted_episodic_entry_form()
+        if existing is not None:
+            return existing
+        series_metadata = self.load_series_direction_metadata()
+        if accepted_series is None or series_metadata is None:
+            raise ValueError(
+                "An accepted Series Direction is required before declaring "
+                "an episodic entry form"
+            )
+        series_ref = ArtifactRef(
+            artifact_id=accepted_series.artifact_id,
+            revision=series_metadata.revision,
+        )
+        declaration = EpisodicEntryFormDeclaration(
+            declaration_id="series-entry-form",
+            declaring_author=declaring_author,
+            declared_at=datetime.now(timezone.utc),
+            series_direction=series_ref,
+        )
+        accepted = AcceptedEpisodicEntryForm(
+            artifact_id="series-entry-form",
+            declaration=declaration,
+        )
+        self.store.save_accepted_episodic_entry_form(
+            accepted,
+            series_source=series_ref,
+            accepted_by=declaring_author,
+            rationale=rationale,
+        )
+        return accepted
+
+    def load_accepted_episodic_entry_form(
+        self,
+    ) -> AcceptedEpisodicEntryForm | None:
+        return self.store.load_accepted_episodic_entry_form()
+
+    def propose_episode_direction(
+        self, direction: EpisodeDirection
+    ) -> EpisodeDirectionProposal:
+        require_episodic_for_episode_direction(
+            self.store.load_accepted_episodic_entry_form()
+        )
+        accepted_series, series_metadata = self._accepted_series_source()
+        validate_episode_references(direction, accepted_series)
+        proposal = EpisodeDirectionProposal(
+            proposal_id=f"episode-direction-{uuid4().hex}",
+            revision=1,
+            direction=direction,
+            source_refs=[
+                ArtifactRef(
+                    artifact_id=accepted_series.artifact_id,
+                    revision=series_metadata.revision,
+                )
+            ],
+        )
+        self.store.save_episode_direction_proposal(proposal)
+        return proposal
+
+    def load_episode_direction_proposal(
+        self, proposal_id: str
+    ) -> EpisodeDirectionProposal:
+        return self.store.load_episode_direction_proposal(proposal_id)
+
+    def accept_episode_direction(
+        self,
+        proposal_id: str,
+        *,
+        accepted_by: str,
+        rationale: str | None = None,
+    ) -> EpisodeDirectionAcceptance:
+        require_episodic_for_episode_direction(
+            self.store.load_accepted_episodic_entry_form()
+        )
+        proposal = self.load_episode_direction_proposal(proposal_id)
+        accepted_series, series_metadata = self._accepted_series_source()
+        validate_episode_references(proposal.direction, accepted_series)
+        current_source = ArtifactRef(
+            artifact_id=accepted_series.artifact_id,
+            revision=series_metadata.revision,
+        )
+        if proposal.source_refs != [current_source]:
+            raise ValueError(
+                "Episode 1 Direction proposal does not reference the current "
+                "accepted Series Direction revision"
+            )
+        existing = self.store.load_accepted_episode_direction()
+        if existing is not None and existing.direction == proposal.direction:
+            return EpisodeDirectionAcceptance(
+                accepted=existing, changed=False
+            )
+        accepted = AcceptedEpisodeDirection(
+            artifact_id="episode-1-direction",
+            proposal_id=proposal.proposal_id,
+            direction=proposal.direction,
+        )
+        self.store.save_accepted_episode_direction(
+            accepted,
+            series_source=proposal.source_refs[0],
+            accepted_by=accepted_by,
+            rationale=rationale,
+        )
+        return EpisodeDirectionAcceptance(accepted=accepted, changed=True)
+
+    def load_accepted_episode_direction(
+        self,
+    ) -> AcceptedEpisodeDirection | None:
+        return self.store.load_accepted_episode_direction()
+
+    def load_episode_direction_metadata(
+        self,
+    ) -> ArtifactMetadata | None:
+        return self.store.load_episode_direction_metadata()
 
     def propose_realization(
         self, candidate: RealizationCandidate
