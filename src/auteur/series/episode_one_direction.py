@@ -114,6 +114,12 @@ class EpisodeDirectionAcceptance(BaseModel):
     ``changed`` is False when an already-accepted, content-identical Episode 1
     Direction was found; callers and the CLI present that explicitly as a
     no-change result, distinct from a first acceptance.
+
+    Decided rule (owner disposition 2026-09-28): content identity governs.
+    Accepting a different proposal ID with byte-identical direction content
+    yields no new authoritative revision. A new revision requires a new
+    proposal with materially different direction content plus explicit
+    acceptance.
     """
 
     model_config = ConfigDict(extra="forbid")
@@ -141,6 +147,7 @@ class EpisodeOneDirectionInspection(BaseModel):
     referenced_commitments: list[DirectionCommitment] = Field(
         default_factory=list
     )
+    stale_commitment_ids: list[str] = Field(default_factory=list)
 
 
 def describe_episode_one_direction_inspection(
@@ -152,7 +159,10 @@ def describe_episode_one_direction_inspection(
 
     Reports the absence clearly when no Episode 1 Direction has been
     accepted. Referenced commitments are resolved against the accepted
-    Series Direction for display only.
+    Series Direction for display only. Commitment IDs recorded on the
+    accepted Episode that no longer resolve against the current accepted
+    Series Direction are surfaced explicitly as stale rather than silently
+    omitted, so the view never misrepresents what was accepted.
     """
     series_title = (
         accepted_series.direction.title if accepted_series is not None else None
@@ -163,11 +173,17 @@ def describe_episode_one_direction_inspection(
         else {}
     )
     referenced: list[DirectionCommitment] = []
+    stale: list[str] = []
     if accepted_episode is not None:
         referenced = [
             by_id[cid]
             for cid in accepted_episode.direction.series_commitment_ids
             if cid in by_id
+        ]
+        stale = [
+            cid
+            for cid in accepted_episode.direction.series_commitment_ids
+            if cid not in by_id
         ]
     return EpisodeOneDirectionInspection(
         series_title=series_title,
@@ -184,6 +200,7 @@ def describe_episode_one_direction_inspection(
             else None
         ),
         referenced_commitments=referenced,
+        stale_commitment_ids=stale,
     )
 
 

@@ -1,9 +1,10 @@
 """CLI and inspection tests for bounded Episode 1 Direction.
 
-Covers acceptance invariants 12-13 of the ratified capability contract: the
+Covers acceptance invariant 12 of the ratified capability contract: the
 inspection view distinguishes Series-level and Episode-level content, lists
 the referenced commitments, never labels the Episode as Book, and reports a
-clean absence; an existing Book-oriented project is untouched.
+clean absence. Invariant 13 (byte-stability) is covered in
+test_series_episode_one_direction_service.py.
 """
 
 from __future__ import annotations

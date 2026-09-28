@@ -558,6 +558,10 @@ def format_episode_one_direction_inspection(
         lines.append(
             f"    - {commitment.commitment_id}: {commitment.statement}"
         )
+    for stale_id in inspection.stale_commitment_ids:
+        lines.append(
+            f"    - {stale_id}: (stale: not in current accepted Series Direction)"
+        )
     if detail:
         lines.append("  Artifact: episode-1-direction.")
     return "\n".join(lines)

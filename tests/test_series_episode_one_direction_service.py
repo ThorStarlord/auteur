@@ -199,3 +199,163 @@ def test_acceptance_is_all_or_nothing(tmp_path: Path, monkeypatch) -> None:
 
     assert service.load_accepted_episode_direction() is None
     assert service.load_episode_direction_metadata() is None
+
+
+def test_entry_form_acceptance_is_all_or_nothing(
+    tmp_path: Path, monkeypatch
+) -> None:
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_series(service)
+
+    def boom(*args, **kwargs):
+        raise RuntimeError("injected entry-form failure")
+
+    monkeypatch.setattr(service.store.artifact_store, "accept", boom)
+    with pytest.raises(RuntimeError, match="injected entry-form failure"):
+        service.declare_series_episodic(declaring_author="author")
+
+    assert service.load_accepted_episodic_entry_form() is None
+    assert service.store.load_episodic_entry_form_metadata() is None
+
+
+def test_accept_rejects_unknown_reference_at_acceptance_time(
+    tmp_path: Path,
+) -> None:
+    from auteur.series.episode_one_direction import EpisodeDirectionProposal
+    from auteur.series.vertical_slice_models import ArtifactRef
+
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_series(service)
+    service.declare_series_episodic(declaring_author="author")
+    accepted_series = service.load_accepted_series_direction()
+    metadata = service.load_series_direction_metadata()
+    assert accepted_series is not None and metadata is not None
+    bad = episode_direction(["not-a-current-commitment"])
+    proposal = EpisodeDirectionProposal(
+        proposal_id="episode-direction-stale-accept",
+        revision=1,
+        direction=bad,
+        source_refs=[
+            ArtifactRef(
+                artifact_id=accepted_series.artifact_id,
+                revision=metadata.revision,
+            )
+        ],
+    )
+    service.store.save_episode_direction_proposal(proposal)
+    with pytest.raises(ValueError, match="Unknown accepted Series commitment"):
+        service.accept_episode_direction(proposal.proposal_id, accepted_by="author")
+    assert service.load_accepted_episode_direction() is None
+
+
+def test_different_proposal_identical_content_is_no_change(
+    tmp_path: Path,
+) -> None:
+    from auteur.series.episode_one_direction import EpisodeDirectionProposal
+    from auteur.series.vertical_slice_models import ArtifactRef
+
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_series(service)
+    service.declare_series_episodic(declaring_author="author")
+    proposal = service.propose_episode_direction(
+        episode_direction([first_commitment_id()])
+    )
+    first = service.accept_episode_direction(
+        proposal.proposal_id, accepted_by="author"
+    )
+    assert first.changed is True
+    accepted_series = service.load_accepted_series_direction()
+    metadata = service.load_series_direction_metadata()
+    assert accepted_series is not None and metadata is not None
+    twin = EpisodeDirectionProposal(
+        proposal_id="episode-direction-twin-content",
+        revision=1,
+        direction=proposal.direction,
+        source_refs=[
+            ArtifactRef(
+                artifact_id=accepted_series.artifact_id,
+                revision=metadata.revision,
+            )
+        ],
+    )
+    service.store.save_episode_direction_proposal(twin)
+    second = service.accept_episode_direction(twin.proposal_id, accepted_by="author")
+    assert second.changed is False
+    assert second.accepted == first.accepted
+
+
+def test_book_oriented_project_byte_stable_across_episode_paths(
+    tmp_path: Path, capsys
+) -> None:
+    from auteur.cli import main
+
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_series(service)
+    book_proposal = service.propose_book_direction(load_book())
+    service.accept_book_direction(book_proposal.proposal_id, accepted_by="author")
+    series_hash_before = service.store.artifact_store.content_hash(
+        service.store.accepted_series_direction_path
+    )
+    book_hash_before = service.store.artifact_store.content_hash(
+        service.store.accepted_book_direction_path(1)
+    )
+    assert (
+        main(["series", "journey", "inspect-episode", str(tmp_path)]) == 0
+    )
+    assert "Book-oriented" in capsys.readouterr().out
+    assert service.load_accepted_book_direction(1) is not None
+    assert (
+        service.store.artifact_store.content_hash(
+            service.store.accepted_series_direction_path
+        )
+        == series_hash_before
+    )
+    assert (
+        service.store.artifact_store.content_hash(
+            service.store.accepted_book_direction_path(1)
+        )
+        == book_hash_before
+    )
+
+
+def test_inspection_reports_stale_commitments(tmp_path: Path) -> None:
+    from auteur.series.episode_one_direction import (
+        describe_episode_one_direction_inspection,
+    )
+    from auteur.series.vertical_slice_formatters import (
+        format_episode_one_direction_inspection,
+    )
+
+    service = SeriesVerticalSliceService(tmp_path)
+    accept_series(service)
+    service.declare_series_episodic(declaring_author="author")
+    proposal = service.propose_episode_direction(
+        episode_direction([first_commitment_id()])
+    )
+    service.accept_episode_direction(proposal.proposal_id, accepted_by="author")
+    accepted_episode = service.load_accepted_episode_direction()
+    assert accepted_episode is not None
+    current_series = service.load_accepted_series_direction()
+    assert current_series is not None
+    moved = current_series.model_copy(
+        update={
+            "direction": current_series.direction.model_copy(
+                update={
+                    "commitments": [
+                        c.model_copy(update={"commitment_id": "replaced-history"})
+                        for c in current_series.direction.commitments
+                    ]
+                }
+            )
+        }
+    )
+    inspection = describe_episode_one_direction_inspection(
+        moved,
+        service.load_accepted_episodic_entry_form(),
+        accepted_episode,
+    )
+    assert inspection.stale_commitment_ids == [first_commitment_id()]
+    assert inspection.referenced_commitments == []
+    rendered = format_episode_one_direction_inspection(inspection)
+    assert "stale" in rendered
+    assert first_commitment_id() in rendered
