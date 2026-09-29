@@ -221,15 +221,16 @@ Current Author Intent
 
 Guardrails: local/noncanonical by default; never silently promoted into accepted Direction; prefer plain-language author input; do not build a universal intent ontology without recurring evidence.
 
-## CANDIDATE — Episode / Serial Entry Progression
-**State:** `CANDIDATE`, bounded and deliberately separate from general long-horizon expansion.
+## SHIPPED — Bounded Episode 1 Direction
+**State:** `SHIPPED` in the roadmap sense (implemented/merged); qualification and human-validation follow-ups remain open under issue #218 and `STATUS.md`.
 
-Historical PR #167 is closed/superseded and must not be transplanted into current `main`. Fresh issue #218 preserves the ratified Episode 1 capability contract for contemporary reconstruction when the serial lane is deliberately selected.
+Historical PR #167 remains closed/superseded and was not transplanted. Its ratified bounded contract was reconstructed on contemporary `main` through PRs #291 → #292 → #293.
 
 ```text
-reconcile Episode 1 contract with current Series architecture
-→ smallest bounded Episode 1 Direction package
-→ qualify on contemporary main
+bounded Episode 1 Direction implemented on contemporary Series architecture
+→ repair unrelated L3 regression blocker
+→ green full requalification on the required platform / verification stack
+→ bounded human validation of workflow semantics
 → real serial use
 → observe whether Episode 2+ is actually needed
 ```
