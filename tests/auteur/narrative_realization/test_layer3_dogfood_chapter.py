@@ -121,8 +121,8 @@ class Chapter07SceneFactory:
             outcome=Outcome(
                 result="partial",
                 knowledge_added=[
-                    "archive access record was altered",
-                    "someone has capability to modify historical records",
+                    "Archive access record was altered",
+                    "Someone has capability to modify historical records",
                 ],
                 knowledge_questioned=["daniel_alibi_validity"],
                 emotional_shifts={"trust": "suspicion"},
@@ -149,6 +149,12 @@ class Chapter07SceneFactory:
                         how_known="perceived",
                         degree="certain",
                         source="document",
+                    ),
+                    KnowledgeFact(
+                        what="Someone has capability to modify historical records",
+                        how_known="inferred",
+                        degree="certain",
+                        source="inference",
                     ),
                 ],
                 emotional={
@@ -211,6 +217,12 @@ class Chapter07SceneFactory:
                         degree="certain",
                         source="document",
                     ),
+                    KnowledgeFact(
+                        what="Someone has capability to modify historical records",
+                        how_known="inferred",
+                        degree="certain",
+                        source="inference",
+                    ),
                 ],
                 emotional={
                     "trust": EmotionalState(
@@ -247,7 +259,7 @@ class Chapter07SceneFactory:
             outcome=Outcome(
                 result="partial",
                 knowledge_added=[
-                    "Daniel is aware of Elena's investigation",
+                    "Daniel is aware she is investigating the archive",
                     "Daniel's knowledge suggests he has other information sources",
                 ],
                 knowledge_questioned=[],
@@ -280,7 +292,19 @@ class Chapter07SceneFactory:
                         source="document",
                     ),
                     KnowledgeFact(
+                        what="Someone has capability to modify historical records",
+                        how_known="inferred",
+                        degree="certain",
+                        source="inference",
+                    ),
+                    KnowledgeFact(
                         what="Daniel is aware she is investigating the archive",
+                        how_known="inferred",
+                        degree="probable",
+                        source="inference",
+                    ),
+                    KnowledgeFact(
+                        what="Daniel's knowledge suggests he has other information sources",
                         how_known="inferred",
                         degree="probable",
                         source="inference",
@@ -346,7 +370,19 @@ class Chapter07SceneFactory:
                         source="document",
                     ),
                     KnowledgeFact(
+                        what="Someone has capability to modify historical records",
+                        how_known="inferred",
+                        degree="certain",
+                        source="inference",
+                    ),
+                    KnowledgeFact(
                         what="Daniel is aware she is investigating the archive",
+                        how_known="inferred",
+                        degree="probable",
+                        source="inference",
+                    ),
+                    KnowledgeFact(
+                        what="Daniel's knowledge suggests he has other information sources",
                         how_known="inferred",
                         degree="probable",
                         source="inference",
@@ -421,15 +457,33 @@ class Chapter07SceneFactory:
                         source="document",
                     ),
                     KnowledgeFact(
+                        what="Someone has capability to modify historical records",
+                        how_known="inferred",
+                        degree="certain",
+                        source="inference",
+                    ),
+                    KnowledgeFact(
                         what="Daniel is aware she is investigating the archive",
                         how_known="inferred",
                         degree="probable",
                         source="inference",
                     ),
                     KnowledgeFact(
-                        what="Elena must gather evidence before confronting Daniel",
+                        what="Daniel's knowledge suggests he has other information sources",
+                        how_known="inferred",
+                        degree="probable",
+                        source="inference",
+                    ),
+                    KnowledgeFact(
+                        what="Elena must build a case before confronting Daniel",
                         how_known="inferred",
                         degree="certain",
+                        source="inference",
+                    ),
+                    KnowledgeFact(
+                        what="She needs allies who can help without putting themselves at risk",
+                        how_known="inferred",
+                        degree="probable",
                         source="inference",
                     ),
                 ],
@@ -760,17 +814,17 @@ class TestEmotionalAndKnowledgeStateTracking:
         # Scene 1: discovers archive altered (entry has Daniel claim, exit adds discovery)
         scene1_facts = [f.what for f in scenes[0].exit_state.knowledge]
         assert "Archive access record was altered" in scene1_facts
-        assert len(scenes[0].exit_state.knowledge) == 2
+        assert len(scenes[0].exit_state.knowledge) == 3
 
-        # Scene 2: carries forward archive fact, adds Daniel awareness (3 total)
+        # Scene 2: carries all scene-1 facts and adds two explicit discoveries (5 total)
         scene2_facts = [f.what for f in scenes[1].exit_state.knowledge]
         assert "Daniel is aware she is investigating the archive" in scene2_facts
-        assert len(scenes[1].exit_state.knowledge) == 3  # Daniel claim + archive altered + Daniel aware
+        assert len(scenes[1].exit_state.knowledge) == 5
 
-        # Scene 3: carries forward all facts, adds strategy knowledge (4 total)
+        # Scene 3: carries all prior facts and adds two strategy facts (7 total)
         scene3_facts = [f.what for f in scenes[2].exit_state.knowledge]
-        assert "Elena must gather evidence before confronting Daniel" in scene3_facts
-        assert len(scenes[2].exit_state.knowledge) == 4  # All previous + strategy
+        assert "Elena must build a case before confronting Daniel" in scene3_facts
+        assert len(scenes[2].exit_state.knowledge) == 7
 
 
 # ---------------------------------------------------------------------------
