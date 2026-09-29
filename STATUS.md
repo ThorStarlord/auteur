@@ -1,6 +1,6 @@
 # Auteur — Repository Status
 
-**Last reconciled:** 2026-09-28  
+**Last reconciled:** 2026-09-28 — post-merge reconciliation for PRs #296 and #297  
 **Validation-policy activation baseline:** `main @ 8b53efdd99e0a67d375df0e828b32edc77643221`  
 **Behavior baseline reconciled:** `main @ c633d1b155ff72ef9ba502d4b7c9a294716fe98a` (post-draft continuation, Realization reconciliation, Beginner whole-book orientation, and bounded maintainability extractions merged)  
 **Current maintenance/product-evidence reconciliation baseline:** `main @ 1aebe090fb44dec82662d742d2d7cc911c428a32` (#248 paused at reassessment; #249 completed under the simulation-first policy; PR #281 reconciled the resulting no-product-package-selected state)  
@@ -27,25 +27,39 @@ The PR #233 stabilization checkpoint recorded the prior baseline lint dispositio
 
 ## Current Selected Responsibility
 
-**L3 STABILIZATION REPAIR IN REVIEW (#295 / PR #296); CHAPTER 1 CONTINUITY CLOSED; EPISODE 1 DIRECTION IMPLEMENTED. No new product-expansion responsibility is selected.**
+**FORMAL L3 REQUALIFICATION PENDING (#295); CHAPTER 1 CONTINUITY CLOSED; EPISODE 1 DIRECTION IMPLEMENTED; CANONICAL NARRATIVE CONTRACTS RECONCILED. No new product-expansion responsibility is selected.**
 
-PR #289 is merged on `main @ e6700044d5813bcb2041714f7c6bed6cdb128aee`.
-Its exact pre-merge head
-`690bb90a60807b67331959e8c7fd0fc07e3b8be0` passed GitHub Validation
-(run #793). The post-merge journey scan found no additional demonstrated
-repository-owned mechanical discontinuity inside the bounded
-premise -> accepted Chapter 1 responsibility.
+PR #296 merged to `main @ 519e4a6e94903535a6b129a9a17bf070ca7ef09a`.
+Its exact repair head
+`6a6133ed31dc4dd73e396a39516828fe140b03b0` passed GitHub Validation
+run #811 (`36508577436`): the affected Layer-3 boundary ran **63/63 PASS**,
+validator verification ran **25/25 PASS**, and repository validation,
+release-scope validation, vendored-contract verification, and Ruff all passed.
+The merge preserves the exact-knowledge contract rather than weakening the
+validator.
 
-The claim is intentionally bounded: prose generation requires a configured
-provider runtime, so provider credentials / adapter availability remain an
-external infrastructure prerequisite. Human prose quality and real-beginner
-usability remain human-validation questions and are not claimed. Chapter 2,
-release qualification, publication, and new narrative architecture are not
-implicitly selected by this closure.
+PR #297 then merged to `main @ b9233ffe5b5748ad1b0355ecb00b4289a7b2e45b`.
+Its exact documentation head
+`7b2c3ad50a6d7f787e6cde2e06a6b81c3f4395c5` passed GitHub Validation
+run #812 (`36514785358`): docs-fallback smoke **4/4 PASS**, validator
+verification **25/25 PASS**, repository/release-scope validation PASS, vendored
+contract OK, plus an independent audit of the eight changed documentation files
+found **0 broken relative links**.
 
-The next repository package should therefore require new concrete workflow
-evidence or explicit product-lane selection rather than extending this package
-by momentum.
+The remaining responsibility is qualification, not further repair or semantic
+expansion. Issue #295 remains open until a fresh formal L3 full-regression run
+executes on a candidate containing the merged repair and passes. Issue #218
+remains open until its required cross-platform / verification / wheel
+qualification and bounded human-validation questions are satisfied.
+
+Provider credentials / adapter availability remain an external prerequisite for
+prose generation. Human prose quality and real-beginner usability remain
+human-validation questions. Chapter 2, Episode 2+, season/generalized Episode
+architecture, publication, and new product lanes are not implicitly selected.
+
+No further repository construction should be inferred merely from the presence
+of roadmap candidates; new product work requires new claim-appropriate evidence
+or explicit product-lane selection.
 
 ## Previous Completed Responsibility
 
@@ -401,15 +415,17 @@ A small discoverability follow-up may also be warranted if beginner use shows th
 
 Historical PR #167 is **closed / not merged / superseded**. Its bounded Episode 1 Direction contract remains useful, but the old 4k-line implementation is not contemporary production evidence.
 
-Fresh issue #218 preserves the reconstruction contract: Episode 1 remains a Series-scope, Identity-layer entry-unit Direction artifact for explicitly episodic Series and **does not become a sixth canonical scope**. Any future implementation must start from contemporary `main` in bounded packages.
+Issue #218 preserves the bounded Episode 1 contract and now tracks the remaining qualification/human-validation boundary. Episode 1 remains a Series-scope, Identity-layer entry-unit Direction artifact for explicitly episodic Series and **does not become a sixth canonical scope**. The contemporary implementation is already merged; broader entry-unit expansion remains separately gated.
 
 ### Episode 1 Direction implementation (2026-09-28)
 
 Bounded Episode 1 Direction is now implemented on `main @ a9cdd62` (stack #291 → #292 → #293, owner-delegated merges; fix `ec972f5` included). Qualification: L1 focused validation per PR plus the full `tests/test_series_*.py` suite (314 passed: 72 + 132 + 110) run on the merged head as the L2 Series gate — **AGENT-RUN, not CI**. Stabilization run `36370311870` on `a9cdd62` is **FAILED** on pre-existing Layer-3 exact-knowledge-continuity failures, proven identical on pre-stack base `489abad` (zero file overlap with the Episode stack).
 
-Repair candidate PR #296 / `fix/layer3-knowledge-continuity` resolves the demonstrated mismatch without weakening the validator: `Outcome.knowledge_added` now uses the exact persisted `exit_state.knowledge[].what` values in the affected fixtures, and prior facts are carried forward unless explicitly questioned. Exact head `323c71a8c54b164a5a5f48b3c41393dadd3aacb5` passed GitHub Validation run `36508279451`: the two affected Layer-3 suites ran **63/63 PASS**, followed by validator verification **25/25 PASS**, repository validation PASS, release-scope validation PASS, vendored-contract verification OK, and Ruff PASS.
+PR #296 is merged to `main @ 519e4a6e94903535a6b129a9a17bf070ca7ef09a` and preserves the demonstrated repair without weakening the validator: `Outcome.knowledge_added` uses the exact persisted `exit_state.knowledge[].what` values in the affected fixtures, and prior facts carry forward unless explicitly questioned. Exact final repair head `6a6133ed31dc4dd73e396a39516828fe140b03b0` passed GitHub Validation run #811 (`36508577436`) with **63/63** affected Layer-3 tests, **25/25** validator verification, repository validation PASS, release-scope validation PASS, vendored-contract verification OK, and Ruff PASS.
 
-This is targeted L1 repair evidence, not a replacement for L3. Issue #295 stays open until a formal full-regression stabilization run is green. Issue #218 also remains OPEN: closing it still requires the required full requalification (Linux + Windows + verification + wheel) and the contract's human-validation boundary (workflow coherence, lock timing, inspection obviousness, duplicate-rejection expectations); neither is claimed here.
+PR #297 subsequently merged the canonical Realization, emotional-trajectory, character/relationship, and theme/motif documentation contracts plus the reconciled artifact map to `main @ b9233ffe5b5748ad1b0355ecb00b4289a7b2e45b`. Exact documentation head `7b2c3ad5` passed Validation run #812 and a zero-broken-link documentation audit.
+
+These are targeted development/contract-consolidation evidence, not a replacement for L3 or Release Qualification. Issue #295 stays open until a fresh formal full-regression stabilization run is green. Issue #218 also remains OPEN: closing it still requires the required full requalification (Linux + Windows + verification + wheel) and the contract's human-validation boundary (workflow coherence, lock timing, inspection obviousness, duplicate-rejection expectations); neither is claimed here.
 
 Broader Episode 2+/season expansion remains subject to the separate long-horizon evidence gate.
 
