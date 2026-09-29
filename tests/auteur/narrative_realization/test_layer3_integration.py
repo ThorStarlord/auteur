@@ -125,8 +125,8 @@ class NetorareSceneFactory:
             outcome=Outcome(
                 result="partial",
                 knowledge_added=[
-                    "archive access record was altered",
-                    "someone has capability to modify historical records",
+                    "Archive access record was altered",
+                    "Someone has capability to modify historical records",
                 ],
                 knowledge_questioned=["daniel_alibi_validity"],
                 emotional_shifts={"trust": "suspicion"},
@@ -153,6 +153,12 @@ class NetorareSceneFactory:
                         how_known="perceived",
                         degree="certain",
                         source="document",
+                    ),
+                    KnowledgeFact(
+                        what="Someone has capability to modify historical records",
+                        how_known="inferred",
+                        degree="certain",
+                        source="inference",
                     ),
                 ],
                 emotional={
@@ -251,7 +257,7 @@ class NetorareSceneFactory:
             outcome=Outcome(
                 result="partial",
                 knowledge_added=[
-                    "Daniel is aware of Clara's investigation",
+                    "Daniel is aware she is investigating the archive",
                     "Daniel's knowledge suggests he has other information sources",
                 ],
                 knowledge_questioned=[],
@@ -272,6 +278,12 @@ class NetorareSceneFactory:
             exit_state=ExitState(
                 knowledge=[
                     KnowledgeFact(
+                        what="Daniel claims he was at the archive during the murder",
+                        how_known="external_source",
+                        degree="probable",
+                        source="character_id",
+                    ),
+                    KnowledgeFact(
                         what="Archive access record was altered",
                         how_known="perceived",
                         degree="certain",
@@ -279,6 +291,12 @@ class NetorareSceneFactory:
                     ),
                     KnowledgeFact(
                         what="Daniel is aware she is investigating the archive",
+                        how_known="inferred",
+                        degree="probable",
+                        source="inference",
+                    ),
+                    KnowledgeFact(
+                        what="Daniel's knowledge suggests he has other information sources",
                         how_known="inferred",
                         degree="probable",
                         source="inference",
@@ -417,7 +435,7 @@ class NetorareSceneFactory:
                         source="document",
                     ),
                     KnowledgeFact(
-                        what="Daniel is aware she is investigating",
+                        what="Daniel is aware she is investigating the archive",
                         how_known="inferred",
                         degree="probable",
                         source="inference",
@@ -981,7 +999,7 @@ class TestMultipleGenres:
             ),
             outcome=Outcome(
                 result="partial",
-                knowledge_added=["unusual_person_description"],
+                knowledge_added=["Witness saw unusual person at scene"],
             ),
             exit_state=ExitState(
                 knowledge=[
@@ -1068,6 +1086,12 @@ class TestMultipleGenres:
             ),
             exit_state=ExitState(
                 knowledge=[
+                    KnowledgeFact(
+                        what="Alex wants to explore power dynamics",
+                        how_known="external_source",
+                        degree="certain",
+                        source="character_id",
+                    ),
                     KnowledgeFact(
                         what="They have established consent and safety protocols",
                         how_known="learned",
