@@ -74,20 +74,30 @@ Series Identity and Book Identities are required. Universe Identity is optional.
 Continuity plans, compiled bibles, and detailed realization state can be added
 progressively.
 
-## Unresolved specifications
+## Supplemental canonical contracts
 
-The following boundaries are intentionally not implemented by this document:
+This document defines the five-layer × scope architecture. Focused contracts
+define important boundaries without creating additional semantic layers:
 
-1. **Emotional trajectory contract:** define story emotional core, chapter
-   function, scene experiential effect, and character emotional state without a
-   rigid state machine. Support milestones, variation, masking, contradiction,
-   regression, sudden transition, and intentional divergence.
-2. **Revision and staleness semantics:** define which downstream plans,
-   realizations, expressions, and reports become stale or require review after
-   each class of upstream change. The Minimal V1 pilot is specified in
-   [Revision and Staleness Contract](revision-staleness-contract.md).
-3. **Expression boundary:** define which language-level choices belong to
-   Expression and which realized event facts remain canonical upstream.
+1. [Realization State Contract](realization-state-contract.md) — concrete scene
+   events/state, exact knowledge continuity, temporal/state ownership, and the
+   Realization → Expression boundary.
+2. [Emotional Trajectory Contract](emotional-trajectory-contract.md) — separates
+   reader promise, structural emotional progression, character felt state, and
+   emotional rendering without a rigid state machine.
+3. [Character and Relationship Architecture](character-and-relationship-architecture.md)
+   — distinguishes character commitments/plans, concrete state, canonical
+   `relations.yaml`, Series continuity, and derived relationship projections.
+4. [Theme and Motif Contract](theme-and-motif-contract.md) — distinguishes
+   thematic commitment, progression, realized evidence, rendering, and motifs.
+5. [Revision and Staleness Contract](revision-staleness-contract.md) — defines
+   downstream freshness behavior after upstream changes.
+6. [Expression Boundary](expression-boundary.md) — defines language-level
+   freedom versus canonical realized event/state facts.
+
+Historical plans, ADRs, and research records retain their original terminology
+as evidence. Where an older example conflicts with a current canonical contract,
+the canonical architecture + focused contract + current schema take precedence.
 
 ## Current implementation mapping
 
@@ -98,7 +108,7 @@ The following boundaries are intentionally not implemented by this document:
 | Story identity and discovery | `identity`, genre pipelines, Genre Builder, Story Discovery | Identity |
 | Blueprint and diagnostics | `narrative_blueprint`, `structure`, Cartographer | Structure |
 | Composition coordination | `narrative_orchestration` | Structure, coordinated by Orchestration |
-| Events and state | `narrative_realization`, Bible/state, relations projections | Realization |
+| Events and state | `narrative_realization`, Bible/state, canonical relation state + derived projections | Realization |
 | Drafting and prose critics | `pipeline`, Bard, `critic` | Expression and cross-cutting Validation |
 | Editing | `editing` | Cross-cutting, producing Expression-facing reports |
 | Import/export and graph projections | `roundtrip`, serializers, graph/report artifacts | Cross-cutting |
