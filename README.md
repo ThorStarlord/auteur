@@ -381,9 +381,9 @@ See [docs/campaign/auteur-long-horizon-campaign-state.md](docs/campaign/auteur-l
 
 ## Work That Is Not Shipped
 
-Historical PR #167 for bounded Episode 1 Direction support is **closed / not merged / superseded**. Its ratified contract is preserved, and contemporary reconstruction is tracked separately; Episode 1 support must not be described as current production behavior.
+Historical PR #167 for bounded Episode 1 Direction support is **closed / not merged / superseded**. Its ratified contract was reconstructed on contemporary architecture through PRs #291 → #292 → #293. The bounded Episode 1 Direction capability is now implemented on `main`, but issue #218 remains open for full requalification and the contract's human-validation boundary; implementation does not imply release qualification, publication, or general multi-episode support.
 
-Broader multi-episode/season expansion remains evidence-gated under the long-horizon campaign posture.
+Broader Episode 2+/season expansion remains evidence-gated under the long-horizon campaign posture and must not follow automatically from the Episode 1 implementation.
 
 See [STATUS.md](STATUS.md) for current reconciliation details.
 
