@@ -1,6 +1,6 @@
 # Auteur — Repository Status
 
-**Last reconciled:** 2026-09-26  
+**Last reconciled:** 2026-09-28  
 **Validation-policy activation baseline:** `main @ 8b53efdd99e0a67d375df0e828b32edc77643221`  
 **Behavior baseline reconciled:** `main @ c633d1b155ff72ef9ba502d4b7c9a294716fe98a` (post-draft continuation, Realization reconciliation, Beginner whole-book orientation, and bounded maintainability extractions merged)  
 **Current maintenance/product-evidence reconciliation baseline:** `main @ 1aebe090fb44dec82662d742d2d7cc911c428a32` (#248 paused at reassessment; #249 completed under the simulation-first policy; PR #281 reconciled the resulting no-product-package-selected state)  
@@ -27,7 +27,7 @@ The PR #233 stabilization checkpoint recorded the prior baseline lint dispositio
 
 ## Current Selected Responsibility
 
-**CHAPTER 1 CONTINUITY CLOSED; EPISODE 1 DIRECTION IMPLEMENTED (see Serial / Episode Posture). No further repository work selected beyond the open follow-ups below.**
+**L3 STABILIZATION REPAIR IN REVIEW (#295 / PR #296); CHAPTER 1 CONTINUITY CLOSED; EPISODE 1 DIRECTION IMPLEMENTED. No new product-expansion responsibility is selected.**
 
 PR #289 is merged on `main @ e6700044d5813bcb2041714f7c6bed6cdb128aee`.
 Its exact pre-merge head
@@ -405,7 +405,11 @@ Fresh issue #218 preserves the reconstruction contract: Episode 1 remains a Seri
 
 ### Episode 1 Direction implementation (2026-09-28)
 
-Bounded Episode 1 Direction is now implemented on `main @ a9cdd62` (stack #291 → #292 → #293, owner-delegated merges; fix `ec972f5` included). Qualification: L1 focused validation per PR plus the full `tests/test_series_*.py` suite (314 passed: 72 + 132 + 110) run on the merged head as the L2 Series gate — **AGENT-RUN, not CI**. Stabilization run `36370311870` on `a9cdd62` is **FAILED** on pre-existing `narrative_realization/test_layer3_integration.py` knowledge-gap failures, proven identical on pre-stack base `489abad` (zero file overlap with the Episode stack). Issue #218 remains OPEN: closing it waits on a green full requalification (Linux + Windows + verification + wheel) and the contract's human-validation boundary (workflow coherence, lock timing, inspection obviousness, duplicate-rejection expectations); neither is claimed here.
+Bounded Episode 1 Direction is now implemented on `main @ a9cdd62` (stack #291 → #292 → #293, owner-delegated merges; fix `ec972f5` included). Qualification: L1 focused validation per PR plus the full `tests/test_series_*.py` suite (314 passed: 72 + 132 + 110) run on the merged head as the L2 Series gate — **AGENT-RUN, not CI**. Stabilization run `36370311870` on `a9cdd62` is **FAILED** on pre-existing Layer-3 exact-knowledge-continuity failures, proven identical on pre-stack base `489abad` (zero file overlap with the Episode stack).
+
+Repair candidate PR #296 / `fix/layer3-knowledge-continuity` resolves the demonstrated mismatch without weakening the validator: `Outcome.knowledge_added` now uses the exact persisted `exit_state.knowledge[].what` values in the affected fixtures, and prior facts are carried forward unless explicitly questioned. Exact head `323c71a8c54b164a5a5f48b3c41393dadd3aacb5` passed GitHub Validation run `36508279451`: the two affected Layer-3 suites ran **63/63 PASS**, followed by validator verification **25/25 PASS**, repository validation PASS, release-scope validation PASS, vendored-contract verification OK, and Ruff PASS.
+
+This is targeted L1 repair evidence, not a replacement for L3. Issue #295 stays open until a formal full-regression stabilization run is green. Issue #218 also remains OPEN: closing it still requires the required full requalification (Linux + Windows + verification + wheel) and the contract's human-validation boundary (workflow coherence, lock timing, inspection obviousness, duplicate-rejection expectations); neither is claimed here.
 
 Broader Episode 2+/season expansion remains subject to the separate long-horizon evidence gate.
 
@@ -424,6 +428,7 @@ See [docs/campaign/auteur-long-horizon-campaign-state.md](docs/campaign/auteur-l
 - Historical divergent PRs #131, #221, #222, #225, #227, and #245 have been reconciled and closed rather than bulk-merged. Still-relevant responsibilities were reconstructed on contemporary `main` or preserved as explicit current issues.
 - #247 is closed after classifying the later Book/full-suite reports as incomplete bounded executions rather than a reproduced Book-authority regression; a focused Book acceptance sentinel and better L3 timing/JUnit evidence now exist.
 - #251 is closed after replacing obsolete Layer-3 `xfail` assumptions with current-schema Realization coverage and bounded temporal/knowledge fixes.
+- #295 tracks the L3 exact-knowledge-continuity regression exposed by stabilization run `36370311870`; PR #296 is the targeted repair candidate and is L1 green at `323c71a8`, but #295 remains open pending a formal green L3 run.
 - #248 is an incremental maintainability program, not evidence that the repository is incomplete: merged slices have extracted Beginner continuation transitions, reasoning CLI dispatch, Book accepted-source/pointer persistence, Book acceptance persistence, Book completion persistence, derived recomposition/comparison artifact persistence, Phase A/B application-artifact access, the Phase C3 acceptance validation gate, and the Phase C4 completion eligibility gate behind compatibility seams. `BookReconciliationStore` still owns authority-bearing orchestration, publication ordering, pointer movement, rollback, and the remaining workflow semantics. After PR #274 the largest remaining methods are mixed comparison/routing/publication responsibilities rather than another comparably obvious read-only gate, so #248 is paused at reassessment rather than continuing from file size alone.
 - Historical qualification issues #49–53 are closed as superseded/no-current-change. #54 remains open pending an actual frozen-candidate cross-platform run; Release Qualification now exercises the complete source suite on Linux, Windows, and macOS plus dedicated portability invariants. #55 remains reproduction-gated against Windows cleanup evidence.
 - Issue #272 records the remaining GitHub-admin enforcement gap: `main` is still unprotected and the stable `L1 focused validation (Python 3.12)` check is not yet required. PRs #271 and #274 hardened focused-test selection for the Book acceptance/completion seams, but branch-protection/ruleset application remains an external administration action because the connected GitHub integration exposes those settings read-only.
