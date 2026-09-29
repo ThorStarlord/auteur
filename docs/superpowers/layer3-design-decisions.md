@@ -219,6 +219,12 @@ exit_knowledge:
 - Knowledge doesn't retroactively disappear (once learned, known)
 - Character-specific knowledge consistency (if Clara learns X, Daniel can't act as if X is unknown unless scenes are parallel)
 
+**Current-schema exact continuity rule (reconciled 2026-09-28):**
+- `Outcome.knowledge_added` contains the exact fact values persisted in `exit_state.knowledge[].what`.
+- Matching is literal and case-sensitive; the deterministic validator does not infer paraphrase equivalence.
+- Every entry fact remains in the exit state unless that same exact fact is explicitly listed in `outcome.knowledge_questioned`.
+- Stable fact identifiers and display prose must not be silently mixed in the same field. If both are needed later, add an explicit schema distinction rather than semantic matching in the validator.
+
 ---
 
 ## 5. Emotional State Representation
