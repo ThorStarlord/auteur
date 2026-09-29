@@ -240,3 +240,94 @@ Stop boundaries are now genuine rather than missing application composition:
 Do not reopen this package merely because additional systems or roadmap
 candidates exist.
 
+## 2026-09-28 Layer-3 stabilization / Episode-1 qualification reconciliation
+
+### Resume point
+
+- **Source:** `main @ 7f5da9485afdc974a15db32b23971607669b69d3`
+- **Episode posture:** bounded Episode 1 Direction implemented through PRs #291 -> #292 -> #293; issue #218 still open.
+- **Blocking evidence:** Stabilization run `36370311870` failed in Layer-3 knowledge validation. The failure reproduced before the Episode stack and had no file overlap with it.
+- **Repository-owned repair issue:** #295.
+
+### Reconciled diagnosis
+
+The exact-knowledge validator introduced by the contemporary Realization contract is the intended deterministic behavior. The failing fixtures were stale: they mixed identifier-like values, paraphrases, capitalization differences, or omitted carry-forward facts between `Outcome.knowledge_added` and `exit_state.knowledge[].what`.
+
+The selected repair therefore preserves the validator and reconciles the data contract:
+
+```text
+knowledge_added fact
+= exact persisted exit-state fact value
+
+entry knowledge
+-> remains in exit state
+unless that exact fact is explicitly questioned
+
+no deterministic paraphrase inference
+```
+
+If stable fact IDs and display prose are both needed later, they require an explicit schema distinction rather than fuzzy matching in validation.
+
+### Execution surface
+
+PR #296 / `fix/layer3-knowledge-continuity`:
+
+- repaired the two affected Layer-3 executable fixture suites;
+- reconciled the Chapter 7 dogfood YAML with the executable state contract;
+- documented the exact current-schema continuity rule;
+- reconciled README and product-roadmap Episode 1 posture;
+- preserved the evidence gate against Episode 2+, season planning, Episode realization, or generalized Book/Episode abstraction.
+
+### Returned evidence
+
+Exact repair head before status/artifact-only reconciliation:
+`323c71a8c54b164a5a5f48b3c41393dadd3aacb5`.
+
+GitHub Validation run `36508279451`:
+
+```text
+affected Layer-3 suites        63 / 63 PASS
+validator verification        25 / 25 PASS
+repository validator          PASS
+release-scope validator       PASS
+vendored contract             OK
+Ruff                           PASS
+```
+
+The targeted evidence covers the eight failures reported by stabilization run
+`36370311870`. It does not convert L1 evidence into an L3 or release-
+qualification claim.
+
+### Strategic effect
+
+**NO_MODEL_CHANGE / REPAIR_AND_REAFFIRM**
+
+The episode strengthens the existing strategy:
+
+```text
+deterministic contract
++ stale evidence/fixture mismatch
+-> repair fixtures and contract documentation
+
+not
+
+deterministic failure
+-> add semantic guessing to the validator
+```
+
+No new semantic layer, Episode ontology, generalized entry-unit abstraction, or
+new product-expansion path is warranted by this defect.
+
+### Current bounded state and stop boundaries
+
+- **Engineering:** PR #296 is the bounded repair surface; targeted L1 evidence is green.
+- **Stabilization:** issue #295 remains open until the repository's formal L3 full-regression workflow runs green on a candidate containing the repair.
+- **Episode qualification:** issue #218 remains open until the required cross-platform / verification / wheel qualification and its bounded human-validation questions are satisfied.
+- **Product direction:** no new expansion responsibility is selected from this repair.
+- **Serial expansion:** Episode 2+/season/generalized Episode work remains evidence-gated.
+- **Authority:** this reconciliation does not authorize merge, release, publication, or substitution of agent evidence for required human validation.
+
+The connected GitHub execution surface can read/rerun existing Actions but does
+not expose starting a new `workflow_dispatch` run, so formal L3 and release-
+qualification dispatch remain outside this execution surface in this episode.
+

@@ -54,8 +54,8 @@ decision:
 outcome:
   result: partial
   knowledge_added:
-    - "archive access record was altered"
-    - "someone has capability to modify historical records"
+    - "Archive access record was altered"
+    - "Someone has capability to modify historical records"
   knowledge_questioned:
     - "daniel_alibi_validity"
   emotional_shifts:
@@ -80,6 +80,10 @@ exit_state:
       how_known: perceived
       degree: certain
       source: document
+    - what: "Someone has capability to modify historical records"
+      how_known: inferred
+      degree: certain
+      source: inference
   emotional:
     trust:
       state: suspicion
