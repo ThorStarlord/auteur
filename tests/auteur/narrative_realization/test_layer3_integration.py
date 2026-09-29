@@ -221,6 +221,12 @@ class NetorareSceneFactory:
                         degree="certain",
                         source="document",
                     ),
+                    KnowledgeFact(
+                        what="Someone has capability to modify historical records",
+                        how_known="inferred",
+                        degree="certain",
+                        source="inference",
+                    ),
                 ],
                 emotional={
                     "trust": EmotionalState(
@@ -288,6 +294,12 @@ class NetorareSceneFactory:
                         how_known="perceived",
                         degree="certain",
                         source="document",
+                    ),
+                    KnowledgeFact(
+                        what="Someone has capability to modify historical records",
+                        how_known="inferred",
+                        degree="certain",
+                        source="inference",
                     ),
                     KnowledgeFact(
                         what="Daniel is aware she is investigating the archive",
@@ -365,13 +377,31 @@ class NetorareSceneFactory:
             entry_state=EntryState(
                 knowledge=[
                     KnowledgeFact(
+                        what="Daniel claims he was at the archive during the murder",
+                        how_known="external_source",
+                        degree="probable",
+                        source="character_id",
+                    ),
+                    KnowledgeFact(
                         what="Archive access record was altered",
                         how_known="perceived",
                         degree="certain",
                         source="document",
                     ),
                     KnowledgeFact(
+                        what="Someone has capability to modify historical records",
+                        how_known="inferred",
+                        degree="certain",
+                        source="inference",
+                    ),
+                    KnowledgeFact(
                         what="Daniel is aware she is investigating the archive",
+                        how_known="inferred",
+                        degree="probable",
+                        source="inference",
+                    ),
+                    KnowledgeFact(
+                        what="Daniel's knowledge suggests he has other information sources",
                         how_known="inferred",
                         degree="probable",
                         source="inference",
@@ -429,13 +459,31 @@ class NetorareSceneFactory:
             exit_state=ExitState(
                 knowledge=[
                     KnowledgeFact(
+                        what="Daniel claims he was at the archive during the murder",
+                        how_known="external_source",
+                        degree="probable",
+                        source="character_id",
+                    ),
+                    KnowledgeFact(
                         what="Archive access record was altered",
                         how_known="perceived",
                         degree="certain",
                         source="document",
                     ),
                     KnowledgeFact(
+                        what="Someone has capability to modify historical records",
+                        how_known="inferred",
+                        degree="certain",
+                        source="inference",
+                    ),
+                    KnowledgeFact(
                         what="Daniel is aware she is investigating the archive",
+                        how_known="inferred",
+                        degree="probable",
+                        source="inference",
+                    ),
+                    KnowledgeFact(
+                        what="Daniel's knowledge suggests he has other information sources",
                         how_known="inferred",
                         degree="probable",
                         source="inference",
