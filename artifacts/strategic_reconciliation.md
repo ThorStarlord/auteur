@@ -331,3 +331,57 @@ The connected GitHub execution surface can read/rerun existing Actions but does
 not expose starting a new `workflow_dispatch` run, so formal L3 and release-
 qualification dispatch remain outside this execution surface in this episode.
 
+
+
+## 2026-09-28 post-merge stabilization/documentation closure
+
+### Returned evidence
+
+The owner explicitly authorized the previously reserved repository transitions.
+
+- PR #296 merged to `main @ 519e4a6e94903535a6b129a9a17bf070ca7ef09a`.
+- Exact #296 head `6a6133ed31dc4dd73e396a39516828fe140b03b0` retains green GitHub Validation run #811 (`36508577436`): affected Layer-3 boundary **63/63 PASS**, validator verification **25/25 PASS**, repository validation PASS, release-scope validation PASS, vendored contract OK, Ruff PASS.
+- PR #297 was retargeted from the repair branch to `main`; the post-#296 merge tree exactly matched the #296 head tree (`dd344e111ddc3cc124971e284098c7f5220502ff`), so the reviewed documentation diff remained the same eight files.
+- PR #297 merged to `main @ b9233ffe5b5748ad1b0355ecb00b4289a7b2e45b`.
+- Exact #297 head `7b2c3ad50a6d7f787e6cde2e06a6b81c3f4395c5` retains green Validation run #812 (`36514785358`), including docs-fallback smoke **4/4 PASS**, validator verification **25/25 PASS**, repository/release-scope validators PASS, vendored contract OK, plus a zero-broken-relative-link audit across all eight changed documentation files.
+
+### Reconciled state
+
+The repair and semantic-documentation responsibilities are now **MERGED / COMPLETE**.
+
+```text
+exact deterministic knowledge contract
++ repaired stale fixtures
++ canonical Realization/emotion/character/relationship/theme ownership docs
+-> repository contract convergence
+```
+
+This changes execution state, not product strategy.
+
+### Strategic effect
+
+**NO_MODEL_CHANGE / REPAIR_AND_REAFFIRM**
+
+The merged evidence reinforces the prior conclusion:
+
+- strict deterministic validation exposed stale evidence rather than a need for semantic guessing;
+- canonical semantic contracts reduce the cost of reconstructing ownership from source + historical plans;
+- no new layer, generalized Episode ontology, Episode 2+/season path, or speculative product package is warranted.
+
+### Remaining bounded responsibilities
+
+- **#295 — formal L3 requalification:** OPEN. A fresh Stabilization/full-regression run must execute on a candidate containing the merged repair and pass before the last formal-red L3 evidence is superseded.
+- **#218 — Episode 1 qualification:** OPEN. The bounded capability is implemented; remaining closure requires the documented cross-platform / verification / wheel qualification and the contract's human-validation questions.
+- **Release/publication:** not selected or claimed.
+- **Episode 2+/season/generalized entry-unit expansion:** not selected; remains evidence-gated.
+
+### External execution boundary
+
+The connected GitHub tool surface still does not expose creating a new
+`workflow_dispatch` run. Rerunning the historical failed Stabilization run would
+re-execute its old SHA and would not qualify the merged repair, so it is not a
+valid substitute.
+
+No independently warranted repository repair remains behind that blocker after
+the status/issue reconciliation. The correct stop state is therefore:
+**QUALIFICATION_BLOCKED_EXTERNALLY / NO_NEW_PRODUCT_WORK_SELECTED**.
