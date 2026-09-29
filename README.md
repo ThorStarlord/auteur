@@ -403,7 +403,7 @@ project/
       final.md
 ```
 
-Additional subsystems persist their own derived, local, candidate, or authoritative artifacts under the documented project-local paths. See [docs/project-format.md](docs/project-format.md).
+Additional subsystems persist their own derived, local, candidate, or authoritative artifacts under the documented project-local paths. Scene Realization and relationship-state artifacts are part of that model even when a basic drafting project omits them. See [docs/artifacts.md](docs/artifacts.md) and [docs/project-format.md](docs/project-format.md).
 
 ## Documentation Map
 
@@ -415,6 +415,11 @@ Additional subsystems persist their own derived, local, candidate, or authoritat
 - [Mission](MISSION.md) — durable scope and invariants.
 - [Product requirements](docs/PRD.md) — product contract and primary user.
 - [Canonical narrative architecture](docs/narrative-architecture.md) — five semantic layers × scope axis.
+- [Narrative artifact map](docs/artifacts.md) — current durable/workflow-significant artifact ownership and persistence surfaces.
+- [Realization State Contract](docs/realization-state-contract.md) — Scene Realization, exact knowledge continuity, temporal/state ownership, and downstream boundaries.
+- [Emotional Trajectory Contract](docs/emotional-trajectory-contract.md) — reader promise vs. structural progression vs. character state vs. rendering.
+- [Character and Relationship Architecture](docs/character-and-relationship-architecture.md) — character semantics, canonical relationship state, Series continuity, and derived projections.
+- [Theme and Motif Contract](docs/theme-and-motif-contract.md) — thematic commitment/progression/evidence/rendering and motif ownership.
 - [System ownership and product compression](docs/architecture/system-ownership-and-product-compression.md) — which systems own semantics/authority, how Beginner/UI projections compose them, and the one-primary-action progressive-disclosure rule.
 - [Opinionated Narrative Engine](docs/opinionated-narrative-engine.md) — product design, first value, guided authoring, Map/Focus framing.
 - [Detailed long-horizon architecture](docs/architecture/detailed-narrative-architecture-v1.md) — accepted-history/current-state/relevance architecture.

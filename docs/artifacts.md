@@ -1,9 +1,13 @@
 # Auteur Narrative Artifacts
 
-> Canonical architecture: [Narrative Architecture](narrative-architecture.md).
+> Canonical architecture: [Narrative Architecture](narrative-architecture.md).  
+> Realization semantics: [Realization State Contract](realization-state-contract.md).  
+> Character/relationship ownership: [Character and Relationship Architecture](character-and-relationship-architecture.md).
 
-This document describes the durable, version-controlled artifacts that Auteur
-produces across its semantic layers and scopes.
+This document describes durable and workflow-significant artifacts that Auteur
+produces across its semantic layers and scopes. A filename alone does not grant
+authority: canonical status comes from the owning acceptance/persistence
+workflow and provenance contract.
 
 ## Layered Story Architecture
 
@@ -26,14 +30,22 @@ Each scope/layer cell is optional unless a workflow explicitly requires it.
 
 Defines world rules, constraints, and lore that apply to all descendant Series.
 
-**Fields:**
-- `title`: Universe name
-- `core_question`: Central mystery or theme
-- `constraints`: List of StructuredConstraints (genre_rule, thematic_invariant, character_state, relationship_rule)
-- `lore`: World-building rules and mythology
-- `chronology`: Absolute timeline references
-- `magic_system` (optional): Magic rules and costs
-- `factions` (optional): Organizational structures
+**Current `UniverseIdentity` fields:**
+- `name`: Universe name
+- `slug`: Stable project-safe identifier
+- `description`: Human-readable description
+- `setting_profile`: setting type, primary location, known locations, and optional worldbuilding scope
+- `magic_system`: World magic/system rules when present
+- `core_mythology`: Governing mythology/cosmology summary
+- `timeline`: current era, era description, and years of history
+- `forbidden_elements`: elements descendant stories must avoid
+- `required_elements`: elements descendant stories must preserve
+- `cross_story_constraints`: rules with applicability and severity
+- `structured_constraints`: typed constraints used by contemporary validation
+
+Historical Universe specs may show older field names. The current model under
+`src/auteur/universe/models.py` and this artifact map are authoritative for the
+persisted schema.
 
 **Canonical:** Yes — author edits directly  
 **Usage:** Propagates constraints to Series and Books  
@@ -145,6 +157,28 @@ Defines a single book's genre, emotional core, mode, and narrative blueprint con
 
 ---
 
+### Project relationship state (`relations.yaml`)
+
+Defines canonical project-level character relationship state under ADR 015.
+It is separate from Blueprint relationship intent, Series continuity, Scene
+Realization, and derived story-instance relations.
+
+**Current state includes:**
+- directional `from_character` / `to_character`;
+- public role and private truth;
+- trust, resentment, dependency, attraction, fear, and obligation;
+- optional `last_changed_in` provenance/context.
+
+Chapter-scoped `relation_changes.yaml` files describe explicit deltas. The
+`auteur relations apply` workflow produces the updated relationship state;
+validation, diagnostics, and graphs do not mutate canon.
+
+**Canonical:** Yes, when persisted through the owning relation-state workflow  
+**Derived companions:** `relations_graph.yaml`, `relations_diagnostics.json`  
+**Contract:** [Character and Relationship Architecture](character-and-relationship-architecture.md)
+
+---
+
 ### Structure: Blueprint (`blueprint.yaml`)
 
 Scene-by-scene narrative structure aligned to the 9-phase genre structure.
@@ -175,6 +209,43 @@ Scene-by-scene breakdown (via Cartographer or manual authoring).
 **Produced by:** Cartographer (scene-by-scene decision engine)  
 **Usage:** Input to Draft layer; reference for consistency checking  
 **Validation:** POV consistency, timeline continuity, emotional pacing
+
+---
+
+### Realization: Scene state (`realization.yaml` / scene YAML)
+
+Records a concrete Scene Realization: what happens and what state is true
+because it happens.
+
+A ready scene includes:
+
+- scene/chapter identity and narrative position;
+- story time and optional follows/parallel relationships;
+- POV character and participants;
+- goal, opposition, turn, decision, and outcome;
+- entry and exit knowledge/emotional state;
+- arc-beat realization degree;
+- setups created and payoffs triggered.
+
+The central transition is:
+
+```text
+entry_state
++ dramatic action / outcome
+= exit_state
+```
+
+For the current knowledge schema, every `Outcome.knowledge_added` value must
+exactly equal a persisted `exit_state.knowledge[].what` value. Entry knowledge
+continues unless that exact fact is explicitly questioned; deterministic
+validation does not infer paraphrase equivalence.
+
+**Produced/managed by:** Realization workflows such as
+`auteur realization seed|validate|inspect|graph` and accepted-scene persistence  
+**Canonical:** Accepted Scene Realization is narrative authority; draft/template
+files are not canonical merely because they exist  
+**Usage:** Source for Expression and downstream state/continuity reasoning  
+**Contract:** [Realization State Contract](realization-state-contract.md)
 
 ---
 
@@ -265,13 +336,17 @@ universe_identity.yaml
            ↓
     story_identity.yaml ← (validates against universe)
            ↓
-   <book>_blueprint.yaml
+      blueprint.yaml
            ↓
     chapters/NN/outline.yaml
            ↓
-    chapters/NN/draft_vN.md
+    Scene Realization YAML
+      ↙             ↘
+relations.yaml      Scene Expression / draft
+      ↘             ↙
+   review / reconciliation / acceptance
            ↓
-   <book>_review.md + drift_report.json
+   Book composition / publication
 ```
 
 ---
@@ -283,9 +358,12 @@ universe_identity.yaml
 | story_identity.yaml | Genre contract, Universe constraints | Errors (blocking) |
 | series_identity.yaml | Universe constraints, continuity rules | Errors + warnings |
 | series_bible.json | SeriesIdentity, continuity and Universe diagnostics | Errors block compilation; warnings persist |
-| blueprint.yaml | story_identity emotional core | Warnings |
-| chapters/NN/outline.yaml | Blueprint structure, character states | Drift warnings |
-| <book>_drift_report.json | Declared identity vs. actual prose | Deviations only |
+| blueprint.yaml | Story Identity and structure contracts | Warnings / deterministic diagnostics |
+| chapters/NN/outline.yaml | Blueprint structure and planning contracts | Planning/continuity diagnostics |
+| Scene Realization YAML | Scene schema, temporal, knowledge, and realization contracts | Errors + warnings |
+| relations.yaml / relation_changes.yaml | Relation schema and explicit relationship-state rules | Errors + deterministic diagnostics |
+| Expression candidates | Accepted/fresh Realization plus Expression constraints | Validation / divergence status |
+| <book>_drift_report.json | Declared identity/state vs. actual prose | Deviations only |
 
 ---
 
@@ -303,17 +381,26 @@ project/
   series_identity.yaml          (VCS)
   series_bible.json             (generated, can be VCS'd for audit trail)
   story_identity.yaml           (VCS)
-   blueprint.yaml                (VCS)
-   chapters/NN/outline.yaml      (VCS)
-   chapters/NN/draft_vN.md       (VCS)
+  blueprint.yaml                (VCS)
+  relations.yaml                (VCS when relation-state workflow is used)
+  chapters/
+    NN/
+      outline.yaml              (VCS)
+      relation_changes.yaml     (VCS when present)
+      scenes/
+        <scene>/realization.yaml (VCS; accepted authority via owning workflow)
+      draft_vN.md               (VCS)
   <book>_review.md              (VCS)
   <book>_drift_report.json      (VCS for audit trail)
 ```
 
 ---
 
-**Last updated:** 2026-07-11  
-**Related:** CONTEXT.md (Genre Pipeline Architecture), ADR 018 (Universe-to-Series Propagation)
+**Last reconciled:** 2026-09-28  
+**Related:** [Narrative Architecture](narrative-architecture.md),
+[Realization State Contract](realization-state-contract.md),
+[Character and Relationship Architecture](character-and-relationship-architecture.md),
+ADR 015 (relationship state), and ADR 018 (Universe-to-Series propagation)
 
 ## Operational Extensions
 
