@@ -839,3 +839,10 @@ summary:focus-visible {
     justify-self: start;
   }
 }
+
+.draft-prose {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 32rem;
+  overflow: auto;
+}
