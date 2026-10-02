@@ -1397,6 +1397,13 @@
     $("post-draft-next-action").textContent = review.recommended_next_action || "Review the current chapter state.";
 
     var evidence = [];
+    if (typeof review.draft_text === "string") {
+      evidence.push(
+        '<h4>Candidate prose</h4><pre class="draft-prose" aria-label="Chapter candidate prose">' +
+        escapeHtml(review.draft_text) +
+        "</pre>"
+      );
+    }
     if (review.blocking_findings && review.blocking_findings.length) {
       evidence.push("<h4>Blocking findings</h4>" + listHtml(review.blocking_findings));
     }
