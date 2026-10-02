@@ -98,6 +98,85 @@ A projected primary action:
 - prefers forward workflow continuation over optional revision-entry actions;
 - may be absent when no single forward action is warranted.
 
+## Freedom Before Commitment
+
+Product compression also applies to **authority ceremony**, not only vocabulary
+and subsystem count.
+
+The governing relationship is:
+
+```text
+explicit internal authority
+!=
+constant visible author ceremony
+```
+
+Auteur should preserve the existing authority model while minimizing how often a
+creative beginner must consciously operate that model during ordinary
+exploration.
+
+Default product posture:
+
+```text
+exploration
+-> permissive, provisional, uncertainty-tolerant
+-> no silent canon
+
+material becomes consequential
+-> surface the commitment boundary clearly
+-> ask for the smallest necessary explicit author decision
+
+accepted commitment
+-> preserve provenance, freshness, dependency, and revision rigor
+```
+
+This is the **Freedom Before Commitment** principle:
+
+> Maximize creative freedom while material is exploratory; maximize rigor once
+> the author chooses to make it authoritative.
+
+The principle does not authorize auto-acceptance, implicit canon, destructive
+reconciliation, or bypassing existing owners. It changes the product-design
+question from "how do we expose every safe transition?" to "which authority
+transitions must the author actively notice right now?"
+
+### Product implications
+
+- Prefer carrying uncertainty over forcing premature classification when no
+  downstream authority depends on the answer yet.
+- Prefer one consequential commitment over repeated confirmations that produce
+  no distinct author value.
+- Let drafts, fragments, alternatives, and exploratory prose remain provisional
+  without demanding immediate canonical placement.
+- When exploratory work conflicts with accepted state, present consequences and
+  recovery choices in craft-facing language before exposing validator or
+  artifact terminology.
+- Preserve advanced inspection for authors who want exact provenance,
+  diagnostics, lifecycle, or raw artifacts.
+- Do not infer that a permissive exploration surface requires a new semantic
+  layer, parallel acceptance path, or universal scratch-state subsystem.
+
+### Evidence rule
+
+A mechanically correct revision path does not establish a low-friction creative
+experience.
+
+Validate separately:
+
+```text
+mechanical recovery
++ authority preservation
++ subjective recovery cost
++ creative momentum
+```
+
+Only the first two can be established from repository tests alone. Claims about
+the latter two require claim-appropriate human evidence.
+
+The active validation protocol is
+[Creative Flow Dogfood Protocol](../product-validation/creative-flow-dogfood-protocol.md)
+tracked by [#299](https://github.com/ThorStarlord/auteur/issues/299).
+
 ## Boundary rules
 
 ### 1. Product projection is not domain ownership
