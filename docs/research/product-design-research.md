@@ -294,6 +294,109 @@ human comprehension/usability of the architecture.
 See [Global Map Architecture and Extraction — Research Retrospective](global-map-architecture-and-extraction-retrospective.md)
 for the cross-campaign stopping and method-selection lessons.
 
+### 9. Creative flow, discovery, and governance visibility
+
+Question: Can Auteur preserve strict internal authority while allowing a creative
+beginner to experience exploration as loose, playful, and low-friction?
+
+Working principle: **Freedom Before Commitment**.
+
+```text
+exploratory material
+-> maximize creative freedom and tolerate uncertainty
+-> keep tentative material noncanonical
+-> make commitment explicit when it becomes consequential
+-> increase rigor after commitment
+```
+
+This principle does not weaken the existing rule that advice, inference,
+analysis, drafts, and working material do not silently become story authority.
+It asks a different product question: **how visible should that governance feel
+to the writer while they are creating?**
+
+The current architecture proves that Auteur can preserve authority, provenance,
+staleness, and revision history. It does not by itself prove that the author
+experiences those protections as a safety net rather than as administrative
+ceremony.
+
+The track therefore distinguishes:
+
+- **mechanical recovery** — can the system preserve, stale, reconcile, or revise
+  affected artifacts correctly?
+- **subjective recovery cost** — can the author change their mind without losing
+  creative momentum or feeling punished for discovery?
+- **governance correctness** — does explicit authority remain intact?
+- **governance visibility** — how often must the author consciously operate
+  that authority machinery during ordinary creative work?
+
+Primary hypotheses:
+
+1. Internal authority can remain strict without requiring constant visible
+   acceptance ceremony.
+2. Raw click count is a weak proxy for cognitive load. A more useful signal is
+   the number of administrative interactions between creative or insight
+   payoffs.
+3. Auteur should be able to carry tentative, contradictory, fragmentary, or
+   half-baked material long enough for the author to discover what matters,
+   without prematurely forcing every idea into canonical structure.
+4. Writers may discover important story facts through prose. A premise-first,
+   direction-first workflow must therefore be tested against cases where
+   Expression reveals upstream changes rather than assuming that all important
+   discovery happens before drafting.
+5. Strict canon boundaries may enable, rather than oppose, permissive
+   exploration because Auteur can distinguish "the author tried this" from "the
+   author committed to this."
+
+Interaction observations should classify each meaningful author action as:
+
+```text
+CREATIVE
+-> the author created or discovered something
+
+INSIGHT
+-> Auteur materially improved the author's understanding
+
+NAVIGATION
+-> the author moved somewhere useful
+
+ADMINISTRATIVE
+-> the author managed or confirmed system state without a creative/insight payoff
+```
+
+The primary friction signal is **administrative actions between CREATIVE/INSIGHT
+events**, supplemented by time to first useful insight, time to first prose,
+hesitation, requests to skip, terminology confusion, unplaceable ideas,
+interruptions to momentum, recovery cost after revision, and moments of genuine
+inspiration.
+
+This track must include claim-appropriate real-author evidence before making
+claims about joy, cognitive burden, confidence, usefulness, preference, or
+creative momentum. Scripted/synthetic runs remain useful for reachability,
+state-transition correctness, and mechanical recovery only.
+
+Comparative evidence should use the same author, premise, and comparable task
+where possible:
+
+```text
+A — Markdown + capable general-purpose LLM
+B — current Auteur
+C — low-friction Auteur prototype only if A/B evidence warrants one
+```
+
+The comparison is not intended to prove that Auteur must maximize immediate
+prose output. It tests whether Auteur's additional structure creates a
+subjectively noticeable payoff in continuity, consequence awareness, revision
+safety, long-range guidance, author ownership, or creative insight.
+
+**Creative Scratch / Riff is not selected by this research track.** It is one
+possible bounded intervention if evidence shows the current product cannot carry
+exploratory material with acceptably low friction. Prefer presentation or
+workflow repair first when those layers are sufficient.
+
+Operational protocol:
+[Creative Flow Dogfood Protocol](../product-validation/creative-flow-dogfood-protocol.md).
+Tracking responsibility: [#299](https://github.com/ThorStarlord/auteur/issues/299).
+
 ## Shared experiment protocol
 
 Use the same task sequence for each candidate experience:
