@@ -1,6 +1,6 @@
 # Auteur — Repository Status
 
-**Last reconciled:** 2026-09-28 — post-merge reconciliation for PRs #296 and #297  
+**Last reconciled:** 2026-10-02 — qualification boundary preserved; independent creative-flow product-evidence responsibility #299 selected  
 **Validation-policy activation baseline:** `main @ 8b53efdd99e0a67d375df0e828b32edc77643221`  
 **Behavior baseline reconciled:** `main @ c633d1b155ff72ef9ba502d4b7c9a294716fe98a` (post-draft continuation, Realization reconciliation, Beginner whole-book orientation, and bounded maintainability extractions merged)  
 **Current maintenance/product-evidence reconciliation baseline:** `main @ 1aebe090fb44dec82662d742d2d7cc911c428a32` (#248 paused at reassessment; #249 completed under the simulation-first policy; PR #281 reconciled the resulting no-product-package-selected state)  
@@ -27,7 +27,7 @@ The PR #233 stabilization checkpoint recorded the prior baseline lint dispositio
 
 ## Current Selected Responsibility
 
-**FORMAL L3 REQUALIFICATION PENDING (#295); CHAPTER 1 CONTINUITY CLOSED; EPISODE 1 DIRECTION IMPLEMENTED; CANONICAL NARRATIVE CONTRACTS RECONCILED. No new product-expansion responsibility is selected.**
+**FORMAL L3 REQUALIFICATION PENDING (#295); CHAPTER 1 CONTINUITY CLOSED; EPISODE 1 DIRECTION IMPLEMENTED; CANONICAL NARRATIVE CONTRACTS RECONCILED. No new product-expansion feature is selected. Independent product-evidence responsibility #299 is selected: validate creative flow under strict authority boundaries.**
 
 PR #296 merged to `main @ 519e4a6e94903535a6b129a9a17bf070ca7ef09a`.
 Its exact repair head
@@ -60,6 +60,45 @@ architecture, publication, and new product lanes are not implicitly selected.
 No further repository construction should be inferred merely from the presence
 of roadmap candidates; new product work requires new claim-appropriate evidence
 or explicit product-lane selection.
+
+### Independent product-evidence lane — #299
+
+The owner has explicitly selected a bounded creative-flow validation lane without
+reopening the semantic architecture or selecting a feature package.
+
+Governing hypothesis: **Freedom Before Commitment**.
+
+```text
+exploratory material
+-> permissive / provisional / uncertainty-tolerant
+-> no silent canon
+
+consequential commitment
+-> smallest necessary explicit author decision
+-> existing authority owner
+
+accepted commitment
+-> full provenance / freshness / revision rigor
+```
+
+The active protocol is
+`docs/product-validation/creative-flow-dogfood-protocol.md`. It tests the
+current product first through naive-author, messy-writer, change-my-mind, and
+Markdown + capable-LLM comparison conditions.
+
+Creative Scratch / Riff is **not selected**. It becomes eligible only if
+claim-appropriate evidence shows that the current product cannot carry
+exploratory material with acceptably low friction and a smaller
+presentation/workflow repair is insufficient.
+
+Subjective claims about joy, cognitive burden, confidence, usefulness,
+preference, or creative momentum require real-author evidence. Scripted or
+repository evidence may establish only mechanical reachability, recovery, and
+authority preservation.
+
+This lane is independent from #295, #218, and #272. It does not close, weaken,
+or bypass those responsibilities, and those qualification/admin responsibilities
+do not establish the human-experience claims in #299.
 
 ## Previous Completed Responsibility
 
