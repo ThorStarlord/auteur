@@ -97,6 +97,17 @@ def test_browser_exposes_review_and_acceptance_commands():
     assert "What this choice changes" in js
 
 
+def test_browser_renders_candidate_prose_in_post_draft_review():
+    js = _read(APP)
+    css = _read(STYLES)
+
+    assert "review.draft_text" in js
+    assert "Candidate prose" in js
+    assert 'class="draft-prose"' in js
+    assert ".draft-prose" in css
+    assert "white-space: pre-wrap" in css
+
+
 def test_browser_renders_review_labels_instead_of_internal_card_ids():
     js = _read(APP)
     assert "summary.label" in js
