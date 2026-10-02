@@ -185,6 +185,45 @@ friction or a concrete goal. Human use remains stronger evidence and is
 required before making real-author usability, comprehension, relevance,
 confidence, preference, or subjective-quality claims.
 
+## NOW — Creative Flow / Governance Visibility Validation
+
+**State:** `NOW` as a product-evidence responsibility, not a product-expansion
+package. Tracking: [#299](https://github.com/ThorStarlord/auteur/issues/299).
+
+Current repository evidence strongly establishes architecture, authority,
+mechanical continuity, and bounded revision behavior. It does not yet establish
+that a creative beginner experiences those mechanisms as low-friction during
+actual creative work.
+
+The selected question is therefore:
+
+> Can Auteur preserve strict internal authority while making exploration feel
+> permissive, uncertainty-tolerant, and creatively continuous?
+
+The governing hypothesis is **Freedom Before Commitment**:
+
+```text
+exploration
+-> maximize creative freedom
+-> keep tentative material noncanonical
+-> surface explicit commitment only when consequential
+-> increase rigor after commitment
+```
+
+Execute the
+[Creative Flow Dogfood Protocol](product-validation/creative-flow-dogfood-protocol.md)
+before selecting another product feature family. The evidence lane includes a
+naive-author run, messy-writer stress, change-my-mind recovery, and a comparison
+against Markdown + a capable general-purpose LLM.
+
+This selection does **not** authorize Creative Scratch / Riff. That remains only
+a possible bounded spike if evidence shows that presentation/workflow repair
+cannot carry exploratory material with acceptably low friction.
+
+It also does not reopen the canonical five-layer architecture, weaken explicit
+authority, make immediate prose generation the product thesis, or bypass
+engineering qualification work.
+
 ## CANDIDATE — Unified Decision Inbox / Broader Attention Sources
 **State:** `CANDIDATE`
 
