@@ -172,6 +172,36 @@ evidence behind them:
 
 Those are deliberately **post-draft** responsibilities.
 
+## Integrated shaping handoff
+
+The integrated Browser does not silently convert discovery hints into shaping
+inputs.
+
+After **What did we discover?**, each possible new element is opt-in:
+
+~~~text
+[ ] Carry this idea into story shaping
+~~~
+
+Nothing is checked by default.
+
+When the author selects **Shape this story**, Auteur preserves a noncanonical
+handoff receipt containing:
+
+- the Quick Draft session ID;
+- exact source-draft SHA;
+- original premise;
+- first-scene intent;
+- destination workspace ID;
+- only the discoveries explicitly selected by the author.
+
+The normal workspace receives the author's premise, first-scene intent, and
+selected discoveries as explicit shaping input. Unselected heuristic findings
+remain behind in the provisional Quick Draft session.
+
+If the draft has no detected discoveries, Auteur skips the empty confirmation
+step.
+
 ## Contract preservation
 
 The spike does not modify:
