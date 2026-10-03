@@ -61,6 +61,58 @@ bounded repair. Ordinary hesitation, preference, or local friction should not be
 converted directly into a sequence of micro-patches before #313 reconciles the
 system-level evidence.
 
+## Capability Frontier construction model
+
+Future repository construction should also be guided by:
+
+- `docs/product/auteur-capability-frontier-construction-roadmap.md`
+
+The repository should expand the **Narrative Stress Envelope** across six
+dimensions:
+
+```text
+A — Interpretive Difficulty
+B — Input / Process Messiness
+C — Narrative Breadth
+D — Narrative Depth
+E — Longitudinal Horizon
+F — Change / Revision Pressure
+```
+
+The preferred construction loop is:
+
+```text
+select controlled story frontier
+-> run complete author workflow
+-> find first material systemic failure
+-> classify owning layer
+-> build smallest capability that expands the envelope
+-> rerun same frontier
+-> advance only when coherent
+```
+
+This is intentionally different from a feature queue. Capabilities should be
+admitted because the next deliberately harder story requires them.
+
+Current frontier interpretation:
+
+```text
+F0 — Coherent Scene                      mechanically established
+F1 — Messy Discovery                     current evidence boundary
+#305 + #310 -> #313                      reconcile current experience
+F2 — Small-Book Longitudinal Coherence   preferred next major frontier if reaffirmed
+F3 — Multi-Thread Book
+F4 — Narrative Depth
+F5 — Evolving Long Book
+F6 — Complex Long Book
+F7 — Series
+```
+
+F2 is **not automatically authorized** by appearing next. #313 must reconcile
+the current human/provider evidence first. If the unified experience model is
+reaffirmed, F2 should be preferred over another local Quick Draft feature or an
+unmotivated new narrative subsystem.
+
 ## Development Rule
 Prefer:
 
