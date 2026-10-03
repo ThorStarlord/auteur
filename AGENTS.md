@@ -80,6 +80,17 @@ In particular:
   specificity of genre claims rather than fabricating pack knowledge;
 - prefer advisory scope, engine, complexity, or hierarchy repairs over a single
   automatic "fix";
+- after Story Discovery, use only a narrow fitness delta: consume F3/F4 findings
+  and surface author-facing "What this story direction changes" only when
+  activation, complexity, runway, renewability, expansion capacity,
+  multi-engine compatibility, scope fit, engine-establishment status, or target
+  assumptions materially change;
+- do not interrupt the author with a no-op delta; if no tracked fitness
+  assumption changes materially, keep the analysis implicit;
+- once prose exists, treat Premise Fitness as an upstream forecast rather than a
+  continuously rewritten truth; use realized narrative evidence and existing
+  reconciliation/review owners, and rerun Premise Fitness only if the core
+  premise or target environment materially changes;
 - keep opportunity and fitness outputs `WORKING / NOT ACCEPTED` and hand
   selected premises into existing Story Discovery rather than silently creating
   Story Identity;
