@@ -90,9 +90,20 @@ def _provider_from_environment() -> tuple[str, str | None]:
     )
 
 
+def _provider_model_label(provider: str, model: str | None) -> str:
+    defaults = {
+        "openai": "gpt-4o",
+        "anthropic": "claude-sonnet-4-6",
+    }
+    return f"{provider}/{model or defaults[provider]}"
+
+
 def _build_quick_draft_client() -> tuple[LLMClient, str]:
     provider, model = _provider_from_environment()
-    return build_client(provider, model, agent_type="bard"), provider
+    return (
+        build_client(provider, model, agent_type="bard"),
+        _provider_model_label(provider, model),
+    )
 
 
 def _session_id(premise: str, first_scene: str) -> str:
