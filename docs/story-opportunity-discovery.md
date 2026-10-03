@@ -701,11 +701,18 @@ Output:
 - advisory recommendation;
 - explicit acceptance boundary.
 
-The handoff is:
+The handoff may include the optional Premise Fitness step:
 
     Story Opportunity
-    -> selected candidate premise / brief
+    -> candidate premise / brief
+    -> Premise Fitness
+    -> scope / genre / cost tradeoffs
+    -> selected working premise / brief
     -> Story Discovery
+
+Premise Fitness asks whether a premise is fit for its intended genre, experience,
+scope, complexity, and posture; it does not decide universal idea quality. See
+[Premise Fitness](premise-fitness.md).
 
 Story Opportunity Discovery must not bypass Story Discovery by silently turning
 a synthesized opportunity into accepted Story Identity.
