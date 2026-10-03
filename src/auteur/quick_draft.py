@@ -98,7 +98,7 @@ def _session_id(premise: str, first_scene: str) -> str:
     digest = hashlib.sha256(
         (premise.strip() + "\n" + first_scene.strip()).encode("utf-8")
     ).hexdigest()[:8]
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
     return f"quick-{stamp}-{digest}"
 
 
