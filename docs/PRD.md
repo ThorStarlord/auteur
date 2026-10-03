@@ -130,6 +130,23 @@ must consume rather than duplicate Story Discovery F3 causal-distinctness,
 Story Discovery F4 craft-propagation/composability, and MANA audience-effect
 analysis.
 
+The selected product projection is progressive-disclosure-first: keep
+**Post-Discovery Fitness Delta** as an internal term and show authors plain
+language such as **What this story direction changes** only when a
+decision-relevant architecture materially changes a prior fitness finding. Do
+not display a no-op delta for every candidate.
+
+A structured helper is not eligible merely because Premise Fitness is useful.
+It becomes eligible only when non-synthetic workflow use repeatedly exposes
+state/comparison/provenance/recomputation burden that a small read-only helper
+can remove without creating new authority or duplicating existing systems.
+
+After writing begins, Premise Fitness remains an upstream forecast. Story
+Discovery/Structure supply architecture-fit evidence; actual scenes and chapters
+supply realized narrative evidence; reader-response claims remain
+audience-evidence claims. A fresh Premise Fitness pass is warranted only when
+the core premise or target environment itself materially changes.
+
 See [Premise Fitness](premise-fitness.md),
 [Premise Fitness Calibration Cases](research/premise-fitness-calibration-cases.md),
 and
