@@ -82,6 +82,12 @@ See [docs/narrative-architecture.md](docs/narrative-architecture.md) for the can
 For the premise-first Beginner UI contract, see
 [Story Lens First-Screen UX](docs/design/2026-09-24-story-lens-first-screen-ux.md).
 
+For the documentation-only method that sits even earlier—turning tastes,
+influences, criticism, and audience evidence into candidate premises—see
+[Story Opportunity Discovery](docs/story-opportunity-discovery.md). This is a
+design/agent-workflow contract, not a claim that a dedicated runtime surface is
+already shipped.
+
 ## Author Authority
 
 Auteur's central safety and product rule is simple:
