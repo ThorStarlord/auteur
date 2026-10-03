@@ -142,6 +142,10 @@ It uses existing environment configuration:
 Provider configuration is infrastructure context, not another creative decision
 asked of the writer.
 
+Live Quick Draft evidence records the effective provider/model label, for example
+`openai/gpt-4o` or `anthropic/claude-sonnet-4-6`. A
+`AUTEUR_QUICK_DRAFT_MODEL` override is reflected in that label.
+
 ## Thirty-second target
 
 The session records:
