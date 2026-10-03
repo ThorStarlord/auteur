@@ -61,7 +61,7 @@ def test_browser_tutor_collapsed_and_warnings_inline():
         assert token in js, f"browser must render tutor field: {token}"
     assert "blocking" in combined.lower()
     assert "stale" in combined.lower()
-    assert "story map" in combined.lower()
+    assert "story details" in combined.lower()
 
 
 def test_browser_narrow_screens_collapse_navigator_into_drawer():
