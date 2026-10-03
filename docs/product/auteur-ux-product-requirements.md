@@ -670,9 +670,9 @@ Real provider evidence MUST be used for claims about:
 - scene-sized output.
 
 ### VAL-03 — Human evidence
-**Status:** CURRENT RESPONSIBILITY #305
+**Status:** CLAIM-APPROPRIATE / SCOPE SELECTED THROUGH #313
 
-Real participant evidence MUST be used for claims about:
+Real participant evidence MUST be used for subjective claims about:
 
 - experienced cognitive load;
 - bureaucracy;
@@ -683,6 +683,10 @@ Real participant evidence MUST be used for claims about:
 - desire to continue;
 - perceived continuity value.
 
+A human-only claim does not automatically become a blocking gate. Immediate
+human calibration is required when a plausible participant answer could change
+the next bounded repository responsibility.
+
 ### VAL-04 — No synthetic promotion
 **Status:** ESTABLISHED
 
@@ -692,34 +696,48 @@ A coherent architecture, passing test, or agent simulation MUST NOT be presented
 
 # 19. Evidence-gated product decisions
 
-The following decisions remain intentionally unresolved until #305/#310:
+The unresolved questions now belong to different evidence gates:
 
 1. Should **Start writing now** or **Explore this story** receive stronger default emphasis?
+   - human calibration when foregrounding becomes decision-changing.
 2. Which premise types benefit most from write-first versus shape-first?
+   - later comparative calibration; both tempos remain supported.
 3. Is the Quick Draft first scene reliably useful with real providers?
+   - #310 real-provider evidence.
 4. Is **What did we discover?** useful enough to retain or too noisy/administrative?
+   - #316 establishes the current interaction mechanics; subjective usefulness remains human calibration when decision-changing.
 5. When should continuity guidance interrupt or merely annotate creative flow?
+   - #318 X3 under real longitudinal state.
 6. How much inferred scaffolding can remain hidden before authors feel loss of control?
+   - human calibration when a concrete foregrounding decision depends on it.
 7. Does Auteur’s continuity machinery create enough differential value over Markdown + capable LLM to justify its additional interaction cost?
+   - #318 F2 + X3 with a real provider.
 
-No implementation should silently answer these questions on behalf of evidence.
+No implementation should silently answer subjective questions on behalf of
+evidence, and no broad human-study requirement should be inferred merely because
+some questions remain subjective.
 
 ---
 
 # 20. Post-evidence reconciliation
 
-After #305 and #310 return:
+Current evidence flow:
 
 ```text
-provider evidence
+qualified #316 synthetic/mechanical evidence
 +
-human evidence
+#310 real-provider evidence
++
+human evidence only when still decision-changing
 +
 this provisional architecture
--> reconcile requirements
+-> #313 reconciliation
 -> mark requirements KEEP / REVISE / REJECT / NEW
--> identify bounded next implementation wave
+-> select the bounded next responsibility
 ```
+
+A missing human-preference answer does not automatically block construction when
+all plausible answers leave the same next responsibility warranted.
 
 The reconciliation SHOULD prefer the smallest high-order correction that restores one coherent author mental model.
 
@@ -732,8 +750,13 @@ It SHOULD NOT return to an endless sequence of unrelated local UI patches.
 The high-order UX architecture is ready for stronger implementation authority when:
 
 - #310 has produced real-provider evidence for the Quick Draft path;
-- #305 has produced at least one serious real-author comparison;
+- #313 has reconciled that evidence with qualified #316 evidence;
+- any remaining human-only question that could change the next bounded
+  responsibility has received claim-appropriate human evidence;
 - the evidence does not require a Level-4 product-thesis review;
-- the provisional requirements have been reconciled against that evidence.
+- the provisional requirements have been classified against the evidence.
+
+Human-only questions that cannot change the next responsibility may remain open
+as calibration rather than blocking the next capability frontier.
 
 Until then, this document is a **product requirements scaffold**, not proof that every selected interaction is the ideal final experience.
