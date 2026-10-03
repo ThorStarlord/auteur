@@ -12,6 +12,7 @@ from auteur.llm import LLMResponse
 from auteur.quick_draft import (
     DEFAULT_LENSES,
     STATUS,
+    _provider_model_label,
     parse_quick_draft_args,
     prepare_quick_draft_shape_handoff,
     project_quick_draft_discoveries,
@@ -397,4 +398,9 @@ def test_product_probe_messy_writer_follow_up_starts_as_unclaimed_evidence() -> 
     assert follow_up["prose_preserved"] is None
     assert follow_up["stale_review_detected"] is None
     assert follow_up["only_selected_discoveries_carried_forward"] is None
+
+def test_quick_draft_provider_label_includes_effective_model() -> None:
+    assert _provider_model_label("openai", None) == "openai/gpt-4o"
+    assert _provider_model_label("anthropic", None) == "anthropic/claude-sonnet-4-6"
+    assert _provider_model_label("openai", "custom-model") == "openai/custom-model"
 
