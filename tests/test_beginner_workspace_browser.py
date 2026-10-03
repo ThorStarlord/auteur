@@ -522,3 +522,11 @@ def test_quick_draft_browser_url_is_resumable():
     # Entering a normal workspace leaves the provisional URL mode.
     assert 'url.searchParams.delete("quick_draft")' in js
 
+def test_quick_draft_home_cleanup_and_reopen_restore_inputs():
+    js = _read(APP)
+
+    assert 'if (!currentQuickDraftFromQuery())' in js
+    assert '$("quick-draft-result").hidden = true' in js
+    assert '$("new-story-premise").value = state.quickDraftPremise' in js
+    assert '$("quick-draft-first-scene").value = state.quickDraftFirstScene' in js
+
