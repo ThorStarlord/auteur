@@ -818,21 +818,140 @@ realized story effectiveness.
 
 ---
 
-## 18. Implementation posture
+## 18. Calibrated decisions
 
-The current selected responsibility is documentation-first.
+A bounded synthetic calibration across short horror, romance, mystery/thriller,
+progression fantasy, maximalist multi-genre series, deconstructive romance,
+scope-mismatched hooks, high-runway/high-activation-cost premises, evocative
+world premises, and unknown-scope premises supports the current model.
 
-Implement now:
+See [Premise Fitness Calibration Cases](research/premise-fitness-calibration-cases.md).
 
-- this Premise Fitness vocabulary;
-- premise-to-scope fit;
-- genre-conditioned efficacy;
-- efficiency/cost model;
-- runway and renewability;
-- boundary with Story Opportunity Discovery;
-- boundary with Genre Packs;
-- conventional/subversive/deconstructive posture;
-- lifecycle separation between efficacy and effectiveness.
+The calibration selects these additional decisions:
+
+### Core premise vs target environment
+
+Keep the generative proposition separate from the environment against which it
+is evaluated:
+
+    CORE PREMISE
+    generative dramatic proposition
+
+    TARGET ENVIRONMENT
+    genre / genre mix
+    target experience
+    narrative horizon
+    complexity
+    genre posture
+    audience intent
+
+Premise Fitness evaluates their relationship rather than stuffing every target
+constraint into the premise sentence.
+
+### Unknown scope
+
+When horizon is missing, provide conditional analysis across plausible horizons
+instead of silently choosing one.
+
+### Runway anatomy
+
+Use four descriptive shapes when useful:
+
+- **finite** — the governing problem naturally terminates;
+- **renewable** — resolution permits or creates another meaningful instance of
+  the existing engine;
+- **expanding** — resolution opens deeper/larger domains while preserving
+  identity;
+- **multi-domain** — several interacting domains can independently generate
+  consequential story.
+
+These are not ratings.
+
+### Runway vs renewability vs expansion capacity
+
+Keep them distinct:
+
+- runway = how much meaningful story can be sustained;
+- renewability = whether the existing engine naturally produces further
+  pressure;
+- expansion capacity = whether the story can move into new scales/domains
+  without ceasing to be itself.
+
+### Word count
+
+Prefer narrative-horizon classes before exact word-count optimization. Exact
+word count may constrain execution, but the premise alone does not establish an
+ideal number.
+
+### Multi-genre hierarchy
+
+When the author declares a primary/secondary hierarchy, evaluate it. When
+hierarchy is unresolved and alternative primaries would materially change the
+story, route those alternatives into Story Discovery rather than deciding them
+inside Premise Fitness.
+
+### Deconstruction
+
+Deconstruction requires enough genre legibility for the challenged expectation
+to be recognizable, but no universal retention percentage or checklist is
+warranted.
+
+### Missing Genre Pack
+
+Genre Packs improve specificity and provenance but are not prerequisites.
+
+    relevant Genre Pack exists
+    -> use explicit pack knowledge
+
+    no relevant Genre Pack
+    -> use bounded generic craft reasoning
+    -> mark genre-specific claims heuristic / incomplete
+
+### Market evidence
+
+Current market demand remains external to Premise Fitness. Popularity does not
+become premise fitness merely because the author has broad-audience intent.
+
+### Repair classes
+
+Advisory repairs may be grouped as:
+
+- scope repair;
+- engine repair;
+- complexity repair;
+- hierarchy repair.
+
+They remain proposals and never mutate accepted story state automatically.
+
+### Premise vs governing engine
+
+An evocative concept may be diagnosed as:
+
+    EVOCATIVE PREMISE
+    +
+    GOVERNING ENGINE UNESTABLISHED
+
+World size, lore volume, or aesthetic richness must not be mistaken for
+narrative runway.
+
+### Possible two-pass future
+
+A later product may use:
+
+    candidate premise
+    -> light Premise Fitness
+    -> Story Discovery
+    -> candidate architecture
+    -> architecture-aware fitness reassessment
+
+Only the upstream conceptual pass is selected now. The second pass remains
+unimplemented until repeated use demonstrates value.
+
+---
+
+## 19. Implementation posture after calibration
+
+The documentation responsibility is now **conceptually calibrated**.
 
 Do not implement yet:
 
@@ -843,11 +962,24 @@ Do not implement yet:
 - a new canonical artifact;
 - a new semantic layer;
 - automatic Genre Pack mutation;
-- a dedicated runtime before repeated use demonstrates the need.
+- a dedicated runtime;
+- architecture-aware second-pass analysis.
+
+A runtime becomes eligible only if repeated real or agent-assisted use shows that
+the documented method needs durable state, repeated automated synthesis, or
+integration that cannot be handled adequately by existing reasoning surfaces.
+
+Calibration result:
+
+    REAFFIRM
+    +
+    TERMINOLOGY REFINEMENT
+    +
+    NO RUNTIME SELECTED
 
 ---
 
-## 19. Design principle
+## 20. Design principle
 
 Premise Fitness should answer:
 
