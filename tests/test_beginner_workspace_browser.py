@@ -478,7 +478,7 @@ def test_browser_surfaces_reconcile_new_elements_as_story_choices():
 
     for token in (
         "Auteur noticed the story changed while you were writing",
-        "Keep draft &amp; reconcile",
+        "Keep draft &amp; update story",
         "Keep as intentional divergence",
         "Revise to match plan",
         "reconcile-new-elements",
