@@ -482,3 +482,27 @@ def analyze_audience_effects(blueprint: StoryBlueprint) -> AudienceEffectReport:
         findings=findings,
         guidance=propose_audience_effect_guidance(findings),
     )
+
+
+
+def format_audience_effect_report(report: AudienceEffectReport) -> str:
+    """Format a MANA report for a compact author-facing reasoning surface."""
+    lines = [
+        "MANA audience-effect analysis",
+        f"Evidence stage: {report.available_evidence_stage.value}",
+        f"Authority: {report.authority_status}",
+        "",
+    ]
+    for finding in report.findings:
+        label = finding.dimension.value.replace("_", " ").title()
+        lines.append(f"[{finding.state.value.upper()}] {label}")
+        lines.append(f"  {finding.summary}")
+        for limitation in finding.limitations:
+            lines.append(f"  Limit: {limitation}")
+    if report.guidance:
+        lines.extend(["", "Guidance (derived / not canon):"])
+        for item in report.guidance:
+            label = item.dimension.value.replace("_", " ")
+            lines.append(f"- {label}: {item.action}")
+    lines.extend(["", f"Claim ceiling: {report.claim_ceiling}"])
+    return "\n".join(lines)
