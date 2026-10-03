@@ -347,8 +347,9 @@ def test_browser_compresses_direction_choice_into_one_visible_action():
     assert "function useStoryDirection" in js
     assert ">Use this direction</button>" in js
     assert 'id="accept-selected-direction"' not in js
-    assert 'sendAction("select-direction"' in js
-    assert 'sendAction("accept-direction"' in js
+    assert '"select-direction"' in js
+    assert '"accept-direction"' in js
+    assert "render: false" in js
 
 
 def test_browser_defaults_structure_to_one_recommended_story_shape_action():
