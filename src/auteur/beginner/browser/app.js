@@ -28,6 +28,11 @@
     structureCustomize: false,
     continuationCustomize: false,
     quickDraftSessionId: null,
+    quickDraftPremise: "",
+    quickDraftFirstScene: "",
+    quickDraftDiscoveries: [],
+    quickDraftDiscoveriesVisible: false,
+    quickDraftDirty: false,
   };
 
   function $(id) {
@@ -158,23 +163,30 @@
   function renderQuickDraftDiscoveries(items) {
     var container = $("quick-draft-discoveries");
     var discoveries = items || [];
+    state.quickDraftDiscoveries = discoveries;
     if (!discoveries.length) {
       container.innerHTML = '<p class="muted">No obvious new elements yet. Keep writing.</p>';
       return;
     }
     container.innerHTML =
-      '<h4>Auteur noticed</h4>' +
-      discoveries.map(function (item) {
+      '<h4>What should Auteur remember when you shape the story?</h4>' +
+      discoveries.map(function (item, index) {
         return '<article class="discovery-chip"><strong>' +
           escapeHtml(item.label || "New story element") +
-          '</strong><p>' + escapeHtml(item.value || "") + "</p></article>";
+          '</strong><p>' + escapeHtml(item.value || "") + "</p>" +
+          '<label><input type="checkbox" data-remember-discovery="' + String(index) +
+          '"> Carry this idea into story shaping</label></article>';
       }).join("") +
-      '<p class="hint">These are working observations, not accepted story facts.</p>';
+      '<p class="hint">Nothing is selected automatically. These are working observations, not accepted story facts.</p>';
   }
 
   function renderQuickDraftProjection(projection) {
     if (!projection) return;
     state.quickDraftSessionId = projection.session_id;
+    var inputs = (projection.scaffold || {}).inputs || {};
+    state.quickDraftPremise = inputs.premise || state.quickDraftPremise;
+    state.quickDraftFirstScene = inputs.first_scene_intent || state.quickDraftFirstScene;
+    state.quickDraftDirty = false;
     $("quick-draft-result").hidden = false;
     $("quick-draft-editor").value = projection.draft_text || "";
     var draft = projection.draft || {};
@@ -183,7 +195,12 @@
       : "";
     $("quick-draft-meta").textContent =
       "Working scene" + elapsed + " · " + String(draft.edit_count || 0) + " edit(s)";
-    renderQuickDraftDiscoveries(projection.discoveries || []);
+    if (state.quickDraftDiscoveriesVisible) {
+      renderQuickDraftDiscoveries(projection.discoveries || []);
+    } else {
+      $("quick-draft-discoveries").innerHTML =
+        '<p class="muted">When you are ready, choose “What did we discover?” to see possible story material from the draft.</p>';
+    }
     $("quick-draft-result").scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
@@ -199,6 +216,10 @@
       $("quick-draft-first-scene").focus();
       return;
     }
+    state.quickDraftDiscoveriesVisible = false;
+    state.quickDraftDiscoveries = [];
+    state.quickDraftPremise = premise;
+    state.quickDraftFirstScene = firstScene;
     $("home-status").textContent = "Writing your first scene…";
     return fetch("/api/beginner/quick-draft", {
       method: "POST",
@@ -231,6 +252,8 @@
     )
       .then(readJson)
       .then(function (projection) {
+        state.quickDraftDiscoveriesVisible = false;
+        state.quickDraftDiscoveries = [];
         $("home-status").textContent = "Saved.";
         renderQuickDraftProjection(projection);
         return projection;
@@ -249,6 +272,7 @@
     )
       .then(readJson)
       .then(function (projection) {
+        state.quickDraftDiscoveriesVisible = true;
         renderQuickDraftDiscoveries(projection.discoveries || []);
         return projection;
       })
@@ -259,23 +283,48 @@
       });
   }
 
-  function shapeQuickDraftStory() {
-    return saveQuickDraft().then(function () {
-      return createStoryFromHome();
-    });
+  function selectedQuickDraftDiscoveries() {
+    var selected = [];
+    Array.prototype.forEach.call(
+      $("quick-draft-discoveries").querySelectorAll("[data-remember-discovery]:checked"),
+      function (input) {
+        var index = Number(input.getAttribute("data-remember-discovery"));
+        if (Number.isInteger(index) && state.quickDraftDiscoveries[index]) {
+          selected.push(state.quickDraftDiscoveries[index]);
+        }
+      }
+    );
+    return selected;
   }
 
-  function createStoryFromHome() {
-    var premise = $("new-story-premise").value.trim();
-    if (!premise) return;
+  function shapingPremise(selected) {
+    var parts = [state.quickDraftPremise];
+    if (state.quickDraftFirstScene) {
+      parts.push("First scene I want: " + state.quickDraftFirstScene);
+    }
+    if (selected.length) {
+      parts.push(
+        "Ideas I discovered while drafting and explicitly want to carry forward:\n- " +
+        selected.map(function (item) { return item.value; }).join("\n- ")
+      );
+    }
+    return parts.filter(Boolean).join("\n\n");
+  }
+
+  function createStoryFromPremise(premise, extra) {
+    if (!premise) return Promise.resolve(null);
     $("home-status").textContent = "Creating your story…";
+    var payload = {
+      command_id: nextCommandId("create"),
+      premise: premise
+    };
+    Object.keys(extra || {}).forEach(function (key) {
+      payload[key] = extra[key];
+    });
     return fetch("/api/beginner/workspaces", {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({
-        command_id: nextCommandId("create"),
-        premise: premise
-      }),
+      body: JSON.stringify(payload),
     })
       .then(readJson)
       .then(function (projection) {
@@ -292,6 +341,40 @@
         $("home-status").textContent = "Could not create story: " + error.message;
         return null;
       });
+  }
+
+  function shapeQuickDraftStory() {
+    if (!state.quickDraftSessionId) return Promise.resolve(null);
+    if (state.quickDraftDirty) {
+      return saveQuickDraft().then(function (saved) {
+        if (!saved) return null;
+        return discoverQuickDraftElements().then(function () {
+          $("home-status").textContent =
+            "Review what Auteur noticed, choose anything you want to remember, then choose “Shape this story” again.";
+          return null;
+        });
+      });
+    }
+    if (!state.quickDraftDiscoveriesVisible) {
+      return discoverQuickDraftElements().then(function () {
+        $("home-status").textContent =
+          "Choose anything you want Auteur to remember, then choose “Shape this story” again.";
+        return null;
+      });
+    }
+    var selected = selectedQuickDraftDiscoveries();
+    return createStoryFromPremise(
+      shapingPremise(selected),
+      {
+        quick_draft_session_id: state.quickDraftSessionId,
+        quick_draft_discoveries: selected,
+      }
+    );
+  }
+
+  function createStoryFromHome() {
+    var premise = $("new-story-premise").value.trim();
+    return createStoryFromPremise(premise, {});
   }
 
   function loadProjection() {
@@ -2067,6 +2150,13 @@
       createStoryFromHome();
     });
     $("quick-draft-start").addEventListener("click", startQuickDraft);
+    $("quick-draft-editor").addEventListener("input", function () {
+      state.quickDraftDirty = true;
+      state.quickDraftDiscoveriesVisible = false;
+      state.quickDraftDiscoveries = [];
+      $("quick-draft-discoveries").innerHTML =
+        '<p class="muted">Draft changed. Save it before reviewing discoveries.</p>';
+    });
     $("quick-draft-save").addEventListener("click", saveQuickDraft);
     $("quick-draft-discover").addEventListener("click", discoverQuickDraftElements);
     $("quick-draft-shape").addEventListener("click", shapeQuickDraftStory);
