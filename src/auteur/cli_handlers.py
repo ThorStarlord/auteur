@@ -593,7 +593,7 @@ def handle_identity_recommend(
                 Genre(genre_key)
             except ValueError:
                 return HandlerResult.failure(
-                    f"Custom genre '{genre_key}' is not supported as a canonical StoryIdentity genre in V1; use a built-in genre or 'other'."
+                    f"Custom genre '{genre_key}' cannot be used directly in the accepted story setup in V1; use a built-in genre or 'other'."
                 )
             contract = (
                 load_project_genre_contract(project_path, genre_key)
@@ -642,7 +642,7 @@ Primary Genre Contract Details ({contract.display_name}):
         design_context_text = ""
         if design_context:
             design_context_text = (
-                "\n\nOptional Story Design Pack context (priors and questions, not canon):\n"
+                "\n\nOptional Story Design Pack context (reference ideas and questions, not accepted story facts):\n"
                 + json.dumps(design_context, indent=2, ensure_ascii=False)
                 + "\nUse this context to make reasoning more specific. Do not copy pack options into accepted identity fields unless the story-specific choice supports them."
             )
@@ -2028,7 +2028,7 @@ def handle_state_canon(project_path: Path, format: str) -> HandlerResult:
         return HandlerResult.success(data=StateCanonData(output=output))
 
     output = []
-    output.append("# Canonical Reference Manual\n")
+    output.append("# Accepted Story Reference\n")
 
     output.append("## \U0001f465 Character Registry")
     chars = bible.data.get("characters", {})
@@ -2127,7 +2127,7 @@ def handle_state_confirm(
     locked = recovery_payload.get("candidate_locked_layers") or recovery_payload.get("candidate_locked_state")
     if not locked:
         return HandlerResult.failure(
-            "Recovery run file has no 'candidate_locked_layers' or 'candidate_locked_state'."
+            "Recovery file does not contain any story choices to restore."
         )
 
     from auteur.blueprint import TargetExperience
@@ -2190,7 +2190,7 @@ def handle_state_confirm(
 
     except Exception as exc:
         return HandlerResult.failure(
-            f"Recovery merge validation failed. Transaction rolled back.\nDetails: {exc}"
+            f"The recovered story changes could not be applied safely. Nothing was changed.\nDetails: {exc}"
         )
 
     return HandlerResult.success(
