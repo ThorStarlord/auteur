@@ -36,7 +36,22 @@ Cross-cutting:
 ```
 
 ### Critical Semantic Distinctions
-$$\text{Pack Knowledge} \neq \text{Pack Recommendation (Candidate)} \neq \text{Accepted Story Identity (Layer 1)} \neq \text{Compiled Story Structure (Layer 2)}$$
+$\text{Pack Knowledge} \neq \text{Pack Recommendation (Candidate)} \neq \text{Accepted Story Identity (Layer 1)} \neq \text{Compiled Story Structure (Layer 2)}$
+
+Genre Pack knowledge may also be consumed by the documentation-only
+[Premise Fitness](../premise-fitness.md) method. The responsibilities remain
+different:
+
+- **Genre Pack:** reusable knowledge about genre promises, conventions, engine
+  families, escalation, resolutions, failure modes, and intentional subversion
+  points.
+- **Premise Fitness:** story-specific analysis of whether one working premise can
+  use that knowledge effectively at its intended scope and posture.
+
+Genre alignment is not a universal premise-quality score. A deconstructive
+premise may intentionally violate conventional defaults while remaining highly
+fit for its declared deconstructive job. Genre posture and audience breadth are
+separate axes; Genre Packs are not inherently mass-appeal optimizers.
 
 ---
 
