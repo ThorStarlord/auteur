@@ -898,7 +898,49 @@ Capabilities are admitted because a real story requires them.
 
 ---
 
-# 8. Relationship to the Unified Author Experience Architecture
+# 8. Relationship to the Experience Frontier Roadmap
+
+Narrative capability and UX/UI capability must be qualified separately.
+
+See:
+
+- `auteur-experience-frontier-construction-roadmap.md`
+
+A narrative frontier may pass while its paired experience frontier fails.
+
+Example:
+
+```text
+F2 PASS
+Chapter 5 remembers Chapter 1 correctly
+
+X3 FAIL
+author cannot understand the Book workspace or next action
+```
+
+Conversely:
+
+```text
+X3 PASS
+Book workspace is clear
+
+F2 FAIL
+Chapter 5 forgets an accepted Chapter 1 event
+```
+
+Do not repair one layer for the other's failure.
+
+If #313 reaffirms the current product model, qualify:
+
+```text
+F2 — Small-Book Longitudinal Coherence
++
+X3 — Persistent Book Workspace
+```
+
+with the same reference Book and independent pass/fail claims.
+
+# 9. Relationship to the Unified Author Experience Architecture
 
 The capability frontier roadmap and experience architecture constrain each other.
 
@@ -930,7 +972,7 @@ frontier not qualified
 
 ---
 
-# 9. Relationship to #305, #310, and #313
+# 10. Relationship to #305, #310, and #313
 
 The current frontier is F1.
 
@@ -959,7 +1001,7 @@ next in a table.
 
 ---
 
-# 10. F2 reference qualification story
+# 11. F2 reference qualification story
 
 If F2 is selected after #313, use one controlled reference Book before designing
 new subsystems.
@@ -1018,7 +1060,7 @@ This Book is a **controlled stress fixture**, not canonical Auteur sample fictio
 
 ---
 
-# 11. Current approximate frontier state
+# 12. Current approximate frontier state
 
 This is a qualitative product-readiness map, not a numeric score.
 
@@ -1062,7 +1104,7 @@ Important:
 
 ---
 
-# 12. Anti-roadmap patterns
+# 13. Anti-roadmap patterns
 
 ## Feature accumulation
 
@@ -1110,7 +1152,7 @@ Continue polishing simple-scene UX forever because it is easy to measure.
 
 ---
 
-# 13. Construction roadmap summary
+# 14. Construction roadmap summary
 
 ```text
 F0  Coherent Scene
@@ -1148,7 +1190,7 @@ qualify frontier
 
 ---
 
-# 14. Compact roadmap law
+# 15. Compact roadmap law
 
 > **Do not build the next interesting feature. Build the capability required for
 > Auteur to survive the next deliberately harder kind of story.**
