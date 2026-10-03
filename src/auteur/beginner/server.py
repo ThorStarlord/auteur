@@ -5,6 +5,10 @@ Routes (all JSON):
 - GET /api/beginner/workspaces/<workspace_id> -> full projection read.
 - POST /api/beginner/workspaces/<workspace_id>/commands/<command> -> journey
   command with a full MutationCommand envelope; 200 + full projection.
+- POST /api/beginner/quick-draft -> two-input provisional first-scene draft.
+- GET/POST /api/beginner/quick-draft/<session>/... -> inspect/edit provisional draft.
+- POST /api/beginner/chapters/<chapter>/reconcile-new-elements -> explicit
+  keep/update-story, intentional-divergence, or revise-to-plan decision.
 
 The handler holds no narrative rules: the sealed fixture premise enters only
 via workspace creation passthrough and every mutation delegates to
