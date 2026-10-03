@@ -5,6 +5,7 @@ from types import SimpleNamespace
 
 import yaml
 
+from auteur.cli_parser import build_parser
 from auteur.reasoning.cli import dispatch_reasoning
 
 
@@ -114,6 +115,16 @@ def test_reasoning_dispatch_fails_closed_for_missing_review(tmp_path) -> None:
     assert rc == 1
     assert errors == [f"reasoning review not found: {tmp_path / 'missing.json'}"]
 
+
+def test_reasoning_audience_parser_contract() -> None:
+    args = build_parser().parse_args(
+        ["reasoning", "audience", "blueprint.yaml", "--json"]
+    )
+
+    assert args.command == "reasoning"
+    assert args.reasoning_command == "audience"
+    assert args.blueprint.name == "blueprint.yaml"
+    assert args.json is True
 
 
 def test_reasoning_audience_dispatch_outputs_typed_json(tmp_path, capsys) -> None:
