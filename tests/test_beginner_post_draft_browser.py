@@ -23,7 +23,7 @@ def test_browser_reconciliation_bridge_keeps_author_choice_explicit() -> None:
     server = Path("src/auteur/beginner/server.py").read_text(encoding="utf-8")
 
     assert 'id="post-draft-reconcile"' in html
-    assert "Keep draft &amp; reconcile" in html
+    assert "Keep draft &amp; update story" in html
     assert "Keep as intentional divergence" in html
     assert "Revise to match plan" in html
     assert "/reconcile-new-elements" in app
