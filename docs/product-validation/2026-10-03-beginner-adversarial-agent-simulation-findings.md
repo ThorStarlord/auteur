@@ -32,6 +32,116 @@ The relevant remaining question is therefore not "have we tested the user
 journey at all?" It is "which claims still require real humans after the
 synthetic evidence is exhausted?"
 
+## Persona simulation pass
+
+These classifications are deliberately stricter than a product recommendation.
+They state what the current repository can support under a synthetic persona
+reading.
+
+### P1 — Discovery writer
+
+**Result:** SIMULATED_PASS_WITH_FRICTION.
+
+The front door makes the write-first intent explicit:
+
+- "Want to write before planning?"
+- "Start writing now"
+- "Quick Draft · working only"
+- "Edit freely. Nothing here becomes accepted story material until you choose what to keep."
+
+The persona can reach and edit prose before setup acceptance. However, when the
+writer later chooses "Shape this story" and discoveries exist, the current
+browser first opens discovery review and instructs the writer to choose anything
+to remember, then click "Shape this story" again.
+
+That extra review is authority-safe and explicit, but it is a real mechanical
+ceremony. It should be challenged by later calibration rather than assumed to
+be free.
+
+### P2 — Planner
+
+**Result:** SIMULATED_PASS.
+
+The compressed Shape First path preserves interpretation, direction, Story core,
+recommended Story shape, Chapter planning, and drafting while reducing the old
+approval density.
+
+The synthetic evidence supports keeping this tempo. It does not establish that
+real writers prefer it or that every step earns its cost.
+
+### P3 — Uncertain beginner
+
+**Result:** SIMULATED_PASS_WITH_TERMINOLOGY_WATCH.
+
+Primary entry actions are expressed in ordinary language such as:
+
+- "Explore this story"
+- "Start writing now"
+- "What story do you want to tell?"
+- "Here's what seems interesting about your story"
+- "Shape this story"
+
+Deeper lifecycle/state terminology still exists in source and advanced/detail
+surfaces. The current evidence supports the progressive-disclosure direction,
+but source text alone cannot establish human comprehension.
+
+### P4 — Chaotic writer
+
+**Result:** MECHANICAL_PASS.
+
+The Sister Beatrice + abandoned seaside convent case is preserved through
+working prose, can invalidate stale review evidence truthfully, can surface new
+elements, and can carry only explicitly selected discoveries forward.
+
+The remaining risk is interaction cost, not silent data loss.
+
+### P5 — Change-my-mind writer
+
+**Result:** SIMULATION_INCONCLUSIVE.
+
+The current code can expose accepted prior Chapter references and realized
+state to later work. The architecture also defines future-intent/change
+contracts.
+
+But the current synthetic package does not yet prove the complete sequence:
+
+    accepted Chapter 1
+    -> material author intent change
+    -> affected owners/consequences
+    -> preserved historical truth
+    -> productive later planning
+    -> no unnecessary invalidation
+
+Do not convert partial state-visibility evidence into a claim that end-to-end
+change propagation is solved. This belongs naturally in the F2/X3 stress
+episode or a smaller focused precursor if #313 judges it decision-changing.
+
+### P6 — Minimalist Markdown + LLM baseline
+
+**Result:** PROVIDER_BLOCKED.
+
+A fair baseline requires a capable real provider and must not be replaced by a
+hand-authored caricature of a general-purpose LLM.
+
+The blind longitudinal comparison therefore remains pending #310 or another
+provider-capable execution environment.
+
+## Cross-persona synthesis
+
+The strongest current pattern is:
+
+    first-session authority mechanics       strong
+    ambiguity preservation                  strong
+    messy-discovery data integrity          strong
+    Shape First compression                 strong
+    Write First reachability                strong
+    discovery-review interaction cost       still open
+    end-to-end change propagation           not yet established
+    provider prose behavior                 blocked on #310
+    longitudinal value vs plain LLM         not yet established
+
+This narrows the next evidence problem considerably.
+
 ## Finding 1 — The 22-interaction baseline is no longer a live product candidate
 
 **Disposition:** RETIRED BY MECHANICAL EVIDENCE for default-path construction.
