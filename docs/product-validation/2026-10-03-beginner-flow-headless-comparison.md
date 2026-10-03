@@ -130,6 +130,19 @@ The live run records:
 
 It deliberately does not manufacture qualitative scores.
 
+## Reload / continuation behavior
+
+The write-first condition is expected to survive an ordinary browser refresh.
+The session ID is carried in the `quick_draft` query parameter and the
+Browser reloads the same provisional scene plus its original two author inputs.
+
+When the writer enters a normal workspace, the provisional URL mode is cleared.
+Returning Home therefore does not accidentally resurrect an old working scene
+without its Quick Draft URL context.
+
+This behavior is mechanically testable and should be included in dogfood before
+human preference claims are made.
+
 ## Evidence ceiling
 
 Repository/static evidence can establish:
