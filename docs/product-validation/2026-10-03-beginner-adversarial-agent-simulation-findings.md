@@ -8,16 +8,31 @@
 
 ## Status
 
-Initial repository-grounded adversarial synthesis. The companion probe and
-regression test are the machine-checkable evidence surface. Exact-head CI must
-be green before the mechanical results below are treated as qualified for this
-branch.
+Repository-grounded adversarial synthesis. The companion probe and regression
+test are the machine-checkable evidence surface.
+
+The probe extension through change-of-mind divergence passed GitHub Validation
+run #908 on exact probe/test head
+1fb41603698c7721c7d6b762e26e0e4b9ef829d8:
+
+- focused adversarial tests: 4 / 4 PASS;
+- validator verification: 25 / 25 PASS;
+- repository validation: PASS;
+- release-scope validation: PASS;
+- vendored contract: OK;
+- Ruff: PASS.
+
+This qualifies the mechanical claims of that probe/test head. The findings
+remain synthetic evidence, not human research.
 
 ## Existing evidence reused
 
 This simulation does not restart from zero. Auteur already has:
 
-- repeated premise-to-StoryIdentity synthetic persona/stress runs;
+- **28** premise-to-StoryIdentity synthetic registry records across v1.2-v1.6;
+- the simulation retrospective's explicit diminishing-returns stop decision and
+  warning that shared-agent-family evaluation does not create independent human
+  judgment;
 - mutation-challenge evaluator rehearsals;
 - a premise-to-Chapter-2 scripted simulation that previously discovered a real
   workflow projection defect and verified its repair;
@@ -97,24 +112,36 @@ The remaining risk is interaction cost, not silent data loss.
 
 ### P5 — Change-my-mind writer
 
-**Result:** SIMULATION_INCONCLUSIVE.
+**Result:** MECHANICAL_PARTIAL_PASS.
 
-The current code can expose accepted prior Chapter references and realized
-state to later work. The architecture also defines future-intent/change
-contracts.
+The adversarial probe now exercises a concrete post-Chapter change:
 
-But the current synthetic package does not yet prove the complete sequence:
+    old Chapter 1 expected state: antagonist_role = enemy
+    accepted Chapter 1 state:    antagonist_role = ally
+    Chapter 2 role:              decide whether to trust the former antagonist
 
-    accepted Chapter 1
-    -> material author intent change
-    -> affected owners/consequences
-    -> preserved historical truth
-    -> productive later planning
-    -> no unnecessary invalidation
+The current continuation owner:
 
-Do not convert partial state-visibility evidence into a claim that end-to-end
-change propagation is solved. This belongs naturally in the F2/X3 stress
-episode or a smaller focused precursor if #313 judges it decision-changing.
+- exposes the accepted changed state to Chapter 2;
+- reports the old-plan/new-reality mismatch as a divergence;
+- recommends adapting the next Chapter to accepted state;
+- preserves the historical Chapter 1 outline unchanged;
+- preserves the intended Chapter 2 role.
+
+This materially narrows the change-my-mind uncertainty. Accepted story reality
+can outrank an obsolete expectation without silently rewriting history.
+
+What remains unproved is the whole author-facing path for every kind of
+pre-Expression intent revision:
+
+    author states new intent
+    -> affected owners/consequences are projected
+    -> only necessary state is revisited
+    -> productive writing resumes
+
+The human cost of that recovery also remains subjective. Those narrower
+questions belong naturally in F2/X3 or a focused calibration if #313 finds them
+decision-changing.
 
 ### P6 — Minimalist Markdown + LLM baseline
 
@@ -136,7 +163,8 @@ The strongest current pattern is:
     Shape First compression                 strong
     Write First reachability                strong
     discovery-review interaction cost       still open
-    end-to-end change propagation           not yet established
+    accepted-state change propagation       mechanically supported
+    broader intent-revision recovery         partially open
     provider prose behavior                 blocked on #310
     longitudinal value vs plain LLM         not yet established
 
