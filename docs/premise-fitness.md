@@ -1030,7 +1030,145 @@ Current disposition:
 
 ---
 
-## 20. Design principle
+## 20. Remaining product decisions resolved
+
+The remaining implementation-boundary questions are selected as follows.
+
+### 20.1 Runtime eligibility gate
+
+Do not implement a structured Premise Fitness helper merely because the method is
+conceptually useful or because synthetic cases can be generated indefinitely.
+
+A small read-only helper becomes **eligible for implementation** when non-synthetic
+use shows recurring operational burden in at least one sustained workflow or
+across distinct real workflow episodes, such as:
+
+- repeatedly reconstructing the same target environment;
+- repeatedly normalizing several Story Opportunities for comparison;
+- repeatedly rebuilding premise-revision deltas by hand;
+- repeatedly retrieving the same Genre Pack evidence/provenance;
+- repeatedly recomputing the same fitness consequences after Story Discovery.
+
+Eligibility also requires that a bounded helper can remove that burden without:
+
+- creating a new canonical artifact;
+- creating a new authority boundary;
+- duplicating Story Discovery or MANA;
+- introducing more maintenance burden than the repeated manual work it removes.
+
+Synthetic calibration alone cannot satisfy this gate.
+
+The gate is qualitative and evidence-based, not a usage-count score.
+
+### 20.2 User-facing projection of the Post-Discovery Fitness Delta
+
+Keep **Post-Discovery Fitness Delta** as an internal/product-design term.
+
+The default author-facing projection should be plain language such as:
+
+> **What this story direction changes**
+
+Only expose it when the selected architecture materially changes a prior fitness
+finding.
+
+Do not make writers learn another subsystem merely because the internal model has
+one.
+
+Advanced/debug surfaces may expose the underlying dimensions and provenance.
+
+### 20.3 When the delta runs
+
+Do **not** run or display a full delta for every generated Story Discovery
+candidate.
+
+The preferred trigger is when an architecture becomes decision-relevant:
+
+- the author focuses/selects a working Story Discovery direction for review;
+- a composition step materially changes that candidate;
+- the target environment changes;
+- a later architecture revision changes engine hierarchy or scope assumptions.
+
+The delta should run before canonical acceptance when it can inform the author's
+decision.
+
+Display only material changes to:
+
+- activation cost;
+- complexity / maintenance burden;
+- runway;
+- renewability;
+- expansion capacity;
+- multi-engine compatibility;
+- scope fit;
+- prior engine-establishment status;
+- target-environment assumptions.
+
+If none changes materially:
+
+    NO MATERIAL FITNESS DELTA
+    -> no extra author-facing interruption
+
+This follows progressive disclosure: analysis may exist internally while the UI
+stays quiet when it adds no decision value.
+
+### 20.4 What happens after writing begins
+
+Premise Fitness is primarily an **upstream forecast**. It should not expand until
+it becomes a generic label for every later narrative diagnostic.
+
+Use this lifecycle:
+
+    Story Opportunity / premise
+    -> Premise Fitness
+       predicted affordance / cost / runway / scope fit
+
+    Story Discovery / Structure
+    -> architecture fit
+       whether the selected design still fits the target environment
+
+    Realization / Expression
+    -> realized narrative evidence
+       what the actual scenes, chapters, and evolving story now demonstrate
+
+    audience observation
+    -> audience-observed effectiveness
+       what real readers actually experience
+
+Here, **architecture fit** and **realized narrative evidence** are descriptive
+responsibilities, not newly selected semantic layers or standalone subsystems.
+
+Once prose exists, do not continuously rewrite the original Premise Fitness
+report as though prediction and realization were the same evidence.
+
+If writing discovers a material change:
+
+    realized discovery
+    -> identify lowest sufficient semantic owner
+    -> preserve prose / evidence
+    -> propose story update
+    -> reassess only the affected fit assumptions
+
+Run a fresh Premise Fitness analysis only when the **core premise or target
+environment itself** materially changes.
+
+Otherwise, use the existing Story Discovery, Structure, continuity,
+reconciliation, and review surfaces to reason about the changed story.
+
+### 20.5 Independent-author usefulness remains a separate evidence claim
+
+The repository has enough founder, agent, and synthetic evidence to preserve and
+use the method.
+
+It does **not** yet establish that independent writers prefer, understand, or
+feel helped by a visible Premise Fitness feature.
+
+That question does not block the documented method. It becomes relevant only
+before making human-usability/preference claims or foregrounding Premise Fitness
+as an explicit writer-facing product surface.
+
+---
+
+## 21. Design principle
 
 Premise Fitness should answer:
 
