@@ -46,9 +46,11 @@ def test_beginner_front_door_uses_plain_story_language() -> None:
         "SUGGESTED CHANGE / NOT APPLIED",
         "Confirm the change",
         "Keep draft &amp; update story",
-        "Story setup decisions and story updates are deferred",
     ):
         assert plain in combined
+
+    assert "Story setup decisions and " in quick_draft
+    assert "story updates are deferred until after the draft." in quick_draft
 
 
 def test_cli_help_translates_architecture_without_renaming_commands() -> None:
