@@ -12,9 +12,9 @@ def _read(path: Path) -> str:
 def test_browser_leads_with_interpretation_and_hides_internal_vocabulary() -> None:
     source = _read(APP)
     html = _read(INDEX)
-    assert "Continue with this interpretation" in html
-    assert "Refine this interpretation" in html
-    assert "Why does Auteur see this?" in html
+    assert "That feels right →" in html
+    assert "Adjust what Auteur sees" in html
+    assert "Show me why" in html
     assert "PRIMARY_ENGINE" not in html
     assert "SETTING_WORLD" not in html
     assert "RELATIONSHIP_THEMATIC" not in html

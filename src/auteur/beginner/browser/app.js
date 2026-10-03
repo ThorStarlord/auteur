@@ -7,8 +7,10 @@
  *
  * Holds no narrative rules: every question, option, recommendation, warning,
  * and piece of evidence is rendered verbatim from the server projection.
- * Selecting an option autosaves and keeps the current card visible; only the
- * explicit Continue button advances to the next card.
+ * Selecting an option autosaves and keeps the current card visible. The
+ * step-by-step path still advances through explicit Continue actions, while
+ * the default Beginner path may bundle reversible planning steps behind one
+ * clearly labelled author action.
  */
 
 (function () {
@@ -23,6 +25,8 @@
     inspectorOpen: false,
     activeLensId: null,
     currentProjection: null,
+    structureCustomize: false,
+    continuationCustomize: false,
   };
 
   function $(id) {
@@ -30,13 +34,13 @@
   }
 
   function stageLabel(stage) {
-    return stage === "discover" ? "Discovery" :
-      (stage === "story_identity" ? "Story Identity" : "Structure");
+    return stage === "discover" ? "Direction" :
+      (stage === "story_identity" ? "Story core" : "Story shape");
   }
 
   function milestoneLabel(milestoneId) {
-    return milestoneId === "story_direction" ? "Story Direction" :
-      (milestoneId === "story_identity" ? "Story Identity" : "Whole-Story Structure");
+    return milestoneId === "story_direction" ? "Direction" :
+      (milestoneId === "story_identity" ? "Story core" : "Story shape");
   }
 
   function escapeHtml(value) {
@@ -83,6 +87,8 @@
     $("workspace-meta").textContent = "";
     state.currentProjection = null;
     state.activeLensId = null;
+    state.structureCustomize = false;
+    state.continuationCustomize = false;
   }
 
   function showWorkspace() {
@@ -103,6 +109,8 @@
     if (!workspaceId) return;
     state.workspaceId = workspaceId;
     state.activeLensId = null;
+    state.structureCustomize = false;
+    state.continuationCustomize = false;
     $("workspace-id").value = workspaceId;
     if (updateUrl !== false) updateWorkspaceUrl(workspaceId);
     return loadProjection();
@@ -281,8 +289,21 @@
       });
   }
 
-  function sendAction(slug, payload, label) {
+  function rememberProjection(projection) {
+    if (!projection) return;
+    state.currentProjection = projection;
+    if (typeof projection.session_version === "number") {
+      state.sessionVersion = projection.session_version;
+    } else if (projection.workspace && typeof projection.workspace.session_version === "number") {
+      state.sessionVersion = projection.workspace.session_version;
+    }
+    $("workspace-meta").textContent =
+      "Workspace " + state.workspaceId + " · version " + state.sessionVersion;
+  }
+
+  function sendAction(slug, payload, label, options) {
     if (!state.workspaceId) return Promise.resolve(null);
+    var settings = options || {};
     setStatus(label + "…");
     return fetch(
       "/api/beginner/workspaces/" + encodeURIComponent(state.workspaceId) + "/commands/" + slug,
@@ -299,12 +320,155 @@
     )
       .then(readJson)
       .then(function (projection) {
-        render(projection);
-        setStatus("");
+        if (settings.render === false) {
+          rememberProjection(projection);
+        } else {
+          render(projection);
+        }
+        if (!settings.keepStatus) setStatus("");
+        return projection;
       })
       .catch(function (error) {
         setStatus(label + " failed: " + error.message);
+        return null;
       });
+  }
+
+  function useStoryDirection(directionId) {
+    if (!directionId) return Promise.resolve(null);
+    return sendAction(
+      "select-direction",
+      { direction_id: directionId },
+      "Choosing this direction",
+      { render: false, keepStatus: true }
+    ).then(function (projection) {
+      if (!projection) return null;
+      return sendAction("accept-direction", {}, "Using this direction");
+    });
+  }
+
+  function structureNavigatorEntry(projection) {
+    return (projection.navigator || []).filter(function (entry) {
+      return entry.stage === "story_structure";
+    })[0] || null;
+  }
+
+  function useRecommendedStoryShape() {
+    var guard = 0;
+    state.structureCustomize = false;
+    setStatus("Applying Auteur's recommended story shape…");
+
+    function advance(projection) {
+      if (!projection || guard >= 12) return Promise.resolve(projection);
+      guard += 1;
+
+      var accepted = (projection.canonical_refs || []).some(function (ref) {
+        return ref.milestone_id === "whole_story_structure";
+      });
+      if (accepted) return Promise.resolve(projection);
+
+      var card = projection.decision_card;
+      if (card && card.stage === "story_structure") {
+        var recommendation = card.recommendation || (card.options || [])[0];
+        if (!recommendation) return Promise.resolve(projection);
+        return sendAction(
+          "select",
+          { card_id: card.card_id, option: recommendation },
+          "Applying recommended story shape",
+          { render: false, keepStatus: true }
+        ).then(function (selected) {
+          if (!selected) return null;
+          var entry = structureNavigatorEntry(selected);
+          if (entry && entry.review_available) {
+            return sendAction(
+              "open-review",
+              { stage: "story_structure" },
+              "Checking recommended story shape",
+              { render: false, keepStatus: true }
+            ).then(function (reviewed) {
+              if (!reviewed) return null;
+              return sendAction("accept-structure", {}, "Using recommended story shape");
+            });
+          }
+          return sendAction(
+            "continue",
+            { card_id: card.card_id },
+            "Applying recommended story shape",
+            { render: false, keepStatus: true }
+          ).then(advance);
+        });
+      }
+
+      var actions = projection.available_actions || [];
+      if (actions.indexOf("open-review:story_structure") >= 0) {
+        return sendAction(
+          "open-review",
+          { stage: "story_structure" },
+          "Checking recommended story shape",
+          { render: false, keepStatus: true }
+        ).then(advance);
+      }
+      if (actions.indexOf("accept-structure") >= 0) {
+        return sendAction("accept-structure", {}, "Using recommended story shape");
+      }
+      return Promise.resolve(projection);
+    }
+
+    return advance(state.currentProjection).then(function (projection) {
+      setStatus("");
+      return projection;
+    });
+  }
+
+  function prepareChapterLaunch() {
+    var sequence = [
+      "propose-outline",
+      "accept-outline",
+      "propose-chapter-plan",
+      "accept-chapter-plan",
+      "propose-scene-plans",
+      "accept-scene-plans",
+      "prepare-draft-handoff",
+    ];
+    var guard = 0;
+    state.continuationCustomize = false;
+    setStatus("Planning Chapter 1…");
+
+    function advance(projection) {
+      if (!projection || guard >= 10) return Promise.resolve(projection);
+      guard += 1;
+      var actions = projection.available_actions || [];
+      if (actions.indexOf("draft-chapter-1") >= 0) {
+        return Promise.resolve(projection);
+      }
+      var next = sequence.filter(function (action) {
+        return actions.indexOf(action) >= 0;
+      })[0];
+      if (!next) return Promise.resolve(projection);
+      var finalPlanningStep = next === "prepare-draft-handoff";
+      return sendAction(
+        next,
+        {},
+        "Planning Chapter 1",
+        finalPlanningStep ? {} : { render: false, keepStatus: true }
+      ).then(advance);
+    }
+
+    return advance(state.currentProjection).then(function (projection) {
+      setStatus("");
+      return projection;
+    });
+  }
+
+  function draftAndShowChapterOne() {
+    return sendAction("draft-chapter-1", {}, "Drafting Chapter 1").then(function (projection) {
+      if (!projection) return null;
+      return openChapterReview(1).then(function (review) {
+        var panel = $("post-draft-review");
+        if (panel) panel.scrollIntoView({ behavior: "smooth", block: "start" });
+        return review;
+      });
+    });
   }
 
   function detailsRow(summary, bodyHtml) {
@@ -848,35 +1012,28 @@
     surface.hidden = projection.primary_surface !== "discovery";
     if (surface.hidden) return;
     if (!discovery) {
-      $("discovery-rationale").textContent = "Discovery has not been generated yet.";
+      $("discovery-rationale").textContent = "Auteur is still preparing possible directions.";
       $("discovery-directions").innerHTML = "";
       return;
     }
     $("discovery-rationale").textContent = discovery.rationale || "";
     if (discovery.status === "unavailable") {
       $("discovery-directions").innerHTML =
-        '<p class="blocking-inline">Rich story-direction search is unavailable. Curated decisions remain available below as a degraded fallback.</p>';
+        '<p class="blocking-inline">Rich direction search is unavailable. The simpler curated choices are still available below.</p>';
       return;
     }
     $("discovery-directions").innerHTML = (discovery.directions || []).map(function (direction) {
       var badge = direction.recommended ? "<strong>Recommended</strong> · " : "";
-      var selected = direction.selected ? " · Selected" : "";
-      return '<article class="direction-card"><h3>' + badge + escapeHtml(direction.title) + selected +
+      return '<article class="direction-card"><h3>' + badge + escapeHtml(direction.title) +
         "</h3><p>" + escapeHtml(direction.summary) + "</p>" +
         listHtml(direction.tradeoffs || []) +
-        '<button data-direction-id="' + escapeHtml(direction.direction_id) + '">Select this direction</button></article>';
-    }).join("") +
-      (discovery.selected_direction_id
-        ? '<button id="accept-selected-direction" class="continue-button">Accept Story Direction</button>'
-        : "");
+        '<button class="continue-button" data-direction-id="' + escapeHtml(direction.direction_id) +
+        '">Use this direction</button></article>';
+    }).join("");
     Array.prototype.forEach.call($("discovery-directions").querySelectorAll("button[data-direction-id]"), function (button) {
       button.addEventListener("click", function () {
-        sendAction("select-direction", { direction_id: button.getAttribute("data-direction-id") }, "Select direction");
+        useStoryDirection(button.getAttribute("data-direction-id"));
       });
-    });
-    var accept = $("accept-selected-direction");
-    if (accept) accept.addEventListener("click", function () {
-      sendAction("accept-direction", {}, "Accept Story Direction");
     });
   }
 
@@ -886,22 +1043,28 @@
     surface.hidden = projection.primary_surface !== "story_identity";
     if (surface.hidden) return;
     if (!candidate) {
-      $("identity-candidate").innerHTML = '<p class="muted">No current Identity candidate.</p>';
+      $("identity-candidate").innerHTML = '<p class="muted">Auteur is still assembling the story core.</p>';
       return;
     }
     var preview = projection.mapping_preview || {};
-    var groups = [
-      ["Will become canonical", preview.becomes_canonical || []],
-      ["Remain downstream guidance", preview.remains_downstream_guidance || []],
-      ["Preserved as provenance", preview.preserved_as_provenance || []],
-      ["Unresolved / not represented", preview.unresolved_not_representable || []],
+    var advanced = [
+      ["What Auteur will carry forward", preview.becomes_canonical || []],
+      ["Useful context kept for later", preview.remains_downstream_guidance || []],
+      ["Source details preserved", preview.preserved_as_provenance || []],
+      ["Still unresolved", preview.unresolved_not_representable || []],
     ];
     $("identity-candidate").innerHTML =
-      "<h3>" + escapeHtml(candidate.title) + "</h3><p>" + escapeHtml(candidate.core_answer) + "</p>" +
-      groups.map(function (group) { return detailsRow(group[0], listHtml(group[1])); }).join("") +
-      '<button id="accept-story-identity" class="continue-button">Accept Story Identity</button>';
+      "<h3>" + escapeHtml(candidate.title) + "</h3>" +
+      '<p class="story-core-answer">' + escapeHtml(candidate.core_answer) + "</p>" +
+      detailsRow(
+        "Advanced: what Auteur records",
+        advanced.map(function (group) {
+          return "<h4>" + escapeHtml(group[0]) + "</h4>" + listHtml(group[1]);
+        }).join("")
+      ) +
+      '<button id="accept-story-identity" class="continue-button">Yes, keep going</button>';
     $("accept-story-identity").addEventListener("click", function () {
-      sendAction("accept-identity", {}, "Accept Story Identity");
+      sendAction("accept-identity", {}, "Keeping this story core");
     });
   }
 
@@ -926,10 +1089,11 @@
     if (foundationAccepted) {
       state.currentCardId = null;
       $("decision-card").classList.add("is-complete");
-      question.textContent = "✓ Story foundation accepted";
+      state.structureCustomize = false;
+      question.textContent = "✓ Story foundation ready";
       optionsBox.innerHTML =
-        '<p class="completion-state">Discover, Story Identity, and Whole-Story Structure are canonical.</p>' +
-        '<p class="phase-complete-next"><strong>Next:</strong> turn this accepted foundation into a whole-story outline.</p>';
+        '<p class="completion-state">Your direction, story core, and story shape are set.</p>' +
+        '<p class="phase-complete-next"><strong>Next:</strong> let Auteur prepare Chapter 1.</p>';
       $("card-why-now").textContent = "";
       $("card-recommendation").textContent = "";
       $("card-consequence").textContent = "";
@@ -937,12 +1101,50 @@
       $("save-feedback").textContent = "Accepted story foundation.";
       $("continue-button").disabled = true;
       $("continue-button").hidden = true;
-      $("continue-button").textContent = "Story foundation complete";
+      $("continue-button").textContent = "Story foundation ready";
       $("continue-button").dataset.reviewStage = "";
       return;
     }
     $("decision-card").classList.remove("is-complete");
     $("continue-button").hidden = false;
+
+    var structureEntry = structureNavigatorEntry(projection);
+    var freshRecommendedShape =
+      card &&
+      card.stage === "story_structure" &&
+      structureEntry &&
+      structureEntry.answered_cards === 0 &&
+      !(projection.revision || {}).active_revision_id &&
+      !state.structureCustomize;
+    if (freshRecommendedShape) {
+      state.currentCardId = null;
+      question.textContent = "Recommended story shape";
+      $("card-position").textContent = "Auteur can choose sensible mystery defaults for you";
+      optionsBox.innerHTML =
+        '<div class="recommended-shape">' +
+        '<p><strong>Start with Auteur\'s recommended pacing, clue distribution, and revelation style.</strong></p>' +
+        '<p>You can customize each craft decision instead if you already know what you want.</p>' +
+        '<div class="surface-actions">' +
+        '<button id="use-recommended-story-shape" type="button" class="continue-button">Use recommended story shape</button>' +
+        '<button id="customize-story-shape" type="button">Customize story shape</button>' +
+        "</div></div>";
+      $("card-why-now").textContent =
+        "This keeps the beginner path moving while preserving the full craft controls on demand.";
+      $("card-recommendation").textContent = "";
+      $("card-consequence").textContent =
+        "You can revise the story shape later; this chooses Auteur's current recommendations as the starting point.";
+      $("card-warnings").innerHTML = "";
+      $("save-feedback").textContent = "";
+      $("continue-button").hidden = true;
+      $("continue-button").dataset.reviewStage = "";
+      $("use-recommended-story-shape").addEventListener("click", useRecommendedStoryShape);
+      $("customize-story-shape").addEventListener("click", function () {
+        state.structureCustomize = true;
+        renderDecisionCard(projection);
+      });
+      return;
+    }
+
     if (!card) {
       state.currentCardId = null;
       question.textContent = "No decision card available.";
@@ -1006,8 +1208,8 @@
     if (!((projection.revision || {}).active_revision_id) && acceptedIds.indexOf("whole_story_structure") >= 0) {
       body.innerHTML =
         '<div class="completion-summary phase-complete-banner" role="status">' +
-        '<strong>Story foundation complete.</strong> Your accepted direction, identity, and whole-story structure are ready.' +
-        '<span>Next phase: outline the whole story.</span></div>';
+        '<strong>Story foundation ready.</strong> Your direction, story core, and story shape are set.' +
+        '<span>Next: prepare Chapter 1.</span></div>';
       return;
     }
     var stages = Object.keys(reviews).filter(function (stage) {
@@ -1043,8 +1245,8 @@
           inner.push('<button class="' + openClass + '" data-command="open-review" data-stage="' + escapeHtml(stage) + '">Review ' + escapeHtml(stageLabel(stage)) + " →</button>");
         }
         if (actions.indexOf(acceptAction) >= 0) {
-          var acceptLabel = stage === "discover" ? "Accept Story Direction" :
-            (stage === "story_identity" ? "Accept Story Identity" : "Accept Whole-Story Structure");
+          var acceptLabel = stage === "discover" ? "Use this direction" :
+            (stage === "story_identity" ? "Keep this story core" : "Use this story shape");
           var acceptClass = projection.primary_action && projection.primary_action.action_id === acceptAction
             ? "review-action primary-action"
             : "review-action";
@@ -1227,11 +1429,11 @@
 
   function renderContinuation(projection) {
     var body = $("continuation-body");
-    var state = projection.continuation;
+    var continuation = projection.continuation;
     var acceptedIds = (projection.canonical_refs || []).map(function (ref) { return ref.milestone_id; });
     var foundationAccepted = !((projection.revision || {}).active_revision_id) &&
       acceptedIds.indexOf("whole_story_structure") >= 0;
-    var actionLabels = {
+    var stepByStepLabels = {
       "propose-outline": "Create outline proposal",
       "accept-outline": "Continue with this outline",
       "propose-chapter-plan": "Plan Chapter 1",
@@ -1239,73 +1441,155 @@
       "propose-scene-plans": "Plan scenes",
       "accept-scene-plans": "Continue with these scene plans",
       "prepare-draft-handoff": "Prepare Chapter 1 draft",
-      "draft-chapter-1": "Draft Chapter 1",
-      "review-chapter-1": "Review Chapter 1",
-      "review-stale-continuation": "Review stale continuation"
     };
     var projectedPrimary = projection.primary_action || null;
-    var action = projectedPrimary && Object.prototype.hasOwnProperty.call(actionLabels, projectedPrimary.action_id)
-      ? projectedPrimary.action_id
-      : (projection.available_actions || []).filter(function (item) {
-        return Object.prototype.hasOwnProperty.call(actionLabels, item);
-      })[0];
-    if (!state && !foundationAccepted) {
-      body.innerHTML = '<p class="muted">Accept the whole-story structure to continue into outlining.</p>';
+    var available = projection.available_actions || [];
+
+    if (!continuation && !foundationAccepted) {
+      body.innerHTML = '<p class="muted">Finish the story shape to start Chapter 1.</p>';
       return;
     }
+
     var html = [];
-    if (foundationAccepted) {
+    if (continuation && continuation.stale) {
       html.push(
-        '<section class="phase-transition" role="status" aria-label="Next story-development phase">' +
-        '<p class="phase-transition-kicker">Foundation complete</p>' +
-        '<h3>Next: outline your story</h3>' +
-        '<p>Turn the accepted foundation into a derived whole-story outline. You can review it before accepting it.</p>' +
-        '</section>'
+        '<p class="blocking-inline" role="alert">' +
+        escapeHtml(continuation.stale_reason || "The story changed; review the Chapter 1 plan before drafting.") +
+        "</p>"
       );
     }
-    if (state && state.stale) {
-      html.push('<p class="blocking-inline" role="alert">' + escapeHtml(state.stale_reason || "The accepted upstream inputs changed; review these derived plans before drafting.") + "</p>");
-    }
-    if (state && state.outline_proposal) {
-      html.push("<h3>Whole-story outline</h3><p>" + escapeHtml(state.outline_proposal.title) + " · derived proposal</p>");
-      html.push(listHtml((state.outline_proposal.chapters || []).map(function (chapter) {
-        return "Chapter " + chapter.chapter_index + ": " + chapter.purpose;
-      })));
-    }
-    if (state && state.chapter_plan) {
-      html.push("<h3>Chapter 1 plan</h3><p>" + escapeHtml(state.chapter_plan.what_changes) + "</p>");
-    }
-    if (state && state.scene_plans && state.scene_plans.length) {
-      html.push("<h3>Scene plan</h3>" + listHtml(state.scene_plans.map(function (scene) {
-        return scene.scene_id + ": " + scene.purpose;
-      })));
-    }
-    if (state && state.draft_handoff) {
-      html.push("<h3>Ready to write Chapter 1</h3><p>Use the accepted identity, structure, outline, chapter plan, and scene plan.</p>");
-      if (state.draft_status === "drafted") {
-        html.push("<p><strong>Chapter 1 has a reviewable candidate.</strong> Review it before accepting it.</p>");
-      } else if (state.draft_status === "accepted") {
-        html.push("<p><strong>Chapter 1 is accepted.</strong> The explicit Chapter authority has recorded the accepted expression.</p>");
+
+    var planningReady = continuation && continuation.draft_handoff &&
+      continuation.draft_handoff.status === "ready";
+    var drafted = continuation && continuation.draft_status === "drafted";
+    var accepted = continuation && continuation.draft_status === "accepted";
+
+    if (foundationAccepted && !planningReady && !drafted && !accepted) {
+      html.push(
+        '<section class="phase-transition chapter-launch" role="status" aria-label="Chapter 1 planning">' +
+        '<p class="phase-transition-kicker">Story foundation ready</p>' +
+        '<h3>Ready for Chapter 1</h3>' +
+        '<p>Auteur can build the working outline, Chapter 1 plan, and scene plan as one planning step. ' +
+        'Those internal artifacts stay separate and inspectable.</p>' +
+        "</section>"
+      );
+
+      if (state.continuationCustomize) {
+        if (continuation && continuation.outline_proposal) {
+          html.push("<h3>Whole-story outline</h3><p>" + escapeHtml(continuation.outline_proposal.title) + "</p>");
+          html.push(listHtml((continuation.outline_proposal.chapters || []).map(function (chapter) {
+            return "Chapter " + chapter.chapter_index + ": " + chapter.purpose;
+          })));
+        }
+        if (continuation && continuation.chapter_plan) {
+          html.push("<h3>Chapter 1 plan</h3><p>" + escapeHtml(continuation.chapter_plan.what_changes) + "</p>");
+        }
+        if (continuation && continuation.scene_plans && continuation.scene_plans.length) {
+          html.push("<h3>Scene plan</h3>" + listHtml(continuation.scene_plans.map(function (scene) {
+            return scene.scene_id + ": " + scene.purpose;
+          })));
+        }
+        var stepAction = projectedPrimary && stepByStepLabels[projectedPrimary.action_id]
+          ? projectedPrimary.action_id
+          : available.filter(function (action) { return stepByStepLabels[action]; })[0];
+        if (stepAction) {
+          html.push(
+            '<button type="button" class="continue-button primary-next-action" data-continuation-action="' +
+            escapeHtml(stepAction) + '">' + escapeHtml(stepByStepLabels[stepAction]) + " →</button>"
+          );
+        }
+        html.push('<button type="button" data-streamlined-planning>Use streamlined planning</button>');
+      } else {
+        html.push(
+          '<div class="surface-actions">' +
+          '<button type="button" class="continue-button primary-next-action" data-chapter-launch="prepare">Plan Chapter 1 →</button>' +
+          '<button type="button" data-continuation-customize>Plan step by step</button>' +
+          "</div>"
+        );
+        if (projectedPrimary && projectedPrimary.reason) {
+          html.push('<p class="muted primary-action-reason">' + escapeHtml(projectedPrimary.reason) + "</p>");
+        }
       }
     }
-    if (action) {
-      html.push('<p class="next-action-label">Next step</p>');
-      html.push('<button type="button" class="continue-button primary-next-action" data-continuation-action="' + escapeHtml(action) + '">' + escapeHtml(actionLabels[action]) + " →</button>");
-      if (projectedPrimary && projectedPrimary.action_id === action && projectedPrimary.reason) {
-        html.push('<p class="muted primary-action-reason">' + escapeHtml(projectedPrimary.reason) + "</p>");
+
+    if (planningReady && !drafted && !accepted) {
+      html.push(
+        '<section class="chapter-launch-summary">' +
+        '<p class="phase-transition-kicker">Chapter 1 launch</p>' +
+        '<h3>Here is how Auteur will approach Chapter 1</h3>'
+      );
+      if (continuation.outline_proposal) {
+        html.push("<p><strong>Story direction:</strong> " + escapeHtml(continuation.outline_proposal.title) + "</p>");
       }
-    } else if (foundationAccepted) {
-      html.push('<p class="muted">The foundation is accepted, but no continuation action is currently available.</p>');
+      if (continuation.chapter_plan) {
+        html.push("<p><strong>What Chapter 1 changes:</strong> " + escapeHtml(continuation.chapter_plan.what_changes) + "</p>");
+      }
+      if (continuation.scene_plans && continuation.scene_plans.length) {
+        html.push(
+          "<p><strong>Likely movement:</strong></p>" +
+          listHtml(continuation.scene_plans.map(function (scene) { return scene.purpose; }))
+        );
+      }
+      html.push(
+        detailsRow(
+          "Planning details",
+          (continuation.outline_proposal
+            ? "<h4>Whole-story outline</h4>" +
+              listHtml((continuation.outline_proposal.chapters || []).map(function (chapter) {
+                return "Chapter " + chapter.chapter_index + ": " + chapter.purpose;
+              }))
+            : "") +
+          (continuation.scene_plans && continuation.scene_plans.length
+            ? "<h4>Scene plan</h4>" +
+              listHtml(continuation.scene_plans.map(function (scene) {
+                return scene.scene_id + ": " + scene.purpose;
+              }))
+            : "")
+        ) +
+        '<button type="button" class="continue-button primary-next-action" data-chapter-launch="draft">Draft Chapter 1 →</button>' +
+        "</section>"
+      );
     }
+
+    if (drafted) {
+      html.push(
+        '<section class="chapter-launch-summary">' +
+        '<h3>Chapter 1 is ready</h3>' +
+        '<p>Read the generated draft below. It is still a working draft until you explicitly keep it.</p>' +
+        '<button type="button" class="continue-button primary-next-action" data-chapter-launch="read">Read Chapter 1 →</button>' +
+        "</section>"
+      );
+    } else if (accepted) {
+      html.push(
+        '<section class="chapter-launch-summary"><h3>Chapter 1 is kept</h3>' +
+        '<p>The accepted chapter is now part of the story.</p></section>'
+      );
+    }
+
     body.innerHTML = html.join("");
-    var button = body.querySelector("[data-continuation-action]");
-    if (button) button.addEventListener("click", function () {
-      var continuationAction = button.getAttribute("data-continuation-action");
-      if (continuationAction === "review-chapter-1") {
-        openChapterReview(1);
-        return;
-      }
-      sendAction(continuationAction, {}, button.textContent.trim());
+
+    var planButton = body.querySelector('[data-chapter-launch="prepare"]');
+    if (planButton) planButton.addEventListener("click", prepareChapterLaunch);
+    var draftButton = body.querySelector('[data-chapter-launch="draft"]');
+    if (draftButton) draftButton.addEventListener("click", draftAndShowChapterOne);
+    var readButton = body.querySelector('[data-chapter-launch="read"]');
+    if (readButton) readButton.addEventListener("click", function () { openChapterReview(1); });
+
+    var customize = body.querySelector("[data-continuation-customize]");
+    if (customize) customize.addEventListener("click", function () {
+      state.continuationCustomize = true;
+      renderContinuation(projection);
+    });
+    var streamline = body.querySelector("[data-streamlined-planning]");
+    if (streamline) streamline.addEventListener("click", function () {
+      state.continuationCustomize = false;
+      renderContinuation(projection);
+    });
+
+    var stepButton = body.querySelector("[data-continuation-action]");
+    if (stepButton) stepButton.addEventListener("click", function () {
+      var action = stepButton.getAttribute("data-continuation-action");
+      sendAction(action, {}, stepButton.textContent.trim());
     });
   }
 
@@ -1313,14 +1597,7 @@
     if (!projection) {
       return;
     }
-    state.currentProjection = projection;
-    if (typeof projection.session_version === "number") {
-      state.sessionVersion = projection.session_version;
-    } else if (projection.workspace && typeof projection.workspace.session_version === "number") {
-      state.sessionVersion = projection.workspace.session_version;
-    }
-    $("workspace-meta").textContent =
-      "Workspace " + state.workspaceId + " · version " + state.sessionVersion;
+    rememberProjection(projection);
     renderNavigator(projection);
     renderStoryMap(projection);
     renderPrimarySurface(projection);
@@ -1397,20 +1674,32 @@
     $("post-draft-next-action").textContent = review.recommended_next_action || "Review the current chapter state.";
 
     var evidence = [];
+    if (typeof review.draft_text === "string") {
+      evidence.push(
+        '<article class="chapter-draft"><h4>Chapter 1 draft</h4>' +
+        '<div class="draft-prose" aria-label="Chapter candidate prose">' +
+        escapeHtml(review.draft_text) +
+        "</div></article>"
+      );
+    }
+    var reviewNotes = [];
     if (review.blocking_findings && review.blocking_findings.length) {
-      evidence.push("<h4>Blocking findings</h4>" + listHtml(review.blocking_findings));
+      reviewNotes.push("<h4>Needs attention</h4>" + listHtml(review.blocking_findings));
     }
     if (review.warnings && review.warnings.length) {
-      evidence.push("<h4>Warnings</h4>" + listHtml(review.warnings));
+      reviewNotes.push("<h4>Auteur noticed</h4>" + listHtml(review.warnings));
     }
     if (review.plan_alignment) {
-      evidence.push(
-        "<h4>Plan alignment</h4><pre>" +
+      reviewNotes.push(
+        "<h4>Planning comparison</h4><pre>" +
         escapeHtml(JSON.stringify(review.plan_alignment, null, 2)) +
         "</pre>"
       );
     }
-    $("post-draft-evidence").innerHTML = evidence.join("") || '<p class="muted">No review evidence recorded yet.</p>';
+    if (reviewNotes.length) {
+      evidence.push(detailsRow("Auteur review", reviewNotes.join("")));
+    }
+    $("post-draft-evidence").innerHTML = evidence.join("") || '<p class="muted">No Chapter 1 draft exists yet.</p>';
 
     var accept = $("post-draft-accept");
     var revise = $("post-draft-revise");
@@ -1418,6 +1707,8 @@
     accept.hidden = review.accepted || !review.source_draft || review.stale || (review.blocking_findings || []).length > 0;
     revise.hidden = review.accepted || !review.source_draft;
     planNext.hidden = !review.accepted;
+    accept.textContent = "Keep this draft";
+    revise.textContent = "Revise";
     planNext.textContent = "Plan Chapter " + (chapter + 1);
   }
 
@@ -1445,7 +1736,7 @@
   function acceptLatestDraft() {
     var chapter = currentChapterFromQuery();
     if (!chapter) return;
-    if (!window.confirm("Accept the latest Chapter " + chapter + " draft through Auteur's existing chapter authority?")) {
+    if (!window.confirm("Keep this Chapter " + chapter + " draft as the accepted version?")) {
       return;
     }
     setStatus("Accepting Chapter " + chapter + "…");

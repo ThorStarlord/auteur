@@ -135,6 +135,27 @@ continuation commands and adds a server-level regression that actually executes
 candidate generation over HTTP and verifies that `draft_v1.md` /
 `validation_v1.json` are created while `final.md` is still absent.
 
+## Candidate visibility correction
+
+The creative-flow preflight tracked by issue #299 exposed a second continuity
+gap in the already-selected post-draft surface: the browser could tell the
+author to review and accept the latest candidate while rendering only review
+findings and plan alignment. The review projection carried the draft filename,
+but not the candidate prose itself.
+
+Issue #301 selects the smallest repair:
+
+```text
+latest noncanonical draft
+-> existing read-only post-draft review projection
+-> candidate prose visible in browser
+-> existing revise / accept actions
+```
+
+The draft remains noncanonical. Rendering it creates no new mutation path,
+draft store, Expression authority, or acceptance owner. The existing explicit
+Chapter acceptance remains the only promotion path.
+
 Durable lesson:
 
 ```text

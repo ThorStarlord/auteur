@@ -144,7 +144,7 @@ def test_synthetic_walkthrough_covers_the_four_experiential_claims(tmp_path: Pat
         for marker in (
             "primary-next-action",
             "phase-complete-banner",
-            "Next: outline your story",
+            "Ready for Chapter 1",
             "How these parts work together",
             "review-action primary-action",
             "renderStoryLensInspector",

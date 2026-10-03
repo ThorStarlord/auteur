@@ -121,6 +121,69 @@ mutates upstream artifacts automatically.
 When the source Scene changes, prose candidates become stale but remain
 preserved. No automatic regeneration occurs.
 
+## Creative discovery and deliberate divergence
+
+Unexpected prose is **evidence before it is an error**.
+
+A human-authored or AI-assisted Expression may reveal story material that was
+not represented in the accepted planning inputs. Review must classify that
+difference before deciding whether it blocks acceptance.
+
+The primary classifications are:
+
+- **Additive discovery** — a new character, place, relationship, object,
+  incidental world detail, or other compatible fact appears without negating
+  accepted narrative meaning. This is nonblocking evidence. If retained, it may
+  generate proposals for the lowest appropriate owning layer or realized state.
+- **Plan divergence** — the prose materially changes the planned scene path,
+  event ordering, participant set, location, goal, turn, or outcome without
+  necessarily contradicting accepted canon. This requires author review but is
+  not automatically an error. The author may revise toward the plan, accept the
+  divergence explicitly, or keep the prose and reconcile affected upstream
+  artifacts through proposals.
+- **Hard canon contradiction** — the prose conflicts with an accepted fact or
+  authority-owned commitment that cannot simultaneously remain true. This
+  requires an explicit author decision at the owning authority boundary before
+  the inconsistency can be treated as resolved.
+
+Discovery classification never authorizes silent upward mutation. Expression
+may produce evidence and proposals; Identity, Structure, Realization, Bible, or
+other owners remain responsible for accepting their own changes.
+
+The default reconciliation rule is:
+
+```text
+unexpected prose
+-> classify
+-> preserve candidate
+-> expose author choice
+-> create noncanonical proposals when warranted
+-> cross each authority boundary explicitly
+```
+
+A deliberate divergence may be accepted as Expression while remaining visibly
+divergent from its current plan. This does not imply that the plan or any
+upstream artifact was updated.
+
+### Validation freshness
+
+Validation evidence must identify the exact candidate content it reviewed.
+Matching a draft and validation artifact by version number alone is
+insufficient.
+
+At minimum, review evidence should retain the candidate content hash:
+
+```yaml
+candidate:
+  path: draft_v2.md
+  sha256: <content-hash>
+```
+
+If the current candidate hash differs from the recorded validation hash, the
+review is stale and must not be presented as current evidence. A human edit
+must therefore create or enter an unvalidated candidate state rather than
+silently inheriting prior critic findings.
+
 ## Current limits
 
 Accepted Scene Expressions can be assembled by the focused
