@@ -447,3 +447,48 @@ def test_bundled_beginner_actions_do_not_render_internal_transition_flicker():
     assert "{ render: false, keepStatus: true }" in js
     assert "finalPlanningStep" in js
 
+def test_browser_offers_optional_two_input_quick_draft_without_replacing_explore_flow():
+    html = _read(INDEX)
+    js = _read(APP)
+    css = _read(STYLES)
+    combined = html + js
+
+    for token in (
+        'id="new-story-premise"',
+        "Explore this story →",
+        'id="quick-draft-first-scene"',
+        'id="quick-draft-start"',
+        "Start writing now →",
+        'id="quick-draft-editor"',
+        "What did we discover?",
+        "Shape this story →",
+    ):
+        assert token in combined
+
+    assert "/api/beginner/quick-draft" in js
+    assert "startQuickDraft" in js
+    assert "saveQuickDraft" in js
+    assert "discoverQuickDraftElements" in js
+    assert ".quick-draft-result" in css
+
+
+def test_browser_surfaces_reconcile_new_elements_as_story_choices():
+    html = _read(INDEX)
+    js = _read(APP)
+
+    for token in (
+        "Auteur noticed the story changed while you were writing",
+        "Keep draft &amp; reconcile",
+        "Keep as intentional divergence",
+        "Revise to match plan",
+        "reconcile-new-elements",
+        "keep_and_reconcile",
+        "keep_intentional_divergence",
+        "revise_to_plan",
+    ):
+        assert token in html + js
+
+    assert "resolveCreativeDivergence" in js
+    assert "review.reconciliation_available" in js
+    assert "review.review_stale" in js
+
