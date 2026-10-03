@@ -492,3 +492,16 @@ def test_browser_surfaces_reconcile_new_elements_as_story_choices():
     assert "review.reconciliation_available" in js
     assert "review.review_stale" in js
 
+def test_quick_draft_shape_handoff_requires_explicit_remember_choices():
+    html = _read(INDEX)
+    js = _read(APP)
+
+    assert "Carry this idea into story shaping" in js
+    assert "Nothing is selected automatically" in js
+    assert "selectedQuickDraftDiscoveries" in js
+    assert "quick_draft_session_id" in js
+    assert "quick_draft_discoveries" in js
+    assert "Ideas I discovered while drafting and explicitly want to carry forward" in js
+    assert "state.quickDraftDirty" in js
+    assert "Draft changed. Save it before reviewing discoveries." in js
+
