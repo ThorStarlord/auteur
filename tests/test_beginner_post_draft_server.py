@@ -107,6 +107,10 @@ def test_server_exposes_two_input_quick_draft_edit_and_discovery(tmp_path: Path)
         assert "Miller watched Vance smile" in created["draft_text"]
         session_id = created["session_id"]
 
+        reopened = _json(f"{base}/api/beginner/quick-draft/{session_id}")
+        assert reopened["session_id"] == session_id
+        assert reopened["draft_text"] == created["draft_text"]
+
         edited = _json(
             f"{base}/api/beginner/quick-draft/{session_id}/save",
             method="POST",
