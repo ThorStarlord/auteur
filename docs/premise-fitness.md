@@ -1168,7 +1168,151 @@ as an explicit writer-facing product surface.
 
 ---
 
-## 21. Design principle
+## 21. Topic closure and next steps
+
+The conceptual topic is now closed for ordinary repository work. Further
+construction requires new evidence rather than another speculative design pass.
+
+### 21.1 Premise Fitness is not a mandatory gate
+
+Do not require every Story Opportunity or every Story Discovery run to pass
+through an explicit Premise Fitness step.
+
+Use Premise Fitness when one or more of these are decision-relevant:
+
+- genre promise is unclear or contested;
+- narrative horizon / scope is uncertain;
+- a premise may be strong at one scale and weak at another;
+- multi-genre engine hierarchy creates tradeoffs;
+- setup / complexity cost may defeat the intended experience;
+- runway, renewability, or expansion capacity is uncertain;
+- the author or agent explicitly asks whether the premise fits its intended job.
+
+If those questions are already clear and no material tradeoff is present:
+
+    Story Opportunity
+    -> Story Discovery
+
+is valid without extra ceremony.
+
+### 21.2 The Post-Discovery Fitness Delta is advisory, not a veto
+
+The delta may inform the author before acceptance, but it does not create a new
+authority boundary and cannot independently block canonical acceptance.
+
+    fitness tension
+    -> explain consequence / tradeoff
+    -> author remains the decision owner
+
+Existing hard constraints, validation rules, and semantic authority owners remain
+responsible for any actual blocking behavior.
+
+Therefore:
+
+    Post-Discovery Fitness Delta
+    != validator
+    != acceptance gate
+    != canon authority
+
+### 21.3 No new persistent Premise Fitness artifact is selected
+
+Current Premise Fitness and delta outputs remain derived / noncanonical.
+
+Do not add a new persistent canonical file, database entity, or authority-bearing
+artifact merely to store a fitness analysis.
+
+If a future read-only helper becomes warranted, prefer:
+
+- transient derived output;
+- reproducible inputs;
+- provenance to the premise / target environment / Story Discovery evidence;
+- an existing noncanonical reasoning or evidence surface when persistence is
+  genuinely useful.
+
+Persistence is an implementation response to repeated workflow need, not a new
+semantic owner.
+
+### 21.4 Immediate next steps
+
+After this documentation package is integrated:
+
+1. use Story Opportunity Discovery and Premise Fitness naturally in real
+   story-development work;
+2. do not create another synthetic Premise Fitness phase merely to accumulate
+   more examples;
+3. observe whether non-synthetic use repeatedly crosses the runtime eligibility
+   gate in section 20.1;
+4. when Story Discovery materially changes fit assumptions, use the narrow
+   Post-Discovery Fitness Delta before acceptance when it can change the
+   decision;
+5. keep the delta silent when it adds no material information;
+6. once prose exists, route discoveries through existing semantic owners and
+   realized-story evidence rather than repeatedly rewriting the premise
+   forecast;
+7. create a bounded implementation issue / PR for a small read-only helper only
+   after the eligibility gate is actually met.
+
+### 21.5 Evidence-gated questions that remain parked
+
+The following are deliberately **not active design questions**:
+
+**Do independent writers prefer an explicit Premise Fitness surface?**  
+Unknown. Answer only before foregrounding such a surface or making
+human-usability/preference claims.
+
+**What exact UI wording is best for the delta?**  
+The current default is **What this story direction changes**. Refine only if a
+real writer-facing surface exists and evidence shows confusion.
+
+**What exact helper schema / CLI / storage shape should be used?**  
+Unselected. Decide only after real workflow friction makes a helper eligible.
+
+**How often will real work trigger the helper gate?**  
+Unknown by definition until non-synthetic use accumulates. Do not manufacture a
+usage frequency from synthetic cases.
+
+These questions are parked because their answers cannot change current action.
+
+### 21.6 Reopen triggers
+
+Reopen Premise Fitness product design only when at least one of these occurs:
+
+- repeated non-synthetic use crosses the helper eligibility gate;
+- a writer-facing Premise Fitness / delta surface is actually proposed;
+- Story Discovery F3/F4 or MANA integration reveals a concrete ownership
+  conflict not covered by this contract;
+- long-form writing evidence shows the current prediction -> architecture fit ->
+  realized evidence lifecycle is inadequate;
+- a real project materially changes its core premise or target environment and
+  the existing method cannot represent the change cleanly;
+- current documentation fails to answer a concrete, decision-changing workflow
+  problem.
+
+Absent one of those triggers:
+
+    no new Premise Fitness architecture work
+    -> use existing method
+    -> observe evidence
+    -> continue the broader Auteur roadmap
+
+### 21.7 Closure disposition
+
+    FOUNDATIONAL THEORY                 CLOSED
+    CALIBRATION                         COMPLETE
+    CODING-AGENT STRESS TEST            COMPLETE
+    GENRE PACK / MANA / STORY DISCOVERY BOUNDARIES SETTLED
+    POST-DISCOVERY DELTA                SELECTED AS ADVISORY CONCEPT
+    STANDALONE RUNTIME                  NOT WARRANTED
+    LIGHTWEIGHT HELPER                  EVIDENCE-GATED
+    EXPLICIT WRITER-FACING SURFACE      EVIDENCE-GATED
+    FURTHER SYNTHETIC TESTING           NOT WARRANTED BY DEFAULT
+
+The next source of useful information is **actual use**, not additional
+speculation.
+
+---
+
+## 22. Design principle
 
 Premise Fitness should answer:
 
