@@ -1,7 +1,8 @@
 # Quick Draft Spike — Low-Friction Entry Path
 
 **Date:** 2026-10-03  
-**Branch:** `feat/quick-draft-spike`  
+**Original spike:** `feat/quick-draft-spike`  
+**Integrated candidate:** `feat/beginner-quick-draft-loop`  
 **Scope:** isolated product-ergonomics prototype  
 **Command:** `auteur quick-draft "<premise>" "<first scene intent>"`
 
@@ -26,8 +27,7 @@ auteur quick-draft \
   "Miller interviews Vance, who describes Miller committing the murder."
 ```
 
-The command prints the working scene directly to the terminal and stores the
-session under:
+The command prints the working scene directly to the terminal. The integrated Beginner Browser also exposes the same two-input path as **Start writing now** and stores the session under:
 
 ```text
 .auteur/quick_draft/<session-id>/
