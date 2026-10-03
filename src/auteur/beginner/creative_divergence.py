@@ -91,6 +91,7 @@ def infer_creative_discoveries(
     alignment = plan_alignment or {}
     if (
         alignment.get("status") == "observed"
+        and int(alignment.get("observed_scene_count") or 0) > 0
         and alignment.get("scene_count_matches") is False
     ):
         discoveries.append(
