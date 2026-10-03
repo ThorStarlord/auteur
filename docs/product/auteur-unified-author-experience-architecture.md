@@ -911,7 +911,53 @@ Until those questions return evidence, this architecture should not prescribe on
 
 ---
 
-# 19. Experience success criteria
+# 19. Narrative capability scaling
+
+The unified experience architecture governs **how** Auteur should feel while the
+capability frontier roadmap governs **which harder story class should be
+qualified next**.
+
+See:
+
+- `auteur-capability-frontier-construction-roadmap.md`
+
+The construction roadmap uses the Narrative Stress Envelope:
+
+```text
+A — Interpretive Difficulty
+B — Input / Process Messiness
+C — Narrative Breadth
+D — Narrative Depth
+E — Longitudinal Horizon
+F — Change / Revision Pressure
+```
+
+A frontier is not qualified merely because the backend can represent its story.
+
+The complete workflow must also preserve this experience architecture:
+
+- story-language author mental model;
+- explicit meaningful authority;
+- progressive disclosure;
+- recoverable exploration;
+- no duplicate authorship;
+- no reconciliation tax;
+- no long-form context reset.
+
+Therefore:
+
+```text
+backend narrative capability
+without
+coherent author experience
+!=
+qualified frontier
+```
+
+The preferred post-#313 frontier, if current evidence reaffirms the product
+model, is **F2 — Small-Book Longitudinal Coherence**.
+
+# 20. Experience success criteria
 
 The unified experience is successful when:
 
@@ -928,7 +974,7 @@ The unified experience is successful when:
 
 ---
 
-# 20. Non-goals
+# 21. Non-goals
 
 This architecture does **not**:
 
@@ -947,7 +993,7 @@ This architecture does **not**:
 
 ---
 
-# 21. Compact system law
+# 22. Compact system law
 
 The intended Auteur experience can be summarized as:
 
