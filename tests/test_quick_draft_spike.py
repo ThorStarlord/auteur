@@ -136,7 +136,7 @@ def test_quick_draft_cli_prints_draft_before_any_acceptance(
     assert "Quick Draft — working scene" in out
     assert "Nothing below is accepted story material yet." in out
     assert "Vance did not look frightened" in out
-    assert "Story setup acceptance and structural reconciliation are deferred" in out
+    assert "Story setup decisions and story updates are deferred" in out
     assert len(llm.requests) == 1
 
     sessions = list((tmp_path / ".auteur" / "quick_draft").iterdir())
