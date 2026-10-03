@@ -108,7 +108,16 @@ targets when explicitly intended.
 This is also documentation-only: no numeric fitness score, automatic premise
 winner, new semantic layer, or canonical premise artifact is introduced.
 
-See [Premise Fitness](premise-fitness.md).
+A synthetic calibration across short-form, novel, long-series, multi-genre,
+deconstructive, scope-mismatched, high-complexity, evocative-but-noncausal, and
+unknown-scope premises reaffirmed the model while sharpening terminology:
+core premise stays separate from target environment; missing scope produces
+conditional analysis; runway, renewability, and expansion capacity remain
+distinct; and missing Genre Pack knowledge lowers specificity rather than
+blocking analysis. No runtime was selected from that calibration.
+
+See [Premise Fitness](premise-fitness.md) and
+[Premise Fitness Calibration Cases](research/premise-fitness-calibration-cases.md).
 
 For product evolution, prefer:
 
