@@ -111,6 +111,118 @@ Do not infer emotion from silence alone.
 
 Quote participant statements exactly when practical.
 
+## Human-evidence privacy and storage
+
+Assign a non-identifying participant code such as `P-01`.
+
+Keep raw participant material outside the repository, including:
+
+- names or contact information;
+- verbatim private premises when they could identify the participant;
+- raw recordings;
+- full transcripts;
+- completed per-participant session sheets.
+
+Only anonymized aggregate synthesis should enter the repository after the study.
+If exact participant wording is retained in aggregate findings, remove identifying
+context and use it only under the applicable consent/research process.
+
+The green mechanical suite is not human evidence and must not be pooled with
+participant observations as though they were the same evidence class.
+
+## Session evidence sheet
+
+Use one private copy per participant and per condition. Completed sheets remain
+outside the repository.
+
+~~~text
+Participant code:
+Protocol version:
+Condition: A / B / C / D
+Candidate/source version:
+Date:
+Facilitator:
+Recording consent, if applicable: YES / NO
+
+Input context
+- Premise captured privately:
+- First-scene intent, when applicable:
+- Fallback premise used: YES / NO
+
+Timing
+- Start:
+- First useful insight:
+- First visible prose:
+- End:
+
+Interaction counts
+- total_visible_interactions:
+- CREATE:
+- CHOOSE:
+- INSIGHT:
+- NAVIGATE:
+- APPROVE:
+- ADMIN:
+- GENERATE:
+- max_APPROVE_or_ADMIN_run_between_payoffs:
+- backtracks:
+- customization_opened:
+- step_by_step_planning_opened:
+- external_tool_escape:
+
+Observed behavior
+- Hesitation points:
+- Confusion points:
+- Unprompted useful reactions:
+- Attempts to skip ahead:
+- Attempts to change direction:
+- Needed facilitator rescue: YES / NO
+- Product error prevented continuation: YES / NO
+
+Exact participant statements
+- First useful thing:
+- Paperwork / approval reaction:
+- Making vs approving the story:
+- Ability to disagree/change:
+- Would continue right now:
+- Reason:
+
+Quick Draft only
+- Inferred setup noticeably distorted intent: YES / PARTIAL / NO / NOT TESTED
+- Ambiguous POV/setting remained comfortably open: YES / PARTIAL / NO / NOT TESTED
+- Edited scene before shaping: YES / NO
+- "What did we discover?" useful: YES / PARTIAL / NO / NOT TESTED
+- Carry-forward choice understandable: YES / PARTIAL / NO / NOT TESTED
+- Re-entered shaping without repeating useful discoveries: YES / PARTIAL / NO / NOT TESTED
+
+Change-my-mind stress
+- Change introduced:
+- Could state new intent naturally: YES / PARTIAL / NO / NOT TESTED
+- Visible interactions until momentum resumed:
+- Wanted to restart elsewhere: YES / NO / NOT TESTED
+- Notes:
+
+Messy-writer stress
+- Sister Beatrice preserved in prose: YES / NO / NOT TESTED
+- Convent preserved in prose: YES / NO / NOT TESTED
+- Review freshness truthful: YES / NO / NOT TESTED
+- Keep draft & update story reachable: YES / NO / NOT TESTED
+- Intentional divergence reachable: YES / NO / NOT TESTED
+- Revise-to-plan reachable: YES / NO / NOT TESTED
+- Discovery felt helped / invalidated / mixed / not tested
+- Notes:
+
+Researcher interpretation — complete only after observations above
+- Candidate disposition:
+- Concrete supporting evidence:
+- Concrete counterevidence:
+- Bounded repair suggested:
+- Thesis-review signal present: YES / NO
+~~~
+
+Keep observed facts, participant statements, facilitator interventions, and
+researcher interpretation distinct.
+
 ## Core measurements
 
 Record:
