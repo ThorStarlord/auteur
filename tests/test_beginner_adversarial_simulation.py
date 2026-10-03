@@ -65,3 +65,12 @@ def test_adversarial_simulation_probe_surfaces_discovery_review_ceremony() -> No
 
     assert surface["shape_auto_reviews_discoveries_before_shaping"] is True
     assert surface["shape_can_require_second_click_after_discovery_review"] is True
+
+
+def test_adversarial_simulation_probe_detects_change_mind_divergence() -> None:
+    change = _run_probe()["probes"]["change_mind"]
+
+    assert change["accepted_change_visible_to_next_chapter"] is True
+    assert change["obsolete_plan_detected_as_divergence"] is True
+    assert change["historical_plan_not_silently_rewritten"] is True
+    assert change["next_chapter_role_preserved"] is True
