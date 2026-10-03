@@ -103,7 +103,10 @@ semantic/authority architecture:
   requirements with explicit evidence status;
 - `docs/product/auteur-capability-frontier-construction-roadmap.md` — the
   Narrative Stress Envelope and F0–F7 construction frontiers used to decide
-  which harder class of story should drive the next capability build.
+  which harder class of story should drive the next capability build;
+- `docs/product/auteur-experience-frontier-construction-roadmap.md` — the
+  Experience Stress Envelope and X0–X7 UX/UI frontiers used to decide when the
+  current interaction model can no longer carry product complexity.
 
 These documents do not replace this PRD or the canonical five-layer narrative
 architecture. They reconcile how the existing systems should cohere from the
