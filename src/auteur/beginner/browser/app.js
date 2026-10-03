@@ -289,8 +289,21 @@
       });
   }
 
-  function sendAction(slug, payload, label) {
+  function rememberProjection(projection) {
+    if (!projection) return;
+    state.currentProjection = projection;
+    if (typeof projection.session_version === "number") {
+      state.sessionVersion = projection.session_version;
+    } else if (projection.workspace && typeof projection.workspace.session_version === "number") {
+      state.sessionVersion = projection.workspace.session_version;
+    }
+    $("workspace-meta").textContent =
+      "Workspace " + state.workspaceId + " · version " + state.sessionVersion;
+  }
+
+  function sendAction(slug, payload, label, options) {
     if (!state.workspaceId) return Promise.resolve(null);
+    var settings = options || {};
     setStatus(label + "…");
     return fetch(
       "/api/beginner/workspaces/" + encodeURIComponent(state.workspaceId) + "/commands/" + slug,
@@ -307,8 +320,12 @@
     )
       .then(readJson)
       .then(function (projection) {
-        render(projection);
-        setStatus("");
+        if (settings.render === false) {
+          rememberProjection(projection);
+        } else {
+          render(projection);
+        }
+        if (!settings.keepStatus) setStatus("");
         return projection;
       })
       .catch(function (error) {
@@ -322,7 +339,8 @@
     return sendAction(
       "select-direction",
       { direction_id: directionId },
-      "Choosing this direction"
+      "Choosing this direction",
+      { render: false, keepStatus: true }
     ).then(function (projection) {
       if (!projection) return null;
       return sendAction("accept-direction", {}, "Using this direction");
@@ -356,7 +374,8 @@
         return sendAction(
           "select",
           { card_id: card.card_id, option: recommendation },
-          "Applying recommended story shape"
+          "Applying recommended story shape",
+          { render: false, keepStatus: true }
         ).then(function (selected) {
           if (!selected) return null;
           var entry = structureNavigatorEntry(selected);
@@ -364,7 +383,8 @@
             return sendAction(
               "open-review",
               { stage: "story_structure" },
-              "Checking recommended story shape"
+              "Checking recommended story shape",
+              { render: false, keepStatus: true }
             ).then(function (reviewed) {
               if (!reviewed) return null;
               return sendAction("accept-structure", {}, "Using recommended story shape");
@@ -373,7 +393,8 @@
           return sendAction(
             "continue",
             { card_id: card.card_id },
-            "Applying recommended story shape"
+            "Applying recommended story shape",
+            { render: false, keepStatus: true }
           ).then(advance);
         });
       }
@@ -383,7 +404,8 @@
         return sendAction(
           "open-review",
           { stage: "story_structure" },
-          "Checking recommended story shape"
+          "Checking recommended story shape",
+          { render: false, keepStatus: true }
         ).then(advance);
       }
       if (actions.indexOf("accept-structure") >= 0) {
@@ -423,7 +445,13 @@
         return actions.indexOf(action) >= 0;
       })[0];
       if (!next) return Promise.resolve(projection);
-      return sendAction(next, {}, "Planning Chapter 1").then(advance);
+      var finalPlanningStep = next === "prepare-draft-handoff";
+      return sendAction(
+        next,
+        {},
+        "Planning Chapter 1",
+        finalPlanningStep ? {} : { render: false, keepStatus: true }
+      ).then(advance);
     }
 
     return advance(state.currentProjection).then(function (projection) {
@@ -1566,14 +1594,7 @@
     if (!projection) {
       return;
     }
-    state.currentProjection = projection;
-    if (typeof projection.session_version === "number") {
-      state.sessionVersion = projection.session_version;
-    } else if (projection.workspace && typeof projection.workspace.session_version === "number") {
-      state.sessionVersion = projection.workspace.session_version;
-    }
-    $("workspace-meta").textContent =
-      "Workspace " + state.workspaceId + " · version " + state.sessionVersion;
+    rememberProjection(projection);
     renderNavigator(projection);
     renderStoryMap(projection);
     renderPrimarySurface(projection);
