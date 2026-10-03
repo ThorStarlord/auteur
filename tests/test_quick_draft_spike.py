@@ -6,6 +6,7 @@ import pytest
 import yaml
 
 from auteur.cli import main
+from auteur.cli_parser import build_parser
 from auteur.llm import LLMResponse
 from auteur.quick_draft import (
     DEFAULT_LENSES,
@@ -158,3 +159,32 @@ def test_quick_draft_scaffold_is_explicitly_inferred_provisional(
     assert "story_setup: not_accepted" in text
     assert "structure: not_accepted" in text
     assert "canon_acceptance: deferred_until_after_draft" in text
+
+def test_quick_draft_is_visible_in_top_level_help() -> None:
+    help_text = build_parser().format_help()
+    assert "quick-draft" in help_text
+    assert "Experimental two-input path" in help_text
+
+
+def test_identical_quick_drafts_do_not_collide_on_session_directory(
+    tmp_path: Path,
+) -> None:
+    first = run_quick_draft(
+        PREMISE,
+        FIRST_SCENE,
+        project_root=tmp_path,
+        llm=FakeDraftLLM(),
+        provider_label="fake",
+    )
+    second = run_quick_draft(
+        PREMISE,
+        FIRST_SCENE,
+        project_root=tmp_path,
+        llm=FakeDraftLLM(),
+        provider_label="fake",
+    )
+
+    assert first.session_id != second.session_id
+    assert first.session_dir.is_dir()
+    assert second.session_dir.is_dir()
+
