@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -180,6 +181,15 @@ def draft_candidate_chapter(
         report_dir=project_root / ".auteur" / "reasoning",
     )
     project.write_validation(1, version, report)
+    _write_json_atomic(
+        chapter_dir / f"{draft_path.stem}.meta.json",
+        {
+            "candidate_sha256": hashlib.sha256(draft_path.read_bytes()).hexdigest(),
+            "validation_artifact": validation_path.name,
+            "planning_fingerprint": continuation.draft_handoff.source_fingerprint,
+            "status": "validated",
+        },
+    )
     _write_json_atomic(receipt_path, {**receipt, "status": "complete", "validation_passed": report.passed})
     return CandidateDraftResult(1, draft_path, validation_path, report.passed)
 
