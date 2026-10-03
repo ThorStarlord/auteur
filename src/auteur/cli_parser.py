@@ -38,6 +38,13 @@ def build_parser() -> argparse.ArgumentParser:
         description="Agentic narrative engineering toolkit.")
     sub = parser.add_subparsers(dest="command", required=True)
 
+    p = sub.add_parser(
+        "quick-draft",
+        help="Experimental two-input path from premise directly to a working first-scene draft.",
+    )
+    p.add_argument("premise", help="A 1-2 sentence story premise or prompt.")
+    p.add_argument("first_scene", help="What you want to happen in the very first scene.")
+
     p = sub.add_parser("status", help="Show project health summary (like git status for a novel).")
     p.add_argument("--project", type=Path, default=Path("."), help="Project root directory (default: current directory).")
     p.add_argument("--json", action="store_true", help="Output raw JSON instead of formatted text.")
