@@ -64,10 +64,18 @@ In particular:
 - interpret criticism before acting on it; a complaint is not automatically the
   correct repair;
 - generate causally distinct working opportunities, not cosmetic reskins;
-- keep opportunity outputs `WORKING / NOT ACCEPTED` and hand selected premises
-  into existing Story Discovery rather than silently creating Story Identity;
-- do not add numerical "idea quality", popularity, or commercial-success scores
-  unless a separately authorized, claim-appropriate contract exists.
+- when comparing a working premise against an intended genre, experience, and
+  narrative horizon, use `docs/premise-fitness.md`: distinguish premise
+  efficacy from realized effectiveness, inspect efficiency/runway/scope fit,
+  and do not reduce fitness to a universal quality score;
+- treat Genre Packs as reusable genre knowledge that Premise Fitness may
+  consume, not as automatic mass-appeal or premise-quality selectors;
+- keep opportunity and fitness outputs `WORKING / NOT ACCEPTED` and hand
+  selected premises into existing Story Discovery rather than silently creating
+  Story Identity;
+- do not add numerical "idea quality", popularity, premise-fitness, or
+  commercial-success scores unless a separately authorized, claim-appropriate
+  contract exists.
 
 ### Delegation envelope
 
