@@ -262,23 +262,29 @@ def _longitudinal_context_probe() -> dict[str, Any]:
 
 
 def _front_door_vocabulary_probe() -> dict[str, Any]:
-    text = "\n".join(
-        (
-            (ROOT / "src" / "auteur" / "beginner" / "browser" / "index.html").read_text(
-                encoding="utf-8"
-            ),
-            (ROOT / "src" / "auteur" / "beginner" / "browser" / "app.js").read_text(
-                encoding="utf-8"
-            ),
-        )
-    ).lower()
+    html = (
+        ROOT / "src" / "auteur" / "beginner" / "browser" / "index.html"
+    ).read_text(encoding="utf-8")
+    app = (
+        ROOT / "src" / "auteur" / "beginner" / "browser" / "app.js"
+    ).read_text(encoding="utf-8")
+    lowered = (html + "\n" + app).lower()
     terms = ("canon", "canonical", "provenance", "reconciliation", "candidate")
     return {
         "claim_class": "static_surface_audit",
-        "raw_source_occurrences": {term: text.count(term) for term in terms},
+        "raw_source_occurrences": {term: lowered.count(term) for term in terms},
+        "shape_auto_reviews_discoveries_before_shaping": (
+            "if (!state.quickDraftDiscoveriesVisible)" in app
+            and "return discoverQuickDraftElements().then(continueAfterDiscovery);" in app
+        ),
+        "shape_can_require_second_click_after_discovery_review": (
+            "Choose anything you want Auteur to remember, then choose “Shape this story” again."
+            in app
+        ),
         "warning": (
             "Source occurrence is not equivalent to primary-screen visibility or "
-            "human comprehension. Use this only to flag terminology for inspection."
+            "human comprehension. The shape/discovery flags establish current "
+            "interaction mechanics only, not whether writers find them burdensome."
         ),
     }
 
