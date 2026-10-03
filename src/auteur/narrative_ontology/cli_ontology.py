@@ -19,7 +19,7 @@ def register_ontology_subcommands(sub) -> None:
     Args:
         sub: The subparsers object from argparse
     """
-    parser = sub.add_parser("ontology", help="Inspect and validate narrative ontology.")
+    parser = sub.add_parser("ontology", help="Inspect and check the story concept library.")
     commands = parser.add_subparsers(dest="ontology_command", required=True)
 
     # inspect command
@@ -43,7 +43,7 @@ def register_ontology_subcommands(sub) -> None:
     # list command
     list_cmd = commands.add_parser(
         "list",
-        help="List all concepts in ontology"
+        help="List all story concepts"
     )
     list_cmd.add_argument(
         "--genre",
@@ -60,7 +60,7 @@ def register_ontology_subcommands(sub) -> None:
     # validate command
     validate_cmd = commands.add_parser(
         "validate",
-        help="Validate ontology structure and relationships"
+        help="Check the story concept library and its relationships"
     )
     validate_cmd.add_argument(
         "genre",
@@ -159,12 +159,12 @@ def handle_ontology_validate(args) -> int:
             errors = loader.validate_ontology_structure(base)
 
             if errors:
-                print("Base ontology validation FAILED:", file=sys.stderr)
+                print("Story concept library check FAILED:", file=sys.stderr)
                 for error in errors:
                     print(f"  - {error}", file=sys.stderr)
                 return 1
             else:
-                print("Base ontology is valid")
+                print("Story concept library is valid")
                 return 0
         else:
             # Validate specific genre
@@ -184,14 +184,14 @@ def handle_ontology_validate(args) -> int:
 
             if errors:
                 print(
-                    f"{args.genre.capitalize()} ontology validation FAILED:",
+                    f"{args.genre.capitalize()} story concept check FAILED:",
                     file=sys.stderr
                 )
                 for error in errors:
                     print(f"  - {error}", file=sys.stderr)
                 return 1
             else:
-                print(f"{args.genre.capitalize()} ontology is valid")
+                print(f"{args.genre.capitalize()} story concept library is valid")
                 return 0
 
     except ValueError as exc:
@@ -201,7 +201,7 @@ def handle_ontology_validate(args) -> int:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
     except Exception as exc:
-        print(f"Error: Failed to validate ontology: {exc}", file=sys.stderr)
+        print(f"Error: Failed to check the story concept library: {exc}", file=sys.stderr)
         return 1
 
 
@@ -265,7 +265,7 @@ def handle_ontology_themes(args) -> int:
                         print(f"    - {theme}")
             else:
                 print(
-                    f"\nNo explicit themes defined in {args.genre} ontology metadata."
+                    f"\nNo explicit themes are defined for the {args.genre} story concept library."
                 )
                 print("However, the following concepts are available:")
                 concept_names = sorted(genre_ont.keys())
