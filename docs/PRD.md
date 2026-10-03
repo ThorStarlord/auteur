@@ -91,6 +91,25 @@ The required evidence separation is:
 
 See [Story Opportunity Discovery](story-opportunity-discovery.md).
 
+### Premise Fitness contract
+
+Before Story Discovery, a working premise may be evaluated for **context-dependent
+fitness** rather than universal quality. Premise Fitness distinguishes predicted
+premise efficacy, realized story effectiveness, premise efficiency, and
+narrative runway. Fitness is conditional on intended genre promise, target
+experience, scope/length horizon, complexity, genre posture, and audience
+intent.
+
+Genre Packs may supply reusable genre knowledge to the analysis, but genre
+alignment is not a premise-quality score and a Genre Pack is not a mass-appeal
+optimizer. Conventional, subversive, and deconstructive postures remain valid
+targets when explicitly intended.
+
+This is also documentation-only: no numeric fitness score, automatic premise
+winner, new semantic layer, or canonical premise artifact is introduced.
+
+See [Premise Fitness](premise-fitness.md).
+
 For product evolution, prefer:
 
 ```text
