@@ -16,6 +16,7 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
+from auteur.beginner.continuation import build_contextual_chapter_plan
 from auteur.beginner.post_draft import project_draft_review, project_next_chapter_context
 from auteur.llm import LLMResponse
 from auteur.quick_draft import (
@@ -261,6 +262,77 @@ def _longitudinal_context_probe() -> dict[str, Any]:
         }
 
 
+
+def _change_mind_probe() -> dict[str, Any]:
+    """Exercise accepted-state divergence against an older Chapter plan."""
+    with tempfile.TemporaryDirectory() as raw:
+        root = Path(raw)
+        prior = root / "chapters" / "01"
+        prior.mkdir(parents=True)
+        (prior / "final.md").write_text(
+            "The presumed antagonist reveals she is the protagonist's older sister.",
+            encoding="utf-8",
+        )
+        (prior / "outline.yaml").write_text(
+            "chapter_index: 1\n"
+            "expected_state:\n"
+            "  antagonist_role: enemy\n",
+            encoding="utf-8",
+        )
+        chapter_two = root / "chapters" / "02"
+        chapter_two.mkdir()
+        (chapter_two / "outline.yaml").write_text(
+            "chapter_index: 2\n"
+            "chapter_summary: decide whether to trust the former antagonist\n",
+            encoding="utf-8",
+        )
+        bible = {
+            "events": [
+                {
+                    "chapter_index": 1,
+                    "summary": "The older sister becomes a possible ally.",
+                    "deltas": {"antagonist_role": "ally"},
+                }
+            ]
+        }
+        (root / "bible.json").write_text(json.dumps(bible), encoding="utf-8")
+
+        before = (prior / "outline.yaml").read_text(encoding="utf-8")
+        plan = build_contextual_chapter_plan(root, 2)
+        after = (prior / "outline.yaml").read_text(encoding="utf-8")
+        divergence = plan.divergences[0] if plan.divergences else None
+
+        return {
+            "claim_class": "mechanical",
+            "accepted_change_visible_to_next_chapter": (
+                plan.context["accepted_prior_state"][0]["deltas"][
+                    "antagonist_role"
+                ]
+                == "ally"
+            ),
+            "obsolete_plan_detected_as_divergence": (
+                divergence
+                == {
+                    "field": "antagonist_role",
+                    "planned": "enemy",
+                    "accepted": "ally",
+                    "recommendation": "adapt the next chapter to the accepted state",
+                }
+            ),
+            "historical_plan_not_silently_rewritten": before == after,
+            "next_chapter_role_preserved": (
+                plan.intended_role
+                == "decide whether to trust the former antagonist"
+            ),
+            "finding": (
+                "Accepted changed state is visible to later planning and the older "
+                "plan is surfaced as divergence rather than silently rewritten. "
+                "This does not prove every author-intent revision route or the "
+                "human cost of recovery."
+            ),
+        }
+
+
 def _front_door_vocabulary_probe() -> dict[str, Any]:
     html = (
         ROOT / "src" / "auteur" / "beginner" / "browser" / "index.html"
@@ -308,6 +380,7 @@ def run_probe() -> dict[str, Any]:
             "ambiguity": _ambiguity_probe(),
             "chaotic_writer_review": _chaotic_writer_review_probe(),
             "longitudinal_context": _longitudinal_context_probe(),
+            "change_mind": _change_mind_probe(),
             "front_door_vocabulary": _front_door_vocabulary_probe(),
         },
         "agent_hypotheses": {
