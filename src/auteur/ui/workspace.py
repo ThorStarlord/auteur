@@ -12,13 +12,13 @@ from urllib.parse import urlparse
 from auteur.ui.dashboard import build_dashboard
 
 
-_AUTHORITY = "DERIVED WORKSPACE / READ ONLY"
+_AUTHORITY = "READ-ONLY STORY VIEW"
 _WORKFLOW_STAGES = [
     "Tutor guidance",
     "Proposal review",
     "Revision plan",
     "Change preview",
-    "Explicit authority action",
+    "Confirm the change",
     "Reassessment",
 ]
 
@@ -46,7 +46,7 @@ button{border:0;border-radius:10px;padding:9px 12px;font:inherit;font-weight:650
 <body><main class="shell">
 <div class="eyebrow">Auteur · local workspace</div>
 <h1>Your story, one decision at a time.</h1>
-<p class="lead">This workspace explains what needs attention and where authority lives. It never changes the story by itself.</p>
+<p class="lead">This workspace explains what needs attention and which decisions need you. It never changes the story by itself.</p>
 <section class="card"><div class="row"><div><span id="authority" class="badge">Loading…</span><p id="project" class="muted"></p></div><button class="refresh" onclick="loadWorkspace()">Refresh</button></div></section>
 <section class="card"><div class="eyebrow">What needs your attention</div><div id="primary"><p class="muted">Loading project state…</p></div></section>
 <section class="card"><div class="eyebrow">Decision loop</div><p class="muted">These are workflow stages, not inferred story-quality scores.</p><ol id="rail" class="rail"></ol></section>
@@ -143,7 +143,7 @@ class _WorkspaceHandler(BaseHTTPRequestHandler):
             else:
                 self._json(404, {"error": "Not found"})
         except Exception as exc:
-            self._json(500, {"error": f"Workspace projection failed: {exc}"})
+            self._json(500, {"error": f"Workspace view failed: {exc}"})
 
     def do_POST(self) -> None:
         self._json(405, {"error": "Guided Author Workspace V1 is read-only"})
@@ -189,7 +189,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_workspace_args(list(argv or []))
     server = GuidedAuthorWorkspaceServer(args.project, port=args.port)
     print(f"Guided Author Workspace: http://{server.host}:{server.port}")
-    print("Status: DERIVED WORKSPACE / READ ONLY")
+    print("Status: READ-ONLY STORY VIEW")
     try:
         server.start()
     except KeyboardInterrupt:
