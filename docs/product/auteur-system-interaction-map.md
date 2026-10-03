@@ -657,18 +657,19 @@ Question: does Auteur follow the story actually written while preserving deliber
 
 # 19. Relationship to capability frontier qualification
 
-The interaction traces in this document become **frontier qualification
+The interaction traces in this document become **paired frontier qualification
 journeys** under:
 
 - `auteur-capability-frontier-construction-roadmap.md`
+- `auteur-experience-frontier-construction-roadmap.md`
 
 Examples:
 
 ```text
-F1 — Messy Discovery
+F1 — Messy Discovery + X2 — Reversible Creative Exploration
 -> Trace B / Sister Beatrice
 
-F2 — Small-Book Longitudinal Coherence
+F2 — Small-Book Longitudinal Coherence + X3 — Persistent Book Workspace
 -> Trace C extended through Chapter 6 + whole-Book orientation
 
 F5 — Evolving Long Book
@@ -678,8 +679,11 @@ F7 — Series
 -> long-horizon context + Book/Series authority traces
 ```
 
-When a frontier fails, diagnose the **first material interaction break** in this
-map before choosing a new subsystem.
+Narrative and experience frontiers may fail independently.
+
+When a paired frontier fails, diagnose the **first material interaction break**
+in this map before choosing a narrative subsystem, workflow repair, UX change,
+or UI change.
 
 The purpose is not merely to ask whether data exists somewhere in the
 repository. The question is:
