@@ -865,3 +865,39 @@ Current evidence is enough to preserve and use the method.
 It is not enough to claim that independent writers prefer or understand an
 explicit Premise Fitness surface. That remains a separate human-evidence claim
 and does not block the documented workflow.
+
+
+---
+
+# 7. Closure and future evidence
+
+The stress-test topic is closed under the current evidence ceiling.
+
+## Additional selected decisions
+
+- Premise Fitness is optional rather than a mandatory pre-Story-Discovery gate.
+- The Post-Discovery Fitness Delta is advisory and cannot independently block
+  acceptance.
+- No new canonical or authority-bearing Premise Fitness artifact is selected.
+- More synthetic cases are not warranted merely to increase confidence.
+- Future helper implementation is triggered by repeated non-synthetic
+  state/comparison/provenance/recomputation burden, not by conceptual enthusiasm.
+
+## Next evidence source
+
+Use the method in ordinary future story work.
+
+Reopen product construction only when actual use shows a repeated friction that a
+bounded read-only helper can remove, or when a real writer-facing projection
+needs human usability evidence.
+
+## Parked questions
+
+The following remain unknown but do not change current action:
+
+- whether independent writers prefer a visible Premise Fitness surface;
+- how frequently real workflows cross the helper eligibility gate;
+- final UI wording if a dedicated visible projection is eventually built;
+- exact helper schema / command / persistence shape.
+
+Treat these as evidence-gated, not as reasons to continue speculative design.
