@@ -494,7 +494,6 @@ def test_browser_surfaces_reconcile_new_elements_as_story_choices():
     assert "review.review_stale" in js
 
 def test_quick_draft_shape_handoff_requires_explicit_remember_choices():
-    html = _read(INDEX)
     js = _read(APP)
 
     assert "Carry this idea into story shaping" in js
