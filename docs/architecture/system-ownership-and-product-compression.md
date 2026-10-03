@@ -8,6 +8,18 @@ workflow, or new source of story truth. Canonical semantic and authority rules
 remain in `docs/narrative-architecture.md`, `MISSION.md`, and the owning
 domain workflows.
 
+## Related high-order author experience
+
+This architecture rule is consumed by the higher-level author-experience
+synthesis in:
+
+- `docs/product/auteur-unified-author-experience-architecture.md`;
+- `docs/product/auteur-system-interaction-map.md`;
+- `docs/product/auteur-ux-product-requirements.md`.
+
+Those documents do not change system ownership. They define how specialized
+owners compose into one author-facing mental model.
+
 ## Why this exists
 
 Auteur now contains substantially more internal capability than a beginner
