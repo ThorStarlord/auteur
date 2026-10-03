@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import runpy
 
 import pytest
 import yaml
@@ -329,4 +330,71 @@ def test_quick_draft_shape_handoff_rejects_stale_or_invented_discovery(
             "workspace-quick",
             [{"kind": "place", "value": "Invented Castle"}],
         )
+
+def test_product_probe_preserves_exact_live_output_without_inventing_human_judgment() -> None:
+    probe_path = Path(__file__).resolve().parents[1] / "scripts" / "quick_draft_product_probe.py"
+    namespace = runpy.run_path(str(probe_path))
+    scenario = namespace["Scenario"](
+        "probe-test",
+        PREMISE,
+        FIRST_SCENE,
+    )
+    draft = "Exact generated prose must remain inspectable.\n"
+    scaffold = {
+        "status": STATUS,
+        "authority": {
+            "story_setup": "not_accepted",
+            "structure": "not_accepted",
+            "scene_draft": "working_only",
+        },
+        "inferred_scaffolding": {
+            "lenses": [{"name": "story_engine", "status": STATUS}],
+            "identity_container": {
+                "status": STATUS,
+                "title": "Working title",
+            },
+            "scene_plan": {
+                "status": STATUS,
+                "purpose": FIRST_SCENE,
+            },
+        },
+    }
+
+    record = namespace["_live_run_record"](
+        scenario,
+        session_id="quick-probe-test",
+        elapsed_seconds=3.25,
+        provider="fake/provider",
+        scaffold=scaffold,
+        draft=draft,
+    )
+
+    assert record["inputs"]["premise"] == PREMISE
+    assert record["inputs"]["first_scene"] == FIRST_SCENE
+    assert record["draft_text"] == draft
+    assert record["draft_characters"] == len(draft)
+    assert record["authority"] == scaffold["authority"]
+    assert record["inferred_provisional"]["identity_container"]["status"] == STATUS
+    assert record["inferred_provisional"]["scene_plan"]["purpose"] == FIRST_SCENE
+    assert record["manual_review"] == {
+        "honors_first_scene_intent": None,
+        "generic_defaults_leak_into_prose": None,
+        "scene_sized": None,
+        "unwanted_commitments": [],
+        "useful_to_react_to": None,
+        "notes": "",
+    }
+
+
+def test_product_probe_messy_writer_follow_up_starts_as_unclaimed_evidence() -> None:
+    probe_path = Path(__file__).resolve().parents[1] / "scripts" / "quick_draft_product_probe.py"
+    namespace = runpy.run_path(str(probe_path))
+
+    follow_up = namespace["_messy_writer_follow_up_template"]()
+
+    assert follow_up["reference_unplanned_character"] == "Sister Beatrice"
+    assert follow_up["reference_unplanned_place"] == "abandoned seaside convent"
+    assert follow_up["prose_preserved"] is None
+    assert follow_up["stale_review_detected"] is None
+    assert follow_up["only_selected_discoveries_carried_forward"] is None
 
