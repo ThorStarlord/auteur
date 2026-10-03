@@ -840,13 +840,6 @@ summary:focus-visible {
   }
 }
 
-.draft-prose {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  max-height: 32rem;
-  overflow: auto;
-}
-
 .story-map > summary,
 .story-insights > summary,
 #book-progress-panel > summary {
