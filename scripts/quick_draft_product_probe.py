@@ -4,6 +4,9 @@
 This is intentionally outside CI. It can print the mechanical interaction
 comparison without a provider, or run live Quick Draft dogfood when existing
 provider credentials are available.
+
+Live runs persist inspectable evidence, including exact prose and provisional
+scaffolding, but leave subjective product judgments for a human reviewer.
 """
 
 from __future__ import annotations
@@ -79,6 +82,62 @@ def mechanical_comparison() -> dict[str, Any]:
     }
 
 
+def _manual_review_template() -> dict[str, Any]:
+    return {
+        "honors_first_scene_intent": None,
+        "generic_defaults_leak_into_prose": None,
+        "scene_sized": None,
+        "unwanted_commitments": [],
+        "useful_to_react_to": None,
+        "notes": "",
+    }
+
+
+def _live_run_record(
+    scenario: Scenario,
+    *,
+    session_id: str,
+    elapsed_seconds: float,
+    provider: str,
+    scaffold: dict[str, Any],
+    draft: str,
+) -> dict[str, Any]:
+    inferred = scaffold.get("inferred_scaffolding") or {}
+    return {
+        "scenario": scenario.name,
+        "inputs": asdict(scenario),
+        "session_id": session_id,
+        "elapsed_seconds": elapsed_seconds,
+        "thirty_second_target_met": elapsed_seconds <= 30.0,
+        "draft_characters": len(draft),
+        "draft_text": draft,
+        "provider": provider,
+        "status": scaffold.get("status"),
+        "authority": scaffold.get("authority") or {},
+        "inferred_provisional": {
+            "lenses": inferred.get("lenses") or [],
+            "identity_container": inferred.get("identity_container") or {},
+            "scene_plan": inferred.get("scene_plan") or {},
+        },
+        "manual_review": _manual_review_template(),
+    }
+
+
+def _messy_writer_follow_up_template() -> dict[str, Any]:
+    return {
+        "reference_unplanned_character": "Sister Beatrice",
+        "reference_unplanned_place": "abandoned seaside convent",
+        "session_id": None,
+        "discoveries_seen": [],
+        "discoveries_selected_for_shaping": [],
+        "handoff_selected_discoveries": [],
+        "prose_preserved": None,
+        "stale_review_detected": None,
+        "only_selected_discoveries_carried_forward": None,
+        "notes": "",
+    }
+
+
 def _live_probe(project: Path) -> list[dict[str, Any]]:
     runs: list[dict[str, Any]] = []
     for scenario in SCENARIOS:
@@ -90,17 +149,14 @@ def _live_probe(project: Path) -> list[dict[str, Any]]:
         scaffold = yaml.safe_load(result.scaffold_path.read_text(encoding="utf-8")) or {}
         draft = result.draft_path.read_text(encoding="utf-8")
         runs.append(
-            {
-                "scenario": scenario.name,
-                "session_id": result.session_id,
-                "elapsed_seconds": result.elapsed_seconds,
-                "thirty_second_target_met": result.elapsed_seconds <= 30.0,
-                "draft_characters": len(draft),
-                "provider": result.provider,
-                "status": scaffold.get("status"),
-                "story_setup": (scaffold.get("authority") or {}).get("story_setup"),
-                "structure": (scaffold.get("authority") or {}).get("structure"),
-            }
+            _live_run_record(
+                scenario,
+                session_id=result.session_id,
+                elapsed_seconds=result.elapsed_seconds,
+                provider=result.provider,
+                scaffold=scaffold,
+                draft=draft,
+            )
         )
     return runs
 
@@ -117,10 +173,26 @@ def main() -> int:
     args = parser.parse_args()
 
     payload: dict[str, Any] = {
+        "schema": "quick_draft_product_evidence_v1",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "mechanical_comparison": mechanical_comparison(),
         "scenarios": [asdict(item) for item in SCENARIOS],
         "live_runs": [],
+        "messy_writer_follow_up": _messy_writer_follow_up_template(),
+        "claim_boundary": {
+            "mechanical": (
+                "Interaction counts, authority state, stored prose, and provisional "
+                "scaffolding may be established by this artifact."
+            ),
+            "provider": (
+                "A live run may establish observed latency and inspectable generated output "
+                "for the configured provider."
+            ),
+            "human": (
+                "Preference, ownership, joy, confidence, cognitive load, and desire to "
+                "continue require a real participant and are not inferred here."
+            ),
+        },
     }
     if args.live:
         payload["live_runs"] = _live_probe(args.project)
@@ -149,6 +221,10 @@ def main() -> int:
                     f"- {run['scenario']}: {run['elapsed_seconds']:.1f}s "
                     f"({marker}), {run['draft_characters']} chars"
                 )
+            print(
+                "\nThe evidence JSON includes exact prose, inferred provisional "
+                "scaffolding, and blank human-review fields for manual inspection."
+            )
         else:
             print("\nLive provider run not requested; no prose-quality claim is made.")
         print(f"\nEvidence: {output}")
