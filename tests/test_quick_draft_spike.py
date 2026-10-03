@@ -12,7 +12,10 @@ from auteur.quick_draft import (
     DEFAULT_LENSES,
     STATUS,
     parse_quick_draft_args,
+    project_quick_draft_discoveries,
+    project_quick_draft_session,
     run_quick_draft,
+    save_quick_draft_revision,
 )
 
 
@@ -210,4 +213,61 @@ def test_quick_draft_cli_reports_provider_failure_without_traceback(
     assert "Quick Draft could not start: no drafting provider configured" in captured.out
     assert "Traceback" not in captured.out
     assert "Traceback" not in captured.err
+
+def test_quick_draft_keeps_ambiguous_pov_and_location_uncommitted(
+    tmp_path: Path,
+) -> None:
+    llm = FakeDraftLLM()
+    result = run_quick_draft(
+        "Someone wakes with a key that should not exist.",
+        "They try the key on the only locked door in the apartment.",
+        project_root=tmp_path,
+        llm=llm,
+        provider_label="fake",
+    )
+    scaffold = yaml.safe_load(result.scaffold_path.read_text(encoding="utf-8"))
+    scene = scaffold["inferred_scaffolding"]["scene_plan"]
+
+    assert scene["status"] == STATUS
+    assert scene["pov_character"] == ""
+    assert scene["location"] == ""
+    request = llm.requests[0]
+    assert "Unspecified viewpoint" not in request.user
+    assert "Infer naturally from the premise" not in request.user
+
+
+def test_quick_draft_edits_preserve_history_and_surface_new_elements(
+    tmp_path: Path,
+) -> None:
+    llm = FakeDraftLLM()
+    result = run_quick_draft(
+        PREMISE,
+        FIRST_SCENE,
+        project_root=tmp_path,
+        llm=llm,
+        provider_label="fake",
+    )
+    edited_text = (
+        "At the abandoned seaside convent, Sister Beatrice tells Detective Miller "
+        "that Suspect Vance slept there."
+    )
+    projection = save_quick_draft_revision(
+        tmp_path,
+        result.session_id,
+        edited_text,
+    )
+
+    assert projection["draft"]["edit_count"] == 1
+    assert projection["draft_text"].strip() == edited_text
+    revisions = list((result.session_dir / "revisions").glob("scene_draft_v*.md"))
+    assert len(revisions) == 1
+    assert "Vance did not look frightened" in revisions[0].read_text(encoding="utf-8")
+
+    discoveries = project_quick_draft_discoveries(tmp_path, result.session_id)
+    values = {item["value"] for item in discoveries["discoveries"]}
+    assert "Sister Beatrice" in values
+    assert any("abandoned seaside convent" in value.lower() for value in values)
+
+    loaded = project_quick_draft_session(tmp_path, result.session_id)
+    assert loaded["draft_text"].strip() == edited_text
 
