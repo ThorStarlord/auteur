@@ -188,3 +188,26 @@ def test_identical_quick_drafts_do_not_collide_on_session_directory(
     assert first.session_dir.is_dir()
     assert second.session_dir.is_dir()
 
+def test_quick_draft_cli_reports_provider_failure_without_traceback(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    def fail_provider():
+        raise RuntimeError("no drafting provider configured")
+
+    monkeypatch.setattr(
+        "auteur.quick_draft._build_quick_draft_client",
+        fail_provider,
+    )
+
+    rc = main(["quick-draft", PREMISE, FIRST_SCENE])
+    captured = capsys.readouterr()
+
+    assert rc == 1
+    assert "Quick Draft could not start: no drafting provider configured" in captured.out
+    assert "Traceback" not in captured.out
+    assert "Traceback" not in captured.err
+
