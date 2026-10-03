@@ -32,6 +32,35 @@ accepted narrative authority
 
 Admit a new architectural concept only when observed product friction cannot be solved cleanly by existing concepts, workflow, presentation, or reusable craft knowledge.
 
+## High-order UX synthesis boundary
+
+The current Beginner ergonomics wave has produced enough local integration work
+that further UX evolution should now reconcile against the unified author
+experience architecture rather than defaulting to another isolated surface fix.
+
+Primary synthesis:
+
+- `docs/product/auteur-unified-author-experience-architecture.md`
+- `docs/product/auteur-system-interaction-map.md`
+- `docs/product/auteur-ux-product-requirements.md`
+
+Current evidence flow:
+
+```text
+#305 real-author evidence
++
+#310 real-provider evidence
++
+unified experience architecture
+-> #313 high-order reconciliation
+-> one bounded next implementation wave
+```
+
+A blocking product defect discovered during validation may still receive a
+bounded repair. Ordinary hesitation, preference, or local friction should not be
+converted directly into a sequence of micro-patches before #313 reconciles the
+system-level evidence.
+
 ## Development Rule
 Prefer:
 
