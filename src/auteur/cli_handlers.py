@@ -294,7 +294,7 @@ def analyze_contract_fit(identity: StoryIdentity) -> tuple[int, str, list[str], 
         for mismatch in contract.forbidden_mismatches:
             if _contract_phrase_present(mismatch, text):
                 fit -= 12
-                problems.append(f"Potential forbidden mismatch appears in candidate: {mismatch}")
+                problems.append(f"Potential forbidden mismatch appears in story option: {mismatch}")
         for failure_mode in contract.common_failure_modes[:3]:
             if _contract_phrase_present(failure_mode, text):
                 fit -= 6
