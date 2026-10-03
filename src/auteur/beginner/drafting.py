@@ -92,6 +92,20 @@ def _completed_result(project: Project, version: int) -> CandidateDraftResult | 
     validation_path = chapter_dir / f"validation_v{version}.json"
     if not (draft_path.is_file() and validation_path.is_file()):
         return None
+    meta_path = chapter_dir / f"{draft_path.stem}.meta.json"
+    if meta_path.is_file():
+        metadata = json.loads(meta_path.read_text(encoding="utf-8"))
+        expected = metadata.get("candidate_sha256")
+        current = hashlib.sha256(draft_path.read_bytes()).hexdigest()
+        if expected == current and metadata.get("status") != "validated":
+            _write_json_atomic(
+                meta_path,
+                {
+                    **metadata,
+                    "status": "validated",
+                    "validation_artifact": validation_path.name,
+                },
+            )
     report = ValidationReport.model_validate_json(validation_path.read_text(encoding="utf-8"))
     return CandidateDraftResult(1, draft_path, validation_path, report.passed)
 
@@ -170,6 +184,16 @@ def draft_candidate_chapter(
         )
         project.write_draft(1, version, prose)
 
+    meta_path = chapter_dir / f"{draft_path.stem}.meta.json"
+    _write_json_atomic(
+        meta_path,
+        {
+            "candidate_sha256": hashlib.sha256(draft_path.read_bytes()).hexdigest(),
+            "planning_fingerprint": continuation.draft_handoff.source_fingerprint,
+            "status": "validation_pending",
+        },
+    )
+
     report = _run_critics_via_runtime(
         draft=prose,
         outline=outline,
@@ -182,7 +206,7 @@ def draft_candidate_chapter(
     )
     project.write_validation(1, version, report)
     _write_json_atomic(
-        chapter_dir / f"{draft_path.stem}.meta.json",
+        meta_path,
         {
             "candidate_sha256": hashlib.sha256(draft_path.read_bytes()).hexdigest(),
             "validation_artifact": validation_path.name,
