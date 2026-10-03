@@ -196,7 +196,7 @@ def format_repeated_series_focus(
         "Principal tradeoff",
         recommended.tradeoff,
         "",
-        f"This is a planning choice, not Book {book_number} canon.",
+        f"This is a planning choice, not part of accepted Book {book_number} yet.",
         "Choosing an option records what you want to explore next. You can "
         f"change or develop it before accepting a Book {book_number} direction.",
         "",
@@ -297,7 +297,7 @@ def format_series_journey_focus(
         "Principal tradeoff",
         recommended.tradeoff,
         "",
-        "This is a planning choice, not Book 2 canon.",
+        "This is a planning choice, not part of accepted Book 2 yet.",
         "Choosing an option records what you want to explore next. You can "
         "change or develop it before accepting a Book 2 direction.",
         "",
@@ -498,7 +498,7 @@ def format_series_continuity_review(
             "",
             "WHAT REMAINS UNCHANGED",
             "Accepted downstream material remains accepted. This review does not rewrite it.",
-            "No narrative authority has changed.",
+            "No accepted story material has changed.",
         ]
     )
     if detail:
