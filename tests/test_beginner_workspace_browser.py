@@ -102,7 +102,7 @@ def test_browser_renders_candidate_prose_in_post_draft_review():
     css = _read(STYLES)
 
     assert "review.draft_text" in js
-    assert "Candidate prose" in js
+    assert "Chapter 1 draft" in js
     assert 'class="draft-prose"' in js
     assert ".draft-prose" in css
     assert "white-space: pre-wrap" in css
@@ -149,7 +149,7 @@ def test_browser_uses_beginner_labels_and_completion_state():
     js = _read(APP)
     assert "function stageLabel" in js
     assert "function milestoneLabel" in js
-    assert "Story foundation accepted" in js
+    assert "Story foundation ready" in js
     assert "revision workspace" in js
     assert "Open thread:" not in js
     assert 'class="nav-review"' not in js
@@ -224,7 +224,7 @@ def test_browser_makes_phase_transitions_and_primary_actions_explicit():
     js = _read(APP)
     css = _read(STYLES)
 
-    assert "Next: outline your story" in js
+    assert "Ready for Chapter 1" in js
     assert "primary-next-action" in js
     assert "projection.primary_action" in js
     assert "projectedPrimary.action_id" in js
@@ -257,7 +257,7 @@ def test_browser_story_lenses_are_composable_without_story_mutation():
     css = _read(STYLES)
 
     for token in (
-        "Story Architecture Overview",
+        "Explore the story insights",
         "reset-lens-layout",
         "story-lens-grid",
         "inspector-title",
@@ -340,3 +340,77 @@ def test_browser_home_is_product_first_and_workspace_ids_are_advanced_only():
     assert ".home-surface" in css
     assert ".recent-story-card" in css
     assert ".new-story-form" in css
+
+def test_browser_compresses_direction_choice_into_one_visible_action():
+    js = _read(APP)
+
+    assert "function useStoryDirection" in js
+    assert ">Use this direction</button>" in js
+    assert 'id="accept-selected-direction"' not in js
+    assert 'sendAction("select-direction"' in js
+    assert 'sendAction("accept-direction"' in js
+
+
+def test_browser_defaults_structure_to_one_recommended_story_shape_action():
+    js = _read(APP)
+
+    assert "function useRecommendedStoryShape" in js
+    assert "Use recommended story shape" in js
+    assert "Customize story shape" in js
+    assert 'entry.stage === "story_structure"' in js
+    # The full card-by-card path remains present after customization.
+    assert 'input[name="decision-option"]' in js
+    assert "sendSelect(input.value)" in js
+
+
+def test_browser_collapses_continuation_planning_but_preserves_internal_artifacts():
+    js = _read(APP)
+
+    assert "function prepareChapterLaunch" in js
+    for action in (
+        "propose-outline",
+        "accept-outline",
+        "propose-chapter-plan",
+        "accept-chapter-plan",
+        "propose-scene-plans",
+        "accept-scene-plans",
+        "prepare-draft-handoff",
+    ):
+        assert action in js
+
+    assert "Plan Chapter 1 →" in js
+    assert "Plan step by step" in js
+    assert "Here is how Auteur will approach Chapter 1" in js
+    assert "Planning details" in js
+
+
+def test_browser_draft_action_opens_visible_chapter_immediately():
+    js = _read(APP)
+
+    assert "function draftAndShowChapterOne" in js
+    draft_helper = js[js.index("function draftAndShowChapterOne"):]
+    assert 'sendAction("draft-chapter-1"' in draft_helper
+    assert "openChapterReview(1)" in draft_helper
+    assert "Chapter 1 draft" in js
+    assert "Keep this draft" in js
+    assert 'revise.textContent = "Revise"' in js
+
+
+def test_browser_progressively_discloses_internal_vocabulary():
+    html = _read(INDEX)
+
+    assert "<summary>Story details</summary>" in html
+    assert "<summary>Explore the story insights</summary>" in html
+    assert "<summary>Advanced: whole-book details</summary>" in html
+    assert "<summary>Adjust what Auteur sees</summary>" in html
+    assert "What this story is becoming" in html
+    assert "Choose where the story goes" in html
+
+
+def test_browser_uses_beginner_facing_stage_names_on_primary_navigation():
+    js = _read(APP)
+
+    assert 'stage === "discover" ? "Direction"' in js
+    assert '"Story core"' in js
+    assert '"Story shape"' in js
+
