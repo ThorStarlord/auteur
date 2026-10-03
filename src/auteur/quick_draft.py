@@ -330,6 +330,13 @@ def run_quick_draft(
             prior_draft=None,
             findings=None,
         )
+        user += (
+            "\n\n## QUICK DRAFT AUTHOR INPUT\n"
+            f"Premise: {premise}\n"
+            f"First-scene intent: {first_scene}\n"
+            "Treat these author inputs as controlling creative evidence. "
+            "Do not replace them with generic scaffold defaults."
+        )
         response = llm.complete(
             LLMRequest(
                 system=system,
