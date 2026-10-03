@@ -674,6 +674,25 @@ class _RequestHandler(BaseHTTPRequestHandler):
             raise BeginnerRequestError(400, "quick_draft_session_id must be a non-empty string")
         if not isinstance(quick_draft_discoveries, list):
             raise BeginnerRequestError(400, "quick_draft_discoveries must be a list")
+        if quick_draft_session_id is not None:
+            try:
+                quick_projection = project_quick_draft_session(
+                    self.project_root,
+                    quick_draft_session_id,
+                )
+                available = {
+                    (str(item.get("kind", "")), str(item.get("value", "")))
+                    for item in quick_projection.get("discoveries", [])
+                    if isinstance(item, dict)
+                }
+                for item in quick_draft_discoveries:
+                    if not isinstance(item, dict):
+                        raise ValueError("quick_draft_discoveries entries must be objects")
+                    key = (str(item.get("kind", "")), str(item.get("value", "")))
+                    if key not in available:
+                        raise ValueError("selected Quick Draft discovery is not current")
+            except (FileNotFoundError, OSError, ValueError) as exc:
+                raise BeginnerRequestError(422, str(exc)) from exc
         try:
             app = self._app_for(workspace_id)
         except ValueError as exc:
