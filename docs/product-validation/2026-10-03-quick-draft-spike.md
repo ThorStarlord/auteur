@@ -202,6 +202,23 @@ remain behind in the provisional Quick Draft session.
 If the draft has no detected discoveries, Auteur skips the empty confirmation
 step.
 
+## Browser resumability
+
+The integrated Browser places the provisional session ID in a `quick_draft`
+query parameter.
+
+That means a writer can refresh or reopen the URL and recover:
+
+- the same provisional scene;
+- the original premise;
+- the first-scene intent;
+- current edit count and saved draft state.
+
+Entering a normal Beginner workspace removes the provisional `quick_draft`
+URL mode so an old exploratory scene is not presented as the active workspace.
+
+This is persistence of **working context**, not acceptance.
+
 ## Contract preservation
 
 The spike does not modify:
