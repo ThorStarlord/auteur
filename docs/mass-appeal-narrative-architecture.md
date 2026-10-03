@@ -248,6 +248,16 @@ from auteur.audience_effects import analyze_audience_effects
 report = analyze_audience_effects(blueprint)
 ```
 
+Author-facing read-only CLI:
+
+```text
+auteur reasoning audience blueprint.yaml
+auteur reasoning audience blueprint.yaml --json
+```
+
+The command prints a derived report only. It writes no narrative artifact and
+crosses no acceptance boundary.
+
 The report contains:
 
 - available evidence stage;
