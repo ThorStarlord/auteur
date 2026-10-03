@@ -86,6 +86,52 @@ product work when it exercises the real workflow and preserves authority
 boundaries; it is not evidence that real authors find the result useful or
 understandable.
 
+## Unified author experience architecture
+
+The repository now maintains a high-order product synthesis over the existing
+semantic/authority architecture:
+
+- `docs/product/auteur-unified-author-experience-architecture.md` — the single
+  author mental model, contextual capability modes, progressive-disclosure
+  triggers, machine-complexity absorption rules, and system-level UX
+  antipatterns;
+- `docs/product/auteur-system-interaction-map.md` — concrete cross-system
+  lifecycle maps for shape-first, write-first, Sister Beatrice-style creative
+  discovery, change-my-mind behavior, Chapter N continuity, and whole-book
+  synchronization;
+- `docs/product/auteur-ux-product-requirements.md` — provisional high-order UX
+  requirements with explicit evidence status;
+- `docs/product/auteur-capability-frontier-construction-roadmap.md` — the
+  Narrative Stress Envelope and F0–F7 construction frontiers used to decide
+  which harder class of story should drive the next capability build;
+- `docs/product/auteur-experience-frontier-construction-roadmap.md` — the
+  Experience Stress Envelope and X0–X7 UX/UI frontiers used to decide when the
+  current interaction model can no longer carry product complexity.
+
+These documents do not replace this PRD or the canonical five-layer narrative
+architecture. They reconcile how the existing systems should cohere from the
+author's perspective.
+
+The governing experience principle is:
+
+```text
+create freely
+-> understand when useful
+-> commit meaning deliberately
+-> let Auteur manage reversible machinery
+-> write
+-> let writing produce evidence
+-> choose what the story should remember
+-> carry accepted reality forward
+```
+
+The current requirement set is intentionally evidence-gated. Issue #305 must
+supply real-author evidence, #310 must supply real-provider Quick Draft
+evidence, and #313 owns the post-evidence high-order reconciliation.
+
+Do not treat architecture coherence alone as proof that authors prefer one entry
+tempo or interaction pattern.
+
 ## Non-goals
 
 No auto-acceptance of recommendations. No cloud/multi-author/collaboration

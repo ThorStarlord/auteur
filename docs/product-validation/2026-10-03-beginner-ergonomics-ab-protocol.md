@@ -452,6 +452,10 @@ Only real participant observation may establish:
 - preference;
 - desire to continue.
 
+## Post-evidence synthesis
+
+After #305 and #310 return evidence, issue #313 owns the high-order reconciliation against the Unified Author Experience Architecture and provisional UX requirements. Do not decompose isolated observations directly into unrelated micro-fixes before that synthesis unless a product defect blocks the study itself.
+
 ## Result dispositions
 
 After at least one serious real-author pass, record one of:
