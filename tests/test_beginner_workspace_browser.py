@@ -439,3 +439,11 @@ def test_beginner_default_premise_to_prose_path_targets_eight_visible_interactio
     assert "Plan step by step" in js
     assert "Customize story shape" in js
 
+def test_bundled_beginner_actions_do_not_render_internal_transition_flicker():
+    js = _read(APP)
+
+    assert "function rememberProjection" in js
+    assert "settings.render === false" in js
+    assert "{ render: false, keepStatus: true }" in js
+    assert "finalPlanningStep" in js
+
