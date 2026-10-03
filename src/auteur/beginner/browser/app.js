@@ -1712,7 +1712,7 @@
   function acceptLatestDraft() {
     var chapter = currentChapterFromQuery();
     if (!chapter) return;
-    if (!window.confirm("Accept the latest Chapter " + chapter + " draft through Auteur's existing chapter authority?")) {
+    if (!window.confirm("Keep this Chapter " + chapter + " draft as the accepted version?")) {
       return;
     }
     setStatus("Accepting Chapter " + chapter + "…");
