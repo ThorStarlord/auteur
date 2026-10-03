@@ -248,6 +248,40 @@ It only composes existing models behind an isolated provisional facade.
 - the fake-provider path reaches prose within the thirty-second target;
 - the CLI prints the prose before any acceptance instruction.
 
+## Durable live-provider evidence packet
+
+Run:
+
+~~~text
+python scripts/quick_draft_product_probe.py --project . --live
+~~~
+
+The probe writes a timestamped JSON record under:
+
+~~~text
+.auteur/product-probes/quick-draft-<timestamp>.json
+~~~
+
+Each live scenario record preserves:
+
+- the exact premise and first-scene intent;
+- provider label and observed latency;
+- the exact generated prose, not only its length;
+- the complete provisional authority state;
+- the inferred lenses, Identity container, and scene plan;
+- blank manual-review fields for:
+  - first-scene-intent fidelity;
+  - generic-default leakage;
+  - scene-sizedness;
+  - unwanted commitments;
+  - usefulness as something to react to.
+
+The packet also includes an unclaimed messy-writer follow-up section for the
+Sister Beatrice + abandoned seaside convent stress.
+
+The probe deliberately does **not** assign a creativity, quality, ownership, or
+preference score. Those judgments remain human evidence.
+
 ## Product question this spike answers
 
 The experiment is not:
