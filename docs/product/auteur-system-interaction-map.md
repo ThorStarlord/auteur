@@ -655,7 +655,41 @@ Question: does Auteur follow the story actually written while preserving deliber
 
 ---
 
-# 19. One-system test
+# 19. Relationship to capability frontier qualification
+
+The interaction traces in this document become **frontier qualification
+journeys** under:
+
+- `auteur-capability-frontier-construction-roadmap.md`
+
+Examples:
+
+```text
+F1 — Messy Discovery
+-> Trace B / Sister Beatrice
+
+F2 — Small-Book Longitudinal Coherence
+-> Trace C extended through Chapter 6 + whole-Book orientation
+
+F5 — Evolving Long Book
+-> Trace D repeated under long-horizon revision pressure
+
+F7 — Series
+-> long-horizon context + Book/Series authority traces
+```
+
+When a frontier fails, diagnose the **first material interaction break** in this
+map before choosing a new subsystem.
+
+The purpose is not merely to ask whether data exists somewhere in the
+repository. The question is:
+
+> Which author action stopped composing cleanly across the existing systems?
+
+This preserves a direct connection between capability growth and the unified
+author experience.
+
+# 20. One-system test
 
 A product state is systemically coherent when the author can move through:
 
