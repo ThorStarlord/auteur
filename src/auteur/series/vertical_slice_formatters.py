@@ -355,7 +355,7 @@ def format_author_focus(report: AuthorFocusReport, *, detail: bool = False) -> s
         lines.append("- None surfaced.")
     lines.extend(["", "RISKS / CONFLICTS"])
     lines.extend(f"- {risk}" for risk in report.risks_or_conflicts or ["None detected."])
-    lines.extend(["", "PROVENANCE"])
+    lines.extend(["", "SOURCE HISTORY"])
     lines.extend(
         f"- {_format_source_ref(source_ref)}" for source_ref in report.provenance
     )
@@ -503,7 +503,7 @@ def format_series_continuity_review(
     )
     if detail:
         lines.extend(["", "DETAIL", f"Freshness: {report.freshness}", f"Semantic impact: {report.semantic_impact}"])
-        lines.append("Provenance:")
+        lines.append("Source history:")
         lines.extend(f"- {_format_source_ref(ref)}" for ref in report.provenance)
         lines.append("Current state evidence:")
         lines.extend(
