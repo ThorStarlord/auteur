@@ -38,6 +38,27 @@ provenance operate across the semantic layers. There is no permanent Layer 2.5.
 Structure composition and outline coordination are Structure work coordinated by
 the orchestration system.
 
+## Pre-Identity creative search
+
+Creative search that asks **what story should be developed at all** sits before
+accepted Identity rather than forming another semantic layer.
+
+Story Opportunity Discovery may produce working preferences, influence
+decompositions, critique interpretations, candidate premises, differentiators,
+and opportunity comparisons. Those outputs are advisory / noncanonical and do
+not become Identity merely because they are persisted or agent-generated.
+
+The boundary is:
+
+    Story Opportunity Discovery
+    -> working opportunity / premise / Discovery Brief
+    -> Story Discovery
+    -> candidate Story Identity
+    -> explicit acceptance
+    -> canonical Identity
+
+See [Story Opportunity Discovery](story-opportunity-discovery.md).
+
 ## Canonical and derived artifacts
 
 Author-declared identity contracts and plans are canonical when explicitly
