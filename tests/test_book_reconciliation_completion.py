@@ -940,7 +940,7 @@ def test_cli_complete_success(tmp_path: Path, capsys) -> None:
                "--reason", "All work verified", "--project", str(project)])
     out = capsys.readouterr().out
     assert rc == 0
-    assert "Reconciliation completed: yes" in out
+    assert "Change review completed: yes" in out
     assert "Accepted Book revision" in out
 
 
