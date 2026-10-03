@@ -27,8 +27,28 @@
         <label for="new-story-premise">Your story idea</label>
         <textarea id="new-story-premise" rows="7" required placeholder="A young superhero begins noticing strange inconsistencies around the people closest to him..."></textarea>
         <button type="submit" class="continue-button">Explore this story →</button>
+        <div class="quick-draft-entry">
+          <p><strong>Want to write before planning?</strong></p>
+          <label for="quick-draft-first-scene">What should happen in the first scene?</label>
+          <textarea id="quick-draft-first-scene" rows="3" placeholder="Miller questions Vance, who calmly describes Miller committing the murder..."></textarea>
+          <button id="quick-draft-start" type="button">Start writing now →</button>
+          <p class="hint">Auteur will infer temporary working setup, write one scene, and ask what to keep afterward.</p>
+        </div>
       </form>
       <p id="home-status" role="status" aria-live="polite"></p>
+      <section id="quick-draft-result" class="quick-draft-result" aria-label="Quick Draft scene" hidden>
+        <p class="card-position">Quick Draft · working only</p>
+        <h3>Your first scene</h3>
+        <p class="hint">Edit freely. Nothing here becomes accepted story material until you choose what to keep.</p>
+        <textarea id="quick-draft-editor" rows="22" aria-label="Editable Quick Draft scene"></textarea>
+        <p id="quick-draft-meta" class="hint"></p>
+        <div class="surface-actions">
+          <button id="quick-draft-save" type="button" class="continue-button">Save changes</button>
+          <button id="quick-draft-discover" type="button">What did we discover?</button>
+          <button id="quick-draft-shape" type="button">Shape this story →</button>
+        </div>
+        <div id="quick-draft-discoveries" aria-live="polite"></div>
+      </section>
     </div>
 
     <section class="recent-stories" aria-label="Recent stories">
@@ -141,9 +161,20 @@
           <p id="post-draft-status" class="hint"></p>
           <p><strong>Recommended next step:</strong> <span id="post-draft-next-action"></span></p>
           <div id="post-draft-evidence"></div>
+          <section id="post-draft-reconcile" class="reconcile-new-elements" hidden>
+            <p class="card-position">Auteur noticed the story changed while you were writing</p>
+            <h4>What should Auteur do with the new material?</h4>
+            <div id="post-draft-discoveries"></div>
+            <div class="surface-actions">
+              <button id="post-draft-keep-reconcile" type="button" class="continue-button">Keep draft &amp; reconcile</button>
+              <button id="post-draft-keep-divergence" type="button">Keep as intentional divergence</button>
+              <button id="post-draft-revise-plan" type="button">Revise to match plan</button>
+            </div>
+            <p class="hint">Keeping the draft never silently rewrites Story setup or Story shape. Auteur records suggested updates for the appropriate story owner.</p>
+          </section>
           <div class="surface-actions">
             <button id="post-draft-revise" type="button" hidden>Revise Chapter 1</button>
-            <button id="post-draft-accept" type="button" class="continue-button" hidden>Accept latest draft</button>
+            <button id="post-draft-accept" type="button" class="continue-button" hidden>Keep this draft</button>
             <button id="post-draft-plan-next" type="button" class="continue-button" hidden>Plan next chapter</button>
           </div>
         </section>
