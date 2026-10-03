@@ -106,8 +106,20 @@
 
   function updateWorkspaceUrl(workspaceId) {
     var url = new URL(window.location.href);
-    if (workspaceId) url.searchParams.set("workspace", workspaceId);
-    else url.searchParams.delete("workspace");
+    if (workspaceId) {
+      url.searchParams.set("workspace", workspaceId);
+      url.searchParams.delete("quick_draft");
+    } else {
+      url.searchParams.delete("workspace");
+    }
+    window.history.pushState({}, "", url.pathname + url.search);
+  }
+
+  function updateQuickDraftUrl(sessionId) {
+    var url = new URL(window.location.href);
+    url.searchParams.delete("workspace");
+    if (sessionId) url.searchParams.set("quick_draft", sessionId);
+    else url.searchParams.delete("quick_draft");
     window.history.pushState({}, "", url.pathname + url.search);
   }
 
@@ -229,11 +241,32 @@
       .then(readJson)
       .then(function (projection) {
         $("home-status").textContent = "";
+        updateQuickDraftUrl(projection.session_id);
         renderQuickDraftProjection(projection);
         return projection;
       })
       .catch(function (error) {
         $("home-status").textContent = "Quick Draft could not start: " + error.message;
+        return null;
+      });
+  }
+
+  function loadQuickDraftSession(sessionId) {
+    if (!sessionId) return Promise.resolve(null);
+    $("home-status").textContent = "Loading your working scene…";
+    return fetch(
+      "/api/beginner/quick-draft/" + encodeURIComponent(sessionId),
+      { headers: { Accept: "application/json" } }
+    )
+      .then(readJson)
+      .then(function (projection) {
+        state.quickDraftDiscoveriesVisible = false;
+        $("home-status").textContent = "";
+        renderQuickDraftProjection(projection);
+        return projection;
+      })
+      .catch(function (error) {
+        $("home-status").textContent = "Could not reopen Quick Draft: " + error.message;
         return null;
       });
   }
@@ -2094,6 +2127,15 @@
     }
   }
 
+  function currentQuickDraftFromQuery() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      return params.get("quick_draft");
+    } catch (error) {
+      return null;
+    }
+  }
+
   function initDrawer() {
     var toggle = $("nav-toggle");
     var nav = $("story-navigator");
@@ -2145,6 +2187,7 @@
       }
     });
     var fromQuery = currentWorkspaceFromQuery();
+    var quickDraftFromQuery = currentQuickDraftFromQuery();
     if (fromQuery) {
       state.workspaceId = fromQuery;
       $("workspace-id").value = fromQuery;
@@ -2154,6 +2197,10 @@
     } else {
       showHome();
       loadRecentStories();
+      if (quickDraftFromQuery) {
+        state.quickDraftSessionId = quickDraftFromQuery;
+        loadQuickDraftSession(quickDraftFromQuery);
+      }
     }
     $("new-story-form").addEventListener("submit", function (event) {
       event.preventDefault();
@@ -2189,11 +2236,17 @@
     });
     window.addEventListener("popstate", function () {
       var workspace = currentWorkspaceFromQuery();
-      if (workspace) openWorkspace(workspace, false);
-      else {
+      var quickDraft = currentQuickDraftFromQuery();
+      if (workspace) {
+        openWorkspace(workspace, false);
+      } else {
         state.workspaceId = null;
         showHome();
         loadRecentStories();
+        if (quickDraft) {
+          state.quickDraftSessionId = quickDraft;
+          loadQuickDraftSession(quickDraft);
+        }
       }
     });
     $("continue-architecture").addEventListener("click", function () {
