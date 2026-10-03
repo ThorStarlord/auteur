@@ -111,7 +111,7 @@ def _print_import_next_steps(project: Path, chapter: int, run_id: str, artifact_
                 f"auteur import confirm {project} {chapter} --run {run_id} --proposal {proposal.get('id')}"
             )
     else:
-        print("No canon update proposals were generated.")
+        print("No accepted-story update suggestions were generated.")
         print(f"Confirm template: auteur import confirm {project} {chapter} --run {run_id} --proposal <proposal_id>")
     print("Next draft command:")
     print(f"  auteur import promote-draft {project} {chapter} --run {run_id}")
