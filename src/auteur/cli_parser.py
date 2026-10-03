@@ -264,7 +264,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--candidates", type=int, default=3, help=argparse.SUPPRESS)
     p.add_argument("--strict-candidate-count", action="store_true", help=argparse.SUPPRESS)
     p.add_argument("--debug", action="store_true",
-        help="Export all failed candidate attempts to .auteur/runs/<timestamp>/.")
+        help="Export all failed story-option attempts to .auteur/runs/<timestamp>/.")
     p = iss.add_parser("init", help="Initialize an editable StoryIdentity skeleton offline without an API key.")
     p.add_argument("--premise", type=str, default="", help="Raw premise text or path to file containing it.")
     p.add_argument("--output", type=Path, default=None, help="Target output path for story_identity.yaml.")
@@ -308,7 +308,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--model", default=None)
     p.add_argument("--strict-candidate-count", action="store_true")
     p.add_argument("--debug", action="store_true",
-        help="Export failed candidate attempts to .auteur/runs/<timestamp>/.")
+        help="Export failed story-option attempts to .auteur/runs/<timestamp>/.")
     p = sds.add_parser("accept",
         help="Check and accept a Story Discovery option as the story setup.")
     p.add_argument("candidate", type=Path)
