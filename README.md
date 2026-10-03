@@ -82,6 +82,15 @@ See [docs/narrative-architecture.md](docs/narrative-architecture.md) for the can
 For the premise-first Beginner UI contract, see
 [Story Lens First-Screen UX](docs/design/2026-09-24-story-lens-first-screen-ux.md).
 
+For the documentation-only method that sits even earlier—turning tastes,
+influences, criticism, and audience evidence into candidate premises—see
+[Story Opportunity Discovery](docs/story-opportunity-discovery.md). Candidate
+premises can then be examined through
+[Premise Fitness](docs/premise-fitness.md), which asks whether an idea is fit
+for its intended genre, experience, and narrative horizon rather than assigning
+universal story quality. These are design/agent-workflow contracts, not claims
+that dedicated runtime surfaces are already shipped.
+
 ## Author Authority
 
 Auteur's central safety and product rule is simple:

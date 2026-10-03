@@ -47,6 +47,65 @@ governing documents and sit on the protected list.
 - Treat workspace identity as a preflight condition, not something the
   executor should discover or repair after work begins.
 
+### Upstream story-idea selection
+
+When the task is **what story should be made** rather than how an already
+selected story should be designed, follow
+`docs/story-opportunity-discovery.md`.
+
+In particular:
+
+- decompose influences into desired experience, portable mechanism, and tradeoff
+  rather than copying source-specific expression;
+- keep author preference, sourced audience evidence, critique claims, craft
+  interpretation, and design prescriptions epistemically distinct;
+- treat latent model knowledge about stories or criticism as a search prior /
+  hypothesis, not current audience consensus or market evidence;
+- interpret criticism before acting on it; a complaint is not automatically the
+  correct repair;
+- generate causally distinct working opportunities, not cosmetic reskins;
+- when comparing a working premise against an intended genre, experience, and
+  narrative horizon, use `docs/premise-fitness.md`: distinguish premise
+  efficacy from realized effectiveness, inspect efficiency/runway/scope fit,
+  and do not reduce fitness to a universal quality score;
+- if scope is unknown, provide conditional fitness across plausible horizons
+  rather than silently selecting one;
+- distinguish finite, renewable, expanding, and multi-domain runway when useful,
+  and keep runway, renewability, and expansion capacity conceptually separate;
+- do not infer runway from world size or evocative setting alone; an appropriate
+  finding is `EVOCATIVE PREMISE / GOVERNING ENGINE UNESTABLISHED`;
+- treat Genre Packs as reusable genre knowledge that Premise Fitness may
+  consume, not as automatic mass-appeal or premise-quality selectors; when no
+  relevant pack exists, use bounded generic craft reasoning and lower the
+  specificity of genre claims rather than fabricating pack knowledge;
+- prefer advisory scope, engine, complexity, or hierarchy repairs over a single
+  automatic "fix";
+- do not make Premise Fitness a mandatory ceremony before Story Discovery; use it
+  only when genre/scope/complexity/runway tradeoffs are decision-relevant or
+  explicitly requested;
+- after Story Discovery, use only a narrow fitness delta: consume F3/F4 findings
+  and surface author-facing "What this story direction changes" only when
+  activation, complexity, runway, renewability, expansion capacity,
+  multi-engine compatibility, scope fit, engine-establishment status, or target
+  assumptions materially change;
+- do not interrupt the author with a no-op delta; if no tracked fitness
+  assumption changes materially, keep the analysis implicit;
+- treat the delta as advisory only: it must not become a validator, acceptance
+  gate, or new canon/authority owner;
+- do not create a new canonical Premise Fitness artifact; keep fitness evidence
+  derived/noncanonical unless later non-synthetic workflow evidence warrants
+  bounded persistence in an existing evidence surface;
+- once prose exists, treat Premise Fitness as an upstream forecast rather than a
+  continuously rewritten truth; use realized narrative evidence and existing
+  reconciliation/review owners, and rerun Premise Fitness only if the core
+  premise or target environment materially changes;
+- keep opportunity and fitness outputs `WORKING / NOT ACCEPTED` and hand
+  selected premises into existing Story Discovery rather than silently creating
+  Story Identity;
+- do not add numerical "idea quality", popularity, premise-fitness, or
+  commercial-success scores unless a separately authorized, claim-appropriate
+  contract exists.
+
 ### Delegation envelope
 
 The initial human prompt, accepted design/specification, repository hard
