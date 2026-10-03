@@ -116,8 +116,24 @@ conditional analysis; runway, renewability, and expansion capacity remain
 distinct; and missing Genre Pack knowledge lowers specificity rather than
 blocking analysis. No runtime was selected from that calibration.
 
-See [Premise Fitness](premise-fitness.md) and
-[Premise Fitness Calibration Cases](research/premise-fitness-calibration-cases.md).
+A follow-up coding-agent stress test found that the documented method is
+sufficient for isolated/occasional use and does **not** yet justify a dedicated
+standalone Premise Fitness runtime. The strongest future automation cases are
+persistent target-environment state, batch opportunity comparison, premise
+revision deltas, Genre Pack provenance, and a narrow post-Story-Discovery
+fitness delta.
+
+Architecture-aware reassessment is useful only when it evaluates what the
+selected architecture newly changes about activation cost, complexity, runway,
+renewability, expansion capacity, multi-engine compatibility, or scope fit. It
+must consume rather than duplicate Story Discovery F3 causal-distinctness,
+Story Discovery F4 craft-propagation/composability, and MANA audience-effect
+analysis.
+
+See [Premise Fitness](premise-fitness.md),
+[Premise Fitness Calibration Cases](research/premise-fitness-calibration-cases.md),
+and
+[Premise Fitness Coding-Agent Stress Test](research/premise-fitness-coding-agent-stress-test.md).
 
 For product evolution, prefer:
 
