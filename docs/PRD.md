@@ -147,6 +147,18 @@ supply realized narrative evidence; reader-response claims remain
 audience-evidence claims. A fresh Premise Fitness pass is warranted only when
 the core premise or target environment itself materially changes.
 
+Premise Fitness is **optional and decision-triggered**, not a mandatory gate
+before Story Discovery. The Post-Discovery Fitness Delta is advisory and
+non-blocking; it does not create a new validator, acceptance gate, authority
+owner, or canonical artifact. Current fitness outputs remain derived /
+noncanonical.
+
+This topic is closed for further speculative construction. Reopen it only when
+actual non-synthetic use crosses the helper eligibility gate, a real
+writer-facing surface is proposed, an integration ownership conflict appears,
+long-form evidence defeats the lifecycle model, or the current contract fails
+to answer a concrete decision-changing workflow problem.
+
 See [Premise Fitness](premise-fitness.md),
 [Premise Fitness Calibration Cases](research/premise-fitness-calibration-cases.md),
 and
