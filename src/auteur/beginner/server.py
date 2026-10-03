@@ -53,10 +53,17 @@ from .continuation import build_contextual_chapter_plan, build_contextual_scene_
 from .book_progress import project_book_progress
 from .post_draft import (
     accept_latest_chapter,
+    prepare_creative_divergence_resolution,
     prepare_revision_handoff,
     project_chapter_outcome,
     project_draft_review,
     project_next_chapter_context,
+)
+from auteur.quick_draft import (
+    project_quick_draft_discoveries,
+    project_quick_draft_session,
+    run_quick_draft,
+    save_quick_draft_revision,
 )
 
 logger = logging.getLogger(__name__)
@@ -466,6 +473,16 @@ class _RequestHandler(BaseHTTPRequestHandler):
                     {"workspaces": [item.model_dump(mode="json") for item in list_workspace_summaries(self.project_root)]},
                 )
                 return
+            if len(parts) == 4 and parts[:3] == ["api", "beginner", "quick-draft"]:
+                self._send_json(200, project_quick_draft_session(self.project_root, parts[3]))
+                return
+            if (
+                len(parts) == 5
+                and parts[:3] == ["api", "beginner", "quick-draft"]
+                and parts[4] == "discoveries"
+            ):
+                self._send_json(200, project_quick_draft_discoveries(self.project_root, parts[3]))
+                return
             if len(parts) == 5 and parts[:3] == ["api", "beginner", "chapters"]:
                 try:
                     chapter_index = int(parts[3])
@@ -510,6 +527,44 @@ class _RequestHandler(BaseHTTPRequestHandler):
         path = urlparse(self.path).path.rstrip("/") or "/"
         try:
             parts = [part for part in path.split("/") if part]
+            if parts == ["api", "beginner", "quick-draft"]:
+                payload = self._read_json()
+                premise = payload.get("premise")
+                first_scene = payload.get("first_scene")
+                if not isinstance(premise, str) or not premise.strip():
+                    raise BeginnerRequestError(400, "premise must be a non-empty string")
+                if not isinstance(first_scene, str) or not first_scene.strip():
+                    raise BeginnerRequestError(400, "first_scene must be a non-empty string")
+                try:
+                    result = run_quick_draft(
+                        premise,
+                        first_scene,
+                        project_root=self.project_root,
+                        llm=self.dependencies.drafting_client,
+                        provider_label="beginner-server",
+                    )
+                    self._send_json(
+                        201,
+                        project_quick_draft_session(self.project_root, result.session_id),
+                    )
+                except (OSError, RuntimeError, ValueError, ImportError) as exc:
+                    raise BeginnerRequestError(422, str(exc)) from exc
+                return
+            if (
+                len(parts) == 5
+                and parts[:3] == ["api", "beginner", "quick-draft"]
+                and parts[4] == "save"
+            ):
+                payload = self._read_json()
+                prose = payload.get("draft_text")
+                try:
+                    self._send_json(
+                        200,
+                        save_quick_draft_revision(self.project_root, parts[3], prose),
+                    )
+                except (FileNotFoundError, OSError, ValueError) as exc:
+                    raise BeginnerRequestError(422, str(exc)) from exc
+                return
             if len(parts) == 5 and parts[:3] == ["api", "beginner", "chapters"]:
                 try:
                     chapter_index = int(parts[3])
@@ -528,6 +583,24 @@ class _RequestHandler(BaseHTTPRequestHandler):
                                 self.project_root,
                                 chapter_index,
                                 command_id=command_id,
+                                owner=accept_beginner_chapter,
+                            ),
+                        )
+                        return
+                    if action == "reconcile-new-elements":
+                        command_id = payload.get("command_id")
+                        decision = payload.get("decision")
+                        if not isinstance(command_id, str) or not command_id:
+                            raise BeginnerRequestError(400, "command_id must be a non-empty string")
+                        if not isinstance(decision, str) or not decision:
+                            raise BeginnerRequestError(400, "decision must be a non-empty string")
+                        self._send_json(
+                            200,
+                            prepare_creative_divergence_resolution(
+                                self.project_root,
+                                chapter_index,
+                                command_id=command_id,
+                                decision=decision,
                                 owner=accept_beginner_chapter,
                             ),
                         )
