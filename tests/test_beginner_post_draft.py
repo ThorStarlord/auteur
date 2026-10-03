@@ -1,3 +1,4 @@
+import hashlib
 import json
 from pathlib import Path
 
@@ -6,6 +7,7 @@ import pytest
 from auteur.beginner.post_draft import (
     ChapterProductionStatus,
     accept_latest_chapter,
+    prepare_creative_divergence_resolution,
     prepare_revision_handoff,
     project_draft_review,
 )
@@ -118,3 +120,154 @@ def test_newer_candidate_after_prior_acceptance_is_not_projected_as_accepted(tmp
     assert review.accepted is False
     assert review.production_status is ChapterProductionStatus.CANDIDATE_DRAFT
     assert review.source_draft == "draft_v2.md"
+
+def test_review_marks_validation_stale_when_draft_bytes_change(tmp_path: Path) -> None:
+    chapter = _chapter(tmp_path)
+    draft = chapter / "draft_v1.md"
+    draft.write_text("original draft", encoding="utf-8")
+    (chapter / "validation_v1.json").write_text(
+        json.dumps({"findings": []}),
+        encoding="utf-8",
+    )
+    (chapter / "draft_v1.meta.json").write_text(
+        json.dumps({"candidate_sha256": hashlib.sha256(draft.read_bytes()).hexdigest()}),
+        encoding="utf-8",
+    )
+
+    draft.write_text("author changed the draft after review", encoding="utf-8")
+    review = project_draft_review(tmp_path, 1)
+
+    assert review.review_stale is True
+    assert review.review_available is False
+    assert review.reconciliation_available is True
+    assert "changed after review" in (review.review_error or "").lower()
+
+
+def test_review_surfaces_unplanned_character_place_and_scene_change(tmp_path: Path) -> None:
+    chapter = _chapter(tmp_path)
+    (chapter / "outline.yaml").write_text(
+        """
+scope: chapter
+scenes:
+  - scene_id: scene_01
+    pov_character: Detective Miller
+    location: police precinct
+    summary: Detective Miller questions Suspect Vance at the police precinct.
+""".strip(),
+        encoding="utf-8",
+    )
+    (chapter / "draft_v1.md").write_text(
+        """
+# Scene 1
+Detective Miller followed Suspect Vance out of the precinct.
+
+# Scene 2
+At the abandoned seaside convent, Sister Beatrice unlocked a salt-stained chapel door.
+""".strip(),
+        encoding="utf-8",
+    )
+    (chapter / "validation_v1.json").write_text(
+        json.dumps({"findings": []}),
+        encoding="utf-8",
+    )
+
+    review = project_draft_review(tmp_path, 1)
+    values = {item["value"] for item in review.creative_discoveries}
+
+    assert "Sister Beatrice" in values
+    assert any("abandoned seaside convent" in value.lower() for value in values)
+    assert any(item["classification"] == "plan_divergence" for item in review.creative_discoveries)
+    assert review.reconciliation_available is True
+    assert review.revision_options == [
+        "keep_and_reconcile",
+        "accept_deliberate_divergence",
+        "revise",
+    ]
+
+
+def test_keep_and_reconcile_accepts_prose_but_only_proposes_upstream_changes(tmp_path: Path) -> None:
+    chapter = _chapter(tmp_path)
+    (chapter / "outline.yaml").write_text(
+        """
+scope: chapter
+scenes:
+  - scene_id: scene_01
+    pov_character: Detective Miller
+    location: police precinct
+    summary: Detective Miller questions Suspect Vance.
+""".strip(),
+        encoding="utf-8",
+    )
+    prose = "At the abandoned seaside convent, Sister Beatrice waved Detective Miller inside."
+    (chapter / "draft_v1.md").write_text(prose, encoding="utf-8")
+    (chapter / "validation_v1.json").write_text(json.dumps({"findings": []}), encoding="utf-8")
+
+    def owner(root: Path, index: int) -> object:
+        (root / "chapters" / "01" / "final.md").write_text(prose, encoding="utf-8")
+        return {"accepted": True}
+
+    result = prepare_creative_divergence_resolution(
+        tmp_path,
+        1,
+        command_id="creative-1",
+        decision="keep_and_reconcile",
+        owner=owner,
+    )
+
+    payload = json.loads(result.path.read_text(encoding="utf-8"))
+    assert result.accepted is True
+    assert (chapter / "final.md").read_text(encoding="utf-8") == prose
+    assert payload["canonical"] is False
+    assert payload["status"] == "proposal_ready"
+    assert payload["proposal_items"]
+    assert all(item["canonical"] is False for item in payload["proposal_items"])
+    assert {item["target_owner"] for item in payload["proposal_items"]} & {
+        "realized_state",
+        "realization_or_structure",
+    }
+
+
+def test_intentional_divergence_keeps_prose_without_upstream_proposals(tmp_path: Path) -> None:
+    chapter = _chapter(tmp_path)
+    prose = "Sister Beatrice appeared where the plan never expected her."
+    (chapter / "draft_v1.md").write_text(prose, encoding="utf-8")
+    (chapter / "validation_v1.json").write_text(
+        json.dumps({"findings": [{"severity": "ERROR", "message": "unplanned character"}]}),
+        encoding="utf-8",
+    )
+
+    def owner(root: Path, index: int) -> object:
+        (root / "chapters" / "01" / "final.md").write_text(prose, encoding="utf-8")
+        return {"accepted": True}
+
+    result = prepare_creative_divergence_resolution(
+        tmp_path,
+        1,
+        command_id="creative-2",
+        decision="keep_intentional_divergence",
+        owner=owner,
+    )
+    payload = json.loads(result.path.read_text(encoding="utf-8"))
+
+    assert result.accepted is True
+    assert payload["status"] == "acknowledged_intentional_divergence"
+    assert payload["proposal_items"] == []
+
+
+def test_revise_to_plan_preserves_candidate_and_does_not_accept(tmp_path: Path) -> None:
+    chapter = _chapter(tmp_path)
+    (chapter / "draft_v1.md").write_text("unexpected version", encoding="utf-8")
+
+    result = prepare_creative_divergence_resolution(
+        tmp_path,
+        1,
+        command_id="creative-3",
+        decision="revise_to_plan",
+    )
+
+    assert result.accepted is False
+    assert not (chapter / "final.md").exists()
+    payload = json.loads(result.path.read_text(encoding="utf-8"))
+    assert payload["canonical"] is False
+    assert payload["route"] == "retry"
+
