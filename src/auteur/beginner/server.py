@@ -64,6 +64,7 @@ from .post_draft import (
     project_next_chapter_context,
 )
 from auteur.quick_draft import (
+    prepare_quick_draft_shape_handoff,
     project_quick_draft_discoveries,
     project_quick_draft_session,
     run_quick_draft,
@@ -653,6 +654,8 @@ class _RequestHandler(BaseHTTPRequestHandler):
         command_id = payload.get("command_id")
         guidance_genre = payload.get("guidance_genre", "mystery")
         premise = payload.get("premise")
+        quick_draft_session_id = payload.get("quick_draft_session_id")
+        quick_draft_discoveries = payload.get("quick_draft_discoveries", [])
         workspace_id = payload.get("workspace_id") or f"workspace-{secrets.token_hex(4)}"
         project_id = payload.get("project_id") or workspace_id
         if not isinstance(command_id, str) or not command_id:
@@ -665,6 +668,12 @@ class _RequestHandler(BaseHTTPRequestHandler):
             raise BeginnerRequestError(400, "workspace_id must be a non-empty string")
         if guidance_genre != "mystery":
             raise BeginnerRequestError(422, f"unsupported guidance_genre: {guidance_genre!r}")
+        if quick_draft_session_id is not None and (
+            not isinstance(quick_draft_session_id, str) or not quick_draft_session_id
+        ):
+            raise BeginnerRequestError(400, "quick_draft_session_id must be a non-empty string")
+        if not isinstance(quick_draft_discoveries, list):
+            raise BeginnerRequestError(400, "quick_draft_discoveries must be a list")
         try:
             app = self._app_for(workspace_id)
         except ValueError as exc:
@@ -676,6 +685,13 @@ class _RequestHandler(BaseHTTPRequestHandler):
                 premise=premise,
                 guidance_genre=guidance_genre,
             )
+            if quick_draft_session_id is not None:
+                prepare_quick_draft_shape_handoff(
+                    self.project_root,
+                    quick_draft_session_id,
+                    workspace_id,
+                    quick_draft_discoveries,
+                )
         except BeginnerConcurrencyError:
             raise
         except BeginnerPersistenceError:
