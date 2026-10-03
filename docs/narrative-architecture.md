@@ -52,12 +52,18 @@ The boundary is:
 
     Story Opportunity Discovery
     -> working opportunity / premise / Discovery Brief
+    -> optional Premise Fitness
     -> Story Discovery
     -> candidate Story Identity
     -> explicit acceptance
     -> canonical Identity
 
-See [Story Opportunity Discovery](story-opportunity-discovery.md).
+Premise Fitness is also pre-Identity and noncanonical. It evaluates whether a
+working premise is fit for the intended genre, experience, scope, complexity,
+and posture; it does not create a new semantic layer or universal quality rank.
+
+See [Story Opportunity Discovery](story-opportunity-discovery.md) and
+[Premise Fitness](premise-fitness.md).
 
 ## Canonical and derived artifacts
 
