@@ -58,3 +58,10 @@ def test_adversarial_simulation_probe_establishes_agent_answerable_mechanics() -
     assert continuity["prior_accepted_chapters_visible"] is True
     assert continuity["prior_chapter_refs_visible"] is True
     assert continuity["realized_state_visible"] is True
+
+
+def test_adversarial_simulation_probe_surfaces_discovery_review_ceremony() -> None:
+    surface = _run_probe()["probes"]["front_door_vocabulary"]
+
+    assert surface["shape_auto_reviews_discoveries_before_shaping"] is True
+    assert surface["shape_can_require_second_click_after_discovery_review"] is True
