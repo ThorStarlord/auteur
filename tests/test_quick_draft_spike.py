@@ -12,6 +12,7 @@ from auteur.quick_draft import (
     DEFAULT_LENSES,
     STATUS,
     parse_quick_draft_args,
+    prepare_quick_draft_shape_handoff,
     project_quick_draft_discoveries,
     project_quick_draft_session,
     run_quick_draft,
@@ -270,4 +271,62 @@ def test_quick_draft_edits_preserve_history_and_surface_new_elements(
 
     loaded = project_quick_draft_session(tmp_path, result.session_id)
     assert loaded["draft_text"].strip() == edited_text
+
+def test_quick_draft_shape_handoff_carries_only_explicitly_selected_discoveries(
+    tmp_path: Path,
+) -> None:
+    result = run_quick_draft(
+        PREMISE,
+        FIRST_SCENE,
+        project_root=tmp_path,
+        llm=FakeDraftLLM(),
+        provider_label="fake",
+    )
+    save_quick_draft_revision(
+        tmp_path,
+        result.session_id,
+        (
+            "At the abandoned seaside convent, Sister Beatrice tells Detective Miller "
+            "that Suspect Vance slept there."
+        ),
+    )
+    discoveries = project_quick_draft_discoveries(tmp_path, result.session_id)["discoveries"]
+    sister = next(item for item in discoveries if item["value"] == "Sister Beatrice")
+
+    path = prepare_quick_draft_shape_handoff(
+        tmp_path,
+        result.session_id,
+        "workspace-quick",
+        [sister],
+    )
+    payload = yaml.safe_load(path.read_text(encoding="utf-8"))
+
+    assert payload["canonical"] is False
+    assert payload["status"] == "working_context"
+    assert payload["workspace_id"] == "workspace-quick"
+    assert payload["selected_discoveries"] == [sister]
+    assert "abandoned seaside convent" not in {
+        item["value"] for item in payload["selected_discoveries"]
+    }
+    assert (result.session_dir / "shape_handoff.yaml").is_file()
+
+
+def test_quick_draft_shape_handoff_rejects_stale_or_invented_discovery(
+    tmp_path: Path,
+) -> None:
+    result = run_quick_draft(
+        PREMISE,
+        FIRST_SCENE,
+        project_root=tmp_path,
+        llm=FakeDraftLLM(),
+        provider_label="fake",
+    )
+
+    with pytest.raises(ValueError, match="not current"):
+        prepare_quick_draft_shape_handoff(
+            tmp_path,
+            result.session_id,
+            "workspace-quick",
+            [{"kind": "place", "value": "Invented Castle"}],
+        )
 
