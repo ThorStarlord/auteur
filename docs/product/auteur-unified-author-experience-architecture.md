@@ -866,6 +866,11 @@ Accepted facts and provisional suggestions need distinguishable framing.
 
 **Selected resolution:** governance follows meaningful commitment, not every act of exploration.
 
+Operational friction should use the durable interaction-value method in
+`docs/product-validation/creative-flow-evidence-lineage.md`: distinguish
+CREATIVE, INSIGHT, NAVIGATION, and ADMINISTRATIVE interactions rather than
+treating raw click count as the primary measure.
+
 ## 17.4 Long-range coherence versus local freedom
 
 **Selected resolution:** future planning composes accepted story outcomes and accepted plans; it does not force prose to retroactively match old plans.
@@ -894,20 +899,33 @@ Must establish:
 - whether provisional generic scaffolding leaks into prose;
 - whether intentionally vague inputs remain usefully open.
 
-## #305 — real-author questions
+## #305 — real-author calibration questions
 
-Must establish:
+Real-author evidence remains the correct evidence class for subjective claims such
+as:
 
-- which entry tempo authors prefer in which situations;
-- whether authors understand that provisional inference is reversible;
-- whether **What did we discover?** feels useful;
-- whether explicit carry-forward feels like control or bureaucracy;
-- whether **Keep draft & update story** preserves momentum;
-- when authors want structural guidance to appear;
-- whether Auteur creates value over Markdown + a capable general-purpose LLM;
-- whether long-form continuity value is understandable enough to justify additional machinery.
+- preference between entry tempos;
+- felt ownership;
+- perceived bureaucracy;
+- creative momentum;
+- comprehension without facilitator rescue;
+- confidence and desire to continue.
 
-Until those questions return evidence, this architecture should not prescribe one universal default tempo for every author.
+However, #316 established that many formerly bundled questions are answerable
+mechanically or synthetically. Therefore a broad #305 study is **not an automatic
+construction prerequisite**.
+
+Use the current rule:
+
+> Require immediate human calibration only when a plausible human answer could
+> change the next bounded repository responsibility.
+
+Questions whose main value appears only under accumulated Book state — especially
+perceived continuity value versus Markdown + a capable LLM — should be measured
+during #318 F2 + X3 rather than forced into a Chapter-1 study.
+
+Until evidence resolves foregrounding preference, this architecture should not
+prescribe one universal default tempo for every author.
 
 ---
 
