@@ -225,9 +225,18 @@ def _scaffold_payload(
                 "status": STATUS,
                 "title": identity.title,
                 "core_answer": identity.core_answer,
-                "target_experience": identity.target_experience.model_dump(mode="json"),
-                "story_type": identity.story_type.model_dump(mode="json"),
-                "central_engine": identity.central_engine.model_dump(mode="json"),
+                "target_experience": {
+                    "status": STATUS,
+                    "value": identity.target_experience.model_dump(mode="json"),
+                },
+                "story_type": {
+                    "status": STATUS,
+                    "value": identity.story_type.model_dump(mode="json"),
+                },
+                "central_engine": {
+                    "status": STATUS,
+                    "value": identity.central_engine.model_dump(mode="json"),
+                },
                 "confidence": identity.confidence,
             },
             "scene_plan": {
