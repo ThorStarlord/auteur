@@ -200,6 +200,80 @@ Observe:
 - number of visible interactions required before creative momentum resumes;
 - whether the participant wants to abandon existing state and restart elsewhere.
 
+## Messy Writer / Creative Discovery stress
+
+Run this stress against the compressed Auteur condition after a Chapter 1
+candidate exists.
+
+### Setup
+
+Use a minimal premise with two modeled characters:
+
+```text
+Detective Miller investigates Suspect Vance.
+```
+
+The accepted/planned Chapter 1 should not contain Sister Beatrice or the
+abandoned seaside convent.
+
+### Author action
+
+During drafting, introduce both:
+
+- an unmodeled character: **Sister Beatrice**;
+- an unmodeled setting: **an abandoned seaside convent**;
+
+and materially move the scene away from the planned location/path.
+
+Then attempt to save, keep, reconcile, revise, or proceed.
+
+### Observe
+
+Record:
+
+- whether the prose is preserved;
+- whether validation is automatically re-run or incorrectly reused;
+- whether review evidence is bound to the exact candidate bytes;
+- whether the system classifies the difference as additive discovery, plan
+  divergence, or hard contradiction;
+- whether the Browser exposes **Keep draft & reconcile**;
+- whether **Keep as intentional divergence** is reachable;
+- whether revision remains available;
+- whether the UI describes the story change before technical diagnostics;
+- whether accepted prose can leave realized/Bible/model state silently behind;
+- whether the author is forced to erase a useful discovery merely to proceed.
+
+### Mechanical pass condition
+
+The flow mechanically passes when:
+
+```text
+unexpected idea
+-> prose preserved
+-> current validation state is truthful
+-> author receives a meaningful choice
+-> no silent upstream mutation
+-> no forced loss of the new idea
+```
+
+A new character or location that does not contradict accepted canon must not be
+presented as malformed data merely because it was absent from planning.
+
+A hard contradiction may require explicit resolution, but the UI must present
+the conflicting story facts and available author decisions rather than a raw
+schema/validator failure.
+
+### Human evidence question
+
+Ask after the stress:
+
+> When you introduced Sister Beatrice and changed the setting, did Auteur feel
+> like it was helping you incorporate a discovery, or telling you that your idea
+> was invalid?
+
+The answer is subjective evidence and must not be inferred from mechanical
+success alone.
+
 ## Stop rules
 
 Stop a session when:
@@ -248,6 +322,12 @@ causes confusion and warrants a small repair.
 
 The default path works, but authors cannot easily find deeper control when they
 need it.
+
+### CREATIVE_DISCOVERY_RECONCILIATION_GAP
+
+The writer can create useful unexpected material, but Auteur either treats it as
+an error, silently loses model coherence, or fails to offer a clear reconcile /
+intentional-divergence / revise choice.
 
 ### WRITE_FIRST_PRESSURE_CONFIRMED
 
