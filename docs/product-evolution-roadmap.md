@@ -113,6 +113,56 @@ the current human/provider evidence first. If the unified experience model is
 reaffirmed, F2 should be preferred over another local Quick Draft feature or an
 unmotivated new narrative subsystem.
 
+## Experience Frontier construction model
+
+UX/UI construction is governed separately by:
+
+- `docs/product/auteur-experience-frontier-construction-roadmap.md`
+
+The Experience Stress Envelope uses:
+
+```text
+UX-A — Decision Density
+UX-B — Workflow Branching
+UX-C — State / Continuity Load
+UX-D — Interaction Horizon
+UX-E — Mode Switching
+UX-F — Expertise Range
+UI-G — Information Density
+UI-H — Visual / Spatial Complexity
+```
+
+Preferred experience-frontier sequence:
+
+```text
+X0 — Single-Task Clarity
+X1 — Guided First Session
+X2 — Reversible Creative Exploration
+#305 + #310 -> #313
+X3 — Persistent Book Workspace
+X4 — Multi-Thread Workspace
+X5 — Deep Narrative Workspace
+X6 — Professional Long-Form Workspace
+X7 — Series Workspace
+```
+
+Narrative and experience frontiers are coordinated but pass/fail
+independently.
+
+If #313 reaffirms the current model, the preferred next paired qualification is:
+
+```text
+F2 — Small-Book Longitudinal Coherence
++
+X3 — Persistent Book Workspace
+```
+
+using the same controlled six-Chapter reference Book.
+
+Do not preselect a Dashboard, sidebar, graph, timeline, or multi-pane layout.
+Let the first meaningful experience failure determine the lowest correct UX/UI
+intervention.
+
 ## Development Rule
 Prefer:
 
