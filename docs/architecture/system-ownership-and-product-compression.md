@@ -15,10 +15,13 @@ synthesis in:
 
 - `docs/product/auteur-unified-author-experience-architecture.md`;
 - `docs/product/auteur-system-interaction-map.md`;
-- `docs/product/auteur-ux-product-requirements.md`.
+- `docs/product/auteur-ux-product-requirements.md`;
+- `docs/product/auteur-capability-frontier-construction-roadmap.md`;
+- `docs/product/auteur-experience-frontier-construction-roadmap.md`.
 
 Those documents do not change system ownership. They define how specialized
-owners compose into one author-facing mental model.
+owners compose into one author-facing mental model and how narrative/experience
+complexity should increase without exposing backend growth directly to the author.
 
 ## Why this exists
 
