@@ -934,24 +934,76 @@ An evocative concept may be diagnosed as:
 World size, lore volume, or aesthetic richness must not be mistaken for
 narrative runway.
 
-### Possible two-pass future
+### Post-Discovery fitness delta
 
-A later product may use:
+A controlled coding-agent stress test found that architecture-aware reassessment
+does add useful information after Story Discovery, because the selected
+architecture resolves facts the premise alone cannot establish:
+
+- governing engine;
+- engine hierarchy;
+- causal ownership;
+- subordinate mechanisms;
+- resulting complexity and maintenance burden.
+
+However, a full second Premise Fitness system would duplicate existing
+responsibilities.
+
+The selected non-duplicative shape is:
 
     candidate premise
     -> light Premise Fitness
     -> Story Discovery
-    -> candidate architecture
-    -> architecture-aware fitness reassessment
+    -> selected / compared architecture
+    -> Post-Discovery Fitness Delta
 
-Only the upstream conceptual pass is selected now. The second pass remains
-unimplemented until repeated use demonstrates value.
+The delta should ask only whether the selected architecture materially changed:
+
+- activation cost;
+- complexity / maintenance burden;
+- runway;
+- renewability;
+- expansion capacity;
+- multi-engine compatibility;
+- scope fit;
+- an earlier `GOVERNING ENGINE UNESTABLISHED` finding;
+- target-environment assumptions.
+
+It must consume rather than recreate:
+
+- Story Discovery F3 causal-distinctness findings;
+- Story Discovery F4 craft-propagation / composability findings;
+- MANA audience-effect analysis.
+
+See
+[Premise Fitness Coding-Agent Stress Test](research/premise-fitness-coding-agent-stress-test.md).
 
 ---
 
-## 19. Implementation posture after calibration
+## 19. Implementation posture after calibration and agent stress
 
-The documentation responsibility is now **conceptually calibrated**.
+The documentation responsibility is now **conceptually calibrated and
+agent-stress-tested**.
+
+The stress test establishes:
+
+    documented method
+    -> sufficient for isolated / occasional agent use
+
+    repeated comparison / revision / provenance work
+    -> plausible value from structured automation
+
+    dedicated standalone Premise Fitness runtime
+    -> not yet warranted
+
+A future implementation, if repeated use warrants it, should prefer a small
+read-only capability in an existing reasoning/comparison surface that supports:
+
+- target-environment persistence;
+- batch Story Opportunity comparison;
+- premise-revision delta;
+- deterministic Genre Pack lookup/provenance;
+- Post-Discovery Fitness Delta.
 
 Do not implement yet:
 
@@ -962,20 +1014,19 @@ Do not implement yet:
 - a new canonical artifact;
 - a new semantic layer;
 - automatic Genre Pack mutation;
-- a dedicated runtime;
-- architecture-aware second-pass analysis.
+- a dedicated standalone runtime;
+- a second recommendation engine that duplicates Story Discovery;
+- audience-effect analysis that duplicates MANA.
 
-A runtime becomes eligible only if repeated real or agent-assisted use shows that
-the documented method needs durable state, repeated automated synthesis, or
-integration that cannot be handled adequately by existing reasoning surfaces.
-
-Calibration result:
+Current disposition:
 
     REAFFIRM
     +
     TERMINOLOGY REFINEMENT
     +
-    NO RUNTIME SELECTED
+    POST-DISCOVERY DELTA CONCEPT SELECTED
+    +
+    STANDALONE RUNTIME NOT SELECTED
 
 ---
 
