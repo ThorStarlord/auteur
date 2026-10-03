@@ -95,6 +95,13 @@
     state.activeLensId = null;
     state.structureCustomize = false;
     state.continuationCustomize = false;
+    if (!currentQuickDraftFromQuery()) {
+      $("quick-draft-result").hidden = true;
+      state.quickDraftSessionId = null;
+      state.quickDraftDiscoveries = [];
+      state.quickDraftDiscoveriesVisible = false;
+      state.quickDraftDirty = false;
+    }
   }
 
   function showWorkspace() {
@@ -198,6 +205,8 @@
     var inputs = (projection.scaffold || {}).inputs || {};
     state.quickDraftPremise = inputs.premise || state.quickDraftPremise;
     state.quickDraftFirstScene = inputs.first_scene_intent || state.quickDraftFirstScene;
+    if (state.quickDraftPremise) $("new-story-premise").value = state.quickDraftPremise;
+    if (state.quickDraftFirstScene) $("quick-draft-first-scene").value = state.quickDraftFirstScene;
     state.quickDraftDirty = false;
     $("quick-draft-result").hidden = false;
     $("quick-draft-editor").value = projection.draft_text || "";
