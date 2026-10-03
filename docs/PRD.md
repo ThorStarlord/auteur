@@ -67,6 +67,30 @@ development should default to product integration, simplification,
 discoverability, maintainability, and qualification before introducing new
 semantic concepts.
 
+### Upstream Story Opportunity Discovery contract
+
+Auteur also documents an optional **pre-Identity creative-search method** for
+authors who do not yet have a stable premise. Story Opportunity Discovery takes
+author preferences, influences, sourced audience observations, criticism, and
+craft hypotheses; abstracts portable mechanisms; synthesizes causally distinct
+story opportunities; and hands a selected working premise or Discovery Brief to
+the existing Story Discovery workflow.
+
+This is currently a **documentation/product contract, not a shipped runtime
+capability**. It must not create a sixth semantic layer, scrape third-party story
+content, treat latent model knowledge as current audience evidence, auto-select a
+"best idea", or silently create accepted Story Identity.
+
+The required evidence separation is:
+
+    author preference
+    != audience / market evidence
+    != criticism claim
+    != craft interpretation
+    != design prescription
+
+See [Story Opportunity Discovery](story-opportunity-discovery.md).
+
 For product evolution, prefer:
 
 ```text
