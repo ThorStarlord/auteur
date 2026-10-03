@@ -22,7 +22,7 @@
     <div class="home-hero">
       <p class="card-position">Local-first story development</p>
       <h2>What story do you want to tell?</h2>
-      <p>Start with a premise. Auteur will make the story architecture visible before asking you to commit to a direction.</p>
+      <p>Start with your idea. Auteur will show you what it notices, then help you choose where to take the story.</p>
       <form id="new-story-form" class="new-story-form">
         <label for="new-story-premise">Your story idea</label>
         <textarea id="new-story-premise" rows="7" required placeholder="A young superhero begins noticing strange inconsistencies around the people closest to him..."></textarea>
@@ -55,11 +55,11 @@
     <aside id="story-navigator" aria-label="Story Navigator" class="navigator">
       <h2>Your story</h2>
       <ol id="navigator-list" class="navigator-list"></ol>
-      <section aria-label="Story Map" class="story-map">
-        <h3>Story Map</h3>
-        <p class="hint">Read-only overview. It never edits your story.</p>
+      <details aria-label="Story details" class="story-map">
+        <summary>Story details</summary>
+        <p class="hint">Optional read-only detail about how Auteur is carrying the story forward.</p>
         <div id="story-map-body" aria-readonly="true"></div>
-      </section>
+      </details>
     </aside>
 
     <main class="workspace-main">
@@ -68,31 +68,34 @@
       <div class="workspace-columns">
         <section id="decision-workspace" class="decision-workspace" aria-label="Current story work">
           <section id="architecture-surface" class="primary-surface" hidden>
-            <p class="card-position">Working interpretation · not canon</p>
-            <h2 id="architecture-heading">Here is what Auteur sees</h2>
+            <p class="card-position">Auteur's read of your idea</p>
+            <h2 id="architecture-heading">Here's what seems interesting about your story</h2>
             <p id="architecture-summary"></p>
-            <div class="lens-layout-toolbar" aria-label="Story Lens layout controls">
-              <span class="hint">Story Lenses are working interpretations. Reorder them without changing story state.</span>
-              <button id="reset-lens-layout" type="button">Reset lens layout</button>
-            </div>
-            <div id="architecture-facets" class="story-lens-grid" aria-label="Story Architecture Overview"></div>
+            <details class="story-insights" aria-label="Story insights">
+              <summary>Explore the story insights</summary>
+              <div class="lens-layout-toolbar" aria-label="Story insight layout controls">
+                <span class="hint">Optional detail. Inspect or adjust Auteur's read when you want more control.</span>
+                <button id="reset-lens-layout" type="button">Reset insight layout</button>
+              </div>
+              <div id="architecture-facets" class="story-lens-grid" aria-label="Story insights"></div>
+            </details>
             <div class="surface-actions">
-              <button id="continue-architecture" type="button" class="continue-button">Continue with this interpretation</button>
-              <button id="refine-architecture" type="button">Refine this interpretation</button>
-              <button id="explain-architecture" type="button">Why does Auteur see this?</button>
+              <button id="continue-architecture" type="button" class="continue-button">That feels right →</button>
+              <button id="refine-architecture" type="button">Adjust what Auteur sees</button>
+              <button id="explain-architecture" type="button">Show me why</button>
             </div>
           </section>
 
           <section id="discovery-surface" class="primary-surface" hidden>
-            <p class="card-position">Story Discovery · derived / not canon</p>
-            <h2>Choose a story direction</h2>
+            <p class="card-position">Where the story could go</p>
+            <h2>Choose where the story goes</h2>
             <p id="discovery-rationale"></p>
             <div id="discovery-directions"></div>
           </section>
 
           <section id="identity-surface" class="primary-surface" hidden>
-            <p class="card-position">Story Identity candidate · not canon until accepted</p>
-            <h2>Review what this story is committing to</h2>
+            <p class="card-position">Story core</p>
+            <h2>What this story is becoming</h2>
             <div id="identity-candidate"></div>
           </section>
 
@@ -124,17 +127,17 @@
         Explore details
       </button>
 
-      <section aria-label="Review" class="review-panel">
-        <h2>Milestone review</h2>
+      <section aria-label="Story checkpoints" class="review-panel">
+        <h2>Story checkpoints</h2>
         <div id="review-body"></div>
       </section>
 
       <section aria-label="Story development continuation" class="review-panel" id="continuation-panel">
-        <h2>Continue developing the story</h2>
-        <p class="hint">These are derived plans. They become part of the drafting handoff only after you accept each step.</p>
+        <h2>Continue the story</h2>
+        <p class="hint">Auteur can handle the planning machinery for you. Open the details only when you want step-by-step control.</p>
         <div id="continuation-body"></div>
         <section id="post-draft-review" aria-label="Post-draft review" hidden>
-          <h3>Post-draft review</h3>
+          <h3>Chapter 1</h3>
           <p id="post-draft-status" class="hint"></p>
           <p><strong>Recommended next step:</strong> <span id="post-draft-next-action"></span></p>
           <div id="post-draft-evidence"></div>
@@ -146,20 +149,20 @@
         </section>
       </section>
 
-      <section aria-label="Whole-book progress" class="review-panel" id="book-progress-panel">
-        <h2>Whole book</h2>
-        <p class="hint">Read-only orientation over Auteur's existing chapter, Book reconciliation, and publishing owners.</p>
+      <details aria-label="Whole-book progress" class="review-panel" id="book-progress-panel">
+        <summary>Advanced: whole-book details</summary>
+        <p class="hint">Read-only technical orientation for authors who want to inspect whole-book state.</p>
         <p id="book-progress-summary"></p>
         <p><strong>Book:</strong> <span id="book-expression-status"></span></p>
         <p><strong>Reconciliation:</strong> <span id="book-reconciliation-status"></span></p>
         <p><strong>Next owning command:</strong> <code id="book-next-command"></code></p>
         <div id="book-publication-status"></div>
         <p class="hint" id="book-authority-status"></p>
-      </section>
+      </details>
 
       <details id="refinement-panel" aria-label="Refine story interpretation" class="composition-panel">
-        <summary>Refine story interpretation</summary>
-        <p class="hint">Optional working corrections. These guide Auteur but do not edit canon.</p>
+        <summary>Adjust what Auteur sees</summary>
+        <p class="hint">Optional working corrections. Use these only when Auteur's read does not match what you mean.</p>
         <div id="composition-body"></div>
       </details>
     </main>
