@@ -784,3 +784,84 @@ These decisions are supported by controlled agent/product reasoning.
 
 They do not eliminate the separate value of #305 / #310 for claims those tests
 uniquely own.
+
+
+---
+
+# 6. Final owner decisions
+
+The remaining product questions are resolved provisionally as follows.
+
+## Runtime trigger
+
+Do not build a structured helper from synthetic evidence alone.
+
+The helper becomes implementation-eligible when non-synthetic use repeatedly
+shows one or more of these burdens:
+
+- target-environment reconstruction;
+- batch candidate normalization;
+- premise-revision delta reconstruction;
+- Genre Pack lookup/provenance repetition;
+- repeated post-Discovery recomputation.
+
+The candidate helper must remain read-only/noncanonical and must remove more
+operational burden than it introduces in maintenance.
+
+## Visibility
+
+Keep `Post-Discovery Fitness Delta` as an internal term.
+
+Default author-facing copy should be:
+
+> **What this story direction changes**
+
+Show it only for material changes. Advanced/debug surfaces may expose the
+underlying fitness dimensions and provenance.
+
+## Trigger timing
+
+Do not compute/display a full author-facing delta for every generated candidate.
+
+Run it when an architecture becomes decision-relevant:
+
+- focused/selected for review;
+- materially changed by composition;
+- affected by target-environment changes;
+- materially revised later.
+
+When useful, run before canonical acceptance so the delta can inform the choice.
+
+No material change means no author-facing interruption.
+
+## After prose exists
+
+Do not stretch Premise Fitness into a generic downstream quality system.
+
+Use:
+
+    Premise Fitness
+    -> upstream predicted fit
+
+    architecture fit
+    -> selected design vs target environment
+
+    realized narrative evidence
+    -> actual scenes/chapters vs intended design
+
+    audience-observed effectiveness
+    -> reader evidence
+
+If prose reveals a material story change, route the discovery to the lowest
+sufficient existing semantic owner and reassess only affected assumptions.
+
+Run a fresh Premise Fitness pass only if the core premise or target environment
+itself materially changes.
+
+## Human-evidence boundary
+
+Current evidence is enough to preserve and use the method.
+
+It is not enough to claim that independent writers prefer or understand an
+explicit Premise Fitness surface. That remains a separate human-evidence claim
+and does not block the documented workflow.
