@@ -228,7 +228,7 @@ def project_draft_review(project_root: Path, chapter_index: int) -> DraftReviewP
     if stale:
         next_action = "Review the draft against the newer story plan."
     elif review_stale:
-        next_action = "The draft changed after review. Keep the discovery, reconcile it, or revise toward the plan."
+        next_action = "The draft changed after review. Keep it and update the story, keep it as intentional divergence, or revise toward the plan."
     elif blocking:
         next_action = "Decide whether to keep the discovery, keep it as an intentional divergence, or revise toward the plan."
     elif reconciliation_available:
