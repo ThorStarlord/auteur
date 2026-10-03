@@ -278,12 +278,12 @@ def run_quick_draft(
     if not first_scene:
         raise ValueError("first-scene intent must not be empty")
 
+    started = time.monotonic()
     if llm is None:
         llm, provider = _build_quick_draft_client()
     else:
         provider = provider_label or "test/facade"
 
-    started = time.monotonic()
     session_id = _session_id(premise, first_scene)
     root = Path(project_root).resolve()
     session_dir = root / ".auteur" / "quick_draft" / session_id
@@ -392,7 +392,7 @@ def dispatch_quick_draft_argv(argv: list[str]) -> int:
     args = parse_quick_draft_args(argv)
     try:
         result = run_quick_draft(args.premise, args.first_scene)
-    except (RuntimeError, ValueError, ImportError) as exc:
+    except Exception as exc:
         print(f"Quick Draft could not start: {exc}")
         return 1
 
