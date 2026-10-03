@@ -80,6 +80,9 @@ In particular:
   specificity of genre claims rather than fabricating pack knowledge;
 - prefer advisory scope, engine, complexity, or hierarchy repairs over a single
   automatic "fix";
+- do not make Premise Fitness a mandatory ceremony before Story Discovery; use it
+  only when genre/scope/complexity/runway tradeoffs are decision-relevant or
+  explicitly requested;
 - after Story Discovery, use only a narrow fitness delta: consume F3/F4 findings
   and surface author-facing "What this story direction changes" only when
   activation, complexity, runway, renewability, expansion capacity,
@@ -87,6 +90,11 @@ In particular:
   assumptions materially change;
 - do not interrupt the author with a no-op delta; if no tracked fitness
   assumption changes materially, keep the analysis implicit;
+- treat the delta as advisory only: it must not become a validator, acceptance
+  gate, or new canon/authority owner;
+- do not create a new canonical Premise Fitness artifact; keep fitness evidence
+  derived/noncanonical unless later non-synthetic workflow evidence warrants
+  bounded persistence in an existing evidence surface;
 - once prose exists, treat Premise Fitness as an upstream forecast rather than a
   continuously rewritten truth; use realized narrative evidence and existing
   reconciliation/review owners, and rerun Premise Fitness only if the core
