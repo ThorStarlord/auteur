@@ -476,6 +476,67 @@ def project_quick_draft_discoveries(project_root: Path, session_id: str) -> dict
     }
 
 
+def prepare_quick_draft_shape_handoff(
+    project_root: Path,
+    session_id: str,
+    workspace_id: str,
+    selected_discoveries: list[dict[str, str]] | None = None,
+) -> Path:
+    """Link a provisional Quick Draft to a workspace without promoting its content."""
+    if not workspace_id or any(char in workspace_id for char in "/\\"):
+        raise ValueError("invalid workspace ID")
+    projection = project_quick_draft_session(project_root, session_id)
+    available = {
+        (str(item.get("kind", "")), str(item.get("value", ""))): item
+        for item in projection["discoveries"]
+    }
+    selected: list[dict[str, str]] = []
+    for requested in selected_discoveries or []:
+        if not isinstance(requested, dict):
+            raise ValueError("selected Quick Draft discoveries must be objects")
+        key = (str(requested.get("kind", "")), str(requested.get("value", "")))
+        if key not in available:
+            raise ValueError("selected Quick Draft discovery is not current")
+        selected.append(available[key])
+
+    session_dir = _quick_draft_session_dir(project_root, session_id)
+    draft_path = session_dir / str((projection.get("draft") or {}).get("current_file", "scene_draft.md"))
+    scaffold = projection["scaffold"]
+    inputs = scaffold.get("inputs", {}) if isinstance(scaffold, dict) else {}
+    payload = {
+        "canonical": False,
+        "status": "working_context",
+        "quick_draft_session_id": session_id,
+        "workspace_id": workspace_id,
+        "source_draft": draft_path.name,
+        "source_draft_sha256": hashlib.sha256(draft_path.read_bytes()).hexdigest(),
+        "premise": str(inputs.get("premise", "")),
+        "first_scene_intent": str(inputs.get("first_scene_intent", "")),
+        "selected_discoveries": selected,
+        "note": (
+            "This handoff preserves author-selected Quick Draft context. "
+            "It does not accept Story setup, Story shape, or discovered facts."
+        ),
+    }
+    handoff_path = (
+        Path(project_root).resolve()
+        / ".auteur"
+        / "beginner"
+        / "quick_draft_handoffs"
+        / f"{workspace_id}.yaml"
+    )
+    handoff_path.parent.mkdir(parents=True, exist_ok=True)
+    handoff_path.write_text(
+        yaml.safe_dump(payload, sort_keys=False, allow_unicode=True),
+        encoding="utf-8",
+    )
+    (session_dir / "shape_handoff.yaml").write_text(
+        yaml.safe_dump(payload, sort_keys=False, allow_unicode=True),
+        encoding="utf-8",
+    )
+    return handoff_path
+
+
 def dispatch_quick_draft_argv(argv: list[str]) -> int:
     args = parse_quick_draft_args(argv)
     try:
