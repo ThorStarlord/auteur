@@ -205,8 +205,8 @@ def test_browser_renders_composition_dispositions_without_internal_state_labels(
     js = _read(APP)
     combined = html + js
 
-    assert "Will remain context / provenance" in combined
-    assert "Will become canonical" in combined
+    assert "Will remain supporting context" in combined
+    assert "Will become part of the accepted story" in combined
     assert "working_composition" in js
     assert "component.label" in js
     assert 'textContent = component.component_id' not in js
