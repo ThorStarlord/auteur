@@ -59,6 +59,12 @@ keeping accepted story state under explicit author control.
 10. **Runtime and provider support** - deterministic repository/runtime
     infrastructure plus Anthropic/OpenAI provider support, retry, and model
     routing.
+11. **Optional audience-effect analysis (MANA)** - stage-sensitive, read-only
+    analysis of narrative legibility, motivational attachment, predictive
+    engagement, consequential progression, credibility, emotional legibility,
+    affective commitment, payoff, memorability, and transmission. MANA consumes
+    existing semantic-layer evidence; it does not create a sixth layer, quality
+    score, commercial forecast, validator, canon, or automatic winner.
 
 ## Product phase
 
@@ -108,6 +114,9 @@ content.
   choices.
 - Beginner-facing orientation makes the next safe action understandable without
   requiring knowledge of repository internals.
+- Optional MANA analysis states its evidence ceiling explicitly, distinguishes
+  assessable findings from later-stage unknowns, and keeps all guidance derived
+  and noncanonical.
 
 ## Beginner Narrative Architecture and transition requirements
 
