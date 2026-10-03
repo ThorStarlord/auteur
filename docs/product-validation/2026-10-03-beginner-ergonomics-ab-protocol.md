@@ -1,8 +1,8 @@
-# Beginner Ergonomics A/B Protocol
+# Beginner Ergonomics Entry-Flow Comparison Protocol
 
 **Date:** 2026-10-03  
-**Implementation candidate:** PR #304  
-**Purpose:** evaluate whether Beginner interaction compression improves creative flow without reducing author control  
+**Implementation candidates:** PR #304 / #307 / #309  
+**Purpose:** compare architecture-first compression, write-first Quick Draft, and a low-ceremony general-purpose baseline without reducing author control  
 **Evidence class:** product ergonomics / real-author observation
 
 ## Conditions
@@ -53,7 +53,26 @@ premise
 
 Mechanical target: approximately 8 visible interactions.
 
-### C — Markdown + capable general-purpose LLM
+### C — Quick Draft
+
+Use the write-first path from PR #309.
+
+Expected uncomplicated path:
+
+```text
+premise
++ first-scene intent
+-> Start writing now
+-> prose visible
+```
+
+The participant may then edit freely, use **What did we discover?**, explicitly
+select any ideas to carry forward, and choose **Shape this story**.
+
+Before prose, Quick Draft performs zero explicit Story setup / Story shape
+acceptance actions.
+
+### D — Markdown + capable general-purpose LLM
 
 Use a plain document plus a capable general-purpose conversational model.
 
@@ -169,6 +188,24 @@ Do not treat fewer clicks alone as a win.
 
 ## B vs C decision questions
 
+Compare **shape-first** and **write-first** Auteur directly.
+
+Observe whether C:
+- reaches useful prose before the participant wants more planning;
+- preserves authorship despite inferred provisional scaffolding;
+- keeps ambiguous POV/setting comfortably open;
+- lets the participant understand **What did we discover?** without feeling that
+  heuristic observations are decisions;
+- makes **Carry this idea into story shaping** feel explicit rather than
+  bureaucratic;
+- re-enters story shaping without forcing the writer to repeat the scene's useful
+  discoveries.
+
+Also observe whether B produces earlier useful insight that justifies its extra
+pre-prose interaction.
+
+## Auteur vs D decision questions
+
 Auteur earns its additional machinery when the participant can point to benefits
 such as:
 
@@ -180,7 +217,7 @@ such as:
 - useful connections the general-purpose LLM missed;
 - greater confidence that future chapters will remain coherent.
 
-If the participant prefers C, record the concrete reason rather than reducing it
+If the participant prefers D, record the concrete reason rather than reducing it
 to a numeric winner.
 
 ## Change-my-mind stress
@@ -202,8 +239,7 @@ Observe:
 
 ## Messy Writer / Creative Discovery stress
 
-Run this stress against the compressed Auteur condition after a Chapter 1
-candidate exists.
+Run this stress against both the compressed Auteur condition and Quick Draft / its post-draft handoff where applicable.
 
 ### Setup
 
@@ -236,7 +272,7 @@ Record:
 - whether review evidence is bound to the exact candidate bytes;
 - whether the system classifies the difference as additive discovery, plan
   divergence, or hard contradiction;
-- whether the Browser exposes **Keep draft & reconcile**;
+- whether the Browser exposes **Keep draft & update story**;
 - whether **Keep as intentional divergence** is reachable;
 - whether revision remains available;
 - whether the UI describes the story change before technical diagnostics;
@@ -313,10 +349,15 @@ After at least one serious real-author pass, record one of:
 The reduced interaction model removes material friction without meaningful loss
 of author control.
 
+### WRITE_FIRST_PATH_SUPPORTED
+
+Quick Draft creates useful early momentum, keeps provisional inference
+reversible, and returns to story shaping without unacceptable intent distortion.
+
 ### BOUNDED_ERGONOMIC_REPAIR
 
-The model is directionally correct but one specific surface or bundled action
-causes confusion and warrants a small repair.
+The selected flow is directionally correct but one specific surface or bundled
+action causes confusion and warrants a small repair.
 
 ### CUSTOMIZATION_DISCOVERABILITY_GAP
 
@@ -326,8 +367,7 @@ need it.
 ### CREATIVE_DISCOVERY_RECONCILIATION_GAP
 
 The writer can create useful unexpected material, but Auteur either treats it as
-an error, silently loses model coherence, or fails to offer a clear reconcile /
-intentional-divergence / revise choice.
+an error, silently loses model coherence, or fails to offer a clear update-story / intentional-divergence / revise choice.
 
 ### WRITE_FIRST_PRESSURE_CONFIRMED
 
@@ -337,7 +377,5 @@ a Creative Scratch / Riff experiment becomes warranted.
 
 ### PRODUCT_THESIS_REVIEW_SIGNAL
 
-Repeated evidence indicates that even the compressed story-design-first flow
-fails to create differential value over Markdown + a capable general-purpose
-LLM. This is a signal for a separate higher-level review, not an automatic
+Repeated evidence indicates that neither the compressed story-design-first flow nor the write-first Quick Draft flow creates differential value over Markdown + a capable general-purpose LLM. This is a signal for a separate higher-level review, not an automatic
 thesis change.
