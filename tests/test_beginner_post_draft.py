@@ -140,7 +140,7 @@ def test_review_marks_validation_stale_when_draft_bytes_change(tmp_path: Path) -
     assert review.review_stale is True
     assert review.review_available is False
     assert review.reconciliation_available is True
-    assert "changed after review" in (review.review_error or "").lower()
+    assert "changed after this review" in (review.review_error or "").lower()
 
 
 def test_review_surfaces_unplanned_character_place_and_scene_change(tmp_path: Path) -> None:
