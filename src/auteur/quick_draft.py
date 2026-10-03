@@ -255,7 +255,7 @@ def _scaffold_payload(
             "edit_count": 0,
         },
         "next_author_decision": (
-            "Read or edit the draft first. Story setup acceptance and reconciliation "
+            "Read or edit the draft first. Story setup decisions and story updates "
             "remain intentionally deferred."
         ),
     }
@@ -493,7 +493,7 @@ def dispatch_quick_draft_argv(argv: list[str]) -> int:
     print(f"Provisional setup: {result.scaffold_path}")
     print(f"Time to draft: {result.elapsed_seconds:.1f}s")
     print(
-        "Next: edit or react to the scene first. Story setup acceptance and "
-        "structural reconciliation are deferred until after the draft."
+        "Next: edit or react to the scene first. Story setup decisions and "
+        "story updates are deferred until after the draft."
     )
     return 0
