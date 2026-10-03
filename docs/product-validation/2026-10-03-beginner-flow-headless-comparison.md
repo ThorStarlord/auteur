@@ -65,7 +65,7 @@ and the normal Chapter path now pairs review with:
 
 ~~~text
 Auteur noticed the story changed while you were writing
--> Keep draft & reconcile
+-> Keep draft & update story
 -> Keep as intentional divergence
 -> Revise to match plan
 ~~~
