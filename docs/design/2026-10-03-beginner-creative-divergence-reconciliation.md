@@ -4,7 +4,7 @@
 **Tracking:** #306  
 **Scope:** Beginner post-draft human-facing workflow  
 **Evidence source:** chaotic-writer simulation with an unplanned character and setting  
-**Status:** Product contract selected; implementation pending
+**Status:** Implemented candidate in PR #309; real-author validation pending in #305
 
 ## Problem
 
