@@ -74,6 +74,34 @@ This is the same product rule applied before and after prose:
 
 > The author decides meaning; Auteur manages the machinery.
 
+### Quick Draft -> story-shaping handoff
+
+Quick Draft discoveries are never carried into the normal workspace merely
+because a heuristic found them.
+
+After **What did we discover?**, each observation has an explicit
+**Carry this idea into story shaping** checkbox. Nothing is selected
+automatically.
+
+When the author chooses **Shape this story**:
+
+1. unsaved prose is saved first;
+2. discovery evidence is refreshed;
+3. only author-selected discoveries are added to the shaping input;
+4. a noncanonical Quick Draft handoff receipt records the source-draft hash,
+   first-scene intent, new workspace, and selected discoveries;
+5. unselected discoveries remain only in the Quick Draft session.
+
+If the current draft produces no discoveries, the empty confirmation step is
+skipped and shaping proceeds with the author's premise + first-scene intent.
+
+This preserves:
+
+~~~text
+heuristic observation
+!= author commitment
+~~~
+
 ## Runtime probe
 
 Run:
