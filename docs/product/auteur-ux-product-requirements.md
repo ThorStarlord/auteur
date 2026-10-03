@@ -475,7 +475,87 @@ Do not plan future Chapters as if accepted previous events never happened.
 
 ---
 
-# 16. Validation requirements
+# 16. Capability frontier and construction requirements
+
+### SCALE-01 — Narrative stress profile
+**Status:** SELECTED
+
+Repository-level story qualification SHOULD describe the intended stress profile
+across:
+
+- Interpretive Difficulty;
+- Input / Process Messiness;
+- Narrative Breadth;
+- Narrative Depth;
+- Longitudinal Horizon;
+- Change / Revision Pressure.
+
+The product MUST NOT rely on one aggregate narrative-complexity score.
+
+### SCALE-02 — Controlled frontier progression
+**Status:** SELECTED
+
+Major construction SHOULD increase one or two stress dimensions at a time when
+practical so failures remain attributable.
+
+### SCALE-03 — Failure-driven capability admission
+**Status:** SELECTED
+
+A new narrative subsystem or major capability SHOULD normally be admitted only
+after the next controlled frontier exposes a recurring material limitation that
+cannot be cleanly solved by existing workflow, presentation, craft knowledge, or
+model concepts.
+
+### SCALE-04 — Complete-workflow qualification
+**Status:** SELECTED
+
+A capability frontier MUST NOT be considered qualified solely because isolated
+components or unit tests pass.
+
+Qualification SHOULD exercise the complete relevant author journey.
+
+### SCALE-05 — Lowest-correct-layer repair
+**Status:** ESTABLISHED / SELECTED
+
+Frontier failures SHOULD be classified before intervention as primarily:
+
+- UX / presentation;
+- workflow;
+- craft knowledge;
+- domain model;
+- infrastructure.
+
+The repository SHOULD modify the lowest correct layer.
+
+### SCALE-06 — F2 preferred next frontier
+**Status:** EVIDENCE-GATED
+
+If #305/#310 and #313 reaffirm the current unified author experience, the next
+major construction frontier SHOULD be:
+
+> **F2 — Small-Book Longitudinal Coherence**
+
+The reference stress should use a controlled ~6-Chapter Book with:
+
+- 5–7 meaningful characters;
+- two plot threads;
+- one drafting discovery;
+- one meaningful mid-book change;
+- one revelation moved earlier;
+- whole-Book orientation at the end.
+
+F2 being documented does not authorize implementation before #313.
+
+### SCALE-07 — No permanent simple-story optimization
+**Status:** SELECTED
+
+The repository SHOULD NOT indefinitely optimize F0/F1 interactions merely
+because simple stories are easier to test.
+
+Once the current frontier is coherent, product work SHOULD move toward the next
+warranted stress frontier.
+
+# 17. Validation requirements
 
 ### VAL-01 — Mechanical evidence scope
 **Status:** ESTABLISHED
@@ -521,7 +601,7 @@ A coherent architecture, passing test, or agent simulation MUST NOT be presented
 
 ---
 
-# 17. Evidence-gated product decisions
+# 18. Evidence-gated product decisions
 
 The following decisions remain intentionally unresolved until #305/#310:
 
@@ -537,7 +617,7 @@ No implementation should silently answer these questions on behalf of evidence.
 
 ---
 
-# 18. Post-evidence reconciliation
+# 19. Post-evidence reconciliation
 
 After #305 and #310 return:
 
@@ -558,7 +638,7 @@ It SHOULD NOT return to an endless sequence of unrelated local UI patches.
 
 ---
 
-# 19. Product-level acceptance
+# 20. Product-level acceptance
 
 The high-order UX architecture is ready for stronger implementation authority when:
 
