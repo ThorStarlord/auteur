@@ -215,6 +215,40 @@ Measure:
 
 Only after that comparison should Creative Scratch / Riff be reconsidered.
 
+## Post-draft creative discovery extension
+
+The compression principle also applies after prose exists.
+
+A beginner must not be forced to translate an unexpected creative discovery into
+internal model-maintenance work. When prose introduces material that was not in
+the accepted plan, the product should surface the story consequence first and
+the authority machinery second.
+
+The selected follow-up contract is defined in
+`docs/design/2026-10-03-beginner-creative-divergence-reconciliation.md` and
+tracked by #306.
+
+The primary post-draft flow is:
+
+```text
+Auteur noticed the story changed while you were writing
+-> Keep draft & reconcile
+-> Keep as intentional divergence
+-> Revise to match plan
+```
+
+This preserves the same governing product rule as the premise-to-prose
+compression:
+
+```text
+maximum author control over meaning
++
+minimum author administration of machinery
+```
+
+Unexpected prose is therefore treated as discovery evidence before it is
+treated as invalid state.
+
 ## Non-goals
 
 This package does not:
