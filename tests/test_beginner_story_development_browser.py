@@ -11,4 +11,5 @@ def test_browser_exposes_story_development_continuation_surface() -> None:
     assert 'id="continuation-panel"' in html
     assert "renderContinuation" in app
     assert "prepare-draft-handoff" in app
-    assert "derived plans" in html
+    assert "Auteur can handle the planning machinery for you." in html
+    assert "step-by-step control" in html
