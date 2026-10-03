@@ -411,6 +411,7 @@ Additional subsystems persist their own derived, local, candidate, or authoritat
 - [Guided Author Decision Loop](docs/guides/guided-author-decision-loop.md) — beginner-facing advice → proposal → revision → reassessment → orientation walkthrough.
 - [Decision-Oriented Tutor](docs/design/decision-oriented-tutor.md) — root Tutor workflow, Decision Cards, session lifecycle, staleness, and authority boundaries.
 - [Product Evolution Roadmap](docs/product-evolution-roadmap.md) — forward-looking product/repository candidates and evidence gates; advisory, not implementation authority.
+- [Progressive Commitment research candidate](docs/research/progressive-commitment-story-state-v0.md) — evidence-gated model for preserving uncertainty/tentative inference versus explicit narrative commitment without creating a new authority system.
 - [Architecture Roadmap](docs/architecture-roadmap.md) — architecture integrity and architecture-specific extension history.
 - [Mission](MISSION.md) — durable scope and invariants.
 - [Product requirements](docs/PRD.md) — product contract and primary user.

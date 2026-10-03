@@ -185,6 +185,61 @@ friction or a concrete goal. Human use remains stronger evidence and is
 required before making real-author usability, comprehension, relevance,
 confidence, preference, or subjective-quality claims.
 
+## EVIDENCE-GATED — Progressive Commitment / Story-State Semantics
+**State:** `EVIDENCE-GATED`; preserve the concept, do not implement a global state model without recurring workflow evidence.
+
+Auteur already distinguishes derived/advisory artifacts from explicit author
+acceptance. A deeper candidate question appears when incomplete or AI-inferred
+story information must survive long enough to influence later planning,
+drafting, or reconciliation:
+
+> Can the product preserve creative incompleteness without making unknown,
+> intentionally deferred, tentative, and author-accepted information
+> semantically indistinguishable?
+
+The current research model is
+[Progressive Commitment and Story-State Semantics v0](research/progressive-commitment-story-state-v0.md).
+
+Illustrative vocabulary:
+
+~~~text
+UNKNOWN -> DEFERRED -> PROVISIONAL -> COMMITTED
+
+with possible:
+PROVISIONAL -> REJECTED
+COMMITTED -> REVISED
+PROVISIONAL / COMMITTED -> CONTRADICTED
+~~~
+
+These are explanatory labels only, not a schema or enum.
+
+Promote only if concrete workflow evidence shows recurring friction that current
+accepted-vs-derived ownership, provenance, currentness/staleness, candidate/
+proposal lifecycles, UX presentation, and existing reconciliation cannot express
+cleanly.
+
+Useful promotion signals include:
+
+- downstream systems treat intentional incompleteness as accidental missing data;
+- temporary AI scaffolding is mistaken for accepted canon;
+- replacing a tentative assumption causes the same product burden as revising an
+  accepted commitment;
+- several local fixes accumulate around the same missing distinction;
+- the Beginner flow pressures authors into premature decisions only because
+  later systems cannot tolerate uncertainty.
+
+Guardrails:
+
+~~~text
+creative incompleteness != invalid state automatically
+AI inference != accepted canon
+provisional wording != author comprehension
+shared concept != global schema automatically
+candidate exists != current product responsibility changed
+~~~
+
+The current repository responsibility remains `NO_CHANGE until warranted`.
+
 ## CANDIDATE — Unified Decision Inbox / Broader Attention Sources
 **State:** `CANDIDATE`
 
