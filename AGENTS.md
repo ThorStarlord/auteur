@@ -47,6 +47,28 @@ governing documents and sit on the protected list.
 - Treat workspace identity as a preflight condition, not something the
   executor should discover or repair after work begins.
 
+### Upstream story-idea selection
+
+When the task is **what story should be made** rather than how an already
+selected story should be designed, follow
+`docs/story-opportunity-discovery.md`.
+
+In particular:
+
+- decompose influences into desired experience, portable mechanism, and tradeoff
+  rather than copying source-specific expression;
+- keep author preference, sourced audience evidence, critique claims, craft
+  interpretation, and design prescriptions epistemically distinct;
+- treat latent model knowledge about stories or criticism as a search prior /
+  hypothesis, not current audience consensus or market evidence;
+- interpret criticism before acting on it; a complaint is not automatically the
+  correct repair;
+- generate causally distinct working opportunities, not cosmetic reskins;
+- keep opportunity outputs `WORKING / NOT ACCEPTED` and hand selected premises
+  into existing Story Discovery rather than silently creating Story Identity;
+- do not add numerical "idea quality", popularity, or commercial-success scores
+  unless a separately authorized, claim-appropriate contract exists.
+
 ### Delegation envelope
 
 The initial human prompt, accepted design/specification, repository hard
