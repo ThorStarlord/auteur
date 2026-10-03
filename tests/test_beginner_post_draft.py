@@ -271,3 +271,33 @@ def test_revise_to_plan_preserves_candidate_and_does_not_accept(tmp_path: Path) 
     assert payload["canonical"] is False
     assert payload["route"] == "retry"
 
+def test_plain_prose_without_scene_headings_is_not_misclassified_as_plan_divergence(tmp_path: Path) -> None:
+    chapter = _chapter(tmp_path)
+    (chapter / "outline.yaml").write_text(
+        """
+scope: chapter
+scenes:
+  - scene_id: scene_01
+    pov_character: Detective Miller
+    location: precinct
+    summary: Miller questions Vance.
+  - scene_id: scene_02
+    pov_character: Detective Miller
+    location: street
+    summary: Miller follows a clue.
+""".strip(),
+        encoding="utf-8",
+    )
+    (chapter / "draft_v1.md").write_text(
+        "Detective Miller questioned Suspect Vance, then followed the clue outside.",
+        encoding="utf-8",
+    )
+    (chapter / "validation_v1.json").write_text(json.dumps({"findings": []}), encoding="utf-8")
+
+    review = project_draft_review(tmp_path, 1)
+
+    assert not any(
+        item["classification"] == "plan_divergence"
+        for item in review.creative_discoveries
+    )
+
