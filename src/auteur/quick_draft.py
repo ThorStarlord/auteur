@@ -159,8 +159,8 @@ def _scene_outline(premise: str, first_scene: str) -> dict[str, Any]:
         "scenes": [
             {
                 "scene_id": "quick_scene_01",
-                "pov_character": "Protagonist",
-                "location": "Infer naturally from the premise and first-scene intent.",
+                "pov_character": "",
+                "location": "",
                 "summary": first_scene.strip(),
                 "key_events": [first_scene.strip()],
                 "character_state_changes": [],
@@ -176,6 +176,7 @@ def _scene_outline(premise: str, first_scene: str) -> dict[str, Any]:
                 "continuity_constraints": [
                     f"Premise: {premise.strip()}",
                     "Do not invent a whole-story ending or lock future structure.",
+                    "If viewpoint or location is ambiguous, keep it flexible rather than treating an inference as established fact.",
                 ],
             }
         ],
