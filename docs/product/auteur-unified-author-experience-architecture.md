@@ -921,7 +921,9 @@ See:
 
 - `auteur-capability-frontier-construction-roadmap.md`
 
-The construction roadmap uses the Narrative Stress Envelope:
+The construction roadmaps use two coordinated envelopes.
+
+Narrative Stress:
 
 ```text
 A — Interpretive Difficulty
@@ -931,6 +933,23 @@ D — Narrative Depth
 E — Longitudinal Horizon
 F — Change / Revision Pressure
 ```
+
+Experience Stress:
+
+```text
+UX-A — Decision Density
+UX-B — Workflow Branching
+UX-C — State / Continuity Load
+UX-D — Interaction Horizon
+UX-E — Mode Switching
+UX-F — Expertise Range
+UI-G — Information Density
+UI-H — Visual / Spatial Complexity
+```
+
+See also:
+
+- `auteur-experience-frontier-construction-roadmap.md`
 
 A frontier is not qualified merely because the backend can represent its story.
 
@@ -954,8 +973,17 @@ coherent author experience
 qualified frontier
 ```
 
-The preferred post-#313 frontier, if current evidence reaffirms the product
-model, is **F2 — Small-Book Longitudinal Coherence**.
+The preferred post-#313 paired frontier, if current evidence reaffirms the
+product model, is:
+
+```text
+F2 — Small-Book Longitudinal Coherence
++
+X3 — Persistent Book Workspace
+```
+
+The same six-Chapter reference Book should test narrative correctness and
+author-experience coherence independently.
 
 # 20. Experience success criteria
 
