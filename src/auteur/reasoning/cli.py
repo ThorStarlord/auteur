@@ -119,6 +119,36 @@ def _handle_reasoning_book(project: Path, json_output: bool = False) -> int:
     return 0
 
 
+def _handle_reasoning_audience(
+    blueprint_path: Path,
+    json_output: bool,
+    error_writer: Callable[[str], None],
+) -> int:
+    """Run read-only MANA audience-effect analysis for one StoryBlueprint."""
+    from auteur.audience_effects import (
+        analyze_audience_effects,
+        format_audience_effect_report,
+    )
+    from auteur.blueprint import StoryBlueprint
+
+    try:
+        blueprint = StoryBlueprint.from_yaml(blueprint_path)
+    except FileNotFoundError:
+        error_writer(f"blueprint not found: {blueprint_path}")
+        return 1
+    except (OSError, ValueError) as exc:
+        error_writer(f"invalid blueprint {blueprint_path}: {exc}")
+        return 1
+
+    report = analyze_audience_effects(blueprint)
+    print(
+        report.model_dump_json(indent=2)
+        if json_output
+        else format_audience_effect_report(report)
+    )
+    return 0
+
+
 def dispatch_reasoning(
     args: Any,
     error_writer: Callable[[str], None],
@@ -126,6 +156,8 @@ def dispatch_reasoning(
     """Dispatch the complete reasoning CLI family behind one bounded owner."""
     if args.reasoning_command == "book":
         return _handle_reasoning_book(args.project, args.json)
+    if args.reasoning_command == "audience":
+        return _handle_reasoning_audience(args.blueprint, args.json, error_writer)
 
     try:
         review = load_review(args.review)
