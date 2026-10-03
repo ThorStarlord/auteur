@@ -120,15 +120,22 @@ python scripts/quick_draft_product_probe.py --project . --live
 
 to dogfood all four premises through the currently configured provider.
 
-The live run records:
+The live run writes a timestamped evidence packet under
+`.auteur/product-probes/` and records:
 
 - time to first prose;
 - whether the 30-second target was met;
-- output length;
 - provider;
-- provisional authority state.
+- exact premise and first-scene intent;
+- exact generated prose plus output length;
+- complete provisional authority state;
+- inferred provisional lenses, Identity container, and scene plan;
+- blank manual-review fields for intent fidelity, default leakage,
+  scene-sizedness, unwanted commitments, and usefulness;
+- an unclaimed Sister Beatrice + convent messy-writer follow-up template.
 
-It deliberately does not manufacture qualitative scores.
+It deliberately does not manufacture qualitative scores or infer human
+preference from the generated text.
 
 ## Reload / continuation behavior
 
