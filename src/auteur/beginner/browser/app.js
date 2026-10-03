@@ -1506,6 +1506,9 @@
           '<button type="button" data-continuation-customize>Plan step by step</button>' +
           "</div>"
         );
+        if (projectedPrimary && projectedPrimary.reason) {
+          html.push('<p class="muted primary-action-reason">' + escapeHtml(projectedPrimary.reason) + "</p>");
+        }
       }
     }
 
