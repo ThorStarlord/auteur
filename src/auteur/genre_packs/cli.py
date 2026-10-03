@@ -78,7 +78,7 @@ def register_genre_pack_subcommands(subparsers: _SubParsersAction) -> None:
     _add_arg_if_missing(p_inspect, "--json", action="store_true", help="Output JSON format")
 
     # 2. recommend
-    rec_p = _get_or_add_parser(genre_sub, "recommend", "Generate opinionated genre recommendation candidate")
+    rec_p = _get_or_add_parser(genre_sub, "recommend", "Generate an opinionated genre recommendation option")
     _add_arg_if_missing(rec_p, "--project", type=Path, default=None, help="Project directory")
     _add_arg_if_missing(rec_p, "--premise", type=str, default=None, help="Raw story premise text")
     _add_arg_if_missing(rec_p, "--pack", type=str, default="erotic_fiction", help="Genre Pack ID")
@@ -86,7 +86,7 @@ def register_genre_pack_subcommands(subparsers: _SubParsersAction) -> None:
     _add_arg_if_missing(rec_p, "--json", action="store_true", help="Output JSON format")
 
     # 3. recommendation subcommands
-    rec_cmd_p = _get_or_add_parser(genre_sub, "recommendation", "Recommendation candidate inspection and acceptance")
+    rec_cmd_p = _get_or_add_parser(genre_sub, "recommendation", "Recommendation option review and acceptance")
     rec_cmd_sub = None
     if rec_cmd_p._subparsers:
         for action in rec_cmd_p._subparsers._actions:
@@ -96,18 +96,18 @@ def register_genre_pack_subcommands(subparsers: _SubParsersAction) -> None:
     if rec_cmd_sub is None:
         rec_cmd_sub = rec_cmd_p.add_subparsers(dest="recommendation_command", help="Recommendation commands")
 
-    r_inspect = _get_or_add_parser(rec_cmd_sub, "inspect", "Inspect a recommendation candidate")
+    r_inspect = _get_or_add_parser(rec_cmd_sub, "inspect", "Inspect a recommendation option")
     _add_arg_if_missing(r_inspect, "rec_id", help="Recommendation ID")
     _add_arg_if_missing(r_inspect, "--project", type=Path, default=None, help="Project directory")
     _add_arg_if_missing(r_inspect, "--json", action="store_true", help="Output JSON format")
 
-    r_accept = _get_or_add_parser(rec_cmd_sub, "accept", "Explicitly accept a recommendation candidate into StoryIdentity")
+    r_accept = _get_or_add_parser(rec_cmd_sub, "accept", "Accept a recommendation option into the story setup")
     _add_arg_if_missing(r_accept, "rec_id", help="Recommendation ID")
     _add_arg_if_missing(r_accept, "--project", type=Path, default=None, help="Project directory")
     _add_arg_if_missing(r_accept, "--confirm", action="store_true", help="Confirm acceptance")
     _add_arg_if_missing(r_accept, "--json", action="store_true", help="Output JSON format")
 
-    r_override = _get_or_add_parser(rec_cmd_sub, "override", "Explicitly accept a recommendation candidate with author overrides")
+    r_override = _get_or_add_parser(rec_cmd_sub, "override", "Accept a recommendation option with author changes")
     _add_arg_if_missing(r_override, "rec_id", help="Recommendation ID")
     _add_arg_if_missing(r_override, "--project", type=Path, default=None, help="Project directory")
     _add_arg_if_missing(r_override, "--target", required=True, help="Target expectation ID")
