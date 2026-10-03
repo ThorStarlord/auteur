@@ -160,7 +160,19 @@ def test_report_contains_epistemic_basis_but_no_mass_appeal_score():
         EpistemicBasis.PROJECT_EVIDENCE in finding.epistemic_basis
         for finding in report.findings
     )
-    assert "score" not in str(payload).casefold()
+
+    def _keys(value):
+        if isinstance(value, dict):
+            for key, item in value.items():
+                yield key
+                yield from _keys(item)
+        elif isinstance(value, list):
+            for item in value:
+                yield from _keys(item)
+
+    keys = set(_keys(payload))
+    assert "score" not in keys
+    assert "probability" not in keys
 
 
 def test_analysis_does_not_mutate_blueprint():
