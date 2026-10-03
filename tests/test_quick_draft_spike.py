@@ -93,10 +93,11 @@ def test_quick_draft_creates_only_provisional_scaffolding_and_one_scene_draft(
     lenses = scaffold["inferred_scaffolding"]["lenses"]
     assert [entry["name"] for entry in lenses] == list(DEFAULT_LENSES)
     assert {entry["status"] for entry in lenses} == {STATUS}
-    assert (
-        scaffold["inferred_scaffolding"]["identity_container"]["status"]
-        == STATUS
-    )
+    identity = scaffold["inferred_scaffolding"]["identity_container"]
+    assert identity["status"] == STATUS
+    assert identity["target_experience"]["status"] == STATUS
+    assert identity["story_type"]["status"] == STATUS
+    assert identity["central_engine"]["status"] == STATUS
     assert scaffold["inferred_scaffolding"]["scene_plan"]["status"] == STATUS
 
     # The spike must not impersonate normal accepted project state.
