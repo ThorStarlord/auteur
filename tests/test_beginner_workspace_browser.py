@@ -505,3 +505,20 @@ def test_quick_draft_shape_handoff_requires_explicit_remember_choices():
     assert "state.quickDraftDirty" in js
     assert "Draft changed. Save it before reviewing discoveries." in js
 
+def test_quick_draft_browser_url_is_resumable():
+    js = _read(APP)
+
+    for token in (
+        "updateQuickDraftUrl",
+        "currentQuickDraftFromQuery",
+        "loadQuickDraftSession",
+        'url.searchParams.set("quick_draft", sessionId)',
+        'url.searchParams.delete("quick_draft")',
+        'params.get("quick_draft")',
+        '"/api/beginner/quick-draft/" + encodeURIComponent(sessionId)',
+    ):
+        assert token in js
+
+    # Entering a normal workspace leaves the provisional URL mode.
+    assert 'url.searchParams.delete("quick_draft")' in js
+
