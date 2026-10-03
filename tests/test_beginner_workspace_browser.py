@@ -414,3 +414,28 @@ def test_browser_uses_beginner_facing_stage_names_on_primary_navigation():
     assert '"Story core"' in js
     assert '"Story shape"' in js
 
+def test_beginner_default_premise_to_prose_path_targets_eight_visible_interactions():
+    html = _read(INDEX)
+    js = _read(APP)
+
+    default_path = (
+        "Your story idea",
+        "Explore this story →",
+        "That feels right →",
+        "Use this direction",
+        "Yes, keep going",
+        "Use recommended story shape",
+        "Plan Chapter 1 →",
+        "Draft Chapter 1 →",
+    )
+    assert len(default_path) == 8
+    combined = html + js
+    for interaction in default_path:
+        assert interaction in combined
+
+    # Separate approval ceremonies remain implementation details or optional
+    # step-by-step controls rather than extra default-path interactions.
+    assert 'id="accept-selected-direction"' not in js
+    assert "Plan step by step" in js
+    assert "Customize story shape" in js
+
