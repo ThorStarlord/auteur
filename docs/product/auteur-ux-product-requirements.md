@@ -555,7 +555,96 @@ because simple stories are easier to test.
 Once the current frontier is coherent, product work SHOULD move toward the next
 warranted stress frontier.
 
-# 17. Validation requirements
+# 17. Experience frontier and UX/UI construction requirements
+
+### X-SCALE-01 — Experience stress profile
+**Status:** SELECTED
+
+UX/UI qualification SHOULD describe pressure across:
+
+- Decision Density;
+- Workflow Branching;
+- State / Continuity Load;
+- Interaction Horizon;
+- Mode Switching;
+- Expertise Range;
+- Information Density;
+- Visual / Spatial Complexity.
+
+The product MUST NOT reduce these to one aggregate “UX complexity” score.
+
+### X-SCALE-02 — Independent narrative / experience qualification
+**Status:** SELECTED
+
+Narrative and experience frontiers MUST be allowed to pass/fail independently.
+
+A narrative failure SHOULD NOT be disguised as a UI repair.
+
+A UX/UI failure SHOULD NOT trigger a new narrative subsystem unless the underlying story capability is actually insufficient.
+
+### X-SCALE-03 — Paired frontier selection
+**Status:** SELECTED
+
+Major construction SHOULD select both a narrative frontier F0–F7 and an experience frontier X0–X7.
+
+### X-SCALE-04 — UX/UI failure classification
+**Status:** SELECTED
+
+Classify failures before implementation as primarily:
+
+- UX mental model;
+- UX workflow;
+- UX information architecture;
+- UX navigation/orientation;
+- UX interaction semantics;
+- UX progressive disclosure;
+- UX re-entry/continuity;
+- UI visual hierarchy;
+- UI information density;
+- UI spatial layout;
+- UI state feedback;
+- UI responsive behavior;
+- UI accessibility;
+- UI design-system consistency.
+
+Repair the lowest correct layer.
+
+### X-SCALE-05 — Accessibility floor
+**Status:** ESTABLISHED / SELECTED
+
+Baseline accessibility MUST be preserved at every experience frontier.
+
+### X-SCALE-06 — Visual polish is separate from frontier scale
+**Status:** SELECTED
+
+Aesthetic maturity SHOULD improve continuously but MUST NOT be used as evidence that an experience frontier is qualified.
+
+### X-SCALE-07 — X3 preferred next experience frontier
+**Status:** EVIDENCE-GATED
+
+If #305/#310/#313 reaffirm the current unified author experience, the next experience frontier SHOULD be:
+
+> **X3 — Persistent Book Workspace**
+
+paired with:
+
+> **F2 — Small-Book Longitudinal Coherence**
+
+using the same controlled six-Chapter reference Book.
+
+X3 being documented does not authorize a Book Dashboard, sidebar, timeline, graph, or multi-pane workspace before frontier evidence identifies the first material experience failure.
+
+### X-SCALE-08 — Do not scale UI merely because backend complexity grew
+**Status:** SELECTED
+
+The interface SHOULD gain additional persistent structure only when author-experience evidence shows that the current simpler interaction model can no longer carry the product's complexity.
+
+### X-SCALE-09 — Contextual modes remain one product
+**Status:** SELECTED
+
+Creative, Guidance, Continuity, and Deep-control modes SHOULD remain coherently reachable within higher experience frontiers rather than becoming separate applications.
+
+# 18. Validation requirements
 
 ### VAL-01 — Mechanical evidence scope
 **Status:** ESTABLISHED
@@ -601,7 +690,7 @@ A coherent architecture, passing test, or agent simulation MUST NOT be presented
 
 ---
 
-# 18. Evidence-gated product decisions
+# 19. Evidence-gated product decisions
 
 The following decisions remain intentionally unresolved until #305/#310:
 
@@ -617,7 +706,7 @@ No implementation should silently answer these questions on behalf of evidence.
 
 ---
 
-# 19. Post-evidence reconciliation
+# 20. Post-evidence reconciliation
 
 After #305 and #310 return:
 
@@ -638,7 +727,7 @@ It SHOULD NOT return to an endless sequence of unrelated local UI patches.
 
 ---
 
-# 20. Product-level acceptance
+# 21. Product-level acceptance
 
 The high-order UX architecture is ready for stronger implementation authority when:
 
