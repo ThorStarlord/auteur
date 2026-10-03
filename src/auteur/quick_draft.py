@@ -31,6 +31,7 @@ from auteur.blueprint import (
 from auteur.identity import HighLevelCentralEngine, StoryIdentity, StoryType, compile_to_blueprint
 from auteur.llm import LLMClient, LLMRequest
 from auteur.llm.factory import build_client
+from auteur.beginner.creative_divergence import infer_creative_discoveries
 
 
 STATUS = "inferred_provisional"
@@ -249,6 +250,8 @@ def _scaffold_payload(
             "review_status": "not_reviewed",
             "accepted": False,
             "provider": provider,
+            "current_file": "scene_draft.md",
+            "edit_count": 0,
         },
         "next_author_decision": (
             "Read or edit the draft first. Story setup acceptance and reconciliation "
@@ -386,6 +389,90 @@ def run_quick_draft(
         elapsed_seconds=elapsed,
         provider=provider,
     )
+
+
+def _quick_draft_session_dir(project_root: Path, session_id: str) -> Path:
+    if not session_id or any(char in session_id for char in "/\\") or not session_id.startswith("quick-"):
+        raise ValueError("invalid Quick Draft session ID")
+    path = Path(project_root).resolve() / ".auteur" / "quick_draft" / session_id
+    if not path.is_dir():
+        raise FileNotFoundError(f"Quick Draft session not found: {session_id}")
+    return path
+
+
+def project_quick_draft_session(project_root: Path, session_id: str) -> dict[str, Any]:
+    session_dir = _quick_draft_session_dir(project_root, session_id)
+    scaffold_path = session_dir / "scaffold.yaml"
+    if not scaffold_path.is_file():
+        raise FileNotFoundError("Quick Draft scaffold is missing")
+    scaffold = yaml.safe_load(scaffold_path.read_text(encoding="utf-8")) or {}
+    draft_info = scaffold.get("draft") if isinstance(scaffold, dict) else {}
+    current_file = (
+        draft_info.get("current_file", "scene_draft.md")
+        if isinstance(draft_info, dict)
+        else "scene_draft.md"
+    )
+    draft_path = session_dir / str(current_file)
+    if not draft_path.is_file():
+        raise FileNotFoundError("Quick Draft scene is missing")
+    draft_text = draft_path.read_text(encoding="utf-8")
+    inputs = scaffold.get("inputs", {}) if isinstance(scaffold, dict) else {}
+    baseline = " ".join(
+        str(inputs.get(key, "")) for key in ("premise", "first_scene_intent")
+    )
+    discoveries = infer_creative_discoveries(draft_text, baseline_text=baseline)
+    return {
+        "session_id": session_id,
+        "status": scaffold.get("status", STATUS),
+        "draft_text": draft_text,
+        "draft": draft_info,
+        "discoveries": discoveries,
+        "scaffold": scaffold,
+    }
+
+
+def save_quick_draft_revision(
+    project_root: Path,
+    session_id: str,
+    prose: str,
+) -> dict[str, Any]:
+    if not isinstance(prose, str) or not prose.strip():
+        raise ValueError("scene draft must not be empty")
+    session_dir = _quick_draft_session_dir(project_root, session_id)
+    scaffold_path = session_dir / "scaffold.yaml"
+    scaffold = yaml.safe_load(scaffold_path.read_text(encoding="utf-8")) or {}
+    draft_info = scaffold.setdefault("draft", {})
+    current_file = str(draft_info.get("current_file", "scene_draft.md"))
+    draft_path = session_dir / current_file
+    revisions_dir = session_dir / "revisions"
+    revisions_dir.mkdir(parents=True, exist_ok=True)
+    revision_number = len(list(revisions_dir.glob("scene_draft_v*.md"))) + 1
+    if draft_path.is_file():
+        history_path = revisions_dir / f"scene_draft_v{revision_number:03d}.md"
+        history_path.write_text(draft_path.read_text(encoding="utf-8"), encoding="utf-8")
+    draft_path.write_text(prose.rstrip() + "\n", encoding="utf-8")
+    draft_info["status"] = "draft_ready"
+    draft_info["review_status"] = "not_reviewed"
+    draft_info["accepted"] = False
+    draft_info["edit_count"] = int(draft_info.get("edit_count", 0)) + 1
+    draft_info["candidate_sha256"] = hashlib.sha256(draft_path.read_bytes()).hexdigest()
+    scaffold_path.write_text(
+        yaml.safe_dump(scaffold, sort_keys=False, allow_unicode=True),
+        encoding="utf-8",
+    )
+    return project_quick_draft_session(project_root, session_id)
+
+
+def project_quick_draft_discoveries(project_root: Path, session_id: str) -> dict[str, Any]:
+    projection = project_quick_draft_session(project_root, session_id)
+    return {
+        "session_id": session_id,
+        "status": STATUS,
+        "discoveries": projection["discoveries"],
+        "message": (
+            "These are working observations from the draft, not accepted story facts."
+        ),
+    }
 
 
 def dispatch_quick_draft_argv(argv: list[str]) -> int:
