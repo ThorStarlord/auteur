@@ -124,7 +124,7 @@ def handle_realization_revise(args) -> int:
         lines.append(f"  Scope: {target.scope.value}")
         lines.append(f"  Target ID: {target.target_id}")
         lines.append("")
-        lines.append("Next: generate or register candidates")
+        lines.append("Next: generate or register working versions")
         print("\n".join(lines))
 
     return 0
@@ -282,7 +282,7 @@ def handle_realization_compare(args) -> int:
         print(f"  Target: Chapter {target.chapter_index}")
         if target.scene_id:
             print(f"  Scene: {target.scene_id}")
-        print(f"  Candidates: {', '.join(comparison.candidate_ids)}")
+        print(f"  Working versions: {', '.join(comparison.candidate_ids)}")
         print()
         for dim in comparison.dimensions:
             adv = "A" if dim.advantage == "candidate_a" else ("B" if dim.advantage == "candidate_b" else "—")
