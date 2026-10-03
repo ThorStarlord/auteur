@@ -154,3 +154,76 @@ def test_server_reconcile_new_elements_can_route_revision_without_acceptance(tmp
         server.stop()
         thread.join(timeout=5)
 
+def test_server_shape_workspace_retains_only_selected_quick_draft_context(tmp_path: Path) -> None:
+    base_dependencies = default_runtime_dependencies()
+    dependencies = BeginnerRuntimeDependencies(
+        architecture_analyzer=base_dependencies.architecture_analyzer,
+        discovery_recommender=base_dependencies.discovery_recommender,
+        drafting_client=_QuickDraftLLM(),
+    )
+    server = BeginnerWorkspaceServer(tmp_path, port=0, dependencies=dependencies)
+    thread = server.start_in_thread()
+    try:
+        base = f"http://127.0.0.1:{server.port}"
+        created = _json(
+            f"{base}/api/beginner/quick-draft",
+            method="POST",
+            payload={
+                "premise": "Detective Miller investigates conflicting memories of one murder.",
+                "first_scene": "Miller questions Suspect Vance about the murder.",
+            },
+        )
+        session_id = created["session_id"]
+        _json(
+            f"{base}/api/beginner/quick-draft/{session_id}/save",
+            method="POST",
+            payload={
+                "draft_text": (
+                    "At the abandoned seaside convent, Sister Beatrice tells "
+                    "Detective Miller that Vance slept there."
+                ),
+            },
+        )
+        discovery_payload = _json(
+            f"{base}/api/beginner/quick-draft/{session_id}/discoveries"
+        )
+        sister = next(
+            item
+            for item in discovery_payload["discoveries"]
+            if item["value"] == "Sister Beatrice"
+        )
+
+        workspace = _json(
+            f"{base}/api/beginner/workspaces",
+            method="POST",
+            payload={
+                "command_id": "create-from-quick",
+                "workspace_id": "workspace-quick",
+                "premise": (
+                    "Detective Miller investigates conflicting memories of one murder.\n\n"
+                    "First scene I want: Miller questions Suspect Vance about the murder.\n\n"
+                    "Ideas I discovered while drafting and explicitly want to carry forward:\n"
+                    "- Sister Beatrice"
+                ),
+                "quick_draft_session_id": session_id,
+                "quick_draft_discoveries": [sister],
+            },
+        )
+
+        assert workspace["workspace"]["workspace_id"] == "workspace-quick"
+        handoff = (
+            tmp_path
+            / ".auteur"
+            / "beginner"
+            / "quick_draft_handoffs"
+            / "workspace-quick.yaml"
+        )
+        assert handoff.is_file()
+        text = handoff.read_text(encoding="utf-8")
+        assert "canonical: false" in text
+        assert "Sister Beatrice" in text
+        assert "abandoned seaside convent" not in text
+    finally:
+        server.stop()
+        thread.join(timeout=5)
+
