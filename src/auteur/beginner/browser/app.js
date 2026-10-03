@@ -345,22 +345,29 @@
 
   function shapeQuickDraftStory() {
     if (!state.quickDraftSessionId) return Promise.resolve(null);
+    function continueAfterDiscovery(projection) {
+      if (!projection) return null;
+      if (!(projection.discoveries || []).length) {
+        return createStoryFromPremise(
+          shapingPremise([]),
+          {
+            quick_draft_session_id: state.quickDraftSessionId,
+            quick_draft_discoveries: [],
+          }
+        );
+      }
+      $("home-status").textContent =
+        "Choose anything you want Auteur to remember, then choose “Shape this story” again.";
+      return null;
+    }
     if (state.quickDraftDirty) {
       return saveQuickDraft().then(function (saved) {
         if (!saved) return null;
-        return discoverQuickDraftElements().then(function () {
-          $("home-status").textContent =
-            "Review what Auteur noticed, choose anything you want to remember, then choose “Shape this story” again.";
-          return null;
-        });
+        return discoverQuickDraftElements().then(continueAfterDiscovery);
       });
     }
     if (!state.quickDraftDiscoveriesVisible) {
-      return discoverQuickDraftElements().then(function () {
-        $("home-status").textContent =
-          "Choose anything you want Auteur to remember, then choose “Shape this story” again.";
-        return null;
-      });
+      return discoverQuickDraftElements().then(continueAfterDiscovery);
     }
     var selected = selectedQuickDraftDiscoveries();
     return createStoryFromPremise(
