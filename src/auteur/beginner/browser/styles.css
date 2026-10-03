@@ -846,3 +846,56 @@ summary:focus-visible {
   max-height: 32rem;
   overflow: auto;
 }
+
+.story-map > summary,
+.story-insights > summary,
+#book-progress-panel > summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.story-insights {
+  margin: 1rem 0;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 0.75rem;
+  background: #fff;
+}
+
+.recommended-shape,
+.chapter-launch,
+.chapter-launch-summary {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.chapter-launch-summary .primary-next-action,
+.recommended-shape .continue-button {
+  margin-top: 0.75rem;
+}
+
+.story-core-answer {
+  font-size: 1.1rem;
+  line-height: 1.55;
+}
+
+.chapter-draft {
+  margin: 1rem 0;
+}
+
+.draft-prose {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: none;
+  overflow: visible;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  padding: 1rem;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  background: #fff;
+}
+
