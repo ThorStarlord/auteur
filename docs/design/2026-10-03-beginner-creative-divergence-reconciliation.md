@@ -191,7 +191,7 @@ Miller leaves the planned precinct interrogation and follows Vance elsewhere.
 Primary actions:
 
 ~~~
-[Keep draft & reconcile]
+[Keep draft & update story]
 [Keep as intentional divergence]
 [Revise to match plan]
 
@@ -202,7 +202,7 @@ This is a story-development surface, not a schema-error surface.
 
 ## Action semantics
 
-### Keep draft & reconcile
+### Keep draft & update story
 
 Meaning:
 
@@ -369,7 +369,7 @@ The bounded implementation is mechanically adequate when:
 2. additive discovery does not become a blocking error by default;
 3. plan divergence exposes an explicit author choice;
 4. accept-deliberate-divergence is reachable from the Beginner surface;
-5. **Keep draft & reconcile** preserves prose and produces only noncanonical proposals until target owners accept them;
+5. **Keep draft & update story** preserves prose and produces only noncanonical proposals until target owners accept them;
 6. the Sister Beatrice + convent scenario never crashes or silently discards prose;
 7. accepted prose cannot silently leave the product claiming that no model divergence exists;
 8. hard contradiction is explained in story language before technical detail;
