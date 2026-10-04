@@ -513,9 +513,21 @@ These are hypotheses, not pre-authorized components.
 
 ### Current disposition
 
-**RECOMMENDED NEXT EXPERIENCE FRONTIER if #305/#310/#313 reaffirm the current product model.**
+**PROVISIONALLY SELECTED NEXT EXPERIENCE FRONTIER, EVIDENCE-GATED.**
 
-X3 should be qualified alongside F2 using the same controlled Book.
+The agent stress test resolved the structural continuity-interruption rule and
+did not expose a reason to keep optimizing X0-X2 mechanics before testing
+persistent Book-scale orientation.
+
+X3 is therefore the default next experience frontier **unless #305/#310 expose a
+material contradiction** in the current author mental model, provider behavior,
+or felt product value.
+
+It should be qualified alongside F2 using the same controlled six-Chapter Book.
+
+Do not prebuild a dashboard, timeline, graph, sidebar, or multi-pane workspace
+merely because X3 is selected. Let the first controlled Book failure determine
+the smallest experience intervention.
 
 ---
 
