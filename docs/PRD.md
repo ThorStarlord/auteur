@@ -67,6 +67,103 @@ development should default to product integration, simplification,
 discoverability, maintainability, and qualification before introducing new
 semantic concepts.
 
+### Upstream Story Opportunity Discovery contract
+
+Auteur also documents an optional **pre-Identity creative-search method** for
+authors who do not yet have a stable premise. Story Opportunity Discovery takes
+author preferences, influences, sourced audience observations, criticism, and
+craft hypotheses; abstracts portable mechanisms; synthesizes causally distinct
+story opportunities; and hands a selected working premise or Discovery Brief to
+the existing Story Discovery workflow.
+
+This is currently a **documentation/product contract, not a shipped runtime
+capability**. It must not create a sixth semantic layer, scrape third-party story
+content, treat latent model knowledge as current audience evidence, auto-select a
+"best idea", or silently create accepted Story Identity.
+
+The required evidence separation is:
+
+    author preference
+    != audience / market evidence
+    != criticism claim
+    != craft interpretation
+    != design prescription
+
+See [Story Opportunity Discovery](story-opportunity-discovery.md).
+
+### Premise Fitness contract
+
+Before Story Discovery, a working premise may be evaluated for **context-dependent
+fitness** rather than universal quality. Premise Fitness distinguishes predicted
+premise efficacy, realized story effectiveness, premise efficiency, and
+narrative runway. Fitness is conditional on intended genre promise, target
+experience, scope/length horizon, complexity, genre posture, and audience
+intent.
+
+Genre Packs may supply reusable genre knowledge to the analysis, but genre
+alignment is not a premise-quality score and a Genre Pack is not a mass-appeal
+optimizer. Conventional, subversive, and deconstructive postures remain valid
+targets when explicitly intended.
+
+This is also documentation-only: no numeric fitness score, automatic premise
+winner, new semantic layer, or canonical premise artifact is introduced.
+
+A synthetic calibration across short-form, novel, long-series, multi-genre,
+deconstructive, scope-mismatched, high-complexity, evocative-but-noncausal, and
+unknown-scope premises reaffirmed the model while sharpening terminology:
+core premise stays separate from target environment; missing scope produces
+conditional analysis; runway, renewability, and expansion capacity remain
+distinct; and missing Genre Pack knowledge lowers specificity rather than
+blocking analysis. No runtime was selected from that calibration.
+
+A follow-up coding-agent stress test found that the documented method is
+sufficient for isolated/occasional use and does **not** yet justify a dedicated
+standalone Premise Fitness runtime. The strongest future automation cases are
+persistent target-environment state, batch opportunity comparison, premise
+revision deltas, Genre Pack provenance, and a narrow post-Story-Discovery
+fitness delta.
+
+Architecture-aware reassessment is useful only when it evaluates what the
+selected architecture newly changes about activation cost, complexity, runway,
+renewability, expansion capacity, multi-engine compatibility, or scope fit. It
+must consume rather than duplicate Story Discovery F3 causal-distinctness,
+Story Discovery F4 craft-propagation/composability, and MANA audience-effect
+analysis.
+
+The selected product projection is progressive-disclosure-first: keep
+**Post-Discovery Fitness Delta** as an internal term and show authors plain
+language such as **What this story direction changes** only when a
+decision-relevant architecture materially changes a prior fitness finding. Do
+not display a no-op delta for every candidate.
+
+A structured helper is not eligible merely because Premise Fitness is useful.
+It becomes eligible only when non-synthetic workflow use repeatedly exposes
+state/comparison/provenance/recomputation burden that a small read-only helper
+can remove without creating new authority or duplicating existing systems.
+
+After writing begins, Premise Fitness remains an upstream forecast. Story
+Discovery/Structure supply architecture-fit evidence; actual scenes and chapters
+supply realized narrative evidence; reader-response claims remain
+audience-evidence claims. A fresh Premise Fitness pass is warranted only when
+the core premise or target environment itself materially changes.
+
+Premise Fitness is **optional and decision-triggered**, not a mandatory gate
+before Story Discovery. The Post-Discovery Fitness Delta is advisory and
+non-blocking; it does not create a new validator, acceptance gate, authority
+owner, or canonical artifact. Current fitness outputs remain derived /
+noncanonical.
+
+This topic is closed for further speculative construction. Reopen it only when
+actual non-synthetic use crosses the helper eligibility gate, a real
+writer-facing surface is proposed, an integration ownership conflict appears,
+long-form evidence defeats the lifecycle model, or the current contract fails
+to answer a concrete decision-changing workflow problem.
+
+See [Premise Fitness](premise-fitness.md),
+[Premise Fitness Calibration Cases](research/premise-fitness-calibration-cases.md),
+and
+[Premise Fitness Coding-Agent Stress Test](research/premise-fitness-coding-agent-stress-test.md).
+
 For product evolution, prefer:
 
 ```text

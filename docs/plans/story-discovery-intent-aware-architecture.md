@@ -14,6 +14,25 @@ This document is the bounded implementation roadmap. Production work should be s
 
 Phase F converts the qualified Phase E findings into production slices. It does not reopen the Phase E research question and it does not relax the author-acceptance authority boundary.
 
+### Upstream boundary: Story Opportunity Discovery
+
+Story Discovery assumes that a premise or structured Discovery Brief is already
+available. It does not own the broader creative-search question "what story
+should I make?"
+
+The documentation-only Story Opportunity Discovery contract sits upstream:
+
+    tastes / references / criticism / audience evidence
+    -> mechanism abstraction and synthesis
+    -> working story opportunity / premise
+    -> Story Discovery
+    -> causally distinct Story Identity candidates
+
+Story Discovery should therefore not be expanded into review mining, market
+research, influence decomposition, or automatic idea selection merely because
+those inputs can affect premise selection. See
+[Story Opportunity Discovery](../story-opportunity-discovery.md).
+
 ## Evidence basis
 
 Phase E identified seven repeated requirements:
