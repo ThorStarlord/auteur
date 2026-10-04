@@ -386,7 +386,29 @@ story idea
 
 Use when the author has enough scene-level intent to learn through writing.
 
-## 6.3 Convergence rule
+## 6.3 Foregrounding rule
+
+**SELECTED EXPERIENCE DIRECTION**
+
+Do not choose Shape first versus Write first from genre, author stereotype, or a
+global default preference.
+
+Route from the author's explicit current goal:
+
+```text
+needs understanding / comparison / long-range shaping
+-> foreground Shape first
+
+has a concrete scene impulse stronger than the current need for architecture
+-> foreground Write first
+
+goal is ambiguous
+-> present both without pretending the system knows the author's preference
+```
+
+This is a routing rule, not evidence that one tempo is generally preferred.
+
+## 6.4 Convergence rule
 
 These must **converge**, not become separate products.
 
@@ -549,6 +571,30 @@ This rule must not silently mutate other owners.
 
 It is a context-composition rule, not a new canon system.
 
+## 9.4 Discovery should be a consequential delta, not a checklist
+
+**SELECTED EXPERIENCE DIRECTION**
+
+`What did we discover?` should surface differences that could matter to future
+story decisions, not merely enumerate every noun or stylistic variation in the
+draft.
+
+Prefer:
+
+```text
+prior context / plan
+vs
+current prose
+-> consequence-bearing differences
+-> optional author selection
+```
+
+If the current draft produces no material discovery, skip the extra confirmation
+surface.
+
+Heuristic detection remains advisory. Human evidence is still required to claim
+that writers experience the surfaced observations as useful rather than noisy.
+
 ---
 
 # 10. The Sister Beatrice system test
@@ -631,6 +677,38 @@ Planning remains valuable because it provides intention and constraints.
 Accepted realization/expression remains valuable because it records what actually happened.
 
 Auteur should reason over both rather than pretending they cannot diverge.
+
+## 11.4 Continuity interruption law
+
+**SELECTED EXPERIENCE DIRECTION**
+
+Continuity is **ambient by default**.
+
+Do not block writing merely because an accepted draft created a compatible
+pending update.
+
+Interrupt only at the first point where unresolved divergence would make the
+next dependent decision materially untrustworthy or where an existing hard
+authority/validation boundary requires resolution.
+
+Typical ambient cases:
+
+- compatible new side character or location;
+- additive detail future planning can consume from accepted prose;
+- pending synchronization that does not change the next decision.
+
+Typical interruption cases:
+
+- mutually exclusive accepted facts;
+- the next planned action depends on an event accepted prose explicitly
+  prevented;
+- a defining protagonist / governing-engine / major-relationship change makes
+  the next planning step reason from the wrong story;
+- an authority-bearing acceptance cannot proceed honestly without resolving the
+  contradiction.
+
+Human evidence may refine presentation timing, but it must not invert this
+ownership rule into `any pending update -> block`.
 
 ---
 
