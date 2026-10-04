@@ -3,7 +3,7 @@
 **Date:** 2026-10-03  
 **Status:** durable evidence-method lineage; not an active product roadmap  
 **Supersedes active use of:** draft PR #300 / original #299 dogfood lane  
-**Current governing surfaces:** #305, #310, #313, #316, #318
+**Current governing surfaces:** #310, #313, #318; #305 when human evidence is decision-changing; #316 complete
 
 ## Why this survives
 
@@ -215,3 +215,26 @@ Its unique durable contribution is retained here:
 
 Everything else should follow the newer #305 / #310 / #313 / #316 / #318
 responsibilities.
+
+
+---
+
+## Currentness note
+
+#316 is complete and PR #317 is mechanically qualified.
+
+The current continuation is:
+
+```text
+#317 qualified synthetic/mechanical evidence
++
+#310 provider evidence
+-> #313 reconciliation
+-> #318 F2 + X3 when reaffirmed
+
+#305
+-> human calibration only when its plausible answer can change the next
+   repository responsibility
+```
+
+This lineage remains an evidence-method reference, not an active parallel roadmap.
