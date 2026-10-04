@@ -41,6 +41,33 @@ the orchestration system. Mass-Appeal Narrative Architecture (MANA) is a derived
 noncanonical audience-side projection over existing evidence; see
 [Mass-Appeal Narrative Architecture](mass-appeal-narrative-architecture.md).
 
+## Pre-Identity creative search
+
+Creative search that asks **what story should be developed at all** sits before
+accepted Identity rather than forming another semantic layer.
+
+Story Opportunity Discovery may produce working preferences, influence
+decompositions, critique interpretations, candidate premises, differentiators,
+and opportunity comparisons. Those outputs are advisory / noncanonical and do
+not become Identity merely because they are persisted or agent-generated.
+
+The boundary is:
+
+    Story Opportunity Discovery
+    -> working opportunity / premise / Discovery Brief
+    -> optional Premise Fitness
+    -> Story Discovery
+    -> candidate Story Identity
+    -> explicit acceptance
+    -> canonical Identity
+
+Premise Fitness is also pre-Identity and noncanonical. It evaluates whether a
+working premise is fit for the intended genre, experience, scope, complexity,
+and posture; it does not create a new semantic layer or universal quality rank.
+
+See [Story Opportunity Discovery](story-opportunity-discovery.md) and
+[Premise Fitness](premise-fitness.md).
+
 ## Canonical and derived artifacts
 
 Author-declared identity contracts and plans are canonical when explicitly
