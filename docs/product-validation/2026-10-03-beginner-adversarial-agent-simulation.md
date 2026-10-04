@@ -271,3 +271,32 @@ This protocol cannot establish:
 - six-Chapter longitudinal coherence before that experiment runs.
 
 Synthetic evidence should be used to reduce uncertainty, not relabel it.
+
+
+---
+
+## Current architecture reconciliation
+
+This protocol was authored against an earlier head of PR #314. Current #314
+adds product-contract refinements but no runtime changes to the surfaces this
+probe exercises.
+
+The current evidence-routing rule is therefore:
+
+```text
+this simulation
+-> qualify agent/mechanical claims
+
+#310
+-> qualify provider behavior
+
+#305
+-> human calibration only when its remaining subjective answer can still change
+   the next repository responsibility
+
+#313
+-> decide contradiction / reaffirmation and activate F2 + X3 when warranted
+```
+
+Do not rerun the same broad persona suite merely because #314 documentation
+advanced.

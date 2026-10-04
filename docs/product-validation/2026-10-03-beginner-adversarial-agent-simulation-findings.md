@@ -383,3 +383,56 @@ whose answer could actually change the next implementation responsibility.
 These findings are simulation hypotheses plus repository/mechanical evidence.
 They are not human usability research and do not establish real-user preference,
 emotion, fatigue, prose taste, or market value.
+
+
+---
+
+## Reconciliation against current #314
+
+The simulation branch was created from architecture head
+`a480ef7546c2201ad6d9355f325e12175610d1ed`.
+
+Current PR #314 head is
+`77bb3dee1c792f0b6080fcfad625b4918bd39bc8`.
+
+The intervening #314 changes are documentation/product-contract changes only.
+They add/narrow:
+
+- the optional Story Opportunity / Premise Fitness upstream path;
+- explicit Shape-first vs Write-first routing from current author intent;
+- consequence-bearing discovery-delta behavior;
+- ambient-by-default continuity;
+- the residual evidence plan;
+- provisional F2 + X3 selection;
+- the prepared F2 + X3 qualification protocol.
+
+They do not change the runtime code exercised by this probe.
+
+Therefore the qualified mechanical probe remains applicable to the current
+candidate architecture, while the later #314 contract **strengthens** rather than
+contradicts the simulation's recommendations.
+
+### Updated evidence implication
+
+The simulation plus prior repository/human evidence supports this evidence order:
+
+```text
+qualified #316 synthetic/mechanical evidence
++
+#310 real-provider evidence
+-> #313 contradiction/reconciliation gate
+-> F2 + X3 unless contradicted
+```
+
+#305 remains open for real-human calibration, but it should not remain an
+automatic blocker to F2 + X3 when:
+
+- the remaining questions are subjective calibration only;
+- no plausible human answer would change the next bounded responsibility;
+- #313 records that judgment explicitly.
+
+If #313 identifies a human-subjective uncertainty whose plausible answer *would*
+change the next responsibility, #305 becomes required before activation.
+
+This does not mark #305 complete and does not convert synthetic evidence into
+human evidence.
