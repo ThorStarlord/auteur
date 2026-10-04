@@ -13,7 +13,8 @@ def test_beginner_front_door_uses_plain_story_language() -> None:
     html = _read("src/auteur/beginner/browser/index.html")
     workspace = _read("src/auteur/ui/workspace.py")
     attention = _read("src/auteur/ui/author_attention.py")
-    combined = app + html + workspace + attention
+    quick_draft = _read("src/auteur/quick_draft.py")
+    combined = app + html + workspace + attention + quick_draft
 
     for jargon in (
         "Will become canonical",
@@ -27,6 +28,8 @@ def test_beginner_front_door_uses_plain_story_language() -> None:
         "LOCAL / NONCANONICAL",
         "NONCANONICAL PROPOSAL / NOT APPLIED",
         "explicit authority action",
+        "Keep draft & reconcile",
+        "structural reconciliation are deferred",
     ):
         assert jargon not in combined
 
@@ -42,8 +45,12 @@ def test_beginner_front_door_uses_plain_story_language() -> None:
         "ADVICE ONLY / NOT PART OF STORY YET",
         "SUGGESTED CHANGE / NOT APPLIED",
         "Confirm the change",
+        "Keep draft &amp; update story",
     ):
         assert plain in combined
+
+    assert "Story setup decisions and " in quick_draft
+    assert "story updates are deferred until after the draft." in quick_draft
 
 
 def test_cli_help_translates_architecture_without_renaming_commands() -> None:

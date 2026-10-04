@@ -36,7 +36,7 @@ contradiction, the primary human-facing workflow is **Reconcile New Elements**.
 
 The normal choice set is:
 
-1. **Keep draft & reconcile** — preserve the prose candidate and create
+1. **Keep draft & update story** — preserve the prose candidate and create
    noncanonical reconciliation proposals for the lowest appropriate owning
    layer or realized state.
 2. **Keep as intentional divergence** — preserve/accept the Expression through

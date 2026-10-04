@@ -448,3 +448,85 @@ def test_bundled_beginner_actions_do_not_render_internal_transition_flicker():
     assert "{ render: false, keepStatus: true }" in js
     assert "finalPlanningStep" in js
 
+def test_browser_offers_optional_two_input_quick_draft_without_replacing_explore_flow():
+    html = _read(INDEX)
+    js = _read(APP)
+    css = _read(STYLES)
+    combined = html + js
+
+    for token in (
+        'id="new-story-premise"',
+        "Explore this story →",
+        'id="quick-draft-first-scene"',
+        'id="quick-draft-start"',
+        "Start writing now →",
+        'id="quick-draft-editor"',
+        "What did we discover?",
+        "Shape this story →",
+    ):
+        assert token in combined
+
+    assert "/api/beginner/quick-draft" in js
+    assert "startQuickDraft" in js
+    assert "saveQuickDraft" in js
+    assert "discoverQuickDraftElements" in js
+    assert ".quick-draft-result" in css
+
+
+def test_browser_surfaces_reconcile_new_elements_as_story_choices():
+    html = _read(INDEX)
+    js = _read(APP)
+
+    for token in (
+        "Auteur noticed the story changed while you were writing",
+        "Keep draft &amp; update story",
+        "Keep as intentional divergence",
+        "Revise to match plan",
+        "reconcile-new-elements",
+        "keep_and_reconcile",
+        "keep_intentional_divergence",
+        "revise_to_plan",
+    ):
+        assert token in html + js
+
+    assert "resolveCreativeDivergence" in js
+    assert "review.reconciliation_available" in js
+    assert "review.review_stale" in js
+
+def test_quick_draft_shape_handoff_requires_explicit_remember_choices():
+    js = _read(APP)
+
+    assert "Carry this idea into story shaping" in js
+    assert "Nothing is selected automatically" in js
+    assert "selectedQuickDraftDiscoveries" in js
+    assert "quick_draft_session_id" in js
+    assert "quick_draft_discoveries" in js
+    assert "Ideas I discovered while drafting and explicitly want to carry forward" in js
+    assert "state.quickDraftDirty" in js
+    assert "Draft changed. Save it before reviewing discoveries." in js
+
+def test_quick_draft_browser_url_is_resumable():
+    js = _read(APP)
+
+    for token in (
+        "updateQuickDraftUrl",
+        "currentQuickDraftFromQuery",
+        "loadQuickDraftSession",
+        'url.searchParams.set("quick_draft", sessionId)',
+        'url.searchParams.delete("quick_draft")',
+        'params.get("quick_draft")',
+        '"/api/beginner/quick-draft/" + encodeURIComponent(sessionId)',
+    ):
+        assert token in js
+
+    # Entering a normal workspace leaves the provisional URL mode.
+    assert 'url.searchParams.delete("quick_draft")' in js
+
+def test_quick_draft_home_cleanup_and_reopen_restore_inputs():
+    js = _read(APP)
+
+    assert 'if (!currentQuickDraftFromQuery())' in js
+    assert '$("quick-draft-result").hidden = true' in js
+    assert '$("new-story-premise").value = state.quickDraftPremise' in js
+    assert '$("quick-draft-first-scene").value = state.quickDraftFirstScene' in js
+

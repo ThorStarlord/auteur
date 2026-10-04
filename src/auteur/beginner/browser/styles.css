@@ -892,3 +892,56 @@ summary:focus-visible {
   background: #fff;
 }
 
+.quick-draft-entry {
+  margin-top: 0.6rem;
+  padding: 1rem;
+  border: 1px dashed var(--card-border);
+  border-radius: 12px;
+  background: #fbfaf7;
+}
+
+.quick-draft-entry textarea {
+  min-height: 6rem;
+}
+
+.quick-draft-result,
+.reconcile-new-elements {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  background: #fff;
+}
+
+#quick-draft-editor {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 26rem;
+  padding: 1rem;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.discovery-chip {
+  margin: 0.65rem 0;
+  padding: 0.75rem;
+  border-left: 3px solid var(--accent);
+  background: #f8faf7;
+}
+
+.discovery-chip p {
+  margin: 0.25rem 0 0;
+}
+
+.reconcile-new-elements .surface-actions,
+.quick-draft-result .surface-actions {
+  margin-top: 0.9rem;
+}
+
