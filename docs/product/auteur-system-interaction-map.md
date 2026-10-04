@@ -21,6 +21,8 @@ The map is deliberately organized by **author event**, not by package/module.
 
 | Product responsibility | Primary internal owner(s) | Can create accepted story authority directly? | Default Beginner presentation |
 | --- | --- | ---: | --- |
+| Optional story-opportunity discovery | Story Opportunity Discovery / reasoning | No | Working story possibilities when the author has no stable premise |
+| Optional premise-fit analysis | Premise Fitness + reusable Genre Pack knowledge | No | Fit tradeoffs only when decision-relevant; no score or gate |
 | Premise interpretation | Beginner analysis / Story Lenses | No | What Auteur sees |
 | Story possibilities | Story Discovery | No until existing Direction / Identity acceptance path | Direction |
 | Defining story commitments | Identity | Yes, through existing acceptance | Story core |
@@ -38,6 +40,30 @@ The map is deliberately organized by **author event**, not by package/module.
 ---
 
 # 3. End-to-end baseline flow
+
+## 3.0 Optional upstream path when no stable premise exists
+
+```text
+AUTHOR
+preferences / influences / unresolved story desire
+    |
+    v
+STORY OPPORTUNITY DISCOVERY
+working, causally distinct possibilities
+    |
+    | optional when genre / scope / complexity / runway tradeoffs matter
+    v
+PREMISE FITNESS
+derived fit tradeoffs; no score, no acceptance authority
+    |
+    | author chooses a working premise / Discovery Brief
+    v
+NORMAL AUTEUR ENTRY
+shape-first or write-first
+```
+
+Neither Story Opportunity Discovery nor Premise Fitness creates accepted Identity.
+Authors who already have a premise skip this path.
 
 ## 3.1 Shape-first
 
@@ -121,6 +147,8 @@ Cross-system context must preserve what kind of evidence it is.
 
 | Context class | Example | May be treated as accepted fact? |
 | --- | --- | ---: |
+| Working Story Opportunity | “A courier's new routes permanently change regional political value.” | No; candidate creative-search output |
+| Premise Fitness finding | “Strong series runway, but activation cost is high.” | No; derived advisory analysis |
 | Author-explicit current intent | “Make the antagonist an ally.” | Intent, not yet all resulting state |
 | Accepted Story core | protagonist central desire | Yes within Identity authority |
 | Accepted Structure | chosen story shape | Yes within Structure authority |
