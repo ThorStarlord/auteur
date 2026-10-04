@@ -109,6 +109,49 @@ In particular:
 
 MANA consumes existing narrative evidence rather than duplicating it.
 
+### Story Opportunity Discovery and Premise Fitness
+
+MANA is downstream from the upstream creative-search and premise-fit contracts.
+
+```text
+Story Opportunity Discovery
+-> working premise / Discovery Brief
+-> optional Premise Fitness
+-> Story Discovery
+-> selected narrative architecture
+-> optional MANA audience-effect analysis
+```
+
+The responsibilities are different:
+
+- **Premise Fitness** asks whether a working premise is capable, sustainable, and
+  economical for its intended genre, experience, scope, complexity, and posture.
+- **MANA** asks what audience-facing effects are currently supported by the
+  narrative evidence that actually exists.
+
+Therefore MANA must not:
+
+- turn Premise Fitness into a popularity score;
+- infer current market demand from premise fit;
+- re-rank Story Discovery candidates automatically;
+- duplicate Premise Fitness runway / scope-fit diagnostics;
+- treat a strong audience-effect hypothesis as evidence that a premise is
+  commercially viable.
+
+When a Post-Discovery Fitness Delta exists, MANA may consume the selected
+architecture that produced it, but it owns a different question:
+
+```text
+fitness delta
+= what the architecture changed about premise fit
+
+MANA
+= what audience effects the current architecture supports / leaves uncertain
+```
+
+Both remain derived and noncanonical.
+
+
 | MANA concern | Existing Auteur evidence |
 | --- | --- |
 | Narrative legibility | genre, audience, author intent, governing engine |
