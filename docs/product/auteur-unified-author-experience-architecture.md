@@ -10,6 +10,8 @@
 
 Auteur already has substantial internal capability:
 
+- optional pre-Identity Story Opportunity Discovery and Premise Fitness contracts
+  for authors who do not yet have a stable premise;
 - Story Discovery and Story Identity;
 - whole-story Structure;
 - Realization / story-state handling;
@@ -60,14 +62,15 @@ The repository must not silently promote a working UX hypothesis into a canonica
 A beginner should be able to understand Auteur approximately like this:
 
 ```text
-1. I can explore freely.
-2. I decide what matters to my story.
-3. Auteur remembers the decisions I actually keep.
-4. Auteur can help shape those decisions into a coherent story.
-5. Writing is allowed to discover things the plan did not know.
-6. When that happens, Auteur asks what I want to keep or change.
-7. I can change my mind deliberately without losing the story.
-8. Auteur helps the long story remember itself.
+1. I can start with a rough story idea, or explore what story I want to make.
+2. I can explore freely.
+3. I decide what matters to my story.
+4. Auteur remembers the decisions I actually keep.
+5. Auteur can help shape those decisions into a coherent story.
+6. Writing is allowed to discover things the plan did not know.
+7. When that happens, Auteur asks what I want to keep or change.
+8. I can change my mind deliberately without losing the story.
+9. Auteur helps the long story remember itself.
 ```
 
 This is the **author mental model**.
@@ -151,6 +154,8 @@ The default Beginner product should primarily use concepts such as:
 | Author concept | Meaning |
 | --- | --- |
 | **Story idea** | What the author is imagining now. |
+| **Story opportunity** | An optional working possibility before a stable premise exists; never accepted merely because Auteur generated it. |
+| **Fit tradeoff** | An optional explanation of how a working premise fits its intended genre, scope, complexity, and runway; advisory rather than a score or gate. |
 | **What Auteur sees** | A working interpretation, not accepted truth. |
 | **Direction** | One plausible way the story could develop. |
 | **Story core** | The commitments that define what story this is becoming. |
@@ -213,6 +218,8 @@ The system should minimize approval/admin activity here.
 
 Typical surfaces:
 
+- Story Opportunity Discovery when the author does not yet have a stable premise;
+- optional Premise Fitness when genre / scope / complexity / runway tradeoffs are decision-relevant;
 - premise interpretation;
 - Story Lenses;
 - Direction;
@@ -276,6 +283,8 @@ Foreground creative mode when:
 
 Foreground guidance when:
 
+- the author does not yet have a stable premise and wants help discovering a story worth developing;
+- the author asks whether a working premise fits a particular genre, scope, or long-form horizon;
 - the author chooses **Explore this story**;
 - the premise is too ambiguous for a useful next commitment;
 - the author asks what the story currently is;
@@ -326,9 +335,25 @@ author encounters meaningful story need
 
 ---
 
-# 6. Two entry tempos, one product
+# 6. Optional upstream discovery, then two entry tempos
 
-Auteur currently has two legitimate starting tempos.
+Before the normal authoring tempos, an author who does **not** yet have a stable
+premise may optionally use:
+
+```text
+preferences / influences / questions
+-> Story Opportunity Discovery
+-> working opportunities
+-> optional Premise Fitness when fit tradeoffs matter
+-> author selects a working premise / Discovery Brief
+-> normal Auteur entry
+```
+
+This is not a mandatory funnel. Authors who already have a premise should enter
+the normal product directly, and Premise Fitness must not become another approval
+form.
+
+Once a working premise exists, Auteur has two legitimate authoring tempos.
 
 ## 6.1 Shape first
 
@@ -361,7 +386,29 @@ story idea
 
 Use when the author has enough scene-level intent to learn through writing.
 
-## 6.3 Convergence rule
+## 6.3 Foregrounding rule
+
+**SELECTED EXPERIENCE DIRECTION**
+
+Do not choose Shape first versus Write first from genre, author stereotype, or a
+global default preference.
+
+Route from the author's explicit current goal:
+
+```text
+needs understanding / comparison / long-range shaping
+-> foreground Shape first
+
+has a concrete scene impulse stronger than the current need for architecture
+-> foreground Write first
+
+goal is ambiguous
+-> present both without pretending the system knows the author's preference
+```
+
+This is a routing rule, not evidence that one tempo is generally preferred.
+
+## 6.4 Convergence rule
 
 These must **converge**, not become separate products.
 
@@ -524,6 +571,30 @@ This rule must not silently mutate other owners.
 
 It is a context-composition rule, not a new canon system.
 
+## 9.4 Discovery should be a consequential delta, not a checklist
+
+**SELECTED EXPERIENCE DIRECTION**
+
+`What did we discover?` should surface differences that could matter to future
+story decisions, not merely enumerate every noun or stylistic variation in the
+draft.
+
+Prefer:
+
+```text
+prior context / plan
+vs
+current prose
+-> consequence-bearing differences
+-> optional author selection
+```
+
+If the current draft produces no material discovery, skip the extra confirmation
+surface.
+
+Heuristic detection remains advisory. Human evidence is still required to claim
+that writers experience the surfaced observations as useful rather than noisy.
+
 ---
 
 # 10. The Sister Beatrice system test
@@ -606,6 +677,38 @@ Planning remains valuable because it provides intention and constraints.
 Accepted realization/expression remains valuable because it records what actually happened.
 
 Auteur should reason over both rather than pretending they cannot diverge.
+
+## 11.4 Continuity interruption law
+
+**SELECTED EXPERIENCE DIRECTION**
+
+Continuity is **ambient by default**.
+
+Do not block writing merely because an accepted draft created a compatible
+pending update.
+
+Interrupt only at the first point where unresolved divergence would make the
+next dependent decision materially untrustworthy or where an existing hard
+authority/validation boundary requires resolution.
+
+Typical ambient cases:
+
+- compatible new side character or location;
+- additive detail future planning can consume from accepted prose;
+- pending synchronization that does not change the next decision.
+
+Typical interruption cases:
+
+- mutually exclusive accepted facts;
+- the next planned action depends on an event accepted prose explicitly
+  prevented;
+- a defining protagonist / governing-engine / major-relationship change makes
+  the next planning step reason from the wrong story;
+- an authority-bearing acceptance cannot proceed honestly without resolving the
+  contradiction.
+
+Human evidence may refine presentation timing, but it must not invert this
+ownership rule into `any pending update -> block`.
 
 ---
 
@@ -911,11 +1014,11 @@ as:
 - comprehension without facilitator rescue;
 - confidence and desire to continue.
 
-However, #316 established that many formerly bundled questions are answerable
-mechanically or synthetically. Therefore a broad #305 study is **not an automatic
-construction prerequisite**.
+Qualified #316 / PR #317 evidence established that many formerly bundled
+questions are mechanical or synthetic rather than human-only. Therefore #305 is
+**not an automatic construction prerequisite**.
 
-Use the current rule:
+Use the current admission rule:
 
 > Require immediate human calibration only when a plausible human answer could
 > change the next bounded repository responsibility.
@@ -924,8 +1027,8 @@ Questions whose main value appears only under accumulated Book state — especia
 perceived continuity value versus Markdown + a capable LLM — should be measured
 during #318 F2 + X3 rather than forced into a Chapter-1 study.
 
-Until evidence resolves foregrounding preference, this architecture should not
-prescribe one universal default tempo for every author.
+Until human evidence resolves population-level foregrounding preference, this
+architecture should not claim one universal preferred tempo for every author.
 
 ---
 
