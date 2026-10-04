@@ -146,7 +146,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--format", choices=["yaml", "md"], default="md",
         help="Output format (default: markdown).")
     _rp = ss.add_parser("revision",
-        help="Scoped structural revision — plan, validate, apply, reconcile, and complete.")
+        help="Scoped story-structure change — plan, check, apply, review downstream effects, and complete.")
     _rs = _rp.add_subparsers(dest="revision_command", required=True)
     _r = _rs.add_parser("plan",
         help="Create a scoped revision plan from a structural proposal.")
@@ -172,7 +172,7 @@ def build_parser() -> argparse.ArgumentParser:
     _r.add_argument("--project", type=Path, default=Path("."))
     _r.add_argument("--json", action="store_true")
     _r = _rs.add_parser("reconcile",
-        help="Reconcile impact and freshness after application.")
+        help="Review downstream story effects after applying the change.")
     _r.add_argument("application_id", help="Application ID.")
     _r.add_argument("--project", type=Path, default=Path("."))
     _r.add_argument("--json", action="store_true")
@@ -269,7 +269,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--candidates", type=int, default=3, help=argparse.SUPPRESS)
     p.add_argument("--strict-candidate-count", action="store_true", help=argparse.SUPPRESS)
     p.add_argument("--debug", action="store_true",
-        help="Export all failed candidate attempts to .auteur/runs/<timestamp>/.")
+        help="Export all failed story-option attempts to .auteur/runs/<timestamp>/.")
     p = iss.add_parser("init", help="Initialize an editable StoryIdentity skeleton offline without an API key.")
     p.add_argument("--premise", type=str, default="", help="Raw premise text or path to file containing it.")
     p.add_argument("--output", type=Path, default=None, help="Target output path for story_identity.yaml.")
@@ -286,7 +286,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="Explore narrative interpretations before promoting a story identity.")
     sds = p.add_subparsers(dest="story_discovery_command", required=True)
     p = sds.add_parser("start",
-        help="Create or resume a guided, non-canonical Story Discovery brief.")
+        help="Create or resume a guided Story Discovery brief that is not part of the accepted story yet.")
     p.add_argument("--project", type=Path, default=Path("."),
         help="Project root directory (default: current directory).")
     p.add_argument("--brief", type=Path, default=None,
@@ -294,7 +294,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--premise", type=str, default=None,
         help="Preseed a new brief with premise text or a premise file.")
     p = sds.add_parser("run",
-        help="Generate StoryIdentity candidates and an architectural comparison.")
+        help="Generate story-setup options and compare their creative tradeoffs.")
     p.add_argument("brain_dump", type=str,
         help="Raw premise text or path to a file containing it.")
     p.add_argument("--output", type=Path, default=Path("story_discovery"),
@@ -313,9 +313,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--model", default=None)
     p.add_argument("--strict-candidate-count", action="store_true")
     p.add_argument("--debug", action="store_true",
-        help="Export failed candidate attempts to .auteur/runs/<timestamp>/.")
+        help="Export failed story-option attempts to .auteur/runs/<timestamp>/.")
     p = sds.add_parser("accept",
-        help="Validate and promote a Story Discovery candidate to story_identity.yaml.")
+        help="Check and accept a Story Discovery option as the story setup.")
     p.add_argument("candidate", type=Path)
     p.add_argument("--output", type=Path, default=Path("story_identity.yaml"))
     p.add_argument("--keep-candidates", action="store_true")
@@ -389,7 +389,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("project", type=Path)
     p.add_argument("--format", choices=["markdown", "json"], default="markdown")
     p = sts.add_parser("confirm",
-        help="Validate and merge recovery locked layers into canonical state.")
+        help="Check and merge recovered story choices into the accepted story.")
     p.add_argument("project", type=Path)
     p.add_argument("recovery_run", type=Path,
         help="Path to the recovery_run.yaml payload.")

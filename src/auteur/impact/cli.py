@@ -123,7 +123,7 @@ def handle_impact_status(project_path: Path, *, as_json: bool = False) -> int:
                 aid = f.affected_artifact.artifact_id if f.affected_artifact else "?"
                 print(f"    {aid}: {f.reason}")
         if reconcile:
-            print(f"  Needs reconcile: {len(reconcile)}")
+            print(f"  Needs story update review: {len(reconcile)}")
             for f in reconcile:
                 aid = f.affected_artifact.artifact_id if f.affected_artifact else "?"
                 print(f"    {aid}")

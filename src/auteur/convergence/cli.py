@@ -40,34 +40,34 @@ def register_realization_subcommands(sub) -> None:
     p_revise.add_argument("--scene", type=str, default=None, help="Scene ID.")
     p_revise.add_argument("--json", action="store_true", help="Output JSON.")
 
-    p_candidates = rs.add_parser("candidates", help="List candidates for a chapter/scene.")
+    p_candidates = rs.add_parser("candidates", help="List working scene versions for a chapter or scene.")
     p_candidates.add_argument("--project", type=Path, default=Path("."), help="Project root directory.")
     p_candidates.add_argument("--chapter", type=int, required=True, help="Chapter index.")
     p_candidates.add_argument("--scene", type=str, default=None, help="Scene ID.")
     p_candidates.add_argument("--json", action="store_true", help="Output JSON.")
 
-    p_generate = rs.add_parser("generate-candidate", help="Generate a candidate realization.")
+    p_generate = rs.add_parser("generate-candidate", help="Generate a working scene version.")
     p_generate.add_argument("--project", type=Path, default=Path("."), help="Project root directory.")
     p_generate.add_argument("--chapter", type=int, required=True, help="Chapter index.")
     p_generate.add_argument("--scene", type=str, default=None, help="Scene ID.")
     p_generate.add_argument("--strategy", type=str, default="minimal_repair", choices=[s.value for s in GenerationStrategy], help="Generation strategy.")
     p_generate.add_argument("--json", action="store_true", help="Output JSON.")
 
-    p_register = rs.add_parser("register-candidate", help="Register an externally authored candidate.")
+    p_register = rs.add_parser("register-candidate", help="Register an externally authored working scene version.")
     p_register.add_argument("--project", type=Path, default=Path("."), help="Project root directory.")
     p_register.add_argument("--chapter", type=int, required=True, help="Chapter index.")
     p_register.add_argument("--scene", type=str, default=None, help="Scene ID.")
-    p_register.add_argument("--file", type=Path, required=True, help="Path to the candidate content file.")
+    p_register.add_argument("--file", type=Path, required=True, help="Path to the working scene version file.")
     p_register.add_argument("--json", action="store_true", help="Output JSON.")
 
-    p_compare = rs.add_parser("compare", help="Compare candidates for a target.")
+    p_compare = rs.add_parser("compare", help="Compare working scene versions.")
     p_compare.add_argument("--project", type=Path, default=Path("."), help="Project root directory.")
     p_compare.add_argument("--chapter", type=int, required=True, help="Chapter index.")
     p_compare.add_argument("--scene", type=str, default=None, help="Scene ID.")
-    p_compare.add_argument("--candidate", action="append", default=[], help="Candidate IDs to compare (repeatable).")
+    p_compare.add_argument("--candidate", action="append", default=[], help="Working-version IDs to compare (repeatable).")
     p_compare.add_argument("--json", action="store_true", help="Output JSON.")
 
-    p_reconcile = rs.add_parser("reconcile", help="Create a reconciliation proposal.")
+    p_reconcile = rs.add_parser("reconcile", help="Create a story-update proposal.")
     p_reconcile.add_argument("--project", type=Path, default=Path("."), help="Project root directory.")
     p_reconcile.add_argument("--chapter", type=int, required=True, help="Chapter index.")
     p_reconcile.add_argument("--scene", type=str, default=None, help="Scene ID.")
@@ -124,7 +124,7 @@ def handle_realization_revise(args) -> int:
         lines.append(f"  Scope: {target.scope.value}")
         lines.append(f"  Target ID: {target.target_id}")
         lines.append("")
-        lines.append("Next: generate or register candidates")
+        lines.append("Next: generate or register working versions")
         print("\n".join(lines))
 
     return 0
@@ -145,16 +145,16 @@ def handle_realization_candidates(args) -> int:
         if getattr(args, "json", False):
             print(json.dumps({"candidates": [], "target_id": target.target_id}))
         else:
-            print(f"No candidates found for target Chapter {target.chapter_index}")
+            print(f"No working versions found for Chapter {target.chapter_index}")
             if target.scene_id:
                 print(f"  Scene: {target.scene_id}")
-            print("  Use 'generate-candidate' or 'register-candidate' to create one.")
+            print("  Use 'generate-candidate' or 'register-candidate' to create a working version.")
         return 0
 
     if getattr(args, "json", False):
         print(json.dumps([c.model_dump(mode="json") for c in candidates], indent=2, sort_keys=True))
     else:
-        print(f"Candidates for Chapter {target.chapter_index}")
+        print(f"Working versions for Chapter {target.chapter_index}")
         if target.scene_id:
             print(f"  Scene: {target.scene_id}")
         for c in candidates:
@@ -192,7 +192,7 @@ def handle_realization_generate_candidate(args) -> int:
     if getattr(args, "json", False):
         print(json.dumps(output, indent=2, sort_keys=True))
     else:
-        print(f"Generated candidate: {candidate.candidate_id}")
+        print(f"Generated working version: {candidate.candidate_id}")
         print(f"  Target: Chapter {target.chapter_index}")
         if target.scene_id:
             print(f"  Scene: {target.scene_id}")
@@ -235,7 +235,7 @@ def handle_realization_register_candidate(args) -> int:
     if getattr(args, "json", False):
         print(json.dumps(output, indent=2, sort_keys=True))
     else:
-        print(f"Registered candidate: {candidate.candidate_id}")
+        print(f"Registered working version: {candidate.candidate_id}")
         print(f"  Source: {content_path}")
         print(f"  Target: Chapter {target.chapter_index}")
         if target.scene_id:
@@ -261,14 +261,14 @@ def handle_realization_compare(args) -> int:
         for cid in args.candidate:
             c = store.get_candidate(cid)
             if c is None:
-                print(f"Error: Candidate not found: {cid}", file=sys.stderr)
+                print(f"Error: Working version not found: {cid}", file=sys.stderr)
                 return 1
             candidates.append(c)
     else:
         candidates = store.list_candidates(target.target_id)
 
     if len(candidates) < 2:
-        print(f"Need at least 2 candidates to compare (found {len(candidates)})", file=sys.stderr)
+        print(f"Need at least 2 working versions to compare (found {len(candidates)})", file=sys.stderr)
         return 1
 
     comparison = compare_candidates(target, candidates)
@@ -282,7 +282,7 @@ def handle_realization_compare(args) -> int:
         print(f"  Target: Chapter {target.chapter_index}")
         if target.scene_id:
             print(f"  Scene: {target.scene_id}")
-        print(f"  Candidates: {', '.join(comparison.candidate_ids)}")
+        print(f"  Working versions: {', '.join(comparison.candidate_ids)}")
         print()
         for dim in comparison.dimensions:
             adv = "A" if dim.advantage == "candidate_a" else ("B" if dim.advantage == "candidate_b" else "—")
@@ -313,7 +313,7 @@ def handle_realization_reconcile(args) -> int:
     candidates = store.list_candidates(target.target_id)
 
     if len(candidates) < 1:
-        print("Need at least 1 candidate to reconcile", file=sys.stderr)
+        print("Need at least 1 working version to review changes", file=sys.stderr)
         return 1
 
     comparison = compare_candidates(target, candidates)
@@ -378,7 +378,7 @@ def _format_status_human(
             lines.append(f"    Reason: {p.reason}")
 
     lines.append("")
-    lines.append(f"Candidates ({len(candidates)}):")
+    lines.append(f"Working versions ({len(candidates)}):")
     for c in candidates:
         lines.append(f"  {c.candidate_id} — {c.status.value}, {c.freshness}")
         if c.generation_strategy:
@@ -399,13 +399,13 @@ def _print_reconciliation_human(
     store: CandidateStore,
     candidates: list[Any],
 ) -> None:
-    print("Reconciliation Proposal:")
+    print("Story Update Proposal:")
     print(f"  Target: Chapter {target.chapter_index}")
     if target.scene_id:
         print(f"  Scene: {target.scene_id}")
     print(f"  Proposal ID: {proposal.proposal_id}")
     print()
-    print(f"  Candidates considered: {', '.join(proposal.candidate_ids)}")
+    print(f"  Working versions considered: {', '.join(proposal.candidate_ids)}")
     print()
     print(f"  Satisfied obligations ({len(proposal.satisfied_obligations)}):")
     for ob_id in proposal.satisfied_obligations:

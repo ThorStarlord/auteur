@@ -832,7 +832,7 @@ def dispatch(args: argparse.Namespace) -> int:
                 import json as _json
                 print(_json.dumps(result.model_dump(), indent=2))
             else:
-                print("Impact reconciliation")
+                print("Story impact review")
                 print(f"  Changed: {len(result.changed_artifact_ids)}")
                 print(f"  Directly affected: {len(result.directly_affected)}")
                 print(f"  Transitively affected: {len(result.transitively_affected)}")
@@ -964,13 +964,13 @@ def dispatch(args: argparse.Namespace) -> int:
             return result.exit_code
         data = result.data
         if not isinstance(data, RecommendOpenEndedData):
-            _err("story discovery did not return candidate data")
+            _err("story discovery did not return story option data")
             return 1
         written = serialize_story_discovery(data, args.output, args.brain_dump)
         candidate_count = len(data.candidates)
         for path in written[:candidate_count]:
             print(f"  Wrote {path.name}")
-        print(f"\nSuccess: generated {candidate_count} Story Discovery candidates under {args.output}/")
+        print(f"\nSuccess: generated {candidate_count} Story Discovery options under {args.output}/")
         print(f"Discovery report written to {args.output / 'discovery_report.yaml'}")
         print(f"Comparison document written to {args.output / 'comparison.md'}")
         return 0
@@ -978,12 +978,12 @@ def dispatch(args: argparse.Namespace) -> int:
     if args.command == "story-discovery" and args.story_discovery_command == "accept":
         from auteur.identity import StoryIdentity
         if not args.candidate.exists():
-            print(f"Error: Candidate file not found: {args.candidate}", file=sys.stderr)
+            print(f"Error: Story option file not found: {args.candidate}", file=sys.stderr)
             return 1
         try:
             ident = StoryIdentity.from_yaml(args.candidate)
         except Exception as exc:
-            print(f"Error: failed to parse candidate YAML: {exc}", file=sys.stderr)
+            print(f"Error: could not read the story option file: {exc}", file=sys.stderr)
             return 1
         result = handle_identity_promote(ident)
         if not result.is_success:
@@ -995,13 +995,13 @@ def dispatch(args: argparse.Namespace) -> int:
                         print(f" - {err.message}", file=sys.stderr)
             return result.exit_code
         if result.data.warnings:
-            print("Warnings present in promoted candidate:")
+            print("Warnings in the selected story option:")
             for w in result.data.warnings:
                 print(f" - {w.message}")
         try:
             serialize_identity_promote(ident, args.output)
         except Exception as exc:
-            print(f"Error: failed to promote candidate to {args.output}: {exc}", file=sys.stderr)
+            print(f"Error: could not save the selected story option to {args.output}: {exc}", file=sys.stderr)
             return 1
         report_path = args.candidate.parent / "discovery_report.yaml"
         if report_path.exists():
@@ -1011,7 +1011,7 @@ def dispatch(args: argparse.Namespace) -> int:
                 report_path.write_text(yaml.safe_dump(report, sort_keys=False), encoding="utf-8")
             except (OSError, yaml.YAMLError) as exc:
                 print(f"[WARNING] Failed to update discovery report: {exc}", file=sys.stderr)
-        print(f"Success: promoted candidate {args.candidate} to {args.output}")
+        print(f"Success: accepted story option {args.candidate} as {args.output}")
         if not args.keep_candidates:
             candidate_dir = args.candidate.parent
             if candidate_dir.name == "story_discovery" and candidate_dir.exists():
@@ -1021,9 +1021,9 @@ def dispatch(args: argparse.Namespace) -> int:
                     for candidate_file in candidate_dir.glob("candidate_*.yaml"):
                         if candidate_file != args.candidate:
                             candidate_file.unlink()
-                    print(f"Retained discovery provenance at {candidate_dir}")
+                    print(f"Kept discovery history at {candidate_dir}")
                 except Exception as exc:
-                    print(f"[WARNING] Failed to delete candidate directory {candidate_dir}: {exc}", file=sys.stderr)
+                    print(f"[WARNING] Failed to clean up the story option folder {candidate_dir}: {exc}", file=sys.stderr)
         return 0
     # === identity validate ===
     if args.command == "identity" and args.identity_command == "validate":
@@ -1213,12 +1213,12 @@ def dispatch(args: argparse.Namespace) -> int:
     if args.command == "identity" and args.identity_command == "accept-candidate":
         from auteur.identity import StoryIdentity, StoryIdentityRecommendationSet
         if not args.candidate.exists():
-            print(f"Error: Candidate file not found: {args.candidate}", file=sys.stderr)
+            print(f"Error: Story option file not found: {args.candidate}", file=sys.stderr)
             return 1
         try:
             ident = StoryIdentity.from_yaml(args.candidate)
         except Exception as exc:
-            print(f"Error: failed to parse candidate YAML: {exc}", file=sys.stderr)
+            print(f"Error: could not read the story option file: {exc}", file=sys.stderr)
             return 1
         result = handle_identity_promote(ident)
         if not result.is_success:
@@ -1230,7 +1230,7 @@ def dispatch(args: argparse.Namespace) -> int:
                         print(f" - {err.message}", file=sys.stderr)
             return result.exit_code
         if result.data.warnings:
-            print("Warnings present in promoted candidate:")
+            print("Warnings in the selected story option:")
             for w in result.data.warnings:
                 sv = w.severity.value.upper() if hasattr(w.severity, "value") else str(w.severity).upper()
                 print(f" - {w.message}")
@@ -1244,26 +1244,26 @@ def dispatch(args: argparse.Namespace) -> int:
                     args.candidate.read_text(encoding="utf-8").encode()).hexdigest()
                 for c in rs.candidates:
                     if Path(c.path).resolve() == args.candidate.resolve() and c.content_hash != cur:
-                        print("[WARNING] Candidate file has been manually modified "
+                        print("[WARNING] Story option file has been manually modified "
                             "since recommendation generation index was created.")
                         break
             except Exception as exc:
-                print(f"[WARNING] Failed to verify candidate hash against "
+                print(f"[WARNING] Failed to verify the story option against "
                     f"recommendation_set.yaml index: {exc}", file=sys.stderr)
         try:
             serialize_identity_promote(ident, args.output)
         except Exception as exc:
-            print(f"Error: failed to promote candidate to {args.output}: {exc}", file=sys.stderr)
+            print(f"Error: could not save the selected story option to {args.output}: {exc}", file=sys.stderr)
             return 1
-        print(f"Success: promoted candidate {args.candidate} to {args.output}")
+        print(f"Success: accepted story option {args.candidate} as {args.output}")
         if not args.keep_candidates:
             cd = pdir
             if cd.name == "story_identity_candidates" and cd.exists():
                 try:
                     shutil.rmtree(cd)
-                    print(f"Cleaned up candidate directory: {cd}")
+                    print(f"Cleaned up story option folder: {cd}")
                 except Exception as exc:
-                    print(f"[WARNING] Failed to delete candidate directory {cd}: {exc}", file=sys.stderr)
+                    print(f"[WARNING] Failed to clean up the story option folder {cd}: {exc}", file=sys.stderr)
         return 0
     if args.command == "expression":
         from auteur.expression.cli import dispatch_expression
@@ -1319,7 +1319,7 @@ def dispatch(args: argparse.Namespace) -> int:
         if args.state_command == "canon":
             result = handle_state_canon(args.project, args.format)
             if not result.is_success:
-                _err(result.error or "state canon failed")
+                _err(result.error or "accepted story reference failed")
                 return result.exit_code
             out = format_state_canon(result)
             if out:

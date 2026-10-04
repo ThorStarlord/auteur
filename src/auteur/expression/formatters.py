@@ -48,7 +48,7 @@ def format_inspect(
     """
     actions = "; ".join(status.get("recommended_actions", []))
     summary = (
-        f"Candidate {metadata.candidate_id} ({metadata.source_scene.artifact_id})\n"
+        f"Scene draft {metadata.candidate_id} ({metadata.source_scene.artifact_id})\n"
         f"Status: {status['lifecycle']}; freshness: {status['freshness']}; "
         f"review: {status['review_state']}\n"
         f"Recommended actions: {actions}"
@@ -131,7 +131,7 @@ def format_reconcile_plan(
     if json_mode:
         return json.dumps(result, indent=2)
     lines = [
-        "Reconciliation application plan",
+        "Change application plan",
         f"Status: {result['readiness']}",
         "Selected proposals:",
     ]
@@ -143,7 +143,7 @@ def format_reconcile_plan(
             f"- {output['output_type']} for "
             f"{output.get('target_scene', output.get('target_transition'))}"
         )
-    lines.append("No canonical artifacts will be changed.")
+    lines.append("No accepted story material will be changed.")
     if result["readiness"] != "ready":
         lines.append(
             "Resolve the listed freshness or conflict findings before proceeding."
@@ -162,10 +162,10 @@ def format_reconcile_show_plan(
     if verbose:
         return yaml.safe_dump(result, sort_keys=False)
     return (
-        f"Reconciliation application plan {result['application_set_id']}\n"
+        f"Change application plan {result['application_set_id']}\n"
         f"Status: {result['readiness']}\n"
         f"Selected proposals: {len(result['proposal_ids'])}\n"
-        "No canonical artifacts will be changed."
+        "No accepted story material will be changed."
     )
 
 
@@ -189,8 +189,8 @@ def format_reconcile_publish_error(
             f"{reason.get('recommended_action', reason.get('detail', 'dependency changed'))}"
         )
     lines.extend([
-        "No candidates or Chapter preview were created.",
-        "Next action: Create a new reconciliation inspection and application plan.",
+        "No working versions or Chapter preview were created.",
+        "Next action: Create a new Chapter change review and application plan.",
     ])
     return "\n".join(lines)
 
@@ -203,10 +203,10 @@ def format_reconcile_publish(
     if json_mode:
         return json.dumps(result, indent=2)
     return (
-        f"Reconciliation publication {result['publication_id']}\n"
+        f"Prepared change set {result['publication_id']}\n"
         f"Status: published\n"
-        f"Published candidates remain unaccepted.\n"
-        "No canonical artifacts were changed."
+        f"Prepared working versions are not accepted yet.\n"
+        "No accepted story material was changed."
     )
 
 
@@ -218,9 +218,9 @@ def format_reconcile_inspect_publication(
     if json_mode:
         return json.dumps(result, indent=2)
     return (
-        f"Reconciliation publication {result['publication_id']}\n"
+        f"Prepared change set {result['publication_id']}\n"
         f"Status: {result['status']}\n"
-        f"Chapter candidate: {result['chapter_expression']}"
+        f"Chapter working version: {result['chapter_expression']}"
     )
 
 
@@ -235,7 +235,7 @@ def format_reconcile_review(
     if verbose:
         return yaml.safe_dump(result, sort_keys=False)
     lines = [
-        "Reconciliation publication review",
+        "Prepared change review",
         "",
         f"Publication: {result['publication_id']}",
         f"Status: {result['status']}",
@@ -263,7 +263,7 @@ def format_reconcile_decide(
     if verbose:
         return yaml.safe_dump(result, sort_keys=False)
     return (
-        f"Candidate: {result['candidate_id']}\n"
+        f"Working version: {result['candidate_id']}\n"
         f"Decision: {result['decision']}\n"
         f"Accepted pointer changed: "
         f"{result['result']['accepted_pointer_changed']}\n"
@@ -299,11 +299,11 @@ def format_reconcile_recompose(
     if verbose:
         return yaml.safe_dump(result, sort_keys=False)
     return (
-        f"Canonical-source Chapter recomposition\n"
+        f"Chapter rebuild from accepted sources\n"
         f"Chapter Expression: {result['chapter_expression']}\n"
         f"Status: {result['status']}\n"
         f"Sources: accepted only\n"
-        "Canonical Chapter acceptance is not performed."
+        "This does not accept the rebuilt Chapter."
     )
 
 
@@ -316,7 +316,7 @@ def format_reconcile_accept_chapter(
         return json.dumps(result, indent=2)
     return (
         f"Accepted Chapter Expression {result['chapter_expression']} "
-        "from accepted sources. Reconciliation remains separately completable."
+        "from accepted sources. The change review can still be finished separately."
     )
 
 
@@ -329,7 +329,7 @@ def format_reconcile_complete(
     """Format a reconciliation ``complete`` result."""
     if json_mode:
         return json.dumps(result, indent=2)
-    return f"Reconciliation {publication_id} completed as {status}."
+    return f"Change review {publication_id} completed as {status}."
 
 
 def format_reconcile_inspect(
@@ -340,7 +340,7 @@ def format_reconcile_inspect(
     if json_mode:
         return json.dumps(report, indent=2)
     lines = [
-        f"Chapter reconciliation inspection {report['inspection_id']}",
+        f"Chapter change review {report['inspection_id']}",
         f"Status: {report['status']}",
     ]
     if report["status"] == "no_changes":
@@ -352,7 +352,7 @@ def format_reconcile_inspect(
             )
     elif any(f["classification"] == "markerless" for f in report["findings"]):
         lines.extend([
-            "Chapter manuscript cannot be reconciled automatically.",
+            "Chapter manuscript changes cannot be matched to the story plan automatically.",
             "Reason: No Auteur Scene or transition markers were found.",
         ])
         consequences = report["findings"][0].get("detail", {}).get("consequences", [])
@@ -379,7 +379,7 @@ def format_reconcile_propose(
     if json_mode:
         return json.dumps(result, indent=2)
     lines = [
-        f"Reconciliation proposals for {result.get('inspection_id', '')}: "
+        f"Suggested story updates for {result.get('inspection_id', '')}: "
         f"{len(result['proposal_ids'])} created.",
     ]
     for proposal in result["proposals"]:
@@ -415,7 +415,7 @@ def format_reconcile_show(
             "Next action: review the proposal before applying it."
         )
     return (
-        f"Chapter reconciliation inspection "
+        f"Chapter change review "
         f"{result.get('inspection_id', result.get('run_id', identifier))}\n"
         f"Status: {result.get('status', 'unknown')}\n"
         f"Findings: {len(result.get('findings', []))}; "
@@ -438,7 +438,7 @@ def format_book_decision(
     if json_mode or verbose:
         return json.dumps(result, indent=2)
     if not success:
-        lines = ["Book candidate decision rejected: stale sources"]
+        lines = ["Working Book version decision rejected: the story changed since this version was prepared"]
         for reason in result.get("reasons", []):
             lines.append(f"  - {reason['code']}")
         lines.extend([
@@ -447,7 +447,7 @@ def format_book_decision(
         return "\n".join(lines)
     decision = result
     lines = [
-        "Book candidate decision",
+        "Working Book version decision",
         f"Candidate: {decision['candidate_id']}",
         f"Decision: {decision['decision']['status']} | "
         f"\"{decision['decision']['reason']}\" "
@@ -482,7 +482,7 @@ def format_book_candidate_history(
     if json_mode or verbose:
         return json.dumps(result, indent=2)
     lines = [
-        f"Book candidate {result['candidate_id']}",
+        f"Working Book version {result['candidate_id']}",
         f"Active status: {result['active_status']}",
         f"Decisions ({len(result['decisions'])}):",
     ]
@@ -503,7 +503,7 @@ def format_book_show_candidate_decision(
     if json_mode or verbose:
         return json.dumps(result, indent=2)
     lines = [
-        "Book candidate decision",
+        "Working Book version decision",
         f"Candidate: {result['candidate_id']}",
         f"Decision: {result['decision']['status']} | "
         f"\"{result['decision']['reason']}\" "
@@ -529,7 +529,7 @@ def format_book_plan(
     if json_mode or verbose:
         return json.dumps(result, indent=2)
     lines = [
-        f"Book reconciliation application plan {result['plan_id']}",
+        f"Book change application plan {result['plan_id']}",
         f"Source Book: {result['source_book_expression']} "
         f"(revision {result['source_book_revision']})",
         f"Selected proposals: {len(result['selected_proposals'])}",
@@ -538,9 +538,9 @@ def format_book_plan(
     if result.get("conflicts"):
         codes = sorted({c["conflict_code"] for c in result["conflicts"]})
         lines.append(f"Conflicts: {', '.join(codes)}")
-    lines.append("No candidates, preview, or pointers were created.")
+    lines.append("No working versions, preview, or accepted-story links were created.")
     if result["readiness"]["status"] == "ready":
-        lines.append("Recommended next action: publish this plan into unaccepted candidates")
+        lines.append("Recommended next action: prepare this plan as working versions")
     else:
         lines.append("Recommended next action: resolve readiness issues, then re-plan")
     return "\n".join(lines)
@@ -555,7 +555,7 @@ def format_book_show_plan(
     if json_mode or verbose:
         return json.dumps(result, indent=2)
     return (
-        f"Book reconciliation application plan {result['plan_id']}\n"
+        f"Book change application plan {result['plan_id']}\n"
         f"Source Book: {result['source_book_expression']} "
         f"(revision {result['source_book_revision']})\n"
         f"Selected proposals: {len(result['selected_proposals'])}\n"
@@ -593,15 +593,15 @@ def format_book_publish(
     if json_mode or verbose:
         return json.dumps(result, indent=2)
     return (
-        f"Book reconciliation publication {result['publication_id']}\n"
+        f"Prepared Book change set {result['publication_id']}\n"
         f"Source Book: {result['source_book_expression']} "
         f"(revision {result['source_book_revision']})\n"
-        f"Published candidates: {len(result['published_candidates'])}\n"
+        f"Prepared working versions: {len(result['published_candidates'])}\n"
         f"Preview status: {result['preview']['role']} "
-        f"({result['preview']['lifecycle']}, noncanonical)\n"
+        f"({result['preview']['lifecycle']}, not accepted yet)\n"
         "Acceptance status: none\n"
         "Accepted Book pointer changed: no\n"
-        "Recommended next action: review the published candidates "
+        "Recommended next action: review the prepared working versions "
         "(acceptance is a separate, future step)"
     )
 
@@ -615,12 +615,12 @@ def format_book_inspect_publication(
     if json_mode or verbose:
         return json.dumps(result, indent=2)
     return (
-        f"Book reconciliation publication {result['publication_id']}\n"
+        f"Prepared Book change set {result['publication_id']}\n"
         f"Source Book: {result['source_book_expression']} "
         f"(revision {result['source_book_revision']})\n"
-        f"Published candidates: {len(result['published_candidates'])}\n"
+        f"Prepared working versions: {len(result['published_candidates'])}\n"
         f"Preview status: {result['preview']['role']} "
-        f"({result['preview']['lifecycle']}, noncanonical)\n"
+        f"({result['preview']['lifecycle']}, not accepted yet)\n"
         f"Acceptance status: {result['acceptance_status']}\n"
         f"Accepted Book pointer changed: "
         f"{'yes' if result['accepted_book_pointer_changed'] else 'no'}"
@@ -658,12 +658,12 @@ def format_book_recompose(
         return json.dumps(result, indent=2)
     owned = result["source_pointers"]["book_owned"]
     return (
-        f"Book recomposition (derived, noncanonical)\n"
+        f"Rebuilt Book (working version, not accepted yet)\n"
         f"Publication: {result['publication_id']}\n"
         f"Source Book: {result['source_book_expression']} "
         f"(revision {result['source_book_revision']})\n"
         f"Authority: {result['authority']} | Lifecycle: {result['lifecycle']} | "
-        f"Role: {result['role']} | Canonical: {result['canonical']}\n"
+        f"Role: {result['role']} | Accepted: {result['canonical']}\n"
         f"Chapters: {len(result['chapters'])} in order {result['order']}\n"
         f"Separator pointer: {'yes' if owned['separator_pointer_id'] else 'default'}\n"
         f"Order pointer: {'yes' if owned['order_pointer_id'] else 'default'}\n"
@@ -684,10 +684,10 @@ def format_book_show_recomposition(
         return json.dumps(result, indent=2)
     owned = result["source_pointers"]["book_owned"]
     return (
-        f"Book recomposition (derived, noncanonical)\n"
+        f"Rebuilt Book (working version, not accepted yet)\n"
         f"Publication: {result['publication_id']}\n"
         f"Inspection: {result['inspection_id']}\n"
-        f"Role: {result['role']} | Canonical: {result['canonical']}\n"
+        f"Role: {result['role']} | Accepted: {result['canonical']}\n"
         f"Chapters: {len(result['chapters'])} in order {result['order']}\n"
         f"Book-owned pointers used: "
         f"separator={bool(owned['separator_pointer_id'])}, "
@@ -739,7 +739,7 @@ def format_book_compare_recomposition(
     else:
         action = "re-approve sources"
     return (
-        f"Book recomposition comparison (derived, evaluated, noncanonical)\n"
+        f"Rebuilt Book comparison (working versions, reviewed, not accepted yet)\n"
         f"Comparison: {result['comparison_id']}\n"
         f"Exact match: {counts['exact_match']}\n"
         f"Ready for Book acceptance: "
@@ -771,7 +771,7 @@ def format_book_inspect_comparison(
         f"Recomposition: {result['source_recomposition_id']}\n"
         f"External manuscript: {result['external_manuscript']['path']}\n"
         f"Authority: {result['authority']} | Lifecycle: {result['lifecycle']} | "
-        f"Role: {result['role']} | Canonical: {result['canonical']}\n"
+        f"Role: {result['role']} | Accepted: {result['canonical']}\n"
         f"Exact match: {result['summary']['exact_match']}\n"
         f"Ready for Book acceptance: "
         f"{'yes' if result['summary']['ready_for_book_acceptance'] else 'no'}\n"
@@ -839,8 +839,8 @@ def format_book_accept_recomposed(
         "Accepted Book pointer moved: yes\n"
         "Chapter pointers changed: no\n"
         "Book-owned pointers changed: no\n"
-        "Reconciliation completed: no\n"
-        "Recommended next action: verify reconciliation completion eligibility"
+        "Change review completed: no\n"
+        "Recommended next action: check whether the change review can be finished"
     )
 
 
@@ -854,7 +854,7 @@ def format_book_inspect_acceptance(
         return json.dumps(result, indent=2, default=str)
     transition = result["pointer_transition"]
     return (
-        f"Book reconciliation acceptance\n"
+        f"Book change-review acceptance\n"
         f"Acceptance: {result['acceptance_id']}\n"
         f"Authority: {result['authority']} | Lifecycle: {result['lifecycle']}\n"
         f"Accepted Book: {result['accepted_book_expression_id']} "
@@ -880,7 +880,7 @@ def format_book_complete_error(
         d = result.result if hasattr(result, "result") else result
         return json.dumps(d, indent=2, default=str)
     lines = [
-        f"Reconciliation completion blocked: {result.status}",
+        f"Change-review completion blocked: {result.status}",
         f"Primary reason: {result.reason}",
         "No completion record was created.",
         f"Recommended action: {result.recommended_action}",
@@ -893,7 +893,7 @@ def format_book_complete_duplicate(result: Mapping[str, Any], json_mode: bool = 
     if json_mode:
         return _to_json(result)
     return (
-        f"Reconciliation completed: yes (duplicate)\n"
+        f"Change review completed: yes (duplicate)\n"
         f"Prior completion: {result['prior_completion_id']}\n"
         "No new completion record created.\n"
         "Recommended next action: inspect the prior completion"
@@ -910,11 +910,11 @@ def format_book_complete(result: Mapping[str, Any], json_mode: bool = False) -> 
     bo = record.get("book_owned_resolutions", [])
     deferred = sum(1 for r in bo if "deferred" in (r.get("resolution") or ""))
     return (
-        f"Reconciliation completed: yes\n"
+        f"Change review completed: yes\n"
         f"Accepted Book revision: {record['accepted_book']['revision']}\n"
         "Comparison exact match: yes\n"
         "Residual findings: 0\n"
-        f"Chapter reconciliations complete: {ch_done}/{len(ch)}\n"
+        f"Chapter change reviews complete: {ch_done}/{len(ch)}\n"
         f"Book-owned proposals resolved: {len(bo)}/{len(bo)}\n"
         f"Deferred items remaining: {deferred}\n"
         "Accepted Book pointer changed: no\n"
@@ -934,7 +934,7 @@ def format_book_inspect_completion(
     ch = result.get("chapter_reconciliations", [])
     bo = result.get("book_owned_resolutions", [])
     return (
-        f"Book reconciliation completion\n"
+        f"Book change-review completion\n"
         f"Completion: {result['completion_id']}\n"
         f"Authority: {result['authority']} | Lifecycle: {result['lifecycle']}\n"
         f"Accepted Book: {book['expression_id']} (revision {book['revision']})\n"
@@ -960,7 +960,7 @@ def format_book_inspect_manuscript(
         f"Chapter-local changes: {len(result['chapter_findings'])}\n"
         f"Book-owned changes: {len(result['book_findings'])}\n"
         f"Unresolved: {len(result['unresolved_findings'])}\n"
-        "No canonical artifacts were changed."
+        "No accepted story material was changed."
     )
 
 

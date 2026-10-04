@@ -309,7 +309,7 @@ def format_audit(result: HandlerResult) -> str | None:
 
     _LAYER_ORDER: list[tuple[int, DiagnosticLayer, str]] = [
         (5, DiagnosticLayer.STRUCTURAL_FORCES, "Structural Forces"),
-        (6, DiagnosticLayer.CARRIERS, "Carriers"),
+        (6, DiagnosticLayer.CARRIERS, "Characters & story elements"),
     ]
     groups: dict[DiagnosticLayer, list] = defaultdict(list)
     for d in data.diagnostics:
@@ -321,7 +321,7 @@ def format_audit(result: HandlerResult) -> str | None:
         if not items:
             continue
         label = "finding" if len(items) == 1 else "findings"
-        lines.append(f"Layer {num} \u2014 {name} ({len(items)} {label})")
+        lines.append(f"{name} ({len(items)} {label})")
         for diag in items:
             severity_label = diag.severity.value.upper()
             lines.append(f"[{severity_label}] {diag.rule}: {diag.message}")
@@ -484,7 +484,7 @@ def format_identity_recommend(
         for p in written[:len(data.candidates)]:
             lines.append(f"  Wrote {p.name}")
         cdir = written[0].parent if written else Path("story_identity_candidates")
-        lines.append(f"\nSuccess: generated {len(data.candidates)} candidates under {cdir}/")
+        lines.append(f"\nSuccess: generated {len(data.candidates)} story options under {cdir}/")
         lines.append(f"Metadata index written to {cdir / 'recommendation_set.yaml'}")
         lines.append(f"Comparison document written to {cdir / 'comparison.md'}")
         return "\n".join(lines)
@@ -523,15 +523,15 @@ def format_state_check(result: HandlerResult) -> str | None:
     from collections import defaultdict
     from auteur.structure.diagnostics import DiagnosticLayer
     _LAYER_ORDER = [
-        (1, DiagnosticLayer.TARGET_EXPERIENCE, "Target Experience"),
-        (2, DiagnosticLayer.CONSTRAINTS, "Promise / Constraints"),
-        (3, DiagnosticLayer.SCOPE, "Scope / Container"),
-        (4, DiagnosticLayer.STRUCTURAL_FORCES, "Structural Forces"),
-        (5, DiagnosticLayer.THREADS, "Threads / Modules"),
-        (6, DiagnosticLayer.CARRIERS, "Carriers"),
-        (7, DiagnosticLayer.REPRESENTATION, "Representation (Scene Outline)"),
-        (8, DiagnosticLayer.MODULATION, "Modulation"),
-        (9, DiagnosticLayer.THEME, "Theme / Resonance"),
+        (1, DiagnosticLayer.TARGET_EXPERIENCE, "Reader experience"),
+        (2, DiagnosticLayer.CONSTRAINTS, "Story promises & limits"),
+        (3, DiagnosticLayer.SCOPE, "Story scope"),
+        (4, DiagnosticLayer.STRUCTURAL_FORCES, "Core conflict"),
+        (5, DiagnosticLayer.THREADS, "Plot threads"),
+        (6, DiagnosticLayer.CARRIERS, "Characters & story elements"),
+        (7, DiagnosticLayer.REPRESENTATION, "Scene outline"),
+        (8, DiagnosticLayer.MODULATION, "Pacing & intensity"),
+        (9, DiagnosticLayer.THEME, "Theme"),
     ]
     groups = defaultdict(list)
     for d in data.diagnostics:
@@ -554,7 +554,7 @@ def format_state_check(result: HandlerResult) -> str | None:
         if not items:
             continue
         label = "finding" if len(items) == 1 else "findings"
-        lines.append(f"Layer {num} \u2014 {name} ({len(items)} {label})")
+        lines.append(f"{name} ({len(items)} {label})")
         for d in items:
             severity_label = d.severity.value.upper()
             lines.append(f"  {severity_label}: {d.message}")
@@ -600,4 +600,4 @@ def format_state_confirm(result: HandlerResult) -> str | None:
     """Format the output of ``handle_state_confirm``."""
     if not result.is_success:
         return None
-    return "Success: Recovery candidate layers validated and merged into blueprint and bible."
+    return "Success: recovered story choices were checked and merged into the story setup and continuity notes."

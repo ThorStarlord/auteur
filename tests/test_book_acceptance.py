@@ -1104,7 +1104,7 @@ def test_cli_accept_success(tmp_path: Path, capsys) -> None:
     assert "Book accepted: yes" in out
     assert "Accepted revision: 2" in out
     assert "Accepted Book pointer moved: yes" in out
-    assert "Reconciliation completed: no" in out
+    assert "Change review completed: no" in out
 
 
 def test_cli_accept_blocked(tmp_path: Path, capsys) -> None:
