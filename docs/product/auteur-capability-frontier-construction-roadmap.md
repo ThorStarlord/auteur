@@ -505,18 +505,31 @@ material.
 
 ### Current disposition
 
-**RECOMMENDED NEXT MAJOR CONSTRUCTION FRONTIER, EVIDENCE-GATED.**
+**PROVISIONALLY SELECTED NEXT MAJOR CONSTRUCTION FRONTIER, EVIDENCE-GATED.**
 
-Do not automatically start F2 before:
+The Unified Author Experience coding-agent stress test did not reveal a
+mechanical reason to return to another F0/F1 feature wave. It strengthened the
+case that the next useful capability question is longitudinal:
+
+> Can accepted story reality remain usable across a small Book while the author
+> continues to discover and revise?
+
+Therefore F2 is the default next frontier **unless claim-appropriate #305/#310
+evidence materially contradicts the current product model**.
+
+The remaining sequence is:
 
 ```text
-#305
+minimal residual #305 human evidence
 +
-#310
--> #313 reconciliation
+minimal residual #310 provider evidence
+-> #313 contradiction / reconciliation gate
+-> F2 + X3 controlled qualification
 ```
 
-unless an independently warranted product defect requires repair.
+This provisional selection does not authorize skipping required human/provider
+claims, nor does it authorize a predesigned F2 feature bundle. The first material
+failure in the controlled six-Chapter Book should select the implementation.
 
 If #313 does not materially revise the product thesis/entry model, F2 should be
 the preferred next construction frontier over another local Quick Draft feature
