@@ -30,6 +30,7 @@ def test_review_selects_latest_matching_evidence_and_preserves_candidate_authori
 
     assert review.production_status is ChapterProductionStatus.CANDIDATE_DRAFT
     assert review.source_draft == "draft_v2.md"
+    assert review.draft_text == "new"
     assert review.review_artifact == "validation_v2.json"
     assert review.warnings == ["check continuity"]
     assert not (chapter / "final.md").exists()
