@@ -24,6 +24,20 @@ Auteur has already accumulated substantial evidence:
 The remaining evidence should therefore test only variables the repository cannot
 already answer.
 
+This is also **not Auteur's first human evidence**. A 2026-09-23 human Beginner
+walkthrough already supplied claim-appropriate experiential evidence and exposed
+transition / explanatory friction after the no-provider path had been
+mechanically exercised. That evidence selected the bounded Beginner
+Narrative-Architecture Coherence / deterministic-fallback work that followed.
+
+Separately, Phase E contains six founder/owner Story Discovery adjudication
+cases. Those do not substitute for the current B/C/D ergonomics comparison, but
+they are genuine prior human/owner judgment and should not be erased from the
+evidence history.
+
+Therefore #305 is a **current-version contradiction check**, not a reset to
+zero human validation.
+
 ---
 
 ## 1. Selected current product assumptions
@@ -210,3 +224,7 @@ residual evidence
 -> #313 reconciliation
 -> F2 + X3 controlled qualification
 ```
+
+Prepared execution protocol:
+
+`docs/product-validation/2026-10-04-f2-x3-controlled-qualification-protocol.md`
