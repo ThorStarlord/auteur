@@ -65,6 +65,32 @@ If the author has already established an idea in prose and explicitly selected i
 
 # 3. Entry and authoring tempo
 
+### ENTRY-00A — Optional pre-premise discovery
+**Status:** ESTABLISHED
+
+When an author does not yet have a stable premise, Auteur MAY support the
+documentation-defined Story Opportunity Discovery workflow before normal
+authoring entry.
+
+The normal product MUST NOT require this workflow when the author already has a
+working premise.
+
+Story Opportunity outputs MUST remain working / nonaccepted until existing
+Identity authority is crossed explicitly later.
+
+### ENTRY-00B — Premise Fitness is decision-triggered
+**Status:** ESTABLISHED
+
+Premise Fitness MUST NOT become a mandatory gate, score, validator, or approval
+step before Story Discovery.
+
+It MAY be surfaced when genre promise, narrative horizon, complexity, runway,
+renewability, expansion, or multi-engine fit creates a material decision
+tradeoff.
+
+Its output MUST remain derived / noncanonical and MUST NOT automatically choose
+a Story Discovery direction.
+
 ### ENTRY-01 — Shape-first entry
 **Status:** CURRENT
 
@@ -124,6 +150,18 @@ Examples:
 **Status:** ESTABLISHED
 
 Progressive disclosure MUST NOT remove advanced inspection or step-by-step control.
+
+### PD-05 — Material post-Discovery fit change
+**Status:** SELECTED
+
+If a decision-relevant Story Discovery architecture materially changes an
+earlier Premise Fitness assumption, Auteur MAY surface a plain-language summary
+such as **What this story direction changes**.
+
+If no material fit assumption changes, the product SHOULD remain silent rather
+than adding another confirmation surface.
+
+This projection is advisory only and MUST NOT become an acceptance gate.
 
 ---
 
