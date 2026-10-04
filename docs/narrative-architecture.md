@@ -33,10 +33,13 @@ additional semantic layers. Not every scope/layer cell requires an artifact.
 
 ## Cross-cutting systems
 
-Validation, orchestration, editing, versioning, diagnostics, import/export, and
-provenance operate across the semantic layers. There is no permanent Layer 2.5.
+Validation, orchestration, editing, versioning, diagnostics, import/export,
+provenance, and optional audience-effect analysis operate across the semantic
+layers. There is no permanent Layer 2.5 and no audience-effect semantic layer.
 Structure composition and outline coordination are Structure work coordinated by
-the orchestration system.
+the orchestration system. Mass-Appeal Narrative Architecture (MANA) is a derived,
+noncanonical audience-side projection over existing evidence; see
+[Mass-Appeal Narrative Architecture](mass-appeal-narrative-architecture.md).
 
 ## Pre-Identity creative search
 
@@ -121,6 +124,9 @@ define important boundaries without creating additional semantic layers:
    downstream freshness behavior after upstream changes.
 6. [Expression Boundary](expression-boundary.md) — defines language-level
    freedom versus canonical realized event/state facts.
+7. [Mass-Appeal Narrative Architecture](mass-appeal-narrative-architecture.md) —
+   defines optional, stage-sensitive audience-effect analysis across the existing
+   layers without adding canon, a quality score, or an automatic winner rule.
 
 Historical plans, ADRs, and research records retain their original terminology
 as evidence. Where an older example conflicts with a current canonical contract,
@@ -157,5 +163,5 @@ the canonical architecture + focused contract + current schema take precedence.
   Scene    ─────────────────────────────────────────────────────────────────────
 
   CROSS-CUTTING: Validation · Orchestration · Editing · Versioning · Diagnostics
-                 Import/Export · Provenance
+                 Import/Export · Provenance · Audience-Effect Analysis (MANA)
 ```

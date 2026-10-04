@@ -235,6 +235,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="Project root directory (default: current directory).")
     p.add_argument("--json", action="store_true",
         help="Output as JSON.")
+    p = rs.add_parser("audience",
+        help="Run read-only MANA audience-effect analysis on a StoryBlueprint.")
+    p.add_argument("blueprint", type=Path, help="Path to blueprint.yaml.")
+    p.add_argument("--json", action="store_true",
+        help="Output the complete typed MANA report as JSON.")
     p = sub.add_parser("identity", help="Manage story identities.",
         formatter_class=_HideSuppressedFormatter)
     iss = p.add_subparsers(dest="identity_command", required=True)
