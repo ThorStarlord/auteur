@@ -65,6 +65,32 @@ If the author has already established an idea in prose and explicitly selected i
 
 # 3. Entry and authoring tempo
 
+### ENTRY-00A — Optional pre-premise discovery
+**Status:** ESTABLISHED
+
+When an author does not yet have a stable premise, Auteur MAY support the
+documentation-defined Story Opportunity Discovery workflow before normal
+authoring entry.
+
+The normal product MUST NOT require this workflow when the author already has a
+working premise.
+
+Story Opportunity outputs MUST remain working / nonaccepted until existing
+Identity authority is crossed explicitly later.
+
+### ENTRY-00B — Premise Fitness is decision-triggered
+**Status:** ESTABLISHED
+
+Premise Fitness MUST NOT become a mandatory gate, score, validator, or approval
+step before Story Discovery.
+
+It MAY be surfaced when genre promise, narrative horizon, complexity, runway,
+renewability, expansion, or multi-engine fit creates a material decision
+tradeoff.
+
+Its output MUST remain derived / noncanonical and MUST NOT automatically choose
+a Story Discovery direction.
+
 ### ENTRY-01 — Shape-first entry
 **Status:** CURRENT
 
@@ -93,6 +119,21 @@ Neither path may create a shadow canon or path-specific Story Identity.
 **Status:** SELECTED
 
 The product SHOULD allow an author to move between writing and shaping without treating the earlier choice as irreversible.
+
+### ENTRY-05 — Foreground from explicit current intent
+**Status:** SELECTED
+
+Auteur SHOULD foreground **Shape first** when the author's explicit current goal
+is understanding, comparison, architecture, or long-range shaping.
+
+Auteur SHOULD foreground **Write first** when the author has a concrete scene
+impulse stronger than the current need for architecture.
+
+When the current goal is ambiguous, the product SHOULD preserve both entry
+options rather than infer a population-level preference from genre or author
+stereotype.
+
+This requirement does not establish which path writers generally prefer.
 
 ---
 
@@ -124,6 +165,18 @@ Examples:
 **Status:** ESTABLISHED
 
 Progressive disclosure MUST NOT remove advanced inspection or step-by-step control.
+
+### PD-05 — Material post-Discovery fit change
+**Status:** SELECTED
+
+If a decision-relevant Story Discovery architecture materially changes an
+earlier Premise Fitness assumption, Auteur MAY surface a plain-language summary
+such as **What this story direction changes**.
+
+If no material fit assumption changes, the product SHOULD remain silent rather
+than adding another confirmation surface.
+
+This projection is advisory only and MUST NOT become an acceptance gate.
 
 ---
 
@@ -250,6 +303,18 @@ The discovery surface SHOULD feel like help incorporating creative discoveries r
 
 This claim requires #305.
 
+### DISC-07 — Consequential-delta surface
+**Status:** SELECTED
+
+`What did we discover?` SHOULD prefer consequence-bearing differences between
+prior context/plans and current prose over exhaustive extraction.
+
+When no material discovery exists, the product SHOULD skip an empty
+confirmation/checklist step.
+
+Heuristic observations MUST remain unselected / nonauthoritative until the
+author explicitly carries them forward.
+
 ---
 
 # 9. Accepted prose and downstream context
@@ -280,6 +345,19 @@ Any unresolved synchronization SHOULD remain explicit.
 Pending compatible story updates SHOULD NOT prevent the author from continuing merely because every internal model has not yet been synchronized.
 
 A genuine hard contradiction MAY require resolution before dependent generation if proceeding would materially mislead the author.
+
+### CONTEXT-05 — Ambient-by-default continuity
+**Status:** SELECTED
+
+Continuity guidance SHOULD remain ambient while unresolved updates are compatible
+with the next author action.
+
+It SHOULD interrupt only when unresolved divergence would materially mislead a
+dependent decision or when an existing hard authority / validation boundary
+requires explicit resolution.
+
+The product MUST NOT implement `any pending update -> block` as a generic
+continuity rule.
 
 ---
 
@@ -692,17 +770,36 @@ A coherent architecture, passing test, or agent simulation MUST NOT be presented
 
 # 19. Evidence-gated product decisions
 
-The following decisions remain intentionally unresolved until #305/#310:
+Coding-agent stress testing has narrowed this list. The following decisions still
+require #305 and/or #310 evidence:
 
-1. Should **Start writing now** or **Explore this story** receive stronger default emphasis?
-2. Which premise types benefit most from write-first versus shape-first?
-3. Is the Quick Draft first scene reliably useful with real providers?
-4. Is **What did we discover?** useful enough to retain or too noisy/administrative?
-5. When should continuity guidance interrupt or merely annotate creative flow?
-6. How much inferred scaffolding can remain hidden before authors feel loss of control?
-7. Does Auteur’s continuity machinery create enough differential value over Markdown + capable LLM to justify its additional interaction cost?
+1. Which entry path do writers actually prefer in comparable situations, after
+   routing from explicit current intent?
+2. Is the Quick Draft first scene reliably useful and intent-faithful with real
+   providers?
+3. Is **What did we discover?** experienced as useful enough to retain, or as
+   noisy/administrative, when it is limited to consequence-bearing deltas?
+4. Does **Keep draft & update story** feel like creative help rather than
+   bookkeeping?
+5. How much inferred scaffolding can remain hidden before authors feel loss of
+   control?
+6. Can unfamiliar authors understand the unified story-language mental model
+   without learning internal semantic layers?
+7. Does Auteur's continuity / decision machinery create enough **felt** value
+   over Markdown + a capable general-purpose LLM to justify its additional
+   interaction cost?
 
-No implementation should silently answer these questions on behalf of evidence.
+The structural interruption rule is no longer evidence-gated:
+
+> continuity remains ambient by default and interrupts only when unresolved
+> divergence would materially mislead a dependent decision or cross an existing
+> hard authority / validation boundary.
+
+The exact human-facing timing/copy of that interruption may still be refined by
+#305.
+
+No implementation should manufacture the remaining human/provider claims from
+agent simulation.
 
 ---
 
