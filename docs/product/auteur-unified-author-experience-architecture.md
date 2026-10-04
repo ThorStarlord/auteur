@@ -10,6 +10,8 @@
 
 Auteur already has substantial internal capability:
 
+- optional pre-Identity Story Opportunity Discovery and Premise Fitness contracts
+  for authors who do not yet have a stable premise;
 - Story Discovery and Story Identity;
 - whole-story Structure;
 - Realization / story-state handling;
@@ -60,14 +62,15 @@ The repository must not silently promote a working UX hypothesis into a canonica
 A beginner should be able to understand Auteur approximately like this:
 
 ```text
-1. I can explore freely.
-2. I decide what matters to my story.
-3. Auteur remembers the decisions I actually keep.
-4. Auteur can help shape those decisions into a coherent story.
-5. Writing is allowed to discover things the plan did not know.
-6. When that happens, Auteur asks what I want to keep or change.
-7. I can change my mind deliberately without losing the story.
-8. Auteur helps the long story remember itself.
+1. I can start with a rough story idea, or explore what story I want to make.
+2. I can explore freely.
+3. I decide what matters to my story.
+4. Auteur remembers the decisions I actually keep.
+5. Auteur can help shape those decisions into a coherent story.
+6. Writing is allowed to discover things the plan did not know.
+7. When that happens, Auteur asks what I want to keep or change.
+8. I can change my mind deliberately without losing the story.
+9. Auteur helps the long story remember itself.
 ```
 
 This is the **author mental model**.
@@ -151,6 +154,8 @@ The default Beginner product should primarily use concepts such as:
 | Author concept | Meaning |
 | --- | --- |
 | **Story idea** | What the author is imagining now. |
+| **Story opportunity** | An optional working possibility before a stable premise exists; never accepted merely because Auteur generated it. |
+| **Fit tradeoff** | An optional explanation of how a working premise fits its intended genre, scope, complexity, and runway; advisory rather than a score or gate. |
 | **What Auteur sees** | A working interpretation, not accepted truth. |
 | **Direction** | One plausible way the story could develop. |
 | **Story core** | The commitments that define what story this is becoming. |
@@ -213,6 +218,8 @@ The system should minimize approval/admin activity here.
 
 Typical surfaces:
 
+- Story Opportunity Discovery when the author does not yet have a stable premise;
+- optional Premise Fitness when genre / scope / complexity / runway tradeoffs are decision-relevant;
 - premise interpretation;
 - Story Lenses;
 - Direction;
@@ -276,6 +283,8 @@ Foreground creative mode when:
 
 Foreground guidance when:
 
+- the author does not yet have a stable premise and wants help discovering a story worth developing;
+- the author asks whether a working premise fits a particular genre, scope, or long-form horizon;
 - the author chooses **Explore this story**;
 - the premise is too ambiguous for a useful next commitment;
 - the author asks what the story currently is;
@@ -326,9 +335,25 @@ author encounters meaningful story need
 
 ---
 
-# 6. Two entry tempos, one product
+# 6. Optional upstream discovery, then two entry tempos
 
-Auteur currently has two legitimate starting tempos.
+Before the normal authoring tempos, an author who does **not** yet have a stable
+premise may optionally use:
+
+```text
+preferences / influences / questions
+-> Story Opportunity Discovery
+-> working opportunities
+-> optional Premise Fitness when fit tradeoffs matter
+-> author selects a working premise / Discovery Brief
+-> normal Auteur entry
+```
+
+This is not a mandatory funnel. Authors who already have a premise should enter
+the normal product directly, and Premise Fitness must not become another approval
+form.
+
+Once a working premise exists, Auteur has two legitimate authoring tempos.
 
 ## 6.1 Shape first
 
