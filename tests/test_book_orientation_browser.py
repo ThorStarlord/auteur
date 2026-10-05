@@ -45,5 +45,5 @@ def test_post_draft_chapter_presentation_is_dynamic() -> None:
 
     assert 'id="post-draft-heading">Chapter</h3>' in html
     assert '$("post-draft-heading").textContent = "Chapter " + chapter' in app
-    assert '"Chapter " + chapter + " draft"' in app
+    assert "chapter + ' draft</h4>'" in app
     assert "No Chapter 1 draft exists yet." not in app

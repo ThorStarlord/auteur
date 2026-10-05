@@ -102,7 +102,7 @@ def test_browser_renders_candidate_prose_in_post_draft_review():
     css = _read(STYLES)
 
     assert "review.draft_text" in js
-    assert '"Chapter " + chapter + " draft"' in js
+    assert "chapter + ' draft</h4>'" in js
     assert 'class="draft-prose"' in js
     assert ".draft-prose" in css
     assert "white-space: pre-wrap" in css
