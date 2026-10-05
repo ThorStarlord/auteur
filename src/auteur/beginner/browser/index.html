@@ -157,7 +157,7 @@
         <p class="hint">Auteur can handle the planning machinery for you. Open the details only when you want step-by-step control.</p>
         <div id="continuation-body"></div>
         <section id="post-draft-review" aria-label="Post-draft review" hidden>
-          <h3>Chapter 1</h3>
+          <h3 id="post-draft-heading">Chapter</h3>
           <p id="post-draft-status" class="hint"></p>
           <p><strong>Recommended next step:</strong> <span id="post-draft-next-action"></span></p>
           <div id="post-draft-evidence"></div>
@@ -180,16 +180,38 @@
         </section>
       </section>
 
-      <details aria-label="Whole-book progress" class="review-panel" id="book-progress-panel">
-        <summary>Advanced: whole-book details</summary>
-        <p class="hint">Optional details for authors who want to inspect whole-book progress.</p>
-        <p id="book-progress-summary"></p>
-        <p><strong>Book:</strong> <span id="book-expression-status"></span></p>
-        <p><strong>Story updates:</strong> <span id="book-reconciliation-status"></span></p>
-        <p><strong>Next technical action:</strong> <code id="book-next-command"></code></p>
-        <div id="book-publication-status"></div>
-        <p class="hint" id="book-authority-status"></p>
-      </details>
+      <section aria-label="Book orientation" class="review-panel book-orientation" id="book-progress-panel">
+        <p class="card-position">You are here</p>
+        <h2 id="book-current-position">Your Book</h2>
+        <p id="book-orientation-reason" class="hint"></p>
+        <div class="book-orientation-grid">
+          <section aria-label="Recently established">
+            <h3>Recently established</h3>
+            <div id="book-recent-changes"></div>
+          </section>
+          <section aria-label="Suggested story updates">
+            <h3>Still unresolved</h3>
+            <div id="book-pending-updates"></div>
+          </section>
+          <section aria-label="Book needs attention">
+            <h3>Needs attention</h3>
+            <div id="book-needs-attention"></div>
+          </section>
+        </div>
+        <p><strong>Continue:</strong> <span id="book-next-story-action"></span></p>
+        <button id="book-open-current-chapter" type="button" class="continue-button" hidden>Open current Chapter</button>
+
+        <details aria-label="Technical Book details" id="book-technical-details">
+          <summary>Show details</summary>
+          <p class="hint">Optional publication, reconciliation, and command details.</p>
+          <p id="book-progress-summary"></p>
+          <p><strong>Book:</strong> <span id="book-expression-status"></span></p>
+          <p><strong>Story updates:</strong> <span id="book-reconciliation-status"></span></p>
+          <p><strong>Next technical action:</strong> <code id="book-next-command"></code></p>
+          <div id="book-publication-status"></div>
+          <p class="hint" id="book-authority-status"></p>
+        </details>
+      </section>
 
       <details id="refinement-panel" aria-label="Refine story interpretation" class="composition-panel">
         <summary>Adjust what Auteur sees</summary>
