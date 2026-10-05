@@ -1,14 +1,20 @@
-name: Validation
+name: Optional Remote Validation
 
 on:
-  pull_request:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      base_sha:
+        description: "Optional base SHA for focused diff selection; defaults to the selected ref's parent"
+        required: false
+        type: string
+      reason:
+        description: "Why hosted validation is worth running"
+        required: true
+        type: string
 
 jobs:
   focused-validation:
-    name: "L1 focused validation (Python 3.12)"
+    name: "Optional L1 focused validation (Python 3.12)"
     runs-on: ubuntu-latest
 
     steps:
@@ -26,9 +32,13 @@ jobs:
       - name: Select focused tests and Ruff paths
         shell: bash
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          BASE_SHA: ${{ inputs.base_sha }}
         run: |
           set -euo pipefail
+          if [[ -z "$BASE_SHA" ]]; then
+            BASE_SHA="$(git rev-parse "$GITHUB_SHA^")"
+          fi
+          git cat-file -e "$BASE_SHA^{commit}"
           mapfile -t changed < <(git diff --name-only "$BASE_SHA" "$GITHUB_SHA")
           focused=()
           ruff_paths=()

@@ -13,12 +13,37 @@ claim being made now?"
 
 Development validation and release qualification are separate activities.
 
+## Local-first validation policy
+
+Local validation is the default source of development evidence. GitHub Actions
+is optional remote execution, not a dependency for ordinary development.
+Automatic hosted-runner execution must not be required to continue work, open
+or review ordinary pull requests, or preserve development momentum.
+
+When GitHub Actions is unavailable because of quota, billing limits, outage, or
+a deliberate cost-control decision:
+
+- continue development with local L1 and justified L2 validation;
+- record the exact candidate SHA, commands, environment, and results in the PR
+  or work log;
+- do not weaken the required evidence or promote the claim merely because a
+  hosted runner is unavailable;
+- run an explicitly triggered L3 checkpoint locally when the available local
+  environment can satisfy that checkpoint;
+- treat release qualification as incomplete when required platform-specific or
+  independent evidence cannot be reproduced locally.
+
+Hosted Actions may be manually dispatched when remote, independent, or
+platform-specific evidence is decision-relevant and worth the cost. Exhausted
+hosted-runner credits may block a higher qualification claim, but they must not
+block ordinary implementation work.
+
 ## Development validation levels
 
 ### L1 — Focused validation
 
 L1 is the default implementation feedback loop and the ordinary development
-CI gate.
+gate. It is normally run locally on the exact working or pull-request head.
 
 Typical L1 evidence includes:
 
@@ -210,9 +235,11 @@ change. Evidence is risk-tiered; it is not maximized automatically.
 ### Code-bearing changes
 
 Ordinary implementation changes use L1 focused validation on the exact
-pull-request head. The development workflow runs changed test files when
-present, otherwise the repository smoke tests, plus the cheap verification
-stack.
+pull-request head. Local exact-head evidence is first-class merge evidence when
+the command, environment, SHA, and result are recorded. The optional remote
+Validation workflow may reproduce the same focused gate when independent hosted
+evidence is useful, but a GitHub Actions run is not required merely because a
+pull request exists.
 
 L2 is added only when a named changed boundary or integration risk justifies
 it. The PR or work log should state that reason and name the selected tests.
@@ -222,8 +249,10 @@ may itself justify extra review, but that does not automatically require the
 entire product regression suite. Use the explicit stabilization workflow when
 an L3 trigger exists.
 
-A missing required L1/L2 run is not a passing run. A timed-out or interrupted
-run is incomplete evidence.
+A missing required L1/L2 run is not a passing run. Absence of a GitHub Actions
+run is not missing evidence when the required L1/L2 evidence was produced
+locally and recorded against the exact head. A timed-out or interrupted run is
+incomplete evidence.
 
 ### Documentation/evidence-only changes
 
@@ -252,31 +281,37 @@ regressions must be fixed or explicitly classified before integration.
 
 ## Explicit stabilization
 
-The `Stabilization` workflow is the repository-wide L3 checkpoint. It is
-manual (`workflow_dispatch`) by design. Its use should record the milestone,
-recovery, cross-cutting-risk, or release-candidate trigger that justified the
-cost.
+The repository-wide L3 checkpoint is explicit rather than automatic. It may be
+run locally or through the manual (`workflow_dispatch`) `Stabilization`
+workflow. Either path must record the exact SHA and the milestone, recovery,
+cross-cutting-risk, or release-candidate trigger that justified the cost.
 
 ## Explicit release qualification
 
-The `Release Qualification` workflow is manual (`workflow_dispatch`) and
-requires an exact `candidate_sha`. It checks out that SHA explicitly and
-fails if the tested checkout does not match the requested candidate.
+The `Release Qualification` workflow is optional hosted execution. When used,
+it is manual (`workflow_dispatch`), requires an exact `candidate_sha`, checks
+out that SHA explicitly, and fails if the tested checkout does not match the
+requested candidate.
 
-Release qualification retains the supported compatibility matrix and durable
-exact-SHA evidence. Moving it out of ordinary development changes *when* the
-cost is paid, not the strength of the release boundary.
+The same qualification may be assembled locally only when the required exact-SHA
+source, installed-artifact, and supported-platform evidence is actually run and
+recorded. If the available machine cannot reproduce a required platform matrix,
+the correct result is **qualification incomplete**, not a weaker release gate.
+Moving hosted execution out of ordinary development changes *where and when*
+the cost is paid, not the strength of the release boundary.
 
-## Post-merge CI
+## Post-merge validation
 
-Post-merge development CI is useful additional evidence, but it does not
+Automatic post-merge GitHub Actions is not required. Optional remote validation
+is useful additional evidence when deliberately dispatched, but it does not
 retroactively satisfy a required pre-merge L1/L2 gate.
 
-Likewise, a passing development gate does not imply that an L3 checkpoint or
-release qualification has occurred.
+Likewise, a passing local or remote development gate does not imply that an L3
+checkpoint or release qualification has occurred.
 
 ## Enforcement
 
 Repository settings may enforce some or all of these rules mechanically.
 Where GitHub does not enforce them, they remain project policy and must be
-enforced by the development, stabilization, and publication workflows.
+enforced by recorded local evidence and, when deliberately used, the
+stabilization and publication workflows.
