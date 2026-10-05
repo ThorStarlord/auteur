@@ -18,6 +18,8 @@ from typing import Any
 
 import yaml
 
+from .creative_divergence import infer_creative_discoveries, proposal_target_for
+
 
 class ChapterProductionStatus(str, Enum):
     NOT_STARTED = "not_started"
@@ -46,6 +48,9 @@ class DraftReviewProjection:
     revision_options: list[str] = field(default_factory=list)
     recommended_next_action: str = ""
     stale: bool = False
+    review_stale: bool = False
+    creative_discoveries: list[dict[str, str]] = field(default_factory=list)
+    reconciliation_available: bool = False
 
 
 @dataclass(frozen=True)
@@ -63,6 +68,16 @@ class RevisionHandoff:
     route: str
     decision: str
     path: Path
+
+
+@dataclass(frozen=True)
+class CreativeDivergenceResolution:
+    chapter_index: int
+    decision: str
+    source_draft: str
+    accepted: bool
+    path: Path
+    proposal_count: int = 0
 
 
 def _draft_version(path: Path) -> int:
@@ -105,6 +120,17 @@ def _findings(report: Any) -> tuple[list[str], list[str]]:
     return blocking, warnings
 
 
+def _outline_baseline_text(chapter_dir: Path) -> str:
+    outline_path = chapter_dir / "outline.yaml"
+    if not outline_path.is_file():
+        return ""
+    try:
+        value = yaml.safe_load(outline_path.read_text(encoding="utf-8"))
+    except yaml.YAMLError:
+        return ""
+    return yaml.safe_dump(value, sort_keys=False) if isinstance(value, dict) else ""
+
+
 def _plan_alignment(chapter_dir: Path, draft: Path | None) -> dict[str, Any]:
     outline_path = chapter_dir / "outline.yaml"
     if not outline_path.is_file():
@@ -141,12 +167,18 @@ def project_draft_review(project_root: Path, chapter_index: int) -> DraftReviewP
     version = _draft_version(latest) if latest else None
     accepted = final.is_file() and (latest is None or final.read_bytes() == latest.read_bytes())
     stale = False
+    review_stale = False
+    metadata: dict[str, Any] = {}
     if latest is not None:
         meta_path = chapter_dir / f"{latest.stem}.meta.json"
         if meta_path.is_file():
             try:
                 metadata = json.loads(meta_path.read_text(encoding="utf-8"))
-                stale = metadata.get("upstream_fingerprint") != _upstream_fingerprint(project_root)
+                if "upstream_fingerprint" in metadata:
+                    stale = metadata.get("upstream_fingerprint") != _upstream_fingerprint(project_root)
+                expected_hash = metadata.get("candidate_sha256")
+                if isinstance(expected_hash, str) and expected_hash:
+                    review_stale = expected_hash != hashlib.sha256(latest.read_bytes()).hexdigest()
             except (OSError, json.JSONDecodeError):
                 stale = True
 
@@ -161,7 +193,11 @@ def project_draft_review(project_root: Path, chapter_index: int) -> DraftReviewP
             review_artifact = report_path.name
             try:
                 blocking, warnings = _findings(json.loads(report_path.read_text(encoding="utf-8")))
-                review_available = True
+                review_available = not review_stale
+                if review_stale:
+                    review_error = "The draft changed after this review. Review findings are stale."
+                    blocking = []
+                    warnings = []
             except (OSError, json.JSONDecodeError, ValueError) as exc:
                 review_error = f"invalid review artifact: {exc}"
         else:
@@ -181,14 +217,26 @@ def project_draft_review(project_root: Path, chapter_index: int) -> DraftReviewP
         status = ChapterProductionStatus.NOT_STARTED
 
     alignment = _plan_alignment(chapter_dir, latest)
+    discoveries = infer_creative_discoveries(
+        draft_text or "",
+        baseline_text=_outline_baseline_text(chapter_dir),
+        plan_alignment=alignment,
+        blocking_findings=blocking,
+    ) if latest else []
+    reconciliation_available = bool(latest and not accepted and (discoveries or blocking or review_stale))
+
     if stale:
         next_action = "Review the draft against the newer story plan."
+    elif review_stale:
+        next_action = "The draft changed after review. Keep it and update the story, keep it as intentional divergence, or revise toward the plan."
     elif blocking:
-        next_action = f"Resolve the highest-priority review finding: {blocking[0]}"
+        next_action = "Decide whether to keep the discovery, keep it as an intentional divergence, or revise toward the plan."
+    elif reconciliation_available:
+        next_action = "Review what changed while writing before deciding what the story should remember."
     elif accepted:
         next_action = f"Re-orient the story and plan Chapter {chapter_index + 1}."
     elif latest:
-        next_action = "Review the candidate draft before accepting or revising it."
+        next_action = "Review the draft before keeping or revising it."
     else:
         next_action = "Prepare the chapter draft handoff."
     return DraftReviewProjection(
@@ -204,9 +252,15 @@ def project_draft_review(project_root: Path, chapter_index: int) -> DraftReviewP
         blocking_findings=blocking,
         warnings=warnings,
         plan_alignment=alignment,
-        revision_options=["revise", "accept_deliberate_divergence"] if latest and not accepted else [],
+        revision_options=(
+            ["keep_and_reconcile", "accept_deliberate_divergence", "revise"]
+            if latest and not accepted else []
+        ),
         recommended_next_action=next_action,
         stale=stale,
+        review_stale=review_stale,
+        creative_discoveries=discoveries,
+        reconciliation_available=reconciliation_available,
     )
 
 
@@ -330,6 +384,96 @@ def prepare_revision_handoff(
     }
     _write_json_atomic(path, payload)
     return RevisionHandoff(chapter_index, source.name, route, decision, path)
+
+
+def prepare_creative_divergence_resolution(
+    project_root: Path,
+    chapter_index: int,
+    *,
+    command_id: str,
+    decision: str,
+    owner: Any | None = None,
+) -> CreativeDivergenceResolution:
+    """Persist an explicit post-draft decision without silently changing upstream state."""
+    if decision not in {"keep_and_reconcile", "keep_intentional_divergence", "revise_to_plan"}:
+        raise ValueError("unsupported creative-divergence decision")
+    review = project_draft_review(project_root, chapter_index)
+    if not review.source_draft:
+        raise FileNotFoundError(f"no candidate draft for chapter {chapter_index}")
+
+    if decision == "revise_to_plan":
+        handoff = prepare_revision_handoff(
+            project_root,
+            chapter_index,
+            command_id=command_id,
+            decision="revise current draft toward the existing story plan",
+            route="retry",
+        )
+        return CreativeDivergenceResolution(
+            chapter_index=chapter_index,
+            decision=decision,
+            source_draft=review.source_draft,
+            accepted=False,
+            path=handoff.path,
+            proposal_count=0,
+        )
+
+    acceptance = accept_latest_chapter(
+        project_root,
+        chapter_index,
+        command_id=f"{command_id}-accept",
+        owner=owner,
+    )
+    chapter_dir = project_root / "chapters" / f"{chapter_index:02d}"
+    if not chapter_dir.is_dir():
+        chapter_dir = project_root / "chapters" / str(chapter_index)
+    draft = chapter_dir / review.source_draft
+    proposal_items = []
+    if decision == "keep_and_reconcile":
+        proposal_items = [
+            {
+                **item,
+                "target_owner": proposal_target_for(item),
+                "status": "proposed",
+                "canonical": False,
+            }
+            for item in review.creative_discoveries
+        ]
+
+    path = (
+        project_root
+        / ".auteur"
+        / "beginner"
+        / "reconciliation"
+        / f"{chapter_index}-{command_id}.json"
+    )
+    payload = {
+        "canonical": False,
+        "chapter_index": chapter_index,
+        "command_id": command_id,
+        "decision": decision,
+        "source_draft": review.source_draft,
+        "candidate_sha256": hashlib.sha256(draft.read_bytes()).hexdigest(),
+        "chapter_accepted": True,
+        "acceptance_result": _receipt_value(acceptance),
+        "review_was_stale": review.review_stale,
+        "discoveries": review.creative_discoveries,
+        "proposal_items": proposal_items,
+        "status": (
+            "proposal_ready"
+            if decision == "keep_and_reconcile"
+            else "acknowledged_intentional_divergence"
+        ),
+    }
+    _write_json_atomic(path, payload)
+    return CreativeDivergenceResolution(
+        chapter_index=chapter_index,
+        decision=decision,
+        source_draft=review.source_draft,
+        accepted=True,
+        path=path,
+        proposal_count=len(proposal_items),
+    )
 
 
 def project_chapter_outcome(project_root: Path, chapter_index: int) -> dict[str, Any]:
