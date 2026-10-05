@@ -26,9 +26,9 @@ def register_universe_subcommands(sub) -> None:
     p.add_argument("universe", type=Path, help="Path to universe_identity.yaml")
     p.add_argument("--output", type=Path, default=None, help="Output diagnostics to file")
 
-    p = commands.add_parser("build", help="Validate and write a canonical universe_identity.yaml.")
+    p = commands.add_parser("build", help="Check and write the accepted universe setup file.")
     p.add_argument("universe", type=Path, help="Source universe YAML")
-    p.add_argument("--output", type=Path, required=True, help="Canonical output path")
+    p.add_argument("--output", type=Path, required=True, help="Accepted universe setup output path")
 
 
 def handle_universe_command(args) -> int:

@@ -131,7 +131,7 @@ def build_author_attention(project_root: Path) -> list[dict[str, Any]]:
                         artifact_id=session.session_id,
                         state="stale",
                         reason="Tutor advice is bound to a source snapshot that is no longer current.",
-                        authority="LOCAL / NONCANONICAL",
+                        authority="ADVICE ONLY / NOT PART OF STORY YET",
                         next_command=f"auteur tutor show {session.session_id} --project .",
                         source_age=source_age,
                     )
@@ -144,7 +144,7 @@ def build_author_attention(project_root: Path) -> list[dict[str, Any]]:
                         artifact_id=session.session_id,
                         state="active",
                         reason="An advisory author decision is still unresolved.",
-                        authority="LOCAL / NONCANONICAL",
+                        authority="ADVICE ONLY / NOT PART OF STORY YET",
                         next_command=f"auteur tutor show {session.session_id} --project .",
                         source_age=source_age,
                     )
@@ -170,8 +170,8 @@ def build_author_attention(project_root: Path) -> list[dict[str, Any]]:
                         kind="structure_proposal",
                         artifact_id=proposal.proposal_id,
                         state="unselected",
-                        reason="A concrete noncanonical proposal needs author review and explicit selection.",
-                        authority="NONCANONICAL PROPOSAL / NOT APPLIED",
+                        reason="A suggested story change needs your review and a clear choice.",
+                        authority="SUGGESTED CHANGE / NOT APPLIED",
                         next_command=f"auteur structure proposal inspect {relative} --project .",
                         source_age=source_age,
                     )
@@ -183,8 +183,8 @@ def build_author_attention(project_root: Path) -> list[dict[str, Any]]:
                         kind="structure_proposal",
                         artifact_id=proposal.proposal_id,
                         state="selected",
-                        reason="The proposal is selected but has not entered the Structure revision plan lifecycle.",
-                        authority="NONCANONICAL PROPOSAL / NOT APPLIED",
+                        reason="The suggested change is selected but has not entered a story change plan yet.",
+                        authority="SUGGESTED CHANGE / NOT APPLIED",
                         next_command=f"auteur structure revision plan --proposal {relative} --project .",
                         source_age=source_age,
                     )
@@ -201,7 +201,7 @@ def build_author_attention(project_root: Path) -> list[dict[str, Any]]:
                     artifact_id=plan.plan_id,
                     state=state,
                     reason="Revision preconditions are blocked; inspect the derived preview before replanning.",
-                    authority="REVISION PLAN / NOT APPLIED",
+                    authority="CHANGE PLAN / NOT APPLIED",
                     next_command=f"auteur structure revision preview {plan.plan_id} --project .",
                     source_age=source_age,
                 )
@@ -214,7 +214,7 @@ def build_author_attention(project_root: Path) -> list[dict[str, Any]]:
                     artifact_id=plan.plan_id,
                     state=state,
                     reason="A concrete revision plan exists but its currentness has not yet been validated.",
-                    authority="REVISION PLAN / NOT APPLIED",
+                    authority="CHANGE PLAN / NOT APPLIED",
                     next_command=f"auteur structure revision validate {plan.plan_id} --project .",
                     source_age=source_age,
                 )
@@ -226,8 +226,8 @@ def build_author_attention(project_root: Path) -> list[dict[str, Any]]:
                     kind="structure_revision_plan",
                     artifact_id=plan.plan_id,
                     state=state,
-                    reason="The plan is current and ready for consequence preview before explicit authority action.",
-                    authority="REVISION PLAN / NOT APPLIED",
+                    reason="The plan is current and ready for a preview of what would change before you confirm it.",
+                    authority="CHANGE PLAN / NOT APPLIED",
                     next_command=f"auteur structure revision preview {plan.plan_id} --project .",
                     source_age=source_age,
                 )
