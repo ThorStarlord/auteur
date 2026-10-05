@@ -58,7 +58,7 @@ class QuickDraftResult:
     session_dir: Path
     scaffold_path: Path
     draft_path: Path
-    elapsed_seconds: float
+    elapsed_seconds: float | None
     provider: str
 
 
@@ -437,7 +437,7 @@ def complete_quick_draft_host_agent_response(
     write_host_agent_response(response_path, response)
 
     provider = f"{response.backend}/{response.runtime}/{response.model}"
-    elapsed = float(response.elapsed_seconds or 0.0)
+    elapsed = response.elapsed_seconds
     draft_info.update(
         {
             "status": "draft_ready",
@@ -445,8 +445,6 @@ def complete_quick_draft_host_agent_response(
             "accepted": False,
             "provider": provider,
             "current_file": draft_path.name,
-            "elapsed_seconds": round(elapsed, 3),
-            "thirty_second_target_met": elapsed <= 30.0,
             "candidate_sha256": hashlib.sha256(draft_path.read_bytes()).hexdigest(),
             "backend_response": {
                 "file": response_path.name,
@@ -455,6 +453,12 @@ def complete_quick_draft_host_agent_response(
             },
         }
     )
+    if elapsed is not None:
+        draft_info["elapsed_seconds"] = round(elapsed, 3)
+        draft_info["thirty_second_target_met"] = elapsed <= 30.0
+    else:
+        draft_info.pop("elapsed_seconds", None)
+        draft_info.pop("thirty_second_target_met", None)
     scaffold_path.write_text(
         yaml.safe_dump(scaffold, sort_keys=False, allow_unicode=True),
         encoding="utf-8",

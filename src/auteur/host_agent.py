@@ -175,6 +175,8 @@ def validate_host_agent_response(
     response = payload if isinstance(payload, HostAgentResponse) else HostAgentResponse(**payload)
     if response.schema != RESPONSE_SCHEMA:
         raise ValueError("unsupported host-agent response schema")
+    if response.backend != "host-agent":
+        raise ValueError("host-agent response backend must be 'host-agent'")
     if response.request_id != request.request_id:
         raise ValueError("host-agent response belongs to a different request")
     if response.candidate_id != request.candidate_id:

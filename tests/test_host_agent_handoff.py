@@ -88,3 +88,15 @@ def test_response_packet_round_trip_is_inspectable(tmp_path: Path) -> None:
     assert payload["request_sha256"] == request.request_sha256
     assert payload["text"] == "Generated scene."
     assert payload["backend"] == "host-agent"
+
+
+
+def test_response_cannot_masquerade_as_direct_provider() -> None:
+    request = _request()
+    response = build_host_agent_response(
+        request,
+        "Generated scene.",
+        backend="openai",
+    )
+    with pytest.raises(ValueError, match="backend"):
+        validate_host_agent_response(request, response)

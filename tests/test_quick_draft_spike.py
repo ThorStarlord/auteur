@@ -497,3 +497,33 @@ def test_quick_draft_host_agent_rejects_response_for_other_candidate_without_dra
         )
 
     assert not (first.session_dir / "scene_draft.md").exists()
+
+
+
+def test_quick_draft_host_agent_unknown_latency_stays_unknown(
+    tmp_path: Path,
+) -> None:
+    prepared = prepare_quick_draft_host_agent_request(
+        PREMISE,
+        FIRST_SCENE,
+        project_root=tmp_path,
+    )
+    host_agent = __import__("auteur.host_agent", fromlist=["load_host_agent_request"])
+    request = host_agent.load_host_agent_request(prepared.request_path)
+    response = build_host_agent_response(
+        request,
+        "A scene with intentionally unreported runtime latency.",
+        runtime="coding-agent-test",
+        model="test-model",
+    )
+
+    result = complete_quick_draft_host_agent_response(
+        tmp_path,
+        prepared.session_id,
+        response,
+    )
+
+    assert result.elapsed_seconds is None
+    scaffold = yaml.safe_load(result.scaffold_path.read_text(encoding="utf-8"))
+    assert "elapsed_seconds" not in scaffold["draft"]
+    assert "thirty_second_target_met" not in scaffold["draft"]
