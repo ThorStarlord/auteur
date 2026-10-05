@@ -32,6 +32,7 @@ class ChapterProductionStatus(str, Enum):
 class DraftReviewProjection:
     chapter_index: int
     source_draft: str | None
+    draft_text: str | None
     draft_version: int | None
     production_status: ChapterProductionStatus
     accepted: bool
@@ -136,6 +137,7 @@ def project_draft_review(project_root: Path, chapter_index: int) -> DraftReviewP
     drafts = sorted(chapter_dir.glob("draft_v*.md"), key=_draft_version) if chapter_dir.is_dir() else []
     final = chapter_dir / "final.md"
     latest = drafts[-1] if drafts else None
+    draft_text = latest.read_text(encoding="utf-8") if latest else None
     version = _draft_version(latest) if latest else None
     accepted = final.is_file() and (latest is None or final.read_bytes() == latest.read_bytes())
     stale = False
@@ -192,6 +194,7 @@ def project_draft_review(project_root: Path, chapter_index: int) -> DraftReviewP
     return DraftReviewProjection(
         chapter_index=chapter_index,
         source_draft=latest.name if latest else None,
+        draft_text=draft_text,
         draft_version=version,
         production_status=status,
         accepted=accepted,

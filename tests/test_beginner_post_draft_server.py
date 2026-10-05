@@ -32,6 +32,7 @@ def test_server_exposes_review_and_contextual_plan(tmp_path: Path) -> None:
         base = f"http://127.0.0.1:{server.port}"
         review = _json(f"{base}/api/beginner/chapters/1/review")
         assert review["source_draft"] == "draft_v1.md"
+        assert review["draft_text"] == "candidate"
         assert review["production_status"] == "candidate_draft"
 
         plan = _json(f"{base}/api/beginner/chapters/2/plan")
