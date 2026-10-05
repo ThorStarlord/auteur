@@ -176,7 +176,7 @@ def test_state_canon_markdown(test_project, capsys):
     captured = capsys.readouterr()
 
     assert rc == 0
-    assert "# Canonical Reference Manual" in captured.out
+    assert "# Accepted Story Reference" in captured.out
     assert "Character Registry" in captured.out
     assert "Aldric" in captured.out
     assert "chapter_1" in captured.out
@@ -213,7 +213,7 @@ def test_state_confirm_recovery_merge(test_project, capsys):
     captured = capsys.readouterr()
 
     assert rc == 0
-    assert "Success: Recovery candidate layers validated and merged" in captured.out
+    assert "Success: recovered story choices were checked and merged" in captured.out
 
     # Check blueprint updates
     bp = StoryBlueprint.from_yaml(test_project / "blueprint.yaml")
@@ -246,7 +246,7 @@ def test_state_confirm_ignores_legacy_scope_scale_key(test_project, capsys):
     captured = capsys.readouterr()
 
     assert rc == 0
-    assert "Success: Recovery candidate layers validated and merged" in captured.out
+    assert "Success: recovered story choices were checked and merged" in captured.out
 
     bp = StoryBlueprint.from_yaml(test_project / "blueprint.yaml")
     assert bp.identity.length_class.value == "novel"

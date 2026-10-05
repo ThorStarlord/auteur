@@ -285,5 +285,5 @@ def test_beginner_decision_golden_path_closes_safe_authority_loop(
     assert attention
     assert attention[0]["kind"] == "tutor_session"
     assert attention[0]["state"] == "stale"
-    assert attention[0]["authority_status"] == "LOCAL / NONCANONICAL"
+    assert attention[0]["authority_status"] == "ADVICE ONLY / NOT PART OF STORY YET"
     assert identity.read_bytes() == identity_before

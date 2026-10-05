@@ -1316,10 +1316,10 @@
 
   function compositionDispositionLabel(disposition) {
     var labels = {
-      MAPS_TO_CANON: "Will become canonical",
-      CONTRIBUTES_TO_CANON: "May contribute to canon",
-      GUIDANCE_CONTEXT: "Will remain context / provenance",
-      PROVENANCE_ONLY: "Will remain provenance",
+      MAPS_TO_CANON: "Will become part of the accepted story",
+      CONTRIBUTES_TO_CANON: "May shape the accepted story",
+      GUIDANCE_CONTEXT: "Will remain supporting context",
+      PROVENANCE_ONLY: "Will remain source history",
       REQUIRES_AUTHOR_DECISION: "Needs author decision",
       NOT_REPRESENTABLE_BY_CURRENT_DOMAIN: "Not represented by current domain",
       NOT_RELEVANT_TO_THIS_MILESTONE: "Not relevant to this milestone",
@@ -1470,7 +1470,7 @@
         '<p class="phase-transition-kicker">Story foundation ready</p>' +
         '<h3>Ready for Chapter 1</h3>' +
         '<p>Auteur can build the working outline, Chapter 1 plan, and scene plan as one planning step. ' +
-        'Those internal artifacts stay separate and inspectable.</p>' +
+        'Auteur keeps those planning details separate so you can inspect them if you want.</p>' +
         "</section>"
       );
 
@@ -1609,14 +1609,31 @@
     renderContinuation(projection);
   }
 
+  function bookUpdateStatusLabel(status) {
+    var labels = {
+      not_started: "not started",
+      reconciled: "up to date",
+      partially_reconciled: "partly updated",
+      divergent: "needs review",
+      abandoned: "stopped",
+      superseded: "replaced by a newer update",
+    };
+    return labels[status] || String(status || "not started").replace(/_/g, " ");
+  }
+
+  function bookAuthorityLabel(status) {
+    if (!status || status === "DERIVED / NOT CANON") return "WORKING / NOT ACCEPTED";
+    return String(status).replace(/DERIVED/g, "WORKING").replace(/NOT CANON/g, "NOT ACCEPTED");
+  }
+
   function renderBookProgress(progress) {
     $("book-progress-summary").textContent =
       progress.accepted_chapters + " accepted chapter(s) · " +
       progress.planned_chapters + " planned chapter(s).";
     $("book-expression-status").textContent = progress.book_expression || "missing";
-    $("book-reconciliation-status").textContent = progress.reconciliation_status || "not started";
+    $("book-reconciliation-status").textContent = bookUpdateStatusLabel(progress.reconciliation_status);
     $("book-next-command").textContent = progress.next_command || "No owning command is currently required.";
-    $("book-authority-status").textContent = progress.authority_status || "DERIVED / NOT CANON";
+    $("book-authority-status").textContent = bookAuthorityLabel(progress.authority_status);
 
     if (progress.publication_ready) {
       $("book-publication-status").innerHTML =
@@ -1677,7 +1694,7 @@
     if (typeof review.draft_text === "string") {
       evidence.push(
         '<article class="chapter-draft"><h4>Chapter 1 draft</h4>' +
-        '<div class="draft-prose" aria-label="Chapter candidate prose">' +
+        '<div class="draft-prose" aria-label="Chapter draft prose">' +
         escapeHtml(review.draft_text) +
         "</div></article>"
       );
