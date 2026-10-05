@@ -27,6 +27,12 @@
     currentProjection: null,
     structureCustomize: false,
     continuationCustomize: false,
+    quickDraftSessionId: null,
+    quickDraftPremise: "",
+    quickDraftFirstScene: "",
+    quickDraftDiscoveries: [],
+    quickDraftDiscoveriesVisible: false,
+    quickDraftDirty: false,
   };
 
   function $(id) {
@@ -89,6 +95,13 @@
     state.activeLensId = null;
     state.structureCustomize = false;
     state.continuationCustomize = false;
+    if (!currentQuickDraftFromQuery()) {
+      $("quick-draft-result").hidden = true;
+      state.quickDraftSessionId = null;
+      state.quickDraftDiscoveries = [];
+      state.quickDraftDiscoveriesVisible = false;
+      state.quickDraftDirty = false;
+    }
   }
 
   function showWorkspace() {
@@ -100,8 +113,20 @@
 
   function updateWorkspaceUrl(workspaceId) {
     var url = new URL(window.location.href);
-    if (workspaceId) url.searchParams.set("workspace", workspaceId);
-    else url.searchParams.delete("workspace");
+    if (workspaceId) {
+      url.searchParams.set("workspace", workspaceId);
+      url.searchParams.delete("quick_draft");
+    } else {
+      url.searchParams.delete("workspace");
+    }
+    window.history.pushState({}, "", url.pathname + url.search);
+  }
+
+  function updateQuickDraftUrl(sessionId) {
+    var url = new URL(window.location.href);
+    url.searchParams.delete("workspace");
+    if (sessionId) url.searchParams.set("quick_draft", sessionId);
+    else url.searchParams.delete("quick_draft");
     window.history.pushState({}, "", url.pathname + url.search);
   }
 
@@ -154,17 +179,194 @@
       });
   }
 
-  function createStoryFromHome() {
+  function renderQuickDraftDiscoveries(items) {
+    var container = $("quick-draft-discoveries");
+    var discoveries = items || [];
+    state.quickDraftDiscoveries = discoveries;
+    if (!discoveries.length) {
+      container.innerHTML = '<p class="muted">No obvious new elements yet. Keep writing.</p>';
+      return;
+    }
+    container.innerHTML =
+      '<h4>What should Auteur remember when you shape the story?</h4>' +
+      discoveries.map(function (item, index) {
+        return '<article class="discovery-chip"><strong>' +
+          escapeHtml(item.label || "New story element") +
+          '</strong><p>' + escapeHtml(item.value || "") + "</p>" +
+          '<label><input type="checkbox" data-remember-discovery="' + String(index) +
+          '"> Carry this idea into story shaping</label></article>';
+      }).join("") +
+      '<p class="hint">Nothing is selected automatically. These are working observations, not accepted story facts.</p>';
+  }
+
+  function renderQuickDraftProjection(projection) {
+    if (!projection) return;
+    state.quickDraftSessionId = projection.session_id;
+    var inputs = (projection.scaffold || {}).inputs || {};
+    state.quickDraftPremise = inputs.premise || state.quickDraftPremise;
+    state.quickDraftFirstScene = inputs.first_scene_intent || state.quickDraftFirstScene;
+    if (state.quickDraftPremise) $("new-story-premise").value = state.quickDraftPremise;
+    if (state.quickDraftFirstScene) $("quick-draft-first-scene").value = state.quickDraftFirstScene;
+    state.quickDraftDirty = false;
+    $("quick-draft-result").hidden = false;
+    $("quick-draft-editor").value = projection.draft_text || "";
+    var draft = projection.draft || {};
+    var elapsed = typeof draft.elapsed_seconds === "number"
+      ? " · " + draft.elapsed_seconds.toFixed(1) + "s to first draft"
+      : "";
+    $("quick-draft-meta").textContent =
+      "Working scene" + elapsed + " · " + String(draft.edit_count || 0) + " edit(s)";
+    if (state.quickDraftDiscoveriesVisible) {
+      renderQuickDraftDiscoveries(projection.discoveries || []);
+    } else {
+      $("quick-draft-discoveries").innerHTML =
+        '<p class="muted">When you are ready, choose “What did we discover?” to see possible story material from the draft.</p>';
+    }
+    $("quick-draft-result").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function startQuickDraft() {
     var premise = $("new-story-premise").value.trim();
-    if (!premise) return;
+    var firstScene = $("quick-draft-first-scene").value.trim();
+    if (!premise) {
+      $("home-status").textContent = "Add a story idea first.";
+      return;
+    }
+    if (!firstScene) {
+      $("home-status").textContent = "Tell Auteur what you want to happen in the first scene.";
+      $("quick-draft-first-scene").focus();
+      return;
+    }
+    state.quickDraftDiscoveriesVisible = false;
+    state.quickDraftDiscoveries = [];
+    state.quickDraftPremise = premise;
+    state.quickDraftFirstScene = firstScene;
+    $("home-status").textContent = "Writing your first scene…";
+    return fetch("/api/beginner/quick-draft", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ premise: premise, first_scene: firstScene }),
+    })
+      .then(readJson)
+      .then(function (projection) {
+        $("home-status").textContent = "";
+        updateQuickDraftUrl(projection.session_id);
+        renderQuickDraftProjection(projection);
+        return projection;
+      })
+      .catch(function (error) {
+        $("home-status").textContent = "Quick Draft could not start: " + error.message;
+        return null;
+      });
+  }
+
+  function loadQuickDraftSession(sessionId) {
+    if (!sessionId) return Promise.resolve(null);
+    $("home-status").textContent = "Loading your working scene…";
+    return fetch(
+      "/api/beginner/quick-draft/" + encodeURIComponent(sessionId),
+      { headers: { Accept: "application/json" } }
+    )
+      .then(readJson)
+      .then(function (projection) {
+        state.quickDraftDiscoveriesVisible = false;
+        $("home-status").textContent = "";
+        renderQuickDraftProjection(projection);
+        return projection;
+      })
+      .catch(function (error) {
+        $("home-status").textContent = "Could not reopen Quick Draft: " + error.message;
+        return null;
+      });
+  }
+
+  function saveQuickDraft() {
+    if (!state.quickDraftSessionId) return Promise.resolve(null);
+    var prose = $("quick-draft-editor").value;
+    $("home-status").textContent = "Saving your scene…";
+    return fetch(
+      "/api/beginner/quick-draft/" + encodeURIComponent(state.quickDraftSessionId) + "/save",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ draft_text: prose }),
+      }
+    )
+      .then(readJson)
+      .then(function (projection) {
+        state.quickDraftDiscoveriesVisible = false;
+        state.quickDraftDiscoveries = [];
+        $("home-status").textContent = "Saved.";
+        renderQuickDraftProjection(projection);
+        return projection;
+      })
+      .catch(function (error) {
+        $("home-status").textContent = "Could not save Quick Draft: " + error.message;
+        return null;
+      });
+  }
+
+  function discoverQuickDraftElements() {
+    if (!state.quickDraftSessionId) return Promise.resolve(null);
+    return fetch(
+      "/api/beginner/quick-draft/" + encodeURIComponent(state.quickDraftSessionId) + "/discoveries",
+      { headers: { Accept: "application/json" } }
+    )
+      .then(readJson)
+      .then(function (projection) {
+        state.quickDraftDiscoveriesVisible = true;
+        renderQuickDraftDiscoveries(projection.discoveries || []);
+        return projection;
+      })
+      .catch(function (error) {
+        $("quick-draft-discoveries").innerHTML =
+          '<p class="blocking-inline">Could not inspect this draft: ' + escapeHtml(error.message) + "</p>";
+        return null;
+      });
+  }
+
+  function selectedQuickDraftDiscoveries() {
+    var selected = [];
+    Array.prototype.forEach.call(
+      $("quick-draft-discoveries").querySelectorAll("[data-remember-discovery]:checked"),
+      function (input) {
+        var index = Number(input.getAttribute("data-remember-discovery"));
+        if (Number.isInteger(index) && state.quickDraftDiscoveries[index]) {
+          selected.push(state.quickDraftDiscoveries[index]);
+        }
+      }
+    );
+    return selected;
+  }
+
+  function shapingPremise(selected) {
+    var parts = [state.quickDraftPremise];
+    if (state.quickDraftFirstScene) {
+      parts.push("First scene I want: " + state.quickDraftFirstScene);
+    }
+    if (selected.length) {
+      parts.push(
+        "Ideas I discovered while drafting and explicitly want to carry forward:\n- " +
+        selected.map(function (item) { return item.value; }).join("\n- ")
+      );
+    }
+    return parts.filter(Boolean).join("\n\n");
+  }
+
+  function createStoryFromPremise(premise, extra) {
+    if (!premise) return Promise.resolve(null);
     $("home-status").textContent = "Creating your story…";
+    var payload = {
+      command_id: nextCommandId("create"),
+      premise: premise
+    };
+    Object.keys(extra || {}).forEach(function (key) {
+      payload[key] = extra[key];
+    });
     return fetch("/api/beginner/workspaces", {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({
-        command_id: nextCommandId("create"),
-        premise: premise
-      }),
+      body: JSON.stringify(payload),
     })
       .then(readJson)
       .then(function (projection) {
@@ -181,6 +383,47 @@
         $("home-status").textContent = "Could not create story: " + error.message;
         return null;
       });
+  }
+
+  function shapeQuickDraftStory() {
+    if (!state.quickDraftSessionId) return Promise.resolve(null);
+    function continueAfterDiscovery(projection) {
+      if (!projection) return null;
+      if (!(projection.discoveries || []).length) {
+        return createStoryFromPremise(
+          shapingPremise([]),
+          {
+            quick_draft_session_id: state.quickDraftSessionId,
+            quick_draft_discoveries: [],
+          }
+        );
+      }
+      $("home-status").textContent =
+        "Choose anything you want Auteur to remember, then choose “Shape this story” again.";
+      return null;
+    }
+    if (state.quickDraftDirty) {
+      return saveQuickDraft().then(function (saved) {
+        if (!saved) return null;
+        return discoverQuickDraftElements().then(continueAfterDiscovery);
+      });
+    }
+    if (!state.quickDraftDiscoveriesVisible) {
+      return discoverQuickDraftElements().then(continueAfterDiscovery);
+    }
+    var selected = selectedQuickDraftDiscoveries();
+    return createStoryFromPremise(
+      shapingPremise(selected),
+      {
+        quick_draft_session_id: state.quickDraftSessionId,
+        quick_draft_discoveries: selected,
+      }
+    );
+  }
+
+  function createStoryFromHome() {
+    var premise = $("new-story-premise").value.trim();
+    return createStoryFromPremise(premise, {});
   }
 
   function loadProjection() {
@@ -1721,8 +1964,33 @@
     var accept = $("post-draft-accept");
     var revise = $("post-draft-revise");
     var planNext = $("post-draft-plan-next");
-    accept.hidden = review.accepted || !review.source_draft || review.stale || (review.blocking_findings || []).length > 0;
-    revise.hidden = review.accepted || !review.source_draft;
+    var reconcile = $("post-draft-reconcile");
+    var needsReconciliation =
+      !!review.reconciliation_available &&
+      !review.accepted &&
+      !!review.source_draft &&
+      !review.stale;
+
+    reconcile.hidden = !needsReconciliation;
+    if (needsReconciliation) {
+      var discoveries = review.creative_discoveries || [];
+      $("post-draft-discoveries").innerHTML = discoveries.length
+        ? discoveries.map(function (item) {
+            return '<article class="discovery-chip"><strong>' +
+              escapeHtml(item.label || "Story change") +
+              '</strong><p>' + escapeHtml(item.value || "") + "</p></article>";
+          }).join("")
+        : '<p>Auteur noticed that the draft changed after its previous review.</p>';
+    }
+
+    accept.hidden =
+      review.accepted ||
+      !review.source_draft ||
+      review.stale ||
+      !!review.review_stale ||
+      needsReconciliation ||
+      (review.blocking_findings || []).length > 0;
+    revise.hidden = review.accepted || !review.source_draft || needsReconciliation;
     planNext.hidden = !review.accepted;
     accept.textContent = "Keep this draft";
     revise.textContent = "Revise";
@@ -1772,6 +2040,43 @@
       })
       .catch(function (error) {
         setStatus("Chapter acceptance failed: " + error.message);
+      });
+  }
+
+  function resolveCreativeDivergence(decision) {
+    var chapter = currentChapterFromQuery();
+    if (!chapter) return Promise.resolve(null);
+    var label = decision === "keep_and_reconcile"
+      ? "Keeping the draft and preparing story updates…"
+      : (decision === "keep_intentional_divergence"
+        ? "Keeping the draft as an intentional divergence…"
+        : "Preparing a revision toward the plan…");
+    setStatus(label);
+    return fetch("/api/beginner/chapters/" + chapter + "/reconcile-new-elements", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        command_id: nextCommandId("reconcile-new-elements"),
+        decision: decision,
+      }),
+    })
+      .then(readJson)
+      .then(function (result) {
+        if (decision === "revise_to_plan") {
+          return sendAction("draft-chapter-1", {}, "Revising Chapter " + chapter)
+            .then(function () { return loadPostDraftReview(); });
+        }
+        setStatus(
+          decision === "keep_and_reconcile"
+            ? "Draft kept. Auteur prepared " + String(result.proposal_count || 0) + " suggested story update(s)."
+            : "Draft kept. The difference from the current plan remains intentional."
+        );
+        loadBookProgress();
+        return loadProjection().then(function () { return loadPostDraftReview(); });
+      })
+      .catch(function (error) {
+        setStatus("Could not resolve the story change: " + error.message);
+        return null;
       });
   }
 
@@ -1831,6 +2136,15 @@
     }
   }
 
+  function currentQuickDraftFromQuery() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      return params.get("quick_draft");
+    } catch (error) {
+      return null;
+    }
+  }
+
   function initDrawer() {
     var toggle = $("nav-toggle");
     var nav = $("story-navigator");
@@ -1882,6 +2196,7 @@
       }
     });
     var fromQuery = currentWorkspaceFromQuery();
+    var quickDraftFromQuery = currentQuickDraftFromQuery();
     if (fromQuery) {
       state.workspaceId = fromQuery;
       $("workspace-id").value = fromQuery;
@@ -1891,11 +2206,26 @@
     } else {
       showHome();
       loadRecentStories();
+      if (quickDraftFromQuery) {
+        state.quickDraftSessionId = quickDraftFromQuery;
+        loadQuickDraftSession(quickDraftFromQuery);
+      }
     }
     $("new-story-form").addEventListener("submit", function (event) {
       event.preventDefault();
       createStoryFromHome();
     });
+    $("quick-draft-start").addEventListener("click", startQuickDraft);
+    $("quick-draft-editor").addEventListener("input", function () {
+      state.quickDraftDirty = true;
+      state.quickDraftDiscoveriesVisible = false;
+      state.quickDraftDiscoveries = [];
+      $("quick-draft-discoveries").innerHTML =
+        '<p class="muted">Draft changed. Save it before reviewing discoveries.</p>';
+    });
+    $("quick-draft-save").addEventListener("click", saveQuickDraft);
+    $("quick-draft-discover").addEventListener("click", discoverQuickDraftElements);
+    $("quick-draft-shape").addEventListener("click", shapeQuickDraftStory);
     $("refresh-stories").addEventListener("click", loadRecentStories);
     $("home-button").addEventListener("click", function () {
       state.workspaceId = null;
@@ -1915,11 +2245,17 @@
     });
     window.addEventListener("popstate", function () {
       var workspace = currentWorkspaceFromQuery();
-      if (workspace) openWorkspace(workspace, false);
-      else {
+      var quickDraft = currentQuickDraftFromQuery();
+      if (workspace) {
+        openWorkspace(workspace, false);
+      } else {
         state.workspaceId = null;
         showHome();
         loadRecentStories();
+        if (quickDraft) {
+          state.quickDraftSessionId = quickDraft;
+          loadQuickDraftSession(quickDraft);
+        }
       }
     });
     $("continue-architecture").addEventListener("click", function () {
@@ -1953,6 +2289,15 @@
     });
     $("post-draft-accept").addEventListener("click", acceptLatestDraft);
     $("post-draft-revise").addEventListener("click", preparePostDraftRevision);
+    $("post-draft-keep-reconcile").addEventListener("click", function () {
+      resolveCreativeDivergence("keep_and_reconcile");
+    });
+    $("post-draft-keep-divergence").addEventListener("click", function () {
+      resolveCreativeDivergence("keep_intentional_divergence");
+    });
+    $("post-draft-revise-plan").addEventListener("click", function () {
+      resolveCreativeDivergence("revise_to_plan");
+    });
     $("post-draft-plan-next").addEventListener("click", loadNextChapterPlan);
   }
 

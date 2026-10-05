@@ -5,6 +5,10 @@ Routes (all JSON):
 - GET /api/beginner/workspaces/<workspace_id> -> full projection read.
 - POST /api/beginner/workspaces/<workspace_id>/commands/<command> -> journey
   command with a full MutationCommand envelope; 200 + full projection.
+- POST /api/beginner/quick-draft -> two-input provisional first-scene draft.
+- GET/POST /api/beginner/quick-draft/<session>/... -> inspect/edit provisional draft.
+- POST /api/beginner/chapters/<chapter>/reconcile-new-elements -> explicit
+  keep/update-story, intentional-divergence, or revise-to-plan decision.
 
 The handler holds no narrative rules: the sealed fixture premise enters only
 via workspace creation passthrough and every mutation delegates to
@@ -53,10 +57,18 @@ from .continuation import build_contextual_chapter_plan, build_contextual_scene_
 from .book_progress import project_book_progress
 from .post_draft import (
     accept_latest_chapter,
+    prepare_creative_divergence_resolution,
     prepare_revision_handoff,
     project_chapter_outcome,
     project_draft_review,
     project_next_chapter_context,
+)
+from auteur.quick_draft import (
+    prepare_quick_draft_shape_handoff,
+    project_quick_draft_discoveries,
+    project_quick_draft_session,
+    run_quick_draft,
+    save_quick_draft_revision,
 )
 
 logger = logging.getLogger(__name__)
@@ -466,6 +478,16 @@ class _RequestHandler(BaseHTTPRequestHandler):
                     {"workspaces": [item.model_dump(mode="json") for item in list_workspace_summaries(self.project_root)]},
                 )
                 return
+            if len(parts) == 4 and parts[:3] == ["api", "beginner", "quick-draft"]:
+                self._send_json(200, project_quick_draft_session(self.project_root, parts[3]))
+                return
+            if (
+                len(parts) == 5
+                and parts[:3] == ["api", "beginner", "quick-draft"]
+                and parts[4] == "discoveries"
+            ):
+                self._send_json(200, project_quick_draft_discoveries(self.project_root, parts[3]))
+                return
             if len(parts) == 5 and parts[:3] == ["api", "beginner", "chapters"]:
                 try:
                     chapter_index = int(parts[3])
@@ -510,6 +532,44 @@ class _RequestHandler(BaseHTTPRequestHandler):
         path = urlparse(self.path).path.rstrip("/") or "/"
         try:
             parts = [part for part in path.split("/") if part]
+            if parts == ["api", "beginner", "quick-draft"]:
+                payload = self._read_json()
+                premise = payload.get("premise")
+                first_scene = payload.get("first_scene")
+                if not isinstance(premise, str) or not premise.strip():
+                    raise BeginnerRequestError(400, "premise must be a non-empty string")
+                if not isinstance(first_scene, str) or not first_scene.strip():
+                    raise BeginnerRequestError(400, "first_scene must be a non-empty string")
+                try:
+                    result = run_quick_draft(
+                        premise,
+                        first_scene,
+                        project_root=self.project_root,
+                        llm=self.dependencies.drafting_client,
+                        provider_label="beginner-server",
+                    )
+                    self._send_json(
+                        201,
+                        project_quick_draft_session(self.project_root, result.session_id),
+                    )
+                except (OSError, RuntimeError, ValueError, ImportError) as exc:
+                    raise BeginnerRequestError(422, str(exc)) from exc
+                return
+            if (
+                len(parts) == 5
+                and parts[:3] == ["api", "beginner", "quick-draft"]
+                and parts[4] == "save"
+            ):
+                payload = self._read_json()
+                prose = payload.get("draft_text")
+                try:
+                    self._send_json(
+                        200,
+                        save_quick_draft_revision(self.project_root, parts[3], prose),
+                    )
+                except (FileNotFoundError, OSError, ValueError) as exc:
+                    raise BeginnerRequestError(422, str(exc)) from exc
+                return
             if len(parts) == 5 and parts[:3] == ["api", "beginner", "chapters"]:
                 try:
                     chapter_index = int(parts[3])
@@ -528,6 +588,24 @@ class _RequestHandler(BaseHTTPRequestHandler):
                                 self.project_root,
                                 chapter_index,
                                 command_id=command_id,
+                                owner=accept_beginner_chapter,
+                            ),
+                        )
+                        return
+                    if action == "reconcile-new-elements":
+                        command_id = payload.get("command_id")
+                        decision = payload.get("decision")
+                        if not isinstance(command_id, str) or not command_id:
+                            raise BeginnerRequestError(400, "command_id must be a non-empty string")
+                        if not isinstance(decision, str) or not decision:
+                            raise BeginnerRequestError(400, "decision must be a non-empty string")
+                        self._send_json(
+                            200,
+                            prepare_creative_divergence_resolution(
+                                self.project_root,
+                                chapter_index,
+                                command_id=command_id,
+                                decision=decision,
                                 owner=accept_beginner_chapter,
                             ),
                         )
@@ -576,6 +654,8 @@ class _RequestHandler(BaseHTTPRequestHandler):
         command_id = payload.get("command_id")
         guidance_genre = payload.get("guidance_genre", "mystery")
         premise = payload.get("premise")
+        quick_draft_session_id = payload.get("quick_draft_session_id")
+        quick_draft_discoveries = payload.get("quick_draft_discoveries", [])
         workspace_id = payload.get("workspace_id") or f"workspace-{secrets.token_hex(4)}"
         project_id = payload.get("project_id") or workspace_id
         if not isinstance(command_id, str) or not command_id:
@@ -588,6 +668,31 @@ class _RequestHandler(BaseHTTPRequestHandler):
             raise BeginnerRequestError(400, "workspace_id must be a non-empty string")
         if guidance_genre != "mystery":
             raise BeginnerRequestError(422, f"unsupported guidance_genre: {guidance_genre!r}")
+        if quick_draft_session_id is not None and (
+            not isinstance(quick_draft_session_id, str) or not quick_draft_session_id
+        ):
+            raise BeginnerRequestError(400, "quick_draft_session_id must be a non-empty string")
+        if not isinstance(quick_draft_discoveries, list):
+            raise BeginnerRequestError(400, "quick_draft_discoveries must be a list")
+        if quick_draft_session_id is not None:
+            try:
+                quick_projection = project_quick_draft_session(
+                    self.project_root,
+                    quick_draft_session_id,
+                )
+                available = {
+                    (str(item.get("kind", "")), str(item.get("value", "")))
+                    for item in quick_projection.get("discoveries", [])
+                    if isinstance(item, dict)
+                }
+                for item in quick_draft_discoveries:
+                    if not isinstance(item, dict):
+                        raise ValueError("quick_draft_discoveries entries must be objects")
+                    key = (str(item.get("kind", "")), str(item.get("value", "")))
+                    if key not in available:
+                        raise ValueError("selected Quick Draft discovery is not current")
+            except (FileNotFoundError, OSError, ValueError) as exc:
+                raise BeginnerRequestError(422, str(exc)) from exc
         try:
             app = self._app_for(workspace_id)
         except ValueError as exc:
@@ -599,6 +704,13 @@ class _RequestHandler(BaseHTTPRequestHandler):
                 premise=premise,
                 guidance_genre=guidance_genre,
             )
+            if quick_draft_session_id is not None:
+                prepare_quick_draft_shape_handoff(
+                    self.project_root,
+                    quick_draft_session_id,
+                    workspace_id,
+                    quick_draft_discoveries,
+                )
         except BeginnerConcurrencyError:
             raise
         except BeginnerPersistenceError:
