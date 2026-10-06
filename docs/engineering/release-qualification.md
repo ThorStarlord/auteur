@@ -38,6 +38,39 @@ platform-specific evidence is decision-relevant and worth the cost. Exhausted
 hosted-runner credits may block a higher qualification claim, but they must not
 block ordinary implementation work.
 
+## External execution dependency rule
+
+The local-first principle applies more broadly than GitHub Actions.
+
+```text
+external execution dependency unavailable
+!= local implementation blocked
+!= required evidence satisfied
+```
+
+When a connector, hosted runner, provider, publication surface, package
+registry, or other external execution dependency is unavailable:
+
+- continue reversible local implementation and focused validation when the
+  responsibility can still be performed validly without that dependency;
+- preserve the exact local candidate, patch, commands, environment, results,
+  and handoff material needed to resume the external action later;
+- lower the claim to the strongest state actually established; local evidence
+  does not become remote evidence merely because the remote surface is
+  unavailable;
+- do not claim a commit, pull request, exact-head verification, merge,
+  deployment, publication, provider execution, or remote state transition that
+  did not occur;
+- distinguish an **external blocker** from a **product defect** unless evidence
+  independently establishes both;
+- resume at the blocked boundary rather than repeating already-valid local work
+  when the dependency returns.
+
+For example, locally tested but uncommitted work is a **local implementation
+candidate**, not repository-level `Implemented` under the release-state
+definition below. Likewise, a preserved patch plus handoff can be complete
+continuation evidence without being an integrated repository change.
+
 ## Development validation levels
 
 ### L1 — Focused validation

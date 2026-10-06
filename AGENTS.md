@@ -47,6 +47,46 @@ governing documents and sit on the protected list.
 - Treat workspace identity as a preflight condition, not something the
   executor should discover or repair after work begins.
 
+### Failure classification and process repair
+
+Treat failures as evidence about **processes and boundaries**, not people.
+
+- Classify the smallest owning layer before repairing. A failed generation does
+  not automatically establish a model problem; a failed workflow does not
+  automatically establish an architecture problem; an unavailable external
+  service does not establish a product defect.
+- Do not explain a failure at a higher layer than the evidence warrants. If the
+  concrete defect is presentation, repair presentation; if it is orchestration,
+  repair orchestration; if it is a deterministic heuristic, repair that
+  heuristic. Broader architecture work requires broader evidence.
+- Preserve production preconditions in tests. Mock an already-qualified
+  collaborator when useful, but do not mock away the real construction,
+  authority, persistence, freshness, or identity invariants of the boundary
+  under test.
+- For asynchronous or delegated work, make execution state visible enough that
+  the owner does not need to poll for progress. Distinguish:
+  - **WORKING** — bounded progress is continuing;
+  - **BLOCKED** — a named dependency prevents the next responsibility;
+  - **BOUNDARY REACHED** — valid local work is complete but an external or
+    authority-dependent action is unavailable;
+  - **FAILED** — the attempted responsibility did not satisfy its contract.
+  Silence is not a useful substitute for one of these states.
+- When an external dependency fails, continue useful reversible local work when
+  that work remains valid, preserve exact evidence/handoff artifacts, and lower
+  the claim to what actually occurred. Never convert an unavailable remote
+  action into a claimed commit, merge, deployment, publication, or exact-head
+  verification.
+
+The governing debugging pattern is:
+
+```text
+observed failure
+-> classify the owning process/boundary
+-> repair the lowest correct owner
+-> verify the original failure under fresh observation
+-> broaden scope only if the returned evidence warrants it
+```
+
 ### Upstream story-idea selection
 
 When the task is **what story should be made** rather than how an already
