@@ -1,9 +1,4 @@
-"""Backend-neutral Chapter-N generation orchestration.
-
-This module owns no story authority. It turns the existing Chapter-N contextual
-plan into an exact Bard/host-agent request and may turn the matching, still-fresh
-response into a Working draft only.
-"""
+"""Backend-neutral Chapter-N generation orchestration with fail-closed freshness."""
 
 from __future__ import annotations
 
@@ -319,9 +314,4 @@ def complete_chapter_generation(
     return _completed(root, _read_json(receipt_path))
 
 
-__all__ = [
-    "CompletedChapterGeneration",
-    "PreparedChapterGeneration",
-    "complete_chapter_generation",
-    "prepare_chapter_generation",
-]
+__all__ = ["CompletedChapterGeneration", "PreparedChapterGeneration", "complete_chapter_generation", "prepare_chapter_generation"]
