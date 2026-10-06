@@ -9,11 +9,14 @@ import yaml
 from auteur.cli import main
 from auteur.cli_parser import build_parser
 from auteur.llm import LLMResponse
+from auteur.host_agent import build_host_agent_response
 from auteur.quick_draft import (
     DEFAULT_LENSES,
     STATUS,
     _provider_model_label,
+    complete_quick_draft_host_agent_response,
     parse_quick_draft_args,
+    prepare_quick_draft_host_agent_request,
     prepare_quick_draft_shape_handoff,
     project_quick_draft_discoveries,
     project_quick_draft_session,
@@ -404,3 +407,123 @@ def test_quick_draft_provider_label_includes_effective_model() -> None:
     assert _provider_model_label("anthropic", None) == "anthropic/claude-sonnet-4-6"
     assert _provider_model_label("openai", "custom-model") == "openai/custom-model"
 
+
+
+
+def test_quick_draft_host_agent_path_requires_no_provider_and_writes_exact_request(
+    tmp_path: Path,
+) -> None:
+    prepared = prepare_quick_draft_host_agent_request(
+        PREMISE,
+        FIRST_SCENE,
+        project_root=tmp_path,
+    )
+
+    assert prepared.request_path.is_file()
+    assert not (prepared.session_dir / "scene_draft.md").exists()
+    request = __import__("auteur.host_agent", fromlist=["load_host_agent_request"]).load_host_agent_request(
+        prepared.request_path
+    )
+    assert request.candidate_id == prepared.session_id
+    assert request.request_sha256 == prepared.request_sha256
+    assert PREMISE in request.user
+    assert FIRST_SCENE in request.user
+    assert request.settings == {"temperature": 0.85, "max_tokens": 1800}
+
+    scaffold = yaml.safe_load(prepared.scaffold_path.read_text(encoding="utf-8"))
+    assert scaffold["draft"]["status"] == "awaiting_host_agent"
+    assert scaffold["draft"]["provider"] == "host-agent/awaiting-response"
+    assert scaffold["draft"]["backend_request"]["request_sha256"] == prepared.request_sha256
+
+
+def test_quick_draft_host_agent_response_is_bound_to_exact_request(
+    tmp_path: Path,
+) -> None:
+    prepared = prepare_quick_draft_host_agent_request(
+        PREMISE,
+        FIRST_SCENE,
+        project_root=tmp_path,
+    )
+    host_agent = __import__("auteur.host_agent", fromlist=["load_host_agent_request"])
+    request = host_agent.load_host_agent_request(prepared.request_path)
+    response = build_host_agent_response(
+        request,
+        "# Chapter 1\n\nVance watches Miller carefully.\n",
+        runtime="coding-agent-test",
+        model="test-model",
+        elapsed_seconds=2.5,
+    )
+
+    result = complete_quick_draft_host_agent_response(
+        tmp_path,
+        prepared.session_id,
+        response,
+    )
+
+    assert result.provider == "host-agent/coding-agent-test/test-model"
+    assert "Vance watches Miller" in result.draft_path.read_text(encoding="utf-8")
+    scaffold = yaml.safe_load(result.scaffold_path.read_text(encoding="utf-8"))
+    assert scaffold["draft"]["status"] == "draft_ready"
+    assert scaffold["draft"]["accepted"] is False
+    assert scaffold["draft"]["backend_response"]["model"] == "test-model"
+    assert (prepared.session_dir / "host_agent_response.json").is_file()
+
+
+def test_quick_draft_host_agent_rejects_response_for_other_candidate_without_draft(
+    tmp_path: Path,
+) -> None:
+    first = prepare_quick_draft_host_agent_request(
+        PREMISE,
+        FIRST_SCENE,
+        project_root=tmp_path,
+    )
+    second = prepare_quick_draft_host_agent_request(
+        "A different premise.",
+        "A different opening scene.",
+        project_root=tmp_path,
+    )
+    host_agent = __import__("auteur.host_agent", fromlist=["load_host_agent_request"])
+    second_request = host_agent.load_host_agent_request(second.request_path)
+    wrong = build_host_agent_response(
+        second_request,
+        "This belongs to the other candidate.",
+    )
+
+    with pytest.raises(ValueError, match="different request|different candidate|fingerprint"):
+        complete_quick_draft_host_agent_response(
+            tmp_path,
+            first.session_id,
+            wrong,
+        )
+
+    assert not (first.session_dir / "scene_draft.md").exists()
+
+
+
+def test_quick_draft_host_agent_unknown_latency_stays_unknown(
+    tmp_path: Path,
+) -> None:
+    prepared = prepare_quick_draft_host_agent_request(
+        PREMISE,
+        FIRST_SCENE,
+        project_root=tmp_path,
+    )
+    host_agent = __import__("auteur.host_agent", fromlist=["load_host_agent_request"])
+    request = host_agent.load_host_agent_request(prepared.request_path)
+    response = build_host_agent_response(
+        request,
+        "A scene with intentionally unreported runtime latency.",
+        runtime="coding-agent-test",
+        model="test-model",
+    )
+
+    result = complete_quick_draft_host_agent_response(
+        tmp_path,
+        prepared.session_id,
+        response,
+    )
+
+    assert result.elapsed_seconds is None
+    scaffold = yaml.safe_load(result.scaffold_path.read_text(encoding="utf-8"))
+    assert "elapsed_seconds" not in scaffold["draft"]
+    assert "thirty_second_target_met" not in scaffold["draft"]

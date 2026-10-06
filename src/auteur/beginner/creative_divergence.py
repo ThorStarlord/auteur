@@ -20,6 +20,20 @@ _STOP_LOCATION_WORDS = {
     "and", "but", "who", "that", "which", "where", "when", "while", "with",
     "after", "before", "because", "as", "then", "there", "here",
 }
+_PLACE_HEAD_WORDS = {
+    "alley", "apartment", "archive", "attic", "bar", "basement", "beach",
+    "bridge", "building", "bunker", "cabin", "cafe", "campus", "castle",
+    "cave", "cellar", "chapel", "church", "city", "clinic", "convent",
+    "courthouse", "courtroom", "courtyard", "dock", "estate", "factory",
+    "farm", "field", "forest", "gallery", "garden", "harbor", "hospital",
+    "hotel", "house", "island", "jail", "kitchen", "lab", "laboratory",
+    "lake", "library", "lobby", "market", "motel", "mountain", "museum",
+    "office", "ocean", "palace", "park", "plaza", "port", "precinct",
+    "prison", "restaurant", "river", "road", "room", "school", "sea",
+    "shop", "shore", "station", "store", "street", "temple", "theater",
+    "theatre", "tower", "town", "tunnel", "valley", "village", "warehouse",
+    "woods",
+}
 _FALSE_NAMES = {
     "Chapter One", "Chapter Two", "Scene One", "Scene Two",
     "Quick Draft", "Story Identity", "Story Structure",
@@ -38,6 +52,11 @@ def _names(text: str) -> set[str]:
     }
 
 
+def _looks_like_place(phrase: str) -> bool:
+    words = phrase.casefold().split()
+    return bool(words) and words[-1] in _PLACE_HEAD_WORDS
+
+
 def _location_phrases(text: str) -> set[str]:
     phrases: set[str] = set()
     for match in _LOCATION_RE.finditer(text or ""):
@@ -48,7 +67,11 @@ def _location_phrases(text: str) -> set[str]:
                 break
             kept.append(word)
         phrase = " ".join(kept).strip(" ,.;:!?")
-        if len(phrase) >= 4 and phrase.casefold() not in {"this", "that", "there", "here"}:
+        if (
+            len(phrase) >= 4
+            and phrase.casefold() not in {"this", "that", "there", "here"}
+            and _looks_like_place(phrase)
+        ):
             phrases.add(phrase)
     return phrases
 
