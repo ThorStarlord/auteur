@@ -9,6 +9,7 @@ The Bard runs in two modes:
 
 from __future__ import annotations
 
+import json
 import re
 from typing import Any
 
@@ -34,6 +35,9 @@ chapters from a planning outline.
    broken_arm, his physical actions reflect that).
 5. Show, don't tell. Concrete sensory beats over abstract emotion-naming.
 6. Avoid clichés ("a testament to", "in the realm of", etc.).
+7. When AUTHOR CONTEXT is present, preserve its epistemic labels: accepted
+   Expression/state may be treated as accepted history; current_plan is planning
+   guidance; suggested pending updates and needs-attention evidence are not facts.
 
 # Output format
 Pure prose, Markdown allowed for chapter title only. NO commentary.
@@ -57,6 +61,7 @@ def render_bard_prompt(
     chapter_index: int,
     prior_draft: str | None,
     findings: list[CriticFinding] | None,
+    author_context: dict[str, Any] | None = None,
 ) -> tuple[str, str]:
     chars_in_outline = sorted({
         s.get("pov_character")
@@ -83,6 +88,17 @@ def render_bard_prompt(
         "## BIBLE CONTEXT",
         bible_block,
     ]
+
+    if author_context is not None:
+        parts.extend([
+            "",
+            "## AUTHOR CONTEXT — PROVENANCE PRESERVED",
+            (
+                "Use each bucket according to its authority label. Do not promote "
+                "Suggested or Needs-attention material into accepted story fact."
+            ),
+            json.dumps(author_context, indent=2, ensure_ascii=False, sort_keys=True),
+        ])
 
     if prior_draft is not None and findings is not None:
         finding_block = "\n".join(
@@ -122,6 +138,7 @@ def draft_chapter(
     llm: LLMClient,
     prior_draft: str | None = None,
     findings: list[CriticFinding] | None = None,
+    author_context: dict[str, Any] | None = None,
 ) -> str:
     system, user = render_bard_prompt(
         outline=outline,
@@ -130,6 +147,7 @@ def draft_chapter(
         chapter_index=chapter_index,
         prior_draft=prior_draft,
         findings=findings,
+        author_context=author_context,
     )
     resp = llm.complete(LLMRequest(
         system=system,

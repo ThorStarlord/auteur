@@ -9,6 +9,8 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field
 import yaml
 
+from .author_context import compose_author_context
+
 
 class OutlineChapter(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -313,11 +315,6 @@ def build_contextual_chapter_plan(
 
     context = dict(project_next_chapter_context(project_root, chapter_index))
     events = _accepted_bible_events(project_root)
-    context["accepted_prior_state"] = [
-        event
-        for event in events
-        if isinstance(event.get("chapter_index"), int) and event["chapter_index"] < chapter_index
-    ]
     context["whole_story_structure"] = [
         ref
         for ref in ("story_identity.yaml", "blueprint.yaml", "outline.yaml", "cartographer_outline.yaml")
@@ -326,6 +323,58 @@ def build_contextual_chapter_plan(
 
     role, role_ref = _chapter_role(project_root, chapter_index)
     prior_refs = context.get("prior_chapter_refs", [])
+    current_outline = _load_yaml_mapping(_chapter_dir(project_root, chapter_index) / "outline.yaml")
+
+    # F2 uses a compact generation-facing context while preserving every
+    # accepted Chapter/event as addressable evidence. Book orientation already
+    # owns current pending/stale projection, so reuse it instead of inventing a
+    # second reconciliation owner here.
+    from .book_orientation import project_book_orientation
+
+    orientation = project_book_orientation(project_root)
+    accepted_expressions: list[dict[str, Any]] = []
+    for ref in prior_refs:
+        if not isinstance(ref, dict):
+            continue
+        source = ref.get("path")
+        index = ref.get("chapter_index")
+        if not isinstance(source, str) or type(index) is not int:
+            continue
+        path = project_root / source
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeError):
+            # Book orientation already projects unreadable kept Chapters as
+            # Needs-attention evidence. Do not fabricate replacement prose.
+            continue
+        accepted_expressions.append(
+            {"chapter_index": index, "source_ref": source, "text": text}
+        )
+
+    author_context = compose_author_context(
+        chapter_index=chapter_index,
+        role=role,
+        role_ref=role_ref,
+        current_outline=current_outline,
+        accepted_events=events,
+        prior_chapter_refs=[
+            ref for ref in prior_refs if isinstance(ref, dict)
+        ],
+        structure_refs=context["whole_story_structure"],
+        accepted_expressions=accepted_expressions,
+        pending_updates=[
+            item.model_dump(mode="json") for item in orientation.pending_updates
+        ],
+        needs_attention=[
+            item.model_dump(mode="json") for item in orientation.needs_attention
+        ],
+    )
+    context["author_context"] = author_context
+    # Preserve compatibility keys, but make them point at the same bounded,
+    # provenance-aware evidence rather than the complete raw Bible payload.
+    context["accepted_prior_state"] = author_context["accepted_history"]
+    context["realized_state"] = author_context["accepted_state"]
+
     source_refs = [
         ref["path"]
         for ref in prior_refs
@@ -336,6 +385,12 @@ def build_contextual_chapter_plan(
         source_refs.append("bible.json")
     if role_ref and role_ref not in source_refs:
         source_refs.append(role_ref)
+    source_refs.extend(
+        item["source_ref"]
+        for bucket in ("pending_updates", "uncertainty")
+        for item in author_context[bucket]
+        if item.get("source_ref")
+    )
 
     handoff = ContextualDraftHandoff(
         chapter_index=chapter_index,

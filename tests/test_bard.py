@@ -97,3 +97,86 @@ def test_draft_chapter_calls_llm_with_rendered_prompt(tmp_path):
     assert prose == "The chapter prose."
     assert len(client.calls) == 1
     assert "Kael" in client.calls[0].user
+
+
+
+def test_render_bard_prompt_preserves_author_context_authority_labels(tmp_path):
+    blueprint = StoryBlueprint.from_yaml(SAMPLE_YAML)
+    bible = StoryBible(tmp_path / "b.json")
+    context = {
+        "schema": "beginner_author_context_v1",
+        "current_plan": {
+            "chapter_index": 6,
+            "role": "Expose forecasting misuse",
+            "authority": "planning_context",
+        },
+        "accepted_expression": [{
+            "chapter_index": 2,
+            "text": "Sister Beatrice connects the convent to the forecasting office.",
+            "source_ref": "chapters/02/final.md",
+            "authority": "accepted_expression",
+            "relevance_reasons": ["current_plan_overlap:convent"],
+        }],
+        "accepted_state": {
+            "record_provenance": {
+                "value": "unresolved",
+                "chapter_index": 5,
+                "source_ref": "bible.json#/events/6",
+                "authority": "accepted",
+            },
+        },
+        "pending_updates": [{
+            "summary": "Forecasting origin: keep unresolved",
+            "source_ref": ".auteur/beginner/reconciliation/5.json#/proposal_items/0",
+            "chapter_index": 5,
+            "authority": "suggested",
+            "blocking": False,
+        }],
+        "uncertainty": [],
+    }
+
+    _, user = render_bard_prompt(
+        outline=OUTLINE,
+        bible=bible,
+        blueprint=blueprint,
+        chapter_index=6,
+        prior_draft=None,
+        findings=None,
+        author_context=context,
+    )
+
+    assert "AUTHOR CONTEXT — PROVENANCE PRESERVED" in user
+    assert "accepted_expression" in user
+    assert "Sister Beatrice" in user
+    assert '"authority": "suggested"' in user
+    assert '"record_provenance"' in user
+    assert "Do not promote Suggested or Needs-attention" in user
+
+
+def test_draft_chapter_forwards_author_context_to_llm(tmp_path):
+    blueprint = StoryBlueprint.from_yaml(SAMPLE_YAML)
+    bible = StoryBible(tmp_path / "b.json")
+    client = FakeClient([LLMResponse(text="The chapter prose.", input_tokens=10, output_tokens=4)])
+    context = {
+        "schema": "beginner_author_context_v1",
+        "accepted_expression": [{
+            "chapter_index": 5,
+            "text": "The pump disaster was already prevented.",
+            "source_ref": "chapters/05/final.md",
+            "authority": "accepted_expression",
+        }],
+        "pending_updates": [],
+    }
+
+    prose = draft_chapter(
+        outline=OUTLINE,
+        bible=bible,
+        blueprint=blueprint,
+        chapter_index=6,
+        llm=client,
+        author_context=context,
+    )
+
+    assert prose == "The chapter prose."
+    assert "AUTHOR CONTEXT — PROVENANCE PRESERVED" in client.calls[0].user
+    assert "pump disaster was already prevented" in client.calls[0].user
