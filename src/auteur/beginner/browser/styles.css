@@ -945,3 +945,45 @@ summary:focus-visible {
   margin-top: 0.9rem;
 }
 
+
+
+.book-orientation {
+  background: #fff;
+}
+
+.book-orientation-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 1rem 0;
+}
+
+.book-orientation-grid > section {
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+.book-orientation-grid h3 {
+  margin-top: 0;
+  font-size: 1rem;
+}
+
+.book-orientation-list {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.book-orientation-list li {
+  margin-bottom: 0.6rem;
+}
+
+#book-technical-details {
+  margin-top: 1rem;
+}
+
+@media (max-width: 800px) {
+  .book-orientation-grid {
+    grid-template-columns: 1fr;
+  }
+}
