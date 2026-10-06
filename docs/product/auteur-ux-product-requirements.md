@@ -748,9 +748,9 @@ Real provider evidence MUST be used for claims about:
 - scene-sized output.
 
 ### VAL-03 — Human evidence
-**Status:** CURRENT RESPONSIBILITY #305
+**Status:** CLAIM-APPROPRIATE / SCOPE SELECTED THROUGH #313
 
-Real participant evidence MUST be used for claims about:
+Real participant evidence MUST be used for subjective claims about:
 
 - experienced cognitive load;
 - bureaucracy;
@@ -761,6 +761,10 @@ Real participant evidence MUST be used for claims about:
 - desire to continue;
 - perceived continuity value.
 
+A human-only claim does not automatically become a blocking gate. Immediate
+human calibration is required when a plausible participant answer could change
+the next bounded repository responsibility.
+
 ### VAL-04 — No synthetic promotion
 **Status:** ESTABLISHED
 
@@ -770,55 +774,66 @@ A coherent architecture, passing test, or agent simulation MUST NOT be presented
 
 # 19. Evidence-gated product decisions
 
-Coding-agent stress testing has narrowed this list. The following decisions still
-require #305 and/or #310 evidence:
+The unresolved questions now belong to different evidence gates:
 
-1. Which entry path do writers actually prefer in comparable situations, after
-   routing from explicit current intent?
+1. Which entry path do writers actually prefer in comparable situations?
+   - human calibration when foregrounding becomes decision-changing;
+   - both tempos remain supported structurally.
 2. Is the Quick Draft first scene reliably useful and intent-faithful with real
    providers?
-3. Is **What did we discover?** experienced as useful enough to retain, or as
-   noisy/administrative, when it is limited to consequence-bearing deltas?
+   - #310 real-provider evidence.
+3. Is **What did we discover?** experienced as useful or administrative when it
+   is limited to consequence-bearing deltas?
+   - #316 establishes mechanics; subjective usefulness remains human calibration
+     only when decision-changing.
 4. Does **Keep draft & update story** feel like creative help rather than
    bookkeeping?
+   - human calibration when this can change the next responsibility.
 5. How much inferred scaffolding can remain hidden before authors feel loss of
    control?
+   - human calibration when a concrete foregrounding decision depends on it.
 6. Can unfamiliar authors understand the unified story-language mental model
    without learning internal semantic layers?
-7. Does Auteur's continuity / decision machinery create enough **felt** value
-   over Markdown + a capable general-purpose LLM to justify its additional
-   interaction cost?
+   - human calibration when comprehension risk becomes decision-changing.
+7. Does Auteur's continuity / decision machinery create enough differential
+   value over Markdown + a capable general-purpose LLM?
+   - #318 F2 + X3 with a real provider, with human calibration only for felt
+     value claims.
 
-The structural interruption rule is no longer evidence-gated:
+The structural interruption rule is settled:
 
 > continuity remains ambient by default and interrupts only when unresolved
 > divergence would materially mislead a dependent decision or cross an existing
 > hard authority / validation boundary.
 
-The exact human-facing timing/copy of that interruption may still be refined by
-#305.
-
-No implementation should manufacture the remaining human/provider claims from
-agent simulation.
+No implementation should manufacture subjective or provider claims from agent
+simulation, and no broad human-study requirement should be inferred merely
+because some questions remain subjective.
 
 ---
 
 # 20. Post-evidence reconciliation
 
-After #305 and #310 return:
+Current evidence flow:
 
 ```text
-provider evidence
+qualified #316 / PR #317 synthetic-mechanical evidence
 +
-human evidence
+#310 real-provider evidence
++
+human evidence only when still decision-changing
 +
 this provisional architecture
--> reconcile requirements
+-> #313 reconciliation
 -> mark requirements KEEP / REVISE / REJECT / NEW
--> identify bounded next implementation wave
+-> select the bounded next responsibility
 ```
 
-The reconciliation SHOULD prefer the smallest high-order correction that restores one coherent author mental model.
+A missing human-preference answer does not automatically block construction when
+all plausible answers leave the same next responsibility warranted.
+
+The reconciliation SHOULD prefer the smallest high-order correction that
+restores one coherent author mental model.
 
 It SHOULD NOT return to an endless sequence of unrelated local UI patches.
 
@@ -829,8 +844,14 @@ It SHOULD NOT return to an endless sequence of unrelated local UI patches.
 The high-order UX architecture is ready for stronger implementation authority when:
 
 - #310 has produced real-provider evidence for the Quick Draft path;
-- #305 has produced at least one serious real-author comparison;
+- #313 has reconciled that evidence with qualified #316 / PR #317 evidence;
+- any remaining human-only question that could change the next bounded
+  responsibility has received claim-appropriate human evidence;
 - the evidence does not require a Level-4 product-thesis review;
-- the provisional requirements have been reconciled against that evidence.
+- the provisional requirements have been classified against the evidence.
 
-Until then, this document is a **product requirements scaffold**, not proof that every selected interaction is the ideal final experience.
+Human-only questions that cannot change the next responsibility may remain open
+as calibration rather than blocking the next capability frontier.
+
+Until then, this document is a **product requirements scaffold**, not proof that
+every selected interaction is the ideal final experience.
