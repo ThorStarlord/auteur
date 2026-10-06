@@ -31,6 +31,14 @@ from auteur.blueprint import (
 from auteur.identity import HighLevelCentralEngine, StoryIdentity, StoryType, compile_to_blueprint
 from auteur.llm import LLMClient, LLMRequest
 from auteur.llm.factory import build_client
+from auteur.host_agent import (
+    HostAgentResponse,
+    build_host_agent_request,
+    load_host_agent_request,
+    validate_host_agent_response,
+    write_host_agent_request,
+    write_host_agent_response,
+)
 from auteur.beginner.creative_divergence import infer_creative_discoveries
 
 
@@ -50,8 +58,18 @@ class QuickDraftResult:
     session_dir: Path
     scaffold_path: Path
     draft_path: Path
-    elapsed_seconds: float
+    elapsed_seconds: float | None
     provider: str
+
+
+@dataclass(frozen=True)
+class QuickDraftHostAgentRequest:
+    session_id: str
+    session_dir: Path
+    scaffold_path: Path
+    request_path: Path
+    request_id: str
+    request_sha256: str
 
 
 def parse_quick_draft_args(argv: list[str]) -> argparse.Namespace:
@@ -212,6 +230,7 @@ def _scaffold_payload(
     draft_status: str,
     elapsed_seconds: float | None = None,
     error: str | None = None,
+    backend_request: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "schema": "quick_draft_spike_v1",
@@ -270,12 +289,188 @@ def _scaffold_payload(
             "remain intentionally deferred."
         ),
     }
+    if backend_request is not None:
+        payload["draft"]["backend_request"] = backend_request
     if elapsed_seconds is not None:
         payload["draft"]["elapsed_seconds"] = round(elapsed_seconds, 3)
         payload["draft"]["thirty_second_target_met"] = elapsed_seconds <= 30.0
     if error:
         payload["draft"]["error"] = error
     return payload
+
+
+
+def _normalized_quick_draft_inputs(premise: str, first_scene: str) -> tuple[str, str]:
+    premise = " ".join(premise.split()).strip()
+    first_scene = " ".join(first_scene.split()).strip()
+    if not premise:
+        raise ValueError("premise must not be empty")
+    if not first_scene:
+        raise ValueError("first-scene intent must not be empty")
+    return premise, first_scene
+
+
+def _quick_draft_prompt(
+    premise: str,
+    first_scene: str,
+    *,
+    session_dir: Path,
+) -> tuple[StoryIdentity, dict[str, Any], str, str]:
+    identity = _provisional_identity(premise, first_scene)
+    blueprint = compile_to_blueprint(identity)
+    blueprint.structure.estimated_chapters = 1
+    blueprint.structure.estimated_word_count = 1400
+    outline = _scene_outline(premise, first_scene)
+    bible = StoryBible(session_dir / "provisional_bible.json")
+    system, user = render_bard_prompt(
+        outline=outline,
+        bible=bible,
+        blueprint=blueprint,
+        chapter_index=1,
+        prior_draft=None,
+        findings=None,
+    )
+    user += (
+        "\n\n## QUICK DRAFT AUTHOR INPUT\n"
+        f"Premise: {premise}\n"
+        f"First-scene intent: {first_scene}\n"
+        "Treat these author inputs as controlling creative evidence. "
+        "Do not replace them with generic scaffold defaults."
+    )
+    return identity, outline, system, user
+
+
+def prepare_quick_draft_host_agent_request(
+    premise: str,
+    first_scene: str,
+    *,
+    project_root: Path = Path("."),
+) -> QuickDraftHostAgentRequest:
+    """Prepare a Quick Draft request for the active host coding agent.
+
+    This path never discovers or invokes a provider. It writes an exact request
+    packet that a surrounding coding agent can fulfill using its current
+    model/session.
+    """
+    premise, first_scene = _normalized_quick_draft_inputs(premise, first_scene)
+    session_id = _session_id(premise, first_scene)
+    root = Path(project_root).resolve()
+    session_dir = root / ".auteur" / "quick_draft" / session_id
+    session_dir.mkdir(parents=True, exist_ok=False)
+    scaffold_path = session_dir / "scaffold.yaml"
+    request_path = session_dir / "host_agent_request.json"
+
+    identity, outline, system, user = _quick_draft_prompt(
+        premise,
+        first_scene,
+        session_dir=session_dir,
+    )
+    request = build_host_agent_request(
+        candidate_id=session_id,
+        role="quick_draft_scene",
+        system=system,
+        user=user,
+        settings={"temperature": 0.85, "max_tokens": 1800},
+    )
+    write_host_agent_request(request_path, request)
+    scaffold_path.write_text(
+        yaml.safe_dump(
+            _scaffold_payload(
+                session_id=session_id,
+                premise=premise,
+                first_scene=first_scene,
+                identity=identity,
+                outline=outline,
+                provider="host-agent/awaiting-response",
+                draft_status="awaiting_host_agent",
+                backend_request={
+                    "file": request_path.name,
+                    "request_id": request.request_id,
+                    "request_sha256": request.request_sha256,
+                },
+            ),
+            sort_keys=False,
+            allow_unicode=True,
+        ),
+        encoding="utf-8",
+    )
+    return QuickDraftHostAgentRequest(
+        session_id=session_id,
+        session_dir=session_dir,
+        scaffold_path=scaffold_path,
+        request_path=request_path,
+        request_id=request.request_id,
+        request_sha256=request.request_sha256,
+    )
+
+
+def complete_quick_draft_host_agent_response(
+    project_root: Path,
+    session_id: str,
+    response_payload: HostAgentResponse | dict[str, Any],
+) -> QuickDraftResult:
+    """Complete an awaiting Quick Draft from an exact host-agent response."""
+    session_dir = _quick_draft_session_dir(project_root, session_id)
+    request_path = session_dir / "host_agent_request.json"
+    request = load_host_agent_request(request_path)
+    response = validate_host_agent_response(request, response_payload)
+    prose = postprocess_draft(response.text)
+    if not prose:
+        raise ValueError("host-agent response produced an empty scene")
+
+    scaffold_path = session_dir / "scaffold.yaml"
+    scaffold = yaml.safe_load(scaffold_path.read_text(encoding="utf-8")) or {}
+    draft_info = scaffold.get("draft") if isinstance(scaffold, dict) else None
+    if not isinstance(draft_info, dict):
+        raise ValueError("Quick Draft scaffold has invalid draft metadata")
+    backend_request = draft_info.get("backend_request")
+    if not isinstance(backend_request, dict):
+        raise ValueError("Quick Draft scaffold is missing host-agent request metadata")
+    if backend_request.get("request_id") != request.request_id:
+        raise ValueError("Quick Draft scaffold points to a different host-agent request")
+    if backend_request.get("request_sha256") != request.request_sha256:
+        raise ValueError("Quick Draft scaffold host-agent fingerprint is stale")
+
+    draft_path = session_dir / "scene_draft.md"
+    draft_path.write_text(prose.rstrip() + "\n", encoding="utf-8")
+    response_path = session_dir / "host_agent_response.json"
+    write_host_agent_response(response_path, response)
+
+    provider = f"{response.backend}/{response.runtime}/{response.model}"
+    elapsed = response.elapsed_seconds
+    draft_info.update(
+        {
+            "status": "draft_ready",
+            "review_status": "not_reviewed",
+            "accepted": False,
+            "provider": provider,
+            "current_file": draft_path.name,
+            "candidate_sha256": hashlib.sha256(draft_path.read_bytes()).hexdigest(),
+            "backend_response": {
+                "file": response_path.name,
+                "runtime": response.runtime,
+                "model": response.model,
+            },
+        }
+    )
+    if elapsed is not None:
+        draft_info["elapsed_seconds"] = round(elapsed, 3)
+        draft_info["thirty_second_target_met"] = elapsed <= 30.0
+    else:
+        draft_info.pop("elapsed_seconds", None)
+        draft_info.pop("thirty_second_target_met", None)
+    scaffold_path.write_text(
+        yaml.safe_dump(scaffold, sort_keys=False, allow_unicode=True),
+        encoding="utf-8",
+    )
+    return QuickDraftResult(
+        session_id=session_id,
+        session_dir=session_dir,
+        scaffold_path=scaffold_path,
+        draft_path=draft_path,
+        elapsed_seconds=elapsed,
+        provider=provider,
+    )
 
 
 def run_quick_draft(
@@ -286,12 +481,7 @@ def run_quick_draft(
     llm: LLMClient | None = None,
     provider_label: str | None = None,
 ) -> QuickDraftResult:
-    premise = " ".join(premise.split()).strip()
-    first_scene = " ".join(first_scene.split()).strip()
-    if not premise:
-        raise ValueError("premise must not be empty")
-    if not first_scene:
-        raise ValueError("first-scene intent must not be empty")
+    premise, first_scene = _normalized_quick_draft_inputs(premise, first_scene)
 
     started = time.monotonic()
     if llm is None:
@@ -304,14 +494,11 @@ def run_quick_draft(
     session_dir = root / ".auteur" / "quick_draft" / session_id
     session_dir.mkdir(parents=True, exist_ok=False)
 
-    identity = _provisional_identity(premise, first_scene)
-    blueprint = compile_to_blueprint(identity)
-    # Keep the prose call scene-sized rather than chapter-sized.
-    blueprint.structure.estimated_chapters = 1
-    blueprint.structure.estimated_word_count = 1400
-
-    outline = _scene_outline(premise, first_scene)
-    bible = StoryBible(session_dir / "provisional_bible.json")
+    identity, outline, system, user = _quick_draft_prompt(
+        premise,
+        first_scene,
+        session_dir=session_dir,
+    )
     scaffold_path = session_dir / "scaffold.yaml"
     draft_path = session_dir / "scene_draft.md"
 
@@ -333,21 +520,6 @@ def run_quick_draft(
     )
 
     try:
-        system, user = render_bard_prompt(
-            outline=outline,
-            bible=bible,
-            blueprint=blueprint,
-            chapter_index=1,
-            prior_draft=None,
-            findings=None,
-        )
-        user += (
-            "\n\n## QUICK DRAFT AUTHOR INPUT\n"
-            f"Premise: {premise}\n"
-            f"First-scene intent: {first_scene}\n"
-            "Treat these author inputs as controlling creative evidence. "
-            "Do not replace them with generic scaffold defaults."
-        )
         response = llm.complete(
             LLMRequest(
                 system=system,
