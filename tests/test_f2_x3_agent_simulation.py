@@ -27,12 +27,8 @@ def test_f2_x3_agent_preflight_establishes_current_mechanical_ceiling() -> None:
     x3 = payload["probes"]["x3_book_orientation"]
     assert x3["mechanical_x3_gap"] is True
     assert x3["authority_remains_derived"] is True
-    assert {
-        "current_chapter",
-        "recent_changes",
-        "pending_updates",
-        "next_story_action",
-    }.issubset(set(x3["missing_persistent_orientation_fields"]))
+    assert x3["missing_persistent_orientation_fields"] == []
+    assert x3["author_orientation_surface_present"] is False
 
     assert payload["disposition"]["f2_accepted_history_precedence"] == "PASS"
     assert payload["disposition"]["f2_full_frontier"] == "NOT_QUALIFIED"
