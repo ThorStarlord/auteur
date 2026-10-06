@@ -8,9 +8,12 @@ Auteur is an opinionated narrative-engine toolkit for long-form fiction: a
 literary compiler that turns a raw premise into multiple plausible story
 engines, recommends the strongest direction with explicit tradeoffs, and keeps
 canonical story state under the author's control. Deterministic code owns
-schemas, project files, validation, artifacts, and retry rails; LLM calls own
-creative planning, prose, and critique. The whole-story structure engine comes
-first; chapter drafting comes second.
+schemas, project files, validation, artifacts, and retry rails; nondeterministic
+creative planning, prose, and critique are supplied through a backend-neutral
+generation boundary. When Auteur runs inside a capable coding-agent environment,
+the active coding agent is the preferred generation backend; direct LLM provider
+adapters remain available for standalone and compatibility use. The whole-story
+structure engine comes first; chapter drafting comes second.
 
 ## Users
 
@@ -24,8 +27,9 @@ Story discovery and acceptance; opinionated story identity; genre packs,
 overrides, and subgenre modifiers; structure generation and diagnosis;
 deterministic diagnostics with repair proposals; state management across the
 semantic layers and scopes; outline compiling; chapter contracts and TDD
-drafting; interactive genre pipelines on the neutral runtime; dual LLM
-provider support.
+drafting; interactive genre pipelines on the neutral runtime; coding-agent-native,
+backend-agnostic generation; direct LLM provider adapters for standalone and
+compatibility execution.
 
 ## Out of scope, forever
 
@@ -56,6 +60,12 @@ provider support.
    identity transformation.
 5. **Backwards compatibility.** No breaking changes to existing Series, Book,
    or Story Identity layers.
+6. **Execution-backend neutrality.** Author-facing behavior must not depend on a
+   specific coding-agent vendor, model family, session format, tool name, or
+   provider credential. When a capable active coding agent is available, Auteur
+   should use that host-agent capability rather than require a second model/API
+   configuration. Direct provider adapters remain explicit optional backends,
+   not the product identity.
 
 ## Permanently human
 

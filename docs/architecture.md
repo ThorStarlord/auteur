@@ -2,17 +2,47 @@
 
 > The semantic architecture is defined by [Narrative Architecture](narrative-architecture.md). This document describes interfaces and engine plumbing.
 
-Auteur has two distinct layers:
+Auteur separates invocation, deterministic authority, and nondeterministic generation.
+
+## Host-Agent-First Execution Target
+
+ADR 022 establishes the target execution model:
 
 ```text
-How a user invokes Auteur
+AUTHOR / CALLER
   CLI, Python library, coding agent, future API
-
-How Auteur calls LLMs internally
-  Cartographer, Bard, Critics through LLMClient adapters
+        |
+        v
+AUTEUR DETERMINISTIC CORE
+  state, artifacts, validation, authority, orchestration
+        |
+        v
+GENERATION CAPABILITY BOUNDARY
+        |
+        +--> active host coding agent (preferred when available)
+        |
+        +--> direct LLM provider adapter (standalone / compatibility)
+        |
+        +--> deterministic fake/replay backend (tests)
 ```
 
-The first layer is an interface choice. The second layer is engine plumbing. A coding agent can run the CLI, but the CLI still uses the same internal provider adapters as any other caller.
+"Use the current coding agent" does not mean that Auteur imports or launches a
+specific agent product. A parent coding agent may not expose a callable SDK to a
+child process. The portable contract is therefore a bounded request/response
+handoff: Auteur emits the exact generation/reasoning request, the active host
+agent fulfills it using its current model/session, and Auteur consumes the
+structured response through existing validation and authority boundaries.
+
+The host integration must be coding-agent agnostic. Auteur must not require
+Claude Code, Codex, ChatGPT, Cursor, OpenCode, or any other vendor-specific
+session protocol for core product behavior. Runtime/model identity should be
+recorded when observable; unavailable identity is evidence metadata, not a
+reason to fabricate one.
+
+Current Engine v1 still routes most generated work through `LLMClient` direct
+provider adapters. That is the present implementation state, not the long-term
+product boundary. Migration should preserve `LLMClient` as a standalone backend
+rather than deleting provider support.
 
 ## Engine Shape
 
@@ -92,10 +122,17 @@ Wraps a project directory containing `blueprint.yaml`, `bible.json`, and chapter
 
 `src/auteur/llm/`
 
-Defines the provider-agnostic `LLMClient` protocol and concrete Anthropic/OpenAI clients.
+Defines the current provider-agnostic `LLMClient` protocol and concrete
+Anthropic/OpenAI clients. Under ADR 022 these become one implementation family
+behind the broader generation-capability boundary. They remain useful for
+standalone/headless execution and compatibility testing.
 
 ## Current Limitations
 
+- Current `main` has not yet integrated the host coding-agent request/response
+  adapter across production generation paths; direct `LLMClient` adapters remain
+  the integrated production path. Draft PR #327 contains a bounded Quick Draft
+  host-agent candidate, but that candidate is not yet part of `main`.
 - Structure generation remains early/helper-level.
 - Critic logic is still mostly LLM-based.
 - Cost accounting records tokens, not currency.
