@@ -8,25 +8,17 @@ from types import SimpleNamespace
 import pytest
 
 import auteur.beginner.chapter_generation as generation
+from auteur.blueprint import StoryBlueprint
 from auteur.host_agent import build_host_agent_response, load_host_agent_request
-from auteur.identity import HighLevelCentralEngine, StoryIdentity, compile_to_blueprint
 from auteur.project import Project
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def project(tmp_path: Path) -> Path:
-    identity = StoryIdentity(
-        title="The Glass Archive",
-        core_answer="Truth survives only when uncertainty is preserved honestly.",
-        central_engine=HighLevelCentralEngine(
-            want="preserve the archive and its history",
-            resistance="damaged trust and uncertain provenance",
-            conflict="institutional stability conflicts with honest disclosure",
-            stakes="the archive may preserve a manufactured history",
-            change="choose transparent uncertainty over a clean official story",
-        ),
-    )
     root = tmp_path / "book"
-    Project.init(root, compile_to_blueprint(identity))
+    blueprint = StoryBlueprint.from_yaml(ROOT / "examples" / "sample_blueprint.yaml")
+    Project.init(root, blueprint)
     chapter = root / "chapters" / "06"
     chapter.mkdir(parents=True, exist_ok=True)
     (chapter / "outline.yaml").write_text(
