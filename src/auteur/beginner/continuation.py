@@ -332,6 +332,25 @@ def build_contextual_chapter_plan(
     from .book_orientation import project_book_orientation
 
     orientation = project_book_orientation(project_root)
+    accepted_expressions: list[dict[str, Any]] = []
+    for ref in prior_refs:
+        if not isinstance(ref, dict):
+            continue
+        source = ref.get("path")
+        index = ref.get("chapter_index")
+        if not isinstance(source, str) or type(index) is not int:
+            continue
+        path = project_root / source
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeError):
+            # Book orientation already projects unreadable kept Chapters as
+            # Needs-attention evidence. Do not fabricate replacement prose.
+            continue
+        accepted_expressions.append(
+            {"chapter_index": index, "source_ref": source, "text": text}
+        )
+
     author_context = compose_author_context(
         chapter_index=chapter_index,
         role=role,
@@ -342,6 +361,7 @@ def build_contextual_chapter_plan(
             ref for ref in prior_refs if isinstance(ref, dict)
         ],
         structure_refs=context["whole_story_structure"],
+        accepted_expressions=accepted_expressions,
         pending_updates=[
             item.model_dump(mode="json") for item in orientation.pending_updates
         ],

@@ -24,8 +24,15 @@ def _write_kept(root: Path, index: int, prose: str) -> None:
 def run_probe() -> dict[str, Any]:
     with tempfile.TemporaryDirectory() as raw:
         root = Path(raw)
-        for index in range(1, 6):
-            _write_kept(root, index, f"Accepted Chapter {index} prose.")
+        kept_prose = {
+            1: "Nia verifies the pump prediction while carrying a red umbrella.",
+            2: "At Saint Orra, Sister Beatrice reveals the convent link to the old forecasting office.",
+            3: "The Lantern is Mara, Nia's older sister; Nia still does not fully trust her.",
+            4: "Tom's trust in Nia is strained while Mateo confirms the pump can still be saved.",
+            5: "Nia and Tom prevent the pump disaster while record provenance remains unresolved.",
+        }
+        for index, prose in kept_prose.items():
+            _write_kept(root, index, prose)
 
         chapter_six = root / "chapters" / "06"
         chapter_six.mkdir(parents=True)
@@ -80,6 +87,8 @@ def run_probe() -> dict[str, Any]:
         author = plan.context["author_context"]
         fields = set(author["accepted_state"])
         required = {"convent_link", "mara_identity", "tom_trust", "pump_status", "record_provenance"}
+        expression_chapters = {item["chapter_index"] for item in author["accepted_expression"]}
+        expression_text = "\n".join(item["text"] for item in author["accepted_expression"])
         return {
             "claim_class": "mechanical_context_composition",
             "five_prior_chapters_addressable": author["evidence_index"]["accepted_chapter_refs"]
@@ -87,6 +96,12 @@ def run_probe() -> dict[str, Any]:
             "all_accepted_events_addressable": len(author["evidence_index"]["accepted_event_refs"]) == len(events),
             "old_trivia_omitted_from_generation_context": "umbrella_color" not in fields,
             "required_long_range_dependencies_present": required <= fields,
+            "accepted_expression_selected_by_relevance": expression_chapters == {2, 3, 4, 5},
+            "accepted_expression_carries_unsynchronized_story_evidence": all(
+                phrase in expression_text
+                for phrase in ("Sister Beatrice", "Mara", "Tom", "pump disaster", "provenance remains unresolved")
+            ),
+            "old_chapter_one_expression_omitted": 1 not in expression_chapters,
             "unresolved_accepted_state_preserved": author["accepted_state"]["record_provenance"]["value"] == "unresolved",
             "pending_update_explicit": len(author["pending_updates"]) == 1
             and author["pending_updates"][0]["authority"] == "suggested"

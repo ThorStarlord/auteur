@@ -13,6 +13,16 @@ def _events():
     ]
 
 
+
+def _expressions():
+    return [
+        {"chapter_index": 1, "source_ref": "chapters/01/final.md", "text": "Nia verifies the pump prediction while carrying a red umbrella."},
+        {"chapter_index": 2, "source_ref": "chapters/02/final.md", "text": "Sister Beatrice reveals the convent link to the old forecasting office."},
+        {"chapter_index": 3, "source_ref": "chapters/03/final.md", "text": "The Lantern is Mara, Nia's older sister; trust remains incomplete."},
+        {"chapter_index": 4, "source_ref": "chapters/04/final.md", "text": "Tom's trust in Nia is strained as the investigation widens."},
+        {"chapter_index": 5, "source_ref": "chapters/05/final.md", "text": "The pump disaster is prevented while record provenance remains unresolved."},
+    ]
+
 def _outline():
     return {
         "chapter_index": 6,
@@ -37,6 +47,7 @@ def test_glass_archive_context_keeps_dependencies_and_drops_old_trivia():
         role_ref="chapters/06/outline.yaml",
         current_outline=_outline(),
         accepted_events=_events(),
+        accepted_expressions=_expressions(),
         prior_chapter_refs=[{"chapter_index": i, "path": f"chapters/{i:02d}/final.md"} for i in range(1, 6)],
         structure_refs=["story_identity.yaml", "outline.yaml"],
     )
@@ -44,6 +55,9 @@ def test_glass_archive_context_keeps_dependencies_and_drops_old_trivia():
     assert "umbrella_color" not in fields
     assert {"convent_link", "mara_identity", "tom_trust", "pump_status", "record_provenance"} <= fields
     assert result["accepted_state"]["record_provenance"]["value"] == "unresolved"
+    expression_chapters = {item["chapter_index"] for item in result["accepted_expression"]}
+    assert expression_chapters == {2, 3, 4, 5}
+    assert 1 not in expression_chapters
     assert len(result["evidence_index"]["accepted_chapter_refs"]) == 5
     assert len(result["evidence_index"]["accepted_event_refs"]) == 7
     assert "bible.json#/events/1" in result["evidence_index"]["omitted_accepted_event_refs"]
@@ -56,6 +70,7 @@ def test_recent_events_stay_available_without_semantic_retrieval():
         role_ref=None,
         current_outline={"chapter_summary": "A completely unrelated immediate goal"},
         accepted_events=_events(),
+        accepted_expressions=_expressions(),
         prior_chapter_refs=[],
         structure_refs=[],
     )

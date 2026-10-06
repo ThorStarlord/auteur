@@ -12,6 +12,7 @@ from typing import Any
 
 
 _RECENT_CHAPTER_WINDOW = 2
+_MAX_EXPRESSION_CHAPTERS = 4
 _STOPWORDS = {
     "about", "after", "again", "against", "already", "because", "before",
     "being", "chapter", "continue", "current", "from", "have", "into",
@@ -95,6 +96,7 @@ def compose_author_context(
     accepted_events: list[dict[str, Any]],
     prior_chapter_refs: list[dict[str, Any]],
     structure_refs: list[str],
+    accepted_expressions: list[dict[str, Any]] | tuple[dict[str, Any], ...] = (),
     pending_updates: list[dict[str, Any]] | tuple[dict[str, Any], ...] = (),
     needs_attention: list[dict[str, Any]] | tuple[dict[str, Any], ...] = (),
 ) -> dict[str, Any]:
@@ -152,6 +154,47 @@ def compose_author_context(
                 "authority": "accepted",
             }
 
+    # Accepted Expression remains downstream evidence even when realized-state
+    # synchronization is incomplete. Select at Chapter granularity so the
+    # composer stays deterministic and inspectable rather than inventing a
+    # semantic summarizer or hidden retrieval layer.
+    expression_candidates: list[tuple[bool, int, int, dict[str, Any]]] = []
+    all_expression_refs: list[str] = []
+    for item in accepted_expressions:
+        if not isinstance(item, dict):
+            continue
+        expression_chapter = item.get("chapter_index")
+        source_ref = item.get("source_ref")
+        text = item.get("text")
+        if (
+            type(expression_chapter) is not int
+            or expression_chapter < 1
+            or expression_chapter >= chapter_index
+            or not isinstance(source_ref, str)
+            or not source_ref
+            or not isinstance(text, str)
+        ):
+            continue
+        all_expression_refs.append(source_ref)
+        overlap = focus & _tokens(text)
+        recent = expression_chapter >= recent_floor
+        if recent or overlap:
+            expression_candidates.append(
+                (recent, len(overlap), expression_chapter, {
+                    "chapter_index": expression_chapter,
+                    "text": text,
+                    "source_ref": source_ref,
+                    "authority": "accepted_expression",
+                    "relevance_reasons": (
+                        (["recent_accepted_expression"] if recent else [])
+                        + (["current_plan_overlap:" + ",".join(sorted(overlap)[:6])] if overlap else [])
+                    ),
+                })
+            )
+    expression_candidates.sort(key=lambda row: (row[0], row[1], row[2]), reverse=True)
+    selected_expression = [row[3] for row in expression_candidates[:_MAX_EXPRESSION_CHAPTERS]]
+    selected_expression_refs = {item["source_ref"] for item in selected_expression}
+
     history_refs = [
         str(ref["path"])
         for ref in prior_chapter_refs
@@ -177,11 +220,16 @@ def compose_author_context(
             "authority": "planning_context",
         },
         "accepted_history": accepted_history,
+        "accepted_expression": selected_expression,
         "accepted_state": accepted_state,
         "pending_updates": pending,
         "uncertainty": uncertainty,
         "evidence_index": {
             "accepted_chapter_refs": history_refs,
+            "accepted_expression_refs": all_expression_refs,
+            "omitted_accepted_expression_refs": [
+                ref for ref in all_expression_refs if ref not in selected_expression_refs
+            ],
             "accepted_event_refs": all_event_refs,
             "structure_refs": list(structure_refs),
             "omitted_accepted_event_refs": omitted_event_refs,
@@ -192,5 +240,7 @@ def compose_author_context(
             "accepted_events_considered": len(all_event_refs),
             "accepted_events_selected": len(accepted_history),
             "accepted_events_omitted": len(omitted_event_refs),
+            "accepted_expression_chapters_selected": len(selected_expression),
+            "accepted_expression_chapter_limit": _MAX_EXPRESSION_CHAPTERS,
         },
     }
