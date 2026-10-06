@@ -163,24 +163,33 @@ def project_draft_review(project_root: Path, chapter_index: int) -> DraftReviewP
     drafts = sorted(chapter_dir.glob("draft_v*.md"), key=_draft_version) if chapter_dir.is_dir() else []
     final = chapter_dir / "final.md"
     latest = drafts[-1] if drafts else None
-    draft_text = latest.read_text(encoding="utf-8") if latest else None
+    # Kept prose is still readable when no working draft is retained.
+    expression = latest if latest is not None else (final if final.is_file() else None)
+    draft_text = expression.read_text(encoding="utf-8") if expression else None
     version = _draft_version(latest) if latest else None
     accepted = final.is_file() and (latest is None or final.read_bytes() == latest.read_bytes())
     stale = False
     review_stale = False
     metadata: dict[str, Any] = {}
+    metadata_error: str | None = None
     if latest is not None:
         meta_path = chapter_dir / f"{latest.stem}.meta.json"
         if meta_path.is_file():
             try:
                 metadata = json.loads(meta_path.read_text(encoding="utf-8"))
+                if not isinstance(metadata, dict):
+                    raise ValueError("expected an object")
                 if "upstream_fingerprint" in metadata:
                     stale = metadata.get("upstream_fingerprint") != _upstream_fingerprint(project_root)
                 expected_hash = metadata.get("candidate_sha256")
-                if isinstance(expected_hash, str) and expected_hash:
-                    review_stale = expected_hash != hashlib.sha256(latest.read_bytes()).hexdigest()
-            except (OSError, json.JSONDecodeError):
+                if "candidate_sha256" in metadata:
+                    if not isinstance(expected_hash, str) or not re.fullmatch(r"[0-9a-fA-F]{64}", expected_hash):
+                        raise ValueError("invalid draft fingerprint")
+                    review_stale = expected_hash.lower() != hashlib.sha256(latest.read_bytes()).hexdigest()
+            except (OSError, ValueError) as exc:
                 stale = True
+                review_stale = True
+                metadata_error = f"Invalid review metadata: {exc}"
 
     blocking: list[str] = []
     warnings: list[str] = []
@@ -195,7 +204,7 @@ def project_draft_review(project_root: Path, chapter_index: int) -> DraftReviewP
                 blocking, warnings = _findings(json.loads(report_path.read_text(encoding="utf-8")))
                 review_available = not review_stale
                 if review_stale:
-                    review_error = "The draft changed after this review. Review findings are stale."
+                    review_error = metadata_error or "The draft changed after this review. Review findings are stale."
                     blocking = []
                     warnings = []
             except (OSError, json.JSONDecodeError, ValueError) as exc:
@@ -216,7 +225,7 @@ def project_draft_review(project_root: Path, chapter_index: int) -> DraftReviewP
     else:
         status = ChapterProductionStatus.NOT_STARTED
 
-    alignment = _plan_alignment(chapter_dir, latest)
+    alignment = _plan_alignment(chapter_dir, expression)
     discoveries = infer_creative_discoveries(
         draft_text or "",
         baseline_text=_outline_baseline_text(chapter_dir),
@@ -318,24 +327,37 @@ def accept_latest_chapter(
     if not drafts:
         raise FileNotFoundError(f"no candidate draft for chapter {chapter_index}")
     latest = drafts[-1]
+    candidate_bytes = latest.read_bytes()
+    candidate_sha256 = hashlib.sha256(candidate_bytes).hexdigest()
     final = chapter_dir / "final.md"
     receipt_path = project_root / ".auteur" / "beginner" / "acceptance" / f"{chapter_index}-{command_id}.json"
     if receipt_path.is_file():
         receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+        if (
+            not isinstance(receipt, dict)
+            or receipt.get("candidate") != latest.name
+            or receipt.get("candidate_sha256") != candidate_sha256
+        ):
+            raise ValueError(
+                "This acceptance request belongs to a different draft. "
+                "Review the current draft and make a new keep decision."
+            )
         if receipt.get("status") == "complete":
+            if not final.is_file() or final.read_bytes() != candidate_bytes:
+                raise ValueError("The accepted chapter no longer matches this acceptance request.")
             return AcceptanceReconciliation(chapter_index, command_id, True, receipt.get("authority_result"))
     receipt = {
         "status": "started",
         "chapter_index": chapter_index,
         "command_id": command_id,
         "candidate": latest.name,
-        "candidate_sha256": hashlib.sha256(latest.read_bytes()).hexdigest(),
+        "candidate_sha256": candidate_sha256,
     }
     _write_json_atomic(receipt_path, receipt)
 
     # If the owning service completed before the process died, the matching
     # final artifact is sufficient to reconcile without replaying acceptance.
-    reconciled = final.is_file() and final.read_bytes() == latest.read_bytes()
+    reconciled = final.is_file() and final.read_bytes() == candidate_bytes
     if reconciled:
         result: Any = {"accepted": True, "reconciled_from_authority": True}
     else:
@@ -349,7 +371,7 @@ def accept_latest_chapter(
                 raise RuntimeError(f"acceptance owner refused chapter {chapter_index}: {result.error or result}")
         else:
             result = owner(project_root, chapter_index)
-        if not final.is_file() or final.read_bytes() != latest.read_bytes():
+        if not final.is_file() or final.read_bytes() != candidate_bytes:
             raise RuntimeError("acceptance owner did not produce matching final.md")
     receipt.update({"status": "complete", "authority_result": _receipt_value(result)})
     _write_json_atomic(receipt_path, receipt)
@@ -495,17 +517,28 @@ def project_chapter_outcome(project_root: Path, chapter_index: int) -> dict[str,
         "chapter_index": chapter_index,
         "events": events,
         "realization_delta": "review_required",
-        "source_refs": [f"chapters/{chapter_index:02d}/final.md"],
+        "source_refs": [final.relative_to(project_root).as_posix()],
     }
 
 
 def project_next_chapter_context(project_root: Path, chapter_index: int) -> dict[str, Any]:
     """Project context for planning N from accepted prior chapter artifacts."""
-    prior_refs: list[dict[str, Any]] = []
-    for path in sorted((project_root / "chapters").glob("*/final.md")) if (project_root / "chapters").is_dir() else []:
-        match = re.fullmatch(r"\d+", path.parent.name)
-        if match and int(path.parent.name) < chapter_index:
-            prior_refs.append({"chapter_index": int(path.parent.name), "path": path.relative_to(project_root).as_posix()})
+    # Match the existing owners' padded/unpadded paths and padded precedence.
+    # Sort Chapter numbers, not filenames (where Chapter 10 precedes Chapter 2).
+    prior_paths: dict[int, Path] = {}
+    for path in (project_root / "chapters").glob("*/final.md"):
+        name = path.parent.name
+        if not path.is_file() or not re.fullmatch(r"[0-9]+", name):
+            continue
+        index = int(name)
+        if not 0 < index < chapter_index or name not in {str(index), f"{index:02d}"}:
+            continue
+        if index not in prior_paths or name == f"{index:02d}":
+            prior_paths[index] = path
+    prior_refs = [
+        {"chapter_index": index, "path": path.relative_to(project_root).as_posix()}
+        for index, path in sorted(prior_paths.items())
+    ]
     bible: Any = {}
     bible_path = project_root / "bible.json"
     if bible_path.is_file():
