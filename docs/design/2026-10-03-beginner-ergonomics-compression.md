@@ -225,14 +225,14 @@ the accepted plan, the product should surface the story consequence first and
 the authority machinery second.
 
 The selected follow-up contract is defined in
-`docs/design/2026-10-03-beginner-creative-divergence-reconciliation.md` and
-tracked by #306.
+`docs/design/2026-10-03-beginner-creative-divergence-reconciliation.md`,
+implemented in the integrated candidate #309, and tracked by #306.
 
 The primary post-draft flow is:
 
 ```text
 Auteur noticed the story changed while you were writing
--> Keep draft & reconcile
+-> Keep draft & update story
 -> Keep as intentional divergence
 -> Revise to match plan
 ```

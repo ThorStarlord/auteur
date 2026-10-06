@@ -32,6 +32,137 @@ accepted narrative authority
 
 Admit a new architectural concept only when observed product friction cannot be solved cleanly by existing concepts, workflow, presentation, or reusable craft knowledge.
 
+## High-order UX synthesis boundary
+
+The current Beginner ergonomics wave has produced enough local integration work
+that further UX evolution should now reconcile against the unified author
+experience architecture rather than defaulting to another isolated surface fix.
+
+Primary synthesis:
+
+- `docs/product/auteur-unified-author-experience-architecture.md`
+- `docs/product/auteur-system-interaction-map.md`
+- `docs/product/auteur-ux-product-requirements.md`
+
+Current evidence flow:
+
+```text
+#305 real-author evidence
++
+#310 real-provider evidence
++
+unified experience architecture
+-> #313 high-order reconciliation
+-> one bounded next implementation wave
+```
+
+A blocking product defect discovered during validation may still receive a
+bounded repair. Ordinary hesitation, preference, or local friction should not be
+converted directly into a sequence of micro-patches before #313 reconciles the
+system-level evidence.
+
+## Capability Frontier construction model
+
+Future repository construction should also be guided by:
+
+- `docs/product/auteur-capability-frontier-construction-roadmap.md`
+
+The repository should expand the **Narrative Stress Envelope** across six
+dimensions:
+
+```text
+A — Interpretive Difficulty
+B — Input / Process Messiness
+C — Narrative Breadth
+D — Narrative Depth
+E — Longitudinal Horizon
+F — Change / Revision Pressure
+```
+
+The preferred construction loop is:
+
+```text
+select controlled story frontier
+-> run complete author workflow
+-> find first material systemic failure
+-> classify owning layer
+-> build smallest capability that expands the envelope
+-> rerun same frontier
+-> advance only when coherent
+```
+
+This is intentionally different from a feature queue. Capabilities should be
+admitted because the next deliberately harder story requires them.
+
+Current frontier interpretation:
+
+```text
+F0 — Coherent Scene                      mechanically established
+F1 — Messy Discovery                     current evidence boundary
+#305 + #310 -> #313                      reconcile current experience
+F2 — Small-Book Longitudinal Coherence   preferred next major frontier if reaffirmed
+F3 — Multi-Thread Book
+F4 — Narrative Depth
+F5 — Evolving Long Book
+F6 — Complex Long Book
+F7 — Series
+```
+
+F2 is **not automatically authorized** by appearing next. #313 must reconcile
+the current human/provider evidence first. If the unified experience model is
+reaffirmed, F2 should be preferred over another local Quick Draft feature or an
+unmotivated new narrative subsystem.
+
+## Experience Frontier construction model
+
+UX/UI construction is governed separately by:
+
+- `docs/product/auteur-experience-frontier-construction-roadmap.md`
+
+The Experience Stress Envelope uses:
+
+```text
+UX-A — Decision Density
+UX-B — Workflow Branching
+UX-C — State / Continuity Load
+UX-D — Interaction Horizon
+UX-E — Mode Switching
+UX-F — Expertise Range
+UI-G — Information Density
+UI-H — Visual / Spatial Complexity
+```
+
+Preferred experience-frontier sequence:
+
+```text
+X0 — Single-Task Clarity
+X1 — Guided First Session
+X2 — Reversible Creative Exploration
+#305 + #310 -> #313
+X3 — Persistent Book Workspace
+X4 — Multi-Thread Workspace
+X5 — Deep Narrative Workspace
+X6 — Professional Long-Form Workspace
+X7 — Series Workspace
+```
+
+Narrative and experience frontiers are coordinated but pass/fail
+independently.
+
+If #313 reaffirms the current model, the preferred next paired qualification is:
+
+```text
+F2 — Small-Book Longitudinal Coherence
++
+X3 — Persistent Book Workspace
+```
+
+using the same controlled six-Chapter reference Book.
+
+Do not preselect a Dashboard, sidebar, graph, timeline, or multi-pane layout.
+Let the first meaningful experience failure determine the lowest correct UX/UI
+intervention.
+
 ## Development Rule
 Prefer:
 

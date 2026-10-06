@@ -2,7 +2,8 @@
 
 **Date:** 2026-10-03  
 **Scope:** product ergonomics only  
-**Branch:** feat/beginner-quick-draft-loop
+**Implementation branch:** `feat/beginner-quick-draft-loop`  
+**High-order synthesis:** `docs/product/auteur-unified-author-experience-architecture.md`
 
 ## Question
 
