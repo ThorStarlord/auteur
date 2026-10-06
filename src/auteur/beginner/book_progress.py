@@ -9,13 +9,15 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import ConfigDict
 
 from auteur.publish import PublishError, PublishingSnapshot
 from auteur.status import gather_status
 
+from auteur.beginner.book_orientation import BookOrientation, project_book_orientation
 
-class BookProgressProjection(BaseModel):
+
+class BookProgressProjection(BookOrientation):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     planned_chapters: int
@@ -39,13 +41,11 @@ def project_book_progress(project_root: Path) -> BookProgressProjection:
     book = status.get("book") or {}
     reconciliation = status.get("reconciliation") or {}
 
-    accepted_chapters = sum(
-        1
-        for chapter in chapters
-        if isinstance(chapter, dict)
-        and "accepted" in str(chapter.get("expression", ""))
-    )
     planned_chapters = int(blueprint.get("chapters") or len(chapters) or 0)
+    orientation = project_book_orientation(
+        root, planned_chapters=int(blueprint.get("chapters") or 0),
+    )
+    accepted_chapters = len(orientation.accepted_chapter_refs)
 
     publication_ready = False
     publication_blocker: str | None = None
@@ -65,6 +65,7 @@ def project_book_progress(project_root: Path) -> BookProgressProjection:
     )
 
     return BookProgressProjection(
+        **orientation.model_dump(),
         planned_chapters=planned_chapters,
         discovered_chapters=len(chapters),
         accepted_chapters=accepted_chapters,

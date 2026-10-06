@@ -159,8 +159,8 @@ def _six_chapter_context_relevance_probe() -> dict[str, Any]:
             "clearly_low_value_detail_still_exposed": "umbrella_color" in fields,
             "relevance_filter_demonstrated": False,
             "finding": (
-                "The current continuation projection exposes accumulated accepted history "
-                "but does not demonstrate relevance selection. At six-Chapter scale this "
+                "The legacy continuation fields expose accumulated accepted history; "
+                "this probe does not qualify provider use of author_context. At six-Chapter scale this "
                 "is a bounded context-composition risk, not evidence for generalized "
                 "retrieval or vector search."
             ),
@@ -182,10 +182,12 @@ def _x3_book_orientation_probe() -> dict[str, Any]:
         "next_story_action",
     }
     missing = sorted(required_orientation - fields)
+    surface_present = all(name in app for name in ("progress.current_chapter", "progress.recent_changes", "progress.pending_updates", "progress.next_story_action"))
     return {
         "claim_class": "mechanical_surface_contract",
         "book_progress_fields": sorted(fields),
         "missing_persistent_orientation_fields": missing,
+        "author_orientation_surface_present": surface_present,
         "current_chapter_query_helper_exists": "function currentChapterFromQuery()" in app,
         "whole_book_surface_is_advanced_details": "Advanced: whole-book details" in html,
         "surface_emphasizes_technical_next_command": "Next technical action:" in html,
@@ -194,14 +196,11 @@ def _x3_book_orientation_probe() -> dict[str, Any]:
             BookProgressProjection.model_fields["authority_status"].default
             == "DERIVED / NOT CANON"
         ),
-        "mechanical_x3_gap": bool(missing)
-        and "Advanced: whole-book details" in html
-        and "Next technical action:" in html,
+        "mechanical_x3_gap": bool(missing) or not surface_present,
         "finding": (
-            "The existing Book projection is a read-only progress/publication view, "
-            "not yet a persistent six-Chapter re-entry projection. It does not itself "
-            "project current Chapter, recent story changes, pending updates, or a "
-            "story-language next action."
+            "Measure backend orientation fields separately from browser consumption. "
+            "Adding projection fields alone does not establish persistent author "
+            "re-entry in the served workspace."
         ),
     }
 
