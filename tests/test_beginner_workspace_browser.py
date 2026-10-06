@@ -102,7 +102,7 @@ def test_browser_renders_candidate_prose_in_post_draft_review():
     css = _read(STYLES)
 
     assert "review.draft_text" in js
-    assert "Chapter 1 draft" in js
+    assert "chapter + ' draft</h4>'" in js
     assert 'class="draft-prose"' in js
     assert ".draft-prose" in css
     assert "white-space: pre-wrap" in css
@@ -402,7 +402,8 @@ def test_browser_progressively_discloses_internal_vocabulary():
 
     assert "<summary>Story details</summary>" in html
     assert "<summary>Explore the story insights</summary>" in html
-    assert "<summary>Advanced: whole-book details</summary>" in html
+    assert '<section aria-label="Book orientation"' in html
+    assert "<summary>Show details</summary>" in html
     assert "<summary>Adjust what Auteur sees</summary>" in html
     assert "What this story is becoming" in html
     assert "Choose where the story goes" in html

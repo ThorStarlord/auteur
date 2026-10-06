@@ -1869,7 +1869,47 @@
     return String(status).replace(/DERIVED/g, "WORKING").replace(/NOT CANON/g, "NOT ACCEPTED");
   }
 
+  function renderBookNoticeList(items, emptyText) {
+    var notices = items || [];
+    if (!notices.length) return '<p class="muted">' + escapeHtml(emptyText) + "</p>";
+    return '<ul class="book-orientation-list">' + notices.map(function (item) {
+      var chapter = item.chapter_index ? "Chapter " + item.chapter_index + " · " : "";
+      return "<li><strong>" + escapeHtml(chapter + (item.state || "")) +
+        "</strong><br>" + escapeHtml(item.summary || "") + "</li>";
+    }).join("") + "</ul>";
+  }
+
   function renderBookProgress(progress) {
+    var chapter = Number(progress.current_chapter || 1);
+    var chapterState = progress.current_chapter_state || "Working";
+    $("book-current-position").textContent = "Chapter " + chapter + " · " + chapterState;
+    $("book-orientation-reason").textContent =
+      progress.orientation_reason || "Auteur is orienting this Book from kept and working Chapter state.";
+    $("book-recent-changes").innerHTML = renderBookNoticeList(
+      progress.recent_changes,
+      "No kept story changes yet."
+    );
+    $("book-pending-updates").innerHTML = renderBookNoticeList(
+      progress.pending_updates,
+      "Nothing unresolved is currently blocking your writing."
+    );
+    $("book-needs-attention").innerHTML = renderBookNoticeList(
+      progress.needs_attention,
+      "Nothing needs attention."
+    );
+    $("book-next-story-action").textContent =
+      progress.next_story_action || "Continue writing";
+    var openChapter = $("book-open-current-chapter");
+    var actionChapter = Number(progress.next_action_chapter);
+    if (Number.isInteger(actionChapter) && actionChapter > 0) {
+      openChapter.hidden = false;
+      openChapter.dataset.chapter = String(actionChapter);
+      openChapter.textContent = "Open Chapter " + actionChapter;
+    } else {
+      openChapter.hidden = true;
+      openChapter.dataset.chapter = "";
+    }
+
     $("book-progress-summary").textContent =
       progress.accepted_chapters + " accepted chapter(s) · " +
       progress.planned_chapters + " planned chapter(s).";
@@ -1929,6 +1969,7 @@
     var panel = $("post-draft-review");
     if (!panel) return;
     panel.hidden = false;
+    $("post-draft-heading").textContent = "Chapter " + chapter;
     $("post-draft-status").textContent =
       "Chapter " + chapter + " · " + String(review.production_status || "unknown").replace(/_/g, " ");
     $("post-draft-next-action").textContent = review.recommended_next_action || "Review the current chapter state.";
@@ -1936,7 +1977,7 @@
     var evidence = [];
     if (typeof review.draft_text === "string") {
       evidence.push(
-        '<article class="chapter-draft"><h4>Chapter 1 draft</h4>' +
+        '<article class="chapter-draft"><h4>Chapter ' + chapter + ' draft</h4>' +
         '<div class="draft-prose" aria-label="Chapter draft prose">' +
         escapeHtml(review.draft_text) +
         "</div></article>"
@@ -1959,7 +2000,8 @@
     if (reviewNotes.length) {
       evidence.push(detailsRow("Auteur review", reviewNotes.join("")));
     }
-    $("post-draft-evidence").innerHTML = evidence.join("") || '<p class="muted">No Chapter 1 draft exists yet.</p>';
+    $("post-draft-evidence").innerHTML = evidence.join("") ||
+      '<p class="muted">No Chapter ' + chapter + ' draft exists yet.</p>';
 
     var accept = $("post-draft-accept");
     var revise = $("post-draft-revise");
@@ -2299,6 +2341,10 @@
       resolveCreativeDivergence("revise_to_plan");
     });
     $("post-draft-plan-next").addEventListener("click", loadNextChapterPlan);
+    $("book-open-current-chapter").addEventListener("click", function () {
+      var chapter = Number($("book-open-current-chapter").dataset.chapter);
+      if (Number.isInteger(chapter) && chapter > 0) openChapterReview(chapter);
+    });
   }
 
   if (document.readyState === "loading") {
