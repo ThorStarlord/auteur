@@ -3,7 +3,9 @@
 **Date:** 2026-10-03  
 **Original spike:** `feat/quick-draft-spike`  
 **Integrated candidate:** `feat/beginner-quick-draft-loop`  
-**Scope:** isolated product-ergonomics prototype  
+**Current disposition:** integrated review-ready candidate in PR #309; provider evidence #310 and human evidence #305 pending  
+**High-order synthesis:** `docs/product/auteur-unified-author-experience-architecture.md`  
+**Scope:** isolated entry experiment now consumed by the integrated Beginner experience  
 **Command:** `auteur quick-draft "<premise>" "<first scene intent>"`
 
 ## Goal
