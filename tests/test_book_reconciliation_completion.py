@@ -212,11 +212,24 @@ def _write_completion_stage(
     *,
     record_id: str | None = "completion_test",
     manifest_id: str | None = "completion_test",
+    manifest_artifact_type: str = "book_completion_transaction_manifest",
+    manifest_source_acceptance_id: str = "acceptance_test",
+    completion_target: str | None = None,
 ) -> Path:
     staging = tmp_path / "completion-stage"
     staging.mkdir(parents=True, exist_ok=True)
-    record = {"artifact_type": "book_reconciliation_completion"}
-    manifest = {"artifact_type": "book_completion_transaction_manifest"}
+    record = {
+        "artifact_type": "book_reconciliation_completion",
+        "source_acceptance_id": "acceptance_test",
+    }
+    manifest = {
+        "artifact_type": manifest_artifact_type,
+        "source_acceptance_id": manifest_source_acceptance_id,
+        "targets": {
+            "completion_record": completion_target or str(store._completion_path("completion_test")),
+            "manifest": str(store._completion_manifest_path("completion_test")),
+        },
+    }
     if record_id is not None:
         record["completion_id"] = record_id
     if manifest_id is not None:
@@ -270,6 +283,44 @@ def test_staged_completion_missing_manifest_identity_fails_closed(tmp_path: Path
 
     assert ok is False
     assert "manifest is missing completion_id" in error
+
+
+def test_staged_completion_wrong_manifest_type_fails_closed(tmp_path: Path) -> None:
+    store = BookReconciliationStore(tmp_path)
+    staging = _write_completion_stage(
+        store, tmp_path, manifest_artifact_type="unexpected_manifest"
+    )
+
+    ok, error = store._validate_staged_completion(str(staging))
+
+    assert ok is False
+    assert "manifest has wrong artifact_type" in error
+
+
+def test_staged_completion_source_identity_mismatch_fails_closed(tmp_path: Path) -> None:
+    store = BookReconciliationStore(tmp_path)
+    staging = _write_completion_stage(
+        store, tmp_path, manifest_source_acceptance_id="acceptance_other"
+    )
+
+    ok, error = store._validate_staged_completion(str(staging))
+
+    assert ok is False
+    assert "mismatched source_acceptance_id" in error
+
+
+def test_staged_completion_redirected_publish_target_fails_closed(tmp_path: Path) -> None:
+    store = BookReconciliationStore(tmp_path)
+    redirected = tmp_path / "redirected.yaml"
+    staging = _write_completion_stage(
+        store, tmp_path, completion_target=str(redirected)
+    )
+
+    ok, error = store._validate_staged_completion(str(staging))
+
+    assert ok is False
+    assert "invalid publish targets" in error
+    assert not redirected.exists()
 
 
 def test_completion_gate_delegates_to_validator(monkeypatch, tmp_path: Path) -> None:
