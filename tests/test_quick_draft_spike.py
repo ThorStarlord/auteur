@@ -123,6 +123,32 @@ def test_quick_draft_creates_only_provisional_scaffolding_and_one_scene_draft(
     assert request.max_tokens == 1800
 
 
+def test_quick_draft_cli_defaults_to_host_agent_without_provider(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    def provider_must_not_run():
+        raise AssertionError("default Quick Draft must not construct a direct provider")
+
+    monkeypatch.setattr(
+        "auteur.quick_draft._build_quick_draft_client",
+        provider_must_not_run,
+    )
+
+    rc = main(["quick-draft", PREMISE, FIRST_SCENE])
+    out = capsys.readouterr().out
+
+    assert rc == 0
+    assert "awaiting active host agent" in out
+    sessions = list((tmp_path / ".auteur" / "quick_draft").iterdir())
+    assert len(sessions) == 1
+    assert (sessions[0] / "host_agent_request.json").is_file()
+    assert not (sessions[0] / "scene_draft.md").exists()
+
+
 def test_quick_draft_cli_prints_draft_before_any_acceptance(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -135,7 +161,7 @@ def test_quick_draft_cli_prints_draft_before_any_acceptance(
         lambda: (llm, "fake"),
     )
 
-    rc = main(["quick-draft", PREMISE, FIRST_SCENE])
+    rc = main(["quick-draft", PREMISE, FIRST_SCENE, "--backend", "direct-provider"])
     out = capsys.readouterr().out
 
     assert rc == 0
