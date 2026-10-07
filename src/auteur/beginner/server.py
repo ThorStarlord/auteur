@@ -64,6 +64,8 @@ from .post_draft import (
     project_next_chapter_context,
 )
 from auteur.quick_draft import (
+    complete_quick_draft_host_agent_response,
+    prepare_quick_draft_host_agent_request,
     prepare_quick_draft_shape_handoff,
     project_quick_draft_discoveries,
     project_quick_draft_session,
@@ -536,23 +538,64 @@ class _RequestHandler(BaseHTTPRequestHandler):
                 payload = self._read_json()
                 premise = payload.get("premise")
                 first_scene = payload.get("first_scene")
+                backend = payload.get("backend", "host-agent")
                 if not isinstance(premise, str) or not premise.strip():
                     raise BeginnerRequestError(400, "premise must be a non-empty string")
                 if not isinstance(first_scene, str) or not first_scene.strip():
                     raise BeginnerRequestError(400, "first_scene must be a non-empty string")
+                if backend not in {"host-agent", "direct-provider"}:
+                    raise BeginnerRequestError(
+                        400, "backend must be 'host-agent' or 'direct-provider'"
+                    )
                 try:
-                    result = run_quick_draft(
-                        premise,
-                        first_scene,
-                        project_root=self.project_root,
-                        llm=self.dependencies.drafting_client,
-                        provider_label="beginner-server",
+                    if backend == "host-agent":
+                        prepared = prepare_quick_draft_host_agent_request(
+                            premise,
+                            first_scene,
+                            project_root=self.project_root,
+                        )
+                        self._send_json(
+                            202,
+                            project_quick_draft_session(
+                                self.project_root, prepared.session_id
+                            ),
+                        )
+                    else:
+                        result = run_quick_draft(
+                            premise,
+                            first_scene,
+                            project_root=self.project_root,
+                            llm=self.dependencies.drafting_client,
+                            provider_label="beginner-server",
+                        )
+                        self._send_json(
+                            201,
+                            project_quick_draft_session(
+                                self.project_root, result.session_id
+                            ),
+                        )
+                except (OSError, RuntimeError, ValueError, ImportError) as exc:
+                    raise BeginnerRequestError(422, str(exc)) from exc
+                return
+            if (
+                len(parts) == 5
+                and parts[:3] == ["api", "beginner", "quick-draft"]
+                and parts[4] == "host-agent-response"
+            ):
+                payload = self._read_json()
+                try:
+                    result = complete_quick_draft_host_agent_response(
+                        self.project_root,
+                        parts[3],
+                        payload,
                     )
                     self._send_json(
-                        201,
-                        project_quick_draft_session(self.project_root, result.session_id),
+                        200,
+                        project_quick_draft_session(
+                            self.project_root, result.session_id
+                        ),
                     )
-                except (OSError, RuntimeError, ValueError, ImportError) as exc:
+                except (FileNotFoundError, OSError, RuntimeError, ValueError) as exc:
                     raise BeginnerRequestError(422, str(exc)) from exc
                 return
             if (
