@@ -211,11 +211,24 @@
     $("quick-draft-result").hidden = false;
     $("quick-draft-editor").value = projection.draft_text || "";
     var draft = projection.draft || {};
+    var pending = draft.status === "awaiting_host_agent" || draft.status === "generating";
+    $("quick-draft-editor").disabled = pending;
+    $("quick-draft-save").disabled = pending;
+    $("quick-draft-discover").disabled = pending;
+    $("quick-draft-shape").disabled = pending;
     var elapsed = typeof draft.elapsed_seconds === "number"
       ? " · " + draft.elapsed_seconds.toFixed(1) + "s to first draft"
       : "";
-    $("quick-draft-meta").textContent =
-      "Working scene" + elapsed + " · " + String(draft.edit_count || 0) + " edit(s)";
+    if (pending) {
+      $("quick-draft-meta").textContent =
+        "Waiting for the active coding agent to return the working scene…";
+    } else if (draft.status === "generation_failed") {
+      $("quick-draft-meta").textContent =
+        "Draft generation failed: " + String(draft.error || "unknown generation error");
+    } else {
+      $("quick-draft-meta").textContent =
+        "Working scene" + elapsed + " · " + String(draft.edit_count || 0) + " edit(s)";
+    }
     if (state.quickDraftDiscoveriesVisible) {
       renderQuickDraftDiscoveries(projection.discoveries || []);
     } else {
