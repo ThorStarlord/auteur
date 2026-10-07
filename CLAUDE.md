@@ -119,8 +119,10 @@ integration-ready against contemporary `main`. Before merge, re-read current
 `main` and open PRs; if overlapping work already landed, reuse or reconcile it.
 If the bounded branch is no longer cleanly integrable, reconstruct/rebase the
 small change on current `main`, validate the new exact head, and prefer that
-current implementation over force-merging stale history. See `AGENTS.md` for
-the operational checklist.
+current implementation over force-merging stale history. For stacked PRs,
+capture the child's original parent/head responsibility before rewriting an
+ancestor branch; live PR topology may change after parent reconciliation. See
+`AGENTS.md` for the operational checklist and stacked-PR provenance rule.
 
 ### Current Genre Pipelines
 

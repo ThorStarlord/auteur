@@ -307,6 +307,51 @@ integration currentness as a separate check from branch correctness:
    repository responsibilities may stay open when they are explicitly tracked;
    a complete session is not a claim that the repository is complete.
 
+#### Stacked PR provenance
+
+When a pull request is based on another open pull request, preserve the child's
+original responsibility boundary before rewriting, rebasing, or merging an
+ancestor branch. Rewriting the parent can change the child's live base SHA, so
+the child's current GitHub base/head comparison may no longer describe the
+semantic delta that originally belonged to that child.
+
+Use the frozen historical parent/head identities that established the child's
+responsibility, then reconcile that responsibility onto contemporary `main`.
+For each touched file, use blob identity as a cheap first check:
+
+```text
+original-base blob == current-main blob
+-> direct replay of the original file-level change is normally safe
+
+original-base blob != current-main blob
+-> perform semantic reconciliation
+-> do not replace current main with the historical head merely to preserve ancestry
+```
+
+After reconstruction, compare the new branch directly with contemporary
+`main`. The remaining diff should represent only the responsibility that is
+still absent from `main`.
+
+Keep these distinctions explicit:
+
+```text
+current PR base/head
+!= original responsibility boundary
+
+historical branch ancestry
+!= semantic responsibility
+
+semantic content already landed
+!= Git ancestry already reconciled
+
+GitHub mergeable
+!= contemporary integration evidence
+```
+
+Squash merges make these distinctions especially important: semantic content
+may already be canonical even when descendant branches still point through
+obsolete ancestry.
+
 ## Validation budget
 
 Follow `docs/engineering/release-qualification.md`.
