@@ -1,10 +1,10 @@
 # Auteur — Current Repository Status
 
 **Last reconciled:** 2026-10-07  
-**Current main:** `ecc42ec2b9faeb4fc8037ce88b2379e44a4102d2`  
+**Reconciled source baseline:** `main @ ecc42ec2b9faeb4fc8037ce88b2379e44a4102d2`  
 **Package metadata:** `1.0.0` — development metadata, not a release claim  
 **Latest published release:** `v0.37.1`  
-**Role of this file:** short operational handoff only. Historical work belongs in Git history, PRs, issues, qualification records, and release records.
+**Role of this file:** short operational handoff only. The source baseline names the state this handoff was reconciled against; it is not expected to equal the post-merge `main` SHA. Historical work belongs in Git history, PRs, issues, qualification records, and release records.
 
 For product intent and hard invariants read [MISSION.md](MISSION.md). For the canonical semantic model read [docs/narrative-architecture.md](docs/narrative-architecture.md). For candidate future directions read [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md).
 
