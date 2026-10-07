@@ -102,6 +102,27 @@ def test_write_final_and_has_final(tmp_path):
     assert (project.chapter_dir(1) / "final.md").read_text(encoding="utf-8") == "the chapter prose"
 
 
+def test_write_draft_uses_exclusive_create_even_if_precheck_would_be_stale(
+    tmp_path, monkeypatch
+):
+    project = Project.init(tmp_path / "project", StoryBlueprint.from_yaml(SAMPLE_YAML))
+    target = project.chapter_dir(1) / "draft_v1.md"
+    target.write_text("existing", encoding="utf-8")
+    original_exists = Path.exists
+
+    def stale_exists(path):
+        if path == target:
+            return False
+        return original_exists(path)
+
+    monkeypatch.setattr(Path, "exists", stale_exists)
+
+    with pytest.raises(FileExistsError, match="already exists"):
+        project.write_draft(1, 1, "replacement")
+
+    assert target.read_text(encoding="utf-8") == "existing"
+
+
 def test_write_draft_refuses_to_overwrite_existing_version(tmp_path):
     project = Project.init(tmp_path / "project", StoryBlueprint.from_yaml(SAMPLE_YAML))
     project.write_draft(1, 1, "first")
