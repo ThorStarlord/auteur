@@ -43,9 +43,12 @@ The relevant context exists; the missing responsibility is connecting that conte
 ## Active Work
 
 - **PR #332 — Chapter-N host-agent generation orchestration** — draft / current F2 repair.
-- **PR #335 — interrupted Chapter-generation recovery** — draft child of #332; reserves the exact Working-draft version before publication so exact retry does not manufacture a second draft.
+- **PR #335 — interrupted Chapter-generation recovery** — draft child of #332; reserves the exact Working-draft version and binds the exact HostAgentResponse before publication.
+- **PR #340 — atomic draft-version persistence** — draft; replaces the check-then-write draft path with exclusive filesystem creation so concurrent writers cannot overwrite the same version.
+- **Qualification branch `qualify/f2-chapter-generation @ 18a9aebbe9c39e267053419b891d4c272db4c09c`** — flattened #332 + #335 + #340 on the reconciled main baseline for exact local execution.
 - **PR #334 — false-guarantee repairs** — draft; fixes staged Book-completion identity validation and makes pending/failed Quick Draft sessions projectable.
-- **PR #336 — Quick Draft host-agent default** — draft child of #334; makes host-agent the default Beginner runtime and direct-provider use explicit.
+- **PR #336 — Quick Draft host-agent default** — draft child of #334; makes host-agent the default Beginner runtime, rejects conflicting replay/late overwrite, and keeps direct-provider use explicit.
+- **Qualification branch `qualify/quick-draft-host-agent @ 5787e1fbb817cbbe1b15baf07c440ce236c4b9f5`** — flattened #334 + #336 on the reconciled main baseline for exact local execution.
 - **PR #339 — architecture admission guard** — draft; makes observed frontier failure + irreducible behavioral distinction the admission test for new durable architecture.
 
 These PRs are implementation candidates, not merged/canonical state.
@@ -77,6 +80,7 @@ Do not raise the claim ceiling from an open PR. Exact-head validation belongs to
 - **#338 — protected governance simplification:** the 500-line/12-file hard cap and AGENTS/CLAUDE consolidation require a human-authored protected commit under current `FACTORY_RULES.md`.
 - **#295 — formal L3 requalification:** remains a qualification lane; focused repair evidence does not close it.
 - **#218 — Episode 1 Direction qualification:** remains separate from the current F2/X3 product frontier.
+- **Execution environment:** the current agent container cannot resolve GitHub for a runnable checkout; the GitHub integration exposes no Codespaces/workflow-dispatch executor, and the only connected Vercel project is unrelated external infrastructure. Exact Python qualification therefore remains a genuine external execution gate rather than inferred evidence.
 - **#310 — host-agent Quick Draft dogfood:** implementation availability is no longer the blocker; the empirical run remains pending until the current host-agent-default candidate is qualified/reconciled.
 - Human prose preference/usability claims remain human-evidence claims.
 
@@ -98,10 +102,11 @@ Reopen a deferred lane only when normal workflow evidence makes it the smallest 
 
 ## Next Trigger
 
-1. Qualify the exact #332 + recovery behavior.
-2. Continue **The Glass Archive** from the same frozen F2 checkpoint.
-3. If a new material failure appears, classify its smallest owning layer and repair only that boundary.
-4. If F2 and X3 both pass, reassess whether F3/X4 is actually warranted rather than promoting it automatically.
+1. Run focused local qualification on exact `qualify/f2-chapter-generation @ 18a9aebbe9c39e267053419b891d4c272db4c09c` (#332 + #335 + #340).
+2. Integrate the qualified F2 responsibility through the repository's protected transition.
+3. Continue **The Glass Archive** from the same frozen F2 checkpoint.
+4. If a new material failure appears, classify its smallest owning layer and repair only that boundary.
+5. If F2 and X3 both pass, reassess whether F3/X4 is actually warranted rather than promoting it automatically.
 
 ## Repository Simplification Direction
 
