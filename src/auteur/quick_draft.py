@@ -604,7 +604,17 @@ def project_quick_draft_session(project_root: Path, session_id: str) -> dict[str
         else "scene_draft.md"
     )
     draft_path = session_dir / str(current_file)
+    draft_status = str(draft_info.get("status", "")) if isinstance(draft_info, dict) else ""
     if not draft_path.is_file():
+        if draft_status in {"awaiting_host_agent", "generating", "generation_failed"}:
+            return {
+                "session_id": session_id,
+                "status": scaffold.get("status", STATUS),
+                "draft_text": None,
+                "draft": draft_info,
+                "discoveries": [],
+                "scaffold": scaffold,
+            }
         raise FileNotFoundError("Quick Draft scene is missing")
     draft_text = draft_path.read_text(encoding="utf-8")
     inputs = scaffold.get("inputs", {}) if isinstance(scaffold, dict) else {}
