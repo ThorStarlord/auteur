@@ -1,117 +1,96 @@
 # Auteur — Current Repository Status
 
 **Last reconciled:** 2026-10-07  
-**Reconciled source baseline:** `main @ ecc42ec2b9faeb4fc8037ce88b2379e44a4102d2`  
-**Package metadata:** `1.0.0` — development metadata, not a release claim  
-**Latest published release:** `v0.37.1`  
-**Role of this file:** short operational handoff only. The source baseline names the state this handoff was reconciled against; it is not expected to equal the post-merge `main` SHA. Historical work belongs in Git history, PRs, issues, qualification records, and release records.
+**Reconciled baseline:** `main @ ecc42ec2b9faeb4fc8037ce88b2379e44a4102d2`  
+**Latest published release:** `v0.37.1` (`pyproject.toml` metadata `1.0.0` is not publication evidence)
 
-For product intent and hard invariants read [MISSION.md](MISSION.md). For the canonical semantic model read [docs/narrative-architecture.md](docs/narrative-architecture.md). For candidate future directions read [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md).
+This file is a short operational handoff, not project history. Historical evidence belongs in Git, PRs, issues, qualification records, and release records.
 
-## Current Product Frontier
+Read [MISSION.md](MISSION.md) for product invariants, [docs/narrative-architecture.md](docs/narrative-architecture.md) for the semantic model, and [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md) for frontier policy.
+
+## Current Frontier
 
 **F2 — Small-Book Longitudinal Coherence + X3 — Persistent Book Workspace**
 
-Authoritative qualification surface: issue #318 and its frozen **The Glass Archive** six-Chapter reference Book.
-
-The governing rule remains:
+Qualification surface: issue #318 and the frozen six-Chapter **The Glass Archive** reference Book.
 
 ```text
-run the controlled Book
--> observe the first material recurring failure
--> repair the smallest owning boundary
--> rerun the same checkpoint
--> do not prebuild the next frontier
+run controlled Book
+-> first material recurring failure
+-> smallest owning repair
+-> rerun same checkpoint
 ```
 
-F3/X4 is not selected unless F2/X3 passes.
+F3/X4 is not selected.
 
-## Current First Failure
+## Current Failure
 
-The latest F2 evidence established bounded relevant Chapter-N context but exposed an orchestration gap:
+Bounded relevant Chapter-N context exists. The unresolved product boundary is:
 
 ```text
 contextual Chapter-N plan
 -> author_context
--> Bard request
--> host-agent generation
--> Working draft
+-> exact host-agent request/response
+-> freshness validation
+-> one overwrite-safe Working draft
 ```
 
-The relevant context exists; the missing responsibility is connecting that context to exact, freshness-bound Chapter-N generation.
+## Exact Qualification Candidates
 
-## Active Work
+| Responsibility | Exact candidate |
+| --- | --- |
+| F2 Chapter-N generation | `qualify/f2-chapter-generation @ d82b938418b122a27ac29d695276aeee5dc6a812` |
+| Quick Draft host-agent default | `qualify/quick-draft-host-agent @ c418709ea4d229c989d00a34de8e2037c29c6f73` |
 
-- **PR #332 — Chapter-N host-agent generation orchestration** — draft / current F2 repair.
-- **PR #335 — interrupted Chapter-generation recovery** — draft child of #332; reserves the exact Working-draft version and binds the exact HostAgentResponse before publication.
-- **PR #340 — atomic draft-version persistence** — draft; replaces the check-then-write draft path with exclusive filesystem creation so concurrent writers cannot overwrite the same version.
-- **PR #341 — host-agent atomic packet persistence** — draft; replaces fixed temporary request/response packet names with unique same-directory atomic staging files.
-- **Qualification branch `qualify/f2-chapter-generation @ d82b938418b122a27ac29d695276aeee5dc6a812`** — flattened #332 + #335 + #340 on the reconciled main baseline for exact local execution.
-- **PR #334 — false-guarantee repairs** — draft; fixes staged Book-completion identity validation and makes pending/failed Quick Draft sessions projectable.
-- **PR #336 — Quick Draft host-agent default** — draft child of #334; makes host-agent the default Beginner runtime, rejects conflicting replay/late overwrite, and keeps direct-provider use explicit.
-- **Qualification branch `qualify/quick-draft-host-agent @ c418709ea4d229c989d00a34de8e2037c29c6f73`** — flattened #334 + #336 on the reconciled main baseline for exact local execution.
-- **PR #339 — architecture admission guard** — draft; makes observed frontier failure + irreducible behavioral distinction the admission test for new durable architecture.
+F2 candidate contains #332 + #335 + #340 + #341. Quick Draft candidate contains #334 + #336 + #341.
 
-These PRs are implementation candidates, not merged/canonical state.
+Supporting draft PRs:
+- #340 makes draft-version creation filesystem-exclusive.
+- #341 gives host-agent request/response writes unique atomic staging files.
+- #337 is this compact STATUS change.
+- #339 gates new architecture on observed frontier evidence.
 
-## Established Evidence
+Open PRs are implementation candidates, not canonical behavior.
 
-Current main already establishes:
+## Established Main Evidence
 
-- explicit author acceptance remains the canon boundary;
-- local-first validation is the development default;
-- Beginner persistent Book orientation exists;
-- bounded relevant Chapter-N author context exists;
-- neutral host-agent request/response machinery exists for Quick Draft;
-- direct provider adapters remain compatibility/standalone backends.
+Current main already establishes explicit author acceptance, local-first validation, persistent Book orientation, bounded relevant Chapter-N context, and the neutral host-agent request/response contract.
 
-Do not raise the claim ceiling from an open PR. Exact-head validation belongs to the exact implementation head being claimed.
+Do not raise claims from an open branch. Qualification belongs to the exact candidate SHA being claimed.
 
 ## Validation Posture
 
-- **L1 Focused Validation** — ordinary development evidence, normally local.
-- **L2 Targeted Integration** — only for a named changed boundary/risk.
-- **L3 Full Regression** — explicit stabilization/milestone/recovery checkpoint.
-- **Release Qualification** — separate frozen-candidate activity.
-- GitHub Actions are optional remote execution, not a normal development dependency.
+- **L1:** focused local evidence for ordinary development.
+- **L2:** only for a named changed boundary.
+- **L3:** explicit stabilization/milestone/recovery checkpoint.
+- **Release Qualification:** separate frozen-candidate lifecycle.
+- GitHub Actions remain optional remote execution.
 
-## Known Blockers / External Gates
+Current agent environment cannot obtain a runnable checkout: local container DNS cannot resolve GitHub; the GitHub integration exposes no Codespaces/workflow-dispatch executor; the connected Vercel project is unrelated external infrastructure. Python exact-head qualification is therefore an external execution gate, not inferred evidence.
 
-- **#272 — main integration enforcement:** GitHub branch/ruleset administration is external to the connected integration. The current local-first direction does not justify making hosted Actions a mandatory merge dependency.
-- **#338 — protected governance simplification:** the 500-line/12-file hard cap and AGENTS/CLAUDE consolidation require a human-authored protected commit under current `FACTORY_RULES.md`.
-- **#295 — formal L3 requalification:** remains a qualification lane; focused repair evidence does not close it.
-- **#218 — Episode 1 Direction qualification:** remains separate from the current F2/X3 product frontier.
-- **Execution environment:** the current agent container cannot resolve GitHub for a runnable checkout; the GitHub integration exposes no Codespaces/workflow-dispatch executor, and the only connected Vercel project is unrelated external infrastructure. Exact Python qualification therefore remains a genuine external execution gate rather than inferred evidence.
-- **#310 — host-agent Quick Draft dogfood:** implementation availability is no longer the blocker; the empirical run remains pending until the current host-agent-default candidate is qualified/reconciled.
-- Human prose preference/usability claims remain human-evidence claims.
+## Other Gates
 
-An external blocker on one lane does not freeze independently warranted repository work.
+- **#272:** GitHub admin must require PR-only `main` without mandatory hosted Actions.
+- **#338:** protected human commit must replace the absolute 500-line/12-file rejection rule and consolidate AGENTS/CLAUDE guidance.
+- **#310:** real host-agent Quick Draft dogfood follows qualification/integration of its exact candidate.
+- **#295 / #218:** separate qualification lanes; neither blocks F2 repository work.
 
-## Deferred Lanes
+## Deferred
 
-The following are deliberately off the current critical path:
-
-- MANA / audience-effect expansion (former PR #311);
-- Progressive Commitment durable-state promotion (former PR #315);
-- F3+ multi-thread / larger-Book frontiers;
-- generalized retrieval or vector search;
-- new semantic layers or global story-state enums;
-- Episode 2+ / generalized serial architecture;
-- another first-session feature wave.
-
-Reopen a deferred lane only when normal workflow evidence makes it the smallest correct owner of an observed failure.
+MANA, Progressive Commitment runtime states, F3+, generalized retrieval/vector search, new semantic layers/global story-state enums, Episode 2+ expansion, another first-session feature wave, and #248 post-F2 decomposition remain deferred until their evidence gates are met.
 
 ## Next Trigger
 
-1. Run focused local qualification on exact `qualify/f2-chapter-generation @ d82b938418b122a27ac29d695276aeee5dc6a812` (#332 + #335 + #340 + #341).
-2. Integrate the qualified F2 responsibility through the repository's protected transition.
-3. Continue **The Glass Archive** from the same frozen F2 checkpoint.
-4. If a new material failure appears, classify its smallest owning layer and repair only that boundary.
-5. If F2 and X3 both pass, reassess whether F3/X4 is actually warranted rather than promoting it automatically.
+1. Locally qualify `d82b9384` with `tests/test_project.py`, `tests/test_host_agent_handoff.py`, and `tests/test_chapter_generation.py` plus focused Ruff/checks.
+2. Integrate that qualified F2 responsibility through the protected merge transition.
+3. Resume the same Glass Archive checkpoint.
+4. Repair only the next observed material failure, or close F2/X3 if it passes.
+5. Qualify/integrate `c418709e`, then run #310 target-runtime dogfood.
+6. Only after F2/X3 passes, resume #248 and reassess the next frontier.
 
-## Repository Simplification Direction
+## Simplification Rule
 
-Preserve semantic rigor where it protects story authority:
+Preserve rigor where it protects story meaning and authority:
 
 ```text
 accepted story
@@ -120,4 +99,4 @@ accepted story
 + explicit promotion
 ```
 
-Reduce administrative rigor that exists mainly to operate the repository itself. Prefer one independently verifiable semantic responsibility over arbitrary line-count-driven slicing, but protected factory-policy changes remain owner-only until committed through the repository's stated authority path.
+Reduce coordination machinery that exists mainly to operate the repository itself.
