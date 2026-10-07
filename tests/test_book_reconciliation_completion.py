@@ -206,6 +206,72 @@ def _ready_acceptance(store: BookReconciliationStore, book_id: str, project: Pat
 # Core model
 # ----------------------------------------------------------------------------
 
+def _write_completion_stage(
+    store: BookReconciliationStore,
+    tmp_path: Path,
+    *,
+    record_id: str | None = "completion_test",
+    manifest_id: str | None = "completion_test",
+) -> Path:
+    staging = tmp_path / "completion-stage"
+    staging.mkdir(parents=True, exist_ok=True)
+    record = {"artifact_type": "book_reconciliation_completion"}
+    manifest = {"artifact_type": "book_completion_transaction_manifest"}
+    if record_id is not None:
+        record["completion_id"] = record_id
+    if manifest_id is not None:
+        manifest["completion_id"] = manifest_id
+    (staging / "completion_record.yaml").write_text(
+        yaml.safe_dump(record, sort_keys=False), encoding="utf-8"
+    )
+    (staging / "manifest.yaml").write_text(
+        yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8"
+    )
+    return staging
+
+
+def test_staged_completion_identity_matches_manifest(tmp_path: Path) -> None:
+    store = BookReconciliationStore(tmp_path)
+    staging = _write_completion_stage(store, tmp_path)
+
+    ok, error = store._validate_staged_completion(str(staging))
+
+    assert ok is True
+    assert error == ""
+
+
+def test_staged_completion_identity_mismatch_fails_closed(tmp_path: Path) -> None:
+    store = BookReconciliationStore(tmp_path)
+    staging = _write_completion_stage(
+        store, tmp_path, record_id="completion_record", manifest_id="completion_manifest"
+    )
+
+    ok, error = store._validate_staged_completion(str(staging))
+
+    assert ok is False
+    assert "mismatched completion_id" in error
+
+
+def test_staged_completion_missing_record_identity_fails_closed(tmp_path: Path) -> None:
+    store = BookReconciliationStore(tmp_path)
+    staging = _write_completion_stage(store, tmp_path, record_id=None)
+
+    ok, error = store._validate_staged_completion(str(staging))
+
+    assert ok is False
+    assert "record is missing completion_id" in error
+
+
+def test_staged_completion_missing_manifest_identity_fails_closed(tmp_path: Path) -> None:
+    store = BookReconciliationStore(tmp_path)
+    staging = _write_completion_stage(store, tmp_path, manifest_id=None)
+
+    ok, error = store._validate_staged_completion(str(staging))
+
+    assert ok is False
+    assert "manifest is missing completion_id" in error
+
+
 def test_completion_gate_delegates_to_validator(monkeypatch, tmp_path: Path) -> None:
     project, _book_id = _make_book(tmp_path)
     store = BookReconciliationStore(project)
