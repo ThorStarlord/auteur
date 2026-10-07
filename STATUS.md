@@ -35,14 +35,14 @@ contextual Chapter-N plan
 -> one overwrite-safe Working draft
 ```
 
-## Exact Qualification Candidates
+## Unqualified Integration Candidates
 
 | Responsibility | Exact candidate |
 | --- | --- |
 | F2 Chapter-N generation | `qualify/f2-chapter-generation @ d82b938418b122a27ac29d695276aeee5dc6a812` |
 | Quick Draft host-agent default | `qualify/quick-draft-host-agent @ c418709ea4d229c989d00a34de8e2037c29c6f73` |
 
-F2 candidate contains #332 + #335 + #340 + #341. Quick Draft candidate contains #334 + #336 + #341.
+F2 candidate contains #332 + #335 + #340 + #341. Quick Draft candidate contains #334 + #336 + #341. These branches are statically reviewed implementation candidates; exact-head Python execution is deferred rather than treated as a universal development gate.
 
 Supporting draft PRs:
 - #340 makes draft-version creation filesystem-exclusive.
@@ -56,7 +56,7 @@ Open PRs are implementation candidates, not canonical behavior.
 
 Current main already establishes explicit author acceptance, local-first validation, persistent Book orientation, bounded relevant Chapter-N context, and the neutral host-agent request/response contract.
 
-Do not raise claims from an open branch. Qualification belongs to the exact candidate SHA being claimed.
+Do not raise claims beyond the evidence available. These candidates may be integrated under an explicitly weakened development claim, but they are not `Implemented` under the formal release-state vocabulary until appropriate L1 evidence exists.
 
 ## Validation Posture
 
@@ -66,7 +66,7 @@ Do not raise claims from an open branch. Qualification belongs to the exact cand
 - **Release Qualification:** separate frozen-candidate lifecycle.
 - GitHub Actions remain optional remote execution.
 
-Current agent environment cannot obtain a runnable checkout: local container DNS cannot resolve GitHub; the GitHub integration exposes no Codespaces/workflow-dispatch executor; the connected Vercel project is unrelated external infrastructure. Python exact-head qualification is therefore an external execution gate, not inferred evidence.
+Current agent environment cannot obtain a runnable checkout: local container DNS cannot resolve GitHub; the GitHub integration exposes no Codespaces/workflow-dispatch executor; the connected Vercel project is unrelated external infrastructure. This lowers the claim; it does not block ordinary reversible development or owner-authorized development integration.
 
 ## Other Gates
 
@@ -81,12 +81,12 @@ MANA, Progressive Commitment runtime states, F3+, generalized retrieval/vector s
 
 ## Next Trigger
 
-1. Locally qualify `d82b9384` with `tests/test_project.py`, `tests/test_host_agent_handoff.py`, and `tests/test_chapter_generation.py` plus focused Ruff/checks.
-2. Integrate that qualified F2 responsibility through the protected merge transition.
-3. Resume the same Glass Archive checkpoint.
-4. Repair only the next observed material failure, or close F2/X3 if it passes.
-5. Qualify/integrate `c418709e`, then run #310 target-runtime dogfood.
-6. Only after F2/X3 passes, resume #248 and reassess the next frontier.
+1. Treat `d82b9384` as the current **unqualified F2 integration candidate**. Exact-head Python tests are deferred, not claimed passed.
+2. When protected merge authority accepts the weakened claim, integrate #341 -> #340 -> #332 -> reconcile #335 onto contemporary main.
+3. Resume the same Glass Archive checkpoint and let that controlled Book provide the next decision-relevant evidence.
+4. Repair only the next observed material failure, or close F2/X3 mechanically at the claim level the returned evidence supports.
+5. Treat `c418709e` as the current **unqualified Quick Draft integration candidate**; integrate #341 -> #334 -> reconciled #336 when protected authority accepts the weakened claim, then run #310 target-runtime dogfood.
+6. Only after F2/X3 passes at the intended product-use boundary, resume #248 and reassess the next frontier.
 
 ## Simplification Rule
 
