@@ -86,6 +86,15 @@ def parse_quick_draft_args(argv: list[str]) -> argparse.Namespace:
         "first_scene",
         help="What you want to happen in the very first scene.",
     )
+    parser.add_argument(
+        "--backend",
+        choices=("host-agent", "direct-provider"),
+        default="host-agent",
+        help=(
+            "Generation backend: host-agent by default; use direct-provider only "
+            "when standalone provider credentials are intentionally configured."
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -739,6 +748,25 @@ def prepare_quick_draft_shape_handoff(
 
 def dispatch_quick_draft_argv(argv: list[str]) -> int:
     args = parse_quick_draft_args(argv)
+    if args.backend == "host-agent":
+        try:
+            prepared = prepare_quick_draft_host_agent_request(
+                args.premise,
+                args.first_scene,
+            )
+        except Exception as exc:
+            print(f"Quick Draft could not start: {exc}")
+            return 1
+        print("Quick Draft — awaiting active host agent")
+        print("Nothing is accepted story material yet.")
+        print(f"Request: {prepared.request_path}")
+        print(f"Session: {prepared.session_id}")
+        print(
+            "Next: the active coding agent should answer the exact request, then "
+            "Auteur will validate the response before creating the Working scene."
+        )
+        return 0
+
     try:
         result = run_quick_draft(args.premise, args.first_scene)
     except Exception as exc:
