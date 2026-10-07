@@ -120,9 +120,11 @@ class Project:
 
     def write_draft(self, n: int, version: int, prose: str) -> Path:
         path = self.chapter_dir(n) / f"draft_v{version}.md"
-        if path.exists():
-            raise FileExistsError(f"Draft version already exists: {path}")
-        path.write_text(prose, encoding="utf-8")
+        try:
+            with path.open("x", encoding="utf-8") as draft_file:
+                draft_file.write(prose)
+        except FileExistsError as exc:
+            raise FileExistsError(f"Draft version already exists: {path}") from exc
         return path
 
     def write_validation(self, n: int, version: int, report: Any) -> Path:
