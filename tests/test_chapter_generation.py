@@ -120,6 +120,51 @@ def test_exact_replay_idempotent_but_different_second_response_rejected(tmp_path
         )
 
 
+def test_same_prose_from_different_host_response_cannot_replace_evidence(
+    tmp_path, monkeypatch
+):
+    root, _ = setup(tmp_path, monkeypatch)
+    prepared = generation.prepare_chapter_generation(root, 6, command_id="cmd")
+    request = request_for(prepared)
+    first_response = build_host_agent_response(
+        request,
+        "Stable response",
+        runtime="runtime-a",
+        model="model-a",
+    )
+    generation.complete_chapter_generation(
+        root, 6, command_id="cmd", response_payload=first_response,
+    )
+
+    conflicting = build_host_agent_response(
+        request,
+        "Stable response",
+        runtime="runtime-b",
+        model="model-b",
+    )
+    with pytest.raises(ValueError, match="different response"):
+        generation.complete_chapter_generation(
+            root, 6, command_id="cmd", response_payload=conflicting,
+        )
+
+
+def test_completed_generation_rejects_tampered_response_evidence(tmp_path, monkeypatch):
+    root, _ = setup(tmp_path, monkeypatch)
+    prepared = generation.prepare_chapter_generation(root, 6, command_id="cmd")
+    response = build_host_agent_response(request_for(prepared), "Stable response")
+    result = generation.complete_chapter_generation(
+        root, 6, command_id="cmd", response_payload=response,
+    )
+    payload = json.loads(result.response_path.read_text())
+    payload["model"] = "tampered-model"
+    result.response_path.write_text(json.dumps(payload), encoding="utf-8")
+
+    with pytest.raises(RuntimeError, match="response evidence does not match receipt"):
+        generation.complete_chapter_generation(
+            root, 6, command_id="cmd", response_payload=response,
+        )
+
+
 def test_corrupt_or_tampered_receipt_fails_closed(tmp_path, monkeypatch):
     root, _ = setup(tmp_path, monkeypatch)
     prepared = generation.prepare_chapter_generation(root, 6, command_id="cmd")
