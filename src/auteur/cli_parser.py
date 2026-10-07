@@ -44,6 +44,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument("premise", help="A 1-2 sentence story premise or prompt.")
     p.add_argument("first_scene", help="What you want to happen in the very first scene.")
+    p.add_argument(
+        "--backend",
+        choices=["host-agent", "direct-provider"],
+        default="host-agent",
+        help="Use the active host agent by default; direct provider is explicit.",
+    )
 
     p = sub.add_parser("status", help="Show project health summary (like git status for a novel).")
     p.add_argument("--project", type=Path, default=Path("."), help="Project root directory (default: current directory).")
