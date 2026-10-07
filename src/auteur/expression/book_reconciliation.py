@@ -3220,12 +3220,28 @@ class BookReconciliationStore:
             return False, f"staged completion incomplete: expected {sorted(expected)}, found {sorted(actual)}"
 
         record = yaml.safe_load((staging / "completion_record.yaml").read_text(encoding="utf-8")) or {}
+        manifest = yaml.safe_load((staging / "manifest.yaml").read_text(encoding="utf-8")) or {}
         if record.get("artifact_type") != "book_reconciliation_completion":
             return False, "staged completion record has wrong artifact_type"
-        if record.get("completion_id") != record.get("completion_id"):
-            return False, "staged completion record has mismatched completion_id"
 
-        completion_id = record["completion_id"]
+        completion_id = record.get("completion_id")
+        if not completion_id:
+            return False, "staged completion record is missing completion_id"
+        if manifest.get("artifact_type") != "book_completion_transaction_manifest":
+            return False, "staged completion manifest has wrong artifact_type"
+        manifest_completion_id = manifest.get("completion_id")
+        if not manifest_completion_id:
+            return False, "staged completion manifest is missing completion_id"
+        if completion_id != manifest_completion_id:
+            return False, "staged completion record has mismatched completion_id"
+        if manifest.get("source_acceptance_id") != record.get("source_acceptance_id"):
+            return False, "staged completion manifest has mismatched source_acceptance_id"
+        expected_targets = {
+            "completion_record": str(self._completion_path(completion_id)),
+            "manifest": str(self._completion_manifest_path(completion_id)),
+        }
+        if manifest.get("targets") != expected_targets:
+            return False, "staged completion manifest has invalid publish targets"
         if self._completion_path(completion_id).exists():
             return False, f"a completion record already exists at {completion_id} (would shadow)"
         return True, ""
