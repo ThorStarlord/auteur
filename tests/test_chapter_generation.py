@@ -152,6 +152,64 @@ def test_prepare_requires_existing_accepted_bible_without_creating_one(tmp_path,
     assert not (root / "bible.json").exists()
 
 
+def test_interrupted_before_draft_reuses_reserved_version(tmp_path, monkeypatch):
+    root, _ = setup(tmp_path, monkeypatch)
+    prepared = generation.prepare_chapter_generation(root, 6, command_id="cmd")
+    response = build_host_agent_response(request_for(prepared), "Stable interrupted response")
+    original = Project.write_draft
+    calls = {"count": 0}
+
+    def fail_once(self, chapter_index, version, prose):
+        calls["count"] += 1
+        if calls["count"] == 1:
+            raise OSError("simulated interruption")
+        return original(self, chapter_index, version, prose)
+
+    monkeypatch.setattr(Project, "write_draft", fail_once)
+    with pytest.raises(OSError, match="simulated interruption"):
+        generation.complete_chapter_generation(
+            root, 6, command_id="cmd", response_payload=response,
+        )
+    receipt = json.loads(prepared.receipt_path.read_text())
+    assert receipt["status"] == "committing"
+    assert receipt["draft_version"] == 1
+
+    result = generation.complete_chapter_generation(
+        root, 6, command_id="cmd", response_payload=response,
+    )
+    assert result.draft_path.name == "draft_v1.md"
+    assert not (root / "chapters" / "06" / "draft_v2.md").exists()
+
+
+def test_interrupted_after_draft_reuses_same_working_draft(tmp_path, monkeypatch):
+    root, _ = setup(tmp_path, monkeypatch)
+    prepared = generation.prepare_chapter_generation(root, 6, command_id="cmd")
+    response = build_host_agent_response(request_for(prepared), "Stable interrupted response")
+    original = generation.write_host_agent_response
+    calls = {"count": 0}
+
+    def fail_once(path, payload):
+        calls["count"] += 1
+        if calls["count"] == 1:
+            raise OSError("simulated response-write interruption")
+        return original(path, payload)
+
+    monkeypatch.setattr(generation, "write_host_agent_response", fail_once)
+    with pytest.raises(OSError, match="simulated response-write interruption"):
+        generation.complete_chapter_generation(
+            root, 6, command_id="cmd", response_payload=response,
+        )
+    draft = root / "chapters" / "06" / "draft_v1.md"
+    before = draft.read_bytes()
+
+    result = generation.complete_chapter_generation(
+        root, 6, command_id="cmd", response_payload=response,
+    )
+    assert result.draft_path == draft
+    assert draft.read_bytes() == before
+    assert not (root / "chapters" / "06" / "draft_v2.md").exists()
+
+
 def test_completion_does_not_mutate_existing_accepted_artifacts(tmp_path, monkeypatch):
     root, _ = setup(tmp_path, monkeypatch)
     for index in range(1, 6):
