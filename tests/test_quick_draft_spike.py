@@ -238,7 +238,7 @@ def test_quick_draft_cli_reports_provider_failure_without_traceback(
         fail_provider,
     )
 
-    rc = main(["quick-draft", PREMISE, FIRST_SCENE])
+    rc = main(["quick-draft", PREMISE, FIRST_SCENE, "--backend", "direct-provider"])
     captured = capsys.readouterr()
 
     assert rc == 1
