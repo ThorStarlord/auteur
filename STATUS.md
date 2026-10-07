@@ -45,10 +45,11 @@ The relevant context exists; the missing responsibility is connecting that conte
 - **PR #332 — Chapter-N host-agent generation orchestration** — draft / current F2 repair.
 - **PR #335 — interrupted Chapter-generation recovery** — draft child of #332; reserves the exact Working-draft version and binds the exact HostAgentResponse before publication.
 - **PR #340 — atomic draft-version persistence** — draft; replaces the check-then-write draft path with exclusive filesystem creation so concurrent writers cannot overwrite the same version.
-- **Qualification branch `qualify/f2-chapter-generation @ 18a9aebbe9c39e267053419b891d4c272db4c09c`** — flattened #332 + #335 + #340 on the reconciled main baseline for exact local execution.
+- **PR #341 — host-agent atomic packet persistence** — draft; replaces fixed temporary request/response packet names with unique same-directory atomic staging files.
+- **Qualification branch `qualify/f2-chapter-generation @ d82b938418b122a27ac29d695276aeee5dc6a812`** — flattened #332 + #335 + #340 on the reconciled main baseline for exact local execution.
 - **PR #334 — false-guarantee repairs** — draft; fixes staged Book-completion identity validation and makes pending/failed Quick Draft sessions projectable.
 - **PR #336 — Quick Draft host-agent default** — draft child of #334; makes host-agent the default Beginner runtime, rejects conflicting replay/late overwrite, and keeps direct-provider use explicit.
-- **Qualification branch `qualify/quick-draft-host-agent @ 5787e1fbb817cbbe1b15baf07c440ce236c4b9f5`** — flattened #334 + #336 on the reconciled main baseline for exact local execution.
+- **Qualification branch `qualify/quick-draft-host-agent @ c418709ea4d229c989d00a34de8e2037c29c6f73`** — flattened #334 + #336 on the reconciled main baseline for exact local execution.
 - **PR #339 — architecture admission guard** — draft; makes observed frontier failure + irreducible behavioral distinction the admission test for new durable architecture.
 
 These PRs are implementation candidates, not merged/canonical state.
@@ -102,7 +103,7 @@ Reopen a deferred lane only when normal workflow evidence makes it the smallest 
 
 ## Next Trigger
 
-1. Run focused local qualification on exact `qualify/f2-chapter-generation @ 18a9aebbe9c39e267053419b891d4c272db4c09c` (#332 + #335 + #340).
+1. Run focused local qualification on exact `qualify/f2-chapter-generation @ d82b938418b122a27ac29d695276aeee5dc6a812` (#332 + #335 + #340 + #341).
 2. Integrate the qualified F2 responsibility through the repository's protected transition.
 3. Continue **The Glass Archive** from the same frozen F2 checkpoint.
 4. If a new material failure appears, classify its smallest owning layer and repair only that boundary.
