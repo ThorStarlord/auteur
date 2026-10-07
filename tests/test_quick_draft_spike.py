@@ -569,6 +569,78 @@ def test_quick_draft_host_agent_rejects_response_for_other_candidate_without_dra
 
 
 
+def test_quick_draft_host_agent_exact_replay_is_idempotent_and_conflict_fails(
+    tmp_path: Path,
+) -> None:
+    prepared = prepare_quick_draft_host_agent_request(
+        PREMISE,
+        FIRST_SCENE,
+        project_root=tmp_path,
+    )
+    host_agent = __import__("auteur.host_agent", fromlist=["load_host_agent_request"])
+    request = host_agent.load_host_agent_request(prepared.request_path)
+    response = build_host_agent_response(
+        request,
+        "A stable Working scene.",
+        runtime="coding-agent-test",
+        model="test-model",
+    )
+
+    first = complete_quick_draft_host_agent_response(
+        tmp_path, prepared.session_id, response
+    )
+    before = first.draft_path.read_bytes()
+    second = complete_quick_draft_host_agent_response(
+        tmp_path, prepared.session_id, response
+    )
+
+    assert second.draft_path == first.draft_path
+    assert second.draft_path.read_bytes() == before
+
+    different = build_host_agent_response(
+        request,
+        "A different Working scene.",
+        runtime="coding-agent-test",
+        model="test-model",
+    )
+    with pytest.raises(ValueError, match="different response"):
+        complete_quick_draft_host_agent_response(
+            tmp_path, prepared.session_id, different
+        )
+    assert first.draft_path.read_bytes() == before
+
+
+def test_quick_draft_host_agent_does_not_overwrite_manual_pending_scene(
+    tmp_path: Path,
+) -> None:
+    prepared = prepare_quick_draft_host_agent_request(
+        PREMISE,
+        FIRST_SCENE,
+        project_root=tmp_path,
+    )
+    save_quick_draft_revision(
+        tmp_path,
+        prepared.session_id,
+        "The author wrote this scene manually while generation was pending.",
+    )
+    before = (prepared.session_dir / "scene_draft.md").read_bytes()
+    host_agent = __import__("auteur.host_agent", fromlist=["load_host_agent_request"])
+    request = host_agent.load_host_agent_request(prepared.request_path)
+    response = build_host_agent_response(
+        request,
+        "The host agent returned different prose.",
+        runtime="coding-agent-test",
+        model="test-model",
+    )
+
+    with pytest.raises(ValueError, match="already has a Working scene"):
+        complete_quick_draft_host_agent_response(
+            tmp_path, prepared.session_id, response
+        )
+
+    assert (prepared.session_dir / "scene_draft.md").read_bytes() == before
+
+
 def test_quick_draft_host_agent_unknown_latency_stays_unknown(
     tmp_path: Path,
 ) -> None:
