@@ -441,9 +441,56 @@ def complete_quick_draft_host_agent_response(
         raise ValueError("Quick Draft scaffold host-agent fingerprint is stale")
 
     draft_path = session_dir / "scene_draft.md"
-    draft_path.write_text(prose.rstrip() + "\n", encoding="utf-8")
     response_path = session_dir / "host_agent_response.json"
-    write_host_agent_response(response_path, response)
+    draft_bytes = (prose.rstrip() + "\n").encode("utf-8")
+    candidate_sha = hashlib.sha256(draft_bytes).hexdigest()
+    status = str(draft_info.get("status", ""))
+
+    if status == "draft_ready":
+        backend_response = draft_info.get("backend_response")
+        if (
+            not isinstance(backend_response, dict)
+            or backend_response.get("file") != response_path.name
+            or not response_path.is_file()
+            or not draft_path.is_file()
+        ):
+            raise ValueError("Quick Draft already has a Working scene outside this host-agent completion")
+        stored_response = validate_host_agent_response(
+            request,
+            yaml.safe_load(response_path.read_text(encoding="utf-8")) or {},
+        )
+        if (
+            stored_response.model_dump() != response.model_dump()
+            or draft_info.get("candidate_sha256") != candidate_sha
+            or hashlib.sha256(draft_path.read_bytes()).hexdigest() != candidate_sha
+        ):
+            raise ValueError("Quick Draft request already completed with a different response")
+        return QuickDraftResult(
+            session_id=session_id,
+            session_dir=session_dir,
+            scaffold_path=scaffold_path,
+            draft_path=draft_path,
+            elapsed_seconds=response.elapsed_seconds,
+            provider=str(draft_info.get("provider", "host-agent/unknown")),
+        )
+    if status != "awaiting_host_agent":
+        raise ValueError("Quick Draft is not awaiting a host-agent response")
+
+    if response_path.is_file():
+        stored_response = validate_host_agent_response(
+            request,
+            yaml.safe_load(response_path.read_text(encoding="utf-8")) or {},
+        )
+        if stored_response.model_dump() != response.model_dump():
+            raise ValueError("Quick Draft host-agent response evidence already differs")
+    else:
+        write_host_agent_response(response_path, response)
+
+    if draft_path.is_file():
+        if hashlib.sha256(draft_path.read_bytes()).hexdigest() != candidate_sha:
+            raise ValueError("pending Quick Draft already contains different Working prose")
+    else:
+        draft_path.write_bytes(draft_bytes)
 
     provider = f"{response.backend}/{response.runtime}/{response.model}"
     elapsed = response.elapsed_seconds
@@ -454,7 +501,7 @@ def complete_quick_draft_host_agent_response(
             "accepted": False,
             "provider": provider,
             "current_file": draft_path.name,
-            "candidate_sha256": hashlib.sha256(draft_path.read_bytes()).hexdigest(),
+            "candidate_sha256": candidate_sha,
             "backend_response": {
                 "file": response_path.name,
                 "runtime": response.runtime,
