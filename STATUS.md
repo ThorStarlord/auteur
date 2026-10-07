@@ -46,6 +46,7 @@ The relevant context exists; the missing responsibility is connecting that conte
 - **PR #335 — interrupted Chapter-generation recovery** — draft child of #332; reserves the exact Working-draft version before publication so exact retry does not manufacture a second draft.
 - **PR #334 — false-guarantee repairs** — draft; fixes staged Book-completion identity validation and makes pending/failed Quick Draft sessions projectable.
 - **PR #336 — Quick Draft host-agent default** — draft child of #334; makes host-agent the default Beginner runtime and direct-provider use explicit.
+- **PR #339 — architecture admission guard** — draft; makes observed frontier failure + irreducible behavioral distinction the admission test for new durable architecture.
 
 These PRs are implementation candidates, not merged/canonical state.
 
@@ -73,8 +74,10 @@ Do not raise the claim ceiling from an open PR. Exact-head validation belongs to
 ## Known Blockers / External Gates
 
 - **#272 — main integration enforcement:** GitHub branch/ruleset administration is external to the connected integration. The current local-first direction does not justify making hosted Actions a mandatory merge dependency.
+- **#338 — protected governance simplification:** the 500-line/12-file hard cap and AGENTS/CLAUDE consolidation require a human-authored protected commit under current `FACTORY_RULES.md`.
 - **#295 — formal L3 requalification:** remains a qualification lane; focused repair evidence does not close it.
 - **#218 — Episode 1 Direction qualification:** remains separate from the current F2/X3 product frontier.
+- **#310 — host-agent Quick Draft dogfood:** implementation availability is no longer the blocker; the empirical run remains pending until the current host-agent-default candidate is qualified/reconciled.
 - Human prose preference/usability claims remain human-evidence claims.
 
 An external blocker on one lane does not freeze independently warranted repository work.
