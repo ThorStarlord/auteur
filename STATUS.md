@@ -50,7 +50,7 @@ Supporting draft PRs:
 - #337 is this compact STATUS change.
 - #339 gates new architecture on observed frontier evidence.
 
-Open PRs are implementation candidates, not canonical behavior.
+Listed PRs are review-ready unqualified candidates, not canonical behavior.
 
 ## Established Main Evidence
 
