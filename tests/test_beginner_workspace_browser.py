@@ -20,6 +20,13 @@ def _read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
+def test_browser_surfaces_host_agent_waiting_state():
+    js = _read(APP)
+    assert 'draft.status === "awaiting_host_agent"' in js
+    assert "Waiting for the active coding agent" in js
+    assert 'body: JSON.stringify({ premise: premise, first_scene: firstScene })' in js
+
+
 def test_browser_files_exist_and_nonempty():
     for path in (INDEX, APP, STYLES):
         assert path.is_file(), f"missing browser file: {path}"

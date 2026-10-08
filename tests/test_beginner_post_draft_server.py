@@ -7,6 +7,7 @@ from auteur.beginner.server import (
     BeginnerWorkspaceServer,
     default_runtime_dependencies,
 )
+from auteur.host_agent import build_host_agent_response, load_host_agent_request
 from auteur.llm import LLMResponse
 
 
@@ -72,6 +73,50 @@ def test_server_prepares_noncanonical_revision_handoff(tmp_path: Path) -> None:
         server.stop()
         thread.join(timeout=5)
 
+def test_server_defaults_quick_draft_to_host_agent_without_provider_credentials(
+    tmp_path: Path,
+) -> None:
+    server = BeginnerWorkspaceServer(tmp_path, port=0)
+    thread = server.start_in_thread()
+    try:
+        base = f"http://127.0.0.1:{server.port}"
+        waiting = _json(
+            f"{base}/api/beginner/quick-draft",
+            method="POST",
+            payload={
+                "premise": "Detective Miller investigates conflicting memories of one murder.",
+                "first_scene": "Miller questions Suspect Vance about the murder.",
+            },
+        )
+        assert waiting["draft_text"] is None
+        assert waiting["draft"]["status"] == "awaiting_host_agent"
+        session_id = waiting["session_id"]
+        request_path = (
+            tmp_path
+            / ".auteur"
+            / "quick_draft"
+            / session_id
+            / "host_agent_request.json"
+        )
+        request = load_host_agent_request(request_path)
+        response = build_host_agent_response(
+            request,
+            "Detective Miller watched Vance smile.",
+            runtime="coding-agent-test",
+            model="test-model",
+        )
+        ready = _json(
+            f"{base}/api/beginner/quick-draft/{session_id}/host-agent-response",
+            method="POST",
+            payload=response.model_dump(),
+        )
+        assert ready["draft"]["status"] == "draft_ready"
+        assert "Miller watched Vance smile" in ready["draft_text"]
+    finally:
+        server.stop()
+        thread.join(timeout=5)
+
+
 class _QuickDraftLLM:
     def complete(self, request):
         return LLMResponse(
@@ -101,6 +146,7 @@ def test_server_exposes_two_input_quick_draft_edit_and_discovery(tmp_path: Path)
             payload={
                 "premise": "Detective Miller investigates conflicting memories of one murder.",
                 "first_scene": "Miller questions Suspect Vance about the murder.",
+                "backend": "direct-provider",
             },
         )
         assert created["status"] == "inferred_provisional"
@@ -175,6 +221,7 @@ def test_server_shape_workspace_retains_only_selected_quick_draft_context(tmp_pa
             payload={
                 "premise": "Detective Miller investigates conflicting memories of one murder.",
                 "first_scene": "Miller questions Suspect Vance about the murder.",
+                "backend": "direct-provider",
             },
         )
         session_id = created["session_id"]

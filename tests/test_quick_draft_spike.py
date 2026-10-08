@@ -123,6 +123,32 @@ def test_quick_draft_creates_only_provisional_scaffolding_and_one_scene_draft(
     assert request.max_tokens == 1800
 
 
+def test_quick_draft_cli_defaults_to_host_agent_without_provider(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    def provider_must_not_run():
+        raise AssertionError("default Quick Draft must not construct a direct provider")
+
+    monkeypatch.setattr(
+        "auteur.quick_draft._build_quick_draft_client",
+        provider_must_not_run,
+    )
+
+    rc = main(["quick-draft", PREMISE, FIRST_SCENE])
+    out = capsys.readouterr().out
+
+    assert rc == 0
+    assert "awaiting active host agent" in out
+    sessions = list((tmp_path / ".auteur" / "quick_draft").iterdir())
+    assert len(sessions) == 1
+    assert (sessions[0] / "host_agent_request.json").is_file()
+    assert not (sessions[0] / "scene_draft.md").exists()
+
+
 def test_quick_draft_cli_prints_draft_before_any_acceptance(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -135,7 +161,7 @@ def test_quick_draft_cli_prints_draft_before_any_acceptance(
         lambda: (llm, "fake"),
     )
 
-    rc = main(["quick-draft", PREMISE, FIRST_SCENE])
+    rc = main(["quick-draft", PREMISE, FIRST_SCENE, "--backend", "direct-provider"])
     out = capsys.readouterr().out
 
     assert rc == 0
@@ -212,7 +238,7 @@ def test_quick_draft_cli_reports_provider_failure_without_traceback(
         fail_provider,
     )
 
-    rc = main(["quick-draft", PREMISE, FIRST_SCENE])
+    rc = main(["quick-draft", PREMISE, FIRST_SCENE, "--backend", "direct-provider"])
     captured = capsys.readouterr()
 
     assert rc == 1
@@ -541,6 +567,78 @@ def test_quick_draft_host_agent_rejects_response_for_other_candidate_without_dra
 
     assert not (first.session_dir / "scene_draft.md").exists()
 
+
+
+def test_quick_draft_host_agent_exact_replay_is_idempotent_and_conflict_fails(
+    tmp_path: Path,
+) -> None:
+    prepared = prepare_quick_draft_host_agent_request(
+        PREMISE,
+        FIRST_SCENE,
+        project_root=tmp_path,
+    )
+    host_agent = __import__("auteur.host_agent", fromlist=["load_host_agent_request"])
+    request = host_agent.load_host_agent_request(prepared.request_path)
+    response = build_host_agent_response(
+        request,
+        "A stable Working scene.",
+        runtime="coding-agent-test",
+        model="test-model",
+    )
+
+    first = complete_quick_draft_host_agent_response(
+        tmp_path, prepared.session_id, response
+    )
+    before = first.draft_path.read_bytes()
+    second = complete_quick_draft_host_agent_response(
+        tmp_path, prepared.session_id, response
+    )
+
+    assert second.draft_path == first.draft_path
+    assert second.draft_path.read_bytes() == before
+
+    different = build_host_agent_response(
+        request,
+        "A different Working scene.",
+        runtime="coding-agent-test",
+        model="test-model",
+    )
+    with pytest.raises(ValueError, match="different response"):
+        complete_quick_draft_host_agent_response(
+            tmp_path, prepared.session_id, different
+        )
+    assert first.draft_path.read_bytes() == before
+
+
+def test_quick_draft_host_agent_does_not_overwrite_manual_pending_scene(
+    tmp_path: Path,
+) -> None:
+    prepared = prepare_quick_draft_host_agent_request(
+        PREMISE,
+        FIRST_SCENE,
+        project_root=tmp_path,
+    )
+    save_quick_draft_revision(
+        tmp_path,
+        prepared.session_id,
+        "The author wrote this scene manually while generation was pending.",
+    )
+    before = (prepared.session_dir / "scene_draft.md").read_bytes()
+    host_agent = __import__("auteur.host_agent", fromlist=["load_host_agent_request"])
+    request = host_agent.load_host_agent_request(prepared.request_path)
+    response = build_host_agent_response(
+        request,
+        "The host agent returned different prose.",
+        runtime="coding-agent-test",
+        model="test-model",
+    )
+
+    with pytest.raises(ValueError, match="already has a Working scene"):
+        complete_quick_draft_host_agent_response(
+            tmp_path, prepared.session_id, response
+        )
+
+    assert (prepared.session_dir / "scene_draft.md").read_bytes() == before
 
 
 def test_quick_draft_host_agent_unknown_latency_stays_unknown(
