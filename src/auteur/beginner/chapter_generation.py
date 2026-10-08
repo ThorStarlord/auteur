@@ -75,6 +75,17 @@ def _read_json(path: Path) -> dict[str, Any]:
     return value
 
 
+def _json_fingerprint(payload: dict[str, Any]) -> str:
+    return hashlib.sha256(
+        json.dumps(
+            payload,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
+
+
 def _write_json(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_name(f".{path.name}.tmp")
@@ -168,7 +179,7 @@ def prepare_chapter_generation(
             raise ValueError("Chapter generation receipt belongs to another Chapter")
         if receipt.get("source_fingerprint") != source_fingerprint:
             raise ValueError("Chapter generation request is stale; prepare a new command")
-        if receipt.get("status") not in {"awaiting_host_agent", "complete"}:
+        if receipt.get("status") not in {"awaiting_host_agent", "committing", "complete"}:
             raise ValueError("Chapter generation receipt has an invalid status")
         request = load_host_agent_request(request_path)
         _assert_receipt_request(receipt, request)
@@ -220,6 +231,12 @@ def _completed(root: Path, receipt: dict[str, Any]) -> CompletedChapterGeneratio
     response_path = artifacts / str(receipt["response_file"])
     if not metadata_path.is_file() or not response_path.is_file():
         raise RuntimeError("completed Chapter generation evidence is incomplete")
+    response_sha = receipt.get("response_sha256")
+    if (
+        not isinstance(response_sha, str)
+        or _json_fingerprint(_read_json(response_path)) != response_sha
+    ):
+        raise RuntimeError("completed Chapter generation response evidence does not match receipt")
     return CompletedChapterGeneration(
         chapter_index=chapter_index,
         draft_version=version,
@@ -261,12 +278,16 @@ def complete_chapter_generation(
         raise ValueError("host-agent response produced an empty Chapter")
     draft_bytes = (prose.rstrip() + "\n").encode("utf-8")
     candidate_sha = hashlib.sha256(draft_bytes).hexdigest()
+    response_sha = _json_fingerprint(response.model_dump())
 
     if receipt.get("status") == "complete":
-        if receipt.get("candidate_sha256") != candidate_sha:
+        if (
+            receipt.get("candidate_sha256") != candidate_sha
+            or receipt.get("response_sha256") != response_sha
+        ):
             raise ValueError("Chapter generation request already completed with a different response")
         return _completed(root, receipt)
-    if receipt.get("status") != "awaiting_host_agent":
+    if receipt.get("status") not in {"awaiting_host_agent", "committing"}:
         raise ValueError("Chapter generation receipt has an invalid status")
 
     _, _, _, current_fingerprint = _render(root, chapter_index)
@@ -274,16 +295,41 @@ def complete_chapter_generation(
         raise ValueError("Chapter generation response is stale because story context changed")
 
     project = Project.load(root)
-    version = project.next_draft_version(chapter_index)
-    draft_path = project.write_draft(
-        chapter_index,
-        version,
-        draft_bytes.decode("utf-8"),
-    )
-    metadata_path = draft_path.with_suffix(".meta.json")
     response_path = artifacts / f"{command_id}.response.json"
-    write_host_agent_response(response_path, response)
     provider = f"{response.backend}/{response.runtime}/{response.model}"
+    if receipt.get("status") == "awaiting_host_agent":
+        version = project.next_draft_version(chapter_index)
+        receipt = {
+            **receipt,
+            "status": "committing",
+            "draft_version": version,
+            "candidate_sha256": candidate_sha,
+            "response_sha256": response_sha,
+            "response_file": response_path.name,
+            "provider": provider,
+            "elapsed_seconds": response.elapsed_seconds,
+        }
+        _write_json(receipt_path, receipt)
+    else:
+        if (
+            receipt.get("candidate_sha256") != candidate_sha
+            or receipt.get("response_sha256") != response_sha
+        ):
+            raise ValueError("Chapter generation commit already reserved for a different response")
+        version = int(receipt["draft_version"])
+
+    draft_path = _chapter_dir(root, chapter_index) / f"draft_v{version}.md"
+    if draft_path.is_file():
+        if hashlib.sha256(draft_path.read_bytes()).hexdigest() != candidate_sha:
+            raise RuntimeError("reserved Chapter draft version contains different Working prose")
+    else:
+        draft_path = project.write_draft(
+            chapter_index,
+            version,
+            draft_bytes.decode("utf-8"),
+        )
+    metadata_path = draft_path.with_suffix(".meta.json")
+    write_host_agent_response(response_path, response)
     metadata: dict[str, Any] = {
         "chapter_index": chapter_index,
         "draft_version": version,
@@ -291,6 +337,7 @@ def complete_chapter_generation(
         "candidate_sha256": candidate_sha,
         "generation_request_id": request.request_id,
         "generation_request_sha256": request.request_sha256,
+        "generation_response_sha256": response_sha,
         "generation_source_fingerprint": current_fingerprint,
         "generation_backend": response.backend,
         "generation_runtime": response.runtime,
@@ -299,18 +346,7 @@ def complete_chapter_generation(
     if response.elapsed_seconds is not None:
         metadata["generation_elapsed_seconds"] = response.elapsed_seconds
     _write_json(metadata_path, metadata)
-    _write_json(
-        receipt_path,
-        {
-            **receipt,
-            "status": "complete",
-            "draft_version": version,
-            "candidate_sha256": candidate_sha,
-            "response_file": response_path.name,
-            "provider": provider,
-            "elapsed_seconds": response.elapsed_seconds,
-        },
-    )
+    _write_json(receipt_path, {**receipt, "status": "complete"})
     return _completed(root, _read_json(receipt_path))
 
 
