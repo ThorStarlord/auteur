@@ -40,6 +40,31 @@ def test_request_fingerprint_binds_candidate_prompt_and_settings() -> None:
     assert request.request_id != changed.request_id
 
 
+def test_atomic_packets_use_unique_same_directory_staging_paths(
+    tmp_path: Path, monkeypatch
+) -> None:
+    import auteur.host_agent as host_agent
+
+    path = tmp_path / "request.json"
+    original_replace = host_agent.os.replace
+    staged_sources: list[Path] = []
+
+    def record_replace(source, target):
+        staged_sources.append(Path(source))
+        return original_replace(source, target)
+
+    monkeypatch.setattr(host_agent.os, "replace", record_replace)
+
+    write_host_agent_request(path, _request())
+    write_host_agent_request(path, _request())
+
+    assert len(staged_sources) == 2
+    assert len(set(staged_sources)) == 2
+    assert all(source.parent == tmp_path for source in staged_sources)
+    assert all(source.name.startswith(".request.json.") for source in staged_sources)
+    assert not [item for item in tmp_path.iterdir() if item.name.startswith(".request.json.")]
+
+
 def test_request_round_trip_detects_tampering(tmp_path: Path) -> None:
     path = tmp_path / "request.json"
     write_host_agent_request(path, _request())
