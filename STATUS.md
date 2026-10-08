@@ -1,473 +1,92 @@
-# Auteur — Repository Status
+# Auteur — Current Repository Status
 
-**Last reconciled:** 2026-09-28 — post-merge reconciliation for PRs #296 and #297  
-**Validation-policy activation baseline:** `main @ 8b53efdd99e0a67d375df0e828b32edc77643221`  
-**Behavior baseline reconciled:** `main @ c633d1b155ff72ef9ba502d4b7c9a294716fe98a` (post-draft continuation, Realization reconciliation, Beginner whole-book orientation, and bounded maintainability extractions merged)  
-**Current maintenance/product-evidence reconciliation baseline:** `main @ 1aebe090fb44dec82662d742d2d7cc911c428a32` (#248 paused at reassessment; #249 completed under the simulation-first policy; PR #281 reconciled the resulting no-product-package-selected state)  
-**Known-good stabilization baseline:** `main @ 2aba74b64f2434d11954a8627fc3d95fd83fdb7d` (L3 tested)  
-**Package metadata:** `1.0.0` — development metadata; not a publication claim  
-**Latest published GitHub release/tag:** `v0.37.1`  
-**Role of this file:** living operational status and handoff; not a release record or idea backlog.
+**Last reconciled:** 2026-10-07  
+**Reconciled baseline:** `main @ 0c7ef04a55eddfb7bd4d5f621b78f26915a09f9f`  
+**Latest published release:** `v0.37.1` (`pyproject.toml` `1.0.0` is not publication evidence)
 
-The current development line includes the tiered validation and bounded-agent-autonomy policy, the human-qualified Beginner Workspace foundation, the premise-to-architecture and first-draft continuation work, PR #246's contemporary post-draft / Chapter N → N+1 loop, PR #250's commitment/Review authority correction, PR #253's Realization-contract reconciliation, PR #258's read-only whole-book Beginner orientation, and bounded #248 maintainability extractions through PRs #256, #259, #260, #265, #266, #267, #268, #271, and #274. The Book reconciliation slices keep `BookReconciliationStore` as the compatibility facade while separating accepted-source state, acceptance/completion persistence, derived recomposition/comparison evidence persistence, Phase A/B application-artifact access, and the read-only Phase C3 acceptance and Phase C4 completion eligibility gates. PR #276 also reconciled `docs/PRD.md` with the integrated product without changing product scope or hard invariants. The exact current HEAD may advance after this living document is merged; the reconciled behavior baseline above identifies the code state this status describes.
+Short operational handoff only; history belongs in Git, PRs, issues, qualification, and release records. Read [MISSION.md](MISSION.md), [docs/narrative-architecture.md](docs/narrative-architecture.md), and [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md).
 
-For product intent, read [MISSION.md](MISSION.md) and [docs/PRD.md](docs/PRD.md). For the canonical domain model, read [docs/narrative-architecture.md](docs/narrative-architecture.md). For forward-looking candidates, read [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md). Release evidence lives under [docs/releases/](docs/releases/README.md).
+## Current Frontier
 
-## Development Validation Posture
+**F2 — Small-Book Longitudinal Coherence + X3 — Persistent Book Workspace**  
+Evidence surface: issue #318 and the frozen six-Chapter **The Glass Archive**.
 
-- **L1 Focused Validation** is the normal development and PR gate.
-- **L2 Targeted Integration** requires a named changed boundary or concrete risk.
-- **L3 Full Regression** is reserved for explicit stabilization, recovery, milestone, or release-candidate checkpoints.
-- **Release Qualification** is separate from L3 and requires an explicitly frozen candidate SHA.
-- Normal integration into `main` does not imply release qualification; `main` represents the latest stable development state.
-
-Canonical policy: [docs/engineering/release-qualification.md](docs/engineering/release-qualification.md).
-
-The PR #233 stabilization checkpoint recorded the prior baseline lint disposition. After PR #235 removed those four whitespace findings, the clean L3 checkpoint on `main @ 2aba74b64f2434d11954a8627fc3d95fd83fdb7d` passed full regression and the verification stack. No release qualification is implied. A later 2026-09-23 human Beginner walkthrough supplied new claim-appropriate workflow evidence and selected the bounded **Beginner Narrative-Architecture Coherence / deterministic fallback** package described below.
-
-## Current Selected Responsibility
-
-**FORMAL L3 REQUALIFICATION PENDING (#295); CHAPTER 1 CONTINUITY CLOSED; EPISODE 1 DIRECTION IMPLEMENTED; CANONICAL NARRATIVE CONTRACTS RECONCILED. No new product-expansion responsibility is selected.**
-
-PR #296 merged to `main @ 519e4a6e94903535a6b129a9a17bf070ca7ef09a`.
-Its exact repair head
-`6a6133ed31dc4dd73e396a39516828fe140b03b0` passed GitHub Validation
-run #811 (`36508577436`): the affected Layer-3 boundary ran **63/63 PASS**,
-validator verification ran **25/25 PASS**, and repository validation,
-release-scope validation, vendored-contract verification, and Ruff all passed.
-The merge preserves the exact-knowledge contract rather than weakening the
-validator.
-
-PR #297 then merged to `main @ b9233ffe5b5748ad1b0355ecb00b4289a7b2e45b`.
-Its exact documentation head
-`7b2c3ad50a6d7f787e6cde2e06a6b81c3f4395c5` passed GitHub Validation
-run #812 (`36514785358`): docs-fallback smoke **4/4 PASS**, validator
-verification **25/25 PASS**, repository/release-scope validation PASS, vendored
-contract OK, plus an independent audit of the eight changed documentation files
-found **0 broken relative links**.
-
-The remaining responsibility is qualification, not further repair or semantic
-expansion. Issue #295 remains open until a fresh formal L3 full-regression run
-executes on a candidate containing the merged repair and passes. Issue #218
-remains open until its required cross-platform / verification / wheel
-qualification and bounded human-validation questions are satisfied.
-
-Provider credentials / adapter availability remain an external prerequisite for
-prose generation. Human prose quality and real-beginner usability remain
-human-validation questions. Chapter 2, Episode 2+, season/generalized Episode
-architecture, publication, and new product lanes are not implicitly selected.
-
-No further repository construction should be inferred merely from the presence
-of roadmap candidates; new product work requires new claim-appropriate evidence
-or explicit product-lane selection.
-
-## Previous Completed Responsibility
-
-**BEGINNER_CHAPTER1_HTTP_CONTINUITY_REPAIR — COMPLETED / MERGED AS PR #289 /
-EXACT-HEAD L1 GREEN** — the post-merge re-check of PR #288 found that
-`draft-chapter-1` was registered and rendered but omitted from the server's rich
-command-dispatch set. PR #289 repairs that boundary and adds an HTTP-level
-regression proving candidate generation reaches the owning application workflow
-without creating `final.md`.
-
-**BEGINNER_CHAPTER1_PRODUCTION_CONTINUITY — IMPLEMENTED / MERGED AS PR #288** —
-accepted scene plans can now compose the existing Bard, critic, post-draft, and
-Chapter-acceptance owners into the Beginner product path. Candidate drafts remain
-noncanonical; only explicit Chapter acceptance creates `final.md` and accepted
-Bible state. The post-merge re-check above narrowed the remaining defect to HTTP
-dispatch rather than reopening the product architecture.
-
-### Earlier completed responsibility
-
-**AUTEUR_APPLICATION_ENTRY — COMPLETED / L1 GREEN** — the author-facing
-product now begins at Auteur Home rather than requiring a second terminal and
-workspace-ID creation command.
-
-Selected implementation:
-
-- bare `auteur` and `auteur open` start/reuse the local app and open Home;
-- `GET /api/beginner/health` identifies the local Auteur process;
-- `GET /api/beginner/workspaces` provides a read-only recent-story index;
-- Home creates a story from premise alone through the existing workspace API;
-- missing workspace/project IDs are generated/defaulted by the server;
-- recent stories reopen directly from persisted sessions;
-- workspace IDs remain available only under an Advanced disclosure;
-- `Auteur.cmd` and `scripts/install-auteur-shortcut.ps1` provide the Windows
-  double-click/Desktop bridge;
-- npm/server commands remain developer surfaces;
-- native .exe/PWA/Electron/Tauri packaging remains deliberately unselected
-  delivery architecture rather than an unfinished product requirement.
-
-Canonical contract:
-`docs/design/2026-09-24-auteur-application-entry.md`.
-
-Qualification evidence for the code-bearing implementation head
-`1da7c6ec2a074f991da4a0f60c452264f77975ef`:
+Current `main` now contains the unqualified F2 implementation:
+- #341 — unique atomic host-agent packet staging;
+- #340 — filesystem-exclusive draft-version creation;
+- #332 — Chapter-N host-agent orchestration;
+- #335 — crash/replay recovery plus exact response/provenance binding.
 
 ```text
-FULL BEGINNER + APPLICATION-ENTRY L1 BOUNDARY  390 passed / 0 failed
-HOME -> NEW STORY -> STORY ARCHITECTURE E2E    PASS
-RECENT-STORY REOPEN / DAMAGED-STATE ISOLATION  PASS
-BARE AUTEUR / AUTEUR OPEN LAUNCHER CONTRACT    PASS
-BROWSER JAVASCRIPT PARSE                       PASS
-VALIDATOR VERIFICATION                         25 / 25 PASS
-REPOSITORY VALIDATOR                           PASS
-RELEASE-SCOPE VALIDATOR                        PASS
-VENDORED CONTRACT                              PASS
-RUFF (TOUCHED PYTHON/TEST PATHS)               PASS
+integrated implementation
+-> run same controlled Book
+-> first recurring material failure
+-> smallest owning repair
+-> rerun same checkpoint
 ```
 
-The first candidate run exposed one stale README compatibility expectation
-(the developer section no longer named `127.0.0.1:8791` / fresh workspace-ID
-usage). The correction restored those details under Advanced/developer commands
-without moving infrastructure concepts back into the primary product path.
+F3/X4 is not selected.
 
-Authority boundary:
+## Quick Draft Runtime
+
+Current `main` also contains the unqualified host-agent-first Quick Draft implementation:
+- #334 — Book completion / pending-failure guarantee repairs;
+- #336 — host-agent-first Browser/API/CLI path with replay/overwrite protection;
+- #341 — shared atomic host-agent packet persistence.
+
+Next evidence surface: issue #310, using the real target host-agent environment.
+
+## Claim Ceiling
+
+These changes are **integrated unqualified development work**.
 
 ```text
-Home / recent-story index       READ-ONLY ORIENTATION
-New Story creation              EXPLORATION SESSION CREATION
-workspace identifier            INFRASTRUCTURE
-Story Architecture              DERIVED / NOT CANON
-later milestone acceptance      EXISTING EXPLICIT AUTHORITY
+merged
+!= exact-head tests passed
+!= formal Implemented lifecycle state
+!= regression checkpoint passed
+!= release qualified
 ```
 
-### Previous completed responsibility
+The owner explicitly chose to defer another mandatory exact-head Python rerun rather than block development. Existing regression tests remain executable specifications and should run when a suitable environment is available.
 
-**BEGINNER_STORY_LENS_FIRST_SCREEN — COMPLETED / L1 GREEN** — on
-2026-09-24 the owner explicitly selected the first post-premise UI as the next
-bounded product responsibility. The implementation is stacked on PR #285's
-current head so it can reuse the reconciled Narrative Architecture,
-product-compression, and backend-owned action-hierarchy contracts without
-reopening the already-closed coherence package.
+## Validation Posture
 
-Selected vertical stack:
+- **L1:** focused ordinary-development evidence.
+- **L2:** only for a named changed boundary.
+- **L3:** explicit stabilization/milestone/recovery checkpoint.
+- **Release Qualification:** separate frozen-candidate lifecycle.
+- GitHub Actions remain optional.
 
-- typed, read-only `StoryLensProjection` contract over existing
-  `NarrativeArchitectureAnalysis`;
-- five default lenses: Main Story Engine, Emotional & Aesthetic Framing, Common
-  Tropes, Structural Shape, and Reader Experience;
-- detailed Story Lens inspector with existing component-refinement commands;
-- client-local, failure-safe lens ordering that never mutates narrative state;
-- derived operational diagnostics for stale/fallback/unestablished lens state,
-  deliberately without vanity engagement metrics;
-- synthetic HTTP coverage of premise -> Story Lens overview -> Story Discovery
-  -> explicit Story Direction -> accepted Structure -> outline continuation;
-- canonical product specification at
-  `docs/design/2026-09-24-story-lens-first-screen-ux.md`.
+Current agent environment still has no runnable Auteur checkout: container DNS cannot resolve GitHub, the GitHub integration exposes no Codespaces/workflow-dispatch executor, and the connected Vercel project is unrelated infrastructure. This lowers the claim; it does not invalidate the integrated development state.
 
-Authority boundary:
+## Governance / External Gates
+
+- **#338:** human protected commit — replace the absolute 500-line/12-file rejection rule and consolidate AGENTS/CLAUDE guidance.
+- **#272:** GitHub admin — require PR-only `main`, no mandatory hosted Actions.
+- **#295 / #218:** separate qualification lanes; neither blocks F2 product-use evidence.
+
+The architecture admission guard is now integrated via #339: new durable architecture must be earned by observed frontier failure plus a behavioral distinction the existing model cannot express.
+
+## Deferred
+
+MANA, Progressive Commitment runtime states, F3+, generalized retrieval/vector search, new semantic layers/global story-state enums, Episode 2+ expansion, another first-session feature wave, and #248 post-F2 decomposition remain deferred.
+
+## Next Trigger
+
+1. Resume the same Glass Archive checkpoint in #318 against integrated `main`.
+2. If it exposes a material recurring failure, repair the smallest owning boundary and rerun that checkpoint.
+3. If F2/X3 succeeds at the intended product-use boundary, close/reconcile that frontier at the evidence-supported claim level and activate #248.
+4. Run #310 real host-agent Quick Draft dogfood; specifically observe request fulfillment, first-scene adherence, provisional-assumption leakage, discovery behavior, latency, and whether Browser `awaiting_host_agent` is naturally fulfilled.
+5. Let those two product-use surfaces choose any next repair; do not promote F3/X4 or invent a host bridge speculatively.
+
+## Simplification Rule
 
 ```text
-Story Lens interpretation / refinement        DERIVED / NOT CANON
-layout reorder                                PRESENTATION ONLY
-continue-architecture                         TRANSITION, NOT ACCEPTANCE
-Story Direction acceptance                    EXPLICIT EXISTING AUTHORITY
-Whole-Story Structure                         SEPARATE LATER AUTHORITY
+accepted story
++ Working candidate
++ source freshness
++ explicit promotion
 ```
 
-External human usability trials remain post-construction by explicit owner
-direction. No release qualification is implied.
-
-Qualification evidence for the code-bearing implementation head
-`1aef1c93a7c0331a54df4a88f2c71e0e5a4e61d1`:
-
-```text
-FULL BEGINNER L1 BOUNDARY                     381 passed / 0 failed
-BROWSER JAVASCRIPT PARSE (node --check)       PASS
-SYNTHETIC PREMISE -> LENSES -> DIRECTION E2E  PASS
-REPOSITORY VALIDATOR                          PASS
-RELEASE-SCOPE VALIDATOR                       PASS
-VENDORED CONTRACT                             PASS
-RUFF (TOUCHED PYTHON/TEST PATHS)              PASS
-```
-
-The L1 workflow was strengthened as part of this package: any changed
-`src/auteur/beginner/*.py` source now selects the complete
-`tests/test_beginner_*.py` boundary rather than only directly modified tests.
-The final documentation-only reconciliation head must still carry its own
-current L1 result; the 381-test claim above belongs to the exact implementation
-head named above.
-
-### Previous closed package
-
-**CURRENT_MAIN_BEGINNER_COHERENCE_RECONCILIATION — COMPLETED (OWNER-DIRECTED SYNTHETIC ACCEPTANCE)** — the integration continuation of the Beginner Narrative-Architecture Coherence / deterministic fallback package. The earlier #249 scripted journey correctly established mechanical premise-to-Chapter-2 coherence after PR #280, but later claim-appropriate human use reopened product construction at the Beginner architecture-first surface rather than selecting a new roadmap family.
-
-The 2026-09-23 episode selected one bounded package from observed friction:
-
-- premise-sensitive no-provider interpretation rather than a blind Mystery pin;
-- deterministic Story Discovery with multiple causally distinct directions and explicit author choice rather than a manufactured recommendation;
-- a genre-neutral fallback Structure inventory for non-Mystery stories;
-- per-engine StoryIdentity mapping rather than hardcoded `story_type.genre = "mystery"`;
-- projection/mutation coherence so every projected blocking composition tension has a valid acknowledgement path;
-- bounded signal refinement after the first browser run misclassified a passing adjective as Romance and missed variant secret-identity wording;
-- clearer phase-completion / next-action hierarchy and removal of stale post-Structure continuation copy;
-- integrated Narrative Architecture explanation that connects engine, genre/story traditions, aesthetic framing, common tropes, relationship/thematic dynamics, narrative structure, and reader experience rather than presenting only a flat component list;
-- backend-owned action hierarchy: the Beginner projection now emits one deterministic `primary_action` over the compatibility `available_actions` set, and the browser consumes that projection rather than inferring priority from action ordering. The ownership/progressive-disclosure rule is documented in `docs/architecture/system-ownership-and-product-compression.md`.
-
-The implementation evidence now lives on **one combined candidate**, not two source identities, and that selected behavior is now **reconciled onto contemporary `main`**:
-
-- **Historical combined candidate** `experiment/deterministic-curated-fallback` @ `a63684ec` on base `d7966dc3` — the deterministic-fallback commits (`3ff41f7e`, `2f3fd1e0`, `24e7e16b`, `52f4928f`, `f7c57f8d`) plus cherry-picked PR #283 commits (`64320f17`, `8390ddd8`, `f707b6c8`, `166c1c99`) and a status-doc alignment commit. PR #283's `f0a9ee0c` and `52a9e38f` are patch-id-equivalent to `64320f17` and `8390ddd8`, so the split-source-identity problem is resolved.
-- **Current-main reconciled candidate** `experiment/beginner-coherence-current-main` @ `cc925197` — the same selected behavior reconstructed onto current `main @ 3836c26d`, preserving the later post-draft continuation, whole-book progress, Book acceptance, and authority/projection semantics. This is a merge-based reconciliation of the selected behavior, not a rebase of stale branch history.
-
-Reconciliation and acceptance are **two distinct gates**, not one. A PASS on the stale-base candidate alone would establish only that the corrections solve the observed experiential friction on that candidate; it would not establish that the corrected capability exists coherently on contemporary Auteur. Current-main reconciliation was therefore part of package completion, not a separate future integration step. Both gates are now closed on this branch:
-
-```text
-REPOSITORY-INTEGRATION GATE
-→ reconcile capability onto current main              DONE
-→ focused / current-boundary qualification            DONE
-→ synthetic E2E walkthrough of the four claims        PASS
-
-OWNER-DIRECTED ACCEPTANCE
-→ second manual human walkthrough                     WAIVED BY OWNER
-→ synthetic acceptance substitutes                    ACCEPTED
-```
-
-The owner explicitly directed full delegation for this package and authorized a **synthetic browser E2E walkthrough** in place of a second manual playthrough. The four experiential claims are therefore accepted on synthetic evidence over the real no-provider server (`tests/test_beginner_synthetic_walkthrough_claims.py`). Human usability is **not** claimed; it was consciously waived by the owner rather than satisfied.
-
-Focused validation on the **current-main reconciled candidate** (Python 3.12, Windows developer host) used the same beginner boundary. Validation language is deliberately exact; a suite with real, reproduced baseline failures is reported as `PASS_WITH_BASELINE_EXCEPTIONS`, not simply `PASS`:
-
-```text
-FOCUSED SUITE (tests/test_beginner_*.py)
-371 passed / 1 skipped / 0 failed
-
-SYNTHETIC E2E WALKTHROUGH
-tests/test_beginner_synthetic_walkthrough_claims.py PASS
-(four experiential claims asserted over the real no-provider server)
-
-FULL SUITE (developer-machine integration, Python 3.12)
-5247 passed / 2 skipped / 8 baseline failures
-
-CANDIDATE-CAUSED REGRESSIONS
-NONE OBSERVED — all 8 reproduced identically on clean `main @ 3836c26d`
-
-REPOSITORY VALIDATORS
-validate-repo.py PASS
-validate-release-scope.py PASS
-test-validators.py 25/25
-
-VALIDATION DISPOSITION
-PASS_WITH_BASELINE_EXCEPTIONS
-```
-
-The beginner boundary is fully green. The reconciliation also repaired a latent regression in `promotion.py`: `_semantic_changes` had coarsened dotted identity changes (for example `story_type.genre`) to whole fields, so `test_beginner_workspace_mapping.py::test_preview_links_semantic_change_to_mapping_and_reports_impact` had been red on `main`. Leaf-level changes were restored while keeping the broadened field coverage that the same rewrite had added.
-
-The remaining eight full-suite failures are `tests/auteur/narrative_realization/test_layer3_*.py` Layer-3 scene-knowledge tests that fail identically on clean `main` in this environment. These are environment/baseline conditions, not candidate-caused regressions. Ruff is clean on the touched paths; no L3 stabilization checkpoint or release qualification was run or claimed.
-
-The historical combined candidate (`a63684ec`) was previously recorded as **350 passed, 1 skipped, 2 baseline failures** on its own base; the additional baseline failure there (`test_root_serves_beginner_browser_entrypoint`) was a Python 3.14 Windows `mimetypes` artifact that does not occur on Python 3.12.
-
-Agent-observed (**not human**) re-walkthrough on the **historical** combined candidate, same young-superhero premise, default no-provider server, fresh workspace: premise-sensitive interpretation (Mystery + Superhero fiction, no Romance misclassification, Secret identity detected), three distinct deterministic directions with no manufactured recommendation, accepted Story Direction / Story Identity / Whole-Story Structure, an integrated composition synthesis with honest "aesthetic framing is not yet established", and a Structure-acceptance transition to `primary_surface: complete` with outline continuation exposed and the acceptance control removed.
-
-The same agent-observed re-walkthrough was then repeated against the **current-main reconciled candidate** and reproduced the same semantic outcomes (evidence: `docs/qualification-evidence/2026-09-24-current-main-reconciled-agent-rewalk.json`). This remains agent-observed evidence.
-
-Owner-directed **synthetic** acceptance then formalized the four experiential claims as an automated E2E assertion (`tests/test_beginner_synthetic_walkthrough_claims.py`), which passes against the reconciled candidate. Human usability remains **not claimed**; the owner waived the second manual walkthrough and accepted the synthetic substitute.
-
-Current claim boundary:
-
-```text
-BEGINNER COHERENCE PACKAGE                  COMPLETED (OWNER-DIRECTED SYNTHETIC ACCEPTANCE)
-COMBINED HISTORICAL-BASE CANDIDATE          IMPLEMENTED
-FOCUSED CANDIDATE VALIDATION                PASS_WITH_BASELINE_EXCEPTIONS
-AGENT SAME-PREMISE RE-WALK                  PASS (HISTORICAL BASE AND RECONCILED)
-SYNTHETIC E2E WALKTHROUGH (4 CLAIMS)        PASS
-CURRENT-MAIN RECONCILIATION                 DONE
-CURRENT-MAIN FOCUSED QUALIFICATION          PASS_WITH_BASELINE_EXCEPTIONS
-HUMAN USABILITY EVIDENCE                    WAIVED BY OWNER (NOT CLAIMED)
-NEW PRODUCT RESPONSIBILITY                  NONE SELECTED
-L3 STABILIZATION                            NOT REQUESTED
-RELEASE QUALIFICATION                       NOT CLAIMED
-```
-
-The package is closed at this branch head. No further action is required for it; do not launch another experiment or extend it automatically. This closure is synthetic and does not assert human usability, universal beginner usability, provider generality, narrative-quality superiority, or release readiness.
-
-Issue #248 remains **PAUSE / REASSESS**. File size alone is not admission evidence. Historical correctness/evidence debt remains reconciled as previously recorded; the recently closed Beginner package was product work selected by newer workflow evidence, not a reopening of the maintainability decomposition lane.
-
-## Current Product Direction
-
-Auteur is a local-first literary compiler and guided narrative-decision system for long-form fiction. The current product loop is now executable end to end:
-
-```text
-accepted narrative authority
-→ derived context / diagnostics / craft knowledge
-→ one bounded author decision
-→ advisory recommendation + trade-offs
-→ explicit advisory response
-→ derived authority handoff
-→ concrete noncanonical proposal when supported
-→ explicit proposal selection
-→ revision plan + validation
-→ derived change preview
-→ explicit owning-workflow authority action
-→ bounded reassessment
-→ project orientation
-```
-
-Derived systems may orient, diagnose, compare, explain, recommend, prepare, preview, and reassess. Determinism, persistence, currentness, or user selection do not grant story authority.
-
-Issue #249's simulation-first journey remains valid historical evidence: after PR #280 it reached accepted Chapter 1 outcome plus contextual Chapter 2 planning with `NO_SIMULATED_MATERIAL_FRICTION` beyond the corrected seam. That result established mechanical/workflow coherence only.
-
-The later 2026-09-23 human Beginner walkthrough supplied the stronger evidence that the simulation intentionally could not provide. It selected the current bounded package by exposing human-facing transition and explanatory friction after the no-provider path had already been mechanically exercised.
-
-Current product-selection rule remains:
-
-```text
-claim-appropriate workflow evidence or deliberate product-lane selection
-→ first concrete material friction / goal
-→ classify the owning layer
-→ smallest bounded intervention
-→ focused verification
-→ human re-check when the claim is experiential
-```
-
-The most recent application of that rule was the Beginner coherence package above, now closed under owner-directed synthetic acceptance. `NO_CHANGE` again becomes a valid disposition unless new evidence selects another bounded responsibility.
-
-## Canonical Architecture
-
-Auteur retains five semantic layers: **Ontology → Identity → Structure → Realization → Expression**. The independent scope axis remains **Universe → Series → Book → Chapter → Scene**. Scopes are containers, not additional semantic layers. Validation, orchestration, diagnostics, provenance, maps, Tutor guidance, planning, simulation, dashboards, and browser presentation remain cross-cutting capabilities.
-
-## Authority Model
-
-The central invariant remains explicit author authority.
-
-- Story Discovery candidates remain advisory until explicit StoryIdentity acceptance.
-- Decision Cards are `DERIVED / NOT CANON`.
-- Tutor sessions are `LOCAL / NONCANONICAL`.
-- Decision Handoffs are derived routing, not mutation.
-- Tutor-generated Structure proposals are noncanonical working artifacts until explicitly selected.
-- Structure revision plans and Narrative Change Preview are not applied story state.
-- `structure revision apply --confirm` is the explicit Structure authority boundary in the qualified Tutor-to-Structure path.
-- Decision Reassessment, Author Attention, Dashboard, and Guided Author Workspace V1 are read-only projections.
-- Failure at an authority-bearing boundary must leave prior authoritative state intact.
-
-## Stable Capability Families on `main`
-
-The production baseline includes:
-
-- **Story Discovery and StoryIdentity** — multiple plausible story engines, recommendation/search support, explicit author acceptance, and validation.
-- **Genre knowledge and authoring** — Genre Packs, overrides, diagnostics, and interactive genre-pipeline infrastructure.
-- **Story Design Packs / Tutor** — reusable craft priors, Decision Cards, source-aware Tutor sessions, `next/explain/show/choose/handoff/propose`, and stale-source blocking.
-- **Structure engine** — generation/diagnostics plus explicit proposal inspect/select, fail-closed revision planning/validation, derived preview, confirmed application, and read-only reassessment.
-- **Project orientation** — deterministic Author Attention in the existing dashboard and loopback-only Guided Author Workspace V1.
-- **Beginner story-development continuation** — accepted foundation → outline/Chapter planning → post-draft review → explicit existing-owner Chapter acceptance → contextual Chapter N+1 planning, plus read-only whole-book/reconciliation/publication orientation.
-- **Realization/state/provenance** — state coordination plus impact, convergence, decision, review, planning, simulation, and portfolio support.
-- **Series / long-horizon infrastructure** — accepted-history/current-state reconstruction, derived Global Map/Focus, continuity support, and Guided Series Continuity Review V1.
-- **Outline and drafting** — Cartographer outline compilation, chapter contracts, Bard/Critics drafting, retry, and explicit acceptance.
-
-## Decision-Loop Milestone — Complete
-
-The evidence-led continuation after Tutor M1 is merged and qualified:
-
-| Package | Result |
-| --- | --- |
-| Beginner Decision Golden Path | Exposed the missing post-choice authority route without mutating accepted story state. |
-| Decision-to-Authority Handoff | Routes a resolved supported Tutor choice to the existing owning authority workflow without executing it. |
-| Tutor → Structure Proposal Bridge | Produces one validated, unselected, noncanonical concrete Structure proposal. |
-| Structure Proposal Review / Selection | Adds explicit inspect/select while keeping blueprint authority unchanged. |
-| Revision continuation + fail-closed hardening | Selected Tutor proposals create meaningful plans; stale/invalid/destructive paths fail closed. |
-| Narrative Change Preview | Read-only preview over existing revision/dependency evidence; no second impact engine. |
-| Decision Reassessment | Re-runs exact native diagnostic evidence when available and returns `not_assessable` rather than inventing craft certainty. |
-| Unified Project Orientation | Dashboard Author Attention prioritizes the next safe decision artifact/action. |
-| Full Beginner Decision Loop | Hermetic integration proof crosses the explicit Structure authority boundary only at confirmed application. |
-| Guided Author Workspace V1 | Local `127.0.0.1` GET-only beginner presentation over dashboard/attention semantics; no mutation endpoints. |
-
-The beginner-facing walkthrough is [docs/guides/guided-author-decision-loop.md](docs/guides/guided-author-decision-loop.md).
-
-## Qualification State
-
-The code-bearing packages in the completed stack were qualified on their exact candidate heads with:
-
-- Linux Python 3.11 / 3.12 / 3.13 validation;
-- full Windows Python 3.13 test coverage;
-- repository verification;
-- installed-wheel smoke.
-
-The full Golden Path proves:
-
-1. StoryIdentity remains byte-identical through the complete Tutor/Structure decision loop.
-2. `blueprint.yaml` remains byte-identical until explicit `structure revision apply --confirm`.
-3. proposal selection, planning, validation, preview, and reassessment preserve their documented boundaries.
-4. Tutor/craft reassessment does not manufacture a deterministic resolution claim.
-5. after the blueprint changes, prior source-bound Tutor advice is surfaced as stale by project orientation.
-
-This is hermetic repository evidence, not an external-provider or subjective story-quality claim.
-
-The 2026-09-20 consolidation packages (#253, #256, #258, #259, #260, #265, #266, #267, #268, #271, #274) passed their exact-head L1 validation before merge. PR #271 selected and passed the complete 76-test `tests/test_book_acceptance.py` suite plus the focused verification stack on candidate `bf5c45d7d4bec5ec5b5f7e332ee913d036a3f5bf`. PR #274 selected both Book authority-adjacent suites and passed 138 tests (`tests/test_book_reconciliation_completion.py` + `tests/test_book_acceptance.py`) plus the focused verification stack on candidate `abe3670a7317ed7d8f0c5bc105e240b55d7e3f46`; the subsequent `main @ 27356e7c9b0793eec70014aaf29a678af610f5fc` push validation also passed. PR #276 was documentation-only and passed its contemporary exact-head L1 gate. These results do **not** establish a new L3 checkpoint or release qualification. The last explicitly recorded L3 stabilization baseline remains the one named at the top of this file.
-
-## Next Product Selection
-
-**No additional package is implicitly authorized by the closed Beginner Narrative-Architecture Coherence / deterministic fallback package.**
-
-That package is now COMPLETED under owner-directed synthetic acceptance: current-main reconciliation, focused/current-boundary qualification, and the synthetic four-claim E2E walkthrough are all closed on this branch. Return to repository-level selection rather than extending it automatically.
-
-The next product package should again be selected from new claim-appropriate workflow evidence rather than from ontology completion pressure. Strong preserved candidates include:
-
-- Unified Decision Inbox / broader attention-source coverage;
-- Current Author Intent if relevance friction appears;
-- demand-driven Story Design Pack growth;
-- Existing-Manuscript Reverse Engineering;
-- Book-Level Reasoning and Editing.
-(Bounded Episode 1 Direction was a candidate here; it is now implemented —
-see Serial / Episode Posture.)
-
-A small discoverability follow-up may also be warranted if beginner use shows the new workspace/decision surfaces are hard to find from root CLI help. That is a UX problem, not a reason for new narrative architecture.
-
-## Serial / Episode Posture
-
-Historical PR #167 is **closed / not merged / superseded**. Its bounded Episode 1 Direction contract remains useful, but the old 4k-line implementation is not contemporary production evidence.
-
-Issue #218 preserves the bounded Episode 1 contract and now tracks the remaining qualification/human-validation boundary. Episode 1 remains a Series-scope, Identity-layer entry-unit Direction artifact for explicitly episodic Series and **does not become a sixth canonical scope**. The contemporary implementation is already merged; broader entry-unit expansion remains separately gated.
-
-### Episode 1 Direction implementation (2026-09-28)
-
-Bounded Episode 1 Direction is now implemented on `main @ a9cdd62` (stack #291 → #292 → #293, owner-delegated merges; fix `ec972f5` included). Qualification: L1 focused validation per PR plus the full `tests/test_series_*.py` suite (314 passed: 72 + 132 + 110) run on the merged head as the L2 Series gate — **AGENT-RUN, not CI**. Stabilization run `36370311870` on `a9cdd62` is **FAILED** on pre-existing Layer-3 exact-knowledge-continuity failures, proven identical on pre-stack base `489abad` (zero file overlap with the Episode stack).
-
-PR #296 is merged to `main @ 519e4a6e94903535a6b129a9a17bf070ca7ef09a` and preserves the demonstrated repair without weakening the validator: `Outcome.knowledge_added` uses the exact persisted `exit_state.knowledge[].what` values in the affected fixtures, and prior facts carry forward unless explicitly questioned. Exact final repair head `6a6133ed31dc4dd73e396a39516828fe140b03b0` passed GitHub Validation run #811 (`36508577436`) with **63/63** affected Layer-3 tests, **25/25** validator verification, repository validation PASS, release-scope validation PASS, vendored-contract verification OK, and Ruff PASS.
-
-PR #297 subsequently merged the canonical Realization, emotional-trajectory, character/relationship, and theme/motif documentation contracts plus the reconciled artifact map to `main @ b9233ffe5b5748ad1b0355ecb00b4289a7b2e45b`. Exact documentation head `7b2c3ad5` passed Validation run #812 and a zero-broken-link documentation audit.
-
-These are targeted development/contract-consolidation evidence, not a replacement for L3 or Release Qualification. Issue #295 stays open until a fresh formal full-regression stabilization run is green. Issue #218 also remains OPEN: closing it still requires the required full requalification (Linux + Windows + verification + wheel) and the contract's human-validation boundary (workflow coherence, lock timing, inspection obviousness, duplicate-rejection expectations); neither is claimed here.
-
-Broader Episode 2+/season expansion remains subject to the separate long-horizon evidence gate.
-
-## Long-Horizon Campaign Posture
-
-The long-horizon campaign remains `PROSPECTIVE_NATIVE_EVIDENCE_INCUBATION` with **no active implementation responsibility**.
-
-Do not manufacture another long-horizon experiment; do not start new ontology, automatic extraction, V2 continuity-review, or scale expansion without the campaign's documented natural Auteur-native evidence trigger. Global Map/Focus remain derived/rebuildable projections rather than second canon.
-
-See [docs/campaign/auteur-long-horizon-campaign-state.md](docs/campaign/auteur-long-horizon-campaign-state.md).
-
-## Repository / CI Notes
-
-- Ordinary PR/main validation now uses the L1 focused gate from PR #229; full regression is an explicit stabilization action, and release qualification is an explicit frozen-candidate action.
-- Historical Episode 1 PR #167 is closed/superseded by contemporary reconstruction issue #218.
-- Historical divergent PRs #131, #221, #222, #225, #227, and #245 have been reconciled and closed rather than bulk-merged. Still-relevant responsibilities were reconstructed on contemporary `main` or preserved as explicit current issues.
-- #247 is closed after classifying the later Book/full-suite reports as incomplete bounded executions rather than a reproduced Book-authority regression; a focused Book acceptance sentinel and better L3 timing/JUnit evidence now exist.
-- #251 is closed after replacing obsolete Layer-3 `xfail` assumptions with current-schema Realization coverage and bounded temporal/knowledge fixes.
-- #295 tracks the L3 exact-knowledge-continuity regression exposed by stabilization run `36370311870`; PR #296 is the targeted repair candidate and is L1 green at `323c71a8`, but #295 remains open pending a formal green L3 run.
-- #248 is an incremental maintainability program, not evidence that the repository is incomplete: merged slices have extracted Beginner continuation transitions, reasoning CLI dispatch, Book accepted-source/pointer persistence, Book acceptance persistence, Book completion persistence, derived recomposition/comparison artifact persistence, Phase A/B application-artifact access, the Phase C3 acceptance validation gate, and the Phase C4 completion eligibility gate behind compatibility seams. `BookReconciliationStore` still owns authority-bearing orchestration, publication ordering, pointer movement, rollback, and the remaining workflow semantics. After PR #274 the largest remaining methods are mixed comparison/routing/publication responsibilities rather than another comparably obvious read-only gate, so #248 is paused at reassessment rather than continuing from file size alone.
-- Historical qualification issues #49–53 are closed as superseded/no-current-change. #54 remains open pending an actual frozen-candidate cross-platform run; Release Qualification now exercises the complete source suite on Linux, Windows, and macOS plus dedicated portability invariants. #55 remains reproduction-gated against Windows cleanup evidence.
-- Issue #272 records the remaining GitHub-admin enforcement gap: `main` is still unprotected and the stable `L1 focused validation (Python 3.12)` check is not yet required. PRs #271 and #274 hardened focused-test selection for the Book acceptance/completion seams, but branch-protection/ruleset application remains an external administration action because the connected GitHub integration exposes those settings read-only.
-- `pyproject.toml` reports `1.0.0`, but remote release/tag inspection on 2026-09-20 shows the latest published GitHub release remains `v0.37.1`; package metadata alone is not publication evidence.
-
-## Documentation Map
-
-- [artifacts/strategic_repository_analysis.md](artifacts/strategic_repository_analysis.md) — durable Level-3 decision space; current disposition is `INVESTIGATE`, not product implementation authority.
-- [docs/guides/guided-author-decision-loop.md](docs/guides/guided-author-decision-loop.md) — beginner-facing end-to-end decision loop.
-- [docs/design/decision-oriented-tutor.md](docs/design/decision-oriented-tutor.md) — Tutor/session/handoff authority and staleness model.
-- [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md) — candidate directions/evidence gates.
-- [docs/reviews/beginner-decision-golden-path.md](docs/reviews/beginner-decision-golden-path.md) — original post-M1 evidence that selected the handoff gap.
-- [docs/narrative-architecture.md](docs/narrative-architecture.md) — canonical five-layer × scope architecture.
-- [docs/architecture-roadmap.md](docs/architecture-roadmap.md) — architecture integrity/history, not the current product queue.
-- [CHANGELOG.md](CHANGELOG.md) / [docs/releases/](docs/releases/README.md) — release history/evidence.
-
-## Reconciliation Rule
-
-When behavior changes materially, update living surfaces in this order:
-
-1. `STATUS.md` — current state and next action.
-2. `README.md` — when user-facing capability, framing, or entry path changes.
-3. `CHANGELOG.md` / `docs/releases/` — for release history.
-4. `CONTEXT.md` — for runtime/domain terminology or compatibility changes.
-5. `docs/product-evolution-roadmap.md` — when candidate state, evidence gate, or product-evolution policy changes.
-6. Mission, PRD, canonical architecture, ADRs, and historical evidence only through their own change processes.
+Preserve rigor around story meaning/authority; reduce machinery that mainly administers the repository.
