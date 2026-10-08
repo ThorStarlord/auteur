@@ -32,6 +32,30 @@ accepted narrative authority
 
 Admit a new architectural concept only when observed product friction cannot be solved cleanly by existing concepts, workflow, presentation, or reusable craft knowledge.
 
+### Frontier architecture admission guard
+
+While an active controlled frontier remains unresolved, default to **NO NEW ARCHITECTURE** outside the smallest owning boundary of an observed failure.
+
+In particular, do not add a new semantic layer, global story-state model, generalized retrieval subsystem, dashboard family, or lifecycle enum merely because it is conceptually attractive.
+
+For a proposed durable state distinction, require both:
+
+1. normal workflow evidence shows the existing model cannot express the needed distinction cleanly; and
+2. the new state permits or forbids an operation differently from every existing state.
+
+If the distinction changes explanation but not legal behavior, keep it as explanatory vocabulary rather than runtime state.
+
+```text
+interesting concept
+!= architectural responsibility
+
+observed recurring failure
++ irreducible behavioral distinction
+-> architecture may become eligible
+```
+
+This is an admission guard, not a permanent freeze: a later frontier may supply the evidence that reopens the question.
+
 ## High-order UX synthesis boundary
 
 The current Beginner ergonomics wave has produced enough local integration work
