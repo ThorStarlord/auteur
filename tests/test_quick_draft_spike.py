@@ -410,6 +410,49 @@ def test_quick_draft_provider_label_includes_effective_model() -> None:
 
 
 
+def test_quick_draft_host_agent_waiting_session_is_projectable_without_prose(
+    tmp_path: Path,
+) -> None:
+    prepared = prepare_quick_draft_host_agent_request(
+        PREMISE,
+        FIRST_SCENE,
+        project_root=tmp_path,
+    )
+
+    projection = project_quick_draft_session(tmp_path, prepared.session_id)
+
+    assert projection["draft_text"] is None
+    assert projection["draft"]["status"] == "awaiting_host_agent"
+    assert projection["discoveries"] == []
+    assert projection["draft"]["backend_request"]["request_sha256"] == prepared.request_sha256
+
+
+def test_quick_draft_generation_failure_remains_projectable(
+    tmp_path: Path,
+) -> None:
+    class FailingDraftLLM:
+        def complete(self, request):
+            raise RuntimeError("provider exploded")
+
+    with pytest.raises(RuntimeError, match="provider exploded"):
+        run_quick_draft(
+            PREMISE,
+            FIRST_SCENE,
+            project_root=tmp_path,
+            llm=FailingDraftLLM(),
+            provider_label="failing-provider",
+        )
+
+    sessions = list((tmp_path / ".auteur" / "quick_draft").iterdir())
+    assert len(sessions) == 1
+    projection = project_quick_draft_session(tmp_path, sessions[0].name)
+
+    assert projection["draft_text"] is None
+    assert projection["draft"]["status"] == "generation_failed"
+    assert projection["draft"]["error"] == "provider exploded"
+    assert projection["discoveries"] == []
+
+
 def test_quick_draft_host_agent_path_requires_no_provider_and_writes_exact_request(
     tmp_path: Path,
 ) -> None:
