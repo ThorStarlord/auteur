@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Pre-activation F2/X3 coding-agent stress probe.
+"""Integrated F2/X3 coding-agent stress preflight (v2).
 
-This probe establishes repository/mechanical evidence only. It deliberately does
-not claim human preference, provider prose quality, or full F2/X3 qualification.
+Reuses the historical preflight's Glass Archive fixture, but reports the
+currently integrated bounded context and Browser orientation contracts. It adds
+one adversarial paraphrase case. No human/provider/full-Book claims are made.
 """
 
 from __future__ import annotations
@@ -14,6 +15,7 @@ from pathlib import Path
 from typing import Any
 
 from auteur.beginner.book_progress import BookProgressProjection
+from auteur.beginner.author_context import compose_author_context
 from auteur.beginner.continuation import build_contextual_chapter_plan
 
 
@@ -157,14 +159,72 @@ def _six_chapter_context_relevance_probe() -> dict[str, Any]:
             == [1, 2, 3, 4, 5],
             "all_prior_events_exposed": len(prior_state) == len(events),
             "clearly_low_value_detail_still_exposed": "umbrella_color" in fields,
-            "relevance_filter_demonstrated": False,
+            "relevance_filter_demonstrated": (
+                "umbrella_color" not in fields
+                and len(prior_state) < len(events)
+                and plan.context.get("author_context", {}).get("selection", {}).get("mode")
+                == "bounded_recency_plus_current_plan_overlap"
+            ),
+            "full_evidence_index_preserved": (
+                len(plan.context.get("author_context", {}).get("evidence_index", {}).get(
+                    "accepted_event_refs", []
+                )) == len(events)
+            ),
             "finding": (
-                "The legacy continuation fields expose accumulated accepted history; "
-                "this probe does not qualify provider use of author_context. At six-Chapter scale this "
-                "is a bounded context-composition risk, not evidence for generalized "
-                "retrieval or vector search."
+                "The integrated context selects a bounded recent/lexically relevant "
+                "subset and preserves omitted source references. This does not "
+                "establish full six-Chapter semantic recall or provider behavior."
             ),
         }
+
+
+def _paraphrased_dependency_probe() -> dict[str, Any]:
+    """A Chapter-6 dependency may be causal without lexical overlap.
+
+    The *simulated* author asks for independent harbor testimony. The accepted
+    Chapter-2 source describes Sister Beatrice's convent ledger instead.
+    Relevance by overlapping words alone cannot infer their relationship.
+    """
+    context = compose_author_context(
+        chapter_index=6,
+        role="Use independent testimony before public disclosure",
+        role_ref="chapters/06/outline.yaml",
+        current_outline={
+            "chapter_index": 6,
+            "chapter_summary": "Rely on independent harbor witnesses before publication.",
+            "scenes": [{
+                "summary": "Determine which outside testimony deserves public disclosure.",
+            }],
+        },
+        accepted_events=[{
+            "chapter_index": 2,
+            "summary": "Sister Beatrice identifies the convent ledger.",
+            "deltas": {"convent_evidence": "critical"},
+        }],
+        accepted_expressions=[{
+            "chapter_index": 2,
+            "source_ref": "chapters/02/final.md",
+            "text": "Sister Beatrice catalogued sealed convent ledgers.",
+        }],
+        prior_chapter_refs=[{"chapter_index": 2, "path": "chapters/02/final.md"}],
+        structure_refs=["chapters/06/outline.yaml"],
+    )
+    index = context["evidence_index"]
+    omitted_event = "bible.json#/events/0" in index["omitted_accepted_event_refs"]
+    omitted_expression = "chapters/02/final.md" in index["omitted_accepted_expression_refs"]
+    return {
+        "claim_class": "source_derived_adversarial_scenario",
+        "author_intent": "Use independent harbor testimony",
+        "accepted_source": "Sister Beatrice's convent ledger",
+        "older_accepted_event_omitted_from_generation_context": omitted_event,
+        "older_accepted_prose_omitted_from_generation_context": omitted_expression,
+        "references_remain_indexed": (
+            "bible.json#/events/0" in index["accepted_event_refs"]
+            and "chapters/02/final.md" in index["accepted_expression_refs"]
+        ),
+        "risk": "LEXICAL_PARAPHRASE_DEPENDENCY_MISS_POSSIBLE",
+        "not_established": "That a real Chapter-6 generation forgets the source",
+    }
 
 
 def _x3_book_orientation_probe() -> dict[str, Any]:
@@ -182,12 +242,19 @@ def _x3_book_orientation_probe() -> dict[str, Any]:
         "next_story_action",
     }
     missing = sorted(required_orientation - fields)
-    surface_present = all(name in app for name in ("progress.current_chapter", "progress.recent_changes", "progress.pending_updates", "progress.next_story_action"))
+    surface_present = all(name in app for name in (
+        "progress.current_chapter", "progress.recent_changes",
+        "progress.pending_updates", "progress.next_story_action",
+    ))
+    primary = '<section aria-label="Book orientation"' in html
+    progressive_details = '<details aria-label="Technical Book details"' in html
     return {
         "claim_class": "mechanical_surface_contract",
         "book_progress_fields": sorted(fields),
         "missing_persistent_orientation_fields": missing,
         "author_orientation_surface_present": surface_present,
+        "book_orientation_is_primary": primary,
+        "technical_details_progressively_disclosed": progressive_details,
         "current_chapter_query_helper_exists": "function currentChapterFromQuery()" in app,
         "whole_book_surface_is_advanced_details": "Advanced: whole-book details" in html,
         "surface_emphasizes_technical_next_command": "Next technical action:" in html,
@@ -196,11 +263,13 @@ def _x3_book_orientation_probe() -> dict[str, Any]:
             BookProgressProjection.model_fields["authority_status"].default
             == "DERIVED / NOT CANON"
         ),
-        "mechanical_x3_gap": bool(missing) or not surface_present,
+        "mechanical_x3_gap": (
+            bool(missing) or not surface_present or not primary or not progressive_details
+        ),
         "finding": (
-            "Measure backend orientation fields separately from browser consumption. "
-            "Adding projection fields alone does not establish persistent author "
-            "re-entry in the served workspace."
+            "The integrated Browser consumes the existing orientation fields in a "
+            "primary, read-only Book surface. Human comprehension and full re-entry "
+            "remain separate empirical questions."
         ),
     }
 
@@ -208,6 +277,7 @@ def _x3_book_orientation_probe() -> dict[str, Any]:
 def run_probe() -> dict[str, Any]:
     history = _accepted_history_and_precedence_probe()
     relevance = _six_chapter_context_relevance_probe()
+    paraphrase = _paraphrased_dependency_probe()
     x3 = _x3_book_orientation_probe()
 
     f2_mechanics_pass = all(
@@ -221,7 +291,7 @@ def run_probe() -> dict[str, Any]:
     )
 
     return {
-        "schema": "f2_x3_agent_preflight_v1",
+        "schema": "f2_x3_agent_preflight_v2",
         "evidence_type": "SYNTHETIC_AGENT_AND_REPOSITORY_EVIDENCE",
         "human_participants": 0,
         "provider_calls": 0,
@@ -229,31 +299,38 @@ def run_probe() -> dict[str, Any]:
         "probes": {
             "accepted_history_and_precedence": history,
             "six_chapter_context_relevance": relevance,
+            "paraphrased_dependency": paraphrase,
             "x3_book_orientation": x3,
         },
         "disposition": {
             "f2_accepted_history_precedence": "PASS" if f2_mechanics_pass else "FAIL",
             "f2_full_frontier": "NOT_QUALIFIED",
             "f2_context_relevance": (
-                "GAP_OR_NOT_ESTABLISHED"
-                if relevance["all_prior_events_exposed"]
-                and not relevance["relevance_filter_demonstrated"]
-                else "NO_GAP_OBSERVED"
+                "BOUNDED_SELECTION_PRESENT"
+                if relevance["relevance_filter_demonstrated"]
+                and relevance["full_evidence_index_preserved"]
+                else "NOT_ESTABLISHED"
+            ),
+            "f2_paraphrased_dependency": (
+                "LEXICAL_MISS_POSSIBLE"
+                if paraphrase["older_accepted_event_omitted_from_generation_context"]
+                and paraphrase["older_accepted_prose_omitted_from_generation_context"]
+                and paraphrase["references_remain_indexed"]
+                else "NO_MISS_OBSERVED"
             ),
             "x3_mechanical_projection": (
-                "GAP_ESTABLISHED" if x3["mechanical_x3_gap"] else "NO_GAP_OBSERVED"
+                "GAP_ESTABLISHED" if x3["mechanical_x3_gap"] else "PRESENT_IN_SOURCE"
             ),
         },
-        "candidate_responsibilities_if_318_activates": [
+        "current_first_failure_candidates": [
             (
-                "X3: extend the existing read-only Book orientation projection with "
-                "current Chapter, recent accepted changes, pending-update summary, "
-                "and story-language next action; do not prebuild a dashboard."
+                "F2: inspect meaning-equivalent older accepted facts omitted by lexical "
+                "selection; do not infer that raw source references alone make the "
+                "fact available in generation-facing content."
             ),
             (
-                "F2: qualify or add bounded relevance-aware context composition before "
-                "generalized retrieval; the current projection exposes all prior "
-                "accepted events."
+                "X3: try actual re-entry and determine whether the integrated "
+                "orientation helps a simulated author without backend coaching."
             ),
         ],
         "not_established": [
@@ -266,8 +343,8 @@ def run_probe() -> dict[str, Any]:
             "comparative superiority over Markdown plus a capable LLM",
         ],
         "gate_rule": (
-            "This preflight does not activate #318. #310 and #313 remain the selected "
-            "activation boundary."
+            "F2/X3 implementation is integrated; this source-level simulation "
+            "does not replace an actual six-Chapter run or host-agent dogfood."
         ),
     }
 
