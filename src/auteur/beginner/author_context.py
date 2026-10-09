@@ -83,9 +83,11 @@ def _explicit_continuity_sources(outline: dict[str, Any]) -> set[str]:
     Exact matching against the accepted source index happens below.
     """
     constraints: list[Any] = [outline.get("continuity_constraints", ())]
-    for scene in outline.get("scenes", ()) if isinstance(outline.get("scenes"), list) else ():
-        if isinstance(scene, dict):
-            constraints.append(scene.get("continuity_constraints", ()))
+    scenes = outline.get("scenes")
+    if isinstance(scenes, list):
+        for scene in scenes:
+            if isinstance(scene, dict):
+                constraints.append(scene.get("continuity_constraints", ()))
     return {
         match.group(0)
         for value in constraints
@@ -146,8 +148,10 @@ def compose_author_context(
             continue
         if f"bible.json#/events/{position}" not in requested_sources:
             continue
-        for field in (event.get("deltas") or {}) if isinstance(event.get("deltas"), dict) else {}:
-            explicit_fields[str(field)] = min(index, explicit_fields.get(str(field), index))
+        deltas = event.get("deltas")
+        if isinstance(deltas, dict):
+            for field in deltas:
+                explicit_fields[str(field)] = min(index, explicit_fields.get(str(field), index))
     accepted_history: list[dict[str, Any]] = []
     all_event_refs: list[str] = []
     omitted_event_refs: list[str] = []
