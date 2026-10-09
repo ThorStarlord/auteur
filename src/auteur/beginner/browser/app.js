@@ -237,7 +237,7 @@
     state.quickDraftPollTimer = window.setTimeout(function () {
       state.quickDraftPollTimer = null;
       if (!state.quickDraftPending || state.quickDraftSessionId !== sessionId ||
-          $("home-surface").hidden) return;
+          $("home-surface").hidden || document.hidden) return;
       state.quickDraftPollAttempts += 1;
       fetch("/api/beginner/quick-draft/" + encodeURIComponent(sessionId), {
         headers: { Accept: "application/json" }
