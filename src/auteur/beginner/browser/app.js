@@ -216,16 +216,16 @@
   function quickDraftHostInstructions(sessionId) {
     var requestPath = ".auteur/quick_draft/" + sessionId + "/host_agent_request.json";
     return "In the currently open Auteur project, complete the existing host-agent " +
-      "Quick Draft request at " + requestPath + ".\\n\\n" +
+      "Quick Draft request at " + requestPath + ".\n\n" +
       "1. Read that exact request using auteur.host_agent.load_host_agent_request. " +
-      "Do not prepare a new session or silently switch to a paid provider.\\n" +
+      "Do not prepare a new session or silently switch to a paid provider.\n" +
       "2. Using your current coding-agent model, write one scene that follows the " +
-      "request's system and user instructions.\\n" +
+      "request's system and user instructions.\n" +
       "3. Build a bound response with auteur.host_agent.build_host_agent_response(" +
       "request, scene_text, runtime=<actual runtime>, model=<actual model or UNAVAILABLE>) " +
       "and complete it via auteur.quick_draft.complete_quick_draft_host_agent_response(" +
-      "Path('.'), '" + sessionId + "', response).\\n" +
-      "4. Leave everything provisional/Working. Do not accept story setup or change canon.\\n" +
+      "Path('.'), '" + sessionId + "', response).\n" +
+      "4. Leave everything provisional/Working. Do not accept story setup or change canon.\n" +
       "The author can then use 'Check for scene' in the browser.";
   }
 
