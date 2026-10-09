@@ -33,6 +33,9 @@
     quickDraftDiscoveries: [],
     quickDraftDiscoveriesVisible: false,
     quickDraftDirty: false,
+    quickDraftPending: false,
+    quickDraftPollTimer: null,
+    quickDraftPollAttempts: 0,
   };
 
   function $(id) {
@@ -96,6 +99,8 @@
     state.structureCustomize = false;
     state.continuationCustomize = false;
     if (!currentQuickDraftFromQuery()) {
+      clearQuickDraftPoll();
+      state.quickDraftPending = false;
       $("quick-draft-result").hidden = true;
       state.quickDraftSessionId = null;
       state.quickDraftDiscoveries = [];
@@ -105,6 +110,8 @@
   }
 
   function showWorkspace() {
+    clearQuickDraftPoll();
+    state.quickDraftPending = false;
     $("home-surface").hidden = true;
     $("app-shell").hidden = false;
     $("nav-toggle").hidden = false;
@@ -199,8 +206,93 @@
       '<p class="hint">Nothing is selected automatically. These are working observations, not accepted story facts.</p>';
   }
 
+  function clearQuickDraftPoll() {
+    if (state.quickDraftPollTimer !== null) {
+      window.clearTimeout(state.quickDraftPollTimer);
+      state.quickDraftPollTimer = null;
+    }
+  }
+
+  function quickDraftHostInstructions(sessionId) {
+    var requestPath = ".auteur/quick_draft/" + sessionId + "/host_agent_request.json";
+    return "In the currently open Auteur project, complete the existing host-agent " +
+      "Quick Draft request at " + requestPath + ".\\n\\n" +
+      "1. Read that exact request using auteur.host_agent.load_host_agent_request. " +
+      "Do not prepare a new session or silently switch to a paid provider.\\n" +
+      "2. Using your current coding-agent model, write one scene that follows the " +
+      "request's system and user instructions.\\n" +
+      "3. Build a bound response with auteur.host_agent.build_host_agent_response(" +
+      "request, scene_text, runtime=<actual runtime>, model=<actual model or UNAVAILABLE>) " +
+      "and complete it via auteur.quick_draft.complete_quick_draft_host_agent_response(" +
+      "Path('.'), '" + sessionId + "', response).\\n" +
+      "4. Leave everything provisional/Working. Do not accept story setup or change canon.\\n" +
+      "The author can then use 'Check for scene' in the browser.";
+  }
+
+  function scheduleQuickDraftPoll() {
+    if (!state.quickDraftPending || !state.quickDraftSessionId ||
+        state.quickDraftPollTimer !== null || state.quickDraftPollAttempts >= 12 ||
+        document.hidden || $("home-surface").hidden) return;
+    var sessionId = state.quickDraftSessionId;
+    state.quickDraftPollTimer = window.setTimeout(function () {
+      state.quickDraftPollTimer = null;
+      if (!state.quickDraftPending || state.quickDraftSessionId !== sessionId ||
+          $("home-surface").hidden) return;
+      state.quickDraftPollAttempts += 1;
+      fetch("/api/beginner/quick-draft/" + encodeURIComponent(sessionId), {
+        headers: { Accept: "application/json" }
+      }).then(readJson).then(function (projection) {
+        if (state.quickDraftSessionId !== sessionId) return;
+        if ((projection.draft || {}).status === "awaiting_host_agent") {
+          if (state.quickDraftPollAttempts >= 12) {
+            $("quick-draft-handoff-status").textContent =
+              "Still waiting. Ask your coding agent to finish the request, then choose 'Check for scene'.";
+          } else {
+            scheduleQuickDraftPoll();
+          }
+        } else {
+          $("home-status").textContent = "";
+          renderQuickDraftProjection(projection);
+        }
+      }).catch(function (error) {
+        if (state.quickDraftSessionId !== sessionId) return;
+        $("quick-draft-handoff-status").textContent =
+          "Could not check the scene: " + error.message + ". You can check again.";
+        scheduleQuickDraftPoll();
+      });
+    }, 5000);
+  }
+
+  function copyQuickDraftHandoff() {
+    if (!state.quickDraftSessionId || !state.quickDraftPending) return;
+    var text = quickDraftHostInstructions(state.quickDraftSessionId);
+    if (!navigator.clipboard || !navigator.clipboard.writeText) {
+      $("quick-draft-handoff-status").textContent =
+        "Clipboard access is unavailable. Select the instructions above and copy them.";
+      return;
+    }
+    return navigator.clipboard.writeText(text).then(function () {
+      $("quick-draft-handoff-status").textContent =
+        "Instructions copied. Give them to the coding agent working in this project.";
+    }).catch(function () {
+      $("quick-draft-handoff-status").textContent =
+        "Clipboard access is unavailable. Select the instructions above and copy them.";
+    });
+  }
+
+  function checkQuickDraftResult() {
+    if (!state.quickDraftSessionId) return Promise.resolve(null);
+    clearQuickDraftPoll();
+    state.quickDraftPollAttempts = 0;
+    return loadQuickDraftSession(state.quickDraftSessionId);
+  }
+
   function renderQuickDraftProjection(projection) {
     if (!projection) return;
+    if (state.quickDraftSessionId !== projection.session_id) {
+      clearQuickDraftPoll();
+      state.quickDraftPollAttempts = 0;
+    }
     state.quickDraftSessionId = projection.session_id;
     var inputs = (projection.scaffold || {}).inputs || {};
     state.quickDraftPremise = inputs.premise || state.quickDraftPremise;
@@ -212,6 +304,16 @@
     $("quick-draft-editor").value = projection.draft_text || "";
     var draft = projection.draft || {};
     var pending = draft.status === "awaiting_host_agent" || draft.status === "generating";
+    state.quickDraftPending = draft.status === "awaiting_host_agent";
+    $("quick-draft-host-handoff").hidden = !state.quickDraftPending;
+    if (state.quickDraftPending) {
+      $("quick-draft-agent-instructions").textContent =
+        quickDraftHostInstructions(state.quickDraftSessionId);
+      scheduleQuickDraftPoll();
+    } else {
+      clearQuickDraftPoll();
+      $("quick-draft-handoff-status").textContent = "";
+    }
     $("quick-draft-editor").disabled = pending;
     $("quick-draft-save").disabled = pending;
     $("quick-draft-discover").disabled = pending;
@@ -2271,6 +2373,11 @@
       createStoryFromHome();
     });
     $("quick-draft-start").addEventListener("click", startQuickDraft);
+    $("quick-draft-copy-handoff").addEventListener("click", copyQuickDraftHandoff);
+    $("quick-draft-check-result").addEventListener("click", checkQuickDraftResult);
+    document.addEventListener("visibilitychange", function () {
+      if (!document.hidden) scheduleQuickDraftPoll();
+    });
     $("quick-draft-editor").addEventListener("input", function () {
       state.quickDraftDirty = true;
       state.quickDraftDiscoveriesVisible = false;
