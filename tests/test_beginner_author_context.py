@@ -119,3 +119,88 @@ def test_inputs_are_not_mutated():
         structure_refs=[],
     )
     assert repr((events, outline)) == snapshot
+
+
+def test_paraphrased_chapter_can_name_exact_accepted_sources_without_semantic_search():
+    result = compose_author_context(
+        chapter_index=6,
+        role="Use independent harbor testimony before public disclosure",
+        role_ref="chapters/06/outline.yaml",
+        current_outline={
+            "chapter_summary": "Weigh independent harbor witnesses",
+            "scenes": [{
+                "continuity_constraints": [
+                    "Honor bible.json#/events/2 and chapters/02/final.md as accepted sources.",
+                ],
+            }],
+        },
+        accepted_events=_events(),
+        accepted_expressions=_expressions(),
+        prior_chapter_refs=[],
+        structure_refs=[],
+    )
+    selected_refs = {item["source_ref"] for item in result["accepted_history"]}
+    expression_refs = {item["source_ref"] for item in result["accepted_expression"]}
+    assert "bible.json#/events/2" in selected_refs
+    assert "chapters/02/final.md" in expression_refs
+    assert result["accepted_state"]["convent_link"]["value"] == "accepted"
+    assert "umbrella_color" not in result["accepted_state"]
+    assert result["selection"]["explicit_sources_requested"] == 2
+    assert result["evidence_index"]["unresolved_explicit_source_refs"] == []
+
+
+def test_explicit_old_source_includes_later_updates_of_the_same_accepted_field():
+    result = compose_author_context(
+        chapter_index=6,
+        role="Continue an unrelated task",
+        role_ref=None,
+        current_outline={
+            "scenes": [{
+                "continuity_constraints": ["Consult bible.json#/events/0."],
+            }],
+        },
+        accepted_events=[
+            {
+                "chapter_index": 2,
+                "summary": "The Lantern appears hostile.",
+                "deltas": {"lantern_role": "enemy"},
+            },
+            {
+                "chapter_index": 3,
+                "summary": "A later accepted decision changes the relationship.",
+                "deltas": {"lantern_role": "possible_ally"},
+            },
+        ],
+        accepted_expressions=[],
+        prior_chapter_refs=[],
+        structure_refs=[],
+    )
+    assert len(result["accepted_history"]) == 2
+    assert result["accepted_state"]["lantern_role"]["value"] == "possible_ally"
+    assert result["accepted_state"]["lantern_role"]["source_ref"] == "bible.json#/events/1"
+    assert "later_update_to_explicit_source" in result["accepted_history"][1]["relevance_reasons"]
+
+
+def test_missing_explicit_accepted_source_is_visible_and_blocking():
+    result = compose_author_context(
+        chapter_index=6,
+        role="Continue the Book",
+        role_ref=None,
+        current_outline={
+            "scenes": [{
+                "continuity_constraints": [
+                    "Read bible.json#/events/99 and chapters/02/final.md first.",
+                ],
+            }],
+        },
+        accepted_events=_events(),
+        accepted_expressions=[],
+        prior_chapter_refs=[],
+        structure_refs=[],
+    )
+    missing = result["evidence_index"]["unresolved_explicit_source_refs"]
+    assert missing == ["bible.json#/events/99", "chapters/02/final.md"]
+    assert result["selection"]["explicit_sources_unresolved"] == 2
+    assert all(item["blocking"] for item in result["uncertainty"])
+    assert all(item["authority"] == "needs_attention" for item in result["uncertainty"])
+    assert "bible.json#/events/99" not in result["evidence_index"]["accepted_event_refs"]
