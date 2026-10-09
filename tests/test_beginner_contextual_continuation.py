@@ -97,3 +97,51 @@ def test_contextual_scene_plans_keep_chapter_ownership(tmp_path: Path) -> None:
         (3, "opening"),
         (3, "turn"),
     ]
+
+
+def test_explicit_accepted_source_dependency_controls_draft_readiness(tmp_path: Path) -> None:
+    chapter_two = _accepted_chapter(tmp_path, 2)
+    (chapter_two / "final.md").write_text(
+        "Sister Beatrice maintained convent ledgers.", encoding="utf-8"
+    )
+    chapter_six = tmp_path / "chapters" / "06"
+    chapter_six.mkdir()
+    outline = chapter_six / "outline.yaml"
+    outline.write_text(
+        "chapter_index: 6\nchapter_summary: Use independent testimony\n"
+        "scenes:\n  - scene_id: testimony\n"
+        "    continuity_constraints:\n"
+        "      - 'Use bible.json#/events/0 and chapters/02/final.md'\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "bible.json").write_text(
+        json.dumps({"events": [{
+            "chapter_index": 2,
+            "summary": "Sister Beatrice maintains the convent ledger.",
+            "deltas": {"convent_evidence": "accepted"},
+        }]}),
+        encoding="utf-8",
+    )
+
+    supported = build_contextual_chapter_plan(tmp_path, 6)
+
+    assert supported.draft_handoff_ready is True
+    assert supported.context["author_context"]["accepted_state"]["convent_evidence"]["value"] == "accepted"
+    assert {
+        item["source_ref"]
+        for item in supported.context["author_context"]["accepted_expression"]
+    } == {"chapters/02/final.md"}
+
+    outline.write_text(
+        "chapter_index: 6\nchapter_summary: Use independent testimony\n"
+        "scenes:\n  - scene_id: testimony\n"
+        "    continuity_constraints:\n"
+        "      - 'Required source: bible.json#/events/99'\n",
+        encoding="utf-8",
+    )
+    missing = build_contextual_chapter_plan(tmp_path, 6)
+
+    assert missing.draft_handoff_ready is False
+    assert missing.context["author_context"]["evidence_index"]["unresolved_explicit_source_refs"] == [
+        "bible.json#/events/99"
+    ]
