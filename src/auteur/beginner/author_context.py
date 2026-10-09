@@ -117,7 +117,7 @@ def compose_author_context(
     role: str | None,
     role_ref: str | None,
     current_outline: dict[str, Any],
-    accepted_events: list[dict[str, Any]],
+    accepted_events: list[Any],
     prior_chapter_refs: list[dict[str, Any]],
     structure_refs: list[str],
     accepted_expressions: list[dict[str, Any]] | tuple[dict[str, Any], ...] = (),
