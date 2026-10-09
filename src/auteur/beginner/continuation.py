@@ -232,7 +232,7 @@ def _load_yaml_mapping(path: Path) -> dict[str, Any]:
     return value if isinstance(value, dict) else {}
 
 
-def _accepted_bible_events(project_root: Path) -> list[dict[str, Any]]:
+def _accepted_bible_events(project_root: Path) -> list[Any]:
     path = project_root / "bible.json"
     if not path.is_file():
         return []
@@ -243,7 +243,10 @@ def _accepted_bible_events(project_root: Path) -> list[dict[str, Any]]:
     events = value.get("events", []) if isinstance(value, dict) else []
     if not isinstance(events, list):
         return []
-    return [event for event in events if isinstance(event, dict)]
+    # Preserve original JSON list positions: bible.json#/events/N is a
+    # provenance pointer, and removing invalid entries would renumber it.
+    # Consumers ignore invalid events without shifting the source index.
+    return events
 
 
 def _chapter_role(project_root: Path, chapter_index: int) -> tuple[str | None, str | None]:
@@ -278,7 +281,7 @@ def _chapter_role(project_root: Path, chapter_index: int) -> tuple[str | None, s
 def _structure_divergences(
     project_root: Path,
     prior_chapter: int,
-    events: list[dict[str, Any]],
+    events: list[Any],
 ) -> tuple[dict[str, Any], ...]:
     if prior_chapter < 1:
         return ()
@@ -289,6 +292,8 @@ def _structure_divergences(
         return ()
     accepted: dict[str, Any] = {}
     for event in events:
+        if not isinstance(event, dict):
+            continue
         if event.get("chapter_index") == prior_chapter and isinstance(event.get("deltas"), dict):
             accepted.update(event["deltas"])
     return tuple(
@@ -392,9 +397,15 @@ def build_contextual_chapter_plan(
         if item.get("source_ref")
     )
 
+    # An explicitly requested but missing accepted source would mislead the
+    # dependent generation step. Keep the uncertainty visible and fail closed.
+    unresolved_sources = author_context["evidence_index"]["unresolved_explicit_source_refs"]
     handoff = ContextualDraftHandoff(
         chapter_index=chapter_index,
-        ready=role is not None or bool(context.get("prior_accepted_chapters")),
+        ready=(
+            (role is not None or bool(context.get("prior_accepted_chapters")))
+            and not unresolved_sources
+        ),
         source_refs=tuple(dict.fromkeys(source_refs)),
     )
     return ContextualChapterPlan(
