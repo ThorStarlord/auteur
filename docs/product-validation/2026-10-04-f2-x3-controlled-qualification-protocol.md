@@ -1,14 +1,14 @@
 # F2 + X3 Controlled Qualification Protocol
 
 **Date:** 2026-10-04  
-**Status:** pre-authored qualification protocol; execution gated by #313 reaffirmation  
+**Status:** ACTIVE controlled product-use protocol; source integration complete, six-Chapter execution pending  
 **Narrative frontier:** F2 — Small-Book Longitudinal Coherence  
 **Experience frontier:** X3 — Persistent Book Workspace  
 **Authority:** protocol only; does not pre-authorize implementation, UI components, merge, release, or provider spend
 
 ## Purpose
 
-After #313 reaffirms the Unified Author Experience, run one controlled small Book
+Against integrated `main`, run one controlled small Book
 through the complete author journey and let the **first material failure** select
 the next bounded implementation responsibility.
 
@@ -248,13 +248,24 @@ specific failure it would solve.
 
 ---
 
-## 8. Execution gate
+## 8. Active execution and evidence boundary
 
-Do not execute this protocol as the next construction frontier until #313 has
-consumed the residual #305/#310 evidence and either:
+The earlier #313 activation gate is resolved: #313 is closed, the selected
+F2/X3 frontier is active in #318, and Chapter-N orchestration/context plus
+Book orientation have been integrated into `main`.
 
-- **REAFFIRMS** the current Unified Author Experience; or
-- **REVISES** it without invalidating F2/X3 as the next controlled frontier.
+This changes **readiness to attempt the controlled Book**, not the claim that the
+Book passed. As of 2026-10-09 there is no full six-Chapter execution packet in
+the agent environment. Preserve the exact checkout SHA before attempting the
+fixture, and record `EXECUTION_ENVIRONMENT_UNAVAILABLE` if no runnable Auteur
+environment is accessible.
 
-If #313 produces a material product-thesis contradiction, return to the
-appropriate strategic boundary instead.
+The earlier coding-agent preflight has been refreshed in PR #342 (merged).
+Its mechanical/context findings and later bounded repair PRs are **not**
+substitutes for this actual six-Chapter run. No additional generic human or
+multi-persona test phase is required before attempting this protocol.
+
+Use the first material recurring failure to select only its owning repair. Keep
+F2 continuity and X3 author orientation verdicts separate. A missing real
+host-agent executor remains a runtime boundary; do not invent provider spend
+or claim generated prose when the run did not occur.
