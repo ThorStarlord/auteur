@@ -392,9 +392,15 @@ def build_contextual_chapter_plan(
         if item.get("source_ref")
     )
 
+    # An explicitly requested but missing accepted source would mislead the
+    # dependent generation step. Keep the uncertainty visible and fail closed.
+    unresolved_sources = author_context["evidence_index"]["unresolved_explicit_source_refs"]
     handoff = ContextualDraftHandoff(
         chapter_index=chapter_index,
-        ready=role is not None or bool(context.get("prior_accepted_chapters")),
+        ready=(
+            (role is not None or bool(context.get("prior_accepted_chapters")))
+            and not unresolved_sources
+        ),
         source_refs=tuple(dict.fromkeys(source_refs)),
     )
     return ContextualChapterPlan(
