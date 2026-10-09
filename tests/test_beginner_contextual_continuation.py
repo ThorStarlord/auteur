@@ -145,3 +145,35 @@ def test_explicit_accepted_source_dependency_controls_draft_readiness(tmp_path: 
     assert missing.context["author_context"]["evidence_index"]["unresolved_explicit_source_refs"] == [
         "bible.json#/events/99"
     ]
+
+
+def test_explicit_event_reference_keeps_original_bible_array_offset(tmp_path: Path) -> None:
+    _accepted_chapter(tmp_path, 2)
+    chapter_six = tmp_path / "chapters" / "06"
+    chapter_six.mkdir()
+    (chapter_six / "outline.yaml").write_text(
+        "chapter_index: 6\nchapter_summary: Use testimony\n"
+        "scenes:\n  - scene_id: witness\n"
+        "    continuity_constraints:\n"
+        "      - 'Reference bible.json#/events/1'\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "bible.json").write_text(
+        json.dumps({"events": [
+            None,
+            {
+                "chapter_index": 2,
+                "summary": "Accepted witness statement.",
+                "deltas": {"witness": "confirmed"},
+            },
+        ]}),
+        encoding="utf-8",
+    )
+
+    plan = build_contextual_chapter_plan(tmp_path, 6)
+
+    assert plan.draft_handoff_ready is True
+    accepted = plan.context["author_context"]["accepted_history"]
+    assert len(accepted) == 1
+    assert accepted[0]["source_ref"] == "bible.json#/events/1"
+    assert plan.context["author_context"]["accepted_state"]["witness"]["value"] == "confirmed"
