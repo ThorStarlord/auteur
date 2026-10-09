@@ -42,6 +42,16 @@
         <p class="hint">Edit freely. Nothing here becomes accepted story material until you choose what to keep.</p>
         <textarea id="quick-draft-editor" rows="22" aria-label="Editable Quick Draft scene"></textarea>
         <p id="quick-draft-meta" class="hint"></p>
+        <section id="quick-draft-host-handoff" class="quick-draft-host-handoff" aria-label="Coding agent handoff" hidden>
+          <h4>Finish this scene with your coding agent</h4>
+          <p class="hint">Auteur has saved the request, but this browser cannot invoke your coding agent on its own. Give the instructions below to the coding agent working in this project.</p>
+          <pre id="quick-draft-agent-instructions" aria-label="Instructions for your coding agent"></pre>
+          <div class="surface-actions">
+            <button id="quick-draft-copy-handoff" type="button">Copy agent instructions</button>
+            <button id="quick-draft-check-result" type="button">Check for scene</button>
+          </div>
+          <p id="quick-draft-handoff-status" class="hint" role="status" aria-live="polite"></p>
+        </section>
         <div class="surface-actions">
           <button id="quick-draft-save" type="button" class="continue-button">Save changes</button>
           <button id="quick-draft-discover" type="button">What did we discover?</button>

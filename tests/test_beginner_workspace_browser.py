@@ -27,6 +27,32 @@ def test_browser_surfaces_host_agent_waiting_state():
     assert 'body: JSON.stringify({ premise: premise, first_scene: firstScene })' in js
 
 
+def test_quick_draft_pending_state_has_actionable_agent_handoff_and_refresh():
+    html = _read(INDEX)
+    js = _read(APP)
+
+    for element_id in (
+        "quick-draft-host-handoff",
+        "quick-draft-agent-instructions",
+        "quick-draft-copy-handoff",
+        "quick-draft-check-result",
+        "quick-draft-handoff-status",
+    ):
+        assert f'id="{element_id}"' in html
+
+    assert "this browser cannot invoke your coding agent on its own" in html
+    assert "host_agent_request.json" in js
+    assert "load_host_agent_request" in js
+    assert "complete_quick_draft_host_agent_response" in js
+    assert "navigator.clipboard.writeText" in js
+    assert "quick-draft-check-result" in js
+    assert "window.setTimeout" in js
+    assert "quickDraftPollAttempts >= 12" in js
+    assert "document.hidden" in js
+    assert "state.quickDraftPending" in js
+    assert "scheduleQuickDraftPoll" in js
+
+
 def test_browser_files_exist_and_nonempty():
     for path in (INDEX, APP, STYLES):
         assert path.is_file(), f"missing browser file: {path}"
