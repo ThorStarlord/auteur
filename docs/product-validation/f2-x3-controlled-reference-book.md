@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-03  
 **Tracking:** #318  
-**Status:** PREPARED TEST FIXTURE / NOT YET ACTIVE  
+**Status:** FROZEN REFERENCE FIXTURE / ACTIVE F2+X3 FRONTIER / EXECUTION PENDING  
 **Purpose:** provide one frozen six-Chapter story for longitudinal coherence and persistent-workspace qualification.
 
 ## Why this fixture exists
@@ -456,9 +456,15 @@ It cannot by itself establish:
 
 Those claims require their own evidence.
 
-## Activation
+## Execution status
 
-This fixture is prepared but inactive.
+This reference story is now the **active frozen fixture** for #318. The former
+#313 activation prerequisite is resolved; no replacement Book or additional
+first-session persona study should be created merely to repeat existing evidence.
 
-Activate only when #313 selects/reaffirms #318 after consuming #310 provider
-evidence and qualified #316 evidence.
+Use the current integrated Auteur checkout, record its exact SHA, and apply
+P1–P6 at the specified points. Preserve the separate F2 and X3 dispositions.
+
+Activation of a fixture is **not** evidence that the full six-Chapter journey,
+host-agent generation, or any real-user evaluation has executed. Those remain
+unqualified until an actual target-runtime evidence packet exists.
