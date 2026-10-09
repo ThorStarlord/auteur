@@ -204,3 +204,28 @@ def test_missing_explicit_accepted_source_is_visible_and_blocking():
     assert all(item["blocking"] for item in result["uncertainty"])
     assert all(item["authority"] == "needs_attention" for item in result["uncertainty"])
     assert "bible.json#/events/99" not in result["evidence_index"]["accepted_event_refs"]
+
+
+def test_explicit_old_dependency_cannot_restore_stale_state_when_bible_is_unordered():
+    result = compose_author_context(
+        chapter_index=6,
+        role="New task without the old name",
+        role_ref=None,
+        current_outline={"continuity_constraints": ["Check bible.json#/events/1."]},
+        accepted_events=[
+            {
+                "chapter_index": 3,
+                "summary": "Latest accepted development.",
+                "deltas": {"lantern_role": "possible_ally"},
+            },
+            {
+                "chapter_index": 2,
+                "summary": "Earlier accepted assumption.",
+                "deltas": {"lantern_role": "enemy"},
+            },
+        ],
+        prior_chapter_refs=[],
+        structure_refs=[],
+    )
+    assert result["accepted_state"]["lantern_role"]["value"] == "possible_ally"
+    assert result["accepted_state"]["lantern_role"]["chapter_index"] == 3
