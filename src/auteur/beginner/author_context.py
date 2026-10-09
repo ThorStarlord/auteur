@@ -193,7 +193,9 @@ def compose_author_context(
         )
 
     accepted_state: dict[str, dict[str, Any]] = {}
-    for event in accepted_history:
+    # The Bible may contain out-of-order historical entries. The latest accepted
+    # Chapter wins for each field; same-Chapter entries retain source order.
+    for event in sorted(accepted_history, key=lambda item: item["chapter_index"]):
         for field, value in event["deltas"].items():
             accepted_state[str(field)] = {
                 "value": value,
