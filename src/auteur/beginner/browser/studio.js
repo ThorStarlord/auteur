@@ -3,6 +3,10 @@
   var state = { items: [], connections: [], positions: {}, selected: null, selectedDerived: null, derived: null, derivedPositions: {}, view: "create", panX: 0, panY: 0, zoom: 1, serial: 0, undo: null };
   // Local, noncanonical working document: server is the persistence owner.
   var remote = { canvasId: null, revision: 0, ready: false, failed: false, queue: Promise.resolve(), timer: null };
+  state.deleted = {};
+  function showRecoveryAction() {
+    $("restore-deleted").hidden = !remote.ready || remote.failed || !Object.keys(state.deleted).length;
+  }
   function apiJson(response) {
     return response.json().then(function (body) {
       if (!response.ok) throw new Error(body.error || "HTTP " + response.status);
@@ -25,6 +29,7 @@
         body: JSON.stringify({ expected_revision: remote.revision, command_id: command, payload: payload })
       }).then(apiJson).then(function (doc) {
         remote.revision = doc.revision;
+        state.deleted = doc.deleted || {}; showRecoveryAction();
         if (!remote.failed) status("Working canvas saved locally · revision " + remote.revision);
       });
     }).catch(function (error) {
@@ -44,6 +49,7 @@
     state.panX = doc.viewport.pan_x; state.panY = doc.viewport.pan_y; state.zoom = doc.viewport.zoom;
     $("zoom").value = String(Math.round(state.zoom * 100));
     remote.revision = doc.revision; remote.ready = true;
+    state.deleted = doc.deleted || {}; showRecoveryAction();
     render(); status("Working canvas loaded · saved locally · revision " + remote.revision);
   }
   function openRemote() {
@@ -62,6 +68,37 @@
       $("retry-save").hidden = false;
       status("Cannot open local canvas: " + error.message + ". Editing is disabled.");
     });
+  }
+  function restoreDeleted() {
+    if (!remote.ready || remote.failed) return;
+    // Wait for all earlier saves before reading the current recovery journal.
+    remote.queue.then(function () {
+      return fetch("/api/beginner/studio/canvases/" + remote.canvasId).then(apiJson);
+    }).then(function (doc) {
+      if (doc.revision !== remote.revision) {
+        remote.failed = true; $("retry-save").hidden = false; showRecoveryAction();
+        throw new Error("Another tab changed this canvas. Export current notes; recovery cannot overwrite the new version.");
+      }
+      var deletedIds = Object.keys(doc.deleted || {});
+      if (!deletedIds.length) { state.deleted = {}; showRecoveryAction(); return; }
+      var itemId = deletedIds[deletedIds.length - 1], tombstone = doc.deleted[itemId];
+      if (state.items.some(function (item) { return item.id === itemId; })) {
+        throw new Error("Working item already exists. No recovery performed.");
+      }
+      state.items.push(tombstone.item);
+      state.positions[itemId] = tombstone.position;
+      (tombstone.connections || []).forEach(function (edge) {
+        var sourceExists = state.items.some(function (item) { return item.id === edge.source; });
+        var targetExists = state.items.some(function (item) { return item.id === edge.target; });
+        if (sourceExists && targetExists && !state.connections.some(function (existing) { return existing.id === edge.id; })) {
+          state.connections.push(edge);
+        }
+      });
+      state.selected = itemId; state.selectedDerived = null;
+      state.view = "create"; $("layer-view").value = "create";
+      render(); queueSave();
+      status("Removed working idea restored. Saving recovery locally.");
+    }).catch(function (error) { status("Recovery unavailable: " + error.message); });
   }
   function retrySave() {
     if (!remote.ready) { window.location.reload(); return; }
@@ -583,6 +620,7 @@
   $("import").addEventListener("change", importCanvas);
   $("remove").addEventListener("click", removeCurrent);
   $("retry-save").addEventListener("click", retrySave);
+  $("restore-deleted").addEventListener("click", restoreDeleted);
   $("viewport").addEventListener("keydown", function (event) {
     if (event.target !== this) return;
     var moves = { ArrowLeft: [50, 0], ArrowRight: [-50, 0], ArrowUp: [0, 50], ArrowDown: [0, -50] };

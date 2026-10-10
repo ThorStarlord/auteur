@@ -159,6 +159,19 @@ class CanvasStore:
             if action == "replace-working-document":
                 if set(payload) != {"items", "connections", "positions", "viewport"}:
                     raise ValueError("working document replacement requires exact known fields")
+                next_items = [CanvasItem.model_validate(item, strict=True) for item in payload["items"]]
+                next_ids = {item.id for item in next_items}
+                for previous in items:
+                    removed_id = previous["id"]
+                    if removed_id not in next_ids:
+                        attached = [edge for edge in edges if edge["source"] == removed_id or edge["target"] == removed_id]
+                        deleted[removed_id] = {
+                            "item": previous, "position": positions[removed_id], "connections": attached
+                        }
+                # A reintroduced note explicitly restores its working identity.
+                # Previously recorded deletions remain recoverable across restarts.
+                for next_id in next_ids:
+                    deleted.pop(next_id, None)
                 raw["items"] = payload["items"]
                 raw["connections"] = payload["connections"]
                 raw["positions"] = payload["positions"]

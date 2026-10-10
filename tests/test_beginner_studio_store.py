@@ -141,3 +141,34 @@ def test_nonfinite_canvas_coordinates_rejected(tmp_path):
             "item": item("bad"), "position": {"x": float("nan"), "y": 10}
         })
     assert store.load().revision == 0
+
+
+def test_whole_document_replacement_retains_recoverable_deletions(tmp_path):
+    store = CanvasStore(tmp_path, "full-delete")
+    store.create()
+    current = mutate(store, 0, "create-a", "create-item", {
+        "item": item("first", "Remember this"), "position": {"x": 10, "y": 20}
+    })
+    current = mutate(store, current.revision, "create-b", "create-item", {
+        "item": item("second", "Keep this"), "position": {"x": 100, "y": 20}
+    })
+    current = mutate(store, current.revision, "link", "connect", {
+        "connection": {"id": "edge-1", "source": "first", "target": "second", "label": "knows"}
+    })
+    removed = mutate(store, current.revision, "snapshot-deleted", "replace-working-document", {
+        "items": [item("second", "Keep this")],
+        "connections": [], "positions": {"second": {"x": 100, "y": 20}},
+        "viewport": {"pan_x": 0, "pan_y": 0, "zoom": 1},
+    })
+    assert removed.deleted["first"].item.title == "Remember this"
+    assert removed.deleted["first"].connections[0].id == "edge-1"
+    reopened = CanvasStore(tmp_path, "full-delete").load()
+    assert "first" in reopened.deleted
+    restored = mutate(store, reopened.revision, "snapshot-restored", "replace-working-document", {
+        "items": [item("first", "Remember this"), item("second", "Keep this")],
+        "connections": [{"id": "edge-1", "source": "first", "target": "second", "label": "knows"}],
+        "positions": {"first": {"x": 10, "y": 20}, "second": {"x": 100, "y": 20}},
+        "viewport": {"pan_x": 0, "pan_y": 0, "zoom": 1},
+    })
+    assert "first" not in restored.deleted
+    assert len(restored.connections) == 1
