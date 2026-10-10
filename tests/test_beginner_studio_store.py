@@ -131,3 +131,13 @@ def test_scene_provisional_intent_and_session_reference_survive_restart(tmp_path
     assert reopened.items[0].scene_intent == scene["scene_intent"]
     assert reopened.items[0].quick_draft_session_id == "session-example"
     assert not (tmp_path / "story_identity.yaml").exists()
+
+
+def test_nonfinite_canvas_coordinates_rejected(tmp_path):
+    store = CanvasStore(tmp_path, "nonfinite")
+    store.create()
+    with pytest.raises(ValueError):
+        mutate(store, 0, "nan-coordinate", "create-item", {
+            "item": item("bad"), "position": {"x": float("nan"), "y": 10}
+        })
+    assert store.load().revision == 0

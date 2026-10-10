@@ -119,7 +119,7 @@
     state.selected = item.id; state.selectedDerived = null; state.view = "create"; $("layer-view").value = "create";
     render();
     $("title").focus();
-    queueSave(); status("Working item created. Saving locally...");
+    queueSave(); status(remote.failed ? "SAVE FAILED: export your working notes." : "Working item created. Saving locally...");
   }
   function changedRelationVisible(edge) {
     var chapter = $("relationship-chapter").value;
@@ -403,7 +403,7 @@
     var item = selected(); if (!item) return;
     item.title = $("title").value.trim() || "Untitled";
     item.kind = $("kind").value; item.content = $("content").value; item.group = $("group").value.trim();
-    render(); queueSave(); status("Working item updated. Saving locally...");
+    render(); queueSave(); status(remote.failed ? "SAVE FAILED: export your working notes before reopening." : "Working item updated. Saving locally...");
   }
   function connect() {
     var item = selected(), target = $("target").value; if (!item || !target || target === item.id) return;
@@ -507,6 +507,7 @@
       if (!item || typeof item.id !== "string" || !/^[a-z0-9_-]{1,80}$/.test(item.id) || seen.has(item.id) ||
           typeof item.title !== "string" || item.title.length > 120 || typeof item.content !== "string" || item.content.length > 20000 ||
           !["note", "character", "scene", "place", "question"].includes(item.kind) ||
+          (item.group != null && (typeof item.group !== "string" || item.group.length > 80)) ||
           ["scene_premise", "scene_intent"].some(function (field) {
             return item[field] != null && (typeof item[field] !== "string" || item[field].length > 4000);
           }) || (item.quick_draft_session_id != null &&
@@ -517,6 +518,9 @@
       if (!pos || !Number.isFinite(pos.x) || !Number.isFinite(pos.y) || pos.x < 0 || pos.x > 1400 || pos.y < 0 || pos.y > 1040) throw new Error("Invalid canvas layout");
     });
     var ids = new Set();
+    if (data.viewport && (!Number.isFinite(data.viewport.pan_x) || !Number.isFinite(data.viewport.pan_y) ||
+        !Number.isFinite(data.viewport.zoom) || Math.abs(data.viewport.pan_x) > 5000 || Math.abs(data.viewport.pan_y) > 5000 ||
+        data.viewport.zoom < 0.5 || data.viewport.zoom > 1.5)) throw new Error("Invalid viewport");
     data.connections.forEach(function (edge) {
       if (!edge || typeof edge.id !== "string" || !/^[a-z0-9_-]{1,80}$/.test(edge.id) || ids.has(edge.id) ||
           !seen.has(edge.source) || !seen.has(edge.target) || edge.source === edge.target ||
@@ -526,6 +530,7 @@
   }
   function importCanvas(event) {
     var file = event.target.files[0]; event.target.value = ""; if (!file) return;
+    if (!remote.ready || remote.failed) { status("Canvas is not safely available yet. Import is disabled to prevent losing your file."); return; }
     if (file.size > 1024 * 1024) { status("Import rejected: file exceeds 1 MB."); return; }
     file.text().then(function (raw) {
       var data = JSON.parse(raw); validCanvas(data);
@@ -533,7 +538,7 @@
       state.selected = data.items.length ? data.items[0].id : null; state.serial += 1;
       if (data.viewport && Number.isFinite(data.viewport.zoom)) { state.panX = data.viewport.pan_x; state.panY = data.viewport.pan_y; state.zoom = data.viewport.zoom; }
       else { state.panX = 0; state.panY = 0; state.zoom = 1; }
-      render(); queueSave(); status("Working canvas imported. Saving locally...");
+      render(); queueSave(); status(remote.failed ? "SAVE FAILED: export your working notes." : "Working canvas imported. Saving locally...");
     }).catch(function (error) { status("Import rejected: " + error.message); });
   }
   function removeCurrent() {
