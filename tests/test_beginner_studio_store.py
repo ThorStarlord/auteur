@@ -172,3 +172,11 @@ def test_whole_document_replacement_retains_recoverable_deletions(tmp_path):
     })
     assert "first" not in restored.deleted
     assert len(restored.connections) == 1
+
+
+def test_incomplete_canvas_command_rejected_without_internal_error(tmp_path):
+    store = CanvasStore(tmp_path, "missing-fields")
+    store.create()
+    with pytest.raises(ValueError, match="missing required fields"):
+        mutate(store, 0, "missing-item", "create-item", {"position": {"x": 1, "y": 2}})
+    assert store.load().revision == 0

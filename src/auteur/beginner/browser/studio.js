@@ -41,7 +41,7 @@
   }
   function scheduleSave() {
     clearTimeout(remote.timer);
-    remote.timer = setTimeout(queueSave, 300);
+    remote.timer = setTimeout(function () { remote.timer = null; queueSave(); }, 300);
   }
   function loadRemote(doc) {
     state.items = doc.items; state.connections = doc.connections; state.positions = doc.positions;
@@ -71,8 +71,13 @@
   }
   function restoreDeleted() {
     if (!remote.ready || remote.failed) return;
+    // Flush a pending debounced edit so the recovery snapshot cannot discard it.
+    if (remote.timer !== null) {
+      clearTimeout(remote.timer); remote.timer = null; queueSave();
+    }
     // Wait for all earlier saves before reading the current recovery journal.
     remote.queue.then(function () {
+      if (remote.failed) throw new Error("Earlier save failed. Export your notes before attempting recovery.");
       return fetch("/api/beginner/studio/canvases/" + remote.canvasId).then(apiJson);
     }).then(function (doc) {
       if (doc.revision !== remote.revision) {

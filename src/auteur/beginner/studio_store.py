@@ -140,6 +140,18 @@ class CanvasStore:
         _safe_segment(command_id, "command_id")
         if len(command_id) > 80 or not isinstance(payload, dict):
             raise ValueError("invalid canvas command")
+        required_keys = {
+            "create-item": {"item", "position"},
+            "update-item": {"item"},
+            "delete-item": {"item_id"},
+            "restore-item": {"item_id"},
+            "connect": {"connection"},
+            "disconnect": {"connection_id"},
+            "move-item": {"item_id", "position"},
+            "replace-working-document": {"items", "connections", "positions", "viewport"},
+        }[action]
+        if not required_keys.issubset(payload):
+            raise ValueError("canvas command is missing required fields")
         digest = hashlib.sha256(
             json.dumps({"action": action, "payload": payload}, sort_keys=True, ensure_ascii=True).encode("utf-8")
         ).hexdigest()
