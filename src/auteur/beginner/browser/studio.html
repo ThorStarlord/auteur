@@ -20,6 +20,15 @@
         <button type="button" id="add-scene">+ Scene</button>
         <button type="button" id="fit">Fit</button>
         <label for="zoom">Zoom</label><input id="zoom" type="range" min="50" max="150" value="100">
+        <label for="layer-view">View</label>
+        <select id="layer-view" aria-label="Canvas graph view">
+          <option value="create">My ideas</option>
+          <option value="relationships">Relationships</option>
+          <option value="lenses">Story Lenses</option>
+          <option value="all">Everything</option>
+        </select>
+        <input id="evidence-workspace" placeholder="Existing workspace ID (optional)" aria-label="Existing Auteur workspace ID" maxlength="80">
+        <button type="button" id="show-evidence">Show story evidence</button>
         <button type="button" id="download">Export JSON</button>
         <button type="button" id="retry-save" hidden>Retry saving</button>
         <label class="import-label" for="import">Import JSON</label>
@@ -41,6 +50,14 @@
     <aside id="inspector" aria-label="Selected story item">
       <h2>Story details</h2>
       <p class="muted" id="inspector-empty">Select or create an item to edit it.</p>
+      <div id="source-detail" hidden aria-label="Read-only source evidence">
+        <h3 id="source-title"></h3>
+        <p id="source-state"></p>
+        <p id="source-description"></p>
+        <p id="source-ref"></p>
+        <div id="source-links"></div>
+        <p class="muted">Derived evidence is read-only. Use the existing story workspace to change accepted meaning.</p>
+      </div>
       <div id="inspector-fields" hidden>
         <label for="title">Title</label><input id="title" type="text" maxlength="120">
         <label for="kind">Working type</label>

@@ -1,6 +1,6 @@
 (function () {
   "use strict";
-  var state = { items: [], connections: [], positions: {}, selected: null, panX: 0, panY: 0, zoom: 1, serial: 0, undo: null };
+  var state = { items: [], connections: [], positions: {}, selected: null, selectedDerived: null, derived: null, derivedPositions: {}, view: "create", panX: 0, panY: 0, zoom: 1, serial: 0, undo: null };
   // Local, noncanonical working document: server is the persistence owner.
   var remote = { canvasId: null, revision: 0, ready: false, failed: false, queue: Promise.resolve(), timer: null };
   function apiJson(response) {
@@ -82,10 +82,46 @@
     var item = { id: id("item"), kind: kind, title: kind === "note" ? "New idea" : "New " + kind, content: "" };
     state.items.push(item);
     state.positions[item.id] = { x: 110 + ((state.items.length - 1) % 4) * 192, y: 95 + Math.floor((state.items.length - 1) / 4) * 112 };
-    state.selected = item.id;
+    state.selected = item.id; state.selectedDerived = null; state.view = "create"; $("layer-view").value = "create";
     render();
     $("title").focus();
     queueSave(); status("Working item created. Saving locally...");
+  }
+  function visibleDerived(node) {
+    return state.view === "all" || (state.view === "relationships" && node.kind === "character") ||
+      (state.view === "lenses" && node.kind === "lens");
+  }
+  function loadEvidence() {
+    var workspace = $("evidence-workspace").value.trim();
+    var params = new URLSearchParams(window.location.search);
+    if (workspace) params.set("workspace", workspace);
+    else params.delete("workspace");
+    window.history.replaceState({}, "", window.location.pathname + "?" + params.toString());
+    status("Loading source-bound story evidence...");
+    fetch("/api/beginner/studio/graph" + (workspace ? "?workspace=" + encodeURIComponent(workspace) : ""))
+      .then(apiJson).then(function (graph) {
+        state.derived = graph; state.derivedPositions = {}; state.selectedDerived = null;
+        graph.nodes.forEach(function (node, i) {
+          var baseX = node.kind === "lens" ? 520 : 380;
+          var index = graph.nodes.slice(0, i).filter(function (n) { return n.kind === node.kind; }).length;
+          state.derivedPositions[node.id] = { x: baseX + (index % 3) * 188, y: 90 + Math.floor(index / 3) * 115 };
+        });
+        state.selected = null;
+        state.view = graph.nodes.some(function (n) { return n.kind === "character"; }) ? "relationships" : "lenses";
+        $("layer-view").value = state.view;
+        render();
+        status(graph.warnings.length ? graph.warnings.join(" ") :
+          "Read-only story evidence loaded. Select a node to see meaning and source.");
+      }).catch(function (error) {
+        status("Story evidence unavailable: " + error.message + ". Working notes are unchanged.");
+      });
+  }
+  function chooseDerived(nodeId) {
+    state.selected = null; state.selectedDerived = nodeId;
+    Array.prototype.forEach.call(document.querySelectorAll(".node"), function (button) {
+      button.setAttribute("aria-pressed", String(button.dataset.itemId === nodeId));
+    });
+    renderInspector();
   }
   function drawEdges() {
     var svg = $("edges");
@@ -108,8 +144,37 @@
         svg.appendChild(text);
       }
     });
+    if (state.derived) state.derived.edges.forEach(function (edge) {
+      var from = state.derivedPositions[edge.source], to = state.derivedPositions[edge.target];
+      var fromNode = state.derived.nodes.find(function (n) { return n.id === edge.source; });
+      var toNode = state.derived.nodes.find(function (n) { return n.id === edge.target; });
+      if (!from || !to || !fromNode || !toNode || !visibleDerived(fromNode) || !visibleDerived(toNode)) return;
+      var line = document.createElementNS(svgNS, "line");
+      line.setAttribute("x1", String(from.x + 82)); line.setAttribute("y1", String(from.y + 33));
+      line.setAttribute("x2", String(to.x + 82)); line.setAttribute("y2", String(to.y + 33));
+      line.setAttribute("stroke", "#8d9ab9"); line.setAttribute("stroke-width", "2");
+      svg.appendChild(line);
+    });
   }
   function renderInspector() {
+    var source = state.derived && state.derived.nodes.find(function (n) { return n.id === state.selectedDerived; });
+    $("source-detail").hidden = !source;
+    if (source) {
+      $("inspector-empty").hidden = true; $("inspector-fields").hidden = true;
+      $("source-title").textContent = source.title;
+      $("source-state").textContent = source.status + " · " + source.authority;
+      $("source-description").textContent = source.detail || "No further detail established";
+      $("source-ref").textContent = "Source: " + source.source_ref;
+      var links = $("source-links"); links.replaceChildren();
+      state.derived.edges.filter(function (e) { return e.source === source.id || e.target === source.id; }).forEach(function (edge) {
+        var otherId = edge.source === source.id ? edge.target : edge.source;
+        var other = state.derived.nodes.find(function (n) { return n.id === otherId; });
+        if (!other) return;
+        var text = document.createElement("p"); text.textContent = (edge.label || "Related") + " → " + other.title;
+        links.appendChild(text);
+      });
+      return;
+    }
     var item = selected();
     $("inspector-empty").hidden = !!item;
     $("inspector-fields").hidden = !item;
@@ -134,7 +199,7 @@
     });
   }
   function choose(itemId) {
-    state.selected = itemId;
+    state.selected = itemId; state.selectedDerived = null;
     Array.prototype.forEach.call(document.querySelectorAll(".node"), function (node) {
       node.setAttribute("aria-pressed", String(node.dataset.itemId === itemId));
     });
@@ -144,6 +209,7 @@
     var host = $("nodes"); host.replaceChildren();
     $("empty-state").hidden = state.items.length > 0;
     state.items.forEach(function (item) {
+      if (state.view !== "create" && state.view !== "all") return;
       var pos = state.positions[item.id];
       var node = document.createElement("button"); node.type = "button"; node.className = "node";
       node.dataset.itemId = item.id; node.dataset.kind = item.kind;
@@ -174,6 +240,18 @@
         function finish() { node.removeEventListener("pointermove", move); node.removeEventListener("pointerup", finish); node.removeEventListener("pointercancel", finish); scheduleSave(); }
         node.addEventListener("pointermove", move); node.addEventListener("pointerup", finish); node.addEventListener("pointercancel", finish);
       });
+      host.appendChild(node);
+    });
+        if (state.derived) state.derived.nodes.filter(visibleDerived).forEach(function (item) {
+      var pos = state.derivedPositions[item.id]; if (!pos) return;
+      var node = document.createElement("button"); node.type = "button";
+      node.className = "node derived"; node.dataset.itemId = item.id; node.dataset.kind = item.kind;
+      node.style.left = pos.x + "px"; node.style.top = pos.y + "px";
+      node.setAttribute("aria-pressed", String(item.id === state.selectedDerived));
+      node.setAttribute("aria-label", "Read only " + item.kind + ": " + item.title + ". " + item.status);
+      var title = document.createElement("span"); title.className = "label"; title.textContent = item.title;
+      var type = document.createElement("span"); type.className = "type"; type.textContent = item.status + " · Read-only";
+      node.append(title, type); node.addEventListener("click", function () { chooseDerived(item.id); });
       host.appendChild(node);
     });
     drawEdges(); renderInspector(); transform();
@@ -335,6 +413,8 @@
   $("add-scene").addEventListener("click", function () { newItem("scene"); });
   $("start").addEventListener("click", function () { newItem("note"); });
   $("fit").addEventListener("click", fit);
+  $("show-evidence").addEventListener("click", loadEvidence);
+  $("layer-view").addEventListener("change", function () { state.view = this.value; render(); });
   $("zoom").addEventListener("input", function () { state.zoom = Number(this.value) / 100; transform(); scheduleSave(); });
   $("save").addEventListener("click", saveCurrent);
   $("connect").addEventListener("click", connect);
@@ -360,5 +440,7 @@
     function finish() { $("viewport").removeEventListener("pointermove", move); $("viewport").removeEventListener("pointerup", finish); $("viewport").removeEventListener("pointercancel", finish); scheduleSave(); }
     this.addEventListener("pointermove", move); this.addEventListener("pointerup", finish); this.addEventListener("pointercancel", finish);
   });
-  render(); openRemote();
+  render();
+  $("evidence-workspace").value = new URLSearchParams(window.location.search).get("workspace") || "";
+  openRemote();
 }());
