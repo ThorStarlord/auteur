@@ -26,9 +26,16 @@
           <option value="relationships">Relationships</option>
           <option value="lenses">Story Lenses</option>
           <option value="all">Everything</option>
+          <option value="impact">Consequences</option>
         </select>
         <input id="evidence-workspace" placeholder="Existing workspace ID (optional)" aria-label="Existing Auteur workspace ID" maxlength="80">
         <button type="button" id="show-evidence">Show story evidence</button>
+        <details class="impact-controls">
+          <summary>Advanced: impact preview</summary>
+          <label for="impact-artifact">Registered artifact ID</label>
+          <input id="impact-artifact" placeholder="e.g. story_identity" maxlength="120">
+          <button type="button" id="preview-impact">Preview possible downstream impact</button>
+        </details>
         <button type="button" id="download">Export JSON</button>
         <button type="button" id="retry-save" hidden>Retry saving</button>
         <label class="import-label" for="import">Import JSON</label>

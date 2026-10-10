@@ -68,3 +68,9 @@ a { color:#2d6242; }
 #source-detail h3 { margin-top:0; }
 #source-ref { overflow-wrap:anywhere; color:#646e7a; font-size:.75rem; }
 #source-links p { font-size:.78rem; margin:5px 0; }
+
+.impact-controls { font-size:.82rem; background:#f7f4ed; padding:4px 7px; border:1px solid #ddd5c7; border-radius:6px; }
+.impact-controls summary { cursor:pointer; }
+.impact-controls input { display:block; width:180px; max-width:100%; padding:6px; margin:6px 0; }
+.node.derived[data-kind="artifact"] { background:#fff3df; border-color:#c5a575; }
+.node.derived[data-kind="artifact"][data-impact="source"] { background:#e4f2e6; border-color:#6d9f7f; }

@@ -89,7 +89,8 @@
   }
   function visibleDerived(node) {
     return state.view === "all" || (state.view === "relationships" && node.kind === "character") ||
-      (state.view === "lenses" && node.kind === "lens");
+      (state.view === "lenses" && node.kind === "lens") ||
+      (state.view === "impact" && node.kind === "artifact");
   }
   function loadEvidence() {
     var workspace = $("evidence-workspace").value.trim();
@@ -116,6 +117,47 @@
         status("Story evidence unavailable: " + error.message + ". Working notes are unchanged.");
       });
   }
+  function previewImpact() {
+    var artifact = $("impact-artifact").value.trim();
+    if (!artifact) { status("Choose an existing provenance artifact id."); return; }
+    status("Reading registered downstream dependency paths...");
+    fetch("/api/beginner/studio/impact?artifact=" + encodeURIComponent(artifact))
+      .then(apiJson).then(function (preview) {
+        if (!state.derived) state.derived = { nodes: [], edges: [], warnings: [] };
+        // An impact preview is a *separate read-only graph view*, not working notes.
+        state.derived.nodes = state.derived.nodes.filter(function (n) { return n.kind !== "artifact"; });
+        state.derived.edges = state.derived.edges.filter(function (e) { return !e.id.startsWith("impact:"); });
+        Object.keys(state.derivedPositions).forEach(function (id) { if (id.startsWith("artifact:")) delete state.derivedPositions[id]; });
+        var all = [{ artifact_id: preview.source.artifact_id, artifact_type: preview.source.artifact_type,
+          accepted: preview.source.accepted, authority: preview.source.authority,
+          source_ref: preview.source.file_path, explanation: preview.warning }].concat(preview.affected);
+        all.forEach(function (entry, i) {
+          var nodeId = "artifact:" + entry.artifact_id;
+          state.derived.nodes.push({
+            id: nodeId, kind: "artifact", title: entry.artifact_id,
+            detail: entry.explanation || "Registered provenance source; possible downstream dependencies.",
+            status: entry.accepted ? "accepted source" : "registered source",
+            authority: entry.authority || "PROVENANCE",
+            source_ref: entry.source_ref || entry.artifact_id,
+            impact_role: i === 0 ? "source" : "affected"
+          });
+          state.derivedPositions[nodeId] = { x: 260 + (i % 3) * 196, y: 80 + Math.floor(i / 3) * 120 };
+        });
+        var seen = new Set();
+        preview.affected.forEach(function (entry) {
+          entry.hops.forEach(function (hop) {
+            var edgeId = "impact:" + hop.source + ":" + hop.target;
+            if (seen.has(edgeId)) return; seen.add(edgeId);
+            state.derived.edges.push({ id: edgeId, source: "artifact:" + hop.source,
+              target: "artifact:" + hop.target, label: hop.kind,
+              source_ref: "provenance", authority: "HYPOTHETICAL / READ ONLY" });
+          });
+        });
+        state.view = "impact"; $("layer-view").value = "impact"; state.selected = null; state.selectedDerived = null;
+        render();
+        status("Hypothetical dependency paths only. Nothing has been revised or accepted.");
+      }).catch(function (error) { status("Impact preview unavailable: " + error.message); });
+  }
   function chooseDerived(nodeId) {
     state.selected = null; state.selectedDerived = nodeId;
     Array.prototype.forEach.call(document.querySelectorAll(".node"), function (button) {
@@ -127,6 +169,7 @@
     var svg = $("edges");
     svg.replaceChildren();
     state.connections.forEach(function (edge) {
+      if (state.view !== "create" && state.view !== "all") return;
       var from = state.positions[edge.source], to = state.positions[edge.target];
       if (!from || !to) return;
       var line = document.createElementNS(svgNS, "line");
@@ -246,6 +289,7 @@
       var pos = state.derivedPositions[item.id]; if (!pos) return;
       var node = document.createElement("button"); node.type = "button";
       node.className = "node derived"; node.dataset.itemId = item.id; node.dataset.kind = item.kind;
+      if (item.impact_role) node.dataset.impact = item.impact_role;
       node.style.left = pos.x + "px"; node.style.top = pos.y + "px";
       node.setAttribute("aria-pressed", String(item.id === state.selectedDerived));
       node.setAttribute("aria-label", "Read only " + item.kind + ": " + item.title + ". " + item.status);
@@ -414,6 +458,7 @@
   $("start").addEventListener("click", function () { newItem("note"); });
   $("fit").addEventListener("click", fit);
   $("show-evidence").addEventListener("click", loadEvidence);
+  $("preview-impact").addEventListener("click", previewImpact);
   $("layer-view").addEventListener("change", function () { state.view = this.value; render(); });
   $("zoom").addEventListener("input", function () { state.zoom = Number(this.value) / 100; transform(); scheduleSave(); });
   $("save").addEventListener("click", saveCurrent);
