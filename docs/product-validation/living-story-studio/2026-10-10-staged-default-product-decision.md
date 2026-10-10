@@ -95,7 +95,7 @@ This is a **thinking aid, not a mandatory score, committee or release approval f
 - [#360](https://github.com/ThorStarlord/auteur/issues/360): exact-head local/browser safety qualification, including inspector editing, save/restart, re-entry, conflict recovery and authority boundaries. This is the **near-term gating responsibility** for Stage B.
 - [#369](https://github.com/ThorStarlord/auteur/issues/369): compare product value and investigate hybrid alternatives **when real outcomes could change a meaningful design decision**. It is no longer a blanket precondition for Stage B.
 - [#318](https://github.com/ThorStarlord/auteur/issues/318), [#310](https://github.com/ThorStarlord/auteur/issues/310): separate six-Chapter Book and host-agent Quick Draft gates remain; do not claim they passed from Studio code review.
-- Original reviewed SHA: \`bd2ba539d2f300941681fa7c7b80ab4765354b79\`; inspected repair candidate SHA: \`a864ea42f230a948b33809553c2f4accfee4859b\`. No real running-app safety PASS has been established in this decision.
+- Original reviewed SHA: `bd2ba539d2f300941681fa7c7b80ab4765354b79`; inspected repair candidate SHA: `a864ea42f230a948b33809553c2f4accfee4859b`. No real running-app safety PASS has been established in this decision.
 
 ## 7. Revisit triggers
 
