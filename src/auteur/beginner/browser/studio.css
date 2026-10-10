@@ -83,3 +83,9 @@ a { color:#2d6242; }
 #book-orientation li { padding:2px 0; }
 .node.derived[data-kind="chapter"] { background:#edf4ed; border-color:#8fac94; }
 .node.derived[data-kind="chapter"][data-impact="source"] { outline:2px solid #659878; }
+
+#find-nodes { width:150px; padding:7px; border:1px solid #c7c4b9; border-radius:7px; }
+.outline { padding:8px 13px; border-top:1px solid #ddd9ce; background:#fbfaf7; max-height:165px; overflow:auto; }
+.outline summary { cursor:pointer; font-size:.82rem; }
+.outline ul { display:flex; flex-wrap:wrap; gap:6px; list-style:none; padding:5px 0; margin:0; }
+.outline li button { font-size:.76rem; }

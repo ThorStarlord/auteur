@@ -19,6 +19,7 @@
         <button type="button" id="add-character">+ Character</button>
         <button type="button" id="add-scene">+ Scene</button>
         <button type="button" id="fit">Fit</button>
+        <label for="find-nodes">Find</label><input id="find-nodes" type="search" placeholder="Find visible nodes" aria-label="Find nodes on the canvas">
         <label for="zoom">Zoom</label><input id="zoom" type="range" min="50" max="150" value="100">
         <label for="layer-view">View</label>
         <select id="layer-view" aria-label="Canvas graph view">
@@ -58,6 +59,7 @@
           <button id="start" type="button">Add your first idea</button>
         </div>
       </div>
+      <details class="outline"><summary>Accessible outline of visible story items</summary><ul id="outline-list"></ul></details>
       <p id="canvas-help" class="help">Choose a node to inspect it. Drag to arrange; arrow keys move a focused node. Connect notes in the inspector. Changes save locally. Export JSON for a portable backup.</p>
     </section>
     <aside id="inspector" aria-label="Selected story item">
@@ -80,6 +82,7 @@
       </div>
       <div id="inspector-fields" hidden>
         <label for="title">Title</label><input id="title" type="text" maxlength="120">
+        <label for="group">Working group (optional)</label><input id="group" maxlength="80" placeholder="e.g. Chapter 1, Characters">
         <label for="kind">Working type</label>
         <select id="kind">
           <option value="note">Free-form idea</option>
