@@ -53,6 +53,7 @@ from .contracts import MutationCommand
 from .persistence import BeginnerConcurrencyError, BeginnerPersistenceError
 from .studio_store import CanvasStore
 from .studio_projection import project_studio_graph
+from .studio_impact import preview_studio_impact
 from .workspace_index import list_workspace_summaries
 from .projections import WorkspaceProjection
 from .continuation import build_contextual_chapter_plan, build_contextual_scene_plans
@@ -522,6 +523,16 @@ class _RequestHandler(BaseHTTPRequestHandler):
                         return
                 except (FileNotFoundError, OSError, RuntimeError) as exc:
                     raise BeginnerRequestError(422, str(exc)) from exc
+            if parts == ["api", "beginner", "studio", "impact"]:
+                artifact = parse_qs(urlparse(self.path).query).get("artifact", [None])[0]
+                if not isinstance(artifact, str) or not artifact or len(artifact) > 120:
+                    raise BeginnerRequestError(400, "artifact query must identify an existing artifact")
+                try:
+                    preview = preview_studio_impact(self.project_root, artifact)
+                except ValueError as exc:
+                    raise BeginnerRequestError(404, str(exc)) from exc
+                self._send_json(200, preview)
+                return
             if parts == ["api", "beginner", "studio", "graph"]:
                 workspace = parse_qs(urlparse(self.path).query).get("workspace", [None])[0]
                 orientation = None
