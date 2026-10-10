@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Auteur — Living Story Studio (prototype)</title>
+  <link rel="stylesheet" href="/studio.css">
+</head>
+<body>
+  <header class="topbar">
+    <a href="/" aria-label="Return to current Auteur Beginner interface">← Auteur</a>
+    <strong>Living Story Studio</strong>
+    <span class="prototype">Experimental canvas · not automatically saved</span>
+  </header>
+  <main class="studio">
+    <section class="workspace" aria-label="Creative story canvas">
+      <nav class="toolbar" aria-label="Canvas controls">
+        <button type="button" id="add-note">+ Idea</button>
+        <button type="button" id="add-character">+ Character</button>
+        <button type="button" id="add-scene">+ Scene</button>
+        <button type="button" id="fit">Fit</button>
+        <label for="zoom">Zoom</label><input id="zoom" type="range" min="50" max="150" value="100">
+        <button type="button" id="download">Export JSON</button>
+        <label class="import-label" for="import">Import JSON</label>
+        <input id="import" type="file" accept="application/json,.json" aria-label="Import a Studio canvas">
+      </nav>
+      <div id="viewport" tabindex="0" role="region" aria-label="Story canvas. Use Add controls to create notes; arrow keys move focused nodes." aria-describedby="canvas-help">
+        <div id="world">
+          <svg id="edges" width="1600" height="1100" aria-hidden="true"></svg>
+          <div id="nodes"></div>
+        </div>
+        <div id="empty-state">
+          <h1>What story do you want to tell?</h1>
+          <p>Start anywhere. Create an idea, character or scene. Nothing becomes accepted story material here.</p>
+          <button id="start" type="button">Add your first idea</button>
+        </div>
+      </div>
+      <p id="canvas-help" class="help">Choose a node to inspect it. Drag to arrange; arrow keys move a focused node. Connect notes in the inspector. Export to preserve this prototype.</p>
+    </section>
+    <aside id="inspector" aria-label="Selected story item">
+      <h2>Story details</h2>
+      <p class="muted" id="inspector-empty">Select or create an item to edit it.</p>
+      <div id="inspector-fields" hidden>
+        <label for="title">Title</label><input id="title" type="text" maxlength="120">
+        <label for="kind">Working type</label>
+        <select id="kind">
+          <option value="note">Free-form idea</option>
+          <option value="character">Character</option>
+          <option value="scene">Scene</option>
+          <option value="place">Place</option>
+          <option value="question">Question</option>
+        </select>
+        <label for="content">Notes / scene text</label><textarea id="content" rows="9" maxlength="20000"></textarea>
+        <button type="button" id="save">Save working note</button>
+        <button type="button" id="write">Open scene editor</button>
+        <h3>Connect to another item</h3>
+        <label for="target">Target</label><select id="target"></select>
+        <label for="relation">Why are they connected? (optional)</label><input id="relation" maxlength="120" placeholder="e.g. knows, suspects, occurs at">
+        <button type="button" id="connect">Connect</button>
+        <div id="connections" aria-live="polite"></div>
+        <button type="button" id="remove" class="danger">Remove working item</button>
+      </div>
+      <p class="muted">Working canvas only. Use the current Auteur workspace for accepted story decisions.</p>
+    </aside>
+  </main>
+  <section id="scene-panel" class="scene-panel" hidden aria-label="Working scene editor">
+    <div class="scene-inner">
+      <div class="scene-top"><h2 id="scene-heading">Working scene</h2><button id="close-scene" type="button">Return to canvas</button></div>
+      <p>Exploratory text only. This editor does not accept canon or submit a generation request.</p>
+      <textarea id="scene-text" rows="18" aria-label="Working scene prose" maxlength="20000"></textarea>
+      <button type="button" id="save-scene">Save working scene</button>
+    </div>
+  </section>
+  <div class="status" id="status" role="status" aria-live="polite">Experimental prototype: export your work to keep it.</div>
+  <script src="/studio.js" defer></script>
+</body>
+</html>
