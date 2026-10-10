@@ -89,3 +89,5 @@ a { color:#2d6242; }
 .outline summary { cursor:pointer; font-size:.82rem; }
 .outline ul { display:flex; flex-wrap:wrap; gap:6px; list-style:none; padding:5px 0; margin:0; }
 .outline li button { font-size:.76rem; }
+
+#canvas-picker { max-width:190px; min-width:120px; padding:7px; border-radius:7px; border:1px solid #c7c4b9; background:white; }
