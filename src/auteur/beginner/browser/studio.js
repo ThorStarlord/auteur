@@ -90,7 +90,8 @@
   function visibleDerived(node) {
     return state.view === "all" || (state.view === "relationships" && node.kind === "character") ||
       (state.view === "lenses" && node.kind === "lens") ||
-      (state.view === "impact" && node.kind === "artifact");
+      (state.view === "impact" && node.kind === "artifact") ||
+      (state.view === "book" && node.kind === "chapter");
   }
   function loadEvidence() {
     var workspace = $("evidence-workspace").value.trim();
@@ -116,6 +117,52 @@
       }).catch(function (error) {
         status("Story evidence unavailable: " + error.message + ". Working notes are unchanged.");
       });
+  }
+  function fillBookList(id, notices, emptyText) {
+    var host = $(id); host.replaceChildren();
+    if (!notices || !notices.length) {
+      var empty = document.createElement("li"); empty.textContent = emptyText; host.appendChild(empty); return;
+    }
+    notices.forEach(function (notice) {
+      var line = document.createElement("li");
+      line.textContent = (notice.chapter_index ? "Chapter " + notice.chapter_index + " · " : "") + notice.summary;
+      host.appendChild(line);
+    });
+  }
+  function loadBook() {
+    status("Reading accepted Book orientation...");
+    fetch("/api/beginner/book/progress").then(apiJson).then(function (book) {
+      if (!state.derived) state.derived = { nodes: [], edges: [], warnings: [] };
+      state.derived.nodes = state.derived.nodes.filter(function (node) { return node.kind !== "chapter"; });
+      state.derived.edges = state.derived.edges.filter(function (edge) { return !edge.id.startsWith("chapter-order:"); });
+      Object.keys(state.derivedPositions).forEach(function (id) { if (id.startsWith("book:chapter:")) delete state.derivedPositions[id]; });
+      var total = Math.max(book.current_chapter || 1, book.planned_chapters || 0, book.accepted_chapters || 0);
+      var visible = Math.min(total, 24);
+      for (var i = 1; i <= visible; i++) {
+        var id = "book:chapter:" + i;
+        var current = i === book.current_chapter;
+        state.derived.nodes.push({ id: id, kind: "chapter", title: "Chapter " + i,
+          detail: current ? book.orientation_reason : "Chapter-order orientation only; inspect accepted history before making changes.",
+          authority: "DERIVED / NOT CANON", source_ref: "book progress, Chapter " + i,
+          status: current ? book.current_chapter_state + " · current" : "position only",
+          impact_role: current ? "source" : "affected" });
+        state.derivedPositions[id] = { x: 115 + ((i - 1) % 4) * 195, y: 90 + Math.floor((i - 1) / 4) * 120 };
+        if (i > 1) state.derived.edges.push({ id: "chapter-order:" + (i - 1) + ":" + i,
+          source: "book:chapter:" + (i - 1), target: id, label: "chapter order",
+          authority: "DERIVED / NOT CANON", source_ref: "book progress" });
+      }
+      $("book-heading").textContent = "Chapter " + book.current_chapter + " · " + book.current_chapter_state;
+      $("book-next-action").textContent = "Next: " + (book.next_story_action || "Continue writing");
+      fillBookList("book-recent", book.recent_changes, "Nothing established yet.");
+      fillBookList("book-pending", book.pending_updates, "No pending updates.");
+      fillBookList("book-attention", book.needs_attention, "Nothing needs attention.");
+      $("book-orientation").hidden = false;
+      state.view = "book"; state.selected = null; state.selectedDerived = null;
+      $("layer-view").value = "book";
+      render();
+      status(total > visible ? "Book view shows the first " + visible + " chapters; later chapters are not displayed yet." :
+        "Book orientation loaded from current project state. It is read-only.");
+    }).catch(function (error) { status("Book orientation unavailable: " + error.message); });
   }
   function previewImpact() {
     var artifact = $("impact-artifact").value.trim();
@@ -202,6 +249,7 @@
   function renderInspector() {
     var source = state.derived && state.derived.nodes.find(function (n) { return n.id === state.selectedDerived; });
     $("source-detail").hidden = !source;
+    $("book-orientation").hidden = state.view !== "book";
     if (source) {
       $("inspector-empty").hidden = true; $("inspector-fields").hidden = true;
       $("source-title").textContent = source.title;
@@ -458,8 +506,9 @@
   $("start").addEventListener("click", function () { newItem("note"); });
   $("fit").addEventListener("click", fit);
   $("show-evidence").addEventListener("click", loadEvidence);
+  $("show-book").addEventListener("click", loadBook);
   $("preview-impact").addEventListener("click", previewImpact);
-  $("layer-view").addEventListener("change", function () { state.view = this.value; render(); });
+  $("layer-view").addEventListener("change", function () { state.view = this.value; if (this.value === "book" && !$("book-heading").textContent.startsWith("Chapter")) { loadBook(); } else { render(); } });
   $("zoom").addEventListener("input", function () { state.zoom = Number(this.value) / 100; transform(); scheduleSave(); });
   $("save").addEventListener("click", saveCurrent);
   $("connect").addEventListener("click", connect);
