@@ -87,6 +87,21 @@
     $("title").focus();
     queueSave(); status("Working item created. Saving locally...");
   }
+  function changedRelationVisible(edge) {
+    var chapter = $("relationship-chapter").value;
+    if (!chapter || !edge.id.startsWith("relation:")) return true;
+    var ids = state.derived && state.derived.relationship_changes && state.derived.relationship_changes[chapter];
+    return Array.isArray(ids) && ids.includes(edge.id.slice("relation:".length));
+  }
+  function updateRelationChapters(graph) {
+    var select = $("relationship-chapter"); select.replaceChildren();
+    var all = document.createElement("option"); all.value = ""; all.textContent = "All declared relations"; select.appendChild(all);
+    Object.keys(graph.relationship_changes || {}).sort().forEach(function (key) {
+      var opt = document.createElement("option"); opt.value = key;
+      opt.textContent = "Changed in " + key.replace("_", " "); select.appendChild(opt);
+    });
+    select.disabled = select.options.length <= 1;
+  }
   function visibleDerived(node) {
     return state.view === "all" || (state.view === "relationships" && node.kind === "character") ||
       (state.view === "lenses" && node.kind === "lens") ||
@@ -103,6 +118,7 @@
     fetch("/api/beginner/studio/graph" + (workspace ? "?workspace=" + encodeURIComponent(workspace) : ""))
       .then(apiJson).then(function (graph) {
         state.derived = graph; state.derivedPositions = {}; state.selectedDerived = null;
+        updateRelationChapters(graph);
         graph.nodes.forEach(function (node, i) {
           var baseX = node.kind === "lens" ? 520 : 380;
           var index = graph.nodes.slice(0, i).filter(function (n) { return n.kind === node.kind; }).length;
@@ -238,7 +254,7 @@
       var from = state.derivedPositions[edge.source], to = state.derivedPositions[edge.target];
       var fromNode = state.derived.nodes.find(function (n) { return n.id === edge.source; });
       var toNode = state.derived.nodes.find(function (n) { return n.id === edge.target; });
-      if (!from || !to || !fromNode || !toNode || !visibleDerived(fromNode) || !visibleDerived(toNode)) return;
+      if (!from || !to || !fromNode || !toNode || !visibleDerived(fromNode) || !visibleDerived(toNode) || !changedRelationVisible(edge)) return;
       var line = document.createElementNS(svgNS, "line");
       line.setAttribute("x1", String(from.x + 82)); line.setAttribute("y1", String(from.y + 33));
       line.setAttribute("x2", String(to.x + 82)); line.setAttribute("y2", String(to.y + 33));
@@ -257,7 +273,7 @@
       $("source-description").textContent = source.detail || "No further detail established";
       $("source-ref").textContent = "Source: " + source.source_ref;
       var links = $("source-links"); links.replaceChildren();
-      state.derived.edges.filter(function (e) { return e.source === source.id || e.target === source.id; }).forEach(function (edge) {
+      state.derived.edges.filter(function (e) { return (e.source === source.id || e.target === source.id) && changedRelationVisible(e); }).forEach(function (edge) {
         var otherId = edge.source === source.id ? edge.target : edge.source;
         var other = state.derived.nodes.find(function (n) { return n.id === otherId; });
         if (!other) return;
@@ -506,6 +522,7 @@
   $("start").addEventListener("click", function () { newItem("note"); });
   $("fit").addEventListener("click", fit);
   $("show-evidence").addEventListener("click", loadEvidence);
+  $("relationship-chapter").addEventListener("change", function () { render(); status(this.value ? "Showing relationships with recorded changes in " + this.value + ". Current relation values are not historical snapshots." : "Showing all declared relationships."); });
   $("show-book").addEventListener("click", loadBook);
   $("preview-impact").addEventListener("click", previewImpact);
   $("layer-view").addEventListener("change", function () { state.view = this.value; if (this.value === "book" && !$("book-heading").textContent.startsWith("Chapter")) { loadBook(); } else { render(); } });

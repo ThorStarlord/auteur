@@ -43,3 +43,19 @@ def test_story_lenses_have_working_authority_and_source_identity(tmp_path):
     assert graph["nodes"][1]["status"] == "unestablished"
     assert graph["nodes"][0]["authority"] == "DERIVED / NOT CANON"
     assert graph["edges"][0]["target"] == "lens:reader_experience"
+
+
+def test_relationship_change_index_is_not_a_historical_state_claim(tmp_path):
+    (tmp_path / "relations.yaml").write_text(
+        "relations:\n  - id: bond\n    from_character: Beatrice\n    to_character: Vance\n",
+        encoding="utf-8",
+    )
+    chapter = tmp_path / "chapters" / "01"
+    chapter.mkdir(parents=True)
+    (chapter / "relation_changes.yaml").write_text(
+        "chapter: 1\nrelation_changes:\n  - relation: bond\n    trust: 10\n",
+        encoding="utf-8",
+    )
+    projection = project_studio_graph(tmp_path)
+    assert projection["relationship_changes"] == {"chapter_01": ["bond"]}
+    assert "historical_state" not in projection
