@@ -28,7 +28,7 @@ from dataclasses import asdict, dataclass, is_dataclass
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, Callable
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
 
 from pydantic import ValidationError
 
@@ -52,6 +52,7 @@ from .discovery import (
 from .contracts import MutationCommand
 from .persistence import BeginnerConcurrencyError, BeginnerPersistenceError
 from .studio_store import CanvasStore
+from .studio_projection import project_studio_graph
 from .workspace_index import list_workspace_summaries
 from .projections import WorkspaceProjection
 from .continuation import build_contextual_chapter_plan, build_contextual_scene_plans
@@ -521,6 +522,22 @@ class _RequestHandler(BaseHTTPRequestHandler):
                         return
                 except (FileNotFoundError, OSError, RuntimeError) as exc:
                     raise BeginnerRequestError(422, str(exc)) from exc
+            if parts == ["api", "beginner", "studio", "graph"]:
+                workspace = parse_qs(urlparse(self.path).query).get("workspace", [None])[0]
+                orientation = None
+                session_version = None
+                if workspace:
+                    try:
+                        current = self._app_for(workspace).projection()
+                    except (BeginnerPersistenceError, ValueError) as exc:
+                        raise BeginnerRequestError(404, "story workspace not found") from exc
+                    session_version = current.session_version
+                    orientation = None if current.story_orientation is None else current.story_orientation.model_dump(mode="json")
+                self._send_json(200, project_studio_graph(
+                    self.project_root, workspace_id=workspace,
+                    session_version=session_version, story_orientation=orientation,
+                ))
+                return
             if len(parts) == 5 and parts[:4] == ["api", "beginner", "studio", "canvases"]:
                 try:
                     canvas = CanvasStore(self.project_root, parts[4]).load()
