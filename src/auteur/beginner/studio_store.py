@@ -50,6 +50,14 @@ class CanvasPosition(BaseModel):
     y: float = Field(ge=0, le=1040)
 
 
+class CanvasViewport(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    pan_x: float = Field(default=0, ge=-5000, le=5000)
+    pan_y: float = Field(default=0, ge=-5000, le=5000)
+    zoom: float = Field(default=1, ge=0.5, le=1.5)
+
+
 class DeletedItem(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -67,6 +75,7 @@ class WorkingCanvas(BaseModel):
     items: list[CanvasItem] = Field(default_factory=list, max_length=200)
     connections: list[CanvasConnection] = Field(default_factory=list, max_length=500)
     positions: dict[str, CanvasPosition] = Field(default_factory=dict)
+    viewport: CanvasViewport = Field(default_factory=CanvasViewport)
     deleted: dict[str, DeletedItem] = Field(default_factory=dict)
     command_hashes: dict[str, str] = Field(default_factory=dict)
 
@@ -122,7 +131,7 @@ class CanvasStore:
 
     def apply(self, action: str, *, expected_revision: int, command_id: str, payload: dict) -> WorkingCanvas:
         if action not in {"create-item", "update-item", "delete-item", "restore-item",
-                          "connect", "disconnect", "move-item"}:
+                          "connect", "disconnect", "move-item", "replace-working-document"}:
             raise ValueError("unsupported working canvas command")
         _safe_segment(command_id, "command_id")
         if len(command_id) > 80 or not isinstance(payload, dict):
@@ -143,7 +152,14 @@ class CanvasStore:
             raw = current.model_dump(mode="python")
             items, edges, positions, deleted = raw["items"], raw["connections"], raw["positions"], raw["deleted"]
             active = {item["id"] for item in items}
-            if action == "create-item":
+            if action == "replace-working-document":
+                if set(payload) != {"items", "connections", "positions", "viewport"}:
+                    raise ValueError("working document replacement requires exact known fields")
+                raw["items"] = payload["items"]
+                raw["connections"] = payload["connections"]
+                raw["positions"] = payload["positions"]
+                raw["viewport"] = CanvasViewport.model_validate(payload["viewport"], strict=True).model_dump()
+            elif action == "create-item":
                 item = CanvasItem.model_validate(payload["item"], strict=True)
                 position = CanvasPosition.model_validate(payload["position"], strict=True)
                 if item.id in active or item.id in deleted:
