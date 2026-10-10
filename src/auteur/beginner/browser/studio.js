@@ -441,6 +441,26 @@
     });
     drawEdges(); renderInspector(); renderOutline(); transform();
   }
+  // Keep the inspector and the working-document model in sync before focus changes.
+  // This is working author material only; it cannot accept story canon.
+  function captureInspectorFields() {
+    var item = selected(); if (!item || !remote.ready) return;
+    item.title = $("title").value.trim() || "Untitled";
+    item.kind = $("kind").value;
+    item.content = $("content").value;
+    item.group = $("group").value.trim();
+    $("write").hidden = item.kind !== "scene";
+    Array.prototype.forEach.call(document.querySelectorAll(".node"), function (node) {
+      if (node.dataset.itemId !== item.id) return;
+      var label = node.querySelector(".label");
+      if (label) label.textContent = item.title;
+      node.dataset.kind = item.kind;
+      node.setAttribute("aria-label", item.kind + ": " + item.title + ". Arrow keys move this item.");
+    });
+    scheduleSave();
+    status(remote.failed ? "SAVE FAILED: export your working notes before leaving." :
+      "Working note changed. Saving locally...");
+  }
   function saveCurrent() {
     var item = selected(); if (!item) return;
     item.title = $("title").value.trim() || "Untitled";
@@ -611,6 +631,10 @@
   $("layer-view").addEventListener("change", function () { state.view = this.value; if (this.value === "book" && !$("book-heading").textContent.startsWith("Chapter")) { loadBook(); } else { render(); } });
   $("zoom").addEventListener("input", function () { state.zoom = Number(this.value) / 100; transform(); scheduleSave(); });
   $("save").addEventListener("click", saveCurrent);
+  ["title", "kind", "content", "group"].forEach(function (id) {
+    $(id).addEventListener("input", captureInspectorFields);
+    $(id).addEventListener("change", captureInspectorFields);
+  });
   $("connect").addEventListener("click", connect);
   $("write").addEventListener("click", sceneOpen);
   $("close-scene").addEventListener("click", function () { $("scene-panel").hidden = true; });
