@@ -12,7 +12,7 @@ The first Auteur surface is a spatial story canvas. An author can record an idea
 
 A writer can reach prose directly from a scene. Graph-based explanations then make relationships, continuity, and change consequences visible when useful. A focused editor remains preferable to miniature prose nodes.
 
-The design is not a mandate to replace the current Beginner UI before a comparative workflow establishes value. Ship initially as an opt-in, reversible Studio. The current Browser and CLI remain supported.
+**Product decision update (2026-10-10):** Graph-first Studio is the **selected target default**, superseding the previous blanket opt-in-until-comparative-value policy. After essential real-browser/local safety checks, promote Studio as a reversible **development default**, then qualify early-user beta separately. A broad release remains a distinct decision. The previous Beginner Browser and CLI remain supported as fallbacks. See [Staged Default and Fair-Baseline Decision](../product-validation/living-story-studio/2026-10-10-staged-default-product-decision.md).
 
 ## 2. Owner-selected interaction decisions
 
@@ -29,7 +29,7 @@ The design is not a mandate to replace the current Beginner UI before a comparat
 | Scaling | Focused subgraphs, search, grouping and semantic zoom, not an all-nodes hairball |
 | Interaction | Pointer plus keyboard/assistive-technology alternatives |
 | Backend | Current local HTTP API and existing narrative owners |
-| Rollout | Opt-in feature/route; preserve fallback; cut over only after qualification |
+| Rollout | Selected target default; promote to reversible development default after essential safety qualification; retain fallback; beta/broad gates remain distinct |
 
 ## 3. Author mental model
 
@@ -122,7 +122,7 @@ The graph does not calculate story truth from screen coordinates or edge color.
 
 **P5 — Book scale:** Chapter/plot grouping, time-aware relations, focused subgraphs, Book orientation and meaningful next action.
 
-**P6 — Qualification and cutover:** compare against current Beginner UI and Markdown/LLM where available; test authors' comprehension/value separately from mechanics; promote Studio to default only after evidence and release approval.
+**P6 — Staged adoption:** distinguish product-owner-selected direction, essential safety-verified development default, everyday-qualified beta default, and separately authorized broad release. Evaluate comparative author value when it could change the decision, but do not treat a population preference study as mandatory for reversible development adoption. Preserve fallback and explicit authority boundaries.
 
 A completion claim for an earlier stage does not authorize speculative construction of all later stages.
 
@@ -149,10 +149,10 @@ Use local-first tests by default; do not assume GitHub Actions credits. Distingu
 
 The active F2/X3 controlled six-Chapter evidence mission (#318), host-agent Quick Draft dogfood (#310), and protected owner-only governance work (#338) retain their separate authorities. A graph prototype must not claim to close, bypass or preempt those gates.
 
-**Promotion law:** graph-first preferred product direction != tested usability != integrated implementation != qualified default != release.
+**Promotion law (revised 2026-10-10):** selected product direction != executable safety PASS != development default != early-user beta != broadly qualified release. Safety checks are mandatory for author work; universal UX superiority is not a prerequisite for a reversible development default.
 
 ## 12. Stop and escalation boundaries
 
 Stop or narrow scope if meaningful node edits cannot be persisted safely, if Studio introduces independent canonical authority, if a provider/environment cannot fulfill the existing Quick Draft handoff, if a new data model is not warranted, or if a real author task is made worse by mandatory node manipulation.
 
-Choose lowest owning repair before adding complexity. Preserve an inspectable current Browser fallback until author benefit and accessibility are substantiated.
+Choose the lowest owning repair before adding complexity. Preserve a usable current Browser fallback through reversible development/beta adoption; decide retirement later against observed benefits, accessibility and migration evidence. Do not treat the old UI as the presumed mature UX standard.
