@@ -48,14 +48,14 @@ class CanvasConnection(BaseModel):
 
 
 class CanvasPosition(BaseModel):
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    model_config = ConfigDict(extra="forbid", frozen=True, allow_inf_nan=False)
 
     x: float = Field(ge=0, le=1400)
     y: float = Field(ge=0, le=1040)
 
 
 class CanvasViewport(BaseModel):
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    model_config = ConfigDict(extra="forbid", frozen=True, allow_inf_nan=False)
 
     pan_x: float = Field(default=0, ge=-5000, le=5000)
     pan_y: float = Field(default=0, ge=-5000, le=5000)
