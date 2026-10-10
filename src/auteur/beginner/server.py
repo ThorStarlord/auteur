@@ -393,6 +393,9 @@ class _RequestHandler(BaseHTTPRequestHandler):
         "/index.html": "index.html",
         "/app.js": "app.js",
         "/styles.css": "styles.css",
+        "/studio.html": "studio.html",
+        "/studio.js": "studio.js",
+        "/studio.css": "studio.css",
     }
 
     def log_message(self, format: str, *args: Any) -> None:
