@@ -32,6 +32,7 @@
       $("retry-save").hidden = false;
       status("SAVE FAILED: " + error.message + ". Do not reload; export your work before recovery.");
     });
+    return remote.queue;
   }
   function scheduleSave() {
     clearTimeout(remote.timer);
@@ -189,14 +190,83 @@
     if (!exists) state.connections.push({ id: id("edge"), source: item.id, target: target, label: $("relation").value.trim() });
     $("relation").value = ""; render(); queueSave(); status("Working association created. It does not alter accepted relationships.");
   }
+  function captureScene() {
+    var item = selected(); if (!item || item.kind !== "scene") return;
+    item.content = $("scene-text").value;
+    item.scene_premise = $("scene-premise").value;
+    item.scene_intent = $("scene-intent").value;
+  }
+  function draftStatus(projection) {
+    var draft = projection.draft || {};
+    var stateName = draft.status || "unknown";
+    $("refresh-draft").hidden = false;
+    $("generation-status").textContent =
+      stateName === "awaiting_host_agent" ? "Request staged for the active coding agent. Check again after it fulfills the request." :
+      stateName === "generating" ? "Generation is in progress." :
+      stateName === "generation_failed" ? "Generation failed: " + (draft.error || "unknown error") :
+      "Quick Draft status: " + stateName;
+    if (projection.draft_text) {
+      $("generation-result").hidden = false;
+      $("generated-prose").value = projection.draft_text;
+      $("open-quick-draft").href = "/?quick_draft=" + encodeURIComponent(projection.session_id);
+    } else {
+      $("generation-result").hidden = true;
+      $("generated-prose").value = "";
+    }
+  }
+  function refreshDraft() {
+    var item = selected();
+    if (!item || !item.quick_draft_session_id) return;
+    fetch("/api/beginner/quick-draft/" + encodeURIComponent(item.quick_draft_session_id))
+      .then(apiJson).then(draftStatus)
+      .catch(function (error) { $("generation-status").textContent = "Could not check Quick Draft: " + error.message; });
+  }
+  function generateScene() {
+    var item = selected();
+    if (!item || item.kind !== "scene" || remote.failed || !remote.ready) return;
+    captureScene();
+    var premise = item.scene_premise.trim(), intent = item.scene_intent.trim();
+    if (!premise || !intent) {
+      $("generation-status").textContent = "Enter both a working story premise and a scene intent before generation.";
+      return;
+    }
+    $("generate-scene").disabled = true;
+    $("generation-status").textContent = "Preserving scene intent before staging host-agent request...";
+    Promise.resolve(queueSave()).then(function () {
+      if (remote.failed) throw new Error("The working canvas was not saved.");
+      return fetch("/api/beginner/quick-draft", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ premise: premise, first_scene: intent })
+      }).then(apiJson);
+    }).then(function (projection) {
+      item.quick_draft_session_id = projection.session_id;
+      queueSave(); draftStatus(projection);
+      status("Host-agent Quick Draft session linked to working scene. No story acceptance.");
+    }).catch(function (error) {
+      $("generation-status").textContent = "Quick Draft request failed: " + error.message;
+    }).finally(function () { $("generate-scene").disabled = false; });
+  }
+  function useGenerated() {
+    var item = selected(); if (!item) return;
+    var prose = $("generated-prose").value;
+    if (!prose) return;
+    item.content = prose; $("scene-text").value = prose;
+    queueSave(); status("Working candidate copied into scene. Nothing accepted.");
+  }
   function sceneOpen() {
     var item = selected(); if (!item) return;
     saveCurrent(); $("scene-heading").textContent = item.title; $("scene-text").value = item.content;
+    $("scene-premise").value = item.scene_premise || "";
+    $("scene-intent").value = item.scene_intent || "";
+    $("generation-result").hidden = true;
+    $("generation-status").textContent = item.quick_draft_session_id ? "A prior Quick Draft request is linked to this scene." : "Prose can be written manually without generation.";
+    $("refresh-draft").hidden = !item.quick_draft_session_id;
     $("scene-panel").hidden = false; $("scene-text").focus();
+    if (item.quick_draft_session_id) refreshDraft();
   }
   function sceneSave() {
     var item = selected(); if (!item) return;
-    item.content = $("scene-text").value; $("content").value = item.content;
+    captureScene(); $("content").value = item.content;
     $("scene-panel").hidden = true; render(); queueSave();
     status("Working prose updated. This editor does not submit generation or acceptance.");
   }
@@ -215,7 +285,12 @@
     data.items.forEach(function (item) {
       if (!item || typeof item.id !== "string" || !/^[a-z0-9_-]{1,80}$/.test(item.id) || seen.has(item.id) ||
           typeof item.title !== "string" || item.title.length > 120 || typeof item.content !== "string" || item.content.length > 20000 ||
-          !["note", "character", "scene", "place", "question"].includes(item.kind)) throw new Error("Invalid canvas item");
+          !["note", "character", "scene", "place", "question"].includes(item.kind) ||
+          ["scene_premise", "scene_intent"].some(function (field) {
+            return item[field] != null && (typeof item[field] !== "string" || item[field].length > 4000);
+          }) || (item.quick_draft_session_id != null &&
+            (typeof item.quick_draft_session_id !== "string" || item.quick_draft_session_id.length > 120))
+      ) throw new Error("Invalid canvas item");
       seen.add(item.id);
       var pos = data.positions[item.id];
       if (!pos || !Number.isFinite(pos.x) || !Number.isFinite(pos.y) || pos.x < 0 || pos.x > 1400 || pos.y < 0 || pos.y > 1040) throw new Error("Invalid canvas layout");
@@ -266,6 +341,12 @@
   $("write").addEventListener("click", sceneOpen);
   $("close-scene").addEventListener("click", function () { $("scene-panel").hidden = true; });
   $("save-scene").addEventListener("click", sceneSave);
+  $("generate-scene").addEventListener("click", generateScene);
+  $("refresh-draft").addEventListener("click", refreshDraft);
+  $("use-generated").addEventListener("click", useGenerated);
+  ["scene-premise", "scene-intent", "scene-text"].forEach(function (id) {
+    $(id).addEventListener("input", function () { captureScene(); scheduleSave(); });
+  });
   $("download").addEventListener("click", exportCanvas);
   $("import").addEventListener("change", importCanvas);
   $("remove").addEventListener("click", removeCurrent);

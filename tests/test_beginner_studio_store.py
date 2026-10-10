@@ -112,3 +112,22 @@ def test_invalid_full_working_document_never_mutates(tmp_path):
             "viewport": {"pan_x": 0, "pan_y": 0, "zoom": 1},
         })
     assert store.load().revision == 0
+
+
+def test_scene_provisional_intent_and_session_reference_survive_restart(tmp_path):
+    store = CanvasStore(tmp_path, "scene-work")
+    store.create()
+    scene = {
+        "id": "scene-one", "title": "Opening", "kind": "scene", "content": "Draft prose",
+        "scene_premise": "An investigator questions a suspect.",
+        "scene_intent": "The suspect reveals an impossible clue.",
+        "quick_draft_session_id": "session-example",
+    }
+    updated = mutate(store, 0, "scene-create", "create-item", {
+        "item": scene, "position": {"x": 10, "y": 11}
+    })
+    assert updated.revision == 1
+    reopened = CanvasStore(tmp_path, "scene-work").load()
+    assert reopened.items[0].scene_intent == scene["scene_intent"]
+    assert reopened.items[0].quick_draft_session_id == "session-example"
+    assert not (tmp_path / "story_identity.yaml").exists()
