@@ -93,3 +93,12 @@ Review decisions were executed within the bounded non-protected repository envel
 - **Qualification handoff:** [#360](https://github.com/ThorStarlord/auteur/issues/360) now contains an exact-repair-head comment and needs an actual runnable checkout. [#369](https://github.com/ThorStarlord/auteur/issues/369) separately owns comparative graph-first/hybrid/Beginner author-value evidence.
 
 **Reconciled outcome:** R01/R02 have **source-level repairs with narrow simulated control-path evidence**, not verified closure. R03–R09 remain under their stated product or architecture evidence ceilings. Keep the full Studio + review + repair stack as **draft PRs**; no main merge, default promotion, or release is claimed.
+
+
+## Superseding owner product decision — 2026-10-10
+
+**Historical review verdict above remains an evidence record, not current product selection.** The owner later identified an unfair incumbent burden: existing Beginner was treated as presumptively good UX because implemented first. See [Staged Default and Fair-Baseline Decision](2026-10-10-staged-default-product-decision.md).
+
+**Current selected direction:** graph-first Studio is the **target default**. Once essential real-browser/local work-preservation and authority-safety paths are verified, favor a reversible **development default** with legacy fallback; require appropriate everyday reliability for early-user beta and stronger evidence/authority for broad release. Comparative human validation remains valuable but is not a blanket Stage-B veto. This does **not** change the current missing runtime qualification or authorize protected merge/release.
+
+Learning is assigned to the **decision process** — incumbent proxy, asymmetric evidence requirements, conflation of selection/safety/release, and omitted value of reversible learning — rather than to individual blame. Preserve provenance of the previous verdict and its unresolved technical findings.
