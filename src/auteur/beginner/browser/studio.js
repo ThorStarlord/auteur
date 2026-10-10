@@ -52,21 +52,81 @@
     state.deleted = doc.deleted || {}; showRecoveryAction();
     render(); status("Working canvas loaded · saved locally · revision " + remote.revision);
   }
-  function openRemote() {
+  function canvasUrl(canvasId) {
     var params = new URLSearchParams(window.location.search);
-    var canvas = params.get("canvas");
-    if (!canvas || !/^[a-z0-9][a-z0-9_-]{0,79}$/.test(canvas)) {
-      canvas = id("canvas"); params.set("canvas", canvas);
-      window.history.replaceState({}, "", window.location.pathname + "?" + params.toString());
-    }
-    remote.canvasId = canvas;
-    fetch("/api/beginner/studio/canvases", {
+    params.set("canvas", canvasId);
+    return "/studio.html?" + params.toString();
+  }
+  function listCanvasChoices() {
+    return fetch("/api/beginner/studio/canvases").then(apiJson).then(function (body) {
+      var canvases = body.canvases || [], picker = $("canvas-picker");
+      picker.replaceChildren();
+      canvases.forEach(function (entry) {
+        var option = document.createElement("option");
+        option.value = entry.canvas_id;
+        option.textContent = entry.title + (entry.state === "ready" ? " · " + entry.item_count + " items" : " · needs recovery");
+        option.disabled = entry.state !== "ready";
+        picker.appendChild(option);
+      });
+      picker.disabled = !canvases.some(function (entry) { return entry.state === "ready"; });
+      if (remote.canvasId) picker.value = remote.canvasId;
+      return canvases;
+    });
+  }
+  function activateCanvas(canvasId) {
+    remote.canvasId = canvasId;
+    window.history.replaceState({}, "", canvasUrl(canvasId));
+    return fetch("/api/beginner/studio/canvases", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ canvas_id: canvas })
-    }).then(apiJson).then(loadRemote).catch(function (error) {
+      body: JSON.stringify({ canvas_id: canvasId })
+    }).then(apiJson).then(function (doc) {
+      loadRemote(doc);
+      return listCanvasChoices();
+    }).catch(function (error) {
+      remote.failed = true; $("retry-save").hidden = false;
+      status("Cannot open working canvas: " + error.message + ". Do not overwrite earlier work.");
+    });
+  }
+  function navigateCanvas(canvasId) {
+    if (!/^[a-z0-9][a-z0-9_-]{0,79}$/.test(canvasId)) {
+      status("Invalid working canvas identifier."); return;
+    }
+    if (!remote.ready) { window.location.assign(canvasUrl(canvasId)); return; }
+    if (remote.failed) { status("Unsaved changes remain. Export a backup before switching canvases."); return; }
+    // A pending edit must finish before navigation replaces this document.
+    if (remote.timer !== null) {
+      clearTimeout(remote.timer); remote.timer = null; queueSave();
+    }
+    $("canvas-picker").disabled = true;
+    Promise.resolve(remote.queue).then(function () {
+      if (remote.failed) throw new Error("Working changes were not saved. Export a backup before leaving.");
+      window.location.assign(canvasUrl(canvasId));
+    }).catch(function (error) {
+      $("canvas-picker").disabled = false;
+      status("Cannot switch canvases safely: " + error.message);
+    });
+  }
+  function openRemote() {
+    var canvas = new URLSearchParams(window.location.search).get("canvas");
+    if (canvas) {
+      if (!/^[a-z0-9][a-z0-9_-]{0,79}$/.test(canvas)) {
+        remote.failed = true;
+        status("Invalid canvas link. Return to Studio Home or use New canvas."); return;
+      }
+      activateCanvas(canvas); return;
+    }
+    // Bare /studio.html reopens recent work instead of silently making a new
+    // empty canvas every time the author returns from Home.
+    listCanvasChoices().then(function (canvases) {
+      var recent = canvases.find(function (entry) { return entry.state === "ready"; });
+      if (recent) activateCanvas(recent.canvas_id);
+      else if (canvases.length) {
+        remote.failed = true;
+        status("Saved canvases need recovery. No new canvas was silently created. Choose New canvas to start fresh.");
+      } else activateCanvas(id("canvas"));
+    }).catch(function (error) {
       remote.failed = true;
-      $("retry-save").hidden = false;
-      status("Cannot open local canvas: " + error.message + ". Editing is disabled.");
+      status("Cannot check existing canvases: " + error.message + ". No new canvas was created.");
     });
   }
   function restoreDeleted() {
@@ -617,6 +677,10 @@
       state.items.push(old.item); state.positions[old.item.id] = old.pos;
       state.connections.push.apply(state.connections, old.links); state.selected = old.item.id; render(); queueSave();
     }
+  });
+  $("new-canvas").addEventListener("click", function () { navigateCanvas(id("canvas")); });
+  $("canvas-picker").addEventListener("change", function () {
+    if (this.value && this.value !== remote.canvasId) navigateCanvas(this.value);
   });
   $("add-note").addEventListener("click", function () { newItem("note"); });
   $("add-character").addEventListener("click", function () { newItem("character"); });

@@ -51,7 +51,7 @@ from .discovery import (
 )
 from .contracts import MutationCommand
 from .persistence import BeginnerConcurrencyError, BeginnerPersistenceError
-from .studio_store import CanvasStore
+from .studio_store import CanvasStore, list_canvas_summaries
 from .studio_projection import project_studio_graph
 from .studio_impact import preview_studio_impact
 from .workspace_index import list_workspace_summaries
@@ -548,6 +548,9 @@ class _RequestHandler(BaseHTTPRequestHandler):
                     self.project_root, workspace_id=workspace,
                     session_version=session_version, story_orientation=orientation,
                 ))
+                return
+            if parts == ["api", "beginner", "studio", "canvases"]:
+                self._send_json(200, {"canvases": list_canvas_summaries(self.project_root)})
                 return
             if len(parts) == 5 and parts[:4] == ["api", "beginner", "studio", "canvases"]:
                 try:

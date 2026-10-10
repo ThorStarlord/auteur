@@ -242,3 +242,36 @@ class CanvasStore:
             updated = WorkingCanvas.model_validate(raw, strict=True)
             _atomic_write(self._path("canvas.json"), updated.model_dump_json())
             return updated
+
+
+def list_canvas_summaries(project_root: Path) -> list[dict]:
+    """Recent local noncanonical canvases; corrupt documents remain visible."""
+    root = Path(project_root).resolve()
+    base = root / ".auteur" / "beginner" / "studio" / "canvases"
+    if not base.is_dir():
+        return []
+    summaries: list[dict] = []
+    for path in base.iterdir():
+        if not path.is_dir() or path.is_symlink():
+            continue
+        try:
+            canvas_store = CanvasStore(root, path.name)
+        except (OSError, ValueError, BeginnerPersistenceError):
+            continue
+        try:
+            document = canvas_store.load()
+            modified_ns = canvas_store._path("canvas.json").stat().st_mtime_ns
+            summaries.append({
+                "canvas_id": document.canvas_id,
+                "title": document.items[0].title[:80] if document.items else "Untitled working canvas",
+                "item_count": len(document.items), "revision": document.revision,
+                "state": "ready", "modified_ns": modified_ns,
+            })
+        except (OSError, ValueError, BeginnerPersistenceError):
+            # A damaged canvas is still an existing document, not a reason to
+            # silently create an apparently empty replacement.
+            summaries.append({
+                "canvas_id": canvas_store.canvas_id, "title": "Working canvas needs recovery",
+                "item_count": 0, "revision": None, "state": "unavailable", "modified_ns": 0,
+            })
+    return sorted(summaries, key=lambda entry: (-entry["modified_ns"], entry["canvas_id"]))
