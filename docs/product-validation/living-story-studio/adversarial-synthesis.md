@@ -82,3 +82,14 @@ These findings are not equally urgent. R01 is actual work preservation; R02 affe
 - **Overall:** **REPAIR THE NARROW VERIFIED BOUNDARY, THEN VERIFY AND COMPARE**.
 
 It is not proof that graph-first is wrong; it is proof that graph-first is not yet earned as the default. It is not a longer backlog; it is a bounded next decision.
+
+
+## Post-synthesis execution addendum — 2026-10-10
+
+Review decisions were executed within the bounded non-protected repository envelope **after** separate review reports and synthesis were committed.
+
+- **LSS-R01:** [PR #367](https://github.com/ThorStarlord/auteur/pull/367), SHA \`1c77477226556f78fdd29d3b4536e5017a982889\`: inspector input/change captures note text, title, type, and working group before the user navigates. Extracted original handlers exercised under a minimal stub now retain the typed content; no live Browser pass claimed.
+- **LSS-R02:** [PR #368](https://github.com/ThorStarlord/auteur/pull/368), SHA \`a864ea42f230a948b33809553c2f4accfee4859b\`: explicit local canvas list/selector/New action; bare Studio link uses most recent available canvas; switches await pending saves. An isolated startup-function test with stubbed fetch chose the existing \`saved-1\` canvas and minted zero IDs. No real HTTP/Browser pass claimed.
+- **Qualification handoff:** [#360](https://github.com/ThorStarlord/auteur/issues/360) now contains an exact-repair-head comment and needs an actual runnable checkout. [#369](https://github.com/ThorStarlord/auteur/issues/369) separately owns comparative graph-first/hybrid/Beginner author-value evidence.
+
+**Reconciled outcome:** R01/R02 have **source-level repairs with narrow simulated control-path evidence**, not verified closure. R03–R09 remain under their stated product or architecture evidence ceilings. Keep the full Studio + review + repair stack as **draft PRs**; no main merge, default promotion, or release is claimed.
