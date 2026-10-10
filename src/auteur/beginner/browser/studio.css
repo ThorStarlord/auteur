@@ -56,3 +56,15 @@ a { color:#2d6242; }
 .status { position:fixed; bottom:0; left:0; right:0; padding:8px 13px; min-height:35px; background:#e9efe9; border-top:1px solid #c4d7c5; font-size:.8rem; z-index:5; }
 @media(max-width:800px) { .studio { display:flex; flex-direction:column; } #viewport { min-height:380px; } #inspector { border-left:0; border-top:1px solid #ddd; max-height:none; } .prototype { display:none; } .scene-panel { padding:10px; } }
 @media(prefers-reduced-motion:reduce) { * { scroll-behavior:auto !important; transition:none !important; animation:none !important; } }
+
+/* Source-bound, read-only graph projection: never draggable or canonical by itself. */
+#layer-view,#evidence-workspace { padding:7px 8px; border:1px solid #c7c4b9; border-radius:7px; }
+#evidence-workspace { width:186px; }
+.node.derived { border-style:dashed; background:#f2f4fb; border-color:#8098b5; cursor:pointer; }
+.node.derived[data-kind="character"] { border-color:#ad95cb; background:#f1eafa; }
+.node.derived .type { color:#465b7a; }
+#source-detail[hidden] { display:none; }
+#source-detail { background:#f4f6f9; border:1px solid #d9e0e8; border-radius:8px; padding:10px; font-size:.85rem; }
+#source-detail h3 { margin-top:0; }
+#source-ref { overflow-wrap:anywhere; color:#646e7a; font-size:.75rem; }
+#source-links p { font-size:.78rem; margin:5px 0; }
