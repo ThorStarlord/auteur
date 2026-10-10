@@ -51,6 +51,7 @@ from .discovery import (
 )
 from .contracts import MutationCommand
 from .persistence import BeginnerConcurrencyError, BeginnerPersistenceError
+from .studio_store import CanvasStore
 from .workspace_index import list_workspace_summaries
 from .projections import WorkspaceProjection
 from .continuation import build_contextual_chapter_plan, build_contextual_scene_plans
@@ -520,6 +521,13 @@ class _RequestHandler(BaseHTTPRequestHandler):
                         return
                 except (FileNotFoundError, OSError, RuntimeError) as exc:
                     raise BeginnerRequestError(422, str(exc)) from exc
+            if len(parts) == 5 and parts[:4] == ["api", "beginner", "studio", "canvases"]:
+                try:
+                    canvas = CanvasStore(self.project_root, parts[4]).load()
+                except FileNotFoundError as exc:
+                    raise BeginnerRequestError(404, "working canvas not found") from exc
+                self._send_json(200, canvas.model_dump(mode="json"))
+                return
             # GET /api/beginner/workspaces/<workspace_id>
             if len(parts) == 4 and parts[:3] == ["api", "beginner", "workspaces"]:
                 workspace_id = parts[3]
@@ -537,6 +545,31 @@ class _RequestHandler(BaseHTTPRequestHandler):
         path = urlparse(self.path).path.rstrip("/") or "/"
         try:
             parts = [part for part in path.split("/") if part]
+            if parts == ["api", "beginner", "studio", "canvases"]:
+                payload = self._read_json()
+                canvas_id = payload.get("canvas_id")
+                if not isinstance(canvas_id, str):
+                    raise BeginnerRequestError(400, "canvas_id must be a string")
+                canvas = CanvasStore(self.project_root, canvas_id).create()
+                self._send_json(201, canvas.model_dump(mode="json"))
+                return
+            if len(parts) == 7 and parts[:4] == ["api", "beginner", "studio", "canvases"] and parts[5] == "commands":
+                payload = self._read_json()
+                if type(payload.get("expected_revision")) is not int:
+                    raise BeginnerRequestError(400, "expected_revision must be an integer")
+                if not isinstance(payload.get("command_id"), str):
+                    raise BeginnerRequestError(400, "command_id must be a string")
+                if not isinstance(payload.get("payload"), dict):
+                    raise BeginnerRequestError(400, "payload must be an object")
+                try:
+                    canvas = CanvasStore(self.project_root, parts[4]).apply(
+                        parts[6], expected_revision=payload["expected_revision"],
+                        command_id=payload["command_id"], payload=payload["payload"],
+                    )
+                except FileNotFoundError as exc:
+                    raise BeginnerRequestError(404, "working canvas not found") from exc
+                self._send_json(200, canvas.model_dump(mode="json"))
+                return
             if parts == ["api", "beginner", "quick-draft"]:
                 payload = self._read_json()
                 premise = payload.get("premise")
