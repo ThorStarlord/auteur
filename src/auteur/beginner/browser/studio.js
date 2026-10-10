@@ -75,10 +75,44 @@
   function status(message) { $("status").textContent = message; }
   function id(prefix) { state.serial += 1; return prefix + "-" + Date.now().toString(36) + "-" + state.serial; }
   function selected() { return state.items.find(function (item) { return item.id === state.selected; }); }
+  function matches(item) {
+    var query = $("find-nodes").value.trim().toLowerCase();
+    return !query || ((item.title || "") + " " + (item.content || item.detail || "") + " " + (item.group || "")).toLowerCase().includes(query);
+  }
+  function visibleWorking(item) {
+    return (state.view === "create" || state.view === "all") && matches(item);
+  }
+  function renderOutline() {
+    var list = $("outline-list"); list.replaceChildren();
+    var displayed = state.items.filter(visibleWorking).map(function (item) { return { item: item, derived: false }; });
+    if (state.derived) state.derived.nodes.filter(function (item) { return visibleDerived(item) && matches(item); })
+      .forEach(function (item) { displayed.push({ item: item, derived: true }); });
+    displayed.sort(function (a, b) {
+      return ((a.item.group || "") + a.item.title).localeCompare((b.item.group || "") + b.item.title);
+    });
+    if (!displayed.length) {
+      var empty = document.createElement("li"); empty.textContent = "No visible matches"; list.appendChild(empty); return;
+    }
+    displayed.forEach(function (row) {
+      var li = document.createElement("li"), button = document.createElement("button");
+      button.type = "button"; button.textContent = (row.item.group ? row.item.group + " / " : "") + row.item.title;
+      button.addEventListener("click", function () {
+        if (row.derived) chooseDerived(row.item.id); else choose(row.item.id);
+        var pos = row.derived ? state.derivedPositions[row.item.id] : state.positions[row.item.id];
+        if (pos) {
+          state.panX = Math.max(-1400, Math.min(700, $("viewport").clientWidth / 2 - (pos.x + 80) * state.zoom));
+          state.panY = Math.max(-1040, Math.min(700, $("viewport").clientHeight / 2 - (pos.y + 32) * state.zoom));
+          transform(); scheduleSave();
+        }
+      });
+      li.appendChild(button); list.appendChild(li);
+    });
+  }
   function fit() { state.panX = 0; state.panY = 0; state.zoom = 1; $("zoom").value = "100"; transform(); scheduleSave(); }
   function transform() { $("world").style.transform = "translate(" + state.panX + "px," + state.panY + "px) scale(" + state.zoom + ")"; }
   function newItem(kind) {
     if (!remote.ready || remote.failed) { status("Cannot edit while local canvas is unavailable. Export your notes if needed."); return; }
+    if (state.items.length >= 200) { status("The working canvas has reached its 200-item safety bound."); return; }
     var item = { id: id("item"), kind: kind, title: kind === "note" ? "New idea" : "New " + kind, content: "" };
     state.items.push(item);
     state.positions[item.id] = { x: 110 + ((state.items.length - 1) % 4) * 192, y: 95 + Math.floor((state.items.length - 1) / 4) * 112 };
@@ -234,7 +268,8 @@
     state.connections.forEach(function (edge) {
       if (state.view !== "create" && state.view !== "all") return;
       var from = state.positions[edge.source], to = state.positions[edge.target];
-      if (!from || !to) return;
+      if (!from || !to || !visibleWorking(state.items.find(function (i) { return i.id === edge.source; }) || {}) ||
+          !visibleWorking(state.items.find(function (i) { return i.id === edge.target; }) || {})) return;
       var line = document.createElementNS(svgNS, "line");
       line.setAttribute("x1", String(from.x + 82)); line.setAttribute("y1", String(from.y + 33));
       line.setAttribute("x2", String(to.x + 82)); line.setAttribute("y2", String(to.y + 33));
@@ -254,7 +289,7 @@
       var from = state.derivedPositions[edge.source], to = state.derivedPositions[edge.target];
       var fromNode = state.derived.nodes.find(function (n) { return n.id === edge.source; });
       var toNode = state.derived.nodes.find(function (n) { return n.id === edge.target; });
-      if (!from || !to || !fromNode || !toNode || !visibleDerived(fromNode) || !visibleDerived(toNode) || !changedRelationVisible(edge)) return;
+      if (!from || !to || !fromNode || !toNode || !visibleDerived(fromNode) || !visibleDerived(toNode) || !matches(fromNode) || !matches(toNode) || !changedRelationVisible(edge)) return;
       var line = document.createElementNS(svgNS, "line");
       line.setAttribute("x1", String(from.x + 82)); line.setAttribute("y1", String(from.y + 33));
       line.setAttribute("x2", String(to.x + 82)); line.setAttribute("y2", String(to.y + 33));
@@ -286,7 +321,7 @@
     $("inspector-empty").hidden = !!item;
     $("inspector-fields").hidden = !item;
     if (!item) return;
-    $("title").value = item.title; $("kind").value = item.kind; $("content").value = item.content;
+    $("title").value = item.title; $("group").value = item.group || ""; $("kind").value = item.kind; $("content").value = item.content;
     $("write").hidden = item.kind !== "scene";
     var target = $("target"); target.replaceChildren();
     state.items.filter(function (entry) { return entry.id !== item.id; }).forEach(function (entry) {
@@ -316,7 +351,7 @@
     var host = $("nodes"); host.replaceChildren();
     $("empty-state").hidden = state.items.length > 0;
     state.items.forEach(function (item) {
-      if (state.view !== "create" && state.view !== "all") return;
+      if (!visibleWorking(item)) return;
       var pos = state.positions[item.id];
       var node = document.createElement("button"); node.type = "button"; node.className = "node";
       node.dataset.itemId = item.id; node.dataset.kind = item.kind;
@@ -349,7 +384,7 @@
       });
       host.appendChild(node);
     });
-        if (state.derived) state.derived.nodes.filter(visibleDerived).forEach(function (item) {
+        if (state.derived) state.derived.nodes.filter(function (n) { return visibleDerived(n) && matches(n); }).forEach(function (item) {
       var pos = state.derivedPositions[item.id]; if (!pos) return;
       var node = document.createElement("button"); node.type = "button";
       node.className = "node derived"; node.dataset.itemId = item.id; node.dataset.kind = item.kind;
@@ -362,12 +397,12 @@
       node.append(title, type); node.addEventListener("click", function () { chooseDerived(item.id); });
       host.appendChild(node);
     });
-    drawEdges(); renderInspector(); transform();
+    drawEdges(); renderInspector(); renderOutline(); transform();
   }
   function saveCurrent() {
     var item = selected(); if (!item) return;
     item.title = $("title").value.trim() || "Untitled";
-    item.kind = $("kind").value; item.content = $("content").value;
+    item.kind = $("kind").value; item.content = $("content").value; item.group = $("group").value.trim();
     render(); queueSave(); status("Working item updated. Saving locally...");
   }
   function connect() {
@@ -521,6 +556,7 @@
   $("add-scene").addEventListener("click", function () { newItem("scene"); });
   $("start").addEventListener("click", function () { newItem("note"); });
   $("fit").addEventListener("click", fit);
+  $("find-nodes").addEventListener("input", render);
   $("show-evidence").addEventListener("click", loadEvidence);
   $("relationship-chapter").addEventListener("change", function () { render(); status(this.value ? "Showing relationships with recorded changes in " + this.value + ". Current relation values are not historical snapshots." : "Showing all declared relationships."); });
   $("show-book").addEventListener("click", loadBook);
@@ -542,6 +578,13 @@
   $("import").addEventListener("change", importCanvas);
   $("remove").addEventListener("click", removeCurrent);
   $("retry-save").addEventListener("click", retrySave);
+  $("viewport").addEventListener("keydown", function (event) {
+    if (event.target !== this) return;
+    var moves = { ArrowLeft: [50, 0], ArrowRight: [-50, 0], ArrowUp: [0, 50], ArrowDown: [0, -50] };
+    if (!moves[event.key]) return;
+    event.preventDefault(); state.panX += moves[event.key][0]; state.panY += moves[event.key][1];
+    transform(); scheduleSave();
+  });
   $("viewport").addEventListener("pointerdown", function (event) {
     if (event.target !== this && event.target !== $("nodes") && event.target !== $("world")) return;
     if (event.button !== 0) return;

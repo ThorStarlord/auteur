@@ -35,6 +35,7 @@ class CanvasItem(BaseModel):
     scene_premise: str = Field(default="", max_length=4000)
     scene_intent: str = Field(default="", max_length=4000)
     quick_draft_session_id: str = Field(default="", max_length=120)
+    group: str = Field(default="", max_length=80)
 
 
 class CanvasConnection(BaseModel):
