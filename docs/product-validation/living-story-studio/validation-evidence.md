@@ -68,3 +68,18 @@ Current review can resolve source design questions and perform narrow source-bas
 Use [#360](https://github.com/ThorStarlord/auteur/issues/360) for running application qualification, [#318](https://github.com/ThorStarlord/auteur/issues/318) for F2/X3 Book use and [#310](https://github.com/ThorStarlord/auteur/issues/310) for real Quick Draft host-agent use. Do **not** rerun GitHub Actions that incur unavailable credits, claim tests passed, or default-promote the Studio based on these documents.
 
 **Evidence ceiling:** source-inspected with a narrowly executed JavaScript control-flow reproduction. Runtime/UX/author-value PASS remains absent.
+
+
+## After-review repair verification receipts (not full qualification)
+
+| Repair / candidate | Exact minimal probe | Observed narrow result | Still missing |
+| --- | --- | --- | --- |
+| #367, \`1c77477226556f78fdd29d3b4536e5017a982889\` | Executed source-extracted \`renderInspector\`, \`captureInspectorFields\`, and \`choose\` against a minimal DOM stub; A edited to "Unsaved crucial dialogue", then B -> A | A and the model both retained the new text; one save queued; source-handler logic PASS | Browser focus/input events, real HTTP/disk durability and regression suite |
+| #368, \`a864ea42f230a948b33809553c2f4accfee4859b\` | Executed extracted \`openRemote\`/canvas-listing routines with a stub GET returning existing \`saved-1\` and stub POST | Opened \`saved-1\`, generated zero new canvas IDs; startup-selection logic PASS | Real Python canvas listing API/HTTP, restart, two-tab and failure recovery |
+| Current combined candidate | Existing source from GitHub connector, no container checkout | JavaScript V8 syntax parse succeeded for staged source | Python AST/lint/pytest, full browser, assistive tech, actual writer preference |
+
+**Current candidate for local work:** \`a864ea42f230a948b33809553c2f4accfee4859b\` on \`fix/living-story-studio-reentry-20261010\`. The **frozen review** remains the earlier SHA \`bd2ba539d2f300941681fa7c7b80ab4765354b79\`. This distinction is intentional and necessary for finding-specific verification.
+
+**New product-evidence owner:** [#369](https://github.com/ThorStarlord/auteur/issues/369) records matched author tasks and default-interface decision criteria. It does not duplicate technical qualification [#360](https://github.com/ThorStarlord/auteur/issues/360).
+
+**End-of-run disposition:** source review and bounded repair candidates created; runnable and human qualifications externally blocked. Never convert the narrow mocked-input PASS into a claim that the app works correctly.
