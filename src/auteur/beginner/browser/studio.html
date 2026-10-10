@@ -27,9 +27,11 @@
           <option value="lenses">Story Lenses</option>
           <option value="all">Everything</option>
           <option value="impact">Consequences</option>
+          <option value="book">Book overview</option>
         </select>
         <input id="evidence-workspace" placeholder="Existing workspace ID (optional)" aria-label="Existing Auteur workspace ID" maxlength="80">
         <button type="button" id="show-evidence">Show story evidence</button>
+        <button type="button" id="show-book">Book overview</button>
         <details class="impact-controls">
           <summary>Advanced: impact preview</summary>
           <label for="impact-artifact">Registered artifact ID</label>
@@ -57,6 +59,13 @@
     <aside id="inspector" aria-label="Selected story item">
       <h2>Story details</h2>
       <p class="muted" id="inspector-empty">Select or create an item to edit it.</p>
+      <section id="book-orientation" hidden aria-label="Read-only Book orientation">
+        <h3 id="book-heading">Your Book</h3>
+        <p id="book-next-action"></p>
+        <h4>Recently established</h4><ul id="book-recent"></ul>
+        <h4>Pending updates</h4><ul id="book-pending"></ul>
+        <h4>Needs attention</h4><ul id="book-attention"></ul>
+      </section>
       <div id="source-detail" hidden aria-label="Read-only source evidence">
         <h3 id="source-title"></h3>
         <p id="source-state"></p>

@@ -74,3 +74,12 @@ a { color:#2d6242; }
 .impact-controls input { display:block; width:180px; max-width:100%; padding:6px; margin:6px 0; }
 .node.derived[data-kind="artifact"] { background:#fff3df; border-color:#c5a575; }
 .node.derived[data-kind="artifact"][data-impact="source"] { background:#e4f2e6; border-color:#6d9f7f; }
+
+#book-orientation[hidden] { display:none; }
+#book-orientation { background:#f7f7f0; border:1px solid #dadbc9; padding:10px; border-radius:8px; font-size:.83rem; }
+#book-orientation h3 { margin:3px 0; }
+#book-orientation h4 { margin:10px 0 3px; font-size:.81rem; }
+#book-orientation ul { margin:0; padding-left:18px; }
+#book-orientation li { padding:2px 0; }
+.node.derived[data-kind="chapter"] { background:#edf4ed; border-color:#8fac94; }
+.node.derived[data-kind="chapter"][data-impact="source"] { outline:2px solid #659878; }
