@@ -31,7 +31,7 @@ These are independently **scoped analytical passes by the current agent**, not i
 
 ## Authority and evidence baseline
 
-- [Selected Studio contract](../../design/2026-10-09-living-story-studio.md) and the existing [UX product requirements](../../auteur-ux-product-requirements.md) express intent.
+- [Selected Studio contract](../../design/2026-10-09-living-story-studio.md) and the existing [UX product requirements](../../product/auteur-ux-product-requirements.md) express intent.
 - \`src/auteur/beginner/browser/index.html\` and \`app.js\` express the existing home, two-input Quick Draft, decision cards, and book-orientation baseline.
 - \`src/auteur/beginner/browser/studio.html\`, \`studio.js\`, \`studio.css\`, \`studio_store.py\`, \`studio_projection.py\`, \`studio_impact.py\`, and server routes express the candidate.
 - \`src/auteur/quick_draft.py\`, \`relations/*\`, \`impact/*\`, \`beginner/book_progress.py\` are existing semantic/data owners.
