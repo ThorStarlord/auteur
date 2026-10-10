@@ -71,6 +71,9 @@
   }
   function restoreDeleted() {
     if (!remote.ready || remote.failed) return;
+    // Flush a pending debounced edit so the recovery snapshot cannot discard it.
+    clearTimeout(remote.timer);
+    queueSave();
     // Wait for all earlier saves before reading the current recovery journal.
     remote.queue.then(function () {
       return fetch("/api/beginner/studio/canvases/" + remote.canvasId).then(apiJson);
