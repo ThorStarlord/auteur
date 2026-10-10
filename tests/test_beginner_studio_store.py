@@ -81,3 +81,34 @@ def test_path_traversal_rejected(tmp_path):
     for segment in ("../escape", "CON", "UPPER"):
         with pytest.raises((ValueError, RuntimeError)):
             CanvasStore(tmp_path, segment)
+
+
+def test_whole_working_document_replace_is_versioned(tmp_path):
+    store = CanvasStore(tmp_path, "canvas-5")
+    store.create()
+    payload = {
+        "items": [item("alpha", "First")],
+        "connections": [],
+        "positions": {"alpha": {"x": 200, "y": 140}},
+        "viewport": {"pan_x": 22, "pan_y": -15, "zoom": 1.2},
+    }
+    saved = mutate(store, 0, "replace-a", "replace-working-document", payload)
+    assert saved.revision == 1
+    assert saved.viewport.zoom == 1.2
+    assert store.load().items[0].title == "First"
+    with pytest.raises(BeginnerConcurrencyError):
+        mutate(store, 0, "replace-stale", "replace-working-document", payload)
+    assert store.load().revision == 1
+
+
+def test_invalid_full_working_document_never_mutates(tmp_path):
+    store = CanvasStore(tmp_path, "canvas-6")
+    store.create()
+    with pytest.raises(ValueError):
+        mutate(store, 0, "bad-full", "replace-working-document", {
+            "items": [item("alpha")],
+            "connections": [{"id": "e", "source": "alpha", "target": "missing", "label": "claim"}],
+            "positions": {"alpha": {"x": 1, "y": 1}},
+            "viewport": {"pan_x": 0, "pan_y": 0, "zoom": 1},
+        })
+    assert store.load().revision == 0

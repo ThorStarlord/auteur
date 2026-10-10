@@ -1,21 +1,90 @@
 (function () {
   "use strict";
   var state = { items: [], connections: [], positions: {}, selected: null, panX: 0, panY: 0, zoom: 1, serial: 0, undo: null };
+  // Local, noncanonical working document: server is the persistence owner.
+  var remote = { canvasId: null, revision: 0, ready: false, failed: false, queue: Promise.resolve(), timer: null };
+  function apiJson(response) {
+    return response.json().then(function (body) {
+      if (!response.ok) throw new Error(body.error || "HTTP " + response.status);
+      return body;
+    });
+  }
+  function snapshot() {
+    return { items: JSON.parse(JSON.stringify(state.items)),
+      connections: JSON.parse(JSON.stringify(state.connections)),
+      positions: JSON.parse(JSON.stringify(state.positions)),
+      viewport: { pan_x: state.panX, pan_y: state.panY, zoom: state.zoom } };
+  }
+  function queueSave() {
+    if (!remote.ready || remote.failed) return;
+    var payload = snapshot(), command = id("save");
+    remote.queue = remote.queue.then(function () {
+      if (remote.failed) return;
+      return fetch("/api/beginner/studio/canvases/" + remote.canvasId + "/commands/replace-working-document", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ expected_revision: remote.revision, command_id: command, payload: payload })
+      }).then(apiJson).then(function (doc) {
+        remote.revision = doc.revision;
+        if (!remote.failed) status("Working canvas saved locally · revision " + remote.revision);
+      });
+    }).catch(function (error) {
+      remote.failed = true;
+      $("retry-save").hidden = false;
+      status("SAVE FAILED: " + error.message + ". Do not reload; export your work before recovery.");
+    });
+  }
+  function scheduleSave() {
+    clearTimeout(remote.timer);
+    remote.timer = setTimeout(queueSave, 300);
+  }
+  function loadRemote(doc) {
+    state.items = doc.items; state.connections = doc.connections; state.positions = doc.positions;
+    state.selected = state.items.length ? state.items[0].id : null;
+    state.panX = doc.viewport.pan_x; state.panY = doc.viewport.pan_y; state.zoom = doc.viewport.zoom;
+    $("zoom").value = String(Math.round(state.zoom * 100));
+    remote.revision = doc.revision; remote.ready = true;
+    render(); status("Working canvas loaded · saved locally · revision " + remote.revision);
+  }
+  function openRemote() {
+    var params = new URLSearchParams(window.location.search);
+    var canvas = params.get("canvas");
+    if (!canvas || !/^[a-z0-9][a-z0-9_-]{0,79}$/.test(canvas)) {
+      canvas = id("canvas"); params.set("canvas", canvas);
+      window.history.replaceState({}, "", window.location.pathname + "?" + params.toString());
+    }
+    remote.canvasId = canvas;
+    fetch("/api/beginner/studio/canvases", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ canvas_id: canvas })
+    }).then(apiJson).then(loadRemote).catch(function (error) {
+      remote.failed = true;
+      $("retry-save").hidden = false;
+      status("Cannot open local canvas: " + error.message + ". Editing is disabled.");
+    });
+  }
+  function retrySave() {
+    if (!remote.ready) { window.location.reload(); return; }
+    fetch("/api/beginner/studio/canvases/" + remote.canvasId).then(apiJson).then(function (doc) {
+      if (doc.revision !== remote.revision) throw new Error("Another tab changed this canvas. Export your notes; do not overwrite newer content.");
+      remote.failed = false; $("retry-save").hidden = true; queueSave();
+    }).catch(function (error) { status("Cannot retry safely: " + error.message); });
+  }
   var svgNS = "http://www.w3.org/2000/svg";
   function $(id) { return document.getElementById(id); }
   function status(message) { $("status").textContent = message; }
   function id(prefix) { state.serial += 1; return prefix + "-" + Date.now().toString(36) + "-" + state.serial; }
   function selected() { return state.items.find(function (item) { return item.id === state.selected; }); }
-  function fit() { state.panX = 0; state.panY = 0; state.zoom = 1; $("zoom").value = "100"; transform(); }
+  function fit() { state.panX = 0; state.panY = 0; state.zoom = 1; $("zoom").value = "100"; transform(); scheduleSave(); }
   function transform() { $("world").style.transform = "translate(" + state.panX + "px," + state.panY + "px) scale(" + state.zoom + ")"; }
   function newItem(kind) {
+    if (!remote.ready || remote.failed) { status("Cannot edit while local canvas is unavailable. Export your notes if needed."); return; }
     var item = { id: id("item"), kind: kind, title: kind === "note" ? "New idea" : "New " + kind, content: "" };
     state.items.push(item);
     state.positions[item.id] = { x: 110 + ((state.items.length - 1) % 4) * 192, y: 95 + Math.floor((state.items.length - 1) / 4) * 112 };
     state.selected = item.id;
     render();
     $("title").focus();
-    status("Working item created. Export the canvas to preserve it.");
+    queueSave(); status("Working item created. Saving locally...");
   }
   function drawEdges() {
     var svg = $("edges");
@@ -59,7 +128,7 @@
       var summary = document.createElement("span"); summary.textContent = (edge.label || "Associated with") + " · " + (other ? other.title : "Unknown");
       var remove = document.createElement("button"); remove.type = "button"; remove.textContent = "Unlink";
       remove.setAttribute("aria-label", "Remove connection with " + (other ? other.title : "unknown"));
-      remove.addEventListener("click", function () { state.connections = state.connections.filter(function (e) { return e.id !== edge.id; }); render(); });
+      remove.addEventListener("click", function () { state.connections = state.connections.filter(function (e) { return e.id !== edge.id; }); render(); queueSave(); });
       row.append(summary, remove); list.appendChild(row);
     });
   }
@@ -90,7 +159,7 @@
         event.preventDefault(); var delta = arrows[event.key];
         pos.x = Math.max(0, Math.min(1400, pos.x + delta[0]));
         pos.y = Math.max(0, Math.min(1040, pos.y + delta[1]));
-        node.style.left = pos.x + "px"; node.style.top = pos.y + "px"; drawEdges();
+        node.style.left = pos.x + "px"; node.style.top = pos.y + "px"; drawEdges(); scheduleSave();
       });
       node.addEventListener("pointerdown", function (event) {
         if (event.button !== 0) return;
@@ -101,7 +170,7 @@
           pos.y = Math.max(0, Math.min(1040, startY + (e.clientY - originY) / state.zoom));
           node.style.left = pos.x + "px"; node.style.top = pos.y + "px"; drawEdges();
         }
-        function finish() { node.removeEventListener("pointermove", move); node.removeEventListener("pointerup", finish); node.removeEventListener("pointercancel", finish); }
+        function finish() { node.removeEventListener("pointermove", move); node.removeEventListener("pointerup", finish); node.removeEventListener("pointercancel", finish); scheduleSave(); }
         node.addEventListener("pointermove", move); node.addEventListener("pointerup", finish); node.addEventListener("pointercancel", finish);
       });
       host.appendChild(node);
@@ -112,13 +181,13 @@
     var item = selected(); if (!item) return;
     item.title = $("title").value.trim() || "Untitled";
     item.kind = $("kind").value; item.content = $("content").value;
-    render(); status("Working item updated in this browser session. Export to keep it.");
+    render(); queueSave(); status("Working item updated. Saving locally...");
   }
   function connect() {
     var item = selected(), target = $("target").value; if (!item || !target || target === item.id) return;
     var exists = state.connections.some(function (e) { return e.source === item.id && e.target === target && e.label === $("relation").value.trim(); });
     if (!exists) state.connections.push({ id: id("edge"), source: item.id, target: target, label: $("relation").value.trim() });
-    $("relation").value = ""; render(); status("Working association created. It does not alter accepted relationships.");
+    $("relation").value = ""; render(); queueSave(); status("Working association created. It does not alter accepted relationships.");
   }
   function sceneOpen() {
     var item = selected(); if (!item) return;
@@ -128,11 +197,12 @@
   function sceneSave() {
     var item = selected(); if (!item) return;
     item.content = $("scene-text").value; $("content").value = item.content;
-    $("scene-panel").hidden = true; render();
-    status("Working prose updated. This prototype does not submit generation or acceptance.");
+    $("scene-panel").hidden = true; render(); queueSave();
+    status("Working prose updated. This editor does not submit generation or acceptance.");
   }
   function exportCanvas() {
-    var data = { schema_version: 1, items: state.items, connections: state.connections, positions: state.positions };
+    var data = { schema_version: 1, items: state.items, connections: state.connections, positions: state.positions,
+      viewport: { pan_x: state.panX, pan_y: state.panY, zoom: state.zoom } };
     var objectUrl = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
     var link = document.createElement("a"); link.href = objectUrl; link.download = "auteur-working-canvas.json";
     document.body.appendChild(link); link.click(); link.remove();
@@ -165,7 +235,9 @@
       var data = JSON.parse(raw); validCanvas(data);
       state.items = data.items; state.connections = data.connections; state.positions = data.positions;
       state.selected = data.items.length ? data.items[0].id : null; state.serial += 1;
-      fit(); render(); status("Working canvas imported. Export again after changes.");
+      if (data.viewport && Number.isFinite(data.viewport.zoom)) { state.panX = data.viewport.pan_x; state.panY = data.viewport.pan_y; state.zoom = data.viewport.zoom; }
+      else { state.panX = 0; state.panY = 0; state.zoom = 1; }
+      render(); queueSave(); status("Working canvas imported. Saving locally...");
     }).catch(function (error) { status("Import rejected: " + error.message); });
   }
   function removeCurrent() {
@@ -174,13 +246,13 @@
     state.items = state.items.filter(function (entry) { return entry.id !== item.id; });
     state.connections = state.connections.filter(function (e) { return e.source !== item.id && e.target !== item.id; });
     delete state.positions[item.id]; state.selected = null; render();
-    status("Working item removed. Press Ctrl+Z to undo; export to retain your changes.");
+    queueSave(); status("Working item removed. Press Ctrl+Z to undo; saving locally.");
   }
   document.addEventListener("keydown", function (event) {
     if (event.ctrlKey && event.key.toLowerCase() === "z" && state.undo && !["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) {
       event.preventDefault(); var old = state.undo; state.undo = null;
       state.items.push(old.item); state.positions[old.item.id] = old.pos;
-      state.connections.push.apply(state.connections, old.links); state.selected = old.item.id; render();
+      state.connections.push.apply(state.connections, old.links); state.selected = old.item.id; render(); queueSave();
     }
   });
   $("add-note").addEventListener("click", function () { newItem("note"); });
@@ -188,7 +260,7 @@
   $("add-scene").addEventListener("click", function () { newItem("scene"); });
   $("start").addEventListener("click", function () { newItem("note"); });
   $("fit").addEventListener("click", fit);
-  $("zoom").addEventListener("input", function () { state.zoom = Number(this.value) / 100; transform(); });
+  $("zoom").addEventListener("input", function () { state.zoom = Number(this.value) / 100; transform(); scheduleSave(); });
   $("save").addEventListener("click", saveCurrent);
   $("connect").addEventListener("click", connect);
   $("write").addEventListener("click", sceneOpen);
@@ -197,14 +269,15 @@
   $("download").addEventListener("click", exportCanvas);
   $("import").addEventListener("change", importCanvas);
   $("remove").addEventListener("click", removeCurrent);
+  $("retry-save").addEventListener("click", retrySave);
   $("viewport").addEventListener("pointerdown", function (event) {
     if (event.target !== this && event.target !== $("nodes") && event.target !== $("world")) return;
     if (event.button !== 0) return;
     var startX = event.clientX, startY = event.clientY, baseX = state.panX, baseY = state.panY;
     this.setPointerCapture(event.pointerId);
     function move(e) { state.panX = baseX + e.clientX - startX; state.panY = baseY + e.clientY - startY; transform(); }
-    function finish() { $("viewport").removeEventListener("pointermove", move); $("viewport").removeEventListener("pointerup", finish); $("viewport").removeEventListener("pointercancel", finish); }
+    function finish() { $("viewport").removeEventListener("pointermove", move); $("viewport").removeEventListener("pointerup", finish); $("viewport").removeEventListener("pointercancel", finish); scheduleSave(); }
     this.addEventListener("pointermove", move); this.addEventListener("pointerup", finish); this.addEventListener("pointercancel", finish);
   });
-  render();
+  render(); openRemote();
 }());
