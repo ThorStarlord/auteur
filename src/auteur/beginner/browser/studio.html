@@ -67,7 +67,21 @@
   <section id="scene-panel" class="scene-panel" hidden aria-label="Working scene editor">
     <div class="scene-inner">
       <div class="scene-top"><h2 id="scene-heading">Working scene</h2><button id="close-scene" type="button">Return to canvas</button></div>
-      <p>Exploratory text only. This editor does not accept canon or submit a generation request.</p>
+      <p>Exploratory text only. Nothing here becomes accepted story material automatically.</p>
+      <label for="scene-premise">Working story premise (required only for generation)</label>
+      <textarea id="scene-premise" rows="3" maxlength="4000" placeholder="What is this story about?"></textarea>
+      <label for="scene-intent">What should happen in this scene? (required only for generation)</label>
+      <textarea id="scene-intent" rows="3" maxlength="4000" placeholder="Describe the scene you want, not a canonical fact."></textarea>
+      <button id="generate-scene" type="button">Request Quick Draft using host agent</button>
+      <button id="refresh-draft" type="button" hidden>Check generated scene</button>
+      <p id="generation-status" role="status" aria-live="polite"></p>
+      <div id="generation-result" hidden>
+        <label for="generated-prose">Generated working candidate — never automatically accepted</label>
+        <textarea id="generated-prose" rows="10" readonly></textarea>
+        <button id="use-generated" type="button">Copy candidate into working scene</button>
+        <a id="open-quick-draft" href="/" target="_self">Review discoveries in guided Quick Draft</a>
+      </div>
+      <label for="scene-text">Your working prose</label>
       <textarea id="scene-text" rows="18" aria-label="Working scene prose" maxlength="20000"></textarea>
       <button type="button" id="save-scene">Save working scene</button>
     </div>

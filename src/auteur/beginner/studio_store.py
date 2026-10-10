@@ -32,6 +32,9 @@ class CanvasItem(BaseModel):
     kind: ItemKind = "note"
     title: str = Field(min_length=1, max_length=120)
     content: str = Field(default="", max_length=20000)
+    scene_premise: str = Field(default="", max_length=4000)
+    scene_intent: str = Field(default="", max_length=4000)
+    quick_draft_session_id: str = Field(default="", max_length=120)
 
 
 class CanvasConnection(BaseModel):
