@@ -12,6 +12,7 @@ from typing import Any
 import yaml
 
 from auteur.relations.models import RelationMap
+from auteur.relations.serializers import load_relation_change_sets
 
 
 def project_studio_graph(
@@ -25,6 +26,7 @@ def project_studio_graph(
     edges: list[dict[str, Any]] = []
     warnings: list[str] = []
     relation_sha: str | None = None
+    changed_by_chapter: dict[str, list[str]] = {}
 
     if story_orientation:
         lenses = story_orientation.get("story_lenses") or []
@@ -60,6 +62,18 @@ def project_studio_graph(
             warnings.append("relations.yaml could not be read or validated; relationship evidence is unavailable.")
         else:
             by_character: dict[str, str] = {}
+            try:
+                change_sets = load_relation_change_sets(Path(project_root))
+            except (OSError, UnicodeError, ValueError, yaml.YAMLError):
+                warnings.append("Chapter relationship change history is unavailable or malformed.")
+                change_sets = []
+            known_relations = {relation.id for relation in relation_map.relations}
+            for change in change_sets:
+                chapter = "chapter_" + str(change.chapter).zfill(2)
+                changed_by_chapter.setdefault(chapter, [])
+                for record in change.relation_changes:
+                    if record.relation in known_relations and record.relation not in changed_by_chapter[chapter]:
+                        changed_by_chapter[chapter].append(record.relation)
             for i, relation in enumerate(relation_map.relations):
                 for name in (relation.from_character, relation.to_character):
                     if name not in by_character:
@@ -83,4 +97,5 @@ def project_studio_graph(
         "schema_version": 1, "workspace_id": workspace_id,
         "session_version": session_version, "relations_sha256": relation_sha,
         "nodes": nodes, "edges": edges, "warnings": warnings,
+        "relationship_changes": changed_by_chapter,
     }
