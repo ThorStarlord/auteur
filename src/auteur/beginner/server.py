@@ -390,10 +390,12 @@ def _is_idempotency_conflict(message: str) -> bool:
 class _RequestHandler(BaseHTTPRequestHandler):
     project_root: Path
     dependencies: BeginnerRuntimeDependencies
+    studio_development_default: bool = False
 
     _BROWSER_ASSETS = {
         "/": "index.html",
         "/index.html": "index.html",
+        "/beginner.html": "index.html",
         "/app.js": "app.js",
         "/styles.css": "styles.css",
         "/studio.html": "studio.html",
@@ -452,7 +454,8 @@ class _RequestHandler(BaseHTTPRequestHandler):
         )
 
     def _serve_browser_asset(self, path: str) -> bool:
-        filename = self._BROWSER_ASSETS.get(path)
+        filename = ("studio.html" if path == "/" and self.studio_development_default
+                    else self._BROWSER_ASSETS.get(path))
         if filename is None:
             return False
         asset = Path(__file__).parent / "browser" / filename
@@ -890,6 +893,7 @@ class BeginnerWorkspaceServer:
         *,
         port: int,
         dependencies: BeginnerRuntimeDependencies | None = None,
+        studio_development_default: bool = False,
     ):
         self.project_root = Path(project_root)
         self.dependencies = dependencies or default_runtime_dependencies()
@@ -899,6 +903,7 @@ class BeginnerWorkspaceServer:
             {
                 "project_root": self.project_root,
                 "dependencies": self.dependencies,
+                "studio_development_default": studio_development_default,
             },
         )
         self._httpd = ThreadingHTTPServer(("127.0.0.1", port), handler)
@@ -929,6 +934,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--port", type=int, default=0)
     parser.add_argument("--provider", choices=("openai", "anthropic"))
     parser.add_argument("--model")
+    parser.add_argument("--studio-development-default", action="store_true",
+                        help="Development-only: serve experimental Studio at /, with legacy Beginner at /beginner.html")
     args = parser.parse_args(argv)
     if args.provider:
         client = build_client(args.provider, args.model)
@@ -955,6 +962,7 @@ def main(argv: list[str] | None = None) -> int:
         args.project,
         port=args.port,
         dependencies=dependencies,
+        studio_development_default=args.studio_development_default,
     )
     print(f"Beginner workspace server on http://127.0.0.1:{server.port}")
     try:
