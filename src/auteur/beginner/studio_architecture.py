@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from pathlib import Path
 from typing import Literal
 
@@ -175,7 +176,7 @@ def project_architecture(store: CanvasStore) -> dict:
     req = None
     if pointer:
         sha = pointer.get("request_sha256", "")
-        if not isinstance(sha, str) or len(sha) != 64:
+        if not isinstance(sha, str) or not re.fullmatch(r"[0-9a-f]{64}", sha):
             raise ValueError("invalid architecture request pointer")
         req = load_host_agent_request(_root(store) / "requests" / sha / "request.json")
     pending = bool(req and (not current or current["request_sha256"] != req.request_sha256))
