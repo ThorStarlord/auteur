@@ -53,7 +53,7 @@ from .contracts import MutationCommand
 from .persistence import BeginnerConcurrencyError, BeginnerPersistenceError
 from .studio_store import CanvasStore, list_canvas_summaries
 from .studio_architecture import (
-    complete_architecture, prepare_architecture, project_architecture,
+    apply_architecture_review, complete_architecture, prepare_architecture, project_architecture,
 )
 from .studio_projection import project_studio_graph
 from .studio_impact import preview_studio_impact
@@ -615,13 +615,17 @@ class _RequestHandler(BaseHTTPRequestHandler):
                 self._send_json(200, canvas.model_dump(mode="json"))
                 return
             if (len(parts) == 7 and parts[:4] == ["api", "beginner", "studio", "canvases"]
-                    and parts[5] == "architecture" and parts[6] in {"prepare", "host-agent-response"}):
+                    and parts[5] == "architecture" and parts[6] in {"prepare", "host-agent-response", "apply"}):
                 payload = self._read_json()
                 store = CanvasStore(self.project_root, parts[4])
                 try:
                     if parts[6] == "prepare":
                         result = prepare_architecture(store, payload.get("instruction", ""))
                         self._send_json(202, result)
+                    elif parts[6] == "apply":
+                        self._send_json(200, apply_architecture_review(
+                            store, payload.get("request_sha256")
+                        ))
                     else:
                         self._send_json(200, complete_architecture(store, payload))
                 except FileNotFoundError as exc:
