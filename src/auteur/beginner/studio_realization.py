@@ -20,7 +20,9 @@ from auteur.host_agent import (
 )
 from .persistence import BeginnerConcurrencyError, _FilesystemLock
 from .studio_store import CanvasStore
-from .studio_architecture import _candidate as architecture_current, _digest, _read, _source
+from .studio_architecture import (
+    _candidate as architecture_current, _current_candidate_is_stale, _digest, _read, _source,
+)
 
 
 class RealizationElement(BaseModel):
@@ -176,6 +178,8 @@ def prepare_realization(
     if not isinstance(focus_ids or [], list):
         raise ValueError("focus_ids must be a list of architecture identifiers")
     with _FilesystemLock(store._path(".canvas.lock")):
+        if _current_candidate_is_stale(store, architecture_current(store)):
+            raise ValueError("narrative architecture is stale; develop or revise it before realization")
         current = _current(store)
         if instruction.strip() and not current:
             raise ValueError("no existing realization candidate to revise")
