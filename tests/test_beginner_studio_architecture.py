@@ -11,7 +11,8 @@ from pydantic import ValidationError
 from auteur.beginner.persistence import BeginnerConcurrencyError
 from auteur.beginner.server import BeginnerWorkspaceServer
 from auteur.beginner.studio_architecture import (
-    ArchitectureCandidate, complete_architecture, prepare_architecture, project_architecture,
+    ArchitectureCandidate, apply_architecture_review, complete_architecture,
+    prepare_architecture, project_architecture,
 )
 from auteur.beginner.studio_store import CanvasStore
 from auteur.host_agent import HostAgentRequest, build_host_agent_response
@@ -118,10 +119,36 @@ def test_revision_preserves_prior_candidate_and_idempotent_response(tmp_path):
     update = candidate()
     update["nodes"][0]["summary"] = "Discovery repeatedly brings a horror cost."
     finished = complete_architecture(store, response(revised, update))
-    assert finished["candidate"]["nodes"][0]["summary"].endswith("cost.")
+    assert finished["status"] == "review_ready"
+    assert finished["candidate"]["nodes"][0]["summary"] == candidate()["nodes"][0]["summary"]
+    assert finished["review"]["changes"]["nodes"]["changed"] == ["engine"]
+    assert finished["review"]["candidate"]["nodes"][0]["summary"].endswith("cost.")
+    applied = apply_architecture_review(store, finished["review"]["request_sha256"])
+    assert applied["status"] == "ready"
+    assert applied["candidate"]["nodes"][0]["summary"].endswith("cost.")
     history = store.directory / "architecture" / "requests" / first["request"]["request_sha256"]
     assert (history / "response.json").exists()
 
+
+
+def test_stale_review_apply_does_not_replace_working_architecture(tmp_path):
+    store = working_store(tmp_path)
+    first = prepare_architecture(store)
+    complete_architecture(store, response(first))
+    revision = prepare_architecture(store, "Make horror more prominent.")
+    changed = candidate()
+    changed["nodes"][0]["summary"] = "The supernatural threat overtakes the mystery."
+    pending = complete_architecture(store, response(revision, changed))
+    assert pending["status"] == "review_ready"
+    canvas = store.load()
+    altered = canvas.items[0].model_copy(update={"content": "A different author vision."})
+    store.apply("update-item", expected_revision=canvas.revision,
+                command_id="changed-since-review",
+                payload={"item": altered.model_dump(mode="json")})
+    with pytest.raises(BeginnerConcurrencyError, match="working context changed"):
+        apply_architecture_review(store, pending["review"]["request_sha256"])
+    assert project_architecture(store)["candidate"]["nodes"][0]["summary"] != changed["nodes"][0]["summary"]
+    assert not (tmp_path / "story_identity.yaml").exists()
 
 def _call(base, method, route, payload=None):
     data = None if payload is None else json.dumps(payload).encode("utf-8")
@@ -147,6 +174,12 @@ def test_http_prepare_complete_and_missing_canvas(tmp_path):
         assert code == 200 and ready["status"] == "ready"
         _, saved = _call(base, "GET", prefix)
         assert saved["candidate"] == ready["candidate"]
+        _, revision = _call(base, "POST", prefix + "/prepare", {"instruction": "More dread."})
+        _, review = _call(base, "POST", prefix + "/host-agent-response", response(revision))
+        assert review["status"] == "review_ready"
+        _, applied = _call(base, "POST", prefix + "/apply",
+                           {"request_sha256": review["review"]["request_sha256"]})
+        assert applied["status"] == "ready"
     finally:
         server.stop()
         thread.join(timeout=2)
