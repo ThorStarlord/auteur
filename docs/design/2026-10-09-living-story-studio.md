@@ -250,3 +250,42 @@ The CLI validates and records the generated proposal through the exact same
 host-agent response path as the Browser. A revision remains staged for explicit
 working apply. Do not mistake a prepared request or synthetic candidate for
 a live coding-agent invocation or independent creative-quality evidence.
+
+## 13. Emotion-first architecture and distinct Story Realization (2026-10-11)
+
+**Owner-selected correction:** Studio's *Narrative Architecture* action designs the machinery
+of a story, **not** named characters, locations, factions or a proposed sequence of
+specific plot events. Concrete material belongs in a separate author-facing *Story
+Realization* workspace. A working proposal may mention user-supplied concrete terms,
+but must not invent more of them to fill an architecture graph.
+
+For this product iteration choose six **basic-emotion labels** as the working vocabulary:
+`joy`, `sadness`, `fear`, `anger`, `disgust`, and `surprise`.
+An optional complex emotion references two or more of those labels together
+with a contextual interpretation. These are **narrative design approximations**,
+not scientifically proved emotional equations, neural readouts or fixed percentages.
+Do not force a complex-emotion annotation on every genre or scene. This chosen
+model remains replaceable if actual authoring evidence warrants it.
+
+The **genre contract** of this particular story links specific reader-directed
+emotional targets, possible eliciting conditions, aesthetic strategies, trope
+functions, renewable engine, structural pattern and payoff expectations.
+Typed **genre interactions** explain reinforcement, enablement, constraints,
+contrast, tension and convergence. A genre label alone is not integration.
+The **composition timeline** references genre contracts and specifies active
+mechanisms and targeted basic emotions in each interval. It supports genuine
+pivots, overlaps, recurrence, unknown boundaries and stable global roles.
+
+The **Narrative Architecture** tab projects these mechanisms and emotions,
+with no invented concrete plot. The **Story Realization** tab develops actual
+characters, locations, factions, events, plots, scenes and prose as working
+proposals, traceably linked to relevant architecture. Neither tab creates a
+canonical story owner. Unexpected concrete discoveries can generate an upstream
+architecture revision proposal; they never silently mutate Identity or Structure.
+
+**Delivery:** architecture-only agent contract → emotion/genre schema → inspector
+and composition timeline → distinct connected tabs → realization agent handoff
+→ bidirectional sourced revision. Keep current v1 candidate proposals readable,
+and validate any new v2 candidate with stable IDs and strict links. Prioritize a
+usable author interaction over process multiplication; preserve narrow real
+Python/HTTP and Browser qualification ceilings before trusted use.
