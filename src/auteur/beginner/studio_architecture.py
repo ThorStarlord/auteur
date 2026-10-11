@@ -169,6 +169,26 @@ Keep 1-80 nodes, <=180 links, <=32 phases and <=16 open questions.
 Everything is noncanonical working proposal. No auto-acceptance or prose."""
 
 
+
+def _candidate_diff(previous: dict, proposed: dict) -> dict:
+    """Explain a revision without confusing proposal changes with accepted-story impact."""
+    categories: dict[str, dict] = {}
+    for field in ("nodes", "links", "phases"):
+        old = {entry["id"]: entry for entry in previous.get(field, [])}
+        new = {entry["id"]: entry for entry in proposed.get(field, [])}
+        categories[field] = {
+            "added": sorted(new.keys() - old.keys()),
+            "removed": sorted(old.keys() - new.keys()),
+            "changed": sorted(k for k in new.keys() & old.keys() if new[k] != old[k]),
+        }
+    categories["summary_changed"] = previous.get("summary") != proposed.get("summary")
+    categories["note"] = (
+        "Working architecture proposal only. Accepted Identity, Structure, Book, "
+        "relations and prose remain unchanged. Any real downstream impact needs "
+        "the existing source-backed impact/revision workflows."
+    )
+    return categories
+
 def project_architecture(store: CanvasStore) -> dict:
     store.load()
     pointer = _read(_root(store) / "latest_request.json")
@@ -180,11 +200,14 @@ def project_architecture(store: CanvasStore) -> dict:
             raise ValueError("invalid architecture request pointer")
         req = load_host_agent_request(_root(store) / "requests" / sha / "request.json")
     pending = bool(req and (not current or current["request_sha256"] != req.request_sha256))
+    review = _read(_root(store) / "requests" / req.request_sha256 / "review.json") if pending else None
     return {
-        "status": "awaiting_host_agent" if pending else "ready" if current else "not_started",
-        "request": req.model_dump() if pending else None,
+        "status": "review_ready" if review else "awaiting_host_agent" if pending
+                  else "ready" if current else "not_started",
+        "request": req.model_dump() if pending and not review else None,
         "candidate": current["candidate"] if current else None,
         "candidate_request_sha256": current["request_sha256"] if current else None,
+        "review": review,
     }
 
 
@@ -226,8 +249,8 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
         response = validate_host_agent_response(request, payload)
         proposal = ArchitectureCandidate.model_validate_json(response.text)
         current = _candidate(store)
-        if current and current["request_sha256"] == sha:
-            prior_response = _read(base / "response.json")
+        prior_response = _read(base / "response.json")
+        if prior_response:
             if prior_response != response.model_dump():
                 raise BeginnerConcurrencyError("a different response already completed this request")
             return project_architecture(store)
@@ -239,8 +262,45 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
                 "the author's source vision or working story changed; response retained as stale evidence"
             )
         write_host_agent_response(base / "response.json", response)
-        _atomic_json_write(_root(store) / "current.json", {
-            "request_sha256": sha, "source_sha256": request.settings["source_sha256"],
-            "candidate": proposal.model_dump(mode="json"),
-        })
+        candidate = proposal.model_dump(mode="json")
+        if instruction.strip():
+            _atomic_json_write(base / "review.json", {
+                "request_sha256": sha, "source_sha256": request.settings["source_sha256"],
+                "prior_request_sha256": current["request_sha256"],
+                "candidate": candidate, "changes": _candidate_diff(current["candidate"], candidate),
+            })
+        else:
+            _atomic_json_write(_root(store) / "current.json", {
+                "request_sha256": sha, "source_sha256": request.settings["source_sha256"],
+                "candidate": candidate,
+            })
+    return project_architecture(store)
+
+
+def apply_architecture_review(store: CanvasStore, request_sha256: str) -> dict:
+    """Apply a reviewed *working* revision; accepted story owners are untouched."""
+    if not isinstance(request_sha256, str) or not re.fullmatch(r"[0-9a-f]{64}", request_sha256):
+        raise ValueError("valid request_sha256 is required")
+    with _FilesystemLock(store._path(".canvas.lock")):
+        pointer = _read(_root(store) / "latest_request.json")
+        if not pointer or pointer["request_sha256"] != request_sha256:
+            raise BeginnerConcurrencyError("a newer architecture request superseded this review")
+        current = _candidate(store)
+        if current and current["request_sha256"] != request_sha256:
+            review = _read(_root(store) / "requests" / request_sha256 / "review.json")
+            if not review:
+                raise ValueError("architecture revision has not been completed")
+            if current["request_sha256"] != review["prior_request_sha256"]:
+                raise BeginnerConcurrencyError("the baseline architecture changed; review again")
+            request = load_host_agent_request(
+                _root(store) / "requests" / request_sha256 / "request.json"
+            )
+            if _digest(_source(store, previous=current["candidate"])) != request.settings["source_sha256"]:
+                raise BeginnerConcurrencyError("story vision or working context changed; review again")
+            _atomic_json_write(_root(store) / "current.json", {
+                "request_sha256": request_sha256, "source_sha256": review["source_sha256"],
+                "candidate": review["candidate"],
+            })
+        elif not current:
+            raise ValueError("there is no current working architecture to revise")
     return project_architecture(store)
