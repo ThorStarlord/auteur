@@ -127,3 +127,16 @@ def test_realization_revision_is_staged_and_explicitly_applied(tmp_path):
     assert applied["status"] == "ready"
     assert applied["candidate"]["elements"][0]["description"] == "The paladin confronts difficult mercy."
     assert applied["candidate"]["architecture_feedback"][0]["architecture_node_id"] == "growth"
+
+
+def test_realization_projection_reports_stale_but_retains_concrete_proposal(tmp_path):
+    store = store_with_architecture(tmp_path)
+    pending = prepare_realization(store)
+    complete_realization(store, respond(pending, candidate()))
+    doc = store.load()
+    changed = doc.items[0].model_copy(update={"content": "A new author intent."})
+    store.apply("update-item", expected_revision=doc.revision, command_id="vision-revision",
+                payload={"item": changed.model_dump(mode="json")})
+    old = project_realization(store)
+    assert old["status"] == "stale"
+    assert old["candidate"]["elements"][0]["id"] == "paladin"
