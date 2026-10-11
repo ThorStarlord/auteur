@@ -15,17 +15,14 @@
   <main class="studio">
     <section class="workspace" aria-label="Creative story canvas">
       <nav class="toolbar" aria-label="Canvas controls">
-        <label for="canvas-picker">Your canvases</label>
-        <select id="canvas-picker" aria-label="Open existing working canvas" disabled></select>
-        <button type="button" id="new-canvas">New canvas</button>
         <button type="button" id="add-note">+ Idea</button>
         <button type="button" id="add-character">+ Character</button>
         <button type="button" id="add-scene">+ Scene</button>
-        <button type="button" id="fit">Fit</button>
-        <label for="find-nodes">Find</label><input id="find-nodes" type="search" placeholder="Find visible nodes" aria-label="Find nodes on the canvas">
-        <label for="zoom">Zoom</label><input id="zoom" type="range" min="50" max="150" value="100">
-        <label for="layer-view">View</label>
-        <select id="layer-view" aria-label="Canvas graph view">
+        <button type="button" id="connect-shortcut">Connect</button>
+        <button type="button" id="write-shortcut">Write</button>
+        <label for="find-nodes">Find</label><input id="find-nodes" type="search" placeholder="Search story items" aria-label="Find nodes on the canvas">
+        <label for="group-filter">Group</label><select id="group-filter" aria-label="Focus working group"><option value="">All groups</option></select>
+        <label for="layer-view">View</label><select id="layer-view" aria-label="Canvas graph view">
           <option value="create">My ideas</option>
           <option value="relationships">Relationships</option>
           <option value="lenses">Story Lenses</option>
@@ -33,26 +30,35 @@
           <option value="impact">Consequences</option>
           <option value="book">Book overview</option>
         </select>
-        <input id="evidence-workspace" placeholder="Existing workspace ID (optional)" aria-label="Existing Auteur workspace ID" maxlength="80">
-        <button type="button" id="show-evidence">Show story evidence</button>
-        <label for="relationship-chapter">Relationship changes</label>
-        <select id="relationship-chapter" aria-label="Focus relationships changed in a chapter" disabled>
-          <option value="">All declared relations</option>
-        </select>
-        <button type="button" id="show-book">Book overview</button>
-        <details class="impact-controls">
-          <summary>Advanced: impact preview</summary>
-          <label for="impact-artifact">Registered artifact ID</label>
-          <input id="impact-artifact" placeholder="e.g. story_identity" maxlength="120">
-          <button type="button" id="preview-impact">Preview possible downstream impact</button>
+        <button type="button" id="fit">Fit visible</button>
+        <details class="more-tools">
+          <summary>More tools</summary>
+          <div class="more-tools-content">
+            <label for="canvas-picker">Your canvases</label>
+            <select id="canvas-picker" aria-label="Open existing working canvas" disabled></select>
+            <button type="button" id="new-canvas">New canvas</button>
+            <button type="button" id="arrange-group">Arrange visible by group</button>
+            <label for="zoom">Zoom</label><input id="zoom" type="range" min="50" max="150" value="100">
+            <label for="evidence-workspace">Existing workspace (optional)</label>
+            <input id="evidence-workspace" placeholder="Workspace ID" aria-label="Existing Auteur workspace ID" maxlength="80">
+            <button type="button" id="show-evidence">Show story evidence</button>
+            <label for="relationship-chapter">Relationship changes</label>
+            <select id="relationship-chapter" aria-label="Focus relationships changed in a chapter" disabled><option value="">All declared relations</option></select>
+            <button type="button" id="show-book">Book overview</button>
+            <details class="impact-controls"><summary>Advanced: impact preview</summary>
+              <label for="impact-artifact">Registered artifact ID</label>
+              <input id="impact-artifact" placeholder="e.g. story_identity" maxlength="120">
+              <button type="button" id="preview-impact">Preview possible downstream impact</button>
+            </details>
+            <button type="button" id="download">Export JSON</button>
+            <label class="import-label" for="import">Import JSON</label>
+            <input id="import" type="file" accept="application/json,.json" aria-label="Import a Studio canvas">
+          </div>
         </details>
-        <button type="button" id="download">Export JSON</button>
         <button type="button" id="retry-save" hidden>Retry saving</button>
         <button type="button" id="restore-deleted" hidden>Restore removed idea</button>
-        <label class="import-label" for="import">Import JSON</label>
-        <input id="import" type="file" accept="application/json,.json" aria-label="Import a Studio canvas">
       </nav>
-      <div id="viewport" tabindex="0" role="region" aria-label="Story canvas. Use Add controls to create notes; arrow keys move focused nodes." aria-describedby="canvas-help">
+      <p id="canvas-legend" class="canvas-legend">Working ideas and connections are not accepted story facts.</p>     <div id="viewport" tabindex="0" role="region" aria-label="Story canvas. Use Add controls to create notes; arrow keys move focused nodes." aria-describedby="canvas-help">
         <div id="world">
           <svg id="edges" width="1600" height="1100" aria-hidden="true"></svg>
           <div id="nodes"></div>
