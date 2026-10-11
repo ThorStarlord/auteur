@@ -72,6 +72,7 @@
   }
   function loadRemote(doc) {
     state.items = doc.items; state.connections = doc.connections; state.positions = doc.positions;
+    state.view = "create"; state.focusGroup = "";
     state.selected = state.items.length ? state.items[0].id : null;
     state.panX = doc.viewport.pan_x; state.panY = doc.viewport.pan_y; state.zoom = doc.viewport.zoom;
     $("zoom").value = String(Math.round(state.zoom * 100));
@@ -321,12 +322,22 @@
     return gridPosition(state.items.length % 112);
   }
   function arrangeVisible() {
+    if (remote.failed || !remote.ready) { status("Cannot arrange while the canvas is unavailable."); return; }
+    if (!$("scene-panel").hidden) captureScene();
     var items = state.items.filter(visibleWorking).sort(function (a, b) {
       return ((a.group || "") + "/" + a.title).localeCompare((b.group || "") + "/" + b.title);
     });
     if (!items.length) { status("No working items in this view to arrange."); return; }
-    if (items.length > 112) { status("Focus one group before arranging this large canvas."); return; }
-    items.forEach(function (item, i) { state.positions[item.id] = gridPosition(i); });
+    var moving = new Set(items.map(function (item) { return item.id; }));
+    var occupied = new Set(Object.keys(state.positions).filter(function (id) { return !moving.has(id); })
+      .map(function (id) { var p = state.positions[id]; return p.x + ":" + p.y; }));
+    var free = [];
+    for (var n = 0; n < 112; n++) {
+      var p = gridPosition(n);
+      if (!occupied.has(p.x + ":" + p.y)) free.push(p);
+    }
+    if (items.length > free.length) { status("Not enough free layout cells; focus a smaller group."); return; }
+    items.forEach(function (item, i) { state.positions[item.id] = free[i]; });
     render(); fit();
     status("Working items arranged by group. Arrangement changes layout only.");
   }
@@ -773,6 +784,7 @@
   }
   function sceneOpen() {
     var item = selected(); if (!item || item.kind !== "scene") return;
+    if (!$("scene-panel").hidden) { $("scene-text").focus(); return; }
     saveCurrent(); displayScene();
   }
   function sceneSave() {
@@ -874,6 +886,7 @@
   });
   $("write-shortcut").addEventListener("click", function () {
     if (!remote.ready || remote.failed) { status("Working canvas is unavailable; cannot open a new scene."); return; }
+    if (!$("scene-panel").hidden) { $("scene-text").focus(); return; }
     if (!selected() || selected().kind !== "scene") newItem("scene");
     sceneOpen();
   });
