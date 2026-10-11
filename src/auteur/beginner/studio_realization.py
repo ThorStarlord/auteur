@@ -5,6 +5,7 @@ No Scene/Identity/Structure/Bible data is created or accepted here.
 """
 from __future__ import annotations
 
+import argparse
 import json
 import re
 from pathlib import Path
@@ -13,7 +14,8 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from auteur.host_agent import (
-    _atomic_json_write, build_host_agent_request, load_host_agent_request,
+    _atomic_json_write, HostAgentRequest, build_host_agent_request,
+    build_host_agent_response, load_host_agent_request,
     validate_host_agent_response, write_host_agent_request, write_host_agent_response,
 )
 from .persistence import BeginnerConcurrencyError, _FilesystemLock
@@ -268,3 +270,38 @@ def apply_realization_review(store: CanvasStore, request_sha256: str) -> dict:
             "candidate": review["candidate"],
         })
     return project_realization(store)
+
+
+def main(argv: list[str] | None = None) -> int:
+    """A local coding agent supplies candidate JSON; this CLI never calls a provider."""
+    parser = argparse.ArgumentParser(description="Auteur Story Realization host-agent bridge")
+    parser.add_argument("--project", required=True)
+    parser.add_argument("--canvas", required=True)
+    commands = parser.add_subparsers(dest="command", required=True)
+    commands.add_parser("show")
+    prepare = commands.add_parser("prepare")
+    prepare.add_argument("--focus", action="append", default=[])
+    prepare.add_argument("--instruction", default="")
+    finish = commands.add_parser("complete-file")
+    finish.add_argument("--candidate", required=True)
+    args = parser.parse_args(argv)
+    store = CanvasStore(Path(args.project), args.canvas)
+    if args.command == "prepare":
+        result = prepare_realization(store, args.focus, args.instruction)
+    elif args.command == "complete-file":
+        pending = project_realization(store)
+        if pending["status"] != "awaiting_host_agent" or not pending["request"]:
+            raise ValueError("no pending realization request to complete")
+        request = HostAgentRequest(**pending["request"])
+        reply = build_host_agent_response(
+            request, Path(args.candidate).read_text(encoding="utf-8")
+        )
+        result = complete_realization(store, reply.model_dump())
+    else:
+        result = project_realization(store)
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
