@@ -319,3 +319,23 @@ def test_v2_agent_request_and_candidate_are_source_bound(tmp_path):
     assert result["candidate"]["schema_version"] == 2
     assert result["candidate"]["genre_contracts"][0]["genre_node_id"] == "progression"
     assert not (tmp_path / "story_identity.yaml").exists()
+
+
+def test_revision_diff_covers_emotions_genres_and_cross_genre_mechanisms():
+    from auteur.beginner.studio_architecture import _candidate_diff
+    old = emotion_first_candidate()
+    import copy
+    updated = copy.deepcopy(old)
+    updated["emotion_targets"][0]["intended_effect"] = "Joy from more consequential progress."
+    updated["genre_contracts"][0]["narrative_engine"] = "Each new ability changes the ethical conflict."
+    updated["genre_interactions"][0]["mechanism"] = "Heroism actively reframes progression."
+    updated["complex_emotions"].append({
+        "id": "awe", "title": "Heroic awe", "basic_emotions": ["joy", "surprise"],
+        "context": "Wonder and satisfaction accompany a consequential breakthrough.",
+    })
+    changes = _candidate_diff(old, updated)
+    assert changes["emotion_targets"]["changed"] == ["joy_growth"]
+    assert changes["genre_contracts"]["changed"] == ["progression"]
+    assert changes["genre_interactions"]["changed"] == ["ethical_constraint"]
+    assert changes["complex_emotions"]["added"] == ["awe"]
+    assert not changes["nodes"]["changed"]
