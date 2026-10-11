@@ -586,6 +586,9 @@
     if (state.architecture) state.architecture.nodes.filter(candidateVisible).forEach(function (item) {
       displayed.push({ item: item, candidate: true });
     });
+    if (state.realization) state.realization.elements.filter(realizationVisible).forEach(function (item) {
+      displayed.push({item: {id:item.id,title:item.title,group:item.scope}, realization:true});
+    });
     displayed.sort(function (a, b) {
       return ((a.item.group || "") + a.item.title).localeCompare((b.item.group || "") + b.item.title);
     });
@@ -598,9 +601,11 @@
       button.addEventListener("click", function () {
         if (row.derived) chooseDerived(row.item.id);
         else if (row.candidate) chooseCandidate(row.item.id);
+        else if (row.realization) chooseRealization(row.item.id);
         else choose(row.item.id);
         var pos = row.derived ? state.derivedPositions[row.item.id] :
-          row.candidate ? state.candidatePositions[row.item.id] : state.positions[row.item.id];
+          row.candidate ? state.candidatePositions[row.item.id] :
+          row.realization ? state.realizationPositions[row.item.id] : state.positions[row.item.id];
         if (pos) {
           state.panX = Math.max(-1400, Math.min(700, $("viewport").clientWidth / 2 - (pos.x + 80) * state.zoom));
           state.panY = Math.max(-1040, Math.min(700, $("viewport").clientHeight / 2 - (pos.y + 32) * state.zoom));
@@ -616,6 +621,9 @@
       .forEach(function (item) { if (state.derivedPositions[item.id]) points.push(state.derivedPositions[item.id]); });
     if (state.architecture) state.architecture.nodes.filter(candidateVisible).forEach(function (item) {
       if (state.candidatePositions[item.id]) points.push(state.candidatePositions[item.id]);
+    });
+    if (state.realization) state.realization.elements.filter(realizationVisible).forEach(function (item) {
+      if (state.realizationPositions[item.id]) points.push(state.realizationPositions[item.id]);
     });
     if (!points.length) { state.zoom = 1; state.panX = 0; state.panY = 0; }
     else {
@@ -904,6 +912,18 @@
         svg.appendChild(line);
       });
     }
+    if (state.realization && state.view === "realization_candidates") {
+      state.realization.links.forEach(function (edge) {
+        var a = realizationElement(edge.source), b = realizationElement(edge.target);
+        if (!a || !b || !realizationVisible(a) || !realizationVisible(b)) return;
+        var from = state.realizationPositions[a.id], to = state.realizationPositions[b.id];
+        var line = document.createElementNS(svgNS, "line");
+        line.setAttribute("x1", String(from.x+82)); line.setAttribute("y1", String(from.y+34));
+        line.setAttribute("x2", String(to.x+82)); line.setAttribute("y2", String(to.y+34));
+        line.setAttribute("stroke", "#4f897e"); line.setAttribute("stroke-width", "2");
+        svg.appendChild(line);
+      });
+    }
     if (state.derived) state.derived.edges.forEach(function (edge) {
       var from = state.derivedPositions[edge.source], to = state.derivedPositions[edge.target];
       var fromNode = state.derived.nodes.find(function (n) { return n.id === edge.source; });
@@ -919,12 +939,44 @@
   function renderInspector() {
     var source = state.derived && state.derived.nodes.find(function (n) { return n.id === state.selectedDerived; });
     var proposal = state.view === "architecture" ? candidateNode(state.selectedCandidate) : null;
-    $("source-detail").hidden = !source && !proposal;
+    var concrete = state.view === "realization_candidates" ? realizationElement(state.selectedRealization) : null;
+    $("source-detail").hidden = !source && !proposal && !concrete;
+    $("realization-copy").hidden = !concrete;
+    $("realization-inspect").hidden = !concrete;
+    $("realization-feedback").hidden = !concrete || !(state.realization.architecture_feedback || []).some(function (e) {
+      return concrete.architecture_refs.includes(e.architecture_node_id);
+    });
     $("candidate-copy").hidden = !proposal;
     $("candidate-focus").hidden = !proposal;
     $("genre-contract-detail").replaceChildren();
     $("genre-contract-detail").hidden = true;
     $("book-orientation").hidden = state.view !== "book";
+    if (concrete) {
+      $("inspector-empty").hidden = true; $("inspector-fields").hidden = true;
+      $("genre-contract-detail").hidden = true;
+      $("source-title").textContent = concrete.title;
+      $("source-state").textContent = concrete.kind + " · STORY REALIZATION PROPOSAL / NOT ACCEPTED";
+      $("source-description").textContent = concrete.description;
+      $("source-ref").textContent = "Architecture references: " + concrete.architecture_refs.map(function (id) {
+        var node = candidateNode(id); return node ? node.title : id;
+      }).join(" · ") + " | Response " + (state.realizationRequestSha || "unavailable");
+      var links = $("source-links"); links.replaceChildren();
+      state.realization.links.filter(function (edge) {
+        return edge.source === concrete.id || edge.target === concrete.id;
+      }).forEach(function (edge) {
+        var other = realizationElement(edge.source === concrete.id ? edge.target : edge.source);
+        if (!other) return;
+        var p = document.createElement("p"); p.textContent = edge.function + " → " + other.title; links.appendChild(p);
+      });
+      (state.realization.architecture_feedback || []).filter(function (feedback) {
+        return concrete.architecture_refs.includes(feedback.architecture_node_id);
+      }).forEach(function (feedback) {
+        var p = document.createElement("p");
+        p.textContent = "Potential architecture refinement: " + feedback.observation +
+          " → " + feedback.proposed_change; links.appendChild(p);
+      });
+      return;
+    }
     if (proposal) {
       $("inspector-empty").hidden = true; $("inspector-fields").hidden = true;
       $("source-title").textContent = proposal.title;
@@ -1034,6 +1086,11 @@
     rememberFocus();
   }
 
+  function chooseRealization(id) {
+    if (!$("scene-panel").hidden) { captureScene(); concealScene(); scheduleSave(); }
+    state.selectedRealization = id; state.selected = null; state.selectedDerived = null;
+    renderInspector(); rememberFocus();
+  }
   function switchWorkspace(next) {
     if (next === state.workspace) return;
     if (next === "architecture") {
@@ -1117,6 +1174,10 @@
       $(id).hidden = designing;
     });
     $("architecture-tools").hidden = !designing;
+    $("realization-tools").hidden = designing;
+    $("realization-focus-label").textContent = candidateNode(state.selectedCandidate)
+      ? "Architecture focus: " + candidateNode(state.selectedCandidate).title
+      : "Architecture focus: whole story";
     $("emotional-design").hidden = !designing || !state.architecture ||
       !(state.architecture.emotion_targets || []).length;
     ["workspace-architecture", "workspace-realization"].forEach(function (id) {
@@ -1132,7 +1193,9 @@
     $("genre-timeline").hidden = state.view !== "genre_timeline";
     renderTimeline();
     renderGroups();
-    $("canvas-legend").textContent = state.view === "relationships"
+    $("canvas-legend").textContent = state.view === "realization_candidates"
+      ? "Working concrete story proposals link back to Narrative Architecture; none is accepted fiction."
+      : state.view === "relationships"
       ? "Working associations are distinct from accepted, read-only relationship evidence."
       : state.view === "architecture" ? "Agent-generated structure is a proposal, not accepted story meaning. Copy an element to edit working notes."
       : state.view === "genre_timeline" ? "Genre prominence and emotional phases are provisional; no chapter lengths or accepted contracts are implied."
@@ -1187,6 +1250,22 @@
       node.append(title, type); node.addEventListener("click", function () { chooseDerived(item.id); });
       host.appendChild(node);
     });
+    if (state.realization && state.view === "realization_candidates") {
+      state.realization.elements.filter(realizationVisible).forEach(function (item) {
+        var pos = state.realizationPositions[item.id];
+        var button = document.createElement("button"); button.type = "button";
+        button.className = "node realization"; button.dataset.itemId = item.id;
+        button.style.left = pos.x + "px"; button.style.top = pos.y + "px";
+        button.setAttribute("aria-pressed", String(item.id === state.selectedRealization));
+        button.setAttribute("aria-label", "Working story realization: " + item.kind + " " + item.title);
+        var label = document.createElement("span"); label.className = "label"; label.textContent = item.title;
+        var type = document.createElement("span"); type.className = "type";
+        type.textContent = item.kind + " · Proposed";
+        button.append(label, type);
+        button.addEventListener("click", function () { chooseRealization(item.id); });
+        host.appendChild(button);
+      });
+    }
     if (state.architecture && state.view === "architecture") {
       state.architecture.nodes.filter(candidateVisible).forEach(function (item) {
         var pos = state.candidatePositions[item.id]; if (!pos) return;
