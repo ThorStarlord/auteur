@@ -894,7 +894,7 @@
       });
   }
   function render() {
-    $("architecture-clear-focus").hidden = !state.architectureCenter;
+    $("architecture-clear-focus").hidden = state.view !== "architecture" || !state.architectureCenter;
     $("viewport").hidden = state.view === "genre_timeline";
     $("genre-timeline").hidden = state.view !== "genre_timeline";
     renderTimeline();
