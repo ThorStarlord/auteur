@@ -55,6 +55,67 @@ class ArchitectureLink(BaseModel):
     function: str = Field(min_length=1, max_length=120)
 
 
+# Deliberately small, replaceable story-design vocabulary; not a neural measurement.
+BasicEmotion = Literal["joy", "sadness", "fear", "anger", "disgust", "surprise"]
+
+
+class EmotionTarget(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    id: str = Field(pattern=r"^[a-z][a-z0-9_-]{0,79}$")
+    emotion: BasicEmotion
+    role: Literal["primary", "supporting", "contrasting", "local"]
+    intended_effect: str = Field(min_length=1, max_length=450)
+    eliciting_condition: str = Field(min_length=1, max_length=600)
+    aesthetic_strategy: str = Field(min_length=1, max_length=600)
+    provenance: Literal["author_declared", "agent_proposed"]
+
+
+class ComplexEmotion(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    id: str = Field(pattern=r"^[a-z][a-z0-9_-]{0,79}$")
+    title: str = Field(min_length=1, max_length=120)
+    basic_emotions: list[BasicEmotion] = Field(min_length=2, max_length=6)
+    context: str = Field(min_length=1, max_length=600)
+
+    @model_validator(mode="after")
+    def distinct_components(self) -> "ComplexEmotion":
+        if len(set(self.basic_emotions)) != len(self.basic_emotions):
+            raise ValueError("complex-emotion components must be distinct")
+        return self
+
+
+class GenreContract(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    genre_node_id: str
+    role: Literal["governing", "supporting", "tertiary", "local"]
+    emotion_target_ids: list[str] = Field(default_factory=list, max_length=20)
+    complex_emotion_ids: list[str] = Field(default_factory=list, max_length=12)
+    trope_functions: list[str] = Field(min_length=1, max_length=12)
+    narrative_engine: str = Field(min_length=1, max_length=1200)
+    structural_pattern: str = Field(min_length=1, max_length=1200)
+    aesthetic_strategies: list[str] = Field(default_factory=list, max_length=12)
+    payoff_expectations: list[str] = Field(min_length=1, max_length=8)
+
+
+class GenreInteraction(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    id: str = Field(pattern=r"^[a-z][a-z0-9_-]{0,79}$")
+    source_genre_id: str
+    target_genre_id: str
+    kind: Literal["reinforces", "enables", "constrains", "contrasts",
+                  "creates_tension", "converges"]
+    mechanism: str = Field(min_length=1, max_length=900)
+    risk: str | None = Field(default=None, max_length=600)
+
+
+class GenreActivation(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    genre_node_id: str
+    basic_emotions: list[BasicEmotion] = Field(default_factory=list, max_length=6)
+    trope_functions: list[str] = Field(default_factory=list, max_length=8)
+    structural_function: str = Field(min_length=1, max_length=700)
+
+
 class GenreParticipation(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
     genre: str = Field(min_length=1, max_length=120)
@@ -68,6 +129,7 @@ class NarrativePhase(BaseModel):
     order: int = Field(ge=0, le=1000)
     scope: str = Field(default="whole_story", max_length=100)
     genres: list[GenreParticipation] = Field(default_factory=list, max_length=8)
+    genre_activations: list[GenreActivation] = Field(default_factory=list, max_length=8)
     reader_experience: str | None = Field(default=None, max_length=400)
     aesthetic: str | None = Field(default=None, max_length=400)
     narrative_function: str = Field(min_length=1, max_length=1000)
@@ -77,12 +139,16 @@ class NarrativePhase(BaseModel):
 
 class ArchitectureCandidate(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
-    schema_version: Literal[1]
+    schema_version: Literal[1, 2]
     summary: str = Field(min_length=1, max_length=3000)
     nodes: list[ArchitectureNode] = Field(min_length=1, max_length=80)
     links: list[ArchitectureLink] = Field(default_factory=list, max_length=180)
     phases: list[NarrativePhase] = Field(default_factory=list, max_length=32)
     open_questions: list[str] = Field(default_factory=list, max_length=16)
+    emotion_targets: list[EmotionTarget] = Field(default_factory=list, max_length=30)
+    complex_emotions: list[ComplexEmotion] = Field(default_factory=list, max_length=16)
+    genre_contracts: list[GenreContract] = Field(default_factory=list, max_length=14)
+    genre_interactions: list[GenreInteraction] = Field(default_factory=list, max_length=40)
 
     @model_validator(mode="after")
     def valid_graph(self) -> "ArchitectureCandidate":
@@ -109,6 +175,34 @@ class ArchitectureCandidate(BaseModel):
         if any(ref not in phases or ref == phase.id
                for phase in self.phases for ref in phase.parallel_with):
             raise ValueError("phase parallel_with references missing or identical phase")
+        if self.schema_version == 2:
+            forbidden = {"character", "relationship"}
+            if any(node.category in forbidden for node in self.nodes):
+                raise ValueError("architecture-only proposals cannot instantiate characters or relationships")
+            target_ids = {target.id for target in self.emotion_targets}
+            complex_ids = {emotion.id for emotion in self.complex_emotions}
+            contracts = {genre.genre_node_id for genre in self.genre_contracts}
+            if len(target_ids) != len(self.emotion_targets) or len(complex_ids) != len(self.complex_emotions):
+                raise ValueError("duplicate emotional design identifier")
+            if len(contracts) != len(self.genre_contracts):
+                raise ValueError("duplicate genre contract identifier")
+            if any(genre.genre_node_id not in nodes or
+                   next(n for n in self.nodes if n.id == genre.genre_node_id).category != "genre"
+                   for genre in self.genre_contracts):
+                raise ValueError("genre contracts must reference genre nodes")
+            for genre in self.genre_contracts:
+                if any(ref not in target_ids for ref in genre.emotion_target_ids):
+                    raise ValueError("genre references unknown basic-emotion target")
+                if any(ref not in complex_ids for ref in genre.complex_emotion_ids):
+                    raise ValueError("genre references unknown complex emotion")
+            if len({edge.id for edge in self.genre_interactions}) != len(self.genre_interactions):
+                raise ValueError("duplicate genre interaction identifier")
+            if any(edge.source_genre_id not in contracts or edge.target_genre_id not in contracts
+                   or edge.source_genre_id == edge.target_genre_id for edge in self.genre_interactions):
+                raise ValueError("genre interaction requires two distinct existing contracts")
+            if any(activation.genre_node_id not in contracts
+                   for phase in self.phases for activation in phase.genre_activations):
+                raise ValueError("phase references unknown genre contract")
         return self
 
 
@@ -151,25 +245,50 @@ def _source(store: CanvasStore, *, previous: dict | None = None) -> dict:
     }
 
 
-_SYSTEM = """You are Auteur's narrative-architecture proposing agent, not its authority.
-Use the author's declared experience, aesthetic, tropes, genre hierarchy and
-structure as the highest-priority inputs. Never invent declared author intent.
-Build a legible *candidate*, describing story engines, trope functions, reader
-experience, aesthetic framing and structural relationships, not just labels.
-For revisions, preserve stable node/phase IDs and untouched creative decisions.
-Represent optional genre alternation, overlap, genuine pivots and uncertainty.
-Return one JSON object only with exactly:
-schema_version=1, summary, nodes, links, phases, open_questions.
-node: {id,title,category,summary,scope,parent_id}; category in
-reader_experience,aesthetic,genre,trope,engine,thread,structure,theme,character,
-relationship,other. scope is a human-readable story/book/arc/chapter focus.
-link: {id,source,target,function}, where endpoints are node IDs.
-phase: {id,title,order,scope,genres,reader_experience,aesthetic,
-narrative_function,transition,parallel_with}; genre: {genre,role}, role in
-governing,locally_dominant,supporting,background.
-Unknown phase duration must stay unknown; order is not a chapter number.
-Keep 1-80 nodes, <=180 links, <=32 phases and <=16 open questions.
-Everything is noncanonical working proposal. No auto-acceptance or prose."""
+_SYSTEM = """You are Auteur's ABSTRACT NARRATIVE ARCHITECTURE agent, not its authority.
+Generate narrative MECHANISMS, not a fictional cast, setting or plotted storyline.
+Never invent names of characters, places, factions, events, plot acts or scenes.
+You may refer to concrete proper nouns explicitly supplied by the author, but
+do not elaborate them into fictional content. Generic archetypes may illustrate
+a structural function without inventing story facts.
+
+Use the six chosen basic-emotion labels exactly: joy, sadness, fear, anger,
+disgust, surprise. Name concrete intended reader-directed effects and
+narrative eliciting conditions, and explain how aesthetic strategies help.
+Use complex emotions ONLY when useful; each must cite 2+ distinct basic labels,
+with a contextual interpretation, never a scientific/causal guarantee.
+Distinguish explicit author declarations from your own working hypotheses.
+
+Build contextual genre contracts with emotional target references, trope
+functions, renewable narrative engines, structural patterns and payoff
+expectations. Explain typed genre interactions: reinforces, enables,
+constrains, contrasts, creates_tension, converges. Only include interactions
+that actually explain a mechanism. Propose abstract temporal phases and
+genre_activations, including overlaps, genuine pivots and unknown durations.
+One architecture may accommodate many different concrete realizations.
+
+Return EXACTLY one JSON candidate with:
+schema_version=2, summary, nodes, links, phases, open_questions,
+emotion_targets, complex_emotions, genre_contracts, genre_interactions.
+node: {id,title,category,summary,scope,parent_id}; category: reader_experience,
+aesthetic,genre,trope,engine,thread,structure,theme,other (never character/relationship).
+link: {id,source,target,function}; endpoints must exist.
+emotion_target: {id,emotion,role,intended_effect,eliciting_condition,
+aesthetic_strategy,provenance}; emotion one of six basics;
+role primary/supporting/contrasting/local; provenance author_declared/agent_proposed.
+complex_emotion: {id,title,basic_emotions,context}; 2+ distinct basic labels.
+genre_contract: {genre_node_id,role,emotion_target_ids,complex_emotion_ids,
+trope_functions,narrative_engine,structural_pattern,aesthetic_strategies,
+payoff_expectations}; genre_node_id identifies one genre node.
+genre_interaction: {id,source_genre_id,target_genre_id,kind,mechanism,risk}.
+phase: {id,title,order,scope,genres,genre_activations,reader_experience,
+aesthetic,narrative_function,transition,parallel_with}.
+genre: {genre,role}; role governing/locally_dominant/supporting/background.
+genre_activation: {genre_node_id,basic_emotions,trope_functions,structural_function}.
+Unknown lengths stay unknown; phase order is NOT a chapter or act number.
+Do not fabricate genre commitments when the brief does not establish them.
+Keep stable IDs across revisions, preserve unaffected choices, explain uncertainty.
+All material is a noncanonical proposal; never accept Identity, Structure or prose."""
 
 
 
