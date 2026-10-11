@@ -319,3 +319,45 @@ genre interactions appear in the architecture difference preview, and
 stale realization is still inspectable but not treated as current.
 No Studio operation here mutates canonical Identity, Structure, Realization,
 Expression, character relationships, or Book/Series history.
+
+
+## 14. Narrative Architecture information hierarchy and high-density UX (2026-10-11)
+
+**Owner-selected UX correction, not yet implemented:** The architecture graph is the
+primary **work surface / visual focal point**. A compact, editable Story Vision
+provides context; a restrained facet navigator provides orientation; the
+inspector explains the selected component and its *meaningful relationships*.
+Do not conflate a marketing-style hero banner with the author's working graph.
+
+**Both content and relationships matter.** Emotions (the selected six basic
+emotions and optional complex compositions), Genres (contextual contracts),
+Tropes (their narrative functions) and Structure (renewable mechanisms and
+patterns) must each be independently explorable **and** connected by
+source-supported, understandable relationship labels. They are projections
+of the current candidate architecture, not four canonical stores.
+
+**Visual hierarchy:** Keep the graph dominant; do not require the reader to
+interpret every emotional paragraph, node, edge, toolbar and phase at once.
+Use category-level color tokens consistently across navigator/graph/inspector
+and timeline, with visible labels and accessible noncolor distinctions for
+proposal status, links and selection. An author can focus, expand relations,
+and return to the whole picture without losing context.
+
+**Temporal information:** A phase references a reusable genre contract.
+Show the interval's genre roles, targeted emotions, trope/structural
+activation and locally meaningful differences; keep complete contract
+explanations in the inspector. Do not repeat multi-paragraph genre essays
+in every timeline card, invent fixed durations or confuse genre pivots with
+temporary prominence.
+
+**Immediate concrete defects to address:** CSS hidden-state visibility of
+simultaneous Architecture/Realization toolbars, an Architecture inspector
+showing a hidden Story Vision editing selection, and excessive vertical
+space preceding the graph. Keep the two authoring workspaces separate.
+
+**Implementation plan:** [Narrative Architecture information hierarchy,
+semantic colors, focused graph and compact timeline](2026-10-11-narrative-architecture-information-ux-plan.md).
+The plan orders UX-0 through UX-5 from concrete coherence repairs to
+facet navigation, visual encoding, temporal compression and cross-view
+continuity. It does not assert that these changes are already shipped,
+qualified or merged.
