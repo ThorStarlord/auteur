@@ -339,3 +339,16 @@ def test_revision_diff_covers_emotions_genres_and_cross_genre_mechanisms():
     assert changes["genre_interactions"]["changed"] == ["ethical_constraint"]
     assert changes["complex_emotions"]["added"] == ["awe"]
     assert not changes["nodes"]["changed"]
+
+
+def test_architecture_becomes_stale_after_author_revises_vision(tmp_path):
+    store = working_store(tmp_path)
+    waiting = prepare_architecture(store)
+    complete_architecture(store, response(waiting, emotion_first_candidate()))
+    doc = store.load()
+    modified = doc.items[0].model_copy(update={"content": "New emotional goals."})
+    store.apply("update-item", expected_revision=doc.revision, command_id="new-goals",
+                payload={"item": modified.model_dump(mode="json")})
+    old = project_architecture(store)
+    assert old["status"] == "stale"
+    assert old["candidate"]["schema_version"] == 2
