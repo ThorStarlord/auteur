@@ -44,6 +44,32 @@
     clearTimeout(remote.timer);
     remote.timer = setTimeout(function () { remote.timer = null; queueSave(); }, 300);
   }
+  // Presentation-only local preference: story content stays in CanvasStore.
+  function focusKey() { return "auteur:studio:focus:" + remote.canvasId; }
+  function rememberFocus() {
+    if (!remote.ready || !remote.canvasId) return;
+    var open = !$("scene-panel").hidden;
+    var field = open ? $("scene-text") : $("content");
+    try {
+      window.localStorage.setItem(focusKey(), JSON.stringify({
+        selected: state.selected, view: state.view, group: state.focusGroup,
+        editorOpen: open, expanded: open && $("scene-panel").classList.contains("expanded"),
+        caret: field.selectionStart || 0
+      }));
+    } catch (error) { status("Your canvas is saved; this browser cannot remember the current focus: " + error.message); }
+  }
+  function restoreFocus() {
+    var saved;
+    try { saved = JSON.parse(window.localStorage.getItem(focusKey()) || "null"); }
+    catch (error) { status("Previous focus unavailable; working canvas remains safe: " + error.message); return null; }
+    if (!saved || !state.items.some(function (item) { return item.id === saved.selected; })) return null;
+    state.focusGroup = typeof saved.group === "string" ? saved.group : "";
+    state.view = ["create", "relationships", "all"].includes(saved.view) ? saved.view : "create";
+    state.selected = saved.selected;
+    if (!visibleWorking(selected())) { state.view = "create"; state.focusGroup = ""; }
+    $("layer-view").value = state.view;
+    return saved;
+  }
   function loadRemote(doc) {
     state.items = doc.items; state.connections = doc.connections; state.positions = doc.positions;
     state.selected = state.items.length ? state.items[0].id : null;
@@ -52,13 +78,20 @@
     remote.revision = doc.revision; remote.ready = true;
     state.deleted = doc.deleted || {}; showRecoveryAction();
     remote.savedSnapshot = JSON.stringify(snapshot());
-    render(); status("Working canvas loaded · saved locally · revision " + remote.revision);
+    var focus = restoreFocus();
+    render();
+    if (focus && focus.editorOpen && selected() && selected().kind === "scene") {
+      displayScene(focus.caret, focus.expanded);
+    }
+    status("Working canvas loaded · saved locally · revision " + remote.revision);
   }
   function hasUnsavedChanges() {
     return remote.ready &&
       (remote.failed || remote.savedSnapshot !== JSON.stringify(snapshot()));
   }
   function leaveForLegacy(href) {
+    if (!$("scene-panel").hidden) captureScene();
+    rememberFocus();
     if (!remote.ready) {
       status("Canvas is not loaded. Cannot safely leave for the previous interface yet.");
       return;
@@ -536,6 +569,7 @@
       node.setAttribute("aria-pressed", String(node.dataset.itemId === itemId));
     });
     renderInspector();
+    rememberFocus();
   }
   function render() {
     renderGroups();
