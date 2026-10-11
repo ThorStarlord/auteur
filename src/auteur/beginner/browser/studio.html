@@ -58,7 +58,20 @@
         <button type="button" id="retry-save" hidden>Retry saving</button>
         <button type="button" id="restore-deleted" hidden>Restore removed idea</button>
       </nav>
-      <p id="canvas-legend" class="canvas-legend">Working ideas and connections are not accepted story facts.</p>     <div id="viewport" tabindex="0" role="region" aria-label="Story canvas. Use Add controls to create notes; arrow keys move focused nodes." aria-describedby="canvas-help">
+      <p id="canvas-legend" class="canvas-legend">Working ideas and connections are not accepted story facts.</p>
+      <section class="vision-panel" aria-label="Your story vision">
+        <details open id="vision-disclosure">
+          <summary>Story Vision · What should this story feel like?</summary>
+          <label for="vision-text">Describe the experience, aesthetic, tropes, genres, or structure you want. A premise is optional.</label>
+          <textarea id="vision-text" maxlength="12000" rows="3" placeholder="For example: a long fantasy of awe and vindication, institutional noir, slow-burn romance, mysteries and occasional horror; different genres take the lead in different arcs."></textarea>
+          <div class="vision-actions">
+            <button id="vision-save" type="button">Save vision</button>
+            <button id="vision-write" type="button">Write first</button>
+            <span id="vision-status" role="status" aria-live="polite">Working ideas, not accepted story decisions.</span>
+          </div>
+        </details>
+      </section>
+      <div id="viewport" tabindex="0" role="region" aria-label="Story canvas. Use Add controls to create notes; arrow keys move focused nodes." aria-describedby="canvas-help">
         <div id="world">
           <svg id="edges" width="1600" height="1100" aria-hidden="true"></svg>
           <div id="nodes"></div>
