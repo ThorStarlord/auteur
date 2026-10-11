@@ -52,6 +52,9 @@ from .discovery import (
 from .contracts import MutationCommand
 from .persistence import BeginnerConcurrencyError, BeginnerPersistenceError
 from .studio_store import CanvasStore, list_canvas_summaries
+from .studio_architecture import (
+    complete_architecture, prepare_architecture, project_architecture,
+)
 from .studio_projection import project_studio_graph
 from .studio_impact import preview_studio_impact
 from .workspace_index import list_workspace_summaries
@@ -552,6 +555,13 @@ class _RequestHandler(BaseHTTPRequestHandler):
                     session_version=session_version, story_orientation=orientation,
                 ))
                 return
+            if (len(parts) == 6 and parts[:4] == ["api", "beginner", "studio", "canvases"]
+                    and parts[5] == "architecture"):
+                try:
+                    self._send_json(200, project_architecture(CanvasStore(self.project_root, parts[4])))
+                except FileNotFoundError as exc:
+                    raise BeginnerRequestError(404, "working canvas not found") from exc
+                return
             if parts == ["api", "beginner", "studio", "canvases"]:
                 self._send_json(200, {"canvases": list_canvas_summaries(self.project_root)})
                 return
@@ -603,6 +613,19 @@ class _RequestHandler(BaseHTTPRequestHandler):
                 except FileNotFoundError as exc:
                     raise BeginnerRequestError(404, "working canvas not found") from exc
                 self._send_json(200, canvas.model_dump(mode="json"))
+                return
+            if (len(parts) == 7 and parts[:4] == ["api", "beginner", "studio", "canvases"]
+                    and parts[5] == "architecture" and parts[6] in {"prepare", "host-agent-response"}):
+                payload = self._read_json()
+                store = CanvasStore(self.project_root, parts[4])
+                try:
+                    if parts[6] == "prepare":
+                        result = prepare_architecture(store, payload.get("instruction", ""))
+                        self._send_json(202, result)
+                    else:
+                        self._send_json(200, complete_architecture(store, payload))
+                except FileNotFoundError as exc:
+                    raise BeginnerRequestError(404, "working canvas not found") from exc
                 return
             if parts == ["api", "beginner", "quick-draft"]:
                 payload = self._read_json()
