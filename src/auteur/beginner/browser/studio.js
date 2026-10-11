@@ -196,6 +196,7 @@
     status("Copied as editable working note. Original agent proposal remains available.");
   }
   function loadRemote(doc) {
+    state.architecture = null; state.candidatePositions = {}; state.selectedCandidate = null;
     state.items = doc.items; state.connections = doc.connections; state.positions = doc.positions;
     state.view = "create"; state.focusGroup = "";
     state.selected = state.items.length ? state.items[0].id : null;
@@ -827,7 +828,9 @@
     renderTimeline();
     renderGroups();
     $("canvas-legend").textContent = state.view === "relationships"
-      ? "Solid nodes and green lines: working ideas only. Dashed nodes and blue lines: read-only source evidence. Canvas actions do not accept story canon."
+      ? "Working associations are distinct from accepted, read-only relationship evidence."
+      : state.view === "architecture" ? "Agent-generated structure is a proposal, not accepted story meaning. Copy an element to edit working notes."
+      : state.view === "genre_timeline" ? "Genre prominence and emotional phases are provisional; no chapter lengths or accepted contracts are implied."
       : state.view === "create" ? "Working ideas and connections are not accepted story facts."
       : "Source-backed elements are read-only; canvas layout never changes story authority.";
     var host = $("nodes"); host.replaceChildren();
@@ -1132,6 +1135,21 @@
     if (remote.timer !== null) { clearTimeout(remote.timer); remote.timer = null; queueSave(); }
   });
   $("vision-write").addEventListener("click", function () { $("write-shortcut").click(); });
+  $("architecture-develop").addEventListener("click", function () { requestArchitecture(""); });
+  $("architecture-refresh").addEventListener("click", loadArchitecture);
+  $("architecture-revise").addEventListener("click", function () {
+    var intent = $("architecture-instruction").value.trim();
+    if (!intent) { $("architecture-status").textContent = "Describe the desired revision first."; return; }
+    requestArchitecture(intent);
+  });
+  $("architecture-complete").addEventListener("click", submitArchitecture);
+  $("candidate-copy").addEventListener("click", copyCandidate);
+  $("architecture-scope").addEventListener("change", function () {
+    state.architectureFocus = this.value;
+    if (candidateNode(state.selectedCandidate) && !candidateVisible(candidateNode(state.selectedCandidate)))
+      state.selectedCandidate = null;
+    render(); rememberFocus();
+  });
   $("fit").addEventListener("click", fit);
   $("connect-shortcut").addEventListener("click", function () {
     if (!selected()) { status("Select a working idea to connect first."); return; }
