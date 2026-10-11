@@ -396,6 +396,9 @@
     var displayed = state.items.filter(visibleWorking).map(function (item) { return { item: item, derived: false }; });
     if (state.derived) state.derived.nodes.filter(function (item) { return visibleDerived(item) && matches(item); })
       .forEach(function (item) { displayed.push({ item: item, derived: true }); });
+    if (state.architecture) state.architecture.nodes.filter(candidateVisible).forEach(function (item) {
+      displayed.push({ item: item, candidate: true });
+    });
     displayed.sort(function (a, b) {
       return ((a.item.group || "") + a.item.title).localeCompare((b.item.group || "") + b.item.title);
     });
@@ -406,8 +409,11 @@
       var li = document.createElement("li"), button = document.createElement("button");
       button.type = "button"; button.textContent = (row.item.group ? row.item.group + " / " : "") + row.item.title;
       button.addEventListener("click", function () {
-        if (row.derived) chooseDerived(row.item.id); else choose(row.item.id);
-        var pos = row.derived ? state.derivedPositions[row.item.id] : state.positions[row.item.id];
+        if (row.derived) chooseDerived(row.item.id);
+        else if (row.candidate) chooseCandidate(row.item.id);
+        else choose(row.item.id);
+        var pos = row.derived ? state.derivedPositions[row.item.id] :
+          row.candidate ? state.candidatePositions[row.item.id] : state.positions[row.item.id];
         if (pos) {
           state.panX = Math.max(-1400, Math.min(700, $("viewport").clientWidth / 2 - (pos.x + 80) * state.zoom));
           state.panY = Math.max(-1040, Math.min(700, $("viewport").clientHeight / 2 - (pos.y + 32) * state.zoom));
@@ -421,6 +427,9 @@
     var points = state.items.filter(visibleWorking).map(function (item) { return state.positions[item.id]; });
     if (state.derived) state.derived.nodes.filter(function (item) { return visibleDerived(item) && matches(item); })
       .forEach(function (item) { if (state.derivedPositions[item.id]) points.push(state.derivedPositions[item.id]); });
+    if (state.architecture) state.architecture.nodes.filter(candidateVisible).forEach(function (item) {
+      if (state.candidatePositions[item.id]) points.push(state.candidatePositions[item.id]);
+    });
     if (!points.length) { state.zoom = 1; state.panX = 0; state.panY = 0; }
     else {
       var minX = Math.min.apply(null, points.map(function (p) { return p.x; }));
@@ -648,7 +657,7 @@
   }
   function chooseDerived(nodeId) {
     if (!$("scene-panel").hidden) { captureScene(); concealScene(); scheduleSave(); }
-    state.selected = null; state.selectedDerived = nodeId;
+    state.selected = null; state.selectedDerived = nodeId; state.selectedCandidate = null;
     Array.prototype.forEach.call(document.querySelectorAll(".node"), function (button) {
       button.setAttribute("aria-pressed", String(button.dataset.itemId === nodeId));
     });
@@ -678,6 +687,20 @@
         svg.appendChild(text);
       }
     });
+    if (state.architecture && state.view === "architecture") {
+      state.architecture.links.forEach(function (edge) {
+        var fromNode = candidateNode(edge.source), toNode = candidateNode(edge.target);
+        if (!fromNode || !toNode || !candidateVisible(fromNode) || !candidateVisible(toNode)) return;
+        var from = state.candidatePositions[edge.source], to = state.candidatePositions[edge.target];
+        if (!from || !to) return;
+        var line = document.createElementNS(svgNS, "line");
+        line.setAttribute("x1", String(from.x + 82)); line.setAttribute("y1", String(from.y + 34));
+        line.setAttribute("x2", String(to.x + 82)); line.setAttribute("y2", String(to.y + 34));
+        line.setAttribute("stroke", "#ad95c5"); line.setAttribute("stroke-width", "2");
+        line.setAttribute("stroke-dasharray", "6 4");
+        svg.appendChild(line);
+      });
+    }
     if (state.derived) state.derived.edges.forEach(function (edge) {
       var from = state.derivedPositions[edge.source], to = state.derivedPositions[edge.target];
       var fromNode = state.derived.nodes.find(function (n) { return n.id === edge.source; });
@@ -692,8 +715,28 @@
   }
   function renderInspector() {
     var source = state.derived && state.derived.nodes.find(function (n) { return n.id === state.selectedDerived; });
-    $("source-detail").hidden = !source;
+    var proposal = state.view === "architecture" ? candidateNode(state.selectedCandidate) : null;
+    $("source-detail").hidden = !source && !proposal;
+    $("candidate-copy").hidden = !proposal;
     $("book-orientation").hidden = state.view !== "book";
+    if (proposal) {
+      $("inspector-empty").hidden = true; $("inspector-fields").hidden = true;
+      $("source-title").textContent = proposal.title;
+      $("source-state").textContent = proposal.category + " · AGENT CANDIDATE / NOT ACCEPTED";
+      $("source-description").textContent = proposal.summary;
+      $("source-ref").textContent = "Working scope: " + proposal.scope +
+        " · Agent response " + (state.architectureRequestSha || "unavailable");
+      var related = $("source-links"); related.replaceChildren();
+      state.architecture.links.filter(function (edge) {
+        return edge.source === proposal.id || edge.target === proposal.id;
+      }).forEach(function (edge) {
+        var other = candidateNode(edge.source === proposal.id ? edge.target : edge.source);
+        if (!other) return;
+        var line = document.createElement("p");
+        line.textContent = edge.function + " → " + other.title; related.appendChild(line);
+      });
+      return;
+    }
     if (source) {
       $("inspector-empty").hidden = true; $("inspector-fields").hidden = true;
       $("source-title").textContent = source.title;
@@ -736,7 +779,7 @@
   function choose(itemId) {
     var writing = !$("scene-panel").hidden;
     if (writing) { captureScene(); scheduleSave(); }
-    state.selected = itemId; state.selectedDerived = null;
+    state.selected = itemId; state.selectedDerived = null; state.selectedCandidate = null;
     Array.prototype.forEach.call(document.querySelectorAll(".node"), function (node) {
       node.setAttribute("aria-pressed", String(node.dataset.itemId === itemId));
     });
@@ -747,7 +790,41 @@
     }
     rememberFocus();
   }
+
+  function renderTimeline() {
+    var host = $("timeline-phases"); host.replaceChildren();
+    if (!state.architecture || !state.architecture.phases.length) {
+      var li = document.createElement("li"); li.textContent = "No narrative phases proposed yet.";
+      host.appendChild(li); return;
+    }
+    var phases = state.architecture.phases, lookup = {};
+    phases.forEach(function (phase) { lookup[phase.id] = phase.title; });
+    phases.slice().sort(function (a, b) { return a.order - b.order || a.id.localeCompare(b.id); })
+      .filter(function (phase) { return !state.architectureFocus || phase.scope === state.architectureFocus ||
+        phase.scope === "whole_story"; })
+      .forEach(function (phase) {
+        var li = document.createElement("li"); li.className = "timeline-phase";
+        var title = document.createElement("h3"); title.textContent = phase.title;
+        li.appendChild(title);
+        [
+          ["genres", phase.genres.map(function (g) { return g.genre + " (" + g.role.replace(/_/g, " ") + ")"; }).join(" · ")],
+          ["reader experience", phase.reader_experience],
+          ["aesthetic", phase.aesthetic],
+          ["narrative function", phase.narrative_function],
+          ["transition", phase.transition],
+          ["parallel", phase.parallel_with.map(function (id) { return lookup[id] || id; }).join(" · ")]
+        ].forEach(function (entry) {
+          if (!entry[1]) return;
+          var p = document.createElement("p"); p.className = entry[0].replace(" ", "-");
+          p.textContent = entry[0] + ": " + entry[1]; li.appendChild(p);
+        });
+        host.appendChild(li);
+      });
+  }
   function render() {
+    $("viewport").hidden = state.view === "genre_timeline";
+    $("genre-timeline").hidden = state.view !== "genre_timeline";
+    renderTimeline();
     renderGroups();
     $("canvas-legend").textContent = state.view === "relationships"
       ? "Solid nodes and green lines: working ideas only. Dashed nodes and blue lines: read-only source evidence. Canvas actions do not accept story canon."
@@ -802,6 +879,20 @@
       node.append(title, type); node.addEventListener("click", function () { chooseDerived(item.id); });
       host.appendChild(node);
     });
+    if (state.architecture && state.view === "architecture") {
+      state.architecture.nodes.filter(candidateVisible).forEach(function (item) {
+        var pos = state.candidatePositions[item.id]; if (!pos) return;
+        var button = document.createElement("button"); button.type = "button";
+        button.className = "node candidate"; button.dataset.itemId = item.id;
+        button.style.left = pos.x + "px"; button.style.top = pos.y + "px";
+        button.setAttribute("aria-pressed", String(item.id === state.selectedCandidate));
+        button.setAttribute("aria-label", "Working architecture proposal: " + item.category + ", " + item.title);
+        var label = document.createElement("span"); label.className = "label"; label.textContent = item.title;
+        var type = document.createElement("span"); type.className = "type"; type.textContent = item.category + " · Proposed";
+        button.append(label, type); button.addEventListener("click", function () { chooseCandidate(item.id); });
+        host.appendChild(button);
+      });
+    }
     drawEdges(); renderInspector(); renderOutline(); showVision(); transform();
   }
   // Keep the inspector and the working-document model in sync before focus changes.
