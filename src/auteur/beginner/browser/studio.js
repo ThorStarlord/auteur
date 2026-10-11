@@ -334,6 +334,7 @@
   function newItem(kind) {
     if (!remote.ready || remote.failed) { status("Cannot edit while local canvas is unavailable. Export your notes if needed."); return; }
     if (state.items.length >= 200) { status("The working canvas has reached its 200-item safety bound."); return; }
+    if (!$("scene-panel").hidden) { captureScene(); concealScene(); scheduleSave(); }
     var pos = availablePosition();
     var item = { id: id("item"), kind: kind, title: kind === "note" ? "New idea" : "New " + kind,
       content: "", group: state.focusGroup };
@@ -342,6 +343,7 @@
     state.selected = item.id; state.selectedDerived = null; state.view = "create"; $("layer-view").value = "create";
     render();
     $("title").focus();
+    rememberFocus();
     queueSave(); status(remote.failed ? "SAVE FAILED: export your working notes." : "Working item created. Saving locally...");
   }
   function changedRelationVisible(edge) {
@@ -479,6 +481,7 @@
       }).catch(function (error) { status("Impact preview unavailable: " + error.message); });
   }
   function chooseDerived(nodeId) {
+    if (!$("scene-panel").hidden) { captureScene(); concealScene(); scheduleSave(); }
     state.selected = null; state.selectedDerived = nodeId;
     Array.prototype.forEach.call(document.querySelectorAll(".node"), function (button) {
       button.setAttribute("aria-pressed", String(button.dataset.itemId === nodeId));
@@ -564,11 +567,17 @@
     });
   }
   function choose(itemId) {
+    var writing = !$("scene-panel").hidden;
+    if (writing) { captureScene(); scheduleSave(); }
     state.selected = itemId; state.selectedDerived = null;
     Array.prototype.forEach.call(document.querySelectorAll(".node"), function (node) {
       node.setAttribute("aria-pressed", String(node.dataset.itemId === itemId));
     });
     renderInspector();
+    if (writing) {
+      if (selected() && selected().kind === "scene") displayScene();
+      else concealScene();
+    }
     rememberFocus();
   }
   function render() {
@@ -723,21 +732,43 @@
     item.content = prose; $("scene-text").value = prose;
     queueSave(); status("Working candidate copied into scene. Nothing accepted.");
   }
-  function sceneOpen() {
-    var item = selected(); if (!item) return;
-    saveCurrent(); $("scene-heading").textContent = item.title; $("scene-text").value = item.content;
+  function concealScene() {
+    $("scene-panel").hidden = true;
+    $("scene-panel").classList.remove("expanded");
+    document.body.classList.remove("scene-docked");
+  }
+  function displayScene(caret, expanded) {
+    var item = selected(); if (!item || item.kind !== "scene") return;
+    $("scene-heading").textContent = item.title;
+    $("scene-text").value = item.content;
     $("scene-premise").value = item.scene_premise || "";
     $("scene-intent").value = item.scene_intent || "";
     $("generation-result").hidden = true;
-    $("generation-status").textContent = item.quick_draft_session_id ? "A prior Quick Draft request is linked to this scene." : "Prose can be written manually without generation.";
+    $("generation-status").textContent = item.quick_draft_session_id
+      ? "A prior Quick Draft request is linked to this scene."
+      : "Working prose can be written here without requesting generation.";
     $("refresh-draft").hidden = !item.quick_draft_session_id;
-    $("scene-panel").hidden = false; $("scene-text").focus();
+    $("scene-panel").hidden = false;
+    document.body.classList.add("scene-docked");
+    $("scene-panel").classList.toggle("expanded", !!expanded);
+    $("expand-scene").textContent = expanded ? "Split view" : "Focus writing";
+    $("expand-scene").setAttribute("aria-pressed", String(!!expanded));
+    $("scene-text").focus();
+    if (Number.isInteger(caret)) {
+      var n = Math.max(0, Math.min(caret, $("scene-text").value.length));
+      $("scene-text").setSelectionRange(n, n);
+    }
+    rememberFocus();
     if (item.quick_draft_session_id) refreshDraft();
   }
+  function sceneOpen() {
+    var item = selected(); if (!item || item.kind !== "scene") return;
+    saveCurrent(); displayScene();
+  }
   function sceneSave() {
-    var item = selected(); if (!item) return;
+    var item = selected(); if (!item || item.kind !== "scene") return;
     captureScene(); $("content").value = item.content;
-    $("scene-panel").hidden = true; render(); queueSave();
+    concealScene(); render(); queueSave(); rememberFocus();
     status("Working prose updated. This editor does not submit generation or acceptance.");
   }
   function exportCanvas() {
