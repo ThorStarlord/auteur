@@ -12,7 +12,7 @@ from auteur.beginner.persistence import BeginnerConcurrencyError
 from auteur.beginner.server import BeginnerWorkspaceServer
 from auteur.beginner.studio_architecture import (
     ArchitectureCandidate, apply_architecture_review, complete_architecture,
-    prepare_architecture, project_architecture,
+    main, prepare_architecture, project_architecture,
 )
 from auteur.beginner.studio_store import CanvasStore
 from auteur.host_agent import HostAgentRequest, build_host_agent_response
@@ -184,3 +184,18 @@ def test_http_prepare_complete_and_missing_canvas(tmp_path):
         server.stop()
         thread.join(timeout=2)
         assert not thread.is_alive()
+
+
+def test_host_coding_agent_can_complete_raw_candidate_file_via_cli(tmp_path, capsys):
+    store = working_store(tmp_path)
+    arguments = ["--project", str(tmp_path), "--canvas", "story-one"]
+    assert main(arguments + ["prepare"]) == 0
+    assert project_architecture(store)["status"] == "awaiting_host_agent"
+    packet = json.loads(capsys.readouterr().out)
+    assert packet["request"]["role"] == "studio_architecture"
+    raw = tmp_path / "candidate.json"
+    raw.write_text(json.dumps(candidate()), encoding="utf-8")
+    assert main(arguments + ["complete-file", "--candidate", str(raw)]) == 0
+    output = json.loads(capsys.readouterr().out)
+    assert output["status"] == "ready"
+    assert output["candidate"]["nodes"][0]["id"] == "engine"
