@@ -117,3 +117,28 @@ body.scene-docked #inspector { display:none; }
   padding:9px; border:1px solid #c7c4b9; border-radius:7px; font:inherit; background:#fff; }
 .vision-actions { display:flex; flex-wrap:wrap; gap:9px; align-items:center; margin-top:7px; }
 #vision-status { font-size:.76rem; color:#6f6960; }
+
+.architecture-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:9px 12px;
+  border-bottom:1px solid #dfddd5; background:#f0f3f1; }
+.architecture-actions > label { font-size:.8rem; }
+#architecture-scope { max-width:175px; background:white; border:1px solid #c7c4b9; padding:7px; border-radius:7px; }
+#architecture-status { font-size:.78rem; color:#59695f; }
+.architecture-revise { position:relative; }
+.architecture-revise summary { cursor:pointer; font-size:.85rem; padding:8px; border:1px solid #cfdbd4; border-radius:7px; }
+.architecture-revise[open] { flex-basis:100%; }
+.architecture-revise textarea { display:block; margin:7px 0; width:min(650px,100%); box-sizing:border-box; }
+#architecture-handoff { flex-basis:100%; font-size:.82rem; }
+#architecture-handoff textarea { width:100%; box-sizing:border-box; resize:vertical; }
+.node.candidate { background:#f8f3ff; border-color:#b2a1d2; color:#4a395e; border-style:dashed; }
+.node.candidate .type { color:#795e94; }
+.genre-timeline { padding:16px; min-height:40vh; overflow:auto; background:#fcfbf8; }
+.genre-timeline h2 { margin:0 0 8px; font-size:1.12rem; }
+.genre-timeline p { font-size:.84rem; color:#625e55; }
+.timeline-track { display:flex; align-items:stretch; overflow-x:auto; gap:12px; padding:8px 0 25px; list-style:none; }
+.timeline-phase { flex:0 0 min(280px,80vw); border:1px solid #d7d1c6; border-top:4px solid #8b74a8;
+  background:#fff; border-radius:9px; padding:12px; box-sizing:border-box; }
+.timeline-phase h3 { margin:0 0 8px; font-size:1rem; }
+.timeline-phase p { margin:6px 0; }
+.timeline-phase .genres { font-weight:600; color:#614a7c; }
+.timeline-phase .parallel { color:#6c6377; font-style:italic; }
+#candidate-copy { margin-top:8px; }
