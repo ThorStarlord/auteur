@@ -1086,6 +1086,48 @@
     rememberFocus();
   }
 
+  function copyRealization() {
+    var source = realizationElement(state.selectedRealization);
+    if (!source || !remote.ready || remote.failed) return;
+    if (state.items.length >= 200) { status("Working canvas item limit reached."); return; }
+    var kind = source.kind === "location" ? "place" :
+      ["character", "scene"].includes(source.kind) ? source.kind : "note";
+    var item = {id:id("item"), kind:kind, title:source.title,
+      group:"Story Realization", content:source.description +
+      "\n\nArchitecture refs: " + source.architecture_refs.join(", ") +
+      "\nOrigin: working realization " + (state.realizationRequestSha || "unknown") +
+      "/" + source.id + ". Not accepted story."};
+    state.items.push(item); state.positions[item.id] = availablePosition();
+    state.selected = item.id; state.selectedRealization = null;
+    state.view = "create"; state.lastRealizationView = "create";
+    $("layer-view").value = state.view;
+    render(); queueSave(); rememberFocus();
+    status("Copied to editable working ideas without accepting any story facts.");
+  }
+  function inspectRealizationPurpose() {
+    var element = realizationElement(state.selectedRealization);
+    if (!element) return;
+    var node = element.architecture_refs.map(candidateNode).find(Boolean);
+    if (!node) { status("Referenced architecture is unavailable or stale."); return; }
+    switchWorkspace("architecture"); state.selectedCandidate = node.id;
+    state.architectureCenter = null; state.architectureFocus = "";
+    $("architecture-scope").value = ""; render(); rememberFocus();
+    status("Inspecting the abstract narrative purpose of this concrete proposal.");
+  }
+  function proposeArchitectureFromRealization() {
+    var element = realizationElement(state.selectedRealization);
+    if (!element || !state.realization) return;
+    var feedback = (state.realization.architecture_feedback || []).find(function (f) {
+      return element.architecture_refs.includes(f.architecture_node_id);
+    });
+    if (!feedback) { status("No specific architecture refinement proposed for this element."); return; }
+    switchWorkspace("architecture"); state.selectedCandidate = feedback.architecture_node_id;
+    var instruction = "Review this NONCANONICAL finding from Story Realization as a potential " +
+      "abstract architecture change. Do not instantiate story details: " +
+      feedback.observation + " | Suggested change: " + feedback.proposed_change;
+    $("architecture-instruction").value = instruction.slice(0,4000);
+    requestArchitecture($("architecture-instruction").value);
+  }
   function chooseRealization(id) {
     if (!$("scene-panel").hidden) { captureScene(); concealScene(); scheduleSave(); }
     state.selectedRealization = id; state.selected = null; state.selectedDerived = null;
@@ -1202,7 +1244,8 @@
       : state.view === "create" ? "Working ideas and connections are not accepted story facts."
       : "Source-backed elements are read-only; canvas layout never changes story authority.";
     var host = $("nodes"); host.replaceChildren();
-    $("empty-state").hidden = state.items.length > 0;
+    $("empty-state").hidden = state.items.length > 0 ||
+      (state.view === "realization_candidates" && !!state.realization);
     state.items.forEach(function (item) {
       if (!visibleWorking(item)) return;
       var pos = state.positions[item.id];
@@ -1531,6 +1574,18 @@
     requestArchitecture(intent);
   });
   $("architecture-complete").addEventListener("click", submitArchitecture);
+  $("realization-develop").addEventListener("click", function () { requestRealization(""); });
+  $("realization-refresh").addEventListener("click", loadRealization);
+  $("realization-revise").addEventListener("click", function () {
+    var instruction = $("realization-instruction").value.trim();
+    if (!instruction) { $("realization-status").textContent = "Describe the desired change first."; return; }
+    requestRealization(instruction);
+  });
+  $("realization-complete").addEventListener("click", submitRealization);
+  $("realization-apply").addEventListener("click", applyRealizationReview);
+  $("realization-copy").addEventListener("click", copyRealization);
+  $("realization-inspect").addEventListener("click", inspectRealizationPurpose);
+  $("realization-feedback").addEventListener("click", proposeArchitectureFromRealization);
   $("architecture-apply").addEventListener("click", applyReviewedArchitecture);
   $("candidate-copy").addEventListener("click", copyCandidate);
   $("candidate-focus").addEventListener("click", focusRelatedArchitecture);
