@@ -1,6 +1,6 @@
 (function () {
   "use strict";
-  var state = { items: [], connections: [], positions: {}, selected: null, selectedDerived: null, derived: null, derivedPositions: {}, view: "create", panX: 0, panY: 0, zoom: 1, serial: 0, undo: null };
+  var state = { items: [], connections: [], positions: {}, selected: null, selectedDerived: null, derived: null, derivedPositions: {}, view: "create", focusGroup: "", panX: 0, panY: 0, zoom: 1, serial: 0, undo: null };
   // Local, noncanonical working document: server is the persistence owner.
   var remote = { canvasId: null, revision: 0, ready: false, failed: false, queue: Promise.resolve(), timer: null, savedSnapshot: null };
   state.deleted = {};
@@ -44,21 +44,57 @@
     clearTimeout(remote.timer);
     remote.timer = setTimeout(function () { remote.timer = null; queueSave(); }, 300);
   }
+  // Presentation-only local preference: story content stays in CanvasStore.
+  function focusKey() { return "auteur:studio:focus:" + remote.canvasId; }
+  function rememberFocus() {
+    if (!remote.ready || !remote.canvasId) return;
+    var open = !$("scene-panel").hidden;
+    var field = open ? $("scene-text") : $("content");
+    try {
+      var previous = JSON.parse(window.localStorage.getItem(focusKey()) || "null");
+      window.localStorage.setItem(focusKey(), JSON.stringify({
+        selected: state.selected || (previous && previous.selected) || null,
+        view: state.view, group: state.focusGroup,
+        editorOpen: open, expanded: open && $("scene-panel").classList.contains("expanded"),
+        caret: field.selectionStart || 0
+      }));
+    } catch (error) { status("Your canvas is saved; this browser cannot remember the current focus: " + error.message); }
+  }
+  function restoreFocus() {
+    var saved;
+    try { saved = JSON.parse(window.localStorage.getItem(focusKey()) || "null"); }
+    catch (error) { status("Previous focus unavailable; working canvas remains safe: " + error.message); return null; }
+    if (!saved || !state.items.some(function (item) { return item.id === saved.selected; })) return null;
+    state.focusGroup = typeof saved.group === "string" ? saved.group : "";
+    state.view = ["create", "relationships", "all"].includes(saved.view) ? saved.view : "create";
+    state.selected = saved.selected;
+    if (!visibleWorking(selected())) { state.view = "create"; state.focusGroup = ""; }
+    $("layer-view").value = state.view;
+    return saved;
+  }
   function loadRemote(doc) {
     state.items = doc.items; state.connections = doc.connections; state.positions = doc.positions;
+    state.view = "create"; state.focusGroup = "";
     state.selected = state.items.length ? state.items[0].id : null;
     state.panX = doc.viewport.pan_x; state.panY = doc.viewport.pan_y; state.zoom = doc.viewport.zoom;
     $("zoom").value = String(Math.round(state.zoom * 100));
     remote.revision = doc.revision; remote.ready = true;
     state.deleted = doc.deleted || {}; showRecoveryAction();
     remote.savedSnapshot = JSON.stringify(snapshot());
-    render(); status("Working canvas loaded · saved locally · revision " + remote.revision);
+    var focus = restoreFocus();
+    render();
+    if (focus && focus.editorOpen && selected() && selected().kind === "scene") {
+      displayScene(focus.caret, focus.expanded);
+    }
+    status("Working canvas loaded · saved locally · revision " + remote.revision);
   }
   function hasUnsavedChanges() {
     return remote.ready &&
       (remote.failed || remote.savedSnapshot !== JSON.stringify(snapshot()));
   }
   function leaveForLegacy(href) {
+    if (!$("scene-panel").hidden) captureScene();
+    rememberFocus();
     if (!remote.ready) {
       status("Canvas is not loaded. Cannot safely leave for the previous interface yet.");
       return;
@@ -213,7 +249,23 @@
     return !query || ((item.title || "") + " " + (item.content || item.detail || "") + " " + (item.group || "")).toLowerCase().includes(query);
   }
   function visibleWorking(item) {
-    return (state.view === "create" || state.view === "all") && matches(item);
+    var related = state.view === "relationships" && (item.kind === "character" ||
+      state.connections.some(function (edge) { return edge.source === item.id || edge.target === item.id; }));
+    return (state.view === "create" || state.view === "all" || related) &&
+      (!state.focusGroup || item.group === state.focusGroup) && matches(item);
+  }
+  function renderGroups() {
+    var picker = $("group-filter"), groups = Array.from(new Set(state.items.map(function (item) {
+      return item.group || "";
+    }).filter(Boolean))).sort();
+    if (state.focusGroup && !groups.includes(state.focusGroup)) state.focusGroup = "";
+    picker.replaceChildren();
+    var all = document.createElement("option"); all.value = ""; all.textContent = "All groups"; picker.appendChild(all);
+    groups.forEach(function (group) {
+      var option = document.createElement("option"); option.value = group; option.textContent = group;
+      picker.appendChild(option);
+    });
+    picker.value = state.focusGroup;
   }
   function renderOutline() {
     var list = $("outline-list"); list.replaceChildren();
@@ -241,17 +293,70 @@
       li.appendChild(button); list.appendChild(li);
     });
   }
-  function fit() { state.panX = 0; state.panY = 0; state.zoom = 1; $("zoom").value = "100"; transform(); scheduleSave(); }
+  function fit() {
+    var points = state.items.filter(visibleWorking).map(function (item) { return state.positions[item.id]; });
+    if (state.derived) state.derived.nodes.filter(function (item) { return visibleDerived(item) && matches(item); })
+      .forEach(function (item) { if (state.derivedPositions[item.id]) points.push(state.derivedPositions[item.id]); });
+    if (!points.length) { state.zoom = 1; state.panX = 0; state.panY = 0; }
+    else {
+      var minX = Math.min.apply(null, points.map(function (p) { return p.x; }));
+      var minY = Math.min.apply(null, points.map(function (p) { return p.y; }));
+      var maxX = Math.max.apply(null, points.map(function (p) { return p.x + 165; }));
+      var maxY = Math.max.apply(null, points.map(function (p) { return p.y + 75; }));
+      var viewport = $("viewport");
+      state.zoom = Math.max(.5, Math.min(1.5, (viewport.clientWidth - 48) / (maxX - minX),
+        (viewport.clientHeight - 48) / (maxY - minY)));
+      state.panX = Math.max(-5000, Math.min(5000, Math.round(viewport.clientWidth / 2 - (minX + maxX) / 2 * state.zoom)));
+      state.panY = Math.max(-5000, Math.min(5000, Math.round(viewport.clientHeight / 2 - (minY + maxY) / 2 * state.zoom)));
+    }
+    $("zoom").value = String(Math.round(state.zoom * 100));
+    transform(); scheduleSave();
+  }
+  function gridPosition(index) {
+    return { x: 45 + (index % 8) * 175, y: 30 + (Math.floor(index / 8) % 14) * 75 };
+  }
+  function availablePosition() {
+    var occupied = new Set(Object.values(state.positions).map(function (p) { return p.x + ":" + p.y; }));
+    for (var n = 0; n < 112; n++) {
+      var p = gridPosition(n);
+      if (!occupied.has(p.x + ":" + p.y)) return p;
+    }
+    return gridPosition(state.items.length % 112);
+  }
+  function arrangeVisible() {
+    if (remote.failed || !remote.ready) { status("Cannot arrange while the canvas is unavailable."); return; }
+    if (!$("scene-panel").hidden) captureScene();
+    var items = state.items.filter(visibleWorking).sort(function (a, b) {
+      return ((a.group || "") + "/" + a.title).localeCompare((b.group || "") + "/" + b.title);
+    });
+    if (!items.length) { status("No working items in this view to arrange."); return; }
+    var moving = new Set(items.map(function (item) { return item.id; }));
+    var occupied = new Set(Object.keys(state.positions).filter(function (id) { return !moving.has(id); })
+      .map(function (id) { var p = state.positions[id]; return p.x + ":" + p.y; }));
+    var free = [];
+    for (var n = 0; n < 112; n++) {
+      var p = gridPosition(n);
+      if (!occupied.has(p.x + ":" + p.y)) free.push(p);
+    }
+    if (items.length > free.length) { status("Not enough free layout cells; focus a smaller group."); return; }
+    items.forEach(function (item, i) { state.positions[item.id] = free[i]; });
+    render(); fit();
+    status("Working items arranged by group. Arrangement changes layout only.");
+  }
   function transform() { $("world").style.transform = "translate(" + state.panX + "px," + state.panY + "px) scale(" + state.zoom + ")"; }
   function newItem(kind) {
     if (!remote.ready || remote.failed) { status("Cannot edit while local canvas is unavailable. Export your notes if needed."); return; }
     if (state.items.length >= 200) { status("The working canvas has reached its 200-item safety bound."); return; }
-    var item = { id: id("item"), kind: kind, title: kind === "note" ? "New idea" : "New " + kind, content: "" };
+    if (!$("scene-panel").hidden) { captureScene(); concealScene(); scheduleSave(); }
+    var pos = availablePosition();
+    var item = { id: id("item"), kind: kind, title: kind === "note" ? "New idea" : "New " + kind,
+      content: "", group: state.focusGroup };
     state.items.push(item);
-    state.positions[item.id] = { x: 110 + ((state.items.length - 1) % 4) * 192, y: 95 + Math.floor((state.items.length - 1) / 4) * 112 };
+    state.positions[item.id] = pos;
     state.selected = item.id; state.selectedDerived = null; state.view = "create"; $("layer-view").value = "create";
     render();
     $("title").focus();
+    rememberFocus();
     queueSave(); status(remote.failed ? "SAVE FAILED: export your working notes." : "Working item created. Saving locally...");
   }
   function changedRelationVisible(edge) {
@@ -291,6 +396,7 @@
           var index = graph.nodes.slice(0, i).filter(function (n) { return n.kind === node.kind; }).length;
           state.derivedPositions[node.id] = { x: baseX + (index % 3) * 188, y: 90 + Math.floor(index / 3) * 115 };
         });
+        if (!$("scene-panel").hidden) { captureScene(); concealScene(); queueSave(); }
         state.selected = null;
         state.view = graph.nodes.some(function (n) { return n.kind === "character"; }) ? "relationships" : "lenses";
         $("layer-view").value = state.view;
@@ -340,6 +446,7 @@
       fillBookList("book-pending", book.pending_updates, "No pending updates.");
       fillBookList("book-attention", book.needs_attention, "Nothing needs attention.");
       $("book-orientation").hidden = false;
+      if (!$("scene-panel").hidden) { captureScene(); concealScene(); queueSave(); }
       state.view = "book"; state.selected = null; state.selectedDerived = null;
       $("layer-view").value = "book";
       render();
@@ -383,23 +490,26 @@
               source_ref: "provenance", authority: "HYPOTHETICAL / READ ONLY" });
           });
         });
+        if (!$("scene-panel").hidden) { captureScene(); concealScene(); queueSave(); }
         state.view = "impact"; $("layer-view").value = "impact"; state.selected = null; state.selectedDerived = null;
         render();
         status("Hypothetical dependency paths only. Nothing has been revised or accepted.");
       }).catch(function (error) { status("Impact preview unavailable: " + error.message); });
   }
   function chooseDerived(nodeId) {
+    if (!$("scene-panel").hidden) { captureScene(); concealScene(); scheduleSave(); }
     state.selected = null; state.selectedDerived = nodeId;
     Array.prototype.forEach.call(document.querySelectorAll(".node"), function (button) {
       button.setAttribute("aria-pressed", String(button.dataset.itemId === nodeId));
     });
     renderInspector();
+    rememberFocus();
   }
   function drawEdges() {
     var svg = $("edges");
     svg.replaceChildren();
     state.connections.forEach(function (edge) {
-      if (state.view !== "create" && state.view !== "all") return;
+      if (!["create", "all", "relationships"].includes(state.view)) return;
       var from = state.positions[edge.source], to = state.positions[edge.target];
       if (!from || !to || !visibleWorking(state.items.find(function (i) { return i.id === edge.source; }) || {}) ||
           !visibleWorking(state.items.find(function (i) { return i.id === edge.target; }) || {})) return;
@@ -474,13 +584,25 @@
     });
   }
   function choose(itemId) {
+    var writing = !$("scene-panel").hidden;
+    if (writing) { captureScene(); scheduleSave(); }
     state.selected = itemId; state.selectedDerived = null;
     Array.prototype.forEach.call(document.querySelectorAll(".node"), function (node) {
       node.setAttribute("aria-pressed", String(node.dataset.itemId === itemId));
     });
     renderInspector();
+    if (writing) {
+      if (selected() && selected().kind === "scene") displayScene();
+      else concealScene();
+    }
+    rememberFocus();
   }
   function render() {
+    renderGroups();
+    $("canvas-legend").textContent = state.view === "relationships"
+      ? "Solid nodes and green lines: working ideas only. Dashed nodes and blue lines: read-only source evidence. Canvas actions do not accept story canon."
+      : state.view === "create" ? "Working ideas and connections are not accepted story facts."
+      : "Source-backed elements are read-only; canvas layout never changes story authority.";
     var host = $("nodes"); host.replaceChildren();
     $("empty-state").hidden = state.items.length > 0;
     state.items.forEach(function (item) {
@@ -592,8 +714,13 @@
     var item = selected();
     if (!item || !item.quick_draft_session_id) return;
     fetch("/api/beginner/quick-draft/" + encodeURIComponent(item.quick_draft_session_id))
-      .then(apiJson).then(draftStatus)
-      .catch(function (error) { $("generation-status").textContent = "Could not check Quick Draft: " + error.message; });
+      .then(apiJson).then(function (projection) {
+        if (selected() && selected().id === item.id) draftStatus(projection);
+      })
+      .catch(function (error) {
+        if (selected() && selected().id === item.id)
+          $("generation-status").textContent = "Could not check Quick Draft: " + error.message;
+      });
   }
   function generateScene() {
     var item = selected();
@@ -613,11 +740,15 @@
         body: JSON.stringify({ premise: premise, first_scene: intent })
       }).then(apiJson);
     }).then(function (projection) {
+      if (!state.items.includes(item)) return;
       item.quick_draft_session_id = projection.session_id;
-      queueSave(); draftStatus(projection);
-      status("Host-agent Quick Draft session linked to working scene. No story acceptance.");
+      queueSave();
+      if (selected() && selected().id === item.id) draftStatus(projection);
+      status("Host-agent Quick Draft session linked to " + item.title + ". No story acceptance.");
     }).catch(function (error) {
-      $("generation-status").textContent = "Quick Draft request failed: " + error.message;
+      if (selected() && selected().id === item.id)
+        $("generation-status").textContent = "Quick Draft request failed: " + error.message;
+      status("Quick Draft request failed: " + error.message);
     }).finally(function () { $("generate-scene").disabled = false; });
   }
   function useGenerated() {
@@ -627,21 +758,44 @@
     item.content = prose; $("scene-text").value = prose;
     queueSave(); status("Working candidate copied into scene. Nothing accepted.");
   }
-  function sceneOpen() {
-    var item = selected(); if (!item) return;
-    saveCurrent(); $("scene-heading").textContent = item.title; $("scene-text").value = item.content;
+  function concealScene() {
+    $("scene-panel").hidden = true;
+    $("scene-panel").classList.remove("expanded");
+    document.body.classList.remove("scene-docked");
+  }
+  function displayScene(caret, expanded) {
+    var item = selected(); if (!item || item.kind !== "scene") return;
+    $("scene-heading").textContent = item.title;
+    $("scene-text").value = item.content;
     $("scene-premise").value = item.scene_premise || "";
     $("scene-intent").value = item.scene_intent || "";
     $("generation-result").hidden = true;
-    $("generation-status").textContent = item.quick_draft_session_id ? "A prior Quick Draft request is linked to this scene." : "Prose can be written manually without generation.";
+    $("generation-status").textContent = item.quick_draft_session_id
+      ? "A prior Quick Draft request is linked to this scene."
+      : "Working prose can be written here without requesting generation.";
     $("refresh-draft").hidden = !item.quick_draft_session_id;
-    $("scene-panel").hidden = false; $("scene-text").focus();
+    $("scene-panel").hidden = false;
+    document.body.classList.add("scene-docked");
+    $("scene-panel").classList.toggle("expanded", !!expanded);
+    $("expand-scene").textContent = expanded ? "Split view" : "Focus writing";
+    $("expand-scene").setAttribute("aria-pressed", String(!!expanded));
+    $("scene-text").focus();
+    if (Number.isInteger(caret)) {
+      var n = Math.max(0, Math.min(caret, $("scene-text").value.length));
+      $("scene-text").setSelectionRange(n, n);
+    }
+    rememberFocus();
     if (item.quick_draft_session_id) refreshDraft();
   }
+  function sceneOpen() {
+    var item = selected(); if (!item || item.kind !== "scene") return;
+    if (!$("scene-panel").hidden) { $("scene-text").focus(); return; }
+    saveCurrent(); displayScene();
+  }
   function sceneSave() {
-    var item = selected(); if (!item) return;
+    var item = selected(); if (!item || item.kind !== "scene") return;
     captureScene(); $("content").value = item.content;
-    $("scene-panel").hidden = true; render(); queueSave();
+    concealScene(); render(); queueSave(); rememberFocus();
     status("Working prose updated. This editor does not submit generation or acceptance.");
   }
   function exportCanvas() {
@@ -687,6 +841,7 @@
     if (file.size > 1024 * 1024) { status("Import rejected: file exceeds 1 MB."); return; }
     file.text().then(function (raw) {
       var data = JSON.parse(raw); validCanvas(data);
+      if (!$("scene-panel").hidden) { captureScene(); concealScene(); queueSave(); }
       state.items = data.items; state.connections = data.connections; state.positions = data.positions;
       state.selected = data.items.length ? data.items[0].id : null; state.serial += 1;
       if (data.viewport && Number.isFinite(data.viewport.zoom)) { state.panX = data.viewport.pan_x; state.panY = data.viewport.pan_y; state.zoom = data.viewport.zoom; }
@@ -696,6 +851,7 @@
   }
   function removeCurrent() {
     var item = selected(); if (!item || !window.confirm("Remove this working item? You can undo during this session.")) return;
+    if (!$("scene-panel").hidden) { captureScene(); concealScene(); }
     state.undo = { item: item, pos: state.positions[item.id], links: state.connections.filter(function (e) { return e.source === item.id || e.target === item.id; }) };
     state.items = state.items.filter(function (entry) { return entry.id !== item.id; });
     state.connections = state.connections.filter(function (e) { return e.source !== item.id && e.target !== item.id; });
@@ -729,12 +885,36 @@
   $("add-scene").addEventListener("click", function () { newItem("scene"); });
   $("start").addEventListener("click", function () { newItem("note"); });
   $("fit").addEventListener("click", fit);
+  $("connect-shortcut").addEventListener("click", function () {
+    if (!selected()) { status("Select a working idea to connect first."); return; }
+    if (!$("scene-panel").hidden) sceneSave();
+    $("target").focus();
+    if ($("connect").disabled) status("Create another working item before connecting ideas.");
+  });
+  $("write-shortcut").addEventListener("click", function () {
+    if (!remote.ready || remote.failed) { status("Working canvas is unavailable; cannot open a new scene."); return; }
+    if (!$("scene-panel").hidden) { $("scene-text").focus(); return; }
+    if (!selected() || selected().kind !== "scene") newItem("scene");
+    sceneOpen();
+  });
+  $("arrange-group").addEventListener("click", arrangeVisible);
+  $("group-filter").addEventListener("change", function () {
+    if (!$("scene-panel").hidden) { captureScene(); concealScene(); scheduleSave(); }
+    state.focusGroup = this.value;
+    if (selected() && !visibleWorking(selected())) state.selected = null;
+    render(); rememberFocus();
+  });
   $("find-nodes").addEventListener("input", render);
   $("show-evidence").addEventListener("click", loadEvidence);
   $("relationship-chapter").addEventListener("change", function () { render(); status(this.value ? "Showing relationships with recorded changes in " + this.value + ". Current relation values are not historical snapshots." : "Showing all declared relationships."); });
   $("show-book").addEventListener("click", loadBook);
   $("preview-impact").addEventListener("click", previewImpact);
-  $("layer-view").addEventListener("change", function () { state.view = this.value; if (this.value === "book" && !$("book-heading").textContent.startsWith("Chapter")) { loadBook(); } else { render(); } });
+  $("layer-view").addEventListener("change", function () {
+    state.view = this.value;
+    if (this.value === "book" && !$("book-heading").textContent.startsWith("Chapter")) loadBook();
+    else render();
+    rememberFocus();
+  });
   $("zoom").addEventListener("input", function () { state.zoom = Number(this.value) / 100; transform(); scheduleSave(); });
   $("save").addEventListener("click", saveCurrent);
   ["title", "kind", "content", "group"].forEach(function (id) {
@@ -743,13 +923,33 @@
   });
   $("connect").addEventListener("click", connect);
   $("write").addEventListener("click", sceneOpen);
-  $("close-scene").addEventListener("click", function () { $("scene-panel").hidden = true; });
+  $("close-scene").addEventListener("click", sceneSave);
+  $("expand-scene").addEventListener("click", function () {
+    var expanded = !$("scene-panel").classList.contains("expanded");
+    $("scene-panel").classList.toggle("expanded", expanded);
+    $("expand-scene").textContent = expanded ? "Split view" : "Focus writing";
+    $("expand-scene").setAttribute("aria-pressed", String(expanded));
+    rememberFocus();
+  });
+  $("use-scene-as-intent").addEventListener("click", function () {
+    var item = selected();
+    if (!item || item.kind !== "scene" || !$("scene-text").value.trim()) {
+      $("generation-status").textContent = "Write some scene notes first, then use them as editable intent."; return;
+    }
+    $("scene-intent").value = $("scene-text").value.trim().slice(0, 4000);
+    captureScene(); scheduleSave(); rememberFocus();
+    $("generation-status").textContent = "Copied working scene notes as editable generation intent. Review before requesting.";
+  });
   $("save-scene").addEventListener("click", sceneSave);
   $("generate-scene").addEventListener("click", generateScene);
   $("refresh-draft").addEventListener("click", refreshDraft);
   $("use-generated").addEventListener("click", useGenerated);
   ["scene-premise", "scene-intent", "scene-text"].forEach(function (id) {
-    $(id).addEventListener("input", function () { captureScene(); scheduleSave(); });
+    $(id).addEventListener("input", function () { captureScene(); scheduleSave(); rememberFocus(); });
+  });
+  ["scene-text", "content"].forEach(function (id) {
+    $(id).addEventListener("keyup", rememberFocus);
+    $(id).addEventListener("click", rememberFocus);
   });
   $("download").addEventListener("click", exportCanvas);
   $("import").addEventListener("change", importCanvas);
