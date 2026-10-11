@@ -289,3 +289,33 @@ and composition timeline → distinct connected tabs → realization agent hando
 and validate any new v2 candidate with stable IDs and strict links. Prioritize a
 usable author interaction over process multiplication; preserve narrow real
 Python/HTTP and Browser qualification ceilings before trusted use.
+
+
+### Distinct linked realization — operator handoff and review
+
+Use **Narrative Architecture** for emotions, genre mechanics, tropes, structural
+grammar and inter-genre interactions; use **Story Realization** for concrete
+characters, locations, factions, plot arcs, events and scenes. The architecture
+agent must not invent concrete story elements to pad a graph. A realization
+element must reference at least one existing architecture component. Realization
+feedback is **an upstream proposal**, not authority to revise the architecture.
+
+Studio's Realization tab prepares a `studio_realization` host-agent request
+with exact source identity and optional selected architecture focus. The
+active local coding agent can read it, create *raw* RealizationCandidate JSON,
+and complete it through the neutral CLI without any provider API configured:
+
+```powershell
+python -m auteur.beginner.studio_realization --project $scratch --canvas $canvasId show
+# The coding agent writes raw, schema-valid concrete candidate JSON.
+python -m auteur.beginner.studio_realization --project $scratch --canvas $canvasId complete-file --candidate .\concrete-proposal.json
+```
+
+The author can inspect source-linked proposals, copy them to editable working
+notes, or choose **Propose architecture refinement**. An agent revision is
+staged as a deterministic diff, then explicitly applied **only to working
+architecture or working realization**. Basic emotions, genre contracts and
+genre interactions appear in the architecture difference preview, and
+stale realization is still inspectable but not treated as current.
+No Studio operation here mutates canonical Identity, Structure, Realization,
+Expression, character relationships, or Book/Series history.
