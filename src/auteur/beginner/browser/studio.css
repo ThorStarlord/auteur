@@ -163,3 +163,12 @@ body.scene-docked #inspector { display:none; }
 #genre-contract-detail p { margin:3px 0 9px; font-size:.83rem; }
 #timeline-phases li p { white-space:pre-line; }
 @media (max-width:780px) { .studio-workflows { flex-wrap:wrap; } }
+
+.node.realization { background:#eaf5f0; border:2px dotted #70a38d; color:#254b3b; }
+.node.realization .type { color:#456e5b; }
+#realization-tools { background:#edf5f0; }
+#realization-handoff { flex-basis:100%; }
+#realization-handoff textarea, #realization-instruction { width:min(740px,100%); box-sizing:border-box;
+  resize:vertical; display:block; }
+#realization-focus-label { color:#476858; font-size:.82rem; }
+#realization-inspect, #realization-copy, #realization-feedback { margin-top:8px; }

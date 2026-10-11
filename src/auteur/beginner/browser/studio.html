@@ -28,6 +28,7 @@
         <label for="group-filter">Group</label><select id="group-filter" aria-label="Focus working group"><option value="">All groups</option></select>
         <label for="layer-view">View</label><select id="layer-view" aria-label="Canvas graph view">
           <option value="create">My ideas</option>
+          <option value="realization_candidates">Agent story proposals</option>
           <option value="architecture">Story architecture</option>
           <option value="genre_timeline">Genre timeline</option>
           <option value="relationships">Relationships</option>
@@ -106,6 +107,30 @@
           <button id="architecture-complete" type="button">Validate and load response</button>
         </details>
       </section>
+      <section id="realization-tools" class="architecture-actions" hidden aria-label="Agent-assisted Story Realization">
+        <button id="realization-develop" type="button">Develop concrete story material</button>
+        <button id="realization-refresh" type="button">Check realization result</button>
+        <span id="realization-focus-label">Using the current narrative architecture</span>
+        <details class="architecture-revise"><summary>Revise concrete proposal</summary>
+          <label for="realization-instruction">What should change?</label>
+          <textarea id="realization-instruction" rows="2" maxlength="4000"></textarea>
+          <button id="realization-revise" type="button">Request a revised realization</button>
+        </details>
+        <span id="realization-status" role="status" aria-live="polite">Select an architecture component or develop the whole story.</span>
+        <section id="realization-review" class="architecture-review" hidden>
+          <strong>Review proposed changes to working Story Realization</strong>
+          <ul id="realization-diff"></ul>
+          <button id="realization-apply" type="button">Apply to working realization</button>
+        </section>
+        <details id="realization-handoff" hidden>
+          <summary>Coding-agent request / response (advanced)</summary>
+          <label for="realization-request">Pending request</label>
+          <textarea id="realization-request" rows="5" readonly></textarea>
+          <label for="realization-response">HostAgentResponse JSON (manual fallback)</label>
+          <textarea id="realization-response" rows="4"></textarea>
+          <button id="realization-complete" type="button">Validate and load realization</button>
+        </details>
+      </section>
       <details id="emotional-design" class="emotional-design" hidden>
         <summary>Emotional design — six basic emotions and optional compositions</summary>
         <div id="emotional-targets"></div>
@@ -148,6 +173,9 @@
         <div id="genre-contract-detail" hidden aria-label="Proposed genre mechanics, emotions and interactions"></div>
         <button id="candidate-focus" type="button" hidden>Focus on connected ideas</button>
         <button id="candidate-copy" type="button" hidden>Copy as editable working idea</button>
+        <button id="realization-inspect" type="button" hidden>Inspect architectural purpose</button>
+        <button id="realization-copy" type="button" hidden>Copy as editable story idea</button>
+        <button id="realization-feedback" type="button" hidden>Propose architecture refinement</button>
         <p class="muted">Derived evidence is read-only. Use the existing story workspace to change accepted meaning.</p>
       </div>
       <div id="inspector-fields" hidden>
