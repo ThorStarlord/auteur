@@ -116,12 +116,13 @@
   </main>
   <section id="scene-panel" class="scene-panel" hidden aria-label="Working scene editor">
     <div class="scene-inner">
-      <div class="scene-top"><h2 id="scene-heading">Working scene</h2><button id="close-scene" type="button">Return to canvas</button></div>
+      <div class="scene-top"><h2 id="scene-heading">Working scene</h2><div class="scene-top-actions"><button id="expand-scene" type="button" aria-pressed="false">Focus writing</button><button id="close-scene" type="button">Return to canvas</button></div></div>
       <p>Exploratory text only. Nothing here becomes accepted story material automatically.</p>
       <label for="scene-premise">Working story premise (required only for generation)</label>
       <textarea id="scene-premise" rows="3" maxlength="4000" placeholder="What is this story about?"></textarea>
       <label for="scene-intent">What should happen in this scene? (required only for generation)</label>
       <textarea id="scene-intent" rows="3" maxlength="4000" placeholder="Describe the scene you want, not a canonical fact."></textarea>
+      <button id="use-scene-as-intent" type="button">Use my existing scene notes as intent</button>
       <button id="generate-scene" type="button">Request Quick Draft using host agent</button>
       <button id="refresh-draft" type="button" hidden>Check generated scene</button>
       <p id="generation-status" role="status" aria-live="polite"></p>
