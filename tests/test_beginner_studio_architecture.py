@@ -199,3 +199,123 @@ def test_host_coding_agent_can_complete_raw_candidate_file_via_cli(tmp_path, cap
     output = json.loads(capsys.readouterr().out)
     assert output["status"] == "ready"
     assert output["candidate"]["nodes"][0]["id"] == "engine"
+
+
+def emotion_first_candidate():
+    """Architecture contracts describe mechanisms, not fictional instantiation."""
+    return {
+        "schema_version": 2,
+        "summary": "Heroic generosity gives meaning to earned progression.",
+        "nodes": [
+            {"id": "progression", "title": "Progression Fantasy", "category": "genre",
+             "summary": "New capability changes the range of possible action."},
+            {"id": "heroic", "title": "Heroic Fantasy", "category": "genre",
+             "summary": "Moral choices make growing power consequential."},
+            {"id": "growth", "title": "Renewable growth", "category": "engine",
+             "summary": "Each breakthrough changes the kinds of challenges available."},
+        ],
+        "links": [{"id": "growth_support", "source": "growth", "target": "progression",
+                   "function": "supports"}],
+        "emotion_targets": [
+            {"id": "joy_growth", "emotion": "joy", "role": "primary",
+             "intended_effect": "Satisfaction from earned progress.",
+             "eliciting_condition": "A breakthrough changes what actions are possible.",
+             "aesthetic_strategy": "Give effort and its consequence clear contrast.",
+             "provenance": "agent_proposed"},
+            {"id": "anger_injustice", "emotion": "anger", "role": "supporting",
+             "intended_effect": "Opposition to consequential injustice.",
+             "eliciting_condition": "A meaningful moral wrong creates pressure.",
+             "aesthetic_strategy": "Contrast avoidable harm with principled action.",
+             "provenance": "agent_proposed"},
+        ],
+        "complex_emotions": [
+            {"id": "vindication", "title": "Righteous vindication",
+             "basic_emotions": ["anger", "joy"],
+             "context": "Justified opposition followed by consequential success."},
+        ],
+        "genre_contracts": [
+            {"genre_node_id": "progression", "role": "governing",
+             "emotion_target_ids": ["joy_growth"], "complex_emotion_ids": [],
+             "trope_functions": ["Effort creates qualitative growth."],
+             "narrative_engine": "Challenges demand changing capabilities.",
+             "structural_pattern": "Challenge, attempt, growth, changed possibilities.",
+             "aesthetic_strategies": ["Contrast uncertainty with competence."],
+             "payoff_expectations": ["Earned transformation matters."]},
+            {"genre_node_id": "heroic", "role": "supporting",
+             "emotion_target_ids": ["anger_injustice"],
+             "complex_emotion_ids": ["vindication"],
+             "trope_functions": ["Mercy tests the use of power."],
+             "narrative_engine": "Ethics are tested under changing pressure.",
+             "structural_pattern": "Pressure, choice, consequence, renewed demand.",
+             "aesthetic_strategies": ["Show tangible human stakes."],
+             "payoff_expectations": ["Heroic choices produce meaningful outcomes."]},
+        ],
+        "genre_interactions": [
+            {"id": "ethical_constraint", "source_genre_id": "heroic",
+             "target_genre_id": "progression", "kind": "constrains",
+             "mechanism": "The ethics of generosity prevent growth from reducing to domination.",
+             "risk": "Increasing power can erase meaningful moral tension."},
+        ],
+        "phases": [
+            {"id": "emerging_growth", "title": "Emerging growth", "order": 0,
+             "narrative_function": "Connect new agency to moral responsibility.",
+             "genre_activations": [
+                 {"genre_node_id": "progression", "basic_emotions": ["joy"],
+                  "trope_functions": ["Earned breakthrough"],
+                  "structural_function": "Establish meaningful advancement."},
+                 {"genre_node_id": "heroic", "basic_emotions": ["anger", "joy"],
+                  "trope_functions": ["Protection and generosity"],
+                  "structural_function": "Give advancements an ethical purpose."},
+             ]},
+        ],
+        "open_questions": ["How much progression is public versus private?"],
+    }
+
+
+def test_v2_emotion_first_architecture_and_legacy_v1_remain_readable():
+    modern = ArchitectureCandidate.model_validate(emotion_first_candidate())
+    assert modern.schema_version == 2
+    assert modern.complex_emotions[0].basic_emotions == ["anger", "joy"]
+    assert modern.genre_interactions[0].kind == "constrains"
+    assert ArchitectureCandidate.model_validate(candidate()).schema_version == 1
+
+
+def test_v2_rejects_non_basic_emotions_and_premature_concrete_categories():
+    bad = emotion_first_candidate()
+    bad["emotion_targets"][0]["emotion"] = "awe"
+    with pytest.raises(ValidationError):
+        ArchitectureCandidate.model_validate(bad)
+    bad = emotion_first_candidate()
+    bad["nodes"][0]["category"] = "character"
+    with pytest.raises(ValidationError, match="cannot instantiate"):
+        ArchitectureCandidate.model_validate(bad)
+    bad = emotion_first_candidate()
+    bad["complex_emotions"][0]["basic_emotions"] = ["joy", "joy"]
+    with pytest.raises(ValidationError, match="distinct"):
+        ArchitectureCandidate.model_validate(bad)
+
+
+def test_v2_rejects_dangling_genre_interactions_and_emotional_references():
+    bad = emotion_first_candidate()
+    bad["genre_interactions"][0]["target_genre_id"] = "absent"
+    with pytest.raises(ValidationError, match="two distinct"):
+        ArchitectureCandidate.model_validate(bad)
+    bad = emotion_first_candidate()
+    bad["genre_contracts"][0]["emotion_target_ids"] = ["absent"]
+    with pytest.raises(ValidationError, match="unknown basic"):
+        ArchitectureCandidate.model_validate(bad)
+    bad = emotion_first_candidate()
+    bad["phases"][0]["genre_activations"][0]["genre_node_id"] = "absent"
+    with pytest.raises(ValidationError, match="unknown genre"):
+        ArchitectureCandidate.model_validate(bad)
+
+
+def test_v2_agent_request_and_candidate_are_source_bound(tmp_path):
+    store = working_store(tmp_path)
+    pending = prepare_architecture(store)
+    assert "schema_version=2" in pending["request"]["system"]
+    assert "Never invent names of characters" in pending["request"]["system"]
+    result = complete_architecture(store, response(pending, emotion_first_candidate()))
+    assert result["candidate"]["schema_version"] == 2
+    assert result["candidate"]["genre_contracts"][0]["genre_node_id"] == "progression"
+    assert not (tmp_path / "story_identity.yaml").exists()
