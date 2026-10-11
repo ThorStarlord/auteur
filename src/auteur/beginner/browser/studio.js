@@ -4,6 +4,8 @@
   // Local, noncanonical working document: server is the persistence owner.
   var remote = { canvasId: null, revision: 0, ready: false, failed: false, queue: Promise.resolve(), timer: null, savedSnapshot: null };
   state.deleted = {};
+  state.architecture = null; state.candidatePositions = {}; state.selectedCandidate = null;
+  state.architectureFocus = ""; state.architectureRequestSha = null;
   function showRecoveryAction() {
     $("restore-deleted").hidden = !remote.ready || remote.failed || !Object.keys(state.deleted).length;
   }
@@ -55,6 +57,7 @@
       window.localStorage.setItem(focusKey(), JSON.stringify({
         selected: state.selected || (previous && previous.selected) || null,
         view: state.view, group: state.focusGroup,
+        candidate: state.selectedCandidate, scope: state.architectureFocus,
         editorOpen: open, expanded: open && $("scene-panel").classList.contains("expanded"),
         caret: field.selectionStart || 0
       }));
@@ -66,11 +69,131 @@
     catch (error) { status("Previous focus unavailable; working canvas remains safe: " + error.message); return null; }
     if (!saved || !state.items.some(function (item) { return item.id === saved.selected; })) return null;
     state.focusGroup = typeof saved.group === "string" ? saved.group : "";
-    state.view = ["create", "relationships", "all"].includes(saved.view) ? saved.view : "create";
+    state.view = ["create", "relationships", "all", "architecture", "genre_timeline"].includes(saved.view) ? saved.view : "create";
+    state.selectedCandidate = saved.candidate || null;
+    state.architectureFocus = saved.scope || "";
     state.selected = saved.selected;
     if (!visibleWorking(selected())) { state.view = "create"; state.focusGroup = ""; }
     $("layer-view").value = state.view;
     return saved;
+  }
+
+  function architectureUrl() {
+    return "/api/beginner/studio/canvases/" + encodeURIComponent(remote.canvasId) + "/architecture";
+  }
+  function candidateNode(id) {
+    return state.architecture && state.architecture.nodes.find(function (node) { return node.id === id; });
+  }
+  function candidateVisible(node) {
+    return state.view === "architecture" && matches(node) &&
+      (!state.architectureFocus || node.scope === state.architectureFocus || node.scope === "whole_story");
+  }
+  function updateArchitectureScopes() {
+    var picker = $("architecture-scope"), scopes = new Set();
+    if (state.architecture) {
+      state.architecture.nodes.forEach(function (node) { scopes.add(node.scope || "whole_story"); });
+      state.architecture.phases.forEach(function (phase) { scopes.add(phase.scope || "whole_story"); });
+    }
+    picker.replaceChildren();
+    var all = document.createElement("option"); all.value = ""; all.textContent = "Whole architecture"; picker.appendChild(all);
+    Array.from(scopes).sort().forEach(function (scope) {
+      var opt = document.createElement("option"); opt.value = scope; opt.textContent = scope.replace(/_/g, " ");
+      picker.appendChild(opt);
+    });
+    if (!scopes.has(state.architectureFocus)) state.architectureFocus = "";
+    picker.value = state.architectureFocus;
+  }
+  function applyArchitectureProjection(projection, openGraph) {
+    state.architecture = projection.candidate;
+    state.architectureRequestSha = projection.candidate_request_sha256;
+    state.candidatePositions = {};
+    if (state.architecture) {
+      var categories = ["reader_experience", "aesthetic", "genre", "engine", "trope", "structure", "theme", "thread"];
+      state.architecture.nodes.slice().sort(function (a, b) {
+        return categories.indexOf(a.category) - categories.indexOf(b.category) ||
+          a.title.localeCompare(b.title);
+      }).forEach(function (node, i) {
+        state.candidatePositions[node.id] = { x: 40 + (i % 7) * 188, y: 40 + Math.floor(i / 7) * 100 };
+      });
+    }
+    $("architecture-handoff").hidden = !projection.request;
+    $("architecture-request").value = projection.request ? JSON.stringify(projection.request, null, 2) : "";
+    $("architecture-status").textContent = projection.status === "awaiting_host_agent"
+      ? "Awaiting the active coding agent. Prior working proposal remains available if present."
+      : projection.status === "ready" ? "Agent proposal ready · working, not accepted story."
+      : "Describe a vision and ask the coding agent to develop the architecture.";
+    updateArchitectureScopes();
+    if (openGraph && state.architecture) {
+      state.view = "architecture"; $("layer-view").value = state.view;
+      state.selectedCandidate = null;
+    }
+    render(); rememberFocus();
+  }
+  function loadArchitecture() {
+    var canvasId = remote.canvasId;
+    return fetch(architectureUrl()).then(apiJson).then(function (projection) {
+      if (remote.canvasId === canvasId) applyArchitectureProjection(projection, false);
+    }).catch(function (error) {
+      $("architecture-status").textContent = "Architecture unavailable: " + error.message;
+    });
+  }
+  function requestArchitecture(instruction) {
+    if (!remote.ready || remote.failed) { status("Save the working canvas before requesting architecture."); return; }
+    if (!$("scene-panel").hidden) captureScene();
+    if (remote.timer !== null) { clearTimeout(remote.timer); remote.timer = null; queueSave(); }
+    else if (hasUnsavedChanges()) queueSave();
+    $("architecture-status").textContent = "Saving creative intent and preparing exact coding-agent request...";
+    Promise.resolve(remote.queue).then(function () {
+      if (remote.failed) throw new Error("The working canvas did not save; no agent request was created.");
+      return fetch(architectureUrl() + "/prepare", {
+        method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ instruction: instruction || "" })
+      }).then(apiJson);
+    }).then(function (projection) {
+      applyArchitectureProjection(projection, false);
+      $("architecture-handoff").open = true;
+      status("Host-agent request prepared. Ask your active coding agent to fulfill it; no provider was called automatically.");
+    }).catch(function (error) {
+      $("architecture-status").textContent = "Cannot request architecture: " + error.message;
+    });
+  }
+  function submitArchitecture() {
+    var payload;
+    try { payload = JSON.parse($("architecture-response").value); }
+    catch (error) { $("architecture-status").textContent = "Response must be valid HostAgentResponse JSON."; return; }
+    fetch(architectureUrl() + "/host-agent-response", {
+      method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(payload)
+    }).then(apiJson).then(function (projection) {
+      $("architecture-response").value = "";
+      $("architecture-handoff").open = false;
+      applyArchitectureProjection(projection, true);
+      status("Source-bound candidate architecture loaded; no story meaning accepted.");
+    }).catch(function (error) {
+      $("architecture-status").textContent = "Response rejected: " + error.message;
+    });
+  }
+  function chooseCandidate(id) {
+    if (!$("scene-panel").hidden) { captureScene(); concealScene(); scheduleSave(); }
+    state.selected = null; state.selectedDerived = null; state.selectedCandidate = id;
+    renderInspector();
+    Array.prototype.forEach.call(document.querySelectorAll(".node"), function (button) {
+      button.setAttribute("aria-pressed", String(button.dataset.itemId === id));
+    });
+    rememberFocus();
+  }
+  function copyCandidate() {
+    var original = candidateNode(state.selectedCandidate);
+    if (!original || !remote.ready || remote.failed) return;
+    if (state.items.length >= 200) { status("Working canvas item limit reached; use a focused proposal."); return; }
+    var copy = { id: id("item"), title: original.title, kind: "note",
+      group: "Architecture", content: original.summary + "\n\nOrigin: working agent proposal " +
+      (state.architectureRequestSha || "unknown") + " / " + original.id + ". Not accepted." };
+    state.items.push(copy); state.positions[copy.id] = availablePosition();
+    state.selected = copy.id; state.selectedCandidate = null;
+    state.view = "create"; $("layer-view").value = "create";
+    render(); rememberFocus(); queueSave();
+    status("Copied as editable working note. Original agent proposal remains available.");
   }
   function loadRemote(doc) {
     state.items = doc.items; state.connections = doc.connections; state.positions = doc.positions;
@@ -86,6 +209,7 @@
     if (focus && focus.editorOpen && selected() && selected().kind === "scene") {
       displayScene(focus.caret, focus.expanded);
     }
+    loadArchitecture();
     status("Working canvas loaded · saved locally · revision " + remote.revision);
   }
   function hasUnsavedChanges() {
