@@ -188,6 +188,20 @@ Let the first meaningful experience failure determine the lowest correct UX/UI
 intervention.
 
 ## Development Rule
+
+### Discovery before hardening — proportionate evidence
+
+Match evidence to the **decision being made**, and safeguards to the **consequences**. Exploration asks whether an interaction is worth keeping; stabilization asks whether selected behavior is dependable. Automated correctness checks cannot substitute for real author experience, and human preference does not prove crash recovery.
+
+- **Disposable UX spike:** build the shortest clickable interaction in a scratch workspace; observe a human using it; freely revise or discard layouts. Do not automatically demand full regression suites, mocked-browser harnesses, pinned test candidates, or a new qualification issue before first-look feedback.
+- **Integrated sandbox:** preserve isolation from valued projects and accepted story authority; run only cheap startup/containment checks when a concrete consequence warrants them. Do not impose an absolute zero-testing rule.
+- **Trusted development/beta/release:** progressively verify preserved authored work, restart/recovery, explicit authority, accessibility, fallbacks and interoperability when those behaviors become relied upon; scale qualification to the claim and affected users.
+- **Process learning:** avoid premature hardening (freezing wet design), proxy substitution (mistaking green tests for UX value), and gate inflation (applying release checks to disposable preview). Diagnose and repair decision processes rather than blaming contributors.
+
+**Stop rule:** if additional assurance cannot change the next discovery decision, put the product in front of the author instead. This is guidance on proportionality, not an exemption from protected repository or release rules.
+
+Living Story Studio's [owner-selected first-look and staged-adoption decision](product-validation/living-story-studio/2026-10-10-staged-default-product-decision.md) is one concrete application.
+
 Prefer:
 
 ```text

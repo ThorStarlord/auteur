@@ -2,7 +2,7 @@
   "use strict";
   var state = { items: [], connections: [], positions: {}, selected: null, selectedDerived: null, derived: null, derivedPositions: {}, view: "create", panX: 0, panY: 0, zoom: 1, serial: 0, undo: null };
   // Local, noncanonical working document: server is the persistence owner.
-  var remote = { canvasId: null, revision: 0, ready: false, failed: false, queue: Promise.resolve(), timer: null };
+  var remote = { canvasId: null, revision: 0, ready: false, failed: false, queue: Promise.resolve(), timer: null, savedSnapshot: null };
   state.deleted = {};
   function showRecoveryAction() {
     $("restore-deleted").hidden = !remote.ready || remote.failed || !Object.keys(state.deleted).length;
@@ -29,6 +29,7 @@
         body: JSON.stringify({ expected_revision: remote.revision, command_id: command, payload: payload })
       }).then(apiJson).then(function (doc) {
         remote.revision = doc.revision;
+        remote.savedSnapshot = JSON.stringify(payload);
         state.deleted = doc.deleted || {}; showRecoveryAction();
         if (!remote.failed) status("Working canvas saved locally · revision " + remote.revision);
       });
@@ -50,7 +51,37 @@
     $("zoom").value = String(Math.round(state.zoom * 100));
     remote.revision = doc.revision; remote.ready = true;
     state.deleted = doc.deleted || {}; showRecoveryAction();
+    remote.savedSnapshot = JSON.stringify(snapshot());
     render(); status("Working canvas loaded · saved locally · revision " + remote.revision);
+  }
+  function hasUnsavedChanges() {
+    return remote.ready &&
+      (remote.failed || remote.savedSnapshot !== JSON.stringify(snapshot()));
+  }
+  function leaveForLegacy(href) {
+    if (!remote.ready) {
+      status("Canvas is not loaded. Cannot safely leave for the previous interface yet.");
+      return;
+    }
+    if (remote.failed) {
+      status("Save failed. Export your working canvas before leaving.");
+      return;
+    }
+    if (remote.timer !== null) {
+      clearTimeout(remote.timer); remote.timer = null;
+      queueSave();
+    } else if (hasUnsavedChanges()) {
+      queueSave();
+    }
+    status("Preserving working notes before switching interfaces...");
+    Promise.resolve(remote.queue).then(function () {
+      if (hasUnsavedChanges()) {
+        throw new Error("Some working edits remain unsaved. Export your notes before leaving.");
+      }
+      window.location.assign(href);
+    }).catch(function (error) {
+      status("Could not switch interfaces safely: " + error.message);
+    });
   }
   function canvasUrl(canvasId) {
     var params = new URLSearchParams(window.location.search);
@@ -551,7 +582,7 @@
     if (projection.draft_text) {
       $("generation-result").hidden = false;
       $("generated-prose").value = projection.draft_text;
-      $("open-quick-draft").href = "/?quick_draft=" + encodeURIComponent(projection.session_id);
+      $("open-quick-draft").href = "/beginner.html?quick_draft=" + encodeURIComponent(projection.session_id);
     } else {
       $("generation-result").hidden = true;
       $("generated-prose").value = "";
@@ -677,6 +708,17 @@
       state.items.push(old.item); state.positions[old.item.id] = old.pos;
       state.connections.push.apply(state.connections, old.links); state.selected = old.item.id; render(); queueSave();
     }
+  });
+  window.addEventListener("beforeunload", function (event) {
+    if (!hasUnsavedChanges()) return;
+    event.preventDefault();
+    event.returnValue = "";
+  });
+  ["legacy-home", "open-quick-draft"].forEach(function (id) {
+    $(id).addEventListener("click", function (event) {
+      event.preventDefault();
+      leaveForLegacy(this.href);
+    });
   });
   $("new-canvas").addEventListener("click", function () { navigateCanvas(id("canvas")); });
   $("canvas-picker").addEventListener("change", function () {

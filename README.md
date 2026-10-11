@@ -491,6 +491,8 @@ auteur
 needed, opens the browser, and shows **Auteur Home**. From Home you can enter a
 premise directly or continue a recent story; no workspace ID is required.
 
+**Exploratory Studio preview (Studio branch only):** To try the graph-first canvas with disposable work **before** trusted-use qualification, use the [first-look sandbox launch instructions](docs/design/2026-10-09-living-story-studio.md#first-look-sandbox-launch). This is hands-on UX discovery, not a release claim or change to the normal default.
+
 On Windows you can also double-click `Auteur.cmd`. To create a Desktop
 shortcut:
 
