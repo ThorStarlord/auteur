@@ -49,3 +49,14 @@ def test_realization_scripts_have_valid_syntax_and_real_dom_ids():
     checked = subprocess.run([node, "--check", str(BROWSER / "studio.js")],
                              capture_output=True, text=True, check=False)
     assert checked.returncode == 0, checked.stderr
+
+
+def test_cross_workflow_revision_guard_and_emotional_diff_visibility():
+    js = (BROWSER / "studio.js").read_text(encoding="utf-8")
+    for field in ("emotion_targets", "complex_emotions", "genre_contracts", "genre_interactions"):
+        assert field in js
+    assert "state.realizationStale" in js
+    assert "Concrete proposal is stale" in js
+    assert "remote.canvasId !== canvasId" in js
+    assert "function applyRealizationReview" in js
+    assert "requestArchitecture(" in js

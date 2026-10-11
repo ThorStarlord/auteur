@@ -295,9 +295,13 @@ All material is a noncanonical proposal; never accept Identity, Structure or pro
 def _candidate_diff(previous: dict, proposed: dict) -> dict:
     """Explain a revision without confusing proposal changes with accepted-story impact."""
     categories: dict[str, dict] = {}
-    for field in ("nodes", "links", "phases"):
-        old = {entry["id"]: entry for entry in previous.get(field, [])}
-        new = {entry["id"]: entry for entry in proposed.get(field, [])}
+    for field, key in (
+        ("nodes", "id"), ("links", "id"), ("phases", "id"),
+        ("emotion_targets", "id"), ("complex_emotions", "id"),
+        ("genre_contracts", "genre_node_id"), ("genre_interactions", "id"),
+    ):
+        old = {entry[key]: entry for entry in previous.get(field, [])}
+        new = {entry[key]: entry for entry in proposed.get(field, [])}
         categories[field] = {
             "added": sorted(new.keys() - old.keys()),
             "removed": sorted(old.keys() - new.keys()),
@@ -311,6 +315,17 @@ def _candidate_diff(previous: dict, proposed: dict) -> dict:
     )
     return categories
 
+def _current_candidate_is_stale(store: CanvasStore, current: dict | None) -> bool:
+    """A saved working architecture stays readable after its input intent changes."""
+    if not current:
+        return False
+    request = load_host_agent_request(
+        _root(store) / "requests" / current["request_sha256"] / "request.json"
+    )
+    previous = json.loads(request.user)["working_context"]["previous_candidate"]
+    return _digest(_source(store, previous=previous)) != current["source_sha256"]
+
+
 def project_architecture(store: CanvasStore) -> dict:
     store.load()
     pointer = _read(_root(store) / "latest_request.json")
@@ -323,9 +338,10 @@ def project_architecture(store: CanvasStore) -> dict:
         req = load_host_agent_request(_root(store) / "requests" / sha / "request.json")
     pending = bool(req and (not current or current["request_sha256"] != req.request_sha256))
     review = _read(_root(store) / "requests" / req.request_sha256 / "review.json") if pending else None
+    stale = _current_candidate_is_stale(store, current) if current and not pending else False
     return {
         "status": "review_ready" if review else "awaiting_host_agent" if pending
-                  else "ready" if current else "not_started",
+                  else "stale" if stale else "ready" if current else "not_started",
         "request": req.model_dump() if pending and not review else None,
         "candidate": current["candidate"] if current else None,
         "candidate_request_sha256": current["request_sha256"] if current else None,
