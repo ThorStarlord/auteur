@@ -235,3 +235,18 @@ retain stable IDs on revision, and use Book/arc/chapter scopes and focused
 neighborhoods rather than packing an entire long-running series onto one screen.
 This is an operational handoff contract, **not** a claim of live-provider,
 real-browser, or human-usability qualification.
+
+
+For a local coding-agent operator, the simplest completion path is the built-in
+CLI bridge. The canvas id appears in the Studio URL after the canvas is opened:
+
+~~~powershell
+python -m auteur.beginner.studio_architecture --project $scratch --canvas $canvasId show
+# Host coding agent reads the printed system/user request, reasons, and writes raw candidate JSON.
+python -m auteur.beginner.studio_architecture --project $scratch --canvas $canvasId complete-file --candidate .\candidate.json
+~~~
+
+The CLI validates and records the generated proposal through the exact same
+host-agent response path as the Browser. A revision remains staged for explicit
+working apply. Do not mistake a prepared request or synthetic candidate for
+a live coding-agent invocation or independent creative-quality evidence.
