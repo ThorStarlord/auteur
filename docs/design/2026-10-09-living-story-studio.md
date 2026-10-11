@@ -185,3 +185,20 @@ The active F2/X3 controlled six-Chapter evidence mission (#318), host-agent Quic
 Stop or narrow scope if meaningful node edits cannot be persisted safely, if Studio introduces independent canonical authority, if a provider/environment cannot fulfill the existing Quick Draft handoff, if a new data model is not warranted, or if a real author task is made worse by mandatory node manipulation.
 
 Choose the lowest owning repair before adding complexity. Preserve a usable current Browser fallback through reversible development/beta adoption; decide retirement later against observed benefits, accessibility and migration evidence. Do not treat the old UI as the presumed mature UX standard.
+
+
+## 10. Story Vision and agent-generated whole-story architecture (owner-selected 2026-10-11)
+
+**Purpose:** The primary authored input is a flexible story vision, not a manually constructed graph. Authors may start from target reader experience, aesthetic framing, tropes, genre progression, structural identity, a premise, or free prose. All fields except some meaningful authored text remain optional. Do not fabricate a premise to satisfy the separate DiscoveryBrief contract.
+
+**P1 — Vision:** A single working Story Vision item in the existing noncanonical CanvasStore is durable, editable, and recoverable. The vision entry does not create Story Identity, a Story Lens command, or a second semantic layer.
+
+**P2/P3 — Active coding agent and projections:** A backend-neutral host-agent request/response handoff uses exact request identity, source-state fingerprint, and version-aware completion. Proposals are candidate-only; their nodes/relations are validated and projected as noncanonical architecture evidence. Author edits stay in working state. No model-provider credential is necessary for the handoff, and a browser alone does not pretend it can invoke an absent host agent.
+
+**P4 — Genre trajectory:** Separate the global governing genre/promise (Identity), local genre emphasis and overlapping narrative phases (Structure candidates), intended reader emotion (TargetExperience), and aesthetic modulation. A local genre interval is not automatically a new global genre commitment. Preserve unknown length, transitions, and parallel phases.
+
+**P5 — Long horizon:** Use focused derived views across scope and phase rather than inserting every story element into the 200-item working canvas. A derived graph never becomes a universal ontology or canonical store; Source Identity/Structure/Realization/Series owners remain authoritative.
+
+**P6 — Revision:** The agent may propose a targeted architecture revision, explain material differences and affected relationships, and retain earlier proposals. Revising working architecture does not change accepted story meaning; upstream changes must pass explicit existing owner actions. Stale requests cannot apply to current working material.
+
+**Acceptance sequence:** author-editable no-premise vision → exact host-agent request and validated response → readable connected candidate graph → temporal genre/reader timeline → scope focus → bounded revision with impact preview. Test the concrete Browser/HTTP/store/host-agent boundaries before trust, not a new omnibus UX gate. No automatic acceptance, auto-publication, new provider configuration, or broad release.

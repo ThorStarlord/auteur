@@ -344,6 +344,32 @@
     status("Working items arranged by group. Arrangement changes layout only.");
   }
   function transform() { $("world").style.transform = "translate(" + state.panX + "px," + state.panY + "px) scale(" + state.zoom + ")"; }
+  // A stable, author-editable working item; never a fabricated StoryIdentity premise.
+  function visionItem() { return state.items.find(function (item) { return item.id === "story-vision"; }); }
+  function showVision() {
+    var item = visionItem();
+    if (document.activeElement !== $("vision-text")) $("vision-text").value = item ? item.content : "";
+    $("vision-status").textContent = item ? "Working vision saved with canvas" : "Start with any creative intent. A premise is optional.";
+  }
+  function updateVision() {
+    if (!remote.ready || remote.failed) { status("Vision cannot be saved while the canvas is unavailable."); return; }
+    var text = $("vision-text").value;
+    var item = visionItem();
+    if (!item && !text.trim()) return;
+    if (!item) {
+      if (state.items.length >= 200) { status("This canvas reached its working-item limit."); return; }
+      item = { id: "story-vision", kind: "note", title: "Story Vision", group: "Story Vision", content: text };
+      state.items.push(item);
+      state.positions[item.id] = availablePosition();
+      if (!state.selected) state.selected = item.id;
+      render();
+    } else {
+      item.content = text;
+      if (state.selected === item.id) $("content").value = text;
+    }
+    scheduleSave();
+    $("vision-status").textContent = "Saving working vision locally...";
+  }
   function newItem(kind) {
     if (!remote.ready || remote.failed) { status("Cannot edit while local canvas is unavailable. Export your notes if needed."); return; }
     if (state.items.length >= 200) { status("The working canvas has reached its 200-item safety bound."); return; }
@@ -652,7 +678,7 @@
       node.append(title, type); node.addEventListener("click", function () { chooseDerived(item.id); });
       host.appendChild(node);
     });
-    drawEdges(); renderInspector(); renderOutline(); transform();
+    drawEdges(); renderInspector(); renderOutline(); showVision(); transform();
   }
   // Keep the inspector and the working-document model in sync before focus changes.
   // This is working author material only; it cannot accept story canon.
@@ -662,6 +688,7 @@
     item.kind = $("kind").value;
     item.content = $("content").value;
     item.group = $("group").value.trim();
+    if (item.id === "story-vision") $("vision-text").value = item.content;
     $("write").hidden = item.kind !== "scene";
     Array.prototype.forEach.call(document.querySelectorAll(".node"), function (node) {
       if (node.dataset.itemId !== item.id) return;
@@ -884,6 +911,12 @@
   $("add-character").addEventListener("click", function () { newItem("character"); });
   $("add-scene").addEventListener("click", function () { newItem("scene"); });
   $("start").addEventListener("click", function () { newItem("note"); });
+  $("vision-text").addEventListener("input", updateVision);
+  $("vision-save").addEventListener("click", function () {
+    updateVision();
+    if (remote.timer !== null) { clearTimeout(remote.timer); remote.timer = null; queueSave(); }
+  });
+  $("vision-write").addEventListener("click", function () { $("write-shortcut").click(); });
   $("fit").addEventListener("click", fit);
   $("connect-shortcut").addEventListener("click", function () {
     if (!selected()) { status("Select a working idea to connect first."); return; }
