@@ -148,3 +148,18 @@ body.scene-docked #inspector { display:none; }
 .architecture-review p { margin:7px 0; }
 .architecture-review ul { margin:7px 0 12px; padding-left:20px; }
 .architecture-review li { margin:4px 0; }
+
+.studio-workflows { display:flex; gap:8px; padding:10px 14px; background:#f6f4ef;
+  border-bottom:1px solid #d8d3c8; }
+.studio-workflows button { border:1px solid #c6c0b2; border-radius:9px; padding:9px 14px;
+  background:white; font-weight:600; cursor:pointer; }
+.studio-workflows button[aria-pressed="true"] { background:#eae0f3; border-color:#9e88b4; color:#4d3a63; }
+.emotional-design { padding:8px 16px; background:#f7f3fc; border-bottom:1px solid #ddd1e9; }
+.emotional-design summary { cursor:pointer; font-weight:600; }
+#emotional-targets { line-height:1.5; font-size:.86rem; }
+#emotional-targets p { margin:8px 0; }
+#genre-contract-detail { padding-top:10px; border-top:1px solid #d6ccdf; line-height:1.42; }
+#genre-contract-detail h4 { font-size:.84rem; margin:10px 0 4px; color:#67427e; }
+#genre-contract-detail p { margin:3px 0 9px; font-size:.83rem; }
+#timeline-phases li p { white-space:pre-line; }
+@media (max-width:780px) { .studio-workflows { flex-wrap:wrap; } }

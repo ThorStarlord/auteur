@@ -7,6 +7,7 @@
   state.architecture = null; state.candidatePositions = {}; state.selectedCandidate = null;
   state.architectureFocus = ""; state.architectureCenter = null;
   state.architectureRequestSha = null; state.architectureReview = null;
+  state.workspace = "realization"; state.lastRealizationView = "create";
   function showRecoveryAction() {
     $("restore-deleted").hidden = !remote.ready || remote.failed || !Object.keys(state.deleted).length;
   }
@@ -57,7 +58,7 @@
       var previous = JSON.parse(window.localStorage.getItem(focusKey()) || "null");
       window.localStorage.setItem(focusKey(), JSON.stringify({
         selected: state.selected || (previous && previous.selected) || null,
-        view: state.view, group: state.focusGroup,
+        view: state.view, workspace: state.workspace, group: state.focusGroup,
         candidate: state.selectedCandidate, scope: state.architectureFocus,
         neighborhood: state.architectureCenter,
         editorOpen: open, expanded: open && $("scene-panel").classList.contains("expanded"),
@@ -73,6 +74,8 @@
     state.focusGroup = typeof saved.group === "string" ? saved.group : "";
     state.view = ["create", "relationships", "all", "architecture", "genre_timeline"].includes(saved.view) ? saved.view : "create";
     state.selectedCandidate = saved.candidate || null;
+    state.workspace = saved.workspace === "architecture" || ["architecture", "genre_timeline"].includes(state.view)
+      ? "architecture" : "realization";
     state.architectureFocus = saved.scope || "";
     state.architectureCenter = saved.neighborhood || null;
     if (state.items.some(function (item) { return item.id === saved.selected; })) state.selected = saved.selected;
@@ -774,6 +777,22 @@
         svg.appendChild(line);
       });
     }
+    if (state.architecture && state.view === "architecture") {
+      (state.architecture.genre_interactions || []).forEach(function (edge) {
+        var a = candidateNode(edge.source_genre_id), b = candidateNode(edge.target_genre_id);
+        if (!a || !b || !candidateVisible(a) || !candidateVisible(b)) return;
+        var from = state.candidatePositions[a.id], to = state.candidatePositions[b.id];
+        if (!from || !to) return;
+        var line = document.createElementNS(svgNS, "line");
+        line.setAttribute("x1", String(from.x + 82)); line.setAttribute("y1", String(from.y + 34));
+        line.setAttribute("x2", String(to.x + 82)); line.setAttribute("y2", String(to.y + 34));
+        line.setAttribute("stroke", "#9a6799"); line.setAttribute("stroke-width", "3");
+        line.setAttribute("stroke-dasharray", "3 6");
+        var label = document.createElementNS(svgNS, "title");
+        label.textContent = edge.kind + ": " + edge.mechanism; line.appendChild(label);
+        svg.appendChild(line);
+      });
+    }
     if (state.derived) state.derived.edges.forEach(function (edge) {
       var from = state.derivedPositions[edge.source], to = state.derivedPositions[edge.target];
       var fromNode = state.derived.nodes.find(function (n) { return n.id === edge.source; });
@@ -792,6 +811,8 @@
     $("source-detail").hidden = !source && !proposal;
     $("candidate-copy").hidden = !proposal;
     $("candidate-focus").hidden = !proposal;
+    $("genre-contract-detail").replaceChildren();
+    $("genre-contract-detail").hidden = true;
     $("book-orientation").hidden = state.view !== "book";
     if (proposal) {
       $("inspector-empty").hidden = true; $("inspector-fields").hidden = true;
@@ -809,6 +830,43 @@
         var line = document.createElement("p");
         line.textContent = edge.function + " → " + other.title; related.appendChild(line);
       });
+      var contract = (state.architecture.genre_contracts || []).find(function (genre) {
+        return genre.genre_node_id === proposal.id;
+      });
+      if (contract) {
+        var detail = $("genre-contract-detail"); detail.hidden = false;
+        function section(title, content) {
+          if (!content) return;
+          var h = document.createElement("h4"); h.textContent = title; detail.appendChild(h);
+          var p = document.createElement("p"); p.textContent = content; detail.appendChild(p);
+        }
+        section("Role", contract.role);
+        contract.emotion_target_ids.forEach(function (id) {
+          var target = (state.architecture.emotion_targets || []).find(function (e) { return e.id === id; });
+          if (target) section("Basic emotion · " + target.emotion,
+            target.intended_effect + " (" + target.role + ", " + target.provenance + "). " +
+            "Narrative condition: " + target.eliciting_condition +
+            ". Aesthetic strategy: " + target.aesthetic_strategy);
+        });
+        contract.complex_emotion_ids.forEach(function (id) {
+          var emotion = (state.architecture.complex_emotions || []).find(function (e) { return e.id === id; });
+          if (emotion) section("Complex emotion · " + emotion.title,
+            emotion.basic_emotions.join(" + ") + ": " + emotion.context);
+        });
+        section("Trope functions", contract.trope_functions.join(" · "));
+        section("Narrative engine", contract.narrative_engine);
+        section("Structural pattern", contract.structural_pattern);
+        section("Aesthetic strategies", contract.aesthetic_strategies.join(" · "));
+        section("Payoff expectations", contract.payoff_expectations.join(" · "));
+        (state.architecture.genre_interactions || []).filter(function (link) {
+          return link.source_genre_id === proposal.id || link.target_genre_id === proposal.id;
+        }).forEach(function (link) {
+          var other = candidateNode(link.source_genre_id === proposal.id ? link.target_genre_id : link.source_genre_id);
+          section("Genre interaction · " + link.kind,
+            (other ? other.title : "Other genre") + ": " + link.mechanism +
+            (link.risk ? " Risk: " + link.risk : ""));
+        });
+      }
       return;
     }
     if (source) {
@@ -865,6 +923,37 @@
     rememberFocus();
   }
 
+  function switchWorkspace(next) {
+    if (next === state.workspace) return;
+    if (next === "architecture") {
+      if (!$("scene-panel").hidden) { captureScene(); concealScene(); scheduleSave(); }
+      if (state.workspace === "realization") state.lastRealizationView = state.view;
+      state.view = "architecture";
+    } else {
+      state.view = state.lastRealizationView || "create";
+    }
+    state.workspace = next;
+    $("layer-view").value = state.view;
+    render(); rememberFocus();
+  }
+
+  function renderEmotionalOverview() {
+    var host = $("emotional-targets"); host.replaceChildren();
+    if (!state.architecture) return;
+    (state.architecture.emotion_targets || []).forEach(function (target) {
+      var p = document.createElement("p");
+      p.textContent = target.emotion.toUpperCase() + " (" + target.role + ", " + target.provenance +
+        "): " + target.intended_effect + " | Elicited by: " + target.eliciting_condition +
+        " | Aesthetic strategy: " + target.aesthetic_strategy;
+      host.appendChild(p);
+    });
+    (state.architecture.complex_emotions || []).forEach(function (emotion) {
+      var p = document.createElement("p");
+      p.textContent = emotion.title + " (" + emotion.basic_emotions.join(" + ") + "): " +
+        emotion.context + " · Narrative approximation, not an emotion equation.";
+      host.appendChild(p);
+    });
+  }
   function renderTimeline() {
     var host = $("timeline-phases"); host.replaceChildren();
     if (!state.architecture || !state.architecture.phases.length) {
@@ -880,7 +969,23 @@
         var li = document.createElement("li"); li.className = "timeline-phase";
         var title = document.createElement("h3"); title.textContent = phase.title;
         li.appendChild(title);
+        var activations = (phase.genre_activations || []).map(function (active) {
+          var contract = (state.architecture.genre_contracts || []).find(function (g) {
+            return g.genre_node_id === active.genre_node_id;
+          });
+          var genre = candidateNode(active.genre_node_id);
+          return (genre ? genre.title : active.genre_node_id) + ": " +
+            active.basic_emotions.join(" + ") + " | " + active.structural_function +
+            (active.trope_functions.length ? " | Tropes: " + active.trope_functions.join(", ") : "") +
+            (contract ? " | Engine: " + contract.narrative_engine : "");
+        });
+        var activeIds = (phase.genre_activations || []).map(function (g) { return g.genre_node_id; });
+        var interactions = (state.architecture.genre_interactions || []).filter(function (link) {
+          return activeIds.includes(link.source_genre_id) && activeIds.includes(link.target_genre_id);
+        }).map(function (link) { return link.kind + ": " + link.mechanism; });
         [
+          ["active genre mechanisms and emotions", activations.join(" \n ")],
+          ["interactions in this interval", interactions.join(" \n ")],
           ["genres", phase.genres.map(function (g) { return g.genre + " (" + g.role.replace(/_/g, " ") + ")"; }).join(" · ")],
           ["reader experience", phase.reader_experience],
           ["aesthetic", phase.aesthetic],
@@ -896,6 +1001,21 @@
       });
   }
   function render() {
+    var designing = state.workspace === "architecture";
+    ["add-note", "add-character", "add-scene", "connect-shortcut", "write-shortcut"].forEach(function (id) {
+      $(id).hidden = designing;
+    });
+    $("architecture-tools").hidden = !designing;
+    $("emotional-design").hidden = !designing || !state.architecture ||
+      !(state.architecture.emotion_targets || []).length;
+    ["workspace-architecture", "workspace-realization"].forEach(function (id) {
+      $(id).setAttribute("aria-pressed", String(id === "workspace-" + state.workspace));
+    });
+    Array.prototype.forEach.call($("layer-view").options, function (opt) {
+      opt.hidden = designing ? !["architecture", "genre_timeline"].includes(opt.value)
+        : ["architecture", "genre_timeline"].includes(opt.value);
+    });
+    renderEmotionalOverview();
     $("architecture-clear-focus").hidden = state.view !== "architecture" || !state.architectureCenter;
     $("viewport").hidden = state.view === "genre_timeline";
     $("genre-timeline").hidden = state.view !== "genre_timeline";
@@ -1208,7 +1328,11 @@
     updateVision();
     if (remote.timer !== null) { clearTimeout(remote.timer); remote.timer = null; queueSave(); }
   });
-  $("vision-write").addEventListener("click", function () { $("write-shortcut").click(); });
+  $("vision-write").addEventListener("click", function () {
+    switchWorkspace("realization"); $("write-shortcut").click();
+  });
+  $("workspace-architecture").addEventListener("click", function () { switchWorkspace("architecture"); });
+  $("workspace-realization").addEventListener("click", function () { switchWorkspace("realization"); });
   $("architecture-develop").addEventListener("click", function () { requestArchitecture(""); });
   $("architecture-refresh").addEventListener("click", loadArchitecture);
   $("architecture-revise").addEventListener("click", function () {
@@ -1254,6 +1378,8 @@
   $("preview-impact").addEventListener("click", previewImpact);
   $("layer-view").addEventListener("change", function () {
     state.view = this.value;
+    state.workspace = ["architecture", "genre_timeline"].includes(state.view) ? "architecture" : "realization";
+    if (state.workspace === "realization") state.lastRealizationView = state.view;
     if (this.value === "book" && !$("book-heading").textContent.startsWith("Chapter")) loadBook();
     else render();
     rememberFocus();

@@ -14,6 +14,10 @@
   </header>
   <main class="studio">
     <section class="workspace" aria-label="Creative story canvas">
+      <nav class="studio-workflows" aria-label="Creative workflow">
+        <button id="workspace-architecture" aria-pressed="false" type="button">Narrative Architecture</button>
+        <button id="workspace-realization" aria-pressed="true" type="button">Story Realization</button>
+      </nav>
       <nav class="toolbar" aria-label="Canvas controls">
         <button type="button" id="add-note">+ Idea</button>
         <button type="button" id="add-character">+ Character</button>
@@ -73,7 +77,7 @@
           </div>
         </details>
       </section>
-      <section class="architecture-actions" aria-label="Agent-assisted narrative architecture">
+      <section id="architecture-tools" class="architecture-actions" aria-label="Agent-assisted narrative architecture">
         <button id="architecture-develop" type="button">Develop architecture with coding agent</button>
         <button id="architecture-refresh" type="button">Check agent result</button>
         <label for="architecture-scope">Focus</label>
@@ -102,8 +106,12 @@
           <button id="architecture-complete" type="button">Validate and load response</button>
         </details>
       </section>
+      <details id="emotional-design" class="emotional-design" hidden>
+        <summary>Emotional design — six basic emotions and optional compositions</summary>
+        <div id="emotional-targets"></div>
+      </details>
       <div id="genre-timeline" class="genre-timeline" hidden aria-label="Proposed genre and reader-experience timeline">
-        <h2>Genre and emotional progression</h2>
+        <h2>Genre and emotional composition</h2>
         <p>Working phases can overlap or change dominant genres. Order does not imply fixed chapter lengths or an accepted story contract.</p>
         <ol id="timeline-phases" class="timeline-track"></ol>
       </div>
@@ -137,6 +145,7 @@
         <p id="source-description"></p>
         <p id="source-ref"></p>
         <div id="source-links"></div>
+        <div id="genre-contract-detail" hidden aria-label="Proposed genre mechanics, emotions and interactions"></div>
         <button id="candidate-focus" type="button" hidden>Focus on connected ideas</button>
         <button id="candidate-copy" type="button" hidden>Copy as editable working idea</button>
         <p class="muted">Derived evidence is read-only. Use the existing story workspace to change accepted meaning.</p>
