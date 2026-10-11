@@ -9,7 +9,7 @@
 
 **Living Story Studio / graph-first creation is Auteur's selected target default experience.**
 
-Adopt it in stages: after real basic safety qualification, make it the **development default**; after reliable everyday qualification, make it the **early-user beta default**; retain the existing Beginner interface as a reachable fallback. Broad promotion and retirement of the old UI remain later decisions.
+Allow immediate **first-look UX exploration** in an isolated disposable sandbox; this is not a trusted authoring default and is not blocked by release-style qualification. After real basic safety qualification, make Studio the **development default**; after reliable everyday qualification, the **early-user beta default**. Retain the existing Beginner interface as a fallback; broad release/retirement remains a separate decision.
 
 This product-owner decision is sufficient to select design direction. It does **not** establish that all writers prefer graph-first, that the implementation passes tests, or that a protected merge/release is authorized.
 
@@ -36,6 +36,17 @@ The selected graph-first direction has two substantive goals: **spatial story cr
 - Treat the old Beginner UI as **fallback and comparison baseline**, not a UX design to reproduce mechanically.
 - Do not require a cohort preference study or exhaustive UX equivalence to *choose this direction*.
 - Preserve existing Story Identity/Structure/Realization/Expression/relations/Book owners and their explicit author acceptance guarantees.
+
+### First-look sandbox — part of Stage A, not a Stage B gate
+
+- **Immediate objective:** put a clickable Studio in the owner's hands for direct feedback on spatial creation, relationships, navigation and writing flow. Judge the interaction with real clicks, not a mocked browser as a proxy for felt value.
+- **Scope:** use a fresh, disposable local project directory, never a valuable manuscript or accepted Book. A sandbox preview can be unstable or thrown away. It cannot silently accept story meaning, alter an existing project, or access paid providers by default.
+- **Entry threshold:** the app should start and expose the relevant controls. A quick smoke check is reasonable when needed to make that possible; a formal regression suite, scripted simulated-browser harness, new governance issue, or pinned qualification candidate is **not** a prerequisite for the owner to inspect scratch data.
+- **Feedback loop:** try one real creative action, notice friction, change the smallest interaction, and try again. Record only the observation that changes the design; discard exploratory layouts freely. Do not demand that the prototype first prove superiority over the existing Beginner UI.
+- **Separate thresholds:** #360 qualifies trusted everyday author work and the development-default cutover (Stage B); it does **not** block first-look sandbox interaction. Reliability tests become more valuable when behavior has been selected for retention or when a concrete data-safety defect demands a focused check.
+- **No blanket anti-test policy:** inexpensive, consequence-relevant verification is allowed in discovery; neither zero testing nor production-grade hardening is a universal requirement.
+
+See the [Studio design contract's first-look launch instructions](../../design/2026-10-09-living-story-studio.md#first-look-sandbox-launch).
 
 ### Stage B — Development default (after essential safety checks)
 
@@ -75,6 +86,7 @@ Fix implementation failures at the lowest owning layer. Do not restart strategic
 - **Unequal burden:** new Studio needed unusually strong proof to displace a baseline with no equivalent demonstrated UX superiority.
 - **Conflated gates:** product owner selection, local safety, beta usability, and broad release were treated as one default-promotion question.
 - **Omission cost ignored:** delayed use also delays learning and retained product value, especially where reversal is cheap.
+- **Assurance substituted for discovery:** unable to run a real browser, the agent created mocked checks and qualification artifacts that could not answer whether the creative interface felt useful. A release-level evidence requirement was applied to a disposable first-look.
 
 These are **decision-system defects**, not grounds for personal fault-finding. The corrective move is to change the review prompts and adoption rules, not label a reviewer or developer incompetent.
 
@@ -92,7 +104,7 @@ This is a **thinking aid, not a mandatory score, committee or release approval f
 
 ## 6. Active execution and evidence handoff
 
-- [#360](https://github.com/ThorStarlord/auteur/issues/360): exact-head local/browser safety qualification, including inspector editing, save/restart, re-entry, conflict recovery and authority boundaries. This is the **near-term gating responsibility** for Stage B.
+- [#360](https://github.com/ThorStarlord/auteur/issues/360): exact-head local/browser safety qualification, including inspector editing, save/restart, re-entry, conflict recovery and authority boundaries. This gates **trusted Stage B use**, not the Stage A scratch-project preview.
 - [#369](https://github.com/ThorStarlord/auteur/issues/369): compare product value and investigate hybrid alternatives **when real outcomes could change a meaningful design decision**. It is no longer a blanket precondition for Stage B.
 - [#318](https://github.com/ThorStarlord/auteur/issues/318), [#310](https://github.com/ThorStarlord/auteur/issues/310): separate six-Chapter Book and host-agent Quick Draft gates remain; do not claim they passed from Studio code review.
 - Original reviewed SHA: `bd2ba539d2f300941681fa7c7b80ab4765354b79`; inspected repair candidate SHA: `a864ea42f230a948b33809553c2f4accfee4859b`. No real running-app safety PASS has been established in this decision.

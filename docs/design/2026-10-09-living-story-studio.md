@@ -122,7 +122,7 @@ The graph does not calculate story truth from screen coordinates or edge color.
 
 **P5 — Book scale:** Chapter/plot grouping, time-aware relations, focused subgraphs, Book orientation and meaningful next action.
 
-**P6 — Staged adoption:** distinguish product-owner-selected direction, essential safety-verified development default, everyday-qualified beta default, and separately authorized broad release. Evaluate comparative author value when it could change the decision, but do not treat a population preference study as mandatory for reversible development adoption. Preserve fallback and explicit authority boundaries.
+**P6 — Staged adoption:** allow immediate disposable first-look sandbox feedback before safety-verified routine use; distinguish product-owner-selected direction, essential safety-verified development default, everyday-qualified beta default, and separately authorized broad release. Evaluate comparative author value when it could change the decision, but do not treat a population preference study as mandatory for reversible development adoption. Preserve fallback and explicit authority boundaries.
 
 A completion claim for an earlier stage does not authorize speculative construction of all later stages.
 
@@ -141,9 +141,29 @@ A completion claim for an earlier stage does not authorize speculative construct
 11. Keyboard-only user can create, locate, connect, edit and inspect elements.
 12. Existing Beginner Browser/CLI golden paths remain functional.
 
-## 11. Qualification and claim ceiling
+## 11. Discovery, qualification and claim ceiling
 
-At every changed boundary test real browser control -> HTTP/API dispatch -> existing owner -> persistent result; static DOM/substring tests alone do not close an integration claim.
+### First-look sandbox launch
+
+From a checkout containing the **Studio draft branch** (not current `main`), with Auteur installed as described in the [README](../../README.md), open Studio against a disposable directory. For Windows PowerShell:
+
+```powershell
+$scratch = Join-Path $env:TEMP "auteur-studio-ux-scratch"
+New-Item -ItemType Directory -Force -Path $scratch | Out-Null
+python -m auteur.beginner.server --project $scratch --port 8765
+```
+
+Open **http://127.0.0.1:8765/studio.html**. No default-interface flag, host-agent provider or completed #360 qualification is required to *look at* an isolated sandbox prototype. This command is a launch recipe, **not an executed startup claim**. Use the disposable project only; do not rely on it for important prose before trusted-use checks.
+
+Try adding and moving a note, connecting two characters, writing a scene, and navigating back. Prioritize direct author observations over another simulated test harness; record what actually felt confusing or useful and iterate quickly.
+
+### Evidence thresholds
+
+**Discovery:** a runnable/clickable sandbox plus direct author feedback is sufficient to decide what layout or interaction to change next. Lightweight checks may resolve a concrete startup or destructive-isolation issue; no formal test package, qualification issue, or frozen hash is mandatory just to inspect the UI.
+
+**Stabilization / trusted writing:** to claim reliable persistence or promote the development default, execute the changed real Browser → HTTP/API → existing owner → persistent result path, including recovery and narrative-authority safety. Static assertions and simulated DOM behavior do not establish that stronger claim.
+
+
 
 Use local-first tests by default; do not assume GitHub Actions credits. Distinguish code inspection, test evidence, runtime provider behavior and human preference.
 
