@@ -104,9 +104,9 @@ def _source_snapshot(store: CanvasStore, focus_ids: list[str], previous: dict | 
         raise ValueError("develop Narrative Architecture before generating Story Realization")
     nodes = architecture["candidate"]["nodes"]
     known_ids = {node["id"] for node in nodes}
-    if len(focus_ids) > 12 or len(set(focus_ids)) != len(focus_ids) or any(
-        not isinstance(ref, str) or ref not in known_ids for ref in focus_ids
-    ):
+    if len(focus_ids) > 12 or any(not isinstance(ref, str) for ref in focus_ids):
+        raise ValueError("realization focus must contain architecture identifiers")
+    if len(set(focus_ids)) != len(focus_ids) or any(ref not in known_ids for ref in focus_ids):
         raise ValueError("realization focus must contain distinct existing architecture IDs")
     working = _source(store)
     return {
@@ -145,9 +145,20 @@ def project_realization(store: CanvasStore) -> dict:
         request = load_host_agent_request(_root(store) / "requests" / sha / "request.json")
     pending = bool(request and (not current or current["request_sha256"] != request.request_sha256))
     review = _read(_root(store) / "requests" / request.request_sha256 / "review.json") if pending else None
+    stale = False
+    if current and not pending:
+        source_request = load_host_agent_request(
+            _root(store) / "requests" / current["request_sha256"] / "request.json"
+        )
+        original = json.loads(source_request.user)["source"]
+        try:
+            latest = _source_snapshot(store, original["focus_ids"], original["previous_realization"])
+            stale = _digest(latest) != current["source_sha256"]
+        except ValueError:
+            stale = True
     return {
         "status": "review_ready" if review else "awaiting_host_agent" if pending
-                  else "ready" if current else "not_started",
+                  else "stale" if stale else "ready" if current else "not_started",
         "request": request.model_dump() if pending and not review else None,
         "candidate": current["candidate"] if current else None,
         "candidate_request_sha256": current["request_sha256"] if current else None,
