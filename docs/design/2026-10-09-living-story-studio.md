@@ -21,12 +21,12 @@ A writer can reach prose directly from a scene. Graph-based explanations then ma
 | Primary navigation | Interactive canvas from the first session |
 | First action | Free-form note, character, place, scene, or optional premise |
 | Default node | Unstructured note; semantic typing is optional |
-| Working edges | Associations with optional author-supplied meaning |
+| Working edges | Author-drawn associations remain working; Relations view includes them alongside separately marked source-bound, read-only relations |
 | Layout | Presentation-only positions and viewport; never semantic authority |
 | AI/projection nodes | Source-bound and explicitly provisional or accepted |
-| Writing | Inline micro-edits; expanded scene/manuscript editor for real prose |
+| Writing | Docked scene/manuscript editor alongside canvas, optional distraction-free full-width mode; source-bound Quick Draft handoff stays explicit |
 | Story views | Create first; Relationships and Consequences when value demonstrated |
-| Scaling | Focused subgraphs, search, grouping and semantic zoom, not an all-nodes hairball |
+| Scaling | Focusable working groups, group-based arrangement, real visible-bounds Fit and bounded placement; do not claim an infinite canvas |
 | Interaction | Pointer plus keyboard/assistive-technology alternatives |
 | Backend | Current local HTTP API and existing narrative owners |
 | Rollout | Selected target default; promote to reversible development default after essential safety qualification; retain fallback; beta/broad gates remain distinct |
@@ -42,6 +42,15 @@ A writer can reach prose directly from a scene. Graph-based explanations then ma
 7. Return after days or weeks to recognizable focus, manuscript and next action.
 
 The UI must not demand a graph before first prose or translate a drag gesture into authorial commitment.
+
+### Discovery-first interaction refinements (2026-10-10)
+
+- **Create / Connect / Write** stay on the primary toolbar. Source IDs, import/export, Book and impact tooling remain available behind More tools rather than occupying the initial creation surface.
+- **Relationships** includes author-created connections and connected working items; source-derived relationship nodes stay visibly dashed/read-only. Source evidence is available only when an existing workspace is explicitly loaded. Working edges never become accepted relationships through canvas edits.
+- **Continuity** restores the last working selection, available view, group, editor mode and prose caret from browser-local *presentation preferences*; positions and zoom remain durable CanvasStore fields. Manuscript text is never stored only in browser preferences.
+- **Writing** uses a docked scene editor, an optional wide focus mode, and an explicit one-click copy of existing scene notes into editable generation intent. A premise remains required for an actual Quick Draft request; it is not invented from unspecified material.
+- **Spatial work** uses visible-content Fit and group focus/rearrangement. Default insertion remains inside the accepted position bounds; bounded prototype limits are explicit and not a mandate to build new graph infrastructure.
+- **Claim ceiling** remains a candidate UX implementation; source inspection or simulated interactions do not prove browser reliability, accessibility or felt author value. A disposable scratch project is appropriate for exploratory inspection, not valuable manuscript storage.
 
 ## 4. Distinguish five concepts
 
