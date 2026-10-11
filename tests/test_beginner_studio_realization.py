@@ -155,3 +155,44 @@ def test_realization_cli_wraps_raw_candidate_without_faking_agent_output(tmp_pat
     completed = json.loads(capsys.readouterr().out)
     assert completed["status"] == "ready"
     assert completed["candidate"]["elements"][0]["architecture_refs"] == ["growth", "generosity"]
+
+
+def test_stale_architecture_blocks_new_concrete_realization(tmp_path):
+    store = store_with_architecture(tmp_path)
+    doc = store.load()
+    updated = doc.items[0].model_copy(update={"content": "Revised core narrative vision."})
+    store.apply("update-item", expected_revision=doc.revision, command_id="vision-edited",
+                payload={"item": updated.model_dump(mode="json")})
+    with pytest.raises(ValueError, match="architecture is stale"):
+        prepare_realization(store)
+
+
+def test_local_http_realization_handoff_and_review(tmp_path):
+    from urllib.request import Request, urlopen
+    from auteur.beginner.server import BeginnerWorkspaceServer
+    store_with_architecture(tmp_path)
+    server = BeginnerWorkspaceServer(tmp_path, port=0)
+    thread = server.start_in_thread()
+    try:
+        base = f"http://127.0.0.1:{server.port}/api/beginner/studio/canvases/realization-one/realization"
+        def call(path, body=None):
+            payload = None if body is None else json.dumps(body).encode("utf-8")
+            req = Request(base + path, data=payload,
+                          method="POST" if body is not None else "GET",
+                          headers={"Content-Type": "application/json"})
+            with urlopen(req) as result:
+                return result.status, json.loads(result.read().decode("utf-8"))
+        status, pending = call("/prepare", {"focus_ids": ["growth"]})
+        assert status == 202 and pending["status"] == "awaiting_host_agent"
+        status, ready = call("/host-agent-response", respond(pending, candidate()))
+        assert status == 200 and ready["status"] == "ready"
+        assert call("")[1]["candidate"]["elements"][0]["id"] == "paladin"
+        _, revision = call("/prepare", {"focus_ids": ["growth"], "instruction": "Adjust stakes."})
+        _, review = call("/host-agent-response", respond(revision, candidate()))
+        assert review["status"] == "review_ready"
+        _, result = call("/apply", {"request_sha256": review["review"]["request_sha256"]})
+        assert result["status"] == "ready"
+    finally:
+        server.stop()
+        thread.join(timeout=2)
+        assert not thread.is_alive()
