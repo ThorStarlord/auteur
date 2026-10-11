@@ -24,6 +24,8 @@
         <label for="group-filter">Group</label><select id="group-filter" aria-label="Focus working group"><option value="">All groups</option></select>
         <label for="layer-view">View</label><select id="layer-view" aria-label="Canvas graph view">
           <option value="create">My ideas</option>
+          <option value="architecture">Story architecture</option>
+          <option value="genre_timeline">Genre timeline</option>
           <option value="relationships">Relationships</option>
           <option value="lenses">Story Lenses</option>
           <option value="all">Everything</option>
@@ -71,6 +73,32 @@
           </div>
         </details>
       </section>
+      <section class="architecture-actions" aria-label="Agent-assisted narrative architecture">
+        <button id="architecture-develop" type="button">Develop architecture with coding agent</button>
+        <button id="architecture-refresh" type="button">Check agent result</button>
+        <label for="architecture-scope">Focus</label>
+        <select id="architecture-scope" aria-label="Focus architecture scope"><option value="">Whole architecture</option></select>
+        <details class="architecture-revise"><summary>Revise with agent</summary>
+          <label for="architecture-instruction">What should change?</label>
+          <textarea id="architecture-instruction" rows="2" maxlength="4000" placeholder="Make the middle phase more unsettling, while preserving the romance and final payoff."></textarea>
+          <button id="architecture-revise" type="button">Request a revised candidate</button>
+        </details>
+        <span id="architecture-status" role="status" aria-live="polite">No agent architecture requested.</span>
+        <details id="architecture-handoff" hidden>
+          <summary>Host-agent request / completion (advanced)</summary>
+          <p>Studio creates an exact source-bound request. Your active coding agent can answer it and submit the corresponding host-agent response. The browser does not silently call a provider.</p>
+          <label for="architecture-request">Pending request packet</label>
+          <textarea id="architecture-request" rows="5" readonly></textarea>
+          <label for="architecture-response">HostAgentResponse JSON (manual fallback)</label>
+          <textarea id="architecture-response" rows="4" placeholder="Paste the complete signed-to-request response JSON here."></textarea>
+          <button id="architecture-complete" type="button">Validate and load response</button>
+        </details>
+      </section>
+      <div id="genre-timeline" class="genre-timeline" hidden aria-label="Proposed genre and reader-experience timeline">
+        <h2>Genre and emotional progression</h2>
+        <p>Working phases can overlap or change dominant genres. Order does not imply fixed chapter lengths or an accepted story contract.</p>
+        <ol id="timeline-phases" class="timeline-track"></ol>
+      </div>
       <div id="viewport" tabindex="0" role="region" aria-label="Story canvas. Use Add controls to create notes; arrow keys move focused nodes." aria-describedby="canvas-help">
         <div id="world">
           <svg id="edges" width="1600" height="1100" aria-hidden="true"></svg>
@@ -101,6 +129,7 @@
         <p id="source-description"></p>
         <p id="source-ref"></p>
         <div id="source-links"></div>
+        <button id="candidate-copy" type="button" hidden>Copy as editable working idea</button>
         <p class="muted">Derived evidence is read-only. Use the existing story workspace to change accepted meaning.</p>
       </div>
       <div id="inspector-fields" hidden>
