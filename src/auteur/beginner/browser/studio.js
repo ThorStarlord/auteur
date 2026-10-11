@@ -856,18 +856,35 @@
   $("add-scene").addEventListener("click", function () { newItem("scene"); });
   $("start").addEventListener("click", function () { newItem("note"); });
   $("fit").addEventListener("click", fit);
+  $("connect-shortcut").addEventListener("click", function () {
+    if (!selected()) { status("Select a working idea to connect first."); return; }
+    if (!$("scene-panel").hidden) sceneSave();
+    $("target").focus();
+    if ($("connect").disabled) status("Create another working item before connecting ideas.");
+  });
+  $("write-shortcut").addEventListener("click", function () {
+    if (!remote.ready || remote.failed) { status("Working canvas is unavailable; cannot open a new scene."); return; }
+    if (!selected() || selected().kind !== "scene") newItem("scene");
+    sceneOpen();
+  });
   $("arrange-group").addEventListener("click", arrangeVisible);
   $("group-filter").addEventListener("change", function () {
+    if (!$("scene-panel").hidden) { captureScene(); concealScene(); scheduleSave(); }
     state.focusGroup = this.value;
     if (selected() && !visibleWorking(selected())) state.selected = null;
-    render();
+    render(); rememberFocus();
   });
   $("find-nodes").addEventListener("input", render);
   $("show-evidence").addEventListener("click", loadEvidence);
   $("relationship-chapter").addEventListener("change", function () { render(); status(this.value ? "Showing relationships with recorded changes in " + this.value + ". Current relation values are not historical snapshots." : "Showing all declared relationships."); });
   $("show-book").addEventListener("click", loadBook);
   $("preview-impact").addEventListener("click", previewImpact);
-  $("layer-view").addEventListener("change", function () { state.view = this.value; if (this.value === "book" && !$("book-heading").textContent.startsWith("Chapter")) { loadBook(); } else { render(); } });
+  $("layer-view").addEventListener("change", function () {
+    state.view = this.value;
+    if (this.value === "book" && !$("book-heading").textContent.startsWith("Chapter")) loadBook();
+    else render();
+    rememberFocus();
+  });
   $("zoom").addEventListener("input", function () { state.zoom = Number(this.value) / 100; transform(); scheduleSave(); });
   $("save").addEventListener("click", saveCurrent);
   ["title", "kind", "content", "group"].forEach(function (id) {
@@ -876,13 +893,33 @@
   });
   $("connect").addEventListener("click", connect);
   $("write").addEventListener("click", sceneOpen);
-  $("close-scene").addEventListener("click", function () { $("scene-panel").hidden = true; });
+  $("close-scene").addEventListener("click", sceneSave);
+  $("expand-scene").addEventListener("click", function () {
+    var expanded = !$("scene-panel").classList.contains("expanded");
+    $("scene-panel").classList.toggle("expanded", expanded);
+    $("expand-scene").textContent = expanded ? "Split view" : "Focus writing";
+    $("expand-scene").setAttribute("aria-pressed", String(expanded));
+    rememberFocus();
+  });
+  $("use-scene-as-intent").addEventListener("click", function () {
+    var item = selected();
+    if (!item || item.kind !== "scene" || !$("scene-text").value.trim()) {
+      $("generation-status").textContent = "Write some scene notes first, then use them as editable intent."; return;
+    }
+    $("scene-intent").value = $("scene-text").value.trim().slice(0, 4000);
+    captureScene(); scheduleSave(); rememberFocus();
+    $("generation-status").textContent = "Copied working scene notes as editable generation intent. Review before requesting.";
+  });
   $("save-scene").addEventListener("click", sceneSave);
   $("generate-scene").addEventListener("click", generateScene);
   $("refresh-draft").addEventListener("click", refreshDraft);
   $("use-generated").addEventListener("click", useGenerated);
   ["scene-premise", "scene-intent", "scene-text"].forEach(function (id) {
-    $(id).addEventListener("input", function () { captureScene(); scheduleSave(); });
+    $(id).addEventListener("input", function () { captureScene(); scheduleSave(); rememberFocus(); });
+  });
+  ["scene-text", "content"].forEach(function (id) {
+    $(id).addEventListener("keyup", rememberFocus);
+    $(id).addEventListener("click", rememberFocus);
   });
   $("download").addEventListener("click", exportCanvas);
   $("import").addEventListener("change", importCanvas);
