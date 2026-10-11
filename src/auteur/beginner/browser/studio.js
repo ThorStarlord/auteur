@@ -257,14 +257,55 @@
       li.appendChild(button); list.appendChild(li);
     });
   }
-  function fit() { state.panX = 0; state.panY = 0; state.zoom = 1; $("zoom").value = "100"; transform(); scheduleSave(); }
+  function fit() {
+    var points = state.items.filter(visibleWorking).map(function (item) { return state.positions[item.id]; });
+    if (state.derived) state.derived.nodes.filter(function (item) { return visibleDerived(item) && matches(item); })
+      .forEach(function (item) { if (state.derivedPositions[item.id]) points.push(state.derivedPositions[item.id]); });
+    if (!points.length) { state.zoom = 1; state.panX = 0; state.panY = 0; }
+    else {
+      var minX = Math.min.apply(null, points.map(function (p) { return p.x; }));
+      var minY = Math.min.apply(null, points.map(function (p) { return p.y; }));
+      var maxX = Math.max.apply(null, points.map(function (p) { return p.x + 165; }));
+      var maxY = Math.max.apply(null, points.map(function (p) { return p.y + 75; }));
+      var viewport = $("viewport");
+      state.zoom = Math.max(.5, Math.min(1.5, (viewport.clientWidth - 48) / (maxX - minX),
+        (viewport.clientHeight - 48) / (maxY - minY)));
+      state.panX = Math.max(-5000, Math.min(5000, Math.round(viewport.clientWidth / 2 - (minX + maxX) / 2 * state.zoom)));
+      state.panY = Math.max(-5000, Math.min(5000, Math.round(viewport.clientHeight / 2 - (minY + maxY) / 2 * state.zoom)));
+    }
+    $("zoom").value = String(Math.round(state.zoom * 100));
+    transform(); scheduleSave();
+  }
+  function gridPosition(index) {
+    return { x: 45 + (index % 8) * 175, y: 30 + (Math.floor(index / 8) % 14) * 75 };
+  }
+  function availablePosition() {
+    var occupied = new Set(Object.values(state.positions).map(function (p) { return p.x + ":" + p.y; }));
+    for (var n = 0; n < 112; n++) {
+      var p = gridPosition(n);
+      if (!occupied.has(p.x + ":" + p.y)) return p;
+    }
+    return gridPosition(state.items.length % 112);
+  }
+  function arrangeVisible() {
+    var items = state.items.filter(visibleWorking).sort(function (a, b) {
+      return ((a.group || "") + "/" + a.title).localeCompare((b.group || "") + "/" + b.title);
+    });
+    if (!items.length) { status("No working items in this view to arrange."); return; }
+    if (items.length > 112) { status("Focus one group before arranging this large canvas."); return; }
+    items.forEach(function (item, i) { state.positions[item.id] = gridPosition(i); });
+    render(); fit();
+    status("Working items arranged by group. Arrangement changes layout only.");
+  }
   function transform() { $("world").style.transform = "translate(" + state.panX + "px," + state.panY + "px) scale(" + state.zoom + ")"; }
   function newItem(kind) {
     if (!remote.ready || remote.failed) { status("Cannot edit while local canvas is unavailable. Export your notes if needed."); return; }
     if (state.items.length >= 200) { status("The working canvas has reached its 200-item safety bound."); return; }
-    var item = { id: id("item"), kind: kind, title: kind === "note" ? "New idea" : "New " + kind, content: "" };
+    var pos = availablePosition();
+    var item = { id: id("item"), kind: kind, title: kind === "note" ? "New idea" : "New " + kind,
+      content: "", group: state.focusGroup };
     state.items.push(item);
-    state.positions[item.id] = { x: 110 + ((state.items.length - 1) % 4) * 192, y: 95 + Math.floor((state.items.length - 1) / 4) * 112 };
+    state.positions[item.id] = pos;
     state.selected = item.id; state.selectedDerived = null; state.view = "create"; $("layer-view").value = "create";
     render();
     $("title").focus();
