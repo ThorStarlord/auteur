@@ -9,6 +9,7 @@
   state.architectureRequestSha = null; state.architectureReview = null;
   state.workspace = "realization"; state.lastRealizationView = "create";
   state.realization = null; state.realizationRequestSha = null;
+  state.realizationStale = false;
   state.realizationReview = null; state.realizationPositions = {}; state.selectedRealization = null;
   function showRecoveryAction() {
     $("restore-deleted").hidden = !remote.ready || remote.failed || !Object.keys(state.deleted).length;
@@ -145,9 +146,10 @@
     if (state.architectureReview) {
       var review = state.architectureReview;
       $("architecture-review-summary").textContent = review.candidate.summary;
-      ["nodes", "links", "phases"].forEach(function (kind) {
+      ["nodes", "links", "phases", "emotion_targets", "complex_emotions",
+        "genre_contracts", "genre_interactions"].forEach(function (kind) {
         ["added", "removed", "changed"].forEach(function (verb) {
-          var ids = review.changes[kind][verb];
+          var ids = (review.changes[kind] || {})[verb] || [];
           if (!ids.length) return;
           var li = document.createElement("li");
           li.textContent = kind + " " + verb + ": " + ids.join(", ");
@@ -272,6 +274,7 @@
   }
   function applyRealizationProjection(projection, openGraph) {
     state.realization = projection.candidate;
+    state.realizationStale = projection.status === "stale";
     state.realizationReview = projection.review || null;
     state.realizationRequestSha = projection.candidate_request_sha256;
     state.realizationPositions = {};
@@ -322,14 +325,17 @@
     if (remote.timer !== null) { clearTimeout(remote.timer); remote.timer = null; queueSave(); }
     else if (hasUnsavedChanges()) queueSave();
     var focus = candidateNode(state.selectedCandidate) ? [state.selectedCandidate] : [];
+    var canvasId = remote.canvasId;
     $("realization-status").textContent = "Preparing exact, source-bound realization request...";
     Promise.resolve(remote.queue).then(function () {
+      if (remote.canvasId !== canvasId) throw new Error("The active canvas changed.");
       if (remote.failed) throw new Error("Working changes were not saved.");
-      return fetch(realizationUrl() + "/prepare", {
+      return fetch("/api/beginner/studio/canvases/" + encodeURIComponent(canvasId) + "/realization/prepare", {
         method: "POST", headers: {"Content-Type": "application/json"},
         body: JSON.stringify({focus_ids: focus, instruction: instruction || ""})
       }).then(apiJson);
     }).then(function (projection) {
+      if (remote.canvasId !== canvasId) return;
       applyRealizationProjection(projection, false);
       $("realization-handoff").open = true;
     }).catch(function (error) {
@@ -340,10 +346,12 @@
     var payload;
     try { payload = JSON.parse($("realization-response").value); }
     catch (error) { $("realization-status").textContent = "Paste valid HostAgentResponse JSON."; return; }
+    var canvasId = remote.canvasId;
     fetch(realizationUrl() + "/host-agent-response", {
       method: "POST", headers: {"Content-Type": "application/json"},
       body: JSON.stringify(payload)
     }).then(apiJson).then(function (projection) {
+      if (remote.canvasId !== canvasId) return;
       $("realization-response").value = "";
       $("realization-handoff").open = false;
       applyRealizationProjection(projection, projection.status === "ready");
@@ -353,13 +361,19 @@
     });
   }
   function applyRealizationReview() {
-    if (!state.realizationReview) return;
-    var sha = state.realizationReview.request_sha256;
-    fetch(realizationUrl() + "/apply", {
-      method: "POST", headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({request_sha256: sha})
-    }).then(apiJson).then(function (projection) {
-      applyRealizationProjection(projection, true);
+    if (!state.realizationReview || !remote.ready || remote.failed) return;
+    var sha = state.realizationReview.request_sha256, canvasId = remote.canvasId;
+    if (!$("scene-panel").hidden) captureScene();
+    if (remote.timer !== null) { clearTimeout(remote.timer); remote.timer = null; queueSave(); }
+    else if (hasUnsavedChanges()) queueSave();
+    Promise.resolve(remote.queue).then(function () {
+      if (remote.failed || remote.canvasId !== canvasId) throw new Error("Working canvas did not save safely.");
+      return fetch("/api/beginner/studio/canvases/" + encodeURIComponent(canvasId) + "/realization/apply", {
+        method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({request_sha256: sha})
+      }).then(apiJson);
+    }).then(function (projection) {
+      if (remote.canvasId === canvasId) applyRealizationProjection(projection, true);
     }).catch(function (error) {
       $("realization-status").textContent = "Working revision blocked: " + error.message;
     });
@@ -380,7 +394,7 @@
   function loadRemote(doc) {
     state.architecture = null; state.architectureReview = null; state.architectureCenter = null;
     state.candidatePositions = {}; state.selectedCandidate = null;
-    state.realization = null; state.realizationReview = null;
+    state.realization = null; state.realizationReview = null; state.realizationStale = false;
     state.realizationPositions = {}; state.selectedRealization = null;
     state.items = doc.items; state.connections = doc.connections; state.positions = doc.positions;
     state.view = "create"; state.focusGroup = "";
@@ -943,7 +957,7 @@
     $("source-detail").hidden = !source && !proposal && !concrete;
     $("realization-copy").hidden = !concrete;
     $("realization-inspect").hidden = !concrete;
-    $("realization-feedback").hidden = !concrete || !(state.realization.architecture_feedback || []).some(function (e) {
+    $("realization-feedback").hidden = !concrete || state.realizationStale || !(state.realization.architecture_feedback || []).some(function (e) {
       return concrete.architecture_refs.includes(e.architecture_node_id);
     });
     $("candidate-copy").hidden = !proposal;
@@ -1117,6 +1131,9 @@
   function proposeArchitectureFromRealization() {
     var element = realizationElement(state.selectedRealization);
     if (!element || !state.realization) return;
+    if (state.realizationStale) {
+      status("Concrete proposal is stale. Regenerate it against the current architecture first."); return;
+    }
     var feedback = (state.realization.architecture_feedback || []).find(function (f) {
       return element.architecture_refs.includes(f.architecture_node_id);
     });
