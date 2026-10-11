@@ -1,6 +1,6 @@
 (function () {
   "use strict";
-  var state = { items: [], connections: [], positions: {}, selected: null, selectedDerived: null, derived: null, derivedPositions: {}, view: "create", panX: 0, panY: 0, zoom: 1, serial: 0, undo: null };
+  var state = { items: [], connections: [], positions: {}, selected: null, selectedDerived: null, derived: null, derivedPositions: {}, view: "create", focusGroup: "", panX: 0, panY: 0, zoom: 1, serial: 0, undo: null };
   // Local, noncanonical working document: server is the persistence owner.
   var remote = { canvasId: null, revision: 0, ready: false, failed: false, queue: Promise.resolve(), timer: null, savedSnapshot: null };
   state.deleted = {};
@@ -213,7 +213,23 @@
     return !query || ((item.title || "") + " " + (item.content || item.detail || "") + " " + (item.group || "")).toLowerCase().includes(query);
   }
   function visibleWorking(item) {
-    return (state.view === "create" || state.view === "all") && matches(item);
+    var related = state.view === "relationships" && (item.kind === "character" ||
+      state.connections.some(function (edge) { return edge.source === item.id || edge.target === item.id; }));
+    return (state.view === "create" || state.view === "all" || related) &&
+      (!state.focusGroup || item.group === state.focusGroup) && matches(item);
+  }
+  function renderGroups() {
+    var picker = $("group-filter"), groups = Array.from(new Set(state.items.map(function (item) {
+      return item.group || "";
+    }).filter(Boolean))).sort();
+    if (state.focusGroup && !groups.includes(state.focusGroup)) state.focusGroup = "";
+    picker.replaceChildren();
+    var all = document.createElement("option"); all.value = ""; all.textContent = "All groups"; picker.appendChild(all);
+    groups.forEach(function (group) {
+      var option = document.createElement("option"); option.value = group; option.textContent = group;
+      picker.appendChild(option);
+    });
+    picker.value = state.focusGroup;
   }
   function renderOutline() {
     var list = $("outline-list"); list.replaceChildren();
@@ -399,7 +415,7 @@
     var svg = $("edges");
     svg.replaceChildren();
     state.connections.forEach(function (edge) {
-      if (state.view !== "create" && state.view !== "all") return;
+      if (!["create", "all", "relationships"].includes(state.view)) return;
       var from = state.positions[edge.source], to = state.positions[edge.target];
       if (!from || !to || !visibleWorking(state.items.find(function (i) { return i.id === edge.source; }) || {}) ||
           !visibleWorking(state.items.find(function (i) { return i.id === edge.target; }) || {})) return;
@@ -481,6 +497,11 @@
     renderInspector();
   }
   function render() {
+    renderGroups();
+    $("canvas-legend").textContent = state.view === "relationships"
+      ? "Solid nodes and green lines: working ideas only. Dashed nodes and blue lines: read-only source evidence. Canvas actions do not accept story canon."
+      : state.view === "create" ? "Working ideas and connections are not accepted story facts."
+      : "Source-backed elements are read-only; canvas layout never changes story authority.";
     var host = $("nodes"); host.replaceChildren();
     $("empty-state").hidden = state.items.length > 0;
     state.items.forEach(function (item) {
@@ -729,6 +750,12 @@
   $("add-scene").addEventListener("click", function () { newItem("scene"); });
   $("start").addEventListener("click", function () { newItem("note"); });
   $("fit").addEventListener("click", fit);
+  $("arrange-group").addEventListener("click", arrangeVisible);
+  $("group-filter").addEventListener("change", function () {
+    state.focusGroup = this.value;
+    if (selected() && !visibleWorking(selected())) state.selected = null;
+    render();
+  });
   $("find-nodes").addEventListener("input", render);
   $("show-evidence").addEventListener("click", loadEvidence);
   $("relationship-chapter").addEventListener("change", function () { render(); status(this.value ? "Showing relationships with recorded changes in " + this.value + ". Current relation values are not historical snapshots." : "Showing all declared relationships."); });
