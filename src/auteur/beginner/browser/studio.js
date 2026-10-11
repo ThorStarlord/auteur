@@ -69,14 +69,16 @@
     var saved;
     try { saved = JSON.parse(window.localStorage.getItem(focusKey()) || "null"); }
     catch (error) { status("Previous focus unavailable; working canvas remains safe: " + error.message); return null; }
-    if (!saved || !state.items.some(function (item) { return item.id === saved.selected; })) return null;
+    if (!saved) return null;
     state.focusGroup = typeof saved.group === "string" ? saved.group : "";
     state.view = ["create", "relationships", "all", "architecture", "genre_timeline"].includes(saved.view) ? saved.view : "create";
     state.selectedCandidate = saved.candidate || null;
     state.architectureFocus = saved.scope || "";
     state.architectureCenter = saved.neighborhood || null;
-    state.selected = saved.selected;
-    if (!visibleWorking(selected())) { state.view = "create"; state.focusGroup = ""; }
+    if (state.items.some(function (item) { return item.id === saved.selected; })) state.selected = saved.selected;
+    if (["create", "relationships", "all"].includes(state.view) && !visibleWorking(selected())) {
+      state.view = "create"; state.focusGroup = "";
+    }
     $("layer-view").value = state.view;
     return saved;
   }
