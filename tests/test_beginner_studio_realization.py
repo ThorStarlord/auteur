@@ -140,3 +140,18 @@ def test_realization_projection_reports_stale_but_retains_concrete_proposal(tmp_
     old = project_realization(store)
     assert old["status"] == "stale"
     assert old["candidate"]["elements"][0]["id"] == "paladin"
+
+
+def test_realization_cli_wraps_raw_candidate_without_faking_agent_output(tmp_path, capsys):
+    from auteur.beginner.studio_realization import main
+    store_with_architecture(tmp_path)
+    args = ["--project", str(tmp_path), "--canvas", "realization-one"]
+    assert main(args + ["prepare", "--focus", "growth"]) == 0
+    packet = json.loads(capsys.readouterr().out)
+    assert packet["request"]["role"] == "studio_realization"
+    output = tmp_path / "concrete-proposal.json"
+    output.write_text(json.dumps(candidate()), encoding="utf-8")
+    assert main(args + ["complete-file", "--candidate", str(output)]) == 0
+    completed = json.loads(capsys.readouterr().out)
+    assert completed["status"] == "ready"
+    assert completed["candidate"]["elements"][0]["architecture_refs"] == ["growth", "generosity"]
