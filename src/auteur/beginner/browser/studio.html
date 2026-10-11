@@ -84,6 +84,13 @@
           <button id="architecture-revise" type="button">Request a revised candidate</button>
         </details>
         <span id="architecture-status" role="status" aria-live="polite">No agent architecture requested.</span>
+        <section id="architecture-review" class="architecture-review" hidden aria-label="Review working architecture changes">
+          <strong>Proposed architecture revision — review before applying</strong>
+          <p id="architecture-review-summary"></p>
+          <ul id="architecture-diff"></ul>
+          <p>These differences affect only working architecture. Accepted story artifacts never change here.</p>
+          <button id="architecture-apply" type="button">Apply to working architecture</button>
+        </section>
         <details id="architecture-handoff" hidden>
           <summary>Host-agent request / completion (advanced)</summary>
           <p>Studio creates an exact source-bound request. Your active coding agent can answer it and submit the corresponding host-agent response. The browser does not silently call a provider.</p>
