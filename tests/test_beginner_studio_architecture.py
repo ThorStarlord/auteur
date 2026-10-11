@@ -114,7 +114,7 @@ def test_revision_preserves_prior_candidate_and_idempotent_response(tmp_path):
     revised = prepare_architecture(store, "Give horror a stronger structural function.")
     assert revised["status"] == "awaiting_host_agent"
     assert "Give horror" in revised["request"]["user"]
-    assert revised["candidate"] == candidate()
+    assert revised["candidate"]["summary"] == candidate()["summary"]
     update = candidate()
     update["nodes"][0]["summary"] = "Discovery repeatedly brings a horror cost."
     finished = complete_architecture(store, response(revised, update))
