@@ -7,6 +7,7 @@
   state.architecture = null; state.candidatePositions = {}; state.selectedCandidate = null;
   state.architectureFocus = ""; state.architectureCenter = null;
   state.architectureRequestSha = null; state.architectureReview = null;
+  state.workspace = "realization"; state.lastRealizationView = "create";
   function showRecoveryAction() {
     $("restore-deleted").hidden = !remote.ready || remote.failed || !Object.keys(state.deleted).length;
   }
@@ -57,7 +58,7 @@
       var previous = JSON.parse(window.localStorage.getItem(focusKey()) || "null");
       window.localStorage.setItem(focusKey(), JSON.stringify({
         selected: state.selected || (previous && previous.selected) || null,
-        view: state.view, group: state.focusGroup,
+        view: state.view, workspace: state.workspace, group: state.focusGroup,
         candidate: state.selectedCandidate, scope: state.architectureFocus,
         neighborhood: state.architectureCenter,
         editorOpen: open, expanded: open && $("scene-panel").classList.contains("expanded"),
@@ -73,6 +74,8 @@
     state.focusGroup = typeof saved.group === "string" ? saved.group : "";
     state.view = ["create", "relationships", "all", "architecture", "genre_timeline"].includes(saved.view) ? saved.view : "create";
     state.selectedCandidate = saved.candidate || null;
+    state.workspace = saved.workspace === "architecture" || ["architecture", "genre_timeline"].includes(state.view)
+      ? "architecture" : "realization";
     state.architectureFocus = saved.scope || "";
     state.architectureCenter = saved.neighborhood || null;
     if (state.items.some(function (item) { return item.id === saved.selected; })) state.selected = saved.selected;
@@ -865,6 +868,37 @@
     rememberFocus();
   }
 
+  function switchWorkspace(next) {
+    if (next === state.workspace) return;
+    if (next === "architecture") {
+      if (!$("scene-panel").hidden) { captureScene(); concealScene(); scheduleSave(); }
+      if (state.workspace === "realization") state.lastRealizationView = state.view;
+      state.view = "architecture";
+    } else {
+      state.view = state.lastRealizationView || "create";
+    }
+    state.workspace = next;
+    $("layer-view").value = state.view;
+    render(); rememberFocus();
+  }
+
+  function renderEmotionalOverview() {
+    var host = $("emotional-targets"); host.replaceChildren();
+    if (!state.architecture) return;
+    (state.architecture.emotion_targets || []).forEach(function (target) {
+      var p = document.createElement("p");
+      p.textContent = target.emotion.toUpperCase() + " (" + target.role + ", " + target.provenance +
+        "): " + target.intended_effect + " | Elicited by: " + target.eliciting_condition +
+        " | Aesthetic strategy: " + target.aesthetic_strategy;
+      host.appendChild(p);
+    });
+    (state.architecture.complex_emotions || []).forEach(function (emotion) {
+      var p = document.createElement("p");
+      p.textContent = emotion.title + " (" + emotion.basic_emotions.join(" + ") + "): " +
+        emotion.context + " · Narrative approximation, not an emotion equation.";
+      host.appendChild(p);
+    });
+  }
   function renderTimeline() {
     var host = $("timeline-phases"); host.replaceChildren();
     if (!state.architecture || !state.architecture.phases.length) {
@@ -896,6 +930,21 @@
       });
   }
   function render() {
+    var designing = state.workspace === "architecture";
+    ["add-note", "add-character", "add-scene", "connect-shortcut", "write-shortcut"].forEach(function (id) {
+      $(id).hidden = designing;
+    });
+    $("architecture-tools").hidden = !designing;
+    $("emotional-design").hidden = !designing || !state.architecture ||
+      !(state.architecture.emotion_targets || []).length;
+    ["workspace-architecture", "workspace-realization"].forEach(function (id) {
+      $(id).setAttribute("aria-pressed", String(id === "workspace-" + state.workspace));
+    });
+    Array.prototype.forEach.call($("layer-view").options, function (opt) {
+      opt.hidden = designing ? !["architecture", "genre_timeline"].includes(opt.value)
+        : ["architecture", "genre_timeline"].includes(opt.value);
+    });
+    renderEmotionalOverview();
     $("architecture-clear-focus").hidden = state.view !== "architecture" || !state.architectureCenter;
     $("viewport").hidden = state.view === "genre_timeline";
     $("genre-timeline").hidden = state.view !== "genre_timeline";
@@ -1208,7 +1257,11 @@
     updateVision();
     if (remote.timer !== null) { clearTimeout(remote.timer); remote.timer = null; queueSave(); }
   });
-  $("vision-write").addEventListener("click", function () { $("write-shortcut").click(); });
+  $("vision-write").addEventListener("click", function () {
+    switchWorkspace("realization"); $("write-shortcut").click();
+  });
+  $("workspace-architecture").addEventListener("click", function () { switchWorkspace("architecture"); });
+  $("workspace-realization").addEventListener("click", function () { switchWorkspace("realization"); });
   $("architecture-develop").addEventListener("click", function () { requestArchitecture(""); });
   $("architecture-refresh").addEventListener("click", loadArchitecture);
   $("architecture-revise").addEventListener("click", function () {
@@ -1254,6 +1307,8 @@
   $("preview-impact").addEventListener("click", previewImpact);
   $("layer-view").addEventListener("change", function () {
     state.view = this.value;
+    state.workspace = ["architecture", "genre_timeline"].includes(state.view) ? "architecture" : "realization";
+    if (state.workspace === "realization") state.lastRealizationView = state.view;
     if (this.value === "book" && !$("book-heading").textContent.startsWith("Chapter")) loadBook();
     else render();
     rememberFocus();
