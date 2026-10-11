@@ -295,9 +295,13 @@ All material is a noncanonical proposal; never accept Identity, Structure or pro
 def _candidate_diff(previous: dict, proposed: dict) -> dict:
     """Explain a revision without confusing proposal changes with accepted-story impact."""
     categories: dict[str, dict] = {}
-    for field in ("nodes", "links", "phases"):
-        old = {entry["id"]: entry for entry in previous.get(field, [])}
-        new = {entry["id"]: entry for entry in proposed.get(field, [])}
+    for field, key in (
+        ("nodes", "id"), ("links", "id"), ("phases", "id"),
+        ("emotion_targets", "id"), ("complex_emotions", "id"),
+        ("genre_contracts", "genre_node_id"), ("genre_interactions", "id"),
+    ):
+        old = {entry[key]: entry for entry in previous.get(field, [])}
+        new = {entry[key]: entry for entry in proposed.get(field, [])}
         categories[field] = {
             "added": sorted(new.keys() - old.keys()),
             "removed": sorted(old.keys() - new.keys()),
