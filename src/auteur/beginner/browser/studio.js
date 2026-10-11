@@ -8,6 +8,8 @@
   state.architectureFocus = ""; state.architectureCenter = null;
   state.architectureRequestSha = null; state.architectureReview = null;
   state.workspace = "realization"; state.lastRealizationView = "create";
+  state.realization = null; state.realizationRequestSha = null;
+  state.realizationReview = null; state.realizationPositions = {}; state.selectedRealization = null;
   function showRecoveryAction() {
     $("restore-deleted").hidden = !remote.ready || remote.failed || !Object.keys(state.deleted).length;
   }
@@ -59,7 +61,7 @@
       window.localStorage.setItem(focusKey(), JSON.stringify({
         selected: state.selected || (previous && previous.selected) || null,
         view: state.view, workspace: state.workspace, group: state.focusGroup,
-        candidate: state.selectedCandidate, scope: state.architectureFocus,
+        candidate: state.selectedCandidate, realization: state.selectedRealization, scope: state.architectureFocus,
         neighborhood: state.architectureCenter,
         editorOpen: open, expanded: open && $("scene-panel").classList.contains("expanded"),
         caret: field.selectionStart || 0
@@ -72,8 +74,9 @@
     catch (error) { status("Previous focus unavailable; working canvas remains safe: " + error.message); return null; }
     if (!saved) return null;
     state.focusGroup = typeof saved.group === "string" ? saved.group : "";
-    state.view = ["create", "relationships", "all", "architecture", "genre_timeline"].includes(saved.view) ? saved.view : "create";
+    state.view = ["create", "realization_candidates", "relationships", "all", "architecture", "genre_timeline"].includes(saved.view) ? saved.view : "create";
     state.selectedCandidate = saved.candidate || null;
+    state.selectedRealization = saved.realization || null;
     state.workspace = saved.workspace === "architecture" || ["architecture", "genre_timeline"].includes(state.view)
       ? "architecture" : "realization";
     state.architectureFocus = saved.scope || "";
@@ -256,6 +259,111 @@
     $("architecture-scope").value = "";
     render(); fit(); rememberFocus();
   }
+  function realizationUrl() {
+    return "/api/beginner/studio/canvases/" + encodeURIComponent(remote.canvasId) + "/realization";
+  }
+  function realizationElement(id) {
+    return state.realization && state.realization.elements.find(function (element) { return element.id === id; });
+  }
+  function realizationVisible(element) {
+    return state.view === "realization_candidates" && matches({
+      title: element.title, content: element.description, group: element.scope
+    });
+  }
+  function applyRealizationProjection(projection, openGraph) {
+    state.realization = projection.candidate;
+    state.realizationReview = projection.review || null;
+    state.realizationRequestSha = projection.candidate_request_sha256;
+    state.realizationPositions = {};
+    if (state.realization) state.realization.elements.forEach(function (element, i) {
+      state.realizationPositions[element.id] = {x: 40 + i % 7 * 188, y: 40 + Math.floor(i / 7) * 100};
+    });
+    $("realization-handoff").hidden = !projection.request;
+    $("realization-request").value = projection.request ? JSON.stringify(projection.request, null, 2) : "";
+    $("realization-review").hidden = !state.realizationReview;
+    $("realization-diff").replaceChildren();
+    if (state.realizationReview) {
+      ["elements", "links", "architecture_feedback"].forEach(function (kind) {
+        ["added", "removed", "changed"].forEach(function (action) {
+          var ids = state.realizationReview.changes[kind][action];
+          if (!ids.length) return;
+          var li = document.createElement("li"); li.textContent = kind + " " + action + ": " + ids.join(", ");
+          $("realization-diff").appendChild(li);
+        });
+      });
+    }
+    $("realization-status").textContent = projection.status === "review_ready"
+      ? "Review the revised working realization before applying."
+      : projection.status === "awaiting_host_agent"
+      ? "Awaiting the coding agent. No concrete story material has been accepted."
+      : projection.status === "stale"
+      ? "This concrete proposal is stale relative to the current creative sources."
+      : projection.status === "ready"
+      ? "Working concrete story proposal ready. Not accepted."
+      : "Develop concrete characters, locations, plots or events from the architecture.";
+    if (openGraph && state.realization) {
+      state.workspace = "realization"; state.view = "realization_candidates";
+      state.lastRealizationView = "realization_candidates";
+      state.selectedRealization = null; $("layer-view").value = state.view;
+    }
+    render(); rememberFocus();
+  }
+  function loadRealization() {
+    var canvasId = remote.canvasId;
+    return fetch(realizationUrl()).then(apiJson).then(function (projection) {
+      if (remote.canvasId === canvasId) applyRealizationProjection(projection, false);
+    }).catch(function (error) {
+      $("realization-status").textContent = "Cannot load Story Realization: " + error.message;
+    });
+  }
+  function requestRealization(instruction) {
+    if (!remote.ready || remote.failed) { status("Save your working canvas before generating."); return; }
+    if (!$("scene-panel").hidden) captureScene();
+    if (remote.timer !== null) { clearTimeout(remote.timer); remote.timer = null; queueSave(); }
+    else if (hasUnsavedChanges()) queueSave();
+    var focus = candidateNode(state.selectedCandidate) ? [state.selectedCandidate] : [];
+    $("realization-status").textContent = "Preparing exact, source-bound realization request...";
+    Promise.resolve(remote.queue).then(function () {
+      if (remote.failed) throw new Error("Working changes were not saved.");
+      return fetch(realizationUrl() + "/prepare", {
+        method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({focus_ids: focus, instruction: instruction || ""})
+      }).then(apiJson);
+    }).then(function (projection) {
+      applyRealizationProjection(projection, false);
+      $("realization-handoff").open = true;
+    }).catch(function (error) {
+      $("realization-status").textContent = "Cannot request concrete story material: " + error.message;
+    });
+  }
+  function submitRealization() {
+    var payload;
+    try { payload = JSON.parse($("realization-response").value); }
+    catch (error) { $("realization-status").textContent = "Paste valid HostAgentResponse JSON."; return; }
+    fetch(realizationUrl() + "/host-agent-response", {
+      method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(payload)
+    }).then(apiJson).then(function (projection) {
+      $("realization-response").value = "";
+      $("realization-handoff").open = false;
+      applyRealizationProjection(projection, projection.status === "ready");
+      status("Concrete story proposal validated. Existing accepted fiction unchanged.");
+    }).catch(function (error) {
+      $("realization-status").textContent = "Realization response rejected: " + error.message;
+    });
+  }
+  function applyRealizationReview() {
+    if (!state.realizationReview) return;
+    var sha = state.realizationReview.request_sha256;
+    fetch(realizationUrl() + "/apply", {
+      method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({request_sha256: sha})
+    }).then(apiJson).then(function (projection) {
+      applyRealizationProjection(projection, true);
+    }).catch(function (error) {
+      $("realization-status").textContent = "Working revision blocked: " + error.message;
+    });
+  }
   function copyCandidate() {
     var original = candidateNode(state.selectedCandidate);
     if (!original || !remote.ready || remote.failed) return;
@@ -272,6 +380,8 @@
   function loadRemote(doc) {
     state.architecture = null; state.architectureReview = null; state.architectureCenter = null;
     state.candidatePositions = {}; state.selectedCandidate = null;
+    state.realization = null; state.realizationReview = null;
+    state.realizationPositions = {}; state.selectedRealization = null;
     state.items = doc.items; state.connections = doc.connections; state.positions = doc.positions;
     state.view = "create"; state.focusGroup = "";
     state.selected = state.items.length ? state.items[0].id : null;
@@ -286,6 +396,7 @@
       displayScene(focus.caret, focus.expanded);
     }
     loadArchitecture();
+    loadRealization();
     status("Working canvas loaded · saved locally · revision " + remote.revision);
   }
   function hasUnsavedChanges() {
