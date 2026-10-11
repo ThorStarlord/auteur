@@ -142,3 +142,9 @@ body.scene-docked #inspector { display:none; }
 .timeline-phase .genres { font-weight:600; color:#614a7c; }
 .timeline-phase .parallel { color:#6c6377; font-style:italic; }
 #candidate-copy { margin-top:8px; }
+
+.architecture-review { flex-basis:100%; background:#fff; border:1px solid #cdbbdc; border-radius:8px;
+ padding:13px; font-size:.85rem; }
+.architecture-review p { margin:7px 0; }
+.architecture-review ul { margin:7px 0 12px; padding-left:20px; }
+.architecture-review li { margin:4px 0; }

@@ -5,7 +5,7 @@
   var remote = { canvasId: null, revision: 0, ready: false, failed: false, queue: Promise.resolve(), timer: null, savedSnapshot: null };
   state.deleted = {};
   state.architecture = null; state.candidatePositions = {}; state.selectedCandidate = null;
-  state.architectureFocus = ""; state.architectureRequestSha = null;
+  state.architectureFocus = ""; state.architectureRequestSha = null; state.architectureReview = null;
   function showRecoveryAction() {
     $("restore-deleted").hidden = !remote.ready || remote.failed || !Object.keys(state.deleted).length;
   }
@@ -105,6 +105,7 @@
   }
   function applyArchitectureProjection(projection, openGraph) {
     state.architecture = projection.candidate;
+    state.architectureReview = projection.review || null;
     state.architectureRequestSha = projection.candidate_request_sha256;
     state.candidatePositions = {};
     if (state.architecture) {
@@ -118,7 +119,28 @@
     }
     $("architecture-handoff").hidden = !projection.request;
     $("architecture-request").value = projection.request ? JSON.stringify(projection.request, null, 2) : "";
-    $("architecture-status").textContent = projection.status === "awaiting_host_agent"
+    $("architecture-review").hidden = !state.architectureReview;
+    $("architecture-diff").replaceChildren();
+    if (state.architectureReview) {
+      var review = state.architectureReview;
+      $("architecture-review-summary").textContent = review.candidate.summary;
+      ["nodes", "links", "phases"].forEach(function (kind) {
+        ["added", "removed", "changed"].forEach(function (verb) {
+          var ids = review.changes[kind][verb];
+          if (!ids.length) return;
+          var li = document.createElement("li");
+          li.textContent = kind + " " + verb + ": " + ids.join(", ");
+          $("architecture-diff").appendChild(li);
+        });
+      });
+      if (review.changes.summary_changed) {
+        var summary = document.createElement("li");
+        summary.textContent = "Governing summary changed"; $("architecture-diff").appendChild(summary);
+      }
+    }
+    $("architecture-status").textContent = projection.status === "review_ready"
+      ? "A revised proposal is ready for review. Current working architecture is unchanged."
+      : projection.status === "awaiting_host_agent"
       ? "Awaiting the active coding agent. Prior working proposal remains available if present."
       : projection.status === "ready" ? "Agent proposal ready · working, not accepted story."
       : "Describe a vision and ask the coding agent to develop the architecture.";
@@ -155,6 +177,27 @@
       status("Host-agent request prepared. Ask your active coding agent to fulfill it; no provider was called automatically.");
     }).catch(function (error) {
       $("architecture-status").textContent = "Cannot request architecture: " + error.message;
+    });
+  }
+
+  function applyReviewedArchitecture() {
+    if (!remote.ready || remote.failed || !state.architectureReview) return;
+    var canvasId = remote.canvasId, sha = state.architectureReview.request_sha256;
+    if (!$("scene-panel").hidden) captureScene();
+    if (remote.timer !== null) { clearTimeout(remote.timer); remote.timer = null; queueSave(); }
+    else if (hasUnsavedChanges()) queueSave();
+    Promise.resolve(remote.queue).then(function () {
+      if (remote.failed) throw new Error("Working canvas has unsaved changes.");
+      return fetch("/api/beginner/studio/canvases/" + encodeURIComponent(canvasId) + "/architecture/apply", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({request_sha256:sha})
+      }).then(apiJson);
+    }).then(function (projection) {
+      if (remote.canvasId !== canvasId) return;
+      applyArchitectureProjection(projection, true);
+      status("Reviewed revision applied to working architecture only. Accepted story remains unchanged.");
+    }).catch(function (error) {
+      $("architecture-status").textContent = "Working revision not applied: " + error.message;
     });
   }
   function submitArchitecture() {
@@ -196,7 +239,7 @@
     status("Copied as editable working note. Original agent proposal remains available.");
   }
   function loadRemote(doc) {
-    state.architecture = null; state.candidatePositions = {}; state.selectedCandidate = null;
+    state.architecture = null; state.architectureReview = null; state.candidatePositions = {}; state.selectedCandidate = null;
     state.items = doc.items; state.connections = doc.connections; state.positions = doc.positions;
     state.view = "create"; state.focusGroup = "";
     state.selected = state.items.length ? state.items[0].id : null;
@@ -1143,6 +1186,7 @@
     requestArchitecture(intent);
   });
   $("architecture-complete").addEventListener("click", submitArchitecture);
+  $("architecture-apply").addEventListener("click", applyReviewedArchitecture);
   $("candidate-copy").addEventListener("click", copyCandidate);
   $("architecture-scope").addEventListener("change", function () {
     state.architectureFocus = this.value;
