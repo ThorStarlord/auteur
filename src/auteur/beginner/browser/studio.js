@@ -487,6 +487,7 @@
       button.setAttribute("aria-pressed", String(button.dataset.itemId === nodeId));
     });
     renderInspector();
+    rememberFocus();
   }
   function drawEdges() {
     var svg = $("edges");
@@ -697,8 +698,13 @@
     var item = selected();
     if (!item || !item.quick_draft_session_id) return;
     fetch("/api/beginner/quick-draft/" + encodeURIComponent(item.quick_draft_session_id))
-      .then(apiJson).then(draftStatus)
-      .catch(function (error) { $("generation-status").textContent = "Could not check Quick Draft: " + error.message; });
+      .then(apiJson).then(function (projection) {
+        if (selected() && selected().id === item.id) draftStatus(projection);
+      })
+      .catch(function (error) {
+        if (selected() && selected().id === item.id)
+          $("generation-status").textContent = "Could not check Quick Draft: " + error.message;
+      });
   }
   function generateScene() {
     var item = selected();
@@ -718,11 +724,15 @@
         body: JSON.stringify({ premise: premise, first_scene: intent })
       }).then(apiJson);
     }).then(function (projection) {
+      if (!state.items.includes(item)) return;
       item.quick_draft_session_id = projection.session_id;
-      queueSave(); draftStatus(projection);
-      status("Host-agent Quick Draft session linked to working scene. No story acceptance.");
+      queueSave();
+      if (selected() && selected().id === item.id) draftStatus(projection);
+      status("Host-agent Quick Draft session linked to " + item.title + ". No story acceptance.");
     }).catch(function (error) {
-      $("generation-status").textContent = "Quick Draft request failed: " + error.message;
+      if (selected() && selected().id === item.id)
+        $("generation-status").textContent = "Quick Draft request failed: " + error.message;
+      status("Quick Draft request failed: " + error.message);
     }).finally(function () { $("generate-scene").disabled = false; });
   }
   function useGenerated() {
