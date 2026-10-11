@@ -394,6 +394,7 @@
           var index = graph.nodes.slice(0, i).filter(function (n) { return n.kind === node.kind; }).length;
           state.derivedPositions[node.id] = { x: baseX + (index % 3) * 188, y: 90 + Math.floor(index / 3) * 115 };
         });
+        if (!$("scene-panel").hidden) { captureScene(); concealScene(); queueSave(); }
         state.selected = null;
         state.view = graph.nodes.some(function (n) { return n.kind === "character"; }) ? "relationships" : "lenses";
         $("layer-view").value = state.view;
@@ -443,6 +444,7 @@
       fillBookList("book-pending", book.pending_updates, "No pending updates.");
       fillBookList("book-attention", book.needs_attention, "Nothing needs attention.");
       $("book-orientation").hidden = false;
+      if (!$("scene-panel").hidden) { captureScene(); concealScene(); queueSave(); }
       state.view = "book"; state.selected = null; state.selectedDerived = null;
       $("layer-view").value = "book";
       render();
@@ -486,6 +488,7 @@
               source_ref: "provenance", authority: "HYPOTHETICAL / READ ONLY" });
           });
         });
+        if (!$("scene-panel").hidden) { captureScene(); concealScene(); queueSave(); }
         state.view = "impact"; $("layer-view").value = "impact"; state.selected = null; state.selectedDerived = null;
         render();
         status("Hypothetical dependency paths only. Nothing has been revised or accepted.");
@@ -836,6 +839,7 @@
     if (file.size > 1024 * 1024) { status("Import rejected: file exceeds 1 MB."); return; }
     file.text().then(function (raw) {
       var data = JSON.parse(raw); validCanvas(data);
+      if (!$("scene-panel").hidden) { captureScene(); concealScene(); queueSave(); }
       state.items = data.items; state.connections = data.connections; state.positions = data.positions;
       state.selected = data.items.length ? data.items[0].id : null; state.serial += 1;
       if (data.viewport && Number.isFinite(data.viewport.zoom)) { state.panX = data.viewport.pan_x; state.panY = data.viewport.pan_y; state.zoom = data.viewport.zoom; }
@@ -845,6 +849,7 @@
   }
   function removeCurrent() {
     var item = selected(); if (!item || !window.confirm("Remove this working item? You can undo during this session.")) return;
+    if (!$("scene-panel").hidden) { captureScene(); concealScene(); }
     state.undo = { item: item, pos: state.positions[item.id], links: state.connections.filter(function (e) { return e.source === item.id || e.target === item.id; }) };
     state.items = state.items.filter(function (entry) { return entry.id !== item.id; });
     state.connections = state.connections.filter(function (e) { return e.source !== item.id && e.target !== item.id; });
