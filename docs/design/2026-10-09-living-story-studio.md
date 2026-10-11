@@ -202,3 +202,51 @@ Choose the lowest owning repair before adding complexity. Preserve a usable curr
 **P6 — Revision:** The agent may propose a targeted architecture revision, explain material differences and affected relationships, and retain earlier proposals. Revising working architecture does not change accepted story meaning; upstream changes must pass explicit existing owner actions. Stale requests cannot apply to current working material.
 
 **Acceptance sequence:** author-editable no-premise vision → exact host-agent request and validated response → readable connected candidate graph → temporal genre/reader timeline → scope focus → bounded revision with impact preview. Test the concrete Browser/HTTP/store/host-agent boundaries before trust, not a new omnibus UX gate. No automatic acceptance, auto-publication, new provider configuration, or broad release.
+
+
+### Host coding-agent handoff — operational recipe
+
+The Browser is local and vendor-neutral. It **does not possess a callable parent-agent SDK**;
+the Develop Architecture action prepares a request, not an automatic model call.
+Run it inside a coding-agent environment that can read the local project, fulfill
+the prompt, and submit an exact response. Current paths:
+
+1. In Studio save Story Vision (no premise required), then click **Develop architecture with coding agent**.
+2. The agent fetches GET /api/beginner/studio/canvases/{canvas-id}/architecture
+   on the local Auteur server or reads the request under
+   .auteur/beginner/studio/canvases/{canvas-id}/architecture/requests/.
+3. The agent answers the request's system and user prompt with raw JSON
+   matching the typed ArchitectureCandidate contract, without inventing author intent.
+4. Host code wraps that exact JSON using build_host_agent_response from
+   auteur.host_agent, passing HostAgentRequest(**status["request"]).
+5. Submit the complete response object with POST to
+   /api/beginner/studio/canvases/{canvas-id}/architecture/host-agent-response.
+   The Browser can also accept pasted HostAgentResponse JSON as a fallback.
+6. Click **Check agent result**. The proposed graph and genre timeline remain
+   noncanonical; Copy as editable working idea preserves manual author freedom.
+7. To revise, enter an instruction and request a revision. The response is **staged**,
+   with node/link/phase difference preview. Click **Apply to working architecture**
+   only if the proposal is desired. It never accepts Identity/Structure.
+8. If source content changed, stale-response and stale-review checks block applying;
+   inspect the retained request evidence and prepare a fresh request.
+
+The agent should prefer a small readable architecture over 80 decorative nodes,
+retain stable IDs on revision, and use Book/arc/chapter scopes and focused
+neighborhoods rather than packing an entire long-running series onto one screen.
+This is an operational handoff contract, **not** a claim of live-provider,
+real-browser, or human-usability qualification.
+
+
+For a local coding-agent operator, the simplest completion path is the built-in
+CLI bridge. The canvas id appears in the Studio URL after the canvas is opened:
+
+~~~powershell
+python -m auteur.beginner.studio_architecture --project $scratch --canvas $canvasId show
+# Host coding agent reads the printed system/user request, reasons, and writes raw candidate JSON.
+python -m auteur.beginner.studio_architecture --project $scratch --canvas $canvasId complete-file --candidate .\candidate.json
+~~~
+
+The CLI validates and records the generated proposal through the exact same
+host-agent response path as the Browser. A revision remains staged for explicit
+working apply. Do not mistake a prepared request or synthetic candidate for
+a live coding-agent invocation or independent creative-quality evidence.

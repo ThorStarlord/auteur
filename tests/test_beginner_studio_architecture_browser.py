@@ -40,3 +40,15 @@ def test_studio_script_parses_and_references_existing_elements():
     check = subprocess.run([node, "--check", str(BROWSER / "studio.js")],
                            text=True, capture_output=True, check=False)
     assert check.returncode == 0, check.stderr
+
+
+def test_long_story_focus_is_reversible_and_does_not_mutate_story_authority():
+    html = (BROWSER / "studio.html").read_text(encoding="utf-8")
+    js = (BROWSER / "studio.js").read_text(encoding="utf-8")
+    assert 'id="candidate-focus"' in html
+    assert 'id="architecture-clear-focus"' in html
+    assert "state.architectureCenter = state.selectedCandidate" in js
+    assert "state.architectureCenter = null" in js
+    assert "edge.source === center" in js
+    assert "node.parent_id === center" in js
+    assert "render(); fit(); rememberFocus();" in js

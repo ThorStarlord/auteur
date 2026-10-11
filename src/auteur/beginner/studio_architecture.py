@@ -5,6 +5,7 @@ request that the active host may fulfill; the validated response stays working.
 """
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import re
@@ -15,7 +16,9 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from auteur.host_agent import (
     _atomic_json_write,
+    HostAgentRequest,
     build_host_agent_request,
+    build_host_agent_response,
     load_host_agent_request,
     validate_host_agent_response,
     write_host_agent_request,
@@ -304,3 +307,36 @@ def apply_architecture_review(store: CanvasStore, request_sha256: str) -> dict:
         elif not current:
             raise ValueError("there is no current working architecture to revise")
     return project_architecture(store)
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Portable operator bridge: the active coding agent supplies raw candidate JSON."""
+    parser = argparse.ArgumentParser(description="Auteur Studio host-agent architecture bridge")
+    parser.add_argument("--project", required=True, help="Local Auteur project root")
+    parser.add_argument("--canvas", required=True, help="Canvas id from Studio URL")
+    actions = parser.add_subparsers(dest="action", required=True)
+    actions.add_parser("show", help="Show current proposal or exact host-agent request")
+    prepare = actions.add_parser("prepare", help="Prepare a new architecture request")
+    prepare.add_argument("--instruction", default="", help="Optional revision request")
+    submit = actions.add_parser("complete-file", help="Validate candidate JSON written by host agent")
+    submit.add_argument("--candidate", required=True, help="Path to raw candidate JSON file")
+    args = parser.parse_args(argv)
+    store = CanvasStore(Path(args.project), args.canvas)
+    if args.action == "prepare":
+        result = prepare_architecture(store, args.instruction)
+    elif args.action == "complete-file":
+        pending = project_architecture(store)
+        if pending["status"] != "awaiting_host_agent" or not pending["request"]:
+            raise ValueError("no pending host-agent architecture request to complete")
+        request = HostAgentRequest(**pending["request"])
+        candidate_text = Path(args.candidate).read_text(encoding="utf-8")
+        response = build_host_agent_response(request, candidate_text)
+        result = complete_architecture(store, response.model_dump())
+    else:
+        result = project_architecture(store)
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

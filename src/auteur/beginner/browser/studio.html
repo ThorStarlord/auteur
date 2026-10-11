@@ -78,6 +78,7 @@
         <button id="architecture-refresh" type="button">Check agent result</button>
         <label for="architecture-scope">Focus</label>
         <select id="architecture-scope" aria-label="Focus architecture scope"><option value="">Whole architecture</option></select>
+        <button id="architecture-clear-focus" type="button" hidden>Show whole graph</button>
         <details class="architecture-revise"><summary>Revise with agent</summary>
           <label for="architecture-instruction">What should change?</label>
           <textarea id="architecture-instruction" rows="2" maxlength="4000" placeholder="Make the middle phase more unsettling, while preserving the romance and final payoff."></textarea>
@@ -136,6 +137,7 @@
         <p id="source-description"></p>
         <p id="source-ref"></p>
         <div id="source-links"></div>
+        <button id="candidate-focus" type="button" hidden>Focus on connected ideas</button>
         <button id="candidate-copy" type="button" hidden>Copy as editable working idea</button>
         <p class="muted">Derived evidence is read-only. Use the existing story workspace to change accepted meaning.</p>
       </div>
