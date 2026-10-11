@@ -51,8 +51,10 @@
     var open = !$("scene-panel").hidden;
     var field = open ? $("scene-text") : $("content");
     try {
+      var previous = JSON.parse(window.localStorage.getItem(focusKey()) || "null");
       window.localStorage.setItem(focusKey(), JSON.stringify({
-        selected: state.selected, view: state.view, group: state.focusGroup,
+        selected: state.selected || (previous && previous.selected) || null,
+        view: state.view, group: state.focusGroup,
         editorOpen: open, expanded: open && $("scene-panel").classList.contains("expanded"),
         caret: field.selectionStart || 0
       }));
