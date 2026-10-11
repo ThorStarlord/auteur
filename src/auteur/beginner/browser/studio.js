@@ -5,7 +5,8 @@
   var remote = { canvasId: null, revision: 0, ready: false, failed: false, queue: Promise.resolve(), timer: null, savedSnapshot: null };
   state.deleted = {};
   state.architecture = null; state.candidatePositions = {}; state.selectedCandidate = null;
-  state.architectureFocus = ""; state.architectureRequestSha = null; state.architectureReview = null;
+  state.architectureFocus = ""; state.architectureCenter = null;
+  state.architectureRequestSha = null; state.architectureReview = null;
   function showRecoveryAction() {
     $("restore-deleted").hidden = !remote.ready || remote.failed || !Object.keys(state.deleted).length;
   }
@@ -58,6 +59,7 @@
         selected: state.selected || (previous && previous.selected) || null,
         view: state.view, group: state.focusGroup,
         candidate: state.selectedCandidate, scope: state.architectureFocus,
+        neighborhood: state.architectureCenter,
         editorOpen: open, expanded: open && $("scene-panel").classList.contains("expanded"),
         caret: field.selectionStart || 0
       }));
@@ -72,6 +74,7 @@
     state.view = ["create", "relationships", "all", "architecture", "genre_timeline"].includes(saved.view) ? saved.view : "create";
     state.selectedCandidate = saved.candidate || null;
     state.architectureFocus = saved.scope || "";
+    state.architectureCenter = saved.neighborhood || null;
     state.selected = saved.selected;
     if (!visibleWorking(selected())) { state.view = "create"; state.focusGroup = ""; }
     $("layer-view").value = state.view;
@@ -85,8 +88,17 @@
     return state.architecture && state.architecture.nodes.find(function (node) { return node.id === id; });
   }
   function candidateVisible(node) {
-    return state.view === "architecture" && matches(node) &&
-      (!state.architectureFocus || node.scope === state.architectureFocus || node.scope === "whole_story");
+    if (state.view !== "architecture" || !matches(node)) return false;
+    if (state.architectureCenter) {
+      var center = state.architectureCenter, origin = candidateNode(center);
+      if (!origin) return true;
+      return node.id === center || node.parent_id === center || origin.parent_id === node.id ||
+        state.architecture.links.some(function (edge) {
+          return (edge.source === center && edge.target === node.id) ||
+            (edge.target === center && edge.source === node.id);
+        });
+    }
+    return !state.architectureFocus || node.scope === state.architectureFocus || node.scope === "whole_story";
   }
   function updateArchitectureScopes() {
     var picker = $("architecture-scope"), scopes = new Set();
@@ -106,6 +118,7 @@
   function applyArchitectureProjection(projection, openGraph) {
     state.architecture = projection.candidate;
     state.architectureReview = projection.review || null;
+    if (state.architectureCenter && !candidateNode(state.architectureCenter)) state.architectureCenter = null;
     state.architectureRequestSha = projection.candidate_request_sha256;
     state.candidatePositions = {};
     if (state.architecture) {
@@ -225,6 +238,19 @@
     });
     rememberFocus();
   }
+
+  function focusRelatedArchitecture() {
+    if (!candidateNode(state.selectedCandidate)) return;
+    state.architectureCenter = state.selectedCandidate;
+    state.architectureFocus = ""; $("architecture-scope").value = "";
+    render(); fit(); rememberFocus();
+    status("Showing the selected narrative idea and directly related proposals. Use Show whole graph to return.");
+  }
+  function showWholeArchitecture() {
+    state.architectureCenter = null; state.architectureFocus = "";
+    $("architecture-scope").value = "";
+    render(); fit(); rememberFocus();
+  }
   function copyCandidate() {
     var original = candidateNode(state.selectedCandidate);
     if (!original || !remote.ready || remote.failed) return;
@@ -239,7 +265,8 @@
     status("Copied as editable working note. Original agent proposal remains available.");
   }
   function loadRemote(doc) {
-    state.architecture = null; state.architectureReview = null; state.candidatePositions = {}; state.selectedCandidate = null;
+    state.architecture = null; state.architectureReview = null; state.architectureCenter = null;
+    state.candidatePositions = {}; state.selectedCandidate = null;
     state.items = doc.items; state.connections = doc.connections; state.positions = doc.positions;
     state.view = "create"; state.focusGroup = "";
     state.selected = state.items.length ? state.items[0].id : null;
@@ -762,6 +789,7 @@
     var proposal = state.view === "architecture" ? candidateNode(state.selectedCandidate) : null;
     $("source-detail").hidden = !source && !proposal;
     $("candidate-copy").hidden = !proposal;
+    $("candidate-focus").hidden = !proposal;
     $("book-orientation").hidden = state.view !== "book";
     if (proposal) {
       $("inspector-empty").hidden = true; $("inspector-fields").hidden = true;
@@ -866,6 +894,7 @@
       });
   }
   function render() {
+    $("architecture-clear-focus").hidden = !state.architectureCenter;
     $("viewport").hidden = state.view === "genre_timeline";
     $("genre-timeline").hidden = state.view !== "genre_timeline";
     renderTimeline();
@@ -1188,8 +1217,10 @@
   $("architecture-complete").addEventListener("click", submitArchitecture);
   $("architecture-apply").addEventListener("click", applyReviewedArchitecture);
   $("candidate-copy").addEventListener("click", copyCandidate);
+  $("candidate-focus").addEventListener("click", focusRelatedArchitecture);
+  $("architecture-clear-focus").addEventListener("click", showWholeArchitecture);
   $("architecture-scope").addEventListener("change", function () {
-    state.architectureFocus = this.value;
+    state.architectureFocus = this.value; state.architectureCenter = null;
     if (candidateNode(state.selectedCandidate) && !candidateVisible(candidateNode(state.selectedCandidate)))
       state.selectedCandidate = null;
     render(); rememberFocus();
