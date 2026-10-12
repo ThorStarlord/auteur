@@ -13,7 +13,8 @@ function fixture(){
  const ids=['unfolding-start','unfolding-local','unfolding-ghosts','unfolding-explanation','unfolding-evidence-status',
  'unfolding-role','unfolding-title','unfolding-create','unfolding-more','unfolding-author-edit'];
  const els=new Map(ids.map(id=>[id,new El(id)]));
- const doc={getElementById:id=>els.get(id),createElement:tag=>new El(tag),querySelectorAll:()=>[]};
+ const nodeElements=[];
+ const doc={getElementById:id=>els.get(id),createElement:tag=>new El(tag),querySelectorAll:()=>nodeElements};
  const win={innerWidth:1440,localStorage:{getItem(){return null},setItem(){}}};
  new Function('window',helper)(win);new Function('window','document',controller)(win,doc);
  const sha='a'.repeat(64);
@@ -31,7 +32,7 @@ function fixture(){
   applySaved:doc=>{remote.revision=doc.revision;state.items=doc.items;saved.push(doc)},
   prepare:instr=>hostRequests.push(instr),status:text=>statuses.push(text),remember:()=>{}};
  const ctrl=win.AuteurStudioUnfoldingController.create(bridge);
- return{state,remote,ctrl,win,els,posted,saved,hostRequests,statuses};
+ return{state,remote,ctrl,win,els,posted,saved,hostRequests,statuses,nodeElements};
 }
 
 test('render is read-only and shows declared focus-local ghosts',()=>{
@@ -115,4 +116,23 @@ test('an author-owned working node is editable in the same graph without losing 
  assert.equal(f.posted[0].command.payload.item.content,'Author authored meaning');
  assert.equal(f.posted[0].command.payload.item.proposal_origin.source_ref,'links/0');
  assert.equal(f.saved.length,1);
+});
+
+
+test('desktop suggestion panel follows the focused graph node instead of being globally fixed',()=>{
+ const f=fixture();
+ const viewport=f.els.get('viewport')||new El('viewport');
+ viewport.getBoundingClientRect=()=>({left:10,top:80,right:1110,bottom:780,width:1100,height:700});
+ f.els.set('viewport',viewport);
+ const node=new El('anchor');node.dataset.itemId='g';
+ node.getBoundingClientRect=()=>({left:120,top:240,right:285,bottom:320,width:165,height:80});
+ f.nodeElements.push(node);
+ f.ctrl.render();
+ const local=f.els.get('unfolding-local');
+ assert.ok(local.style.left.endsWith('px'));
+ assert.ok(local.style.top.endsWith('px'));
+ assert.equal(local.style.right,'auto');
+ f.win.innerWidth=390;f.ctrl.render();
+ assert.equal(local.style.left,'');
+ assert.equal(local.style.top,'');
 });
