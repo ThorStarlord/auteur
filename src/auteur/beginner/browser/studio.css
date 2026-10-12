@@ -214,3 +214,27 @@ body.scene-docked #inspector { display:none; }
   .architecture-facets button { padding:6px 9px; }
   .architecture-facet-list { max-height:115px; overflow:auto; }
 }
+
+/* Semantic color describes category, not acceptance or author authority. */
+:root { --emotion-bg:#fbe7e9; --emotion-border:#c47b88; --emotion-text:#6e3644;
+  --genre-bg:#eee5f7; --genre-border:#9271b6; --genre-text:#503765;
+  --trope-bg:#fff0d8; --trope-border:#c18c39; --trope-text:#705022;
+  --structure-bg:#e0f2ee; --structure-border:#548d88; --structure-text:#285c58; }
+.node.candidate { border-style:dashed; background:#f1f0ef; border-color:#92908c; color:#42403d; }
+.node.candidate[data-kind="reader_experience"] { background:var(--emotion-bg); border-color:var(--emotion-border); color:var(--emotion-text); }
+.node.candidate[data-kind="genre"] { background:var(--genre-bg); border-color:var(--genre-border); color:var(--genre-text); }
+.node.candidate[data-kind="trope"] { background:var(--trope-bg); border-color:var(--trope-border); color:var(--trope-text); border-radius:19px; }
+.node.candidate[data-kind="engine"],.node.candidate[data-kind="structure"] {
+  background:var(--structure-bg); border-color:var(--structure-border); color:var(--structure-text); border-radius:7px; }
+.node.candidate.facet-context { opacity:.56; }
+.node.candidate[aria-pressed="true"] { outline:3px solid #32664d; outline-offset:2px; opacity:1; }
+.architecture-legend { position:absolute; z-index:3; left:10px; top:8px; display:flex; gap:4px; flex-wrap:wrap;
+  max-width:calc(100% - 20px); padding:4px; border-radius:6px; background:#ffffffeb; box-shadow:0 1px 5px #00000014;
+  pointer-events:none; font-size:.69rem; }
+.architecture-legend span { border:1px solid #bab6ae; padding:2px 6px; border-radius:4px; color:#48443d; }
+.architecture-legend .legend-emotion { background:var(--emotion-bg); border-color:var(--emotion-border); }
+.architecture-legend .legend-genre { background:var(--genre-bg); border-color:var(--genre-border); }
+.architecture-legend .legend-trope { background:var(--trope-bg); border-color:var(--trope-border); }
+.architecture-legend .legend-structure { background:var(--structure-bg); border-color:var(--structure-border); }
+.architecture-legend .legend-status { border-style:dashed; }
+@media(max-width:780px) { .architecture-legend { position:static; } }

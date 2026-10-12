@@ -257,7 +257,7 @@
     Array.prototype.forEach.call(document.querySelectorAll(".node"), function (button) {
       button.setAttribute("aria-pressed", String(button.dataset.itemId === id));
     });
-    rememberFocus();
+    drawEdges(); rememberFocus();
   }
 
   function focusRelatedArchitecture() {
@@ -925,9 +925,21 @@
         var line = document.createElementNS(svgNS, "line");
         line.setAttribute("x1", String(from.x + 82)); line.setAttribute("y1", String(from.y + 34));
         line.setAttribute("x2", String(to.x + 82)); line.setAttribute("y2", String(to.y + 34));
-        line.setAttribute("stroke", "#ad95c5"); line.setAttribute("stroke-width", "2");
+        line.setAttribute("stroke", "#846ca1"); line.setAttribute("stroke-width", "2");
         line.setAttribute("stroke-dasharray", "6 4");
-        svg.appendChild(line);
+        var highlighted = edge.source === state.selectedCandidate || edge.target === state.selectedCandidate;
+        line.setAttribute("opacity", state.selectedCandidate && !highlighted ? ".22" : ".8");
+        var title = document.createElementNS(svgNS, "title");
+        title.textContent = (edge.function || "Related") + ": " + fromNode.title + " → " + toNode.title;
+        line.appendChild(title); svg.appendChild(line);
+        if (highlighted && edge.function) {
+          var verb = document.createElementNS(svgNS, "text");
+          verb.setAttribute("x", String((from.x + to.x) / 2 + 82));
+          verb.setAttribute("y", String((from.y + to.y) / 2 + 20));
+          verb.setAttribute("text-anchor", "middle"); verb.setAttribute("fill", "#584773");
+          verb.setAttribute("font-size", "12"); verb.textContent = edge.function.slice(0, 46);
+          svg.appendChild(verb);
+        }
       });
     }
     if (state.architecture && state.view === "architecture") {
@@ -939,11 +951,22 @@
         var line = document.createElementNS(svgNS, "line");
         line.setAttribute("x1", String(from.x + 82)); line.setAttribute("y1", String(from.y + 34));
         line.setAttribute("x2", String(to.x + 82)); line.setAttribute("y2", String(to.y + 34));
-        line.setAttribute("stroke", "#9a6799"); line.setAttribute("stroke-width", "3");
+        line.setAttribute("stroke", "#855a8b"); line.setAttribute("stroke-width", "3");
         line.setAttribute("stroke-dasharray", "3 6");
+        var highlighted = edge.source_genre_id === state.selectedCandidate ||
+          edge.target_genre_id === state.selectedCandidate;
+        line.setAttribute("opacity", state.selectedCandidate && !highlighted ? ".2" : ".9");
         var label = document.createElementNS(svgNS, "title");
-        label.textContent = edge.kind + ": " + edge.mechanism; line.appendChild(label);
+        label.textContent = edge.kind.replace(/_/g, " ") + ": " + edge.mechanism; line.appendChild(label);
         svg.appendChild(line);
+        if (highlighted) {
+          var text = document.createElementNS(svgNS, "text");
+          text.setAttribute("x", String((from.x + to.x) / 2 + 82));
+          text.setAttribute("y", String((from.y + to.y) / 2 + 26));
+          text.setAttribute("text-anchor", "middle"); text.setAttribute("fill", "#75487b");
+          text.setAttribute("font-size", "12"); text.textContent = edge.kind.replace(/_/g, " ");
+          svg.appendChild(text);
+        }
       });
     }
     if (state.realization && state.view === "realization_candidates") {
@@ -1032,8 +1055,10 @@
       }).forEach(function (edge) {
         var other = candidateNode(edge.source === proposal.id ? edge.target : edge.source);
         if (!other) return;
-        var line = document.createElement("p");
-        line.textContent = edge.function + " → " + other.title; related.appendChild(line);
+        var button = document.createElement("button"); button.type = "button"; button.className = "facet-link";
+        button.textContent = (edge.function || "Related") + " → " + other.title;
+        button.addEventListener("click", function () { chooseCandidate(other.id); });
+        related.appendChild(button);
       });
       var contract = (state.architecture.genre_contracts || []).find(function (genre) {
         return genre.genre_node_id === proposal.id;
@@ -1067,9 +1092,15 @@
           return link.source_genre_id === proposal.id || link.target_genre_id === proposal.id;
         }).forEach(function (link) {
           var other = candidateNode(link.source_genre_id === proposal.id ? link.target_genre_id : link.source_genre_id);
-          section("Genre interaction · " + link.kind,
+          section("Genre interaction · " + link.kind.replace(/_/g, " "),
             (other ? other.title : "Other genre") + ": " + link.mechanism +
             (link.risk ? " Risk: " + link.risk : ""));
+          if (other) {
+            var button = document.createElement("button"); button.type = "button";
+            button.className = "facet-link"; button.textContent = "Inspect interacting genre: " + other.title;
+            button.addEventListener("click", function () { chooseCandidate(other.id); });
+            related.appendChild(button);
+          }
         });
       }
       return;
@@ -1461,6 +1492,7 @@
     var designing = state.workspace === "architecture";
     $("architecture-context").hidden = !designing;
     $("architecture-work-area").classList.toggle("is-architecture", designing);
+    $("architecture-legend").hidden = !designing || state.view !== "architecture";
     var context = state.architecture && state.architecture.summary ? state.architecture.summary :
       "Explore the provisional architecture; select a node to inspect its connections.";
     $("architecture-context-summary").textContent = context;
@@ -1580,6 +1612,12 @@
         var pos = state.candidatePositions[item.id]; if (!pos) return;
         var button = document.createElement("button"); button.type = "button";
         button.className = "node candidate"; button.dataset.itemId = item.id;
+        button.dataset.kind = item.category;
+        var focusKinds = {emotions:["reader_experience"], genres:["genre"], tropes:["trope"],
+          structure:["engine", "structure"]}[state.architectureFacet];
+        if (focusKinds && state.architecture.nodes.some(function (n) { return focusKinds.includes(n.category); }) &&
+            !focusKinds.includes(item.category) && item.id !== state.selectedCandidate)
+          button.classList.add("facet-context");
         button.style.left = pos.x + "px"; button.style.top = pos.y + "px";
         button.setAttribute("aria-pressed", String(item.id === state.selectedCandidate));
         button.setAttribute("aria-label", "Working architecture proposal: " + item.category + ", " + item.title);
