@@ -15,9 +15,12 @@
   <main class="studio">
     <section class="workspace" aria-label="Creative story canvas">
       <nav class="studio-workflows" aria-label="Creative workflow">
-        <button id="workspace-architecture" aria-pressed="false" type="button">Narrative Architecture</button>
-        <button id="workspace-realization" aria-pressed="true" type="button">Story Realization</button>
+        <button id="workspace-architecture" aria-pressed="true" type="button">Narrative Architecture</button>
+        <button id="workspace-realization" aria-pressed="false" type="button">Story Realization</button>
       </nav>
+      <section id="architecture-context" class="architecture-context" aria-label="Architecture overview">
+        <strong>Architecture map</strong><span id="architecture-context-summary">Explore the provisional structure and its relationships.</span>
+      </section>
       <nav class="toolbar" aria-label="Canvas controls">
         <button type="button" id="add-note">+ Idea</button>
         <button type="button" id="add-character">+ Character</button>
@@ -25,7 +28,7 @@
         <button type="button" id="connect-shortcut">Connect</button>
         <button type="button" id="write-shortcut">Write</button>
         <label for="find-nodes">Find</label><input id="find-nodes" type="search" placeholder="Search story items" aria-label="Find nodes on the canvas">
-        <label for="group-filter">Group</label><select id="group-filter" aria-label="Focus working group"><option value="">All groups</option></select>
+        <span id="working-group-control" class="working-group-control" hidden><label for="group-filter">Group</label><select id="group-filter" aria-label="Focus working group"><option value="">All groups</option></select></span>
         <label for="layer-view">View</label><select id="layer-view" aria-label="Canvas graph view">
           <option value="create">My ideas</option>
           <option value="realization_candidates">Agent story proposals</option>
@@ -68,7 +71,7 @@
       <p id="canvas-legend" class="canvas-legend">Working ideas and connections are not accepted story facts.</p>
       <section class="vision-panel" aria-label="Your story vision">
         <details open id="vision-disclosure">
-          <summary>Story Vision · What should this story feel like?</summary>
+          <summary>Story Vision <span id="vision-preview" class="vision-preview">· Optional creative direction</span></summary>
           <label for="vision-text">Describe the experience, aesthetic, tropes, genres, or structure you want. A premise is optional.</label>
           <textarea id="vision-text" maxlength="12000" rows="3" placeholder="For example: a long fantasy of awe and vindication, institutional noir, slow-burn romance, mysteries and occasional horror; different genres take the lead in different arcs."></textarea>
           <div class="vision-actions">
@@ -131,10 +134,6 @@
           <button id="realization-complete" type="button">Validate and load realization</button>
         </details>
       </section>
-      <details id="emotional-design" class="emotional-design" hidden>
-        <summary>Emotional design — six basic emotions and optional compositions</summary>
-        <div id="emotional-targets"></div>
-      </details>
       <div id="genre-timeline" class="genre-timeline" hidden aria-label="Proposed genre and reader-experience timeline">
         <h2>Genre and emotional composition</h2>
         <p>Working phases can overlap or change dominant genres. Order does not imply fixed chapter lengths or an accepted story contract.</p>
@@ -151,6 +150,10 @@
           <button id="start" type="button">Add your first idea</button>
         </div>
       </div>
+      <details id="emotional-design" class="emotional-design" hidden>
+        <summary>Emotional design — six basic emotions and optional compositions</summary>
+        <div id="emotional-targets"></div>
+      </details>
       <details class="outline"><summary>Accessible outline of visible story items</summary><ul id="outline-list"></ul></details>
       <p id="canvas-help" class="help">Choose a node to inspect it. Drag to arrange; arrow keys move a focused node. Connect notes in the inspector. Changes save locally. Export JSON for a portable backup.</p>
     </section>
