@@ -316,3 +316,14 @@ body.scene-docked #inspector { display:none; }
  .unfolding-start{padding:12px}
  .unfolding-top strong{font-size:.92rem}
 }
+
+.unfolding-author-edit {padding:10px 0 12px;border-top:1px solid #e2d9e8;margin:8px 0;}
+.unfolding-author-edit strong {display:block;font-size:.8rem;margin-bottom:8px;color:#596e62;}
+.unfolding-author-edit input,.unfolding-author-edit textarea {
+  display:block;width:100%;max-width:100%;background:#fff;border:1px solid #c8d1cb;
+  border-radius:7px;padding:8px;margin:6px 0;font:inherit;font-size:.81rem;}
+.unfolding-author-edit textarea {min-height:72px;resize:vertical;}
+.unfolding-author-edit button{width:100%;background:#49785d;color:white;margin:7px 0 0;}
+.unfolding-author-edit button:disabled{opacity:.55;}
+.unfolding-author-edit input:focus-visible,.unfolding-author-edit textarea:focus-visible {
+ outline:3px solid #668c76;outline-offset:2px;}

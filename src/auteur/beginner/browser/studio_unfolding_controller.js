@@ -26,8 +26,10 @@
       s.unfoldingSaving=true;
       return Promise.resolve(bridge.flush()).then(function(){
         if(remote.failed||remote.canvasId!==canvasId)throw Error('Working canvas changed or cannot save.');
-        if(sourceSha && (s.architectureRequestSha!==sourceSha || !s.unfoldingFocus || s.unfoldingFocus.id!==focusId))
-          throw Error('Suggestion focus/source became stale.');
+        if(focusId && (!s.unfoldingFocus || s.unfoldingFocus.id!==focusId))
+          throw Error('Working focus changed before save.');
+        if(sourceSha && s.architectureRequestSha!==sourceSha)
+          throw Error('Suggestion source became stale.');
         if(sourceSha && !current().some(x=>x.id===command.ghostId))throw Error('Suggestion is no longer available.');
         return bridge.post(action,command);
       }).then(function(doc){
@@ -46,6 +48,17 @@
       catch(e){bridge.status('Invalid working idea: '+e.message);return Promise.resolve();}
       return updateWorkingCommand('create-item',command);
     }
+    function editWorking(item,title,content){
+      var s=bridge.state();
+      var current=s.items.find(x=>x.id===item.id);
+      if(!current || !s.unfoldingFocus || s.unfoldingFocus.id!==item.id ||
+          typeof title!=='string'||!title.trim()||title.trim().length>120||
+          typeof content!=='string'||content.length>20000){
+        bridge.status('Working idea cannot be saved: title, length or focus is invalid.');return Promise.resolve();
+      }
+      var command={commandId:'edit-'+bridge.newItemId(),payload:{item:{...current,title:title.trim(),content:content}}};
+      return updateWorkingCommand('update-item',command,{focusId:item.id});
+    }
     function adopt(ghost){
       var s=bridge.state(),cmd;
       if(!s.unfoldingFocus||!ghost||ghost.requestSha!==s.architectureRequestSha){
@@ -55,17 +68,49 @@
       cmd.ghostId=ghost.id;
       return updateWorkingCommand('adopt-suggestion',cmd,{sourceSha:ghost.requestSha,focusId:s.unfoldingFocus.id});
     }
+    function positionLocalFocus(host,focus){
+      // Align the local explanation with its actual transformed canvas node.
+      host.style.left='';host.style.top='';host.style.right='';host.style.bottom='';
+      if(global.innerWidth<=700 || !focus)return;
+      var viewport=$('viewport'),bounds=viewport&&viewport.getBoundingClientRect&&viewport.getBoundingClientRect();
+      if(!bounds || !bounds.width || !bounds.height)return;
+      var nodes=document.querySelectorAll('#nodes .node');
+      var chosen=Array.prototype.find.call(nodes,function(el){return el.dataset&&el.dataset.itemId===focus.id;});
+      if(!chosen || !chosen.getBoundingClientRect)return;
+      var point=chosen.getBoundingClientRect(),width=Math.min(275,Math.max(180,bounds.width-20));
+      var roomRight=bounds.right-point.right,roomLeft=point.left-bounds.left;
+      var x=roomRight>=width+16?point.right-bounds.left+12:
+        roomLeft>=width+16?point.left-bounds.left-width-12:
+        Math.max(8,Math.min(bounds.width-width-8,point.left-bounds.left));
+      var y=Math.max(8,Math.min(bounds.height-230,point.top-bounds.top));
+      host.style.left=Math.round(x)+'px';host.style.top=Math.round(y)+'px';
+      host.style.right='auto';host.style.bottom='auto';
+    }
     function render(){
       var s=bridge.state(),start=$('unfolding-start'),host=$('unfolding-local');
-      var ghosts=$('unfolding-ghosts'),explain=$('unfolding-explanation');
+      var ghosts=$('unfolding-ghosts'),explain=$('unfolding-explanation'),edit=$('unfolding-author-edit');
+      edit.hidden=true;edit.replaceChildren();
       var active=s.workspace==='architecture'&&s.view==='architecture'&&s.architectureFacet==='overview';
       start.hidden=!active;host.hidden=true;explain.hidden=true;
       if(!active)return;
       if(!focusIsValid(s)){start.hidden=false;return;}
-      start.hidden=true;host.hidden=false;ghosts.replaceChildren();explain.replaceChildren();
+      start.hidden=true;host.hidden=false;positionLocalFocus(host,s.unfoldingFocus);
+      ghosts.replaceChildren();explain.replaceChildren();
       var target=s.unfoldingFocus.kind==='candidate'?(s.architecture.nodes||[]).find(n=>n.id===s.unfoldingFocus.id):
         s.items.find(n=>n.id===s.unfoldingFocus.id);
       $('unfolding-evidence-status').textContent=target?.title||'Selected working idea';
+      if(s.unfoldingFocus.kind==='working' && target){
+        edit.hidden=false;
+        var h=document.createElement('strong');h.textContent='Edit your working idea · Not canon';
+        var name=document.createElement('input');name.id='unfolding-edit-title';
+        name.setAttribute('aria-label','Working idea title');name.maxLength=120;name.value=target.title;
+        var content=document.createElement('textarea');content.id='unfolding-edit-content';
+        content.setAttribute('aria-label','Working idea details');content.maxLength=20000;content.value=target.content||'';
+        var save=document.createElement('button');save.type='button';save.textContent='Save working idea';
+        save.disabled=s.unfoldingSaving;
+        save.addEventListener('click',function(){return editWorking(target,name.value,content.value);});
+        edit.append(h,name,content,save);
+      }
       var all=current();
       if(!all.length){var p=document.createElement('p');p.className='muted';
         p.textContent='No declared nearby proposals for this focus. Choose another concept or explicitly develop more possibilities.';
@@ -77,7 +122,13 @@
         b.textContent=ghost.title+' · Provisional';
         var provenance=document.createElement('small');provenance.textContent=ghost.relationshipVerb+' · Source-backed proposal, not canon';
         b.appendChild(provenance);
-        b.addEventListener('click',function(){s.unfoldingInspected=ghost.id;render();});
+        b.addEventListener('click',function(){
+          s.unfoldingInspected=ghost.id;render();
+          var current=Array.prototype.find.call($('unfolding-ghosts').children,function(e){
+            return e.getAttribute && e.getAttribute('aria-pressed')==='true';
+          });
+          if(current)current.focus();
+        });
         ghosts.appendChild(b);
       });
       var selected=all.find(g=>g.id===s.unfoldingInspected);
