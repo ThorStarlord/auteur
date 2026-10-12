@@ -10,7 +10,9 @@ An argument must name a path that does not exist yet (or an empty directory); th
 script never deletes a directory it did not create. Exit code is non-zero if any check fails.
 """
 
+import hashlib
 import json
+import socket
 import os
 import pathlib
 import tempfile
@@ -21,10 +23,9 @@ import urllib.request
 from playwright.sync_api import sync_playwright
 
 PY = os.environ.get("AUTEUR_PYTHON", sys.executable)
-PORT = int(os.environ.get("STAGE_B_PORT", "8766"))
+PORT = int(os.environ["STAGE_B_PORT"]) if os.environ.get("STAGE_B_PORT") else None
 REPO = pathlib.Path(__file__).resolve().parent.parent
 CHROME = os.environ.get("CHROMIUM_PATH")
-BASE = f"http://127.0.0.1:{PORT}"
 if len(sys.argv) > 1:
     proj = pathlib.Path(sys.argv[1]).resolve()
     if proj.exists() and (not proj.is_dir() or any(proj.iterdir())):
@@ -41,7 +42,25 @@ def check(name, ok, detail=""):
     print(("PASS " if ok else "FAIL ") + name + (" :: " + str(detail) if detail else ""))
 
 
+def free_port():
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.bind(("127.0.0.1", 0))
+        return sock.getsockname()[1]
+
+
+def port_in_use(port):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        return sock.connect_ex(("127.0.0.1", port)) == 0
+
+
+PORT = PORT or free_port()
+BASE = f"http://127.0.0.1:{PORT}"
+
+
 def start():
+    """Start a server on PORT and insist that the answering server is this process."""
+    if port_in_use(PORT):
+        raise RuntimeError(f"port {PORT} is already in use; set STAGE_B_PORT to a free port")
     p = subprocess.Popen(
         [
             PY,
@@ -57,25 +76,27 @@ def start():
         stderr=subprocess.DEVNULL,
         cwd=str(REPO),
     )
-    for _ in range(50):
+    for _ in range(100):
+        if p.poll() is not None:
+            raise RuntimeError(f"server exited early with code {p.returncode}")
         try:
-            urllib.request.urlopen(BASE + "/api/beginner/health")
+            urllib.request.urlopen(BASE + "/api/beginner/health", timeout=2)
             return p
         except Exception:
             time.sleep(0.2)
+    p.terminate()
     raise RuntimeError("server did not start")
 
 
 def canonical_snapshot():
+    """Map each non-canonical-store file to its SHA-256 content hash."""
     # Studio working store and Quick Draft's provisional staging are non-canonical by design.
     noncanonical = (".auteur/beginner/studio", ".auteur/quick_draft")
-    return sorted(
-        (
-            str(f.relative_to(proj))
-            for f in proj.rglob("*")
-            if f.is_file() and (not any((part in str(f) for part in noncanonical)))
-        )
-    )
+    return {
+        str(f.relative_to(proj)): hashlib.sha256(f.read_bytes()).hexdigest()
+        for f in proj.rglob("*")
+        if f.is_file() and not any(part in str(f) for part in noncanonical)
+    }
 
 
 def canvas_docs():
