@@ -1,7 +1,7 @@
 # Narrative Architecture Studio — Information Hierarchy and High-Density UX
 
 **Decision date:** 2026-10-11  
-**Status:** Owner-selected UX direction and implementation plan; implementation NOT yet complete  
+**Status:** Owner-selected UX direction; UX-0–UX-5 implemented on stacked draft PRs #387–#392, not merged or runtime-qualified  
 **Target:** Living Story Studio, local-first Browser, Narrative Architecture workspace  
 **Baseline:** Stacked experimental Studio branch ending in PR #385; preserve PR #375–#385 capabilities  
 **Owner boundary:** Presentation/projection only; no new narrative authority, canonical state, rollout or merge decision.
@@ -257,4 +257,19 @@ Document implementation status per package. **Plan accepted** is not **code impl
 
 **Owner decisions selected for implementation:** graph is the visual center; Story Vision is compact but always editable; four facets are projections of one architecture; inspector shows selected detail and relationship paths; restrained category colors; timeline shows local differences, not repeated global contracts; cross-workflow authority stays explicit.
 
-**Next executable responsibility:** begin with UX-0 and UX-1, then exercise the exact screenshot scenario before extending the facets. All later packages remain authorized design intent, not claims that the corresponding code is already running.
+## 13. Delivery tracking (2026-10-11, connected GitHub implementation)
+
+The following changes are **committed as stacked draft pull requests**, not merged into `main` or runtime-qualified:
+
+| Package | PR | Committed scope |
+| --- | --- | --- |
+| UX-0 | [#387](https://github.com/ThorStarlord/auteur/pull/387) | Hidden controls, workspace-aware inspector and working-item routing |
+| UX-1 | [#388](https://github.com/ThorStarlord/auteur/pull/388) | Architecture-first graph, compact Story Vision and responsive visual hierarchy |
+| UX-2 | [#389](https://github.com/ThorStarlord/auteur/pull/389) | Overview/Emotions/Genres/Tropes/Structure/Timeline source-linked facets |
+| UX-3 | [#390](https://github.com/ThorStarlord/auteur/pull/390) | Semantic category palette, labels, accessible relationship navigation |
+| UX-4 | [#391](https://github.com/ThorStarlord/auteur/pull/391) | Compact local phase cards, selectable phase inspector and cross-links |
+| UX-5 | [#392](https://github.com/ThorStarlord/auteur/pull/392) | Cross-facet history, search/scope restoration, stale-selection recovery, focused tests |
+
+**Current verification ceiling:** Connected JavaScript syntax checks and HTML ID/reference inspections were executed for the changed source, and focused regression tests were committed. Python test execution, actual HTTP smoke tests, browser rendering, keyboard and narrow-screen accessibility checks, and a paladin/dense-series task walkthrough **have not been executed in this workspace**. No claim of tested end-user usability or production readiness follows from these PRs.
+
+**Next executable responsibility:** In an isolated local checkout of the exact #392 head, run the focused Studio tests including the new files, smoke-test the actual served UI on desktop and narrow mobile width, and follow the representative scenarios in section 10. Repair observed regressions in the smallest PR. Verify the full base stack against current `main` and only then decide readiness/merge order; do not spend GitHub Actions billing credits unnecessarily.
