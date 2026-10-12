@@ -18,7 +18,7 @@ def test_typed_semantic_nodes_and_legend_with_explicit_proposal_status():
     assert 'edge.function || "Related"' in js
     assert 'edge.kind.replace(/_/g, " ")' in js
     assert 'title.textContent = (edge.function || "Related")' in js
-    assert 'button.addEventListener("click", function () { chooseCandidate(other.id); });' in js
+    assert 'button.addEventListener("click", function () { visitFacet("overview", null, other.id); });' in js
     ids = re.findall(r'\bid="([^"]+)"', html)
     assert len(ids) == len(set(ids))
     assert set(re.findall(r'\$\("([^"]+)"\)', js)) <= set(ids)

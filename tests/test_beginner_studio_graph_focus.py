@@ -22,7 +22,7 @@ def test_emotional_report_is_below_graph_and_timeline_is_alternative():
     js = (BROWSER / "studio.js").read_text(encoding="utf-8")
     assert html.index('id="viewport"') < html.index('id="emotional-design"')
     assert 'id="genre-timeline"' in html
-    assert '$("viewport").hidden = state.view === "genre_timeline";' in js
+    assert '$("viewport").hidden = state.view === "genre_timeline" || explanationActive();' in js
     assert '$("genre-timeline").hidden = state.view !== "genre_timeline";' in js
     assert 'if (state.workspace === "architecture") requestArchitecture("");' in js
     ids = re.findall(r'\bid="([^"]+)"', html)

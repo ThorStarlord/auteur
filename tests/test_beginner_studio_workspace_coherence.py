@@ -23,7 +23,7 @@ def test_inspector_does_not_fall_through_to_hidden_story_vision():
     assert 'if (item && !visibleWorking(item)) item = null;' in inspector
     assert 'if (proposal && !candidateVisible(proposal)) proposal = null;' in inspector
     assert 'if (source && (!visibleDerived(source) || !matches(source))) source = null;' in inspector
-    assert '$("source-detail").hidden = !source && !proposal && !concrete;' in inspector
+    assert '$("source-detail").hidden = !source && !proposal && !concrete && !facetEntry && !phase;' in inspector
 
 
 def test_explicit_working_item_creation_moves_to_realization_workspace():

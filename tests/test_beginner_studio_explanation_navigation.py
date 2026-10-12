@@ -23,7 +23,7 @@ def test_dedicated_heroes_share_single_source_scoped_adapter():
     assert 'id="studio-semantic-trail"' in html
     assert 'id="studio-semantic-arrival"' in html
     assert html.index('/studio_explanations.js') < html.index('/studio_explanation_views.js') < html.index('/studio.js')
-    assert 'AuteurStudioExplanations.project(state.architecture,state.architectureRequestSha,null)' in js
+    assert 'projector.project(state.architecture,state.architectureRequestSha,null)' in js and 'var projector = window.AuteurStudioExplanations' in js
     assert 'window.AuteurStudioExplanationViews' in js
     assert 'function visitFacet(facet, key, nodeId, semanticLink)' in js
     assert 'function restoreFacetHistory(index)' in js
