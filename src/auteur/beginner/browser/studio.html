@@ -149,6 +149,9 @@
           <button id="architecture-facet-back" type="button" hidden>Back to previous selection</button>
         </aside>
         <div class="architecture-main-surface">
+      <nav id="studio-semantic-trail" class="studio-semantic-trail" aria-label="Exploration trail" hidden></nav>
+      <div id="studio-semantic-arrival" class="studio-semantic-arrival" aria-label="Why you arrived here" hidden></div>
+      <section id="studio-explanatory-hero" class="studio-explanatory-hero" aria-label="Narrative explanation" hidden></section>
       <div id="genre-timeline" class="genre-timeline" hidden aria-label="Proposed genre and reader-experience timeline">
         <h2>Genre and emotional composition</h2>
         <p>Working phases can overlap or change dominant genres. Order does not imply fixed chapter lengths or an accepted story contract.</p>
@@ -251,6 +254,8 @@
     </div>
   </section>
   <div class="status" id="status" role="status" aria-live="polite">Opening local working canvas...</div>
+  <script src="/studio_explanations.js" defer></script>
+  <script src="/studio_explanation_views.js" defer></script>
   <script src="/studio.js" defer></script>
 </body>
 </html>
