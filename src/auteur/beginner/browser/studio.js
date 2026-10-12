@@ -7,6 +7,7 @@
   state.architecture = null; state.candidatePositions = {}; state.selectedCandidate = null;
   state.architectureFocus = ""; state.architectureCenter = null;
   state.architectureFacet = "overview"; state.facetSelection = null; state.facetHistory = [];
+  state.selectedPhase = null;
   state.architectureRequestSha = null; state.architectureReview = null;
   state.workspace = "architecture"; state.lastRealizationView = "create";
   state.realization = null; state.realizationRequestSha = null;
@@ -66,6 +67,7 @@
         candidate: state.selectedCandidate, realization: state.selectedRealization, scope: state.architectureFocus,
         neighborhood: state.architectureCenter,
         facet: state.architectureFacet, facetSelection: state.facetSelection,
+        phase: state.selectedPhase,
         editorOpen: open, expanded: open && $("scene-panel").classList.contains("expanded"),
         caret: field.selectionStart || 0
       }));
@@ -88,6 +90,7 @@
     state.architectureFacet = facets.includes(saved.facet) ? saved.facet :
       (state.view === "genre_timeline" ? "timeline" : "overview");
     state.facetSelection = typeof saved.facetSelection === "string" ? saved.facetSelection : null;
+    state.selectedPhase = typeof saved.phase === "string" ? saved.phase : null;
     if (state.workspace === "architecture") state.view = state.architectureFacet === "timeline"
       ? "genre_timeline" : "architecture";
     if (state.items.some(function (item) { return item.id === saved.selected; })) state.selected = saved.selected;
@@ -134,6 +137,9 @@
   }
   function applyArchitectureProjection(projection, openGraph) {
     state.architecture = projection.candidate;
+    if (state.selectedPhase && (!state.architecture ||
+        !state.architecture.phases.some(function (p) { return p.id === state.selectedPhase; })))
+      state.selectedPhase = null;
     state.architectureReview = projection.review || null;
     if (state.architectureCenter && !candidateNode(state.architectureCenter)) state.architectureCenter = null;
     state.architectureRequestSha = projection.candidate_request_sha256;
@@ -405,6 +411,7 @@
   }
   function loadRemote(doc) {
     state.architecture = null; state.architectureReview = null; state.architectureCenter = null;
+    state.selectedPhase = null;
     state.candidatePositions = {}; state.selectedCandidate = null;
     state.realization = null; state.realizationReview = null; state.realizationStale = false;
     state.realizationPositions = {}; state.selectedRealization = null;
@@ -1004,7 +1011,9 @@
       ? realizationElement(state.selectedRealization) : null;
     if (concrete && !realizationVisible(concrete)) concrete = null;
     var facetEntry = state.workspace === "architecture" ? currentFacetEntry() : null;
-    $("source-detail").hidden = !source && !proposal && !concrete && !facetEntry;
+    var phase = state.workspace === "architecture" && state.view === "genre_timeline" && state.architecture
+      ? state.architecture.phases.find(function (p) { return p.id === state.selectedPhase; }) : null;
+    $("source-detail").hidden = !source && !proposal && !concrete && !facetEntry && !phase;
     $("realization-copy").hidden = !concrete;
     $("realization-inspect").hidden = !concrete;
     $("realization-feedback").hidden = !concrete || state.realizationStale || !(state.realization.architecture_feedback || []).some(function (e) {
@@ -1015,6 +1024,7 @@
     $("genre-contract-detail").replaceChildren();
     $("genre-contract-detail").hidden = true;
     $("book-orientation").hidden = state.workspace !== "realization" || state.view !== "book";
+    if (phase) { renderPhaseInspector(phase); return; }
     if (facetEntry) { renderFacetInspector(facetEntry); return; }
     if (concrete) {
       $("inspector-empty").hidden = true; $("inspector-fields").hidden = true;
@@ -1358,13 +1368,14 @@
       var kind = document.createElement("small"); kind.textContent = entry.kind;
       b.append(name, kind);
       b.addEventListener("click", function () {
+        if (state.architectureFacet === "timeline" && entry.phaseId) state.selectedPhase = entry.phaseId;
         if (entry.nodeId) {
           state.facetSelection = null;
           state.architectureCenter = null; state.architectureFocus = ""; $("architecture-scope").value = "";
           chooseCandidate(entry.nodeId); render();
         } else {
           state.facetSelection = entry.key; state.selectedCandidate = null;
-          renderFacetList(); renderInspector(); rememberFocus();
+          renderFacetList(); renderTimeline(); renderInspector(); rememberFocus();
         }
       });
       list.appendChild(b);
@@ -1374,6 +1385,7 @@
     state.facetHistory.push({facet:state.architectureFacet, key:state.facetSelection, nodeId:state.selectedCandidate});
     if (state.facetHistory.length > 12) state.facetHistory.shift();
     state.architectureFacet = facet; state.facetSelection = key || null;
+    if (facet === "timeline" && key && key.startsWith("phase:")) state.selectedPhase = key.slice(6);
     state.selectedCandidate = nodeId || null; state.architectureCenter = null;
     state.architectureFocus = ""; $("architecture-scope").value = "";
     state.view = facet === "timeline" ? "genre_timeline" : "architecture";
@@ -1442,49 +1454,98 @@
       host.appendChild(p);
     });
   }
+  function renderPhaseInspector(phase) {
+    $("source-detail").hidden = false; $("inspector-empty").hidden = true; $("inspector-fields").hidden = true;
+    $("source-title").textContent = phase.title;
+    $("source-state").textContent = "Temporal function · AGENT PROPOSAL / NOT ACCEPTED";
+    $("source-description").textContent = phase.narrative_function || "No local narrative function specified.";
+    $("source-ref").textContent = "phases/" + phase.id + " · Response " +
+      (state.architectureRequestSha || "unavailable") + " · No fixed chapter length implied";
+    var links = $("source-links"); links.replaceChildren();
+    function detail(label, value) {
+      if (!value) return;
+      var p = document.createElement("p"); p.textContent = label + ": " + value; links.appendChild(p);
+    }
+    function jump(label, facet, key, id) {
+      var b = document.createElement("button"); b.type = "button"; b.className = "facet-link";
+      b.textContent = label; b.addEventListener("click", function () { visitFacet(facet, key, id); });
+      links.appendChild(b);
+    }
+    detail("Scope", phase.scope);
+    detail("Reader experience", phase.reader_experience);
+    detail("Aesthetic strategy", phase.aesthetic);
+    detail("Transition", phase.transition);
+    detail("Local genre roles", (phase.genres || []).map(function (g) {
+      return g.genre + " (" + g.role.replace(/_/g, " ") + ")";
+    }).join(" · "));
+    var phaseNames = {};
+    (state.architecture.phases || []).forEach(function (p) { phaseNames[p.id] = p.title; });
+    detail("Parallel with", (phase.parallel_with || []).map(function (id) { return phaseNames[id] || id; }).join(" · "));
+    var activeIds = (phase.genre_activations || []).map(function (a) { return a.genre_node_id; });
+    (phase.genre_activations || []).forEach(function (a) {
+      var node = candidateNode(a.genre_node_id);
+      var name = node ? node.title : a.genre_node_id;
+      detail("Genre activation · " + name, (a.basic_emotions || []).join(" + ") +
+        " · Structural function: " + a.structural_function);
+      jump("Inspect genre contract: " + name, "genres", null, a.genre_node_id);
+      (a.trope_functions || []).forEach(function (t, i) {
+        jump("Inspect phase trope function: " + t, "tropes",
+          "phase-trope:" + phase.id + ":" + a.genre_node_id + ":" + i, null);
+      });
+      if (a.structural_function) jump("Inspect phase structural function", "structure",
+        "phase-structure:" + phase.id + ":" + a.genre_node_id, null);
+    });
+    (state.architecture.genre_interactions || []).filter(function (edge) {
+      return activeIds.includes(edge.source_genre_id) && activeIds.includes(edge.target_genre_id);
+    }).forEach(function (edge) {
+      detail("Genre interaction · " + edge.kind.replace(/_/g, " "), edge.mechanism +
+        (edge.risk ? " · Risk: " + edge.risk : ""));
+    });
+  }
   function renderTimeline() {
     var host = $("timeline-phases"); host.replaceChildren();
     if (!state.architecture || !state.architecture.phases.length) {
-      var li = document.createElement("li"); li.textContent = "No narrative phases proposed yet.";
-      host.appendChild(li); return;
+      var empty = document.createElement("li"); empty.textContent = "No working narrative phases proposed yet.";
+      host.appendChild(empty); return;
     }
-    var phases = state.architecture.phases, lookup = {};
-    phases.forEach(function (phase) { lookup[phase.id] = phase.title; });
-    phases.slice().sort(function (a, b) { return a.order - b.order || a.id.localeCompare(b.id); })
+    var names = {};
+    state.architecture.phases.forEach(function (p) { names[p.id] = p.title; });
+    state.architecture.phases.slice().sort(function (a, b) { return a.order - b.order || a.id.localeCompare(b.id); })
       .filter(function (phase) { return !state.architectureFocus || phase.scope === state.architectureFocus ||
         phase.scope === "whole_story"; })
       .forEach(function (phase) {
         var li = document.createElement("li"); li.className = "timeline-phase";
-        var title = document.createElement("h3"); title.textContent = phase.title;
-        li.appendChild(title);
-        var activations = (phase.genre_activations || []).map(function (active) {
-          var contract = (state.architecture.genre_contracts || []).find(function (g) {
-            return g.genre_node_id === active.genre_node_id;
-          });
-          var genre = candidateNode(active.genre_node_id);
-          return (genre ? genre.title : active.genre_node_id) + ": " +
-            active.basic_emotions.join(" + ") + " | " + active.structural_function +
-            (active.trope_functions.length ? " | Tropes: " + active.trope_functions.join(", ") : "") +
-            (contract ? " | Engine: " + contract.narrative_engine : "");
+        li.setAttribute("aria-current", phase.id === state.selectedPhase ? "step" : "false");
+        var pick = document.createElement("button"); pick.type = "button"; pick.className = "timeline-select";
+        pick.textContent = phase.title; pick.setAttribute("aria-pressed", String(phase.id === state.selectedPhase));
+        pick.addEventListener("click", function () {
+          state.selectedPhase = phase.id; state.facetSelection = "phase:" + phase.id;
+          renderTimeline(); renderFacetList(); renderInspector(); rememberFocus();
         });
-        var activeIds = (phase.genre_activations || []).map(function (g) { return g.genre_node_id; });
-        var interactions = (state.architecture.genre_interactions || []).filter(function (link) {
-          return activeIds.includes(link.source_genre_id) && activeIds.includes(link.target_genre_id);
-        }).map(function (link) { return link.kind + ": " + link.mechanism; });
-        [
-          ["active genre mechanisms and emotions", activations.join(" \n ")],
-          ["interactions in this interval", interactions.join(" \n ")],
-          ["genres", phase.genres.map(function (g) { return g.genre + " (" + g.role.replace(/_/g, " ") + ")"; }).join(" · ")],
-          ["reader experience", phase.reader_experience],
-          ["aesthetic", phase.aesthetic],
-          ["narrative function", phase.narrative_function],
-          ["transition", phase.transition],
-          ["parallel", phase.parallel_with.map(function (id) { return lookup[id] || id; }).join(" · ")]
-        ].forEach(function (entry) {
-          if (!entry[1]) return;
-          var p = document.createElement("p"); p.className = entry[0].replace(" ", "-");
-          p.textContent = entry[0] + ": " + entry[1]; li.appendChild(p);
+        li.appendChild(pick);
+        var roles = (phase.genres || []).map(function (g) {
+          return g.genre + " · " + g.role.replace(/_/g, " ");
         });
+        var activations = phase.genre_activations || [];
+        var emotions = [];
+        activations.forEach(function (a) {
+          (a.basic_emotions || []).forEach(function (e) { if (!emotions.includes(e)) emotions.push(e); });
+        });
+        var firstTrope = activations.map(function (a) { return (a.trope_functions || [])[0]; }).find(Boolean);
+        var firstFunction = activations.map(function (a) { return a.structural_function; }).find(Boolean);
+        function line(kind, value) {
+          if (!value) return;
+          var p = document.createElement("p"); p.className = "timeline-" + kind;
+          p.textContent = value; li.appendChild(p);
+        }
+        line("roles", roles.join(" · "));
+        line("emotions", emotions.join(" · "));
+        line("purpose", "Purpose: " + (phase.narrative_function || firstFunction || "open"));
+        if (firstTrope) line("trope", "Trope: " + firstTrope);
+        if (phase.parallel_with && phase.parallel_with.length)
+          line("parallel", "Parallel: " + phase.parallel_with.map(function (id) {
+            return names[id] || id;
+          }).join(" · "));
         host.appendChild(li);
       });
   }
