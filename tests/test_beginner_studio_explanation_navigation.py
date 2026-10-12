@@ -67,3 +67,13 @@ def test_http_assets_and_dom_are_available_without_extra_public_routes(tmp_path)
         server.stop()
         thread.join(timeout=2)
         assert not thread.is_alive()
+
+
+def test_semantic_arrival_and_back_trail_remain_visible_on_emotions_and_timeline():
+    """A cross-facet semantic link must not lose its meaning when its target has no hero."""
+    js=source(BROWSER/'studio.js')
+    assert 'trail.hidden = state.workspace !== "architecture" || !state.facetHistory.length;' in js
+    assert 'arrival.hidden = state.workspace !== "architecture" || !state.explanationArrival;' in js
+    assert 'if (state.workspace !== "architecture") return;' in js
+    assert '"architecture-facet-back").hidden = state.workspace === "architecture"' in js
+    assert 'if (presenter) presenter(host,projection,key,onNavigate,onInspect);' in js
