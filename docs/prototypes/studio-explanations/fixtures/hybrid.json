@@ -1,0 +1,38 @@
+{
+  "story_id":"hybrid", "title":"Wonder Under Investigation",
+  "scenario":"Synthetic dense mystery-to-horror hybrid based on test_beginner_studio_architecture.py",
+  "authority_status":"DERIVED / NOT CANON", "illustrative":true,
+  "fixture_note":"Starting point is the source test candidate's Investigation and Incursion phases and discovery/awe nodes; additional elements and narrative links are test-only synthetic stress inputs.",
+  "vision":"A long fantasy of awe, mystery, horror and hope. Investigation uncovers a cost to discovery.",
+  "genres":[
+    {"id":"mystery","label":"Mystery","role":"governing","promise":"Curiosity and insight through investigation","engine_steps":["Unresolved question","Evidence and hypotheses","Reinterpretation"],"conflict":"Knowledge remains incomplete","payoff":"Understanding changes what can be done","basis":"Illustrative adaptation; legacy genre contract available but not extracted for this fixture"},
+    {"id":"horror","label":"Horror","role":"locally_dominant","promise":"Dread in the face of destabilizing knowledge","engine_steps":["Threat glimpsed","Security erodes","Cost becomes real"],"conflict":"Discovery makes protagonists less safe","payoff":"Confront the cost of knowing","basis":"Illustrative adaptation; legacy genre contract available but not extracted for this fixture"},
+    {"id":"epic_fantasy","label":"Epic Fantasy","role":"supporting","promise":"Awe and scale with human consequences","engine_steps":["Discover scale","Forge solidarity","Face consequence"],"conflict":"A wider threat exceeds individual agency","payoff":"Preserve something worth protecting","basis":"Legacy contract provides broad promise, not a mandatory act formula"}
+  ],
+  "nodes":[
+    {"id":"question","label":"The investigation question and its accumulating evidence","type":"trope","description":"The central investigation gathers competing explanations.","story_treatment":"proposed_adoption","derivation":"model_inference","certainty":"likely","source_ref":"synthetic:hybrid-question"},
+    {"id":"discovery","label":"Discovery changes what people can safely choose","type":"engine","description":"A discovery engine creates new costs and choices.","story_treatment":"proposed_story_specific","derivation":"model_inference","certainty":"likely","source_ref":"tests/test_beginner_studio_architecture.py:candidate.nodes[0]"},
+    {"id":"awe","label":"Awe survives shifting genres","type":"emotion","description":"Proposed reader emotion during changes of narrative emphasis.","story_treatment":"proposed_adaptation","derivation":"model_inference","certainty":"likely","source_ref":"tests/test_beginner_studio_architecture.py:candidate.nodes[1]"},
+    {"id":"incursion","label":"Knowledge becomes an incursion risk","type":"structure","description":"Horror pressure emerges inside an investigation.","story_treatment":"proposed_adaptation","derivation":"model_inference","certainty":"likely","source_ref":"tests/test_beginner_studio_architecture.py:candidate.phases[1]"},
+    {"id":"bond","label":"Fragile solidarity among the discoverers despite divergent loyalties and competing interpretations","type":"trope","description":"People remain mutually responsible even when they disagree.","story_treatment":"proposed_story_specific","derivation":"model_inference","certainty":"uncertain","source_ref":"synthetic:hybrid-solidarity"},
+    {"id":"missing","label":"An unresolved possibility beyond current genre knowledge","type":"trope","description":"Deliberately disconnected; do not infer any supported causal link.","story_treatment":"unresolved","derivation":"model_inference","certainty":"uncertain","source_ref":"synthetic:missing-link"}
+  ],
+  "genre_links":[
+    {"node_id":"question","genre_id":"mystery","relation":"uses","rule_strength":null,"source_kind":"model_inference","source_ref":"synthetic:mystery-investigation"},
+    {"node_id":"discovery","genre_id":"mystery","relation":"supports","rule_strength":null,"source_kind":"model_inference","source_ref":"synthetic:discovery-as-evidence"},
+    {"node_id":"discovery","genre_id":"horror","relation":"contrasts","rule_strength":null,"source_kind":"model_inference","source_ref":"synthetic:discovery-as-threat"},
+    {"node_id":"incursion","genre_id":"horror","relation":"supports","rule_strength":null,"source_kind":"model_inference","source_ref":"synthetic:incursion-horror"},
+    {"node_id":"awe","genre_id":"epic_fantasy","relation":"supports","rule_strength":null,"source_kind":"legacy_contract","source_ref":"src/auteur/genres/data/epic_fantasy.yaml:audience_product"}
+  ],
+  "proposal_edges":[
+    {"source":"discovery","target":"awe","verb":"supports","support_status":"source_backed","source_ref":"tests/test_beginner_studio_architecture.py:candidate.links[0]","explanation":"The existing test candidate explicitly labels this source-to-target link 'supports'."},
+    {"source":"question","target":"discovery","verb":"motivates","support_status":"hypothesis","source_ref":"synthetic:question-discovery","explanation":"Hypothesized transition from investigation to discovery."},
+    {"source":"discovery","target":"incursion","verb":"increases risk of","support_status":"hypothesis","source_ref":"synthetic:discovery-incursion","explanation":"Hypothesized tension between evidence and safety."},
+    {"source":"incursion","target":"bond","verb":"pressures","support_status":"hypothesis","source_ref":"synthetic:incursion-solidarity","explanation":"Hypothesized pressure on collaboration."}
+  ],
+  "phases":[
+    {"id":"investigation","label":"Investigation","order":1,"genres":["mystery","epic_fantasy"],"function":"Establish the central question"},
+    {"id":"incursion-phase","label":"Incursion","order":2,"genres":["horror","mystery"],"parallel_with":["investigation"],"function":"Turn knowledge into risk"},
+    {"id":"reorientation","label":"Reorientation after dangerous discoveries","order":3,"genres":["mystery","horror","epic_fantasy"],"function":"Reconcile multiple interpretations and wider stakes"}
+  ]
+}
