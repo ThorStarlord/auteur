@@ -190,3 +190,27 @@ body.scene-docked #inspector { display:none; }
   #viewport { min-height:380px; }
   #inspector { width:100%; }
 }
+
+/* Architecture facets are navigational lenses over one source-bound graph. */
+.architecture-work-area { flex:1; display:flex; min-width:0; min-height:390px; }
+.architecture-work-area.is-architecture { display:grid; grid-template-columns:214px minmax(0,1fr); }
+.architecture-main-surface { display:flex; flex-direction:column; min-width:0; min-height:390px; }
+.architecture-facet-panel { background:#faf9f6; border-right:1px solid #dfdbd2; padding:10px;
+  max-height:calc(100vh - 210px); overflow:auto; }
+.architecture-facets { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:4px; }
+.architecture-facets button { padding:7px 4px; font-size:.77rem; }
+.architecture-facets button[aria-pressed="true"] { background:#e7dfed; border-color:#967ba9; color:#4e3863; }
+.architecture-facet-list { display:flex; flex-direction:column; gap:5px; }
+.facet-entry { display:flex; flex-direction:column; text-align:left; gap:4px; padding:7px 8px; overflow-wrap:anywhere; }
+.facet-entry strong { font-size:.8rem; font-weight:600; }
+.facet-entry small { font-size:.69rem; color:#69645e; }
+.facet-entry[aria-pressed="true"] { outline:2px solid #6d8d79; background:#edf4ec; }
+.facet-link { display:block; width:100%; text-align:left; font-size:.78rem; margin:5px 0; }
+#architecture-facet-back { margin-top:12px; font-size:.77rem; }
+@media(max-width:1000px) {
+  .architecture-work-area.is-architecture { display:flex; flex-direction:column; }
+  .architecture-facet-panel { max-height:235px; border-right:0; border-bottom:1px solid #dedbd2; }
+  .architecture-facets { display:flex; flex-wrap:wrap; gap:5px; }
+  .architecture-facets button { padding:6px 9px; }
+  .architecture-facet-list { max-height:115px; overflow:auto; }
+}
