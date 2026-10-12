@@ -9,6 +9,9 @@
   state.architectureFacet = "overview"; state.facetSelection = null; state.facetHistory = [];
   state.selectedPhase = null; state.lastWorkingSelection = null;
   state.explanationArrival = null; state.explanationInspectRequested = false;
+  state.unfoldingFocus = null; state.unfoldingInspected = null;
+  state.unfoldingOffset = 0; state.unfoldingSaving = false;
+  var unfoldingController = null;
   state.architectureRequestSha = null; state.architectureReview = null;
   state.workspace = "architecture"; state.lastRealizationView = "create";
   state.realization = null; state.realizationRequestSha = null;
@@ -68,6 +71,7 @@
         candidate: state.selectedCandidate, realization: state.selectedRealization, scope: state.architectureFocus,
         neighborhood: state.architectureCenter,
         facet: state.architectureFacet, facetSelection: state.facetSelection,
+        unfoldingFocus: state.unfoldingFocus,
         phase: state.selectedPhase, search: $("find-nodes").value,
         editorOpen: open, expanded: open && $("scene-panel").classList.contains("expanded"),
         caret: field.selectionStart || 0
@@ -91,6 +95,8 @@
     state.architectureFacet = facets.includes(saved.facet) ? saved.facet :
       (state.view === "genre_timeline" ? "timeline" : "overview");
     state.facetSelection = typeof saved.facetSelection === "string" ? saved.facetSelection : null;
+    state.unfoldingFocus = saved.unfoldingFocus && ["working","candidate"].includes(saved.unfoldingFocus.kind) &&
+      typeof saved.unfoldingFocus.id === "string" ? saved.unfoldingFocus : null;
     state.selectedPhase = typeof saved.phase === "string" ? saved.phase : null;
     $("find-nodes").value = typeof saved.search === "string" ? saved.search : "";
     if (state.workspace === "architecture") state.view = state.architectureFacet === "timeline"
@@ -143,6 +149,8 @@
       if (state.facetHistory.length || state.facetSelection)
         status("Previous semantic source changed; navigation history cleared. Working story remains unchanged.");
       state.facetHistory = []; state.explanationArrival = null; state.explanationInspectRequested = false;
+      state.unfoldingInspected = null; state.unfoldingOffset = 0;
+      if (state.unfoldingFocus && state.unfoldingFocus.kind === "candidate") state.unfoldingFocus = null;
       state.facetSelection = null;
     }
     state.architecture = projection.candidate;
@@ -276,11 +284,13 @@
     if (!$("scene-panel").hidden) { captureScene(); concealScene(); scheduleSave(); }
     state.selected = null; state.selectedDerived = null; state.selectedCandidate = id;
     state.facetSelection = null;
+    state.unfoldingFocus = {kind:"candidate",id:id};
+    state.unfoldingInspected = null; state.unfoldingOffset = 0;
     renderFacetList(); renderInspector();
     Array.prototype.forEach.call(document.querySelectorAll(".node"), function (button) {
       button.setAttribute("aria-pressed", String(button.dataset.itemId === id));
     });
-    drawEdges(); rememberFocus();
+    drawEdges(); renderUnfolding(); rememberFocus();
   }
 
   function focusRelatedArchitecture() {
@@ -1709,6 +1719,15 @@
       arrival.append(context,source);
     }
   }
+  function renderUnfolding() {
+    if (unfoldingController) unfoldingController.render();
+  }
+  function createUnfoldingAnchor() {
+    return unfoldingController && unfoldingController.create();
+  }
+  function adoptUnfolding(ghost) {
+    return unfoldingController && unfoldingController.adopt(ghost);
+  }
   function render() {
     var designing = state.workspace === "architecture";
     $("architecture-context").hidden = !designing;
@@ -1757,7 +1776,8 @@
     var host = $("nodes"); host.replaceChildren();
     var awaitingArchitecture = state.view === "architecture" &&
       (!state.architecture || !state.architecture.nodes.length);
-    $("empty-state").hidden = state.view === "architecture" ? !awaitingArchitecture :
+    $("empty-state").hidden = state.view === "architecture" ?
+      (state.architectureFacet === "overview" || !awaitingArchitecture) :
       state.items.length > 0 || (state.view === "realization_candidates" && !!state.realization);
     $("empty-state").querySelector("h1").textContent = designing
       ? "Explore your narrative architecture" : "What story do you want to tell?";
@@ -1848,7 +1868,30 @@
         host.appendChild(button);
       });
     }
-    drawEdges(); renderStudioExplanation(); renderInspector(); renderOutline(); showVision(); transform();
+    if (state.workspace === "architecture" && state.view === "architecture" &&
+        state.architectureFacet === "overview") {
+      state.items.filter(function(item){return !!item.architecture_role;}).forEach(function(item){
+        var pos = state.positions[item.id]; if (!pos) return;
+        var button = document.createElement("button"); button.type = "button";
+        button.className = "node unfolding-working"; button.dataset.itemId = item.id;
+        button.style.left = pos.x + "px"; button.style.top = pos.y + "px";
+        button.setAttribute("aria-pressed", String(state.unfoldingFocus &&
+          state.unfoldingFocus.kind === "working" && state.unfoldingFocus.id === item.id));
+        button.setAttribute("aria-label", "Working architecture idea: " + item.title);
+        var label = document.createElement("span"); label.className = "label"; label.textContent = item.title;
+        var kind = document.createElement("span"); kind.className = "type";
+        kind.textContent = item.architecture_role + " · Working, not canon";
+        button.append(label,kind);
+        button.addEventListener("click", function(){
+          state.unfoldingFocus = {kind:"working",id:item.id};
+          state.unfoldingInspected = null; state.unfoldingOffset = 0;
+          renderUnfolding(); rememberFocus();
+        });
+        host.appendChild(button);
+      });
+    }
+    drawEdges(); renderStudioExplanation(); renderUnfolding();
+    renderInspector(); renderOutline(); showVision(); transform();
   }
   // Keep the inspector and the working-document model in sync before focus changes.
   // This is working author material only; it cannot accept story canon.
@@ -2080,6 +2123,34 @@
   $("add-note").addEventListener("click", function () { newItem("note"); });
   $("add-character").addEventListener("click", function () { newItem("character"); });
   $("add-scene").addEventListener("click", function () { newItem("scene"); });
+  unfoldingController = window.AuteurStudioUnfoldingController.create({
+    state: function(){return state;}, remote: function(){return remote;},
+    position: availablePosition, newItemId: function(){return id("item");},
+    flush: function(){
+      if (remote.timer !== null) {clearTimeout(remote.timer);remote.timer = null;return queueSave();}
+      return hasUnsavedChanges() ? queueSave() : remote.queue;
+    },
+    post: function(action,command) {
+      return fetch("/api/beginner/studio/canvases/" + encodeURIComponent(remote.canvasId) +
+        "/commands/" + action, {
+        method: "POST", headers: {"Content-Type":"application/json"},
+        body:JSON.stringify({expected_revision:remote.revision,command_id:command.commandId,
+          payload:command.payload})
+      }).then(apiJson);
+    },
+    applySaved: function(doc){
+      state.items=doc.items;state.connections=doc.connections;state.positions=doc.positions;
+      remote.revision=doc.revision;remote.savedSnapshot=JSON.stringify(snapshot());
+      state.deleted=doc.deleted||{};showRecoveryAction();render();rememberFocus();
+    },
+    prepare: function(instruction){
+      $("architecture-instruction").value=instruction;
+      requestArchitecture(instruction);
+    },
+    status: status, remember: rememberFocus
+  });
+  $("unfolding-create").addEventListener("click",createUnfoldingAnchor);
+  $("unfolding-more").addEventListener("click",function(){unfoldingController.more();});
   $("start").addEventListener("click", function () {
     if (state.workspace === "architecture") requestArchitecture("");
     else newItem("note");
