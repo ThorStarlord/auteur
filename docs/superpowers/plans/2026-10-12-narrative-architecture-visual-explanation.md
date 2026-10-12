@@ -16,7 +16,7 @@
 - **Repository:** Main at 85374e705115ec4884b8e0c85f3f69b6fe1c342a at planning time does not contain this Studio; build prototypes in a separate isolated branch/worktree and do not silently merge the draft stack.
 - **Scope:** This plan produces a prototype comparison and a selected design recommendation, **not production integration**. Use a separate subsequent implementation plan for a winner.
 - **Safety:** Existing Story Vision, CanvasStore persistence, explicit author acceptance, agent request/response source binding, proposal review, and Story Realization remain unchanged.
-- **Knowledge:** Current versioned Genre Pack source is erotic_fiction only; legacy Epic Fantasy contract is not a versioned Progression/Heroic Fantasy pack. Mark gaps and disputed requirements honestly.
+- **Knowledge:** Current versioned Genre Pack source is erotic_fiction only; legacy Epic Fantasy contract is not a versioned Progression/Heroic Fantasy pack. Mark gaps and disputed requirements honestly. Absence in a pack is unknown coverage, not evidence that something is incompatible, unconventional, or globally original.
 - **Evidence:** Do not fabricate screenshot-only source IDs or edge claims. Use verified fixtures where available; label invented demonstration content synthetic.
 - **Representation:** Genre convention strength and *story treatment* are independent axes. Neither inferred nor curated knowledge is author acceptance.
 - **Review:** Keep each engineering PR at <=500 changed lines and <=12 files, as required by the existing Studio UX plan. Prefer local focused tests to paid GitHub Actions.
@@ -26,7 +26,7 @@
 
 1. **Absent Progression Fantasy pack:** must display an inference/coverage gap, never fabricate a curated genre rule. Assert in Task 1 and inspect in Task 5.
 2. **Legacy Epic Fantasy required trope:** must preserve the legacy label with provenance, not claim all epic fantasy requires prophecy/chosen one. Assert in Task 2 and inspect in Task 4.
-3. **Same trope used differently by multiple genres:** must retain separate genre-relative relationships; must not flatten to one global classification. Assert in Task 2 and Task 5.
+3. **Same trope used differently by multiple genres:** must retain separate genre-relative relationships; must not flatten to one global classification. Absence from one pack must not automatically become a negative expectation. Assert in Task 2 and Task 5.
 4. **No supported causal edge:** the mechanism view must leave the relationship unknown rather than drawing a convincing unsupported arrow. Assert in Task 6.
 5. **Long label, mobile width, empty selection, stale/replaced node:** avoid permanent empty inspector, clipping or unrecoverable focus. Exercise in Tasks 3 and 7.
 
@@ -58,7 +58,7 @@ Every rendered item references a common noncanonical model (do not create one mo
 - id: source-local stable key within the fixture, not a fabricated global trope identity.
 - label, type: human-readable presentation labels.
 - genre_links: zero or more entries with genre_id, relation, rule_strength if known, evidence_source, source_ref, and optional version/hash.
-- story_treatment: proposed_adoption / proposed_adaptation / proposed_original / proposed_subversion / unresolved; always noncanonical.
+- story_treatment: proposed_adoption / proposed_adaptation / proposed_story_specific / proposed_subversion / unresolved; always noncanonical.
 - derivation: premise_explicit / curated_match / model_inference / author_added.
 - certainty: clear / likely / uncertain, independent of derivation.
 - supported_links: actual fixture source-backed edges with target_id, verb, source_ref, support_status.
@@ -135,13 +135,13 @@ The prototype reads its static JSON using fetch from the local HTTP server. Neve
 
 **Interfaces:** export renderComparison(root, model, itemId, onSelect).
 
-- [ ] **Step 1 — Write failing tests:** Render two independent axes (genre relationship and story treatment); shared trope may have multiple genre rows; missing pack displays "Not classified by a versioned pack" rather than a false expectation; explicit subversion is distinct from unknown fit.
+- [ ] **Step 1 — Write failing tests:** Render two independent axes (genre relationship and story treatment); shared trope may have multiple genre rows; missing pack displays "Not classified by a versioned pack" rather than a false expectation; missing mention is distinct from an explicitly sourced exclusion; explicit subversion is distinct from unknown fit.
 - [ ] **Step 2 — Verify RED:** Run focused prototype pytest; expect missing comparison regions.
 - [ ] **Step 3 — Implement the visual contrast:** Left = attributed conventions / what the genre can supply; right = story-specific proposed treatment; bottom = the function of the resulting synthesis, when supported. Avoid an absolute "original vs derivative" creativity score.
 - [ ] **Step 4 — Verify GREEN + inspect:** Rerun pytest. Inspect hybrid shared-trope and paladin generosity cases, testing disputed legacy required_tropes labeling.
 - [ ] **Step 5 — Commit:** git add docs/prototypes/studio-explanations/views/comparison.mjs docs/prototypes/studio-explanations/styles.css tests/test_studio_explanatory_prototypes.py && git commit -m "feat(studio): prototype convention-versus-invention view".
 
-**Acceptance:** Authors can see "typical", "modified", "outside this genre's documented expectations", and "unknown" without being told unsupported facts.
+**Acceptance:** Authors can see "typical", "modified", "explicitly excluded by documented evidence", and "not documented / unknown" without unsupported novelty or incompatibility claims.
 
 ### Task 6: Candidate C — Narrative Mechanism Map
 
