@@ -108,3 +108,14 @@ def test_unfolding_controller_is_initialized_with_canvasstore_bridge():
     assert '"/commands/" + action' in js
     assert "unfoldingController.render()" in js
     assert "unfoldingController.more()" in js
+
+def test_selected_working_architecture_has_in_graph_edit_and_explicit_update_only():
+    html=source("studio.html")
+    ctrl=source("studio_unfolding_controller.js")
+    assert 'id="unfolding-author-edit"' in html
+    assert "function editWorking(item,title,content)" in ctrl
+    assert "updateWorkingCommand('update-item'" in ctrl
+    assert "proposal_origin" not in ctrl.split("function editWorking(item,title,content)",1)[1].split("function adopt(ghost)",1)[0] or (
+        "current" in ctrl and "...current" in ctrl
+    )
+    assert "Working idea cannot be saved" in ctrl
