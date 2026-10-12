@@ -1,5 +1,7 @@
 :root { font-family: system-ui,-apple-system,Segoe UI,sans-serif; color:#292922; background:#f6f3ed; }
 * { box-sizing:border-box; }
+/* Hidden is a state, even when workflow bars specify display:flex. */
+[hidden] { display:none !important; }
 body { margin:0; }
 button,input,textarea,select { font:inherit; }
 button,.import-label { cursor:pointer; border:1px solid #c7c4b9; border-radius:7px; background:white; padding:7px 10px; color:#282820; }
