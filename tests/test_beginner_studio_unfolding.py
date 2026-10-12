@@ -28,9 +28,11 @@ def test_focus_overlay_is_source_scoped_and_does_not_become_canonical():
     assert 'src="/studio_unfolding.js"' in html
     assert html.index('/studio_unfolding.js')<html.index('/studio.js')
     assert "function renderUnfolding()" in js
-    assert "window.AuteurStudioUnfolding" in js
-    renderer=js.split("function renderUnfolding()",1)[1].split("function render()",1)[0]
-    assert "projectLocalSuggestions(" in renderer
+    controller=source("studio_unfolding_controller.js")
+    assert "window.AuteurStudioUnfoldingController.create" in js
+    assert "global.AuteurStudioUnfoldingController={create:create}" in controller
+    renderer=controller.split("function render(){",1)[1].split("function more(){",1)[0]
+    assert "projectLocalSuggestions(" in controller
     assert "queueSave(" not in renderer and "applyReviewedArchitecture(" not in renderer
     assert "requestArchitecture(" not in renderer
     assert "accepted story" not in renderer.lower() or "not accepted" in renderer.lower()
@@ -38,19 +40,21 @@ def test_focus_overlay_is_source_scoped_and_does_not_become_canonical():
 def test_single_explicit_adopt_uses_canvas_command_not_story_acceptance():
     js=source("studio.js")
     assert "function adoptUnfolding(" in js
-    adoption=js.split("function adoptUnfolding(",1)[1].split("function renderUnfolding()",1)[0]
-    assert "/commands/adopt-suggestion" in adoption
-    assert "expected_revision" in adoption
-    assert "remote.canvasId" in adoption
-    assert "state.architectureRequestSha" in adoption
-    assert "applyReviewedArchitecture(" not in adoption
-    assert "queueSave()" in adoption or "remote.queue" in adoption
+    controller=source("studio_unfolding_controller.js")
+    assert "updateWorkingCommand('adopt-suggestion'" in controller
+    assert "/commands/" in js
+    assert "expected_revision" in js
+    assert "remote.canvasId" in js
+    assert "architectureRequestSha" in controller
+    assert "applyReviewedArchitecture(" not in controller
 
 def test_server_exposes_helper_without_exposing_arbitrary_assets():
     js=source("studio.js")
     server=(BROWSER.parent/"server.py").read_text(encoding="utf-8")
     assert '"/studio_unfolding.js": "studio_unfolding.js"' in server
+    assert '"/studio_unfolding_controller.js": "studio_unfolding_controller.js"' in server
     assert 'src="/studio_unfolding.js"' in source("studio.html")
+    assert 'src="/studio_unfolding_controller.js"' in source("studio.html")
     ids=re.findall(r'\bid="([^"]+)"',source("studio.html"))
     assert len(ids)==len(set(ids))
 
@@ -90,7 +94,17 @@ def test_real_canvas_http_adoption_and_idempotent_replay(tmp_path):
 def test_frontend_can_create_manual_emotion_anchor_without_an_agent():
     js=source("studio.js")
     assert "function createUnfoldingAnchor(" in js
-    manual=js.split("function createUnfoldingAnchor(",1)[1].split("function adoptUnfolding(",1)[0]
-    assert "/commands/create-item" in manual
-    assert "expected_revision" in manual
-    assert "requestArchitecture(" not in manual
+    controller=source("studio_unfolding_controller.js")
+    assert "buildManualAnchorCommand" in controller
+    assert "updateWorkingCommand('create-item'" in controller
+    assert "expected_revision" in js
+    assert "requestArchitecture(" not in controller
+
+def test_unfolding_controller_is_initialized_with_canvasstore_bridge():
+    js=source("studio.js")
+    assert "window.AuteurStudioUnfoldingController.create({" in js
+    assert "function createUnfoldingAnchor()" in js
+    assert "function adoptUnfolding(ghost)" in js
+    assert '"/commands/" + action' in js
+    assert "unfoldingController.render()" in js
+    assert "unfoldingController.more()" in js
