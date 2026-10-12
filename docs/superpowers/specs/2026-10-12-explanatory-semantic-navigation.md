@@ -6,9 +6,9 @@
 
 ## Problem grounded in the repository
 
-The merged concept study at \`docs/prototypes/studio-explanations/\` has four visually distinct perspectives. Its \`app.mjs\` holds both \`history\` and \`selectionHistory\`, but the former is only appended to, and the latter remembers item IDs without perspective, origin, reason or focus. \`views/anatomy.mjs\` passes "How this story employs it" items into the detail inspector; \`views/comparison.mjs\` mainly has "Inspect provenance"; \`views/mechanism.mjs\` can refocus neighboring nodes. This is useful exploration but not yet consistent cross-perspective semantic navigation.
+The merged concept study at `docs/prototypes/studio-explanations/` has four visually distinct perspectives. Its `app.mjs` holds both `history` and `selectionHistory`, but the former is only appended to, and the latter remembers item IDs without perspective, origin, reason or focus. `views/anatomy.mjs` passes "How this story employs it" items into the detail inspector; `views/comparison.mjs` mainly has "Inspect provenance"; `views/mechanism.mjs` can refocus neighboring nodes. This is useful exploration but not yet consistent cross-perspective semantic navigation.
 
-The live Studio does **not** exist on \`main\` at this decision point. Its source is in the open UX PR lineage ending at #392. That code already has \`visitFacet\`, a 12-entry \`facetHistory\`, cross-facet inspector links and presentation-only \`rememberFocus\`; a later integration must extend this rather than introduce a rival routing authority.
+The live Studio does **not** exist on `main` at this decision point. Its source is in the open UX PR lineage ending at #392. That code already has `visitFacet`, a 12-entry `facetHistory`, cross-facet inspector links and presentation-only `rememberFocus`; a later integration must extend this rather than introduce a rival routing authority.
 
 ## User outcome
 
@@ -24,22 +24,22 @@ From a meaningful relationship in Genre Anatomy, Tropes, Structure, Timeline or 
 
 ## Navigation and relation contract
 
-Define a read-only \`SemanticLink\` (prototype) with these fields:
-- \`id\`: ephemeral stable within the current proposal/fixture; not a global trope ontology ID.
-- \`from\`, \`to\`: \`{kind:"genre"|"item"|"phase", id:string}\`, always source-local.
-- \`targetPerspective\`: \`"anatomy"|"comparison"|"mechanism"|"overview"|"timeline"|"emotions"\`; the prototype resolves only its four supported modes; Studio integration resolves additional modes.
-- \`verb\`: a short original meaning-preserving relation, not an invented causal assertion.
-- \`explanation\`: explicitly sourced description when present; otherwise a neutral statement of the documented relationship (do not invent plot, emotions or purposes).
-- \`sourceRef\`, \`sourceKind\`, \`supportStatus\`: preserve provenance; \`source_backed\` still means **source-backed proposal**, not canon or empirical proof; \`hypothesis\` remains visibly hypothetical.
-- \`ownerGenreId?\`, \`phaseId?\`: only when a source field explicitly establishes those scopes.
+Define a read-only `SemanticLink` (prototype) with these fields:
+- `id`: ephemeral stable within the current proposal/fixture; not a global trope ontology ID.
+- `from`, `to`: `{kind:"genre"|"item"|"phase", id:string}`, always source-local.
+- `targetPerspective`: `"anatomy"|"comparison"|"mechanism"|"overview"|"timeline"|"emotions"`; the prototype resolves only its four supported modes; Studio integration resolves additional modes.
+- `verb`: a short original meaning-preserving relation, not an invented causal assertion.
+- `explanation`: explicitly sourced description when present; otherwise a neutral statement of the documented relationship (do not invent plot, emotions or purposes).
+- `sourceRef`, `sourceKind`, `supportStatus`: preserve provenance; `source_backed` still means **source-backed proposal**, not canon or empirical proof; `hypothesis` remains visibly hypothetical.
+- `ownerGenreId?`, `phaseId?`: only when a source field explicitly establishes those scopes.
 
-Only derive navigable links from existing \`model.genre_links\`, \`model.proposal_edges\`, and the Studio's actual \`genre_contracts\`, \`links\`, \`genre_interactions\`, \`emotion_target_ids\` and phase activation references. A trope-function phrase inside a contract is **source-scoped**; it must not be assigned an invented globally shared trope ID. A genre targeting an emotion **does not** prove that each trope in that genre causes the emotion. A missing Genre Pack, absent connection or disputed convention **cannot** be rendered as authoritative evidence or as proof of incompatibility/originality.
+Only derive navigable links from existing `model.genre_links`, `model.proposal_edges`, and the Studio's actual `genre_contracts`, `links`, `genre_interactions`, `emotion_target_ids` and phase activation references. A trope-function phrase inside a contract is **source-scoped**; it must not be assigned an invented globally shared trope ID. A genre targeting an emotion **does not** prove that each trope in that genre causes the emotion. A missing Genre Pack, absent connection or disputed convention **cannot** be rendered as authoritative evidence or as proof of incompatibility/originality.
 
-Genre-to-trope and trope-to-genre traversal may be reciprocal navigation **over the same declared relation**; it must not create new causal edges. Labels must say "explore", "used by", "supports" or the actual recorded \`verb\`, not imply a mechanistic effect the record does not support.
+Genre-to-trope and trope-to-genre traversal may be reciprocal navigation **over the same declared relation**; it must not create new causal edges. Labels must say "explore", "used by", "supports" or the actual recorded `verb`, not imply a mechanistic effect the record does not support.
 
 ## Route / history behavior
 
-- Concept-study state: \`{storyId, perspective, focus:{kind,id}|null, viaLinkId:string|null, trail:ViewSnapshot[]}\`; \`ViewSnapshot\` includes previous view, selection, originating focus target, and viewport scroll/focus locator. Max 12 history snapshots; no duplicate consecutive hop. An ordinary within-view selection is not a cross-view breadcrumb.
+- Concept-study state: `{storyId, perspective, focus:{kind,id}|null, viaLinkId:string|null, trail:ViewSnapshot[]}`; `ViewSnapshot` includes previous view, selection, originating focus target, and viewport scroll/focus locator. Max 12 history snapshots; no duplicate consecutive hop. A same-view semantic relationship click **is** a history hop; ordinary within-view filtering/selection without a link **is not** a breadcrumb.
 - For the **public static fixture prototype only**, serialize allowlisted fixture IDs, perspective and source-local IDs in the URL hash; use browser History API for Back/Forward and refresh. No prose or story contents in the URL. Keyboard/touch links are actual accessible anchors with valid hrefs; interception preserves normal modified-click/new-tab behavior.
 - In Studio, reuse its existing presentation-only local focus mechanism. **Do not put canvas IDs, private story identifiers or working prose in a public URL** without a separate privacy decision. Browser history parity is an enhancement only if safe in that origin; an in-app reversible trail is mandatory.
 - Opening a deep link directly with no previous exploration shows no fabricated "Back" destination. Back/Forward restores the exact prior view when valid. An unknown item/retired source/replaced proposal offers a visible "This reference is unavailable" state, plus return to the last valid view/Overview. No silent navigation to a similarly titled different element.
