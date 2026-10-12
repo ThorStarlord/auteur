@@ -62,3 +62,12 @@ test('does not mutate the incoming story or evidence', () => {
   normalizeEvidence(s, e);
   assert.deepEqual(s, story); assert.deepEqual(e, evidence);
 });
+
+test('rejects invented curated provenance and legacy rule strengths', () => {
+  const falseSource = structuredClone(story);
+  falseSource.genre_links[0].source_kind = 'legacy_contract';
+  assert.throws(() => normalizeEvidence(falseSource, evidence), /Provenance coverage mismatch/);
+  const falseStrength = structuredClone(story);
+  falseStrength.genre_links.find(l=>l.source_kind==='legacy_contract').rule_strength = 'HARD_CONSTRAINT';
+  assert.throws(() => normalizeEvidence(falseStrength, evidence), /Legacy contracts do not confer Genre Pack rule strengths/);
+});

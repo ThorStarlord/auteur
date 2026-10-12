@@ -39,7 +39,7 @@ No task above is an observed completion by a novice writer. These results mean t
 
 ## Verification record
 
-- **Data/semantic:** `python -m pytest tests/test_studio_explanatory_fixtures.py tests/test_studio_explanatory_prototypes.py -q` — green; `node --test docs/prototypes/studio-explanations/model.test.mjs` — green. Pure projection tests cover independent genre links, absent packs, legacy strength preservation, noncanonical authority, no mutation, no dangling edges and a deliberately disconnected item.
+- **Data/semantic:** `python -m pytest tests/test_studio_explanatory_fixtures.py tests/test_studio_explanatory_prototypes.py -q` — green; `node --test docs/prototypes/studio-explanations/model.test.mjs` — green. Pure projection tests also reject mismatched curated provenance and false legacy Genre Pack rule strengths, and cover independent genre links, absent packs, legacy strength preservation, noncanonical authority, no mutation, no dangling edges and a deliberately disconnected item.
 - **Syntax:** `node --check` used on `model.mjs`, `app.mjs` and all three views — green.
 - **HTTP asset availability:** Local `python -m http.server 8765` responded 200 to `index.html` via `curl`.
 - **Actual Chromium layout:** Local Playwright + `/usr/bin/chromium` rendered **24 fixture × perspective × viewport** combinations: 2 fixtures, 4 perspectives, desktop 1440×900, intermediate 900×700 and mobile 390×844. Logged **zero JavaScript runtime exceptions** and **zero document-level horizontal overflow**. Screenshots recorded for seven substantive cases. Fixture switching, detail disclosure/close, noncanonical source label, keyboard arrow navigation, select/return, named source-backed link and unknown/no-arrow behavior were exercised.
@@ -82,3 +82,5 @@ The evidence does not justify a new canonical layer, an automatic Genre Pack/gen
 6. **Release gate:** Run real HTTP/ES-module browser tests (desktop 1440×900, intermediate 900×700, mobile 390×844), representative dense long-form candidate, keyboard and screen-reader review, Story Vision save/reopen, and no mutation of accepted story from navigation. Reconcile exact SHA; qualify only a frozen candidate when a genuine release milestone exists.
 
 **Editorial follow-up, separately warranted:** Draft versioned Progression/Heroic Fantasy packs only if user tasks repeatedly require convention strength and current absent coverage blocks comprehension; test editorial claims and keep acceptance explicit. Do not import the illustrated genre loops as canonical rules.
+
+**Post-review provenance hardening:** An adversarial test first demonstrated that a model could accept a legacy-contract source claim on an inference-only genre. The pure projection now rejects that source/coverage mismatch and any Genre Pack rule-strength label attached to a legacy-only contract; the Node test suite increased to 8/8. This repair is part of the discovery prototype, not a new accepted-story rule.

@@ -29,6 +29,10 @@ export function normalizeEvidence(story, genreEvidence) {
     if (!link.source_ref) throw new Error('Genre relationship requires source_ref');
     const coverage = genres.find(g => g.id === link.genre_id).coverage;
     if (link.source_kind === 'model_inference' && link.rule_strength !== null) throw new Error('Inference cannot claim source-backed rule strength');
+    if (link.source_kind === 'legacy_contract' && link.rule_strength !== null) throw new Error('Legacy contracts do not confer Genre Pack rule strengths');
+    if (link.source_kind === 'legacy_contract' && coverage !== 'legacy_contract') throw new Error('Provenance coverage mismatch for legacy contract');
+    if (link.source_kind === 'genre_pack' && coverage !== 'pack_backed') throw new Error('Provenance coverage mismatch for genre pack');
+    if (link.rule_strength !== null && coverage !== 'pack_backed') throw new Error('Unverified source cannot assign genre rule strength');
     itemById.get(link.node_id).genre_links.push({ ...link, coverage });
   }
   const proposal_edges = (story.proposal_edges || []).map(edge => {
