@@ -68,6 +68,24 @@
       cmd.ghostId=ghost.id;
       return updateWorkingCommand('adopt-suggestion',cmd,{sourceSha:ghost.requestSha,focusId:s.unfoldingFocus.id});
     }
+    function positionLocalFocus(host,focus){
+      // Align the local explanation with its actual transformed canvas node.
+      host.style.left='';host.style.top='';host.style.right='';host.style.bottom='';
+      if(global.innerWidth<=700 || !focus)return;
+      var viewport=$('viewport'),bounds=viewport&&viewport.getBoundingClientRect&&viewport.getBoundingClientRect();
+      if(!bounds || !bounds.width || !bounds.height)return;
+      var nodes=document.querySelectorAll('#nodes .node');
+      var chosen=Array.prototype.find.call(nodes,function(el){return el.dataset&&el.dataset.itemId===focus.id;});
+      if(!chosen || !chosen.getBoundingClientRect)return;
+      var point=chosen.getBoundingClientRect(),width=Math.min(275,Math.max(180,bounds.width-20));
+      var roomRight=bounds.right-point.right,roomLeft=point.left-bounds.left;
+      var x=roomRight>=width+16?point.right-bounds.left+12:
+        roomLeft>=width+16?point.left-bounds.left-width-12:
+        Math.max(8,Math.min(bounds.width-width-8,point.left-bounds.left));
+      var y=Math.max(8,Math.min(bounds.height-230,point.top-bounds.top));
+      host.style.left=Math.round(x)+'px';host.style.top=Math.round(y)+'px';
+      host.style.right='auto';host.style.bottom='auto';
+    }
     function render(){
       var s=bridge.state(),start=$('unfolding-start'),host=$('unfolding-local');
       var ghosts=$('unfolding-ghosts'),explain=$('unfolding-explanation'),edit=$('unfolding-author-edit');
@@ -76,7 +94,8 @@
       start.hidden=!active;host.hidden=true;explain.hidden=true;
       if(!active)return;
       if(!focusIsValid(s)){start.hidden=false;return;}
-      start.hidden=true;host.hidden=false;ghosts.replaceChildren();explain.replaceChildren();
+      start.hidden=true;host.hidden=false;positionLocalFocus(host,s.unfoldingFocus);
+      ghosts.replaceChildren();explain.replaceChildren();
       var target=s.unfoldingFocus.kind==='candidate'?(s.architecture.nodes||[]).find(n=>n.id===s.unfoldingFocus.id):
         s.items.find(n=>n.id===s.unfoldingFocus.id);
       $('unfolding-evidence-status').textContent=target?.title||'Selected working idea';
