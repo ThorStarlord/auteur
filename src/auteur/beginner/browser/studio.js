@@ -140,6 +140,8 @@
   }
   function applyArchitectureProjection(projection, openGraph) {
     if (state.architectureRequestSha && state.architectureRequestSha !== projection.candidate_request_sha256) {
+      if (state.facetHistory.length || state.facetSelection)
+        status("Previous semantic source changed; navigation history cleared. Working story remains unchanged.");
       state.facetHistory = []; state.explanationArrival = null; state.explanationInspectRequested = false;
       state.facetSelection = null;
     }
@@ -1653,6 +1655,7 @@
     var key = state.facetSelection && projector.resolve(projection,facet,state.facetSelection,state.architectureRequestSha)
       ? state.facetSelection : (list.length ? list[0].key : null);
     if (state.facetSelection && state.facetSelection !== key) {
+      status("The selected explanation source is unavailable. Showing a valid working proposal.");
       state.facetSelection = null; state.explanationArrival = null;
       state.explanationInspectRequested = false;
     }
