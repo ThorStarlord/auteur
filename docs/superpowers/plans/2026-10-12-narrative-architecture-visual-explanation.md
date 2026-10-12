@@ -39,6 +39,7 @@
 - Create docs/prototypes/studio-explanations/fixtures/hybrid.json — long-form multi-genre fixture based on repository tests; mark extra material synthetic.
 - Create docs/prototypes/studio-explanations/fixtures/genre-evidence.json — explicitly sourced legacy conventions/pack availability and missing coverage.
 - Create docs/prototypes/studio-explanations/model.mjs — pure normalization and cross-genre projection, no DOM/network/state writes.
+- Create docs/prototypes/studio-explanations/model.test.mjs — runtime tests of the pure projection using node:test (where Node is installed).
 - Create docs/prototypes/studio-explanations/index.html — one comparable shell and Overview baseline.
 - Create docs/prototypes/studio-explanations/app.mjs — route variant navigation/selection and preserve focus.
 - Create docs/prototypes/studio-explanations/styles.css — shared responsive shell and semantic tokens.
@@ -89,15 +90,15 @@ The prototype reads its static JSON using fetch from the local HTTP server. Neve
 
 ### Task 2: Implement the Read-Only Semantic Bridge
 
-**Files:** Create model.mjs; modify tests/test_studio_explanatory_fixtures.py.
+**Files:** Create model.mjs and model.test.mjs; modify tests/test_studio_explanatory_fixtures.py.
 
 **Interfaces:** Implement the three exported functions in Shared Pilot Interface Contract; no external packages, browser APIs, mutation, or server calls within the pure functions.
 
-- [ ] **Step 1 — Add failing semantic tests:** Check two distinct genre_links for a shared trope; preserve legacy source label (required_tropes), never map it implicitly to a universal HARD_CONSTRAINT; missing packs keep null rule_strength. Bad supported_links target IDs fail safely or become visibly unavailable, not invented links.
-- [ ] **Step 2 — Verify RED:** Run python -m pytest tests/test_studio_explanatory_fixtures.py -q. For runtime imports use node --check docs/prototypes/studio-explanations/model.mjs if Node is installed, otherwise record that runtime check remains outstanding.
+- [ ] **Step 1 — Add failing semantic tests:** In model.test.mjs use node:test and node:assert/strict to call normalizeEvidence with the two shared fixtures. Check two distinct genre_links for a shared trope; preserve legacy source label (required_tropes), never map it implicitly to a universal HARD_CONSTRAINT; missing packs keep null rule_strength. A missing convention is not an exclusion. Bad supported_links target IDs fail safely or become visibly unavailable, not invented links.
+- [ ] **Step 2 — Verify RED:** Run node --test docs/prototypes/studio-explanations/model.test.mjs; expect module-not-found before implementation. Also run python -m pytest tests/test_studio_explanatory_fixtures.py -q. If Node is unavailable, record that projection runtime behavior remains unverified; do not present static grep checks as equivalent.
 - [ ] **Step 3 — Implement the functions:** Build a single immutable projection consumed by A/B/C; preserve source_ref verbatim, distinguish intended causal language from established cause, and resolve cross-genre relationships only by actual fixture edges.
-- [ ] **Step 4 — Verify GREEN:** Rerun focused pytest and node --check when available; inspect fixture output for independent genre/story/provenance axes.
-- [ ] **Step 5 — Commit:** git add docs/prototypes/studio-explanations/model.mjs tests/test_studio_explanatory_fixtures.py && git commit -m "feat(studio): add noncanonical explanatory projection".
+- [ ] **Step 4 — Verify GREEN:** Rerun focused pytest, node --test docs/prototypes/studio-explanations/model.test.mjs, and node --check on the module when Node is available; inspect output for independent genre/story/provenance axes.
+- [ ] **Step 5 — Commit:** git add docs/prototypes/studio-explanations/model.mjs docs/prototypes/studio-explanations/model.test.mjs tests/test_studio_explanatory_fixtures.py && git commit -m "feat(studio): add noncanonical explanatory projection".
 
 **Acceptance:** Same semantic output for every visualization, including accurate abstention when no curated genre knowledge exists.
 
@@ -206,7 +207,7 @@ The prototype reads its static JSON using fetch from the local HTTP server. Neve
 Each PR must meet the repository change caps independently and be reviewed for source correctness; if a grouped PR would exceed its budget, split along independently testable responsibilities. Use local commands:
 
 - python -m pytest tests/test_studio_explanatory_fixtures.py tests/test_studio_explanatory_prototypes.py -q
-- node --check docs/prototypes/studio-explanations/model.mjs (if Node is present)
+- node --test docs/prototypes/studio-explanations/model.test.mjs and node --check docs/prototypes/studio-explanations/model.mjs (if Node is present; otherwise the runtime verification gap remains explicit)
 - python -m http.server 8765 (from repository root for a real-browser review)
 
 **No full suite, provider invocation, expensive CI or production merge is warranted solely to compare these views.** The eventual integration package has a different validation boundary: focused Studio tests, served-HTTP browser walkthrough, responsive and keyboard review, zero data mutation from browsing, then exact-head integration reconciliation.
