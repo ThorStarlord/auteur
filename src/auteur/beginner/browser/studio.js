@@ -1396,7 +1396,7 @@
     Array.prototype.forEach.call(document.querySelectorAll("[data-architecture-facet]"), function (button) {
       button.setAttribute("aria-pressed", String(button.dataset.architectureFacet === state.architectureFacet));
     });
-    $("architecture-facet-back").hidden = explanationActive() || !state.facetHistory.length;
+    $("architecture-facet-back").hidden = state.workspace === "architecture" || !state.facetHistory.length;
     var list = $("architecture-facet-list"); list.replaceChildren();
     var entries = architectureFacetEntries(state.architectureFacet);
     $("architecture-facet-hint").textContent = state.architectureFacet === "overview"
@@ -1638,11 +1638,12 @@
     var host = $("studio-explanatory-hero"), trail = $("studio-semantic-trail");
     var arrival = $("studio-semantic-arrival");
     var active = explanationActive();
-    host.hidden = !active; trail.hidden = !active || !state.facetHistory.length;
-    arrival.hidden = !active || !state.explanationArrival;
+    host.hidden = !active;
+    trail.hidden = state.workspace !== "architecture" || !state.facetHistory.length;
+    arrival.hidden = state.workspace !== "architecture" || !state.explanationArrival;
     $("inspector").hidden = active && !state.explanationInspectRequested;
     document.querySelector(".studio").classList.toggle("studio-explanation-full", active && !state.explanationInspectRequested);
-    if (!active) return;
+    if (state.workspace !== "architecture") return;
     host.replaceChildren(); trail.replaceChildren(); arrival.replaceChildren();
     var projector = window.AuteurStudioExplanations, views = window.AuteurStudioExplanationViews;
     if (!state.architecture || !projector || !views) {
