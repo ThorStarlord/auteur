@@ -1617,10 +1617,16 @@
   });
   $("vision-text").addEventListener("input", updateVision);
   $("vision-save").addEventListener("click", function () {
+    var savedText = $("vision-text").value;
     updateVision();
     if (remote.timer !== null) { clearTimeout(remote.timer); remote.timer = null; queueSave(); }
-    showVision();
-    if (visionItem() && visionItem().content.trim()) $("vision-disclosure").open = false;
+    // Do not collapse unsaved text if persistence failed or new edits arrived.
+    Promise.resolve(remote.queue).then(function () {
+      if (!remote.ready || remote.failed || !visionItem() ||
+          !visionItem().content.trim() || visionItem().content !== savedText) return;
+      showVision();
+      $("vision-disclosure").open = false;
+    });
   });
   $("vision-write").addEventListener("click", function () {
     switchWorkspace("realization"); $("write-shortcut").click();
