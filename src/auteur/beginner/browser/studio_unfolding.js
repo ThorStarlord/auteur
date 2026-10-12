@@ -68,11 +68,11 @@
           source_kind:'proposal_edge',focus_id:ghost.focusId}},position:safePosition(position)}};
   }
   function buildManualAnchorCommand(role,title,operationId,position){
-    if(!allowedRoles.has(role))throw Error('Unknown authoring role');
+    if(role!=='character'&&!allowedRoles.has(role))throw Error('Unknown authoring role');
     if(!title||!String(title).trim()||String(title).trim().length>120)throw Error('Invalid working idea title');
     if(!/^[a-z0-9][a-z0-9_-]{0,70}$/.test(operationId||''))throw Error('Invalid local operation id');
-    return {commandId:'create-'+operationId,payload:{item:{id:operationId,kind:'note',title:String(title).trim(),content:'',
-      group:'Narrative Architecture',architecture_role:role,proposal_origin:null},position:safePosition(position)}};
+    return {commandId:'create-'+operationId,payload:{item:{id:operationId,kind:role==='character'?'character':'note',title:String(title).trim(),content:'',
+      group:'Narrative Architecture',architecture_role:role==='character'?'other':role,proposal_origin:null},position:safePosition(position)}};
   }
   global.AuteurStudioUnfolding={projectLocalSuggestions:projectLocalSuggestions,buildAdoptionCommand:buildAdoptionCommand,
     buildManualAnchorCommand:buildManualAnchorCommand};

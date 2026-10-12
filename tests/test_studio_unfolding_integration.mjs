@@ -92,3 +92,10 @@ test('manual first anchor is an explicit working item with no inferred source',(
  assert.ok(!('canonical' in c.payload.item));
  assert.throws(()=>buildManualAnchorCommand('canon','bad','id',{x:1,y:1}),/role/i);
 });
+
+test('author can start from a character without falsely classifying it as an emotion',()=>{
+ const cmd=buildManualAnchorCommand('character','Eira the healer','manual-character',{x:25,y:40});
+ assert.equal(cmd.payload.item.kind,'character');
+ assert.equal(cmd.payload.item.architecture_role,'other');
+ assert.equal(cmd.payload.item.proposal_origin,null);
+});
