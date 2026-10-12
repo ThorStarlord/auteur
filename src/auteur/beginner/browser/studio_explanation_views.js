@@ -11,7 +11,7 @@
   function semanticButton(parent,link,projection,onNavigate){
     var target=api.resolve(projection,link.targetFacet,link.targetKey,projection.requestSha);
     if(!target)return;
-    var button=el('button','studio-semantic-link','Explore '+target.title+' · '+link.relationVerb);
+    var button=el('button','studio-semantic-link','Explore '+target.title+' · '+link.relationVerb+' ('+(target.role||'story proposal')+')');
     button.type='button';button.setAttribute('data-semantic-link',link.id);
     button.addEventListener('click',function(){onNavigate(link);});
     parent.append(button);

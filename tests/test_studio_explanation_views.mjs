@@ -41,3 +41,12 @@ test('buttons call navigation only on explicit click, not render',()=>{
  assert.ok(buttons.length>1);
  buttons[0].events.click();assert.equal(navigations,1);
 });
+
+test('contract phrases and graph trope nodes are visibly distinguished in links',()=>{
+ const src={...c,links:[{source:'g',target:'t',function:'supports'},...c.links]};
+ const p=window.AuteurStudioExplanations.project(src,'sha-demo',null);
+ const root=new Element();views.renderGenre(root,p,'genre:g',()=>{},()=>{});
+ const labels=[];function visit(el){if(el.tag==='button'&&el.className.includes('studio-semantic-link'))labels.push(el.textContent);el.children.forEach(visit);}visit(root);
+ assert.ok(labels.some(x=>x.includes('contract function')),labels.join(' || '));
+ assert.ok(labels.some(x=>x.includes('node')),labels.join(' || '));
+});
