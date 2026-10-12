@@ -23,6 +23,31 @@ from .persistence import (
 )
 
 ItemKind = Literal["note", "character", "scene", "place", "question"]
+ArchitectureRole = Literal[
+    "emotion", "trope", "structure", "genre", "premise", "theme", "conflict",
+    "setting", "relationship", "other"
+]
+
+
+class ProposalOrigin(BaseModel):
+    """Attribution to a noncanonical, source-revision-scoped candidate."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    request_sha: str = Field(min_length=64, max_length=64, pattern=r"^[a-f0-9]{64}$")
+    source_ref: str = Field(min_length=1, max_length=300, pattern=r"^[a-zA-Z0-9_./:-]+$")
+    source_kind: Literal[
+        "architecture_proposal", "genre_contract", "proposal_edge", "phase",
+        "host_agent_suggestion"
+    ]
+    focus_id: str = Field(min_length=1, max_length=120, pattern=r"^[a-zA-Z0-9][a-zA-Z0-9_.:-]*$")
+
+    @model_validator(mode="after")
+    def valid_source_ref(self) -> "ProposalOrigin":
+        if any(segment in {".", ".."} for segment in self.source_ref.split("/")):
+            raise ValueError("proposal source path traversal is not allowed")
+        return self
+
 
 
 class CanvasItem(BaseModel):
@@ -36,6 +61,8 @@ class CanvasItem(BaseModel):
     scene_intent: str = Field(default="", max_length=4000)
     quick_draft_session_id: str = Field(default="", max_length=120)
     group: str = Field(default="", max_length=80)
+    architecture_role: ArchitectureRole | None = None
+    proposal_origin: ProposalOrigin | None = None
 
 
 class CanvasConnection(BaseModel):
@@ -97,6 +124,13 @@ class WorkingCanvas(BaseModel):
             raise ValueError("canvas connection references missing or identical nodes")
         if any(key != tombstone.item.id for key, tombstone in self.deleted.items()):
             raise ValueError("deleted item identity mismatch")
+        origins = [
+            (item.proposal_origin.request_sha, item.proposal_origin.source_ref,
+             item.proposal_origin.focus_id)
+            for item in self.items if item.proposal_origin is not None
+        ]
+        if len(origins) != len(set(origins)):
+            raise ValueError("duplicate adopted proposal origin")
         return self
 
 
@@ -135,13 +169,15 @@ class CanvasStore:
 
     def apply(self, action: str, *, expected_revision: int, command_id: str, payload: dict) -> WorkingCanvas:
         if action not in {"create-item", "update-item", "delete-item", "restore-item",
-                          "connect", "disconnect", "move-item", "replace-working-document"}:
+                          "connect", "disconnect", "move-item", "replace-working-document",
+                          "adopt-suggestion"}:
             raise ValueError("unsupported working canvas command")
         _safe_segment(command_id, "command_id")
         if len(command_id) > 80 or not isinstance(payload, dict):
             raise ValueError("invalid canvas command")
         required_keys = {
             "create-item": {"item", "position"},
+            "adopt-suggestion": {"item", "position"},
             "update-item": {"item"},
             "delete-item": {"item_id"},
             "restore-item": {"item_id"},
@@ -188,6 +224,25 @@ class CanvasStore:
                 raw["connections"] = payload["connections"]
                 raw["positions"] = payload["positions"]
                 raw["viewport"] = CanvasViewport.model_validate(payload["viewport"], strict=True).model_dump()
+            elif action == "adopt-suggestion":
+                # Explicit atomic adoption of a provenance-bound *working* idea.
+                if set(payload) != {"item", "position"}:
+                    raise ValueError("adoption requires exactly item and position")
+                item = CanvasItem.model_validate(payload["item"], strict=True)
+                position = CanvasPosition.model_validate(payload["position"], strict=True)
+                if item.architecture_role is None or item.proposal_origin is None:
+                    raise ValueError("adoption requires source-bound working architecture metadata")
+                if item.id in active or item.id in deleted:
+                    raise ValueError("working item already exists")
+                origin = item.proposal_origin
+                for previous in [*items, *(value["item"] for value in deleted.values())]:
+                    earlier = previous.get("proposal_origin")
+                    if earlier and (earlier["request_sha"], earlier["source_ref"], earlier["focus_id"]) == (
+                        origin.request_sha, origin.source_ref, origin.focus_id
+                    ):
+                        raise ValueError("suggestion already adopted; restore or edit the original")
+                items.append(item.model_dump())
+                positions[item.id] = position.model_dump()
             elif action == "create-item":
                 item = CanvasItem.model_validate(payload["item"], strict=True)
                 position = CanvasPosition.model_validate(payload["position"], strict=True)
