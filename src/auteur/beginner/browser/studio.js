@@ -389,6 +389,7 @@
       (state.architectureRequestSha || "unknown") + " / " + original.id + ". Not accepted." };
     state.items.push(copy); state.positions[copy.id] = availablePosition();
     state.selected = copy.id; state.selectedCandidate = null;
+    state.workspace = "realization"; state.lastRealizationView = "create";
     state.view = "create"; $("layer-view").value = "create";
     render(); rememberFocus(); queueSave();
     status("Copied as editable working note. Original agent proposal remains available.");
@@ -723,7 +724,9 @@
       content: "", group: state.focusGroup };
     state.items.push(item);
     state.positions[item.id] = pos;
-    state.selected = item.id; state.selectedDerived = null; state.view = "create"; $("layer-view").value = "create";
+    state.selected = item.id; state.selectedDerived = null;
+    state.workspace = "realization"; state.lastRealizationView = "create";
+    state.view = "create"; $("layer-view").value = "create";
     render();
     $("title").focus();
     rememberFocus();
@@ -953,9 +956,15 @@
     });
   }
   function renderInspector() {
-    var source = state.derived && state.derived.nodes.find(function (n) { return n.id === state.selectedDerived; });
-    var proposal = state.view === "architecture" ? candidateNode(state.selectedCandidate) : null;
-    var concrete = state.view === "realization_candidates" ? realizationElement(state.selectedRealization) : null;
+    var source = state.workspace === "realization" && state.derived &&
+      state.derived.nodes.find(function (n) { return n.id === state.selectedDerived; });
+    if (source && (!visibleDerived(source) || !matches(source))) source = null;
+    var proposal = state.workspace === "architecture" && state.view === "architecture"
+      ? candidateNode(state.selectedCandidate) : null;
+    if (proposal && !candidateVisible(proposal)) proposal = null;
+    var concrete = state.workspace === "realization" && state.view === "realization_candidates"
+      ? realizationElement(state.selectedRealization) : null;
+    if (concrete && !realizationVisible(concrete)) concrete = null;
     $("source-detail").hidden = !source && !proposal && !concrete;
     $("realization-copy").hidden = !concrete;
     $("realization-inspect").hidden = !concrete;
@@ -966,7 +975,7 @@
     $("candidate-focus").hidden = !proposal;
     $("genre-contract-detail").replaceChildren();
     $("genre-contract-detail").hidden = true;
-    $("book-orientation").hidden = state.view !== "book";
+    $("book-orientation").hidden = state.workspace !== "realization" || state.view !== "book";
     if (concrete) {
       $("inspector-empty").hidden = true; $("inspector-fields").hidden = true;
       $("genre-contract-detail").hidden = true;
@@ -1064,9 +1073,14 @@
       });
       return;
     }
-    var item = selected();
+    var item = state.workspace === "realization" ? selected() : null;
+    if (item && !visibleWorking(item)) item = null;
     $("inspector-empty").hidden = !!item;
     $("inspector-fields").hidden = !item;
+    $("inspector-empty").textContent = state.workspace === "architecture"
+      ? (state.view === "genre_timeline" ? "Explore a phase in the timeline." :
+        "Choose a visible architecture component to inspect its meaning and relationships.")
+      : "Choose a visible working or source item to inspect it.";
     if (!item) return;
     $("title").value = item.title; $("group").value = item.group || ""; $("kind").value = item.kind; $("content").value = item.content;
     $("write").hidden = item.kind !== "scene";
