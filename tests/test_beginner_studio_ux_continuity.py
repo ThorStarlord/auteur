@@ -39,6 +39,14 @@ def test_focus_restoration_does_not_serialize_facet_as_story_content():
     assert 'state.facetHistory = state.facetHistory.filter(function (old)' in js
 
 
+def test_realization_graph_surface_still_fills_work_area():
+    css = (BROWSER / "studio.css").read_text(encoding="utf-8")
+    html = (BROWSER / "studio.html").read_text(encoding="utf-8")
+    assert 'id="architecture-work-area"' in html
+    assert 'class="architecture-main-surface"' in html
+    assert re.search(r"\.architecture-main-surface\s*\{[^}]*\bflex\s*:\s*1\s*;", css)
+
+
 def test_http_studio_assets_expose_architecture_controls_without_duplicate_ids(tmp_path):
     server = BeginnerWorkspaceServer(tmp_path, port=0)
     thread = server.start_in_thread()
