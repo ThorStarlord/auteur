@@ -7,7 +7,7 @@
   state.architecture = null; state.candidatePositions = {}; state.selectedCandidate = null;
   state.architectureFocus = ""; state.architectureCenter = null;
   state.architectureFacet = "overview"; state.facetSelection = null; state.facetHistory = [];
-  state.selectedPhase = null;
+  state.selectedPhase = null; state.lastWorkingSelection = null;
   state.architectureRequestSha = null; state.architectureReview = null;
   state.workspace = "architecture"; state.lastRealizationView = "create";
   state.realization = null; state.realizationRequestSha = null;
@@ -67,7 +67,7 @@
         candidate: state.selectedCandidate, realization: state.selectedRealization, scope: state.architectureFocus,
         neighborhood: state.architectureCenter,
         facet: state.architectureFacet, facetSelection: state.facetSelection,
-        phase: state.selectedPhase,
+        phase: state.selectedPhase, search: $("find-nodes").value,
         editorOpen: open, expanded: open && $("scene-panel").classList.contains("expanded"),
         caret: field.selectionStart || 0
       }));
@@ -91,9 +91,11 @@
       (state.view === "genre_timeline" ? "timeline" : "overview");
     state.facetSelection = typeof saved.facetSelection === "string" ? saved.facetSelection : null;
     state.selectedPhase = typeof saved.phase === "string" ? saved.phase : null;
+    $("find-nodes").value = typeof saved.search === "string" ? saved.search : "";
     if (state.workspace === "architecture") state.view = state.architectureFacet === "timeline"
       ? "genre_timeline" : "architecture";
     if (state.items.some(function (item) { return item.id === saved.selected; })) state.selected = saved.selected;
+    state.lastWorkingSelection = state.selected;
     if (["create", "relationships", "all"].includes(state.view) && !visibleWorking(selected())) {
       state.view = "create"; state.focusGroup = "";
     }
@@ -142,6 +144,14 @@
       state.selectedPhase = null;
     state.architectureReview = projection.review || null;
     if (state.architectureCenter && !candidateNode(state.architectureCenter)) state.architectureCenter = null;
+    if (state.selectedCandidate && !candidateNode(state.selectedCandidate)) state.selectedCandidate = null;
+    if (state.facetSelection && !architectureFacetEntries(state.architectureFacet).some(function (e) {
+      return e.key === state.facetSelection;
+    })) state.facetSelection = null;
+    state.facetHistory = state.facetHistory.filter(function (old) {
+      return (!old.nodeId || candidateNode(old.nodeId)) &&
+        (!old.key || architectureFacetEntries(old.facet).some(function (e) { return e.key === old.key; }));
+    });
     state.architectureRequestSha = projection.candidate_request_sha256;
     state.candidatePositions = {};
     if (state.architecture) {
@@ -425,6 +435,7 @@
     remote.savedSnapshot = JSON.stringify(snapshot());
     var focus = restoreFocus();
     if (!focus) $("layer-view").value = state.view;
+    state.lastWorkingSelection = state.selected;
     if (visionItem() && visionItem().content.trim()) $("vision-disclosure").open = false;
     render();
     if (focus && focus.editorOpen && selected() && selected().kind === "scene") {
@@ -1067,7 +1078,7 @@
         if (!other) return;
         var button = document.createElement("button"); button.type = "button"; button.className = "facet-link";
         button.textContent = (edge.function || "Related") + " → " + other.title;
-        button.addEventListener("click", function () { chooseCandidate(other.id); });
+        button.addEventListener("click", function () { visitFacet("overview", null, other.id); });
         related.appendChild(button);
       });
       var contract = (state.architecture.genre_contracts || []).find(function (genre) {
@@ -1080,22 +1091,42 @@
           var h = document.createElement("h4"); h.textContent = title; detail.appendChild(h);
           var p = document.createElement("p"); p.textContent = content; detail.appendChild(p);
         }
+        function jump(label, facet, key, nodeId) {
+          var button = document.createElement("button"); button.type = "button";
+          button.className = "facet-link"; button.textContent = label;
+          button.addEventListener("click", function () { visitFacet(facet, key, nodeId); });
+          detail.appendChild(button);
+        }
         section("Role", contract.role);
         contract.emotion_target_ids.forEach(function (id) {
           var target = (state.architecture.emotion_targets || []).find(function (e) { return e.id === id; });
-          if (target) section("Basic emotion · " + target.emotion,
-            target.intended_effect + " (" + target.role + ", " + target.provenance + "). " +
-            "Narrative condition: " + target.eliciting_condition +
-            ". Aesthetic strategy: " + target.aesthetic_strategy);
+          if (target) {
+            section("Basic emotion · " + target.emotion,
+              target.intended_effect + " (" + target.role + ", " + target.provenance + "). " +
+              "Narrative condition: " + target.eliciting_condition +
+              ". Aesthetic strategy: " + target.aesthetic_strategy);
+            jump("Explore emotion: " + target.emotion, "emotions", "emotion:" + id, null);
+          }
         });
         contract.complex_emotion_ids.forEach(function (id) {
           var emotion = (state.architecture.complex_emotions || []).find(function (e) { return e.id === id; });
-          if (emotion) section("Complex emotion · " + emotion.title,
-            emotion.basic_emotions.join(" + ") + ": " + emotion.context);
+          if (emotion) {
+            section("Complex emotion · " + emotion.title,
+              emotion.basic_emotions.join(" + ") + ": " + emotion.context);
+            jump("Explore composition: " + emotion.title, "emotions", "complex:" + id, null);
+          }
         });
         section("Trope functions", contract.trope_functions.join(" · "));
+        contract.trope_functions.forEach(function (trope, index) {
+          jump("Explore trope function: " + trope, "tropes",
+            "trope:" + proposal.id + ":" + index, null);
+        });
         section("Narrative engine", contract.narrative_engine);
+        if (contract.narrative_engine) jump("Explore narrative engine", "structure",
+          "structure:" + proposal.id + ":0", null);
         section("Structural pattern", contract.structural_pattern);
+        if (contract.structural_pattern) jump("Explore structural pattern", "structure",
+          "structure:" + proposal.id + ":1", null);
         section("Aesthetic strategies", contract.aesthetic_strategies.join(" · "));
         section("Payoff expectations", contract.payoff_expectations.join(" · "));
         (state.architecture.genre_interactions || []).filter(function (link) {
@@ -1108,7 +1139,7 @@
           if (other) {
             var button = document.createElement("button"); button.type = "button";
             button.className = "facet-link"; button.textContent = "Inspect interacting genre: " + other.title;
-            button.addEventListener("click", function () { chooseCandidate(other.id); });
+            button.addEventListener("click", function () { visitFacet("genres", null, other.id); });
             related.appendChild(button);
           }
         });
@@ -1228,10 +1259,16 @@
     if (next === state.workspace) return;
     if (next === "architecture") {
       if (!$("scene-panel").hidden) { captureScene(); concealScene(); scheduleSave(); }
-      if (state.workspace === "realization") state.lastRealizationView = state.view;
+      if (state.workspace === "realization") {
+        state.lastRealizationView = state.view;
+        if (state.selected) state.lastWorkingSelection = state.selected;
+      }
       state.view = state.architectureFacet === "timeline" ? "genre_timeline" : "architecture";
     } else {
       state.view = state.lastRealizationView || "create";
+      if (!state.selected && state.items.some(function (item) {
+        return item.id === state.lastWorkingSelection;
+      })) state.selected = state.lastWorkingSelection;
     }
     state.workspace = next;
     $("layer-view").value = state.view;
@@ -1382,12 +1419,15 @@
     });
   }
   function visitFacet(facet, key, nodeId) {
-    state.facetHistory.push({facet:state.architectureFacet, key:state.facetSelection, nodeId:state.selectedCandidate});
+    state.facetHistory.push({facet:state.architectureFacet, key:state.facetSelection,
+      nodeId:state.selectedCandidate, search:$("find-nodes").value,
+      scope:state.architectureFocus, center:state.architectureCenter, phase:state.selectedPhase});
     if (state.facetHistory.length > 12) state.facetHistory.shift();
     state.architectureFacet = facet; state.facetSelection = key || null;
     if (facet === "timeline" && key && key.startsWith("phase:")) state.selectedPhase = key.slice(6);
     state.selectedCandidate = nodeId || null; state.architectureCenter = null;
     state.architectureFocus = ""; $("architecture-scope").value = "";
+    if (nodeId && candidateNode(nodeId) && !matches(candidateNode(nodeId))) $("find-nodes").value = "";
     state.view = facet === "timeline" ? "genre_timeline" : "architecture";
     $("layer-view").value = state.view; render(); rememberFocus();
   }
@@ -1954,6 +1994,10 @@
     var old = state.facetHistory.pop(); if (!old) return;
     state.architectureFacet = old.facet; state.facetSelection = old.key;
     state.selectedCandidate = old.nodeId;
+    state.architectureFocus = old.scope || ""; $("architecture-scope").value = state.architectureFocus;
+    state.architectureCenter = old.center || null;
+    state.selectedPhase = old.phase || null;
+    $("find-nodes").value = old.search || "";
     state.view = state.architectureFacet === "timeline" ? "genre_timeline" : "architecture";
     $("layer-view").value = state.view; render(); rememberFocus();
   });
