@@ -250,3 +250,34 @@ body.scene-docked #inspector { display:none; }
   padding:3px 6px; color:var(--emotion-text); }
 .timeline-phase .timeline-purpose { font-size:.81rem; }
 .timeline-phase .timeline-trope { color:var(--trope-text); font-size:.78rem; }
+
+/* One explanatory hero per Architecture facet, retaining the actual graph in Overview. */
+.studio.studio-explanation-full { grid-template-columns:minmax(0,1fr); }
+.studio-explanatory-hero { flex:1; min-height:420px; background:#fffefd; padding:24px clamp(14px,3vw,42px); }
+.studio-explanation-title { font:600 clamp(1.35rem,2.3vw,2.1rem)/1.23 Georgia,serif; margin:8px 0; }
+.studio-explanation-label { font-size:.69rem; letter-spacing:.1em; text-transform:uppercase; color:#697480; font-weight:750; }
+.studio-explanation-note { color:#68717b; font-size:.84rem; overflow-wrap:anywhere; }
+.studio-explanation-card,.studio-explanation-feature,.studio-explanation-warning {
+  border:1px solid #d5dee5; border-radius:11px; padding:15px 17px; margin:12px 0; background:#fff;
+}
+.studio-explanation-feature { background:#eaf4ef; border-color:#c8dfd3; }
+.studio-explanation-warning { background:#fff2e4; border-color:#e9d3ba; }
+.studio-explanation-comparison { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.studio-explanation-card h3 { font:600 1.1rem Georgia,serif; }
+.studio-explanation-related { margin:18px 0; border-top:1px solid #e1ded6; padding-top:14px; }
+.studio-semantic-link { display:inline-flex; margin:5px 7px 5px 0; color:#594377; background:#fff;
+  border:1px solid #bfa7d3; text-align:left; text-decoration:underline; overflow-wrap:anywhere; }
+.studio-semantic-link:focus-visible,.studio-semantic-trail button:focus-visible {
+  outline:3px solid #2d705a; outline-offset:2px; }
+.studio-explanation-mechanism { border:1px solid #d0dfe2; background:#f5fafb; border-radius:10px;
+  padding:12px; margin:9px 0; display:flex; flex-wrap:wrap; align-items:center; gap:9px; }
+.studio-explanation-inspect { background:#faf7fe; margin-top:12px; font-size:.84rem; }
+.studio-semantic-trail,.studio-semantic-arrival { background:#f8f5fc; padding:10px 16px;
+  display:flex; flex-wrap:wrap; gap:8px; align-items:center; font-size:.8rem; overflow-wrap:anywhere; }
+.studio-semantic-arrival { border-left:3px solid #8c6fa7; display:block; }
+.studio-semantic-arrival p { margin:0 0 4px; font-weight:650; }
+@media(max-width:700px) {
+  .studio-explanatory-hero { padding:16px; }
+  .studio-explanation-comparison { grid-template-columns:1fr; }
+  .studio-semantic-link { display:block; width:100%; margin:5px 0; }
+}

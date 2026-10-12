@@ -8,6 +8,7 @@
   state.architectureFocus = ""; state.architectureCenter = null;
   state.architectureFacet = "overview"; state.facetSelection = null; state.facetHistory = [];
   state.selectedPhase = null; state.lastWorkingSelection = null;
+  state.explanationArrival = null; state.explanationInspectRequested = false;
   state.architectureRequestSha = null; state.architectureReview = null;
   state.workspace = "architecture"; state.lastRealizationView = "create";
   state.realization = null; state.realizationRequestSha = null;
@@ -138,6 +139,10 @@
     picker.value = state.architectureFocus;
   }
   function applyArchitectureProjection(projection, openGraph) {
+    if (state.architectureRequestSha && state.architectureRequestSha !== projection.candidate_request_sha256) {
+      state.facetHistory = []; state.explanationArrival = null; state.explanationInspectRequested = false;
+      state.facetSelection = null;
+    }
     state.architecture = projection.candidate;
     if (state.selectedPhase && (!state.architecture ||
         !state.architecture.phases.some(function (p) { return p.id === state.selectedPhase; })))
@@ -1276,6 +1281,9 @@
   }
 
   // Read-only, source-scoped projections. No new trope/structure identity is created.
+  function explanationActive() {
+    return state.workspace === "architecture" && ["genres", "tropes", "structure"].includes(state.architectureFacet);
+  }
   function architectureFacetEntries(facet) {
     var a = state.architecture;
     if (!a) return [];
@@ -1386,7 +1394,7 @@
     Array.prototype.forEach.call(document.querySelectorAll("[data-architecture-facet]"), function (button) {
       button.setAttribute("aria-pressed", String(button.dataset.architectureFacet === state.architectureFacet));
     });
-    $("architecture-facet-back").hidden = !state.facetHistory.length;
+    $("architecture-facet-back").hidden = explanationActive() || !state.facetHistory.length;
     var list = $("architecture-facet-list"); list.replaceChildren();
     var entries = architectureFacetEntries(state.architectureFacet);
     $("architecture-facet-hint").textContent = state.architectureFacet === "overview"
@@ -1405,6 +1413,11 @@
       var kind = document.createElement("small"); kind.textContent = entry.kind;
       b.append(name, kind);
       b.addEventListener("click", function () {
+        if (explanationActive()) {
+          state.facetSelection = entry.key; state.selectedCandidate = null;
+          state.explanationArrival = null; state.explanationInspectRequested = false;
+          render(); rememberFocus(); return;
+        }
         if (state.architectureFacet === "timeline" && entry.phaseId) state.selectedPhase = entry.phaseId;
         if (entry.nodeId) {
           state.facetSelection = null;
@@ -1418,10 +1431,21 @@
       list.appendChild(b);
     });
   }
-  function visitFacet(facet, key, nodeId) {
+  function visitFacet(facet, key, nodeId, semanticLink) {
     state.facetHistory.push({facet:state.architectureFacet, key:state.facetSelection,
       nodeId:state.selectedCandidate, search:$("find-nodes").value,
-      scope:state.architectureFocus, center:state.architectureCenter, phase:state.selectedPhase});
+      scope:state.architectureFocus, center:state.architectureCenter, phase:state.selectedPhase,
+      arrival:state.explanationArrival, inspected:state.explanationInspectRequested,
+      returnLinkId:semanticLink ? semanticLink.id : null});
+    state.explanationArrival = null; state.explanationInspectRequested = false;
+    if (semanticLink) {
+      var projector = window.AuteurStudioExplanations;
+      var sourceProjection = projector.project(state.architecture,state.architectureRequestSha,null);
+      var source = projector.resolve(sourceProjection,semanticLink.fromFacet,semanticLink.fromKey,state.architectureRequestSha);
+      var destination = projector.resolve(sourceProjection,semanticLink.targetFacet,semanticLink.targetKey,state.architectureRequestSha);
+      if (source && destination) state.explanationArrival = {from:source.title,to:destination.title,
+        verb:semanticLink.relationVerb,sourceRef:semanticLink.sourceRef,status:semanticLink.supportStatus};
+    }
     if (state.facetHistory.length > 12) state.facetHistory.shift();
     state.architectureFacet = facet; state.facetSelection = key || null;
     if (facet === "timeline" && key && key.startsWith("phase:")) state.selectedPhase = key.slice(6);
@@ -1589,6 +1613,98 @@
         host.appendChild(li);
       });
   }
+  function restoreFacetHistory(index) {
+    var old = state.facetHistory[index]; if (!old) return;
+    state.facetHistory = state.facetHistory.slice(0,index);
+    state.architectureFacet = old.facet; state.facetSelection = old.key;
+    state.selectedCandidate = old.nodeId;
+    state.architectureFocus = old.scope || ""; $("architecture-scope").value = state.architectureFocus;
+    state.architectureCenter = old.center || null; state.selectedPhase = old.phase || null;
+    $("find-nodes").value = old.search || "";
+    state.explanationArrival = old.arrival || null;
+    state.explanationInspectRequested = !!old.inspected;
+    state.view = state.architectureFacet === "timeline" ? "genre_timeline" : "architecture";
+    $("layer-view").value = state.view; render(); rememberFocus();
+    if (old.returnLinkId) {
+      var links = document.querySelectorAll("[data-semantic-link]");
+      Array.prototype.forEach.call(links,function(button) {
+        if (button.getAttribute("data-semantic-link") === old.returnLinkId) button.focus();
+      });
+    }
+  }
+  function renderStudioExplanation() {
+    var host = $("studio-explanatory-hero"), trail = $("studio-semantic-trail");
+    var arrival = $("studio-semantic-arrival");
+    var active = explanationActive();
+    host.hidden = !active; trail.hidden = !active || !state.facetHistory.length;
+    arrival.hidden = !active || !state.explanationArrival;
+    $("inspector").hidden = active && !state.explanationInspectRequested;
+    document.querySelector(".studio").classList.toggle("studio-explanation-full", active && !state.explanationInspectRequested);
+    if (!active) return;
+    host.replaceChildren(); trail.replaceChildren(); arrival.replaceChildren();
+    var projector = window.AuteurStudioExplanations, views = window.AuteurStudioExplanationViews;
+    if (!state.architecture || !projector || !views) {
+      var noData = document.createElement("p"); noData.className = "muted";
+      noData.textContent = "Develop a working architecture proposal to explore its narrative meaning.";
+      host.appendChild(noData); return;
+    }
+    var projection = projector.project(state.architecture,state.architectureRequestSha,null);
+    var facet = state.architectureFacet, list = projection[facet] || [];
+    var key = state.facetSelection && projector.resolve(projection,facet,state.facetSelection,state.architectureRequestSha)
+      ? state.facetSelection : (list.length ? list[0].key : null);
+    if (state.facetSelection && state.facetSelection !== key) {
+      state.facetSelection = null; state.explanationArrival = null;
+      state.explanationInspectRequested = false;
+    }
+    function onNavigate(link) {
+      if (link.requestSha !== state.architectureRequestSha ||
+          !projector.resolve(projection,link.targetFacet,link.targetKey,state.architectureRequestSha) ||
+          !projector.linksFor(projection,{facet:facet,key:key}).some(function(l) { return l.id === link.id; })) {
+        status("Semantic source changed or is unavailable. Refresh the working architecture.");
+        return;
+      }
+      visitFacet(link.targetFacet,link.targetKey,null,link);
+    }
+    function onInspect(entry) {
+      if (!entry || !projector.resolve(projection,facet,entry.key,state.architectureRequestSha)) return;
+      state.facetSelection = entry.key; state.explanationInspectRequested = true;
+      $("inspector").hidden = false;
+      document.querySelector(".studio").classList.remove("studio-explanation-full");
+      renderInspector(); rememberFocus();
+      $("inspector").scrollIntoView({block:"nearest"});
+    }
+    var presenter = {genres:views.renderGenre,tropes:views.renderTrope,structure:views.renderStructure}[facet];
+    if (presenter) presenter(host,projection,key,onNavigate,onInspect);
+    var len = state.facetHistory.length, show = state.facetHistory.slice(-3);
+    if (len) {
+      var back = document.createElement("button"); back.type = "button";
+      back.textContent = "← Previous context"; back.addEventListener("click",function(){restoreFacetHistory(state.facetHistory.length-1);});
+      trail.appendChild(back);
+      if (len > 3) {
+        var earlier = document.createElement("details"), summary = document.createElement("summary");
+        summary.textContent = "Earlier ("+(len-3)+")"; earlier.appendChild(summary);
+        state.facetHistory.slice(0,-3).forEach(function(old,i) {
+          var b = document.createElement("button"); b.type = "button";
+          b.textContent = old.facet + (old.key ? " · "+old.key : "");
+          b.addEventListener("click",function(){restoreFacetHistory(i);});earlier.appendChild(b);
+        });trail.appendChild(earlier);
+      }
+      show.forEach(function(old,i) {
+        var b = document.createElement("button"); b.type = "button";
+        var oldProjectionEntry = projector.resolve(projection,old.facet,old.key,state.architectureRequestSha);
+        b.textContent = oldProjectionEntry ? oldProjectionEntry.title : old.facet;
+        b.addEventListener("click",function(){restoreFacetHistory(len-show.length+i);});trail.appendChild(b);
+      });
+    }
+    if (state.explanationArrival) {
+      var context = document.createElement("p");
+      context.textContent = "From “"+state.explanationArrival.from+"” → "+state.explanationArrival.verb+
+        " → “"+state.explanationArrival.to+"” · Source-backed proposal, not accepted story.";
+      var source = document.createElement("small"); source.className = "muted";
+      source.textContent = "Source: "+state.explanationArrival.sourceRef;
+      arrival.append(context,source);
+    }
+  }
   function render() {
     var designing = state.workspace === "architecture";
     $("architecture-context").hidden = !designing;
@@ -1622,7 +1738,7 @@
     renderEmotionalOverview();
     renderFacetList();
     $("architecture-clear-focus").hidden = state.view !== "architecture" || !state.architectureCenter;
-    $("viewport").hidden = state.view === "genre_timeline";
+    $("viewport").hidden = state.view === "genre_timeline" || explanationActive();
     $("genre-timeline").hidden = state.view !== "genre_timeline";
     renderTimeline();
     renderGroups();
@@ -1728,7 +1844,7 @@
         host.appendChild(button);
       });
     }
-    drawEdges(); renderInspector(); renderOutline(); showVision(); transform();
+    drawEdges(); renderStudioExplanation(); renderInspector(); renderOutline(); showVision(); transform();
   }
   // Keep the inspector and the working-document model in sync before focus changes.
   // This is working author material only; it cannot accept story canon.
@@ -1985,22 +2101,13 @@
   Array.prototype.forEach.call(document.querySelectorAll("[data-architecture-facet]"), function (button) {
     button.addEventListener("click", function () {
       state.facetHistory = []; state.facetSelection = null; state.selectedCandidate = null;
+      state.explanationArrival = null; state.explanationInspectRequested = false;
       state.architectureFacet = button.dataset.architectureFacet;
       state.view = state.architectureFacet === "timeline" ? "genre_timeline" : "architecture";
       $("layer-view").value = state.view; render(); rememberFocus();
     });
   });
-  $("architecture-facet-back").addEventListener("click", function () {
-    var old = state.facetHistory.pop(); if (!old) return;
-    state.architectureFacet = old.facet; state.facetSelection = old.key;
-    state.selectedCandidate = old.nodeId;
-    state.architectureFocus = old.scope || ""; $("architecture-scope").value = state.architectureFocus;
-    state.architectureCenter = old.center || null;
-    state.selectedPhase = old.phase || null;
-    $("find-nodes").value = old.search || "";
-    state.view = state.architectureFacet === "timeline" ? "genre_timeline" : "architecture";
-    $("layer-view").value = state.view; render(); rememberFocus();
-  });
+  $("architecture-facet-back").addEventListener("click", function () { restoreFacetHistory(state.facetHistory.length-1); });
   $("architecture-develop").addEventListener("click", function () { requestArchitecture(""); });
   $("architecture-refresh").addEventListener("click", loadArchitecture);
   $("architecture-revise").addEventListener("click", function () {
