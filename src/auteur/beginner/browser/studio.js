@@ -138,6 +138,9 @@
     if (!scopes.has(state.architectureFocus)) state.architectureFocus = "";
     picker.value = state.architectureFocus;
   }
+  function layoutColumns(count) {
+    return Math.max(3, Math.min(7, Math.ceil(Math.sqrt(count * 1.5))));
+  }
   function applyArchitectureProjection(projection, openGraph) {
     if (state.architectureRequestSha && state.architectureRequestSha !== projection.candidate_request_sha256) {
       if (state.facetHistory.length || state.facetSelection)
@@ -166,8 +169,9 @@
       state.architecture.nodes.slice().sort(function (a, b) {
         return categories.indexOf(a.category) - categories.indexOf(b.category) ||
           a.title.localeCompare(b.title);
-      }).forEach(function (node, i) {
-        state.candidatePositions[node.id] = { x: 40 + (i % 7) * 188, y: 40 + Math.floor(i / 7) * 100 };
+      }).forEach(function (node, i, all) {
+        var cols = layoutColumns(all.length);
+        state.candidatePositions[node.id] = { x: 40 + (i % cols) * 188, y: 40 + Math.floor(i / cols) * 100 };
       });
     }
     $("architecture-handoff").hidden = !projection.request;
@@ -211,6 +215,17 @@
     var canvasId = remote.canvasId;
     return fetch(architectureUrl()).then(apiJson).then(function (projection) {
       if (remote.canvasId === canvasId) applyArchitectureProjection(projection, false);
+    }).catch(function (error) {
+      $("architecture-status").textContent = "Architecture unavailable: " + error.message;
+    });
+  }
+  function checkArchitectureResult() {
+    var canvasId = remote.canvasId;
+    return fetch(architectureUrl()).then(apiJson).then(function (projection) {
+      if (remote.canvasId !== canvasId) return;
+      var ready = !!projection.candidate;
+      applyArchitectureProjection(projection, ready);
+      if (ready) fit();
     }).catch(function (error) {
       $("architecture-status").textContent = "Architecture unavailable: " + error.message;
     });
@@ -312,8 +327,9 @@
     state.realizationReview = projection.review || null;
     state.realizationRequestSha = projection.candidate_request_sha256;
     state.realizationPositions = {};
-    if (state.realization) state.realization.elements.forEach(function (element, i) {
-      state.realizationPositions[element.id] = {x: 40 + i % 7 * 188, y: 40 + Math.floor(i / 7) * 100};
+    if (state.realization) state.realization.elements.forEach(function (element, i, all) {
+      var cols = layoutColumns(all.length);
+      state.realizationPositions[element.id] = {x: 40 + i % cols * 188, y: 40 + Math.floor(i / cols) * 100};
     });
     $("realization-handoff").hidden = !projection.request;
     $("realization-request").value = projection.request ? JSON.stringify(projection.request, null, 2) : "";
@@ -344,6 +360,17 @@
       state.selectedRealization = null; $("layer-view").value = state.view;
     }
     render(); rememberFocus();
+  }
+  function checkRealizationResult() {
+    var canvasId = remote.canvasId;
+    return fetch(realizationUrl()).then(apiJson).then(function (projection) {
+      if (remote.canvasId !== canvasId) return;
+      var ready = !!projection.candidate;
+      applyRealizationProjection(projection, ready);
+      if (ready) fit();
+    }).catch(function (error) {
+      $("realization-status").textContent = "Cannot load Story Realization: " + error.message;
+    });
   }
   function loadRealization() {
     var canvasId = remote.canvasId;
@@ -1590,7 +1617,8 @@
         });
         li.appendChild(pick);
         var roles = (phase.genres || []).map(function (g) {
-          return g.genre + " · " + g.role.replace(/_/g, " ");
+          var genreNode = candidateNode(g.genre);
+          return (genreNode ? genreNode.title : g.genre) + " · " + g.role.replace(/_/g, " ");
         });
         var activations = phase.genre_activations || [];
         var emotions = [];
@@ -2113,7 +2141,7 @@
   });
   $("architecture-facet-back").addEventListener("click", function () { restoreFacetHistory(state.facetHistory.length-1); });
   $("architecture-develop").addEventListener("click", function () { requestArchitecture(""); });
-  $("architecture-refresh").addEventListener("click", loadArchitecture);
+  $("architecture-refresh").addEventListener("click", checkArchitectureResult);
   $("architecture-revise").addEventListener("click", function () {
     var intent = $("architecture-instruction").value.trim();
     if (!intent) { $("architecture-status").textContent = "Describe the desired revision first."; return; }
@@ -2121,7 +2149,7 @@
   });
   $("architecture-complete").addEventListener("click", submitArchitecture);
   $("realization-develop").addEventListener("click", function () { requestRealization(""); });
-  $("realization-refresh").addEventListener("click", loadRealization);
+  $("realization-refresh").addEventListener("click", checkRealizationResult);
   $("realization-revise").addEventListener("click", function () {
     var instruction = $("realization-instruction").value.trim();
     if (!instruction) { $("realization-status").textContent = "Describe the desired change first."; return; }
