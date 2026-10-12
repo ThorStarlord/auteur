@@ -74,6 +74,8 @@ The evidence does not justify a new canonical layer, an automatic Genre Pack/gen
 
 ## Separate integration handoff (not implemented by this discovery plan)
 
+The owner-approved follow-up is specified in `docs/superpowers/specs/2026-10-12-explanatory-semantic-navigation.md`, with separate executable plans for the merged prototype (`docs/superpowers/plans/2026-10-12-explanatory-semantic-navigation-prototype.md`) and the pending live Studio lineage (`docs/superpowers/plans/2026-10-12-studio-semantic-navigation-integration.md`). These plans do not claim that the live Studio is already integrated.
+
 1. **Preflight (owner: Studio integration engineer):** Resolve current `main`, PR #392 and ancestors, check for intervening UI changes/overlapping implementations, inspect a disposable exact-head Studio checkout, run focused tests in `tests/test_beginner_studio_*.py`, and record the real-browser baseline. Do not assume the 2026-10-12 draft head is still integration-current.
 2. **Data binding (read-only):** Adapt existing `studio_architecture` candidate/projection fields and `genre_packs`/legacy `genres` data through a deterministic, noncanonical source-bound read model. Reject stale/mismatched IDs. Required interfaces: `genre_id`, `source_kind`, version/hash where available, rule-strength or unknown, proposal-relative story treatment, source-local trope reference, relation verb and evidence path. No migration or mutation of `CanvasStore`/accepted Identity.
 3. **Genres hero:** Behind the existing Genres navigation, render Anatomy from actual genre sources. Missing curated coverage must visibly abstain. Preserve return-to-graph focus and source details; keep format lightweight and avoid duplicating the full genre record in every phase.
