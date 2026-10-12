@@ -134,6 +134,21 @@
           <button id="realization-complete" type="button">Validate and load realization</button>
         </details>
       </section>
+      <div id="architecture-work-area" class="architecture-work-area">
+        <aside id="architecture-facet-panel" class="architecture-facet-panel" hidden aria-label="Architecture perspectives">
+          <nav class="architecture-facets" aria-label="Explore narrative architecture">
+            <button type="button" data-architecture-facet="overview" aria-pressed="true">Overview</button>
+            <button type="button" data-architecture-facet="emotions" aria-pressed="false">Emotions</button>
+            <button type="button" data-architecture-facet="genres" aria-pressed="false">Genres</button>
+            <button type="button" data-architecture-facet="tropes" aria-pressed="false">Tropes</button>
+            <button type="button" data-architecture-facet="structure" aria-pressed="false">Structure</button>
+            <button type="button" data-architecture-facet="timeline" aria-pressed="false">Timeline</button>
+          </nav>
+          <p id="architecture-facet-hint" class="muted">Select a perspective to explore its contents and connections.</p>
+          <div id="architecture-facet-list" class="architecture-facet-list" aria-label="Components in the selected perspective"></div>
+          <button id="architecture-facet-back" type="button" hidden>Back to previous selection</button>
+        </aside>
+        <div class="architecture-main-surface">
       <div id="genre-timeline" class="genre-timeline" hidden aria-label="Proposed genre and reader-experience timeline">
         <h2>Genre and emotional composition</h2>
         <p>Working phases can overlap or change dominant genres. Order does not imply fixed chapter lengths or an accepted story contract.</p>
@@ -148,6 +163,8 @@
           <h1>What story do you want to tell?</h1>
           <p>Start anywhere. Create an idea, character or scene. Nothing becomes accepted story material here.</p>
           <button id="start" type="button">Add your first idea</button>
+        </div>
+      </div>
         </div>
       </div>
       <details id="emotional-design" class="emotional-design" hidden>
