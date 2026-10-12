@@ -11,7 +11,7 @@ class El{
 }
 function fixture(){
  const ids=['unfolding-start','unfolding-local','unfolding-ghosts','unfolding-explanation','unfolding-evidence-status',
- 'unfolding-role','unfolding-title','unfolding-create','unfolding-more'];
+ 'unfolding-role','unfolding-title','unfolding-create','unfolding-more','unfolding-author-edit'];
  const els=new Map(ids.map(id=>[id,new El(id)]));
  const doc={getElementById:id=>els.get(id),createElement:tag=>new El(tag),querySelectorAll:()=>[]};
  const win={innerWidth:1440,localStorage:{getItem(){return null},setItem(){}}};
@@ -26,7 +26,8 @@ function fixture(){
  let posted=[],saved=[],hostRequests=[],statuses=[];
  const bridge={state:()=>state,remote:()=>remote,position:()=>({x:100,y:200}),newItemId:()=>'manual-item',flush:async()=>{},
   post:async(action,command)=>{posted.push({action,command});return {revision:remote.revision+1,
-    items:[...state.items,command.payload.item],positions:{},connections:[],deleted:{}}},
+    items:action==='update-item'?state.items.map(i=>i.id===command.payload.item.id?command.payload.item:i):
+       [...state.items,command.payload.item],positions:{},connections:[],deleted:{}}},
   applySaved:doc=>{remote.revision=doc.revision;state.items=doc.items;saved.push(doc)},
   prepare:instr=>hostRequests.push(instr),status:text=>statuses.push(text),remember:()=>{}};
  const ctrl=win.AuteurStudioUnfoldingController.create(bridge);
@@ -92,4 +93,26 @@ test('mobile restricts current suggestions and leaves authored ideas intact',()=
  f.ctrl.render();
  assert.ok(f.els.get('unfolding-ghosts').children.length<=2);
  assert.equal(f.state.items.length,0);
+});
+
+
+test('an author-owned working node is editable in the same graph without losing provenance',async()=>{
+ const f=fixture();
+ f.state.items=[{id:'working',kind:'note',title:'Old working idea',content:'Editable',group:'Narrative Architecture',
+  architecture_role:'trope',proposal_origin:{request_sha:'a'.repeat(64),source_ref:'links/0',source_kind:'proposal_edge',focus_id:'g'}}];
+ f.state.unfoldingFocus={kind:'working',id:'working'};
+ f.ctrl.render();
+ const edit=f.els.get('unfolding-author-edit');assert.equal(edit.hidden,false);
+ const field=edit.children.find(x=>x.id==='unfolding-edit-title');
+ const text=edit.children.find(x=>x.id==='unfolding-edit-content');
+ assert.ok(field);assert.ok(text);
+ field.value='Reimagined generosity';text.value='Author authored meaning';
+ const save=edit.children.find(x=>x.textContent==='Save working idea');assert.ok(save);
+ await save.events.click();
+ assert.equal(f.posted.length,1);
+ assert.equal(f.posted[0].action,'update-item');
+ assert.equal(f.posted[0].command.payload.item.title,'Reimagined generosity');
+ assert.equal(f.posted[0].command.payload.item.content,'Author authored meaning');
+ assert.equal(f.posted[0].command.payload.item.proposal_origin.source_ref,'links/0');
+ assert.equal(f.saved.length,1);
 });

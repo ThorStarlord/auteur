@@ -26,8 +26,10 @@
       s.unfoldingSaving=true;
       return Promise.resolve(bridge.flush()).then(function(){
         if(remote.failed||remote.canvasId!==canvasId)throw Error('Working canvas changed or cannot save.');
-        if(sourceSha && (s.architectureRequestSha!==sourceSha || !s.unfoldingFocus || s.unfoldingFocus.id!==focusId))
-          throw Error('Suggestion focus/source became stale.');
+        if(focusId && (!s.unfoldingFocus || s.unfoldingFocus.id!==focusId))
+          throw Error('Working focus changed before save.');
+        if(sourceSha && s.architectureRequestSha!==sourceSha)
+          throw Error('Suggestion source became stale.');
         if(sourceSha && !current().some(x=>x.id===command.ghostId))throw Error('Suggestion is no longer available.');
         return bridge.post(action,command);
       }).then(function(doc){
@@ -46,6 +48,17 @@
       catch(e){bridge.status('Invalid working idea: '+e.message);return Promise.resolve();}
       return updateWorkingCommand('create-item',command);
     }
+    function editWorking(item,title,content){
+      var s=bridge.state();
+      var current=s.items.find(x=>x.id===item.id);
+      if(!current || !s.unfoldingFocus || s.unfoldingFocus.id!==item.id ||
+          typeof title!=='string'||!title.trim()||title.trim().length>120||
+          typeof content!=='string'||content.length>20000){
+        bridge.status('Working idea cannot be saved: title, length or focus is invalid.');return Promise.resolve();
+      }
+      var command={commandId:'edit-'+bridge.newItemId(),payload:{item:{...current,title:title.trim(),content:content}}};
+      return updateWorkingCommand('update-item',command,{focusId:item.id});
+    }
     function adopt(ghost){
       var s=bridge.state(),cmd;
       if(!s.unfoldingFocus||!ghost||ghost.requestSha!==s.architectureRequestSha){
@@ -57,7 +70,8 @@
     }
     function render(){
       var s=bridge.state(),start=$('unfolding-start'),host=$('unfolding-local');
-      var ghosts=$('unfolding-ghosts'),explain=$('unfolding-explanation');
+      var ghosts=$('unfolding-ghosts'),explain=$('unfolding-explanation'),edit=$('unfolding-author-edit');
+      edit.hidden=true;edit.replaceChildren();
       var active=s.workspace==='architecture'&&s.view==='architecture'&&s.architectureFacet==='overview';
       start.hidden=!active;host.hidden=true;explain.hidden=true;
       if(!active)return;
@@ -66,6 +80,18 @@
       var target=s.unfoldingFocus.kind==='candidate'?(s.architecture.nodes||[]).find(n=>n.id===s.unfoldingFocus.id):
         s.items.find(n=>n.id===s.unfoldingFocus.id);
       $('unfolding-evidence-status').textContent=target?.title||'Selected working idea';
+      if(s.unfoldingFocus.kind==='working' && target){
+        edit.hidden=false;
+        var h=document.createElement('strong');h.textContent='Edit your working idea · Not canon';
+        var name=document.createElement('input');name.id='unfolding-edit-title';
+        name.setAttribute('aria-label','Working idea title');name.maxLength=120;name.value=target.title;
+        var content=document.createElement('textarea');content.id='unfolding-edit-content';
+        content.setAttribute('aria-label','Working idea details');content.maxLength=20000;content.value=target.content||'';
+        var save=document.createElement('button');save.type='button';save.textContent='Save working idea';
+        save.disabled=s.unfoldingSaving;
+        save.addEventListener('click',function(){return editWorking(target,name.value,content.value);});
+        edit.append(h,name,content,save);
+      }
       var all=current();
       if(!all.length){var p=document.createElement('p');p.className='muted';
         p.textContent='No declared nearby proposals for this focus. Choose another concept or explicitly develop more possibilities.';
