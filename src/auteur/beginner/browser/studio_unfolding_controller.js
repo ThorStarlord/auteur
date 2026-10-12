@@ -122,7 +122,13 @@
         b.textContent=ghost.title+' · Provisional';
         var provenance=document.createElement('small');provenance.textContent=ghost.relationshipVerb+' · Source-backed proposal, not canon';
         b.appendChild(provenance);
-        b.addEventListener('click',function(){s.unfoldingInspected=ghost.id;render();});
+        b.addEventListener('click',function(){
+          s.unfoldingInspected=ghost.id;render();
+          var current=Array.prototype.find.call($('unfolding-ghosts').children,function(e){
+            return e.getAttribute && e.getAttribute('aria-pressed')==='true';
+          });
+          if(current)current.focus();
+        });
         ghosts.appendChild(b);
       });
       var selected=all.find(g=>g.id===s.unfoldingInspected);
