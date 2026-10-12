@@ -229,6 +229,10 @@ def test_http_projection_reads_and_selection_do_not_promote_canon(tmp_path):
 def test_root_serves_beginner_browser_entrypoint(tmp_path):
     with running_server(tmp_path) as server:
         with urlopen(f"{base(server)}/") as response:
+            assert response.status == 200
+            assert "Living Story Studio" in response.read().decode("utf-8")
+
+        with urlopen(f"{base(server)}/beginner.html") as response:
             body = response.read().decode("utf-8")
             assert response.status == 200
             assert response.headers["Content-Type"].startswith("text/html")

@@ -396,7 +396,7 @@ def _is_idempotency_conflict(message: str) -> bool:
 class _RequestHandler(BaseHTTPRequestHandler):
     project_root: Path
     dependencies: BeginnerRuntimeDependencies
-    studio_development_default: bool = False
+    studio_development_default: bool = True
 
     _BROWSER_ASSETS = {
         "/": "index.html",
@@ -951,7 +951,7 @@ class BeginnerWorkspaceServer:
         *,
         port: int,
         dependencies: BeginnerRuntimeDependencies | None = None,
-        studio_development_default: bool = False,
+        studio_development_default: bool = True,
     ):
         self.project_root = Path(project_root)
         self.dependencies = dependencies or default_runtime_dependencies()
@@ -993,7 +993,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--provider", choices=("openai", "anthropic"))
     parser.add_argument("--model")
     parser.add_argument("--studio-development-default", action="store_true",
-                        help="Development-only: serve experimental Studio at /, with legacy Beginner at /beginner.html")
+                        help="Kept for compatibility; Living Story Studio is now served at / by default")
+    parser.add_argument("--legacy-default", action="store_true",
+                        help="Serve the previous Beginner UI at / (it stays available at /beginner.html)")
     args = parser.parse_args(argv)
     if args.provider:
         client = build_client(args.provider, args.model)
@@ -1020,7 +1022,7 @@ def main(argv: list[str] | None = None) -> int:
         args.project,
         port=args.port,
         dependencies=dependencies,
-        studio_development_default=args.studio_development_default,
+        studio_development_default=not args.legacy_default,
     )
     print(f"Beginner workspace server on http://127.0.0.1:{server.port}")
     try:

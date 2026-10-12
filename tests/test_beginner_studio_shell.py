@@ -30,14 +30,16 @@ def test_studio_shell_is_opt_in_and_asset_allowlisted(tmp_path):
             with urlopen(base + path) as response:
                 assert response.status == 200
                 assert expected in response.read()
-        with urlopen(base + "/") as response:
+        with urlopen(base + "/beginner.html") as response:
             assert b'href="/studio.html"' in response.read()
+        with urlopen(base + "/") as response:
+            assert b"Living Story Studio" in response.read()
 
 
 def test_studio_says_content_is_not_automatically_persisted(tmp_path):
     with server_running(tmp_path) as server:
         with urlopen(f"http://127.0.0.1:{server.port}/studio.html") as response:
             html = response.read().decode("utf-8")
-        assert "not automatically saved" in html
+        assert "saved locally" in html
         assert "Export JSON" in html and "Import JSON" in html
-        assert "does not accept canon" in html
+        assert "not accepted story" in html

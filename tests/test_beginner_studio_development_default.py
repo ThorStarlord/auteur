@@ -1,7 +1,8 @@
-"""Explicit reversible development default; safe legacy route preserved.
+"""Graph-first Studio is the default; the previous Beginner stays a reversible fallback.
 
-The switch is deliberately OFF unless explicitly selected for local testing.
-Full author data safety qualification still belongs to Issue #360.
+Owner-selected default (PR #371); Stage-B essential safety exercised live in a
+browser for Issue #360. The previous Beginner remains at /beginner.html and can
+be served at / with --legacy-default.
 """
 from __future__ import annotations
 
@@ -40,10 +41,22 @@ def _run_case(tmp_path, *, studio_development_default: bool):
         assert not thread.is_alive()
 
 
-def test_existing_beginner_remains_default_without_opt_in(tmp_path):
+def test_legacy_beginner_can_still_be_served_at_root(tmp_path):
     root = _run_case(tmp_path, studio_development_default=False)
     assert b'id="app-shell"' in root
     assert b'id="viewport"' not in root
+
+
+def test_studio_is_default_without_any_flag(tmp_path):
+    server = BeginnerWorkspaceServer(tmp_path, port=0)
+    thread = server.start_in_thread()
+    try:
+        root = _get(f"http://127.0.0.1:{server.port}", "/")
+        assert b'id="viewport"' in root
+        assert b'id="app-shell"' not in root
+    finally:
+        server.stop()
+        thread.join(timeout=2)
 
 
 def test_explicit_development_switch_preserves_reversible_fallback(tmp_path):
