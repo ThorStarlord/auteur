@@ -26,7 +26,7 @@ The latest interface improves information access, navigation, color and phase su
 
 **Genre relationship:** Pack-backed hard constraint / strong default / common pattern / optional technique / intentional subversion point / boundary warning, where actually defined. For legacy genre contracts, preserve source labels (e.g. required_tropes) without silently promoting them to universal law. For missing or uncertain knowledge, show "inferred", "not classified", or "no applicable pack".
 
-**Story treatment:** proposed adoption / proposed adaptation / proposed original mechanism / proposed subversion / unresolved. These describe the **proposal's** suggested function, not an author-accepted choice. One story element may relate differently to multiple genres.
+**Story treatment:** proposed adoption / proposed adaptation / proposed story-specific mechanism / proposed subversion / unresolved. These describe the **proposal's** suggested function, not an author-accepted choice. One story element may relate differently to multiple genres.
 
 **Separate metadata:** source kind and exact locator; genre ID and pack/version/hash when available; explicit premise vs curated match vs model inference vs author-added; certainty; freshness; canonical authority. "Pack knowledge", "proposed recommendation", "author acceptance" and "compiled structure" must remain distinct.
 
@@ -35,6 +35,7 @@ The latest interface improves information access, navigation, color and phase su
 - Reuse src/auteur/genre_packs/models.py, the versioned Erotic Fiction Genre Pack, legacy src/auteur/genres/data/*.yaml, and src/auteur/story_design_packs/models.py rather than defining a rival genre ontology.
 - Reuse actual candidate/genre-contract/phase IDs and source-local field paths. A trope_functions phrase without an actual stable shared ID stays source-scoped.
 - At present the versioned built-in collection includes erotic_fiction; Progression Fantasy and Heroic Fantasy do **not** have an equivalent verified versioned pack. Do not claim pack-backed conventions for them in the pilot.
+- **Not documented** is not **not expected**, **forbidden**, or **original**. Silence or absent pack coverage cannot prove negative genre expectations or literary novelty; an exclusion requires explicit sourced evidence. "Story-specific" means distinctive within this proposal, not unprecedented in fiction.
 - Epic Fantasy's legacy contract contains tropes listed as "required"; treat this as contract data with provenance and contestable defaults, not as a literary universal.
 - A mechanism arrow may express an intended or hypothesized narrative function, not a proven psychological effect. No connecting edges purely from word similarity.
 - No new canonical semantic layer, accepted story store, automatic genre obligation, or external provider invocation is needed for the discovery prototype.
