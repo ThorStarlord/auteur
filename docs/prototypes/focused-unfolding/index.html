@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Auteur — Focused Unfolding</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="wordmark"><span class="wordmark-mark">A</span><span>AUTEUR <small>/ narrative architecture</small></span></div>
+    <div class="top-right"><span class="prototype-tag">Interactive design study</span><span class="authority-tag">Working · not canon</span></div>
+  </header>
+  <main class="shell">
+    <section class="page-lede" aria-label="Workspace introduction">
+      <div><p class="eyebrow">THE LIVING STORY · FOCUSED UNFOLDING</p><h1>Let the story unfold.</h1><p class="lede-text">Start with what matters. Explore local possibilities, understand their meaning, and decide what becomes part of your working story.</p></div>
+      <div class="stage-summary"><span class="stage-dot"></span><span>Author-directed exploration</span><small>AI suggestions are provisional</small></div>
+    </section>
+    <div class="workspace-bar" aria-label="Graph actions">
+      <div class="focus-summary"><span class="focus-eye">FOCUS</span><strong id="current-focus">Choose a starting idea</strong></div>
+      <div class="workspace-actions">
+        <button type="button" id="previous-focus" hidden>Previous focus</button>
+        <button type="button" id="edit-focus" hidden>Edit current idea</button>
+        <button type="button" id="collapse-branch" hidden>Collapse this branch</button>
+        <button type="button" id="revise-source">Simulate source revision</button>
+      </div>
+    </div>
+    <div class="layout">
+      <section class="graph-surface" aria-label="Working narrative architecture graph">
+        <div class="surface-heading"><span><span class="little-star">✦</span> Narrative architecture</span><span class="muted">Your ideas stay. Suggestions come and go.</span></div>
+        <div id="graph-stage" class="graph-stage" aria-label="Focused narrative architecture" tabindex="-1">
+          <div id="start-prompt" class="start-prompt">
+            <div class="start-icon" aria-hidden="true">✧</div>
+            <p class="eyebrow">YOUR STORY BEGINS HERE</p>
+            <h2>What should readers experience?</h2>
+            <p>Start from an emotional intention, or begin with any idea that inspires you.</p>
+            <div class="start-actions"><button type="button" id="start-emotion" class="btn-primary">Start with an emotion</button><button type="button" id="start-elsewhere">Start elsewhere</button></div>
+          </div>
+          <div id="graph-content" class="graph-content" hidden>
+            <svg id="ghost-connections" class="ghost-connections" aria-label="Hypothetical connections to current local suggestions" role="img"></svg>
+            <div class="working-zone">
+              <p class="lane-title">YOUR WORKING IDEAS</p>
+              <h2 id="focus-heading" class="focus-heading"></h2>
+              <div id="working-layer" class="working-layer"></div>
+              <div id="collapsed-indicator" class="collapsed-indicator" hidden></div>
+            </div>
+            <div class="ghost-zone">
+              <p class="lane-title">POSSIBLE NEXT DIRECTIONS <span class="lane-status">· Hypotheses</span></p>
+              <div id="ghost-layer" class="ghost-layer"></div>
+              <div class="alternatives"><button type="button" id="more-alternatives" hidden>Explore more alternatives <span aria-hidden="true">↗</span></button></div>
+            </div>
+          </div>
+          <div id="alternative-form" class="alternative-form" hidden>
+            <h2>Start with your own idea</h2>
+            <label for="anchor-role">Idea type</label>
+            <select id="anchor-role" aria-label="Idea type">
+              <option value="premise">Premise</option><option value="character">Character</option><option value="genre">Genre</option><option value="trope">Trope</option><option value="structure">Narrative structure</option><option value="setting">Setting / world</option><option value="theme">Theme</option><option value="conflict">Conflict</option><option value="relationship">Relationship</option><option value="emotion">Reader emotion</option><option value="other">Other idea</option>
+            </select>
+            <label for="anchor-title">Working idea</label>
+            <input type="text" id="anchor-title" aria-label="Working idea" maxlength="120" value="A reluctant knight must protect a village">
+            <div class="form-actions"><button type="button" id="cancel-anchor">Cancel</button><button type="button" id="create-anchor" class="btn-primary">Create working idea</button></div>
+          </div>
+          <div id="edit-form" class="alternative-form" hidden>
+            <h2>Revise working intention</h2>
+            <label for="edit-title">Revised working intention</label><input id="edit-title" type="text" maxlength="120">
+            <div class="form-actions"><button type="button" id="cancel-edit">Cancel</button><button type="button" id="save-edit" class="btn-primary">Update working idea</button></div>
+          </div>
+        </div>
+        <footer class="graph-footer"><span><span class="legend-dot working"></span> Working idea</span><span><span class="legend-dot ghost"></span> Provisional suggestion</span><span><span class="legend-dot source"></span> Attributed explanation</span><span class="footer-right">No story canon is accepted here.</span></footer>
+      </section>
+      <aside class="right-rail" aria-label="Contextual narrative explanation">
+        <section id="focus-explainer" class="explanation" hidden>
+          <p class="eyebrow">WHY THIS POSSIBILITY?</p><h2 id="explain-title"></h2>
+          <p id="explain-why" class="why"></p>
+          <div id="explain-details" class="explain-details" hidden></div>
+          <div class="source-honesty"><span class="hypothesis-dot"></span><strong>Hypothesis · not a genre rule</strong><small id="explain-source"></small></div>
+          <div class="explain-actions">
+            <button type="button" id="explore-ghost">Explore proposed meaning</button>
+            <button type="button" id="adopt-ghost" class="btn-primary">Adopt into working architecture</button>
+            <button type="button" id="dismiss-ghost">Dismiss suggestion</button>
+          </div>
+        </section>
+        <section id="focus-guide" class="focus-guide">
+          <div class="guide-icon">⌁</div>
+          <p class="eyebrow">YOUR CREATIVE COMPASS</p>
+          <h2>One idea at a time.</h2>
+          <p>Choose a provisional branch to understand its purpose. Exploring never changes your story. Only your explicit decisions become working ideas.</p>
+          <div class="guide-step"><strong>01</strong><span>Select what matters</span></div>
+          <div class="guide-step"><strong>02</strong><span>Explore why it might work</span></div>
+          <div class="guide-step"><strong>03</strong><span>Adopt, adapt, or let it go</span></div>
+        </section>
+        <section class="principle"><span aria-hidden="true">✧</span><p>“A story grows through choices, not through the volume of suggestions.”</p></section>
+      </aside>
+    </div>
+    <div id="announcement" role="status" aria-live="polite" class="announcement">The graph is ready for your creative direction.</div>
+    <div class="below-note"><strong>DESIGN STUDY</strong><span>Suggestions in this preview are illustrative, pre-authored hypotheses — not new live AI calls, verified genre requirements, or accepted story meaning.</span></div>
+  </main>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>
