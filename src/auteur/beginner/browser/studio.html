@@ -172,6 +172,29 @@
           <p>Start anywhere. Create an idea, character or scene. Nothing becomes accepted story material here.</p>
           <button id="start" type="button">Add your first idea</button>
         </div>
+        <section id="unfolding-start" class="unfolding-start" hidden aria-label="Start a working architecture idea">
+          <p class="unfolding-eyebrow">BEGIN YOUR LIVING STORY</p>
+          <h2>What should your reader experience?</h2>
+          <p>Or start anywhere. These are editable working ideas, never accepted story canon.</p>
+          <label for="unfolding-role">Start from</label>
+          <select id="unfolding-role" aria-label="Start from">
+            <option value="emotion">Reader emotion</option><option value="premise">Premise</option>
+            <option value="character">Character</option><option value="genre">Genre</option>
+            <option value="trope">Trope</option><option value="structure">Structure</option>
+            <option value="setting">Setting</option><option value="theme">Theme</option>
+            <option value="conflict">Conflict</option><option value="relationship">Relationship</option>
+            <option value="other">Other idea</option>
+          </select>
+          <label for="unfolding-title">Working intention</label>
+          <input id="unfolding-title" type="text" value="Joy through generous heroism" maxlength="120">
+          <button id="unfolding-create" type="button">Add working intention</button>
+        </section>
+        <section id="unfolding-local" class="unfolding-local" hidden aria-label="Provisional possibilities around selected concept">
+          <div class="unfolding-top"><strong>Unfold this idea</strong><small id="unfolding-evidence-status">Source-scoped suggestions</small></div>
+          <div id="unfolding-ghosts" class="unfolding-ghosts"></div>
+          <div id="unfolding-explanation" class="unfolding-explanation" hidden></div>
+          <button id="unfolding-more" type="button">Develop more possibilities</button>
+        </section>
       </div>
         </div>
       </div>
@@ -256,6 +279,7 @@
   <div class="status" id="status" role="status" aria-live="polite">Opening local working canvas...</div>
   <script src="/studio_explanations.js" defer></script>
   <script src="/studio_explanation_views.js" defer></script>
+  <script src="/studio_unfolding.js" defer></script>
   <script src="/studio.js" defer></script>
 </body>
 </html>
