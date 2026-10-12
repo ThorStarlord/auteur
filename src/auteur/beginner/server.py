@@ -28,7 +28,7 @@ from dataclasses import asdict, dataclass, is_dataclass
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, Callable
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
 
 from pydantic import ValidationError
 
@@ -51,6 +51,15 @@ from .discovery import (
 )
 from .contracts import MutationCommand
 from .persistence import BeginnerConcurrencyError, BeginnerPersistenceError
+from .studio_store import CanvasStore, list_canvas_summaries
+from .studio_architecture import (
+    apply_architecture_review, complete_architecture, prepare_architecture, project_architecture,
+)
+from .studio_realization import (
+    apply_realization_review, complete_realization, prepare_realization, project_realization,
+)
+from .studio_projection import project_studio_graph
+from .studio_impact import preview_studio_impact
 from .workspace_index import list_workspace_summaries
 from .projections import WorkspaceProjection
 from .continuation import build_contextual_chapter_plan, build_contextual_scene_plans
@@ -387,12 +396,19 @@ def _is_idempotency_conflict(message: str) -> bool:
 class _RequestHandler(BaseHTTPRequestHandler):
     project_root: Path
     dependencies: BeginnerRuntimeDependencies
+    studio_development_default: bool = False
 
     _BROWSER_ASSETS = {
         "/": "index.html",
         "/index.html": "index.html",
+        "/beginner.html": "index.html",
         "/app.js": "app.js",
         "/styles.css": "styles.css",
+        "/studio.html": "studio.html",
+        "/studio.js": "studio.js",
+        "/studio_explanations.js": "studio_explanations.js",
+        "/studio_explanation_views.js": "studio_explanation_views.js",
+        "/studio.css": "studio.css",
     }
 
     def log_message(self, format: str, *args: Any) -> None:
@@ -446,7 +462,8 @@ class _RequestHandler(BaseHTTPRequestHandler):
         )
 
     def _serve_browser_asset(self, path: str) -> bool:
-        filename = self._BROWSER_ASSETS.get(path)
+        filename = ("studio.html" if path == "/" and self.studio_development_default
+                    else self._BROWSER_ASSETS.get(path))
         if filename is None:
             return False
         asset = Path(__file__).parent / "browser" / filename
@@ -517,6 +534,56 @@ class _RequestHandler(BaseHTTPRequestHandler):
                         return
                 except (FileNotFoundError, OSError, RuntimeError) as exc:
                     raise BeginnerRequestError(422, str(exc)) from exc
+            if parts == ["api", "beginner", "studio", "impact"]:
+                artifact = parse_qs(urlparse(self.path).query).get("artifact", [None])[0]
+                if not isinstance(artifact, str) or not artifact or len(artifact) > 120:
+                    raise BeginnerRequestError(400, "artifact query must identify an existing artifact")
+                try:
+                    preview = preview_studio_impact(self.project_root, artifact)
+                except ValueError as exc:
+                    raise BeginnerRequestError(404, str(exc)) from exc
+                self._send_json(200, preview)
+                return
+            if parts == ["api", "beginner", "studio", "graph"]:
+                workspace = parse_qs(urlparse(self.path).query).get("workspace", [None])[0]
+                orientation = None
+                session_version = None
+                if workspace:
+                    try:
+                        current = self._app_for(workspace).projection()
+                    except (BeginnerPersistenceError, ValueError) as exc:
+                        raise BeginnerRequestError(404, "story workspace not found") from exc
+                    session_version = current.session_version
+                    orientation = None if current.story_orientation is None else current.story_orientation.model_dump(mode="json")
+                self._send_json(200, project_studio_graph(
+                    self.project_root, workspace_id=workspace,
+                    session_version=session_version, story_orientation=orientation,
+                ))
+                return
+            if (len(parts) == 6 and parts[:4] == ["api", "beginner", "studio", "canvases"]
+                    and parts[5] == "realization"):
+                try:
+                    self._send_json(200, project_realization(CanvasStore(self.project_root, parts[4])))
+                except FileNotFoundError as exc:
+                    raise BeginnerRequestError(404, "working canvas not found") from exc
+                return
+            if (len(parts) == 6 and parts[:4] == ["api", "beginner", "studio", "canvases"]
+                    and parts[5] == "architecture"):
+                try:
+                    self._send_json(200, project_architecture(CanvasStore(self.project_root, parts[4])))
+                except FileNotFoundError as exc:
+                    raise BeginnerRequestError(404, "working canvas not found") from exc
+                return
+            if parts == ["api", "beginner", "studio", "canvases"]:
+                self._send_json(200, {"canvases": list_canvas_summaries(self.project_root)})
+                return
+            if len(parts) == 5 and parts[:4] == ["api", "beginner", "studio", "canvases"]:
+                try:
+                    canvas = CanvasStore(self.project_root, parts[4]).load()
+                except FileNotFoundError as exc:
+                    raise BeginnerRequestError(404, "working canvas not found") from exc
+                self._send_json(200, canvas.model_dump(mode="json"))
+                return
             # GET /api/beginner/workspaces/<workspace_id>
             if len(parts) == 4 and parts[:3] == ["api", "beginner", "workspaces"]:
                 workspace_id = parts[3]
@@ -534,6 +601,67 @@ class _RequestHandler(BaseHTTPRequestHandler):
         path = urlparse(self.path).path.rstrip("/") or "/"
         try:
             parts = [part for part in path.split("/") if part]
+            if parts == ["api", "beginner", "studio", "canvases"]:
+                payload = self._read_json()
+                canvas_id = payload.get("canvas_id")
+                if not isinstance(canvas_id, str):
+                    raise BeginnerRequestError(400, "canvas_id must be a string")
+                canvas = CanvasStore(self.project_root, canvas_id).create()
+                self._send_json(201, canvas.model_dump(mode="json"))
+                return
+            if len(parts) == 7 and parts[:4] == ["api", "beginner", "studio", "canvases"] and parts[5] == "commands":
+                payload = self._read_json()
+                if type(payload.get("expected_revision")) is not int:
+                    raise BeginnerRequestError(400, "expected_revision must be an integer")
+                if not isinstance(payload.get("command_id"), str):
+                    raise BeginnerRequestError(400, "command_id must be a string")
+                if not isinstance(payload.get("payload"), dict):
+                    raise BeginnerRequestError(400, "payload must be an object")
+                try:
+                    canvas = CanvasStore(self.project_root, parts[4]).apply(
+                        parts[6], expected_revision=payload["expected_revision"],
+                        command_id=payload["command_id"], payload=payload["payload"],
+                    )
+                except FileNotFoundError as exc:
+                    raise BeginnerRequestError(404, "working canvas not found") from exc
+                self._send_json(200, canvas.model_dump(mode="json"))
+                return
+            if (len(parts) == 7 and parts[:4] == ["api", "beginner", "studio", "canvases"]
+                    and parts[5] == "realization" and parts[6] in {"prepare", "host-agent-response", "apply"}):
+                payload = self._read_json()
+                store = CanvasStore(self.project_root, parts[4])
+                try:
+                    if parts[6] == "prepare":
+                        result = prepare_realization(
+                            store, payload.get("focus_ids", []), payload.get("instruction", "")
+                        )
+                        self._send_json(202, result)
+                    elif parts[6] == "apply":
+                        self._send_json(200, apply_realization_review(
+                            store, payload.get("request_sha256")
+                        ))
+                    else:
+                        self._send_json(200, complete_realization(store, payload))
+                except FileNotFoundError as exc:
+                    raise BeginnerRequestError(404, "working canvas not found") from exc
+                return
+            if (len(parts) == 7 and parts[:4] == ["api", "beginner", "studio", "canvases"]
+                    and parts[5] == "architecture" and parts[6] in {"prepare", "host-agent-response", "apply"}):
+                payload = self._read_json()
+                store = CanvasStore(self.project_root, parts[4])
+                try:
+                    if parts[6] == "prepare":
+                        result = prepare_architecture(store, payload.get("instruction", ""))
+                        self._send_json(202, result)
+                    elif parts[6] == "apply":
+                        self._send_json(200, apply_architecture_review(
+                            store, payload.get("request_sha256")
+                        ))
+                    else:
+                        self._send_json(200, complete_architecture(store, payload))
+                except FileNotFoundError as exc:
+                    raise BeginnerRequestError(404, "working canvas not found") from exc
+                return
             if parts == ["api", "beginner", "quick-draft"]:
                 payload = self._read_json()
                 premise = payload.get("premise")
@@ -823,6 +951,7 @@ class BeginnerWorkspaceServer:
         *,
         port: int,
         dependencies: BeginnerRuntimeDependencies | None = None,
+        studio_development_default: bool = False,
     ):
         self.project_root = Path(project_root)
         self.dependencies = dependencies or default_runtime_dependencies()
@@ -832,6 +961,7 @@ class BeginnerWorkspaceServer:
             {
                 "project_root": self.project_root,
                 "dependencies": self.dependencies,
+                "studio_development_default": studio_development_default,
             },
         )
         self._httpd = ThreadingHTTPServer(("127.0.0.1", port), handler)
@@ -862,6 +992,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--port", type=int, default=0)
     parser.add_argument("--provider", choices=("openai", "anthropic"))
     parser.add_argument("--model")
+    parser.add_argument("--studio-development-default", action="store_true",
+                        help="Development-only: serve experimental Studio at /, with legacy Beginner at /beginner.html")
     args = parser.parse_args(argv)
     if args.provider:
         client = build_client(args.provider, args.model)
@@ -888,6 +1020,7 @@ def main(argv: list[str] | None = None) -> int:
         args.project,
         port=args.port,
         dependencies=dependencies,
+        studio_development_default=args.studio_development_default,
     )
     print(f"Beginner workspace server on http://127.0.0.1:{server.port}")
     try:
